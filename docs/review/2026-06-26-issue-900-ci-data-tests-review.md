@@ -11,7 +11,7 @@ Workflow: `.github/workflows/ci.yml`
 - Added `Test / Data` to run data module tests when data paths, shared CI paths, or manual dispatch trigger CI.
 - Added data coverage/test artifacts to the existing coverage aggregation and CI status dependency chain.
 
-## 7-Tier Review
+## 7-Tier 검토
 
 | Tier | Result | Evidence |
 |---|---:|---|
@@ -23,14 +23,14 @@ Workflow: `.github/workflows/ci.yml`
 | Documentation | PASS | Lesson artifact records the filter/job/summary wiring rule. |
 | Regression risk | PASS | `actionlint` and `git diff --check` pass locally; GitHub Actions PR run remains the final workflow execution proof. |
 
-## Findings
+## 발견 사항
 
 P0: 0
 P1: 0
 
 P2/P3: none requiring code changes before PR.
 
-## Validation Evidence
+## 검증 Evidence
 
 - `actionlint .github/workflows/ci.yml`
   - Result: PASS.
