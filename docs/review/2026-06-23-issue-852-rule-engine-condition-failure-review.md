@@ -1,4 +1,4 @@
-# Issue #852 Rule Engine Condition Failure Review
+# Issue #852 Rule Engine Condition Failure 검토
 
 ## Scope
 
@@ -37,7 +37,7 @@ During review, the interim broad-catch implementation also failed the sync cance
 
 Result: FAILED, 0 passing and 3 failing. The broad `Exception` catches swallowed `CancellationException` as ordinary rule failure.
 
-## Findings
+## 발견 사항
 
 | Severity | Count | Notes |
 |---|---:|---|
@@ -45,7 +45,7 @@ Result: FAILED, 0 passing and 3 failing. The broad `Exception` catches swallowed
 | P1 | 0 | Sync evaluation failures now follow the rule failure policy while `CancellationException` still propagates. |
 | P2 | 0 | Review evidence and coverage gaps were corrected before PR. |
 
-## Evidence
+## 증거
 
 | Check | Result | Evidence |
 |---|---|---|

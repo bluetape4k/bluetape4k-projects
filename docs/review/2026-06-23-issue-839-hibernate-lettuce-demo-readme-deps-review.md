@@ -1,4 +1,4 @@
-# Issue 839 Review - hibernate-lettuce demo README dependencies
+# Issue 839 검토 - hibernate-lettuce demo README dependencies
 
 ## Scope
 
