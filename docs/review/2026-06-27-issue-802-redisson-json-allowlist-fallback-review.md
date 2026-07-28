@@ -1,4 +1,4 @@
-# Issue 802 Review: Redisson JSON allow-list fallback boundary
+# Issue 802 검토: Redisson JSON allow-list fallback boundary
 
 ## Scope
 
@@ -8,7 +8,7 @@
 - Redisson codec regression tests
 - Redisson README locale pair
 
-## Findings
+## 발견 사항
 
 No P0/P1 findings.
 

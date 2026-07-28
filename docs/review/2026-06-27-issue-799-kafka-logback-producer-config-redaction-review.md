@@ -1,4 +1,4 @@
-# Local Review - Issue #799 Kafka Logback Producer Config Redaction
+# Local 검토 - Issue #799 Kafka Logback Producer Config Redaction
 
 Date: 2026-06-27
 Scope: `infra/kafka-logback`
@@ -23,7 +23,7 @@ No P0/P1 findings found in the current diff.
   diff does not add shared state, coroutine behavior, virtual threads, or
   structured task scope behavior.
 
-## Validation Evidence
+## 검증 Evidence
 
 - TDD red: `KafkaAppenderTest` redaction tests failed before the fix because
   status messages contained `kafka-jaas-secret`, `truststore-secret`, and raw
