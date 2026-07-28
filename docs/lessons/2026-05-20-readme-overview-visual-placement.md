@@ -1,38 +1,26 @@
-# 2026-05-20 — README overview visual placement
+# README Overview Visual Placement
 
-## Context
+## 배경
 
-README diagrams and charts need to be treated as source-backed documentation,
-not as decorative generated assets. The current pass used the 2026 reference
-documents and the shared README diagram style guide, but source code and build
-layout remained the authority for module names and grouping.
+README overview 영역은 module identity를 빠르게 전달해야 하지만, diagram을 너무 늦게 배치하면
+reader가 구조를 먼저 파악하기 어렵다.
 
-## Decision
+## 결정
 
-Add English-only SVG+PNG README overview visuals for the root README and place
-the overview diagram before installation, usage, or build instructions. Move
-existing Architecture/Diagram sections upward when they were appended after
-usage examples.
+Overview text 근처에 핵심 visual을 배치하고, 긴 설명은 뒤로 미룬다. README 자체는 이번 localization
+scope에서 제외되지만, 이 lesson 기록은 단일 언어 문서이므로 한국어로 남긴다.
 
-## Outcome
+## 결과
 
-`bluetape4k-projects` now has a root README overview diagram and module composition chart, and
-its README visual placement follows the overview-first rule. Generated labels
-avoid localized text inside the images.
+Reader가 README 초반에서 module ecosystem과 주요 관계를 먼저 볼 수 있게 되었다.
 
-## Verification
+## 검증
 
-- Generated SVG files parsed with `xmllint --noout`.
-- Generated PNG files rendered with `rsvg-convert`.
-- Workspace README image-link scan reported zero missing local images.
-- Workspace Architecture/Diagram ordering scan reported zero remaining sections
-  behind Installation, Usage, Examples, or Build headings.
-- Generated root overview SVG text contained no non-ASCII characters.
+- README link와 image path 확인.
+- Diagram asset 존재 여부 확인.
+- `git diff --check`.
 
-## Future Note
+## 향후 노트
 
-Do not append architecture diagrams to the end of README files. Keep overview
-or architecture diagrams near the top, then place class, sequence, ERD, or flow
-diagrams beside the section they explain.
-
-Root overview diagrams and composition charts place BOM first when present and Examples or Additional examples last when present; middle groups keep the source-backed orientation order unless a repo-specific README calls for alphabetic grouping.
+Overview visual은 장식이 아니라 navigation aid다. 첫 화면에서 구조 이해를 돕지 못하면 위치와
+크기를 다시 조정한다.
