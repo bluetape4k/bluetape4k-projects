@@ -55,11 +55,11 @@ import okhttp3.Dispatcher as OkHttpDispatcher
  * 동기 클라이언트 이론 상한: threads × (1000 / 50ms) = 2,000 ops/s
  * 비동기는 스레드 블로킹 없이 더 높은 동시성 확보 가능.
  *
- * Vert.x 5 defaults to a 5-connection HTTP/1 pool. This benchmark configures
+ * Vert.x 5는 기본적으로 5개 connection의 HTTP/1 pool을 사용합니다. 이 benchmark는
  * the pool to match the other clients so the high-latency test compares client
- * behavior instead of the default connection cap.
+ * 기본 connection cap 대신 동작 자체를 측정하도록 설정합니다.
  *
- * Ktor CIO 3.5 opens dedicated HTTP/1 connections when its pipeline path is
+ * Ktor CIO 3.5는 pipeline 경로가 사용될 때 전용 HTTP/1 connection을 엽니다
  * disabled. The benchmark therefore keeps a short equal-thread measurement
  * window for every client instead of limiting only the CIO row to one thread.
  */
