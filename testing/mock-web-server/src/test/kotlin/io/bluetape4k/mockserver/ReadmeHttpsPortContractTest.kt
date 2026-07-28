@@ -9,7 +9,7 @@ import kotlin.io.path.exists
 import kotlin.io.path.readText
 
 /**
- * README HTTPS port documentation must match runtime and container metadata.
+ * README HTTPS port 문서는 runtime 및 container metadata와 일치해야 합니다.
  */
 class ReadmeHttpsPortContractTest {
 
