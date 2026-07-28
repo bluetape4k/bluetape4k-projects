@@ -6,7 +6,7 @@ import io.bluetape4k.logging.KLogging
 import java.util.concurrent.ConcurrentHashMap
 
 /**
- * Creates an [InMemoryMemoizer] for this blocking evaluator.
+ * 이 blocking evaluator를 위한 [InMemoryMemoizer]를 생성합니다.
  *
  * ```kotlin
  * val memo = ({ key: String -> key.length }).memoizer()
@@ -20,18 +20,21 @@ fun <T: Any, R: Any> ((T) -> R).memoizer(): InMemoryMemoizer<T, R> =
     InMemoryMemoizer(this)
 
 /**
- * In-memory [Memoizer] that stores successful evaluator results in a local [ConcurrentHashMap].
+ * 성공한 evaluator 결과를 local [ConcurrentHashMap]에 저장하는 in-memory [Memoizer]입니다.
  *
- * Same-key concurrent cache misses share one in-flight evaluator through [SingleFlight].
- * [clear] invalidates both cached values and in-flight write tokens. A caller whose evaluator
- * started before [clear] still receives its computed value, but that stale value is not written
- * back into the cache.
+ * 같은 key의 동시 cache miss는 [SingleFlight]를 통해 하나의 in-flight evaluator를 공유합니다.
+ * [clear]는 cached value와 in-flight write token을 모두 무효화합니다. [clear] 전에 evaluator가 시작된
+ * 호출자는 계산된 값을 그대로 받지만, 그 stale value는 cache에 다시 쓰지 않습니다.
  *
  * ```kotlin
  * val memo = InMemoryMemoizer<String, Int> { key -> key.length }
  * val result = memo("hello")
  * // result == 5
  * ```
+ *
+ * @param T cache key와 evaluator input 타입입니다.
+ * @param R cache value와 evaluator result 타입입니다.
+ * @property evaluator cache miss일 때 값을 계산하는 blocking 함수입니다.
  */
 class InMemoryMemoizer<in T: Any, out R: Any>(
     private val evaluator: (T) -> R,
