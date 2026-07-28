@@ -1,4 +1,4 @@
-# Issue #694 Spring Observability Helpers Review
+# Issue #694 Spring Observability Helpers 검토
 
 Date: 2026-06-06
 Scope: `spring-boot/core`
@@ -10,11 +10,11 @@ PASS
 - P0: 0
 - P1: 0
 
-## Findings
+## 발견 사항
 
 No blocking findings.
 
-## Evidence
+## 증거
 
 - Added `ObservationRegistry.observeSpring` and
   `ObservationRegistry.observeSpringSuspending` helpers that use the
@@ -29,7 +29,7 @@ No blocking findings.
 - The stale Spring Boot 4 / Jackson 2 README statements were corrected to
   Jackson 3 by default.
 
-## Validation
+## 검증
 
 - `./gradlew :bluetape4k-spring-boot-core:test --tests 'io.bluetape4k.spring.observability.SpringObservationSupportTest'`
 - `./gradlew :bluetape4k-spring-boot-core:test`
