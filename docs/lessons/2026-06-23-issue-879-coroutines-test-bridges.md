@@ -1,40 +1,37 @@
-# Issue #879 Coroutines Test Bridge Removal
+# 이슈 #879 Coroutines test bridge removal
 
-Issue #879 removed the deprecated `io.bluetape4k.coroutines.tests` bridge
-package from production coroutines sources. The repository now uses the owner
-modules directly: Flow assertions from `bluetape4k-assertions` and dispatcher
-test helpers from `bluetape4k-junit5`.
+issue #879는 production coroutines source에서 deprecated
+`io.bluetape4k.coroutines.tests` bridge package를 제거했다. repository는 이제 owner
+module을 직접 사용한다. Flow assertion은 `bluetape4k-assertions`에서, dispatcher test
+helper는 `bluetape4k-junit5`에서 가져온다.
 
-## Decision
+## 결정
 
-- Delete the bridge sources under `bluetape4k-coroutines`.
-- Move `withSingleThread` and `withParallels` to
-  `io.bluetape4k.junit5.coroutines`.
-- Migrate coroutines tests and examples to
-  `io.bluetape4k.assertions.coroutines`.
-- Preserve the newer assertion module's cancellation contract by asserting
-  `CancellationException` with `assertFailsWith` where needed.
+- `bluetape4k-coroutines` 아래 bridge source를 삭제한다.
+- `withSingleThread`와 `withParallels`를 `io.bluetape4k.junit5.coroutines`로 이동한다.
+- coroutines test와 example을 `io.bluetape4k.assertions.coroutines`로 migration한다.
+- 필요한 곳에서는 `assertFailsWith`로 `CancellationException`을 assert해 newer assertion
+  module의 cancellation contract를 보존한다.
 
-## Lessons
+## 교훈
 
-- Deprecated bridge APIs can hide owner-module semantics. The old bridge
-  accepted `CancellationException` through `assertError`, while the assertion
-  module intentionally rethrows cancellation. Migration should preserve the
-  owner module contract instead of recreating bridge behavior.
-- Shared test helpers should avoid adding new module dependencies when moved.
-  `bluetape4k-junit5` does not need `bluetape4k-core` just to validate
-  `parallelism` or ignore executor shutdown failures.
-- Full-package scans should distinguish active Kotlin sources from historical
-  planning notes. The old package remains only in archived `docs/superpowers`
-  context.
+- deprecated bridge API는 owner-module semantic을 숨길 수 있다. old bridge는
+  `assertError`를 통해 `CancellationException`을 받아들였지만 assertion module은 의도적으로
+  cancellation을 rethrow한다. migration은 bridge behavior를 재생성하지 말고 owner module
+  contract를 보존해야 한다.
+- shared test helper를 이동할 때 새 module dependency를 추가하지 않는다. `bluetape4k-junit5`는
+  `parallelism` 검증이나 executor shutdown failure 무시를 위해 `bluetape4k-core`가 필요하지
+  않다.
+- full-package scan은 active Kotlin source와 historical planning note를 구분해야 한다. old
+  package는 archived `docs/superpowers` context에만 남아 있다.
 
-## Verification
+## 검증
 
-- `./gradlew :bluetape4k-junit5:compileKotlin` passed.
-- `./gradlew :bluetape4k-junit5:test :bluetape4k-assertions:test` passed.
-- `./gradlew :bluetape4k-coroutines:compileTestKotlin :bluetape4k-coroutines:test` passed.
-- `./gradlew :bluetape4k-examples-coroutines-demo:compileTestKotlin` passed; it still reports the pre-existing unused-expression warning in `TimeoutExamples.kt`.
-- `./gradlew :bluetape4k-coroutines:compileTestKotlin --warning-mode all` had no old bridge package, `FlowAssertions`, or `TestSupport` warning hits.
-- `rg "io\\.bluetape4k\\.coroutines\\.tests" -g '*.kt' -g '*.kts'` returned no active Kotlin/KTS matches.
-- Test result XML totals: junit5 269 tests, assertions 689 tests, coroutines 566 tests; all failures/errors 0.
-- `git diff --check` passed.
+- `./gradlew :bluetape4k-junit5:compileKotlin`이 통과했다.
+- `./gradlew :bluetape4k-junit5:test :bluetape4k-assertions:test`가 통과했다.
+- `./gradlew :bluetape4k-coroutines:compileTestKotlin :bluetape4k-coroutines:test`가 통과했다.
+- `./gradlew :bluetape4k-examples-coroutines-demo:compileTestKotlin`이 통과했다. `TimeoutExamples.kt`의 기존 unused-expression warning은 남아 있다.
+- `./gradlew :bluetape4k-coroutines:compileTestKotlin --warning-mode all`에는 old bridge package, `FlowAssertions`, `TestSupport` warning hit가 없었다.
+- `rg "io\\.bluetape4k\\.coroutines\\.tests" -g '*.kt' -g '*.kts'`는 active Kotlin/KTS match를 반환하지 않았다.
+- test result XML totals: junit5 269 tests, assertions 689 tests, coroutines 566 tests, failures/errors 0.
+- `git diff --check`가 통과했다.

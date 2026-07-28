@@ -1,26 +1,25 @@
-# Issue 843 - BluetapeHttpServer property keys
+# 이슈 843 - BluetapeHttpServer property key
 
-## Context
+## 배경
 
-`PropertyExportingServer` defines exported system property keys as lowercase
-kebab-case under `testcontainers.{propertyNamespace}.{key}`.
+`PropertyExportingServer`는 exported system property key를
+`testcontainers.{propertyNamespace}.{key}` 아래의 lowercase kebab-case로 정의한다.
 
-`BluetapeWebfluxServer` already followed this contract with `httpbin-url`,
-`jsonplaceholder-url`, and `web-url`, but `BluetapeHttpServer` exposed the
-same values as `httpbinUrl`, `jsonplaceholderUrl`, and `webUrl`.
+`BluetapeWebfluxServer`는 이미 `httpbin-url`, `jsonplaceholder-url`, `web-url`로 이
+contract를 따랐지만, `BluetapeHttpServer`는 같은 값을 `httpbinUrl`,
+`jsonplaceholderUrl`, `webUrl`로 노출했다.
 
-## Decision
+## 결정
 
-Make `BluetapeHttpServer.propertyKeys()` return only the canonical kebab-case
-keys used by the shared export contract.
+`BluetapeHttpServer.propertyKeys()`는 shared export contract가 쓰는 canonical
+kebab-case key만 반환하게 한다.
 
-`properties()` now writes canonical kebab-case entries and uses
-`withCompatKeys` to keep the previous camelCase keys as compatibility aliases
-for existing downstream tests.
+`properties()`는 canonical kebab-case entry를 쓰고, 기존 downstream test를 위해
+`withCompatKeys`로 이전 camelCase key를 compatibility alias로 유지한다.
 
-## Follow-up Guard
+## 후속 가드
 
-Keep public README placeholders aligned with `PropertyExportingServer`.
-`PropertyExportingServerContractTest` now includes both mock HTTP server
-wrappers so future divergence between `BluetapeHttpServer` and
-`BluetapeWebfluxServer` fails without starting Docker.
+public README placeholder는 `PropertyExportingServer`와 맞춘다.
+`PropertyExportingServerContractTest`는 Docker를 시작하지 않고도
+`BluetapeHttpServer`와 `BluetapeWebfluxServer` divergence를 잡도록 mock HTTP server
+wrapper 양쪽을 포함한다.
