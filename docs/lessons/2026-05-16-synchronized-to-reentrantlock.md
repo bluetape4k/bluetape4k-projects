@@ -1,4 +1,4 @@
-# Lesson: synchronized → ReentrantLock/Mutex 마이그레이션 (#473)
+# synchronized → ReentrantLock/Mutex 마이그레이션 (#473)
 
 ## 배경
 
@@ -22,7 +22,7 @@ CLAUDE.md 규칙: "코루틴/가상스레드 코드에서 `synchronized` 금지,
 - GC-based cleanup이 목적. `Cache<*, *>` 또는 `ConnectionFactory` 참조가 사라지면 자동 제거.
 - `ConcurrentHashMap`은 강한 참조를 유지하므로 메모리 누수 가능성.
 
-### scope discipline
+### 범위 관리 원칙
 
 코드 리뷰 중 `CacheCoroutineLocks.mutexFor`에 pre-existing race를 발견했다:
 - `computeIfAbsent(key) { Mutex() }` 가 `lock` 밖에서 실행되어,
