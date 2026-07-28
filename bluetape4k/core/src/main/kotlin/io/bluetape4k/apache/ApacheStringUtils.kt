@@ -4,16 +4,16 @@ import org.apache.commons.lang3.StringUtils
 import org.apache.commons.lang3.Strings
 
 /**
- * Abbreviates a String using a given replacement marker. This will turn
+ * 지정한 대체 마커로 문자열을 축약합니다. 예를 들어
  * "Now is the time for all good men" into "...is the time for..." if "..." was defined
  * as the replacement marker.
  *
- * Works like `String.abbr(String, int)`, but allows you to specify
- * a "left edge" offset.  Note that this left edge is not necessarily going to
- * be the leftmost character in the result, or the first character following the
- * replacement marker, but it will appear somewhere in the result.
+ * `String.abbr(String, int)`처럼 동작하지만
+ * "왼쪽 경계" 오프셋을 지정할 수 있습니다. 이 경계가 반드시
+ * 결과의 가장 왼쪽 문자나 대체 마커 바로 뒤의 첫 문자가 되는 것은 아니지만,
+ * 결과 어딘가에는 포함됩니다.
  *
- * In no case will it return a String of length greater than {@code maxWidth}.
+ * 어떤 경우에도 {@code maxWidth\}보다 긴 문자열은 반환하지 않습니다.
  *
  * ```
  * StringUtils.abbreviate(null, null, *, *)                 = null
@@ -32,27 +32,27 @@ import org.apache.commons.lang3.Strings
  * StringUtils.abbreviate("abcdefghij", "...", 5, 6)        = IllegalArgumentException
  * ```
  *
- * @receiver  the String to check, may be null
- * @param abbrMarker  the String used as replacement marker
- * @param offset  left edge of source String
- * @param maxWidth  maximum length of result String, must be at least 4
- * @return abbreviated String, `null` if null String input
+ * @receiver 검사할 문자열입니다. `null`일 수 있습니다.
+ * @param abbrMarker 대체 마커로 사용할 문자열입니다.
+ * @param offset 원본 문자열의 왼쪽 경계입니다.
+ * @param maxWidth 결과 문자열의 최대 길이입니다. 4 이상이어야 합니다.
+ * @return 축약된 문자열입니다. 입력 문자열이 `null`이면 `null`입니다.
  */
 fun String.abbr(maxWidth: Int, abbrMarker: String = "...", offset: Int = 0): String =
     StringUtils.abbreviate(this, abbrMarker, offset, maxWidth)
 
 /**
- * Abbreviates a String to the length passed, replacing the middle characters with the supplied
- * replacement String.
+ * 문자열을 지정한 길이로 축약하고 가운데 문자를 제공된
+ * 대체 문자열로 바꿉니다.
  *
- * This abbreviation only occurs if the following criteria is met:
- * - Neither the String for abbreviation nor the replacement String are null or empty
- * - The length to truncate to is less than the length of the supplied String
- * - The length to truncate to is greater than 0
- * - The abbreviated String will have enough room for the length supplied replacement String
- * and the first and last characters of the supplied String for abbreviation
+ * 이 축약은 다음 조건을 모두 만족할 때만 수행됩니다:
+ * - 축약 대상 문자열과 대체 문자열이 모두 `null` 또는 빈 값이 아닙니다
+ * - 축약할 길이가 제공된 문자열 길이보다 작습니다
+ * - 축약할 길이가 0보다 큽니다
+ * - 축약 결과가 제공된 대체 문자열 길이와
+ * 축약 대상 문자열의 첫 문자와 마지막 문자를 담을 만큼 충분한 공간을 가집니다
  *
- * Otherwise, the returned String will be the same as the supplied String for abbreviation.
+ * 그 외의 경우에는 축약 대상 문자열을 그대로 반환합니다.
  *
  *
  * ```
@@ -63,17 +63,17 @@ fun String.abbr(maxWidth: Int, abbrMarker: String = "...", offset: Int = 0): Str
  * StringUtils.abbreviateMiddle("abcdef", ".", 4)     = "ab.f"
  * ```
  *
- * @receiver  the String to abbreviate, may be null
- * @param middle the String to replace the middle characters with, may be null
- * @param length the length to abbreviate {@code str} to.
- * @return the abbreviated String if the above criteria is met, or the original String supplied for abbreviation.
+ * @receiver 축약할 문자열입니다. `null`일 수 있습니다.
+ * @param middle 가운데 문자를 대체할 문자열입니다. `null`일 수 있습니다.
+ * @param length {@code str\}를 축약할 길이입니다.
+ * @return 위 조건을 만족하면 축약된 문자열, 그렇지 않으면 축약 대상 원본 문자열입니다.
  */
 fun String.abbrMiddle(length: Int, middle: String = "..."): String =
     StringUtils.abbreviateMiddle(this, middle, length)
 
 /**
- * Appends the suffix to the end of the string if the string does not
- * already end with any of the suffixes.
+ * 문자열이 지정한 접미사 중 하나로 끝나지 않으면
+ * 문자열 끝에 접미사를 추가합니다.
  *
  * ```
  * StringUtils.appendIfMissing(null, null) = null
@@ -83,7 +83,7 @@ fun String.abbrMiddle(length: Int, middle: String = "..."): String =
  * StringUtils.appendIfMissing("abcxyz", "xyz") = "abcxyz"
  * StringUtils.appendIfMissing("abcXYZ", "xyz") = "abcXYZxyz"
  * ```
- * With additional suffixes,
+ * 추가 접미사를 지정한 경우,
  * ```
  * StringUtils.appendIfMissing(null, null, null) = null
  * StringUtils.appendIfMissing("abc", null, null) = "abc"
@@ -97,18 +97,18 @@ fun String.abbrMiddle(length: Int, middle: String = "..."): String =
  * StringUtils.appendIfMissing("abcMNO", "xyz", "mno") = "abcMNOxyz"
  * ```
  *
- * @receiver The string.
- * @param suffix The suffix to append to the end of the string.
- * @param suffixes Additional suffixes that are valid terminators.
+ * @receiver 대상 문자열입니다.
+ * @param suffix 문자열 끝에 추가할 접미사입니다.
+ * @param suffixes 이미 유효한 끝으로 인정할 추가 접미사입니다.
  *
- * @return A new String if suffix was appended, the same string otherwise.
+ * @return 접미사가 추가되면 새 문자열, 그렇지 않으면 기존 문자열입니다.
  */
 fun String.appendIfMissing(suffix: CharSequence, vararg suffixes: CharSequence): String =
     Strings.CS.appendIfMissing(this, suffix, *suffixes)
 
 /**
- * Appends the suffix to the end of the string if the string does not
- * already end, case-insensitive, with any of the suffixes.
+ * 대소문자를 무시했을 때 문자열이 지정한 접미사 중 하나로 끝나지 않으면
+ * 문자열 끝에 접미사를 추가합니다.
  *
  * ```
  * StringUtils.appendIfMissingIgnoreCase(null, null) = null
@@ -118,7 +118,7 @@ fun String.appendIfMissing(suffix: CharSequence, vararg suffixes: CharSequence):
  * StringUtils.appendIfMissingIgnoreCase("abcxyz", "xyz") = "abcxyz"
  * StringUtils.appendIfMissingIgnoreCase("abcXYZ", "xyz") = "abcXYZ"
  * ```
- * With additional suffixes,
+ * 추가 접미사를 지정한 경우,
  * ```
  * StringUtils.appendIfMissingIgnoreCase(null, null, null) = null
  * StringUtils.appendIfMissingIgnoreCase("abc", null, null) = "abc"
@@ -132,24 +132,24 @@ fun String.appendIfMissing(suffix: CharSequence, vararg suffixes: CharSequence):
  * StringUtils.appendIfMissingIgnoreCase("abcMNO", "xyz", "mno") = "abcMNO"
  * ```
  *
- * @receiver The string.
- * @param suffix The suffix to append to the end of the string.
- * @param suffixes Additional suffixes that are valid terminators.
+ * @receiver 대상 문자열입니다.
+ * @param suffix 문자열 끝에 추가할 접미사입니다.
+ * @param suffixes 이미 유효한 끝으로 인정할 추가 접미사입니다.
  *
- * @return A new String if suffix was appended, the same string otherwise.
+ * @return 접미사가 추가되면 새 문자열, 그렇지 않으면 기존 문자열입니다.
  */
 fun String.appendIfMissingIgnoreCase(suffix: CharSequence, vararg suffixes: CharSequence): String =
     Strings.CI.appendIfMissing(this, suffix, *suffixes)
 
 /**
- * Centers a String in a larger String of size {@code size}
- * using the space character (' ').
+ * {@code size\} 크기의 더 큰 문자열 안에서 문자열을 가운데 정렬합니다
+ * 공백 문자(' ')로 채웁니다.
  *
- * If the size is less than the String length, the original String is returned.
- * A `null` String returns `null`.
- * A negative size is treated as zero.</p>
+ * 지정 크기가 문자열 길이보다 작으면 원래 문자열을 반환합니다.
+ * `null` 문자열은 `null`을 반환합니다.
+ * 음수 크기는 0으로 처리합니다.</p>
  *
- * Equivalent to `center(str, size, " ")`.
+ * `center(str, size, " ")`와 동일합니다.
  *
  * ```
  * StringUtils.center(null, *)   = null
@@ -160,20 +160,20 @@ fun String.appendIfMissingIgnoreCase(suffix: CharSequence, vararg suffixes: Char
  * StringUtils.center("a", 4)    = " a  "
  * ```
  *
- * @receiver  the String to center, may be null
- * @param size  the int size of new String, negative treated as zero
- * @return centered String, `null` if null String input
+ * @receiver 가운데 정렬할 문자열입니다. `null`일 수 있습니다.
+ * @param size 새 문자열 크기입니다. 음수는 0으로 처리합니다.
+ * @return 가운데 정렬된 문자열입니다. 입력 문자열이 `null`이면 `null`입니다.
  */
 fun String.center(size: Int, padChar: Char = ' '): String =
     StringUtils.center(this, size, padChar)
 
 /**
- * Centers a String in a larger String of size {@code size}.
- * Uses a supplied String as the value to pad the String with.
+ * {@code size\} 크기의 더 큰 문자열 안에서 문자열을 가운데 정렬합니다.
+ * 제공된 문자열을 채움 값으로 사용합니다.
  *
- * If the size is less than the String length, the String is returned.
- * A `null` String returns `null`.
- * A negative size is treated as zero.
+ * 지정 크기가 문자열 길이보다 작으면 문자열을 그대로 반환합니다.
+ * `null` 문자열은 `null`을 반환합니다.
+ * 음수 크기는 0으로 처리합니다.
  *
  * ```
  * StringUtils.center(null, *, *)     = null
@@ -187,19 +187,19 @@ fun String.center(size: Int, padChar: Char = ' '): String =
  * StringUtils.center("abc", 7, "")   = "  abc  "
  * ```
  *
- * @receiver  the String to center, may be null
- * @param size  the int size of new String, negative treated as zero
- * @param padStr  the String to pad the new String with, must not be null or empty
- * @return centered String, `null` if null String input
- * @throws IllegalArgumentException if padStr is `null` or empty
+ * @receiver 가운데 정렬할 문자열입니다. `null`일 수 있습니다.
+ * @param size 새 문자열 크기입니다. 음수는 0으로 처리합니다.
+ * @param padStr 새 문자열을 채울 문자열입니다. `null`이거나 비어 있으면 안 됩니다.
+ * @return 가운데 정렬된 문자열입니다. 입력 문자열이 `null`이면 `null`입니다.
+ * @throws IllegalArgumentException `padStr`가 `null`이거나 비어 있으면 발생합니다.
  */
 fun String.center(size: Int, padStr: String): String =
     StringUtils.center(this, size, padStr)
 
 /**
- * Remove the last character from a String.
+ * 문자열의 마지막 문자를 제거합니다.
  *
- * If the String ends in {@code \r\n}, then remove both of them.
+ * 문자열이 {@code \r\n}로 끝나면 두 문자를 모두 제거합니다.
  *
  * ```
  * StringUtils.chop(null)          = null
@@ -215,16 +215,16 @@ fun String.center(size: Int, padStr: String): String =
  * StringUtils.chop("\r\n")        = ""
  * ```
  *
- * @receiver  the String to chop last character from, may be null
- * @return String without last character, `null` if null String input
+ * @receiver 마지막 문자를 제거할 문자열입니다. `null`일 수 있습니다.
+ * @return 마지막 문자가 제거된 문자열입니다. 입력 문자열이 `null`이면 `null`입니다.
  */
 fun String.chop(): String =
     StringUtils.chop(this)
 
 
 /**
- * Checks if the CharSequence contains any character in the given
- * set of characters.
+ * CharSequence가 지정한 문자 집합의 문자 중 하나라도 포함하는지
+ * 확인합니다.
  *
  * <p>A `null` CharSequence will return {@code false}.
  * A `null` or zero length search array will return {@code false}.</p>
@@ -240,15 +240,15 @@ fun String.chop(): String =
  * StringUtils.containsAny("aba", ['z'])             = false
  * ```
  *
- * @receiver  the CharSequence to check, may be null
- * @param searchChars  the chars to search for, may be null
- * @return the {@code true} if any of the chars are found, {@code false} if no match or null input
+ * @receiver 검사할 CharSequence입니다. `null`일 수 있습니다.
+ * @param searchChars 검색할 문자입니다. `null`일 수 있습니다.
+ * @return 문자를 하나라도 찾으면 {@code true\}, 매치가 없거나 입력이 `null`이면 {@code false\}입니다.
  */
 fun CharSequence.containsAny(vararg searchChars: Char): Boolean =
     StringUtils.containsAny(this, *searchChars)
 
 /**
- * Checks if the CharSequence contains any of the CharSequences in the given array.
+ * CharSequence가 지정한 배열의 CharSequence 중 하나라도 포함하는지 확인합니다.
  *
  * A `null` or zero length search array will return `false`.
  *
@@ -262,17 +262,17 @@ fun CharSequence.containsAny(vararg searchChars: Char): Boolean =
  * StringUtils.containsAny("abc", "d", "abc")  = true
  * ```
  *
- * @receiver The CharSequence to check, may be null
+ * @receiver 검사할 CharSequence입니다. `null`일 수 있습니다.
  * @param searchCharSequences The array of CharSequences to search for, may be null. Individual CharSequences may be
  *        null as well.
- * @return `true` if any of the search CharSequences are found, `false` otherwise
+ * @return 검색 CharSequence를 하나라도 찾으면 `true`, 그렇지 않으면 `false`입니다.
  */
 fun CharSequence.containsAny(vararg searchCharSequences: CharSequence): Boolean =
     Strings.CS.containsAny(this, *searchCharSequences)
 
 
 /**
- * Checks if the CharSequence contains any of the CharSequences in the given array, ignoring case.
+ * 대소문자를 무시하고 CharSequence가 지정한 배열의 CharSequence 중 하나라도 포함하는지 확인합니다.
  *
  * A `null` {@code cs} CharSequence will return {@code false}. A `null` or zero length search array will
  * return {@code false}.
@@ -290,16 +290,16 @@ fun CharSequence.containsAny(vararg searchCharSequences: CharSequence): Boolean 
  * StringUtils.containsAny("ABC", "d", "abc")  = true
  * ```
  *
- * @receiver The CharSequence to check, may be null
+ * @receiver 검사할 CharSequence입니다. `null`일 수 있습니다.
  * @param searchCharSequences The array of CharSequences to search for, may be null. Individual CharSequences may be
  *        null as well.
- * @return `true` if any of the search CharSequences are found, `false` otherwise
+ * @return 검색 CharSequence를 하나라도 찾으면 `true`, 그렇지 않으면 `false`입니다.
  */
 fun CharSequence.containsAnyIgnoreCase(vararg searchCharSequences: CharSequence): Boolean =
     Strings.CI.containsAny(this, *searchCharSequences)
 
 /**
- * Checks if CharSequence contains a search CharSequence irrespective of case,
+ * 대소문자와 관계없이 CharSequence가 검색 CharSequence를 포함하는지 확인합니다,
  * handling `null`. Case-insensitivity is defined as by
  * `String#equalsIgnoreCase(String)`
  *
@@ -316,15 +316,15 @@ fun CharSequence.containsAnyIgnoreCase(vararg searchCharSequences: CharSequence)
  * StringUtils.containsIgnoreCase("abc", "Z") = false
  * ```
  *
- * @receiver the CharSequence to check, may be null
+ * @receiver 검사할 CharSequence입니다. `null`일 수 있습니다.
  * @param searchStr  the CharSequence to find, may be null
- * @return true if the CharSequence contains the search CharSequence irrespective of case or false if not or `null` string input
+ * @return 대소문자와 관계없이 검색 CharSequence를 포함하면 true, 그렇지 않거나 입력이 `null`이면 false입니다.
  */
 fun CharSequence.containsIgnoreCase(searchStr: CharSequence): Boolean =
     Strings.CI.contains(this, searchStr)
 
 /**
- * Checks that the CharSequence does not contain certain characters.
+ * CharSequence가 특정 문자를 포함하지 않는지 확인합니다.
  *
  * <p>A `null` CharSequence will return {@code true}.
  * A `null` invalid character array will return {@code true}.
@@ -339,19 +339,19 @@ fun CharSequence.containsIgnoreCase(searchStr: CharSequence): Boolean =
  * StringUtils.containsNone("abz", 'xyz')  = false
  * ```
  *
- * @receiver  the CharSequence to check, may be null
- * @param searchChars  an array of invalid chars, may be null
- * @return true if it contains none of the invalid chars, or is null
+ * @receiver 검사할 CharSequence입니다. `null`일 수 있습니다.
+ * @param searchChars 허용하지 않는 문자 배열입니다. `null`일 수 있습니다.
+ * @return 허용하지 않는 문자를 포함하지 않거나 `null`이면 true입니다.
  */
 fun CharSequence.containsNone(vararg searchChars: Char): Boolean =
     StringUtils.containsNone(this, *searchChars)
 
 /**
- * Checks that the CharSequence does not contain certain characters.
+ * CharSequence가 특정 문자를 포함하지 않는지 확인합니다.
  *
  * A `null` CharSequence will return {@code true}.
  * A `null` invalid character array will return `true`.
- * An empty String ("") always returns true.
+ * 빈 문자열("")은 항상 true를 반환합니다.
  *
  * ```
  * StringUtils.containsNone(*, null)       = true
@@ -362,9 +362,9 @@ fun CharSequence.containsNone(vararg searchChars: Char): Boolean =
  * StringUtils.containsNone("abz", "xyz")  = false
  * ```
  *
- * @receiver  the CharSequence to check
- * @param invalidStr  a String of invalid chars, may be null
- * @return true if it contains none of the invalid chars, or is null
+ * @receiver 검사할 CharSequence입니다.
+ * @param invalidStr 허용하지 않는 문자 문자열입니다. `null`일 수 있습니다.
+ * @return 허용하지 않는 문자를 포함하지 않거나 `null`이면 true입니다.
  * @since 2.0
  * @since 3.0 Changed signature from containsNone(String, String) to containsNone(CharSequence, String)
  */
@@ -373,11 +373,11 @@ fun CharSequence.containsNone(invalidStr: String?): Boolean =
 
 
 /**
- * Checks if the CharSequence contains only certain characters.
+ * CharSequence가 특정 문자만 포함하는지 확인합니다.
  *
  * A `null` CharSequence will return {@code false}.
  * A `null` valid character array will return `false`.
- * An empty CharSequence (length()=0) always returns `true`.
+ * 빈 CharSequence(length()=0)는 항상 `true`를 반환합니다.
  *
  * ```
  * StringUtils.containsOnly("", *)         = true
@@ -388,14 +388,14 @@ fun CharSequence.containsNone(invalidStr: String?): Boolean =
  * ```
  *
  * @receiver  the String to check
- * @param validChars  an array of valid chars
- * @return true if it only contains valid chars and is non-null
+ * @param validChars 허용할 문자 배열입니다.
+ * @return `null`이 아니고 허용 문자만 포함하면 true입니다.
  */
 fun CharSequence.containsOnly(vararg validChars: Char): Boolean =
     StringUtils.containsOnly(this, *validChars)
 
 /**
- * Checks if the CharSequence contains only certain characters.
+ * CharSequence가 특정 문자만 포함하는지 확인합니다.
  *
  * A `null` valid character String will return `false`.
  * An empty String (length()=0) always returns `true`.
@@ -409,9 +409,9 @@ fun CharSequence.containsOnly(vararg validChars: Char): Boolean =
  * StringUtils.containsOnly("abz", "abc")  = false
  * ```
  *
- * @receiver  the CharSequence to check, may be null
- * @param validStr  a String of valid chars, may be null
- * @return true if it only contains valid chars and is non-null
+ * @receiver 검사할 CharSequence입니다. `null`일 수 있습니다.
+ * @param validStr 허용할 문자 문자열입니다. `null`일 수 있습니다.
+ * @return `null`이 아니고 허용 문자만 포함하면 true입니다.
  * @since 2.0
  * @since 3.0 Changed signature from containsOnly(String, String) to containsOnly(CharSequence, String)
  */
@@ -419,11 +419,11 @@ fun CharSequence.containsOnly(validStr: String?): Boolean =
     StringUtils.containsOnly(this, validStr)
 
 /**
- * Check whether the given CharSequence contains any whitespace characters.
+ * 주어진 CharSequence가 공백 문자를 포함하는지 확인합니다.
  *
- * Whitespace is defined by [Character#isWhitespace(char)].
+ * 공백은 [Character#isWhitespace(char)] 기준으로 정의합니다.
  *
- * @receiver the CharSequence to check (may be `null`)
+ * @receiver 검사할 CharSequence입니다. `null`일 수 있습니다.
  * @return `true` if the CharSequence is not empty and
  * contains at least 1 (breaking) whitespace character
  */
@@ -431,7 +431,7 @@ fun CharSequence.containsWhitespace(): Boolean =
     StringUtils.containsWhitespace(this)
 
 /**
- * Counts how many times the char appears in the given string.
+ * 지정한 문자열에 문자가 몇 번 등장하는지 셉니다.
  *
  * A `null` or empty ("") String input returns `0`.
  *
@@ -444,16 +444,16 @@ fun CharSequence.containsWhitespace(): Boolean =
  * StringUtils.countMatches("abba", 'x') = 0
  * ```
  *
- * @receiver  the CharSequence to check, may be null
- * @param ch  the char to count
- * @return the number of occurrences, 0 if the CharSequence is `null`
+ * @receiver 검사할 CharSequence입니다. `null`일 수 있습니다.
+ * @param ch 셀 문자입니다.
+ * @return 등장 횟수입니다. CharSequence가 `null`이면 0입니다.
  */
 fun CharSequence.countMatches(ch: Char): Int =
     StringUtils.countMatches(this, ch)
 
 /**
- * Counts how many times the substring appears in the larger string.
- * Note that the code only counts non-overlapping matches.
+ * 큰 문자열 안에 부분 문자열이 몇 번 등장하는지 셉니다.
+ * 겹치지 않는 매치만 셉니다.
  *
  * A `null` or empty ("") String input returns {@code 0}.
  *
@@ -468,9 +468,9 @@ fun CharSequence.countMatches(ch: Char): Int =
  * StringUtils.countMatches("ababa", "aba") = 1
  * ```
  *
- * @receiver the CharSequence to check, may be null
- * @param sub  the substring to count, may be null
- * @return the number of occurrences, 0 if either CharSequence is `null`
+ * @receiver 검사할 CharSequence입니다. `null`일 수 있습니다.
+ * @param sub 셀 부분 문자열입니다. `null`일 수 있습니다.
+ * @return 등장 횟수입니다. 어느 CharSequence라도 `null`이면 0입니다.
  */
 fun CharSequence.countMatches(sub: CharSequence): Int =
     StringUtils.countMatches(this, sub)
@@ -516,13 +516,13 @@ fun <T: CharSequence> T.defaultIfEmpty(defaultValue: T): T = this.ifEmpty { defa
  * StringUtils.deleteWhitespace("   ab  c  ") = "abc"
  * ```
  *
- * @receiver  the String to delete whitespace from, may be null
+ * @receiver 공백을 제거할 문자열입니다. `null`일 수 있습니다.
  * @return the String without whitespaces, `null` if null String input
  */
 fun String.deleteWhitespace(): String = StringUtils.deleteWhitespace(this)
 
 /**
- * Compares two Strings, and returns the portion where they differ.
+ * 두 문자열을 비교하고 서로 달라지는 부분을 반환합니다.
  * More precisely, return the remainder of the second String,
  * starting from where it's different from the first. This means that
  * the difference between "abc" and "ab" is the empty String and not "c".
@@ -544,9 +544,9 @@ fun String.deleteWhitespace(): String = StringUtils.deleteWhitespace(this)
  * StringUtils.difference("abcde", "xyz")   = "xyz"
  * ```
  *
- * @receiver  the first String
- * @param other  the second String, may be null
- * @return the portion of str2 where it differs from str1; returns the empty String if they are equal
+ * @receiver 첫 번째 문자열입니다.
+ * @param other 두 번째 문자열입니다. `null`일 수 있습니다.
+ * @return `str1`과 다른 `str2`의 부분입니다. 같으면 빈 문자열을 반환합니다.
  */
 fun String.deference(other: String): String = StringUtils.difference(this, other)
 
@@ -582,10 +582,10 @@ fun String.endsWithAny(vararg searchStrings: String): Boolean = Strings.CS.endsW
 fun String.endsWithIgnoreCase(suffix: CharSequence): Boolean = Strings.CI.endsWith(this, suffix)
 
 /**
- * Checks if a String contains Unicode digits,
+ * 문자열이 유니코드 숫자를 포함하는지 확인하고,
  * if yes then concatenate all the digits in String and return it as a String.
  *
- * An empty ("") String will be returned if no digits found in {@code str}.
+ * {@code str\}에서 숫자를 찾지 못하면 빈 문자열("")을 반환합니다.
  *
  * ```
  * StringUtils.getDigits("")                   = ""
@@ -596,8 +596,8 @@ fun String.endsWithIgnoreCase(suffix: CharSequence): Boolean = Strings.CI.endsWi
  * StringUtils.getDigits("\u0967\u0968\u0969") = "\u0967\u0968\u0969"
  * ```
  *
- * @receiver the String to extract digits from
- * @return String with only digits,
+ * @receiver 숫자만 추출할 문자열입니다.
+ * @return 숫자만 포함한 문자열입니다,
  *           or an empty ("") String if no digits found,
  *           or `null` String if {@code str} is null
  */
@@ -605,7 +605,7 @@ fun String.getDigits(): String = StringUtils.getDigits(this)
 
 
 /**
- * Find the first index of any of a set of potential substrings.
+ * 후보 부분 문자열 집합 중 하나가 처음 나타나는 인덱스를 찾습니다.
  *
  * A `null` CharSequence will return `-1`.
  * A `null` or zero length search array will return `-1`.
@@ -625,15 +625,15 @@ fun String.getDigits(): String = StringUtils.getDigits(this)
  * StringUtils.indexOfAny("", ["a"])                    = -1
  * ```
  *
- * @receiver  the CharSequence to check, may be null
- * @param searchStrs  the CharSequences to search for, may be null
- * @return the first index of any of the searchStrs in str, -1 if no match
+ * @receiver 검사할 CharSequence입니다. `null`일 수 있습니다.
+ * @param searchStrs 검색할 CharSequence입니다. `null`일 수 있습니다.
+ * @return `str`에서 `searchStrs` 중 하나가 처음 나타나는 인덱스입니다. 매치가 없으면 -1입니다.
  */
 fun CharSequence.indexOfAny(vararg searchStrs: CharSequence): Int = StringUtils.indexOfAny(this, *searchStrs)
 
 /**
  * Search a CharSequence to find the first index of any
- * character in the given set of characters.
+ * character in the given 확인합니다.
  *
  * A `null` String will return `-1`.
  * A `null` search string will return `-1`.
@@ -647,15 +647,15 @@ fun CharSequence.indexOfAny(vararg searchStrs: CharSequence): Int = StringUtils.
  * StringUtils.indexOfAny("aba", "z")         = -1
  * ```
  *
- * @receiver  the CharSequence to check, may be null
- * @param searchStr  the chars to search for, may be null
- * @return the index of any of the chars, -1 if no match or null input
+ * @receiver 검사할 CharSequence입니다. `null`일 수 있습니다.
+ * @param searchStr 검색할 문자입니다. `null`일 수 있습니다.
+ * @return 문자 중 하나의 인덱스입니다. 매치가 없거나 입력이 `null`이면 -1입니다.
  */
 fun CharSequence.indexOfAny(searchStr: String?): Int = StringUtils.indexOfAny(this, searchStr)
 
 
 /**
- * Compares all CharSequences in an array and returns the index at which the
+ * 배열의 모든 CharSequence를 비교하고
  * CharSequences begin to differ.
  *
  * For example,
@@ -683,14 +683,14 @@ fun CharSequence.indexOfAny(searchStr: String?): Int = StringUtils.indexOfAny(th
  * StringUtils.indexOfDifference(new String[] {"i am a machine", "i am a robot"}) = 7
  * ```
  *
- * @param css  array of CharSequences, entries may be null
- * @return the index where the strings begin to differ; -1 if they are all equal
+ * @param css CharSequence 배열입니다. 각 항목은 `null`일 수 있습니다.
+ * @return 문자열들이 달라지기 시작하는 인덱스입니다. 모두 같으면 -1입니다.
  */
 fun indexOfDifference(vararg css: CharSequence): Int = StringUtils.indexOfDifference(*css)
 
 
 /**
- * Compares two CharSequences, and returns the index at which the
+ * 두 CharSequence를 비교하고
  * CharSequences begin to differ.
  *
  * For example,
@@ -708,9 +708,9 @@ fun indexOfDifference(vararg css: CharSequence): Int = StringUtils.indexOfDiffer
  * StringUtils.indexOfDifference("abcde", "xyz")   = 0
  * ```
  *
- * @receiver  the first CharSequence
- * @param other  the second CharSequence, may be null
- * @return the index where cs1 and cs2 begin to differ; -1 if they are equal
+ * @receiver 첫 번째 CharSequence입니다.
+ * @param other 두 번째 CharSequence입니다. `null`일 수 있습니다.
+ * @return `cs1`과 `cs2`가 달라지기 시작하는 인덱스입니다. 같으면 -1입니다.
  */
 fun CharSequence.indexOfDifference(other: CharSequence?): Int = StringUtils.indexOfDifference(this, other)
 
@@ -731,9 +731,9 @@ fun CharSequence.indexOfIgnoreCase(searchStr: CharSequence, startPos: Int = 0): 
     Strings.CI.indexOf(this, searchStr, startPos)
 
 /**
- * Checks if the CharSequence contains only Unicode letters.
+ * CharSequence가 유니코드 문자만 포함하는지 확인합니다.
  *
- * An empty CharSequence (length()=0) will return `false`.
+ * 빈 CharSequence(length()=0)는 `false`를 반환합니다.
  *
  * ```
  * StringUtils.isAlpha("")     = false
@@ -743,15 +743,15 @@ fun CharSequence.indexOfIgnoreCase(searchStr: CharSequence, startPos: Int = 0): 
  * StringUtils.isAlpha("ab-c") = false
  * ```
  *
- * @receiver  the CharSequence to check, may be null
- * @return `true` if only contains letters, and is non-null
+ * @receiver 검사할 CharSequence입니다. `null`일 수 있습니다.
+ * @return `null`이 아니고 문자만 포함하면 `true`입니다.
  */
 fun CharSequence.isAlpha(): Boolean = StringUtils.isAlpha(this)
 
 /**
- * Checks if the CharSequence contains only Unicode letters or digits.
+ * CharSequence가 유니코드 문자 또는 숫자만 포함하는지 확인합니다.
  *
- * An empty CharSequence (length()=0) will return `false`.
+ * 빈 CharSequence(length()=0)는 `false`를 반환합니다.
  *
  * ```
  * StringUtils.isAlphanumeric("")     = false
@@ -762,16 +762,16 @@ fun CharSequence.isAlpha(): Boolean = StringUtils.isAlpha(this)
  * StringUtils.isAlphanumeric("ab-c") = false
  * ```
  *
- * @receiver  the CharSequence to check
- * @return {@code true} if only contains letters or digits, and is non-null
+ * @receiver 검사할 CharSequence입니다.
+ * @return `null`이 아니고 문자 또는 숫자만 포함하면 {@code true\}입니다.
  */
 fun CharSequence.isAlphaNumeric(): Boolean = StringUtils.isAlphanumeric(this)
 
 /**
- * Checks if the CharSequence contains only Unicode letters, digits
+ * CharSequence가 유니코드 문자, 숫자
  * or space ({@code ' '}).
  *
- * An empty CharSequence (length()=0) will return `true`.
+ * 빈 CharSequence(length()=0)는 `true`를 반환합니다.
  *
  * ```
  * StringUtils.isAlphanumericSpace("")     = true
@@ -782,16 +782,16 @@ fun CharSequence.isAlphaNumeric(): Boolean = StringUtils.isAlphanumeric(this)
  * StringUtils.isAlphanumericSpace("ab-c") = false
  * ```
  *
- * @receiver  the CharSequence to check
- * @return `true` if only contains letters, digits or space, and is non-null
+ * @receiver 검사할 CharSequence입니다.
+ * @return `null`이 아니고 문자, 숫자 또는 공백만 포함하면 `true`입니다.
  */
 fun CharSequence.isAlphaNumericSpace(): Boolean = StringUtils.isAlphanumericSpace(this)
 
 /**
- * Checks if the CharSequence contains only Unicode letters or space
+ * CharSequence가 유니코드 문자 또는 공백만 포함하는지 확인합니다
  * ({@code ' '}).
  *
- * An empty CharSequence (length()=0) will return `true`.
+ * 빈 CharSequence(length()=0)는 `true`를 반환합니다.
  *
  * ```
  * StringUtils.isAlphaSpace("")     = true
@@ -802,14 +802,14 @@ fun CharSequence.isAlphaNumericSpace(): Boolean = StringUtils.isAlphanumericSpac
  * StringUtils.isAlphaSpace("ab-c") = false
  * ```
  *
- * @receiver  the CharSequence to check
- * @return `true` if only contains letters or space, and is non-null
+ * @receiver 검사할 CharSequence입니다.
+ * @return `null`이 아니고 문자 또는 공백만 포함하면 `true`입니다.
  */
 fun CharSequence.isAlphaSpace(): Boolean = StringUtils.isAlphaSpace(this)
 
 
 /**
- * Checks if the CharSequence contains only ASCII printable characters.
+ * CharSequence가 출력 가능한 ASCII 문자만 포함하는지 확인합니다.
  *
  * An empty CharSequence (length()=0) will return `true`
  *
@@ -826,13 +826,13 @@ fun CharSequence.isAlphaSpace(): Boolean = StringUtils.isAlphaSpace(this)
  * StringUtils.isAsciiPrintable("Ceki G\u00fclc\u00fc") = false
  * ```
  *
- * @receiver the CharSequence to check
- * @return `true` if every character is in the range 32 through 126
+ * @receiver 검사할 CharSequence입니다.
+ * @return 모든 문자가 32부터 126 범위에 있으면 `true`입니다.
  */
 fun CharSequence.isAsciiPrintable(): Boolean = StringUtils.isAsciiPrintable(this)
 
 /**
- * Checks if the CharSequence contains mixed casing of both uppercase and lowercase characters.
+ * CharSequence가 대문자와 소문자를 모두 포함하는지 확인합니다.
  *
  * An empty CharSequence ({@code length()=0}) will return `false`
  *
@@ -848,13 +848,13 @@ fun CharSequence.isAsciiPrintable(): Boolean = StringUtils.isAsciiPrintable(this
  * StringUtils.isMixedCase("aC\t")  = true
  * ```
  *
- * @receiver the CharSequence to check
- * @return `true` if the CharSequence contains both uppercase and lowercase characters
+ * @receiver 검사할 CharSequence입니다.
+ * @return CharSequence가 대문자와 소문자를 모두 포함하면 `true`입니다.
  */
 fun CharSequence.isMixedCase(): Boolean = StringUtils.isMixedCase(this)
 
 /**
- * Checks if the CharSequence contains only Unicode digits.
+ * CharSequence가 유니코드 숫자만 포함하는지 확인합니다.
  * A decimal point is not a Unicode digit and returns false.
  *
  * <p>`null` will return {@code false}.
@@ -878,16 +878,16 @@ fun CharSequence.isMixedCase(): Boolean = StringUtils.isMixedCase(this)
  * StringUtils.isNumeric("+123") = false
  * ```
  *
- * @receiver  the CharSequence to check
- * @return `true` if only contains digits, and is non-null
+ * @receiver 검사할 CharSequence입니다.
+ * @return `null`이 아니고 숫자만 포함하면 `true`입니다.
  */
 fun CharSequence.isNumeric(): Boolean = StringUtils.isNumeric(this)
 
 /**
- * Checks if the CharSequence contains only Unicode digits or space (`' '`).
+ * CharSequence가 유니코드 숫자 또는 공백(`' '`)만 포함하는지 확인합니다.
  * A decimal point is not a Unicode digit and returns false.
  *
- * An empty CharSequence (length()=0) will return `true`.
+ * 빈 CharSequence(length()=0)는 `true`를 반환합니다.
  *
  * ```
  * StringUtils.isNumericSpace(null)   = false
@@ -902,15 +902,15 @@ fun CharSequence.isNumeric(): Boolean = StringUtils.isNumeric(this)
  * StringUtils.isNumericSpace("12.3") = false
  * ```
  *
- * @receiver  the CharSequence to check
- * @return `true` if only contains digits or space, and is non-null
+ * @receiver 검사할 CharSequence입니다.
+ * @return `null`이 아니고 숫자 또는 공백만 포함하면 `true`입니다.
  */
 fun CharSequence.isNumericSpace(): Boolean = StringUtils.isNumericSpace(this)
 
 /**
- * Checks if the CharSequence contains only whitespace.
+ * CharSequence가 공백만 포함하는지 확인합니다.
  *
- * Whitespace is defined by {@link Character#isWhitespace(char)}.
+ * 공백은 \{@link Character#isWhitespace(char)\} 기준으로 정의합니다.
  *
  * An empty CharSequence (length()=0) will return `true`
  *
@@ -922,13 +922,13 @@ fun CharSequence.isNumericSpace(): Boolean = StringUtils.isNumericSpace(this)
  * StringUtils.isWhitespace("ab-c") = false
  * ```
  *
- * @receiver  the CharSequence to check
- * @return `true` if only contains whitespace, and is non-null
+ * @receiver 검사할 CharSequence입니다.
+ * @return `null`이 아니고 공백만 포함하면 `true`입니다.
  */
 fun CharSequence.isWhiteSpace(): Boolean = StringUtils.isWhitespace(this)
 
 /**
- * Find the latest index of any substring in a set of potential substrings.
+ * 후보 부분 문자열 집합 중 하나가 마지막으로 나타나는 인덱스를 찾습니다.
  *
  * <p>A `null` CharSequence will return {@code -1}.
  * A `null` search array will return {@code -1}.
@@ -945,9 +945,9 @@ fun CharSequence.isWhiteSpace(): Boolean = StringUtils.isWhitespace(this)
  * StringUtils.lastIndexOfAny("zzabyycdxx", ["mn", ""])   = 10
  * ```
  *
- * @receiver  the CharSequence to check
- * @param searchStrs  the CharSequences to search for, may be null
- * @return the last index of any of the CharSequences, -1 if no match
+ * @receiver 검사할 CharSequence입니다.
+ * @param searchStrs 검색할 CharSequence입니다. `null`일 수 있습니다.
+ * @return CharSequence 중 하나가 마지막으로 나타나는 인덱스입니다. 매치가 없으면 -1입니다.
  */
 fun CharSequence.lastIndexOfAny(vararg searchStrs: CharSequence): Int =
     StringUtils.lastIndexOfAny(this, *searchStrs)
@@ -957,7 +957,7 @@ fun CharSequence.lastIndexOfAny(vararg searchStrs: CharSequence): Int =
  * from the specified position.
  *
  * A negative start position returns {@code -1}.
- * An empty ("") search CharSequence always matches unless the start position is negative.
+ * 빈 검색 CharSequence("")는 시작 위치가 음수가 아니면 항상 일치합니다.
  * A start position greater than the string length searches the whole string.
  * The search starts at the startPos and works backwards; matches starting after the start
  * position are ignored.
@@ -972,16 +972,16 @@ fun CharSequence.lastIndexOfAny(vararg searchStrs: CharSequence): Int =
  * StringUtils.lastIndexOfIgnoreCase("aabaabaa", "B", 0)  = -1
  * ```
  *
- * @receiver  the CharSequence to check
+ * @receiver 검사할 CharSequence입니다.
  * @param searchStr  the CharSequence to find, may be null
  * @param startPos  the start position
- * @return the last index of the search CharSequence (always <= startPos), -1 if no match
+ * @return 검색 CharSequence의 마지막 인덱스입니다(항상 startPos 이하). 매치가 없으면 -1입니다.
  */
 fun CharSequence.lastIndexOfIgnoreCase(searchStr: CharSequence?, startPos: Int = length): Int =
     Strings.CI.lastIndexOf(this, searchStr, startPos)
 
 /**
- * Left pad a String with a specified character.
+ * 지정한 문자로 문자열 왼쪽을 채웁니다.
  *
  * <p>Pad to a size of {@code size}.</p>
  *
@@ -993,10 +993,10 @@ fun CharSequence.lastIndexOfIgnoreCase(searchStr: CharSequence?, startPos: Int =
  * StringUtils.leftPad("bat", -1, 'z') = "bat"
  * ```
  *
- * @receiver  the String to pad out
- * @param size  the size to pad to
- * @param padChar  the character to pad with
- * @return left padded String or original String if no padding is necessary,
+ * @receiver 채울 대상 문자열입니다.
+ * @param size 채운 뒤의 크기입니다.
+ * @param padChar 채움에 사용할 문자입니다.
+ * @return 왼쪽이 채워진 문자열입니다. 채움이 필요 없으면 원래 문자열입니다,
  *  `null` if null String input
  * @since 2.0
  */
@@ -1004,9 +1004,9 @@ fun String.leftPad(size: Int, padChar: Char = ' '): String =
     StringUtils.leftPad(this, size, padChar)
 
 /**
- * Left pad a String with a specified String.
+ * 지정한 문자열로 문자열 왼쪽을 채웁니다.
  *
- * Pad to a size of `size`.
+ * `size` 크기가 되도록 채웁니다.
  *
  * ```
  * StringUtils.leftPad("", 3, "z")      = "zzz"
@@ -1018,10 +1018,10 @@ fun String.leftPad(size: Int, padChar: Char = ' '): String =
  * StringUtils.leftPad("bat", 5, "")    = "  bat"
  * ```
  *
- * @receiver the String to pad out
- * @param size  the size to pad to
- * @param padStr  the String to pad with, null or empty treated as single space
- * @return left padded String or original String if no padding is necessary,
+ * @receiver 채울 대상 문자열입니다.
+ * @param size 채운 뒤의 크기입니다.
+ * @param padStr 채움에 사용할 문자열입니다. `null` 또는 빈 값은 단일 공백으로 처리합니다.
+ * @return 왼쪽이 채워진 문자열입니다. 채움이 필요 없으면 원래 문자열입니다,
  *  `null` if null String input
  */
 fun String.leftPad(size: Int, padStr: String): String =
@@ -1029,11 +1029,11 @@ fun String.leftPad(size: Int, padStr: String): String =
 
 
 /**
- * Removes all occurrences of a substring from within the source string.
+ * 원본 문자열 안의 모든 부분 문자열 등장 위치를 제거합니다.
  *
- * An empty ("") source string will return the empty string.
+ * 빈 원본 문자열("")은 빈 문자열을 반환합니다.
  * A `null` remove string will return the source string.
- * An empty ("") remove string will return the source string.
+ * 빈 제거 문자열("")은 원본 문자열을 반환합니다.
  *
  * ```
  * StringUtils.remove("", *)          = ""
@@ -1043,9 +1043,9 @@ fun String.leftPad(size: Int, padStr: String): String =
  * StringUtils.remove("queued", "zz") = "queued"
  * ```
  *
- * @receiver  the source String to search
- * @param remove  the String to search for and remove, may be null
- * @return the substring with the string removed if found, `null` if null String input
+ * @receiver 검색할 원본 문자열입니다.
+ * @param remove 검색 후 제거할 문자열입니다. `null`일 수 있습니다.
+ * @return 문자열을 찾으면 제거한 부분 문자열입니다. 입력 문자열이 `null`이면 `null`입니다.
  */
 fun String.remove(remove: String?): String = Strings.CS.remove(this, remove)
 
@@ -1053,7 +1053,7 @@ fun String.remove(remove: String?): String = Strings.CS.remove(this, remove)
  * Removes a substring only if it is at the end of a source string,
  * otherwise returns the source string.
  *
- * An empty ("") source string will return the empty string.
+ * 빈 원본 문자열("")은 빈 문자열을 반환합니다.
  * A `null` search string will return the source string.</p>
  *
  * ```
@@ -1065,17 +1065,17 @@ fun String.remove(remove: String?): String = Strings.CS.remove(this, remove)
  * StringUtils.removeEnd("abc", "")    = "abc"
  * ```
  *
- * @receiver  the source String to search, may be null
- * @param remove  the String to search for and remove, may be null
- * @return the substring with the string removed if found, `null` if null String input
+ * @receiver 검색할 원본 문자열입니다. `null`일 수 있습니다.
+ * @param remove 검색 후 제거할 문자열입니다. `null`일 수 있습니다.
+ * @return 문자열을 찾으면 제거한 부분 문자열입니다. 입력 문자열이 `null`이면 `null`입니다.
  */
 fun String.removeEnd(remove: String): String = Strings.CS.removeEnd(this, remove)
 
 /**
- * Case insensitive removal of a substring if it is at the end of a source string,
+ * 원본 문자열 끝에 있는 부분 문자열을 대소문자 구분 없이 제거합니다,
  * otherwise returns the source string.
  *
- * An empty ("") source string will return the empty string.
+ * 빈 원본 문자열("")은 빈 문자열을 반환합니다.
  * A `null` search string will return the source string.
  *
  * ```
@@ -1089,9 +1089,9 @@ fun String.removeEnd(remove: String): String = Strings.CS.removeEnd(this, remove
  * StringUtils.removeEndIgnoreCase("www.domain.COM", ".com") = "www.domain")
  * ```
  *
- * @receiver  the source String to search, may be null
+ * @receiver 검색할 원본 문자열입니다. `null`일 수 있습니다.
  * @param remove  the String to search for (case-insensitive) and remove, may be null
- * @return the substring with the string removed if found, `null` if null String input
+ * @return 문자열을 찾으면 제거한 부분 문자열입니다. 입력 문자열이 `null`이면 `null`입니다.
  */
 fun String.removeEndIgnoreCase(remove: String): String = Strings.CI.removeEnd(this, remove)
 
@@ -1099,7 +1099,7 @@ fun String.removeEndIgnoreCase(remove: String): String = Strings.CI.removeEnd(th
  * Removes a substring only if it is at the beginning of a source string,
  * otherwise returns the source string.
  *
- * An empty ("") source string will return the empty string.
+ * 빈 원본 문자열("")은 빈 문자열을 반환합니다.
  * A `null` search string will return the source string.
  *
  * ```
@@ -1112,17 +1112,17 @@ fun String.removeEndIgnoreCase(remove: String): String = Strings.CI.removeEnd(th
  * StringUtils.removeStart("abc", "")    = "abc"
  * ```
  *
- * @receiver  the source String to search
- * @param remove  the String to search for and remove, may be null
- * @return the substring with the string removed if found, `null` if null String input
+ * @receiver 검색할 원본 문자열입니다.
+ * @param remove 검색 후 제거할 문자열입니다. `null`일 수 있습니다.
+ * @return 문자열을 찾으면 제거한 부분 문자열입니다. 입력 문자열이 `null`이면 `null`입니다.
  */
 fun String.removeStart(remove: String): String = Strings.CS.removeStart(this, remove)
 
 /**
- * Case insensitive removal of a substring if it is at the beginning of a source string,
+ * 원본 문자열 시작에 있는 부분 문자열을 대소문자 구분 없이 제거합니다,
  * otherwise returns the source string.
  *
- * An empty ("") source string will return the empty string.
+ * 빈 원본 문자열("")은 빈 문자열을 반환합니다.
  * A `null` search string will return the source string.
  *
  * ```
@@ -1136,7 +1136,7 @@ fun String.removeStart(remove: String): String = Strings.CS.removeStart(this, re
  * StringUtils.removeStartIgnoreCase("abc", "")    = "abc"
  * ```
  *
- * @receiver  the source String to search, may be null
+ * @receiver 검색할 원본 문자열입니다. `null`일 수 있습니다.
  * @param remove  the String to search for (case-insensitive) and remove, may be null
  * @return the substring with the string removed if found,
  *  `null` if null String input
@@ -1163,7 +1163,7 @@ fun String.removeStartIgnoreCase(remove: String): String = Strings.CI.removeStar
 fun String.repeat(separator: String?, repeat: Int): String = StringUtils.repeat(this, separator, repeat)
 
 /**
- * Case insensitively replaces a String with another String inside a larger String,
+ * 대소문자를 무시하고 큰 문자열 안의 문자열을 다른 문자열로 교체합니다,
  * for the first {@code max} values of the search String.
  *
  *
@@ -1181,17 +1181,17 @@ fun String.repeat(separator: String?, repeat: Int): String = StringUtils.repeat(
  * StringUtils.replaceIgnoreCase("abAa", "a", "z", -1)  = "zbzz"
  * ```
  *
- * @receiver  text to search and replace in
- * @param searchStr  the String to search for (case-insensitive), may be null
- * @param replacement  the String to replace it with, may be null
+ * @receiver 검색하고 치환할 텍스트입니다.
+ * @param searchStr 대소문자를 무시하고 검색할 문자열입니다. `null`일 수 있습니다.
+ * @param replacement 치환에 사용할 문자열입니다. `null`일 수 있습니다.
  * @param max  maximum number of values to replace, or {@code -1} if no maximum
- * @return the text with any replacements processed, `null` if null String input
+ * @return 치환을 처리한 텍스트입니다. 입력 문자열이 `null`이면 `null`입니다.
  */
 fun String.replaceIgnoreCase(searchStr: String?, replacement: String?, max: Int = -1): String =
     Strings.CI.replace(this, searchStr, replacement, max)
 
 /**
- * Replaces a String with another String inside a larger String, once.
+ * 큰 문자열 안의 문자열을 다른 문자열로 한 번 교체합니다.
  *
  * ```
  * StringUtils.replaceOnce(null, *, *)        = null
@@ -1204,17 +1204,17 @@ fun String.replaceIgnoreCase(searchStr: String?, replacement: String?, max: Int 
  * StringUtils.replaceOnce("aba", "a", "z")   = "zba"
  * ```
  *
- * @receiver text to search and replace in
- * @param searchString  the String to search for, may be null
- * @param replacement  the String to replace with, may be null
- * @return the text with any replacements processed, `null` if null String input
+ * @receiver 검색하고 치환할 텍스트입니다.
+ * @param searchString 검색할 문자열입니다. `null`일 수 있습니다.
+ * @param replacement 치환에 사용할 문자열입니다. `null`일 수 있습니다.
+ * @return 치환을 처리한 텍스트입니다. 입력 문자열이 `null`이면 `null`입니다.
  */
 fun String.replaceOnce(searchString: String?, replacement: String?): String {
     return Strings.CS.replace(this, searchString, replacement, 1)
 }
 
 /**
- * Case insensitively replaces a String with another String inside a larger String, once.
+ * 대소문자를 무시하고 큰 문자열 안의 문자열을 다른 문자열로 한 번 교체합니다.
  *
  * ```
  * StringUtils.replaceOnceIgnoreCase(null, *, *)        = null
@@ -1229,17 +1229,17 @@ fun String.replaceOnce(searchString: String?, replacement: String?): String {
  * ```
  *
  * @see replaceIgnoreCase
- * @receiver  text to search and replace in
- * @param searchString  the String to search for (case-insensitive), may be null
- * @param replacement  the String to replace with, may be null
- * @return the text with any replacements processed, `null` if null String input
+ * @receiver 검색하고 치환할 텍스트입니다.
+ * @param searchString 대소문자를 무시하고 검색할 문자열입니다. `null`일 수 있습니다.
+ * @param replacement 치환에 사용할 문자열입니다. `null`일 수 있습니다.
+ * @return 치환을 처리한 텍스트입니다. 입력 문자열이 `null`이면 `null`입니다.
  */
 fun String.replaceOnceIgnoreCase(searchString: String?, replacement: String?): String {
     return Strings.CI.replace(this, searchString, replacement, 1)
 }
 
 /**
- * Gets the rightmost {@code len} characters of a String.
+ * 문자열의 오른쪽 끝 {@code len\}개 문자를 가져옵니다.
  *
  * If `len` characters are not available, or the String
  * is `null`, the String will be returned without an
@@ -1253,16 +1253,16 @@ fun String.replaceOnceIgnoreCase(searchString: String?, replacement: String?): S
  * StringUtils.right("abc", 4)   = "abc"
  * ```
  *
- * @receiver  the String to get the rightmost characters from, may be null
- * @param len  the length of the required String
- * @return the rightmost characters, `null` if null String input
+ * @receiver 오른쪽 끝 문자를 가져올 문자열입니다. `null`일 수 있습니다.
+ * @param len 필요한 문자열 길이입니다.
+ * @return 오른쪽 끝 문자입니다. 입력 문자열이 `null`이면 `null`입니다.
  */
 fun String.right(len: Int): String = StringUtils.right(this, len)
 
 /**
- * Right pad a String with a specified character.
+ * 지정한 문자로 문자열 오른쪽을 채웁니다.
  *
- * The String is padded to the size of `size`.
+ * 문자열을 `size` 크기가 되도록 채웁니다.
  *
  * ```
  * StringUtils.rightPad("", 3, 'z')     = "zzz"
@@ -1272,17 +1272,17 @@ fun String.right(len: Int): String = StringUtils.right(this, len)
  * StringUtils.rightPad("bat", -1, 'z') = "bat"
  * ```
  *
- * @receiver  the String to pad out
- * @param size  the size to pad to
- * @param padChar  the character to pad with
- * @return right padded String or original String if no padding is necessary, `null` if null String input
+ * @receiver 채울 대상 문자열입니다.
+ * @param size 채운 뒤의 크기입니다.
+ * @param padChar 채움에 사용할 문자입니다.
+ * @return 오른쪽이 채워진 문자열입니다. 채움이 필요 없으면 원래 문자열, 입력 문자열이 `null`이면 `null`입니다.
  */
 fun String.rightPad(size: Int, padChar: Char = ' '): String = StringUtils.rightPad(this, size, padChar)
 
 /**
- * Right pad a String with a specified String.
+ * 지정한 문자열로 문자열 오른쪽을 채웁니다.
  *
- * The String is padded to the size of `size`.
+ * 문자열을 `size` 크기가 되도록 채웁니다.
  *
  * ```
  * StringUtils.rightPad("", 3, "z")      = "zzz"
@@ -1295,15 +1295,15 @@ fun String.rightPad(size: Int, padChar: Char = ' '): String = StringUtils.rightP
  * StringUtils.rightPad("bat", 5, "")    = "bat  "
  * ```
  *
- * @receiver the String to pad out
- * @param size  the size to pad to
- * @param padStr  the String to pad with, null or empty treated as single space
- * @return right padded String or original String if no padding is necessary, `null` if null String input
+ * @receiver 채울 대상 문자열입니다.
+ * @param size 채운 뒤의 크기입니다.
+ * @param padStr 채움에 사용할 문자열입니다. `null` 또는 빈 값은 단일 공백으로 처리합니다.
+ * @return 오른쪽이 채워진 문자열입니다. 채움이 필요 없으면 원래 문자열, 입력 문자열이 `null`이면 `null`입니다.
  */
 fun String.rightPad(size: Int, padStr: String): String = StringUtils.rightPad(this, size, padStr)
 
 /**
- * Check if a CharSequence starts with any of the provided case-sensitive prefixes.
+ * CharSequence가 제공된 대소문자 구분 접두사 중 하나로 시작하는지 확인합니다.
  *
  * ```
  * StringUtils.startsWithAny(null, new String[] {"abc"})  = false
@@ -1315,17 +1315,17 @@ fun String.rightPad(size: Int, padStr: String): String = StringUtils.rightPad(th
  * StringUtils.startsWithAny("ABCXYZ", null, "xyz", "abc") = false
  * ```
  *
- * @receiver the CharSequence to check
- * @param searchStrs the case-sensitive CharSequence prefixes, may be empty or `null`
+ * @receiver 검사할 CharSequence입니다.
+ * @param searchStrs 대소문자를 구분하는 CharSequence 접두사입니다. 비어 있거나 `null`일 수 있습니다.
  * @see StringUtils#startsWith(CharSequence, CharSequence)
- * @return {@code true} if the input {@code sequence} is `null` AND no {@code searchStrings} are provided, or
+ * @return 입력 {@code sequence\}가 `null`이고 {@code searchStrings\}가 제공되지 않았거나,
  *   the input {@code sequence} begins with any of the provided case-sensitive {@code searchStrings}.
  */
 fun CharSequence.startsWithAny(vararg searchStrs: CharSequence?): Boolean =
     Strings.CS.startsWithAny(this, *searchStrs)
 
 /**
- * Case insensitive check if a CharSequence starts with a specified prefix.
+ * 대소문자를 무시하고 CharSequence가 지정한 접두사로 시작하는지 확인합니다.
  *
  * references are considered to be equal. The comparison is case insensitive.
  *
@@ -1337,23 +1337,23 @@ fun CharSequence.startsWithAny(vararg searchStrs: CharSequence?): Boolean =
  * ```
  *
  * @see String#startsWith(String)
- * @receiver  the CharSequence to check, may be null
- * @param prefix the prefix to find, may be null
- * @return {@code true} if the CharSequence starts with the prefix, case-insensitive, or both `null`
+ * @receiver 검사할 CharSequence입니다. `null`일 수 있습니다.
+ * @param prefix 찾을 접두사입니다. `null`일 수 있습니다.
+ * @return 대소문자를 무시하고 CharSequence가 접두사로 시작하거나 둘 다 `null`이면 {@code true\}입니다.
  */
 fun CharSequence.startsWithIgnoreCase(prefix: CharSequence?): Boolean =
     Strings.CI.startsWith(this, prefix)
 
 /**
- * Strips any of a set of characters from the start and end of a String.
+ * 문자열의 시작과 끝에서 지정한 문자 집합을 제거합니다.
  * This is similar to {@link String#trim()} but allows the characters
  * to be stripped to be controlled.
  *
- * An empty string ("") input returns the empty string.
+ * 빈 문자열("") 입력은 빈 문자열을 반환합니다.
  *
  * If the stripChars String is `null`, whitespace is
  * stripped as defined by `Character#isWhitespace(char)`.
- * Alternatively use `String.strip(String)`.
+ * 또는 `String.strip(String)`을 사용합니다.
  *
  * ```
  * StringUtils.strip("", *)            = ""
@@ -1364,16 +1364,16 @@ fun CharSequence.startsWithIgnoreCase(prefix: CharSequence?): Boolean =
  * StringUtils.strip("  abcyx", "xyz") = "  abc"
  * ```
  *
- * @receiver the String to remove characters from, may be null
- * @param stripStr  the characters to remove, null treated as whitespace
- * @return the stripped String, `null` if null String input
+ * @receiver 문자를 제거할 문자열입니다. `null`일 수 있습니다.
+ * @param stripStr 제거할 문자입니다. `null`은 공백으로 처리합니다.
+ * @return 제거 처리된 문자열입니다. 입력 문자열이 `null`이면 `null`입니다.
  */
 fun String.strip(stripStr: String? = null): String = StringUtils.strip(this, stripStr)
 
 /**
- * Strips any of a set of characters from the end of a String.
+ * 문자열 끝에서 지정한 문자 집합을 제거합니다.
  *
- * An empty string ("") input returns the empty string.
+ * 빈 문자열("") 입력은 빈 문자열을 반환합니다.
  *
  * If the stripStr String is `null`, whitespace is
  * stripped as defined by `Character#isWhitespace(char)`.
@@ -1389,16 +1389,16 @@ fun String.strip(stripStr: String? = null): String = StringUtils.strip(this, str
  * StringUtils.stripEnd("120.00", ".0")   = "12"
  * ```
  *
- * @receiver  the String to remove characters from, may be null
- * @param stripStr  the set of characters to remove, null treated as whitespace
- * @return the stripped String, `null` if null String input
+ * @receiver 문자를 제거할 문자열입니다. `null`일 수 있습니다.
+ * @param stripStr 제거할 문자 집합입니다. `null`은 공백으로 처리합니다.
+ * @return 제거 처리된 문자열입니다. 입력 문자열이 `null`이면 `null`입니다.
  */
 fun String.stripEnd(stripStr: String? = null): String = StringUtils.stripEnd(this, stripStr)
 
 /**
- * Strips any of a set of characters from the start of a String.
+ * 문자열 시작에서 지정한 문자 집합을 제거합니다.
  *
- * An empty string ("") input returns the empty string.
+ * 빈 문자열("") 입력은 빈 문자열을 반환합니다.
  *
  * If the stripChars String is `null`, whitespace is
  * stripped as defined by `Character#isWhitespace(char)`.
@@ -1413,15 +1413,15 @@ fun String.stripEnd(stripStr: String? = null): String = StringUtils.stripEnd(thi
  * StringUtils.stripStart("yxabc  ", "xyz") = "abc  "
  * ```
  *
- * @receiver  the String to remove characters from, may be null
- * @param stripStr  the characters to remove, null treated as whitespace
- * @return the stripped String, `null` if null String input
+ * @receiver 문자를 제거할 문자열입니다. `null`일 수 있습니다.
+ * @param stripStr 제거할 문자입니다. `null`은 공백으로 처리합니다.
+ * @return 제거 처리된 문자열입니다. 입력 문자열이 `null`이면 `null`입니다.
  */
 fun String.stripStart(stripStr: String? = null): String = StringUtils.stripStart(this, stripStr)
 
 /**
- * Gets the String that is nested in between two Strings.
- * Only the first match is returned.
+ * 두 문자열 사이에 중첩된 문자열을 가져옵니다.
+ * 첫 번째 매치만 반환합니다.
  *
  * A `null` open/close returns `null` (no match).
  * An empty ("") open and close returns an empty string.</p>
@@ -1438,10 +1438,10 @@ fun String.stripStart(stripStr: String? = null): String = StringUtils.stripStart
  * StringUtils.substringBetween("yabczyabcz", "y", "z")   = "abc"
  * ```
  *
- * @receiver  the String containing the substring, may be null
- * @param open  the String before the substring, may be null
- * @param close  the String after the substring, may be null
- * @return the substring, `null` if no match
+ * @receiver 부분 문자열을 포함하는 문자열입니다. `null`일 수 있습니다.
+ * @param open 부분 문자열 앞의 문자열입니다. `null`일 수 있습니다.
+ * @param close 부분 문자열 뒤의 문자열입니다. `null`일 수 있습니다.
+ * @return 부분 문자열입니다. 매치가 없으면 `null`입니다.
  */
 fun String.substringBetween(open: String?, close: String?): String =
     StringUtils.substringBetween(this, open, close)
@@ -1451,7 +1451,7 @@ fun String.substringBetween(open: String?, close: String?): String =
  * returning all matching substrings in an array.
  *
  * A `null` open/close returns `null` (no match).
- * An empty ("") open/close returns `null` (no match).
+ * 빈 open/close 문자열("")은 `null`을 반환합니다(매치 없음).
  *
  * ```
  * StringUtils.substringsBetween("[a][b][c]", "[", "]") = ["a","b","c"]
@@ -1460,16 +1460,16 @@ fun String.substringBetween(open: String?, close: String?): String =
  * StringUtils.substringsBetween("", "[", "]")          = []
  * ```
  *
- * @receiver  the String containing the substrings, null returns null, empty returns empty
- * @param open  the String identifying the start of the substring, empty returns null
- * @param close  the String identifying the end of the substring, empty returns null
- * @return a String Array of substrings, or `null` if no match
+ * @receiver 부분 문자열들을 포함하는 문자열입니다. `null`이면 `null`, 빈 값이면 빈 값을 반환합니다.
+ * @param open 부분 문자열 시작을 식별하는 문자열입니다. 빈 값이면 `null`을 반환합니다.
+ * @param close 부분 문자열 끝을 식별하는 문자열입니다. 빈 값이면 `null`을 반환합니다.
+ * @return 부분 문자열의 String 배열입니다. 매치가 없으면 `null`입니다.
  */
 fun String.substringsBetween(open: String?, close: String?): Array<String> =
     StringUtils.substringsBetween(this, open, close)
 
 /**
- * Unwraps a given string from another string.
+ * 주어진 문자열에서 감싸는 문자열을 제거합니다.
  *
  * ```
  * StringUtils.unwrap("a", "a")           = "a"
@@ -1482,14 +1482,14 @@ fun String.substringsBetween(open: String?, close: String?): Array<String> =
  * StringUtils.unwrap("A#", "#")          = "A#"
  * ```
  *
- * @receiver the String to be unwrapped, can be null
- * @param wrapToken the String used to unwrap
- * @return unwrapped String or the original string if it is not quoted properly with the wrapToken
+ * @receiver 감싸는 토큰을 제거할 문자열입니다. `null`일 수 있습니다.
+ * @param wrapToken 감싸는 토큰을 제거하는 데 사용할 문자열입니다.
+ * @return 감싸는 토큰을 제거한 문자열입니다. `wrapToken`으로 올바르게 감싸져 있지 않으면 원래 문자열입니다.
  */
 fun String.unwrap(wrapToken: String): String = StringUtils.unwrap(this, wrapToken)
 
 /**
- * Wraps a String with another String.
+ * 문자열을 다른 문자열로 감쌉니다.
  *
  * ```
  * StringUtils.wrap("", *)           = ""
@@ -1503,8 +1503,8 @@ fun String.unwrap(wrapToken: String): String = StringUtils.unwrap(this, wrapToke
  * StringUtils.wrap("'abcd'", "\"")  = "\"'abcd'\""
  * ```
  *
- * @receiver the String to be wrapper, may be null
- * @param wrapWith the String that will wrap str
- * @return wrapped String
+ * @receiver 감쌀 문자열입니다. `null`일 수 있습니다.
+ * @param wrapWith `str`를 감쌀 문자열입니다.
+ * @return 감싸진 문자열입니다.
  */
 fun String.wrap(wrapWith: String): String = StringUtils.wrap(this, wrapWith)
