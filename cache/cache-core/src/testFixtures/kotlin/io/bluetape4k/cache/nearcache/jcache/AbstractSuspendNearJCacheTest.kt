@@ -49,13 +49,13 @@ abstract class AbstractSuspendNearJCacheTest
     protected val frontCoCache2 by lazy { createFrontSuspendCache(Duration.ofMinutes(10)) }
 
     /**
-     * Creates a [SuspendNearJCache] for the given front and back caches.
+     * 주어진 front/back cache에 대한 [SuspendNearJCache]를 생성합니다.
      *
      * Override in subclasses that cannot register a listener (e.g. Hazelcast, which requires
      * [javax.cache.configuration.CacheEntryListenerConfiguration] to be Serializable for cluster
      * distribution) to call [SuspendNearJCache.withoutListener] instead.
      *
-     * The default implementation calls [SuspendNearJCache.invoke] which registers a
+     * 기본 구현은 [SuspendNearJCache.invoke]를 호출하여 등록합니다
      * [io.bluetape4k.cache.jcache.SuspendJCacheEntryEventListener] on [backSuspendJCache] so that
      * mutations propagate from back → front.
      */
