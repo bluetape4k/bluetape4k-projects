@@ -5,13 +5,13 @@
 - Updated `.github/git-commit-instructions.md` to match the current English contributor-facing artifact policy.
 - Kept the change to commit guidance only; no production code, workflow, or Copilot instruction behavior changed.
 
-## Findings
+## 발견 사항
 
 - P0=0
 - P1=0
 - P2=0
 
-## Evidence
+## 증거
 
 - `gh issue view 718 --json body`: issue scope requires English pushed commit messages and conventional prefixes.
 - `gno query "git commit instructions English contributor policy" -c bluetape4k-github --fast --no-rerank`: #699/#718 context found.
