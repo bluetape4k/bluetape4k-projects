@@ -44,7 +44,7 @@ interface AvroGenericRecordSerializer {
     fun serialize(schema: Schema, graph: GenericRecord?): ByteArray?
 
     /**
-     * Serializes [graph] under [schema] into the caller-owned [target] from its current position.
+     * [schema] 아래의 [graph]를 호출자 소유 [target]의 현재 위치부터 직렬화합니다.
      *
      * This default is an allocating fallback that calls [serialize] first. A read-only target fails with
      * `ReadOnlyBufferException` before serializer code runs. A null result writes nothing and returns `0`; insufficient
@@ -78,7 +78,7 @@ interface AvroGenericRecordSerializer {
     fun deserialize(schema: Schema, avroBytes: ByteArray?): GenericData.Record?
 
     /**
-     * Deserializes trusted, caller-bounded bytes in `[source.position(), source.limit())` under [schema].
+     * `[source.position(), source.limit())` 범위의 신뢰된 호출자 한정 바이트를 [schema] 아래에서 역직렬화합니다.
      *
      * This allocating fallback copies the remaining bytes to a new [ByteArray] before calling [deserialize]. Heap,
      * direct, sliced, and read-only sources are supported. Position, limit, mark, and byte order are preserved on every
@@ -130,9 +130,9 @@ interface AvroGenericRecordSerializer {
 }
 
 /**
- * Deserializes the remaining trusted, caller-bounded bytes in [source] under [schema].
+ * [source]에 남은 신뢰된 호출자 한정 바이트를 [schema] 아래에서 역직렬화합니다.
  *
- * The allocating fallback, caller ownership, thread-confinement, and source-state preservation rules of
+ * 할당 기반 fallback, 호출자 소유권, 스레드 한정, source 상태 보존 규칙은
  * [AvroGenericRecordSerializer.deserializeFrom] apply.
  */
 fun AvroGenericRecordSerializer.deserialize(schema: Schema, source: ByteBuffer): GenericData.Record? =
