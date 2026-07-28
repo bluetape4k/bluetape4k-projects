@@ -12,7 +12,7 @@ interface PersonRepository: CoroutineCrudRepository<Person, String> {
     fun findByFirstname(firstname: String): Flow<Person>
 
     /**
-     * Query method requiring a result. Throws [org.springframework.dao.EmptyResultDataAccessException] if no result is found.
+     * 결과가 필요한 query method입니다. 결과를 찾지 못하면 [org.springframework.dao.EmptyResultDataAccessException]을 던집니다.
      * NOTE: suspend 메소드일 때에는 발생하지 않습니다.
      */
     suspend fun findOneByFirstname(firstname: String): Person?

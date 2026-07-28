@@ -7,7 +7,7 @@ import org.springframework.data.repository.kotlin.CoroutineCrudRepository
 interface BasicUserRepository: CoroutineCrudRepository<BasicUser, Long> {
 
     /**
-     * Sample method annotated with {@link Query}. This method executes the CQL from the {@link Query} value.
+     * {@link Query}가 붙은 sample method입니다. 이 method는 {@link Query} 값의 CQL을 실행합니다.
      *
      * @param id
      * @return
@@ -16,7 +16,7 @@ interface BasicUserRepository: CoroutineCrudRepository<BasicUser, Long> {
     suspend fun findUserByIdIn(id: Long): BasicUser?
 
     /**
-     * Derived query method. This query corresponds with {@code SELECT * FROM users WHERE uname = ?0}.
+     * derived query method입니다. 이 query는 {@code SELECT * FROM users WHERE uname = ?0}에 대응합니다.
      * {@link User#username} is not part of the primary so it requires a secondary index.
      *
      * @param username
@@ -25,7 +25,7 @@ interface BasicUserRepository: CoroutineCrudRepository<BasicUser, Long> {
     suspend fun findByUsername(username: String): BasicUser?
 
     /**
-     * Derived query method using SASI (SSTable Attached Secondary Index) features through the `LIKE` keyword. This
+     * `LIKE` keyword를 통해 SASI(SSTable Attached Secondary Index) 기능을 사용하는 derived query method입니다. 이
      * query corresponds with `SELECT * FROM users WHERE lname LIKE '?0'`}`. `User.lastname` is not part of the
      * primary key so it requires a secondary index.
      *
