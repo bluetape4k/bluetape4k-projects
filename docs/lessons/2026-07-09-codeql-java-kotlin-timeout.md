@@ -1,31 +1,30 @@
-# CodeQL Java/Kotlin Timeout
+# CodeQL Java/Kotlin timeout
 
-## Context
+## 배경
 
-After re-enabling the CodeQL `java-kotlin` matrix with a workflow-local Kotlin
-`2.3.21` pin, scheduled CodeQL runs were cancelled after about six hours.
+Workflow-local Kotlin `2.3.21` pin으로 CodeQL `java-kotlin` matrix를 다시 활성화한
+뒤, scheduled CodeQL run이 약 6시간 뒤 취소되었다.
 
-## Decision
+## 결정
 
-Keep the repository catalog on Kotlin `2.4.0` and keep the CodeQL-only
-`2.3.21` rewrite, but narrow the manual Java/Kotlin build from full
-`assemble` to scoped generated library compiler tasks.
+Repository catalog는 Kotlin `2.4.0`으로 유지하고 CodeQL 전용 `2.3.21` rewrite도
+유지하되, manual Java/Kotlin build를 full `assemble`에서 scoped generated library
+compiler task로 좁힌다.
 
-## Outcome
+## 결과
 
-The workflow now asks CodeQL to trace library production source compilation in
-separate Java/Kotlin scopes instead of examples, demos, benchmarks, archive
-tasks, distribution tasks, resource processing, and aggregate assembly. Testing
-helpers are kept in a `testing-core` scope. The `bluetape4k-testcontainers`
-module is temporarily excluded because its single `compileKotlin` task stayed
-in `Build with Gradle` after about 31 minutes under CodeQL tracing; issue #999
-tracks restoring that coverage. The Gradle build step also has an explicit
-120-minute timeout so future regressions do not consume the default 360-minute
-GitHub Actions timeout.
+Workflow는 이제 example, demo, benchmark, archive task, distribution task,
+resource processing, aggregate assembly 대신 별도의 Java/Kotlin scope에서 library
+production source compilation만 CodeQL이 trace하도록 한다. Testing helper는
+`testing-core` scope에 유지한다. `bluetape4k-testcontainers` module은 CodeQL tracing
+아래에서 단일 `compileKotlin` task가 약 31분 뒤에도 `Build with Gradle`에 머물러
+일시적으로 제외했고, issue #999가 해당 coverage 복원을 추적한다. Gradle build step에는
+명시적인 120분 timeout도 두어 향후 regression이 기본 360분 GitHub Actions timeout을
+소모하지 않게 했다.
 
-## Future Guidance
+## 향후 지침
 
-For CodeQL Kotlin analysis, do not assume a successful normal Gradle build means
-the same command is appropriate under CodeQL tracing. Build only the source set
-needed for extraction, keep the workflow-local Kotlin pin isolated, and verify
-with a live CodeQL workflow dispatch.
+CodeQL Kotlin analysis에서는 일반 Gradle build가 성공했다고 같은 command가 CodeQL
+tracing 아래에서도 적합하다고 가정하지 않는다. Extraction에 필요한 source set만
+build하고, workflow-local Kotlin pin은 격리하며, live CodeQL workflow dispatch로
+검증한다.

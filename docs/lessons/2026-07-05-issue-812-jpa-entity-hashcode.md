@@ -1,17 +1,23 @@
-# Issue #812 Lesson
+# 이슈 #812 교훈
 
-## Context
+## 배경
 
-`AbstractJpaEntity` compared transient entities through `equalProperties`, but returned `System.identityHashCode(this)` when `id == null`.
+`AbstractJpaEntity`는 transient entity를 `equalProperties`로 비교했지만, `id == null`일
+때 `System.identityHashCode(this)`를 반환했다.
 
-## Decision
+## 결정
 
-Use the Hibernate-resolved entity class hash for transient entities and keep identifier-based hashing for persisted entities.
+Transient entity에는 Hibernate가 resolve한 entity class hash를 사용하고, persisted
+entity에는 identifier 기반 hashing을 유지한다.
 
-## Outcome
+## 결과
 
-Equal transient entities now land in the same hash bucket, so hash-based collections treat them as one logical element before persistence assigns an identifier.
+동등한 transient entity는 이제 같은 hash bucket에 들어가므로, persistence가
+identifier를 부여하기 전에도 hash-based collection이 이를 하나의 logical element로
+다룬다.
 
-## Future Guidance
+## 향후 지침
 
-When entity equality has a transient business-signature path, add a hash-based collection regression test. Do not use identity hash for objects that can compare equal by business fields.
+Entity equality에 transient business-signature path가 있으면 hash-based collection
+regression test를 추가한다. Business field로 equal이 될 수 있는 object에는 identity
+hash를 사용하지 않는다.
