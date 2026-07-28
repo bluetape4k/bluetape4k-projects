@@ -4,7 +4,7 @@ import io.bluetape4k.support.requireNotBlank
 import io.ktor.server.application.ApplicationCall
 
 /**
- * Returns a required path parameter or throws [IllegalArgumentException].
+ * 필수 path parameter를 반환하거나 [IllegalArgumentException]을 던집니다.
  */
 fun ApplicationCall.requiredPathParameter(name: String): String {
     name.requireNotBlank("name")
@@ -14,7 +14,7 @@ fun ApplicationCall.requiredPathParameter(name: String): String {
 }
 
 /**
- * Returns a required query parameter or throws [IllegalArgumentException].
+ * 필수 query parameter를 반환하거나 [IllegalArgumentException]을 던집니다.
  */
 fun ApplicationCall.requiredQueryParameter(name: String): String {
     name.requireNotBlank("name")
