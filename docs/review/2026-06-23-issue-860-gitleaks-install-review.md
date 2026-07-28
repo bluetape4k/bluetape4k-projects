@@ -1,4 +1,4 @@
-# Issue 860 Review - gitleaks installer
+# Issue 860 검토 - gitleaks installer
 
 ## Scope
 
