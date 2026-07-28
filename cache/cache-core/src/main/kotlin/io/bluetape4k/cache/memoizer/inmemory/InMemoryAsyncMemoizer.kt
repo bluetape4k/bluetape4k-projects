@@ -7,7 +7,7 @@ import java.util.concurrent.CompletableFuture
 import java.util.concurrent.ConcurrentHashMap
 
 /**
- * Creates an [InMemoryAsyncMemoizer] for this [CompletableFuture]-based evaluator.
+ * 이 [CompletableFuture] 기반 evaluator에 대한 [InMemoryAsyncMemoizer]를 생성합니다.
  *
  * ```kotlin
  * val memo = ({ key: String -> CompletableFuture.completedFuture(key.length) }).asyncMemoizer()
