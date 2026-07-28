@@ -1,4 +1,4 @@
-# Issue 785 Near-Cache Retry Compensation Review
+# Issue 785 Near-Cache Retry Compensation 검토
 
 ## Scope
 
