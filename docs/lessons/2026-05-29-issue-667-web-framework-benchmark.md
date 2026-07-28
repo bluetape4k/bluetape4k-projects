@@ -1,31 +1,31 @@
 # Lesson: Web Framework Benchmark Baseline
 
-**Date**: 2026-05-29
-**Issue**: #667
+**날짜**: 2026-05-29
+**이슈**: #667
 
-## Context
+## 배경
 
-The Ktor module family needed current evidence before broad API work in #609.
+Ktor module family는 #609의 넓은 API work 전에 최신 evidence가 필요했다.
 
-## Decision
+## 결정
 
-Add a non-published `benchmark/web-framework-benchmark` module using
-`kotlinx-benchmark`. Keep equivalent Ktor CIO and Spring WebFlux benchmark
-applications inside the benchmark module, not production modules.
+`kotlinx-benchmark`를 사용하는 non-published `benchmark/web-framework-benchmark`
+module을 추가한다. 동등한 Ktor CIO와 Spring WebFlux benchmark application은 production
+module이 아니라 benchmark module 안에 둔다.
 
-## Outcome
+## 결과
 
-The benchmark now covers startup, throughput, and average latency for equivalent
-health, single-ID, batch-ID, and bad-request paths.
+benchmark는 이제 동등한 health, single-ID, batch-ID, bad-request path에 대한 startup,
+throughput, average latency를 다룬다.
 
-## Verification
+## 검증
 
 - `./gradlew :web-framework-benchmark:compileBenchmarkKotlin --no-configuration-cache`
 - `./gradlew :web-framework-benchmark:benchmarkStartupBenchmark --no-configuration-cache`
 - `./gradlew :web-framework-benchmark:benchmarkThroughputBenchmark :web-framework-benchmark:benchmarkLatencyBenchmark --no-configuration-cache`
 
-## Future Guard
+## 향후 가드
 
-Use `server.port=0` and read actual bound ports from the framework runtime.
-Preselecting a local port with `ServerSocket(0)` can race during repeated JMH
-startup iterations.
+`server.port=0`을 사용하고 실제 bound port는 framework runtime에서 읽는다.
+`ServerSocket(0)`로 local port를 미리 고르면 반복되는 JMH startup iteration 중 race가
+발생할 수 있다.
