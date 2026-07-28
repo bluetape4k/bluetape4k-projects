@@ -1,4 +1,4 @@
-# Wave 3 Kotlin Idiom Review — 2026-04-28
+# Wave 3 Kotlin Idiom 검토 — 2026-04-28
 
 전체 5개 그룹 병렬 실행 결과. Tier 4 (Kotlin Idiom) 기준.
 
