@@ -1,29 +1,27 @@
 # Spring Kafka 4 Dependabot Rollback
 
-## Context
+## 배경
 
-Dependabot PR #524 changed the `spring-kafka4` version-catalog alias from
-`4.0.5` to `3.3.15` in `gradle/libs.versions.toml`.
+Dependabot PR #524는 `gradle/libs.versions.toml`에서 `spring-kafka4` version-catalog alias를
+`4.0.5`에서 `3.3.15`로 변경했다.
 
-## Decision
+## 결정
 
-Restore `spring-kafka4` to `4.0.5` and ignore `org.springframework.kafka:*`
-and `spring-kafka*` version-alias updates in Dependabot.
+`spring-kafka4`를 `4.0.5`로 복원하고, Dependabot에서 `org.springframework.kafka:*`와
+`spring-kafka*` version-alias update를 ignore한다.
 
-## Outcome
+## 결과
 
-Spring Kafka 3 and Spring Kafka 4 compatibility lines stay manually managed.
-Dependabot cannot infer that both aliases use the same Maven coordinate with
-different compatibility baselines.
+Spring Kafka 3과 Spring Kafka 4 compatibility line은 수동으로 관리된다. Dependabot은 두 alias가
+같은 Maven coordinate를 쓰지만 서로 다른 compatibility baseline을 가진다는 점을 추론할 수 없다.
 
-## Verification
+## 검증
 
-- Checked `origin/develop` for `bluetape4k-projects`.
-- Compared all non-archived `bluetape4k` GitHub repositories for compatibility
-  alias drift across Spring Boot, Jackson, Kafka, and Spring Kafka lines.
+- `bluetape4k-projects`의 `origin/develop` 확인.
+- Spring Boot, Jackson, Kafka, Spring Kafka line 전반의 compatibility alias drift를 모든
+  non-archived `bluetape4k` GitHub repository에서 비교.
 
-## Future Guard
+## 향후 가드
 
-When a version catalog keeps multiple aliases for one Maven coordinate, do not
-let Dependabot update that coordinate unless the aliases can be split or grouped
-without collapsing compatibility lines.
+Version catalog가 하나의 Maven coordinate에 여러 alias를 유지한다면, compatibility line이 collapse되지
+않도록 alias를 split/group할 수 있기 전에는 Dependabot이 그 coordinate를 업데이트하게 두지 않는다.
