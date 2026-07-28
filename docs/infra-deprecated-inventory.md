@@ -1,4 +1,4 @@
-# infra Deprecated API Inventory
+# infra Deprecated API inventory
 
 Snapshot: 2026-05-09 KST
 Updated: 2026-05-20 KST
@@ -9,7 +9,7 @@ This inventory records tracked `infra/` and related cache source files that
 still declare `@Deprecated`. Completed cleanup waves are removed from the active
 inventory.
 
-## Summary
+## 요약
 
 | Decision | Count | Meaning |
 |---|---:|---|
