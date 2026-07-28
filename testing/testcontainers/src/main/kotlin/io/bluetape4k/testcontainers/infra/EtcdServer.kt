@@ -11,7 +11,7 @@ import org.testcontainers.containers.wait.strategy.Wait
 import org.testcontainers.utility.DockerImageName
 
 /**
- * Runs a single-node [etcd](https://etcd.io/) server with Testcontainers.
+ * Testcontainers로 single-node [etcd](https://etcd.io/) server를 실행합니다.
  *
  * ## Behavior / Contract
  * - Exposes the etcd client API on [CLIENT_PORT] and the peer API on [PEER_PORT].
@@ -50,7 +50,7 @@ class EtcdServer private constructor(
         val EXPORT_PORTS = intArrayOf(CLIENT_PORT, PEER_PORT)
 
         /**
-         * Creates an [EtcdServer] from a [DockerImageName].
+         * [DockerImageName]으로 [EtcdServer]를 생성합니다.
          *
          * @param imageName Docker image name.
          * @param useDefaultPort binds 2379/2380 to the same host ports when `true`.
@@ -66,7 +66,7 @@ class EtcdServer private constructor(
         }
 
         /**
-         * Creates an [EtcdServer] from an image name and tag.
+         * image name과 tag로 [EtcdServer]를 생성합니다.
          *
          * @param image Docker image name; blank values are rejected.
          * @param tag Docker image tag; blank values are rejected.
