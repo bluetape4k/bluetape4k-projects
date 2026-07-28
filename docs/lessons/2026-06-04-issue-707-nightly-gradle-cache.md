@@ -1,22 +1,28 @@
-# 2026-06-04 Issue 707 Nightly Gradle Cache
+# 2026-06-04 이슈 707 Nightly Gradle cache
 
-## Context
+## 배경
 
-Nightly builds across bluetape4k repositories intermittently resolved managed dependencies as `group:artifact:.` on GitHub runners.
+bluetape4k repository 전반의 Nightly build가 GitHub runner에서 managed dependency를
+간헐적으로 `group:artifact:.` 형태로 resolve했다.
 
-## Decision
+## 결정
 
-Disable `gradle/actions/setup-gradle` cache restore/write for Nightly jobs so scheduled runs do not reuse stale dependency-management state.
+scheduled run이 stale dependency-management state를 재사용하지 않도록 Nightly job에서
+`gradle/actions/setup-gradle` cache restore/write를 비활성화한다.
 
-## Outcome
+## 결과
 
-Every Nightly `setup-gradle` block now sets `cache-disabled: true` while keeping explicit Gradle dependency refresh.
+모든 Nightly `setup-gradle` block은 explicit Gradle dependency refresh를 유지하면서
+`cache-disabled: true`를 설정한다.
 
-## Verification
+## 검증
 
-- Audited `.github/workflows/nightly-tests.yml`: setup-gradle blocks match cache-disabled blocks.
-- Planned validation: `actionlint`, `git diff --check`.
+- `.github/workflows/nightly-tests.yml`을 감사해 setup-gradle block이 cache-disabled block과
+  일치함을 확인했다.
+- planned validation: `actionlint`, `git diff --check`.
 
-## Future Rule
+## 향후 규칙
 
-When a Nightly workflow uses snapshot or BOM-managed bluetape4k dependencies, keep Gradle action cache disabled unless a fresh CI proof shows cache restore cannot replay stale metadata.
+Nightly workflow가 snapshot 또는 BOM-managed bluetape4k dependency를 사용할 때는, cache
+restore가 stale metadata를 재생하지 않는다는 fresh CI proof가 없는 한 Gradle action
+cache를 비활성화한다.
