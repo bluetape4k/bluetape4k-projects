@@ -62,7 +62,7 @@ import okhttp3.Dispatcher as OkHttpDispatcher
  * - Ktor CIO + Coroutines
  * - Vert.x WebClient + Coroutines
  *
- * Ktor CIO 3.5 opens dedicated HTTP/1 connections when its pipeline path is
+ * Ktor CIO 3.5는 pipeline 경로가 사용될 때 전용 HTTP/1 connection을 엽니다
  * disabled. The benchmark therefore keeps a short equal-thread measurement
  * window for every client instead of limiting only the CIO row to one thread.
  */
