@@ -12,13 +12,13 @@ import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 
 /**
- * Creates a Ktor [MockEngine] that returns one JSON response.
+ * 하나의 JSON response를 반환하는 Ktor [MockEngine]을 생성합니다.
  *
- * ## Contract
- * - Response JSON uses bluetape4k Ktor defaults unless [jsonFormat] is supplied.
- * - `Content-Type: application/json` is added by default.
- * - The helper stays intentionally small; use Ktor's [MockEngine] directly for
- *   request-dependent or multi-step scenarios.
+ * ## 계약
+ * - [jsonFormat]을 지정하지 않으면 response JSON은 bluetape4k Ktor 기본값을 사용합니다.
+ * - `Content-Type: application/json`은 기본으로 추가됩니다.
+ * - 이 helper는 의도적으로 작게 유지합니다. request-dependent 또는 multi-step scenario에는
+ *   Ktor [MockEngine]을 직접 사용하십시오.
  */
 inline fun <reified T> bluetape4kJsonMockEngine(
     body: T,
