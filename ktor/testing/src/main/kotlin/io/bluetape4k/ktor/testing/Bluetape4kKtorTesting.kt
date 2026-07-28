@@ -39,7 +39,7 @@ fun ApplicationTestBuilder.installBluetape4kKtorCoreForTest(
 }
 
 /**
- * Creates a Ktor test client with bluetape4k JSON defaults.
+ * bluetape4k JSON 기본값을 사용하는 Ktor test client를 생성합니다.
  *
  * ## Contract
  * - Uses [Bluetape4kKtorJson.defaultJson] unless a custom [jsonFormat] is supplied.
