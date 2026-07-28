@@ -1,24 +1,30 @@
-# io/io benchmark charts
+# io/io benchmark chart
 
-## Context
+## 배경
 
-The `io/io` README benchmark section linked generated `readme-diagrams/io-io-diagram-03..05` images even though the content was throughput data. One generated SVG converted chart syntax into component boxes such as `ops/s`, `y`, and `axis`.
+`io/io` README benchmark section은 throughput data임에도 generated `readme-diagrams/io-io-diagram-03..05`
+image를 link했다. Generated SVG 하나는 chart syntax를 `ops/s`, `y`, `axis` 같은 component box로
+변환했다.
 
-## Decision
+## 결정
 
-Use `docs/images/readme-charts/` for benchmark visuals and remove the broken benchmark diagrams from `readme-diagrams`.
+Benchmark visual은 `docs/images/readme-charts/`를 사용하고, 깨진 benchmark diagram은 `readme-diagrams`에서
+제거한다.
 
-## Outcome
+## 결과
 
-The README benchmark section now links chart images for fast serializer throughput, binary serializer payload comparison, and compressor throughput. Benchmark naming also uses the current `Fory` source API name instead of the stale `Fury` label.
+README benchmark section은 fast serializer throughput, binary serializer payload comparison,
+compressor throughput에 대한 chart image를 link한다. Benchmark naming도 stale `Fury` label 대신 현재
+source API name인 `Fory`를 사용한다.
 
-## Verification
+## 검증
 
-- `xmllint --noout` on touched chart SVG files
+- 수정한 chart SVG file에 `xmllint --noout`
 - `rsvg-convert` PNG rendering
-- README image-link scan for `io/io`
-- Visual spot-check of the new fast serializer chart
+- `io/io` README image-link scan
+- 새 fast serializer chart visual spot-check
 
-## Future note
+## 향후 노트
 
-When a Mermaid or generated image source encodes benchmark values, render it as a chart under `docs/images/readme-charts/`, not as a component diagram.
+Mermaid 또는 generated image source가 benchmark value를 encode한다면 component diagram이 아니라
+`docs/images/readme-charts/` 아래 chart로 render한다.
