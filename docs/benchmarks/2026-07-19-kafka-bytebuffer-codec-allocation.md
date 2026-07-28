@@ -1,12 +1,16 @@
 # Kafka ByteBuffer Codec Allocation Benchmark - 2026-07-19
 
-## Scope
+## 범위
 
-Issue [#758](https://github.com/bluetape4k/bluetape4k-projects/issues/758) compares standard Kafka `ByteArray` codec calls with opt-in, caller-owned `ByteBuffer` calls for the same Kryo-backed `BinaryKafkaCodec` payload. The benchmark isolates codec serialization and deserialization. It excludes the Kafka broker, network transport, batching, compression, and header creation.
+Issue [#758](https://github.com/bluetape4k/bluetape4k-projects/issues/758)는 같은 Kryo-backed
+`BinaryKafkaCodec` payload에 대해 standard Kafka `ByteArray` codec call과 opt-in
+caller-owned `ByteBuffer` call을 비교한다. Benchmark는 codec serialization과
+deserialization을 분리한다. Kafka broker, network transport, batching, compression,
+header creation은 제외한다.
 
-## Commands
+## 명령
 
-The generated benchmark tasks were reconfirmed before building the benchmark jar:
+Benchmark jar를 build하기 전에 생성된 benchmark task를 다시 확인했다.
 
 ```bash
 ./gradlew :serializer-benchmark:tasks --all --no-configuration-cache | \
@@ -21,7 +25,7 @@ java -jar "$exact_jar" '.*KafkaCodecAllocationBenchmark.*' \
   -t 1 -f 1 -wi 1 -i 1 -w 1s -r 1s -prof gc
 ```
 
-The first evidence run used:
+첫 번째 evidence run은 다음을 사용했다.
 
 ```bash
 evidence_root='docs/benchmarks/raw/issue-758'
@@ -42,7 +46,7 @@ python3 benchmark/serializer-benchmark/scripts/summarize-jmh.py run \
   --input "$first_run_dir/jmh.json" --output "$first_run_dir/summary.csv"
 ```
 
-The second evidence run started only after the first run and its summary completed:
+두 번째 evidence run은 첫 번째 run과 summary가 완료된 뒤에만 시작했다.
 
 ```bash
 second_run_id="run-$(date -u +%Y%m%dT%H%M%SZ)"
@@ -67,9 +71,9 @@ python3 benchmark/serializer-benchmark/scripts/summarize-jmh.py compare \
   --output 'docs/benchmarks/raw/issue-758/comparison.csv'
 ```
 
-## Run Conditions
+## 실행 조건
 
-| Field | Value |
+| 항목 | 값 |
 |---|---|
 | Evidence commit | `60fdb9b90ba129f6bd1de4747a3f6d9e960fbdf9` |
 | Run IDs | `run-20260718T204256Z`, `run-20260718T204443Z` |
@@ -80,18 +84,21 @@ python3 benchmark/serializer-benchmark/scripts/summarize-jmh.py compare \
 | JMH | 1.37; one thread; two forks; three warmup iterations; five measurement iterations; 1-second warmup and measurement windows; GC profiler |
 | Primary decision metric | `gc.alloc.rate.norm` in B/op |
 
-The two evidence runs executed sequentially on the same measured environment. A direction is accepted only when the optimized `ByteBuffer` cell allocates at least 5% less than its `ByteArray` baseline in both runs.
+두 evidence run은 같은 measured environment에서 순차 실행했다. Direction은 optimized
+`ByteBuffer` cell이 두 run 모두에서 `ByteArray` baseline보다 allocation을 최소 5% 적게
+할당할 때만 accepted가 된다.
 
-## Raw Artifacts
+## Raw Artifact
 
 - Run 1: [environment](raw/issue-758/run-20260718T204256Z/environment.txt), [JMH JSON](raw/issue-758/run-20260718T204256Z/jmh.json), [summary CSV](raw/issue-758/run-20260718T204256Z/summary.csv)
 - Run 2: [environment](raw/issue-758/run-20260718T204443Z/environment.txt), [JMH JSON](raw/issue-758/run-20260718T204443Z/jmh.json), [summary CSV](raw/issue-758/run-20260718T204443Z/summary.csv)
 - [Two-run comparison CSV](raw/issue-758/comparison.csv)
-- Charts: Not produced. The tables and raw JMH JSON are authoritative.
+- Chart: 생성하지 않았다. Table과 raw JMH JSON이 authoritative source다.
 
-## Allocation Results
+## Allocation 결과
 
-The values below reproduce `comparison.csv` exactly. Negative deltas mean the optimized `ByteBuffer` cell allocated fewer B/op than the `ByteArray` baseline.
+아래 값은 `comparison.csv`를 정확히 재현한다. Negative delta는 optimized `ByteBuffer` cell이
+`ByteArray` baseline보다 더 적은 B/op를 할당했음을 뜻한다.
 
 | Direction | Run | ByteArray baseline B/op | Optimized ByteBuffer B/op | Delta | Comparison verdict |
 |---|---|---:|---:|---:|---|
@@ -102,15 +109,22 @@ The values below reproduce `comparison.csv` exactly. Negative deltas mean the op
 
 ## Diagnostic Throughput
 
-Throughput scores and errors remain available in the raw JMH JSON and each `summary.csv`. Throughput is diagnostic only and does not establish the allocation decision.
+Throughput score와 error는 raw JMH JSON과 각 `summary.csv`에서 확인할 수 있다.
+Throughput은 diagnostic only이며 allocation decision을 확립하지 않는다.
 
-## Interpretation
+## 해석
 
-- Serialize is accepted: both fresh runs show at least 5% lower `gc.alloc.rate.norm` for the optimized `ByteBuffer` path than for the `ByteArray` baseline.
-- Deserialize is inconclusive: the optimized `ByteBuffer` path was lower in both runs, but neither exact delta reached the required 5% reduction threshold.
+- Serialize는 accepted다. 두 fresh run 모두 optimized `ByteBuffer` path의
+  `gc.alloc.rate.norm`이 `ByteArray` baseline보다 최소 5% 낮았다.
+- Deserialize는 inconclusive다. Optimized `ByteBuffer` path가 두 run 모두에서 낮았지만, 어느
+  exact delta도 요구된 5% reduction threshold에 도달하지 못했다.
 
-These results support an allocation-reduction claim only for serialization under the measured codec conditions. They do not establish zero-copy Kafka behavior or broker throughput.
+이 결과는 measured codec condition에서 serialization에 대해서만 allocation-reduction claim을
+뒷받침한다. Zero-copy Kafka behavior나 broker throughput을 입증하지 않는다.
 
-## Limitations
+## 한계
 
-The evidence applies to the committed payload, the current Kryo configuration, caller-owned heap output, bounded direct input, the codec-only loop, and the measured environment. It excludes broker behavior, network transport, batching, compression, header creation, and other payloads or codec configurations. No zero-copy Kafka or broker-throughput claim is made.
+이 evidence는 committed payload, 현재 Kryo configuration, caller-owned heap output, bounded
+direct input, codec-only loop, measured environment에 적용된다. Broker behavior, network
+transport, batching, compression, header creation, 다른 payload 또는 codec configuration은
+제외한다. Zero-copy Kafka 또는 broker-throughput claim은 하지 않는다.

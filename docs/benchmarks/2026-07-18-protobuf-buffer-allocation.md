@@ -1,8 +1,8 @@
 # Protobuf Buffer Allocation Evidence
 
-## Scope
+## 범위
 
-Issue #757 allocation evidence generated from the committed delivery manifest.
+Issue #757 allocation evidence는 committed delivery manifest에서 생성했다.
 
 ## Provenance
 
@@ -10,12 +10,12 @@ Issue #757 allocation evidence generated from the committed delivery manifest.
 - Measurement tree: `deb33ba349af9aa74f0757034c3089aafecf10be`
 - Delivery commit: `93d8f39e83f2a6e650a7eb70f5e843b7cd232d66`
 
-## Recorded commands
+## 기록된 명령
 
 - `java -jar <PINNED_JAR_SHA256:99a80d85a5d3f5dabd1a504c58fd0abbec2499315e64f81a79c3c0ec7fb94a3c> -t 1 -f 2 -wi 3 -i 5 -w 1s -r 1s -prof gc -rf json -rff docs/benchmarks/raw/issue-757/generations/g-e11070a28a64d8e4fd62dc942b93601d/run-20260720T233154.066805Z-a9ec6e4f/jmh.json -jvmArgsAppend -Xms1g -Xmx1g -XX:+UseG1GC`
 - `java -jar <PINNED_JAR_SHA256:99a80d85a5d3f5dabd1a504c58fd0abbec2499315e64f81a79c3c0ec7fb94a3c> -t 1 -f 2 -wi 3 -i 5 -w 1s -r 1s -prof gc -rf json -rff docs/benchmarks/raw/issue-757/generations/g-e11070a28a64d8e4fd62dc942b93601d/run-20260720T233655.039662Z-5ce2db11/jmh.json -jvmArgsAppend -Xms1g -Xmx1g -XX:+UseG1GC`
 
-## Measurements
+## 측정값
 
 | Method | Run | B/op | ops/s | Delta | Verdict | Reason | Claim |
 |---|---|---:|---:|---:|---|---|---|
@@ -54,14 +54,17 @@ Issue #757 allocation evidence generated from the committed delivery manifest.
 | trustedFallbackEncodeBufferCompatibility | run-20260720T233655.039662Z-5ce2db11 | 656.00494568671752 | 1450352.4625205498 | n/a | ineligible | compatibility_control | No positive reduction claim |
 | trustedFallbackEncodeByteArray | run-20260720T233655.039662Z-5ce2db11 | 656.00475193762554 | 1482498.9066799234 | n/a | ineligible | compatibility_control | No positive reduction claim |
 
-## Rollback decisions
+## Rollback 결정
 
-- `serializer_decode` removed after regression; triggering cells: serializerDecodeDirectOptimized; ineligible removed cells: serializerDecodeDirectOptimized, serializerDecodeHeapOptimized.
+- Regression 이후 `serializer_decode`를 제거했다. Triggering cell:
+  serializerDecodeDirectOptimized. Ineligible removed cell:
+  serializerDecodeDirectOptimized, serializerDecodeHeapOptimized.
 
-## Compatibility controls
+## Compatibility control
 
-Fallback and composite controls remain claim-ineligible and are reported without a positive claim.
+Fallback과 composite control은 claim-ineligible 상태로 남으며 positive claim 없이 보고한다.
 
-## Limitations
+## 한계
 
-JMH GC allocation is environment-sensitive; throughput is diagnostic and not the allocation acceptance criterion.
+JMH GC allocation은 environment-sensitive하다. Throughput은 diagnostic이며 allocation
+acceptance criterion이 아니다.

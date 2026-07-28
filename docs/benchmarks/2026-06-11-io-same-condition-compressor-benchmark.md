@@ -1,12 +1,13 @@
 # Same-Condition IO Compressor Benchmark - 2026-06-11
 
-## Scope
+## 범위
 
-- Issue or PR: #746
-- Module or benchmark target: `:bluetape4k-io`, `testBenchmark`
-- Decision being informed: provide a stable JVM-side compressor-only matrix that can be compared with `bluetape-go` and `bluetape-rs`.
+- Issue 또는 PR: #746
+- Module 또는 benchmark target: `:bluetape4k-io`, `testBenchmark`
+- 정보를 제공하는 결정: `bluetape-go`, `bluetape-rs`와 비교 가능한 안정적인 JVM-side
+  compressor-only matrix를 제공한다.
 
-## Commands
+## 명령
 
 ```bash
 ./gradlew :bluetape4k-io:tasks --all
@@ -20,11 +21,13 @@ java -jar io/io/build/benchmarks/test/jars/bluetape4k-io-test-jmh-1.11.0-JMH.jar
   -rf json -rff docs/benchmarks/raw/issue-746/jmh-smoke.json
 ```
 
-The Gradle `testBenchmark` JavaExec task exists and remains the primary full-run entrypoint. For the focused smoke run above, direct JMH jar execution is used because `testBenchmark --args` treats the first argument as the kotlinx runner input file, not as JMH include/filter arguments.
+Gradle `testBenchmark` JavaExec task가 있으며 primary full-run entrypoint로 유지된다. 위의
+focused smoke run에서는 direct JMH jar execution을 사용한다. `testBenchmark --args`가 첫
+argument를 JMH include/filter argument가 아니라 kotlinx runner input file로 다루기 때문이다.
 
-## Run Conditions
+## 실행 조건
 
-| Field | Value |
+| 항목 | 값 |
 |---|---|
 | Date | 2026-06-11 |
 | OS / CPU | macOS Darwin 25.5.0, arm64 Apple workstation |
@@ -34,24 +37,25 @@ The Gradle `testBenchmark` JavaExec task exists and remains the primary full-run
 | Payload matrix | JSON/Text/Binary/Random x small 1 KiB, medium 64 KiB, large 512 KiB |
 | Normalized compressors | GZip, Deflate, Zstd, LZ4, Snappy |
 | JVM-only context | BZip2, excluded from the normalized cross-ecosystem table |
-| External services | None |
+| External services | 없음 |
 
-## Raw Artifacts
+## Raw Artifact
 
 - `docs/benchmarks/raw/issue-746/payload-matrix.csv`
 - `docs/benchmarks/raw/issue-746/large-payload-baseline.csv`
 - `docs/benchmarks/raw/issue-746/jmh-smoke.json`
-- Linked source comment: https://github.com/bluetape4k/bluetape4k-projects/issues/746#issuecomment-4677660014
+- 연결된 source comment: https://github.com/bluetape4k/bluetape4k-projects/issues/746#issuecomment-4677660014
 
-## Results
+## 결과
 
-The committed smoke result proves that the generated JMH jar executes the new benchmark class and writes JSON output:
+Committed smoke result는 생성된 JMH jar가 새 benchmark class를 실행하고 JSON output을
+쓴다는 점을 증명한다.
 
 | Workload | Score | Unit | Notes |
 |---|---:|---|---|
 | `SameConditionCompressorBenchmark.compress`, `json/small/lz4` | 1,021,334.375 | ops/s | 100 ms smoke only; not a ranking run |
 
-Large payload baseline copied from the issue comment:
+Issue comment에서 복사한 large payload baseline:
 
 | payload | compressor | go MB/s | go ratio | jvm MB/s | jvm ratio | go bytes | jvm bytes |
 |---|---:|---:|---:|---:|---:|---:|---:|
@@ -76,18 +80,25 @@ Large payload baseline copied from the issue comment:
 | random | snappy | 4410.34 | 1 | 5091.86 | 1.00005 | 524362 | 524315 |
 | random | zstd | 1664.67 | 1 | 7008.52 | 1.00005 | 524313 | 524313 |
 
-## Chart Artifacts
+## Chart Artifact
 
-- Not produced. The issue needs a stable benchmark matrix and raw markdown/CSV evidence first; charts can be added when cross-repository report publication happens.
+- 생성하지 않았다. 이 issue는 먼저 안정적인 benchmark matrix와 raw markdown/CSV evidence가
+  필요하다. Chart는 cross-repository report publication 시점에 추가할 수 있다.
 
-## Interpretation
+## 해석
 
-- The repository now has a deterministic JVM fixture generator for JSON/Text/Binary/Random payloads at small/medium/large sizes.
-- The normalized cross-ecosystem table is limited to GZip, Deflate, Zstd, LZ4, and Snappy. BZip2 remains JVM-only context because it is not a common normalized family across all target ecosystems.
-- The smoke JMH result is execution evidence only. It must not be treated as a production ranking because it uses one short 100 ms measurement.
-- The linked issue comment preserves the earlier large-payload cross-ecosystem snapshot; this PR makes the JVM harness durable and repeatable.
+- Repository는 이제 small/medium/large size의 JSON/Text/Binary/Random payload에 대해
+  deterministic JVM fixture generator를 가진다.
+- Normalized cross-ecosystem table은 GZip, Deflate, Zstd, LZ4, Snappy로 제한한다. BZip2는
+  모든 target ecosystem에서 공통 normalized family가 아니므로 JVM-only context로 남긴다.
+- Smoke JMH result는 execution evidence일 뿐이다. 짧은 100 ms measurement 하나를 사용하므로
+  production ranking으로 다루면 안 된다.
+- 연결된 issue comment는 이전 large-payload cross-ecosystem snapshot을 보존한다. 이 PR은 JVM
+  harness를 durable하고 repeatable하게 만든다.
 
-## Follow-Up
+## 후속 작업
 
-- Re-run the full matrix across `bluetape-go`, `bluetape-rs`, and `bluetape4k-io` from the same committed fixture contract before publishing public rankings.
-- If allocation or GC evidence is required, run the generated JMH jar with `-prof gc` and commit a compact JSON/CSV extract under `docs/benchmarks/raw/issue-746/`.
+- Public ranking을 publish하기 전에 같은 committed fixture contract에서 `bluetape-go`,
+  `bluetape-rs`, `bluetape4k-io` 전체 matrix를 다시 실행한다.
+- Allocation 또는 GC evidence가 필요하면 생성된 JMH jar를 `-prof gc`와 함께 실행하고 compact
+  JSON/CSV extract를 `docs/benchmarks/raw/issue-746/` 아래에 commit한다.
