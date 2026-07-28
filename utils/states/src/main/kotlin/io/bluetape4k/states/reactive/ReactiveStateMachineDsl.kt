@@ -9,11 +9,11 @@ import io.bluetape4k.states.core.TransitionTarget
 import kotlinx.coroutines.CoroutineScope
 
 /**
- * Configures a reactive transition.
+ * reactive transition을 설정합니다.
  *
- * @param S state type
- * @param E event type
- * @param F effect type
+ * @param S state 타입입니다.
+ * @param E event 타입입니다.
+ * @param F effect 타입입니다.
  */
 @StateMachineDsl
 class ReactiveTransitionBuilder<S: Any, E: Any, F: Any> {
@@ -25,14 +25,14 @@ class ReactiveTransitionBuilder<S: Any, E: Any, F: Any> {
         private set
 
     /**
-     * Sets a guard condition for this transition.
+     * 이 transition의 guard 조건을 설정합니다.
      */
     fun guard(predicate: (S, E) -> Boolean) {
         guardFunction = predicate
     }
 
     /**
-     * Sets an effect handler that runs after a successful transition.
+     * transition 성공 후 실행할 effect handler를 설정합니다.
      */
     fun effect(handler: suspend ReactiveEffectScope<E, F>.(S, E, S) -> Unit) {
         effectHandler = handler
@@ -40,7 +40,7 @@ class ReactiveTransitionBuilder<S: Any, E: Any, F: Any> {
 }
 
 /**
- * Configures lifecycle side effects for a state or state family.
+ * state 또는 state family에 대한 lifecycle side effect를 설정합니다.
  */
 @StateMachineDsl
 class ReactiveStateBuilder<S: Any, E: Any, F: Any> internal constructor(
@@ -49,15 +49,14 @@ class ReactiveStateBuilder<S: Any, E: Any, F: Any> internal constructor(
 ) {
 
     /**
-     * Starts [block] whenever the matching state is active.
+     * matching state가 active일 때마다 [block]을 시작합니다.
      */
     fun sideEffect(block: suspend ReactiveEffectScope<E, F>.(S) -> Unit) {
         sideEffect(key = { it }, block = block)
     }
 
     /**
-     * Starts [block] whenever the matching state is active and restarts it only
-     * when [key] changes.
+     * matching state가 active일 때마다 [block]을 시작하고 [key]가 바뀔 때만 다시 시작합니다.
      */
     fun sideEffect(
         key: (S) -> Any?,
@@ -68,7 +67,7 @@ class ReactiveStateBuilder<S: Any, E: Any, F: Any> internal constructor(
 }
 
 /**
- * Builder for [ReactiveStateMachine].
+ * [ReactiveStateMachine]을 구성하는 builder입니다.
  */
 @StateMachineDsl
 class ReactiveStateMachineBuilder<S: Any, E: Any, F: Any> internal constructor(
@@ -87,7 +86,7 @@ class ReactiveStateMachineBuilder<S: Any, E: Any, F: Any> internal constructor(
     private val sideEffects = mutableListOf<ReactiveSideEffect<S, E, F>>()
 
     /**
-     * Registers an exact state transition.
+     * 정확히 일치하는 state transition을 등록합니다.
      */
     fun transition(
         from: S,
@@ -102,7 +101,7 @@ class ReactiveStateMachineBuilder<S: Any, E: Any, F: Any> internal constructor(
     }
 
     /**
-     * Registers an inherited transition for a state family.
+     * state family에 대한 inherited transition을 등록합니다.
      */
     fun transition(
         from: Class<out S>,
@@ -117,7 +116,7 @@ class ReactiveStateMachineBuilder<S: Any, E: Any, F: Any> internal constructor(
     }
 
     /**
-     * Configures side effects for one exact state value.
+     * 하나의 정확한 state 값에 대한 side effect를 설정합니다.
      */
     fun onState(
         state: S,
@@ -127,7 +126,7 @@ class ReactiveStateMachineBuilder<S: Any, E: Any, F: Any> internal constructor(
     }
 
     /**
-     * Configures side effects for every state matching [stateType].
+     * [stateType]과 일치하는 모든 state에 대한 side effect를 설정합니다.
      */
     fun onState(
         stateType: Class<out S>,
@@ -137,7 +136,7 @@ class ReactiveStateMachineBuilder<S: Any, E: Any, F: Any> internal constructor(
     }
 
     /**
-     * Creates a reactive state machine.
+     * reactive state machine을 생성합니다.
      */
     fun build(): ReactiveStateMachine<S, E, F> {
         val exactTransitions = transitions.toMap()
@@ -173,7 +172,7 @@ class ReactiveStateMachineBuilder<S: Any, E: Any, F: Any> internal constructor(
 }
 
 /**
- * Creates a [ReactiveStateMachine].
+ * [ReactiveStateMachine]을 생성합니다.
  */
 fun <S: Any, E: Any, F: Any> reactiveStateMachine(
     scope: CoroutineScope,
