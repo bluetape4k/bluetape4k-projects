@@ -1,12 +1,12 @@
-# Issue #1080 Lettuce Lock Family Implementation Plan
+# Issue #1080 Lettuce Lock Family 구현 계획
 
-> **For agentic workers:** REQUIRED SUB-SKILL: Use `subagent-driven-development` (recommended) or `executing-plans` to implement this plan task-by-task. Follow `bluetape-full-feature`, `bluetape-workflow`, `bluetape-kotlin-patterns`, `kotlin-coroutines-skill`, `test-driven-development`, `bluetape-writer`, and `bluetape-diagram`. Testcontainers-backed Redis tasks are serialized across worktrees.
+> **agentic worker용:** 필수 sub-skill: 이 계획은 `subagent-driven-development`(권장) 또는 `executing-plans`로 task별 구현한다. `bluetape-full-feature`, `bluetape-workflow`, `bluetape-kotlin-patterns`, `kotlin-coroutines-skill`, `test-driven-development`, `bluetape-writer`, `bluetape-diagram`을 따른다. Testcontainers-backed Redis task는 worktree 전체에서 직렬화한다.
 
-**Goal:** Deliver the first approved #1080 PR as an additive, Redisson-shaped Lettuce Lock family with six lock objects, logical-owner reentrancy, generation-safe handles, fixed/watchdog leases, bounded waiting, typed failure/reconciliation, Redis Cluster safety, and blocking/async/suspend semantic parity.
+**목표:** Deliver the first approved #1080 PR as an additive, Redisson-shaped Lettuce Lock family with six lock objects, logical-owner reentrancy, generation-safe handles, fixed/watchdog leases, bounded waiting, typed failure/reconciliation, Redis Cluster safety, and blocking/async/suspend semantic parity.
 
-**Architecture:** Public identity, handle, config, result, and six lock objects live under `io.bluetape4k.redis.lettuce.lock`. Redis-neutral key, script, deadline, runtime, task-registry, and sanitized protocol support lives under `io.bluetape4k.redis.lettuce.coordination.internal` without leaking into public signatures. Lock-specific Lua, result decoding, wait loops, fair/read-write admission, fencing, and multi-lock composition live under `lock.internal`. Existing `LettuceLock`, fencing lease, multi-key lease, and semaphore APIs remain source/binary compatible and unchanged in this delivery.
+**아키텍처:** Public identity, handle, config, result, and six lock objects live under `io.bluetape4k.redis.lettuce.lock`. Redis-neutral key, script, deadline, runtime, task-registry, and sanitized protocol support lives under `io.bluetape4k.redis.lettuce.coordination.internal` without leaking into public signatures. Lock-specific Lua, result decoding, wait loops, fair/read-write admission, fencing, and multi-lock composition live under `lock.internal`. Existing `LettuceLock`, fencing lease, multi-key lease, and semaphore APIs remain source/binary compatible and unchanged in this delivery.
 
-**Tech Stack:** Kotlin 2.3, Java 21, Lettuce, Redis Lua, Kotlin Coroutines, `CompletableFuture`, JUnit 5, `bluetape4k-assertions`, `bluetape4k-junit5`, `bluetape4k-testcontainers`, Gradle Kotlin DSL, SVG, CairoSVG.
+**기술 스택:** Kotlin 2.3, Java 21, Lettuce, Redis Lua, Kotlin Coroutines, `CompletableFuture`, JUnit 5, `bluetape4k-assertions`, `bluetape4k-junit5`, `bluetape4k-testcontainers`, Gradle Kotlin DSL, SVG, CairoSVG.
 
 **Approved design:** `docs/superpowers/specs/2026-07-25-issue-1080-lettuce-locks-synchronizers-design.md`
 
@@ -840,17 +840,17 @@ assigned file set, and report a shared-file conflict instead of reverting anothe
 
 ## Task 1: Lock the public model and validation contract
 
-**Files:**
+**파일:**
 
-- Create: `infra/lettuce/src/main/kotlin/io/bluetape4k/redis/lettuce/lock/LockIdentity.kt`
-- Create: `infra/lettuce/src/main/kotlin/io/bluetape4k/redis/lettuce/lock/LockConfig.kt`
-- Create: `infra/lettuce/src/main/kotlin/io/bluetape4k/redis/lettuce/lock/LockFailure.kt`
-- Create: `infra/lettuce/src/main/kotlin/io/bluetape4k/redis/lettuce/lock/LockResult.kt`
-- Create: `infra/lettuce/src/main/kotlin/io/bluetape4k/redis/lettuce/lock/LockObservation.kt`
-- Create: `infra/lettuce/src/test/kotlin/io/bluetape4k/redis/lettuce/lock/LockIdentityTest.kt`
-- Create: `infra/lettuce/src/test/kotlin/io/bluetape4k/redis/lettuce/lock/LockConfigTest.kt`
-- Create: `infra/lettuce/src/test/kotlin/io/bluetape4k/redis/lettuce/lock/LockResultTest.kt`
-- Create: `infra/lettuce/src/test/kotlin/io/bluetape4k/redis/lettuce/lock/LockObservationTest.kt`
+- 생성: `infra/lettuce/src/main/kotlin/io/bluetape4k/redis/lettuce/lock/LockIdentity.kt`
+- 생성: `infra/lettuce/src/main/kotlin/io/bluetape4k/redis/lettuce/lock/LockConfig.kt`
+- 생성: `infra/lettuce/src/main/kotlin/io/bluetape4k/redis/lettuce/lock/LockFailure.kt`
+- 생성: `infra/lettuce/src/main/kotlin/io/bluetape4k/redis/lettuce/lock/LockResult.kt`
+- 생성: `infra/lettuce/src/main/kotlin/io/bluetape4k/redis/lettuce/lock/LockObservation.kt`
+- 생성: `infra/lettuce/src/test/kotlin/io/bluetape4k/redis/lettuce/lock/LockIdentityTest.kt`
+- 생성: `infra/lettuce/src/test/kotlin/io/bluetape4k/redis/lettuce/lock/LockConfigTest.kt`
+- 생성: `infra/lettuce/src/test/kotlin/io/bluetape4k/redis/lettuce/lock/LockResultTest.kt`
+- 생성: `infra/lettuce/src/test/kotlin/io/bluetape4k/redis/lettuce/lock/LockObservationTest.kt`
 
 - [ ] Write failing serialization/validation/redaction tests for every public value and result variant.
 - [ ] Prove generated owner/request values contain at least 128 bits of CSPRNG entropy through decoded byte length and
@@ -909,14 +909,14 @@ Not-tested: Redis scripts and lifecycle behavior
 
 ## Task 2: Build the neutral coordination substrate with pure tests
 
-**Files:**
+**파일:**
 
-- Create: the six `coordination/internal` files listed in §3.1
-- Create: `infra/lettuce/src/test/kotlin/io/bluetape4k/redis/lettuce/coordination/internal/CoordinationKeyspaceTest.kt`
-- Create: `infra/lettuce/src/test/kotlin/io/bluetape4k/redis/lettuce/coordination/internal/CoordinationDeadlineTest.kt`
-- Create: `infra/lettuce/src/test/kotlin/io/bluetape4k/redis/lettuce/coordination/internal/CoordinationProtocolTest.kt`
-- Create: `infra/lettuce/src/test/kotlin/io/bluetape4k/redis/lettuce/coordination/internal/CoordinationRuntimeTest.kt`
-- Create: `infra/lettuce/src/test/kotlin/io/bluetape4k/redis/lettuce/coordination/internal/CoordinationObservationTest.kt`
+- 생성: the six `coordination/internal` files listed in §3.1
+- 생성: `infra/lettuce/src/test/kotlin/io/bluetape4k/redis/lettuce/coordination/internal/CoordinationKeyspaceTest.kt`
+- 생성: `infra/lettuce/src/test/kotlin/io/bluetape4k/redis/lettuce/coordination/internal/CoordinationDeadlineTest.kt`
+- 생성: `infra/lettuce/src/test/kotlin/io/bluetape4k/redis/lettuce/coordination/internal/CoordinationProtocolTest.kt`
+- 생성: `infra/lettuce/src/test/kotlin/io/bluetape4k/redis/lettuce/coordination/internal/CoordinationRuntimeTest.kt`
+- 생성: `infra/lettuce/src/test/kotlin/io/bluetape4k/redis/lettuce/coordination/internal/CoordinationObservationTest.kt`
 
 - [ ] Write failing codec-wire key-slot tests using `StringCodec` and a custom key codec whose encoded bytes differ
       from source text.
@@ -963,7 +963,7 @@ if rg -n '^import io\\.bluetape4k\\.redis\\.lettuce\\.(lock|lease|semaphore|sync
 fi
 ```
 
-Expected: no matches.
+예상 결과: no matches.
 
 Commit:
 
@@ -981,17 +981,17 @@ Not-tested: Redis lock state transitions
 
 ## Task 3: Implement the reentrant distributed lock contract
 
-**Files:**
+**파일:**
 
-- Create: `infra/lettuce/src/main/kotlin/io/bluetape4k/redis/lettuce/lock/internal/LockProtocol.kt`
-- Create: `infra/lettuce/src/main/kotlin/io/bluetape4k/redis/lettuce/lock/internal/LockCommandExecutor.kt`
-- Create: `infra/lettuce/src/main/kotlin/io/bluetape4k/redis/lettuce/lock/internal/LockWaitSupport.kt`
-- Create: `infra/lettuce/src/main/kotlin/io/bluetape4k/redis/lettuce/lock/internal/DistributedLockScript.kt`
-- Create: `infra/lettuce/src/main/kotlin/io/bluetape4k/redis/lettuce/lock/LettuceDistributedLock.kt`
-- Create: `infra/lettuce/src/main/kotlin/io/bluetape4k/redis/lettuce/lock/LettuceSuspendDistributedLock.kt`
-- Create: `infra/lettuce/src/test/kotlin/io/bluetape4k/redis/lettuce/lock/LockContract.kt`
-- Create: `infra/lettuce/src/test/kotlin/io/bluetape4k/redis/lettuce/lock/DistributedLockScriptTest.kt`
-- Create: `infra/lettuce/src/test/kotlin/io/bluetape4k/redis/lettuce/lock/LettuceDistributedLockTest.kt`
+- 생성: `infra/lettuce/src/main/kotlin/io/bluetape4k/redis/lettuce/lock/internal/LockProtocol.kt`
+- 생성: `infra/lettuce/src/main/kotlin/io/bluetape4k/redis/lettuce/lock/internal/LockCommandExecutor.kt`
+- 생성: `infra/lettuce/src/main/kotlin/io/bluetape4k/redis/lettuce/lock/internal/LockWaitSupport.kt`
+- 생성: `infra/lettuce/src/main/kotlin/io/bluetape4k/redis/lettuce/lock/internal/DistributedLockScript.kt`
+- 생성: `infra/lettuce/src/main/kotlin/io/bluetape4k/redis/lettuce/lock/LettuceDistributedLock.kt`
+- 생성: `infra/lettuce/src/main/kotlin/io/bluetape4k/redis/lettuce/lock/LettuceSuspendDistributedLock.kt`
+- 생성: `infra/lettuce/src/test/kotlin/io/bluetape4k/redis/lettuce/lock/LockContract.kt`
+- 생성: `infra/lettuce/src/test/kotlin/io/bluetape4k/redis/lettuce/lock/DistributedLockScriptTest.kt`
+- 생성: `infra/lettuce/src/test/kotlin/io/bluetape4k/redis/lettuce/lock/LettuceDistributedLockTest.kt`
 
 - [ ] Define one `LockContract` adapter for blocking, async, and suspend surfaces.
 - [ ] Write RED cases for immediate acquire, contention, bounded timeout, same-owner reentry, same generation,
@@ -1010,7 +1010,7 @@ Not-tested: Redis lock state transitions
       `delay` plus `ensureActive`.
 - [ ] Preserve the same owner/request identity across every retry and reconciliation.
 
-Run:
+실행:
 
 ```bash
 repo-test-summary -- ./gradlew :bluetape4k-lettuce:test \
@@ -1037,13 +1037,13 @@ Not-tested: Watchdog and specialized lock algorithms
 
 ## Task 4: Add watchdog, cancellation, reconciliation, and lifecycle safety
 
-**Files:**
+**파일:**
 
-- Modify: `CoordinationRuntime.kt`, `LockCommandExecutor.kt`, `LockWaitSupport.kt`
-- Modify: `LettuceDistributedLock.kt`, `LettuceSuspendDistributedLock.kt`
-- Create: `infra/lettuce/src/test/kotlin/io/bluetape4k/redis/lettuce/lock/LockWatchdogTest.kt`
-- Create: `infra/lettuce/src/test/kotlin/io/bluetape4k/redis/lettuce/lock/LockCancellationTest.kt`
-- Create: `infra/lettuce/src/test/kotlin/io/bluetape4k/redis/lettuce/lock/LockLifecycleTest.kt`
+- 수정: `CoordinationRuntime.kt`, `LockCommandExecutor.kt`, `LockWaitSupport.kt`
+- 수정: `LettuceDistributedLock.kt`, `LettuceSuspendDistributedLock.kt`
+- 생성: `infra/lettuce/src/test/kotlin/io/bluetape4k/redis/lettuce/lock/LockWatchdogTest.kt`
+- 생성: `infra/lettuce/src/test/kotlin/io/bluetape4k/redis/lettuce/lock/LockCancellationTest.kt`
+- 생성: `infra/lettuce/src/test/kotlin/io/bluetape4k/redis/lettuce/lock/LockLifecycleTest.kt`
 
 - [ ] Write RED cases for fixed lease without renewal, watchdog renewal cadence/jitter, maximum lifetime, 10,000
       registration cap, 256-per-tick cap, 25-ms backlog drain, the worst-case 10,000-watchdog service formula,
@@ -1061,7 +1061,7 @@ Not-tested: Watchdog and specialized lock algorithms
 - [ ] Implement watchdog registration only after successful acquisition and cancel it after final release/loss/close.
 - [ ] Never use `runCatching` around suspend calls; rethrow `CancellationException`.
 
-Run:
+실행:
 
 ```bash
 repo-test-summary -- ./gradlew :bluetape4k-lettuce:test \
@@ -1071,7 +1071,7 @@ repo-test-summary -- ./gradlew :bluetape4k-lettuce:test \
   --tests '*LettuceDistributedLockTest'
 ```
 
-Expected: all lifecycle registries reach zero after each test; no real-delay scheduler test is used where virtual time
+예상 결과: all lifecycle registries reach zero after each test; no real-delay scheduler test is used where virtual time
 can prove the transition.
 
 Commit:
@@ -1090,13 +1090,13 @@ Not-tested: Fair, read-write, fenced, spin, and multi-lock behavior
 
 ## Task 5: Implement bounded FIFO fair lock
 
-**Files:**
+**파일:**
 
-- Create: `infra/lettuce/src/main/kotlin/io/bluetape4k/redis/lettuce/lock/internal/FairLockScript.kt`
-- Create: `infra/lettuce/src/main/kotlin/io/bluetape4k/redis/lettuce/lock/LettuceFairLock.kt`
-- Create: `infra/lettuce/src/main/kotlin/io/bluetape4k/redis/lettuce/lock/LettuceSuspendFairLock.kt`
-- Create: `infra/lettuce/src/test/kotlin/io/bluetape4k/redis/lettuce/lock/FairLockScriptTest.kt`
-- Create: `infra/lettuce/src/test/kotlin/io/bluetape4k/redis/lettuce/lock/LettuceFairLockTest.kt`
+- 생성: `infra/lettuce/src/main/kotlin/io/bluetape4k/redis/lettuce/lock/internal/FairLockScript.kt`
+- 생성: `infra/lettuce/src/main/kotlin/io/bluetape4k/redis/lettuce/lock/LettuceFairLock.kt`
+- 생성: `infra/lettuce/src/main/kotlin/io/bluetape4k/redis/lettuce/lock/LettuceSuspendFairLock.kt`
+- 생성: `infra/lettuce/src/test/kotlin/io/bluetape4k/redis/lettuce/lock/FairLockScriptTest.kt`
+- 생성: `infra/lettuce/src/test/kotlin/io/bluetape4k/redis/lettuce/lock/LettuceFairLockTest.kt`
 
 - [ ] Write RED cases for Redis enqueue sequence FIFO, reentrancy without a second queue entry, timeout/cancellation
       removal, stale head without process cooperation, cleanup batch 64/default and 256/max, `CleanupPending` no-bypass,
@@ -1110,7 +1110,7 @@ Not-tested: Fair, read-write, fenced, spin, and multi-lock behavior
 - [ ] Keep Redis queue state authoritative. Polling must recover if an optional wakeup hint is lost.
 - [ ] Use same request identity for queue removal and reconcile.
 
-Run:
+실행:
 
 ```bash
 repo-test-summary -- ./gradlew :bluetape4k-lettuce:test \
@@ -1118,7 +1118,7 @@ repo-test-summary -- ./gradlew :bluetape4k-lettuce:test \
   --tests '*LettuceFairLockTest'
 ```
 
-Expected: FIFO/state assertions pass without timing-only sleeps.
+예상 결과: FIFO/state assertions pass without timing-only sleeps.
 
 Commit:
 
@@ -1136,13 +1136,13 @@ Not-tested: Read-write phase fairness
 
 ## Task 6: Implement fenced lock on the proven fencing invariant
 
-**Files:**
+**파일:**
 
-- Create: `infra/lettuce/src/main/kotlin/io/bluetape4k/redis/lettuce/lock/internal/FencedLockScript.kt`
-- Create: `infra/lettuce/src/main/kotlin/io/bluetape4k/redis/lettuce/lock/LettuceFencedLock.kt`
-- Create: `infra/lettuce/src/main/kotlin/io/bluetape4k/redis/lettuce/lock/LettuceSuspendFencedLock.kt`
-- Create: `infra/lettuce/src/test/kotlin/io/bluetape4k/redis/lettuce/lock/FencedLockScriptTest.kt`
-- Create: `infra/lettuce/src/test/kotlin/io/bluetape4k/redis/lettuce/lock/LettuceFencedLockTest.kt`
+- 생성: `infra/lettuce/src/main/kotlin/io/bluetape4k/redis/lettuce/lock/internal/FencedLockScript.kt`
+- 생성: `infra/lettuce/src/main/kotlin/io/bluetape4k/redis/lettuce/lock/LettuceFencedLock.kt`
+- 생성: `infra/lettuce/src/main/kotlin/io/bluetape4k/redis/lettuce/lock/LettuceSuspendFencedLock.kt`
+- 생성: `infra/lettuce/src/test/kotlin/io/bluetape4k/redis/lettuce/lock/FencedLockScriptTest.kt`
+- 생성: `infra/lettuce/src/test/kotlin/io/bluetape4k/redis/lettuce/lock/LettuceFencedLockTest.kt`
 - Modify only if extraction proves smaller and behavior-neutral:
   `infra/lettuce/src/main/kotlin/io/bluetape4k/redis/lettuce/lease/LettuceFencingLeaseSupport.kt`
 - Modify only with that extraction:
@@ -1158,7 +1158,7 @@ Not-tested: Read-write phase fairness
 - [ ] Never claim Redis fencing alone gives exactly-once or stops stale work.
 - [ ] Run every existing fencing lease test if its support file changes.
 
-Run:
+실행:
 
 ```bash
 repo-test-summary -- ./gradlew :bluetape4k-lettuce:test \
@@ -1166,7 +1166,7 @@ repo-test-summary -- ./gradlew :bluetape4k-lettuce:test \
   --tests '*FencingLease*'
 ```
 
-Expected: new fenced lock and all existing fencing lease regressions pass.
+예상 결과: new fenced lock and all existing fencing lease regressions pass.
 
 Commit:
 
@@ -1184,13 +1184,13 @@ Not-tested: Read-write and multi-lock algorithms
 
 ## Task 7: Implement phase-fair read-write lock
 
-**Files:**
+**파일:**
 
-- Create: `infra/lettuce/src/main/kotlin/io/bluetape4k/redis/lettuce/lock/internal/ReadWriteLockScript.kt`
-- Create: `infra/lettuce/src/main/kotlin/io/bluetape4k/redis/lettuce/lock/LettuceReadWriteLock.kt`
-- Create: `infra/lettuce/src/main/kotlin/io/bluetape4k/redis/lettuce/lock/LettuceSuspendReadWriteLock.kt`
-- Create: `infra/lettuce/src/test/kotlin/io/bluetape4k/redis/lettuce/lock/ReadWriteLockScriptTest.kt`
-- Create: `infra/lettuce/src/test/kotlin/io/bluetape4k/redis/lettuce/lock/LettuceReadWriteLockTest.kt`
+- 생성: `infra/lettuce/src/main/kotlin/io/bluetape4k/redis/lettuce/lock/internal/ReadWriteLockScript.kt`
+- 생성: `infra/lettuce/src/main/kotlin/io/bluetape4k/redis/lettuce/lock/LettuceReadWriteLock.kt`
+- 생성: `infra/lettuce/src/main/kotlin/io/bluetape4k/redis/lettuce/lock/LettuceSuspendReadWriteLock.kt`
+- 생성: `infra/lettuce/src/test/kotlin/io/bluetape4k/redis/lettuce/lock/ReadWriteLockScriptTest.kt`
+- 생성: `infra/lettuce/src/test/kotlin/io/bluetape4k/redis/lettuce/lock/LettuceReadWriteLockTest.kt`
 
 - [ ] Write RED cases for concurrent compatible readers, exclusive writer, same-owner reentry per mode, blocked writer
       boundary, bounded reader phase, one-writer admission, both-side starvation prevention, expired holder cleanup,
@@ -1203,7 +1203,7 @@ Not-tested: Read-write and multi-lock algorithms
 - [ ] Perform write-to-read downgrade in one Lua script. Do not expose or implement read-to-write upgrade.
 - [ ] Apply the fair cleanup cap and `CleanupPending` no-bypass rule.
 
-Run:
+실행:
 
 ```bash
 repo-test-summary -- ./gradlew :bluetape4k-lettuce:test \
@@ -1211,7 +1211,7 @@ repo-test-summary -- ./gradlew :bluetape4k-lettuce:test \
   --tests '*LettuceReadWriteLockTest'
 ```
 
-Expected: read/write compatibility and phase progress pass under blocking, async, and suspend views.
+예상 결과: read/write compatibility and phase progress pass under blocking, async, and suspend views.
 
 Commit:
 
@@ -1229,12 +1229,12 @@ Not-tested: Spin and multi-lock behavior
 
 ## Task 8: Implement bounded spin lock as a wait policy
 
-**Files:**
+**파일:**
 
-- Create: `infra/lettuce/src/main/kotlin/io/bluetape4k/redis/lettuce/lock/LettuceSpinLock.kt`
-- Create: `infra/lettuce/src/main/kotlin/io/bluetape4k/redis/lettuce/lock/LettuceSuspendSpinLock.kt`
-- Create: `infra/lettuce/src/test/kotlin/io/bluetape4k/redis/lettuce/lock/LettuceSpinLockTest.kt`
-- Modify: `LockWaitSupport.kt`
+- 생성: `infra/lettuce/src/main/kotlin/io/bluetape4k/redis/lettuce/lock/LettuceSpinLock.kt`
+- 생성: `infra/lettuce/src/main/kotlin/io/bluetape4k/redis/lettuce/lock/LettuceSuspendSpinLock.kt`
+- 생성: `infra/lettuce/src/test/kotlin/io/bluetape4k/redis/lettuce/lock/LettuceSpinLockTest.kt`
+- 수정: `LockWaitSupport.kt`
 
 - [ ] Write RED pure tests using injected jitter source/ticker for delay sequence 10 ms, 20 ms, 40 ms up to 1 second,
       multiplier validation, jitter 0..25%, jitter disabled at zero, deadline clipping, max 100 attempts/second, and
@@ -1244,13 +1244,13 @@ Not-tested: Spin and multi-lock behavior
 - [ ] Use scheduled Redis retries, never CPU busy looping, pub/sub, or a fair queue.
 - [ ] Apply the same request identity and result/failure contract as distributed lock.
 
-Run:
+실행:
 
 ```bash
 repo-test-summary -- ./gradlew :bluetape4k-lettuce:test --tests '*LettuceSpinLockTest'
 ```
 
-Expected: virtual-time backoff tests and Redis semantic tests pass.
+예상 결과: virtual-time backoff tests and Redis semantic tests pass.
 
 Commit:
 
@@ -1268,13 +1268,13 @@ Not-tested: Multi-lock atomicity
 
 ## Task 9: Implement same-slot atomic multi-lock
 
-**Files:**
+**파일:**
 
-- Create: `infra/lettuce/src/main/kotlin/io/bluetape4k/redis/lettuce/lock/internal/MultiLockScript.kt`
-- Create: `infra/lettuce/src/main/kotlin/io/bluetape4k/redis/lettuce/lock/LettuceMultiLock.kt`
-- Create: `infra/lettuce/src/main/kotlin/io/bluetape4k/redis/lettuce/lock/LettuceSuspendMultiLock.kt`
-- Create: `infra/lettuce/src/test/kotlin/io/bluetape4k/redis/lettuce/lock/MultiLockScriptTest.kt`
-- Create: `infra/lettuce/src/test/kotlin/io/bluetape4k/redis/lettuce/lock/LettuceMultiLockTest.kt`
+- 생성: `infra/lettuce/src/main/kotlin/io/bluetape4k/redis/lettuce/lock/internal/MultiLockScript.kt`
+- 생성: `infra/lettuce/src/main/kotlin/io/bluetape4k/redis/lettuce/lock/LettuceMultiLock.kt`
+- 생성: `infra/lettuce/src/main/kotlin/io/bluetape4k/redis/lettuce/lock/LettuceSuspendMultiLock.kt`
+- 생성: `infra/lettuce/src/test/kotlin/io/bluetape4k/redis/lettuce/lock/MultiLockScriptTest.kt`
+- 생성: `infra/lettuce/src/test/kotlin/io/bluetape4k/redis/lettuce/lock/LettuceMultiLockTest.kt`
 - Modify only if extraction proves smaller and behavior-neutral:
   `infra/lettuce/src/main/kotlin/io/bluetape4k/redis/lettuce/lease/LettuceMultiKeyLeaseSupport.kt`
 - Modify only with that extraction:
@@ -1292,7 +1292,7 @@ Not-tested: Multi-lock atomicity
 - [ ] Reject different-slot input; never implement sequential best-effort locking.
 - [ ] Run every existing multi-key lease test if its support file changes.
 
-Run:
+실행:
 
 ```bash
 repo-test-summary -- ./gradlew :bluetape4k-lettuce:test \
@@ -1300,7 +1300,7 @@ repo-test-summary -- ./gradlew :bluetape4k-lettuce:test \
   --tests '*MultiKeyLease*'
 ```
 
-Expected: multi-lock and existing multi-key lease regressions pass.
+예상 결과: multi-lock and existing multi-key lease regressions pass.
 
 Commit:
 
@@ -1318,14 +1318,14 @@ Not-tested: Cross-family synchronizer reuse
 
 ## Task 10: Prove cross-cutting Cluster, ambiguity, concurrency, and protocol behavior
 
-**Files:**
+**파일:**
 
-- Create: `infra/lettuce/src/test/kotlin/io/bluetape4k/redis/lettuce/lock/LockClusterTest.kt`
-- Create: `infra/lettuce/src/test/kotlin/io/bluetape4k/redis/lettuce/lock/LockTopologyRecoveryTest.kt`
-- Create: `infra/lettuce/src/test/kotlin/io/bluetape4k/redis/lettuce/lock/LockConcurrencyTest.kt`
-- Create: `infra/lettuce/src/test/kotlin/io/bluetape4k/redis/lettuce/lock/LockFailureTest.kt`
-- Modify: `infra/lettuce/build.gradle.kts`
-- Modify: focused production/internal files only when a failing case proves a defect
+- 생성: `infra/lettuce/src/test/kotlin/io/bluetape4k/redis/lettuce/lock/LockClusterTest.kt`
+- 생성: `infra/lettuce/src/test/kotlin/io/bluetape4k/redis/lettuce/lock/LockTopologyRecoveryTest.kt`
+- 생성: `infra/lettuce/src/test/kotlin/io/bluetape4k/redis/lettuce/lock/LockConcurrencyTest.kt`
+- 생성: `infra/lettuce/src/test/kotlin/io/bluetape4k/redis/lettuce/lock/LockFailureTest.kt`
+- 수정: `infra/lettuce/build.gradle.kts`
+- 수정: focused production/internal files only when a failing case proves a defect
 
 - [ ] Add literal `coordination-lock-topology` to the default test exclusions, annotate only
       `LockTopologyRecoveryTest` with `@Tag("coordination-lock-topology")`, and register
@@ -1354,7 +1354,7 @@ repo-test-summary -- ./gradlew :bluetape4k-lettuce:test \
 repo-test-summary -- ./gradlew :bluetape4k-lettuce:coordinationLockTopologyRecoveryTest
 ```
 
-Expected: all fault and concurrency cases pass with no raw secret/key output.
+예상 결과: all fault and concurrency cases pass with no raw secret/key output.
 
 Commit:
 
@@ -1372,12 +1372,12 @@ Not-tested: Characterization workload
 
 ## Task 11: Add command-budget and bounded performance characterization
 
-**Files:**
+**파일:**
 
-- Modify: `infra/lettuce/build.gradle.kts`
-- Create: `infra/lettuce/src/test/kotlin/io/bluetape4k/redis/lettuce/lock/LockPerformanceTest.kt`
-- Create: `infra/lettuce/scripts/validate-lock-performance.py`
-- Create: `infra/lettuce/scripts/test_validate_lock_performance.py`
+- 수정: `infra/lettuce/build.gradle.kts`
+- 생성: `infra/lettuce/src/test/kotlin/io/bluetape4k/redis/lettuce/lock/LockPerformanceTest.kt`
+- 생성: `infra/lettuce/scripts/validate-lock-performance.py`
+- 생성: `infra/lettuce/scripts/test_validate_lock_performance.py`
 - Generated, not committed unless repository convention requires:
   `infra/lettuce/build/reports/coordination-lock-performance/results.json`
 
@@ -1413,7 +1413,7 @@ Not-tested: Characterization workload
       flakiness; the second proves the report/alert path with zero late or missed renewal.
 - [ ] Verify the task names through Gradle task listing before executing them.
 
-Run:
+실행:
 
 ```bash
 ./gradlew :bluetape4k-lettuce:tasks --all | \
@@ -1424,7 +1424,7 @@ python3 infra/lettuce/scripts/validate-lock-performance.py \
   infra/lettuce/build/reports/coordination-lock-performance/results.json
 ```
 
-Expected: both task names exist; characterization passes and writes non-empty JSON.
+예상 결과: both task names exist; characterization passes and writes non-empty JSON.
 
 Commit:
 
@@ -1442,27 +1442,27 @@ Not-tested: Long-duration production traffic
 
 ## Task 12: Publish English/Korean guidance and compile-tested examples
 
-**Files:**
+**파일:**
 
-- Modify: `infra/lettuce/README.md`
-- Modify: `infra/lettuce/README.ko.md`
-- Create: `infra/lettuce/CoordinationLocks.md`
-- Create: `infra/lettuce/CoordinationLocks.ko.md`
-- Create: `infra/lettuce/src/test/kotlin/io/bluetape4k/redis/lettuce/lock/LockDocumentationTest.kt`
-- Create: `infra/lettuce/src/test/kotlin/io/bluetape4k/redis/lettuce/lock/LockApiSurfaceTest.kt`
-- Create: `infra/lettuce/src/test/java/io/bluetape4k/redis/lettuce/lock/LettuceLockJavaDocumentationTest.java`
-- Create: `docs/images/readme-diagrams/infra-lettuce-diagram-03.svg`
-- Create: `docs/images/readme-diagrams/infra-lettuce-diagram-03.png`
-- Create: `docs/images/readme-diagrams/infra-lettuce-diagram-03-ko.svg`
-- Create: `docs/images/readme-diagrams/infra-lettuce-diagram-03-ko.png`
-- Create: `docs/images/readme-diagrams/infra-lettuce-sequence-02.svg`
-- Create: `docs/images/readme-diagrams/infra-lettuce-sequence-02.png`
-- Create: `docs/images/readme-diagrams/infra-lettuce-sequence-02-ko.svg`
-- Create: `docs/images/readme-diagrams/infra-lettuce-sequence-02-ko.png`
-- Create: `docs/superpowers/reviews/2026-07-25-issue-1080-lock-diagram-review.md`
-- Modify: `scripts/validate-readme-diagram-assets.mjs`
-- Modify: `scripts/validate-readme-diagram-assets_test.mjs`
-- Modify: all new public Kotlin files for final English KDoc
+- 수정: `infra/lettuce/README.md`
+- 수정: `infra/lettuce/README.ko.md`
+- 생성: `infra/lettuce/CoordinationLocks.md`
+- 생성: `infra/lettuce/CoordinationLocks.ko.md`
+- 생성: `infra/lettuce/src/test/kotlin/io/bluetape4k/redis/lettuce/lock/LockDocumentationTest.kt`
+- 생성: `infra/lettuce/src/test/kotlin/io/bluetape4k/redis/lettuce/lock/LockApiSurfaceTest.kt`
+- 생성: `infra/lettuce/src/test/java/io/bluetape4k/redis/lettuce/lock/LettuceLockJavaDocumentationTest.java`
+- 생성: `docs/images/readme-diagrams/infra-lettuce-diagram-03.svg`
+- 생성: `docs/images/readme-diagrams/infra-lettuce-diagram-03.png`
+- 생성: `docs/images/readme-diagrams/infra-lettuce-diagram-03-ko.svg`
+- 생성: `docs/images/readme-diagrams/infra-lettuce-diagram-03-ko.png`
+- 생성: `docs/images/readme-diagrams/infra-lettuce-sequence-02.svg`
+- 생성: `docs/images/readme-diagrams/infra-lettuce-sequence-02.png`
+- 생성: `docs/images/readme-diagrams/infra-lettuce-sequence-02-ko.svg`
+- 생성: `docs/images/readme-diagrams/infra-lettuce-sequence-02-ko.png`
+- 생성: `docs/superpowers/reviews/2026-07-25-issue-1080-lock-diagram-review.md`
+- 수정: `scripts/validate-readme-diagram-assets.mjs`
+- 수정: `scripts/validate-readme-diagram-assets_test.mjs`
+- 수정: all new public Kotlin files for final English KDoc
 
 - [ ] Add the six Lock types and suspend counterparts to both feature tables.
 - [ ] Add a capability/selection matrix covering distributed, fair, fenced, read-write, spin, and multi-lock.
@@ -1525,7 +1525,7 @@ Not-tested: Long-duration production traffic
 - [ ] State non-goals: no Java thread ownership, no indefinite wait/watchdog, no cross-slot best effort, no read upgrade,
       no exactly-once/stale-work-stop claim, and no implicit unlock on close.
 
-Run:
+실행:
 
 ```bash
 ./gradlew :bluetape4k-lettuce:test \
@@ -1603,7 +1603,7 @@ python3 "$DIAGRAM_SKILLS_ROOT/diagram-sequence-style-audit.py" \
 git diff --check
 ```
 
-Expected: examples compile/run, Dokka succeeds, locale content has the same capability rows, and Markdown has no
+예상 결과: examples compile/run, Dokka succeeds, locale content has the same capability rows, and Markdown has no
 whitespace errors. All four SVGs parse and pass the triggered audits, all four canonical `-s 2` PNGs exist and were
 inspected full-size after the last coordinate change, README/guides embed the correct locale assets, the repository
 diagram validator's exact four-file target reports `total=4 failed=0`, its default full-scan behavior remains
@@ -1625,10 +1625,10 @@ Not-tested: External documentation rendering
 
 ## Task 13: Run complete verification and six-lens implementation review
 
-**Files:**
+**파일:**
 
 - Modify only defects proven by verification/review.
-- Create:
+- 생성:
   `docs/superpowers/reviews/2026-07-25-issue-1080-lock-implementation-review.md`
 
 Run the smallest proof first, then the full affected module:
@@ -1649,7 +1649,7 @@ rg -n 'Required checks: [1-9][0-9]*/[1-9][0-9]*; N/A: [0-9]+; Blocked: 0' \
 git diff --check
 ```
 
-Expected:
+예상 결과:
 
 - targeted and full module tests pass;
 - topology and performance evidence tasks pass sequentially;
@@ -1806,7 +1806,7 @@ DIAGRAM_VALIDATION_TARGETS='infra-lettuce-diagram-03.svg,infra-lettuce-diagram-0
   node scripts/validate-readme-diagram-assets.mjs
 ```
 
-Expected:
+예상 결과:
 
 - no Synchronizer implementation path;
 - no unrelated module path;
@@ -1841,7 +1841,7 @@ git -C /Users/debop/work/bluetape4k/bluetape4k-projects rev-parse origin/develop
 worktree-list
 ```
 
-Expected: local root `develop` equals `origin/develop`; the Delivery 1 worktree/branch cleanup target is identified.
+예상 결과: local root `develop` equals `origin/develop`; the Delivery 1 worktree/branch cleanup target is identified.
 Destructive worktree/branch deletion is performed only after merged-state and clean-tree proof.
 
 ---
