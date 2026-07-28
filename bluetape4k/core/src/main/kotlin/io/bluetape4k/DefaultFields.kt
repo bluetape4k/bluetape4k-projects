@@ -37,19 +37,19 @@ val DefaultLocale: Locale = Locale.getDefault()
 val DefaultCharset: Charset = Charsets.UTF_8
 
 /**
- * System default charset name ("UTF-8")
+ * 시스템 기본 문자 집합 이름입니다("UTF-8").
  */
 @JvmField
 val DefaultCharsetName: String = DefaultCharset.name()
 
 /**
- * System Default Charactor encoding ("utf-8")
+ * 시스템 기본 문자 인코딩 이름입니다("utf-8").
  */
 @JvmField
 val DefaultEncoding: String = DefaultCharsetName.lowercase()
 
 /**
- * System default [ZoneId]
+ * 시스템 기본 [ZoneId]입니다.
  *
  * @see DefaultZoneOffset
  * @see ZoneId.systemDefault()
@@ -67,7 +67,7 @@ val DefaultZoneId: ZoneId = ZoneId.systemDefault()
 val UtcZoneId: ZoneId = ZoneId.of("UTC")
 
 /**
- * System default [ZoneOffset]
+ * 시스템 기본 [ZoneOffset]입니다.
  *
  * @see DefaultZoneId
  */
