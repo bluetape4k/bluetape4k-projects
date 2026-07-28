@@ -1,6 +1,6 @@
 # projects README 다이어그램 재작성 QA 회고
 
-## Context
+## 배경
 
 `bluetape4k-projects`의 README 다이어그램 재작성은 단순한 스타일 교체가
 아니었다. 루트 README, cache/data/infra/io/ktor/spring/testing/examples,
@@ -22,7 +22,7 @@ benchmark 문서까지 이어지는 장기 작업이었고, 사용자는 다음 
 말하는 사용 흐름이나 class 관계가 약해진다. 렌더링이 성공하고 XML이 유효해도
 사용자가 보기에는 "이게 무엇을 설명하는지 모르겠다"는 결과가 나온다.
 
-## Decision or Finding
+## 결정과 발견
 
 ### 1. 다이어그램은 source-first로 하나씩 만들어야 한다
 
@@ -102,7 +102,7 @@ marker를 공유한 것이다. SVG에서는 의도대로 보일 수 있지만, P
 이런 문제는 "edge routing"보다 "layout redesign"으로 풀어야 한다. 특히 card 간격,
 layer 크기, source/target port, sibling arrow corridor를 함께 봐야 한다.
 
-## Outcome
+## 결과
 
 작업 중 재사용 가능한 규칙은 `bluetape4k-diagram` skill로 승격했다.
 
@@ -123,7 +123,7 @@ layer 크기, source/target port, sibling arrow corridor를 함께 봐야 한다
 `context-stroke` marker를 explicit per-color marker로 바꾸고, Ktor observability
 architecture의 `/metrics` card를 routes 근처로 옮겨 불필요한 교차를 없앴다.
 
-## Verification
+## 검증
 
 이번 계열 작업에서 효과가 있었던 검증 스택은 다음과 같다.
 
@@ -146,7 +146,7 @@ architecture의 `/metrics` card를 routes 근처로 옮겨 불필요한 교차�
 검은 화살촉, 작은 점선 화살촉, label-line overlap을 놓칠 수 있고, segment crossing
 check는 card 내부 관통, layer text 충돌, 여백 불균형, 의미 오류를 잡지 못한다.
 
-## Future Guidance
+## 향후 지침
 
 다음 agents는 projects README/diagram 작업에서 아래 원칙을 먼저 적용해야 한다.
 
