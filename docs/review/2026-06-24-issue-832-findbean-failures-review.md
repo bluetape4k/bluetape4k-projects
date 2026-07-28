@@ -1,4 +1,4 @@
-# Issue 832 Review - findBean failure boundaries
+# Issue 832 검토 - findBean failure boundaries
 
 ## Scope
 
