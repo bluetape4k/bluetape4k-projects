@@ -1,8 +1,8 @@
-# Korean Docs And KDoc Localization Inventory
+# Korean Docs And KDoc Localization inventory
 
 Issue: #1093
 
-## Scope Rules
+## 범위 Rules
 
 - In scope: Git-tracked non-README, single-language documentation and Kotlin/KTS KDoc surfaces.
 - Korean rewrite target: prose in in-scope docs, public/internal KDoc, and meaningful internal/data-class property contracts.
@@ -10,7 +10,7 @@ Issue: #1093
 - Excluded from rewrite: README files, LLM-facing operating guidance, generated workflow state, CHANGELOG, SECURITY, GitHub metadata, release notes, and pushed commit text.
 - Parity-only: `docs/manual/en` and `docs/manual/ko` bilingual manual pairs.
 
-## Current Inventory
+## Current inventory
 
 - Git-tracked files scanned: 7425
 - In-scope single-language docs: 728
@@ -313,7 +313,7 @@ No missing Korean manual pairs were found.
 
 No missing English manual pairs were found.
 
-### English-KDoc Policy Drift
+### English-KDoc 정책 Drift
 
 No English-KDoc policy drift was found in the tracked documentation scope.
 
