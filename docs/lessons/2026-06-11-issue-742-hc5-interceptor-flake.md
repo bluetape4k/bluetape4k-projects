@@ -1,24 +1,24 @@
-# Issue #742: HC5 async interceptor ordering tests
+# 이슈 #742: HC5 async interceptor ordering test
 
-## Context
+## 배경
 
-`AsyncClientInterceptors` recorded request interceptor and execution interceptor
-events into one shared list while issuing many async requests. The old assertion
-compared the entire list to a serialized expected sequence.
+`AsyncClientInterceptors`는 많은 async request를 발행하면서 request interceptor와
+execution interceptor event를 하나의 shared list에 기록했다. 기존 assertion은 전체
+list를 serialized expected sequence와 비교했다.
 
-## Decision
+## 결정
 
-Keep the production behavior unchanged and assert interceptor ordering per
-execution id. Cross-request interleaving is valid for async execution and should
-not be part of the test contract.
+production behavior는 변경하지 않고 execution id별 interceptor ordering을 assert한다.
+cross-request interleaving은 async execution에서 유효하므로 test contract에 포함하지
+않는다.
 
-## Verification
+## 검증
 
-- Focused `AsyncClientInterceptors` test.
-- Full `:bluetape4k-http:test` module test.
+- focused `AsyncClientInterceptors` test.
+- full `:bluetape4k-http:test` module test.
 
-## Future Guard
+## 향후 가드
 
-When a test records events from concurrent or async requests, group by the
-request/execution identity first. Assert the per-request invariant unless the
-feature explicitly promises a global ordering contract.
+test가 concurrent 또는 async request의 event를 기록할 때는 먼저 request/execution
+identity로 group한다. feature가 global ordering contract를 명시적으로 약속하지 않는 한
+per-request invariant를 assert한다.
