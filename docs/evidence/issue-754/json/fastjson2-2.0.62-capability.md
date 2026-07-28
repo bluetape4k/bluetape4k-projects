@@ -1,15 +1,16 @@
 # Fastjson2 2.0.62 ByteBuffer Capability Evidence
 
-## Resolved Artifact
+## Resolve된 Artifact
 
 - Coordinate: `com.alibaba.fastjson2:fastjson2:2.0.62`
 - Sources JAR SHA-256: `712dba017b892c2e878614b38c94316ebdaab2a0f3104eb055a6ec9bb6b18619`
 - Inspected source root: `.codex/lib-sources/fastjson2-2.0.62`
 - Inspection date: 2026-07-17
 
-The extraction directory is temporary review input and is removed before the PR. This document is the durable evidence.
+Extraction directory는 temporary review input이며 PR 전에 제거한다. 이 문서가 durable
+evidence다.
 
-## Source Findings
+## Source 발견 사항
 
 1. `com/alibaba/fastjson2/JSONB.java:1653-1670` implements `toBytes(Object)` with an internal
    `JSONWriterJSONB` and returns `writer.getBytes()`.
@@ -25,18 +26,18 @@ The extraction directory is temporary review input and is removed before the PR.
    `Feature.SupportAutoType`; without that feature it reads object/array payloads as data instead of
    resolving and instantiating the encoded class.
 
-## Decision
+## 결정
 
-Use the offset/length parser only when `ByteBuffer.hasArray()` is true. Pass
-`array()`, `arrayOffset() + position()`, and `remaining()` with either the class token or
-`reference<T>().type`. Use a bounded copy from `source.duplicate()` for direct or read-only input.
+`ByteBuffer.hasArray()`가 true일 때만 offset/length parser를 사용한다. Class token 또는
+`reference<T>().type`과 함께 `array()`, `arrayOffset() + position()`, `remaining()`을 전달한다.
+Direct 또는 read-only input에는 `source.duplicate()`에서 bounded copy를 사용한다.
 
-Keep `serializeTo` as an explicitly allocating compatibility path: call `JSONB.toBytes`, validate target
-capacity, write through a duplicate, and commit the caller position only after success. No lower-copy or
-zero-copy output claim is made.
+`serializeTo`는 명시적으로 allocation하는 compatibility path로 유지한다. `JSONB.toBytes`를 호출하고
+target capacity를 검증하며 duplicate를 통해 write하고 성공 후에만 caller position을 commit한다.
+Lower-copy 또는 zero-copy output claim은 하지 않는다.
 
-All paths use Fastjson2's feature-free overloads. They do not enable `SupportAutoType`, install an AutoType
-filter, or broaden the default reader context.
+모든 path는 Fastjson2의 feature-free overload를 사용한다. `SupportAutoType`을 enable하지 않고,
+AutoType filter를 install하지 않으며, default reader context를 넓히지 않는다.
 
 ## Capability Matrix
 
@@ -50,9 +51,9 @@ filter, or broaden the default reader context.
 | Deserialize through `JsonSerializer` receiver | class-token path | Preserves existing raw generic limitation |
 | Serialize to any writable target | `JSONB.toBytes` then duplicate `put` | Allocating compatibility fallback; no allocation reduction claim |
 
-## Rejected Paths
+## 기각한 Path
 
-- `JSONReaderJSONB(Context, InputStream)`: rejected because it reads into and may grow an internal array.
-- Reflection into `JSONWriterJSONB` storage: rejected because it is not a stable public API and would weaken
-  compatibility and security reviewability.
-- Enabling AutoType to improve generic reconstruction: rejected because it changes the established security contract.
+- `JSONReaderJSONB(Context, InputStream)`: internal array로 읽고 이를 grow할 수 있으므로 기각했다.
+- `JSONWriterJSONB` storage로 reflection: stable public API가 아니며 compatibility와 security
+  reviewability를 약화하므로 기각했다.
+- Generic reconstruction 개선을 위한 AutoType enable: 기존 security contract를 바꾸므로 기각했다.
