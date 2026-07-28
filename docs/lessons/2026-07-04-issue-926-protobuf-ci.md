@@ -1,20 +1,22 @@
-# Issue #926 Protobuf CI Coverage
+# 이슈 #926 Protobuf CI coverage
 
-## Context
+## 배경
 
-Push CI skipped `Test / IO` for changes under `io/protobuf/**`, even though protobuf is an IO serialization module and recent protobuf codec changes included module tests.
+Protobuf는 IO serialization module이고 최근 protobuf codec 변경에도 module test가
+포함되었지만, push CI는 `io/protobuf/**` 변경에서 `Test / IO`를 건너뛰었다.
 
-## Decision
+## 결정
 
-Add `io/protobuf/**` to the existing `io` path-filter output and include `:bluetape4k-protobuf` in the existing `Test / IO` test and Kover task lists.
+기존 `io` path-filter output에 `io/protobuf/**`를 추가하고, 기존 `Test / IO` test와
+Kover task list에 `:bluetape4k-protobuf`를 포함한다.
 
-## Rationale
+## 근거
 
-- Protobuf belongs with adjacent IO serialization modules such as JSON, Jackson, gRPC, and Tink.
-- A separate protobuf job would add workflow fanout without improving failure isolation enough to justify it.
-- Reusing `test-io` preserves existing `coverage-report` and `ci-status` wiring.
+- Protobuf는 JSON, Jackson, gRPC, Tink 같은 인접 IO serialization module과 같은 그룹에 속한다.
+- 별도 protobuf job은 정당화할 만큼 failure isolation을 개선하지 못한 채 workflow fanout만 늘린다.
+- `test-io`를 재사용하면 기존 `coverage-report`와 `ci-status` wiring을 보존한다.
 
-## Verification
+## 검증
 
 - `actionlint .github/workflows/ci.yml`
 - Backslash-single-quote guard for GitHub Actions expressions
@@ -23,6 +25,7 @@ Add `io/protobuf/**` to the existing `io` path-filter output and include `:bluet
 - `:bluetape4k-protobuf:test`
 - `:bluetape4k-protobuf:koverXmlReport`
 
-## Future Guard
+## 향후 방지책
 
-When adding or moving IO modules, keep the path-filter patterns, Gradle test task list, and Kover task list synchronized in the same PR.
+IO module을 추가하거나 이동할 때는 path-filter pattern, Gradle test task list, Kover
+task list를 같은 PR에서 동기화한다.
