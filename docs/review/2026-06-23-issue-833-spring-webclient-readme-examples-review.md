@@ -1,4 +1,4 @@
-# Issue 833 Review - Spring WebClient README examples
+# Issue 833 검토 - Spring WebClient README examples
 
 ## Scope
 
