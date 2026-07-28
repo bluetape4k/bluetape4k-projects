@@ -1,17 +1,23 @@
-# Lessons - Issue #852 Rule Engine Condition Failure
+# 교훈 - 이슈 #852 Rule engine condition failure
 
-## Context
+## 배경
 
-Issue #852 aligned synchronous `DefaultRuleEngine` with the suspend engine when a rule condition throws.
+issue #852는 rule condition이 throw할 때 synchronous `DefaultRuleEngine`을 suspend engine과
+맞췄다.
 
-## Lessons
+## 교훈
 
-- Rule failure policy must cover condition evaluation and action execution. Catching only action exceptions leaves `skipOnFirstFailedRule` inconsistent.
-- `check()` should produce per-rule evaluation results. One condition exception should record `false` for that rule instead of aborting the whole result map.
-- Listener ordering matters when converting exceptions into policy outcomes. A condition exception should still complete the rule-set lifecycle and report evaluation as `false`.
-- `CancellationException` is not an ordinary rule failure. Sync and suspend engines must rethrow it before broad `Exception` handling.
-- Keep sync and suspend engines behaviorally paired when they expose the same configuration semantics.
+- rule failure policy는 condition evaluation과 action execution을 모두 다뤄야 한다.
+  action exception만 catch하면 `skipOnFirstFailedRule`이 일관되지 않다.
+- `check()`는 rule별 evaluation result를 만들어야 한다. condition exception 하나가 전체
+  result map을 abort하지 말고 해당 rule에 `false`를 기록해야 한다.
+- exception을 policy outcome으로 변환할 때 listener ordering이 중요하다. condition
+  exception이 있어도 rule-set lifecycle은 완료되고 evaluation은 `false`로 보고되어야 한다.
+- `CancellationException`은 ordinary rule failure가 아니다. sync/suspend engine은 넓은
+  `Exception` handling 전에 이를 rethrow해야 한다.
+- 같은 configuration semantic을 노출하는 sync/suspend engine은 behavior pair를 유지한다.
 
-## Guard
+## 가드
 
-When modifying rule engine failure policy, add sync and suspend parity tests for both `fire()` and `check()` before changing implementation.
+rule engine failure policy를 수정할 때는 implementation을 바꾸기 전에 `fire()`와 `check()`
+양쪽에 대한 sync/suspend parity test를 추가한다.
