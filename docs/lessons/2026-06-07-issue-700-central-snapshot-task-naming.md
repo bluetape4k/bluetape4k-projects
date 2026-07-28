@@ -1,22 +1,22 @@
-# Issue #700: Central snapshot task naming audit
+# 이슈 #700: Central snapshot task naming audit
 
-## Context
+## 배경
 
-The root README files and snapshot workflow still advertised legacy Central
-publish task names while repo-local guidance already used the NMCP task names.
+root README file과 snapshot workflow는 여전히 legacy Central publish task name을
+안내했지만, repo-local guidance는 이미 NMCP task name을 사용하고 있었다.
 
-## Decision
+## 결정
 
-Use `nmcpPublishAggregationToCentralPortalSnapshots` for SNAPSHOT publishing and
-`nmcpPublishAggregationToCentralPortal` for release publishing in public
-guidance and GitHub Actions.
+public guidance와 GitHub Actions에서 SNAPSHOT publishing에는
+`nmcpPublishAggregationToCentralPortalSnapshots`를, release publishing에는
+`nmcpPublishAggregationToCentralPortal`을 사용한다.
 
-## Verification
+## 검증
 
 - `./gradlew tasks --all | rg "publishAggregation|nmcpPublishAggregation|CentralPortal|CentralSnapshots"`
 - `rg "publishAggregationToCentralSnapshots|publishAggregationToCentralPortal|publishAggregationToCentralPortalSnapshots|publishAllPublicationsToCentralPortalSnapshots|publishAllPublicationsToCentralSnapshots" README.md README.ko.md .github/workflows build.gradle.kts`
 
-## Future Guard
+## 향후 가드
 
-When release or snapshot publish tasks change, update README.md, README.ko.md,
-workflow commands, and repo-local contributor guidance together.
+release 또는 snapshot publish task가 바뀌면 README.md, README.ko.md, workflow command,
+repo-local contributor guidance를 함께 업데이트한다.
