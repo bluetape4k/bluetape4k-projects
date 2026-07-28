@@ -1,4 +1,4 @@
-# Issue #825 R2DBC Auto-Configuration Review
+# Issue #825 R2DBC Auto-Configuration 검토
 
 Date: 2026-07-04
 Repo: `bluetape4k-projects`
@@ -10,7 +10,7 @@ Scope: `data/r2dbc` auto-configuration classpath guards and bean backoff
 - P1: 0
 - Verdict: PASS
 
-## 7-Tier Review
+## 7-Tier 검토
 
 ### Tier 1 - Correctness
 

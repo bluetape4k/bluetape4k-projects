@@ -1,4 +1,4 @@
-# Issue 757 Protobuf Buffer Core Review
+# Issue 757 Protobuf Buffer Core 검토
 
 ## 검토 기준
 
