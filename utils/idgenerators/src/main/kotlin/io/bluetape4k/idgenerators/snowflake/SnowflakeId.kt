@@ -5,7 +5,7 @@ import io.bluetape4k.support.publicLazy
 import java.io.Serializable
 
 /**
- * Snowflake id
+ * Snowflake id입니다.
  *
  * ```kotlin
  * val snowflake = DefaultSnowflake()
