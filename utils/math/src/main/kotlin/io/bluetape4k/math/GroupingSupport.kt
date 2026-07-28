@@ -81,7 +81,7 @@ inline fun <T: Any, K: Any> Iterable<T>.groupingCount(crossinline keySelector: (
 /**
  * Groups elements from the [Grouping] source by key and applies [operation] to the elements of each group sequentially,
  * passing the previously accumulated value and the current element as arguments, and stores the results in a new map.
- * An initial value of accumulator is the same [initialValue] for each group.
+ * accumulator의 initial value는 각 group마다 같은 [initialValue]입니다.
  *
  * ```kotlin
  * val data = sequenceOf("apple" to 3, "banana" to 5, "apple" to 7)
@@ -110,7 +110,7 @@ inline fun <T: Any, K: Any, R: Any> Sequence<T>.groupingFold(
 /**
  * Groups elements from the [Grouping] source by key and applies [operation] to the elements of each group sequentially,
  * passing the previously accumulated value and the current element as arguments, and stores the results in a new map.
- * An initial value of accumulator is the same [initialValue] for each group.
+ * accumulator의 initial value는 각 group마다 같은 [initialValue]입니다.
  *
  * ```kotlin
  * val data = listOf("apple" to 3, "banana" to 5, "apple" to 7)
@@ -138,7 +138,7 @@ inline fun <T: Any, K: Any, R: Any> Iterable<T>.groupingFold(
  * sequentially starting from the second element of the group,
  * passing the previously accumulated value and the current element as arguments,
  * and stores the results in a new map.
- * An initial value of accumulator is the first element of the group.
+ * accumulator의 initial value는 group의 첫 번째 element입니다.
  *
  * ```kotlin
  * val data = sequenceOf("apple" to 1, "banana" to 2, "apple" to 3)
@@ -170,7 +170,7 @@ inline fun <T: S, K: Any, S: Any> Sequence<T>.groupingReduce(
  * sequentially starting from the second element of the group,
  * passing the previously accumulated value and the current element as arguments,
  * and stores the results in a new map.
- * An initial value of accumulator is the first element of the group.
+ * accumulator의 initial value는 group의 첫 번째 element입니다.
  *
  * ```kotlin
  * val data = listOf("apple" to 1, "banana" to 2, "apple" to 3)
