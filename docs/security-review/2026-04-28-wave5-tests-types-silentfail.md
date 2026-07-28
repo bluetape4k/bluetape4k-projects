@@ -1,4 +1,4 @@
-# Wave 5 Tests/Types/SilentFail Review — 2026-04-28
+# Wave 5 Tests/Types/SilentFail 검토 — 2026-04-28
 
 전체 5개 그룹 병렬 실행 결과. Tier 5 (Tests, Type Design, Silent Failures) 기준.
 
