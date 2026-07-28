@@ -1,35 +1,32 @@
-# Issue #853 NetCDF Progress Lease Owner
+# 이슈 #853 NetCDF progress lease owner
 
-Issue #853 found that `NetCdfImportProgressRepository` used the shared progress
-row id as the only write authority. When an `IN_PROGRESS` lease expired and a
-second importer reacquired the same `(fileId, variableName)` row, the stale
-importer still held the same `progressId` and could renew, complete, or fail the
-row owned by the new importer.
+issue #853은 `NetCdfImportProgressRepository`가 shared progress row id를 유일한 write
+authority로 사용한다는 점을 찾았다. `IN_PROGRESS` lease가 만료되고 두 번째 importer가
+같은 `(fileId, variableName)` row를 다시 획득하면, stale importer도 같은 `progressId`를
+가지고 새 owner의 row를 renew, complete, fail할 수 있었다.
 
-## Decision
+## 결정
 
-Use the current `lease_expires_at` value returned by `acquireLease` as the lease
-owner token. `renewLease`, `markCompleted`, and `markFailed` now require that
-expected token in their `WHERE` clause. A mismatched token produces
-`NetCdfException.ImportLeaseLost` and leaves the current owner row unchanged.
+`acquireLease`가 반환한 현재 `lease_expires_at` 값을 lease owner token으로 사용한다.
+`renewLease`, `markCompleted`, `markFailed`는 `WHERE` clause에서 expected token을
+요구한다. token이 맞지 않으면 `NetCdfException.ImportLeaseLost`를 만들고 current owner
+row는 변경하지 않는다.
 
-No schema migration is needed because the existing lease expiry timestamp is
-already updated on every acquisition and renewal.
+기존 lease expiry timestamp가 acquisition과 renewal마다 이미 업데이트되므로 schema
+migration은 필요 없다.
 
-## Lessons
+## 교훈
 
-- A reusable progress row id is not a lease ownership proof. Reacquiring an
-  expired row must create a new write token even when the primary key stays the
-  same.
-- Heartbeat renewal must return the next token. Completion and failure paths
-  then prove ownership against the latest lease, not the original acquisition.
-- Stale-owner tests should cover every terminal writer, not just heartbeat
-  renewal. Otherwise a stale importer can still corrupt the row by marking it
-  completed or failed.
+- reusable progress row id는 lease ownership proof가 아니다. expired row를 다시 획득할
+  때는 primary key가 같아도 새 write token을 만들어야 한다.
+- heartbeat renewal은 다음 token을 반환해야 한다. completion/failure path는 original
+  acquisition이 아니라 latest lease에 대해 ownership을 증명해야 한다.
+- stale-owner test는 heartbeat renewal뿐 아니라 모든 terminal writer를 cover해야 한다.
+  그렇지 않으면 stale importer가 completed 또는 failed로 row를 corrupt할 수 있다.
 
-## Verification
+## 검증
 
-- RED: `./gradlew :bluetape4k-science:test --tests "io.bluetape4k.science.exposed.service.NetCdfCatalogServiceTest.23a - stale lease owner cannot renew after expired lease is reacquired" --no-build-cache` failed with `Expected <99> to be <null>`.
+- RED: `./gradlew :bluetape4k-science:test --tests "io.bluetape4k.science.exposed.service.NetCdfCatalogServiceTest.23a - stale lease owner cannot renew after expired lease is reacquired" --no-build-cache`가 `Expected <99> to be <null>`로 실패했다.
 - GREEN targeted: `./gradlew :bluetape4k-science:test --tests "io.bluetape4k.science.exposed.service.NetCdfCatalogServiceTest.23a - stale lease owner cannot renew after expired lease is reacquired" --tests "io.bluetape4k.science.exposed.service.NetCdfCatalogServiceTest.23b - stale lease owner cannot complete after expired lease is reacquired" --tests "io.bluetape4k.science.exposed.service.NetCdfCatalogServiceTest.23c - stale lease owner cannot fail after expired lease is reacquired" --no-build-cache`
-- Regression: `./gradlew :bluetape4k-science:test --tests "io.bluetape4k.science.exposed.service.NetCdfCatalogServiceTest" --no-build-cache`
-- Module: `./gradlew :bluetape4k-science:test --no-build-cache` passed with 214 tests.
+- regression: `./gradlew :bluetape4k-science:test --tests "io.bluetape4k.science.exposed.service.NetCdfCatalogServiceTest" --no-build-cache`
+- module: `./gradlew :bluetape4k-science:test --no-build-cache`가 214 tests로 통과했다.
