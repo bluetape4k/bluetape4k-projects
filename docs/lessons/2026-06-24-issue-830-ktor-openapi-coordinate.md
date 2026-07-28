@@ -1,31 +1,27 @@
-# Lessons Learned - Issue #830 Ktor OpenAPI Maven Coordinate (2026-06-24)
+# 이슈 #830 Ktor OpenAPI Maven coordinate 교훈 (2026-06-24)
 
-Related issue: #830
-Module: `:bluetape4k-ktor-openapi`
+관련 이슈: #830
+module: `:bluetape4k-ktor-openapi`
 
-## L1: README dependency snippets must follow `projectGroup`
+## L1: README dependency snippet은 `projectGroup`을 따라야 한다
 
-### Problem
+### 문제
 
-`ktor/openapi` README snippets used `io.bluetape4k` even though the repository
-publishes under `projectGroup=io.github.bluetape4k`.
+repository가 `projectGroup=io.github.bluetape4k`로 publish하는데도 `ktor/openapi` README
+snippet은 `io.bluetape4k`를 사용했다.
 
-Users copying the snippet would request an artifact coordinate that does not
-match the published Maven group.
+snippet을 복사한 사용자는 published Maven group과 맞지 않는 artifact coordinate를 요청하게
+된다.
 
-### Lesson
+### 교훈
 
-When changing module dependency snippets, verify the group id against
-`gradle.properties` instead of copying old README examples. For localized
-README sets, update `README.md` and `README.ko.md` together and grep for stale
-module coordinates before closing the issue.
+module dependency snippet을 바꿀 때는 오래된 README example을 복사하지 말고
+`gradle.properties`에 있는 group id를 검증한다. localized README set은 `README.md`와
+`README.ko.md`를 함께 업데이트하고, issue를 닫기 전에 stale module coordinate를 grep한다.
 
-## Evidence
+## 증거
 
-- Source of truth: `gradle.properties` has
-  `projectGroup=io.github.bluetape4k`.
-- Fixed snippets:
-  `io.github.bluetape4k:bluetape4k-ktor-openapi:$bluetape4kVersion`.
-- Validation:
-  `rg "io\\.bluetape4k:bluetape4k-ktor-openapi" ktor/openapi/README.md ktor/openapi/README.ko.md`
-  returned no matches after the change.
+- source of truth: `gradle.properties`에는 `projectGroup=io.github.bluetape4k`가 있다.
+- fixed snippet: `io.github.bluetape4k:bluetape4k-ktor-openapi:$bluetape4kVersion`.
+- validation: `rg "io\\.bluetape4k:bluetape4k-ktor-openapi" ktor/openapi/README.md ktor/openapi/README.ko.md`
+  는 변경 후 match를 반환하지 않았다.
