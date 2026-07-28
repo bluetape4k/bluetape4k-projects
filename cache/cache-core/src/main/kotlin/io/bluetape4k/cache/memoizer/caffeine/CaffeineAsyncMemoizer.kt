@@ -8,7 +8,7 @@ import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.atomic.AtomicLong
 
 /**
- * Creates a [CaffeineAsyncMemoizer] backed by this Caffeine [Cache].
+ * 이 Caffeine [Cache]를 backend로 사용하는 [CaffeineAsyncMemoizer]를 생성합니다.
  *
  * ```kotlin
  * val cache = Caffeine.newBuilder().maximumSize(1000).build<String, Int>()

@@ -28,7 +28,7 @@ open class NearJCacheStatisticsMXBean: CacheStatisticsMXBean {
     private val putTime = atomic(0L)
 
     /**
-     * Clears the statistics counters to 0 for the associated Cache.
+     * 연결된 Cache의 statistics counter를 0으로 초기화합니다.
      */
     override fun clear() {
         removals.value = 0
@@ -47,7 +47,7 @@ open class NearJCacheStatisticsMXBean: CacheStatisticsMXBean {
     }
 
     /**
-     * The number of get requests that were satisfied by the cache.
+     * cache가 만족한 get request 수입니다.
      *
      *
      * [javax.cache.Cache.containsKey] is not a get request for
@@ -88,7 +88,7 @@ open class NearJCacheStatisticsMXBean: CacheStatisticsMXBean {
     }
 
     /**
-     * A miss is a get request that is not satisfied.
+     * miss는 만족되지 않은 get request입니다.
      *
      *
      * In a simple cache a miss occurs when the cache does not satisfy the request.
@@ -119,7 +119,7 @@ open class NearJCacheStatisticsMXBean: CacheStatisticsMXBean {
     override fun getCacheMisses(): Long = misses.value
 
     /**
-     * Returns the percentage of cache accesses that did not find a requested entry
+     * 요청한 entry를 찾지 못한 cache access 비율을 반환합니다
      * in the cache.
      *
      *
@@ -136,7 +136,7 @@ open class NearJCacheStatisticsMXBean: CacheStatisticsMXBean {
     }
 
     /**
-     * The total number of requests to the cache. This will be equal to the sum of
+     * cache에 대한 전체 request 수입니다. 이는 다음 합과 같습니다
      * the hits and misses.
      *
      *
@@ -156,10 +156,10 @@ open class NearJCacheStatisticsMXBean: CacheStatisticsMXBean {
     }
 
     /**
-     * The total number of puts to the cache.
+     * cache에 대한 전체 put 수입니다.
      *
      *
-     * A put is counted even if it is immediately evicted.
+     * put 직후 evict되더라도 put으로 계산합니다.
      *
      *
      * Replaces, where a put occurs which overrides an existing mapping is counted
@@ -174,7 +174,7 @@ open class NearJCacheStatisticsMXBean: CacheStatisticsMXBean {
     }
 
     /**
-     * The total number of removals from the cache. This does not include evictions,
+     * cache에서 제거된 전체 removal 수입니다. eviction은 포함하지 않습니다,
      * where the cache itself initiates the removal to make space.
      *
      * @return the number of removals
@@ -186,7 +186,7 @@ open class NearJCacheStatisticsMXBean: CacheStatisticsMXBean {
     }
 
     /**
-     * The total number of evictions from the cache. An eviction is a removal
+     * cache에서 발생한 전체 eviction 수입니다. eviction은 removal입니다
      * initiated by the cache itself to free up space. An eviction is not treated as
      * a removal and does not appear in the removal counts.
      *
@@ -207,7 +207,7 @@ open class NearJCacheStatisticsMXBean: CacheStatisticsMXBean {
     }
 
     /**
-     * The mean time to execute gets.
+     * get 실행 평균 시간입니다.
      *
      *
      * In a read-through cache the time taken to load an entry on miss is not
@@ -222,7 +222,7 @@ open class NearJCacheStatisticsMXBean: CacheStatisticsMXBean {
     }
 
     /**
-     * The mean time to execute puts.
+     * put 실행 평균 시간입니다.
      *
      * @return the time in µs
      */
@@ -233,7 +233,7 @@ open class NearJCacheStatisticsMXBean: CacheStatisticsMXBean {
     }
 
     /**
-     * The mean time to execute removes.
+     * remove 실행 평균 시간입니다.
      *
      * @return the time in µs
      */
