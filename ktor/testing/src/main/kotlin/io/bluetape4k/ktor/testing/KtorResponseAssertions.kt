@@ -12,7 +12,7 @@ import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
 
 /**
- * Verifies the HTTP status and returns the same response for chaining.
+ * HTTP status를 검증하고 chaining할 수 있도록 같은 response를 반환합니다.
  */
 infix fun HttpResponse.shouldHaveStatus(expected: HttpStatusCode): HttpResponse {
     status shouldBeEqualTo expected
@@ -53,7 +53,7 @@ suspend inline fun <reified T> HttpResponse.shouldHaveJsonBody(
 }
 
 /**
- * Verifies a standard bluetape4k [ApiErrorResponse].
+ * 표준 bluetape4k [ApiErrorResponse]를 검증합니다.
  */
 suspend fun HttpResponse.shouldHaveApiError(
     expected: ExpectedApiError,
