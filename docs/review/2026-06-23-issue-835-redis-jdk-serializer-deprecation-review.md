@@ -1,17 +1,17 @@
-# Code Review - Issue #835 Redis JDK serializer deprecation
+# Code 검토 - Issue #835 Redis JDK serializer deprecation
 
 Date: 2026-06-23
 Issue: #835
 Module: `:bluetape4k-spring-boot-redis`
 
-## Summary
+## 요약
 
 Redis-facing JDK serializer constants now preserve the lower-level JDK
 deserialization deprecation warning and guide callers toward Kryo or Fory.
 The README serializer matrices now mark JDK variants as deprecated,
 trusted-data-only choices.
 
-## Findings
+## 발견 사항
 
 - P0: 0
 - P1: 0

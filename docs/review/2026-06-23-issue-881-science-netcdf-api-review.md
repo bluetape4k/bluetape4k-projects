@@ -1,4 +1,4 @@
-# Issue #881 Science NetCDF API Migration Review
+# Issue #881 Science NetCDF API Migration 검토
 
 ## Scope
 
