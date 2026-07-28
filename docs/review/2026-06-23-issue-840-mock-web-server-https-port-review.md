@@ -1,4 +1,4 @@
-# Issue 840 Review - mock-web-server HTTPS port
+# Issue 840 검토 - mock-web-server HTTPS port
 
 ## Scope
 
