@@ -95,7 +95,7 @@ def validate_readmes() -> None:
         if en_code != ko_code:
             fail(f"README {language} example locale parity drift")
     expected_matrix = {
-        "LZ4": ("compatibility fallback", "compatibility fallback", "compatibility fallback", "none in the core slice"),
+        "LZ4": ("optimized", "optimized", "optimized", "eligible, not yet measured"),
         "Deflate": ("compatibility fallback", "compatibility fallback", "compatibility fallback",
                     "none in the core slice"),
         "Snappy": ("compatibility fallback", "compatibility fallback", "compatibility fallback",
@@ -105,7 +105,7 @@ def validate_readmes() -> None:
         "Other codecs": ("compatibility fallback", "compatibility fallback", "compatibility fallback", "ineligible"),
     }
     if en_matrix != expected_matrix:
-        fail(f"core storage matrix drift: expected={expected_matrix} actual={en_matrix}")
+        fail(f"storage matrix drift: expected={expected_matrix} actual={en_matrix}")
 
     shared_contract = (
         "position",

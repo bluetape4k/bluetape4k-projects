@@ -39,6 +39,23 @@ Zstd throw-before-return 계약을 명세에 추가하고, 독립 6관점 재검
 - allocation 개선은 backend/storage별 반복 측정 전에는 주장하지 않는다. core matrix의 모든
   경로는 compatibility fallback이며 correctness-only다.
 
+## LZ4 slice에서 고정한 경계
+
+LZ4 caller-owned 경로는 heap/direct/slice/read-only source와 heap/direct/slice target의 모든
+조합에서 lz4-java의 `ByteBuffer` API를 직접 사용한다. decompression에는 caller가 노출한
+payload만 별도 `slice()`로 전달한다. 이 view의 `position=0`,
+`limit=capacity=caller-visible remaining`이므로 `LZ4FastDecompressor`가 capacity를 입력
+경계로 사용하더라도 caller limit 뒤의 tail에는 접근할 수 없다. codec이 반환한 consumed byte
+수가 bounded payload 전체 길이와 다르면 trailing 또는 truncated wire로 분류해
+`LZ4Exception`을 전파한다.
+
+검증은 capacity에 완전한 wire가 남아 있지만 caller limit가 마지막 byte를 가린 direct source,
+유효 wire 뒤 trailing byte, 기존/new API wire 상호 운용, big-endian header, target preflight,
+overflow retry, pre-created failure identity를 포함한다. compression codec의 반환값도
+`1..payloadCapacity` 범위에서만 target position을 commit한다. README의 `optimized`는 이 native
+dispatch와 storage coverage만 뜻하며, allocation 개선은 아직 측정하지 않았으므로
+`eligible, not yet measured`로 유지한다.
+
 ## 왜 broad backend slice를 중단했는가
 
 LZ4의 capacity-tail read는 source isolation 문제이고, zstd-jni의 throw-before-return은 예외

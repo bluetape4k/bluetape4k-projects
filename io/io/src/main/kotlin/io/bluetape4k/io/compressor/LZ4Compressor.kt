@@ -5,6 +5,27 @@ import io.bluetape4k.support.toByteArray
 import io.bluetape4k.support.toInt
 import net.jpountz.lz4.LZ4Exception
 import net.jpountz.lz4.LZ4Factory
+import java.nio.BufferOverflowException
+import java.nio.ByteBuffer
+
+internal interface LZ4BufferOperations {
+    fun compress(
+        source: ByteBuffer,
+        sourceOffset: Int,
+        sourceLength: Int,
+        target: ByteBuffer,
+        targetOffset: Int,
+        targetLength: Int,
+    ): Int
+
+    fun decompress(
+        source: ByteBuffer,
+        sourceOffset: Int,
+        target: ByteBuffer,
+        targetOffset: Int,
+        targetLength: Int,
+    ): Int
+}
 
 /**
  * LZ4 알고리즘을 사용한 고성능 압축기
@@ -32,18 +53,136 @@ import net.jpountz.lz4.LZ4Factory
  * @throws IllegalArgumentException when the stored source-size header is negative or exceeds the 256 MB limit.
  * @throws LZ4Exception when LZ4 block compression or decompression fails.
  */
-class LZ4Compressor: AbstractCompressor() {
+class LZ4Compressor private constructor(
+    private val bufferOperations: LZ4BufferOperations,
+): AbstractCompressor() {
+
+    constructor(): this(defaultBufferOperations)
 
     companion object: KLogging() {
         /**
          * 압축 데이터 헤더 크기 (원본 크기 저장용, 4 bytes)
          */
         private const val MAGIC_NUMBER_SIZE: Int = Int.SIZE_BYTES
+        private const val MAX_DECOMPRESSED_SIZE: Int = 256 * 1024 * 1024
 
         private val factory: LZ4Factory by lazy { LZ4Factory.fastestInstance() }
         private val compressor by lazy { factory.fastCompressor() }
         private val decompressor by lazy { factory.fastDecompressor() }
+        private val defaultBufferOperations: LZ4BufferOperations = object: LZ4BufferOperations {
+            override fun compress(
+                source: ByteBuffer,
+                sourceOffset: Int,
+                sourceLength: Int,
+                target: ByteBuffer,
+                targetOffset: Int,
+                targetLength: Int,
+            ): Int = compressor.compress(
+                source,
+                sourceOffset,
+                sourceLength,
+                target,
+                targetOffset,
+                targetLength,
+            )
+
+            override fun decompress(
+                source: ByteBuffer,
+                sourceOffset: Int,
+                target: ByteBuffer,
+                targetOffset: Int,
+                targetLength: Int,
+            ): Int = decompressor.decompress(
+                source,
+                sourceOffset,
+                target,
+                targetOffset,
+                targetLength,
+            )
+        }
+
+        internal fun forTesting(bufferOperations: LZ4BufferOperations): LZ4Compressor =
+            LZ4Compressor(bufferOperations)
     }
+
+    override fun compress(source: ByteBuffer, target: ByteBuffer): Int =
+        writeToCallerBufferViews(source, target) {
+                sourceView,
+                targetView,
+                sourcePosition,
+                sourceRemaining,
+                targetPosition,
+                targetRemaining,
+            ->
+            if (targetRemaining < MAGIC_NUMBER_SIZE) throw BufferOverflowException()
+
+            putIntBigEndian(targetView, targetPosition, sourceRemaining)
+            val payloadCapacity = targetRemaining - MAGIC_NUMBER_SIZE
+            val payloadWritten = try {
+                bufferOperations.compress(
+                    sourceView,
+                    sourcePosition,
+                    sourceRemaining,
+                    targetView,
+                    targetPosition + MAGIC_NUMBER_SIZE,
+                    payloadCapacity,
+                )
+            } catch (failure: LZ4Exception) {
+                if (failure.message == "maxDestLen is too small") {
+                    throw BufferOverflowException()
+                }
+                throw failure
+            }
+            if (payloadWritten !in 1..payloadCapacity) {
+                throw IllegalStateException(
+                    "LZ4 payload write count out of range: " +
+                            "written=$payloadWritten, capacity=$payloadCapacity"
+                )
+            }
+            Math.addExact(MAGIC_NUMBER_SIZE, payloadWritten)
+        }
+
+    override fun decompress(source: ByteBuffer, target: ByteBuffer): Int =
+        writeToCallerBufferViews(source, target) {
+                sourceView,
+                targetView,
+                sourcePosition,
+                sourceRemaining,
+                targetPosition,
+                targetRemaining,
+            ->
+            if (sourceRemaining < MAGIC_NUMBER_SIZE) {
+                throw IndexOutOfBoundsException("LZ4 header requires 4 bytes")
+            }
+
+            val declaredSize = getIntBigEndian(sourceView, sourcePosition)
+            require(declaredSize >= 0) {
+                "sourceSize must not be negative: $declaredSize"
+            }
+            require(declaredSize <= MAX_DECOMPRESSED_SIZE) {
+                "sourceSize exceeds 256 MiB: $declaredSize"
+            }
+            if (declaredSize > targetRemaining) throw BufferOverflowException()
+
+            val payload = sourceView.duplicate().apply {
+                position(sourcePosition + MAGIC_NUMBER_SIZE)
+                limit(sourcePosition + sourceRemaining)
+            }.slice()
+            val consumed = bufferOperations.decompress(
+                payload,
+                0,
+                targetView,
+                targetPosition,
+                declaredSize,
+            )
+            if (consumed != payload.remaining()) {
+                throw LZ4Exception(
+                    "LZ4 compressed payload length mismatch: " +
+                            "consumed=$consumed, remaining=${payload.remaining()}"
+                )
+            }
+            declaredSize
+        }
 
     /**
      * 데이터를 압축합니다.
