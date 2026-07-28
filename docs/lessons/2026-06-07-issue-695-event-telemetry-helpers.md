@@ -1,37 +1,46 @@
-# Issue 695 Event Telemetry Helpers
+# 이슈 695 Event telemetry helper
 
-## Context
+## 배경
 
-Issue #695 adds reusable event publish and consume telemetry helpers after the shared observability contract from #696.
+issue #695는 #696의 shared observability contract 이후 reusable event publish/consume
+telemetry helper를 추가한다.
 
-## Decision
+## 결정
 
-Implement the first slice in `infra/micrometer` as generic Observation helpers instead of changing Kafka, NATS, Pulsar, or Spring modules directly.
+Kafka, NATS, Pulsar, Spring module을 직접 바꾸지 않고 첫 slice를 `infra/micrometer`의
+generic Observation helper로 구현한다.
 
-The helper records stable low-cardinality tags by default and requires explicit opt-in for high-cardinality identifiers. Correlation IDs are sanitized before they can be recorded as high-cardinality values.
+helper는 기본적으로 stable low-cardinality tag를 기록하고, high-cardinality identifier는
+명시적인 opt-in을 요구한다. correlation ID는 high-cardinality value로 기록되기 전에
+sanitize된다.
 
-## Outcome
+## 결과
 
-- `event.publish` and `event.consume` wrappers now share operation, messaging, event type, correlation presence, batch count, outcome, and exception semantics.
-- Cancellation is observable as `outcome=CANCELLED` but is not reported as an Observation error.
-- README examples cover Spring application event consumption and Kafka-style publish instrumentation.
-- PR review tightened factory APIs by using companion `invoke` with private data class constructors.
-- README now includes a shared English sequence diagram asset for event telemetry.
+- `event.publish`와 `event.consume` wrapper는 이제 operation, messaging, event type,
+  correlation presence, batch count, outcome, exception semantic을 공유한다.
+- cancellation은 `outcome=CANCELLED`로 관찰 가능하지만 Observation error로 보고하지 않는다.
+- README example은 Spring application event consumption과 Kafka-style publish
+  instrumentation을 다룬다.
+- PR review는 private data class constructor와 companion `invoke`를 사용해 factory API를
+  좁혔다.
+- README에는 event telemetry용 shared English sequence diagram asset이 포함됐다.
 
-## Verification
+## 검증
 
 ```bash
 ./gradlew :bluetape4k-micrometer:test --tests 'io.bluetape4k.micrometer.observation.events.EventTelemetryObservationSupportTest'
 ```
 
-Result: PASS, 7 tests.
+결과: PASS, 7 tests.
 
 ```bash
 ./gradlew :bluetape4k-micrometer:test
 ```
 
-Result: PASS, 80 tests and 1 pending.
+결과: PASS, 80 tests and 1 pending.
 
-## Future Work
+## 향후 작업
 
-Broker-specific modules can adopt these helpers later without changing broker APIs wholesale. Keep payload bodies, raw headers, exception messages, PII, secrets, and temporary destinations out of default tags.
+broker-specific module은 나중에 broker API 전체를 바꾸지 않고 이 helper를 채택할 수
+있다. payload body, raw header, exception message, PII, secret, temporary destination은
+default tag에서 제외한다.
