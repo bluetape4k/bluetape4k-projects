@@ -236,7 +236,7 @@ class Hashids(
         (numbersHash + returnStr[index].code) % guards.length
 
     /**
-     * Encode hexadecimal formatted string
+     * hexadecimal formatted string을 encode합니다.
      *
      * @param hexStr hexadecimal formatted string to encode
      * @return encoded string as hash
@@ -256,7 +256,7 @@ class Hashids(
     }
 
     /**
-     * Decode hash to hexadecimal formatted string
+     * hash를 hexadecimal formatted string으로 decode합니다.
      *
      * @param hash encoded string
      * @return hexadecimal formatted string
