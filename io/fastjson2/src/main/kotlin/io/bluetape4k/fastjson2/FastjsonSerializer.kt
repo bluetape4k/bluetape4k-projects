@@ -81,7 +81,7 @@ class FastjsonSerializer: JsonSerializer {
     }
 
     /**
-     * Serializes through `JSONB.toBytes` and copies the result into [target].
+     * `JSONB.toBytes`로 직렬화한 뒤 결과를 [target]에 복사합니다.
      * This compatibility path commits the target position only on success and does not claim allocation reduction.
      */
     override fun serializeTo(graph: Any?, target: ByteBuffer): Int {
