@@ -1,12 +1,12 @@
-# LettuceLoadedMap getAll MGET Fallback Fix
+# LettuceLoadedMap getAll MGET Fallback 수정
 
-**Date**: 2026-05-16
-**Issue**: #485
-**Branch**: `fix/lettuce-getall-fallback`
+**날짜**: 2026-05-16
+**이슈**: #485
+**브랜치**: `fix/lettuce-getall-fallback`
 
-## Root Cause
+## 근본 원인
 
-`LettuceLoadedMap.getAll()` and `LettuceSuspendedLoadedMap.getAll()` both used:
+`LettuceLoadedMap.getAll()`과 `LettuceSuspendedLoadedMap.getAll()`은 모두 다음 코드를 사용했다:
 
 ```kotlin
 val values = runCatching { commands.mget(*redisKeys) }
@@ -14,15 +14,14 @@ val values = runCatching { commands.mget(*redisKeys) }
     .getOrNull() ?: emptyList()
 ```
 
-When MGET failed, `values` became `emptyList()`. The subsequent `forEachIndexed`
-loop never iterated, so `missedKeys` remained empty. The loader was never invoked
-and callers received an empty result instead of fetched values.
+MGET이 실패하면 `values`는 `emptyList()`가 되었다. 이어지는 `forEachIndexed` loop가 전혀 돌지 않아
+`missedKeys`가 비어 있었다. Loader는 호출되지 않았고 caller는 fetched value 대신 빈 결과를 받았다.
 
-The log message said "loader fallback" but the code path made it impossible.
+Log message는 "loader fallback"이라고 말했지만, code path는 그것을 불가능하게 만들었다.
 
-## Fix
+## 수정
 
-### Sync (LettuceLoadedMap.kt)
+### Sync (`LettuceLoadedMap.kt`)
 
 ```kotlin
 val mgetResult = runCatching { commands.mget(*redisKeys) }
@@ -42,11 +41,11 @@ if (mgetResult == null) {
 }
 ```
 
-### Suspend (LettuceSuspendedLoadedMap.kt)
+### Suspend (`LettuceSuspendedLoadedMap.kt`)
 
-Same logic, plus replaced `runCatching { asyncCommands.mget(...).await() }` (which
-swallows `CancellationException`) with explicit try/catch that rethrows
-`CancellationException`:
+동일한 logic을 적용하고, `CancellationException`을 삼키는
+`runCatching { asyncCommands.mget(...).await() }`를 명시적인 try/catch로 교체해
+`CancellationException`을 rethrow한다:
 
 ```kotlin
 val mgetResult = try {
@@ -59,34 +58,34 @@ val mgetResult = try {
 }
 ```
 
-Also replaced the SETEX `runCatching` block with the same explicit try/catch.
+SETEX `runCatching` block도 같은 명시적 try/catch로 교체했다.
 
-## Test Coverage
+## 테스트 범위
 
-New tests in `LettuceLoadedMapTest` and `LettuceSuspendedLoadedMapTest`:
+`LettuceLoadedMapTest`와 `LettuceSuspendedLoadedMapTest`에 새 test를 추가했다:
 
-- `getAll - 모든 키가 캐시 미스인 경우 loader로 모두 처리한다` — all keys absent from
-  Redis, verifies all keys go through the loader and results are returned
-- `getAll - 일부 캐시 미스 키는 loader로 Read-through한다` (suspend) — partial miss
-  scenario added to the suspend test class (was missing entirely)
+- `getAll - 모든 키가 캐시 미스인 경우 loader로 모두 처리한다` — Redis에 모든 key가 없을 때
+  모든 key가 loader를 거치고 결과가 반환되는지 검증한다.
+- `getAll - 일부 캐시 미스 키는 loader로 Read-through한다`(suspend) — suspend test class에
+  빠져 있던 partial miss scenario를 추가했다.
 
-Note: the `mgetResult == null` path (MGET throws) is verified by static analysis.
-Integration-level simulation of MGET failure requires a mock-based unit test or
-a broken-connection fixture, which can be added as a follow-up.
+참고: `mgetResult == null` 경로(MGET throw)는 static analysis로 검증했다. MGET failure의
+integration-level simulation은 mock 기반 unit test 또는 broken-connection fixture가 필요하며,
+follow-up으로 추가할 수 있다.
 
-## Verification
+## 검증
 
 ```
 :bluetape4k-lettuce:test
 67 passing (6.2s) — BUILD SUCCESSFUL
 ```
 
-## Key Lesson
+## 핵심 교훈
 
-**`getOrNull() ?: emptyList()` silently converts an error into an empty result.**
-When the intent is "treat failure as all-miss", populate `missedKeys` explicitly
-from `keyList`. Never infer missed keys by iterating a fallback empty collection.
+**`getOrNull() ?: emptyList()`는 error를 빈 결과로 조용히 바꾼다.**
+"failure를 all-miss로 취급"하려는 의도라면 `keyList`에서 `missedKeys`를 명시적으로 채운다.
+Fallback empty collection을 순회해 missed key를 추론하지 않는다.
 
-**`runCatching {}` must not wrap `suspend` calls.** It swallows
-`CancellationException`, breaking coroutine structured concurrency. Use explicit
-try/catch with `CancellationException` rethrow in all suspend paths.
+**`runCatching {}`은 `suspend` 호출을 감싸면 안 된다.** `CancellationException`을 삼켜
+coroutine structured concurrency를 깨뜨린다. 모든 suspend path에서는 `CancellationException`을
+rethrow하는 명시적인 try/catch를 사용한다.
