@@ -1,4 +1,4 @@
-# Issue 837 Review - hibernate-lettuce README dependencies
+# Issue 837 검토 - hibernate-lettuce README dependencies
 
 ## Scope
 
