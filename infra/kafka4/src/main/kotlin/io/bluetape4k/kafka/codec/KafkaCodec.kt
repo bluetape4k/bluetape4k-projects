@@ -151,7 +151,7 @@ abstract class AbstractKafkaCodec<T>: KafkaCodec<T> {
         /**
          * Sentinel value for [allowedTypePackages] that bypasses all package checks.
          *
-         * Use only in fully trusted, internal deployments where all Kafka producers are
+         * 모든 Kafka producer가 완전히 신뢰되는 internal deployment에서만 사용합니다
          * controlled. Assigning this constant re-enables the pre-1.8.0 allow-all behavior.
          *
          * ```kotlin
