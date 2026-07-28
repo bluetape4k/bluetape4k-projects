@@ -1,4 +1,4 @@
-# Issue 790 Review: Jackson2 typed mapper allowlist preservation
+# Issue 790 검토: Jackson2 typed mapper allowlist preservation
 
 ## Scope
 
@@ -7,7 +7,7 @@
 - Jackson2 typed mapper regression tests
 - Jackson2 README locale pair
 
-## Findings
+## 발견 사항
 
 No P0/P1 findings.
 
