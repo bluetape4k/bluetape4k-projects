@@ -4,9 +4,9 @@ import java.sql.Connection
 import java.sql.SQLException
 
 /**
- * Executes [block] inside a JDBC transaction.
+ * JDBC transaction 안에서 [block]을 실행합니다.
  *
- * The connection's `autoCommit`, isolation level, and read-only flag are restored
+ * connection의 `autoCommit`, isolation level, read-only flag는 복구됩니다
  * independently to their original values. Any [Throwable] from the block or
  * commit path triggers rollback and is rethrown unchanged. Rollback or restore
  * failures are attached as suppressed exceptions to the primary failure.
@@ -67,9 +67,9 @@ inline fun <T> Connection.withTransaction(
 }
 
 /**
- * Executes [block] inside a read-only JDBC transaction.
+ * read-only JDBC transaction 안에서 [block]을 실행합니다.
  *
- * The connection's original read-only flag is restored by [withTransaction], so
+ * connection의 원래 read-only flag는 [withTransaction]이 복구하므로
  * callers that provide an already read-only connection keep that state after the
  * transaction finishes.
  *
