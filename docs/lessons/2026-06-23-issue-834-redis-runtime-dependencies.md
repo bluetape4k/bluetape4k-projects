@@ -1,36 +1,36 @@
-# Issue #834 Redis Serializer Runtime Dependencies
+# 이슈 #834 Redis serializer runtime dependency
 
-Issue #834 exposed that `bluetape4k-spring-boot-redis` documented
-`RedisBinarySerializers.LZ4Fory` and `LZ4Kryo` as ready-to-use serializer
-choices while the codec and compressor libraries behind those choices were
-only `compileOnly` in the module.
+issue #834는 `bluetape4k-spring-boot-redis`가 `RedisBinarySerializers.LZ4Fory`와
+`LZ4Kryo`를 즉시 사용할 수 있는 serializer 선택지로 문서화했지만, 해당 선택지를
+뒷받침하는 codec/compressor library가 module에서는 `compileOnly`였음을 드러냈다.
 
-## Decision
+## 결정
 
-- Publish Fory, Kryo, LZ4, Zstd, and Snappy as runtime dependencies of
-  `bluetape4k-spring-boot-redis`.
-- Keep the default module tests unchanged, but add a separate
-  `consumerRuntimeTest` source set that does not inherit the module's
-  `compileOnly` test classpath.
-- Document that consumers do not need separate codec/compressor dependencies
-  for the serializer matrix shown in the README locale set.
+- Fory, Kryo, LZ4, Zstd, Snappy를 `bluetape4k-spring-boot-redis`의 runtime dependency로
+  publish한다.
+- 기본 module test는 유지하되, module의 `compileOnly` test classpath를 상속하지 않는
+  별도 `consumerRuntimeTest` source set을 추가한다.
+- README locale set에 표시된 serializer matrix를 사용할 때 consumer가 별도
+  codec/compressor dependency를 추가하지 않아도 된다고 문서화한다.
 
-## Lessons
+## 교훈
 
-- A module test classpath that extends `compileOnly` can hide consumer runtime
-  gaps. For published runtime contracts, add a source set whose runtime
-  classpath is based on `runtimeClasspath`, not `testImplementation`.
-- README examples that use named serializer constants are runtime contracts.
-  Either publish the required runtime dependencies or document each optional
-  dependency explicitly.
-- Stacked PRs are appropriate when a follow-up issue touches the same module
-  files as an already-open PR.
+- `compileOnly`를 확장한 module test classpath는 consumer runtime gap을 숨길 수 있다.
+  published runtime contract에는 `testImplementation`이 아니라 `runtimeClasspath` 기반
+  source set을 추가한다.
+- named serializer constant를 사용하는 README example은 runtime contract다. 필요한
+  runtime dependency를 publish하거나 optional dependency를 명시적으로 문서화해야 한다.
+- 이미 열린 PR과 같은 module file을 건드리는 follow-up issue에는 stacked PR이 적합하다.
 
-## Verification
+## 검증
 
-- RED: `./gradlew :bluetape4k-spring-boot-redis:consumerRuntimeTest --no-build-cache` failed with missing `org.apache.fory.ThreadSafeFory` and `net.jpountz.lz4.LZ4Factory`.
-- GREEN: the same task passed with 2 consumer-runtime tests after moving the documented codec/compressor libraries to `runtimeOnly`.
-- `./gradlew :bluetape4k-spring-boot-redis:dependencies --configuration runtimeClasspath` showed Fory, Kryo, LZ4, Zstd, and Snappy.
-- `./gradlew :bluetape4k-spring-boot-redis:compileKotlin :bluetape4k-spring-boot-redis:compileTestKotlin :bluetape4k-spring-boot-redis:test :bluetape4k-spring-boot-redis:consumerRuntimeTest --no-build-cache` passed.
-- Test XML totals: default Redis tests 83 tests and consumer runtime tests 2 tests; all failures/errors 0.
-- `git diff --check` passed.
+- RED: `./gradlew :bluetape4k-spring-boot-redis:consumerRuntimeTest --no-build-cache`는
+  `org.apache.fory.ThreadSafeFory`와 `net.jpountz.lz4.LZ4Factory` 누락으로 실패했다.
+- GREEN: 문서화된 codec/compressor library를 `runtimeOnly`로 옮긴 뒤 같은 task가
+  consumer-runtime test 2개와 함께 통과했다.
+- `./gradlew :bluetape4k-spring-boot-redis:dependencies --configuration runtimeClasspath`에서
+  Fory, Kryo, LZ4, Zstd, Snappy를 확인했다.
+- `./gradlew :bluetape4k-spring-boot-redis:compileKotlin :bluetape4k-spring-boot-redis:compileTestKotlin :bluetape4k-spring-boot-redis:test :bluetape4k-spring-boot-redis:consumerRuntimeTest --no-build-cache`가 통과했다.
+- test XML totals: default Redis tests 83 tests, consumer runtime tests 2 tests,
+  failures/errors 0.
+- `git diff --check`가 통과했다.
