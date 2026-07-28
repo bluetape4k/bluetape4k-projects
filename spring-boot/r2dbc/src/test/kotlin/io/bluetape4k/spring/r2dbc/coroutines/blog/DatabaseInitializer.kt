@@ -18,7 +18,7 @@ class DatabaseInitializer(
     companion object: KLoggingChannel()
 
     /**
-     * Spring Boot Application이 준비되면 호출되는 Event Listener
+     * Spring Boot application이 준비되면 호출되는 event listener입니다.
      */
     @EventListener(value = [ApplicationReadyEvent::class])
     fun init() {
