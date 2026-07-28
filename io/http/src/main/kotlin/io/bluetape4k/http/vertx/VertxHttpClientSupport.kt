@@ -15,7 +15,7 @@ private val defaultVertxHttpClientLock = ReentrantLock()
 private var defaultVertxHttpClientRef: HttpClient? = null
 
 /**
- * Default Vert.x [HttpClientOptions].
+ * 기본 Vert.x [HttpClientOptions]입니다.
  *
  * Security note: `trustAll = false` keeps TLS certificate verification enabled.
  * Use custom options with `trustAll = true` only for controlled test environments.
@@ -30,12 +30,12 @@ val defaultVertxHttpClientOptions: HttpClientOptions = httpClientOptionsOf(
 )
 
 /**
- * Managed default Vert.x [HttpClient].
+ * 관리되는 기본 Vert.x [HttpClient]입니다.
  *
  * ## Behaviour / Contract
  * - The client is created lazily from `bluetape4k-vertx`'s managed [defaultVertx].
  * - The client is reused across calls to this property.
- * - Call [closeDefaultVertxHttpClient] before closing the managed default Vert.x during shutdown.
+ * - shutdown 중 관리되는 기본 Vert.x를 닫기 전에 [closeDefaultVertxHttpClient]를 호출합니다.
  *
  * ```kotlin
  * val client = defaultVertxHttpClient
@@ -49,7 +49,7 @@ val defaultVertxHttpClient: HttpClient
     }
 
 /**
- * Closes and clears the managed default Vert.x [HttpClient], if it was created.
+ * 관리되는 기본 Vert.x [HttpClient]가 생성되어 있으면 닫고 지웁니다.
  */
 fun closeDefaultVertxHttpClient(): Future<Void> {
     val client = defaultVertxHttpClientLock.withLock {
