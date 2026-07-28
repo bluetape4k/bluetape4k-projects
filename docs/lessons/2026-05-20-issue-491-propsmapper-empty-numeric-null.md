@@ -1,33 +1,31 @@
-# Issue 491 Java Properties Empty Numeric Nulls
+# 이슈 491 Java Properties Empty Numeric Null
 
-## Context
+## 배경
 
-`JavaPropsMapper` reads Java Properties values as untyped strings. Empty
-properties such as `maxWaitMillis=` and `idleTimeout=` were deserialized into
-nullable numeric Kotlin constructor parameters as `0`, which made generated
-properties fail to round-trip against the original `null` model.
+`JavaPropsMapper`는 Java Properties value를 untyped string으로 읽는다. `maxWaitMillis=`와
+`idleTimeout=` 같은 empty property가 nullable numeric Kotlin constructor parameter로 deserialize될 때
+`0`이 되어, generated properties가 원래 `null` model과 round-trip되지 않았다.
 
-## Decision
+## 결정
 
-Keep the fix local to `JacksonText.Props.defaultMapper` for Jackson 2 and
-Jackson 3. Apply Jackson coercion metadata for numeric logical types and add a
-Properties-only numeric module that maps an empty string to `null` for boxed
-numeric types before parsing non-empty values normally.
+Fix를 Jackson 2와 Jackson 3의 `JacksonText.Props.defaultMapper`에만 국소화한다. Numeric logical type에
+Jackson coercion metadata를 적용하고, non-empty value는 정상 parsing하되 empty string은 boxed numeric
+type에서 `null`로 mapping하는 Properties-only numeric module을 추가한다.
 
-## Outcome
+## 결과
 
-The disabled named datasource properties round-trip tests are enabled in both
-Jackson 2 and Jackson 3. Empty nullable numeric properties now deserialize as
-`null`; other text formats and CSV mapper defaults are unchanged.
+Disabled 상태였던 named datasource properties round-trip test를 Jackson 2와 Jackson 3 모두에서
+활성화했다. Empty nullable numeric property는 이제 `null`로 deserialize된다. 다른 text format과 CSV
+mapper default는 바뀌지 않는다.
 
-## Verification
+## 검증
 
-`./gradlew :bluetape4k-jackson2:test --tests 'io.bluetape4k.jackson.text.datasources.ParseNamedDataSourcePropertiesTest' :bluetape4k-jackson3:test --tests 'io.bluetape4k.jackson3.text.datasources.ParseNamedDataSourcePropertiesTest' --console=plain --no-configuration-cache` passed with 4 tests per module.
+`./gradlew :bluetape4k-jackson2:test --tests 'io.bluetape4k.jackson.text.datasources.ParseNamedDataSourcePropertiesTest' :bluetape4k-jackson3:test --tests 'io.bluetape4k.jackson3.text.datasources.ParseNamedDataSourcePropertiesTest' --console=plain --no-configuration-cache`가 module당 4 tests로 통과.
 
-`./gradlew :bluetape4k-jackson2:test :bluetape4k-jackson3:test --console=plain --no-configuration-cache` passed with 430 Jackson 2 tests and 432 Jackson 3 tests.
+`./gradlew :bluetape4k-jackson2:test :bluetape4k-jackson3:test --console=plain --no-configuration-cache`가 Jackson 2 430 tests, Jackson 3 432 tests로 통과.
 
-## Future Guard
+## 향후 가드
 
-Do not broaden Java Properties coercion fixes into CSV/TOML/YAML mappers unless
-their own tests prove the same bug. Java Properties scalar handling is format
-specific, so keep future coercion modules attached only to the affected mapper.
+같은 bug를 증명하는 별도 test가 없다면 Java Properties coercion fix를 CSV/TOML/YAML mapper로 넓히지
+않는다. Java Properties scalar handling은 format-specific이므로 future coercion module은 affected
+mapper에만 붙인다.
