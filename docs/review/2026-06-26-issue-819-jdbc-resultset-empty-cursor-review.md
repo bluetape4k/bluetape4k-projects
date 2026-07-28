@@ -12,13 +12,13 @@
 - Tier 6 Documentation: PASS
 - Tier 7 Evidence: PASS
 
-## Findings
+## 발견 사항
 
 - P0: 0
 - P1: 0
 - P2/P3: 0
 
-## Evidence
+## 증거
 
 - `ResultSet.isEmptyByMovingCursor()` and `ResultSet.isNotEmptyByMovingCursor()` now make the destructive cursor movement part of the API name.
 - Existing `ResultSet.isEmpty()` and `ResultSet.isNotEmpty()` remain binary-compatible shims but are deprecated with replacement guidance.

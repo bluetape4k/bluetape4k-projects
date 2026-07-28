@@ -8,7 +8,7 @@
 - `data/cassandra/README.md`
 - `data/cassandra/README.ko.md`
 
-## Findings
+## 발견 사항
 
 P0/P1: none.
 
