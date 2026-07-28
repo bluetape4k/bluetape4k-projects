@@ -1,49 +1,44 @@
 # idgenerator Spring Boot demo rename
 
-## Context
+## 배경
 
-The Spring Boot idgenerator example originally lived under
-`spring-boot/idgenerator-demo`, which produced the Gradle task
-`:bluetape4k-spring-boot-idgenerator-demo`. After the Ktor example was renamed
-to `idgenerator-ktor-demo`, the Spring Boot example needed the same
-subject-first naming style.
+Spring Boot idgenerator example은 원래 `spring-boot/idgenerator-demo` 아래에 있었고 Gradle task는
+`:bluetape4k-spring-boot-idgenerator-demo`였다. Ktor example이 `idgenerator-ktor-demo`로
+rename된 뒤 Spring Boot example도 같은 subject-first naming style이 필요했다.
 
-## Decision
+## 결정
 
-- Move the example to `examples/spring-boot/idgenerator-spring-boot-demo`.
-- Register nested Spring Boot examples with
-  `includeModules("examples/spring-boot", false, false)` so the Gradle task is
-  `:idgenerator-spring-boot-demo`.
-- Update Examples workflow, Nightly exclusion, README command snippets, and
-  lessons to use the new path and task name.
+- Example을 `examples/spring-boot/idgenerator-spring-boot-demo`로 이동한다.
+- Gradle task가 `:idgenerator-spring-boot-demo`가 되도록 nested Spring Boot example을
+  `includeModules("examples/spring-boot", false, false)`로 등록한다.
+- Examples workflow, Nightly exclusion, README command snippet, lesson을 새 path와 task name으로 갱신한다.
 
-## Outcome
+## 결과
 
-The two idgenerator examples now use matching runnable example names:
+두 idgenerator example은 서로 맞는 runnable example 이름을 사용한다.
 
 - `:idgenerator-ktor-demo`
 - `:idgenerator-spring-boot-demo`
 
-Both live under `examples/**`, so root Gradle sample filtering excludes them
-from publishing and Kover by project directory.
+둘 다 `examples/**` 아래에 있으므로 root Gradle sample filtering은 project directory 기준으로
+publishing과 Kover에서 제외한다.
 
-## Verification Evidence
+## 검증 근거
 
 ```bash
 ./gradlew -q projects | rg "idgenerator-(ktor|spring-boot)-demo"
 ```
 
-Expected result: both idgenerator demo projects are registered.
+예상 결과: 두 idgenerator demo project가 모두 등록된다.
 
 ```bash
 repo-test-summary -- ./gradlew :idgenerator-spring-boot-demo:compileKotlin :idgenerator-spring-boot-demo:compileTestKotlin :idgenerator-spring-boot-demo:test --parallel
 ```
 
-Expected result: Spring Boot idgenerator demo tests pass.
+예상 결과: Spring Boot idgenerator demo test가 통과한다.
 
-## Future Guidance
+## 향후 지침
 
-Prefer subject-first example names such as `idgenerator-ktor-demo` and
-`idgenerator-spring-boot-demo` for runnable examples that compare framework
-integrations. Keep workflow task paths and README snippets in sync with the
-Gradle project name in the same change.
+Framework integration을 비교하는 runnable example은 `idgenerator-ktor-demo`,
+`idgenerator-spring-boot-demo`처럼 subject-first example name을 선호한다. Workflow task path와
+README snippet은 Gradle project name과 같은 변경에서 동기화한다.
