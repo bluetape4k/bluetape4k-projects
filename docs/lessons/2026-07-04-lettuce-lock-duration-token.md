@@ -1,27 +1,26 @@
-# Lettuce Lock Duration And Token Preservation
+# Lettuce lock duration과 token 보존
 
-## Context
+## 배경
 
-Issue #949 found that Lettuce lock APIs converted invalid durations to Redis PX
-values and cleared the local owner token before Redis release success was known.
+이슈 #949는 Lettuce lock API가 잘못된 duration을 Redis PX value로 변환하고,
+Redis release success를 알기 전에 local owner token을 지운다는 점을 확인했다.
 
-## Decision
+## 결정
 
-Validate lock durations at the API boundary and clear the local token only after
-the Redis Lua release script confirms success.
+Lock duration은 API boundary에서 검증하고, Redis Lua release script가 성공을 확인한
+뒤에만 local token을 지운다.
 
-## Outcome
+## 결과
 
-Invalid lease/wait durations fail before Redis commands are issued. If a release
-fails because the Redis key expired or no longer matches, the local token remains
-available so callers can retry when release evidence becomes available.
+잘못된 lease/wait duration은 Redis command가 발행되기 전에 실패한다. Redis key가
+만료되었거나 더 이상 일치하지 않아 release가 실패하면 local token은 남아 있고,
+호출자는 release evidence가 확보될 때 retry할 수 있다.
 
-## Verification
+## 검증
 
 - `./gradlew :bluetape4k-lettuce:test --tests 'io.bluetape4k.redis.lettuce.lock.LettuceLockTest' --tests 'io.bluetape4k.redis.lettuce.lock.LettuceSuspendLockTest'`
 
-## Future Guidance
+## 향후 지침
 
-Distributed lock implementations must validate Redis TTL inputs before command
-construction and must not discard local ownership evidence until remote release
-success is confirmed.
+Distributed lock 구현은 command construction 전에 Redis TTL input을 검증해야 하며,
+remote release success가 확인되기 전에는 local ownership evidence를 버리면 안 된다.
