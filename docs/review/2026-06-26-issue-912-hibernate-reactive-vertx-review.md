@@ -10,7 +10,7 @@ Affected modules: `:bluetape4k-hibernate`, `:bluetape4k-hibernate-reactive`, `:b
 - Aligned Hibernate Reactive from `4.3.3.Final` to `4.5.0.Final`.
 - Kept the repository-wide Vert.x line at `5.1.3`.
 
-## 7-Tier Review
+## 7-Tier 검토
 
 | Tier | Result | Evidence |
 |---|---:|---|
@@ -22,14 +22,14 @@ Affected modules: `:bluetape4k-hibernate`, `:bluetape4k-hibernate-reactive`, `:b
 | Documentation | PASS | Lesson artifact records the ORM/Reactive/Vert.x coupling. |
 | Regression risk | PASS | Resolved dependency versions match the intended line: ORM `7.4.2.Final`, Reactive `4.5.0.Final`, Vert.x SQL `5.1.3`. |
 
-## Findings
+## 발견 사항
 
 P0: 0
 P1: 0
 
 P2/P3: none requiring code changes before PR.
 
-## Validation Evidence
+## 검증 Evidence
 
 - Reproduced before fix:
   - Data CI candidate command failed at `:bluetape4k-hibernate-reactive:test`.

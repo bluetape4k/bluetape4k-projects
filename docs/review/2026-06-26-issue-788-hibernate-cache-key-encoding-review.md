@@ -10,7 +10,7 @@ Module: `:bluetape4k-hibernate-cache-lettuce`
 - Added collision regression tests through the `DomainDataStorageAccess` public path.
 - Updated English and Korean README key-isolation wording.
 
-## 7-Tier Review
+## 7-Tier 검토
 
 | Tier | Result | Evidence |
 |---|---:|---|
@@ -22,14 +22,14 @@ Module: `:bluetape4k-hibernate-cache-lettuce`
 | Tier 6 - Documentation | PASS | `README.md` and `README.ko.md` now distinguish region prefix isolation from collision-resistant Hibernate key encoding. |
 | Tier 7 - Evidence | PASS | `git diff --check` clean; CodeGraph change detection reports no additional affected flows or test gaps. |
 
-## Findings
+## 발견 사항
 
 P0: 0
 P1: 0
 
 P2/P3: none requiring code changes before PR.
 
-## Validation Evidence
+## 검증 Evidence
 
 - `./gradlew :bluetape4k-hibernate-cache-lettuce:compileTestKotlin --warning-mode all --no-daemon --no-configuration-cache`
   - Result: PASS, `BUILD SUCCESSFUL in 12s`.
