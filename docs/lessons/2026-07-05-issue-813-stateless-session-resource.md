@@ -1,32 +1,29 @@
-# Issue #813 Stateless Session Resource Binding
+# 이슈 #813 Stateless session resource binding
 
-## Context
+## 배경
 
-`StatelessSessionFactoryBean` stored provider-created `StatelessSession`
-instances in Spring's transaction resource map using the `SessionFactory` itself
-as the key. Spring JPA transaction infrastructure also uses the factory key for
-its own resource binding, so the stateless proxy path could collide with the
-active `EntityManager` lifecycle.
+`StatelessSessionFactoryBean`은 provider가 만든 `StatelessSession` instance를
+`SessionFactory` 자체를 key로 사용해 Spring transaction resource map에 저장했다.
+Spring JPA transaction infrastructure도 자체 resource binding에 factory key를
+사용하므로 stateless proxy path가 active `EntityManager` lifecycle과 충돌할 수
+있었다.
 
-## Decision
+## 결정
 
-Use a dedicated transaction resource key for stateless sessions. The key is tied
-to the exact `SessionFactory` identity but has a separate key type, so it cannot
-collide with Spring's ordinary `SessionFactory` or `EntityManager` resources.
+Stateless session에는 전용 transaction resource key를 사용한다. 이 key는 정확한
+`SessionFactory` identity에 묶이지만 별도 key type을 가지므로 Spring의 일반
+`SessionFactory` 또는 `EntityManager` resource와 충돌할 수 없다.
 
-## Outcome
+## 결과
 
-- The injected `StatelessSession` proxy reuses the same stateless session inside
-  one transaction.
-- The proxy no longer binds a `StatelessSession` under the raw `SessionFactory`
-  key.
-- The exact resource created by the factory is unbound and closed when the
-  transaction completes.
-- Calls outside an active transaction still fail fast.
+- 주입된 `StatelessSession` proxy는 하나의 transaction 안에서 같은 stateless session을 재사용한다.
+- Proxy는 더 이상 raw `SessionFactory` key 아래에 `StatelessSession`을 bind하지 않는다.
+- Factory가 만든 정확한 resource는 transaction 완료 시 unbind되고 닫힌다.
+- Active transaction 밖의 호출은 계속 fail fast한다.
 
-## Future Rule
+## 향후 규칙
 
-When integrating custom resources with Spring's
-`TransactionSynchronizationManager`, never reuse a framework-owned resource key
-for a different lifecycle participant. Use a dedicated key type and test both
-same-transaction reuse and after-completion cleanup.
+Custom resource를 Spring `TransactionSynchronizationManager`와 통합할 때는
+framework-owned resource key를 다른 lifecycle participant에 재사용하지 않는다.
+전용 key type을 사용하고 same-transaction reuse와 after-completion cleanup을 모두
+테스트한다.
