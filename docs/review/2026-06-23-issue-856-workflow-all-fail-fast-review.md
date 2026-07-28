@@ -1,4 +1,4 @@
-# Issue #856 Workflow ALL Fail-Fast Review
+# Issue #856 Workflow ALL Fail-Fast 검토
 
 ## Scope
 
@@ -37,7 +37,7 @@ Result: FAILED, 0 passing and 8 failing.
 | Suspend tests needed cancellation semantics proof. | Tests now assert sibling cancellation and add explicit child `CancellationException` propagation coverage. |
 | Concurrency helper choice needed rationale. | Test comments explain why `StructuredTaskScopeTester` and `SuspendedJobTester` do not fit this exact sibling-signal assertion. |
 
-## Findings
+## 발견 사항
 
 | Severity | Count | Notes |
 |---|---:|---|
@@ -45,7 +45,7 @@ Result: FAILED, 0 passing and 8 failing.
 | P1 | 0 | Returned non-success reports and thrown exceptions both trigger ALL fail-fast behavior. |
 | P2 | 0 | No remaining non-blocking review finding after the targeted fixes. |
 
-## Evidence
+## 증거
 
 | Check | Result | Evidence |
 |---|---|---|
