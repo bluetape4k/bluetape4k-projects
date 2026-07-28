@@ -4,7 +4,7 @@ import io.r2dbc.spi.Parameter
 import io.r2dbc.spi.Parameters
 
 /**
- * Creates an R2DBC [Parameter] that carries a typed NULL value.
+ * typed NULL 값을 담는 R2DBC [Parameter]를 생성합니다.
  *
  * Use this helper with map-based binding APIs when a nullable value needs to
  * preserve its database type information.
@@ -19,7 +19,7 @@ import io.r2dbc.spi.Parameters
 fun typedNullParameter(type: Class<*>): Parameter = Parameters.`in`(type)
 
 /**
- * Creates an R2DBC [Parameter] that carries a typed NULL value for [T].
+ * [T]의 typed NULL 값을 담는 R2DBC [Parameter]를 생성합니다.
  *
  * @param T Kotlin type to expose to the R2DBC driver.
  * @return typed NULL [Parameter].
