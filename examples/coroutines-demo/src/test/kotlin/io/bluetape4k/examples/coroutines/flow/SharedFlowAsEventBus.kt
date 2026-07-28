@@ -24,7 +24,7 @@ class SharedFlowAsEventBus {
     companion object: KLoggingChannel()
 
     /**
-     * An event bus implementation that uses a shared flow to broadcast events to multiple listeners.
+     * shared flow로 여러 listener에 event를 broadcast하는 event bus 구현입니다.
      */
     class EventBus<T> {
         // The shared flow that will be used to broadcast events to multiple listeners.
