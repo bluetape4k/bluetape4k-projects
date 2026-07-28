@@ -43,7 +43,7 @@ data class GeneratorResponse(
 )
 
 /**
- * Example application health response.
+ * example application health response입니다.
  */
 data class HealthResponse(
     val status: String,
