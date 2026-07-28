@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.RestControllerAdvice
 
 /**
- * Converts input validation errors from the idgenerator REST demo into JSON responses.
+ * idgenerator REST demo의 input validation error를 JSON response로 변환합니다.
  *
  * ## Behavior
  * - Unsupported generator types and batch size errors return HTTP 400.
