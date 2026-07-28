@@ -1,4 +1,4 @@
-# Issue #927 Telemetry CI Coverage Review
+# Issue #927 Telemetry CI Coverage 검토
 
 ## Scope
 
@@ -8,7 +8,7 @@
   - `:bluetape4k-opentelemetry`
   - `:bluetape4k-kafka-logback`
 
-## 7-Tier Review
+## 7-Tier 검토
 
 | Tier | Verdict | Evidence |
 |------|---------|----------|
@@ -20,7 +20,7 @@
 | 6. Performance | PASS | The lane is path-filtered and does not expand unrelated CI jobs for non-telemetry changes. |
 | 7. Documentation / Evidence | PASS | This review plus the lesson document record the issue boundary, commands, and future guard. |
 
-## Validation
+## 검증
 
 - `actionlint .github/workflows/ci.yml`: PASS.
 - Backslash-single-quote guard for `.github/workflows/ci.yml`: PASS, no escaped expression quotes.
@@ -29,7 +29,7 @@
 - `./gradlew :bluetape4k-opentelemetry:test :bluetape4k-kafka-logback:test --max-workers=1 --no-configuration-cache`: PASS.
 - `./gradlew :bluetape4k-opentelemetry:koverXmlReport :bluetape4k-kafka-logback:koverXmlReport --max-workers=1 --no-configuration-cache`: PASS.
 
-## Findings
+## 발견 사항
 
 - P0: 0
 - P1: 0
