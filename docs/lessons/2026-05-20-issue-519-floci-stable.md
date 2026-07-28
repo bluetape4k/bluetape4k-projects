@@ -1,41 +1,35 @@
-# Issue 519 FlociServer Stable Promotion
+# 이슈 519 FlociServer Stable Promotion
 
-## Context
+## 배경
 
-Issue #519 asked to remove the circular deprecation between `LocalStackServer`
-and `FlociServer`, update the pinned Floci image, and verify that Floci service
-tests cover the LocalStack replacement path.
+Issue #519는 `LocalStackServer`와 `FlociServer` 사이의 circular deprecation 제거, pinned Floci image
+갱신, Floci service test가 LocalStack replacement path를 cover하는지 검증을 요청했다.
 
-## Decision
+## 결정
 
-Promote `FlociServer` to the stable open-source AWS emulator wrapper and keep
-`LocalStackServer` deprecated. The current upstream stable release is Floci
-`1.5.17`, published on 2026-05-18, so the default pinned tag should move past
-the issue's original `1.5.16` target.
+`FlociServer`를 stable open-source AWS emulator wrapper로 승격하고 `LocalStackServer`는 deprecated로
+유지한다. 구현 시점의 current upstream stable release는 2026-05-18에 publish된 Floci `1.5.17`이므로,
+default pinned tag는 issue의 원래 `1.5.16` target을 넘어선다.
 
-Do not use the `-compat` image as the default. Floci documents `x.y.z-compat`
-for images that include AWS CLI and boto3, while the standard pinned image is
-the right default for AWS SDK and Testcontainers usage.
+Default로 `-compat` image를 사용하지 않는다. Floci 문서는 AWS CLI와 boto3를 포함하는 image에
+`x.y.z-compat`를 사용한다고 설명한다. AWS SDK와 Testcontainers usage에는 standard pinned image가
+올바른 default다.
 
-## Outcome
+## 결과
 
-`FlociServer` no longer carries `@Deprecated`, its default tag is pinned to
-`1.5.17`, and the Floci test package no longer suppresses deprecation warnings.
-`LocalStackServer` keeps a clear deprecation message that points open-source
-users to `FlociServer`.
+`FlociServer`는 더 이상 `@Deprecated`를 갖지 않고 default tag는 `1.5.17`로 pin된다. Floci test package는
+deprecation warning suppression을 제거했다. `LocalStackServer`는 open-source user를 `FlociServer`로
+안내하는 명확한 deprecation message를 유지한다.
 
-## Verification
+## 검증
 
-- GitHub Releases confirmed `floci-io/floci` `1.5.17` as the latest stable
-  non-draft, non-prerelease release at implementation time.
-- Docker Hub confirmed matching `floci/floci:1.5.17` and
-  `floci/floci:1.5.17-compat` tags.
-- Floci README confirmed standard vs compat image semantics.
-- `rg` confirmed that `FlociSTSTest` already exists, closing the issue's STS
-  coverage question.
+- GitHub Releases에서 implementation 당시 `floci-io/floci` `1.5.17`이 latest stable non-draft,
+  non-prerelease release임을 확인.
+- Docker Hub에서 matching `floci/floci:1.5.17`와 `floci/floci:1.5.17-compat` tag 확인.
+- Floci README에서 standard vs compat image semantics 확인.
+- `rg`로 `FlociSTSTest`가 이미 있음을 확인해 issue의 STS coverage question 종료.
 
-## Future Agents
+## 향후 agent 가이드
 
-Use pinned stable Floci tags for reproducible testcontainers defaults. Reach for
-`-compat` only when an init-script workflow needs AWS CLI or boto3 inside the
-Floci image.
+Reproducible testcontainers default에는 pinned stable Floci tag를 사용한다. Init-script workflow가
+Floci image 내부의 AWS CLI 또는 boto3를 필요로 할 때만 `-compat`를 선택한다.

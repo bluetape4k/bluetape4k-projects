@@ -1,37 +1,41 @@
-# Issue 474 Cache Redis Resilience4j Deprecated API Removal
+# 이슈 474 Cache Redis Resilience4j Deprecated API 제거
 
-## Context
+## 배경
 
-Issue #474 removes deprecated infra/cache aliases after the compatibility window. This lane covers cache-core, cache-lettuce, lettuce, redisson, and resilience4j only.
+Issue #474는 compatibility window 이후 deprecated infra/cache alias를 제거한다. 이 lane은
+cache-core, cache-lettuce, lettuce, redisson, resilience4j만 다룬다.
 
-## Decision
+## 결정
 
-Remove forwarding aliases instead of keeping compatibility shims:
+Compatibility shim을 유지하지 않고 forwarding alias를 제거한다:
 
 - `AsyncCache.getSuspending`
 - `LettuceSuspendNearCache.clearFrontCache`
 - `RedisFuture.suspendAwait`
 - `RedisFuture.coAwait`
-- Redis and Redisson `DEFAULT_DELIMETER`
+- Redis 및 Redisson `DEFAULT_DELIMETER`
 - `SuspendDecorators.decoreate`
 
-Canonical APIs remain `suspendGet`, `clearLocal`, `awaitSuspending`, `DEFAULT_DELIMITER`, and `decorate`.
+Canonical API는 `suspendGet`, `clearLocal`, `awaitSuspending`, `DEFAULT_DELIMITER`, `decorate`로 유지한다.
 
-## Outcome
+## 결과
 
-Compatibility tests now exercise canonical APIs, and the public deprecated alias surface is removed from the touched modules.
+Compatibility test는 canonical API를 사용하도록 바뀌었고, touched module의 public deprecated alias
+surface는 제거되었다.
 
-## Verification
+## 검증
 
 - `./gradlew :bluetape4k-cache-core:compileKotlin :bluetape4k-cache-core:compileTestKotlin :bluetape4k-cache-lettuce:compileKotlin :bluetape4k-cache-lettuce:compileTestKotlin :bluetape4k-lettuce:compileKotlin :bluetape4k-lettuce:compileTestKotlin :bluetape4k-redisson:compileKotlin :bluetape4k-redisson:compileTestKotlin :bluetape4k-resilience4j:compileKotlin :bluetape4k-resilience4j:compileTestKotlin --no-configuration-cache`
 - `./gradlew :bluetape4k-cache-core:test --no-configuration-cache`: 455 passing.
 - `./gradlew :bluetape4k-cache-lettuce:test --no-configuration-cache`: 427 passing.
-- `./gradlew :bluetape4k-lettuce:test --no-daemon --no-configuration-cache`: 331 passing after one daemon-disappearance retry.
+- `./gradlew :bluetape4k-lettuce:test --no-daemon --no-configuration-cache`: daemon disappearance retry 1회 후 331 passing.
 - `./gradlew :bluetape4k-redisson:test --no-daemon --no-configuration-cache`: 287 passing.
 - `./gradlew :bluetape4k-resilience4j:test --no-daemon --no-configuration-cache`: 280 passing.
 - `git diff --check`
 - `rg -n "@Deprecated|getSuspending|clearFrontCache|suspendAwait\\b|coAwait\\b|DEFAULT_DELIMETER|decoreate" cache/cache-core cache/cache-lettuce infra/lettuce infra/redisson infra/resilience4j`
 
-## Future Guidance
+## 향후 가이드
 
-Keep #474 cleanup PRs independent. If `docs/infra-deprecated-inventory.md` conflicts with Kafka or OpenTelemetry cleanup PRs, preserve all completed rows from each lane and keep only truly remaining deprecated APIs in the table.
+#474 cleanup PR은 독립적으로 유지한다. `docs/infra-deprecated-inventory.md`가 Kafka 또는
+OpenTelemetry cleanup PR과 conflict 나면 각 lane의 completed row를 모두 보존하고, 실제 remaining
+deprecated API만 table에 남긴다.
