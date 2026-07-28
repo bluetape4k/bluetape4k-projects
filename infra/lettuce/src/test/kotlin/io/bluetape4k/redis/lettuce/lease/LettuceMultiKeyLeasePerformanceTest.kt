@@ -38,11 +38,11 @@ import java.util.concurrent.atomic.AtomicInteger
 import kotlin.math.ceil
 
 /**
- * Characterizes Redis-side multi-key lease cost outside the default test task.
+ * 기본 test task 밖에서 Redis-side multi-key lease 비용을 특성화합니다.
  *
- * Re-run `:bluetape4k-lettuce:multiKeyLeasePerformanceTest` after changing the Lua scripts or the default `maxKeys`.
- * Absolute latency is environment-dependent; the regression assertion compares normalized p95 values within one run.
- * This test deliberately owns a dedicated Redis server and explicit executors: a shared launcher would contaminate
+ * Lua script 또는 기본 `maxKeys`를 변경한 뒤 `:bluetape4k-lettuce:multiKeyLeasePerformanceTest`를 다시 실행합니다.
+ * 절대 latency는 환경 의존적이므로 regression assertion은 한 run 안의 normalized p95 값을 비교합니다.
+ * 이 test는 전용 Redis server와 explicit executor를 의도적으로 소유합니다. shared launcher는 오염시킬 수 있습니다
  * latency samples, while `MultithreadingTester` cannot preserve per-attempt timing, persistent connections, and the
  * independently scheduled PING probe that this characterization requires.
  */
