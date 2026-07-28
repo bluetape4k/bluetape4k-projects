@@ -5,13 +5,13 @@
 - Updated `.github/copilot-instructions.md` to match current bluetape4k-projects policy.
 - Kept the change to agent-facing guidance only; no production code or workflow behavior changed.
 
-## Findings
+## 발견 사항
 
 - P0=0
 - P1=0
 - P2=0
 
-## Evidence
+## 증거
 
 - `gno query "Copilot instructions current bluetape4k project policy" -c bluetape4k-github --fast --no-rerank`: issue #699 evidence found.
 - `gno query "Copilot instructions current bluetape4k project policy" -c bluetape4k-docs --fast --no-rerank`: weak docs match; repo-local `AGENTS.md` and workspace `AGENTS.md` used as current policy sources.
