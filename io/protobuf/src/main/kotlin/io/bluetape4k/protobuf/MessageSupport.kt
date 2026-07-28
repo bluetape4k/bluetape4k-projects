@@ -28,13 +28,13 @@ fun <T: Message> packMessage(message: T): ByteArray {
 /**
  * Packs [message] as protobuf `Any` wire bytes into [target].
  *
- * The bytes are identical to [packMessage]. Writing begins at the target's current position, so callers may use a
+ * [packMessage]와 동일한 바이트입니다. 쓰기는 target의 현재 위치에서 시작하므로 호출자는
  * nonzero position and a bounded limit. On success, the target's byte order, limit, and capacity are preserved, and
  * its position advances by the returned byte count. The exact encoded size is preflighted against
  * [ByteBuffer.remaining]; a read-only target is rejected before packing or checking the encoded size. These preflight
  * failures leave the target state and content unchanged.
  *
- * A later write failure restores only the target position; already-written content is intentionally unspecified. After
+ * 나중의 쓰기 실패는 target 위치만 복구합니다. 이미 기록된 내용은 의도적으로 지정하지 않습니다. 이후
  * such a failure, callers must clear, reinitialize, or discard the target before reusing it. The target remains
  * caller-owned and must be thread-confined or otherwise synchronized by its caller.
  *
@@ -74,7 +74,7 @@ inline fun <reified T: Message> unpackMessage(bytes: ByteArray): T? {
  *
  * Parsing uses a short-lived duplicate, so the caller's source position, limit, mark, and byte order are preserved;
  * this also supports nonzero positions and bounded sources. No buffer view is retained after this function returns.
- * A mismatched `Any` type returns `null`; malformed wire bytes propagate their parse failure.
+ * 일치하지 않는 `Any` 타입은 `null`을 반환합니다. 잘못된 wire byte는 parse 실패를 그대로 전파합니다.
  */
 inline fun <reified T: Message> unpackMessage(source: ByteBuffer): T? {
     val any = ProtoAny.parseFrom(source.duplicate())
