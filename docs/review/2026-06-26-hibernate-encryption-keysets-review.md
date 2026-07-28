@@ -13,7 +13,7 @@ Module: `:bluetape4k-hibernate`
 - README files document the external key material requirement.
 - Converter tests cover unconfigured fail-fast, same-key cross-instance success, and different-key failure.
 
-## 7-Tier Review
+## 7-Tier 검토
 
 | Tier | Result | Evidence |
 |---|---:|---|
@@ -25,14 +25,14 @@ Module: `:bluetape4k-hibernate`
 | Documentation | PASS | `README.md` and `README.ko.md` describe key material storage and bootstrap requirements. |
 | Regression risk | PASS | Targeted module tests pass; full module test has an unrelated pre-existing `org.hibernate.KeyType` blocker on `develop`. |
 
-## Findings
+## 발견 사항
 
 P0: 0
 P1: 0
 
 P2/P3: none requiring code changes before PR.
 
-## Validation Evidence
+## 검증 Evidence
 
 - `./gradlew :bluetape4k-hibernate:compileKotlin :bluetape4k-hibernate:compileTestKotlin --no-build-cache`
   - Result: PASS.
