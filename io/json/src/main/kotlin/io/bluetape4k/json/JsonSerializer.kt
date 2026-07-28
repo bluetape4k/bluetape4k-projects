@@ -20,7 +20,7 @@ import java.nio.ByteBuffer
  * // value?.get("id") == 1
  * ```
  *
- * The interface-default ByteBuffer methods are allocating compatibility fallbacks. Concrete backend verdicts are in
+ * interface default ByteBuffer 메서드는 할당 기반 호환성 fallback입니다. 구체 backend 판정은
  * the [issue #1039 allocation evidence](https://github.com/bluetape4k/bluetape4k-projects/blob/develop/docs/benchmarks/2026-07-18-bytebuffer-serializer-allocation.md).
  */
 interface JsonSerializer {
@@ -41,13 +41,13 @@ interface JsonSerializer {
     fun serialize(graph: Any?): ByteArray
 
     /**
-     * Serializes [graph] and writes the resulting bytes to the caller-owned [target].
+     * [graph]를 직렬화하고 결과 바이트를 호출자 소유 [target]에 씁니다.
      *
      * This interface default is an allocating fallback: it first obtains a [ByteArray] from [serialize], then writes
      * that array to [target]. Null input and zero-byte results retain [serialize]'s existing policy. On success, the
      * returned count is exactly the number of bytes written and is bounded by [Int.MAX_VALUE].
      *
-     * The target is borrowed synchronously and is not retained after the call. This method neither flushes nor closes
+     * target은 동기적으로 빌려 쓰며 호출 뒤 보관하지 않습니다. 이 메서드는 flush 또는 close를 수행하지 않습니다
      * it. Serializer and destination failures propagate unchanged; a failed destination may already contain partial
      * output.
      *
@@ -61,10 +61,10 @@ interface JsonSerializer {
     }
 
     /**
-     * Serializes [graph] into the caller-owned [target], beginning at its current position.
+     * [graph]를 호출자 소유 [target]의 현재 위치부터 직렬화합니다.
      *
      * This default is an allocating fallback: it obtains a [ByteArray] from [serialize] before copying it into [target].
-     * A read-only target fails with `ReadOnlyBufferException` before serializer code runs. Null input retains the
+     * 읽기 전용 target은 serializer 코드 실행 전 `ReadOnlyBufferException`으로 실패합니다. null 입력은
      * existing [serialize] policy, and a zero-byte result returns `0`. Insufficient remaining space fails with the raw
      * `BufferOverflowException`.
      *
@@ -94,7 +94,7 @@ interface JsonSerializer {
     fun <T: Any> deserialize(bytes: ByteArray?, clazz: Class<T>): T?
 
     /**
-     * Deserializes the trusted, caller-bounded bytes in `[source.position(), source.limit())` as [clazz].
+     * `[source.position(), source.limit())` 범위의 신뢰된 호출자 한정 바이트를 [clazz]로 역직렬화합니다.
      *
      * This default is an allocating fallback that copies the remaining bytes to a new [ByteArray] before delegating to
      * [deserialize]. It supports heap, direct, sliced, and read-only sources while preserving the source position,
@@ -154,18 +154,18 @@ inline fun <reified T: Any> JsonSerializer.deserialize(bytes: ByteArray?): T? =
     deserialize(bytes, T::class.java)
 
 /**
- * Deserializes the remaining bytes in [source] as [clazz] through [JsonSerializer.deserializeFrom].
+ * [source]에 남은 바이트를 [JsonSerializer.deserializeFrom]을 통해 [clazz]로 역직렬화합니다.
  *
- * The allocating fallback, caller ownership, trusted bounded-input, thread-confinement, and source-state preservation
+ * 할당 기반 fallback, 호출자 소유권, 신뢰된 bounded-input, 스레드 한정, source 상태 보존
  * rules of [JsonSerializer.deserializeFrom] apply.
  */
 fun <T: Any> JsonSerializer.deserialize(source: ByteBuffer, clazz: Class<T>): T? =
     deserializeFrom(source, clazz)
 
 /**
- * Deserializes the remaining bytes in [source] as reified [T] through [JsonSerializer.deserializeFrom].
+ * [source]에 남은 바이트를 [JsonSerializer.deserializeFrom]을 통해 reified [T]로 역직렬화합니다.
  *
- * The allocating fallback, caller ownership, trusted bounded-input, thread-confinement, and source-state preservation
+ * 할당 기반 fallback, 호출자 소유권, 신뢰된 bounded-input, 스레드 한정, source 상태 보존
  * rules of [JsonSerializer.deserializeFrom] apply.
  */
 inline fun <reified T: Any> JsonSerializer.deserialize(source: ByteBuffer): T? =
