@@ -39,7 +39,7 @@ class NearJCacheManagementMXBean(
     /**
      * Determines if a [Cache] should operate in read-through mode.
      *
-     * The default value is `false`.
+     * 기본값은 `false`입니다.
      *
      * @return `true` when a [Cache] is in "read-through" mode.
      */
@@ -48,7 +48,7 @@ class NearJCacheManagementMXBean(
     /**
      * Determines if a [Cache] should operate in "write-through" mode.
      *
-     * The default value is `false`.
+     * 기본값은 `false`입니다.
      *
      * @return `true` when a [Cache] is in "write-through" mode.
      */
@@ -57,7 +57,7 @@ class NearJCacheManagementMXBean(
     /**
      * Whether storeByValue (true) or storeByReference (false).
      *
-     * The default value is `true`.
+     * 기본값은 `true`입니다.
      *
      * @return true if the cache is store by value
      */
@@ -66,7 +66,7 @@ class NearJCacheManagementMXBean(
     /**
      * Checks whether statistics collection is enabled in this cache.
      *
-     * The default value is `false`.
+     * 기본값은 `false`입니다.
      *
      * @return true if statistics collection is enabled
      */
@@ -75,7 +75,7 @@ class NearJCacheManagementMXBean(
     /**
      * Checks whether management is enabled on this cache.
      *
-     * The default value is `false`.
+     * 기본값은 `false`입니다.
      *
      * @return true if management is enabled
      */
