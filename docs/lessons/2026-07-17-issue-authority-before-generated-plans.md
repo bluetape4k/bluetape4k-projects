@@ -1,47 +1,43 @@
-# Issue Authority Before Generated Plans
+# Generated plan보다 issue authority가 먼저다
 
-## Context
+## 배경
 
-Issue #754 requests ByteBuffer-oriented serializer APIs and allocation evidence.
-Its generated design and implementation plan expanded that work into release
-holds, GitHub App credentials, repository rulesets, protected environments, tag
-mutation, and GitHub Release creation. Those additions were implemented even
-though the issue, its milestone, and its parent epic did not require them.
+이슈 #754는 ByteBuffer-oriented serializer API와 allocation evidence를 요구했다. 그런데
+generated design과 implementation plan은 이 작업을 release hold, GitHub App credential,
+repository ruleset, protected environment, tag mutation, GitHub Release creation까지
+확장했다. 이슈, milestone, parent epic이 요구하지 않았는데도 그 추가 항목이 구현되었다.
 
-## Root Cause
+## 근본 원인
 
-The generated plan was treated as a source of product authority instead of a
-derivative execution artifact. Review focused on whether the added release
-mechanism was internally coherent, not whether it was authorized by the live
-issue. That inverted the authority chain and let unrelated operational policy
-enter a serializer feature.
+Generated plan을 derivative execution artifact가 아니라 product authority의 source로
+다뤘다. Review는 추가된 release mechanism이 내부적으로 일관적인지에 집중했고, live
+issue가 그것을 승인했는지는 확인하지 않았다. 그 결과 authority chain이 뒤집혔고,
+serializer feature에 관련 없는 operational policy가 들어왔다.
 
-## Decision
+## 결정
 
-For issue-driven work, the live issue and explicit user direction define scope.
-Specs and plans may clarify implementation details, but they cannot add release,
-credential, repository-setting, publication, or other external side effects
-without separate explicit authority.
+Issue-driven work에서는 live issue와 명시적인 user direction이 scope를 정의한다.
+Spec과 plan은 implementation detail을 명확히 할 수 있지만, 별도 explicit authority 없이
+release, credential, repository-setting, publication 또는 다른 external side effect를
+추가할 수 없다.
 
-When a generated artifact exceeds its authority:
+Generated artifact가 authority를 넘어서면 다음 순서로 처리한다.
 
-1. preserve valid in-scope implementation and compatibility evidence;
-2. remove the unauthorized operational machinery in a focused corrective PR;
-3. rewrite the derivative spec and plan to match the live issue;
-4. add a regression check for any repository policy that was accidentally
-   changed;
-5. keep publish, tag, release, settings, and merge actions behind their own
-   fresh gates.
+1. 유효한 in-scope implementation과 compatibility evidence를 보존한다.
+2. Unauthorized operational machinery를 focused corrective PR에서 제거한다.
+3. Derivative spec과 plan을 live issue에 맞게 다시 쓴다.
+4. 실수로 변경된 repository policy가 있으면 regression check를 추가한다.
+5. Publish, tag, release, setting, merge action은 각각의 fresh gate 뒤에 둔다.
 
-## Verification
+## 검증
 
-The corrective proof checks that release workflows publish Maven artifacts only,
-contain no issue-specific hold/App/ruleset behavior, and do not create GitHub
-Releases. The retained serializer ABI check computes its own serializer/build
-digest and no longer imports release-policy code.
+Corrective proof는 release workflow가 Maven artifact만 publish하고, issue-specific
+hold/App/ruleset behavior를 포함하지 않으며, GitHub Release를 만들지 않음을 확인한다.
+유지된 serializer ABI check는 자체 serializer/build digest를 계산하고 더 이상
+release-policy code를 import하지 않는다.
 
-## Future Guidance
+## 향후 지침
 
-At each stacked PR boundary, compare the proposed files and side effects with
-the live issue before reviewing implementation detail. A technically sound plan
-is still invalid when its scope is unauthorized.
+각 stacked PR boundary에서 implementation detail을 review하기 전에 제안된 file과 side
+effect를 live issue와 비교한다. 기술적으로 타당한 plan도 scope가 승인되지 않았다면
+여전히 invalid다.

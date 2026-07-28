@@ -1,13 +1,13 @@
 # 다중 키 소유권 Lease의 복구 경계
 
-## Context
+## 배경
 
 Issue #1065는 여러 Redis key를 한 owner가 동시에 점유하도록 만들되 standalone/cluster, sync/future/suspend
 API가 같은 결과 계약을 가져야 했다. Redis Lua의 원자성만으로는 durable business invariant, client-side
 cancellation, 응답 유실 뒤의 ambiguous completion까지 해결할 수 없으므로 caller와 운영자의 복구 경계를
 함께 고정해야 했다.
 
-## Decision
+## 결정
 
 - 모든 key는 connection `RedisCodec.encodeKey`가 만든 실제 wire bytes 기준으로 같은 Redis Cluster slot에
   있어야 한다. shared hash tag가 이 계약의 공개 사용법이다.
@@ -21,7 +21,7 @@ cancellation, 응답 유실 뒤의 ambiguous completion까지 해결할 수 없�
 - metric dimension은 bounded `operation`, `result`, `exception`만 허용한다. owner token은 credential이 아니며
   JWT/session token/PII를 재사용하지 않는다. Redis plaintext 저장을 전제로 ACL/TLS를 실제 보안 경계로 둔다.
 
-## Unexpected Failure / Review Miss
+## 예상 밖 실패 / review에서 놓친 점
 
 처음 성능 gate는 raw p95를 비교하면서 normalized라고 이름 붙였다. 이를 key당 p95로 고친 뒤에도 `* 4`만
 유지하면 raw 기준으로 16배 회귀를 허용한다는 review가 나왔다. 최종적으로 승인된 key당 gate와 더 엄격한
@@ -50,13 +50,13 @@ Colima 환경의 Testcontainers는 context process에 socket 환경이 상속되
 공유 `lockf`와 함께 `DOCKER_HOST`, `TESTCONTAINERS_DOCKER_SOCKET_OVERRIDE`,
 `TESTCONTAINERS_RYUK_DISABLED`를 명시해야 재현 가능한 Redis 검증이 됐다.
 
-## Outcome
+## 결과
 
 한 Lua script가 acquire/inspect/renew/release별 pre-mutation ownership을 분류하고, 모든 adapter가 같은 sealed
 result와 integrity exception을 사용한다. Redis Cluster/NOSCRIPT/경쟁/hostile mutation/cancellation/resilience
 경로가 executable test로 고정됐고, bilingual README와 architecture diagram에 caller·운영 복구 절차가 남았다.
 
-## Verification
+## 검증
 
 - Targeted lease + `RedisScriptTest`: 115 tests, failure/error 0.
 - Full `bluetape4k-lettuce` test: 455 tests, failure/error 0.
@@ -67,7 +67,7 @@ result와 integrity exception을 사용한다. Redis Cluster/NOSCRIPT/경쟁/hos
 - `detekt`와 `detektTest`는 repository root에서 `NO-SOURCE`; `bluetape4k-lettuce` 전용 detekt task는 등록되어
   있지 않아 적용 불가로 기록했다.
 
-## Future Guard
+## 향후 방지책
 
 Lua script, default `maxKeys`, result decoder, or retry predicate를 바꾸면 targeted contract suite와 여섯 조합
 performance task를 다시 실행한다. Performance report는 cache하지 말고 실행 전에 stale file을 fail-closed로
