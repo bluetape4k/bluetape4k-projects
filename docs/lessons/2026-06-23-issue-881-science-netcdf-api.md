@@ -1,43 +1,42 @@
-# Issue #881 Science NetCDF API Migration
+# 이슈 #881 Science NetCDF API migration
 
-Issue #881 tracked Java deprecation warnings in `NetCdfCatalogService` caused by
-metadata access through deprecated NetCDF-Java bean properties:
+issue #881은 deprecated NetCDF-Java bean property를 통한 metadata access 때문에
+`NetCdfCatalogService`에서 Java deprecation warning이 나는 문제를 추적했다.
 
-- `Variable.getAttributes()`, surfaced in Kotlin as `v.attributes`
-- `NetcdfFile.getDimensions()`, surfaced in Kotlin as `nc.dimensions`
+- `Variable.getAttributes()`, Kotlin에서는 `v.attributes`로 노출된다.
+- `NetcdfFile.getDimensions()`, Kotlin에서는 `nc.dimensions`로 노출된다.
 
-## Decision
+## 결정
 
-Use the NetCDF-Java 5.9.1 replacement API where the current source points:
+현재 source가 가리키는 NetCDF-Java 5.9.1 replacement API를 사용한다.
 
-- variable attributes come from `Variable.attributes()`
-- root-file dimensions come from `nc.rootGroup.getDimensions()`
+- variable attribute는 `Variable.attributes()`에서 가져온다.
+- root-file dimension은 `nc.rootGroup.getDimensions()`에서 가져온다.
 
-The service still writes the same bluetape4k domain shape:
+service는 같은 bluetape4k domain shape를 계속 쓴다.
 
 - `NetCdfVariableInfo.attributes`
 - `NetCdfFileRecord.dimensions`
 - `NetCdfFileRecord.globalAttrs`
 
-No repository, schema, import, or Gradle 10 cleanup behavior changed.
+repository, schema, import, Gradle 10 cleanup behavior는 바꾸지 않았다.
 
-## Lessons
+## 교훈
 
-- Kotlin bean-property syntax can hide deprecated Java getters. When a Java
-  library deprecates a getter, prefer explicit method calls or a local helper
-  that names the intended API.
-- `NetcdfFile.getDimensions()` is a global view that NetCDF-Java discourages.
-  For the current registration behavior, root group dimensions preserve the
-  existing root-file metadata shape without recursing through nested groups.
-- The simple source grep is useful for this issue because it catches accidental
-  reintroduction of the deprecated Kotlin property forms.
+- Kotlin bean-property syntax는 deprecated Java getter를 숨길 수 있다. Java library가
+  getter를 deprecate하면 명시적인 method call 또는 의도한 API 이름을 드러내는 local
+  helper를 우선한다.
+- `NetcdfFile.getDimensions()`는 NetCDF-Java가 권장하지 않는 global view다. 현재
+  registration behavior에서는 root group dimension이 nested group을 재귀하지 않고 기존
+  root-file metadata shape를 보존한다.
+- 단순 source grep은 deprecated Kotlin property form의 재도입을 잡는 데 유용하다.
 
-## Verification
+## 검증
 
 - `./gradlew :bluetape4k-science:compileKotlin --warning-mode all`
 - `./gradlew :bluetape4k-science:compileTestKotlin --warning-mode all`
 - `./gradlew :bluetape4k-science:test --tests '*NetCdfCatalogServiceTest' --tests '*NetCdfTableTest'`
-  passed with 37 tests.
+  37 tests로 통과했다.
 - `rg "\.attributes\b|\.dimensions\b" utils/science/src/main/kotlin/io/bluetape4k/science/exposed/service/NetCdfCatalogService.kt`
-  returned no matches.
-- `git diff --check` passed.
+  match를 반환하지 않았다.
+- `git diff --check`가 통과했다.
