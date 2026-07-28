@@ -1,4 +1,4 @@
-# Logging Diagram Connector Repair Design
+# Logging Diagram Connector Repair 설계
 
 ## Problem
 
