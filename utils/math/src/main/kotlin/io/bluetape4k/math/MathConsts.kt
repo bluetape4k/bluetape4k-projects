@@ -47,14 +47,14 @@ object MathConsts {
 
     /**
      * ln(10) / 20 - Power Decibel (dB) 를 Neper (Np) 로 변환할 때의 factor
-     * Use this version when the Decibel represent a power gain
+     * Decibel이 power gain을 나타낼 때 이 version을 사용합니다
      * but the compared values are not powers (e.g. amplitude, current, voltage).
      */
     val powerDecibel: Double get() = ln(10.0) / 20.0
 
     /**
      * ln(10) / 10 - Neutral Decibel (dB)를 Neper (Np)로 변환할 때의 factor
-     * Use this version when the Decibel represent a power gain
+     * Decibel이 power gain을 나타낼 때 이 version을 사용합니다
      * but the compared values are not powers (e.g. amplitude, current, voltage).
      */
     val neutralDecibel: Double get() = ln(10.0) / 10.0
@@ -65,25 +65,25 @@ object MathConsts {
     val goldenRatio: Double = (1.0 + sqrt(5.0)) / 2.0
 
     /**
-     * The Catalan constant
+     * Catalan constant입니다.
      * `Sum(k=0 -> inf){ (-1)^k/(2*k + 1)2 }`
      */
     const val CATALAN: Double = 0.9159655941772190150546035149323841107741493742816721342664981196217630197762547694794
 
     /**
-     * The Euler-Mascheroni constant
+     * Euler-Mascheroni constant입니다.
      * `lim(n -> inf){ Sum(k=1 -> n) { 1/k - log(n) } }`
      */
     const val EULER_MASCHERONI = 0.5772156649015328606065120900824024310421593359399235988057672348849
 
     /**
-     * The Glaisher constant
+     * Glaisher constant입니다.
      * `e^(1/12 - Zeta(-1))`
      */
     const val GLAISHER = 1.2824271291006226368753425688697917277676889273250011920637400217404063088588264611297
 
     /**
-     * The Khinchin constant
+     * Khinchin constant입니다.
      * `prod(k=1 -> inf){1+1/(k*(k+2))^log(k,2)}`</remarks>`
      */
     const val KHINCHIN = 2.6854520010653064453097148354817956938203822939944629530511523455572188595371520028011
