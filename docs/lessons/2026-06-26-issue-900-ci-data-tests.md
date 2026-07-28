@@ -1,22 +1,25 @@
-# Lessons Learned - CI Data Tests (2026-06-26)
+# 교훈: CI data test (2026-06-26)
 
-Related issue: #900
-Affected workflow: `.github/workflows/ci.yml`
+관련 이슈: #900
+대상 workflow: `.github/workflows/ci.yml`
 
-## L1: Path filters need matching test jobs and summary needs
+## L1: path filter는 대응되는 test job과 summary needs까지 연결해야 한다
 
-### Problem
+### 문제
 
-The CI workflow compiled data modules during the build job, but it had no `data` path-filter output and no `Test / Data`
-job. Direct `data/**` changes could therefore merge without data-module test coverage in PR CI.
+CI workflow는 build job에서 data module을 compile했지만 `data` path-filter output과
+`Test / Data` job이 없었다. 따라서 `data/**` 직접 변경은 PR CI에서 data-module
+test coverage 없이 merge될 수 있었다.
 
-### Lesson
+### 교훈
 
-When a CI path group is introduced, wire the whole chain in the same change: `changes.outputs`, the paths-filter entry,
-the test job, coverage aggregation `needs`, and final CI status `needs`. A missing downstream `needs` entry can make a
-new test job invisible to summary gates.
+CI path group을 도입할 때는 전체 chain을 같은 변경에서 연결한다.
+`changes.outputs`, paths-filter entry, test job, coverage aggregation `needs`,
+최종 CI status `needs`가 모두 포함되어야 한다. Downstream `needs` entry 하나가
+빠져도 새 test job은 summary gate에서 보이지 않을 수 있다.
 
-### Future guard
+### 향후 방지책
 
-Workflow coverage fixes should validate both syntax and wiring: run `actionlint`, grep for escaped `${{ }}` quotes, and
-check that new jobs appear in coverage and CI status dependencies.
+Workflow coverage fix는 syntax와 wiring을 모두 검증한다. `actionlint`를 실행하고,
+escaped `${{ }}` quote를 grep하며, 새 job이 coverage와 CI status dependency에
+나타나는지 확인한다.
