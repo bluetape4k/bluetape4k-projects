@@ -1,4 +1,4 @@
-# Issue #879 Coroutines Test Bridge Removal Review
+# Issue #879 Coroutines Test Bridge Removal 검토
 
 ## Scope
 
