@@ -1,4 +1,4 @@
-# Issue #700 Review: Central snapshot task naming audit
+# Issue #700 검토: Central snapshot task naming audit
 
 ## Scope
 
@@ -7,7 +7,7 @@
 - `.github/workflows/release.yml`
 - `build.gradle.kts` contributor publishing comment
 
-## Findings
+## 발견 사항
 
 - P0: 0
 - P1: 0
