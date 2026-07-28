@@ -1,28 +1,26 @@
-# Issue 804 - Cancel Leaf Redis Futures
+# 이슈 804: leaf Redis future 취소
 
-## Context
+## 배경
 
-Redis bulk await helpers waited on one aggregate `CompletableFuture` created by
-`CompletionStage.sequence`. Cancelling the caller coroutine cancelled that
-aggregate await, but it did not cancel the original Lettuce `RedisFuture` or
-Redisson `RFuture` leaves.
+Redis bulk await helper는 `CompletionStage.sequence`가 만든 하나의 aggregate
+`CompletableFuture`를 기다렸다. Caller coroutine을 취소하면 aggregate await는
+취소되었지만, 원본 Lettuce `RedisFuture` 또는 Redisson `RFuture` leaf는 취소되지
+않았다.
 
-## Decision
+## 결정
 
-Put leaf cancellation in the shared `CompletionStage.sequence` boundary. When
-the returned aggregate future is cancelled, each source future receives
-`cancel(true)`. Redis-specific helpers keep their existing API and inherit the
-shared all-or-nothing cancellation behavior.
+Leaf cancellation을 shared `CompletionStage.sequence` boundary에 둔다. 반환된 aggregate
+future가 취소되면 각 source future가 `cancel(true)`를 받는다. Redis-specific helper는
+기존 API를 유지하고 shared all-or-nothing cancellation behavior를 상속한다.
 
-## Outcome
+## 결과
 
-Core, Lettuce, and Redisson tests now prove that aggregate/coroutine
-cancellation cancels pending source futures while preserving input-order success
-results and existing failure propagation.
+Core, Lettuce, Redisson test는 aggregate/coroutine cancellation이 pending source
+future를 취소하면서 input-order success result와 기존 failure propagation을 보존함을
+증명한다.
 
-## Future Guidance
+## 향후 지침
 
-When wrapping many external futures behind one coroutine await, cancellation
-must be propagated to the source futures, not only to the aggregate future.
-Cover both the shared aggregate helper and one representative adapter boundary
-when the behavior is reused across modules.
+많은 external future를 하나의 coroutine await 뒤에 감쌀 때 cancellation은 aggregate
+future뿐 아니라 source future에도 전파되어야 한다. 이 동작이 여러 module에서
+재사용되면 shared aggregate helper와 대표 adapter boundary를 모두 다룬다.
