@@ -12,20 +12,21 @@ Issue: #1093
 
 ## Current Inventory
 
-- Git-tracked files scanned: 7424
-- In-scope single-language docs: 727
+- Git-tracked files scanned: 7425
+- In-scope single-language docs: 728
 - Bilingual manual parity-only docs: 508
 - Excluded docs: 208
 - Kotlin/KTS files for KDoc follow-up: 4492
 - KDoc blocks found in Kotlin/KTS files: 34362
 - Manual EN files missing KO pair: 0
 - Manual KO files missing EN pair: 0
+- English-KDoc policy drift findings: 0
 
 ### Document Classification
 
 | Bucket | Count |
 |---|---:|
-| `in-scope-doc` | 727 |
+| `in-scope-doc` | 728 |
 | `manual-pair-parity-only` | 508 |
 | `excluded-readme` | 194 |
 | `excluded-operating` | 12 |
@@ -56,7 +57,7 @@ Issue: #1093
 | `docs/followup-issues` | 1 |
 | `docs/governance` | 1 |
 | `docs/infra-deprecated-inventory.md` | 1 |
-| `docs/localization` | 1 |
+| `docs/localization` | 2 |
 | `docs/operations` | 1 |
 | `docs/process` | 1 |
 | `docs/release` | 1 |
@@ -312,6 +313,10 @@ No missing Korean manual pairs were found.
 
 No missing English manual pairs were found.
 
+### English-KDoc Policy Drift
+
+No English-KDoc policy drift was found in the tracked documentation scope.
+
 ## Follow-Up Partition
 
 - #1094 owns repeatable guardrails based on this inventory.
@@ -323,4 +328,5 @@ No missing English manual pairs were found.
 
 ```bash
 python3 scripts/docs-localization-inventory.py
+python3 scripts/docs-localization-inventory.py --check
 ```
