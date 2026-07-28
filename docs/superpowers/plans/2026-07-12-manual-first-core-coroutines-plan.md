@@ -1,14 +1,12 @@
-# Core·Coroutines Manual First Implementation Plan
+# Core·Coroutines manual-first 구현 계획
 
-> **For agentic
-workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
+> **agentic worker용:** 필수 sub-skill: 이 계획은 superpowers:subagent-driven-development(권장) 또는 superpowers:executing-plans로 task별 구현한다. 진행 상태는 checkbox(`- [ ]`) syntax로 추적한다.
 
-**Goal:** `bluetape4k-core`와 `bluetape4k-coroutines`를 repository-owned chapter와 diagram을 갖춘 교과서형 매뉴얼로 만들고, site가 이를 검증 가능한 deterministic snapshot으로 게시하게 한다.
+**목표:** `bluetape4k-core`와 `bluetape4k-coroutines`를 repository-owned chapter와 diagram을 갖춘 교과서형 매뉴얼로 만들고, site가 이를 검증 가능한 deterministic snapshot으로 게시하게 한다.
 
-**Architecture:** `bluetape4k-projects/docs/manual`이 문서와 diagram의 유일한 기술 원본이다. Manifest schema v2가 module landing, bilingual chapter, paired asset inventory를 선언하고 Ruby validator가 source tree를 검증하며, `bluetape4k.github.io`의 Node sync가 chapter와 asset을 함께 변환·복사·digest한다. 콘텐츠는 현재 Kotlin source와 representative test를 먼저 확인한 뒤 Coroutines, Core 순서로 작성하고 blog는 마지막에 manual route와 canonical asset을 참조하도록 정렬한다.
+**아키텍처:** `bluetape4k-projects/docs/manual`이 문서와 diagram의 유일한 기술 원본이다. Manifest schema v2가 module landing, bilingual chapter, paired asset inventory를 선언하고 Ruby validator가 source tree를 검증하며, `bluetape4k.github.io`의 Node sync가 chapter와 asset을 함께 변환·복사·digest한다. 콘텐츠는 현재 Kotlin source와 representative test를 먼저 확인한 뒤 Coroutines, Core 순서로 작성하고 blog는 마지막에 manual route와 canonical asset을 참조하도록 정렬한다.
 
-**Tech
-Stack:** Ruby 3 + Minitest + YAML, Node.js ESM + `node:test`, Astro/Starlight MDX, Markdown, Kotlin source/tests, SVG 1.1, CairoSVG, `xmllint`, Playwright/browser smoke verification
+**기술 스택:** Ruby 3 + Minitest + YAML, Node.js ESM + `node:test`, Astro/Starlight MDX, Markdown, Kotlin source/tests, SVG 1.1, CairoSVG, `xmllint`, Playwright/browser smoke verification
 
 ---
 
@@ -80,17 +78,17 @@ chapterId: lifecycle
 
 ### Task 1: Manifest schema v2 validator를 TDD로 확장
 
-**Files:**
+**파일:**
 
-- Modify: `scripts/manual/manual_contract.rb`
-- Modify: `scripts/manual/validate_manuals_test.rb`
-- Modify: `scripts/manual/export_manifest_test.rb`
-- Modify: `scripts/manual/test-fixtures/valid/docs/manual/manifest.yaml`
-- Create: `scripts/manual/test-fixtures/valid/docs/manual/en/modules/sample/chapter-one.md`
-- Create: `scripts/manual/test-fixtures/valid/docs/manual/ko/modules/sample/chapter-one.md`
-- Create: `scripts/manual/test-fixtures/valid/docs/manual/assets/sample/model.svg`
-- Create: `scripts/manual/test-fixtures/valid/docs/manual/assets/sample/model.png`
-- Modify: `scripts/manual/test-fixtures/missing-ko/docs/manual/manifest.yaml`
+- 수정: `scripts/manual/manual_contract.rb`
+- 수정: `scripts/manual/validate_manuals_test.rb`
+- 수정: `scripts/manual/export_manifest_test.rb`
+- 수정: `scripts/manual/test-fixtures/valid/docs/manual/manifest.yaml`
+- 생성: `scripts/manual/test-fixtures/valid/docs/manual/en/modules/sample/chapter-one.md`
+- 생성: `scripts/manual/test-fixtures/valid/docs/manual/ko/modules/sample/chapter-one.md`
+- 생성: `scripts/manual/test-fixtures/valid/docs/manual/assets/sample/model.svg`
+- 생성: `scripts/manual/test-fixtures/valid/docs/manual/assets/sample/model.png`
+- 수정: `scripts/manual/test-fixtures/missing-ko/docs/manual/manifest.yaml`
 
 - [ ] **Step 1: 유효 fixture를 schema v2 chapter·asset 계약으로 확장한다**
 
@@ -172,9 +170,9 @@ end
 
 - [ ] **Step 3: 실패를 확인한다**
 
-Run: `ruby scripts/manual/validate_manuals_test.rb`
+실행: `ruby scripts/manual/validate_manuals_test.rb`
 
-Expected: FAIL. 현재 validator가 schema 2를 거부하고 chapter, asset, orphan, Markdown reference를 검사하지 않는 assertion이 보인다.
+예상 결과: FAIL. 현재 validator가 schema 2를 거부하고 chapter, asset, orphan, Markdown reference를 검사하지 않는 assertion이 보인다.
 
 - [ ] **Step 4: validator를 최소 책임 단위로 구현한다**
 
@@ -226,15 +224,15 @@ end
 "assets" => ["assets/sample/model.png", "assets/sample/model.svg"],
 ```
 
-Run: `ruby scripts/manual/export_manifest_test.rb`
+실행: `ruby scripts/manual/export_manifest_test.rb`
 
-Expected: PASS. Exporter가 nested key를 제거하거나 path를 변형하지 않는다.
+예상 결과: PASS. Exporter가 nested key를 제거하거나 path를 변형하지 않는다.
 
 - [ ] **Step 6: 전체 manual script test를 통과시킨다**
 
-Run: `ruby scripts/manual/validate_manuals_test.rb && ruby scripts/manual/export_manifest_test.rb && ruby scripts/manual/generate_manuals_test.rb`
+실행: `ruby scripts/manual/validate_manuals_test.rb && ruby scripts/manual/export_manifest_test.rb && ruby scripts/manual/generate_manuals_test.rb`
 
-Expected: 세 test process 모두 0 failures, 0 errors.
+예상 결과: 세 test process 모두 0 failures, 0 errors.
 
 - [ ] **Step 7: validator 계약을 커밋한다**
 
@@ -249,12 +247,12 @@ git commit -m "Validate chaptered manuals as one repository contract" \
 
 ### Task 2: Core·Coroutines inventory와 chapter skeleton을 등록
 
-**Files:**
+**파일:**
 
-- Modify: `docs/manual/manifest.yaml`
-- Modify: `docs/manual/generated/manifest.json`
-- Create: `docs/manual/{ko,en}/modules/bluetape4k-coroutines/{lifecycle,deferred,flow,subjects,structured-concurrency,operations,recipes}.md`
-- Create: `docs/manual/{ko,en}/modules/bluetape4k-core/{validation,bounded-collections,encoding-data,time-ranges,concurrency-lifecycle,recipes}.md`
+- 수정: `docs/manual/manifest.yaml`
+- 수정: `docs/manual/generated/manifest.json`
+- 생성: `docs/manual/{ko,en}/modules/bluetape4k-coroutines/{lifecycle,deferred,flow,subjects,structured-concurrency,operations,recipes}.md`
+- 생성: `docs/manual/{ko,en}/modules/bluetape4k-core/{validation,bounded-collections,encoding-data,time-ranges,concurrency-lifecycle,recipes}.md`
 
 - [ ] **Step 1: Manifest에 정확한 chapter inventory를 추가한다**
 
@@ -266,15 +264,15 @@ Coroutines 순서는 `lifecycle`, `deferred`, `flow`, `subjects`, `structured-co
 
 - [ ] **Step 3: 생성된 inventory와 frontmatter가 유효한지 확인한다**
 
-Run: `ruby scripts/manual/validate_manuals.rb`
+실행: `ruby scripts/manual/validate_manuals.rb`
 
-Expected: `Manual contract valid`와 module 수가 출력되고 exit 0.
+예상 결과: `Manual contract valid`와 module 수가 출력되고 exit 0.
 
 - [ ] **Step 4: generated manifest를 갱신하고 drift가 없는지 확인한다**
 
-Run: `ruby scripts/manual/export_manifest.rb && git diff --check`
+실행: `ruby scripts/manual/export_manifest.rb && git diff --check`
 
-Expected: `docs/manual/generated/manifest.json`에 schemaVersion 2와 두 module의 chapters가 나타나며 whitespace error가 없다.
+예상 결과: `docs/manual/generated/manifest.json`에 schemaVersion 2와 두 module의 chapters가 나타나며 whitespace error가 없다.
 
 - [ ] **Step 5: inventory와 chapter structure를 커밋한다**
 
@@ -291,16 +289,16 @@ git commit -m "Give Core and Coroutines stable manual chapter routes" \
 
 **Repository:** `/Users/debop/work/bluetape4k/bluetape4k.github.io/.worktrees/feature-ecosystem-atlas-manual`
 
-**Files:**
+**파일:**
 
-- Modify: `scripts/manual/lib/paths.mjs`
-- Modify: `scripts/manual/lib/frontmatter.mjs`
-- Modify: `scripts/manual/sync-manual.mjs`
-- Modify: `scripts/manual/validate-snapshot.mjs`
-- Create: `tests/manual/paths.test.mjs`
-- Modify: `tests/manual/frontmatter.test.mjs`
-- Modify: `tests/manual/snapshot.test.mjs`
-- Modify: `tests/manual/sync.test.mjs`
+- 수정: `scripts/manual/lib/paths.mjs`
+- 수정: `scripts/manual/lib/frontmatter.mjs`
+- 수정: `scripts/manual/sync-manual.mjs`
+- 수정: `scripts/manual/validate-snapshot.mjs`
+- 생성: `tests/manual/paths.test.mjs`
+- 수정: `tests/manual/frontmatter.test.mjs`
+- 수정: `tests/manual/snapshot.test.mjs`
+- 수정: `tests/manual/sync.test.mjs`
 
 - [ ] **Step 1: chapter destination과 asset destination test를 작성한다**
 
@@ -361,9 +359,9 @@ assert.equal(first.snapshot.assetFiles, expectedAssets);
 
 - [ ] **Step 4: test가 현재 구현에서 실패하는지 확인한다**
 
-Run: `node --test --test-name-pattern='manual|snapshot|frontmatter|paths' tests/manual/*.test.mjs`
+실행: `node --test --test-name-pattern='manual|snapshot|frontmatter|paths' tests/manual/*.test.mjs`
 
-Expected: FAIL. `assetDestinationFor` 미정의, chapter metadata 누락, asset count 누락 중 하나 이상이 보인다.
+예상 결과: FAIL. `assetDestinationFor` 미정의, chapter metadata 누락, asset count 누락 중 하나 이상이 보인다.
 
 - [ ] **Step 5: manifest inventory를 기준으로 document와 asset entry를 만든다**
 
@@ -399,9 +397,9 @@ Repository source link rewrite와 manual asset rewrite는 별도 named function�
 
 - [ ] **Step 7: site manual test와 build를 통과시킨다**
 
-Run: `node --test --test-name-pattern='manual|snapshot|frontmatter|paths' tests/manual/*.test.mjs && npm run build`
+실행: `node --test --test-name-pattern='manual|snapshot|frontmatter|paths' tests/manual/*.test.mjs && npm run build`
 
-Expected: targeted Node tests PASS, Astro build exit 0, broken internal link나 missing asset error 없음.
+예상 결과: targeted Node tests PASS, Astro build exit 0, broken internal link나 missing asset error 없음.
 
 - [ ] **Step 8: site sync 계약을 커밋한다**
 
@@ -418,10 +416,10 @@ git commit -m "Publish manual chapters and assets as one snapshot" \
 
 **Repository:** Projects worktree
 
-**Files:**
+**파일:**
 
-- Modify: `docs/manual/manifest.yaml`
-- Create: `docs/manual/assets/coroutines/{module-foundation,scope-lifecycle,deferred-race-policy,ordered-parallel-flow,subject-contracts,structured-policies,observability-boundaries}.{svg,png}`
+- 수정: `docs/manual/manifest.yaml`
+- 생성: `docs/manual/assets/coroutines/{module-foundation,scope-lifecycle,deferred-race-policy,ordered-parallel-flow,subject-contracts,structured-policies,observability-boundaries}.{svg,png}`
 
 - [ ] **Step 1: 각 diagram의 source/test evidence 표를 먼저 작성한다**
 
@@ -469,13 +467,13 @@ cairosvg docs/manual/assets/coroutines/observability-boundaries.svg \
   -o docs/manual/assets/coroutines/observability-boundaries.png -s 2
 ```
 
-Expected: 모든 `xmllint`가 exit 0이고 PNG가 SVG의 2배 raster size로 생성된다. Full-size 검사에서 잘린 text, 겹침, 흐릿한 화살표, 의미 없는 장식이 없다.
+예상 결과: 모든 `xmllint`가 exit 0이고 PNG가 SVG의 2배 raster size로 생성된다. Full-size 검사에서 잘린 text, 겹침, 흐릿한 화살표, 의미 없는 장식이 없다.
 
 - [ ] **Step 4: Manifest에 14개 asset path를 basename별 SVG/PNG 순서로 등록한다**
 
-Run: `ruby scripts/manual/validate_manuals.rb && git diff --check`
+실행: `ruby scripts/manual/validate_manuals.rb && git diff --check`
 
-Expected: orphan/pair/reference error가 없고 exit 0.
+예상 결과: orphan/pair/reference error가 없고 exit 0.
 
 - [ ] **Step 5: Coroutines diagram source를 커밋한다**
 
@@ -490,21 +488,21 @@ git commit -m "Make Coroutines diagrams part of the manual source" \
 
 ### Task 5: Coroutines lifecycle·deferred chapter를 교과서 수준으로 완성
 
-**Files:**
+**파일:**
 
-- Modify: `docs/manual/{ko,en}/modules/bluetape4k-coroutines.md`
-- Modify: `docs/manual/{ko,en}/modules/bluetape4k-coroutines/{lifecycle,deferred}.md`
+- 수정: `docs/manual/{ko,en}/modules/bluetape4k-coroutines.md`
+- 수정: `docs/manual/{ko,en}/modules/bluetape4k-coroutines/{lifecycle,deferred}.md`
 
 - [ ] **Step 1: source와 representative test를 다시 읽고 사실 표를 작성한다**
 
-Run:
+실행:
 
 ```bash
 rg -n "class DeferredValue|fun awaitAny|awaitAnyAndCancelOthers|firstSuccessTaskScope|CloseableCoroutineScope|ThreadPoolCoroutineScope|CancellationException" \
   bluetape4k/coroutines/src/main bluetape4k/coroutines/src/test
 ```
 
-Expected: `DeferredValue`의 eager owned scope, `awaitAny`의 first-completion semantics, cancel-others variant, first-success policy, closeable scope의 cleanup test 위치를 확보한다.
+예상 결과: `DeferredValue`의 eager owned scope, `awaitAny`의 first-completion semantics, cancel-others variant, first-success policy, closeable scope의 cleanup test 위치를 확보한다.
 
 - [ ] **Step 2: lifecycle chapter에 ownership decision tree와 완전한 예제를 작성한다**
 
@@ -516,9 +514,9 @@ Expected: `DeferredValue`의 eager owned scope, `awaitAny`의 first-completion s
 
 - [ ] **Step 4: 양 언어 parity와 source link를 검증한다**
 
-Run: `ruby scripts/manual/validate_manuals.rb && rg -n "blog" docs/manual/{ko,en}/modules/bluetape4k-coroutines/{lifecycle,deferred}.md`
+실행: `ruby scripts/manual/validate_manuals.rb && rg -n "blog" docs/manual/{ko,en}/modules/bluetape4k-coroutines/{lifecycle,deferred}.md`
 
-Expected: validator exit 0. Blog가 설명을 대신하는 문장 없음; blog 링크가 있다면 추가 읽기 역할뿐이다.
+예상 결과: validator exit 0. Blog가 설명을 대신하는 문장 없음; blog 링크가 있다면 추가 읽기 역할뿐이다.
 
 - [ ] **Step 5: lifecycle·deferred chapter를 커밋한다**
 
@@ -533,20 +531,20 @@ git commit -m "Teach Coroutines ownership and race semantics from source" \
 
 ### Task 6: Coroutines Flow·Subject chapter를 완성
 
-**Files:**
+**파일:**
 
-- Modify: `docs/manual/{ko,en}/modules/bluetape4k-coroutines/{flow,subjects}.md`
+- 수정: `docs/manual/{ko,en}/modules/bluetape4k-coroutines/{flow,subjects}.md`
 
 - [ ] **Step 1: ordering, capacity, terminal contract를 source/test에서 확인한다**
 
-Run:
+실행:
 
 ```bash
 rg -n "fun .*mapParallel|parallelism|async\(|awaitCollector|complete\(|error\(|replay|buffer|capacity" \
   bluetape4k/coroutines/src/main bluetape4k/coroutines/src/test
 ```
 
-Expected: `flow.async` ordered emission, `mapParallel` parallel result ordering, `parallelism <= 1`, Subject collector startup과 terminal call test를 찾는다.
+예상 결과: `flow.async` ordered emission, `mapParallel` parallel result ordering, `parallelism <= 1`, Subject collector startup과 terminal call test를 찾는다.
 
 - [ ] **Step 2: Flow chapter를 선택 지도 중심으로 작성한다**
 
@@ -558,7 +556,7 @@ Publish, Behavior, Replay, Multicast, UnicastWork의 delivery, retained state/hi
 
 - [ ] **Step 4: runnable workshop link를 실제 module path와 대조한다**
 
-Run:
+실행:
 
 ```bash
 test -d /Users/debop/work/bluetape4k/bluetape4k-workshop/kotlin/flow-extensions-parallel-enrichment
@@ -567,7 +565,7 @@ test -d /Users/debop/work/bluetape4k/bluetape4k-workshop/kotlin/flow-extensions-
 ruby scripts/manual/validate_manuals.rb
 ```
 
-Expected: 세 workshop directory와 manual validation 모두 성공.
+예상 결과: 세 workshop directory와 manual validation 모두 성공.
 
 - [ ] **Step 5: Flow·Subject chapter를 커밋한다**
 
@@ -582,10 +580,10 @@ git commit -m "Document Coroutines stream contracts by ordering and delivery" \
 
 ### Task 7: Coroutines structured·operations·recipes와 landing을 완성
 
-**Files:**
+**파일:**
 
-- Modify: `docs/manual/{ko,en}/modules/bluetape4k-coroutines.md`
-- Modify: `docs/manual/{ko,en}/modules/bluetape4k-coroutines/{structured-concurrency,operations,recipes}.md`
+- 수정: `docs/manual/{ko,en}/modules/bluetape4k-coroutines.md`
+- 수정: `docs/manual/{ko,en}/modules/bluetape4k-coroutines/{structured-concurrency,operations,recipes}.md`
 
 - [ ] **Step 1: structured policy chapter를 실패 의미로 조직한다**
 
@@ -605,7 +603,7 @@ Landing은 API 상세를 반복하지 않고 초급, HTTP service, stream proces
 
 - [ ] **Step 5: Coroutines 전체 품질 gate를 실행한다**
 
-Run:
+실행:
 
 ```bash
 ruby scripts/manual/validate_manuals.rb
@@ -613,7 +611,7 @@ rg -n "DeferredValue|awaitAny|mapParallel|awaitCollector|taskScope|firstSuccessT
 git diff --check
 ```
 
-Expected: validator exit 0, 핵심 API가 양 언어의 적절한 chapter에 존재, whitespace error 없음.
+예상 결과: validator exit 0, 핵심 API가 양 언어의 적절한 chapter에 존재, whitespace error 없음.
 
 - [ ] **Step 6: Coroutines manual을 커밋한다**
 
@@ -630,22 +628,22 @@ git commit -m "Complete the Coroutines manual as an operational guide" \
 
 **Repository:** Site worktree
 
-**Files:**
+**파일:**
 
-- Generated: `src/content/docs/manual/bluetape4k-projects/modules/bluetape4k-coroutines/**`
-- Generated: `src/content/docs/ko/manual/bluetape4k-projects/modules/bluetape4k-coroutines/**`
-- Generated: `public/manual-assets/bluetape4k-projects/coroutines/**`
-- Generated: `src/data/manual/bluetape4k-projects.{manifest,snapshot}.json`
+- 생성됨: `src/content/docs/manual/bluetape4k-projects/modules/bluetape4k-coroutines/**`
+- 생성됨: `src/content/docs/ko/manual/bluetape4k-projects/modules/bluetape4k-coroutines/**`
+- 생성됨: `public/manual-assets/bluetape4k-projects/coroutines/**`
+- 생성됨: `src/data/manual/bluetape4k-projects.{manifest,snapshot}.json`
 
 - [ ] **Step 1: Projects source가 clean commit인지 확인한다**
 
-Run: `git -C /Users/debop/work/bluetape4k/bluetape4k-projects/.worktrees/feature-all-module-manuals status --short && git -C /Users/debop/work/bluetape4k/bluetape4k-projects/.worktrees/feature-all-module-manuals rev-parse HEAD`
+실행: `git -C /Users/debop/work/bluetape4k/bluetape4k-projects/.worktrees/feature-all-module-manuals status --short && git -C /Users/debop/work/bluetape4k/bluetape4k-projects/.worktrees/feature-all-module-manuals rev-parse HEAD`
 
-Expected: status output 없음, 40-character source commit 출력.
+예상 결과: status output 없음, 40-character source commit 출력.
 
 - [ ] **Step 2: Site snapshot을 write mode로 생성한다**
 
-Run:
+실행:
 
 ```bash
 npm run sync:manual -- \
@@ -653,11 +651,11 @@ npm run sync:manual -- \
   --repository bluetape4k-projects
 ```
 
-Expected: snapshot written message에 증가한 localized document count와 asset count가 출력된다.
+예상 결과: snapshot written message에 증가한 localized document count와 asset count가 출력된다.
 
 - [ ] **Step 3: deterministic check, test, build를 실행한다**
 
-Run:
+실행:
 
 ```bash
 npm run check:manual
@@ -666,7 +664,7 @@ BLUETAPE4K_PROJECTS_SOURCE=/Users/debop/work/bluetape4k/bluetape4k-projects/.wor
 npm run build
 ```
 
-Expected: snapshot matches, targeted tests PASS, Astro build exit 0.
+예상 결과: snapshot matches, targeted tests PASS, Astro build exit 0.
 
 - [ ] **Step 4: ko/en landing과 7개 chapter를 browser smoke test한다**
 
@@ -687,22 +685,22 @@ git commit -m "Publish the chaptered Coroutines manual snapshot" \
 
 **Repository:** Projects worktree
 
-**Files:**
+**파일:**
 
-- Modify: `docs/manual/manifest.yaml`
-- Create: `docs/manual/assets/core/{validation-boundary,bounded-collection-ordering,concurrent-reducer-capacity,shutdown-order}.{svg,png}`
-- Modify: `docs/manual/{ko,en}/modules/bluetape4k-core/{validation,bounded-collections}.md`
+- 수정: `docs/manual/manifest.yaml`
+- 생성: `docs/manual/assets/core/{validation-boundary,bounded-collection-ordering,concurrent-reducer-capacity,shutdown-order}.{svg,png}`
+- 수정: `docs/manual/{ko,en}/modules/bluetape4k-core/{validation,bounded-collections}.md`
 
 - [ ] **Step 1: Core 계약을 source/test에서 다시 확인한다**
 
-Run:
+실행:
 
 ```bash
 rg -n "fun .*require|class BoundedStack|class RingBuffer|class ConcurrentReducer|class ShutdownQueue|capacity|evict|close" \
   bluetape4k/core/src/main bluetape4k/core/src/test
 ```
 
-Expected: require helper의 receiver return/exception, stack newest-first, ring oldest-first, capacity eviction, reducer full/closed behavior, shutdown LIFO evidence를 확보한다.
+예상 결과: require helper의 receiver return/exception, stack newest-first, ring oldest-first, capacity eviction, reducer full/closed behavior, shutdown LIFO evidence를 확보한다.
 
 - [ ] **Step 2: 4개 Core diagram을 한 쌍씩 생성·검증한다**
 
@@ -731,9 +729,9 @@ Kotlin `require/check`, bluetape `require*`, nullable/blank/collection 조건을
 
 - [ ] **Step 5: Core asset과 두 chapter를 검증·커밋한다**
 
-Run: `ruby scripts/manual/export_manifest.rb && ruby scripts/manual/validate_manuals.rb && git diff --check`
+실행: `ruby scripts/manual/export_manifest.rb && ruby scripts/manual/validate_manuals.rb && git diff --check`
 
-Expected: schema/asset/chapter validation exit 0.
+예상 결과: schema/asset/chapter validation exit 0.
 
 ```bash
 git add docs/manual
@@ -746,21 +744,21 @@ git commit -m "Explain Core boundaries and bounded state with verified diagrams"
 
 ### Task 10: Core encoding·time·concurrency·recipes와 landing을 완성
 
-**Files:**
+**파일:**
 
-- Modify: `docs/manual/{ko,en}/modules/bluetape4k-core.md`
-- Modify: `docs/manual/{ko,en}/modules/bluetape4k-core/{encoding-data,time-ranges,concurrency-lifecycle,recipes}.md`
+- 수정: `docs/manual/{ko,en}/modules/bluetape4k-core.md`
+- 수정: `docs/manual/{ko,en}/modules/bluetape4k-core/{encoding-data,time-ranges,concurrency-lifecycle,recipes}.md`
 
 - [ ] **Step 1: encoding과 time API surface를 source/test로 분류한다**
 
-Run:
+실행:
 
 ```bash
 rg -n "Base64|Hex|encode|decode|Range|Period|Duration|Instant|LocalDate|ConcurrentReducer|ShutdownQueue" \
   bluetape4k/core/src/main bluetape4k/core/src/test
 ```
 
-Expected: 실제 public helper와 test path 목록을 얻고, 존재하지 않는 범용 codec/time abstraction을 문서에 만들지 않는다.
+예상 결과: 실제 public helper와 test path 목록을 얻고, 존재하지 않는 범용 codec/time abstraction을 문서에 만들지 않는다.
 
 - [ ] **Step 2: encoding-data chapter를 format과 failure 기준으로 작성한다**
 
@@ -780,7 +778,7 @@ Validation pipeline, bounded recent history, safe aggregation queue, determinist
 
 - [ ] **Step 6: Core 전체 품질 gate와 commit을 실행한다**
 
-Run:
+실행:
 
 ```bash
 ruby scripts/manual/validate_manuals.rb
@@ -788,7 +786,7 @@ rg -n "BoundedStack|RingBuffer|ConcurrentReducer|ShutdownQueue" docs/manual/{ko,
 git diff --check
 ```
 
-Expected: validator exit 0, 핵심 계약이 양 언어에 존재, whitespace error 없음.
+예상 결과: validator exit 0, 핵심 계약이 양 언어에 존재, whitespace error 없음.
 
 ```bash
 git add docs/manual/{ko,en}/modules/bluetape4k-core*
@@ -803,15 +801,15 @@ git commit -m "Complete the Core manual around invariants and lifecycle" \
 
 **Repository:** Site worktree
 
-**Files:**
+**파일:**
 
-- Generated: `src/content/docs/{ko/,}manual/bluetape4k-projects/modules/bluetape4k-core/**`
-- Generated: `public/manual-assets/bluetape4k-projects/core/**`
-- Generated: `src/data/manual/bluetape4k-projects.{manifest,snapshot}.json`
+- 생성됨: `src/content/docs/{ko/,}manual/bluetape4k-projects/modules/bluetape4k-core/**`
+- 생성됨: `public/manual-assets/bluetape4k-projects/core/**`
+- 생성됨: `src/data/manual/bluetape4k-projects.{manifest,snapshot}.json`
 
 - [ ] **Step 1: clean Projects source commit에서 sync한다**
 
-Run:
+실행:
 
 ```bash
 npm run sync:manual -- \
@@ -819,13 +817,13 @@ npm run sync:manual -- \
   --repository bluetape4k-projects
 ```
 
-Expected: snapshot의 documentFiles가 Core 12 localized chapter만큼, assetFiles가 8만큼 증가한다.
+예상 결과: snapshot의 documentFiles가 Core 12 localized chapter만큼, assetFiles가 8만큼 증가한다.
 
 - [ ] **Step 2: deterministic validation과 build를 실행한다**
 
-Run: `npm run check:manual && BLUETAPE4K_PROJECTS_SOURCE=/Users/debop/work/bluetape4k/bluetape4k-projects/.worktrees/feature-all-module-manuals node --test --test-name-pattern='manual|snapshot|frontmatter|paths' tests/manual/*.test.mjs && npm run build`
+실행: `npm run check:manual && BLUETAPE4K_PROJECTS_SOURCE=/Users/debop/work/bluetape4k/bluetape4k-projects/.worktrees/feature-all-module-manuals node --test --test-name-pattern='manual|snapshot|frontmatter|paths' tests/manual/*.test.mjs && npm run build`
 
-Expected: 모든 command exit 0.
+예상 결과: 모든 command exit 0.
 
 - [ ] **Step 3: ko/en Core landing과 6개 chapter를 browser smoke test한다**
 
@@ -845,23 +843,23 @@ git commit -m "Publish the chaptered Core manual snapshot" \
 
 **Repository:** Site worktree
 
-**Files:**
+**파일:**
 
-- Modify: `src/content/docs/{ko/,}blog/bluetape4k-projects-part1-shared-foundation.mdx`
-- Modify: `src/content/docs/{ko/,}blog/bluetape4k-projects-part2-core-coroutines-tests.mdx`
-- Modify: `src/content/docs/{ko/,}blog/bluetape4k-flow-extensions-workshop.mdx`
-- Modify: `src/content/docs/{ko/,}blog/coroutine-observability-micrometer-readiness.mdx`
+- 수정: `src/content/docs/{ko/,}blog/bluetape4k-projects-part1-shared-foundation.mdx`
+- 수정: `src/content/docs/{ko/,}blog/bluetape4k-projects-part2-core-coroutines-tests.mdx`
+- 수정: `src/content/docs/{ko/,}blog/bluetape4k-flow-extensions-workshop.mdx`
+- 수정: `src/content/docs/{ko/,}blog/coroutine-observability-micrometer-readiness.mdx`
 
 - [ ] **Step 1: blog에만 남은 기술 계약을 찾아 manual coverage와 비교한다**
 
-Run:
+실행:
 
 ```bash
 rg -n "awaitAny|mapParallel|Subject|ConcurrentReducer|ShutdownQueue|cancellation|readiness" \
   src/content/docs/blog src/content/docs/ko/blog
 ```
 
-Expected: 각 기술 문장이 Core/Coroutines manual의 해당 chapter에 존재하는지 대응표를 만든다. Manual에 없는 유효한 계약은 먼저 Projects manual에 추가하고 sync한 뒤 blog를 편집한다.
+예상 결과: 각 기술 문장이 Core/Coroutines manual의 해당 chapter에 존재하는지 대응표를 만든다. Manual에 없는 유효한 계약은 먼저 Projects manual에 추가하고 sync한 뒤 blog를 편집한다.
 
 - [ ] **Step 2: blog의 역할을 narrative와 workshop walkthrough로 제한한다**
 
@@ -873,9 +871,9 @@ Manual로 승격된 diagram은 `/manual-assets/bluetape4k-projects/coroutines/or
 
 - [ ] **Step 4: blog와 manual의 bilingual route를 검증한다**
 
-Run: `npm test && npm run build`
+실행: `npm test && npm run build`
 
-Expected: Node tests PASS, Astro build exit 0, broken internal links 없음.
+예상 결과: Node tests PASS, Astro build exit 0, broken internal links 없음.
 
 - [ ] **Step 5: 4개 blog의 ko/en page를 browser smoke test하고 commit한다**
 
@@ -896,7 +894,7 @@ git commit -m "Align technical blog narratives with the manual source of truth" 
 
 - [ ] **Step 1: Projects manual의 최종 contract를 검증한다**
 
-Run:
+실행:
 
 ```bash
 cd /Users/debop/work/bluetape4k/bluetape4k-projects/.worktrees/feature-all-module-manuals
@@ -908,22 +906,22 @@ git diff --check
 git status --short
 ```
 
-Expected: 모든 test/validator exit 0, diff check clean, status output 없음.
+예상 결과: 모든 test/validator exit 0, diff check clean, status output 없음.
 
 - [ ] **Step 2: SVG/PNG inventory와 실제 file을 대조한다**
 
-Run:
+실행:
 
 ```bash
 find docs/manual/assets -type f \( -name '*.svg' -o -name '*.png' \) | sort
 ruby scripts/manual/validate_manuals.rb
 ```
 
-Expected: Manifest 등록 수와 file 수가 일치하고 orphan/missing pair 없음. 모든 PNG는 대응 SVG의 최종 render다.
+예상 결과: Manifest 등록 수와 file 수가 일치하고 orphan/missing pair 없음. 모든 PNG는 대응 SVG의 최종 render다.
 
 - [ ] **Step 3: Site snapshot을 source HEAD에서 마지막으로 재생성·검증한다**
 
-Run:
+실행:
 
 ```bash
 cd /Users/debop/work/bluetape4k/bluetape4k.github.io/.worktrees/feature-ecosystem-atlas-manual
@@ -934,7 +932,7 @@ npm run build
 git diff --check
 ```
 
-Expected: sync와 check의 sourceCommit이 Projects HEAD와 같고, tests/build/diff check가 모두 성공한다.
+예상 결과: sync와 check의 sourceCommit이 Projects HEAD와 같고, tests/build/diff check가 모두 성공한다.
 
 - [ ] **Step 4: 최종 visual QA matrix를 완료한다**
 
