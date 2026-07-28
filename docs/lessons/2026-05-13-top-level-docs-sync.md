@@ -1,21 +1,26 @@
 # Top-level docs sync
 
-## Context
+## 배경
 
-The root README still mixed older monorepo-era module descriptions with the current split-repository and module layout.
+Root README는 아직 오래된 monorepo-era module description과 현재 split-repository/module layout을 섞고 있었다.
 
-## Decision
+## 결정
 
-Use `settings.gradle.kts`, module build files, and module README files as the source of truth for top-level README, agent guidance, and WIP updates. Use merged PR history, not planned work, as the source of truth for CHANGELOG entries.
+Top-level README, agent guidance, WIP update의 source of truth는 `settings.gradle.kts`, module build file,
+module README file로 둔다. CHANGELOG entry의 source of truth는 planned work가 아니라 merged PR history다.
 
-## Outcome
+## 결과
 
-The root README pair now points compression to `bluetape4k-io`, lists current infra/testing/utility/example modules, removes `nats` from the removed-module list, and keeps agent-facing module guidance in English. The CHANGELOG now covers merged PRs after #347, including WIP-completed idgenerator examples and workflow fixes.
+Root README pair는 compression을 `bluetape4k-io`로 연결하고, 현재 infra/testing/utility/example module을 나열하며,
+removed-module list에서 `nats`를 제거하고, agent-facing module guidance는 영어로 유지한다.
+CHANGELOG는 WIP-completed idgenerator example과 workflow fix를 포함해 #347 이후 merged PR을 다룬다.
 
-## Verification
+## 검증
 
-Checked module references against current module directories, searched for stale README tokens, and compared CHANGELOG PR references against merged PRs after #347.
+Module reference를 현재 module directory와 대조하고, 오래된 README token을 검색했으며,
+CHANGELOG PR reference를 #347 이후 merged PR과 비교했다.
 
-## Future guidance
+## 향후 지침
 
-When modules are added, moved, removed, or split out, update `README.md`, `README.ko.md`, `CLAUDE.md`, `AGENTS.md`, `WIP.md`, and `CHANGELOG.md` in the same documentation pass.
+Module이 추가, 이동, 제거, 분리될 때는 `README.md`, `README.ko.md`, `CLAUDE.md`, `AGENTS.md`,
+`WIP.md`, `CHANGELOG.md`를 같은 documentation pass에서 갱신한다.

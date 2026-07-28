@@ -1,21 +1,19 @@
 # Ignore Gradle Codex Cache
 
-## Context
+## 배경
 
-An untracked `.gradle-codex/` directory appeared after a local isolated Gradle
-run. It contained Gradle wrapper/native caches, not source or build contract
-changes.
+Local isolated Gradle run 이후 untracked `.gradle-codex/` directory가 생겼다.
+이 directory는 Gradle wrapper/native cache를 담고 있었고 source나 build contract 변경은 아니었다.
 
-## Decision
+## 결정
 
-Ignore `.gradle-codex/` alongside `.gradle/` so future isolated Codex Gradle
-runs do not dirty the repository.
+`.gradle-codex/`를 `.gradle/`과 함께 ignore해, future isolated Codex Gradle run이 repository를 dirty하게 만들지 않도록 한다.
 
-## Outcome
+## 결과
 
-The repository can stay clean after local Codex-scoped Gradle cache usage.
+Local Codex-scoped Gradle cache를 사용한 뒤에도 repository를 clean하게 유지할 수 있다.
 
-## Verification
+## 검증
 
-- Confirmed the directory contained only Gradle cache/native files before deletion.
-- Verified `git status --short --branch` was clean before adding the ignore rule.
+- 삭제 전에 directory가 Gradle cache/native file만 담고 있음을 확인했다.
+- Ignore rule을 추가하기 전에 `git status --short --branch`가 clean임을 확인했다.
