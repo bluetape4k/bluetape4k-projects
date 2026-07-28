@@ -1,20 +1,23 @@
-# Issue #927 Telemetry CI Coverage
+# 이슈 #927 Telemetry CI coverage
 
-## Context
+## 배경
 
-Push CI skipped module tests for changes under `infra/opentelemetry/**` and `infra/kafka-logback/**`. Nightly already covered OpenTelemetry, but push CI still allowed telemetry and logging changes to pass without targeted module tests.
+Push CI는 `infra/opentelemetry/**`와 `infra/kafka-logback/**` 변경에서 module test를
+건너뛰었다. Nightly가 이미 OpenTelemetry를 다루고 있었지만, push CI는 telemetry와
+logging 변경이 targeted module test 없이 통과하는 것을 허용했다.
 
-## Decision
+## 결정
 
-Add a dedicated `telemetry-infra` path-filter output and `Test / Telemetry Infra` job instead of adding these modules to the Redis-focused infra lane.
+이 module들을 Redis 중심 infra lane에 추가하지 않고, 전용 `telemetry-infra`
+path-filter output과 `Test / Telemetry Infra` job을 추가한다.
 
-## Rationale
+## 근거
 
-- `infra/kafka-logback` uses Kafka Testcontainers and should run serially with `--max-workers=1`.
-- `infra/opentelemetry` is observability-focused and already has a Nightly shape, but needs push CI coverage when its own files change.
-- A separate job keeps Redis/cache infra results distinct from telemetry/logback failures.
+- `infra/kafka-logback`은 Kafka Testcontainers를 사용하므로 `--max-workers=1`로 순차 실행해야 한다.
+- `infra/opentelemetry`는 observability 중심이고 이미 Nightly 형태가 있지만, 자체 파일이 바뀔 때 push CI coverage가 필요하다.
+- 별도 job은 Redis/cache infra 결과와 telemetry/logback failure를 분리한다.
 
-## Verification
+## 검증
 
 - `actionlint .github/workflows/ci.yml`
 - Backslash-single-quote guard for GitHub Actions expressions
@@ -24,6 +27,8 @@ Add a dedicated `telemetry-infra` path-filter output and `Test / Telemetry Infra
 - `:bluetape4k-kafka-logback:test`
 - Matching Kover XML tasks
 
-## Future Guard
+## 향후 방지책
 
-When adding CI path filters for a module family, update all four surfaces together: path-filter output, test job, `coverage-report.needs`, and `ci-status.needs`.
+Module family에 CI path filter를 추가할 때는 네 surface를 함께 갱신한다.
+Path-filter output, test job, `coverage-report.needs`, `ci-status.needs`가 모두
+포함된다.

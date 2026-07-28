@@ -1,27 +1,27 @@
-# Virtual Thread Controller Lifecycle
+# Virtual thread controller lifecycle
 
-## Context
+## 배경
 
-Issue #952 found that `AbstractVirtualThreadController` exposed a shared
-virtual-thread executor without a Spring bean destruction path.
+이슈 #952는 `AbstractVirtualThreadController`가 Spring bean destruction path 없이
+shared virtual-thread executor를 노출한다는 점을 확인했다.
 
-## Decision
+## 결정
 
-Keep the public `virtualThreadExecutor` accessor for compatibility, but make the
-controller close the current executor through `@PreDestroy`. The accessor
-recreates the executor when a later Spring context accesses it after shutdown.
+호환성을 위해 public `virtualThreadExecutor` accessor는 유지하되 controller가
+`@PreDestroy`로 현재 executor를 닫게 한다. Shutdown 이후 다른 Spring context가
+접근하면 accessor가 executor를 다시 만든다.
 
-## Outcome
+## 결과
 
-Controller bean shutdown now closes the executor while repeated test or
-application context creation does not reuse a closed executor.
+Controller bean shutdown은 이제 executor를 닫고, 반복적인 test/application context
+생성은 닫힌 executor를 재사용하지 않는다.
 
-## Verification
+## 검증
 
 - `./gradlew :bluetape4k-spring-boot-core:test --tests 'io.bluetape4k.spring.virtualthread.AbstractVirtualThreadControllerTest'`
 
-## Future Guidance
+## 향후 지침
 
-Public controller base classes that expose executor or coroutine resources must
-own a Spring destruction callback and tests should cover both direct destroy and
-context shutdown paths.
+Executor나 coroutine resource를 노출하는 public controller base class는 Spring
+destruction callback을 소유해야 하며, 테스트는 direct destroy와 context shutdown
+경로를 모두 다뤄야 한다.
