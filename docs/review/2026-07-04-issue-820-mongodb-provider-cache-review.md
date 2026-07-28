@@ -1,4 +1,4 @@
-# Issue #820 MongoDB Provider Cache Review
+# Issue #820 MongoDB Provider Cache 검토
 
 ## Scope
 
@@ -10,7 +10,7 @@
   - `data/mongodb/README.md`
   - `data/mongodb/README.ko.md`
 
-## 7-Tier Review
+## 7-Tier 검토
 
 | Tier | Result | Evidence |
 |---|---|---|
