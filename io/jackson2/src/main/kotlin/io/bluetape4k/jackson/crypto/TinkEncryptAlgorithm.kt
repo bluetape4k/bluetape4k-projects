@@ -34,7 +34,7 @@ enum class TinkEncryptAlgorithm {
     DETERMINISTIC_AES256_SIV;
 
     /**
-     * Returns the singleton [TinkEncryptor] mapped to this algorithm.
+     * 이 알고리즘에 매핑된 singleton [TinkEncryptor]를 반환합니다.
      *
      * @return preconfigured singleton [TinkEncryptor].
      */
