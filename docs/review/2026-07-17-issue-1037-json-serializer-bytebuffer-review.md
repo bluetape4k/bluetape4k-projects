@@ -1,4 +1,4 @@
-# Issue 1037 JSON Serializer ByteBuffer Review
+# Issue 1037 JSON Serializer ByteBuffer 검토
 
 ## Scope
 
@@ -72,7 +72,7 @@
 - Root `detekt` is `NO-SOURCE`; complete module compilation and tests provide
   the available static fallback.
 
-## Evidence
+## 증거
 
 - Fastjson2 resolved-source evidence records version `2.0.62`, source locations,
   source JAR SHA-256, and the optimized/fallback matrix.
