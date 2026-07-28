@@ -36,7 +36,7 @@ The `1.12.0` JAR hashes must be captured by the release executor from the staged
 - [x] Release evidence file hashes are recorded:
   `docs/benchmarks/raw/issue-756-fory-followup/release/release-manifest.json`
 
-## Consumer and migration boundary
+## Consumer와 migration 경계
 
 - [x] Consumers using raw `bluetape4k-io`, Lettuce, or Redisson Fory codecs are in scope.
 - [x] Compression wrappers and compressed payload migration are out of scope.
@@ -45,7 +45,7 @@ The `1.12.0` JAR hashes must be captured by the release executor from the staged
 - [x] Registration-off defaults are for trusted payloads only.
 - [x] Fory retains its internal reusable buffer; this release does not claim an end-to-end zero-copy serializer.
 
-## Pre-publication hold
+## 게시 전 hold
 
 - [ ] Obtain explicit publication authority and identify the release executor.
 - [ ] Build the exact `1.12.0` staging artifacts from the approved release commit.
@@ -56,9 +56,9 @@ The `1.12.0` JAR hashes must be captured by the release executor from the staged
 - [ ] Verify CI and review state for the exact release commit.
 - [ ] Publish only through the repository release workflow after every hold is cleared.
 
-## Rollback ownership and action
+## Rollback 소유권과 조치
 
-**Owner:** The explicitly authorized release executor.
+**소유자:** The explicitly authorized release executor.
 
 If wire parity, ownership, exception behavior, benchmark validation, or release smoke fails before publication, remove the affected direct candidate from the release commit and repeat validation.
 
@@ -70,6 +70,6 @@ If a regression is found after publication:
 4. Record whether the smoke used live Redis or the explicitly limited deterministic codec-level fallback.
 5. Open a rollback issue/PR with the failing artifact version, hashes, and fixture result. Do not publish a replacement without fresh authority.
 
-## Current handoff status
+## 현재 handoff 상태
 
 Release evidence preparation is complete, but publication is blocked by design until explicit authority and staged `1.12.0` hashes exist. The recorded rollback smoke used the deterministic codec-level path because Redis was unavailable; its `limited` status proves known-good codec round trips but does not claim a networked Redis SET/GET result and cannot clear the publication gate.
