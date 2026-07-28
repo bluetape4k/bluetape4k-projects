@@ -1,14 +1,12 @@
-# Issue #1039 Serializer Allocation Benchmark Implementation Plan
+# Issue #1039 Serializer Allocation Benchmark 구현 계획
 
-> **For agentic
-workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
+> **agentic worker용:** 필수 sub-skill: 이 계획은 superpowers:subagent-driven-development(권장) 또는 superpowers:executing-plans로 task별 구현한다. 진행 상태는 checkbox(`- [ ]`) syntax로 추적한다.
 
-**Goal:** Add a standalone, reproducible serializer allocation benchmark that permits only two-run, allocation-backed ByteBuffer claims and documents every optimized and fallback boundary.
+**목표:** Add a standalone, reproducible serializer allocation benchmark that permits only two-run, allocation-backed ByteBuffer claims and documents every optimized and fallback boundary.
 
-**Architecture:** Create `benchmark/serializer-benchmark` using the repository `kotlinx-benchmark` JMH pattern. Keep payload, comparison adapters, and validation support inside the benchmark-only module; measure binary, JSON, and Avro serialization/deserialization separately; derive claim decisions from two raw JMH GC-profiler runs with a tested Python summarizer. Publish measured numbers only in the central benchmark report and link representative English/Korean module documentation to it.
+**아키텍처:** Create `benchmark/serializer-benchmark` using the repository `kotlinx-benchmark` JMH pattern. Keep payload, comparison adapters, and validation support inside the benchmark-only module; measure binary, JSON, and Avro serialization/deserialization separately; derive claim decisions from two raw JMH GC-profiler runs with a tested Python summarizer. Publish measured numbers only in the central benchmark report and link representative English/Korean module documentation to it.
 
-**Tech
-Stack:** Kotlin 2.3, Java 21, Gradle 9.6, `kotlinx-benchmark`, JMH GC profiler, JUnit 5/Kluent, Python 3 standard library, existing bluetape4k serializer modules.
+**기술 스택:** Kotlin 2.3, Java 21, Gradle 9.6, `kotlinx-benchmark`, JMH GC profiler, JUnit 5/Kluent, Python 3 standard library, existing bluetape4k serializer modules.
 
 ---
 
@@ -24,7 +22,7 @@ Stack:** Kotlin 2.3, Java 21, Gradle 9.6, `kotlinx-benchmark`, JMH GC profiler, 
 - Stop immediately if an implementation would change an existing `ByteArray` API, wire/security behavior, serializer registration, or any #755-#758 surface.
 - Pull request delivery targets repository `bluetape4k/bluetape4k-projects`, base `develop`, and head `feat/issue-754-allocation-proof`. Merge remains outside implementation authority until a fresh exact-head approval.
 
-## File And Responsibility Map
+## 파일과 책임 지도
 
 ### New benchmark module
 
@@ -83,7 +81,7 @@ Stack:** Kotlin 2.3, Java 21, Gradle 9.6, `kotlinx-benchmark`, JMH GC profiler, 
 | #755-#758 and release exclusions                       | 9, 10, 12   |
 | P0/P1 convergence, lesson, exact-head PR               | 10, 11, 12  |
 
-## Type A Step 3-R Plan Review Record
+## Type A Step 3-R 계획 검토 기록
 
 The detailed plan was reviewed in the main session because the available native subagent surface cannot carry the required installed role identifier. The six independent lenses converge as follows:
 
@@ -96,24 +94,24 @@ The detailed plan was reviewed in the main session because the available native 
 
 Result: P0=0, P1=0. Runtime-generated run IDs and measured verdicts are intentionally unresolved until Tasks 8-9; their commands and fail-closed gates are fixed here.
 
-### Task 1: Register The Standalone Benchmark Module
+### Task 1: standalone benchmark module 등록
 
-**Complexity:** Medium **Depends on:** Approved spec **Write scope:** `benchmark/serializer-benchmark/build.gradle.kts`
+**복잡도:** Medium **의존:** Approved spec **작성 범위:** `benchmark/serializer-benchmark/build.gradle.kts`
 **Rollback/Rerun:** Remove only the benchmark module shell if registration or non-publication guards fail, then rerun Steps 1-4 before committing.
 
-**Files:**
+**파일:**
 
-- Create: `benchmark/serializer-benchmark/build.gradle.kts`
+- 생성: `benchmark/serializer-benchmark/build.gradle.kts`
 
 - [ ] **Step 1: Prove the module is absent**
 
-Run:
+실행:
 
 ```bash
 ./gradlew :serializer-benchmark:tasks --all --no-configuration-cache
 ```
 
-Expected: FAIL with `project 'serializer-benchmark' not found`.
+예상 결과: FAIL with `project 'serializer-benchmark' not found`.
 
 - [ ] **Step 2: Add the repository-standard benchmark build**
 
@@ -181,7 +179,7 @@ dependencies {
 
 - [ ] **Step 3: Verify auto-registration and generated task names**
 
-Run:
+실행:
 
 ```bash
 ./gradlew projects :serializer-benchmark:tasks --all --no-configuration-cache \
@@ -191,11 +189,11 @@ rg -q '^benchmarkBenchmarkCompile' /tmp/issue-1039-serializer-benchmark-tasks.tx
 rg -q '^benchmarkBenchmarkJar' /tmp/issue-1039-serializer-benchmark-tasks.txt
 ```
 
-Expected: PASS; the project and both generated tasks are present.
+예상 결과: PASS; the project and both generated tasks are present.
 
 - [ ] **Step 4: Verify non-publication and coverage exclusion rules apply**
 
-Run:
+실행:
 
 ```bash
 rg -n 'includeModules\("benchmark", false, false\)' settings.gradle.kts
@@ -203,7 +201,7 @@ rg -n 'name.endsWith\("-benchmark"\)' build.gradle.kts
 rg -n 'sourceDir.startsWith\("benchmark/"\)' build.gradle.kts
 ```
 
-Expected: all three existing guards are present; no BOM/catalog or publishing edit is needed.
+예상 결과: all three existing guards are present; no BOM/catalog or publishing edit is needed.
 
 - [ ] **Step 5: Commit the module shell**
 
@@ -221,15 +219,15 @@ git commit -m "Isolate serializer allocation evidence from production modules" \
 
 ### Task 2: Lock Payload, Fallback, And Buffer Contracts
 
-**Complexity:** High **Depends on:** Task 1 **Write scope:** benchmark module main/test Kotlin sources **Required
+**복잡도:** High **의존:** Task 1 **작성 범위:** benchmark module main/test Kotlin sources **Required
 skills:** `test-driven-development`, `bluetape-kotlin-patterns`
 **Rollback/Rerun:** Revert only fixture/payload changes that violate a contract; rerun the full support test and every affected serializer contract test.
 
-**Files:**
+**파일:**
 
-- Create: `benchmark/serializer-benchmark/src/main/kotlin/io/bluetape4k/benchmark/serializer/SerializerBenchmarkPayload.kt`
-- Create: `benchmark/serializer-benchmark/src/main/kotlin/io/bluetape4k/benchmark/serializer/SerializerBenchmarkSupport.kt`
-- Create: `benchmark/serializer-benchmark/src/test/kotlin/io/bluetape4k/benchmark/serializer/SerializerBenchmarkSupportTest.kt`
+- 생성: `benchmark/serializer-benchmark/src/main/kotlin/io/bluetape4k/benchmark/serializer/SerializerBenchmarkPayload.kt`
+- 생성: `benchmark/serializer-benchmark/src/main/kotlin/io/bluetape4k/benchmark/serializer/SerializerBenchmarkSupport.kt`
+- 생성: `benchmark/serializer-benchmark/src/test/kotlin/io/bluetape4k/benchmark/serializer/SerializerBenchmarkSupportTest.kt`
 
 - [ ] **Step 1: Write failing payload and adapter contract tests**
 
@@ -280,13 +278,13 @@ Use recording fakes only for dispatch proof; production fixtures must use defaul
 
 - [ ] **Step 2: Run the tests and observe RED**
 
-Run:
+실행:
 
 ```bash
 ./gradlew :serializer-benchmark:test --tests '*SerializerBenchmarkSupportTest' --no-configuration-cache
 ```
 
-Expected: FAIL because payload, adapters, and fixtures are undefined.
+예상 결과: FAIL because payload, adapters, and fixtures are undefined.
 
 - [ ] **Step 3: Implement the deterministic payload**
 
@@ -361,7 +359,7 @@ Run sequentially:
 ./gradlew :bluetape4k-avro:test --tests '*AvroSerializerByteBufferContractTest' --no-configuration-cache
 ```
 
-Expected: all commands PASS. The existing Avro reflect tests already establish support for mutable Kotlin data classes with defaults and nested/list fields, so failure here is an implementation defect to diagnose rather than a payload-type branch in this plan.
+예상 결과: all commands PASS. The existing Avro reflect tests already establish support for mutable Kotlin data classes with defaults and nested/list fields, so failure here is an implementation defect to diagnose rather than a payload-type branch in this plan.
 
 - [ ] **Step 6: Commit the locked contract**
 
@@ -379,12 +377,12 @@ git commit -m "Make serializer allocation cells comparable before timing them" \
 
 ### Task 3: Add Core Binary Allocation Cells
 
-**Complexity:** High **Depends on:** Task 2 **Write scope:** binary benchmark source only
+**복잡도:** High **의존:** Task 2 **작성 범위:** binary benchmark source only
 **Rollback/Rerun:** Revert only the binary benchmark source if the matrix or capability labels are wrong, then rerun benchmark compile and affected contracts.
 
-**Files:**
+**파일:**
 
-- Create: `benchmark/serializer-benchmark/src/benchmark/kotlin/io/bluetape4k/benchmark/serializer/BinarySerializerAllocationBenchmark.kt`
+- 생성: `benchmark/serializer-benchmark/src/benchmark/kotlin/io/bluetape4k/benchmark/serializer/BinarySerializerAllocationBenchmark.kt`
 
 - [ ] **Step 1: Add a compile-failing benchmark declaration**
 
@@ -405,13 +403,13 @@ open class BinarySerializerAllocationBenchmark {
 }
 ```
 
-Run:
+실행:
 
 ```bash
 ./gradlew :serializer-benchmark:compileBenchmarkKotlin --no-configuration-cache
 ```
 
-Expected: FAIL because `BinaryBenchmarkState` is undefined.
+예상 결과: FAIL because `BinaryBenchmarkState` is undefined.
 
 - [ ] **Step 2: Implement JDK and Kryo comparison methods**
 
@@ -462,14 +460,14 @@ Fory output calls the production `serializeTo` fallback and remains claim-inelig
 
 - [ ] **Step 4: Compile and inspect generated JMH methods**
 
-Run:
+실행:
 
 ```bash
 ./gradlew :serializer-benchmark:benchmarkBenchmarkCompile --no-configuration-cache
 find benchmark/serializer-benchmark/build/generated -type f -name '*BinarySerializerAllocationBenchmark*' -print
 ```
 
-Expected: PASS and generated JMH sources include all 16 method names.
+예상 결과: PASS and generated JMH sources include all 16 method names.
 
 - [ ] **Step 5: Commit binary cells**
 
@@ -487,25 +485,25 @@ git commit -m "Separate core serializer allocation paths by capability" \
 
 ### Task 4: Add JSON Allocation Cells
 
-**Complexity:** High **Depends on:** Task 2 **Write scope:** JSON benchmark source only
+**복잡도:** High **의존:** Task 2 **작성 범위:** JSON benchmark source only
 **Rollback/Rerun:** Revert only the JSON benchmark source if dispatch or labels are wrong, then rerun benchmark compile and Jackson/Fastjson contracts.
 
-**Files:**
+**파일:**
 
-- Create: `benchmark/serializer-benchmark/src/benchmark/kotlin/io/bluetape4k/benchmark/serializer/JsonSerializerAllocationBenchmark.kt`
+- 생성: `benchmark/serializer-benchmark/src/benchmark/kotlin/io/bluetape4k/benchmark/serializer/JsonSerializerAllocationBenchmark.kt`
 
 - [ ] **Step 1: Write a compile-failing Jackson state**
 
 Declare `JsonSerializerAllocationBenchmark` with `@State(Scope.Thread)`,
 `Mode.Throughput`, and a missing `Jackson2BenchmarkState`; compile and observe the undefined-state failure.
 
-Run:
+실행:
 
 ```bash
 ./gradlew :serializer-benchmark:compileBenchmarkKotlin --no-configuration-cache
 ```
 
-Expected: FAIL for `Jackson2BenchmarkState`.
+예상 결과: FAIL for `Jackson2BenchmarkState`.
 
 - [ ] **Step 2: Implement Jackson 2 and Jackson 3 cells**
 
@@ -553,14 +551,14 @@ The optimized input is a writable array-backed buffer. The direct and read-only 
 
 - [ ] **Step 4: Compile and verify the JSON method matrix**
 
-Run:
+실행:
 
 ```bash
 ./gradlew :serializer-benchmark:benchmarkBenchmarkCompile --no-configuration-cache
 find benchmark/serializer-benchmark/build/generated -type f -name '*JsonSerializerAllocationBenchmark*' -print
 ```
 
-Expected: PASS and generated sources cover all 18 method names.
+예상 결과: PASS and generated sources cover all 18 method names.
 
 - [ ] **Step 5: Commit JSON cells**
 
@@ -578,24 +576,24 @@ git commit -m "Keep JSON allocation claims aligned with real buffer dispatch" \
 
 ### Task 5: Add Avro Reflect Allocation Cells
 
-**Complexity:** Medium **Depends on:** Task 2 **Write scope:** Avro benchmark source only
+**복잡도:** Medium **의존:** Task 2 **작성 범위:** Avro benchmark source only
 **Rollback/Rerun:** Revert only the Avro benchmark source if reflect scope or cell labels are wrong, then rerun benchmark compile and the Avro contract test.
 
-**Files:**
+**파일:**
 
-- Create: `benchmark/serializer-benchmark/src/benchmark/kotlin/io/bluetape4k/benchmark/serializer/AvroSerializerAllocationBenchmark.kt`
+- 생성: `benchmark/serializer-benchmark/src/benchmark/kotlin/io/bluetape4k/benchmark/serializer/AvroSerializerAllocationBenchmark.kt`
 
 - [ ] **Step 1: Write the compile-failing Avro benchmark state**
 
 Declare the JMH class and reference an undefined `AvroReflectBenchmarkState`.
 
-Run:
+실행:
 
 ```bash
 ./gradlew :serializer-benchmark:compileBenchmarkKotlin --no-configuration-cache
 ```
 
-Expected: FAIL for the undefined state.
+예상 결과: FAIL for the undefined state.
 
 - [ ] **Step 2: Implement the six measured reflect cells**
 
@@ -621,7 +619,7 @@ Run sequentially:
 ./gradlew :bluetape4k-avro:test --tests '*AvroSerializerByteBufferContractTest' --no-configuration-cache
 ```
 
-Expected: both commands PASS.
+예상 결과: both commands PASS.
 
 - [ ] **Step 4: Commit Avro cells**
 
@@ -639,13 +637,13 @@ git commit -m "Measure Avro allocation only where reflect paths were exercised" 
 
 ### Task 6: Test And Implement Evidence Summarization
 
-**Complexity:** High **Depends on:** Tasks 3-5 **Write scope:** benchmark Python scripts only
+**복잡도:** High **의존:** Tasks 3-5 **작성 범위:** benchmark Python scripts only
 **Rollback/Rerun:** Any parser or verdict failure invalidates derived evidence; fix the bounded scripts, rerun all unit tests, and regenerate every CSV.
 
-**Files:**
+**파일:**
 
-- Create: `benchmark/serializer-benchmark/scripts/summarize-jmh.py`
-- Create: `benchmark/serializer-benchmark/scripts/test_summarize_jmh.py`
+- 생성: `benchmark/serializer-benchmark/scripts/summarize-jmh.py`
+- 생성: `benchmark/serializer-benchmark/scripts/test_summarize_jmh.py`
 
 - [ ] **Step 1: Write failing standard-library unit tests**
 
@@ -673,13 +671,13 @@ The synthetic JMH entries must use real result keys:
 
 - [ ] **Step 2: Run RED**
 
-Run:
+실행:
 
 ```bash
 python3 -m unittest benchmark/serializer-benchmark/scripts/test_summarize_jmh.py -v
 ```
 
-Expected: FAIL because `summarize-jmh.py` is absent.
+예상 결과: FAIL because `summarize-jmh.py` is absent.
 
 - [ ] **Step 3: Implement the bounded parser and verdict policy**
 
@@ -708,7 +706,7 @@ The parser exits non-zero when raw JSON is malformed, the normalized allocation 
 
 - [ ] **Step 4: Run GREEN and syntax checks**
 
-Run:
+실행:
 
 ```bash
 python3 -m unittest benchmark/serializer-benchmark/scripts/test_summarize_jmh.py -v
@@ -717,7 +715,7 @@ python3 -m py_compile \
   benchmark/serializer-benchmark/scripts/test_summarize_jmh.py
 ```
 
-Expected: all seven tests PASS; compilation exits 0.
+예상 결과: all seven tests PASS; compilation exits 0.
 
 - [ ] **Step 5: Commit evidence tooling**
 
@@ -735,7 +733,7 @@ git commit -m "Make allocation claims fail closed across two fresh runs" \
 
 ### Task 7: Compile And Smoke The Exact Benchmark Matrix
 
-**Complexity:** Medium **Depends on:** Tasks 3-6 **Write scope:** no production writes; temporary build output only
+**복잡도:** Medium **의존:** Tasks 3-6 **작성 범위:** no production writes; temporary build output only
 **Heavy-command limit:** one benchmark process at a time
 **Rollback/Rerun:** A compile, cell-count, semantic, profiler, or parser failure blocks evidence generation; return to the owning task and rerun the full smoke.
 
@@ -749,11 +747,11 @@ Run sequentially:
 ./gradlew :serializer-benchmark:benchmarkBenchmarkJar --no-configuration-cache
 ```
 
-Expected: all commands PASS.
+예상 결과: all commands PASS.
 
 - [ ] **Step 2: Resolve exactly one generated JMH jar**
 
-Run:
+실행:
 
 ```zsh
 jmh_jars=(benchmark/serializer-benchmark/build/benchmarks/benchmark/jars/*-JMH.jar(N))
@@ -761,11 +759,11 @@ jmh_jars=(benchmark/serializer-benchmark/build/benchmarks/benchmark/jars/*-JMH.j
 print -r -- "$jmh_jars[1]"
 ```
 
-Expected: exactly one jar path.
+예상 결과: exactly one jar path.
 
 - [ ] **Step 3: Run the smoke protocol**
 
-Run:
+실행:
 
 ```bash
 JMH_JAR=$(find benchmark/serializer-benchmark/build/benchmarks/benchmark/jars -type f -name '*-JMH.jar' -print -quit)
@@ -777,12 +775,12 @@ python3 benchmark/serializer-benchmark/scripts/summarize-jmh.py run \
   --output /tmp/issue-1039-jmh-smoke.csv
 ```
 
-Expected: every declared cell completes, JSON parses, and every row contains
+예상 결과: every declared cell completes, JSON parses, and every row contains
 `gc.alloc.rate.norm`. Any overflow, decode mismatch, missing cell, or profiler failure blocks evidence runs.
 
 - [ ] **Step 4: Confirm the smoke artifact contains the exact method counts**
 
-Run:
+실행:
 
 ```bash
 python3 - <<'PY'
@@ -796,17 +794,17 @@ print(f'benchmark_cells={len(names)}')
 PY
 ```
 
-Expected: `benchmark_cells=40`.
+예상 결과: `benchmark_cells=40`.
 
 ### Task 8: Produce Two Fresh Allocation Evidence Runs
 
-**Complexity:** High **Depends on:** Task 7 **Write scope:** `docs/benchmarks/raw/issue-1039/`
+**복잡도:** High **의존:** Task 7 **작성 범위:** `docs/benchmarks/raw/issue-1039/`
 **Heavy-command limit:** exactly one JMH process at a time; no concurrent Gradle or benchmark execution
 **Rollback/Rerun:** Preserve an invalid run directory for diagnosis, mark it invalid in its environment metadata, and create a new run ID; never overwrite or count an invalid run among the two accepted fresh runs.
 
 - [ ] **Step 1: Build the evidence jar from a clean benchmark output**
 
-Run:
+실행:
 
 ```bash
 ./gradlew :serializer-benchmark:clean :serializer-benchmark:benchmarkBenchmarkJar --no-configuration-cache
@@ -815,7 +813,7 @@ test -f "$JMH_JAR"
 git status --short
 ```
 
-Expected: build PASS; status contains only planned source/doc changes and no unexpected generated file.
+예상 결과: build PASS; status contains only planned source/doc changes and no unexpected generated file.
 
 - [ ] **Step 2: Capture run 1 environment and raw JSON**
 
@@ -846,7 +844,7 @@ python3 benchmark/serializer-benchmark/scripts/summarize-jmh.py run \
 printf '%s\n' "$RUN_1" > /tmp/issue-1039-run-1-id
 ```
 
-Expected: JMH exits 0 and the summarizer writes 40 rows.
+예상 결과: JMH exits 0 and the summarizer writes 40 rows.
 
 - [ ] **Step 3: Capture independent run 2**
 
@@ -877,11 +875,11 @@ python3 benchmark/serializer-benchmark/scripts/summarize-jmh.py run \
 printf '%s\n' "$RUN_2" > /tmp/issue-1039-run-2-id
 ```
 
-Expected: JMH exits 0, the summarizer writes 40 rows, and `RUN_2 != RUN_1`.
+예상 결과: JMH exits 0, the summarizer writes 40 rows, and `RUN_2 != RUN_1`.
 
 - [ ] **Step 4: Derive the two-run comparison**
 
-Run:
+실행:
 
 ```bash
 RUN_1=$(cat /tmp/issue-1039-run-1-id)
@@ -893,32 +891,32 @@ python3 benchmark/serializer-benchmark/scripts/summarize-jmh.py compare \
   --output docs/benchmarks/raw/issue-1039/comparison.csv
 ```
 
-Expected: PASS. Only rows marked `accepted` may support allocation-reduction prose.
+예상 결과: PASS. Only rows marked `accepted` may support allocation-reduction prose.
 
 - [ ] **Step 5: Validate raw artifact size and reviewability**
 
-Run:
+실행:
 
 ```bash
 find docs/benchmarks/raw/issue-1039 -type f -print -exec wc -c {} \;
 test -z "$(find docs/benchmarks/raw/issue-1039 -type f -size +2M -print)"
 ```
 
-Expected: every artifact is at most 2 MiB. If raw JSON exceeds the limit, retain compact JSON/CSV plus a documented external artifact link; do not commit noisy profiler dumps.
+예상 결과: every artifact is at most 2 MiB. If raw JSON exceeds the limit, retain compact JSON/CSV plus a documented external artifact link; do not commit noisy profiler dumps.
 
 ### Task 9: Publish Evidence Without Broadening Claims
 
-**Complexity:** High **Depends on:** Task 8 **Write
+**복잡도:** High **의존:** Task 8 **Write
 scope:** benchmark READMEs, benchmark docs/raw, KDoc, module README pairs, changelog **Required
 skill:** `bluetape-writer`
 **Rollback/Rerun:** If prose exceeds comparison evidence, downgrade it to inconclusive or ergonomic-only wording and rerun locale and claim-parity checks.
 
-**Files:**
+**파일:**
 
-- Create: `benchmark/serializer-benchmark/README.md`
-- Create: `benchmark/serializer-benchmark/README.ko.md`
-- Create: `docs/benchmarks/2026-07-18-bytebuffer-serializer-allocation.md`
-- Modify: all KDoc, README, index, changelog, and raw paths listed in the file map.
+- 생성: `benchmark/serializer-benchmark/README.md`
+- 생성: `benchmark/serializer-benchmark/README.ko.md`
+- 생성: `docs/benchmarks/2026-07-18-bytebuffer-serializer-allocation.md`
+- 수정: all KDoc, README, index, changelog, and raw paths listed in the file map.
 
 - [ ] **Step 1: Write a failing documentation contract check**
 
@@ -932,7 +930,7 @@ for readme in \
 done
 ```
 
-Expected: FAIL because benchmark README files do not exist.
+예상 결과: FAIL because benchmark README files do not exist.
 
 - [ ] **Step 2: Write the benchmark report from committed comparison rows**
 
@@ -992,7 +990,7 @@ Add the report to `docs/benchmarks/README.md`. Add a `1.12.0` unreleased section
 
 - [ ] **Step 6: Validate locale and claim parity**
 
-Run:
+실행:
 
 ```bash
 for module in io/io io/jackson2 io/jackson3 io/fastjson2 io/avro benchmark/serializer-benchmark; do
@@ -1008,7 +1006,7 @@ done
 rg -n '#755|#756|#757|#758' benchmark/serializer-benchmark/README.md benchmark/serializer-benchmark/README.ko.md docs/benchmarks/2026-07-18-bytebuffer-serializer-allocation.md
 ```
 
-Expected: every command PASS.
+예상 결과: every command PASS.
 
 - [ ] **Step 7: Commit evidence and documentation**
 
@@ -1047,7 +1045,7 @@ git commit -m "Document only serializer allocation reductions the evidence suppo
 
 ### Task 10: Run Proportional Verification And Repository Hazards
 
-**Complexity:** High **Depends on:** Task 9 **Write scope:** no intended writes **Heavy-command
+**복잡도:** High **의존:** Task 9 **작성 범위:** no intended writes **Heavy-command
 limit:** sequential Gradle invocations; no parallel benchmark or Testcontainers process
 **Rollback/Rerun:** A failed gate returns to the task that owns the failing file or evidence; rerun that targeted gate, then repeat all Task 10 checks.
 
@@ -1058,7 +1056,7 @@ limit:** sequential Gradle invocations; no parallel benchmark or Testcontainers 
 python3 -m unittest benchmark/serializer-benchmark/scripts/test_summarize_jmh.py -v
 ```
 
-Expected: PASS.
+예상 결과: PASS.
 
 - [ ] **Step 2: Run all affected module tests sequentially**
 
@@ -1071,7 +1069,7 @@ Expected: PASS.
 ./gradlew :bluetape4k-avro:test --no-configuration-cache
 ```
 
-Expected: every command PASS. Investigate any retry-only pass as a lifecycle or environment signal rather than erasing the first failure.
+예상 결과: every command PASS. Investigate any retry-only pass as a lifecycle or environment signal rather than erasing the first failure.
 
 - [ ] **Step 3: Run serializer ABI proof**
 
@@ -1080,7 +1078,7 @@ bash scripts/check-serializer-buffer-abi.sh \
   --build-current --expected-head "$(git rev-parse HEAD)"
 ```
 
-Expected: PASS with current head recorded.
+예상 결과: PASS with current head recorded.
 
 - [ ] **Step 4: Verify module registration and exclusion hazards**
 
@@ -1108,7 +1106,7 @@ Inspect the result. Add root module-map or workflow path updates only when the e
 git diff --check origin/develop...HEAD
 ```
 
-Expected: PASS with no new warnings attributable to changed files.
+예상 결과: PASS with no new warnings attributable to changed files.
 
 - [ ] **Step 6: Verify spec and claim traceability**
 
@@ -1126,17 +1124,17 @@ python3 benchmark/serializer-benchmark/scripts/summarize-jmh.py compare \
 cmp docs/benchmarks/raw/issue-1039/comparison.csv /tmp/issue-1039-comparison-recheck.csv
 ```
 
-Expected: every positive phrase maps to an `accepted` row and regenerated CSV is byte-identical.
+예상 결과: every positive phrase maps to an `accepted` row and regenerated CSV is byte-identical.
 
 ### Task 11: Converge Review And Commit The Durable Lesson
 
-**Complexity:** Medium **Depends on:** Task 10 **Write
+**복잡도:** Medium **의존:** Task 10 **Write
 scope:** `docs/lessons/2026-07-18-issue-1039-serializer-allocation-proof.md` and in-scope blocker fixes only
 **Rollback/Rerun:** Any P0/P1 finding returns to the owning implementation task; after the fix, rerun affected verification and all six review lenses.
 
-**Files:**
+**파일:**
 
-- Create: `docs/lessons/2026-07-18-issue-1039-serializer-allocation-proof.md`
+- 생성: `docs/lessons/2026-07-18-issue-1039-serializer-allocation-proof.md`
 
 - [ ] **Step 1: Run the Type A performance/stability scan and six review lenses**
 
@@ -1187,11 +1185,11 @@ git log -1 --format=full
 git diff --stat origin/develop...HEAD
 ```
 
-Expected: clean branch, Lore-compliant head, intended files only, P0=0, P1=0.
+예상 결과: clean branch, Lore-compliant head, intended files only, P0=0, P1=0.
 
 ### Task 12: Deliver The Exact-Head Pull Request And Stop Before Merge
 
-**Complexity:** Medium **Depends on:** Task 11 and common gates CG-01 through CG-10 **External side
+**복잡도:** Medium **의존:** Task 11 and common gates CG-01 through CG-10 **External side
 effects:** push branch and create/update PR are authorized by the approved design; merge is not
 **Rollback/Rerun:** A push, CI, metadata, or review failure returns to the owning task and exact-head verification; never merge, auto-merge, or delete the branch.
 
@@ -1204,7 +1202,7 @@ git status --short --branch
 git rev-parse HEAD
 ```
 
-Expected: issue OPEN, milestone `1.12.0`, assignee `debop`, labels include
+예상 결과: issue OPEN, milestone `1.12.0`, assignee `debop`, labels include
 `enhancement`, `performance`, and `infra/io`; branch is clean.
 
 - [ ] **Step 2: Push and verify exact remote head**
@@ -1216,7 +1214,7 @@ REMOTE_HEAD=$(git ls-remote --heads origin feat/issue-754-allocation-proof | awk
 test "$LOCAL_HEAD" = "$REMOTE_HEAD"
 ```
 
-Expected: local and remote SHAs match exactly.
+예상 결과: local and remote SHAs match exactly.
 
 - [ ] **Step 3: Render the issue-linked PR body from current evidence**
 
@@ -1276,7 +1274,7 @@ gh pr view "$PR" --repo bluetape4k/bluetape4k-projects \
   --json number,url,state,headRefName,headRefOid,baseRefName,assignees,labels,milestone,body
 ```
 
-Expected: metadata matches and the last Markdown `##` heading is exactly
+예상 결과: metadata matches and the last Markdown `##` heading is exactly
 `## DoD Status`.
 
 - [ ] **Step 6: Wait for exact-head CI and reread reviews**
@@ -1290,7 +1288,7 @@ gh pr view "$PR" --repo bluetape4k/bluetape4k-projects \
 gh api "repos/bluetape4k/bluetape4k-projects/pulls/$PR/comments"
 ```
 
-Expected: required checks succeed on the exact remote head and no unresolved P0/P1 review blocker remains. A failure returns to the owning implementation task and reruns affected verification.
+예상 결과: required checks succeed on the exact remote head and no unresolved P0/P1 review blocker remains. A failure returns to the owning implementation task and reruns affected verification.
 
 - [ ] **Step 7: Report merge readiness and stop**
 
