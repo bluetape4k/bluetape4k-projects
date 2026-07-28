@@ -1,26 +1,26 @@
-# Issue #854 Shapefile CRS Import
+# 이슈 #854 Shapefile CRS import
 
-Issue #854 found that `ShapefileImportService` stored every shapefile as WGS84
-without reading `.prj` metadata. Projected inputs such as EPSG:3857 therefore
-kept meter coordinates while the layer metadata claimed SRID 4326.
+issue #854는 `ShapefileImportService`가 `.prj` metadata를 읽지 않고 모든 shapefile을
+WGS84로 저장한다는 점을 찾았다. EPSG:3857 같은 projected input은 meter coordinate를
+그대로 유지하면서 layer metadata는 SRID 4326이라고 표시했다.
 
-## Decision
+## 결정
 
-Transform shapefile records to EPSG:4326 during import when `.prj` declares a
-different CRS. Store PostGIS geometry as EWKT with `SRID=4326` and recompute
-layer bbox from transformed geometries.
+`.prj`가 다른 CRS를 선언하면 import 중 shapefile record를 EPSG:4326으로 transform한다.
+PostGIS geometry는 `SRID=4326`을 가진 EWKT로 저장하고, transformed geometry에서 layer
+bbox를 다시 계산한다.
 
-## Lessons
+## 교훈
 
-- Layer metadata and geometry SRID must be proven together. A layer-level
-  `srid=4326` is not enough when `PGgeometry` is created from plain WKT.
-- Dynamic shapefile fixtures are better than checked-in projected fixtures for
-  this case. They keep the test small and verify `.prj` generation, CRS parsing,
-  coordinate transformation, SRID storage, and bbox semantics in one path.
-- Missing `.prj` remains a compatibility assumption: treat the input as WGS84,
-  but document that behavior so callers know the boundary.
+- layer metadata와 geometry SRID는 함께 증명해야 한다. `PGgeometry`가 plain WKT로 만들어진
+  경우 layer-level `srid=4326`만으로는 충분하지 않다.
+- dynamic shapefile fixture는 이 경우 checked-in projected fixture보다 낫다. test를 작게
+  유지하면서 `.prj` generation, CRS parsing, coordinate transformation, SRID storage,
+  bbox semantic을 한 path에서 검증한다.
+- `.prj` 누락은 compatibility assumption으로 남는다. input을 WGS84로 취급하되 caller가
+  boundary를 알 수 있도록 문서화한다.
 
-## Verification
+## 검증
 
 - `./gradlew :bluetape4k-science:test --tests "io.bluetape4k.science.exposed.repository.SpatialFeatureRepositoryTest.Shapefile import transforms projected CRS to WGS84" --no-build-cache`
 - `./gradlew :bluetape4k-science:test --tests "io.bluetape4k.science.exposed.repository.SpatialFeatureRepositoryTest" --no-build-cache`
