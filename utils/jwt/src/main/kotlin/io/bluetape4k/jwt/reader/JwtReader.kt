@@ -38,7 +38,7 @@ class JwtReader(
         get() = header<String>("kid")
 
     /**
-     * JWT expiration time as epoch milliseconds.
+     * JWT 만료 시각을 epoch milliseconds로 표현한 값입니다.
      *
      * ## 동작/계약
      * - `exp` 클레임이 없으면 `null`을 반환합니다.
@@ -47,7 +47,7 @@ class JwtReader(
         get() = expiration?.time
 
     /**
-     * Expiration TTL (Time To Live) in milliseconds.
+     * 만료 TTL(Time To Live)을 milliseconds로 표현한 값입니다.
      *
      * ## 동작/계약
      * - `exp` 클레임이 없으면 [Long.MAX_VALUE]를 반환합니다.
@@ -65,7 +65,7 @@ class JwtReader(
         get() = expiresAtMillis?.let { (it - System.currentTimeMillis()).coerceAtLeast(0L) } ?: Long.MAX_VALUE
 
     /**
-     * Expiration TTL (Time To Live) in milliseconds.
+     * 만료 TTL(Time To Live)을 milliseconds로 표현한 값입니다.
      *
      * @see remainingTtlMillis
      */
