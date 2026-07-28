@@ -1,4 +1,4 @@
-# Wave 1 Security Review — 2026-04-28
+# Wave 1 Security 검토 — 2026-04-28
 
 전체 7개 그룹 병렬 실행 결과. Tier 1 (autoresearch:security) 기준.
 
