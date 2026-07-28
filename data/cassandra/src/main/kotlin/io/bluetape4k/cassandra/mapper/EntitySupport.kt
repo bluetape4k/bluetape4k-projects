@@ -8,7 +8,7 @@ import com.datastax.oss.driver.api.mapper.entity.EntityHelper
 import com.datastax.oss.driver.api.mapper.entity.saving.NullSavingStrategy
 
 /**
- * Builds an insert [PreparedStatement] from this DataStax [EntityHelper].
+ * 이 DataStax [EntityHelper]에서 insert [PreparedStatement]를 만듭니다.
  *
  * ```
  * val session: CqlSession = ...
@@ -16,15 +16,15 @@ import com.datastax.oss.driver.api.mapper.entity.saving.NullSavingStrategy
  * val preparedStatement: PreparedStatement = entityHelper.prepareInsert(session)
  * ```
  *
- * @param session Cassandra [CqlSession] used to prepare the generated CQL.
- * @return Prepared insert statement for the entity table.
+ * @param session 생성된 CQL을 prepare할 Cassandra [CqlSession]입니다.
+ * @return entity table에 대한 prepared insert statement입니다.
  */
 fun <T: Any> EntityHelper<T>.prepareInsert(session: CqlSession): PreparedStatement {
     return session.prepare(insert().asCql())
 }
 
 /**
- * Builds an insert-if-not-exists [PreparedStatement] from this DataStax [EntityHelper].
+ * 이 DataStax [EntityHelper]에서 insert-if-not-exists [PreparedStatement]를 만듭니다.
  *
  * ```
  * val session: CqlSession = ...
@@ -32,15 +32,15 @@ fun <T: Any> EntityHelper<T>.prepareInsert(session: CqlSession): PreparedStateme
  * val preparedStatement: PreparedStatement = entityHelper.prepareInsertIfNotExists(session)
  * ```
  *
- * @param session Cassandra [CqlSession] used to prepare the generated CQL.
- * @return Prepared conditional insert statement for the entity table.
+ * @param session 생성된 CQL을 prepare할 Cassandra [CqlSession]입니다.
+ * @return entity table에 대한 prepared conditional insert statement입니다.
  */
 fun <T: Any> EntityHelper<T>.prepareInsertIfNotExists(session: CqlSession): PreparedStatement {
     return session.prepare(insert().ifNotExists().asCql())
 }
 
 /**
- * Creates a [BoundStatement] by applying [builder] to [preparedStatement].
+ * [preparedStatement]에 [builder]를 적용해 [BoundStatement]를 생성합니다.
  *
  * ```
  * val preparedStatement: PreparedStatement = ...
@@ -51,9 +51,9 @@ fun <T: Any> EntityHelper<T>.prepareInsertIfNotExists(session: CqlSession): Prep
  * }
  * ```
  *
- * @param preparedStatement Prepared statement to bind.
- * @param builder Bound statement builder customizer.
- * @return Bound statement produced by the customized builder.
+ * @param preparedStatement bind 대상 prepared statement입니다.
+ * @param builder bound statement builder를 보정하는 customizer입니다.
+ * @return customizer가 반영된 bound statement입니다.
  */
 inline fun <T: Any> bindEntity(
     preparedStatement: PreparedStatement,
@@ -65,7 +65,7 @@ inline fun <T: Any> bindEntity(
 }
 
 /**
- * Binds [entity] to [preparedStatement] through this DataStax [EntityHelper].
+ * 이 DataStax [EntityHelper]를 통해 [entity]를 [preparedStatement]에 bind합니다.
  *
  * ```
  * val session: CqlSession = ...
@@ -75,11 +75,11 @@ inline fun <T: Any> bindEntity(
  * val boundStatement: BoundStatement = entityHelper.bind(preparedStatement, user)
  * ```
  *
- * @param preparedStatement Prepared statement to bind.
- * @param entity Entity instance used as the binding source.
- * @param nullSavingStrategy Strategy used when entity properties are null.
- * @param lenient Whether missing columns should be tolerated by the mapper.
- * @return Bound statement containing values extracted from [entity].
+ * @param preparedStatement bind 대상 prepared statement입니다.
+ * @param entity binding source로 사용할 entity instance입니다.
+ * @param nullSavingStrategy entity property가 null일 때 사용할 저장 전략입니다.
+ * @param lenient mapper가 누락된 column을 허용할지 여부입니다.
+ * @return [entity]에서 추출한 값을 담은 bound statement입니다.
  */
 fun <T: Any> EntityHelper<T>.bind(
     preparedStatement: PreparedStatement,
@@ -95,7 +95,7 @@ fun <T: Any> EntityHelper<T>.bind(
 }
 
 /**
- * Prepares CQL generated from [entityHelper].
+ * [entityHelper]에서 생성한 CQL을 prepare합니다.
  *
  * ```
  * val session: CqlSession = ...
@@ -109,9 +109,9 @@ fun <T: Any> EntityHelper<T>.bind(
  * }
  * ```
  *
- * @param entityHelper DataStax mapper helper used to build CQL.
- * @param builder Lambda that creates CQL from [entityHelper].
- * @return Prepared statement for the generated CQL.
+ * @param entityHelper CQL 생성에 사용할 DataStax mapper helper입니다.
+ * @param builder [entityHelper]에서 CQL을 생성하는 lambda입니다.
+ * @return 생성된 CQL에 대한 prepared statement입니다.
  */
 inline fun <T: Any> CqlSession.prepare(
     entityHelper: EntityHelper<T>,
