@@ -5,7 +5,7 @@ Scope:
 - `spring-boot/cassandra/src/test/kotlin/io/bluetape4k/spring/cassandra/cql/ReactiveCqlOperationsSupportUnitTest.kt`
 - `spring-boot/cassandra/src/test/kotlin/io/bluetape4k/spring/cassandra/cql/ReactiveCqlOperationsSupportTest.kt`
 
-## Findings
+## 발견 사항
 
 P0: 0
 P1: 0
@@ -23,7 +23,7 @@ P3: 0 after follow-up
   the suspected runtime failure was not reproduced locally. The change is still useful because it
   makes the public vararg contract explicit and removes the misleading test/KDoc shape.
 
-## Validation
+## 검증
 
 - `./gradlew :bluetape4k-spring-boot-cassandra:cleanTest :bluetape4k-spring-boot-cassandra:compileKotlin :bluetape4k-spring-boot-cassandra:compileTestKotlin :bluetape4k-spring-boot-cassandra:test --no-build-cache`
   - `GRADLE_STATUS=0`

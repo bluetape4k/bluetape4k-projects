@@ -1,4 +1,4 @@
-# Issue #847 JwtReader TTL Review
+# Issue #847 JwtReader TTL 검토
 
 ## Scope
 
