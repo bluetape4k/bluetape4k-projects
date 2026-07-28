@@ -18,7 +18,7 @@ import io.bluetape4k.coroutines.flow.exceptions.FlowNoElementException
 sealed interface FlowEvent<out T> {
 
     /**
-     * Event containing a value.
+     * 값을 담는 이벤트입니다.
      *
      * Keep this as a data class. `FlowEvent.Value` is normally emitted as the
      * `FlowEvent<T>` interface type, where Kotlin/JVM value classes are boxed,
@@ -30,7 +30,7 @@ sealed interface FlowEvent<out T> {
     }
 
     /**
-     * Event containing an error.
+     * 오류를 담는 이벤트입니다.
      *
      * Keep this as a data class for the same compatibility and boxing reasons
      * as [Value]. When used as `FlowEvent<Nothing>`, a value-class variant would
