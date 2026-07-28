@@ -37,7 +37,6 @@ same change.
 
 - Update repo-local `AGENTS.md` if the module group list or workflow rule
   changes.
-- Update `.codex/references/module-groups.md` when the module group map changes.
 - Add or update `docs/lessons/YYYY-MM-DD-{slug}.md` with context, decision,
   outcome, verification, and future guidance.
 
@@ -86,7 +85,7 @@ ruby scripts/manual/export_manifest.rb --check
 ruby scripts/manual/validate_release_manuals.rb 1.11.0 6187173b58e8b4c5c435c145e00e94708f31ef75
 git diff --check
 rg -n "<old-module-name>|<old-artifact-name>|<old-path>"
-rg -n "<new-module-name>|<new-artifact-name>" README.md README.ko.md .codex/references/module-groups.md AGENTS.md
+rg -n "<new-module-name>|<new-artifact-name>" README.md README.ko.md AGENTS.md
 ```
 
 For compile/test evidence, prefer affected module tasks:
