@@ -1,4 +1,4 @@
-# Issue 937 IO CI Coverage Review
+# Issue 937 IO CI Coverage 검토
 
 ## Scope
 
@@ -7,7 +7,7 @@
 - Branch: `fix/issue-937-io-ci-coverage`
 - Target: `.github/workflows/ci.yml`
 
-## 7-Tier Review
+## 7-Tier 검토
 
 | Tier | Result | Evidence |
 |---|---|---|
