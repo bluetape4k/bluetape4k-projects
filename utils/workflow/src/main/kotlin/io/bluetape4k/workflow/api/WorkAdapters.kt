@@ -20,17 +20,17 @@ fun Work.asSuspend(): SuspendWork = SuspendWork { ctx ->
 }
 
 /**
- * Converts a coroutine [SuspendWork] to a blocking [Work].
+ * coroutine [SuspendWork]를 blocking [Work]로 변환합니다.
  *
- * Uses [runBlocking] internally. **Do not call from a coroutine context** —
- * doing so may cause deadlocks or thread starvation. Use [SuspendWork] directly
- * in coroutine contexts instead.
+ * 내부적으로 [runBlocking]을 사용합니다. **coroutine context에서는 호출하지 마십시오.**
+ * 그렇게 하면 deadlock 또는 thread starvation이 발생할 수 있습니다. coroutine context에서는
+ * [SuspendWork]를 직접 사용하십시오.
  *
  * ```kotlin
  * val blockingWork = suspendWork.asBlocking()
  * ```
  *
- * @return converted [Work]
+ * @return 변환된 [Work]입니다.
  */
 @Deprecated(
     message = "asBlocking() uses runBlocking and risks deadlock in coroutine contexts. Use SuspendWork directly instead.",
