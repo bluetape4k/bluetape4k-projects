@@ -25,16 +25,16 @@ object RandomGeoHashes: KLogging() {
     }
 
     /**
-     * Create a completely random [GeoHash] with a random number of bits.
+     * random bit 수를 가진 완전 random [GeoHash]를 생성합니다.
      *
-     * Precision will be between [5,64] bits.
+     * precision은 [5,64] bit 사이입니다.
      */
     fun create(): GeoHash {
         return geoHashWithBits(randomLatitude(), randomLongitude(), randomPrecision())
     }
 
     /**
-     * Create a completely random geohash with
+     * 완전 random geohash를 생성합니다
      * a precision that is a multiple of 5 and in [5,60] bits.
      */
     fun createWith5BitsPrecision(): GeoHash {
