@@ -1,4 +1,4 @@
-# Issue #846 DateAdd Backward Split Period Review
+# Issue #846 DateAdd Backward Split Period 검토
 
 ## Scope
 

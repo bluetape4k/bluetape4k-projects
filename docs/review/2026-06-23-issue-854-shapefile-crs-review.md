@@ -1,4 +1,4 @@
-# Issue #854 Shapefile CRS Import Review
+# Issue #854 Shapefile CRS Import 검토
 
 ## Scope
 
