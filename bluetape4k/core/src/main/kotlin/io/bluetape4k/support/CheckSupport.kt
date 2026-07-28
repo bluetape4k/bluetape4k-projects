@@ -7,12 +7,12 @@ import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.contract
 
 /**
- * Provides the `checkNotNull` invariant check.
+ * `checkNotNull` 불변 조건 검사를 제공합니다.
  *
- * ## Contract
- * - Throws [IllegalStateException] when the invariant is not satisfied.
- * - Returns the original receiver when the invariant is satisfied.
- * - Does not mutate the receiver.
+ * ## 계약
+ * - 불변 조건을 만족하지 않으면 [IllegalStateException]이 발생합니다.
+ * - 불변 조건을 만족하면 원래 수신 값을 반환합니다.
+ * - 수신 객체를 변경하지 않습니다.
  *
  * ```kotlin
  * val result = ("blue" as String?).checkNotNull("text")
@@ -31,12 +31,12 @@ inline fun <T: Any> T?.checkNotNull(lazyMessage: () -> Any): T {
 }
 
 /**
- * Provides the `checkNull` invariant check.
+ * `checkNull` 불변 조건 검사를 제공합니다.
  *
- * ## Contract
- * - Throws [IllegalStateException] when the invariant is not satisfied.
- * - Returns the original receiver when the invariant is satisfied.
- * - Does not mutate the receiver.
+ * ## 계약
+ * - 불변 조건을 만족하지 않으면 [IllegalStateException]이 발생합니다.
+ * - 불변 조건을 만족하면 원래 수신 값을 반환합니다.
+ * - 수신 객체를 변경하지 않습니다.
  *
  * ```kotlin
  * val result = (null as String?).checkNull("text")
@@ -55,12 +55,12 @@ inline fun <T: Any> T?.checkNull(lazyMessage: () -> Any): T? {
 }
 
 /**
- * Provides the `checkNotEmpty` invariant check.
+ * `checkNotEmpty` 불변 조건 검사를 제공합니다.
  *
- * ## Contract
- * - Throws [IllegalStateException] when the invariant is not satisfied.
- * - Returns the original receiver when the invariant is satisfied.
- * - Does not mutate the receiver.
+ * ## 계약
+ * - 불변 조건을 만족하지 않으면 [IllegalStateException]이 발생합니다.
+ * - 불변 조건을 만족하면 원래 수신 값을 반환합니다.
+ * - 수신 객체를 변경하지 않습니다.
  *
  * ```kotlin
  * val result = ("blue" as String?).checkNotEmpty("text")
@@ -80,12 +80,12 @@ inline fun <T: CharSequence> T?.checkNotEmpty(lazyMessage: () -> Any): T {
 }
 
 /**
- * Provides the `checkNullOrEmpty` invariant check.
+ * `checkNullOrEmpty` 불변 조건 검사를 제공합니다.
  *
- * ## Contract
- * - Throws [IllegalStateException] when the invariant is not satisfied.
- * - Returns the original receiver when the invariant is satisfied.
- * - Does not mutate the receiver.
+ * ## 계약
+ * - 불변 조건을 만족하지 않으면 [IllegalStateException]이 발생합니다.
+ * - 불변 조건을 만족하면 원래 수신 값을 반환합니다.
+ * - 수신 객체를 변경하지 않습니다.
  *
  * ```kotlin
  * val result = ("" as String?).checkNullOrEmpty("text")
@@ -101,12 +101,12 @@ inline fun <T: CharSequence> T?.checkNullOrEmpty(lazyMessage: () -> Any): T? {
 }
 
 /**
- * Provides the `checkNotBlank` invariant check.
+ * `checkNotBlank` 불변 조건 검사를 제공합니다.
  *
- * ## Contract
- * - Throws [IllegalStateException] when the invariant is not satisfied.
- * - Returns the original receiver when the invariant is satisfied.
- * - Does not mutate the receiver.
+ * ## 계약
+ * - 불변 조건을 만족하지 않으면 [IllegalStateException]이 발생합니다.
+ * - 불변 조건을 만족하면 원래 수신 값을 반환합니다.
+ * - 수신 객체를 변경하지 않습니다.
  *
  * ```kotlin
  * val result = ("blue" as String?).checkNotBlank("text")
@@ -126,12 +126,12 @@ inline fun <T: CharSequence> T?.checkNotBlank(lazyMessage: () -> Any): T {
 }
 
 /**
- * Provides the `checkNullOrBlank` invariant check.
+ * `checkNullOrBlank` 불변 조건 검사를 제공합니다.
  *
- * ## Contract
- * - Throws [IllegalStateException] when the invariant is not satisfied.
- * - Returns the original receiver when the invariant is satisfied.
- * - Does not mutate the receiver.
+ * ## 계약
+ * - 불변 조건을 만족하지 않으면 [IllegalStateException]이 발생합니다.
+ * - 불변 조건을 만족하면 원래 수신 값을 반환합니다.
+ * - 수신 객체를 변경하지 않습니다.
  *
  * ```kotlin
  * val result = ("   " as String?).checkNullOrBlank("text")
@@ -148,12 +148,12 @@ inline fun <T: CharSequence> T?.checkNullOrBlank(lazyMessage: () -> Any): T? {
 
 
 /**
- * Provides the `checkContains` invariant check.
+ * `checkContains` 불변 조건 검사를 제공합니다.
  *
- * ## Contract
- * - Throws [IllegalStateException] when the invariant is not satisfied.
- * - Returns the original receiver when the invariant is satisfied.
- * - Does not mutate the receiver.
+ * ## 계약
+ * - 불변 조건을 만족하지 않으면 [IllegalStateException]이 발생합니다.
+ * - 불변 조건을 만족하면 원래 수신 값을 반환합니다.
+ * - 수신 객체를 변경하지 않습니다.
  *
  * ```kotlin
  * val result = ("blue" as String?).checkContains("lu", "text")
@@ -171,12 +171,12 @@ inline fun <T: CharSequence> T?.checkContains(other: CharSequence, lazyMessage: 
 
 
 /**
- * Provides the `checkStartsWith` invariant check.
+ * `checkStartsWith` 불변 조건 검사를 제공합니다.
  *
- * ## Contract
- * - Throws [IllegalStateException] when the invariant is not satisfied.
- * - Returns the original receiver when the invariant is satisfied.
- * - Does not mutate the receiver.
+ * ## 계약
+ * - 불변 조건을 만족하지 않으면 [IllegalStateException]이 발생합니다.
+ * - 불변 조건을 만족하면 원래 수신 값을 반환합니다.
+ * - 수신 객체를 변경하지 않습니다.
  *
  * ```kotlin
  * val result = ("blue" as String?).checkStartsWith("bl", "text")
@@ -201,12 +201,12 @@ inline fun <T: CharSequence> T?.checkStartsWith(
 }
 
 /**
- * Provides the `checkEndsWith` invariant check.
+ * `checkEndsWith` 불변 조건 검사를 제공합니다.
  *
- * ## Contract
- * - Throws [IllegalStateException] when the invariant is not satisfied.
- * - Returns the original receiver when the invariant is satisfied.
- * - Does not mutate the receiver.
+ * ## 계약
+ * - 불변 조건을 만족하지 않으면 [IllegalStateException]이 발생합니다.
+ * - 불변 조건을 만족하면 원래 수신 값을 반환합니다.
+ * - 수신 객체를 변경하지 않습니다.
  *
  * ```kotlin
  * val result = ("blue" as String?).checkEndsWith("ue", "text")
@@ -231,12 +231,12 @@ inline fun <T: CharSequence> T?.checkEndsWith(
 }
 
 /**
- * Provides the `checkEquals` invariant check.
+ * `checkEquals` 불변 조건 검사를 제공합니다.
  *
- * ## Contract
- * - Throws [IllegalStateException] when the invariant is not satisfied.
- * - Returns the original receiver when the invariant is satisfied.
- * - Does not mutate the receiver.
+ * ## 계약
+ * - 불변 조건을 만족하지 않으면 [IllegalStateException]이 발생합니다.
+ * - 불변 조건을 만족하면 원래 수신 값을 반환합니다.
+ * - 수신 객체를 변경하지 않습니다.
  *
  * ```kotlin
  * val result = 10.checkEquals(10, "value")
@@ -252,12 +252,12 @@ inline fun <T> T.checkEquals(expected: T, lazyMessage: () -> Any): T {
 }
 
 /**
- * Provides the `checkGt` invariant check.
+ * `checkGt` 불변 조건 검사를 제공합니다.
  *
- * ## Contract
- * - Throws [IllegalStateException] when the invariant is not satisfied.
- * - Returns the original receiver when the invariant is satisfied.
- * - Does not mutate the receiver.
+ * ## 계약
+ * - 불변 조건을 만족하지 않으면 [IllegalStateException]이 발생합니다.
+ * - 불변 조건을 만족하면 원래 수신 값을 반환합니다.
+ * - 수신 객체를 변경하지 않습니다.
  *
  * ```kotlin
  * val result = 10.checkGt(1, "value")
@@ -272,12 +272,12 @@ inline fun <T: Comparable<T>> T.checkGt(expected: T, lazyMessage: () -> Any): T 
 }
 
 /**
- * Provides the `checkGe` invariant check.
+ * `checkGe` 불변 조건 검사를 제공합니다.
  *
- * ## Contract
- * - Throws [IllegalStateException] when the invariant is not satisfied.
- * - Returns the original receiver when the invariant is satisfied.
- * - Does not mutate the receiver.
+ * ## 계약
+ * - 불변 조건을 만족하지 않으면 [IllegalStateException]이 발생합니다.
+ * - 불변 조건을 만족하면 원래 수신 값을 반환합니다.
+ * - 수신 객체를 변경하지 않습니다.
  *
  * ```kotlin
  * val result = 10.checkGe(10, "value")
@@ -292,12 +292,12 @@ inline fun <T: Comparable<T>> T.checkGe(expected: T, lazyMessage: () -> Any): T 
 }
 
 /**
- * Provides the `checkLt` invariant check.
+ * `checkLt` 불변 조건 검사를 제공합니다.
  *
- * ## Contract
- * - Throws [IllegalStateException] when the invariant is not satisfied.
- * - Returns the original receiver when the invariant is satisfied.
- * - Does not mutate the receiver.
+ * ## 계약
+ * - 불변 조건을 만족하지 않으면 [IllegalStateException]이 발생합니다.
+ * - 불변 조건을 만족하면 원래 수신 값을 반환합니다.
+ * - 수신 객체를 변경하지 않습니다.
  *
  * ```kotlin
  * val result = 1.checkLt(10, "value")
@@ -312,12 +312,12 @@ inline fun <T: Comparable<T>> T.checkLt(expected: T, lazyMessage: () -> Any): T 
 }
 
 /**
- * Provides the `checkLe` invariant check.
+ * `checkLe` 불변 조건 검사를 제공합니다.
  *
- * ## Contract
- * - Throws [IllegalStateException] when the invariant is not satisfied.
- * - Returns the original receiver when the invariant is satisfied.
- * - Does not mutate the receiver.
+ * ## 계약
+ * - 불변 조건을 만족하지 않으면 [IllegalStateException]이 발생합니다.
+ * - 불변 조건을 만족하면 원래 수신 값을 반환합니다.
+ * - 수신 객체를 변경하지 않습니다.
  *
  * ```kotlin
  * val result = 10.checkLe(10, "value")
@@ -332,12 +332,12 @@ inline fun <T: Comparable<T>> T.checkLe(expected: T, lazyMessage: () -> Any): T 
 }
 
 /**
- * Provides the `checkInRange` invariant check.
+ * `checkInRange` 불변 조건 검사를 제공합니다.
  *
- * ## Contract
- * - Throws [IllegalStateException] when the invariant is not satisfied.
- * - Returns the original receiver when the invariant is satisfied.
- * - Does not mutate the receiver.
+ * ## 계약
+ * - 불변 조건을 만족하지 않으면 [IllegalStateException]이 발생합니다.
+ * - 불변 조건을 만족하면 원래 수신 값을 반환합니다.
+ * - 수신 객체를 변경하지 않습니다.
  *
  * ```kotlin
  * val result = 5.checkInRange(1, 10, "value")
@@ -352,12 +352,12 @@ inline fun <T: Comparable<T>> T.checkInRange(start: T, endInclusive: T, lazyMess
 }
 
 /**
- * Provides the `checkInOpenRange` invariant check.
+ * `checkInOpenRange` 불변 조건 검사를 제공합니다.
  *
- * ## Contract
- * - Throws [IllegalStateException] when the invariant is not satisfied.
- * - Returns the original receiver when the invariant is satisfied.
- * - Does not mutate the receiver.
+ * ## 계약
+ * - 불변 조건을 만족하지 않으면 [IllegalStateException]이 발생합니다.
+ * - 불변 조건을 만족하면 원래 수신 값을 반환합니다.
+ * - 수신 객체를 변경하지 않습니다.
  *
  * ```kotlin
  * val result = 5.checkInOpenRange(1, 10, "value")
@@ -372,12 +372,12 @@ inline fun <T: Comparable<T>> T.checkInOpenRange(start: T, endExclusive: T, lazy
 }
 
 /**
- * Provides the `checkZeroOrPositiveNumber` invariant check.
+ * `checkZeroOrPositiveNumber` 불변 조건 검사를 제공합니다.
  *
- * ## Contract
- * - Throws [IllegalStateException] when the invariant is not satisfied.
- * - Returns the original receiver when the invariant is satisfied.
- * - Does not mutate the receiver.
+ * ## 계약
+ * - 불변 조건을 만족하지 않으면 [IllegalStateException]이 발생합니다.
+ * - 불변 조건을 만족하면 원래 수신 값을 반환합니다.
+ * - 수신 객체를 변경하지 않습니다.
  *
  * ```kotlin
  * val result = 0.checkZeroOrPositiveNumber("value")
@@ -393,12 +393,12 @@ inline fun <T> T.checkZeroOrPositiveNumber(lazyMessage: () -> Any): T where T: N
 }
 
 /**
- * Provides the `checkPositiveNumber` invariant check.
+ * `checkPositiveNumber` 불변 조건 검사를 제공합니다.
  *
- * ## Contract
- * - Throws [IllegalStateException] when the invariant is not satisfied.
- * - Returns the original receiver when the invariant is satisfied.
- * - Does not mutate the receiver.
+ * ## 계약
+ * - 불변 조건을 만족하지 않으면 [IllegalStateException]이 발생합니다.
+ * - 불변 조건을 만족하면 원래 수신 값을 반환합니다.
+ * - 수신 객체를 변경하지 않습니다.
  *
  * ```kotlin
  * val result = 1.checkPositiveNumber("value")
@@ -414,12 +414,12 @@ inline fun <T> T.checkPositiveNumber(lazyMessage: () -> Any): T where T: Number,
 }
 
 /**
- * Provides the `checkZeroOrNegativeNumber` invariant check.
+ * `checkZeroOrNegativeNumber` 불변 조건 검사를 제공합니다.
  *
- * ## Contract
- * - Throws [IllegalStateException] when the invariant is not satisfied.
- * - Returns the original receiver when the invariant is satisfied.
- * - Does not mutate the receiver.
+ * ## 계약
+ * - 불변 조건을 만족하지 않으면 [IllegalStateException]이 발생합니다.
+ * - 불변 조건을 만족하면 원래 수신 값을 반환합니다.
+ * - 수신 객체를 변경하지 않습니다.
  *
  * ```kotlin
  * val result = 0.checkZeroOrNegativeNumber("value")
@@ -435,12 +435,12 @@ inline fun <T> T.checkZeroOrNegativeNumber(lazyMessage: () -> Any): T where T: N
 }
 
 /**
- * Provides the `checkNegativeNumber` invariant check.
+ * `checkNegativeNumber` 불변 조건 검사를 제공합니다.
  *
- * ## Contract
- * - Throws [IllegalStateException] when the invariant is not satisfied.
- * - Returns the original receiver when the invariant is satisfied.
- * - Does not mutate the receiver.
+ * ## 계약
+ * - 불변 조건을 만족하지 않으면 [IllegalStateException]이 발생합니다.
+ * - 불변 조건을 만족하면 원래 수신 값을 반환합니다.
+ * - 수신 객체를 변경하지 않습니다.
  *
  * ```kotlin
  * val result = (-1).checkNegativeNumber("value")
@@ -458,10 +458,10 @@ inline fun <T> T.checkNegativeNumber(lazyMessage: () -> Any): T where T: Number,
 /**
  * Requires this array to be non-null and non-empty, then returns the same array.
  *
- * ## Contract
- * - Throws [IllegalStateException] when the invariant is not satisfied.
- * - Returns the original receiver when the invariant is satisfied.
- * - Does not mutate the receiver.
+ * ## 계약
+ * - 불변 조건을 만족하지 않으면 [IllegalStateException]이 발생합니다.
+ * - 불변 조건을 만족하면 원래 수신 값을 반환합니다.
+ * - 수신 객체를 변경하지 않습니다.
  *
  * ```kotlin
  * val result = arrayOf(1, 2).checkNotEmpty("items")
@@ -480,10 +480,10 @@ inline fun <T> Array<T>?.checkNotEmpty(lazyMessage: () -> Any): Array<T> {
 /**
  * Requires this collection to be non-null and non-empty, then returns the same collection.
  *
- * ## Contract
- * - Throws [IllegalStateException] when the invariant is not satisfied.
- * - Returns the original receiver when the invariant is satisfied.
- * - Does not mutate the receiver.
+ * ## 계약
+ * - 불변 조건을 만족하지 않으면 [IllegalStateException]이 발생합니다.
+ * - 불변 조건을 만족하면 원래 수신 값을 반환합니다.
+ * - 수신 객체를 변경하지 않습니다.
  *
  * ```kotlin
  * val result = listOf(1, 2).checkNotEmpty("items")
@@ -502,10 +502,10 @@ inline fun <T> Collection<T>?.checkNotEmpty(lazyMessage: () -> Any): Collection<
 /**
  * Requires this map to be non-null and non-empty, then returns the same map.
  *
- * ## Contract
- * - Throws [IllegalStateException] when the invariant is not satisfied.
- * - Returns the original receiver when the invariant is satisfied.
- * - Does not mutate the receiver.
+ * ## 계약
+ * - 불변 조건을 만족하지 않으면 [IllegalStateException]이 발생합니다.
+ * - 불변 조건을 만족하면 원래 수신 값을 반환합니다.
+ * - 수신 객체를 변경하지 않습니다.
  *
  * ```kotlin
  * val result = mapOf("a" to 1).checkNotEmpty("map")
@@ -522,12 +522,12 @@ inline fun <K, V> Map<K, V>?.checkNotEmpty(lazyMessage: () -> Any): Map<K, V> {
 }
 
 /**
- * Provides the `checkHasKey` invariant check.
+ * `checkHasKey` 불변 조건 검사를 제공합니다.
  *
- * ## Contract
- * - Throws [IllegalStateException] when the invariant is not satisfied.
- * - Returns the original receiver when the invariant is satisfied.
- * - Does not mutate the receiver.
+ * ## 계약
+ * - 불변 조건을 만족하지 않으면 [IllegalStateException]이 발생합니다.
+ * - 불변 조건을 만족하면 원래 수신 값을 반환합니다.
+ * - 수신 객체를 변경하지 않습니다.
  *
  * ```kotlin
  * val result = mapOf("a" to 1).checkHasKey("a", "map")
@@ -545,12 +545,12 @@ inline fun <K, V> Map<K, V>?.checkHasKey(key: K, lazyMessage: () -> Any): Map<K,
 }
 
 /**
- * Provides the `checkHasValue` invariant check.
+ * `checkHasValue` 불변 조건 검사를 제공합니다.
  *
- * ## Contract
- * - Throws [IllegalStateException] when the invariant is not satisfied.
- * - Returns the original receiver when the invariant is satisfied.
- * - Does not mutate the receiver.
+ * ## 계약
+ * - 불변 조건을 만족하지 않으면 [IllegalStateException]이 발생합니다.
+ * - 불변 조건을 만족하면 원래 수신 값을 반환합니다.
+ * - 수신 객체를 변경하지 않습니다.
  *
  * ```kotlin
  * val result = mapOf("a" to 1).checkHasValue(1, "map")
@@ -568,12 +568,12 @@ inline fun <K, V> Map<K, V>?.checkHasValue(value: V, lazyMessage: () -> Any): Ma
 }
 
 /**
- * Provides the `checkContains` invariant check.
+ * `checkContains` 불변 조건 검사를 제공합니다.
  *
- * ## Contract
- * - Throws [IllegalStateException] when the invariant is not satisfied.
- * - Returns the original receiver when the invariant is satisfied.
- * - Does not mutate the receiver.
+ * ## 계약
+ * - 불변 조건을 만족하지 않으면 [IllegalStateException]이 발생합니다.
+ * - 불변 조건을 만족하면 원래 수신 값을 반환합니다.
+ * - 수신 객체를 변경하지 않습니다.
  *
  * ```kotlin
  * val result = mapOf("a" to 1).checkContains("a", 1, "map")
@@ -591,7 +591,7 @@ inline fun <K, V> Map<K, V>?.checkContains(key: K, value: V, lazyMessage: () -> 
 }
 
 /**
- * Checks that a nullable character sequence has a length within the inclusive range.
+ * nullable 문자 시퀀스의 길이가 닫힌 범위 안에 있는지 확인합니다.
  *
  * ```kotlin
  * val id = ("order-42" as String?).checkLengthInRange(1, 80, "id")
@@ -614,7 +614,7 @@ inline fun <T: CharSequence> T?.checkLengthInRange(
 }
 
 /**
- * Checks that a nullable collection has a size within the inclusive range.
+ * nullable 컬렉션의 크기가 닫힌 범위 안에 있는지 확인합니다.
  *
  * ```kotlin
  * val items = (listOf(1, 2) as List<Int>?).checkSizeInRange(1, 50, "items")
@@ -637,7 +637,7 @@ inline fun <T> Collection<T>?.checkSizeInRange(
 }
 
 /**
- * Checks that a nullable map has a size within the inclusive range.
+ * nullable 맵의 크기가 닫힌 범위 안에 있는지 확인합니다.
  *
  * ```kotlin
  * val attributes = (mapOf("state" to "ready") as Map<String, String>?)
@@ -661,7 +661,7 @@ inline fun <K, V> Map<K, V>?.checkSizeInRange(
 }
 
 /**
- * Checks that a nullable array has a size within the inclusive range.
+ * nullable 배열의 크기가 닫힌 범위 안에 있는지 확인합니다.
  *
  * ```kotlin
  * val values = (arrayOf(1, 2) as Array<Int>?).checkSizeInRange(1, 10, "values")
@@ -684,7 +684,7 @@ inline fun <T> Array<T>?.checkSizeInRange(
 }
 
 /**
- * Checks that a nullable character sequence matches [regex].
+ * nullable 문자 시퀀스가 [regex]와 일치하는지 확인합니다.
  *
  * ```kotlin
  * val sku = ("SKU-42" as String?).checkMatches(Regex("SKU-\\d+"), "sku")
@@ -706,7 +706,7 @@ inline fun <T: CharSequence> T?.checkMatches(
 }
 
 /**
- * Checks that a `Float` value is finite.
+ * `Float` 값이 유한한지 확인합니다.
  *
  * ```kotlin
  * val ratio = 0.5f.checkFinite("ratio")
@@ -719,7 +719,7 @@ inline fun Float.checkFinite(parameterName: String, noinline lazyMessage: (() ->
 }
 
 /**
- * Checks that a `Double` value is finite.
+ * `Double` 값이 유한한지 확인합니다.
  *
  * ```kotlin
  * val ratio = 0.5.checkFinite("ratio")
