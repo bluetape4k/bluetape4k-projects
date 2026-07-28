@@ -241,7 +241,7 @@ Existing one-argument `ByteBuffer` APIs may consume the source `position`; the n
 
 | Codec        | heap -> heap           | direct -> direct       | mixed storage          | Allocation claim       |
 |--------------|------------------------|------------------------|------------------------|------------------------|
-| LZ4          | compatibility fallback | compatibility fallback | compatibility fallback | none in the core slice |
+| LZ4          | optimized              | optimized              | optimized              | eligible, not yet measured |
 | Deflate      | compatibility fallback | compatibility fallback | compatibility fallback | none in the core slice |
 | Snappy       | compatibility fallback | compatibility fallback | compatibility fallback | none in the core slice |
 | Zstd         | compatibility fallback | compatibility fallback | compatibility fallback | none in the core slice |
