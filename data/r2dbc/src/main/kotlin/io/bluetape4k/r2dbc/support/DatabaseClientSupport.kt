@@ -8,7 +8,7 @@ import org.springframework.r2dbc.core.DatabaseClient
 private val log by lazy { KotlinLogging.logger {} }
 
 /**
- * Binds named query parameters from a map.
+ * map에서 named query parameter를 bind합니다.
  *
  * Named parameters are referenced as `:name` in SQL and mapped by key.
  * Raw null values are rejected because they do not carry R2DBC type
@@ -48,7 +48,7 @@ fun DatabaseClient.GenericExecuteSpec.bindMap(parameters: Map<String, Any?>): Da
     }
 
 /**
- * Binds indexed query parameters.
+ * indexed query parameter를 bind합니다.
  *
  * Indexed parameters follow Spring R2DBC's zero-based binding contract. The first
  * positional parameter is index `0`, the second is index `1`, and so on.
@@ -126,7 +126,7 @@ fun DatabaseClient.execute(
 ): DatabaseClient.GenericExecuteSpec = sql(sqlString).bindMap(parameters)
 
 /**
- * Binds a nullable value to an indexed parameter.
+ * nullable 값을 indexed parameter에 bind합니다.
  *
  * The [index] follows Spring R2DBC's zero-based binding contract. The first
  * positional parameter is index `0`. Null values are bound as typed NULL values.
