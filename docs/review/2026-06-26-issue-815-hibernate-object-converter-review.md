@@ -1,4 +1,4 @@
-# Issue 815 - Hibernate Object Converter Review
+# Issue 815 - Hibernate Object Converter 검토
 
 ## Scope
 
@@ -7,11 +7,11 @@
 - converter unit tests and consumer runtime test fixtures
 - `data/hibernate` README files
 
-## Findings
+## 발견 사항
 
 No P0/P1 findings found in the local review pass.
 
-## Evidence
+## 증거
 
 - `compileTestKotlin --warning-mode all` passed. New generic converter deprecation warnings are suppressed only in legacy converter declarations and legacy test fixtures.
 - Targeted converter tests passed: 77 tests, including malformed payload, unexpected payload type, and secure Kryo/Fory disallowed payload cases.
