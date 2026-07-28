@@ -7,7 +7,7 @@ import org.cache2k.CacheManager
 import org.cache2k.config.Cache2kConfig
 
 /**
- * Default Cache2k [CacheManager]
+ * 기본 Cache2k [CacheManager]입니다.
  */
 val defaultCache2kManager: CacheManager by lazy { CacheManager.getInstance() }
 
