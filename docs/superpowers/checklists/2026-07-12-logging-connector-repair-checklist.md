@@ -1,47 +1,47 @@
-# Logging Connector Repair Checklist
+# Logging Connector 수리 체크리스트
 
 ## 분류와 불변 조건
 
-- Scope: three canonical logging SVG/PNG pairs; derived site snapshot only.
-- Required: CL-01..08; DIA-01..08 per asset; common connector rules per asset; architecture rules for `logger-api-map` and `mdc-scope-lifecycle`; sequence rules for `async-channel-sequence`.
-- N/A: infrastructure icon changes and review pages; the diagrams are text-only and no separate review page exists.
-- User-reported invariant: arrow-tip-to-target-boundary gap = `0px` in SVG coordinates and visibly connected in the scale-2 PNG.
-- User-reported marker invariant: architecture primary heads = `14×14`; sequence heads = `16×16`; same-role heads have matching rendered size/color and remain solid on dashed lines.
+- 범위: canonical logging SVG/PNG 3쌍과 파생 site snapshot만 포함한다.
+- 필수: CL-01..08, asset별 DIA-01..08, asset별 common connector rule, `logger-api-map`와 `mdc-scope-lifecycle`의 architecture rule, `async-channel-sequence`의 sequence rule.
+- N/A: diagram은 text-only이고 별도 review page가 없으므로 infrastructure icon 변경과 review page는 제외한다.
+- 사용자 보고 불변 조건: SVG 좌표에서 arrow tip과 target boundary 간격은 `0px`이고, scale-2 PNG에서 눈으로도 연결되어 보여야 한다.
+- 사용자 보고 marker 불변 조건: architecture primary head는 `14×14`, sequence head는 `16×16`이다. 같은 역할의 head는 render된 크기와 색상이 같고 dashed line에서도 solid로 유지되어야 한다.
 
 ## 체크리스트 계약
 
-- [x] **CL-01 — Create before mutation**
-    - **조치:** Instantiate router, common, and kind items before changing any SVG.
-    - **증거:** This checklist exists before connector mutation.
-    - **실패 시:** STOP and reconstruct.
-- [x] **CL-02 — Classify every item**
+- [x] **CL-01 — 변경 전에 생성**
+    - **조치:** SVG를 변경하기 전에 router, common, kind 항목을 생성한다.
+    - **증거:** connector 변경 전에 이 체크리스트가 존재한다.
+    - **실패 시:** 중단하고 재구성한다.
+- [x] **CL-02 — 모든 항목 분류**
     - **조치:** Mark required, conditional, and N/A items.
     - **증거:** Classification section names all applicable families and two concrete N/A cases.
     - **실패 시:** Treat unclassified rows as required.
-- [x] **CL-03 — Respect dependency order**
+- [x] **CL-03 — 의존 순서 준수**
     - **조치:** Complete each asset edit-render-audit-inspect loop sequentially.
     -
   **증거:** Completed logger map, then MDC, then sequence; each asset finished edit-render-audit-inspect before the next SVG changed.
     - **실패 시:** Rerun reordered downstream proof.
-- [x] **CL-04 — Record evidence immediately**
+- [x] **CL-04 — 증거 즉시 기록**
     - **조치:** Update each row when its output is read.
     -
   **증거:** Each asset row and ledger were updated before advancing; sequence visual failure was recorded before repair.
     - **실패 시:** Leave row unchecked.
-- [x] **CL-05 — Fail closed**
-    - **조치:** Stop an asset loop on any failed audit or visible PNG defect.
+- [x] **CL-05 — 실패 시 닫힌 상태 유지**
+    - **조치:** audit 실패나 눈에 보이는 PNG defect가 있으면 asset loop를 중단한다.
     -
   **증거:** Logger/MDC passed first final inspection; sequence was stopped after visual detection of two off-lifeline rows, repaired, rerendered, reaudited, and reinspected.
     - **실패 시:** Invalidate downstream work.
-- [x] **CL-06 — Repair skipped or reordered work**
+- [x] **CL-06 — 건너뛰거나 재정렬된 작업 복구**
     - **조치:** Rerun affected proofs after every final coordinate change.
     - **증거:** Sequence XML/render/common/sequence/targeted/diff proof was rerun after the last coordinate repair.
     - **실패 시:** Remain blocked.
-- [x] **CL-07 — Refresh irreversible holds**
-    - **조치:** Classify external side effects.
+- [x] **CL-07 — 되돌릴 수 없는 작업 보류 재확인**
+    - **조치:** external side effect를 분류한다.
     - **증거:** N/A — no push, PR, merge, deploy, or destructive action requested.
-    - **실패 시:** Stop at external boundary.
-- [x] **CL-08 — Count before completion**
+    - **실패 시:** external boundary에서 중단한다.
+- [x] **CL-08 — 완료 전 집계**
     - **조치:** Reconcile required, N/A, and blocked totals.
     -
   **증거:** Diagram-stage denominator reconciles to required 64/64, N/A 9, Blocked 0; downstream site publication is tracked in the execution plan, not this diagram checklist.
@@ -53,20 +53,20 @@
     - **조치:** Read landing prose, logging source/tests, and related assets.
     -
   **증거:** `docs/manual/ko/modules/bluetape4k-logging.md`, `bluetape4k/logging/src/main`, representative tests, and all three logging PNGs read; reader question is responsibility ownership without floating relations.
-    - **실패 시:** Stop unsupported drawing.
+    - **실패 시:** 지원되지 않는 drawing을 중단한다.
 - [x] **LAM-DIA-02 — Load common and architecture rules**
     - **조치:** Read `common.md` and `architecture.md`.
     - **증거:** Both references read in full for this defect.
-    - **실패 시:** Stop generic editing.
+    - **실패 시:** generic editing을 중단한다.
 - [x] **LAM-DIA-03 — Complete SVG edit**
     - **조치:** Attach four arrows with perpendicular target entry and separate ports.
     -
   **증거:** Four connector paths only; targeted assertion changed from `missing=4` before repair to `boundary_gaps=0/4 missing=0` after repair.
-    - **실패 시:** Stop before render completion.
+    - **실패 시:** render 완료 전에 중단한다.
 - [x] **LAM-DIA-04 — Parse and render PNG**
     - **조치:** Run `xmllint` and CairoSVG scale 2.
     - **증거:** `xmllint --noout` PASS; `cairosvg ... -s 2` PASS; `sips` reports 3200×1960.
-    - **실패 시:** Stop asset loop.
+    - **실패 시:** asset loop를 중단한다.
 - [x] **LAM-DIA-05 — Run audits**
     - **조치:** Run common connector/geometry/endpoint/mixed-corner audits and targeted assertions.
     -
@@ -90,13 +90,13 @@
     - **조치:** Confirm source-backed relationships and scan all logging SVGs for floating endpoints.
     -
   **증거:** Landing/source/tests read; related scan found the same fixed-gap pattern in MDC and sequence assets, so both remain required.
-    - **실패 시:** Stop or widen repair.
+    - **실패 시:** 중단하거나 repair 범위를 넓힌다.
 - [x] **LAM-COM-02 — Preserve text and theme**
     - **조치:** Keep approved fonts, palette, alignment, and unclipped text.
     -
-  **증거:** No text/style/card changes; full-size PNG confirms existing Architects Daughter/Comic Mono family, palette, alignment, and clipping remain intact.
+  **증거:** text/style/card 변경이 없고, full-size PNG로 기존 Architects Daughter/Comic Mono family, palette, alignment, clipping이 그대로임을 확인했다.
     - **실패 시:** Repair.
-- [x] **LAM-COM-03 — Classify icons**
+- [x] **LAM-COM-03 — icon 분류**
     - **조치:** Check infrastructure-icon applicability.
     - **증거:** N/A — responsibility cards are text-only; no infrastructure icon changes.
     - **실패 시:** Reclassify if scope changes.
@@ -123,7 +123,7 @@
 - [x] **LAM-COM-08 — Run required commands**
     - **조치:** Read all required audit output.
     -
-  **증거:** Final post-edit block ran XML, CairoSVG, dimensions, connector, geometry, endpoint, mixed-corner, targeted marker/boundary assertions, and diff check; all PASS.
+  **증거:** 최종 수정 후 block에서 XML, CairoSVG, dimension, connector, geometry, endpoint, mixed-corner, targeted marker/boundary assertion, diff check를 실행했고 모두 PASS였다.
     - **실패 시:** Remain unchecked.
 - [x] **LAM-COM-09 — Verify review exposure**
     - **조치:** Check review-page applicability.
@@ -156,20 +156,20 @@
     - **조치:** Read scoped-MDC prose, implementation/tests, and related assets.
     -
   **증거:** scoped-MDC chapter, `MdcSupport.kt`, `MdcSupportTest.kt`, and related logging PNGs read; reader question is save/install/restore ownership with unambiguous progression.
-    - **실패 시:** Stop unsupported drawing.
+    - **실패 시:** 지원되지 않는 drawing을 중단한다.
 - [x] **MDC-DIA-02 — Load common and architecture rules**
     - **조치:** Read `common.md` and `architecture.md`.
     - **증거:** Both references read in full.
-    - **실패 시:** Stop generic editing.
+    - **실패 시:** generic editing을 중단한다.
 - [x] **MDC-DIA-03 — Complete SVG edit**
     - **조치:** Attach both arrows edge-to-edge.
     -
   **증거:** two endpoint coordinates only; targeted assertion changed from `missing=2` to `boundary_gaps=0/2 missing=0`.
-    - **실패 시:** Stop.
+    - **실패 시:** 중단한다.
 - [x] **MDC-DIA-04 — Parse and render PNG**
     - **조치:** Run XML and CairoSVG scale 2.
     - **증거:** XML PASS; CairoSVG scale 2 PASS; `sips` reports 3200×1960.
-    - **실패 시:** Stop.
+    - **실패 시:** 중단한다.
 - [x] **MDC-DIA-05 — Run audits**
     - **조치:** Run common and targeted audits.
     -
@@ -189,18 +189,18 @@
     - **조치:** Reconcile all MDC rows.
     -
   **증거:** MDC ledger row contains source, render, counts, marker size, endpoint gaps, and original-PNG observations.
-    - **실패 시:** No completion claim.
+    - **실패 시:** completion claim을 하지 않는다.
 - [x] **MDC-COM-01 — Verify source and related set**
     - **조치:** Confirm save/install/restore semantics and related pattern scan.
     -
   **증거:** `MdcSupport.kt`/test confirm capture-install-finally restore/remove; related scan confirms sequence asset still needs repair.
-    - **실패 시:** Stop.
+    - **실패 시:** 중단한다.
 - [x] **MDC-COM-02 — Preserve text and theme**
     - **조치:** Keep fonts, palette, alignment, and readability.
     -
-  **증거:** No text/style/card changes; full-size PNG preserves approved logging palette, fonts, alignment, and readable labels.
+  **증거:** text/style/card 변경이 없고, full-size PNG는 승인된 logging palette, font, alignment, readable label을 보존한다.
     - **실패 시:** Repair.
-- [x] **MDC-COM-03 — Classify icons**
+- [x] **MDC-COM-03 — icon 분류**
     - **조치:** Check icon applicability.
     - **증거:** N/A — text-only operation cards.
     - **실패 시:** Reclassify if scope changes.
@@ -215,7 +215,7 @@
   **증거:** target gaps=0/2 at x=605 and x=1120; straight perpendicular attachment; intrusions=0, crossings=0; PNG confirms contact without overshoot.
     - **실패 시:** Repair.
 - [x] **MDC-COM-06 — Verify bent corners**
-    - **조치:** Classify bend applicability.
+    - **조치:** bend 적용 여부를 분류한다.
     - **증거:** N/A — both connectors are straight horizontal segments.
     - **실패 시:** Reclassify if routes bend.
 - [x] **MDC-COM-07 — Synchronize canvas and whitespace**
@@ -225,7 +225,7 @@
 - [x] **MDC-COM-08 — Run required commands**
     - **조치:** Read every required audit output.
     -
-  **증거:** Final post-edit block ran XML, CairoSVG, dimensions, connector, geometry, endpoint, mixed-corner, targeted marker/boundary assertions, and diff check; all PASS.
+  **증거:** 최종 수정 후 block에서 XML, CairoSVG, dimension, connector, geometry, endpoint, mixed-corner, targeted marker/boundary assertion, diff check를 실행했고 모두 PASS였다.
     - **실패 시:** Remain unchecked.
 - [x] **MDC-COM-09 — Verify review exposure**
     - **조치:** Check review-page applicability.
@@ -258,20 +258,20 @@
     - **조치:** Read async-channel prose, implementation/tests, and reference sequences.
     -
   **증거:** async-channel chapter, `KLoggingChannel.kt`/test, and two full-size sequence references read; reader question is send/collect/close/post-close ownership over time.
-    - **실패 시:** Stop unsupported drawing.
+    - **실패 시:** 지원되지 않는 drawing을 중단한다.
 - [x] **ACS-DIA-02 — Load common and sequence rules**
     - **조치:** Read `common.md` and `sequence.md`.
     - **증거:** Both references read in full.
-    - **실패 시:** Stop generic editing.
+    - **실패 시:** generic editing을 중단한다.
 - [x] **ACS-DIA-03 — Complete SVG edit**
     - **조치:** Attach every message to lifeline/activation edges.
     -
   **증거:** eight message endpoints only; initial targeted `missing=8`; first render exposed two semantically off-lifeline rows; final assertion reports attached_messages=8/8 missing=0.
-    - **실패 시:** Stop.
+    - **실패 시:** 중단한다.
 - [x] **ACS-DIA-04 — Parse and render PNG**
     - **조치:** Run XML and CairoSVG scale 2.
     - **증거:** final XML PASS; CairoSVG scale 2 PASS; `sips` reports 3600×2240.
-    - **실패 시:** Stop.
+    - **실패 시:** 중단한다.
 - [x] **ACS-DIA-05 — Run audits**
     - **조치:** Run common, sequence-style, and targeted audits.
     -
@@ -291,18 +291,18 @@
     - **조치:** Reconcile all sequence rows.
     -
   **증거:** Sequence ledger row contains source, references, final rerun counts, marker proof, failure/repair, and original-PNG observations.
-    - **실패 시:** No completion claim.
+    - **실패 시:** completion claim을 하지 않는다.
 - [x] **ACS-COM-01 — Verify source and related set**
     - **조치:** Confirm send/collect/close/post-close relationships and scan related assets.
     -
   **증거:** `KLoggingChannel.kt`/test confirm flow, collector, provider, cancel, injected-scope, and post-close semantics; related-set scan covered all three logging SVGs.
-    - **실패 시:** Stop.
+    - **실패 시:** 중단한다.
 - [x] **ACS-COM-02 — Preserve text and theme**
     - **조치:** Keep fonts, palette, labels, and readability.
     -
-  **증거:** No text/style/frame/card changes; final PNG preserves approved fonts, muted semantic palette, label alignment, and readable spacing.
+  **증거:** text/style/frame/card 변경이 없고, final PNG는 승인된 font, muted semantic palette, label alignment, readable spacing을 보존한다.
     - **실패 시:** Repair.
-- [x] **ACS-COM-03 — Classify icons**
+- [x] **ACS-COM-03 — icon 분류**
     - **조치:** Check icon applicability.
     - **증거:** N/A — participants are code roles, not infrastructure cards.
     - **실패 시:** Reclassify if scope changes.
@@ -317,7 +317,7 @@
   **증거:** attached_messages=8/8 at lifeline/activation coordinates; intrusions=0, crossings=0, geometry=0, endpoint PASS; final PNG confirms no floating or overshooting rows.
     - **실패 시:** Repair.
 - [x] **ACS-COM-06 — Verify bent corners**
-    - **조치:** Classify bend applicability.
+    - **조치:** bend 적용 여부를 분류한다.
     - **증거:** N/A — message connectors are straight horizontal lanes.
     - **실패 시:** Reclassify if routes bend.
 - [x] **ACS-COM-07 — Synchronize canvas and whitespace**
@@ -328,7 +328,7 @@
 - [x] **ACS-COM-08 — Run required commands**
     - **조치:** Read every required audit output.
     -
-  **증거:** Final post-repair block ran XML, CairoSVG, dimensions, connector, geometry, endpoint, mixed-corner, sequence-style, targeted marker/attachment assertions, and diff check; all PASS.
+  **증거:** 최종 repair 후 block에서 XML, CairoSVG, dimension, connector, geometry, endpoint, mixed-corner, sequence-style, targeted marker/attachment assertion, diff check를 실행했고 모두 PASS였다.
     - **실패 시:** Remain unchecked.
 - [x] **ACS-COM-09 — Verify review exposure**
     - **조치:** Check review-page applicability.
@@ -338,7 +338,7 @@
     - **조치:** Inspect one best-practices and one nearest repo-local sequence PNG.
     -
   **증거:** Full-size `sequence-workflow-sample.png` and nearest `bluetape4k-coroutines-sequence-01.png` opened; both show calls terminating on activation edges/lifelines and guide the repair.
-    - **실패 시:** Stop sequence editing.
+    - **실패 시:** sequence editing을 중단한다.
 - [x] **ACS-SEQ-02 — Preserve sequence signals**
     - **조치:** Keep headers, lifelines, activations, messages, numbered labels, and chronological frame.
     -
@@ -365,7 +365,7 @@
   **증거:** final sequence-style audit PASS reconciled with references, 7 labels, 1 frame, 3 marker colors, 8 attached paths, and original-PNG PASS.
     - **실패 시:** Repair.
 
-## Evidence ledger
+## 증거 원장
 
 | Asset                    | Source and kind                                                         | XML/render                         | Connector and marker proof                                                                                                                 | Original PNG inspection                                                                                                                       |
 |--------------------------|-------------------------------------------------------------------------|------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------|
@@ -375,4 +375,4 @@
 
 `Required checks: 64/64; N/A: 9; Blocked: 0` — every diagram row has fresh final evidence; no unchecked IDs.
 
-Post-ledger repository proof: the first exporter invocation used a nonexistent filename and was rejected. The corrected `set -e` rerun passed `validate_manuals_test.rb` 14/41, `export_manifest_test.rb` 2/7, `generate_manuals_test.rb` 1/23, `validate_manuals.rb` alignment, and `git diff --check`.
+원장 이후 repository proof: 첫 exporter 호출은 존재하지 않는 filename을 사용해 거부되었다. 수정된 `set -e` 재실행은 `validate_manuals_test.rb` 14/41, `export_manifest_test.rb` 2/7, `generate_manuals_test.rb` 1/23, `validate_manuals.rb` alignment, `git diff --check`를 통과했다.
