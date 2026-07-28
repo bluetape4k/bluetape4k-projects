@@ -5,9 +5,9 @@ import java.io.Serializable
 private const val REDACTED_MARKER_VALUE = "values redacted"
 
 /**
- * Identifies a framework boundary covered by a context propagation proof.
+ * context propagation proof가 다루는 framework boundary를 식별합니다.
  *
- * Future values are additive. Callers should include an `else` branch instead of treating an exhaustive `when` as
+ * future value는 additive입니다. 호출자는 exhaustive `when`으로 간주하지 말고 `else` branch를 포함해야 합니다
  * durable. Examples use only test-owned synthetic data; production request IDs, user data, and external trace IDs
  * must never be supplied.
  *
@@ -22,9 +22,9 @@ enum class ContextPropagationBoundary {
 }
 
 /**
- * Identifies the lifecycle scenario exercised by a context propagation proof.
+ * context propagation proof가 실행하는 lifecycle scenario를 식별합니다.
  *
- * Future values are additive. Callers should include an `else` branch instead of treating an exhaustive `when` as
+ * future value는 additive입니다. 호출자는 exhaustive `when`으로 간주하지 말고 `else` branch를 포함해야 합니다
  * durable. Examples use only test-owned synthetic data; production request IDs, user data, and external trace IDs
  * must never be supplied.
  *
@@ -39,9 +39,9 @@ enum class ContextPropagationScenario {
 }
 
 /**
- * Identifies the terminal outcome observed after crossing a context boundary.
+ * context boundary를 지난 뒤 관찰된 terminal outcome을 식별합니다.
  *
- * Future values are additive. Callers should include an `else` branch instead of treating an exhaustive `when` as
+ * future value는 additive입니다. 호출자는 exhaustive `when`으로 간주하지 말고 `else` branch를 포함해야 합니다
  * durable. Examples use only test-owned synthetic data; production request IDs, user data, and external trace IDs
  * must never be supplied.
  *
@@ -55,9 +55,9 @@ enum class ContextPropagationTerminal {
 }
 
 /**
- * Identifies where cleanup was probed after a boundary completed.
+ * boundary 완료 후 cleanup을 probe한 위치를 식별합니다.
  *
- * Future values are additive. Callers should include an `else` branch instead of treating an exhaustive `when` as
+ * future value는 additive입니다. 호출자는 exhaustive `when`으로 간주하지 말고 `else` branch를 포함해야 합니다
  * durable. Examples use only test-owned synthetic data; production request IDs, user data, and external trace IDs
  * must never be supplied.
  *
@@ -72,7 +72,7 @@ enum class ContextProbeLocation {
 /**
  * Supplies a stable test-owned alias for one request or probe.
  *
- * Future values are additive. Callers should include an `else` branch instead of treating an exhaustive `when` as
+ * future value는 additive입니다. 호출자는 exhaustive `when`으로 간주하지 말고 `else` branch를 포함해야 합니다
  * durable. Examples use only test-owned synthetic data; production request IDs, user data, and external trace IDs
  * must never be supplied.
  *
@@ -88,7 +88,7 @@ enum class ContextRequestAlias {
 /**
  * Identifies a stable observation point inside a propagation lifecycle.
  *
- * Future values are additive. Callers should include an `else` branch instead of treating an exhaustive `when` as
+ * future value는 additive입니다. 호출자는 exhaustive `when`으로 간주하지 말고 `else` branch를 포함해야 합니다
  * durable. Examples use only test-owned synthetic data; production request IDs, user data, and external trace IDs
  * must never be supplied.
  *
@@ -103,7 +103,7 @@ enum class ContextObservationPoint {
 /**
  * Defines the relation applied to an isolation sample.
  *
- * Future values are additive. Callers should include an `else` branch instead of treating an exhaustive `when` as
+ * future value는 additive입니다. 호출자는 exhaustive `when`으로 간주하지 말고 `else` branch를 포함해야 합니다
  * durable. Examples use only test-owned synthetic data; production request IDs, user data, and external trace IDs
  * must never be supplied.
  *
