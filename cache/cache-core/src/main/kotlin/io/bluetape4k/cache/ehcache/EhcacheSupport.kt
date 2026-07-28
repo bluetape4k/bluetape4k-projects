@@ -13,7 +13,7 @@ import org.ehcache.config.units.EntryUnit
 import org.ehcache.config.units.MemoryUnit
 
 /**
- * Default Ehcache [CacheManager]
+ * 기본 Ehcache [CacheManager]입니다.
  */
 val DefaultEhCacheCacheManager: CacheManager by lazy {
     ehcacheManager {
