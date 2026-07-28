@@ -1,4 +1,4 @@
-# Issue #754 ByteBuffer Serializer Stack Design
+# Issue #754 ByteBuffer Serializer Stack 설계
 
 - Issue: [#754 Add ByteBuffer-oriented serializer APIs to reduce allocation pressure](https://github.com/bluetape4k/bluetape4k-projects/issues/754)
 - Milestone: `1.12.0`
