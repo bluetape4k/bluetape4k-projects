@@ -34,9 +34,9 @@ open class BinarySerializerDecorator(
     companion object: KLogging()
 
     /**
-     * Serializes through this decorator's virtual [serialize] contract before writing to caller-owned [target].
+     * 호출자 소유 [target]에 쓰기 전에 이 decorator의 virtual [serialize] 계약을 통해 직렬화합니다.
      *
-     * The allocating compatibility path is intentional: Kotlin interface delegation would otherwise bypass
+     * 할당 기반 호환성 경로는 의도된 것입니다. 그렇지 않으면 Kotlin interface delegation이
      * serializer transforms supplied by subclasses of this decorator.
      */
     @Throws(IOException::class)
