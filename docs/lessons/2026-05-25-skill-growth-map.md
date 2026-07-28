@@ -5,7 +5,7 @@
 
 ---
 
-## Context
+## 배경
 
 최근 merged PR과 lessons/design/benchmark 문서를 기준으로 다음에 더 깊게 익힐 역량을 정리했다.
 
@@ -23,7 +23,7 @@
 
 ---
 
-## Finding
+## 발견
 
 ### 1. JMH/JFR/GC 프로파일링 운영 역량
 
@@ -119,13 +119,13 @@
 
 ---
 
-## Outcome
+## 결과
 
 다음 학습 우선순위는 HTTP 성능 측정과 HC5 운영 계약을 1순위로 두고, 그 다음으로 conformance/cancellation, dependency train, Testcontainers 결정성, benchmark-to-doc decision hygiene을 강화하는 것이다.
 
 ---
 
-## Verification
+## 검증
 
 - 최근 merged PR 목록을 확인했다.
 - 최근 PR들의 GitHub review/comment 객체가 비어 있음을 확인했다.
@@ -133,6 +133,6 @@
 
 ---
 
-## Future Guidance
+## 향후 지침
 
 다음 실행에서는 이 파일과 자동화 메모리를 먼저 읽고, 이미 추천한 6개 축 중 실제 PR/review에서 새로 반복된 축을 상향 조정한다. 새 추천은 반드시 PR, issue, review finding, lesson 문서 중 하나 이상의 구체 근거에 연결한다.
