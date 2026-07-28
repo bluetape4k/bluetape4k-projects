@@ -99,7 +99,7 @@ class StateMachineBuilder<S: Any, E: Any> {
     }
 
     /**
-     * Registers an inherited transition for every state matching [from].
+     * [from]과 일치하는 모든 state에 inherited transition을 등록합니다.
      *
      * Exact state transitions have precedence over inherited transitions.
      */
@@ -212,7 +212,7 @@ class SuspendStateMachineBuilder<S: Any, E: Any> {
     }
 
     /**
-     * Registers an inherited transition for every state matching [from].
+     * [from]과 일치하는 모든 state에 inherited transition을 등록합니다.
      *
      * Exact state transitions have precedence over inherited transitions.
      */
@@ -317,7 +317,7 @@ fun <S: Any, E: Any> suspendStateMachine(
 inline fun <reified E: Any> on(): Class<E> = E::class.java
 
 /**
- * Returns a state class for inherited transition registration.
+ * inherited transition 등록에 사용할 state class를 반환합니다.
  *
  * ```kotlin
  * transition(state<OrderState.Payable>(), on<OrderEvent.Cancel>(), to = OrderState.Cancelled)
