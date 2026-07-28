@@ -1,16 +1,25 @@
-# Lessons - Issue #746 Same-Condition Compressor Benchmark
+# 교훈 - 이슈 #746 Same-condition compressor benchmark
 
-## Context
+## 배경
 
-Issue #746 needed a durable `bluetape4k-io` compressor-only matrix that can be compared with `bluetape-go` and `bluetape-rs`.
+issue #746에는 `bluetape-go`, `bluetape-rs`와 비교할 수 있는 durable
+`bluetape4k-io` compressor-only matrix가 필요했다.
 
-## Lessons
+## 교훈
 
-- Keep the normalized table to compressor families that exist across the target ecosystems. BZip2 is useful JVM context, but it should not be mixed into the common table.
-- For `kotlinx-benchmark`, verify generated task names before documenting commands. This module exposes `testBenchmark`, `testBenchmarkCompile`, and `testBenchmarkJar`.
-- `testBenchmark --args` is not a JMH include-filter escape hatch in this setup; it treats the first argument as a kotlinx runner input file. For focused smoke runs, generated JMH jar execution is acceptable when documented as an exception.
-- Benchmark fat jars can include signed dependency metadata. Exclude `META-INF/*.RSA`, `META-INF/*.DSA`, and `META-INF/*.SF` from benchmark jar tasks so direct JMH execution does not fail signature verification.
+- normalized table은 target ecosystem 전반에 존재하는 compressor family로 제한한다.
+  BZip2는 유용한 JVM context지만 common table에 섞지 않는다.
+- `kotlinx-benchmark`에서는 command를 문서화하기 전에 generated task name을 검증한다.
+  이 module은 `testBenchmark`, `testBenchmarkCompile`, `testBenchmarkJar`를 노출한다.
+- 이 setup에서 `testBenchmark --args`는 JMH include-filter escape hatch가 아니다. 첫
+  argument를 kotlinx runner input file로 처리한다. focused smoke run에는 generated JMH
+  jar 실행을 예외로 문서화하면 사용할 수 있다.
+- benchmark fat jar는 signed dependency metadata를 포함할 수 있다. direct JMH execution이
+  signature verification에 실패하지 않도록 benchmark jar task에서 `META-INF/*.RSA`,
+  `META-INF/*.DSA`, `META-INF/*.SF`를 제외한다.
 
-## Guard
+## 가드
 
-When adding benchmark harnesses, prove both the Gradle-generated benchmark compile path and at least one runnable benchmark command. If the runnable path needs direct JMH jar execution, record why the Gradle task is insufficient and keep the direct run narrow.
+benchmark harness를 추가할 때는 Gradle-generated benchmark compile path와 적어도 하나의
+runnable benchmark command를 모두 증명한다. runnable path가 direct JMH jar execution을
+필요로 한다면 Gradle task가 충분하지 않은 이유를 기록하고 direct run을 좁게 유지한다.
