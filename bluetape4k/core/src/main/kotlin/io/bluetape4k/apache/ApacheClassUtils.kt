@@ -130,7 +130,7 @@ fun KClass<*>.isAssignable(toClass: KClass<*>, autoboxing: Boolean = true): Bool
     ClassUtils.isAssignable(this.java, toClass.java, autoboxing)
 
 /**
- * Is the specified class an inner class or static nested class?
+ * 지정한 클래스가 내부 클래스 또는 정적 중첩 클래스인지 확인합니다.
  *
  * @receiver the class to check may be null
  * @return {@code true} if the class is an inner or static nested class, false if not or `null`
