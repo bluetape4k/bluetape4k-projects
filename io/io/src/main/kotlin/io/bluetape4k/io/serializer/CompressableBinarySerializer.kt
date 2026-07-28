@@ -66,7 +66,7 @@ open class CompressableBinarySerializer(
     }
 
     /**
-     * Serializes and compresses [graph] before writing the compressed wire bytes into caller-owned [target].
+     * [graph]를 직렬화하고 압축한 뒤 압축된 wire byte를 호출자 소유 [target]에 씁니다.
      *
      * This allocating compatibility path intentionally preserves compression and restores nested control-flow
      * failures that standard-array serializer wrappers may hide.
@@ -80,7 +80,7 @@ open class CompressableBinarySerializer(
         }
 
     /**
-     * Serializes and compresses [graph] before copying the compressed wire bytes into caller-owned [target].
+     * [graph]를 직렬화하고 압축한 뒤 압축된 wire byte를 호출자 소유 [target]에 복사합니다.
      *
      * This allocating compatibility path is intentional: decorator semantics take precedence over bypassing compression.
      * Nested cancellation and fatal failures are restored from standard-array serializer wrappers.
