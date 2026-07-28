@@ -469,7 +469,7 @@ throughput은 개선 승인 조건이 아니지만 안정성 guard로 기록한�
 
 ## 13. 문서화
 
-- 공개 KDoc은 영어로 작성한다.
+- 공개·내부 KDoc은 한국어를 우선으로 작성한다.
 - `io/io/README.md`와 `io/io/README.ko.md`는 동일한 예제와 지원 행렬을 유지한다.
 - 기본 fallback도 동작하지만 payload-sized 배열을 할당할 수 있음을 명시한다.
 - optimized 저장형 조합과 fallback 조합을 표로 제공한다.
@@ -549,7 +549,7 @@ Kotlin/Java README 예제는 compile test에 포함하고 source position 불변
 7. 기존 wire와 신규 API의 양방향 복원이 증명된다.
 8. 기존 decompression 제한과 corrupt-input 방어가 신규 경로에도 적용된다.
 9. allocation report가 codec/storage 조합별 eligible/ineligible 결과와 두 canonical run을 보존한다.
-10. 영어/한국어 README와 KDoc이 지원 범위 및 제한을 정확히 설명한다.
+10. 영어/한국어 README와 한국어 KDoc이 지원 범위 및 제한을 정확히 설명한다.
 11. canonical Kotlin/Java example과 bounded growth retry가 compile/contract test로 증명된다.
 12. benchmark raw evidence의 commit/tree/JAR/environment identity와 append-only run이 fail-closed validator로 증명된다.
 13. fallback decompression의 target bound 한계가 압축률이 큰 payload/small-target contract test와 KDoc/양쪽 README에서 명시된다.

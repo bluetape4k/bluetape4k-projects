@@ -82,53 +82,51 @@ interface Compressor {
         ByteBuffer.wrap(decompress(compressedBuffer.getBytes()))
 
     /**
-     * Compresses the remaining bytes in [source] into caller-owned [target].
+     * [source]의 남은 데이터를 호출자가 소유한 [target]에 압축합니다.
      *
-     * The source position, limit, mark, and byte order are preserved. The target
-     * limit, capacity, mark, and byte order are also preserved. On success, only
-     * the target position advances by the returned byte count. On failure, the
-     * target position is restored; bytes already overwritten are unspecified.
+     * source의 position, limit, mark, byte order는 보존됩니다. target의 limit,
+     * capacity, mark, byte order도 보존됩니다. 성공하면 target의 position만 반환된
+     * 바이트 수만큼 이동합니다. 실패하면 target의 position은 복구되지만, 이미 덮어쓴
+     * 바이트의 내용은 보장하지 않습니다.
      *
-     * The default implementation is an allocating compatibility path. It rejects
-     * the same buffer and overlapping writable heap-array ranges that can be
-     * detected. Aliasing through direct or read-only views cannot be detected and
-     * must be excluded by the caller. Each mutable buffer must remain confined to
-     * one thread for the duration of the call.
+     * 기본 구현은 중간 배열을 할당하는 호환 경로입니다. 동일한 버퍼와 탐지 가능한
+     * 쓰기 가능 heap 배열의 중첩 구간은 거부합니다. direct 또는 read-only view를 통한
+     * alias는 탐지할 수 없으므로 호출자가 제외해야 합니다. 호출 중에는 각 가변 버퍼를
+     * 하나의 thread에서만 사용해야 합니다.
      *
-     * This method does not emit runtime dispatch telemetry or logs. Callers that
-     * need diagnostics should record privacy-safe codec, storage, and size metadata.
+     * 이 함수는 runtime dispatch telemetry나 log를 출력하지 않습니다. 진단이 필요한
+     * 호출자는 privacy-safe codec, storage, size metadata를 기록해야 합니다.
      *
-     * @return the number of bytes written to [target]
-     * @throws ReadOnlyBufferException when [target] is read-only
-     * @throws IllegalArgumentException when detectable source and target ranges overlap
-     * @throws BufferOverflowException when [target] has insufficient remaining capacity
+     * @return [target]에 기록한 바이트 수
+     * @throws ReadOnlyBufferException [target]이 read-only인 경우
+     * @throws IllegalArgumentException 탐지 가능한 source와 target 구간이 중첩되는 경우
+     * @throws BufferOverflowException [target]의 남은 용량이 부족한 경우
      */
     fun compress(source: ByteBuffer, target: ByteBuffer): Int =
         writeFallback(source, target) { bytes -> compress(bytes) }
 
     /**
-     * Decompresses the remaining bytes in [source] into caller-owned [target].
+     * [source]의 남은 데이터를 호출자가 소유한 [target]에 해제합니다.
      *
-     * The source position, limit, mark, and byte order are preserved. The target
-     * limit, capacity, mark, and byte order are also preserved. On success, only
-     * the target position advances by the returned byte count. On failure, the
-     * target position is restored; bytes already overwritten are unspecified.
+     * source의 position, limit, mark, byte order는 보존됩니다. target의 limit,
+     * capacity, mark, byte order도 보존됩니다. 성공하면 target의 position만 반환된
+     * 바이트 수만큼 이동합니다. 실패하면 target의 position은 복구되지만, 이미 덮어쓴
+     * 바이트의 내용은 보장하지 않습니다.
      *
-     * The default implementation is an allocating compatibility path. Its target
-     * is only a final-write bound, not a decompression resource bound for untrusted
-     * input; callers must apply an application-level decompressed-size limit. The
-     * method rejects the same buffer and overlapping writable heap-array ranges
-     * that can be detected. Aliasing through direct or read-only views cannot be
-     * detected and must be excluded by the caller. Each mutable buffer must remain
-     * confined to one thread for the duration of the call.
+     * 기본 구현은 중간 배열을 할당하는 호환 경로입니다. target은 최종 쓰기 범위만
+     * 제한하며, 신뢰할 수 없는 입력의 압축 해제 resource 사용량을 제한하지 않습니다.
+     * 호출자는 application 수준에서 해제 결과의 크기 제한을 적용해야 합니다. 동일한
+     * 버퍼와 탐지 가능한 쓰기 가능 heap 배열의 중첩 구간은 거부합니다. direct 또는
+     * read-only view를 통한 alias는 탐지할 수 없으므로 호출자가 제외해야 합니다.
+     * 호출 중에는 각 가변 버퍼를 하나의 thread에서만 사용해야 합니다.
      *
-     * This method does not emit runtime dispatch telemetry or logs. Callers that
-     * need diagnostics should record privacy-safe codec, storage, and size metadata.
+     * 이 함수는 runtime dispatch telemetry나 log를 출력하지 않습니다. 진단이 필요한
+     * 호출자는 privacy-safe codec, storage, size metadata를 기록해야 합니다.
      *
-     * @return the number of bytes written to [target]
-     * @throws ReadOnlyBufferException when [target] is read-only
-     * @throws IllegalArgumentException when detectable source and target ranges overlap
-     * @throws BufferOverflowException when the decompressed result does not fit [target]
+     * @return [target]에 기록한 바이트 수
+     * @throws ReadOnlyBufferException [target]이 read-only인 경우
+     * @throws IllegalArgumentException 탐지 가능한 source와 target 구간이 중첩되는 경우
+     * @throws BufferOverflowException 해제 결과가 [target]에 들어가지 않는 경우
      */
     fun decompress(source: ByteBuffer, target: ByteBuffer): Int =
         writeFallback(source, target) { bytes -> decompress(bytes) }

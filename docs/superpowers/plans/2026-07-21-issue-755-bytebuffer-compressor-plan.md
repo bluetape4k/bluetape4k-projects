@@ -229,7 +229,7 @@ merge checkpoint shell tests는 `gh` stub으로 live PR `state`, `baseRefName`, 
 
 | 경로                                                                                        | 변경           | 책임                                                                         |
 |---------------------------------------------------------------------------------------------|----------------|------------------------------------------------------------------------------|
-| `io/io/src/main/kotlin/io/bluetape4k/io/compressor/Compressor.kt`                           | 수정           | 두 JVM default public method와 English KDoc                                  |
+| `io/io/src/main/kotlin/io/bluetape4k/io/compressor/Compressor.kt`                           | 수정           | 두 JVM default public method와 한국어 KDoc                                   |
 | `io/io/src/main/kotlin/io/bluetape4k/io/compressor/CompressorBufferSupport.kt`              | 생성           | preflight, overlap 탐지, fallback, commit/rollback wrapper, BE header helper |
 | `io/io/src/test/kotlin/io/bluetape4k/io/compressor/CompressorByteBufferTestSupport.kt`      | 생성           | buffer/mark/sentinel fixture와 모든 compressor provider                      |
 | `io/io/src/test/kotlin/io/bluetape4k/io/compressor/CompressorByteBufferContractTest.kt`     | 생성           | fallback 및 전체 compressor 공통 상태/실패/wire contract                     |
