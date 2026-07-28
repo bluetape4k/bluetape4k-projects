@@ -110,7 +110,7 @@ class SuspendKafkaConsumerTemplate<K, V> private constructor(
     fun receiveAutoAck(): Flow<ConsumerRecord<K, V>> = receiver.receiveAutoAck().concatMap { it }.asFlow()
 
     /**
-     * Returns a {@link Flux} of consumer record batches that may be used for exactly once
+     * exactly once 처리에 사용할 수 있는 consumer record batch의 {@link Flux}를 반환합니다
      * delivery semantics. A new transaction is started for each inner Flux and it is the
      * responsibility of the consuming application to commit or abort the transaction
      * using {@link TransactionManager#commit()} or {@link TransactionManager#abort()}
