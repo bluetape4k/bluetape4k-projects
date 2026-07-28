@@ -1,38 +1,33 @@
-# Lessons Learned — Issue #497 Disabled Test Gate
+# 이슈 #497 Disabled Test Gate 교훈
 
-## Context
+## 배경
 
-Disabled tests were scattered across examples, infrastructure tests, and
-conditional environment cases. A release gate needed to expose them without
-changing runtime test behavior.
+Disabled test가 example, infrastructure test, conditional environment case 전반에 흩어져 있었다.
+Runtime test behavior를 바꾸지 않고 이를 드러내는 release gate가 필요했다.
 
-## Decision
+## 결정
 
-Use a root Gradle task backed by `buildSrc` to scan test sources and generate a
-markdown report. Fail only `known-bug` disabled tests without GitHub issue
-references; keep unsupported, environment, slow, conditional, and intentional
-example skips visible but non-blocking.
+`buildSrc` 기반 root Gradle task로 test source를 scan하고 markdown report를 생성한다. GitHub issue
+reference가 없는 `known-bug` disabled test만 실패 처리한다. Unsupported, environment, slow,
+conditional, intentional example skip은 보이게 두되 blocking하지 않는다.
 
-## Outcome
+## 결과
 
-The release checklist now points to `./gradlew checkDisabledTests` and the
-generated report under `build/reports/disabled-tests/disabled-tests.md`.
+Release checklist는 이제 `./gradlew checkDisabledTests`와 generated report
+`build/reports/disabled-tests/disabled-tests.md`를 가리킨다.
 
-## Verification
+## 검증
 
-- `./gradlew :buildSrc:test --no-configuration-cache` passed.
-- `./gradlew checkDisabledTests --no-configuration-cache` passed and reported
-  37 disabled annotations with 0 known-bug issue-reference violations.
-- `./gradlew help --task checkDisabledTests --no-configuration-cache` confirmed
-  the root verification task registration.
-- `./gradlew build -x test --parallel --no-configuration-cache` passed after
-  narrowing the task input from the whole project directory to explicit
-  `src/test` source files.
-- `git diff --check` passed.
+- `./gradlew :buildSrc:test --no-configuration-cache` 통과.
+- `./gradlew checkDisabledTests --no-configuration-cache` 통과, disabled annotation 37개와 known-bug
+  issue-reference violation 0개 보고.
+- `./gradlew help --task checkDisabledTests --no-configuration-cache`로 root verification task registration 확인.
+- Task input을 whole project directory에서 explicit `src/test` source file로 좁힌 뒤
+  `./gradlew build -x test --parallel --no-configuration-cache` 통과.
+- `git diff --check` 통과.
 
-## Future Guidance
+## 향후 가이드
 
-When adding `@Disabled` to hide a real defect, include a tracking issue in the
-annotation reason. If the skip is not a bug, phrase the reason so the scanner
-can classify it as unsupported capability, manual environment, slow optional,
-conditional environment, or intentional example behavior.
+실제 defect를 숨기기 위해 `@Disabled`를 추가할 때는 annotation reason에 tracking issue를 포함한다.
+Bug가 아닌 skip이면 scanner가 unsupported capability, manual environment, slow optional,
+conditional environment, intentional example behavior로 분류할 수 있게 이유를 적는다.
