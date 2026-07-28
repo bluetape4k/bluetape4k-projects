@@ -1,17 +1,26 @@
-# Issue 809 - Cassandra Session Cache Identity
+# 이슈 809 - Cassandra session cache identity
 
-## Context
+## 배경
 
-`CqlSessionProvider` cached sessions by keyspace name only. A process using the same keyspace name across tenants, endpoints, credentials, or client settings could silently reuse the first session.
+`CqlSessionProvider`는 keyspace name만으로 session을 cache했다. 같은 keyspace name을
+tenant, endpoint, credential, client setting이 다른 context에서 사용하면 process가 첫 번째
+session을 조용히 재사용할 수 있었다.
 
-## Decision
+## 결정
 
-Use `CqlSessionIdentity` as the cache key. The compatibility overload derives a conservative per-call identity from the builder supplier and builder lambda so different builder blocks no longer collide by keyspace alone. For stable same-context reuse across call sites, callers should use the explicit `CqlSessionIdentity` overload.
+cache key로 `CqlSessionIdentity`를 사용한다. compatibility overload는 builder supplier와
+builder lambda에서 보수적인 per-call identity를 만들어, 다른 builder block이 keyspace만으로
+충돌하지 않게 한다. call site 간 안정적인 same-context reuse가 필요하면 caller가 명시적
+`CqlSessionIdentity` overload를 사용해야 한다.
 
-## Outcome
+## 결과
 
-Regression tests now prove that same identity reuses a session while the same keyspace with different connection context does not reuse the earlier session. README examples document when to use explicit identity.
+regression test는 같은 identity가 session을 재사용하고, 같은 keyspace라도 connection
+context가 다르면 이전 session을 재사용하지 않음을 증명한다. README example은 explicit
+identity를 언제 써야 하는지 문서화한다.
 
-## Future Guidance
+## 향후 지침
 
-Do not cache infrastructure clients by a logical namespace alone when connection, credential, or tenant context can differ. Add an explicit identity object before relying on implicit builder state.
+connection, credential, tenant context가 달라질 수 있으면 infrastructure client를 logical
+namespace만으로 cache하지 않는다. implicit builder state에 기대기 전에 explicit identity
+object를 추가한다.

@@ -1,18 +1,23 @@
-# Lessons Learned — R2DBC PostgreSQL JSON Conversion (2026-06-26)
+# 교훈: R2DBC PostgreSQL JSON conversion (2026-06-26)
 
-**Issue**: #824
-**Module**: `:bluetape4k-r2dbc`
+**이슈**: #824
+**모듈**: `:bluetape4k-r2dbc`
 
-## L1: Converter fallbacks can become silent data loss
+## L1: converter fallback은 조용한 데이터 손실이 될 수 있다
 
-### Problem
+### 문제
 
-The PostgreSQL JSON converters logged Jackson failures and returned valid empty values. A malformed database value became an empty map, and an unserializable application value became `{}`.
+PostgreSQL JSON converter는 Jackson 실패를 log로 남기고 유효한 empty value를
+반환했다. Malformed database value는 empty map이 되었고, 직렬화할 수 없는
+application value는 `{}`가 되었다.
 
-### Lesson
+### 교훈
 
-Converters that sit on persistence boundaries should fail with the original cause unless the API explicitly models fallback semantics. A valid empty value is not a safe substitute for invalid stored data or failed serialization.
+Persistence boundary에 놓인 converter는 API가 fallback semantics를 명시적으로
+모델링하지 않는 한 원래 cause를 포함해 실패해야 한다. 유효한 empty value는 잘못된
+저장 데이터나 직렬화 실패를 대신할 안전한 값이 아니다.
 
-### Future Guard
+### 향후 방지책
 
-For R2DBC converter changes, add regression tests for both the success path and the failure path. Failure-path tests should assert the exception type and cause, not only that logging happened.
+R2DBC converter 변경에는 success path와 failure path 회귀 테스트를 모두 추가한다.
+Failure-path test는 logging 여부만이 아니라 exception type과 cause를 검증해야 한다.
