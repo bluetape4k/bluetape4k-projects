@@ -1,28 +1,33 @@
-# Issue 644 Ktor Resilience4j
+# 이슈 644 Ktor Resilience4j 통합
 
-## Context
+## 배경
 
-Issue #644 followed the Ktor module family epic and asked for optional Resilience4j integration after the first server-side Ktor extension points were proven.
+issue #644는 Ktor module family epic의 후속으로, 첫 server-side Ktor extension point가
+검증된 뒤 optional Resilience4j integration을 요청했다.
 
-## Decision
+## 결정
 
-Add `bluetape4k-ktor-resilience4j` as a thin route-scoped module. Reuse the existing `bluetape4k-resilience4j` coroutine facade and keep policy objects caller-owned.
+`bluetape4k-ktor-resilience4j`를 얇은 route-scoped module로 추가한다. 기존
+`bluetape4k-resilience4j` coroutine facade를 재사용하고 policy object는 caller-owned로
+유지한다.
 
-## Outcome
+## 결과
 
-The module now provides:
+module은 이제 다음을 제공한다.
 
 - `KtorResiliencePolicies`
 - `withKtorResilience`
 - `resilientRoute`, `resilientGet`, `resilientPost`
 - `bluetape4kResilienceErrors`
 
-Status mappings are generic: open circuit -> 503, rate limited -> 429, timeout -> 504. Cancellation is rethrown and not counted as a circuit breaker failure.
+status mapping은 generic하게 둔다. open circuit은 503, rate limited는 429, timeout은
+504다. cancellation은 rethrow하며 circuit breaker failure로 집계하지 않는다.
 
-## Verification
+## 검증
 
 - `./gradlew :bluetape4k-ktor-resilience4j:test --no-configuration-cache`
 
-## Future Guard
+## 향후 가드
 
-Keep this module route/block scoped. Do not add global Ktor plugins, registry creation, auth, tracing, or OpenAPI behavior here.
+이 module은 route/block scope로 유지한다. 여기에 global Ktor plugin, registry creation,
+auth, tracing, OpenAPI behavior를 추가하지 않는다.

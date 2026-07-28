@@ -1,30 +1,29 @@
-# Issue 661: Benchmark Report Template
+# 이슈 661: Benchmark report template
 
-## Context
+## 배경
 
-Benchmark evidence was split across `docs/benchmarks`, module-local
-`Benchmark.md` files, issue comments, and README charts.
+benchmark evidence가 `docs/benchmarks`, module-local `Benchmark.md` file, issue
+comment, README chart에 나뉘어 있었다.
 
-## Decision
+## 결정
 
-Use `docs/benchmarks/README.md` as the durable benchmark report index and
-template. Reports should name scope, commands, environment, raw artifacts,
-summary tables, chart artifacts, interpretation, and follow-up links.
+`docs/benchmarks/README.md`를 durable benchmark report index와 template으로 사용한다.
+report에는 scope, command, environment, raw artifact, summary table, chart artifact,
+interpretation, follow-up link를 명시해야 한다.
 
-## Outcome
+## 결과
 
-- Added a benchmark report index and standard report shape.
-- Marked existing benchmark reports with raw/chart artifact availability.
-- Kept module-local benchmark documents lightweight; durable issue evidence
-  belongs in `docs/benchmarks`.
+- benchmark report index와 standard report shape를 추가했다.
+- 기존 benchmark report에 raw/chart artifact availability를 표시했다.
+- module-local benchmark document는 가볍게 유지한다. durable issue evidence는
+  `docs/benchmarks`에 둔다.
 
-## Verification
+## 검증
 
-- Markdown-only change reviewed with `git diff --check`.
-- Existing artifact links in `docs/benchmarks/README.md` were checked for file
-  presence.
+- markdown-only change를 `git diff --check`로 검토했다.
+- `docs/benchmarks/README.md`의 기존 artifact link가 file presence를 갖는지 확인했다.
 
-## Future Guidance
+## 향후 지침
 
-New performance PRs should link their issue comment to a `docs/benchmarks`
-report when the result changes public guidance, defaults, or README charts.
+새 performance PR의 결과가 public guidance, default, README chart를 바꾼다면 issue
+comment를 `docs/benchmarks` report에 연결해야 한다.
