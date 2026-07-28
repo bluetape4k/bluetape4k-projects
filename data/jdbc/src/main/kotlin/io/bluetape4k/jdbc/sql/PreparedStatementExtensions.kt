@@ -109,7 +109,7 @@ private fun List<List<Any?>>.requireConsistentBatchParameterRows() {
 }
 
 /**
- * Executes a SQL update as prepared-statement batches.
+ * SQL update를 prepared-statement batch로 실행합니다.
  *
  * All parameter rows must have the same number of values. Inconsistent rows fail
  * before a statement is prepared, which prevents shorter rows from reusing
@@ -167,7 +167,7 @@ fun java.sql.Connection.executeBatch(
 }
 
 /**
- * Executes a SQL update as prepared-statement large batches.
+ * SQL update를 prepared-statement large batch로 실행합니다.
  *
  * All parameter rows must have the same number of values. Inconsistent rows fail
  * before a statement is prepared, which prevents shorter rows from reusing

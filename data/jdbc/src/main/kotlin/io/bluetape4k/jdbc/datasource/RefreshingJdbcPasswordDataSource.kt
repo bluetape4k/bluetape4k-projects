@@ -11,30 +11,28 @@ import java.util.logging.Logger
 import javax.sql.DataSource
 
 /**
- * Provides the current JDBC password for a physical connection attempt.
+ * 물리 connection 시도에 사용할 현재 JDBC password를 제공합니다.
  *
- * ## Contract
+ * ## 계약
  *
- * [RefreshingJdbcPasswordDataSource] calls [currentPassword] synchronously for
- * every no-arg [DataSource.getConnection] invocation. Implementations must be
- * thread-safe because connection pools may open multiple physical connections
- * concurrently. Expensive token generation, caching, and coalescing belong in
- * the provider implementation, not in the generic DataSource.
+ * [RefreshingJdbcPasswordDataSource]는 인자 없는 [DataSource.getConnection]을 호출할 때마다
+ * [currentPassword]를 동기적으로 호출합니다. connection pool이 여러 물리 connection을
+ * 동시에 열 수 있으므로 구현체는 thread-safe해야 합니다. 비용이 큰 token 생성, caching,
+ * coalescing은 generic DataSource가 아니라 provider 구현체가 담당해야 합니다.
  *
- * Implementations must not log or expose secrets. Exceptions thrown by the
- * provider are reported as secret-free [SQLException] failures by the
- * DataSource.
+ * 구현체는 secret을 log로 남기거나 노출하면 안 됩니다. provider에서 발생한 예외는
+ * secret을 포함하지 않는 [SQLException] 실패로 DataSource에 의해 보고됩니다.
  */
 fun interface JdbcPasswordProvider {
 
     /**
-     * Returns the current JDBC password or null when no password is available.
+     * 현재 JDBC password를 반환하거나 사용할 password가 없으면 null을 반환합니다.
      */
     fun currentPassword(): String?
 }
 
 /**
- * Configuration for [RefreshingJdbcPasswordDataSource].
+ * [RefreshingJdbcPasswordDataSource] 설정입니다.
  *
  * @property url JDBC URL used with [DriverManager.getConnection].
  * @property driverClassName optional driver class to load during construction.
@@ -68,7 +66,7 @@ data class RefreshingJdbcPasswordDataSourceConfig(
 }
 
 /**
- * A [DataSource] that obtains a fresh password for each physical connection.
+ * 각 물리 connection마다 새 password를 얻는 [DataSource]입니다.
  *
  * ## Behavior
  *
