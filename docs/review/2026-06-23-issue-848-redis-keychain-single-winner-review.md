@@ -1,4 +1,4 @@
-# Issue #848 Redis Key-Chain Single-Winner Review
+# Issue #848 Redis Key-Chain Single-Winner 검토
 
 ## Scope
 

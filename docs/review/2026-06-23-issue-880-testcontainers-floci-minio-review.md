@@ -1,24 +1,24 @@
-# Code Review - Issue #880 Testcontainers Floci and MinIO policy
+# Code 검토 - Issue #880 Testcontainers Floci and MinIO policy
 
 Date: 2026-06-23
 Issue: #880
 Module: `:bluetape4k-testcontainers`
 
-## Summary
+## 요약
 
 `MinIOServer` remains available for explicit MinIO compatibility tests without
 class-level deprecation noise. `FlociServer.TAG` is pinned to the verified
 `1.5.27` release tag, and README/KDoc guidance keeps new AWS/S3 emulator tests
 on `FlociServer` or `MiniStackServer`.
 
-## Findings
+## 발견 사항
 
 - P0: 0
 - P1: 0
 - P2: 0
 - P3: 0
 
-## Independent Review Notes
+## Independent 검토 Notes
 
 - Code reviewer: PASS, no findings.
 - Verifier: pre-commit readiness FAIL because the worktree was intentionally
