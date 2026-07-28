@@ -1,4 +1,4 @@
-# Issue #845 Flake Component Layout Review
+# Issue #845 Flake Component Layout 검토
 
 ## Scope
 
