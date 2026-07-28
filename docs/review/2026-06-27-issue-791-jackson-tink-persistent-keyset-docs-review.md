@@ -1,4 +1,4 @@
-# Issue 791 Review: Jackson Tink durable-search guidance
+# Issue 791 검토: Jackson Tink durable-search guidance
 
 ## Scope
 
@@ -7,7 +7,7 @@
 - `TinkEncryptors` README and KDoc wording for singleton keysets
 - Durable storage guidance toward `TinkDaeads.versioned(store)` and `VersionedKeysetStore`
 
-## Findings
+## 발견 사항
 
 No P0/P1 findings.
 
