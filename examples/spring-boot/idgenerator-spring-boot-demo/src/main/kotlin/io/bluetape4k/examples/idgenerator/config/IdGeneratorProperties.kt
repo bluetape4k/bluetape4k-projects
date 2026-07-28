@@ -4,7 +4,7 @@ import io.bluetape4k.support.requirePositiveNumber
 import org.springframework.boot.context.properties.ConfigurationProperties
 
 /**
- * Configuration properties for the ID batch example.
+ * ID batch example 설정 property입니다.
  *
  * ## Behavior
  * - `defaultBatchSize` is used when the `size` query parameter is omitted.
