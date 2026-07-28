@@ -13,7 +13,7 @@
   - `io/http/README.md`
   - `io/http/README.ko.md`
 
-## Findings
+## 발견 사항
 
 - P0: 0
 - P1: 0
