@@ -1,23 +1,25 @@
 # README image sync
 
-## Context
+## 배경
 
-The project README image needed to match the bluetape4k organization profile image.
+Project README image는 bluetape4k organization profile image와 맞아야 했다.
 
-## Decision
+## 결정
 
-Copy the profile image into the repository and keep the README image path stable.
+Profile image를 repository로 복사하고 README image path를 안정적으로 유지한다.
 
-Superseded on 2026-05-14: the obsolete top-level `doc/` directory was removed. The current README image lives under `docs/assets/projects-workbench.png`.
+2026-05-14에 대체됨: obsolete top-level `doc/` directory는 제거됐다.
+현재 README image는 `docs/assets/projects-workbench.png` 아래에 있다.
 
-## Outcome
+## 결과
 
-Both English and Korean README files now describe the copied workbench image with locale-appropriate alt text.
+English/Korean README file은 모두 복사된 workbench image를 locale에 맞는 alt text로 설명한다.
 
-## Verification
+## 검증
 
-Checked that both README files reference the same local image asset.
+두 README file이 같은 local image asset을 참조하는지 확인했다.
 
-## Future guidance
+## 향후 지침
 
-Prefer replacing the local README asset under `docs/assets/` when updating the top-level project image, so GitHub rendering does not depend on cross-repository relative paths.
+Top-level project image를 갱신할 때는 cross-repository relative path에 GitHub rendering을 의존시키지 말고
+`docs/assets/` 아래의 local README asset을 교체한다.
