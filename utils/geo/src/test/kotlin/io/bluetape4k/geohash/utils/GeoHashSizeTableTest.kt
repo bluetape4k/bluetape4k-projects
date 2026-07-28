@@ -43,7 +43,7 @@ class GeoHashSizeTableTest {
         fun generate(bits: Int): BoundingBox
 
         /**
-         * Get expected bits
+         * expected bit를 가져옵니다.
          */
         fun getExpectedBits(bits: Int): Int
     }
