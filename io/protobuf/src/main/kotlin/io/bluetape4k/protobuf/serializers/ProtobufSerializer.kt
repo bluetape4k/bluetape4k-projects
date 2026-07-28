@@ -64,7 +64,7 @@ class ProtobufSerializer(
         )
 
         /**
-         * Creates the trusted-internal mixed Protobuf + fallback serializer.
+         * trusted-internal 혼합 Protobuf + fallback serializer를 생성합니다.
          *
          * Use this profile only for internal stores whose historical bytes may contain fallback-encoded payloads.
          */

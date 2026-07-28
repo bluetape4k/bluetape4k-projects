@@ -42,7 +42,7 @@ interface AvroReflectSerializer {
     fun <T> serialize(graph: T?): ByteArray?
 
     /**
-     * Serializes [graph] into the caller-owned [target] from its current position.
+     * [graph]를 호출자 소유 [target]의 현재 위치부터 직렬화합니다.
      *
      * This default is an allocating fallback that calls [serialize] first. A read-only target fails with
      * `ReadOnlyBufferException` before serializer code runs. A null [serialize] result writes nothing and returns `0`;
@@ -76,7 +76,7 @@ interface AvroReflectSerializer {
     fun <T> deserialize(avroBytes: ByteArray?, clazz: Class<T>): T?
 
     /**
-     * Deserializes trusted, caller-bounded bytes in `[source.position(), source.limit())` as [clazz].
+     * `[source.position(), source.limit())` 범위의 신뢰된 호출자 한정 바이트를 [clazz]로 역직렬화합니다.
      *
      * This allocating fallback copies the remaining bytes to a new [ByteArray] before calling [deserialize]. Heap,
      * direct, sliced, and read-only sources are supported. Position, limit, mark, and byte order are preserved on every
@@ -146,15 +146,15 @@ inline fun <reified T: Any> AvroReflectSerializer.deserialize(avroBytes: ByteArr
 }
 
 /**
- * Deserializes the remaining bytes in [source] as [clazz] through [AvroReflectSerializer.deserializeFrom].
+ * [source]에 남은 바이트를 [AvroReflectSerializer.deserializeFrom]을 통해 [clazz]로 역직렬화합니다.
  */
 fun <T> AvroReflectSerializer.deserialize(source: ByteBuffer, clazz: Class<T>): T? =
     deserializeFrom(source, clazz)
 
 /**
- * Deserializes the remaining trusted, caller-bounded bytes in [source] as reified [T].
+ * [source]에 남은 신뢰된 호출자 한정 바이트를 reified [T]로 역직렬화합니다.
  *
- * The allocating fallback, caller ownership, thread-confinement, and source-state preservation rules of
+ * 할당 기반 fallback, 호출자 소유권, 스레드 한정, source 상태 보존 규칙은
  * [AvroReflectSerializer.deserializeFrom] apply.
  */
 inline fun <reified T: Any> AvroReflectSerializer.deserialize(source: ByteBuffer): T? =
