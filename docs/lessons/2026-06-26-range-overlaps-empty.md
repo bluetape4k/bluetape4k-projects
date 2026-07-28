@@ -1,22 +1,23 @@
-# Lessons Learned - Range Empty Overlap (2026-06-26)
+# 교훈: 빈 range overlap (2026-06-26)
 
-Related issue: #783
-Affected module: `:bluetape4k-core`
+관련 이슈: #783
+대상 모듈: `:bluetape4k-core`
 
-## L1: Empty ranges must short-circuit overlap checks
+## L1: 빈 range는 overlap 검사에서 먼저 short-circuit해야 한다
 
-### Problem
+### 문제
 
-`Range.overlaps()` compared only endpoint ordering and boundary inclusiveness. Empty ranges such as `(1, 1)`,
-`[1, 1)`, and `(1, 1]` could therefore report an overlap with a non-empty range even though no common element
-exists.
+`Range.overlaps()`는 endpoint ordering과 boundary inclusiveness만 비교했다.
+그래서 `(1, 1)`, `[1, 1)`, `(1, 1]` 같은 빈 range가 공통 원소가 없는데도
+non-empty range와 overlap한다고 보고할 수 있었다.
 
-### Lesson
+### 교훈
 
-When a range operation's contract is element-based, check `isEmpty()` before applying endpoint comparisons.
-Boundary comparisons alone are not enough because empty ranges can still sit inside a non-empty interval.
+Range operation의 계약이 element 기반이면 endpoint 비교를 적용하기 전에
+`isEmpty()`를 확인한다. 빈 range도 non-empty interval 안에 놓일 수 있으므로
+boundary 비교만으로는 충분하지 않다.
 
-### Future guard
+### 향후 방지책
 
-Range helper changes should include regression coverage for empty operands in both receiver and argument positions,
-plus existing boundary inclusiveness tests for non-empty ranges.
+Range helper 변경에는 receiver와 argument 양쪽 위치의 빈 operand 회귀 coverage를
+포함하고, non-empty range에 대한 기존 boundary inclusiveness test도 함께 유지한다.
