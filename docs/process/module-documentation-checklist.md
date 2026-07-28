@@ -1,4 +1,4 @@
-# Module Documentation Drift Checklist
+# Module Documentation Drift 체크리스트
 
 Module이 추가, rename, move, remove, split되거나 다른 repository로 승격될 때 이 checklist를
 사용한다. 목표는 Gradle registration, README catalog, CI coverage, example, release
