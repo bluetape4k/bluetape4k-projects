@@ -1,4 +1,4 @@
-# Issue #975 Kafka CI Coverage Review
+# Issue #975 Kafka CI Coverage 검토
 
 ## Scope
 
@@ -7,7 +7,7 @@
 - Module covered by the new CI lane:
   - `:bluetape4k-kafka`
 
-## 7-Tier Review
+## 7-Tier 검토
 
 | Tier | Verdict | Evidence |
 |------|---------|----------|
@@ -19,7 +19,7 @@
 | 6. Performance | PASS | The lane is path-filtered to `infra/kafka/**` and does not expand unrelated Redis/cache or telemetry jobs for Kafka-only changes. |
 | 7. Documentation / Evidence | PASS | This review plus the lesson document record the issue boundary, commands, and future guard. |
 
-## Validation
+## 검증
 
 - `actionlint .github/workflows/ci.yml`: PASS.
 - Backslash-single-quote guard for `.github/workflows`: PASS.
@@ -27,7 +27,7 @@
 - `./gradlew :bluetape4k-kafka:cleanTest :bluetape4k-kafka:test --max-workers=1 --no-build-cache --no-configuration-cache`: PASS, 265 tests.
 - `./gradlew :bluetape4k-kafka:koverXmlReport --max-workers=1 --no-configuration-cache`: PASS.
 
-## Findings
+## 발견 사항
 
 - P0: 0
 - P1: 0
