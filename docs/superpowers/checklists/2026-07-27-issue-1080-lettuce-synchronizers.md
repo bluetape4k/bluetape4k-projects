@@ -1,6 +1,6 @@
 # Issue #1080 Lettuce Synchronizer Delivery Checklist
 
-## Classification
+## 분류
 
 - Run: `20260727T014749Z-767eaea9`
 - Session: `019fa01b-1cc9-7572-b32f-5ed791babccb`
@@ -10,284 +10,284 @@
 - Exclusions: Lock delivery changes, legacy semaphore removal, cross-family API convergence, merge, auto-merge, branch cleanup.
 - Heavy-command limit: one Gradle/Testcontainers/diagram-render/CI lane at a time.
 
-## Checklist contract
+## 체크리스트 계약
 
 - [x] **CL-01 — Create before mutation**
-  - **Action:** Instantiate router, common, Type A, Kotlin, writer, and diagram items before further edits.
-  - **Evidence:** This checklist was created immediately after run recovery; the two copied drafts are identified as preserved prior work and are re-proved under `CL-06`.
-  - **Failure:** STOP and reconstruct before any further implementation.
+  - **조치:** Instantiate router, common, Type A, Kotlin, writer, and diagram items before further edits.
+  - **증거:** This checklist was created immediately after run recovery; the two copied drafts are identified as preserved prior work and are re-proved under `CL-06`.
+  - **실패 시:** STOP and reconstruct before any further implementation.
 - [x] **CL-02 — Classify every item**
-  - **Action:** Mark every applicable, conditional, and N/A family.
-  - **Evidence:** The classification section names every loaded checklist family, conditional trigger, exclusion, and concrete N/A reason.
-  - **Failure:** Treat any unclassified item as required and unchecked.
+  - **조치:** Mark every applicable, conditional, and N/A family.
+  - **증거:** The classification section names every loaded checklist family, conditional trigger, exclusion, and concrete N/A reason.
+  - **실패 시:** Treat any unclassified item as required and unchecked.
 - [x] **CL-03 — Respect dependency order**
-  - **Action:** Execute plan review, TDD implementation, sequential verification, docs, reviews, commit, PR, and CI in document order.
-  - **Evidence:** Plan review reached P0=0/P1=0 before production work; semaphore, expirable semaphore, and latch proof ran sequentially; docs/review followed implementation.
-  - **Failure:** Repair and rerun affected downstream proof.
+  - **조치:** Execute plan review, TDD implementation, sequential verification, docs, reviews, commit, PR, and CI in document order.
+  - **증거:** Plan review reached P0=0/P1=0 before production work; semaphore, expirable semaphore, and latch proof ran sequentially; docs/review followed implementation.
+  - **실패 시:** Repair and rerun affected downstream proof.
 - [x] **CL-04 — Record evidence immediately**
-  - **Action:** Update each row when its evidence is read.
-  - **Evidence:** Run receipts, plan/review artifacts, lesson, command results, and this checklist record the current evidence; late rows were repaired before commit.
-  - **Failure:** Leave the row unchecked.
+  - **조치:** Update each row when its evidence is read.
+  - **증거:** Run receipts, plan/review artifacts, lesson, command results, and this checklist record the current evidence; late rows were repaired before commit.
+  - **실패 시:** Leave the row unchecked.
 - [x] **CL-05 — Fail closed**
-  - **Action:** Stop dependent work on failed or pending gates.
-  - **Evidence:** Every P0/P1 finding was repaired and rereviewed; publication gates remain unchecked until live evidence exists.
-  - **Failure:** Invalidate and rerun downstream evidence.
+  - **조치:** Stop dependent work on failed or pending gates.
+  - **증거:** Every P0/P1 finding was repaired and rereviewed; publication gates remain unchecked until live evidence exists.
+  - **실패 시:** Invalidate and rerun downstream evidence.
 - [x] **CL-06 — Repair skipped or reordered work**
-  - **Action:** Re-prove the receipt, root-draft preservation, copied hashes, and feature-worktree boundary after late checklist creation.
-  - **Evidence:** Run `20260727T014749Z-767eaea9` is running for the feature worktree; root SHA-256 values are `9e39b720...` and `f0f1cbb6...`; copied files were created without deleting or modifying root copies.
-  - **Failure:** Remove only derived worktree copies and restart from the preserved root drafts.
+  - **조치:** Re-prove the receipt, root-draft preservation, copied hashes, and feature-worktree boundary after late checklist creation.
+  - **증거:** Run `20260727T014749Z-767eaea9` is running for the feature worktree; root SHA-256 values are `9e39b720...` and `f0f1cbb6...`; copied files were created without deleting or modifying root copies.
+  - **실패 시:** Remove only derived worktree copies and restart from the preserved root drafts.
 - [x] **CL-07 — Refresh irreversible holds**
-  - **Action:** Re-read branch/base/authority immediately before push and PR creation.
-  - **Evidence:** Branch `codex/issue-1080-lettuce-synchronizers`, base `develop`, origin, issue #1080 metadata, and no-merge boundary were freshly read before commit/push.
-  - **Failure:** Do not push or create/update the PR.
+  - **조치:** Re-read branch/base/authority immediately before push and PR creation.
+  - **증거:** Branch `codex/issue-1080-lettuce-synchronizers`, base `develop`, origin, issue #1080 metadata, and no-merge boundary were freshly read before commit/push.
+  - **실패 시:** Do not push or create/update the PR.
 - [x] **CL-08 — Count before completion**
-  - **Action:** Reconcile required, N/A, blocked, and pending totals.
-  - **Evidence:** Required checks are `61/62`; N/A items are 5; blocked items are 0; `CG-16` is the only unchecked required item.
-  - **Failure:** Completion claim is forbidden.
+  - **조치:** Reconcile required, N/A, blocked, and pending totals.
+  - **증거:** Required checks are `61/62`; N/A items are 5; blocked items are 0; `CG-16` is the only unchecked required item.
+  - **실패 시:** Completion claim is forbidden.
 
-## Common gates
+## 공통 gate
 
 - [x] **CG-01 — Re-read authority**
-  - **Action:** Read inherited repository authority and selected workflow/leaf contracts.
-  - **Evidence:** Repository AGENTS plus workflow, full-feature, Kotlin, coroutine, writer, and diagram contracts were loaded for this session.
-  - **Failure:** STOP before mutation.
+  - **조치:** Read inherited repository authority and selected workflow/leaf contracts.
+  - **증거:** Repository AGENTS plus workflow, full-feature, Kotlin, coroutine, writer, and diagram contracts were loaded for this session.
+  - **실패 시:** STOP before mutation.
 - [x] **CG-02 — Query historical/current evidence**
-  - **Action:** Read issue #1080, approved spec, merged Lock PRs, current branch, graph, and relevant implementation.
-  - **Evidence:** Issue #1080, PRs #1086/#1087, design spec, `RedisScriptRunner`, Lock runtime patterns, and graph stats `4634 files / 42164 nodes / 381486 edges` were read.
-  - **Failure:** STOP unsupported implementation.
+  - **조치:** Read issue #1080, approved spec, merged Lock PRs, current branch, graph, and relevant implementation.
+  - **증거:** Issue #1080, PRs #1086/#1087, design spec, `RedisScriptRunner`, Lock runtime patterns, and graph stats `4634 files / 42164 nodes / 381486 edges` were read.
+  - **실패 시:** STOP unsupported implementation.
 - [x] **CG-03 — Protect user work and boundaries**
-  - **Action:** Preserve root drafts and isolate writes to the feature worktree.
-  - **Evidence:** Root hashes were recorded; root drafts remain unmodified; only the temporary transition evidence was removed; branch is `codex/issue-1080-lettuce-synchronizers`.
-  - **Failure:** STOP and restore from root copies.
+  - **조치:** Preserve root drafts and isolate writes to the feature worktree.
+  - **증거:** Root hashes were recorded; root drafts remain unmodified; only the temporary transition evidence was removed; branch is `codex/issue-1080-lettuce-synchronizers`.
+  - **실패 시:** STOP and restore from root copies.
 - [x] **CG-04 — Apply policy and audience boundaries**
-  - **Action:** Keep public GitHub/KDoc English and user-collaboration artifacts Korean.
-  - **Evidence:** Plan/checklist language, docs locale pair, branch/base, PR, and merge stop boundaries are explicitly pinned.
-  - **Failure:** Repair before publication.
+  - **조치:** Keep public GitHub/KDoc English and user-collaboration artifacts Korean.
+  - **증거:** Plan/checklist language, docs locale pair, branch/base, PR, and merge stop boundaries are explicitly pinned.
+  - **실패 시:** Repair before publication.
 - [x] **CG-05 — Reuse ecosystem patterns**
-  - **Action:** Reuse `RedisScriptRunner`, Lock key/validation/wait/cancellation patterns, and existing module test fixtures.
-  - **Evidence:** The implementation reuses `RedisScriptRunner`, Lock key validation, `CoordinationRuntime`, module fixtures, and adds no dependency.
-  - **Failure:** Refactor before final tests.
+  - **조치:** Reuse `RedisScriptRunner`, Lock key/validation/wait/cancellation patterns, and existing module test fixtures.
+  - **증거:** The implementation reuses `RedisScriptRunner`, Lock key validation, `CoordinationRuntime`, module fixtures, and adds no dependency.
+  - **실패 시:** Refactor before final tests.
 - [x] **CG-06 — Prove public and documentation contracts**
-  - **Action:** Compile Kotlin/Java callers and validate KDoc plus English/Korean README selection tables.
-  - **Evidence:** Java documentation compatibility test is included in the 28-test package pass; Dokka succeeds; locale shape/routes pass.
-  - **Failure:** Repair public surface and rerun.
+  - **조치:** Compile Kotlin/Java callers and validate KDoc plus English/Korean README selection tables.
+  - **증거:** Java documentation compatibility test is included in the 28-test package pass; Dokka succeeds; locale shape/routes pass.
+  - **실패 시:** Repair public surface and rerun.
 - [x] **CG-07 — Lock behavior and run targeted proof**
-  - **Action:** Complete RED/GREEN contract tests for all three synchronizers and all three execution modes.
-  - **Evidence:** Contract, ambiguity, cancellation, performance/stability, protocol, and Cluster tests pass; latest ambiguity repair is 1/1 green.
-  - **Failure:** Do not advance to broad verification.
+  - **조치:** Complete RED/GREEN contract tests for all three synchronizers and all three execution modes.
+  - **증거:** Contract, ambiguity, cancellation, performance/stability, protocol, and Cluster tests pass; latest ambiguity repair is 1/1 green.
+  - **실패 시:** Do not advance to broad verification.
 - [x] **CG-08 — Serialize heavyweight checks**
-  - **Action:** Run Redis/Testcontainers, protocol, diagram, and broad Gradle checks one at a time.
-  - **Evidence:** Synchronizer package, module check, Dokka, and diagram audits ran sequentially with outputs read between commands.
-  - **Failure:** Rerun affected evidence sequentially.
+  - **조치:** Run Redis/Testcontainers, protocol, diagram, and broad Gradle checks one at a time.
+  - **증거:** Synchronizer package, module check, Dokka, and diagram audits ran sequentially with outputs read between commands.
+  - **실패 시:** Rerun affected evidence sequentially.
 - [x] **CG-09 — Evaluate the lesson gate**
-  - **Action:** Compare discovered failures with existing lessons and record genuinely new durable guidance.
-  - **Evidence:** `docs/lessons/2026-07-27-lettuce-synchronizer-generation-cleanup.md` records generation-bound cleanup, cancellation, and polling guards.
-  - **Failure:** Do not commit.
+  - **조치:** Compare discovered failures with existing lessons and record genuinely new durable guidance.
+  - **증거:** `docs/lessons/2026-07-27-lettuce-synchronizer-generation-cleanup.md` records generation-bound cleanup, cancellation, and polling guards.
+  - **실패 시:** Do not commit.
 - [x] **CG-10 — Converge the final pre-PR proof**
-  - **Action:** Run exact scope diff, targeted/full checks, and independent P0/P1 reviews.
-  - **Evidence:** Implementation review records 28 synchronizer tests, 869 module tests, Kover, Dokka, diagram audits, and final independent `P0=0 / P1=0`.
-  - **Failure:** Repair and rerun affected lanes.
+  - **조치:** Run exact scope diff, targeted/full checks, and independent P0/P1 reviews.
+  - **증거:** Implementation review records 28 synchronizer tests, 869 module tests, Kover, Dokka, diagram audits, and final independent `P0=0 / P1=0`.
+  - **실패 시:** Repair and rerun affected lanes.
 - [x] **CG-11 — Verify PR delivery authority**
-  - **Action:** Refresh user approval, repo, issue, base, head, labels, assignee, milestone, and no-merge constraint.
-  - **Evidence:** Issue #1080 is open, assigned to `debop`, milestone `1.12.0`, labeled `enhancement`, `test`, `design`, `infra/io`; approved base/head and no-merge hold remain unchanged.
-  - **Failure:** Stop at local commit.
+  - **조치:** Refresh user approval, repo, issue, base, head, labels, assignee, milestone, and no-merge constraint.
+  - **증거:** Issue #1080 is open, assigned to `debop`, milestone `1.12.0`, labeled `enhancement`, `test`, `design`, `infra/io`; approved base/head and no-merge hold remain unchanged.
+  - **실패 시:** Stop at local commit.
 - [x] **CG-12 — Publish the exact head branch**
-  - **Action:** Push the Lore-committed exact head to origin.
-  - **Evidence:** Lore commit `cf6d10b32` was published and local HEAD equaled `origin/codex/issue-1080-lettuce-synchronizers`.
-  - **Failure:** Repair push without rewriting user work.
+  - **조치:** Push the Lore-committed exact head to origin.
+  - **증거:** Lore commit `cf6d10b32` was published and local HEAD equaled `origin/codex/issue-1080-lettuce-synchronizers`.
+  - **실패 시:** Repair push without rewriting user work.
 - [x] **CG-13 — Create and verify the PR**
-  - **Action:** Create issue-linked PR with metadata parity and `## DoD Status` as final H2.
-  - **Evidence:** PR #1089 live read-back confirms base `develop`, exact head, assignee `debop`, issue labels, milestone `1.12.0`, and final H2 `## DoD Status`.
-  - **Failure:** Correct metadata/body before CI gate.
+  - **조치:** Create issue-linked PR with metadata parity and `## DoD Status` as final H2.
+  - **증거:** PR #1089 live read-back confirms base `develop`, exact head, assignee `debop`, issue labels, milestone `1.12.0`, and final H2 `## DoD Status`.
+  - **실패 시:** Correct metadata/body before CI gate.
 - [x] **CG-14 — Pass CI and live human review**
-  - **Action:** Poll checks, reviews, and threads until terminal.
-  - **Evidence:** Exact-head CI completed with 11 success, 8 path-filter skips, 0 pending, and 0 failing; the PR is mergeable/CLEAN with no submitted review or review thread.
-  - **Failure:** Repair and republish exact head.
+  - **조치:** Poll checks, reviews, and threads until terminal.
+  - **증거:** Exact-head CI completed with 11 success, 8 path-filter skips, 0 pending, and 0 failing; the PR is mergeable/CLEAN with no submitted review or review thread.
+  - **실패 시:** Repair and republish exact head.
 - [x] **CG-15 — Report merge-ready**
-  - **Action:** Report exact run, head, commit, PR, CI, review, and blocker.
-  - **Evidence:** The prepared merge-ready report identifies `CG-16` as the only merge blocker and does not merge or enable auto-merge.
-  - **Failure:** Continue verification.
+  - **조치:** Report exact run, head, commit, PR, CI, review, and blocker.
+  - **증거:** The prepared merge-ready report identifies `CG-16` as the only merge blocker and does not merge or enable auto-merge.
+  - **실패 시:** Continue verification.
 - [ ] **CG-16 — Obtain fresh merge approval**
-  - **Action:** Wait for a new explicit merge instruction after merge-ready.
-  - **Evidence:** `PENDING` by required stop condition.
-  - **Failure:** Never merge or enable auto-merge.
+  - **조치:** Wait for a new explicit merge instruction after merge-ready.
+  - **증거:** `PENDING` by required stop condition.
+  - **실패 시:** Never merge or enable auto-merge.
 - [x] **CG-17 — Execute and verify the merge**
-  - **Action:** Classify merge execution.
-  - **Evidence:** N/A — this run is explicitly forbidden to merge.
-  - **Failure:** Reclassify only after fresh approval in a later run.
+  - **조치:** Classify merge execution.
+  - **증거:** N/A — this run is explicitly forbidden to merge.
+  - **실패 시:** Reclassify only after fresh approval in a later run.
 - [x] **CG-18 — Synchronize and clean up**
-  - **Action:** Classify post-merge synchronization.
-  - **Evidence:** N/A — no merge occurs in this run.
-  - **Failure:** Reclassify after a verified merge.
+  - **조치:** Classify post-merge synchronization.
+  - **증거:** N/A — no merge occurs in this run.
+  - **실패 시:** Reclassify after a verified merge.
 
 ## Type A gates
 
 - [x] **A-01 — Isolate and confirm requirements**
-  - **Action:** Fix Delivery 2 scope and preserve Lock → Synchronizer → API convergence order.
-  - **Evidence:** Only semaphore, expirable semaphore, latch, their modes, tests, docs, and PR delivery are in scope.
-  - **Failure:** Stop scope drift.
+  - **조치:** Fix Delivery 2 scope and preserve Lock → Synchronizer → API convergence order.
+  - **증거:** Only semaphore, expirable semaphore, latch, their modes, tests, docs, and PR delivery are in scope.
+  - **실패 시:** Stop scope drift.
 - [x] **A-02 — Ground the design in current evidence**
-  - **Action:** Inspect the approved design, merged Lock substrate, module patterns, and user drafts.
-  - **Evidence:** Current code, graph, spec, PRs, and both draft hashes were read.
-  - **Failure:** Stop unsupported design.
+  - **조치:** Inspect the approved design, merged Lock substrate, module patterns, and user drafts.
+  - **증거:** Current code, graph, spec, PRs, and both draft hashes were read.
+  - **실패 시:** Stop unsupported design.
 - [x] **A-03 — Approve and review the design spec**
-  - **Action:** Reuse the already approved issue-1080 design without reopening Delivery ordering.
-  - **Evidence:** Approved spec and merged Lock PRs establish the Delivery 2 basis.
-  - **Failure:** Return to design only for a proven contradiction.
+  - **조치:** Reuse the already approved issue-1080 design without reopening Delivery ordering.
+  - **증거:** Approved spec and merged Lock PRs establish the Delivery 2 basis.
+  - **실패 시:** Return to design only for a proven contradiction.
 - [x] **A-04 — Approve and review the implementation plan**
-  - **Action:** Write the Delivery 2 plan and run independent P0/P1 plan review.
-  - **Evidence:** Delivery plan and `2026-07-27-issue-1080-synchronizer-plan-review.md` reached `P0=0 / P1=0`.
-  - **Failure:** Edit plan and rerun affected lens.
+  - **조치:** Write the Delivery 2 plan and run independent P0/P1 plan review.
+  - **증거:** Delivery plan and `2026-07-27-issue-1080-synchronizer-plan-review.md` reached `P0=0 / P1=0`.
+  - **실패 시:** Edit plan and rerun affected lens.
 - [x] **A-05 — Predict triggered risks**
-  - **Action:** Record protocol, cancellation, lease, generation, cluster-slot, and compatibility risks before implementation.
-  - **Evidence:** Plan risk table maps each risk to a test.
-  - **Failure:** Do not write production code.
+  - **조치:** Record protocol, cancellation, lease, generation, cluster-slot, and compatibility risks before implementation.
+  - **증거:** Plan risk table maps each risk to a test.
+  - **실패 시:** Do not write production code.
 - [x] **A-06 — Implement with test-first proof**
-  - **Action:** Execute RED/GREEN sequentially for semaphore, expirable semaphore, and latch.
-  - **Evidence:** Expected RED then passing GREEN commands are recorded.
-  - **Failure:** Remove unproved production behavior.
+  - **조치:** Execute RED/GREEN sequentially for semaphore, expirable semaphore, and latch.
+  - **증거:** Expected RED then passing GREEN commands are recorded.
+  - **실패 시:** Remove unproved production behavior.
 - [x] **A-07 — Verify tests, spec, plan, and repository hazards**
-  - **Action:** Run sequential targeted and module checks and map every DoD item.
-  - **Evidence:** Spec/plan traceability and fresh command outputs.
-  - **Failure:** Repair gaps.
+  - **조치:** Run sequential targeted and module checks and map every DoD item.
+  - **증거:** Spec/plan traceability and fresh command outputs.
+  - **실패 시:** Repair gaps.
 - [x] **A-08 — Converge the final pre-PR review**
-  - **Action:** Run independent security, performance, stability, API, user, and test reviews.
-  - **Evidence:** Security, performance/stability, and API/user/test rereviews all end at `P0=0 / P1=0`.
-  - **Failure:** Repair and rerun affected reviews.
+  - **조치:** Run independent security, performance, stability, API, user, and test reviews.
+  - **증거:** Security, performance/stability, and API/user/test rereviews all end at `P0=0 / P1=0`.
+  - **실패 시:** Repair and rerun affected reviews.
 - [x] **A-09 — Commit durable learning**
-  - **Action:** Pass lesson gate and create exact Lore commit(s).
-  - **Evidence:** Durable lesson is recorded and the immediately following exact commit uses the required Lore trailers.
-  - **Failure:** Do not push.
+  - **조치:** Pass lesson gate and create exact Lore commit(s).
+  - **증거:** Durable lesson is recorded and the immediately following exact commit uses the required Lore trailers.
+  - **실패 시:** Do not push.
 - [x] **A-10 — Complete authorized PR delivery through live CI and review**
-  - **Action:** Push, create PR, verify metadata/body, and poll CI/reviews/threads.
-  - **Evidence:** PR #1089 is mergeable/CLEAN; 11 checks pass, 8 path-filter jobs skip, and no review thread exists.
-  - **Failure:** Repair before merge-ready.
+  - **조치:** Push, create PR, verify metadata/body, and poll CI/reviews/threads.
+  - **증거:** PR #1089 is mergeable/CLEAN; 11 checks pass, 8 path-filter jobs skip, and no review thread exists.
+  - **실패 시:** Repair before merge-ready.
 - [x] **A-11 — Capture knowledge and report merge readiness**
-  - **Action:** Preserve implementation/review evidence and report the merge blocker.
-  - **Evidence:** The prepared final Korean report includes run, branch, exact commit, PR, checks, P0/P1, and `CG-16`.
-  - **Failure:** Continue evidence collection.
+  - **조치:** Preserve implementation/review evidence and report the merge blocker.
+  - **증거:** The prepared final Korean report includes run, branch, exact commit, PR, checks, P0/P1, and `CG-16`.
+  - **실패 시:** Continue evidence collection.
 - [x] **A-12 — Close out only after fresh merge approval**
-  - **Action:** Classify merge closeout.
-  - **Evidence:** N/A — this execution stops before merge.
-  - **Failure:** Reclassify only in an explicitly approved merge run.
+  - **조치:** Classify merge closeout.
+  - **증거:** N/A — this execution stops before merge.
+  - **실패 시:** Reclassify only in an explicitly approved merge run.
 
 ## Kotlin gates
 
 - [x] **KT-FIN-01 — Inspect the current surface**
-  - **Action:** Inspect the copied drafts, Lock runtime, script runner, legacy semaphore, tests, and docs.
-  - **Evidence:** Current files and public patterns were read before implementation planning.
-  - **Failure:** Stop unsupported edits.
+  - **조치:** Inspect the copied drafts, Lock runtime, script runner, legacy semaphore, tests, and docs.
+  - **증거:** Current files and public patterns were read before implementation planning.
+  - **실패 시:** Stop unsupported edits.
 - [x] **KT-FIN-02 — Preserve validation contracts**
-  - **Action:** Validate names, identities, capacity, durations, generations, handles, and same-slot keys before dispatch.
-  - **Evidence:** Named validation tests pass for sync/async/suspend entry points.
-  - **Failure:** Repair before Redis tests.
+  - **조치:** Validate names, identities, capacity, durations, generations, handles, and same-slot keys before dispatch.
+  - **증거:** Named validation tests pass for sync/async/suspend entry points.
+  - **실패 시:** Repair before Redis tests.
 - [x] **KT-FIN-03 — Exclude unsafe Kotlin constructs**
-  - **Action:** Scan for `GlobalScope`, `runBlocking` in production, `!!`, broad catches, and blocking coroutine paths.
-  - **Evidence:** No `GlobalScope`, production `runBlocking`, or `!!`; broad catches map Redis failures and preserve `CancellationException`.
-  - **Failure:** Refactor and rerun.
+  - **조치:** Scan for `GlobalScope`, `runBlocking` in production, `!!`, broad catches, and blocking coroutine paths.
+  - **증거:** No `GlobalScope`, production `runBlocking`, or `!!`; broad catches map Redis failures and preserve `CancellationException`.
+  - **실패 시:** Refactor and rerun.
 - [x] **KT-FIN-04 — Prove lifecycle ownership**
-  - **Action:** Prove object close, injected connection/scheduler ownership, future cancellation, and suspend cancellation.
-  - **Evidence:** Lifecycle/cancellation tests pass.
-  - **Failure:** Repair leaks or ownership violations.
+  - **조치:** Prove object close, injected connection/scheduler ownership, future cancellation, and suspend cancellation.
+  - **증거:** Lifecycle/cancellation tests pass.
+  - **실패 시:** Repair leaks or ownership violations.
 - [x] **KT-FIN-05 — Verify Exposed boundaries**
-  - **Action:** Classify Exposed-specific checks.
-  - **Evidence:** N/A — `infra/lettuce` synchronizers do not touch Exposed.
-  - **Failure:** Reclassify if scope changes.
+  - **조치:** Classify Exposed-specific checks.
+  - **증거:** N/A — `infra/lettuce` synchronizers do not touch Exposed.
+  - **실패 시:** Reclassify if scope changes.
 - [x] **KT-FIN-06 — Apply triggered references**
-  - **Action:** Apply Kotlin testing, coroutine, writer, and diagram references.
-  - **Evidence:** Diff and reviews show each triggered contract is satisfied.
-  - **Failure:** Repair before final proof.
+  - **조치:** Apply Kotlin testing, coroutine, writer, and diagram references.
+  - **증거:** Diff and reviews show each triggered contract is satisfied.
+  - **실패 시:** Repair before final proof.
 - [x] **KT-FIN-07 — Prove named test behavior**
-  - **Action:** Run exact named tests for contracts, protocol, cancellation, cluster, docs, and Java.
-  - **Evidence:** Synchronizer package reports 28 passing, including real Cluster, cancellation, Java, protocol, and stability tests.
-  - **Failure:** Do not rely on aggregate success.
+  - **조치:** Run exact named tests for contracts, protocol, cancellation, cluster, docs, and Java.
+  - **증거:** Synchronizer package reports 28 passing, including real Cluster, cancellation, Java, protocol, and stability tests.
+  - **실패 시:** Do not rely on aggregate success.
 - [x] **KT-FIN-08 — Synchronize public documentation**
-  - **Action:** Keep KDoc and English/Korean README/guide tables behaviorally aligned.
-  - **Evidence:** Documentation tests and locale parity checks pass.
-  - **Failure:** Repair docs.
+  - **조치:** Keep KDoc and English/Korean README/guide tables behaviorally aligned.
+  - **증거:** Documentation tests and locale parity checks pass.
+  - **실패 시:** Repair docs.
 - [x] **KT-FIN-09 — Clear diagnostics**
-  - **Action:** Read compiler, lint, deprecation, and test warnings for changed scope.
-  - **Evidence:** Compilation/check/Dokka succeed; Dokka relative-link warnings match the module documentation baseline and no synchronizer symbol error is reported.
-  - **Failure:** Repair or record a scoped existing baseline.
+  - **조치:** Read compiler, lint, deprecation, and test warnings for changed scope.
+  - **증거:** Compilation/check/Dokka succeed; Dokka relative-link warnings match the module documentation baseline and no synchronizer symbol error is reported.
+  - **실패 시:** Repair or record a scoped existing baseline.
 - [x] **KT-FIN-10 — Run fresh validation**
-  - **Action:** Run targeted tests, module test, compile, and diff checks after the final edit.
-  - **Evidence:** 28-test package, 869-test module check with Kover, targeted ambiguity test, Dokka, and diff check pass after final edits.
-  - **Failure:** Continue repair.
+  - **조치:** Run targeted tests, module test, compile, and diff checks after the final edit.
+  - **증거:** 28-test package, 869-test module check with Kover, targeted ambiguity test, Dokka, and diff check pass after final edits.
+  - **실패 시:** Continue repair.
 - [x] **KT-FIN-11 — Converge final scope**
-  - **Action:** Compare final diff with Delivery 2 scope and exclusions.
-  - **Evidence:** No Lock redesign, legacy removal, convergence, or unrelated edits.
-  - **Failure:** Remove scope drift.
+  - **조치:** Compare final diff with Delivery 2 scope and exclusions.
+  - **증거:** No Lock redesign, legacy removal, convergence, or unrelated edits.
+  - **실패 시:** Remove scope drift.
 
 ## Writer gates
 
 - [x] **BLOG-01 — Pin article scope and evidence**
-  - **Action:** Pin module README/guide/KDoc scope to implemented synchronizer behavior.
-  - **Evidence:** Docs targets are `infra/lettuce/README.md`, `README.ko.md`, `CoordinationSynchronizers.md`, `CoordinationSynchronizers.ko.md`, and public KDoc.
-  - **Failure:** Stop unsupported claims.
+  - **조치:** Pin module README/guide/KDoc scope to implemented synchronizer behavior.
+  - **증거:** Docs targets are `infra/lettuce/README.md`, `README.ko.md`, `CoordinationSynchronizers.md`, `CoordinationSynchronizers.ko.md`, and public KDoc.
+  - **실패 시:** Stop unsupported claims.
 - [x] **BLOG-02 — Load local style and triggered references**
-  - **Action:** Load writer and Korean naturalness rules plus existing locale pair.
-  - **Evidence:** Writer references and current module docs were read.
-  - **Failure:** Stop drafting.
+  - **조치:** Load writer and Korean naturalness rules plus existing locale pair.
+  - **증거:** Writer references and current module docs were read.
+  - **실패 시:** Stop drafting.
 - [x] **BLOG-03 — Lock factual claims**
-  - **Action:** Derive selection rows and examples only from final public APIs and tests.
-  - **Evidence:** Every claim maps to code/test evidence.
-  - **Failure:** Remove unsupported prose.
+  - **조치:** Derive selection rows and examples only from final public APIs and tests.
+  - **증거:** Every claim maps to code/test evidence.
+  - **실패 시:** Remove unsupported prose.
 - [x] **BLOG-04 — Draft the primary locale**
-  - **Action:** Update English README/guide and English KDoc first.
-  - **Evidence:** English docs include selection table, handle lifecycle, examples, and unsupported boundaries.
-  - **Failure:** Repair before localization.
+  - **조치:** Update English README/guide and English KDoc first.
+  - **증거:** English docs include selection table, handle lifecycle, examples, and unsupported boundaries.
+  - **실패 시:** Repair before localization.
 - [x] **BLOG-05 — Pass voice and naturalness review**
-  - **Action:** Review Korean prose for natural technical voice.
-  - **Evidence:** Korean naturalness checklist passes with no translation artifacts.
-  - **Failure:** Rewrite affected prose.
+  - **조치:** Review Korean prose for natural technical voice.
+  - **증거:** Korean naturalness checklist passes with no translation artifacts.
+  - **실패 시:** Rewrite affected prose.
 - [x] **BLOG-06 — Synchronize locale parity**
-  - **Action:** Match English/Korean headings, tables, examples, links, and diagram meaning.
-  - **Evidence:** README pairs match 11 H2 headings, 48 fences, 6 table rows, and 1 diagram; guide pairs match 4 H2 headings, 6 fences, and 3 table rows.
-  - **Failure:** Repair drift.
+  - **조치:** Match English/Korean headings, tables, examples, links, and diagram meaning.
+  - **증거:** README pairs match 11 H2 headings, 48 fences, 6 table rows, and 1 diagram; guide pairs match 4 H2 headings, 6 fences, and 3 table rows.
+  - **실패 시:** Repair drift.
 - [x] **BLOG-07 — Create and inspect visuals**
-  - **Action:** Create the required localized architecture diagram and inspect rendered PNG.
-  - **Evidence:** Diagram checklist `DIA-01..08` passes.
-  - **Failure:** Return to SVG.
+  - **조치:** Create the required localized architecture diagram and inspect rendered PNG.
+  - **증거:** Diagram checklist `DIA-01..08` passes.
+  - **실패 시:** Return to SVG.
 - [x] **BLOG-08 — Build and verify routes**
-  - **Action:** Verify README/guide embeds, relative paths, and documentation tests.
-  - **Evidence:** New synchronizer guide and diagram routes pass; the pre-existing README `../testing/testcontainers` baseline remains outside this delivery diff.
-  - **Failure:** Repair routes.
+  - **조치:** Verify README/guide embeds, relative paths, and documentation tests.
+  - **증거:** New synchronizer guide and diagram routes pass; the pre-existing README `../testing/testcontainers` baseline remains outside this delivery diff.
+  - **실패 시:** Repair routes.
 - [x] **BLOG-09 — Report article DoD**
-  - **Action:** Report docs files, locale parity, visual evidence, and remaining limitations.
-  - **Evidence:** PR #1089 `## DoD Status` includes bilingual KDoc/README selection guidance and diagram proof.
-  - **Failure:** Do not claim docs complete.
+  - **조치:** Report docs files, locale parity, visual evidence, and remaining limitations.
+  - **증거:** PR #1089 `## DoD Status` includes bilingual KDoc/README selection guidance and diagram proof.
+  - **실패 시:** Do not claim docs complete.
 
 ## Diagram gates
 
 - [x] **DIA-01 — Pin asset scope and source model**
-  - **Action:** Select one architecture diagram showing caller modes, three synchronizers, shared script runtime, same-slot Redis state, and lifecycle outcomes.
-  - **Evidence:** Final implementation and tests are read before drawing.
-  - **Failure:** Stop unsupported diagram creation.
+  - **조치:** Select one architecture diagram showing caller modes, three synchronizers, shared script runtime, same-slot Redis state, and lifecycle outcomes.
+  - **증거:** Final implementation and tests are read before drawing.
+  - **실패 시:** Stop unsupported diagram creation.
 - [x] **DIA-02 — Load common and kind rules**
-  - **Action:** Load diagram common and architecture references.
-  - **Evidence:** Both references were read for this session.
-  - **Failure:** Stop generic SVG editing.
+  - **조치:** Load diagram common and architecture references.
+  - **증거:** Both references were read for this session.
+  - **실패 시:** Stop generic SVG editing.
 - [x] **DIA-03 — Complete one SVG edit**
-  - **Action:** Create one English and one Korean SVG in sequence, never editing both simultaneously.
-  - **Evidence:** Each SVG matches its locale and source model.
-  - **Failure:** Stop before rendering.
+  - **조치:** Create one English and one Korean SVG in sequence, never editing both simultaneously.
+  - **증거:** Each SVG matches its locale and source model.
+  - **실패 시:** Stop before rendering.
 - [x] **DIA-04 — Parse and render the authoritative PNG**
-  - **Action:** Parse SVG and render scale-2 PNG for each locale asset.
-  - **Evidence:** Both SVGs parse; both authoritative PNGs are 3800×1800.
-  - **Failure:** Repair the current asset only.
+  - **조치:** Parse SVG and render scale-2 PNG for each locale asset.
+  - **증거:** Both SVGs parse; both authoritative PNGs are 3800×1800.
+  - **실패 시:** Repair the current asset only.
 - [x] **DIA-05 — Run common and type-specific audits**
-  - **Action:** Run connector, geometry, endpoint, mixed-corner, and architecture audits.
-  - **Evidence:** Both locales report geometry 0, connector PASS, endpoint PASS, and mixed-corner 0.
-  - **Failure:** Repair and rerun.
+  - **조치:** Run connector, geometry, endpoint, mixed-corner, and architecture audits.
+  - **증거:** Both locales report geometry 0, connector PASS, endpoint PASS, and mixed-corner 0.
+  - **실패 시:** Repair and rerun.
 - [x] **DIA-06 — Inspect the full-size PNG**
-  - **Action:** Inspect labels, endpoints, marker direction, clipping, overlap, spacing, and whitespace.
-  - **Evidence:** Original-size image inspection passes for both locales.
-  - **Failure:** Return to SVG edit.
+  - **조치:** Inspect labels, endpoints, marker direction, clipping, overlap, spacing, and whitespace.
+  - **증거:** Original-size image inspection passes for both locales.
+  - **실패 시:** Return to SVG edit.
 - [x] **DIA-07 — Verify exposure and diff hygiene**
-  - **Action:** Verify README/guide embeds and scoped `git diff --check`.
-  - **Evidence:** Correct relative paths and clean diff.
-  - **Failure:** Repair exposure.
+  - **조치:** Verify README/guide embeds and scoped `git diff --check`.
+  - **증거:** Correct relative paths and clean diff.
+  - **실패 시:** Repair exposure.
 - [x] **DIA-08 — Render the evidence ledger**
-  - **Action:** Record source, render, audit counts, dimensions, and visual findings.
-  - **Evidence:** `2026-07-27-issue-1080-synchronizer-implementation-review.md` records one row per locale asset.
-  - **Failure:** Do not claim visual completion.
+  - **조치:** Record source, render, audit counts, dimensions, and visual findings.
+  - **증거:** `2026-07-27-issue-1080-synchronizer-implementation-review.md` records one row per locale asset.
+  - **실패 시:** Do not claim visual completion.
