@@ -24,7 +24,7 @@ New benchmark reports should use this compact shape:
 ````markdown
 # <Subject> Benchmark - YYYY-MM-DD
 
-## Scope
+## 범위
 
 - Issue or PR: #123
 - Module or benchmark target: `:module-name`
