@@ -1,4 +1,4 @@
-# Issue 804 Review - Cancel Leaf Redis Futures
+# Issue 804 검토 - Cancel Leaf Redis Futures
 
 ## Scope
 
@@ -6,7 +6,7 @@
 - `infra/lettuce`: `RedisFuture.awaitAll` and `sequence` cancellation contract.
 - `infra/redisson`: `RFuture.awaitAll` and `sequence` cancellation contract.
 
-## Findings
+## 발견 사항
 
 - P0/P1: 0 after fix.
 - The red test reproduced the issue through Redisson `awaitAll`: cancelling the coroutine left pending `RFuture` leaves uncancelled.

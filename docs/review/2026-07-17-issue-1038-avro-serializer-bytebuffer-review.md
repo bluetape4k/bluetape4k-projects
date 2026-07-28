@@ -1,4 +1,4 @@
-# Issue 1038 Avro Serializer ByteBuffer Review
+# Issue 1038 Avro Serializer ByteBuffer 검토
 
 ## Scope
 
@@ -22,7 +22,7 @@ plan without expanding module, dependency, workflow, or release scope.
 | Preserve compatibility | The tracked ABI report passes legacy Java/Kotlin compilation, implementation loading, default dispatch, public-symbol, and fixture checks. |
 | Exclude measured allocation claims | Only ByteArray sibling bypass and lower-copy routing are claimed; benchmarks remain in #1039. |
 
-## Perspective Review
+## Perspective 검토
 
 - Performance: explicit pre-close `flush()` calls were removed. Complete
   ByteArray sibling staging is bypassed, but measured allocation improvement is
