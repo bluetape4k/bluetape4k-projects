@@ -1,24 +1,24 @@
-# Issue 652 R2DBC Pool Guidance
+# 이슈 652 R2DBC pool guidance
 
-## Context
+## 배경
 
-R2DBC pool benchmark scores can be misleading when bounded pending acquire makes
-overload fail quickly. A high JMH operation score can represent rejected acquire
-attempts rather than successful SQL work.
+bounded pending acquire 때문에 overload가 빠르게 실패하면 R2DBC pool benchmark score가
+오해를 줄 수 있다. 높은 JMH operation score는 성공한 SQL work가 아니라 거절된 acquire
+attempt를 의미할 수 있다.
 
-## Decision
+## 결정
 
-Report acquired and failed counts beside throughput for pool contention
-benchmarks. Keep production defaults unchanged unless benchmark evidence and
-compatibility review justify a runtime contract change.
+pool contention benchmark에서는 throughput 옆에 acquired count와 failed count를 함께
+보고한다. benchmark evidence와 compatibility review가 runtime contract 변경을
+정당화하지 않는 한 production default는 변경하지 않는다.
 
-## Outcome
+## 결과
 
-H2, PostgreSQL, and MySQL acquire benchmarks completed sequentially. H2
-contention now compares default and high-throughput profiles and makes bounded
-queue overload visible through failure counts.
+H2, PostgreSQL, MySQL acquire benchmark는 순차적으로 완료됐다. H2 contention은 이제
+default profile과 high-throughput profile을 비교하고, bounded queue overload를 failure
+count로 보이게 한다.
 
-## Verification
+## 검증
 
 - `./gradlew :bluetape4k-r2dbc:compileBenchmarkKotlin --no-configuration-cache`
 - `./gradlew :bluetape4k-r2dbc:benchmarkH2PoolContention --no-configuration-cache --quiet`
@@ -27,8 +27,8 @@ queue overload visible through failure counts.
 - `./gradlew :bluetape4k-r2dbc:benchmarkPostgresPoolAcquire --no-configuration-cache --quiet`
 - `./gradlew :bluetape4k-r2dbc:benchmarkMysql8PoolAcquire --no-configuration-cache --quiet`
 
-## Future Guidance
+## 향후 지침
 
-Run Testcontainers-backed R2DBC benchmarks sequentially. When a benchmark has
-bounded pending acquire, publish success/failure counts with the JMH score so
-readers do not treat fast rejection as completed database throughput.
+Testcontainers-backed R2DBC benchmark는 순차 실행한다. benchmark가 bounded pending
+acquire를 가진다면 reader가 빠른 reject를 완료된 database throughput으로 해석하지
+않도록 JMH score와 함께 success/failure count를 publish한다.

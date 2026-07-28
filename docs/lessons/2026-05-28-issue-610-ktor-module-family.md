@@ -1,34 +1,31 @@
-# Issue #610 Ktor Module Family Design
+# 이슈 #610 Ktor module family design
 
-## Context
+## 배경
 
-Milestone 1.10.0 starts the reusable Ktor module family in `bluetape4k-projects`.
-The first step was design-only work for #610 before scaffolding or
-implementation.
+milestone 1.10.0은 `bluetape4k-projects`의 reusable Ktor module family를 시작한다.
+첫 단계는 scaffold나 implementation 전에 #610의 design-only work를 완료하는 것이었다.
 
-## Decision
+## 결정
 
-Keep the first Ktor module family inside `bluetape4k-projects` and split the
-server foundation into `ktor/core`, `ktor/observability`, and `ktor/testing`.
-Keep `ktor/client`, `ktor/resilience4j`, `ktor/openapi`, and `ktor/auth` in the
-backlog milestone until the server-side extension points are proven.
+첫 Ktor module family는 `bluetape4k-projects` 안에 두고, server foundation을
+`ktor/core`, `ktor/observability`, `ktor/testing`으로 나눈다. server-side extension
+point가 검증될 때까지 `ktor/client`, `ktor/resilience4j`, `ktor/openapi`,
+`ktor/auth`는 backlog milestone에 남겨 둔다.
 
-## Outcome
+## 결과
 
-The design and plan documents define the module boundaries, dependency rules,
-API direction, and PR sequence for #611 through #616.
+design과 plan 문서는 #611부터 #616까지의 module boundary, dependency rule, API
+direction, PR sequence를 정의한다.
 
-## Verification
+## 검증
 
-- GNO checked existing #609-#616 issue context.
-- Existing Ktor examples in sibling bluetape4k repositories were surveyed.
-- Official Ktor docs were checked for plugin installation, `StatusPages`,
-  `ContentNegotiation`, `CallLogging`, `MicrometerMetrics`, and
-  `testApplication` APIs.
+- GNO로 기존 #609-#616 issue context를 확인했다.
+- sibling bluetape4k repository의 기존 Ktor example을 조사했다.
+- official Ktor docs에서 plugin installation, `StatusPages`, `ContentNegotiation`,
+  `CallLogging`, `MicrometerMetrics`, `testApplication` API를 확인했다.
 
-## Future Guard
+## 향후 가드
 
-Do not start Ktor implementation before #610 design has passed review. Keep
-plugin installation explicit and do not promote backlog modules into the first
-slice without reopening the design boundary.
-
+#610 design이 review를 통과하기 전에는 Ktor implementation을 시작하지 않는다. plugin
+installation은 명시적으로 유지하고, design boundary를 다시 열지 않은 채 backlog
+module을 첫 slice로 승격하지 않는다.
