@@ -6,8 +6,8 @@ import io.bluetape4k.testcontainers.AbstractContainerTest
 import org.junit.jupiter.api.Test
 
 /**
- * Validation tests for [K3sServer] that do not require a running container.
- * These run in regular CI without a privileged Docker runner.
+ * 실행 중인 container가 필요 없는 [K3sServer] validation test입니다.
+ * privileged Docker runner 없이 일반 CI에서 실행됩니다.
  */
 class K3sServerValidationTest: AbstractContainerTest() {
 
