@@ -12,14 +12,14 @@ import org.redisson.client.protocol.Decoder
 import org.redisson.client.protocol.Encoder
 
 /**
- * Wraps another Redisson [Codec] with GZip compression.
+ * 다른 Redisson [Codec]을 GZip compression으로 감싸는 codec입니다.
  *
- * ## Behavior
- * - Encoding: serializes with [innerCodec], then stores the GZip-compressed bytes in Redis.
- * - Decoding: decompresses Redis bytes with a [maxDecompressedSize] bound, then delegates to [innerCodec].
+ * ## 동작
+ * - Encoding: [innerCodec]으로 serialize한 뒤 GZip으로 압축한 bytes를 Redis에 저장합니다.
+ * - Decoding: [maxDecompressedSize] 경계 안에서 Redis bytes를 압축 해제한 뒤 [innerCodec]에 위임합니다.
  *
- * GZip provides strong compression but is slower than LZ4 or Zstd. Prefer [Lz4Codec] or [ZstdCodec]
- * for high-throughput cache paths.
+ * GZip은 압축률이 높지만 LZ4나 Zstd보다 느립니다. 처리량이 중요한 cache path에서는 [Lz4Codec]이나
+ * [ZstdCodec]을 우선 사용합니다.
  *
  * ```kotlin
  * val codec = GzipCodec(
@@ -30,8 +30,8 @@ import org.redisson.client.protocol.Encoder
  * config.codec = codec
  * ```
  *
- * @property innerCodec delegate codec used for serialization and deserialization.
- * @property maxDecompressedSize maximum decompressed Redis value size in bytes.
+ * @property innerCodec serialize와 deserialize에 사용할 delegate codec입니다.
+ * @property maxDecompressedSize 압축 해제된 Redis value가 허용할 수 있는 최대 byte 크기입니다.
  */
 class GzipCodec @JvmOverloads constructor(
     private val innerCodec: Codec = RedissonCodecs.Default,
