@@ -1,4 +1,4 @@
-# Issue 829 Ktor OpenAPI Metadata Source Review
+# Issue 829 Ktor OpenAPI Metadata Source 검토
 
 ## Scope
 
@@ -39,7 +39,7 @@ caller-owned `OpenApiDocSource.Routing` or other explicit sources to survive.
 If Ktor changes its default `OpenApiDocSource` shape in a future upgrade, this
 helper should be revisited with that Ktor source change in hand.
 
-## Validation
+## 검증
 
 - RED: old implementation failed the two new source-preservation tests.
 - GREEN: `./gradlew :bluetape4k-ktor-openapi:test --tests 'io.bluetape4k.ktor.openapi.KtorOpenApiRoutesTest' --no-build-cache`
