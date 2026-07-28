@@ -11,7 +11,7 @@ import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.transaction.annotation.Transactional
 
 /**
- * Base Spring Boot test configuration for the Blaze Persistence examples.
+ * Blaze Persistence example을 위한 base Spring Boot test configuration입니다.
  */
 @SpringBootTest(
     classes = [BlazePersistenceApplication::class],
