@@ -110,13 +110,13 @@ object LettuceProtobufCodecs {
     }
 
     /**
-     * Creates a strict Protobuf codec optimized for a direct ByteBuf target.
+     * direct ByteBuf target에 최적화된 strict Protobuf codec을 생성합니다.
      *
-     * The target remains caller-owned. This removes the payload-sized handoff for uncompressed Protobuf values but
+     * target은 계속 호출자 소유입니다. 압축되지 않은 Protobuf 값에서 payload 크기 handoff를 제거하지만
      * does not promise zero-copy operation. The unchanged ByteBuffer API and all compressed or custom-prefix codecs
      * retain their compatibility path. On failure, failure-aftercare belongs to the caller because attempted bytes or
      * capacity growth may remain even though the writer index is not advanced.
-     * The default allowlist accepts Bluetape and Google Protobuf message packages. Callers that need another package
+     * 기본 allowlist는 Bluetape 및 Google Protobuf message package를 허용합니다. 다른 package가 필요한 호출자는
      * prefix must construct [ProtobufSerializer] and [LettuceBinaryCodec] directly; that custom-prefix path retains
      * the allocating compatibility implementation.
      *
@@ -184,43 +184,43 @@ object LettuceProtobufCodecs {
         LettuceBinaryCodec(CompressableBinarySerializer(strictSerializer, Compressors.Zstd))
 
     /**
-     * Creates a trusted-internal mixed Protobuf + Kryo fallback codec optimized for a direct ByteBuf target.
+     * direct ByteBuf target에 최적화된 trusted-internal 혼합 Protobuf + Kryo fallback codec을 생성합니다.
      *
      * Use this factory only for internal stores where every producer and stored payload is trusted. Do not use it at
      * a shared or untrusted boundary.
      *
-     * The target is caller-owned and has the same failure-aftercare contract as [protobuf]. The unchanged ByteBuffer
+     * target은 호출자 소유이며 [protobuf]와 동일한 failure-aftercare 계약을 가집니다. 변경되지 않은 ByteBuffer
      * API, compressed factories, and any caller-configured custom-prefix serializer retain the compatibility path.
      */
     fun <V: Any> trustedInternalProtobuf(): LettuceBinaryCodec<V> =
         DirectProtobufLettuceCodec.create(trustedInternalSerializer)
 
     /**
-     * Creates a trusted-internal mixed Protobuf + Kryo fallback codec with Gzip compression.
+     * Gzip 압축을 사용하는 trusted-internal 혼합 Protobuf + Kryo fallback codec을 생성합니다.
      */
     fun <V: Any> trustedInternalGzipProtobuf(): LettuceBinaryCodec<V> =
         LettuceBinaryCodec(CompressableBinarySerializer(trustedInternalSerializer, Compressors.GZip))
 
     /**
-     * Creates a trusted-internal mixed Protobuf + Kryo fallback codec with Deflate compression.
+     * Deflate 압축을 사용하는 trusted-internal 혼합 Protobuf + Kryo fallback codec을 생성합니다.
      */
     fun <V: Any> trustedInternalDeflateProtobuf(): LettuceBinaryCodec<V> =
         LettuceBinaryCodec(CompressableBinarySerializer(trustedInternalSerializer, Compressors.Deflate))
 
     /**
-     * Creates a trusted-internal mixed Protobuf + Kryo fallback codec with LZ4 compression.
+     * LZ4 압축을 사용하는 trusted-internal 혼합 Protobuf + Kryo fallback codec을 생성합니다.
      */
     fun <V: Any> trustedInternalLz4Protobuf(): LettuceBinaryCodec<V> =
         LettuceBinaryCodec(CompressableBinarySerializer(trustedInternalSerializer, Compressors.LZ4))
 
     /**
-     * Creates a trusted-internal mixed Protobuf + Kryo fallback codec with Snappy compression.
+     * Snappy 압축을 사용하는 trusted-internal 혼합 Protobuf + Kryo fallback codec을 생성합니다.
      */
     fun <V: Any> trustedInternalSnappyProtobuf(): LettuceBinaryCodec<V> =
         LettuceBinaryCodec(CompressableBinarySerializer(trustedInternalSerializer, Compressors.Snappy))
 
     /**
-     * Creates a trusted-internal mixed Protobuf + Kryo fallback codec with Zstd compression.
+     * Zstd 압축을 사용하는 trusted-internal 혼합 Protobuf + Kryo fallback codec을 생성합니다.
      */
     fun <V: Any> trustedInternalZstdProtobuf(): LettuceBinaryCodec<V> =
         LettuceBinaryCodec(CompressableBinarySerializer(trustedInternalSerializer, Compressors.Zstd))

@@ -40,7 +40,7 @@ interface AvroSpecificRecordSerializer {
     fun <T: SpecificRecord> serialize(graph: T?): ByteArray?
 
     /**
-     * Serializes [graph] into the caller-owned [target] from its current position.
+     * [graph]를 호출자 소유 [target]의 현재 위치부터 직렬화합니다.
      *
      * This default is an allocating fallback that calls [serialize] first. A read-only target fails with
      * `ReadOnlyBufferException` before serializer code runs. A null result writes nothing and returns `0`; insufficient
@@ -74,7 +74,7 @@ interface AvroSpecificRecordSerializer {
     fun <T: SpecificRecord> deserialize(avroBytes: ByteArray?, clazz: Class<T>): T?
 
     /**
-     * Deserializes trusted, caller-bounded bytes in `[source.position(), source.limit())` as [clazz].
+     * `[source.position(), source.limit())` 범위의 신뢰된 호출자 한정 바이트를 [clazz]로 역직렬화합니다.
      *
      * This allocating fallback copies the remaining bytes to a new [ByteArray] before calling [deserialize]. Heap,
      * direct, sliced, and read-only sources are supported. Position, limit, mark, and byte order are preserved on every
@@ -142,7 +142,7 @@ interface AvroSpecificRecordSerializer {
     fun <T: SpecificRecord> serializeList(collection: List<T>?): ByteArray?
 
     /**
-     * Serializes [collection] into the caller-owned [target] from its current position.
+     * [collection]을 호출자 소유 [target]의 현재 위치부터 직렬화합니다.
      *
      * This allocating fallback delegates to [serializeList]. Null or empty collections retain that method's policy; a
      * null result writes nothing and returns `0`. Read-only validation occurs before serializer code, and insufficient
@@ -175,7 +175,7 @@ interface AvroSpecificRecordSerializer {
     fun <T: SpecificRecord> deserializeList(avroBytes: ByteArray?, clazz: Class<T>): List<T>
 
     /**
-     * Deserializes trusted, caller-bounded bytes in `[source.position(), source.limit())` as a list of [clazz].
+     * `[source.position(), source.limit())` 범위의 신뢰된 호출자 한정 바이트를 [clazz] 목록으로 역직렬화합니다.
      *
      * This allocating fallback copies the remaining bytes to a new [ByteArray] before calling [deserializeList]. Heap,
      * direct, sliced, and read-only sources are supported. Position, limit, mark, and byte order are preserved on every
@@ -205,15 +205,15 @@ inline fun <reified T: SpecificRecord> AvroSpecificRecordSerializer.deserialize(
 }
 
 /**
- * Deserializes the remaining bytes in [source] as [clazz] through [AvroSpecificRecordSerializer.deserializeFrom].
+ * [source]에 남은 바이트를 [AvroSpecificRecordSerializer.deserializeFrom]을 통해 [clazz]로 역직렬화합니다.
  */
 fun <T: SpecificRecord> AvroSpecificRecordSerializer.deserialize(source: ByteBuffer, clazz: Class<T>): T? =
     deserializeFrom(source, clazz)
 
 /**
- * Deserializes the remaining trusted, caller-bounded bytes in [source] as reified [T].
+ * [source]에 남은 신뢰된 호출자 한정 바이트를 reified [T]로 역직렬화합니다.
  *
- * The allocating fallback, caller ownership, thread-confinement, and source-state preservation rules of
+ * 할당 기반 fallback, 호출자 소유권, 스레드 한정, source 상태 보존 규칙은
  * [AvroSpecificRecordSerializer.deserializeFrom] apply.
  */
 inline fun <reified T: SpecificRecord> AvroSpecificRecordSerializer.deserialize(source: ByteBuffer): T? =
@@ -258,15 +258,15 @@ inline fun <reified T: SpecificRecord> AvroSpecificRecordSerializer.deserializeL
 }
 
 /**
- * Deserializes the remaining bytes in [source] as [clazz] through [AvroSpecificRecordSerializer.deserializeListFrom].
+ * [source]에 남은 바이트를 [AvroSpecificRecordSerializer.deserializeListFrom]을 통해 [clazz] 목록으로 역직렬화합니다.
  */
 fun <T: SpecificRecord> AvroSpecificRecordSerializer.deserializeList(source: ByteBuffer, clazz: Class<T>): List<T> =
     deserializeListFrom(source, clazz)
 
 /**
- * Deserializes the remaining trusted, caller-bounded bytes in [source] as a list of reified [T].
+ * [source]에 남은 신뢰된 호출자 한정 바이트를 reified [T] 목록으로 역직렬화합니다.
  *
- * The allocating fallback, caller ownership, thread-confinement, and source-state preservation rules of
+ * 할당 기반 fallback, 호출자 소유권, 스레드 한정, source 상태 보존 규칙은
  * [AvroSpecificRecordSerializer.deserializeListFrom] apply.
  */
 inline fun <reified T: SpecificRecord> AvroSpecificRecordSerializer.deserializeList(source: ByteBuffer): List<T> =
