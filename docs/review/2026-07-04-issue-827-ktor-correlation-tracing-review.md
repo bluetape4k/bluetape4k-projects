@@ -1,4 +1,4 @@
-# Issue #827 Ktor Correlation Tracing Review
+# Issue #827 Ktor Correlation Tracing 검토
 
 Date: 2026-07-04
 Repo: `bluetape4k-projects`
@@ -10,7 +10,7 @@ Scope: `ktor/observability` OpenTelemetry correlation attributes
 - P1: 0
 - Verdict: PASS
 
-## 7-Tier Review
+## 7-Tier 검토
 
 ### Tier 1 - Correctness
 

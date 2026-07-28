@@ -1,4 +1,4 @@
-# Issue #800 Review — DefaultKafkaExporter send failure handling (2026-07-09)
+# Issue #800 검토 — DefaultKafkaExporter send failure handling (2026-07-09)
 
 ## Scope
 
@@ -12,7 +12,7 @@
 
 `DefaultKafkaExporter.export` caught `Throwable`, called the export exception handler only for `BufferExhaustedException` and `TimeoutException`, and returned `false` for all other synchronous send failures. This hid ordinary non-fatal producer failures and also swallowed fatal `Error` values.
 
-## Fix Review
+## Fix 검토
 
 - Changed the synchronous send failure boundary from `Throwable` to `Exception`.
 - All synchronous non-fatal `Exception` failures now call `exceptionHandler.handle(event, e)` and return `false`.
