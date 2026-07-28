@@ -1,33 +1,34 @@
 # Infra/IO Concurrency Test Migration
 
-**Date**: 2026-05-18
-**Issue**: #532 (sub-issue of #528)
-**Branch**: test/migrate-infra-io-concurrency
+**날짜**: 2026-05-18
+**이슈**: #532 (#528의 sub-issue)
+**브랜치**: test/migrate-infra-io-concurrency
 
-## Scope Findings
+## 범위 확인
 
-From 16 files matching `Executors.new*()`:
+`Executors.new*()`와 match된 16개 file을 확인했다:
 
-| File | Pattern | Decision |
+| 파일 | 패턴 | 결정 |
 |------|---------|----------|
-| `WorkContextTest.kt` | `Executors.newFixedThreadPool` + `CountDownLatch` | ✅ Migrated |
-| `RetrofitMetricsSupportTest.kt` | `Executors.newFixedThreadPool` + `CountDownLatch(1)` start latch | ✅ Migrated |
-| `CompressorEdgeCaseTest.kt` | `Executors.newFixedThreadPool` + `CountDownLatch` | ✅ Migrated |
-| `SerializerEdgeCaseTest.kt` (×2 tests) | `Executors.newFixedThreadPool` + `CountDownLatch` | ✅ Migrated |
-| `LettuceAtomicLongTest.kt` | `companion executor by lazy` + `CountDownLatch` | ✅ Migrated |
-| `LettuceLockTest.kt` | `companion executor by lazy` + `CountDownLatch` | ✅ Migrated |
-| `LettuceSemaphoreTest.kt` | `companion executor by lazy` + `CountDownLatch` | ✅ Migrated |
-| `VirtualThreads.kt` | Production code | ❌ Keep |
-| `LimitConcurrencyExamples.kt` | Semaphore backpressure demo | ❌ Keep |
-| `FluentAsyncExample.kt` | Executor passed to async HTTP API | ❌ Keep |
-| `ClientWithRequestFuture.kt` | Executor as HTTP client argument | ❌ Keep |
-| `RouteGuideServiceTest.kt` | `asCoroutineDispatcher()` — coroutine dispatcher arg | ❌ Keep |
-| `VertxFutureBulkheadSupportTest.kt` | Exactly 2 tasks testing bulkhead semantics | ❌ Keep |
-| `TimeoutTest.kt` | `TestingExecutors` from OkIO library (testing timeout behavior) | ❌ Keep |
+| `WorkContextTest.kt` | `Executors.newFixedThreadPool` + `CountDownLatch` | ✅ Migration |
+| `RetrofitMetricsSupportTest.kt` | `Executors.newFixedThreadPool` + `CountDownLatch(1)` start latch | ✅ Migration |
+| `CompressorEdgeCaseTest.kt` | `Executors.newFixedThreadPool` + `CountDownLatch` | ✅ Migration |
+| `SerializerEdgeCaseTest.kt`(test 2개) | `Executors.newFixedThreadPool` + `CountDownLatch` | ✅ Migration |
+| `LettuceAtomicLongTest.kt` | `companion executor by lazy` + `CountDownLatch` | ✅ Migration |
+| `LettuceLockTest.kt` | `companion executor by lazy` + `CountDownLatch` | ✅ Migration |
+| `LettuceSemaphoreTest.kt` | `companion executor by lazy` + `CountDownLatch` | ✅ Migration |
+| `VirtualThreads.kt` | Production code | ❌ 유지 |
+| `LimitConcurrencyExamples.kt` | Semaphore backpressure demo | ❌ 유지 |
+| `FluentAsyncExample.kt` | Async HTTP API에 전달되는 executor | ❌ 유지 |
+| `ClientWithRequestFuture.kt` | HTTP client argument로 쓰는 executor | ❌ 유지 |
+| `RouteGuideServiceTest.kt` | `asCoroutineDispatcher()` — coroutine dispatcher argument | ❌ 유지 |
+| `VertxFutureBulkheadSupportTest.kt` | Bulkhead semantics를 test하는 정확히 2개 task | ❌ 유지 |
+| `TimeoutTest.kt` | OkIO library의 `TestingExecutors`(testing timeout behavior) | ❌ 유지 |
 
-## Migration Patterns Applied
+## 적용한 migration pattern
 
-### Simple stress driver (most common)
+### 단순 stress driver(가장 흔함)
+
 ```kotlin
 // Before
 val executor = Executors.newFixedThreadPool(N)
@@ -46,7 +47,8 @@ MultithreadingTester()
     .run()
 ```
 
-### workers × rounds pattern (threadCount × iterationsPerThread)
+### workers × rounds pattern(threadCount × iterationsPerThread)
+
 ```kotlin
 // Before
 repeat(threadCount) {
@@ -64,8 +66,10 @@ MultithreadingTester()
     .run()
 ```
 
-### Per-worker identity preservation (SerializerEdgeCaseTest)
-When each thread needs a unique index for result tracking:
+### Worker별 identity 보존(`SerializerEdgeCaseTest`)
+
+각 thread에 result tracking용 고유 index가 필요할 때:
+
 ```kotlin
 val counter = AtomicInteger(0)
 val results = ConcurrentHashMap<Int, Item>()
@@ -82,31 +86,39 @@ MultithreadingTester()
 results.size shouldBeEqualTo THREAD_COUNT
 ```
 
-### Removed errorCount pattern
-`MultithreadingTester` propagates exceptions directly — no need for `AtomicInteger errorCount`. The pattern:
+### `errorCount` pattern 제거
+
+`MultithreadingTester`는 exception을 직접 전파하므로 `AtomicInteger errorCount`가 필요 없다.
+
 ```kotlin
 // Obsolete
 try { work() } catch (e: Throwable) { errorCount.incrementAndGet() } finally { latch.countDown() }
 errorCount.get() shouldBeEqualTo 0
 
-// MultithreadingTester: exception from work() fails the test directly
+// MultithreadingTester: work()의 exception이 test를 직접 실패시킴
 ```
 
-### companion `executor by lazy` removal
-Lettuce tests had `private val executor by lazy { Executors.newFixedThreadPool(N) }` in companion objects — shared across all tests but only used in one stress test. After migration, the field was removed entirely.
+### Companion `executor by lazy` 제거
 
-## Keep Signals (non-stress patterns)
+Lettuce test는 companion object에 `private val executor by lazy { Executors.newFixedThreadPool(N) }`를
+두고 있었다. 모든 test에서 공유되는 형태였지만 실제로는 하나의 stress test에서만 사용했다.
+Migration 후 이 field를 완전히 제거했다.
 
-| Signal | Example | Decision |
+## 유지 신호(non-stress pattern)
+
+| 신호 | 예시 | 결정 |
 |--------|---------|----------|
-| Executor passed to async/HTTP API constructor | `Executors.newFixedThreadPool(2)` → `AsyncCloseableHttpClient` | Keep |
-| `.asCoroutineDispatcher()` suffix | gRPC test | Keep |
-| Exactly 2 tasks for API behavior (not load) | Bulkhead allowed/rejected | Keep |
-| Custom executor class from test framework | `TestingExecutors.newFixedThreadPool` | Keep |
-| Semaphore for backpressure inside example | Cassandra demo | Keep |
+| Async/HTTP API constructor에 전달되는 executor | `Executors.newFixedThreadPool(2)` → `AsyncCloseableHttpClient` | 유지 |
+| `.asCoroutineDispatcher()` suffix | gRPC test | 유지 |
+| API behavior를 위한 정확히 2개 task(load 아님) | Bulkhead allowed/rejected | 유지 |
+| Test framework의 custom executor class | `TestingExecutors.newFixedThreadPool` | 유지 |
+| Example 내부 backpressure용 semaphore | Cassandra demo | 유지 |
 
-## Future Guidance
+## 향후 가이드
 
-- `companion object executor by lazy` is a strong migration signal — it exists only to be shared across test methods, but if only one test actually uses it as a stress driver, migrate that test and remove the field.
-- `MultithreadingTester` exceptions propagate as `AssertionError` wrapping the original — no need for try/catch inside `add {}` blocks for error counting.
-- For parameterized tests (`@MethodSource`), `MultithreadingTester` works identically — the parameter is captured by the lambda closure.
+- `companion object executor by lazy`는 강한 migration 신호다. Test method 간 공유하려고 존재하지만
+  실제로 하나의 stress driver test만 사용한다면 그 test를 migrate하고 field를 제거한다.
+- `MultithreadingTester` exception은 original을 감싼 `AssertionError`로 전파된다. Error count를 위해
+  `add {}` block 내부에 try/catch를 둘 필요가 없다.
+- Parameterized test(`@MethodSource`)에서도 `MultithreadingTester`는 동일하게 동작한다.
+  Parameter는 lambda closure가 capture한다.
