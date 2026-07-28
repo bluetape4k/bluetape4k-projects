@@ -1,35 +1,31 @@
 # 2026-05-21 — README Diagram Semantics
 
-## Context
+## 배경
 
-README visuals had been generated from existing diagram-like content too
-literally. That preserved stale or weak semantics in places where another
-visual form was more appropriate.
+README visual은 기존 diagram-like content를 너무 문자 그대로 변환했다. 그 결과 다른 visual form이 더
+적절한 곳에서도 stale하거나 약한 semantics가 보존되었다.
 
-## Decision
+## 결정
 
-Choose the visual type from the section's meaning, not from the previous asset
-type. Architecture sections should use module/flow diagrams, state and workflow
-sections should expose control transitions, and benchmark result sections
-should use charts.
+이전 asset type이 아니라 section의 의미로 visual type을 선택한다. Architecture section은 module/flow
+diagram을 사용하고, state/workflow section은 control transition을 드러내며, benchmark result section은
+chart를 사용한다.
 
-## Outcome
+## 결과
 
-The `io/http` cache benchmark now uses a log-scale throughput chart based on
-the documented JMH results. `infra/elasticsearch` and `infra/micrometer` use
-architecture diagrams near the top of their READMEs. `utils/workflow` diagrams
-now separate transient paths, terminal states, and strategy-specific branches.
+`io/http` cache benchmark는 documented JMH result 기반 log-scale throughput chart를 사용한다.
+`infra/elasticsearch`와 `infra/micrometer`는 README 상단 근처에 architecture diagram을 둔다.
+`utils/workflow` diagram은 transient path, terminal state, strategy-specific branch를 분리한다.
 
-## Verification
+## 검증
 
-- SVG files parsed with `xmllint --noout`.
-- PNG files rendered with `rsvg-convert`.
-- README image-link scan passed.
-- `git diff --check` passed.
-- Visual QA montage reviewed at `/tmp/bluetape4k-readme-qa/projects-targeted-diagrams-v2.png`.
+- SVG file을 `xmllint --noout`으로 parse.
+- PNG file을 `rsvg-convert`로 render.
+- README image-link scan 통과.
+- `git diff --check` 통과.
+- `/tmp/bluetape4k-readme-qa/projects-targeted-diagrams-v2.png` visual QA montage review.
 
-## Future Note
+## 향후 노트
 
-Do not blindly convert existing Mermaid or ASCII blocks. Read the README section
-and source/test evidence first, then decide whether the correct artifact is a
-diagram, state diagram, sequence diagram, chart, or no image at all.
+기존 Mermaid나 ASCII block을 맹목적으로 변환하지 않는다. README section과 source/test evidence를 먼저
+읽고 diagram, state diagram, sequence diagram, chart, 또는 image 없음 중 올바른 artifact를 결정한다.
