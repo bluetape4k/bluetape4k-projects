@@ -1,26 +1,24 @@
-# Issue #768 Sequence Diagram Validation
+# 이슈 #768 Sequence diagram validation
 
-## Context
+## 배경
 
-Sequence README assets failed validation even when their rendered structure was
-valid. The validator depended on generator-specific marker IDs and one exact
-label class, while several diagrams also contained real text overflow and
-branch-clarity defects.
+Sequence README asset은 rendered structure가 유효해도 validation에 실패했다. Validator가
+generator-specific marker ID와 하나의 exact label class에 의존했고, 몇몇 diagram에는
+실제 text overflow와 branch-clarity defect도 있었다.
 
-## Decision
+## 결정
 
-- Validate fixed-size filled markers and visible numbered pill labels by SVG
-  structure, not by one generator's names.
-- Treat generic message pills as message labels, not footer elements.
-- Repair and render each failing asset individually.
-- Keep branch outcomes visually distinct when they share one sequence frame.
+- Fixed-size filled marker와 visible numbered pill label은 특정 generator 이름이 아니라 SVG structure로 검증한다.
+- Generic message pill은 footer element가 아니라 message label로 다룬다.
+- 실패한 각 asset을 개별적으로 고치고 render한다.
+- Branch outcome이 하나의 sequence frame을 공유하면 시각적으로 구분되게 유지한다.
 
-## Outcome
+## 결과
 
-The sequence family now has zero validator failures. Five SVG/PNG pairs were
-corrected without rewriting already-valid sequence semantics.
+Sequence family는 이제 validator failure가 0개다. 이미 유효한 sequence semantics를
+다시 쓰지 않고 5개 SVG/PNG pair를 수정했다.
 
-## Verification
+## 검증
 
 - README diagram validator: `total=268 failed=137`, sequence failures `0`
 - Sequence style audit: `PASS sequence_files=5`
@@ -30,10 +28,9 @@ corrected without rewriting already-valid sequence semantics.
   `direct_solid_heads=6`, `participants=4`
 - CairoSVG render and PNG visual inspection completed for every changed asset
 
-## Future Guidance
+## 향후 지침
 
-Do not regenerate an entire diagram family to satisfy structural validation.
-First separate validator false positives from visible defects, then edit and
-inspect one asset at a time. A generic audit reporting `connectors=0` requires
-an explicit invariant that proves every visible message has a rendered
-arrowhead.
+Structural validation을 만족시키기 위해 전체 diagram family를 regenerate하지 않는다.
+먼저 validator false positive와 visible defect를 분리한 뒤 asset 하나씩 편집하고
+검사한다. Generic audit가 `connectors=0`을 보고하면 모든 visible message에 rendered
+arrowhead가 있다는 explicit invariant가 필요하다.
