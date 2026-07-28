@@ -1,4 +1,4 @@
-# Issue 809 - Cassandra Session Cache Review
+# Issue 809 - Cassandra Session Cache 검토
 
 ## Scope
 
@@ -7,11 +7,11 @@
 - `data/cassandra/README.md`
 - `data/cassandra/README.ko.md`
 
-## Findings
+## 발견 사항
 
 No P0/P1 findings found in the local review pass.
 
-## Evidence
+## 증거
 
 - TDD red: `CqlSessionProviderTest` failed when the same keyspace with a different builder context reused the same cached session.
 - `compileTestKotlin --warning-mode all` passed. Remaining warnings are existing Gradle Kotlin DSL deprecations outside this change.

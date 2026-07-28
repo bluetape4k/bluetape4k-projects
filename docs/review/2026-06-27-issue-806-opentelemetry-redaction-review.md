@@ -1,4 +1,4 @@
-# Local Review - Issue 806 OpenTelemetry Redacted Exception Telemetry
+# Local 검토 - Issue 806 OpenTelemetry Redacted Exception Telemetry
 
 Date: 2026-06-27
 Scope: `infra/opentelemetry`
@@ -15,7 +15,7 @@ No P0/P1 findings found in the current diff.
 - Public API compatibility: existing helper signatures are unchanged. The behavior change is a safer default for exported telemetry.
 - Test helper gate: `SuspendedJobTester` is used for coroutine and Flow redaction stress coverage. `MultithreadingTester` and `StructuredTaskScopeTester` are intentionally not used because the fix does not introduce shared production state, thread contention, virtual-thread behavior, or structured task scope behavior.
 
-## Validation Evidence
+## 검증 Evidence
 
 - TDD red: targeted redaction tests failed before the fix because exported telemetry still contained secret-bearing exception messages.
 - `./gradlew :bluetape4k-opentelemetry:compileTestKotlin --warning-mode all --no-daemon --no-configuration-cache`: PASS. Existing Gradle Kotlin DSL delegated-property deprecation warning remains outside touched source/test code.
