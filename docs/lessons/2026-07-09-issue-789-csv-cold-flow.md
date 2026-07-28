@@ -1,25 +1,24 @@
-# Issue 789 - CSV Cold Flow File Readers
+# 이슈 789: CSV cold Flow file reader
 
-## Context
+## 배경
 
-File-based suspending CSV/TSV reader overloads opened `FileInputStream` before
-returning the `Flow`. That violated the documented cold-Flow contract and made
-the returned flow one-shot.
+File 기반 suspending CSV/TSV reader overload는 `Flow`를 반환하기 전에
+`FileInputStream`을 열었다. 이는 문서화된 cold-Flow contract를 위반했고 반환된 flow를
+one-shot으로 만들었다.
 
-## Decision
+## 결정
 
-Move file opening into the flow builder and close the stream with `use` during
-collection. Keep InputStream overloads unchanged because callers own those
-streams.
+File opening을 flow builder 안으로 옮기고 collection 중 `use`로 stream을 닫는다.
+InputStream overload는 caller가 해당 stream을 소유하므로 변경하지 않는다.
 
-## Outcome
+## 결과
 
-Regression tests now prove that file-backed suspending readers defer missing
-file failures until collection, survive recollection after early termination,
-and cover CSV/TSV plus transform overload behavior.
+Regression test는 file-backed suspending reader가 missing file failure를 collection까지
+미루고, early termination 뒤 recollection에도 살아남으며, CSV/TSV와 transform overload
+behavior를 다룬다는 점을 증명한다.
 
-## Future Guidance
+## 향후 지침
 
-File-backed `Flow` APIs must open resources inside collection, not before
-returning the flow. When the flow wraps blocking file I/O, run upstream work on
-`Dispatchers.IO` and test both cold creation and recollection.
+File-backed `Flow` API는 flow를 반환하기 전이 아니라 collection 안에서 resource를
+열어야 한다. Flow가 blocking file I/O를 감싸면 upstream work는 `Dispatchers.IO`에서
+실행하고 cold creation과 recollection을 모두 테스트한다.

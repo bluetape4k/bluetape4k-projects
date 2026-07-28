@@ -1,60 +1,49 @@
-# Issue #1037: JSON serializer ByteBuffer paths
+# 이슈 #1037: JSON serializer ByteBuffer path
 
-## Context
+## 배경
 
-The shared `JsonSerializer` contract already exposed ByteBuffer defaults, but the
-compatibility implementation staged data through a complete ByteArray. Jackson 2,
-Jackson 3, and Fastjson2 expose materially different stream and array-range APIs,
-so the JSON slice needed backend-specific paths without changing wire formats,
-mapper/security configuration, exception policy, or caller-owned buffer state.
+Shared `JsonSerializer` 계약은 이미 ByteBuffer default를 노출했지만, compatibility
+implementation은 complete ByteArray를 통해 data를 staging했다. Jackson 2, Jackson 3,
+Fastjson2는 실질적으로 다른 stream 및 array-range API를 노출하므로 JSON slice에는 wire
+format, mapper/security configuration, exception policy, caller-owned buffer state를
+바꾸지 않는 backend-specific path가 필요했다.
 
-## Decision
+## 결정
 
-- Stream Jackson 2 and Jackson 3 output through a fixed duplicate-backed
-  `ByteBufferOutputStream`, and read input through a duplicate-backed
-  `ByteBufferInputStream`.
-- Create and close the Jackson generator explicitly through the configured
-  `ObjectWriter`; mapper convenience methods catch `Exception`, not every fatal
-  `Error`, so caller-owned stream cleanup cannot rely on them.
-- Keep the generic Jackson ByteBuffer API as a top-level concrete-receiver
-  extension. Adding a final member to the public open serializer classes could
-  conflict with an existing subclass that already owns the same JVM signature.
-- Use Fastjson2's array/offset/length JSONB parser only for writable array-backed
-  input. Copy direct and read-only input, and retain `JSONB.toBytes` as the
-  explicitly allocating output compatibility path.
-- Traverse at most 64 cause links when preserving nested fatal errors or buffer
-  overflow. Suppressed cleanup failures never replace the primary backend failure.
-- Keep all JSONB readers feature-free and do not enable AutoType.
+- Jackson 2와 Jackson 3 output은 fixed duplicate-backed `ByteBufferOutputStream`으로 stream하고, input은 duplicate-backed `ByteBufferInputStream`으로 읽는다.
+- Configured `ObjectWriter`를 통해 Jackson generator를 명시적으로 만들고 닫는다. Mapper convenience method는 모든 fatal `Error`가 아니라 `Exception`을 잡으므로 caller-owned stream cleanup을 그 method에 의존할 수 없다.
+- Generic Jackson ByteBuffer API는 top-level concrete-receiver extension으로 유지한다. Public open serializer class에 final member를 추가하면 같은 JVM signature를 이미 가진 기존 subclass와 충돌할 수 있다.
+- Fastjson2의 array/offset/length JSONB parser는 writable array-backed input에만 사용한다. Direct/read-only input은 copy하고, `JSONB.toBytes`는 명시적으로 할당하는 output compatibility path로 유지한다.
+- Nested fatal error나 buffer overflow를 보존할 때 cause link는 최대 64개까지만 순회한다. Suppressed cleanup failure는 primary backend failure를 대체하지 않는다.
+- 모든 JSONB reader는 feature-free로 유지하고 AutoType을 활성화하지 않는다.
 
-## Surprise / Failure
+## 발견 / 실패
 
-The first Jackson reified API was a member on an open class. It worked in local
-callers but introduced a final JVM method that could break a legacy subclass with
-the same erased signature. Moving it to an extension fixed the class ABI, but the
-README and tests also had to distinguish that extension from the existing
-`JsonSerializer.deserialize` extension through explicit imports and an alias.
+첫 Jackson reified API는 open class의 member였다. Local caller에서는 동작했지만 같은
+erased signature를 가진 legacy subclass를 깨뜨릴 수 있는 final JVM method를 도입했다.
+Extension으로 옮기자 class ABI는 고쳐졌지만, README와 test도 explicit import와 alias를
+통해 그 extension을 기존 `JsonSerializer.deserialize` extension과 구분해야 했다.
 
-Jackson's mapper-owned write path closes its generator for ordinary exceptions,
-but the resolved Jackson 2 and Jackson 3 sources catch `Exception` rather than
-`Error`. An explicit generator scope was required to guarantee cleanup on fatal
-serialization failures.
+Jackson의 mapper-owned write path는 ordinary exception에서 generator를 닫지만, resolved
+Jackson 2/3 source는 `Error`가 아니라 `Exception`을 잡는다. Fatal serialization
+failure에서 cleanup을 보장하려면 명시적인 generator scope가 필요했다.
 
-Fastjson2 may replace a setter-thrown `Error` with a `ClassCastException`, so that
-fixture could not prove adapter behavior. A registered JSONB `ObjectReader` that
-throws an ordinary wrapper with the fatal error as its cause provided the valid
-identity test. The same investigation exposed that scanning suppressed failures
-would incorrectly promote cleanup errors over the primary parse failure.
+Fastjson2는 setter가 던진 `Error`를 `ClassCastException`으로 바꿀 수 있어 해당 fixture로
+adapter behavior를 증명할 수 없었다. Fatal error를 cause로 가진 ordinary wrapper를
+던지는 registered JSONB `ObjectReader`가 유효한 identity test를 제공했다. 같은 조사에서
+suppressed failure를 scan하면 cleanup error가 primary parse failure보다 잘못 승격될 수
+있다는 점도 드러났다.
 
-## Outcome
+## 결과
 
-Jackson 2 and Jackson 3 bypass the ByteArray compatibility path for fixed output
-and bounded input while retaining mapper configuration and inherited data formats.
-Fastjson2 avoids an input copy only where its public API supports an existing
-array range; unsupported input and all output stay on documented compatibility
-paths. Existing ByteArray entry points, JSON/JSONB wire bytes, raw interface
-dispatch, and caller position/limit/mark/order contracts remain intact.
+Jackson 2와 Jackson 3는 mapper configuration과 inherited data format을 유지하면서
+fixed output과 bounded input에서 ByteArray compatibility path를 우회한다. Fastjson2는
+public API가 existing array range를 지원하는 경우에만 input copy를 피한다. 지원되지
+않는 input과 모든 output은 문서화된 compatibility path에 남는다. 기존 ByteArray entry
+point, JSON/JSONB wire bytes, raw interface dispatch, caller position/limit/mark/order
+contract는 그대로 유지된다.
 
-## Verification
+## 검증
 
 - Jackson 2 ByteBuffer suite: 14 tests passed; external consumer import test:
   1 test passed; full module: 455 tests passed.
@@ -69,11 +58,11 @@ dispatch, and caller position/limit/mark/order contracts remain intact.
   README contract checks, unsafe-pattern scanning, and `git diff --check` provide
   the available static fallback.
 
-## Future Guard
+## 향후 방지책
 
-Do not add a convenience member to a public open class without checking erased
-subclass signatures. When a backend owns a stream wrapper, inspect the resolved
-source for fatal-error cleanup rather than assuming `use` at the outer stream is
-sufficient. Preserve only fatal failures reachable through the primary cause
-chain, never through suppressed cleanup failures. Make optimization claims per
-backend cell and defer allocation claims until repeated benchmark evidence exists.
+Erased subclass signature를 확인하지 않고 public open class에 convenience member를
+추가하지 않는다. Backend가 stream wrapper를 소유하면 outer stream의 `use`만으로 충분할
+것이라고 가정하지 말고 resolved source에서 fatal-error cleanup을 확인한다. Fatal
+failure는 primary cause chain에서 reachable한 것만 보존하고, suppressed cleanup
+failure를 통해 보존하지 않는다. Optimization claim은 backend cell별로 제한하고,
+반복 benchmark evidence가 생길 때까지 allocation claim은 미룬다.

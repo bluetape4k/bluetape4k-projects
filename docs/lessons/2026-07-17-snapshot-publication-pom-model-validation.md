@@ -1,31 +1,30 @@
-# Snapshot Publication POM Model Validation
+# Snapshot publication POM model validation
 
-## Context
+## 배경
 
-Generated publication POMs contained versionless Spring Boot and Jackson BOM
-imports. Maven therefore rejected 25 module POMs, including regular Spring
-dependencies whose versions could not be resolved without those imports.
+Generated publication POM에는 version 없는 Spring Boot와 Jackson BOM import가 있었다.
+그래서 Maven은 해당 import 없이는 version을 resolve할 수 없는 일반 Spring dependency를
+포함해 25개 module POM을 거부했다.
 
-## Decision
+## 결정
 
-Use the central `bt4k` catalog as the version source for every published BOM
-import. Validate all generated POMs structurally and then build their effective
-Maven models before CI, snapshot publishing, and release publishing.
+Published BOM import의 version source로 중앙 `bt4k` catalog를 사용한다. CI, snapshot
+publishing, release publishing 전에 모든 generated POM을 구조적으로 검증한 뒤 effective
+Maven model을 build한다.
 
-## Outcome
+## 결과
 
-The 77 generated publication POMs have versioned dependency-management imports,
-while regular versionless dependencies remain valid when a versioned BOM or the
-same POM manages them.
+77개 generated publication POM은 versioned dependency-management import를 가지며,
+versionless regular dependency는 versioned BOM이나 같은 POM이 관리할 때 계속 유효하다.
 
-## Verification
+## 검증
 
 - `ruby scripts/publication/publication_pom_audit_test.rb`
 - `./gradlew generatePomFileForBluetape4kPublication -PsnapshotVersion=-SNAPSHOT --no-daemon --no-configuration-cache --no-build-cache`
 - `ruby scripts/publication/validate_poms.rb`
 
-## Future Guidance
+## 향후 지침
 
-Do not require a direct version on every regular dependency. Require versions
-on BOM imports, then let Maven effective-model validation prove that each
-versionless regular dependency is actually managed.
+모든 regular dependency에 direct version을 요구하지 않는다. BOM import에는 version을
+요구하고, 각 versionless regular dependency가 실제로 관리되는지는 Maven
+effective-model validation으로 증명한다.

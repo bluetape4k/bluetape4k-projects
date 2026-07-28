@@ -1,23 +1,33 @@
-# Issue #828 Ktor Cancellation Spans
+# 이슈 #828 Ktor cancellation span
 
-## Context
+## 배경
 
-The observability contract says intentional coroutine cancellation must not become an error metric or an `ERROR` span status. `ktor/observability` delegated Ktor server span lifecycle to OpenTelemetry's Ktor instrumentation, but had no regression test for a route that throws `CancellationException`.
+Observability 계약은 intentional coroutine cancellation이 error metric이나 `ERROR`
+span status가 되면 안 된다고 말한다. `ktor/observability`는 Ktor server span lifecycle을
+OpenTelemetry의 Ktor instrumentation에 위임했지만, `CancellationException`을 던지는
+route에 대한 regression test가 없었다.
 
-## Decision
+## 결정
 
-Add a focused Ktor OpenTelemetry regression test that throws `CancellationException` from a route and asserts exported spans never use `StatusCode.ERROR`. If the instrumentation exports a cancellation span in the future, the test requires the status to remain `UNSET`.
+Route에서 `CancellationException`을 던지고 exported span이 `StatusCode.ERROR`를 절대
+사용하지 않음을 검증하는 Ktor OpenTelemetry regression test를 추가한다. 나중에
+instrumentation이 cancellation span을 export하더라도 이 테스트는 status가 `UNSET`으로
+남아야 함을 요구한다.
 
-## Outcome
+## 결과
 
-The current OpenTelemetry Ktor behavior does not export a span for the canceled route in the Ktor test host. That already satisfies "no ERROR span" for cancellation, and the new test locks the contract while preserving existing coverage that real 500 responses still record `ERROR`.
+현재 OpenTelemetry Ktor 동작은 Ktor test host에서 취소된 route의 span을 export하지
+않는다. 이는 cancellation에 대해 "no ERROR span"을 이미 만족하며, 새 테스트는 실제
+500 response가 계속 `ERROR`를 기록한다는 기존 coverage를 유지하면서 이 계약을 잠근다.
 
-## Verification
+## 검증
 
 - Targeted cancellation and real-error tracing tests
 - Full `:bluetape4k-ktor-observability` compile/test command
 - `git diff --check`
 
-## Future Guard
+## 향후 방지책
 
-When wrapping framework instrumentation, test cancellation separately from ordinary handler failures. Do not assume a framework's error response shape is the same as the tracing status contract.
+Framework instrumentation을 감쌀 때는 cancellation을 일반 handler failure와 분리해서
+테스트한다. Framework의 error response 형태가 tracing status contract와 같다고
+가정하지 않는다.
