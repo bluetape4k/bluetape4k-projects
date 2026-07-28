@@ -1,14 +1,12 @@
 # Redis Fencing Lease Implementation Plan
 
-> **For agentic
-workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
+> **agentic worker용:** 필수 sub-skill: 이 계획은 superpowers:subagent-driven-development(권장) 또는 superpowers:executing-plans로 task별 구현한다. 진행 상태는 checkbox(`- [ ]`) syntax로 추적한다.
 
-**Goal:** `bluetape4k-lettuce`에 `(epoch, sequence)`로 정렬 가능한 fencing lease를 추가하고, Redis history loss·모호한 완료·취소·Cluster routing·외부 resilience 조합의 경계를 실행 가능한 test와 영문/한글 문서로 고정한다.
+**목표:** `bluetape4k-lettuce`에 `(epoch, sequence)`로 정렬 가능한 fencing lease를 추가하고, Redis history loss·모호한 완료·취소·Cluster routing·외부 resilience 조합의 경계를 실행 가능한 test와 영문/한글 문서로 고정한다.
 
-**Architecture:** 한 instance가 `LettuceFencingLeaseConfig(namespace, resourceName, epoch)` 하나를 소유하고, 파생된 lease/counter 두 key만 동일 slot에서 Lua로 다룬다. public model과 result는 Java serialization invariant를 지키며, sync/`CompletableFuture`/suspend facade는 같은 validation·script·wire decoder·backend classifier를 공유한다. primitive 내부에는 retry/CB/bulkhead를 넣지 않고, 테스트와 README에서 `bluetape4k-resilience4j` decorator 및 downstream tuple CAS를 보여준다.
+**아키텍처:** 한 instance가 `LettuceFencingLeaseConfig(namespace, resourceName, epoch)` 하나를 소유하고, 파생된 lease/counter 두 key만 동일 slot에서 Lua로 다룬다. public model과 result는 Java serialization invariant를 지키며, sync/`CompletableFuture`/suspend facade는 같은 validation·script·wire decoder·backend classifier를 공유한다. primitive 내부에는 retry/CB/bulkhead를 넣지 않고, 테스트와 README에서 `bluetape4k-resilience4j` decorator 및 downstream tuple CAS를 보여준다.
 
-**Tech
-Stack:** Kotlin 2.3, Java 21, Lettuce, Redis Lua/EVALSHA/EVAL/EVAL_RO, Kotlin Coroutines, JUnit 5, bluetape4k-assertions, bluetape4k-junit5, bluetape4k-testcontainers, bluetape4k-resilience4j, Resilience4j 2.4.0.
+**기술 스택:** Kotlin 2.3, Java 21, Lettuce, Redis Lua/EVALSHA/EVAL/EVAL_RO, Kotlin Coroutines, JUnit 5, bluetape4k-assertions, bluetape4k-junit5, bluetape4k-testcontainers, bluetape4k-resilience4j, Resilience4j 2.4.0.
 
 ---
 
@@ -75,12 +73,12 @@ Not-tested: <known gap>
 
 ## 2. Task 1 — Public value와 sealed result를 먼저 고정
 
-**Files:**
+**파일:**
 
-- Create: `infra/lettuce/src/main/kotlin/io/bluetape4k/redis/lettuce/lease/FencingLeaseValue.kt`
-- Create: `infra/lettuce/src/main/kotlin/io/bluetape4k/redis/lettuce/lease/FencingLeaseResult.kt`
-- Create: `infra/lettuce/src/test/kotlin/io/bluetape4k/redis/lettuce/lease/FencingLeaseValueTest.kt`
-- Create: `infra/lettuce/src/test/kotlin/io/bluetape4k/redis/lettuce/lease/FencingLeaseResultTest.kt`
+- 생성: `infra/lettuce/src/main/kotlin/io/bluetape4k/redis/lettuce/lease/FencingLeaseValue.kt`
+- 생성: `infra/lettuce/src/main/kotlin/io/bluetape4k/redis/lettuce/lease/FencingLeaseResult.kt`
+- 생성: `infra/lettuce/src/test/kotlin/io/bluetape4k/redis/lettuce/lease/FencingLeaseValueTest.kt`
+- 생성: `infra/lettuce/src/test/kotlin/io/bluetape4k/redis/lettuce/lease/FencingLeaseResultTest.kt`
 
 ### 2.1 RED — invariant, ordering, serialization test
 
@@ -105,7 +103,7 @@ Not-tested: <known gap>
 ./gradlew :bluetape4k-lettuce:test --tests '*FencingLeaseValueTest' --tests '*FencingLeaseResultTest'
 ```
 
-Expected: 새 type이 없어 Kotlin test compilation이 실패한다.
+예상 결과: 새 type이 없어 Kotlin test compilation이 실패한다.
 
 ### 2.2 GREEN — public model 구현
 
@@ -270,7 +268,7 @@ sealed interface FencingBootstrapResult : Serializable {
 ./gradlew :bluetape4k-lettuce:test --tests '*FencingLeaseValueTest' --tests '*FencingLeaseResultTest'
 ```
 
-Expected: 모든 ordering/invariant/serialization/redaction test가 통과한다.
+예상 결과: 모든 ordering/invariant/serialization/redaction test가 통과한다.
 
 ### 2.3 Commit
 
@@ -290,10 +288,10 @@ Not-tested: Redis execution is introduced in later tasks
 
 ## 3. Task 2 — `RedisScriptRunner`의 현재 upstream future 취소 전파
 
-**Files:**
+**파일:**
 
-- Modify: `infra/lettuce/src/main/kotlin/io/bluetape4k/redis/lettuce/script/RedisScript.kt`
-- Modify: `infra/lettuce/src/test/kotlin/io/bluetape4k/redis/lettuce/script/RedisScriptTest.kt`
+- 수정: `infra/lettuce/src/main/kotlin/io/bluetape4k/redis/lettuce/script/RedisScript.kt`
+- 수정: `infra/lettuce/src/test/kotlin/io/bluetape4k/redis/lettuce/script/RedisScriptTest.kt`
 
 ### 3.1 RED — EVALSHA/NOSCRIPT race contract
 
@@ -311,7 +309,7 @@ Not-tested: Redis execution is introduced in later tasks
 ./gradlew :bluetape4k-lettuce:test --tests 'io.bluetape4k.redis.lettuce.script.RedisScriptTest'
 ```
 
-Expected: 새 cancellation assertion이 실패한다.
+예상 결과: 새 cancellation assertion이 실패한다.
 
 ### 3.2 GREEN — cancellable bridge 구현
 
@@ -380,7 +378,7 @@ private fun Throwable.unwrapCompletionCause(): Throwable =
 ./gradlew :bluetape4k-lettuce:test --tests 'io.bluetape4k.redis.lettuce.script.RedisScriptTest' --rerun-tasks
 ```
 
-Expected: 기존 sync/async/suspend/NOSCRIPT test와 새 cancellation test가 모두 통과한다.
+예상 결과: 기존 sync/async/suspend/NOSCRIPT test와 새 cancellation test가 모두 통과한다.
 
 ### 3.3 Commit
 
@@ -400,10 +398,10 @@ Not-tested: fencing lease integration is introduced later
 
 ## 4. Task 3 — Key derivation, validation, wire protocol, backend classifier
 
-**Files:**
+**파일:**
 
-- Create: `infra/lettuce/src/main/kotlin/io/bluetape4k/redis/lettuce/lease/LettuceFencingLeaseSupport.kt`
-- Create: `infra/lettuce/src/test/kotlin/io/bluetape4k/redis/lettuce/lease/LettuceFencingLeaseSupportTest.kt`
+- 생성: `infra/lettuce/src/main/kotlin/io/bluetape4k/redis/lettuce/lease/LettuceFencingLeaseSupport.kt`
+- 생성: `infra/lettuce/src/test/kotlin/io/bluetape4k/redis/lettuce/lease/LettuceFencingLeaseSupportTest.kt`
 
 ### 4.1 RED — pure support contract
 
@@ -423,7 +421,7 @@ Not-tested: fencing lease integration is introduced later
 ./gradlew :bluetape4k-lettuce:test --tests '*LettuceFencingLeaseSupportTest'
 ```
 
-Expected: support symbol이 없어 test compilation이 실패한다.
+예상 결과: support symbol이 없어 test compilation이 실패한다.
 
 ### 4.2 GREEN — 고정 내부 계약 구현
 
@@ -515,7 +513,7 @@ internal fun Duration.requireFencingLeaseMillis(): Long {
 ./gradlew :bluetape4k-lettuce:test --tests '*LettuceFencingLeaseSupportTest'
 ```
 
-Expected: key/codec/decimal/TTL/classifier/protocol/redaction unit test가 모두 통과한다.
+예상 결과: key/codec/decimal/TTL/classifier/protocol/redaction unit test가 모두 통과한다.
 
 ### 4.3 Commit
 
@@ -535,10 +533,10 @@ Not-tested: real Redis state transitions are introduced next
 
 ## 5. Task 4 — Lua state machine와 hostile standalone Redis
 
-**Files:**
+**파일:**
 
-- Modify: `infra/lettuce/src/main/kotlin/io/bluetape4k/redis/lettuce/lease/LettuceFencingLeaseSupport.kt`
-- Create: `infra/lettuce/src/test/kotlin/io/bluetape4k/redis/lettuce/lease/LettuceFencingLeaseScriptTest.kt`
+- 수정: `infra/lettuce/src/main/kotlin/io/bluetape4k/redis/lettuce/lease/LettuceFencingLeaseSupport.kt`
+- 생성: `infra/lettuce/src/test/kotlin/io/bluetape4k/redis/lettuce/lease/LettuceFencingLeaseScriptTest.kt`
 
 ### 5.1 RED — operation matrix와 hostile state
 
@@ -561,7 +559,7 @@ Not-tested: real Redis state transitions are introduced next
 ./gradlew :bluetape4k-lettuce:test --tests '*LettuceFencingLeaseScriptTest'
 ```
 
-Expected: script runner/decoder operation이 없어 test compilation 또는 assertion이 실패한다.
+예상 결과: script runner/decoder operation이 없어 test compilation 또는 assertion이 실패한다.
 
 ### 5.2 GREEN — fixed O (1) Lua protocol
 
@@ -603,7 +601,7 @@ return {'ACQUIRED', ARGV[2], nextSequenceText, '-1'}
 ./gradlew :bluetape4k-lettuce:test --tests '*LettuceFencingLeaseScriptTest'
 ```
 
-Expected: 정상 state machine, hostile state fail-closed, overflow, NOSCRIPT, structural O (1) test가 통과한다.
+예상 결과: 정상 state machine, hostile state fail-closed, overflow, NOSCRIPT, structural O (1) test가 통과한다.
 
 ### 5.3 Commit
 
@@ -623,13 +621,13 @@ Not-tested: facade parity, Cluster routing, and cancellation follow
 
 ## 6. Task 5 — Sync, future, suspend facade와 shared contract
 
-**Files:**
+**파일:**
 
-- Create: `infra/lettuce/src/main/kotlin/io/bluetape4k/redis/lettuce/lease/LettuceFencingLease.kt`
-- Create: `infra/lettuce/src/main/kotlin/io/bluetape4k/redis/lettuce/lease/LettuceSuspendFencingLease.kt`
-- Create: `infra/lettuce/src/test/kotlin/io/bluetape4k/redis/lettuce/lease/FencingLeaseContract.kt`
-- Create: `infra/lettuce/src/test/kotlin/io/bluetape4k/redis/lettuce/lease/LettuceFencingLeaseTest.kt`
-- Create: `infra/lettuce/src/test/kotlin/io/bluetape4k/redis/lettuce/lease/LettuceSuspendFencingLeaseTest.kt`
+- 생성: `infra/lettuce/src/main/kotlin/io/bluetape4k/redis/lettuce/lease/LettuceFencingLease.kt`
+- 생성: `infra/lettuce/src/main/kotlin/io/bluetape4k/redis/lettuce/lease/LettuceSuspendFencingLease.kt`
+- 생성: `infra/lettuce/src/test/kotlin/io/bluetape4k/redis/lettuce/lease/FencingLeaseContract.kt`
+- 생성: `infra/lettuce/src/test/kotlin/io/bluetape4k/redis/lettuce/lease/LettuceFencingLeaseTest.kt`
+- 생성: `infra/lettuce/src/test/kotlin/io/bluetape4k/redis/lettuce/lease/LettuceSuspendFencingLeaseTest.kt`
 
 ### 6.1 RED — 공통 adapter contract
 
@@ -664,7 +662,7 @@ internal interface FencingLeaseAdapter {
 ./gradlew :bluetape4k-lettuce:test --tests '*LettuceFencingLeaseTest' --tests '*LettuceSuspendFencingLeaseTest'
 ```
 
-Expected: facade type이 없어 compilation이 실패한다.
+예상 결과: facade type이 없어 compilation이 실패한다.
 
 ### 6.2 GREEN — facade는 validation과 support에만 위임
 
@@ -781,7 +779,7 @@ class LettuceSuspendFencingLease private constructor(
 ./gradlew :bluetape4k-lettuce:test --tests '*LettuceFencingLeaseTest' --tests '*LettuceSuspendFencingLeaseTest'
 ```
 
-Expected: sync/future/suspend가 동일 result와 validation/backend failure boundary를 보인다.
+예상 결과: sync/future/suspend가 동일 result와 validation/backend failure boundary를 보인다.
 
 ### 6.3 Commit
 
@@ -801,12 +799,12 @@ Not-tested: bounded contention and Cluster stress follow
 
 ## 7. Task 6 — Cancellation과 모호한 완료를 결정적으로 재현
 
-**Files:**
+**파일:**
 
-- Modify: `infra/lettuce/src/main/kotlin/io/bluetape4k/redis/lettuce/lease/LettuceFencingLeaseSupport.kt`
-- Modify: `infra/lettuce/src/main/kotlin/io/bluetape4k/redis/lettuce/lease/LettuceFencingLease.kt`
-- Modify: `infra/lettuce/src/main/kotlin/io/bluetape4k/redis/lettuce/lease/LettuceSuspendFencingLease.kt`
-- Create: `infra/lettuce/src/test/kotlin/io/bluetape4k/redis/lettuce/lease/LettuceFencingLeaseCancellationTest.kt`
+- 수정: `infra/lettuce/src/main/kotlin/io/bluetape4k/redis/lettuce/lease/LettuceFencingLeaseSupport.kt`
+- 수정: `infra/lettuce/src/main/kotlin/io/bluetape4k/redis/lettuce/lease/LettuceFencingLease.kt`
+- 수정: `infra/lettuce/src/main/kotlin/io/bluetape4k/redis/lettuce/lease/LettuceSuspendFencingLease.kt`
+- 생성: `infra/lettuce/src/test/kotlin/io/bluetape4k/redis/lettuce/lease/LettuceFencingLeaseCancellationTest.kt`
 
 ### 7.1 RED — apply 전/후 fault injection
 
@@ -860,7 +858,7 @@ internal interface FencingScriptExecutor {
 ./gradlew :bluetape4k-lettuce:test --tests '*LettuceFencingLeaseCancellationTest'
 ```
 
-Expected: fault seam과 cancellation reconciliation이 없어 실패한다.
+예상 결과: fault seam과 cancellation reconciliation이 없어 실패한다.
 
 ### 7.2 GREEN — cancellation 우선 전파
 
@@ -885,7 +883,7 @@ try {
 ./gradlew :bluetape4k-lettuce:test --tests '*LettuceFencingLeaseCancellationTest' --rerun-tasks
 ```
 
-Expected: before/after apply와 EVALSHA/EVAL 전환 모든 case가 deterministic하게 통과한다.
+예상 결과: before/after apply와 EVALSHA/EVAL 전환 모든 case가 deterministic하게 통과한다.
 
 ### 7.3 Commit
 
@@ -905,10 +903,10 @@ Not-tested: external topology promotion remains opt-in
 
 ## 8. Task 7 — Bounded contention과 Redis Cluster routing
 
-**Files:**
+**파일:**
 
-- Create: `infra/lettuce/src/test/kotlin/io/bluetape4k/redis/lettuce/lease/LettuceFencingLeaseConcurrencyTest.kt`
-- Create: `infra/lettuce/src/test/kotlin/io/bluetape4k/redis/lettuce/lease/LettuceFencingLeaseClusterTest.kt`
+- 생성: `infra/lettuce/src/test/kotlin/io/bluetape4k/redis/lettuce/lease/LettuceFencingLeaseConcurrencyTest.kt`
+- 생성: `infra/lettuce/src/test/kotlin/io/bluetape4k/redis/lettuce/lease/LettuceFencingLeaseClusterTest.kt`
 
 ### 8.1 RED — duplicate generation과 wrong-slot 방어
 
@@ -926,7 +924,7 @@ Not-tested: external topology promotion remains opt-in
 ./gradlew :bluetape4k-lettuce:test --tests '*LettuceFencingLeaseClusterTest'
 ```
 
-Expected: contention/Cluster contract 중 누락된 동작이 실패한다.
+예상 결과: contention/Cluster contract 중 누락된 동작이 실패한다.
 
 ### 8.2 GREEN — 발견된 race/routing만 최소 수정
 
@@ -939,7 +937,7 @@ Expected: contention/Cluster contract 중 누락된 동작이 실패한다.
 ./gradlew :bluetape4k-lettuce:test --tests '*LettuceFencingLeaseClusterTest' --rerun-tasks
 ```
 
-Expected: bounded contention과 Cluster test가 각각 30초 안에 통과한다.
+예상 결과: bounded contention과 Cluster test가 각각 30초 안에 통과한다.
 
 ### 8.3 Commit
 
@@ -959,12 +957,12 @@ Not-tested: production-scale latency is intentionally outside this issue
 
 ## 9. Task 8 — 외부 resilience, downstream CAS, epoch recovery 예제
 
-**Files:**
+**파일:**
 
-- Modify: `infra/lettuce/build.gradle.kts`
-- Create: `infra/lettuce/src/test/kotlin/io/bluetape4k/redis/lettuce/lease/LettuceFencingLeaseResilience4jTest.kt`
-- Create: `infra/lettuce/src/test/kotlin/io/bluetape4k/redis/lettuce/lease/LettuceFencingLeaseRecoveryTest.kt`
-- Create: `infra/lettuce/src/test/kotlin/io/bluetape4k/redis/lettuce/lease/LettuceFencingLeaseTopologyRecoveryTest.kt`
+- 수정: `infra/lettuce/build.gradle.kts`
+- 생성: `infra/lettuce/src/test/kotlin/io/bluetape4k/redis/lettuce/lease/LettuceFencingLeaseResilience4jTest.kt`
+- 생성: `infra/lettuce/src/test/kotlin/io/bluetape4k/redis/lettuce/lease/LettuceFencingLeaseRecoveryTest.kt`
+- 생성: `infra/lettuce/src/test/kotlin/io/bluetape4k/redis/lettuce/lease/LettuceFencingLeaseTopologyRecoveryTest.kt`
 
 ### 9.1 RED — caller-layer policy contract
 
@@ -1043,7 +1041,7 @@ bootstrap -> verify readiness and tuple guard -> rollout -> confirm old absence 
 ./gradlew :bluetape4k-lettuce:fencingLeaseTopologyRecoveryTest
 ```
 
-Expected: caller policy/recovery fixture와 tagged topology task가 없어 실패한다.
+예상 결과: caller policy/recovery fixture와 tagged topology task가 없어 실패한다.
 
 ### 9.2 GREEN — test/example layer에서만 policy 구현
 
@@ -1065,7 +1063,7 @@ private fun isBackendFailure(result: FencingAcquireResult): Boolean =
 ./gradlew :bluetape4k-lettuce:fencingLeaseTopologyRecoveryTest --rerun-tasks
 ```
 
-Expected: decorator topology, exception boundary, strict tuple acceptance, simulated recovery와 실제 tagged promotion/restore contract가 통과한다.
+예상 결과: decorator topology, exception boundary, strict tuple acceptance, simulated recovery와 실제 tagged promotion/restore contract가 통과한다.
 
 ### 9.3 Commit
 
@@ -1085,15 +1083,15 @@ Not-tested: production-managed Redis topology remains outside the Testcontainers
 
 ## 10. Task 9 — English KDoc, bilingual README, executable documentation
 
-**Files:**
+**파일:**
 
-- Modify: `infra/lettuce/src/main/kotlin/io/bluetape4k/redis/lettuce/lease/FencingLeaseValue.kt`
-- Modify: `infra/lettuce/src/main/kotlin/io/bluetape4k/redis/lettuce/lease/FencingLeaseResult.kt`
-- Modify: `infra/lettuce/src/main/kotlin/io/bluetape4k/redis/lettuce/lease/LettuceFencingLease.kt`
-- Modify: `infra/lettuce/src/main/kotlin/io/bluetape4k/redis/lettuce/lease/LettuceSuspendFencingLease.kt`
-- Modify: `infra/lettuce/README.md`
-- Modify: `infra/lettuce/README.ko.md`
-- Create: `infra/lettuce/src/test/kotlin/io/bluetape4k/redis/lettuce/lease/FencingLeaseDocumentationTest.kt`
+- 수정: `infra/lettuce/src/main/kotlin/io/bluetape4k/redis/lettuce/lease/FencingLeaseValue.kt`
+- 수정: `infra/lettuce/src/main/kotlin/io/bluetape4k/redis/lettuce/lease/FencingLeaseResult.kt`
+- 수정: `infra/lettuce/src/main/kotlin/io/bluetape4k/redis/lettuce/lease/LettuceFencingLease.kt`
+- 수정: `infra/lettuce/src/main/kotlin/io/bluetape4k/redis/lettuce/lease/LettuceSuspendFencingLease.kt`
+- 수정: `infra/lettuce/README.md`
+- 수정: `infra/lettuce/README.ko.md`
+- 생성: `infra/lettuce/src/test/kotlin/io/bluetape4k/redis/lettuce/lease/FencingLeaseDocumentationTest.kt`
 
 ### 10.1 RED — KDoc와 locale parity contract
 
@@ -1132,7 +1130,7 @@ Not-tested: production-managed Redis topology remains outside the Testcontainers
 ./gradlew :bluetape4k-lettuce:test --tests '*FencingLeaseDocumentationTest'
 ```
 
-Expected: README section/marker가 없어 실패한다.
+예상 결과: README section/marker가 없어 실패한다.
 
 ### 10.2 GREEN — 문서와 KDoc를 구현에 맞춤
 
@@ -1162,7 +1160,7 @@ WHERE id = :id
 git diff --check
 ```
 
-Expected: bilingual marker/source parity와 executable example이 통과한다.
+예상 결과: bilingual marker/source parity와 executable example이 통과한다.
 
 ### 10.3 Commit
 
@@ -1182,7 +1180,7 @@ Not-tested: rendered website is outside this module README change
 
 ## 11. Task 10 — Regression, static analysis, acceptance 추적
 
-**Files:**
+**파일:**
 
 - Verify only; source 변경은 실패 수정에 한정한다.
 
@@ -1210,7 +1208,7 @@ Not-tested: rendered website is outside this module README change
 ./gradlew :bluetape4k-lettuce:fencingLeaseTopologyRecoveryTest
 ```
 
-Expected: 모든 targeted test가 통과하고 Testcontainers test가 서로 겹치지 않는다.
+예상 결과: 모든 targeted test가 통과하고 Testcontainers test가 서로 겹치지 않는다.
 
 ### 11.2 기존 API 회귀
 
@@ -1223,7 +1221,7 @@ Expected: 모든 targeted test가 통과하고 Testcontainers test가 서로 겹
   --tests '*MultiKeyLease*'
 ```
 
-Expected: 기존 RedisScriptRunner와 multi-key lease contract가 그대로 통과한다.
+예상 결과: 기존 RedisScriptRunner와 multi-key lease contract가 그대로 통과한다.
 
 ### 11.3 Module gate와 static analysis
 
@@ -1235,7 +1233,7 @@ repo-test-summary -- ./gradlew :bluetape4k-lettuce:test
 git diff --check
 ```
 
-Expected: `:bluetape4k-lettuce:test` 0 failures, detekt 0 findings, whitespace error 0.
+예상 결과: `:bluetape4k-lettuce:test` 0 failures, detekt 0 findings, whitespace error 0.
 
 - [ ] changed Kotlin test 전체를 검색해 assertion/style invariant를 확인한다.
 
@@ -1246,7 +1244,7 @@ rg -n 'assertThrows|kotlin\.test\.assertFailsWith|\)\.shouldBeFalse\(\)|TO''DO|F
   infra/lettuce/src/test/kotlin/io/bluetape4k/redis/lettuce/script/RedisScriptTest.kt
 ```
 
-Expected: 허용되지 않은 assertion/작업 marker 0. 의도적 `shouldBeFalse()`가 있다면 boolean 상태 자체를 검증하는 경우인지 수동 확인하고 equality 대체가 가능하면 intent matcher로 바꾼다.
+예상 결과: 허용되지 않은 assertion/작업 marker 0. 의도적 `shouldBeFalse()`가 있다면 boolean 상태 자체를 검증하는 경우인지 수동 확인하고 equality 대체가 가능하면 intent matcher로 바꾼다.
 
 ### 11.4 Acceptance traceability
 
