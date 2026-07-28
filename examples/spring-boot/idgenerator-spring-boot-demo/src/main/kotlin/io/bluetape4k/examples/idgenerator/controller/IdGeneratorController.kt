@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 
 /**
- * REST controller for the idgenerator Spring Boot demo.
+ * idgenerator Spring Boot demo용 REST controller입니다.
  *
  * ## Behavior
  * - The `/ids/{type}` family provides explicit endpoints that are easy to copy.
