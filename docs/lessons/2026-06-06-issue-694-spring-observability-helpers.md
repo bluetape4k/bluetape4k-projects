@@ -1,31 +1,31 @@
-# Issue #694 Spring Observability Helpers
+# 이슈 #694 Spring observability helper
 
-## Context
+## 배경
 
-The Spring Boot 4 observability work needed helper APIs for service, HTTP
-handler, and event handler code while preserving Spring Boot Actuator and
-Micrometer ownership of metrics, tracing, exporters, and endpoints.
+Spring Boot 4 observability 작업에는 metrics, tracing, exporter, endpoint에 대한
+Spring Boot Actuator와 Micrometer ownership을 보존하면서 service, HTTP handler, event
+handler code를 위한 helper API가 필요했다.
 
-## Decision
+## 결정
 
-Add narrow `ObservationRegistry` helpers in `spring-boot/core` instead of
-auto-configuring exporters or custom endpoints. Treat Prometheus and OTLP as
-application configuration concerns documented in README examples.
+exporter나 custom endpoint를 auto-configure하지 않고, `spring-boot/core`에 좁은
+`ObservationRegistry` helper를 추가한다. Prometheus와 OTLP는 README example에
+문서화된 application configuration concern으로 취급한다.
 
-## Outcome
+## 결과
 
-`observeSpring` and `observeSpringSuspending` now manage observation lifecycle,
-exception recording, cancellation propagation, and coroutine scope cleanup.
-README files also now reflect Spring Boot 4's Jackson 3 default.
+`observeSpring`과 `observeSpringSuspending`은 이제 observation lifecycle, exception
+recording, cancellation propagation, coroutine scope cleanup을 관리한다. README file도
+Spring Boot 4의 Jackson 3 default를 반영한다.
 
-## Verification
+## 검증
 
 - `./gradlew :bluetape4k-spring-boot-core:test --tests 'io.bluetape4k.spring.observability.SpringObservationSupportTest'`
 - `./gradlew :bluetape4k-spring-boot-core:test`
 - `git diff --check`
 
-## Future Guard
+## 향후 가드
 
-For Spring Boot observability helpers, accept framework-owned objects such as
-`ObservationRegistry` and document backend properties. Do not instantiate
-OpenTelemetry SDKs, tracing exporters, or Prometheus endpoints in the library.
+Spring Boot observability helper는 `ObservationRegistry` 같은 framework-owned object를
+받고 backend property를 문서화한다. library 안에서 OpenTelemetry SDK, tracing exporter,
+Prometheus endpoint를 instantiate하지 않는다.
