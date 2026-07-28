@@ -42,10 +42,10 @@ fun <T: Any, R: Any> (suspend (T) -> R).withSuspendMemoizer(
  * ## Recursion Safety
  * Holding a global Mutex during evaluator execution causes deadlocks for recursive memoizers
  * (e.g., factorial, fibonacci) because Kotlin's Mutex is not reentrant.
- * The per-key Deferred pattern runs the evaluator outside any lock, so recursive calls are safe.
+ * per-key Deferred pattern은 evaluator를 lock 밖에서 실행하므로 재귀 호출이 안전합니다.
  *
  * ## Write-after-clear Safety
- * A generation counter ensures that results from in-flight evaluations started before [clear]
+ * generation counter는 [clear] 전에 시작된 in-flight evaluation 결과가
  * are not written back to the cache after it has been invalidated. The caller always receives
  * the computed value regardless of the generation check.
  *
