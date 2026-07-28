@@ -1,20 +1,20 @@
-# 2026-06-01 Open 1.11.0 Development
+# 2026-06-01 1.11.0 development 시작
 
-## Context
+## 배경
 
-`bluetape4k-projects` `1.10.0` was published and included in
-`bluetape4k-dependencies` `1.2.0`.
+`bluetape4k-projects` `1.10.0`이 publish됐고 `bluetape4k-dependencies` `1.2.0`에
+포함됐다.
 
-## Decision
+## 결정
 
-Move the committed `baseVersion` to `1.11.0` while keeping `snapshotVersion=`
-empty so release workflows can inject snapshot qualifiers explicitly.
+committed `baseVersion`을 `1.11.0`으로 이동하되 `snapshotVersion=`은 비워 둔다. 이렇게
+release workflow가 snapshot qualifier를 명시적으로 주입할 수 있다.
 
-## Outcome
+## 결과
 
-The repository is ready for the next minor development line.
+repository가 다음 minor development line을 시작할 준비가 됐다.
 
-## Verification
+## 검증
 
-- `gradle.properties` uses `baseVersion=1.11.0`.
-- `snapshotVersion=` remains empty.
+- `gradle.properties`가 `baseVersion=1.11.0`을 사용한다.
+- `snapshotVersion=`은 비어 있다.
