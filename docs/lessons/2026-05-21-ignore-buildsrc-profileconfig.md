@@ -1,22 +1,22 @@
-# Ignore buildSrc profile config
+# buildSrc profile config ignore
 
-## Context
+## 배경
 
-`buildSrc/.profileconfig.json` appeared as an untracked local profile artifact after README diagram work.
+README diagram 작업 이후 `buildSrc/.profileconfig.json`이 untracked local profile artifact로 나타났다.
 
-## Decision
+## 결정
 
-Ignore the file at the exact `buildSrc` path instead of broadening the pattern to every nested `.profileconfig.json`.
+모든 nested `.profileconfig.json`으로 pattern을 넓히지 않고, 정확한 `buildSrc` path만 ignore한다.
 
-## Outcome
+## 결과
 
-The local profile file no longer appears in normal repository status while root `/.profileconfig.json` remains ignored as before.
+Local profile file은 일반 repository status에 더 이상 나타나지 않고, root `/.profileconfig.json`은 이전처럼 ignore된다.
 
-## Verification
+## 검증
 
 - `git check-ignore -v buildSrc/.profileconfig.json`
 - `git status -sb`
 
-## Future note
+## 향후 노트
 
-Keep local tool profile ignores path-specific unless the same generated file is confirmed across multiple module directories.
+동일한 generated file이 여러 module directory에서 확인되기 전까지 local tool profile ignore는 path-specific하게 유지한다.
