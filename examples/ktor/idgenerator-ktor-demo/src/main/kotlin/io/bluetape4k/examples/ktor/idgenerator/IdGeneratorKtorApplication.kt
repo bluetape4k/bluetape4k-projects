@@ -25,12 +25,12 @@ private const val DEFAULT_BATCH_SIZE = 10
 private const val MAX_BATCH_SIZE = 100
 
 /**
- * Configures the Ktor idgenerator example application.
+ * Ktor idgenerator example application을 설정합니다.
  *
- * ## Contract
- * - Explicit `/ids/{type}` routes and generic `/idgen/{type}` routes share the same registry.
- * - Batch generation accepts `size` in `1..100`; omitted `size` defaults to `10`.
- * - Unsupported generator types and invalid batch sizes return HTTP 400 JSON errors.
+ * ## 계약
+ * - 명시적 `/ids/{type}` route와 generic `/idgen/{type}` route는 같은 registry를 공유합니다.
+ * - batch generation은 `1..100` 범위의 `size`를 허용하며, `size`를 생략하면 기본값 `10`을 사용합니다.
+ * - 지원하지 않는 generator type과 잘못된 batch size는 HTTP 400 JSON error를 반환합니다.
  *
  * ```kotlin
  * embeddedServer(CIO, port = 8080) {
