@@ -51,7 +51,7 @@ abstract class AbstractObjectAsBase64StringConverter(
 /**
  * Typed Base64 string converter that rejects deserialized values outside [targetType].
  *
- * Use this base class for persistent columns that may cross a trust boundary. The serializer is still
+ * trust boundary를 넘을 수 있는 persistent column에는 이 base class를 사용합니다. serializer는 계속
  * pluggable, so callers can combine the typed converter boundary with secure serializers such as
  * `KryoBinarySerializer.secure(...)` or `ForyBinarySerializer.secureFory(...)`.
  *
