@@ -1,26 +1,28 @@
-# Lessons Learned - Hibernate Cache Key Encoding (2026-06-26)
+# Hibernate cache key encoding 교훈 (2026-06-26)
 
-Related issue: #788
-Affected module: `:bluetape4k-hibernate-cache-lettuce`
+관련 이슈: #788
+영향 module: `:bluetape4k-hibernate-cache-lettuce`
 
-## L1: Cache key collision claims need public-path collision tests
+## L1: cache key collision claim에는 public-path collision test가 필요하다
 
-### Problem
+### 문제
 
-`LettuceNearCacheStorageAccess` normalized Hibernate keys with delimiter joins and `toString()`.
-That erased natural-id arity, array/scalar boundaries, and custom identifier state when `toString()` values matched.
-The README claimed Redis key collision prevention, but tests only checked that readable key fragments existed.
+`LettuceNearCacheStorageAccess`는 delimiter join과 `toString()`으로 Hibernate key를
+normalize했다. 이 방식은 `toString()` 값이 같을 때 natural-id arity, array/scalar boundary,
+custom identifier state를 지웠다. README는 Redis key collision prevention을 주장했지만,
+test는 readable key fragment가 존재하는지만 확인했다.
 
-### Lesson
+### 교훈
 
-When a cache bridge claims key collision resistance, cover the bridge's public storage path with adversarial keys:
+cache bridge가 key collision resistance를 주장한다면 public storage path를 adversarial key로
+cover한다.
 
-- a single delimiter-containing natural-id value versus a composite natural-id array,
-- scalar identifier text versus object-array identifier text,
-- custom identifiers with identical `toString()` output but different serialized state.
+- delimiter가 들어 있는 단일 natural-id value와 composite natural-id array
+- scalar identifier text와 object-array identifier text
+- `toString()` output은 같지만 serialized state가 다른 custom identifier
 
-### Future guard
+### 향후 가드
 
-Do not use readable delimiter strings as distributed cache keys unless every component is length-prefixed or otherwise
-typed. Prefer a versioned canonical digest key when the raw key can contain user values or Hibernate-disassembled
-objects.
+모든 component가 length-prefixed이거나 type 정보를 보존하지 않는 한 readable delimiter
+string을 distributed cache key로 쓰지 않는다. raw key가 user value나 Hibernate-disassembled
+object를 포함할 수 있으면 versioned canonical digest key를 우선한다.
