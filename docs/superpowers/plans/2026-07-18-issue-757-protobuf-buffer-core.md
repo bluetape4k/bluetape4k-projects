@@ -1,20 +1,18 @@
-# Issue #757 Protobuf Buffer Core Implementation Plan
+# Issue #757 Protobuf Buffer Core 구현 계획
 
-> **For agentic
-workers:** REQUIRED SUB-SKILL: Use `$subagent-driven-development` (recommended) or `$executing-plans` to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
+> **agentic worker용:** 필수 sub-skill: 이 계획은 `$subagent-driven-development`(권장) 또는 `$executing-plans`로 task별 구현한다. 진행 상태는 checkbox(`- [ ]`) syntax로 추적한다.
 
-**Goal:** Add caller-owned Protobuf `ByteBuffer` APIs, route strict serializer and contiguous Redisson decode through lower-copy paths, and prove benchmark completeness plus allocation claims with two fail-closed runs.
+**목표:** Add caller-owned Protobuf `ByteBuffer` APIs, route strict serializer and contiguous Redisson decode through lower-copy paths, and prove benchmark completeness plus allocation claims with two fail-closed runs.
 
-**Architecture:** Keep `ByteArray` and trusted fallback behavior intact while adding a shared loader-scoped Protobuf message resolver and explicit buffer overrides. Redisson uses a bounded NIO view only for single-component inputs and retains an isolated copied compatibility path for composite and trusted fallback inputs. The existing protobuf benchmark module becomes a thread-confined allocation harness with a module-local validator and exact-head evidence protocol.
+**아키텍처:** Keep `ByteArray` and trusted fallback behavior intact while adding a shared loader-scoped Protobuf message resolver and explicit buffer overrides. Redisson uses a bounded NIO view only for single-component inputs and retains an isolated copied compatibility path for composite and trusted fallback inputs. The existing protobuf benchmark module becomes a thread-confined allocation harness with a module-local validator and exact-head evidence protocol.
 
-**Tech
-Stack:** Kotlin 2.3, Java 21 `ByteBuffer`, Protobuf 4.35.1 `Any`/`CodedOutputStream`, Netty `ByteBuf`, Redisson codec APIs, JUnit 5, kotlinx-benchmark/JMH, Python 3 `unittest`.
+**기술 스택:** Kotlin 2.3, Java 21 `ByteBuffer`, Protobuf 4.35.1 `Any`/`CodedOutputStream`, Netty `ByteBuf`, Redisson codec APIs, JUnit 5, kotlinx-benchmark/JMH, Python 3 `unittest`.
 
 ---
 
-## File Map
+## 파일 지도
 
-**Create**
+**생성**
 
 - `io/protobuf/src/main/kotlin/io/bluetape4k/protobuf/serializers/ProtobufMessageClassResolver.kt` — loader-identity cache and `Message` assignability gate shared by serializer and Redisson.
 - `io/protobuf/src/test/kotlin/io/bluetape4k/protobuf/MessageSupportByteBufferTest.kt` — public helper buffer contract.
@@ -37,11 +35,11 @@ Stack:** Kotlin 2.3, Java 21 `ByteBuffer`, Protobuf 4.35.1 `Any`/`CodedOutputStr
 - `docs/benchmarks/raw/issue-757/validation.json` — comparison validation and identity verdict.
 - `docs/benchmarks/raw/issue-757/delivery-manifest.json` — committed relative-path/hash authority for clean-checkout report and delivery validation.
 
-**Move**
+**이동**
 
 - `benchmark/protobuf-codec-benchmark/src/benchmark/proto/protobuf/benchmark-message.proto` → `benchmark/protobuf-codec-benchmark/src/main/proto/protobuf/benchmark-message.proto` so the fixture and its unit tests share one generated payload type.
 
-**Modify**
+**수정**
 
 - `io/protobuf/src/main/kotlin/io/bluetape4k/protobuf/MessageSupport.kt`
 - `io/protobuf/src/main/kotlin/io/bluetape4k/protobuf/serializers/ProtobufSerializer.kt`
@@ -57,7 +55,7 @@ Stack:** Kotlin 2.3, Java 21 `ByteBuffer`, Protobuf 4.35.1 `Any`/`CodedOutputStr
 - `docs/benchmarks/README.md`
 - `CHANGELOG.md`
 
-## Guardrails
+## Guardrail
 
 - Do not edit `LettuceProtobufCodecs.kt`, Kafka, compressor wrappers, Gradle module registration, dependency catalogs, release, or publishing surfaces.
 - Preserve `packMessage(ByteArray)`, `unpackMessage(ByteArray)`, `serialize`, and `deserialize` wire and source/binary compatibility.
@@ -78,12 +76,12 @@ Evidence invalidation is fail-closed:
 
 Initial promotion remains no-clobber. A legitimate post-promotion replacement uses `run-evidence.py replace-promoted --state <new-state> --expected-manifest <tracked-old-manifest> --destination docs/benchmarks/raw/issue-757 --backup-root .omx/tmp/issue-757/evidence-backups`. It verifies the tracked old directory against its manifest, builds/verifies the complete new sibling directory, atomically moves the old canonical directory to a unique ignored backup and the new directory into place, restores the old directory on any failure, and records the one exact backup path in state. Git history plus the ignored backup preserves recovery. Only after the replacement manifest is committed at `HEAD`, `git show HEAD:docs/benchmarks/raw/issue-757/delivery-manifest.json` is byte-identical to the working file, and `validate-committed` succeeds may `cleanup-replacement-backup` remove that state-recorded backup; it rejects an unverified manifest/head, a path outside the configured backup root, or any path other than the recorded backup. Fixtures cover old-manifest drift, destination collision, failure between both renames, successful restore, cleanup refusal, exact single-backup cleanup, and clean-checkout validation of the replacement.
 
-### Task 1: Add the loader-scoped message resolver security boundary
+### Task 1: loader-scoped message resolver security boundary 추가
 
-**Files:**
+**파일:**
 
-- Create: `io/protobuf/src/main/kotlin/io/bluetape4k/protobuf/serializers/ProtobufMessageClassResolver.kt`
-- Modify: `io/protobuf/src/test/kotlin/io/bluetape4k/protobuf/serializers/ProtobufSerializerSecurityTest.kt`
+- 생성: `io/protobuf/src/main/kotlin/io/bluetape4k/protobuf/serializers/ProtobufMessageClassResolver.kt`
+- 수정: `io/protobuf/src/test/kotlin/io/bluetape4k/protobuf/serializers/ProtobufSerializerSecurityTest.kt`
 
 - [ ] **Step 1: Write failing tests for non-Message classes and loader isolation**
 
@@ -146,7 +144,7 @@ fun `message class cache is isolated by effective class loader identity`() {
 
 - [ ] **Step 2: Run the security tests and verify RED**
 
-Run:
+실행:
 
 ```bash
 ./gradlew :bluetape4k-protobuf:test \
@@ -154,7 +152,7 @@ Run:
   --no-configuration-cache
 ```
 
-Expected: FAIL because the existing class-name-only companion cache bypasses the second loader and the unchecked cast does not enforce `Message` assignability before caching.
+예상 결과: FAIL because the existing class-name-only companion cache bypasses the second loader and the unchecked cast does not enforce `Message` assignability before caching.
 
 - [ ] **Step 3: Implement the shared resolver**
 
@@ -360,7 +358,7 @@ Extend the loader tests with a null-TCCL case that restores the original loader 
 
 Run the Step 2 command.
 
-Expected: PASS, including one resolution per distinct loader identity and terminal rejection of `java.lang.String`.
+예상 결과: PASS, including one resolution per distinct loader identity and terminal rejection of `java.lang.String`.
 
 - [ ] **Step 5: Commit the resolver boundary**
 
@@ -381,10 +379,10 @@ Not-tested: Redisson adoption follows in a separate task"
 
 ### Task 2: Add caller-owned MessageSupport ByteBuffer APIs
 
-**Files:**
+**파일:**
 
-- Create: `io/protobuf/src/test/kotlin/io/bluetape4k/protobuf/MessageSupportByteBufferTest.kt`
-- Modify: `io/protobuf/src/main/kotlin/io/bluetape4k/protobuf/MessageSupport.kt`
+- 생성: `io/protobuf/src/test/kotlin/io/bluetape4k/protobuf/MessageSupportByteBufferTest.kt`
+- 수정: `io/protobuf/src/main/kotlin/io/bluetape4k/protobuf/MessageSupport.kt`
 
 - [ ] **Step 1: Write failing public contract tests**
 
@@ -543,7 +541,7 @@ class MessageSupportByteBufferTest {
   --no-configuration-cache
 ```
 
-Expected: compilation FAIL with unresolved `packMessageTo` and `unpackMessage(ByteBuffer)`.
+예상 결과: compilation FAIL with unresolved `packMessageTo` and `unpackMessage(ByteBuffer)`.
 
 - [ ] **Step 3: Implement `packMessageTo` and `unpackMessage(ByteBuffer)`**
 
@@ -603,7 +601,7 @@ Add KDoc that states non-zero position, limit preservation, raw preflight failur
   --no-configuration-cache
 ```
 
-Expected: PASS with ByteArray/ByteBuffer wire equality and preserved input state.
+예상 결과: PASS with ByteArray/ByteBuffer wire equality and preserved input state.
 
 - [ ] **Step 5: Commit the public helper APIs**
 
@@ -623,11 +621,11 @@ Not-tested: Serializer and Redis dispatch are covered by later tasks"
 
 ### Task 3: Override ProtobufSerializer buffer dispatch without weakening fallback security
 
-**Files:**
+**파일:**
 
-- Create: `io/protobuf/src/test/kotlin/io/bluetape4k/protobuf/serializers/ProtobufSerializerByteBufferTest.kt`
-- Modify: `io/protobuf/src/main/kotlin/io/bluetape4k/protobuf/serializers/ProtobufSerializer.kt`
-- Modify: `io/protobuf/src/test/kotlin/io/bluetape4k/protobuf/serializers/ProtobufSerializerSecurityTest.kt`
+- 생성: `io/protobuf/src/test/kotlin/io/bluetape4k/protobuf/serializers/ProtobufSerializerByteBufferTest.kt`
+- 수정: `io/protobuf/src/main/kotlin/io/bluetape4k/protobuf/serializers/ProtobufSerializer.kt`
+- 수정: `io/protobuf/src/test/kotlin/io/bluetape4k/protobuf/serializers/ProtobufSerializerSecurityTest.kt`
 
 - [ ] **Step 1: Write failing serializer buffer tests**
 
@@ -778,7 +776,7 @@ class ProtobufSerializerByteBufferTest {
   --no-configuration-cache
 ```
 
-Expected: the declared-method reflection test fails before the overrides exist.
+예상 결과: the declared-method reflection test fails before the overrides exist.
 
 - [ ] **Step 3: Refactor Protobuf decode once, then override both buffer methods**
 
@@ -1147,7 +1145,7 @@ Together with `terminal security failures never reach trusted fallback`, these t
 
 Run the Step 2 command plus existing `ProtobufSerializerTest`.
 
-Expected: PASS; strict exceptions remain wrapped, trusted fallback remains compatible, and repeated buffer calls do not drift.
+예상 결과: PASS; strict exceptions remain wrapped, trusted fallback remains compatible, and repeated buffer calls do not drift.
 
 - [ ] **Step 6: Commit serializer dispatch**
 
@@ -1168,10 +1166,10 @@ Not-tested: Redisson decode and allocation evidence follow in later tasks"
 
 ### Task 4: Route contiguous Redisson decode through a bounded NIO view
 
-**Files:**
+**파일:**
 
-- Modify: `io/protobuf/src/main/kotlin/io/bluetape4k/protobuf/serializers/redis/RedissonProtobufCodec.kt`
-- Modify: `io/protobuf/src/test/kotlin/io/bluetape4k/protobuf/serializers/redis/RedissonProtobufCodecTest.kt`
+- 수정: `io/protobuf/src/main/kotlin/io/bluetape4k/protobuf/serializers/redis/RedissonProtobufCodec.kt`
+- 수정: `io/protobuf/src/test/kotlin/io/bluetape4k/protobuf/serializers/redis/RedissonProtobufCodecTest.kt`
 
 - [ ] **Step 1: Write failing contiguous/composite/resource tests**
 
@@ -1353,7 +1351,7 @@ fun `trusted fallback releases its isolated copy on success and failure`() {
   --no-configuration-cache
 ```
 
-Expected: fallback copy remains unreleased, and the bounded-view probe reports zero `nioBuffer` calls because strict decode still performs `getBytes(copy = true)`.
+예상 결과: fallback copy remains unreleased, and the bounded-view probe reports zero `nioBuffer` calls because strict decode still performs `getBytes(copy = true)`.
 
 - [ ] **Step 3: Implement contiguous view, composite copy, shared resolution, and exact fallback cleanup**
 
@@ -1586,7 +1584,7 @@ The `decodeFallback` catch must still throw the original operation sentinel; its
 ./gradlew :bluetape4k-protobuf:test --no-configuration-cache
 ```
 
-Expected: all tests PASS; input indices/refCnt remain unchanged and temporary fallback buffers reach refCnt 0.
+예상 결과: all tests PASS; input indices/refCnt remain unchanged and temporary fallback buffers reach refCnt 0.
 
 - [ ] **Step 6: Commit the Redisson decode boundary**
 
@@ -1606,14 +1604,14 @@ Not-tested: Lettuce remains the second issue 757 pull request"
 
 ### Task 5: Rebuild the protobuf benchmark as a deterministic allocation matrix
 
-**Files:**
+**파일:**
 
-- Move: `benchmark/protobuf-codec-benchmark/src/benchmark/proto/protobuf/benchmark-message.proto` → `benchmark/protobuf-codec-benchmark/src/main/proto/protobuf/benchmark-message.proto`
-- Create: `benchmark/protobuf-codec-benchmark/src/main/kotlin/io/bluetape4k/protobuf/benchmark/ProtobufCodecBenchmarkSupport.kt`
-- Create: `benchmark/protobuf-codec-benchmark/src/main/kotlin/io/bluetape4k/protobuf/benchmark/ProtobufCodecBenchmarkMetadata.kt`
-- Create: `benchmark/protobuf-codec-benchmark/src/test/kotlin/io/bluetape4k/protobuf/benchmark/ProtobufCodecBenchmarkSupportTest.kt`
-- Modify: `benchmark/protobuf-codec-benchmark/build.gradle.kts`
-- Modify: `benchmark/protobuf-codec-benchmark/src/benchmark/kotlin/io/bluetape4k/protobuf/benchmark/ProtobufCodecBenchmark.kt`
+- 이동: `benchmark/protobuf-codec-benchmark/src/benchmark/proto/protobuf/benchmark-message.proto` → `benchmark/protobuf-codec-benchmark/src/main/proto/protobuf/benchmark-message.proto`
+- 생성: `benchmark/protobuf-codec-benchmark/src/main/kotlin/io/bluetape4k/protobuf/benchmark/ProtobufCodecBenchmarkSupport.kt`
+- 생성: `benchmark/protobuf-codec-benchmark/src/main/kotlin/io/bluetape4k/protobuf/benchmark/ProtobufCodecBenchmarkMetadata.kt`
+- 생성: `benchmark/protobuf-codec-benchmark/src/test/kotlin/io/bluetape4k/protobuf/benchmark/ProtobufCodecBenchmarkSupportTest.kt`
+- 수정: `benchmark/protobuf-codec-benchmark/build.gradle.kts`
+- 수정: `benchmark/protobuf-codec-benchmark/src/benchmark/kotlin/io/bluetape4k/protobuf/benchmark/ProtobufCodecBenchmark.kt`
 
 - [ ] **Step 1: Move the canonical proto and wire main/test dependencies**
 
@@ -1681,7 +1679,7 @@ class ProtobufCodecBenchmarkSupportTest {
 ./gradlew :protobuf-codec-benchmark:test --no-configuration-cache
 ```
 
-Expected: compilation FAIL until the support fixture and matrix exist.
+예상 결과: compilation FAIL until the support fixture and matrix exist.
 
 - [ ] **Step 4: Implement the deterministic fixture and exact method set**
 
@@ -1993,7 +1991,7 @@ java -cp "$JMH_JARS" io.bluetape4k.protobuf.benchmark.ProtobufCodecBenchmarkMeta
 java -jar "$JMH_JARS" -l
 ```
 
-Expected: tests and tasks PASS; list contains exactly the 13 methods in `ProtobufBenchmarkMatrix.expectedMethods`.
+예상 결과: tests and tasks PASS; list contains exactly the 13 methods in `ProtobufBenchmarkMatrix.expectedMethods`.
 
 - [ ] **Step 7: Commit the deterministic harness**
 
@@ -2011,12 +2009,12 @@ Not-tested: Long GC-profiler evidence runs follow after validation tooling"
 
 ### Task 6: Add the fail-closed JMH validator and two-run verdict gate
 
-**Files:**
+**파일:**
 
-- Create: `benchmark/protobuf-codec-benchmark/scripts/validate-jmh.py`
-- Create: `benchmark/protobuf-codec-benchmark/scripts/test_validate_jmh.py`
-- Create: `benchmark/protobuf-codec-benchmark/scripts/run-evidence.py`
-- Create: `benchmark/protobuf-codec-benchmark/scripts/test_run_evidence.py`
+- 생성: `benchmark/protobuf-codec-benchmark/scripts/validate-jmh.py`
+- 생성: `benchmark/protobuf-codec-benchmark/scripts/test_validate_jmh.py`
+- 생성: `benchmark/protobuf-codec-benchmark/scripts/run-evidence.py`
+- 생성: `benchmark/protobuf-codec-benchmark/scripts/test_run_evidence.py`
 
 - [ ] **Step 1: Write failing validator fixtures**
 
@@ -2063,7 +2061,7 @@ class ValidateJmhTest(unittest.TestCase):
 python3 -m unittest benchmark/protobuf-codec-benchmark/scripts/test_validate_jmh.py
 ```
 
-Expected: FAIL because `validate-jmh.py` does not exist.
+예상 결과: FAIL because `validate-jmh.py` does not exist.
 
 - [ ] **Step 3: Implement the exact matrix and validation primitives**
 
@@ -2189,7 +2187,7 @@ python3 -m unittest benchmark/protobuf-codec-benchmark/scripts/test_validate_jmh
 python3 -m unittest benchmark/protobuf-codec-benchmark/scripts/test_run_evidence.py
 ```
 
-Expected: all tests PASS, including `regressed`, invalid metric, manifest/JAR mismatch, JAR replacement, multiple-JAR, dirty-tree, duplicate-run-ID, failed-process logging, promotion collision, old-manifest drift, failure between the two replacement renames with exact restore, successful replacement, cleanup refusal, exact single-backup cleanup, and clean-checkout replacement validation fixtures.
+예상 결과: all tests PASS, including `regressed`, invalid metric, manifest/JAR mismatch, JAR replacement, multiple-JAR, dirty-tree, duplicate-run-ID, failed-process logging, promotion collision, old-manifest drift, failure between the two replacement renames with exact restore, successful replacement, cleanup refusal, exact single-backup cleanup, and clean-checkout replacement validation fixtures.
 
 - [ ] **Step 5: Commit the unit-validated fail-closed gate**
 
@@ -2220,18 +2218,18 @@ python3 benchmark/protobuf-codec-benchmark/scripts/run-evidence.py run \
 
 The smoke profile is fixed at `-t 1 -f 1 -wi 1 -i 1 -w 1s -r 1s -prof gc -rf json`; the validator's `run` mode validates schema, provenance, and metrics, while final `compare` mode enforces the canonical evidence profile.
 
-Expected: all 13 methods present and validation status `passed`. If the smoke fails, repair the scripts/tests, repeat Step 4, commit the repair with Lore trailers, and rerun the smoke from the new clean head. Do not bypass the runner clean-tree gate. The smoke root/state is never reused for canonical evidence. Task 8 creates the distinct `build/issue-757-evidence/jar.json` only after its fresh clean/JAR build.
+예상 결과: all 13 methods present and validation status `passed`. If the smoke fails, repair the scripts/tests, repeat Step 4, commit the repair with Lore trailers, and rerun the smoke from the new clean head. Do not bypass the runner clean-tree gate. The smoke root/state is never reused for canonical evidence. Task 8 creates the distinct `build/issue-757-evidence/jar.json` only after its fresh clean/JAR build.
 
 ### Task 7: Document the public contract and prepare a clean implementation head
 
-**Files:**
+**파일:**
 
-- Modify: `io/protobuf/README.md`
-- Modify: `io/protobuf/README.ko.md`
-- Modify: `benchmark/protobuf-codec-benchmark/README.md`
-- Modify: `benchmark/protobuf-codec-benchmark/README.ko.md`
-- Modify: `docs/benchmarks/README.md`
-- Modify: `CHANGELOG.md`
+- 수정: `io/protobuf/README.md`
+- 수정: `io/protobuf/README.ko.md`
+- 수정: `benchmark/protobuf-codec-benchmark/README.md`
+- 수정: `benchmark/protobuf-codec-benchmark/README.ko.md`
+- 수정: `docs/benchmarks/README.md`
+- 수정: `CHANGELOG.md`
 
 - [ ] **Step 1: Update English/Korean Protobuf README sections in parity**
 
@@ -2318,7 +2316,7 @@ git diff --check
   --no-configuration-cache
 ```
 
-Expected: locale pairs contain the same contract topics; all targeted tests/compile pass; no whitespace errors.
+예상 결과: locale pairs contain the same contract topics; all targeted tests/compile pass; no whitespace errors.
 
 - [ ] **Step 5: Commit documentation and confirm the measurement head is clean**
 
@@ -2338,20 +2336,20 @@ Not-tested: Final allocation numbers are intentionally deferred to fresh runs"
 repo-status
 ```
 
-Expected: clean tree; branch is ahead of `origin/develop`; record `git rev-parse HEAD` as the measurement commit.
+예상 결과: clean tree; branch is ahead of `origin/develop`; record `git rev-parse HEAD` as the measurement commit.
 
 ### Task 8: Collect two clean exact-head allocation runs and publish only supported conclusions
 
-**Files:**
+**파일:**
 
-- Create: `docs/benchmarks/2026-07-18-protobuf-buffer-allocation.md`
-- Create: `docs/benchmarks/raw/issue-757/run-<UTC>/environment.json`
-- Create: `docs/benchmarks/raw/issue-757/run-<UTC>/argv.json`
-- Create: `docs/benchmarks/raw/issue-757/run-<UTC>/run.log`
-- Create: `docs/benchmarks/raw/issue-757/run-<UTC>/jmh.json`
-- Create: `docs/benchmarks/raw/issue-757/run-<UTC>/summary.csv`
-- Create: `docs/benchmarks/raw/issue-757/run-<UTC>/validation.json`
-- Create: `docs/benchmarks/raw/issue-757/comparison.csv`
+- 생성: `docs/benchmarks/2026-07-18-protobuf-buffer-allocation.md`
+- 생성: `docs/benchmarks/raw/issue-757/run-<UTC>/environment.json`
+- 생성: `docs/benchmarks/raw/issue-757/run-<UTC>/argv.json`
+- 생성: `docs/benchmarks/raw/issue-757/run-<UTC>/run.log`
+- 생성: `docs/benchmarks/raw/issue-757/run-<UTC>/jmh.json`
+- 생성: `docs/benchmarks/raw/issue-757/run-<UTC>/summary.csv`
+- 생성: `docs/benchmarks/raw/issue-757/run-<UTC>/validation.json`
+- 생성: `docs/benchmarks/raw/issue-757/comparison.csv`
 - Modify conditionally: production dispatch files and `CHANGELOG.md` only if the symmetric regression rule requires rollback.
 
 - [ ] **Step 1: Prove the measurement source is clean and capture immutable identity**
@@ -2368,7 +2366,7 @@ sysctl -n machdep.cpu.brand_string
 uname -a
 ```
 
-Expected: clean tree including untracked files. Stop if dirty; do not measure uncommitted implementation. The runner repeats this gate immediately before each launch and writes these command results into the manifest, so this shell inspection is orientation rather than the source of truth.
+예상 결과: clean tree including untracked files. Stop if dirty; do not measure uncommitted implementation. The runner repeats this gate immediately before each launch and writes these command results into the manifest, so this shell inspection is orientation rather than the source of truth.
 
 - [ ] **Step 2: Build one JMH jar before both runs**
 
@@ -2379,7 +2377,7 @@ Expected: clean tree including untracked files. Stop if dirty; do not measure un
   --no-configuration-cache
 ```
 
-Expected: PASS and exactly one runnable JMH jar under `benchmark/protobuf-codec-benchmark/build/benchmarks/benchmark/jars/`.
+예상 결과: PASS and exactly one runnable JMH jar under `benchmark/protobuf-codec-benchmark/build/benchmarks/benchmark/jars/`.
 
 Resolve and pin the artifact once in an ignored, fail-if-exists state file:
 
@@ -2406,7 +2404,7 @@ python3 benchmark/protobuf-codec-benchmark/scripts/run-evidence.py run \
   --output-root benchmark/protobuf-codec-benchmark/build/issue-757-evidence
 ```
 
-Expected: both validations PASS; run IDs differ; all 13 methods and required metrics are present; each directory contains `environment.json`, `argv.json`, `run.log`, `jmh.json`, `summary.csv`, and `validation.json`; the recorded exit code is 0; the tree remains clean because staging is ignored.
+예상 결과: both validations PASS; run IDs differ; all 13 methods and required metrics are present; each directory contains `environment.json`, `argv.json`, `run.log`, `jmh.json`, `summary.csv`, and `validation.json`; the recorded exit code is 0; the tree remains clean because staging is ignored.
 
 - [ ] **Step 4: Compare the two validated runs**
 
@@ -2417,7 +2415,7 @@ python3 benchmark/protobuf-codec-benchmark/scripts/run-evidence.py compare \
   --validation benchmark/protobuf-codec-benchmark/build/issue-757-evidence/validation.json
 ```
 
-Expected: each eligible cell is exactly `accepted`, `inconclusive`, or `regressed`; compatibility/fallback cells are `ineligible`.
+예상 결과: each eligible cell is exactly `accepted`, `inconclusive`, or `regressed`; compatibility/fallback cells are `ineligible`.
 
 - [ ] **Step 5: Apply the symmetric go/no-go rule before writing claims**
 
@@ -2438,7 +2436,7 @@ Rollback 순서는 고정이다: (1) pre-change clean head에서 Gradle clean �
 
 - [ ] **Step 6: Promote validated artifacts atomically only after both runs finish**
 
-Run:
+실행:
 
 ```bash
 test ! -e docs/benchmarks/raw/issue-757
@@ -2505,10 +2503,10 @@ fi
 
 ### Task 9: Run final verification, independent review, and exact-head PR delivery
 
-**Files:**
+**파일:**
 
-- Create: `docs/review/issue-757-protobuf-buffer-core-review.md`
-- Modify: issue #757 DoD and PR metadata only after local verification passes.
+- 생성: `docs/review/issue-757-protobuf-buffer-core-review.md`
+- 수정: issue #757 DoD and PR metadata only after local verification passes.
 
 - [ ] **Step 1: Run final local verification sequentially**
 
@@ -2573,7 +2571,7 @@ git diff --name-status origin/develop...HEAD
 python3 .omx/tmp/issue-757/check_scope.py origin/develop HEAD
 ```
 
-Expected: every command exits 0, the post-test tree is clean including untracked files, the complete `origin/develop...HEAD` name/status list is reviewed, and no module registration, dependency catalog/wrapper, release, tag, publishing, or workflow surface entered the diff. If Detekt task naming differs, discover with `./gradlew :bluetape4k-protobuf:tasks --all` and record the actual equivalent.
+예상 결과: every command exits 0, the post-test tree is clean including untracked files, the complete `origin/develop...HEAD` name/status list is reviewed, and no module registration, dependency catalog/wrapper, release, tag, publishing, or workflow surface entered the diff. If Detekt task naming differs, discover with `./gradlew :bluetape4k-protobuf:tasks --all` and record the actual equivalent.
 
 - [ ] **Step 2: Run independent six-lens review and repair until P0=0/P1=0**
 
