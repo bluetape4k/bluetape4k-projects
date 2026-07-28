@@ -1,29 +1,29 @@
-# Snapshot Cache Actions
+# Snapshot cache action
 
-## Context
+## 배경
 
-Nightly should not disable Gradle dependency caching while the repository relies
-on mutable bluetape4k SNAPSHOT artifacts from Central snapshots.
+repository가 Central snapshot의 mutable bluetape4k SNAPSHOT artifact에 의존하는 동안,
+Nightly는 Gradle dependency caching을 비활성화하지 않아야 한다.
 
-## Decision
+## 결정
 
-Remove `cache-disabled: true` from Nightly Gradle setup steps so scheduled jobs
-can reuse dependency metadata according to Gradle's changing-module cache policy.
+scheduled job이 Gradle changing-module cache policy에 따라 dependency metadata를
+재사용할 수 있도록 Nightly Gradle setup step에서 `cache-disabled: true`를 제거한다.
 
-## Outcome
+## 결과
 
-Nightly keeps its existing task structure, but Gradle cache write/read behavior
-is no longer explicitly disabled in the workflow.
+Nightly는 기존 task structure를 유지하지만, workflow에서 Gradle cache write/read
+behavior를 더 이상 명시적으로 비활성화하지 않는다.
 
-## Verification
+## 검증
 
 - `actionlint .github/workflows/*.yml`
 - `rg -n -- '--refresh-dependencies|cache-disabled: true' .github/workflows` -> no matches
 - `./gradlew help --no-daemon`
 - `git diff --check`
 
-## Future Guidance
+## 향후 지침
 
-Use explicit dependency refresh only in dedicated post-publish freshness checks.
-Ordinary CI, Nightly, and Examples workflows should rely on cached changing-module
-metadata plus targeted warm-up when a test-only SNAPSHOT dependency needs it.
+explicit dependency refresh는 전용 post-publish freshness check에서만 사용한다. 일반
+CI, Nightly, Examples workflow는 cached changing-module metadata에 의존하고, test-only
+SNAPSHOT dependency가 필요할 때만 targeted warm-up을 추가한다.
