@@ -1,12 +1,12 @@
-# Issue #1080 Lettuce Synchronizers Implementation Plan
+# Issue #1080 Lettuce Synchronizers 구현 계획
 
-> **For agentic workers:** REQUIRED SUB-SKILL: Use `subagent-driven-development` or `executing-plans` to implement this plan task-by-task. Follow `bluetape-workflow`, `bluetape-full-feature`, `bluetape-kotlin-patterns`, `kotlin-coroutines-skill`, `test-driven-development`, `bluetape-writer`, and `bluetape-diagram`. Redis/Testcontainers and diagram rendering commands are serialized.
+> **agentic worker용:** 필수 sub-skill: 이 계획은 `subagent-driven-development` 또는 `executing-plans`로 task별 구현한다. `bluetape-workflow`, `bluetape-full-feature`, `bluetape-kotlin-patterns`, `kotlin-coroutines-skill`, `test-driven-development`, `bluetape-writer`, `bluetape-diagram`을 따른다. Redis/Testcontainers와 diagram rendering 명령은 직렬화한다.
 
-**Goal:** Deliver issue #1080 Delivery 2 as additive Lettuce implementations of a generation-safe distributed semaphore, a fixed-lease expirable permit semaphore, and a monotonic-generation count-down latch with blocking, async, and suspend semantic parity.
+**목표:** Deliver issue #1080 Delivery 2 as additive Lettuce implementations of a generation-safe distributed semaphore, a fixed-lease expirable permit semaphore, and a monotonic-generation count-down latch with blocking, async, and suspend semantic parity.
 
-**Architecture:** Public identities, handles, configs, outcomes, and six caller-facing objects live under `io.bluetape4k.redis.lettuce.synchronizer`. Internal key layouts, Lua scripts, reply decoding, bounded polling, cancellation, and standalone/Cluster command adapters reuse `RedisScriptRunner` and the merged Lock-family conventions. Redis is the authority for capacity, permit ownership, expiry, latch count, and non-reused generation; legacy `LettuceSemaphore` remains unchanged.
+**아키텍처:** Public identities, handles, configs, outcomes, and six caller-facing objects live under `io.bluetape4k.redis.lettuce.synchronizer`. Internal key layouts, Lua scripts, reply decoding, bounded polling, cancellation, and standalone/Cluster command adapters reuse `RedisScriptRunner` and the merged Lock-family conventions. Redis is the authority for capacity, permit ownership, expiry, latch count, and non-reused generation; legacy `LettuceSemaphore` remains unchanged.
 
-**Tech Stack:** Kotlin 2.3, Java 21, Lettuce, Redis Lua, Kotlin Coroutines, `CompletableFuture`, JUnit 5, Testcontainers Redis, Gradle Kotlin DSL, SVG, CairoSVG.
+**기술 스택:** Kotlin 2.3, Java 21, Lettuce, Redis Lua, Kotlin Coroutines, `CompletableFuture`, JUnit 5, Testcontainers Redis, Gradle Kotlin DSL, SVG, CairoSVG.
 
 **Approved design:** `docs/superpowers/specs/2026-07-25-issue-1080-lettuce-locks-synchronizers-design.md`
 
@@ -41,10 +41,10 @@ The copied `SynchronizerTypes.kt` and `SynchronizerScripts.kt` are prior user wo
 
 ### 2.1 Identity, handles, configuration, and results
 
-**Files:**
+**파일:**
 
-- Modify: `infra/lettuce/src/main/kotlin/io/bluetape4k/redis/lettuce/synchronizer/SynchronizerTypes.kt`
-- Create: `infra/lettuce/src/main/kotlin/io/bluetape4k/redis/lettuce/synchronizer/SynchronizerObservation.kt`
+- 수정: `infra/lettuce/src/main/kotlin/io/bluetape4k/redis/lettuce/synchronizer/SynchronizerTypes.kt`
+- 생성: `infra/lettuce/src/main/kotlin/io/bluetape4k/redis/lettuce/synchronizer/SynchronizerObservation.kt`
 - Test: `infra/lettuce/src/test/kotlin/io/bluetape4k/redis/lettuce/synchronizer/SynchronizerTypesTest.kt`
 
 The public contract uses opaque, serializable identities with redacted `toString()`:
@@ -152,10 +152,10 @@ Each public object has no-config/config standalone and Cluster `@JvmStatic creat
 
 ### 2.2 Key layout and Redis protocol
 
-**Files:**
+**파일:**
 
-- Create: `infra/lettuce/src/main/kotlin/io/bluetape4k/redis/lettuce/synchronizer/internal/SynchronizerProtocol.kt`
-- Modify: `infra/lettuce/src/main/kotlin/io/bluetape4k/redis/lettuce/synchronizer/SynchronizerScripts.kt`
+- 생성: `infra/lettuce/src/main/kotlin/io/bluetape4k/redis/lettuce/synchronizer/internal/SynchronizerProtocol.kt`
+- 수정: `infra/lettuce/src/main/kotlin/io/bluetape4k/redis/lettuce/synchronizer/SynchronizerScripts.kt`
 - Test: `infra/lettuce/src/test/kotlin/io/bluetape4k/redis/lettuce/synchronizer/SynchronizerProtocolTest.kt`
 
 All keys for one object share one Redis Cluster hash tag:
@@ -180,11 +180,11 @@ The semaphore generation key is incremented only when a previously absent logica
 
 ### Task 1: Freeze the public contract
 
-**Files:**
+**파일:**
 
 - Test: `infra/lettuce/src/test/kotlin/io/bluetape4k/redis/lettuce/synchronizer/SynchronizerTypesTest.kt`
-- Modify: `infra/lettuce/src/main/kotlin/io/bluetape4k/redis/lettuce/synchronizer/SynchronizerTypes.kt`
-- Create: `infra/lettuce/src/main/kotlin/io/bluetape4k/redis/lettuce/synchronizer/SynchronizerObservation.kt`
+- 수정: `infra/lettuce/src/main/kotlin/io/bluetape4k/redis/lettuce/synchronizer/SynchronizerTypes.kt`
+- 생성: `infra/lettuce/src/main/kotlin/io/bluetape4k/redis/lettuce/synchronizer/SynchronizerObservation.kt`
 
 - [ ] **Step 1 — Write the failing type and validation tests**
 
@@ -208,13 +208,13 @@ fun `configs reject overflow and out of range durations before dispatch`() {
 
 - [ ] **Step 2 — Verify RED**
 
-Run:
+실행:
 
 ```bash
 ./gradlew :bluetape4k-lettuce:test --tests '*SynchronizerTypesTest' --no-parallel --max-workers=1
 ```
 
-Expected: FAIL because the final config bounds/result types are missing or inconsistent.
+예상 결과: FAIL because the final config bounds/result types are missing or inconsistent.
 
 - [ ] **Step 3 — Implement the minimal types**
 
@@ -226,11 +226,11 @@ Run the same targeted command. Expected: PASS with no new compiler warning.
 
 ### Task 2: Lock the key and Lua protocol
 
-**Files:**
+**파일:**
 
 - Test: `infra/lettuce/src/test/kotlin/io/bluetape4k/redis/lettuce/synchronizer/SynchronizerProtocolTest.kt`
-- Create: `infra/lettuce/src/main/kotlin/io/bluetape4k/redis/lettuce/synchronizer/internal/SynchronizerProtocol.kt`
-- Modify: `infra/lettuce/src/main/kotlin/io/bluetape4k/redis/lettuce/synchronizer/SynchronizerScripts.kt`
+- 생성: `infra/lettuce/src/main/kotlin/io/bluetape4k/redis/lettuce/synchronizer/internal/SynchronizerProtocol.kt`
+- 수정: `infra/lettuce/src/main/kotlin/io/bluetape4k/redis/lettuce/synchronizer/SynchronizerScripts.kt`
 
 - [ ] **Step 1 — Write failing protocol tests**
 
@@ -262,13 +262,13 @@ fun `three expirable unit leases restore exactly three permits`() {
 
 - [ ] **Step 2 — Verify RED**
 
-Run:
+실행:
 
 ```bash
 ./gradlew :bluetape4k-lettuce:test --tests '*SynchronizerProtocolTest' --no-parallel --max-workers=1
 ```
 
-Expected: FAIL on missing key layout/decoder and the copied latch delete bug.
+예상 결과: FAIL on missing key layout/decoder and the copied latch delete bug.
 
 - [ ] **Step 3 — Implement minimal protocol and repair scripts**
 
@@ -280,13 +280,13 @@ Run the same targeted command. Expected: PASS.
 
 ### Task 3: Implement `LettuceDistributedSemaphore`
 
-**Files:**
+**파일:**
 
-- Create: `infra/lettuce/src/main/kotlin/io/bluetape4k/redis/lettuce/synchronizer/internal/DistributedSemaphoreClient.kt`
-- Create: `infra/lettuce/src/main/kotlin/io/bluetape4k/redis/lettuce/synchronizer/LettuceDistributedSemaphore.kt`
-- Create: `infra/lettuce/src/main/kotlin/io/bluetape4k/redis/lettuce/synchronizer/LettuceSuspendDistributedSemaphore.kt`
-- Create: `infra/lettuce/src/test/kotlin/io/bluetape4k/redis/lettuce/synchronizer/DistributedSemaphoreContract.kt`
-- Create: `infra/lettuce/src/test/kotlin/io/bluetape4k/redis/lettuce/synchronizer/LettuceDistributedSemaphoreTest.kt`
+- 생성: `infra/lettuce/src/main/kotlin/io/bluetape4k/redis/lettuce/synchronizer/internal/DistributedSemaphoreClient.kt`
+- 생성: `infra/lettuce/src/main/kotlin/io/bluetape4k/redis/lettuce/synchronizer/LettuceDistributedSemaphore.kt`
+- 생성: `infra/lettuce/src/main/kotlin/io/bluetape4k/redis/lettuce/synchronizer/LettuceSuspendDistributedSemaphore.kt`
+- 생성: `infra/lettuce/src/test/kotlin/io/bluetape4k/redis/lettuce/synchronizer/DistributedSemaphoreContract.kt`
+- 생성: `infra/lettuce/src/test/kotlin/io/bluetape4k/redis/lettuce/synchronizer/LettuceDistributedSemaphoreTest.kt`
 
 Public operations:
 
@@ -308,13 +308,13 @@ Tests must cover initialization result variants, forbidden capacity shrink while
 
 - [ ] **Step 2 — Verify RED**
 
-Run:
+실행:
 
 ```bash
 ./gradlew :bluetape4k-lettuce:test --tests '*LettuceDistributedSemaphoreTest' --no-parallel --max-workers=1
 ```
 
-Expected: compilation/test failure because the public objects do not exist.
+예상 결과: compilation/test failure because the public objects do not exist.
 
 - [ ] **Step 3 — Implement minimal blocking/async/suspend surfaces**
 
@@ -326,13 +326,13 @@ Run the same targeted command. Expected: all blocking, future, suspend, standalo
 
 ### Task 4: Implement `LettucePermitExpirableSemaphore`
 
-**Files:**
+**파일:**
 
-- Create: `infra/lettuce/src/main/kotlin/io/bluetape4k/redis/lettuce/synchronizer/internal/ExpirableSemaphoreClient.kt`
-- Create: `infra/lettuce/src/main/kotlin/io/bluetape4k/redis/lettuce/synchronizer/LettucePermitExpirableSemaphore.kt`
-- Create: `infra/lettuce/src/main/kotlin/io/bluetape4k/redis/lettuce/synchronizer/LettuceSuspendPermitExpirableSemaphore.kt`
-- Create: `infra/lettuce/src/test/kotlin/io/bluetape4k/redis/lettuce/synchronizer/ExpirableSemaphoreContract.kt`
-- Create: `infra/lettuce/src/test/kotlin/io/bluetape4k/redis/lettuce/synchronizer/LettucePermitExpirableSemaphoreTest.kt`
+- 생성: `infra/lettuce/src/main/kotlin/io/bluetape4k/redis/lettuce/synchronizer/internal/ExpirableSemaphoreClient.kt`
+- 생성: `infra/lettuce/src/main/kotlin/io/bluetape4k/redis/lettuce/synchronizer/LettucePermitExpirableSemaphore.kt`
+- 생성: `infra/lettuce/src/main/kotlin/io/bluetape4k/redis/lettuce/synchronizer/LettuceSuspendPermitExpirableSemaphore.kt`
+- 생성: `infra/lettuce/src/test/kotlin/io/bluetape4k/redis/lettuce/synchronizer/ExpirableSemaphoreContract.kt`
+- 생성: `infra/lettuce/src/test/kotlin/io/bluetape4k/redis/lettuce/synchronizer/LettucePermitExpirableSemaphoreTest.kt`
 
 Additional public operation:
 
@@ -348,13 +348,13 @@ Cover `N > 1` unique permit IDs and per-entry deadlines, fixed lease expiry, cle
 
 - [ ] **Step 2 — Verify RED**
 
-Run:
+실행:
 
 ```bash
 ./gradlew :bluetape4k-lettuce:test --tests '*LettucePermitExpirableSemaphoreTest' --no-parallel --max-workers=1
 ```
 
-Expected: FAIL because expirable public/client behavior is absent.
+예상 결과: FAIL because expirable public/client behavior is absent.
 
 - [ ] **Step 3 — Implement minimal expirable behavior**
 
@@ -366,13 +366,13 @@ Run the same targeted command. Expected: PASS.
 
 ### Task 5: Implement `LettuceCountDownLatch`
 
-**Files:**
+**파일:**
 
-- Create: `infra/lettuce/src/main/kotlin/io/bluetape4k/redis/lettuce/synchronizer/internal/CountDownLatchClient.kt`
-- Create: `infra/lettuce/src/main/kotlin/io/bluetape4k/redis/lettuce/synchronizer/LettuceCountDownLatch.kt`
-- Create: `infra/lettuce/src/main/kotlin/io/bluetape4k/redis/lettuce/synchronizer/LettuceSuspendCountDownLatch.kt`
-- Create: `infra/lettuce/src/test/kotlin/io/bluetape4k/redis/lettuce/synchronizer/CountDownLatchContract.kt`
-- Create: `infra/lettuce/src/test/kotlin/io/bluetape4k/redis/lettuce/synchronizer/LettuceCountDownLatchTest.kt`
+- 생성: `infra/lettuce/src/main/kotlin/io/bluetape4k/redis/lettuce/synchronizer/internal/CountDownLatchClient.kt`
+- 생성: `infra/lettuce/src/main/kotlin/io/bluetape4k/redis/lettuce/synchronizer/LettuceCountDownLatch.kt`
+- 생성: `infra/lettuce/src/main/kotlin/io/bluetape4k/redis/lettuce/synchronizer/LettuceSuspendCountDownLatch.kt`
+- 생성: `infra/lettuce/src/test/kotlin/io/bluetape4k/redis/lettuce/synchronizer/CountDownLatchContract.kt`
+- 생성: `infra/lettuce/src/test/kotlin/io/bluetape4k/redis/lettuce/synchronizer/LettuceCountDownLatchTest.kt`
 
 Public operations:
 
@@ -393,13 +393,13 @@ Cover request-idempotent create after ambiguous completion, active-generation re
 
 - [ ] **Step 2 — Verify RED**
 
-Run:
+실행:
 
 ```bash
 ./gradlew :bluetape4k-lettuce:test --tests '*LettuceCountDownLatchTest' --no-parallel --max-workers=1
 ```
 
-Expected: FAIL because latch objects and corrected monotonic-generation protocol do not exist.
+예상 결과: FAIL because latch objects and corrected monotonic-generation protocol do not exist.
 
 - [ ] **Step 3 — Implement minimal latch behavior**
 
@@ -411,13 +411,13 @@ Run the same targeted command. Expected: PASS.
 
 ### Task 6: Sequential Redis, Cluster, protocol, and lifecycle verification
 
-**Files:**
+**파일:**
 
-- Create: `infra/lettuce/src/test/kotlin/io/bluetape4k/redis/lettuce/synchronizer/SynchronizerRedisProtocolTest.kt`
-- Create: `infra/lettuce/src/test/kotlin/io/bluetape4k/redis/lettuce/synchronizer/SynchronizerCancellationTest.kt`
-- Create: `infra/lettuce/src/test/kotlin/io/bluetape4k/redis/lettuce/synchronizer/SynchronizerClusterTest.kt`
-- Create: `infra/lettuce/src/test/kotlin/io/bluetape4k/redis/lettuce/synchronizer/SynchronizerPerformanceStabilityTest.kt`
-- Create: `infra/lettuce/src/test/java/io/bluetape4k/redis/lettuce/synchronizer/LettuceSynchronizerJavaDocumentationTest.java`
+- 생성: `infra/lettuce/src/test/kotlin/io/bluetape4k/redis/lettuce/synchronizer/SynchronizerRedisProtocolTest.kt`
+- 생성: `infra/lettuce/src/test/kotlin/io/bluetape4k/redis/lettuce/synchronizer/SynchronizerCancellationTest.kt`
+- 생성: `infra/lettuce/src/test/kotlin/io/bluetape4k/redis/lettuce/synchronizer/SynchronizerClusterTest.kt`
+- 생성: `infra/lettuce/src/test/kotlin/io/bluetape4k/redis/lettuce/synchronizer/SynchronizerPerformanceStabilityTest.kt`
+- 생성: `infra/lettuce/src/test/java/io/bluetape4k/redis/lettuce/synchronizer/LettuceSynchronizerJavaDocumentationTest.java`
 
 - [ ] **Step 1 — Run Redis protocol tests alone**
 
@@ -425,7 +425,7 @@ Run the same targeted command. Expected: PASS.
 ./gradlew :bluetape4k-lettuce:test --tests '*SynchronizerRedisProtocolTest' --no-parallel --max-workers=1
 ```
 
-Expected: PASS for EVALSHA, NOSCRIPT fallback, malformed replies, generation persistence, expiry cleanup, and atomic contention.
+예상 결과: PASS for EVALSHA, NOSCRIPT fallback, malformed replies, generation persistence, expiry cleanup, and atomic contention.
 
 The command observer must prove warm immediate operations use one Redis command and cold `NOSCRIPT` uses exactly two. Cleanup work is bounded by capacity/batch limits and malformed or oversized responses fail closed.
 
@@ -435,7 +435,7 @@ The command observer must prove warm immediate operations use one Redis command 
 ./gradlew :bluetape4k-lettuce:test --tests '*SynchronizerCancellationTest' --no-parallel --max-workers=1
 ```
 
-Expected: PASS; cancelled future/coroutine leaves Redis ownership/count unchanged and cancels the leaf command/wait.
+예상 결과: PASS; cancelled future/coroutine leaves Redis ownership/count unchanged and cancels the leaf command/wait.
 
 - [ ] **Step 3 — Run Cluster tests alone**
 
@@ -443,7 +443,7 @@ Expected: PASS; cancelled future/coroutine leaves Redis ownership/count unchange
 ./gradlew :bluetape4k-lettuce:test --tests '*SynchronizerClusterTest' --no-parallel --max-workers=1
 ```
 
-Expected: PASS without CROSSSLOT or redirect-loop failure. Cover standalone and Cluster dispatch for semaphore, expirable semaphore, and latch. For every multi-key family, add a custom `RedisCodec` fixture that encodes otherwise similar derived keys into different wire-byte hash slots; construction or pre-dispatch validation must return a sanitized cross-slot failure before Redis receives a command.
+예상 결과: PASS without CROSSSLOT or redirect-loop failure. Cover standalone and Cluster dispatch for semaphore, expirable semaphore, and latch. For every multi-key family, add a custom `RedisCodec` fixture that encodes otherwise similar derived keys into different wire-byte hash slots; construction or pre-dispatch validation must return a sanitized cross-slot failure before Redis receives a command.
 
 - [ ] **Step 4 — Compile Java public usage**
 
@@ -451,7 +451,7 @@ Expected: PASS without CROSSSLOT or redirect-loop failure. Cover standalone and 
 ./gradlew :bluetape4k-lettuce:test --tests '*LettuceSynchronizerJavaDocumentationTest' --no-parallel --max-workers=1
 ```
 
-Expected: PASS for no-config/config standalone/Cluster factories and handle lifecycle.
+예상 결과: PASS for no-config/config standalone/Cluster factories and handle lifecycle.
 
 - [ ] **Step 5 — Run bounded performance/stability checks alone**
 
@@ -459,22 +459,22 @@ Expected: PASS for no-config/config standalone/Cluster factories and handle life
 ./gradlew :bluetape4k-lettuce:test --tests '*SynchronizerPerformanceStabilityTest' --no-parallel --max-workers=1
 ```
 
-Expected: PASS for 100 concurrent contenders without capacity drift, 10,000 waiter/task cap fail-closed behavior, bounded cleanup batches, no scheduler-thread blocking, and five sequential Testcontainers lifecycle repetitions without leaked objects or tasks.
+예상 결과: PASS for 100 concurrent contenders without capacity drift, 10,000 waiter/task cap fail-closed behavior, bounded cleanup batches, no scheduler-thread blocking, and five sequential Testcontainers lifecycle repetitions without leaked objects or tasks.
 
 ### Task 7: English/Korean KDoc, selection docs, and diagram
 
-**Files:**
+**파일:**
 
-- Modify: `infra/lettuce/README.md`
-- Modify: `infra/lettuce/README.ko.md`
-- Modify: `infra/lettuce/CoordinationLocks.md`
-- Modify: `infra/lettuce/CoordinationLocks.ko.md`
-- Create: `infra/lettuce/images/coordination-synchronizers-architecture.svg`
-- Create: `infra/lettuce/images/coordination-synchronizers-architecture.png`
-- Create: `infra/lettuce/images/coordination-synchronizers-architecture.ko.svg`
-- Create: `infra/lettuce/images/coordination-synchronizers-architecture.ko.png`
-- Create: `infra/lettuce/src/test/kotlin/io/bluetape4k/redis/lettuce/synchronizer/SynchronizerDocumentationTest.kt`
-- Create: `docs/superpowers/reviews/2026-07-27-issue-1080-synchronizer-diagram-review.md`
+- 수정: `infra/lettuce/README.md`
+- 수정: `infra/lettuce/README.ko.md`
+- 수정: `infra/lettuce/CoordinationLocks.md`
+- 수정: `infra/lettuce/CoordinationLocks.ko.md`
+- 생성: `infra/lettuce/images/coordination-synchronizers-architecture.svg`
+- 생성: `infra/lettuce/images/coordination-synchronizers-architecture.png`
+- 생성: `infra/lettuce/images/coordination-synchronizers-architecture.ko.svg`
+- 생성: `infra/lettuce/images/coordination-synchronizers-architecture.ko.png`
+- 생성: `infra/lettuce/src/test/kotlin/io/bluetape4k/redis/lettuce/synchronizer/SynchronizerDocumentationTest.kt`
+- 생성: `docs/superpowers/reviews/2026-07-27-issue-1080-synchronizer-diagram-review.md`
 
 The selection table must distinguish:
 
@@ -495,7 +495,7 @@ Tests assert English/Korean class rows, equivalent headings, selection-table ter
 ./gradlew :bluetape4k-lettuce:test --tests '*SynchronizerDocumentationTest' --no-parallel --max-workers=1
 ```
 
-Expected: FAIL because new docs/assets are absent.
+예상 결과: FAIL because new docs/assets are absent.
 
 - [ ] **Step 3 — Write English KDoc/docs from final APIs**
 
@@ -515,11 +515,11 @@ Run the same documentation test. Expected: PASS.
 
 ### Task 8: Final review, lessons, Lore commit, PR, and CI
 
-**Files:**
+**파일:**
 
-- Create: `docs/superpowers/reviews/2026-07-27-issue-1080-synchronizer-implementation-review.md`
+- 생성: `docs/superpowers/reviews/2026-07-27-issue-1080-synchronizer-implementation-review.md`
 - Create or update after lesson gate: `docs/lessons/2026-07-27-lettuce-synchronizer-generation-and-cancellation.md`
-- Modify: `docs/superpowers/checklists/2026-07-27-issue-1080-lettuce-synchronizers.md`
+- 수정: `docs/superpowers/checklists/2026-07-27-issue-1080-lettuce-synchronizers.md`
 
 - [ ] **Step 1 — Run final sequential verification**
 
@@ -529,7 +529,7 @@ Run the same documentation test. Expected: PASS.
 git diff --check
 ```
 
-Expected: PASS with no new diagnostics attributable to this delivery.
+예상 결과: PASS with no new diagnostics attributable to this delivery.
 
 - [ ] **Step 2 — Run independent reviews**
 
