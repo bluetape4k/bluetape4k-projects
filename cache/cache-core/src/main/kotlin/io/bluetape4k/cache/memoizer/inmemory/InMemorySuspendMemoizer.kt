@@ -7,7 +7,7 @@ import io.bluetape4k.logging.trace
 import java.util.concurrent.ConcurrentHashMap
 
 /**
- * Creates an [InMemorySuspendMemoizer] for this suspend evaluator.
+ * 이 suspend evaluator에 대한 [InMemorySuspendMemoizer]를 생성합니다.
  *
  * ```kotlin
  * val memo = (suspend { key: String -> key.length }).suspendMemoizer()
