@@ -1,4 +1,4 @@
-# Kover Coverage Policy
+# Kover Coverage 정책
 
 ## 현재 상태
 
