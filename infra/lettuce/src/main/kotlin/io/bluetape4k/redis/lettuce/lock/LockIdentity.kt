@@ -7,10 +7,10 @@ import java.nio.charset.StandardCharsets
 import java.time.Duration
 
 /**
- * Identifies the logical reentrancy domain of a lock caller.
+ * lock 호출자의 논리적 reentrancy domain을 식별합니다.
  *
- * This identifier is not an authentication credential. Reuse it only for calls that intentionally share one
- * reentrant ownership domain. Its raw value is excluded from diagnostics.
+ * 이 식별자는 인증 credential이 아닙니다. 하나의 reentrant ownership domain을 의도적으로 공유하는 호출에만
+ * 재사용하십시오. 원본 값은 진단 출력에서 제외됩니다.
  */
 class LockOwnerId private constructor(
     internal val value: String,
@@ -27,25 +27,25 @@ class LockOwnerId private constructor(
 
     private fun readResolve(): Any = restoreLockSerializedValue("LockOwnerId") { LockOwnerId(value) }
 
-    /** Creates logical owner identifiers. */
+    /** 논리적 owner 식별자를 생성합니다. */
     companion object {
         private const val serialVersionUID: Long = 1L
 
-        /** Creates a cryptographically strong identifier for a new logical owner. */
+        /** 새 논리적 owner를 위한 암호학적으로 강한 식별자를 생성합니다. */
         @JvmStatic
         fun random(): LockOwnerId = LockOwnerId(Base58.randomString(RANDOM_BASE58_LENGTH))
 
-        /** Creates an identifier from a caller-managed logical owner value. */
+        /** 호출자가 관리하는 논리적 owner 값에서 식별자를 생성합니다. */
         @JvmStatic
         fun from(value: String): LockOwnerId = LockOwnerId(value)
     }
 }
 
 /**
- * Identifies one logical lock operation across dispatch, retry, and reconciliation.
+ * dispatch, retry, reconciliation 전반에서 하나의 논리적 lock 작업을 식별합니다.
  *
- * A new operation uses a new request identifier. An ambiguous operation must retain the same identifier until its
- * terminal state is reconciled. Its raw value is excluded from diagnostics.
+ * 새 작업은 새 request 식별자를 사용합니다. 모호한 작업은 terminal state가 조정될 때까지 같은 식별자를
+ * 유지해야 합니다. 원본 값은 진단 출력에서 제외됩니다.
  */
 class LockRequestId private constructor(
     internal val value: String,
@@ -62,24 +62,26 @@ class LockRequestId private constructor(
 
     private fun readResolve(): Any = restoreLockSerializedValue("LockRequestId") { LockRequestId(value) }
 
-    /** Creates logical request identifiers. */
+    /** 논리적 request 식별자를 생성합니다. */
     companion object {
         private const val serialVersionUID: Long = 1L
 
-        /** Creates a cryptographically strong identifier for a new logical operation. */
+        /** 새 논리적 작업을 위한 암호학적으로 강한 식별자를 생성합니다. */
         @JvmStatic
         fun random(): LockRequestId = LockRequestId(Base58.randomString(RANDOM_BASE58_LENGTH))
 
-        /** Creates an identifier from a caller-managed logical operation value. */
+        /** 호출자가 관리하는 논리적 작업 값에서 식별자를 생성합니다. */
         @JvmStatic
         fun from(value: String): LockRequestId = LockRequestId(value)
     }
 }
 
 /**
- * Represents a monotonic Redis ownership generation.
+ * 단조 증가하는 Redis ownership generation을 표현합니다.
  *
- * Generations are positive, never reset within one lock authority domain, and excluded from diagnostics.
+ * generation은 양수이며, 하나의 lock authority domain 안에서는 reset되지 않고, 진단 출력에서 제외됩니다.
+ *
+ * @property value Redis ownership generation의 원본 숫자 값입니다. 양수여야 합니다.
  */
 data class LockGeneration(
     val value: Long,
@@ -99,7 +101,7 @@ data class LockGeneration(
     }
 }
 
-/** Identifies the concrete lock algorithm associated with a handle or observation. */
+/** handle 또는 observation과 연결된 구체적인 lock algorithm을 식별합니다. */
 enum class LockKind {
     DISTRIBUTED,
     FAIR,
@@ -110,10 +112,10 @@ enum class LockKind {
     MULTI,
 }
 
-/** Describes whether a lock uses a fixed lease or a bounded watchdog renewal policy. */
+/** lock이 fixed lease를 쓰는지 bounded watchdog renewal policy를 쓰는지 설명합니다. */
 sealed interface LeasePolicy: Serializable {
 
-    /** Uses one fixed Redis TTL and never starts automatic renewal. */
+    /** 하나의 고정 Redis TTL을 사용하며 automatic renewal을 시작하지 않습니다. */
     data class Fixed(
         val leaseTime: Duration,
     ): LeasePolicy {
