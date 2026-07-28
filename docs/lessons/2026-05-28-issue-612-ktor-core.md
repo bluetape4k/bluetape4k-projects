@@ -1,39 +1,39 @@
-# Issue 612 - Ktor core baseline helpers
+# 이슈 612 - Ktor core baseline helper
 
-## Context
+## 배경
 
-Issue #612 implements the first reusable Ktor runtime API after the Ktor module
-family was scaffolded in #611. The idgenerator Ktor example showed repeated
-manual JSON, `StatusPages`, health route, and query parameter validation code.
+issue #612는 #611에서 Ktor module family를 scaffold한 뒤 첫 reusable Ktor runtime
+API를 구현한다. idgenerator Ktor example에는 수동 JSON 설정, `StatusPages`, health
+route, query parameter validation code가 반복되어 있었다.
 
-## Decision
+## 결정
 
-Provide a small explicit Ktor-native core surface:
+작고 명시적인 Ktor-native core surface를 제공한다.
 
-- `installBluetape4kKtorCore()` for opt-in baseline installation.
-- `Bluetape4kKtorJson.defaultJson()` for shared JSON defaults.
-- `ApiErrorResponse`, `HealthResponse`, and health/readiness routes.
-- `StatusPagesConfig.bluetape4kErrorResponses()` with cancellation rethrow.
-- route parameter helpers that throw `IllegalArgumentException` so default
-  status pages map caller input failures to HTTP 400.
+- opt-in baseline installation을 위한 `installBluetape4kKtorCore()`.
+- 공유 JSON default를 위한 `Bluetape4kKtorJson.defaultJson()`.
+- `ApiErrorResponse`, `HealthResponse`, health/readiness route.
+- cancellation을 rethrow하는 `StatusPagesConfig.bluetape4kErrorResponses()`.
+- default status pages가 caller input failure를 HTTP 400으로 매핑하도록
+  `IllegalArgumentException`을 던지는 route parameter helper.
 
-The module exposes Ktor and kotlinx serialization dependencies as `api` because
-the public API mentions `Json`, `StatusPagesConfig`, and Ktor application types.
+public API가 `Json`, `StatusPagesConfig`, Ktor application type을 언급하므로 module은
+Ktor와 kotlinx serialization dependency를 `api`로 노출한다.
 
-## Outcome
+## 결과
 
-The first core API is intentionally framework-light: no Spring Boot
-auto-configuration, no hidden application routes beyond health/readiness, and no
-client helpers. The example migration stays in #615 after the shared API settles.
+첫 core API는 의도적으로 framework-light하게 유지한다. Spring Boot
+auto-configuration은 없고, health/readiness 외의 숨겨진 application route도 없으며,
+client helper도 없다. example migration은 shared API가 안정된 뒤 #615에 남긴다.
 
-## Verification
+## 검증
 
 - `./gradlew :bluetape4k-ktor-core:compileKotlin :bluetape4k-ktor-core:compileTestKotlin`
 - `./gradlew :bluetape4k-ktor-core:test :bluetape4k-ktor-core:koverXmlReport`
 - Kover XML: line coverage 90/98 (91.8%).
 
-## Future Guard
+## 향후 가드
 
-When adding more Ktor shared helpers, keep the installer explicit and avoid
-installing Ktor plugins that applications commonly customize unless they are
-individually switchable in config.
+Ktor shared helper를 더 추가할 때는 installer를 명시적으로 유지한다. application이
+자주 customize하는 Ktor plugin은 config에서 개별 switch가 가능하지 않다면 설치하지
+않는다.
