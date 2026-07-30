@@ -113,9 +113,9 @@
   <rect x="1100" y="874" width="340" height="50" rx="7" class="ui-card" filter="url(#softShadow)"/>
   <text x="1270" y="906" text-anchor="middle" class="card-title">GET /swagger</text>
 
-  <rect x="110" y="990" width="1520" height="62" rx="14" class="source-panel"/>
-  <text x="142" y="1028" class="panel-title">Boundary</text>
-  <text x="282" y="1028" class="small">This module adds documentation routes only; application routes, schemas, and runtime behavior stay caller-owned.</text>
+  <rect x="110" y="972" width="1520" height="80" rx="14" class="source-panel"/>
+  <text x="142" y="1020" class="panel-title">Boundary</text>
+  <text x="282" y="1020" class="small">This module adds documentation routes only; application routes, schemas, and runtime behavior stay caller-owned.</text>
 
   <path d="M 310 304 L 310 333 Q 310 347 324 347 L 600 347" class="flowBlue"/>
   <path d="M 870 304 V 322" class="flowBlue"/>
@@ -127,9 +127,9 @@
 
   <path d="M 470 712 V 762" class="flowGreen"/>
   <path d="M 470 824 V 874" class="flowGold"/>
-  <path d="M 470 924 L 470 946 Q 470 960 484 960 L 862 960 Q 870 960 870 968 L 870 990" class="flowGold"/>
+  <path d="M 470 924 L 470 946 Q 470 960 484 960 L 862 960 Q 870 960 870 968 L 870 972" class="flowGold"/>
 
   <path d="M 1270 712 V 762" class="flowGreen"/>
   <path d="M 1270 824 V 874" class="flowPurple"/>
-  <path d="M 1270 924 L 1270 946 Q 1270 960 1256 960 L 878 960 Q 870 960 870 968 L 870 990" class="flowPurple"/>
+  <path d="M 1270 924 L 1270 946 Q 1270 960 1256 960 L 878 960 Q 870 960 870 968 L 870 972" class="flowPurple"/>
 </svg>
