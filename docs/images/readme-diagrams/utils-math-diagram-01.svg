@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="2060" height="1280" viewBox="0 0 2060 1280" role="img" aria-label="Math module feature structure">
+<svg xmlns="http://www.w3.org/2000/svg" data-layout="feature-map" data-allow-grid="true" width="2060" height="1280" viewBox="0 0 2060 1280" role="img" aria-label="Math module feature structure">
 <defs><filter id="softShadow" x="-8%" y="-10%" width="116%" height="124%"><feDropShadow dx="0" dy="5" stdDeviation="5" flood-color="#0F172A" flood-opacity="0.10"/></filter>
 <marker id="arrow-apiStats" markerWidth="22" markerHeight="18" refX="20" refY="9" orient="auto" markerUnits="userSpaceOnUse" viewBox="0 0 22 18"><path d="M2 2 L20 9 L2 16 Z" fill="#2563EB"/></marker>
 <marker id="arrow-apiRandom" markerWidth="22" markerHeight="18" refX="20" refY="9" orient="auto" markerUnits="userSpaceOnUse" viewBox="0 0 22 18"><path d="M2 2 L20 9 L2 16 Z" fill="#16A34A"/></marker>
@@ -13,14 +13,14 @@
 <text class="title" x="78" y="88">Math Feature Structure</text>
 <text class="subtitle" x="82" y="120">A task-oriented map of bluetape4k-math: statistics, random sampling, numeric methods, algebra, geometry, and ML helpers over Apache Commons Math3.</text>
 <rect class="lane" x="70" y="455" width="1875" height="592" rx="8" fill="#DBEAFE" stroke="#93C5FD" fill-opacity="1"/><text class="laneTitle" x="98" y="442">reader-facing feature groups backed by concrete package/file families</text>
-<g id="edges"><path class="edge " d="M310 345 L310 510" stroke="#2563EB" marker-end="url(#arrow-apiStats)"/>
-<path class="edge " d="M760 345 L760 510" stroke="#16A34A" marker-end="url(#arrow-apiRandom)"/>
-<path class="edge " d="M1230 345 L1230 510" stroke="#0D9488" marker-end="url(#arrow-apiCalculus)"/>
-<path class="edge " d="M1705 345 L1705 510" stroke="#EA580C" marker-end="url(#arrow-apiSolving)"/>
-<path class="edge " d="M310 700 L310 820" stroke="#7C3AED" marker-end="url(#arrow-statsSpecial)"/>
-<path class="edge " d="M760 700 L760 820" stroke="#DB2777" marker-end="url(#arrow-randomAlgebra)"/>
-<path class="edge " d="M1230 700 L1230 820" stroke="#D97706" marker-end="url(#arrow-calculusGeometry)"/>
-<path class="edge " d="M1705 700 L1705 820" stroke="#64748B" marker-end="url(#arrow-solvingMl)"/></g>
+<g id="edges"><path class="edge route" data-from="api" data-to="stats" d="M310 345 L310 510" stroke="#2563EB" marker-end="url(#arrow-apiStats)"/>
+<path class="edge route" data-from="api" data-to="random" d="M760 345 L760 510" stroke="#16A34A" marker-end="url(#arrow-apiRandom)"/>
+<path class="edge route" data-from="api" data-to="calculus" d="M1230 345 L1230 510" stroke="#0D9488" marker-end="url(#arrow-apiCalculus)"/>
+<path class="edge route" data-from="api" data-to="solving" d="M1705 345 L1705 510" stroke="#EA580C" marker-end="url(#arrow-apiSolving)"/>
+<path class="edge route" data-from="stats" data-to="special" d="M310 700 L310 820" stroke="#7C3AED" marker-end="url(#arrow-statsSpecial)"/>
+<path class="edge route" data-from="random" data-to="algebra" d="M760 700 L760 820" stroke="#DB2777" marker-end="url(#arrow-randomAlgebra)"/>
+<path class="edge route" data-from="calculus" data-to="geometry" d="M1230 700 L1230 820" stroke="#D97706" marker-end="url(#arrow-calculusGeometry)"/>
+<path class="edge route" data-from="solving" data-to="ml" d="M1705 700 L1705 820" stroke="#64748B" marker-end="url(#arrow-solvingMl)"/></g>
 <g id="labels"><g class="edgeLabel" transform="translate(336 406)"><rect width="136" height="30" rx="8"/><text x="68" y="20" text-anchor="middle">descriptive data</text></g>
 <g class="edgeLabel" transform="translate(795 406)"><rect width="90" height="30" rx="8"/><text x="45" y="20" text-anchor="middle">sampling</text></g>
 <g class="edgeLabel" transform="translate(1262 406)"><rect width="136" height="30" rx="8"/><text x="68" y="20" text-anchor="middle">numeric methods</text></g>
