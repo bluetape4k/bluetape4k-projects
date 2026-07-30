@@ -84,12 +84,12 @@ function icon(type, x, y, color) {
   if (type === "stats") return `${base}<path d="M${cx - 15} ${cy + 13} V${cy - 2} M${cx} ${cy + 13} V${cy - 14} M${cx + 15} ${cy + 13} V${cy - 7}" stroke="#fff" stroke-width="4" stroke-linecap="round"/>`;
   if (type === "random") return `${base}<rect x="${cx - 14}" y="${cy - 14}" width="28" height="28" rx="5" fill="none" stroke="#fff" stroke-width="3"/><circle cx="${cx - 7}" cy="${cy - 7}" r="2.6" fill="#fff"/><circle cx="${cx + 7}" cy="${cy}" r="2.6" fill="#fff"/><circle cx="${cx - 7}" cy="${cy + 7}" r="2.6" fill="#fff"/>`;
   if (type === "curve") return `${base}<path d="M${cx - 16} ${cy + 12} C${cx - 5} ${cy - 18}, ${cx + 4} ${cy + 18}, ${cx + 16} ${cy - 12}" fill="none" stroke="#fff" stroke-width="3.5" stroke-linecap="round"/>`;
-  if (type === "root") return `${base}<path d="M${cx - 16} ${cy + 7} L${cx - 5} ${cy + 7} L${cx + 1} ${cy - 12} L${cx + 8} ${cy + 12} L${cx + 17} ${cy + 12}" fill="none" stroke="#fff" stroke-width="3.3" stroke-linecap="round" stroke-linejoin="round"/>`;
+  if (type === "root") return `${base}<path d="M ${cx - 16} ${cy + 7} L ${cx - 9} ${cy + 7} Q ${cx - 5} ${cy + 7} ${cx - 3.8} ${cy + 3.19} L ${cx + 1} ${cy - 12} L ${cx + 6.88} ${cy + 8.16} Q ${cx + 8} ${cy + 12} ${cx + 12} ${cy + 12} L ${cx + 17} ${cy + 12}" fill="none" stroke="#fff" stroke-width="3.3" stroke-linecap="round" stroke-linejoin="round"/>`;
   if (type === "sigma") return `${base}<path d="M${cx + 13} ${cy - 15} H${cx - 13} L${cx + 2} ${cy} L${cx - 13} ${cy + 15} H${cx + 13}" fill="none" stroke="#fff" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>`;
   if (type === "matrix") return `${base}<path d="M${cx - 16} ${cy - 14} H${cx + 16} M${cx - 16} ${cy} H${cx + 16} M${cx - 16} ${cy + 14} H${cx + 16} M${cx - 6} ${cy - 16} V${cy + 16} M${cx + 7} ${cy - 16} V${cy + 16}" stroke="#fff" stroke-width="2.5"/>`;
   if (type === "geometry") return `${base}<path d="M${cx - 15} ${cy + 13} L${cx} ${cy - 15} L${cx + 15} ${cy + 13} Z" fill="none" stroke="#fff" stroke-width="3.4" stroke-linejoin="round"/><circle cx="${cx}" cy="${cy + 4}" r="4" fill="#fff"/>`;
   if (type === "cluster") return `${base}<circle cx="${cx - 10}" cy="${cy - 5}" r="6" fill="#fff"/><circle cx="${cx + 9}" cy="${cy - 10}" r="6" fill="#fff"/><circle cx="${cx + 3}" cy="${cy + 11}" r="6" fill="#fff"/><path d="M${cx - 5} ${cy - 7} L${cx + 4} ${cy - 9} M${cx - 6} ${cy} L${cx - 1} ${cy + 7} M${cx + 8} ${cy - 4} L${cx + 5} ${cy + 5}" stroke="#fff" stroke-width="2.6"/>`;
-  if (type === "foundation") return `${base}<path d="M${cx - 16} ${cy + 12} H${cx + 16} M${cx - 11} ${cy + 12} V${cy - 5} H${cx - 2} V${cy + 12} M${cx + 4} ${cy + 12} V${cy - 13} H${cx + 13} V${cy + 12}" fill="none" stroke="#fff" stroke-width="3" stroke-linejoin="round"/>`;
+  if (type === "foundation") return `${base}<path d="M ${cx - 16} ${cy + 12} L ${cx + 16} ${cy + 12} L ${cx - 4.2} ${cy + 12} Q ${cx - 11} ${cy + 12} ${cx - 11} ${cy + 5.2} L ${cx - 11} ${cy - 1} Q ${cx - 11} ${cy - 5} ${cx - 7} ${cy - 5} L ${cx - 6} ${cy - 5} Q ${cx - 2} ${cy - 5} ${cx - 2} ${cy - 1} L ${cx - 2} ${cy + 8} Q ${cx - 2} ${cy + 12} ${cx + 2} ${cy + 12} L ${cx} ${cy + 12} Q ${cx + 4} ${cy + 12} ${cx + 4} ${cy + 8} L ${cx + 4} ${cy - 9} Q ${cx + 4} ${cy - 13} ${cx + 8} ${cy - 13} L ${cx + 9} ${cy - 13} Q ${cx + 13} ${cy - 13} ${cx + 13} ${cy - 9} L ${cx + 13} ${cy + 12}" fill="none" stroke="#fff" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/>`;
   return `${base}<path d="M${cx - 16} ${cy} H${cx + 16} M${cx} ${cy - 16} V${cy + 16}" stroke="#fff" stroke-width="3.5" stroke-linecap="round"/>`;
 }
 
@@ -156,15 +156,15 @@ function validate() {
 
 validate();
 
-const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" role="img" aria-label="Math module feature structure">
+const svg = `<svg xmlns="http://www.w3.org/2000/svg" data-layout="feature-map" data-allow-grid="true" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" role="img" aria-label="Math module feature structure">
 <defs><filter id="softShadow" x="-8%" y="-10%" width="116%" height="124%"><feDropShadow dx="0" dy="5" stdDeviation="5" flood-color="#0F172A" flood-opacity="0.10"/></filter>
 ${edges.map((e) => marker(e.id, e.color)).join("\n")}
 <style>svg{font-family:"Architects Daughter","Comic Mono","Comic Sans MS",ui-sans-serif,system-ui,sans-serif}.canvas{fill:${colors.canvas}}.frame{fill:${colors.frame};stroke:${colors.line};stroke-width:1.5;filter:url(#softShadow)}.title{font-family:"Architects Daughter";font-size:44px;fill:${colors.ink}}.subtitle{font-family:"Comic Mono";font-size:16px;fill:${colors.muted}}.lane{fill:#F3F8FF;stroke:#94A3B8;stroke-width:1.8;stroke-dasharray:12 8}.laneTitle{font-family:"Comic Mono";font-size:13px;fill:${colors.muted}}.card{filter:url(#softShadow);stroke-width:2}.kicker{font-family:"Comic Mono";font-size:12.8px;fill:${colors.muted}}.cardTitle{font-family:"Architects Daughter";font-size:24px;fill:${colors.ink}}.detail{font-family:"Comic Mono";font-size:13.2px;fill:${colors.muted}}.edge{fill:none;stroke-width:3.2;stroke-linecap:round;stroke-linejoin:round}.dashed{stroke-dasharray:9 8}.edgeLabel rect{fill:#FFFFFF;stroke:${colors.line};stroke-width:1.25;opacity:.96}.edgeLabel text{font-family:"Comic Mono";font-size:12.2px;fill:${colors.muted}}</style></defs>
 <rect class="canvas" width="${W}" height="${H}"/><rect class="frame" x="34" y="30" width="${W - 68}" height="${H - 66}" rx="8"/>
 <text class="title" x="78" y="88">Math Feature Structure</text>
 <text class="subtitle" x="82" y="120">A task-oriented map of bluetape4k-math: statistics, random sampling, numeric methods, algebra, geometry, and ML helpers over Apache Commons Math3.</text>
-<rect class="lane" x="70" y="455" width="1875" height="592" rx="8"/><text class="laneTitle" x="98" y="442">reader-facing feature groups backed by concrete package/file families</text>
-<g id="edges">${edges.map((e) => `<path class="edge ${e.dashed ? "dashed" : ""}" d="${e.d}" stroke="${e.color}" marker-end="url(#arrow-${e.id})"/>`).join("\n")}</g>
+<rect class="lane" x="70" y="455" width="1875" height="592" rx="8" fill="#DBEAFE" stroke="#93C5FD" fill-opacity="1"/><text class="laneTitle" x="98" y="442">reader-facing feature groups backed by concrete package/file families</text>
+<g id="edges">${edges.map((e) => `<path class="edge route${e.dashed ? " dashed" : ""}" data-from="${e.from}" data-to="${e.to}" d="${e.d}" stroke="${e.color}" marker-end="url(#arrow-${e.id})"/>`).join("\n")}</g>
 <g id="labels">${edges.map((e) => label(e.label)).join("\n")}</g>
 ${Object.keys(cards).map(card).join("\n")}
 </svg>`;
