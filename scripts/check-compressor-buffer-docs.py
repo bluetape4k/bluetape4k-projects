@@ -97,8 +97,8 @@ def validate_readmes() -> None:
     expected_matrix = {
         "LZ4": ("optimized", "optimized", "optimized", "eligible, not yet measured"),
         "Deflate": ("optimized", "optimized", "optimized", "eligible, not yet measured"),
-        "Snappy": ("compatibility fallback", "compatibility fallback", "compatibility fallback",
-                   "none in the core slice"),
+        "Snappy": ("compatibility fallback", "optimized", "compatibility fallback",
+                   "eligible for direct pair, not yet measured"),
         "Zstd": ("compatibility fallback", "compatibility fallback", "compatibility fallback",
                  "none in the core slice"),
         "Other codecs": ("compatibility fallback", "compatibility fallback", "compatibility fallback", "ineligible"),
@@ -117,6 +117,19 @@ def validate_readmes() -> None:
         ("`optimized`는", "backend `ByteBuffer` 경로", "처리량 개선을 주장하지 않으며",
          "측정된 allocation 개선"),
         "Korean optimized capability boundary",
+    )
+    require_tokens(
+        sections["en"]["issue-755-storage-matrix"],
+        ("Snappy.maxCompressedLength(source.remaining())", "smaller direct target",
+         "compatibility fallback", "validates the complete payload",
+         "cannot enforce an arbitrary caller target limit"),
+        "English Snappy dispatch boundary",
+    )
+    require_tokens(
+        sections["ko"]["issue-755-storage-matrix"],
+        ("Snappy.maxCompressedLength(source.remaining())", "그보다 작은 direct target",
+         "compatibility fallback", "payload 전체", "임의 limit"),
+        "Korean Snappy dispatch boundary",
     )
 
     shared_contract = (

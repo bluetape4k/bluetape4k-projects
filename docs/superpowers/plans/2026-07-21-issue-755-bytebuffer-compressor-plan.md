@@ -52,6 +52,15 @@
 - 2026-07-21의 terminal blocked fallback command와 checksum은 과거 audit record다.
   현재 mutation authority, lifecycle 및 completion evidence는 위 fresh run에서만 가져온다.
 
+### 1.2 2026-07-31 Snappy 실행 상태
+
+- Deflate Task 5는 PR #1229로 반영되었고 현재 기준은
+  `origin/develop@53f9b86c562c8fb5ba2ddd539abc10ac2d406b1f`이다.
+- 현재 격리 worktree와 branch는 `.worktrees/issue-755-snappy-bytebuffer`,
+  `feat/issue-755-snappy-bytebuffer`다.
+- 현재 실행 범위는 Task 6 Snappy slice다. 이 PR의 exact-head CI/review와 별도 merge
+  승인 전에는 Task 7 Zstd branch 또는 구현을 시작하지 않는다.
+
 ## 2. Broad Backend Matrix 전달 topology
 
 | 순서 | 역할              | head branch                                     | base              | 독립 결과                                                         | 다음 단계 진입 조건               |
@@ -59,7 +68,7 @@
 |    1 | core/API/ABI      | `feat/issue-755-bytebuffer-compressor`          | `develop`         | JVM default API, fallback, 공통 contract, ABI fixture, 초기 docs  | PR merge와 local sync 완료        |
 |    2 | LZ4 backend       | `feat/issue-755-bytebuffer-lz4`                 | updated `develop` | heap/direct 전체 조합, bounded payload slice                      | PR merge와 local sync 완료        |
 |    3 | Deflate backend   | `feat/issue-755-bytebuffer-codecs`              | updated `develop` | JDK buffer loop와 deterministic cleanup                           | PR merge와 local sync 완료        |
-|    4 | Snappy backend    | `feat/issue-755-bytebuffer-snappy`              | updated `develop` | heap→heap/direct→direct native path와 validation-first            | PR merge와 local sync 완료        |
+|    4 | Snappy backend    | `feat/issue-755-snappy-bytebuffer`              | updated `develop` | bounded direct→direct native path와 validation-first              | PR merge와 local sync 완료        |
 |    5 | Zstd backend      | `feat/issue-755-bytebuffer-zstd`                | updated `develop` | declared-size native bound와 exact exception taxonomy             | PR merge와 local sync 완료        |
 |    6 | adoption/evidence | `perf/issue-755-bytebuffer-compressor-evidence` | updated `develop` | cross-codec concurrency, examples, two canonical runs, final docs | PR merge-ready 보고 후 fresh 승인 |
 
@@ -322,7 +331,7 @@ fun decompress(source: ByteBuffer, target: ByteBuffer): Int
 |-----------------------------------------------------------|------------------------------------------------------------------|------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------|
 | JVM default overload가 legacy implementor/caller를 깨뜨림 | fixture compile/linkage failure, `isDefault=false`               | frozen baseline jar와 Java/Kotlin source/classfile runtime fixture를 core RED로 먼저 고정      | core PR 중단, interface method를 revert하고 spec 재개방                  |
 | LZ4가 caller limit 뒤 capacity tail을 읽음                | truncated limit fixture가 성공하거나 consumed가 remaining 초과   | payload를 position 0, limit=capacity=remaining인 bounded slice로 전달                          | LZ4 override만 fallback으로 revert, LZ4 slice rerun                      |
-| Snappy invalid input이 native crash 경계로 진입           | validation seam 뒤 uncompress 호출 count 증가                    | heap/direct 모두 validation-first, exact range만 length/decode에 전달                          | Snappy override만 fallback으로 revert, forked targeted test rerun        |
+| Snappy invalid input이 native crash 경계로 진입           | validation seam 뒤 uncompress 호출 count 증가                    | direct optimized 경로는 validation-first, exact range만 length/decode에 전달                   | Snappy override만 fallback으로 revert, forked targeted test rerun        |
 | Zstd under-declared header가 declared size보다 많이 기록  | large target sentinel 변경, `dstSize` seam mismatch              | native destination을 `declaredOriginalSize`로 고정                                             | Zstd override만 fallback으로 revert, heap/direct corruption matrix rerun |
 | Zstd retry 의미가 오분류됨                                | decompression mismatch가 `BufferOverflowException`               | compression `errDstSizeTooSmall`만 overflow; decompression은 cause-less exact ISE              | exception taxonomy RED부터 재실행                                        |
 | Deflate loop가 무한 정지 또는 cleanup 누락                | zero-progress 반복, end count != 1                               | state table, progress snapshot, Deflate-local operation-primary cleanup helper, per-call codec | Deflate override revert, lifecycle seam tests부터 rerun                  |
@@ -1977,17 +1986,36 @@ gh pr create --repo bluetape4k/bluetape4k-projects \
 ## Task 6: Snappy slice — validation-first matched-storage native path를 전달한다
 
 **복잡도:** 높음 **Dependency:** Deflate PR merge + updated `develop` sync **Write
-scope:** `SnappyCompressor.kt`, Snappy test, README locale rows, lesson native-validation section **Pattern
-skill:** `bluetape-kotlin-patterns`, `test-driven-development`
+scope:** `SnappyCompressor.kt`, Snappy test, README locale rows, validator, Snappy design/plan
+correction, lesson native-validation section **Pattern skill:** `bluetape-kotlin-patterns`,
+`test-driven-development`
 
 **파일:**
 
 - 수정: `io/io/src/main/kotlin/io/bluetape4k/io/compressor/SnappyCompressor.kt`
 - 생성: `io/io/src/test/kotlin/io/bluetape4k/io/compressor/SnappyCompressorByteBufferTest.kt`
 - 수정: `io/io/README.md`, `io/io/README.ko.md`
+- 수정: `scripts/check-compressor-buffer-docs.py`
+- 수정: `docs/superpowers/specs/2026-07-21-issue-755-bytebuffer-compressor-design.md`
+- 수정: `docs/superpowers/plans/2026-07-21-issue-755-bytebuffer-compressor-plan.md`
 - 수정: `docs/lessons/2026-07-21-issue-755-bytebuffer-compressor.md`
 
-- [ ] **Step 6.1: merge된 develop에서 Snappy worktree를 만든다**
+### 2026-07-31 실행 정정
+
+resolved snappy-java 1.1.10.8 source를 다시 확인한 결과 array compression API는 target
+offset만 받고 caller target length를 받지 않는다. 따라서 아래 초기 승인 예시의
+heap→heap native dispatch와 max-bound 부족 즉시 overflow는 구현하지 않는다. 실제 실행
+계약은 다음과 같다.
+
+- direct→direct만 native `ByteBuffer` 경로 후보이며 heap/mixed는 fallback이다.
+- compression은 max bound가 충분할 때만 native 경로를 사용하고, 부족하면 실제 압축 결과가
+  들어갈 수 있는 compatibility fallback으로 내려간다.
+- direct decompression은 exact range validation → 복원 크기/256 MiB → target bound →
+  native decode 순서를 유지한다.
+- invalid direct payload는 `IllegalArgumentException`이며 native decode를 호출하지 않는다.
+- Step 6.2, 6.4, 6.5는 이 정정에 맞춘 실행 결과와 검증 계약만 기록한다.
+
+- [x] **Step 6.1: merge된 develop에서 Snappy worktree를 만든다**
 
 ```bash
 set -euo pipefail
@@ -1995,73 +2023,19 @@ git -C /Users/debop/work/bluetape4k/bluetape4k-projects fetch origin develop
 git -C /Users/debop/work/bluetape4k/bluetape4k-projects switch develop
 git -C /Users/debop/work/bluetape4k/bluetape4k-projects pull --ff-only origin develop
 git -C /Users/debop/work/bluetape4k/bluetape4k-projects worktree add \
-  /Users/debop/work/bluetape4k/bluetape4k-projects/.worktrees/feat-issue-755-bytebuffer-snappy \
-  -b feat/issue-755-bytebuffer-snappy origin/develop
+  /Users/debop/work/bluetape4k/bluetape4k-projects/.worktrees/issue-755-snappy-bytebuffer \
+  -b feat/issue-755-snappy-bytebuffer origin/develop
 ```
 
 예상 결과: core/LZ4/Deflate merge commits가 ancestor이고 worktree clean.
 
-- [ ] **Step 6.2: dispatch와 native validation ordering RED를 작성한다**
+- [x] **Step 6.2: dispatch와 native validation ordering RED를 작성한다**
 
-```kotlin
-private class RecordingSnappyOperations(
-    private val calls: MutableList<String>,
-    private val valid: Boolean = true,
-    private val maxCompressedLength: Int = 64,
-    private val uncompressedLength: Int = 8,
-): SnappyBufferOperations {
-    override fun maxCompressedLength(sourceLength: Int): Int = maxCompressedLength.also { calls += "maxCompressedLength" }
-    override fun isValidHeap(source: ByteArray, sourceOffset: Int, sourceLength: Int): Boolean =
-        valid.also { calls += "validateHeap" }
-    override fun isValidDirect(source: ByteBuffer): Boolean = valid.also { calls += "validateDirect" }
-    override fun uncompressedLengthHeap(source: ByteArray, sourceOffset: Int, sourceLength: Int): Int =
-        uncompressedLength.also { calls += "lengthHeap" }
-    override fun uncompressedLengthDirect(source: ByteBuffer): Int =
-        uncompressedLength.also { calls += "lengthDirect" }
-    override fun compressHeap(source: ByteArray, sourceOffset: Int, sourceLength: Int, target: ByteArray, targetOffset: Int): Int =
-        error("compressHeap must not be called by these ordering tests")
-    override fun compressDirect(source: ByteBuffer, target: ByteBuffer): Int =
-        error("compressDirect must not be called by these ordering tests")
-    override fun uncompressHeap(source: ByteArray, sourceOffset: Int, sourceLength: Int, target: ByteArray, targetOffset: Int): Int =
-        error("uncompressHeap must not be called by these ordering tests")
-    override fun uncompressDirect(source: ByteBuffer, target: ByteBuffer): Int =
-        error("uncompressDirect must not be called by these ordering tests")
-}
+RED는 direct pair backend dispatch, caller state/wire 호환성, max bound보다 작은 target의
+fallback, invalid direct payload의 decode 차단, 256 MiB 경계, backend throwable identity,
+inspection view 격리, exact output bound, singleton concurrency를 포함한다.
 
-class SnappyCompressorByteBufferTest {
-    @Test
-    fun `invalid direct payload is rejected before length and native decode`() {
-        val calls = mutableListOf<String>()
-        val operations = RecordingSnappyOperations(calls, valid = false)
-        val compressor = SnappyCompressor.forTesting(operations)
-
-        val failure = assertFailsWith<SnappyException> {
-            compressor.decompress(ByteBuffer.allocateDirect(8), ByteBuffer.allocateDirect(32))
-        }
-
-        failure.errorCode shouldBeEqualTo SnappyErrorCode.PARSING_ERROR
-        calls shouldBeEqualTo listOf("validateDirect")
-    }
-
-    @Test
-    fun `heap compression checks max size before array native call`() {
-        val calls = mutableListOf<String>()
-        val operations = RecordingSnappyOperations(calls, maxCompressedLength = 64)
-        val compressor = SnappyCompressor.forTesting(operations)
-
-        assertFailsWith<BufferOverflowException> {
-            compressor.compress(ByteBuffer.wrap(ByteArray(8)), ByteBuffer.allocate(63))
-        }
-
-        calls shouldBeEqualTo listOf("maxCompressedLength")
-    }
-}
-```
-
-추가 RED: heap→heap/direct→direct native dispatch, heap→direct/direct→heap fallback, read-only heap source fallback, arrayOffset/slice, exact target size, validation→uncompressedLength→256MiB→target→decode call order, invalid+small target에서 SnappyException 우선, output duplicate limit isolation, failure identity, overflow/corrupt 후 retry, existing/new wire, sentinel, singleton concurrency를 포함한다. operation fake가
-`maxCompressedLength`로 `-1`, `0`, `sourceLength - 1`을 반환하면 heap/direct native compression은 호출되지 않고 stable `IllegalStateException`, position rollback과 sentinel 보존을 요구한다.
-
-- [ ] **Step 6.3: Snappy RED를 실행한다**
+- [x] **Step 6.3: Snappy RED를 실행한다**
 
 ```bash
 set -euo pipefail
@@ -2072,93 +2046,22 @@ repo-test-summary -- ./gradlew :bluetape4k-io:test \
 
 예상 결과: `forTesting`과 native dispatch가 없어 compile/ordering assertion FAIL.
 
-- [ ] **Step 6.4: exact storage dispatch와 compression을 구현한다**
+- [x] **Step 6.4: bounded direct storage dispatch와 compression을 구현한다**
 
-```kotlin
-internal interface SnappyBufferOperations {
-    fun maxCompressedLength(sourceLength: Int): Int
-    fun compressHeap(source: ByteArray, sourceOffset: Int, sourceLength: Int, target: ByteArray, targetOffset: Int): Int
-    fun compressDirect(source: ByteBuffer, target: ByteBuffer): Int
-    fun isValidHeap(source: ByteArray, sourceOffset: Int, sourceLength: Int): Boolean
-    fun isValidDirect(source: ByteBuffer): Boolean
-    fun uncompressedLengthHeap(source: ByteArray, sourceOffset: Int, sourceLength: Int): Int
-    fun uncompressedLengthDirect(source: ByteBuffer): Int
-    fun uncompressHeap(source: ByteArray, sourceOffset: Int, sourceLength: Int, target: ByteArray, targetOffset: Int): Int
-    fun uncompressDirect(source: ByteBuffer, target: ByteBuffer): Int
-}
+public no-arg constructor와 기존 ByteArray methods는 유지하고 private primary constructor +
+`internal forTesting` factory로 direct-only `SnappyBufferOperations`를 주입한다. common
+preflight 안에서 positive max bound를 확인한다. bound가 충분하면 output duplicate limit을
+그 bound로 고정해 native compression을 실행하고, 부족하면 compatibility fallback을
+실행한다.
 
-override fun compress(source: ByteBuffer, target: ByteBuffer): Int = when {
-    source.hasArray() && target.hasArray() -> compressHeap(source, target)
-    source.isDirect && target.isDirect -> compressDirect(source, target)
-    else -> super.compress(source, target)
-}
+- [x] **Step 6.5: validation-first decompression을 구현한다**
 
-private fun compressHeap(source: ByteBuffer, target: ByteBuffer): Int =
-    writeToCallerBuffer(source, target) { sourcePosition, sourceRemaining, targetPosition, targetRemaining ->
-        val required = operations.maxCompressedLength(sourceRemaining)
-        check(required > 0 && required >= sourceRemaining) {
-            "Snappy maxCompressedLength is invalid: sourceLength=$sourceRemaining, required=$required"
-        }
-        if (targetRemaining < required) throw BufferOverflowException()
-        operations.compressHeap(
-            source.array(), source.arrayOffset() + sourcePosition, sourceRemaining,
-            target.array(), target.arrayOffset() + targetPosition,
-        )
-    }
+validation, uncompressed-length 확인, native decode에는 각각 fresh input duplicate를 전달한다.
+invalid payload는 `IllegalArgumentException`으로 거부하고, 복원 크기는 `0..256 MiB`와
+target remaining에 대해 검증한다. native output limit은 exact 복원 크기로 고정하며 반환량이
+그 크기와 같을 때만 원본 target position을 commit한다.
 
-private fun compressDirect(source: ByteBuffer, target: ByteBuffer): Int =
-    writeToCallerBuffer(source, target) { sourcePosition, sourceRemaining, targetPosition, targetRemaining ->
-        val required = operations.maxCompressedLength(sourceRemaining)
-        check(required > 0 && required >= sourceRemaining) {
-            "Snappy maxCompressedLength is invalid: sourceLength=$sourceRemaining, required=$required"
-        }
-        if (targetRemaining < required) throw BufferOverflowException()
-        val input = source.duplicate().position(sourcePosition).limit(sourcePosition + sourceRemaining)
-        val output = target.duplicate().position(targetPosition).limit(targetPosition + targetRemaining)
-        operations.compressDirect(input, output)
-    }
-```
-
-`source.hasArray()`가 false인 read-only heap은 compatibility fallback으로 내려간다. public no-arg constructor와 기존 ByteArray methods는 유지하고 private primary constructor + `internal forTesting`
-factory로 `SnappyBufferOperations`를 주입한다.
-
-- [ ] **Step 6.5: validation-first decompression을 구현한다**
-
-```kotlin
-private fun decompressHeap(source: ByteBuffer, target: ByteBuffer): Int =
-    writeToCallerBuffer(source, target) { sourcePosition, sourceRemaining, targetPosition, targetRemaining ->
-        val sourceOffset = source.arrayOffset() + sourcePosition
-        if (!operations.isValidHeap(source.array(), sourceOffset, sourceRemaining)) {
-            throw SnappyException(SnappyErrorCode.PARSING_ERROR, "Invalid Snappy compressed buffer")
-        }
-        val expected = operations.uncompressedLengthHeap(source.array(), sourceOffset, sourceRemaining)
-        require(expected in 0..MAX_DECOMPRESSED_SIZE) { "uncompressedSize exceeds 256 MiB: $expected" }
-        if (expected > targetRemaining) throw BufferOverflowException()
-        val written = operations.uncompressHeap(
-            source.array(), sourceOffset, sourceRemaining,
-            target.array(), target.arrayOffset() + targetPosition,
-        )
-        check(written == expected) { "Snappy decompressed size mismatch: expected=$expected, actual=$written" }
-        written
-    }
-
-private fun decompressDirect(source: ByteBuffer, target: ByteBuffer): Int =
-    writeToCallerBuffer(source, target) { sourcePosition, sourceRemaining, targetPosition, targetRemaining ->
-        val input = source.duplicate().position(sourcePosition).limit(sourcePosition + sourceRemaining)
-        if (!operations.isValidDirect(input.duplicate())) {
-            throw SnappyException(SnappyErrorCode.PARSING_ERROR, "Invalid Snappy compressed buffer")
-        }
-        val expected = operations.uncompressedLengthDirect(input.duplicate())
-        require(expected in 0..MAX_DECOMPRESSED_SIZE) { "uncompressedSize exceeds 256 MiB: $expected" }
-        if (expected > targetRemaining) throw BufferOverflowException()
-        val output = target.duplicate().position(targetPosition).limit(targetPosition + targetRemaining)
-        val written = operations.uncompressDirect(input, output)
-        check(written == expected) { "Snappy decompressed size mismatch: expected=$expected, actual=$written" }
-        written
-    }
-```
-
-- [ ] **Step 6.6: Snappy GREEN/full regression/Detekt를 실행한다**
+- [x] **Step 6.6: Snappy GREEN/full regression/Detekt를 실행한다**
 
 ```bash
 set -euo pipefail
@@ -2171,23 +2074,28 @@ repo-test-summary -- ./gradlew :bluetape4k-io:test --no-build-cache --rerun-task
 git diff --check
 ```
 
-예상 결과: invalid heap/direct payload는 native decode 미호출, max-size preflight와 mixed fallback, 원본 limit 보존, 전체 suite와 Detekt PASS.
+실행 결과: Snappy 전용 10건, 공통 target suite 48건, 전체 모듈 1,225건이 PASS했다.
+문서 검증기와 `git diff --check`도 PASS했다. root Detekt 진입점은 모두 `NO-SOURCE`이며
+`bluetape4k-io` 전용 Detekt task는 등록되어 있지 않다.
 
 - [ ] **Step 6.7: docs/lesson/Lore commit과 Snappy PR을 수렴한다**
 
-README Snappy 행은 heap→heap/direct→direct `optimized, evidence pending`, mixed/read-only heap
-`fallback, ineligible`로 변경한다. lesson은 validation-first가 JVM crash boundary인 이유를 기록한다. Lore intent는 `Keep invalid Snappy ranges outside the native decoder`. PR metadata: base `develop`, head `feat/issue-755-bytebuffer-snappy`, English title
-`Add validated caller-owned Snappy buffer paths`. Six-perspective review/CI 후 fresh merge approval에서 멈추며 Zstd branch를 미리 만들지 않는다.
+README Snappy 행은 direct→direct만 `optimized`, heap/mixed는 `compatibility fallback`,
+allocation은 `eligible for direct pair, not yet measured`로 변경한다. lesson은 validation-first
+native crash 경계와 array API가 caller limit을 강제하지 못하는 이유를 기록한다. Lore intent는
+`Keep invalid Snappy ranges outside the native decoder`. PR metadata: base `develop`, head
+`feat/issue-755-snappy-bytebuffer`, English title `Add validated caller-owned Snappy buffer paths`.
+Six-perspective review/CI 후 fresh merge approval에서 멈추며 Zstd branch를 미리 만들지 않는다.
 
 ```bash
 set -euo pipefail
-git push -u origin feat/issue-755-bytebuffer-snappy
+git push -u origin feat/issue-755-snappy-bytebuffer
 gh pr create --repo bluetape4k/bluetape4k-projects \
-  --base develop --head feat/issue-755-bytebuffer-snappy \
+  --base develop --head feat/issue-755-snappy-bytebuffer \
   --title 'Add validated caller-owned Snappy buffer paths' \
   --assignee debop --milestone '1.12.0' \
   --label enhancement --label performance --label infra/io \
-  --body $'Refs #755\n\n## Summary\n- add matched-storage Snappy caller-owned paths\n- validate exact source ranges before native length and decode calls\n- keep mixed and read-only heap inputs on the compatibility fallback\n\n## Verification\n- Snappy validation-order and storage-dispatch tests\n- full bluetape4k-io tests and Detekt\n- six-perspective review\n\n## DoD Status\n- [x] Snappy backend slice complete\n- [x] Allocation promotion remains pending final evidence'
+  --body $'Refs #755\n\n## Summary\n- add bounded direct-pair Snappy caller-owned paths\n- validate exact source ranges before native length and decode calls\n- keep heap, mixed, and undersized compression bounds on the compatibility fallback\n\n## Verification\n- Snappy validation-order and storage-dispatch tests\n- full bluetape4k-io tests and Detekt\n- six-perspective review\n\n## DoD Status\n- [x] Snappy backend slice complete\n- [x] Allocation promotion remains pending final evidence'
 ```
 
 **Step DoD:** Snappy PR이 invalid range를 native decode에 전달하지 않고 CG-16 PENDING이다.

@@ -65,26 +65,28 @@ fun decompress(source: ByteBuffer, target: ByteBuffer): Int
 |--------------------------|----------------------------------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------|
 | LZ4 1.11.0               | absolute-offset `compress(ByteBuffer, ...)`, `decompress(ByteBuffer, ...)` | heap/direct 및 slice 지원, position은 변경하지 않지만 fast decompression은 source 길이를 `capacity - offset`으로 계산함 |
 | Snappy 1.1.10.8          | `compress(ByteBuffer, ByteBuffer)`, `uncompress(ByteBuffer, ByteBuffer)`   | direct→direct만 지원하고 output limit을 변경함                                                                          |
-| Snappy 1.1.10.8          | offset 기반 `byte[]` API                                                   | array-backed heap→heap 지원                                                                                             |
+| Snappy 1.1.10.8          | offset 기반 `byte[]` API                                                   | target offset만 받고 출력 길이 상한을 받지 않아 caller `ByteBuffer.limit`을 강제할 수 없음                              |
 | zstd-jni 1.5.7-11        | direct-buffer 및 byte-array offset API                                     | direct→direct 또는 array-backed heap→heap만 직접 지원하고 native error는 반환 전에 `ZstdException`으로 변환됨           |
 | JDK 21 Deflater/Inflater | `setInput(ByteBuffer)`, `deflate(ByteBuffer)`, `inflate(ByteBuffer)`       | heap/direct buffer를 처리하지만 출력 크기를 사전 확정할 수 없음                                                         |
 | JDK/Apache framed codecs | stream API                                                                 | buffer-native API가 아니므로 이번 범위에서는 compatibility fallback                                                     |
 
-### 3.3 2026-07-30 구현 재개 근거
+### 3.3 2026-07-31 구현 재개 근거
 
 - core API와 allocating compatibility fallback은 PR #1067로 반영되었다.
 - LZ4 caller-owned 경로는 PR #1091로 반영되었고, merge commit
   `e2869bddee9c21bd6b9eee1f549c521b8e400f83` 이후 `develop`에서 검증되었다.
-- 이 branch 시작 시 `DeflateCompressor`, `SnappyCompressor`, `ZstdCompressor`는
-  two-argument `ByteBuffer` 메서드를 override하지 않아 interface fallback을 사용했다.
-  현재 Deflate slice는 승인된 JDK `ByteBuffer` override와 lifecycle 검증을 구현했고,
-  Snappy와 Zstd는 후속 slice까지 fallback을 유지한다.
+- Deflate caller-owned 경로는 PR #1229로 반영되었고, 이 branch는 갱신된 `develop`
+  `53f9b86c562c8fb5ba2ddd539abc10ac2d406b1f`에서 시작했다.
+- 이 slice는 Snappy direct/direct 조합에만 native `ByteBuffer` override를 추가한다.
+  heap/mixed 조합은 caller target limit을 안전하게 강제할 수 없어 interface fallback을
+  유지하며, Zstd는 후속 slice까지 fallback을 유지한다.
 - 현재 dependency resolution은 Snappy `1.1.10.8`, zstd-jni `1.5.7-11`이다.
   `javap`으로 Snappy의 direct `ByteBuffer` 및 heap offset API, zstd-jni의
   direct/heap offset API, JDK 21 `Deflater`/`Inflater`의 `ByteBuffer` API를
   다시 확인했다.
-- 위 근거는 3.2의 capability matrix와 backend별 설계를 변경하지 않는다. 따라서
-  대안 재선정 없이 기존 승인 설계를 이어서 구현한다.
+- source jar 재검토로 Snappy array compression API가 target offset 뒤의 writable length를
+  받지 않는다는 제약을 확인했다. 따라서 기존 heap→heap 최적화 계획은 철회하고,
+  direct/direct만 증명 가능한 native 경로로 좁힌다.
 
 ## 4. 검토한 대안
 
@@ -155,8 +157,8 @@ source와 target의 underlying byte range는 겹치지 않아야 한다. 동일 
 2. source와 target이 동일 객체이거나 탐지 가능한 array range가 겹치면
    `IllegalArgumentException`을 던진다.
 3. source remaining이 0이면 `0`을 반환한다.
-4. backend가 exact 결과 크기를 알거나 안전상 full bound가 필수이면
-   `initialTargetRemaining`을 검사한다.
+4. backend가 exact 결과 크기를 알면 `initialTargetRemaining`을 검사하고, 안전상 full
+   bound가 필요한 Snappy compression은 bound가 충분할 때만 native 경로를 선택한다.
 5. absolute/offset API 또는 backend가 caller 범위를 보존하는 데 필요한 bounded/duplicate view에서 codec을 실행한다.
 6. 성공한 기록량만 원본 target position에 commit한다.
 
@@ -166,7 +168,10 @@ read-only target은 alias, empty-source, codec 초기화, 압축 또는 복원�
 
 - 기본 fallback은 결과 `ByteArray` 크기를 확인한 뒤 기록하므로 작은 target을 raw
   `BufferOverflowException`으로 보고하고 byte를 기록하지 않는다.
-- exact 크기를 아는 decompression 경로와 full bound가 native 안전성에 필수인 Snappy compression은 codec 호출 전에 `BufferOverflowException`으로 실패한다.
+- exact 크기를 아는 decompression 경로는 codec 호출 전에 `BufferOverflowException`으로
+  실패한다. Snappy compression은 native 안전 상한이 부족하면 compatibility fallback으로
+  내려가며, 실제 압축 결과도 target에 들어가지 않을 때만 fallback이
+  `BufferOverflowException`을 보고한다.
 - destination length를 안전하게 받는 LZ4/Zstd compression은 4-byte header를 제외한
   `payloadCapacity = initialTargetRemaining - 4`를 codec에 전달한다. backend의 destination-too-small 결과만 raw `BufferOverflowException`으로 정규화한다. 현재 zstd-jni offset API는 native error를 code로 반환하지 않고 `ZstdException`으로 던지므로
   `errorCode == Zstd.errDstSizeTooSmall()`인 예외만 이 정규화 대상이다.
@@ -238,11 +243,16 @@ header-prefixed codec은 wrapper에 전체 기록량을 반환한다. LZ4와 Zst
 ### 7.2 Snappy
 
 - direct→direct는 Snappy ByteBuffer API를 duplicate view에서 사용한다.
-- writable array-backed heap→heap은 offset 기반 byte-array API를 사용한다.
-- mixed storage, read-only heap source, 또는 array를 노출하지 않는 heap source는 기본 fallback으로 내려간다.
-- compression target은 `Snappy.maxCompressedLength(source.remaining())` 이상이어야 한다.
+- heap 및 mixed storage는 기본 fallback으로 내려간다. byte-array compression API는 target
+  offset만 받고 target length를 받지 않으므로 caller limit 뒤를 덮어쓰지 않는다고 증명할
+  수 없다.
+- compression target이 `Snappy.maxCompressedLength(source.remaining())` 이상이면 native
+  경로를 사용한다. 그보다 작으면 실제 압축 결과가 들어갈 수 있는 기존 동작을 보존하기
+  위해 compatibility fallback을 사용한다.
 - decompression은 정확한 source range에서 `Snappy.uncompressedLength`로 exact size를 확인하고 기존 256 MiB 제한을 적용한다.
-- heap과 direct optimized decompression 모두 native crash 위험을 줄이기 위해 codec이 제공하는 range-aware compressed-buffer validation을 먼저 수행한다. invalid/truncated input은 `SnappyException`으로 보고하며 native decompression을 실행하지 않는다.
+- direct optimized decompression은 native crash 위험을 줄이기 위해 codec이 제공하는
+  range-aware compressed-buffer validation을 먼저 수행한다. invalid/truncated input은
+  `IllegalArgumentException`으로 보고하며 native decompression을 실행하지 않는다.
 - Snappy가 output duplicate의 limit을 바꾸더라도 원본 target limit은 보존한다.
 
 ### 7.3 Zstd
@@ -336,7 +346,7 @@ LZ4/Zstd header byte order, Snappy raw format, Deflate zlib framing은 변경하
 | 경로                              | 구현이 아는 크기                              | caller 계약                                                                                                           |
 |-----------------------------------|-----------------------------------------------|-----------------------------------------------------------------------------------------------------------------------|
 | LZ4/Zstd compression              | native 호출 전 exact size는 모름              | 현재 target remaining을 사용하고 overflow 시 더 큰 target으로 전체 재시도                                             |
-| Snappy compression                | native 안전상 max bound 필요                  | bound보다 작으면 preflight overflow; caller는 더 큰 target으로 재시도                                                 |
+| Snappy compression                | native 안전상 max bound 필요                  | bound가 충분하면 native 경로, 부족하면 fallback; 실제 결과가 target을 넘을 때만 overflow                              |
 | Deflate compression/decompression | 완료 전 exact size 모름                       | bounded write 중 overflow; 더 큰 target으로 전체 재시도                                                               |
 | LZ4/Snappy/Zstd decompression     | 구현 내부에서 declared/exact size 확인        | target이 작으면 overflow지만 필요 크기는 외부에 노출하지 않음                                                         |
 | compatibility fallback            | 내부 결과 `ByteArray` 생성 후 exact size 확인 | target은 최종 write bound일 뿐 decompression resource bound가 아님; overflow에 exact size를 첨부하지 않고 전체 재시도 |
@@ -350,7 +360,7 @@ LZ4/Zstd header byte order, Snappy raw format, Deflate zlib framing은 변경하
 - optimized decompression에서 caller target remaining은 codec 실행 전 또는 실행 중 적용되는 추가 hard output bound다.
 - compatibility fallback의 target remaining은 전체 결과 `ByteArray`가 생성된 뒤 적용되는 최종 write bound일 뿐 decompression memory/resource bound가 아니다. 작은 target만으로 untrusted fallback input의 대규모 할당이나 `OutOfMemoryError`를 방지한다고 보장하지 않는다.
 - corrupt header, negative size, oversized declared size, truncated payload를 테스트한다.
-- Snappy heap/direct optimized path는 invalid native input validation 없이 raw decompression을 호출하지 않는다.
+- Snappy direct optimized path는 invalid native input validation 없이 raw decompression을 호출하지 않는다.
 - 동일 객체와 탐지 가능한 array-backed overlap은 즉시 거부한다.
 - no-progress loop, native error code 무시, cleanup 누락을 허용하지 않는다.
 - 공유 `Compressors` singleton 호출 사이에 mutable buffer/codec state를 보관하지 않는다.
@@ -369,7 +379,7 @@ LZ4/Zstd header byte order, Snappy raw format, Deflate zlib framing은 변경하
 | fallback | 기존 ByteArray decompression과 security limit → exact result target overflow                                               |
 
 LZ4/Zstd는 header 구조와 declared-size 오류만 target overflow보다 우선한다. header가 유효하지만 payload가 corrupt한 상태에서 target까지 작으면 decode 전에
-`BufferOverflowException`이 발생한다. Snappy는 compressed-range validation을 먼저 수행하므로 같은 복합 입력에서 `SnappyException`이 우선한다. Deflate는 output size를 사전 결정할 수 없으므로 corruption이 target exhaustion 전에 관찰되면 `ZipException`, target이 먼저 소진되면 `BufferOverflowException`이다. fallback은 기존 `ByteArray` decompression이 target 검사보다 먼저 실행되므로 기존 corrupt-input failure가 우선할 수 있다. 각 backend는 corrupt-payload+too-small-target compound fixture로 이 순서를 검증한다.
+`BufferOverflowException`이 발생한다. Snappy는 compressed-range validation을 먼저 수행하므로 같은 복합 입력에서 `IllegalArgumentException`이 우선한다. Deflate는 output size를 사전 결정할 수 없으므로 corruption이 target exhaustion 전에 관찰되면 `ZipException`, target이 먼저 소진되면 `BufferOverflowException`이다. fallback은 기존 `ByteArray` decompression이 target 검사보다 먼저 실행되므로 기존 corrupt-input failure가 우선할 수 있다. 각 backend는 corrupt-payload+too-small-target compound fixture로 이 순서를 검증한다.
 
 ### 10.2 runtime diagnosis
 
@@ -407,7 +417,7 @@ fallback codec도 correctness contract를 통과해야 하지만 allocation 감�
 
 - LZ4: heap/direct 모든 조합, header 경계, high-compression payload의
   `written=declaredOriginalSize`, consumed mismatch, trailing/truncated payload, caller limit 뒤 capacity tail이 valid payload를 포함해도 bounded source만으로 실패하는 regression
-- Snappy: heap→heap, direct→direct optimized; mixed 조합 fallback; heap/direct invalid input이 native call 전에 거부됨
+- Snappy: direct→direct optimized; heap/mixed 조합 fallback; direct invalid input이 native call 전에 거부됨; compression max bound가 부족한 direct pair는 fallback
 - Zstd: heap→heap, direct→direct optimized; mixed 조합 fallback; header 이후 native destination length가 `initialTargetRemaining - 4`임을 non-zero position, exact-limit/sentinel,
   `initialTargetRemaining == 4` 경계로 검증; heap/direct의 compression `errDstSizeTooSmall` `ZstdException`만 raw `BufferOverflowException`으로 정규화하고 그 밖의 `ZstdException` identity를 보존하며, decompression은 native destination을 `declaredOriginalSize`로 고정하고 그 경로의 `errDstSizeTooSmall` 및 successful result mismatch를 exact class/stable-message/no-cause `IllegalStateException`으로 검증; under-declared header+큰 target의 heap/direct regression, 과대·과소 header, truncated payload
 - Deflate: heap/direct 조합, incompressible payload, target exhaustion, corrupt input, dictionary/no-progress 상태, dictionary+zero-remaining target의 `BufferOverflowException`, exact-fit success, `end()` 1회, cleanup suppression
@@ -543,7 +553,7 @@ Kotlin/Java README 예제는 compile test에 포함하고 source position 불변
 | Zstd under-declared header                                    | native destination을 declared size로 고정하고 `errDstSizeTooSmall` 분류 | stable mismatch message를 가진 정확한 `IllegalStateException`, cause 없음                                                             |
 | Zstd invalid payload의 `errDstSizeTooSmall` 이외 native error | zstd-jni가 변환한 native exception                                      | 원래 `ZstdException` identity 보존                                                                                                    |
 | Zstd successful result와 declared size 불일치                 | exact result 검사                                                       | stable mismatch message를 가진 정확한 `IllegalStateException`, cause 없음                                                             |
-| Snappy invalid/truncated input                                | heap/direct range validation 선행                                       | `SnappyException`, native decompression 미실행                                                                                        |
+| Snappy invalid/truncated direct input                         | exact range validation 선행                                              | `IllegalArgumentException`, native decompression 미실행                                                                               |
 | Deflate invalid/truncated/dictionary input                    | loop 상태표와 cause 보존                                                | 충분한 target에서는 `ZipException`; dictionary와 zero-remaining target이 동시에 관찰되면 상태표 순서에 따라 `BufferOverflowException` |
 | backend가 duplicate limit 변경                                | 원본과 분리된 view에서 실행                                             | 원본 limit 보존                                                                                                                       |
 | backend failure 후 partial write                              | 원본 position rollback                                                  | bytes unspecified, 전체 재기록으로 retry                                                                                              |
@@ -561,7 +571,8 @@ Kotlin/Java README 예제는 compile test에 포함하고 source position 불변
 3. 모든 compressor가 공통 buffer correctness contract를 통과한다.
 4. LZ4와 Deflate는 지원되는 heap/direct 조합에서 payload-sized intermediate
    `ByteArray` 없이 동작한다.
-5. Snappy와 Zstd는 heap→heap 및 direct→direct에서 저할당 경로를 사용하고 나머지는 명시적 fallback을 사용한다.
+5. Snappy는 안전 상한을 충족한 direct→direct에서 native 경로를 사용하고 나머지는 명시적
+   fallback을 사용한다. Zstd storage 범위는 후속 slice에서 확정한다.
 6. source state, target success commit, failure rollback, read-only 및 overflow 계약이 direct test로 증명된다.
 7. 기존 wire와 신규 API의 양방향 복원이 증명된다.
 8. 기존 decompression 제한과 corrupt-input 방어가 신규 경로에도 적용된다.
