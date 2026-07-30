@@ -78,6 +78,28 @@ identity, cleanup-only identity, compression/decompression no-progress, overflow
 storage coverage만 뜻하며 allocation 개선은 아직 측정하지 않았으므로
 `eligible, not yet measured`로 유지한다.
 
+## Snappy slice에서 고정한 출력 상한과 validation 경계
+
+snappy-java 1.1.10.8은 direct `ByteBuffer` 쌍과 array offset API를 모두 제공하지만 두 API의
+안전성 계약은 같지 않다. array compression API는 target offset만 받고 caller
+`ByteBuffer.remaining()`을 출력 길이로 받지 않는다. backing array에 limit 뒤 여유 공간이
+있으면 caller가 공개하지 않은 범위까지 쓸 수 있으므로 heap→heap을 optimized로 분류하지
+않았다. direct→direct만 native 경로를 사용하고 heap/mixed 조합은 compatibility fallback을
+유지한다.
+
+direct compression도 `Snappy.maxCompressedLength(source.remaining())` 전체를 target이 수용할
+때만 native 경로를 선택한다. 다만 이 안전 상한보다 작다는 이유만으로 곧바로 overflow를
+던지면 실제 압축 결과가 target에 들어가던 기존 fallback 성공을 깨뜨린다. 따라서 상한이
+부족하면 allocating fallback으로 내려가고, 실제 결과가 target을 넘을 때만
+`BufferOverflowException`을 유지한다.
+
+direct decompression은 정확한 caller-visible source range를 먼저 검증한 뒤 복원 크기와 기존
+256 MiB 한도, target remaining을 순서대로 확인한다. invalid payload는
+`IllegalArgumentException`으로 거부하고 native decode를 호출하지 않는다. duplicate view에서
+native 연산을 실행해 원본 source/target limit을 보존하며, singleton 동시 호출 테스트로
+호출 간 mutable codec state가 없음을 고정한다. README의 `optimized`는 이 제한된 native
+dispatch capability만 뜻하며 allocation 개선은 아직 측정하지 않았다.
+
 ## 왜 broad backend slice를 중단했는가
 
 LZ4의 capacity-tail read는 source isolation 문제이고, zstd-jni의 throw-before-return은 예외
