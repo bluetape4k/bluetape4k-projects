@@ -242,10 +242,12 @@ Existing one-argument `ByteBuffer` APIs may consume the source `position`; the n
 | Codec        | heap -> heap           | direct -> direct       | mixed storage          | Allocation claim       |
 |--------------|------------------------|------------------------|------------------------|------------------------|
 | LZ4          | optimized              | optimized              | optimized              | eligible, not yet measured |
-| Deflate      | compatibility fallback | compatibility fallback | compatibility fallback | none in the core slice |
+| Deflate      | optimized              | optimized              | optimized              | eligible, not yet measured |
 | Snappy       | compatibility fallback | compatibility fallback | compatibility fallback | none in the core slice |
 | Zstd         | compatibility fallback | compatibility fallback | compatibility fallback | none in the core slice |
 | Other codecs | compatibility fallback | compatibility fallback | compatibility fallback | ineligible             |
+
+`optimized` means that the codec uses a backend `ByteBuffer` path for that storage pairing. It is not a throughput claim and does not assert measured allocation improvement.
 
 <!-- issue-755-storage-matrix:end -->
 
@@ -291,7 +293,7 @@ The current compatibility fallback may stage both input and transformed output i
 <!-- issue-755-resource-bound:end -->
 
 <!-- issue-755-telemetry:start -->
-This API provides no runtime dispatch telemetry, logging, or feature flag. If needed, record privacy-safe caller diagnostics such as codec, storage pairing, input/output size, and overflow count without payload contents. If a native override proves defective, a patch keeps the public defaults and wire contract and reverts only that override to the compatibility fallback. Until the patch is available, use an existing allocating API or a documented fallback storage pairing.
+This API provides no runtime dispatch telemetry, logging, or feature flag. If needed, record privacy-safe caller diagnostics such as codec, storage pairing, input/output size, and overflow count without payload contents. If an optimized override proves defective, a patch keeps the public defaults and wire contract and reverts only that override to the compatibility fallback. Until the patch is available, use an existing allocating API or a documented fallback storage pairing.
 <!-- issue-755-telemetry:end -->
 
 **StreamingCompressor (for large-scale streaming):**

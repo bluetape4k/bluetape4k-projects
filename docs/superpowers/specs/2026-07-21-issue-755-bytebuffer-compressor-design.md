@@ -1,11 +1,11 @@
 # Issue #755 caller-owned ByteBuffer compressor 설계
 
-- 상태: 대안 1 선택 승인, 최종 명세 검토 완료, 구현 전 승인 대기
+- 상태: 대안 1 구현 승인, core API와 LZ4 반영 완료, Deflate 이후 순차 구현 중
 - 대상 issue: `#755 Add caller-owned ByteBuffer compressor APIs for lower GC pressure`
 - 대상 milestone: `1.12.0`
 - 대상 모듈: `:bluetape4k-io`
-- 기준 branch/commit: `origin/develop@a065a8e88cf246975660c68df2dd78dfb5b6dc4d`
-- feature branch: `feat/issue-755-bytebuffer-compressor`
+- 현재 기준 branch/commit: `origin/develop@fa07277c8c123c1093299e10cf09504f13d177a1`
+- 현재 feature branch: `feat/issue-755-bytebuffer-codecs`
 
 ## 1. 문제와 목표
 
@@ -54,7 +54,8 @@ fun decompress(source: ByteBuffer, target: ByteBuffer): Int
 - `ByteBufferInputStream`은 caller source의 duplicate view를 stream input으로 사용할 수 있다.
 - `ByteBufferOutputStream.fixed`는 caller target의 현재 limit을 hard bound로 사용하고 초과 기록을 `BufferOverflowException`으로 보고한다.
 - `BinarySerializer.serializeTo`는 이미 caller-owned target에 대해 다음 관례를 사용한다. 성공 시 position만 전진하고, 실패 시 position을 복원하며, 실패 전 덮어쓴 byte는 복구하지 않는다.
-- 변경 전 `./gradlew :bluetape4k-io:test`는 1,109 tests PASS이다.
+- 2026-07-30 기준 `repo-test-summary -- ./gradlew :bluetape4k-io:test
+  --no-configuration-cache`는 1,203 tests PASS이다.
 
 ### 3.2 dependency API 근거
 
@@ -68,6 +69,22 @@ fun decompress(source: ByteBuffer, target: ByteBuffer): Int
 | zstd-jni 1.5.7-11        | direct-buffer 및 byte-array offset API                                     | direct→direct 또는 array-backed heap→heap만 직접 지원하고 native error는 반환 전에 `ZstdException`으로 변환됨           |
 | JDK 21 Deflater/Inflater | `setInput(ByteBuffer)`, `deflate(ByteBuffer)`, `inflate(ByteBuffer)`       | heap/direct buffer를 처리하지만 출력 크기를 사전 확정할 수 없음                                                         |
 | JDK/Apache framed codecs | stream API                                                                 | buffer-native API가 아니므로 이번 범위에서는 compatibility fallback                                                     |
+
+### 3.3 2026-07-30 구현 재개 근거
+
+- core API와 allocating compatibility fallback은 PR #1067로 반영되었다.
+- LZ4 caller-owned 경로는 PR #1091로 반영되었고, merge commit
+  `e2869bddee9c21bd6b9eee1f549c521b8e400f83` 이후 `develop`에서 검증되었다.
+- 이 branch 시작 시 `DeflateCompressor`, `SnappyCompressor`, `ZstdCompressor`는
+  two-argument `ByteBuffer` 메서드를 override하지 않아 interface fallback을 사용했다.
+  현재 Deflate slice는 승인된 JDK `ByteBuffer` override와 lifecycle 검증을 구현했고,
+  Snappy와 Zstd는 후속 slice까지 fallback을 유지한다.
+- 현재 dependency resolution은 Snappy `1.1.10.8`, zstd-jni `1.5.7-11`이다.
+  `javap`으로 Snappy의 direct `ByteBuffer` 및 heap offset API, zstd-jni의
+  direct/heap offset API, JDK 21 `Deflater`/`Inflater`의 `ByteBuffer` API를
+  다시 확인했다.
+- 위 근거는 3.2의 capability matrix와 backend별 설계를 변경하지 않는다. 따라서
+  대안 재선정 없이 기존 승인 설계를 이어서 구현한다.
 
 ## 4. 검토한 대안
 
@@ -579,3 +596,12 @@ Kotlin/Java README 예제는 compile test에 포함하고 source position 불변
 | caller/user ergonomics |  0 |  0 |  0 |  0 | PASS      |
 
 검토 과정에서 발견된 header payload capacity, compound failure precedence, 외부 구현체 concurrency 및 default-method compatibility 경계, fallback decompression resource bound, Zstd exception taxonomy, ABI 기준물, mutable benchmark state와 evidence schema 문제는 본문에 반영한 뒤 해당 관점에서 재검토했다. 계획 단계의 dependency source·실행 검증에서 추가로 확인한 LZ4 capacity-tail read와 zstd-jni throw-before-return 동작도 본문에 반영했다. 구현 계획과 구현 review에서도 이 명세를 기준으로 P0=0, P1=0을 다시 확인한다.
+
+2026-07-30 구현 재개 시 여섯 관점의 독립 재검토 lane을 두 차례 실행했지만,
+Codex App의 90초 제출 한도 안에 근거를 반환하지 않아 모두 회수했다. main session은
+현재 issue, PR #1091 반영 범위, resolved dependency와 JVM API, compressor source,
+영문/한국어 README 및 문서 validator를 다시 대조했다. 최신성 관점의 P2 한 건으로
+상태, 기준 commit/branch, 기준 테스트 수와 LZ4 완료 근거가 표류한 것을 확인해 3.3과
+문서 머리말을 수정했다. 성능, 안정성/오류계약, 보안, 운영,
+developer/public API, caller/user ergonomics의 설계 내용에는 P0/P1 또는 material
+change가 없으며, 2026-07-21 독립 수렴 결과는 계속 유효하다.

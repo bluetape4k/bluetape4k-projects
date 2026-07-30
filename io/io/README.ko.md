@@ -242,10 +242,12 @@ Read-only target은 `ReadOnlyBufferException`으로 거부하고, 동일한 buff
 | Codec        | heap -> heap           | direct -> direct       | mixed storage          | Allocation claim       |
 |--------------|------------------------|------------------------|------------------------|------------------------|
 | LZ4          | optimized              | optimized              | optimized              | eligible, not yet measured |
-| Deflate      | compatibility fallback | compatibility fallback | compatibility fallback | none in the core slice |
+| Deflate      | optimized              | optimized              | optimized              | eligible, not yet measured |
 | Snappy       | compatibility fallback | compatibility fallback | compatibility fallback | none in the core slice |
 | Zstd         | compatibility fallback | compatibility fallback | compatibility fallback | none in the core slice |
 | Other codecs | compatibility fallback | compatibility fallback | compatibility fallback | ineligible             |
+
+`optimized`는 해당 storage 조합에서 codec의 backend `ByteBuffer` 경로를 사용한다는 뜻입니다. 처리량 개선을 주장하지 않으며 측정된 allocation 개선을 뜻하지도 않습니다.
 
 <!-- issue-755-storage-matrix:end -->
 
@@ -283,7 +285,7 @@ compressed = compressed.slice();
 <!-- issue-755-java-example:end -->
 
 <!-- issue-755-sizing-retry:start -->
-target에 남은 공간이 부족하면 raw `BufferOverflowException`이 발생하며 예외에는 required size가 포함되지 않습니다. source 상태와 target `position`은 보존되므로 호출자는 애플리케이션 상한 안에서 더 큰 target을 준비해 전체 작업을 재시도할 수 있습니다. 성공 전 target byte는 재사용하지 마세요.
+target에 남은 공간이 부족하면 raw `BufferOverflowException`이 발생하며 예외에는 required size가 포함되지 않습니다. source 상태와 target `position`은 보존되므로 호출자는 애플리케이션 상한 안에서 더 큰 target을 준비해 전체 작업을 재시도할 수 있습니다. 실패한 시도에서 target에 기록된 byte는 재사용하지 마세요.
 <!-- issue-755-sizing-retry:end -->
 
 <!-- issue-755-resource-bound:start -->
@@ -291,7 +293,7 @@ target에 남은 공간이 부족하면 raw `BufferOverflowException`이 발생�
 <!-- issue-755-resource-bound:end -->
 
 <!-- issue-755-telemetry:start -->
-이 API는 runtime dispatch telemetry, logging, feature flag를 제공하지 않습니다. 필요한 경우 payload 내용을 남기지 말고 codec, storage 조합, 입력/출력 size, overflow 횟수 같은 privacy-safe diagnostics를 호출자 측에서 기록하세요. native override에 결함이 발견되면 patch에서는 public default와 wire contract를 유지하고 해당 override만 compatibility fallback으로 되돌립니다. patch 적용 전에는 기존 allocating API 또는 문서에 표시된 fallback storage 조합으로 우회하세요.
+이 API는 runtime dispatch telemetry, logging, feature flag를 제공하지 않습니다. 필요한 경우 payload 내용을 남기지 말고 codec, storage 조합, 입력/출력 size, overflow 횟수 같은 privacy-safe diagnostics를 호출자 측에서 기록하세요. optimized override에 결함이 발견되면 patch에서는 public default와 wire contract를 유지하고 해당 override만 compatibility fallback으로 되돌립니다. patch 적용 전에는 기존 allocating API 또는 문서에 표시된 fallback storage 조합으로 우회하세요.
 <!-- issue-755-telemetry:end -->
 
 **StreamingCompressor (대용량 스트리밍 처리):**
