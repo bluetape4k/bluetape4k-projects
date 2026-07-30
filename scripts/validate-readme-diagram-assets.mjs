@@ -461,6 +461,9 @@ function extractRoutes(svg) {
         .map((match) => {
             const attrs = `${match[1]} ${match[3]}`;
             const className = attrs.match(/\bclass="([^"]+)"/)?.[1] || "";
+            const decorativeIconLine = className.split(/\s+/)
+                .some((token) => token === "icon-line" || token.startsWith("icon-line-"));
+            if (decorativeIconLine) return null;
             if (!/\b(?:route|flow|inherit|dependency|line|Line|connector|dashed|implLine|inheritLine)\b/.test(className)) return null;
             const points = parsePath(match[2]);
             if (points.length < 2) return null;

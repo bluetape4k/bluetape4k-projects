@@ -42,6 +42,44 @@ test("validator skips card-like groups without shape geometry", (context) => {
   assert.equal(validation.rows[0].cards, 0);
 });
 
+test("validator excludes decorative icon lines from diagram routes", (context) => {
+  const root = mkdtempSync(join(tmpdir(), "readme-diagram-validator-"));
+  const diagramDir = join(root, "docs/images/readme-diagrams");
+  const report = join(root, "diagram-validation-report.json");
+  context.after(() => rmSync(root, { recursive: true, force: true }));
+
+  mkdirSync(diagramDir, { recursive: true });
+  writeFileSync(join(diagramDir, "decorative-icon-line.svg"), `
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600">
+  <title>Decorative icon line</title>
+  <rect x="24" y="24" width="752" height="552" class="frame" />
+  <rect x="72" y="170" width="300" height="350" class="source-panel" />
+  <rect x="428" y="170" width="300" height="350" class="sink-panel" />
+  <g id="source"><rect class="card" x="100" y="300" width="100" height="80" /></g>
+  <g id="target"><rect class="card" x="600" y="300" width="100" height="80" /></g>
+  <path class="flow-green" data-from="source" data-to="target" d="M 200 340 H 600" />
+  <g transform="translate(340 200)" aria-hidden="true">
+    <path d="M -10 -8 H 10" class="icon-line-green" />
+    <path d="M -8 8 H 8" class="icon-line" />
+  </g>
+</svg>
+`, "utf8");
+
+  const result = spawnSync(process.execPath, [validator], {
+    cwd: root,
+    encoding: "utf8",
+    env: { ...process.env, DIAGRAM_VALIDATION_REPORT: report },
+  });
+
+  assert.equal(result.status, 0, result.stderr);
+  const validation = JSON.parse(readFileSync(report, "utf8"));
+  assert.equal(validation.total, 1);
+  assert.equal(validation.failed, 0);
+  assert.equal(validation.rows[0].cards, 2);
+  assert.equal(validation.rows[0].paths, 1);
+  assert.deepEqual(validation.rows[0].failures, []);
+});
+
 test("validator preserves relationship endpoint checks across Q and q bends", (context) => {
   const root = mkdtempSync(join(tmpdir(), "readme-diagram-validator-"));
   const diagramDir = join(root, "docs/images/readme-diagrams");
