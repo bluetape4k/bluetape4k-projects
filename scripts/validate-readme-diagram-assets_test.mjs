@@ -245,6 +245,36 @@ test("canonical Okio compression factory has balanced content margins", (context
   assert.deepEqual(validation.rows[0].failures, []);
 });
 
+test("canonical Ktor OpenAPI route helpers have balanced content margins", (context) => {
+  const root = mkdtempSync(join(tmpdir(), "readme-diagram-validator-"));
+  const diagramDir = join(root, "docs/images/readme-diagrams");
+  const diagramName = "ktor-openapi-routes-01.svg";
+  const report = join(root, "diagram-validation-report.json");
+  context.after(() => rmSync(root, { recursive: true, force: true }));
+
+  mkdirSync(diagramDir, { recursive: true });
+  writeFileSync(
+    join(diagramDir, diagramName),
+    readFileSync(join(repositoryRoot, "docs/images/readme-diagrams", diagramName), "utf8"),
+    "utf8",
+  );
+
+  const result = spawnSync(process.execPath, [validator], {
+    cwd: root,
+    encoding: "utf8",
+    env: { ...process.env, DIAGRAM_VALIDATION_REPORT: report },
+  });
+
+  assert.notEqual(result.status, null, result.stderr);
+  const validation = JSON.parse(readFileSync(report, "utf8"));
+  assert.equal(validation.total, 1);
+  assert.equal(
+    validation.rows[0].failures.some((failure) => failure.startsWith("content vertical margin imbalance=")),
+    false,
+    validation.rows[0].failures.join("\n"),
+  );
+});
+
 test("canonical bluetape4k core overview uses explicit color arrow markers", () => {
   const svg = readFileSync(
     join(repositoryRoot, "docs/images/readme-diagrams/bluetape4k-core-diagram-01.svg"),
