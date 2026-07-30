@@ -23,15 +23,34 @@
   `enhancement`, `performance`, `infra/io`, assignee `debop`.
 - 현재 coordination/core branch:
   `feat/issue-755-bytebuffer-compressor`, base `origin/develop`.
-- machine-readable workflow run:
+- 2026-07-21 historical machine-readable workflow run:
   `20260721T115110Z-8e06d9a0`, manifest SHA-256
   `3e9a92a4ea0bef991d0613c8fad9b4fa90b27c520e16d1588005105aebd27638`, initial receipt checksum `9e1435c164dd203997fe9d41a49d8d95cb68d60de6f5074e76471e051262456e`. WF-04A fallback terminal 상태는 `blocked`, sequence `5`, checksum
-  `b0458931bc1b8a3f2b173f04116b010c938d804f737aae081daeed292ef3cda1`이다. 이 checksum은 final documented checklist closeout까지 immutable evidence로 보존한다.
+  `b0458931bc1b8a3f2b173f04116b010c938d804f737aae081daeed292ef3cda1`이다. 이 checksum은
+  과거 실행의 immutable audit evidence이며 현재 mutation, readiness 또는 completion
+  authority가 아니다.
 - 이번 계획 승인 전 stop condition: implementation, push, PR creation을 시작하지 않는다.
 - 계획 승인 후 stop condition: 각 PR은 exact-head CI/review 수렴 후 fresh merge 승인을 별도로 받고, 승인 전에는 다음 slice branch를 만들지 않는다.
 - merge approval은 누적되지 않는다. core 승인으로 LZ4 또는 이후 PR merge를 대신할 수 없다.
 - stable tag, publish, release, workflow dispatch는 범위 밖이다.
 - diagram/chart는 N/A다. 숫자 authority는 raw JSON/CSV와 표이며 새 visual asset을 만들지 않는다.
+
+### 1.1 2026-07-30 실행 재개 상태
+
+- 현재 기준은 `origin/develop@fa07277c8c123c1093299e10cf09504f13d177a1`이다.
+- core/API/ABI Task 1–3은 PR #1067, LZ4 Task 4는 PR #1091로 반영되었다.
+- 이번 실행의 machine-readable workflow run은
+  `20260730T121803Z-0b53afa0`이며, verified receipt checksum은
+  `dcb772cdb463c2c7eaa26f6eb6736c983016bb94644052c438a59d6aa48c8777`이다.
+- 현재 격리 worktree와 branch는 각각
+  `.worktrees/issue-755-bytebuffer-codecs`,
+  `feat/issue-755-bytebuffer-codecs`이다. 사용자가 승인한 현재 head 이름은
+  Task 5의 `feat/issue-755-bytebuffer-deflate` 이름을 대체하지만, Task 5의 파일 범위,
+  TDD 순서, 문서 범위와 검증 계약은 변경하지 않는다.
+- 현재 실행 범위는 Task 5 Deflate slice다. 이 PR의 exact-head CI/review와 별도 merge
+  승인 전에는 Task 6 Snappy branch 또는 구현을 시작하지 않는다.
+- 2026-07-21의 terminal blocked fallback command와 checksum은 과거 audit record다.
+  현재 mutation authority, lifecycle 및 completion evidence는 위 fresh run에서만 가져온다.
 
 ## 2. Broad Backend Matrix 전달 topology
 
@@ -39,7 +58,7 @@
 |-----:|-------------------|-------------------------------------------------|-------------------|-------------------------------------------------------------------|-----------------------------------|
 |    1 | core/API/ABI      | `feat/issue-755-bytebuffer-compressor`          | `develop`         | JVM default API, fallback, 공통 contract, ABI fixture, 초기 docs  | PR merge와 local sync 완료        |
 |    2 | LZ4 backend       | `feat/issue-755-bytebuffer-lz4`                 | updated `develop` | heap/direct 전체 조합, bounded payload slice                      | PR merge와 local sync 완료        |
-|    3 | Deflate backend   | `feat/issue-755-bytebuffer-deflate`             | updated `develop` | JDK buffer loop와 deterministic cleanup                           | PR merge와 local sync 완료        |
+|    3 | Deflate backend   | `feat/issue-755-bytebuffer-codecs`              | updated `develop` | JDK buffer loop와 deterministic cleanup                           | PR merge와 local sync 완료        |
 |    4 | Snappy backend    | `feat/issue-755-bytebuffer-snappy`              | updated `develop` | heap→heap/direct→direct native path와 validation-first            | PR merge와 local sync 완료        |
 |    5 | Zstd backend      | `feat/issue-755-bytebuffer-zstd`                | updated `develop` | declared-size native bound와 exact exception taxonomy             | PR merge와 local sync 완료        |
 |    6 | adoption/evidence | `perf/issue-755-bytebuffer-compressor-evidence` | updated `develop` | cross-codec concurrency, examples, two canonical runs, final docs | PR merge-ready 보고 후 fresh 승인 |
@@ -71,10 +90,14 @@ gh pr view "$pr_number" --repo "$repo" \
 
 candidate_key="${branch//\//-}"
 candidate_stamp="$(date -u +%Y%m%dT%H%M%SZ)"
-readiness_run_file=/Users/debop/work/bluetape4k/.bluetape/runs/20260721T115110Z-8e06d9a0/run.json
-test "$(python3 -c 'import json,sys; print(json.load(open(sys.argv[1]))["state"])' "$readiness_run_file")" = blocked
+flow=/Users/debop/.codex/skills/bluetape-workflow/scripts/bluetape-flow.py
+state_root=/Users/debop/work/bluetape4k/.bluetape
+readiness_run_id=20260730T121803Z-0b53afa0
+readiness_run_file="$state_root/runs/$readiness_run_id/run.json"
+python3 "$flow" --state-root "$state_root" verify --run-id "$readiness_run_id"
+test "$(python3 -c 'import json,sys; print(json.load(open(sys.argv[1]))["state"])' "$readiness_run_file")" = running
 readiness_receipt_checksum="$(python3 -c 'import json,sys; print(json.load(open(sys.argv[1]))["last_checksum"])' "$readiness_run_file")"
-test "$readiness_receipt_checksum" = b0458931bc1b8a3f2b173f04116b010c938d804f737aae081daeed292ef3cda1
+test "${#readiness_receipt_checksum}" -eq 64
 candidate_file="/Users/debop/work/bluetape4k/.bluetape/inputs/issue755/merge-candidates/${candidate_key}-${expected_head}-${candidate_stamp}.json"
 test ! -e "$candidate_file"
 ```
@@ -174,7 +197,9 @@ pr_number="$(jq -er '.pr_number' <<<"$candidate_json")"
 expected_head="$(jq -er '.head_sha' <<<"$candidate_json")"
 branch="$(jq -er '.head_branch' <<<"$candidate_json")"
 candidate_receipt_checksum="$(jq -er '.readiness_receipt_checksum' <<<"$candidate_json")"
-current_receipt_checksum="$(python3 -c 'import json; print(json.load(open("/Users/debop/work/bluetape4k/.bluetape/runs/20260721T115110Z-8e06d9a0/run.json"))["last_checksum"])')"
+current_run_file=/Users/debop/work/bluetape4k/.bluetape/runs/20260730T121803Z-0b53afa0/run.json
+test "$(python3 -c 'import json,sys; print(json.load(open(sys.argv[1]))["state"])' "$current_run_file")" = running
+current_receipt_checksum="$(python3 -c 'import json,sys; print(json.load(open(sys.argv[1]))["last_checksum"])' "$current_run_file")"
 test "$candidate_receipt_checksum" = "$current_receipt_checksum"
 test "$(git branch --show-current)" = "$branch"
 test "$(git rev-parse HEAD)" = "$expected_head"
@@ -1693,31 +1718,34 @@ Six-perspective review, CI, live threads가 P0=0/P1=0일 때 exact PR/head를 �
 ## Task 5: Deflate slice — bounded JDK loop와 deterministic cleanup을 전달한다
 
 **복잡도:** 높음 **Dependency:** LZ4 PR merge + updated `develop` sync **Write
-scope:** `DeflateCompressor.kt`, Deflate test, README locale rows, lesson lifecycle section **Pattern
-skill:** `bluetape-kotlin-patterns`, `test-driven-development`
+scope:** `DeflateCompressor.kt`, Deflate test, README locale rows, docs checker의 Deflate expected
+row, lesson lifecycle section **Pattern skill:** `bluetape-kotlin-patterns`,
+`test-driven-development`
 
 **파일:**
 
 - 수정: `io/io/src/main/kotlin/io/bluetape4k/io/compressor/DeflateCompressor.kt`
 - 생성: `io/io/src/test/kotlin/io/bluetape4k/io/compressor/DeflateCompressorByteBufferTest.kt`
 - 수정: `io/io/README.md`, `io/io/README.ko.md`
+- 수정: `scripts/check-compressor-buffer-docs.py`
 - 수정: `docs/lessons/2026-07-21-issue-755-bytebuffer-compressor.md`
 
-- [ ] **Step 5.1: merge된 develop에서 Deflate worktree를 만든다**
+- [x] **Step 5.1: merge된 develop에서 현재 Deflate worktree를 검증한다**
 
 ```bash
 set -euo pipefail
-git -C /Users/debop/work/bluetape4k/bluetape4k-projects fetch origin develop
-git -C /Users/debop/work/bluetape4k/bluetape4k-projects switch develop
-git -C /Users/debop/work/bluetape4k/bluetape4k-projects pull --ff-only origin develop
-git -C /Users/debop/work/bluetape4k/bluetape4k-projects worktree add \
-  /Users/debop/work/bluetape4k/bluetape4k-projects/.worktrees/feat-issue-755-bytebuffer-deflate \
-  -b feat/issue-755-bytebuffer-deflate origin/develop
+worktree=/Users/debop/work/bluetape4k/bluetape4k-projects/.worktrees/issue-755-bytebuffer-codecs
+test "$(git -C "$worktree" branch --show-current)" = feat/issue-755-bytebuffer-codecs
+test "$(git -C "$worktree" rev-parse HEAD)" = fa07277c8c123c1093299e10cf09504f13d177a1
+git -C "$worktree" merge-base --is-ancestor \
+  e2869bddee9c21bd6b9eee1f549c521b8e400f83 HEAD
+test -z "$(git -C "$worktree" status --short)"
 ```
 
-예상 결과: core와 LZ4 merge commit이 ancestor이며 worktree clean.
+예상 결과: core와 LZ4 merge commit이 ancestor이고, 승인된 branch/기준 commit의
+worktree가 clean이다.
 
-- [ ] **Step 5.2: Deflate state table와 cleanup RED를 작성한다**
+- [x] **Step 5.2: Deflate state table와 cleanup RED를 작성한다**
 
 ```kotlin
 class DeflateCompressorByteBufferTest {
@@ -1773,7 +1801,7 @@ exactly once on success/failure, cleanup-only failure, fatal/cancellation preced
 `IllegalStateException`, decompression zero-progress는 `ZipException`으로 구분한다. decompression 복합 실패는 deterministic inflater seam으로 corruption-first와 target-exhaustion-first를 각각 만들고, 처음 확정된 상태의 `ZipException` 또는
 `BufferOverflowException` identity와 같은 target 재시도를 검증한다.
 
-- [ ] **Step 5.3: Deflate RED를 실행한다**
+- [x] **Step 5.3: Deflate RED를 실행한다**
 
 ```bash
 set -euo pipefail
@@ -1784,7 +1812,7 @@ repo-test-summary -- ./gradlew :bluetape4k-io:test \
 
 예상 결과: test seam/optimized override가 없어 compile 또는 dispatch assertion FAIL.
 
-- [ ] **Step 5.4: per-call factories, operation-primary cleanup helper와 compression loop를 구현한다**
+- [x] **Step 5.4: per-call factories, operation-primary cleanup helper와 compression loop를 구현한다**
 
 ```kotlin
 internal inline fun <R, T> useDeflateCodec(
@@ -1814,9 +1842,16 @@ internal inline fun <R, T> useDeflateCodec(
 }
 
 override fun compress(source: ByteBuffer, target: ByteBuffer): Int =
-    writeToCallerBuffer(source, target) { sourcePosition, sourceRemaining, targetPosition, targetRemaining ->
-        val input = source.duplicate().position(sourcePosition).limit(sourcePosition + sourceRemaining)
-        val output = target.duplicate().position(targetPosition).limit(targetPosition + targetRemaining)
+    writeToCallerBufferViews(source, target) {
+            sourceView,
+            targetView,
+            sourcePosition,
+            sourceRemaining,
+            targetPosition,
+            targetRemaining,
+        ->
+        val input = sourceView.position(sourcePosition).limit(sourcePosition + sourceRemaining)
+        val output = targetView.position(targetPosition).limit(targetPosition + targetRemaining)
         useDeflateCodec(deflaterFactory(), endDeflater) { deflater ->
             deflater.setInput(input)
             deflater.finish()
@@ -1837,13 +1872,20 @@ override fun compress(source: ByteBuffer, target: ByteBuffer): Int =
     }
 ```
 
-- [ ] **Step 5.5: decompression state table를 exact 순서로 구현한다**
+- [x] **Step 5.5: decompression state table를 exact 순서로 구현한다**
 
 ```kotlin
 override fun decompress(source: ByteBuffer, target: ByteBuffer): Int =
-    writeToCallerBuffer(source, target) { sourcePosition, sourceRemaining, targetPosition, targetRemaining ->
-        val input = source.duplicate().position(sourcePosition).limit(sourcePosition + sourceRemaining)
-        val output = target.duplicate().position(targetPosition).limit(targetPosition + targetRemaining)
+    writeToCallerBufferViews(source, target) {
+            sourceView,
+            targetView,
+            sourcePosition,
+            sourceRemaining,
+            targetPosition,
+            targetRemaining,
+        ->
+        val input = sourceView.position(sourcePosition).limit(sourcePosition + sourceRemaining)
+        val output = targetView.position(targetPosition).limit(targetPosition + targetRemaining)
         useDeflateCodec(inflaterFactory(), endInflater) { inflater ->
             inflater.setInput(input)
             while (!inflater.finished()) {
@@ -1879,7 +1921,7 @@ factory만 노출한다. production factory는 매 호출 새 `Deflater`/`Inflat
 
 각 조합은 operation identity와 suppressed relation을 test seam으로 고정한다. 같은 throwable이 operation과 cleanup 양쪽에서 던져지면 자기 자신을 suppress하지 않고, 이미 같은 identity가 suppressed면 중복 추가하지 않는다.
 
-- [ ] **Step 5.6: Deflate GREEN/full regression/Detekt를 실행한다**
+- [x] **Step 5.6: Deflate GREEN/full regression/정적 검증을 실행한다**
 
 ```bash
 set -euo pipefail
@@ -1889,26 +1931,43 @@ repo-test-summary -- ./gradlew :bluetape4k-io:test \
   --no-build-cache --rerun-tasks
 repo-test-summary -- ./gradlew :bluetape4k-io:test --no-build-cache --rerun-tasks
 ./gradlew detekt detektMain detektTest --no-build-cache --rerun-tasks
+repo-test-summary -- ./gradlew :bluetape4k-io:compileKotlin --no-build-cache --rerun-tasks
+python3 scripts/check-compressor-buffer-docs.py
 git diff --check
 ```
 
 예상 결과: state table, exact-fit, dictionary/zero-target precedence, no-progress, end-once와 suppressed identity가 PASS하고 전체 module regression이 없다.
 
+2026-07-30 fresh evidence: Deflate 전용 12개와 공통 contract를 포함한 모듈 전체
+1,215개 테스트가 통과했고 `:bluetape4k-io:compileKotlin`, 문서 checker,
+`git diff --check`가 통과했다. 저장소 root의 `detekt`, `detektMain`, `detektTest`는
+`NO-SOURCE`였고 `:bluetape4k-io`에는 Detekt task가 등록되어 있지 않아 Kotlin
+compile과 전체 모듈 test를 현재 정적·동적 검증 근거로 사용한다.
+
 - [ ] **Step 5.7: docs/lesson/Lore commit과 Deflate PR을 수렴한다**
 
-README Deflate 행은 heap/direct/mixed `optimized, evidence pending`으로 변경한다. lesson은 state order와 cleanup precedence를 기록한다. Lore intent는
-`Keep Deflate buffer loops bounded and disposable per call`로 하고 full tests/Detekt를 trailers에 기록한다. PR metadata: base `develop`, head `feat/issue-755-bytebuffer-deflate`, English title
+README Deflate 행은 heap/direct/mixed capability cell을 `optimized`로 변경하고,
+`Allocation claim` cell만 `eligible, not yet measured`로 변경한다. 영문/한국어
+matrix의 cell 의미와 순서를 exact parity로 유지한다.
+`DeflateCompressor`와 신규 internal seam/helper KDoc은 `$bluetape-writer` 기준의 한국어
+기술 문체로 source/target 상태, per-call resource 수명, failure/cleanup precedence와
+fallback 경계를 설명한다. 영문/한국어 README는 capability와 allocation claim을 같은
+의미로 유지하고, lesson은 state order와 cleanup precedence를 기록한다. Lore intent는
+`Keep Deflate buffer loops bounded and disposable per call`로 하고 1,215개 module test,
+compile, docs validator, diff check와 Detekt `NO-SOURCE`/module task 미등록 사실을 trailers에
+정확히 기록한다. PR metadata: base `develop`, head
+`feat/issue-755-bytebuffer-codecs`, English title
 `Add bounded caller-owned Deflate buffer paths`. Six-perspective review/CI 후 fresh merge approval에서 멈추며 Snappy branch를 미리 만들지 않는다.
 
 ```bash
 set -euo pipefail
-git push -u origin feat/issue-755-bytebuffer-deflate
+git push -u origin feat/issue-755-bytebuffer-codecs
 gh pr create --repo bluetape4k/bluetape4k-projects \
-  --base develop --head feat/issue-755-bytebuffer-deflate \
+  --base develop --head feat/issue-755-bytebuffer-codecs \
   --title 'Add bounded caller-owned Deflate buffer paths' \
   --assignee debop --milestone '1.12.0' \
   --label enhancement --label performance --label infra/io \
-  --body $'Refs #755\n\n## Summary\n- add bounded JDK Deflater and Inflater ByteBuffer loops\n- fail closed on no-progress states\n- end every per-call codec with deterministic failure precedence\n\n## Verification\n- Deflate state-table and cleanup tests\n- full bluetape4k-io tests and Detekt\n- six-perspective review\n\n## DoD Status\n- [x] Deflate backend slice complete\n- [x] Allocation promotion remains pending final evidence'
+  --body $'Refs #755\n\n## Summary\n- add bounded JDK Deflater and Inflater ByteBuffer loops\n- fail closed on no-progress states\n- end every per-call codec with deterministic failure precedence\n\n## Verification\n- Deflate state-table and cleanup tests (12 passing)\n- full bluetape4k-io tests (1,215 passing)\n- compileKotlin, docs validator, and diff check\n- Detekt root tasks are NO-SOURCE; no bluetape4k-io Detekt task is registered\n- six-perspective review\n\n## DoD Status\n- [x] Deflate backend slice complete\n- [x] Allocation promotion remains pending final evidence'
 ```
 
 **Step DoD:** Deflate PR이 무한 loop와 cleanup leak 없이 독립 merge-ready이고 CG-16 PENDING이다.
@@ -3495,6 +3554,24 @@ DoD:** issue #755 final PR이 merged, local develop synced, Task 0의 terminal b
 | caller/user   |  0 |  0 |  0 |  0 | PASS      |
 
 main integration은 Deflate operation-primary cleanup, LZ4/Snappy/Zstd native bounds, ABI RED order, thread-local JMH reset, actual payload scaling, immutable candidate 승인 binding, coordinator lifecycle, fail-fast shell gates와 atomic no-replace evidence publication을 반영했다. 최종 재검토 뒤 남은 P0–P3는 없다.
+
+2026-07-30에는 현재 Task 5와 fresh workflow authority를 기준으로 계획을 다시
+검토했다.
+
+| 관점          | 최초 판정 | 수정·재검토 결과 |
+|---------------|-----------|------------------|
+| performance   | CLEAN     | CLEAN            |
+| stability     | timeout 후 회수 | 좁은 재검토 CLEAN |
+| security      | timeout 후 회수 | 좁은 재검토 CLEAN |
+| operator      | P1 1건    | fresh run readiness authority로 수정 후 VERIFIED |
+| developer/API | CLEAN     | CLEAN            |
+| caller/user   | P2 2건    | capability/claim 분리와 한국어 retry 문구 수정 후 VERIFIED |
+
+main integration은 실제 helper 이름 `writeToCallerBufferViews`, 승인된 현재 branch,
+Task 5 PR command, 한국어 KDoc 및 docs validator 누락을 P1로 추가 확인해 수정했다.
+현재 Task 5 계획의 최신 결과는 P0=0, P1=0이며 남은 P2/P3는 없다. Task 6 이후의
+과거 snippet은 각 slice 시작 전 현재 source/API에 다시 정합해야 하며, 이번 Task 5의
+실행 authority로 사용하지 않는다.
 
 ## 15. 구현 승인 handoff
 

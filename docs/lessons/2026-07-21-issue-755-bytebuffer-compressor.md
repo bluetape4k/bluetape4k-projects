@@ -56,6 +56,28 @@ overflow retry, pre-created failure identity를 포함한다. compression codec�
 dispatch와 storage coverage만 뜻하며, allocation 개선은 아직 측정하지 않았으므로
 `eligible, not yet measured`로 유지한다.
 
+## Deflate slice에서 고정한 lifecycle과 상태 우선순위
+
+Deflate caller-owned 경로는 매 호출마다 JDK `Deflater` 또는 `Inflater`를 새로 만들고
+`ByteBuffer` API에 직접 위임한다. codec을 singleton에 공유하지 않으므로 mutable native state는
+호출 사이에 남지 않는다. heap/direct/read-only/slice source와 heap/direct/slice target의 모든
+조합은 기존 allocating API와 같은 zlib wire를 교환한다.
+
+압축과 복원 loop는 codec의 `finished`, 입력·출력 byte count, target 잔여량을 매 반복마다
+검사한다. target이 소진되면 raw `BufferOverflowException`을 먼저 던진다. 그다음 복원 상태를
+사전 요구, 입력 중단, no-progress 순으로 분류해 각각 안정된 `ZipException`으로 보고한다.
+`DataFormatException`은 원인을 보존한 `ZipException("Invalid Deflate payload")`로 변환한다.
+이 순서 덕분에 zero-capacity target과 손상 상태가 겹쳐도 caller가 먼저 해결해야 할 용량
+실패가 결정적으로 유지된다.
+
+codec 정리는 성공과 실패 모두에서 정확히 한 번 실행한다. 연산과 정리가 함께 실패하면 연산
+throwable identity를 primary로 유지하고 정리 실패만 suppressed로 추가한다. 연산이 성공했을
+때는 정리 실패 자체를 전파한다. 테스트는 per-call codec 생성·정리 횟수, operation-primary
+identity, cleanup-only identity, compression/decompression no-progress, overflow 후 같은 target
+재시도, singleton 동시 호출을 고정한다. README의 `optimized`는 JDK `ByteBuffer` 직접 dispatch와
+storage coverage만 뜻하며 allocation 개선은 아직 측정하지 않았으므로
+`eligible, not yet measured`로 유지한다.
+
 ## 왜 broad backend slice를 중단했는가
 
 LZ4의 capacity-tail read는 source isolation 문제이고, zstd-jni의 throw-before-return은 예외

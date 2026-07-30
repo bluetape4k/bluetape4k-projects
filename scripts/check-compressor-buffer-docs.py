@@ -96,8 +96,7 @@ def validate_readmes() -> None:
             fail(f"README {language} example locale parity drift")
     expected_matrix = {
         "LZ4": ("optimized", "optimized", "optimized", "eligible, not yet measured"),
-        "Deflate": ("compatibility fallback", "compatibility fallback", "compatibility fallback",
-                    "none in the core slice"),
+        "Deflate": ("optimized", "optimized", "optimized", "eligible, not yet measured"),
         "Snappy": ("compatibility fallback", "compatibility fallback", "compatibility fallback",
                    "none in the core slice"),
         "Zstd": ("compatibility fallback", "compatibility fallback", "compatibility fallback",
@@ -106,6 +105,19 @@ def validate_readmes() -> None:
     }
     if en_matrix != expected_matrix:
         fail(f"storage matrix drift: expected={expected_matrix} actual={en_matrix}")
+
+    require_tokens(
+        sections["en"]["issue-755-storage-matrix"],
+        ("`optimized` means", "backend `ByteBuffer` path", "not a throughput claim",
+         "measured allocation improvement"),
+        "English optimized capability boundary",
+    )
+    require_tokens(
+        sections["ko"]["issue-755-storage-matrix"],
+        ("`optimized`는", "backend `ByteBuffer` 경로", "처리량 개선을 주장하지 않으며",
+         "측정된 allocation 개선"),
+        "Korean optimized capability boundary",
+    )
 
     shared_contract = (
         "position",
@@ -158,7 +170,8 @@ def validate_readmes() -> None:
                 fail(f"{locale} examples: forbidden allocating or unbounded pattern: {forbidden}")
         require_tokens(
             sections[locale]["issue-755-telemetry"],
-            ("runtime dispatch telemetry", "privacy-safe", "override", "allocating API", "fallback storage"),
+            ("runtime dispatch telemetry", "privacy-safe", "optimized override",
+             "allocating API", "fallback storage"),
             f"{locale} telemetry",
         )
 
