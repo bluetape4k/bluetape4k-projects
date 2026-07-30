@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1800" height="1080" viewBox="0 0 1800 1080" role="img" aria-labelledby="title desc">
+<svg xmlns="http://www.w3.org/2000/svg" width="1800" height="1030" viewBox="0 0 1800 1030" role="img" aria-labelledby="title desc">
   <title id="title">bluetape4k-okio compression factory</title>
   <desc id="desc">Compressable factory diagram showing algorithm presets, Source decompression layer, Sink compression layer, one-shot wrappers, streaming wrappers, and close/read contracts.</desc>
   <defs>
@@ -49,7 +49,7 @@
     </filter>
   </defs>
 
-  <rect x="24" y="24" width="1752" height="1032" rx="20" class="frame"/>
+  <rect x="24" y="24" width="1752" height="982" rx="20" class="frame"/>
   <text x="900" y="78" text-anchor="middle" class="title">bluetape4k-okio Compression Factory</text>
   <text x="900" y="108" text-anchor="middle" class="subtitle">Compressable splits factory shortcuts into Source decompression and Sink compression wrappers.</text>
 
