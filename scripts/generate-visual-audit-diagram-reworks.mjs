@@ -410,19 +410,29 @@ function renderPng(svgPath, pngPath) {
   }
 }
 
-function base(width, height, title, subtitle, body, layout = "") {
+function fixedColorArrowMarkers() {
+  return Object.entries(colors)
+    .map(([name, [, , stroke]]) => `<marker id="arrow-${name}" markerWidth="14" markerHeight="14" refX="13" refY="7" orient="auto" markerUnits="userSpaceOnUse"><path d="M 1 1 L 13 7 L 1 13 Z" fill="${stroke}"/></marker>`)
+    .join("\n  ");
+}
+
+function base(width, height, title, subtitle, body, layout = "", fixedColorMarkers = false) {
   const layoutAttr = layout ? ` data-layout="${esc(layout)}"` : "";
-  return `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" role="img" aria-label="${esc(title)}"${layoutAttr}>
-<defs>
-  <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="6" stdDeviation="5" flood-color="#0F172A" flood-opacity="0.10"/></filter>
-  <marker id="arrow" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="context-stroke"/></marker>
+  const markerDefinitions = fixedColorMarkers
+    ? fixedColorArrowMarkers()
+    : `<marker id="arrow" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="context-stroke"/></marker>
   <marker id="seqArrow-blue" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#1D4ED8"/></marker>
   <marker id="seqArrow-green" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#15803D"/></marker>
   <marker id="seqArrow-teal" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#0F766E"/></marker>
   <marker id="seqArrow-amber" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#C2410C"/></marker>
   <marker id="seqArrow-pink" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#BE185D"/></marker>
   <marker id="seqArrow-purple" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#7E22CE"/></marker>
-  <marker id="seqArrow-gray" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#4B5563"/></marker>
+  <marker id="seqArrow-gray" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#4B5563"/></marker>`;
+  const routeMarkerStyle = fixedColorMarkers ? "" : ";marker-end:url(#arrow)";
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" role="img" aria-label="${esc(title)}"${layoutAttr}>
+<defs>
+  <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="6" stdDeviation="5" flood-color="#0F172A" flood-opacity="0.10"/></filter>
+  ${markerDefinitions}
   <style>
     svg{font-family:"Architects Daughter","Comic Mono","Comic Sans MS",ui-sans-serif,system-ui,sans-serif}
     .canvas{fill:#F8FAFC}.frame{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.5;filter:url(#shadow)}
@@ -430,7 +440,7 @@ function base(width, height, title, subtitle, body, layout = "") {
     .panel{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.5}.panelTitle{font-family:"Architects Daughter";font-size:24px;fill:#0F172A}
     .card{filter:url(#shadow);stroke-width:1.7}.cardTitle{font-family:"Architects Daughter";font-size:23px;fill:#0F172A}.detail{font-family:"Comic Mono";font-size:13px;fill:#475569}
     .labelPill{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.4}
-    .route{fill:none;stroke-width:2.8;stroke-linecap:round;stroke-linejoin:round;marker-end:url(#arrow)}
+    .route{fill:none;stroke-width:2.8;stroke-linecap:round;stroke-linejoin:round${routeMarkerStyle}}
     .seq,.seqReturn{fill:none;stroke-width:2.8;stroke-linecap:round;stroke-linejoin:round}.seqReturn{stroke-dasharray:8 7}
     .dashed{stroke-dasharray:8 7}.lifeline{fill:none;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
   </style>
@@ -484,9 +494,10 @@ function labelPill(x, y, value, color = "gray", width = null) {
   return `<g><rect class="labelPill" x="${x - w / 2}" y="${y - 13}" width="${w}" height="26" rx="8"/><text class="detail" x="${x}" y="${y + 1}" text-anchor="middle" dominant-baseline="middle" style="fill:${stroke}">${esc(value)}</text></g>`;
 }
 
-function route(from, to, d, color = "gray", dashed = false, label = null) {
+function route(from, to, d, color = "gray", dashed = false, label = null, fixedColorMarkers = false) {
   const stroke = colors[color]?.[2] || colors.gray[2];
-  const path = `<path class="route${dashed ? " dashed" : ""}" data-from="${esc(from)}" data-to="${esc(to)}" d="${d}" stroke="${stroke}"/>`;
+  const marker = fixedColorMarkers ? ` marker-end="url(#arrow-${color})"` : "";
+  const path = `<path class="route${dashed ? " dashed" : ""}" data-from="${esc(from)}" data-to="${esc(to)}" d="${d}" stroke="${stroke}"${marker}/>`;
   return label ? `${path}\n${labelPill(label.x, label.y, label.text, color, label.width)}` : path;
 }
 
@@ -550,11 +561,29 @@ function renderLayeredCapabilityMap(name, title, subtitle, rows, edges, options 
   for (const [edgeIndex, edge] of edges.entries()) {
     const [from, to, color = "blue", dashed = false, label = null, ports = {}] = edge;
     const autoPorts = portOverrides.get(edgeKey(edgeIndex, from, to)) ?? {};
-    body.push(autoRoute(positions, from, to, color, dashed, label, edgeIndex, { ...autoPorts, ...ports }));
+    body.push(autoRoute(
+      positions,
+      from,
+      to,
+      color,
+      dashed,
+      label,
+      edgeIndex,
+      { ...autoPorts, ...ports },
+      options.fixedColorMarkers ?? false,
+    ));
   }
 
   const height = options.height ?? y + 44;
-  write(name, base(width, height, title, subtitle, body.join("\n"), options.layout ?? ""), {
+  write(name, base(
+    width,
+    height,
+    title,
+    subtitle,
+    body.join("\n"),
+    options.layout ?? "",
+    options.fixedColorMarkers ?? false,
+  ), {
     nodes: [...positions.keys()],
     edges: edges.map(([from, to]) => [from, to]),
   });
@@ -624,7 +653,17 @@ function distributedPortSlots(node, count) {
   return Array.from({ length: count }, (_, index) => Math.round(left + (usable * index) / (count - 1)));
 }
 
-function autoRoute(positions, from, to, color = "blue", dashed = false, labelText = null, edgeIndex = 0, ports = {}) {
+function autoRoute(
+  positions,
+  from,
+  to,
+  color = "blue",
+  dashed = false,
+  labelText = null,
+  edgeIndex = 0,
+  ports = {},
+  fixedColorMarkers = false,
+) {
   const a = positions.get(from);
   const b = positions.get(to);
   if (!a || !b) throw new Error(`Unknown layered map route ${from} -> ${to}`);
@@ -634,7 +673,7 @@ function autoRoute(positions, from, to, color = "blue", dashed = false, labelTex
       y: ports.labelY ?? (a.y + b.y + a.h + b.h) / 4,
       text: labelText,
       width: Math.max(70, labelText.length * 7 + 28),
-    } : null);
+    } : null, fixedColorMarkers);
   }
   const acx = a.x + a.w / 2;
   const acy = a.y + a.h / 2;
@@ -658,7 +697,7 @@ function autoRoute(positions, from, to, color = "blue", dashed = false, labelTex
       d = `M${apx} ${a.y} L${bpx} ${b.y + b.h}`;
       label = labelText ? { x: (apx + bpx) / 2, y: (b.y + b.h + a.y) / 2 - 16, text: labelText, width: Math.max(70, labelText.length * 7 + 28) } : null;
     }
-    return route(from, to, d, color, dashed, label);
+    return route(from, to, d, color, dashed, label, fixedColorMarkers);
   }
 
   if (Math.abs(acy - bcy) < 12) {
@@ -683,7 +722,7 @@ function autoRoute(positions, from, to, color = "blue", dashed = false, labelTex
     d = `M${apx} ${a.y} L${apx} ${laneY} L${bpx} ${laneY} L${bpx} ${b.y + b.h}`;
     label = labelText ? { x: (apx + bpx) / 2, y: laneY - 18, text: labelText, width: Math.max(70, labelText.length * 7 + 28) } : null;
   }
-  return route(from, to, d, color, dashed, label);
+  return route(from, to, d, color, dashed, label, fixedColorMarkers);
 }
 
 function safeVerticalPortX(node, preferred) {
@@ -747,7 +786,7 @@ function renderFoundationOverviews() {
   ], [
     ["require", "range", "green"], ["types", "collections", "teal"], ["codec", "value", "amber", true],
     ["range", "time", "pink"], ["collections", "concurrent", "olive"], ["value", "functional", "purple"],
-  ]);
+  ], { height: 1114, fixedColorMarkers: true });
 
   renderLayeredCapabilityMap("bluetape4k-coroutines-diagram-01", "Bluetape4k Coroutines architecture", "Coroutine helpers are grouped by async primitives, Flow processing, runtime scope, and integration bridges.", [
     { title: "Async primitives", nodes: [
