@@ -126,6 +126,54 @@ test("canonical infra Lettuce diagram has no card text overflow", (context) => {
   assert.deepEqual(validation.rows[0].failures, []);
 });
 
+test("canonical bluetape4k core overview has balanced content margins", (context) => {
+  const root = mkdtempSync(join(tmpdir(), "readme-diagram-validator-"));
+  const diagramDir = join(root, "docs/images/readme-diagrams");
+  const diagramName = "bluetape4k-core-diagram-01.svg";
+  const report = join(root, "diagram-validation-report.json");
+  context.after(() => rmSync(root, { recursive: true, force: true }));
+
+  mkdirSync(diagramDir, { recursive: true });
+  writeFileSync(
+    join(diagramDir, diagramName),
+    readFileSync(join(repositoryRoot, "docs/images/readme-diagrams", diagramName), "utf8"),
+    "utf8",
+  );
+
+  const result = spawnSync(process.execPath, [validator], {
+    cwd: root,
+    encoding: "utf8",
+    env: { ...process.env, DIAGRAM_VALIDATION_REPORT: report },
+  });
+
+  assert.equal(result.status, 0, result.stderr);
+  const validation = JSON.parse(readFileSync(report, "utf8"));
+  assert.equal(validation.total, 1);
+  assert.equal(validation.failed, 0);
+  assert.deepEqual(validation.rows[0].failures, []);
+});
+
+test("canonical bluetape4k core overview uses explicit color arrow markers", () => {
+  const svg = readFileSync(
+    join(repositoryRoot, "docs/images/readme-diagrams/bluetape4k-core-diagram-01.svg"),
+    "utf8",
+  );
+
+  assert.doesNotMatch(svg, /context-stroke/);
+  assert.doesNotMatch(svg, /markerUnits="strokeWidth"/);
+
+  const markerColors = new Map(
+    [...svg.matchAll(/<marker id="(arrow-[^"]+)"[^>]*><path[^>]*fill="([^"]+)"/g)]
+      .map((match) => [match[1], match[2]]),
+  );
+  const routes = [...svg.matchAll(/<path class="route(?: dashed)?"[^>]*stroke="([^"]+)"[^>]*marker-end="url\(#([^)]+)\)"/g)];
+
+  assert.equal(routes.length, 6);
+  for (const [, stroke, marker] of routes) {
+    assert.equal(markerColors.get(marker), stroke);
+  }
+});
+
 test("target filter validates only exact requested filenames", (context) => {
   const root = mkdtempSync(join(tmpdir(), "readme-diagram-validator-"));
   const diagramDir = join(root, "docs/images/readme-diagrams");
