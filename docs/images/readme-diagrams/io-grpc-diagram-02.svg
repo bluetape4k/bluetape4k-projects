@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1760" height="1080" viewBox="0 0 1760 1080" role="img" aria-label="gRPC Component Overview">
+<svg data-intent="Explain how the gRPC module separates server lifecycle assembly, client channel ownership, in-process test variants, metadata interceptors, and shared input validation." data-evidence="io/grpc/README.md; io/grpc/src/main/kotlin/io/bluetape4k/grpc/AbstractGrpcServer.kt; io/grpc/src/main/kotlin/io/bluetape4k/grpc/AbstractGrpcClient.kt; io/grpc/src/main/kotlin/io/bluetape4k/grpc/ServerSupport.kt; io/grpc/src/main/kotlin/io/bluetape4k/grpc/ManagedChannelSupport.kt" data-source-read="io/grpc/README.md; io/grpc/src/main/kotlin/io/bluetape4k/grpc; io/grpc/src/main/kotlin/io/bluetape4k/grpc/inprocess; io/grpc/src/main/kotlin/io/bluetape4k/grpc/interceptor" xmlns="http://www.w3.org/2000/svg" width="1760" height="1080" viewBox="0 0 1760 1080" role="img" aria-label="gRPC Component Overview">
   <defs>
     <filter id="soft-shadow" x="-8%" y="-8%" width="116%" height="116%">
       <feDropShadow dx="0" dy="6" stdDeviation="4" flood-color="#0f172a" flood-opacity="0.10"/>
@@ -43,7 +43,7 @@
   <text class="title" x="78" y="86">gRPC Component Overview</text>
   <text class="subtitle" x="82" y="118">The module separates lifecycle bases, helper factories, channel ownership, interceptors, and in-process test variants.</text>
 
-  <rect class="band" x="82" y="158" width="1596" height="250" rx="8" fill="#eff6ff" stroke="#bfdbfe"/>
+  <rect class="band layer" x="82" y="174" width="1596" height="234" rx="8" fill="#eff6ff" stroke="#bfdbfe"/>
   <text class="band-title" x="118" y="205">Server runtime assembly</text>
   <text class="band-sub" x="118" y="232">Application services are bound through ServerBuilder and managed by GrpcServer lifecycle classes.</text>
 
@@ -72,7 +72,7 @@
   <path class="route-blue" d="M 736 322 L 806 322"/>
   <path class="route-blue" d="M 1106 322 L 1176 322"/>
 
-  <rect class="band" x="82" y="448" width="1596" height="250" rx="8" fill="#f0fdf4" stroke="#bbf7d0"/>
+  <rect class="band layer" x="82" y="448" width="1596" height="250" rx="8" fill="#f0fdf4" stroke="#bbf7d0"/>
   <text class="band-title" x="118" y="495">Client channel assembly</text>
   <text class="band-sub" x="118" y="522">Client bases own ManagedChannel and close it with graceful shutdown followed by shutdownNow fallback.</text>
 
@@ -101,7 +101,7 @@
   <path class="route-green" d="M 736 612 L 806 612"/>
   <path class="route-green" d="M 1106 612 L 1176 612"/>
 
-  <rect class="band" x="218" y="748" width="1324" height="176" rx="8" fill="#f8fafc" stroke="#cbd5e1"/>
+  <rect class="band layer" x="218" y="748" width="1324" height="204" rx="8" fill="#f8fafc" stroke="#cbd5e1"/>
   <text class="band-title" x="254" y="792">Cross-cutting support</text>
 
   <g transform="translate(292 826)">
