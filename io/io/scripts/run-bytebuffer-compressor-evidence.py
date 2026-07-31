@@ -207,8 +207,16 @@ def throughput_regressed(baseline: dict, candidate: dict) -> bool:
     ) * 0.80 and candidate_high < baseline_low
 
 
-def eligible(codec: str, storage_path: str) -> bool:
-    return codec in {"lz4", "deflate"} or storage_path in {"heap", "direct"}
+def payload_intermediate_free(codec: str, operation: str, storage_path: str) -> bool:
+    if codec in {"lz4", "deflate"}:
+        return True
+    return storage_path == "direct" if codec == "snappy" else storage_path in {"heap", "direct"}
+
+
+def eligible(codec: str, operation: str, storage_path: str) -> bool:
+    if not payload_intermediate_free(codec, operation, storage_path):
+        return False
+    return not (codec == "snappy" and operation == "decompress")
 
 
 def scaling_demonstrated(per_payload: dict[str, tuple[dict, dict]]) -> bool:
@@ -346,7 +354,8 @@ def source_inspection(root: pathlib.Path) -> list[dict]:
                     "path": relative,
                     "symbol": f"{operation}(ByteBuffer, ByteBuffer)",
                     "sha256": sha256(path),
-                    "payloadIntermediateFree": eligible(codec, storage),
+                    "payloadIntermediateFree": payload_intermediate_free(codec, operation, storage),
+                    "adoptionEligible": eligible(codec, operation, storage),
                 })
     return rows
 
@@ -365,8 +374,10 @@ def validate_source_inspection(rows: object, root: pathlib.Path) -> None:
         path = root / relative
         if path.is_symlink() or sha256(path) != row.get("sha256"):
             raise ValueError("production source hash mismatch")
-        if row.get("payloadIntermediateFree") is not eligible(key[0], key[2]):
+        if row.get("payloadIntermediateFree") is not payload_intermediate_free(*key):
             raise ValueError("source inspection eligibility mismatch")
+        if row.get("adoptionEligible") is not eligible(*key):
+            raise ValueError("source inspection adoption mismatch")
     if actual != expected:
         raise ValueError("source inspection matrix mismatch")
 
@@ -791,7 +802,7 @@ def comparison_rows(run_paths: list[pathlib.Path]) -> list[dict]:
                     per_run_payloads.append(payloads)
                     allocation_passes.append(all(run_allocations))
                     throughput_by_run.append(run_regressions)
-                is_eligible = eligible(codec, storage)
+                is_eligible = eligible(codec, operation, storage)
                 scaling = is_eligible and all(scaling_demonstrated(payloads) for payloads in per_run_payloads)
                 if not is_eligible:
                     verdict = "ineligible"

@@ -128,10 +128,12 @@ class MetricValidationTest(unittest.TestCase):
         self.assertFalse(evidence.throughput_regressed(metric(10_000, 10, "ops/s"), metric(8_100, 10, "ops/s")))
 
     def test_backend_eligibility_excludes_native_mixed_storage(self):
-        self.assertTrue(evidence.eligible("lz4", "heapToDirect"))
-        self.assertTrue(evidence.eligible("deflate", "directToHeap"))
-        self.assertFalse(evidence.eligible("snappy", "heapToDirect"))
-        self.assertFalse(evidence.eligible("zstd", "directToHeap"))
+        self.assertTrue(evidence.eligible("lz4", "compress", "heapToDirect"))
+        self.assertTrue(evidence.eligible("deflate", "decompress", "directToHeap"))
+        self.assertTrue(evidence.eligible("snappy", "compress", "direct"))
+        self.assertFalse(evidence.eligible("snappy", "decompress", "direct"))
+        self.assertFalse(evidence.eligible("snappy", "compress", "heap"))
+        self.assertFalse(evidence.eligible("zstd", "compress", "directToHeap"))
 
 
 class JmhValidationTest(unittest.TestCase):
