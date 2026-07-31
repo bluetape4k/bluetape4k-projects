@@ -40,7 +40,7 @@ jjwt = "0.13.0"  # https://mvnrepository.com/artifact/io.jsonwebtoken/jjwt-api
 mapstruct = "1.6.3"  # https://mvnrepository.com/artifact/org.mapstruct/mapstruct
 
 mongo-driver = "5.7.0"  # https://mvnrepository.com/artifact/org.mongodb/mongodb-driver-sync
-lz4 = "1.11.0"  # https://mvnrepository.com/artifact/at.yawk.lz4/lz4-java
+lz4 = "1.11.1"  # https://mvnrepository.com/artifact/at.yawk.lz4/lz4-java
 
 hibernate-reactive = "4.5.0.Final"  # https://mvnrepository.com/artifact/org.hibernate.reactive/hibernate-reactive-core
 hibernate-validator = "9.1.0.Final"  # https://mvnrepository.com/artifact/org.hibernate.validator/hibernate-validator
