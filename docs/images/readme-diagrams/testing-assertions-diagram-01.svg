@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1800" height="1050" viewBox="0 0 1800 1050" role="img" aria-label="bluetape4k assertions architecture">
+<svg xmlns="http://www.w3.org/2000/svg" width="1800" height="1050" viewBox="0 0 1800 1050" role="img" aria-label="bluetape4k assertions architecture" data-intent="Show how test-side assertion APIs map to DSL families and JUnit/OpenTest4J failure semantics." data-evidence="testing/assertions/README.md; testing/assertions/src/main" data-source-read="testing/assertions/README.md; testing/assertions/src/main">
 <defs>
   <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="5" stdDeviation="4" flood-color="#0F172A" flood-opacity="0.10"/></filter>
   <marker id="arrowBlue" markerWidth="13" markerHeight="10" refX="12" refY="5" orient="auto" markerUnits="userSpaceOnUse"><path d="M 0 0 L 12 5 L 0 10 Z" fill="#2563EB"/></marker>
@@ -38,86 +38,86 @@
 <g id="callerCards">
   <rect class="card caller" x="112" y="275" width="306" height="130"/>
   <text class="cardTitle" x="265" y="316" text-anchor="middle">JUnit test code</text>
-  <text class="cardText" x="136" y="348">import io.bluetape4k.assertions.*</text>
-  <text class="cardText" x="136" y="371">infix functions keep receiver</text>
-  <text class="cardText" x="136" y="394">for fluent chaining</text>
+  <text class="cardText" x="146" y="348">import io.bluetape4k.assertions.*</text>
+  <text class="cardText" x="146" y="371">infix functions keep receiver</text>
+  <text class="cardText" x="146" y="394">for fluent chaining</text>
 
   <rect class="card caller" x="112" y="492" width="306" height="132"/>
   <text class="cardTitle" x="265" y="532" text-anchor="middle">Compatibility surface</text>
-  <text class="cardText" x="136" y="564">legacy names plus explicit semantics</text>
-  <text class="cardText" x="136" y="587">shouldBe: ref ===</text>
-  <text class="cardText" x="136" y="610">shouldBeEqualTo: value ==</text>
+  <text class="cardText" x="146" y="564">legacy names, explicit semantics</text>
+  <text class="cardText" x="146" y="587">shouldBe: ref ===</text>
+  <text class="cardText" x="146" y="610">shouldBeEqualTo: value ==</text>
 
   <rect class="card caller" x="112" y="710" width="306" height="132"/>
   <text class="cardTitle" x="265" y="750" text-anchor="middle">Minimal dependencies</text>
-  <text class="cardText" x="136" y="782">api: JUnit Jupiter + coroutines</text>
-  <text class="cardText" x="136" y="805">compileOnly: Turbine integration</text>
+  <text class="cardText" x="146" y="782">api: JUnit Jupiter + coroutines</text>
+  <text class="cardText" x="146" y="805">compileOnly: Turbine integration</text>
 </g>
 
 <g id="dslCards">
   <rect class="card dsl" x="570" y="275" width="310" height="106"/>
   <text class="cardTitle" x="725" y="311" text-anchor="middle">Basic / contracts</text>
-  <text class="cardText" x="594" y="342">null checks, Boolean checks</text>
-  <text class="cardText" x="594" y="364">smart-cast after shouldNotBeNull()</text>
+  <text class="cardText" x="604" y="342">null checks, Boolean checks</text>
+  <text class="cardText" x="604" y="364">smart-cast after shouldNotBeNull()</text>
 
   <rect class="card dsl" x="930" y="275" width="310" height="106"/>
   <text class="cardTitle" x="1085" y="311" text-anchor="middle">Text / collections</text>
-  <text class="cardText" x="954" y="342">CharSequence, regex, maps</text>
-  <text class="cardText" x="954" y="364">collections, arrays, content equality</text>
+  <text class="cardText" x="964" y="342">CharSequence, regex, maps</text>
+  <text class="cardText" x="964" y="364">collections, arrays, content eq</text>
 
   <rect class="card numeric" x="570" y="415" width="310" height="106"/>
   <text class="cardTitle" x="725" y="451" text-anchor="middle">Numeric / date-time</text>
-  <text class="cardText" x="594" y="482">Comparable, range, sign, near</text>
-  <text class="cardText" x="594" y="504">BigDecimal and java.time checks</text>
+  <text class="cardText" x="604" y="482">Comparable, range, sign, near</text>
+  <text class="cardText" x="604" y="504">BigDecimal and java.time checks</text>
 
   <rect class="card numeric" x="930" y="415" width="310" height="106"/>
   <text class="cardTitle" x="1085" y="451" text-anchor="middle">Exception DSL</text>
-  <text class="cardText" x="954" y="482">invoking { } / shouldThrow</text>
-  <text class="cardText" x="954" y="504">message, regex, cause, custom checks</text>
+  <text class="cardText" x="964" y="482">invoking { } / shouldThrow</text>
+  <text class="cardText" x="964" y="504">message, regex, cause checks</text>
 
   <rect class="card soft" x="570" y="555" width="310" height="106"/>
   <text class="cardTitle" x="725" y="591" text-anchor="middle">Soft assertions</text>
-  <text class="cardText" x="594" y="622">assertSoftly { add { ... } }</text>
-  <text class="cardText" x="594" y="644">no thread-local shared state</text>
+  <text class="cardText" x="604" y="622">assertSoftly { add { ... } }</text>
+  <text class="cardText" x="604" y="644">no thread-local shared state</text>
 
   <rect class="card async" x="930" y="555" width="310" height="106"/>
   <text class="cardTitle" x="1085" y="591" text-anchor="middle">Coroutine / Flow</text>
-  <text class="cardText" x="954" y="622">coInvoking, assertTimeout</text>
-  <text class="cardText" x="954" y="644">Flow result, set, failure checks</text>
+  <text class="cardText" x="964" y="622">coInvoking, assertTimeout</text>
+  <text class="cardText" x="964" y="644">Flow result, set, failure checks</text>
 
   <rect class="card dsl" x="570" y="695" width="310" height="106"/>
   <text class="cardTitle" x="725" y="731" text-anchor="middle">Reflection / arrays</text>
-  <text class="cardText" x="594" y="762">shouldBeInstanceOf&lt;T&gt;()</text>
-  <text class="cardText" x="594" y="784">primitive and object array equality</text>
+  <text class="cardText" x="604" y="762">shouldBeInstanceOf&lt;T&gt;()</text>
+  <text class="cardText" x="604" y="784">primitive and object array equality</text>
 
   <rect class="card async" x="930" y="695" width="310" height="106"/>
   <text class="cardTitle" x="1085" y="731" text-anchor="middle">Turbine support</text>
-  <text class="cardText" x="954" y="762">awaitItemAndAssert()</text>
-  <text class="cardText" x="954" y="784">awaitItemMatching(), awaitErrorOfType()</text>
+  <text class="cardText" x="964" y="762">awaitItemAndAssert()</text>
+  <text class="cardText" x="964" y="784">item matching, typed errors</text>
 </g>
 
 <g id="resultCards">
   <rect class="card failure" x="1382" y="275" width="306" height="132"/>
   <text class="cardTitle" x="1535" y="315" text-anchor="middle">Failures factory</text>
-  <text class="cardText" x="1406" y="347">AssertionFailedError(message)</text>
-  <text class="cardText" x="1406" y="370">expected / actual constructor</text>
-  <text class="cardText" x="1406" y="393">failWithCause for wrapped failures</text>
+  <text class="cardText" x="1416" y="347">AssertionFailedError(message)</text>
+  <text class="cardText" x="1416" y="370">expected / actual constructor</text>
+  <text class="cardText" x="1416" y="393">failWithCause for wrapped failures</text>
 
   <rect class="card result" x="1382" y="462" width="306" height="116"/>
   <text class="cardTitle" x="1535" y="500" text-anchor="middle">JUnit / IDE output</text>
-  <text class="cardText" x="1406" y="526">OpenTest4J propagates failures</text>
-  <text class="cardText" x="1406" y="549">IntelliJ diff viewer shows</text>
-  <text class="cardText" x="1406" y="572">expected / actual values</text>
+  <text class="cardText" x="1416" y="526">OpenTest4J propagates failures</text>
+  <text class="cardText" x="1416" y="549">IntelliJ diff viewer shows</text>
+  <text class="cardText" x="1416" y="572">expected / actual values</text>
 
   <rect class="card async" x="1382" y="636" width="306" height="116"/>
   <text class="cardTitle" x="1535" y="674" text-anchor="middle">Cancellation contract</text>
-  <text class="cardText" x="1406" y="706">CancellationException is rethrown</text>
-  <text class="cardText" x="1406" y="729">unless explicitly expected</text>
+  <text class="cardText" x="1416" y="706">CancellationException is rethrown</text>
+  <text class="cardText" x="1416" y="729">unless explicitly expected</text>
 
   <rect class="card soft" x="1382" y="810" width="306" height="106"/>
   <text class="cardTitle" x="1535" y="846" text-anchor="middle">Multiple failures</text>
-  <text class="cardText" x="1406" y="877">JUnit Assertions.assertAll()</text>
-  <text class="cardText" x="1406" y="899">MultipleFailuresError aggregation</text>
+  <text class="cardText" x="1416" y="877">JUnit Assertions.assertAll()</text>
+  <text class="cardText" x="1416" y="899">MultipleFailuresError aggregation</text>
 </g>
 
 <path class="arrow blue" d="M418 340 L520 340"/>
