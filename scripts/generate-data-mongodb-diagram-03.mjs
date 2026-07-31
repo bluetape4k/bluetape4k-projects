@@ -5,6 +5,7 @@ import { existsSync, readFileSync, writeFileSync } from "node:fs";
 const out = "docs/images/readme-diagrams/data-mongodb-diagram-03";
 const W = 1800;
 const H = 1080;
+const intent = "Explain how bluetape4k aggregation helpers build ordered BSON stages before the native MongoDB coroutine driver executes aggregate as a Flow.";
 const c = {
   ink: "#0F172A",
   muted: "#475569",
@@ -55,6 +56,13 @@ function esc(value) {
     .replaceAll('"', "&quot;");
 }
 
+function escText(value) {
+  return String(value)
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;");
+}
+
 function marker(id, color) {
   return `<marker id="${id}" markerWidth="15" markerHeight="14" refX="13" refY="7" orient="auto" markerUnits="userSpaceOnUse"><path d="M 1 1 L 14 7 L 1 13 Z" fill="${color}" stroke="${color}" stroke-dasharray="none"/></marker>`;
 }
@@ -83,7 +91,7 @@ function codeLine(text, centerX, y) {
   const width = parts.reduce((sum, part) => sum + tokenWidth(part.token), 0);
   let x = centerX - width / 2;
   return `<g>${parts.map((part) => {
-    const item = `<text class="code" x="${x}" y="${y}" fill="${part.color}">${esc(part.token)}</text>`;
+    const item = `<text class="code" x="${x}" y="${y}"><tspan class="syntax-token" fill="${part.color}">${escText(part.token)}</tspan></text>`;
     x += tokenWidth(part.token);
     return item;
   }).join("")}</g>`;
@@ -93,8 +101,9 @@ function card(card, large = false) {
   return `<g><rect class="card" x="${card.x}" y="${card.y}" width="${card.w}" height="${card.h}" rx="8" fill="${card.fill}" stroke="${card.stroke}"/><text class="${large ? "topTitle" : "helperTitle"}" x="${card.x + card.w / 2}" y="${card.y + (large ? 42 : 38)}" text-anchor="middle">${esc(card.title)}</text>${card.lines.map((line, index) => codeLine(line, card.x + card.w / 2, card.y + (large ? 76 : 74) + index * 27)).join("")}</g>`;
 }
 
-const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" role="img" aria-label="MongoDB aggregation pipeline data flow">
-<defs><filter id="shadow" x="-8%" y="-8%" width="116%" height="118%"><feDropShadow dx="0" dy="6" stdDeviation="5" flood-color="#0F172A" flood-opacity=".11"/></filter>${marker("flowArrow", c.blue)}${marker("helperArrow", c.green)}<style>svg{font-family:"Architects Daughter","Comic Mono","Comic Sans MS",ui-sans-serif,system-ui,sans-serif}.canvas{fill:${c.canvas}}.frame{fill:${c.frame};stroke:${c.line};stroke-width:1.6;filter:url(#shadow)}.title{font-family:"Architects Daughter";font-size:44px;fill:${c.ink}}.subtitle{font-family:"Comic Mono";font-size:15px;fill:${c.muted}}.lane{fill:#F8FAFC;stroke:${c.line};stroke-width:1.5}.laneTitle{font-family:"Architects Daughter";font-size:24px;fill:${c.ink}}.card{filter:url(#shadow);stroke-width:1.9}.topTitle{font-family:"Architects Daughter";font-size:24px;fill:${c.ink}}.helperTitle{font-family:"Architects Daughter";font-size:22px;fill:${c.ink}}.code{font-family:"Comic Mono";font-size:12.4px;font-weight:700}.sub{font-family:"Comic Mono";font-size:12.5px;fill:#64748B}.flow{fill:none;stroke:${c.blue};stroke-width:4;stroke-linecap:round;stroke-linejoin:round;marker-end:url(#flowArrow)}.helper{fill:none;stroke:${c.green};stroke-width:3.6;stroke-linecap:round;stroke-linejoin:round;marker-end:url(#helperArrow)}.boundary{fill:none;stroke:${c.green};stroke-width:2.7;stroke-dasharray:8 8}</style></defs>
+const sourceEvidence = sources.join("; ");
+const svg = `<svg data-intent="${esc(intent)}" data-evidence="${esc(sourceEvidence)}" data-source-read="${esc(sourceEvidence)}" xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" role="img" aria-label="MongoDB aggregation pipeline data flow">
+<defs><filter id="shadow" x="-8%" y="-8%" width="116%" height="118%"><feDropShadow dx="0" dy="6" stdDeviation="5" flood-color="#0F172A" flood-opacity=".11"/></filter>${marker("flowArrow", c.blue)}${marker("helperArrow", c.green)}<style>svg{font-family:"Architects Daughter","Comic Mono","Comic Sans MS",ui-sans-serif,system-ui,sans-serif}.canvas{fill:${c.canvas}}.frame{fill:${c.frame};stroke:${c.line};stroke-width:1.6;filter:url(#shadow)}.title{font-family:"Architects Daughter";font-size:44px;fill:${c.ink}}.subtitle{font-family:"Comic Mono";font-size:15px;fill:${c.muted}}.lane{fill:#F8FAFC;stroke:${c.line};stroke-width:1.5}.laneTitle{font-family:"Architects Daughter";font-size:24px;fill:${c.ink}}.card{filter:url(#shadow);stroke-width:1.9}.topTitle{font-family:"Architects Daughter";font-size:24px;fill:${c.ink}}.helperTitle{font-family:"Architects Daughter";font-size:22px;fill:${c.ink}}.code{font-family:"Comic Mono";font-size:12.4px;font-weight:700}.syntax-token{fill:${c.ink}}.sub{font-family:"Comic Mono";font-size:12.5px;fill:#64748B}.flow{fill:none;stroke:${c.blue};stroke-width:4;stroke-linecap:round;stroke-linejoin:round;marker-end:url(#flowArrow)}.helper{fill:none;stroke:${c.green};stroke-width:3.6;stroke-linecap:round;stroke-linejoin:round;marker-end:url(#helperArrow)}.boundary{fill:none;stroke:${c.green};stroke-width:2.7;stroke-dasharray:8 8}</style></defs>
 <rect class="canvas" width="${W}" height="${H}"/>
 <rect class="frame" x="34" y="30" width="${W - 68}" height="${H - 66}" rx="10"/>
 <text class="title" x="72" y="84">MongoDB Aggregation Pipeline Data Flow</text>

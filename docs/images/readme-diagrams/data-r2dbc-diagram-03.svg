@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1500" height="940" viewBox="0 0 1500 940" role="img" aria-label="JDBC vs R2DBC comparison">
+<svg data-intent="Compare the blocking JDBC resource lifecycle with the reactive R2DBC coroutine path so readers can choose the database access model that matches their workload." data-evidence="data/r2dbc/README.md; data/jdbc/src/main/kotlin/io/bluetape4k/jdbc/sql/DataSourceExtensions.kt; data/r2dbc/src/main/kotlin/io/bluetape4k/r2dbc/support/DatabaseClientSupport.kt; data/r2dbc/src/main/kotlin/io/bluetape4k/r2dbc/pool/R2dbcPoolConfig.kt" data-source-read="data/r2dbc/README.md; data/jdbc/src/main/kotlin/io/bluetape4k/jdbc/sql/DataSourceExtensions.kt; data/r2dbc/src/main/kotlin/io/bluetape4k/r2dbc/support/DatabaseClientSupport.kt; data/r2dbc/src/main/kotlin/io/bluetape4k/r2dbc/pool/R2dbcPoolConfig.kt" xmlns="http://www.w3.org/2000/svg" width="1500" height="940" viewBox="0 0 1500 940" role="img" aria-label="JDBC vs R2DBC comparison">
   <defs>
     <filter id="softShadow" x="-8%" y="-10%" width="116%" height="124%">
       <feDropShadow dx="0" dy="7" stdDeviation="5" flood-color="#0f172a" flood-opacity="0.10"/>
@@ -39,11 +39,11 @@
 
   <line class="split" x1="750" y1="158" x2="750" y2="724"/>
 
-  <rect class="panelJdbc" x="84" y="158" width="610" height="566" rx="8"/>
+  <rect class="panel panelJdbc" x="84" y="158" width="610" height="566" rx="8"/>
   <text class="panelTitle" x="124" y="210">JDBC module</text>
   <text class="panelNote" x="126" y="238">Thread owns the Connection while the driver blocks.</text>
 
-  <rect class="panelR2dbc" x="806" y="158" width="610" height="566" rx="8"/>
+  <rect class="panel panelR2dbc" x="806" y="158" width="610" height="566" rx="8"/>
   <text class="panelTitle" x="846" y="210">R2DBC module</text>
   <text class="panelNote" x="848" y="238">Reactive driver emits rows; callers consume Flow or await results.</text>
 
@@ -99,15 +99,21 @@
 
   <g id="criteria">
     <rect class="criterion" x="84" y="764" width="1332" height="96" rx="8"/>
-    <text class="cardTitle" x="118" y="804">How to choose</text>
-    <rect class="chipBlue" x="310" y="786" width="248" height="46" rx="8"/>
-    <text class="small" x="434" y="805" text-anchor="middle">JDBC</text>
-    <text class="small" x="434" y="823" text-anchor="middle">simple blocking jobs, batch utilities</text>
-    <rect class="chipGreen" x="618" y="786" width="304" height="46" rx="8"/>
-    <text class="small" x="770" y="805" text-anchor="middle">R2DBC</text>
-    <text class="small" x="770" y="823" text-anchor="middle">reactive services, Flow, suspend transactions</text>
-    <rect class="chipGreen" x="982" y="786" width="304" height="46" rx="8"/>
-    <text class="small" x="1134" y="805" text-anchor="middle">bluetape4k-r2dbc adds</text>
-    <text class="small" x="1134" y="823" text-anchor="middle">Query DSL, pool tuning, typed facade</text>
+    <text class="cardTitle" x="118" y="818">How to choose</text>
+  </g>
+  <g id="jdbcCriterion">
+    <rect class="card chipBlue" x="260" y="786" width="330" height="46" rx="8"/>
+    <text class="small" x="425" y="805" text-anchor="middle">JDBC</text>
+    <text class="small" x="425" y="823" text-anchor="middle">simple blocking jobs, batch utilities</text>
+  </g>
+  <g id="r2dbcCriterion">
+    <rect class="card chipGreen" x="620" y="786" width="390" height="46" rx="8"/>
+    <text class="small" x="815" y="805" text-anchor="middle">R2DBC</text>
+    <text class="small" x="815" y="823" text-anchor="middle">reactive services, Flow, suspend transactions</text>
+  </g>
+  <g id="extensionCriterion">
+    <rect class="card chipGreen" x="1050" y="786" width="330" height="46" rx="8"/>
+    <text class="small" x="1215" y="805" text-anchor="middle">bluetape4k-r2dbc adds</text>
+    <text class="small" x="1215" y="823" text-anchor="middle">Query DSL, pool tuning, typed facade</text>
   </g>
 </svg>

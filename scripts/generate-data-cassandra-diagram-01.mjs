@@ -157,7 +157,7 @@ const rows = [
 ];
 
 const svg = `<?xml version="1.0" encoding="UTF-8"?>
-<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" role="img" aria-label="Cassandra extension function API overview">
+<svg data-intent="Show how each public Cassandra extension family carries application intent through bluetape4k Kotlin helpers into DataStax driver primitives and runtime results." data-evidence="${esc(sources.join("; "))}" data-source-read="${esc(sources.join("; "))}" xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" role="img" aria-label="Cassandra extension function API overview">
   <style>text { font-family: ${font}; dominant-baseline: alphabetic; }</style>
   ${defs()}
   <rect width="${W}" height="${H}" fill="#ffffff"/>

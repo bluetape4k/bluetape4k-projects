@@ -160,15 +160,15 @@ const flows = [
     {color: c.blue, d: "M450 373 L535 373", label: "create", x: 492, y: 353, dash: true, open: true},
     {color: c.green, d: "M865 373 L950 373", label: "database", x: 908, y: 353, dash: true, open: true},
     {color: c.teal, d: "M1280 373 L1365 373", label: "collection", x: 1322, y: 353, dash: true, open: true},
-    {color: c.blue, d: "M290 750 L290 682 L660 682 L660 446", label: "caches", x: 468, y: 662, dash: true, open: true},
+    {color: c.blue, d: "M290 750 L290 694 Q290 682 302 682 L648 682 Q660 682 660 670 L660 446", label: "caches", x: 468, y: 662, dash: true, open: true},
     {color: c.green, d: "M680 750 L680 446", label: "creates", x: 718, y: 610, dash: true, open: true},
     {color: c.teal, d: "M1080 750 L1080 446", label: "extends", x: 1118, y: 610, dash: true, open: true},
     {
         color: c.orange,
-        d: "M1495 750 L1495 682 L1530 682 L1530 446",
+        d: "M1495 750 L1495 446",
         label: "feeds aggregate",
-        x: 1518,
-        y: 662,
+        x: 1555,
+        y: 610,
         dash: true,
         open: true
     },
@@ -214,7 +214,7 @@ function codeLine(text, centerX, y) {
     const width = parts.reduce((sum, part) => sum + tokenWidth(part.token), 0);
     let x = centerX - width / 2;
     return `<g>${parts.map((part) => {
-        const item = `<text class="code" x="${x}" y="${y}" fill="${part.color}">${esc(part.token)}</text>`;
+        const item = `<text class="code" x="${x}" y="${y}"><tspan class="syntax-token" fill="${part.color}">${esc(part.token)}</tspan></text>`;
         x += tokenWidth(part.token);
         return item;
     }).join("")}</g>`;
@@ -240,7 +240,7 @@ const markerDefs = [...new Map(flows.flatMap((flow) => [
 ])).values()].join("");
 
 const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" role="img" aria-label="bluetape4k MongoDB core class structure">
-<defs><filter id="shadow" x="-8%" y="-8%" width="116%" height="118%"><feDropShadow dx="0" dy="6" stdDeviation="5" flood-color="#0F172A" flood-opacity=".11"/></filter>${markerDefs}<style>svg{font-family:"Architects Daughter","Comic Mono","Comic Sans MS",ui-sans-serif,system-ui,sans-serif}.canvas{fill:${c.canvas}}.frame{fill:${c.frame};stroke:${c.line};stroke-width:1.6;filter:url(#shadow)}.title{font-family:"Architects Daughter";font-size:44px;fill:${c.ink}}.subtitle{font-family:"Comic Mono";font-size:15px;fill:${c.muted}}.layer{fill:#F8FAFC;stroke:${c.line};stroke-width:1.5}.layerTitle{font-family:"Architects Daughter";font-size:24px;fill:${c.ink}}.layerNote{font-family:"Comic Mono";font-size:12.5px;fill:#64748B}.card{filter:url(#shadow);stroke-width:1.9}.tag{font-family:"Comic Mono";font-size:12.3px;font-weight:700;fill:#64748B}.cardTitle{font-family:"Architects Daughter";font-size:25px;fill:${c.ink}}.detail{font-family:"Comic Mono";font-size:13px;fill:${c.muted}}.code{font-family:"Comic Mono";font-size:12.6px;font-weight:700}.edge{fill:none;stroke-width:3.5;stroke-linecap:round;stroke-linejoin:round}.dashed{stroke-dasharray:8 7}.edgeLabel{font-family:"Comic Mono";font-size:12.2px;fill:${c.muted}}</style></defs>
+<defs><filter id="shadow" x="-8%" y="-8%" width="116%" height="118%"><feDropShadow dx="0" dy="6" stdDeviation="5" flood-color="#0F172A" flood-opacity=".11"/></filter>${markerDefs}<style>svg{font-family:"Architects Daughter","Comic Mono","Comic Sans MS",ui-sans-serif,system-ui,sans-serif}.canvas{fill:${c.canvas}}.frame{fill:${c.frame};stroke:${c.line};stroke-width:1.6;filter:url(#shadow)}.title{font-family:"Architects Daughter";font-size:44px;fill:${c.ink}}.subtitle{font-family:"Comic Mono";font-size:15px;fill:${c.muted}}.layer{fill:#F8FAFC;stroke:${c.line};stroke-width:1.5}.layerTitle{font-family:"Architects Daughter";font-size:24px;fill:${c.ink}}.layerNote{font-family:"Comic Mono";font-size:12.5px;fill:#64748B}.card{filter:url(#shadow);stroke-width:1.9}.tag{font-family:"Comic Mono";font-size:12.3px;font-weight:700;fill:#64748B}.cardTitle{font-family:"Architects Daughter";font-size:25px;fill:${c.ink}}.detail{font-family:"Comic Mono";font-size:13px;fill:${c.muted}}.code{font-family:"Comic Mono";font-size:12.6px;font-weight:700}.syntax-token{fill:${c.ink}}.edge{fill:none;stroke-width:3.5;stroke-linecap:round;stroke-linejoin:round}.dashed{stroke-dasharray:8 7}.edgeLabel{font-family:"Comic Mono";font-size:12.2px;fill:${c.muted}}</style></defs>
 <rect class="canvas" width="${W}" height="${H}"/>
 <rect class="frame" x="34" y="30" width="${W - 68}" height="${H - 66}" rx="10"/>
 <text class="title" x="72" y="84">bluetape4k-mongodb Core Class Structure</text>

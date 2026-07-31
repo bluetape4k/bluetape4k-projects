@@ -39,10 +39,10 @@ if (!/Extension Function API Overview[\s\S]*data-r2dbc-diagram-01\.png/.test(rea
 }
 
 const lanes = [
-  { x: 75, y: 165, w: 390, h: 650, title: "Client receiver", note: "Pool and DatabaseClient creation.", color: c.blue },
-  { x: 505, y: 165, w: 390, h: 650, title: "Execution spec receiver", note: "SQL specs and parameter binding.", color: c.teal },
-  { x: 935, y: 165, w: 390, h: 650, title: "Fetch and row receivers", note: "Flow, suspend values, and typed columns.", color: c.purple },
-  { x: 1365, y: 165, w: 360, h: 650, title: "Transaction boundary", note: "TransactionalOperator-backed suspend blocks.", color: c.pink },
+  { x: 75, y: 165, w: 390, h: 670, title: "Client receiver", note: "Pool and DatabaseClient creation.", color: c.blue },
+  { x: 505, y: 165, w: 390, h: 670, title: "Execution spec receiver", note: "SQL specs and parameter binding.", color: c.teal },
+  { x: 935, y: 165, w: 390, h: 670, title: "Fetch and row receivers", note: "Flow, suspend values, and typed columns.", color: c.purple },
+  { x: 1365, y: 165, w: 360, h: 670, title: "Transaction boundary", note: "TransactionalOperator-backed suspend blocks.", color: c.pink },
 ];
 
 const cards = {
@@ -66,10 +66,10 @@ const cards = {
 const flows = [
   { color: c.green, d: "M270 397 L270 465", label: "pool", x: 305, y: 432 },
   { color: c.teal, d: "M270 577 L270 660", label: "client", x: 310, y: 620 },
-  { color: c.orange, d: "M420 716 L485 716 L485 346 L550 346", label: "sql", x: 485, y: 530 },
+  { color: c.orange, d: "M420 716 L465 716 Q485 716 485 696 L485 366 Q485 346 505 346 L550 346", label: "sql", x: 440, y: 530 },
   { color: c.purple, d: "M700 407 L700 480", label: "spec", x: 735, y: 445 },
   { color: c.teal, d: "M700 592 L700 665", label: "bind", x: 735, y: 630 },
-  { color: c.purple, d: "M850 536 L930 536 L930 341 L980 341", label: "fetch", x: 930, y: 440 },
+  { color: c.purple, d: "M850 536 L910 536 Q930 536 930 516 L930 361 Q930 341 950 341 L980 341", label: "fetch", x: 885, y: 440 },
   { color: c.lime, d: "M1130 397 L1130 480", label: "row", x: 1164, y: 440 },
   { color: c.blue, d: "M1130 592 L1130 665", label: "result", x: 1172, y: 630 },
   { color: c.pink, d: "M1545 407 L1545 480", label: "manager", x: 1588, y: 445, dash: true },
@@ -94,29 +94,35 @@ function codeParts(text) {
   return tokens.map((token, index) => {
     const next = tokens.slice(index + 1).find((part) => !/^\s+$/.test(part)) ?? "";
     let color = "#0F172A";
-    if (/^(false|true|null)$/.test(token)) color = "#C2410C";
-    else if (/^(suspend|inline|fun|val)$/.test(token)) color = "#9333EA";
-    else if (/^(GenericExecuteSpec|DatabaseClient|Flow|ConnectionFactory|T|List|Long)$/.test(token)) color = "#7C3AED";
-    else if (/^[A-Za-z_][A-Za-z0-9_]*$/.test(token) && next.startsWith("(")) color = "#2563EB";
-    else if (/^[{}()=|./,<>\[\]]+$/.test(token)) color = "#64748B";
-    return { token, color };
+    let css = "";
+    if (/^(false|true|null|suspend|inline|fun|val)$/.test(token)) {
+      color = "#9333EA";
+      css = "syntax-keyword";
+    } else if (/^(GenericExecuteSpec|DatabaseClient|Flow|ConnectionFactory|T|List|Long)$/.test(token)) {
+      color = "#7C3AED";
+      css = "syntax-type";
+    } else if (/^[A-Za-z_][A-Za-z0-9_]*$/.test(token) && next.startsWith("(")) {
+      color = "#2563EB";
+      css = "syntax-function";
+    } else if (/^[{}()=|./,<>\[\]]+$/.test(token)) {
+      color = "#64748B";
+      css = "syntax-operator";
+    }
+    return { token, color, css };
   });
 }
 
 function codeLine(text, centerX, y) {
   const parts = codeParts(text);
-  const tokenWidth = (token) => {
-    if (/^\s+$/.test(token)) return token.length * 3.9;
-    if (/^[{}()=|./,<>\[\]]+$/.test(token)) return token.length * 5.25;
-    return token.length * 6.35;
-  };
-  const width = parts.reduce((sum, part) => sum + tokenWidth(part.token), 0);
-  let x = centerX - width / 2;
-  return `<g>${parts.map((part) => {
-    const item = `<text class="code" x="${x}" y="${y}" fill="${part.color}">${esc(part.token)}</text>`;
-    x += tokenWidth(part.token);
-    return item;
-  }).join("")}</g>`;
+  const estimatedWidth = [...text].reduce((width, char) => {
+    if (/[A-Z]/.test(char)) return width + 8.1;
+    if (/[a-z0-9]/.test(char)) return width + 7.2;
+    if (/\s/.test(char)) return width + 4.2;
+    return width + 6.8;
+  }, 0);
+  return `<text class="code" x="${centerX - estimatedWidth / 2}" y="${y}">${parts.map((part) => part.css
+    ? `<tspan class="${part.css}" fill="${part.color}">${esc(part.token)}</tspan>`
+    : esc(part.token)).join("")}</text>`;
 }
 
 function card(key) {
@@ -134,13 +140,13 @@ function label(text, x, y) {
 }
 
 const defs = [...new Set(flows.map((flow) => flow.color))].map(marker).join("");
-const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" role="img" aria-label="R2DBC extension function API overview">
-<defs><filter id="shadow" x="-8%" y="-8%" width="116%" height="118%"><feDropShadow dx="0" dy="6" stdDeviation="5" flood-color="#0F172A" flood-opacity=".11"/></filter>${defs}<style>svg{font-family:"Architects Daughter","Comic Mono","Comic Sans MS",ui-sans-serif,system-ui,sans-serif}.canvas{fill:${c.canvas}}.frame{fill:${c.frame};stroke:${c.line};stroke-width:1.6;filter:url(#shadow)}.title{font-family:"Architects Daughter";font-size:44px;fill:${c.ink}}.subtitle{font-family:"Comic Mono";font-size:15px;fill:${c.muted}}.lane{fill:#F8FAFC;stroke:${c.line};stroke-width:1.5}.laneTitle{font-family:"Architects Daughter";font-size:22px;fill:${c.ink}}.laneNote{font-family:"Comic Mono";font-size:12.2px;fill:#64748B}.card{filter:url(#shadow);stroke-width:1.9}.cardTitle{font-family:"Architects Daughter";font-size:22px;fill:${c.ink}}.detail{font-family:"Comic Mono";font-size:12.4px;fill:${c.muted}}.code{font-family:"Comic Mono";font-size:12px;font-weight:700}.edge{fill:none;stroke-width:3.6;stroke-linecap:round;stroke-linejoin:round}.dashed{stroke-dasharray:8 7}.edgeLabel{font-family:"Comic Mono";font-size:12.1px;fill:${c.muted}}</style></defs>
+const svg = `<svg data-intent="Map each Spring R2DBC receiver to the bluetape4k coroutine, binding, typed-row, pooling, and transaction conveniences that repository code can use." data-evidence="${esc(sources.join("; "))}" data-source-read="${esc(sources.join("; "))}" xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" role="img" aria-label="R2DBC extension function API overview">
+<defs><filter id="shadow" x="-8%" y="-8%" width="116%" height="118%"><feDropShadow dx="0" dy="6" stdDeviation="5" flood-color="#0F172A" flood-opacity=".11"/></filter>${defs}<style>svg{font-family:"Architects Daughter","Comic Mono","Comic Sans MS",ui-sans-serif,system-ui,sans-serif}.canvas{fill:${c.canvas}}.frame{fill:${c.frame};stroke:${c.line};stroke-width:1.6;filter:url(#shadow)}.title{font-family:"Architects Daughter";font-size:44px;fill:${c.ink}}.subtitle{font-family:"Comic Mono";font-size:15px;fill:${c.muted}}.lane{fill:#F8FAFC;stroke:${c.line};stroke-width:1.5}.laneTitle{font-family:"Architects Daughter";font-size:22px;fill:${c.ink}}.laneNote{font-family:"Comic Mono";font-size:12.2px;fill:#64748B}.card{filter:url(#shadow);stroke-width:1.9}.cardTitle{font-family:"Architects Daughter";font-size:22px;fill:${c.ink}}.detail{font-family:"Comic Mono";font-size:12.4px;fill:${c.muted}}.code{font-family:"Comic Mono";font-size:12px;font-weight:700}.syntax-keyword{fill:#9333EA}.syntax-type{fill:#7C3AED}.syntax-function{fill:#2563EB}.syntax-operator{fill:#64748B}.edge{fill:none;stroke-width:3.6;stroke-linecap:round;stroke-linejoin:round}.dashed{stroke-dasharray:8 7}.edgeLabel{font-family:"Comic Mono";font-size:12.1px;fill:${c.muted}}</style></defs>
 <rect class="canvas" width="${W}" height="${H}"/>
 <rect class="frame" x="34" y="30" width="${W - 68}" height="${H - 66}" rx="10"/>
 <text class="title" x="72" y="84">R2DBC Extension Function API Overview</text>
 <text class="subtitle" x="76" y="116">Vertical receiver map: each column shows where bluetape4k adds Kotlin convenience around Spring R2DBC.</text>
-${lanes.map((lane) => `<g><rect class="lane" x="${lane.x}" y="${lane.y}" width="${lane.w}" height="${lane.h}" rx="10"/><text class="laneTitle" x="${lane.x + 28}" y="${lane.y + 42}">${esc(lane.title)}</text><text class="laneNote" x="${lane.x + 28}" y="${lane.y + 72}">${esc(lane.note)}</text></g>`).join("")}
+${lanes.map((lane) => `<g><rect class="layer lane" x="${lane.x}" y="${lane.y}" width="${lane.w}" height="${lane.h}" rx="10"/><text class="laneTitle layerTitle" x="${lane.x + 28}" y="${lane.y + 42}">${esc(lane.title)}</text><text class="laneNote" x="${lane.x + 28}" y="${lane.y + 72}">${esc(lane.note)}</text></g>`).join("")}
 <g>${flows.map((flow) => `<path class="edge${flow.dash ? " dashed" : ""}" d="${flow.d}" stroke="${flow.color}" marker-end="url(#arrow-${flow.color.replace("#", "")})"/>`).join("")}</g>
 <g>${flows.map((flow) => label(flow.label, flow.x, flow.y)).join("")}</g>
 ${Object.keys(cards).map(card).join("")}
