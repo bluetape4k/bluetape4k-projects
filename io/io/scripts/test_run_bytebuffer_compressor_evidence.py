@@ -6,6 +6,8 @@ import math
 import pathlib
 import tempfile
 import unittest
+import warnings
+import zipfile
 
 SCRIPT = pathlib.Path(__file__).with_name("run-bytebuffer-compressor-evidence.py")
 SPEC = importlib.util.spec_from_file_location("issue755_evidence", SCRIPT)
@@ -296,6 +298,36 @@ class RunnerContractTest(unittest.TestCase):
         rows = evidence.source_inspection(evidence.repo_root())
         self.assertEqual(32, len(rows))
         evidence.validate_source_inspection(rows, evidence.repo_root())
+
+    def test_canonical_jar_ignores_entry_order_timestamp_and_duplicate_order(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = pathlib.Path(temporary)
+            first = root / "first.jar"
+            second = root / "second.jar"
+
+            def write(path, rows):
+                with warnings.catch_warnings():
+                    warnings.simplefilter("ignore")
+                    with zipfile.ZipFile(path, "w") as archive:
+                        for name, data, timestamp in rows:
+                            info = zipfile.ZipInfo(name, timestamp)
+                            archive.writestr(info, data)
+
+            rows = [
+                ("META-INF/MANIFEST.MF", b"Manifest-Version: 1.0\nMain-Class: example.Main\n\n", (2026, 1, 1, 1, 1, 2)),
+                ("duplicate.txt", b"second", (2026, 1, 1, 1, 1, 4)),
+                ("example/Main.class", b"class-bytes", (2026, 1, 1, 1, 1, 6)),
+                ("duplicate.txt", b"first", (2026, 1, 1, 1, 1, 8)),
+            ]
+            write(first, rows)
+            write(second, [(name, data, (2025, 2, 2, 2, 2, 2)) for name, data, _ in reversed(rows)])
+            canonical_first = evidence.canonicalize_jar(first, root / "canonical-first.jar")
+            canonical_second = evidence.canonicalize_jar(second, root / "canonical-second.jar")
+
+            self.assertEqual(evidence.sha256(canonical_first), evidence.sha256(canonical_second))
+            with zipfile.ZipFile(canonical_first) as archive:
+                self.assertEqual("META-INF/MANIFEST.MF", archive.infolist()[0].filename)
+                self.assertEqual(2, sum(info.filename == "duplicate.txt" for info in archive.infolist()))
 
 
 if __name__ == "__main__":
