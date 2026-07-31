@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1120" viewBox="0 0 1600 1120" role="img" aria-labelledby="title desc">
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1120" viewBox="0 0 1600 1120" role="img" aria-labelledby="title desc" data-allow-grid="true">
 <title id="title">Spring Boot Cassandra Demo Example Map</title>
 <desc id="desc">Source-backed map of the Spring Boot Cassandra demo test families, shared Spring test wiring, Spring Data Cassandra APIs, and Cassandra Testcontainers runtime.</desc>
 <defs>
@@ -47,66 +47,66 @@
 <path id="edge-10" class="edge dashed" d="M 690 278 L 690 168 Q 690 154 704 154 L 1496 154 Q 1510 154 1510 168 L 1510 696 Q 1510 710 1496 710 L 1420 710" stroke="#15803D"/>
 <polygon points="1432,704 1420,710 1432,716" fill="#15803D" stroke="#15803D" stroke-width="1" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important" data-direct-solid-head="true"/>
 <g id="examples" class="card">
-  <rect x="138" y="286" width="260" height="126" rx="14" fill="#EAF3FF" stroke="#2563EB"/>
+  <rect class="card" x="138" y="286" width="260" height="126" rx="14" fill="#EAF3FF" stroke="#2563EB"/>
   <text class="cardTitle" x="268" y="320" text-anchor="middle">Example tests</text>
   <text class="cardSub" x="268" y="352" text-anchor="middle">Basic / Kotlin DSL</text>
   <text class="cardSub" x="268" y="375" text-anchor="middle">Reactive + Coroutine</text>
   <text class="cardSub" x="268" y="398" text-anchor="middle">Auditing / projection</text>
 </g>
 <g id="advanced" class="card">
-  <rect x="138" y="498" width="260" height="132" rx="14" fill="#F2EAFF" stroke="#7E22CE"/>
+  <rect class="card" x="138" y="498" width="260" height="132" rx="14" fill="#F2EAFF" stroke="#7E22CE"/>
   <text class="cardTitle" x="268" y="532" text-anchor="middle">Advanced mappings</text>
   <text class="cardSub" x="268" y="564" text-anchor="middle">UDT and conversion</text>
   <text class="cardSub" x="268" y="587" text-anchor="middle">optimistic locking</text>
   <text class="cardSub" x="268" y="610" text-anchor="middle">row multitenancy</text>
 </g>
 <g id="testbase" class="card">
-  <rect x="478" y="278" width="260" height="142" rx="14" fill="#EAF9F0" stroke="#15803D"/>
+  <rect class="card" x="478" y="278" width="260" height="142" rx="14" fill="#EAF9F0" stroke="#15803D"/>
   <text class="cardTitle" x="608" y="312" text-anchor="middle">AbstractCassandraTest</text>
   <text class="cardSub" x="608" y="344" text-anchor="middle">recreateKeyspaceOnce()</text>
   <text class="cardSub" x="608" y="367" text-anchor="middle">shared faker + CqlSession</text>
   <text class="cardSub" x="608" y="390" text-anchor="middle">keyspace lifecycle</text>
 </g>
 <g id="config" class="card">
-  <rect x="478" y="530" width="260" height="148" rx="14" fill="#E8FAF8" stroke="#0F766E"/>
+  <rect class="card" x="478" y="530" width="260" height="148" rx="14" fill="#E8FAF8" stroke="#0F766E"/>
   <text class="cardTitle" x="608" y="564" text-anchor="middle">Test configuration</text>
   <text class="cardSub" x="608" y="596" text-anchor="middle">EntityScan</text>
   <text class="cardSub" x="608" y="619" text-anchor="middle">Enable repositories</text>
   <text class="cardSub" x="608" y="642" text-anchor="middle">reactive auditing</text>
 </g>
 <g id="repos" class="card">
-  <rect x="818" y="278" width="220" height="126" rx="14" fill="#FFF4D8" stroke="#C2410C"/>
+  <rect class="card" x="818" y="278" width="220" height="126" rx="14" fill="#FFF4D8" stroke="#C2410C"/>
   <text class="cardTitle" x="928" y="312" text-anchor="middle">Repository APIs</text>
   <text class="cardSub" x="928" y="344" text-anchor="middle">Crud / ReactiveCrud</text>
-  <text class="cardSub" x="928" y="367" text-anchor="middle">CoroutineCrudRepository</text>
+  <text class="cardSub" x="928" y="367" text-anchor="middle">Coroutine CRUD repo</text>
   <text class="cardSub" x="928" y="390" text-anchor="middle">derived + @Query</text>
 </g>
 <g id="ops" class="card">
-  <rect x="818" y="492" width="220" height="148" rx="14" fill="#FFEAF1" stroke="#BE185D"/>
+  <rect class="card" x="818" y="492" width="220" height="148" rx="14" fill="#FFEAF1" stroke="#BE185D"/>
   <text class="cardTitle" x="928" y="526" text-anchor="middle">Operations APIs</text>
   <text class="cardSub" x="928" y="558" text-anchor="middle">CassandraOperations</text>
   <text class="cardSub" x="928" y="581" text-anchor="middle">Reactive operations</text>
   <text class="cardSub" x="928" y="604" text-anchor="middle">Template and DSL tests</text>
 </g>
 <g id="schema" class="card">
-  <rect x="818" y="724" width="220" height="126" rx="14" fill="#F4F6F8" stroke="#475569"/>
+  <rect class="card" x="818" y="724" width="220" height="126" rx="14" fill="#F4F6F8" stroke="#475569"/>
   <text class="cardTitle" x="928" y="758" text-anchor="middle">Schema utilities</text>
-  <text class="cardSub" x="928" y="790" text-anchor="middle">CREATE_IF_NOT_EXISTS</text>
+  <text class="cardSub" x="928" y="790" text-anchor="middle">create-if-absent</text>
   <text class="cardSub" x="928" y="813" text-anchor="middle">metadata checks</text>
   <text class="cardSub" x="928" y="836" text-anchor="middle">UDT/table creation</text>
 </g>
 <g id="session" class="card">
-  <rect x="1160" y="334" width="260" height="140" rx="14" fill="#FFF0E4" stroke="#C2410C"/>
+  <rect class="card" x="1160" y="334" width="260" height="140" rx="14" fill="#FFF0E4" stroke="#C2410C"/>
   <text class="cardTitle" x="1290" y="368" text-anchor="middle">CqlSession</text>
   <text class="cardSub" x="1290" y="400" text-anchor="middle">shared reactive session</text>
   <text class="cardSub" x="1290" y="423" text-anchor="middle">application.conf loader</text>
   <text class="cardSub" x="1290" y="446" text-anchor="middle">driver config</text>
 </g>
 <g id="cluster" class="card">
-  <rect x="1160" y="634" width="260" height="152" rx="14" fill="#E8FAF8" stroke="#0F766E"/>
+  <rect class="card" x="1160" y="634" width="260" height="152" rx="14" fill="#E8FAF8" stroke="#0F766E"/>
   <image data-bluetape4k-icon="testcontainers/storage/apache-cassandra.svg" x="1180" y="662" width="48" height="48" href="data:image/svg+xml;base64,PHN2ZyBmaWxsPSIjMTI4N0IxIiByb2xlPSJpbWciIHZpZXdCb3g9IjAgMCAyNCAyNCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48dGl0bGU+QXBhY2hlIENhc3NhbmRyYTwvdGl0bGU+PHBhdGggZD0iTTEwLjM3NCAxMC41M2EzLjEwMiAzLjEwMiAwIDAgMS0uNDI4LS4yMjJsLjU1NS4xNDNjMCAuMDItLjAxLjAzNi0uMDEuMDU1bC0uMTE3LjAyNXptLS4yODMgMS41MDYtLjMxNS4yNTMuODUyLTEuMDc5LTEuMDc4LjM5MWMuMDAyLjAxNy4wMDkuMDMzLjAwOS4wNWEuNTcuNTcgMCAwIDEtLjE4NC40MmMuMTAyLjIxNy4yMjguNDI0LjM3NS42MTZhMy4yIDMuMiAwIDAgMSAuMzQtLjY1MXptLjcxNy0yLjM0Ny0uNjUyLS44MmEuNDI3LjQyNyAwIDAgMS0uNTA2LjE2MmMtLjA1NC4wNzMtLjA4My4xNjItLjEzLjI0bDEuMjU4LjQ2M2MuMDExLS4wMTUuMDE5LS4wMzEuMDMtLjA0NXptLTEuNjY2LjQ0NGMtLjA3LjMxNC0uMDg3LjYzNy0uMDUuOTU2YS41NjYuNTY2IDAgMCAxIC40NTEuNDc1bC45NDYtLjYwNmMtLjA2Ny0uMDIyLS4xMjYtLjA2LS4xOTEtLjA4OGwtMS4xMTktLjA4LjY0LS4xNGEzLjE4NiAzLjE4NiAwIDAgMS0uNjY4LS41NTRsLS4wMS4wMzd6TTIwLjEgMTEuNjQ4Yy0uMTY0LjIwMi44MzMgMS4wMjIuODMzIDEuMDIycy0xLjY1NC0xLjAyMi0yLjIzNC0uNzJjLS4yNzguMTQ0LjU3NC44MTEgMS4xNzUgMS4yNDItLjQyOC0uMjc0LS45ODItLjU3MS0xLjE3NS0uNDA4LS4zMjguMjc3IDEuNTY1IDIuNTQ5IDEuNTY1IDIuNTQ5cy0yLjE0NS0yLjMyMi0yLjM2LTIuMjA5Yy0uMjE0LjExNC41OTMgMS4yMjQuNTkzIDEuMjI0cy0xLjA2LTEuMTYtMS4zNS0uOTU5Yy0uMjkuMjAyIDEuNTE0IDMuMjE4IDEuNTE0IDMuMjE4cy0xLjk1Ni0zLjA5MS0yLjc2My0yLjU3NGMxLjI2OCAyLjc4Mi43OTUgMy4xOC43OTUgMy4xOHMtLjE2Mi0yLjgzOS0xLjc0Mi0yLjc2NGMtLjc5NS4wMzguMzc5IDIuMTIuMzc5IDIuMTJzLTEuMDgtMS45MDItMS44LTEuODY0YzEuMzI2IDIuNTEuODU0IDMuNTMuODU0IDMuNTNzLjIxOS0yLjE0My0xLjU4LTMuMzM2Yy42ODIuNjA2LS40MjcgMy4zMzYtLjQyNyAzLjMzNnMuOTc2LTQuMDIzLS43MTktMy4yNTZjLS4yNjguMTIxLS4wMTkgMi4wMDctLjAxOSAyLjAwN3MtLjM0LTIuMTU4LS44NTEtMi4wNDVjLS4yOTguMDY2LTEuODkzIDIuOTktMS44OTMgMi45OXMxLjMwNi0zLjE2LjkwOC0zLjAyN2MtLjI5LjA5Ni0uODMzIDEuNC0uODMzIDEuNHMuMjY1LTEuMjg3IDAtMS4zNjNjLS4yNjQtLjA3NS0xLjc0IDEuMzYzLTEuNzQgMS4zNjNzMS4wOTctMS4yODcuOTA4LTEuNTUyYy0uMjg3LS40MDItLjYyMy0uNDItMS4wMjItLjI2NS0uNTgxLjIyNi0xLjM2MyAxLjI4Ny0xLjM2MyAxLjI4N3MuNzgtMS4wNzQuNjQzLTEuNDc2Yy0uMjE5LS42NDctMi40NiAxLjI0OS0yLjQ2IDEuMjQ5czEuMzI1LTEuMjUgMS4wMjItMS41MTRjLS4zMDMtLjI2NS0xLjk0Ny0uMTgzLTIuNDYtLjE4NS0xLjUxNS0uMDA0LTIuMDM5LS4zNi0yLjQ5OC0uNzI0IDEuOTg3Ljk5NyAzLjgwMy0uMTUxIDYuMDk0LjQ5NGwuMjEuMDZjLTEuMy0uNTU4LTIuMTQ0LTEuMzc4LTIuMjI2LTIuMzU0LS4wMzYtLjQxNi4wNzQtLjgyNy4yOTctMS4yMjIuNjE5LS40IDEuMjktLjc3MyAyLjA2LTEuMDk1YTQgNCAwIDAgMC0uMDY0LjY5OGMwIDIuNDQgMi4yMDMgNC40MTcgNC45MiA0LjQxN3M0LjkyLTEuOTc3IDQuOTItNC40MTdjMC0uNDUtLjA4My0uODgxLS4yMjMtMS4yOSAxLjQzMS40MDQgMi40NS45NjggMy4xMzIgMS4zMzUuMDIyLjA5Mi4wNDUuMTg0LjA1My4yNzkuMDI0LjI3NC0uMDE4LjU0Ny0uMTEuODE0LjA5NS0uMTQ3LjE5OC0uMjg4LjI4LS40NDUuMzY3LS45OTcgMS44NTUuMjI3IDEuODU1LjIyN3MtMS4wODUtLjQ1NC0xLjA2LS4yNGMuMDI2LjIxNSAxLjYyOC45NiAxLjYyOC45NnMtMS40NS0uNDU1LTEuMzYyLS4xMTRjLjA4OC4zNCAxLjgxNyAxLjcwMyAxLjgxNyAxLjcwM3MtMS45NTYtMS40ODktMi4xMi0xLjI4N3ptLTcuMjY4IDIuNjUuMDQyLS4wMDgtLjA2LjAxek05LjI1NiA5Ljc1M2MuMTIuMTMuMjYuMjM0LjM5Ni4zNDNsLjkyNy0uMDI5LTEuMDY0LS43ODhjLS4wOTMuMTU0LS4xOTUuMzAzLS4yNi40NzRabTEwLjYyIDMuNDRjLjMuMjE1LjU0LjM3My41NC4zNzNzLS4yNC0uMTgxLS41NC0uMzc0ek03LjUwNyA4LjYxN2MtLjE0LjIyOS0uMjE0LjQ5Mi0uMjE1Ljc2YTMuOTkgMy45OSAwIDAgMCAyLjM1OCAzLjY0YzAtLjAwNS4wMDItLjAxLjAwMy0uMDE0YTMuMTkgMy4xOSAwIDAgMS0uNTgtLjc4OGMtLjY0OC4wOTktLjkyNi0uNzk0LS4zMzYtMS4wOGEzLjE3NCAzLjE3NCAwIDAgMSAuMTM4LTEuMzg4IDMuMTYyIDMuMTYyIDAgMCAxLS41Mi0xLjM2Yy0uMjk2LjA3LS41NzkuMTQ3LS44NDguMjNabTEuNDg4LjgyYy4xMDgtLjI0LjI0My0uNDYuNDAyLS42NjFhLjQzNS40MzUgMCAwIDEgLjU2OC0uNTU3Yy4wNzctLjA1OS4xNjYtLjA5OS4yNDgtLjE1YTE2LjE3IDE2LjE3IDAgMCAwLTEuNzI3LjI4NGMuMTE0LjM4OC4yNzIuNzYuNTA5IDEuMDg0Wm0yLjI4NSAzLjkyOGMxLjQgMCAyLjYzMy0uNzIzIDMuMzQ0LTEuODE2YTMuMzk5IDMuMzk5IDAgMCAwLTEuMjY1LS41MzlsLS4yOTctLjAyMy45MTYuOS0xLjE5Ny0uNDY3LjcwNCAxLjA3OC0xLjA3NC0uODMyLS4wMTIuMDA2LjM0NyAxLjI3OC0uNTk2LTEuMTM0LS4wOTggMS4zMy0uNDAxLTEuMzI2LS40NzIgMS4yNjEuMTE0LTEuMzU5Yy0uMDA2LS4wMDItLjAxLS4wMDYtLjAxNS0uMDA4bC0uODE0IDEuMTU0LjI4Ni0xLjA2N2MtLjM0LjMyMi0uNjA1LjcxMy0uNzgxIDEuMTQ2LjA5NS4xMDIuMTk3LjE5OC4zMDMuMjkuMzIyLjA4My42Ni4xMjggMS4wMDguMTI4em0xMC4xNDUtNC40MzRjLjk3MS0uNTY3IDEuNzE2LTEuOTU1IDEuNzE2LTEuOTU1cy0xLjg5MyAxLjk1NS0zLjIwNSAxLjY2NWMxLjE4Ni0uOTM0IDEuNzY2LTIuNTQ5IDEuNzY2LTIuNTQ5cy0xLjUwNiAyLjMyNS0yLjQ0OCAyLjQyM2MxLjA4Ni0uOTU5IDEuNTQtMi4zMjIgMS41NC0yLjMyMnMtMS4yMzcgMS44MTctMi4xOTYgMS45NDRjMS4yODctMS4xNjEgMS4zMzgtMS44OTMgMS4zMzgtMS44OTNzLTEuNzgxIDIuMzAyLTIuNDk5IDEuOTQzYy44NTgtLjkzNCAxLjQzOS0yLjEyIDEuNDM5LTIuMTJzLTEuNDg5IDIuMDE5LTEuODkzIDEuNjljLS4yNzctLjA1LjQ1NC0uOTU4LjQ1NC0uOTU4cy0uOTA4LjgwNy0xLjE2LjYwNmMuNDU0LS4yNzggMS4yMzYtMS42NCAxLjIzNi0xLjY0UzE2IDcuNTA1IDE1LjYyMSA3LjMwNGwuNzMxLTEuNDgzcy0uNzMgMS40ODMtMS43MTUgMS4yM2MuNDU0LS41OC42My0xLjExMi42My0xLjExMnMtLjc1NiAxLjIxMy0xLjY5Ljg4NWMtLjIyLS4wNzcuMjczLS42MzUuMjczLS42MzVzLS42MjYuNjEtMS4wNTUuNTM0Yy0uNDMtLjA3Ni4wMjUtLjg1OC4wMjUtLjg1OHMtLjc1NyAxLjE4Ni0uOTA4IDEuMTM2Yy0uMTUyLS4wNS4wNzUtLjgzMy4wNzUtLjgzM3MtLjU1NS45MDgtLjg1OC44NThjLS4zMDItLjA1IDAtLjkzNCAwLS45MzRzLS4zMjguOTg0LS41OC45MDljLS4yNTItLjA3Ni0uMzAzLS42NTYtLjMwMy0uNjU2cy0uMDY4Ljc4OC0uNDI5Ljg1OGMtMi43MjUuNTMtNS43MjggMS42OS05LjQ4OSA1LjQ1QzMuODg3IDEwLjczOCA1LjMgNy45MSAxMS45NjIgNy42NTljNS4wNDQtLjE5MSA3LjM5OSAyLjEzNyA4LjE3NyAyLjE3QzIyLjUxIDkuOTMgMjQgNy42MzMgMjQgNy42MzNzLTEuNDg5IDEuNzE2LTIuNTc0IDEuM3ptLTcuNzQuODcyLS42MDguNDY0di4wMDFsLjA1NC4wMDNhMy4zNSAzLjM1IDAgMCAwIC41NTQtLjQ2OHptMS41ODMtLjQyNmMwLS41MzYtLjIzNy0uOTI5LS41OTQtMS4yMTdhMy4xNzggMy4xNzggMCAwIDEtLjE2NS44MjUuMzkzLjM5MyAwIDAgMS0uMzI4LjY4MWMtLjE1NC4yMzMtLjM0LjQ0NS0uNTQ5LjYzbC42NjEuMDM0LS45OTUuMjM3Yy0uMDI1LjAxOC0uMDQ1LjA0MS0uMDcuMDU4YTMuMTk0IDMuMTk0IDAgMCAxIDEuNTM2LjY5MWMuMzItLjU3NC41MDQtMS4yMzUuNTA0LTEuOTR6TTEwLjk5IDcuOTk2YTMuNSAzLjUgMCAwIDAtLjc4NS40Ni40MjcuNDI3IDAgMCAxLS4wMTMuMzU3bC44ODUuNjQzLjAyMy0uMDE2LS4zNi0xLjI2Mi42MjcgMS4xMmMuMDE4LS4wMDYuMDQtLjAwNi4wNTgtLjAxMWwtLjAyLTEuMjUxLjM5OCAxLjE2My40NzctMS4xNS4wMTYgMS4yNjhjLjAwNC4wMDEuMDA3LjAwNS4wMTIuMDA3bC43MTMtMS4wMDUtLjM2MyAxLjIxOC4wMDkuMDEgMS4wNC0uNjktLjc1OSAxLjA1LjAwMi4wMDUuOTUtLjM0Yy4wMTItLjAxNi4wMjgtLjAyOS4wNDEtLjA0NWEuMzk1LjM5NSAwIDAgMSAuMzk0LS42MzIgMy40MyAzLjQzIDAgMCAwIC4yNy0uNzg0IDEzLjk5IDEzLjk5IDAgMCAwLTIuNzk4LS4xNjhjLS4yODYuMDExLS41NS4wMzMtLjgxNy4wNTNaIi8+PC9zdmc+" preserveAspectRatio="xMidYMid meet" />
   <text class="cardTitle" x="1314" y="668" text-anchor="middle">Cassandra 4</text>
-  <text class="cardSub" x="1314" y="700" text-anchor="middle">Testcontainers launcher</text>
+  <text class="cardSub" x="1314" y="700" text-anchor="middle">container launcher</text>
   <text class="cardSub" x="1314" y="723" text-anchor="middle">examples keyspace</text>
   <text class="cardSub" x="1314" y="746" text-anchor="middle">tables and UDTs</text>
 </g>
