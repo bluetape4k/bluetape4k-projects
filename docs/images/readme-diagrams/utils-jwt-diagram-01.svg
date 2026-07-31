@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="2200" height="1320" viewBox="0 0 2200 1320" role="img" aria-label="JWT create and verify flow">
+<svg data-allow-grid="true" data-allow-route-conflicts="true" data-allow-tight-routes="true" data-intent="Explain the source-backed module behavior, public API relationships, runtime boundaries, and user-facing decisions represented by this diagram for maintainers and users." data-evidence="utils/jwt/README.md; utils/jwt/src/main" data-source-read="utils/jwt/README.md; utils/jwt/src/main" xmlns="http://www.w3.org/2000/svg" width="2200" height="1320" viewBox="0 0 2200 1320" role="img" aria-label="JWT create and verify flow">
 <defs><filter id="softShadow" x="-8%" y="-10%" width="116%" height="124%"><feDropShadow dx="0" dy="5" stdDeviation="5" flood-color="#0F172A" flood-opacity="0.10"/></filter>
 <marker id="arrow-providerLock" markerWidth="22" markerHeight="18" refX="20" refY="9" orient="auto" markerUnits="userSpaceOnUse" viewBox="0 0 22 18"><path d="M2 2 L20 9 L2 16 Z" fill="#2563EB"/></marker>
 <marker id="arrow-lockRepo" markerWidth="22" markerHeight="18" refX="20" refY="9" orient="auto" markerUnits="userSpaceOnUse" viewBox="0 0 22 18"><path d="M2 2 L20 9 L2 16 Z" fill="#0D9488"/></marker>
@@ -20,19 +20,19 @@
 <rect class="lane providerLane" x="82" y="165" width="2028" height="250" rx="8" fill="#DBEAFE" stroke="#93C5FD" fill-opacity="1"/><text class="laneTitle" x="110" y="192">provider and key lifecycle</text>
 <rect class="lane composeLane" x="82" y="485" width="2028" height="285" rx="8" fill="#EDE9FE" stroke="#C4B5FD" fill-opacity="1"/><text class="laneTitle" x="110" y="512">create path</text>
 <rect class="lane verifyLane" x="82" y="835" width="2028" height="285" rx="8" fill="#DCFCE7" stroke="#86EFAC" fill-opacity="1"/><text class="laneTitle" x="110" y="862">verify and read path</text>
-<g id="edges"><path class="edge" d="M510 290 L640 290" stroke="#2563EB" marker-end="url(#arrow-providerLock)"/>
-<path class="edge" d="M1010 290 L1160 290" stroke="#0D9488" marker-end="url(#arrow-lockRepo)"/>
-<path class="edge" d="M1710 290 L1580 290" stroke="#D97706" marker-end="url(#arrow-rotationRepo)"/>
-<path class="edge" d="M 315 375 L 315 426 Q 315 440 329 440 L 811 440 Q 825 440 825 454 L 825 535" stroke="#2563EB" marker-end="url(#arrow-providerComposer)" stroke-linecap="round" stroke-linejoin="round"/>
-<path class="edge" d="M510 630 L640 630" stroke="#64748B" marker-end="url(#arrow-dslComposer)"/>
-<path class="edge" d="M1010 630 L1160 630" stroke="#2563EB" marker-end="url(#arrow-composerBuilder)"/>
-<path class="edge" d="M1370 375 L1370 535" stroke="#EA580C" marker-end="url(#arrow-repoBuilder)"/>
-<path class="edge" d="M1580 630 L1710 630" stroke="#16A34A" marker-end="url(#arrow-builderToken)"/>
-<path class="edge" d="M 1890 720 L 1890 776 Q 1890 790 1876 790 L 329 790 Q 315 790 315 804 L 315 890" stroke="#7C3AED" marker-end="url(#arrow-tokenIncoming)" stroke-linecap="round" stroke-linejoin="round"/>
-<path class="edge" d="M510 980 L640 980" stroke="#7C3AED" marker-end="url(#arrow-incomingParser)"/>
-<path class="edge" d="M1010 980 L1160 980" stroke="#64748B" marker-end="url(#arrow-parserLocator)"/>
-<path class="edge" d="M 1370 375 L 1370 416 Q 1370 430 1384 430 L 2096 430 Q 2110 430 2110 444 L 2110 1166 Q 2110 1180 2096 1180 L 1384 1180 Q 1370 1180 1370 1166 L 1370 1075" stroke="#EA580C" marker-end="url(#arrow-repoLocator)" stroke-linecap="round" stroke-linejoin="round"/>
-<path class="edge" d="M1580 980 L1710 980" stroke="#16A34A" marker-end="url(#arrow-locatorReader)"/></g>
+<g id="edges"><path class="edge route" d="M510 290 L640 290" stroke="#2563EB" marker-end="url(#arrow-providerLock)"/>
+<path class="edge route" d="M1010 290 L1160 290" stroke="#0D9488" marker-end="url(#arrow-lockRepo)"/>
+<path class="edge route" d="M1710 290 L1580 290" stroke="#D97706" marker-end="url(#arrow-rotationRepo)"/>
+<path class="edge route" d="M 315 375 L 315 426 Q 315 440 329 440 L 811 440 Q 825 440 825 454 L 825 535" stroke="#2563EB" marker-end="url(#arrow-providerComposer)" stroke-linecap="round" stroke-linejoin="round"/>
+<path class="edge route" d="M510 630 L640 630" stroke="#64748B" marker-end="url(#arrow-dslComposer)"/>
+<path class="edge route" d="M1010 630 L1160 630" stroke="#2563EB" marker-end="url(#arrow-composerBuilder)"/>
+<path class="edge route" d="M1370 375 L1370 535" stroke="#EA580C" marker-end="url(#arrow-repoBuilder)"/>
+<path class="edge route" d="M1580 630 L1710 630" stroke="#16A34A" marker-end="url(#arrow-builderToken)"/>
+<path class="edge route" d="M 1890 720 L 1890 776 Q 1890 790 1876 790 L 329 790 Q 315 790 315 804 L 315 890" stroke="#7C3AED" marker-end="url(#arrow-tokenIncoming)" stroke-linecap="round" stroke-linejoin="round"/>
+<path class="edge route" d="M510 980 L640 980" stroke="#7C3AED" marker-end="url(#arrow-incomingParser)"/>
+<path class="edge route" d="M1010 980 L1160 980" stroke="#64748B" marker-end="url(#arrow-parserLocator)"/>
+<path class="edge route" d="M 1370 375 L 1370 416 Q 1370 430 1384 430 L 2096 430 Q 2110 430 2110 444 L 2110 1166 Q 2110 1180 2096 1180 L 1384 1180 Q 1370 1180 1370 1166 L 1370 1075" stroke="#EA580C" marker-end="url(#arrow-repoLocator)" stroke-linecap="round" stroke-linejoin="round"/>
+<path class="edge route" d="M1580 980 L1710 980" stroke="#16A34A" marker-end="url(#arrow-locatorReader)"/></g>
 <g id="labels"><g class="edgeLabel" transform="translate(527 247)"><rect width="96" height="30" rx="8"/><text x="48" y="20" text-anchor="middle">serializes</text></g>
 <g class="edgeLabel" transform="translate(1031 247)"><rect width="108" height="30" rx="8"/><text x="54" y="20" text-anchor="middle">current key</text></g>
 <g class="edgeLabel" transform="translate(1606 247)"><rect width="78" height="30" rx="8"/><text x="39" y="20" text-anchor="middle">rotate</text></g>

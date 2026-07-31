@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="2700" height="1540" viewBox="0 0 2700 1540" role="img" aria-label="Mutiny Processing Flow Diagram">
+<svg data-intent="Explain the module behavior, public API relationships, and runtime decisions represented by this source-backed diagram for maintainers and users." data-evidence="utils/mutiny/README.md; utils/mutiny/src/main" data-source-read="utils/mutiny/README.md; utils/mutiny/src/main" data-allow-grid="true" xmlns="http://www.w3.org/2000/svg" width="2700" height="1540" viewBox="0 0 2700 1540" role="img" aria-label="Mutiny API Mapping Diagram">
 <defs>
   <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="5" stdDeviation="4" flood-color="#0F172A" flood-opacity="0.10"/></filter>
 
@@ -27,97 +27,97 @@
 </defs>
 <rect class="canvas" width="2700" height="1540"/>
 <rect class="frame" x="34" y="30" width="2632" height="1480" rx="8"/>
-<text class="title" x="72" y="86">Mutiny Processing Flow</text>
+<text class="title" x="72" y="86">Mutiny API Mapping</text>
 <text class="subtitle" x="76" y="120">Inputs become Uni or Multi through bluetape4k helpers, pass through Mutiny item callbacks, and finish at await, collect, or subscription boundaries.</text>
-<text class="lane" x="95" y="205" fill="#1D4ED8">Uni processing lane</text>
+<text class="lane" x="95" y="238" fill="#1D4ED8">Uni processing lane</text>
 <g id="UniSources">
-  <rect class="card" x="110" y="240" width="430" height="230" rx="8" fill="#EFF6FF" stroke="#2563EB"/>
-  <text class="kicker" x="132" y="271">source</text>
-  <text class="cardTitle" x="132" y="305">single result inputs</text>
-  <path class="divider" d="M110 326H540" stroke="#1D4ED8"/>
-  <text class="body" x="132" y="358">item, supplier, failure</text>
-<text class="body" x="132" y="382">CompletionStage</text>
-<text class="body" x="132" y="406">Future with timeout</text>
-  <path class="divider" d="M110 424H540" stroke="#1D4ED8"/><text class="foot" x="132" y="453">0 or 1 item intent</text>
+  <rect class="card" x="110" y="273" width="430" height="230" rx="8" fill="#EFF6FF" stroke="#2563EB"/>
+  <text class="kicker" x="132" y="304">source</text>
+  <text class="cardTitle" x="132" y="338">single result inputs</text>
+  <path class="divider" d="M110 359H540" stroke="#1D4ED8"/>
+  <text class="body" x="132" y="391">item, supplier, failure</text>
+<text class="body" x="132" y="415">CompletionStage</text>
+<text class="body" x="132" y="439">Future with timeout</text>
+  <path class="divider" d="M110 457H540" stroke="#1D4ED8"/><text class="foot" x="132" y="486">0 or 1 item intent</text>
 </g>
 <g id="UniHelpers">
-  <rect class="card" x="700" y="240" width="460" height="230" rx="8" fill="#F0FDF4" stroke="#16A34A"/>
-  <text class="kicker" x="722" y="271">UniSupport.kt</text>
-  <text class="cardTitle" x="722" y="305">Uni creation helpers</text>
-  <path class="divider" d="M700 326H1160" stroke="#15803D"/>
-  <text class="body" x="722" y="358">uniOf(...)</text>
-<text class="body" x="722" y="382">uniFailureOf(...)</text>
-<text class="body" x="722" y="406">uniCompletionStageOf(...)</text>
-<text class="body" x="722" y="430">uniFutureOf(...)</text>
-  <path class="divider" d="M700 424H1160" stroke="#15803D"/><text class="foot" x="722" y="453">creates Uni&lt;T&gt;</text>
+  <rect class="card" x="700" y="273" width="460" height="230" rx="8" fill="#F0FDF4" stroke="#16A34A"/>
+  <text class="kicker" x="722" y="304">UniSupport.kt</text>
+  <text class="cardTitle" x="722" y="338">Uni creation helpers</text>
+  <path class="divider" d="M700 359H1160" stroke="#15803D"/>
+  <text class="body" x="722" y="391">uniOf(...)</text>
+<text class="body" x="722" y="415">uniFailureOf(...)</text>
+<text class="body" x="722" y="439">uniCompletionStageOf(...)</text>
+<text class="body" x="722" y="463">uniFutureOf(...)</text>
+  <path class="divider" d="M700 457H1160" stroke="#15803D"/><text class="foot" x="722" y="486">creates Uni&lt;T&gt;</text>
 </g>
 <g id="UniPipeline">
-  <rect class="card" x="1320" y="240" width="460" height="230" rx="8" fill="#F0FDFA" stroke="#0D9488"/>
-  <text class="kicker" x="1342" y="271">Mutiny pipeline</text>
-  <text class="cardTitle" x="1342" y="305">Uni&lt;T&gt; processing</text>
-  <path class="divider" d="M1320 326H1780" stroke="#0F766E"/>
-  <text class="body" x="1342" y="358">onEach { callback }</text>
-<text class="body" x="1342" y="382">onItem().invoke(...)</text>
-<text class="body" x="1342" y="406">failure propagates downstream</text>
-  <path class="divider" d="M1320 424H1780" stroke="#0F766E"/><text class="foot" x="1342" y="453">item is passed through unchanged</text>
+  <rect class="card" x="1320" y="273" width="460" height="230" rx="8" fill="#F0FDFA" stroke="#0D9488"/>
+  <text class="kicker" x="1342" y="304">Mutiny pipeline</text>
+  <text class="cardTitle" x="1342" y="338">Uni&lt;T&gt; processing</text>
+  <path class="divider" d="M1320 359H1780" stroke="#0F766E"/>
+  <text class="body" x="1342" y="391">onEach { callback }</text>
+<text class="body" x="1342" y="415">onItem().invoke(...)</text>
+<text class="body" x="1342" y="439">failure propagates downstream</text>
+  <path class="divider" d="M1320 457H1780" stroke="#0F766E"/><text class="foot" x="1342" y="486">item is passed through unchanged</text>
 </g>
 <g id="UniTerminal">
-  <rect class="card" x="1940" y="240" width="520" height="230" rx="8" fill="#F8FAFC" stroke="#64748B"/>
-  <text class="kicker" x="1962" y="271">terminal boundary</text>
-  <text class="cardTitle" x="1962" y="305">await or CompletionStage</text>
-  <path class="divider" d="M1940 326H2460" stroke="#475569"/>
-  <text class="body" x="1962" y="358">await().atMost(...)</text>
-<text class="body" x="1962" y="382">await().indefinitely()</text>
-<text class="body" x="1962" y="406">subscribeAsCompletionStage()</text>
-  <path class="divider" d="M1940 424H2460" stroke="#475569"/><text class="foot" x="1962" y="453">caller observes T, null, or failure</text>
+  <rect class="card" x="1940" y="273" width="520" height="230" rx="8" fill="#F8FAFC" stroke="#64748B"/>
+  <text class="kicker" x="1962" y="304">terminal boundary</text>
+  <text class="cardTitle" x="1962" y="338">await or CompletionStage</text>
+  <path class="divider" d="M1940 359H2460" stroke="#475569"/>
+  <text class="body" x="1962" y="391">await().atMost(...)</text>
+<text class="body" x="1962" y="415">await().indefinitely()</text>
+<text class="body" x="1962" y="439">subscribeAsCompletionStage()</text>
+  <path class="divider" d="M1940 457H2460" stroke="#475569"/><text class="foot" x="1962" y="486">caller observes T, null, or failure</text>
 </g>
-<text class="lane" x="95" y="620" fill="#6D28D9">Multi processing lane</text>
+<text class="lane" x="95" y="653" fill="#6D28D9">Multi processing lane</text>
 <g id="MultiSources">
-  <rect class="card" x="110" y="655" width="430" height="250" rx="8" fill="#F5F3FF" stroke="#7C3AED"/>
-  <text class="kicker" x="132" y="686">source</text>
-  <text class="cardTitle" x="132" y="720">stream inputs</text>
-  <path class="divider" d="M110 741H540" stroke="#6D28D9"/>
-  <text class="body" x="132" y="773">vararg and range</text>
-<text class="body" x="132" y="797">Iterable, Sequence, Stream</text>
-<text class="body" x="132" y="821">arrays and progressions</text>
-<text class="body" x="132" y="845">deferred Uni or CompletionStage repeats</text>
-  <path class="divider" d="M110 859H540" stroke="#6D28D9"/><text class="foot" x="132" y="888">0 or more items intent</text>
+  <rect class="card" x="110" y="688" width="430" height="250" rx="8" fill="#F5F3FF" stroke="#7C3AED"/>
+  <text class="kicker" x="132" y="719">source</text>
+  <text class="cardTitle" x="132" y="753">stream inputs</text>
+  <path class="divider" d="M110 774H540" stroke="#6D28D9"/>
+  <text class="body" x="132" y="806">vararg and range</text>
+<text class="body" x="132" y="830">Iterable, Sequence, Stream</text>
+<text class="body" x="132" y="854">arrays and progressions</text>
+<text class="body" x="132" y="878">deferred Uni or CompletionStage repeats</text>
+  <path class="divider" d="M110 892H540" stroke="#6D28D9"/><text class="foot" x="132" y="921">0 or more items intent</text>
 </g>
 <g id="MultiHelpers">
-  <rect class="card" x="700" y="655" width="460" height="250" rx="8" fill="#FFF7ED" stroke="#EA580C"/>
-  <text class="kicker" x="722" y="686">MultiSupport.kt</text>
-  <text class="cardTitle" x="722" y="720">Multi creation helpers</text>
-  <path class="divider" d="M700 741H1160" stroke="#C2410C"/>
-  <text class="body" x="722" y="773">multiOf(...)</text>
-<text class="body" x="722" y="797">multiRangeOf(...)</text>
-<text class="body" x="722" y="821">asMulti() conversions</text>
-<text class="body" x="722" y="845">deferUni / deferCompletionStage</text>
-  <path class="divider" d="M700 859H1160" stroke="#C2410C"/><text class="foot" x="722" y="888">creates Multi&lt;T&gt; or UniRepeat&lt;T&gt;</text>
+  <rect class="card" x="700" y="688" width="460" height="250" rx="8" fill="#FFF7ED" stroke="#EA580C"/>
+  <text class="kicker" x="722" y="719">MultiSupport.kt</text>
+  <text class="cardTitle" x="722" y="753">Multi creation helpers</text>
+  <path class="divider" d="M700 774H1160" stroke="#C2410C"/>
+  <text class="body" x="722" y="806">multiOf(...)</text>
+<text class="body" x="722" y="830">multiRangeOf(...)</text>
+<text class="body" x="722" y="854">asMulti() conversions</text>
+<text class="body" x="722" y="878">deferUni / deferCompletionStage</text>
+  <path class="divider" d="M700 892H1160" stroke="#C2410C"/><text class="foot" x="722" y="921">creates Multi&lt;T&gt; or UniRepeat&lt;T&gt;</text>
 </g>
 <g id="MultiPipeline">
-  <rect class="card" x="1320" y="655" width="460" height="250" rx="8" fill="#F0FDFA" stroke="#0D9488"/>
-  <text class="kicker" x="1342" y="686">Mutiny pipeline</text>
-  <text class="cardTitle" x="1342" y="720">Multi&lt;T&gt; processing</text>
-  <path class="divider" d="M1320 741H1780" stroke="#0F766E"/>
-  <text class="body" x="1342" y="773">onEach { callback }</text>
-<text class="body" x="1342" y="797">onItem().invoke(...)</text>
-<text class="body" x="1342" y="821">source order is preserved</text>
-<text class="body" x="1342" y="845">callback failure fails stream</text>
-  <path class="divider" d="M1320 859H1780" stroke="#0F766E"/><text class="foot" x="1342" y="888">items continue downstream</text>
+  <rect class="card" x="1320" y="688" width="460" height="250" rx="8" fill="#F0FDFA" stroke="#0D9488"/>
+  <text class="kicker" x="1342" y="719">Mutiny pipeline</text>
+  <text class="cardTitle" x="1342" y="753">Multi&lt;T&gt; processing</text>
+  <path class="divider" d="M1320 774H1780" stroke="#0F766E"/>
+  <text class="body" x="1342" y="806">onEach { callback }</text>
+<text class="body" x="1342" y="830">onItem().invoke(...)</text>
+<text class="body" x="1342" y="854">source order is preserved</text>
+<text class="body" x="1342" y="878">callback failure fails stream</text>
+  <path class="divider" d="M1320 892H1780" stroke="#0F766E"/><text class="foot" x="1342" y="921">items continue downstream</text>
 </g>
 <g id="MultiTerminal">
-  <rect class="card" x="1940" y="655" width="520" height="250" rx="8" fill="#F8FAFC" stroke="#64748B"/>
-  <text class="kicker" x="1962" y="686">terminal boundary</text>
-  <text class="cardTitle" x="1962" y="720">collect or subscribe</text>
-  <path class="divider" d="M1940 741H2460" stroke="#475569"/>
-  <text class="body" x="1962" y="773">collect().asList()</text>
-<text class="body" x="1962" y="797">await().indefinitely()</text>
-<text class="body" x="1962" y="821">subscriber consumes stream</text>
-  <path class="divider" d="M1940 859H2460" stroke="#475569"/><text class="foot" x="1962" y="888">caller observes list, stream, or failure</text>
+  <rect class="card" x="1940" y="688" width="520" height="250" rx="8" fill="#F8FAFC" stroke="#64748B"/>
+  <text class="kicker" x="1962" y="719">terminal boundary</text>
+  <text class="cardTitle" x="1962" y="753">collect or subscribe</text>
+  <path class="divider" d="M1940 774H2460" stroke="#475569"/>
+  <text class="body" x="1962" y="806">collect().asList()</text>
+<text class="body" x="1962" y="830">await().indefinitely()</text>
+<text class="body" x="1962" y="854">subscriber consumes stream</text>
+  <path class="divider" d="M1940 892H2460" stroke="#475569"/><text class="foot" x="1962" y="921">caller observes list, stream, or failure</text>
 </g>
-<text class="lane" x="95" y="1060" fill="#0F766E">Coroutine interop lane</text>
+<text class="lane" x="95" y="1093" fill="#0F766E">Coroutine interop lane</text>
 <g id="CoroutineBlock">
-  <rect class="card" x="420" y="1095" width="520" height="220" rx="8" fill="#F0FDFA" stroke="#0D9488"/>
+  <rect class="card" x="420" y="1128" width="520" height="220" rx="8" fill="#F0FDFA" stroke="#0D9488"/>
   <text class="kicker" x="442" y="1126">CoroutineScope</text>
   <text class="cardTitle" x="442" y="1160">suspend block</text>
   <path class="divider" d="M420 1181H940" stroke="#0F766E"/>
@@ -127,7 +127,7 @@
   <path class="divider" d="M420 1269H940" stroke="#0F766E"/><text class="foot" x="442" y="1298">source is coroutine code</text>
 </g>
 <g id="CoroutineBridge">
-  <rect class="card" x="1110" y="1095" width="520" height="220" rx="8" fill="#F0FDFA" stroke="#0D9488"/>
+  <rect class="card" x="1110" y="1128" width="520" height="220" rx="8" fill="#F0FDFA" stroke="#0D9488"/>
   <text class="kicker" x="1132" y="1126">kotlinx.coroutines.mutiny</text>
   <text class="cardTitle" x="1132" y="1160">async(...).asUni()</text>
   <path class="divider" d="M1110 1181H1630" stroke="#0F766E"/>
@@ -137,7 +137,7 @@
   <path class="divider" d="M1110 1269H1630" stroke="#0F766E"/><text class="foot" x="1132" y="1298">bridge targets Uni&lt;T&gt;</text>
 </g>
 <g id="InteropResult">
-  <rect class="card" x="1800" y="1095" width="520" height="220" rx="8" fill="#EFF6FF" stroke="#2563EB"/>
+  <rect class="card" x="1800" y="1128" width="520" height="220" rx="8" fill="#EFF6FF" stroke="#2563EB"/>
   <text class="kicker" x="1822" y="1126">Mutiny result</text>
   <text class="cardTitle" x="1822" y="1160">Uni&lt;T&gt;</text>
   <path class="divider" d="M1800 1181H2320" stroke="#1D4ED8"/>
@@ -147,28 +147,28 @@
   <path class="divider" d="M1800 1269H2320" stroke="#1D4ED8"/><text class="foot" x="1822" y="1298">same terminal surface as UniSupport</text>
 </g>
 <g data-from="UniSources" data-to="UniHelpers">
-  <path class="edge " d="M540 355 L700 355" stroke="#1D4ED8" marker-end="url(#arrow-blue)"/>
-  <g class="edgeLabel" transform="translate(567 319)"><rect width="106" height="30" rx="8"/><text x="53" y="20" text-anchor="middle">wrapped by</text></g>
+  <path class="edge " d="M540 388 L700 388" stroke="#1D4ED8" marker-end="url(#arrow-blue)"/>
+  <g class="edgeLabel" transform="translate(567 352)"><rect width="106" height="30" rx="8"/><text x="53" y="20" text-anchor="middle">wrapped by</text></g>
 </g>
 <g data-from="UniHelpers" data-to="UniPipeline">
-  <path class="edge " d="M1160 355 L1320 355" stroke="#15803D" marker-end="url(#arrow-green)"/>
-  <g class="edgeLabel" transform="translate(1179 319)"><rect width="122" height="30" rx="8"/><text x="61" y="20" text-anchor="middle">produces Uni</text></g>
+  <path class="edge " d="M1160 388 L1320 388" stroke="#15803D" marker-end="url(#arrow-green)"/>
+  <g class="edgeLabel" transform="translate(1179 352)"><rect width="122" height="30" rx="8"/><text x="61" y="20" text-anchor="middle">produces Uni</text></g>
 </g>
 <g data-from="UniPipeline" data-to="UniTerminal">
-  <path class="edge " d="M1780 355 L1940 355" stroke="#0F766E" marker-end="url(#arrow-teal)"/>
-  <g class="edgeLabel" transform="translate(1787 319)"><rect width="146" height="30" rx="8"/><text x="73" y="20" text-anchor="middle">terminal choice</text></g>
+  <path class="edge " d="M1780 388 L1940 388" stroke="#0F766E" marker-end="url(#arrow-teal)"/>
+  <g class="edgeLabel" transform="translate(1787 352)"><rect width="146" height="30" rx="8"/><text x="73" y="20" text-anchor="middle">terminal choice</text></g>
 </g>
 <g data-from="MultiSources" data-to="MultiHelpers">
-  <path class="edge " d="M540 780 L700 780" stroke="#6D28D9" marker-end="url(#arrow-violet)"/>
-  <g class="edgeLabel" transform="translate(559 744)"><rect width="122" height="30" rx="8"/><text x="61" y="20" text-anchor="middle">converted by</text></g>
+  <path class="edge " d="M540 813 L700 813" stroke="#6D28D9" marker-end="url(#arrow-violet)"/>
+  <g class="edgeLabel" transform="translate(559 777)"><rect width="122" height="30" rx="8"/><text x="61" y="20" text-anchor="middle">converted by</text></g>
 </g>
 <g data-from="MultiHelpers" data-to="MultiPipeline">
-  <path class="edge " d="M1160 780 L1320 780" stroke="#C2410C" marker-end="url(#arrow-amber)"/>
-  <g class="edgeLabel" transform="translate(1171 744)"><rect width="138" height="30" rx="8"/><text x="69" y="20" text-anchor="middle">produces Multi</text></g>
+  <path class="edge " d="M1160 813 L1320 813" stroke="#C2410C" marker-end="url(#arrow-amber)"/>
+  <g class="edgeLabel" transform="translate(1171 777)"><rect width="138" height="30" rx="8"/><text x="69" y="20" text-anchor="middle">produces Multi</text></g>
 </g>
 <g data-from="MultiPipeline" data-to="MultiTerminal">
-  <path class="edge " d="M1780 780 L1940 780" stroke="#0F766E" marker-end="url(#arrow-teal)"/>
-  <g class="edgeLabel" transform="translate(1787 744)"><rect width="146" height="30" rx="8"/><text x="73" y="20" text-anchor="middle">terminal choice</text></g>
+  <path class="edge " d="M1780 813 L1940 813" stroke="#0F766E" marker-end="url(#arrow-teal)"/>
+  <g class="edgeLabel" transform="translate(1787 777)"><rect width="146" height="30" rx="8"/><text x="73" y="20" text-anchor="middle">terminal choice</text></g>
 </g>
 <g data-from="CoroutineBlock" data-to="CoroutineBridge">
   <path class="edge " d="M940 1205 L1110 1205" stroke="#0F766E" marker-end="url(#arrow-teal)"/>
@@ -179,8 +179,8 @@
   <g class="edgeLabel" transform="translate(1680 1169)"><rect width="70" height="30" rx="8"/><text x="35" y="20" text-anchor="middle">asUni</text></g>
 </g>
 <g data-from="InteropResult" data-to="UniPipeline">
-  <path class="edge dashed" d="M 2060 1095 L 2060 1004 Q 2060 990 2074 990 L 2506 990 Q 2520 990 2520 976 L 2520 544 Q 2520 530 2506 530 L 1564 530 Q 1550 530 1550 516 L 1550 470" stroke="#1D4ED8" stroke-linecap="round" stroke-linejoin="round"/>
-<polygon points="1556,482 1550,470 1544,482" fill="#1D4ED8" stroke="#1D4ED8" stroke-width="1" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important" data-direct-solid-head="true"/>
-  <g class="edgeLabel" transform="translate(2094 956)"><rect width="162" height="30" rx="8"/><text x="81" y="20" text-anchor="middle">uses Uni pipeline</text></g>
+  <path class="edge dashed" d="M 2060 1128 L 2060 1037 Q 2060 1023 2074 1023 L 2506 1023 Q 2520 1023 2520 1009 L 2520 577 Q 2520 563 2506 563 L 1564 563 Q 1550 563 1550 549 L 1550 503" stroke="#1D4ED8" stroke-linecap="round" stroke-linejoin="round"/>
+<polygon points="1556,515 1550,503 1544,515" fill="#1D4ED8" stroke="#1D4ED8" stroke-width="1" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important" data-direct-solid-head="true"/>
+  <g class="edgeLabel" transform="translate(2094 989)"><rect width="162" height="30" rx="8"/><text x="81" y="20" text-anchor="middle">uses Uni pipeline</text></g>
 </g>
 </svg>
