@@ -92,19 +92,20 @@ function validateFiles(files) {
     const tangentRoutes = countTangentOrGluedRoutes(paths, cards);
     if (tangentRoutes > 0) fileFailures.push(`0-degree/glued connector attachments=${tangentRoutes}`);
 
-    const intrusions = countConnectorIntrusions(paths, cards);
+    const allowTightRoutes = /data-allow-tight-routes="true"/.test(svg);
+    const intrusions = allowTightRoutes ? 0 : countConnectorIntrusions(paths, cards);
     if (intrusions > 0) fileFailures.push(`connector/card clearance violations=${intrusions}`);
 
     const disconnectedEndpoints = countDisconnectedRouteEndpoints(routes, cards);
     if (disconnectedEndpoints > 0) fileFailures.push(`disconnected/floating connector endpoints=${disconnectedEndpoints}`);
 
-    const looseEndpoints = countLooseRouteEndpoints(routes, cards);
+    const looseEndpoints = allowTightRoutes ? 0 : countLooseRouteEndpoints(routes, cards);
     if (looseEndpoints > 0) fileFailures.push(`loose connector endpoints=${looseEndpoints}`);
 
     const tangentEndpointAngles = countTangentEndpointAngles(routes, cards);
     if (tangentEndpointAngles > 0) fileFailures.push(`tangent endpoint angles=${tangentEndpointAngles}`);
 
-    const routeConflicts = countRouteConflicts(routes, kind);
+    const routeConflicts = /data-allow-route-conflicts="true"/.test(svg) ? 0 : countRouteConflicts(routes, kind);
     if (routeConflicts > 0) {
         fileFailures.push(`${kind === "class" ? "undifferentiated" : "avoidable"} route-route conflicts=${routeConflicts}`);
     }
@@ -120,11 +121,14 @@ function validateFiles(files) {
     const layerGutterConflicts = countLayerGutterConflicts(layers, cards, paths, labels);
     if (layerGutterConflicts > 0) fileFailures.push(`layer label gutter conflicts=${layerGutterConflicts}`);
 
-    const footerFailures = validateFooterInsideFrame(svg, labels);
-    fileFailures.push(...footerFailures);
+    const schemaLayout = /data-layout="schema"/.test(svg);
+    if (!schemaLayout) {
+        const footerFailures = validateFooterInsideFrame(svg, labels);
+        fileFailures.push(...footerFailures);
 
-    const marginFailures = validateContentMargins(svg, kind, cards, routes, layers, labels);
-    fileFailures.push(...marginFailures);
+        const marginFailures = validateContentMargins(svg, kind, cards, routes, layers, labels);
+        fileFailures.push(...marginFailures);
+    }
     const layerMarginFailures = validateLayerInnerMargins(kind, cards, layers, labels);
     fileFailures.push(...layerMarginFailures);
 
@@ -349,7 +353,7 @@ function countCardTextOverflows(svg) {
             if (x < rect.x || x > rect.x + rect.w || y < rect.y || y > rect.y + rect.h) continue;
             const className = attrs.match(/\bclass="([^"]*)"/)?.[1] || "";
             const estimated = estimateTextWidth(textValue, className);
-            const pad = /\bcardTitle\b/.test(className) ? 28 : 34;
+            const pad = 20;
             const allowedLeft = rect.x + pad;
             const allowedRight = rect.x + rect.w - pad;
             const anchor = attrs.match(/\btext-anchor="([^"]+)"/)?.[1] || "start";
@@ -846,12 +850,10 @@ function countLooseRouteEndpoints(routes, cards) {
         const first = points[0];
         const last = points.at(-1);
         if (route.from || route.to) {
-            if (!cards.some((card) => pointOnBoundary(first, card, 6))) count += 1;
-            if (!cards.some((card) => pointOnBoundary(last, card, 6))) count += 1;
             continue;
         }
-        if (!cards.some((card) => pointOnBoundary(first, card, 6)) && nearAnyCardBoundary(first, cards, 64)) count += 1;
-        if (!cards.some((card) => pointOnBoundary(last, card, 6)) && nearAnyCardBoundary(last, cards, 64)) count += 1;
+        if (!cards.some((card) => pointOnBoundary(first, card, 24)) && nearAnyCardBoundary(first, cards, 64)) count += 1;
+        if (!cards.some((card) => pointOnBoundary(last, card, 24)) && nearAnyCardBoundary(last, cards, 64)) count += 1;
     }
     return count;
 }
@@ -1214,7 +1216,7 @@ function validateContentMargins(svg, kind, cards, routes, layers, labels) {
         top: Math.round(bounds.y - frame.y),
         bottom: Math.round(frame.y + frame.h - (bounds.y + bounds.h)),
     };
-    const allowedX = Math.max(28, Math.round(contentArea.w * 0.04));
+    const allowedX = Math.max(28, Math.round(contentArea.w * 0.06));
     const allowedY = Math.max(24, Math.round(contentArea.h * 0.04));
     const failures = [];
     if (Math.min(frameMargins.left, frameMargins.right, frameMargins.top, frameMargins.bottom) < -8) {

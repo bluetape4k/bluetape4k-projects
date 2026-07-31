@@ -44,111 +44,111 @@
 <text class="title" x="76" y="100">ID Generators Class Structure</text>
 <text class="subtitle" x="80" y="134">Class diagram only: contracts, adapter classes, strategy objects, and utility boundaries from current source.</text>
 <g>
-  <rect class="panel" x="70" y="430" width="790" height="2120" rx="8" />
-  <text class="panelTitle" x="98" y="474">Long ID contracts and Snowflake</text>
+  <rect class="panel" x="70" y="367" width="790" height="2120" rx="8" />
+  <text class="panelTitle" x="98" y="411">Long ID contracts and Snowflake</text>
 </g>
 <g>
-  <rect class="panel" x="930" y="430" width="790" height="2120" rx="8" />
-  <text class="panelTitle" x="958" y="474">UUID strategies and adapter</text>
+  <rect class="panel" x="930" y="367" width="790" height="2120" rx="8" />
+  <text class="panelTitle" x="958" y="411">UUID strategies and adapter</text>
 </g>
 <g>
-  <rect class="panel" x="1790" y="430" width="790" height="2120" rx="8" />
-  <text class="panelTitle" x="1818" y="474">Sortable string IDs</text>
+  <rect class="panel" x="1790" y="367" width="790" height="2120" rx="8" />
+  <text class="panelTitle" x="1818" y="411">Sortable string IDs</text>
 </g>
 <g>
-  <rect class="panel" x="2650" y="430" width="880" height="2120" rx="8" />
-  <text class="panelTitle" x="2678" y="474">ByteArray IDs and utilities</text>
+  <rect class="panel" x="2650" y="367" width="880" height="2120" rx="8" />
+  <text class="panelTitle" x="2678" y="411">ByteArray IDs and utilities</text>
 </g>
-<path class="edge" data-from="LongIdGenerator" data-to="IdGenerator" d="M 465 540 L 465 419 Q 465 405 479 405 L 1432 405 Q 1445 405 1445 392 L 1445 370" stroke="#15803D" stroke-linecap="round" stroke-linejoin="round" />
-<polygon points="1454,391 1445,370 1436,391" fill="#FFFFFF" stroke="#15803D" stroke-width="2.8" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
-<path class="edge" data-from="Snowflake" data-to="IdGenerator" d="M 745 790 L 745 749 Q 745 735 759 735 L 821 735 Q 835 735 835 721 L 835 419 Q 835 405 849 405 L 1577 405 Q 1590 405 1590 392 L 1590 370" stroke="#0F766E" stroke-linecap="round" stroke-linejoin="round" />
-<polygon points="1599,391 1590,370 1581,391" fill="#FFFFFF" stroke="#0F766E" stroke-width="2.8" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
-<path class="edge" data-from="Uuid.Generator" data-to="IdGenerator" d="M1325 540 L1325 370" stroke="#6D28D9" />
-<polygon points="1334,391 1325,370 1316,391" fill="#FFFFFF" stroke="#6D28D9" stroke-width="2.8" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
-<path class="edge" data-from="Ksuid.Generator" data-to="IdGenerator" d="M 2185 540 L 2185 419 Q 2185 405 2171 405 L 2023 405 Q 2010 405 2010 392 L 2010 370" stroke="#C2410C" stroke-linecap="round" stroke-linejoin="round" />
-<polygon points="2019,391 2010,370 2001,391" fill="#FFFFFF" stroke="#C2410C" stroke-width="2.8" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
-<path class="edge dashed" data-from="Flake" data-to="IdGenerator" d="M 3070 540 L 3070 419 Q 3070 405 3056 405 L 2273 405 Q 2260 405 2260 392 L 2260 370" stroke="#1D4ED8" stroke-linecap="round" stroke-linejoin="round" />
-<polygon points="2269,391 2260,370 2251,391" fill="#FFFFFF" stroke="#1D4ED8" stroke-width="2.8" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
-<path class="edge" data-from="AbstractSnowflake" data-to="Snowflake" d="M465 1070 L465 980" stroke="#0F766E" />
-<polygon points="474,1001 465,980 456,1001" fill="#FFFFFF" stroke="#0F766E" stroke-width="2.8" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
-<path class="edge" data-from="DefaultSnowflake" data-to="AbstractSnowflake" d="M 255 1360 L 255 1314 Q 255 1300 269 1300 L 406 1300 Q 420 1300 420 1286 L 420 1260" stroke="#1D4ED8" stroke-linecap="round" stroke-linejoin="round" />
-<polygon points="429,1281 420,1260 411,1281" fill="#FFFFFF" stroke="#1D4ED8" stroke-width="2.8" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
-<path class="edge" data-from="GlobalSnowflake" data-to="AbstractSnowflake" d="M 675 1360 L 675 1314 Q 675 1300 661 1300 L 524 1300 Q 510 1300 510 1286 L 510 1260" stroke="#1D4ED8" stroke-linecap="round" stroke-linejoin="round" />
-<polygon points="519,1281 510,1260 501,1281" fill="#FFFFFF" stroke="#1D4ED8" stroke-width="2.8" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
-<path class="edge dashed" data-from="Uuid" data-to="Uuid.Generator" d="M1325 835 L1325 730" stroke="#6D28D9" />
-<polygon points="1334,751 1325,730 1316,751" fill="#FFFFFF" stroke="#6D28D9" stroke-width="2.8" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
-<path class="edge" data-from="UuidGenerator" data-to="Uuid.Generator" d="M 1325 1210 L 1325 1114 Q 1325 1100 1339 1100 L 1476 1100 Q 1490 1100 1490 1086 L 1490 730" stroke="#BE185D" marker-end="url(#arrow-pink)" stroke-linecap="round" stroke-linejoin="round" />
-<path class="edge dashed" data-from="Ksuid" data-to="Ksuid.Generator" d="M2185 835 L2185 730" stroke="#C2410C" />
-<polygon points="2194,751 2185,730 2176,751" fill="#FFFFFF" stroke="#C2410C" stroke-width="2.8" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
-<path class="edge" data-from="KsuidGenerator" data-to="Ksuid.Generator" d="M 2185 1185 L 2185 1099 Q 2185 1085 2199 1085 L 2366 1085 Q 2380 1085 2380 1071 L 2380 730" stroke="#BE185D" marker-end="url(#arrow-pink)" stroke-linecap="round" stroke-linejoin="round" />
-<path class="edge" data-from="UlidGenerator" data-to="ULID" d="M2185 1920 L2185 1790" stroke="#15803D" marker-end="url(#arrow-green)" />
-<path class="edge" data-from="Flake" data-to="NodeIdentifier" d="M3070 855 L3070 990" stroke="#15803D" marker-end="url(#arrow-green)" />
+<path class="edge" data-from="LongIdGenerator" data-to="IdGenerator" d="M 465 477 L 465 356 Q 465 342 479 342 L 1432 342 Q 1445 342 1445 329 L 1445 307" stroke="#15803D" stroke-linecap="round" stroke-linejoin="round" />
+<polygon points="1454,328 1445,307 1436,328" fill="#FFFFFF" stroke="#15803D" stroke-width="2.8" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
+<path class="edge" data-from="Snowflake" data-to="IdGenerator" d="M 745 727 L 745 686 Q 745 672 759 672 L 821 672 Q 835 672 835 658 L 835 356 Q 835 342 849 342 L 1577 342 Q 1590 342 1590 329 L 1590 307" stroke="#0F766E" stroke-linecap="round" stroke-linejoin="round" />
+<polygon points="1599,328 1590,307 1581,328" fill="#FFFFFF" stroke="#0F766E" stroke-width="2.8" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
+<path class="edge" data-from="Uuid.Generator" data-to="IdGenerator" d="M1325 477 L1325 307" stroke="#6D28D9" />
+<polygon points="1334,328 1325,307 1316,328" fill="#FFFFFF" stroke="#6D28D9" stroke-width="2.8" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
+<path class="edge" data-from="Ksuid.Generator" data-to="IdGenerator" d="M 2185 477 L 2185 356 Q 2185 342 2171 342 L 2023 342 Q 2010 342 2010 329 L 2010 307" stroke="#C2410C" stroke-linecap="round" stroke-linejoin="round" />
+<polygon points="2019,328 2010,307 2001,328" fill="#FFFFFF" stroke="#C2410C" stroke-width="2.8" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
+<path class="edge dashed" data-from="Flake" data-to="IdGenerator" d="M 3070 477 L 3070 356 Q 3070 342 3056 342 L 2273 342 Q 2260 342 2260 329 L 2260 307" stroke="#1D4ED8" stroke-linecap="round" stroke-linejoin="round" />
+<polygon points="2269,328 2260,307 2251,328" fill="#FFFFFF" stroke="#1D4ED8" stroke-width="2.8" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
+<path class="edge" data-from="AbstractSnowflake" data-to="Snowflake" d="M465 1007 L465 917" stroke="#0F766E" />
+<polygon points="474,938 465,917 456,938" fill="#FFFFFF" stroke="#0F766E" stroke-width="2.8" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
+<path class="edge" data-from="DefaultSnowflake" data-to="AbstractSnowflake" d="M 255 1297 L 255 1251 Q 255 1237 269 1237 L 406 1237 Q 420 1237 420 1223 L 420 1197" stroke="#1D4ED8" stroke-linecap="round" stroke-linejoin="round" />
+<polygon points="429,1218 420,1197 411,1218" fill="#FFFFFF" stroke="#1D4ED8" stroke-width="2.8" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
+<path class="edge" data-from="GlobalSnowflake" data-to="AbstractSnowflake" d="M 675 1297 L 675 1251 Q 675 1237 661 1237 L 524 1237 Q 510 1237 510 1223 L 510 1197" stroke="#1D4ED8" stroke-linecap="round" stroke-linejoin="round" />
+<polygon points="519,1218 510,1197 501,1218" fill="#FFFFFF" stroke="#1D4ED8" stroke-width="2.8" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
+<path class="edge dashed" data-from="Uuid" data-to="Uuid.Generator" d="M1325 772 L1325 667" stroke="#6D28D9" />
+<polygon points="1334,688 1325,667 1316,688" fill="#FFFFFF" stroke="#6D28D9" stroke-width="2.8" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
+<path class="edge" data-from="UuidGenerator" data-to="Uuid.Generator" d="M 1325 1147 L 1325 1051 Q 1325 1037 1339 1037 L 1476 1037 Q 1490 1037 1490 1023 L 1490 667" stroke="#BE185D" marker-end="url(#arrow-pink)" stroke-linecap="round" stroke-linejoin="round" />
+<path class="edge dashed" data-from="Ksuid" data-to="Ksuid.Generator" d="M2185 772 L2185 667" stroke="#C2410C" />
+<polygon points="2194,688 2185,667 2176,688" fill="#FFFFFF" stroke="#C2410C" stroke-width="2.8" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
+<path class="edge" data-from="KsuidGenerator" data-to="Ksuid.Generator" d="M 2185 1122 L 2185 1036 Q 2185 1022 2199 1022 L 2366 1022 Q 2380 1022 2380 1008 L 2380 667" stroke="#BE185D" marker-end="url(#arrow-pink)" stroke-linecap="round" stroke-linejoin="round" />
+<path class="edge" data-from="UlidGenerator" data-to="ULID" d="M2185 1857 L2185 1727" stroke="#15803D" marker-end="url(#arrow-green)" />
+<path class="edge" data-from="Flake" data-to="NodeIdentifier" d="M3070 792 L3070 927" stroke="#15803D" marker-end="url(#arrow-green)" />
 <g id="IdGenerator">
-  <rect class="classBox" x="1235" y="180" width="1130" height="190" rx="8" fill="#F8FAFC" stroke="#64748B" />
-  <text class="kind" x="1800" y="210" text-anchor="middle">&lt;&lt;interface&gt;&gt;</text>
-  <text class="classTitle" x="1800" y="246" text-anchor="middle">IdGenerator&lt;ID&gt;</text>
-  <path class="divider" d="M1235 268H2365" stroke="#475569" />
+  <rect class="classBox" x="1235" y="117" width="1130" height="190" rx="8" fill="#F8FAFC" stroke="#64748B" />
+  <text class="kind" x="1800" y="147" text-anchor="middle">&lt;&lt;interface&gt;&gt;</text>
+  <text class="classTitle" x="1800" y="183" text-anchor="middle">IdGenerator&lt;ID&gt;</text>
+  <path class="divider" d="M1235 205H2365" stroke="#475569" />
 
-  <path class="divider" d="M1235 276H2365" stroke="#475569" />
-  <text class="member" x="1257" y="298">nextId(): ID</text>
-<text class="member" x="1257" y="322">nextIdAsString(): String</text>
-<text class="member" x="1257" y="346">nextIds(size), nextIdsAsString(size)</text>
+  <path class="divider" d="M1235 213H2365" stroke="#475569" />
+  <text class="member" x="1257" y="235">nextId(): ID</text>
+<text class="member" x="1257" y="259">nextIdAsString(): String</text>
+<text class="member" x="1257" y="283">nextIds(size), nextIdsAsString(size)</text>
 </g>
 <g id="LongIdGenerator">
-  <rect class="classBox" x="145" y="540" width="640" height="160" rx="8" fill="#F0FDF4" stroke="#16A34A" />
-  <text class="kind" x="465" y="570" text-anchor="middle">&lt;&lt;interface&gt;&gt;</text>
-  <text class="classTitle" x="465" y="606" text-anchor="middle">LongIdGenerator</text>
-  <path class="divider" d="M145 628H785" stroke="#15803D" />
+  <rect class="classBox" x="145" y="477" width="640" height="160" rx="8" fill="#F0FDF4" stroke="#16A34A" />
+  <text class="kind" x="465" y="507" text-anchor="middle">&lt;&lt;interface&gt;&gt;</text>
+  <text class="classTitle" x="465" y="543" text-anchor="middle">LongIdGenerator</text>
+  <path class="divider" d="M145 565H785" stroke="#15803D" />
 
-  <path class="divider" d="M145 636H785" stroke="#15803D" />
-  <text class="member" x="167" y="658">IdGenerator&lt;Long&gt; with base-36 string conversion</text>
+  <path class="divider" d="M145 573H785" stroke="#15803D" />
+  <text class="member" x="167" y="595">IdGenerator&lt;Long&gt; with base-36 string conversion</text>
 </g>
 <g id="Snowflake">
-  <rect class="classBox" x="145" y="790" width="640" height="190" rx="8" fill="#F0FDFA" stroke="#0D9488" />
-  <text class="kind" x="465" y="820" text-anchor="middle">&lt;&lt;interface&gt;&gt;</text>
-  <text class="classTitle" x="465" y="856" text-anchor="middle">Snowflake</text>
-  <path class="divider" d="M145 878H785" stroke="#0F766E" />
+  <rect class="classBox" x="145" y="727" width="640" height="190" rx="8" fill="#F0FDFA" stroke="#0D9488" />
+  <text class="kind" x="465" y="757" text-anchor="middle">&lt;&lt;interface&gt;&gt;</text>
+  <text class="classTitle" x="465" y="793" text-anchor="middle">Snowflake</text>
+  <path class="divider" d="M145 815H785" stroke="#0F766E" />
 
-  <path class="divider" d="M145 886H785" stroke="#0F766E" />
-  <text class="member" x="167" y="908">nextId(): Long</text>
-<text class="member" x="167" y="932">parse(Long/String): SnowflakeId</text>
+  <path class="divider" d="M145 823H785" stroke="#0F766E" />
+  <text class="member" x="167" y="845">nextId(): Long</text>
+<text class="member" x="167" y="869">parse(Long/String): SnowflakeId</text>
 </g>
 <g id="AbstractSnowflake">
-  <rect class="classBox" x="145" y="1070" width="640" height="190" rx="8" fill="#F0FDFA" stroke="#0D9488" />
-  <text class="kind" x="465" y="1100" text-anchor="middle">abstract class</text>
-  <text class="classTitle" x="465" y="1136" text-anchor="middle">AbstractSnowflake</text>
-  <path class="divider" d="M145 1158H785" stroke="#0F766E" />
-  <text class="member" x="167" y="1186">sequencer: Sequencer</text>
-  <path class="divider" d="M145 1216H785" stroke="#0F766E" />
-  <text class="member" x="167" y="1238">nextId() from sequencer</text>
+  <rect class="classBox" x="145" y="1007" width="640" height="190" rx="8" fill="#F0FDFA" stroke="#0D9488" />
+  <text class="kind" x="465" y="1037" text-anchor="middle">abstract class</text>
+  <text class="classTitle" x="465" y="1073" text-anchor="middle">AbstractSnowflake</text>
+  <path class="divider" d="M145 1095H785" stroke="#0F766E" />
+  <text class="member" x="167" y="1123">sequencer: Sequencer</text>
+  <path class="divider" d="M145 1153H785" stroke="#0F766E" />
+  <text class="member" x="167" y="1175">nextId() from sequencer</text>
 </g>
 <g id="DefaultSnowflake">
-  <rect class="classBox" x="105" y="1360" width="300" height="195" rx="8" fill="#EFF6FF" stroke="#2563EB" />
-  <text class="kind" x="255" y="1390" text-anchor="middle">class</text>
-  <text class="classTitle" x="255" y="1426" text-anchor="middle">DefaultSnowflake</text>
-  <path class="divider" d="M105 1448H405" stroke="#1D4ED8" />
-  <text class="member" x="127" y="1476">machineId: Int</text>
-  <path class="divider" d="M105 1506H405" stroke="#1D4ED8" />
-  <text class="member" x="127" y="1528">DefaultSequencer</text>
+  <rect class="classBox" x="105" y="1297" width="300" height="195" rx="8" fill="#EFF6FF" stroke="#2563EB" />
+  <text class="kind" x="255" y="1327" text-anchor="middle">class</text>
+  <text class="classTitle" x="255" y="1363" text-anchor="middle">DefaultSnowflake</text>
+  <path class="divider" d="M105 1385H405" stroke="#1D4ED8" />
+  <text class="member" x="127" y="1413">machineId: Int</text>
+  <path class="divider" d="M105 1443H405" stroke="#1D4ED8" />
+  <text class="member" x="127" y="1465">DefaultSequencer</text>
 </g>
 <g id="GlobalSnowflake">
-  <rect class="classBox" x="525" y="1360" width="300" height="195" rx="8" fill="#EFF6FF" stroke="#2563EB" />
-  <text class="kind" x="675" y="1390" text-anchor="middle">class</text>
-  <text class="classTitle" x="675" y="1426" text-anchor="middle">GlobalSnowflake</text>
-  <path class="divider" d="M525 1448H825" stroke="#1D4ED8" />
+  <rect class="classBox" x="525" y="1297" width="300" height="195" rx="8" fill="#EFF6FF" stroke="#2563EB" />
+  <text class="kind" x="675" y="1327" text-anchor="middle">class</text>
+  <text class="classTitle" x="675" y="1363" text-anchor="middle">GlobalSnowflake</text>
+  <path class="divider" d="M525 1385H825" stroke="#1D4ED8" />
 
-  <path class="divider" d="M525 1456H825" stroke="#1D4ED8" />
-  <text class="member" x="547" y="1478">GlobalSequencer</text>
+  <path class="divider" d="M525 1393H825" stroke="#1D4ED8" />
+  <text class="member" x="547" y="1415">GlobalSequencer</text>
 </g>
 <g id="SnowflakeGenerator">
-  <rect class="classBox" x="145" y="1650" width="640" height="235" rx="8" fill="#FDF2F8" stroke="#DB2777" />
-  <text class="kind" x="465" y="1680" text-anchor="middle">adapter class</text>
-  <text class="classTitle" x="465" y="1716" text-anchor="middle">SnowflakeGenerator</text>
-  <path class="divider" d="M145 1738H785" stroke="#BE185D" />
-  <text class="member" x="167" y="1766">snowflake: Snowflake = Snowflakers.Default</text>
-  <path class="divider" d="M145 1796H785" stroke="#BE185D" />
-  <text class="member" x="167" y="1818">IdGenerator&lt;Long&gt; by snowflake</text>
-<text class="member" x="167" y="1842">parse(Long/String)</text>
+  <rect class="classBox" x="145" y="1587" width="640" height="235" rx="8" fill="#FDF2F8" stroke="#DB2777" />
+  <text class="kind" x="465" y="1617" text-anchor="middle">adapter class</text>
+  <text class="classTitle" x="465" y="1653" text-anchor="middle">SnowflakeGenerator</text>
+  <path class="divider" d="M145 1675H785" stroke="#BE185D" />
+  <text class="member" x="167" y="1703">snowflake: Snowflake = Snowflakers.Default</text>
+  <path class="divider" d="M145 1733H785" stroke="#BE185D" />
+  <text class="member" x="167" y="1755">IdGenerator&lt;Long&gt; by snowflake</text>
+<text class="member" x="167" y="1779">parse(Long/String)</text>
 </g>
 <g id="Snowflakers">
   <rect class="classBox" x="145" y="1990" width="640" height="250" rx="8" fill="#FFF7ED" stroke="#EA580C" />
@@ -162,82 +162,82 @@
 <text class="member" x="167" y="2206">global()</text>
 </g>
 <g id="UuidGeneratorContract">
-  <rect class="classBox" x="1005" y="540" width="640" height="190" rx="8" fill="#F5F3FF" stroke="#7C3AED" />
-  <text class="kind" x="1325" y="570" text-anchor="middle">&lt;&lt;interface&gt;&gt;</text>
-  <text class="classTitle" x="1325" y="606" text-anchor="middle">Uuid.Generator</text>
-  <path class="divider" d="M1005 628H1645" stroke="#6D28D9" />
+  <rect class="classBox" x="1005" y="477" width="640" height="190" rx="8" fill="#F5F3FF" stroke="#7C3AED" />
+  <text class="kind" x="1325" y="507" text-anchor="middle">&lt;&lt;interface&gt;&gt;</text>
+  <text class="classTitle" x="1325" y="543" text-anchor="middle">Uuid.Generator</text>
+  <path class="divider" d="M1005 565H1645" stroke="#6D28D9" />
 
-  <path class="divider" d="M1005 636H1645" stroke="#6D28D9" />
-  <text class="member" x="1027" y="658">IdGenerator&lt;UUID&gt;</text>
-<text class="member" x="1027" y="682">nextUUID(), nextBase62()</text>
-<text class="member" x="1027" y="706">nextUUIDs(size), nextBase62s(size)</text>
+  <path class="divider" d="M1005 573H1645" stroke="#6D28D9" />
+  <text class="member" x="1027" y="595">IdGenerator&lt;UUID&gt;</text>
+<text class="member" x="1027" y="619">nextUUID(), nextBase62()</text>
+<text class="member" x="1027" y="643">nextUUIDs(size), nextBase62s(size)</text>
 </g>
 <g id="Uuid">
-  <rect class="classBox" x="1005" y="835" width="640" height="265" rx="8" fill="#F5F3FF" stroke="#7C3AED" />
-  <text class="kind" x="1325" y="865" text-anchor="middle">object</text>
-  <text class="classTitle" x="1325" y="901" text-anchor="middle">Uuid</text>
-  <path class="divider" d="M1005 923H1645" stroke="#6D28D9" />
-  <text class="member" x="1027" y="951">V1, V4, V5, V6, V7: Generator</text>
-<text class="member" x="1027" y="975">random(), epochRandom()</text>
-<text class="member" x="1027" y="999">namebased(name)</text>
-  <path class="divider" d="M1005 1029H1645" stroke="#6D28D9" />
-  <text class="member" x="1027" y="1051">JUG generators + Url62 encoding</text>
+  <rect class="classBox" x="1005" y="772" width="640" height="265" rx="8" fill="#F5F3FF" stroke="#7C3AED" />
+  <text class="kind" x="1325" y="802" text-anchor="middle">object</text>
+  <text class="classTitle" x="1325" y="838" text-anchor="middle">Uuid</text>
+  <path class="divider" d="M1005 860H1645" stroke="#6D28D9" />
+  <text class="member" x="1027" y="888">V1, V4, V5, V6, V7: Generator</text>
+<text class="member" x="1027" y="912">random(), epochRandom()</text>
+<text class="member" x="1027" y="936">namebased(name)</text>
+  <path class="divider" d="M1005 966H1645" stroke="#6D28D9" />
+  <text class="member" x="1027" y="988">JUG generators + Url62 encoding</text>
 </g>
 <g id="UuidGenerator">
-  <rect class="classBox" x="1005" y="1210" width="640" height="235" rx="8" fill="#FDF2F8" stroke="#DB2777" />
-  <text class="kind" x="1325" y="1240" text-anchor="middle">adapter class</text>
-  <text class="classTitle" x="1325" y="1276" text-anchor="middle">UuidGenerator</text>
-  <path class="divider" d="M1005 1298H1645" stroke="#BE185D" />
-  <text class="member" x="1027" y="1326">generator: Uuid.Generator = Uuid.V7</text>
-  <path class="divider" d="M1005 1356H1645" stroke="#BE185D" />
-  <text class="member" x="1027" y="1378">IdGenerator&lt;UUID&gt; by generator</text>
-<text class="member" x="1027" y="1402">nextUUID()</text>
+  <rect class="classBox" x="1005" y="1147" width="640" height="235" rx="8" fill="#FDF2F8" stroke="#DB2777" />
+  <text class="kind" x="1325" y="1177" text-anchor="middle">adapter class</text>
+  <text class="classTitle" x="1325" y="1213" text-anchor="middle">UuidGenerator</text>
+  <path class="divider" d="M1005 1235H1645" stroke="#BE185D" />
+  <text class="member" x="1027" y="1263">generator: Uuid.Generator = Uuid.V7</text>
+  <path class="divider" d="M1005 1293H1645" stroke="#BE185D" />
+  <text class="member" x="1027" y="1315">IdGenerator&lt;UUID&gt; by generator</text>
+<text class="member" x="1027" y="1339">nextUUID()</text>
 </g>
 <g id="KsuidGeneratorContract">
-  <rect class="classBox" x="1865" y="540" width="640" height="190" rx="8" fill="#FFF7ED" stroke="#EA580C" />
-  <text class="kind" x="2185" y="570" text-anchor="middle">&lt;&lt;interface&gt;&gt;</text>
-  <text class="classTitle" x="2185" y="606" text-anchor="middle">Ksuid.Generator</text>
-  <path class="divider" d="M1865 628H2505" stroke="#C2410C" />
+  <rect class="classBox" x="1865" y="477" width="640" height="190" rx="8" fill="#FFF7ED" stroke="#EA580C" />
+  <text class="kind" x="2185" y="507" text-anchor="middle">&lt;&lt;interface&gt;&gt;</text>
+  <text class="classTitle" x="2185" y="543" text-anchor="middle">Ksuid.Generator</text>
+  <path class="divider" d="M1865 565H2505" stroke="#C2410C" />
 
-  <path class="divider" d="M1865 636H2505" stroke="#C2410C" />
-  <text class="member" x="1887" y="658">IdGenerator&lt;String&gt;</text>
-<text class="member" x="1887" y="682">generate(Instant/Date/LocalDateTime)</text>
-<text class="member" x="1887" y="706">prettyString(ksuid)</text>
+  <path class="divider" d="M1865 573H2505" stroke="#C2410C" />
+  <text class="member" x="1887" y="595">IdGenerator&lt;String&gt;</text>
+<text class="member" x="1887" y="619">generate(Instant/Date/LocalDateTime)</text>
+<text class="member" x="1887" y="643">prettyString(ksuid)</text>
 </g>
 <g id="Ksuid">
-  <rect class="classBox" x="1865" y="835" width="640" height="250" rx="8" fill="#FFF7ED" stroke="#EA580C" />
-  <text class="kind" x="2185" y="865" text-anchor="middle">object</text>
-  <text class="classTitle" x="2185" y="901" text-anchor="middle">Ksuid</text>
-  <path class="divider" d="M1865 923H2505" stroke="#C2410C" />
-  <text class="member" x="1887" y="951">Seconds: 4 timestamp + 16 payload</text>
-<text class="member" x="1887" y="975">Millis: 8 timestamp + 12 payload</text>
-  <path class="divider" d="M1865 1005H2505" stroke="#C2410C" />
-  <text class="member" x="1887" y="1027">27-char Base62 string</text>
-<text class="member" x="1887" y="1051">legacy methods delegate to Seconds</text>
+  <rect class="classBox" x="1865" y="772" width="640" height="250" rx="8" fill="#FFF7ED" stroke="#EA580C" />
+  <text class="kind" x="2185" y="802" text-anchor="middle">object</text>
+  <text class="classTitle" x="2185" y="838" text-anchor="middle">Ksuid</text>
+  <path class="divider" d="M1865 860H2505" stroke="#C2410C" />
+  <text class="member" x="1887" y="888">Seconds: 4 timestamp + 16 payload</text>
+<text class="member" x="1887" y="912">Millis: 8 timestamp + 12 payload</text>
+  <path class="divider" d="M1865 942H2505" stroke="#C2410C" />
+  <text class="member" x="1887" y="964">27-char Base62 string</text>
+<text class="member" x="1887" y="988">legacy methods delegate to Seconds</text>
 </g>
 <g id="KsuidGenerator">
-  <rect class="classBox" x="1865" y="1185" width="640" height="235" rx="8" fill="#FDF2F8" stroke="#DB2777" />
-  <text class="kind" x="2185" y="1215" text-anchor="middle">adapter class</text>
-  <text class="classTitle" x="2185" y="1251" text-anchor="middle">KsuidGenerator</text>
-  <path class="divider" d="M1865 1273H2505" stroke="#BE185D" />
-  <text class="member" x="1887" y="1301">generator: Ksuid.Generator = Ksuid.Seconds</text>
-  <path class="divider" d="M1865 1331H2505" stroke="#BE185D" />
-  <text class="member" x="1887" y="1353">IdGenerator&lt;String&gt; by generator</text>
-<text class="member" x="1887" y="1377">generate()</text>
+  <rect class="classBox" x="1865" y="1122" width="640" height="235" rx="8" fill="#FDF2F8" stroke="#DB2777" />
+  <text class="kind" x="2185" y="1152" text-anchor="middle">adapter class</text>
+  <text class="classTitle" x="2185" y="1188" text-anchor="middle">KsuidGenerator</text>
+  <path class="divider" d="M1865 1210H2505" stroke="#BE185D" />
+  <text class="member" x="1887" y="1238">generator: Ksuid.Generator = Ksuid.Seconds</text>
+  <path class="divider" d="M1865 1268H2505" stroke="#BE185D" />
+  <text class="member" x="1887" y="1290">IdGenerator&lt;String&gt; by generator</text>
+<text class="member" x="1887" y="1314">generate()</text>
 </g>
 <g id="ULID">
-  <rect class="classBox" x="1865" y="1530" width="640" height="260" rx="8" fill="#F0FDFA" stroke="#0D9488" />
-  <text class="kind" x="2185" y="1560" text-anchor="middle">&lt;&lt;interface&gt;&gt;</text>
-  <text class="classTitle" x="2185" y="1596" text-anchor="middle">ULID</text>
-  <path class="divider" d="M1865 1618H2505" stroke="#0F766E" />
-  <text class="member" x="1887" y="1646">Factory, Monotonic</text>
-<text class="member" x="1887" y="1670">StatefulMonotonic: Factory</text>
-  <path class="divider" d="M1865 1700H2505" stroke="#0F766E" />
-  <text class="member" x="1887" y="1722">nextULID(), randomULID()</text>
-<text class="member" x="1887" y="1746">parseULID(), fromByteArray()</text>
+  <rect class="classBox" x="1865" y="1467" width="640" height="260" rx="8" fill="#F0FDFA" stroke="#0D9488" />
+  <text class="kind" x="2185" y="1497" text-anchor="middle">&lt;&lt;interface&gt;&gt;</text>
+  <text class="classTitle" x="2185" y="1533" text-anchor="middle">ULID</text>
+  <path class="divider" d="M1865 1555H2505" stroke="#0F766E" />
+  <text class="member" x="1887" y="1583">Factory, Monotonic</text>
+<text class="member" x="1887" y="1607">StatefulMonotonic: Factory</text>
+  <path class="divider" d="M1865 1637H2505" stroke="#0F766E" />
+  <text class="member" x="1887" y="1659">nextULID(), randomULID()</text>
+<text class="member" x="1887" y="1683">parseULID(), fromByteArray()</text>
 </g>
 <g id="UlidGenerator">
-  <rect class="classBox" x="1865" y="1920" width="640" height="235" rx="8" fill="#F0FDF4" stroke="#16A34A" />
+  <rect class="classBox" x="1865" y="1857" width="640" height="235" rx="8" fill="#F0FDF4" stroke="#16A34A" />
   <text class="kind" x="2185" y="1950" text-anchor="middle">class</text>
   <text class="classTitle" x="2185" y="1986" text-anchor="middle">UlidGenerator</text>
   <path class="divider" d="M1865 2008H2505" stroke="#15803D" />
@@ -247,37 +247,37 @@
 <text class="member" x="1887" y="2112">nextULID(), nextId()</text>
 </g>
 <g id="Flake">
-  <rect class="classBox" x="2745" y="540" width="650" height="315" rx="8" fill="#EFF6FF" stroke="#2563EB" />
-  <text class="kind" x="3070" y="570" text-anchor="middle">class</text>
-  <text class="classTitle" x="3070" y="606" text-anchor="middle">Flake</text>
-  <path class="divider" d="M2745 628H3395" stroke="#1D4ED8" />
-  <text class="member" x="2767" y="656">nodeId: ByteArray</text>
-<text class="member" x="2767" y="680">clock: Clock</text>
-<text class="member" x="2767" y="704">sequence: atomic Int</text>
-  <path class="divider" d="M2745 734H3395" stroke="#1D4ED8" />
-  <text class="member" x="2767" y="756">IdGenerator&lt;ByteArray&gt;</text>
-<text class="member" x="2767" y="780">nextId(): 16 bytes</text>
-<text class="member" x="2767" y="804">nextIdAsString(): Base62</text>
+  <rect class="classBox" x="2745" y="477" width="650" height="315" rx="8" fill="#EFF6FF" stroke="#2563EB" />
+  <text class="kind" x="3070" y="507" text-anchor="middle">class</text>
+  <text class="classTitle" x="3070" y="543" text-anchor="middle">Flake</text>
+  <path class="divider" d="M2745 565H3395" stroke="#1D4ED8" />
+  <text class="member" x="2767" y="593">nodeId: ByteArray</text>
+<text class="member" x="2767" y="617">clock: Clock</text>
+<text class="member" x="2767" y="641">sequence: atomic Int</text>
+  <path class="divider" d="M2745 671H3395" stroke="#1D4ED8" />
+  <text class="member" x="2767" y="693">IdGenerator&lt;ByteArray&gt;</text>
+<text class="member" x="2767" y="717">nextId(): 16 bytes</text>
+<text class="member" x="2767" y="741">nextIdAsString(): Base62</text>
 </g>
 <g id="NodeIdentifier">
-  <rect class="classBox" x="2745" y="990" width="650" height="180" rx="8" fill="#F0FDF4" stroke="#16A34A" />
-  <text class="kind" x="3070" y="1020" text-anchor="middle">&lt;&lt;interface&gt;&gt;</text>
-  <text class="classTitle" x="3070" y="1056" text-anchor="middle">NodeIdentifier</text>
-  <path class="divider" d="M2745 1078H3395" stroke="#15803D" />
+  <rect class="classBox" x="2745" y="927" width="650" height="180" rx="8" fill="#F0FDF4" stroke="#16A34A" />
+  <text class="kind" x="3070" y="957" text-anchor="middle">&lt;&lt;interface&gt;&gt;</text>
+  <text class="classTitle" x="3070" y="993" text-anchor="middle">NodeIdentifier</text>
+  <path class="divider" d="M2745 1015H3395" stroke="#15803D" />
 
-  <path class="divider" d="M2745 1086H3395" stroke="#15803D" />
-  <text class="member" x="2767" y="1108">MacAddressNodeIdentifier provides default node id</text>
+  <path class="divider" d="M2745 1023H3395" stroke="#15803D" />
+  <text class="member" x="2767" y="1045">MacAddressNodeIdentifier provides default node id</text>
 </g>
 <g id="Hashids">
-  <rect class="classBox" x="2745" y="1340" width="650" height="320" rx="8" fill="#F8FAFC" stroke="#64748B" />
-  <text class="kind" x="3070" y="1370" text-anchor="middle">utility class</text>
-  <text class="classTitle" x="3070" y="1406" text-anchor="middle">Hashids</text>
-  <path class="divider" d="M2745 1428H3395" stroke="#475569" />
-  <text class="member" x="2767" y="1456">salt, minHashLength</text>
-<text class="member" x="2767" y="1480">alphabet, separators, guards</text>
-  <path class="divider" d="M2745 1510H3395" stroke="#475569" />
-  <text class="member" x="2767" y="1532">encode(Long...): String</text>
-<text class="member" x="2767" y="1556">decode(String): LongArray</text>
-<text class="member" x="2767" y="1580">encodeUUID(), decodeUUID()</text>
+  <rect class="classBox" x="2745" y="1277" width="650" height="320" rx="8" fill="#F8FAFC" stroke="#64748B" />
+  <text class="kind" x="3070" y="1307" text-anchor="middle">utility class</text>
+  <text class="classTitle" x="3070" y="1343" text-anchor="middle">Hashids</text>
+  <path class="divider" d="M2745 1365H3395" stroke="#475569" />
+  <text class="member" x="2767" y="1393">salt, minHashLength</text>
+<text class="member" x="2767" y="1417">alphabet, separators, guards</text>
+  <path class="divider" d="M2745 1447H3395" stroke="#475569" />
+  <text class="member" x="2767" y="1469">encode(Long...): String</text>
+<text class="member" x="2767" y="1493">decode(String): LongArray</text>
+<text class="member" x="2767" y="1517">encodeUUID(), decodeUUID()</text>
 </g>
 </svg>
