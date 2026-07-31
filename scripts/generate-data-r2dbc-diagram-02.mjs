@@ -142,7 +142,7 @@ const edges = [
     {cls: "assoc", d: "M 1120 195 H 1420", color: c.green, marker: "openGreen", label: ["entityTemplate", 1270, 183]},
     {
         cls: "assoc",
-        d: "M 1120 285 H 1250 V 351 H 1420",
+        d: "M 1120 285 H 1230 Q 1250 285 1250 305 V 331 Q 1250 351 1270 351 H 1420",
         color: c.purple,
         marker: "openPurple",
         label: ["mappingConverter", 1268, 339]
@@ -150,7 +150,7 @@ const edges = [
     {cls: "uses", d: "M 435 568 H 555", color: c.pink, marker: "openPink", label: ["filters", 495, 556]},
     {cls: "uses", d: "M 265 658 V 770", color: c.orange, marker: "openOrange", label: ["builds", 302, 718]},
     {cls: "extends", d: "M 630 765 V 600", color: c.pink, marker: "hollowPink", label: null},
-    {cls: "extends", d: "M 910 765 V 682 H 710 V 600", color: c.pink, marker: "hollowPink", label: null},
+    {cls: "extends", d: "M 910 765 V 702 Q 910 682 890 682 H 730 Q 710 682 710 662 V 600", color: c.pink, marker: "hollowPink", label: null},
     {cls: "realize", d: "M 1228 765 V 646", color: c.purple, marker: "hollowPurple", label: null},
     {cls: "uses", d: "M 1395 842 H 1435", color: c.blue, marker: "openBlue", label: ["fetch()", 1415, 830]},
 ];
@@ -168,7 +168,7 @@ function box(id) {
   <text class="stereo" x="${b.x + b.w / 2}" y="${b.y + 28}" text-anchor="middle">${esc(b.stereo)}</text>
   <text class="cardTitle" x="${b.x + b.w / 2}" y="${b.y + 58}" text-anchor="middle">${esc(b.title)}</text>
   <line class="divider" x1="${b.x + 24}" y1="${dividerY}" x2="${b.x + b.w - 24}" y2="${dividerY}"/>
-  ${b.members.map((member, index) => `<text class="member" x="${b.x + 28}" y="${memberStart + index * 22}">${esc(member)}</text>`).join("")}
+  ${b.members.map((member, index) => `<text class="member" x="${b.x + 36}" y="${memberStart + index * 22}">${esc(member)}</text>`).join("")}
 </g>`;
 }
 
@@ -212,10 +212,10 @@ ${edges.map((e) => `  <path class="${e.cls}" d="${e.d}" stroke="${e.color}" mark
 <g>${edges.map((e) => label(e.label)).join("")}</g>
 ${Object.keys(boxes).map(box).join("")}
 <g transform="translate(90 990)">
-  <path class="assoc" d="M 0 0 H 58" stroke="${c.blue}" marker-end="url(#openBlue)"/><text class="legend" x="72" y="5">has/reference</text>
-  <path class="uses" d="M 214 0 H 272" stroke="${c.purple}" marker-end="url(#openPurple)"/><text class="legend" x="286" y="5">uses / builds</text>
-  <path class="realize" d="M 455 0 H 513" stroke="${c.purple}" marker-end="url(#hollowPurple)"/><text class="legend" x="528" y="5">implements</text>
-  <path class="extends" d="M 675 0 H 733" stroke="${c.pink}" marker-end="url(#hollowPink)"/><text class="legend" x="748" y="5">extends</text>
+  <line class="assoc" x1="0" y1="0" x2="58" y2="0" stroke="${c.blue}" marker-end="url(#openBlue)"/><text class="legend" x="72" y="5">has/reference</text>
+  <line class="uses" x1="214" y1="0" x2="272" y2="0" stroke="${c.purple}" marker-end="url(#openPurple)"/><text class="legend" x="286" y="5">uses / builds</text>
+  <line class="realize" x1="455" y1="0" x2="513" y2="0" stroke="${c.purple}" marker-end="url(#hollowPurple)"/><text class="legend" x="528" y="5">implements</text>
+  <line class="extends" x1="675" y1="0" x2="733" y2="0" stroke="${c.pink}" marker-end="url(#hollowPink)"/><text class="legend" x="748" y="5">extends</text>
 </g>
 </svg>`;
 

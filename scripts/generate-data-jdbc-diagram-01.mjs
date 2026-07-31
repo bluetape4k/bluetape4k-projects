@@ -5,6 +5,7 @@ import {existsSync, readFileSync, writeFileSync} from "node:fs";
 const out = "docs/images/readme-diagrams/data-jdbc-diagram-01";
 const W = 1680;
 const H = 860;
+const intent = "Explain how SQL intent and JDBC receivers enter bluetape4k helper paths for transactions, prepared execution, row mapping, and update counts.";
 const c = {
     ink: "#0F172A",
     muted: "#475569",
@@ -79,7 +80,7 @@ const cards = {
     },
     receiver: {
         x: 125,
-        y: 535,
+        y: 585,
         w: 320,
         h: 112,
         fill: "#F0FDF4",
@@ -119,7 +120,7 @@ const cards = {
     },
     result: {
         x: 1225,
-        y: 300,
+        y: 272,
         w: 330,
         h: 112,
         fill: "#FDF2F8",
@@ -129,7 +130,7 @@ const cards = {
     },
     mapper: {
         x: 1225,
-        y: 480,
+        y: 452,
         w: 330,
         h: 112,
         fill: "#F7FEE7",
@@ -139,7 +140,7 @@ const cards = {
     },
     counts: {
         x: 1225,
-        y: 640,
+        y: 612,
         w: 330,
         h: 112,
         fill: "#F9FAFB",
@@ -150,12 +151,12 @@ const cards = {
 };
 
 const flows = [
-    [c.blue, "M445 356 L535 356 L535 516 L625 516", "SQL", 535, 337],
-    [c.green, "M445 591 L535 591 L535 516 L625 516", "receiver", 536, 610],
-    [c.purple, "M835 392 L835 455", "transaction boundary", 835, 425, true],
-    [c.teal, "M1045 516 L1140 516 L1140 356 L1225 356", "query result", 1138, 496],
-    [c.pink, "M1390 412 L1390 480", "typed rows", 1390, 445],
-    [c.orange, "M1045 696 L1225 696", "batch/update", 1138, 676],
+    [c.blue, "M445 356 L543 356 Q555 356 555 368 L555 488 Q555 500 567 500 L625 500", "SQL", 510, 337],
+    [c.green, "M445 641 L523 641 Q535 641 535 629 L535 552 Q535 540 547 540 L625 540", "receiver", 490, 622],
+    [c.purple, "M835 392 L835 455", "transaction boundary", 945, 425, true],
+    [c.teal, "M1045 516 L1128 516 Q1140 516 1140 504 L1140 340 Q1140 328 1152 328 L1225 328", "query", 1090, 478],
+    [c.pink, "M1390 384 L1390 452", "typed rows", 1470, 417],
+    [c.orange, "M1045 696 L1132 696 Q1140 696 1140 688 L1140 676 Q1140 668 1148 668 L1225 668", "update", 1090, 645],
 ];
 
 function esc(value) {
@@ -195,7 +196,7 @@ function codeLine(text, centerX, y) {
     const width = parts.reduce((sum, part) => sum + tokenWidth(part.token), 0);
     let x = centerX - width / 2;
     return `<g>${parts.map((part) => {
-        const item = `<text class="code" x="${x}" y="${y}" fill="${part.color}">${esc(part.token)}</text>`;
+        const item = `<text class="code" x="${x}" y="${y}"><tspan class="syntax-token" fill="${part.color}">${esc(part.token)}</tspan></text>`;
         x += tokenWidth(part.token);
         return item;
     }).join("")}</g>`;
@@ -219,8 +220,9 @@ function label(text, x, y) {
 }
 
 const defs = [...new Set(flows.map((flow) => flow[0]))].map(marker).join("");
-const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" role="img" aria-label="JDBC Extension API Overview">
-<defs><filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="6" stdDeviation="5" flood-color="#0F172A" flood-opacity="0.10"/></filter>${defs}<style>svg{font-family:"Architects Daughter","Comic Mono","Comic Sans MS",ui-sans-serif,system-ui,sans-serif}.canvas{fill:${c.canvas}}.frame{fill:${c.frame};stroke:${c.line};stroke-width:1.6;filter:url(#shadow)}.title{font-family:"Architects Daughter";font-size:44px;fill:${c.ink}}.subtitle{font-family:"Comic Mono";font-size:15px;fill:${c.muted}}.layer{fill:#F8FAFC;stroke:${c.line};stroke-width:1.5}.layerBadge{fill:#FFFFFF;stroke:${c.line};stroke-width:1.3}.layerTitle{font-family:"Architects Daughter";font-size:24px;fill:${c.ink}}.layerNote{font-family:"Comic Mono";font-size:12.5px;fill:#64748B}.card{filter:url(#shadow);stroke-width:1.9}.cardTitle{font-family:"Architects Daughter";font-size:25px;fill:${c.ink}}.detail{font-family:"Comic Mono";font-size:13px;fill:${c.muted}}.code{font-family:"Comic Mono";font-size:12.6px;font-weight:700}.edge{fill:none;stroke-width:3.6;stroke-linecap:round;stroke-linejoin:round}.dashed{stroke-dasharray:8 7}.edgeLabel{font-family:"Comic Mono";font-size:12.2px;fill:${c.muted}}</style></defs>
+const sourceEvidence = sources.join("; ");
+const svg = `<svg data-intent="${esc(intent)}" data-evidence="${esc(sourceEvidence)}" data-source-read="${esc(sourceEvidence)}" xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" role="img" aria-label="JDBC Extension API Overview">
+<defs><filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="6" stdDeviation="5" flood-color="#0F172A" flood-opacity="0.10"/></filter>${defs}<style>svg{font-family:"Architects Daughter","Comic Mono","Comic Sans MS",ui-sans-serif,system-ui,sans-serif}.canvas{fill:${c.canvas}}.frame{fill:${c.frame};stroke:${c.line};stroke-width:1.6;filter:url(#shadow)}.title{font-family:"Architects Daughter";font-size:44px;fill:${c.ink}}.subtitle{font-family:"Comic Mono";font-size:15px;fill:${c.muted}}.layer{fill:#F8FAFC;stroke:${c.line};stroke-width:1.5}.layerBadge{fill:#FFFFFF;stroke:${c.line};stroke-width:1.3}.layerTitle{font-family:"Architects Daughter";font-size:24px;fill:${c.ink}}.layerNote{font-family:"Comic Mono";font-size:12.5px;fill:#64748B}.card{filter:url(#shadow);stroke-width:1.9}.cardTitle{font-family:"Architects Daughter";font-size:25px;fill:${c.ink}}.detail{font-family:"Comic Mono";font-size:13px;fill:${c.muted}}.code{font-family:"Comic Mono";font-size:12.6px;font-weight:700}.syntax-token{fill:${c.ink}}.edge{fill:none;stroke-width:3.6;stroke-linecap:round;stroke-linejoin:round}.dashed{stroke-dasharray:8 7}.edgeLabel{font-family:"Comic Mono";font-size:12.2px;fill:${c.muted}}</style></defs>
 <rect class="canvas" width="${W}" height="${H}"/>
 <rect class="frame" x="34" y="30" width="${W - 68}" height="${H - 66}" rx="10"/>
 <text class="title" x="72" y="84">JDBC Extension API Overview</text>
