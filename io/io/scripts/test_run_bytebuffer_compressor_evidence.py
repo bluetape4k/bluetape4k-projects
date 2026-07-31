@@ -294,6 +294,26 @@ class RunnerContractTest(unittest.TestCase):
         self.assertIsNotNone(evidence.RUN_ID_PATTERN.fullmatch(evidence.run_id()))
         self.assertIsNone(evidence.RUN_ID_PATTERN.fullmatch("run-latest"))
 
+    def test_pending_staging_requires_an_explicit_final_run_id(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = pathlib.Path(temporary)
+            identifier = "run-20260721T120000Z-00000001"
+            staging = write_run(root, identifier).rename(root / f"{identifier}.pending")
+            argv_path = staging / "argv.json"
+            argv = json.loads(argv_path.read_text())
+            argv["argv"][argv["argv"].index("-rff") + 1] = str(staging / "jmh.json")
+            argv_path.write_text(json.dumps(argv))
+
+            with self.assertRaisesRegex(ValueError, "run ID mismatch"):
+                evidence.validate_run_directory(staging, require_matrix=True)
+            evidence.validate_run_directory(staging, require_matrix=True, expected_run_id=identifier)
+            with self.assertRaisesRegex(ValueError, "staging run ID mismatch"):
+                evidence.validate_run_directory(
+                    staging,
+                    require_matrix=True,
+                    expected_run_id="run-20260721T120000Z-00000002",
+                )
+
     def test_source_inspection_covers_every_codec_operation_and_storage(self):
         rows = evidence.source_inspection(evidence.repo_root())
         self.assertEqual(32, len(rows))

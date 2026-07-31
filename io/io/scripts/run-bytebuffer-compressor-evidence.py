@@ -543,7 +543,9 @@ def publish(staging: pathlib.Path, final_root: pathlib.Path, identifier: str) ->
         fcntl.flock(fd, fcntl.LOCK_EX)
         if final.exists() or final.is_symlink():
             raise FileExistsError(final)
-        validate_run_directory(staging, require_matrix=True)
+        if staging.name != f"{identifier}.pending":
+            raise ValueError("staging run ID mismatch")
+        validate_run_directory(staging, require_matrix=True, expected_run_id=identifier)
         rename_noreplace(staging, final)
         parent_fd = os.open(final_root, os.O_RDONLY | os.O_DIRECTORY)
         try:
@@ -664,12 +666,23 @@ def validate_regular_tree(path: pathlib.Path) -> None:
             raise ValueError(f"run artifact must be a regular file: {child}")
 
 
-def validate_run_directory(path: pathlib.Path, *, require_matrix: bool) -> tuple[dict, dict]:
+def validate_run_directory(
+    path: pathlib.Path,
+    *,
+    require_matrix: bool,
+    expected_run_id: str | None = None,
+) -> tuple[dict, dict]:
     validate_regular_tree(path)
     metadata = json.loads((path / "metadata.json").read_text(encoding="utf-8"))
     if metadata.get("stateScope") != "Thread":
         raise ValueError("benchmark state must be Scope.Thread")
-    if metadata.get("runId") != path.name or not RUN_ID_PATTERN.fullmatch(path.name):
+    if expected_run_id is None:
+        identifier = path.name
+    elif path.name == f"{expected_run_id}.pending":
+        identifier = expected_run_id
+    else:
+        raise ValueError("staging run ID mismatch")
+    if metadata.get("runId") != identifier or not RUN_ID_PATTERN.fullmatch(identifier):
         raise ValueError("run ID mismatch")
     required_identity = (
         "commit", "tree", "jarSha256", "jmhVersion", "jdk", "jvm", "vmVersion", "jvmExecutable",
