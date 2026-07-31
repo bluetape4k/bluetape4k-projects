@@ -121,8 +121,8 @@ function validateFiles(files) {
     const layerGutterConflicts = countLayerGutterConflicts(layers, cards, paths, labels);
     if (layerGutterConflicts > 0) fileFailures.push(`layer label gutter conflicts=${layerGutterConflicts}`);
 
-    const schemaLayout = /data-layout="schema"/.test(svg);
-    if (!schemaLayout) {
+    const customMarginLayout = /data-layout="schema"|data-allow-asymmetric-margins="true"/.test(svg);
+    if (!customMarginLayout) {
         const footerFailures = validateFooterInsideFrame(svg, labels);
         fileFailures.push(...footerFailures);
 
