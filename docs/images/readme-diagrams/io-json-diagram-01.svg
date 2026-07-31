@@ -62,69 +62,69 @@
     <text x="800" y="280" text-anchor="middle" class="stereo">&lt;&lt;interface&gt;&gt;</text>
     <text x="800" y="311" text-anchor="middle" class="class-title">JsonSerializer</text>
     <line x1="585" y1="334" x2="1015" y2="334" class="sep" />
-    <text x="613" y="362" class="member">+ serialize(graph: Any?): ByteArray</text>
-    <text x="613" y="386" class="member">+ deserialize(bytes, clazz): T?</text>
+    <text x="619" y="362" class="member">+ serialize(graph: Any?): ByteArray</text>
+    <text x="619" y="386" class="member">+ deserialize(bytes, clazz): T?</text>
     <line x1="585" y1="406" x2="1015" y2="406" class="sep" />
-    <text x="613" y="434" class="member">default string helpers use UTF-8 bytes</text>
-    <text x="613" y="458" class="member">reified extensions pass T::class.java</text>
+    <text x="619" y="434" class="member">default string helpers use UTF-8 bytes</text>
+    <text x="619" y="458" class="member">reified extensions pass T::class.java</text>
   </g>
 
   <g id="stringHelpers">
     <rect x="120" y="300" width="360" height="132" rx="7" class="class-card helper" />
     <text x="300" y="332" text-anchor="middle" class="class-title">String facade</text>
     <line x1="120" y1="354" x2="480" y2="354" class="sep" />
-    <text x="146" y="382" class="member">serializeAsString(null) returns empty</text>
-    <text x="146" y="406" class="member">text methods delegate through UTF-8</text>
+    <text x="154" y="382" class="member">serializeAsString(null) returns empty</text>
+    <text x="154" y="406" class="member">text methods delegate through UTF-8</text>
   </g>
 
   <g id="reifiedHelpers">
     <rect x="1120" y="300" width="360" height="132" rx="7" class="class-card helper" />
     <text x="1300" y="332" text-anchor="middle" class="class-title">Reified helpers</text>
     <line x1="1120" y1="354" x2="1480" y2="354" class="sep" />
-    <text x="1146" y="382" class="member">deserialize&lt;T&gt;(bytes)</text>
-    <text x="1146" y="406" class="member">passes T::class.java</text>
+    <text x="1154" y="382" class="member">deserialize&lt;T&gt;(bytes)</text>
+    <text x="1154" y="406" class="member">passes T::class.java</text>
   </g>
 
   <g id="exception">
     <rect x="120" y="505" width="360" height="86" rx="7" class="class-card exception" />
     <text x="300" y="536" text-anchor="middle" class="class-title-small">JsonSerializationException</text>
     <line x1="120" y1="558" x2="480" y2="558" class="sep" />
-    <text x="146" y="582" class="member">RuntimeException + Serializable</text>
+    <text x="154" y="582" class="member">RuntimeException + Serializable</text>
   </g>
 
   <g id="jackson2">
     <rect x="150" y="795" width="360" height="88" rx="7" class="class-card impl-jackson2" />
     <text x="330" y="827" text-anchor="middle" class="class-title">JacksonSerializer</text>
     <line x1="150" y1="849" x2="510" y2="849" class="sep" />
-    <text x="176" y="873" class="member">bluetape4k-jackson2 ObjectMapper</text>
+    <text x="184" y="873" class="member">bluetape4k-jackson2 ObjectMapper</text>
   </g>
 
   <g id="jackson3">
     <rect x="620" y="795" width="360" height="88" rx="7" class="class-card impl-jackson3" />
     <text x="800" y="827" text-anchor="middle" class="class-title">JacksonSerializer</text>
     <line x1="620" y1="849" x2="980" y2="849" class="sep" />
-    <text x="646" y="873" class="member">bluetape4k-jackson3 ObjectMapper</text>
+    <text x="654" y="873" class="member">bluetape4k-jackson3 ObjectMapper</text>
   </g>
 
   <g id="fastjson2">
     <rect x="1090" y="795" width="360" height="88" rx="7" class="class-card impl-fastjson" />
     <text x="1270" y="827" text-anchor="middle" class="class-title">FastjsonSerializer</text>
     <line x1="1090" y1="849" x2="1450" y2="849" class="sep" />
-    <text x="1116" y="873" class="member">JSONB bytes + JSON text override</text>
+    <text x="1124" y="873" class="member">JSONB bytes + JSON text override</text>
   </g>
 
-  <path d="M 585 372 H 480" class="uses-blue" style="marker-end:none" />
+  <path d="M 585 372 H 480" class="uses-blue" data-connector="true" data-from="jsonSerializer" data-to="stringHelpers" style="marker-end:none" />
 <polyline points="492,366 480,372 492,378" fill="none" stroke="#4079a8" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important" data-direct-solid-head="true"/>
-  <path d="M 1015 372 H 1120" class="uses-blue" style="marker-end:none" />
+  <path d="M 1015 372 H 1120" class="uses-blue" data-connector="true" data-from="jsonSerializer" data-to="reifiedHelpers" style="marker-end:none" />
 <polyline points="1108,378 1120,372 1108,366" fill="none" stroke="#4079a8" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important" data-direct-solid-head="true"/>
 
-<path d="M 330 795 L 330 781 Q 330 775 336 775 L 800 775" class="implements-bus" />
-<path d="M 800 795 V 775" class="implements-bus" />
-<path d="M 1270 795 L 1270 781 Q 1270 775 1264 775 L 800 775" class="implements-bus" />
-<path d="M 800 775 V 486" class="implements" />
+<path d="M 330 795 L 330 781 Q 330 775 336 775 L 800 775" class="implements-bus" data-connector="true" data-from="jackson2" data-to="jsonSerializer" />
+<path d="M 800 795 V 775" class="implements-bus" data-connector="true" data-from="jackson3" data-to="jsonSerializer" />
+<path d="M 1270 795 L 1270 781 Q 1270 775 1264 775 L 800 775" class="implements-bus" data-connector="true" data-from="fastjson2" data-to="jsonSerializer" />
+<path d="M 800 775 V 486" class="implements" data-connector="true" data-from="serializerImplementations" data-to="jsonSerializer" />
   <path d="M 790 486 L 800 470 L 810 486 Z" fill="#ffffff" stroke="#263238" stroke-width="2.1" stroke-linejoin="round" />
 
-  <path d="M 585 434 L 534 434 Q 520 434 520 448 L 520 534 Q 520 548 506 548 L 480 548" class="uses-amber" stroke-linecap="round" stroke-linejoin="round" style="marker-end:none" />
+  <path d="M 585 434 L 534 434 Q 520 434 520 448 L 520 534 Q 520 548 506 548 L 480 548" class="uses-amber" data-connector="true" data-from="jsonSerializer" data-to="exception" stroke-linecap="round" stroke-linejoin="round" style="marker-end:none" />
 <polyline points="492,542 480,548 492,554" fill="none" stroke="#b98220" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important" data-direct-solid-head="true"/>
 
   <rect x="90" y="930" width="1420" height="34" rx="12" fill="#ffffff" stroke="#c7d3d8" />

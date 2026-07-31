@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1640" height="1040" viewBox="0 0 1640 1040" role="img" aria-label="Jackson 2.x vs 3.x Module Comparison">
+<svg data-intent="Compare the source-backed Jackson 2.x and 3.x module surfaces so readers can identify package migration, mapper configuration, removed default typing, format dependencies, and stable reader policies." data-evidence="io/jackson3/README.md; io/jackson3/src/main/kotlin/io/bluetape4k/jackson3/Jackson.kt; io/jackson3/build.gradle.kts" data-source-read="io/jackson3/README.md; io/jackson3/src/main/kotlin/io/bluetape4k/jackson3/Jackson.kt; io/jackson3/src/main/kotlin/io/bluetape4k/jackson3/JacksonSerializer.kt" xmlns="http://www.w3.org/2000/svg" width="1640" height="1040" viewBox="0 0 1640 1040" role="img" aria-label="Jackson 2.x vs 3.x Module Comparison">
   <defs>
     <marker id="arrow-blue" markerWidth="14" markerHeight="14" viewBox="0 0 10 10" refX="9" refY="5" orient="auto" markerUnits="userSpaceOnUse">
       <path d="M 0 0 L 10 5 L 0 10 Z" fill="#2563EB" stroke-dasharray="none" style="stroke-dasharray:none"/>
@@ -57,69 +57,79 @@
   <text class="panelTitle" x="1152" y="200">Usage boundary</text>
   <text class="panelNote" x="1152" y="228">What application code must choose explicitly.</text>
 
-  <g>
+  <g id="jackson2-imports">
     <rect class="card blue" x="104" y="276" width="372" height="104" rx="8"/>
     <text class="cardTitle" x="290" y="310" text-anchor="middle">Package imports</text>
-    <text class="cardText" x="132" y="342">com.fasterxml.jackson.databind</text>
-    <text class="cardText" x="132" y="366">Jackson 2 module SPI</text>
+    <text class="cardText" x="140" y="342">com.fasterxml.jackson.databind</text>
+    <text class="cardText" x="140" y="366">Jackson 2 module SPI</text>
+  </g>
 
+  <g id="jackson3-imports">
     <rect class="card blue" x="634" y="276" width="372" height="104" rx="8"/>
     <text class="cardTitle" x="820" y="310" text-anchor="middle">Package imports</text>
-    <text class="cardText" x="662" y="342">tools.jackson.databind</text>
-    <text class="cardText" x="662" y="366">JacksonModule / SimpleModule</text>
-
-    <path class="lane" d="M 476 328 H 634" stroke="#2563EB" marker-end="url(#arrow-blue)"/>
-    <rect class="badge" x="522" y="300" width="66" height="28" rx="14"/>
-    <text class="small" x="555" y="319" text-anchor="middle">rename</text>
+    <text class="cardText" x="670" y="342">tools.jackson.databind</text>
+    <text class="cardText" x="670" y="366">JacksonModule / SimpleModule</text>
   </g>
 
-  <g>
+  <path class="lane" d="M 476 328 H 634" stroke="#2563EB" marker-end="url(#arrow-blue)"/>
+  <rect class="badge" x="522" y="300" width="66" height="28" rx="14"/>
+  <text class="small" x="555" y="319" text-anchor="middle">rename</text>
+
+  <g id="jackson2-mapper">
     <rect class="card green" x="104" y="430" width="372" height="116" rx="8"/>
     <text class="cardTitle" x="290" y="464" text-anchor="middle">Mapper setup</text>
-    <text class="cardText" x="132" y="496">JsonMapper.builder()</text>
-    <text class="cardText" x="132" y="520">typed mapper existed in 2.x</text>
+    <text class="cardText" x="140" y="496">JsonMapper.builder()</text>
+    <text class="cardText" x="140" y="520">typed mapper existed in 2.x</text>
+  </g>
 
+  <g id="jackson3-mapper">
     <rect class="card green" x="634" y="430" width="372" height="116" rx="8"/>
     <text class="cardTitle" x="820" y="464" text-anchor="middle">Mapper DSL</text>
-    <text class="cardText" x="662" y="496">jsonMapper { findAndAddModules() }</text>
-    <text class="cardText" x="662" y="520">Kotlin Null* defaults enabled</text>
-
-    <path class="lane" d="M 476 488 H 634" stroke="#16A34A" marker-end="url(#arrow-green)"/>
-    <rect class="badge" x="518" y="460" width="74" height="28" rx="14"/>
-    <text class="small" x="555" y="479" text-anchor="middle">rebuild</text>
+    <text class="cardText" x="670" y="496">jsonMapper { findAndAddModules() }</text>
+    <text class="cardText" x="670" y="520">Kotlin Null* defaults enabled</text>
   </g>
 
-  <g>
+  <path class="lane" d="M 476 488 H 634" stroke="#16A34A" marker-end="url(#arrow-green)"/>
+  <rect class="badge" x="518" y="460" width="74" height="28" rx="14"/>
+  <text class="small" x="555" y="479" text-anchor="middle">rebuild</text>
+
+  <g id="jackson2-typing">
     <rect class="card rose" x="104" y="602" width="372" height="112" rx="8"/>
     <text class="cardTitle" x="290" y="636" text-anchor="middle">Polymorphic typing</text>
-    <text class="cardText" x="132" y="668">activateDefaultTyping() available</text>
-    <text class="cardText" x="132" y="692">legacy typed mapper patterns</text>
-
-    <rect class="card rose" x="634" y="602" width="372" height="112" rx="8"/>
-    <text class="cardTitle" x="820" y="636" text-anchor="middle">Typed mapper removed</text>
-    <text class="cardText" x="662" y="668">no activateDefaultTyping wrapper</text>
-    <text class="cardText" x="662" y="692">use explicit type metadata</text>
-
-    <path class="lane" d="M 476 658 H 634" stroke="#EA580C" marker-end="url(#arrow-orange)"/>
-    <rect class="badge" x="520" y="630" width="70" height="28" rx="14"/>
-    <text class="small" x="555" y="649" text-anchor="middle">remove</text>
+    <text class="cardText" x="140" y="668">activateDefaultTyping() available</text>
+    <text class="cardText" x="140" y="692">legacy typed mapper patterns</text>
   </g>
 
-  <g>
+  <g id="jackson3-typing">
+    <rect class="card rose" x="634" y="602" width="372" height="112" rx="8"/>
+    <text class="cardTitle" x="820" y="636" text-anchor="middle">Typed mapper removed</text>
+    <text class="cardText" x="670" y="668">no activateDefaultTyping wrapper</text>
+    <text class="cardText" x="670" y="692">use explicit type metadata</text>
+  </g>
+
+  <path class="lane" d="M 476 658 H 634" stroke="#EA580C" marker-end="url(#arrow-orange)"/>
+  <rect class="badge" x="520" y="630" width="70" height="28" rx="14"/>
+  <text class="small" x="555" y="649" text-anchor="middle">remove</text>
+
+  <g id="migration-boundary">
     <rect class="card slate" x="1164" y="276" width="372" height="104" rx="8"/>
     <text class="cardTitle" x="1350" y="310" text-anchor="middle">Import migration</text>
-    <text class="cardText" x="1192" y="342">move mapper/core APIs to tools.*</text>
-    <text class="cardText" x="1192" y="366">annotations still use com.fasterxml</text>
+    <text class="cardText" x="1200" y="342">move mapper/core APIs to tools.*</text>
+    <text class="cardText" x="1200" y="366">annotations still use com.fasterxml</text>
+  </g>
 
+  <g id="format-boundary">
     <rect class="card orange" x="1164" y="430" width="372" height="116" rx="8"/>
     <text class="cardTitle" x="1350" y="464" text-anchor="middle">Format dependencies</text>
-    <text class="cardText" x="1192" y="496">CBOR / Ion / Smile</text>
-    <text class="cardText" x="1192" y="520">CSV / Props / TOML / YAML</text>
+    <text class="cardText" x="1200" y="496">CBOR / Ion / Smile</text>
+    <text class="cardText" x="1200" y="520">CSV / Props / TOML / YAML</text>
+  </g>
 
+  <g id="reader-boundary">
     <rect class="card green" x="1164" y="602" width="372" height="112" rx="8"/>
     <text class="cardTitle" x="1350" y="636" text-anchor="middle">Reader policy</text>
-    <text class="cardText" x="1192" y="668">readValueOrNull returns null</text>
-    <text class="cardText" x="1192" y="692">JacksonSerializer throws wrapped errors</text>
+    <text class="cardText" x="1200" y="668">readValueOrNull returns null</text>
+    <text class="cardText" x="1200" y="692">serializer wraps backend errors</text>
   </g>
 
   <path class="dependency" d="M 1006 328 H 1164" style="marker-end:none"/>
@@ -129,22 +139,26 @@
   <path class="dependency" d="M 1006 658 H 1164" style="marker-end:none"/>
 <polyline points="1152,664 1164,658 1152,652" fill="none" stroke="#475569" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important" data-direct-solid-head="true"/>
 
-  <g>
+  <g id="stable-contract">
     <rect class="card orange" x="104" y="764" width="372" height="70" rx="8"/>
-    <text class="cardTitle" x="290" y="800" text-anchor="middle">Same bluetape4k contract</text>
-    <text class="small" x="290" y="824" text-anchor="middle">JsonSerializer and extension helpers remain familiar.</text>
+    <text class="cardTitle" x="290" y="800" text-anchor="middle">Shared bluetape4k API</text>
+    <text class="small" x="290" y="824" text-anchor="middle">JsonSerializer and helpers stay familiar.</text>
+  </g>
 
+  <g id="jackson3-implementation">
     <rect class="card orange" x="634" y="764" width="372" height="70" rx="8"/>
     <text class="cardTitle" x="820" y="800" text-anchor="middle">Jackson3 implementation</text>
-    <text class="small" x="820" y="824" text-anchor="middle">Source code now imports tools.jackson.* packages.</text>
+    <text class="small" x="820" y="824" text-anchor="middle">Source imports tools.jackson.* packages.</text>
+  </g>
 
+  <g id="application-choice">
     <rect class="card orange" x="1164" y="764" width="372" height="70" rx="8"/>
     <text class="cardTitle" x="1350" y="800" text-anchor="middle">Application choice</text>
-    <text class="small" x="1350" y="824" text-anchor="middle">Adopt 3.x APIs and add only runtime formats used.</text>
-
-    <path class="lane" d="M 476 799 H 634" stroke="#EA580C" marker-end="url(#arrow-orange)"/>
-    <path class="lane" d="M 1006 799 H 1164" stroke="#EA580C" marker-end="url(#arrow-orange)"/>
+    <text class="small" x="1350" y="824" text-anchor="middle">Adopt 3.x APIs; add formats as needed.</text>
   </g>
+
+  <path class="lane" d="M 476 799 H 634" stroke="#EA580C" marker-end="url(#arrow-orange)"/>
+  <path class="lane" d="M 1006 799 H 1164" stroke="#EA580C" marker-end="url(#arrow-orange)"/>
 
   <g>
     <rect x="84" y="904" width="1472" height="62" rx="10" fill="#F8FAFC" stroke="#CBD5E1" stroke-width="2"/>

@@ -1,137 +1,104 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1700" height="1060" viewBox="0 0 1700 1060" role="img" aria-label="Compression Codec Selection Guide">
+<svg xmlns="http://www.w3.org/2000/svg" width="1700" height="1060" viewBox="0 0 1700 1060" role="img" aria-label="Compression Codec Selection Guide" data-layout="decision-flow" data-intent="Guide Avro users from workload constraints such as CPU overhead, online throughput, compatibility, and archive density to the source-backed CodecFactory constants exposed by this module." data-evidence="io/avro/README.md;io/avro/src/main/kotlin" data-source-read="io/avro/README.md;io/avro/src/main/kotlin">
   <defs>
     <filter id="softShadow" x="-8%" y="-8%" width="116%" height="116%">
       <feDropShadow dx="0" dy="6" stdDeviation="5" flood-color="#0F172A" flood-opacity="0.12"/>
     </filter>
-    <marker id="flow-blue" markerWidth="14" markerHeight="10" refX="13" refY="5" orient="auto" markerUnits="userSpaceOnUse">
-      <path d="M 0 0 L 14 5 L 0 10 Z" fill="#2563EB" stroke="#2563EB" stroke-width="1" stroke-dasharray="none" style="stroke-dasharray:none"/>
+    <marker id="flow-teal" markerWidth="14" markerHeight="14" refX="13" refY="7" orient="auto" markerUnits="userSpaceOnUse">
+      <path d="M 1 1 L 14 7 L 1 13 Z" fill="#0D9488" stroke="#0D9488" stroke-dasharray="none"/>
+    </marker>
+    <marker id="flow-blue" markerWidth="14" markerHeight="14" refX="13" refY="7" orient="auto" markerUnits="userSpaceOnUse">
+      <path d="M 1 1 L 14 7 L 1 13 Z" fill="#2563EB" stroke="#2563EB" stroke-dasharray="none"/>
+    </marker>
+    <marker id="flow-green" markerWidth="14" markerHeight="14" refX="13" refY="7" orient="auto" markerUnits="userSpaceOnUse">
+      <path d="M 1 1 L 14 7 L 1 13 Z" fill="#16A34A" stroke="#16A34A" stroke-dasharray="none"/>
+    </marker>
+    <marker id="flow-orange" markerWidth="14" markerHeight="14" refX="13" refY="7" orient="auto" markerUnits="userSpaceOnUse">
+      <path d="M 1 1 L 14 7 L 1 13 Z" fill="#EA580C" stroke="#EA580C" stroke-dasharray="none"/>
     </marker>
     <style>
       svg { font-family: "Architects Daughter", "Comic Mono", "Comic Sans MS", ui-sans-serif, system-ui, sans-serif; }
       .canvas { fill: #F8FAFC; }
-      .frame { fill: #FFFFFF; stroke: #CBD5E1; stroke-width: 1.6; filter: url(#softShadow); }
+      .frame { fill: #FFFFFF; stroke: #CBD5E1; stroke-width: 1.8; filter: url(#softShadow); }
       .title { font-family: "Architects Daughter"; font-size: 42px; fill: #0F172A; }
       .subtitle { font-family: "Comic Mono"; font-size: 16px; fill: #475569; }
-      .panel { fill: #FFFFFF; stroke: #CBD5E1; stroke-width: 1.5; }
-      .panelTitle { font-family: "Comic Mono"; font-size: 18px; fill: #334155; }
-      .card { stroke-width: 1.8; filter: url(#softShadow); }
-      .laneTitle { font-family: "Architects Daughter"; font-size: 24px; fill: #0F172A; }
-      .codec { font-family: "Architects Daughter"; font-size: 24px; fill: #0F172A; }
+      .card { stroke-width: 2.2; filter: url(#softShadow); }
+      .cardTitle { font-family: "Architects Daughter"; font-size: 24px; fill: #0F172A; }
       .detail { font-family: "Comic Mono"; font-size: 13px; fill: #475569; }
-      .small { font-family: "Comic Mono"; font-size: 12px; fill: #64748B; }
-      .axis { fill: none; stroke: #2563EB; stroke-width: 4.5; stroke-linecap: round; marker-end: url(#flow-blue); }
-      .tick { stroke: #CBD5E1; stroke-width: 1.2; }
+      .codec { font-family: "Architects Daughter"; font-size: 22px; fill: #0F172A; }
+      .flow { fill: none; stroke-width: 4.5; stroke-linecap: round; stroke-linejoin: round; }
+      .teal { stroke: #0D9488; marker-end: url(#flow-teal); }
+      .blue { stroke: #2563EB; marker-end: url(#flow-blue); }
+      .green { stroke: #16A34A; marker-end: url(#flow-green); }
+      .orange { stroke: #EA580C; marker-end: url(#flow-orange); }
+      .branch { font-family: "Comic Mono"; font-size: 13px; font-weight: 700; }
     </style>
   </defs>
 
   <rect class="canvas" width="1700" height="1060"/>
-  <rect class="frame" x="34" y="30" width="1632" height="998" rx="8"/>
-
+  <rect class="frame" x="34" y="30" width="1632" height="998" rx="12"/>
   <text class="title" x="72" y="82">Compression Codec Selection Guide</text>
-  <text class="subtitle" x="76" y="114">Choose Avro CodecFactory constants by latency, compatibility, or storage pressure.</text>
+  <text class="subtitle" x="76" y="114">Start with the workload constraint, then select the matching Avro CodecFactory constant.</text>
 
-  <g>
-    <rect class="panel" x="70" y="150" width="1560" height="555" rx="8"/>
-    <text class="panelTitle" x="96" y="182">Workload-first codec map</text>
+  <g id="lowest-overhead">
+    <rect class="card" x="100" y="220" width="300" height="150" rx="12" fill="#F0FDFA" stroke="#0D9488"/>
+    <text class="cardTitle" x="250" y="264" text-anchor="middle">Lowest overhead?</text>
+    <text class="detail" x="250" y="300" text-anchor="middle">Avoid compression CPU first</text>
+    <text class="detail" x="250" y="326" text-anchor="middle">or favor Kafka compatibility</text>
   </g>
-  <g>
-    <rect class="panel" x="70" y="755" width="1560" height="190" rx="8"/>
-    <text class="panelTitle" x="96" y="787">Factory entrypoints and supported aliases</text>
+  <g id="online-throughput">
+    <rect class="card" x="500" y="220" width="300" height="150" rx="12" fill="#EFF6FF" stroke="#2563EB"/>
+    <text class="cardTitle" x="650" y="264" text-anchor="middle">Online throughput?</text>
+    <text class="detail" x="650" y="300" text-anchor="middle">Prefer speed over ratio</text>
+    <text class="detail" x="650" y="326" text-anchor="middle">with a safe default fallback</text>
   </g>
-
-  <g transform="translate(110, 220)">
-    <rect class="card" x="0" y="0" width="330" height="405" rx="8" fill="#F0FDFA" stroke="#0D9488"/>
-    <text class="laneTitle" x="165" y="38" text-anchor="middle">Lowest overhead</text>
-    <text class="detail" x="165" y="66" text-anchor="middle">Avoid compression cost first.</text>
-    <g>
-      <rect class="card" x="32" y="102" width="266" height="95" rx="8" fill="#FFFFFF" stroke="#0D9488"/>
-      <text class="codec" x="165" y="136" text-anchor="middle">NULL_CODEC</text>
-      <text class="detail" x="165" y="162" text-anchor="middle">none / null</text>
-      <text class="small" x="165" y="183" text-anchor="middle">maximum speed, largest bytes</text>
-    </g>
-    <g>
-      <rect class="card" x="32" y="235" width="266" height="95" rx="8" fill="#EFF6FF" stroke="#2563EB"/>
-      <text class="codec" x="165" y="269" text-anchor="middle">SNAPPY_CODEC</text>
-      <text class="detail" x="165" y="295" text-anchor="middle">snappy</text>
-      <text class="small" x="165" y="316" text-anchor="middle">fast Hadoop/Kafka path</text>
-    </g>
+  <g id="compatibility">
+    <rect class="card" x="900" y="220" width="300" height="150" rx="12" fill="#F0FDF4" stroke="#16A34A"/>
+    <text class="cardTitle" x="1050" y="264" text-anchor="middle">Compatibility?</text>
+    <text class="detail" x="1050" y="300" text-anchor="middle">Choose standard deflate</text>
+    <text class="detail" x="1050" y="326" text-anchor="middle">or balanced modern Zstd</text>
+  </g>
+  <g id="archive-density">
+    <rect class="card" x="1300" y="220" width="300" height="150" rx="12" fill="#FFF7ED" stroke="#EA580C"/>
+    <text class="cardTitle" x="1450" y="264" text-anchor="middle">Archive density?</text>
+    <text class="detail" x="1450" y="300" text-anchor="middle">Trade CPU time for</text>
+    <text class="detail" x="1450" y="326" text-anchor="middle">smaller stored payloads</text>
   </g>
 
-  <g transform="translate(495, 220)">
-    <rect class="card" x="0" y="0" width="330" height="405" rx="8" fill="#EFF6FF" stroke="#2563EB"/>
-    <text class="laneTitle" x="165" y="38" text-anchor="middle">Online traffic</text>
-    <text class="detail" x="165" y="66" text-anchor="middle">Prefer throughput over ratio.</text>
-    <g>
-      <rect class="card" x="32" y="102" width="266" height="95" rx="8" fill="#FFFFFF" stroke="#2563EB"/>
-      <text class="codec" x="165" y="136" text-anchor="middle">FAST_CODEC</text>
-      <text class="detail" x="165" y="162" text-anchor="middle">zstd-fast / level -1</text>
-      <text class="small" x="165" y="183" text-anchor="middle">LZ4/Snappy-level speed</text>
-    </g>
-    <g>
-      <rect class="card" x="32" y="235" width="266" height="95" rx="8" fill="#F0FDF4" stroke="#16A34A"/>
-      <text class="codec" x="165" y="269" text-anchor="middle">DEFAULT_CODEC</text>
-      <text class="detail" x="165" y="295" text-anchor="middle">Avro default deflate</text>
-      <text class="small" x="165" y="316" text-anchor="middle">general-purpose fallback</text>
-    </g>
-  </g>
+  <path class="flow teal" data-from="lowest-overhead" data-to="speed-codecs" d="M 250 370 L 250 760"/>
+  <text class="branch" x="266" y="574" fill="#0D9488">priority</text>
+  <path class="flow blue" data-from="online-throughput" data-to="online-codecs" d="M 650 370 L 650 760"/>
+  <text class="branch" x="666" y="574" fill="#2563EB">priority</text>
+  <path class="flow green" data-from="compatibility" data-to="compatible-codecs" d="M 1050 370 L 1050 760"/>
+  <text class="branch" x="1066" y="574" fill="#16A34A">priority</text>
+  <path class="flow orange" data-from="archive-density" data-to="archive-codecs" d="M 1450 370 L 1450 760"/>
+  <text class="branch" x="1466" y="574" fill="#EA580C">priority</text>
 
-  <g transform="translate(880, 220)">
-    <rect class="card" x="0" y="0" width="330" height="405" rx="8" fill="#F0FDF4" stroke="#16A34A"/>
-    <text class="laneTitle" x="165" y="38" text-anchor="middle">Compatibility</text>
-    <text class="detail" x="165" y="66" text-anchor="middle">Standard codec choices.</text>
-    <g>
-      <rect class="card" x="32" y="102" width="266" height="95" rx="8" fill="#FFFFFF" stroke="#16A34A"/>
-      <text class="codec" x="165" y="136" text-anchor="middle">DEFLATE_CODEC</text>
-      <text class="detail" x="165" y="162" text-anchor="middle">deflate / level 6</text>
-      <text class="small" x="165" y="183" text-anchor="middle">broad Avro compatibility</text>
-    </g>
-    <g>
-      <rect class="card" x="32" y="235" width="266" height="95" rx="8" fill="#FAF5FF" stroke="#9333EA"/>
-      <text class="codec" x="165" y="269" text-anchor="middle">ZSTD_CODEC</text>
-      <text class="detail" x="165" y="295" text-anchor="middle">zstd / zstandard</text>
-      <text class="small" x="165" y="316" text-anchor="middle">balanced modern default</text>
-    </g>
+  <g id="speed-codecs">
+    <rect class="card" x="100" y="760" width="300" height="170" rx="12" fill="#F0FDFA" stroke="#0D9488"/>
+    <text class="codec" x="250" y="808" text-anchor="middle">NULL_CODEC_FACTORY</text>
+    <text class="detail" x="250" y="842" text-anchor="middle">maximum speed, no compression</text>
+    <text class="codec" x="250" y="880" text-anchor="middle">SNAPPY_CODEC_FACTORY</text>
+    <text class="detail" x="250" y="910" text-anchor="middle">fast Hadoop / Kafka path</text>
   </g>
-
-  <g transform="translate(1265, 220)">
-    <rect class="card" x="0" y="0" width="330" height="405" rx="8" fill="#FFF7ED" stroke="#EA580C"/>
-    <text class="laneTitle" x="165" y="38" text-anchor="middle">Archive storage</text>
-    <text class="detail" x="165" y="66" text-anchor="middle">Optimize for smaller files.</text>
-    <g>
-      <rect class="card" x="32" y="92" width="266" height="82" rx="8" fill="#FFFFFF" stroke="#EA580C"/>
-      <text class="codec" x="165" y="124" text-anchor="middle">ARCHIVE_CODEC</text>
-      <text class="detail" x="165" y="150" text-anchor="middle">zstd-archive / level 9</text>
-    </g>
-    <g>
-      <rect class="card" x="32" y="198" width="266" height="82" rx="8" fill="#FDF2F8" stroke="#DB2777"/>
-      <text class="codec" x="165" y="230" text-anchor="middle">BZIP2_CODEC</text>
-      <text class="detail" x="165" y="256" text-anchor="middle">bzip2, slower high ratio</text>
-    </g>
-    <g>
-      <rect class="card" x="32" y="304" width="266" height="82" rx="8" fill="#F8FAFC" stroke="#64748B"/>
-      <text class="codec" x="165" y="336" text-anchor="middle">XZ_CODEC</text>
-      <text class="detail" x="165" y="362" text-anchor="middle">xz / level 6 archive path</text>
-    </g>
+  <g id="online-codecs">
+    <rect class="card" x="500" y="760" width="300" height="170" rx="12" fill="#EFF6FF" stroke="#2563EB"/>
+    <text class="codec" x="650" y="808" text-anchor="middle">FAST_CODEC_FACTORY</text>
+    <text class="detail" x="650" y="842" text-anchor="middle">Zstd level -1</text>
+    <text class="codec" x="650" y="880" text-anchor="middle">DEFAULT_CODEC_FACTORY</text>
+    <text class="detail" x="650" y="910" text-anchor="middle">general-purpose Avro default</text>
   </g>
-
-  <path class="axis" d="M 190 675 L 1510 675"/>
-  <text class="small" x="190" y="655" text-anchor="middle">less CPU</text>
-  <text class="small" x="850" y="655" text-anchor="middle">balanced</text>
-  <text class="small" x="1510" y="655" text-anchor="middle">smaller files</text>
-
-  <g transform="translate(120, 825)">
-    <rect class="card" x="0" y="0" width="440" height="82" rx="8" fill="#EFF6FF" stroke="#2563EB"/>
-    <text class="codec" x="220" y="32" text-anchor="middle">codecFactoryOf(name)</text>
-    <text class="detail" x="220" y="58" text-anchor="middle">normalizes lowercase + trim, rejects unknown names</text>
+  <g id="compatible-codecs">
+    <rect class="card" x="900" y="760" width="300" height="170" rx="12" fill="#F0FDF4" stroke="#16A34A"/>
+    <text class="codec" x="1050" y="808" text-anchor="middle">DEFLATE_CODEC_FACTORY</text>
+    <text class="detail" x="1050" y="842" text-anchor="middle">level 6 compatibility</text>
+    <text class="codec" x="1050" y="880" text-anchor="middle">ZSTD_CODEC_FACTORY</text>
+    <text class="detail" x="1050" y="910" text-anchor="middle">balanced modern default</text>
   </g>
-  <g transform="translate(625, 825)">
-    <rect class="card" x="0" y="0" width="430" height="82" rx="8" fill="#F8FAFC" stroke="#64748B"/>
-    <text class="codec" x="215" y="32" text-anchor="middle">Serializer constructors</text>
-    <text class="detail" x="215" y="58" text-anchor="middle">DefaultAvro*Serializer(codecFactory)</text>
-  </g>
-  <g transform="translate(1120, 825)">
-    <rect class="card" x="0" y="0" width="430" height="82" rx="8" fill="#F0FDF4" stroke="#16A34A"/>
-    <text class="codec" x="215" y="32" text-anchor="middle">Reliability policy</text>
-    <text class="detail" x="215" y="58" text-anchor="middle">deserialize failures return null or emptyList()</text>
+  <g id="archive-codecs">
+    <rect class="card" x="1300" y="760" width="300" height="170" rx="12" fill="#FFF7ED" stroke="#EA580C"/>
+    <text class="codec" x="1450" y="804" text-anchor="middle">ARCHIVE_CODEC_FACTORY</text>
+    <text class="detail" x="1450" y="836" text-anchor="middle">Zstd level 9</text>
+    <text class="codec" x="1450" y="872" text-anchor="middle">BZIP2 / XZ</text>
+    <text class="detail" x="1450" y="904" text-anchor="middle">slower, storage-oriented codecs</text>
   </g>
 </svg>
