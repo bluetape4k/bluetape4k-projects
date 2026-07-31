@@ -100,6 +100,27 @@ native 연산을 실행해 원본 source/target limit을 보존하며, singleton
 호출 간 mutable codec state가 없음을 고정한다. README의 `optimized`는 이 제한된 native
 dispatch capability만 뜻하며 allocation 개선은 아직 측정하지 않았다.
 
+## Zstd slice에서 고정한 declared-size 출력 경계
+
+zstd-jni 1.5.7-11의 heap/direct offset API는 오류 코드를 반환한 뒤 호출자가 검사하는 흐름만
+제공하지 않는다. 내부 context가 native 오류를 `ZstdException`으로 바꿔 반환 전에 던질 수
+있으므로, 운영 경로는 반환값에 `Zstd.isError`를 다시 적용하지 않고 예외의 `errorCode`를
+연산별로 해석한다. 압축 중 `errDstSizeTooSmall`만 raw `BufferOverflowException`으로 바꾸며,
+압축 해제 중 같은 코드는 wire header가 실제 payload보다 작은 의미이므로 원인 없는
+`IllegalStateException`으로 분류한다. 그 밖의 `ZstdException`은 identity를 그대로 보존한다.
+
+압축은 writable heap끼리와 direct끼리 조합에서 `compressBound + 4` 안전 상한을 만족할 때
+caller target의 header 뒤 잔여량을 native destination 길이로 그대로 전달한다. zstd-jni는 실제
+결과가 들어갈 만큼의 공간이 있어도 이 안전 상한보다 작은 destination을 거부할 수 있으므로,
+그보다 작은 matched-storage target은 기존 성공 가능성을 보존하는 compatibility fallback으로
+처리한다. 압축 해제는 target에 더 많은 공간이 있어도 native
+destination 길이를 반드시 header의 declared size로 제한한다. 성공 반환값은 declared size와
+정확히 같아야 하며 `Long` 상태에서 검증한 뒤에만 `Int`로 축소한다. 이로써 음수,
+`Long.MAX_VALUE`, 32-bit 범위를 넘는 합성 반환값도 caller position을 commit하기 전에 거부한다.
+mixed-storage와 read-only heap source는 compatibility fallback을 유지한다. README의
+`optimized`는 이 offset API dispatch만 뜻하고 allocation 개선은 마지막 evidence slice 전까지
+주장하지 않는다.
+
 ## 왜 broad backend slice를 중단했는가
 
 LZ4의 capacity-tail read는 source isolation 문제이고, zstd-jni의 throw-before-return은 예외
