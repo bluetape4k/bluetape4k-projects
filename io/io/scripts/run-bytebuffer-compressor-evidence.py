@@ -76,7 +76,7 @@ def command(*argv: str, cwd: pathlib.Path | None = None) -> str:
     return result.stdout.strip()
 
 
-def java_identity(root: pathlib.Path) -> tuple[str, str]:
+def java_identity(root: pathlib.Path) -> dict[str, str]:
     result = subprocess.run(
         ["java", "-XshowSettings:properties", "-version"],
         cwd=root,
@@ -87,9 +87,17 @@ def java_identity(root: pathlib.Path) -> tuple[str, str]:
     output = result.stderr + result.stdout
     version = re.search(r"(?m)^\s*java\.version = (.+)$", output)
     vm_name = re.search(r"(?m)^\s*java\.vm\.name = (.+)$", output)
-    if not version or not vm_name:
+    vm_version = re.search(r"(?m)^\s*java\.vm\.version = (.+)$", output)
+    java_home = re.search(r"(?m)^\s*java\.home = (.+)$", output)
+    if not version or not vm_name or not vm_version or not java_home:
         raise ValueError("Java runtime identity is incomplete")
-    return version.group(1).strip(), vm_name.group(1).strip()
+    executable = pathlib.Path(java_home.group(1).strip()) / "bin/java"
+    return {
+        "jdk": version.group(1).strip(),
+        "vmName": vm_name.group(1).strip(),
+        "vmVersion": vm_version.group(1).strip(),
+        "jvmExecutable": str(executable.resolve(strict=True)),
+    }
 
 
 def cpu_identity() -> str:
@@ -103,6 +111,10 @@ def cpu_identity() -> str:
         if result.returncode == 0 and result.stdout.strip():
             return result.stdout.strip()
     return platform.processor() or command("uname", "-m")
+
+
+def environment_authority(root: pathlib.Path) -> dict[str, str]:
+    return {**java_identity(root), "os": platform.platform(), "cpu": cpu_identity()}
 
 
 def sha256(path: pathlib.Path) -> str:
@@ -199,14 +211,52 @@ def validate_jmh(
     *,
     require_matrix: bool,
     allow_unstable_error: bool = False,
+    expected_profile: str | None = None,
+    expected_authority: dict | None = None,
 ) -> dict[tuple[str, str, str, str], dict]:
     if not isinstance(records, list) or not records:
         raise ValueError("jmh.json must contain a non-empty array")
     indexed: dict[tuple[str, str, str, str], dict] = {}
+    execution_identity = None
+    profile_expectations = {
+        "smoke": (1, 1, 1, "100 ms", 1, "100 ms"),
+        "canonical": (1, 2, 3, "1 s", 5, "1 s"),
+    }
     for record in records:
         if not isinstance(record, dict):
             raise ValueError("every JMH row must be an object")
         method = split_benchmark(record)
+        current_identity = (
+            record.get("jmhVersion"), record.get("jvm"), record.get("jdkVersion"), record.get("vmName"),
+            record.get("vmVersion"), tuple(record.get("jvmArgs", [])), record.get("threads"), record.get("forks"),
+            record.get("warmupIterations"), record.get("warmupTime"), record.get("measurementIterations"),
+            record.get("measurementTime"), record.get("mode"),
+        )
+        if execution_identity is None:
+            execution_identity = current_identity
+        elif current_identity != execution_identity:
+            raise ValueError("JMH execution identity drift within one run")
+        if record.get("mode") != "thrpt":
+            raise ValueError("JMH mode must be throughput")
+        actual_jvm_args = record.get("jvmArgs")
+        if not isinstance(actual_jvm_args, list) or actual_jvm_args[-len(JVM_ARGS):] != JVM_ARGS:
+            raise ValueError("JMH JVM args do not contain the exact required suffix")
+        if any(actual_jvm_args.count(argument) != 1 for argument in JVM_ARGS):
+            raise ValueError("required JMH JVM args must occur exactly once")
+        if expected_profile:
+            actual_profile = (
+                record.get("threads"), record.get("forks"), record.get("warmupIterations"),
+                record.get("warmupTime"), record.get("measurementIterations"), record.get("measurementTime"),
+            )
+            if actual_profile != profile_expectations[expected_profile]:
+                raise ValueError(f"{expected_profile} JMH profile mismatch: {actual_profile}")
+        if expected_authority:
+            pairs = {
+                "jdkVersion": "jdk", "vmName": "vmName", "vmVersion": "vmVersion", "jvm": "jvmExecutable",
+            }
+            for record_key, authority_key in pairs.items():
+                if record.get(record_key) != expected_authority.get(authority_key):
+                    raise ValueError(f"JMH runtime identity mismatch: {record_key}")
         params = record.get("params")
         if not isinstance(params, dict) or set(params) != {"compressorName", "payloadSize", "storagePath"}:
             raise ValueError("JMH params must be compressorName, payloadSize, and storagePath")
@@ -369,6 +419,7 @@ def prepare(args: argparse.Namespace) -> None:
         "dependencies": dep_text,
         "dependenciesSha256": hashlib.sha256(dep_text.encode()).hexdigest(),
         "sourceInspection": source_inspection(root),
+        "environmentAuthority": environment_authority(root),
         "outputRoot": str(output),
         "runs": [],
     }
@@ -390,6 +441,8 @@ def validate_receipt(receipt: dict, root: pathlib.Path, *, canonical: bool) -> p
     if jar.is_symlink() or not jar.is_file() or sha256(jar) != receipt.get("jarSha256"):
         raise ValueError("JAR identity mismatch")
     validate_source_inspection(receipt.get("sourceInspection"), root)
+    if receipt.get("environmentAuthority") != environment_authority(root):
+        raise ValueError("runtime environment changed after prepare")
     if canonical:
         allowed = {
             f"docs/benchmarks/raw/issue-755/{run_id}/{name}"
@@ -508,16 +561,26 @@ def execute_jmh(args: argparse.Namespace, profile: str, receipt: dict, receipt_p
     if completed.returncode != 0:
         raise RuntimeError(f"JMH failed with exit code {completed.returncode}")
     records = json.loads(result_path.read_text(encoding="utf-8"))
-    indexed = validate_jmh(records, require_matrix=canonical, allow_unstable_error=not canonical)
-    java_version, vm_name = java_identity(root)
+    indexed = validate_jmh(
+        records,
+        require_matrix=canonical,
+        allow_unstable_error=not canonical,
+        expected_profile=profile,
+        expected_authority=receipt["environmentAuthority"],
+    )
+    runtime = receipt["environmentAuthority"]
+    first_record = records[0]
     environment = {
-        "javaVersion": java_version,
-        "vmName": vm_name,
+        "javaVersion": runtime["jdk"],
+        "vmName": runtime["vmName"],
+        "vmVersion": runtime["vmVersion"],
+        "jvmExecutable": runtime["jvmExecutable"],
+        "actualJvmArgs": first_record["jvmArgs"],
         "jmhVersion": receipt["jmhVersion"],
         "jvmArgs": JVM_ARGS,
         "profileArgs": PROFILE_ARGS[profile],
-        "os": platform.platform(),
-        "cpu": cpu_identity(),
+        "os": runtime["os"],
+        "cpu": runtime["cpu"],
     }
     atomic_json(staging / "environment.json", environment)
     (staging / "dependencies.txt").write_text(receipt["dependencies"], encoding="utf-8")
@@ -534,6 +597,9 @@ def execute_jmh(args: argparse.Namespace, profile: str, receipt: dict, receipt_p
         "dependenciesSha256": receipt["dependenciesSha256"],
         "jdk": environment["javaVersion"],
         "jvm": environment["vmName"],
+        "vmVersion": environment["vmVersion"],
+        "jvmExecutable": environment["jvmExecutable"],
+        "actualJvmArgs": environment["actualJvmArgs"],
         "gc": "G1",
         "os": environment["os"],
         "cpu": environment["cpu"],
@@ -570,7 +636,8 @@ def validate_run_directory(path: pathlib.Path, *, require_matrix: bool) -> tuple
     if metadata.get("runId") != path.name or not RUN_ID_PATTERN.fullmatch(path.name):
         raise ValueError("run ID mismatch")
     required_identity = (
-        "commit", "tree", "jarSha256", "jmhVersion", "jdk", "jvm", "gc", "os", "cpu", "dependenciesSha256"
+        "commit", "tree", "jarSha256", "jmhVersion", "jdk", "jvm", "vmVersion", "jvmExecutable",
+        "gc", "os", "cpu", "dependenciesSha256"
     )
     if any(not isinstance(metadata.get(key), str) or not metadata[key] for key in required_identity):
         raise ValueError("run identity metadata is incomplete")
@@ -586,7 +653,13 @@ def validate_run_directory(path: pathlib.Path, *, require_matrix: bool) -> tuple
         raise ValueError("canonical profile arguments mismatch")
     if environment.get("jvmArgs") != JVM_ARGS:
         raise ValueError("JVM arguments mismatch")
-    if environment.get("javaVersion") != metadata.get("jdk") or environment.get("vmName") != metadata.get("jvm"):
+    if (
+        environment.get("javaVersion") != metadata.get("jdk")
+        or environment.get("vmName") != metadata.get("jvm")
+        or environment.get("vmVersion") != metadata.get("vmVersion")
+        or environment.get("jvmExecutable") != metadata.get("jvmExecutable")
+        or environment.get("actualJvmArgs") != metadata.get("actualJvmArgs")
+    ):
         raise ValueError("Java environment identity mismatch")
     recorded_argv = argv.get("argv")
     if not isinstance(recorded_argv, list) or not all(isinstance(item, str) for item in recorded_argv):
@@ -608,7 +681,17 @@ def validate_run_directory(path: pathlib.Path, *, require_matrix: bool) -> tuple
         if profile_start is None:
             raise ValueError("canonical argv order mismatch")
     records = json.loads((path / "jmh.json").read_text(encoding="utf-8"))
-    indexed = validate_jmh(records, require_matrix=require_matrix)
+    expected_authority = {
+        "jdk": metadata["jdk"], "vmName": metadata["jvm"], "vmVersion": metadata["vmVersion"],
+        "jvmExecutable": metadata["jvmExecutable"],
+    }
+    indexed = validate_jmh(
+        records,
+        require_matrix=require_matrix,
+        allow_unstable_error=not require_matrix,
+        expected_profile=metadata.get("profile"),
+        expected_authority=expected_authority,
+    )
     validation = json.loads((path / "validation.json").read_text(encoding="utf-8"))
     if validation.get("status") != "PASS" or validation.get("records") != len(indexed):
         raise ValueError("validation receipt mismatch")
@@ -624,7 +707,10 @@ def comparison_rows(run_paths: list[pathlib.Path]) -> list[dict]:
     if len(run_paths) != 2 or run_paths[0].resolve() == run_paths[1].resolve():
         raise ValueError("exactly two unique runs are required")
     runs = [validate_run_directory(path, require_matrix=True) for path in run_paths]
-    identity_keys = ("commit", "tree", "jarSha256", "jmhVersion", "jdk", "jvm", "gc", "os", "cpu", "dependenciesSha256")
+    identity_keys = (
+        "commit", "tree", "jarSha256", "jmhVersion", "jdk", "jvm", "vmVersion", "jvmExecutable",
+        "actualJvmArgs", "gc", "os", "cpu", "dependenciesSha256",
+    )
     if any(runs[0][0].get(key) != runs[1][0].get(key) for key in identity_keys):
         raise ValueError("run identity mismatch")
     rows = []
@@ -717,6 +803,14 @@ def validate_delivery(args: argparse.Namespace) -> None:
     jars = list((root / "io/io/build/benchmarks/test/jars").glob("*-JMH.jar"))
     if len(jars) != 1 or sha256(jars[0]) != json.loads((paths[0] / "metadata.json").read_text())["jarSha256"]:
         raise ValueError("rebuilt JMH JAR SHA mismatch")
+    current_runtime = environment_authority(root)
+    recorded_metadata = json.loads((paths[0] / "metadata.json").read_text())
+    for current_key, recorded_key in (
+        ("jdk", "jdk"), ("vmName", "jvm"), ("vmVersion", "vmVersion"),
+        ("jvmExecutable", "jvmExecutable"), ("os", "os"), ("cpu", "cpu"),
+    ):
+        if current_runtime[current_key] != recorded_metadata[recorded_key]:
+            raise ValueError(f"delivery runtime identity mismatch: {current_key}")
 
 
 def parser() -> argparse.ArgumentParser:
@@ -754,7 +848,7 @@ def direct_smoke_receipt(jar: pathlib.Path) -> dict:
         "schemaVersion": SCHEMA_VERSION, "commit": head, "tree": tree, "jar": str(jar.resolve(strict=True)),
         "jarSha256": sha256(jar), "jmhVersion": jmh_version(jar), "dependencies": dep_text,
         "dependenciesSha256": hashlib.sha256(dep_text.encode()).hexdigest(), "sourceInspection": source_inspection(root),
-        "runs": [], "outputRoot": "",
+        "environmentAuthority": environment_authority(root), "runs": [], "outputRoot": "",
     }
 
 
