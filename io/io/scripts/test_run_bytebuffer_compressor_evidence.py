@@ -22,6 +22,19 @@ def record(codec, payload, storage, method, *, allocation=None, throughput=10_00
     if allocation is None:
         allocation = 128.0 if method.endswith("CallerOwned") else payload_bytes + 1_000.0
     return {
+        "jmhVersion": "1.37",
+        "jvm": "/java",
+        "jdkVersion": "21.0.8+9",
+        "vmName": "OpenJDK 64-Bit Server VM",
+        "vmVersion": "21.0.8+9",
+        "jvmArgs": list(evidence.JVM_ARGS),
+        "threads": 1,
+        "forks": 2,
+        "warmupIterations": 3,
+        "warmupTime": "1 s",
+        "measurementIterations": 5,
+        "measurementTime": "1 s",
+        "mode": "thrpt",
         "benchmark": "io.bluetape4k.io.benchmark.CallerOwnedByteBufferCompressorBenchmark." + method,
         "params": {"compressorName": codec, "payloadSize": payload, "storagePath": storage},
         "primaryMetric": metric(throughput, throughput_error, "ops/s"),
@@ -52,6 +65,9 @@ def metadata(identifier):
         "dependenciesSha256": hashlib.sha256(b"dependencies\n").hexdigest(),
         "jdk": "21.0.8+9",
         "jvm": "OpenJDK 64-Bit Server VM",
+        "vmVersion": "21.0.8+9",
+        "jvmExecutable": "/java",
+        "actualJvmArgs": list(evidence.JVM_ARGS),
         "gc": "G1",
         "os": "macOS",
         "cpu": "Apple M4 Max",
@@ -75,6 +91,9 @@ def write_run(parent, identifier, records=None):
         "jvmArgs": evidence.JVM_ARGS,
         "javaVersion": "21.0.8+9",
         "vmName": "OpenJDK 64-Bit Server VM",
+        "vmVersion": "21.0.8+9",
+        "jvmExecutable": "/java",
+        "actualJvmArgs": list(evidence.JVM_ARGS),
     }))
     (root / "dependencies.txt").write_text("dependencies\n")
     (root / "run.log").write_bytes(b"")
@@ -142,11 +161,29 @@ class JmhValidationTest(unittest.TestCase):
 
     def test_smoke_may_accept_nan_error_but_canonical_may_not(self):
         records = [record("lz4", "small", "heap", "compressCallerOwned")]
+        records[0].update({
+            "forks": 1, "warmupIterations": 1, "warmupTime": "100 ms",
+            "measurementIterations": 1, "measurementTime": "100 ms",
+        })
         records[0]["primaryMetric"]["scoreError"] = "NaN"
         records[0]["secondaryMetrics"]["gc.alloc.rate.norm"]["scoreError"] = "NaN"
-        evidence.validate_jmh(records, require_matrix=False, allow_unstable_error=True)
+        evidence.validate_jmh(records, require_matrix=False, allow_unstable_error=True, expected_profile="smoke")
         with self.assertRaisesRegex(ValueError, "JSON number"):
             evidence.validate_jmh(records, require_matrix=False)
+
+    def test_runtime_and_profile_drift_are_rejected(self):
+        records = matrix()
+        records[0]["forks"] = 1
+        with self.assertRaisesRegex(ValueError, "identity drift|profile mismatch"):
+            evidence.validate_jmh(records, require_matrix=True, expected_profile="canonical")
+        records = matrix()
+        with self.assertRaisesRegex(ValueError, "runtime identity"):
+            evidence.validate_jmh(
+                records,
+                require_matrix=True,
+                expected_profile="canonical",
+                expected_authority={"jdk": "22", "vmName": "OpenJDK 64-Bit Server VM", "vmVersion": "21.0.8+9", "jvmExecutable": "/java"},
+            )
 
 
 class ComparisonTest(unittest.TestCase):
