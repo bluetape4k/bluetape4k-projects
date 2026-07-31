@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1900 1320">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1900 1320" data-layout="decision-flow" data-intent="Redisson codec selection maps payload shape, compression, cache use, and compatibility constraints to the module's provided codec factories and wrappers." data-evidence="infra/redisson/README.md,infra/redisson/src/main/kotlin" data-source-read="infra/redisson/README.md; infra/redisson/src/main/kotlin">
 <defs>
   <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%">
     <feDropShadow dx="0" dy="5" stdDeviation="5" flood-color="#203040" flood-opacity="0.10"/>

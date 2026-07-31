@@ -29,7 +29,7 @@
       .small { font-family: "Comic Mono"; font-size: 11.5px; fill: #64748b; }
       .implements { fill: none; stroke-width: 2.3; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 8 6; }
       .dep { fill: none; stroke-width: 2.35; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 8 6; }
-      .group { fill-opacity: 0.42; stroke-width: 1.35; stroke-dasharray: 7 6; }
+      .band { fill-opacity: 0.42; stroke-width: 1.35; stroke-dasharray: 7 6; }
       .groupTitle { font-family: "Architects Daughter"; font-size: 22px; fill: #0f172a; }
       .groupSub { font-family: "Comic Mono"; font-size: 12px; fill: #64748b; }
     </style>
@@ -90,7 +90,7 @@
   <path class="implements" d="M 739 430 V 362" stroke="#0d9488" />
 <polygon points="748,383 739,362 730,383" fill="#FFFFFF" stroke="#0d9488" stroke-width="2.8" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
 
-  <rect class="group" x="82" y="640" width="604" height="240" rx="8" fill="#fff7ed" stroke="#fdba74" />
+  <rect class="band" x="82" y="640" width="604" height="240" rx="8" fill="#fff7ed" stroke="#fdba74" />
   <text class="groupTitle" x="114" y="674">Binary serializer factories</text>
   <text class="groupSub" x="114" y="696">LettuceBinaryCodecs creates LettuceBinaryCodec from BinarySerializers</text>
   <g id="binaryFactories">
@@ -108,7 +108,7 @@
     <text class="member" x="432" y="830">LZ4, Snappy, Zstd</text>
   </g>
 
-  <rect class="group" x="754" y="640" width="336" height="240" rx="8" fill="#f0fdfa" stroke="#99f6e4" />
+  <rect class="band" x="754" y="640" width="336" height="240" rx="8" fill="#f0fdfa" stroke="#99f6e4" />
   <text class="groupTitle" x="786" y="674">JSON factories</text>
   <text class="groupSub" x="786" y="696">typed JSON codec constructors</text>
   <g id="jsonFactories">
@@ -119,7 +119,7 @@
     <text class="member" x="820" y="830">+ codec(serializer, type)</text>
   </g>
 
-  <rect class="group" x="1158" y="640" width="264" height="240" rx="8" fill="#faf5ff" stroke="#d8b4fe" />
+  <rect class="band" x="1158" y="640" width="264" height="240" rx="8" fill="#faf5ff" stroke="#d8b4fe" />
   <text class="groupTitle" x="1190" y="674">Primitive values</text>
   <text class="groupSub" x="1190" y="696">binary-compatible fixed width</text>
   <g id="primitiveDetails">

@@ -60,7 +60,7 @@
   <g id="connection-api">
     <rect class="card external" x="126" y="254" width="274" height="70" rx="8"/>
     <text class="name" x="263" y="286" text-anchor="middle">Connection</text>
-    <text class="meta" x="263" y="310" text-anchor="middle">publish, request, drain, stores</text>
+    <text class="meta" x="263" y="310" text-anchor="middle">publish, request, drain</text>
   </g>
   <g id="jet-api">
     <rect class="card external" x="492" y="254" width="316" height="70" rx="8"/>
@@ -82,7 +82,7 @@
     <rect class="card core" x="112" y="478" width="300" height="110" rx="8"/>
     <text class="name" x="262" y="512" text-anchor="middle">ConnectionExtensions</text>
     <text class="meta" x="262" y="542" text-anchor="middle">publish(String), request*</text>
-    <text class="meta" x="262" y="565" text-anchor="middle">requestSuspending, drainSuspending</text>
+    <text class="meta" x="262" y="565" text-anchor="middle">suspending request and drain</text>
   </g>
   <g id="sub-ext">
     <rect class="card core" x="112" y="610" width="300" height="64" rx="8"/>
@@ -99,14 +99,14 @@
   <g id="jsm-ext">
     <rect class="card jet" x="462" y="596" width="360" height="70" rx="8"/>
     <text class="smallName" x="642" y="626" text-anchor="middle">JetStreamManagement extensions</text>
-    <text class="meta" x="642" y="650" text-anchor="middle">create/update/delete, ignore not-found only</text>
+    <text class="meta" x="642" y="650" text-anchor="middle">create, update, delete, ignore absent</text>
   </g>
 
   <g id="dsl-ext">
     <rect class="card dsl" x="872" y="470" width="372" height="112" rx="8"/>
     <text class="name" x="1058" y="504" text-anchor="middle">Configuration DSLs</text>
     <text class="meta" x="1058" y="534" text-anchor="middle">streamConfiguration, consumerConfiguration</text>
-    <text class="meta" x="1058" y="557" text-anchor="middle">keyValueConfiguration, objectStoreConfiguration</text>
+    <text class="meta" x="1058" y="557" text-anchor="middle">key-value and object-store configuration</text>
   </g>
   <g id="context-ext">
     <rect class="card dsl" x="872" y="606" width="372" height="68" rx="8"/>

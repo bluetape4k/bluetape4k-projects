@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1700 1260">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1700 1260" data-intent="Redisson batch and transaction helpers create a command context, collect actions, execute once, and expose commit or rollback outcomes to the caller." data-evidence="infra/redisson/README.md,infra/redisson/src/main/kotlin" data-source-read="infra/redisson/README.md; infra/redisson/src/main/kotlin">
 <defs>
   <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%">
     <feDropShadow dx="0" dy="5" stdDeviation="5" flood-color="#203040" flood-opacity="0.10"/>

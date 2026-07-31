@@ -12,7 +12,7 @@
     svg{font-family:"Architects Daughter","Comic Mono","Comic Sans MS",ui-sans-serif,system-ui,sans-serif}
     .canvas{fill:#F8FAFC}.frame{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.6;filter:url(#shadow)}
     .title{font-family:"Architects Daughter";font-size:44px;fill:#0F172A}.subtitle{font-family:"Comic Mono";font-size:15px;fill:#475569}
-    .card{filter:url(#shadow);stroke-width:1.9}.cardTitle{font-family:"Architects Daughter";font-size:21px;fill:#0F172A}
+    .node{filter:url(#shadow);stroke-width:1.9}.cardTitle{font-family:"Architects Daughter";font-size:21px;fill:#0F172A}
     .stereo{font-family:"Comic Mono";font-size:12px;fill:#64748B}.member{font-family:"Comic Mono";font-size:12.3px;fill:#334155}
     .divider{stroke:rgba(15,23,42,.17);stroke-width:1.2}.assoc{fill:none;stroke-width:3.0;stroke-linecap:round;stroke-linejoin:round}
     .uses{fill:none;stroke-width:2.5;stroke-dasharray:8 7;stroke-linecap:round;stroke-linejoin:round}
@@ -67,91 +67,91 @@
 </g>
 <g><text class="label" x="695" y="203" text-anchor="middle">returns</text><text class="label" x="1195" y="203" text-anchor="middle">returns</text><text class="label" x="286" y="592" text-anchor="middle">uses</text><text class="label" x="696" y="592" text-anchor="middle">uses</text><text class="label" x="1125" y="592" text-anchor="middle">uses</text><text class="label" x="1582" y="610" text-anchor="middle">uses</text><text class="label" x="292" y="874" text-anchor="middle">resolves</text><text class="label" x="704" y="874" text-anchor="middle">resolves</text><text class="label" x="1130" y="874" text-anchor="middle">resolves</text><text class="label" x="1588" y="874" text-anchor="middle">resolves</text></g>
 <g id="rateLimiter">
-  <rect class="card" x="290" y="150" width="340" height="150" rx="8" fill="#EFF6FF" stroke="#2563EB" />
+  <rect class="node" x="290" y="150" width="340" height="150" rx="8" fill="#EFF6FF" stroke="#2563EB" />
   <text class="stereo" x="460" y="178" text-anchor="middle">interface</text>
   <text class="cardTitle" x="460" y="208" text-anchor="middle">RateLimiter&lt;K&gt;</text>
   <line class="divider" x1="314" y1="226" x2="606" y2="226" />
   <text class="member" x="318" y="253">+ consume(key, tokens)</text><text class="member" x="318" y="275">returns RateLimitResult</text>
 </g><g id="result">
-  <rect class="card" x="760" y="130" width="360" height="170" rx="8" fill="#F0FDF4" stroke="#16A34A" />
+  <rect class="node" x="760" y="130" width="360" height="170" rx="8" fill="#F0FDF4" stroke="#16A34A" />
   <text class="stereo" x="940" y="158" text-anchor="middle">data contract</text>
   <text class="cardTitle" x="940" y="188" text-anchor="middle">RateLimitResult</text>
   <line class="divider" x1="784" y1="206" x2="1096" y2="206" />
   <text class="member" x="788" y="233">status: CONSUMED / REJECTED / ERROR</text><text class="member" x="788" y="255">availableTokens, consumedTokens</text><text class="member" x="788" y="277">retryAfter + diagnostics</text>
 </g><g id="suspendRateLimiter">
-  <rect class="card" x="1270" y="150" width="390" height="150" rx="8" fill="#ECFDF5" stroke="#0D9488" />
+  <rect class="node" x="1270" y="150" width="390" height="150" rx="8" fill="#ECFDF5" stroke="#0D9488" />
   <text class="stereo" x="1465" y="178" text-anchor="middle">interface</text>
   <text class="cardTitle" x="1465" y="208" text-anchor="middle">SuspendRateLimiter&lt;K&gt;</text>
   <line class="divider" x1="1294" y1="226" x2="1636" y2="226" />
   <text class="member" x="1298" y="253">+ suspend consume(key, tokens)</text><text class="member" x="1298" y="275">propagates cancellation</text>
 </g><g id="localRateLimiter">
-  <rect class="card" x="80" y="370" width="340" height="164" rx="8" fill="#FFF7ED" stroke="#EA580C" />
+  <rect class="node" x="80" y="370" width="340" height="164" rx="8" fill="#FFF7ED" stroke="#EA580C" />
   <text class="stereo" x="250" y="398" text-anchor="middle">class</text>
   <text class="cardTitle" x="250" y="428" text-anchor="middle">LocalRateLimiter</text>
   <line class="divider" x1="104" y1="446" x2="396" y2="446" />
   <text class="member" x="108" y="473">- LocalBucketProvider</text><text class="member" x="108" y="495">+ immediate tryConsume</text><text class="member" x="108" y="517">+ single-probe result</text>
 </g><g id="distributedRateLimiter">
-  <rect class="card" x="470" y="370" width="380" height="164" rx="8" fill="#EFF6FF" stroke="#2563EB" />
+  <rect class="node" x="470" y="370" width="380" height="164" rx="8" fill="#EFF6FF" stroke="#2563EB" />
   <text class="stereo" x="660" y="398" text-anchor="middle">class</text>
   <text class="cardTitle" x="660" y="428" text-anchor="middle">DistributedRateLimiter</text>
   <line class="divider" x1="494" y1="446" x2="826" y2="446" />
   <text class="member" x="498" y="473">- BucketProxyProvider</text><text class="member" x="498" y="495">+ Redis-backed proxy</text><text class="member" x="498" y="517">+ no extra token read</text>
 </g><g id="localSuspendRateLimiter">
-  <rect class="card" x="890" y="370" width="390" height="164" rx="8" fill="#ECFDF5" stroke="#0D9488" />
+  <rect class="node" x="890" y="370" width="390" height="164" rx="8" fill="#ECFDF5" stroke="#0D9488" />
   <text class="stereo" x="1085" y="398" text-anchor="middle">class</text>
   <text class="cardTitle" x="1085" y="428" text-anchor="middle">LocalSuspendRateLimiter</text>
   <line class="divider" x1="914" y1="446" x2="1256" y2="446" />
   <text class="member" x="918" y="473">- LocalSuspendBucketProvider</text><text class="member" x="918" y="495">+ coroutine-friendly local bucket</text><text class="member" x="918" y="517">+ cancellation passes through</text>
 </g><g id="distributedSuspendRateLimiter">
-  <rect class="card" x="1325" y="370" width="430" height="186" rx="8" fill="#FAF5FF" stroke="#9333EA" />
+  <rect class="node" x="1325" y="370" width="430" height="186" rx="8" fill="#FAF5FF" stroke="#9333EA" />
   <text class="stereo" x="1540" y="398" text-anchor="middle">class</text>
   <text class="cardTitle" x="1540" y="428" text-anchor="middle">DistributedSuspendRateLimiter</text>
   <line class="divider" x1="1349" y1="446" x2="1731" y2="446" />
   <text class="member" x="1353" y="473">- AsyncBucketProxyProvider</text><text class="member" x="1353" y="495">+ await async proxy result</text><text class="member" x="1353" y="517">+ optional operation timeout</text><text class="member" x="1353" y="539">+ cancellation passes through</text>
 </g><g id="localBucketProvider">
-  <rect class="card" x="80" y="650" width="340" height="170" rx="8" fill="#FFF7ED" stroke="#EA580C" />
+  <rect class="node" x="80" y="650" width="340" height="170" rx="8" fill="#FFF7ED" stroke="#EA580C" />
   <text class="stereo" x="250" y="678" text-anchor="middle">provider</text>
   <text class="cardTitle" x="250" y="708" text-anchor="middle">LocalBucketProvider</text>
   <line class="divider" x1="104" y1="726" x2="396" y2="726" />
   <text class="member" x="108" y="753">extends AbstractLocalBucketProvider</text><text class="member" x="108" y="775">key-prefix cache</text><text class="member" x="108" y="797">lock-free local bucket</text>
 </g><g id="bucketProxyProvider">
-  <rect class="card" x="470" y="650" width="380" height="170" rx="8" fill="#EFF6FF" stroke="#2563EB" />
+  <rect class="node" x="470" y="650" width="380" height="170" rx="8" fill="#EFF6FF" stroke="#2563EB" />
   <text class="stereo" x="660" y="678" text-anchor="middle">provider</text>
   <text class="cardTitle" x="660" y="708" text-anchor="middle">BucketProxyProvider</text>
   <line class="divider" x1="494" y1="726" x2="826" y2="726" />
   <text class="member" x="498" y="753">ProxyManager&lt;ByteArray&gt;</text><text class="member" x="498" y="775">prefix + UTF-8 key</text><text class="member" x="498" y="797">builds remote proxy only</text>
 </g><g id="localSuspendBucketProvider">
-  <rect class="card" x="890" y="650" width="390" height="170" rx="8" fill="#ECFDF5" stroke="#0D9488" />
+  <rect class="node" x="890" y="650" width="390" height="170" rx="8" fill="#ECFDF5" stroke="#0D9488" />
   <text class="stereo" x="1085" y="678" text-anchor="middle">provider</text>
   <text class="cardTitle" x="1085" y="708" text-anchor="middle">LocalSuspendBucketProvider</text>
   <line class="divider" x1="914" y1="726" x2="1256" y2="726" />
   <text class="member" x="918" y="753">extends AbstractLocalBucketProvider</text><text class="member" x="918" y="775">SuspendLocalBucket per key</text><text class="member" x="918" y="797">64-bit math + millis time</text>
 </g><g id="asyncBucketProxyProvider">
-  <rect class="card" x="1325" y="650" width="430" height="170" rx="8" fill="#FAF5FF" stroke="#9333EA" />
+  <rect class="node" x="1325" y="650" width="430" height="170" rx="8" fill="#FAF5FF" stroke="#9333EA" />
   <text class="stereo" x="1540" y="678" text-anchor="middle">provider</text>
   <text class="cardTitle" x="1540" y="708" text-anchor="middle">AsyncBucketProxyProvider</text>
   <line class="divider" x1="1349" y1="726" x2="1731" y2="726" />
   <text class="member" x="1353" y="753">AsyncProxyManager&lt;ByteArray&gt;</text><text class="member" x="1353" y="775">prefix + UTF-8 key</text><text class="member" x="1353" y="797">builds async proxy only</text>
 </g><g id="localBucket">
-  <rect class="card" x="80" y="920" width="340" height="122" rx="8" fill="#F8FAFC" stroke="#64748B" />
+  <rect class="node" x="80" y="920" width="340" height="122" rx="8" fill="#F8FAFC" stroke="#64748B" />
   <text class="stereo" x="250" y="948" text-anchor="middle">Bucket4j primitive</text>
   <text class="cardTitle" x="250" y="978" text-anchor="middle">LocalBucket</text>
   <line class="divider" x1="104" y1="996" x2="396" y2="996" />
   <text class="member" x="108" y="1023">tryConsumeAndReturnRemaining()</text>
 </g><g id="bucketProxy">
-  <rect class="card" x="470" y="920" width="380" height="122" rx="8" fill="#F8FAFC" stroke="#64748B" />
+  <rect class="node" x="470" y="920" width="380" height="122" rx="8" fill="#F8FAFC" stroke="#64748B" />
   <text class="stereo" x="660" y="948" text-anchor="middle">Bucket4j primitive</text>
   <text class="cardTitle" x="660" y="978" text-anchor="middle">BucketProxy</text>
   <line class="divider" x1="494" y1="996" x2="826" y2="996" />
   <text class="member" x="498" y="1023">remote tryConsume probe</text>
 </g><g id="suspendLocalBucket">
-  <rect class="card" x="890" y="920" width="390" height="122" rx="8" fill="#F8FAFC" stroke="#64748B" />
+  <rect class="node" x="890" y="920" width="390" height="122" rx="8" fill="#F8FAFC" stroke="#64748B" />
   <text class="stereo" x="1085" y="948" text-anchor="middle">bluetape4k primitive</text>
   <text class="cardTitle" x="1085" y="978" text-anchor="middle">SuspendLocalBucket</text>
   <line class="divider" x1="914" y1="996" x2="1256" y2="996" />
   <text class="member" x="918" y="1023">delay-based waiting helpers</text>
 </g><g id="asyncBucketProxy">
-  <rect class="card" x="1325" y="920" width="430" height="122" rx="8" fill="#F8FAFC" stroke="#64748B" />
+  <rect class="node" x="1325" y="920" width="430" height="122" rx="8" fill="#F8FAFC" stroke="#64748B" />
   <text class="stereo" x="1540" y="948" text-anchor="middle">Bucket4j primitive</text>
   <text class="cardTitle" x="1540" y="978" text-anchor="middle">AsyncBucketProxy</text>
   <line class="divider" x1="1349" y1="996" x2="1731" y2="996" />

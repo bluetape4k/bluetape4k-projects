@@ -38,7 +38,7 @@
       .smallName{font-family:"Architects Daughter";font-size:22px;fill:#0F172A}
       .meta{font-family:"Comic Mono";font-size:14px;fill:#475569;font-weight:700}
       .tiny{font-family:"Comic Mono";font-size:12px;fill:#475569;font-weight:700}
-      .line{fill:none;stroke-width:3.2;stroke-linecap:round;stroke-linejoin:round}
+      .link{fill:none;stroke-width:3.2;stroke-linecap:round;stroke-linejoin:round}
       .dash{stroke-dasharray:8 8}
       .blue{stroke:#2563EB;marker-end:url(#arrowBlue)}
       .purple{stroke:#9333EA;marker-end:url(#arrowPurple)}
@@ -141,26 +141,26 @@
     <text class="meta" x="1508" y="745" text-anchor="middle">emissions stay in lineage</text>
   </g>
 
-  <path class="line blue" d="M 292 380 V 444"/>
-  <path class="line blue" d="M 292 538 V 602"/>
-  <path class="line purple" d="M 442 660 L 548 660 Q 562 660 562 646 L 562 351 Q 562 337 576 337 L 608 337"/>
-  <path class="line teal" d="M 442 660 L 528 660 Q 542 660 542 646 L 542 538 Q 542 524 556 524 L 608 524"/>
-  <path class="line teal" d="M 442 660 L 548 660 Q 562 660 562 674 L 562 697 Q 562 711 576 711 L 608 711"/>
+  <path class="link blue" d="M 292 380 V 444"/>
+  <path class="link blue" d="M 292 538 V 602"/>
+  <path class="link purple" d="M 442 660 L 548 660 Q 562 660 562 646 L 562 351 Q 562 337 576 337 L 608 337"/>
+  <path class="link teal" d="M 442 660 L 528 660 Q 542 660 542 646 L 542 538 Q 542 524 556 524 L 608 524"/>
+  <path class="link teal" d="M 442 660 L 548 660 Q 562 660 562 674 L 562 697 Q 562 711 576 711 L 608 711"/>
 
-  <path class="line purple" d="M 886 337 H 908"/>
-  <path class="line teal" d="M 886 524 H 908"/>
-  <path class="line green" d="M 886 711 H 908"/>
+  <path class="link purple" d="M 886 337 H 908"/>
+  <path class="link teal" d="M 886 524 H 908"/>
+  <path class="link green" d="M 886 711 H 908"/>
 
-  <path class="line purple" d="M 1186 337 H 1350"/>
-  <path class="line teal" d="M 1186 524 H 1350"/>
-  <path class="line green" d="M 1186 711 H 1350"/>
+  <path class="link purple" d="M 1186 337 H 1350"/>
+  <path class="link teal" d="M 1186 524 H 1350"/>
+  <path class="link green" d="M 1186 711 H 1350"/>
 
   <g id="webflux-note">
     <rect class="card edge" x="170" y="806" width="988" height="74" rx="8"/>
     <text class="meta" x="664" y="834" text-anchor="middle">Legacy WebFlux helper installs a server WebFilter and Reactor hook.</text>
     <text class="meta" x="664" y="857" text-anchor="middle">It is constrained to Spring Boot 3 / WebFlux 5.3 style instrumentation.</text>
   </g>
-  <path class="line orange dash" d="M 1166 843 L 1324 843 Q 1338 843 1338 829 L 1338 760" style="marker-end:none"/>
+  <path class="link orange dash" d="M 1166 843 L 1324 843 Q 1338 843 1338 829 L 1338 760" style="marker-end:none"/>
 <polyline points="1344,772 1338,760 1332,772" fill="none" stroke="#EA580C" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important" data-direct-solid-head="true"/>
 
   <g id="safety-note">
