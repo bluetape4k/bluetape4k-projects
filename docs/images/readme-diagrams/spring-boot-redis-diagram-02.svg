@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1530" height="820" viewBox="0 0 1530 820" role="img" aria-label="ReactiveRedisTemplate serialization flow">
+<svg xmlns="http://www.w3.org/2000/svg" width="1530" height="820" viewBox="0 0 1530 820" role="img" aria-label="ReactiveRedisTemplate serialization flow" data-intent="Spring Boot Redis configures coroutine-friendly reactive Redis serialization, including binary and compression-aware serializers." data-evidence="spring-boot/redis/README.md,spring-boot/redis/src/main/kotlin" data-source-read="spring-boot/redis/README.md; spring-boot/redis/src/main/kotlin">
   <style>text { font-family: 'Architects Daughter', 'Comic Mono', 'Helvetica Neue', Arial, sans-serif; dominant-baseline: alphabetic; }</style>
 
   <defs>
