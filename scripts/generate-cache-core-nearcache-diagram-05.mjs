@@ -65,7 +65,7 @@ function classBox({ id, x, y, w, h, color, stereotype, title, attrs = [], method
   const attrY = y + 76;
   const methodY = attrY + 34 + Math.max(24, attrs.length * 22);
   return `<g id="${esc(id)}">
-  <rect class="classBox" x="${x}" y="${y}" width="${w}" height="${h}" rx="8" fill="${fill}" stroke="${stroke}"/>
+  <rect class="classCard" x="${x}" y="${y}" width="${w}" height="${h}" rx="8" fill="${fill}" stroke="${stroke}"/>
   <text class="stereotype" x="${x + w / 2}" y="${y + 28}" text-anchor="middle">${esc(stereotype)}</text>
   <text class="classTitle" x="${x + w / 2}" y="${y + 58}" text-anchor="middle">${esc(title)}</text>
   <path class="divider" d="M${x} ${attrY}H${x + w}" stroke="${dark}"/>
@@ -92,12 +92,12 @@ function chip({ x, y, w, color, label }) {
 </g>`;
 }
 
-function edge({ from, to, points, color, marker = "arrow", dashed = false, label = "", labelAt }) {
+function edge({ from, to, points, d, color, marker = "arrow", dashed = false, label = "", labelAt }) {
   const [, , dark] = palette[color];
-  const d = points.map((point, index) => `${index === 0 ? "M" : "L"}${point[0]} ${point[1]}`).join(" ");
+  const pathData = d ?? points.map((point, index) => `${index === 0 ? "M" : "L"}${point[0]} ${point[1]}`).join(" ");
   const p = labelAt ?? points[Math.floor(points.length / 2)];
   return `<g data-from="${esc(from)}" data-to="${esc(to)}">
-  <path class="edge ${dashed ? "dashed" : ""}" d="${d}" stroke="${dark}" marker-end="url(#${marker}-${color})"/>
+  <path class="edge ${dashed ? "dashed" : ""}" d="${pathData}" stroke="${dark}" marker-end="url(#${marker}-${color})"/>
   ${label ? `<text class="edgeLabel" x="${p[0] + 8}" y="${p[1] - 8}">${esc(label)}</text>` : ""}
 </g>`;
 }
@@ -182,11 +182,31 @@ const body = [
     lines: ["Provided by Lettuce, Hazelcast, Redisson, or another JCache", "NearJCache delegates un-overridden JCache methods to backCache", "Back events are registered to update the local front cache", "syncBackCache chooses immediate or async remote write"],
   }),
   edge({ from: "NearJCache", to: "JCache", points: [[1185, 840], [1185, 535]], color: "green", marker: "triangle", dashed: true, label: "implements", labelAt: [1204, 700] }),
-  edge({ from: "NearJCacheConfig", to: "NearJCache", points: [[2010, 565], [2010, 1030], [1635, 1030]], color: "amber", marker: "arrow", dashed: true, label: "configures", labelAt: [2022, 815] }),
+  edge({
+    from: "NearJCacheConfig",
+    to: "NearJCache",
+    points: [[2010, 565], [2010, 1030], [1635, 1030]],
+    d: "M2010 565 L2010 1018 Q2010 1030 1998 1030 L1635 1030",
+    color: "amber",
+    marker: "arrow",
+    dashed: true,
+    label: "configures",
+    labelAt: [2022, 815],
+  }),
   edge({ from: "JCacheEntryEventListener", to: "JCache", points: [[600, 435], [685, 435]], color: "pink", marker: "arrow", dashed: true }),
-  edge({ from: "NearJCache", to: "FrontCache", points: [[915, 1220], [915, 1270], [550, 1270], [550, 1340]], color: "blue", marker: "arrow", dashed: true, label: "frontCache", labelAt: [610, 1257] }),
-  edge({ from: "NearJCache", to: "BackCache", points: [[1455, 1220], [1455, 1270], [1800, 1270], [1800, 1340]], color: "slate", marker: "arrow", dashed: true, label: "backCache", labelAt: [1585, 1257] }),
-  edge({ from: "BackCache", to: "JCacheEntryEventListener", points: [[1420, 1550], [1420, 1590], [118, 1590], [118, 585]], color: "pink", marker: "arrow", dashed: true, label: "entry events", labelAt: [480, 1578] }),
+  edge({ from: "NearJCache", to: "FrontCache", points: [[550, 1220], [550, 1340]], color: "blue", marker: "arrow", dashed: true, label: "frontCache", labelAt: [550, 1285] }),
+  edge({ from: "NearJCache", to: "BackCache", points: [[1455, 1220], [1455, 1340]], color: "slate", marker: "arrow", dashed: true, label: "backCache", labelAt: [1455, 1285] }),
+  edge({
+    from: "BackCache",
+    to: "JCacheEntryEventListener",
+    points: [[1800, 1555], [1800, 1590], [118, 1590], [118, 585]],
+    d: "M1800 1555 L1800 1578 Q1800 1590 1788 1590 L130 1590 Q118 1590 118 1578 L118 585",
+    color: "pink",
+    marker: "arrow",
+    dashed: true,
+    label: "entry events",
+    labelAt: [480, 1578],
+  }),
 ];
 
 const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" role="img" aria-label="NearJCache Synchronous Class Diagram">
@@ -199,7 +219,7 @@ const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${
     .title{font-family:"Architects Daughter";font-size:46px;fill:#0F172A}.subtitle{font-family:"Comic Mono";font-size:16px;fill:#475569}
     .sectionLabel{font-family:"Architects Daughter";font-size:24px;fill:#0F172A}
     .chip{stroke-width:1.6}.chipText{font-family:"Comic Mono";font-size:14px;fill:#334155}
-    .classBox{stroke-width:1.8;filter:url(#shadow)}.stereotype{font-family:"Comic Mono";font-size:14px;fill:#475569}.classTitle{font-family:"Architects Daughter";font-size:27px;fill:#0F172A}
+    .classCard{stroke-width:1.8;filter:url(#shadow)}.stereotype{font-family:"Comic Mono";font-size:14px;fill:#475569}.classTitle{font-family:"Architects Daughter";font-size:27px;fill:#0F172A}
     .member{font-family:"Comic Mono";font-size:14px;fill:#334155}.divider{stroke-width:1.1;opacity:.45}
     .noteBox{stroke-width:1.7;filter:url(#shadow)}.noteTitle{font-family:"Architects Daughter";font-size:27px;fill:#0F172A}.noteLine{font-family:"Comic Mono";font-size:14px;fill:#334155}
     .edge{fill:none;stroke-width:3;stroke-linecap:round;stroke-linejoin:round}.dashed{stroke-dasharray:9 7}.edgeLabel{font-family:"Comic Mono";font-size:13px;fill:#475569}
@@ -207,7 +227,7 @@ const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${
 </defs>
 <rect class="canvas" width="${width}" height="${height}"/>
 <rect class="frame" x="34" y="30" width="${width - 68}" height="${height - 60}" rx="8"/>
-<text class="title" x="72" y="86">NearJCache Synchronous Two-Tier Cache</text>
+<text class="title" x="72" y="86">NearJCache Synchronous Class Diagram</text>
 <text class="subtitle" x="76" y="120">cache-core JCache alias, local front cache, remote back cache delegation, listener propagation, and sync/async back writes.</text>
 ${body.join("\n")}
 </svg>`;

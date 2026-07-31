@@ -65,15 +65,20 @@ function card({ id, x, y, w, h, color, title, lines = [] }) {
   const [fill, stroke, dark] = palette[color];
   return `<g id="${esc(id)}">
   <rect class="card" x="${x}" y="${y}" width="${w}" height="${h}" rx="8" fill="${fill}" stroke="${stroke}"/>
-  <text class="cardTitle" x="${x + 22}" y="${y + 38}">${esc(title)}</text>
+  <text class="cardTitle" x="${x + 28}" y="${y + 38}">${esc(title)}</text>
   <path class="divider" d="M${x} ${y + 58}H${x + w}" stroke="${dark}"/>
-  ${lines.map((line, index) => `<text class="body" x="${x + 22}" y="${y + 88 + index * 23}">${esc(line)}</text>`).join("\n")}
+  ${lines.map((line, index) => `<text class="body" x="${x + 34}" y="${y + 88 + index * 23}">${esc(line)}</text>`).join("\n")}
 </g>`;
 }
 
 function edge({ from, to, points, color, dashed = false, label = "", labelAt }) {
   const [, , dark] = palette[color];
-  const d = points.map((point, index) => `${index === 0 ? "M" : "L"}${point[0]} ${point[1]}`).join(" ");
+  const d = points.map((point, index) => {
+    if (index === 0) return `M${point[0]} ${point[1]}`;
+    if (index === points.length - 1) return `L${point[0]} ${point[1]}`;
+    const previous = points[index - 1], next = points[index + 1];
+    return `L${(previous[0] + point[0]) / 2} ${(previous[1] + point[1]) / 2} Q${point[0]} ${point[1]} ${(point[0] + next[0]) / 2} ${(point[1] + next[1]) / 2}`;
+  }).join(" ");
   const p = labelAt ?? points[Math.floor(points.length / 2)];
   return `<g data-from="${esc(from)}" data-to="${esc(to)}">
   <path class="edge ${dashed ? "dashed" : ""}" d="${d}" stroke="${dark}" marker-end="url(#arrow-${color})"/>
@@ -81,11 +86,12 @@ function edge({ from, to, points, color, dashed = false, label = "", labelAt }) 
 </g>`;
 }
 
-const width = 2700;
+const width = 2455;
 const height = 1620;
 const left = 90;
-const bandWidth = 2520;
+const bandWidth = 2275;
 const body = [
+  `<metadata data-allow-grid="true"/>`,
   band({ id: "ConfigLayer", x: left, y: 180, w: bandWidth, h: 210, color: "green", label: "configuration layer" }),
   card({ id: "HibernateProps", x: 260, y: 230, w: 610, h: 125, color: "green", title: "hibernate.cache.lettuce.*", lines: ["redis_uri, codec, use_resp3", "local sizing, local expiry, Redis TTL overrides"] }),
   card({ id: "Properties", x: 1060, y: 230, w: 610, h: 125, color: "green", title: "LettuceNearCacheProperties", lines: ["validates values and parses durations", "creates codec and builds LettuceNearCacheConfig"] }),
@@ -124,7 +130,7 @@ const body = [
   edge({ from: "NearCache", to: "LettuceRedis", points: [[1340, 1250], [1340, 1308], [1820, 1308], [1820, 1385]], color: "pink", label: "back tier", labelAt: [1510, 1289] }),
 ];
 
-const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" role="img" aria-label="Hibernate Lettuce Cache Layer Structure Diagram">
+const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" role="img" aria-label="Hibernate Lettuce Cache Layer Structure Diagram" data-intent="Hibernate settings are parsed into region-specific Lettuce NearCache configuration, then the RegionFactory creates StorageAccess bridges that delegate between Caffeine L1 and Redis L2." data-evidence="cache/hibernate-cache-lettuce/README.md,cache/hibernate-cache-lettuce/src/main/kotlin/io/bluetape4k/hibernate/cache/lettuce/LettuceNearCacheRegionFactory.kt" data-source-read="cache/hibernate-cache-lettuce/README.md; cache/hibernate-cache-lettuce/src/main/kotlin/io/bluetape4k/hibernate/cache/lettuce/LettuceNearCacheStorageAccess.kt">
 <defs>
   <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="5" stdDeviation="4" flood-color="#0F172A" flood-opacity="0.10"/></filter>
   ${markerDefs()}

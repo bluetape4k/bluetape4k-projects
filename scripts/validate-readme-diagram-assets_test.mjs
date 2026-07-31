@@ -226,6 +226,47 @@ test("canonical foundation diagram validation slice passes", (context) => {
   assert.deepEqual(validation.rows.flatMap((row) => row.failures), []);
 });
 
+test("canonical cache diagram validation slice passes", (context) => {
+  const root = mkdtempSync(join(tmpdir(), "readme-diagram-validator-"));
+  const diagramDir = join(root, "docs/images/readme-diagrams");
+  const report = join(root, "diagram-validation-report.json");
+  const diagramNames = [
+    "cache-cache-core-diagram-01.svg",
+    "cache-cache-core-diagram-02.svg",
+    "cache-cache-core-diagram-03.svg",
+    "cache-cache-core-diagram-04.svg",
+    "cache-cache-core-diagram-05.svg",
+    "cache-cache-core-diagram-06.svg",
+    "cache-cache-hazelcast-diagram-02.svg",
+    "cache-cache-lettuce-diagram-01.svg",
+    "cache-cache-lettuce-diagram-02.svg",
+    "cache-cache-lettuce-diagram-04.svg",
+    "cache-hibernate-cache-lettuce-diagram-02.svg",
+  ];
+  context.after(() => rmSync(root, { recursive: true, force: true }));
+
+  mkdirSync(diagramDir, { recursive: true });
+  for (const diagramName of diagramNames) {
+    writeFileSync(
+      join(diagramDir, diagramName),
+      readFileSync(join(repositoryRoot, "docs/images/readme-diagrams", diagramName), "utf8"),
+      "utf8",
+    );
+  }
+
+  const result = spawnSync(process.execPath, [validator], {
+    cwd: root,
+    encoding: "utf8",
+    env: { ...process.env, DIAGRAM_VALIDATION_REPORT: report },
+  });
+
+  assert.equal(result.status, 0, result.stderr);
+  const validation = JSON.parse(readFileSync(report, "utf8"));
+  assert.equal(validation.total, 11);
+  assert.equal(validation.failed, 0);
+  assert.deepEqual(validation.rows.flatMap((row) => row.failures), []);
+});
+
 test("canonical Okio async hierarchy has balanced content margins", (context) => {
   const root = mkdtempSync(join(tmpdir(), "readme-diagram-validator-"));
   const diagramDir = join(root, "docs/images/readme-diagrams");
