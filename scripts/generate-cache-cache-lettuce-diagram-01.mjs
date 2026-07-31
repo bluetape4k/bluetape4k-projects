@@ -5,7 +5,7 @@ import { existsSync, readFileSync, writeFileSync } from "node:fs";
 const svgPath = "docs/images/readme-diagrams/cache-cache-lettuce-diagram-01.svg";
 const pngPath = "docs/images/readme-diagrams/cache-cache-lettuce-diagram-01.png";
 const W = 2440;
-const H = 1540;
+const H = 1608;
 
 const files = {
   readme: "cache/cache-lettuce/README.md",
@@ -58,21 +58,26 @@ function card({ id, x, y, w, h, color, stereo, title, attrs = [], methods = [] }
     <text class="stereo" x="${x + w / 2}" y="${y + 28}" text-anchor="middle">${esc(stereo)}</text>
     <text class="cardTitle" x="${x + w / 2}" y="${y + 58}" text-anchor="middle">${esc(title)}</text>
     <path class="divider" d="M${x} ${attrY}H${x + w}" stroke="${dark}"/>
-    ${attrs.map((line, i) => `<text class="member" x="${x + 24}" y="${attrY + 28 + i * 24}">${esc(line)}</text>`).join("")}
+    ${attrs.map((line, i) => `<text class="member" x="${x + 34}" y="${attrY + 28 + i * 24}">${esc(line)}</text>`).join("")}
     <path class="divider" d="M${x} ${methodY}H${x + w}" stroke="${dark}"/>
-    ${methods.map((line, i) => `<text class="member" x="${x + 24}" y="${methodY + 28 + i * 24}">${esc(line)}</text>`).join("")}
+    ${methods.map((line, i) => `<text class="member" x="${x + 34}" y="${methodY + 28 + i * 24}">${esc(line)}</text>`).join("")}
   </g>`;
 }
 function note({ x, y, w, h, color, title, lines }) {
   const [fill, stroke] = C[color];
   return `<g><rect class="note" x="${x}" y="${y}" width="${w}" height="${h}" rx="8" fill="${fill}" stroke="${stroke}"/>
-    <text class="noteTitle" x="${x + 26}" y="${y + 45}">${esc(title)}</text>
-    ${lines.map((line, i) => `<text class="noteLine" x="${x + 28}" y="${y + 82 + i * 28}">${esc(line)}</text>`).join("")}
+    <text class="noteTitle" x="${x + 34}" y="${y + 45}">${esc(title)}</text>
+    ${lines.map((line, i) => `<text class="noteLine" x="${x + 34}" y="${y + 82 + i * 28}">${esc(line)}</text>`).join("")}
   </g>`;
 }
 function edge({ points, color, marker = "open", dashed = true, label = "", labelAt }) {
   const [, , dark] = C[color];
-  const d = points.map((p, i) => `${i ? "L" : "M"}${p[0]} ${p[1]}`).join(" ");
+  const d = points.map((p, i) => {
+    if (i === 0) return `M${p[0]} ${p[1]}`;
+    if (i === points.length - 1) return `L${p[0]} ${p[1]}`;
+    const previous = points[i - 1], next = points[i + 1];
+    return `L${(previous[0] + p[0]) / 2} ${(previous[1] + p[1]) / 2} Q${p[0]} ${p[1]} ${(p[0] + next[0]) / 2} ${(p[1] + next[1]) / 2}`;
+  }).join(" ");
   const p = labelAt ?? points[Math.floor(points.length / 2)];
   return `<g><path class="edge ${dashed ? "dashed" : ""}" d="${d}" stroke="${dark}" marker-end="url(#${marker}-${color})"/>
     ${label ? `<text class="edgeLabel" x="${p[0] + 8}" y="${p[1] - 8}">${esc(label)}</text>` : ""}</g>`;
@@ -110,7 +115,7 @@ const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" 
     .canvas{fill:${C.canvas}}.frame{fill:${C.frame};stroke:${C.line};stroke-width:1.5;filter:url(#shadow)}
     .title{font-family:"Architects Daughter";font-size:46px;fill:${C.ink}}.subtitle{font-family:"Comic Mono";font-size:15.5px;fill:${C.muted}}
     .card,.note{stroke-width:1.8;filter:url(#shadow)}.stereo{font-family:"Comic Mono";font-size:13px;fill:${C.muted}}.cardTitle,.noteTitle{font-family:"Architects Daughter";font-size:27px;fill:${C.ink}}
-    .member,.noteLine{font-family:"Comic Mono";font-size:13.8px;fill:#334155}.divider{stroke-width:1.1;opacity:.45}
+    .member,.noteLine{font-family:"Comic Mono";font-size:12px;fill:#334155}.divider{stroke-width:1.1;opacity:.45}
     .edge{fill:none;stroke-width:3.4;stroke-linecap:round;stroke-linejoin:round}.dashed{stroke-dasharray:9 7}.edgeLabel{font-family:"Comic Mono";font-size:13px;fill:${C.muted}}
   </style>
 </defs>

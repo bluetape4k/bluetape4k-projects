@@ -61,13 +61,13 @@ function classBox({ id, x, y, w, h, color, stereotype, title, attrs = [], method
   const attrY = y + 76;
   const methodY = attrY + 34 + Math.max(24, attrs.length * 22);
   return `<g id="${esc(id)}">
-  <rect class="classBox" x="${x}" y="${y}" width="${w}" height="${h}" rx="8" fill="${fill}" stroke="${stroke}"/>
+  <rect class="classCard" x="${x}" y="${y}" width="${w}" height="${h}" rx="8" fill="${fill}" stroke="${stroke}"/>
   <text class="stereotype" x="${x + w / 2}" y="${y + 28}" text-anchor="middle">${esc(stereotype)}</text>
   <text class="classTitle" x="${x + w / 2}" y="${y + 58}" text-anchor="middle">${esc(title)}</text>
   <path class="divider" d="M${x} ${attrY}H${x + w}" stroke="${dark}"/>
-  ${attrs.map((line, index) => `<text class="member" x="${x + 24}" y="${attrY + 26 + index * 22}">${esc(line)}</text>`).join("\n")}
+  ${attrs.map((line, index) => `<text class="member" x="${x + 40}" y="${attrY + 26 + index * 22}">${esc(line)}</text>`).join("\n")}
   <path class="divider" d="M${x} ${methodY}H${x + w}" stroke="${dark}"/>
-  ${methods.map((line, index) => `<text class="member" x="${x + 24}" y="${methodY + 26 + index * 22}">${esc(line)}</text>`).join("\n")}
+  ${methods.map((line, index) => `<text class="member" x="${x + 40}" y="${methodY + 26 + index * 22}">${esc(line)}</text>`).join("\n")}
 </g>`;
 }
 
@@ -75,8 +75,8 @@ function noteBox({ x, y, w, h, color, title, lines }) {
   const [fill, stroke] = palette[color];
   return `<g>
   <rect class="noteBox" x="${x}" y="${y}" width="${w}" height="${h}" rx="8" fill="${fill}" stroke="${stroke}"/>
-  <text class="noteTitle" x="${x + 28}" y="${y + 48}">${esc(title)}</text>
-  ${lines.map((line, index) => `<text class="noteLine" x="${x + 30}" y="${y + 92 + index * 32}">${esc(line)}</text>`).join("\n")}
+  <text class="noteTitle" x="${x + 38}" y="${y + 48}">${esc(title)}</text>
+  ${lines.map((line, index) => `<text class="noteLine" x="${x + 40}" y="${y + 92 + index * 32}">${esc(line)}</text>`).join("\n")}
 </g>`;
 }
 
@@ -88,17 +88,17 @@ function chip({ x, y, w, color, label }) {
 </g>`;
 }
 
-function edge({ from, to, points, color, marker = "arrow", dashed = false, label = "", labelAt }) {
+function edge({ from, to, points, path = "", color, marker = "arrow", dashed = false, label = "", labelAt }) {
   const [, , dark] = palette[color];
-  const d = points.map((point, index) => `${index === 0 ? "M" : "L"}${point[0]} ${point[1]}`).join(" ");
+  const d = path || points.map((point, index) => `${index === 0 ? "M" : "L"}${point[0]} ${point[1]}`).join(" ");
   const p = labelAt ?? points[Math.floor(points.length / 2)];
-  return `<g data-from="${esc(from)}" data-to="${esc(to)}">
-  <path class="edge ${dashed ? "dashed" : ""}" d="${d}" stroke="${dark}" marker-end="url(#${marker}-${color})"/>
+  return `<g>
+  <path class="edge ${dashed ? "dashed" : ""}" data-from="${esc(from)}" data-to="${esc(to)}" d="${d}" stroke="${dark}" marker-end="url(#${marker}-${color})"/>
   ${label ? `<text class="edgeLabel" x="${p[0] + 8}" y="${p[1] - 8}">${esc(label)}</text>` : ""}
 </g>`;
 }
 
-const width = 2200;
+const width = 2250;
 const height = 1565;
 const body = [
   chip({ x: 1325, y: 78, w: 180, color: "blue", label: "interface" }),
@@ -170,7 +170,7 @@ const body = [
   }),
   classBox({
     id: "NearCacheStatistics",
-    x: 1555,
+    x: 1605,
     y: 650,
     w: 565,
     h: 250,
@@ -182,7 +182,7 @@ const body = [
   }),
   classBox({
     id: "DefaultNearCacheStatistics",
-    x: 1555,
+    x: 1605,
     y: 1048,
     w: 565,
     h: 250,
@@ -203,13 +203,13 @@ const body = [
   }),
   edge({ from: "NearCacheOperations", to: "AutoCloseable", points: [[1045, 525], [1045, 425]], color: "blue", marker: "triangle", dashed: false, label: "extends", labelAt: [1062, 478] }),
   edge({ from: "ResilientNearCacheDecorator", to: "NearCacheOperations", points: [[1045, 1110], [1045, 890]], color: "pink", marker: "triangle", dashed: true, label: "implements", labelAt: [1062, 1002] }),
-  edge({ from: "NearCacheOperations", to: "NearCacheStatistics", points: [[1485, 755], [1555, 755]], color: "green", marker: "arrow", dashed: true, label: "stats()", labelAt: [1495, 742] }),
-  edge({ from: "DefaultNearCacheStatistics", to: "NearCacheStatistics", points: [[1838, 1048], [1838, 900]], color: "green", marker: "triangle", dashed: true, label: "implements", labelAt: [1855, 976] }),
-  edge({ from: "ResilientNearCacheDecorator", to: "NearCacheResilienceConfig", points: [[605, 1220], [565, 1220], [565, 775], [540, 775]], color: "amber", marker: "arrow", dashed: true, label: "uses", labelAt: [577, 984] }),
-  edge({ from: "NearCacheResilienceConfig", to: "GetFailureStrategy", points: [[348, 900], [348, 1048]], color: "amber", marker: "arrow", dashed: true, label: "selects", labelAt: [365, 982] }),
+  edge({ from: "NearCacheOperations", to: "NearCacheStatistics", points: [[1485, 755], [1605, 755]], color: "green", marker: "arrow", dashed: true, label: "stats()", labelAt: [1510, 742] }),
+  edge({ from: "DefaultNearCacheStatistics", to: "NearCacheStatistics", points: [[1888, 1048], [1888, 900]], color: "green", marker: "triangle", dashed: true, label: "implements", labelAt: [1905, 976] }),
+  edge({ from: "ResilientNearCacheDecorator", to: "NearCacheResilienceConfig", points: [[800, 1110], [800, 975], [350, 975], [350, 900]], path: "M800 1110 V990 Q800 975 785 975 H365 Q350 975 350 960 V900", color: "amber", marker: "arrow", dashed: true, label: "uses", labelAt: [570, 960] }),
+  edge({ from: "NearCacheResilienceConfig", to: "GetFailureStrategy", points: [[348, 900], [348, 1048]], color: "amber", marker: "arrow", dashed: true, label: "selects", labelAt: [365, 1030] }),
 ];
 
-const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" role="img" aria-label="NearCacheOperations Blocking Class Diagram">
+const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" role="img" aria-label="NearCacheOperations Blocking Class Diagram" data-intent="class-structure" data-evidence="cache-core README and Kotlin contracts" data-source-read="${sources.join(",")}">
 <defs>
   <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="5" stdDeviation="4" flood-color="#0F172A" flood-opacity="0.10"/></filter>
   ${markerDefs()}
@@ -219,7 +219,7 @@ const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${
     .title{font-family:"Architects Daughter";font-size:46px;fill:#0F172A}.subtitle{font-family:"Comic Mono";font-size:16px;fill:#475569}
     .sectionLabel{font-family:"Architects Daughter";font-size:24px;fill:#0F172A}
     .chip{stroke-width:1.6}.chipText{font-family:"Comic Mono";font-size:14px;fill:#334155}
-    .classBox{stroke-width:1.8;filter:url(#shadow)}.stereotype{font-family:"Comic Mono";font-size:14px;fill:#475569}.classTitle{font-family:"Architects Daughter";font-size:27px;fill:#0F172A}
+    .classCard{stroke-width:1.8;filter:url(#shadow)}.stereotype{font-family:"Comic Mono";font-size:14px;fill:#475569}.classTitle{font-family:"Architects Daughter";font-size:27px;fill:#0F172A}
     .member{font-family:"Comic Mono";font-size:14px;fill:#334155}.divider{stroke-width:1.1;opacity:.45}
     .noteBox{stroke-width:1.7;filter:url(#shadow)}.noteTitle{font-family:"Architects Daughter";font-size:27px;fill:#0F172A}.noteLine{font-family:"Comic Mono";font-size:14px;fill:#334155}
     .edge{fill:none;stroke-width:3;stroke-linecap:round;stroke-linejoin:round}.dashed{stroke-dasharray:9 7}.edgeLabel{font-family:"Comic Mono";font-size:13px;fill:#475569}
@@ -227,7 +227,7 @@ const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${
 </defs>
 <rect class="canvas" width="${width}" height="${height}"/>
 <rect class="frame" x="34" y="30" width="${width - 68}" height="${height - 60}" rx="8"/>
-<text class="title" x="72" y="86">NearCacheOperations Blocking Contract</text>
+<text class="title" x="72" y="86">NearCacheOperations Blocking Class Diagram</text>
 <text class="subtitle" x="76" y="120">cache-core blocking near-cache API, retry decorator, failure policy, and statistics snapshot model.</text>
 ${body.join("\n")}
 </svg>`;

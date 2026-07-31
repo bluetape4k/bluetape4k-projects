@@ -68,13 +68,13 @@ function classBox({ id, x, y, w, h, color, stereotype, title, attrs = [], method
   const attrY = y + 76;
   const methodY = attrY + 34 + Math.max(24, attrs.length * 22);
   return `<g id="${esc(id)}">
-  <rect class="classBox" x="${x}" y="${y}" width="${w}" height="${h}" rx="8" fill="${fill}" stroke="${stroke}"/>
+  <rect class="classCard" x="${x}" y="${y}" width="${w}" height="${h}" rx="8" fill="${fill}" stroke="${stroke}"/>
   <text class="stereotype" x="${x + w / 2}" y="${y + 28}" text-anchor="middle">${esc(stereotype)}</text>
   <text class="classTitle" x="${x + w / 2}" y="${y + 58}" text-anchor="middle">${esc(title)}</text>
   <path class="divider" d="M${x} ${attrY}H${x + w}" stroke="${dark}"/>
-  ${attrs.map((line, index) => `<text class="member" x="${x + 24}" y="${attrY + 26 + index * 22}">${esc(line)}</text>`).join("\n")}
+  ${attrs.map((line, index) => `<text class="member" x="${x + 40}" y="${attrY + 26 + index * 22}">${esc(line)}</text>`).join("\n")}
   <path class="divider" d="M${x} ${methodY}H${x + w}" stroke="${dark}"/>
-  ${methods.map((line, index) => `<text class="member" x="${x + 24}" y="${methodY + 26 + index * 22}">${esc(line)}</text>`).join("\n")}
+  ${methods.map((line, index) => `<text class="member" x="${x + 40}" y="${methodY + 26 + index * 22}">${esc(line)}</text>`).join("\n")}
 </g>`;
 }
 
@@ -90,8 +90,8 @@ function noteBox({ x, y, w, h, color, title, lines }) {
   const [fill, stroke] = palette[color];
   return `<g>
   <rect class="noteBox" x="${x}" y="${y}" width="${w}" height="${h}" rx="8" fill="${fill}" stroke="${stroke}"/>
-  <text class="noteTitle" x="${x + 28}" y="${y + 48}">${esc(title)}</text>
-  ${lines.map((line, index) => `<text class="noteLine" x="${x + 30}" y="${y + 92 + index * 34}">${esc(line)}</text>`).join("\n")}
+  <text class="noteTitle" x="${x + 38}" y="${y + 48}">${esc(title)}</text>
+  ${lines.map((line, index) => `<text class="noteLine" x="${x + 40}" y="${y + 92 + index * 34}">${esc(line)}</text>`).join("\n")}
 </g>`;
 }
 
@@ -107,13 +107,13 @@ function edge({ from, to, points, color, marker = "arrow", dashed = false, label
   const [, , dark] = palette[color];
   const d = points.map((point, index) => `${index === 0 ? "M" : "L"}${point[0]} ${point[1]}`).join(" ");
   const p = labelAt ?? points[Math.floor(points.length / 2)];
-  return `<g data-from="${esc(from)}" data-to="${esc(to)}">
-  <path class="edge ${dashed ? "dashed" : ""}" d="${d}" stroke="${dark}" marker-end="url(#${marker}-${color})"/>
+  return `<g>
+  <path class="edge ${dashed ? "dashed" : ""}" data-from="${esc(from)}" data-to="${esc(to)}" d="${d}" stroke="${dark}" marker-end="url(#${marker}-${color})"/>
   ${label ? `<text class="edgeLabel" x="${p[0] + 8}" y="${p[1] - 8}">${esc(label)}</text>` : ""}
 </g>`;
 }
 
-const width = 2400;
+const width = 2570;
 const height = 1850;
 const body = [
   chip({ x: 1425, y: 78, w: 190, color: "blue", label: "interface" }),
@@ -144,7 +144,7 @@ const body = [
   edge({ from: "SuspendNearJCache", to: "SuspendJCache", points: [[1810, 1465], [1810, 1335]], color: "teal", marker: "triangle", dashed: true, label: "implements", labelAt: [1826, 1406] }),
 ];
 
-const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" role="img" aria-label="NearCache Interface Hierarchy">
+const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" role="img" aria-label="NearCache Interface Hierarchy" data-intent="class-structure" data-evidence="cache-core README and Kotlin contracts" data-source-read="${sources.join(",")}">
 <defs>
   <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="5" stdDeviation="4" flood-color="#0F172A" flood-opacity="0.10"/></filter>
   ${markerDefs()}
@@ -153,7 +153,7 @@ const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${
     .canvas{fill:#F8FAFC}.frame{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.5;filter:url(#shadow)}
     .title{font-family:"Architects Daughter";font-size:46px;fill:#0F172A}.subtitle{font-family:"Comic Mono";font-size:16px;fill:#475569}
     .group{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.4}.groupTitle{font-family:"Architects Daughter";font-size:26px;fill:#0F172A}.groupDetail{font-family:"Comic Mono";font-size:14px;fill:#64748B}
-    .classBox{stroke-width:1.8;filter:url(#shadow)}.stereotype{font-family:"Comic Mono";font-size:14px;fill:#475569}.classTitle{font-family:"Architects Daughter";font-size:27px;fill:#0F172A}
+    .classCard{stroke-width:1.8;filter:url(#shadow)}.stereotype{font-family:"Comic Mono";font-size:14px;fill:#475569}.classTitle{font-family:"Architects Daughter";font-size:27px;fill:#0F172A}
     .member{font-family:"Comic Mono";font-size:14px;fill:#334155}.divider{stroke-width:1.1;opacity:.45}
     .edge{fill:none;stroke-width:3;stroke-linecap:round;stroke-linejoin:round}.dashed{stroke-dasharray:9 7}.edgeLabel{font-family:"Comic Mono";font-size:13px;fill:#475569}
   </style>

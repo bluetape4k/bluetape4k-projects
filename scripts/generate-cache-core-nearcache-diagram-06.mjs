@@ -77,12 +77,12 @@ function chip({ x, y, w, color, label }) {
 </g>`;
 }
 
-function edge({ from, to, points, color, marker = "arrow", dashed = false, label = "", labelAt }) {
+function edge({ from, to, points, d, color, marker = "arrow", dashed = false, label = "", labelAt }) {
   const [, , dark] = palette[color];
-  const d = points.map((point, index) => `${index === 0 ? "M" : "L"}${point[0]} ${point[1]}`).join(" ");
+  const pathData = d ?? points.map((point, index) => `${index === 0 ? "M" : "L"}${point[0]} ${point[1]}`).join(" ");
   const p = labelAt ?? points[Math.floor(points.length / 2)];
   return `<g data-from="${esc(from)}" data-to="${esc(to)}">
-  <path class="edge ${dashed ? "dashed" : ""}" d="${d}" stroke="${dark}" marker-end="url(#${marker}-${color})"/>
+  <path class="edge ${dashed ? "dashed" : ""}" d="${pathData}" stroke="${dark}" marker-end="url(#${marker}-${color})"/>
   ${label ? `<text class="edgeLabel" x="${p[0] + 8}" y="${p[1] - 8}">${esc(label)}</text>` : ""}
 </g>`;
 }
@@ -185,18 +185,78 @@ const body = [
   }),
   edge({ from: "SuspendNearJCache", to: "SuspendJCache", points: [[900, 385], [730, 385]], color: "green", marker: "triangle", dashed: true, label: "implements", labelAt: [745, 372] }),
   edge({ from: "SuspendNearJCache", to: "Listener", points: [[1690, 390], [1880, 390]], color: "pink", marker: "arrow", dashed: true, label: "registers", labelAt: [1750, 377] }),
-  edge({ from: "SuspendNearJCache", to: "ReadPath", points: [[1080, 550], [1080, 650], [500, 650], [500, 720]], color: "purple", marker: "arrow", dashed: true, label: "read API", labelAt: [690, 637] }),
+  edge({
+    from: "SuspendNearJCache",
+    to: "ReadPath",
+    points: [[1080, 550], [1080, 650], [500, 650], [500, 720]],
+    d: "M1080 550 L1080 638 Q1080 650 1068 650 L512 650 Q500 650 500 662 L500 720",
+    color: "purple",
+    marker: "arrow",
+    dashed: true,
+    label: "read API",
+    labelAt: [690, 637],
+  }),
   edge({ from: "SuspendNearJCache", to: "WritePath", points: [[1295, 550], [1295, 735]], color: "amber", marker: "arrow", dashed: true, label: "write API", labelAt: [1312, 655] }),
-  edge({ from: "SuspendNearJCache", to: "FlowPath", points: [[1508, 550], [1508, 650], [2110, 650], [2110, 740]], color: "slate", marker: "arrow", dashed: true, label: "Flow reads", labelAt: [1760, 637] }),
+  edge({
+    from: "SuspendNearJCache",
+    to: "FlowPath",
+    points: [[1508, 550], [1508, 650], [2110, 650], [2110, 740]],
+    d: "M1508 550 L1508 638 Q1508 650 1520 650 L2098 650 Q2110 650 2110 662 L2110 740",
+    color: "slate",
+    marker: "arrow",
+    dashed: true,
+    label: "Flow reads",
+    labelAt: [1760, 637],
+  }),
   edge({ from: "ReadPath", to: "FrontCache", points: [[500, 1000], [500, 1220]], color: "blue", marker: "arrow", dashed: true, label: "front first", labelAt: [518, 1110] }),
-  edge({ from: "WritePath", to: "FrontCache", points: [[990, 820], [900, 820], [900, 1050], [1525, 1050], [1525, 1280], [980, 1280]], color: "blue", marker: "arrow", dashed: true, label: "front update", labelAt: [918, 1020] }),
-  edge({ from: "WritePath", to: "BackCache", points: [[1610, 875], [1740, 875], [1740, 1168], [1840, 1168], [1840, 1220]], color: "slate", marker: "arrow", dashed: true, label: "back update", labelAt: [1758, 1026] }),
-  edge({ from: "ReadPath", to: "BackCache", points: [[810, 842], [890, 842], [890, 1108], [1470, 1108], [1470, 1260], [1510, 1260]], color: "slate", marker: "arrow", dashed: true, label: "miss lookup", labelAt: [1060, 1095] }),
+  edge({
+    from: "WritePath",
+    to: "FrontCache",
+    points: [[990, 900], [950, 900], [950, 1220]],
+    d: "M990 900 L962 900 Q950 900 950 912 L950 1220",
+    color: "blue",
+    marker: "arrow",
+    dashed: true,
+    label: "front update",
+    labelAt: [958, 1080],
+  }),
+  edge({
+    from: "WritePath",
+    to: "BackCache",
+    points: [[1610, 875], [1740, 875], [1740, 1168], [1840, 1168], [1840, 1220]],
+    d: "M1610 875 L1728 875 Q1740 875 1740 887 L1740 1156 Q1740 1168 1752 1168 L1828 1168 Q1840 1168 1840 1180 L1840 1220",
+    color: "slate",
+    marker: "arrow",
+    dashed: true,
+    label: "back update",
+    labelAt: [1758, 1026],
+  }),
+  edge({
+    from: "ReadPath",
+    to: "BackCache",
+    points: [[190, 850], [90, 850], [90, 1480], [1890, 1480], [1890, 1455]],
+    d: "M190 850 L102 850 Q90 850 90 862 L90 1468 Q90 1480 102 1480 L1878 1480 Q1890 1480 1890 1468 L1890 1455",
+    color: "slate",
+    marker: "arrow",
+    dashed: true,
+    label: "miss lookup",
+    labelAt: [98, 1160],
+  }),
   edge({ from: "BackCache", to: "FrontCache", points: [[1510, 1348], [1220, 1348], [980, 1348]], color: "blue", marker: "arrow", dashed: true, label: "fill or event sync", labelAt: [1140, 1335] }),
-  edge({ from: "BackCache", to: "Listener", points: [[2270, 1340], [2530, 1340], [2530, 390], [2480, 390]], color: "pink", marker: "arrow", dashed: true, label: "entry events", labelAt: [2345, 1010] }),
+  edge({
+    from: "BackCache",
+    to: "Listener",
+    points: [[2270, 1340], [2530, 1340], [2530, 390], [2480, 390]],
+    d: "M2270 1340 L2518 1340 Q2530 1340 2530 1328 L2530 402 Q2530 390 2518 390 L2480 390",
+    color: "pink",
+    marker: "arrow",
+    dashed: true,
+    label: "entry events",
+    labelAt: [2345, 1010],
+  }),
 ];
 
-const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" role="img" aria-label="SuspendNearJCache Coroutine Operation Diagram">
+const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" role="img" aria-label="SuspendNearJCache Coroutine Operation Diagram" data-layout="operation-map" data-allow-grid="true">
 <defs>
   <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="5" stdDeviation="4" flood-color="#0F172A" flood-opacity="0.10"/></filter>
   ${markerDefs()}

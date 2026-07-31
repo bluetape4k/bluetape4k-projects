@@ -64,7 +64,7 @@ function classBox({ id, x, y, w, h, color, stereotype, title, attrs = [], method
   const attrY = y + 76;
   const methodY = attrY + 34 + Math.max(24, attrs.length * 22);
   return `<g id="${esc(id)}">
-  <rect class="classBox" x="${x}" y="${y}" width="${w}" height="${h}" rx="8" fill="${fill}" stroke="${stroke}"/>
+  <rect class="classCard" x="${x}" y="${y}" width="${w}" height="${h}" rx="8" fill="${fill}" stroke="${stroke}"/>
   <text class="stereotype" x="${x + w / 2}" y="${y + 28}" text-anchor="middle">${esc(stereotype)}</text>
   <text class="classTitle" x="${x + w / 2}" y="${y + 58}" text-anchor="middle">${esc(title)}</text>
   <path class="divider" d="M${x} ${attrY}H${x + w}" stroke="${dark}"/>
@@ -74,9 +74,9 @@ function classBox({ id, x, y, w, h, color, stereotype, title, attrs = [], method
 </g>`;
 }
 
-function noteBox({ x, y, w, h, color, title, lines }) {
+function noteBox({ id, x, y, w, h, color, title, lines }) {
   const [fill, stroke] = palette[color];
-  return `<g>
+  return `<g${id ? ` id="${esc(id)}"` : ""}>
   <rect class="noteBox" x="${x}" y="${y}" width="${w}" height="${h}" rx="8" fill="${fill}" stroke="${stroke}"/>
   <text class="noteTitle" x="${x + 28}" y="${y + 48}">${esc(title)}</text>
   ${lines.map((line, index) => `<text class="noteLine" x="${x + 30}" y="${y + 92 + index * 32}">${esc(line)}</text>`).join("\n")}
@@ -91,12 +91,12 @@ function chip({ x, y, w, color, label }) {
 </g>`;
 }
 
-function edge({ from, to, points, color, marker = "arrow", dashed = false, label = "", labelAt }) {
+function edge({ from, to, points, d, color, marker = "arrow", dashed = false, label = "", labelAt }) {
   const [, , dark] = palette[color];
-  const d = points.map((point, index) => `${index === 0 ? "M" : "L"}${point[0]} ${point[1]}`).join(" ");
+  const pathData = d ?? points.map((point, index) => `${index === 0 ? "M" : "L"}${point[0]} ${point[1]}`).join(" ");
   const p = labelAt ?? points[Math.floor(points.length / 2)];
   return `<g data-from="${esc(from)}" data-to="${esc(to)}">
-  <path class="edge ${dashed ? "dashed" : ""}" d="${d}" stroke="${dark}" marker-end="url(#${marker}-${color})"/>
+  <path class="edge ${dashed ? "dashed" : ""}" d="${pathData}" stroke="${dark}" marker-end="url(#${marker}-${color})"/>
   ${label ? `<text class="edgeLabel" x="${p[0] + 8}" y="${p[1] - 8}">${esc(label)}</text>` : ""}
 </g>`;
 }
@@ -149,9 +149,9 @@ const body = [
   }),
   classBox({
     id: "SuspendJCacheEntry",
-    x: 1790,
+    x: 1740,
     y: 265,
-    w: 470,
+    w: 520,
     h: 245,
     color: "amber",
     stereotype: "<<data class>>",
@@ -161,9 +161,9 @@ const body = [
   }),
   classBox({
     id: "SuspendJCacheEntryEventListener",
-    x: 90,
+    x: 70,
     y: 265,
-    w: 500,
+    w: 520,
     h: 275,
     color: "pink",
     stereotype: "<<listener>>",
@@ -172,6 +172,7 @@ const body = [
     methods: ["created/updated -> putAll", "removed/expired -> removeAll", "does not block JCache event thread"],
   }),
   noteBox({
+    id: "ProviderBoundary",
     x: 250,
     y: 1260,
     w: 640,
@@ -191,10 +192,20 @@ const body = [
   }),
   edge({ from: "CaffeineSuspendJCache", to: "SuspendJCache", points: [[670, 870], [670, 630]], color: "blue", marker: "triangle", dashed: true, label: "implements", labelAt: [687, 755] }),
   edge({ from: "SuspendNearJCache", to: "SuspendJCache", points: [[1580, 870], [1580, 630]], color: "green", marker: "triangle", dashed: true, label: "implements", labelAt: [1597, 755] }),
-  edge({ from: "SuspendJCache", to: "SuspendJCacheEntry", points: [[1650, 405], [1790, 405]], color: "amber", marker: "arrow", dashed: true, label: "Flow entry", labelAt: [1680, 392] }),
+  edge({ from: "SuspendJCache", to: "SuspendJCacheEntry", points: [[1650, 405], [1740, 405]], color: "amber", marker: "arrow", dashed: true, label: "Flow entry", labelAt: [1650, 245] }),
   edge({ from: "SuspendJCacheEntryEventListener", to: "SuspendJCache", points: [[590, 405], [650, 405]], color: "pink", marker: "arrow", dashed: true }),
   edge({ from: "SuspendNearJCache", to: "CaffeineSuspendJCache", points: [[1200, 1035], [990, 1035]], color: "blue", marker: "arrow", dashed: true, label: "front", labelAt: [1080, 1022] }),
-  edge({ from: "SuspendNearJCache", to: "ProviderBoundary", points: [[1580, 1200], [1580, 1250], [670, 1250], [670, 1260]], color: "slate", marker: "arrow", dashed: true, label: "back implementations", labelAt: [930, 1237] }),
+  edge({
+    from: "SuspendNearJCache",
+    to: "ProviderBoundary",
+    points: [[1580, 1200], [1580, 1250], [670, 1250], [670, 1260]],
+    d: "M1580 1200 L1580 1218 Q1580 1230 1568 1230 L682 1230 Q670 1230 670 1242 L670 1260",
+    color: "slate",
+    marker: "arrow",
+    dashed: true,
+    label: "back implementations",
+    labelAt: [930, 1217],
+  }),
 ];
 
 const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" role="img" aria-label="SuspendJCache Interface Class Diagram">
@@ -207,7 +218,7 @@ const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${
     .title{font-family:"Architects Daughter";font-size:46px;fill:#0F172A}.subtitle{font-family:"Comic Mono";font-size:16px;fill:#475569}
     .sectionLabel{font-family:"Architects Daughter";font-size:24px;fill:#0F172A}
     .chip{stroke-width:1.6}.chipText{font-family:"Comic Mono";font-size:14px;fill:#334155}
-    .classBox{stroke-width:1.8;filter:url(#shadow)}.stereotype{font-family:"Comic Mono";font-size:14px;fill:#475569}.classTitle{font-family:"Architects Daughter";font-size:27px;fill:#0F172A}
+    .classCard{stroke-width:1.8;filter:url(#shadow)}.stereotype{font-family:"Comic Mono";font-size:14px;fill:#475569}.classTitle{font-family:"Architects Daughter";font-size:27px;fill:#0F172A}
     .member{font-family:"Comic Mono";font-size:14px;fill:#334155}.divider{stroke-width:1.1;opacity:.45}
     .noteBox{stroke-width:1.7;filter:url(#shadow)}.noteTitle{font-family:"Architects Daughter";font-size:27px;fill:#0F172A}.noteLine{font-family:"Comic Mono";font-size:14px;fill:#334155}
     .edge{fill:none;stroke-width:3;stroke-linecap:round;stroke-linejoin:round}.dashed{stroke-dasharray:9 7}.edgeLabel{font-family:"Comic Mono";font-size:13px;fill:#475569}
@@ -215,7 +226,7 @@ const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${
 </defs>
 <rect class="canvas" width="${width}" height="${height}"/>
 <rect class="frame" x="34" y="30" width="${width - 68}" height="${height - 60}" rx="8"/>
-<text class="title" x="72" y="86">SuspendJCache Coroutine Interface</text>
+<text class="title" x="72" y="86">SuspendJCache Coroutine Class Diagram</text>
 <text class="subtitle" x="76" y="120">cache-core JCache-like suspend contract, Flow entry model, local front cache, and two-tier near-cache usage.</text>
 ${body.join("\n")}
 </svg>`;
