@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1780" height="820" viewBox="0 0 1780 820" role="img" aria-label="Order One-Way FSM">
+<svg xmlns="http://www.w3.org/2000/svg" width="1780" height="878" viewBox="0 0 1780 878" role="img" aria-label="Order One-Way FSM" data-allow-grid="true">
 <defs><filter id="softShadow" x="-8%" y="-10%" width="116%" height="124%"><feDropShadow dx="0" dy="5" stdDeviation="5" flood-color="#0F172A" flood-opacity="0.10"/></filter>
 <marker id="arrow-startCreated" markerWidth="18" markerHeight="14" refX="16" refY="7" orient="auto" markerUnits="userSpaceOnUse" viewBox="0 0 18 14"><path d="M2 2 L16 7 L2 12 Z" fill="#64748B"/></marker>
 <marker id="arrow-pay" markerWidth="18" markerHeight="14" refX="16" refY="7" orient="auto" markerUnits="userSpaceOnUse" viewBox="0 0 18 14"><path d="M2 2 L16 7 L2 12 Z" fill="#2563EB"/></marker>
@@ -7,17 +7,17 @@
 <marker id="arrow-cancelCreated" markerWidth="18" markerHeight="14" refX="16" refY="7" orient="auto" markerUnits="userSpaceOnUse" viewBox="0 0 18 14"><path d="M2 2 L16 7 L2 12 Z" fill="#9333EA"/></marker>
 <marker id="arrow-cancelPaid" markerWidth="18" markerHeight="14" refX="16" refY="7" orient="auto" markerUnits="userSpaceOnUse" viewBox="0 0 18 14"><path d="M2 2 L16 7 L2 12 Z" fill="#9333EA"/></marker>
 <marker id="arrow-cancelRejected" markerWidth="18" markerHeight="14" refX="16" refY="7" orient="auto" markerUnits="userSpaceOnUse" viewBox="0 0 18 14"><path d="M2 2 L16 7 L2 12 Z" fill="#EA580C"/></marker>
-<style>svg{font-family:"Architects Daughter","Comic Mono","Comic Sans MS",ui-sans-serif,system-ui,sans-serif}.canvas{fill:#F8FAFC}.frame{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.5;filter:url(#softShadow)}.title{font-family:"Architects Daughter";font-size:44px;fill:#0F172A}.subtitle{font-family:"Comic Mono";font-size:16px;fill:#475569}.card,.note{filter:url(#softShadow);stroke-width:2}.stateTitle{font-family:"Architects Daughter";font-size:31px;fill:#0F172A}.detail,.noteText{font-family:"Comic Mono";font-size:14px;fill:#475569}.badge{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.2}.badgeText{font-family:"Comic Mono";font-size:11.5px;fill:#475569}.start{fill:#0F172A}.edge{fill:none;stroke-width:3.3;stroke-linecap:round;stroke-linejoin:round}.edgeLabel rect{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.25;opacity:.96}.edgeLabel text{font-family:"Comic Mono";font-size:12.5px;fill:#475569}</style></defs>
-<rect class="canvas" width="1780" height="820"/><rect class="frame" x="38" y="30" width="1704" height="754" rx="8"/>
+<style>svg{font-family:"Architects Daughter","Comic Mono","Comic Sans MS",ui-sans-serif,system-ui,sans-serif}.canvas{fill:#F8FAFC}.frame{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.5;filter:url(#softShadow)}.title{font-family:"Architects Daughter";font-size:44px;fill:#0F172A}.subtitle{font-family:"Comic Mono";font-size:16px;fill:#475569}.card,.note{filter:url(#softShadow);stroke-width:2}.stateTitle{font-family:"Architects Daughter";font-size:31px;fill:#0F172A}.detail,.noteText{font-family:"Comic Mono";font-size:14px;fill:#475569}.badge{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.2}.badgeText{font-family:"Comic Mono";font-size:11.5px;fill:#475569}.start{fill:#0F172A}.route{fill:none;stroke-width:3.3;stroke-linecap:round;stroke-linejoin:round}.edgeLabel rect{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.25;opacity:.96}.edgeLabel text{font-family:"Comic Mono";font-size:12.5px;fill:#475569}</style></defs>
+<rect class="canvas" width="1780" height="878"/><rect class="frame" x="38" y="30" width="1704" height="812" rx="8"/>
 <text class="title" x="78" y="86">Order One-Way FSM</text>
 <text class="subtitle" x="82" y="118">Orders move forward from creation to delivery. Cancellation is only allowed before shipping.</text>
-<g id="edges"><path class="edge" d="M199 342 L275 342" stroke="#64748B" marker-end="url(#arrow-startCreated)"/>
-<path class="edge" d="M525 328 L635 328" stroke="#2563EB" marker-end="url(#arrow-pay)"/>
-<path class="edge" d="M885 328 L995 328" stroke="#16A34A" marker-end="url(#arrow-ship)"/>
-<path class="edge" d="M1245 328 L1355 328" stroke="#0D9488" marker-end="url(#arrow-deliver)"/>
-<path class="edge" d="M 400 405 L 400 471 Q 400 485 414 485 L 551 485 Q 565 485 565 499 L 565 555" stroke="#9333EA" marker-end="url(#arrow-cancelCreated)" stroke-linecap="round" stroke-linejoin="round"/>
-<path class="edge" d="M 760 405 L 760 471 Q 760 485 746 485 L 659 485 Q 645 485 645 499 L 645 555" stroke="#9333EA" marker-end="url(#arrow-cancelPaid)" stroke-linecap="round" stroke-linejoin="round"/>
-<path class="edge" d="M1120 405 L1120 570" stroke="#EA580C" marker-end="url(#arrow-cancelRejected)"/></g>
+<g id="edges"><path class="route" d="M199 342 L275 342" stroke="#64748B" marker-end="url(#arrow-startCreated)"/>
+<path class="route" d="M525 328 L635 328" stroke="#2563EB" marker-end="url(#arrow-pay)"/>
+<path class="route" d="M885 328 L995 328" stroke="#16A34A" marker-end="url(#arrow-ship)"/>
+<path class="route" d="M1245 328 L1355 328" stroke="#0D9488" marker-end="url(#arrow-deliver)"/>
+<path class="route" d="M 400 405 L 400 471 Q 400 485 414 485 L 551 485 Q 565 485 565 499 L 565 555" stroke="#9333EA" marker-end="url(#arrow-cancelCreated)" stroke-linecap="round" stroke-linejoin="round"/>
+<path class="route" d="M 760 405 L 760 471 Q 760 485 746 485 L 659 485 Q 645 485 645 499 L 645 555" stroke="#9333EA" marker-end="url(#arrow-cancelPaid)" stroke-linecap="round" stroke-linejoin="round"/>
+<path class="route" d="M1120 405 L1120 570" stroke="#EA580C" marker-end="url(#arrow-cancelRejected)"/></g>
 <g id="labels"><g class="edgeLabel" transform="translate(201 302)"><rect width="72" height="30" rx="8"/><text x="36" y="20" text-anchor="middle">initial</text></g>
 <g class="edgeLabel" transform="translate(553 287)"><rect width="54" height="30" rx="8"/><text x="27" y="20" text-anchor="middle">Pay</text></g>
 <g class="edgeLabel" transform="translate(911 287)"><rect width="58" height="30" rx="8"/><text x="29" y="20" text-anchor="middle">Ship</text></g>

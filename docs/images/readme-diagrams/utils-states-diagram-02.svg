@@ -62,82 +62,82 @@
   <text class="stereo" x="1020" y="175" text-anchor="middle">&lt;&lt;interface&gt;&gt;</text>
   <text class="cardTitle" x="1020" y="203" text-anchor="middle">BaseStateMachine&lt;S, E&gt;</text>
   <line class="divider" x1="838" y1="217" x2="1202" y2="217" />
-  <text class="member" x="846" y="233">+ currentState: S</text>
-  <text class="member" x="846" y="253">+ initialState: S</text>
-  <text class="member" x="846" y="273">+ finalStates: Set&lt;S&gt;</text>
-  <text class="member" x="846" y="293">+ canTransition(event): Boolean</text>
-  <text class="member" x="846" y="313">+ allowedEvents(): Set&lt;Class&lt;out E&gt;&gt;</text></g>
+  <text class="member" x="854" y="233">+ currentState: S</text>
+  <text class="member" x="854" y="253">+ initialState: S</text>
+  <text class="member" x="854" y="273">+ finalStates: Set&lt;S&gt;</text>
+  <text class="member" x="854" y="293">+ canTransition(event): Boolean</text>
+  <text class="member" x="854" y="313">+ allowedEvents(): Set&lt;Class&lt;out E&gt;&gt;</text></g>
 <g id="syncApi"><rect class="card" x="115" y="420" width="440" height="150" rx="8" fill="#EFF6FF" stroke="#2563EB" />
   <text class="stereo" x="335" y="450" text-anchor="middle">&lt;&lt;interface&gt;&gt;</text>
   <text class="cardTitle" x="335" y="478" text-anchor="middle">StateMachine&lt;S, E&gt;</text>
   <line class="divider" x1="133" y1="492" x2="537" y2="492" />
-  <text class="member" x="141" y="508">+ transition(event): TransitionResult</text>
-  <text class="member" x="141" y="528">Thread-safe via AtomicReference CAS</text></g>
+  <text class="member" x="149" y="508">+ transition(event): TransitionResult</text>
+  <text class="member" x="149" y="528">Thread-safe via AtomicReference CAS</text></g>
 <g id="suspendApi"><rect class="card" x="780" y="420" width="480" height="150" rx="8" fill="#ECFDF5" stroke="#16A34A" />
   <text class="stereo" x="1020" y="450" text-anchor="middle">&lt;&lt;interface&gt;&gt;</text>
   <text class="cardTitle" x="1020" y="478" text-anchor="middle">SuspendStateMachineInterface&lt;S, E&gt;</text>
   <line class="divider" x1="798" y1="492" x2="1242" y2="492" />
-  <text class="member" x="806" y="508">+ suspend transition(event): TransitionResult</text>
-  <text class="member" x="806" y="528">+ stateFlow: StateFlow&lt;S&gt;</text>
-  <text class="member" x="806" y="548">Serialized with Mutex</text></g>
+  <text class="member" x="814" y="508">+ suspend transition(event): TransitionResult</text>
+  <text class="member" x="814" y="528">+ stateFlow: StateFlow&lt;S&gt;</text>
+  <text class="member" x="814" y="548">Serialized with Mutex</text></g>
 <g id="reactiveApi"><rect class="card" x="1485" y="420" width="440" height="150" rx="8" fill="#F0FDFA" stroke="#0D9488" />
   <text class="stereo" x="1705" y="450" text-anchor="middle">&lt;&lt;interface&gt;&gt;</text>
   <text class="cardTitle" x="1705" y="478" text-anchor="middle">ReactiveStateMachine&lt;S, E, F&gt;</text>
   <line class="divider" x1="1503" y1="492" x2="1907" y2="492" />
-  <text class="member" x="1511" y="508">+ send(event): TransitionResult</text>
-  <text class="member" x="1511" y="528">+ stateFlow: StateFlow&lt;S&gt;</text>
-  <text class="member" x="1511" y="548">+ effects: Flow&lt;F&gt;</text>
-  <text class="member" x="1511" y="568">+ close()</text></g>
+  <text class="member" x="1519" y="508">+ send(event): TransitionResult</text>
+  <text class="member" x="1519" y="528">+ stateFlow: StateFlow&lt;S&gt;</text>
+  <text class="member" x="1519" y="548">+ effects: Flow&lt;F&gt;</text>
+  <text class="member" x="1519" y="568">+ close()</text></g>
 <g id="syncImpl"><rect class="card" x="115" y="675" width="440" height="150" rx="8" fill="#EFF6FF" stroke="#2563EB" />
   <text class="stereo" x="335" y="705" text-anchor="middle">&lt;&lt;class&gt;&gt;</text>
   <text class="cardTitle" x="335" y="733" text-anchor="middle">DefaultStateMachine&lt;S, E&gt;</text>
   <line class="divider" x1="133" y1="747" x2="537" y2="747" />
-  <text class="member" x="141" y="763">- currentState: AtomicReference&lt;S&gt;</text>
-  <text class="member" x="141" y="783">- registry: TransitionRegistry</text>
-  <text class="member" x="141" y="803">throws on CAS collision</text></g>
+  <text class="member" x="149" y="763">- currentState: AtomicReference&lt;S&gt;</text>
+  <text class="member" x="149" y="783">- registry: TransitionRegistry</text>
+  <text class="member" x="149" y="803">throws on CAS collision</text></g>
 <g id="suspendImpl"><rect class="card" x="800" y="675" width="440" height="150" rx="8" fill="#ECFDF5" stroke="#16A34A" />
   <text class="stereo" x="1020" y="705" text-anchor="middle">&lt;&lt;class&gt;&gt;</text>
   <text class="cardTitle" x="1020" y="733" text-anchor="middle">SuspendStateMachine&lt;S, E&gt;</text>
   <line class="divider" x1="818" y1="747" x2="1222" y2="747" />
-  <text class="member" x="826" y="763">- mutex: Mutex</text>
-  <text class="member" x="826" y="783">- stateFlow: MutableStateFlow&lt;S&gt;</text>
-  <text class="member" x="826" y="803">- registry: TransitionRegistry</text></g>
+  <text class="member" x="834" y="763">- mutex: Mutex</text>
+  <text class="member" x="834" y="783">- stateFlow: MutableStateFlow&lt;S&gt;</text>
+  <text class="member" x="834" y="803">- registry: TransitionRegistry</text></g>
 <g id="reactiveImpl"><rect class="card" x="1485" y="675" width="440" height="150" rx="8" fill="#F0FDFA" stroke="#0D9488" />
   <text class="stereo" x="1705" y="705" text-anchor="middle">&lt;&lt;class&gt;&gt;</text>
   <text class="cardTitle" x="1705" y="733" text-anchor="middle">DefaultReactiveStateMachine&lt;S, E, F&gt;</text>
   <line class="divider" x1="1503" y1="747" x2="1907" y2="747" />
-  <text class="member" x="1511" y="763">- mutex: Mutex</text>
-  <text class="member" x="1511" y="783">- effects: MutableSharedFlow&lt;F&gt;</text>
-  <text class="member" x="1511" y="803">- sideEffects + lifecycle Job</text></g>
+  <text class="member" x="1519" y="763">- mutex: Mutex</text>
+  <text class="member" x="1519" y="783">- effects: MutableSharedFlow&lt;F&gt;</text>
+  <text class="member" x="1519" y="803">- sideEffects + lifecycle Job</text></g>
 <g id="registry"><rect class="card" x="800" y="925" width="440" height="142" rx="8" fill="#FAF5FF" stroke="#9333EA" />
   <text class="stereo" x="1020" y="955" text-anchor="middle">&lt;&lt;internal class&gt;&gt;</text>
   <text class="cardTitle" x="1020" y="983" text-anchor="middle">TransitionRegistry&lt;S, E&gt;</text>
   <line class="divider" x1="818" y1="997" x2="1222" y2="997" />
-  <text class="member" x="826" y="1013">+ resolve(state, event): TransitionMatch?</text>
-  <text class="member" x="826" y="1033">+ allowedEvents(state): Set&lt;Class&lt;out E&gt;&gt;</text>
-  <text class="member" x="826" y="1053">exact transitions win before parent matches</text></g>
+  <text class="member" x="834" y="1013">+ resolve(state, event): TransitionMatch?</text>
+  <text class="member" x="834" y="1033">+ allowedEvents(state): Set&lt;Class&lt;out E&gt;&gt;</text>
+  <text class="member" x="834" y="1053">exact transitions win before parent matches</text></g>
 <g id="key"><rect class="card" x="90" y="1150" width="360" height="145" rx="8" fill="#FFF7ED" stroke="#EA580C" />
   <text class="stereo" x="270" y="1180" text-anchor="middle">&lt;&lt;data class&gt;&gt;</text>
   <text class="cardTitle" x="270" y="1208" text-anchor="middle">TransitionKey&lt;S, E&gt;</text>
   <line class="divider" x1="108" y1="1222" x2="432" y2="1222" />
-  <text class="member" x="116" y="1238">state + eventType</text></g>
+  <text class="member" x="124" y="1238">state + eventType</text></g>
 <g id="parentKey"><rect class="card" x="545" y="1150" width="360" height="145" rx="8" fill="#FFF7ED" stroke="#EA580C" />
   <text class="stereo" x="725" y="1180" text-anchor="middle">&lt;&lt;data class&gt;&gt;</text>
   <text class="cardTitle" x="725" y="1208" text-anchor="middle">ParentTransitionKey&lt;S, E&gt;</text>
   <line class="divider" x1="563" y1="1222" x2="887" y2="1222" />
-  <text class="member" x="571" y="1238">stateType + eventType</text>
-  <text class="member" x="571" y="1258">nested state-family match</text></g>
+  <text class="member" x="579" y="1238">stateType + eventType</text>
+  <text class="member" x="579" y="1258">nested state-family match</text></g>
 <g id="target"><rect class="card" x="1000" y="1150" width="360" height="145" rx="8" fill="#FFF7ED" stroke="#EA580C" />
   <text class="stereo" x="1180" y="1180" text-anchor="middle">&lt;&lt;data class&gt;&gt;</text>
   <text class="cardTitle" x="1180" y="1208" text-anchor="middle">TransitionTarget&lt;S, E&gt;</text>
   <line class="divider" x1="1018" y1="1222" x2="1342" y2="1222" />
-  <text class="member" x="1026" y="1238">state</text>
-  <text class="member" x="1026" y="1258">guard: ((S, E) -&gt; Boolean)?</text></g>
+  <text class="member" x="1034" y="1238">state</text>
+  <text class="member" x="1034" y="1258">guard: ((S, E) -&gt; Boolean)?</text></g>
 <g id="result"><rect class="card" x="1455" y="1150" width="360" height="145" rx="8" fill="#FDF2F8" stroke="#DB2777" />
   <text class="stereo" x="1635" y="1180" text-anchor="middle">&lt;&lt;data class&gt;&gt;</text>
   <text class="cardTitle" x="1635" y="1208" text-anchor="middle">TransitionResult&lt;S, E&gt;</text>
   <line class="divider" x1="1473" y1="1222" x2="1797" y2="1222" />
-  <text class="member" x="1481" y="1238">previousState</text>
-  <text class="member" x="1481" y="1258">event</text>
-  <text class="member" x="1481" y="1278">currentState</text></g>
+  <text class="member" x="1489" y="1238">previousState</text>
+  <text class="member" x="1489" y="1258">event</text>
+  <text class="member" x="1489" y="1278">currentState</text></g>
 </svg>
