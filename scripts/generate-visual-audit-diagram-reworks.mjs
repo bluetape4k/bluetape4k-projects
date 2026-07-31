@@ -806,7 +806,7 @@ function renderFoundationOverviews() {
   ], [
     ["deferredValue", "flowExt", "green"], ["deferredOps", "subjects", "teal"],
     ["asyncFlow", "reactor", "pink"], ["subjects", "tests", "purple"],
-  ]);
+  ], { height: 1114, fixedColorMarkers: true });
 
   renderLayeredCapabilityMap("bluetape4k-coroutines-diagram-03", "Flow extension taxonomy", "Flow helpers are grouped by the reader's operation intent instead of listed as an unconnected catalog.", [
     { title: "Receiver", nodes: [{ id: "flow", title: "Flow<T>", details: ["cold stream receiver"], color: "blue", w: 320 }] },
@@ -819,7 +819,7 @@ function renderFoundationOverviews() {
       { id: "collect", title: "Collectors", details: ["toList, assertions"], color: "teal", w: 300 },
       { id: "testing", title: "Testing helpers", details: ["runTest and Flow assertions"], color: "pink", w: 330 },
     ] },
-  ], [["flow", "parallel", "amber"], ["batch", "collect", "teal"], ["replay", "testing", "purple"]]);
+  ], [["flow", "parallel", "amber"], ["batch", "collect", "teal"], ["replay", "testing", "purple"]], { height: 1114, fixedColorMarkers: true });
 }
 
 function renderDataApiOverviews() {
@@ -1272,17 +1272,17 @@ function renderLoggingProcessingFlow() {
     card("skip", 145, 690, 280, 76, "Skip allocation", ["supplier is not evaluated"], "gray"),
     card("backend", 600, 720, 340, 86, "SLF4J backend", ["Logback or bound logger"], "pink"),
     card("event", 1040, 710, 320, 96, "Log event", ["message, throwable, MDC fields"], "olive"),
-    route("caller", "delegate", "M420 290 L520 290", "blue"),
-    route("delegate", "context", "M860 275 L1000 218", "purple"),
-    route("delegate", "supplier", "M860 290 L1000 408", "amber"),
-    route("delegate", "enabled", "M690 345 L690 520", "teal"),
-    route("enabled", "skip", "M560 584 L425 728", "gray", true, { x: 480, y: 640, text: "no", width: 48 }),
-    route("enabled", "backend", "M710 648 L710 720", "pink", false, { x: 766, y: 686, text: "yes", width: 52 }),
-    route("context", "event", "M1340 218 L1390 218 L1390 758 L1360 758", "purple"),
-    route("supplier", "event", "M1170 456 L1170 710", "amber"),
-    route("backend", "event", "M940 763 L1040 758", "pink"),
+    route("caller", "delegate", "M420 290 L520 290", "blue", false, null, true),
+    route("delegate", "context", "M860 275 L906 275 Q920 275 920 261 L920 232 Q920 218 934 218 L1000 218", "purple", false, null, true),
+    route("delegate", "supplier", "M860 290 L906 290 Q920 290 920 304 L920 394 Q920 408 934 408 L1000 408", "amber", false, null, true),
+    route("delegate", "enabled", "M690 345 L690 520", "teal", false, null, true),
+    route("enabled", "skip", "M560 584 Q510 584 475 625 Q440 666 475 700 Q447 728 439 728 L425 728", "gray", true, { x: 500, y: 670, text: "no", width: 48 }, true),
+    route("enabled", "backend", "M710 648 L710 720", "pink", false, { x: 766, y: 686, text: "yes", width: 52 }, true),
+    route("context", "event", "M1340 218 L1376 218 Q1390 218 1390 232 L1390 744 Q1390 758 1376 758 L1360 758", "purple", false, null, true),
+    route("supplier", "event", "M1170 456 L1170 710", "amber", false, null, true),
+    route("backend", "event", "M940 758 L1040 758", "pink", false, null, true),
   ].join("\n");
-  write("bluetape4k-logging-diagram-02", base(1480, 930, "Logging Processing Flow", "Logger extensions keep call sites small while lazy suppliers, MDC context, and backend emission stay distinct.", body, "decision-flow"), {
+  write("bluetape4k-logging-diagram-02", base(1480, 910, "Logging Processing Flow", "Logger extensions keep call sites small while lazy suppliers, MDC context, and backend emission stay distinct.", body, "decision-flow", true), {
     nodes: ["caller", "delegate", "context", "supplier", "enabled", "skip", "backend", "event"],
     edges: [["caller", "delegate"], ["delegate", "context"], ["delegate", "supplier"], ["delegate", "enabled"], ["enabled", "skip"], ["enabled", "backend"], ["context", "event"], ["supplier", "event"], ["backend", "event"]],
   });
