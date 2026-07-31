@@ -27,9 +27,10 @@ internal object CallerOwnedCompressionDispatch {
         else -> error("Unknown storagePath=$storagePath")
     }
 
-    fun eligible(codec: String, storagePath: String): Boolean = when (codec) {
+    fun eligible(codec: String, operation: String, storagePath: String): Boolean = when (codec) {
         "lz4", "deflate" -> storagePath in setOf("heap", "direct", "heapToDirect", "directToHeap")
-        "snappy", "zstd" -> storagePath in setOf("heap", "direct")
+        "snappy" -> operation == "compress" && storagePath == "direct"
+        "zstd" -> storagePath in setOf("heap", "direct")
         else -> false
     }
 }

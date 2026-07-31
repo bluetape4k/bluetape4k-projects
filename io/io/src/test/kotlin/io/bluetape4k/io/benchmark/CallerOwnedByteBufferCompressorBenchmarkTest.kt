@@ -18,10 +18,12 @@ class CallerOwnedByteBufferCompressorBenchmarkTest {
 
     @Test
     fun `eligibility matches backend storage capabilities`() {
-        CallerOwnedCompressionDispatch.eligible("lz4", "heapToDirect") shouldBeEqualTo true
-        CallerOwnedCompressionDispatch.eligible("deflate", "directToHeap") shouldBeEqualTo true
-        CallerOwnedCompressionDispatch.eligible("snappy", "heapToDirect") shouldBeEqualTo false
-        CallerOwnedCompressionDispatch.eligible("zstd", "directToHeap") shouldBeEqualTo false
+        CallerOwnedCompressionDispatch.eligible("lz4", "compress", "heapToDirect") shouldBeEqualTo true
+        CallerOwnedCompressionDispatch.eligible("deflate", "decompress", "directToHeap") shouldBeEqualTo true
+        CallerOwnedCompressionDispatch.eligible("snappy", "compress", "direct") shouldBeEqualTo true
+        CallerOwnedCompressionDispatch.eligible("snappy", "decompress", "direct") shouldBeEqualTo false
+        CallerOwnedCompressionDispatch.eligible("snappy", "compress", "heap") shouldBeEqualTo false
+        CallerOwnedCompressionDispatch.eligible("zstd", "compress", "directToHeap") shouldBeEqualTo false
     }
 
     @Test
