@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="2700" height="1420" viewBox="0 0 2700 1420" role="img" aria-label="Spring Boot R2DBC Coroutines Data Flow Diagram">
+<svg xmlns="http://www.w3.org/2000/svg" width="2700" height="1420" viewBox="0 0 2700 1420" role="img" aria-label="Spring Boot R2DBC Coroutines Data Flow Diagram" data-intent="Spring Boot R2DBC provides coroutine extensions that map reactive relational operations to Flow streams and suspend results." data-evidence="spring-boot/r2dbc/README.md,spring-boot/r2dbc/src/main/kotlin" data-source-read="spring-boot/r2dbc/README.md; spring-boot/r2dbc/src/main/kotlin" data-allow-grid="true">
 <defs>
   <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="5" stdDeviation="4" flood-color="#0F172A" flood-opacity="0.10"/></filter>
 
@@ -32,33 +32,33 @@
 <text class="lane" x="96" y="195" fill="#475569">caller input</text>
 <g id="Caller">
   <rect class="card" x="110" y="230" width="430" height="240" rx="8" fill="#F8FAFC" stroke="#64748B"/>
-  <text class="kicker" x="132" y="261">service / repository</text>
-  <text class="cardTitle" x="132" y="294">Coroutine caller</text>
+  <text class="kicker" x="144" y="261">service / repository</text>
+  <text class="cardTitle" x="144" y="294">Coroutine caller</text>
   <path class="divider" d="M110 316H540" stroke="#475569"/>
-  <text class="body" x="132" y="348">passes Query, id, entity, or Update</text>
-<text class="body" x="132" y="372">calls *Suspending extension functions</text>
-<text class="body" x="132" y="396">collects Flow&lt;T&gt; only when needed</text>
-  <path class="divider" d="M110 424H540" stroke="#475569"/><text class="foot" x="132" y="453">domain code stays suspend/Flow based</text>
+  <text class="body" x="144" y="348">passes Query, id, entity, or Update</text>
+<text class="body" x="144" y="372">calls *Suspending extension functions</text>
+<text class="body" x="144" y="396">collects Flow&lt;T&gt; only when needed</text>
+  <path class="divider" d="M110 424H540" stroke="#475569"/><text class="foot" x="144" y="453">domain code stays suspend/Flow based</text>
 </g>
 <g id="IdQuery">
   <rect class="card" x="660" y="230" width="470" height="240" rx="8" fill="#F0FDF4" stroke="#16A34A"/>
-  <text class="kicker" x="682" y="261">id helper path</text>
-  <text class="cardTitle" x="682" y="294">Query creation</text>
+  <text class="kicker" x="694" y="261">id helper path</text>
+  <text class="cardTitle" x="694" y="294">Query creation</text>
   <path class="divider" d="M660 316H1130" stroke="#15803D"/>
-  <text class="body" x="682" y="348">Criteria.where(idName).isEqual(id)</text>
-<text class="body" x="682" y="372">Query.query(criteria)</text>
-<text class="body" x="682" y="396">then delegates to select helpers</text>
-  <path class="divider" d="M660 424H1130" stroke="#15803D"/><text class="foot" x="682" y="453">used by findOneById and findFirstById</text>
+  <text class="body" x="694" y="348">Criteria.where(idName).isEqual(id)</text>
+<text class="body" x="694" y="372">Query.query(criteria)</text>
+<text class="body" x="694" y="396">then delegates to select helpers</text>
+  <path class="divider" d="M660 424H1130" stroke="#15803D"/><text class="foot" x="694" y="453">used by findOneById and findFirstById</text>
 </g>
 <g id="Database">
   <rect class="card" x="2200" y="230" width="360" height="240" rx="8" fill="#F8FAFC" stroke="#64748B"/>
-  <text class="kicker" x="2222" y="261">R2DBC driver</text>
-  <text class="cardTitle" x="2222" y="294">Relational database</text>
+  <text class="kicker" x="2234" y="261">R2DBC driver</text>
+  <text class="cardTitle" x="2234" y="294">Relational database</text>
   <path class="divider" d="M2200 316H2560" stroke="#475569"/>
-  <text class="body" x="2222" y="348">SQL is executed by Spring Data R2DBC</text>
-<text class="body" x="2222" y="372">rows and row counts return reactively</text>
-<text class="body" x="2222" y="396">driver remains non-blocking</text>
-  <path class="divider" d="M2200 424H2560" stroke="#475569"/><text class="foot" x="2222" y="453">external I/O boundary</text>
+  <text class="body" x="2234" y="348">SQL is executed by Spring Data R2DBC</text>
+<text class="body" x="2234" y="372">rows and row counts return reactively</text>
+<text class="body" x="2234" y="396">driver remains non-blocking</text>
+  <path class="divider" d="M2200 424H2560" stroke="#475569"/><text class="foot" x="2234" y="453">external I/O boundary</text>
 </g>
 <text class="lane" x="96" y="605" fill="#1D4ED8">read path</text>
 <g id="ReadExtensions">
