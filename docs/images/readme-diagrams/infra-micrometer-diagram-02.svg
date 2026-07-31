@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1800" height="1060" viewBox="0 0 1800 1060" role="img" aria-label="Micrometer Metric Collection Flow">
+<svg xmlns="http://www.w3.org/2000/svg" width="1800" height="1060" viewBox="0 0 1800 1060" role="img" aria-label="Micrometer Metric Collection Flow" data-intent="Micrometer helpers collect application measurements, apply configured tags and registry policies, then publish counters, timers, gauges, and observations to the selected monitoring backend." data-evidence="infra/micrometer/README.md,infra/micrometer/src/main/kotlin" data-source-read="infra/micrometer/README.md; infra/micrometer/src/main/kotlin">
   <defs>
     <filter id="softShadow" x="-8%" y="-8%" width="116%" height="116%">
       <feDropShadow dx="0" dy="6" stdDeviation="5" flood-color="#0f172a" flood-opacity="0.10"/>
