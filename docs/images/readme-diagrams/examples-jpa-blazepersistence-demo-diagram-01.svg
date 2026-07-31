@@ -122,7 +122,7 @@
   <path class="flow" d="M 1048 735 H 1126"/>
 
   <g transform="translate(116 852)">
-    <rect class="chip" x="0" y="0" width="686" height="38" rx="8"/>
-    <text class="small" x="18" y="24">Blaze Persistence adds read models and keyset paging without replacing the JPA aggregate model.</text>
+    <rect class="chip" x="0" y="0" width="720" height="38" rx="8"/>
+    <text class="small" x="34" y="24">Blaze Persistence adds read models and keyset paging without replacing the JPA aggregate model.</text>
   </g>
 </svg>
