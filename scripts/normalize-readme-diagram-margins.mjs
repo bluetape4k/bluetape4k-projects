@@ -53,7 +53,9 @@ for (const row of report.rows) {
     if (next === original) continue;
 
     writeFileSync(svgPath, `${next.trimEnd()}\n`);
-    execFileSync(RSVGC, ["--format=png", "--output", svgPath.replace(/\.svg$/, ".png"), svgPath], {stdio: "inherit"});
+    if (process.env.SKIP_DIAGRAM_PNG !== "true") {
+        execFileSync(RSVGC, ["--format=png", "--output", svgPath.replace(/\.svg$/, ".png"), svgPath], {stdio: "inherit"});
+    }
     changed += 1;
     console.log(`${row.file}: bodyShift=${dx}/${dy}`);
 }

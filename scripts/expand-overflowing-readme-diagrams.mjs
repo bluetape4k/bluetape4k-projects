@@ -24,7 +24,9 @@ for (const file of readdirSync(DIR).filter((name) => name.endsWith(".svg")).sort
   next = next.replace(/<rect class="canvas" width="[\d.]+" height="[\d.]+"\/>/, `<rect class="canvas" width="${nextWidth}" height="${nextHeight}"/>`);
   next = next.replace(/<rect class="frame" x="32" y="28" width="[\d.]+" height="[\d.]+" rx="([^"]+)"\/>/, `<rect class="frame" x="32" y="28" width="${nextWidth - 64}" height="${nextHeight - 56}" rx="$1"/>`);
   writeFileSync(path, next);
-  execFileSync(rsvg, ["--format=png", "--output", path.replace(/\.svg$/, ".png"), path], { stdio: "inherit" });
+  if (process.env.SKIP_DIAGRAM_PNG !== "true") {
+    execFileSync(rsvg, ["--format=png", "--output", path.replace(/\.svg$/, ".png"), path], { stdio: "inherit" });
+  }
   changed += 1;
   console.log(`${file} viewBox ${box.width}x${box.height} -> ${nextWidth}x${nextHeight}`);
 }

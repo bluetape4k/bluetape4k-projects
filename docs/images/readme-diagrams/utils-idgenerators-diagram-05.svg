@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" data-intent="Explain ULID generator selection and class relationships from current source." data-evidence="utils/idgenerators/README.md; utils/idgenerators/src/main/kotlin/io/bluetape4k/idgenerators/ulid/ULID.kt; utils/idgenerators/src/main/kotlin/io/bluetape4k/idgenerators/ulid/UlidGenerator.kt; utils/idgenerators/src/main/kotlin/io/bluetape4k/idgenerators/ulid/internal/ULIDFactory.kt; utils/idgenerators/src/main/kotlin/io/bluetape4k/idgenerators/ulid/internal/ULIDMonotonic.kt; utils/idgenerators/src/main/kotlin/io/bluetape4k/idgenerators/ulid/internal/ULIDStatefulMonotonic.kt" data-source-read="utils/idgenerators/README.md; utils/idgenerators/src/main/kotlin/io/bluetape4k/idgenerators/ulid/ULID.kt; utils/idgenerators/src/main/kotlin/io/bluetape4k/idgenerators/ulid/UlidGenerator.kt; utils/idgenerators/src/main/kotlin/io/bluetape4k/idgenerators/ulid/internal/ULIDFactory.kt; utils/idgenerators/src/main/kotlin/io/bluetape4k/idgenerators/ulid/internal/ULIDMonotonic.kt; utils/idgenerators/src/main/kotlin/io/bluetape4k/idgenerators/ulid/internal/ULIDStatefulMonotonic.kt" width="3400" height="1720" viewBox="0 0 3400 1720" role="img" aria-label="ULID Generator Selection">
+<svg xmlns="http://www.w3.org/2000/svg" data-layout="decision-flow" data-intent="Explain the source-backed module behavior, public API relationships, runtime boundaries, and user-facing decisions represented by this diagram for maintainers and users." data-evidence="utils/idgenerators/README.md; utils/idgenerators/src/main/kotlin/io/bluetape4k/idgenerators/ulid/ULID.kt; utils/idgenerators/src/main/kotlin/io/bluetape4k/idgenerators/ulid/UlidGenerator.kt; utils/idgenerators/src/main/kotlin/io/bluetape4k/idgenerators/ulid/internal/ULIDFactory.kt; utils/idgenerators/src/main/kotlin/io/bluetape4k/idgenerators/ulid/internal/ULIDMonotonic.kt; utils/idgenerators/src/main/kotlin/io/bluetape4k/idgenerators/ulid/internal/ULIDStatefulMonotonic.kt" data-source-read="utils/idgenerators/README.md; utils/idgenerators/src/main/kotlin/io/bluetape4k/idgenerators/ulid/ULID.kt; utils/idgenerators/src/main/kotlin/io/bluetape4k/idgenerators/ulid/UlidGenerator.kt; utils/idgenerators/src/main/kotlin/io/bluetape4k/idgenerators/ulid/internal/ULIDFactory.kt; utils/idgenerators/src/main/kotlin/io/bluetape4k/idgenerators/ulid/internal/ULIDMonotonic.kt; utils/idgenerators/src/main/kotlin/io/bluetape4k/idgenerators/ulid/internal/ULIDStatefulMonotonic.kt" width="3667" height="1762" viewBox="0 0 3667 1762" role="img" aria-label="ULID Generator Selection">
 <defs>
   <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="5" stdDeviation="4" flood-color="#0F172A" flood-opacity="0.10" /></filter>
 
@@ -44,65 +44,65 @@
 <text class="title" x="76" y="100">ULID Generator Selection</text>
 <text class="subtitle" x="80" y="134">Class diagram: direct factory, monotonic factory, stateful monotonic, and IdGenerator adapter paths.</text>
 <g>
-  <rect class="lane" x="70" y="250" width="760" height="1310" rx="8" fill="#DBEAFE" stroke="#93C5FD" fill-opacity="1" />
-  <text class="laneTitle" x="96" y="292">Factory path</text>
+  <rect class="lane" x="250" y="70" width="760" height="1310" rx="8" fill="#DBEAFE" stroke="#93C5FD" fill-opacity="1" />
+  <text class="laneTitle" x="276" y="112">Factory path</text>
 </g>
 <g>
-  <rect class="lane" x="890" y="250" width="760" height="1310" rx="8" fill="#EDE9FE" stroke="#C4B5FD" fill-opacity="1" />
-  <text class="laneTitle" x="916" y="292">Monotonic path</text>
+  <rect class="lane" x="1070" y="70" width="760" height="1310" rx="8" fill="#EDE9FE" stroke="#C4B5FD" fill-opacity="1" />
+  <text class="laneTitle" x="1096" y="112">Monotonic path</text>
 </g>
 <g>
-  <rect class="lane" x="1710" y="250" width="760" height="1310" rx="8" fill="#DCFCE7" stroke="#86EFAC" fill-opacity="1" />
-  <text class="laneTitle" x="1736" y="292">Stateful path</text>
+  <rect class="lane" x="1890" y="70" width="760" height="1310" rx="8" fill="#DCFCE7" stroke="#86EFAC" fill-opacity="1" />
+  <text class="laneTitle" x="1916" y="112">Stateful path</text>
 </g>
 <g>
-  <rect class="lane" x="2530" y="250" width="800" height="1310" rx="8" fill="#FFEDD5" stroke="#FDBA74" fill-opacity="1" />
-  <text class="laneTitle" x="2556" y="292">Adapter and selection</text>
+  <rect class="lane" x="2710" y="70" width="800" height="1310" rx="8" fill="#FFEDD5" stroke="#FDBA74" fill-opacity="1" />
+  <text class="laneTitle" x="2736" y="112">Adapter and selection</text>
 </g>
-<path class="edge dashed" data-from="ULIDFactory" data-to="ULID.Factory" d="M450 1280 L450 1105" stroke="#15803D" />
-<polygon points="459,1126 450,1105 441,1126" fill="#FFFFFF" stroke="#15803D" stroke-width="2.8" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
-<path class="edge dashed" data-from="ULIDMonotonic" data-to="ULID.Monotonic" d="M1270 1280 L1270 1080" stroke="#0F766E" />
-<polygon points="1279,1101 1270,1080 1261,1101" fill="#FFFFFF" stroke="#0F766E" stroke-width="2.8" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
-<path class="edge dashed" data-from="ULIDStatefulMonotonic" data-to="ULID.StatefulMonotonic" d="M2090 1280 L2090 1105" stroke="#6D28D9" />
-<polygon points="2099,1126 2090,1105 2081,1126" fill="#FFFFFF" stroke="#6D28D9" stroke-width="2.8" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
-<path class="edge" data-from="ULID companion" data-to="ULID.Factory" d="M 1460 740 L 1460 791 Q 1460 805 1446 805 L 464 805 Q 450 805 450 819 L 450 860" stroke="#15803D" marker-end="url(#arrow-green)" stroke-linecap="round" stroke-linejoin="round" />
-<path class="edge" data-from="ULID companion" data-to="ULID.Monotonic" d="M 1700 740 L 1700 791 Q 1700 805 1686 805 L 1284 805 Q 1270 805 1270 819 L 1270 860" stroke="#0F766E" marker-end="url(#arrow-teal)" stroke-linecap="round" stroke-linejoin="round" />
-<path class="edge" data-from="ULID companion" data-to="ULID.StatefulMonotonic" d="M 1940 740 L 1940 791 Q 1940 805 1954 805 L 2076 805 Q 2090 805 2090 819 L 2090 860" stroke="#6D28D9" marker-end="url(#arrow-violet)" stroke-linecap="round" stroke-linejoin="round" />
-<path class="edge" data-from="UlidGenerator" data-to="ULID.StatefulMonotonic" d="M 2930 860 L 2930 819 Q 2930 805 2916 805 L 2104 805 Q 2090 805 2090 819 L 2090 860" stroke="#BE185D" marker-end="url(#arrow-pink)" stroke-linecap="round" stroke-linejoin="round" />
-<path class="edge" data-from="Selection" data-to="UlidGenerator" d="M2930 1190 L2930 1130" stroke="#475569" marker-end="url(#arrow-slate)" />
+<path class="edge dashed" data-from="ULIDFactory" data-to="ULID.Factory" d="M880 1007 L880 832" stroke="#15803D" />
+<polygon points="889,853 880,832 871,853" fill="#FFFFFF" stroke="#15803D" stroke-width="2.8" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
+<path class="edge dashed" data-from="ULIDMonotonic" data-to="ULID.Monotonic" d="M1700 1007 L1700 807" stroke="#0F766E" />
+<polygon points="1709,828 1700,807 1691,828" fill="#FFFFFF" stroke="#0F766E" stroke-width="2.8" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
+<path class="edge dashed" data-from="ULIDStatefulMonotonic" data-to="ULID.StatefulMonotonic" d="M2520 1007 L2520 832" stroke="#6D28D9" />
+<polygon points="2529,853 2520,832 2511,853" fill="#FFFFFF" stroke="#6D28D9" stroke-width="2.8" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important"/>
+<path class="edge" data-from="ULID companion" data-to="ULID.Factory" d="M 1890 467 L 1890 518 Q 1890 532 1876 532 L 894 532 Q 880 532 880 546 L 880 587" stroke="#15803D" marker-end="url(#arrow-green)" stroke-linecap="round" stroke-linejoin="round" />
+<path class="edge" data-from="ULID companion" data-to="ULID.Monotonic" d="M 2130 467 L 2130 518 Q 2130 532 2116 532 L 1714 532 Q 1700 532 1700 546 L 1700 587" stroke="#0F766E" marker-end="url(#arrow-teal)" stroke-linecap="round" stroke-linejoin="round" />
+<path class="edge" data-from="ULID companion" data-to="ULID.StatefulMonotonic" d="M 2370 467 L 2370 518 Q 2370 532 2384 532 L 2506 532 Q 2520 532 2520 546 L 2520 587" stroke="#6D28D9" marker-end="url(#arrow-violet)" stroke-linecap="round" stroke-linejoin="round" />
+<path class="edge" data-from="UlidGenerator" data-to="ULID.StatefulMonotonic" d="M 3360 587 L 3360 546 Q 3360 532 3346 532 L 2534 532 Q 2520 532 2520 546 L 2520 587" stroke="#BE185D" marker-end="url(#arrow-pink)" stroke-linecap="round" stroke-linejoin="round" />
+<path class="edge" data-from="Selection" data-to="UlidGenerator" d="M3360 917 L3360 857" stroke="#475569" marker-end="url(#arrow-slate)" />
 <g id="ULID">
-  <rect class="classBox" x="1220" y="170" width="960" height="245" rx="8" fill="#EFF6FF" stroke="#2563EB" />
-  <text class="kind" x="1700" y="200" text-anchor="middle">&lt;&lt;interface&gt;&gt;</text>
-  <text class="classTitle" x="1700" y="236" text-anchor="middle">ULID</text>
-  <path class="divider" d="M1220 258H2180" stroke="#1D4ED8" />
-  <text class="member" x="1244" y="286">mostSignificantBits, leastSignificantBits</text>
-<text class="member" x="1244" y="311">timestamp: Long</text>
-  <path class="divider" d="M1220 342H2180" stroke="#1D4ED8" />
-  <text class="member" x="1244" y="364">toByteArray(), increment()</text>
-<text class="member" x="1244" y="389">Comparable&lt;ULID&gt;</text>
+  <rect class="classBox" x="1400" y="-10" width="960" height="245" rx="8" fill="#EFF6FF" stroke="#2563EB" />
+  <text class="kind" x="1880" y="20" text-anchor="middle">&lt;&lt;interface&gt;&gt;</text>
+  <text class="classTitle" x="1880" y="56" text-anchor="middle">ULID</text>
+  <path class="divider" d="M1400 78H2360" stroke="#1D4ED8" />
+  <text class="member" x="1424" y="106">mostSignificantBits, leastSignificantBits</text>
+<text class="member" x="1604" y="38">timestamp: Long</text>
+  <path class="divider" d="M1580 69H2540" stroke="#1D4ED8" />
+  <text class="member" x="1604" y="91">toByteArray(), increment()</text>
+<text class="member" x="1674" y="116">Comparable&lt;ULID&gt;</text>
 </g>
 <g id="ULIDCompanion">
-  <rect class="classBox" x="1220" y="480" width="960" height="260" rx="8" fill="#FFF7ED" stroke="#EA580C" />
-  <text class="kind" x="1700" y="510" text-anchor="middle">companion object</text>
-  <text class="classTitle" x="1700" y="546" text-anchor="middle">ULID</text>
-  <path class="divider" d="M1220 568H2180" stroke="#C2410C" />
-  <text class="member" x="1244" y="596">Factory by ULIDFactory.Default</text>
-  <path class="divider" d="M1220 627H2180" stroke="#C2410C" />
-  <text class="member" x="1244" y="649">factory(random): Factory</text>
-<text class="member" x="1244" y="674">monotonic(factory): Monotonic</text>
-<text class="member" x="1244" y="699">statefulMonotonic(factory): StatefulMonotonic</text>
+  <rect class="classBox" x="1650" y="207" width="960" height="260" rx="8" fill="#FFF7ED" stroke="#EA580C" />
+  <text class="kind" x="2130" y="237" text-anchor="middle">companion object</text>
+  <text class="classTitle" x="2130" y="273" text-anchor="middle">ULID</text>
+  <path class="divider" d="M1650 295H2610" stroke="#C2410C" />
+  <text class="member" x="1674" y="323">Factory by ULIDFactory.Default</text>
+  <path class="divider" d="M1650 354H2610" stroke="#C2410C" />
+  <text class="member" x="1674" y="376">factory(random): Factory</text>
+<text class="member" x="1674" y="401">monotonic(factory): Monotonic</text>
+<text class="member" x="1674" y="426">statefulMonotonic(factory): StatefulMonotonic</text>
 </g>
 <g id="FactoryContract">
-  <rect class="classBox" x="145" y="860" width="610" height="245" rx="8" fill="#F0FDF4" stroke="#16A34A" />
-  <text class="kind" x="450" y="890" text-anchor="middle">&lt;&lt;interface&gt;&gt;</text>
-  <text class="classTitle" x="450" y="926" text-anchor="middle">ULID.Factory</text>
-  <path class="divider" d="M145 948H755" stroke="#15803D" />
+  <rect class="classBox" x="575" y="587" width="610" height="245" rx="8" fill="#F0FDF4" stroke="#16A34A" />
+  <text class="kind" x="880" y="617" text-anchor="middle">&lt;&lt;interface&gt;&gt;</text>
+  <text class="classTitle" x="880" y="653" text-anchor="middle">ULID.Factory</text>
+  <path class="divider" d="M575 675H1185" stroke="#15803D" />
 
-  <path class="divider" d="M145 956H755" stroke="#15803D" />
-  <text class="member" x="169" y="978">randomULID(timestamp): String</text>
-<text class="member" x="169" y="1003">nextULID(timestamp): ULID</text>
-<text class="member" x="169" y="1028">parseULID(text): ULID</text>
-<text class="member" x="169" y="1053">fromByteArray(data): ULID</text>
+  <path class="divider" d="M575 683H1185" stroke="#15803D" />
+  <text class="member" x="599" y="705">randomULID(timestamp): String</text>
+<text class="member" x="599" y="730">nextULID(timestamp): ULID</text>
+<text class="member" x="599" y="755">parseULID(text): ULID</text>
+<text class="member" x="599" y="780">fromByteArray(data): ULID</text>
 </g>
 <g id="ULIDFactory">
   <rect class="classBox" x="145" y="1280" width="610" height="245" rx="8" fill="#F0FDF4" stroke="#16A34A" />
@@ -115,14 +115,14 @@
 <text class="member" x="169" y="1474">renders 26-char Crockford text</text>
 </g>
 <g id="MonotonicContract">
-  <rect class="classBox" x="965" y="860" width="610" height="220" rx="8" fill="#F0FDFA" stroke="#0D9488" />
-  <text class="kind" x="1270" y="890" text-anchor="middle">&lt;&lt;interface&gt;&gt;</text>
-  <text class="classTitle" x="1270" y="926" text-anchor="middle">ULID.Monotonic</text>
-  <path class="divider" d="M965 948H1575" stroke="#0F766E" />
+  <rect class="classBox" x="1395" y="587" width="610" height="220" rx="8" fill="#F0FDFA" stroke="#0D9488" />
+  <text class="kind" x="1700" y="617" text-anchor="middle">&lt;&lt;interface&gt;&gt;</text>
+  <text class="classTitle" x="1700" y="653" text-anchor="middle">ULID.Monotonic</text>
+  <path class="divider" d="M1395 675H2005" stroke="#0F766E" />
 
-  <path class="divider" d="M965 956H1575" stroke="#0F766E" />
-  <text class="member" x="989" y="978">nextULID(previous, timestamp): ULID</text>
-<text class="member" x="989" y="1003">nextULIDStrict(...): ULID?</text>
+  <path class="divider" d="M1395 683H2005" stroke="#0F766E" />
+  <text class="member" x="1419" y="705">nextULID(previous, timestamp): ULID</text>
+<text class="member" x="1419" y="730">nextULIDStrict(...): ULID?</text>
 </g>
 <g id="ULIDMonotonic">
   <rect class="classBox" x="965" y="1280" width="610" height="245" rx="8" fill="#F0FDFA" stroke="#0D9488" />
@@ -135,14 +135,14 @@
 <text class="member" x="989" y="1474">new timestamp -&gt; factory.nextULID()</text>
 </g>
 <g id="StatefulContract">
-  <rect class="classBox" x="1785" y="860" width="610" height="245" rx="8" fill="#F5F3FF" stroke="#7C3AED" />
-  <text class="kind" x="2090" y="890" text-anchor="middle">&lt;&lt;interface&gt;&gt;</text>
-  <text class="classTitle" x="2090" y="926" text-anchor="middle">ULID.StatefulMonotonic</text>
-  <path class="divider" d="M1785 948H2395" stroke="#6D28D9" />
-  <text class="member" x="1809" y="976">extends ULID.Factory</text>
-  <path class="divider" d="M1785 1007H2395" stroke="#6D28D9" />
-  <text class="member" x="1809" y="1029">nextULID(timestamp): ULID</text>
-<text class="member" x="1809" y="1054">nextULIDStrict(timestamp): ULID?</text>
+  <rect class="classBox" x="2215" y="587" width="610" height="245" rx="8" fill="#F5F3FF" stroke="#7C3AED" />
+  <text class="kind" x="2520" y="617" text-anchor="middle">&lt;&lt;interface&gt;&gt;</text>
+  <text class="classTitle" x="2520" y="653" text-anchor="middle">ULID.StatefulMonotonic</text>
+  <path class="divider" d="M2215 675H2825" stroke="#6D28D9" />
+  <text class="member" x="2239" y="703">extends ULID.Factory</text>
+  <path class="divider" d="M2215 734H2825" stroke="#6D28D9" />
+  <text class="member" x="2239" y="756">nextULID(timestamp): ULID</text>
+<text class="member" x="2239" y="781">nextULIDStrict(timestamp): ULID?</text>
 </g>
 <g id="ULIDStatefulMonotonic">
   <rect class="classBox" x="1785" y="1280" width="610" height="270" rx="8" fill="#F5F3FF" stroke="#7C3AED" />
@@ -156,20 +156,20 @@
   <text class="member" x="1809" y="1499">CAS loop updates previous ULID</text>
 </g>
 <g id="UlidGenerator">
-  <rect class="classBox" x="2625" y="860" width="610" height="270" rx="8" fill="#FDF2F8" stroke="#DB2777" />
-  <text class="kind" x="2930" y="890" text-anchor="middle">class</text>
-  <text class="classTitle" x="2930" y="926" text-anchor="middle">UlidGenerator</text>
-  <path class="divider" d="M2625 948H3235" stroke="#BE185D" />
-  <text class="member" x="2649" y="976">factory: ULID.Factory = ULID</text>
-<text class="member" x="2649" y="1001">statefulMonotonic: StatefulMonotonic</text>
-  <path class="divider" d="M2625 1032H3235" stroke="#BE185D" />
-  <text class="member" x="2649" y="1054">IdGenerator&lt;String&gt;</text>
-<text class="member" x="2649" y="1079">nextULID(): ULID</text>
-<text class="member" x="2649" y="1104">nextId(): 26-char String</text>
+  <rect class="classBox" x="3055" y="587" width="610" height="270" rx="8" fill="#FDF2F8" stroke="#DB2777" />
+  <text class="kind" x="3360" y="617" text-anchor="middle">class</text>
+  <text class="classTitle" x="3360" y="653" text-anchor="middle">UlidGenerator</text>
+  <path class="divider" d="M3055 675H3665" stroke="#BE185D" />
+  <text class="member" x="3079" y="703">factory: ULID.Factory = ULID</text>
+<text class="member" x="3079" y="728">statefulMonotonic: StatefulMonotonic</text>
+  <path class="divider" d="M3055 759H3665" stroke="#BE185D" />
+  <text class="member" x="3079" y="781">IdGenerator&lt;String&gt;</text>
+<text class="member" x="3079" y="806">nextULID(): ULID</text>
+<text class="member" x="3079" y="831">nextId(): 26-char String</text>
 </g>
 <g id="Selection">
-  <rect class="classBox" x="2625" y="1190" width="610" height="315" rx="8" fill="#F8FAFC" stroke="#64748B" />
-  <text class="kind" x="2930" y="1220" text-anchor="middle">selection guide</text>
+  <rect class="classBox" x="3055" y="917" width="610" height="315" rx="8" fill="#F8FAFC" stroke="#64748B" />
+  <text class="kind" x="3360" y="947" text-anchor="middle">selection guide</text>
   <text class="classTitle" x="2930" y="1256" text-anchor="middle">Choose a generator</text>
   <path class="divider" d="M2625 1278H3235" stroke="#475569" />
   <text class="member" x="2649" y="1306">ULID.randomULID(): direct string</text>
