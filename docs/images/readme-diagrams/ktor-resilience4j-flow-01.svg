@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1800" height="1160" viewBox="0 0 1800 1160" role="img" aria-labelledby="title desc">
+<svg xmlns="http://www.w3.org/2000/svg" width="1800" height="1160" viewBox="0 0 1800 1160" role="img" aria-labelledby="title desc" data-intent="Ktor Resilience4j route helpers apply retry, circuit breaker, rate limiter, timeout, and fallback decisions around the coroutine request flow." data-evidence="ktor/resilience4j/README.md,ktor/resilience4j/src/main/kotlin" data-source-read="ktor/resilience4j/README.md; ktor/resilience4j/src/main/kotlin">
   <title id="title">bluetape4k-ktor-resilience4j route flow</title>
   <desc id="desc">Ktor Resilience4j flow diagram showing caller-owned policies, route-scoped helpers, withKtorResilience policy composition, safe status page mappings, and cancellation handling.</desc>
   <defs>

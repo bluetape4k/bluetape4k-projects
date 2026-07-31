@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<svg xmlns="http://www.w3.org/2000/svg" width="1440" height="900" viewBox="0 0 1440 900" role="img" aria-label="Spring WebFlux coroutine request flow">
+<svg xmlns="http://www.w3.org/2000/svg" width="1440" height="900" viewBox="0 0 1440 900" role="img" aria-label="Spring WebFlux coroutine request flow" data-intent="Spring WebFlux coroutine handling accepts a request, resolves the controller path, suspends for reactive work, and returns the mapped response without blocking the runtime." data-evidence="spring-boot/core/README.md,spring-boot/core/src/main/kotlin" data-source-read="spring-boot/core/README.md; spring-boot/core/src/main/kotlin">
   <style>
     text { font-family: 'Architects Daughter', 'Comic Mono', 'Helvetica Neue', Arial, sans-serif; dominant-baseline: alphabetic; }
   </style>
