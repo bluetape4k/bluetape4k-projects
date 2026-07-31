@@ -42,6 +42,35 @@ test("validator skips card-like groups without shape geometry", (context) => {
   assert.equal(validation.rows[0].cards, 0);
 });
 
+test("validator associates text with each card inside a shared group", (context) => {
+  const root = mkdtempSync(join(tmpdir(), "readme-diagram-validator-"));
+  const diagramDir = join(root, "docs/images/readme-diagrams");
+  const report = join(root, "diagram-validation-report.json");
+  context.after(() => rmSync(root, { recursive: true, force: true }));
+
+  mkdirSync(diagramDir, { recursive: true });
+  writeFileSync(join(diagramDir, "shared-card-group.svg"), `
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 300">
+  <title>Shared card group</title>
+  <g id="cards">
+    <rect class="card" x="80" y="100" width="220" height="100" />
+    <text class="detail" x="114" y="150">first card</text>
+    <rect class="card" x="500" y="100" width="220" height="100" />
+    <text class="detail" x="534" y="150">second card</text>
+  </g>
+</svg>
+`, "utf8");
+
+  const result = spawnSync(process.execPath, [validator], {
+    cwd: root,
+    encoding: "utf8",
+    env: { ...process.env, DIAGRAM_VALIDATION_REPORT: report },
+  });
+
+  assert.equal(result.status, 0, result.stderr);
+  assert.doesNotMatch(result.stderr, /card text overflows=/);
+});
+
 test("validator excludes decorative icon lines from diagram routes", (context) => {
   const root = mkdtempSync(join(tmpdir(), "readme-diagram-validator-"));
   const diagramDir = join(root, "docs/images/readme-diagrams");

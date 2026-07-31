@@ -344,7 +344,9 @@ function countCardTextOverflows(svg) {
             const textValue = cleanText(match[2]);
             if (!textValue) continue;
             const x = attrNumber(attrs, "x") + group.dx;
-            if (Number.isNaN(x)) continue;
+            const y = attrNumber(attrs, "y") + group.dy;
+            if (Number.isNaN(x) || Number.isNaN(y)) continue;
+            if (x < rect.x || x > rect.x + rect.w || y < rect.y || y > rect.y + rect.h) continue;
             const className = attrs.match(/\bclass="([^"]*)"/)?.[1] || "";
             const estimated = estimateTextWidth(textValue, className);
             const pad = /\bcardTitle\b/.test(className) ? 28 : 34;
@@ -380,13 +382,14 @@ function extractCardGroups(svg) {
         const transform = attrs.match(/transform="translate\(([-\d.]+)[ ,]([-\d.]+)\)"/);
         const dx = transform ? Number(transform[1]) : 0;
         const dy = transform ? Number(transform[2]) : 0;
-        const rectTag = [...body.matchAll(/<rect[^>]*>/g)]
+        const rectTags = [...body.matchAll(/<rect[^>]*>/g)]
             .map((rectMatch) => rectMatch[0])
-            .find((tag) => /class="[^"]*(?:card|classCard|card-shape|soft|chip|note)[^"]*"/i.test(tag));
-        if (!rectTag) continue;
-        const rect = rectFromTag(rectTag);
-        if (!rect || rect.w < 40 || rect.h < 24 || (rect.w > 500 && rect.h > 160) || rect.h > 300) continue;
-        groups.push({attrs, body, dx, dy, rect: {...rect, x: rect.x + dx, y: rect.y + dy}});
+            .filter((tag) => /class="[^"]*(?:card|classCard|card-shape|soft|chip|note)[^"]*"/i.test(tag));
+        for (const rectTag of rectTags) {
+            const rect = rectFromTag(rectTag);
+            if (!rect || rect.w < 40 || rect.h < 24 || (rect.w > 500 && rect.h > 160) || rect.h > 300) continue;
+            groups.push({attrs, body, dx, dy, rect: {...rect, x: rect.x + dx, y: rect.y + dy}});
+        }
     }
     return groups;
 }
