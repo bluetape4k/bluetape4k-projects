@@ -29,7 +29,7 @@
 <text class="title" x="72" y="86">Spring Boot R2DBC Core Class Structure</text>
 <text class="subtitle" x="76" y="120">Coroutine extension groups over Spring Data R2DBC receivers: read helpers, typed select, insert, update, delete, and Reactor adaptation.</text>
 <g id="R2dbcEntityOperations">
-  <rect class="classBox" x="760" y="210" width="670" height="245" rx="8" fill="#F8FAFC" stroke="#64748B" />
+  <rect class="classBox classCard" x="760" y="210" width="670" height="245" rx="8" fill="#F8FAFC" stroke="#64748B" />
   <text class="stereotype" x="1095" y="238" text-anchor="middle">&lt;&lt;Spring Data receiver&gt;&gt;</text>
   <text class="classTitle" x="1095" y="269" text-anchor="middle">R2dbcEntityOperations</text>
   <path class="divider" d="M760 288H1430" stroke="#475569" />
@@ -40,7 +40,7 @@
 <text class="member" x="784" y="412">no subclass is introduced by this module</text>
 </g>
 <g id="CoroutineSurface">
-  <rect class="classBox" x="1620" y="210" width="730" height="245" rx="8" fill="#F0FDFA" stroke="#0D9488" />
+  <rect class="classBox classCard" x="1620" y="210" width="860" height="245" rx="8" fill="#F0FDFA" stroke="#0D9488" />
   <text class="stereotype" x="1985" y="238" text-anchor="middle">&lt;&lt;coroutine adaptation&gt;&gt;</text>
   <text class="classTitle" x="1985" y="269" text-anchor="middle">Reactor -&gt; Coroutine Surface</text>
   <path class="divider" d="M1620 288H2350" stroke="#0F766E" />
@@ -52,7 +52,7 @@
 <text class="member" x="1644" y="434">streaming returns: Flow&lt;T&gt;</text>
 </g>
 <g id="IdHelpers">
-  <rect class="classBox" x="120" y="565" width="610" height="285" rx="8" fill="#F0FDF4" stroke="#16A34A" />
+  <rect class="classBox classCard" x="120" y="565" width="610" height="285" rx="8" fill="#F0FDF4" stroke="#16A34A" />
   <text class="stereotype" x="425" y="593" text-anchor="middle">&lt;&lt;extension file&gt;&gt;</text>
   <text class="classTitle" x="425" y="624" text-anchor="middle">R2dbcEntityOperationExtensions</text>
   <path class="divider" d="M120 643H730" stroke="#15803D" />
@@ -65,7 +65,7 @@
 <text class="member" x="144" y="811">findFirstByIdOrNullSuspending(id)</text>
 </g>
 <g id="SelectExtensions">
-  <rect class="classBox" x="910" y="555" width="650" height="315" rx="8" fill="#EFF6FF" stroke="#2563EB" />
+  <rect class="classBox classCard" x="910" y="555" width="650" height="315" rx="8" fill="#EFF6FF" stroke="#2563EB" />
   <text class="stereotype" x="1235" y="583" text-anchor="middle">&lt;&lt;extension file&gt;&gt;</text>
   <text class="classTitle" x="1235" y="614" text-anchor="middle">ReactiveSelectOperationExtensions</text>
   <path class="divider" d="M910 633H1560" stroke="#1D4ED8" />
@@ -77,8 +77,8 @@
 <text class="member" x="934" y="779">selectOne/First Suspense variants</text>
 <text class="member" x="934" y="801">nullable variants use awaitSingleOrNull()</text>
 </g>
-<g id="InsertExtensions">
-  <rect class="classBox" x="120" y="970" width="610" height="250" rx="8" fill="#FFF7ED" stroke="#EA580C" />
+<g id="InsertExtensions" data-from="R2dbcEntityOperations" data-to="InsertExtensions">
+  <rect class="classBox classCard" x="120" y="970" width="610" height="250" rx="8" fill="#FFF7ED" stroke="#EA580C" />
   <text class="stereotype" x="425" y="998" text-anchor="middle">&lt;&lt;extension file&gt;&gt;</text>
   <text class="classTitle" x="425" y="1029" text-anchor="middle">ReactiveInsertOperationExtensions</text>
   <path class="divider" d="M120 1048H730" stroke="#C2410C" />
@@ -88,8 +88,8 @@
   <text class="member" x="144" y="1150">insertSuspending(entity): T</text>
 <text class="member" x="144" y="1172">insertOrNullSuspending(entity): T?</text>
 </g>
-<g id="UpdateExtensions">
-  <rect class="classBox" x="900" y="970" width="610" height="250" rx="8" fill="#FDF2F8" stroke="#DB2777" />
+<g id="UpdateExtensions" data-from="QueryObjects" data-to="UpdateExtensions">
+  <rect class="classBox classCard" x="900" y="970" width="610" height="250" rx="8" fill="#FDF2F8" stroke="#DB2777" />
   <text class="stereotype" x="1205" y="998" text-anchor="middle">&lt;&lt;extension file&gt;&gt;</text>
   <text class="classTitle" x="1205" y="1029" text-anchor="middle">ReactiveUpdateOperationExtensions</text>
   <path class="divider" d="M900 1048H1510" stroke="#BE185D" />
@@ -99,8 +99,8 @@
   <text class="member" x="924" y="1150">updateSuspending(query, update): Long</text>
 <text class="member" x="924" y="1172">returns affected row count</text>
 </g>
-<g id="DeleteExtensions">
-  <rect class="classBox" x="1680" y="970" width="610" height="250" rx="8" fill="#F5F3FF" stroke="#7C3AED" />
+<g id="DeleteExtensions" data-from="QueryObjects" data-to="DeleteExtensions">
+  <rect class="classBox classCard" x="1680" y="970" width="610" height="250" rx="8" fill="#F5F3FF" stroke="#7C3AED" />
   <text class="stereotype" x="1985" y="998" text-anchor="middle">&lt;&lt;extension file&gt;&gt;</text>
   <text class="classTitle" x="1985" y="1029" text-anchor="middle">ReactiveDeleteOperationExtensions</text>
   <path class="divider" d="M1680 1048H2290" stroke="#6D28D9" />
@@ -111,7 +111,7 @@
 <text class="member" x="1704" y="1172">deleteAllSuspending(): Long</text>
 </g>
 <g id="QueryObjects">
-  <rect class="classBox" x="1720" y="610" width="560" height="235" rx="8" fill="#F8FAFC" stroke="#64748B" />
+  <rect class="classBox classCard" x="1720" y="610" width="560" height="235" rx="8" fill="#F8FAFC" stroke="#64748B" />
   <text class="stereotype" x="2000" y="638" text-anchor="middle">&lt;&lt;Spring Data values&gt;&gt;</text>
   <text class="classTitle" x="2000" y="669" text-anchor="middle">Query / Criteria / Update</text>
   <path class="divider" d="M1720 688H2280" stroke="#475569" />
