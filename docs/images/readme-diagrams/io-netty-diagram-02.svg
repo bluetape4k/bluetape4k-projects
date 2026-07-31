@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1800" height="1080" viewBox="0 0 1800 1080" role="img" aria-labelledby="title desc">
+<svg xmlns="http://www.w3.org/2000/svg" width="1800" height="1080" viewBox="0 0 1800 1080" role="img" aria-labelledby="title desc" data-intent="Explain Smart encoding as a range-based decision flow where small values use fewer bytes and larger values switch to marker-bit encodings." data-evidence="io/netty/README.md#smart-encoding; io/netty/src/main/kotlin/io/bluetape4k/netty/buffer/ByteBufExtensions.kt; io/netty/src/main/kotlin/io/bluetape4k/netty/buffer/Smart.kt; io/netty/src/main/kotlin/io/bluetape4k/netty/buffer/USmart.kt" data-source-read="io/netty/README.md; io/netty/src/main/kotlin/io/bluetape4k/netty/buffer/ByteBufExtensions.kt">
   <title id="title">bluetape4k-netty smart encoding flow</title>
   <desc id="desc">Range map for ShortSmart, IntSmart, unsigned smart encodings, nullable UInt sentinel, and VarInt continuation bytes in bluetape4k-netty.</desc>
   <defs>

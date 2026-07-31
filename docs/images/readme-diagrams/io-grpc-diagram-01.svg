@@ -51,10 +51,10 @@
   <text class="title" x="78" y="86">gRPC Class Structure</text>
   <text class="subtitle" x="82" y="118">Server lifecycle classes implement GrpcServer; client bases own ManagedChannel lifecycle and close it safely.</text>
 
-  <rect class="panel" x="82" y="158" width="760" height="720" rx="8" fill="#eff6ff" stroke="#bfdbfe" />
+  <rect class="panel" x="82" y="174" width="760" height="744" rx="8" fill="#eff6ff" stroke="#bfdbfe" />
   <text class="panel-title" x="118" y="204">Server-side lifecycle</text>
 
-  <rect class="panel" x="878" y="158" width="760" height="720" rx="8" fill="#fff7ed" stroke="#fed7aa" />
+  <rect class="panel" x="878" y="174" width="760" height="744" rx="8" fill="#fff7ed" stroke="#fed7aa" />
   <text class="panel-title" x="914" y="204">Client-side channel ownership</text>
 
   <g class="uml" transform="translate(158 242)">
