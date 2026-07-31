@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<svg xmlns="http://www.w3.org/2000/svg" width="1500" height="1120" viewBox="0 0 1500 1120" role="img" aria-label="Spring Boot Hibernate Lettuce activation flow">
+<svg xmlns="http://www.w3.org/2000/svg" width="1500" height="1120" viewBox="0 0 1500 1120" role="img" aria-label="Spring Boot Hibernate Lettuce activation flow" data-intent="Spring Boot activates Hibernate Lettuce near-cache integration through auto-configuration, metrics, and actuator components." data-evidence="spring-boot/hibernate-lettuce/README.md,spring-boot/hibernate-lettuce/src/main/kotlin" data-source-read="spring-boot/hibernate-lettuce/README.md; spring-boot/hibernate-lettuce/src/main/kotlin">
   <style>
     text { font-family: 'Architects Daughter', 'Comic Mono', 'Helvetica Neue', Arial, sans-serif; dominant-baseline: alphabetic; }
   </style>
