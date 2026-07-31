@@ -1,4 +1,4 @@
-<svg data-intent="Explain bluetape4k-science integrated module overview from current README and source." data-evidence="utils/science/README.md; utils/science/src/main/kotlin/io/bluetape4k/science/coords/GeoLocation.kt; utils/science/src/main/kotlin/io/bluetape4k/science/coords/BoundingBox.kt; utils/science/src/main/kotlin/io/bluetape4k/science/projection/Projections.kt; utils/science/src/main/kotlin/io/bluetape4k/science/shapefile/ShapefileReader.kt; utils/science/src/main/kotlin/io/bluetape4k/science/geometry/GeometryOperations.kt; utils/science/src/main/kotlin/io/bluetape4k/science/exposed/service/ShapefileImportService.kt; utils/science/src/main/kotlin/io/bluetape4k/science/exposed/service/NetCdfCatalogService.kt; utils/science/src/main/kotlin/io/bluetape4k/science/exposed/schema/SpatialTables.kt; utils/science/src/main/kotlin/io/bluetape4k/science/exposed/schema/NetCdfTables.kt" data-source-read="utils/science/README.md; utils/science/src/main/kotlin/io/bluetape4k/science/coords/GeoLocation.kt; utils/science/src/main/kotlin/io/bluetape4k/science/coords/BoundingBox.kt; utils/science/src/main/kotlin/io/bluetape4k/science/projection/Projections.kt; utils/science/src/main/kotlin/io/bluetape4k/science/shapefile/ShapefileReader.kt; utils/science/src/main/kotlin/io/bluetape4k/science/geometry/GeometryOperations.kt; utils/science/src/main/kotlin/io/bluetape4k/science/exposed/service/ShapefileImportService.kt; utils/science/src/main/kotlin/io/bluetape4k/science/exposed/service/NetCdfCatalogService.kt; utils/science/src/main/kotlin/io/bluetape4k/science/exposed/schema/SpatialTables.kt; utils/science/src/main/kotlin/io/bluetape4k/science/exposed/schema/NetCdfTables.kt" xmlns="http://www.w3.org/2000/svg" width="3000" height="1880" viewBox="0 0 3000 1880" role="img" aria-label="Integrated Module Overview">
+<svg data-intent="Explain the source-backed module behavior, public API relationships, runtime boundaries, and user-facing decisions represented by this diagram for maintainers and users." data-evidence="utils/science/README.md; utils/science/src/main/kotlin/io/bluetape4k/science/coords/GeoLocation.kt; utils/science/src/main/kotlin/io/bluetape4k/science/coords/BoundingBox.kt; utils/science/src/main/kotlin/io/bluetape4k/science/projection/Projections.kt; utils/science/src/main/kotlin/io/bluetape4k/science/shapefile/ShapefileReader.kt; utils/science/src/main/kotlin/io/bluetape4k/science/geometry/GeometryOperations.kt; utils/science/src/main/kotlin/io/bluetape4k/science/exposed/service/ShapefileImportService.kt; utils/science/src/main/kotlin/io/bluetape4k/science/exposed/service/NetCdfCatalogService.kt; utils/science/src/main/kotlin/io/bluetape4k/science/exposed/schema/SpatialTables.kt; utils/science/src/main/kotlin/io/bluetape4k/science/exposed/schema/NetCdfTables.kt" data-source-read="utils/science/README.md; utils/science/src/main/kotlin/io/bluetape4k/science/coords/GeoLocation.kt; utils/science/src/main/kotlin/io/bluetape4k/science/coords/BoundingBox.kt; utils/science/src/main/kotlin/io/bluetape4k/science/projection/Projections.kt; utils/science/src/main/kotlin/io/bluetape4k/science/shapefile/ShapefileReader.kt; utils/science/src/main/kotlin/io/bluetape4k/science/geometry/GeometryOperations.kt; utils/science/src/main/kotlin/io/bluetape4k/science/exposed/service/ShapefileImportService.kt; utils/science/src/main/kotlin/io/bluetape4k/science/exposed/service/NetCdfCatalogService.kt; utils/science/src/main/kotlin/io/bluetape4k/science/exposed/schema/SpatialTables.kt; utils/science/src/main/kotlin/io/bluetape4k/science/exposed/schema/NetCdfTables.kt" xmlns="http://www.w3.org/2000/svg" width="3000" height="1880" viewBox="0 0 3000 1880" role="img" aria-label="Integrated Module Overview">
 <defs>
   <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="5" stdDeviation="4" flood-color="#0F172A" flood-opacity="0.10"/></filter>
 
@@ -30,189 +30,189 @@
 <text class="title" x="72" y="88">Integrated Module Overview</text>
 <text class="subtitle" x="76" y="122">Five README domains are implemented as coordinate primitives, CRS transforms, Shapefile/JTS processing, PostGIS storage, and a current NetCDF registration plus grid import pipeline.</text>
 <g>
-  <rect class="band" x="90" y="200" width="2820" height="300" rx="8"/>
-  <text class="bandTitle" x="110" y="234">Coordinates and CRS transforms</text>
+  <rect class="band" x="90" y="254" width="2820" height="300" rx="8"/>
+  <text class="bandTitle" x="110" y="288">Coordinates and CRS transforms</text>
 </g>
 <g>
-  <rect class="band" x="90" y="560" width="2820" height="360" rx="8"/>
-  <text class="bandTitle" x="110" y="594">Shapefile to PostGIS pipeline</text>
+  <rect class="band" x="90" y="614" width="2820" height="360" rx="8"/>
+  <text class="bandTitle" x="110" y="648">Shapefile to PostGIS pipeline</text>
 </g>
 <g>
-  <rect class="band" x="90" y="980" width="2820" height="360" rx="8"/>
-  <text class="bandTitle" x="110" y="1014">NetCDF catalog and grid import pipeline</text>
+  <rect class="band" x="90" y="1034" width="2820" height="360" rx="8"/>
+  <text class="bandTitle" x="110" y="1068">NetCDF catalog and grid import pipeline</text>
 </g>
 <g>
   <rect class="band" x="90" y="1400" width="2820" height="270" rx="8"/>
   <text class="bandTitle" x="110" y="1434">External libraries and storage boundaries</text>
 </g>
 <g data-from="Coords" data-to="Projection">
-  <path class="edge " d="M650 350 L790 350" stroke="#15803D" marker-end="url(#arrow-green)"/>
-  <text class="edgeLabel" x="660" y="326">GeoLocation + UTM zone</text>
+  <path class="edge " d="M650 404 L790 404" stroke="#15803D" marker-end="url(#arrow-green)"/>
+  <text class="edgeLabel" x="660" y="380">GeoLocation + UTM zone</text>
 </g>
 <g data-from="Projection" data-to="ProjectedOutput">
-  <path class="edge " d="M1240 350 L1380 350" stroke="#15803D" marker-end="url(#arrow-green)"/>
-  <text class="edgeLabel" x="1260" y="326">Proj4J transform</text>
+  <path class="edge " d="M1240 404 L1380 404" stroke="#15803D" marker-end="url(#arrow-green)"/>
+  <text class="edgeLabel" x="1260" y="380">Proj4J transform</text>
 </g>
 <g data-from="ShpFiles" data-to="ShapeReader">
-  <path class="edge " d="M520 735 L660 735" stroke="#1D4ED8" marker-end="url(#arrow-blue)"/>
-  <text class="edgeLabel" x="540" y="710">.shp + .dbf</text>
+  <path class="edge " d="M520 789 L660 789" stroke="#1D4ED8" marker-end="url(#arrow-blue)"/>
+  <text class="edgeLabel" x="540" y="764">.shp + .dbf</text>
 </g>
 <g data-from="ShapeReader" data-to="ShapeModels">
-  <path class="edge " d="M1070 735 L1210 735" stroke="#1D4ED8" marker-end="url(#arrow-blue)"/>
-  <text class="edgeLabel" x="1090" y="710">domain models</text>
+  <path class="edge " d="M1070 789 L1210 789" stroke="#1D4ED8" marker-end="url(#arrow-blue)"/>
+  <text class="edgeLabel" x="1090" y="764">domain models</text>
 </g>
 <g data-from="ShapeModels" data-to="ImportService">
-  <path class="edge " d="M1620 735 L1760 735" stroke="#0F766E" marker-end="url(#arrow-teal)"/>
-  <text class="edgeLabel" x="1640" y="710">JTS geometry + attrs</text>
+  <path class="edge " d="M1620 789 L1760 789" stroke="#0F766E" marker-end="url(#arrow-teal)"/>
+  <text class="edgeLabel" x="1640" y="764">JTS geometry + attrs</text>
 </g>
 <g data-from="ImportService" data-to="SpatialTables">
-  <path class="edge " d="M2170 735 L2310 735" stroke="#0F766E" marker-end="url(#arrow-teal)"/>
-  <text class="edgeLabel" x="2190" y="710">batch insert</text>
+  <path class="edge " d="M2170 789 L2310 789" stroke="#0F766E" marker-end="url(#arrow-teal)"/>
+  <text class="edgeLabel" x="2190" y="764">batch insert</text>
 </g>
 <g data-from="NetCdfFile" data-to="NetCdfService">
-  <path class="edge " d="M520 1155 L660 1155" stroke="#C2410C" marker-end="url(#arrow-amber)"/>
-  <text class="edgeLabel" x="550" y="1130">.nc path</text>
+  <path class="edge " d="M520 1209 L660 1209" stroke="#C2410C" marker-end="url(#arrow-amber)"/>
+  <text class="edgeLabel" x="550" y="1184">.nc path</text>
 </g>
 <g data-from="NetCdfService" data-to="AxisReproject">
-  <path class="edge " d="M1070 1155 L1210 1155" stroke="#C2410C" marker-end="url(#arrow-amber)"/>
-  <text class="edgeLabel" x="1085" y="1130">rank 1-4 slices</text>
+  <path class="edge " d="M1070 1209 L1210 1209" stroke="#C2410C" marker-end="url(#arrow-amber)"/>
+  <text class="edgeLabel" x="1085" y="1184">rank 1-4 slices</text>
 </g>
 <g data-from="AxisReproject" data-to="NetCdfTables">
-  <path class="edge " d="M1620 1155 L1760 1155" stroke="#BE185D" marker-end="url(#arrow-pink)"/>
-  <text class="edgeLabel" x="1635" y="1130">metadata + grid values</text>
+  <path class="edge " d="M1620 1209 L1760 1209" stroke="#BE185D" marker-end="url(#arrow-pink)"/>
+  <text class="edgeLabel" x="1635" y="1184">metadata + grid values</text>
 </g>
 <g data-from="NetCdfTables" data-to="Progress">
-  <path class="edge dashed" d="M2170 1155 L2310 1155" stroke="#BE185D"/>
-<polygon points="2298,1161 2310,1155 2298,1149" fill="#BE185D" stroke="#BE185D" stroke-width="1" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important" data-direct-solid-head="true"/>
-  <text class="edgeLabel" x="2190" y="1130">lease and resume</text>
+  <path class="edge dashed" d="M2170 1209 L2310 1209" stroke="#BE185D"/>
+<polygon points="2298,1215 2310,1209 2298,1203" fill="#BE185D" stroke="#BE185D" stroke-width="1" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important" data-direct-solid-head="true"/>
+  <text class="edgeLabel" x="2190" y="1184">lease and resume</text>
 </g>
 <g id="Coords">
-  <rect class="card" x="190" y="270" width="460" height="175" rx="8" fill="#F0FDF4" stroke="#16A34A"/>
-  <text class="kicker" x="212" y="300">coords package</text>
-  <text class="cardTitle" x="212" y="334">Coordinate primitives</text>
-  <path class="divider" d="M190 354H650" stroke="#15803D"/>
-  <text class="body" x="212" y="386">GeoLocation.distanceTo()</text>
-<text class="body" x="212" y="410">BoundingBox contains/intersects</text>
-<text class="body" x="212" y="434">DMS/DM, Vector, UtmZone</text>
+  <rect class="card" x="190" y="324" width="460" height="175" rx="8" fill="#F0FDF4" stroke="#16A34A"/>
+  <text class="kicker" x="212" y="354">coords package</text>
+  <text class="cardTitle" x="212" y="388">Coordinate primitives</text>
+  <path class="divider" d="M190 408H650" stroke="#15803D"/>
+  <text class="body" x="212" y="440">GeoLocation.distanceTo()</text>
+<text class="body" x="212" y="464">BoundingBox contains/intersects</text>
+<text class="body" x="212" y="488">DMS/DM, Vector, UtmZone</text>
 
 </g>
 <g id="Projection">
-  <rect class="card" x="790" y="270" width="450" height="175" rx="8" fill="#F0FDF4" stroke="#16A34A"/>
-  <text class="kicker" x="812" y="300">projection package</text>
-  <text class="cardTitle" x="812" y="334">CrsRegistry + Projections</text>
-  <path class="divider" d="M790 354H1240" stroke="#15803D"/>
-  <text class="body" x="812" y="386">wgs84ToUtm()</text>
-<text class="body" x="812" y="410">utmToWgs84()</text>
-<text class="body" x="812" y="434">transform(source, target, lon, lat)</text>
+  <rect class="card" x="790" y="324" width="450" height="175" rx="8" fill="#F0FDF4" stroke="#16A34A"/>
+  <text class="kicker" x="812" y="354">projection package</text>
+  <text class="cardTitle" x="812" y="388">CrsRegistry + Projections</text>
+  <path class="divider" d="M790 408H1240" stroke="#15803D"/>
+  <text class="body" x="812" y="440">wgs84ToUtm()</text>
+<text class="body" x="812" y="464">utmToWgs84()</text>
+<text class="body" x="812" y="488">transform(source, target, lon, lat)</text>
 
 </g>
 <g id="ProjectedOutput">
-  <rect class="card" x="1380" y="270" width="430" height="175" rx="8" fill="#F0FDFA" stroke="#0D9488"/>
-  <text class="kicker" x="1402" y="300">projection output</text>
-  <text class="cardTitle" x="1402" y="334">WGS84 / UTM / EPSG pairs</text>
-  <path class="divider" d="M1380 354H1810" stroke="#0F766E"/>
-  <text class="body" x="1402" y="386">GeoLocation result</text>
-<text class="body" x="1402" y="410">Pair(easting, northing)</text>
-<text class="body" x="1402" y="434">arbitrary EPSG coordinate pair</text>
+  <rect class="card" x="1380" y="324" width="430" height="175" rx="8" fill="#F0FDFA" stroke="#0D9488"/>
+  <text class="kicker" x="1402" y="354">projection output</text>
+  <text class="cardTitle" x="1402" y="388">WGS84 / UTM / EPSG pairs</text>
+  <path class="divider" d="M1380 408H1810" stroke="#0F766E"/>
+  <text class="body" x="1402" y="440">GeoLocation result</text>
+<text class="body" x="1402" y="464">Pair(easting, northing)</text>
+<text class="body" x="1402" y="488">arbitrary EPSG coordinate pair</text>
 
 </g>
 <g id="ShpFiles">
-  <rect class="card" x="190" y="655" width="330" height="160" rx="8" fill="#EFF6FF" stroke="#2563EB"/>
-  <text class="kicker" x="212" y="685">input</text>
-  <text class="cardTitle" x="212" y="719">Shapefile set</text>
-  <path class="divider" d="M190 739H520" stroke="#1D4ED8"/>
-  <text class="body" x="212" y="771">.shp geometry</text>
-<text class="body" x="212" y="795">.dbf attributes</text>
+  <rect class="card" x="190" y="709" width="330" height="160" rx="8" fill="#EFF6FF" stroke="#2563EB"/>
+  <text class="kicker" x="212" y="739">input</text>
+  <text class="cardTitle" x="212" y="773">Shapefile set</text>
+  <path class="divider" d="M190 793H520" stroke="#1D4ED8"/>
+  <text class="body" x="212" y="825">.shp geometry</text>
+<text class="body" x="212" y="849">.dbf attributes</text>
 
 </g>
 <g id="ShapeReader">
-  <rect class="card" x="660" y="635" width="410" height="200" rx="8" fill="#EFF6FF" stroke="#2563EB"/>
-  <text class="kicker" x="682" y="665">shapefile package</text>
-  <text class="cardTitle" x="682" y="699">loadShape / loadShapeAsync</text>
-  <path class="divider" d="M660 719H1070" stroke="#1D4ED8"/>
-  <text class="body" x="682" y="751">GeoTools ShapefileReader</text>
-<text class="body" x="682" y="775">DbaseFileReader attributes</text>
-<text class="body" x="682" y="799">Dispatchers.IO async wrapper</text>
+  <rect class="card" x="660" y="689" width="410" height="200" rx="8" fill="#EFF6FF" stroke="#2563EB"/>
+  <text class="kicker" x="682" y="719">shapefile package</text>
+  <text class="cardTitle" x="682" y="753">loadShape / loadShapeAsync</text>
+  <path class="divider" d="M660 773H1070" stroke="#1D4ED8"/>
+  <text class="body" x="682" y="805">GeoTools ShapefileReader</text>
+<text class="body" x="682" y="829">DbaseFileReader attributes</text>
+<text class="body" x="682" y="853">Dispatchers.IO async wrapper</text>
 
 </g>
 <g id="ShapeModels">
-  <rect class="card" x="1210" y="635" width="410" height="200" rx="8" fill="#F0FDFA" stroke="#0D9488"/>
-  <text class="kicker" x="1232" y="665">shape + geometry</text>
-  <text class="cardTitle" x="1232" y="699">Shape models and JTS</text>
-  <path class="divider" d="M1210 719H1620" stroke="#0F766E"/>
-  <text class="body" x="1232" y="751">ShapeHeader, ShapeRecord</text>
-<text class="body" x="1232" y="775">BoundingBox per record</text>
-<text class="body" x="1232" y="799">GeometryOperations helpers</text>
+  <rect class="card" x="1210" y="689" width="410" height="200" rx="8" fill="#F0FDFA" stroke="#0D9488"/>
+  <text class="kicker" x="1232" y="719">shape + geometry</text>
+  <text class="cardTitle" x="1232" y="753">Shape models and JTS</text>
+  <path class="divider" d="M1210 773H1620" stroke="#0F766E"/>
+  <text class="body" x="1232" y="805">ShapeHeader, ShapeRecord</text>
+<text class="body" x="1232" y="829">BoundingBox per record</text>
+<text class="body" x="1232" y="853">GeometryOperations helpers</text>
 
 </g>
 <g id="ImportService">
-  <rect class="card" x="1760" y="635" width="410" height="200" rx="8" fill="#F0FDFA" stroke="#0D9488"/>
-  <text class="kicker" x="1782" y="665">exposed service</text>
-  <text class="cardTitle" x="1782" y="699">ShapefileImportService</text>
-  <path class="divider" d="M1760 719H2170" stroke="#0F766E"/>
-  <text class="body" x="1782" y="751">creates SpatialLayerRecord</text>
-<text class="body" x="1782" y="775">WKTWriter -&gt; PGgeometry</text>
-<text class="body" x="1782" y="799">batchInsert per chunk</text>
+  <rect class="card" x="1760" y="689" width="410" height="200" rx="8" fill="#F0FDFA" stroke="#0D9488"/>
+  <text class="kicker" x="1782" y="719">exposed service</text>
+  <text class="cardTitle" x="1782" y="753">ShapefileImportService</text>
+  <path class="divider" d="M1760 773H2170" stroke="#0F766E"/>
+  <text class="body" x="1782" y="805">creates SpatialLayerRecord</text>
+<text class="body" x="1782" y="829">WKTWriter -&gt; PGgeometry</text>
+<text class="body" x="1782" y="853">batchInsert per chunk</text>
 
 </g>
 <g id="SpatialTables">
-  <rect class="card" x="2310" y="635" width="430" height="200" rx="8" fill="#FDF2F8" stroke="#DB2777"/>
-  <text class="kicker" x="2332" y="665">PostGIS schema</text>
-  <text class="cardTitle" x="2332" y="699">Spatial tables</text>
-  <path class="divider" d="M2310 719H2740" stroke="#BE185D"/>
-  <text class="body" x="2332" y="751">SpatialLayerTable metadata</text>
-<text class="body" x="2332" y="775">SpatialFeatureTable geom</text>
-<text class="body" x="2332" y="799">properties stored as JSONB</text>
+  <rect class="card" x="2310" y="689" width="430" height="200" rx="8" fill="#FDF2F8" stroke="#DB2777"/>
+  <text class="kicker" x="2332" y="719">PostGIS schema</text>
+  <text class="cardTitle" x="2332" y="753">Spatial tables</text>
+  <path class="divider" d="M2310 773H2740" stroke="#BE185D"/>
+  <text class="body" x="2332" y="805">SpatialLayerTable metadata</text>
+<text class="body" x="2332" y="829">SpatialFeatureTable geom</text>
+<text class="body" x="2332" y="853">properties stored as JSONB</text>
 
 </g>
 <g id="NetCdfFile">
-  <rect class="card" x="190" y="1075" width="330" height="160" rx="8" fill="#FFF7ED" stroke="#EA580C"/>
-  <text class="kicker" x="212" y="1105">input</text>
-  <text class="cardTitle" x="212" y="1139">NetCDF file</text>
-  <path class="divider" d="M190 1159H520" stroke="#C2410C"/>
-  <text class="body" x="212" y="1191">variables</text>
-<text class="body" x="212" y="1215">dimensions</text>
+  <rect class="card" x="190" y="1129" width="330" height="160" rx="8" fill="#FFF7ED" stroke="#EA580C"/>
+  <text class="kicker" x="212" y="1159">input</text>
+  <text class="cardTitle" x="212" y="1193">NetCDF file</text>
+  <path class="divider" d="M190 1213H520" stroke="#C2410C"/>
+  <text class="body" x="212" y="1245">variables</text>
+<text class="body" x="212" y="1269">dimensions</text>
 
 </g>
 <g id="NetCdfService">
-  <rect class="card" x="660" y="1045" width="410" height="220" rx="8" fill="#FFF7ED" stroke="#EA580C"/>
-  <text class="kicker" x="682" y="1075">exposed service</text>
-  <text class="cardTitle" x="682" y="1109">NetCdfCatalogService</text>
-  <path class="divider" d="M660 1129H1070" stroke="#C2410C"/>
-  <text class="body" x="682" y="1161">registerFile(filePath)</text>
-<text class="body" x="682" y="1185">importGridValues(fileId, variable)</text>
-<text class="body" x="682" y="1209">rank 1 to 4 variable support</text>
-  <path class="divider" d="M660 1221H1070" stroke="#C2410C"/><text class="foot" x="682" y="1249">latest source implements import flow</text>
+  <rect class="card" x="660" y="1099" width="410" height="220" rx="8" fill="#FFF7ED" stroke="#EA580C"/>
+  <text class="kicker" x="682" y="1129">exposed service</text>
+  <text class="cardTitle" x="682" y="1163">NetCdfCatalogService</text>
+  <path class="divider" d="M660 1183H1070" stroke="#C2410C"/>
+  <text class="body" x="682" y="1215">registerFile(filePath)</text>
+<text class="body" x="682" y="1239">importGridValues(fileId, variable)</text>
+<text class="body" x="682" y="1263">rank 1 to 4 variable support</text>
+  <path class="divider" d="M660 1275H1070" stroke="#C2410C"/><text class="foot" x="682" y="1303">latest source implements import flow</text>
 </g>
 <g id="AxisReproject">
-  <rect class="card" x="1210" y="1045" width="410" height="220" rx="8" fill="#FFF7ED" stroke="#EA580C"/>
-  <text class="kicker" x="1232" y="1075">internal helpers</text>
-  <text class="cardTitle" x="1232" y="1109">Axis map and reprojection</text>
-  <path class="divider" d="M1210 1129H1620" stroke="#C2410C"/>
-  <text class="body" x="1232" y="1161">VariableAxisMap finds time/level/lat/lon</text>
-<text class="body" x="1232" y="1185">CoordinateReprojector normalizes CRS</text>
-<text class="body" x="1232" y="1209">NaN and _FillValue are skipped</text>
+  <rect class="card" x="1210" y="1099" width="410" height="220" rx="8" fill="#FFF7ED" stroke="#EA580C"/>
+  <text class="kicker" x="1232" y="1129">internal helpers</text>
+  <text class="cardTitle" x="1232" y="1163">Axis map and reprojection</text>
+  <path class="divider" d="M1210 1183H1620" stroke="#C2410C"/>
+  <text class="body" x="1232" y="1215">VariableAxisMap finds time/level/lat/lon</text>
+<text class="body" x="1232" y="1239">CoordinateReprojector normalizes CRS</text>
+<text class="body" x="1232" y="1263">NaN and _FillValue are skipped</text>
 
 </g>
 <g id="NetCdfTables">
-  <rect class="card" x="1760" y="1045" width="410" height="220" rx="8" fill="#FDF2F8" stroke="#DB2777"/>
-  <text class="kicker" x="1782" y="1075">NetCDF schema</text>
-  <text class="cardTitle" x="1782" y="1109">File and grid tables</text>
-  <path class="divider" d="M1760 1129H2170" stroke="#BE185D"/>
-  <text class="body" x="1782" y="1161">NetCdfFileTable metadata JSONB</text>
-<text class="body" x="1782" y="1185">NetCdfGridValueTable value cells</text>
-<text class="body" x="1782" y="1209">POINT location for spatial cells</text>
+  <rect class="card" x="1760" y="1099" width="410" height="220" rx="8" fill="#FDF2F8" stroke="#DB2777"/>
+  <text class="kicker" x="1782" y="1129">NetCDF schema</text>
+  <text class="cardTitle" x="1782" y="1163">File and grid tables</text>
+  <path class="divider" d="M1760 1183H2170" stroke="#BE185D"/>
+  <text class="body" x="1782" y="1215">NetCdfFileTable metadata JSONB</text>
+<text class="body" x="1782" y="1239">NetCdfGridValueTable value cells</text>
+<text class="body" x="1782" y="1263">POINT location for spatial cells</text>
 
 </g>
 <g id="Progress">
-  <rect class="card" x="2310" y="1045" width="430" height="220" rx="8" fill="#F5F3FF" stroke="#7C3AED"/>
-  <text class="kicker" x="2332" y="1075">import progress</text>
-  <text class="cardTitle" x="2332" y="1109">Lease and resume state</text>
-  <path class="divider" d="M2310 1129H2740" stroke="#6D28D9"/>
-  <text class="body" x="2332" y="1161">NetCdfImportProgressTable</text>
-<text class="body" x="2332" y="1185">heartbeat lease TTL</text>
-<text class="body" x="2332" y="1209">lastSliceIdx resume</text>
-<text class="body" x="2332" y="1233">COMPLETED no-op guard</text>
+  <rect class="card" x="2310" y="1099" width="430" height="220" rx="8" fill="#F5F3FF" stroke="#7C3AED"/>
+  <text class="kicker" x="2332" y="1129">import progress</text>
+  <text class="cardTitle" x="2332" y="1163">Lease and resume state</text>
+  <path class="divider" d="M2310 1183H2740" stroke="#6D28D9"/>
+  <text class="body" x="2332" y="1215">NetCdfImportProgressTable</text>
+<text class="body" x="2332" y="1239">heartbeat lease TTL</text>
+<text class="body" x="2332" y="1263">lastSliceIdx resume</text>
+<text class="body" x="2332" y="1287">COMPLETED no-op guard</text>
 
 </g>
 <g id="Proj4J">
