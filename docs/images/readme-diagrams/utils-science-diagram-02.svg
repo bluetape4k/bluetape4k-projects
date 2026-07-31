@@ -1,4 +1,4 @@
-<svg data-intent="Explain coordinate transformation flow from current README and projection source." data-evidence="utils/science/README.md; utils/science/src/main/kotlin/io/bluetape4k/science/coords/GeoLocation.kt; utils/science/src/main/kotlin/io/bluetape4k/science/coords/UtmZone.kt; utils/science/src/main/kotlin/io/bluetape4k/science/coords/UtmZoneSupport.kt; utils/science/src/main/kotlin/io/bluetape4k/science/projection/CrsRegistry.kt; utils/science/src/main/kotlin/io/bluetape4k/science/projection/Projections.kt" data-source-read="utils/science/README.md; utils/science/src/main/kotlin/io/bluetape4k/science/coords/GeoLocation.kt; utils/science/src/main/kotlin/io/bluetape4k/science/coords/UtmZone.kt; utils/science/src/main/kotlin/io/bluetape4k/science/coords/UtmZoneSupport.kt; utils/science/src/main/kotlin/io/bluetape4k/science/projection/CrsRegistry.kt; utils/science/src/main/kotlin/io/bluetape4k/science/projection/Projections.kt" xmlns="http://www.w3.org/2000/svg" width="3000" height="1500" viewBox="0 0 3000 1500" role="img" aria-label="Coordinate Transformation Flow">
+<svg data-allow-grid="true" data-intent="Explain the source-backed module behavior, public API relationships, runtime boundaries, and user-facing decisions represented by this diagram for maintainers and users." data-evidence="utils/science/README.md; utils/science/src/main/kotlin/io/bluetape4k/science/coords/GeoLocation.kt; utils/science/src/main/kotlin/io/bluetape4k/science/coords/UtmZone.kt; utils/science/src/main/kotlin/io/bluetape4k/science/coords/UtmZoneSupport.kt; utils/science/src/main/kotlin/io/bluetape4k/science/projection/CrsRegistry.kt; utils/science/src/main/kotlin/io/bluetape4k/science/projection/Projections.kt" data-source-read="utils/science/README.md; utils/science/src/main/kotlin/io/bluetape4k/science/coords/GeoLocation.kt; utils/science/src/main/kotlin/io/bluetape4k/science/coords/UtmZone.kt; utils/science/src/main/kotlin/io/bluetape4k/science/coords/UtmZoneSupport.kt; utils/science/src/main/kotlin/io/bluetape4k/science/projection/CrsRegistry.kt; utils/science/src/main/kotlin/io/bluetape4k/science/projection/Projections.kt" xmlns="http://www.w3.org/2000/svg" width="3000" height="1500" viewBox="0 0 3000 1500" role="img" aria-label="Coordinate Transformation Flow">
 <defs>
   <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="5" stdDeviation="4" flood-color="#0F172A" flood-opacity="0.10"/></filter>
 
@@ -30,137 +30,137 @@
 <text class="title" x="72" y="88">Coordinate Transformation Flow</text>
 <text class="subtitle" x="76" y="122">The projection package wraps Proj4J with typed WGS84/UTM helpers, UTM zone detection, southern-hemisphere handling, and a shared CRS cache.</text>
 <g data-from="WgsInput" data-to="ZoneDetect">
-  <path class="edge " d="M560 350 L700 350" stroke="#15803D" marker-end="url(#arrow-green)"/>
-  <text class="edgeLabel" x="585" y="326">utmZoneOf(location)</text>
+  <path class="edge route" d="M655 382 L795 382" stroke="#15803D" marker-end="url(#arrow-green)"/>
+  <text class="edgeLabel" x="680" y="358">utmZoneOf(location)</text>
 </g>
 <g data-from="ZoneDetect" data-to="UtmCrs">
-  <path class="edge " d="M1100 350 L1240 350" stroke="#15803D" marker-end="url(#arrow-green)"/>
-  <text class="edgeLabel" x="1125" y="326">proj4 params</text>
+  <path class="edge route" d="M1195 382 L1335 382" stroke="#15803D" marker-end="url(#arrow-green)"/>
+  <text class="edgeLabel" x="1220" y="358">proj4 params</text>
 </g>
 <g data-from="UtmCrs" data-to="TransformForward">
-  <path class="edge " d="M1640 350 L1780 350" stroke="#15803D" marker-end="url(#arrow-green)"/>
-  <text class="edgeLabel" x="1665" y="326">cached CRS</text>
+  <path class="edge route" d="M1735 382 L1875 382" stroke="#15803D" marker-end="url(#arrow-green)"/>
+  <text class="edgeLabel" x="1760" y="358">cached CRS</text>
 </g>
 <g data-from="TransformForward" data-to="UtmOutput">
-  <path class="edge " d="M2180 350 L2320 350" stroke="#15803D" marker-end="url(#arrow-green)"/>
-  <text class="edgeLabel" x="2205" y="326">dst.x / dst.y</text>
+  <path class="edge route" d="M2275 382 L2415 382" stroke="#15803D" marker-end="url(#arrow-green)"/>
+  <text class="edgeLabel" x="2300" y="358">dst.x / dst.y</text>
 </g>
 <g data-from="UtmInput" data-to="ReverseCrs">
-  <path class="edge " d="M560 760 L700 760" stroke="#1D4ED8" marker-end="url(#arrow-blue)"/>
-  <text class="edgeLabel" x="590" y="736">zone + south</text>
+  <path class="edge route" d="M655 792 L795 792" stroke="#1D4ED8" marker-end="url(#arrow-blue)"/>
+  <text class="edgeLabel" x="685" y="768">zone + south</text>
 </g>
 <g data-from="ReverseCrs" data-to="TransformReverse">
-  <path class="edge " d="M1100 760 L1240 760" stroke="#1D4ED8" marker-end="url(#arrow-blue)"/>
-  <text class="edgeLabel" x="1125" y="736">UTM -&gt; WGS84</text>
+  <path class="edge route" d="M1195 792 L1335 792" stroke="#1D4ED8" marker-end="url(#arrow-blue)"/>
+  <text class="edgeLabel" x="1220" y="768">UTM -&gt; WGS84</text>
 </g>
 <g data-from="TransformReverse" data-to="WgsOutput">
-  <path class="edge " d="M1640 760 L1780 760" stroke="#1D4ED8" marker-end="url(#arrow-blue)"/>
-  <text class="edgeLabel" x="1665" y="736">dst.y / dst.x</text>
+  <path class="edge route" d="M1735 792 L1875 792" stroke="#1D4ED8" marker-end="url(#arrow-blue)"/>
+  <text class="edgeLabel" x="1760" y="768">dst.y / dst.x</text>
 </g>
 <g data-from="ArbitraryInput" data-to="RegistryPair">
-  <path class="edge " d="M560 1168 L700 1168" stroke="#6D28D9" marker-end="url(#arrow-violet)"/>
+  <path class="edge route" d="M560 1168 L700 1168" stroke="#6D28D9" marker-end="url(#arrow-violet)"/>
   <text class="edgeLabel" x="575" y="1144">source + target EPSG</text>
 </g>
 <g data-from="RegistryPair" data-to="TransformAny">
-  <path class="edge " d="M1100 1168 L1240 1168" stroke="#6D28D9" marker-end="url(#arrow-violet)"/>
+  <path class="edge route" d="M1100 1168 L1240 1168" stroke="#6D28D9" marker-end="url(#arrow-violet)"/>
   <text class="edgeLabel" x="1125" y="1144">two CRS objects</text>
 </g>
 <g data-from="TransformAny" data-to="PairOutput">
-  <path class="edge " d="M1640 1168 L1780 1168" stroke="#6D28D9" marker-end="url(#arrow-violet)"/>
+  <path class="edge route" d="M1640 1168 L1780 1168" stroke="#6D28D9" marker-end="url(#arrow-violet)"/>
   <text class="edgeLabel" x="1665" y="1144">Pair(x, y)</text>
 </g>
-<text class="lane" x="92" y="210">WGS84 to UTM</text>
+<text class="lane" x="187" y="242">WGS84 to UTM</text>
 <g id="WgsInput">
-  <rect class="card" x="140" y="265" width="420" height="170" rx="8" fill="#F0FDF4" stroke="#16A34A"/>
-  <text class="kicker" x="162" y="295">input</text>
-  <text class="cardTitle" x="162" y="329">GeoLocation</text>
-  <path class="divider" d="M140 349H560" stroke="#15803D"/>
-  <text class="body" x="162" y="381">latitude: -90..90</text>
-<text class="body" x="162" y="405">longitude: -180..180</text>
-<text class="body" x="162" y="429">source CRS is EPSG:4326</text>
+  <rect class="card" x="235" y="297" width="420" height="170" rx="8" fill="#F0FDF4" stroke="#16A34A"/>
+  <text class="kicker" x="257" y="327">input</text>
+  <text class="cardTitle" x="257" y="361">GeoLocation</text>
+  <path class="divider" d="M235 381H655" stroke="#15803D"/>
+  <text class="body" x="257" y="413">latitude: -90..90</text>
+<text class="body" x="257" y="437">longitude: -180..180</text>
+<text class="body" x="257" y="461">source CRS is EPSG:4326</text>
 
 </g>
 <g id="ZoneDetect">
-  <rect class="card" x="700" y="265" width="400" height="170" rx="8" fill="#F0FDF4" stroke="#16A34A"/>
-  <text class="kicker" x="722" y="295">coords</text>
-  <text class="cardTitle" x="722" y="329">UTM zone detection</text>
-  <path class="divider" d="M700 349H1100" stroke="#15803D"/>
-  <text class="body" x="722" y="381">longitude zone 1..60</text>
-<text class="body" x="722" y="405">latitude band C..X</text>
-<text class="body" x="722" y="429">I and O are excluded</text>
+  <rect class="card" x="795" y="297" width="400" height="170" rx="8" fill="#F0FDF4" stroke="#16A34A"/>
+  <text class="kicker" x="817" y="327">coords</text>
+  <text class="cardTitle" x="817" y="361">UTM zone detection</text>
+  <path class="divider" d="M795 381H1195" stroke="#15803D"/>
+  <text class="body" x="817" y="413">longitude zone 1..60</text>
+<text class="body" x="817" y="437">latitude band C..X</text>
+<text class="body" x="817" y="461">I and O are excluded</text>
 
 </g>
 <g id="UtmCrs">
-  <rect class="card" x="1240" y="265" width="400" height="205" rx="8" fill="#F0FDF4" stroke="#16A34A"/>
-  <text class="kicker" x="1262" y="295">Projections.kt</text>
-  <text class="cardTitle" x="1262" y="329">build UTM CRS</text>
-  <path class="divider" d="M1240 349H1640" stroke="#15803D"/>
-  <text class="body" x="1262" y="381">+proj=utm +zone=n</text>
-<text class="body" x="1262" y="405">+datum=WGS84 +units=m</text>
-<text class="body" x="1262" y="429">+south when band &lt; N</text>
-  <path class="divider" d="M1240 426H1640" stroke="#15803D"/><text class="foot" x="1262" y="454">CrsRegistry.getCrsFromProj4()</text>
+  <rect class="card" x="1335" y="297" width="400" height="205" rx="8" fill="#F0FDF4" stroke="#16A34A"/>
+  <text class="kicker" x="1357" y="327">Projections.kt</text>
+  <text class="cardTitle" x="1357" y="361">build UTM CRS</text>
+  <path class="divider" d="M1335 381H1735" stroke="#15803D"/>
+  <text class="body" x="1357" y="413">+proj=utm +zone=n</text>
+<text class="body" x="1357" y="437">+datum=WGS84 +units=m</text>
+<text class="body" x="1357" y="461">+south when band &lt; N</text>
+  <path class="divider" d="M1335 458H1735" stroke="#15803D"/><text class="foot" x="1357" y="486">CrsRegistry.getCrsFromProj4()</text>
 </g>
 <g id="TransformForward">
-  <rect class="card" x="1780" y="265" width="400" height="170" rx="8" fill="#F0FDFA" stroke="#0D9488"/>
-  <text class="kicker" x="1802" y="295">Proj4J</text>
-  <text class="cardTitle" x="1802" y="329">BasicCoordinateTransform</text>
-  <path class="divider" d="M1780 349H2180" stroke="#0F766E"/>
-  <text class="body" x="1802" y="381">src = (longitude, latitude)</text>
-<text class="body" x="1802" y="405">dst = UTM coordinate</text>
-<text class="body" x="1802" y="429">transform(src, dst)</text>
+  <rect class="card" x="1875" y="297" width="400" height="170" rx="8" fill="#F0FDFA" stroke="#0D9488"/>
+  <text class="kicker" x="1897" y="327">Proj4J</text>
+  <text class="cardTitle" x="1897" y="361">BasicCoordinateTransform</text>
+  <path class="divider" d="M1875 381H2275" stroke="#0F766E"/>
+  <text class="body" x="1897" y="413">src = (longitude, latitude)</text>
+<text class="body" x="1897" y="437">dst = UTM coordinate</text>
+<text class="body" x="1897" y="461">transform(src, dst)</text>
 
 </g>
 <g id="UtmOutput">
-  <rect class="card" x="2320" y="265" width="350" height="170" rx="8" fill="#F0FDFA" stroke="#0D9488"/>
-  <text class="kicker" x="2342" y="295">output</text>
-  <text class="cardTitle" x="2342" y="329">Pair(easting, northing)</text>
-  <path class="divider" d="M2320 349H2670" stroke="#0F766E"/>
-  <text class="body" x="2342" y="381">meters in UTM zone</text>
-<text class="body" x="2342" y="405">returned by wgs84ToUtm()</text>
+  <rect class="card" x="2415" y="297" width="350" height="170" rx="8" fill="#F0FDFA" stroke="#0D9488"/>
+  <text class="kicker" x="2437" y="327">output</text>
+  <text class="cardTitle" x="2437" y="361">Pair(easting, northing)</text>
+  <path class="divider" d="M2415 381H2765" stroke="#0F766E"/>
+  <text class="body" x="2437" y="413">meters in UTM zone</text>
+<text class="body" x="2437" y="437">returned by wgs84ToUtm()</text>
 
 </g>
-<text class="lane" x="92" y="620">UTM to WGS84</text>
+<text class="lane" x="187" y="652">UTM to WGS84</text>
 <g id="UtmInput">
-  <rect class="card" x="140" y="675" width="420" height="170" rx="8" fill="#EFF6FF" stroke="#2563EB"/>
-  <text class="kicker" x="162" y="705">input</text>
-  <text class="cardTitle" x="162" y="739">UTM coordinate + zone</text>
-  <path class="divider" d="M140 759H560" stroke="#1D4ED8"/>
-  <text class="body" x="162" y="791">easting, northing</text>
-<text class="body" x="162" y="815">UtmZone(longitudeZone, band)</text>
-<text class="body" x="162" y="839">validates zone and latitude band</text>
+  <rect class="card" x="235" y="707" width="420" height="170" rx="8" fill="#EFF6FF" stroke="#2563EB"/>
+  <text class="kicker" x="257" y="737">input</text>
+  <text class="cardTitle" x="257" y="771">UTM coordinate + zone</text>
+  <path class="divider" d="M235 791H655" stroke="#1D4ED8"/>
+  <text class="body" x="257" y="823">easting, northing</text>
+<text class="body" x="257" y="847">UtmZone(longitudeZone, band)</text>
+<text class="body" x="257" y="871">validates zone and latitude band</text>
 
 </g>
 <g id="ReverseCrs">
-  <rect class="card" x="700" y="675" width="400" height="205" rx="8" fill="#EFF6FF" stroke="#2563EB"/>
-  <text class="kicker" x="722" y="705">Projections.kt</text>
-  <text class="cardTitle" x="722" y="739">resolve source and target CRS</text>
-  <path class="divider" d="M700 759H1100" stroke="#1D4ED8"/>
-  <text class="body" x="722" y="791">UTM proj4 params</text>
-<text class="body" x="722" y="815">WGS84 from EPSG:4326</text>
-<text class="body" x="722" y="839">same +south rule</text>
-  <path class="divider" d="M700 836H1100" stroke="#1D4ED8"/><text class="foot" x="722" y="864">CrsRegistry caches both</text>
+  <rect class="card" x="795" y="707" width="400" height="205" rx="8" fill="#EFF6FF" stroke="#2563EB"/>
+  <text class="kicker" x="817" y="737">Projections.kt</text>
+  <text class="cardTitle" x="817" y="771">resolve source and target CRS</text>
+  <path class="divider" d="M795 791H1195" stroke="#1D4ED8"/>
+  <text class="body" x="817" y="823">UTM proj4 params</text>
+<text class="body" x="817" y="847">WGS84 from EPSG:4326</text>
+<text class="body" x="817" y="871">same +south rule</text>
+  <path class="divider" d="M795 868H1195" stroke="#1D4ED8"/><text class="foot" x="817" y="896">CrsRegistry caches both</text>
 </g>
 <g id="TransformReverse">
-  <rect class="card" x="1240" y="675" width="400" height="170" rx="8" fill="#EFF6FF" stroke="#2563EB"/>
-  <text class="kicker" x="1262" y="705">Proj4J</text>
-  <text class="cardTitle" x="1262" y="739">BasicCoordinateTransform</text>
-  <path class="divider" d="M1240 759H1640" stroke="#1D4ED8"/>
-  <text class="body" x="1262" y="791">src = (easting, northing)</text>
-<text class="body" x="1262" y="815">dst = WGS84 coordinate</text>
-<text class="body" x="1262" y="839">transform(src, dst)</text>
+  <rect class="card" x="1335" y="707" width="400" height="170" rx="8" fill="#EFF6FF" stroke="#2563EB"/>
+  <text class="kicker" x="1357" y="737">Proj4J</text>
+  <text class="cardTitle" x="1357" y="771">BasicCoordinateTransform</text>
+  <path class="divider" d="M1335 791H1735" stroke="#1D4ED8"/>
+  <text class="body" x="1357" y="823">src = (easting, northing)</text>
+<text class="body" x="1357" y="847">dst = WGS84 coordinate</text>
+<text class="body" x="1357" y="871">transform(src, dst)</text>
 
 </g>
 <g id="WgsOutput">
-  <rect class="card" x="1780" y="675" width="400" height="170" rx="8" fill="#F0FDFA" stroke="#0D9488"/>
-  <text class="kicker" x="1802" y="705">output</text>
-  <text class="cardTitle" x="1802" y="739">GeoLocation</text>
-  <path class="divider" d="M1780 759H2180" stroke="#0F766E"/>
-  <text class="body" x="1802" y="791">latitude = dst.y</text>
-<text class="body" x="1802" y="815">longitude = dst.x</text>
-<text class="body" x="1802" y="839">returned by utmToWgs84()</text>
+  <rect class="card" x="1875" y="707" width="400" height="170" rx="8" fill="#F0FDFA" stroke="#0D9488"/>
+  <text class="kicker" x="1897" y="737">output</text>
+  <text class="cardTitle" x="1897" y="771">GeoLocation</text>
+  <path class="divider" d="M1875 791H2275" stroke="#0F766E"/>
+  <text class="body" x="1897" y="823">latitude = dst.y</text>
+<text class="body" x="1897" y="847">longitude = dst.x</text>
+<text class="body" x="1897" y="871">returned by utmToWgs84()</text>
 
 </g>
-<text class="lane" x="92" y="1028">Arbitrary EPSG transform</text>
+<text class="lane" x="187" y="1060">Arbitrary EPSG transform</text>
 <g id="ArbitraryInput">
   <rect class="card" x="140" y="1083" width="420" height="170" rx="8" fill="#F5F3FF" stroke="#7C3AED"/>
   <text class="kicker" x="162" y="1113">input</text>
@@ -201,7 +201,7 @@
 
 </g>
 <g id="CrsRegistry">
-  <rect class="card" x="2250" y="1040" width="520" height="200" rx="8" fill="#F8FAFC" stroke="#64748B"/>
+  <rect class="card" x="2345" y="1072" width="520" height="200" rx="8" fill="#F8FAFC" stroke="#64748B"/>
   <text class="kicker" x="2272" y="1070">shared implementation detail</text>
   <text class="cardTitle" x="2272" y="1104">CrsRegistry cache</text>
   <path class="divider" d="M2250 1124H2770" stroke="#475569"/>
