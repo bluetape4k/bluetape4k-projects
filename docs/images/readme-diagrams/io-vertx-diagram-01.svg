@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1500" height="980" viewBox="0 0 1500 980" role="img" aria-labelledby="title desc">
+<svg xmlns="http://www.w3.org/2000/svg" width="1500" height="980" viewBox="0 0 1500 980" role="img" aria-labelledby="title desc" data-allow-grid="true" data-intent="The Vert.x module groups coroutine-friendly HTTP, SQL, event-bus, and runtime helpers so application code reaches Vert.x capabilities through stable bluetape4k integration boundaries." data-evidence="io/vertx/README.md,io/vertx/src/main/kotlin" data-source-read="io/vertx/README.md; io/vertx/src/main/kotlin">
   <title id="title">Vert.x Module Capability Architecture</title>
   <desc id="desc">Architecture diagram showing the merged Vert.x module as vertical responsibility columns from application code through bluetape4k helpers to Vert.x runtime types.</desc>
   <defs>
@@ -42,17 +42,17 @@
   <g id="app">
     <rect x="110" y="252" width="242" height="86" rx="10" fill="#eef5fa" stroke="#3f7d9c" class="card"/>
     <text x="231" y="287" text-anchor="middle" class="cardTitle">Vert.x app</text>
-    <text x="231" y="317" text-anchor="middle" class="detail">routes, verticles, services</text>
+    <text x="231" y="317" text-anchor="middle" class="detail">routes and services</text>
   </g>
   <g id="config">
     <rect x="110" y="600" width="242" height="86" rx="10" fill="#f2eef9" stroke="#7b67a8" class="card"/>
     <text x="231" y="635" text-anchor="middle" class="cardTitle">App config</text>
-    <text x="231" y="665" text-anchor="middle" class="detail">pools, registries, policies</text>
+    <text x="231" y="665" text-anchor="middle" class="detail">pools and policies</text>
   </g>
 
   <g id="core">
     <rect x="480" y="220" width="260" height="102" rx="10" fill="#eef5fa" stroke="#3f7d9c" class="card"/>
-    <text x="610" y="253" text-anchor="middle" class="cardTitle">Core coroutine support</text>
+    <text x="610" y="253" text-anchor="middle" class="cardTitle">Coroutine helpers</text>
     <text x="610" y="283" text-anchor="middle" class="detail">currentVertx()</text>
     <text x="610" y="303" text-anchor="middle" class="detail">dispatcher + scope helpers</text>
   </g>
@@ -64,7 +64,7 @@
   </g>
   <g id="sql">
     <rect x="480" y="545" width="260" height="112" rx="10" fill="#fff7e8" stroke="#a97b3d" class="card"/>
-    <text x="610" y="580" text-anchor="middle" class="cardTitle">SQL / MyBatis support</text>
+    <text x="610" y="580" text-anchor="middle" class="cardTitle">SQL + MyBatis</text>
     <text x="610" y="610" text-anchor="middle" class="detail">suspendQuery</text>
     <text x="610" y="630" text-anchor="middle" class="detail">transaction + row mapping</text>
   </g>
@@ -72,7 +72,7 @@
     <rect x="810" y="708" width="220" height="112" rx="10" fill="#f9eef0" stroke="#b86868" class="card"/>
     <text x="920" y="743" text-anchor="middle" class="cardTitle">Resilience4j</text>
     <text x="920" y="773" text-anchor="middle" class="detail">Future decorators</text>
-    <text x="920" y="793" text-anchor="middle" class="detail">retry/circuit/fallback</text>
+    <text x="920" y="793" text-anchor="middle" class="detail">retry and fallback</text>
   </g>
 
   <g id="vertx">
@@ -87,18 +87,18 @@
   </g>
   <g id="runtime">
     <rect x="1152" y="720" width="236" height="86" rx="10" fill="#f9eef0" stroke="#b86868" class="card"/>
-    <text x="1270" y="755" text-anchor="middle" class="cardTitle">Resilience runtime</text>
+    <text x="1270" y="755" text-anchor="middle" class="cardTitle">Resilience API</text>
     <text x="1270" y="785" text-anchor="middle" class="detail">CircuitBreaker, Retry</text>
   </g>
 
-  <path class="core" d="M 352 285 L 480 285"/>
+  <path class="route core" d="M 352 285 L 480 285"/>
   <path class="web" d="M 352 300 L 406 300 Q 420 300 420 314 L 420 397 Q 420 411 434 411 L 810 411"/>
-  <path class="sql" d="M 352 620 L 480 620"/>
+  <path class="route sql" d="M 352 620 L 480 620"/>
   <path class="res" d="M 352 650 L 406 650 Q 420 650 420 664 L 420 750 Q 420 764 434 764 L 810 764"/>
-  <path class="core" d="M 740 271 L 1152 263"/>
+  <path class="route core" d="M 740 271 L 1152 263"/>
   <path class="web" d="M 1030 411 L 1096 411 Q 1110 411 1110 397 L 1110 320 Q 1110 306 1124 306 L 1152 306"/>
-  <path class="sql" d="M 740 603 L 1152 603"/>
-  <path class="res" d="M 1030 764 L 1152 764"/>
+  <path class="route sql" d="M 740 603 L 1152 603"/>
+  <path class="route res" d="M 1030 764 L 1152 764"/>
 
   <text x="750" y="928" text-anchor="middle" class="footer">github.com/bluetape4k/bluetape4k-projects - io/vertx README</text>
 </svg>

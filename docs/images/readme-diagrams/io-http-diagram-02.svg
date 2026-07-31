@@ -55,7 +55,7 @@
     <text class="label" x="1478" y="83">configures / uses</text>
   </g>
 
-  <g id="classic-lane">
+  <g id="layer-classic">
     <rect class="lane" x="94" y="166" width="500" height="884" rx="8" fill="#DBEAFE" stroke="#93C5FD" fill-opacity="1" />
     <text class="laneTitle" x="130" y="212" dominant-baseline="middle">Classic blocking path</text>
 
@@ -82,7 +82,7 @@
     </g>
   </g>
 
-  <g id="async-lane">
+  <g id="layer-async">
     <rect class="lane" x="630" y="166" width="500" height="932" rx="8" fill="#EDE9FE" stroke="#C4B5FD" fill-opacity="1" />
     <text class="laneTitle" x="666" y="212" dominant-baseline="middle">Async and coroutine path</text>
 
@@ -115,7 +115,7 @@
     </g>
   </g>
 
-  <g id="cache-lane">
+  <g id="layer-cache">
     <rect class="lane" x="1166" y="166" width="500" height="804" rx="8" fill="#DCFCE7" stroke="#86EFAC" fill-opacity="1" />
     <text class="laneTitle" x="1202" y="212" dominant-baseline="middle">Caching and shared support</text>
 
