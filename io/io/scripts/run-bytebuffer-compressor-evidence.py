@@ -718,7 +718,12 @@ def validate_run_directory(
     if recorded_argv.count("-rff") != 1 or recorded_argv.count("-jvmArgsAppend") != 1:
         raise ValueError("JMH output/JVM switches must occur exactly once")
     result_arg = pathlib.Path(recorded_argv[recorded_argv.index("-rff") + 1])
-    if result_arg.name != "jmh.json" or result_arg.parent.resolve() != path.resolve():
+    result_parents = {path.resolve()}
+    if expected_run_id is None:
+        result_parents.add(
+            (path.parent.parent / ".issue-755-staging" / f"{path.name}.pending").resolve()
+        )
+    if result_arg.name != "jmh.json" or result_arg.parent.resolve() not in result_parents:
         raise ValueError("JMH result path mismatch")
     if recorded_argv[recorded_argv.index("-jvmArgsAppend") + 1] != " ".join(JVM_ARGS):
         raise ValueError("recorded JVM arguments mismatch")

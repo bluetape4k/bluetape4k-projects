@@ -314,6 +314,29 @@ class RunnerContractTest(unittest.TestCase):
                     expected_run_id="run-20260721T120000Z-00000002",
                 )
 
+    def test_published_run_accepts_only_its_exact_execution_staging_path(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = pathlib.Path(temporary)
+            authority = root / "issue-755"
+            authority.mkdir()
+            identifier = "run-20260721T120000Z-00000001"
+            published = write_run(authority, identifier)
+            argv_path = published / "argv.json"
+            argv = json.loads(argv_path.read_text())
+            result_index = argv["argv"].index("-rff") + 1
+            argv["argv"][result_index] = str(
+                root / ".issue-755-staging" / f"{identifier}.pending" / "jmh.json"
+            )
+            argv_path.write_text(json.dumps(argv))
+
+            evidence.validate_run_directory(published, require_matrix=True)
+            argv["argv"][result_index] = str(
+                root / ".issue-755-staging" / "run-20260721T120000Z-00000002.pending" / "jmh.json"
+            )
+            argv_path.write_text(json.dumps(argv))
+            with self.assertRaisesRegex(ValueError, "JMH result path mismatch"):
+                evidence.validate_run_directory(published, require_matrix=True)
+
     def test_source_inspection_covers_every_codec_operation_and_storage(self):
         rows = evidence.source_inspection(evidence.repo_root())
         self.assertEqual(32, len(rows))
