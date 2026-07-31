@@ -125,6 +125,38 @@ def sha256(path: pathlib.Path) -> str:
     return digest.hexdigest()
 
 
+def canonicalize_jar(source: pathlib.Path, destination: pathlib.Path) -> pathlib.Path:
+    """Repack a fat JAR deterministically without changing its entry-byte multiset."""
+    source = source.resolve(strict=True)
+    if source.is_symlink() or not source.is_file():
+        raise ValueError("source JMH JAR must be a regular file")
+    entries = []
+    with zipfile.ZipFile(source) as archive:
+        for ordinal, info in enumerate(archive.infolist()):
+            data = archive.read(info)
+            entries.append((info.filename, hashlib.sha256(data).hexdigest(), ordinal, data, info.is_dir()))
+    entries.sort(key=lambda item: (item[0] != "META-INF/MANIFEST.MF", item[0], item[1], item[2]))
+    destination.parent.mkdir(parents=True, exist_ok=True)
+    fd, temporary_name = tempfile.mkstemp(prefix=f".{destination.name}.", dir=destination.parent)
+    os.close(fd)
+    temporary = pathlib.Path(temporary_name)
+    try:
+        with warnings.catch_warnings():
+            warnings.filterwarnings("ignore", message="Duplicate name:.*", category=UserWarning)
+            with zipfile.ZipFile(temporary, "w", compression=zipfile.ZIP_DEFLATED, compresslevel=9) as output:
+                for name, _, _, data, is_directory in entries:
+                    info = zipfile.ZipInfo(name, date_time=(1980, 1, 1, 0, 0, 0))
+                    info.compress_type = zipfile.ZIP_STORED if is_directory else zipfile.ZIP_DEFLATED
+                    info.create_system = 3
+                    info.external_attr = (0o40755 if is_directory else 0o100644) << 16
+                    output.writestr(info, data, compress_type=info.compress_type, compresslevel=9)
+        os.replace(temporary, destination)
+    finally:
+        if temporary.exists():
+            temporary.unlink()
+    return destination.resolve(strict=True)
+
+
 def atomic_json(path: pathlib.Path, value: object) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     fd, temporary = tempfile.mkstemp(prefix=f".{path.name}.", dir=path.parent)
@@ -404,7 +436,9 @@ def prepare(args: argparse.Namespace) -> None:
     dirty = clean_paths(root)
     if dirty:
         raise ValueError(f"prepare requires a clean tree: {dirty}")
-    jar = pathlib.Path(args.jar).resolve(strict=True)
+    raw_jar = pathlib.Path(args.jar).resolve(strict=True)
+    receipt_path = pathlib.Path(args.receipt)
+    jar = canonicalize_jar(raw_jar, receipt_path.parent / "canonical-jmh.jar")
     output = ensure_authority_root(pathlib.Path(args.output_root))
     if any(output.iterdir()):
         raise ValueError("authority root must be empty at prepare")
@@ -415,6 +449,8 @@ def prepare(args: argparse.Namespace) -> None:
         "tree": tree,
         "jar": str(jar),
         "jarSha256": sha256(jar),
+        "rawJar": str(raw_jar),
+        "rawJarSha256": sha256(raw_jar),
         "jmhVersion": jmh_version(jar),
         "dependencies": dep_text,
         "dependenciesSha256": hashlib.sha256(dep_text.encode()).hexdigest(),
@@ -423,7 +459,7 @@ def prepare(args: argparse.Namespace) -> None:
         "outputRoot": str(output),
         "runs": [],
     }
-    atomic_json(pathlib.Path(args.receipt), receipt)
+    atomic_json(receipt_path, receipt)
 
 
 def load_receipt(path: pathlib.Path) -> dict:
@@ -801,7 +837,12 @@ def validate_delivery(args: argparse.Namespace) -> None:
         if not any(path == allowed or (allowed.endswith("/") and path.startswith(allowed)) for allowed in DELIVERY_ALLOWLIST):
             raise ValueError(f"delivery changed non-allowlisted path: {path}")
     jars = list((root / "io/io/build/benchmarks/test/jars").glob("*-JMH.jar"))
-    if len(jars) != 1 or sha256(jars[0]) != json.loads((paths[0] / "metadata.json").read_text())["jarSha256"]:
+    if len(jars) != 1:
+        raise ValueError("exactly one rebuilt JMH JAR is required")
+    rebuilt_canonical = canonicalize_jar(
+        jars[0], root / "io/io/build/issue-755-evidence/delivery-canonical-jmh.jar"
+    )
+    if sha256(rebuilt_canonical) != json.loads((paths[0] / "metadata.json").read_text())["jarSha256"]:
         raise ValueError("rebuilt JMH JAR SHA mismatch")
     current_runtime = environment_authority(root)
     recorded_metadata = json.loads((paths[0] / "metadata.json").read_text())
@@ -844,9 +885,14 @@ def direct_smoke_receipt(jar: pathlib.Path) -> dict:
     root = repo_root()
     head, tree = git_identity(root)
     dep_text = dependencies(root)
+    raw_jar = jar.resolve(strict=True)
+    canonical_jar = canonicalize_jar(
+        raw_jar, root / "io/io/build/issue-755-evidence/smoke-canonical-jmh.jar"
+    )
     return {
-        "schemaVersion": SCHEMA_VERSION, "commit": head, "tree": tree, "jar": str(jar.resolve(strict=True)),
-        "jarSha256": sha256(jar), "jmhVersion": jmh_version(jar), "dependencies": dep_text,
+        "schemaVersion": SCHEMA_VERSION, "commit": head, "tree": tree, "jar": str(canonical_jar),
+        "jarSha256": sha256(canonical_jar), "rawJar": str(raw_jar), "rawJarSha256": sha256(raw_jar),
+        "jmhVersion": jmh_version(canonical_jar), "dependencies": dep_text,
         "dependenciesSha256": hashlib.sha256(dep_text.encode()).hexdigest(), "sourceInspection": source_inspection(root),
         "environmentAuthority": environment_authority(root), "runs": [], "outputRoot": "",
     }
