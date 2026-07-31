@@ -47,7 +47,7 @@
     <text class="panelTitle" x="96" y="462">Concrete APIs exposed to README users</text>
   </g>
   <g>
-    <rect class="panel" x="70" y="750" width="1620" height="250" rx="8"/>
+    <rect class="panel" x="70" y="750" width="1620" height="288" rx="8"/>
     <text class="panelTitle" x="96" y="782">Internal engine, settings, and row model</text>
   </g>
 
@@ -108,26 +108,26 @@
   <g id="lexers">
     <rect class="card" x="110" y="825" width="345" height="110" rx="8" fill="#EFF6FF" stroke="#2563EB"/>
     <text class="className" x="282" y="858" text-anchor="middle">CsvLexer / TsvLexer</text>
-    <text class="member" x="135" y="884">self-implemented parser</text>
-    <text class="member" x="135" y="905">headers, max columns, field limits</text>
+    <text class="member" x="145" y="884">self-implemented parser</text>
+    <text class="member" x="145" y="905">headers, max columns, field limits</text>
   </g>
   <g id="writers">
     <rect class="card" x="515" y="825" width="345" height="110" rx="8" fill="#FFF7ED" stroke="#EA580C"/>
     <text class="className" x="688" y="858" text-anchor="middle">Delimited writers</text>
-    <text class="member" x="540" y="884">CsvLineWriter / TsvLineWriter</text>
-    <text class="member" x="540" y="905">DelimitedWriter + Okio variant</text>
+    <text class="member" x="550" y="884">CsvLineWriter / TsvLineWriter</text>
+    <text class="member" x="550" y="905">DelimitedWriter + Okio variant</text>
   </g>
   <g id="settings">
     <rect class="card" x="920" y="825" width="345" height="110" rx="8" fill="#F0FDF4" stroke="#16A34A"/>
     <text class="className" x="1092" y="858" text-anchor="middle">Settings</text>
-    <text class="member" x="945" y="884">CsvSettings / TsvSettings</text>
-    <text class="member" x="945" y="905">delimiter, quote, null policy</text>
+    <text class="member" x="955" y="884">CsvSettings / TsvSettings</text>
+    <text class="member" x="955" y="905">delimiter, quote, null policy</text>
   </g>
   <g id="row-model">
     <rect class="card" x="1325" y="825" width="315" height="110" rx="8" fill="#FAF5FF" stroke="#9333EA"/>
     <text class="className" x="1482" y="858" text-anchor="middle">Record / CsvRow</text>
-    <text class="member" x="1350" y="884">ArrayRecord + HeaderIndex</text>
-    <text class="member" x="1350" y="905">V1 to V2 conversion</text>
+    <text class="member" x="1360" y="884">ArrayRecord + HeaderIndex</text>
+    <text class="member" x="1360" y="905">V1 to V2 conversion</text>
   </g>
 
   <path class="useBlue" d="M 335 645 L 335 701 Q 335 715 321 715 L 104 715 Q 90 715 90 729 L 90 876 Q 90 880 94 880 L 110 880" style="marker-end:none"/>

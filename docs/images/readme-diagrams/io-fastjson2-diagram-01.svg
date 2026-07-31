@@ -39,12 +39,12 @@
   <text class="subtitle" x="76" y="114">JSONB byte serialization, JSON string serialization, and type-safe extension surfaces.</text>
 
   <g>
-    <rect class="panel" x="70" y="150" width="1500" height="320" rx="8"/>
-    <text class="panelTitle" x="96" y="182">Serializer implementation and Fastjson2 backends</text>
+    <rect class="panel" x="70" y="172" width="1500" height="298" rx="8"/>
+    <text class="panelTitle" x="96" y="204">Serializer implementation and Fastjson2 backends</text>
   </g>
   <g>
-    <rect class="panel" x="70" y="530" width="1500" height="330" rx="8"/>
-    <text class="panelTitle" x="96" y="562">Kotlin extension surfaces</text>
+    <rect class="panel" x="70" y="552" width="1500" height="308" rx="8"/>
+    <text class="panelTitle" x="96" y="584">Kotlin extension surfaces</text>
   </g>
 
   <g id="json-serializer">
@@ -66,9 +66,9 @@
   <g id="failure-policy">
     <rect class="card" x="1150" y="235" width="360" height="120" rx="8" fill="#FDF2F8" stroke="#DB2777"/>
     <text class="className" x="1330" y="270" text-anchor="middle">Failure policy</text>
-    <text class="member" x="1175" y="300">null serialize =&gt; empty bytes/string</text>
-    <text class="member" x="1175" y="321">null deserialize input =&gt; null</text>
-    <text class="member" x="1175" y="342">invalid payload =&gt; exception</text>
+    <text class="member" x="1185" y="300">null serialize =&gt; empty bytes/string</text>
+    <text class="member" x="1185" y="321">null deserialize input =&gt; null</text>
+    <text class="member" x="1185" y="342">invalid payload =&gt; exception</text>
   </g>
 
   <path class="impl" d="M 585 295 L 470 295" style="marker-end:none"/>

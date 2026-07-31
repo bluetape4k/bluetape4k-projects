@@ -20,7 +20,7 @@ function textLines(items, x, y, cls = "body", gap = 27, anchor = "middle") {
 
 function card(id, x, y, w, h, tone, title, body = []) {
     add(`<g id="${id}" class="card ${tone}">`);
-    add(`<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="14"/>`);
+    add(`<rect class="card-shape" x="${x}" y="${y}" width="${w}" height="${h}" rx="14"/>`);
     add(`<text class="cardTitle" x="${x + w / 2}" y="${y + 46}" text-anchor="middle">${esc(title)}</text>`);
     add(`<line class="divider" x1="${x + 34}" y1="${y + 68}" x2="${x + w - 34}" y2="${y + 68}"/>`);
     textLines(body, x + w / 2, y + 96, "body", 25);
@@ -35,26 +35,26 @@ function lane(id, x, y, w, h, title) {
 }
 
 function arrow(id, x1, y1, x2, y2, cls, marker, label = "", lx = 0, ly = 0) {
-    add(`<path id="${id}" class="arrow ${cls}" d="M ${x1} ${y1} L ${x2} ${y2}" marker-end="url(#${marker})"/>`);
+    add(`<path id="${id}" class="arrow flow ${cls}" d="M ${x1} ${y1} L ${x2} ${y2}" marker-end="url(#${marker})"/>`);
     if (label) {
         add(`<rect class="labelBg" x="${lx - 128}" y="${ly - 20}" width="256" height="31" rx="9"/>`);
         add(`<text class="edgeLabel" x="${lx}" y="${ly}" text-anchor="middle">${esc(label)}</text>`);
     }
 }
 
-add(`<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" role="img" aria-label="CSV TSV processing flow">`);
+add(`<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" role="img" aria-label="CSV TSV processing flow" data-allow-grid="true" data-intent="Explain how the Kotlin-native CSV and TSV APIs route synchronous Sequence reads, coroutine Flow reads, and writer inputs through their source-backed engines and settings." data-evidence="io/csv/README.md;io/csv/src/main/kotlin" data-source-read="io/csv/README.md;io/csv/src/main/kotlin">`);
 add(`<defs>
   <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%">
     <feDropShadow dx="0" dy="5" stdDeviation="5" flood-color="#203040" flood-opacity="0.10"/>
   </filter>
   <marker id="flowArrowTeal" markerWidth="15" markerHeight="15" refX="13" refY="7.5" orient="auto" markerUnits="userSpaceOnUse">
-    <path d="M 1 1 L 14 7.5 L 1 14 Z" fill="#0F9B93" stroke="#0F9B93" stroke-width="1" stroke-dasharray="none"/>
+    <path d="M 1 1 L 14 7.5 L 1 14 Z" fill="#0F9B93" stroke="#0F9B93" stroke-width="1" stroke-dasharray="none" style="stroke-dasharray:none"/>
   </marker>
   <marker id="flowArrowBlue" markerWidth="15" markerHeight="15" refX="13" refY="7.5" orient="auto" markerUnits="userSpaceOnUse">
-    <path d="M 1 1 L 14 7.5 L 1 14 Z" fill="#2563EB" stroke="#2563EB" stroke-width="1" stroke-dasharray="none"/>
+    <path d="M 1 1 L 14 7.5 L 1 14 Z" fill="#2563EB" stroke="#2563EB" stroke-width="1" stroke-dasharray="none" style="stroke-dasharray:none"/>
   </marker>
   <marker id="flowArrowOrange" markerWidth="15" markerHeight="15" refX="13" refY="7.5" orient="auto" markerUnits="userSpaceOnUse">
-    <path d="M 1 1 L 14 7.5 L 1 14 Z" fill="#EA580C" stroke="#EA580C" stroke-width="1" stroke-dasharray="none"/>
+    <path d="M 1 1 L 14 7.5 L 1 14 Z" fill="#EA580C" stroke="#EA580C" stroke-width="1" stroke-dasharray="none" style="stroke-dasharray:none"/>
   </marker>
 </defs>`);
 

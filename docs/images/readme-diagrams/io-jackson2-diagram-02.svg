@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1800" height="1120" viewBox="0 0 1800 1120" role="img" aria-labelledby="title desc">
+<svg data-intent="Explain how bluetape4k-jackson2 routes Kotlin object graphs through shared mapper defaults into JSON, binary, or text serializers while preserving field features and explicit streaming EOF policy." data-evidence="io/jackson2/README.md; io/jackson2/src/main/kotlin/io/bluetape4k/jackson/JacksonSerializer.kt; io/jackson2/src/main/kotlin/io/bluetape4k/jackson/binary/JacksonBinary.kt; io/jackson2/src/main/kotlin/io/bluetape4k/jackson/text/JacksonText.kt" data-source-read="io/jackson2/README.md; io/jackson2/src/main/kotlin/io/bluetape4k/jackson/Jackson.kt; io/jackson2/src/main/kotlin/io/bluetape4k/jackson/async/SuspendJsonParser.kt" xmlns="http://www.w3.org/2000/svg" width="1800" height="1120" viewBox="0 0 1800 1120" role="img" aria-labelledby="title desc">
   <title id="title">bluetape4k-jackson2 serialization pipeline</title>
   <desc id="desc">Pipeline showing mapper setup, annotation modules, serializer choices, payload formats, output types, and deserialization failure policy for bluetape4k-jackson2.</desc>
   <defs>
@@ -58,26 +58,26 @@
   <text x="102" y="190" class="panel-title">Core JSON path</text>
   <text x="102" y="218" class="small">Object graph enters a configured mapper and returns JSON bytes or text.</text>
 
-  <rect x="132" y="286" width="260" height="116" rx="7" class="source" filter="url(#softShadow)"/>
+  <rect x="132" y="286" width="260" height="116" rx="7" class="card source" filter="url(#softShadow)"/>
   <text x="262" y="318" text-anchor="middle" class="class-title">Kotlin object graph</text>
   <line x1="132" y1="338" x2="392" y2="338" class="sep"/>
   <text x="156" y="364" class="member">DTOs, maps, JsonNode</text>
   <text x="156" y="386" class="member">nullable inputs allowed</text>
 
-  <rect x="512" y="270" width="260" height="148" rx="7" class="mapper" filter="url(#softShadow)"/>
+  <rect x="512" y="270" width="260" height="148" rx="7" class="card mapper" filter="url(#softShadow)"/>
   <text x="642" y="302" text-anchor="middle" class="class-title">JsonMapper setup</text>
   <line x1="512" y1="322" x2="772" y2="322" class="sep"/>
   <text x="536" y="348" class="member">Kotlin module defaults</text>
   <text x="536" y="370" class="member">JavaTime and service modules</text>
   <text x="536" y="392" class="member">optional typed allow-list</text>
 
-  <rect x="512" y="520" width="260" height="128" rx="7" class="serializer" filter="url(#softShadow)"/>
+  <rect x="512" y="520" width="260" height="128" rx="7" class="card serializer" filter="url(#softShadow)"/>
   <text x="642" y="552" text-anchor="middle" class="class-title">JacksonSerializer</text>
   <line x1="512" y1="572" x2="772" y2="572" class="sep"/>
   <text x="536" y="598" class="member">writeAsBytes(graph)</text>
   <text x="536" y="620" class="member">readValue(bytes, target)</text>
 
-  <rect x="132" y="688" width="260" height="112" rx="7" class="format" filter="url(#softShadow)"/>
+  <rect x="132" y="688" width="260" height="112" rx="7" class="card format" filter="url(#softShadow)"/>
   <text x="262" y="720" text-anchor="middle" class="class-title">JSON outputs</text>
   <line x1="132" y1="740" x2="392" y2="740" class="sep"/>
   <text x="156" y="766" class="member">String via writeAsString</text>
@@ -87,19 +87,19 @@
   <text x="926" y="190" class="panel-title">Format branches</text>
   <text x="926" y="218" class="small">Use explicit formats when their runtime dependency is present.</text>
 
-  <rect x="956" y="286" width="308" height="126" rx="7" class="format" filter="url(#softShadow)"/>
+  <rect x="956" y="286" width="308" height="126" rx="7" class="card format" filter="url(#softShadow)"/>
   <text x="1110" y="318" text-anchor="middle" class="class-title">Binary formats</text>
   <line x1="956" y1="338" x2="1264" y2="338" class="sep"/>
   <text x="980" y="364" class="member">CBOR, Ion, Smile mappers</text>
   <text x="980" y="386" class="member">ByteArray payloads</text>
 
-  <rect x="956" y="512" width="308" height="126" rx="7" class="format" filter="url(#softShadow)"/>
+  <rect x="956" y="512" width="308" height="126" rx="7" class="card format" filter="url(#softShadow)"/>
   <text x="1110" y="544" text-anchor="middle" class="class-title">Text formats</text>
   <line x1="956" y1="564" x2="1264" y2="564" class="sep"/>
   <text x="980" y="590" class="member">CSV, Properties, TOML, YAML</text>
   <text x="980" y="612" class="member">String-oriented serializers</text>
 
-  <rect x="956" y="724" width="308" height="112" rx="7" class="policy" filter="url(#softShadow)"/>
+  <rect x="956" y="724" width="308" height="112" rx="7" class="card policy" filter="url(#softShadow)"/>
   <text x="1110" y="756" text-anchor="middle" class="class-title">Format registry contract</text>
   <line x1="956" y1="776" x2="1264" y2="776" class="sep"/>
   <text x="980" y="802" class="member">defaultMapper + defaultFactory</text>
@@ -109,19 +109,19 @@
   <text x="1414" y="190" class="panel-title">Field features</text>
   <text x="1414" y="218" class="small">Annotations and read-side failure rules.</text>
 
-  <rect x="1420" y="286" width="272" height="126" rx="7" class="annotation" filter="url(#softShadow)"/>
+  <rect x="1420" y="286" width="272" height="126" rx="7" class="card annotation" filter="url(#softShadow)"/>
   <text x="1556" y="318" text-anchor="middle" class="class-title">Field modules</text>
   <line x1="1420" y1="338" x2="1692" y2="338" class="sep"/>
   <text x="1444" y="364" class="member">UUID Base62 module</text>
   <text x="1444" y="386" class="member">Tink encrypt, masker</text>
 
-  <rect x="1420" y="512" width="272" height="126" rx="7" class="policy" filter="url(#softShadow)"/>
+  <rect x="1420" y="512" width="272" height="126" rx="7" class="card policy" filter="url(#softShadow)"/>
   <text x="1556" y="544" text-anchor="middle" class="class-title">Read side policy</text>
   <line x1="1420" y1="564" x2="1692" y2="564" class="sep"/>
   <text x="1444" y="590" class="member">readValueOrNull returns null</text>
   <text x="1444" y="612" class="member">serializer throws wrapped errors</text>
 
-  <rect x="1420" y="724" width="272" height="112" rx="7" class="policy" filter="url(#softShadow)"/>
+  <rect x="1420" y="724" width="272" height="112" rx="7" class="card policy" filter="url(#softShadow)"/>
   <text x="1556" y="756" text-anchor="middle" class="class-title">Streaming boundary</text>
   <line x1="1420" y1="776" x2="1692" y2="776" class="sep"/>
   <text x="1444" y="802" class="member">endOfInput required</text>
@@ -131,12 +131,12 @@
   <text x="122" y="1004" class="panel-title">Reader contract</text>
   <text x="122" y="1032" class="small">For normal JSON use Jackson.defaultJsonMapper or JacksonSerializer. Choose JacksonBinary/JacksonText for explicit formats, and always signal EOF for finite non-blocking streams.</text>
 
-  <path d="M 392 344 L 512 344" class="flowBlue"/>
-  <path d="M 642 418 L 642 520" class="flowBlue"/>
-  <path d="M 512 584 L 458 584 Q 444 584 444 598 L 444 730 Q 444 744 430 744 L 392 744" class="flowGreen" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M 392 344 L 512 344" class="connector flowBlue"/>
+  <path d="M 642 418 L 642 520" class="connector flowBlue"/>
+  <path d="M 512 584 L 458 584 Q 444 584 444 598 L 444 730 Q 444 744 430 744 L 392 744" class="connector flowGreen" stroke-linecap="round" stroke-linejoin="round"/>
 
-  <path d="M 1110 412 L 1110 512" class="flowGreen"/>
-  <path d="M 1110 638 L 1110 724" class="flowGreen"/>
+  <path d="M 1110 412 L 1110 512" class="connector flowGreen"/>
+  <path d="M 1110 638 L 1110 724" class="connector flowGreen"/>
 
   <text x="900" y="1086" text-anchor="middle" class="footer">github.com/bluetape4k/bluetape4k-projects - io/jackson2 README</text>
 </svg>
