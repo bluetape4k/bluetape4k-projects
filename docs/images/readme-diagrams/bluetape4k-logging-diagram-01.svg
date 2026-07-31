@@ -34,6 +34,9 @@
       .useGreen { fill: none; stroke: #16a34a; stroke-width: 2.3; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 8 6; marker-end: url(#openGreen); }
       .usePurple { fill: none; stroke: #9333ea; stroke-width: 2.3; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 8 6; marker-end: url(#openPurple); }
       .has { fill: none; stroke: #0f766e; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; marker-end: url(#openGreen); }
+      .legendInherit { fill: none; stroke: #9333ea; stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; marker-end: url(#hollowTriangle); }
+      .legendUseBlue { fill: none; stroke: #2563eb; stroke-width: 2.3; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 8 6; marker-end: url(#openBlue); }
+      .legendHas { fill: none; stroke: #0f766e; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; marker-end: url(#openGreen); }
       .label { font-family: "Comic Mono"; font-size: 12px; fill: #334155; }
     </style>
   </defs>
@@ -104,21 +107,21 @@
     <text class="member" x="1270" y="434">info/warn/error</text>
   </g>
 
-  <path class="inherit" d="M 651 422 L 651 370" />
+  <path class="inherit" data-connector="true" d="M 651 422 L 651 370" />
 
-  <path class="useBlue" d="M 386 320 L 424 320 Q 438 320 438 306 L 438 216 Q 438 202 452 202 L 886 202 Q 900 202 900 216 L 900 254 Q 900 262 908 262 L 930 262" style="marker-end:none" />
+  <path class="useBlue" data-connector="true" d="M 386 320 L 424 320 Q 438 320 438 306 L 438 216 Q 438 202 452 202 L 886 202 Q 900 202 900 216 L 900 254 Q 900 262 908 262 L 930 262" style="marker-end:none" />
 <polyline points="918,268 930,262 918,256" fill="none" stroke="#2563eb" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important" data-direct-solid-head="true"/>
 
-  <path class="useGreen" d="M 798 320 L 930 320" style="marker-end:none" />
+  <path class="useGreen" data-connector="true" d="M 798 320 L 930 320" style="marker-end:none" />
 <polyline points="918,326 930,320 918,314" fill="none" stroke="#16a34a" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important" data-direct-solid-head="true"/>
 
-  <path class="usePurple" d="M 816 520 L 874 520 Q 888 520 888 506 L 888 368 Q 888 354 902 354 L 930 354" style="marker-end:none" />
+  <path class="usePurple" data-connector="true" d="M 816 520 L 874 520 Q 888 520 888 506 L 888 368 Q 888 354 902 354 L 930 354" style="marker-end:none" />
 <polyline points="918,360 930,354 918,348" fill="none" stroke="#9333ea" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important" data-direct-solid-head="true"/>
 
-  <path class="useGreen" d="M 1073 380 L 1073 438" style="marker-end:none" />
+  <path class="useGreen" data-connector="true" d="M 1073 380 L 1073 438" style="marker-end:none" />
 <polyline points="1067,426 1073,438 1079,426" fill="none" stroke="#16a34a" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important" data-direct-solid-head="true"/>
 
-  <path class="has" d="M 1216 324 L 1248 352" />
+  <path class="has" data-connector="true" d="M 1216 324 L 1248 352" />
 
   <g id="lazyExtensions">
     <rect class="classBox" x="116" y="724" width="278" height="132" rx="8" fill="#eff6ff" stroke="#2563eb" />
@@ -153,12 +156,12 @@
   </g>
 
   <g transform="translate(104,896)">
-    <path d="M 0 0 L 44 0" class="inherit" />
+    <path d="M 0 0 L 44 0" class="legendInherit" />
     <text class="note" x="56" y="5">extends</text>
-    <path d="M 160 0 L 204 0" class="useBlue" style="marker-end:none" />
+    <path d="M 160 0 L 204 0" class="legendUseBlue" style="marker-end:none" />
 <polyline points="192,6 204,0 192,-6" fill="none" stroke="#2563eb" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important" data-direct-solid-head="true"/>
     <text class="note" x="216" y="5">uses/dependency</text>
-    <path d="M 380 0 L 424 0" class="has" />
+    <path d="M 380 0 L 424 0" class="legendHas" />
     <text class="note" x="436" y="5">returns/has reference</text>
   </g>
 </svg>
