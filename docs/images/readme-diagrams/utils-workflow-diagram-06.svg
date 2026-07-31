@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1680" height="900" viewBox="0 0 1680 900" role="img" aria-label="Conditional Flow Branching">
+<svg xmlns="http://www.w3.org/2000/svg" width="1680" height="900" viewBox="0 0 1680 900" role="img" aria-label="Conditional Flow Branching" data-intent="Conditional workflows evaluate context and execute the matching branch before returning a unified report." data-evidence="utils/workflow/README.md,utils/workflow/src/main/kotlin" data-source-read="utils/workflow/README.md; utils/workflow/src/main/kotlin" data-allow-grid="true">
 <defs><filter id="softShadow" x="-8%" y="-10%" width="116%" height="124%"><feDropShadow dx="0" dy="5" stdDeviation="5" flood-color="#0F172A" flood-opacity="0.10"/></filter>
 <marker id="arrow-evaluate" markerWidth="18" markerHeight="14" refX="16" refY="7" orient="auto" markerUnits="userSpaceOnUse" viewBox="0 0 18 14"><path stroke-dasharray="none" d="M2 2 L16 7 L2 12 Z" fill="#2563EB" style="stroke-dasharray:none"/></marker>
 <marker id="arrow-yes" markerWidth="18" markerHeight="14" refX="16" refY="7" orient="auto" markerUnits="userSpaceOnUse" viewBox="0 0 18 14"><path stroke-dasharray="none" d="M2 2 L16 7 L2 12 Z" fill="#16A34A" style="stroke-dasharray:none"/></marker>
@@ -7,19 +7,19 @@
 <marker id="arrow-thenReport" markerWidth="18" markerHeight="14" refX="16" refY="7" orient="auto" markerUnits="userSpaceOnUse" viewBox="0 0 18 14"><path stroke-dasharray="none" d="M2 2 L16 7 L2 12 Z" fill="#16A34A" style="stroke-dasharray:none"/></marker>
 <marker id="arrow-noopReport" markerWidth="18" markerHeight="14" refX="16" refY="7" orient="auto" markerUnits="userSpaceOnUse" viewBox="0 0 18 14"><path stroke-dasharray="none" d="M2 2 L16 7 L2 12 Z" fill="#EA580C" style="stroke-dasharray:none"/></marker>
 <marker id="arrow-otherwiseReport" markerWidth="18" markerHeight="14" refX="16" refY="7" orient="auto" markerUnits="userSpaceOnUse" viewBox="0 0 18 14"><path stroke-dasharray="none" d="M2 2 L16 7 L2 12 Z" fill="#DB2777" style="stroke-dasharray:none"/></marker>
-<style>svg{font-family:"Architects Daughter","Comic Mono","Comic Sans MS",ui-sans-serif,system-ui,sans-serif}.canvas{fill:#F8FAFC}.frame{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.5;filter:url(#softShadow)}.title{font-family:"Architects Daughter";font-size:44px;fill:#0F172A}.subtitle{font-family:"Comic Mono";font-size:16px;fill:#475569}.card{filter:url(#softShadow);stroke-width:1.9}.cardTitle{font-family:"Architects Daughter";font-size:24px;fill:#0F172A}.detail{font-family:"Comic Mono";font-size:13.5px;fill:#475569}.icon{stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}.edge{fill:none;stroke-width:3.2;stroke-linecap:round;stroke-linejoin:round}.dashed{stroke-dasharray:9 8}.edgeLabel rect{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.25;opacity:.96}.edgeLabel text{font-family:"Comic Mono";font-size:12.5px;fill:#475569}</style></defs>
+<style>svg{font-family:"Architects Daughter","Comic Mono","Comic Sans MS",ui-sans-serif,system-ui,sans-serif}.canvas{fill:#F8FAFC}.frame{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.5;filter:url(#softShadow)}.title{font-family:"Architects Daughter";font-size:44px;fill:#0F172A}.subtitle{font-family:"Comic Mono";font-size:16px;fill:#475569}.card{filter:url(#softShadow);stroke-width:1.9}.cardTitle{font-family:"Architects Daughter";font-size:24px;fill:#0F172A}.detail{font-family:"Comic Mono";font-size:13.5px;fill:#475569}.icon{stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}.route,.loopLink{fill:none;stroke-width:3.2;stroke-linecap:round;stroke-linejoin:round}.dashed{stroke-dasharray:9 8}.edgeLabel rect{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.25;opacity:.96}.edgeLabel text{font-family:"Comic Mono";font-size:12.5px;fill:#475569}</style></defs>
 <rect class="canvas" width="1680" height="900"/><rect class="frame" x="38" y="30" width="1604" height="834" rx="8"/>
 <text class="title" x="78" y="86">Conditional Flow Branching</text>
 <text class="subtitle" x="82" y="118">The predicate selects exactly one branch. Sync returns branch reports; suspend converts non-cancellation exceptions to Failure.</text>
-<g id="edges"><path class="edge" d="M840 306 L840 350" stroke="#2563EB" marker-end="url(#arrow-evaluate)"/>
-<path class="edge" d="M 675 435 L 534 435 Q 520 435 520 449 L 520 560" stroke="#16A34A" marker-end="url(#arrow-yes)" stroke-linecap="round" stroke-linejoin="round"/>
-<path class="edge dashed" d="M840 520 L840 560" stroke="#EA580C"/>
+<g id="edges"><path class="route" d="M840 306 L840 350" stroke="#2563EB" marker-end="url(#arrow-evaluate)"/>
+<path class="route" d="M 675 435 L 534 435 Q 520 435 520 449 L 520 560" stroke="#16A34A" marker-end="url(#arrow-yes)" stroke-linecap="round" stroke-linejoin="round"/>
+<path class="loopLink" d="M840 520 L840 560" stroke="#EA580C"/>
 <polygon points="834,548 840,560 846,548" fill="#EA580C" stroke="#EA580C" stroke-width="1" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important" data-direct-solid-head="true"/>
-<path class="edge" d="M 1005 435 L 1146 435 Q 1160 435 1160 449 L 1160 560" stroke="#DB2777" marker-end="url(#arrow-no)" stroke-linecap="round" stroke-linejoin="round"/>
-<path class="edge" d="M 400 678 L 400 768 Q 400 782 414 782 L 580 782" stroke="#16A34A" marker-end="url(#arrow-thenReport)" stroke-linecap="round" stroke-linejoin="round"/>
-<path class="edge dashed" d="M840 678 L840 725" stroke="#EA580C"/>
+<path class="route" d="M 1005 435 L 1146 435 Q 1160 435 1160 449 L 1160 560" stroke="#DB2777" marker-end="url(#arrow-no)" stroke-linecap="round" stroke-linejoin="round"/>
+<path class="route" d="M 400 678 L 400 768 Q 400 782 414 782 L 580 782" stroke="#16A34A" marker-end="url(#arrow-thenReport)" stroke-linecap="round" stroke-linejoin="round"/>
+<path class="loopLink" d="M840 678 L840 725" stroke="#EA580C"/>
 <polygon points="834,713 840,725 846,713" fill="#EA580C" stroke="#EA580C" stroke-width="1" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important" data-direct-solid-head="true"/>
-<path class="edge" d="M 1280 678 L 1280 768 Q 1280 782 1266 782 L 1100 782" stroke="#DB2777" marker-end="url(#arrow-otherwiseReport)" stroke-linecap="round" stroke-linejoin="round"/></g>
+<path class="route" d="M 1280 678 L 1280 768 Q 1280 782 1266 782 L 1100 782" stroke="#DB2777" marker-end="url(#arrow-otherwiseReport)" stroke-linecap="round" stroke-linejoin="round"/></g>
 <g id="labels"><g class="edgeLabel" transform="translate(869 315)"><rect width="82" height="30" rx="8"/><text x="41" y="20" text-anchor="middle">evaluate</text></g>
 <g class="edgeLabel" transform="translate(531 395)"><rect width="58" height="30" rx="8"/><text x="29" y="20" text-anchor="middle">true</text></g>
 <g class="edgeLabel" transform="translate(883 525)"><rect width="94" height="30" rx="8"/><text x="47" y="20" text-anchor="middle">no branch</text></g>
@@ -32,7 +32,7 @@
   <text class="cardTitle" x="864" y="232" text-anchor="middle">Conditional flow</text>
   <text class="detail" x="840" y="268" text-anchor="middle">condition { ctx -&gt; ... }</text>
   <text class="detail" x="840" y="287" text-anchor="middle">shared WorkContext</text></g>
-<g id="decision"><polygon class="card" points="840,350 1005,435 840,520 675,435" fill="#FAF5FF" stroke="#9333EA"/>
+<g id="decision"><polygon class="card card-shape" points="840,350 1005,435 840,520 675,435" fill="#FAF5FF" stroke="#9333EA"/>
   <text class="cardTitle" x="840" y="427" text-anchor="middle">Predicate true?</text>
   <text class="detail" x="840" y="458" text-anchor="middle">WorkContext -&gt; Boolean</text></g>
 <g id="then"><rect class="card" x="220" y="560" width="360" height="118" rx="8" fill="#F0FDF4" stroke="#16A34A"/>
