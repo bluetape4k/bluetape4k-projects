@@ -44,11 +44,11 @@
     <text class="text" x="880" y="256" text-anchor="middle" dominant-baseline="middle">deepest module investment: production factories, pool tuning, retry, keep-alive fallback, HTTP/2, TLS, cache, virtual-thread support, and coroutine bridge</text>
   </g>
 
-  <g id="hc5-panel">
+  <g id="panel-hc5">
     <rect class="panel" x="96" y="342" width="930" height="650" rx="8"/>
     <text class="panelTitle" x="136" y="388" dominant-baseline="middle">Use HC5 first when...</text>
 
-    <g id="sync-scenario">
+    <g id="panel-sync">
       <rect class="card" x="136" y="440" width="330" height="104" rx="8" fill="#FFFFFF" stroke="#0D9488"/>
       <text class="cardTitleSmall" x="301" y="474" text-anchor="middle" dominant-baseline="middle">Sync backend calls</text>
       <text class="textSmall" x="301" y="510" text-anchor="middle">high throughput with blocking APIs</text>
@@ -59,30 +59,30 @@
       <path class="arrow" d="M 466 492 L 616 492" stroke="#0D9488" marker-end="url(#arrow-teal)"/>
     </g>
 
-    <g id="async-scenario">
+    <g id="panel-async">
       <rect class="card" x="136" y="620" width="330" height="104" rx="8" fill="#FFFFFF" stroke="#2563EB"/>
       <text class="cardTitleSmall" x="301" y="654" text-anchor="middle" dominant-baseline="middle">Async backend calls</text>
       <text class="textSmall" x="301" y="690" text-anchor="middle">coroutine-first service code</text>
       <rect class="card" x="616" y="610" width="350" height="124" rx="8" fill="#EFF6FF" stroke="#2563EB"/>
-      <text class="cardTitleSmall" x="791" y="645" text-anchor="middle" dominant-baseline="middle">HC5 Async + Coroutines</text>
-      <text class="textSmall" x="791" y="681" text-anchor="middle">productionHttpAsyncClientOf()</text>
-      <text class="textSmall" x="791" y="705" text-anchor="middle">executeSuspending(...) bridge</text>
+      <text class="cardTitleSmall" x="791" y="645" text-anchor="middle" dominant-baseline="middle">HC5 async</text>
+      <text class="textSmall" x="791" y="681" text-anchor="middle">async client factory</text>
+      <text class="textSmall" x="791" y="705" text-anchor="middle">suspending bridge</text>
       <path class="arrow" d="M 466 672 L 616 672" stroke="#2563EB" marker-end="url(#arrow-blue)"/>
     </g>
 
-    <g id="cache-scenario">
+    <g id="panel-cache">
       <rect class="card" x="136" y="800" width="330" height="104" rx="8" fill="#FFFFFF" stroke="#EA580C"/>
       <text class="cardTitleSmall" x="301" y="834" text-anchor="middle" dominant-baseline="middle">Cacheable GETs</text>
       <text class="textSmall" x="301" y="870" text-anchor="middle">maximum in-process cache throughput</text>
       <rect class="card" x="616" y="790" width="350" height="124" rx="8" fill="#FFF7ED" stroke="#EA580C"/>
-      <text class="cardTitleSmall" x="791" y="825" text-anchor="middle" dominant-baseline="middle">HC5 in-memory cache</text>
-      <text class="textSmall" x="791" y="861" text-anchor="middle">memoryCachingHttpClientOf()</text>
-      <text class="textSmall" x="791" y="885" text-anchor="middle">RFC 7234 cache storage helpers</text>
+      <text class="cardTitleSmall" x="791" y="825" text-anchor="middle" dominant-baseline="middle">HC5 memory cache</text>
+      <text class="textSmall" x="791" y="861" text-anchor="middle">caching client factory</text>
+      <text class="textSmall" x="791" y="885" text-anchor="middle">RFC 7234 helpers</text>
       <path class="arrow" d="M 466 852 L 616 852" stroke="#EA580C" marker-end="url(#arrow-orange)"/>
     </g>
   </g>
 
-  <g id="alternatives-panel">
+  <g id="panel-alternatives">
     <rect class="panel" x="1070" y="342" width="590" height="650" rx="8"/>
     <text class="panelTitle" x="1110" y="388" dominant-baseline="middle">Use another backend when...</text>
 
@@ -107,7 +107,7 @@
     <g id="jdk-alt">
       <rect class="card" x="1110" y="830" width="510" height="94" rx="8" fill="#EEF2FF" stroke="#4F46E5"/>
       <text class="cardTitleSmall" x="1365" y="861" text-anchor="middle" dominant-baseline="middle">JDK HttpClient</text>
-      <text class="textSmall" x="1365" y="895" text-anchor="middle">zero-dependency services where standard-library features are enough</text>
+      <text class="textSmall" x="1365" y="895" text-anchor="middle">standard-library services</text>
     </g>
   </g>
 

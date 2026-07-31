@@ -1,4 +1,4 @@
-<svg data-intent="Explain the source-backed Retrofit2 Result pattern integration around ResultCallAdapterFactory and ResultCall." data-evidence="io/retrofit2/README.md; ResultCallAdapterFactory.kt; ResultCall.kt; RetrofitSupport.kt" xmlns="http://www.w3.org/2000/svg" width="1540" height="930" viewBox="0 0 1540 930" role="img" aria-label="Retrofit2 Result Pattern Integration">
+<svg data-intent="Explain the source-backed Retrofit2 Result pattern integration around ResultCallAdapterFactory and ResultCall." data-evidence="io/retrofit2/README.md; ResultCallAdapterFactory.kt; ResultCall.kt; RetrofitSupport.kt" data-source-read="io/retrofit2/README.md; io/retrofit2/src/main/kotlin" data-allow-grid="true" xmlns="http://www.w3.org/2000/svg" width="1540" height="930" viewBox="0 0 1540 930" role="img" aria-label="Retrofit2 Result Pattern Integration">
 <defs>
   <style>
     svg{font-family:"Architects Daughter","Comic Mono","Comic Sans MS",ui-sans-serif,system-ui,sans-serif}
@@ -6,7 +6,7 @@
     .title{font-family:"Architects Daughter";font-size:43px;fill:#22344A}.subtitle{font-family:"Comic Mono";font-size:16px;fill:#536476}
     .section{fill:#fff;stroke:#D2DFEA;stroke-width:2}.sectionTitle{font-family:"Architects Daughter";font-size:25px;fill:#22344A}.sectionNote{font-family:"Comic Mono";font-size:13px;fill:#536476}
     .card{stroke-width:2}.cardTitle{font-family:"Architects Daughter";font-size:22px;fill:#22344A}.detail{font-family:"Comic Mono";font-size:13px;fill:#536476}
-    .route{fill:none;stroke-width:3.4;stroke-linecap:round;stroke-linejoin:round}.dash{stroke-dasharray:10 8}.label{font-family:"Comic Mono";font-size:12px;fill:#536476}
+    .route,.link{fill:none;stroke-width:3.4;stroke-linecap:round;stroke-linejoin:round}.dash{stroke-dasharray:10 8}.label{font-family:"Comic Mono";font-size:12px;fill:#536476}
     .pill{fill:#fff;stroke:#D6E3EF;stroke-width:1.4}
   </style>
 </defs>
@@ -27,21 +27,21 @@
 
 <g id="delegate"><rect class="card" x="196" y="520" width="320" height="70" rx="10" fill="#F2EBFF" stroke="#755BC6"/><text class="cardTitle" x="356" y="552" text-anchor="middle">Delegate Call&lt;T&gt;</text><text class="detail" x="356" y="575" text-anchor="middle">Retrofit transport call</text></g>
 <g id="resultCall"><rect class="card" x="610" y="504" width="320" height="102" rx="10" fill="#EAF7EF" stroke="#3E9868"/><text class="cardTitle" x="770" y="540" text-anchor="middle">ResultCall&lt;T&gt;</text><text class="detail" x="770" y="568" text-anchor="middle">execute() and enqueue()</text><text class="detail" x="770" y="588" text-anchor="middle">Response&lt;Result&lt;T&gt;&gt;</text></g>
-<g id="callback"><rect class="card" x="1024" y="520" width="320" height="70" rx="10" fill="#E8F3FF" stroke="#4F83BF"/><text class="cardTitle" x="1184" y="552" text-anchor="middle">Caller callback</text><text class="detail" x="1184" y="575" text-anchor="middle">always receives Response.success(result)</text></g>
+<g id="callback"><rect class="card" x="1031" y="520" width="320" height="70" rx="10" fill="#E8F3FF" stroke="#4F83BF"/><text class="cardTitle" x="1191" y="552" text-anchor="middle">Caller callback</text><text class="detail" x="1191" y="575" text-anchor="middle">receives a success result</text></g>
 
 <g id="success"><rect class="card" x="176" y="794" width="290" height="52" rx="10" fill="#EAF7EF" stroke="#3E9868"/><text class="cardTitle" x="321" y="827" text-anchor="middle">Result.success(body)</text></g>
 <g id="httpError"><rect class="card" x="560" y="794" width="290" height="52" rx="10" fill="#FFF0F4" stroke="#C94D68"/><text class="cardTitle" x="705" y="827" text-anchor="middle">failure(HttpException)</text></g>
-<g id="networkError"><rect class="card" x="944" y="794" width="352" height="52" rx="10" fill="#FFF5E6" stroke="#B9851B"/><text class="cardTitle" x="1120" y="827" text-anchor="middle">failure(IOException / null body)</text></g>
+<g id="networkError"><rect class="card" x="951" y="794" width="352" height="52" rx="10" fill="#FFF5E6" stroke="#B9851B"/><text class="cardTitle" x="1127" y="827" text-anchor="middle">failure(I/O or null body)</text></g>
 
 <path class="route" d="M432 309 H506" stroke="#4F83BF"/><path d="M506 309 l-12 -7 v14 z" fill="#4F83BF"/>
 <path class="route" d="M826 309 H900" stroke="#3E9868"/><path d="M900 309 l-12 -7 v14 z" fill="#3E9868"/>
-<path class="route dash" d="M 826 254 L 854 254 Q 868 254 868 240 L 868 224 Q 868 210 882 210 L 1032 210" stroke="#B9851B"/><path d="M1032 210 l-12 -7 v14 z" fill="#B9851B"/>
-<path class="route" d="M 1060 364 L 1060 410 Q 1060 424 1046 424 L 784 424 Q 770 424 770 438 L 770 504" stroke="#3E9868"/><path d="M770 504 l-7 -12 h14 z" fill="#3E9868"/>
+<path class="link dash" d="M 826 254 L 854 254 Q 868 254 868 240 L 868 224 Q 868 210 882 210 L 1032 210" stroke="#B9851B"/><path d="M1032 210 l-12 -7 v14 z" fill="#B9851B"/>
+<path class="link" d="M 1060 364 L 1060 410 Q 1060 424 1046 424 L 784 424 Q 770 424 770 438 L 770 504" stroke="#3E9868"/><path d="M770 504 l-7 -12 h14 z" fill="#3E9868"/>
 <path class="route" d="M516 555 H610" stroke="#755BC6"/><path d="M610 555 l-12 -7 v14 z" fill="#755BC6"/>
-<path class="route" d="M930 555 H1024" stroke="#4F83BF"/><path d="M1024 555 l-12 -7 v14 z" fill="#4F83BF"/>
-<path class="route" d="M 770 606 L 770 746 Q 770 760 756 760 L 334.6 760 Q 321 760 321 773.6 L 321 794" stroke="#3E9868"/><path d="M321 794 l-7 -12 h14 z" fill="#3E9868"/>
-<path class="route" d="M 770 606 L 770 746 Q 770 760 756 760 L 718.6 760 Q 705 760 705 773.6 L 705 794" stroke="#C94D68"/><path d="M705 794 l-7 -12 h14 z" fill="#C94D68"/>
-<path class="route" d="M 770 606 L 770 746 Q 770 760 784 760 L 1106.4 760 Q 1120 760 1120 773.6 L 1120 794" stroke="#B9851B"/><path d="M1120 794 l-7 -12 h14 z" fill="#B9851B"/>
+<path class="route" d="M930 555 H1031" stroke="#4F83BF"/><path d="M1031 555 l-12 -7 v14 z" fill="#4F83BF"/>
+<path class="link" d="M 770 606 L 770 746 Q 770 760 756 760 L 334.6 760 Q 321 760 321 773.6 L 321 794" stroke="#3E9868"/><path d="M321 794 l-7 -12 h14 z" fill="#3E9868"/>
+<path class="link" d="M 770 606 L 770 746 Q 770 760 756 760 L 718.6 760 Q 705 760 705 773.6 L 705 794" stroke="#C94D68"/><path d="M705 794 l-7 -12 h14 z" fill="#C94D68"/>
+<path class="link" d="M 770 606 L 770 746 Q 770 760 784 760 L 1106.4 760 Q 1120 760 1120 773.6 L 1120 794" stroke="#B9851B"/><path d="M1120 794 l-7 -12 h14 z" fill="#B9851B"/>
 
 <rect class="pill" x="560" y="392" width="196" height="30" rx="8"/><text class="label" x="658" y="412" text-anchor="middle">non-Result returns null</text>
 <rect class="pill" x="681" y="744" width="178" height="30" rx="8"/><text class="label" x="770" y="764" text-anchor="middle">map one delegate result</text>

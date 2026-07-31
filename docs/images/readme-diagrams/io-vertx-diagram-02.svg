@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1500" height="980" viewBox="0 0 1500 980" role="img" aria-labelledby="title desc">
+<svg xmlns="http://www.w3.org/2000/svg" width="1500" height="980" viewBox="0 0 1500 980" role="img" aria-labelledby="title desc" data-allow-grid="true" data-intent="A Vert.x request enters coroutine helpers, suspends while a Future completes, and resumes with a mapped result or failure without blocking the event loop." data-evidence="io/vertx/README.md,io/vertx/src/main/kotlin" data-source-read="io/vertx/README.md; io/vertx/src/main/kotlin">
   <title id="title">Vert.x Event Loop + Coroutines Processing Flow</title>
   <desc id="desc">Flow diagram using vertical layers to show route work entering coroutine helpers, awaiting Future completion, and returning success or failure.</desc>
   <defs>
@@ -36,7 +36,7 @@
   <text x="106" y="188" class="laneTitle">Request boundary</text>
   <rect x="446" y="150" width="608" height="525" rx="14" class="lane" fill="#EDE9FE" stroke="#C4B5FD" fill-opacity="1"/>
   <text x="476" y="188" class="laneTitle">Coroutine bridge</text>
-  <rect x="1104" y="150" width="320" height="657" rx="14" class="lane" fill="#DCFCE7" stroke="#86EFAC" fill-opacity="1"/>
+  <rect x="1104" y="150" width="320" height="700" rx="14" class="lane" fill="#DCFCE7" stroke="#86EFAC" fill-opacity="1"/>
   <text x="1134" y="188" class="laneTitle">Runtime and outcome</text>
 
   <g id="route">
@@ -57,7 +57,7 @@
   </g>
   <g id="dispatcher">
     <rect x="776" y="225" width="240" height="92" rx="10" fill="#eef5fa" stroke="#3f7d9c" class="card"/>
-    <text x="896" y="260" text-anchor="middle" class="cardTitle">Vert.x dispatcher</text>
+    <text x="896" y="260" text-anchor="middle" class="cardTitle">Vert.x dispatch</text>
     <text x="896" y="290" text-anchor="middle" class="detail">withVertxDispatcher</text>
   </g>
   <g id="await">
@@ -77,12 +77,12 @@
     <text x="1264" y="542" text-anchor="middle" class="detail">resume with result</text>
   </g>
   <g id="failure">
-    <rect x="1144" y="650" width="240" height="82" rx="10" fill="#f9eef0" stroke="#b86868" class="card"/>
-    <text x="1264" y="684" text-anchor="middle" class="cardTitle">Failure cause</text>
-    <text x="1264" y="712" text-anchor="middle" class="detail">ctx.fail / throw / recover</text>
+    <rect x="1144" y="743" width="240" height="82" rx="10" fill="#f9eef0" stroke="#b86868" class="card"/>
+    <text x="1264" y="777" text-anchor="middle" class="cardTitle">Failure cause</text>
+    <text x="1264" y="805" text-anchor="middle" class="detail">fail / throw / recover</text>
   </g>
 
-  <path class="flow" d="M 356 287 L 410 287 Q 426 287 426 271 L 494 271"/>
+  <path class="flow" d="M 356 271 L 494 271"/>
   <path class="async" d="M 734 271 L 776 271"/>
   <path class="support" d="M 1016 271 L 1144 271" style="marker-end:none"/>
 <polygon points="1132,277 1144,271 1132,265" fill="#9b7d54" stroke="#9b7d54" stroke-width="1" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important" data-direct-solid-head="true"/>
@@ -91,7 +91,7 @@
   <path class="support" d="M 1264 317 L 1264 376 Q 1264 390 1250 390 L 895 390 Q 881 390 881 404 L 881 500" style="marker-end:none"/>
 <polygon points="875,488 881,500 887,488" fill="#9b7d54" stroke="#9b7d54" stroke-width="1" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important" data-direct-solid-head="true"/>
   <path class="success" d="M 1016 530 L 1144 530"/>
-  <path class="failure" d="M 1016 566 L 1066 566 Q 1080 566 1080 580 L 1080 677 Q 1080 691 1094 691 L 1144 691"/>
+  <path class="failure" d="M 1016 566 L 1066 566 Q 1080 566 1080 580 L 1080 770 Q 1080 784 1094 784 L 1144 784"/>
 
   <text x="750" y="928" text-anchor="middle" class="footer">github.com/bluetape4k/bluetape4k-projects - io/vertx README</text>
 </svg>
