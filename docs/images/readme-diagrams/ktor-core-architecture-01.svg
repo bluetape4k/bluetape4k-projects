@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1800" height="1080" viewBox="0 0 1800 1080" role="img" aria-labelledby="title desc">
+<svg xmlns="http://www.w3.org/2000/svg" width="1800" height="1080" viewBox="0 0 1800 1080" role="img" aria-labelledby="title desc" data-intent="Ktor core supplies application setup, routing, serialization, client integration, and coroutine-friendly server helpers across the module's public boundaries." data-evidence="ktor/core/README.md,ktor/core/src/main/kotlin" data-source-read="ktor/core/README.md; ktor/core/src/main/kotlin">
   <title id="title">bluetape4k-ktor-core architecture</title>
   <desc id="desc">Ktor core architecture showing explicit application installation, configuration gates, installed runtime features, request helper usage, and JSON response contracts.</desc>
   <defs>

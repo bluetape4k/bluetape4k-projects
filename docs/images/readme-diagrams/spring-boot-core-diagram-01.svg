@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<svg xmlns="http://www.w3.org/2000/svg" width="1360" height="820" viewBox="0 0 1360 820" role="img" aria-label="Spring Boot Core capability map">
+<svg xmlns="http://www.w3.org/2000/svg" width="1360" height="820" viewBox="0 0 1360 820" role="img" aria-label="Spring Boot Core capability map" data-intent="Spring Boot core integrates Kotlin-friendly APIs, coroutine runtime helpers, HTTP clients, and observability facilities through source-backed module boundaries." data-evidence="spring-boot/core/README.md,spring-boot/core/src/main/kotlin" data-source-read="spring-boot/core/README.md; spring-boot/core/src/main/kotlin">
   <style>
     text { font-family: 'Architects Daughter', 'Comic Mono', 'Helvetica Neue', Arial, sans-serif; dominant-baseline: alphabetic; }
     .subtitle { font-family: 'Architects Daughter', 'Comic Mono', 'Helvetica Neue', Arial, sans-serif; }

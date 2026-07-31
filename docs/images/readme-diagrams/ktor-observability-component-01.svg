@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1800" height="1080" viewBox="0 0 1800 1080" role="img" aria-labelledby="title desc">
+<svg xmlns="http://www.w3.org/2000/svg" width="1800" height="1080" viewBox="0 0 1800 1080" role="img" aria-labelledby="title desc" data-intent="Ktor observability components compose request logging, tracing, metrics, correlation context, and application lifecycle hooks for server instrumentation." data-evidence="ktor/observability/README.md,ktor/observability/src/main/kotlin" data-source-read="ktor/observability/README.md; ktor/observability/src/main/kotlin">
   <title id="title">bluetape4k-ktor-observability components</title>
   <desc id="desc">Ktor observability component diagram showing application-owned telemetry inputs, explicit plugin installation, sanitized correlation IDs, logs, metrics, Prometheus route helper, and optional OpenTelemetry tracing.</desc>
   <defs>
