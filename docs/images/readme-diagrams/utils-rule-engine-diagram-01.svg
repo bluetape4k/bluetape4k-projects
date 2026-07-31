@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="2420" height="1320" viewBox="0 0 2420 1320" role="img" aria-label="rule engine concept overview">
+<svg data-intent="Explain the module behavior, public API relationships, and runtime decisions represented by this source-backed diagram for maintainers and users." data-evidence="utils/rule-engine/README.md; utils/rule-engine/src/main" data-source-read="utils/rule-engine/README.md; utils/rule-engine/src/main" xmlns="http://www.w3.org/2000/svg" width="2458" height="1812" viewBox="0 0 2458 1812" role="img" aria-label="rule engine concept overview">
 <defs>
   <filter id="softShadow" x="-8%" y="-10%" width="116%" height="124%"><feDropShadow dx="0" dy="5" stdDeviation="5" flood-color="#0F172A" flood-opacity="0.10"/></filter>
   <marker id="arrow-rules" markerWidth="24" markerHeight="18" refX="22" refY="9" orient="auto" markerUnits="userSpaceOnUse"><path d="M2 2 L22 9 L2 16 Z" fill="#1D4ED8" stroke="#1D4ED8" stroke-width="1" stroke-dasharray="none" style="stroke-dasharray:none"/></marker>
@@ -19,38 +19,38 @@
     .edgeLabelBg{fill:#FFFFFF;stroke:#E2E8F0;stroke-width:1;opacity:.95}.edgeLabel{font-family:"Comic Mono";font-size:12.7px;fill:#334155}
   </style>
 </defs>
-<rect class="canvas" width="2420" height="1320"/>
+<rect class="canvas" width="2458" height="1812"/>
 <rect class="frame" x="34" y="30" width="2352" height="1256" rx="8"/>
 <text class="title" x="74" y="88">Rule Engine Concept Overview</text>
 <text class="subtitle" x="78" y="121">Rules are ordered by RuleSet, DefaultRuleEngine evaluates each condition against shared Facts, and matching actions update the same Facts instance.</text>
-<rect class="lane" x="38" y="185" width="684" height="845" rx="8" fill="#DBEAFE" stroke="#93C5FD" fill-opacity="1"/><text class="laneTitle" x="110" y="222">inputs</text>
-<rect class="lane" x="780" y="185" width="730" height="905" rx="8" fill="#EDE9FE" stroke="#C4B5FD" fill-opacity="1"/><text class="laneTitle" x="808" y="222">engine loop</text>
-<rect class="lane" x="1630" y="185" width="680" height="845" rx="8" fill="#DCFCE7" stroke="#86EFAC" fill-opacity="1"/><text class="laneTitle" x="1658" y="222">rule contract and result</text>
+<rect class="lane" x="98" y="119" width="684" height="845" rx="8" fill="#DBEAFE" stroke="#93C5FD" fill-opacity="1"/><text class="laneTitle" x="170" y="156">inputs</text>
+<rect class="lane" x="840" y="119" width="730" height="905" rx="8" fill="#EDE9FE" stroke="#C4B5FD" fill-opacity="1"/><text class="laneTitle" x="868" y="156">engine loop</text>
+<rect class="lane" x="1690" y="119" width="680" height="845" rx="8" fill="#DCFCE7" stroke="#86EFAC" fill-opacity="1"/><text class="laneTitle" x="1718" y="156">rule contract and result</text>
 <g id="edges"><g id="rules-to-engine">
-  <path class="edge " d="M640 360 L840 360" stroke="#1D4ED8" marker-end="url(#arrow-rules)"/>
-  <rect class="edgeLabelBg" x="665" y="315" width="142.79999999999998" height="26" rx="6"/>
-  <text class="edgeLabel" x="675" y="333">sorted RuleSet</text>
+  <path class="edge " d="M700 294 L900 294" stroke="#1D4ED8" marker-end="url(#arrow-rules)"/>
+  <rect class="edgeLabelBg" x="725" y="249" width="142.79999999999998" height="26" rx="6"/>
+  <text class="edgeLabel" x="735" y="267">sorted RuleSet</text>
 </g>
 <g id="facts-to-engine">
-  <path class="edge " d="M 640 845 L 726 845 Q 740 845 740 831 L 740 609 Q 740 595 754 595 L 840 595" stroke="#15803D" marker-end="url(#arrow-facts)"/>
-  <rect class="edgeLabelBg" x="650" y="800" width="118.19999999999999" height="26" rx="6"/>
-  <text class="edgeLabel" x="660" y="818">Facts input</text>
+  <path class="edge " d="M 700 779 L 786 779 Q 800 779 800 765 L 800 543 Q 800 529 814 529 L 900 529" stroke="#15803D" marker-end="url(#arrow-facts)"/>
+  <rect class="edgeLabelBg" x="710" y="734" width="118.19999999999999" height="26" rx="6"/>
+  <text class="edgeLabel" x="720" y="752">Facts input</text>
 </g>
 <g id="engine-to-rule">
-  <path class="edge " d="M1460 455 L1690 455" stroke="#0F766E" marker-end="url(#arrow-engine)"/>
-  <rect class="edgeLabelBg" x="1495" y="410" width="175.6" height="26" rx="6"/>
-  <text class="edgeLabel" x="1505" y="428">evaluate / execute</text>
+  <path class="edge " d="M1520 389 L1750 389" stroke="#0F766E" marker-end="url(#arrow-engine)"/>
+  <rect class="edgeLabelBg" x="1555" y="344" width="175.6" height="26" rx="6"/>
+  <text class="edgeLabel" x="1565" y="362">evaluate / execute</text>
 </g>
 <g id="engine-to-policy">
-  <path class="edge dashed" d="M1150 710 L1150 820" stroke="#C2410C"/>
-<polygon points="1144,808 1150,820 1156,808" fill="#C2410C" stroke="#C2410C" stroke-width="1" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important" data-direct-solid-head="true"/>
-  <rect class="edgeLabelBg" x="1160" y="757" width="118.19999999999999" height="26" rx="6"/>
-  <text class="edgeLabel" x="1170" y="775">stop policy</text>
+  <path class="edge dashed" d="M1210 644 L1210 754" stroke="#C2410C"/>
+<polygon points="1204,742 1210,754 1216,742" fill="#C2410C" stroke="#C2410C" stroke-width="1" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none!important" data-direct-solid-head="true"/>
+  <rect class="edgeLabelBg" x="1220" y="691" width="118.19999999999999" height="26" rx="6"/>
+  <text class="edgeLabel" x="1230" y="709">stop policy</text>
 </g>
 <g id="rule-to-outcome">
-  <path class="edge " d="M1970 520 L1970 720" stroke="#6D28D9" marker-end="url(#arrow-rule)"/>
-  <rect class="edgeLabelBg" x="1980" y="610" width="142.79999999999998" height="26" rx="6"/>
-  <text class="edgeLabel" x="1990" y="628">condition true</text>
+  <path class="edge " d="M2030 454 L2030 654" stroke="#6D28D9" marker-end="url(#arrow-rule)"/>
+  <rect class="edgeLabelBg" x="2040" y="544" width="142.79999999999998" height="26" rx="6"/>
+  <text class="edgeLabel" x="2050" y="562">condition true</text>
 </g>
 <g id="outcome-to-facts">
   <path class="edge " d="M 1690 845 L 1569 845 Q 1555 845 1555 859 L 1555 1096 Q 1555 1110 1541 1110 L 394 1110 Q 380 1110 380 1096 L 380 970" stroke="#15803D" marker-end="url(#arrow-facts)"/>
@@ -58,70 +58,70 @@
   <text class="edgeLabel" x="860" y="1083">actions mutate facts</text>
 </g></g>
 <g id="cards"><g id="ruleSet">
-  <rect class="card" x="120" y="235" width="520" height="240" rx="8" fill="#EFF6FF" stroke="#2563EB"/>
-  <rect x="142" y="261" width="54" height="54" rx="13" fill="#1D4ED8"/><path d="M150 272 H182 M150 285 H182 M150 298 H182" stroke="#fff" stroke-width="4" stroke-linecap="round"/>
-  <text class="kicker" x="224" y="274">RuleSet</text>
-  <text class="cardTitle" x="224" y="307">priority-sorted rules</text>
-  <path class="divider" d="M120 335H640" stroke="#1D4ED8"/>
-  <text class="body" x="148" y="371">stores Rule in TreeSet</text>
-  <text class="body" x="148" y="396">lower priority number fires first</text>
-  <text class="body" x="148" y="421">registerProxy() adapts annotated objects</text>
-  <path class="divider" d="M120 427H640" stroke="#1D4ED8"/><text class="foot" x="148" y="457">Iterable&lt;Rule&gt; is the engine input</text>
+  <rect class="card" x="180" y="169" width="520" height="240" rx="8" fill="#EFF6FF" stroke="#2563EB"/>
+  <rect x="202" y="195" width="54" height="54" rx="13" fill="#1D4ED8"/><path d="M210 206 H242 M84 345 H116 M210 232 H242" stroke="#fff" stroke-width="4" stroke-linecap="round"/>
+  <text class="kicker" x="284" y="208">RuleSet</text>
+  <text class="cardTitle" x="284" y="241">priority-sorted rules</text>
+  <path class="divider" d="M180 269H700" stroke="#1D4ED8"/>
+  <text class="body" x="208" y="305">stores Rule in TreeSet</text>
+  <text class="body" x="208" y="330">lower priority number fires first</text>
+  <text class="body" x="208" y="355">registerProxy() adapts annotated objects</text>
+  <path class="divider" d="M180 361H700" stroke="#1D4ED8"/><text class="foot" x="208" y="391">Iterable&lt;Rule&gt; is the engine input</text>
 </g>
 <g id="facts">
-  <rect class="card" x="120" y="720" width="520" height="250" rx="8" fill="#F0FDF4" stroke="#16A34A"/>
-  <rect x="142" y="746" width="54" height="54" rx="13" fill="#15803D"/><path d="M150 758 C150 749, 182 749, 182 758 V782 C182 791, 150 791, 150 782 Z M150 770 C150 779, 182 779, 182 770" fill="none" stroke="#fff" stroke-width="3"/>
-  <text class="kicker" x="224" y="759">Facts</text>
-  <text class="cardTitle" x="224" y="792">shared mutable working data</text>
-  <path class="divider" d="M120 820H640" stroke="#15803D"/>
-  <text class="body" x="148" y="856">ConcurrentHashMap-backed key/value store</text>
-  <text class="body" x="148" y="881">get&lt;T&gt;(), put(), set(), remove()</text>
-  <text class="body" x="148" y="906">null assignment removes a fact</text>
-  <path class="divider" d="M120 922H640" stroke="#15803D"/><text class="foot" x="148" y="952">Condition reads it; Action mutates it</text>
+  <rect class="card" x="180" y="654" width="520" height="250" rx="8" fill="#F0FDF4" stroke="#16A34A"/>
+  <rect x="202" y="680" width="54" height="54" rx="13" fill="#15803D"/><path d="M210 692 C210 683, 242 683, 242 692 V842 C116 851, 84 851, 84 842 Z M84 830 C84 839, 116 839, 116 830" fill="none" stroke="#fff" stroke-width="3"/>
+  <text class="kicker" x="284" y="693">Facts</text>
+  <text class="cardTitle" x="284" y="726">shared mutable working data</text>
+  <path class="divider" d="M180 754H700" stroke="#15803D"/>
+  <text class="body" x="208" y="790">ConcurrentHashMap-backed key/value store</text>
+  <text class="body" x="208" y="815">get&lt;T&gt;(), put(), set(), remove()</text>
+  <text class="body" x="208" y="840">null assignment removes a fact</text>
+  <path class="divider" d="M180 856H700" stroke="#15803D"/><text class="foot" x="148" y="952">Condition reads it; Action mutates it</text>
 </g>
 <g id="engine">
-  <rect class="card" x="840" y="330" width="620" height="380" rx="8" fill="#F0FDFA" stroke="#0D9488"/>
-  <rect x="862" y="356" width="54" height="54" rx="13" fill="#0F766E"/><path d="M870 376 C878 362, 900 362, 902 378 M902 378 L893 373 M902 378 L896 386 M902 385 C894 398, 872 398, 870 382 M870 382 L879 387 M870 382 L876 374" fill="none" stroke="#fff" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/>
-  <text class="kicker" x="944" y="369">DefaultRuleEngine.fire()</text>
-  <text class="cardTitle" x="944" y="402">iterate, evaluate, execute</text>
-  <path class="divider" d="M840 430H1460" stroke="#0F766E"/>
-  <text class="body" x="868" y="466">1. notify engine listeners</text>
-  <text class="body" x="868" y="491">2. iterate RuleSet in priority order</text>
-  <text class="body" x="868" y="516">3. call beforeEvaluate listeners</text>
-  <text class="body" x="868" y="541">4. evaluate rule, then execute on match</text>
-  <path class="divider" d="M840 662H1460" stroke="#0F766E"/><text class="foot" x="868" y="692">check() returns Rule -&gt; Boolean without executing actions</text>
+  <rect class="card" x="900" y="264" width="620" height="380" rx="8" fill="#F0FDFA" stroke="#0D9488"/>
+  <rect x="922" y="290" width="54" height="54" rx="13" fill="#0F766E"/><path d="M930 310 C938 296, 960 296, 962 312 M962 312 L953 307 M962 312 L956 320 M962 319 C954 332, 932 332, 930 316 M930 316 L939 321 M930 316 L936 308" fill="none" stroke="#fff" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/>
+  <text class="kicker" x="1004" y="303">DefaultRuleEngine.fire()</text>
+  <text class="cardTitle" x="1004" y="336">iterate, evaluate, execute</text>
+  <path class="divider" d="M900 364H1520" stroke="#0F766E"/>
+  <text class="body" x="928" y="400">1. notify engine listeners</text>
+  <text class="body" x="928" y="425">2. iterate RuleSet in priority order</text>
+  <text class="body" x="928" y="450">3. call beforeEvaluate listeners</text>
+  <text class="body" x="928" y="475">4. evaluate rule, then execute on match</text>
+  <path class="divider" d="M900 596H1520" stroke="#0F766E"/><text class="foot" x="928" y="626">check() returns Rule -&gt; Boolean without executing actions</text>
 </g>
 <g id="rule">
-  <rect class="card" x="1690" y="240" width="560" height="280" rx="8" fill="#FAF5FF" stroke="#7C3AED"/>
-  <rect x="1712" y="266" width="54" height="54" rx="13" fill="#6D28D9"/><path d="M1720 278 H1752 M1720 290 H1740 M1720 302 H1752" stroke="#fff" stroke-width="3.3" stroke-linecap="round"/><path d="M1746 286 L1753 293 L1742 304" fill="none" stroke="#fff" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/>
-  <text class="kicker" x="1794" y="279">Rule / DefaultRule</text>
-  <text class="cardTitle" x="1794" y="312">condition + action</text>
-  <path class="divider" d="M1690 340H2250" stroke="#6D28D9"/>
-  <text class="body" x="1718" y="376">evaluate(facts): Boolean</text>
-  <text class="body" x="1718" y="401">execute(facts)</text>
-  <text class="body" x="1718" y="426">DefaultRule delegates to Condition and Action list</text>
-  <path class="divider" d="M1690 472H2250" stroke="#6D28D9"/><text class="foot" x="1718" y="502">Rule is Comparable by priority, then name</text>
+  <rect class="card" x="1750" y="174" width="560" height="280" rx="8" fill="#FAF5FF" stroke="#7C3AED"/>
+  <rect x="1772" y="200" width="54" height="54" rx="13" fill="#6D28D9"/><path d="M1720 278 H1752 M1720 290 H1740 M1720 302 H1752" stroke="#fff" stroke-width="3.3" stroke-linecap="round"/><path d="M1806 220 L1813 227 L1802 238" fill="none" stroke="#fff" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/>
+  <text class="kicker" x="1854" y="213">Rule / DefaultRule</text>
+  <text class="cardTitle" x="1854" y="246">condition + action</text>
+  <path class="divider" d="M1750 274H2310" stroke="#6D28D9"/>
+  <text class="body" x="1778" y="310">evaluate(facts): Boolean</text>
+  <text class="body" x="1778" y="335">execute(facts)</text>
+  <text class="body" x="1778" y="360">DefaultRule delegates to Condition and Action list</text>
+  <path class="divider" d="M1750 406H2310" stroke="#6D28D9"/><text class="foot" x="1778" y="436">Rule is Comparable by priority, then name</text>
 </g>
 <g id="policy">
-  <rect class="card" x="840" y="820" width="620" height="210" rx="8" fill="#FFF7ED" stroke="#EA580C"/>
-  <rect x="862" y="846" width="54" height="54" rx="13" fill="#C2410C"/><path d="M871 860 H901 M871 880 H901" stroke="#fff" stroke-width="3.2" stroke-linecap="round"/><circle cx="882" cy="860" r="5" fill="#fff"/><circle cx="894" cy="880" r="5" fill="#fff"/>
-  <text class="kicker" x="944" y="859">RuleEngineConfig + listeners</text>
-  <text class="cardTitle" x="944" y="892">execution boundaries</text>
-  <path class="divider" d="M840 920H1460" stroke="#C2410C"/>
+  <rect class="card" x="900" y="754" width="620" height="210" rx="8" fill="#FFF7ED" stroke="#EA580C"/>
+  <rect x="922" y="780" width="54" height="54" rx="13" fill="#C2410C"/><path d="M931 794 H961 M805 940 H835" stroke="#fff" stroke-width="3.2" stroke-linecap="round"/><circle cx="942" cy="794" r="5" fill="#fff"/><circle cx="954" cy="814" r="5" fill="#fff"/>
+  <text class="kicker" x="1004" y="793">RuleEngineConfig + listeners</text>
+  <text class="cardTitle" x="1004" y="826">execution boundaries</text>
+  <path class="divider" d="M900 854H1520" stroke="#C2410C"/>
   <text class="body" x="868" y="956">priorityThreshold can stop the loop</text>
   <text class="body" x="868" y="981">skipOnFirstApplied/Failed/NonTriggered</text>
   <text class="body" x="868" y="1006">RuleListener and RuleEngineListener wrap events</text>
 
 </g>
 <g id="outcome">
-  <rect class="card" x="1690" y="720" width="560" height="250" rx="8" fill="#F8FAFC" stroke="#64748B"/>
-  <rect x="1712" y="746" width="54" height="54" rx="13" fill="#475569"/><path d="M1721 766 L1732 778 L1752 757" fill="none" stroke="#fff" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
-  <text class="kicker" x="1794" y="759">runtime outcome</text>
-  <text class="cardTitle" x="1794" y="792">facts updated or rule skipped</text>
-  <path class="divider" d="M1690 820H2250" stroke="#475569"/>
-  <text class="body" x="1718" y="856">true condition -&gt; actions mutate Facts</text>
-  <text class="body" x="1718" y="881">false condition -&gt; optional non-triggered stop</text>
-  <text class="body" x="1718" y="906">exception -&gt; optional failed-rule stop</text>
-  <path class="divider" d="M1690 922H2250" stroke="#475569"/><text class="foot" x="1718" y="952">the caller keeps the same Facts instance</text>
+  <rect class="card" x="1750" y="654" width="560" height="250" rx="8" fill="#F8FAFC" stroke="#64748B"/>
+  <rect x="1772" y="680" width="54" height="54" rx="13" fill="#475569"/><path d="M1781 700 L1792 712 L1812 691" fill="none" stroke="#fff" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+  <text class="kicker" x="1854" y="693">runtime outcome</text>
+  <text class="cardTitle" x="1854" y="726">facts updated or rule skipped</text>
+  <path class="divider" d="M1750 754H2310" stroke="#475569"/>
+  <text class="body" x="1778" y="790">true condition -&gt; actions mutate Facts</text>
+  <text class="body" x="1778" y="815">false condition -&gt; optional non-triggered stop</text>
+  <text class="body" x="1778" y="840">exception -&gt; optional failed-rule stop</text>
+  <path class="divider" d="M1750 856H2310" stroke="#475569"/><text class="foot" x="1718" y="952">the caller keeps the same Facts instance</text>
 </g></g>
 </svg>

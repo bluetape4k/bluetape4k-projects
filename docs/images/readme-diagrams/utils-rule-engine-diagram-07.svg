@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="2360" height="980" viewBox="0 0 2360 980" role="img" aria-label="script engine selection guide">
+<svg data-layout="decision-flow" data-intent="Explain the module behavior, public API relationships, and runtime decisions represented by this source-backed diagram for maintainers and users." data-evidence="utils/rule-engine/README.md; utils/rule-engine/src/main" data-source-read="utils/rule-engine/README.md; utils/rule-engine/src/main" xmlns="http://www.w3.org/2000/svg" width="2360" height="980" viewBox="0 0 2360 980" role="img" aria-label="script engine selection guide">
   <defs>
     <filter id="softShadow" x="-8%" y="-10%" width="116%" height="124%">
       <feDropShadow dx="0" dy="5" stdDeviation="5" flood-color="#0F172A" flood-opacity=".10"/>
