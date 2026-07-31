@@ -244,12 +244,14 @@ Existing one-argument `ByteBuffer` APIs may consume the source `position`; the n
 | LZ4          | optimized              | optimized              | optimized              | eligible, not yet measured |
 | Deflate      | optimized              | optimized              | optimized              | eligible, not yet measured |
 | Snappy       | compatibility fallback | optimized              | compatibility fallback | eligible for direct pair, not yet measured |
-| Zstd         | compatibility fallback | compatibility fallback | compatibility fallback | none in the core slice |
+| Zstd         | optimized              | optimized              | compatibility fallback | eligible, not yet measured |
 | Other codecs | compatibility fallback | compatibility fallback | compatibility fallback | ineligible             |
 
 `optimized` means that the codec uses a backend `ByteBuffer` path for that storage pairing. It is not a throughput claim and does not assert measured allocation improvement.
 
 Snappy uses its native `ByteBuffer` path only for direct source/target pairs. Compression takes that path when `target.remaining()` is at least `Snappy.maxCompressedLength(source.remaining())`; a smaller direct target uses the compatibility fallback so a compressible result can still succeed when it fits. Direct decompression validates the complete payload and its exact decompressed size before native decoding. Heap and mixed-storage pairs remain compatibility fallbacks because the available array API cannot enforce an arbitrary caller target limit.
+
+Zstd uses its native offset APIs for matched writable heap and direct source/target pairs when compression has at least `Zstd.compressBound(source.remaining()) + 4` bytes available. A smaller target uses the compatibility fallback so an actual compressed result that fits can still succeed. The native path exposes exactly `target.remaining() - 4` bytes to the codec after the big-endian original-size header. Decompression bounds the native destination to the declared original size, validates the exact returned `Long` before narrowing, and keeps mixed-storage or read-only heap sources on the compatibility fallback. `optimized` describes dispatch only; allocation evidence remains pending.
 
 <!-- issue-755-storage-matrix:end -->
 
