@@ -45,6 +45,7 @@ No user import migration is required for the reorganization.
 ## Recent Changes
 
 - Changed `LettuceNearCacheStorageAccess.evictData()` from region local-only clear to **local + Redis clearAll**
+- Propagated Redis failures from keyed and region eviction instead of reporting normal success
 - Replaced `session.get()` with `session.find()` in tests to remove deprecated Hibernate API usage
 - Added cache scenario tests for One-To-Many, Many-To-One, and Many-To-Many relationships
 
@@ -163,6 +164,10 @@ val products: MutableList<Product> = mutableListOf()
 | `evictData(key)`                | Delete the key from both L1 and L2                                     |
 | `evictData()` (entire region)   | Remove all entries from L1 and L2 (`clearAll()`)                       |
 | External Redis change detection | RESP3 CLIENT TRACKING push → automatic L1 invalidation                 |
+
+### Eviction failure contract
+
+`evictData(key)` and `evictData()` are write-through invalidation operations. If Redis cannot complete the removal, the backend exception is logged and propagated to Hibernate instead of being reported as a successful eviction. The local front cache may already be cleared while a stale Redis entry remains, so callers must treat the operation as failed and apply their recovery policy.
 
 ## Supported Codecs
 
