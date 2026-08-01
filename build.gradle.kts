@@ -5,11 +5,12 @@ import io.bluetape4k.gradle.configurePublishingSigning
 import io.bluetape4k.gradle.DisabledTestReportTask
 import io.bluetape4k.gradle.resolveCentralPublishingConfig
 import io.bluetape4k.gradle.resolvePublishingSigningConfig
-import io.gitlab.arturbosch.detekt.Detekt
-import io.gitlab.arturbosch.detekt.report.ReportMergeTask
+import dev.detekt.gradle.Detekt
+import dev.detekt.gradle.report.ReportMergeTask
 import nmcp.NmcpAggregationExtension
 import nmcp.NmcpExtension
 import org.gradle.api.Project
+import org.gradle.api.file.FileTree
 import org.gradle.language.base.plugins.LifecycleBasePlugin
 import org.jetbrains.kotlin.gradle.dsl.KotlinVersion
 import java.io.File
@@ -104,6 +105,27 @@ fun Project.isSampleOrBenchmarkProject(): Boolean {
             name.endsWith("-benchmark")
 }
 
+private val detektExplicitExclusionReasons = linkedMapOf(
+    "bluetape4k-bom" to "BOM metadata-only project has no Kotlin source.",
+    "bluetape4k-redis" to "Umbrella project delegates to Lettuce and Redisson and has no Kotlin source.",
+    "exposed-jdbc-tests" to "Documented Testcontainers-backed test exception; this project is not registered in this repository.",
+)
+
+fun Project.detektExclusionReason(): String? = when {
+    name in detektExplicitExclusionReasons -> detektExplicitExclusionReasons.getValue(name)
+    isSampleOrBenchmarkProject() -> "Examples, demos, benchmarks, and workshop sources are excluded from library analysis."
+    else -> null
+}
+
+fun Project.isDetektTargetProject(): Boolean = detektExclusionReason() == null
+
+fun Project.detektKotlinSourceFiles(): FileTree = fileTree(projectDir) {
+    include("src/main/kotlin/**/*.kt")
+    include("src/test/kotlin/**/*.kt")
+    exclude("**/build/**")
+    exclude("**/generated/**")
+}
+
 subprojects {
     if (!isSampleOrBenchmarkProject()) {
         apply(plugin = "com.gradleup.nmcp")
@@ -141,6 +163,11 @@ subprojects {
 
         // Kotlin 1.9.20 부터는 pluginId 를 지정해줘야 합니다.
         plugin("org.jetbrains.kotlin.jvm")
+
+        // Detekt — 실제 Kotlin 소스가 있는 library subproject만 분석 대상으로 등록한다.
+        if (isDetektTargetProject()) {
+            plugin("dev.detekt")
+        }
 
         // Atomicfu
         plugin("org.jetbrains.kotlinx.atomicfu")
@@ -302,14 +329,24 @@ subprojects {
             showFullStackTraces = true
         }
 
-        val reportMerge by registering(ReportMergeTask::class) {
-            val file = rootProject.layout.buildDirectory.asFile.get().resolve("reports/detekt/merged.xml")
-            output.set(file)
-        }
         withType<Detekt>().configureEach detekt@{
-            finalizedBy(reportMerge)
-            reportMerge.configure {
-                input.from(this@detekt.xmlReportFile)
+            exclude("**/build/**")
+            exclude("**/generated/**")
+            if (name == "detekt" && project.isDetektTargetProject()) {
+                setSource(project.detektKotlinSourceFiles())
+                reports {
+                    checkstyle.required.set(true)
+                    checkstyle.outputLocation.set(project.layout.buildDirectory.file("reports/detekt/detekt.xml"))
+                }
+                // This issue establishes trustworthy source coverage; rule cleanup is tracked separately.
+                ignoreFailures.set(true)
+                doFirst {
+                    val sourceFiles = source.files
+                    check(sourceFiles.isNotEmpty()) {
+                        "Detekt source scope is empty for $path; refusing a false-green analysis."
+                    }
+                    logger.lifecycle("Detekt source scope for $path: ${sourceFiles.size} Kotlin files")
+                }
             }
         }
 
@@ -994,6 +1031,110 @@ subprojects {
     tasks.matching { it.name.endsWith("ToNmcpRepository") }.configureEach {
         outputs.upToDateWhen { false }
     }
+}
+
+val detektTargetProjects = subprojects
+    .filter(Project::isDetektTargetProject)
+    .sortedBy(Project::getPath)
+
+val detektSourceCoverageReport = layout.buildDirectory.file("reports/detekt/source-coverage.md")
+val detektSourceFilesByProject = detektTargetProjects.associateWith { it.detektKotlinSourceFiles() }
+
+val detektSourceCoverage by tasks.registering {
+    group = LifecycleBasePlugin.VERIFICATION_GROUP
+    description = "Verifies and reports the Kotlin source scope analyzed by Detekt."
+
+    inputs.files(detektSourceFilesByProject.values)
+    outputs.file(detektSourceCoverageReport)
+
+    doLast {
+        val rows = detektSourceFilesByProject.map { (module, sourceFiles) ->
+            val files = sourceFiles.files
+            val mainRoot = module.projectDir.toPath().resolve("src/main/kotlin")
+            val testRoot = module.projectDir.toPath().resolve("src/test/kotlin")
+            val mainCount = files.count { it.toPath().startsWith(mainRoot) }
+            val testCount = files.count { it.toPath().startsWith(testRoot) }
+            module to Triple(mainCount, testCount, files.size)
+        }
+        val emptyModules = rows.filter { (_, counts) -> counts.third == 0 }
+        val totalMain = rows.sumOf { it.second.first }
+        val totalTest = rows.sumOf { it.second.second }
+        val totalFiles = rows.sumOf { it.second.third }
+        val exclusions = (
+            subprojects
+                .mapNotNull { module -> module.detektExclusionReason()?.let { module.path to it } } +
+                detektExplicitExclusionReasons
+                    .filterKeys { moduleName -> subprojects.none { it.name == moduleName } }
+                    .map { (moduleName, reason) -> ":$moduleName" to reason }
+            )
+            .sortedBy { it.first }
+
+        val report = detektSourceCoverageReport.get().asFile
+        report.parentFile.mkdirs()
+        report.writeText(buildString {
+            appendLine("# Detekt source coverage")
+            appendLine()
+            appendLine("- Included modules: ${rows.size}")
+            appendLine("- Kotlin source files: $totalFiles (main: $totalMain, test: $totalTest)")
+            appendLine("- Empty included modules: ${emptyModules.size}")
+            appendLine()
+            appendLine("## Included modules")
+            appendLine()
+            appendLine("| Project | Main Kotlin | Test Kotlin | Total |")
+            appendLine("| --- | ---: | ---: | ---: |")
+            rows.forEach { (module, counts) ->
+                appendLine("| `${module.path}` | ${counts.first} | ${counts.second} | ${counts.third} |")
+            }
+            appendLine()
+            appendLine("## Explicit exclusions")
+            appendLine()
+            if (exclusions.isEmpty()) {
+                appendLine("No explicit exclusions.")
+            } else {
+                exclusions.forEach { (modulePath, reason) ->
+                    appendLine("- `$modulePath` — $reason")
+                }
+            }
+        })
+
+        check(emptyModules.isEmpty()) {
+            "Detekt source coverage is empty for included modules: ${emptyModules.joinToString { it.first.path }}"
+        }
+        logger.lifecycle(
+            "Detekt source coverage: ${rows.size} modules, $totalFiles Kotlin files " +
+                "(main: $totalMain, test: $totalTest)",
+        )
+    }
+}
+
+val detektModuleTasks = detektTargetProjects.map { module ->
+    module.tasks.named<Detekt>("detekt")
+}
+
+val detektReportMerge by tasks.registering(ReportMergeTask::class) {
+    group = LifecycleBasePlugin.VERIFICATION_GROUP
+    description = "Merges XML reports from all Detekt Kotlin subprojects."
+    output.set(layout.buildDirectory.file("reports/detekt/merged.xml"))
+    dependsOn(detektSourceCoverage)
+    detektModuleTasks.forEach { moduleTask ->
+        dependsOn(moduleTask)
+        input.from(moduleTask.flatMap { it.reports.checkstyle.outputLocation })
+    }
+}
+
+detektModuleTasks.forEach { moduleTask ->
+    moduleTask.configure {
+        mustRunAfter(detektSourceCoverage)
+    }
+}
+
+tasks.named<Detekt>("detekt") {
+    group = LifecycleBasePlugin.VERIFICATION_GROUP
+    description = "Analyzes all intended Kotlin library subprojects with Detekt."
+    dependsOn(detektSourceCoverage)
+    dependsOn(detektReportMerge)
+    // The root project is an orchestration boundary; analysis runs in module tasks.
+    onlyIf { false }
 }
 
 val publishableProjects = subprojects.filterNot { project ->
