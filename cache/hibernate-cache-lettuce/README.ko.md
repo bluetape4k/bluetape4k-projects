@@ -43,6 +43,7 @@ cache 폴더 재편으로 소스 위치는 `cache/hibernate-cache-lettuce/`가 �
 ## 최근 변경
 
 - `LettuceNearCacheStorageAccess.evictData()`를 region local-only clear에서 **local + Redis clearAll**로 변경
+- key 및 region eviction 중 Redis 오류를 성공으로 처리하지 않고 호출자에게 전파
 - 테스트에서 `session.get()`을 `session.find()`로 교체해 Hibernate deprecated API 제거
 - One-To-Many / Many-To-One / Many-To-Many 관계 엔티티 캐시 시나리오 테스트 추가
 
@@ -160,6 +161,10 @@ val products: MutableList<Product> = mutableListOf()
 | `evictData(key)`            | L1 + L2 해당 key 삭제                                         |
 | `evictData()` (region 전체) | L1 + L2 전체 제거 (`clearAll()`)                              |
 | 외부 Redis 변경 감지        | RESP3 CLIENT TRACKING push → L1 자동 무효화                   |
+
+### Eviction 실패 계약
+
+`evictData(key)`와 `evictData()`는 L1과 L2를 함께 무효화하는 write-through 연산이다. Redis에서 제거를 완료하지 못하면 backend 예외를 로깅한 뒤 Hibernate에 전파하며, eviction을 성공으로 보고하지 않는다. 로컬 front cache가 먼저 비워진 상태에서 Redis stale entry가 남을 수 있으므로 호출자는 해당 연산을 실패로 처리하고 복구 정책을 적용해야 한다.
 
 ## 지원 코덱
 

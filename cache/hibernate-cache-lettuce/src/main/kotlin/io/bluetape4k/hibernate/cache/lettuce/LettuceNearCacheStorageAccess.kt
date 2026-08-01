@@ -27,6 +27,7 @@ import java.util.Base64
  *   L2 장애 시 예외를 로깅하고 무시한다 (Hibernate 트랜잭션에 영향 없음).
  * - [evictData]: region 전체 evict 시 local + Redis 모두 제거
  * - [evictData] with key: 특정 key만 L1+L2 제거
+ * - eviction 중 Redis 오류가 발생하면 예외를 호출자에게 전파하여 Hibernate가 성공으로 처리하지 않도록 한다.
  */
 class LettuceNearCacheStorageAccess(
     private val regionName: String,
@@ -212,21 +213,31 @@ class LettuceNearCacheStorageAccess(
     /**
      * 특정 키를 캐시(L1+L2)에서 제거한다.
      *
-     * Redis 장애 등 예외 발생 시 예외를 로깅하고 무시한다.
+     * Redis 제거가 완료되지 않으면 예외를 로깅한 뒤 호출자에게 전파한다.
+     * 로컬 캐시는 먼저 제거될 수 있으므로, 호출자는 eviction을 실패한 것으로 처리해야 한다.
      */
     override fun evictData(key: Any) {
-        runCatching { nearCache.remove(cacheKey(key)) }
-            .onFailure { e -> log.warn(e) { "캐시 evict 실패 (region=$regionName, key=$key) → 무시" } }
+        try {
+            nearCache.remove(cacheKey(key))
+        } catch (e: Exception) {
+            log.warn(e) { "캐시 evict 실패 (region=$regionName, key=$key) → 호출자에게 전파" }
+            throw e
+        }
     }
 
     /**
      * region 전체 evict: local + Redis 모두 제거한다.
      *
-     * Redis 장애 등 예외 발생 시 예외를 로깅하고 무시한다.
+     * Redis 전체 제거가 완료되지 않으면 예외를 로깅한 뒤 호출자에게 전파한다.
+     * 로컬 캐시는 먼저 제거될 수 있으므로, 호출자는 eviction을 실패한 것으로 처리해야 한다.
      */
     override fun evictData() {
-        runCatching { nearCache.clearAll() }
-            .onFailure { e -> log.warn(e) { "캐시 전체 evict 실패 (region=$regionName) → 무시" } }
+        try {
+            nearCache.clearAll()
+        } catch (e: Exception) {
+            log.warn(e) { "캐시 전체 evict 실패 (region=$regionName) → 호출자에게 전파" }
+            throw e
+        }
     }
 
     /**
