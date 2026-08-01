@@ -149,6 +149,10 @@ private object DefaultZstdBufferOperations: ZstdBufferOperations {
  * val compressor = ZstdCompressor(level = 10)
  * ```
  *
+ * 압축 데이터의 header에 선언된 원본 크기와 zstd-jni가 실제로 복원한 크기는 정확히
+ * 일치해야 합니다. `ByteArray`와 `ByteBuffer` API는 저장소 유형과 관계없이 이 계약을
+ * 동일하게 적용하며, 불일치하면 [IllegalStateException]을 던집니다.
+ *
  * 참고: [zstd-jni](https://github.com/luben/zstd-jni)
  *
  * @property level 압축 레벨
@@ -305,19 +309,24 @@ class ZstdCompressor private constructor(
                 }
             } catch (failure: ZstdException) {
                 if (failure.errorCode == Zstd.errDstSizeTooSmall()) {
-                    throw IllegalStateException(
-                        "Zstd decompressed payload exceeds declared size=$declaredSize"
-                    )
+                    throw decompressedPayloadExceedsDeclaredSize(declaredSize)
                 }
                 throw failure
             }
-            if (actual != declaredSize.toLong()) {
-                throw IllegalStateException(
-                    "Zstd decompressed size mismatch: expected=$declaredSize, actual=$actual"
-                )
-            }
-            Math.toIntExact(actual)
+            requireExactDecompressedSize(declaredSize, actual)
         }
+
+    private fun decompressedPayloadExceedsDeclaredSize(declaredSize: Int): IllegalStateException =
+        IllegalStateException("Zstd decompressed payload exceeds declared size=$declaredSize")
+
+    private fun requireExactDecompressedSize(declaredSize: Int, actualSize: Long): Int {
+        if (actualSize != declaredSize.toLong()) {
+            throw IllegalStateException(
+                "Zstd decompressed size mismatch: expected=$declaredSize, actual=$actualSize"
+            )
+        }
+        return Math.toIntExact(actualSize)
+    }
 
     /**
      * I/O 압축에서 `doCompress` 함수를 제공합니다.
@@ -356,14 +365,22 @@ class ZstdCompressor private constructor(
 
         log.trace { "sourceSize = $sourceSize" }
 
-        Zstd.decompressByteArray(
-            output,
-            0,
-            output.size,
-            compressed,
-            MAGIC_NUMBER_SIZE,
-            compressed.size - MAGIC_NUMBER_SIZE
-        )
+        val actualSize = try {
+            Zstd.decompressByteArray(
+                output,
+                0,
+                output.size,
+                compressed,
+                MAGIC_NUMBER_SIZE,
+                compressed.size - MAGIC_NUMBER_SIZE
+            )
+        } catch (failure: ZstdException) {
+            if (failure.errorCode == Zstd.errDstSizeTooSmall()) {
+                throw decompressedPayloadExceedsDeclaredSize(sourceSize)
+            }
+            throw failure
+        }
+        requireExactDecompressedSize(sourceSize, actualSize)
 
         return output
     }
