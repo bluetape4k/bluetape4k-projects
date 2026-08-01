@@ -6,9 +6,26 @@ import io.bluetape4k.assertions.shouldBeFalse
 import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.assertions.shouldHaveSize
 import io.bluetape4k.assertions.shouldNotBeNull
+import io.mockk.clearMocks
+import io.mockk.every
+import io.mockk.mockk
+import org.hibernate.Hibernate
+import org.hibernate.proxy.HibernateProxy
+import org.hibernate.proxy.LazyInitializer
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 
 class AbstractJpaEntityUnitTest {
+
+    private val proxy = mockk<HibernateProxy>()
+    private val initializer = mockk<LazyInitializer>()
+
+    @BeforeEach
+    fun setUp() {
+        clearMocks(proxy, initializer)
+        every { proxy.asHibernateProxy() } returns proxy
+        every { proxy.hibernateLazyInitializer } returns initializer
+    }
 
     // 테스트용 구체 엔티티
     class TestEntity(
@@ -17,6 +34,14 @@ class AbstractJpaEntityUnitTest {
     ) : AbstractJpaEntity<Long>() {
         override fun equalProperties(other: Any): Boolean =
             other is TestEntity && name == other.name
+    }
+
+    class OtherEntity(
+        val name: String,
+        override var id: Long? = null,
+    ) : AbstractJpaEntity<Long>() {
+        override fun equalProperties(other: Any): Boolean =
+            other is OtherEntity && name == other.name
     }
 
     @Test
@@ -74,6 +99,31 @@ class AbstractJpaEntityUnitTest {
     }
 
     @Test
+    fun `다른 entity type은 같은 id여도 equals false`() {
+        val testEntity = TestEntity("alice", id = 1L)
+        val otherEntity = OtherEntity("alice", id = 1L)
+
+        testEntity.equals(otherEntity).shouldBeFalse()
+    }
+
+    @Test
+    fun `같은 entity type의 Hibernate proxy는 실제 entity와 equals true`() {
+        val entity = TestEntity("alice", id = 1L)
+        every { initializer.implementation } returns entity
+
+        entity.equals(proxy).shouldBeTrue()
+    }
+
+    @Test
+    fun `다른 entity type을 감싼 Hibernate proxy는 같은 id여도 equals false`() {
+        val entity = TestEntity("alice", id = 1L)
+        val otherEntity = OtherEntity("alice", id = 1L)
+        every { initializer.implementation } returns otherEntity
+
+        entity.equals(proxy).shouldBeFalse()
+    }
+
+    @Test
     fun `persisted와 transient 엔티티는 false`() {
         val persisted = TestEntity("alice", id = 1L)
         val transient = TestEntity("alice")
@@ -83,7 +133,7 @@ class AbstractJpaEntityUnitTest {
     @Test
     fun `null과 비교하면 false`() {
         val entity = TestEntity("test")
-        entity.equals(null).shouldBeFalse()
+        (entity == null).shouldBeFalse()
     }
 
     @Test
@@ -113,9 +163,24 @@ class AbstractJpaEntityUnitTest {
     }
 
     @Test
-    fun `hashCode는 persisted 엔티티에서 id hashCode를 반환한다`() {
+    fun `hashCode는 persisted 엔티티에서도 effective type hashCode를 반환한다`() {
         val entity = TestEntity("test", id = 42L)
-        entity.hashCode() shouldBeEqualTo 42L.hashCode()
+        entity.hashCode() shouldBeEqualTo Hibernate.getClass(entity).hashCode()
+    }
+
+    @Test
+    fun `transient에서 persisted로 전환해도 hash collection 조회가 유지된다`() {
+        val entity = TestEntity("alice")
+        val hashBefore = entity.hashCode()
+        val assignedId = hashBefore.toLong() + 1L
+        val entities = hashSetOf(entity)
+        val values = hashMapOf(entity to "value")
+
+        entity.id = assignedId
+
+        entity.hashCode() shouldBeEqualTo hashBefore
+        entities.contains(entity).shouldBeTrue()
+        values[entity] shouldBeEqualTo "value"
     }
 
     @Test
