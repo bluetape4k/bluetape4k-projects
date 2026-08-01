@@ -374,12 +374,22 @@ jobs:
             [ $attempt -lt 3 ] && sleep 10 || exit 1
           done
 
+      - name: Verify Detekt source coverage
+        run: |
+          test -s build/reports/detekt/source-coverage.md
+          grep -Eq '^- Included modules: [1-9][0-9]*$' build/reports/detekt/source-coverage.md
+          grep -Eq '^- Kotlin source files: [1-9][0-9]* \(main: [0-9]+, test: [0-9]+\)$' build/reports/detekt/source-coverage.md
+          grep -q '^- Empty included modules: 0$' build/reports/detekt/source-coverage.md
+
       - name: Upload detekt report
         if: always()
         uses: actions/upload-artifact@v7
         with:
           name: nightly-detekt-report
-          path: '**/build/reports/detekt/*.xml'
+          path: |
+            **/build/reports/detekt/*.xml
+            build/reports/detekt/source-coverage.md
+          if-no-files-found: error
           retention-days: 14
 
   # ── Core 모듈 테스트 ──────────────────────────────────────────────────────

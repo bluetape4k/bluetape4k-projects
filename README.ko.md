@@ -313,6 +313,13 @@ Jib으로 Mock Server Docker 이미지를 다시 빌드할 때는 Gradle configu
 ./gradlew detekt
 ```
 
+이 명령은 분석 대상 library subproject의 Kotlin 소스를 검사하며, 포함된
+프로젝트의 소스가 비어 있으면 실패합니다. 분석 모듈/파일 영수증은
+`build/reports/detekt/source-coverage.md`에, 병합된 Checkstyle 결과는
+`build/reports/detekt/merged.xml`에 생성됩니다. examples·demo·benchmark·workshop
+소스, 메타데이터 전용 프로젝트와 문서화된 `exposed-jdbc-tests` 예외는 영수증에
+명시적인 제외 항목으로 기록됩니다.
+
 ## 배포 방법
 
 버전 확인은 `gradle.properties` 파일에서 확인

@@ -312,6 +312,13 @@ The legacy `x-obsoleted/` directory was removed. The table below documents the f
 ./gradlew detekt
 ```
 
+The command analyzes Kotlin sources in the intended library subprojects and
+fails if an included project has no source files. The source/module receipt is
+written to `build/reports/detekt/source-coverage.md`; the merged Checkstyle
+findings are written to `build/reports/detekt/merged.xml`. Examples, demos,
+benchmarks, workshop sources, metadata-only projects, and the documented
+`exposed-jdbc-tests` exception are listed as explicit exclusions in the receipt.
+
 ## Publishing
 
 Check `gradle.properties` for the current version:
