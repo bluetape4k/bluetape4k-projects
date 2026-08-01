@@ -1,7 +1,9 @@
 package io.bluetape4k.coroutines.flow.extensions.subject
 
 import io.bluetape4k.assertions.assertFailsWith
+import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeInstanceOf
+import io.bluetape4k.assertions.shouldBeSameInstanceAs
 import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.junit5.awaitility.untilSuspending
 import io.bluetape4k.junit5.coroutines.withSingleThread
@@ -9,6 +11,7 @@ import io.bluetape4k.logging.coroutines.KLoggingChannel
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.cancelAndJoin
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.withTimeout
@@ -348,5 +351,299 @@ class SubjectCancellationTest {
 
         releaseCollector.complete(Unit)
         job.cancelAndJoin()
+    }
+
+    @Test
+    fun `PublishSubject terminal fanout continues after caller cancellation`() = runTest {
+        val subject = PublishSubject<Int>()
+        val firstCollectorEntered = CompletableDeferred<Unit>()
+        val releaseFirstCollector = CompletableDeferred<Unit>()
+        val secondCollectorCompleted = CompletableDeferred<Unit>()
+
+        val firstCollector = launch {
+            subject.collect {
+                firstCollectorEntered.complete(Unit)
+                releaseFirstCollector.await()
+            }
+        }
+        val secondCollector = launch {
+            subject.collect { }
+            secondCollectorCompleted.complete(Unit)
+        }
+
+        subject.awaitCollectors(2)
+        subject.emit(1)
+        firstCollectorEntered.await()
+
+        val releaseJob = launch {
+            delay(20.milliseconds)
+            releaseFirstCollector.complete(Unit)
+        }
+        assertFailsWith<TimeoutCancellationException> {
+            withTimeout(10.milliseconds) {
+                subject.complete()
+            }
+        }
+        releaseJob.join()
+
+        withTimeout(1.seconds) {
+            secondCollectorCompleted.await()
+        }
+
+        firstCollector.cancelAndJoin()
+        secondCollector.cancelAndJoin()
+        subject.collectorCount shouldBeEqualTo 0
+    }
+
+    @Test
+    fun `PublishSubject error fanout continues after caller cancellation`() = runTest {
+        val subject = PublishSubject<Int>()
+        val failure = IllegalStateException("boom")
+        val firstCollectorEntered = CompletableDeferred<Unit>()
+        val releaseFirstCollector = CompletableDeferred<Unit>()
+        val secondCollectorError = CompletableDeferred<Throwable>()
+
+        val firstCollector = launch {
+            try {
+                subject.collect {
+                    firstCollectorEntered.complete(Unit)
+                    releaseFirstCollector.await()
+                }
+            } catch (_: IllegalStateException) {
+            }
+        }
+        val secondCollector = launch {
+            try {
+                subject.collect { }
+            } catch (ex: IllegalStateException) {
+                secondCollectorError.complete(ex)
+            }
+        }
+
+        subject.awaitCollectors(2)
+        subject.emit(1)
+        firstCollectorEntered.await()
+
+        val releaseJob = launch {
+            delay(20.milliseconds)
+            releaseFirstCollector.complete(Unit)
+        }
+        assertFailsWith<TimeoutCancellationException> {
+            withTimeout(10.milliseconds) {
+                subject.emitError(failure)
+            }
+        }
+        releaseJob.join()
+
+        val actual = withTimeout(1.seconds) {
+            secondCollectorError.await()
+        }
+        (actual.cause ?: actual) shouldBeSameInstanceAs failure
+
+        firstCollector.cancelAndJoin()
+        secondCollector.cancelAndJoin()
+        subject.collectorCount shouldBeEqualTo 0
+    }
+
+    @Test
+    fun `PublishSubject complete continues after first collector cancellation`() = runTest {
+        val subject = PublishSubject<Int>()
+        val secondCollectorCompleted = CompletableDeferred<Unit>()
+
+        val firstCollector = launch {
+            subject.collect { }
+        }
+        val secondCollector = launch {
+            subject.collect { }
+            secondCollectorCompleted.complete(Unit)
+        }
+
+        subject.awaitCollectors(2)
+        firstCollector.cancelAndJoin()
+        subject.complete()
+
+        withTimeout(1.seconds) {
+            secondCollectorCompleted.await()
+        }
+
+        secondCollector.cancelAndJoin()
+        subject.collectorCount shouldBeEqualTo 0
+    }
+
+    @Test
+    fun `PublishSubject error fanout continues after first collector cancellation`() = runTest {
+        val subject = PublishSubject<Int>()
+        val failure = IllegalStateException("boom")
+        val secondCollectorError = CompletableDeferred<Throwable>()
+
+        val firstCollector = launch {
+            subject.collect { }
+        }
+        val secondCollector = launch {
+            try {
+                subject.collect { }
+            } catch (ex: IllegalStateException) {
+                secondCollectorError.complete(ex)
+            }
+        }
+
+        subject.awaitCollectors(2)
+        firstCollector.cancelAndJoin()
+        subject.emitError(failure)
+
+        val actual = withTimeout(1.seconds) {
+            secondCollectorError.await()
+        }
+        (actual.cause ?: actual) shouldBeSameInstanceAs failure
+
+        secondCollector.cancelAndJoin()
+        subject.collectorCount shouldBeEqualTo 0
+    }
+
+    @Test
+    fun `MulticastSubject terminal fanout continues after caller cancellation`() = runTest {
+        val subject = MulticastSubject<Int>(2)
+        val firstCollectorEntered = CompletableDeferred<Unit>()
+        val releaseFirstCollector = CompletableDeferred<Unit>()
+        val secondCollectorCompleted = CompletableDeferred<Unit>()
+
+        val firstCollector = launch {
+            subject.collect {
+                firstCollectorEntered.complete(Unit)
+                releaseFirstCollector.await()
+            }
+        }
+        val secondCollector = launch {
+            subject.collect { }
+            secondCollectorCompleted.complete(Unit)
+        }
+
+        subject.awaitCollectors(2)
+        subject.emit(1)
+        firstCollectorEntered.await()
+
+        val releaseJob = launch {
+            delay(20.milliseconds)
+            releaseFirstCollector.complete(Unit)
+        }
+        assertFailsWith<TimeoutCancellationException> {
+            withTimeout(10.milliseconds) {
+                subject.complete()
+            }
+        }
+        releaseJob.join()
+
+        withTimeout(1.seconds) {
+            secondCollectorCompleted.await()
+        }
+
+        firstCollector.cancelAndJoin()
+        secondCollector.cancelAndJoin()
+        subject.collectorCount shouldBeEqualTo 0
+    }
+
+    @Test
+    fun `MulticastSubject error fanout continues after caller cancellation`() = runTest {
+        val subject = MulticastSubject<Int>(2)
+        val failure = IllegalStateException("boom")
+        val firstCollectorEntered = CompletableDeferred<Unit>()
+        val releaseFirstCollector = CompletableDeferred<Unit>()
+        val secondCollectorError = CompletableDeferred<Throwable>()
+
+        val firstCollector = launch {
+            try {
+                subject.collect {
+                    firstCollectorEntered.complete(Unit)
+                    releaseFirstCollector.await()
+                }
+            } catch (_: IllegalStateException) {
+            }
+        }
+        val secondCollector = launch {
+            try {
+                subject.collect { }
+            } catch (ex: IllegalStateException) {
+                secondCollectorError.complete(ex)
+            }
+        }
+
+        subject.awaitCollectors(2)
+        subject.emit(1)
+        firstCollectorEntered.await()
+
+        val releaseJob = launch {
+            delay(20.milliseconds)
+            releaseFirstCollector.complete(Unit)
+        }
+        assertFailsWith<TimeoutCancellationException> {
+            withTimeout(10.milliseconds) {
+                subject.emitError(failure)
+            }
+        }
+        releaseJob.join()
+
+        val actual = withTimeout(1.seconds) {
+            secondCollectorError.await()
+        }
+        (actual.cause ?: actual) shouldBeSameInstanceAs failure
+
+        firstCollector.cancelAndJoin()
+        secondCollector.cancelAndJoin()
+        subject.collectorCount shouldBeEqualTo 0
+    }
+
+    @Test
+    fun `MulticastSubject complete continues after first collector cancellation`() = runTest {
+        val subject = MulticastSubject<Int>(2)
+        val secondCollectorCompleted = CompletableDeferred<Unit>()
+
+        val firstCollector = launch {
+            subject.collect { }
+        }
+        val secondCollector = launch {
+            subject.collect { }
+            secondCollectorCompleted.complete(Unit)
+        }
+
+        subject.awaitCollectors(2)
+        firstCollector.cancelAndJoin()
+        subject.complete()
+
+        withTimeout(1.seconds) {
+            secondCollectorCompleted.await()
+        }
+
+        secondCollector.cancelAndJoin()
+        subject.collectorCount shouldBeEqualTo 0
+    }
+
+    @Test
+    fun `MulticastSubject error fanout continues after first collector cancellation`() = runTest {
+        val subject = MulticastSubject<Int>(2)
+        val failure = IllegalStateException("boom")
+        val secondCollectorError = CompletableDeferred<Throwable>()
+
+        val firstCollector = launch {
+            subject.collect { }
+        }
+        val secondCollector = launch {
+            try {
+                subject.collect { }
+            } catch (ex: IllegalStateException) {
+                secondCollectorError.complete(ex)
+            }
+        }
+
+        subject.awaitCollectors(2)
+        firstCollector.cancelAndJoin()
+        subject.emitError(failure)
+
+        val actual = withTimeout(1.seconds) {
+            secondCollectorError.await()
+        }
+        (actual.cause ?: actual) shouldBeSameInstanceAs failure
+
+        secondCollector.cancelAndJoin()
+        subject.collectorCount shouldBeEqualTo 0
     }
 }

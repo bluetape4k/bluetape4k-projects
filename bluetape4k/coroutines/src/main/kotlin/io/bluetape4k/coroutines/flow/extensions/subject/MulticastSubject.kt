@@ -4,13 +4,13 @@ import io.bluetape4k.coroutines.flow.exceptions.FlowOperationException
 import io.bluetape4k.coroutines.flow.extensions.Resumable
 import io.bluetape4k.coroutines.flow.extensions.ResumableCollector
 import io.bluetape4k.logging.coroutines.KLoggingChannel
-import io.bluetape4k.logging.debug
 import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.AbstractFlow
 import kotlinx.coroutines.flow.FlowCollector
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 
@@ -118,6 +118,7 @@ class MulticastSubject<T> private constructor(
      * - 최초 terminal 신호만 적용하며 이미 종료된 이후 재호출하면 추가 동작 없이 반환합니다.
      * - `terminated`에 예외를 저장한 뒤 collector 배열을 종료 상태로 교체합니다.
      * - 교체 시점의 collector 각각에 `error(ex)`를 호출합니다.
+     * - 호출자 취소가 fanout 중 발생해도 모든 collector에 오류를 전달한 뒤 원래 취소를 다시 전파합니다.
      * - 종료 이후 신규 collect는 등록에 실패하고 저장된 예외가 재전파될 수 있습니다.
      *
      * @param ex 종료 원인 예외입니다.
@@ -129,15 +130,8 @@ class MulticastSubject<T> private constructor(
         }
 
         terminated = ex
-        collectors.getAndSet(TERMINATED as Array<ResumableCollector<T>>)
-            .forEach { collector ->
-                try {
-                    collector.error(ex)
-                } catch (e: CancellationException) {
-                    currentCoroutineContext().ensureActive() // 부모 취소 시 rethrow
-                    log.debug { "$collector 는 개별 취소됨." } // 이 collector만 취소된 경우
-                }
-            }
+        val colls = collectors.getAndSet(TERMINATED as Array<ResumableCollector<T>>)
+        notifyTerminalCollectors(colls, { error(ex) }, ex)
     }
 
     /**
@@ -148,6 +142,7 @@ class MulticastSubject<T> private constructor(
      * - 최초 terminal 신호만 적용하며 이미 종료된 이후 재호출하면 추가 동작 없이 반환합니다.
      * - 내부 종료 원인을 `DONE`으로 기록하고 collector 배열을 종료 상태로 교체합니다.
      * - 교체 시점의 collector 각각에 `complete()`를 호출합니다.
+     * - 호출자 취소가 fanout 중 발생해도 모든 collector를 깨운 뒤 원래 취소를 다시 전파합니다.
      */
     @Suppress("UNCHECKED_CAST")
     override suspend fun complete() = signalMutex.withLock {
@@ -156,15 +151,46 @@ class MulticastSubject<T> private constructor(
         }
 
         terminated = DONE
-        collectors.getAndSet(TERMINATED as Array<ResumableCollector<T>>)
-            .forEach { collector ->
-                try {
-                    collector.complete()
-                } catch (e: CancellationException) {
-                    currentCoroutineContext().ensureActive() // 부모 취소 시 rethrow
-                    log.debug { "$collector 는 개별 취소됨." } // 이 collector만 취소된 경우
+        val colls = collectors.getAndSet(TERMINATED as Array<ResumableCollector<T>>)
+        notifyTerminalCollectors(colls, { complete() }, null)
+    }
+
+    /**
+     * terminal 신호를 스냅샷 전체에 전달하고 호출자 취소는 fanout 이후 다시 전파합니다.
+     *
+     * ## 동작/계약
+     * - 호출자가 취소된 뒤에는 consumer 준비를 다시 기다리지 않고 terminal 상태와 wake-up을 기록합니다.
+     * - 개별 collector 취소는 해당 collector만 깨운 뒤 다음 collector로 진행합니다.
+     * - 호출자 취소가 있었다면 최초 `CancellationException`을 fanout 완료 후 다시 던집니다.
+     */
+    private suspend fun notifyTerminalCollectors(
+        collectors: Array<ResumableCollector<T>>,
+        signal: suspend ResumableCollector<T>.() -> Unit,
+        terminalError: Throwable?,
+    ) {
+        var callerCancellation: CancellationException? = null
+
+        collectors.forEach { collector ->
+            if (callerCancellation != null) {
+                collector.terminate(terminalError)
+                return@forEach
+            }
+
+            try {
+                currentCoroutineContext().ensureActive()
+                collector.signal()
+            } catch (e: CancellationException) {
+                if (currentCoroutineContext().isActive) {
+                    collector.terminate(terminalError)
+                } else {
+                    callerCancellation = e
+                    collector.terminate(terminalError)
                 }
             }
+        }
+
+        callerCancellation?.let { throw it }
+        currentCoroutineContext().ensureActive()
     }
 
     /**

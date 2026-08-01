@@ -9,6 +9,7 @@ import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.AbstractFlow
 import kotlinx.coroutines.flow.FlowCollector
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 
@@ -134,6 +135,7 @@ class PublishSubject<T>: AbstractFlow<T>(), SubjectApi<T> {
      * ## 동작/계약
      * - 진행 중인 값 전파와 다른 종료 신호가 끝날 때까지 Subject 단위로 대기합니다.
      * - 최초 1회 호출에서만 `error`를 저장하고 collector 배열을 종료 상태로 교체합니다.
+     * - 호출자 취소가 fanout 중 발생해도 스냅샷의 모든 collector에 오류를 전달한 뒤 원래 취소를 다시 전파합니다.
      * - 이미 종료된 이후 재호출하면 추가 동작 없이 반환합니다.
      * - 이후 신규 collect는 저장된 오류를 다시 전파할 수 있습니다.
      *
@@ -152,13 +154,7 @@ class PublishSubject<T>: AbstractFlow<T>(), SubjectApi<T> {
 
         this.error = ex
         val colls = collectors.getAndSet(TERMINATED as Array<ResumableCollector<T>>)
-        colls.forEach { collector ->
-            try {
-                collector.error(ex)
-            } catch (e: CancellationException) {
-                currentCoroutineContext().ensureActive()
-            }
-        }
+        notifyTerminalCollectors(colls, { error(ex) }, ex)
     }
 
     /**
@@ -167,18 +163,51 @@ class PublishSubject<T>: AbstractFlow<T>(), SubjectApi<T> {
      * ## 동작/계약
      * - 진행 중인 값 전파와 다른 종료 신호가 끝날 때까지 Subject 단위로 대기합니다.
      * - collector 배열을 종료 상태로 교체한 뒤 각 collector에 `complete()`를 호출합니다.
+     * - 호출자 취소가 fanout 중 발생해도 스냅샷의 모든 collector를 깨운 뒤 원래 취소를 다시 전파합니다.
      * - 완료 이후 신규 collect는 즉시 반환될 수 있으며 과거 값은 재생되지 않습니다.
      * - 종료 전 등록된 collector가 없으면 상태 전환만 수행하고 반환합니다.
      */
     override suspend fun complete() = signalMutex.withLock {
         val colls = collectors.getAndSet(TERMINATED as Array<ResumableCollector<T>>)
-        colls.forEach { collector ->
+        notifyTerminalCollectors(colls, { complete() }, null)
+    }
+
+    /**
+     * terminal 신호를 스냅샷 전체에 전달하고 호출자 취소는 fanout 이후 다시 전파합니다.
+     *
+     * ## 동작/계약
+     * - 호출자가 취소된 뒤에는 consumer 준비를 다시 기다리지 않고 terminal 상태와 wake-up을 기록합니다.
+     * - 개별 collector 취소는 해당 collector만 깨운 뒤 다음 collector로 진행합니다.
+     * - 호출자 취소가 있었다면 최초 `CancellationException`을 fanout 완료 후 다시 던집니다.
+     */
+    private suspend fun notifyTerminalCollectors(
+        collectors: Array<ResumableCollector<T>>,
+        signal: suspend ResumableCollector<T>.() -> Unit,
+        terminalError: Throwable?,
+    ) {
+        var callerCancellation: CancellationException? = null
+
+        collectors.forEach { collector ->
+            if (callerCancellation != null) {
+                collector.terminate(terminalError)
+                return@forEach
+            }
+
             try {
-                collector.complete()
-            } catch (e: CancellationException) {
                 currentCoroutineContext().ensureActive()
+                collector.signal()
+            } catch (e: CancellationException) {
+                if (currentCoroutineContext().isActive) {
+                    collector.terminate(terminalError)
+                } else {
+                    callerCancellation = e
+                    collector.terminate(terminalError)
+                }
             }
         }
+
+        callerCancellation?.let { throw it }
+        currentCoroutineContext().ensureActive()
     }
 
     private fun add(inner: ResumableCollector<T>): Boolean {
