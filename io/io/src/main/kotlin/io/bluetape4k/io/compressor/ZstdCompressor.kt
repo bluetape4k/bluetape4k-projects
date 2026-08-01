@@ -151,7 +151,9 @@ private object DefaultZstdBufferOperations: ZstdBufferOperations {
  *
  * 압축 데이터의 header에 선언된 원본 크기와 zstd-jni가 실제로 복원한 크기는 정확히
  * 일치해야 합니다. `ByteArray`와 `ByteBuffer` API는 저장소 유형과 관계없이 이 계약을
- * 동일하게 적용하며, 불일치하면 [IllegalStateException]을 던집니다.
+ * 동일하게 적용하며, 불일치하면 [IllegalStateException]을 던집니다. 비어 있지 않은
+ * `ByteBuffer` 압축에서 native codec이 반환하는 기록량은 양수여야 하며, `0`은 유효한
+ * 성공 결과로 취급하지 않습니다.
  *
  * 참고: [zstd-jni](https://github.com/luben/zstd-jni)
  *
@@ -259,7 +261,7 @@ class ZstdCompressor private constructor(
                 if (failure.errorCode == Zstd.errDstSizeTooSmall()) throw BufferOverflowException()
                 throw failure
             }
-            check(payloadWritten in 0L..payloadCapacity.toLong()) {
+            check(payloadWritten in 1L..payloadCapacity.toLong()) {
                 "Zstd compression returned invalid size=$payloadWritten, payloadCapacity=$payloadCapacity"
             }
             Math.addExact(MAGIC_NUMBER_SIZE, Math.toIntExact(payloadWritten))
