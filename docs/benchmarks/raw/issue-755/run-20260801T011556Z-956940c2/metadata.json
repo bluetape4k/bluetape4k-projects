@@ -1,0 +1,27 @@
+{
+  "actualJvmArgs": [
+    "-XX:ThreadPriorityPolicy=1",
+    "-XX:+UnlockExperimentalVMOptions",
+    "-XX:+EnableJVMCIProduct",
+    "-XX:-UnlockExperimentalVMOptions",
+    "-Xms1g",
+    "-Xmx1g",
+    "-XX:+UseG1GC"
+  ],
+  "commit": "c0ba3dc5e72851370257584ddb99c9785111199b",
+  "cpu": "Apple M4 Pro",
+  "dependenciesSha256": "d36bf07db0564fd51237be4adb52622d68c9c72fd62c94777184c45a0dbe0e06",
+  "gc": "G1",
+  "jarSha256": "540a36a7011bd1a9205b1933123edb5482cbb80a752c09ff823e09451d6f24c3",
+  "jdk": "21.0.12",
+  "jmhVersion": "1.37",
+  "jvm": "Java HotSpot(TM) 64-Bit Server VM",
+  "jvmExecutable": "/Library/Java/JavaVirtualMachines/graalvm-jdk-21/Contents/Home/bin/java",
+  "os": "macOS-26.5.2-arm64-arm-64bit",
+  "profile": "canonical",
+  "runId": "run-20260801T011556Z-956940c2",
+  "schemaVersion": 1,
+  "stateScope": "Thread",
+  "tree": "3b88638ac2bf4f09e7a261b6f46a6c87191d1cbe",
+  "vmVersion": "21.0.12+7-LTS-jvmci-23.1-b96"
+}

@@ -63,6 +63,9 @@ DELIVERY_ALLOWLIST = (
     "io/io/README.ko.md",
     "CHANGELOG.md",
     "docs/lessons/2026-07-21-issue-755-bytebuffer-compressor.md",
+    "scripts/check-compressor-buffer-docs.py",
+    "io/io/scripts/run-bytebuffer-compressor-evidence.py",
+    "io/io/scripts/test_run_bytebuffer_compressor_evidence.py",
 )
 RUN_ID_PATTERN = re.compile(r"run-[0-9]{8}T[0-9]{6}Z-[0-9a-f]{8}")
 

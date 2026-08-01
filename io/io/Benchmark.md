@@ -75,3 +75,13 @@ Issue #746 adds a deterministic compressor-only matrix for cross-ecosystem compa
 
 Detailed report and raw artifacts:
 [`docs/benchmarks/2026-06-11-io-same-condition-compressor-benchmark.md`](../../docs/benchmarks/2026-06-11-io-same-condition-compressor-benchmark.md).
+
+## Caller-owned ByteBuffer Allocation
+
+Issues #755/#1260 add a two-run JMH GC-profiler matrix for caller-owned compressor targets. The canonical evidence accepts all LZ4 and Deflate storage pairings, matched heap/direct Zstd pairings, and Snappy direct compression. Snappy direct decompression reduces allocation but remains adoption-ineligible because validation-first decoding regressed medium/large throughput by about 37–41%.
+
+- Runner: `python3 io/io/scripts/run-bytebuffer-compressor-evidence.py`
+- Result: 63 accepted and 33 ineligible cells; no unresolved verdicts.
+- Report: [`docs/benchmarks/2026-07-21-bytebuffer-compressor-allocation.md`](../../docs/benchmarks/2026-07-21-bytebuffer-compressor-allocation.md)
+- Raw artifacts: [`docs/benchmarks/raw/issue-755/`](../../docs/benchmarks/raw/issue-755/)
+- Chart: not produced; the committed CSV is the numeric source of truth.

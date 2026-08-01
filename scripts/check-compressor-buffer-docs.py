@@ -95,12 +95,12 @@ def validate_readmes() -> None:
         if en_code != ko_code:
             fail(f"README {language} example locale parity drift")
     expected_matrix = {
-        "LZ4": ("optimized", "optimized", "optimized", "eligible, not yet measured"),
-        "Deflate": ("optimized", "optimized", "optimized", "eligible, not yet measured"),
+        "LZ4": ("optimized", "optimized", "optimized", "accepted for all pairs"),
+        "Deflate": ("optimized", "optimized", "optimized", "accepted for all pairs"),
         "Snappy": ("compatibility fallback", "optimized", "compatibility fallback",
-                   "eligible for direct pair, not yet measured"),
+                   "accepted for direct compression only"),
         "Zstd": ("optimized", "optimized", "compatibility fallback",
-                 "eligible, not yet measured"),
+                 "accepted for matched pairs"),
         "Other codecs": ("compatibility fallback", "compatibility fallback", "compatibility fallback", "ineligible"),
     }
     if en_matrix != expected_matrix:
@@ -108,39 +108,39 @@ def validate_readmes() -> None:
 
     require_tokens(
         sections["en"]["issue-755-storage-matrix"],
-        ("`optimized` means", "backend `ByteBuffer` path", "not a throughput claim",
-         "measured allocation improvement"),
+        ("`optimized` means", "backend `ByteBuffer` path", "canonical JMH GC-profiler runs",
+         "not a general throughput or zero-allocation claim"),
         "English optimized capability boundary",
     )
     require_tokens(
         sections["ko"]["issue-755-storage-matrix"],
-        ("`optimized`는", "backend `ByteBuffer` 경로", "처리량 개선을 주장하지 않으며",
-         "측정된 allocation 개선"),
+        ("`optimized`는", "backend `ByteBuffer` 경로", "canonical JMH GC-profiler run",
+         "일반적인 처리량 향상이나 zero-allocation"),
         "Korean optimized capability boundary",
     )
     require_tokens(
         sections["en"]["issue-755-storage-matrix"],
         ("Snappy.maxCompressedLength(source.remaining())", "smaller direct target",
-         "compatibility fallback", "validates the complete payload",
+         "compatibility fallback", "validation-first decoding",
          "cannot enforce an arbitrary caller target limit"),
         "English Snappy dispatch boundary",
     )
     require_tokens(
         sections["ko"]["issue-755-storage-matrix"],
         ("Snappy.maxCompressedLength(source.remaining())", "그보다 작은 direct target",
-         "compatibility fallback", "payload 전체", "임의 limit"),
+         "compatibility fallback", "validation-first decode", "임의 limit"),
         "Korean Snappy dispatch boundary",
     )
     require_tokens(
         sections["en"]["issue-755-storage-matrix"],
         ("Zstd.compressBound(source.remaining()) + 4", "smaller target",
-         "declared original size", "returned `Long`", "allocation evidence remains pending"),
+         "declared original size", "returned `Long`", "passed the allocation and throughput gates"),
         "English Zstd dispatch boundary",
     )
     require_tokens(
         sections["ko"]["issue-755-storage-matrix"],
         ("Zstd.compressBound(source.remaining()) + 4", "안전 상한보다 작은 target",
-         "header에 선언된 원본 크기", "반환된 `Long`", "allocation 근거는 아직 측정 전"),
+         "header에 선언된 원본 크기", "반환된 `Long`", "allocation과 throughput gate를 통과"),
         "Korean Zstd dispatch boundary",
     )
 

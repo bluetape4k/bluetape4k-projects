@@ -29,6 +29,12 @@
   fallback pairings are correctness-only. As with standard Java interface
   evolution, an implementation inheriting another erased-signature-equivalent
   default may require an explicit override and is not claimed conflict-free.
+- Two reproducible canonical JMH GC-profiler runs accepted lower-allocation
+  adoption for all LZ4 and Deflate storage pairings, matched heap/direct Zstd
+  pairings, and Snappy direct compression. Snappy direct decompression remains
+  adoption-ineligible because validation-first decoding regressed medium/large
+  throughput by about 37-41% despite reducing allocation
+  ([#1260](https://github.com/bluetape4k/bluetape4k-projects/issues/1260), [evidence](docs/benchmarks/2026-07-21-bytebuffer-compressor-allocation.md)).
 <!-- issue-755-migration:end -->
 <!-- issue-755-rollback:start -->
 - If a codec-native override proves defective, a patch keeps the public default
