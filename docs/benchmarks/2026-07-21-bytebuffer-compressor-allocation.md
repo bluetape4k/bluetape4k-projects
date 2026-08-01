@@ -24,10 +24,10 @@
 - Operations: compression, decompression
 - Storage: heap, direct, heap-to-direct, direct-to-heap
 - Payloads: small 1,147 B, medium 65,718 B, large 524,349 B
-- Allocation gate: 두 run 모두에서 candidate `gc.alloc.rate.norm`이 baseline보다 payload의 5%
-  이상 낮고, small에서 large로 갈수록 절감량이 커져야 한다.
-- Throughput guard: allocation 개선이 안전성 검사 비용으로 뚜렷한 처리량 회귀를 만들면 자동
-  채택하지 않고 design review 대상으로 분리한다.
+- Allocation gate: 두 run 모두에서 candidate `gc.alloc.rate.norm`이 baseline보다 5% 이상
+  낮고 error interval이 겹치지 않으며, small에서 large로 갈수록 절감량이 커져야 한다.
+- Throughput guard: 두 run 모두에서 candidate throughput이 baseline보다 20% 이상 낮고 error
+  interval이 겹치지 않으면 자동 채택하지 않고 design review 대상으로 분리한다.
 
 ## 실행 조건과 불변 identity
 
