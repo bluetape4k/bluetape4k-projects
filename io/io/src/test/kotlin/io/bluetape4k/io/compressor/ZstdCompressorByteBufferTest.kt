@@ -97,10 +97,10 @@ class ZstdCompressorByteBufferTest {
 
     @Test
     fun `compression passes exact payload capacity after the four-byte header`() {
-        val operations = RecordingZstdBufferOperations(compressResult = 0)
+        val operations = RecordingZstdBufferOperations(compressResult = 1)
         val testCompressor = ZstdCompressor.forTesting(ZstdCompressor.DEFAULT_LEVEL, operations)
 
-        (0 until Int.SIZE_BYTES).forEach { capacity ->
+        (0..Int.SIZE_BYTES).forEach { capacity ->
             assertFailsWith<BufferOverflowException> {
                 testCompressor.compress(
                     CompressorByteBufferTestSupport.direct(byteArrayOf(1)),
@@ -115,11 +115,80 @@ class ZstdCompressorByteBufferTest {
             Int.SIZE_BYTES + payloadCapacity,
             direct = true,
         )
-        testCompressor.compress(source, target) shouldBeEqualTo Int.SIZE_BYTES
+        testCompressor.compress(source, target) shouldBeEqualTo Int.SIZE_BYTES + 1
 
         operations.compressionTargetLength shouldBeEqualTo payloadCapacity
         operations.compressionSourceOffset shouldBeEqualTo source.position()
-        operations.compressionTargetOffset shouldBeEqualTo target.position()
+        operations.compressionTargetOffset shouldBeEqualTo target.position() - 1
+    }
+
+    @Test
+    fun `native zero compression result is rejected for heap and direct paths`() {
+        val payload = byteArrayOf(1, 2, 3)
+
+        listOf(false, true).forEach { direct ->
+            val operations = RecordingZstdBufferOperations(compressResult = 0)
+            val testCompressor = ZstdCompressor.forTesting(ZstdCompressor.DEFAULT_LEVEL, operations)
+            val source = if (direct) {
+                CompressorByteBufferTestSupport.direct(payload)
+            } else {
+                CompressorByteBufferTestSupport.heap(payload)
+            }
+            val target = CompressorByteBufferTestSupport.writableTarget(
+                Int.SIZE_BYTES + Zstd.compressBound(payload.size.toLong()).toInt(),
+                direct = direct,
+            )
+            val sourcePosition = source.position()
+            val targetPosition = target.position()
+            val payloadCapacity = target.remaining() - Int.SIZE_BYTES
+
+            assertFailsWith<IllegalStateException> {
+                testCompressor.compress(source, target)
+            }.message shouldBeEqualTo
+                    "Zstd compression returned invalid size=0, payloadCapacity=$payloadCapacity"
+
+            source.position() shouldBeEqualTo sourcePosition
+            target.position() shouldBeEqualTo targetPosition
+            operations.compressInvocations.get() shouldBeEqualTo 1
+        }
+    }
+
+    @Test
+    fun `compression rejects the exact four-byte header-only target boundary`() {
+        val operations = RecordingZstdBufferOperations()
+        val testCompressor = ZstdCompressor.forTesting(ZstdCompressor.DEFAULT_LEVEL, operations)
+        val source = CompressorByteBufferTestSupport.direct(byteArrayOf(1))
+        val target = CompressorByteBufferTestSupport.writableTarget(Int.SIZE_BYTES, direct = true)
+        val sourcePosition = source.position()
+        val targetPosition = target.position()
+
+        assertFailsWith<BufferOverflowException> {
+            testCompressor.compress(source, target)
+        }
+
+        source.position() shouldBeEqualTo sourcePosition
+        target.position() shouldBeEqualTo targetPosition
+        operations.compressInvocations.get() shouldBeEqualTo 0
+    }
+
+    @Test
+    fun `direct read-only source uses the optimized native path`() {
+        val operations = RecordingZstdBufferOperations(compressResult = 1)
+        val testCompressor = ZstdCompressor.forTesting(ZstdCompressor.DEFAULT_LEVEL, operations)
+        val source = CompressorByteBufferTestSupport.direct(byteArrayOf(1, 2, 3))
+            .asReadOnlyBuffer()
+        val target = CompressorByteBufferTestSupport.writableTarget(
+            Int.SIZE_BYTES + Zstd.compressBound(source.remaining().toLong()).toInt(),
+            direct = true,
+        )
+        val sourcePosition = source.position()
+        val targetPosition = target.position()
+
+        testCompressor.compress(source, target) shouldBeEqualTo Int.SIZE_BYTES + 1
+
+        source.position() shouldBeEqualTo sourcePosition
+        target.position() shouldBeEqualTo targetPosition + Int.SIZE_BYTES + 1
+        operations.compressInvocations.get() shouldBeEqualTo 1
     }
 
     @Test
