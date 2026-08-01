@@ -24,6 +24,7 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withTimeoutOrNull
+import java.util.concurrent.CompletableFuture
 import java.util.concurrent.ConcurrentHashMap
 
 /**
@@ -36,6 +37,9 @@ import java.util.concurrent.ConcurrentHashMap
  *   back cache 쓰기는 [Channel]에 큐잉하여 consumer coroutine이 순차 처리
  * - **retry**: consumer에서 resilience4j [Retry]로 재시도 (지수 백오프 옵션)
  * - **get graceful degradation**: back cache GET 실패 시 front 값 반환 또는 null
+ *
+ * write-behind mutation 메서드는 [CompletableFuture]를 반환한다. future가 정상 완료되면
+ * back cache 반영까지 끝난 것이고, 재시도 소진 또는 close drain timeout은 예외 완료된다.
  *
  * ```kotlin
  * Application (suspend)
@@ -53,7 +57,7 @@ import java.util.concurrent.ConcurrentHashMap
  * ```kotlin
  * val config = ResilientNearJCacheConfig<String, Int>(retryMaxAttempts = 3)
  * val nearCache = ResilientSuspendNearJCache(backSuspendCache, config)
- * nearCache.put("hello", 5)
+ * nearCache.put("hello", 5).join()
  * val value = nearCache.get("hello")
  * // value == 5
  * nearCache.close()
@@ -69,7 +73,7 @@ class ResilientSuspendNearJCache<K: Any, V: Any>(
 
     companion object: KLogging()
 
-    private val closeDrainTimeoutMillis: Long = 5_000L
+    private val closeDrainTimeoutMillis: Long = config.closeDrainTimeout.toMillis().coerceAtLeast(1L)
 
     private val closed = atomic(false)
     val isClosed by closed
@@ -84,6 +88,7 @@ class ResilientSuspendNearJCache<K: Any, V: Any>(
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
     private val writeChannel = Channel<QueuedCommand<K, V>>(capacity = config.writeQueueCapacity)
     private val writeStateMutex = Mutex()
+    private val pendingCommands = ConcurrentHashMap.newKeySet<QueuedCommand<K, V>>()
     private val pendingMutationTokens = ConcurrentHashMap<K, MutationToken<V>>()
     private val pendingClearToken = atomic<ClearToken?>(null)
     private val stateVersion = atomic(0L)
@@ -132,7 +137,7 @@ class ResilientSuspendNearJCache<K: Any, V: Any>(
                         "Back cache write failed after ${config.retryMaxAttempts} retries, compensating command: ${cmd.command}"
                     }
                     writeStateMutex.withLock {
-                        completeCommand(cmd, failed = true)
+                        completeCommand(cmd, failed = true, failure = e)
                     }
                 }
             }
@@ -148,19 +153,28 @@ class ResilientSuspendNearJCache<K: Any, V: Any>(
         }
     }
 
-    private fun completeCommand(queued: QueuedCommand<K, V>, failed: Boolean) {
+    private fun completeCommand(queued: QueuedCommand<K, V>, failed: Boolean, failure: Throwable? = null) {
+        if (!queued.completed.compareAndSet(false, true)) return
         when (val command = queued.command) {
             is BackJCacheCommand.Put       -> completePut(queued, setOf(command.key), failed)
             is BackJCacheCommand.PutAll    -> completePut(queued, command.entries.keys, failed)
-            is BackJCacheCommand.Remove    -> completeRemove(queued, setOf(command.key))
-            is BackJCacheCommand.RemoveAll -> completeRemove(queued, command.keys)
+            is BackJCacheCommand.Remove    -> completeRemove(queued, setOf(command.key), failed)
+            is BackJCacheCommand.RemoveAll -> completeRemove(queued, command.keys, failed)
             is BackJCacheCommand.ClearBack -> queued.clearToken?.let { token ->
-                if (pendingClearToken.compareAndSet(token, null)) {
+                if (!failed && pendingClearToken.compareAndSet(token, null)) {
                     stateVersion.incrementAndGet()
                     clearPending.value = false
                 }
             }
         }
+        if (failed) {
+            queued.completion.completeExceptionally(
+                failure ?: IllegalStateException("Back cache write failed for ${queued.command}")
+            )
+        } else {
+            queued.completion.complete(Unit)
+        }
+        pendingCommands.remove(queued)
     }
 
     private fun completePut(queued: QueuedCommand<K, V>, keys: Set<K>, failed: Boolean) {
@@ -173,10 +187,10 @@ class ResilientSuspendNearJCache<K: Any, V: Any>(
         }
     }
 
-    private fun completeRemove(queued: QueuedCommand<K, V>, keys: Set<K>) {
+    private fun completeRemove(queued: QueuedCommand<K, V>, keys: Set<K>, failed: Boolean) {
         keys.forEach { key ->
             val token = queued.mutationTokens.getValue(key)
-            if (pendingMutationTokens.remove(key, token)) {
+            if (pendingMutationTokens.remove(key, token) && !failed) {
                 stateVersion.incrementAndGet()
                 tombstones.remove(key)
             }
@@ -251,10 +265,14 @@ class ResilientSuspendNearJCache<K: Any, V: Any>(
      * 키-값 쌍을 저장한다.
      * - front cache 즉시 반영
      * - back cache write는 channel로 큐잉 (write-behind)
+     *
+     * @return back cache 반영 완료 future. 재시도 소진 또는 close drain timeout이면
+     *   exceptionally completed 상태가 된다. 채널이 가득 차면 front cache를 변경하기 전에
+     *   [IllegalStateException]을 즉시 던진다.
      */
-    suspend fun put(key: K, value: V) {
+    suspend fun put(key: K, value: V): CompletableFuture<Unit> {
         key.requireNotNull("key")
-        enqueueWrite(BackJCacheCommand.Put(key, value), "Write channel full for Put key=$key") {
+        return enqueueWrite(BackJCacheCommand.Put(key, value), "Write channel full for Put key=$key") {
             tombstones.remove(key)
             frontCache.put(key, value)
         }
@@ -262,10 +280,13 @@ class ResilientSuspendNearJCache<K: Any, V: Any>(
 
     /**
      * 여러 키-값 쌍을 저장한다.
+     *
+     * @return 모든 항목의 back cache 반영 완료 future. 재시도 소진 또는 close drain timeout이면
+     *   exceptionally completed 상태가 된다.
      */
-    suspend fun putAll(entries: Map<K, V>) {
+    suspend fun putAll(entries: Map<K, V>): CompletableFuture<Unit> {
         val entriesSnapshot = entries.toMap()
-        enqueueWrite(
+        return enqueueWrite(
             BackJCacheCommand.PutAll(entriesSnapshot),
             "Write channel full for PutAll entries=${entries.size}"
         ) {
@@ -284,7 +305,10 @@ class ResilientSuspendNearJCache<K: Any, V: Any>(
             frontCache.get(key)?.let { return it }
             val pendingMutation = pendingMutationTokens[key]
             val pendingClear = pendingClearToken.value
-            if (pendingMutation?.value != null && (pendingClear == null || pendingMutation.sequence > pendingClear.sequence)) {
+            if (
+                pendingMutation?.value != null &&
+                (pendingClear == null || pendingMutation.sequence > pendingClear.sequence)
+            ) {
                 return pendingMutation.value
             }
 
@@ -367,10 +391,13 @@ class ResilientSuspendNearJCache<K: Any, V: Any>(
      * 키에 해당하는 캐시 항목을 제거한다.
      * - front cache 즉시 반영
      * - back cache delete는 channel로 큐잉 (write-behind)
+     *
+     * @return back cache 삭제 완료 future. 재시도 소진 또는 close drain timeout이면
+     *   exceptionally completed 상태가 되며, stale back read를 막는 tombstone은 유지된다.
      */
-    suspend fun remove(key: K) {
+    suspend fun remove(key: K): CompletableFuture<Unit> {
         key.requireNotNull("key")
-        enqueueWrite(BackJCacheCommand.Remove(key), "Write channel full for Remove key=$key") {
+        return enqueueWrite(BackJCacheCommand.Remove(key), "Write channel full for Remove key=$key") {
             frontCache.remove(key)
             tombstones.add(key)
         }
@@ -378,10 +405,15 @@ class ResilientSuspendNearJCache<K: Any, V: Any>(
 
     /**
      * 여러 키에 해당하는 캐시 항목을 제거한다.
+     *
+     * @return 모든 키의 back cache 삭제 완료 future. 실패 시 각 키의 tombstone은 유지된다.
      */
-    suspend fun removeAll(keys: Set<K>) {
+    suspend fun removeAll(keys: Set<K>): CompletableFuture<Unit> {
         val keysSnapshot = keys.toSet()
-        enqueueWrite(BackJCacheCommand.RemoveAll(keysSnapshot), "Write channel full for RemoveAll keys=${keys.size}") {
+        return enqueueWrite(
+            BackJCacheCommand.RemoveAll(keysSnapshot),
+            "Write channel full for RemoveAll keys=${keys.size}"
+        ) {
             frontCache.removeAll(keysSnapshot)
             tombstones.addAll(keysSnapshot)
         }
@@ -397,9 +429,12 @@ class ResilientSuspendNearJCache<K: Any, V: Any>(
 
     /**
      * 로컬 캐시와 back cache를 모두 비운다 (write-behind).
+     *
+     * @return back cache clear 완료 future. 실패 또는 close drain timeout이면 clear pending
+     *   상태와 stale read 차단을 유지한 채 exceptionally completed 상태가 된다.
      */
-    suspend fun clearAll() {
-        enqueueWrite(BackJCacheCommand.ClearBack(), "Write channel full for ClearBack") {
+    suspend fun clearAll(): CompletableFuture<Unit> {
+        return enqueueWrite(BackJCacheCommand.ClearBack(), "Write channel full for ClearBack") {
             clearPending.value = true
             clearLocal()
         }
@@ -452,6 +487,7 @@ class ResilientSuspendNearJCache<K: Any, V: Any>(
                     } ?: false
                     if (!drained) {
                         log.warn { "Timed out draining back cache write channel." }
+                        failPendingCommands(IllegalStateException("Timed out draining back cache write channel"))
                     }
                 }
             }
@@ -465,9 +501,9 @@ class ResilientSuspendNearJCache<K: Any, V: Any>(
         command: BackJCacheCommand<K, V>,
         failureMessage: String,
         updateFrontState: () -> Unit,
-    ) {
+    ): CompletableFuture<Unit> {
         writeStateMutex.withLock {
-            enqueueWriteLocked(command, failureMessage, updateFrontState)
+            return enqueueWriteLocked(command, failureMessage, updateFrontState)
         }
     }
 
@@ -475,14 +511,25 @@ class ResilientSuspendNearJCache<K: Any, V: Any>(
         command: BackJCacheCommand<K, V>,
         failureMessage: String,
         updateFrontState: () -> Unit,
-    ) {
+    ): CompletableFuture<Unit> {
         val queued = QueuedCommand(command, ++nextCommandSequence)
         check(!closed.value) { "ResilientSuspendNearCache is closed" }
-        check(writeChannel.trySend(queued).isSuccess) { failureMessage }
+        pendingCommands.add(queued)
+        if (!writeChannel.trySend(queued).isSuccess) {
+            pendingCommands.remove(queued)
+            check(false) { failureMessage }
+        }
         queued.mutationTokens.forEach(pendingMutationTokens::put)
         queued.clearToken?.let { pendingClearToken.value = it }
         stateVersion.incrementAndGet()
         updateFrontState()
+        return queued.completion
+    }
+
+    private fun failPendingCommands(failure: Throwable) {
+        pendingCommands.toList().forEach { queued ->
+            completeCommand(queued, failed = true, failure = failure)
+        }
     }
 
     private class MutationToken<V: Any>(
@@ -496,6 +543,9 @@ class ResilientSuspendNearJCache<K: Any, V: Any>(
         val command: BackJCacheCommand<K, V>,
         sequence: Long,
     ) {
+        val completion: CompletableFuture<Unit> = CompletableFuture()
+        val completed = atomic(false)
+
         val mutationTokens: Map<K, MutationToken<V>> = when (command) {
             is BackJCacheCommand.Put       -> mapOf(command.key to MutationToken(command.value, sequence))
             is BackJCacheCommand.PutAll    -> command.entries.mapValues { MutationToken(it.value, sequence) }

@@ -2,6 +2,7 @@ package io.bluetape4k.cache.nearcache.jcache
 
 import io.bluetape4k.cache.nearcache.GetFailureStrategy
 
+import io.bluetape4k.support.requireGt
 import io.bluetape4k.support.requirePositiveNumber
 import java.time.Duration
 
@@ -25,6 +26,7 @@ import java.time.Duration
  * @param frontExpireAfterAccess 로컬 캐시 접근 후 만료 시간 (null이면 비활성)
  * @param recordStats 로컬 캐시 통계 기록 여부
  * @param writeQueueCapacity write-behind 큐(또는 채널) 최대 용량
+ * @param closeDrainTimeout close()가 수락된 write-behind 명령을 drain할 최대 대기 시간
  * @param retryMaxAttempts back cache 쓰기 실패 시 최대 재시도 횟수
  * @param retryWaitDuration 재시도 대기 시간
  * @param retryExponentialBackoff 지수 백오프 사용 여부
@@ -37,6 +39,7 @@ data class ResilientNearJCacheConfig<K: Any, V: Any>(
     val frontExpireAfterAccess: Duration? = null,
     val recordStats: Boolean = false,
     val writeQueueCapacity: Int = 1024,
+    val closeDrainTimeout: Duration = Duration.ofSeconds(5),
     val retryMaxAttempts: Int = 3,
     val retryWaitDuration: Duration = Duration.ofMillis(500),
     val retryExponentialBackoff: Boolean = true,
@@ -45,6 +48,7 @@ data class ResilientNearJCacheConfig<K: Any, V: Any>(
     init {
         maxLocalSize.requirePositiveNumber("maxLocalSize")
         writeQueueCapacity.requirePositiveNumber("writeQueueCapacity")
+        closeDrainTimeout.requireGt(Duration.ZERO, "closeDrainTimeout")
         retryMaxAttempts.requirePositiveNumber("retryMaxAttempts")
     }
 }
@@ -76,6 +80,7 @@ class ResilientNearJCacheConfigBuilder<K: Any, V: Any> {
     var frontExpireAfterAccess: Duration? = null
     var recordStats: Boolean = false
     var writeQueueCapacity: Int = 1024
+    var closeDrainTimeout: Duration = Duration.ofSeconds(5)
     var retryMaxAttempts: Int = 3
     var retryWaitDuration: Duration = Duration.ofMillis(500)
     var retryExponentialBackoff: Boolean = true
@@ -88,6 +93,7 @@ class ResilientNearJCacheConfigBuilder<K: Any, V: Any> {
         frontExpireAfterAccess = frontExpireAfterAccess,
         recordStats = recordStats,
         writeQueueCapacity = writeQueueCapacity.requirePositiveNumber("writeQueueCapacity"),
+        closeDrainTimeout = closeDrainTimeout,
         retryMaxAttempts = retryMaxAttempts.requirePositiveNumber("retryMaxAttempts"),
         retryWaitDuration = retryWaitDuration,
         retryExponentialBackoff = retryExponentialBackoff,
