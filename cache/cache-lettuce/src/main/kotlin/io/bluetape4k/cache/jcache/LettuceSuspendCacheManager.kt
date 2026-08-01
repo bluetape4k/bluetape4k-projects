@@ -25,6 +25,10 @@ import java.util.concurrent.ConcurrentHashMap
  * - 매니저가 닫히면(`isClosed == true`) 대부분의 공개 API가 즉시 예외를 발생시킵니다.
  * - `getOrCreate`는 같은 이름에 대해 기존 캐시를 재사용하고, 없을 때만 Redis 연결을 생성합니다.
  * - [defaultTtlSeconds], [defaultCodec]는 `getOrCreate` 호출 시 개별 파라미터가 없을 때 적용됩니다.
+ * - `destroyCache`는 Redis 데이터 삭제와 리소스 close가 성공한 뒤 registry에서
+ *   제거합니다. 삭제 실패는 [javax.cache.CacheException]으로 전파하며 재시도할 수
+ *   있도록 캐시를 유지합니다.
+ *   close 실패는 registry에서 제거한 뒤 [javax.cache.CacheException]으로 전파합니다.
  *
  * ```kotlin
  * val manager = LettuceSuspendCacheManager(redisClient, defaultTtlSeconds = 60)
@@ -136,7 +140,11 @@ class LettuceSuspendCacheManager(
      * ## 동작/계약
      * - 매니저가 닫혀 있으면 `IllegalStateException`이 발생합니다.
      * - [cacheName] blank 입력은 `IllegalArgumentException`을 발생시킵니다.
-     * - 캐시가 존재할 때만 `clear()`를 수행하고 맵에서 제거합니다.
+     * - 캐시가 존재할 때만 `clear()`와 `close()`를 수행하고 registry에서 제거합니다.
+     * - clear 실패는 원인과 함께 [javax.cache.CacheException]으로 전파하며 캐시를
+     *   registry에 유지합니다.
+     * - close 실패는 registry에서 제거한 뒤 [javax.cache.CacheException]으로 전파합니다.
+     * - [CancellationException]은 cache lifecycle 오류로 변환하지 않고 그대로 재전파합니다.
      *
      * ```kotlin
      * manager.destroyCache("users")
@@ -144,16 +152,47 @@ class LettuceSuspendCacheManager(
      * // deleted == null
      * ```
      */
+    @Suppress("TooGenericExceptionCaught", "ThrowsCount")
     suspend fun destroyCache(cacheName: String) {
         checkNotClosed()
         cacheName.requireNotBlank("cacheName")
 
         caches[cacheName]?.let { cache ->
             log.info { "Destroy LettuceSuspendCache. name=$cacheName" }
-            cache.clear()
-            caches.remove(cacheName)
+            try {
+                cache.clear()
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                throw destructionException(cacheName, "clear", e)
+            }
+
+            try {
+                cache.close()
+            } catch (e: CancellationException) {
+                caches.remove(cacheName, cache)
+                throw e
+            } catch (e: Exception) {
+                caches.remove(cacheName, cache)
+                throw destructionException(cacheName, "close", e)
+            }
+            caches.remove(cacheName, cache)
         }
     }
+
+    private fun destructionException(
+        cacheName: String,
+        operation: String,
+        cause: Exception,
+    ): javax.cache.CacheException =
+        if (cause is javax.cache.CacheException) {
+            cause
+        } else {
+            javax.cache.CacheException(
+                "LettuceSuspendCache [$cacheName] $operation 중 오류가 발생했습니다.",
+                cause,
+            )
+        }
 
     /**
      * 캐시 이름을 기준으로 매니저 등록 목록에서 제거합니다.
@@ -169,7 +208,7 @@ class LettuceSuspendCacheManager(
      * ```
      */
     fun closeCache(cache: LettuceSuspendJCache<*>) {
-        caches.remove(cache.name)
+        caches.remove(cache.name, cache)
     }
 
     /**

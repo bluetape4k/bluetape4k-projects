@@ -31,6 +31,10 @@ import kotlin.concurrent.withLock
  * ## 동작/계약
  * - `createCache`는 [LettuceCacheConfig]를 받아 [LettuceJCache]를 생성합니다.
  * - 캐시 인스턴스는 내부 맵에 이름 기준으로 보관되며 중복 생성 시 [javax.cache.CacheException]이 발생합니다.
+ * - `destroyCache`는 Redis 데이터 삭제가 성공한 뒤에만 캐시를 닫고 registry에서
+ *   제거합니다. 삭제 실패는 [javax.cache.CacheException]으로 전파하며 재시도할 수
+ *   있도록 캐시를 유지합니다. 리소스 close 실패도 [javax.cache.CacheException]으로
+ *   전파하지만 데이터 삭제가 끝났으므로 registry에서는 제거합니다.
  * - 매니저가 닫히면 공개 API 대부분이 `IllegalStateException`을 발생시킵니다.
  */
 class LettuceCacheManager(
@@ -152,22 +156,48 @@ class LettuceCacheManager(
 
     override fun getCacheNames(): MutableIterable<String> = caches.keys.toMutableSet()
 
+    /**
+     * Redis 데이터를 삭제한 뒤 캐시 리소스를 닫고 registry에서 제거합니다.
+     *
+     * `clear()`가 실패하면 [CacheException]을 원인과 함께 전파하고 캐시를 registry에 남겨
+     * 호출자가 같은 인스턴스로 재시도할 수 있게 합니다. `close()`가 실패하면 데이터
+     * 삭제는 완료된 상태이므로 registry에서 제거한 뒤 [CacheException]을 전파합니다.
+     */
+    @Suppress("TooGenericExceptionCaught")
     override fun destroyCache(cacheName: String?) {
         checkNotClosed()
-        cacheName.requireNotBlank("cacheName")
-        log.debug { "Destroy LettuceCache. cacheName=$cacheName" }
-        caches.remove(cacheName)?.let { cache ->
-            log.info { "Destroy LettuceCache [$cacheName]" }
-            runCatching { cache.clear() }
-            runCatching { cache.close() }
+        val validCacheName = cacheName.requireNotBlank("cacheName")
+        log.debug { "Destroy LettuceCache. cacheName=$validCacheName" }
+        caches[validCacheName]?.let { cache ->
+            log.info { "Destroy LettuceCache [$validCacheName]" }
+            try {
+                cache.clear()
+            } catch (e: Exception) {
+                throw destructionException(validCacheName, "clear", e)
+            }
+
+            try {
+                cache.close()
+            } catch (e: Exception) {
+                caches.remove(validCacheName, cache)
+                throw destructionException(validCacheName, "close", e)
+            }
+            caches.remove(validCacheName, cache)
         }
     }
+
+    private fun destructionException(cacheName: String, operation: String, cause: Exception): CacheException =
+        if (cause is CacheException) {
+            cause
+        } else {
+            CacheException("LettuceCache [$cacheName] $operation 중 오류가 발생했습니다.", cause)
+        }
 
     /**
      * 캐시 이름을 기준으로 내부 맵에서 제거합니다. [LettuceJCache.close] 내부에서 호출됩니다.
      */
     fun closeCache(cache: LettuceJCache<*, *>) {
-        caches.remove(cache.name)
+        caches.remove(cache.name, cache)
     }
 
     override fun enableManagement(cacheName: String, enabled: Boolean) {

@@ -9,6 +9,7 @@ import java.time.Duration
 import java.util.concurrent.ConcurrentHashMap
 import javax.cache.Cache
 import javax.cache.CacheManager
+import javax.cache.CacheException
 import javax.cache.configuration.CacheEntryListenerConfiguration
 import javax.cache.configuration.Configuration
 import javax.cache.event.CacheEntryCreatedListener
@@ -32,6 +33,8 @@ import javax.cache.processor.MutableEntry
  * - [ttlSeconds]가 지정되면 Redis 8+에서는 `HSETEX` 후 hash key `EXPIRE`를 함께 갱신하고, 미지원 서버에서는 `HSET/HMSET + EXPIRE`로 fallback 합니다.
  * - `close()`는 JSR-107 명세에 따라 리소스만 해제하며, Redis hash 데이터는 **삭제하지 않습니다**.
  *   데이터 삭제가 필요하면 `close()` 전에 `clear()`를 명시적으로 호출하세요.
+ * - 리소스 close 실패는 [CacheException]으로 호출자에게 전파하며, wrapper는 닫힌
+ *   상태로 유지됩니다.
  * - 직렬화는 [codec]의 serializer로 처리하며, 기본값은 LZ4+Fory 기반 직렬화입니다.
  */
 class LettuceJCache<K: Any, V: Any>(
@@ -339,12 +342,19 @@ class LettuceJCache<K: Any, V: Any>(
 
     override fun isClosed(): Boolean = closed.value
 
+    @Suppress("TooGenericExceptionCaught")
     override fun close() {
         if (!closed.compareAndSet(expect = false, update = true)) return
         // JCache 명세: close()는 리소스를 해제하는 것이지 데이터를 삭제하는 것이 아님.
         // 데이터 삭제가 필요하면 close() 전에 clear()를 명시적으로 호출할 것.
         cacheManager.closeCache(this)
-        runCatching { closeResource() }
+        try {
+            closeResource()
+        } catch (e: CacheException) {
+            throw e
+        } catch (e: Exception) {
+            throw CacheException("LettuceCache[$cacheName] 리소스 close 중 오류가 발생했습니다.", e)
+        }
     }
 
     private fun dispatchEvent(eventType: EventType, key: K, value: V?) {
