@@ -241,17 +241,17 @@ Read-only target은 `ReadOnlyBufferException`으로 거부하고, 동일한 buff
 
 | Codec        | heap -> heap           | direct -> direct       | mixed storage          | Allocation claim       |
 |--------------|------------------------|------------------------|------------------------|------------------------|
-| LZ4          | optimized              | optimized              | optimized              | eligible, not yet measured |
-| Deflate      | optimized              | optimized              | optimized              | eligible, not yet measured |
-| Snappy       | compatibility fallback | optimized              | compatibility fallback | eligible for direct pair, not yet measured |
-| Zstd         | optimized              | optimized              | compatibility fallback | eligible, not yet measured |
+| LZ4          | optimized              | optimized              | optimized              | accepted for all pairs |
+| Deflate      | optimized              | optimized              | optimized              | accepted for all pairs |
+| Snappy       | compatibility fallback | optimized              | compatibility fallback | accepted for direct compression only |
+| Zstd         | optimized              | optimized              | compatibility fallback | accepted for matched pairs |
 | Other codecs | compatibility fallback | compatibility fallback | compatibility fallback | ineligible             |
 
-`optimized`는 해당 storage 조합에서 codec의 backend `ByteBuffer` 경로를 사용한다는 뜻입니다. 처리량 개선을 주장하지 않으며 측정된 allocation 개선을 뜻하지도 않습니다.
+`optimized`는 해당 storage 조합에서 codec의 backend `ByteBuffer` 경로를 사용한다는 뜻입니다. 두 번의 canonical JMH GC-profiler run으로 위 조합의 allocation claim을 승인했습니다. 일반적인 처리량 향상이나 zero-allocation을 주장하지 않습니다. 자세한 내용은 [allocation 보고서](../../docs/benchmarks/2026-07-21-bytebuffer-compressor-allocation.md)를 참고하세요.
 
-Snappy는 direct source/target 조합에서만 native `ByteBuffer` 경로를 사용합니다. 압축은 `target.remaining()`이 `Snappy.maxCompressedLength(source.remaining())` 이상일 때 이 경로를 사용하며, 그보다 작은 direct target은 압축 결과가 실제로 들어갈 때 성공할 수 있도록 compatibility fallback으로 처리합니다. direct 압축 해제는 native decode 전에 payload 전체와 정확한 복원 크기를 검증합니다. 현재 배열 API는 호출자 target의 임의 limit을 출력 상한으로 강제할 수 없으므로 heap 및 mixed-storage 조합은 compatibility fallback을 유지합니다.
+Snappy는 direct source/target 조합에서만 native `ByteBuffer` 경로를 사용합니다. 압축은 `target.remaining()`이 `Snappy.maxCompressedLength(source.remaining())` 이상일 때 이 경로를 사용하며, 그보다 작은 direct target은 압축 결과가 실제로 들어갈 때 성공할 수 있도록 compatibility fallback으로 처리합니다. Direct compression은 allocation 및 throughput gate를 통과했습니다. Direct decompression은 allocation을 줄였지만 validation-first decode 때문에 medium/large payload가 baseline보다 약 37–41% 느려 allocation-sensitive adoption 대상으로 추천하지 않습니다. 현재 배열 API는 호출자 target의 임의 limit을 출력 상한으로 강제할 수 없으므로 heap 및 mixed-storage 조합은 compatibility fallback을 유지합니다.
 
-Zstd는 writable heap끼리 또는 direct끼리 조합하고 압축 target에 `Zstd.compressBound(source.remaining()) + 4`바이트 이상 남았을 때 native offset API를 사용합니다. 이 안전 상한보다 작은 target은 실제 압축 결과가 들어가면 성공할 수 있도록 compatibility fallback으로 처리합니다. native 경로는 big-endian 원본 크기 header 다음의 `target.remaining() - 4`바이트만 codec에 노출합니다. 압축 해제는 native destination을 header에 선언된 원본 크기로 제한하고, 반환된 `Long`을 축소하기 전에 정확히 검증합니다. mixed-storage 조합과 read-only heap source는 compatibility fallback을 유지합니다. `optimized`는 dispatch만 뜻하며 allocation 근거는 아직 측정 전입니다.
+Zstd는 writable heap끼리 또는 direct끼리 조합하고 압축 target에 `Zstd.compressBound(source.remaining()) + 4`바이트 이상 남았을 때 native offset API를 사용합니다. 이 안전 상한보다 작은 target은 실제 압축 결과가 들어가면 성공할 수 있도록 compatibility fallback으로 처리합니다. native 경로는 big-endian 원본 크기 header 다음의 `target.remaining() - 4`바이트만 codec에 노출합니다. 압축 해제는 native destination을 header에 선언된 원본 크기로 제한하고, 반환된 `Long`을 축소하기 전에 정확히 검증합니다. Matched heap/direct compression 및 decompression은 allocation과 throughput gate를 통과했고, mixed-storage 경로는 ineligible fallback으로 유지합니다.
 
 <!-- issue-755-storage-matrix:end -->
 

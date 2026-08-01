@@ -1,0 +1,41 @@
+{
+  "actualJvmArgs": [
+    "-XX:ThreadPriorityPolicy=1",
+    "-XX:+UnlockExperimentalVMOptions",
+    "-XX:+EnableJVMCIProduct",
+    "-XX:-UnlockExperimentalVMOptions",
+    "-Xms1g",
+    "-Xmx1g",
+    "-XX:+UseG1GC"
+  ],
+  "cpu": "Apple M4 Pro",
+  "javaVersion": "21.0.12",
+  "jmhVersion": "1.37",
+  "jvmArgs": [
+    "-Xms1g",
+    "-Xmx1g",
+    "-XX:+UseG1GC"
+  ],
+  "jvmExecutable": "/Library/Java/JavaVirtualMachines/graalvm-jdk-21/Contents/Home/bin/java",
+  "os": "macOS-26.5.2-arm64-arm-64bit",
+  "profileArgs": [
+    "-t",
+    "1",
+    "-f",
+    "2",
+    "-wi",
+    "3",
+    "-i",
+    "5",
+    "-w",
+    "1s",
+    "-r",
+    "1s",
+    "-prof",
+    "gc",
+    "-rf",
+    "json"
+  ],
+  "vmName": "Java HotSpot(TM) 64-Bit Server VM",
+  "vmVersion": "21.0.12+7-LTS-jvmci-23.1-b96"
+}

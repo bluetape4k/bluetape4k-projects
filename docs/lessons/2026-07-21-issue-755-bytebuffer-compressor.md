@@ -36,8 +36,9 @@ Zstd throw-before-return 계약을 명세에 추가하고, 독립 6관점 재검
   때만 반환량만큼 `position`을 commit하고 실패 시 원래 position으로 rollback한다.
 - fallback decompression target은 final-write bound일 뿐 resource bound가 아니다. 신뢰할 수
   없는 입력의 decompressed-size 제한은 별도 정책으로 적용한다.
-- allocation 개선은 backend/storage별 반복 측정 전에는 주장하지 않는다. core matrix의 모든
-  경로는 compatibility fallback이며 correctness-only다.
+- allocation 개선은 backend/storage별 canonical 반복 측정 뒤에만 주장한다. 최종 evidence
+  slice는 96개 조합 중 63개를 accepted로 분류했고, fallback 및 throughput gate 실패 조합
+  33개는 ineligible로 유지했다.
 
 ## LZ4 slice에서 고정한 경계
 
@@ -53,8 +54,8 @@ payload만 별도 `slice()`로 전달한다. 이 view의 `position=0`,
 유효 wire 뒤 trailing byte, 기존/new API wire 상호 운용, big-endian header, target preflight,
 overflow retry, pre-created failure identity를 포함한다. compression codec의 반환값도
 `1..payloadCapacity` 범위에서만 target position을 commit한다. README의 `optimized`는 이 native
-dispatch와 storage coverage만 뜻하며, allocation 개선은 아직 측정하지 않았으므로
-`eligible, not yet measured`로 유지한다.
+dispatch와 storage coverage만 뜻한다. 후속 canonical run 두 건에서 모든 LZ4 storage 조합의
+allocation claim이 accepted로 승격되었다.
 
 ## Deflate slice에서 고정한 lifecycle과 상태 우선순위
 
@@ -75,8 +76,8 @@ throwable identity를 primary로 유지하고 정리 실패만 suppressed로 추
 때는 정리 실패 자체를 전파한다. 테스트는 per-call codec 생성·정리 횟수, operation-primary
 identity, cleanup-only identity, compression/decompression no-progress, overflow 후 같은 target
 재시도, singleton 동시 호출을 고정한다. README의 `optimized`는 JDK `ByteBuffer` 직접 dispatch와
-storage coverage만 뜻하며 allocation 개선은 아직 측정하지 않았으므로
-`eligible, not yet measured`로 유지한다.
+storage coverage만 뜻한다. 후속 canonical run 두 건에서 모든 Deflate storage 조합의 allocation
+claim이 accepted로 승격되었다.
 
 ## Snappy slice에서 고정한 출력 상한과 validation 경계
 
@@ -97,8 +98,10 @@ direct decompression은 정확한 caller-visible source range를 먼저 검증�
 256 MiB 한도, target remaining을 순서대로 확인한다. invalid payload는
 `IllegalArgumentException`으로 거부하고 native decode를 호출하지 않는다. duplicate view에서
 native 연산을 실행해 원본 source/target limit을 보존하며, singleton 동시 호출 테스트로
-호출 간 mutable codec state가 없음을 고정한다. README의 `optimized`는 이 제한된 native
-dispatch capability만 뜻하며 allocation 개선은 아직 측정하지 않았다.
+호출 간 mutable codec state가 없음을 고정한다. 후속 canonical run에서 direct compression은
+allocation 및 throughput gate를 통과했다. Direct decompression은 1,336–597,168 B/op을 줄였지만
+validation-first decode 때문에 medium/large payload 처리량이 약 37–41% 감소했다. 안전성 검사를
+제거하지 않고 이 경로를 allocation-sensitive adoption 대상에서 제외했다.
 
 ## Zstd slice에서 고정한 declared-size 출력 경계
 
@@ -118,8 +121,8 @@ destination 길이를 반드시 header의 declared size로 제한한다. 성공 
 정확히 같아야 하며 `Long` 상태에서 검증한 뒤에만 `Int`로 축소한다. 이로써 음수,
 `Long.MAX_VALUE`, 32-bit 범위를 넘는 합성 반환값도 caller position을 commit하기 전에 거부한다.
 mixed-storage와 read-only heap source는 compatibility fallback을 유지한다. README의
-`optimized`는 이 offset API dispatch만 뜻하고 allocation 개선은 마지막 evidence slice 전까지
-주장하지 않는다.
+`optimized`는 이 offset API dispatch만 뜻한다. 후속 canonical run 두 건에서 matched heap/direct
+compression 및 decompression은 accepted로 승격됐고 mixed-storage fallback은 ineligible로 남았다.
 
 ## 왜 broad backend slice를 중단했는가
 
@@ -137,8 +140,10 @@ LZ4의 capacity-tail read는 source isolation 문제이고, zstd-jni의 throw-be
 - heap/direct/read-only/slice source와 heap/direct/slice target에서 source 상태, target commit,
   overflow rollback, overlap 거부, failure identity, retry를 검증한다.
 - README의 영문/한글 storage matrix와 migration/rollback 문구는 marker checker로 동기화한다.
-- backend allocation claim은 마지막 evidence slice의 canonical JMH 결과가 수렴한 뒤에만
-  승격한다.
+- backend allocation claim은 마지막 evidence slice의 canonical JMH 결과가 수렴한 조합만
+  승격한다. 최종 결과는 LZ4 24개, Deflate 24개, Snappy 3개, Zstd 12개 cell을 accepted로
+  분류했으며 자세한 수치는
+  [`docs/benchmarks/2026-07-21-bytebuffer-compressor-allocation.md`](../benchmarks/2026-07-21-bytebuffer-compressor-allocation.md)에 고정했다.
 
 ## 다음 작업자를 위한 경계
 

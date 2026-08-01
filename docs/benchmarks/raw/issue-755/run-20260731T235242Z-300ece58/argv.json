@@ -1,0 +1,30 @@
+{
+  "argv": [
+    "java",
+    "-jar",
+    "/Users/debop/work/bluetape4k/bluetape4k-projects/.worktrees/perf-issue-755-bytebuffer-compressor-evidence/io/io/build/issue-755-evidence/canonical-jmh.jar",
+    ".*CallerOwnedByteBufferCompressor.*",
+    "-t",
+    "1",
+    "-f",
+    "2",
+    "-wi",
+    "3",
+    "-i",
+    "5",
+    "-w",
+    "1s",
+    "-r",
+    "1s",
+    "-prof",
+    "gc",
+    "-rf",
+    "json",
+    "-rff",
+    "/Users/debop/work/bluetape4k/bluetape4k-projects/.worktrees/perf-issue-755-bytebuffer-compressor-evidence/docs/benchmarks/raw/.issue-755-staging/run-20260731T235242Z-300ece58.pending/jmh.json",
+    "-jvmArgsAppend",
+    "-Xms1g -Xmx1g -XX:+UseG1GC"
+  ],
+  "exitCode": 0,
+  "logBytes": 1767094
+}

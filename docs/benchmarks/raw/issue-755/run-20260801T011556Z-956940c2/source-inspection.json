@@ -1,0 +1,322 @@
+[
+  {
+    "adoptionEligible": true,
+    "codec": "lz4",
+    "operation": "compress",
+    "path": "io/io/src/main/kotlin/io/bluetape4k/io/compressor/LZ4Compressor.kt",
+    "payloadIntermediateFree": true,
+    "sha256": "de06ce211d9870276e6d580f883aa21e53106ee594fa93d0d00b7a581eec73c8",
+    "storagePath": "heap",
+    "symbol": "compress(ByteBuffer, ByteBuffer)"
+  },
+  {
+    "adoptionEligible": true,
+    "codec": "lz4",
+    "operation": "compress",
+    "path": "io/io/src/main/kotlin/io/bluetape4k/io/compressor/LZ4Compressor.kt",
+    "payloadIntermediateFree": true,
+    "sha256": "de06ce211d9870276e6d580f883aa21e53106ee594fa93d0d00b7a581eec73c8",
+    "storagePath": "direct",
+    "symbol": "compress(ByteBuffer, ByteBuffer)"
+  },
+  {
+    "adoptionEligible": true,
+    "codec": "lz4",
+    "operation": "compress",
+    "path": "io/io/src/main/kotlin/io/bluetape4k/io/compressor/LZ4Compressor.kt",
+    "payloadIntermediateFree": true,
+    "sha256": "de06ce211d9870276e6d580f883aa21e53106ee594fa93d0d00b7a581eec73c8",
+    "storagePath": "heapToDirect",
+    "symbol": "compress(ByteBuffer, ByteBuffer)"
+  },
+  {
+    "adoptionEligible": true,
+    "codec": "lz4",
+    "operation": "compress",
+    "path": "io/io/src/main/kotlin/io/bluetape4k/io/compressor/LZ4Compressor.kt",
+    "payloadIntermediateFree": true,
+    "sha256": "de06ce211d9870276e6d580f883aa21e53106ee594fa93d0d00b7a581eec73c8",
+    "storagePath": "directToHeap",
+    "symbol": "compress(ByteBuffer, ByteBuffer)"
+  },
+  {
+    "adoptionEligible": true,
+    "codec": "lz4",
+    "operation": "decompress",
+    "path": "io/io/src/main/kotlin/io/bluetape4k/io/compressor/LZ4Compressor.kt",
+    "payloadIntermediateFree": true,
+    "sha256": "de06ce211d9870276e6d580f883aa21e53106ee594fa93d0d00b7a581eec73c8",
+    "storagePath": "heap",
+    "symbol": "decompress(ByteBuffer, ByteBuffer)"
+  },
+  {
+    "adoptionEligible": true,
+    "codec": "lz4",
+    "operation": "decompress",
+    "path": "io/io/src/main/kotlin/io/bluetape4k/io/compressor/LZ4Compressor.kt",
+    "payloadIntermediateFree": true,
+    "sha256": "de06ce211d9870276e6d580f883aa21e53106ee594fa93d0d00b7a581eec73c8",
+    "storagePath": "direct",
+    "symbol": "decompress(ByteBuffer, ByteBuffer)"
+  },
+  {
+    "adoptionEligible": true,
+    "codec": "lz4",
+    "operation": "decompress",
+    "path": "io/io/src/main/kotlin/io/bluetape4k/io/compressor/LZ4Compressor.kt",
+    "payloadIntermediateFree": true,
+    "sha256": "de06ce211d9870276e6d580f883aa21e53106ee594fa93d0d00b7a581eec73c8",
+    "storagePath": "heapToDirect",
+    "symbol": "decompress(ByteBuffer, ByteBuffer)"
+  },
+  {
+    "adoptionEligible": true,
+    "codec": "lz4",
+    "operation": "decompress",
+    "path": "io/io/src/main/kotlin/io/bluetape4k/io/compressor/LZ4Compressor.kt",
+    "payloadIntermediateFree": true,
+    "sha256": "de06ce211d9870276e6d580f883aa21e53106ee594fa93d0d00b7a581eec73c8",
+    "storagePath": "directToHeap",
+    "symbol": "decompress(ByteBuffer, ByteBuffer)"
+  },
+  {
+    "adoptionEligible": true,
+    "codec": "deflate",
+    "operation": "compress",
+    "path": "io/io/src/main/kotlin/io/bluetape4k/io/compressor/DeflateCompressor.kt",
+    "payloadIntermediateFree": true,
+    "sha256": "83579a52e47c1e809c2bda069d14d385d71731c48c3033e8c1a6c4b24607fd92",
+    "storagePath": "heap",
+    "symbol": "compress(ByteBuffer, ByteBuffer)"
+  },
+  {
+    "adoptionEligible": true,
+    "codec": "deflate",
+    "operation": "compress",
+    "path": "io/io/src/main/kotlin/io/bluetape4k/io/compressor/DeflateCompressor.kt",
+    "payloadIntermediateFree": true,
+    "sha256": "83579a52e47c1e809c2bda069d14d385d71731c48c3033e8c1a6c4b24607fd92",
+    "storagePath": "direct",
+    "symbol": "compress(ByteBuffer, ByteBuffer)"
+  },
+  {
+    "adoptionEligible": true,
+    "codec": "deflate",
+    "operation": "compress",
+    "path": "io/io/src/main/kotlin/io/bluetape4k/io/compressor/DeflateCompressor.kt",
+    "payloadIntermediateFree": true,
+    "sha256": "83579a52e47c1e809c2bda069d14d385d71731c48c3033e8c1a6c4b24607fd92",
+    "storagePath": "heapToDirect",
+    "symbol": "compress(ByteBuffer, ByteBuffer)"
+  },
+  {
+    "adoptionEligible": true,
+    "codec": "deflate",
+    "operation": "compress",
+    "path": "io/io/src/main/kotlin/io/bluetape4k/io/compressor/DeflateCompressor.kt",
+    "payloadIntermediateFree": true,
+    "sha256": "83579a52e47c1e809c2bda069d14d385d71731c48c3033e8c1a6c4b24607fd92",
+    "storagePath": "directToHeap",
+    "symbol": "compress(ByteBuffer, ByteBuffer)"
+  },
+  {
+    "adoptionEligible": true,
+    "codec": "deflate",
+    "operation": "decompress",
+    "path": "io/io/src/main/kotlin/io/bluetape4k/io/compressor/DeflateCompressor.kt",
+    "payloadIntermediateFree": true,
+    "sha256": "83579a52e47c1e809c2bda069d14d385d71731c48c3033e8c1a6c4b24607fd92",
+    "storagePath": "heap",
+    "symbol": "decompress(ByteBuffer, ByteBuffer)"
+  },
+  {
+    "adoptionEligible": true,
+    "codec": "deflate",
+    "operation": "decompress",
+    "path": "io/io/src/main/kotlin/io/bluetape4k/io/compressor/DeflateCompressor.kt",
+    "payloadIntermediateFree": true,
+    "sha256": "83579a52e47c1e809c2bda069d14d385d71731c48c3033e8c1a6c4b24607fd92",
+    "storagePath": "direct",
+    "symbol": "decompress(ByteBuffer, ByteBuffer)"
+  },
+  {
+    "adoptionEligible": true,
+    "codec": "deflate",
+    "operation": "decompress",
+    "path": "io/io/src/main/kotlin/io/bluetape4k/io/compressor/DeflateCompressor.kt",
+    "payloadIntermediateFree": true,
+    "sha256": "83579a52e47c1e809c2bda069d14d385d71731c48c3033e8c1a6c4b24607fd92",
+    "storagePath": "heapToDirect",
+    "symbol": "decompress(ByteBuffer, ByteBuffer)"
+  },
+  {
+    "adoptionEligible": true,
+    "codec": "deflate",
+    "operation": "decompress",
+    "path": "io/io/src/main/kotlin/io/bluetape4k/io/compressor/DeflateCompressor.kt",
+    "payloadIntermediateFree": true,
+    "sha256": "83579a52e47c1e809c2bda069d14d385d71731c48c3033e8c1a6c4b24607fd92",
+    "storagePath": "directToHeap",
+    "symbol": "decompress(ByteBuffer, ByteBuffer)"
+  },
+  {
+    "adoptionEligible": false,
+    "codec": "snappy",
+    "operation": "compress",
+    "path": "io/io/src/main/kotlin/io/bluetape4k/io/compressor/SnappyCompressor.kt",
+    "payloadIntermediateFree": false,
+    "sha256": "bfeb61190dbe6bcec0e1e8473c41a7cf3de6e1f8e2a321354ad4c972f02b66f8",
+    "storagePath": "heap",
+    "symbol": "compress(ByteBuffer, ByteBuffer)"
+  },
+  {
+    "adoptionEligible": true,
+    "codec": "snappy",
+    "operation": "compress",
+    "path": "io/io/src/main/kotlin/io/bluetape4k/io/compressor/SnappyCompressor.kt",
+    "payloadIntermediateFree": true,
+    "sha256": "bfeb61190dbe6bcec0e1e8473c41a7cf3de6e1f8e2a321354ad4c972f02b66f8",
+    "storagePath": "direct",
+    "symbol": "compress(ByteBuffer, ByteBuffer)"
+  },
+  {
+    "adoptionEligible": false,
+    "codec": "snappy",
+    "operation": "compress",
+    "path": "io/io/src/main/kotlin/io/bluetape4k/io/compressor/SnappyCompressor.kt",
+    "payloadIntermediateFree": false,
+    "sha256": "bfeb61190dbe6bcec0e1e8473c41a7cf3de6e1f8e2a321354ad4c972f02b66f8",
+    "storagePath": "heapToDirect",
+    "symbol": "compress(ByteBuffer, ByteBuffer)"
+  },
+  {
+    "adoptionEligible": false,
+    "codec": "snappy",
+    "operation": "compress",
+    "path": "io/io/src/main/kotlin/io/bluetape4k/io/compressor/SnappyCompressor.kt",
+    "payloadIntermediateFree": false,
+    "sha256": "bfeb61190dbe6bcec0e1e8473c41a7cf3de6e1f8e2a321354ad4c972f02b66f8",
+    "storagePath": "directToHeap",
+    "symbol": "compress(ByteBuffer, ByteBuffer)"
+  },
+  {
+    "adoptionEligible": false,
+    "codec": "snappy",
+    "operation": "decompress",
+    "path": "io/io/src/main/kotlin/io/bluetape4k/io/compressor/SnappyCompressor.kt",
+    "payloadIntermediateFree": false,
+    "sha256": "bfeb61190dbe6bcec0e1e8473c41a7cf3de6e1f8e2a321354ad4c972f02b66f8",
+    "storagePath": "heap",
+    "symbol": "decompress(ByteBuffer, ByteBuffer)"
+  },
+  {
+    "adoptionEligible": false,
+    "codec": "snappy",
+    "operation": "decompress",
+    "path": "io/io/src/main/kotlin/io/bluetape4k/io/compressor/SnappyCompressor.kt",
+    "payloadIntermediateFree": true,
+    "sha256": "bfeb61190dbe6bcec0e1e8473c41a7cf3de6e1f8e2a321354ad4c972f02b66f8",
+    "storagePath": "direct",
+    "symbol": "decompress(ByteBuffer, ByteBuffer)"
+  },
+  {
+    "adoptionEligible": false,
+    "codec": "snappy",
+    "operation": "decompress",
+    "path": "io/io/src/main/kotlin/io/bluetape4k/io/compressor/SnappyCompressor.kt",
+    "payloadIntermediateFree": false,
+    "sha256": "bfeb61190dbe6bcec0e1e8473c41a7cf3de6e1f8e2a321354ad4c972f02b66f8",
+    "storagePath": "heapToDirect",
+    "symbol": "decompress(ByteBuffer, ByteBuffer)"
+  },
+  {
+    "adoptionEligible": false,
+    "codec": "snappy",
+    "operation": "decompress",
+    "path": "io/io/src/main/kotlin/io/bluetape4k/io/compressor/SnappyCompressor.kt",
+    "payloadIntermediateFree": false,
+    "sha256": "bfeb61190dbe6bcec0e1e8473c41a7cf3de6e1f8e2a321354ad4c972f02b66f8",
+    "storagePath": "directToHeap",
+    "symbol": "decompress(ByteBuffer, ByteBuffer)"
+  },
+  {
+    "adoptionEligible": true,
+    "codec": "zstd",
+    "operation": "compress",
+    "path": "io/io/src/main/kotlin/io/bluetape4k/io/compressor/ZstdCompressor.kt",
+    "payloadIntermediateFree": true,
+    "sha256": "a1ea50fef1d91de80d2a276522b7c3bb45dc16596abd6efd30280fc887d93e98",
+    "storagePath": "heap",
+    "symbol": "compress(ByteBuffer, ByteBuffer)"
+  },
+  {
+    "adoptionEligible": true,
+    "codec": "zstd",
+    "operation": "compress",
+    "path": "io/io/src/main/kotlin/io/bluetape4k/io/compressor/ZstdCompressor.kt",
+    "payloadIntermediateFree": true,
+    "sha256": "a1ea50fef1d91de80d2a276522b7c3bb45dc16596abd6efd30280fc887d93e98",
+    "storagePath": "direct",
+    "symbol": "compress(ByteBuffer, ByteBuffer)"
+  },
+  {
+    "adoptionEligible": false,
+    "codec": "zstd",
+    "operation": "compress",
+    "path": "io/io/src/main/kotlin/io/bluetape4k/io/compressor/ZstdCompressor.kt",
+    "payloadIntermediateFree": false,
+    "sha256": "a1ea50fef1d91de80d2a276522b7c3bb45dc16596abd6efd30280fc887d93e98",
+    "storagePath": "heapToDirect",
+    "symbol": "compress(ByteBuffer, ByteBuffer)"
+  },
+  {
+    "adoptionEligible": false,
+    "codec": "zstd",
+    "operation": "compress",
+    "path": "io/io/src/main/kotlin/io/bluetape4k/io/compressor/ZstdCompressor.kt",
+    "payloadIntermediateFree": false,
+    "sha256": "a1ea50fef1d91de80d2a276522b7c3bb45dc16596abd6efd30280fc887d93e98",
+    "storagePath": "directToHeap",
+    "symbol": "compress(ByteBuffer, ByteBuffer)"
+  },
+  {
+    "adoptionEligible": true,
+    "codec": "zstd",
+    "operation": "decompress",
+    "path": "io/io/src/main/kotlin/io/bluetape4k/io/compressor/ZstdCompressor.kt",
+    "payloadIntermediateFree": true,
+    "sha256": "a1ea50fef1d91de80d2a276522b7c3bb45dc16596abd6efd30280fc887d93e98",
+    "storagePath": "heap",
+    "symbol": "decompress(ByteBuffer, ByteBuffer)"
+  },
+  {
+    "adoptionEligible": true,
+    "codec": "zstd",
+    "operation": "decompress",
+    "path": "io/io/src/main/kotlin/io/bluetape4k/io/compressor/ZstdCompressor.kt",
+    "payloadIntermediateFree": true,
+    "sha256": "a1ea50fef1d91de80d2a276522b7c3bb45dc16596abd6efd30280fc887d93e98",
+    "storagePath": "direct",
+    "symbol": "decompress(ByteBuffer, ByteBuffer)"
+  },
+  {
+    "adoptionEligible": false,
+    "codec": "zstd",
+    "operation": "decompress",
+    "path": "io/io/src/main/kotlin/io/bluetape4k/io/compressor/ZstdCompressor.kt",
+    "payloadIntermediateFree": false,
+    "sha256": "a1ea50fef1d91de80d2a276522b7c3bb45dc16596abd6efd30280fc887d93e98",
+    "storagePath": "heapToDirect",
+    "symbol": "decompress(ByteBuffer, ByteBuffer)"
+  },
+  {
+    "adoptionEligible": false,
+    "codec": "zstd",
+    "operation": "decompress",
+    "path": "io/io/src/main/kotlin/io/bluetape4k/io/compressor/ZstdCompressor.kt",
+    "payloadIntermediateFree": false,
+    "sha256": "a1ea50fef1d91de80d2a276522b7c3bb45dc16596abd6efd30280fc887d93e98",
+    "storagePath": "directToHeap",
+    "symbol": "decompress(ByteBuffer, ByteBuffer)"
+  }
+]

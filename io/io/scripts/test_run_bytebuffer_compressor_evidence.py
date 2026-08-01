@@ -286,6 +286,12 @@ class ComparisonTest(unittest.TestCase):
 
 
 class RunnerContractTest(unittest.TestCase):
+    def test_delivery_allowlist_excludes_benchmark_and_production_sources(self):
+        self.assertIn("scripts/check-compressor-buffer-docs.py", evidence.DELIVERY_ALLOWLIST)
+        self.assertIn("io/io/scripts/run-bytebuffer-compressor-evidence.py", evidence.DELIVERY_ALLOWLIST)
+        self.assertIn("io/io/scripts/test_run_bytebuffer_compressor_evidence.py", evidence.DELIVERY_ALLOWLIST)
+        self.assertFalse(any(path.startswith("io/io/src/") for path in evidence.DELIVERY_ALLOWLIST))
+
     def test_canonical_profile_is_exact(self):
         self.assertEqual(
             ["-t", "1", "-f", "2", "-wi", "3", "-i", "5", "-w", "1s", "-r", "1s", "-prof", "gc", "-rf", "json"],
