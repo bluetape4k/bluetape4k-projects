@@ -15,6 +15,7 @@ import kotlinx.coroutines.flow.FlowCollector
  * - `drain`은 값 1건 소비 후 producer를 다시 깨우는 핸드셰이크 루프를 수행합니다.
  * - 완료 시 error가 있으면 예외를 던지고, 없으면 정상 종료합니다.
  * - 단일 슬롯(`value`) 구조라 동시 다중 producer에는 적합하지 않습니다.
+ * - drain 종료 시 producer 대기자를 깨우고 종료 callback을 한 번만 호출합니다.
  *
  * ```kotlin
  * val rc = ResumableCollector<Int>()
@@ -97,6 +98,22 @@ class ResumableCollector<T>: Resumable() {
         }
     }
 
+    /**
+     * consumer 준비를 기다리지 않고 terminal 상태를 기록합니다.
+     *
+     * ## 동작/계약
+     * - 호출자 취소 또는 개별 collector 취소로 [error]/[complete]의 handshake가 중단된 경우 사용합니다.
+     * - [error]를 저장하고 `done`을 설정한 뒤 drain을 재개해 collector가 종료 상태를 관찰하도록 합니다.
+     * - suspend하지 않으므로 terminal fanout의 남은 collector를 계속 처리할 수 있습니다.
+     *
+     * @param error 종료 시 전파할 예외이며 `null`이면 정상 완료입니다.
+     */
+    internal fun terminate(error: Throwable?) {
+        this.error = error
+        this.done.value = true
+        resume()
+    }
+
     private suspend inline fun whenConsumerReady(action: () -> Unit) {
         consumerReady.await()
         action()
@@ -141,30 +158,29 @@ class ResumableCollector<T>: Resumable() {
      */
     suspend fun drain(collector: FlowCollector<T>, onComplete: ((ResumableCollector<T>) -> Unit)? = null) =
         coroutineScope {
-            while (true) {
-                coroutineContext.ensureActive()
-                readyConsumer()
-                awaitSignal()
+            try {
+                while (true) {
+                    coroutineContext.ensureActive()
+                    readyConsumer()
+                    awaitSignal()
 
-                if (hasValue.value) {
-                    val v = value
-                    value = uninitialized()
-                    hasValue.value = false
+                    if (hasValue.value) {
+                        val v = value
+                        value = uninitialized()
+                        hasValue.value = false
 
-                    try {
                         coroutineContext.ensureActive()
                         collector.emit(v)
-                    } catch (ex: Throwable) {
-                        onComplete?.invoke(this@ResumableCollector)
-                        readyConsumer()             // unblock waiters
-                        throw ex
+                    }
+
+                    if (done.value) {
+                        error?.let { throw it }
+                        break
                     }
                 }
-
-                if (done.value) {
-                    error?.let { throw it }
-                    break
-                }
+            } finally {
+                onComplete?.invoke(this@ResumableCollector)
+                readyConsumer()
             }
         }
 }
