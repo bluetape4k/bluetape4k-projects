@@ -2,6 +2,7 @@ package io.bluetape4k.redis.lettuce.map
 
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeNull
+import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import kotlin.test.assertFailsWith
 import io.bluetape4k.logging.coroutines.KLoggingChannel
@@ -14,12 +15,16 @@ import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
+import io.mockk.verify
 import kotlinx.coroutines.CancellationException
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
 import java.util.concurrent.CompletableFuture
+import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.TimeoutException
+import java.util.concurrent.atomic.AtomicBoolean
+import kotlin.concurrent.thread
 
 /**
  * MockK-based unit tests for [LettuceSuspendedLoadedMap] failure paths.
@@ -185,5 +190,40 @@ class LettuceSuspendedLoadedMapMockTest {
         assertFailsWith<CancellationException> {
             map.get("key1")
         }
+    }
+
+    @Test
+    fun `close - interrupted blocking caller restores status and closes owned resources`() {
+        val asyncCommands = mockk<RedisAsyncCommands<String, String>>(relaxed = true)
+        val connection = mockk<StatefulRedisConnection<String, String>>(relaxed = true)
+        every { connection.async() } returns asyncCommands
+
+        val client = mockk<RedisClient>(relaxed = true)
+        every { client.connect<String, String>(any()) } returns connection
+
+        val map = LettuceSuspendedLoadedMap(
+            client = client,
+            writer = object: SuspendedMapWriter<String, String> {
+                override suspend fun write(map: Map<String, String>) = Unit
+                override suspend fun delete(keys: Collection<String>) = Unit
+            },
+            config = LettuceCacheConfig.WRITE_BEHIND.copy(keyPrefix = "mock-close-interrupt"),
+        )
+        val interruptedStatusRestored = AtomicBoolean(false)
+        val completed = CountDownLatch(1)
+
+        thread(start = true, isDaemon = true, name = "loaded-map-close-interrupt-test") {
+            try {
+                Thread.currentThread().interrupt()
+                map.close()
+                interruptedStatusRestored.set(Thread.currentThread().isInterrupted)
+            } finally {
+                completed.countDown()
+            }
+        }
+
+        completed.await(5, TimeUnit.SECONDS).shouldBeTrue()
+        interruptedStatusRestored.get().shouldBeTrue()
+        verify(exactly = 1) { connection.close() }
     }
 }

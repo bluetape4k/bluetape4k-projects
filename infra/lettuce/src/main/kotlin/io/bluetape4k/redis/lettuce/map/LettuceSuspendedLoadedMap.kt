@@ -373,11 +373,11 @@ class LettuceSuspendedLoadedMap<K: Any, V: Any>(
     }
 
     /**
-     * Releases resources held by this map.
+     * 이 맵이 보유한 리소스를 해제한다.
      *
-     * **In coroutine contexts**: prefer [suspendClose] to avoid blocking the thread.
-     * This method uses [runBlocking] internally and will block the calling thread
-     * while waiting for the write-behind job to finish flushing.
+     * **코루틴 컨텍스트에서는** 호출 스레드를 차단하지 않도록 [suspendClose]를 사용한다.
+     * 이 메서드는 내부적으로 [runBlocking]을 사용하여 write-behind 작업의 drain을 기다린다.
+     * drain 대기 중 호출 스레드가 interrupt되면 interrupt 상태를 복원한 뒤 소유 리소스를 정리한다.
      */
     override fun close() {
         // 1. 채널을 먼저 닫아 새 write 차단 (producer가 IllegalStateException을 던짐)
@@ -392,6 +392,9 @@ class LettuceSuspendedLoadedMap<K: Any, V: Any>(
                     }
                 }
             }
+        } catch (e: InterruptedException) {
+            Thread.currentThread().interrupt()
+            log.warn(e) { "Write-behind job drain interrupted during close(); interrupt status restored" }
         } catch (e: Exception) {
             log.warn(e) { "Write-behind job drain timed out or failed during close()" }
         } finally {
