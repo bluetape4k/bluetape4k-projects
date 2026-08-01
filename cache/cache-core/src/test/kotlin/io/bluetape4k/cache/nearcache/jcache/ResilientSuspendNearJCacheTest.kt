@@ -24,6 +24,7 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.RepeatedTest
 import org.junit.jupiter.api.Test
 import java.time.Duration
+import java.util.concurrent.CompletionException
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicInteger
@@ -85,8 +86,9 @@ class ResilientSuspendNearJCacheTest {
     @Test
     fun `put - write-behind - 잠시 후 back cache에도 반영됨`() =
         runSuspendIO {
-            cache.put("wb-key", "wb-val")
+            val completion = cache.put("wb-key", "wb-val")
             cache.get("wb-key") shouldBeEqualTo "wb-val"
+            completion.join()
 
             await atMost 5.seconds untilSuspending { backCache.get("wb-key") == "wb-val" }
             backCache.get("wb-key") shouldBeEqualTo "wb-val"
@@ -407,18 +409,49 @@ class ResilientSuspendNearJCacheTest {
         }
 
     @Test
-    fun `remove - retry exhaustion releases tombstone`() =
+    fun `remove - retry exhaustion keeps tombstone and blocks stale back reads`() =
         runSuspendIO {
+            val removeAttempts = AtomicInteger()
             val failingCache = resilientCacheWithFailingBackCache { backCache ->
                 coEvery { backCache.get("remove-key") } returns "back-value"
-                coEvery { backCache.remove("remove-key") } throws IllegalStateException("remove failed")
+                coEvery { backCache.remove("remove-key") } coAnswers {
+                    removeAttempts.incrementAndGet()
+                    throw IllegalStateException("remove failed")
+                }
             }
 
             try {
                 failingCache.get("remove-key") shouldBeEqualTo "back-value"
-                failingCache.remove("remove-key")
+                val completion = failingCache.remove("remove-key")
 
-                await atMost 5.seconds untilSuspending { failingCache.get("remove-key") == "back-value" }
+                await atMost 5.seconds untilSuspending { removeAttempts.get() == 1 }
+                assertFailsWith<CompletionException> { completion.join() }
+                failingCache.get("remove-key").shouldBeNull()
+            } finally {
+                failingCache.close()
+            }
+        }
+
+    @Test
+    fun `removeAll - retry exhaustion keeps tombstones and blocks stale back reads`() =
+        runSuspendIO {
+            val removeAttempts = AtomicInteger()
+            val failingCache = resilientCacheWithFailingBackCache { backCache ->
+                coEvery { backCache.get("remove-a") } returns "back-a"
+                coEvery { backCache.get("remove-b") } returns "back-b"
+                coEvery { backCache.removeAll(setOf("remove-a", "remove-b")) } coAnswers {
+                    removeAttempts.incrementAndGet()
+                    throw IllegalStateException("remove failed")
+                }
+            }
+
+            try {
+                val completion = failingCache.removeAll(setOf("remove-a", "remove-b"))
+
+                await atMost 5.seconds untilSuspending { removeAttempts.get() == 1 }
+                assertFailsWith<CompletionException> { completion.join() }
+                failingCache.get("remove-a").shouldBeNull()
+                failingCache.get("remove-b").shouldBeNull()
             } finally {
                 failingCache.close()
             }
@@ -664,20 +697,68 @@ class ResilientSuspendNearJCacheTest {
         }
 
     @Test
-    fun `clearAll - retry exhaustion restores back reads`() =
+    fun `clearAll - retry exhaustion keeps clear pending and blocks stale back reads`() =
         runSuspendIO {
+            val clearAttempts = AtomicInteger()
             val failingCache = resilientCacheWithFailingBackCache { backCache ->
                 coEvery { backCache.get("clear-key") } returns "back-value"
-                coEvery { backCache.clear() } throws IllegalStateException("clear failed")
+                coEvery { backCache.clear() } coAnswers {
+                    clearAttempts.incrementAndGet()
+                    throw IllegalStateException("clear failed")
+                }
             }
 
             try {
                 failingCache.get("clear-key") shouldBeEqualTo "back-value"
-                failingCache.clearAll()
+                val completion = failingCache.clearAll()
 
-                await atMost 5.seconds untilSuspending { failingCache.get("clear-key") == "back-value" }
+                await atMost 5.seconds untilSuspending { clearAttempts.get() == 1 }
+                assertFailsWith<CompletionException> { completion.join() }
+                failingCache.get("clear-key").shouldBeNull()
             } finally {
                 failingCache.close()
+            }
+        }
+
+    @Test
+    fun `close - timeout completes pending write exceptionally`() =
+        runSuspendIO {
+            val writeStarted = CountDownLatch(1)
+            val releaseWrite = CountDownLatch(1)
+            val writeFinished = CountDownLatch(1)
+            val blockingBackCache = mockk<SuspendJCache<String, String>>(relaxed = true)
+            coEvery { blockingBackCache.put("blocked", "value") } coAnswers {
+                writeStarted.countDown()
+                while (true) {
+                    try {
+                        if (releaseWrite.await(10, TimeUnit.MILLISECONDS)) break
+                    } catch (_: InterruptedException) {
+                        // close() cancels the consumer; keep the backend operation pending
+                        // to exercise the timeout path.
+                    }
+                }
+                writeFinished.countDown()
+            }
+            val timeoutCache = ResilientSuspendNearJCache(
+                backCache = blockingBackCache,
+                config = ResilientNearJCacheConfig(
+                    closeDrainTimeout = Duration.ofMillis(50),
+                    retryMaxAttempts = 1,
+                    retryWaitDuration = Duration.ofMillis(10),
+                )
+            )
+
+            try {
+                val completion = timeoutCache.put("blocked", "value")
+                writeStarted.await(5, TimeUnit.SECONDS).shouldBeTrue()
+
+                timeoutCache.close()
+
+                assertFailsWith<CompletionException> { completion.join() }
+            } finally {
+                releaseWrite.countDown()
+                writeFinished.await(5, TimeUnit.SECONDS).shouldBeTrue()
+                timeoutCache.close()
             }
         }
 
