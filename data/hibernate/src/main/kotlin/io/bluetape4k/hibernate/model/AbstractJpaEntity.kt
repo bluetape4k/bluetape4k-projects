@@ -9,9 +9,10 @@ import java.io.Serializable
 /**
  * JPA entity를 위한 base abstraction입니다.
  *
- * Equality uses the assigned identifier only when both entities are persisted.
- * Transient entities fall back to [equalProperties], so their default
- * [hashCode] must stay stable for hash-based collections before persistence.
+ * Equality는 Hibernate proxy를 해제한 effective entity type이 같은 경우에만
+ * persisted identifier 또는 transient business signature를 사용합니다.
+ * [hashCode]는 type 기반으로만 계산하여 transient entity가 영속화된 뒤에도
+ * `HashSet`과 `HashMap`에서 같은 위치를 유지합니다.
  */
 abstract class AbstractJpaEntity<ID: Serializable>: AbstractPersistenceObject(), JpaEntity<ID> {
 
@@ -21,6 +22,12 @@ abstract class AbstractJpaEntity<ID: Serializable>: AbstractPersistenceObject(),
          */
         private fun <TId> hasSameNonDefaultId(id: TId, target: JpaEntity<*>): Boolean =
             id == target.id
+
+        /**
+         * Hibernate proxy를 해제한 두 entity의 effective type이 같은지 반환합니다.
+         */
+        private fun hasSameEntityType(self: AbstractJpaEntity<*>, target: JpaEntity<*>): Boolean =
+            Hibernate.getClass(self) == Hibernate.getClass(target)
 
         /**
          * 두 transient entity가 같은 business signature를 공유하는지 반환합니다.
@@ -46,6 +53,7 @@ abstract class AbstractJpaEntity<ID: Serializable>: AbstractPersistenceObject(),
     override fun equals(other: Any?): Boolean {
         val target = other?.let { Hibernate.unproxy(it) } as? JpaEntity<*> ?: return false
         return when {
+            !hasSameEntityType(this, target) -> false
             isPersisted != target.isPersisted -> false
             isPersisted && target.isPersisted -> hasSameNonDefaultId(id, target)
             else                              -> hasSameBusinessSignature<ID>(this, target)
@@ -55,12 +63,13 @@ abstract class AbstractJpaEntity<ID: Serializable>: AbstractPersistenceObject(),
     /**
      * entity hash code를 반환합니다.
      *
-     * Persisted entities use the identifier hash. Transient entities use the
-     * Hibernate-resolved entity class hash so equal transient instances land in
-     * the same hash bucket even before an identifier is assigned.
+     * Persisted 여부와 관계없이 Hibernate가 해석한 effective entity type만
+     * 사용합니다. 따라서 identifier가 할당되어도 hash-based collection에서
+     * entity의 위치가 바뀌지 않습니다. 서로 다른 type은 같은 hash를 가질 수
+     * 있지만 equals가 false이므로 hash contract를 위반하지 않습니다.
      */
     override fun hashCode(): Int {
-        return id?.hashCode() ?: Hibernate.getClass(this).hashCode()
+        return Hibernate.getClass(this).hashCode()
     }
 
     /**
