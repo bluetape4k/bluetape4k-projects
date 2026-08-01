@@ -6,6 +6,7 @@ import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeNull
 import io.bluetape4k.assertions.shouldNotBeEmpty
 import io.bluetape4k.assertions.shouldNotBeNull
+import io.bluetape4k.assertions.shouldBeTrue
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
 import org.junit.jupiter.params.ParameterizedTest
@@ -15,6 +16,10 @@ import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime
 import io.bluetape4k.junit5.concurrency.MultithreadingTester
+import org.apache.fory.Fory
+import org.apache.fory.builder.Generated
+import org.apache.fory.config.CompatibleMode
+import org.apache.fory.config.Language
 import java.util.stream.Stream
 import io.bluetape4k.assertions.assertFailsWith
 
@@ -66,6 +71,8 @@ class SerializerEdgeCaseTest {
         val localDate: LocalDate,
         val localDateTime: LocalDateTime,
     ) : Serializable
+
+    data class ConcurrentItem(val id: Int, val name: String) : Serializable
 
     @ParameterizedTest(name = "null 직렬화는 emptyByteArray 를 반환한다: {0}")
     @MethodSource("allSerializers")
@@ -178,28 +185,47 @@ class SerializerEdgeCaseTest {
     @ParameterizedTest(name = "멀티스레드 안전성: {0}")
     @MethodSource("allSerializers")
     fun `멀티스레드 환경에서 동시 직렬화가 안전하게 동작한다`(serializer: BinarySerializer) {
-        data class Item(val id: Int, val name: String) : Serializable
-
         val counter = java.util.concurrent.atomic.AtomicInteger(0)
-        val results = java.util.concurrent.ConcurrentHashMap<Int, Item>()
+        val results = java.util.concurrent.ConcurrentHashMap<Int, ConcurrentItem>()
 
         MultithreadingTester()
             .workers(THREAD_COUNT)
             .rounds(1)
             .add {
                 val idx = counter.getAndIncrement()
-                val item = Item(idx, "thread-$idx")
+                val item = ConcurrentItem(idx, "thread-$idx")
                 val bytes = serializer.serialize(item)
-                val deserialized = serializer.deserialize<Item>(bytes)
+                val deserialized = serializer.deserialize<ConcurrentItem>(bytes)
                 if (deserialized != null) results[idx] = deserialized
             }
             .run()
 
         results.size shouldBeEqualTo THREAD_COUNT
         repeat(THREAD_COUNT) { idx ->
-            results[idx].shouldNotBeNull()
-            results[idx]!!.id shouldBeEqualTo idx
+            results[idx].shouldNotBeNull().id shouldBeEqualTo idx
         }
+    }
+
+    @Test
+    fun `Fory codegen path uses a generated serializer for the concurrency fixture`() {
+        val fory = Fory.builder()
+            .withLanguage(Language.JAVA)
+            .withCompatibleMode(CompatibleMode.COMPATIBLE)
+            .withAsyncCompilation(false)
+            .withRefTracking(true)
+            .withRefCopy(true)
+            .withCodegen(true)
+            .withStringCompressed(true)
+            .requireClassRegistration(false)
+            .buildThreadSafeForyPool(1)
+        val serializer = ForyBinarySerializer(fory)
+
+        serializer.serialize(ConcurrentItem(0, "thread-0"))
+
+        val actualSerializer = fory.execute { it.getSerializer(ConcurrentItem::class.java) }
+        Generated.GeneratedSerializer::class.java
+            .isAssignableFrom(actualSerializer.javaClass)
+            .shouldBeTrue()
     }
 
     @Test
