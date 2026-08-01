@@ -263,6 +263,64 @@ class ZstdCompressorByteBufferTest {
     }
 
     @Test
+    fun `over-declared wire is rejected consistently across source and target storage`() {
+        val payload = CompressorByteBufferTestSupport.payload
+        val declaredSize = payload.size + 3
+        val wire = wireWithDeclaredSize(payload, declaredSize)
+
+        CompressorByteBufferTestSupport.sources(wire).forEach { (_, source) ->
+            CompressorByteBufferTestSupport.targets(declaredSize).forEach { (_, target) ->
+                val sourcePosition = source.position()
+                val sourceLimit = source.limit()
+                val targetPosition = target.position()
+                val targetLimit = target.limit()
+
+                val failure = assertFailsWith<IllegalStateException> {
+                    compressor.decompress(source, target)
+                }
+
+                failure.message shouldBeEqualTo
+                        "Zstd decompressed size mismatch: expected=$declaredSize, actual=${payload.size}"
+                source.position() shouldBeEqualTo sourcePosition
+                source.limit() shouldBeEqualTo sourceLimit
+                target.position() shouldBeEqualTo targetPosition
+                target.limit() shouldBeEqualTo targetLimit
+                CompressorByteBufferTestSupport.assertMark(source, sourcePosition)
+                CompressorByteBufferTestSupport.assertMark(target, targetPosition)
+            }
+        }
+    }
+
+    @Test
+    fun `under-declared wire is rejected consistently across source and target storage`() {
+        val payload = CompressorByteBufferTestSupport.payload
+        val declaredSize = payload.size - 1
+        val wire = wireWithDeclaredSize(payload, declaredSize)
+
+        CompressorByteBufferTestSupport.sources(wire).forEach { (_, source) ->
+            CompressorByteBufferTestSupport.targets(payload.size).forEach { (_, target) ->
+                val sourcePosition = source.position()
+                val sourceLimit = source.limit()
+                val targetPosition = target.position()
+                val targetLimit = target.limit()
+
+                val failure = assertFailsWith<IllegalStateException> {
+                    compressor.decompress(source, target)
+                }
+
+                failure.message shouldBeEqualTo
+                        "Zstd decompressed payload exceeds declared size=$declaredSize"
+                source.position() shouldBeEqualTo sourcePosition
+                source.limit() shouldBeEqualTo sourceLimit
+                target.position() shouldBeEqualTo targetPosition
+                target.limit() shouldBeEqualTo targetLimit
+                CompressorByteBufferTestSupport.assertMark(source, sourcePosition)
+                CompressorByteBufferTestSupport.assertMark(target, targetPosition)
+            }
+        }
+    }
+
+    @Test
     fun `successful decode must exactly match the declared size before narrowing`() {
         listOf(-1L, 7L, 9L, Long.MAX_VALUE, (1L shl 32) + 8L).forEach { actual ->
             val target = ByteBuffer.allocateDirect(32)
@@ -373,6 +431,11 @@ class ZstdCompressorByteBufferTest {
             declaredSize,
             byteArrayOf(0x28.toByte(), 0xB5.toByte(), 0x2F.toByte(), 0xFD.toByte()),
         )
+
+    private fun wireWithDeclaredSize(payload: ByteArray, declaredSize: Int): ByteArray =
+        compressor.compress(payload).also { wire ->
+            ByteBuffer.wrap(wire).putInt(declaredSize)
+        }
 
     private class RecordingZstdBufferOperations(
         private val compressResult: Long = 1,
