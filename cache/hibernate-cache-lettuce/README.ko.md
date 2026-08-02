@@ -40,10 +40,17 @@ cache 폴더 재편으로 소스 위치는 `cache/hibernate-cache-lettuce/`가 �
 - **Hibernate key encoding**: Hibernate key는 Region prefix 적용 전에 versioned collision-resistant digest로 정규화
 - **AccessType**: `NONSTRICT_READ_WRITE` 권장 (분산 캐시에서 soft-lock 불필요)
 
+### Cache Key 요구 사항
+
+캐시 key에 사용하는 모든 Hibernate 식별자(entity ID, natural ID, composite key 구성 요소)는 지원되는 scalar/array 값이거나 전체 object graph가 `java.io.Serializable`이어야 합니다. Canonicalization은 fail-closed로 동작하므로, 지원되지 않는 값과 직렬화할 수 없는 nested member를 포함한 `Serializable` 값은 조회 시 cache miss, 저장 시 무시, keyed eviction 시 예외 전파로 처리됩니다. `toString()`이나 `hashCode()`를 fallback으로 사용하지 않습니다.
+
+text fallback을 사용하던 이전 버전이 만든 기존 entry는 이 변경 후 다시 주소화할 수 없습니다. 해당 legacy entry를 제거해야 한다면 rollout 중 영향받는 region을 한 번 evict하세요. 직렬화 가능한 key는 기존 `hck2` digest 표현을 유지하므로 전체 cache migration은 필요하지 않습니다.
+
 ## 최근 변경
 
 - `LettuceNearCacheStorageAccess.evictData()`를 region local-only clear에서 **local + Redis clearAll**로 변경
 - key 및 region eviction 중 Redis 오류를 성공으로 처리하지 않고 호출자에게 전파
+- correctness-critical text/hashCode cache-key fallback 제거: 지원되지 않는 식별자 graph는 fail-closed 처리
 - 테스트에서 `session.get()`을 `session.find()`로 교체해 Hibernate deprecated API 제거
 - One-To-Many / Many-To-One / Many-To-Many 관계 엔티티 캐시 시나리오 테스트 추가
 

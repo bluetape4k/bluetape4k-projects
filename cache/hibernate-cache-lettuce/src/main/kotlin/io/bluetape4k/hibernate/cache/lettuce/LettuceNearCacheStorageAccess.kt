@@ -9,6 +9,7 @@ import org.hibernate.cache.internal.NaturalIdCacheKey
 import org.hibernate.cache.spi.support.DomainDataStorageAccess
 import org.hibernate.engine.spi.SharedSessionContractImplementor
 import java.io.ByteArrayOutputStream
+import java.io.IOException
 import java.io.ObjectOutputStream
 import java.io.Serializable
 import java.security.MessageDigest
@@ -27,6 +28,7 @@ import java.util.Base64
  *   L2 장애 시 예외를 로깅하고 무시한다 (Hibernate 트랜잭션에 영향 없음).
  * - [evictData]: region 전체 evict 시 local + Redis 모두 제거
  * - [evictData] with key: 특정 key만 L1+L2 제거
+ * - cache key canonicalization을 수행할 수 없는 식별자는 text/hashCode fallback 없이 fail-closed 처리한다.
  * - eviction 중 Redis 오류가 발생하면 예외를 호출자에게 전파하여 Hibernate가 성공으로 처리하지 않도록 한다.
  */
 class LettuceNearCacheStorageAccess(
@@ -113,7 +115,7 @@ class LettuceNearCacheStorageAccess(
             is LongArray    -> writePrimitiveArray("long[]", value.toList()) { writeLong(it) }
             is ShortArray   -> writePrimitiveArray("short[]", value.toList()) { writeShort(it.toInt()) }
             is Serializable -> writeSerializableValue(value)
-            else            -> writeTextFallback(value)
+            else            -> throw UnsupportedCacheKeyException(value)
         }
     }
 
@@ -143,10 +145,13 @@ class LettuceNearCacheStorageAccess(
     }
 
     private fun ObjectOutputStream.writeSerializableValue(value: Serializable) {
-        val serialized = serializeValue(value)
-        if (serialized == null) {
-            writeTextFallback(value)
-            return
+        val serialized = try {
+            ByteArrayOutputStream().use { bytes ->
+                ObjectOutputStream(bytes).use { out -> out.writeObject(value) }
+                bytes.toByteArray()
+            }
+        } catch (e: IOException) {
+            throw UnsupportedCacheKeyException(value, e)
         }
 
         writeUTF("serializable")
@@ -155,26 +160,19 @@ class LettuceNearCacheStorageAccess(
         write(serialized)
     }
 
-    private fun serializeValue(value: Serializable): ByteArray? =
-        runCatching {
-            ByteArrayOutputStream().use { bytes ->
-                ObjectOutputStream(bytes).use { out -> out.writeObject(value) }
-                bytes.toByteArray()
-            }
-        }.getOrNull()
-
-    private fun ObjectOutputStream.writeTextFallback(value: Serializable) {
-        writeUTF("text")
-        writeUTF(value.javaClass.name)
-        writeInt(value.hashCode())
-        writeUTF(value.toString())
-    }
-
-    private fun ObjectOutputStream.writeTextFallback(value: Any) {
-        writeUTF("text")
-        writeUTF(value.javaClass.name)
-        writeUTF(value.toString())
-    }
+    /**
+     * 식별자 전체 object graph를 canonical bytes로 만들 수 없을 때 사용한다.
+     *
+     * text/hashCode 기반 fallback은 서로 다른 식별자를 같은 cache key로 만들 수 있으므로
+     * 허용하지 않는다. 호출 계층의 `runCatching`이 읽기 miss/쓰기 무시로 안전하게 폴백한다.
+     */
+    private class UnsupportedCacheKeyException(
+        value: Any,
+        cause: Throwable? = null,
+    ): IllegalArgumentException(
+        "Hibernate cache key value cannot be canonically serialized: ${value.javaClass.name}",
+        cause,
+    )
 
     /**
      * 캐시에서 값을 조회한다. Caffeine(L1) miss 시 Redis(L2)를 조회한다.
