@@ -4,15 +4,17 @@ import io.bluetape4k.jwt.keychain.KeyChain
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.warn
-import java.util.*
+import io.bluetape4k.support.requirePositiveNumber
+import java.util.Timer
 import kotlin.concurrent.timer
 
 /**
  * [KeyChainRepository]의 공통 로직을 구현하는 추상 기반 클래스입니다.
  *
  * ## 동작/계약
- * - 생성 시 1분(60초) 간격으로 현재 키체인을 자동 갱신하는 타이머가 시작됩니다.
+ * - 생성 시 기본 1분(60초) 간격으로 현재 키체인을 자동 갱신하는 타이머가 시작됩니다.
  * - [current]는 캐시된 키체인을 우선 반환하며, 없으면 [doLoadCurrent]를 호출합니다.
+ * - 저장소가 소유한 타이머는 [close]로 취소하며, [close]는 여러 번 호출해도 안전합니다.
  *
  * ```kotlin
  * class MyRepository : AbstractKeyChainRepository() {
@@ -26,7 +28,9 @@ import kotlin.concurrent.timer
  * }
  * ```
  */
-abstract class AbstractKeyChainRepository: KeyChainRepository {
+abstract class AbstractKeyChainRepository(
+    private val refreshIntervalMillis: Long = DEFAULT_REFRESH_TIME_MILLIS,
+): KeyChainRepository {
 
     companion object: KLogging() {
         /**
@@ -36,10 +40,14 @@ abstract class AbstractKeyChainRepository: KeyChainRepository {
     }
 
     protected var cachedCurrent: KeyChain? = null
+    private val lifecycleLock = Any()
+    @Volatile
+    private var closed = false
     private var timer: Timer? = null
 
     init {
-        timer = timer(this::class.java.name, true, DEFAULT_REFRESH_TIME_MILLIS, DEFAULT_REFRESH_TIME_MILLIS) {
+        refreshIntervalMillis.requirePositiveNumber("refreshIntervalMillis")
+        timer = timer(this::class.java.name, true, refreshIntervalMillis, refreshIntervalMillis) {
             refreshCurrent()
         }
     }
@@ -55,10 +63,29 @@ abstract class AbstractKeyChainRepository: KeyChainRepository {
     }
 
     protected fun refreshCurrent() {
-        runCatching {
-            cachedCurrent = doLoadCurrent()
-        }.onFailure {
-            log.warn(it) { "Fail to refresh current keyChain" }
+        synchronized(lifecycleLock) {
+            if (closed) return
+
+            runCatching {
+                cachedCurrent = doLoadCurrent()
+            }.onFailure {
+                log.warn(it) { "Fail to refresh current keyChain" }
+            }
+        }
+    }
+
+    /**
+     * 이 저장소가 소유한 refresh timer를 취소합니다.
+     *
+     * 주입받은 저장소나 클라이언트는 이 클래스가 소유하지 않으므로 닫지 않습니다.
+     */
+    override fun close() {
+        synchronized(lifecycleLock) {
+            if (closed) return
+
+            closed = true
+            timer?.cancel()
+            timer = null
         }
     }
 

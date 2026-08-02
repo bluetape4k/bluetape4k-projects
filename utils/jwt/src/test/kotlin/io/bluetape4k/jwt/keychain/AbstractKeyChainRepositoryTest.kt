@@ -6,6 +6,7 @@ import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.assertions.shouldNotBeEqualTo
 import io.bluetape4k.jwt.keychain.repository.KeyChainRepository
 import io.bluetape4k.logging.KLogging
+import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import java.time.Duration
@@ -21,6 +22,11 @@ abstract class AbstractKeyChainRepositoryTest {
     fun beforeEach() {
         // deleteAll 은 테스트 시에만 사용하세요
         repository.deleteAll()
+    }
+
+    @AfterEach
+    fun afterEach() {
+        repository.close()
     }
 
     @Test

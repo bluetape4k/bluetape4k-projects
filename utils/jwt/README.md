@@ -137,6 +137,28 @@ val jwt2 = jwtProvider.composer().claim("user", "user2").compose()
 val reader1 = jwtProvider.parse(jwt1)
 ```
 
+### Lifecycle and resource ownership
+
+`JwtProvider` and `KeyChainRepository` implement `AutoCloseable`. The default provider owns its key rotation timer, while an injected repository is borrowed and is not closed by the provider. Close both explicitly when they share an application or test scope:
+
+```kotlin
+import io.bluetape4k.jwt.keychain.repository.inmemory.InMemoryKeyChainRepository
+import io.bluetape4k.jwt.provider.JwtProviderFactory
+
+val repository = InMemoryKeyChainRepository()
+val jwtProvider = JwtProviderFactory.default(keyChainRepository = repository)
+
+try {
+    val jwt = jwtProvider.compose { subject = "alice" }
+    jwtProvider.parse(jwt)
+} finally {
+    jwtProvider.close() // cancels the provider's rotation timer
+    repository.close()  // cancels the repository's refresh timer
+}
+```
+
+Cache providers borrow their delegate; close the original delegate separately when it owns a rotation timer. Implementations without background work may keep the default no-op `close()` implementation.
+
 ### Compression
 
 Use built-in jjwt compression for large claim payloads.
@@ -201,6 +223,8 @@ val repository = InMemoryKeyChainRepository()
 val jwtProvider = JwtProviderFactory.default(keyChainRepository = repository)
 ```
 
+Call `jwtProvider.close()` and `repository.close()` when this pair is no longer used. The repository close operation does not shut down an externally owned Redisson client.
+
 ### Custom KeyChain Repository
 
 ```kotlin
@@ -249,6 +273,21 @@ val jwtProvider = JwtProviderFactory.default(
 |---------------------|--------------------------------------|
 | `JwtCodecs.Deflate` | Deflate compression (`Jwts.ZIP.DEF`) |
 | `JwtCodecs.Gzip`    | GZIP compression (`Jwts.ZIP.GZIP`)   |
+
+## KeyChain Structure
+
+```kotlin
+class KeyChain(
+    val algorithm: SignatureAlgorithm,  // signing algorithm (jjwt 0.13.x SignatureAlgorithm)
+    val keyPair: KeyPair,               // RSA key pair
+    val id: String,                     // unique KeyChain ID (kid)
+    val createdAt: Long,                // creation time (epoch millis)
+    val expiredTtl: Long,               // expiration TTL (millis)
+) {
+    val isExpired: Boolean              // whether the key is expired
+    val expiredAt: Long                 // expiration time (epoch millis)
+}
+```
 
 ## Security Best Practices
 

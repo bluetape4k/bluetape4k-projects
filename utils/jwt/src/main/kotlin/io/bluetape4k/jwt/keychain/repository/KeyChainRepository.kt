@@ -10,6 +10,8 @@ import io.bluetape4k.logging.KLogging
  * - [current]는 현재 서명에 사용할 키체인을 반환합니다.
  * - [findOrNull]은 이전 키로 서명된 JWT 검증 시 `kid` 조회에 사용됩니다.
  * - [rotate]는 구현체 정책에 따라 조건부 회전을 수행하고, [forcedRotate]는 강제 교체를 수행합니다.
+ * - 인스턴스가 백그라운드 작업을 소유하는 경우 [close]로 작업을 취소합니다.
+ * - 저장소는 주입받은 외부 자원을 소유하지 않으며, [close]는 저장소가 소유한 자원만 해제합니다.
  *
  * ```kotlin
  * val current = repository.current()
@@ -18,7 +20,7 @@ import io.bluetape4k.logging.KLogging
  * // rotated == true || rotated == false
  * ```
  */
-interface KeyChainRepository {
+interface KeyChainRepository: AutoCloseable {
 
     companion object: KLogging() {
         /** 기본 보관 개수입니다. */
@@ -107,4 +109,12 @@ interface KeyChainRepository {
      * ```
      */
     fun deleteAll()
+
+    /**
+     * 저장소가 소유한 백그라운드 작업을 종료합니다.
+     *
+     * 타이머가 없는 구현체는 기본 구현을 그대로 사용하면 됩니다. 구현체는 여러 번 호출해도
+     * 안전하게 동작하도록 만들어야 합니다.
+     */
+    override fun close() = Unit
 }
