@@ -1,12 +1,12 @@
-# Flow Operator Parity Implementation Plan
+# Flow 연산자 동등성 구현 계획
 
-> **For agentic workers:** REQUIRED SUB-SKILL: Use inline execution in this session. Steps use checkbox (`- [ ]`) syntax for tracking.
+> **Agent 작업 지침:** 이 session에서 inline으로 실행한다. 진행 상태는 checkbox(`- [ ]`) 형식으로 추적한다.
 
-**Goal:** `bluetape4k-coroutines`에 count-or-time batching/windowing, idle timeout fallback, bounded eager ordered mapping을 추가하고 Rx/Reactor/표준 Flow 대응표와 검증 증거를 제공한다.
+**목표:** `bluetape4k-coroutines`에 count-or-time batching/windowing, idle timeout fallback, bounded eager ordered mapping을 추가하고 Rx/Reactor/표준 Flow 대응표와 검증 근거를 제공한다.
 
-**Architecture:** timer 기반 연산자는 `produceIn`/`select`를 이용한 하나의 내부 count-or-time 수집기와 채널 lifecycle로 구현한다. timeout은 upstream producer를 먼저 취소한 뒤 fallback을 한 번만 수집한다. `concatMapEager` bounded overload는 `Semaphore`와 inner별 `Channel`을 사용하며 기존 unbounded overload와 source-order 방출 계약을 유지한다.
+**아키텍처:** Timer 기반 연산자는 `produceIn`/`select`를 이용한 내부 count-or-time collector 하나와 channel lifecycle로 구현한다. Timeout은 upstream producer를 먼저 취소한 뒤 fallback을 한 번만 수집한다. `concatMapEager`의 제한된 overload는 `Semaphore`와 내부 항목별 `Channel`을 사용하며 기존 무제한 overload와 원본 순서 방출 계약을 유지한다.
 
-**Tech Stack:** Kotlin 2.3, kotlinx.coroutines Flow/Channel/Select, `kotlinx-coroutines-test`, JUnit 5, bluetape assertions, kotlinx-benchmark, Gradle.
+**기술 스택:** Kotlin 2.3, kotlinx.coroutines Flow/Channel/Select, `kotlinx-coroutines-test`, JUnit 5, bluetape assertion, kotlinx-benchmark, Gradle
 
 ---
 
@@ -18,25 +18,25 @@
 - 테스트는 RED → 최소 구현 → GREEN → refactor 순서로 진행한다.
 - Testcontainers/외부 서버는 사용하지 않으며, timer/concurrency 계약은
   `runTest` virtual time와 deterministic markers로 검증한다.
-- Operators must not switch dispatchers, call blocking APIs, use `GlobalScope`,
-  or detach children; tests collect on the `runTest` dispatcher and cancellation
-  markers prove the structured boundary.
+- 연산자는 dispatcher를 전환하거나 blocking API와 `GlobalScope`를 사용하거나
+  child를 분리해서는 안 된다. 테스트는 `runTest` dispatcher에서 수집하고
+  cancellation marker로 구조화된 경계를 증명한다.
 - 구현 전 follow-up issue와 inventory를 먼저 고정한다.
 - 각 slice는 독립적으로 빌드 가능한 commit을 만들고, stacked PR head는
   앞 slice를 base로 순서대로 올린다.
 
-## Task 1: Follow-up issue와 inventory matrix 고정
+## Task 1: 후속 issue와 inventory matrix 고정
 
-**Files:**
+**대상 파일:**
 
-- Create: `docs/flow-operator-inventory.md`
-- Modify: `bluetape4k/coroutines/README.md`
-- Modify: `bluetape4k/coroutines/README.ko.md`
-- External: GitHub follow-up issue linked to #1297
+- 생성: `docs/flow-operator-inventory.md`
+- 수정: `bluetape4k/coroutines/README.md`
+- 수정: `bluetape4k/coroutines/README.ko.md`
+- 외부 작업: #1297과 연결된 GitHub 후속 issue
 
 - [ ] **Step 1: 중복 issue를 read-only로 확인한다**
 
-Run:
+실행:
 
 ```bash
 gh issue list --repo bluetape4k/bluetape4k-projects --state all --limit 100 \
@@ -45,11 +45,11 @@ gh issue list --repo bluetape4k/bluetape4k-projects --state all --limit 100 \
   --search "backpressure overflow coroutines"
 ```
 
-Expected: #1297과 동일한 delay-error/backpressure 후속 issue가 없다.
+예상 결과: #1297과 동일한 delay-error/backpressure 후속 issue가 없다.
 
 - [ ] **Step 2: split follow-up issue를 생성하고 live metadata를 확인한다**
 
-Create one English issue only when Step 1 finds no duplicate:
+Step 1에서 중복을 찾지 못한 경우에만 영문 issue 하나를 생성한다.
 
 ```bash
 gh issue create --repo bluetape4k/bluetape4k-projects \
@@ -57,29 +57,29 @@ gh issue create --repo bluetape4k/bluetape4k-projects \
   --body $'Parent: #1297\n\n# Scope\nEvaluate delay-error composition and explicit overflow policies after the focused Flow parity slice.\n\n## Deferred families\n- concatDelayError, mergeDelayError, and bounded flatMapDelayError\n- onBackpressureBuffer, onBackpressureLatest, and explicit overflow errors\n- bufferWhen/windowWhen and bufferWhile/windowWhile when caller evidence exists\n\n## Constraints\n- Preserve CancellationException as cancellation.\n- Do not imply Reactive Streams demand semantics for Kotlin Flow.\n- Prefer standard kotlinx.coroutines operators when they already satisfy the contract.\n\n## Acceptance\n- Publish a contract matrix and caller evidence before implementation.\n- Add deterministic failure, cancellation, and bounded-memory tests.\n- Link the final PR back to #1297.'
 ```
 
-Then verify `state`, `assignees`, `milestone`, and `url` with `gh issue view`.
-If the issue is created, run `gh issue edit <number> --assignee debop --milestone
-"1.12.0"` and re-read the same fields; do not mutate an existing
-issue found by the duplicate search.
+이어서 `gh issue view`로 `state`, `assignees`, `milestone`, `url`을 검증한다.
+Issue를 생성했다면 `gh issue edit <number> --assignee debop --milestone
+"1.12.0"`을 실행하고 같은 field를 다시 읽는다. 중복 검색으로 찾은 기존
+issue는 수정하지 않는다.
 
 - [ ] **Step 3: inventory matrix를 작성한다**
 
 `docs/flow-operator-inventory.md`에는 다음 열과 행을 고정한다.
 
-| Current API | Selected/proposed API | RxJava/Reactor analogue | Standard Flow mapping or non-goal |
+| 현재 API | 선택/제안 API | RxJava/Reactor 대응 | 표준 Flow 대응 또는 비목표 |
 |---|---|---|---|
-| `chunked`, `windowed` | `bufferTimeout`, `windowTimeout` | `Observable.buffer(timespan,count)`, `Flux.bufferTimeout` | New count-or-time contract |
-| none | `timeout`, `timeoutOrFallback` | `Observable.timeout`, `Flux.timeout` | New idle-timeout contract |
-| unbounded `concatMapEager` | bounded overload | ordered eager concat family | Custom ordered bounded mapping |
-| none | `switchMap` vocabulary decision | `switchMap`, `switchOnNext` | `flatMapLatest`; no wrapper in this issue |
-| `merge`, `concat` | delay-error follow-up | `mergeDelayError`, `concatDelayError` | Follow-up issue |
-| `onBackpressureDrop` | overflow mapping | Reactor/Rx overflow families | `buffer`/`conflate`; follow-up only |
-| `withLatestFrom` | existing API | `withLatestFrom` | Existing single-secondary case |
-| none | — | `combine`, `zip`, `retryWhen` | Standard Flow non-goals |
+| `chunked`, `windowed` | `bufferTimeout`, `windowTimeout` | `Observable.buffer(timespan,count)`, `Flux.bufferTimeout` | 새 count-or-time 계약 |
+| 없음 | `timeout`, `timeoutOrFallback` | `Observable.timeout`, `Flux.timeout` | 새 유휴 timeout 계약 |
+| 무제한 `concatMapEager` | 제한된 overload | ordered eager concat 계열 | 사용자 정의 순서 보장 제한 mapping |
+| 없음 | `switchMap` 용어 결정 | `switchMap`, `switchOnNext` | `flatMapLatest`. 이 issue에서는 wrapper를 추가하지 않음 |
+| `merge`, `concat` | delay-error 후속 작업 | `mergeDelayError`, `concatDelayError` | 후속 issue |
+| `onBackpressureDrop` | overflow 대응 | Reactor/Rx overflow 계열 | `buffer`/`conflate`. 후속 작업만 수행 |
+| `withLatestFrom` | 기존 API | `withLatestFrom` | 기존 단일 secondary 사례 |
+| 없음 | — | `combine`, `zip`, `retryWhen` | 표준 Flow 비목표 |
 
 - [ ] **Step 4: 양국어 README에 선택 범위와 표준 Flow 경계를 반영한다**
 
-Add examples that compile against the eventual signatures:
+최종 signature로 compile되는 다음 예제를 추가한다.
 
 ```kotlin
 val batches = source.bufferTimeout(maxSize = 100, timeout = 1.seconds)
@@ -88,14 +88,13 @@ val recovered = source.timeoutOrFallback(500.milliseconds, fallback = cached)
 val ordered = source.concatMapEager(maxConcurrency = 4, bufferCapacity = 8) { load(it) }
 ```
 
-Document that completion emits a non-empty partial batch/window, upstream
-failure drops the in-flight partial value, timeout fallback subscribes after
-upstream cancellation, and excluded families map to standard Flow or the
-follow-up issue.
+완료 시 비어 있지 않은 부분 batch/window를 방출하고, upstream 실패 시 처리 중인
+부분 값을 폐기하며, timeout fallback은 upstream cancellation 뒤에 구독한다는
+점을 문서화한다. 제외된 계열은 표준 Flow 또는 후속 issue에 대응시킨다.
 
-- [ ] **Step 5: inventory/document diff를 검증하고 commit한다**
+- [ ] **Step 5: inventory와 문서 diff를 검증하고 commit한다**
 
-Run:
+실행:
 
 ```bash
 git diff --check
@@ -111,17 +110,17 @@ git commit -m "document selected Flow operator parity contracts" \
   -m "Constraint: Keep standard Flow operators as explicit non-goals.\nRejected: Fold delay-error and overflow policy families into this slice | follow-up contracts are not yet approved.\nConfidence: high\nScope-risk: narrow\nDirective: Keep the inventory synchronized with every public operator change.\nTested: git diff --check and inventory terminology scan.\nNot-tested: New operator tests are added in later slices."
 ```
 
-## Task 2: Count-or-time buffer/window (RED → GREEN)
+## Task 2: Count-or-time buffer/window 구현(RED → GREEN)
 
-**Files:**
+**대상 파일:**
 
-- Create: `bluetape4k/coroutines/src/main/kotlin/io/bluetape4k/coroutines/flow/extensions/bufferTimeout.kt`
-- Create: `bluetape4k/coroutines/src/test/kotlin/io/bluetape4k/coroutines/flow/extensions/BufferTimeoutTest.kt`
+- 생성: `bluetape4k/coroutines/src/main/kotlin/io/bluetape4k/coroutines/flow/extensions/bufferTimeout.kt`
+- 생성: `bluetape4k/coroutines/src/test/kotlin/io/bluetape4k/coroutines/flow/extensions/BufferTimeoutTest.kt`
 
-- [ ] **Step 1: failing tests for count, timeout, completion, error, cancellation, and virtual time를 작성한다**
+- [ ] **Step 1: 개수, timeout, 완료, 오류, cancellation, 가상 시간의 실패 테스트를 작성한다**
 
-The test class uses `runTest`, `assertResult`, and `assertFailure` from the
-existing test fixtures. Required cases:
+테스트 class는 기존 test fixture의 `runTest`, `assertResult`, `assertFailure`를
+사용한다. 필수 case는 다음과 같다.
 
 ```kotlin
 @Test
@@ -193,8 +192,8 @@ fun `take cancellation closes the upstream producer`() = runTest {
 }
 ```
 
-The receive clause must be registered before `onTimeout` in the implementation
-so the same-instant tie test records the documented biased-select rule.
+같은 시각의 경합 테스트가 문서화된 편향 select 규칙을 기록하도록 구현에서
+수신 절을 `onTimeout`보다 먼저 등록해야 한다.
 
 - [ ] **Step 2: targeted RED run을 확인한다**
 
@@ -204,12 +203,12 @@ so the same-instant tie test records the documented biased-select rule.
   --no-configuration-cache --console=plain
 ```
 
-Expected: compilation or missing-symbol failures for the new APIs.
+예상 결과: 새 API의 compile 오류 또는 symbol 부재로 실패한다.
 
 - [ ] **Step 3: 최소 구현을 작성한다**
 
-Implement `bufferTimeout` and `windowTimeout` using one internal
-`countOrTimeout(maxSize, timeout): Flow<List<T>>` collector:
+내부 `countOrTimeout(maxSize, timeout): Flow<List<T>>` collector 하나를 사용해
+`bufferTimeout`과 `windowTimeout`을 구현한다.
 
 ```kotlin
 private fun <T> Flow<T>.countOrTimeout(maxSize: Int, timeout: Duration): Flow<List<T>> = flow {
@@ -248,9 +247,9 @@ private fun <T> Flow<T>.countOrTimeout(maxSize: Int, timeout: Duration): Flow<Li
 }
 ```
 
-The implementation must use a fresh list per emission, emit only non-empty
-lists, let channel close causes propagate, and convert each list to `asFlow()`
-for `windowTimeout`.
+구현은 방출마다 새 list를 사용하고 비어 있지 않은 list만 방출해야 한다.
+Channel 종료 원인은 그대로 전파하고 `windowTimeout`에서는 각 list를
+`asFlow()`로 변환한다.
 
 - [ ] **Step 4: GREEN targeted run을 확인한다**
 
@@ -260,7 +259,7 @@ for `windowTimeout`.
   --no-configuration-cache --console=plain
 ```
 
-Expected: all BufferTimeoutTest cases pass.
+예상 결과: `BufferTimeoutTest`의 모든 case가 통과한다.
 
 - [ ] **Step 5: commit한다**
 
@@ -271,14 +270,14 @@ git commit -m "add count-or-time Flow buffers and windows" \
   -m "Constraint: Timer behavior must remain deterministic under runTest virtual time.\nRejected: Reuse bufferingDebounce | it uses wall-clock System.nanoTime and has different reset semantics.\nConfidence: high\nScope-risk: moderate\nDirective: Preserve non-empty partial-on-completion and drop partial-on-failure semantics.\nTested: BufferTimeoutTest targeted Gradle run.\nNot-tested: Full module check is deferred to the slice gate."
 ```
 
-## Task 3: Idle timeout and fallback (RED → GREEN)
+## Task 3: 유휴 timeout과 fallback 구현(RED → GREEN)
 
-**Files:**
+**대상 파일:**
 
-- Create: `bluetape4k/coroutines/src/main/kotlin/io/bluetape4k/coroutines/flow/extensions/timeout.kt`
-- Create: `bluetape4k/coroutines/src/test/kotlin/io/bluetape4k/coroutines/flow/extensions/TimeoutTest.kt`
+- 생성: `bluetape4k/coroutines/src/main/kotlin/io/bluetape4k/coroutines/flow/extensions/timeout.kt`
+- 생성: `bluetape4k/coroutines/src/test/kotlin/io/bluetape4k/coroutines/flow/extensions/TimeoutTest.kt`
 
-- [ ] **Step 1: failing tests를 작성한다**
+- [ ] **Step 1: 실패 테스트를 작성한다**
 
 ```kotlin
 @Test
@@ -341,16 +340,16 @@ fun `fallback failure remains unchanged`() = runTest {
   --no-configuration-cache --console=plain
 ```
 
-Expected: missing `FlowTimeoutException`/`timeout` symbols.
+예상 결과: `FlowTimeoutException`/`timeout` symbol 부재로 실패한다.
 
 - [ ] **Step 3: 최소 구현을 작성한다**
 
-Implement a public `FlowTimeoutException : java.util.concurrent.TimeoutException`
-(`import java.util.concurrent.TimeoutException`) and two public functions. The
-internal loop registers `onTimeout(timeout)` alongside
-`onReceiveCatching`; on timeout it marks a flag, cancels the input channel,
-then either throws or collects fallback outside the select. Rethrow
-`CancellationException` and preserve upstream/fallback causes.
+공개 `FlowTimeoutException : java.util.concurrent.TimeoutException`
+(`import java.util.concurrent.TimeoutException`)과 공개 함수 두 개를 구현한다.
+내부 반복은 `onReceiveCatching`과 함께 `onTimeout(timeout)`을 등록한다. Timeout
+발생 시 flag를 표시하고 input channel을 취소한 다음 select 밖에서 예외를
+던지거나 fallback을 수집한다. `CancellationException`은 다시 던지고
+upstream/fallback 원인은 보존한다.
 
 ```kotlin
 class FlowTimeoutException(val timeout: Duration) : TimeoutException(
@@ -376,14 +375,14 @@ git commit -m "add idle timeout and fallback Flow operators" \
   -m "Constraint: Upstream cancellation must complete before fallback collection.\nRejected: Expose TimeoutCancellationException as a data-plane error | cancellation would be indistinguishable from caller cancellation.\nConfidence: high\nScope-risk: moderate\nDirective: Always rethrow CancellationException and keep fallback single-subscription.\nTested: TimeoutTest targeted Gradle run.\nNot-tested: Full module check is deferred to the slice gate."
 ```
 
-## Task 4: Bounded `concatMapEager` (RED → GREEN)
+## Task 4: 제한된 `concatMapEager` 구현(RED → GREEN)
 
-**Files:**
+**대상 파일:**
 
-- Modify: `bluetape4k/coroutines/src/main/kotlin/io/bluetape4k/coroutines/flow/extensions/concatMapEager.kt`
-- Create: `bluetape4k/coroutines/src/test/kotlin/io/bluetape4k/coroutines/flow/extensions/ConcatMapEagerBoundedTest.kt`
+- 수정: `bluetape4k/coroutines/src/main/kotlin/io/bluetape4k/coroutines/flow/extensions/concatMapEager.kt`
+- 생성: `bluetape4k/coroutines/src/test/kotlin/io/bluetape4k/coroutines/flow/extensions/ConcatMapEagerBoundedTest.kt`
 
-- [ ] **Step 1: failing bounded lifecycle tests를 작성한다**
+- [ ] **Step 1: 제한된 lifecycle 실패 테스트를 작성한다**
 
 ```kotlin
 @Test
@@ -431,9 +430,8 @@ fun `bounded arguments fail before collection`() = runTest {
 }
 ```
 
-Also assert transform failure and inner failure remain the original exception,
-and that every started inner executes its `finally` block after `take(1)`
-cancellation.
+Transform 실패와 내부 실패가 원래 예외를 유지하는지 확인한다. `take(1)`
+cancellation 뒤에는 시작한 모든 내부 작업이 `finally` 블록을 실행해야 한다.
 
 - [ ] **Step 2: RED run을 확인한다**
 
@@ -443,11 +441,11 @@ cancellation.
   --no-configuration-cache --console=plain
 ```
 
-Expected: no bounded overload exists yet.
+예상 결과: 아직 제한된 overload가 없으므로 실패한다.
 
 - [ ] **Step 3: bounded overload와 channel-backed queue를 구현한다**
 
-Add this overload without changing the existing function:
+기존 함수를 변경하지 않고 다음 overload를 추가한다.
 
 ```kotlin
 fun <T : Any, R : Any> Flow<T>.concatMapEager(
@@ -461,11 +459,10 @@ fun <T : Any, R : Any> Flow<T>.concatMapEager(
 }
 ```
 
-The internal queue uses `Semaphore(maxConcurrency)` and
-`Channel<R>(bufferCapacity)`. The old overload delegates to
-`Channel.UNLIMITED`/`Int.MAX_VALUE`; inner `finally` closes the channel,
-releases the permit, marks completion, and resumes the drain. Do not catch and
-swallow child failures.
+내부 queue는 `Semaphore(maxConcurrency)`와 `Channel<R>(bufferCapacity)`을
+사용한다. 기존 overload는 `Channel.UNLIMITED`/`Int.MAX_VALUE`에 위임한다.
+내부 `finally`는 channel을 닫고 permit을 해제하며 완료를 표시한 뒤 drain을
+재개한다. Child 실패를 catch한 뒤 무시해서는 안 된다.
 
 - [ ] **Step 4: GREEN run과 기존 회귀 테스트를 확인한다**
 
@@ -475,7 +472,7 @@ swallow child failures.
   --no-configuration-cache --console=plain
 ```
 
-Expected: bounded tests and existing `ConcatMapEagerTest` pass.
+예상 결과: 제한 동작 테스트와 기존 `ConcatMapEagerTest`가 통과한다.
 
 - [ ] **Step 5: commit한다**
 
@@ -486,19 +483,20 @@ git commit -m "bound eager Flow mapping concurrency and queues" \
   -m "Constraint: Preserve the existing source-order overload and structured child lifecycle.\nRejected: Apply a global buffer after concatMapEager | it cannot bound per-inner queues while preserving ordered drain.\nConfidence: medium\nScope-risk: broad\nDirective: Keep semaphore permits and channel cleanup in inner finally blocks.\nTested: bounded and existing ConcatMapEager tests.\nNot-tested: Benchmark evidence is added in the next task."
 ```
 
-## Task 5: Benchmark and bilingual API documentation
+## Task 5: Benchmark와 양국어 API 문서화
 
-**Files:**
+**대상 파일:**
 
-- Modify: `bluetape4k/coroutines/src/test/kotlin/io/bluetape4k/coroutines/benchmark/CoroutinesFlowBenchmark.kt`
-- Modify: `bluetape4k/coroutines/README.md`
-- Modify: `bluetape4k/coroutines/README.ko.md`
-- Modify: `docs/flow-operator-inventory.md`
+- 수정: `bluetape4k/coroutines/src/test/kotlin/io/bluetape4k/coroutines/benchmark/CoroutinesFlowBenchmark.kt`
+- 수정: `bluetape4k/coroutines/README.md`
+- 수정: `bluetape4k/coroutines/README.ko.md`
+- 수정: `docs/flow-operator-inventory.md`
 
 - [ ] **Step 1: benchmark cases를 추가한다**
 
-Add three benchmark methods using existing `runBlocking`/`asFlow` style and
-`import kotlin.time.Duration.Companion.days`:
+기존 `runBlocking`/`asFlow` 형식과
+`import kotlin.time.Duration.Companion.days`를 사용해 benchmark method 세 개를
+추가한다.
 
 ```kotlin
 @Benchmark
@@ -528,10 +526,9 @@ fun boundedConcatMapEagerThroughput(): Int = runBlocking {
 }
 ```
 
-The one-day timeout deliberately measures timer registration/list allocation
-without
-making the benchmark wall-clock dependent; count-boundary and bounded-queue
-behavior are the stable evidence for this release.
+하루짜리 timeout은 benchmark가 wall-clock에 의존하지 않으면서 timer 등록과
+list 할당을 측정하도록 의도한 값이다. 개수 경계와 제한된 queue 동작을 이번
+배포의 안정적인 근거로 사용한다.
 
 - [ ] **Step 2: benchmark compile/run을 순차 실행한다**
 
@@ -540,14 +537,14 @@ behavior are the stable evidence for this release.
   --no-configuration-cache --console=plain
 ```
 
-Expected: benchmark task completes and emits the three new method names.
+예상 결과: benchmark task가 완료되고 새 method 이름 세 개가 출력된다.
 
 - [ ] **Step 3: KDoc와 README parity를 마무리한다**
 
-For each public API, include Korean-first KDoc with a runnable example and
-explicit completion/error/cancellation/order/buffer/concurrency clauses. Keep
-English README and Korean README section order and code signatures identical;
-do not introduce diagrams because this slice has no visual contract change.
+각 공개 API에 실행 가능한 예제와 명시적인 완료/오류/cancellation/순서/buffer/
+concurrency 조항을 포함한 한국어 우선 KDoc을 작성한다. 영문 README와 한국어
+README의 section 순서와 코드 signature를 동일하게 유지한다. 이 slice에는
+시각적 계약 변경이 없으므로 diagram을 추가하지 않는다.
 
 - [ ] **Step 4: commit한다**
 
@@ -558,12 +555,12 @@ git commit -m "add Flow operator parity benchmarks and API guidance" \
   -m "Constraint: README locales and KDoc must describe the same public contracts.\nRejected: Add a new diagram for text-only operator contracts | existing diagrams do not encode timer/error details.\nConfidence: high\nScope-risk: narrow\nDirective: Update the inventory whenever a selected operator changes.\nTested: testCoroutinesFlowBenchmark and diff checks.\nNot-tested: External Rx/Reactor runtime integration is outside this module."
 ```
 
-## Task 6: Verification, review, lesson, and stacked PR delivery
+## Task 6: 검증, 리뷰, lesson, stacked PR 제공
 
-**Files:**
+**대상 파일:**
 
-- Create: `docs/reviews/2026-08-03-issue-1297-flow-operator-review.md`
-- Create: `docs/lessons/2026-08-03-issue-1297-flow-operator-parity.md`
+- 생성: `docs/reviews/2026-08-03-issue-1297-flow-operator-review.md`
+- 생성: `docs/lessons/2026-08-03-issue-1297-flow-operator-parity.md`
 
 - [ ] **Step 1: 전체 검증을 순차 실행한다**
 
@@ -575,47 +572,47 @@ git commit -m "add Flow operator parity benchmarks and API guidance" \
 git diff --check
 ```
 
-Expected: all commands succeed; no unrelated module is claimed as tested.
+예상 결과: 모든 명령이 성공한다. 관련 없는 module까지 검증했다고 주장하지 않는다.
 
-- [ ] **Step 2: final review artifact를 작성한다**
+- [ ] **Step 2: 최종 리뷰 문서를 작성한다**
 
-Review the branch diff against the design and record P0/P1/P2/P3 findings,
-API compatibility, structured cancellation, virtual-time determinism, queue
-bound, README/KDoc parity, benchmark output, and follow-up link. Advancement
-requires P0=0 and P1=0.
+설계와 branch diff를 대조하고 P0/P1/P2/P3 지적, API 호환성, 구조화된
+cancellation, 가상 시간 결정성, queue 제한, README/KDoc 동등성, benchmark
+출력, 후속 링크를 기록한다. P0=0, P1=0인 경우에만 다음 단계로 진행한다.
 
 - [ ] **Step 3: lesson을 작성하고 commit한다**
 
-Record the timer race decision, why `bufferingDebounce` was not reused, the
-fallback cleanup proof, and the bounded queue trade-off with exact commands.
+Timer 경합 결정, `bufferingDebounce`를 재사용하지 않은 이유, fallback 정리
+근거, 제한된 queue의 trade-off를 정확한 명령과 함께 기록한다.
 
 - [ ] **Step 4: PR train을 생성한다**
 
-Push the feature branch and create PRs in dependency order. Each PR must:
+Feature branch를 push하고 dependency 순서대로 PR을 생성한다. 각 PR은 다음
+조건을 충족해야 한다.
 
-- target `develop` or the immediately previous PR head as appropriate;
-- be assigned to `debop`, mirror issue milestone/labels, and link `#1297`;
-- use an English title/body ending with `## DoD Status`;
-- include exact test commands and the current commit SHA.
+- 상황에 따라 `develop` 또는 바로 앞 PR head를 대상으로 한다.
+- `debop`을 assignee로 지정하고 issue milestone/label을 복사하며 `#1297`을 연결한다.
+- 영어 제목과 본문을 사용하고 본문은 `## DoD Status`로 끝낸다.
+- 정확한 테스트 명령과 현재 commit SHA를 포함한다.
 
-Before creation, verify `git status`, `git log`, branch head, and the issue
-metadata. Do not merge any PR in this task without a fresh exact-head approval.
+생성 전에 `git status`, `git log`, branch head, issue metadata를 검증한다.
+최신 exact-head 승인이 없으면 이 작업에서 어떤 PR도 merge하지 않는다.
 
 - [ ] **Step 5: merge-ready DoD를 보고하고 중단한다**
 
-Run `gh pr view`, `gh pr checks`, review/thread queries, and mergeability checks
-for the current top head. Report plan-item status, changed files, required
-checks `X/Y`, N/A and blocked counts, known risks, exact PR/head, and unchecked
-merge gates. Stop at `PENDING` awaiting explicit merge approval.
+현재 최상위 head에서 `gh pr view`, `gh pr checks`, review/thread query,
+mergeability 검사를 실행한다. 계획 항목 상태, 변경 파일, 필수 검사 `X/Y`, N/A와
+blocked 수, 알려진 위험, 정확한 PR/head, 확인하지 않은 merge gate를 보고한다.
+명시적 merge 승인을 기다리는 `PENDING` 상태에서 중단한다.
 
-## Plan self-review
+## 계획 자체 리뷰
 
-- Spec coverage: Tasks 1–5 cover inventory, all three selected API families,
-  docs, tests, benchmark evidence, cancellation, and follow-up split.
-- Placeholder scan: no unresolved placeholders or unspecified validation commands.
-- Boundary scan: timer start, same-instant select precedence, cold-window
-  repeatability, invalid arguments, and cancellation markers have exact tests.
-- Type consistency: signatures use `Duration`, `FlowTimeoutException`,
-  `timeoutOrFallback`, and bounded `concatMapEager` consistently across tasks.
-- Scope: no new module/dependency; all writes are within the coroutines module,
-  docs, tests, and review/lesson artifacts.
+- 명세 범위: Task 1-5가 inventory, 선택한 API 계열 3개, 문서, 테스트,
+  benchmark 근거, cancellation, 후속 작업 분리를 다룬다.
+- Placeholder 검사: 해결되지 않은 placeholder나 지정되지 않은 검증 명령이 없다.
+- 경계 검사: timer 시작, 같은 시각의 select 우선순위, cold window 반복 수집,
+  잘못된 인자, cancellation marker에 정확한 테스트가 있다.
+- Type 일관성: 모든 task에서 `Duration`, `FlowTimeoutException`,
+  `timeoutOrFallback`, 제한된 `concatMapEager` signature를 일관되게 사용한다.
+- 범위: 새 module/dependency가 없으며 모든 변경은 coroutines module, 문서,
+  테스트, review/lesson 산출물 안에 있다.
