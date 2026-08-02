@@ -4,7 +4,12 @@
 
 **목표:** `bluetape4k-coroutines`에 count-or-time batching/windowing, idle timeout fallback, bounded eager ordered mapping을 추가하고 Rx/Reactor/표준 Flow 대응표와 검증 근거를 제공한다.
 
-**아키텍처:** Timer 기반 연산자는 `produceIn`/`select`를 이용한 내부 count-or-time collector 하나와 channel lifecycle로 구현한다. Timeout은 upstream producer를 먼저 취소한 뒤 fallback을 한 번만 수집한다. `concatMapEager`의 제한된 overload는 `Semaphore`와 내부 항목별 `Channel`을 사용하며 기존 무제한 overload와 원본 순서 방출 계약을 유지한다.
+**아키텍처:** Count-or-time 연산자는 `produceIn`/`select`를 이용한 내부
+collector 하나와 channel lifecycle로 구현한다. 유휴 timeout은 명시적 upstream
+`Job`과 `Channel`을 `select`로 감시하고, timeout 시 `cancelAndJoin`을 완료한 뒤
+fallback을 한 번만 수집한다. `concatMapEager`의 제한된 overload는 `Semaphore`와
+내부 항목별 `Channel`을 사용하며 기존 무제한 overload와 원본 순서 방출 계약을
+유지한다.
 
 **기술 스택:** Kotlin 2.3, kotlinx.coroutines Flow/Channel/Select, `kotlinx-coroutines-test`, JUnit 5, bluetape assertion, kotlinx-benchmark, Gradle
 
@@ -347,9 +352,10 @@ fun `fallback failure remains unchanged`() = runTest {
 공개 `FlowTimeoutException : java.util.concurrent.TimeoutException`
 (`import java.util.concurrent.TimeoutException`)과 공개 함수 두 개를 구현한다.
 내부 반복은 `onReceiveCatching`과 함께 `onTimeout(timeout)`을 등록한다. Timeout
-발생 시 flag를 표시하고 input channel을 취소한 다음 select 밖에서 예외를
-던지거나 fallback을 수집한다. `CancellationException`은 다시 던지고
-upstream/fallback 원인은 보존한다.
+발생 시 flag를 표시하고 명시적 upstream `Job`을 취소한 뒤 `cancelAndJoin`으로
+종료를 기다린다. 이어서 input channel을 닫고 select 밖에서 예외를 던지거나
+fallback을 수집한다. `CancellationException`은 다시 던지고 upstream/fallback
+원인은 보존한다.
 
 ```kotlin
 class FlowTimeoutException(val timeout: Duration) : TimeoutException(
