@@ -25,6 +25,10 @@ reimplementing operators already supplied by `kotlinx.coroutines`.
   boundary; RxJava `Observable.buffer(timespan, count)` documents the same
   first-of-count-or-time behavior. Kotlin Flow remains sequential by default,
   and `buffer`/`flatMapMerge` are the standard concurrency primitives.
+- Kotlin `select` is biased toward the first ready clause. The implementation
+  registers the input receive clause before the timeout clause, so a value that
+  becomes ready at the same virtual instant as the deadline wins the tie; the
+  next iteration then applies the timeout to the still-open batch.
 
 References:
 
@@ -44,6 +48,11 @@ References:
 4. Existing `concatMapEager(transform)` source compatibility and ordering must
    remain intact.
 5. No dependency, module, or generated catalog changes are required.
+6. Count-or-time timers start when the first element enters a batch/window, not
+   at subscription; empty windows are never emitted. Each exposed window is a
+   repeatable cold `Flow` backed by a completed snapshot.
+7. The idle timeout starts at collection and resets after every emitted item;
+   `FlowTimeoutException` extends `java.util.concurrent.TimeoutException`.
 
 ## Alternatives
 
@@ -89,14 +98,17 @@ upstream failure propagates without emitting the in-flight partial value, which
 matches the module's `windowed` behavior and avoids publishing data from a
 failed batch. Cancellation cancels the producer and timer together. A shared
 internal count-or-time collector owns the timer and list allocation; the
-window API exposes each completed list through `asFlow()`.
+window API exposes each completed list through `asFlow()`. Because the snapshot
+is complete before it is exposed, collecting a returned window more than once
+replays the same values; this is intentionally different from a live Reactor
+window and is called out in migration documentation.
 
 ### 2. Idle timeout and fallback
 
 Add:
 
 ```kotlin
-class FlowTimeoutException(val timeout: Duration) : TimeoutException
+class FlowTimeoutException(val timeout: Duration) : java.util.concurrent.TimeoutException
 
 fun <T> Flow<T>.timeout(timeout: Duration): Flow<T>
 fun <T> Flow<T>.timeoutOrFallback(timeout: Duration, fallback: Flow<T>): Flow<T>
@@ -141,8 +153,10 @@ families before code implementation begins.
 ## Failure modes and mitigations
 
 1. **Timer and count race:** a value may arrive at the same virtual instant as
-   the timeout. The select loop treats either signal as a valid boundary and
-   tests both ordering permutations with `runTest`.
+   the timeout. The receive clause is registered first, so Kotlin's biased
+   `select` gives the value precedence; a timeout-only iteration closes the
+   current non-empty batch. Tests cover both ordering permutations with
+   `runTest`.
 2. **Partial data on upstream failure:** the in-flight list is intentionally
    discarded when the channel closes with a cause; tests assert no partial
    emission before the exception.
@@ -162,6 +176,12 @@ families before code implementation begins.
   callers wanting a memory/concurrency bound opt into the new overload.
 - New types/functions are additive and live in
   `io.bluetape4k.coroutines.flow.extensions`.
+- `bufferTimeout`/`windowTimeout` start their timer on the first element and
+  expose no empty windows; callers migrating from Reactor must not assume a
+  timer-created empty window at subscription.
+- A `windowTimeout` result is a repeatable cold snapshot (`asFlow()`), not a
+  live single-consumer window. `timeoutOrFallback` subscribes to its fallback
+  only after upstream cleanup completes.
 - README examples show the new contracts and explicitly point callers to
   standard Flow operators for excluded families.
 
@@ -174,8 +194,9 @@ families before code implementation begins.
 - `kotlinx-coroutines-test` covers count boundary, timeout boundary, partial
   completion, upstream failure, fallback, cancellation, virtual time, and
   bounded eager concurrency/ordering.
-- Benchmark evidence covers count-or-time timer/list allocation and bounded
-  eager queue behavior.
+- Benchmark evidence covers count-or-time timer registration/list allocation
+  and bounded eager queue behavior; virtual-time tests, not the benchmark,
+  prove timer firing and deadline semantics.
 - Duplicate search and the linked follow-up issue are recorded before code.
 - `git diff --check`, targeted tests, module check, and the repository's
   applicable Kotlin/static checks pass.
