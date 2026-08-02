@@ -16,6 +16,7 @@ import io.ktor.server.routing.get
 import io.ktor.server.routing.routing
 import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.Serializable
+import org.openjdk.jmh.annotations.AuxCounters
 import org.openjdk.jmh.annotations.Benchmark
 import org.openjdk.jmh.annotations.BenchmarkMode
 import org.openjdk.jmh.annotations.Fork
@@ -82,9 +83,12 @@ open class WebFrameworkRequestBenchmark: WebFrameworkBenchmarkSupport()
 open class WebFrameworkLatencyBenchmark: WebFrameworkBenchmarkSupport()
 
 /**
- * Startup and resident-memory snapshot benchmark for the same benchmark apps.
+ * Ready-to-serve startup benchmark for the same benchmark apps.
+ *
+ * The invocation measures server construction through connector/application
+ * readiness. Invocation teardown closes the server outside the timed method.
  */
-@State(Scope.Benchmark)
+@State(Scope.Thread)
 @BenchmarkMode(Mode.AverageTime)
 @OutputTimeUnit(TimeUnit.MILLISECONDS)
 @Fork(1)
@@ -92,21 +96,101 @@ open class WebFrameworkLatencyBenchmark: WebFrameworkBenchmarkSupport()
 @Measurement(iterations = 3, time = 1, timeUnit = TimeUnit.SECONDS)
 open class WebFrameworkStartupBenchmark {
 
+    private var activeServer: AutoCloseable? = null
+
     @Benchmark
-    fun ktorStartup(blackhole: Blackhole) {
-        KtorBenchmarkServer().use { server ->
-            blackhole.consume(server.baseUrl)
-            blackhole.consume(usedMemoryBytes())
-        }
+    fun ktorReadyStartup(blackhole: Blackhole) {
+        val server = KtorBenchmarkServer()
+        activeServer = server
+        blackhole.consume(server.baseUrl)
     }
 
     @Benchmark
-    fun springWebFluxStartup(blackhole: Blackhole) {
-        SpringWebFluxBenchmarkServer().use { server ->
-            blackhole.consume(server.baseUrl)
-            blackhole.consume(usedMemoryBytes())
+    fun springWebFluxReadyStartup(blackhole: Blackhole) {
+        val server = SpringWebFluxBenchmarkServer()
+        activeServer = server
+        blackhole.consume(server.baseUrl)
+    }
+
+    @TearDown(Level.Invocation)
+    fun tearDownInvocation() {
+        activeServer?.let { server ->
+            activeServer = null
+            server.close()
         }
     }
+}
+
+/**
+ * JVM used-heap snapshot benchmark taken after each server is ready.
+ *
+ * The [WebFrameworkMemoryCounters.jvmUsedHeapBytes] event counter is copied
+ * into the normalized raw report as bytes. It is a JVM heap measurement, not
+ * process RSS; the benchmark documentation keeps that distinction explicit.
+ * One invocation per iteration records the sample so the event counter keeps
+ * one value per measurement iteration; later invocations are no-ops.
+ */
+@State(Scope.Thread)
+@BenchmarkMode(Mode.AverageTime)
+@OutputTimeUnit(TimeUnit.MILLISECONDS)
+@Fork(1)
+@Warmup(iterations = 1, time = 1, timeUnit = TimeUnit.SECONDS)
+@Measurement(iterations = 3, time = 1, timeUnit = TimeUnit.SECONDS)
+open class WebFrameworkMemoryBenchmark {
+
+    private var activeServer: AutoCloseable? = null
+    private var sampledThisIteration = false
+
+    @Setup(Level.Iteration)
+    fun resetMemorySample() {
+        sampledThisIteration = false
+    }
+
+    @Benchmark
+    fun ktorReadyUsedHeap(counters: WebFrameworkMemoryCounters, blackhole: Blackhole) {
+        if (sampledThisIteration) {
+            blackhole.consume(0)
+            return
+        }
+        sampledThisIteration = true
+        val server = KtorBenchmarkServer()
+        activeServer = server
+        blackhole.consume(server.baseUrl)
+        counters.recordJvmUsedHeapBytes(jvmUsedHeapBytes())
+    }
+
+    @Benchmark
+    fun springWebFluxReadyUsedHeap(counters: WebFrameworkMemoryCounters, blackhole: Blackhole) {
+        if (sampledThisIteration) {
+            blackhole.consume(0)
+            return
+        }
+        sampledThisIteration = true
+        val server = SpringWebFluxBenchmarkServer()
+        activeServer = server
+        blackhole.consume(server.baseUrl)
+        counters.recordJvmUsedHeapBytes(jvmUsedHeapBytes())
+    }
+
+    @TearDown(Level.Invocation)
+    fun tearDownInvocation() {
+        activeServer?.let { server ->
+            activeServer = null
+            server.close()
+        }
+    }
+}
+
+@AuxCounters(AuxCounters.Type.EVENTS)
+@State(Scope.Thread)
+class WebFrameworkMemoryCounters {
+    private var usedHeapBytes: Long = 0
+
+    fun recordJvmUsedHeapBytes(value: Long) {
+        usedHeapBytes = value
+    }
+
+    fun jvmUsedHeapBytes(): Long = usedHeapBytes
 }
 
 @State(Scope.Benchmark)
@@ -189,15 +273,15 @@ private class BenchmarkServers(
 ): AutoCloseable {
 
     override fun close() {
-        runCatching { ktor.close() }
-        runCatching { spring.close() }
+        BenchmarkServerLifecycle.closeAll(ktor, spring)
     }
 
     companion object {
         fun start(): BenchmarkServers =
-            BenchmarkServers(
-                ktor = KtorBenchmarkServer(),
-                spring = SpringWebFluxBenchmarkServer(),
+            BenchmarkServerLifecycle.start(
+                firstFactory = ::KtorBenchmarkServer,
+                secondFactory = ::SpringWebFluxBenchmarkServer,
+                combine = ::BenchmarkServers,
             )
     }
 }
@@ -413,7 +497,7 @@ private data class BenchmarkHttpResponse(
     }
 }
 
-private fun usedMemoryBytes(): Long {
+private fun jvmUsedHeapBytes(): Long {
     val runtime = Runtime.getRuntime()
     return runtime.totalMemory() - runtime.freeMemory()
 }

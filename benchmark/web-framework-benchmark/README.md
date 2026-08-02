@@ -6,8 +6,6 @@ This module compares equivalent embedded HTTP workloads implemented with Ktor CI
 
 ![Web framework latency](../../docs/images/readme-charts/benchmark-web-framework-latency-chart-01.png)
 
-![Web framework startup](../../docs/images/readme-charts/benchmark-web-framework-startup-chart-01.png)
-
 ## What It Measures
 
 The benchmark source is
@@ -26,7 +24,9 @@ The generator registry also wires UUIDv4, UUIDv7, ULID, KSUID, Snowflake, and Fl
 
 ## Latest Local Results
 
-Run date: 2026-06-19. Runtime: GraalVM JDK 21.0.11. Each benchmark uses one fork, two warmup iterations, and three measured iterations unless the Gradle configuration says otherwise.
+Throughput and latency snapshot: 2026-06-19 on GraalVM JDK 21.0.11. Startup and
+memory lifecycle snapshot: 2026-08-03 on GraalVM JDK 21.0.12. Each benchmark uses
+one fork and three measured iterations unless the Gradle configuration says otherwise.
 
 ### Throughput
 
@@ -62,7 +62,7 @@ Mode: JMH average time, `us/op`, lower is better.
 | Batch IDs   | 274.638 us/op |  167.923 us/op |
 | Bad request | 255.166 us/op |  164.028 us/op |
 
-### Startup
+### Ready-to-serve startup
 
 Command:
 
@@ -70,12 +70,35 @@ Command:
 ./gradlew :web-framework-benchmark:startupBenchmark
 ```
 
-Mode: JMH average time, `ms/op`, lower is better.
+Mode: JMH average time, `ms/op`, lower is better. The benchmark measures server
+construction through connector/application readiness. `@TearDown(Level.Invocation)`
+closes each server after the invocation, so shutdown is excluded from this metric.
 
-| Framework      |           Score |    Error |
-|----------------|----------------:|---------:|
-| Ktor CIO       |     0.683 ms/op |   ±0.770 |
-| Spring WebFlux | 2,091.794 ms/op | ±146.877 |
+| Framework      | Benchmark                   | Score | Error |
+|----------------|-----------------------------|------:|------:|
+| Ktor CIO       | `ktorReadyStartup`          | 0.675 ms/op | ±0.316 |
+| Spring WebFlux | `springWebFluxReadyStartup` | 77.821 ms/op | ±146.638 |
+
+### JVM used-heap snapshot
+
+Command:
+
+```bash
+./gradlew :web-framework-benchmark:memoryBenchmark
+```
+
+The memory benchmark records `jvm.used_heap` after each server is ready and
+before invocation teardown. It uses `Runtime.totalMemory() - freeMemory()`, so
+the value is JVM used heap rather than process RSS. The generated JMH JSON keeps
+the raw event samples; `memory-metrics.json` normalizes them with the explicit
+`bytes` unit, sample count, and `after_ready_before_shutdown` sampling point.
+The normalized byte table is authoritative; the memory benchmark's primary
+`ms/op` result is only the JMH invocation timing for the sampling harness.
+
+| Framework      | Benchmark                      | Average bytes | Samples |
+|----------------|--------------------------------|--------------:|--------:|
+| Ktor CIO       | `ktorReadyUsedHeap`            |    39,887,232 |       3 |
+| Spring WebFlux | `springWebFluxReadyUsedHeap`   |    53,612,200 |       3 |
 
 These numbers are local comparison snapshots, not release guarantees. The throughput and latency runs use short one-second measurement windows, so use longer JMH runs before making a product-level performance claim.
 
@@ -85,7 +108,9 @@ These numbers are local comparison snapshots, not release guarantees. The throug
 ./gradlew :web-framework-benchmark:throughputBenchmark
 ./gradlew :web-framework-benchmark:latencyBenchmark
 ./gradlew :web-framework-benchmark:startupBenchmark
+./gradlew :web-framework-benchmark:memoryBenchmark
 ```
 
 The raw JMH JSON reports are written under
-`benchmark/web-framework-benchmark/build/reports/benchmarks/`.
+`benchmark/web-framework-benchmark/build/reports/benchmarks/`. The memory run
+also writes `memory-metrics.json` beside its JMH `benchmark.json` report.
