@@ -466,9 +466,10 @@ fun <T : Any, R : Any> Flow<T>.concatMapEager(
 ```
 
 내부 queue는 `Semaphore(maxConcurrency)`와 `Channel<R>(bufferCapacity)`을
-사용한다. 기존 overload는 `Channel.UNLIMITED`/`Int.MAX_VALUE`에 위임한다.
-내부 `finally`는 channel을 닫고 permit을 해제하며 완료를 표시한 뒤 drain을
-재개한다. Child 실패를 catch한 뒤 무시해서는 안 된다.
+사용한다. 기존 동작을 바꾸지 않도록 기존 overload는
+`ConcurrentLinkedQueue` 호환 경로를 유지하며 새 overload만 제한된 channel
+경로를 사용한다. 내부 `finally`는 channel을 닫고 permit을 해제하며 완료를
+표시한 뒤 drain을 재개한다. Child 실패를 catch한 뒤 무시해서는 안 된다.
 
 - [ ] **Step 4: GREEN run과 기존 회귀 테스트를 확인한다**
 
