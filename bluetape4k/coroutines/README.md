@@ -140,6 +140,42 @@ Useful entry points:
 - `amb`, `race`, `withLatestFrom`
 - `groupBy`, `publish`, `replay`
 
+#### Rx/Reactor-style parity (selected contracts)
+
+The selected parity operators add only contracts that are not already covered
+by standard Flow operators:
+
+```kotlin
+import io.bluetape4k.coroutines.flow.extensions.bufferTimeout
+import io.bluetape4k.coroutines.flow.extensions.concatMapEager
+import io.bluetape4k.coroutines.flow.extensions.timeoutOrFallback
+import io.bluetape4k.coroutines.flow.extensions.windowTimeout
+import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.toList
+import kotlin.time.Duration.Companion.milliseconds
+import kotlin.time.Duration.Companion.seconds
+
+suspend fun parityExample(source: kotlinx.coroutines.flow.Flow<Int>) {
+    val batches = source.bufferTimeout(maxSize = 100, timeout = 1.seconds).toList()
+    val windows = source.windowTimeout(maxSize = 100, timeout = 1.seconds).toList()
+    val cached = flowOf(0)
+    val recovered = source.timeoutOrFallback(500.milliseconds, fallback = cached).toList()
+    val ordered = source.concatMapEager(maxConcurrency = 4, bufferCapacity = 8) { value ->
+        flowOf(value * 2)
+    }.toList()
+    check(batches.isNotEmpty() || windows.isNotEmpty() || recovered.isNotEmpty() || ordered.isNotEmpty())
+}
+```
+
+Completion emits one non-empty partial batch/window; upstream failure drops the
+in-flight partial value. `windowTimeout` exposes repeatable cold snapshots, and
+`timeoutOrFallback` subscribes to its fallback only after upstream cleanup.
+`CancellationException` remains cancellation, and bounded `concatMapEager`
+preserves source order while suspending inner producers at `bufferCapacity`.
+For `switchMap`, `buffer`, `conflate`, `combine`, `zip`, and `retryWhen`, use
+the standard Flow operators. Delay-error and explicit overflow families are
+tracked in [follow-up issue #1300](https://github.com/bluetape4k/bluetape4k-projects/issues/1300).
+
 ### Subjects
 
 Subject implementations are hot `Flow` bridges for producer/collector coordination.
