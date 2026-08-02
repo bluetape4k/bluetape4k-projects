@@ -39,7 +39,7 @@ fallback을 한 번만 수집한다. `concatMapEager`의 제한된 overload는 `
 - 수정: `bluetape4k/coroutines/README.ko.md`
 - 외부 작업: #1297과 연결된 GitHub 후속 issue
 
-- [ ] **Step 1: 중복 issue를 read-only로 확인한다**
+- [x] **Step 1: 중복 issue를 read-only로 확인한다**
 
 실행:
 
@@ -52,7 +52,7 @@ gh issue list --repo bluetape4k/bluetape4k-projects --state all --limit 100 \
 
 예상 결과: #1297과 동일한 delay-error/backpressure 후속 issue가 없다.
 
-- [ ] **Step 2: split follow-up issue를 생성하고 live metadata를 확인한다**
+- [x] **Step 2: split follow-up issue를 생성하고 live metadata를 확인한다**
 
 Step 1에서 중복을 찾지 못한 경우에만 영문 issue 하나를 생성한다.
 
@@ -67,7 +67,7 @@ Issue를 생성했다면 `gh issue edit <number> --assignee debop --milestone
 "1.12.0"`을 실행하고 같은 field를 다시 읽는다. 중복 검색으로 찾은 기존
 issue는 수정하지 않는다.
 
-- [ ] **Step 3: inventory matrix를 작성한다**
+- [x] **Step 3: inventory matrix를 작성한다**
 
 `docs/flow-operator-inventory.md`에는 다음 열과 행을 고정한다.
 
@@ -82,7 +82,7 @@ issue는 수정하지 않는다.
 | `withLatestFrom` | 기존 API | `withLatestFrom` | 기존 단일 secondary 사례 |
 | 없음 | — | `combine`, `zip`, `retryWhen` | 표준 Flow 비목표 |
 
-- [ ] **Step 4: 양국어 README에 선택 범위와 표준 Flow 경계를 반영한다**
+- [x] **Step 4: 양국어 README에 선택 범위와 표준 Flow 경계를 반영한다**
 
 최종 signature로 compile되는 다음 예제를 추가한다.
 
@@ -97,7 +97,7 @@ val ordered = source.concatMapEager(maxConcurrency = 4, bufferCapacity = 8) { lo
 부분 값을 폐기하며, timeout fallback은 upstream cancellation 뒤에 구독한다는
 점을 문서화한다. 제외된 계열은 표준 Flow 또는 후속 issue에 대응시킨다.
 
-- [ ] **Step 5: inventory와 문서 diff를 검증하고 commit한다**
+- [x] **Step 5: inventory와 문서 diff를 검증하고 commit한다**
 
 실행:
 
@@ -122,7 +122,7 @@ git commit -m "document selected Flow operator parity contracts" \
 - 생성: `bluetape4k/coroutines/src/main/kotlin/io/bluetape4k/coroutines/flow/extensions/bufferTimeout.kt`
 - 생성: `bluetape4k/coroutines/src/test/kotlin/io/bluetape4k/coroutines/flow/extensions/BufferTimeoutTest.kt`
 
-- [ ] **Step 1: 개수, timeout, 완료, 오류, cancellation, 가상 시간의 실패 테스트를 작성한다**
+- [x] **Step 1: 개수, timeout, 완료, 오류, cancellation, 가상 시간의 실패 테스트를 작성한다**
 
 테스트 class는 기존 test fixture의 `runTest`, `assertResult`, `assertFailure`를
 사용한다. 필수 case는 다음과 같다.
@@ -200,7 +200,7 @@ fun `take cancellation closes the upstream producer`() = runTest {
 같은 시각의 경합 테스트가 문서화된 편향 select 규칙을 기록하도록 구현에서
 수신 절을 `onTimeout`보다 먼저 등록해야 한다.
 
-- [ ] **Step 2: targeted RED run을 확인한다**
+- [x] **Step 2: targeted RED run을 확인한다**
 
 ```bash
 ./gradlew :bluetape4k-coroutines:test --tests \
@@ -210,7 +210,7 @@ fun `take cancellation closes the upstream producer`() = runTest {
 
 예상 결과: 새 API의 compile 오류 또는 symbol 부재로 실패한다.
 
-- [ ] **Step 3: 최소 구현을 작성한다**
+- [x] **Step 3: 최소 구현을 작성한다**
 
 내부 `countOrTimeout(maxSize, timeout): Flow<List<T>>` collector 하나를 사용해
 `bufferTimeout`과 `windowTimeout`을 구현한다.
@@ -256,7 +256,7 @@ private fun <T> Flow<T>.countOrTimeout(maxSize: Int, timeout: Duration): Flow<Li
 Channel 종료 원인은 그대로 전파하고 `windowTimeout`에서는 각 list를
 `asFlow()`로 변환한다.
 
-- [ ] **Step 4: GREEN targeted run을 확인한다**
+- [x] **Step 4: GREEN targeted run을 확인한다**
 
 ```bash
 ./gradlew :bluetape4k-coroutines:test --tests \
@@ -266,7 +266,7 @@ Channel 종료 원인은 그대로 전파하고 `windowTimeout`에서는 각 lis
 
 예상 결과: `BufferTimeoutTest`의 모든 case가 통과한다.
 
-- [ ] **Step 5: commit한다**
+- [x] **Step 5: commit한다**
 
 ```bash
 git add bluetape4k/coroutines/src/main/kotlin/io/bluetape4k/coroutines/flow/extensions/bufferTimeout.kt \
@@ -282,7 +282,7 @@ git commit -m "add count-or-time Flow buffers and windows" \
 - 생성: `bluetape4k/coroutines/src/main/kotlin/io/bluetape4k/coroutines/flow/extensions/timeout.kt`
 - 생성: `bluetape4k/coroutines/src/test/kotlin/io/bluetape4k/coroutines/flow/extensions/TimeoutTest.kt`
 
-- [ ] **Step 1: 실패 테스트를 작성한다**
+- [x] **Step 1: 실패 테스트를 작성한다**
 
 ```kotlin
 @Test
@@ -337,7 +337,7 @@ fun `fallback failure remains unchanged`() = runTest {
 }
 ```
 
-- [ ] **Step 2: RED run을 확인한다**
+- [x] **Step 2: RED run을 확인한다**
 
 ```bash
 ./gradlew :bluetape4k-coroutines:test --tests \
@@ -347,7 +347,7 @@ fun `fallback failure remains unchanged`() = runTest {
 
 예상 결과: `FlowTimeoutException`/`timeout` symbol 부재로 실패한다.
 
-- [ ] **Step 3: 최소 구현을 작성한다**
+- [x] **Step 3: 최소 구현을 작성한다**
 
 공개 `FlowTimeoutException : java.util.concurrent.TimeoutException`
 (`import java.util.concurrent.TimeoutException`)과 공개 함수 두 개를 구현한다.
@@ -369,7 +369,7 @@ fun <T> Flow<T>.timeoutOrFallback(timeout: Duration, fallback: Flow<T>): Flow<T>
     timeoutInternal(timeout, fallback)
 ```
 
-- [ ] **Step 4: GREEN run을 확인하고 commit한다**
+- [x] **Step 4: GREEN run을 확인하고 commit한다**
 
 ```bash
 ./gradlew :bluetape4k-coroutines:test --tests \
@@ -388,7 +388,7 @@ git commit -m "add idle timeout and fallback Flow operators" \
 - 수정: `bluetape4k/coroutines/src/main/kotlin/io/bluetape4k/coroutines/flow/extensions/concatMapEager.kt`
 - 생성: `bluetape4k/coroutines/src/test/kotlin/io/bluetape4k/coroutines/flow/extensions/ConcatMapEagerBoundedTest.kt`
 
-- [ ] **Step 1: 제한된 lifecycle 실패 테스트를 작성한다**
+- [x] **Step 1: 제한된 lifecycle 실패 테스트를 작성한다**
 
 ```kotlin
 @Test
@@ -439,7 +439,7 @@ fun `bounded arguments fail before collection`() = runTest {
 Transform 실패와 내부 실패가 원래 예외를 유지하는지 확인한다. `take(1)`
 cancellation 뒤에는 시작한 모든 내부 작업이 `finally` 블록을 실행해야 한다.
 
-- [ ] **Step 2: RED run을 확인한다**
+- [x] **Step 2: RED run을 확인한다**
 
 ```bash
 ./gradlew :bluetape4k-coroutines:test --tests \
@@ -449,7 +449,7 @@ cancellation 뒤에는 시작한 모든 내부 작업이 `finally` 블록을 실
 
 예상 결과: 아직 제한된 overload가 없으므로 실패한다.
 
-- [ ] **Step 3: bounded overload와 channel-backed queue를 구현한다**
+- [x] **Step 3: bounded overload와 channel-backed queue를 구현한다**
 
 기존 함수를 변경하지 않고 다음 overload를 추가한다.
 
@@ -471,7 +471,7 @@ fun <T : Any, R : Any> Flow<T>.concatMapEager(
 경로를 사용한다. 내부 `finally`는 channel을 닫고 permit을 해제하며 완료를
 표시한 뒤 drain을 재개한다. Child 실패를 catch한 뒤 무시해서는 안 된다.
 
-- [ ] **Step 4: GREEN run과 기존 회귀 테스트를 확인한다**
+- [x] **Step 4: GREEN run과 기존 회귀 테스트를 확인한다**
 
 ```bash
 ./gradlew :bluetape4k-coroutines:test --tests \
@@ -481,7 +481,7 @@ fun <T : Any, R : Any> Flow<T>.concatMapEager(
 
 예상 결과: 제한 동작 테스트와 기존 `ConcatMapEagerTest`가 통과한다.
 
-- [ ] **Step 5: commit한다**
+- [x] **Step 5: commit한다**
 
 ```bash
 git add bluetape4k/coroutines/src/main/kotlin/io/bluetape4k/coroutines/flow/extensions/concatMapEager.kt \
@@ -499,7 +499,7 @@ git commit -m "bound eager Flow mapping concurrency and queues" \
 - 수정: `bluetape4k/coroutines/README.ko.md`
 - 수정: `docs/flow-operator-inventory.md`
 
-- [ ] **Step 1: benchmark cases를 추가한다**
+- [x] **Step 1: benchmark cases를 추가한다**
 
 기존 `runBlocking`/`asFlow` 형식과
 `import kotlin.time.Duration.Companion.days`를 사용해 benchmark method 세 개를
@@ -537,7 +537,7 @@ fun boundedConcatMapEagerThroughput(): Int = runBlocking {
 list 할당을 측정하도록 의도한 값이다. 개수 경계와 제한된 queue 동작을 이번
 배포의 안정적인 근거로 사용한다.
 
-- [ ] **Step 2: benchmark compile/run을 순차 실행한다**
+- [x] **Step 2: benchmark compile/run을 순차 실행한다**
 
 ```bash
 ./gradlew :bluetape4k-coroutines:testCoroutinesFlowBenchmark \
@@ -546,14 +546,14 @@ list 할당을 측정하도록 의도한 값이다. 개수 경계와 제한된 q
 
 예상 결과: benchmark task가 완료되고 새 method 이름 세 개가 출력된다.
 
-- [ ] **Step 3: KDoc와 README parity를 마무리한다**
+- [x] **Step 3: KDoc와 README parity를 마무리한다**
 
 각 공개 API에 실행 가능한 예제와 명시적인 완료/오류/cancellation/순서/buffer/
 concurrency 조항을 포함한 한국어 우선 KDoc을 작성한다. 영문 README와 한국어
 README의 section 순서와 코드 signature를 동일하게 유지한다. 이 slice에는
 시각적 계약 변경이 없으므로 diagram을 추가하지 않는다.
 
-- [ ] **Step 4: commit한다**
+- [x] **Step 4: commit한다**
 
 ```bash
 git add bluetape4k/coroutines/src/test/kotlin/io/bluetape4k/coroutines/benchmark/CoroutinesFlowBenchmark.kt \
@@ -569,7 +569,7 @@ git commit -m "add Flow operator parity benchmarks and API guidance" \
 - 생성: `docs/reviews/2026-08-03-issue-1297-flow-operator-review.md`
 - 생성: `docs/lessons/2026-08-03-issue-1297-flow-operator-parity.md`
 
-- [ ] **Step 1: 전체 검증을 순차 실행한다**
+- [x] **Step 1: 전체 검증을 순차 실행한다**
 
 ```bash
 ./gradlew :bluetape4k-coroutines:test --no-configuration-cache --console=plain
@@ -581,13 +581,13 @@ git diff --check
 
 예상 결과: 모든 명령이 성공한다. 관련 없는 module까지 검증했다고 주장하지 않는다.
 
-- [ ] **Step 2: 최종 리뷰 문서를 작성한다**
+- [x] **Step 2: 최종 리뷰 문서를 작성한다**
 
 설계와 branch diff를 대조하고 P0/P1/P2/P3 지적, API 호환성, 구조화된
 cancellation, 가상 시간 결정성, queue 제한, README/KDoc 동등성, benchmark
 출력, 후속 링크를 기록한다. P0=0, P1=0인 경우에만 다음 단계로 진행한다.
 
-- [ ] **Step 3: lesson을 작성하고 commit한다**
+- [x] **Step 3: lesson을 작성하고 commit한다**
 
 Timer 경합 결정, `bufferingDebounce`를 재사용하지 않은 이유, fallback 정리
 근거, 제한된 queue의 trade-off를 정확한 명령과 함께 기록한다.
