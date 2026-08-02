@@ -21,6 +21,9 @@ import java.util.concurrent.TimeUnit
 /**
  * JWT 토큰 발급에 사용된 [KeyChain]을 Redis에 저장하여, 분산환경에서 [KeyChain]을 공유하고, rotate 시에 전파되도록 합니다.
  * 또한 rotate로 인해 key chain이 변경된 경우에도 토큰 파싱이 가능하도록 저장합니다.
+ * 회전은 lease 시간을 고정하지 않는 Redisson watchdog 기반 lock으로 보호하므로, 여러 Redis 명령으로
+ * 구성된 저장 및 오래된 KeyChain 정리 작업이 끝날 때까지 현재 스레드의 소유권을 갱신합니다.
+ * lock 소유권을 잃거나 해제에 실패하면 오류를 숨기지 않고 호출자에게 전달합니다.
  *
  * ```kotlin
  * val redisson: RedissonClient = // ...
@@ -109,19 +112,8 @@ class RedisKeyChainRepository private constructor(
         return changed
     }
 
-    private inline fun withRotationLock(action: () -> Boolean): Boolean {
-        check(rotationLock.tryLock(5, 30, TimeUnit.SECONDS)) {
-            "Failed to acquire Redis keychain rotation lock."
-        }
-        return try {
-            action()
-        } finally {
-            runCatching {
-                if (rotationLock.isHeldByCurrentThread) {
-                    rotationLock.unlock()
-                }
-            }
-        }
+    private fun withRotationLock(action: () -> Boolean): Boolean {
+        return withRedisRotationLock(rotationLock, action)
     }
 
     override fun deleteAll() {
@@ -129,4 +121,42 @@ class RedisKeyChainRepository private constructor(
         cachedCurrent = null
         keyChainStore.clear()
     }
+}
+
+private const val ROTATION_LOCK_WAIT_SECONDS = 5L
+
+/**
+ * Redis rotation 작업을 Redisson watchdog 기반 lock 소유권 안에서 실행합니다.
+ *
+ * lease 시간을 고정하지 않으므로 Redisson watchdog가 commit이 끝날 때까지 lock을 갱신합니다.
+ * 소유권을 잃었거나 해제에 실패하면 오류를 숨기지 않으며, 작업 오류가 이미 발생한 경우에는
+ * 해제 오류를 suppressed exception으로 보존해 원래 오류를 주 오류로 유지합니다.
+ */
+internal fun <T> withRedisRotationLock(lock: RLock, action: () -> T): T {
+    check(lock.tryLock(ROTATION_LOCK_WAIT_SECONDS, TimeUnit.SECONDS)) {
+        "Failed to acquire Redis keychain rotation lock."
+    }
+
+    var actionResult: Result<T>? = null
+    var releaseFailure: Throwable? = null
+    try {
+        actionResult = runCatching(action)
+    } finally {
+        releaseFailure = runCatching {
+            check(lock.isHeldByCurrentThread) {
+                "Redis keychain rotation lock ownership was lost before commit."
+            }
+            lock.unlock()
+        }.exceptionOrNull()
+    }
+
+    val result = checkNotNull(actionResult)
+    val primaryFailure = result.exceptionOrNull()
+    if (primaryFailure != null) {
+        releaseFailure?.let(primaryFailure::addSuppressed)
+        throw primaryFailure
+    }
+
+    releaseFailure?.let { throw it }
+    return result.getOrThrow()
 }

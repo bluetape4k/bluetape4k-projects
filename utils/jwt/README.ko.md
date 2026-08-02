@@ -207,6 +207,8 @@ val jwtProvider = JwtProviderFactory.default(keyChainRepository = repository)
 jwtProvider.rotate()
 ```
 
+`RedisKeyChainRepository`는 Redisson watchdog 기반 분산 lock으로 회전을 보호합니다. 고정 lease 시간을 지정하지 않고 lock을 획득하므로 새 키를 저장하고 오래된 키를 정리하는 commit이 끝날 때까지 소유권을 갱신합니다. 소유권을 잃거나 lock 해제에 실패하면 오류를 숨기지 않고 호출자에게 전달하며, 회전 작업 자체가 먼저 실패한 경우에는 해제 오류를 suppressed exception으로 보존합니다. 모든 노드는 동일한 Redis namespace와 살아 있는 Redisson client를 사용해야 합니다.
+
 ### In-Memory KeyChain 저장소
 
 ```kotlin

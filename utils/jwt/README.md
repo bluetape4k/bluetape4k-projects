@@ -189,6 +189,8 @@ val jwtProvider = JwtProviderFactory.default(keyChainRepository = repository)
 jwtProvider.rotate()
 ```
 
+`RedisKeyChainRepository` protects rotation with Redisson's watchdog-backed lock. The lock is acquired without a fixed lease time, so ownership is renewed while the new key is committed and older keys are trimmed. If ownership is lost or unlocking fails, the failure is propagated; when rotation already failed, the unlock failure is retained as a suppressed exception. Use the same Redis namespace and a live Redisson client on every node.
+
 ### In-Memory KeyChain Repository
 
 ```kotlin
