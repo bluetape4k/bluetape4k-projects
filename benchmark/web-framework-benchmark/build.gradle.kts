@@ -72,8 +72,43 @@ benchmark {
             outputTimeUnit = "ms"
             reportFormat = "json"
         }
+        register("memory") {
+            include("io.bluetape4k.benchmark.webframework.WebFrameworkMemoryBenchmark")
+            warmups = 1
+            iterations = 3
+            iterationTime = 1
+            iterationTimeUnit = "s"
+            mode = "avgt"
+            outputTimeUnit = "ms"
+            reportFormat = "json"
+        }
     }
 }
+
+val normalizeMemoryBenchmarkReport = tasks.register("normalizeMemoryBenchmarkReport") {
+    doLast {
+        val reportRoot = layout.buildDirectory.dir("reports/benchmarks/memory").get().asFile
+        val report = reportRoot
+            .walkTopDown()
+            .filter { it.isFile && it.name == "benchmark.json" }
+            .maxByOrNull { it.lastModified() }
+            ?: error("No memory benchmark JSON found under $reportRoot")
+        val normalized = report.resolveSibling("memory-metrics.json")
+
+        val exitCode = ProcessBuilder(
+            "python3",
+            rootProject.file("benchmark/web-framework-benchmark/scripts/normalize-memory-report.py").absolutePath,
+            report.absolutePath,
+            normalized.absolutePath,
+        ).inheritIO().start().waitFor()
+        check(exitCode == 0) { "memory report normalization failed with exit code $exitCode" }
+        logger.lifecycle("Normalized JVM heap report: ${normalized.relativeTo(rootProject.projectDir)}")
+    }
+}
+
+tasks
+    .matching { it.name == "memoryBenchmark" || it.name == "benchmarkMemoryBenchmark" }
+    .configureEach { finalizedBy(normalizeMemoryBenchmarkReport) }
 
 dependencies {
     add("benchmarkImplementation", project(":bluetape4k-idgenerators"))
