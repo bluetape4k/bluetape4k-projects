@@ -34,6 +34,14 @@ Issue #1297의 범위는 RxJava 3/Reactor `Flux` 용어 중 Kotlin Flow에서
 - 모든 신규 연산자는 `CancellationException`을 data-plane 오류로 바꾸지
   않으며, dispatcher를 바꾸거나 detached child를 만들지 않는다.
 
+## Benchmark evidence
+
+`CoroutinesFlowBenchmark`는 `bufferTimeoutThroughput`,
+`windowTimeoutThroughput`, `boundedConcatMapEagerThroughput`를 포함한다.
+count 경계를 즉시 만족하는 `1.days` timeout은 wall-clock 대기 없이 timer
+등록과 리스트/queue allocation 비용을 측정한다. 실제 timeout 발생과 동률
+우선순위는 `runTest` virtual-time 테스트가 증명한다.
+
 ## Deliberate non-goals
 
 `switchMap`, `buffer`, `conflate`, `combine`, `zip`, `retryWhen`은 표준 Flow
