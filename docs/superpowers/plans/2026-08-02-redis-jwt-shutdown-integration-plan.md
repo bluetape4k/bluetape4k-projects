@@ -4,7 +4,7 @@
 
 **Goal:** 실제 Redis/Redisson과 ToxiProxy를 통과하는 JWT provider shutdown, route recovery, borrowed-client ownership을 순차 integration test로 고정한다.
 
-**Architecture:** JWT 모듈 테스트 classpath에 version catalog의 `testcontainers-toxiproxy` alias만 test scope로 연결한다. 새 테스트는 shared `Network` 안에서 Redis와 ToxiProxy를 명시적으로 시작하고, host-mapped proxy endpoint를 짧은 timeout의 Redisson client에 주입한다. production API와 ownership은 바꾸지 않으며 README 두 locale에 실제 close 순서를 기록한다.
+**Architecture:** JWT 모듈 테스트 classpath에 version catalog의 `testcontainers-toxiproxy` alias만 test scope로 연결한다. 새 테스트는 shared `Network` 안에서 Redis와 ToxiProxy를 명시적으로 시작하고, host-mapped proxy endpoint를 짧은 timeout의 Redisson client에 주입한다. `RedissonJwtProvider`는 delegate를 빌려 쓰고 `DefaultJwtProvider`가 rotation timer를 소유하므로, wrapper/delegate/repository/client의 실제 close 순서를 README 두 locale에 기록한다.
 
 **Tech Stack:** Kotlin 2.3, JUnit 5, Kotest-style bluetape assertions, Testcontainers Redis/ToxiProxy, Redisson 4.6.x, Gradle version catalog.
 
@@ -17,7 +17,7 @@
 - Modify: `utils/jwt/README.md` — Redis-backed provider의 borrowed client ownership과 close 순서를 영어로 보강한다.
 - Modify: `utils/jwt/README.ko.md` — 같은 내용을 한국어로 보강한다.
 - Create: `docs/lessons/2026-08-02-issue-1295-redis-jwt-shutdown.md` — 재사용 가능한 Testcontainers/ownership 학습을 증거와 함께 기록한다.
-- Existing: `docs/superpowers/specs/2026-08-02-redis-jwt-shutdown-integration-design.md` — 승인된 설계. 계획 commit 전에 수정하지 않는다.
+- Existing: `docs/superpowers/specs/2026-08-02-redis-jwt-shutdown-integration-design.md` — 구현 중 확인된 delegate ownership을 반영한 설계.
 
 Production Kotlin files, central catalog version definitions, and the shared `testing/testcontainers` API are intentionally unchanged unless a failing integration test proves a separate production defect.
 
@@ -39,18 +39,18 @@ catalog alias는 이미 `gradle/libs.versions.toml`에 있으므로 version lite
 
 - [ ] **Step 2: integration test의 첫 RED assertion을 작성한다.**
 
-테스트는 `@TestInstance(PER_CLASS)`와 `@Execution(SAME_THREAD)`를 사용하고, 각 테스트에서 새 `Network`, `RedisServer`, `ToxiproxyServer`를 직접 소유한다. 첫 테스트는 proxy를 통한 `PONG`과 JWT parsing을 요구한다.
+테스트는 `@Execution(SAME_THREAD)`를 사용하고, 각 테스트에서 새 `Network`, `RedisServer`, `ToxiproxyServer`를 직접 소유한다. 첫 테스트는 proxy를 통한 JWT parsing을 요구한다.
 
 ```kotlin
 @Test
 fun `proxied Redis supports JWT parsing and close ownership`() {
     Network.newNetwork().use { network ->
         RedisServer().withNetwork(network).withNetworkAliases("redis").use { redis ->
-            ToxiproxyServer().withNetwork(network).use { toxiproxy ->
+            ToxiproxyServer().apply { withNetwork(network) }.use { toxiproxy ->
                 redis.start()
                 toxiproxy.start()
                 val proxyClient = ToxiproxyClient(toxiproxy.host, toxiproxy.controlPort)
-                val proxy = proxyClient.createProxy("jwt-redis", "0.0.0.0:8666", "redis:${RedisServer.PORT}")
+                val proxy = proxyClient.createProxy("jwt-redis-${UUID.randomUUID()}", "0.0.0.0:8666", "redis:${RedisServer.PORT}")
                 val address = "redis://${toxiproxy.host}:${toxiproxy.getMappedPort(8666)}"
                 val redisson = Redisson.create(
                     RedisServer.Launcher.RedissonLib.getRedissonConfig(address).apply {
@@ -72,12 +72,15 @@ fun `proxied Redis supports JWT parsing and close ownership`() {
                     provider.tryParse(jwt)?.subject shouldBeEqualTo "shutdown"
                     provider.close()
                     provider.close()
+                    delegate.close()
+                    delegate.close()
                     repository.close()
                     repository.close()
                     redisson.isShutdown.shouldBeFalse()
                 } finally {
                     runCatching { proxy.delete() }
                     runCatching { provider.close() }
+                    runCatching { delegate.close() }
                     runCatching { repository.close() }
                     runCatching { redisson.shutdown() }
                 }
@@ -127,13 +130,13 @@ provider.tryParse(provider.compose { subject = "recovered" })?.subject shouldBeE
 
 `shouldBeLessThan`가 현재 assertions surface에 없으면 표준 `assertTrue`로 대체하고, 그 이유를 evidence에 기록한다. route가 복구된 뒤 같은 Redisson client가 정상 동작해야 한다.
 
-- [ ] **Step 3: provider-owned timer가 close 후 Redis를 다시 회전시키지 않는지 고정한다.**
+- [ ] **Step 3: delegate-owned timer가 close 후 Redis를 다시 회전시키지 않는지 고정한다.**
 
-provider를 두 번 닫은 뒤 repository로 `KeyChain(expiredTtl = Duration.ofMillis(1))`을 강제로 저장한다. `rotationIntervalMillis * 4` 이상 기다리고도 repository의 current key id가 그대로인지 확인한다. 이 assertion은 thread-name enumeration 없이 provider timer 취소를 입증한다.
+wrapper provider와 delegate를 각각 두 번 닫은 뒤 repository로 `KeyChain(expiredTtl = Duration.ofMillis(1))`을 강제로 저장한다. `rotationIntervalMillis * 5` 이상 기다리고도 repository의 current key id가 그대로인지 확인한다. 이 assertion은 thread-name enumeration 없이 delegate timer 취소를 입증한다.
 
 - [ ] **Step 4: 외부 client ownership과 terminal shutdown을 확인한다.**
 
-provider/repository 반복 close 직후 `redisson.isShuttingDown`과 `redisson.isShutdown`이 false인지 확인하고, finally에서 application owner로 `redisson.shutdown()`을 호출한 뒤 `isShutdown == true`를 확인한다. proxy, container, network 정리는 각각 외부 owner가 수행한다.
+provider/delegate/repository 반복 close 직후 `redisson.isShuttingDown`과 `redisson.isShutdown`이 false인지 확인하고, finally에서 application owner로 `redisson.shutdown()`을 호출한 뒤 `isShutdown == true`를 확인한다. proxy, container, network 정리는 각각 외부 owner가 수행한다.
 
 - [ ] **Step 5: targeted RED→GREEN을 실행한다.**
 
@@ -155,7 +158,8 @@ val provider = RedissonJwtProvider(delegate, redissonClient)
 try {
     provider.tryParse(jwt)
 } finally {
-    provider.close()    // delegate/provider-owned rotation work
+    provider.close()    // idempotent wrapper close; borrowed resources stay open
+    delegate.close()    // delegate-owned rotation work
     repository.close()  // repository-owned refresh work
     redissonClient.shutdown() // application-owned client
 }
@@ -234,7 +238,7 @@ CG-16은 fresh explicit user approval이 있어야 하므로 merge-ready DoD를 
 | Docker/ToxiProxy readiness flake | proxy creation 또는 Redisson warmup timeout | shared Network, explicit start order, short retry, finally cleanup | Task 2 Step 5 |
 | disable failure가 너무 오래 걸림 | targeted test가 5초 threshold 초과 | `timeout = 500`, `retryAttempts = 0`, one command at a time | Task 2 Step 2 |
 | borrowed client가 provider close로 종료됨 | close 직후 `isShutdown` true | provider/repository close와 client shutdown assertion 분리 | Task 2 Step 4 |
-| timer가 close 후 Redis를 변경함 | expired key id가 interval 뒤 변경 | provider close를 먼저 수행하고 Redis current id를 재검증 | Task 2 Step 3 |
+| timer가 close 후 Redis를 변경함 | expired key id가 interval 뒤 변경 | delegate close를 먼저 수행하고 Redis current id를 재검증 | Task 2 Step 3 |
 | docs/production scope drift | changed path에 catalog/runtime API가 나타남 | exact diff/stat와 dependency configuration 확인 | Task 4 Step 3 |
 
 ## Rollback / rerun

@@ -47,5 +47,6 @@ dependencies {
 
     testImplementation(project(":bluetape4k-testcontainers"))
     testImplementation(libs.testcontainers)
+    testImplementation(libs.testcontainers.toxiproxy)
     testImplementation(libs.testcontainers.mongodb)
 }

@@ -159,6 +159,31 @@ try {
 
 Cache providers borrow their delegate; close the original delegate separately when it owns a rotation timer. Implementations without background work may keep the default no-op `close()` implementation.
 
+For a Redis-backed provider, both the `RedissonClient` and the delegate remain
+application-owned. `RedissonJwtProvider` borrows the delegate and cache, so close
+the wrapper, then the delegate's rotation work, then the repository refresh work,
+and finally the client:
+
+```kotlin
+val repository = RedisKeyChainRepository(redissonClient)
+val delegate = DefaultJwtProvider(keyChainRepository = repository)
+val provider = RedissonJwtProvider(delegate, redissonClient)
+
+try {
+    provider.tryParse(jwt)
+} finally {
+    provider.close()          // idempotent; does not close borrowed resources
+    delegate.close()          // closes the delegate rotation timer
+    repository.close()        // closes the repository refresh timer
+    redissonClient.shutdown() // closes the application-owned client
+}
+```
+
+The JWT module's Redis shutdown integration test uses Redis and ToxiProxy on a
+shared Testcontainers network. It disables and re-enables the proxy to verify a
+bounded failure and recovery while keeping the borrowed delegate/client ownership
+order explicit.
+
 ### Compression
 
 Use built-in jjwt compression for large claim payloads.

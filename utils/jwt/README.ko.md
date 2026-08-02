@@ -168,6 +168,31 @@ try {
 
 Cache Provider는 delegate를 빌려 사용하므로 회전 타이머를 소유한 원래 delegate를 별도로 닫아야 합니다. 백그라운드 작업이 없는 구현체는 기본 no-op `close()` 구현을 그대로 사용할 수 있습니다.
 
+Redis 기반 Provider를 사용할 때 `RedissonClient`와 delegate의 소유자는
+애플리케이션입니다. `RedissonJwtProvider`는 delegate와 cache를 빌려 쓰므로
+wrapper, delegate의 회전 작업, Repository의 refresh 작업, 애플리케이션이
+소유한 client 순서로 각각 닫으세요.
+
+```kotlin
+val repository = RedisKeyChainRepository(redissonClient)
+val delegate = DefaultJwtProvider(keyChainRepository = repository)
+val provider = RedissonJwtProvider(delegate, redissonClient)
+
+try {
+    provider.tryParse(jwt)
+} finally {
+    provider.close()          // idempotent이며 빌린 자원을 닫지 않습니다.
+    delegate.close()          // delegate의 회전 타이머를 닫습니다.
+    repository.close()        // Repository의 refresh 타이머를 닫습니다.
+    redissonClient.shutdown() // 애플리케이션이 소유한 Redisson client를 닫습니다.
+}
+```
+
+JWT 모듈의 Redis shutdown 통합 테스트는 하나의 Testcontainers network에서
+Redis와 ToxiProxy를 함께 실행합니다. Proxy를 비활성화했다가 다시 활성화하여
+bounded failure와 recovery를 검증하고, 주입받은 delegate/client의 소유권과
+종료 순서를 명시적으로 유지합니다.
+
 ### 압축 사용
 
 큰 클레임 데이터가 있는 경우 jjwt 내장 압축 알고리즘을 사용할 수 있습니다.
