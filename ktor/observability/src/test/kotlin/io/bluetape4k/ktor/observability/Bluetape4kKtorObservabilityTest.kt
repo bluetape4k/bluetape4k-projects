@@ -148,6 +148,92 @@ class Bluetape4kKtorObservabilityTest {
     }
 
     @Test
+    fun `observability installer shares custom correlation policy with tracing`() = testTracing { tracing ->
+        val correlationId = CorrelationIdSettings(
+            requestHeaderName = "X-Correlation-ID",
+            responseHeaderName = "X-Correlation-ID",
+            maxLength = 8,
+        )
+
+        testApplication {
+            application {
+                installBluetape4kKtorObservability(
+                    Bluetape4kKtorObservabilityConfig(
+                        correlationId = correlationId,
+                        tracing = KtorOpenTelemetryTracingConfig(
+                            openTelemetry = tracing.openTelemetry,
+                            captureSanitizedCorrelationId = true,
+                        ),
+                    )
+                )
+                routing {
+                    get("/ping") {
+                        call.respondText("pong")
+                    }
+                }
+            }
+
+            val response = client.get("/ping") {
+                header(correlationId.requestHeaderName, "client-correlation-id")
+            }
+
+            response.status shouldBeEqualTo HttpStatusCode.OK
+            response.headers[correlationId.responseHeaderName] shouldBeEqualTo "client-c"
+            tracing.flush()
+
+            val span = tracing.spanExporter.finishedSpanItems.single()
+            span.attributes[CORRELATION_PRESENT_KEY].shouldBeTrue()
+            span.attributes[CORRELATION_ID_KEY] shouldBeEqualTo "client-c"
+        }
+    }
+
+    @Test
+    fun `observability installer preserves explicit tracing correlation override`() = testTracing { tracing ->
+        val correlationId = CorrelationIdSettings(
+            requestHeaderName = "X-Correlation-ID",
+            responseHeaderName = "X-Correlation-ID",
+            maxLength = 8,
+        )
+        val tracingCorrelationId = CorrelationIdSettings(
+            requestHeaderName = "X-Trace-ID",
+            maxLength = 12,
+        )
+
+        testApplication {
+            application {
+                installBluetape4kKtorObservability(
+                    Bluetape4kKtorObservabilityConfig(
+                        correlationId = correlationId,
+                        tracing = KtorOpenTelemetryTracingConfig(
+                            openTelemetry = tracing.openTelemetry,
+                            correlationId = tracingCorrelationId,
+                            captureSanitizedCorrelationId = true,
+                        ),
+                    )
+                )
+                routing {
+                    get("/ping") {
+                        call.respondText("pong")
+                    }
+                }
+            }
+
+            val response = client.get("/ping") {
+                header(correlationId.requestHeaderName, "application-correlation-id")
+                header(tracingCorrelationId.requestHeaderName, "trace-correlation-id")
+            }
+
+            response.status shouldBeEqualTo HttpStatusCode.OK
+            response.headers[correlationId.responseHeaderName] shouldBeEqualTo "applicat"
+            tracing.flush()
+
+            val span = tracing.spanExporter.finishedSpanItems.single()
+            span.attributes[CORRELATION_PRESENT_KEY].shouldBeTrue()
+            span.attributes[CORRELATION_ID_KEY] shouldBeEqualTo "trace-correl"
+        }
+    }
+
+    @Test
     fun `observability installer does not create spans when tracing is disabled`() = testTracing { tracing ->
         testApplication {
             application {

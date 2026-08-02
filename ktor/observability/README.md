@@ -16,6 +16,8 @@ Explicit Ktor observability defaults for bluetape4k applications.
 - `MicrometerMetrics` is installed only when the application supplies a `MeterRegistry`.
 - `prometheusScrapeRoute()` exposes an optional scrape route backed by an application-owned `PrometheusMeterRegistry`.
 - Optional OpenTelemetry server tracing uses the application-owned `OpenTelemetry` instance.
+- The combined installer shares `Bluetape4kKtorObservabilityConfig.correlationId` with CallId, CallLogging, and tracing by default.
+- Set `KtorOpenTelemetryTracingConfig.correlationId` only when tracing needs an explicit header or length policy override.
 
 ## Dependency
 
@@ -80,6 +82,12 @@ fun Application.module(openTelemetry: OpenTelemetry) {
 `captureSanitizedCorrelationId` records only the sanitized `correlation.id`
 trace attribute. Raw request headers are not recorded. Traced requests always
 record the bounded `correlation.present` attribute.
+
+The combined installer applies one correlation policy to CallId, CallLogging,
+response propagation, and tracing. A tracing configuration without
+`correlationId` inherits the top-level policy, including its request header and
+`maxLength`. Set `KtorOpenTelemetryTracingConfig.correlationId` to keep a
+deliberate trace-specific policy separate from the application correlation ID.
 
 ## Dependency Policy
 
