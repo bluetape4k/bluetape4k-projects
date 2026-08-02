@@ -16,6 +16,10 @@ bluetape4k 애플리케이션에서 관측성 기본값을 명시적으로 설�
 - 애플리케이션이 `MeterRegistry`를 제공할 때만 Micrometer `MicrometerMetrics`를 설치합니다.
 - `prometheusScrapeRoute()`는 애플리케이션이 소유한 `PrometheusMeterRegistry`로 scrape route를 엽니다.
 - 선택적 OpenTelemetry 서버 tracing은 애플리케이션이 소유한 `OpenTelemetry` 인스턴스를 사용합니다.
+- 통합 installer는 기본적으로 `Bluetape4kKtorObservabilityConfig.correlationId`를 CallId,
+  CallLogging, tracing이 함께 사용합니다.
+- tracing에 별도 header 또는 length 정책이 필요할 때만
+  `KtorOpenTelemetryTracingConfig.correlationId`를 명시적인 override로 지정합니다.
 
 ## 의존성
 
@@ -79,6 +83,11 @@ fun Application.module(openTelemetry: OpenTelemetry) {
 `captureSanitizedCorrelationId`는 정제된 `correlation.id` trace attribute만
 기록합니다. raw request header는 기록하지 않습니다. traced request에는 bounded
 `correlation.present` attribute가 항상 기록됩니다.
+
+통합 installer는 CallId, CallLogging, 응답 전파, tracing에 하나의 correlation
+정책을 적용합니다. `correlationId`를 지정하지 않은 tracing 설정은 top-level 정책의
+request header와 `maxLength`를 상속합니다. 애플리케이션 correlation ID와 분리된 trace
+전용 정책이 필요하면 `KtorOpenTelemetryTracingConfig.correlationId`를 지정합니다.
 
 ## 의존성 정책
 

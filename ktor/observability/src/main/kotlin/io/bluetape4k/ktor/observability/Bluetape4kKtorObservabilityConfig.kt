@@ -4,13 +4,16 @@ import io.ktor.server.metrics.micrometer.MicrometerMetricsConfig
 import io.micrometer.core.instrument.MeterRegistry
 
 /**
- * Explicit opt-in configuration for [installBluetape4kKtorObservability].
+ * [installBluetape4kKtorObservability]를 위한 명시적 opt-in 설정입니다.
  *
- * ## Contract
- * - CallId and CallLogging are enabled by default.
- * - Micrometer is enabled only when [meterRegistry] is supplied.
- * - OpenTelemetry tracing is installed only when [tracing] is supplied.
- * - Prometheus export is provided by route helpers, not by this installer.
+ * ## 계약
+ * - CallId와 CallLogging은 기본으로 활성화합니다.
+ * - [correlationId]는 CallId, CallLogging, tracing의 공통 기본 정책입니다.
+ * - [tracing]이 있고 그 설정의 [KtorOpenTelemetryTracingConfig.correlationId]가
+ *   `null`이면 [correlationId]를 상속합니다.
+ * - tracing 설정에 correlation ID 정책을 지정하면 tracing 전용 override로 사용합니다.
+ * - [meterRegistry]가 제공된 경우에만 Micrometer를 활성화합니다.
+ * - Prometheus export는 이 installer가 아니라 route helper가 제공합니다.
  */
 class Bluetape4kKtorObservabilityConfig(
     val correlationId: CorrelationIdSettings = CorrelationIdSettings(),
