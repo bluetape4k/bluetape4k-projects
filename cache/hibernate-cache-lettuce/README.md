@@ -42,10 +42,17 @@ No user import migration is required for the reorganization.
   Encoding**: Hibernate keys are normalized to a versioned collision-resistant digest before the region prefix is applied
 - **AccessType**: `NONSTRICT_READ_WRITE` is recommended (soft-locking is unnecessary in a distributed cache)
 
+### Cache Key Requirements
+
+Every Hibernate identifier used in a cache key (entity IDs, natural IDs, and composite-key components) must be a supported scalar/array value or implement `java.io.Serializable` across its complete object graph. Canonicalization is fail-closed: unsupported values and `Serializable` values with a non-serializable nested member produce a cache miss for reads, ignore writes, and propagate keyed-eviction failures. No `toString()` or `hashCode()` fallback is used.
+
+Existing entries created by versions that used the text fallback are not addressable after this change. Evict affected regions once during rollout if those legacy entries must be removed; supported serializable keys keep the existing `hck2` digest representation, so a blanket cache migration is not required.
+
 ## Recent Changes
 
 - Changed `LettuceNearCacheStorageAccess.evictData()` from region local-only clear to **local + Redis clearAll**
 - Propagated Redis failures from keyed and region eviction instead of reporting normal success
+- Removed correctness-critical text/hashCode cache-key fallback; unsupported identifier graphs now fail closed
 - Replaced `session.get()` with `session.find()` in tests to remove deprecated Hibernate API usage
 - Added cache scenario tests for One-To-Many, Many-To-One, and Many-To-Many relationships
 

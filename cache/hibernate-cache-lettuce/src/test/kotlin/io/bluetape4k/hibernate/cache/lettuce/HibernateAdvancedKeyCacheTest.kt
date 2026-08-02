@@ -2,6 +2,7 @@ package io.bluetape4k.hibernate.cache.lettuce
 
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeGreaterThan
+import io.bluetape4k.assertions.shouldBeNull
 import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.assertions.shouldNotBeNull
 import io.bluetape4k.cache.nearcache.LettuceNearCache
@@ -155,6 +156,38 @@ class HibernateAdvancedKeyCacheTest: AbstractHibernateNearCacheTest() {
     }
 
     @Test
+    fun `nested graph serialization failure는 cache key를 fail-closed 처리한다`() {
+        withStorageAccess("broken-serializable-id-${System.nanoTime()}") { cacheName, storageAccess, session ->
+            val firstKey = BrokenSerializableIdentifier("first")
+            val secondKey = BrokenSerializableIdentifier("second")
+
+            storageAccess.putIntoCache(firstKey, "first-value", session)
+            storageAccess.putIntoCache(secondKey, "second-value", session)
+
+            storageAccess.getFromCache(firstKey, session).shouldBeNull()
+            storageAccess.getFromCache(secondKey, session).shouldBeNull()
+            storageAccess.contains(firstKey) shouldBeEqualTo false
+            redisKeys("$cacheName:*").size shouldBeEqualTo 0
+        }
+    }
+
+    @Test
+    fun `동일 textual representation의 비직렬화 식별자는 cache key를 fail-closed 처리한다`() {
+        withStorageAccess("non-serializable-id-${System.nanoTime()}") { cacheName, storageAccess, session ->
+            val firstKey = NonSerializableIdentifier("first")
+            val secondKey = NonSerializableIdentifier("second")
+
+            storageAccess.putIntoCache(firstKey, "first-value", session)
+            storageAccess.putIntoCache(secondKey, "second-value", session)
+
+            storageAccess.getFromCache(firstKey, session).shouldBeNull()
+            storageAccess.getFromCache(secondKey, session).shouldBeNull()
+            storageAccess.contains(firstKey) shouldBeEqualTo false
+            redisKeys("$cacheName:*").size shouldBeEqualTo 0
+        }
+    }
+
+    @Test
     fun `update timestamps cache도 digest 문자열 key를 사용한다`() {
         sessionFactory.openSession().use { session ->
             session.beginTransaction()
@@ -226,5 +259,25 @@ class HibernateAdvancedKeyCacheTest: AbstractHibernateNearCacheTest() {
         companion object {
             private const val serialVersionUID: Long = 1L
         }
+    }
+
+    private class BrokenSerializableIdentifier(
+        private val value: String,
+    ): Serializable {
+        private val nestedState: Any = Any()
+
+        override fun hashCode(): Int = 0
+
+        override fun toString(): String = "same-text"
+
+        companion object {
+            private const val serialVersionUID: Long = 1L
+        }
+    }
+
+    private class NonSerializableIdentifier(
+        private val value: String,
+    ) {
+        override fun toString(): String = "same-text"
     }
 }
