@@ -140,6 +140,43 @@ suspend fun flowExample() {
 - `amb`, `race`, `withLatestFrom`
 - `groupBy`, `publish`, `replay`
 
+#### Rx/Reactor 스타일 대응 (선택한 계약)
+
+표준 Flow 연산자가 이미 제공하는 기능은 중복 wrapper를 만들지 않고,
+호출자에게 필요한 경계·취소 계약만 추가합니다.
+
+```kotlin
+import io.bluetape4k.coroutines.flow.extensions.bufferTimeout
+import io.bluetape4k.coroutines.flow.extensions.concatMapEager
+import io.bluetape4k.coroutines.flow.extensions.timeoutOrFallback
+import io.bluetape4k.coroutines.flow.extensions.windowTimeout
+import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.toList
+import kotlin.time.Duration.Companion.milliseconds
+import kotlin.time.Duration.Companion.seconds
+
+suspend fun parityExample(source: kotlinx.coroutines.flow.Flow<Int>) {
+    val batches = source.bufferTimeout(maxSize = 100, timeout = 1.seconds).toList()
+    val windows = source.windowTimeout(maxSize = 100, timeout = 1.seconds).toList()
+    val cached = flowOf(0)
+    val recovered = source.timeoutOrFallback(500.milliseconds, fallback = cached).toList()
+    val ordered = source.concatMapEager(maxConcurrency = 4, bufferCapacity = 8) { value ->
+        flowOf(value * 2)
+    }.toList()
+    check(batches.isNotEmpty() || windows.isNotEmpty() || recovered.isNotEmpty() || ordered.isNotEmpty())
+}
+```
+
+정상 완료 시 비어 있지 않은 마지막 batch/window를 한 번 방출하며, upstream
+실패 시 진행 중인 부분 값은 버립니다. `windowTimeout`은 반복 수집 가능한
+cold snapshot을 방출하고, `timeoutOrFallback`은 upstream cleanup 완료 후에만
+fallback을 한 번 수집합니다. `CancellationException`은 계속 취소로
+전달되며, bounded `concatMapEager`는 source 순서를 유지하면서
+`bufferCapacity`에서 inner producer를 suspend합니다. `switchMap`, `buffer`,
+`conflate`, `combine`, `zip`, `retryWhen`은 표준 Flow 연산자를 사용합니다.
+delay-error와 명시적 overflow 정책은 [후속 이슈 #1300](https://github.com/bluetape4k/bluetape4k-projects/issues/1300)에서
+다룹니다.
+
 ### Subject
 
 Subject 구현체는 producer와 collector를 연결하는 hot `Flow` 브릿지입니다.
