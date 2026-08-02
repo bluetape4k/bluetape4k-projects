@@ -9,6 +9,7 @@ import io.bluetape4k.jwt.provider.JwtProviderFactory
 import io.bluetape4k.jwt.reader.JwtReaderDto
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.testcontainers.storage.RedisServer
+import org.junit.jupiter.api.AfterEach
 import org.redisson.codec.LZ4Codec
 
 class RedissonJwtProviderTest: AbstractJwtProviderTest() {
@@ -33,6 +34,11 @@ class RedissonJwtProviderTest: AbstractJwtProviderTest() {
 
     override val provider: JwtProvider by lazy {
         JwtProviderFactory.redissonCached(delegate, readerCache)
+    }
+
+    @AfterEach
+    fun closeDelegate() {
+        delegate.close()
     }
 
 }

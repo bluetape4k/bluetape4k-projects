@@ -146,6 +146,28 @@ val jwt2 = jwtProvider.composer().claim("user", "user2").compose()
 val reader1 = jwtProvider.parse(jwt1)  // OK (저장소에 이전 KeyChain이 있는 경우)
 ```
 
+### 수명주기와 자원 소유권
+
+`JwtProvider`와 `KeyChainRepository`는 `AutoCloseable`을 구현합니다. 기본 Provider는 자신의 KeyChain 회전 타이머를 소유하지만, 주입받은 저장소는 빌려서 사용하므로 Provider가 닫지 않습니다. 애플리케이션이나 테스트에서 함께 생성한 경우 두 객체를 명시적으로 닫으세요.
+
+```kotlin
+import io.bluetape4k.jwt.keychain.repository.inmemory.InMemoryKeyChainRepository
+import io.bluetape4k.jwt.provider.JwtProviderFactory
+
+val repository = InMemoryKeyChainRepository()
+val jwtProvider = JwtProviderFactory.default(keyChainRepository = repository)
+
+try {
+    val jwt = jwtProvider.compose { subject = "alice" }
+    jwtProvider.parse(jwt)
+} finally {
+    jwtProvider.close() // Provider의 회전 타이머를 취소합니다.
+    repository.close()  // 저장소의 refresh 타이머를 취소합니다.
+}
+```
+
+Cache Provider는 delegate를 빌려 사용하므로 회전 타이머를 소유한 원래 delegate를 별도로 닫아야 합니다. 백그라운드 작업이 없는 구현체는 기본 no-op `close()` 구현을 그대로 사용할 수 있습니다.
+
 ### 압축 사용
 
 큰 클레임 데이터가 있는 경우 jjwt 내장 압축 알고리즘을 사용할 수 있습니다.
@@ -219,6 +241,8 @@ import io.bluetape4k.jwt.provider.JwtProviderFactory
 val repository = InMemoryKeyChainRepository()
 val jwtProvider = JwtProviderFactory.default(keyChainRepository = repository)
 ```
+
+이 조합을 더 이상 사용하지 않을 때는 `jwtProvider.close()`와 `repository.close()`를 호출하세요. 저장소를 닫아도 외부에서 소유한 Redisson client는 종료하지 않습니다.
 
 ### 커스텀 KeyChain 저장소 구현
 

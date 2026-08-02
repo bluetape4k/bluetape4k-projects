@@ -15,6 +15,8 @@ import io.jsonwebtoken.security.SignatureAlgorithm
  * - [parse]는 파싱 실패 시 [JwtException]을 던집니다.
  * - [tryParse]는 실패를 `null`로 반환합니다.
  * - [composer]/[compose]는 현재 키체인(또는 지정 키체인)으로 서명 JWT를 생성합니다.
+ * - 구현체가 소유한 백그라운드 작업은 [close]로 취소하며, 주입받은 repository/delegate는
+ *   구현체 정책에 따라 빌려 사용할 수 있습니다.
  *
  * ```kotlin
  * val jwt = provider.compose { claim("claim1", "value") }
@@ -22,7 +24,7 @@ import io.jsonwebtoken.security.SignatureAlgorithm
  * // reader.claim<String>("claim1") == "value"
  * ```
  */
-interface JwtProvider {
+interface JwtProvider: AutoCloseable {
 
     companion object: KLogging()
 
@@ -149,4 +151,12 @@ interface JwtProvider {
         val jws = this.currentJwtParser().parseSignedClaims(jwtString)
         JwtReader(jws)
     }.getOrNull()
+
+    /**
+     * 이 공급자가 소유한 백그라운드 작업을 종료합니다.
+     *
+     * 백그라운드 작업이 없는 구현체는 기본 구현을 그대로 사용하면 됩니다. 주입받은
+     * repository나 delegate의 소유권은 구현체 문서를 따르며, 기본 공급자는 이를 닫지 않습니다.
+     */
+    override fun close() = Unit
 }

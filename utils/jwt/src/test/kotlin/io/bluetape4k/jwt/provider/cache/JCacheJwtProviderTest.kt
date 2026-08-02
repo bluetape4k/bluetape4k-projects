@@ -10,6 +10,7 @@ import io.bluetape4k.jwt.provider.JwtProvider
 import io.bluetape4k.jwt.provider.JwtProviderFactory
 import io.bluetape4k.jwt.reader.JwtReaderDto
 import io.bluetape4k.logging.KLogging
+import org.junit.jupiter.api.AfterEach
 
 class JCacheJwtProviderTest: AbstractJwtProviderTest() {
 
@@ -23,4 +24,9 @@ class JCacheJwtProviderTest: AbstractJwtProviderTest() {
     private val delegate = JwtProviderFactory.default(keyChainRepository = repository)
 
     override val provider: JwtProvider = JwtProviderFactory.jcached(delegate, jcache)
+
+    @AfterEach
+    fun closeDelegate() {
+        delegate.close()
+    }
 }

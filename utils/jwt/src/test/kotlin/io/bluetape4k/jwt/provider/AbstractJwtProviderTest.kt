@@ -21,6 +21,7 @@ import io.bluetape4k.logging.trace
 import io.jsonwebtoken.JwtException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assumptions
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.RepeatedTest
@@ -48,6 +49,12 @@ abstract class AbstractJwtProviderTest: AbstractJwtTest() {
     fun beforeEach() {
         repository.deleteAll()
         provider.rotate()
+    }
+
+    @AfterEach
+    fun afterEach() {
+        provider.close()
+        repository.close()
     }
 
     @Test
