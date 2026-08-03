@@ -30,7 +30,7 @@ production Kotlin source, dependency catalog, module registration, benchmark sou
 - Test: bluetape4k/coroutines/src/test/kotlin/io/bluetape4k/coroutines/flow/extensions/MergeFlowsTest.kt
 - Test: bluetape4k/coroutines/src/test/kotlin/io/bluetape4k/coroutines/flow/extensions/OnBackpressureDropTest.kt
 
-- [ ] **Step 1: 기존 contract test를 먼저 실행한다.**
+- [x] **Step 1: 기존 contract test를 먼저 실행한다.**
 
 Run:
 
@@ -44,7 +44,7 @@ Run:
 
 Expected: BUILD SUCCESSFUL; 기존 API의 정상 순서·도착 순서·drop 결과가 통과한다. 이 단계는 no-production-change tranche의 baseline이며, 새 API가 없으므로 compile RED를 의도하지 않는다.
 
-- [ ] **Step 2: 새 테스트 파일을 만들기 전에 대상 범위와 dirty state를 확인한다.**
+- [x] **Step 2: 새 테스트 파일을 만들기 전에 대상 범위와 dirty state를 확인한다.**
 
 Run:
 
@@ -64,7 +64,7 @@ Expected: 기존 spec/matrix commit 외에 unrelated change가 없고, productio
 
 - Create: bluetape4k/coroutines/src/test/kotlin/io/bluetape4k/coroutines/flow/extensions/FlowPolicyContractTest.kt
 
-- [ ] **Step 1: 다음 테스트를 작성한다.**
+- [x] **Step 1: 다음 테스트를 작성한다.**
 
 ~~~
 package io.bluetape4k.coroutines.flow.extensions
@@ -217,7 +217,7 @@ class FlowPolicyContractTest: AbstractFlowTest() {
 
 The test intentionally exercises only existing public operators and standard Flow operators. thirdEmit proves that a capacity-one buffer suspends rather than silently growing; the conflate test proves the latest-value loss policy. The two cancellation tests make CancellationException preservation explicit.
 
-- [ ] **Step 2: Run the new test class.**
+- [x] **Step 2: Run the new test class.**
 
 Run:
 
@@ -229,7 +229,7 @@ Run:
 
 Expected: BUILD SUCCESSFUL with six passing tests. If a test fails, diagnose the existing contract or test synchronization first; do not add a new public operator to make the test pass.
 
-- [ ] **Step 3: Run the focused regression set together.**
+- [x] **Step 3: Run the focused regression set together.**
 
 Run:
 
@@ -244,7 +244,7 @@ Run:
 
 Expected: all selected classes pass with zero failures and zero errors.
 
-- [ ] **Step 4: Commit the test-only contract lock.**
+- [x] **Step 4: Commit the test-only contract lock.**
 
 ~~~
 git add bluetape4k/coroutines/src/test/kotlin/io/bluetape4k/coroutines/flow/extensions/FlowPolicyContractTest.kt
@@ -255,26 +255,22 @@ git commit -m 'Lock Flow policy contracts without API expansion' -m $'Constraint
 
 **Files:**
 
-- Modify: bluetape4k/coroutines/README.md after the merge(flows) section
-- Modify: bluetape4k/coroutines/README.ko.md after the merge(flows) section
+- Modify: bluetape4k/coroutines/README.md in the existing Rx/Reactor-style parity section
+- Modify: bluetape4k/coroutines/README.ko.md in the existing Rx/Reactor 스타일 대응 section
 
-- [ ] **Step 1: 영어 README에 다음 내용을 추가한다.**
-
-~~~
-### Flow policy follow-up (#1300)
-
-concat is sequential and fail-fast; merge collects sources concurrently in arrival order. Kotlin Flow buffer/conflate provide the supported bounded and latest-value policies. This module does not claim Reactive Streams demand semantics for onBackpressureDrop, and delay-error, explicit overflow-error, and boundary-window families remain deferred until caller evidence and a separate cancellation/memory contract are approved. See the [Flow operator policy matrix](../../docs/flow-operator-policy-matrix.md).
-~~~
-
-- [ ] **Step 2: 한국어 README에 같은 계약을 한국어로 추가한다.**
+- [x] **Step 1: 영어 README에 다음 내용을 추가한다.**
 
 ~~~
-### Flow 정책 후속 작업 (#1300)
-
-concat은 순차 fail-fast이고 merge는 여러 source를 동시에 수집해 도착 순서로 방출합니다. 지원되는 bounded/latest-value 정책은 Kotlin Flow의 buffer/conflate를 사용합니다. onBackpressureDrop에 Reactive Streams demand 의미를 부여하지 않으며, delay-error·명시적 overflow-error·경계 window 계열은 호출자 근거와 별도 취소/메모리 계약이 승인될 때까지 보류합니다. [Flow 연산자 정책 매트릭스](../../docs/flow-operator-policy-matrix.md)를 참조하세요.
+Delay-error and explicit overflow families are tracked in [follow-up issue #1300](https://github.com/bluetape4k/bluetape4k-projects/issues/1300); the current contracts, caller evidence, and re-open conditions are recorded in the [Flow operator policy matrix](../../docs/flow-operator-policy-matrix.md).
 ~~~
 
-- [ ] **Step 3: 양국어 링크와 문서 diff를 검증한다.**
+- [x] **Step 2: 한국어 README에 같은 계약을 한국어로 추가한다.**
+
+~~~
+delay-error와 명시적 overflow 정책은 [후속 이슈 #1300](https://github.com/bluetape4k/bluetape4k-projects/issues/1300)에서 다루며, 현재 계약·호출자 근거·재개 조건은 [Flow 연산자 정책 매트릭스](../../docs/flow-operator-policy-matrix.md)에 기록합니다.
+~~~
+
+- [x] **Step 3: 양국어 링크와 문서 diff를 검증한다.**
 
 Run:
 

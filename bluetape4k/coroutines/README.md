@@ -174,7 +174,9 @@ in-flight partial value. `windowTimeout` exposes repeatable cold snapshots, and
 preserves source order while suspending inner producers at `bufferCapacity`.
 For `switchMap`, `buffer`, `conflate`, `combine`, `zip`, and `retryWhen`, use
 the standard Flow operators. Delay-error and explicit overflow families are
-tracked in [follow-up issue #1300](https://github.com/bluetape4k/bluetape4k-projects/issues/1300).
+tracked in [follow-up issue #1300](https://github.com/bluetape4k/bluetape4k-projects/issues/1300);
+the current contracts, caller evidence, and re-open conditions are recorded in
+the [Flow operator policy matrix](../../docs/flow-operator-policy-matrix.md).
 
 ### Subjects
 
