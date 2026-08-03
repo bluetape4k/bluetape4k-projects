@@ -295,7 +295,7 @@ git commit -m 'Document Flow policy follow-up boundaries' -m $'Constraint: Publi
 
 - Create: docs/lessons/2026-08-03-issue-1300-flow-policy.md
 
-- [ ] **Step 1: 검증 결과를 한국어 lesson에 기록한다.**
+- [x] **Step 1: 검증 결과를 한국어 lesson에 기록한다.**
 
 Lesson은 다음 구조를 사용하고 실제 결과를 채운다.
 
@@ -325,7 +325,7 @@ overflow 정책을 별도 승인한 뒤에만 delay-error 또는 explicit overfl
 추가한다.
 ~~~
 
-- [ ] **Step 2: production API diff가 없는지 확인한다.**
+- [x] **Step 2: production API diff가 없는지 확인한다.**
 
 Run:
 
