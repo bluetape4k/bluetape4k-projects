@@ -8,9 +8,10 @@
 
 Live GitHub 상태:
 
-- `1.12.0`: 열린 이슈 0개, 열린 PR 0개
+- `1.12.0`: 열린 이슈 0개, 문서 준비 PR [#1310](https://github.com/bluetape4k/bluetape4k-projects/pull/1310) 1개
 - `backlog`: 열린 이슈 2개
 - repository 전체: 열린 이슈 2개
+- release 구현 PR: 열린 PR 0개 (`#1310`은 이 상태를 기록하는 문서 PR)
 - milestone `1.12.0`: 추가 이슈가 발견될 수 있으므로 배포 준비가 끝날 때까지 OPEN 유지
 
 `bluetape4k-projects`의 현재 milestone 작업은 모두 정리됐다. 이 문서는
@@ -22,7 +23,7 @@ Maven Central publication 완료를 선언하지 않는다.
 | 항목 | 상태 | 근거 / 다음 조치 |
 |---|---|---|
 | `1.12.0` 이슈 | READY | OPEN 0건. 새 결함이나 누락이 확인되면 milestone에 추가한다. |
-| 열린 PR | READY | OPEN 0건. 새 이슈 구현 PR이 생기면 다시 검증한다. |
+| release 구현 PR | READY | OPEN 0건. 문서 준비 PR `#1310`은 merge 대기 중이며, 새 이슈 구현 PR이 생기면 다시 검증한다. |
 | `CHANGELOG.md` | PREPARED | `1.12.0` 주요 변경, 마이그레이션, 성능·정책 경계를 반영한다. |
 | milestone 종료 | HOLD | 혹시 모를 추가 이슈를 받을 수 있도록 OPEN 상태를 유지한다. |
 | release / publish | NOT STARTED | 별도 Type P preflight에서 버전, 태그, catalog/BOM, consumer 범위를 고정한 뒤 진행한다. |
