@@ -175,7 +175,8 @@ fallback을 한 번 수집합니다. `CancellationException`은 계속 취소로
 `bufferCapacity`에서 inner producer를 suspend합니다. `switchMap`, `buffer`,
 `conflate`, `combine`, `zip`, `retryWhen`은 표준 Flow 연산자를 사용합니다.
 delay-error와 명시적 overflow 정책은 [후속 이슈 #1300](https://github.com/bluetape4k/bluetape4k-projects/issues/1300)에서
-다룹니다.
+다루며, 현재 계약·호출자 근거·재개 조건은 [Flow 연산자 정책 매트릭스](../../docs/flow-operator-policy-matrix.md)에
+기록합니다.
 
 ### Subject
 
