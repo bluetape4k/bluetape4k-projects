@@ -282,7 +282,7 @@ rg -n 'flow-operator-policy-matrix|Flow policy follow-up|Flow 정책 후속' \
 
 Expected: 두 README에 각각 한 개의 matrix link가 있고 whitespace 오류가 없다. README의 기존 예제·이미지 링크는 변경하지 않는다.
 
-- [ ] **Step 4: 문서 parity commit을 만든다.**
+- [x] **Step 4: 문서 parity commit을 만든다.**
 
 ~~~
 git add bluetape4k/coroutines/README.md bluetape4k/coroutines/README.ko.md
@@ -337,7 +337,7 @@ git diff --name-only origin/develop...HEAD -- \
 
 Expected: 출력이 비어 있다. 출력이 생기면 원인을 확인한 뒤 A안 범위를 벗어난 변경으로 보고한다.
 
-- [ ] **Step 3: lesson commit을 만든다.**
+- [x] **Step 3: lesson commit을 만든다.**
 
 ~~~
 git add docs/lessons/2026-08-03-issue-1300-flow-policy.md
@@ -350,7 +350,7 @@ git commit -m 'Record evidence-backed Flow policy lesson' -m $'Constraint: Miles
 
 - Verify: all changed files in this branch
 
-- [ ] **Step 1: module check를 실행한다.**
+- [x] **Step 1: module check를 실행한다.**
 
 Run:
 
@@ -361,7 +361,7 @@ Run:
 
 Expected: BUILD SUCCESSFUL, including test and applicable detekt/static checks.
 
-- [ ] **Step 2: 전체 coroutine module test를 실행한다.**
+- [x] **Step 2: 전체 coroutine module test를 실행한다.**
 
 Run:
 
@@ -372,7 +372,7 @@ Run:
 
 Expected: BUILD SUCCESSFUL and zero failed/error tests.
 
-- [ ] **Step 3: final scope and whitespace audit를 실행한다.**
+- [x] **Step 3: final scope and whitespace audit를 실행한다.**
 
 Run:
 
@@ -384,7 +384,7 @@ git status --short --branch
 
 Expected: only the approved spec, matrix, plan, contract test, two README locales, and lesson are present; no untracked files, no production Kotlin source/dependency/module changes, and no whitespace errors.
 
-- [ ] **Step 4: workflow completion evidence를 기록한다.**
+- [x] **Step 4: workflow completion evidence를 기록한다.**
 
 Record in the final DoD: plan item statuses, exact test/check results, commit heads, no-PR/no-merge scope, blocked independent gpt-5.6-luna max research lane, and any unchecked GitHub publication gates as PENDING.
 
