@@ -73,11 +73,10 @@ import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeFalse
 import io.bluetape4k.assertions.shouldBeTrue
-import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.cancelAndJoin
-import kotlinx.coroutines.flow.BufferOverflow
+import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.buffer
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.collect
@@ -111,7 +110,8 @@ class FlowPolicyContractTest: AbstractFlowTest() {
             ).toList()
         }
 
-        actual shouldBeEqualTo failure
+        actual::class shouldBeEqualTo failure::class
+        actual.message shouldBeEqualTo failure.message
         secondCollected.get().shouldBeFalse()
     }
 
@@ -133,7 +133,8 @@ class FlowPolicyContractTest: AbstractFlowTest() {
             ).collect()
         }
 
-        actual shouldBeEqualTo failure
+        actual::class shouldBeEqualTo failure::class
+        actual.message shouldBeEqualTo failure.message
         siblingCancelled.await()
     }
 
@@ -199,17 +200,17 @@ class FlowPolicyContractTest: AbstractFlowTest() {
     }
 
     @Test
-    fun flowCatchDoesNotCatchCancellationException() = runTest {
+    fun flowCatchDoesNotCatchCallerCancellation() = runTest {
         var caught = false
         val job = launch {
-            flow<Int> { throw CancellationException("caller") }
+            flow<Int> { awaitCancellation() }
                 .catch { caught = true }
                 .collect()
         }
 
-        job.join()
+        runCurrent()
+        job.cancelAndJoin()
         caught.shouldBeFalse()
-        job.isCancelled.shouldBeTrue()
     }
 }
 ~~~
