@@ -29,23 +29,23 @@ plugins {
     alias(bt4k.plugins.kotlin.jpa) apply false
     alias(bt4k.plugins.kotlin.serialization) apply false
     alias(bt4k.plugins.kotlin.kapt) apply false
-    alias(libs.plugins.kotlinx.atomicfu)
-    alias(libs.plugins.kotlinx.benchmark) apply false
+    alias(bt4k.plugins.kotlinx.atomicfu)
+    alias(bt4k.plugins.kotlinx.benchmark) apply false
 
-    alias(libs.plugins.detekt)
+    alias(bt4k.plugins.detekt.dev)
 
     alias(bt4k.plugins.dependency.management)
     alias(bt4k.plugins.spring.boot) apply false
 
     alias(bt4k.plugins.dokka)
-    alias(libs.plugins.test.logger)
+    alias(bt4k.plugins.test.logger)
     alias(bt4k.plugins.shadow) apply false
 
-    alias(libs.plugins.graalvm.native) apply false
+    alias(bt4k.plugins.graalvm.native) apply false
     alias(bt4k.plugins.nmcp.aggregation)
     alias(bt4k.plugins.nmcp) apply false
 
-    alias(libs.plugins.dependency.check)
+    alias(bt4k.plugins.dependency.check)
 
     // 테스트 커버리지 (Kotlin inline/suspend 정확 지원)
     alias(bt4k.plugins.kover)
@@ -81,6 +81,7 @@ allprojects {
 // Capture root-project catalog reference once; used inside subprojects {} closures
 // where `libs` is not in scope (different receiver type in the lambda).
 val rootLibs = libs
+val rootBt4k = bt4k
 val bt4kCatalog = extensions.getByType<org.gradle.api.artifacts.VersionCatalogsExtension>().named("bt4k")
 fun bt4kLibrary(alias: String) = bt4kCatalog.findLibrary(alias).get()
 fun bt4kVersion(alias: String): String {
@@ -392,21 +393,21 @@ subprojects {
             // Reactor BOM: SB BOM에서 분리됐으므로 전역 관리 유지
             mavenBom("io.projectreactor:reactor-bom:${bt4kVersion("reactor-bom")}")
 
-            mavenBom(rootLibs.feign.bom.get().toString())
-            mavenBom(rootLibs.micrometer.bom.get().toString())
-            mavenBom(rootLibs.micrometer.tracing.bom.get().toString())
+            mavenBom(rootBt4k.feign.bom.get().toString())
+            mavenBom(rootBt4k.micrometer.bom.get().toString())
+            mavenBom(rootBt4k.micrometer.tracing.bom.get().toString())
             mavenBom(bt4kLibrary("opentelemetry-bom").get().toString())
-            mavenBom(rootLibs.opentelemetry.alpha.bom.get().toString())
+            mavenBom(rootBt4k.opentelemetry.alpha.bom.get().toString())
             mavenBom(bt4kLibrary("opentelemetry-instrumentation-bom-alpha").get().toString())
             mavenBom(bt4kLibrary("log4j-bom").get().toString())
             mavenBom("org.testcontainers:testcontainers-bom:${bt4kVersion("testcontainers")}")
-            mavenBom(rootLibs.junit.bom.get().toString())
+            mavenBom(rootBt4k.junit.bom.get().toString())
             mavenBom(bt4kLibrary("aws2-bom").get().toString())
-            mavenBom(rootLibs.okhttp3.bom.get().toString())
-            mavenBom(rootLibs.grpc.bom.get().toString())
+            mavenBom(rootBt4k.okhttp3.bom.get().toString())
+            mavenBom(rootBt4k.grpc.bom.get().toString())
             mavenBom(bt4kLibrary("protobuf-bom").get().toString())
             mavenBom(bt4kLibrary("fabric8-kubernetes-client-bom").get().toString())
-            mavenBom(rootLibs.resilience4j.bom.get().toString())
+            mavenBom(rootBt4k.resilience4j.bom.get().toString())
             mavenBom(bt4kLibrary("netty-bom").get().toString())
             mavenBom("com.fasterxml.jackson:jackson-bom:${bt4kVersion("jackson")}")
 
@@ -683,7 +684,7 @@ subprojects {
             dependency("tools.jackson.module:jackson-module-no-ctor-deser:${bt4kVersion("jackson3")}")
             dependency("tools.jackson:jackson-bom:${bt4kVersion("jackson3")}")
             // </central-catalog-local-aliases>
-            dependency(rootLibs.jetbrains.annotations.get().toString())
+            dependency(rootBt4k.jetbrains.annotations.get().toString())
 
             // Kotlinx Coroutines (mavenBom 이 적용이 안되어서 추가로 명시했습니다)
             dependency("org.jetbrains.kotlinx:kotlinx-coroutines-bom:${bt4kVersion("kotlinx-coroutines")}")
@@ -699,16 +700,16 @@ subprojects {
             dependency("org.jetbrains.kotlinx:kotlinx-coroutines-test-jvm:${bt4kVersion("kotlinx-coroutines")}")
 
             // Apache Commons
-            dependency(rootLibs.commons.beanutils.get().toString())
-            dependency(rootLibs.commons.collections4.get().toString())
+            dependency(rootBt4k.commons.beanutils.get().toString())
+            dependency(rootBt4k.commons.collections4.get().toString())
             dependency(bt4kLibrary("commons-compress").get().toString())
             dependency(bt4kLibrary("commons-codec").get().toString())
             dependency(bt4kLibrary("commons-csv").get().toString())
             dependency(bt4kLibrary("commons-lang3").get().toString())
             dependency(bt4kLibrary("commons-logging").get().toString())
-            dependency(rootLibs.commons.math3.get().toString())
+            dependency(rootBt4k.commons.math3.get().toString())
             dependency(bt4kLibrary("commons-pool2").get().toString())
-            dependency(rootLibs.commons.text.get().toString())
+            dependency(rootBt4k.commons.text.get().toString())
             dependency(bt4kLibrary("commons-exec").get().toString())
             dependency(bt4kLibrary("commons-io").get().toString())
 
@@ -716,32 +717,32 @@ subprojects {
             dependency("org.slf4j:jcl-over-slf4j:${bt4kVersion("slf4j")}")
             dependency("org.slf4j:jul-to-slf4j:${bt4kVersion("slf4j")}")
             dependency("org.slf4j:log4j-over-slf4j:${bt4kVersion("slf4j")}")
-            dependency(rootLibs.logback.classic.get().toString())
-            dependency(rootLibs.logback.core.get().toString())
+            dependency(rootBt4k.logback.asProvider().get().toString())
+            dependency(rootBt4k.logback.core.get().toString())
 
             // jakarta
             dependency(bt4kLibrary("jakarta-activation-api").get().toString())
-            dependency(rootLibs.jakarta.annotation.api.get().toString())
-            dependency(rootLibs.jakarta.el.api.get().toString())
-            dependency(rootLibs.jakarta.inject.api.get().toString())
-            dependency(rootLibs.jakarta.interceptor.api.get().toString())
-            dependency(rootLibs.jakarta.jms.api.get().toString())
-            dependency(rootLibs.jakarta.json.api.get().toString())
-            dependency(rootLibs.jakarta.json.asProvider().get().toString())
-            dependency(rootLibs.jakarta.persistence.api.asProvider().get().toString())
-            dependency(rootLibs.jakarta.servlet.api.get().toString())
-            dependency(rootLibs.jakarta.transaction.api.get().toString())
-            dependency(rootLibs.jakarta.validation.api.get().toString())
-            dependency(rootLibs.jakarta.ws.rs.api.get().toString())
+            dependency(rootBt4k.jakarta.annotation.api.get().toString())
+            dependency(rootBt4k.jakarta.el.api.get().toString())
+            dependency(rootBt4k.jakarta.inject.api.get().toString())
+            dependency(rootBt4k.jakarta.interceptor.api.get().toString())
+            dependency(rootBt4k.jakarta.jms.api.get().toString())
+            dependency(rootBt4k.jakarta.json.api.get().toString())
+            dependency(rootBt4k.jakarta.json.asProvider().get().toString())
+            dependency(rootBt4k.jakarta.persistence.v31.get().toString())
+            dependency(rootBt4k.jakarta.servlet.api.get().toString())
+            dependency(rootBt4k.jakarta.transaction.api.get().toString())
+            dependency(rootBt4k.jakarta.validation.api.get().toString())
+            dependency(rootBt4k.jakarta.ws.rs.api.get().toString())
             dependency(bt4kLibrary("jakarta-xml-bind").get().toString())
 
             // Compressor
-            dependency(rootLibs.snappy.java.get().toString())
-            dependency(rootLibs.lz4.java.get().toString())
+            dependency(rootBt4k.snappy.java.get().toString())
+            dependency(rootBt4k.at.yawk.lz4.java.get().toString())
             dependency(bt4kLibrary("zstd-jni").get().toString())
 
             // Netty tcnative uses its own 2.0.x line; Spring Boot 4.1 currently pushes it onto Netty core 4.2.x.
-            dependency(rootLibs.netty.tcnative.classes.get().toString())
+            dependency(rootBt4k.netty.tcnative.classes.get().toString())
 
             // Shared security overrides are sourced from the imported bluetape4k-dependencies catalog.
             dependency("org.apache.tomcat.embed:tomcat-embed-core:${bt4kVersion("tomcat")}")
@@ -749,13 +750,13 @@ subprojects {
             dependency("io.opentelemetry:opentelemetry-extension-trace-propagators:${bt4kVersion("opentelemetry")}")
 
             // Java Money
-            dependency(rootLibs.javax.money.api.get().toString())
+            dependency(rootBt4k.javax.money.api.get().toString())
             dependency(bt4kLibrary("javamoney-moneta").get().toString())
 
-            dependency(rootLibs.findbugs.get().toString())
+            dependency(rootBt4k.findbugs.get().toString())
             dependency(bt4kLibrary("guava").get().toString())
 
-            dependency(rootLibs.kryo.get().toString())
+            dependency(rootBt4k.kryo.get().toString())
             dependency("org.apache.fory:fory-kotlin:${bt4kVersion("fory-kotlin")}")
 
             // HINT: Jackson (이상하게 mavenBom 에 적용이 안되어서 강제로 추가하였다)
@@ -782,30 +783,30 @@ subprojects {
             dependency("com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:${bt4kVersion("jackson")}")
 
             // Retrofit
-            dependency(rootLibs.retrofit2.asProvider().get().toString())
-            dependency(rootLibs.retrofit2.adapter.java8.get().toString())
-            dependency(rootLibs.retrofit2.adapter.reactor.get().toString())
-            dependency(rootLibs.retrofit2.adapter.rxjava2.get().toString())
-            dependency(rootLibs.retrofit2.converter.jackson.get().toString())
-            dependency(rootLibs.retrofit2.converter.moshi.get().toString())
-            dependency(rootLibs.retrofit2.converter.protobuf.get().toString())
-            dependency(rootLibs.retrofit2.converter.scalars.get().toString())
-            dependency(rootLibs.retrofit2.mock.get().toString())
+            dependency(rootBt4k.retrofit2.asProvider().get().toString())
+            dependency(rootBt4k.retrofit2.adapter.java8.get().toString())
+            dependency(rootBt4k.retrofit2.adapter.reactor.get().toString())
+            dependency(rootBt4k.retrofit2.adapter.rxjava2.get().toString())
+            dependency(rootBt4k.retrofit2.converter.jackson.get().toString())
+            dependency(rootBt4k.retrofit2.converter.moshi.get().toString())
+            dependency(rootBt4k.retrofit2.converter.protobuf.get().toString())
+            dependency(rootBt4k.retrofit2.converter.scalars.get().toString())
+            dependency(rootBt4k.retrofit2.mock.get().toString())
 
 
             dependency(bt4kLibrary("httpclient5").get().toString())
 
-            dependency(rootLibs.grpc.kotlin.stub.get().toString())
+            dependency(rootBt4k.grpc.kotlin.stub.get().toString())
 
-            dependency(rootLibs.mongo.bson.asProvider().get().toString())
-            dependency(rootLibs.mongo.bson.kotlin.get().toString())
-            dependency(rootLibs.mongo.bson.kotlinx.get().toString())
-            dependency(rootLibs.mongodb.driver.core.get().toString())
-            dependency(rootLibs.mongodb.driver.reactivestreams.get().toString())
-            dependency(rootLibs.mongodb.driver.sync.get().toString())
-            dependency(rootLibs.mongodb.driver.kotlin.coroutine.get().toString())
-            dependency(rootLibs.mongodb.driver.kotlin.extensions.get().toString())
-            dependency(rootLibs.mongodb.driver.kotlin.sync.get().toString())
+            dependency(rootBt4k.mongo.bson.asProvider().get().toString())
+            dependency(rootBt4k.mongo.bson.kotlin.get().toString())
+            dependency(rootBt4k.mongo.bson.kotlinx.get().toString())
+            dependency(rootBt4k.mongodb.driver.core.get().toString())
+            dependency(rootBt4k.mongodb.driver.reactivestreams.get().toString())
+            dependency(rootBt4k.mongodb.driver.sync.get().toString())
+            dependency(rootBt4k.mongodb.driver.kotlin.coroutine.get().toString())
+            dependency(rootBt4k.mongodb.driver.kotlin.extensions.get().toString())
+            dependency(rootBt4k.mongodb.driver.kotlin.sync.get().toString())
 
             // Kafka
             dependency(bt4kLibrary("kafka-clients").get().toString())
@@ -822,64 +823,64 @@ subprojects {
             // Hibernate
             dependency(bt4kLibrary("hibernate-core").get().toString())
             dependency(bt4kLibrary("hibernate-jcache").get().toString())
-            dependency(rootLibs.javassist.get().toString())
+            dependency(rootBt4k.javassist.get().toString())
 
-            dependency(rootLibs.antlr4.runtime.get().toString())  // https://github.com/spring-projects/spring-data-jpa/issues/3262
-            dependency(rootLibs.antlr4.tool.get().toString())
+            dependency(rootBt4k.antlr4.runtime.get().toString())  // https://github.com/spring-projects/spring-data-jpa/issues/3262
+            dependency(rootBt4k.antlr4.tool.get().toString())
 
             dependency(bt4kLibrary("querydsl-apt").get().toString())
             dependency(bt4kLibrary("querydsl-core").get().toString())
             dependency(bt4kLibrary("querydsl-jpa").get().toString())
 
             // Validators
-            dependency(rootLibs.jakarta.el.api.get().toString())
-            dependency(rootLibs.jakarta.validation.api.get().toString())
-            dependency(rootLibs.hibernate.validator.asProvider().get().toString())
-            dependency(rootLibs.hibernate.validator.annotation.processor.get().toString())
+            dependency(rootBt4k.jakarta.el.api.get().toString())
+            dependency(rootBt4k.jakarta.validation.api.get().toString())
+            dependency(rootBt4k.hibernate.validator.asProvider().get().toString())
+            dependency(rootBt4k.hibernate.validator.annotation.processor.get().toString())
 
             dependency(bt4kLibrary("hikaricp").get().toString())
             dependency(bt4kLibrary("mysql-connector-j").get().toString())
-            dependency(rootLibs.mariadb.java.client.get().toString())
+            dependency(rootBt4k.mariadb.java.client.get().toString())
 
-            dependency(rootLibs.caffeine.asProvider().get().toString())
-            dependency(rootLibs.caffeine.jcache.get().toString())
+            dependency(rootBt4k.caffeine.asProvider().get().toString())
+            dependency(rootBt4k.caffeine.jcache.get().toString())
 
-            dependency(rootLibs.objenesis.get().toString())
+            dependency(rootBt4k.objenesis.get().toString())
             dependency(bt4kLibrary("ow2-asm").get().toString())
 
             dependency("com.esotericsoftware:reflectasm:${bt4kVersion("reflectasm")}")
 
-            dependency(rootLibs.junit.bom.get().toString())
-            dependency(rootLibs.junit.jupiter.asProvider().get().toString())
-            dependency(rootLibs.junit.jupiter.api.get().toString())
-            dependency(rootLibs.junit.jupiter.engine.get().toString())
-            dependency(rootLibs.junit.jupiter.migrationsupport.get().toString())
-            dependency(rootLibs.junit.jupiter.params.get().toString())
-            dependency(rootLibs.junit.platform.commons.get().toString())
-            dependency(rootLibs.junit.platform.engine.get().toString())
-            dependency(rootLibs.junit.platform.launcher.get().toString())
+            dependency(rootBt4k.junit.bom.get().toString())
+            dependency(rootBt4k.junit.jupiter.asProvider().get().toString())
+            dependency(rootBt4k.junit.jupiter.api.get().toString())
+            dependency(rootBt4k.junit.jupiter.engine.get().toString())
+            dependency(rootBt4k.junit.jupiter.migrationsupport.get().toString())
+            dependency(rootBt4k.junit.jupiter.params.get().toString())
+            dependency(rootBt4k.junit.platform.commons.get().toString())
+            dependency(rootBt4k.junit.platform.engine.get().toString())
+            dependency(rootBt4k.junit.platform.launcher.get().toString())
 
             dependency("org.assertj:assertj-core:${bt4kVersion("assertj-core")}")
 
-            dependency(rootLibs.mockk.get().toString())
-            dependency(rootLibs.datafaker.get().toString())
+            dependency(rootBt4k.mockk.get().toString())
+            dependency(rootBt4k.datafaker.get().toString())
             dependency("io.github.benas:random-beans:${bt4kVersion("random-beans")}")
 
-            dependency(rootLibs.jsonpath.get().toString())
-            dependency(rootLibs.jsonassert.get().toString())
+            dependency(rootBt4k.jsonpath.v3.get().toString())
+            dependency(rootBt4k.jsonassert.v1.get().toString())
 
             dependency(bt4kLibrary("bouncycastle-bcpkix").get().toString())
             dependency(bt4kLibrary("bouncycastle-bcprov").get().toString())
 
             // Prometheus
-            dependency(rootLibs.prometheus.simpleclient.asProvider().get().toString())
-            dependency(rootLibs.prometheus.simpleclient.common.get().toString())
-            dependency(rootLibs.prometheus.simpleclient.httpserver.get().toString())
-            dependency(rootLibs.prometheus.simpleclient.pushgateway.get().toString())
-            dependency(rootLibs.prometheus.simpleclient.spring.boot.get().toString())
-            dependency(rootLibs.prometheus.simpleclient.tracer.common.get().toString())
-            dependency(rootLibs.prometheus.simpleclient.tracer.otel.asProvider().get().toString())
-            dependency(rootLibs.prometheus.simpleclient.tracer.otel.agent.get().toString())
+            dependency(rootBt4k.prometheus.simpleclient.asProvider().get().toString())
+            dependency(rootBt4k.prometheus.simpleclient.common.get().toString())
+            dependency(rootBt4k.prometheus.simpleclient.httpserver.get().toString())
+            dependency(rootBt4k.prometheus.simpleclient.pushgateway.get().toString())
+            dependency(rootBt4k.prometheus.simpleclient.spring.boot.get().toString())
+            dependency(rootBt4k.prometheus.simpleclient.tracer.common.get().toString())
+            dependency(rootBt4k.prometheus.simpleclient.tracer.otel.asProvider().get().toString())
+            dependency(rootBt4k.prometheus.simpleclient.tracer.otel.agent.get().toString())
 
             // OW2 ASM
             dependency(bt4kLibrary("ow2-asm").get().toString())
@@ -887,12 +888,12 @@ subprojects {
             dependency("org.ow2.asm:asm-util:${bt4kVersion("ow2-asm")}")
             dependency("org.ow2.asm:asm-tree:${bt4kVersion("ow2-asm")}")
 
-            dependency(rootLibs.snakeyaml.get().toString())
-            dependency(rootLibs.jna.asProvider().get().toString())
+            dependency(rootBt4k.snakeyaml.get().toString())
+            dependency(rootBt4k.jna.asProvider().get().toString())
 
             // ByteBuddy
-            dependency(rootLibs.byte.buddy.asProvider().get().toString())
-            dependency(rootLibs.byte.buddy.agent.get().toString())
+            dependency(rootBt4k.byte.buddy.asProvider().get().toString())
+            dependency(rootBt4k.byte.buddy.agent.get().toString())
         }
     }
 
@@ -918,7 +919,7 @@ subprojects {
         val testCompileOnly by configurations
         val testRuntimeOnly by configurations
 
-        api(rootLibs.jetbrains.annotations)
+        api(rootBt4k.jetbrains.annotations)
 
         implementation(rootLibs.kotlin.stdlib)
         implementation(rootLibs.kotlin.reflect)
@@ -926,25 +927,25 @@ subprojects {
         testImplementation(rootLibs.kotlin.test.junit5)
 
         implementation(rootLibs.kotlinx.coroutines.core)
-        implementation(rootLibs.kotlinx.atomicfu)
+        implementation(rootBt4k.kotlinx.atomicfu)
         implementation(platform(bt4kLibrary("reactor-bom").get()))
 
         // 개발 시에는 logback 이 검증하기에 더 좋고, Production에서 비동기 로깅은 log4j2 가 성능이 좋다고 합니다.
         api(bt4kLibrary("slf4j-api").get())
-        testImplementation(rootLibs.logback.classic)
+        testImplementation(rootBt4k.logback.asProvider())
         testImplementation(rootLibs.jcl.over.slf4j)
         testImplementation(rootLibs.jul.to.slf4j)
         testImplementation(rootLibs.log4j.over.slf4j)
 
-        testImplementation(rootLibs.junit.jupiter)
-        testRuntimeOnly(rootLibs.junit.platform.engine)
-        testImplementation(rootLibs.junit.jupiter.migrationsupport)
+        testImplementation(rootBt4k.junit.jupiter.asProvider())
+        testRuntimeOnly(rootBt4k.junit.platform.engine)
+        testImplementation(rootBt4k.junit.jupiter.migrationsupport)
 
         testImplementation(rootLibs.awaitility.kotlin)
-        testImplementation(rootLibs.mockk)
+        testImplementation(rootBt4k.mockk)
 
         // Property based test
-        testImplementation(rootLibs.datafaker)
+        testImplementation(rootBt4k.datafaker)
     }
 
     tasks.withType<Jar> {

@@ -63,19 +63,19 @@ dependencies {
     implementation(project(":bluetape4k-hibernate"))
     testImplementation(project(":bluetape4k-junit5"))
 
-    implementation(libs.jakarta.annotation.api)
-    implementation(libs.jakarta.persistence.api)
+    implementation(bt4k.jakarta.annotation.api)
+    implementation(bt4k.jakarta.persistence.v31)
     implementation(bt4k.hibernate.core)
 
     // QueryDsl
     implementation(bt4k.querydsl.jpa)
     kapt(variantOf(bt4k.querydsl.apt) { classifier("jakarta") })
     kaptTest(variantOf(bt4k.querydsl.apt) { classifier("jakarta") })
-    kapt(libs.jakarta.persistence.api)
+    kapt(bt4k.jakarta.persistence.v31)
 
     // Vaidators
-    implementation(libs.hibernate.validator)
-    runtimeOnly(libs.jakarta.validation.api)
+    implementation(bt4k.hibernate.validator)
+    runtimeOnly(bt4k.jakarta.validation.api)
 
     // Spring Boot
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
@@ -88,7 +88,7 @@ dependencies {
     }
 
     testImplementation(bt4k.hikaricp)
-    testImplementation(libs.h2.v2)
+    testImplementation(bt4k.h2.v2)
     testImplementation(bt4k.mysql.connector.j)
 
     // TestContainers
@@ -98,5 +98,5 @@ dependencies {
     // Caching 테스트
     testImplementation(project(":bluetape4k-cache-core"))
     testImplementation(bt4k.hibernate.jcache)
-    testImplementation(libs.caffeine.jcache)
+    testImplementation(bt4k.caffeine.jcache)
 }

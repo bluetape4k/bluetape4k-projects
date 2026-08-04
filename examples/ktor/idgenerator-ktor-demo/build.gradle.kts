@@ -19,7 +19,7 @@ dependencies {
     implementation(libs.ktor.server.core)
     implementation(libs.ktor.server.cio)
 
-    runtimeOnly(libs.logback.classic)
+    runtimeOnly(bt4k.logback)
 
     testImplementation(project(":bluetape4k-junit5"))
     testImplementation(project(":bluetape4k-ktor-testing"))

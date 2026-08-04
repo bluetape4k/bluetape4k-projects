@@ -34,7 +34,7 @@ configurations {
 dependencyManagement {
     imports {
         mavenBom(bt4k.opentelemetry.bom.get().toString())
-        mavenBom(libs.opentelemetry.alpha.bom.get().toString())
+        mavenBom(bt4k.opentelemetry.alpha.bom.get().toString())
         mavenBom(bt4k.opentelemetry.instrumentation.bom.alpha.get().toString())
     }
 }

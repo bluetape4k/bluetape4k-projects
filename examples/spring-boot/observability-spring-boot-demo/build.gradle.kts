@@ -16,7 +16,7 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-actuator")
 
     runtimeOnly(libs.micrometer.registry.prometheus)
-    runtimeOnly(libs.micrometer.tracing.bridge.otel)
+    runtimeOnly(bt4k.micrometer.tracing.bridge.otel)
     runtimeOnly(libs.opentelemetry.exporter.otlp)
 
     testImplementation("org.springframework.boot:spring-boot-starter-test")

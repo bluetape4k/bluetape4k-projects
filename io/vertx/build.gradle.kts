@@ -20,8 +20,8 @@ dependencies {
 
     // Resilience4j
     api(project(":bluetape4k-resilience4j"))
-    compileOnly(libs.resilience4j.reactor)
-    compileOnly(libs.resilience4j.micrometer)
+    compileOnly(bt4k.resilience4j.reactor)
+    compileOnly(bt4k.resilience4j.micrometer)
 
     // SqlClient
     api(libs.vertx.sql.client)
@@ -40,7 +40,7 @@ dependencies {
     compileOnly(libs.kotlinx.coroutines.reactor)
     testImplementation(libs.kotlinx.coroutines.test)
 
-    testRuntimeOnly(libs.h2.v2)
+    testRuntimeOnly(bt4k.h2.v2)
     testRuntimeOnly(bt4k.mysql.connector.j)
     testImplementation(libs.testcontainers)
     testImplementation(libs.testcontainers.mysql)

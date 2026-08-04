@@ -16,14 +16,14 @@ dependencies {
     compileOnly("org.springframework:spring-expression")
 
     // MVEL2
-    compileOnly(libs.mvel2)
+    compileOnly(bt4k.mvel2)
 
     // Janino (runtime Java expression/script compiler)
-    compileOnly(libs.janino)
-    compileOnly(libs.janino.commons.compiler)
+    compileOnly(bt4k.janino)
+    compileOnly(bt4k.janino.commons.compiler)
 
     // Groovy (runtime script engine)
-    compileOnly(libs.groovy)
+    compileOnly(bt4k.groovy)
 
     // Kotlin Script (jvm-host)
     compileOnly(libs.kotlin.scripting.common)
@@ -33,16 +33,16 @@ dependencies {
     // Rule Reader
     compileOnly(libs.jackson.dataformat.yaml)
     compileOnly(libs.jackson.module.kotlin)
-    compileOnly(libs.typesafe.config)
+    compileOnly(bt4k.typesafe.config)
 
     // Test
-    testImplementation(libs.mvel2)
-    testImplementation(libs.janino)
-    testImplementation(libs.janino.commons.compiler)
-    testImplementation(libs.groovy)
+    testImplementation(bt4k.mvel2)
+    testImplementation(bt4k.janino)
+    testImplementation(bt4k.janino.commons.compiler)
+    testImplementation(bt4k.groovy)
     testImplementation(libs.kotlin.scripting.jvm.host)
     testImplementation("org.springframework:spring-context")
     testImplementation(libs.jackson.dataformat.yaml)
     testImplementation(libs.jackson.module.kotlin)
-    testImplementation(libs.typesafe.config)
+    testImplementation(bt4k.typesafe.config)
 }

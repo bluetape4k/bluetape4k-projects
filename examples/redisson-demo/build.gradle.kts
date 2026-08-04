@@ -16,12 +16,12 @@ dependencies {
     testImplementation(libs.redisson.spring.boot.starter)
 
     // Codecs
-    testImplementation(libs.kryo)
+    testImplementation(bt4k.kryo)
     testImplementation(bt4k.fory.kotlin)  // new Apache Fory
 
     // Compressor
-    testImplementation(libs.lz4.java)
-    testImplementation(libs.snappy.java)
+    testImplementation(bt4k.at.yawk.lz4.java)
+    testImplementation(bt4k.snappy.java)
     testImplementation(bt4k.zstd.jni)
 
     // Protobuf
@@ -29,8 +29,8 @@ dependencies {
 
     // Cache
     testImplementation(project(":bluetape4k-cache-redisson"))
-    testImplementation(libs.caffeine)
-    testImplementation(libs.caffeine.jcache)
+    testImplementation(bt4k.caffeine)
+    testImplementation(bt4k.caffeine.jcache)
 
     // JSON
     testImplementation(project(":bluetape4k-jackson3"))
@@ -51,7 +51,7 @@ dependencies {
 
     // Redisson Map Read/Write Through 예제를 위해 
     testImplementation(project(":bluetape4k-jdbc"))
-    testRuntimeOnly(libs.h2.v2)
+    testRuntimeOnly(bt4k.h2.v2)
     testImplementation(bt4k.hikaricp)
     testImplementation("org.springframework.boot:spring-boot-starter-jdbc")
 

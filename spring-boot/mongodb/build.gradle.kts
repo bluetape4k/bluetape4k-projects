@@ -22,9 +22,9 @@ dependencies {
     testImplementation(libs.testcontainers.mongodb)
 
     // Mongo Driver
-    implementation(libs.mongodb.driver.kotlin.sync)
-    implementation(libs.mongodb.driver.kotlin.coroutine)
-    implementation(libs.mongodb.driver.kotlin.extensions)
+    implementation(bt4k.mongodb.driver.kotlin.sync)
+    implementation(bt4k.mongodb.driver.kotlin.coroutine)
+    implementation(bt4k.mongodb.driver.kotlin.extensions)
 
     // Jackson 3
     testImplementation(project(":bluetape4k-jackson3"))

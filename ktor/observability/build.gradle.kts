@@ -3,7 +3,7 @@ configurations {
 }
 
 dependencies {
-    implementation(platform(libs.micrometer.bom))
+    implementation(platform(bt4k.micrometer.bom))
     implementation(platform(bt4k.opentelemetry.instrumentation.bom.alpha))
 
     api(project(":bluetape4k-ktor-core"))

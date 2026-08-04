@@ -8,8 +8,8 @@ dependencies {
     testImplementation(project(":bluetape4k-idgenerators"))
 
     // Smallrye Mutiny
-    api(libs.mutiny)
-    api(libs.mutiny.kotlin)
+    api(bt4k.mutiny)
+    api(bt4k.mutiny.kotlin)
 
     // Coroutines
     api(project(":bluetape4k-coroutines"))

@@ -1,6 +1,6 @@
 plugins {
     kotlin("plugin.allopen")
-    alias(libs.plugins.kotlinx.benchmark)
+    alias(bt4k.plugins.kotlinx.benchmark)
 }
 
 allOpen {
@@ -23,7 +23,7 @@ benchmark {
     targets {
         register("benchmark") {
             this as kotlinx.benchmark.gradle.JvmBenchmarkTarget
-            jmhVersion = libs.versions.jmh.get()
+            jmhVersion = bt4k.versions.managed.jmh.core.h350a653f63e5.get()
         }
     }
 }
@@ -67,12 +67,12 @@ dependencies {
 
     // Codecs
     compileOnly(bt4k.fory.kotlin)
-    compileOnly(libs.kryo5)
+    compileOnly(bt4k.kryo5)
 
     // Compressor
     compileOnly(bt4k.commons.compress)
-    compileOnly(libs.snappy.java)
-    compileOnly(libs.lz4.java)
+    compileOnly(bt4k.snappy.java)
+    compileOnly(bt4k.at.yawk.lz4.java)
     compileOnly(bt4k.zstd.jni)
 
     // Jackson 2
@@ -87,24 +87,24 @@ dependencies {
     compileOnly(libs.jackson3.module.kotlin)
 
     compileOnly(project(":bluetape4k-fastjson2"))
-    compileOnly(libs.fastjson2)
-    compileOnly(libs.fastjson2.kotlin)
+    compileOnly(bt4k.fastjson2)
+    compileOnly(bt4k.fastjson2.kotlin)
 
     // Cache
-    compileOnly(libs.caffeine)
-    compileOnly(libs.caffeine.jcache)
+    compileOnly(bt4k.caffeine)
+    compileOnly(bt4k.caffeine.jcache)
 
     testImplementation(project(":bluetape4k-junit5"))
     testImplementation(project(":bluetape4k-testcontainers"))
 
     // Redisson Map Read/Write Through test
     testImplementation(project(":bluetape4k-jdbc"))
-    testRuntimeOnly(libs.h2.v2)
+    testRuntimeOnly(bt4k.h2.v2)
     testImplementation(bt4k.hikaricp)
     testImplementation("org.springframework.boot:spring-boot-starter-jdbc")
 
     // Benchmark
-    add("benchmarkImplementation", libs.kotlinx.benchmark.runtime)
-    add("benchmarkImplementation", libs.kotlinx.benchmark.runtime.jvm)
-    add("benchmarkImplementation", libs.jmh.core)
+    add("benchmarkImplementation", bt4k.kotlinx.benchmark.runtime)
+    add("benchmarkImplementation", bt4k.kotlinx.benchmark.runtime.jvm)
+    add("benchmarkImplementation", bt4k.jmh.core)
 }

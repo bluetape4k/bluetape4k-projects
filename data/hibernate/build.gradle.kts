@@ -103,15 +103,15 @@ artifacts {
 
 dependencies {
     implementation(platform(bt4k.spring.boot4.dependencies))
-    testImplementation(platform(libs.junit.bom))
+    testImplementation(platform(bt4k.junit.bom))
 
     api(project(":bluetape4k-core"))
     api(project(":bluetape4k-io"))
     testImplementation(project(":bluetape4k-junit5"))
 
-    api(libs.jakarta.persistence.api.v32)
-    kapt(libs.jakarta.persistence.api.v32)
-    api(libs.jakarta.transaction.api)
+    api(bt4k.jakarta.persistence.v32)
+    kapt(bt4k.jakarta.persistence.v32)
+    api(bt4k.jakarta.transaction.api)
 
     api(bt4k.hibernate.core)
     api(libs.hibernate.micrometer)
@@ -127,26 +127,26 @@ dependencies {
     kaptTest(variantOf(bt4k.querydsl.apt) { classifier("jakarta") })
 
     // Validator
-    api(libs.jakarta.el.api)
-    api(libs.jakarta.validation.api)
-    api(libs.hibernate.validator)
-    testImplementation(libs.glassfish.expressly)  // Jakarta EL 6.0 implementation for Hibernate Validator 9.x
+    api(bt4k.jakarta.el.api)
+    api(bt4k.jakarta.validation.api)
+    api(bt4k.hibernate.validator)
+    testImplementation(bt4k.glassfish.expressly)  // Jakarta EL 6.0 implementation for Hibernate Validator 9.x
 
     // Converter
     // compileOnly(project(":bluetape4k-crypto"))
     api(project(":bluetape4k-tink"))
     api(project(":bluetape4k-jackson3"))
 
-    runtimeOnly(libs.kryo)
+    runtimeOnly(bt4k.kryo)
     runtimeOnly(bt4k.fory.kotlin)  // new Apache Fory
 
     runtimeOnly(bt4k.commons.compress)
-    runtimeOnly(libs.snappy.java)
-    runtimeOnly(libs.lz4.java)
+    runtimeOnly(bt4k.snappy.java)
+    runtimeOnly(bt4k.at.yawk.lz4.java)
     runtimeOnly(bt4k.zstd.jni)
 
     api(project(":bluetape4k-idgenerators"))
-    api(libs.java.uuid.generator)
+    api(bt4k.java.uuid.generator)
 
     // TODO: querydsl-kotlin-codegen 은 tree entity 도 못 만들고, spring-data-jpa 의 repository에서 문제가 생긴다.
     // https://github.com/querydsl/querydsl/issues/3454
@@ -164,7 +164,7 @@ dependencies {
     }
 
     testImplementation(bt4k.hikaricp)
-    testRuntimeOnly(libs.h2.v2)
+    testRuntimeOnly(bt4k.h2.v2)
     testRuntimeOnly(bt4k.mysql.connector.j)
 
     testImplementation(project(":bluetape4k-testcontainers"))
@@ -173,7 +173,7 @@ dependencies {
     // Caching 테스트
     testImplementation(project(":bluetape4k-cache-core"))
     testImplementation(bt4k.hibernate.jcache)
-    testImplementation(libs.caffeine.jcache)
+    testImplementation(bt4k.caffeine.jcache)
 
     // JDBC 와 같이 사용
     testImplementation(project(":bluetape4k-jdbc"))

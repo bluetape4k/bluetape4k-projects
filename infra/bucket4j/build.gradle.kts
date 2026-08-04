@@ -13,12 +13,12 @@ dependencies {
     testImplementation(project(":bluetape4k-junit5"))
 
     // Bucket4j
-    api(libs.bucket4j.core)
-    compileOnly(libs.bucket4j.lettuce)
-    compileOnly(libs.bucket4j.redisson)
+    api(bt4k.bucket4j.core)
+    compileOnly(bt4k.bucket4j.lettuce)
+    compileOnly(bt4k.bucket4j.redisson)
 
     // Local Cache
-    compileOnly(libs.caffeine)
+    compileOnly(bt4k.caffeine)
 
     // Redis
     compileOnly(libs.lettuce.core)
@@ -26,11 +26,11 @@ dependencies {
 
     // Codecs
     testImplementation(bt4k.fory.kotlin)
-    testImplementation(libs.kryo5)
+    testImplementation(bt4k.kryo5)
 
     // Compressor
-    testImplementation(libs.lz4.java)
-    testImplementation(libs.snappy.java)
+    testImplementation(bt4k.at.yawk.lz4.java)
+    testImplementation(bt4k.snappy.java)
     testImplementation(bt4k.zstd.jni)
 
     // Coroutines

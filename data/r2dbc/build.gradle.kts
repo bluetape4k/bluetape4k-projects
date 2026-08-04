@@ -3,7 +3,7 @@ import java.time.Duration
 plugins {
     kotlin("plugin.allopen")
     kotlin("plugin.spring")
-    alias(libs.plugins.kotlinx.benchmark)
+    alias(bt4k.plugins.kotlinx.benchmark)
 }
 
 allOpen {
@@ -43,7 +43,7 @@ benchmark {
     targets {
         register("benchmark") {
             this as kotlinx.benchmark.gradle.JvmBenchmarkTarget
-            jmhVersion = libs.versions.jmh.get()
+            jmhVersion = bt4k.versions.managed.jmh.core.h350a653f63e5.get()
         }
     }
     configurations {
@@ -136,12 +136,12 @@ dependencies {
     testImplementation(libs.reactor.test)
 
     // R2DBC
-    api(libs.r2dbc.pool)
+    api(bt4k.r2dbc.pool)
     compileOnly("org.springframework.boot:spring-boot-starter-data-r2dbc")
-    compileOnly(libs.h2.v2)
+    compileOnly(bt4k.h2.v2)
     compileOnly(bt4k.r2dbc.h2)
-    compileOnly(libs.r2dbc.mysql)
-    compileOnly(libs.r2dbc.postgresql)
+    compileOnly(bt4k.r2dbc.mysql)
+    compileOnly(bt4k.r2dbc.postgresql)
 
 
     // Spring Boot
@@ -154,19 +154,19 @@ dependencies {
     }
 
     // Benchmark
-    add("benchmarkImplementation", libs.kotlinx.benchmark.runtime)
-    add("benchmarkImplementation", libs.kotlinx.benchmark.runtime.jvm)
-    add("benchmarkImplementation", libs.jmh.core)
+    add("benchmarkImplementation", bt4k.kotlinx.benchmark.runtime)
+    add("benchmarkImplementation", bt4k.kotlinx.benchmark.runtime.jvm)
+    add("benchmarkImplementation", bt4k.jmh.core)
     add("benchmarkImplementation", project(":bluetape4k-testcontainers"))
     add("benchmarkImplementation", libs.testcontainers.postgresql)
     add("benchmarkImplementation", libs.testcontainers.mysql)
     add("benchmarkImplementation", libs.testcontainers.r2dbc)
-    add("benchmarkImplementation", libs.r2dbc.postgresql)
-    add("benchmarkImplementation", libs.r2dbc.mysql)
+    add("benchmarkImplementation", bt4k.r2dbc.postgresql)
+    add("benchmarkImplementation", bt4k.r2dbc.mysql)
     add("benchmarkImplementation", bt4k.postgresql)
     add("benchmarkImplementation", bt4k.mysql.connector.j)
-    add("benchmarkRuntimeOnly", libs.h2.v2)
+    add("benchmarkRuntimeOnly", bt4k.h2.v2)
     add("benchmarkRuntimeOnly", bt4k.r2dbc.h2)
-    add("benchmarkRuntimeOnly", libs.r2dbc.postgresql)
-    add("benchmarkRuntimeOnly", libs.r2dbc.mysql)
+    add("benchmarkRuntimeOnly", bt4k.r2dbc.postgresql)
+    add("benchmarkRuntimeOnly", bt4k.r2dbc.mysql)
 }

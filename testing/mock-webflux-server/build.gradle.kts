@@ -25,7 +25,7 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-webflux")
     implementation("org.springframework.boot:spring-boot-starter-cache")
     implementation("org.springframework.boot:spring-boot-starter-actuator")
-    implementation(libs.caffeine)
+    implementation(bt4k.caffeine)
     implementation(libs.jackson3.module.kotlin)
 
     implementation(libs.kotlinx.coroutines.core)

@@ -1,6 +1,6 @@
 plugins {
     kotlin("plugin.allopen")
-    alias(libs.plugins.kotlinx.benchmark)
+    alias(bt4k.plugins.kotlinx.benchmark)
 }
 
 allOpen {
@@ -23,7 +23,7 @@ benchmark {
     targets {
         register("benchmark") {
             this as kotlinx.benchmark.gradle.JvmBenchmarkTarget
-            jmhVersion = libs.versions.jmh.get()
+            jmhVersion = bt4k.versions.managed.jmh.core.h350a653f63e5.get()
         }
     }
 }
@@ -54,7 +54,7 @@ dependencies {
     api(libs.lettuce.core)
 
     // Front Cache in NearCache (Caffeine)
-    api(libs.caffeine)
+    api(bt4k.caffeine)
 
     implementation(project(":bluetape4k-coroutines"))
     implementation(project(":bluetape4k-resilience4j"))
@@ -72,14 +72,14 @@ dependencies {
     testImplementation(libs.awaitility.kotlin)
 
     testRuntimeOnly(bt4k.fory.kotlin)
-    testRuntimeOnly(libs.kryo5)
+    testRuntimeOnly(bt4k.kryo5)
 
-    testRuntimeOnly(libs.lz4.java)
-    testRuntimeOnly(libs.snappy.java)
+    testRuntimeOnly(bt4k.at.yawk.lz4.java)
+    testRuntimeOnly(bt4k.snappy.java)
     testRuntimeOnly(bt4k.zstd.jni)
 
     // Benchmark
-    add("benchmarkImplementation", libs.kotlinx.benchmark.runtime)
-    add("benchmarkImplementation", libs.kotlinx.benchmark.runtime.jvm)
-    add("benchmarkImplementation", libs.jmh.core)
+    add("benchmarkImplementation", bt4k.kotlinx.benchmark.runtime)
+    add("benchmarkImplementation", bt4k.kotlinx.benchmark.runtime.jvm)
+    add("benchmarkImplementation", bt4k.jmh.core)
 }

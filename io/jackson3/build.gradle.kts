@@ -24,8 +24,8 @@ dependencies {
     compileOnly(project(":bluetape4k-tink"))
     testImplementation(project(":bluetape4k-junit5"))
 
-    testImplementation(libs.jsonpath)
-    testImplementation(libs.jsonassert)
+    testImplementation(bt4k.jsonpath.v3)
+    testImplementation(bt4k.jsonassert.v1)
 
     compileOnly(project(":bluetape4k-coroutines"))
     compileOnly(libs.kotlinx.coroutines.core)

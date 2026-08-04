@@ -27,26 +27,26 @@ dependencies {
     implementation(libs.micrometer.observation.test)
 
     // Micrometer Tracing
-    implementation(libs.micrometer.tracing.bridge.otel)
-    testImplementation(libs.micrometer.tracing.test)
-    testImplementation(libs.micrometer.tracing.integration.test)
+    implementation(bt4k.micrometer.tracing.bridge.otel)
+    testImplementation(bt4k.micrometer.tracing.test)
+    testImplementation(bt4k.micrometer.tracing.integration.test)
 
-    api(libs.micrometer.context.propagation)  // thread local <-> reactor 등 상이한 환경에서 context 전파를 위해 사용
+    api(bt4k.micrometer.context.propagation)  // thread local <-> reactor 등 상이한 환경에서 context 전파를 위해 사용
 
     // Instrumentations
-    implementation(libs.cache2k.core)
+    implementation(bt4k.cache2k.core)
     // 이미 cache2k_micrometer에 instrument 가 있지만, 예제용으로 만들기 위해 직접 구현했습니다.
-    // compileOnly(libs.cache2k.micrometer)
+    // compileOnly(bt4k.cache2k.micrometer)
     // compileOnly(libs.ignite.core)
 
     // Retrofit2 Instrumentations
     implementation(project(":bluetape4k-retrofit2"))
-    implementation(libs.retrofit2)
-    implementation(libs.retrofit2.adapter.reactor)
-    implementation(libs.retrofit2.adapter.rxjava2)
-    implementation(libs.retrofit2.adapter.rxjava3)
-    implementation(libs.retrofit2.converter.jackson)
-    implementation(libs.okhttp3)
+    implementation(bt4k.retrofit2)
+    implementation(bt4k.retrofit2.adapter.reactor)
+    implementation(bt4k.retrofit2.adapter.rxjava2)
+    implementation(bt4k.retrofit2.adapter.rxjava3)
+    implementation(bt4k.retrofit2.converter.jackson)
+    implementation(bt4k.okhttp3)
 
 
     // Jackson 2

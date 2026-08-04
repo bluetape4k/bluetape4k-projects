@@ -39,20 +39,20 @@ dependencies {
     implementation(project(":bluetape4k-hibernate"))
     testImplementation(project(":bluetape4k-junit5"))
 
-    implementation(libs.jakarta.annotation.api)
-    implementation(libs.jakarta.persistence.api.v32)
+    implementation(bt4k.jakarta.annotation.api)
+    implementation(bt4k.jakarta.persistence.v32)
     implementation(bt4k.hibernate.core)
 
-    implementation(libs.blaze.persistence.core.api.jakarta)
-    runtimeOnly(libs.blaze.persistence.core.impl.jakarta)
-    implementation(libs.blaze.persistence.entity.view.api.jakarta)
-    runtimeOnly(libs.blaze.persistence.entity.view.impl.jakarta)
-    implementation(libs.blaze.persistence.jpa.criteria.api.jakarta)
-    runtimeOnly(libs.blaze.persistence.jpa.criteria.impl.jakarta)
-    runtimeOnly(libs.blaze.persistence.integration.hibernate7)
+    implementation(bt4k.blaze.persistence.core.api.jakarta)
+    runtimeOnly(bt4k.blaze.persistence.core.impl.jakarta)
+    implementation(bt4k.blaze.persistence.entity.view.api.jakarta)
+    runtimeOnly(bt4k.blaze.persistence.entity.view.impl.jakarta)
+    implementation(bt4k.blaze.persistence.jpa.criteria.api.jakarta)
+    runtimeOnly(bt4k.blaze.persistence.jpa.criteria.impl.jakarta)
+    runtimeOnly(bt4k.blaze.persistence.integration.hibernate7)
 
-    implementation(libs.hibernate.validator)
-    runtimeOnly(libs.jakarta.validation.api)
+    implementation(bt4k.hibernate.validator)
+    runtimeOnly(bt4k.jakarta.validation.api)
 
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
     implementation("org.springframework.boot:spring-boot-starter-validation")
@@ -64,5 +64,5 @@ dependencies {
     }
 
     testImplementation(bt4k.hikaricp)
-    testImplementation(libs.h2.v2)
+    testImplementation(bt4k.h2.v2)
 }

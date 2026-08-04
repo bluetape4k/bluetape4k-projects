@@ -10,7 +10,7 @@ dependencies {
     testImplementation(project(":bluetape4k-junit5"))
 
     // Okio
-    api(libs.okio)
+    api(bt4k.okio)
 
     // Apache Commons (base64)
     compileOnly(bt4k.commons.codec)
@@ -22,7 +22,7 @@ dependencies {
 
     // Compression (compress/tink 테스트에서 Compressors 사용)
     testImplementation(bt4k.commons.compress)
-    testImplementation(libs.lz4.java)
-    testImplementation(libs.snappy.java)
+    testImplementation(bt4k.at.yawk.lz4.java)
+    testImplementation(bt4k.snappy.java)
     testImplementation(bt4k.zstd.jni)
 }

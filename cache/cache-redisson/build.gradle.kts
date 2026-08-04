@@ -11,8 +11,8 @@ dependencies {
     api(bt4k.redisson)
     api(project(":bluetape4k-redisson"))
     // bluetape4k-resilience4j는 compileOnly(cache-redisson) 의존으로 순환 의존성 발생 → 직접 라이브러리 사용
-    implementation(libs.resilience4j.retry)
-    implementation(libs.resilience4j.kotlin)
+    implementation(bt4k.resilience4j.retry)
+    implementation(bt4k.resilience4j.kotlin)
 
     implementation(project(":bluetape4k-coroutines"))
     implementation(libs.kotlinx.coroutines.core)
@@ -30,9 +30,9 @@ dependencies {
     }
 
     testRuntimeOnly(bt4k.fory.kotlin)
-    testRuntimeOnly(libs.kryo5)
+    testRuntimeOnly(bt4k.kryo5)
 
-    testRuntimeOnly(libs.lz4.java)
-    testRuntimeOnly(libs.snappy.java)
+    testRuntimeOnly(bt4k.at.yawk.lz4.java)
+    testRuntimeOnly(bt4k.snappy.java)
     testRuntimeOnly(bt4k.zstd.jni)
 }

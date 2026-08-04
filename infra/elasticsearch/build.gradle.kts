@@ -13,7 +13,7 @@ dependencies {
     api(project(":bluetape4k-logging"))
 
     // Elasticsearch Java Client
-    api(libs.elasticsearch.java)
+    api(bt4k.elasticsearch.java)
 
     // Coroutines
     api(project(":bluetape4k-coroutines"))
@@ -36,7 +36,7 @@ dependencies {
     testFixturesApi(
         platform("org.testcontainers:testcontainers-bom:${bt4k.versions.testcontainers.get()}"),
     )
-    testFixturesApi(libs.elasticsearch.java)
+    testFixturesApi(bt4k.elasticsearch.java)
     testFixturesApi(libs.kotlinx.coroutines.core)
     testFixturesApi(libs.kotlinx.coroutines.test)
     testFixturesApi(libs.testcontainers.elasticsearch)
@@ -48,5 +48,5 @@ dependencies {
     testImplementation(libs.jackson3.module.kotlin)
     testImplementation(libs.kotlinx.coroutines.test)
     testImplementation(libs.testcontainers.elasticsearch)
-    testImplementation(libs.mockk)
+    testImplementation(bt4k.mockk)
 }

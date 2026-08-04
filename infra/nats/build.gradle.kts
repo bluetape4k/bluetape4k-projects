@@ -9,9 +9,9 @@ dependencies {
     testImplementation(project(":bluetape4k-testcontainers"))
 
     // NATS
-    api(libs.jnats)
+    api(bt4k.jnats)
     // nats-spring은 Spring Boot 3/4 통합 시 사용자가 직접 선언 (compileOnly로 API만 노출)
-    compileOnly(libs.nats.spring)
+    compileOnly(bt4k.nats.spring)
     // nats_spring_cloud_stream_binder: 사용하지 않으므로 제외
 
     // Coroutines
@@ -27,9 +27,9 @@ dependencies {
     compileOnly(libs.jackson3.module.blackbird)
 
     // Compressors / Serializers (테스트 페이로드용)
-    testImplementation(libs.lz4.java)
-    testImplementation(libs.snappy.java)
+    testImplementation(bt4k.at.yawk.lz4.java)
+    testImplementation(bt4k.snappy.java)
     testImplementation(bt4k.zstd.jni)
-    testImplementation(libs.kryo5)
+    testImplementation(bt4k.kryo5)
     testImplementation(bt4k.fory.kotlin)
 }

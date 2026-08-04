@@ -1,7 +1,7 @@
 plugins {
     kotlin("plugin.allopen")
     kotlin("plugin.serialization")
-    alias(libs.plugins.kotlinx.benchmark)
+    alias(bt4k.plugins.kotlinx.benchmark)
 }
 
 allOpen {
@@ -24,7 +24,7 @@ benchmark {
     targets {
         register("test") {
             this as kotlinx.benchmark.gradle.JvmBenchmarkTarget
-            jmhVersion = libs.versions.jmh.get()
+            jmhVersion = bt4k.versions.managed.jmh.core.h350a653f63e5.get()
         }
     }
 }
@@ -100,12 +100,12 @@ dependencies {
     api(project(":bluetape4k-resilience4j"))
     testImplementation(project(":bluetape4k-junit5"))
     testImplementation(project(":bluetape4k-testcontainers"))
-    testImplementation(libs.wiremock)
+    testImplementation(bt4k.wiremock)
 
     // Benchmark
-    testImplementation(libs.kotlinx.benchmark.runtime)
-    testImplementation(libs.kotlinx.benchmark.runtime.jvm)
-    testImplementation(libs.jmh.core)
+    testImplementation(bt4k.kotlinx.benchmark.runtime)
+    testImplementation(bt4k.kotlinx.benchmark.runtime.jvm)
+    testImplementation(bt4k.jmh.core)
 
     // Coroutines
     api(project(":bluetape4k-coroutines"))
@@ -115,12 +115,12 @@ dependencies {
     testImplementation(libs.kotlinx.coroutines.test)
 
     // OkHttp3
-    compileOnly(libs.okhttp3)
-    compileOnly(libs.okhttp3.coroutines)
-    compileOnly(libs.okhttp3.logging.interceptor)
+    compileOnly(bt4k.okhttp3)
+    compileOnly(bt4k.okhttp3.coroutines)
+    compileOnly(bt4k.okhttp3.logging.interceptor)
 
     // OkHttp3 MockWebServer
-    compileOnly(libs.okhttp3.mockwebserver)
+    compileOnly(bt4k.okhttp3.mockwebserver)
 
     // Apache HttpCompoents HttpClient 5
     compileOnly(bt4k.httpclient5)
@@ -139,8 +139,8 @@ dependencies {
     }
 
     compileOnly(project(":bluetape4k-cache-core"))
-    compileOnly(libs.caffeine)
-    compileOnly(libs.caffeine.jcache)
+    compileOnly(bt4k.caffeine)
+    compileOnly(bt4k.caffeine.jcache)
 
     // Ktor Client
     compileOnly(libs.ktor.client.core)
@@ -168,8 +168,8 @@ dependencies {
 
     // Fastjson2
     compileOnly(project(":bluetape4k-fastjson2"))
-    compileOnly(libs.fastjson2)
-    compileOnly(libs.fastjson2.kotlin)
+    compileOnly(bt4k.fastjson2)
+    compileOnly(bt4k.fastjson2.kotlin)
 
     // Reactor
     testImplementation(libs.reactor.core)

@@ -19,21 +19,21 @@ dependencies {
     testImplementation(libs.kotlinx.coroutines.test)
 
     // Retrofit2
-    api(libs.retrofit2)
-    api(libs.retrofit2.converter.jackson)
-    api(libs.retrofit2.converter.scalars)
-    api(libs.retrofit2.adapter.java8)
-    compileOnly(libs.retrofit2.adapter.reactor)
-    compileOnly(libs.retrofit2.adapter.rxjava2)
-    compileOnly(libs.retrofit2.adapter.rxjava3)
-    testImplementation(libs.retrofit2.mock)
+    api(bt4k.retrofit2)
+    api(bt4k.retrofit2.converter.jackson)
+    api(bt4k.retrofit2.converter.scalars)
+    api(bt4k.retrofit2.adapter.java8)
+    compileOnly(bt4k.retrofit2.adapter.reactor)
+    compileOnly(bt4k.retrofit2.adapter.rxjava2)
+    compileOnly(bt4k.retrofit2.adapter.rxjava3)
+    testImplementation(bt4k.retrofit2.mock)
 
     // OkHttp3
-    api(libs.okhttp3)
-    api(libs.okhttp3.logging.interceptor)
+    api(bt4k.okhttp3)
+    api(bt4k.okhttp3.logging.interceptor)
 
     // OkHttp3 MockWebServer
-    testImplementation(libs.okhttp3.mockwebserver)
+    testImplementation(bt4k.okhttp3.mockwebserver)
 
     // Apache HttpCompoents HttpClient 5
     // feign_hc5 를 사용하려면, httpcore5, httpcore5-h2 도 버전을 맞춰줘야 한다
@@ -56,20 +56,20 @@ dependencies {
     api(libs.jackson.module.blackbird)
 
     // Fastjson2
-    compileOnly(libs.fastjson2)
-    compileOnly(libs.fastjson2.kotlin)
+    compileOnly(bt4k.fastjson2)
+    compileOnly(bt4k.fastjson2.kotlin)
 
     // Collections
-    compileOnly(libs.commons.collections4)
-    compileOnly(libs.eclipse.collections)
-    compileOnly(libs.eclipse.collections.forkjoin)
+    compileOnly(bt4k.commons.collections4)
+    compileOnly(bt4k.eclipse.collections)
+    compileOnly(bt4k.eclipse.collections.forkjoin)
 
     // Resilience4j
     compileOnly(project(":bluetape4k-resilience4j"))
-    compileOnly(libs.resilience4j.all)
-    compileOnly(libs.resilience4j.kotlin)
-    compileOnly(libs.resilience4j.cache)
-    compileOnly(libs.resilience4j.retry)
-    compileOnly(libs.resilience4j.circuitbreaker)
-    compileOnly(libs.resilience4j.reactor)
+    compileOnly(bt4k.resilience4j.all)
+    compileOnly(bt4k.resilience4j.kotlin)
+    compileOnly(bt4k.resilience4j.cache)
+    compileOnly(bt4k.resilience4j.retry)
+    compileOnly(bt4k.resilience4j.circuitbreaker)
+    compileOnly(bt4k.resilience4j.reactor)
 }

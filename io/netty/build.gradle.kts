@@ -8,7 +8,7 @@ dependencies {
 
     api(libs.netty.buffer)
     api(libs.netty.all)
-    compileOnly(libs.jctools.core)
+    compileOnly(bt4k.jctools.core)
 
     // Coroutines
     compileOnly(libs.kotlinx.coroutines.core)

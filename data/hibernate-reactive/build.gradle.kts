@@ -68,7 +68,7 @@ dependencies {
         // netty-tcnative is published on the 2.0.x line; Spring Boot 4.1 currently constrains it to Netty core 4.2.x.
         implementation("io.netty:netty-tcnative-classes") {
             version {
-                strictly(libs.versions.netty.tcnative.get())
+                strictly(bt4k.versions.managed.netty.tcnative.classes.h39fc93b48f6f.get())
             }
         }
     }
@@ -78,18 +78,18 @@ dependencies {
     api(project(":bluetape4k-vertx"))
 
     // NOTE: Java 9+ 환경에서 kapt가 제대로 동작하려면 javax.annotation-api 를 참조해야 합니다.
-    kapt(libs.jakarta.annotation.api)
+    kapt(bt4k.jakarta.annotation.api)
 
-    api(libs.hibernate.reactive.core)
+    api(bt4k.hibernate.reactive.core)
 
     // hibernate-reactive 는 querydsl 을 사용하지 못한다. 대신 jpamodelgen 을 사용합니다.
     kapt(libs.hibernate.jpamodelgen)
 
-    api(libs.jakarta.validation.api)
-    implementation(libs.hibernate.validator)
-    testImplementation(libs.glassfish.expressly)  // Jakarta EL implementation for Hibernate Validator
+    api(bt4k.jakarta.validation.api)
+    implementation(bt4k.hibernate.validator)
+    testImplementation(bt4k.glassfish.expressly)  // Jakarta EL implementation for Hibernate Validator
 
-    api(libs.mutiny.kotlin)
+    api(bt4k.mutiny.kotlin)
     api(libs.kotlinx.coroutines.core)
     api(libs.kotlinx.coroutines.reactive)
     testImplementation(libs.kotlinx.coroutines.test)
@@ -104,11 +104,11 @@ dependencies {
     compileOnly(project(":bluetape4k-tink"))
     testImplementation(project(":bluetape4k-jackson3"))
 
-    testImplementation(libs.kryo)
+    testImplementation(bt4k.kryo)
     testImplementation(bt4k.fory.kotlin)  // new Apache Fory
 
-    testImplementation(libs.lz4.java)
-    testImplementation(libs.snappy.java)
+    testImplementation(bt4k.at.yawk.lz4.java)
+    testImplementation(bt4k.snappy.java)
     testImplementation(bt4k.zstd.jni)
 
     testImplementation(project(":bluetape4k-idgenerators"))
@@ -116,8 +116,8 @@ dependencies {
     // Caching 테스트
     compileOnly(project(":bluetape4k-cache-core"))
     testImplementation("org.springframework.boot:spring-boot-starter-cache")
-    testImplementation(libs.caffeine)
-    testImplementation(libs.caffeine.jcache)
+    testImplementation(bt4k.caffeine)
+    testImplementation(bt4k.caffeine.jcache)
 
     testImplementation(project(":bluetape4k-testcontainers"))
     testImplementation(libs.testcontainers.mysql)

@@ -47,7 +47,7 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
     implementation("org.springframework.boot:spring-boot-starter-actuator")
     implementation(libs.micrometer.core)
-    runtimeOnly(libs.h2.v2)
+    runtimeOnly(bt4k.h2.v2)
 
     // Jackson 3
     implementation(libs.jackson3.module.kotlin)

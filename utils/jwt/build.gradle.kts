@@ -11,9 +11,9 @@ dependencies {
     api(project(":bluetape4k-io"))
     testImplementation(project(":bluetape4k-junit5"))
 
-    api(libs.jjwt.api)
-    api(libs.jjwt.impl)
-    api(libs.jjwt.jackson)
+    api(bt4k.jjwt.api)
+    api(bt4k.jjwt.impl)
+    api(bt4k.jjwt.jackson)
 
     // Jackson
     api(project(":bluetape4k-jackson2"))
@@ -22,28 +22,28 @@ dependencies {
 
     // Serializer
     compileOnly(bt4k.fory.kotlin)
-    compileOnly(libs.kryo5)
+    compileOnly(bt4k.kryo5)
 
     // Compressor
-    compileOnly(libs.lz4.java)
-    compileOnly(libs.snappy.java)
+    compileOnly(bt4k.at.yawk.lz4.java)
+    compileOnly(bt4k.snappy.java)
     compileOnly(bt4k.zstd.jni)
 
     // Caching
     compileOnly(project(":bluetape4k-cache-redisson"))
-    testImplementation(libs.caffeine.jcache)
-    testImplementation(libs.ehcache)
+    testImplementation(bt4k.caffeine.jcache)
+    testImplementation(bt4k.ehcache)
 
     // Id Generators
     api(project(":bluetape4k-idgenerators"))
-    api(libs.java.uuid.generator)
+    api(bt4k.java.uuid.generator)
 
     // KeyChain을 Redis 나 MongoDB에 저장하여, 다중서버가 공유하기 위한 KeyChainPersister 를 사용하기 위해
     compileOnly(bt4k.redisson)
-    compileOnly(libs.mongodb.driver.sync)
-    compileOnly(libs.mongodb.driver.reactivestreams)
-    compileOnly(libs.mongodb.driver.kotlin.sync)
-    compileOnly(libs.mongodb.driver.kotlin.coroutine)
+    compileOnly(bt4k.mongodb.driver.sync)
+    compileOnly(bt4k.mongodb.driver.reactivestreams)
+    compileOnly(bt4k.mongodb.driver.kotlin.sync)
+    compileOnly(bt4k.mongodb.driver.kotlin.coroutine)
 
     testImplementation(project(":bluetape4k-testcontainers"))
     testImplementation(libs.testcontainers)

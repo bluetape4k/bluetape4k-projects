@@ -26,7 +26,7 @@ dependencies {
 
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("org.springframework.boot:spring-boot-starter-cache")
-    implementation(libs.caffeine)
+    implementation(bt4k.caffeine)
     implementation(libs.jackson3.module.kotlin)
 
     implementation(project(":bluetape4k-core"))
@@ -38,7 +38,7 @@ dependencies {
         exclude(group = "org.junit.vintage", module = "junit-vintage-engine")
         exclude(group = "org.mockito", module = "mockito-core")
     }
-    testImplementation(libs.okhttp3)
+    testImplementation(bt4k.okhttp3)
     testImplementation(project(":bluetape4k-junit5"))
 }
 

@@ -3,7 +3,7 @@ import com.google.protobuf.gradle.id
 plugins {
     `java-library`
     idea
-    alias(libs.plugins.protobuf.plugin)
+    alias(bt4k.plugins.protobuf.plugin)
 }
 
 idea {
@@ -21,10 +21,10 @@ protobuf {
     }
     plugins {
         id("grpc") {
-            artifact = libs.grpc.protoc.gen.grpc.java.get().toString()
+            artifact = bt4k.grpc.protoc.gen.grpc.java.get().toString()
         }
         id("grpcKt") {
-            artifact = "io.grpc:protoc-gen-grpc-kotlin:${libs.versions.grpc.kotlin.get()}:jdk8@jar"
+            artifact = "io.grpc:protoc-gen-grpc-kotlin:${bt4k.versions.managed.grpc.protoc.gen.grpc.kotlin.h8643385749ff.get()}:jdk8@jar"
         }
     }
     generateProtoTasks {
@@ -56,23 +56,23 @@ dependencies {
     api(project(":bluetape4k-netty"))
     testImplementation(project(":bluetape4k-junit5"))
 
-    // api(libs.jakarta.annotation.api)
+    // api(bt4k.jakarta.annotation.api)
 
-    api(libs.grpc.api)
-    api(libs.grpc.alts)
-    api(libs.grpc.netty)
-    api(libs.grpc.protobuf)
-    api(libs.grpc.stub)
-    api(libs.grpc.auth)
-    api(libs.grpc.grpclb)
-    api(libs.grpc.services)
-    api(libs.grpc.inprocess)
-    testImplementation(libs.grpc.okhttp)
-    testImplementation(libs.grpc.testing)
+    api(bt4k.grpc.api)
+    api(bt4k.grpc.alts)
+    api(bt4k.grpc.netty)
+    api(bt4k.grpc.protobuf)
+    api(bt4k.grpc.stub)
+    api(bt4k.grpc.auth)
+    api(bt4k.grpc.grpclb)
+    api(bt4k.grpc.services)
+    api(bt4k.grpc.inprocess)
+    testImplementation(bt4k.grpc.okhttp)
+    testImplementation(bt4k.grpc.testing)
 
     // grpc-kotlin
     // 참고: https://github.com/grpc/grpc-kotlin/blob/master/compiler/README.md
-    api(libs.grpc.kotlin.stub)
+    api(bt4k.grpc.kotlin.stub)
 
     // Coroutines
     implementation(project(":bluetape4k-coroutines"))
@@ -80,7 +80,7 @@ dependencies {
     testImplementation(libs.kotlinx.coroutines.test)
 
     // Eclipse Collections
-    implementation(libs.eclipse.collections)
+    implementation(bt4k.eclipse.collections)
 
     testImplementation(libs.assertj.core)
 }

@@ -78,8 +78,8 @@ dependencies {
     api(libs.awaitility.kotlin)
 
     // Apple Silicon에서 testcontainers 를 사용하기 위해 참조해야 합니다.
-    api(libs.jna)
-    api(libs.jna.platform)
+    api(bt4k.jna)
+    api(bt4k.jna.platform)
 
     compileOnly(bt4k.hikaricp)
 
@@ -89,7 +89,7 @@ dependencies {
 
     // MariaDB
     compileOnly(libs.testcontainers.mariadb)
-    testRuntimeOnly(libs.mariadb.java.client)
+    testRuntimeOnly(bt4k.mariadb.java.client)
 
     // Postgres
     compileOnly(libs.testcontainers.postgresql)
@@ -101,20 +101,20 @@ dependencies {
     // R2DBC
     compileOnly(libs.testcontainers.r2dbc)
     compileOnly("org.springframework.boot:spring-boot-starter-data-r2dbc")
-    testRuntimeOnly(libs.r2dbc.mariadb)
-    testRuntimeOnly(libs.r2dbc.mysql)
-    testRuntimeOnly(libs.r2dbc.postgresql)
+    testRuntimeOnly(bt4k.r2dbc.mariadb)
+    testRuntimeOnly(bt4k.r2dbc.mysql)
+    testRuntimeOnly(bt4k.r2dbc.postgresql)
 
     // Redis
     compileOnly(bt4k.redisson)
     compileOnly(libs.lettuce.core)
 
     compileOnly(bt4k.fory.kotlin)  // new Apache Fory
-    compileOnly(libs.kryo)
+    compileOnly(bt4k.kryo)
 
     compileOnly(bt4k.commons.compress)
-    compileOnly(libs.lz4.java)
-    compileOnly(libs.snappy.java)
+    compileOnly(bt4k.at.yawk.lz4.java)
+    compileOnly(bt4k.snappy.java)
     compileOnly(bt4k.zstd.jni)
 
     // Hazelcast
@@ -122,14 +122,14 @@ dependencies {
 
     // MongoDB
     compileOnly(libs.testcontainers.mongodb)
-    compileOnly(libs.mongodb.driver.kotlin.sync)
-    compileOnly(libs.mongodb.driver.kotlin.coroutine)
-    compileOnly(libs.mongodb.driver.kotlin.extensions)
+    compileOnly(bt4k.mongodb.driver.kotlin.sync)
+    compileOnly(bt4k.mongodb.driver.kotlin.coroutine)
+    compileOnly(bt4k.mongodb.driver.kotlin.extensions)
 
     // Cassandra
     api(libs.testcontainers.cassandra)
-    compileOnly(libs.cassandra.java.driver.core)
-    compileOnly(libs.cassandra.java.driver.query.builder)
+    compileOnly(bt4k.cassandra.java.driver.core)
+    compileOnly(bt4k.cassandra.java.driver.query.builder)
 
     // Kubernetes (K3s)
     api(libs.testcontainers.k3s)
@@ -138,21 +138,21 @@ dependencies {
 
     // Graph DB (Neo4j)
     compileOnly(libs.testcontainers.neo4j)
-    compileOnly(libs.neo4j.java.driver)
-    testRuntimeOnly(libs.neo4j.java.driver)
-    testRuntimeOnly(libs.neo4j.bolt.connection.netty)
+    compileOnly(bt4k.neo4j.driver6)
+    testRuntimeOnly(bt4k.neo4j.driver6)
+    testRuntimeOnly(bt4k.neo4j.bolt.connection.netty)
 
     // Graph DB (FalkorDB)
-    compileOnly(libs.jfalkordb)
+    compileOnly(bt4k.jfalkordb)
 
     // ElasticSearch
     compileOnly(libs.testcontainers.elasticsearch)
-    compileOnly(libs.elasticsearch.rest.client)
-    compileOnly(libs.elasticsearch.rest.client.sniffer)
+    compileOnly(bt4k.elasticsearch.rest.client)
+    compileOnly(bt4k.elasticsearch.rest.client.sniffer)
     compileOnly("org.springframework.data:spring-data-elasticsearch")
 
     // Opensearch
-    compileOnly(libs.testcontainers.opensearch)
+    compileOnly(bt4k.testcontainers.opensearch)
 
     // Kafka
     compileOnly(libs.testcontainers.kafka)
@@ -161,8 +161,8 @@ dependencies {
 
     // Pulsar
     compileOnly(libs.testcontainers.pulsar)
-    compileOnly(libs.pulsar.client.api)
-    compileOnly(libs.pulsar.client)
+    compileOnly(bt4k.pulsar4.client.api)
+    compileOnly(bt4k.pulsar4.client)
 
     // Redpanda
     compileOnly(libs.testcontainers.redpanda)
@@ -172,36 +172,36 @@ dependencies {
 
     // Distributed SQL (Trino)
     compileOnly(libs.testcontainers.trino)
-    testRuntimeOnly(libs.trino.jdbc)
+    testRuntimeOnly(bt4k.trino.jdbc)
 
     // NATS
-    compileOnly(libs.jnats)
+    compileOnly(bt4k.jnats)
 
     // RabbitMQ
     compileOnly(libs.testcontainers.rabbitmq)
-    testImplementation(libs.amqp.client)
+    testImplementation(bt4k.amqp.client)
 
     // Zipkin
-    testImplementation(libs.zipkin.brave)
+    testImplementation(bt4k.zipkin.brave)
 
     // HashiCorp Vault
     compileOnly(libs.testcontainers.vault)
-    compileOnly(libs.vault.java.driver)
+    compileOnly(bt4k.vault.java.driver)
 
     // Apache HttpComponents 5 — used by GrafanaServer for Grafana HTTP API provisioning
     implementation(libs.httpclient5.fluent)
 
     // OkHttp
-    testImplementation(libs.okhttp3)
+    testImplementation(bt4k.okhttp3)
 
     // LocalStack for AWS
     compileOnly(libs.testcontainers.localstack)
 
     // MiniStack for AWS emulation
-    compileOnly(libs.testcontainers.ministack)
+    compileOnly(bt4k.testcontainers.ministack)
 
     // ElasticMQ - embedded SQS emulator (no Docker)
-    compileOnly(libs.elasticmq.rest.sqs)
+    compileOnly(bt4k.elasticmq.rest.sqs)
 
     // Amazon SDK V2
     compileOnly(libs.aws2.auth)
@@ -223,41 +223,41 @@ dependencies {
 
     // https://docs.aws.amazon.com/ko_kr/sdk-for-java/latest/developer-guide/http-configuration-crt.html
     // https://mvnrepository.com/artifact/software.amazon.awssdk.crt/aws-crt
-    testImplementation(libs.aws2.aws.crt)
+    testImplementation(bt4k.aws2.aws.crt)
 
     // Minio
     compileOnly(libs.testcontainers.minio)
-    compileOnly(libs.minio)
+    compileOnly(bt4k.minio.v9)
 
     // Immudb
-    testRuntimeOnly(libs.immudb4j)
+    testRuntimeOnly(bt4k.immudb4j)
 
     // Curator framework for ZooKeeper
-    compileOnly(libs.curator.framework)
+    compileOnly(bt4k.curator.framework)
 
     // Ollama
     compileOnly(libs.testcontainers.ollama)
 
-    testImplementation(libs.rest.assured)
-    testImplementation(libs.rest.assured.kotlin)
+    testImplementation(bt4k.rest.assured)
+    testImplementation(bt4k.rest.assured.kotlin)
 
     // Nginx
     compileOnly(libs.testcontainers.nginx)
 
     // Wiremock
-    compileOnly(libs.wiremock)
+    compileOnly(bt4k.wiremock)
 
     // Keycloak
-    compileOnly(libs.keycloak.testcontainers)
+    compileOnly(bt4k.keycloak.testcontainers)
 
     // ClickHouse
     compileOnly(libs.testcontainers.clickhouse)
-    testRuntimeOnly(libs.clickhouse.jdbc)
+    testRuntimeOnly(bt4k.clickhouse.jdbc)
     // testRuntimeOnly(bt4k.httpclient5)
 
     // Weaviate
     compileOnly(libs.testcontainers.weaviate)
-    testRuntimeOnly(libs.weaviate.client)
+    testRuntimeOnly(bt4k.weaviate.client)
 
     // ChromaDB
     compileOnly(libs.testcontainers.chromadb)

@@ -21,7 +21,7 @@ dependencies {
     implementation(libs.micrometer.registry.prometheus)
     implementation(bt4k.opentelemetry.api)
 
-    runtimeOnly(libs.logback.classic)
+    runtimeOnly(bt4k.logback)
     runtimeOnly(libs.opentelemetry.ktor)
 
     testImplementation(project(":bluetape4k-junit5"))

@@ -16,9 +16,9 @@ dependencies {
 
     // R2DBC
     api("org.springframework.boot:spring-boot-starter-data-r2dbc")
-    testImplementation(libs.r2dbc.pool)
+    testImplementation(bt4k.r2dbc.pool)
     testImplementation(bt4k.r2dbc.h2)
-    testRuntimeOnly(libs.h2.v2)
+    testRuntimeOnly(bt4k.h2.v2)
 
     // Jackson 3
     testImplementation(project(":bluetape4k-jackson3"))
@@ -33,7 +33,7 @@ dependencies {
     // PostgreSql Server
     // testImplementation(project(":bluetape4k-testcontainers"))
     // testImplementation(libs.testcontainers.postgresql)
-    // testImplementation(libs.r2dbc.postgresql)
+    // testImplementation(bt4k.r2dbc.postgresql)
 
     // Spring Boot for Blog Application
     testImplementation("org.springframework.boot:spring-boot-starter-webflux")
