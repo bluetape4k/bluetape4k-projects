@@ -1,6 +1,6 @@
 # WIP - bluetape4k-projects
 
-- 스냅샷: 2026-08-05 KST
+- 스냅샷: 2026-08-06 KST
 - 범위: `1.12.1` BOM publication inventory 복구 릴리스
 - 열린 release blocker: [#1313](https://github.com/bluetape4k/bluetape4k-projects/issues/1313)
 
