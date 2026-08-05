@@ -86,6 +86,7 @@ dependencies {
     // Spring Cloud OpenFeign 사용
     //
     testImplementation("org.springframework.cloud:spring-cloud-starter-openfeign")
+    testImplementation(bt4k.spring.boot.http.converter)
     testImplementation("org.springframework.boot:spring-boot-starter-webflux")
     testImplementation("org.springframework.boot:spring-boot-starter-test") {
         exclude(group = "junit", module = "junit")
