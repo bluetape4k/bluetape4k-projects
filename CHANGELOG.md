@@ -13,6 +13,10 @@
   Central. Publication validation now fails when the generated BOM inventory
   differs from the generated publication POM inventory
   ([#1313](https://github.com/bluetape4k/bluetape4k-projects/issues/1313)).
+- Kept the Java platform outside library publication setup while including its
+  `Bluetape4k` publication in the NMCP aggregate, so snapshot and stable bundles
+  contain the BOM alongside all 74 publishable library modules
+  ([#1315](https://github.com/bluetape4k/bluetape4k-projects/issues/1315)).
 
 ## [1.12.0] — 2026-08-05
 

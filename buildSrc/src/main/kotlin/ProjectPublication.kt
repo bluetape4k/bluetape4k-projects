@@ -21,10 +21,23 @@ fun isPublishableLibraryProject(relativeProjectDir: String, projectName: String)
             !projectName.endsWith("-benchmark")
 }
 
+fun isPublishedProject(relativeProjectDir: String, projectName: String): Boolean {
+    return projectName == "bluetape4k-bom" ||
+            isPublishableLibraryProject(relativeProjectDir, projectName)
+}
+
 fun Project.isPublishableLibraryProject(): Boolean {
     val relativeProjectDir = rootDir.toPath()
         .relativize(projectDir.toPath())
         .toString()
 
     return isPublishableLibraryProject(relativeProjectDir, name)
+}
+
+fun Project.isPublishedProject(): Boolean {
+    val relativeProjectDir = rootDir.toPath()
+        .relativize(projectDir.toPath())
+        .toString()
+
+    return isPublishedProject(relativeProjectDir, name)
 }
