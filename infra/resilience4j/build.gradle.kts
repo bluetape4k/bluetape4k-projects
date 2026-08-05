@@ -10,11 +10,11 @@ dependencies {
     testImplementation(project(":bluetape4k-testcontainers"))
 
     // Resilience4j
-    api(libs.resilience4j.all)
-    api(libs.resilience4j.cache)
-    api(libs.resilience4j.kotlin)
-    compileOnly(libs.resilience4j.reactor)
-    compileOnly(libs.resilience4j.micrometer)
+    api(bt4k.resilience4j.all)
+    api(bt4k.resilience4j.cache)
+    api(bt4k.resilience4j.kotlin)
+    compileOnly(bt4k.resilience4j.reactor)
+    compileOnly(bt4k.resilience4j.micrometer)
 
     // Coroutines
     compileOnly(libs.kotlinx.coroutines.core)
@@ -22,16 +22,16 @@ dependencies {
     testImplementation(libs.kotlinx.coroutines.test)
 
     // JCache for Resilience4j Cache
-    testImplementation(libs.caffeine.jcache)
-    testImplementation(libs.cache2k.jcache)
+    testImplementation(bt4k.caffeine.jcache)
+    testImplementation(bt4k.cache2k.jcache)
     testImplementation(bt4k.redisson)
 
     // Serializer
     testImplementation(bt4k.fory.kotlin)
-    testImplementation(libs.kryo5)
+    testImplementation(bt4k.kryo5)
 
     // Compressor
-    testImplementation(libs.lz4.java)
-    testImplementation(libs.snappy.java)
+    testImplementation(bt4k.at.yawk.lz4.java)
+    testImplementation(bt4k.snappy.java)
     testImplementation(bt4k.zstd.jni)
 }

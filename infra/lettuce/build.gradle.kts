@@ -3,7 +3,7 @@ import java.nio.file.Path
 
 plugins {
     kotlin("plugin.allopen")
-    alias(libs.plugins.kotlinx.benchmark)
+    alias(bt4k.plugins.kotlinx.benchmark)
 }
 
 allOpen {
@@ -34,7 +34,7 @@ benchmark {
     targets {
         register("benchmark") {
             this as kotlinx.benchmark.gradle.JvmBenchmarkTarget
-            jmhVersion = libs.versions.jmh.get()
+            jmhVersion = bt4k.versions.managed.jmh.core.h350a653f63e5.get()
         }
     }
 }
@@ -75,11 +75,11 @@ dependencies {
 
     // Serializer
     compileOnly(bt4k.fory.kotlin)
-    compileOnly(libs.kryo5)
+    compileOnly(bt4k.kryo5)
 
     // Compressor
-    compileOnly(libs.lz4.java)
-    compileOnly(libs.snappy.java)
+    compileOnly(bt4k.at.yawk.lz4.java)
+    compileOnly(bt4k.snappy.java)
     compileOnly(bt4k.zstd.jni)
 
     // JSON Codecs (compileOnly - 사용자가 직접 의존성 추가)
@@ -88,17 +88,17 @@ dependencies {
     compileOnly(libs.jackson3.module.kotlin)
 
     compileOnly(project(":bluetape4k-fastjson2"))
-    compileOnly(libs.fastjson2)
-    compileOnly(libs.fastjson2.kotlin)
+    compileOnly(bt4k.fastjson2)
+    compileOnly(bt4k.fastjson2.kotlin)
 
     testImplementation(project(":bluetape4k-junit5"))
     testImplementation(project(":bluetape4k-resilience4j"))
     testImplementation(project(":bluetape4k-testcontainers"))
 
     // Benchmark
-    add("benchmarkImplementation", libs.kotlinx.benchmark.runtime)
-    add("benchmarkImplementation", libs.kotlinx.benchmark.runtime.jvm)
-    add("benchmarkImplementation", libs.jmh.core)
+    add("benchmarkImplementation", bt4k.kotlinx.benchmark.runtime)
+    add("benchmarkImplementation", bt4k.kotlinx.benchmark.runtime.jvm)
+    add("benchmarkImplementation", bt4k.jmh.core)
 }
 
 tasks.named<Test>("test") {

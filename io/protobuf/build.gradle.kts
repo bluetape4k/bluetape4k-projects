@@ -3,7 +3,7 @@ import com.google.protobuf.gradle.id
 plugins {
     `java-library`
     idea
-    alias(libs.plugins.protobuf.plugin)
+    alias(bt4k.plugins.protobuf.plugin)
 }
 
 idea {
@@ -41,7 +41,7 @@ dependencies {
     api(bt4k.protobuf.java)
     api(libs.protobuf.java.util)
     api(libs.protobuf.kotlin)
-    api(libs.proto.google.common.protos)
+    api(bt4k.proto.google.common.protos)
 
     api(project(":bluetape4k-io"))
 
@@ -50,8 +50,8 @@ dependencies {
     compileOnly(project(":bluetape4k-redisson"))
 
     // Redis Codecs
-    compileOnly(libs.lz4.java)
-    compileOnly(libs.snappy.java)
+    compileOnly(bt4k.at.yawk.lz4.java)
+    compileOnly(bt4k.snappy.java)
     compileOnly(bt4k.zstd.jni)
 
     // Fallback codec

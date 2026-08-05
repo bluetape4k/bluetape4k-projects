@@ -2,8 +2,8 @@ import com.google.protobuf.gradle.id
 
 plugins {
     kotlin("plugin.allopen")
-    alias(libs.plugins.protobuf.plugin)
-    alias(libs.plugins.kotlinx.benchmark)
+    alias(bt4k.plugins.protobuf.plugin)
+    alias(bt4k.plugins.kotlinx.benchmark)
 }
 
 allOpen {
@@ -53,7 +53,7 @@ benchmark {
     targets {
         register("benchmark") {
             this as kotlinx.benchmark.gradle.JvmBenchmarkTarget
-            jmhVersion = libs.versions.jmh.get()
+            jmhVersion = bt4k.versions.managed.jmh.core.h350a653f63e5.get()
         }
     }
 }
@@ -64,10 +64,10 @@ dependencies {
     implementation(project(":bluetape4k-lettuce"))
     testImplementation(project(":bluetape4k-junit5"))
 
-    add("benchmarkImplementation", libs.kotlinx.benchmark.runtime)
-    add("benchmarkImplementation", libs.kotlinx.benchmark.runtime.jvm)
-    add("benchmarkImplementation", libs.jmh.core)
-    add("benchmarkRuntimeOnly", libs.logback.classic)
+    add("benchmarkImplementation", bt4k.kotlinx.benchmark.runtime)
+    add("benchmarkImplementation", bt4k.kotlinx.benchmark.runtime.jvm)
+    add("benchmarkImplementation", bt4k.jmh.core)
+    add("benchmarkRuntimeOnly", bt4k.logback)
 }
 
 tasks.matching { it.name.endsWith("BenchmarkJar") }.configureEach {

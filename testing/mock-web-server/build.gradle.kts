@@ -3,8 +3,8 @@ plugins {
     kotlin("plugin.noarg")
     // Spring Boot plugin은 buildscript 클래스패스에 이미 Spring Boot 3.x가 있어 버전 충돌 발생.
     // BOM(platform)으로 Spring Boot 4 의존성을 관리하고, Jib으로 직접 컨테이너 이미지 생성.
-    id("com.google.cloud.tools.jib") version "3.4.4"
-    id("io.gatling.gradle") version "3.15.0"
+    alias(bt4k.plugins.jib)
+    alias(bt4k.plugins.gatling)
 }
 
 // Java 21 toolchain (workspace baseline)
@@ -26,7 +26,7 @@ dependencies {
 
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("org.springframework.boot:spring-boot-starter-cache")
-    implementation(libs.caffeine)
+    implementation(bt4k.caffeine)
     implementation(libs.jackson3.module.kotlin)
 
     implementation(project(":bluetape4k-core"))
@@ -38,7 +38,7 @@ dependencies {
         exclude(group = "org.junit.vintage", module = "junit-vintage-engine")
         exclude(group = "org.mockito", module = "mockito-core")
     }
-    testImplementation(libs.okhttp3)
+    testImplementation(bt4k.okhttp3)
     testImplementation(project(":bluetape4k-junit5"))
 }
 
@@ -103,9 +103,9 @@ jib {
 }
 
 dependencies {
-    "gatlingImplementation"("io.gatling.highcharts:gatling-charts-highcharts:3.15.0")
-    "gatlingImplementation"("io.gatling:gatling-core-java:3.15.0")
-    "gatlingImplementation"("io.gatling:gatling-http-java:3.15.0")
+    add("gatlingImplementation", bt4k.gatling.charts.highcharts)
+    add("gatlingImplementation", bt4k.gatling.core.java)
+    add("gatlingImplementation", bt4k.gatling.http.java)
 }
 
 // Prevent Gatling tasks from running during the standard `check` lifecycle.

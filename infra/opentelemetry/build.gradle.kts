@@ -2,7 +2,7 @@ plugins {
     kotlin("plugin.spring")
     alias(bt4k.plugins.shadow)
 
-    id("de.undercouch.download") version "5.6.0"
+    alias(bt4k.plugins.download)
 }
 
 // OpenTelemetry Java Agent 를 사용할 경우 아래의 Task 를 실행하여 자동으로 다운로드 하도록 합니다.
@@ -34,7 +34,7 @@ configurations {
 dependencyManagement {
     imports {
         mavenBom(bt4k.opentelemetry.bom.get().toString())
-        mavenBom(libs.opentelemetry.alpha.bom.get().toString())
+        mavenBom(bt4k.opentelemetry.alpha.bom.get().toString())
         mavenBom(bt4k.opentelemetry.instrumentation.bom.alpha.get().toString())
     }
 }

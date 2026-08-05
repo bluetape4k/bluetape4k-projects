@@ -11,24 +11,24 @@ configurations {
 }
 
 dependencies {
-    api(platform(libs.junit.bom))
+    api(platform(bt4k.junit.bom))
 
     // JUnit 5 — AssertionFailedError, MultipleFailuresError 타입 소비자 classpath 필요
-    api(libs.junit.jupiter.api)
+    api(bt4k.junit.jupiter.api)
 
     // Coroutines — FlowAssertions 가 main 소스에 있으므로 소비자 classpath 필요
     api(libs.kotlinx.coroutines.core)
 
     // Turbine — TurbineSupport 사용 시 소비자가 직접 추가 필요
-    compileOnly(libs.turbine)
+    compileOnly(bt4k.turbine)
 
     // Test
     testImplementation(project(":bluetape4k-junit5"))
     testImplementation(libs.kotlin.test.junit5)
-    testImplementation(libs.junit.jupiter.engine)
-    testImplementation(libs.junit.platform.launcher)
+    testImplementation(bt4k.junit.jupiter.engine)
+    testImplementation(bt4k.junit.platform.launcher)
     testImplementation(libs.kotlinx.coroutines.test)
-    testImplementation(libs.mockk)
-    testImplementation(libs.datafaker)
-    testRuntimeOnly(libs.logback.classic)
+    testImplementation(bt4k.mockk)
+    testImplementation(bt4k.datafaker)
+    testRuntimeOnly(bt4k.logback)
 }

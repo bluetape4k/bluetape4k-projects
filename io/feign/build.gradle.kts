@@ -14,7 +14,7 @@ configurations {
 
 dependencies {
     implementation(platform(bt4k.spring.boot4.dependencies))
-    testImplementation(platform(libs.spring.cloud.dependencies))
+    testImplementation(platform(bt4k.spring.cloud.dependencies))
 
     api(project(":bluetape4k-http"))
     api(project(":bluetape4k-netty"))
@@ -29,26 +29,26 @@ dependencies {
 
     // https://mvnrepository.com/artifact/javax.ws.rs/javax.ws.rs-api
     // feign 12.3 에서는 아직 javax.ws.rs-api 를 사용합니다.
-    // api(libs.jakarta.ws.rs.api)
+    // api(bt4k.jakarta.ws.rs.api)
 
     // Feign
-    api(libs.feign.core)
-    api(libs.feign.hc5)
-    api(libs.feign.kotlin)
-    api(libs.feign.slf4j)
-    api(libs.feign.jackson)
-    compileOnly(libs.feign.reactive.wrappers)
-    compileOnly(libs.feign.micrometer)
-    compileOnly(libs.feign.jaxrs)
-    compileOnly(libs.feign.jaxrs2)
-    testImplementation(libs.feign.mock)
+    api(bt4k.feign.core)
+    api(bt4k.feign.hc5)
+    api(bt4k.feign.kotlin)
+    api(bt4k.feign.slf4j)
+    api(bt4k.feign.jackson)
+    compileOnly(bt4k.feign.reactive.wrappers)
+    compileOnly(bt4k.feign.micrometer)
+    compileOnly(bt4k.feign.jaxrs)
+    compileOnly(bt4k.feign.jaxrs2)
+    testImplementation(bt4k.feign.mock)
 
     // OkHttp3
-    compileOnly(libs.okhttp3)
-    compileOnly(libs.okhttp3.logging.interceptor)
+    compileOnly(bt4k.okhttp3)
+    compileOnly(bt4k.okhttp3.logging.interceptor)
 
     // OkHttp3 MockWebServer
-    testImplementation(libs.okhttp3.mockwebserver)
+    testImplementation(bt4k.okhttp3.mockwebserver)
 
     // Apache HttpCompoents HttpClient 5
     // feign_hc5 를 사용하려면, httpcore5, httpcore5-h2 도 버전을 맞춰줘야 한다 
@@ -72,20 +72,21 @@ dependencies {
 
     // Fastjson2
     compileOnly(project(":bluetape4k-fastjson2"))
-    compileOnly(libs.fastjson2)
-    compileOnly(libs.fastjson2.kotlin)
+    compileOnly(bt4k.fastjson2)
+    compileOnly(bt4k.fastjson2.kotlin)
 
     // Resilience4j
     compileOnly(project(":bluetape4k-resilience4j"))
-    compileOnly(libs.resilience4j.all)
-    compileOnly(libs.resilience4j.kotlin)
-    compileOnly(libs.resilience4j.feign)
-    compileOnly(libs.resilience4j.cache)
+    compileOnly(bt4k.resilience4j.all)
+    compileOnly(bt4k.resilience4j.kotlin)
+    compileOnly(bt4k.resilience4j.feign)
+    compileOnly(bt4k.resilience4j.cache)
 
     //
     // Spring Cloud OpenFeign 사용
     //
     testImplementation("org.springframework.cloud:spring-cloud-starter-openfeign")
+    testImplementation(bt4k.spring.boot.http.converter)
     testImplementation("org.springframework.boot:spring-boot-starter-webflux")
     testImplementation("org.springframework.boot:spring-boot-starter-test") {
         exclude(group = "junit", module = "junit")

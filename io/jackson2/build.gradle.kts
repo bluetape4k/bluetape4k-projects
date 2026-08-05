@@ -34,15 +34,15 @@ dependencies {
     compileOnly(project(":bluetape4k-tink"))
     testImplementation(project(":bluetape4k-junit5"))
 
-    // api(libs.jakarta.json.api)
-    api(libs.jakarta.json.api)
+    // api(bt4k.jakarta.json.api)
+    api(bt4k.jakarta.json.api)
 
     // Gson
-    compileOnly(libs.gson)
-    compileOnly(libs.gson.javatime.serializers)
+    compileOnly(bt4k.gson)
+    compileOnly(bt4k.gson.javatime.serializers)
 
-    testImplementation(libs.jsonpath)
-    testImplementation(libs.jsonassert)
+    testImplementation(bt4k.jsonpath.v3)
+    testImplementation(bt4k.jsonassert.v1)
 
     compileOnly(project(":bluetape4k-coroutines"))
     compileOnly(libs.kotlinx.coroutines.core)

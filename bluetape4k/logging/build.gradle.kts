@@ -9,7 +9,7 @@ dependencies {
 
     api(bt4k.slf4j.api)
     implementation(libs.jcl.over.slf4j)
-    implementation(libs.logback.classic)
+    implementation(bt4k.logback)
 
     implementation(libs.kotlinx.coroutines.core)
     implementation(libs.kotlinx.coroutines.slf4j)

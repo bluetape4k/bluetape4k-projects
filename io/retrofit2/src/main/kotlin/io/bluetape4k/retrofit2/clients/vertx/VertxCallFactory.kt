@@ -11,10 +11,12 @@ import io.vertx.core.http.HttpClient
 import io.vertx.core.http.HttpClientRequest
 import io.vertx.kotlin.core.http.requestOptionsOf
 import kotlinx.atomicfu.atomic
+import okhttp3.EventListener
 import java.io.IOException
 import java.time.Duration
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.CopyOnWriteArrayList
 import java.util.concurrent.ExecutionException
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.TimeoutException
@@ -120,9 +122,9 @@ class VertxCallFactory private constructor(
         private var promise by promiseRef
         private val timeout = callTimeout.toTimeout()
         private val tags = ConcurrentHashMap<Class<*>, Any>()
-
-        @Volatile
-        private var cancelled = false
+        private val eventListeners = CopyOnWriteArrayList<EventListener>()
+        private val cancelledRef = atomic(false)
+        private var cancelled by cancelledRef
 
         @Volatile
         private var vertxRequest: HttpClientRequest? = null
@@ -171,6 +173,15 @@ class VertxCallFactory private constructor(
             if (!promiseRef.compareAndSet(null, promise)) {
                 throwAlreadyExecuted()
             }
+            eventListeners.forEach { it.callStart(this) }
+            promise.whenComplete { _, error ->
+                if (error == null) {
+                    eventListeners.forEach { it.callEnd(this) }
+                } else {
+                    val failure = error.toIOException()
+                    eventListeners.forEach { it.callFailed(this, failure) }
+                }
+            }
 
             val options = requestOptionsOf(
                 absoluteURI = okRequest.url.toString(),
@@ -212,7 +223,10 @@ class VertxCallFactory private constructor(
         }
 
         override fun cancel() {
-            cancelled = true
+            if (!cancelledRef.compareAndSet(false, true)) {
+                return
+            }
+            eventListeners.forEach { it.canceled(this) }
             promise?.cancel(true)
             // reset() is idempotent in Vert.x 5.x (returns false on subsequent calls),
             // so a concurrent double-reset between executeAsync and cancel() is safe.
@@ -233,6 +247,10 @@ class VertxCallFactory private constructor(
 
         override fun timeout(): okio.Timeout {
             return timeout
+        }
+
+        override fun addEventListener(eventListener: EventListener) {
+            eventListeners += eventListener
         }
 
         @Suppress("UNCHECKED_CAST")

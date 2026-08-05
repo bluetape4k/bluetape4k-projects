@@ -1,6 +1,6 @@
 plugins {
     kotlin("plugin.allopen")
-    alias(libs.plugins.kotlinx.benchmark)
+    alias(bt4k.plugins.kotlinx.benchmark)
 }
 
 allOpen {
@@ -13,7 +13,7 @@ benchmark {
     targets {
         register("test") {
             this as kotlinx.benchmark.gradle.JvmBenchmarkTarget
-            jmhVersion = libs.versions.jmh.get()
+            jmhVersion = bt4k.versions.managed.jmh.core.h350a653f63e5.get()
         }
     }
     configurations {
@@ -49,22 +49,22 @@ dependencies {
     testImplementation(libs.kotlinx.coroutines.test)
 
     // Collections
-    compileOnly(libs.commons.collections4)
-    compileOnly(libs.eclipse.collections)
-    compileOnly(libs.eclipse.collections.forkjoin)
+    compileOnly(bt4k.commons.collections4)
+    compileOnly(bt4k.eclipse.collections)
+    compileOnly(bt4k.eclipse.collections.forkjoin)
 
     // Test Fixture
     compileOnly(project(":bluetape4k-assertions"))
     compileOnly(libs.kotlin.test.junit5)
 
-    testImplementation(libs.mockk)
+    testImplementation(bt4k.mockk)
 
     // Coroutines Flow를 Reactor처럼 테스트 할 수 있도록 해줍니다.
     // 참고: https://github.com/cashapp/turbine/
-    testImplementation(libs.turbine)
+    testImplementation(bt4k.turbine)
 
     // Benchmark
-    testImplementation(libs.kotlinx.benchmark.runtime)
-    testImplementation(libs.kotlinx.benchmark.runtime.jvm)
-    testImplementation(libs.jmh.core)
+    testImplementation(bt4k.kotlinx.benchmark.runtime)
+    testImplementation(bt4k.kotlinx.benchmark.runtime.jvm)
+    testImplementation(bt4k.jmh.core)
 }

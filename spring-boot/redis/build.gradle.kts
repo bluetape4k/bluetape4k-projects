@@ -37,12 +37,12 @@ dependencies {
 
     // Runtime codecs used by the documented RedisBinarySerializers matrix
     runtimeOnly(bt4k.fory.kotlin)
-    runtimeOnly(libs.kryo5)
+    runtimeOnly(bt4k.kryo5)
 
     // Runtime compressors used by the documented RedisBinarySerializers matrix
-    runtimeOnly(libs.lz4.java)
+    runtimeOnly(bt4k.at.yawk.lz4.java)
     runtimeOnly(bt4k.zstd.jni)
-    runtimeOnly(libs.snappy.java)
+    runtimeOnly(bt4k.snappy.java)
 
     testImplementation(project(":bluetape4k-junit5"))
     testImplementation(project(":bluetape4k-testcontainers"))

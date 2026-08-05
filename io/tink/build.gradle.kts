@@ -10,7 +10,7 @@ dependencies {
     testImplementation(project(":bluetape4k-testcontainers"))
 
     // Google Tink - 현대적 AEAD 암호화 (AES-GCM, ChaCha20-Poly1305, AES-SIV, HMAC)
-    api(libs.tink)
+    api(bt4k.tink)
 
     // Coroutines
     testImplementation(project(":bluetape4k-coroutines"))

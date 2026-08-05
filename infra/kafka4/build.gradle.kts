@@ -55,15 +55,15 @@ dependencies {
     implementation(libs.jackson3.module.blackbird)
 
     // Codecs
-    compileOnly(libs.kryo5)
+    compileOnly(bt4k.kryo5)
     compileOnly(bt4k.fory.kotlin)  // new Apache Fory
 
     // Compressors
     compileOnly(bt4k.commons.compress)
-    compileOnly(libs.snappy.java)
+    compileOnly(bt4k.snappy.java)
     // at.yawk.lz4:lz4-java 를 api 로 노출: exclude 로 org.lz4 를 제거했으므로
     // 소비자 classpath 에 at.yawk.lz4:lz4-java:1.11.0 가 반드시 있어야 kafka LZ4 codec 이 동작한다.
-    api(libs.lz4.java)
+    api(bt4k.at.yawk.lz4.java)
     compileOnly(bt4k.zstd.jni)
 
     // Coroutines
@@ -73,7 +73,7 @@ dependencies {
     testImplementation(libs.kotlinx.coroutines.test)
 
     // Reactor
-    implementation(libs.reactor.kafka4)
+    implementation(bt4k.reactor.kafka4)
     implementation(libs.reactor.kotlin.extensions)
     testImplementation(libs.reactor.test)
 

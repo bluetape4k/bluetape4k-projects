@@ -27,22 +27,22 @@ tasks.test {
 dependencies {
     api(project(":bluetape4k-core"))
     api(project(":bluetape4k-logging"))
-    api(libs.jts.core)
+    api(bt4k.jts.core)
 
     // GIS / 좌표 변환 (LGPL — compileOnly로만 선언, JAI 제외)
-    compileOnly(libs.proj4j)
-    compileOnly(libs.proj4j.epsg)
-    compileOnly(libs.esri.geometry.api)
+    compileOnly(bt4k.proj4j)
+    compileOnly(bt4k.proj4j.epsg)
+    compileOnly(bt4k.esri.geometry.api)
 
     // GeoTools (LGPL — compileOnly, javax.media:jai_core 제외 설정됨)
-    compileOnly(libs.geotools.shapefile)
-    compileOnly(libs.geotools.referencing)
-    compileOnly(libs.geotools.epsg.hsql)
+    compileOnly(bt4k.geotools34.shapefile)
+    compileOnly(bt4k.geotools34.referencing)
+    compileOnly(bt4k.geotools34.epsg.hsql)
 
     // NetCDF (UCAR netCDF-Java 5.9.1 — compileOnly, BSD-3-Clause)
     // 저장소: 루트 build.gradle.kts:71 에 Unidata Nexus 선언됨
-    compileOnly(libs.ucar.cdm.core)
-    compileOnly(libs.ucar.netcdf4)
+    compileOnly(bt4k.ucar.cdm.core)
+    compileOnly(bt4k.ucar.netcdf4)
     // cdm-core 가 ImmutableList<Variable> 등 Guava 컬렉션을 API 표면에 노출 → 컴파일 시 필요
     compileOnly(bt4k.guava)
 
@@ -59,7 +59,7 @@ dependencies {
     compileOnly(bt4k.exposed.jdbc)
     compileOnly(bt4k.exposed.java.time)
     compileOnly(libs.exposed.json)
-    compileOnly(libs.postgis.jdbc)
+    compileOnly(bt4k.postgis.y2024)
     // JSONB 직렬화용 Jackson, PGobject (compileOnly)
     compileOnly(libs.jackson.module.kotlin)
     compileOnly(bt4k.postgresql)

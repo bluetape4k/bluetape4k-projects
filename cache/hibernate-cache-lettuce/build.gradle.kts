@@ -29,10 +29,10 @@ dependencies {
 
     // Serializer runtime dependencies (bluetape4k-io의 선택적 의존성)
     implementation(bt4k.fory.kotlin)
-    implementation(libs.lz4.java)
+    implementation(bt4k.at.yawk.lz4.java)
 
     // Compressor runtime dependencies (bluetape4k-io의 선택적 의존성)
-    implementation(libs.snappy.java)
+    implementation(bt4k.snappy.java)
     implementation(bt4k.zstd.jni)
 
     // bluetape4k-redis: LettuceBinaryCodec
@@ -45,6 +45,6 @@ dependencies {
     testImplementation(project(":bluetape4k-junit5"))
     testImplementation(project(":bluetape4k-testcontainers"))
     testImplementation(libs.testcontainers)
-    testImplementation(libs.h2.v2)
+    testImplementation(bt4k.h2.v2)
     testImplementation(bt4k.hikaricp)
 }

@@ -1,8 +1,8 @@
 plugins {
     kotlin("plugin.spring")
     kotlin("plugin.noarg")
-    id("com.google.cloud.tools.jib") version "3.4.4"
-    id("io.gatling.gradle") version "3.15.0"
+    alias(bt4k.plugins.jib)
+    alias(bt4k.plugins.gatling)
 }
 
 // Java 21 toolchain (workspace baseline)
@@ -25,7 +25,7 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-webflux")
     implementation("org.springframework.boot:spring-boot-starter-cache")
     implementation("org.springframework.boot:spring-boot-starter-actuator")
-    implementation(libs.caffeine)
+    implementation(bt4k.caffeine)
     implementation(libs.jackson3.module.kotlin)
 
     implementation(libs.kotlinx.coroutines.core)
@@ -48,9 +48,9 @@ dependencies {
 }
 
 dependencies {
-    "gatlingImplementation"("io.gatling.highcharts:gatling-charts-highcharts:3.15.0")
-    "gatlingImplementation"("io.gatling:gatling-core-java:3.15.0")
-    "gatlingImplementation"("io.gatling:gatling-http-java:3.15.0")
+    add("gatlingImplementation", bt4k.gatling.charts.highcharts)
+    add("gatlingImplementation", bt4k.gatling.core.java)
+    add("gatlingImplementation", bt4k.gatling.http.java)
 }
 
 afterEvaluate {

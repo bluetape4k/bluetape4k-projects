@@ -1,6 +1,6 @@
 plugins {
     kotlin("plugin.allopen")
-    alias(libs.plugins.kotlinx.benchmark)
+    alias(bt4k.plugins.kotlinx.benchmark)
 }
 
 allOpen {
@@ -12,7 +12,7 @@ benchmark {
     targets {
         register("test") {
             this as kotlinx.benchmark.gradle.JvmBenchmarkTarget
-            jmhVersion = libs.versions.jmh.get()
+            jmhVersion = bt4k.versions.managed.jmh.core.h350a653f63e5.get()
         }
     }
 }
@@ -39,7 +39,7 @@ dependencies {
     compileOnly(bt4k.commons.compress)
 
     // Okio (compressor 내부용)
-    api(libs.okio)
+    api(bt4k.okio)
 
     // Coroutines
     compileOnly(project(":bluetape4k-coroutines"))
@@ -52,29 +52,29 @@ dependencies {
     testImplementation(libs.reactor.test)
 
     // Eclipse Collections
-    compileOnly(libs.eclipse.collections)
-    compileOnly(libs.eclipse.collections.forkjoin)
+    compileOnly(bt4k.eclipse.collections)
+    compileOnly(bt4k.eclipse.collections.forkjoin)
 
     // Cache
-    compileOnly(libs.caffeine)
-    compileOnly(libs.caffeine.jcache)
+    compileOnly(bt4k.caffeine)
+    compileOnly(bt4k.caffeine.jcache)
 
     // Compression
-    compileOnly(libs.lz4.java)
-    compileOnly(libs.snappy.java)
-    compileOnly(libs.xz)
+    compileOnly(bt4k.at.yawk.lz4.java)
+    compileOnly(bt4k.snappy.java)
+    compileOnly(bt4k.xz)
     compileOnly(bt4k.zstd.jni)
-    compileOnly(libs.brotli4j)
-    compileOnly(libs.brotli4j.native)
+    compileOnly(bt4k.brotli4j)
+    compileOnly(bt4k.brotli4j.native)
 
     // Binary Serializers
-    compileOnly(libs.kryo5)
+    compileOnly(bt4k.kryo5)
     compileOnly(bt4k.fory.kotlin)  // new Apache Fory
 
     // Benchmark
-    testImplementation(libs.kotlinx.benchmark.runtime)
-    testImplementation(libs.kotlinx.benchmark.runtime.jvm)
-    testImplementation(libs.jmh.core)
+    testImplementation(bt4k.kotlinx.benchmark.runtime)
+    testImplementation(bt4k.kotlinx.benchmark.runtime.jvm)
+    testImplementation(bt4k.jmh.core)
 
     // Binary Serializer 와 비교하기 하기 위해 Benchmark 에서 사용합니다.
     testImplementation(libs.jackson.datatype.jsr310)

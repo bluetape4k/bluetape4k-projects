@@ -1,7 +1,7 @@
 plugins {
     kotlin("plugin.allopen")
     kotlin("plugin.serialization")
-    alias(libs.plugins.kotlinx.benchmark)
+    alias(bt4k.plugins.kotlinx.benchmark)
 }
 
 allOpen {
@@ -38,7 +38,7 @@ benchmark {
     targets {
         register("benchmark") {
             this as kotlinx.benchmark.gradle.JvmBenchmarkTarget
-            jmhVersion = libs.versions.jmh.get()
+            jmhVersion = bt4k.versions.managed.jmh.core.h350a653f63e5.get()
         }
     }
     configurations {
@@ -114,9 +114,9 @@ dependencies {
     add("benchmarkImplementation", project(":bluetape4k-idgenerators"))
     add("benchmarkImplementation", project(":bluetape4k-ktor-core"))
 
-    add("benchmarkImplementation", libs.kotlinx.benchmark.runtime)
-    add("benchmarkImplementation", libs.kotlinx.benchmark.runtime.jvm)
-    add("benchmarkImplementation", libs.jmh.core)
+    add("benchmarkImplementation", bt4k.kotlinx.benchmark.runtime)
+    add("benchmarkImplementation", bt4k.kotlinx.benchmark.runtime.jvm)
+    add("benchmarkImplementation", bt4k.jmh.core)
 
     add("benchmarkImplementation", bt4k.kotlinx.serialization.json)
     add("benchmarkImplementation", libs.ktor.server.core)
@@ -129,5 +129,5 @@ dependencies {
     add("benchmarkImplementation", libs.jackson3.module.kotlin)
     add("benchmarkImplementation", libs.jackson3.module.blackbird)
 
-    add("benchmarkRuntimeOnly", libs.logback.classic)
+    add("benchmarkRuntimeOnly", bt4k.logback)
 }

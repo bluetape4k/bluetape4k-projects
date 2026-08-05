@@ -17,11 +17,11 @@ dependencies {
 
     // Coroutines Flow를 Reactor처럼 테스트 할 수 있도록 해줍니다.
     // 참고: https://github.com/cashapp/turbine/
-    testImplementation(libs.turbine)
+    testImplementation(bt4k.turbine)
 
     // ID Generators
     testImplementation(project(":bluetape4k-idgenerators"))
-    testImplementation(libs.java.uuid.generator)
+    testImplementation(bt4k.java.uuid.generator)
 
     testImplementation(project(":bluetape4k-junit5"))
 }

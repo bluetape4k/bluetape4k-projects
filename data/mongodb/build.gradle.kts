@@ -12,13 +12,13 @@ dependencies {
     testImplementation(libs.testcontainers.mongodb)
 
     // MongoDB Kotlin Coroutine Driver (네이티브 suspend/Flow 지원)
-    api(libs.mongodb.driver.kotlin.coroutine)
+    api(bt4k.mongodb.driver.kotlin.coroutine)
     // MongoDB Kotlin Extensions (KProperty 기반 Filters/Sorts/Updates/Projections DSL)
-    api(libs.mongodb.driver.kotlin.extensions)
+    api(bt4k.mongodb.driver.kotlin.extensions)
     // BSON Kotlin 지원
-    api(libs.mongo.bson.kotlin)
+    api(bt4k.mongo.bson.kotlin)
     // kotlinx.serialization BSON 코덱 (선택적)
-    compileOnly(libs.mongo.bson.kotlinx)
+    compileOnly(bt4k.mongo.bson.kotlinx)
 
     // Coroutines
     implementation(libs.kotlinx.coroutines.core)

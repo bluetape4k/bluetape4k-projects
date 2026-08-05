@@ -65,6 +65,6 @@ dependencies {
     testImplementation(libs.micrometer.core)
     testImplementation(project(":bluetape4k-junit5"))
     testImplementation(project(":bluetape4k-testcontainers"))
-    testImplementation(libs.h2.v2)
+    testImplementation(bt4k.h2.v2)
     testImplementation(bt4k.hikaricp)
 }

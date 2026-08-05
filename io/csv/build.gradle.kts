@@ -1,6 +1,6 @@
 plugins {
     kotlin("plugin.allopen")
-    alias(libs.plugins.kotlinx.benchmark)
+    alias(bt4k.plugins.kotlinx.benchmark)
 }
 
 allOpen {
@@ -13,7 +13,7 @@ benchmark {
     targets {
         register("test") {
             this as kotlinx.benchmark.gradle.JvmBenchmarkTarget
-            jmhVersion = libs.versions.jmh.get()
+            jmhVersion = bt4k.versions.managed.jmh.core.h350a653f63e5.get()
         }
     }
 }
@@ -24,7 +24,7 @@ configurations {
 
 dependencies {
     api(project(":bluetape4k-io"))
-    implementation(libs.okio)
+    implementation(bt4k.okio)
     testImplementation(project(":bluetape4k-junit5"))
 
     // Coroutines
@@ -33,7 +33,7 @@ dependencies {
     testImplementation(libs.kotlinx.coroutines.test)
 
     // Benchmark
-    testImplementation(libs.kotlinx.benchmark.runtime)
-    testImplementation(libs.kotlinx.benchmark.runtime.jvm)
-    testImplementation(libs.jmh.core)
+    testImplementation(bt4k.kotlinx.benchmark.runtime)
+    testImplementation(bt4k.kotlinx.benchmark.runtime.jvm)
+    testImplementation(bt4k.jmh.core)
 }
