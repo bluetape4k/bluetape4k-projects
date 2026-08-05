@@ -1,6 +1,7 @@
 import io.bluetape4k.gradle.applyBluetape4kPomMetadata
 import io.bluetape4k.gradle.centralSnapshotsRepository
 import io.bluetape4k.gradle.configurePublishingSigning
+import io.bluetape4k.gradle.isPublishableLibraryProject
 
 plugins {
     `java-platform`
@@ -11,11 +12,7 @@ plugins {
 dependencies {
     constraints {
         rootProject.subprojects {
-            if (name != "bluetape4k-bom" &&
-                !path.contains("workshop") &&
-                !path.contains("examples") &&
-                !path.contains("-demo")
-            ) {
+            if (isPublishableLibraryProject()) {
                 api(this)
             }
         }

@@ -4,6 +4,16 @@
 
 ---
 
+## [1.12.1] — 2026-08-06
+
+### Fixed
+
+- Unified the publication and BOM module classifiers so the BOM no longer
+  constrains benchmark or application-only modules that are absent from Maven
+  Central. Publication validation now fails when the generated BOM inventory
+  differs from the generated publication POM inventory
+  ([#1313](https://github.com/bluetape4k/bluetape4k-projects/issues/1313)).
+
 ## [1.12.0] — 2026-08-05
 
 ### Added
