@@ -7,6 +7,7 @@ import io.bluetape4k.logging.warn
 import io.bluetape4k.okio.toTimeout
 import io.bluetape4k.retrofit2.toIOException
 import kotlinx.atomicfu.atomic
+import okhttp3.EventListener
 import okio.Timeout
 import org.apache.hc.client5.http.async.methods.SimpleHttpResponse
 import org.apache.hc.client5.http.impl.async.CloseableHttpAsyncClient
@@ -16,6 +17,7 @@ import java.io.IOException
 import java.time.Duration
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.CopyOnWriteArrayList
 import java.util.concurrent.ExecutionException
 import java.util.concurrent.Future
 import java.util.concurrent.TimeUnit
@@ -129,9 +131,9 @@ class Hc5CallFactory private constructor(
         private var promise by promiseRef
         private val timeout = callTimeout.toTimeout()
         private val tags = ConcurrentHashMap<Class<*>, Any>()
-
-        @Volatile
-        private var cancelled = false
+        private val eventListeners = CopyOnWriteArrayList<EventListener>()
+        private val cancelledRef = atomic(false)
+        private var cancelled by cancelledRef
 
         @Volatile
         private var hc5Future: Future<SimpleHttpResponse>? = null
@@ -180,6 +182,15 @@ class Hc5CallFactory private constructor(
             if (!promiseRef.compareAndSet(null, promise)) {
                 throwAlreadyExecuted()
             }
+            eventListeners.forEach { it.callStart(this) }
+            promise.whenComplete { _, error ->
+                if (error == null) {
+                    eventListeners.forEach { it.callEnd(this) }
+                } else {
+                    val failure = error.toIOException()
+                    eventListeners.forEach { it.callFailed(this, failure) }
+                }
+            }
 
             val simpleRequest = okRequest.toSimpleHttpRequest()
 
@@ -215,7 +226,10 @@ class Hc5CallFactory private constructor(
         }
 
         override fun cancel() {
-            cancelled = true
+            if (!cancelledRef.compareAndSet(false, true)) {
+                return
+            }
+            eventListeners.forEach { it.canceled(this) }
             promise?.cancel(true)
             hc5Future?.cancel(true)
         }
@@ -234,6 +248,10 @@ class Hc5CallFactory private constructor(
 
         override fun timeout(): Timeout {
             return timeout
+        }
+
+        override fun addEventListener(eventListener: EventListener) {
+            eventListeners += eventListener
         }
 
         @Suppress("UNCHECKED_CAST")

@@ -8,6 +8,7 @@ import io.bluetape4k.assertions.shouldBeSameInstanceAs
 import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.assertions.shouldNotBeNull
 import okhttp3.Call
+import okhttp3.EventListener
 import okhttp3.Request
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
@@ -17,9 +18,11 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import java.io.IOException
 import java.time.Duration
+import java.util.concurrent.CopyOnWriteArrayList
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicBoolean
+import java.util.concurrent.atomic.AtomicInteger
 import kotlin.concurrent.thread
 
 /**
@@ -176,6 +179,60 @@ abstract class CallFactoryConformanceTest: AbstractClientTest() {
         val call = callFactory.newCall(request { tag(RequestMeta::class.java, meta) })
 
         call.tag(RequestMeta::class) shouldBeSameInstanceAs meta
+    }
+
+    @Test
+    fun `등록한 event listener는 성공 호출의 시작과 종료를 받는다`() {
+        conformanceServer.enqueue(MockResponse().setBody("ok"))
+
+        val events = CopyOnWriteArrayList<String>()
+        val call = callFactory.newCall(request())
+        call.addEventListener(object: EventListener() {
+            override fun callStart(call: Call) {
+                events += "start"
+            }
+
+            override fun callEnd(call: Call) {
+                events += "end"
+            }
+        })
+
+        call.execute().close()
+
+        events shouldBeEqualTo listOf("start", "end")
+    }
+
+    @Test
+    fun `clone은 원본에 등록한 event listener를 상속하지 않는다`() {
+        conformanceServer.enqueue(MockResponse().setBody("ok"))
+
+        val eventCount = AtomicInteger()
+        val original = callFactory.newCall(request())
+        original.addEventListener(object: EventListener() {
+            override fun callStart(call: Call) {
+                eventCount.incrementAndGet()
+            }
+        })
+
+        original.clone().execute().close()
+
+        eventCount.get() shouldBeEqualTo 0
+    }
+
+    @Test
+    fun `cancel event는 여러 번 취소해도 한 번만 전달된다`() {
+        val cancelCount = AtomicInteger()
+        val call = callFactory.newCall(request())
+        call.addEventListener(object: EventListener() {
+            override fun canceled(call: Call) {
+                cancelCount.incrementAndGet()
+            }
+        })
+
+        call.cancel()
+        call.cancel()
+
+        cancelCount.get() shouldBeEqualTo 1
     }
 
     private fun request(configure: Request.Builder.() -> Unit = {}): Request =
