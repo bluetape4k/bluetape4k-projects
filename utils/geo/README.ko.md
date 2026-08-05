@@ -119,12 +119,12 @@ dependencies {
     implementation("io.github.bluetape4k:bluetape4k-jackson3:${bluetape4kVersion}")
     implementation("io.github.bluetape4k:bluetape4k-resilience4j:${bluetape4kVersion}")
     implementation("com.google.maps:google-maps-services:2.2.0")
-    implementation("io.github.openfeign:feign-core:13.12")
-    implementation("io.github.openfeign:feign-kotlin:13.12")
-    implementation("io.github.openfeign:feign-slf4j:13.12")
-    implementation("io.github.openfeign:feign-jackson:13.12")
-    implementation("org.apache.httpcomponents.client5:httpclient5:5.6.1")
-    implementation("org.apache.httpcomponents.client5:httpclient5-cache:5.6.1")
+    implementation("io.github.openfeign:feign-core:13.13")
+    implementation("io.github.openfeign:feign-kotlin:13.13")
+    implementation("io.github.openfeign:feign-slf4j:13.13")
+    implementation("io.github.openfeign:feign-jackson:13.13")
+    implementation("org.apache.httpcomponents.client5:httpclient5:5.6.3")
+    implementation("org.apache.httpcomponents.client5:httpclient5-cache:5.6.3")
 
     // GeoIP2 사용 시
     implementation("com.maxmind.geoip2:geoip2:5.0.2")
