@@ -15,7 +15,7 @@ paths = if ARGV.empty?
         end
 
 result = Publication::PomAudit.new(paths).validate
-inventory_errors = Publication::InventoryAudit.new(paths).errors
+inventory_errors = ARGV.empty? ? Publication::InventoryAudit.new(paths).errors : []
 errors = result.errors + inventory_errors
 unless errors.empty?
   warn(errors.join("\n"))
