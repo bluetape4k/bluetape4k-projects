@@ -14,6 +14,19 @@ class ProjectPublicationTest {
     }
 
     @Test
+    fun `BOM is published without being treated as a library module`() {
+        assertFalse(isPublishableLibraryProject("bluetape4k/bom", "bluetape4k-bom"))
+        assertTrue(isPublishedProject("bluetape4k/bom", "bluetape4k-bom"))
+    }
+
+    @Test
+    fun `published project classification includes libraries and excludes applications`() {
+        assertTrue(isPublishedProject("bluetape4k/core", "bluetape4k-core"))
+        assertFalse(isPublishedProject("workshop/kafka", "kafka-workshop"))
+        assertFalse(isPublishedProject("spring-boot/mock-web-server", "bluetape4k-mock-web-server"))
+    }
+
+    @Test
     fun `sample and benchmark modules are not publishable`() {
         assertFalse(isPublishableLibraryProject("workshop/kafka", "kafka-workshop"))
         assertFalse(isPublishableLibraryProject("examples/cache", "cache-example"))

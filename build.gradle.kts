@@ -4,6 +4,7 @@ import io.bluetape4k.gradle.centralSnapshotsRepository
 import io.bluetape4k.gradle.configurePublishingSigning
 import io.bluetape4k.gradle.DisabledTestReportTask
 import io.bluetape4k.gradle.isPublishableLibraryProject
+import io.bluetape4k.gradle.isPublishedProject
 import io.bluetape4k.gradle.resolveCentralPublishingConfig
 import io.bluetape4k.gradle.resolvePublishingSigningConfig
 import dev.detekt.gradle.Detekt
@@ -129,7 +130,7 @@ fun Project.detektKotlinSourceFiles(): FileTree = fileTree(projectDir) {
 }
 
 subprojects {
-    if (isPublishableLibraryProject()) {
+    if (isPublishedProject()) {
         apply(plugin = "com.gradleup.nmcp")
     }
 
@@ -1139,7 +1140,7 @@ tasks.named<Detekt>("detekt") {
     onlyIf { false }
 }
 
-val publishableProjects = subprojects.filter(Project::isPublishableLibraryProject)
+val publishedProjects = subprojects.filter(Project::isPublishedProject)
 
 extensions.configure<NmcpAggregationExtension>("nmcpAggregation") {
     centralPortal {
@@ -1151,8 +1152,8 @@ extensions.configure<NmcpAggregationExtension>("nmcpAggregation") {
 }
 
 dependencies {
-    publishableProjects.forEach { publishableProject ->
-        add("nmcpAggregation", project(publishableProject.path))
+    publishedProjects.forEach { publishedProject ->
+        add("nmcpAggregation", project(publishedProject.path))
     }
 }
 
