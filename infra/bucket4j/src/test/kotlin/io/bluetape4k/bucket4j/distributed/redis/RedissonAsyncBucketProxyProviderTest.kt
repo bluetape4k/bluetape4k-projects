@@ -45,10 +45,10 @@ class RedissonAsyncBucketProxyProviderTest: AbstractAsyncBucketProxyProviderTest
     fun `async proxy 는 identified bandwidth configuration replacement 를 지원한다`() = runTest {
         val redisson = TestRedisServer.redissonClient()
         val initial = bucketConfiguration {
-            addLimit { it.capacity(10).refillGreedy(10, Duration.ofSeconds(1)).id("burst") }
+            addLimit { it.capacity(10).refillGreedy(10, Duration.ofDays(1)).id("burst") }
         }
         val replacement = bucketConfiguration {
-            addLimit { it.capacity(20).refillGreedy(20, Duration.ofSeconds(1)).id("burst") }
+            addLimit { it.capacity(20).refillGreedy(20, Duration.ofDays(1)).id("burst") }
         }
         val proxyManager = redissonBasedProxyManagerOf(redisson) {
             ClientSideConfig.getDefault()
