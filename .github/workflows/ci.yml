@@ -242,6 +242,7 @@ jobs:
       - name: Validate publication metadata
         run: |
           ruby scripts/publication/publication_pom_audit_test.rb
+          ruby scripts/publication/publication_inventory_audit_test.rb
           ruby scripts/publication/publication_pom_integration_test.rb
           ruby scripts/publication/publication_module_metadata_audit_test.rb
           ./gradlew generatePomFileForBluetape4kPublication generateMetadataFileForBluetape4kPublication \

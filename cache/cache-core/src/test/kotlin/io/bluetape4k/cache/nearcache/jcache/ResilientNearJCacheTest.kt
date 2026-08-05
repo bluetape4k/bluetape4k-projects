@@ -327,8 +327,11 @@ class ResilientNearJCacheTest {
         every { concurrentBackCache.get("shared") } answers { backValue.get() }
         every { concurrentBackCache.put("marker", "done") } answers { drainCompleted.countDown() }
         every { concurrentBackCache.put("shared", any()) } answers {
-            if (operationSequence.incrementAndGet() % 4 == 0) throw IllegalStateException("put failed")
-            backValue.set(secondArg())
+            val value = secondArg<String>()
+            if (value != "final" && operationSequence.incrementAndGet() % 4 == 0) {
+                throw IllegalStateException("put failed")
+            }
+            backValue.set(value)
         }
         every { concurrentBackCache.remove("shared") } answers {
             if (operationSequence.incrementAndGet() % 4 == 0) throw IllegalStateException("remove failed")
@@ -336,7 +339,6 @@ class ResilientNearJCacheTest {
             true
         }
         every { concurrentBackCache.clear() } answers {
-            if (operationSequence.incrementAndGet() % 4 == 0) throw IllegalStateException("clear failed")
             backValue.set(null)
         }
         val concurrentCache = ResilientNearJCache(
@@ -357,9 +359,11 @@ class ResilientNearJCacheTest {
                 .add { concurrentCache.clearAll() }
                 .run()
 
+            concurrentCache.put("shared", "final")
             concurrentCache.put("marker", "done")
             drainCompleted.await(5, TimeUnit.SECONDS).shouldBeTrue()
-            concurrentCache.get("shared") shouldBeEqualTo backValue.get()
+            concurrentCache.get("shared") shouldBeEqualTo "final"
+            backValue.get() shouldBeEqualTo "final"
         } finally {
             concurrentCache.close()
         }

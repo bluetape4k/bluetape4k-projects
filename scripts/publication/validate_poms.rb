@@ -5,6 +5,7 @@ require "open3"
 require "tmpdir"
 
 require_relative "publication_pom_audit"
+require_relative "publication_inventory_audit"
 
 paths = if ARGV.empty?
           Dir.glob("**/build/publications/*/pom-default.xml")
@@ -14,9 +15,11 @@ paths = if ARGV.empty?
         end
 
 result = Publication::PomAudit.new(paths).validate
-unless result.errors.empty?
-  warn(result.errors.join("\n"))
-  abort("publication-poms: failures=#{result.errors.length} files=#{result.file_count} dependencies=#{result.dependency_count}")
+inventory_errors = Publication::InventoryAudit.new(paths).errors
+errors = result.errors + inventory_errors
+unless errors.empty?
+  warn(errors.join("\n"))
+  abort("publication-poms: failures=#{errors.length} files=#{result.file_count} dependencies=#{result.dependency_count}")
 end
 
 settings = File.expand_path("maven-settings.xml", __dir__)
