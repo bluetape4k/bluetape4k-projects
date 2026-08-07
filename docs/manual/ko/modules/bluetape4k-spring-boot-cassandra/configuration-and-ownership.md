@@ -7,7 +7,7 @@ description: "auto-configuration이 아닌 범위를 확인하고 CqlSession, te
 
 ## 이 artifact가 구성하지 않는 것
 
-이름에 `spring-boot`가 들어가지만 1.11.0 소스에는 auto-configuration class, `AutoConfiguration.imports`, `@ConfigurationProperties`, main resource가 없습니다. classpath에 artifact를 추가해도 새 bean이나 property가 생기지 않습니다.
+이름에 `spring-boot`가 들어가지만 1.12.1 소스에는 auto-configuration class, `AutoConfiguration.imports`, `@ConfigurationProperties`, main resource가 없습니다. classpath에 artifact를 추가해도 새 bean이나 property가 생기지 않습니다.
 
 이 모듈이 제공하는 것은 이미 생성된 Spring Data Cassandra 객체에 대한 확장 함수입니다. 따라서 다음 객체는 Spring Boot 또는 애플리케이션 configuration이 준비해야 합니다.
 

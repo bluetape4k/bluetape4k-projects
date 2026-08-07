@@ -60,7 +60,7 @@ Query caching stores result identifiers and relies on the update-timestamps regi
 
 ## Rollback and eviction
 
-A new Session after rollback must observe the pre-transaction value. The 1.11.0 suite checks update and delete rollback behavior. Never edit Redis keys directly, because that bypasses Hibernate's transaction-completion eviction flow.
+A new Session after rollback must observe the pre-transaction value. The 1.12.1 suite checks update and delete rollback behavior. Never edit Redis keys directly, because that bypasses Hibernate's transaction-completion eviction flow.
 
 ## Sources and tests
 

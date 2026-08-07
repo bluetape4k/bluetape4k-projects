@@ -61,7 +61,7 @@ val ids = producer.sendAsFlow(orders.asFlow()).toList()
 
 ## 수명주기와 운영
 
-`withProducer`는 짧은 scope에서 close를 시도하지만 1.11.0은 취소 불가능한 cleanup을 보장하지 않습니다. 장기 producer는 재사용하고 send latency, pending queue, batching, compression과 failure rate를 관찰합니다.
+`withProducer`는 짧은 scope에서 close를 시도하지만 1.12.1은 취소 불가능한 cleanup을 보장하지 않습니다. 장기 producer는 재사용하고 send latency, pending queue, batching, compression과 failure rate를 관찰합니다.
 
 ## Source와 tests
 

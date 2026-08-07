@@ -80,7 +80,7 @@ class UserClient(
 
 ## Learning path {#concepts}
 
-Each chapter is grounded in the 1.11.0 source and tests. The chapters explain configuration ownership, lifecycle, and failure propagation instead of stopping at an API inventory.
+Each chapter is grounded in the 1.12.1 source and tests. The chapters explain configuration ownership, lifecycle, and failure propagation instead of stopping at an API inventory.
 
 1. [Spring Context and configuration helpers](./bluetape4k-spring-boot-core/spring-context-and-configuration.md) — annotation, bean, profile, and property helpers, including what is not auto-configured.
 2. [RestClient and coroutine boundaries](./bluetape4k-spring-boot-core/rest-client-and-coroutines.md) — blocking HTTP, nullable bodies, cancellation, and converter ownership.
@@ -154,9 +154,9 @@ No dedicated workshop is registered in the manual manifest. The README HTTP and 
 
 For data access, continue with the Spring Data JDBC or R2DBC manuals. For lower-level coroutine and Flow rules, see [`bluetape4k-coroutines`](./bluetape4k-coroutines.md).
 
-## 1.11.0 scope {#limitations}
+## 1.12.1 scope {#limitations}
 
-This manual describes the `bluetape4k-projects` 1.11.0 release source. Despite the artifact name, it does not provide starter metadata, configuration-properties binding, or general application bootstrapping.
+This manual describes the `bluetape4k-projects` 1.12.1 release source. Despite the artifact name, it does not provide starter metadata, configuration-properties binding, or general application bootstrapping.
 
 `VirtualThreadAutoConfiguration` is not discovered automatically. The companion executor in `AbstractVirtualThreadController` is shared for the process lifetime and is not closed by that class. Separate scopes in the WebFlux coroutine controller base classes do not automatically carry Reactor or Spring Security context. First check whether the request's existing suspend context is sufficient for new code.
 
@@ -179,30 +179,30 @@ This manual describes the `bluetape4k-projects` 1.11.0 release source. Despite t
 <!-- release-readme-diagrams:start -->
 ## Release diagrams {#release-diagrams}
 
-These diagrams are loaded directly from README assets published with the `1.11.0` release and pinned to its immutable commit. They describe this manual's released structure and runtime flows, not later Snapshot changes. Select a preview to open the SVG at the same release commit.
+These diagrams are loaded directly from README assets published with the `1.12.1` release and pinned to its immutable commit. They describe this manual's released structure and runtime flows, not later Snapshot changes. Select a preview to open the SVG at the same release commit.
 
 ### Spring Boot Core Capability Map diagram
 
-[![Spring Boot Core Capability Map diagram](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/spring-boot-core-diagram-01.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/spring-boot-core-diagram-01.svg)
+[![Spring Boot Core Capability Map diagram](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/spring-boot-core-diagram-01.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/spring-boot-core-diagram-01.svg)
 
-_Release README: [`spring-boot/core/README.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/spring-boot/core/README.md)_
+_Release README: [`spring-boot/core/README.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/spring-boot/core/README.md)_
 
 ### Spring WebFlux + Coroutines Request Flow diagram
 
-[![Spring WebFlux + Coroutines Request Flow diagram](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/spring-boot-core-diagram-02.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/spring-boot-core-diagram-02.svg)
+[![Spring WebFlux + Coroutines Request Flow diagram](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/spring-boot-core-diagram-02.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/spring-boot-core-diagram-02.svg)
 
-_Release README: [`spring-boot/core/README.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/spring-boot/core/README.md)_
+_Release README: [`spring-boot/core/README.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/spring-boot/core/README.md)_
 
 ### RestClient Coroutines DSL Structure diagram
 
-[![RestClient Coroutines DSL Structure diagram](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/spring-boot-core-diagram-03.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/spring-boot-core-diagram-03.svg)
+[![RestClient Coroutines DSL Structure diagram](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/spring-boot-core-diagram-03.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/spring-boot-core-diagram-03.svg)
 
-_Release README: [`spring-boot/core/README.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/spring-boot/core/README.md)_
+_Release README: [`spring-boot/core/README.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/spring-boot/core/README.md)_
 
 ### WebClient Dedicated Resource Configuration diagram
 
-[![WebClient Dedicated Resource Configuration diagram](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/spring-boot-core-diagram-04.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/spring-boot-core-diagram-04.svg)
+[![WebClient Dedicated Resource Configuration diagram](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/spring-boot-core-diagram-04.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/spring-boot-core-diagram-04.svg)
 
-_Release README: [`spring-boot/core/README.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/spring-boot/core/README.md)_
+_Release README: [`spring-boot/core/README.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/spring-boot/core/README.md)_
 
 <!-- release-readme-diagrams:end -->

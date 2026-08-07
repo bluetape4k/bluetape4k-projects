@@ -1,6 +1,6 @@
 ---
 title: Dynamic queries
-description: Compose predicates and count queries with QueryBuilder while respecting the 1.11.0 validation and side-effect boundaries.
+description: Compose predicates and count queries with QueryBuilder while respecting the 1.12.1 validation and side-effect boundaries.
 manualId: bluetape4k-r2dbc
 chapterId: dynamic-queries
 ---
@@ -52,9 +52,9 @@ Keep the block free of counter increments, external mutations, time-dependent va
 
 `Query` stores a mutable `StringBuilder` and trims and caches `sql` on first access. Buffer changes before first access are visible; changes afterward are not. Treat a built `Query` as an immutable value and do not share its buffer.
 
-## The 1.11.0 limit and offset contract
+## The 1.12.1 limit and offset contract
 
-Version 1.11.0 appends limit and offset values without validating their range. Positive-limit and non-negative-offset checks were added after the release and are not 1.11 behavior.
+Version 1.12.1 appends limit and offset values without validating their range. Positive-limit and non-negative-offset checks were added after the release and are not 1.11 behavior.
 
 ```kotlin
 require(pageSize > 0) { "pageSize must be positive" }

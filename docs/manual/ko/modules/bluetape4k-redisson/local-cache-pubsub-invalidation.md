@@ -33,7 +33,7 @@ val users = localCachedMap<String, User>("users", client) {
 
 ## Reconnection policy
 
-1.11.0 `RedissonNearCache.defaultLocalCacheOptions`는 LFU, local TTL 60초, max idle 120초, `ReconnectionStrategy.LOAD`, `SyncStrategy.UPDATE`를 설정합니다. 이 값은 편리한 기본값이지 모든 workload의 정답이 아닙니다.
+1.12.1 `RedissonNearCache.defaultLocalCacheOptions`는 LFU, local TTL 60초, max idle 120초, `ReconnectionStrategy.LOAD`, `SyncStrategy.UPDATE`를 설정합니다. 이 값은 편리한 기본값이지 모든 workload의 정답이 아닙니다.
 
 - stale data를 거의 허용하지 못하면 짧은 TTL과 reconnect clear/load 정책을 검토합니다.
 - update 빈도가 높으면 local cache invalidation traffic이 Redis 절감분보다 커질 수 있습니다.

@@ -85,7 +85,7 @@ try {
 
 ## Learning path {#concepts}
 
-These chapters follow the 1.11.0 release source and executable tests. They explain provider identity, Redis storage, concurrent computation, L1/L2 ordering, and invalidation failures with defaults, ownership, and post-failure state.
+These chapters follow the 1.12.1 release source and executable tests. They explain provider identity, Redis storage, concurrent computation, L1/L2 ordering, and invalidation failures with defaults, ownership, and post-failure state.
 
 1. [JCache provider, manager, and configuration](./bluetape4k-cache-lettuce/jcache-provider-manager.md) — SPI lookup, `(ClassLoader, URI)` identity, Redis hashes, TTL, codecs, and ownership.
 2. [Synchronous and suspend JCache](./bluetape4k-cache-lettuce/sync-suspend-jcache.md) — CRUD, listeners, EntryProcessor, IO dispatching, close, and destroy.
@@ -140,46 +140,46 @@ The module suite uses Redis Testcontainers, so run it sequentially with other he
 
 Use `LettuceJCachesTest` for the smallest factory examples, `LettuceNearCacheTrackingTest` for two-instance invalidation, and `LettuceNearCacheIsolationTest` for key namespaces. Continue to [Exposed Workshop](https://github.com/bluetape4k/exposed-workshop) and [bluetape4k-workshop](https://github.com/bluetape4k/bluetape4k-workshop) for cache-aside and database loader/writer exercises.
 
-## 1.11.0 scope {#limitations}
+## 1.12.1 scope {#limitations}
 
-This manual targets release commit `6187173b58e8b4c5c435c145e00e94708f31ef75`. JCache listeners receive operations performed by that cache instance; they are not a Redis-backed global JCache event bus.
+This manual targets release commit `7cf0b73646af05c0f8872cc4f6a16983949c4e3e`. JCache listeners receive operations performed by that cache instance; they are not a Redis-backed global JCache event bus.
 
 Tracking startup is fail-open. With `NOLOOP`, the writing connection receives no push and the code updates its own L1 directly. `withResilience` uses a decorator from `cache-core`; there is no standalone `ResilientLettuceNearCache` implementation in this release.
 
 <!-- release-readme-diagrams:start -->
 ## Release diagrams {#release-diagrams}
 
-These diagrams are loaded directly from README assets published with the `1.11.0` release and pinned to its immutable commit. They describe this manual's released structure and runtime flows, not later Snapshot changes. Select a preview to open the SVG at the same release commit.
+These diagrams are loaded directly from README assets published with the `1.12.1` release and pinned to its immutable commit. They describe this manual's released structure and runtime flows, not later Snapshot changes. Select a preview to open the SVG at the same release commit.
 
 ### LettuceNearCache Class Hierarchy diagram
 
-[![LettuceNearCache Class Hierarchy diagram](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/cache-cache-lettuce-diagram-01.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/cache-cache-lettuce-diagram-01.svg)
+[![LettuceNearCache Class Hierarchy diagram](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/cache-cache-lettuce-diagram-01.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/cache-cache-lettuce-diagram-01.svg)
 
-_Release README: [`cache/cache-lettuce/README.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/cache/cache-lettuce/README.md)_
+_Release README: [`cache/cache-lettuce/README.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/cache/cache-lettuce/README.md)_
 
 ### Lettuce JCache NearCache Structure diagram
 
-[![Lettuce JCache NearCache Structure diagram](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/cache-cache-lettuce-diagram-02.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/cache-cache-lettuce-diagram-02.svg)
+[![Lettuce JCache NearCache Structure diagram](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/cache-cache-lettuce-diagram-02.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/cache-cache-lettuce-diagram-02.svg)
 
-_Release README: [`cache/cache-lettuce/README.ko.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/cache/cache-lettuce/README.ko.md)_
+_Release README: [`cache/cache-lettuce/README.ko.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/cache/cache-lettuce/README.ko.md)_
 
 ### Lettuce Cache Stability Contracts diagram
 
-[![Lettuce Cache Stability Contracts diagram](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/cache-cache-lettuce-diagram-03.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/cache-cache-lettuce-diagram-03.svg)
+[![Lettuce Cache Stability Contracts diagram](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/cache-cache-lettuce-diagram-03.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/cache-cache-lettuce-diagram-03.svg)
 
-_Release README: [`cache/cache-lettuce/README.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/cache/cache-lettuce/README.md)_
+_Release README: [`cache/cache-lettuce/README.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/cache/cache-lettuce/README.md)_
 
 ### Native Lettuce NearCache Structure diagram
 
-[![Native Lettuce NearCache Structure diagram](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/cache-cache-lettuce-diagram-04.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/cache-cache-lettuce-diagram-04.svg)
+[![Native Lettuce NearCache Structure diagram](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/cache-cache-lettuce-diagram-04.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/cache-cache-lettuce-diagram-04.svg)
 
-_Release README: [`cache/cache-lettuce/README.ko.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/cache/cache-lettuce/README.ko.md)_
+_Release README: [`cache/cache-lettuce/README.ko.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/cache/cache-lettuce/README.ko.md)_
 
 ### RESP3 CLIENT TRACKING Flow diagram
 
-[![RESP3 CLIENT TRACKING Flow diagram](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/cache-cache-lettuce-sequence-01.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/cache-cache-lettuce-sequence-01.svg)
+[![RESP3 CLIENT TRACKING Flow diagram](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/cache-cache-lettuce-sequence-01.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/cache-cache-lettuce-sequence-01.svg)
 
-_Release README: [`cache/cache-lettuce/README.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/cache/cache-lettuce/README.md)_
+_Release README: [`cache/cache-lettuce/README.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/cache/cache-lettuce/README.md)_
 
 <!-- release-readme-diagrams:end -->
 

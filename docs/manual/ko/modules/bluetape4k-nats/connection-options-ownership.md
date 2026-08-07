@@ -78,4 +78,4 @@ connection listener는 상태 전환 관찰에 쓰고 credential이나 token이 
 - [`ConsumerExtensionsTest.kt`](../../../../../infra/nats/src/test/kotlin/io/bluetape4k/nats/client/ConsumerExtensionsTest.kt)
 - [`AbstractNatsTest.kt`](../../../../../infra/nats/src/test/kotlin/io/bluetape4k/nats/AbstractNatsTest.kt)
 
-1.11.0 test fixture는 `Connection.use`와 Testcontainer를 사용합니다. production lifecycle과 reconnect 종료 정책은 애플리케이션 통합 테스트가 보완해야 합니다.
+1.12.1 test fixture는 `Connection.use`와 Testcontainer를 사용합니다. production lifecycle과 reconnect 종료 정책은 애플리케이션 통합 테스트가 보완해야 합니다.

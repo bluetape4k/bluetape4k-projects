@@ -35,7 +35,7 @@ dependencies {
 }
 ```
 
-Cache2k와 Ehcache 본체는 1.11.0에서 `compileOnly`입니다. 해당 helper를 사용한다면 애플리케이션 runtime에 선택한 provider를 추가합니다. Caffeine과 Caffeine JCache provider는 API dependency로 들어옵니다.
+Cache2k와 Ehcache 본체는 1.12.1에서 `compileOnly`입니다. 해당 helper를 사용한다면 애플리케이션 runtime에 선택한 provider를 추가합니다. Caffeine과 Caffeine JCache provider는 API dependency로 들어옵니다.
 
 ## 첫 로컬 캐시 {#quick-start}
 
@@ -74,7 +74,7 @@ fun findUser(id: String): User {
 
 ## 학습 경로 {#concepts}
 
-아래 장은 README의 기능 목록을 늘어놓지 않습니다. 1.11.0 소스와 실행 가능한 테스트를 따라가며 실제 기본값, 동시성 조건, 실패 뒤 상태와 provider 선택 기준을 설명합니다. 각 장의 예제는 source·test 링크와 함께 제공하므로 API를 처음 쓰는 개발자도 작은 실험부터 운영 점검까지 이어갈 수 있습니다.
+아래 장은 README의 기능 목록을 늘어놓지 않습니다. 1.12.1 소스와 실행 가능한 테스트를 따라가며 실제 기본값, 동시성 조건, 실패 뒤 상태와 provider 선택 기준을 설명합니다. 각 장의 예제는 source·test 링크와 함께 제공하므로 API를 처음 쓰는 개발자도 작은 실험부터 운영 점검까지 이어갈 수 있습니다.
 
 1. [로컬 provider와 JCache](./bluetape4k-cache-core/local-providers-jcache.md) — Caffeine·Cache2k·Ehcache helper, JCache manager와 expiry 기본값을 비교합니다.
 2. [Cache-aside와 loader·writer 계약](./bluetape4k-cache-core/cache-aside-loader-writer.md) — caller가 miss를 채우는 패턴과 JCache read/write-through 구성을 구분합니다.
@@ -131,9 +131,9 @@ local provider와 공통 계약만 검증하므로 외부 Redis 없이 실행할
 
 database 연동 전략은 [exposed-workshop](https://github.com/bluetape4k/exposed-workshop)의 cache 장과 [bluetape4k-workshop](https://github.com/bluetape4k/bluetape4k-workshop)의 cache 예제로 확장합니다. 이 경로에서는 `JdbcCacheRepository`, `EntityMapLoader`, `EntityMapWriter`를 사용해 단순 cache `put`과 persistence write-through를 구분합니다.
 
-## 1.11.0 범위 {#limitations}
+## 1.12.1 범위 {#limitations}
 
-이 매뉴얼은 `bluetape4k-projects` 1.11.0 배포 소스를 기준으로 합니다. `cache-core`는 Redis server, cluster invalidation, persistence transaction을 직접 제공하지 않습니다. 그런 기능은 provider나 repository 계층이 맡습니다.
+이 매뉴얼은 `bluetape4k-projects` 1.12.1 배포 소스를 기준으로 합니다. `cache-core`는 Redis server, cluster invalidation, persistence transaction을 직접 제공하지 않습니다. 그런 기능은 provider나 repository 계층이 맡습니다.
 
 `SuspendJCache`는 비동기 모양의 공통 계약이지 모든 구현이 자동으로 non-blocking임을 보증하는 표식이 아닙니다. legacy `NearJCache`와 새 `NearCacheOperations` 계열도 동작 차이가 있으므로 새 코드는 provider 매뉴얼이 권하는 factory와 공통 conformance test를 우선합니다.
 
@@ -152,54 +152,54 @@ database 연동 전략은 [exposed-workshop](https://github.com/bluetape4k/expos
 <!-- release-readme-diagrams:start -->
 ## 배포본 다이어그램 {#release-diagrams}
 
-아래 그림은 `1.11.0` 배포본의 README 자산을 해당 배포 커밋에서 직접 불러옵니다. 이후 SNAPSHOT이 아니라 이 매뉴얼 버전의 구조와 실행 흐름을 보여 줍니다. 미리보기를 누르면 같은 배포 커밋의 SVG 원본이 열립니다.
+아래 그림은 `1.12.1` 배포본의 README 자산을 해당 배포 커밋에서 직접 불러옵니다. 이후 SNAPSHOT이 아니라 이 매뉴얼 버전의 구조와 실행 흐름을 보여 줍니다. 미리보기를 누르면 같은 배포 커밋의 SVG 원본이 열립니다.
 
 ### NearCache Interface Hierarchy 다이어그램
 
-[![NearCache Interface Hierarchy 다이어그램](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/cache-cache-core-diagram-01.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/cache-cache-core-diagram-01.svg)
+[![NearCache Interface Hierarchy 다이어그램](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/cache-cache-core-diagram-01.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/cache-cache-core-diagram-01.svg)
 
-_배포본 README: [`cache/cache-core/README.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/cache/cache-core/README.md)_
+_배포본 README: [`cache/cache-core/README.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/cache/cache-core/README.md)_
 
 ### NearCacheOperations (Blocking) 다이어그램
 
-[![NearCacheOperations (Blocking) 다이어그램](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/cache-cache-core-diagram-02.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/cache-cache-core-diagram-02.svg)
+[![NearCacheOperations (Blocking) 다이어그램](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/cache-cache-core-diagram-02.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/cache-cache-core-diagram-02.svg)
 
-_배포본 README: [`cache/cache-core/README.ko.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/cache/cache-core/README.ko.md)_
+_배포본 README: [`cache/cache-core/README.ko.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/cache/cache-core/README.ko.md)_
 
 ### SuspendNearCacheOperations (Coroutine) 다이어그램
 
-[![SuspendNearCacheOperations (Coroutine) 다이어그램](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/cache-cache-core-diagram-03.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/cache-cache-core-diagram-03.svg)
+[![SuspendNearCacheOperations (Coroutine) 다이어그램](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/cache-cache-core-diagram-03.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/cache-cache-core-diagram-03.svg)
 
-_배포본 README: [`cache/cache-core/README.ko.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/cache/cache-core/README.ko.md)_
+_배포본 README: [`cache/cache-core/README.ko.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/cache/cache-core/README.ko.md)_
 
 ### SuspendJCache coroutine interface 다이어그램
 
-[![SuspendJCache coroutine interface 다이어그램](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/cache-cache-core-diagram-04.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/cache-cache-core-diagram-04.svg)
+[![SuspendJCache coroutine interface 다이어그램](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/cache-cache-core-diagram-04.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/cache-cache-core-diagram-04.svg)
 
-_배포본 README: [`cache/cache-core/README.ko.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/cache/cache-core/README.ko.md)_
+_배포본 README: [`cache/cache-core/README.ko.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/cache/cache-core/README.ko.md)_
 
 ### NearJCache synchronous two-tier cache 다이어그램
 
-[![NearJCache synchronous two-tier cache 다이어그램](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/cache-cache-core-diagram-05.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/cache-cache-core-diagram-05.svg)
+[![NearJCache synchronous two-tier cache 다이어그램](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/cache-cache-core-diagram-05.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/cache-cache-core-diagram-05.svg)
 
-_배포본 README: [`cache/cache-core/README.ko.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/cache/cache-core/README.ko.md)_
+_배포본 README: [`cache/cache-core/README.ko.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/cache/cache-core/README.ko.md)_
 
 ### SuspendNearJCache coroutine operation 지도 다이어그램
 
-[![SuspendNearJCache coroutine operation 지도 다이어그램](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/cache-cache-core-diagram-06.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/cache-cache-core-diagram-06.svg)
+[![SuspendNearJCache coroutine operation 지도 다이어그램](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/cache-cache-core-diagram-06.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/cache-cache-core-diagram-06.svg)
 
-_배포본 README: [`cache/cache-core/README.ko.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/cache/cache-core/README.ko.md)_
+_배포본 README: [`cache/cache-core/README.ko.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/cache/cache-core/README.ko.md)_
 
 ### NearCache get() (front miss → back lookup → front fill) 다이어그램
 
-[![NearCache get() (front miss → back lookup → front fill) 다이어그램](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/cache-cache-core-sequence-01.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/cache-cache-core-sequence-01.svg)
+[![NearCache get() (front miss → back lookup → front fill) 다이어그램](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/cache-cache-core-sequence-01.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/cache-cache-core-sequence-01.svg)
 
-_배포본 README: [`cache/cache-core/README.ko.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/cache/cache-core/README.ko.md)_
+_배포본 README: [`cache/cache-core/README.ko.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/cache/cache-core/README.ko.md)_
 
 ### NearCache put() (write-through) 다이어그램
 
-[![NearCache put() (write-through) 다이어그램](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/cache-cache-core-sequence-02.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/cache-cache-core-sequence-02.svg)
+[![NearCache put() (write-through) 다이어그램](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/cache-cache-core-sequence-02.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/cache-cache-core-sequence-02.svg)
 
-_배포본 README: [`cache/cache-core/README.ko.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/cache/cache-core/README.ko.md)_
+_배포본 README: [`cache/cache-core/README.ko.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/cache/cache-core/README.ko.md)_
 
 <!-- release-readme-diagrams:end -->

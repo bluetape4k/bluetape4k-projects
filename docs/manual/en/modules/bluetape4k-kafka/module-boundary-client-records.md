@@ -9,7 +9,7 @@ chapterId: module-boundary-client-records
 
 ## A Kotlin helper layer for Kafka 3.x
 
-The 1.11.0 `bluetape4k-kafka` module targets Kafka 3.9.x and Spring Kafka 3.x. It wraps Kafka clients, Reactor Kafka, and Spring Kafka APIs, but it does not create brokers, topics, consumer groups, or Spring beans. It has no main resources.
+The 1.12.1 `bluetape4k-kafka` module targets Kafka 3.9.x and Spring Kafka 3.x. It wraps Kafka clients, Reactor Kafka, and Spring Kafka APIs, but it does not create brokers, topics, consumer groups, or Spring beans. It has no main resources.
 
 Kafka clients are API dependencies. Kafka Streams is `compileOnly`, so applications using the Streams helpers must provide it at runtime.
 

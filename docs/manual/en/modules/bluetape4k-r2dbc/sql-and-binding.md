@@ -61,7 +61,7 @@ client.databaseClient
 
 ## Prefer tests over drifted README examples
 
-The 1.11.0 README mentions `awaitList`, `awaitSingleAsMap`, `awaitCount`, and `awaitExists`, but those names are absent from the release source. This chapter uses the verified Spring R2DBC operations from `ExecuteTest`: `awaitOne`, `awaitOneOrNull`, `flow`, and `awaitRowsUpdated`.
+The 1.12.1 README mentions `awaitList`, `awaitSingleAsMap`, `awaitCount`, and `awaitExists`, but those names are absent from the release source. This chapter uses the verified Spring R2DBC operations from `ExecuteTest`: `awaitOne`, `awaitOneOrNull`, `flow`, and `awaitRowsUpdated`.
 
 Driver and Spring exceptions propagate. Do not retry every backend failure; consider transaction state, idempotency, and the timeout budget. Preserve Flow cancellation instead of converting it to a fallback value.
 

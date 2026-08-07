@@ -39,7 +39,7 @@ dependencies {
 }
 ```
 
-1.11.0 artifact는 Fory와 LZ4 runtime을 포함하지만, 선택한 codec에 따라 Snappy·Zstd·Kryo/JDK 직렬화 특성과 신뢰 경계를 따로 검토합니다.
+1.12.1 artifact는 Fory와 LZ4 runtime을 포함하지만, 선택한 codec에 따라 Snappy·Zstd·Kryo/JDK 직렬화 특성과 신뢰 경계를 따로 검토합니다.
 
 ## 첫 2차 캐시 {#quick-start}
 
@@ -83,7 +83,7 @@ class Product(
 
 ## 학습 경로 {#concepts}
 
-각 장은 설정 목록만 옮기지 않고 실제 1.11.0 코드와 테스트를 따라갑니다. 캐시를 처음 붙이는 과정부터 Region 격리, key digest, query invalidation, Redis 장애와 종료 순서까지 코드 예제와 실패 조건을 함께 설명합니다.
+각 장은 설정 목록만 옮기지 않고 실제 1.12.1 코드와 테스트를 따라갑니다. 캐시를 처음 붙이는 과정부터 Region 격리, key digest, query invalidation, Redis 장애와 종료 순서까지 코드 예제와 실패 조건을 함께 설명합니다.
 
 1. [Near Cache 구조와 Region](./bluetape4k-hibernate-cache-lettuce/architecture-regions.md) — Caffeine L1, Redis L2와 Hibernate Region의 관계를 잡습니다.
 2. [설정, codec과 TTL](./bluetape4k-hibernate-cache-lettuce/configuration-codecs-ttl.md) — 모든 설정 키, duration, Region별 TTL과 직렬화 신뢰 경계를 확인합니다.
@@ -124,7 +124,7 @@ Hibernate의 second-level hit·miss·put, query cache hit, update timestamps, Re
 
 ## 테스트 {#testing}
 
-1.11.0 테스트는 H2와 Testcontainers Redis 7+로 entity·collection·query·natural-id·composite key·rollback·동시 읽기와 통계를 검증합니다.
+1.12.1 테스트는 H2와 Testcontainers Redis 7+로 entity·collection·query·natural-id·composite key·rollback·동시 읽기와 통계를 검증합니다.
 
 ```bash
 ./gradlew :bluetape4k-hibernate-cache-lettuce:test --no-build-cache --no-configuration-cache
@@ -138,9 +138,9 @@ Hibernate의 second-level hit·miss·put, query cache hit, update timestamps, Re
 
 더 넓은 cache-aside·read-through·write-through 전략은 `bluetape4k-cache-lettuce`와 [exposed-workshop](https://github.com/bluetape4k/exposed-workshop)에서 비교합니다. Hibernate 2차 캐시의 `putIntoCache`를 애플리케이션 repository의 write-through 저장 패턴과 같은 개념으로 혼동하지 않습니다.
 
-## 1.11.0 범위 {#limitations}
+## 1.12.1 범위 {#limitations}
 
-이 매뉴얼은 `bluetape4k-projects` 1.11.0 배포 소스를 기준으로 합니다. `LettuceNearCacheRegionFactory`는 기본 access type으로 `NONSTRICT_READ_WRITE`를 반환하지만 entity annotation은 `READ_WRITE`를 선택할 수도 있습니다. 분산 soft-lock의 비용과 eviction 동작을 측정하지 않았다면 기본 전략을 우선합니다.
+이 매뉴얼은 `bluetape4k-projects` 1.12.1 배포 소스를 기준으로 합니다. `LettuceNearCacheRegionFactory`는 기본 access type으로 `NONSTRICT_READ_WRITE`를 반환하지만 entity annotation은 `READ_WRITE`를 선택할 수도 있습니다. 분산 soft-lock의 비용과 eviction 동작을 측정하지 않았다면 기본 전략을 우선합니다.
 
 CLIENT TRACKING 시작 실패는 factory 시작을 중단하지 않습니다. StorageAccess의 cache 연산 오류도 transaction을 실패시키지 않습니다. 캐시는 source of truth가 아니라 재생성 가능한 가속 계층으로만 사용해야 합니다.
 
@@ -158,24 +158,24 @@ CLIENT TRACKING 시작 실패는 factory 시작을 중단하지 않습니다. St
 <!-- release-readme-diagrams:start -->
 ## 배포본 다이어그램 {#release-diagrams}
 
-아래 그림은 `1.11.0` 배포본의 README 자산을 해당 배포 커밋에서 직접 불러옵니다. 이후 SNAPSHOT이 아니라 이 매뉴얼 버전의 구조와 실행 흐름을 보여 줍니다. 미리보기를 누르면 같은 배포 커밋의 SVG 원본이 열립니다.
+아래 그림은 `1.12.1` 배포본의 README 자산을 해당 배포 커밋에서 직접 불러옵니다. 이후 SNAPSHOT이 아니라 이 매뉴얼 버전의 구조와 실행 흐름을 보여 줍니다. 미리보기를 누르면 같은 배포 커밋의 SVG 원본이 열립니다.
 
 ### Hibernate Lettuce Near Cache 2-Tier 구조도
 
-[![Hibernate Lettuce Near Cache 2-Tier 구조도](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/cache-hibernate-cache-lettuce-diagram-01.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/cache-hibernate-cache-lettuce-diagram-01.svg)
+[![Hibernate Lettuce Near Cache 2-Tier 구조도](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/cache-hibernate-cache-lettuce-diagram-01.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/cache-hibernate-cache-lettuce-diagram-01.svg)
 
-_배포본 README: [`cache/hibernate-cache-lettuce/README.ko.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/cache/hibernate-cache-lettuce/README.ko.md)_
+_배포본 README: [`cache/hibernate-cache-lettuce/README.ko.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/cache/hibernate-cache-lettuce/README.ko.md)_
 
 ### Hibernate Lettuce Cache Layer 구조도
 
-[![Hibernate Lettuce Cache Layer 구조도](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/cache-hibernate-cache-lettuce-diagram-02.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/cache-hibernate-cache-lettuce-diagram-02.svg)
+[![Hibernate Lettuce Cache Layer 구조도](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/cache-hibernate-cache-lettuce-diagram-02.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/cache-hibernate-cache-lettuce-diagram-02.svg)
 
-_배포본 README: [`cache/hibernate-cache-lettuce/README.ko.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/cache/hibernate-cache-lettuce/README.ko.md)_
+_배포본 README: [`cache/hibernate-cache-lettuce/README.ko.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/cache/hibernate-cache-lettuce/README.ko.md)_
 
 ### getFromCache / putIntoCache 다이어그램
 
-[![getFromCache / putIntoCache 다이어그램](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/cache-hibernate-cache-lettuce-sequence-01.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/cache-hibernate-cache-lettuce-sequence-01.svg)
+[![getFromCache / putIntoCache 다이어그램](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/cache-hibernate-cache-lettuce-sequence-01.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/cache-hibernate-cache-lettuce-sequence-01.svg)
 
-_배포본 README: [`cache/hibernate-cache-lettuce/README.ko.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/cache/hibernate-cache-lettuce/README.ko.md)_
+_배포본 README: [`cache/hibernate-cache-lettuce/README.ko.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/cache/hibernate-cache-lettuce/README.ko.md)_
 
 <!-- release-readme-diagrams:end -->

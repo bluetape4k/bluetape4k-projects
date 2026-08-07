@@ -35,7 +35,7 @@ The extensions execute publishers through `R2dbcEntityOperations`; they do not a
 - Startup schema migration
 - Pool shutdown
 
-The 1.11.0 `R2dbcBlogApplication` creates an H2 `ConnectionFactory` and an initializer explicitly. It is a test application example, not module auto-configuration.
+The 1.12.1 `R2dbcBlogApplication` creates an H2 `ConnectionFactory` and an initializer explicitly. It is a test application example, not module auto-configuration.
 
 ## Keep failures distinct from results
 
@@ -52,7 +52,7 @@ The 1.11.0 `R2dbcBlogApplication` creates an H2 `ConnectionFactory` and an initi
 
 `null`, `0L`, and an exception are separate contracts. Do not collapse them into one repository outcome.
 
-## The 1.11.0 integration test setup
+## The 1.12.1 integration test setup
 
 The test application uses `r2dbc:h2:mem:///test` and initializes `posts` and `comments` from `schema.sql`. An `ApplicationReadyEvent` listener inserts two posts and four comments.
 

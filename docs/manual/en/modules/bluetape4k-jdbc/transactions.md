@@ -75,7 +75,7 @@ Keep logging responsibility at the top-level operation boundary so that every la
 
 `withIsolationLevel`, `withAutoCommit`, `withReadOnly`, and `withHoldability` change one property for the duration of a block and restore it in `finally`. They do not commit or roll back. Use `withTransaction` when the operation needs a transaction boundary.
 
-In version 1.11.0, if both the block and restoration fail in one of these single-property helpers, the restoration exception may mask the original exception. Use `withTransaction` for transactional work that needs rollback and suppressed-exception preservation, and test restoration failure as a separate failure mode on paths that use a single-property helper.
+In version 1.12.1, if both the block and restoration fail in one of these single-property helpers, the restoration exception may mask the original exception. Use `withTransaction` for transactional work that needs rollback and suppressed-exception preservation, and test restoration failure as a separate failure mode on paths that use a single-property helper.
 
 ## Keep one connection inside a DataSource transaction
 

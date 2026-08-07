@@ -60,9 +60,9 @@ Do not log credentials, tokens, or full message payloads by default. Use bounded
 
 Do not force a partition-log workload with a mature consumer-group ecosystem into core queue subscriptions or KeyValue. Conversely, simple subject routing and request-reply do not always need a larger log platform. Choose by retention, replay, ordering, throughput, and operations tooling.
 
-## 1.11.0 validation scope
+## 1.12.1 validation scope
 
-The 1.11.0 production source has no serializer abstraction, schema registry, retry policy, tracing hook, or Spring auto-configuration. Jackson and compressor dependencies used by README examples are test payload tools, not a runtime serialization contract of this module.
+The 1.12.1 production source has no serializer abstraction, schema registry, retry policy, tracing hook, or Spring auto-configuration. Jackson and compressor dependencies used by README examples are test payload tools, not a runtime serialization contract of this module.
 
 ## Sources and tests
 

@@ -35,7 +35,7 @@ Partial failure depends on provider ordering. Front-first implementations can le
 
 `NearJCache` registers a back-cache entry listener that applies events to the front. `SuspendNearJCache.withoutListener` is a degraded path for environments that cannot serialize the listener into a cluster. It does not promise cross-process invalidation.
 
-Provider event guarantees differ. The 1.11.0 source uses per-key removal where Redisson bulk operations may not emit entry events.
+Provider event guarantees differ. The 1.12.1 source uses per-key removal where Redisson bulk operations may not emit entry events.
 
 ## Reading statistics
 

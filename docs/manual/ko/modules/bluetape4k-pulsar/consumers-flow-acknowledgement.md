@@ -56,7 +56,7 @@ Flow는 Consumer를 소유하거나 닫지 않고 자동 ack도 하지 않습니
 
 Flow가 await 중 취소되면 대기 future에 `cancel(true)`를 호출하고 cancellation을 다시 던집니다. receive나 ack 실패도 Pulsar exception으로 전파됩니다. helper는 nack, retry, redelivery delay 또는 dead-letter 처리를 자동으로 추가하지 않습니다.
 
-Consumer close도 Flow 책임이 아닙니다. `withConsumer` 또는 명시적 owner가 닫아야 하며, 1.11.0 `withConsumer`는 취소 중 close 완료를 보장하지 않습니다.
+Consumer close도 Flow 책임이 아닙니다. `withConsumer` 또는 명시적 owner가 닫아야 하며, 1.12.1 `withConsumer`는 취소 중 close 완료를 보장하지 않습니다.
 
 ## 운영 관측
 

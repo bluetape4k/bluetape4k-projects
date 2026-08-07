@@ -40,7 +40,7 @@ dependencies {
 
 ## First query {#quick-start}
 
-When Spring Boot supplies `DatabaseClient`, `R2dbcEntityTemplate`, and `MappingR2dbcConverter`, the 1.11.0 auto-configuration creates `R2dbcClient`. The typed `execute<T>` path maps rows through `MappingR2dbcConverter`.
+When Spring Boot supplies `DatabaseClient`, `R2dbcEntityTemplate`, and `MappingR2dbcConverter`, the 1.12.1 auto-configuration creates `R2dbcClient`. The typed `execute<T>` path maps rows through `MappingR2dbcConverter`.
 
 ```kotlin
 import io.bluetape4k.r2dbc.R2dbcClient
@@ -81,12 +81,12 @@ The query starts when the Flow is collected. Keep the path non-blocking and do n
 
 ## Learning path {#concepts}
 
-Each chapter explains ownership and failure boundaries that are easy to get wrong, not just a feature list. Examples link to the 1.11.0 release source and representative tests, so readers can continue directly from the explanation to implementation and verification evidence.
+Each chapter explains ownership and failure boundaries that are easy to get wrong, not just a feature list. Examples link to the 1.12.1 release source and representative tests, so readers can continue directly from the explanation to implementation and verification evidence.
 
 1. [Connections and pools](./bluetape4k-r2dbc/connections-and-pools.md) — configure connections, own the pool lifecycle, and choose overload behavior.
 2. [SQL execution and parameter binding](./bluetape4k-r2dbc/sql-and-binding.md) — use `DatabaseClient`, typed mapping, named/indexed parameters, and typed nulls.
 3. [CRUD and row mapping](./bluetape4k-r2dbc/crud-and-mapping.md) — combine raw-table and entity CRUD with identifier checks, `Readable`, and PostgreSQL JSON conversion.
-4. [Dynamic queries](./bluetape4k-r2dbc/dynamic-queries.md) — build nested predicates and count queries within the 1.11.0 validation contract.
+4. [Dynamic queries](./bluetape4k-r2dbc/dynamic-queries.md) — build nested predicates and count queries within the 1.12.1 validation contract.
 5. [Transactions and lifecycle](./bluetape4k-r2dbc/transactions-and-lifecycle.md) — connect commit, rollback, transaction-aware connections, and schema initialization.
 6. [R2DBC ecosystem path](./bluetape4k-r2dbc/ecosystem-paths.md) — progress from direct Spring R2DBC to this module, Spring coroutine extensions, Exposed R2DBC, and the workshop.
 
@@ -106,7 +106,7 @@ Use [`bluetape4k-spring-boot-r2dbc`](./bluetape4k-spring-boot-r2dbc.md) for broa
 
 With Spring Boot, `spring.r2dbc.*` owns driver connection settings. For direct configuration, use `R2dbcConnectionConfig` and `R2dbcPoolConfig` to set the driver, SSL, timeouts, pool size, warmup, pending queue, and validation strategy.
 
-In 1.11.0, `R2dbcClientAutoConfiguration` activates when `DatabaseClient` is present and does not back off when the application defines its own `R2dbcClient` bean. Applications that configure the type directly must avoid the auto-configuration conflict themselves.
+In 1.12.1, `R2dbcClientAutoConfiguration` activates when `DatabaseClient` is present and does not back off when the application defines its own `R2dbcClient` bean. Applications that configure the type directly must avoid the auto-configuration conflict themselves.
 
 ## Failure behavior {#failures}
 
@@ -120,7 +120,7 @@ Observe active and idle connections, pending acquire, acquire timeout, connectio
 
 ## Testing {#testing}
 
-The 1.11.0 release tests cover H2 SQL, CRUD, transactions, and pool saturation.
+The 1.12.1 release tests cover H2 SQL, CRUD, transactions, and pool saturation.
 
 ```bash
 ./gradlew :bluetape4k-r2dbc:test --no-build-cache --no-configuration-cache
@@ -132,40 +132,40 @@ Pool benchmarks are not ordinary regression tests. PostgreSQL and MySQL benchmar
 
 Within the module, `ExecuteTest`, `InsertTest`, and `TransactionSupportTest` are the smallest executable examples. For a higher-level Kotlin SQL DSL and repository path, [Exposed R2DBC Workshop](https://github.com/bluetape4k/exposed-r2dbc-workshop) continues through SQL DSL, DDL/DML, coroutines, Spring WebFlux, and production patterns.
 
-## 1.11.0 scope {#limitations}
+## 1.12.1 scope {#limitations}
 
-This manual targets the `bluetape4k-projects` 1.11.0 tag. It does not describe the post-release auto-configuration back-off or `QueryBuilder.limit` and `offset` precondition checks as 1.11 features. In 1.11, callers must enforce `limit > 0` and `offset >= 0`.
+This manual targets the `bluetape4k-projects` 1.12.1 tag. It does not describe the post-release auto-configuration back-off or `QueryBuilder.limit` and `offset` precondition checks as 1.11 features. In 1.11, callers must enforce `limit > 0` and `offset >= 0`.
 
-The 1.11.0 README mentions APIs that are absent from the release source: `sqlInsert`, `sqlUpdate`, `sqlDelete`, `awaitGeneratedKey`, `awaitSingleAsMap`, `awaitCount`, `awaitExists`, and `awaitList`. They are intentionally excluded; this manual uses only APIs present in release source and tests.
+The 1.12.1 README mentions APIs that are absent from the release source: `sqlInsert`, `sqlUpdate`, `sqlDelete`, `awaitGeneratedKey`, `awaitSingleAsMap`, `awaitCount`, `awaitExists`, and `awaitList`. They are intentionally excluded; this manual uses only APIs present in release source and tests.
 
 <!-- release-readme-diagrams:start -->
 ## Release diagrams {#release-diagrams}
 
-These diagrams are loaded directly from README assets published with the `1.11.0` release and pinned to its immutable commit. They describe this manual's released structure and runtime flows, not later Snapshot changes. Select a preview to open the SVG at the same release commit.
+These diagrams are loaded directly from README assets published with the `1.12.1` release and pinned to its immutable commit. They describe this manual's released structure and runtime flows, not later Snapshot changes. Select a preview to open the SVG at the same release commit.
 
 ### Extension Function API Overview diagram
 
-[![Extension Function API Overview diagram](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/data-r2dbc-diagram-01.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/data-r2dbc-diagram-01.svg)
+[![Extension Function API Overview diagram](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/data-r2dbc-diagram-01.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/data-r2dbc-diagram-01.svg)
 
-_Release README: [`data/r2dbc/README.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/data/r2dbc/README.md)_
+_Release README: [`data/r2dbc/README.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/data/r2dbc/README.md)_
 
 ### Core API Class Structure diagram
 
-[![Core API Class Structure diagram](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/data-r2dbc-diagram-02.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/data-r2dbc-diagram-02.svg)
+[![Core API Class Structure diagram](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/data-r2dbc-diagram-02.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/data-r2dbc-diagram-02.svg)
 
-_Release README: [`data/r2dbc/README.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/data/r2dbc/README.md)_
+_Release README: [`data/r2dbc/README.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/data/r2dbc/README.md)_
 
 ### JDBC vs R2DBC Comparison diagram
 
-[![JDBC vs R2DBC Comparison diagram](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/data-r2dbc-diagram-03.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/data-r2dbc-diagram-03.svg)
+[![JDBC vs R2DBC Comparison diagram](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/data-r2dbc-diagram-03.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/data-r2dbc-diagram-03.svg)
 
-_Release README: [`data/r2dbc/README.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/data/r2dbc/README.md)_
+_Release README: [`data/r2dbc/README.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/data/r2dbc/README.md)_
 
 ### R2DBC Query Execution Flow diagram
 
-[![R2DBC Query Execution Flow diagram](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/data-r2dbc-sequence-01.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/data-r2dbc-sequence-01.svg)
+[![R2DBC Query Execution Flow diagram](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/data-r2dbc-sequence-01.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/data-r2dbc-sequence-01.svg)
 
-_Release README: [`data/r2dbc/README.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/data/r2dbc/README.md)_
+_Release README: [`data/r2dbc/README.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/data/r2dbc/README.md)_
 
 <!-- release-readme-diagrams:end -->
 

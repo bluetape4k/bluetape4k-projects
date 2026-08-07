@@ -29,7 +29,7 @@ val version = CassandraAdmin.getReleaseVersion(adminSession)
 
 ## Permissions and bootstrap configuration
 
-In 1.11.0, `CqlSessionProvider` first opens an admin session so that it can create the target keyspace. The admin session comes from the builder returned by `builderSupplier`; the trailing builder block applies only to the final session. Put the contact point, `localDatacenter`, authentication, and TLS settings required by bootstrap in `builderSupplier`.
+In 1.12.1, `CqlSessionProvider` first opens an admin session so that it can create the target keyspace. The admin session comes from the builder returned by `builderSupplier`; the trailing builder block applies only to the final session. Put the contact point, `localDatacenter`, authentication, and TLS settings required by bootstrap in `builderSupplier`.
 
 ```kotlin
 val session = CqlSessionProvider.getOrCreateSession(
@@ -43,7 +43,7 @@ val session = CqlSessionProvider.getOrCreateSession(
 }
 ```
 
-The admin account needs permission to create the keyspace. If the application account cannot receive that permission, or admin and workload connections require different settings, manage the keyspace during deployment and open a directly owned session. This is the behavior before the bootstrap-builder fix merged after 1.11.0.
+The admin account needs permission to create the keyspace. If the application account cannot receive that permission, or admin and workload connections require different settings, manage the keyspace during deployment and open a directly owned session. This is the behavior before the bootstrap-builder fix merged after 1.12.1.
 
 ## What to observe
 
@@ -58,7 +58,7 @@ Keep enough logs and metrics to distinguish the failure boundary without exposin
 | Batch | Batch type, partition scope, statement count, payload, latency, timeout |
 | Shutdown | Direct/provider ownership, close start/completion, in-flight work |
 
-Version 1.11.0 logs `CqlSessionIdentity.context` at INFO when creating a session. Do not put passwords, tokens, raw user, tenant, or customer identifiers in the context. Request IDs and random UUIDs also create unbounded cache identities. Use only a bounded set of log-approved routing profile IDs or credential versions.
+Version 1.12.1 logs `CqlSessionIdentity.context` at INFO when creating a session. Do not put passwords, tokens, raw user, tenant, or customer identifiers in the context. Request IDs and random UUIDs also create unbounded cache identities. Use only a bounded set of log-approved routing profile IDs or credential versions.
 
 Logging bound query values can expose personal data or credentials. Prefer query shape and marker names for diagnosis, and apply the application's redaction policy to actual values.
 
@@ -66,7 +66,7 @@ Logging bound query values can expose personal data or credentials. Prefer query
 
 | Symptom | First boundary to check |
 | --- | --- |
-| Bootstrap authentication or connection failure | Confirm that `builderSupplier` contains the settings required by the 1.11.0 admin session |
+| Bootstrap authentication or connection failure | Confirm that `builderSupplier` contains the settings required by the 1.12.1 admin session |
 | Wrong session reused for the same keyspace | Confirm that `CqlSessionIdentity` context includes the connection/tenant boundary |
 | Flow returns only some rows | Check collection cancellation, mapper exception, and next-page fetch failure |
 | Connections remain after shutdown | Separate shutdown ownership for direct and provider-owned sessions |
@@ -93,7 +93,7 @@ Start with the closest test when reproducing an incident, then use the module co
 ## Sources and representative tests
 
 - [`CassandraAdmin.kt`](../../../../../data/cassandra/src/main/kotlin/io/bluetape4k/cassandra/CassandraAdmin.kt): keyspace creation, deletion, and release-version lookup
-- [`CqlSessionProvider.kt`](../../../../../data/cassandra/src/main/kotlin/io/bluetape4k/cassandra/CqlSessionProvider.kt): 1.11.0 bootstrap, identity cache, and shutdown registration
+- [`CqlSessionProvider.kt`](../../../../../data/cassandra/src/main/kotlin/io/bluetape4k/cassandra/CqlSessionProvider.kt): 1.12.1 bootstrap, identity cache, and shutdown registration
 - [`AbstractCassandraTest.kt`](../../../../../data/cassandra/src/test/kotlin/io/bluetape4k/cassandra/AbstractCassandraTest.kt): Cassandra 4 Testcontainers fixture and session shutdown
 - [`CassandraAdminTest.kt`](../../../../../data/cassandra/src/test/kotlin/io/bluetape4k/cassandra/CassandraAdminTest.kt): schema side effects and version verification
 - [`CqlSessionProviderTest.kt`](../../../../../data/cassandra/src/test/kotlin/io/bluetape4k/cassandra/CqlSessionProviderTest.kt): identity reuse and connection-context separation

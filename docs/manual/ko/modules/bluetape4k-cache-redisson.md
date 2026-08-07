@@ -36,7 +36,7 @@ dependencies {
 }
 ```
 
-Gradle project path는 `:bluetape4k-cache-redisson`, source directory는 `cache/cache-redisson`입니다. 1.11.0 폴더 재편 뒤에도 Maven artifact와 `io.bluetape4k.cache` package는 그대로입니다.
+Gradle project path는 `:bluetape4k-cache-redisson`, source directory는 `cache/cache-redisson`입니다. 1.12.1 폴더 재편 뒤에도 Maven artifact와 `io.bluetape4k.cache` package는 그대로입니다.
 
 ## 첫 Redisson Near Cache {#quick-start}
 
@@ -78,7 +78,7 @@ products.close()
 
 ## 학습 경로 {#concepts}
 
-아래 장은 기능 목록보다 한 단계 더 들어갑니다. 1.11.0의 실제 source와 test를 따라가며 기본값, 경쟁 조건, 실패 뒤 상태와 운영 판단을 설명합니다. 예제를 실행한 뒤 source link에서 전체 구현을 확인할 수 있습니다.
+아래 장은 기능 목록보다 한 단계 더 들어갑니다. 1.12.1의 실제 source와 test를 따라가며 기본값, 경쟁 조건, 실패 뒤 상태와 운영 판단을 설명합니다. 예제를 실행한 뒤 source link에서 전체 구현을 확인할 수 있습니다.
 
 1. [Redisson JCache와 suspend wrapper](./bluetape4k-cache-redisson/redisson-jcache-suspend.md) — provider 생성, cache 재사용, async bridge와 비원자적 `getAndPut`을 확인합니다.
 2. [Memoizer와 같은 key 계산 병합](./bluetape4k-cache-redisson/memoizers-concurrency.md) — sync·future·suspend 경로의 JVM 내부 single-flight와 실패 복구를 비교합니다.
@@ -121,7 +121,7 @@ Redis가 잠깐 불안정되었을 때 cache miss가 원본 저장소 부하로 
 
 ## 운영 {#operations}
 
-Redis latency·오류·reconnect와 local cache size, 통합 hit·miss를 함께 봅니다. 1.11.0의 native Near Cache 통계는 Redisson이 local/back hit를 분리해 노출하지 않아 `localHits`와 `localMisses`가 0이고, `backHits`/`backMisses`도 통합 조회 결과를 세는 값입니다. 이를 실제 Redis 왕복 횟수로 해석하면 안 됩니다.
+Redis latency·오류·reconnect와 local cache size, 통합 hit·miss를 함께 봅니다. 1.12.1의 native Near Cache 통계는 Redisson이 local/back hit를 분리해 노출하지 않아 `localHits`와 `localMisses`가 0이고, `backHits`/`backMisses`도 통합 조회 결과를 세는 값입니다. 이를 실제 Redis 왕복 횟수로 해석하면 안 됩니다.
 
 codec decode 오류, cache name 충돌, local capacity와 eviction, Pub/Sub reconnect 뒤 clear 횟수를 운영 점검에 포함합니다. Redisson client 종료는 애플리케이션 lifecycle이 담당합니다.
 
@@ -141,9 +141,9 @@ codec decode 오류, cache name 충돌, local capacity와 eviction, Pub/Sub reco
 
 Exposed repository cache는 [exposed-workshop](https://github.com/bluetape4k/exposed-workshop)의 cache 장에서 `JdbcCacheRepository`, `EntityMapLoader`, `EntityMapWriter`로 확장합니다. 일반 Kotlin/Spring 예제는 [bluetape4k-workshop](https://github.com/bluetape4k/bluetape4k-workshop)에서 이어갈 수 있습니다.
 
-## 1.11.0 범위 {#limitations}
+## 1.12.1 범위 {#limitations}
 
-이 매뉴얼은 `bluetape4k-projects` 1.11.0 배포 소스를 기준으로 합니다. RESP3 hybrid Near Cache API는 이 모듈에 없습니다. native Redisson 경로는 `RLocalCachedMap`, legacy JCache 경로는 Caffeine front와 Redisson JCache back을 사용하므로 두 모델을 섞어 설명하지 않습니다.
+이 매뉴얼은 `bluetape4k-projects` 1.12.1 배포 소스를 기준으로 합니다. RESP3 hybrid Near Cache API는 이 모듈에 없습니다. native Redisson 경로는 `RLocalCachedMap`, legacy JCache 경로는 Caffeine front와 Redisson JCache back을 사용하므로 두 모델을 섞어 설명하지 않습니다.
 
 memoizer의 in-flight 조율은 분산 lock이 아닙니다. native Near Cache 통계는 local/back을 정확히 분리하지 못합니다. JCache `getAndPut`의 coroutine wrapper도 원자성을 보장하지 않습니다.
 

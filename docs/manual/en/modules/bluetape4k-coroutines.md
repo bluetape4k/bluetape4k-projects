@@ -189,103 +189,103 @@ Custom Flow operators do not remove the need to understand cold versus hot strea
 <!-- release-readme-diagrams:start -->
 ## Release diagrams {#release-diagrams}
 
-These diagrams are loaded directly from README assets published with the `1.11.0` release and pinned to its immutable commit. They describe this manual's released structure and runtime flows, not later Snapshot changes. Select a preview to open the SVG at the same release commit.
+These diagrams are loaded directly from README assets published with the `1.12.1` release and pinned to its immutable commit. They describe this manual's released structure and runtime flows, not later Snapshot changes. Select a preview to open the SVG at the same release commit.
 
 ### Module Overview diagram
 
-[![Module Overview diagram](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/bluetape4k-coroutines-diagram-01.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/bluetape4k-coroutines-diagram-01.svg)
+[![Module Overview diagram](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/bluetape4k-coroutines-diagram-01.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/bluetape4k-coroutines-diagram-01.svg)
 
-_Release README: [`bluetape4k/coroutines/README.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/bluetape4k/coroutines/README.md)_
+_Release README: [`bluetape4k/coroutines/README.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/bluetape4k/coroutines/README.md)_
 
 ### Coroutines Class Structure diagram
 
-[![Coroutines Class Structure diagram](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/bluetape4k-coroutines-diagram-02.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/bluetape4k-coroutines-diagram-02.svg)
+[![Coroutines Class Structure diagram](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/bluetape4k-coroutines-diagram-02.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/bluetape4k-coroutines-diagram-02.svg)
 
-_Release README: [`bluetape4k/coroutines/README.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/bluetape4k/coroutines/README.md)_
+_Release README: [`bluetape4k/coroutines/README.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/bluetape4k/coroutines/README.md)_
 
 ### 1. Flow Extension Categories diagram
 
-[![1. Flow Extension Categories diagram](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/bluetape4k-coroutines-diagram-03.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/bluetape4k-coroutines-diagram-03.svg)
+[![1. Flow Extension Categories diagram](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/bluetape4k-coroutines-diagram-03.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/bluetape4k-coroutines-diagram-03.svg)
 
-_Release README: [`bluetape4k/coroutines/README.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/bluetape4k/coroutines/README.md)_
+_Release README: [`bluetape4k/coroutines/README.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/bluetape4k/coroutines/README.md)_
 
 ### DeferredValue Usage Flow diagram
 
-[![DeferredValue Usage Flow diagram](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/bluetape4k-coroutines-sequence-01.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/bluetape4k-coroutines-sequence-01.svg)
+[![DeferredValue Usage Flow diagram](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/bluetape4k-coroutines-sequence-01.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/bluetape4k-coroutines-sequence-01.svg)
 
-_Release README: [`bluetape4k/coroutines/README.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/bluetape4k/coroutines/README.md)_
+_Release README: [`bluetape4k/coroutines/README.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/bluetape4k/coroutines/README.md)_
 
 ### 2. chunked(n) — Fixed-Size Chunks diagram
 
-[![2. chunked(n) — Fixed-Size Chunks diagram](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/bluetape4k-coroutines-sequence-02.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/bluetape4k-coroutines-sequence-02.svg)
+[![2. chunked(n) — Fixed-Size Chunks diagram](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/bluetape4k-coroutines-sequence-02.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/bluetape4k-coroutines-sequence-02.svg)
 
-_Release README: [`bluetape4k/coroutines/README.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/bluetape4k/coroutines/README.md)_
+_Release README: [`bluetape4k/coroutines/README.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/bluetape4k/coroutines/README.md)_
 
 ### 3. windowed(size, step) — Sliding Window diagram
 
-[![3. windowed(size, step) — Sliding Window diagram](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/bluetape4k-coroutines-sequence-03.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/bluetape4k-coroutines-sequence-03.svg)
+[![3. windowed(size, step) — Sliding Window diagram](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/bluetape4k-coroutines-sequence-03.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/bluetape4k-coroutines-sequence-03.svg)
 
-_Release README: [`bluetape4k/coroutines/README.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/bluetape4k/coroutines/README.md)_
+_Release README: [`bluetape4k/coroutines/README.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/bluetape4k/coroutines/README.md)_
 
 ### 4. sliding(n) / bufferedSliding(n) — One-Step Sliding Window diagram
 
-[![4. sliding(n) / bufferedSliding(n) — One-Step Sliding Window diagram](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/bluetape4k-coroutines-sequence-04.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/bluetape4k-coroutines-sequence-04.svg)
+[![4. sliding(n) / bufferedSliding(n) — One-Step Sliding Window diagram](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/bluetape4k-coroutines-sequence-04.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/bluetape4k-coroutines-sequence-04.svg)
 
-_Release README: [`bluetape4k/coroutines/README.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/bluetape4k/coroutines/README.md)_
+_Release README: [`bluetape4k/coroutines/README.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/bluetape4k/coroutines/README.md)_
 
 ### 5. mapParallel(parallelism) — Parallel Transformation diagram
 
-[![5. mapParallel(parallelism) — Parallel Transformation diagram](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/bluetape4k-coroutines-sequence-05.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/bluetape4k-coroutines-sequence-05.svg)
+[![5. mapParallel(parallelism) — Parallel Transformation diagram](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/bluetape4k-coroutines-sequence-05.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/bluetape4k-coroutines-sequence-05.svg)
 
-_Release README: [`bluetape4k/coroutines/README.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/bluetape4k/coroutines/README.md)_
+_Release README: [`bluetape4k/coroutines/README.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/bluetape4k/coroutines/README.md)_
 
 ### 6. concatMapEager { } — Order-Preserving Eager Parallel Collection diagram
 
-[![6. concatMapEager { } — Order-Preserving Eager Parallel Collection diagram](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/bluetape4k-coroutines-sequence-06.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/bluetape4k-coroutines-sequence-06.svg)
+[![6. concatMapEager { } — Order-Preserving Eager Parallel Collection diagram](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/bluetape4k-coroutines-sequence-06.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/bluetape4k-coroutines-sequence-06.svg)
 
-_Release README: [`bluetape4k/coroutines/README.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/bluetape4k/coroutines/README.md)_
+_Release README: [`bluetape4k/coroutines/README.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/bluetape4k/coroutines/README.md)_
 
 ### 7. bufferingDebounce(timeout) — Debounced Batching diagram
 
-[![7. bufferingDebounce(timeout) — Debounced Batching diagram](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/bluetape4k-coroutines-sequence-07.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/bluetape4k-coroutines-sequence-07.svg)
+[![7. bufferingDebounce(timeout) — Debounced Batching diagram](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/bluetape4k-coroutines-sequence-07.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/bluetape4k-coroutines-sequence-07.svg)
 
-_Release README: [`bluetape4k/coroutines/README.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/bluetape4k/coroutines/README.md)_
+_Release README: [`bluetape4k/coroutines/README.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/bluetape4k/coroutines/README.md)_
 
 ### 8. throttleLeading / throttleTrailing / throttleBoth — Throttle Windows diagram
 
-[![8. throttleLeading / throttleTrailing / throttleBoth — Throttle Windows diagram](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/bluetape4k-coroutines-sequence-08.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/bluetape4k-coroutines-sequence-08.svg)
+[![8. throttleLeading / throttleTrailing / throttleBoth — Throttle Windows diagram](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/bluetape4k-coroutines-sequence-08.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/bluetape4k-coroutines-sequence-08.svg)
 
-_Release README: [`bluetape4k/coroutines/README.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/bluetape4k/coroutines/README.md)_
+_Release README: [`bluetape4k/coroutines/README.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/bluetape4k/coroutines/README.md)_
 
 ### 9. takeUntil(notifier) / skipUntil(notifier) — Gate Control diagram
 
-[![9. takeUntil(notifier) / skipUntil(notifier) — Gate Control diagram](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/bluetape4k-coroutines-sequence-09.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/bluetape4k-coroutines-sequence-09.svg)
+[![9. takeUntil(notifier) / skipUntil(notifier) — Gate Control diagram](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/bluetape4k-coroutines-sequence-09.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/bluetape4k-coroutines-sequence-09.svg)
 
-_Release README: [`bluetape4k/coroutines/README.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/bluetape4k/coroutines/README.md)_
+_Release README: [`bluetape4k/coroutines/README.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/bluetape4k/coroutines/README.md)_
 
 ### 10. merge(flows) — Unordered Merge diagram
 
-[![10. merge(flows) — Unordered Merge diagram](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/bluetape4k-coroutines-sequence-10.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/bluetape4k-coroutines-sequence-10.svg)
+[![10. merge(flows) — Unordered Merge diagram](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/bluetape4k-coroutines-sequence-10.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/bluetape4k-coroutines-sequence-10.svg)
 
-_Release README: [`bluetape4k/coroutines/README.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/bluetape4k/coroutines/README.md)_
+_Release README: [`bluetape4k/coroutines/README.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/bluetape4k/coroutines/README.md)_
 
 ### 11. pairwise() / zipWithNext() — Adjacent Pairs diagram
 
-[![11. pairwise() / zipWithNext() — Adjacent Pairs diagram](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/bluetape4k-coroutines-sequence-11.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/bluetape4k-coroutines-sequence-11.svg)
+[![11. pairwise() / zipWithNext() — Adjacent Pairs diagram](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/bluetape4k-coroutines-sequence-11.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/bluetape4k-coroutines-sequence-11.svg)
 
-_Release README: [`bluetape4k/coroutines/README.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/bluetape4k/coroutines/README.md)_
+_Release README: [`bluetape4k/coroutines/README.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/bluetape4k/coroutines/README.md)_
 
 ### 12. scanWith(initial) { } — Lazy Scan Seed diagram
 
-[![12. scanWith(initial) { } — Lazy Scan Seed diagram](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/bluetape4k-coroutines-sequence-12.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/bluetape4k-coroutines-sequence-12.svg)
+[![12. scanWith(initial) { } — Lazy Scan Seed diagram](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/bluetape4k-coroutines-sequence-12.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/bluetape4k-coroutines-sequence-12.svg)
 
-_Release README: [`bluetape4k/coroutines/README.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/bluetape4k/coroutines/README.md)_
+_Release README: [`bluetape4k/coroutines/README.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/bluetape4k/coroutines/README.md)_
 
 ### 13. AsyncFlow — Ordered Async Results diagram
 
-[![13. AsyncFlow — Ordered Async Results diagram](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/bluetape4k-coroutines-sequence-13.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/bluetape4k-coroutines-sequence-13.svg)
+[![13. AsyncFlow — Ordered Async Results diagram](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/bluetape4k-coroutines-sequence-13.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/bluetape4k-coroutines-sequence-13.svg)
 
-_Release README: [`bluetape4k/coroutines/README.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/bluetape4k/coroutines/README.md)_
+_Release README: [`bluetape4k/coroutines/README.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/bluetape4k/coroutines/README.md)_
 
 <!-- release-readme-diagrams:end -->
 

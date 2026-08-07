@@ -51,7 +51,7 @@ No match returns `0L` for count and `false` for exists. Database and mapping fai
 
 ## Keep Flow through WebFlux
 
-The 1.11.0 `PostController` returns the repository `Flow<Post>` directly.
+The 1.12.1 `PostController` returns the repository `Flow<Post>` directly.
 
 ```kotlin
 @GetMapping

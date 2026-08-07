@@ -44,7 +44,7 @@ Calling `getCollectionOf<Order>("orders")` does not register a codec. Configure 
 
 ## Optional kotlinx.serialization codec
 
-`mongo.bson.kotlinx` is `compileOnly` in the 1.11.0 build. If an application uses that API, verify that its runtime dependency is present. Successful module compilation does not prove codec availability in the deployed classpath.
+`mongo.bson.kotlinx` is `compileOnly` in the 1.12.1 build. If an application uses that API, verify that its runtime dependency is present. Successful module compilation does not prove codec availability in the deployed classpath.
 
 A codec change can alter stored representation. Cross-test old and new codecs against existing documents, field renames, and default values.
 

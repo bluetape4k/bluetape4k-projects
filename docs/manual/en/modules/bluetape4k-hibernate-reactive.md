@@ -69,7 +69,7 @@ val saved = sessionFactory.withTransactionSuspending { session ->
 
 ## Learning path {#concepts}
 
-These chapters go beyond an API inventory. Each explains why a boundary matters, gives concrete examples, and links to the 1.11.0 release source and MySQL Testcontainers tests. Readers can move directly from explanation to executable evidence.
+These chapters go beyond an API inventory. Each explains why a boundary matters, gives concrete examples, and links to the 1.12.1 release source and MySQL Testcontainers tests. Readers can move directly from explanation to executable evidence.
 
 1. [Choosing and bootstrapping Mutiny or Stage](./bluetape4k-hibernate-reactive/mutiny-stage-bootstrap.md) — provider setup, factory unwrapping, and API differences.
 2. [Session and transaction lifecycle](./bluetape4k-hibernate-reactive/session-transaction-lifecycle.md) — regular, tenant, and stateless scopes plus factory ownership.
@@ -92,9 +92,9 @@ Hibernate Reactive uses the JPA metamodel generator instead of Querydsl. The `Au
 
 ## Configuration {#configuration}
 
-A reactive persistence unit uses `org.hibernate.reactive.provider.ReactivePersistenceProvider` and may list entities explicitly. The 1.11.0 test XML uses the Jakarta Persistence 3.0 XML schema while the BOM resolves the Jakarta Persistence 3.2 API line. Do not describe the XML schema and library API version as the same setting.
+A reactive persistence unit uses `org.hibernate.reactive.provider.ReactivePersistenceProvider` and may list entities explicitly. The 1.12.1 test XML uses the Jakarta Persistence 3.0 XML schema while the BOM resolves the Jakarta Persistence 3.2 API line. Do not describe the XML schema and library API version as the same setting.
 
-The subordinate dependency versions printed in the module README do not match the 1.11.0 version catalog. Do not copy them into consumer instructions; verify compatibility through the central BOM.
+The subordinate dependency versions printed in the module README do not match the 1.12.1 version catalog. Do not copy them into consumer instructions; verify compatibility through the central BOM.
 
 ## Failure behavior {#failures}
 
@@ -118,9 +118,9 @@ The representative suites cover Mutiny and Stage factory unwrapping, session and
 
 No separate workshop is registered yet. `MutinySessionFactoryExamples`, `StageSessionFactoryExamples`, both `SessionSupportTest` classes, and both `StatelessSessionExamples` classes serve as executable learning material linked from the chapters.
 
-## 1.11.0 scope {#limitations}
+## 1.12.1 scope {#limitations}
 
-This manual describes only production source and tests in the `bluetape4k-projects` 1.11.0 tag. The module does not provide schema migration, driver-level SQL cancellation guarantees, Querydsl, or a process-wide retry policy. There are no additional production APIs between 1.11.0 and the current source, but later version manuals must compare again.
+This manual describes only production source and tests in the `bluetape4k-projects` 1.12.1 tag. The module does not provide schema migration, driver-level SQL cancellation guarantees, Querydsl, or a process-wide retry policy. There are no additional production APIs between 1.12.1 and the current source, but later version manuals must compare again.
 
 ## Source and tests {#sources}
 
@@ -136,24 +136,24 @@ This manual describes only production source and tests in the `bluetape4k-projec
 <!-- release-readme-diagrams:start -->
 ## Release diagrams {#release-diagrams}
 
-These diagrams are loaded directly from README assets published with the `1.11.0` release and pinned to its immutable commit. They describe this manual's released structure and runtime flows, not later Snapshot changes. Select a preview to open the SVG at the same release commit.
+These diagrams are loaded directly from README assets published with the `1.12.1` release and pinned to its immutable commit. They describe this manual's released structure and runtime flows, not later Snapshot changes. Select a preview to open the SVG at the same release commit.
 
 ### Reactive Extension Structure diagram
 
-[![Reactive Extension Structure diagram](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/data-hibernate-reactive-diagram-01.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/data-hibernate-reactive-diagram-01.svg)
+[![Reactive Extension Structure diagram](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/data-hibernate-reactive-diagram-01.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/data-hibernate-reactive-diagram-01.svg)
 
-_Release README: [`data/hibernate-reactive/README.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/data/hibernate-reactive/README.md)_
+_Release README: [`data/hibernate-reactive/README.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/data/hibernate-reactive/README.md)_
 
 ### Hibernate Reactive API Structure diagram
 
-[![Hibernate Reactive API Structure diagram](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/data-hibernate-reactive-diagram-02.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/data-hibernate-reactive-diagram-02.svg)
+[![Hibernate Reactive API Structure diagram](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/data-hibernate-reactive-diagram-02.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/data-hibernate-reactive-diagram-02.svg)
 
-_Release README: [`data/hibernate-reactive/README.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/data/hibernate-reactive/README.md)_
+_Release README: [`data/hibernate-reactive/README.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/data/hibernate-reactive/README.md)_
 
 ### Session Type Comparison diagram
 
-[![Session Type Comparison diagram](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/data-hibernate-reactive-diagram-03.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/data-hibernate-reactive-diagram-03.svg)
+[![Session Type Comparison diagram](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/data-hibernate-reactive-diagram-03.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/data-hibernate-reactive-diagram-03.svg)
 
-_Release README: [`data/hibernate-reactive/README.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/data/hibernate-reactive/README.md)_
+_Release README: [`data/hibernate-reactive/README.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/data/hibernate-reactive/README.md)_
 
 <!-- release-readme-diagrams:end -->

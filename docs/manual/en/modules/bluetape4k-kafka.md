@@ -1,7 +1,7 @@
 ---
 manualId: bluetape4k-kafka
 title: "Kafka Client Extensions"
-description: "Kafka 3.x clients, coroutine producers, Spring Kafka and Reactor Kafka adapters, and Kafka Streams Kotlin factories, based on the 1.11.0 sources."
+description: "Kafka 3.x clients, coroutine producers, Spring Kafka and Reactor Kafka adapters, and Kafka Streams Kotlin factories, based on the 1.12.1 sources."
 kind: library
 group: messaging
 learningOrder: 700
@@ -96,7 +96,7 @@ producer.use {
 
 ## Integrations {#integrations}
 
-The 1.11.0 build exposes Kafka clients as API dependencies and uses Spring Kafka and Reactor Kafka as implementation dependencies. Kafka Streams, Spring Kafka test, resilience4j, Kryo/Fory, and several compressors are optional edges. Add the corresponding runtime dependency before using those APIs.
+The 1.12.1 build exposes Kafka clients as API dependencies and uses Spring Kafka and Reactor Kafka as implementation dependencies. Kafka Streams, Spring Kafka test, resilience4j, Kryo/Fory, and several compressors are optional edges. Add the corresponding runtime dependency before using those APIs.
 
 This artifact is the Kafka 3.9.x/Spring Kafka 3.x/Jackson 2 line. Choose `bluetape4k-kafka4` for Kafka 4.2.x/Spring Kafka 4.x/Jackson 3. Sending Logback events to Kafka belongs to the separate [`bluetape4k-kafka-logback`](./bluetape4k-kafka-logback.md) artifact.
 
@@ -116,7 +116,7 @@ Native and Spring send adapters propagate callback or future failures to the sus
 
 Observe producer send errors, retries, request latency, and buffer availability; consumer lag, rebalance, poll intervals, and commit failures; and Streams state-store restoration. The application owns shutdown ordering: stop input, finish or cancel in-flight work, commit/flush as required, and close clients.
 
-The 1.11.0 build excludes the vulnerable `org.lz4:lz4-java` artifact and exposes the compatible `at.yawk.lz4` implementation. Check the deployed dependency tree to ensure the old artifact is not reintroduced.
+The 1.12.1 build excludes the vulnerable `org.lz4:lz4-java` artifact and exposes the compatible `at.yawk.lz4` implementation. Check the deployed dependency tree to ensure the old artifact is not reintroduced.
 
 ## Testing {#testing}
 
@@ -140,39 +140,39 @@ The full task includes Testcontainers-backed Kafka tests:
 
 No dedicated workshop is registered in the manual manifest. Use the README to scan the API shape and the `coroutines`, `spring/core`, and `streams/kstream` tests as runnable study material. Add application tests with production-equivalent serializers, security, and topic settings.
 
-## 1.11.0 scope {#limitations}
+## 1.12.1 scope {#limitations}
 
-This manual targets release `1.11.0`, commit `6187173b58e8b4c5c435c145e00e94708f31ef75`. The development branch later added per-test temporary-directory isolation and diagnostics/error handling around `SuspendKafkaConsumerTemplate.close()`. In 1.11.0 only an `AutoCloseable` receiver is closed, a non-closeable receiver produces no warning, and a close failure propagates directly.
+This manual targets release `1.12.1`, commit `7cf0b73646af05c0f8872cc4f6a16983949c4e3e`. The development branch later added per-test temporary-directory isolation and diagnostics/error handling around `SuspendKafkaConsumerTemplate.close()`. In 1.12.1 only an `AutoCloseable` receiver is closed, a non-closeable receiver produces no warning, and a close failure propagates directly.
 
 <!-- release-readme-diagrams:start -->
 ## Release diagrams {#release-diagrams}
 
-These diagrams are loaded directly from README assets published with the `1.11.0` release and pinned to its immutable commit. They describe this manual's released structure and runtime flows, not later Snapshot changes. Select a preview to open the SVG at the same release commit.
+These diagrams are loaded directly from README assets published with the `1.12.1` release and pinned to its immutable commit. They describe this manual's released structure and runtime flows, not later Snapshot changes. Select a preview to open the SVG at the same release commit.
 
 ### Kafka API Structure
 
-[![Kafka API Structure](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/infra-kafka-diagram-01.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/infra-kafka-diagram-01.svg)
+[![Kafka API Structure](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/infra-kafka-diagram-01.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/infra-kafka-diagram-01.svg)
 
-_Release README: [`infra/kafka/README.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/infra/kafka/README.md)_
+_Release README: [`infra/kafka/README.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/infra/kafka/README.md)_
 
 ### Kafka Streams Processing Flow diagram
 
-[![Kafka Streams Processing Flow diagram](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/infra-kafka-diagram-02.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/infra-kafka-diagram-02.svg)
+[![Kafka Streams Processing Flow diagram](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/infra-kafka-diagram-02.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/infra-kafka-diagram-02.svg)
 
-_Release README: [`infra/kafka/README.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/infra/kafka/README.md)_
+_Release README: [`infra/kafka/README.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/infra/kafka/README.md)_
 
 ### Producer/Consumer Message Flow diagram
 
-[![Producer/Consumer Message Flow diagram](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/infra-kafka-sequence-01.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/infra-kafka-sequence-01.svg)
+[![Producer/Consumer Message Flow diagram](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/infra-kafka-sequence-01.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/infra-kafka-sequence-01.svg)
 
-_Release README: [`infra/kafka/README.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/infra/kafka/README.md)_
+_Release README: [`infra/kafka/README.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/infra/kafka/README.md)_
 
 <!-- release-readme-diagrams:end -->
 
 ## Sources and tests {#sources}
 
 - [Module README](../../../../infra/kafka/README.md)
-- [1.11.0 build](../../../../infra/kafka/build.gradle.kts)
+- [1.12.1 build](../../../../infra/kafka/build.gradle.kts)
 - [`ProducerCoroutines.kt`](../../../../infra/kafka/src/main/kotlin/io/bluetape4k/kafka/coroutines/ProducerCoroutines.kt)
 - [`KafkaCodec.kt`](../../../../infra/kafka/src/main/kotlin/io/bluetape4k/kafka/codec/KafkaCodec.kt)
 - [`SuspendKafkaProducerTemplate.kt`](../../../../infra/kafka/src/main/kotlin/io/bluetape4k/kafka/spring/core/SuspendKafkaProducerTemplate.kt)

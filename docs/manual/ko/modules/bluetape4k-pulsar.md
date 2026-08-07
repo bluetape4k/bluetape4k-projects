@@ -1,7 +1,7 @@
 ---
 manualId: bluetape4k-pulsar
 title: "Apache Pulsar 클라이언트 확장"
-description: "Apache Pulsar Java Client를 Kotlin DSL, suspend 함수, Flow와 Jackson 2·3 JSON Schema로 사용하는 방법과 1.11.0의 수명주기 경계를 설명합니다."
+description: "Apache Pulsar Java Client를 Kotlin DSL, suspend 함수, Flow와 Jackson 2·3 JSON Schema로 사용하는 방법과 1.12.1의 수명주기 경계를 설명합니다."
 kind: library
 group: messaging
 learningOrder: 740
@@ -13,7 +13,7 @@ learningOrder: 740
 
 `bluetape4k-pulsar`는 Apache Pulsar Java Client 위에 Kotlin용 편의 API를 더합니다. client·producer·consumer·reader builder를 Kotlin DSL로 구성하고, `CompletableFuture` 기반 작업을 `suspend` 함수로 기다리며, 연속 발행·수신·읽기를 `Flow`로 연결할 수 있습니다. Jackson 2와 Jackson 3용 JSON `Schema<T>`도 선택해서 사용할 수 있습니다.
 
-이 모듈은 broker, topic, subscription 또는 schema registry를 관리하지 않습니다. 재연결, batching, compression, routing, receiver queue와 broker protocol은 Pulsar Client가 맡습니다. 이 매뉴얼은 1.11.0에서 bluetape4k가 얹는 얇은 경계와 호출자가 계속 책임져야 하는 부분을 나눠 설명합니다.
+이 모듈은 broker, topic, subscription 또는 schema registry를 관리하지 않습니다. 재연결, batching, compression, routing, receiver queue와 broker protocol은 Pulsar Client가 맡습니다. 이 매뉴얼은 1.12.1에서 bluetape4k가 얹는 얇은 경계와 호출자가 계속 책임져야 하는 부분을 나눠 설명합니다.
 
 ## 사용하기 전에 결정할 것 {#when-to-use}
 
@@ -22,7 +22,7 @@ learningOrder: 740
 - Consumer의 subscription type과 개별·누적 ack 정책을 먼저 정합니다.
 - Jackson 2와 Jackson 3 중 하나를 고르고 producer와 consumer가 같은 JSON·schema 계약을 쓰도록 맞춥니다.
 - `Flow`가 병렬 발행이나 자동 ack를 제공한다고 가정하지 않습니다.
-- 취소 중 close 완료가 반드시 필요한 서비스라면 1.11.0의 cleanup 한계를 애플리케이션 종료 절차에서 보완합니다.
+- 취소 중 close 완료가 반드시 필요한 서비스라면 1.12.1의 cleanup 한계를 애플리케이션 종료 절차에서 보완합니다.
 
 ## 의존성 추가 {#coordinates}
 
@@ -54,7 +54,7 @@ withPulsarClient("pulsar://localhost:6650") {
 }
 ```
 
-`withPulsarClient`와 `withProducer`는 블록이 끝나면 `closeAsync()`를 호출합니다. 1.11.0 구현은 close 실패를 경고로 남기고 삼키며, 취소된 coroutine에서 close를 `NonCancellable`로 감싸지는 않습니다. 이 코드는 scope를 간결하게 만드는 helper이지 종료를 끝까지 보장하는 장치는 아닙니다.
+`withPulsarClient`와 `withProducer`는 블록이 끝나면 `closeAsync()`를 호출합니다. 1.12.1 구현은 close 실패를 경고로 남기고 삼키며, 취소된 coroutine에서 close를 `NonCancellable`로 감싸지는 않습니다. 이 코드는 scope를 간결하게 만드는 helper이지 종료를 끝까지 보장하는 장치는 아닙니다.
 
 ## API 선택 지도 {#api-by-task}
 
@@ -72,9 +72,9 @@ withPulsarClient("pulsar://localhost:6650") {
 
 ## 학습 경로 {#concepts}
 
-아래 여섯 장은 1.11.0 배포 소스와 테스트를 따라 client 소유권에서 wire contract, 메시지 처리와 운영 한계까지 이어집니다. 각 장에는 실제 API 조합, 이 모듈이 하지 않는 일, 실패·취소 시 확인할 항목이 함께 있습니다.
+아래 여섯 장은 1.12.1 배포 소스와 테스트를 따라 client 소유권에서 wire contract, 메시지 처리와 운영 한계까지 이어집니다. 각 장에는 실제 API 조합, 이 모듈이 하지 않는 일, 실패·취소 시 확인할 항목이 함께 있습니다.
 
-1. [Client 구성과 수명주기](./bluetape4k-pulsar/client-lifecycle-configuration.md) — URL·builder 구성, 직접 소유와 block scope, 1.11.0 cleanup 한계를 확인합니다.
+1. [Client 구성과 수명주기](./bluetape4k-pulsar/client-lifecycle-configuration.md) — URL·builder 구성, 직접 소유와 block scope, 1.12.1 cleanup 한계를 확인합니다.
 2. [Jackson 2·3 Schema와 wire 호환성](./bluetape4k-pulsar/jackson-schemas-wire-compatibility.md) — `SchemaInfo`, mapper 선택, runtime dependency와 교차 버전 검증을 다룹니다.
 3. [Producer와 coroutine 발행](./bluetape4k-pulsar/producers-coroutine-send.md) — 단건·메시지 DSL·순차 Flow 발행과 실패 경계를 설명합니다.
 4. [Consumer, Flow와 ack](./bluetape4k-pulsar/consumers-flow-acknowledgement.md) — 무한 수신 Flow, 개별·누적 ack, subscription type을 연결합니다.
@@ -118,7 +118,7 @@ val client = pulsarClient {
 
 client connection, producer send latency와 pending queue, consumer backlog·redelivery·unacked count, ack failure, reader lag를 관찰합니다. topic과 subscription은 제한된 metric label로 사용하고 message key나 tenant처럼 cardinality가 계속 늘어나는 값은 label에 넣지 않습니다.
 
-재시도는 처리의 idempotency와 함께 설계합니다. shutdown 시 신규 발행·수신을 먼저 막고 in-flight 작업을 제한 시간 동안 기다린 뒤 producer, consumer, reader, client 순서로 닫습니다. 1.11.0 `with*`만으로 취소 상황의 cleanup 완료를 보장하지 않습니다.
+재시도는 처리의 idempotency와 함께 설계합니다. shutdown 시 신규 발행·수신을 먼저 막고 in-flight 작업을 제한 시간 동안 기다린 뒤 producer, consumer, reader, client 순서로 닫습니다. 1.12.1 `with*`만으로 취소 상황의 cleanup 완료를 보장하지 않습니다.
 
 ## 테스트 {#testing}
 
@@ -136,11 +136,11 @@ Jackson schema의 encode/decode와 clone은 broker 없이도 검증할 수 있�
 
 운영 예제로 발전시킬 때는 인증·TLS, schema evolution, idempotent handler, redelivery와 graceful shutdown 검증을 추가합니다. 테스트 fixture인 `AbstractPulsarTest`는 published API가 아닙니다.
 
-## 1.11.0 범위 {#limitations}
+## 1.12.1 범위 {#limitations}
 
-이 매뉴얼은 release commit `6187173b58e8b4c5c435c145e00e94708f31ef75`의 1.11.0 소스와 테스트를 기준으로 합니다. 이후 branch에는 `PulsarCloseSupport`와 취소 중 cleanup 검증이 추가되었지만 1.11.0에는 없습니다.
+이 매뉴얼은 release commit `7cf0b73646af05c0f8872cc4f6a16983949c4e3e`의 1.12.1 소스와 테스트를 기준으로 합니다. 이후 branch에는 `PulsarCloseSupport`와 취소 중 cleanup 검증이 추가되었지만 1.12.1에는 없습니다.
 
-1.11.0은 admin API, topic·tenant provisioning, schema migration, transaction orchestration, retry·dead-letter policy, health indicator와 metrics exporter를 제공하지 않습니다. `with*` close는 취소 불가능한 context에서 실행되지 않으며 close 실패도 호출자에게 다시 던지지 않습니다.
+1.12.1은 admin API, topic·tenant provisioning, schema migration, transaction orchestration, retry·dead-letter policy, health indicator와 metrics exporter를 제공하지 않습니다. `with*` close는 취소 불가능한 context에서 실행되지 않으며 close 실패도 호출자에게 다시 던지지 않습니다.
 
 ## Source와 tests {#sources}
 
@@ -159,12 +159,12 @@ Jackson schema의 encode/decode와 clone은 broker 없이도 검증할 수 있�
 <!-- release-readme-diagrams:start -->
 ## 배포본 다이어그램 {#release-diagrams}
 
-아래 그림은 `1.11.0` 배포본의 README 자산을 해당 배포 커밋에서 직접 불러옵니다. 이후 SNAPSHOT이 아니라 이 매뉴얼 버전의 구조와 실행 흐름을 보여 줍니다. 미리보기를 누르면 같은 배포 커밋의 SVG 원본이 열립니다.
+아래 그림은 `1.12.1` 배포본의 README 자산을 해당 배포 커밋에서 직접 불러옵니다. 이후 SNAPSHOT이 아니라 이 매뉴얼 버전의 구조와 실행 흐름을 보여 줍니다. 미리보기를 누르면 같은 배포 커밋의 SVG 원본이 열립니다.
 
 ### pulsar 클래스 구조도
 
-[![pulsar 클래스 구조도](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/infra-pulsar-diagram-01.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/infra-pulsar-diagram-01.svg)
+[![pulsar 클래스 구조도](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/infra-pulsar-diagram-01.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/infra-pulsar-diagram-01.svg)
 
-_배포본 README: [`infra/pulsar/README.ko.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/infra/pulsar/README.ko.md)_
+_배포본 README: [`infra/pulsar/README.ko.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/infra/pulsar/README.ko.md)_
 
 <!-- release-readme-diagrams:end -->

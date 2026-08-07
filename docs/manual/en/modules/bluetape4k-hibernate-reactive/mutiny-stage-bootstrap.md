@@ -17,7 +17,7 @@ Hibernate Reactive exposes the same ORM model through Mutiny and Stage APIs. `bl
 | Integration with Java libraries uses `CompletionStage` | Stage |
 | Kotlin services expose only suspending functions | Pick the API the team can operate consistently |
 
-Mutiny is not a complete alias for Stage. In 1.11.0, Mutiny `findAs` and `getAs` provide additional JPA `LockModeType` and EntityGraph lookup overloads that Stage does not have.
+Mutiny is not a complete alias for Stage. In 1.12.1, Mutiny `findAs` and `getAs` provide additional JPA `LockModeType` and EntityGraph lookup overloads that Stage does not have.
 
 ## Configure the reactive provider
 
@@ -32,7 +32,7 @@ A reactive persistence unit declares its provider and entities.
 </persistence-unit>
 ```
 
-The tests use the Jakarta Persistence 3.0 XML schema. That is separate from the Jakarta Persistence API version supplied by the BOM. The Hibernate Reactive and ORM versions printed in the README also differ from the 1.11.0 version catalog, so do not copy that version table into application configuration.
+The tests use the Jakarta Persistence 3.0 XML schema. That is separate from the Jakarta Persistence API version supplied by the BOM. The Hibernate Reactive and ORM versions printed in the README also differ from the 1.12.1 version catalog, so do not copy that version table into application configuration.
 
 ## Unwrap the factory
 

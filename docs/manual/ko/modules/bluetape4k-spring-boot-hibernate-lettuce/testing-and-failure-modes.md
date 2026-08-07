@@ -9,7 +9,7 @@ chapterId: testing-and-failure-modes
 
 ## 두 층으로 나눠 테스트한다
 
-설정 변환과 실제 cache 동작을 한 테스트에 모두 넣으면 실패 원인을 찾기 어렵습니다. 1.11.0 모듈도 두 층으로 나눕니다.
+설정 변환과 실제 cache 동작을 한 테스트에 모두 넣으면 실패 원인을 찾기 어렵습니다. 1.12.1 모듈도 두 층으로 나눕니다.
 
 | 테스트 | 외부 자원 | 검증 내용 |
 | --- | --- | --- |
@@ -63,7 +63,7 @@ put 횟수는 insert 후 callback 영향이 있을 수 있어 테스트가 최�
 
 ## 통합 테스트 주의점
 
-1.11.0의 좁은 test classpath에서는 Spring Boot 4 split auto-configuration이 JPA/JDBC bean을 중복 등록할 수 있어 통합 테스트가 일부 framework default를 명시적으로 제외합니다. 이는 일반 애플리케이션에 그대로 복사할 설정이 아니라 이 모듈의 test fixture 제약입니다.
+1.12.1의 좁은 test classpath에서는 Spring Boot 4 split auto-configuration이 JPA/JDBC bean을 중복 등록할 수 있어 통합 테스트가 일부 framework default를 명시적으로 제외합니다. 이는 일반 애플리케이션에 그대로 복사할 설정이 아니라 이 모듈의 test fixture 제약입니다.
 
 Testcontainers test는 다른 database·Redis suite와 병렬로 돌리지 않습니다. Docker 자원과 port보다 shared daemon·메모리 경합이 결과를 흐릴 수 있습니다.
 

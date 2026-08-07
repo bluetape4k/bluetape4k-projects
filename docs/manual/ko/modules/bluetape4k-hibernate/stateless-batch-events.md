@@ -23,7 +23,7 @@ session.withBatchSize(100) {
 }
 ```
 
-batch size만 바꿔서는 1차 cache가 줄지 않습니다. 대량 insert에서는 일정 간격으로 flush와 clear를 호출합니다. 이전 batch 값을 읽지 못하면 1.11.0 helper는 0을 사용하고, 복원 실패는 warn log만 남깁니다.
+batch size만 바꿔서는 1차 cache가 줄지 않습니다. 대량 insert에서는 일정 간격으로 flush와 clear를 호출합니다. 이전 batch 값을 읽지 못하면 1.12.1 helper는 0을 사용하고, 복원 실패는 warn log만 남깁니다.
 
 ## StatelessSession이 포기하는 기능
 
@@ -45,11 +45,11 @@ sessionFactory.withStateless { stateless ->
 
 연관 entity는 위 예제처럼 명시적으로 저장합니다. 일반 Session의 entity graph 동작을 그대로 기대하면 일부 row만 저장될 수 있습니다.
 
-## 1.11.0 Spring 경로 제한
+## 1.12.1 Spring 경로 제한
 
-`StatelessSessionFactoryBean`은 활성 Spring transaction에서 stateless proxy를 제공하려 하지만 1.11.0에서는 `SessionFactory` 자체를 transaction resource key로 사용합니다. 기존 JPA resource와 충돌할 수 있으며 이 문제는 배포 뒤 dedicated key로 수정됐습니다.
+`StatelessSessionFactoryBean`은 활성 Spring transaction에서 stateless proxy를 제공하려 하지만 1.12.1에서는 `SessionFactory` 자체를 transaction resource key로 사용합니다. 기존 JPA resource와 충돌할 수 있으며 이 문제는 배포 뒤 dedicated key로 수정됐습니다.
 
-1.11.0 매뉴얼과 예제에서는 Spring 주입 proxy를 기본 경로로 권하지 않습니다. 명시적인 `SessionFactory.withStateless`를 우선하고, Spring transaction과 같은 connection을 반드시 공유해야 한다면 버전과 resource binding을 별도로 검증합니다.
+1.12.1 매뉴얼과 예제에서는 Spring 주입 proxy를 기본 경로로 권하지 않습니다. 명시적인 `SessionFactory.withStateless`를 우선하고, Spring transaction과 같은 connection을 반드시 공유해야 한다면 버전과 resource binding을 별도로 검증합니다.
 
 ## Event listener와 로그
 

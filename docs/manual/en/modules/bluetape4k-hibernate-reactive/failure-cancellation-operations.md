@@ -17,7 +17,7 @@ Transaction failure handling delegates to Hibernate Reactive `withTransaction`. 
 
 Every Mutiny and Stage callback catches and rethrows `CancellationException`. This prevents the coroutine-to-`Uni` or coroutine-to-`CompletableFuture` boundary from turning cancellation into an ordinary failure.
 
-The 1.11.0 tests do not prove immediate cancellation of an in-flight driver query. Cancellation is a coroutine cooperation contract, not a guarantee about when SQL already sent to the database stops. Configure query and database-side timeouts separately.
+The 1.12.1 tests do not prove immediate cancellation of an in-flight driver query. Cancellation is a coroutine cooperation contract, not a guarantee about when SQL already sent to the database stops. Configure query and database-side timeouts separately.
 
 ## Do not block the event loop
 

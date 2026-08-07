@@ -54,7 +54,7 @@ redis-ttl:
   default: 1500ms
 ```
 
-The 1.11.0 tests verify that both values remain `500ms` and `1500ms`; sub-second values are not rounded to seconds.
+The 1.12.1 tests verify that both values remain `500ms` and `1500ms`; sub-second values are not rounded to seconds.
 
 ## Per-region TTL
 

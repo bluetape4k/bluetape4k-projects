@@ -71,7 +71,7 @@ class UserReader(
 
 ## Learning path {#concepts}
 
-The chapters are grounded in the 1.11.0 release source and tests. They connect the API surface to session ownership, cold streams, empty results, memory use, and schema-change responsibility.
+The chapters are grounded in the 1.12.1 release source and tests. They connect the API surface to session ownership, cold streams, empty results, memory use, and schema-change responsibility.
 
 1. [Configuration and object ownership](./bluetape4k-spring-boot-cassandra/configuration-and-ownership.md) — distinguishes this library from auto-configuration and assigns `CqlSession`, template, and repository responsibilities.
 2. [Reactive operations and coroutines](./bluetape4k-spring-boot-cassandra/reactive-coroutine-operations.md) — explains execution timing and empty results when adapting publishers to Flow and suspend functions.
@@ -108,7 +108,7 @@ Spring Boot / application configuration
 
 ## Configuration {#configuration}
 
-The 1.11.0 release contains no `src/main/resources`, `AutoConfiguration.imports`, `@ConfigurationProperties`, or auto-configuration class in this module. There is therefore no module-specific property prefix or activation condition.
+The 1.12.1 release contains no `src/main/resources`, `AutoConfiguration.imports`, `@ConfigurationProperties`, or auto-configuration class in this module. There is therefore no module-specific property prefix or activation condition.
 
 Manage contact points, local datacenter, keyspace, authentication, request timeouts, pooling, and driver metrics through Spring Boot Cassandra settings or an application-owned `AbstractCassandraConfiguration`. The tests also configure and share their own `CqlSession`. A session is a costly, thread-safe object; do not create one per request.
 
@@ -147,9 +147,9 @@ No dedicated workshop is registered in the manual manifest. The tests provide a 
 
 For lower-level driver APIs and paging, see [`bluetape4k-cassandra`](./bluetape4k-cassandra.md). For common Spring coroutine and context helpers, continue with [`bluetape4k-spring-boot-core`](./bluetape4k-spring-boot-core.md).
 
-## 1.11.0 scope {#limitations}
+## 1.12.1 scope {#limitations}
 
-This manual describes the `bluetape4k-projects` 1.11.0 release source. Despite the artifact name, it provides no auto-configuration, property binding, health or observation integration, or repository implementation. DataStax mapper runtime and driver Micrometer integration are not automatically present at runtime either.
+This manual describes the `bluetape4k-projects` 1.12.1 release source. Despite the artifact name, it provides no auto-configuration, property binding, health or observation integration, or repository implementation. DataStax mapper runtime and driver Micrometer integration are not automatically present at runtime either.
 
 Flow batch adapters are not streaming batches; they hold all input in memory. `SchemaGenerator` does not diff an existing table or keep migration history. `AbstractCassandraAuditable` maps its last-modified user field with the source spelling `lastModified_by`; verify that it matches an existing schema naming contract.
 
@@ -171,24 +171,24 @@ Flow batch adapters are not streaming batches; they hold all input in memory. `S
 <!-- release-readme-diagrams:start -->
 ## Release diagrams {#release-diagrams}
 
-These diagrams are loaded directly from README assets published with the `1.11.0` release and pinned to its immutable commit. They describe this manual's released structure and runtime flows, not later Snapshot changes. Select a preview to open the SVG at the same release commit.
+These diagrams are loaded directly from README assets published with the `1.12.1` release and pinned to its immutable commit. They describe this manual's released structure and runtime flows, not later Snapshot changes. Select a preview to open the SVG at the same release commit.
 
 ### Core Extension and Class Structure diagram
 
-[![Core Extension and Class Structure diagram](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/spring-boot-cassandra-diagram-01.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/spring-boot-cassandra-diagram-01.svg)
+[![Core Extension and Class Structure diagram](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/spring-boot-cassandra-diagram-01.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/spring-boot-cassandra-diagram-01.svg)
 
-_Release README: [`spring-boot/cassandra/README.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/spring-boot/cassandra/README.md)_
+_Release README: [`spring-boot/cassandra/README.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/spring-boot/cassandra/README.md)_
 
 ### Cassandra Data Access Layer diagram
 
-[![Cassandra Data Access Layer diagram](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/spring-boot-cassandra-diagram-02.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/spring-boot-cassandra-diagram-02.svg)
+[![Cassandra Data Access Layer diagram](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/spring-boot-cassandra-diagram-02.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/spring-boot-cassandra-diagram-02.svg)
 
-_Release README: [`spring-boot/cassandra/README.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/spring-boot/cassandra/README.md)_
+_Release README: [`spring-boot/cassandra/README.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/spring-boot/cassandra/README.md)_
 
 ### Coroutine Conversion Sequence diagram
 
-[![Coroutine Conversion Sequence diagram](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/spring-boot-cassandra-sequence-01.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/spring-boot-cassandra-sequence-01.svg)
+[![Coroutine Conversion Sequence diagram](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/spring-boot-cassandra-sequence-01.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/spring-boot-cassandra-sequence-01.svg)
 
-_Release README: [`spring-boot/cassandra/README.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/spring-boot/cassandra/README.md)_
+_Release README: [`spring-boot/cassandra/README.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/spring-boot/cassandra/README.md)_
 
 <!-- release-readme-diagrams:end -->

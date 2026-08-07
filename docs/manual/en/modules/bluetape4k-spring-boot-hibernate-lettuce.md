@@ -88,7 +88,7 @@ When enabled, a `HibernatePropertiesCustomizer` passes the RegionFactory, second
 
 ## Learning path {#concepts}
 
-Each chapter combines the concept, configuration examples, common mistakes, and links to the 1.11.0 release source and tests.
+Each chapter combines the concept, configuration examples, common mistakes, and links to the 1.12.1 release source and tests.
 
 1. [Auto-configuration conditions and ordering](./bluetape4k-spring-boot-hibernate-lettuce/auto-configuration-conditions.md) — see exactly when the three configurations register or back off.
 2. [Properties and Hibernate mapping](./bluetape4k-spring-boot-hibernate-lettuce/properties-and-hibernate-mapping.md) — understand defaults, duration conversion, and per-region TTL.
@@ -153,9 +153,9 @@ There is no dedicated workshop, but [`bluetape4k-spring-boot-hibernate-lettuce-d
 
 A useful progression is to change one property at a time in `LettuceNearCacheAutoConfigurationTest`, then verify the resulting Hibernate statistics in the integration test.
 
-## 1.11.0 scope {#limitations}
+## 1.12.1 scope {#limitations}
 
-This manual describes the `bluetape4k-projects` 1.11.0 release commit and tests. The module is Spring Boot 4 only and does not support Spring Boot 3 package or auto-configuration paths.
+This manual describes the `bluetape4k-projects` 1.12.1 release commit and tests. The module is Spring Boot 4 only and does not support Spring Boot 3 package or auto-configuration paths.
 
 Only two gauges are provided: active region count and total local entry count. Read per-region L1/L2 statistics through the Actuator endpoint or Hibernate statistics. Because the endpoint and binder degrade observation failures, an empty value or missing gauge does not identify the backend cause by itself.
 
@@ -173,18 +173,18 @@ Only two gauges are provided: active region count and total local entry count. R
 <!-- release-readme-diagrams:start -->
 ## Release diagrams {#release-diagrams}
 
-These diagrams are loaded directly from README assets published with the `1.11.0` release and pinned to its immutable commit. They describe this manual's released structure and runtime flows, not later Snapshot changes. Select a preview to open the SVG at the same release commit.
+These diagrams are loaded directly from README assets published with the `1.12.1` release and pinned to its immutable commit. They describe this manual's released structure and runtime flows, not later Snapshot changes. Select a preview to open the SVG at the same release commit.
 
 ### Spring Boot Hibernate Lettuce class structure diagram
 
-[![Spring Boot Hibernate Lettuce class structure diagram](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/spring-boot-hibernate-lettuce-diagram-01.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/spring-boot-hibernate-lettuce-diagram-01.svg)
+[![Spring Boot Hibernate Lettuce class structure diagram](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/spring-boot-hibernate-lettuce-diagram-01.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/spring-boot-hibernate-lettuce-diagram-01.svg)
 
-_Release README: [`spring-boot/hibernate-lettuce/README.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/spring-boot/hibernate-lettuce/README.md)_
+_Release README: [`spring-boot/hibernate-lettuce/README.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/spring-boot/hibernate-lettuce/README.md)_
 
 ### Spring Boot Hibernate Lettuce auto-configuration flow diagram
 
-[![Spring Boot Hibernate Lettuce auto-configuration flow diagram](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/spring-boot-hibernate-lettuce-diagram-02.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/spring-boot-hibernate-lettuce-diagram-02.svg)
+[![Spring Boot Hibernate Lettuce auto-configuration flow diagram](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/spring-boot-hibernate-lettuce-diagram-02.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/spring-boot-hibernate-lettuce-diagram-02.svg)
 
-_Release README: [`spring-boot/hibernate-lettuce/README.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/spring-boot/hibernate-lettuce/README.md)_
+_Release README: [`spring-boot/hibernate-lettuce/README.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/spring-boot/hibernate-lettuce/README.md)_
 
 <!-- release-readme-diagrams:end -->

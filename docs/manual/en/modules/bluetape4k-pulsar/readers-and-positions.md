@@ -58,7 +58,7 @@ A message arriving just after the availability check may not appear in that coll
 
 If cancellation occurs while awaiting a read future, `readAsFlow` calls `future.cancel(true)` and rethrows cancellation. Flow does not close Reader. A `withReader` block or the caller closes it and its parent client.
 
-The 1.11.0 `withReader` close is not non-cancellable cleanup. A long-running tool should own its shutdown deadline and observe close results directly.
+The 1.12.1 `withReader` close is not non-cancellable cleanup. A long-running tool should own its shutdown deadline and observe close results directly.
 
 ## Sources and tests
 

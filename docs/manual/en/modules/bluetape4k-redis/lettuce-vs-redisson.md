@@ -18,7 +18,7 @@ Both clients connect to Redis, but their primary abstractions differ. Decide whe
 | Object codecs | Binary, JSON, and Protobuf codecs | JSON, Fory, and compressed codecs |
 | Distributed locks, maps, and queues | Design with raw commands | Redisson distributed objects |
 | Stream consumer-group helpers | Build with command APIs | Validated `RStreamSupport` helpers |
-| Local cached maps | Check the 1.11.0 loaded-map limits | Near Cache over `RLocalCachedMap` |
+| Local cached maps | Check the 1.12.1 loaded-map limits | Near Cache over `RLocalCachedMap` |
 
 ## Choose Lettuce for command-oriented code
 

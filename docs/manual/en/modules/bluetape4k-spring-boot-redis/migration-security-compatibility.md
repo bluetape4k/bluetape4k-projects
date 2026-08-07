@@ -13,7 +13,7 @@ Multiple applications, jobs, and operational tools can write a private Redis ins
 
 ## JDK deserialization boundary
 
-JDK serialization can invoke gadget chains from the application classpath. Release 1.11.0 deprecates `Jdk`, `GzipJdk`, `LZ4Jdk`, `SnappyJdk`, and `ZstdJdk`.
+JDK serialization can invoke gadget chains from the application classpath. Release 1.12.1 deprecates `Jdk`, `GzipJdk`, `LZ4Jdk`, `SnappyJdk`, and `ZstdJdk`.
 
 Their replacement metadata points to the corresponding Kryo combination or plain `Kryo`. Existing data remains readable, but these constants should not define a new format.
 

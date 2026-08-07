@@ -75,7 +75,7 @@ Nats.connect(options).use { connection ->
 
 ## Learning path {#concepts}
 
-These six chapters follow the 1.11.0 release source and tests from connection ownership through core messaging, JetStream, and operations. Each chapter includes a runnable flow, failure conditions, and source anchors for deeper study.
+These six chapters follow the 1.12.1 release source and tests from connection ownership through core messaging, JetStream, and operations. Each chapter includes a runnable flow, failure conditions, and source anchors for deeper study.
 
 1. [Connection and options ownership](./bluetape4k-nats/connection-options-ownership.md) — assign option, connection, reconnect, and shutdown responsibilities.
 2. [Core pub-sub and request-reply](./bluetape4k-nats/core-pubsub-request-reply.md) — distinguish ephemeral delivery, flush, timeouts, and no responders.
@@ -142,22 +142,22 @@ The module test source acts as a compact workshop. `PubSubExample` and `RequestR
 
 Do not copy test settings directly into production. The examples favor memory storage and short timeouts; choose retention, replicas, file storage, and shutdown thresholds for the actual service.
 
-## 1.11.0 scope {#limitations}
+## 1.12.1 scope {#limitations}
 
-This manual targets release commit `6187173b58e8b4c5c435c145e00e94708f31ef75` for version 1.11.0. The module contains jNATS builder DSLs and small extensions. It does not provide a broker, schema registry, serialization contract, retry framework, outbox, or tracing instrumentation.
+This manual targets release commit `7cf0b73646af05c0f8872cc4f6a16983949c4e3e` for version 1.12.1. The module contains jNATS builder DSLs and small extensions. It does not provide a broker, schema registry, serialization contract, retry framework, outbox, or tracing instrumentation.
 
 Spring Boot auto-configuration and a Spring Cloud Stream binder are also outside the module. `nats-spring` is only a compile-time API edge; the application supplies the dependency and lifecycle configuration.
 
 <!-- release-readme-diagrams:start -->
 ## Release diagrams {#release-diagrams}
 
-These diagrams are loaded directly from README assets published with the `1.11.0` release and pinned to its immutable commit. They describe this manual's released structure and runtime flows, not later Snapshot changes. Select a preview to open the SVG at the same release commit.
+These diagrams are loaded directly from README assets published with the `1.12.1` release and pinned to its immutable commit. They describe this manual's released structure and runtime flows, not later Snapshot changes. Select a preview to open the SVG at the same release commit.
 
 ### nats Class Structure diagram
 
-[![nats Class Structure diagram](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/infra-nats-diagram-01.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/infra-nats-diagram-01.svg)
+[![nats Class Structure diagram](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/infra-nats-diagram-01.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/infra-nats-diagram-01.svg)
 
-_Release README: [`infra/nats/README.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/infra/nats/README.md)_
+_Release README: [`infra/nats/README.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/infra/nats/README.md)_
 
 <!-- release-readme-diagrams:end -->
 

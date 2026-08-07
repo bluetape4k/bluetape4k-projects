@@ -29,7 +29,7 @@ class Account(
 
 `AbstractJpaEntity.equals`는 두 entity가 모두 persisted면 id를 비교합니다. 둘 다 transient면 `equalProperties`를 사용하고, 한쪽만 persisted면 같지 않다고 판단합니다. proxy는 `Hibernate.unproxy`로 실제 entity를 찾습니다.
 
-1.11.0에는 알려진 제한이 있습니다. business signature가 같은 transient entity 두 개는 `equals == true`가 될 수 있지만 `hashCode`는 각 instance의 identity hash라 서로 다를 수 있습니다. 이 동작은 1.11.0 뒤에 수정됐으며, 현재 `develop`의 class-based hash를 이 버전의 계약으로 설명하면 안 됩니다.
+1.12.1에는 알려진 제한이 있습니다. business signature가 같은 transient entity 두 개는 `equals == true`가 될 수 있지만 `hashCode`는 각 instance의 identity hash라 서로 다를 수 있습니다. 이 동작은 1.12.1 뒤에 수정됐으며, 현재 `develop`의 class-based hash를 이 버전의 계약으로 설명하면 안 됩니다.
 
 - id 없는 entity를 `HashSet`의 중복 제거 키로 사용하지 않습니다.
 - entity가 persistent 상태로 바뀌는 동안 hash collection에 보관하지 않습니다.

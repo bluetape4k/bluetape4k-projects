@@ -27,7 +27,7 @@ class Account(var email: String = ""): LongJpaEntity() {
 
 `AbstractJpaEntity.equals` compares IDs when both entities are persisted, uses `equalProperties` when both are transient, and rejects a mixed persisted/transient pair. It unproxies Hibernate proxies before comparison.
 
-The 1.11.0 hash contract has a known limitation: two transient instances can be equal by business signature but have different identity hash codes. The later class-based hash fix is not 1.11.0 behavior.
+The 1.12.1 hash contract has a known limitation: two transient instances can be equal by business signature but have different identity hash codes. The later class-based hash fix is not 1.12.1 behavior.
 
 - Do not use transient entities as deduplication keys in `HashSet` or `HashMap`.
 - Do not keep an entity in a hash collection while its persistence state changes.

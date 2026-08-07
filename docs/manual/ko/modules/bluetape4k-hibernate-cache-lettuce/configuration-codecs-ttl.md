@@ -46,7 +46,7 @@ Region override가 기본값보다 우선합니다. L1 만료와 Redis TTL은 �
 
 Kryo와 Fory 기반 codec은 Redis의 byte stream으로 객체를 재구성합니다. Redis에 신뢰할 수 없는 사용자가 값을 쓸 수 있으면 역직렬화 공격 면이 생깁니다. Redis network를 격리하고 인증·ACL을 적용하며, 다른 애플리케이션과 임의 key 쓰기 권한을 공유하지 않습니다.
 
-JDK serializer도 안전한 allowlist serializer라는 뜻은 아닙니다. 1.11.0 KDoc은 `jdk`를 Jackson과 연결하지만 실제 구현은 `LettuceBinaryCodecs.jdk()`를 호출하므로 이 매뉴얼은 코드 동작을 기준으로 설명합니다.
+JDK serializer도 안전한 allowlist serializer라는 뜻은 아닙니다. 1.12.1 KDoc은 `jdk`를 Jackson과 연결하지만 실제 구현은 `LettuceBinaryCodecs.jdk()`를 호출하므로 이 매뉴얼은 코드 동작을 기준으로 설명합니다.
 
 ## Source와 tests
 

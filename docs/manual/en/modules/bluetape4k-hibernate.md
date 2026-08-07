@@ -61,7 +61,7 @@ fun renameAccount(
 }
 ```
 
-The helper commits dirty-checking changes and closes the `EntityManager`. On failure it attempts rollback and rethrows the original exception. In 1.11.0, rollback failure is only logged as a warning and is not attached as a suppressed exception. A Spring application normally lets `@Transactional` and its injected `EntityManager` own this boundary instead of nesting another transaction.
+The helper commits dirty-checking changes and closes the `EntityManager`. On failure it attempts rollback and rethrows the original exception. In 1.12.1, rollback failure is only logged as a warning and is not attached as a suppressed exception. A Spring application normally lets `@Transactional` and its injected `EntityManager` own this boundary instead of nesting another transaction.
 
 ## API by task {#api-by-task}
 
@@ -79,7 +79,7 @@ The helper commits dirty-checking changes and closes the `EntityManager`. On fai
 
 ## Learning path {#concepts}
 
-Each chapter combines detailed explanation, working examples, common failure modes, and links to the 1.11.0 release source and representative tests.
+Each chapter combines detailed explanation, working examples, common failure modes, and links to the 1.12.1 release source and representative tests.
 
 1. [Entity model and lifecycle](./bluetape4k-hibernate/entity-model-lifecycle.md) — identifiers, transient and persisted equality, tree entities, and proxies.
 2. [EntityManager and transactions](./bluetape4k-hibernate/entitymanager-transactions.md) — transaction ownership, save and delete behavior, flush, and bulk queries.
@@ -94,7 +94,7 @@ New users should normally read chapters 1 through 3 in order. Review chapter 4 b
 
 Place the transaction around the smallest service operation whose changes must commit together. Continue with the managed entity returned by `merge`, load required associations or map to a DTO inside the transaction, paginate large queries, and clear the persistence context after bulk updates or deletes.
 
-Define business equality from values stable at entity creation. The 1.11.0 transient hash contract has a known limitation, so do not use identifier-less entities as deduplication keys in hash-based collections.
+Define business equality from values stable at entity creation. The 1.12.1 transient hash contract has a known limitation, so do not use identifier-less entities as deduplication keys in hash-based collections.
 
 ## Integrations {#integrations}
 
@@ -134,34 +134,34 @@ No dedicated workshop is registered. Tests under `mapping`, `SimpleQuerydslExamp
 
 Continue to the [JPA Querydsl demo](./bluetape4k-examples-jpa-querydsl-demo.md) and [Blaze-Persistence demo](./bluetape4k-examples-jpa-blazepersistence-demo.md) for application-shaped examples.
 
-## 1.11.0 scope {#limitations}
+## 1.12.1 scope {#limitations}
 
-This manual targets source published by the `bluetape4k-projects` 1.11.0 tag. Later `develop` fixes for the transient entity hash contract and the Spring StatelessSession transaction resource key are not described as 1.11.0 behavior.
+This manual targets source published by the `bluetape4k-projects` 1.12.1 tag. Later `develop` fixes for the transient entity hash contract and the Spring StatelessSession transaction resource key are not described as 1.12.1 behavior.
 
-In 1.11.0, `StatelessSessionFactoryBean` can collide with an existing JPA resource key in a Spring transaction. Prefer explicit `SessionFactory.withStateless` to the injected Spring proxy for this release. StatelessSession itself omits cascading, dirty checking, the first-level cache, and JPA listeners.
+In 1.12.1, `StatelessSessionFactoryBean` can collide with an existing JPA resource key in a Spring transaction. Prefer explicit `SessionFactory.withStateless` to the injected Spring proxy for this release. StatelessSession itself omits cascading, dirty checking, the first-level cache, and JPA listeners.
 
 <!-- release-readme-diagrams:start -->
 ## Release diagrams {#release-diagrams}
 
-These diagrams are loaded directly from README assets published with the `1.11.0` release and pinned to its immutable commit. They describe this manual's released structure and runtime flows, not later Snapshot changes. Select a preview to open the SVG at the same release commit.
+These diagrams are loaded directly from README assets published with the `1.12.1` release and pinned to its immutable commit. They describe this manual's released structure and runtime flows, not later Snapshot changes. Select a preview to open the SVG at the same release commit.
 
 ### Persistence Extension Structure diagram
 
-[![Persistence Extension Structure diagram](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/data-hibernate-diagram-01.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/data-hibernate-diagram-01.svg)
+[![Persistence Extension Structure diagram](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/data-hibernate-diagram-01.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/data-hibernate-diagram-01.svg)
 
-_Release README: [`data/hibernate/README.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/data/hibernate/README.md)_
+_Release README: [`data/hibernate/README.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/data/hibernate/README.md)_
 
 ### JPA Entity Class Hierarchy diagram
 
-[![JPA Entity Class Hierarchy diagram](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/data-hibernate-diagram-02.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/data-hibernate-diagram-02.svg)
+[![JPA Entity Class Hierarchy diagram](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/data-hibernate-diagram-02.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/data-hibernate-diagram-02.svg)
 
-_Release README: [`data/hibernate/README.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/data/hibernate/README.md)_
+_Release README: [`data/hibernate/README.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/data/hibernate/README.md)_
 
 ### AttributeConverter Types diagram
 
-[![AttributeConverter Types diagram](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/data-hibernate-diagram-03.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/data-hibernate-diagram-03.svg)
+[![AttributeConverter Types diagram](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/data-hibernate-diagram-03.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/data-hibernate-diagram-03.svg)
 
-_Release README: [`data/hibernate/README.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/data/hibernate/README.md)_
+_Release README: [`data/hibernate/README.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/data/hibernate/README.md)_
 
 <!-- release-readme-diagrams:end -->
 

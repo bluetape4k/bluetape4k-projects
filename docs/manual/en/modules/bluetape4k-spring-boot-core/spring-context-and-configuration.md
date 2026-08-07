@@ -51,7 +51,7 @@ Use `getRequiredPropertyAs` to expose a missing or invalid value during startup.
 
 ## Do not assume automatic activation
 
-The 1.11.0 artifact has no `META-INF/spring/org.springframework.boot.autoconfigure.AutoConfiguration.imports`. Import `VirtualThreadAutoConfiguration` explicitly:
+The 1.12.1 artifact has no `META-INF/spring/org.springframework.boot.autoconfigure.AutoConfiguration.imports`. Import `VirtualThreadAutoConfiguration` explicitly:
 
 ```kotlin
 @SpringBootApplication

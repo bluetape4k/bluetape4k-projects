@@ -11,7 +11,7 @@ chapterId: module-boundary-dependencies
 
 `bluetape4k-spring-boot-redis`의 production source는 네 파일뿐입니다. `RedisBinarySerializer`, `RedisCompressSerializer`, 미리 조합한 `RedisBinarySerializers`, `RedisSerializationContext` helper를 제공합니다.
 
-반대로 다음 기능은 1.11.0에 없습니다.
+반대로 다음 기능은 1.12.1에 없습니다.
 
 - `@AutoConfiguration`이나 starter metadata
 - 이 모듈이 등록하는 `RedisTemplate`·`ReactiveRedisTemplate` bean

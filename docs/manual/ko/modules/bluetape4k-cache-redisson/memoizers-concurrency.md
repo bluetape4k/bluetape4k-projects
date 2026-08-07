@@ -29,7 +29,7 @@ val value = squares(7)
 | `asyncMemoizer` | `CompletionStage<R>` | future chain | Java future 기반 코드 |
 | `suspendMemoizer` | `suspend (T) -> R` | Redisson async + `await()` | coroutine 서비스 |
 
-세 구현 모두 `putIfAbsent`로 Redis 경쟁의 winner를 정합니다. sync와 suspend는 다른 process가 먼저 저장한 값이 있으면 그 값을 반환합니다. 1.11.0 async 구현은 `putIfAbsentAsync` 결과와 관계없이 evaluator가 만든 값을 반환하므로 process 간 경쟁 결과가 호출마다 다를 수 있음을 고려합니다.
+세 구현 모두 `putIfAbsent`로 Redis 경쟁의 winner를 정합니다. sync와 suspend는 다른 process가 먼저 저장한 값이 있으면 그 값을 반환합니다. 1.12.1 async 구현은 `putIfAbsentAsync` 결과와 관계없이 evaluator가 만든 값을 반환하므로 process 간 경쟁 결과가 호출마다 다를 수 있음을 고려합니다.
 
 ## 실패와 취소 뒤 복구
 

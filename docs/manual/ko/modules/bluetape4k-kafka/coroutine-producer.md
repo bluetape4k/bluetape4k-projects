@@ -43,7 +43,7 @@ producer.sendAsFlow(records).collect { metadata ->
 producer.sendAndForget(records, needFlush = true)
 ```
 
-1.11.0 구현은 정상 완료일 때만 선택적으로 `flush()`합니다. exception이나 cancellation 중에는 이미 실패한 send를 기다리며 block하거나 원래 오류를 가리지 않도록 flush하지 않습니다. client close 여부는 여전히 호출자 책임입니다.
+1.12.1 구현은 정상 완료일 때만 선택적으로 `flush()`합니다. exception이나 cancellation 중에는 이미 실패한 send를 기다리며 block하거나 원래 오류를 가리지 않도록 flush하지 않습니다. client close 여부는 여전히 호출자 책임입니다.
 
 ## 처리량과 backpressure
 

@@ -1,7 +1,7 @@
 ---
 manualId: bluetape4k-redisson
 title: "Redisson Coroutine Extensions"
-description: "Use Redisson clients, distributed objects and streams, coroutines, codecs, local caches, and persistence boundaries from the 1.11.0 source."
+description: "Use Redisson clients, distributed objects and streams, coroutines, codecs, local caches, and persistence boundaries from the 1.12.1 source."
 kind: library
 group: caching
 learningOrder: 560
@@ -79,7 +79,7 @@ This `put` writes only to Redis, so the example is cache-aside. Chapter 5 adds t
 
 ## Learning path {#concepts}
 
-The chapters provide detailed explanations, focused examples, and links to the exact 1.11.0 source and tests. They emphasize ownership, failure, and consistency rather than repeating an API inventory.
+The chapters provide detailed explanations, focused examples, and links to the exact 1.12.1 source and tests. They emphasize ownership, failure, and consistency rather than repeating an API inventory.
 
 1. [Clients, distributed objects, and streams](./bluetape4k-redisson/client-distributed-objects-streams.md) — client ownership, batch and transactions, lock IDs, and consumer-group helpers.
 2. [Future and coroutine boundaries](./bluetape4k-redisson/future-coroutine-boundaries.md) — failure and cancellation across `RFuture`, `CompletableFuture`, and suspend APIs.
@@ -122,7 +122,7 @@ Write-behind adds delayed persistence and possible loss. Measure writer backlog,
 
 ## Testing {#testing}
 
-The 1.11.0 tests start Redis through Testcontainers and cover clients, streams, caches, coroutines, and codecs.
+The 1.12.1 tests start Redis through Testcontainers and cover clients, streams, caches, coroutines, and codecs.
 
 ```bash
 ./gradlew :bluetape4k-redisson:test --no-build-cache --no-configuration-cache
@@ -134,11 +134,11 @@ This is a Docker-backed heavy test and should not run in parallel with other Tes
 
 `RedissonClientSupportTest`, `RStreamSupportTest`, `RedissonClientCoroutineTest`, `LocalCacheMapSupportTest`, and `RedissonNearCacheTest` are the smallest executable examples. Continue with the cache chapter in [Exposed Workshop](https://github.com/bluetape4k/exposed-workshop) and Redis examples in [bluetape4k-workshop](https://github.com/bluetape4k/bluetape4k-workshop).
 
-## 1.11.0 scope {#limitations}
+## 1.12.1 scope {#limitations}
 
-This manual targets the `bluetape4k-projects` 1.11.0 release commit. `RedissonNearCache` delegates to `RLocalCachedMap`; it is not an abstraction that manually reconciles two independently written maps. `destroy()` closes only the local near-cache instance and leaves Redis data intact.
+This manual targets the `bluetape4k-projects` 1.12.1 release commit. `RedissonNearCache` delegates to `RLocalCachedMap`; it is not an abstraction that manually reconciles two independently written maps. `destroy()` closes only the local near-cache instance and leaves Redis data intact.
 
-Preset names in `RedissonCacheConfig` do not create database read/write-through. The application must attach real `MapLoader` and `MapWriter` implementations. `deleteFromDBOnInvalidate` is not supported by option conversion in 1.11.0.
+Preset names in `RedissonCacheConfig` do not create database read/write-through. The application must attach real `MapLoader` and `MapWriter` implementations. `deleteFromDBOnInvalidate` is not supported by option conversion in 1.12.1.
 
 ## Source and tests {#sources}
 
@@ -156,24 +156,24 @@ Preset names in `RedissonCacheConfig` do not create database read/write-through.
 <!-- release-readme-diagrams:start -->
 ## Release diagrams {#release-diagrams}
 
-These diagrams are loaded directly from README assets published with the `1.11.0` release and pinned to its immutable commit. They describe this manual's released structure and runtime flows, not later Snapshot changes. Select a preview to open the SVG at the same release commit.
+These diagrams are loaded directly from README assets published with the `1.12.1` release and pinned to its immutable commit. They describe this manual's released structure and runtime flows, not later Snapshot changes. Select a preview to open the SVG at the same release commit.
 
 ### Codec Selection Map diagram
 
-[![Codec Selection Map diagram](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/infra-redisson-diagram-01.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/infra-redisson-diagram-01.svg)
+[![Codec Selection Map diagram](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/infra-redisson-diagram-01.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/infra-redisson-diagram-01.svg)
 
-_Release README: [`infra/redisson/README.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/infra/redisson/README.md)_
+_Release README: [`infra/redisson/README.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/infra/redisson/README.md)_
 
 ### Batch / Transaction Processing Flow diagram
 
-[![Batch / Transaction Processing Flow diagram](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/infra-redisson-diagram-02.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/infra-redisson-diagram-02.svg)
+[![Batch / Transaction Processing Flow diagram](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/infra-redisson-diagram-02.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/infra-redisson-diagram-02.svg)
 
-_Release README: [`infra/redisson/README.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/infra/redisson/README.md)_
+_Release README: [`infra/redisson/README.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/infra/redisson/README.md)_
 
 ### NearCache 2-Tier Cache Flow diagram
 
-[![NearCache 2-Tier Cache Flow diagram](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/infra-redisson-sequence-01.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/infra-redisson-sequence-01.svg)
+[![NearCache 2-Tier Cache Flow diagram](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/infra-redisson-sequence-01.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/infra-redisson-sequence-01.svg)
 
-_Release README: [`infra/redisson/README.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/infra/redisson/README.md)_
+_Release README: [`infra/redisson/README.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/infra/redisson/README.md)_
 
 <!-- release-readme-diagrams:end -->

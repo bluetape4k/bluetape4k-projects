@@ -1,7 +1,7 @@
 ---
 manualId: bluetape4k-redisson
 title: "Redisson 코루틴 확장"
-description: "Redisson client, 분산 객체와 Stream, coroutine 경계, Codec, Near Cache와 cache persistence를 1.11.0 소스에 맞춰 설명합니다."
+description: "Redisson client, 분산 객체와 Stream, coroutine 경계, Codec, Near Cache와 cache persistence를 1.12.1 소스에 맞춰 설명합니다."
 kind: library
 group: caching
 learningOrder: 560
@@ -79,7 +79,7 @@ try {
 
 ## 학습 경로 {#concepts}
 
-아래 장은 API 목록을 반복하지 않습니다. 1.11.0 배포 소스와 대표 테스트를 바탕으로 ownership, failure, 일관성 경계를 설명하고 바로 적용할 수 있는 예제와 확인할 source link를 함께 제공합니다.
+아래 장은 API 목록을 반복하지 않습니다. 1.12.1 배포 소스와 대표 테스트를 바탕으로 ownership, failure, 일관성 경계를 설명하고 바로 적용할 수 있는 예제와 확인할 source link를 함께 제공합니다.
 
 1. [Client와 분산 객체·Stream](./bluetape4k-redisson/client-distributed-objects-streams.md) — client ownership, batch·transaction, lock ID와 consumer-group helper를 익힙니다.
 2. [Future와 coroutine 경계](./bluetape4k-redisson/future-coroutine-boundaries.md) — `RFuture`, `CompletableFuture`, suspend API의 실패와 cancellation 전달을 확인합니다.
@@ -122,7 +122,7 @@ write-behind는 DB 반영 지연과 유실 가능성을 운영 계약에 추가�
 
 ## 테스트 {#testing}
 
-1.11.0 대표 테스트는 실제 Redis를 Testcontainers로 시작해 client, Stream, cache, coroutine과 Codec 계약을 검증합니다.
+1.12.1 대표 테스트는 실제 Redis를 Testcontainers로 시작해 client, Stream, cache, coroutine과 Codec 계약을 검증합니다.
 
 ```bash
 ./gradlew :bluetape4k-redisson:test --no-build-cache --no-configuration-cache
@@ -134,11 +134,11 @@ write-behind는 DB 반영 지연과 유실 가능성을 운영 계약에 추가�
 
 모듈 안에서는 `RedissonClientSupportTest`, `RStreamSupportTest`, `RedissonClientCoroutineTest`, `LocalCacheMapSupportTest`, `RedissonNearCacheTest`가 가장 작은 실행 예제입니다. cache와 DB를 함께 다루는 실습은 [Exposed Workshop](https://github.com/bluetape4k/exposed-workshop)의 cache chapter와 [bluetape4k-workshop](https://github.com/bluetape4k/bluetape4k-workshop)의 Redis 예제로 이어갑니다.
 
-## 1.11.0 범위 {#limitations}
+## 1.12.1 범위 {#limitations}
 
-이 매뉴얼은 `bluetape4k-projects` 1.11.0 배포 commit을 기준으로 합니다. `RedissonNearCache`는 `RLocalCachedMap`에 위임하며 별도의 두 map을 수동으로 일관되게 갱신하는 abstraction이 아닙니다. `destroy()`는 local near-cache instance만 정리하고 Redis data는 남깁니다.
+이 매뉴얼은 `bluetape4k-projects` 1.12.1 배포 commit을 기준으로 합니다. `RedissonNearCache`는 `RLocalCachedMap`에 위임하며 별도의 두 map을 수동으로 일관되게 갱신하는 abstraction이 아닙니다. `destroy()`는 local near-cache instance만 정리하고 Redis data는 남깁니다.
 
-`RedissonCacheConfig`의 preset 이름만으로 DB read/write-through가 생기지 않습니다. `MapLoader`와 `MapWriter` 구현을 options에 실제로 연결해야 하며, `deleteFromDBOnInvalidate`는 1.11.0 option 변환에서 지원하지 않습니다.
+`RedissonCacheConfig`의 preset 이름만으로 DB read/write-through가 생기지 않습니다. `MapLoader`와 `MapWriter` 구현을 options에 실제로 연결해야 하며, `deleteFromDBOnInvalidate`는 1.12.1 option 변환에서 지원하지 않습니다.
 
 ## Source와 tests {#sources}
 
@@ -156,24 +156,24 @@ write-behind는 DB 반영 지연과 유실 가능성을 운영 계약에 추가�
 <!-- release-readme-diagrams:start -->
 ## 배포본 다이어그램 {#release-diagrams}
 
-아래 그림은 `1.11.0` 배포본의 README 자산을 해당 배포 커밋에서 직접 불러옵니다. 이후 SNAPSHOT이 아니라 이 매뉴얼 버전의 구조와 실행 흐름을 보여 줍니다. 미리보기를 누르면 같은 배포 커밋의 SVG 원본이 열립니다.
+아래 그림은 `1.12.1` 배포본의 README 자산을 해당 배포 커밋에서 직접 불러옵니다. 이후 SNAPSHOT이 아니라 이 매뉴얼 버전의 구조와 실행 흐름을 보여 줍니다. 미리보기를 누르면 같은 배포 커밋의 SVG 원본이 열립니다.
 
 ### Codec 선택 맵 다이어그램
 
-[![Codec 선택 맵 다이어그램](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/infra-redisson-diagram-01.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/infra-redisson-diagram-01.svg)
+[![Codec 선택 맵 다이어그램](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/infra-redisson-diagram-01.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/infra-redisson-diagram-01.svg)
 
-_배포본 README: [`infra/redisson/README.ko.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/infra/redisson/README.ko.md)_
+_배포본 README: [`infra/redisson/README.ko.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/infra/redisson/README.ko.md)_
 
 ### Batch / Transaction 다이어그램
 
-[![Batch / Transaction 다이어그램](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/infra-redisson-diagram-02.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/infra-redisson-diagram-02.svg)
+[![Batch / Transaction 다이어그램](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/infra-redisson-diagram-02.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/infra-redisson-diagram-02.svg)
 
-_배포본 README: [`infra/redisson/README.ko.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/infra/redisson/README.ko.md)_
+_배포본 README: [`infra/redisson/README.ko.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/infra/redisson/README.ko.md)_
 
 ### NearCache 2-Tier 다이어그램
 
-[![NearCache 2-Tier 다이어그램](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/infra-redisson-sequence-01.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/infra-redisson-sequence-01.svg)
+[![NearCache 2-Tier 다이어그램](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/infra-redisson-sequence-01.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/infra-redisson-sequence-01.svg)
 
-_배포본 README: [`infra/redisson/README.ko.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/infra/redisson/README.ko.md)_
+_배포본 README: [`infra/redisson/README.ko.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/infra/redisson/README.ko.md)_
 
 <!-- release-readme-diagrams:end -->

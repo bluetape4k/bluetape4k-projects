@@ -1,6 +1,6 @@
 ---
 title: Transactions and lifecycle
-description: Connect suspend transactions, transaction-aware connections, schema initialization, and the 1.11.0 auto-configuration boundary.
+description: Connect suspend transactions, transaction-aware connections, schema initialization, and the 1.12.1 auto-configuration boundary.
 manualId: bluetape4k-r2dbc
 chapterId: transactions-and-lifecycle
 ---
@@ -34,7 +34,7 @@ Place the boundary around the smallest service operation whose writes must succe
 
 ## Transaction manager cache and direct connections
 
-Version 1.11.0 caches one manager per `ConnectionFactory` in a locked `WeakHashMap`. This avoids repeated manager construction but does not own the pool lifecycle. `withTransactionSuspending` is deprecated; use `withTransactionSuspend`.
+Version 1.12.1 caches one manager per `ConnectionFactory` in a locked `WeakHashMap`. This avoids repeated manager construction but does not own the pool lifecycle. `withTransactionSuspending` is deprecated; use `withTransactionSuspend`.
 
 `getConnectionAndAwait` and `releaseConnectionAndAwait` recognize Spring transaction-bound connections. `fetchConnectionAndAwait` calls `ConnectionFactory.create()` directly; the caller must close the result and must not assume it is the current transaction connection. Prefer the same `DatabaseClient` inside a transaction unless low-level access is necessary.
 
@@ -55,9 +55,9 @@ val initializer = connectionFactoryInitializer(connectionFactory) {
 
 Do not let this initializer and a migration tool both own production schema state. Select one source of truth and test execution timing and repeat safety.
 
-## 1.11.0 auto-configuration
+## 1.12.1 auto-configuration
 
-`R2dbcClientAutoConfiguration` registers `R2dbcClient` from `DatabaseClient`, `R2dbcEntityTemplate`, and `MappingR2dbcConverter` when the `DatabaseClient` class is present. Version 1.11.0 has no `@ConditionalOnMissingBean(R2dbcClient::class)`. A user bean does not automatically cause back-off; explicitly exclude or reconcile the auto-configuration.
+`R2dbcClientAutoConfiguration` registers `R2dbcClient` from `DatabaseClient`, `R2dbcEntityTemplate`, and `MappingR2dbcConverter` when the `DatabaseClient` class is present. Version 1.12.1 has no `@ConditionalOnMissingBean(R2dbcClient::class)`. A user bean does not automatically cause back-off; explicitly exclude or reconcile the auto-configuration.
 
 Preserve transaction exceptions and cancellation. Retry an entire transaction only when the operation is idempotent and the failure is known to be transient.
 

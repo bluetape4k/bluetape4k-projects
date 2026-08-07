@@ -13,7 +13,7 @@ learningOrder: 940
 
 `bluetape4k-spring-boot-redis`는 Spring Data Redis의 `RedisSerializer`와 `RedisSerializationContext`를 bluetape4k binary serializer·compressor에 연결합니다. 객체를 Kryo 또는 Fory로 직렬화하고 GZip, LZ4, Snappy, Zstd 중 하나로 압축하는 조합을 제공하며, `RedisTemplate`과 `ReactiveRedisTemplate`의 key·value·hash 직렬화 규칙을 같은 코드에서 구성할 수 있습니다.
 
-이 모듈은 Redis client나 cache 구현이 아닙니다. 1.11.0에는 `@AutoConfiguration`, `@ConfigurationProperties`, `RedisTemplateCustomizer`도 없습니다. Spring Boot가 만든 connection factory를 사용해 애플리케이션이 template bean과 serializer를 명시적으로 조립해야 합니다.
+이 모듈은 Redis client나 cache 구현이 아닙니다. 1.12.1에는 `@AutoConfiguration`, `@ConfigurationProperties`, `RedisTemplateCustomizer`도 없습니다. Spring Boot가 만든 connection factory를 사용해 애플리케이션이 template bean과 serializer를 명시적으로 조립해야 합니다.
 
 ## 사용하기 전에 결정할 것 {#when-to-use}
 
@@ -73,7 +73,7 @@ class RedisTemplateConfig {
 
 ## 학습 경로 {#concepts}
 
-아래 장은 1.11.0 배포 소스와 테스트를 따라 모듈 경계부터 저장 형식 변경과 운영 검증까지 설명합니다. serializer 이름만 나열하지 않고 실제 template 구성, null 계약, runtime classpath, 보안과 마이그레이션 절차를 함께 다룹니다.
+아래 장은 1.12.1 배포 소스와 테스트를 따라 모듈 경계부터 저장 형식 변경과 운영 검증까지 설명합니다. serializer 이름만 나열하지 않고 실제 template 구성, null 계약, runtime classpath, 보안과 마이그레이션 절차를 함께 다룹니다.
 
 1. [모듈 경계와 의존성](./bluetape4k-spring-boot-redis/module-boundary-dependencies.md) — 이 모듈이 제공하는 것과 자동 설정·connection·cache 계층에서 제공하지 않는 것을 구분합니다.
 2. [Binary serializer 선택](./bluetape4k-spring-boot-redis/binary-serializers.md) — Kryo·Fory·JDK 조합, lazy singleton과 null 계약을 확인합니다.
@@ -98,7 +98,7 @@ JCache, memoizer와 Near Cache가 필요하다면 [`bluetape4k-cache-lettuce`](.
 
 ## 설정 {#configuration}
 
-1.11.0에는 이 모듈 전용 property가 없습니다. Redis endpoint, pool, SSL, timeout은 Spring Boot의 Spring Data Redis 설정을 사용합니다. 이 모듈에서 애플리케이션이 정할 값은 template별 serializer와 serialization context입니다.
+1.12.1에는 이 모듈 전용 property가 없습니다. Redis endpoint, pool, SSL, timeout은 Spring Boot의 Spring Data Redis 설정을 사용합니다. 이 모듈에서 애플리케이션이 정할 값은 template별 serializer와 serialization context입니다.
 
 ```kotlin
 val context = redisSerializationContext<String, Any> {
@@ -140,11 +140,11 @@ serializer와 context unit test는 Redis 서버 없이 실행됩니다. 모듈�
 
 Near Cache나 분산 memoizer를 실습하려면 cache-lettuce 또는 cache-redisson 매뉴얼로 이동합니다. 이 모듈의 serializer를 그 cache provider의 codec과 무조건 혼용하지 말고 각 저장 형식 경계를 따로 확인합니다.
 
-## 1.11.0 범위 {#limitations}
+## 1.12.1 범위 {#limitations}
 
-이 매뉴얼은 release commit `6187173b58e8b4c5c435c145e00e94708f31ef75`의 1.11.0 소스와 테스트를 기준으로 합니다. 제공되는 production API는 네 Kotlin source file의 serializer와 context helper입니다.
+이 매뉴얼은 release commit `7cf0b73646af05c0f8872cc4f6a16983949c4e3e`의 1.12.1 소스와 테스트를 기준으로 합니다. 제공되는 production API는 네 Kotlin source file의 serializer와 context helper입니다.
 
-자동 설정, customizer, properties, health indicator, metrics, Redis client wrapper와 cache 구현은 이 모듈의 1.11.0 범위가 아닙니다. README의 Spring Boot 4 표현은 의존성 line을 뜻하며 자동 설정 모듈이라는 뜻이 아닙니다.
+자동 설정, customizer, properties, health indicator, metrics, Redis client wrapper와 cache 구현은 이 모듈의 1.12.1 범위가 아닙니다. README의 Spring Boot 4 표현은 의존성 line을 뜻하며 자동 설정 모듈이라는 뜻이 아닙니다.
 
 ## Source와 tests {#sources}
 
@@ -159,18 +159,18 @@ Near Cache나 분산 memoizer를 실습하려면 cache-lettuce 또는 cache-redi
 <!-- release-readme-diagrams:start -->
 ## 배포본 다이어그램 {#release-diagrams}
 
-아래 그림은 `1.11.0` 배포본의 README 자산을 해당 배포 커밋에서 직접 불러옵니다. 이후 SNAPSHOT이 아니라 이 매뉴얼 버전의 구조와 실행 흐름을 보여 줍니다. 미리보기를 누르면 같은 배포 커밋의 SVG 원본이 열립니다.
+아래 그림은 `1.12.1` 배포본의 README 자산을 해당 배포 커밋에서 직접 불러옵니다. 이후 SNAPSHOT이 아니라 이 매뉴얼 버전의 구조와 실행 흐름을 보여 줍니다. 미리보기를 누르면 같은 배포 커밋의 SVG 원본이 열립니다.
 
 ### Spring Boot Redis Serializer 클래스 구조 다이어그램
 
-[![Spring Boot Redis Serializer 클래스 구조 다이어그램](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/spring-boot-redis-diagram-01.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/spring-boot-redis-diagram-01.svg)
+[![Spring Boot Redis Serializer 클래스 구조 다이어그램](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/spring-boot-redis-diagram-01.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/spring-boot-redis-diagram-01.svg)
 
-_배포본 README: [`spring-boot/redis/README.ko.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/spring-boot/redis/README.ko.md)_
+_배포본 README: [`spring-boot/redis/README.ko.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/spring-boot/redis/README.ko.md)_
 
 ### ReactiveRedisTemplate 직렬화 흐름 다이어그램
 
-[![ReactiveRedisTemplate 직렬화 흐름 다이어그램](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/spring-boot-redis-diagram-02.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/spring-boot-redis-diagram-02.svg)
+[![ReactiveRedisTemplate 직렬화 흐름 다이어그램](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/spring-boot-redis-diagram-02.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/spring-boot-redis-diagram-02.svg)
 
-_배포본 README: [`spring-boot/redis/README.ko.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/spring-boot/redis/README.ko.md)_
+_배포본 README: [`spring-boot/redis/README.ko.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/spring-boot/redis/README.ko.md)_
 
 <!-- release-readme-diagrams:end -->

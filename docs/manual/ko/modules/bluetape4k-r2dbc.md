@@ -40,7 +40,7 @@ dependencies {
 
 ## 첫 쿼리 {#quick-start}
 
-Spring Boot가 `DatabaseClient`, `R2dbcEntityTemplate`, `MappingR2dbcConverter`를 제공하면 1.11.0의 auto-configuration이 `R2dbcClient`를 만듭니다. 타입을 지정한 `execute<T>`는 `MappingR2dbcConverter`로 row를 변환합니다.
+Spring Boot가 `DatabaseClient`, `R2dbcEntityTemplate`, `MappingR2dbcConverter`를 제공하면 1.12.1의 auto-configuration이 `R2dbcClient`를 만듭니다. 타입을 지정한 `execute<T>`는 `MappingR2dbcConverter`로 row를 변환합니다.
 
 ```kotlin
 import io.bluetape4k.r2dbc.R2dbcClient
@@ -81,12 +81,12 @@ Flow는 수집할 때 query를 실행합니다. connection은 R2DBC/Spring publi
 
 ## 학습 경로 {#concepts}
 
-각 장은 기능 목록만 나열하지 않고, 실제로 틀리기 쉬운 ownership과 failure 경계를 예제와 함께 설명합니다. 모든 예제는 1.11.0 배포 소스와 대표 테스트를 근거로 하므로 설명을 읽은 뒤 구현과 검증 코드까지 바로 확인할 수 있습니다.
+각 장은 기능 목록만 나열하지 않고, 실제로 틀리기 쉬운 ownership과 failure 경계를 예제와 함께 설명합니다. 모든 예제는 1.12.1 배포 소스와 대표 테스트를 근거로 하므로 설명을 읽은 뒤 구현과 검증 코드까지 바로 확인할 수 있습니다.
 
 1. [Connection과 pool](./bluetape4k-r2dbc/connections-and-pools.md) — connection option, pool 구성, 종료 책임과 overload 정책을 정합니다.
 2. [SQL 실행과 parameter binding](./bluetape4k-r2dbc/sql-and-binding.md) — `DatabaseClient`, typed mapping, named/indexed parameter와 typed null을 다룹니다.
 3. [CRUD와 row mapping](./bluetape4k-r2dbc/crud-and-mapping.md) — raw table·entity CRUD, identifier 검증, `Readable`과 PostgreSQL JSON 변환을 설명합니다.
-4. [동적 query](./bluetape4k-r2dbc/dynamic-queries.md) — `QueryBuilder`, 중첩 조건, count query와 1.11.0의 검증 범위를 확인합니다.
+4. [동적 query](./bluetape4k-r2dbc/dynamic-queries.md) — `QueryBuilder`, 중첩 조건, count query와 1.12.1의 검증 범위를 확인합니다.
 5. [Transaction과 lifecycle](./bluetape4k-r2dbc/transactions-and-lifecycle.md) — commit·rollback, transaction-aware connection과 schema 초기화를 연결합니다.
 6. [R2DBC 생태계 학습 경로](./bluetape4k-r2dbc/ecosystem-paths.md) — 직접 Spring R2DBC에서 이 모듈, Spring coroutine 확장, Exposed R2DBC와 workshop으로 발전하는 순서를 정리합니다.
 
@@ -106,7 +106,7 @@ connection pool은 애플리케이션 시작 시 만들고 종료 시 한 번 �
 
 Spring Boot를 사용하면 `spring.r2dbc.*`가 driver connection 설정을 담당합니다. 직접 구성할 때는 `R2dbcConnectionConfig`와 `R2dbcPoolConfig`에서 driver, SSL, timeout, pool 크기, warmup, pending queue와 validation 방식을 명시합니다.
 
-1.11.0의 `R2dbcClientAutoConfiguration`은 `DatabaseClient` class가 있으면 활성화되며, 사용자 정의 `R2dbcClient` bean이 있어도 자동으로 물러나는 back-off 조건이 없습니다. 같은 타입의 bean을 직접 구성할 때는 자동 설정 충돌을 별도로 피해야 합니다.
+1.12.1의 `R2dbcClientAutoConfiguration`은 `DatabaseClient` class가 있으면 활성화되며, 사용자 정의 `R2dbcClient` bean이 있어도 자동으로 물러나는 back-off 조건이 없습니다. 같은 타입의 bean을 직접 구성할 때는 자동 설정 충돌을 별도로 피해야 합니다.
 
 ## 실패 동작 {#failures}
 
@@ -120,7 +120,7 @@ active·idle connection, pending acquire, acquire timeout, connection hold time,
 
 ## 테스트 {#testing}
 
-1.11.0 배포본의 대표 테스트는 H2 기반 SQL·CRUD·transaction과 pool 포화 시나리오를 포함합니다.
+1.12.1 배포본의 대표 테스트는 H2 기반 SQL·CRUD·transaction과 pool 포화 시나리오를 포함합니다.
 
 ```bash
 ./gradlew :bluetape4k-r2dbc:test --no-build-cache --no-configuration-cache
@@ -132,11 +132,11 @@ pool benchmark는 일반 회귀 테스트가 아닙니다. PostgreSQL·MySQL ben
 
 모듈 내부에서는 `ExecuteTest`, `InsertTest`, `TransactionSupportTest`가 가장 작은 실행 예제 역할을 합니다. 더 높은 수준의 Kotlin SQL DSL과 repository를 학습하려면 [Exposed R2DBC Workshop](https://github.com/bluetape4k/exposed-r2dbc-workshop)에서 SQL DSL→DDL/DML→coroutine→Spring WebFlux→운영 패턴 순서로 이어갈 수 있습니다.
 
-## 1.11.0 범위 {#limitations}
+## 1.12.1 범위 {#limitations}
 
-이 매뉴얼은 `bluetape4k-projects` 1.11.0 태그를 기준으로 합니다. 배포 뒤 추가된 auto-configuration back-off와 `QueryBuilder.limit`·`offset` 사전 검증은 1.11 기능으로 설명하지 않습니다. 1.11에서는 호출자가 `limit > 0`, `offset >= 0`을 확인해야 합니다.
+이 매뉴얼은 `bluetape4k-projects` 1.12.1 태그를 기준으로 합니다. 배포 뒤 추가된 auto-configuration back-off와 `QueryBuilder.limit`·`offset` 사전 검증은 1.11 기능으로 설명하지 않습니다. 1.11에서는 호출자가 `limit > 0`, `offset >= 0`을 확인해야 합니다.
 
-1.11.0 README에 등장하지만 실제 배포 소스에는 없는 `sqlInsert`, `sqlUpdate`, `sqlDelete`, `awaitGeneratedKey`, `awaitSingleAsMap`, `awaitCount`, `awaitExists`, `awaitList`는 예제에서 제외했습니다. 이 매뉴얼은 실제 source와 test에 존재하는 API만 사용합니다.
+1.12.1 README에 등장하지만 실제 배포 소스에는 없는 `sqlInsert`, `sqlUpdate`, `sqlDelete`, `awaitGeneratedKey`, `awaitSingleAsMap`, `awaitCount`, `awaitExists`, `awaitList`는 예제에서 제외했습니다. 이 매뉴얼은 실제 source와 test에 존재하는 API만 사용합니다.
 
 ## Source와 tests {#sources}
 
@@ -154,30 +154,30 @@ pool benchmark는 일반 회귀 테스트가 아닙니다. PostgreSQL·MySQL ben
 <!-- release-readme-diagrams:start -->
 ## 배포본 다이어그램 {#release-diagrams}
 
-아래 그림은 `1.11.0` 배포본의 README 자산을 해당 배포 커밋에서 직접 불러옵니다. 이후 SNAPSHOT이 아니라 이 매뉴얼 버전의 구조와 실행 흐름을 보여 줍니다. 미리보기를 누르면 같은 배포 커밋의 SVG 원본이 열립니다.
+아래 그림은 `1.12.1` 배포본의 README 자산을 해당 배포 커밋에서 직접 불러옵니다. 이후 SNAPSHOT이 아니라 이 매뉴얼 버전의 구조와 실행 흐름을 보여 줍니다. 미리보기를 누르면 같은 배포 커밋의 SVG 원본이 열립니다.
 
 ### Extension Function API 개요
 
-[![Extension Function API 개요](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/data-r2dbc-diagram-01.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/data-r2dbc-diagram-01.svg)
+[![Extension Function API 개요](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/data-r2dbc-diagram-01.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/data-r2dbc-diagram-01.svg)
 
-_배포본 README: [`data/r2dbc/README.ko.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/data/r2dbc/README.ko.md)_
+_배포본 README: [`data/r2dbc/README.ko.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/data/r2dbc/README.ko.md)_
 
 ### Core API 클래스 구조도
 
-[![Core API 클래스 구조도](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/data-r2dbc-diagram-02.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/data-r2dbc-diagram-02.svg)
+[![Core API 클래스 구조도](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/data-r2dbc-diagram-02.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/data-r2dbc-diagram-02.svg)
 
-_배포본 README: [`data/r2dbc/README.ko.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/data/r2dbc/README.ko.md)_
+_배포본 README: [`data/r2dbc/README.ko.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/data/r2dbc/README.ko.md)_
 
 ### JDBC vs R2DBC Comparison 다이어그램
 
-[![JDBC vs R2DBC Comparison 다이어그램](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/data-r2dbc-diagram-03.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/data-r2dbc-diagram-03.svg)
+[![JDBC vs R2DBC Comparison 다이어그램](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/data-r2dbc-diagram-03.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/data-r2dbc-diagram-03.svg)
 
-_배포본 README: [`data/r2dbc/README.ko.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/data/r2dbc/README.ko.md)_
+_배포본 README: [`data/r2dbc/README.ko.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/data/r2dbc/README.ko.md)_
 
 ### R2DBC Query Execution 처리 흐름
 
-[![R2DBC Query Execution 처리 흐름](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/data-r2dbc-sequence-01.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/data-r2dbc-sequence-01.svg)
+[![R2DBC Query Execution 처리 흐름](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/data-r2dbc-sequence-01.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/data-r2dbc-sequence-01.svg)
 
-_배포본 README: [`data/r2dbc/README.ko.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/data/r2dbc/README.ko.md)_
+_배포본 README: [`data/r2dbc/README.ko.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/data/r2dbc/README.ko.md)_
 
 <!-- release-readme-diagrams:end -->

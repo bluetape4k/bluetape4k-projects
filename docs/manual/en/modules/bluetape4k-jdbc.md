@@ -81,7 +81,7 @@ fun findAccount(dataSource: DataSource, id: Long): AccountSummary =
 
 ## Learning path {#concepts}
 
-Each chapter focuses on a boundary that is easy to get wrong in production. Examples link directly to 1.11.0 source and representative tests, so readers can move from the explanation to the implementation evidence.
+Each chapter focuses on a boundary that is easy to get wrong in production. Examples link directly to 1.12.1 source and representative tests, so readers can move from the explanation to the implementation evidence.
 
 1. [Connection and DataSource lifecycle](./bluetape4k-jdbc/connection-lifecycle.md) — choose connection ownership and define the Hikari helper boundary.
 2. [Prepared statements and batches](./bluetape4k-jdbc/statements-batches.md) — parameter binding, generated keys, and batch-row contracts.
@@ -115,7 +115,7 @@ Observe pool saturation, connection acquisition time, query latency, rollback co
 
 ## Testing {#testing}
 
-Representative 1.11.0 tests include H2-based API coverage and a MySQL Testcontainers path. Serialize this suite with other heavy integration tests when Docker is involved.
+Representative 1.12.1 tests include H2-based API coverage and a MySQL Testcontainers path. Serialize this suite with other heavy integration tests when Docker is involved.
 
 ```bash
 ./gradlew :bluetape4k-jdbc:test --no-build-cache --no-configuration-cache
@@ -125,32 +125,32 @@ Representative 1.11.0 tests include H2-based API coverage and a MySQL Testcontai
 
 No dedicated workshop repository is registered yet. The linked `JdbcTemplateTest`, `TransactionExtensionsTest`, and `ResultSetMappingExtensionsTest` serve as executable examples. A small H2 schema is enough to practice query, mapping, rollback, and batch behavior in sequence.
 
-## 1.11.0 scope {#limitations}
+## 1.12.1 scope {#limitations}
 
-This manual targets the source published by the `bluetape4k-projects` 1.11.0 tag. APIs added to `develop` after the release are excluded. The module does not provide schema migration, a query DSL, entity dirty checking, or a coroutine-friendly non-blocking database driver.
+This manual targets the source published by the `bluetape4k-projects` 1.12.1 tag. APIs added to `develop` after the release are excluded. The module does not provide schema migration, a query DSL, entity dirty checking, or a coroutine-friendly non-blocking database driver.
 
 <!-- release-readme-diagrams:start -->
 ## Release diagrams {#release-diagrams}
 
-These diagrams are loaded directly from README assets published with the `1.11.0` release and pinned to its immutable commit. They describe this manual's released structure and runtime flows, not later Snapshot changes. Select a preview to open the SVG at the same release commit.
+These diagrams are loaded directly from README assets published with the `1.12.1` release and pinned to its immutable commit. They describe this manual's released structure and runtime flows, not later Snapshot changes. Select a preview to open the SVG at the same release commit.
 
 ### Extension Function API Overview diagram
 
-[![Extension Function API Overview diagram](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/data-jdbc-diagram-01.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/data-jdbc-diagram-01.svg)
+[![Extension Function API Overview diagram](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/data-jdbc-diagram-01.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/data-jdbc-diagram-01.svg)
 
-_Release README: [`data/jdbc/README.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/data/jdbc/README.md)_
+_Release README: [`data/jdbc/README.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/data/jdbc/README.md)_
 
 ### Core API Structure diagram
 
-[![Core API Structure diagram](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/data-jdbc-diagram-02.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/data-jdbc-diagram-02.svg)
+[![Core API Structure diagram](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/data-jdbc-diagram-02.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/data-jdbc-diagram-02.svg)
 
-_Release README: [`data/jdbc/README.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/data/jdbc/README.md)_
+_Release README: [`data/jdbc/README.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/data/jdbc/README.md)_
 
 ### JDBC Query Execution Flow diagram
 
-[![JDBC Query Execution Flow diagram](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/data-jdbc-sequence-01.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/data-jdbc-sequence-01.svg)
+[![JDBC Query Execution Flow diagram](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/data-jdbc-sequence-01.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/data-jdbc-sequence-01.svg)
 
-_Release README: [`data/jdbc/README.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/data/jdbc/README.md)_
+_Release README: [`data/jdbc/README.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/data/jdbc/README.md)_
 
 <!-- release-readme-diagrams:end -->
 

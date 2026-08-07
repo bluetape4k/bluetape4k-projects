@@ -80,7 +80,7 @@ class UserClient(
 
 ## 학습 경로 {#concepts}
 
-각 장은 1.11.0 소스와 테스트를 기준으로 구성했습니다. 단순 API 목록이 아니라 애플리케이션이 소유해야 할 설정과 lifecycle, 실패가 어디까지 전파되는지 함께 설명합니다.
+각 장은 1.12.1 소스와 테스트를 기준으로 구성했습니다. 단순 API 목록이 아니라 애플리케이션이 소유해야 할 설정과 lifecycle, 실패가 어디까지 전파되는지 함께 설명합니다.
 
 1. [Spring Context와 설정 helper](./bluetape4k-spring-boot-core/spring-context-and-configuration.md) — annotation, bean, profile, property helper와 auto-configuration이 아닌 범위를 구분합니다.
 2. [RestClient와 coroutine 경계](./bluetape4k-spring-boot-core/rest-client-and-coroutines.md) — blocking HTTP 호출, nullable 응답, cancellation과 converter 책임을 다룹니다.
@@ -154,9 +154,9 @@ Observation helper는 observation을 시작하고 scope를 열고 반드시 정�
 
 Data access로 확장하려면 Spring Data JDBC/R2DBC 매뉴얼을, 더 낮은 수준의 coroutine과 Flow 규칙을 익히려면 [`bluetape4k-coroutines`](./bluetape4k-coroutines.md)를 함께 봅니다.
 
-## 1.11.0 범위 {#limitations}
+## 1.12.1 범위 {#limitations}
 
-이 매뉴얼은 `bluetape4k-projects` 1.11.0 배포 소스를 기준으로 합니다. artifact 이름에 `spring-boot-core`가 들어가지만 starter metadata, configuration properties binding, 범용 application bootstrap은 제공하지 않습니다.
+이 매뉴얼은 `bluetape4k-projects` 1.12.1 배포 소스를 기준으로 합니다. artifact 이름에 `spring-boot-core`가 들어가지만 starter metadata, configuration properties binding, 범용 application bootstrap은 제공하지 않습니다.
 
 `VirtualThreadAutoConfiguration`은 자동 발견되지 않으며, `AbstractVirtualThreadController`의 companion executor는 process 수명 동안 공유되고 이 클래스 자체에서 닫지 않습니다. WebFlux coroutine controller base class의 별도 scope에는 Reactor/Spring Security context가 자동 전파되지 않습니다. 새 코드에서는 요청 자체의 suspend context로 충분한지 먼저 확인합니다.
 
@@ -179,30 +179,30 @@ Data access로 확장하려면 Spring Data JDBC/R2DBC 매뉴얼을, 더 낮은 �
 <!-- release-readme-diagrams:start -->
 ## 배포본 다이어그램 {#release-diagrams}
 
-아래 그림은 `1.11.0` 배포본의 README 자산을 해당 배포 커밋에서 직접 불러옵니다. 이후 SNAPSHOT이 아니라 이 매뉴얼 버전의 구조와 실행 흐름을 보여 줍니다. 미리보기를 누르면 같은 배포 커밋의 SVG 원본이 열립니다.
+아래 그림은 `1.12.1` 배포본의 README 자산을 해당 배포 커밋에서 직접 불러옵니다. 이후 SNAPSHOT이 아니라 이 매뉴얼 버전의 구조와 실행 흐름을 보여 줍니다. 미리보기를 누르면 같은 배포 커밋의 SVG 원본이 열립니다.
 
 ### Spring Boot Core 기능 맵 다이어그램
 
-[![Spring Boot Core 기능 맵 다이어그램](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/spring-boot-core-diagram-01.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/spring-boot-core-diagram-01.svg)
+[![Spring Boot Core 기능 맵 다이어그램](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/spring-boot-core-diagram-01.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/spring-boot-core-diagram-01.svg)
 
-_배포본 README: [`spring-boot/core/README.ko.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/spring-boot/core/README.ko.md)_
+_배포본 README: [`spring-boot/core/README.ko.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/spring-boot/core/README.ko.md)_
 
 ### Spring WebFlux + Coroutines 다이어그램
 
-[![Spring WebFlux + Coroutines 다이어그램](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/spring-boot-core-diagram-02.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/spring-boot-core-diagram-02.svg)
+[![Spring WebFlux + Coroutines 다이어그램](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/spring-boot-core-diagram-02.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/spring-boot-core-diagram-02.svg)
 
-_배포본 README: [`spring-boot/core/README.ko.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/spring-boot/core/README.ko.md)_
+_배포본 README: [`spring-boot/core/README.ko.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/spring-boot/core/README.ko.md)_
 
 ### RestClient Coroutines DSL 다이어그램
 
-[![RestClient Coroutines DSL 다이어그램](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/spring-boot-core-diagram-03.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/spring-boot-core-diagram-03.svg)
+[![RestClient Coroutines DSL 다이어그램](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/spring-boot-core-diagram-03.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/spring-boot-core-diagram-03.svg)
 
-_배포본 README: [`spring-boot/core/README.ko.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/spring-boot/core/README.ko.md)_
+_배포본 README: [`spring-boot/core/README.ko.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/spring-boot/core/README.ko.md)_
 
 ### WebClient 전용 리소스 구성 다이어그램
 
-[![WebClient 전용 리소스 구성 다이어그램](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/spring-boot-core-diagram-04.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/spring-boot-core-diagram-04.svg)
+[![WebClient 전용 리소스 구성 다이어그램](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/spring-boot-core-diagram-04.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/spring-boot-core-diagram-04.svg)
 
-_배포본 README: [`spring-boot/core/README.ko.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/spring-boot/core/README.ko.md)_
+_배포본 README: [`spring-boot/core/README.ko.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/spring-boot/core/README.ko.md)_
 
 <!-- release-readme-diagrams:end -->

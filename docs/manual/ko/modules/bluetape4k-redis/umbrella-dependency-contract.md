@@ -9,7 +9,7 @@ chapterId: umbrella-dependency-contract
 
 ## 두 줄이 전체 공개 계약이다
 
-1.11.0의 [`infra/redis/build.gradle.kts`](../../../../../infra/redis/build.gradle.kts)는 다음 두 의존성만 선언합니다.
+1.12.1의 [`infra/redis/build.gradle.kts`](../../../../../infra/redis/build.gradle.kts)는 다음 두 의존성만 선언합니다.
 
 ```kotlin
 dependencies {

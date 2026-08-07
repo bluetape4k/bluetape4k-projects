@@ -58,7 +58,7 @@ client.withReader(Schema.STRING, {
 
 `readAsFlow`는 read future를 기다리는 중 취소되면 `future.cancel(true)`를 호출하고 cancellation을 다시 던집니다. Flow는 Reader를 닫지 않습니다. `withReader` 또는 호출자가 Reader와 parent client를 닫습니다.
 
-1.11.0의 `withReader` close는 취소 불가능한 cleanup이 아니므로 long-running tool은 shutdown timeout과 close 결과를 직접 관리하는 편이 안전합니다.
+1.12.1의 `withReader` close는 취소 불가능한 cleanup이 아니므로 long-running tool은 shutdown timeout과 close 결과를 직접 관리하는 편이 안전합니다.
 
 ## Source와 tests
 

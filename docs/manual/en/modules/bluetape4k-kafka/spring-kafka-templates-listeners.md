@@ -23,7 +23,7 @@ For an existing `KafkaTemplate` bean, the first extension is the smallest adapte
 val result = kafkaTemplate.suspendSend("orders", order.id, order)
 ```
 
-In 1.11.0, the `spring.core` Flow helper uses `onCompletion { flush() }`, so flush may run on normal completion, failure, or cancellation. Use individual sends or the native coroutine helper when that behavior is unwanted.
+In 1.12.1, the `spring.core` Flow helper uses `onCompletion { flush() }`, so flush may run on normal completion, failure, or cancellation. Use individual sends or the native coroutine helper when that behavior is unwanted.
 
 ## Reactor Kafka producer template
 
@@ -59,9 +59,9 @@ template.receive().collect { record ->
 
 `commitCurrentOffsets` builds `OffsetAndMetadata` from current positions and calls `commitSync`. It rejects partitions outside the current assignment. Values returned by `committed` and `offsetsForTimes` are nullable because Kafka can return null entries.
 
-## 1.11.0 close boundary
+## 1.12.1 close boundary
 
-Consumer-template close cancels its scope and closes the receiver only when it implements `AutoCloseable`. A non-closeable receiver produces no warning, and a close failure propagates. Warnings and close-failure suppression on the development branch are post-1.11.0 behavior.
+Consumer-template close cancels its scope and closes the receiver only when it implements `AutoCloseable`. A non-closeable receiver produces no warning, and a close failure propagates. Warnings and close-failure suppression on the development branch are post-1.12.1 behavior.
 
 ## Listener adapters do not create containers
 

@@ -51,7 +51,7 @@ val batchSize = environment.getAs("worker.batch-size", 100)
 
 ## 자동 구성으로 오해하지 않는다
 
-1.11.0 모듈에는 `META-INF/spring/org.springframework.boot.autoconfigure.AutoConfiguration.imports`가 없습니다. `VirtualThreadAutoConfiguration`도 다음처럼 직접 가져와야 합니다.
+1.12.1 모듈에는 `META-INF/spring/org.springframework.boot.autoconfigure.AutoConfiguration.imports`가 없습니다. `VirtualThreadAutoConfiguration`도 다음처럼 직접 가져와야 합니다.
 
 ```kotlin
 @SpringBootApplication

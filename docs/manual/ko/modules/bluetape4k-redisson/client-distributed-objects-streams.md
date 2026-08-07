@@ -39,7 +39,7 @@ client.withTransaction {
 }
 ```
 
-rollback도 remote operation이므로 실패할 수 있습니다. 1.11.0 helper는 rollback 실패로 원래 application failure를 덮지 않습니다. 충돌·timeout을 재시도하려면 transaction block 전체가 idempotent한지 먼저 확인합니다.
+rollback도 remote operation이므로 실패할 수 있습니다. 1.12.1 helper는 rollback 실패로 원래 application failure를 덮지 않습니다. 충돌·timeout을 재시도하려면 transaction block 전체가 idempotent한지 먼저 확인합니다.
 
 ## 분산 객체와 lock owner
 

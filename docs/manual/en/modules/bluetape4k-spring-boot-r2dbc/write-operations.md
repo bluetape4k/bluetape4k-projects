@@ -63,7 +63,7 @@ Follow the application's transaction policy. Creating separate transactions arou
 
 Retry outside the transaction only after the complete operation is known to be idempotent.
 
-## The 1.11.0 verification flow
+## The 1.12.1 verification flow
 
 `R2dbcEntityOperationsExtensionsTest` inserts a `Post`, checks its generated ID, updates the title by ID, reloads it, deletes it, and finally verifies `existsSuspending` is `false`. Connecting each affected count to the next state assertion makes it a useful minimal example.
 

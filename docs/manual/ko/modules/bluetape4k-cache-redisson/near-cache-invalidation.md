@@ -37,7 +37,7 @@ native Near Cache는 Redisson `fastRemove`/`fastRemoveAsync`로 여러 key를 �
 
 ## 통계의 한계
 
-1.11.0 구현은 `RLocalCachedMap`에서 local hit와 Redis hit를 따로 얻지 못합니다. 그래서 `localHits`, `localMisses`, `localEvictions`은 0이고, `backHits`와 `backMisses`는 wrapper의 통합 get 결과를 셉니다.
+1.12.1 구현은 `RLocalCachedMap`에서 local hit와 Redis hit를 따로 얻지 못합니다. 그래서 `localHits`, `localMisses`, `localEvictions`은 0이고, `backHits`와 `backMisses`는 wrapper의 통합 get 결과를 셉니다.
 
 이 값은 API 사용량을 보는 보조 지표입니다. 실제 network round trip, Redis hit rate와 local cache 효과는 Redisson·Redis metrics와 함께 측정합니다.
 

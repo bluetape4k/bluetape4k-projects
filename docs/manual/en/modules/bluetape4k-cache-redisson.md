@@ -36,7 +36,7 @@ dependencies {
 }
 ```
 
-The Gradle path is `:bluetape4k-cache-redisson`, and the source directory is `cache/cache-redisson`. The 1.11.0 directory move did not change the Maven artifact or `io.bluetape4k.cache` package.
+The Gradle path is `:bluetape4k-cache-redisson`, and the source directory is `cache/cache-redisson`. The 1.12.1 directory move did not change the Maven artifact or `io.bluetape4k.cache` package.
 
 ## First Redisson near cache {#quick-start}
 
@@ -74,7 +74,7 @@ Keys are `String`, and the default codec is `RedissonCodecs.LZ4Fory`. `close()` 
 
 ## Learning path {#concepts}
 
-These chapters go beyond the feature list. They follow the 1.11.0 source and runnable tests to explain defaults, races, state after failure, and operating decisions.
+These chapters go beyond the feature list. They follow the 1.12.1 source and runnable tests to explain defaults, races, state after failure, and operating decisions.
 
 1. [Redisson JCache and suspend wrappers](./bluetape4k-cache-redisson/redisson-jcache-suspend.md) — provider creation, cache reuse, async bridges, and non-atomic `getAndPut`.
 2. [Memoizers and same-key work sharing](./bluetape4k-cache-redisson/memoizers-concurrency.md) — JVM-local single-flight behavior across sync, future, and suspend APIs.
@@ -117,7 +117,7 @@ When Redis is unstable, misses can move load to the source database. Excessive r
 
 ## Operations {#operations}
 
-Observe Redis latency/errors/reconnects with local size and wrapper hit/miss counters. In 1.11.0, native near-cache statistics cannot split local and backend hits: local hit/miss fields are zero, and back hit/miss fields count the integrated get result. Do not interpret them as Redis round trips.
+Observe Redis latency/errors/reconnects with local size and wrapper hit/miss counters. In 1.12.1, native near-cache statistics cannot split local and backend hits: local hit/miss fields are zero, and back hit/miss fields count the integrated get result. Do not interpret them as Redis round trips.
 
 Track decode failures, name collisions, capacity/eviction, Pub/Sub reconnect clears, and Redisson client shutdown. The application remains the client owner.
 
@@ -137,9 +137,9 @@ Start with the module tests. For persistence read-through, write-through, and wr
 
 The [exposed-workshop](https://github.com/bluetape4k/exposed-workshop) cache chapter connects `JdbcCacheRepository`, `EntityMapLoader`, and `EntityMapWriter`. Broader Kotlin/Spring examples continue in [bluetape4k-workshop](https://github.com/bluetape4k/bluetape4k-workshop).
 
-## 1.11.0 scope {#limitations}
+## 1.12.1 scope {#limitations}
 
-This manual targets the `bluetape4k-projects` 1.11.0 release source. The module has no RESP3 hybrid near-cache API. Native Redisson near caches use `RLocalCachedMap`; legacy JCache near caches use a separate front/back model.
+This manual targets the `bluetape4k-projects` 1.12.1 release source. The module has no RESP3 hybrid near-cache API. Native Redisson near caches use `RLocalCachedMap`; legacy JCache near caches use a separate front/back model.
 
 Memoizer in-flight sharing is not a distributed lock. Native near-cache statistics do not provide a true local/backend split. The suspend JCache `getAndPut` wrapper is not atomic.
 

@@ -31,7 +31,7 @@ Invalidation Pub/Sub is not a durable business event log. `ReconnectionStrategy`
 
 ## Reconnection policy
 
-In 1.11.0, `RedissonNearCache.defaultLocalCacheOptions` uses LFU, a 60-second local TTL, 120-second max idle, `ReconnectionStrategy.LOAD`, and `SyncStrategy.UPDATE`. These are usable defaults, not workload-independent answers.
+In 1.12.1, `RedissonNearCache.defaultLocalCacheOptions` uses LFU, a 60-second local TTL, 120-second max idle, `ReconnectionStrategy.LOAD`, and `SyncStrategy.UPDATE`. These are usable defaults, not workload-independent answers.
 
 Test the miss spike after reconnect, invalidation traffic under write load, and the maximum stale interval after an outage.
 

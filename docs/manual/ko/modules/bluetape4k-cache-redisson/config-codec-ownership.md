@@ -9,7 +9,7 @@ chapterId: config-codec-ownership
 
 ## 기본값부터 명시한다
 
-`RedissonNearCacheConfig`의 1.11.0 기본값은 다음과 같습니다.
+`RedissonNearCacheConfig`의 1.12.1 기본값은 다음과 같습니다.
 
 | 설정 | 기본값 | 의미 |
 | --- | --- | --- |

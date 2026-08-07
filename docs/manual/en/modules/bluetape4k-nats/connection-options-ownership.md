@@ -78,4 +78,4 @@ Use connection listeners for state transitions, but do not log server URLs conta
 - [`ConsumerExtensionsTest.kt`](../../../../../infra/nats/src/test/kotlin/io/bluetape4k/nats/client/ConsumerExtensionsTest.kt)
 - [`AbstractNatsTest.kt`](../../../../../infra/nats/src/test/kotlin/io/bluetape4k/nats/AbstractNatsTest.kt)
 
-The 1.11.0 fixture uses `Connection.use` with a Testcontainer. Application integration tests must cover production lifecycle and terminal reconnect behavior.
+The 1.12.1 fixture uses `Connection.use` with a Testcontainer. Application integration tests must cover production lifecycle and terminal reconnect behavior.

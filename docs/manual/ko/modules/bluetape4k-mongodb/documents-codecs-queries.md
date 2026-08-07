@@ -44,7 +44,7 @@ key가 없거나 값이 `Long`인데 `Int`를 요청하는 것처럼 runtime typ
 
 ## 선택적인 kotlinx.serialization codec
 
-`mongo.bson.kotlinx`는 1.11.0 build에서 `compileOnly`입니다. 해당 API를 직접 사용한다면 consumer runtime에 dependency가 실제로 있는지 확인합니다. “모듈이 compile된다”는 사실만으로 배포 classpath의 codec 존재를 보장하지 않습니다.
+`mongo.bson.kotlinx`는 1.12.1 build에서 `compileOnly`입니다. 해당 API를 직접 사용한다면 consumer runtime에 dependency가 실제로 있는지 확인합니다. “모듈이 compile된다”는 사실만으로 배포 classpath의 codec 존재를 보장하지 않습니다.
 
 codec 변경은 저장 형식과 호환성에 영향을 줍니다. 이미 저장된 document를 구·신 codec이 모두 읽을 수 있는지, field rename과 default가 어떻게 적용되는지 교차 테스트합니다.
 

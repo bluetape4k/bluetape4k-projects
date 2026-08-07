@@ -54,9 +54,9 @@ SQL을 직접 통제하려면 [`bluetape4k-jdbc`](../bluetape4k-jdbc.md), non-bl
 - [Redis client-side caching](https://redis.io/docs/latest/develop/reference/client-side-caching/)
 - [Lettuce reference guide](https://redis.github.io/lettuce/)
 
-외부 문서는 현재 버전 기준으로 바뀔 수 있습니다. 이 매뉴얼의 1.11.0 동작을 판단할 때는 아래 release source와 test를 우선합니다.
+외부 문서는 현재 버전 기준으로 바뀔 수 있습니다. 이 매뉴얼의 1.12.1 동작을 판단할 때는 아래 release source와 test를 우선합니다.
 
-## 1.11.0 소스 지도
+## 1.12.1 소스 지도
 
 - [Spring Boot adapter source](../../../../../spring-boot/hibernate-lettuce/src/main/kotlin/io/bluetape4k/spring/boot/autoconfigure/cache/lettuce/LettuceNearCacheHibernateAutoConfiguration.kt)
 - [Hibernate cache provider source](../../../../../cache/hibernate-cache-lettuce/src/main/kotlin/io/bluetape4k/hibernate/cache/lettuce/LettuceNearCacheRegionFactory.kt)

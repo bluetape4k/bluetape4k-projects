@@ -69,7 +69,7 @@ val saved = sessionFactory.withTransactionSuspending { session ->
 
 ## 학습 경로 {#concepts}
 
-아래 장은 API 이름만 나열하지 않습니다. 각 기능이 필요한 이유, 실제 코드 예제, `1.11.0` 배포 소스와 MySQL Testcontainers 기반 테스트를 함께 연결합니다. 설명을 읽은 뒤 곧바로 실행 예제와 실패 근거까지 확인할 수 있습니다.
+아래 장은 API 이름만 나열하지 않습니다. 각 기능이 필요한 이유, 실제 코드 예제, `1.12.1` 배포 소스와 MySQL Testcontainers 기반 테스트를 함께 연결합니다. 설명을 읽은 뒤 곧바로 실행 예제와 실패 근거까지 확인할 수 있습니다.
 
 1. [Mutiny·Stage 선택과 시작](./bluetape4k-hibernate-reactive/mutiny-stage-bootstrap.md) — provider 설정, factory unwrap, 두 API의 차이를 정리합니다.
 2. [세션과 트랜잭션 수명주기](./bluetape4k-hibernate-reactive/session-transaction-lifecycle.md) — 일반·tenant·stateless 경계와 factory 소유권을 설명합니다.
@@ -92,9 +92,9 @@ Hibernate Reactive에서는 Querydsl 대신 JPA metamodel generator를 사용합
 
 ## 설정 {#configuration}
 
-Reactive persistence unit은 `org.hibernate.reactive.provider.ReactivePersistenceProvider`를 사용하고 entity를 명시적으로 등록할 수 있습니다. `1.11.0` 테스트의 XML 문서는 Jakarta Persistence XML schema 3.0이지만, dependency API는 BOM이 정한 Jakarta Persistence 3.2 계열입니다. XML schema 버전과 library API 버전을 같은 값으로 설명하지 않습니다.
+Reactive persistence unit은 `org.hibernate.reactive.provider.ReactivePersistenceProvider`를 사용하고 entity를 명시적으로 등록할 수 있습니다. `1.12.1` 테스트의 XML 문서는 Jakarta Persistence XML schema 3.0이지만, dependency API는 BOM이 정한 Jakarta Persistence 3.2 계열입니다. XML schema 버전과 library API 버전을 같은 값으로 설명하지 않습니다.
 
-README의 하위 dependency 버전 표는 `1.11.0` 실제 version catalog와 맞지 않으므로 복사하지 않습니다. 애플리케이션 설정과 호환성은 중앙 BOM을 기준으로 확인합니다.
+README의 하위 dependency 버전 표는 `1.12.1` 실제 version catalog와 맞지 않으므로 복사하지 않습니다. 애플리케이션 설정과 호환성은 중앙 BOM을 기준으로 확인합니다.
 
 ## 실패 동작 {#failures}
 
@@ -118,9 +118,9 @@ Vert.x event-loop 지연, connection pool 대기와 사용량, query latency, tr
 
 별도 workshop은 아직 등록되지 않았습니다. 대신 `MutinySessionFactoryExamples`, `StageSessionFactoryExamples`, 두 `SessionSupportTest`, 두 `StatelessSessionExamples`가 실행 가능한 학습 자료입니다. 각 장에서 관련 테스트를 순서대로 안내합니다.
 
-## 1.11.0 범위 {#limitations}
+## 1.12.1 범위 {#limitations}
 
-이 매뉴얼은 `bluetape4k-projects` 1.11.0 태그의 production source와 tests만 설명합니다. 이 모듈은 schema migration, driver 수준 SQL 취소 보장, Querydsl, process-wide retry 정책을 제공하지 않습니다. `1.11.0`과 현재 production source 사이에는 추가 API가 없지만, 향후 버전 문서에서는 다시 비교해야 합니다.
+이 매뉴얼은 `bluetape4k-projects` 1.12.1 태그의 production source와 tests만 설명합니다. 이 모듈은 schema migration, driver 수준 SQL 취소 보장, Querydsl, process-wide retry 정책을 제공하지 않습니다. `1.12.1`과 현재 production source 사이에는 추가 API가 없지만, 향후 버전 문서에서는 다시 비교해야 합니다.
 
 ## Source와 tests {#sources}
 
@@ -136,24 +136,24 @@ Vert.x event-loop 지연, connection pool 대기와 사용량, query latency, tr
 <!-- release-readme-diagrams:start -->
 ## 배포본 다이어그램 {#release-diagrams}
 
-아래 그림은 `1.11.0` 배포본의 README 자산을 해당 배포 커밋에서 직접 불러옵니다. 이후 SNAPSHOT이 아니라 이 매뉴얼 버전의 구조와 실행 흐름을 보여 줍니다. 미리보기를 누르면 같은 배포 커밋의 SVG 원본이 열립니다.
+아래 그림은 `1.12.1` 배포본의 README 자산을 해당 배포 커밋에서 직접 불러옵니다. 이후 SNAPSHOT이 아니라 이 매뉴얼 버전의 구조와 실행 흐름을 보여 줍니다. 미리보기를 누르면 같은 배포 커밋의 SVG 원본이 열립니다.
 
 ### Reactive 확장 구조 다이어그램
 
-[![Reactive 확장 구조 다이어그램](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/data-hibernate-reactive-diagram-01.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/data-hibernate-reactive-diagram-01.svg)
+[![Reactive 확장 구조 다이어그램](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/data-hibernate-reactive-diagram-01.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/data-hibernate-reactive-diagram-01.svg)
 
-_배포본 README: [`data/hibernate-reactive/README.ko.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/data/hibernate-reactive/README.ko.md)_
+_배포본 README: [`data/hibernate-reactive/README.ko.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/data/hibernate-reactive/README.ko.md)_
 
 ### Hibernate Reactive API 구조 다이어그램
 
-[![Hibernate Reactive API 구조 다이어그램](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/data-hibernate-reactive-diagram-02.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/data-hibernate-reactive-diagram-02.svg)
+[![Hibernate Reactive API 구조 다이어그램](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/data-hibernate-reactive-diagram-02.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/data-hibernate-reactive-diagram-02.svg)
 
-_배포본 README: [`data/hibernate-reactive/README.ko.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/data/hibernate-reactive/README.ko.md)_
+_배포본 README: [`data/hibernate-reactive/README.ko.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/data/hibernate-reactive/README.ko.md)_
 
 ### 세션 유형 비교 다이어그램
 
-[![세션 유형 비교 다이어그램](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/data-hibernate-reactive-diagram-03.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/data-hibernate-reactive-diagram-03.svg)
+[![세션 유형 비교 다이어그램](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/data-hibernate-reactive-diagram-03.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/data-hibernate-reactive-diagram-03.svg)
 
-_배포본 README: [`data/hibernate-reactive/README.ko.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/data/hibernate-reactive/README.ko.md)_
+_배포본 README: [`data/hibernate-reactive/README.ko.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/data/hibernate-reactive/README.ko.md)_
 
 <!-- release-readme-diagrams:end -->

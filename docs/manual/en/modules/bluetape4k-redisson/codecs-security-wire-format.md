@@ -11,7 +11,7 @@ chapterId: codecs-security-wire-format
 
 Changing a codec changes bytes stored under existing Redis keys. It is a schema migration that affects rolling deploys and rollback, not merely a performance toggle. Every producer and consumer of a cache name must agree on key and value codecs.
 
-| Purpose | 1.11.0 option | Boundary |
+| Purpose | 1.12.1 option | Boundary |
 | --- | --- | --- |
 | General internal objects | `RedissonCodecs.Fory` | Unsupported values may use Kryo5 fallback. |
 | Ephemeral high-throughput cache | `FastForyCodec`, `LZ4FastFory` | Old Fory readers cannot read FastFory bytes. |

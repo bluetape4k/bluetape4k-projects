@@ -39,7 +39,7 @@ dependencies {
 }
 ```
 
-The 1.11.0 artifact includes Fory and LZ4 runtime support. Review the security and runtime characteristics of Snappy, Zstd, Kryo, and JDK serialization when selecting another codec.
+The 1.12.1 artifact includes Fory and LZ4 runtime support. Review the security and runtime characteristics of Snappy, Zstd, Kryo, and JDK serialization when selecting another codec.
 
 ## First second-level cache {#quick-start}
 
@@ -83,7 +83,7 @@ Read the entity from a new Session when testing second-level behavior; repeated 
 
 ## Learning path {#concepts}
 
-Each chapter follows the actual 1.11.0 source and tests instead of repeating a property list. It explains setup, region isolation, key digests, query invalidation, Redis failures, and shutdown order with code and failure cases.
+Each chapter follows the actual 1.12.1 source and tests instead of repeating a property list. It explains setup, region isolation, key digests, query invalidation, Redis failures, and shutdown order with code and failure cases.
 
 1. [Near Cache architecture and regions](./bluetape4k-hibernate-cache-lettuce/architecture-regions.md)
 2. [Configuration, codecs, and TTL](./bluetape4k-hibernate-cache-lettuce/configuration-codecs-ttl.md)
@@ -124,7 +124,7 @@ Observe Hibernate second-level hit, miss, and put counts; query-cache and update
 
 ## Testing {#testing}
 
-The 1.11.0 suite uses H2 and Testcontainers Redis 7+ to cover entities, collections, queries, natural and composite identifiers, rollback, concurrent reads, and statistics.
+The 1.12.1 suite uses H2 and Testcontainers Redis 7+ to cover entities, collections, queries, natural and composite identifiers, rollback, concurrent reads, and statistics.
 
 ```bash
 ./gradlew :bluetape4k-hibernate-cache-lettuce:test --no-build-cache --no-configuration-cache
@@ -138,34 +138,34 @@ The [Hibernate Lettuce demo](./bluetape4k-spring-boot-hibernate-lettuce-demo.md)
 
 Compare broader cache-aside and read/write-through strategies in `bluetape4k-cache-lettuce` and [exposed-workshop](https://github.com/bluetape4k/exposed-workshop). Hibernate `putIntoCache` is not the same contract as an application repository implementing write-through persistence.
 
-## 1.11.0 scope {#limitations}
+## 1.12.1 scope {#limitations}
 
-This manual targets the `bluetape4k-projects` 1.11.0 release source. The factory returns `NONSTRICT_READ_WRITE` by default, although an entity may request `READ_WRITE`. Prefer the default until distributed soft-lock overhead and eviction behavior have been measured.
+This manual targets the `bluetape4k-projects` 1.12.1 release source. The factory returns `NONSTRICT_READ_WRITE` by default, although an entity may request `READ_WRITE`. Prefer the default until distributed soft-lock overhead and eviction behavior have been measured.
 
 CLIENT TRACKING startup failure does not stop the factory. StorageAccess failures also do not fail the database transaction, so the cache must remain a rebuildable acceleration layer rather than a source of truth.
 
 <!-- release-readme-diagrams:start -->
 ## Release diagrams {#release-diagrams}
 
-These diagrams are loaded directly from README assets published with the `1.11.0` release and pinned to its immutable commit. They describe this manual's released structure and runtime flows, not later Snapshot changes. Select a preview to open the SVG at the same release commit.
+These diagrams are loaded directly from README assets published with the `1.12.1` release and pinned to its immutable commit. They describe this manual's released structure and runtime flows, not later Snapshot changes. Select a preview to open the SVG at the same release commit.
 
 ### Hibernate Lettuce Near Cache 2-Tier Structure diagram
 
-[![Hibernate Lettuce Near Cache 2-Tier Structure diagram](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/cache-hibernate-cache-lettuce-diagram-01.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/cache-hibernate-cache-lettuce-diagram-01.svg)
+[![Hibernate Lettuce Near Cache 2-Tier Structure diagram](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/cache-hibernate-cache-lettuce-diagram-01.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/cache-hibernate-cache-lettuce-diagram-01.svg)
 
-_Release README: [`cache/hibernate-cache-lettuce/README.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/cache/hibernate-cache-lettuce/README.md)_
+_Release README: [`cache/hibernate-cache-lettuce/README.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/cache/hibernate-cache-lettuce/README.md)_
 
 ### Hibernate Lettuce Cache Layer Structure diagram
 
-[![Hibernate Lettuce Cache Layer Structure diagram](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/cache-hibernate-cache-lettuce-diagram-02.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/cache-hibernate-cache-lettuce-diagram-02.svg)
+[![Hibernate Lettuce Cache Layer Structure diagram](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/cache-hibernate-cache-lettuce-diagram-02.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/cache-hibernate-cache-lettuce-diagram-02.svg)
 
-_Release README: [`cache/hibernate-cache-lettuce/README.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/cache/hibernate-cache-lettuce/README.md)_
+_Release README: [`cache/hibernate-cache-lettuce/README.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/cache/hibernate-cache-lettuce/README.md)_
 
 ### getFromCache / putIntoCache Flow diagram
 
-[![getFromCache / putIntoCache Flow diagram](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/cache-hibernate-cache-lettuce-sequence-01.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/cache-hibernate-cache-lettuce-sequence-01.svg)
+[![getFromCache / putIntoCache Flow diagram](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/cache-hibernate-cache-lettuce-sequence-01.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/cache-hibernate-cache-lettuce-sequence-01.svg)
 
-_Release README: [`cache/hibernate-cache-lettuce/README.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/cache/hibernate-cache-lettuce/README.md)_
+_Release README: [`cache/hibernate-cache-lettuce/README.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/cache/hibernate-cache-lettuce/README.md)_
 
 <!-- release-readme-diagrams:end -->
 

@@ -61,7 +61,7 @@ One send failure terminates the Flow and prevents later upstream values from bei
 
 ## Lifecycle and operations
 
-`withProducer` attempts close for a bounded scope, but 1.11.0 does not guarantee non-cancellable cleanup. Reuse long-lived producers and observe send latency, pending queues, batching, compression, and failure rate.
+`withProducer` attempts close for a bounded scope, but 1.12.1 does not guarantee non-cancellable cleanup. Reuse long-lived producers and observe send latency, pending queues, batching, compression, and failure rate.
 
 ## Sources and tests
 

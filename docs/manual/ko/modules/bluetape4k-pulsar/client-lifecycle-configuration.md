@@ -1,6 +1,6 @@
 ---
 title: Client 구성과 수명주기
-description: PulsarClient builder, 직접 소유와 block scope, 설정 위치와 1.11.0 close 경계를 설명합니다.
+description: PulsarClient builder, 직접 소유와 block scope, 설정 위치와 1.12.1 close 경계를 설명합니다.
 manualId: bluetape4k-pulsar
 chapterId: client-lifecycle-configuration
 ---
@@ -38,11 +38,11 @@ val result = withPulsarClient(url) {
 
 producer, consumer, reader의 `with*`도 같은 구조입니다. 내부 block이 소유한 resource를 밖으로 반환하면 이미 close된 객체가 될 수 있으므로 scope 밖으로 유출하지 않습니다.
 
-## 1.11.0 close 계약
+## 1.12.1 close 계약
 
-1.11.0은 `runCatching { closeAsync().awaitSuspending() }`으로 close를 시도하고 실패를 warning log로 남깁니다. close 실패는 block의 반환값이나 원래 예외를 바꾸지 않습니다.
+1.12.1은 `runCatching { closeAsync().awaitSuspending() }`으로 close를 시도하고 실패를 warning log로 남깁니다. close 실패는 block의 반환값이나 원래 예외를 바꾸지 않습니다.
 
-문제는 coroutine이 이미 취소된 경우입니다. 이 버전은 close await를 `NonCancellable` context에서 실행하지 않습니다. close 호출을 시도해도 취소 중에 close가 끝날 때까지 보장되지는 않습니다. 이후 branch의 `PulsarCloseSupport`를 1.11.0 기능으로 간주하면 안 됩니다.
+문제는 coroutine이 이미 취소된 경우입니다. 이 버전은 close await를 `NonCancellable` context에서 실행하지 않습니다. close 호출을 시도해도 취소 중에 close가 끝날 때까지 보장되지는 않습니다. 이후 branch의 `PulsarCloseSupport`를 1.12.1 기능으로 간주하면 안 됩니다.
 
 ## 애플리케이션 수명 client
 

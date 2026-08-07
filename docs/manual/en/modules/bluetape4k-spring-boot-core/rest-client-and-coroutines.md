@@ -46,7 +46,7 @@ val optional: User? = client.suspendGetOrNull("/users/1")
 
 ## Cancellation sends an interrupt
 
-`runInterruptible` interrupts the executing thread when the coroutine is cancelled. The 1.11.0 test confirms the signal with a blocking request factory that handles `InterruptedException`.
+`runInterruptible` interrupts the executing thread when the coroutine is cancelled. The 1.12.1 test confirms the signal with a blocking request factory that handles `InterruptedException`.
 
 Immediate request abortion is not guaranteed if the request factory ignores interrupts or its native I/O has different cancellation rules. Configure connect and read timeouts and connection-pool limits on the client as well.
 

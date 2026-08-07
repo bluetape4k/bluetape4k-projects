@@ -60,9 +60,9 @@ credential, token, 전체 message payload는 기본 log에 남기지 않습니�
 
 Kafka·Pulsar처럼 partition log와 consumer group ecosystem이 필요한 workload를 NATS KeyValue나 core queue subscription으로 억지로 바꾸지 않습니다. 반대로 간단한 subject routing과 request-reply만 필요한데 무거운 log platform을 기본 선택할 필요도 없습니다. 보존, replay, ordering, throughput과 운영 도구 요구를 기준으로 선택합니다.
 
-## 1.11.0 검증 범위
+## 1.12.1 검증 범위
 
-1.11.0 production source에는 serializer abstraction, schema registry, retry policy, tracing hook, Spring auto-configuration이 없습니다. README example의 Jackson과 compressor는 test payload를 위한 dependency이며 이 module의 runtime serialization contract가 아닙니다.
+1.12.1 production source에는 serializer abstraction, schema registry, retry policy, tracing hook, Spring auto-configuration이 없습니다. README example의 Jackson과 compressor는 test payload를 위한 dependency이며 이 module의 runtime serialization contract가 아닙니다.
 
 ## Source와 tests
 

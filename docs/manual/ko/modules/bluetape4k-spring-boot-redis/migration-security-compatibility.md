@@ -13,7 +13,7 @@ Redis가 사설 네트워크에 있어도 여러 애플리케이션과 배치, �
 
 ## JDK 역직렬화 경계
 
-JDK serialization은 classpath의 gadget chain을 악용할 수 있습니다. 1.11.0은 아래 상수를 모두 deprecated로 표시합니다.
+JDK serialization은 classpath의 gadget chain을 악용할 수 있습니다. 1.12.1은 아래 상수를 모두 deprecated로 표시합니다.
 
 - `Jdk`
 - `GzipJdk`

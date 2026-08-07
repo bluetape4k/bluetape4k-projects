@@ -81,7 +81,7 @@ fun findAccount(dataSource: DataSource, id: Long): AccountSummary =
 
 ## 학습 경로 {#concepts}
 
-각 장은 기능 목록보다 실제 사용 중 틀리기 쉬운 경계를 중심으로 설명합니다. 코드 예제 뒤에는 1.11.0 배포 소스와 대표 테스트를 연결했으므로, 설명을 읽은 뒤 곧바로 구현과 검증 근거까지 내려갈 수 있습니다.
+각 장은 기능 목록보다 실제 사용 중 틀리기 쉬운 경계를 중심으로 설명합니다. 코드 예제 뒤에는 1.12.1 배포 소스와 대표 테스트를 연결했으므로, 설명을 읽은 뒤 곧바로 구현과 검증 근거까지 내려갈 수 있습니다.
 
 1. [Connection과 DataSource 수명주기](./bluetape4k-jdbc/connection-lifecycle.md) — 연결을 누가 닫는지, Hikari helper를 어디까지 맡길지 정합니다.
 2. [Prepared statement와 batch](./bluetape4k-jdbc/statements-batches.md) — parameter binding, 생성 key, batch row 계약을 다룹니다.
@@ -115,7 +115,7 @@ pool 포화, connection 획득 시간, query latency, rollback 수, batch 크기
 
 ## 테스트 {#testing}
 
-1.11.0 배포본의 대표 테스트는 H2 기반 API 테스트와 MySQL Testcontainers 경로를 포함합니다. Docker가 필요한 테스트가 있으므로 다른 heavy integration suite와 병렬 실행하지 않습니다.
+1.12.1 배포본의 대표 테스트는 H2 기반 API 테스트와 MySQL Testcontainers 경로를 포함합니다. Docker가 필요한 테스트가 있으므로 다른 heavy integration suite와 병렬 실행하지 않습니다.
 
 ```bash
 ./gradlew :bluetape4k-jdbc:test --no-build-cache --no-configuration-cache
@@ -125,9 +125,9 @@ pool 포화, connection 획득 시간, query latency, rollback 수, batch 크기
 
 전용 workshop 저장소는 아직 등록되지 않았습니다. 대신 각 장에 연결한 `JdbcTemplateTest`, `TransactionExtensionsTest`, `ResultSetMappingExtensionsTest`가 실행 가능한 예제 역할을 합니다. 작은 H2 schema로 조회→mapping→transaction rollback→batch 순서로 따라 하면 이 모듈의 핵심 경계를 한 번에 확인할 수 있습니다.
 
-## 1.11.0 범위 {#limitations}
+## 1.12.1 범위 {#limitations}
 
-이 매뉴얼은 `bluetape4k-projects` 1.11.0 태그의 소스를 기준으로 합니다. 배포 뒤 `develop`에 추가된 API는 1.11 문서에 포함하지 않습니다. 이 모듈은 schema migration, query DSL, entity dirty checking, coroutine-friendly non-blocking database driver도 제공하지 않습니다.
+이 매뉴얼은 `bluetape4k-projects` 1.12.1 태그의 소스를 기준으로 합니다. 배포 뒤 `develop`에 추가된 API는 1.11 문서에 포함하지 않습니다. 이 모듈은 schema migration, query DSL, entity dirty checking, coroutine-friendly non-blocking database driver도 제공하지 않습니다.
 
 ## Source와 tests {#sources}
 
@@ -143,24 +143,24 @@ pool 포화, connection 획득 시간, query latency, rollback 수, batch 크기
 <!-- release-readme-diagrams:start -->
 ## 배포본 다이어그램 {#release-diagrams}
 
-아래 그림은 `1.11.0` 배포본의 README 자산을 해당 배포 커밋에서 직접 불러옵니다. 이후 SNAPSHOT이 아니라 이 매뉴얼 버전의 구조와 실행 흐름을 보여 줍니다. 미리보기를 누르면 같은 배포 커밋의 SVG 원본이 열립니다.
+아래 그림은 `1.12.1` 배포본의 README 자산을 해당 배포 커밋에서 직접 불러옵니다. 이후 SNAPSHOT이 아니라 이 매뉴얼 버전의 구조와 실행 흐름을 보여 줍니다. 미리보기를 누르면 같은 배포 커밋의 SVG 원본이 열립니다.
 
 ### Extension Function API 개요
 
-[![Extension Function API 개요](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/data-jdbc-diagram-01.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/data-jdbc-diagram-01.svg)
+[![Extension Function API 개요](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/data-jdbc-diagram-01.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/data-jdbc-diagram-01.svg)
 
-_배포본 README: [`data/jdbc/README.ko.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/data/jdbc/README.ko.md)_
+_배포본 README: [`data/jdbc/README.ko.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/data/jdbc/README.ko.md)_
 
 ### Core API 구조도
 
-[![Core API 구조도](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/data-jdbc-diagram-02.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/data-jdbc-diagram-02.svg)
+[![Core API 구조도](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/data-jdbc-diagram-02.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/data-jdbc-diagram-02.svg)
 
-_배포본 README: [`data/jdbc/README.ko.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/data/jdbc/README.ko.md)_
+_배포본 README: [`data/jdbc/README.ko.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/data/jdbc/README.ko.md)_
 
 ### JDBC Query Execution 처리 흐름
 
-[![JDBC Query Execution 처리 흐름](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/data-jdbc-sequence-01.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/data-jdbc-sequence-01.svg)
+[![JDBC Query Execution 처리 흐름](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/data-jdbc-sequence-01.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/data-jdbc-sequence-01.svg)
 
-_배포본 README: [`data/jdbc/README.ko.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/data/jdbc/README.ko.md)_
+_배포본 README: [`data/jdbc/README.ko.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/data/jdbc/README.ko.md)_
 
 <!-- release-readme-diagrams:end -->

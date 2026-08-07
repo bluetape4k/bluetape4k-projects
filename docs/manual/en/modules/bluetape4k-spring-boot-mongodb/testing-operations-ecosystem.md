@@ -7,7 +7,7 @@ chapterId: testing-operations-ecosystem
 
 # Testing, operations, and ecosystem
 
-## 1.11.0 test structure
+## 1.12.1 test structure
 
 `AbstractReactiveMongoTest` lazily starts a `MongoDBServer` Testcontainer and registers `spring.data.mongodb.uri` dynamically. `AbstractReactiveMongoCoroutineTest` adds a test scope with `Dispatchers.IO` and a `CoroutineName`.
 

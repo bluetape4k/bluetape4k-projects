@@ -1,7 +1,7 @@
 ---
 manualId: bluetape4k-pulsar
 title: "Apache Pulsar Client Extensions"
-description: "Use Apache Pulsar Java Client with Kotlin DSLs, suspending operations, Flow, and Jackson 2 or 3 JSON schemas while respecting the 1.11.0 lifecycle boundaries."
+description: "Use Apache Pulsar Java Client with Kotlin DSLs, suspending operations, Flow, and Jackson 2 or 3 JSON schemas while respecting the 1.12.1 lifecycle boundaries."
 kind: library
 group: messaging
 learningOrder: 740
@@ -13,7 +13,7 @@ learningOrder: 740
 
 `bluetape4k-pulsar` adds Kotlin conveniences to Apache Pulsar Java Client. It configures client, producer, consumer, and reader builders with receiver DSLs; awaits `CompletableFuture` operations from suspending functions; and connects repeated send, receive, and read operations to `Flow`. Optional JSON `Schema<T>` implementations support Jackson 2 and Jackson 3.
 
-The module does not administer brokers, topics, subscriptions, or a schema registry. Pulsar Client still owns reconnects, batching, compression, routing, receiver queues, and the broker protocol. This manual separates the thin bluetape4k layer in 1.11.0 from responsibilities that remain with the application and Pulsar.
+The module does not administer brokers, topics, subscriptions, or a schema registry. Pulsar Client still owns reconnects, batching, compression, routing, receiver queues, and the broker protocol. This manual separates the thin bluetape4k layer in 1.12.1 from responsibilities that remain with the application and Pulsar.
 
 ## Decisions before adoption {#when-to-use}
 
@@ -22,7 +22,7 @@ The module does not administer brokers, topics, subscriptions, or a schema regis
 - Define the Consumer subscription type and individual or cumulative acknowledgement policy.
 - Choose Jackson 2 or Jackson 3 and keep producer and consumer JSON and schema settings aligned.
 - Do not assume that the Flow adapters provide parallel sends or automatic acknowledgements.
-- If cleanup must complete during cancellation, compensate for the 1.11.0 cleanup limitation in application shutdown code.
+- If cleanup must complete during cancellation, compensate for the 1.12.1 cleanup limitation in application shutdown code.
 
 ## Dependency {#coordinates}
 
@@ -54,7 +54,7 @@ withPulsarClient("pulsar://localhost:6650") {
 }
 ```
 
-`withPulsarClient` and `withProducer` call `closeAsync()` when their blocks finish. In 1.11.0, close failures are logged and swallowed, and close is not wrapped in a `NonCancellable` context. These functions are convenient scope helpers, not a strong shutdown guarantee.
+`withPulsarClient` and `withProducer` call `closeAsync()` when their blocks finish. In 1.12.1, close failures are logged and swallowed, and close is not wrapped in a `NonCancellable` context. These functions are convenient scope helpers, not a strong shutdown guarantee.
 
 ## API map {#api-by-task}
 
@@ -72,9 +72,9 @@ withPulsarClient("pulsar://localhost:6650") {
 
 ## Learning path {#concepts}
 
-The six chapters follow the 1.11.0 release source and tests from client ownership through wire contracts, message processing, and operational limits. Each chapter combines working API compositions with explicit non-goals and failure or cancellation checks.
+The six chapters follow the 1.12.1 release source and tests from client ownership through wire contracts, message processing, and operational limits. Each chapter combines working API compositions with explicit non-goals and failure or cancellation checks.
 
-1. [Client configuration and lifecycle](./bluetape4k-pulsar/client-lifecycle-configuration.md) — URL and builder configuration, direct ownership, block scopes, and the 1.11.0 cleanup limit.
+1. [Client configuration and lifecycle](./bluetape4k-pulsar/client-lifecycle-configuration.md) — URL and builder configuration, direct ownership, block scopes, and the 1.12.1 cleanup limit.
 2. [Jackson 2 and 3 schemas and wire compatibility](./bluetape4k-pulsar/jackson-schemas-wire-compatibility.md) — `SchemaInfo`, mapper choice, runtime dependencies, and cross-generation verification.
 3. [Producers and coroutine sends](./bluetape4k-pulsar/producers-coroutine-send.md) — direct, message-DSL, and sequential Flow sends with failure boundaries.
 4. [Consumers, Flow, and acknowledgements](./bluetape4k-pulsar/consumers-flow-acknowledgement.md) — an unbounded receive Flow, individual and cumulative ack, and subscription types.
@@ -118,7 +118,7 @@ When a repeated Flow receives `CancellationException` while awaiting a future, i
 
 Observe client connections, producer send latency and pending queues, consumer backlog, redelivery, unacknowledged counts, ack failures, and reader lag. Use bounded topic and subscription dimensions for metrics; do not use message keys or unbounded tenant identifiers as labels.
 
-Design retries together with handler idempotency. During shutdown, stop accepting new sends and receives, wait for in-flight work within a deadline, then close producers, consumers, readers, and the client. The 1.11.0 `with*` helpers alone do not guarantee cleanup completion under cancellation.
+Design retries together with handler idempotency. During shutdown, stop accepting new sends and receives, wait for in-flight work within a deadline, then close producers, consumers, readers, and the client. The 1.12.1 `with*` helpers alone do not guarantee cleanup completion under cancellation.
 
 ## Testing {#testing}
 
@@ -136,22 +136,22 @@ No dedicated workshop is registered in the manual manifest. The release tests se
 
 Before turning these examples into an operational template, add authentication and TLS, schema evolution, idempotent handling, redelivery, and graceful shutdown tests. `AbstractPulsarTest` is a test fixture, not a published API.
 
-## 1.11.0 scope {#limitations}
+## 1.12.1 scope {#limitations}
 
-This manual targets release commit `6187173b58e8b4c5c435c145e00e94708f31ef75`. A later branch adds `PulsarCloseSupport` and tests for cleanup during cancellation; neither is part of 1.11.0.
+This manual targets release commit `7cf0b73646af05c0f8872cc4f6a16983949c4e3e`. A later branch adds `PulsarCloseSupport` and tests for cleanup during cancellation; neither is part of 1.12.1.
 
-Version 1.11.0 does not provide admin APIs, topic or tenant provisioning, schema migration, transaction orchestration, retry or dead-letter policy, health indicators, or metrics exporters. Its `with*` close operation does not run in a non-cancellable context and does not rethrow close failures.
+Version 1.12.1 does not provide admin APIs, topic or tenant provisioning, schema migration, transaction orchestration, retry or dead-letter policy, health indicators, or metrics exporters. Its `with*` close operation does not run in a non-cancellable context and does not rethrow close failures.
 
 <!-- release-readme-diagrams:start -->
 ## Release diagrams {#release-diagrams}
 
-These diagrams are loaded directly from README assets published with the `1.11.0` release and pinned to its immutable commit. They describe this manual's released structure and runtime flows, not later Snapshot changes. Select a preview to open the SVG at the same release commit.
+These diagrams are loaded directly from README assets published with the `1.12.1` release and pinned to its immutable commit. They describe this manual's released structure and runtime flows, not later Snapshot changes. Select a preview to open the SVG at the same release commit.
 
 ### pulsar Class Structure diagram
 
-[![pulsar Class Structure diagram](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/infra-pulsar-diagram-01.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/infra-pulsar-diagram-01.svg)
+[![pulsar Class Structure diagram](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/infra-pulsar-diagram-01.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/infra-pulsar-diagram-01.svg)
 
-_Release README: [`infra/pulsar/README.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/infra/pulsar/README.md)_
+_Release README: [`infra/pulsar/README.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/infra/pulsar/README.md)_
 
 <!-- release-readme-diagrams:end -->
 

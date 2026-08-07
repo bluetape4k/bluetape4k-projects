@@ -9,7 +9,7 @@ chapterId: umbrella-dependency-contract
 
 ## Two lines define the public contract
 
-At 1.11.0, [`infra/redis/build.gradle.kts`](../../../../../infra/redis/build.gradle.kts) declares only these dependencies:
+At 1.12.1, [`infra/redis/build.gradle.kts`](../../../../../infra/redis/build.gradle.kts) declares only these dependencies:
 
 ```kotlin
 dependencies {

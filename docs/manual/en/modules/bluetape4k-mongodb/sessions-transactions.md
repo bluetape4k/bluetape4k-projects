@@ -47,7 +47,7 @@ The helper does not classify transient transaction errors and retry the block. R
 
 If the block or commit throws an `Exception`, the helper attempts `abortTransaction()` and rethrows the original error. An abort failure is attached to the original error as suppressed and logged. The session closes afterward.
 
-Cancellation has a separate `CancellationException` catch, so the cancellation signal is rethrown. However, 1.11.0 calls `abortTransaction()` directly from the already cancelled coroutine and does not wrap cleanup in a `NonCancellable` context. Do not assume abort completes under every cancellation path.
+Cancellation has a separate `CancellationException` catch, so the cancellation signal is rethrown. However, 1.12.1 calls `abortTransaction()` directly from the already cancelled coroutine and does not wrap cleanup in a `NonCancellable` context. Do not assume abort completes under every cancellation path.
 
 ## Topology requirements
 
@@ -66,4 +66,4 @@ Separate transaction duration, commit and abort failures, retry labels, write-co
 - [`MongoClientExtensions.kt`](../../../../../data/mongodb/src/main/kotlin/io/bluetape4k/mongodb/MongoClientExtensions.kt)
 - [`MongoClientSupportTest.kt`](../../../../../data/mongodb/src/test/kotlin/io/bluetape4k/mongodb/MongoClientSupportTest.kt)
 
-The 1.11.0 test verifies `withClientSession` block execution and exception propagation but does not directly test `inTransaction` commit, abort, or cancellation. Application integration tests must cover that gap.
+The 1.12.1 test verifies `withClientSession` block execution and exception propagation but does not directly test `inTransaction` commit, abort, or cancellation. Application integration tests must cover that gap.

@@ -46,7 +46,7 @@ val optional: User? = client.suspendGetOrNull("/users/1")
 
 ## cancellation은 interrupt 신호다
 
-`runInterruptible`은 coroutine 취소 시 실행 thread를 interrupt합니다. 1.11.0 테스트는 blocking request factory가 `InterruptedException`을 처리할 때 실제로 interrupt가 전달되는지 검증합니다.
+`runInterruptible`은 coroutine 취소 시 실행 thread를 interrupt합니다. 1.12.1 테스트는 blocking request factory가 `InterruptedException`을 처리할 때 실제로 interrupt가 전달되는지 검증합니다.
 
 요청 factory가 interrupt를 무시하거나 native I/O가 다른 중단 규칙을 사용하면 즉시 끊긴다고 보장할 수 없습니다. connect/read timeout과 connection pool 제한은 여전히 client configuration에 둬야 합니다.
 

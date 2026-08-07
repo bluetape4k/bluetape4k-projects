@@ -63,7 +63,7 @@ aggregate gauge만 보면 특정 hot region의 eviction 폭증을 놓칠 수 있
 - database query count와 latency
 - cache 설정 변경·배포 시각
 
-local size는 eviction이 비동기 정리되는 순간 정확히 0이 아닐 수 있습니다. 1.11.0 통합 테스트도 local size를 정확한 값이 아니라 0 이상으로 검증합니다. 순간값보다 추세와 database 부하의 상관관계를 봅니다.
+local size는 eviction이 비동기 정리되는 순간 정확히 0이 아닐 수 있습니다. 1.12.1 통합 테스트도 local size를 정확한 값이 아니라 0 이상으로 검증합니다. 순간값보다 추세와 database 부하의 상관관계를 봅니다.
 
 ## 등록 실패
 

@@ -9,7 +9,7 @@ chapterId: testing-and-failure-modes
 
 ## Test in two layers
 
-Combining property conversion and real cache behavior in one test obscures failures. The 1.11.0 module separates them.
+Combining property conversion and real cache behavior in one test obscures failures. The 1.12.1 module separates them.
 
 | Test | External resources | Contract |
 | --- | --- | --- |
@@ -63,7 +63,7 @@ Observation configuration degrades failures and may continue startup. Redis conn
 
 ## Integration fixture caveat
 
-On the narrow 1.11.0 test classpath, Spring Boot 4 split auto-configuration can register duplicate JPA/JDBC beans, so the integration fixture explicitly excludes several framework defaults. This is a test-fixture constraint, not configuration to copy into a normal application.
+On the narrow 1.12.1 test classpath, Spring Boot 4 split auto-configuration can register duplicate JPA/JDBC beans, so the integration fixture explicitly excludes several framework defaults. This is a test-fixture constraint, not configuration to copy into a normal application.
 
 Run Testcontainers suites sequentially with other database and Redis tests to avoid shared Docker and memory contention.
 

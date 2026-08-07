@@ -47,7 +47,7 @@ helper는 transient transaction error를 판별해 전체 block을 재시도하�
 
 block이나 commit이 `Exception`을 던지면 `abortTransaction()`을 시도하고 원래 예외를 다시 던집니다. abort도 실패하면 abort 예외를 원래 예외의 suppressed list에 추가하고 log를 남깁니다. 마지막에는 session을 닫습니다.
 
-취소는 별도의 `CancellationException` catch에서 처리하므로 cancellation signal 자체는 삼키지 않습니다. 다만 1.11.0은 이미 취소된 coroutine에서 `abortTransaction()`을 직접 호출하며 `NonCancellable` context로 감싸지 않습니다. 따라서 abort가 suspend 중 취소될 수 있는 경로까지 cleanup이 완료된다고 단정하지 않습니다.
+취소는 별도의 `CancellationException` catch에서 처리하므로 cancellation signal 자체는 삼키지 않습니다. 다만 1.12.1은 이미 취소된 coroutine에서 `abortTransaction()`을 직접 호출하며 `NonCancellable` context로 감싸지 않습니다. 따라서 abort가 suspend 중 취소될 수 있는 경로까지 cleanup이 완료된다고 단정하지 않습니다.
 
 ## topology 조건
 
@@ -66,4 +66,4 @@ transaction duration, commit·abort 실패, retry label, write concern timeout�
 - [`MongoClientExtensions.kt`](../../../../../data/mongodb/src/main/kotlin/io/bluetape4k/mongodb/MongoClientExtensions.kt)
 - [`MongoClientSupportTest.kt`](../../../../../data/mongodb/src/test/kotlin/io/bluetape4k/mongodb/MongoClientSupportTest.kt)
 
-1.11.0 test는 `withClientSession`의 block 실행과 예외 재전파를 확인하지만 `inTransaction`의 commit·abort·cancellation을 직접 검증하지 않습니다. 이 영역은 application 통합 테스트가 보완해야 합니다.
+1.12.1 test는 `withClientSession`의 block 실행과 예외 재전파를 확인하지만 `inTransaction`의 commit·abort·cancellation을 직접 검증하지 않습니다. 이 영역은 application 통합 테스트가 보완해야 합니다.

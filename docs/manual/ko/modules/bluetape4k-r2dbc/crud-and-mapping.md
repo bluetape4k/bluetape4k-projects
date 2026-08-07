@@ -22,7 +22,7 @@ val id = client
     .awaitOne()
 ```
 
-generated key가 `Int` 범위를 넘는 column이면 `awaitOneLong()`을 사용합니다. README의 `sqlInsert`와 `awaitGeneratedKey`는 1.11.0 source에 없으므로 사용하지 않습니다.
+generated key가 `Int` 범위를 넘는 column이면 `awaitOneLong()`을 사용합니다. README의 `sqlInsert`와 `awaitGeneratedKey`는 1.12.1 source에 없으므로 사용하지 않습니다.
 
 ## update와 delete 범위를 명시한다
 

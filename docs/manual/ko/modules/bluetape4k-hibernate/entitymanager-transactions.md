@@ -21,7 +21,7 @@ val result = emf.withNewEntityManager { em ->
 
 Spring의 `@Transactional` 안에서는 이미 framework가 `EntityManager`와 commit을 소유합니다. 그 안에서 `withNewEntityManager`를 호출하면 같은 service 작업에 별도 persistence context와 transaction이 생길 수 있습니다. framework-managed 경계에서는 주입된 `EntityManager`를 사용합니다.
 
-block이나 commit이 실패하면 rollback을 시도합니다. 1.11.0에서 rollback 실패는 warn log로만 남고 원래 예외에 suppressed로 붙지 않습니다. 원래 예외는 유지되지만 rollback 원인을 사후 분석하려면 해당 logger를 수집해야 합니다.
+block이나 commit이 실패하면 rollback을 시도합니다. 1.12.1에서 rollback 실패는 warn log로만 남고 원래 예외에 suppressed로 붙지 않습니다. 원래 예외는 유지되지만 rollback 원인을 사후 분석하려면 해당 logger를 수집해야 합니다.
 
 ## save는 persist와 merge를 고른다
 

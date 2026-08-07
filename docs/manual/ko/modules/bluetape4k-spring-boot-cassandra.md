@@ -71,7 +71,7 @@ class UserReader(
 
 ## 학습 경로 {#concepts}
 
-각 장은 1.11.0 배포 소스와 테스트에서 확인한 동작을 설명합니다. API 목록에 그치지 않고 session 소유권, cold stream, 빈 결과, 메모리 사용, 스키마 변경 책임을 함께 다룹니다.
+각 장은 1.12.1 배포 소스와 테스트에서 확인한 동작을 설명합니다. API 목록에 그치지 않고 session 소유권, cold stream, 빈 결과, 메모리 사용, 스키마 변경 책임을 함께 다룹니다.
 
 1. [구성과 객체 소유권](./bluetape4k-spring-boot-cassandra/configuration-and-ownership.md) — auto-configuration이 아닌 범위와 `CqlSession`·template·repository 책임을 구분합니다.
 2. [Reactive operations와 coroutine](./bluetape4k-spring-boot-cassandra/reactive-coroutine-operations.md) — `Publisher`를 `Flow`·suspend로 바꿀 때의 실행 시점과 빈 결과를 설명합니다.
@@ -108,7 +108,7 @@ Spring Boot / application configuration
 
 ## 설정 {#configuration}
 
-1.11.0 배포 소스에는 `src/main/resources`, `AutoConfiguration.imports`, `@ConfigurationProperties`, auto-configuration class가 없습니다. 따라서 이 모듈 전용 property prefix나 activation condition도 없습니다.
+1.12.1 배포 소스에는 `src/main/resources`, `AutoConfiguration.imports`, `@ConfigurationProperties`, auto-configuration class가 없습니다. 따라서 이 모듈 전용 property prefix나 activation condition도 없습니다.
 
 접속 주소, local datacenter, keyspace, authentication, request timeout, pooling과 driver metric은 Spring Boot의 Cassandra 설정이나 애플리케이션의 `AbstractCassandraConfiguration`에서 관리합니다. 테스트도 `AbstractCassandraTestConfiguration`이 `CqlSession`을 직접 구성하고 공유합니다. `CqlSession`은 비용이 큰 thread-safe 객체이므로 요청마다 생성하지 않습니다.
 
@@ -147,9 +147,9 @@ manual manifest에 전용 workshop은 없습니다. 대신 테스트가 단계�
 
 더 낮은 수준의 driver API와 paging은 [`bluetape4k-cassandra`](./bluetape4k-cassandra.md), Spring의 공통 coroutine·context helper는 [`bluetape4k-spring-boot-core`](./bluetape4k-spring-boot-core.md)를 함께 봅니다.
 
-## 1.11.0 범위 {#limitations}
+## 1.12.1 범위 {#limitations}
 
-이 매뉴얼은 `bluetape4k-projects` 1.11.0 배포 소스를 기준으로 합니다. artifact 이름에 `spring-boot`가 있지만 자체 auto-configuration, property binding, health·observation, repository 구현은 제공하지 않습니다. DataStax mapper runtime과 driver Micrometer integration도 자동으로 runtime에 추가되지 않습니다.
+이 매뉴얼은 `bluetape4k-projects` 1.12.1 배포 소스를 기준으로 합니다. artifact 이름에 `spring-boot`가 있지만 자체 auto-configuration, property binding, health·observation, repository 구현은 제공하지 않습니다. DataStax mapper runtime과 driver Micrometer integration도 자동으로 runtime에 추가되지 않습니다.
 
 `Flow` batch는 streaming batch가 아니며 입력 전체를 메모리에 올립니다. `SchemaGenerator`는 이미 존재하는 table의 변경 사항을 비교하거나 migration history를 관리하지 않습니다. `AbstractCassandraAuditable`의 `lastModified_by` 컬럼 표기는 소스 계약 그대로이므로 기존 schema naming과 일치하는지 확인해야 합니다.
 
@@ -171,24 +171,24 @@ manual manifest에 전용 workshop은 없습니다. 대신 테스트가 단계�
 <!-- release-readme-diagrams:start -->
 ## 배포본 다이어그램 {#release-diagrams}
 
-아래 그림은 `1.11.0` 배포본의 README 자산을 해당 배포 커밋에서 직접 불러옵니다. 이후 SNAPSHOT이 아니라 이 매뉴얼 버전의 구조와 실행 흐름을 보여 줍니다. 미리보기를 누르면 같은 배포 커밋의 SVG 원본이 열립니다.
+아래 그림은 `1.12.1` 배포본의 README 자산을 해당 배포 커밋에서 직접 불러옵니다. 이후 SNAPSHOT이 아니라 이 매뉴얼 버전의 구조와 실행 흐름을 보여 줍니다. 미리보기를 누르면 같은 배포 커밋의 SVG 원본이 열립니다.
 
 ### Spring Boot Cassandra 핵심 확장 함수와 클래스 구조 다이어그램
 
-[![Spring Boot Cassandra 핵심 확장 함수와 클래스 구조 다이어그램](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/spring-boot-cassandra-diagram-01.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/spring-boot-cassandra-diagram-01.svg)
+[![Spring Boot Cassandra 핵심 확장 함수와 클래스 구조 다이어그램](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/spring-boot-cassandra-diagram-01.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/spring-boot-cassandra-diagram-01.svg)
 
-_배포본 README: [`spring-boot/cassandra/README.ko.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/spring-boot/cassandra/README.ko.md)_
+_배포본 README: [`spring-boot/cassandra/README.ko.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/spring-boot/cassandra/README.ko.md)_
 
 ### Spring Boot Cassandra 데이터 접근 계층 다이어그램
 
-[![Spring Boot Cassandra 데이터 접근 계층 다이어그램](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/spring-boot-cassandra-diagram-02.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/spring-boot-cassandra-diagram-02.svg)
+[![Spring Boot Cassandra 데이터 접근 계층 다이어그램](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/spring-boot-cassandra-diagram-02.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/spring-boot-cassandra-diagram-02.svg)
 
-_배포본 README: [`spring-boot/cassandra/README.ko.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/spring-boot/cassandra/README.ko.md)_
+_배포본 README: [`spring-boot/cassandra/README.ko.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/spring-boot/cassandra/README.ko.md)_
 
 ### Spring Boot Cassandra 코루틴 변환 시퀀스 다이어그램
 
-[![Spring Boot Cassandra 코루틴 변환 시퀀스 다이어그램](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/spring-boot-cassandra-sequence-01.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/spring-boot-cassandra-sequence-01.svg)
+[![Spring Boot Cassandra 코루틴 변환 시퀀스 다이어그램](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/spring-boot-cassandra-sequence-01.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/spring-boot-cassandra-sequence-01.svg)
 
-_배포본 README: [`spring-boot/cassandra/README.ko.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/spring-boot/cassandra/README.ko.md)_
+_배포본 README: [`spring-boot/cassandra/README.ko.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/spring-boot/cassandra/README.ko.md)_
 
 <!-- release-readme-diagrams:end -->

@@ -19,7 +19,7 @@ val cache = caffeine {
 }.build<String, Product>()
 ```
 
-The Cache2k helpers provide typed builders and a default manager. The Ehcache helpers connect heap, off-heap, and disk resource pools. Both provider implementations are `compileOnly` in the 1.11.0 build, so applications using them must supply the runtime dependency.
+The Cache2k helpers provide typed builders and a default manager. The Ehcache helpers connect heap, off-heap, and disk resource pools. Both provider implementations are `compileOnly` in the 1.12.1 build, so applications using them must supply the runtime dependency.
 
 ## JCache managers and names
 

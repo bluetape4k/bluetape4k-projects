@@ -35,7 +35,7 @@ dependencies {
 }
 ```
 
-Cache2k and Ehcache implementations are `compileOnly` dependencies in 1.11.0. Add the selected provider to the application runtime when using those helpers. Caffeine and its JCache provider are API dependencies.
+Cache2k and Ehcache implementations are `compileOnly` dependencies in 1.12.1. Add the selected provider to the application runtime when using those helpers. Caffeine and its JCache provider are API dependencies.
 
 ## First local cache {#quick-start}
 
@@ -74,7 +74,7 @@ This is cache-aside. The cache does not update the repository, so the applicatio
 
 ## Learning path {#concepts}
 
-The chapters follow executable 1.11.0 source and tests rather than extending the README feature list. They explain defaults, concurrency, state after failures, and provider selection with short examples and direct source/test links.
+The chapters follow executable 1.12.1 source and tests rather than extending the README feature list. They explain defaults, concurrency, state after failures, and provider selection with short examples and direct source/test links.
 
 1. [Local providers and JCache](./bluetape4k-cache-core/local-providers-jcache.md) — compare Caffeine, Cache2k, Ehcache, JCache managers, and expiry defaults.
 2. [Cache-aside and loader/writer contracts](./bluetape4k-cache-core/cache-aside-loader-writer.md) — separate caller-owned loading from JCache read/write-through configuration.
@@ -131,64 +131,64 @@ The module tests are the smallest runnable examples. Continue with the [cache-le
 
 For persistence strategies, use the cache chapters in [exposed-workshop](https://github.com/bluetape4k/exposed-workshop) and the examples in [bluetape4k-workshop](https://github.com/bluetape4k/bluetape4k-workshop). They introduce `JdbcCacheRepository`, `EntityMapLoader`, and `EntityMapWriter`, which distinguish a cache `put` from persistence write-through.
 
-## 1.11.0 scope {#limitations}
+## 1.12.1 scope {#limitations}
 
-This manual targets the `bluetape4k-projects` 1.11.0 release source. `cache-core` does not provide a Redis server, cluster invalidation, or a persistence transaction. Provider and repository modules own those concerns.
+This manual targets the `bluetape4k-projects` 1.12.1 release source. `cache-core` does not provide a Redis server, cluster invalidation, or a persistence transaction. Provider and repository modules own those concerns.
 
 `SuspendJCache` is an asynchronous API shape, not a guarantee that every provider is non-blocking. Legacy `NearJCache` and the newer `NearCacheOperations` family also differ, so prefer the factory and shared fixture recommended by the selected provider manual.
 
 <!-- release-readme-diagrams:start -->
 ## Release diagrams {#release-diagrams}
 
-These diagrams are loaded directly from README assets published with the `1.11.0` release and pinned to its immutable commit. They describe this manual's released structure and runtime flows, not later Snapshot changes. Select a preview to open the SVG at the same release commit.
+These diagrams are loaded directly from README assets published with the `1.12.1` release and pinned to its immutable commit. They describe this manual's released structure and runtime flows, not later Snapshot changes. Select a preview to open the SVG at the same release commit.
 
 ### NearCache Interface Hierarchy diagram
 
-[![NearCache Interface Hierarchy diagram](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/cache-cache-core-diagram-01.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/cache-cache-core-diagram-01.svg)
+[![NearCache Interface Hierarchy diagram](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/cache-cache-core-diagram-01.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/cache-cache-core-diagram-01.svg)
 
-_Release README: [`cache/cache-core/README.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/cache/cache-core/README.md)_
+_Release README: [`cache/cache-core/README.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/cache/cache-core/README.md)_
 
 ### NearCacheOperations (Blocking) diagram
 
-[![NearCacheOperations (Blocking) diagram](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/cache-cache-core-diagram-02.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/cache-cache-core-diagram-02.svg)
+[![NearCacheOperations (Blocking) diagram](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/cache-cache-core-diagram-02.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/cache-cache-core-diagram-02.svg)
 
-_Release README: [`cache/cache-core/README.ko.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/cache/cache-core/README.ko.md)_
+_Release README: [`cache/cache-core/README.ko.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/cache/cache-core/README.ko.md)_
 
 ### SuspendNearCacheOperations (Coroutine) diagram
 
-[![SuspendNearCacheOperations (Coroutine) diagram](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/cache-cache-core-diagram-03.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/cache-cache-core-diagram-03.svg)
+[![SuspendNearCacheOperations (Coroutine) diagram](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/cache-cache-core-diagram-03.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/cache-cache-core-diagram-03.svg)
 
-_Release README: [`cache/cache-core/README.ko.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/cache/cache-core/README.ko.md)_
+_Release README: [`cache/cache-core/README.ko.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/cache/cache-core/README.ko.md)_
 
 ### SuspendJCache coroutine interface diagram
 
-[![SuspendJCache coroutine interface diagram](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/cache-cache-core-diagram-04.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/cache-cache-core-diagram-04.svg)
+[![SuspendJCache coroutine interface diagram](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/cache-cache-core-diagram-04.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/cache-cache-core-diagram-04.svg)
 
-_Release README: [`cache/cache-core/README.ko.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/cache/cache-core/README.ko.md)_
+_Release README: [`cache/cache-core/README.ko.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/cache/cache-core/README.ko.md)_
 
 ### NearJCache synchronous two-tier cache diagram
 
-[![NearJCache synchronous two-tier cache diagram](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/cache-cache-core-diagram-05.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/cache-cache-core-diagram-05.svg)
+[![NearJCache synchronous two-tier cache diagram](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/cache-cache-core-diagram-05.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/cache-cache-core-diagram-05.svg)
 
-_Release README: [`cache/cache-core/README.ko.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/cache/cache-core/README.ko.md)_
+_Release README: [`cache/cache-core/README.ko.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/cache/cache-core/README.ko.md)_
 
 ### SuspendNearJCache coroutine operation map diagram
 
-[![SuspendNearJCache coroutine operation map diagram](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/cache-cache-core-diagram-06.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/cache-cache-core-diagram-06.svg)
+[![SuspendNearJCache coroutine operation map diagram](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/cache-cache-core-diagram-06.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/cache-cache-core-diagram-06.svg)
 
-_Release README: [`cache/cache-core/README.ko.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/cache/cache-core/README.ko.md)_
+_Release README: [`cache/cache-core/README.ko.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/cache/cache-core/README.ko.md)_
 
 ### NearCache get() Sequence (front miss → back lookup → front fill) diagram
 
-[![NearCache get() Sequence (front miss → back lookup → front fill) diagram](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/cache-cache-core-sequence-01.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/cache-cache-core-sequence-01.svg)
+[![NearCache get() Sequence (front miss → back lookup → front fill) diagram](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/cache-cache-core-sequence-01.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/cache-cache-core-sequence-01.svg)
 
-_Release README: [`cache/cache-core/README.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/cache/cache-core/README.md)_
+_Release README: [`cache/cache-core/README.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/cache/cache-core/README.md)_
 
 ### NearCache put() Sequence (write-through) diagram
 
-[![NearCache put() Sequence (write-through) diagram](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/cache-cache-core-sequence-02.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/cache-cache-core-sequence-02.svg)
+[![NearCache put() Sequence (write-through) diagram](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/cache-cache-core-sequence-02.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/cache-cache-core-sequence-02.svg)
 
-_Release README: [`cache/cache-core/README.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/cache/cache-core/README.md)_
+_Release README: [`cache/cache-core/README.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/cache/cache-core/README.md)_
 
 <!-- release-readme-diagrams:end -->
 

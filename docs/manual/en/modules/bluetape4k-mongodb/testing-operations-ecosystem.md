@@ -29,7 +29,7 @@ The README test-support example mentions `AbstractMongoTest`, but the class live
 
 Applications should own a test fixture that starts MongoDB and connects a coroutine `MongoClient`. Do not confuse a Testcontainers helper's sync client with the coroutine client type.
 
-## Boundaries of 1.11.0 test coverage
+## Boundaries of 1.12.1 test coverage
 
 Release tests verify these behaviors against MongoDB:
 

@@ -11,7 +11,7 @@ chapterId: module-boundary-dependencies
 
 The production surface has four files: `RedisBinarySerializer`, `RedisCompressSerializer`, the predefined `RedisBinarySerializers`, and `RedisSerializationContext` helpers.
 
-Release 1.11.0 does not contain:
+Release 1.12.1 does not contain:
 
 - `@AutoConfiguration` or starter metadata
 - module-owned `RedisTemplate` or `ReactiveRedisTemplate` beans

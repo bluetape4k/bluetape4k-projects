@@ -85,7 +85,7 @@ try {
 
 ## 학습 경로 {#concepts}
 
-아래 장은 1.11.0 배포 소스와 실행 가능한 테스트를 따라 provider identity, Redis 저장 구조, 동시 계산, L1/L2 순서와 무효화 실패를 설명합니다. 예제마다 기본값과 소유권, 실패 뒤 상태를 함께 다루므로 첫 연결에서 운영 점검까지 순서대로 학습할 수 있습니다.
+아래 장은 1.12.1 배포 소스와 실행 가능한 테스트를 따라 provider identity, Redis 저장 구조, 동시 계산, L1/L2 순서와 무효화 실패를 설명합니다. 예제마다 기본값과 소유권, 실패 뒤 상태를 함께 다루므로 첫 연결에서 운영 점검까지 순서대로 학습할 수 있습니다.
 
 1. [JCache provider, manager와 설정](./bluetape4k-cache-lettuce/jcache-provider-manager.md) — SPI 탐색, `(ClassLoader, URI)` identity, Redis hash와 TTL·codec 설정을 확인합니다.
 2. [동기·suspend JCache](./bluetape4k-cache-lettuce/sync-suspend-jcache.md) — CRUD, listener, EntryProcessor, IO dispatcher와 close/destroy 차이를 다룹니다.
@@ -142,9 +142,9 @@ memoizer에서는 evaluator latency·failure와 hot key를, RESP3에서는 track
 
 database까지 연결한 cache-aside·read-through·write-through·write-behind 비교는 [Exposed Workshop](https://github.com/bluetape4k/exposed-workshop)과 [bluetape4k-workshop](https://github.com/bluetape4k/bluetape4k-workshop)에서 이어갑니다.
 
-## 1.11.0 범위 {#limitations}
+## 1.12.1 범위 {#limitations}
 
-이 매뉴얼은 release commit `6187173b58e8b4c5c435c145e00e94708f31ef75`의 1.11.0 소스와 테스트를 기준으로 합니다. JCache listener는 현재 프로세스의 cache instance가 직접 수행한 연산에서 발생하며 Redis Pub/Sub 기반 전역 JCache event bus가 아닙니다.
+이 매뉴얼은 release commit `7cf0b73646af05c0f8872cc4f6a16983949c4e3e`의 1.12.1 소스와 테스트를 기준으로 합니다. JCache listener는 현재 프로세스의 cache instance가 직접 수행한 연산에서 발생하며 Redis Pub/Sub 기반 전역 JCache event bus가 아닙니다.
 
 RESP3 tracking 시작 실패는 cache 시작을 중단하지 않습니다. `NOLOOP` 때문에 자기 connection의 쓰기는 push를 받지 않고 코드가 직접 L1을 갱신합니다. `withResilience`는 `cache-core`의 decorator이며 독립적인 `ResilientLettuceNearCache` 구현 클래스가 아닙니다.
 
@@ -163,36 +163,36 @@ RESP3 tracking 시작 실패는 cache 시작을 중단하지 않습니다. `NOLO
 <!-- release-readme-diagrams:start -->
 ## 배포본 다이어그램 {#release-diagrams}
 
-아래 그림은 `1.11.0` 배포본의 README 자산을 해당 배포 커밋에서 직접 불러옵니다. 이후 SNAPSHOT이 아니라 이 매뉴얼 버전의 구조와 실행 흐름을 보여 줍니다. 미리보기를 누르면 같은 배포 커밋의 SVG 원본이 열립니다.
+아래 그림은 `1.12.1` 배포본의 README 자산을 해당 배포 커밋에서 직접 불러옵니다. 이후 SNAPSHOT이 아니라 이 매뉴얼 버전의 구조와 실행 흐름을 보여 줍니다. 미리보기를 누르면 같은 배포 커밋의 SVG 원본이 열립니다.
 
 ### LettuceNearCache 클래스 계층도
 
-[![LettuceNearCache 클래스 계층도](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/cache-cache-lettuce-diagram-01.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/cache-cache-lettuce-diagram-01.svg)
+[![LettuceNearCache 클래스 계층도](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/cache-cache-lettuce-diagram-01.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/cache-cache-lettuce-diagram-01.svg)
 
-_배포본 README: [`cache/cache-lettuce/README.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/cache/cache-lettuce/README.md)_
+_배포본 README: [`cache/cache-lettuce/README.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/cache/cache-lettuce/README.md)_
 
 ### Lettuce JCache NearCache 구조도
 
-[![Lettuce JCache NearCache 구조도](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/cache-cache-lettuce-diagram-02.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/cache-cache-lettuce-diagram-02.svg)
+[![Lettuce JCache NearCache 구조도](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/cache-cache-lettuce-diagram-02.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/cache-cache-lettuce-diagram-02.svg)
 
-_배포본 README: [`cache/cache-lettuce/README.ko.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/cache/cache-lettuce/README.ko.md)_
+_배포본 README: [`cache/cache-lettuce/README.ko.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/cache/cache-lettuce/README.ko.md)_
 
 ### Lettuce Cache Stability Contracts 다이어그램
 
-[![Lettuce Cache Stability Contracts 다이어그램](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/cache-cache-lettuce-diagram-03.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/cache-cache-lettuce-diagram-03.svg)
+[![Lettuce Cache Stability Contracts 다이어그램](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/cache-cache-lettuce-diagram-03.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/cache-cache-lettuce-diagram-03.svg)
 
-_배포본 README: [`cache/cache-lettuce/README.ko.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/cache/cache-lettuce/README.ko.md)_
+_배포본 README: [`cache/cache-lettuce/README.ko.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/cache/cache-lettuce/README.ko.md)_
 
 ### Native Lettuce NearCache 구조도
 
-[![Native Lettuce NearCache 구조도](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/cache-cache-lettuce-diagram-04.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/cache-cache-lettuce-diagram-04.svg)
+[![Native Lettuce NearCache 구조도](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/cache-cache-lettuce-diagram-04.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/cache-cache-lettuce-diagram-04.svg)
 
-_배포본 README: [`cache/cache-lettuce/README.ko.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/cache/cache-lettuce/README.ko.md)_
+_배포본 README: [`cache/cache-lettuce/README.ko.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/cache/cache-lettuce/README.ko.md)_
 
 ### RESP3 CLIENT TRACKING Invalidation 다이어그램
 
-[![RESP3 CLIENT TRACKING Invalidation 다이어그램](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/cache-cache-lettuce-sequence-01.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/cache-cache-lettuce-sequence-01.svg)
+[![RESP3 CLIENT TRACKING Invalidation 다이어그램](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/cache-cache-lettuce-sequence-01.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/cache-cache-lettuce-sequence-01.svg)
 
-_배포본 README: [`cache/cache-lettuce/README.ko.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/cache/cache-lettuce/README.ko.md)_
+_배포본 README: [`cache/cache-lettuce/README.ko.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/cache/cache-lettuce/README.ko.md)_
 
 <!-- release-readme-diagrams:end -->

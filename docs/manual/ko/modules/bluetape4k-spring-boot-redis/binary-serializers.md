@@ -47,7 +47,7 @@ JDK 행은 모두 deprecated입니다. 일반 객체에는 Kryo 또는 Fory를 �
 - class 이름·field 변화와 polymorphic type 정책을 확인합니다.
 - 저장 데이터를 다른 언어나 외부 도구가 읽어야 하면 JSON 또는 명시적인 schema format도 비교합니다.
 
-1.11.0 테스트는 String, data class, list와 여러 압축 조합의 같은-version round trip을 검증합니다. 장기 schema evolution까지 보장하지는 않습니다.
+1.12.1 테스트는 String, data class, list와 여러 압축 조합의 같은-version round trip을 검증합니다. 장기 schema evolution까지 보장하지는 않습니다.
 
 ## JDK serializer를 피해야 하는 이유
 

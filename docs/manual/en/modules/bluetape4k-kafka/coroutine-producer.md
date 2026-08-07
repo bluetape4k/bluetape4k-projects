@@ -43,7 +43,7 @@ Despite its name, `sendAndForget` collects the complete flow and awaits each `su
 producer.sendAndForget(records, needFlush = true)
 ```
 
-In 1.11.0 it optionally calls `flush()` only after normal completion. It avoids flushing during failure or cancellation, where flush could block on failed sends or hide the original exception. The caller still closes the client.
+In 1.12.1 it optionally calls `flush()` only after normal completion. It avoids flushing during failure or cancellation, where flush could block on failed sends or hide the original exception. The caller still closes the client.
 
 ## Throughput and backpressure
 

@@ -9,7 +9,7 @@ chapterId: module-boundary-client-lifecycle
 
 ## Small helpers over the official driver
 
-The 1.11.0 production surface contains seven files. They cover client construction, caching, and sessions; database and collection extensions; `Document` helpers; and aggregation stage builders. The MongoDB Kotlin Coroutine Driver still owns the network protocol, pools, retries, codec execution, and `Flow` implementation.
+The 1.12.1 production surface contains seven files. They cover client construction, caching, and sessions; database and collection extensions; `Document` helpers; and aggregation stage builders. The MongoDB Kotlin Coroutine Driver still owns the network protocol, pools, retries, codec execution, and `Flow` implementation.
 
 The build exposes the coroutine driver, Kotlin extensions, and BSON Kotlin as API dependencies. Adding this artifact therefore makes driver APIs available, but bluetape4k does not choose driver settings or provision a server.
 
@@ -41,9 +41,9 @@ val second = MongoClientProvider.getOrCreate(url)
 check(first === second)
 ```
 
-Closing a provider-returned client in one caller can break every caller sharing that instance. Release 1.11.0 has no public eviction or close-all operation, so treat the provider as an application-lifetime singleton.
+Closing a provider-returned client in one caller can break every caller sharing that instance. Release 1.12.1 has no public eviction or close-all operation, so treat the provider as an application-lifetime singleton.
 
-## Two caches in 1.11.0
+## Two caches in 1.12.1
 
 The release source has separate caches for URL strings and `MongoClientSettings`. This affects instance identity.
 
@@ -57,7 +57,7 @@ When one URL needs different timeouts or application names, build complete setti
 
 ## Cache cardinality and credentials
 
-Per-tenant URLs or credentials create a client and pool for every distinct key. Do not feed an unbounded tenant set into the 1.11.0 provider because it has no eviction. Use an application registry with explicit creation and shutdown for dynamic tenants.
+Per-tenant URLs or credentials create a client and pool for every distinct key. Do not feed an unbounded tenant set into the 1.12.1 provider because it has no eviction. Use an application registry with explicit creation and shutdown for dynamic tenants.
 
 The release provider also logs the URL when it creates a client. Review logging policy when credentials are embedded in connection strings.
 

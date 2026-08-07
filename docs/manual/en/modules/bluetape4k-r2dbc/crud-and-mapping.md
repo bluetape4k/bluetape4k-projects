@@ -22,7 +22,7 @@ val id = client
     .awaitOne()
 ```
 
-Use `awaitOneLong()` for generated keys larger than `Int`. The README's `sqlInsert` and `awaitGeneratedKey` do not exist in 1.11.0 source and are not used here.
+Use `awaitOneLong()` for generated keys larger than `Int`. The README's `sqlInsert` and `awaitGeneratedKey` do not exist in 1.12.1 source and are not used here.
 
 ## Make update and delete scope explicit
 

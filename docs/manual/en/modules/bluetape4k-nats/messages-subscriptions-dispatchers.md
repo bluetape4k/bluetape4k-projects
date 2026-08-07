@@ -81,4 +81,4 @@ Set maximum processing concurrency, pending limits, and drop or disconnect polic
 - [`SubscriptionExtensionsTest.kt`](../../../../../infra/nats/src/test/kotlin/io/bluetape4k/nats/client/SubscriptionExtensionsTest.kt)
 - [`SimplePublishExample.kt`](../../../../../infra/nats/src/test/kotlin/io/bluetape4k/nats/SimplePublishExample.kt)
 
-The 1.11.0 module does not provide a `Flow<Message>` adapter or a bounded worker pool. The application chooses the processing and backpressure model.
+The 1.12.1 module does not provide a `Flow<Message>` adapter or a bounded worker pool. The application chooses the processing and backpressure model.
