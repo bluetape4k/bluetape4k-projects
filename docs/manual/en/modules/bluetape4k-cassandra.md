@@ -69,10 +69,10 @@ val releaseVersion = cqlSessionOf(
 
 ## Learning path {#concepts}
 
-The five chapters below do more than list API names. Each chapter starts with the problem, then connects runnable examples, API selection rules, failure and operational boundaries, and the supporting 1.11.0 source and tests. Read them in order when adopting the module, or jump directly to the chapter that matches a problem in an existing application.
+The five chapters below do more than list API names. Each chapter starts with the problem, then connects runnable examples, API selection rules, failure and operational boundaries, and the supporting 1.12.1 source and tests. Read them in order when adopting the module, or jump directly to the chapter that matches a problem in an existing application.
 
 1. **[CqlSession lifecycle and cache boundaries](./bluetape4k-cassandra/session-lifecycle.md)**
-   Start with the smallest `use`-scoped session example, then move to shared-session reuse with `CqlSessionProvider` and `CqlSessionIdentity`. This chapter helps you decide session ownership, cache identity, and where 1.11.0 bootstrap settings belong.
+   Start with the smallest `use`-scoped session example, then move to shared-session reuse with `CqlSessionProvider` and `CqlSessionIdentity`. This chapter helps you decide session ownership, cache identity, and where 1.12.1 bootstrap settings belong.
 2. **[Coroutine queries](./bluetape4k-cassandra/coroutine-queries.md)**
    Follow single-result and multi-page examples built with `executeSuspending`, `prepareSuspending`, and `AsyncResultSet.asFlow()`. See how cancellation, mapper failures, and next-page fetch failures reach the caller.
 3. **[Rows and data mapping](./bluetape4k-cassandra/rows-data-mapping.md)**
@@ -96,7 +96,7 @@ The application owns contact points, `localDatacenter`, authentication, TLS, key
 
 ## Failure behavior {#failures}
 
-Blank keyspaces and local datacenters are rejected at the input boundary. Query preparation and execution, row mapping, and next-page fetch failures propagate at their respective operation boundaries. For bootstrap authentication failures, inspect the 1.11.0 admin-session settings first.
+Blank keyspaces and local datacenters are rejected at the input boundary. Query preparation and execution, row mapping, and next-page fetch failures propagate at their respective operation boundaries. For bootstrap authentication failures, inspect the 1.12.1 admin-session settings first.
 
 ## Operations {#operations}
 
@@ -112,34 +112,34 @@ Tests that require real Cassandra behavior use Testcontainers and a working Dock
 
 ## Workshops {#workshops}
 
-There is no module-specific workshop yet. The examples and source/test links verified against 1.11.0 provide a sequential path through sessions, coroutine paging, mapping, QueryBuilder, and operations.
+There is no module-specific workshop yet. The examples and source/test links verified against 1.12.1 provide a sequential path through sessions, coroutine paging, mapping, QueryBuilder, and operations.
 
-## 1.11.0 limitation {#limitations}
+## 1.12.1 limitation {#limitations}
 
-In 1.11.0, `CqlSessionProvider` builds its keyspace-bootstrap admin session with `builderSupplier().build()`. The trailing builder block applies only to the final keyspace-bound session. Put contact point, local datacenter, authentication, and TLS settings required by both sessions in `builderSupplier`. This differs from the behavior introduced by PR #986 after 1.11.0.
+In 1.12.1, `CqlSessionProvider` builds its keyspace-bootstrap admin session with `builderSupplier().build()`. The trailing builder block applies only to the final keyspace-bound session. Put contact point, local datacenter, authentication, and TLS settings required by both sessions in `builderSupplier`. This differs from the behavior introduced by PR #986 after 1.12.1.
 
 <!-- release-readme-diagrams:start -->
 ## Release diagrams {#release-diagrams}
 
-These diagrams are loaded directly from README assets published with the `1.11.0` release and pinned to its immutable commit. They describe this manual's released structure and runtime flows, not later Snapshot changes. Select a preview to open the SVG at the same release commit.
+These diagrams are loaded directly from README assets published with the `1.12.1` release and pinned to its immutable commit. They describe this manual's released structure and runtime flows, not later Snapshot changes. Select a preview to open the SVG at the same release commit.
 
 ### Extension Function API Overview diagram
 
-[![Extension Function API Overview diagram](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/data-cassandra-diagram-01.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/data-cassandra-diagram-01.svg)
+[![Extension Function API Overview diagram](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/data-cassandra-diagram-01.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/data-cassandra-diagram-01.svg)
 
-_Release README: [`data/cassandra/README.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/data/cassandra/README.md)_
+_Release README: [`data/cassandra/README.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/data/cassandra/README.md)_
 
 ### Core API Structure diagram
 
-[![Core API Structure diagram](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/data-cassandra-diagram-02.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/data-cassandra-diagram-02.svg)
+[![Core API Structure diagram](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/data-cassandra-diagram-02.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/data-cassandra-diagram-02.svg)
 
-_Release README: [`data/cassandra/README.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/data/cassandra/README.md)_
+_Release README: [`data/cassandra/README.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/data/cassandra/README.md)_
 
 ### Asynchronous Query Execution Flow diagram
 
-[![Asynchronous Query Execution Flow diagram](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/data-cassandra-sequence-01.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/data-cassandra-sequence-01.svg)
+[![Asynchronous Query Execution Flow diagram](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/data-cassandra-sequence-01.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/data-cassandra-sequence-01.svg)
 
-_Release README: [`data/cassandra/README.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/data/cassandra/README.md)_
+_Release README: [`data/cassandra/README.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/data/cassandra/README.md)_
 
 <!-- release-readme-diagrams:end -->
 

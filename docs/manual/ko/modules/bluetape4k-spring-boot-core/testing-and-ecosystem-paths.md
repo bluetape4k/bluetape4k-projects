@@ -77,4 +77,4 @@ DataBuffer 테스트에서는 default buffer와 Netty pooled buffer를 나눠 re
 
 ## 매뉴얼로 돌아가기
 
-[Spring Boot 애플리케이션 공통 경계](../bluetape4k-spring-boot-core.md)에서 전체 API 지도와 1.11.0 제한 사항을 다시 확인합니다.
+[Spring Boot 애플리케이션 공통 경계](../bluetape4k-spring-boot-core.md)에서 전체 API 지도와 1.12.1 제한 사항을 다시 확인합니다.

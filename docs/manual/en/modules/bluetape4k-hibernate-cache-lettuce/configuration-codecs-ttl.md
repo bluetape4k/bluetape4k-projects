@@ -46,7 +46,7 @@ Compression trades CPU for payload size. Measure representative entity sizes and
 
 Kryo and Fory reconstruct objects from Redis bytes. Isolate the Redis network, require authentication and ACLs, and do not share arbitrary write access with untrusted applications.
 
-JDK serialization is not an allowlist-based Jackson serializer. A misleading 1.11.0 KDoc phrase associates `jdk` with Jackson, but the actual implementation calls `LettuceBinaryCodecs.jdk()`; this manual follows the code.
+JDK serialization is not an allowlist-based Jackson serializer. A misleading 1.12.1 KDoc phrase associates `jdk` with Jackson, but the actual implementation calls `LettuceBinaryCodecs.jdk()`; this manual follows the code.
 
 ## Sources and tests
 

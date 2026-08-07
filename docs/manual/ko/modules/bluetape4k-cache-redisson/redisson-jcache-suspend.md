@@ -40,7 +40,7 @@ CRUD 대부분은 Redisson JCache의 `*Async()`를 호출하고 `await()`합니�
 
 ## `getAndPut`은 원자적이지 않다
 
-1.11.0의 `getAndPut`은 Redisson JCache가 `getAndPutAsync()`를 제공하지 않아 `get(key)` 다음 `put(key, value)`를 실행합니다.
+1.12.1의 `getAndPut`은 Redisson JCache가 `getAndPutAsync()`를 제공하지 않아 `get(key)` 다음 `put(key, value)`를 실행합니다.
 
 ```kotlin
 val previous = cache.getAndPut("u:1", updated)

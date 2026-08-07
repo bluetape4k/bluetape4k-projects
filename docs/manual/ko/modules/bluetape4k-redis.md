@@ -62,7 +62,7 @@ dependencies {
 
 ## 학습 경로 {#concepts}
 
-아래 장은 1.11.0 배포의 실제 Gradle 계약에서 출발합니다. 우산 모듈에 없는 API나 테스트를 설명하는 대신, 하위 모듈을 안전하게 선택하고 줄이는 방법을 구체적인 build 예제와 연결합니다.
+아래 장은 1.12.1 배포의 실제 Gradle 계약에서 출발합니다. 우산 모듈에 없는 API나 테스트를 설명하는 대신, 하위 모듈을 안전하게 선택하고 줄이는 방법을 구체적인 build 예제와 연결합니다.
 
 1. [우산 의존성 계약](./bluetape4k-redis/umbrella-dependency-contract.md) — `api`로 내보내는 두 artifact와 우산 모듈이 하지 않는 일을 확인합니다.
 2. [Lettuce와 Redisson 선택](./bluetape4k-redis/lettuce-vs-redisson.md) — command 중심 client와 분산 객체 중심 client를 요구사항으로 비교합니다.
@@ -81,7 +81,7 @@ dependencies {
 
 ## 연동 {#integrations}
 
-1.11.0 build가 선언하는 연동은 다음 두 줄뿐입니다.
+1.12.1 build가 선언하는 연동은 다음 두 줄뿐입니다.
 
 ```kotlin
 api(project(":bluetape4k-lettuce"))
@@ -111,17 +111,17 @@ api(project(":bluetape4k-redisson"))
 ./gradlew :bluetape4k-redisson:test --no-build-cache --no-configuration-cache
 ```
 
-두 task는 Redis Testcontainers를 사용하므로 다른 heavy database suite와 병렬 실행하지 않습니다. 문서만 수정할 때는 1.11.0 build·README 링크와 구조 검증으로 충분합니다.
+두 task는 Redis Testcontainers를 사용하므로 다른 heavy database suite와 병렬 실행하지 않습니다. 문서만 수정할 때는 1.12.1 build·README 링크와 구조 검증으로 충분합니다.
 
 ## 워크숍 {#workshops}
 
 우산 모듈 전용 workshop은 없습니다. Lettuce의 `LettuceClientsTest`, `RedisFutureSupportTest`와 Redisson의 `RedissonClientSupportTest`, `RStreamSupportTest`를 작은 실행 예제로 사용합니다. cache와 database를 연결하는 시나리오는 [bluetape4k-workshop](https://github.com/bluetape4k/bluetape4k-workshop)과 [Exposed Workshop](https://github.com/bluetape4k/exposed-workshop)으로 이어갑니다.
 
-## 1.11.0 범위 {#limitations}
+## 1.12.1 범위 {#limitations}
 
-이 매뉴얼은 `bluetape4k-projects` 1.11.0 배포 commit의 `infra/redis/build.gradle.kts`를 기준으로 합니다. 우산 모듈은 두 하위 artifact를 함께 제공할 뿐, 공통 facade·자동 client 선택·Spring 설정·cache provider·통합 테스트를 제공하지 않습니다.
+이 매뉴얼은 `bluetape4k-projects` 1.12.1 배포 commit의 `infra/redis/build.gradle.kts`를 기준으로 합니다. 우산 모듈은 두 하위 artifact를 함께 제공할 뿐, 공통 facade·자동 client 선택·Spring 설정·cache provider·통합 테스트를 제공하지 않습니다.
 
-README의 `:bluetape4k-redis:test` 안내는 Gradle task 실행 방법이지 우산 모듈 자체에 테스트 코드가 있다는 뜻이 아닙니다. 하위 모듈의 이후 변경을 1.11.0 기능으로 소급해 설명하지 않습니다.
+README의 `:bluetape4k-redis:test` 안내는 Gradle task 실행 방법이지 우산 모듈 자체에 테스트 코드가 있다는 뜻이 아닙니다. 하위 모듈의 이후 변경을 1.12.1 기능으로 소급해 설명하지 않습니다.
 
 ## Source와 links {#sources}
 
@@ -136,18 +136,18 @@ README의 `:bluetape4k-redis:test` 안내는 Gradle task 실행 방법이지 우
 <!-- release-readme-diagrams:start -->
 ## 배포본 다이어그램 {#release-diagrams}
 
-아래 그림은 `1.11.0` 배포본의 README 자산을 해당 배포 커밋에서 직접 불러옵니다. 이후 SNAPSHOT이 아니라 이 매뉴얼 버전의 구조와 실행 흐름을 보여 줍니다. 미리보기를 누르면 같은 배포 커밋의 SVG 원본이 열립니다.
+아래 그림은 `1.12.1` 배포본의 README 자산을 해당 배포 커밋에서 직접 불러옵니다. 이후 SNAPSHOT이 아니라 이 매뉴얼 버전의 구조와 실행 흐름을 보여 줍니다. 미리보기를 누르면 같은 배포 커밋의 SVG 원본이 열립니다.
 
 ### 모듈 의존성 구조 다이어그램
 
-[![모듈 의존성 구조 다이어그램](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/infra-redis-diagram-01.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/infra-redis-diagram-01.svg)
+[![모듈 의존성 구조 다이어그램](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/infra-redis-diagram-01.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/infra-redis-diagram-01.svg)
 
-_배포본 README: [`infra/redis/README.ko.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/infra/redis/README.ko.md)_
+_배포본 README: [`infra/redis/README.ko.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/infra/redis/README.ko.md)_
 
 ### 노출 API Surface 다이어그램
 
-[![노출 API Surface 다이어그램](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/infra-redis-diagram-02.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/infra-redis-diagram-02.svg)
+[![노출 API Surface 다이어그램](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/infra-redis-diagram-02.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/infra-redis-diagram-02.svg)
 
-_배포본 README: [`infra/redis/README.ko.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/infra/redis/README.ko.md)_
+_배포본 README: [`infra/redis/README.ko.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/infra/redis/README.ko.md)_
 
 <!-- release-readme-diagrams:end -->

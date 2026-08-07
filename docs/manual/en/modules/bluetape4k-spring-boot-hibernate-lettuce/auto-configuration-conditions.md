@@ -1,6 +1,6 @@
 ---
 title: Auto-configuration conditions and ordering
-description: Verify when the Hibernate, Metrics, and Actuator auto-configurations register or back off in 1.11.0.
+description: Verify when the Hibernate, Metrics, and Actuator auto-configurations register or back off in 1.12.1.
 manualId: bluetape4k-spring-boot-hibernate-lettuce
 chapterId: auto-configuration-conditions
 ---

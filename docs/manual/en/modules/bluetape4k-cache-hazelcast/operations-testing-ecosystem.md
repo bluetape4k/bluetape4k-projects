@@ -56,7 +56,7 @@ Before adoption, add tests with application value types for two-client invalidat
 
 Cache-aside means the application loads the source on a miss and then populates the cache. L1-to-IMap write-through synchronizes cache tiers; it does not persist to a database.
 
-## Exclude stale README claims in 1.11.0
+## Exclude stale README claims in 1.12.1
 
 The release source does not contain the standalone `ResilientHazelcastNearCache`, write-behind queue, or tombstone implementation described by the README. Factory tests show that `withResilience` returns the common `cache-core` decorator. Keep operations and documentation within that contract.
 

@@ -61,7 +61,7 @@ fun renameAccount(
 }
 ```
 
-블록이 끝나면 dirty checking 결과를 commit하고 `EntityManager`를 닫습니다. 블록이 실패하면 rollback을 시도한 뒤 원래 예외를 던집니다. rollback 자체의 실패는 1.11.0에서 경고 로그로만 남고 suppressed exception에는 들어가지 않습니다. Spring 애플리케이션에서는 보통 `@Transactional`과 주입된 `EntityManager`가 경계를 소유하므로 이 helper로 transaction을 한 겹 더 만들지 않습니다.
+블록이 끝나면 dirty checking 결과를 commit하고 `EntityManager`를 닫습니다. 블록이 실패하면 rollback을 시도한 뒤 원래 예외를 던집니다. rollback 자체의 실패는 1.12.1에서 경고 로그로만 남고 suppressed exception에는 들어가지 않습니다. Spring 애플리케이션에서는 보통 `@Transactional`과 주입된 `EntityManager`가 경계를 소유하므로 이 helper로 transaction을 한 겹 더 만들지 않습니다.
 
 ## API 선택 지도 {#api-by-task}
 
@@ -79,7 +79,7 @@ fun renameAccount(
 
 ## 학습 경로 {#concepts}
 
-각 장에는 기능 설명만이 아니라 실제 코드, 잘못 쓰기 쉬운 지점, 1.11.0 배포 소스와 대표 테스트를 함께 담았습니다. 설명을 읽고 곧바로 실행 예제와 구현 근거를 확인할 수 있습니다.
+각 장에는 기능 설명만이 아니라 실제 코드, 잘못 쓰기 쉬운 지점, 1.12.1 배포 소스와 대표 테스트를 함께 담았습니다. 설명을 읽고 곧바로 실행 예제와 구현 근거를 확인할 수 있습니다.
 
 1. [엔티티 모델과 수명주기](./bluetape4k-hibernate/entity-model-lifecycle.md) — 식별자, `persist` 전후의 동일성, tree entity와 proxy를 다룹니다.
 2. [EntityManager와 transaction](./bluetape4k-hibernate/entitymanager-transactions.md) — transaction 소유권, save·delete, flush와 bulk query 경계를 설명합니다.
@@ -94,7 +94,7 @@ fun renameAccount(
 
 transaction은 여러 변경이 함께 성공하거나 실패해야 하는 service 경계에 둡니다. `merge`를 호출한 뒤에는 반환된 managed entity를 사용하고, query 결과는 transaction 안에서 필요한 연관까지 읽거나 DTO로 바꿉니다. 대량 조회에는 항상 pagination을 지정하고, bulk update/delete 뒤에는 persistence context를 정리합니다.
 
-엔티티의 business equality는 생성 시점부터 안정적인 값으로 정의합니다. 다만 1.11.0의 transient entity hash 계약에는 알려진 제한이 있으므로 식별자가 없는 엔티티를 hash 기반 collection의 중복 제거 키로 사용하지 않습니다.
+엔티티의 business equality는 생성 시점부터 안정적인 값으로 정의합니다. 다만 1.12.1의 transient entity hash 계약에는 알려진 제한이 있으므로 식별자가 없는 엔티티를 hash 기반 collection의 중복 제거 키로 사용하지 않습니다.
 
 ## 연동 {#integrations}
 
@@ -134,11 +134,11 @@ query latency, flush 횟수, transaction rollback, connection pool, batch 크기
 
 JPA 애플리케이션 형태의 예제는 [JPA Querydsl demo](./bluetape4k-examples-jpa-querydsl-demo.md)와 [Blaze-Persistence demo](./bluetape4k-examples-jpa-blazepersistence-demo.md)로 이어집니다.
 
-## 1.11.0 범위 {#limitations}
+## 1.12.1 범위 {#limitations}
 
-이 매뉴얼은 `bluetape4k-projects` 1.11.0 태그의 소스를 기준으로 합니다. 이후 `develop`에서 고친 transient entity hash 계약과 Spring transaction의 StatelessSession resource key 분리는 1.11.0 기능으로 설명하지 않습니다.
+이 매뉴얼은 `bluetape4k-projects` 1.12.1 태그의 소스를 기준으로 합니다. 이후 `develop`에서 고친 transient entity hash 계약과 Spring transaction의 StatelessSession resource key 분리는 1.12.1 기능으로 설명하지 않습니다.
 
-1.11.0의 `StatelessSessionFactoryBean`은 Spring transaction resource key가 기존 JPA resource와 충돌할 수 있습니다. 이 버전에서는 Spring 주입 proxy보다 명시적인 `SessionFactory.withStateless`를 우선합니다. StatelessSession 자체도 cascade, dirty checking, 1차 cache와 JPA listener를 제공하지 않습니다.
+1.12.1의 `StatelessSessionFactoryBean`은 Spring transaction resource key가 기존 JPA resource와 충돌할 수 있습니다. 이 버전에서는 Spring 주입 proxy보다 명시적인 `SessionFactory.withStateless`를 우선합니다. StatelessSession 자체도 cascade, dirty checking, 1차 cache와 JPA listener를 제공하지 않습니다.
 
 ## Source와 tests {#sources}
 
@@ -156,24 +156,24 @@ JPA 애플리케이션 형태의 예제는 [JPA Querydsl demo](./bluetape4k-exam
 <!-- release-readme-diagrams:start -->
 ## 배포본 다이어그램 {#release-diagrams}
 
-아래 그림은 `1.11.0` 배포본의 README 자산을 해당 배포 커밋에서 직접 불러옵니다. 이후 SNAPSHOT이 아니라 이 매뉴얼 버전의 구조와 실행 흐름을 보여 줍니다. 미리보기를 누르면 같은 배포 커밋의 SVG 원본이 열립니다.
+아래 그림은 `1.12.1` 배포본의 README 자산을 해당 배포 커밋에서 직접 불러옵니다. 이후 SNAPSHOT이 아니라 이 매뉴얼 버전의 구조와 실행 흐름을 보여 줍니다. 미리보기를 누르면 같은 배포 커밋의 SVG 원본이 열립니다.
 
 ### 영속성 확장 구조 다이어그램
 
-[![영속성 확장 구조 다이어그램](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/data-hibernate-diagram-01.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/data-hibernate-diagram-01.svg)
+[![영속성 확장 구조 다이어그램](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/data-hibernate-diagram-01.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/data-hibernate-diagram-01.svg)
 
-_배포본 README: [`data/hibernate/README.ko.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/data/hibernate/README.ko.md)_
+_배포본 README: [`data/hibernate/README.ko.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/data/hibernate/README.ko.md)_
 
 ### JPA 엔티티 클래스 계층 구조 다이어그램
 
-[![JPA 엔티티 클래스 계층 구조 다이어그램](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/data-hibernate-diagram-02.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/data-hibernate-diagram-02.svg)
+[![JPA 엔티티 클래스 계층 구조 다이어그램](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/data-hibernate-diagram-02.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/data-hibernate-diagram-02.svg)
 
-_배포본 README: [`data/hibernate/README.ko.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/data/hibernate/README.ko.md)_
+_배포본 README: [`data/hibernate/README.ko.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/data/hibernate/README.ko.md)_
 
 ### AttributeConverter 종류 다이어그램
 
-[![AttributeConverter 종류 다이어그램](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/data-hibernate-diagram-03.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/data-hibernate-diagram-03.svg)
+[![AttributeConverter 종류 다이어그램](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/data-hibernate-diagram-03.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/data-hibernate-diagram-03.svg)
 
-_배포본 README: [`data/hibernate/README.ko.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/data/hibernate/README.ko.md)_
+_배포본 README: [`data/hibernate/README.ko.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/data/hibernate/README.ko.md)_
 
 <!-- release-readme-diagrams:end -->

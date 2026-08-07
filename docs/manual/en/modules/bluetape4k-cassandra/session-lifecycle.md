@@ -1,6 +1,6 @@
 ---
 title: CqlSession lifecycle and cache boundaries
-description: Understand ownership, cache identity, and the 1.11.0 bootstrap limitation for direct and provider-managed sessions.
+description: Understand ownership, cache identity, and the 1.12.1 bootstrap limitation for direct and provider-managed sessions.
 manualId: bluetape4k-cassandra
 chapterId: session-lifecycle
 ---
@@ -78,13 +78,13 @@ fun tenantOrdersSession(
 }
 ```
 
-`builderSupplier` must return a fresh builder each time it is called. In 1.11.0, session creation logs `${identity.context}` at INFO. Never put passwords, tokens, raw usernames, tenant identifiers, or customer identifiers in the context. Use only log-approved opaque routing profile IDs or credential versions.
+`builderSupplier` must return a fresh builder each time it is called. In 1.12.1, session creation logs `${identity.context}` at INFO. Never put passwords, tokens, raw usernames, tenant identifiers, or customer identifiers in the context. Use only log-approved opaque routing profile IDs or credential versions.
 
-Do not include request IDs, correlation IDs, random UUIDs, or other unbounded per-request values either. The 1.11.0 cache has no size limit or idle eviction, so each distinct value can create another session that remains until it is closed or the process shuts down. The `clientId`, `routingProfile`, and `credentialVersion` above are bounded deployment configuration values.
+Do not include request IDs, correlation IDs, random UUIDs, or other unbounded per-request values either. The 1.12.1 cache has no size limit or idle eviction, so each distinct value can create another session that remains until it is closed or the process shuts down. The `clientId`, `routingProfile`, and `credentialVersion` above are bounded deployment configuration values.
 
-## 1.11.0 bootstrap limitation
+## 1.12.1 bootstrap limitation
 
-In 1.11.0, the provider creates two sessions in sequence so it can create a missing keyspace.
+In 1.12.1, the provider creates two sessions in sequence so it can create a missing keyspace.
 
 ```kotlin
 builderSupplier().build().use { adminSession ->
@@ -99,7 +99,7 @@ builderSupplier()
 
 `builderSupplier` therefore supplies the contact point, local datacenter, authentication, and TLS settings needed by both the admin and final builders. The trailing builder block applies only to the final session. In the example above, `withApplicationName("order-reader")` does not affect the bootstrap session.
 
-This is the behavior before the bootstrap-builder fix merged after 1.11.0. If the application should not own keyspace DDL, or bootstrap requires separate settings, manage the keyspace during deployment and open a directly owned session with `cqlSessionOf`.
+This is the behavior before the bootstrap-builder fix merged after 1.12.1. If the application should not own keyspace DDL, or bootstrap requires separate settings, manage the keyspace during deployment and open a directly owned session with `cqlSessionOf`.
 
 ## Shutdown
 
@@ -109,7 +109,7 @@ The default provider-session lifetime is the lifetime of the process or owning c
 
 ## Failure table
 
-| Situation | 1.11.0 behavior | Response |
+| Situation | 1.12.1 behavior | Response |
 | --- | --- | --- |
 | Blank keyspace | `CqlSessionIdentity` and the keyspace overload throw `IllegalArgumentException`. | Validate the keyspace at the input boundary. |
 | Blank local datacenter | `newCqlSessionBuilder` throws `IllegalArgumentException`. | Reject an empty driver setting immediately after loading configuration. |

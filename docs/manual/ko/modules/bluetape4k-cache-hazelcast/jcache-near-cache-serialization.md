@@ -11,7 +11,7 @@ chapterId: jcache-near-cache-serialization
 
 `HazelcastNearJCache`는 back JCache event를 받아 front cache를 갱신하려고 `MutableCacheEntryListenerConfiguration`을 등록합니다. listener factory가 Caffeine cache proxy를 캡처하면 Hazelcast가 이 구성을 cluster로 보내는 과정에서 직렬화하지 못합니다.
 
-release tests는 이 경로가 `HazelcastSerializationException`과 내부 `NotSerializableException`으로 실패하는 것을 명시적으로 검증합니다. 즉, 이 factory는 문서상 가능한 조합처럼 보여도 1.11.0 client JCache 구성에서는 지원 경로가 아닙니다.
+release tests는 이 경로가 `HazelcastSerializationException`과 내부 `NotSerializableException`으로 실패하는 것을 명시적으로 검증합니다. 즉, 이 factory는 문서상 가능한 조합처럼 보여도 1.12.1 client JCache 구성에서는 지원 경로가 아닙니다.
 
 ## HazelcastCaches factory는 listener를 빼고 만든다
 
@@ -36,12 +36,12 @@ peer 변경 무효화가 필요하면 JCache factory 대신 `HazelcastNearCache`
 | 선택 | 장점 | 제한 |
 | --- | --- | --- |
 | factory JCache Near Cache | JCache front/back 계약 재사용 | listener 없음, peer L1 propagation 없음 |
-| direct listener-backed JCache factory | 의도는 event propagation | 1.11.0에서 직렬화 실패 |
+| direct listener-backed JCache factory | 의도는 event propagation | 1.12.1에서 직렬화 실패 |
 | native IMap Near Cache | client-side entry listener 무효화 | String key, JCache API가 아님 |
 
 ## suspend factory의 고정 front 설정
 
-1.11.0의 `suspendNearJCache` factory는 Caffeine front를 최대 10,000개, 접근 후 30분 만료로 직접 만듭니다. 전달한 `NearJCacheConfig`의 cache 이름은 back cache에 쓰지만 front 용량과 만료는 이 고정 구성입니다. 다른 정책이 필요하면 지원 capability를 확인한 별도 구성을 사용합니다.
+1.12.1의 `suspendNearJCache` factory는 Caffeine front를 최대 10,000개, 접근 후 30분 만료로 직접 만듭니다. 전달한 `NearJCacheConfig`의 cache 이름은 back cache에 쓰지만 front 용량과 만료는 이 고정 구성입니다. 다른 정책이 필요하면 지원 capability를 확인한 별도 구성을 사용합니다.
 
 ## Source와 tests
 

@@ -23,7 +23,7 @@ val restored = codec.deserialize("events", bytes)
 
 `AbstractKafkaCodec` writes the Java FQN to the `bluetape4k.kafka.codec.value.type` header by default. The Jackson codec uses that header to select a class during deserialization. The wire format therefore includes both payload bytes and this header.
 
-If an untrusted producer can edit the header, it controls class-loading input. The 1.11.0 default `allowedTypePackages` is therefore empty and denies every header class.
+If an untrusted producer can edit the header, it controls class-loading input. The 1.12.1 default `allowedTypePackages` is therefore empty and denies every header class.
 
 ```kotlin
 val codec = JacksonKafkaCodec(
@@ -41,7 +41,7 @@ Count null failures and configure recovery such as Spring Kafka `ErrorHandlingDe
 
 ## Binary codecs and optional dependencies
 
-`KafkaCodecs` exposes Kryo/Fory combined with LZ4, Snappy, and Zstd. Kryo, Fory, Snappy, and Zstd are optional in the 1.11.0 build. Accessing a singleton without its runtime classes can fail during initialization.
+`KafkaCodecs` exposes Kryo/Fory combined with LZ4, Snappy, and Zstd. Kryo, Fory, Snappy, and Zstd are optional in the 1.12.1 build. Accessing a singleton without its runtime classes can fail during initialization.
 
 The Fory variants use a default serializer that accepts unregistered classes. Restrict them to trusted topics, or provide a codec backed by an application-configured serializer that enforces registration.
 

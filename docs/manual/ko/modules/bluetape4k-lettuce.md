@@ -66,12 +66,12 @@ try {
 
 ## 학습 경로 {#concepts}
 
-아래 장은 기능을 나열하는 데서 끝나지 않습니다. 1.11.0 배포 소스와 대표 테스트를 따라 client ownership, cancellation, codec 호환성, write-behind 장애를 실제 코드 예제와 함께 설명합니다.
+아래 장은 기능을 나열하는 데서 끝나지 않습니다. 1.12.1 배포 소스와 대표 테스트를 따라 client ownership, cancellation, codec 호환성, write-behind 장애를 실제 코드 예제와 함께 설명합니다.
 
 1. [Client와 connection](./bluetape4k-lettuce/clients-and-connections.md) — 공유 resource, cached connection, pipeline과 종료 책임을 정합니다.
 2. [Command와 coroutine](./bluetape4k-lettuce/commands-and-coroutines.md) — sync/async/coroutine 선택과 future 대기·취소를 다룹니다.
 3. [Codec과 직렬화](./bluetape4k-lettuce/codecs-and-serialization.md) — binary/JSON/primitive codec, 신뢰 경계와 migration을 설명합니다.
-4. [Map과 cache loader](./bluetape4k-lettuce/maps-and-cache-loading.md) — read-through, write-through, write-behind와 1.11.0 Near Cache 범위를 확인합니다.
+4. [Map과 cache loader](./bluetape4k-lettuce/maps-and-cache-loading.md) — read-through, write-through, write-behind와 1.12.1 Near Cache 범위를 확인합니다.
 5. [Filter, script와 분산 primitive](./bluetape4k-lettuce/filters-scripts-and-primitives.md) — 확률 자료구조와 Lua 기반 원자 연산을 선택합니다.
 6. [운영과 생태계 경로](./bluetape4k-lettuce/operations-and-ecosystem.md) — 관측·테스트에서 cache, Hibernate, Exposed, workshop으로 이어갑니다.
 
@@ -107,9 +107,9 @@ connection 수와 reconnect, command latency, pipeline batch 크기, write-behin
 
 가장 작은 실행 예제는 `LettuceClientsTest`, `RedisFutureSupportTest`, `LettuceLoadedMapTest`, `RedisScriptTest`입니다. 실제 cache-aside와 database 경계를 연결하려면 [bluetape4k-workshop](https://github.com/bluetape4k/bluetape4k-workshop)과 [Exposed Workshop](https://github.com/bluetape4k/exposed-workshop)의 cache 예제로 이어갑니다.
 
-## 1.11.0 범위 {#limitations}
+## 1.12.1 범위 {#limitations}
 
-`LettuceCacheConfig`에는 Near Cache 설정이 있지만 1.11.0의 loaded map은 이를 읽지 않으며 Caffeine 저장소나 RESP3 client tracking invalidation도 구현하지 않습니다. 따라서 `READ_ONLY_WITH_NEAR_CACHE` 같은 preset을 실제 local cache 보장으로 해석하면 안 됩니다. RESP3 설정은 benchmark의 비권장 조합으로만 기록돼 있습니다.
+`LettuceCacheConfig`에는 Near Cache 설정이 있지만 1.12.1의 loaded map은 이를 읽지 않으며 Caffeine 저장소나 RESP3 client tracking invalidation도 구현하지 않습니다. 따라서 `READ_ONLY_WITH_NEAR_CACHE` 같은 preset을 실제 local cache 보장으로 해석하면 안 됩니다. RESP3 설정은 benchmark의 비권장 조합으로만 기록돼 있습니다.
 
 ## Source와 tests {#sources}
 
@@ -124,24 +124,24 @@ connection 수와 reconnect, command latency, pipeline batch 크기, write-behin
 <!-- release-readme-diagrams:start -->
 ## 배포본 다이어그램 {#release-diagrams}
 
-아래 그림은 `1.11.0` 배포본의 README 자산을 해당 배포 커밋에서 직접 불러옵니다. 이후 SNAPSHOT이 아니라 이 매뉴얼 버전의 구조와 실행 흐름을 보여 줍니다. 미리보기를 누르면 같은 배포 커밋의 SVG 원본이 열립니다.
+아래 그림은 `1.12.1` 배포본의 README 자산을 해당 배포 커밋에서 직접 불러옵니다. 이후 SNAPSHOT이 아니라 이 매뉴얼 버전의 구조와 실행 흐름을 보여 줍니다. 미리보기를 누르면 같은 배포 커밋의 SVG 원본이 열립니다.
 
 ### 분산 Primitive API 패밀리 다이어그램
 
-[![분산 Primitive API 패밀리 다이어그램](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/infra-lettuce-diagram-01.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/infra-lettuce-diagram-01.svg)
+[![분산 Primitive API 패밀리 다이어그램](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/infra-lettuce-diagram-01.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/infra-lettuce-diagram-01.svg)
 
-_배포본 README: [`infra/lettuce/README.ko.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/infra/lettuce/README.ko.md)_
+_배포본 README: [`infra/lettuce/README.ko.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/infra/lettuce/README.ko.md)_
 
 ### Lettuce Codec API 구조 다이어그램
 
-[![Lettuce Codec API 구조 다이어그램](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/infra-lettuce-diagram-02.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/infra-lettuce-diagram-02.svg)
+[![Lettuce Codec API 구조 다이어그램](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/infra-lettuce-diagram-02.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/infra-lettuce-diagram-02.svg)
 
-_배포본 README: [`infra/lettuce/README.ko.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/infra/lettuce/README.ko.md)_
+_배포본 README: [`infra/lettuce/README.ko.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/infra/lettuce/README.ko.md)_
 
 ### LettuceLoadedMap Read-Through / Write-Through 흐름 다이어그램
 
-[![LettuceLoadedMap Read-Through / Write-Through 흐름 다이어그램](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/infra-lettuce-sequence-01.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/infra-lettuce-sequence-01.svg)
+[![LettuceLoadedMap Read-Through / Write-Through 흐름 다이어그램](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/infra-lettuce-sequence-01.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/infra-lettuce-sequence-01.svg)
 
-_배포본 README: [`infra/lettuce/README.ko.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/infra/lettuce/README.ko.md)_
+_배포본 README: [`infra/lettuce/README.ko.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/infra/lettuce/README.ko.md)_
 
 <!-- release-readme-diagrams:end -->

@@ -116,7 +116,7 @@ Tuple도 같은 방식으로 `TupleValue`를 만들고 `setTupleValue`/`getTuple
 
 ## Codec으로 애플리케이션 타입 연결하기
 
-기본 codec에 없는 타입은 `CqlSessionBuilder.addTypeCodecs(...)`로 등록합니다. 1.11.0 예제는 `MappingCodec`, enum, `Optional`, 배열 codec을 등록한 뒤 `getValue<T>`와 `setValue`를 사용합니다.
+기본 codec에 없는 타입은 `CqlSessionBuilder.addTypeCodecs(...)`로 등록합니다. 1.12.1 예제는 `MappingCodec`, enum, `Optional`, 배열 codec을 등록한 뒤 `getValue<T>`와 `setValue`를 사용합니다.
 
 ```kotlin
 sessionBuilder.addTypeCodecs(CqlIntToStringCodec())
@@ -146,7 +146,7 @@ val result = session.execute(statement)
 
 `lenient = true`이면 target에 대응 컬럼이 없는 entity 속성을 건너뛰므로 일부 속성만 채운 statement가 만들어질 수 있습니다. `lenient = false`이면 computed property를 제외한 모든 entity 속성에 대응하는 target 컬럼이 있어야 하며, 하나라도 없으면 `IllegalArgumentException`이 발생합니다. 저장 의도와 prepared statement의 bind marker 구성을 확인한 뒤 두 값을 정합니다.
 
-`bluetape4k-cassandra` 1.11.0은 DataStax mapper runtime을 API dependency로 제공합니다. 하지만 애플리케이션의 `EntityHelper<T>` 코드는 mapper annotation processor가 생성해야 합니다. runtime이 classpath에 있다는 사실만으로 helper가 생기지는 않습니다. processor 설정 없이 사용한다면 직접 작성한 typed row mapper가 더 단순한 경계입니다.
+`bluetape4k-cassandra` 1.12.1은 DataStax mapper runtime을 API dependency로 제공합니다. 하지만 애플리케이션의 `EntityHelper<T>` 코드는 mapper annotation processor가 생성해야 합니다. runtime이 classpath에 있다는 사실만으로 helper가 생기지는 않습니다. processor 설정 없이 사용한다면 직접 작성한 typed row mapper가 더 단순한 경계입니다.
 
 ## 무엇을 선택할까
 

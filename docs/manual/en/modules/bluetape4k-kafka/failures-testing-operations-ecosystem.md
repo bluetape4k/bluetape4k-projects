@@ -70,9 +70,9 @@ Separate producer errors/retries/request latency/buffers, consumer lag/rebalance
 | Coroutine and Flow foundations | [`bluetape4k-coroutines`](../bluetape4k-coroutines.md) | Kafka delivery semantics remain here |
 | Shared Kafka Testcontainers support | [`bluetape4k-testcontainers`](../bluetape4k-testcontainers.md) | Caller owns application fixtures/lifecycle |
 
-## 1.11.0 versus the development branch
+## 1.12.1 versus the development branch
 
-After the release, Kafka tests gained per-module temporary directories, and consumer-template close gained warnings for non-`AutoCloseable` receivers plus logged/suppressed close failures. This manual uses the 1.11.0 contract: conditional close, no warning, and direct close-exception propagation.
+After the release, Kafka tests gained per-module temporary directories, and consumer-template close gained warnings for non-`AutoCloseable` receivers plus logged/suppressed close failures. This manual uses the 1.12.1 contract: conditional close, no warning, and direct close-exception propagation.
 
 ## Sources and tests
 

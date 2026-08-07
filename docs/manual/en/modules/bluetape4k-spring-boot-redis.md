@@ -13,7 +13,7 @@ learningOrder: 940
 
 `bluetape4k-spring-boot-redis` adapts bluetape4k binary serializers and compressors to Spring Data Redis `RedisSerializer` and `RedisSerializationContext`. It provides Kryo and Fory object formats, optional GZip, LZ4, Snappy, or Zstd compression, and helpers for applying one policy to the key, value, hash-key, and hash-value slots of `RedisTemplate` and `ReactiveRedisTemplate`.
 
-This module is not a Redis client or cache implementation. Release 1.11.0 contains no `@AutoConfiguration`, `@ConfigurationProperties`, or `RedisTemplateCustomizer`. The application must combine the connection factory supplied by Spring Boot with explicit template beans and serializers.
+This module is not a Redis client or cache implementation. Release 1.12.1 contains no `@AutoConfiguration`, `@ConfigurationProperties`, or `RedisTemplateCustomizer`. The application must combine the connection factory supplied by Spring Boot with explicit template beans and serializers.
 
 ## Decisions before adoption {#when-to-use}
 
@@ -73,7 +73,7 @@ This overload uses UTF-8 strings for keys and hash keys and the supplied seriali
 
 ## Learning path {#concepts}
 
-These chapters follow the 1.11.0 release source and tests from module boundary through migration and operations. They cover template setup, null contracts, runtime dependencies, security, and compatibility rather than only listing serializer names.
+These chapters follow the 1.12.1 release source and tests from module boundary through migration and operations. They cover template setup, null contracts, runtime dependencies, security, and compatibility rather than only listing serializer names.
 
 1. [Module boundary and dependencies](./bluetape4k-spring-boot-redis/module-boundary-dependencies.md) — Separate the serializer integration from auto-configuration, connections, and cache behavior.
 2. [Choosing binary serializers](./bluetape4k-spring-boot-redis/binary-serializers.md) — Compare Kryo, Fory, and deprecated JDK combinations, lazy singletons, and null behavior.
@@ -98,7 +98,7 @@ For JCache, memoizers, or near caches, continue to [`bluetape4k-cache-lettuce`](
 
 ## Configuration {#configuration}
 
-Release 1.11.0 has no module-specific properties. Configure endpoints, pools, SSL, and timeouts with Spring Boot's Spring Data Redis settings. At this module boundary, the application chooses serializers and contexts per template.
+Release 1.12.1 has no module-specific properties. Configure endpoints, pools, SSL, and timeouts with Spring Boot's Spring Data Redis settings. At this module boundary, the application chooses serializers and contexts per template.
 
 ```kotlin
 val context = redisSerializationContext<String, Any> {
@@ -140,28 +140,28 @@ Start with `RedisSerializationContextSupportTest` for small DSL examples and `Re
 
 For near-cache or distributed memoizer exercises, continue to the cache-lettuce or cache-redisson manuals. Verify each provider's codec boundary instead of assuming that template serializers and cache codecs are interchangeable.
 
-## 1.11.0 scope {#limitations}
+## 1.12.1 scope {#limitations}
 
-This manual targets release commit `6187173b58e8b4c5c435c145e00e94708f31ef75`. The production API consists of four Kotlin source files containing serializer and context helpers.
+This manual targets release commit `7cf0b73646af05c0f8872cc4f6a16983949c4e3e`. The production API consists of four Kotlin source files containing serializer and context helpers.
 
-Auto-configuration, customizers, properties, health indicators, metrics, client wrappers, and cache implementations are outside the 1.11.0 module. “Spring Boot 4” identifies its dependency line; it does not imply an auto-configuration module.
+Auto-configuration, customizers, properties, health indicators, metrics, client wrappers, and cache implementations are outside the 1.12.1 module. “Spring Boot 4” identifies its dependency line; it does not imply an auto-configuration module.
 
 <!-- release-readme-diagrams:start -->
 ## Release diagrams {#release-diagrams}
 
-These diagrams are loaded directly from README assets published with the `1.11.0` release and pinned to its immutable commit. They describe this manual's released structure and runtime flows, not later Snapshot changes. Select a preview to open the SVG at the same release commit.
+These diagrams are loaded directly from README assets published with the `1.12.1` release and pinned to its immutable commit. They describe this manual's released structure and runtime flows, not later Snapshot changes. Select a preview to open the SVG at the same release commit.
 
 ### Redis Serializer Class Structure diagram
 
-[![Redis Serializer Class Structure diagram](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/spring-boot-redis-diagram-01.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/spring-boot-redis-diagram-01.svg)
+[![Redis Serializer Class Structure diagram](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/spring-boot-redis-diagram-01.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/spring-boot-redis-diagram-01.svg)
 
-_Release README: [`spring-boot/redis/README.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/spring-boot/redis/README.md)_
+_Release README: [`spring-boot/redis/README.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/spring-boot/redis/README.md)_
 
 ### ReactiveRedisTemplate Serialization Flow diagram
 
-[![ReactiveRedisTemplate Serialization Flow diagram](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/spring-boot-redis-diagram-02.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/spring-boot-redis-diagram-02.svg)
+[![ReactiveRedisTemplate Serialization Flow diagram](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/spring-boot-redis-diagram-02.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/spring-boot-redis-diagram-02.svg)
 
-_Release README: [`spring-boot/redis/README.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/spring-boot/redis/README.md)_
+_Release README: [`spring-boot/redis/README.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/spring-boot/redis/README.md)_
 
 <!-- release-readme-diagrams:end -->
 

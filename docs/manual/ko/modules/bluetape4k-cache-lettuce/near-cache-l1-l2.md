@@ -77,7 +77,7 @@ println(snapshot.backHits)
 println(snapshot.backMisses)
 ```
 
-`recordStats=true`일 때만 Caffeine local hit·miss·eviction이 유효합니다. Redis hit·miss counter는 L1 miss 뒤 단일 `get` 경로에서 갱신되며 1.11.0의 `getAll` miss 결과는 같은 counter에 반영되지 않습니다. 통계를 전체 요청 수와 정확히 같다고 가정하지 말고 추세와 별도 Redis metric을 함께 봅니다.
+`recordStats=true`일 때만 Caffeine local hit·miss·eviction이 유효합니다. Redis hit·miss counter는 L1 miss 뒤 단일 `get` 경로에서 갱신되며 1.12.1의 `getAll` miss 결과는 같은 counter에 반영되지 않습니다. 통계를 전체 요청 수와 정확히 같다고 가정하지 말고 추세와 별도 Redis metric을 함께 봅니다.
 
 ## Source와 tests
 

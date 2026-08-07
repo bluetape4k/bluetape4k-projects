@@ -70,9 +70,9 @@ producer error/retry/request latency/buffer, consumer lag/rebalance/poll/commit,
 | coroutine·Flow 기본기 | [`bluetape4k-coroutines`](../bluetape4k-coroutines.md) | Kafka delivery 의미는 이 모듈이 설명 |
 | Kafka Testcontainer 공통 기반 | [`bluetape4k-testcontainers`](../bluetape4k-testcontainers.md) | application fixture와 lifecycle은 caller가 구성 |
 
-## 1.11.0과 개발 branch의 차이
+## 1.12.1과 개발 branch의 차이
 
-release 이후 Kafka test에 module별 임시 directory 설정이 추가됐고, consumer template close는 non-`AutoCloseable` receiver를 경고하며 close 실패를 log하고 삼키도록 바뀌었습니다. 이 매뉴얼의 lifecycle과 failure 설명은 1.11.0 동작인 “조건부 close, 경고 없음, close exception 전파”를 기준으로 합니다.
+release 이후 Kafka test에 module별 임시 directory 설정이 추가됐고, consumer template close는 non-`AutoCloseable` receiver를 경고하며 close 실패를 log하고 삼키도록 바뀌었습니다. 이 매뉴얼의 lifecycle과 failure 설명은 1.12.1 동작인 “조건부 close, 경고 없음, close exception 전파”를 기준으로 합니다.
 
 ## Source와 tests
 

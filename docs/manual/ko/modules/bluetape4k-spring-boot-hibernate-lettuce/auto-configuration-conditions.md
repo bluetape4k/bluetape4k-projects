@@ -1,6 +1,6 @@
 ---
 title: 자동 구성 조건과 활성화 순서
-description: Hibernate, Metrics, Actuator 자동 구성이 언제 등록되고 물러나는지 1.11.0 조건으로 확인합니다.
+description: Hibernate, Metrics, Actuator 자동 구성이 언제 등록되고 물러나는지 1.12.1 조건으로 확인합니다.
 manualId: bluetape4k-spring-boot-hibernate-lettuce
 chapterId: auto-configuration-conditions
 ---

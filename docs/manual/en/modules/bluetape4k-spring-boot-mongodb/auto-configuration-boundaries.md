@@ -46,7 +46,7 @@ The presence of MongoDB Kotlin driver dependencies in the build does not move dr
 
 ## Custom conversion and auditing
 
-The 1.11.0 source has no `MongoCustomConversions` bean and does not enable MongoDB auditing. Applications that need them should use a separate configuration.
+The 1.12.1 source has no `MongoCustomConversions` bean and does not enable MongoDB auditing. Applications that need them should use a separate configuration.
 
 ```kotlin
 @Configuration(proxyBeanMethods = false)

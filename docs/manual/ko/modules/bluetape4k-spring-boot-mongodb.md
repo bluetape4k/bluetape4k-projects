@@ -79,7 +79,7 @@ class UserRepository(
 
 ## 학습 경로 {#concepts}
 
-각 장은 API 목록보다 실행 시점, 결과 cardinality, Spring Boot와 driver의 책임을 먼저 설명합니다. 예제 뒤의 Source와 tests 링크에서 1.11.0 구현을 바로 확인할 수 있습니다.
+각 장은 API 목록보다 실행 시점, 결과 cardinality, Spring Boot와 driver의 책임을 먼저 설명합니다. 예제 뒤의 Source와 tests 링크에서 1.12.1 구현을 바로 확인할 수 있습니다.
 
 1. [자동 설정과 구성 경계](./bluetape4k-spring-boot-mongodb/auto-configuration-boundaries.md) — fallback bean이 만들어지는 조건과 Spring Boot·driver가 소유하는 설정을 구분합니다.
 2. [Coroutine 조회와 cardinality](./bluetape4k-spring-boot-mongodb/coroutine-reads-cardinality.md) — `Flow`, nullable 단건, 필수 단건의 차이를 익힙니다.
@@ -136,7 +136,7 @@ Tailable cursor는 오래 유지되는 구독입니다. 애플리케이션 종�
 ./gradlew :bluetape4k-spring-boot-mongodb:test --no-build-cache --no-configuration-cache
 ```
 
-1.11.0 통합 테스트는 `MongoDBServer` Testcontainer와 실제 Spring Boot context를 사용합니다. `ReactiveMongoOperationsCoroutinesTest`가 insert, save, 조회, update, upsert, delete, aggregation과 컬렉션 관리를 검증합니다. Criteria·Query·Update DSL 테스트는 MongoDB 연결 없이 생성된 BSON 구조를 비교합니다.
+1.12.1 통합 테스트는 `MongoDBServer` Testcontainer와 실제 Spring Boot context를 사용합니다. `ReactiveMongoOperationsCoroutinesTest`가 insert, save, 조회, update, upsert, delete, aggregation과 컬렉션 관리를 검증합니다. Criteria·Query·Update DSL 테스트는 MongoDB 연결 없이 생성된 BSON 구조를 비교합니다.
 
 Docker가 필요한 통합 테스트는 다른 Testcontainers 작업과 직렬로 실행합니다. 단위 DSL 테스트와 통합 테스트를 분리해 실패가 query 조립 문제인지 서버·driver 문제인지 먼저 좁힙니다.
 
@@ -146,9 +146,9 @@ Docker가 필요한 통합 테스트는 다른 Testcontainers 작업과 직렬�
 
 Spring Data mapping보다 MongoDB Kotlin driver API와 codec을 직접 제어하려면 [`bluetape4k-mongodb`](./bluetape4k-mongodb.md)로 이어갑니다. Spring Data repository interface가 필요하면 이 모듈의 확장과 별개로 Spring Data의 reactive 또는 coroutine repository 기능을 선택합니다.
 
-## 1.11.0 범위 {#limitations}
+## 1.12.1 범위 {#limitations}
 
-이 매뉴얼은 `bluetape4k-projects` 1.11.0 배포 소스를 기준으로 합니다. 모듈은 Spring Data repository 구현을 생성하지 않으며 custom conversion, auditing, transaction manager, MongoDB client와 pool을 구성하지 않습니다. MongoDB Kotlin sync·coroutine driver dependency가 포함되어 있어도 이 모듈의 공개 API는 `ReactiveMongoOperations` 확장과 query DSL에 집중합니다.
+이 매뉴얼은 `bluetape4k-projects` 1.12.1 배포 소스를 기준으로 합니다. 모듈은 Spring Data repository 구현을 생성하지 않으며 custom conversion, auditing, transaction manager, MongoDB client와 pool을 구성하지 않습니다. MongoDB Kotlin sync·coroutine driver dependency가 포함되어 있어도 이 모듈의 공개 API는 `ReactiveMongoOperations` 확장과 query DSL에 집중합니다.
 
 `tailAsFlow`는 capped collection이 필요합니다. `paginate`는 offset 기반이라 큰 page에서 효율이 떨어질 수 있으며 입력 범위를 검증하지 않습니다. 대규모 목록은 정렬된 seek pagination을 애플리케이션 query로 구현합니다.
 
@@ -169,30 +169,30 @@ Spring Data mapping보다 MongoDB Kotlin driver API와 codec을 직접 제어하
 <!-- release-readme-diagrams:start -->
 ## 배포본 다이어그램 {#release-diagrams}
 
-아래 그림은 `1.11.0` 배포본의 README 자산을 해당 배포 커밋에서 직접 불러옵니다. 이후 SNAPSHOT이 아니라 이 매뉴얼 버전의 구조와 실행 흐름을 보여 줍니다. 미리보기를 누르면 같은 배포 커밋의 SVG 원본이 열립니다.
+아래 그림은 `1.12.1` 배포본의 README 자산을 해당 배포 커밋에서 직접 불러옵니다. 이후 SNAPSHOT이 아니라 이 매뉴얼 버전의 구조와 실행 흐름을 보여 줍니다. 미리보기를 누르면 같은 배포 커밋의 SVG 원본이 열립니다.
 
 ### Spring Boot MongoDB 코루틴 확장 구조 다이어그램
 
-[![Spring Boot MongoDB 코루틴 확장 구조 다이어그램](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/spring-boot-mongodb-diagram-01.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/spring-boot-mongodb-diagram-01.svg)
+[![Spring Boot MongoDB 코루틴 확장 구조 다이어그램](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/spring-boot-mongodb-diagram-01.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/spring-boot-mongodb-diagram-01.svg)
 
-_배포본 README: [`spring-boot/mongodb/README.ko.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/spring-boot/mongodb/README.ko.md)_
+_배포본 README: [`spring-boot/mongodb/README.ko.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/spring-boot/mongodb/README.ko.md)_
 
 ### ReactiveMongoOperations 코루틴 변환 흐름 다이어그램
 
-[![ReactiveMongoOperations 코루틴 변환 흐름 다이어그램](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/spring-boot-mongodb-diagram-02.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/spring-boot-mongodb-diagram-02.svg)
+[![ReactiveMongoOperations 코루틴 변환 흐름 다이어그램](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/spring-boot-mongodb-diagram-02.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/spring-boot-mongodb-diagram-02.svg)
 
-_배포본 README: [`spring-boot/mongodb/README.ko.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/spring-boot/mongodb/README.ko.md)_
+_배포본 README: [`spring-boot/mongodb/README.ko.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/spring-boot/mongodb/README.ko.md)_
 
 ### Criteria Query Update DSL 흐름 다이어그램
 
-[![Criteria Query Update DSL 흐름 다이어그램](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/spring-boot-mongodb-diagram-03.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/spring-boot-mongodb-diagram-03.svg)
+[![Criteria Query Update DSL 흐름 다이어그램](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/spring-boot-mongodb-diagram-03.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/spring-boot-mongodb-diagram-03.svg)
 
-_배포본 README: [`spring-boot/mongodb/README.ko.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/spring-boot/mongodb/README.ko.md)_
+_배포본 README: [`spring-boot/mongodb/README.ko.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/spring-boot/mongodb/README.ko.md)_
 
 ### MongoDB 코루틴 변환 시퀀스 다이어그램
 
-[![MongoDB 코루틴 변환 시퀀스 다이어그램](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/spring-boot-mongodb-sequence-01.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/spring-boot-mongodb-sequence-01.svg)
+[![MongoDB 코루틴 변환 시퀀스 다이어그램](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/spring-boot-mongodb-sequence-01.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/spring-boot-mongodb-sequence-01.svg)
 
-_배포본 README: [`spring-boot/mongodb/README.ko.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/spring-boot/mongodb/README.ko.md)_
+_배포본 README: [`spring-boot/mongodb/README.ko.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/spring-boot/mongodb/README.ko.md)_
 
 <!-- release-readme-diagrams:end -->

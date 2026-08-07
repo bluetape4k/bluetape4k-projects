@@ -18,7 +18,7 @@ Lettuce와 Redisson은 같은 Redis에 연결하지만 제공하는 주 추상�
 | 객체 Codec 조합 | `LettuceBinaryCodecs`, JSON·Protobuf | `RedissonCodecs`, JSON·Fory·압축 Codec |
 | 분산 lock·map·queue 같은 객체 | raw command로 직접 설계 | Redisson 분산 객체 사용 |
 | Stream consumer-group helper | command API에서 구성 | 검증을 포함한 `RStreamSupport` helper |
-| local cached map | 1.11.0 loaded-map 범위 제한 확인 | `RLocalCachedMap` 기반 Near Cache |
+| local cached map | 1.12.1 loaded-map 범위 제한 확인 | `RLocalCachedMap` 기반 Near Cache |
 
 ## Lettuce가 맞는 경우
 

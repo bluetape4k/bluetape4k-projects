@@ -34,7 +34,7 @@ block parameter로 전달되는 `ReactiveTransaction`은 rollback-only 같은 tr
 
 ## transaction manager cache
 
-1.11.0은 같은 `ConnectionFactory`에 대해 transaction manager를 반복 생성하지 않도록 lock으로 보호한 `WeakHashMap`에 보관합니다. factory가 더 이상 참조되지 않으면 cache entry도 GC 대상이 됩니다. 이 cache가 pool lifecycle을 대신 관리하는 것은 아닙니다.
+1.12.1은 같은 `ConnectionFactory`에 대해 transaction manager를 반복 생성하지 않도록 lock으로 보호한 `WeakHashMap`에 보관합니다. factory가 더 이상 참조되지 않으면 cache entry도 GC 대상이 됩니다. 이 cache가 pool lifecycle을 대신 관리하는 것은 아닙니다.
 
 `withTransactionSuspending`은 deprecated alias입니다. 새 코드는 `withTransactionSuspend`를 사용합니다.
 
@@ -61,9 +61,9 @@ val initializer = connectionFactoryInitializer(connectionFactory) {
 
 운영 schema migration을 이 helper와 별도 migration 도구가 동시에 소유하지 않게 합니다. 하나를 source of truth로 정하고 initializer 실행 시점과 재실행 안전성을 테스트합니다.
 
-## 1.11.0 auto-configuration
+## 1.12.1 auto-configuration
 
-`R2dbcClientAutoConfiguration`은 `DatabaseClient` class가 있을 때 `DatabaseClient`, `R2dbcEntityTemplate`, `MappingR2dbcConverter` bean으로 `R2dbcClient`를 등록합니다. 1.11.0에는 `@ConditionalOnMissingBean(R2dbcClient::class)`가 없습니다. 사용자 bean을 함께 선언하면 자동으로 back-off한다고 가정하지 말고 auto-configuration exclusion이나 bean 구성을 명시적으로 정리합니다.
+`R2dbcClientAutoConfiguration`은 `DatabaseClient` class가 있을 때 `DatabaseClient`, `R2dbcEntityTemplate`, `MappingR2dbcConverter` bean으로 `R2dbcClient`를 등록합니다. 1.12.1에는 `@ConditionalOnMissingBean(R2dbcClient::class)`가 없습니다. 사용자 bean을 함께 선언하면 자동으로 back-off한다고 가정하지 말고 auto-configuration exclusion이나 bean 구성을 명시적으로 정리합니다.
 
 ## 실패 처리
 

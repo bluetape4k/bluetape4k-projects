@@ -29,7 +29,7 @@ README의 test support 예제에 `AbstractMongoTest`가 나오지만 class는 `d
 
 애플리케이션은 자체 test fixture에서 MongoDB container를 시작하고 coroutine `MongoClient`를 연결합니다. testcontainers helper의 sync client와 coroutine client type을 혼동하지 않습니다.
 
-## 1.11.0 test coverage의 경계
+## 1.12.1 test coverage의 경계
 
 release tests는 다음을 실제 MongoDB에서 확인합니다.
 

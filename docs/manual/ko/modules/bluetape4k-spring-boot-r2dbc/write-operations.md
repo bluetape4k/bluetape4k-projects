@@ -63,7 +63,7 @@ transaction 방식은 애플리케이션의 Spring 설정에 맞춥니다. 이 �
 
 재시도는 함수 하나가 아니라 전체 transaction이 idempotent한지 확인한 뒤 바깥 경계에서 적용합니다.
 
-## 1.11.0 검증 흐름
+## 1.12.1 검증 흐름
 
 `R2dbcEntityOperationsExtensionsTest`는 새 `Post`를 insert하고 generated ID를 확인한 뒤, 같은 ID 조건으로 title을 update합니다. 다시 select해서 값이 바뀌었는지 확인하고 delete한 뒤 `existsSuspending`이 `false`인지 검증합니다. write helper의 반환값을 다음 검증으로 연결하는 좋은 최소 예제입니다.
 

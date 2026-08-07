@@ -9,7 +9,7 @@ chapterId: failures-cancellation-operations
 
 ## 실패를 계층별로 본다
 
-| 실패 지점 | 1.11.0 동작 | 운영 판단 |
+| 실패 지점 | 1.12.1 동작 | 운영 판단 |
 | --- | --- | --- |
 | JCache CRUD | Redisson future 예외를 `await()`가 전파 | timeout과 retry owner를 한 계층에 둡니다. |
 | sync memoizer evaluator | promise를 실패시키고 in-flight 제거 | 다음 요청이 evaluator를 다시 실행할 수 있습니다. |

@@ -56,7 +56,7 @@ application shutdown에서는 새 요청을 막고, Near Cache를 닫아 listene
 
 cache-aside는 애플리케이션이 miss 때 원본을 읽고 cache에 넣는 패턴입니다. 여기의 L1→IMap write-through는 cache 계층 사이의 동기화일 뿐 database persistence가 아닙니다.
 
-## 1.11.0에서 제외할 설명
+## 1.12.1에서 제외할 설명
 
 release source에는 README가 언급하는 독립 `ResilientHazelcastNearCache`, write-behind queue, tombstone 구현이 없습니다. 실제 factory test의 `withResilience` 결과는 `cache-core`의 `ResilientNearCacheDecorator`입니다. 매뉴얼과 운영 설계를 이 범위에 맞춥니다.
 

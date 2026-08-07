@@ -2916,8 +2916,8 @@
       ]
     }
   },
-  "releaseCommit": "6187173b58e8b4c5c435c145e00e94708f31ef75",
-  "releaseRef": "1.11.0",
+  "releaseCommit": "7cf0b73646af05c0f8872cc4f6a16983949c4e3e",
+  "releaseRef": "1.12.1",
   "repository": "bluetape4k/bluetape4k-projects",
   "schemaVersion": 2
 }

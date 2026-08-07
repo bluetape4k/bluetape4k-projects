@@ -77,4 +77,4 @@ A test fixture receiving these capabilities from Spring Boot does not make them 
 
 ## Back to the manual
 
-Return to [Common boundaries for Spring Boot applications](../bluetape4k-spring-boot-core.md) for the complete API map and 1.11.0 limitations.
+Return to [Common boundaries for Spring Boot applications](../bluetape4k-spring-boot-core.md) for the complete API map and 1.12.1 limitations.

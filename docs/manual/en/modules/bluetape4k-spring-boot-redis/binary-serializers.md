@@ -47,7 +47,7 @@ Choose from actual model compatibility, not generic performance claims.
 - Verify class-name, field, and polymorphic-type changes.
 - Compare a schema-based or readable format when other languages or tools consume the values.
 
-The 1.11.0 tests cover same-version strings, data classes, lists, and compression combinations. They do not guarantee long-term schema evolution.
+The 1.12.1 tests cover same-version strings, data classes, lists, and compression combinations. They do not guarantee long-term schema evolution.
 
 ## Why JDK serialization is deprecated
 

@@ -7,7 +7,7 @@ chapterId: testing-operations-ecosystem
 
 # 테스트, 운영과 생태계
 
-## 1.11.0 테스트 구조
+## 1.12.1 테스트 구조
 
 `AbstractReactiveMongoTest`는 `MongoDBServer` Testcontainer를 지연 시작하고 `spring.data.mongodb.uri`를 동적으로 등록합니다. `AbstractReactiveMongoCoroutineTest`는 여기에 `Dispatchers.IO`와 `CoroutineName`을 가진 test scope를 더합니다.
 

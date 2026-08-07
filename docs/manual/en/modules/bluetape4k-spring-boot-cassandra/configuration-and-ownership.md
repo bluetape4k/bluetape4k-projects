@@ -7,7 +7,7 @@ description: "Identify what is not auto-configured and assign ownership of CqlSe
 
 ## What the artifact does not configure
 
-Despite `spring-boot` in its name, the 1.11.0 source has no auto-configuration class, `AutoConfiguration.imports`, `@ConfigurationProperties`, or main resources. Adding the artifact to the classpath does not create a bean or a property namespace.
+Despite `spring-boot` in its name, the 1.12.1 source has no auto-configuration class, `AutoConfiguration.imports`, `@ConfigurationProperties`, or main resources. Adding the artifact to the classpath does not create a bean or a property namespace.
 
 The module provides extensions for Spring Data Cassandra objects that already exist. Spring Boot or application configuration must supply:
 

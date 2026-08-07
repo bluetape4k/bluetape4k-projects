@@ -15,14 +15,14 @@ chapterId: cancellation-failures-testing-operations
 
 ## close 실패와 취소
 
-1.11.0 `withPulsarClient`, `withProducer`, `withConsumer`, `withReader`는 `finally`에서 `closeAsync()`를 기다리고 실패를 warning으로 기록합니다.
+1.12.1 `withPulsarClient`, `withProducer`, `withConsumer`, `withReader`는 `finally`에서 `closeAsync()`를 기다리고 실패를 warning으로 기록합니다.
 
 두 제한이 있습니다.
 
 - close 실패를 호출자에게 다시 던지지 않으므로 block 성공만으로 정상 종료를 증명할 수 없습니다.
 - close await를 `NonCancellable`로 감싸지 않아 이미 취소된 context에서 cleanup 완료를 보장하지 않습니다.
 
-이 한계는 release source에 대한 설명입니다. 이후 branch에 추가된 `PulsarCloseSupport`와 cancellation cleanup test를 1.11.0 계약에 소급하지 않습니다.
+이 한계는 release source에 대한 설명입니다. 이후 branch에 추가된 `PulsarCloseSupport`와 cancellation cleanup test를 1.12.1 계약에 소급하지 않습니다.
 
 ## 실패 처리 원칙
 
@@ -43,7 +43,7 @@ retry 전에는 작업이 멱등한지 확인합니다. send timeout은 broker �
 
 ## 증명하지 않는 것
 
-1.11.0 test에는 block이 취소되는 동안 close가 끝나는지 검증하는 fixture가 없습니다. broker restart, network partition, auth rotation, schema evolution, retry·dead-letter, backpressure 한계와 장기 soak도 다루지 않습니다.
+1.12.1 test에는 block이 취소되는 동안 close가 끝나는지 검증하는 fixture가 없습니다. broker restart, network partition, auth rotation, schema evolution, retry·dead-letter, backpressure 한계와 장기 soak도 다루지 않습니다.
 
 전체 module test는 실제 container를 사용하므로 이 문서 작업에서는 실행하지 않습니다. 애플리케이션 CI에서는 다른 Testcontainers suite와 순차 실행하고, mapper round trip 같은 server-free test를 먼저 분리합니다.
 

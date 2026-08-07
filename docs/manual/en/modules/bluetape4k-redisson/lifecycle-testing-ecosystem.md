@@ -34,7 +34,7 @@ Observe connected nodes and pool use, command percentiles and timeout, retry and
 
 A high hit ratio is not healthy when stale-data incidents also rise. Measure freshness against the source of truth.
 
-## Reading the 1.11.0 tests
+## Reading the 1.12.1 tests
 
 `AbstractRedissonTest` provides the Redis Testcontainer and shared fixture. Continue through client configuration, batch/transaction, future/coroutine, local-cache, configuration validation, and codec tests in that order.
 

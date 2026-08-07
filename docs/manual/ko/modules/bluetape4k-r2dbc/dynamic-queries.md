@@ -1,6 +1,6 @@
 ---
 title: 동적 query
-description: QueryBuilder로 선택 조건과 count query를 구성하면서 1.11.0의 검증 범위와 부수효과를 다룹니다.
+description: QueryBuilder로 선택 조건과 count query를 구성하면서 1.12.1의 검증 범위와 부수효과를 다룹니다.
 manualId: bluetape4k-r2dbc
 chapterId: dynamic-queries
 ---
@@ -56,9 +56,9 @@ block 안에서 counter 증가, 외부 collection 변경, 시간·random 값 생
 
 `Query`는 mutable `StringBuilder`를 보관하고 `sql`을 첫 접근 시 trim해 cache합니다. 첫 접근 전에는 buffer 변경이 반영되지만, 첫 접근 뒤 변경은 이미 cache된 SQL에 반영되지 않습니다. 만들어진 `Query`는 사실상 immutable value처럼 다루고 buffer를 공유하지 않습니다.
 
-## 1.11.0의 limit·offset 계약
+## 1.12.1의 limit·offset 계약
 
-1.11.0은 `limit`과 `offset` 값을 그대로 SQL에 붙입니다. 배포 이후 브랜치에는 `limit > 0`, `offset >= 0` 검증이 추가됐지만 1.11 기능이 아닙니다.
+1.12.1은 `limit`과 `offset` 값을 그대로 SQL에 붙입니다. 배포 이후 브랜치에는 `limit > 0`, `offset >= 0` 검증이 추가됐지만 1.11 기능이 아닙니다.
 
 ```kotlin
 require(pageSize > 0) { "pageSize must be positive" }

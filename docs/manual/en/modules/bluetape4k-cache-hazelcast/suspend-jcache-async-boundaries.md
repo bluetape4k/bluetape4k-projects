@@ -26,7 +26,7 @@ A `suspend` signature does not mean every operation is a native Hazelcast async 
 
 ## getAndPut is not one Hazelcast operation
 
-In 1.11.0, `getAndPut` is implemented as `get(key).also { put(key, value) }`. Another member can change the entry between those two calls, making the returned old value differ from the actual replacement target.
+In 1.12.1, `getAndPut` is implemented as `get(key).also { put(key, value) }`. Another member can change the entry between those two calls, making the returned old value differ from the actual replacement target.
 
 Do not rely on this wrapper when the operation must be atomic. Evaluate a Hazelcast server-side atomic operation or entry processor instead. `getAndRemoveAsync` and `getAndReplaceAsync` use native compound operations when `ICache` is available.
 

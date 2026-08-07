@@ -66,7 +66,7 @@ try {
 
 ## Learning path {#concepts}
 
-These chapters go beyond a feature list. They follow the 1.11.0 release source and representative tests, with runnable examples for ownership, cancellation, wire compatibility, and write-behind failures.
+These chapters go beyond a feature list. They follow the 1.12.1 release source and representative tests, with runnable examples for ownership, cancellation, wire compatibility, and write-behind failures.
 
 1. [Clients and connections](./bluetape4k-lettuce/clients-and-connections.md)
 2. [Commands and coroutines](./bluetape4k-lettuce/commands-and-coroutines.md)
@@ -107,9 +107,9 @@ The release tests cover cached connection reuse, future ordering and failure pro
 
 Start with `LettuceClientsTest`, `RedisFutureSupportTest`, `LettuceLoadedMapTest`, and `RedisScriptTest`. Continue to [bluetape4k-workshop](https://github.com/bluetape4k/bluetape4k-workshop) and [Exposed Workshop](https://github.com/bluetape4k/exposed-workshop) for cache and database boundaries.
 
-## 1.11.0 scope {#limitations}
+## 1.12.1 scope {#limitations}
 
-`LettuceCacheConfig` exposes near-cache fields, but the 1.11.0 loaded maps do not consume them and provide neither a Caffeine store nor RESP3 client-tracking invalidation. Do not treat the `*_WITH_NEAR_CACHE` presets as a working local-cache guarantee. RESP3 appears only in a rejected benchmark configuration.
+`LettuceCacheConfig` exposes near-cache fields, but the 1.12.1 loaded maps do not consume them and provide neither a Caffeine store nor RESP3 client-tracking invalidation. Do not treat the `*_WITH_NEAR_CACHE` presets as a working local-cache guarantee. RESP3 appears only in a rejected benchmark configuration.
 
 ## Source and tests {#sources}
 
@@ -124,24 +124,24 @@ Start with `LettuceClientsTest`, `RedisFutureSupportTest`, `LettuceLoadedMapTest
 <!-- release-readme-diagrams:start -->
 ## Release diagrams {#release-diagrams}
 
-These diagrams are loaded directly from README assets published with the `1.11.0` release and pinned to its immutable commit. They describe this manual's released structure and runtime flows, not later Snapshot changes. Select a preview to open the SVG at the same release commit.
+These diagrams are loaded directly from README assets published with the `1.12.1` release and pinned to its immutable commit. They describe this manual's released structure and runtime flows, not later Snapshot changes. Select a preview to open the SVG at the same release commit.
 
 ### Distributed Primitive API Families diagram
 
-[![Distributed Primitive API Families diagram](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/infra-lettuce-diagram-01.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/infra-lettuce-diagram-01.svg)
+[![Distributed Primitive API Families diagram](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/infra-lettuce-diagram-01.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/infra-lettuce-diagram-01.svg)
 
-_Release README: [`infra/lettuce/README.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/infra/lettuce/README.md)_
+_Release README: [`infra/lettuce/README.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/infra/lettuce/README.md)_
 
 ### Lettuce Codec API Structure diagram
 
-[![Lettuce Codec API Structure diagram](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/infra-lettuce-diagram-02.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/infra-lettuce-diagram-02.svg)
+[![Lettuce Codec API Structure diagram](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/infra-lettuce-diagram-02.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/infra-lettuce-diagram-02.svg)
 
-_Release README: [`infra/lettuce/README.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/infra/lettuce/README.md)_
+_Release README: [`infra/lettuce/README.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/infra/lettuce/README.md)_
 
 ### LettuceLoadedMap Read-Through / Write-Through Flow diagram
 
-[![LettuceLoadedMap Read-Through / Write-Through Flow diagram](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/infra-lettuce-sequence-01.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/infra-lettuce-sequence-01.svg)
+[![LettuceLoadedMap Read-Through / Write-Through Flow diagram](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/infra-lettuce-sequence-01.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/infra-lettuce-sequence-01.svg)
 
-_Release README: [`infra/lettuce/README.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/infra/lettuce/README.md)_
+_Release README: [`infra/lettuce/README.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/infra/lettuce/README.md)_
 
 <!-- release-readme-diagrams:end -->

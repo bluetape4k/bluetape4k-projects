@@ -62,7 +62,7 @@ try {
 | 필요한 작업 | 시작할 API | 기억할 경계 |
 | --- | --- | --- |
 | client를 직접 생성 | `mongoClient`, `mongoClientOf` | 반환된 client는 호출자가 닫습니다. |
-| client를 JVM에서 공유 | `MongoClientProvider.getOrCreate` | 1.11.0에는 명시적 제거·전체 종료 API가 없습니다. |
+| client를 JVM에서 공유 | `MongoClientProvider.getOrCreate` | 1.12.1에는 명시적 제거·전체 종료 API가 없습니다. |
 | database·collection 이름 수집 | `listDatabaseNamesAsList`, `listCollectionNamesList` | 모든 이름을 메모리의 `List`로 모읍니다. |
 | typed collection 획득 | `getCollectionOf<T>` | 실제 encode/decode는 driver codec registry가 담당합니다. |
 | 첫 문서·존재 여부·upsert | `findFirst`, `exists`, `upsert` | driver 호출을 조합한 편의 함수입니다. |
@@ -73,9 +73,9 @@ try {
 
 ## 학습 경로 {#concepts}
 
-아래 장은 1.11.0 배포 소스와 테스트를 따라 client 소유권에서 transaction, codec과 운영 검증까지 이어집니다. 공식 driver가 제공하는 기능과 bluetape4k helper가 추가하는 기능을 계속 나눠서 설명합니다.
+아래 장은 1.12.1 배포 소스와 테스트를 따라 client 소유권에서 transaction, codec과 운영 검증까지 이어집니다. 공식 driver가 제공하는 기능과 bluetape4k helper가 추가하는 기능을 계속 나눠서 설명합니다.
 
-1. [모듈 경계와 client 수명주기](./bluetape4k-mongodb/module-boundary-client-lifecycle.md) — 직접 생성과 provider cache의 소유권, 1.11.0 cache key 제약을 확인합니다.
+1. [모듈 경계와 client 수명주기](./bluetape4k-mongodb/module-boundary-client-lifecycle.md) — 직접 생성과 provider cache의 소유권, 1.12.1 cache key 제약을 확인합니다.
 2. [Database·Collection과 Flow](./bluetape4k-mongodb/database-collection-flow.md) — typed collection, 첫 조회, 존재 확인, upsert와 지연 실행 결과를 다룹니다.
 3. [Document, codec과 query 경계](./bluetape4k-mongodb/documents-codecs-queries.md) — `Document` DSL, safe cast, codec registry와 공식 query DSL의 역할을 구분합니다.
 4. [세션과 트랜잭션](./bluetape4k-mongodb/sessions-transactions.md) — session 전달, commit·abort·close 순서와 취소 경계를 설명합니다.
@@ -86,7 +86,7 @@ try {
 
 ## 권장 패턴 {#patterns}
 
-client는 operation마다 만들지 말고 애플리케이션 컴포넌트의 수명에 맞춰 공유합니다. 직접 만든 client는 해당 컴포넌트가 닫고, provider가 반환한 client는 공유 객체라는 사실을 호출부에 드러냅니다. 1.11.0 provider는 같은 URL의 builder 설정을 별도 cache key로 보지 않으므로 설정이 다른 client가 필요하면 완성된 `MongoClientSettings` overload를 사용합니다.
+client는 operation마다 만들지 말고 애플리케이션 컴포넌트의 수명에 맞춰 공유합니다. 직접 만든 client는 해당 컴포넌트가 닫고, provider가 반환한 client는 공유 객체라는 사실을 호출부에 드러냅니다. 1.12.1 provider는 같은 URL의 builder 설정을 별도 cache key로 보지 않으므로 설정이 다른 client가 필요하면 완성된 `MongoClientSettings` overload를 사용합니다.
 
 조회 결과가 클 수 있으면 `listDatabaseNamesAsList` 같은 eager helper보다 driver `Flow`를 그대로 소비합니다. `findAsFlow`에는 안정적인 sort와 범위를 함께 지정하고, page가 반복되는 API라면 skip 비용과 cursor 기반 pagination도 비교합니다.
 
@@ -115,13 +115,13 @@ credential이 포함된 connection string을 log에 남기지 않습니다. prov
 
 helper는 MongoDB 예외를 domain 예외로 바꾸거나 자동 retry하지 않습니다. `findFirst`는 결과가 없으면 `null`, `Document.getAs<T>`는 key가 없거나 runtime type이 다르면 `null`을 반환합니다. 두 경우를 데이터 오류와 구분해야 한다면 호출부에서 명시적으로 검사합니다.
 
-`inTransaction`은 성공하면 commit하고 예외가 나면 abort를 시도한 뒤 원래 예외를 다시 던집니다. abort도 실패하면 그 예외를 suppressed exception으로 붙입니다. 1.11.0 구현은 취소 경로의 abort를 `NonCancellable` context에서 실행하지 않으므로, 강한 취소 상황까지 cleanup을 보장한다고 가정하지 않습니다.
+`inTransaction`은 성공하면 commit하고 예외가 나면 abort를 시도한 뒤 원래 예외를 다시 던집니다. abort도 실패하면 그 예외를 suppressed exception으로 붙입니다. 1.12.1 구현은 취소 경로의 abort를 `NonCancellable` context에서 실행하지 않으므로, 강한 취소 상황까지 cleanup을 보장한다고 가정하지 않습니다.
 
 ## 운영 {#operations}
 
 MongoDB driver의 command latency, server selection timeout, connection pool wait, retry와 transaction abort를 관찰합니다. operation 이름과 collection은 제한된 metric label로 기록하고 filter 값이나 전체 `Document`를 고유 label에 넣지 않습니다.
 
-provider 사용 시 client 생성 횟수와 설정 cardinality를 확인합니다. 1.11.0에는 cache 제거 API가 없으므로 동적으로 늘어나는 tenant·credential별 client registry로 사용하기에는 맞지 않습니다.
+provider 사용 시 client 생성 횟수와 설정 cardinality를 확인합니다. 1.12.1에는 cache 제거 API가 없으므로 동적으로 늘어나는 tenant·credential별 client registry로 사용하기에는 맞지 않습니다.
 
 ## 테스트 {#testing}
 
@@ -139,11 +139,11 @@ provider 사용 시 client 생성 횟수와 설정 cardinality를 확인합니�
 
 Spring Data MongoDB의 mapping, Criteria·Query·Update와 reactive operation을 학습하려면 [`bluetape4k-spring-boot-mongodb`](./bluetape4k-spring-boot-mongodb.md) 매뉴얼로 이동합니다. driver-level helper를 이해한 뒤 framework가 추가하는 lifecycle과 exception translation을 비교하면 경계가 선명해집니다.
 
-## 1.11.0 범위 {#limitations}
+## 1.12.1 범위 {#limitations}
 
-이 매뉴얼은 release commit `6187173b58e8b4c5c435c145e00e94708f31ef75`의 1.11.0 소스와 테스트를 기준으로 합니다. production API는 일곱 Kotlin source file의 client·database·collection·BSON·aggregation helper입니다.
+이 매뉴얼은 release commit `7cf0b73646af05c0f8872cc4f6a16983949c4e3e`의 1.12.1 소스와 테스트를 기준으로 합니다. production API는 일곱 Kotlin source file의 client·database·collection·BSON·aggregation helper입니다.
 
-repository, object mapping framework, schema migration, auto-configuration, health indicator, metrics와 transaction manager는 제공하지 않습니다. provider cache의 명시적 종료 API와 `NonCancellable` transaction cleanup도 1.11.0 범위에는 없습니다.
+repository, object mapping framework, schema migration, auto-configuration, health indicator, metrics와 transaction manager는 제공하지 않습니다. provider cache의 명시적 종료 API와 `NonCancellable` transaction cleanup도 1.12.1 범위에는 없습니다.
 
 ## Source와 tests {#sources}
 
@@ -163,24 +163,24 @@ repository, object mapping framework, schema migration, auto-configuration, heal
 <!-- release-readme-diagrams:start -->
 ## 배포본 다이어그램 {#release-diagrams}
 
-아래 그림은 `1.11.0` 배포본의 README 자산을 해당 배포 커밋에서 직접 불러옵니다. 이후 SNAPSHOT이 아니라 이 매뉴얼 버전의 구조와 실행 흐름을 보여 줍니다. 미리보기를 누르면 같은 배포 커밋의 SVG 원본이 열립니다.
+아래 그림은 `1.12.1` 배포본의 README 자산을 해당 배포 커밋에서 직접 불러옵니다. 이후 SNAPSHOT이 아니라 이 매뉴얼 버전의 구조와 실행 흐름을 보여 줍니다. 미리보기를 누르면 같은 배포 커밋의 SVG 원본이 열립니다.
 
 ### Core 클래스 구조도
 
-[![Core 클래스 구조도](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/data-mongodb-diagram-01.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/data-mongodb-diagram-01.svg)
+[![Core 클래스 구조도](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/data-mongodb-diagram-01.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/data-mongodb-diagram-01.svg)
 
-_배포본 README: [`data/mongodb/README.ko.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/data/mongodb/README.ko.md)_
+_배포본 README: [`data/mongodb/README.ko.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/data/mongodb/README.ko.md)_
 
 ### 모듈 API 구조도
 
-[![모듈 API 구조도](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/data-mongodb-diagram-02.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/data-mongodb-diagram-02.svg)
+[![모듈 API 구조도](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/data-mongodb-diagram-02.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/data-mongodb-diagram-02.svg)
 
-_배포본 README: [`data/mongodb/README.ko.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/data/mongodb/README.ko.md)_
+_배포본 README: [`data/mongodb/README.ko.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/data/mongodb/README.ko.md)_
 
 ### Aggregation 파이프라인 Data 처리 흐름
 
-[![Aggregation 파이프라인 Data 처리 흐름](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/data-mongodb-diagram-03.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/data-mongodb-diagram-03.svg)
+[![Aggregation 파이프라인 Data 처리 흐름](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/data-mongodb-diagram-03.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/data-mongodb-diagram-03.svg)
 
-_배포본 README: [`data/mongodb/README.ko.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/data/mongodb/README.ko.md)_
+_배포본 README: [`data/mongodb/README.ko.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/data/mongodb/README.ko.md)_
 
 <!-- release-readme-diagrams:end -->

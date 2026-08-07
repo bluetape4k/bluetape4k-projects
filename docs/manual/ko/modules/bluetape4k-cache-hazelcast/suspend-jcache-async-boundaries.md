@@ -34,7 +34,7 @@ cache.putAllFlow(
 
 ## getAndPut은 단일 Hazelcast 연산이 아니다
 
-1.11.0의 `getAndPut`은 `get(key).also { put(key, value) }`로 구현됩니다. 다른 node가 두 호출 사이에 값을 바꾸면 반환한 이전 값과 실제 교체 대상이 달라질 수 있습니다.
+1.12.1의 `getAndPut`은 `get(key).also { put(key, value) }`로 구현됩니다. 다른 node가 두 호출 사이에 값을 바꾸면 반환한 이전 값과 실제 교체 대상이 달라질 수 있습니다.
 
 ```kotlin
 val previous = cache.getAndPut("42", replacement)

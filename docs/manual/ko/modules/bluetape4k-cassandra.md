@@ -69,10 +69,10 @@ val releaseVersion = cqlSessionOf(
 
 ## 학습 경로 {#concepts}
 
-아래 다섯 장은 API 이름만 나열하지 않습니다. 각 장은 문제를 이해하는 설명에서 시작해 실행 가능한 예제, API 선택 기준, 실패와 운영 경계, 1.11.0 소스와 테스트 근거까지 연결합니다. 처음 도입한다면 순서대로 읽고, 이미 사용 중이라면 지금 해결하려는 문제에 맞는 장부터 시작해도 됩니다.
+아래 다섯 장은 API 이름만 나열하지 않습니다. 각 장은 문제를 이해하는 설명에서 시작해 실행 가능한 예제, API 선택 기준, 실패와 운영 경계, 1.12.1 소스와 테스트 근거까지 연결합니다. 처음 도입한다면 순서대로 읽고, 이미 사용 중이라면 지금 해결하려는 문제에 맞는 장부터 시작해도 됩니다.
 
 1. **[CqlSession 수명주기와 캐시 경계](./bluetape4k-cassandra/session-lifecycle.md)**
-   직접 만든 세션을 `use`로 닫는 가장 작은 예제부터 `CqlSessionProvider`와 `CqlSessionIdentity`로 공유 세션을 재사용하는 방법까지 설명합니다. 세션 소유권, 캐시 identity와 1.11.0 bootstrap 설정을 어디에 둘지 판단할 수 있습니다.
+   직접 만든 세션을 `use`로 닫는 가장 작은 예제부터 `CqlSessionProvider`와 `CqlSessionIdentity`로 공유 세션을 재사용하는 방법까지 설명합니다. 세션 소유권, 캐시 identity와 1.12.1 bootstrap 설정을 어디에 둘지 판단할 수 있습니다.
 2. **[코루틴 쿼리](./bluetape4k-cassandra/coroutine-queries.md)**
    `executeSuspending`, `prepareSuspending`과 `AsyncResultSet.asFlow()`로 단일 결과와 여러 페이지를 읽는 예제를 다룹니다. 취소, mapper 예외와 다음 페이지 조회가 호출자에게 어떻게 전달되는지 확인할 수 있습니다.
 3. **[Row와 data mapping](./bluetape4k-cassandra/rows-data-mapping.md)**
@@ -96,7 +96,7 @@ Apache Cassandra Java Driver의 core, query builder, mapper runtime 위에서 �
 
 ## 실패 동작 {#failures}
 
-빈 keyspace와 `localDatacenter`는 입력 경계에서 거부됩니다. 쿼리 준비·실행, 행 매퍼와 다음 페이지 조회 실패는 각 작업 지점에서 호출자에게 전파됩니다. bootstrap 인증 오류는 1.11.0의 admin session 설정 경계를 먼저 확인합니다.
+빈 keyspace와 `localDatacenter`는 입력 경계에서 거부됩니다. 쿼리 준비·실행, 행 매퍼와 다음 페이지 조회 실패는 각 작업 지점에서 호출자에게 전파됩니다. bootstrap 인증 오류는 1.12.1의 admin session 설정 경계를 먼저 확인합니다.
 
 ## 운영 {#operations}
 
@@ -112,11 +112,11 @@ keyspace create/drop은 실제 cluster side effect입니다. 운영 권한과 re
 
 ## 워크숍 {#workshops}
 
-이 모듈 전용 워크숍은 아직 없습니다. 대신 각 장의 예제와 1.11.0으로 검증한 소스·테스트 링크를 따라가면 session, coroutine paging, mapping, QueryBuilder와 운영 경계를 순서대로 실습할 수 있습니다.
+이 모듈 전용 워크숍은 아직 없습니다. 대신 각 장의 예제와 1.12.1으로 검증한 소스·테스트 링크를 따라가면 session, coroutine paging, mapping, QueryBuilder와 운영 경계를 순서대로 실습할 수 있습니다.
 
-## 1.11.0에서 알아둘 제한 {#limitations}
+## 1.12.1에서 알아둘 제한 {#limitations}
 
-1.11.0의 `CqlSessionProvider`는 keyspace bootstrap용 관리 세션을 `builderSupplier().build()`로 만듭니다. 마지막 builder 블록은 keyspace에 연결할 최종 세션에만 적용됩니다. 따라서 두 세션에 모두 필요한 접속 지점, `localDatacenter`, 인증, TLS 설정은 `builderSupplier`에 넣어야 합니다. 이 동작은 1.11.0 뒤에 병합된 PR #986의 동작과 다릅니다.
+1.12.1의 `CqlSessionProvider`는 keyspace bootstrap용 관리 세션을 `builderSupplier().build()`로 만듭니다. 마지막 builder 블록은 keyspace에 연결할 최종 세션에만 적용됩니다. 따라서 두 세션에 모두 필요한 접속 지점, `localDatacenter`, 인증, TLS 설정은 `builderSupplier`에 넣어야 합니다. 이 동작은 1.12.1 뒤에 병합된 PR #986의 동작과 다릅니다.
 
 ## Source와 tests {#sources}
 
@@ -131,24 +131,24 @@ keyspace create/drop은 실제 cluster side effect입니다. 운영 권한과 re
 <!-- release-readme-diagrams:start -->
 ## 배포본 다이어그램 {#release-diagrams}
 
-아래 그림은 `1.11.0` 배포본의 README 자산을 해당 배포 커밋에서 직접 불러옵니다. 이후 SNAPSHOT이 아니라 이 매뉴얼 버전의 구조와 실행 흐름을 보여 줍니다. 미리보기를 누르면 같은 배포 커밋의 SVG 원본이 열립니다.
+아래 그림은 `1.12.1` 배포본의 README 자산을 해당 배포 커밋에서 직접 불러옵니다. 이후 SNAPSHOT이 아니라 이 매뉴얼 버전의 구조와 실행 흐름을 보여 줍니다. 미리보기를 누르면 같은 배포 커밋의 SVG 원본이 열립니다.
 
 ### 확장 함수 API 개요 다이어그램
 
-[![확장 함수 API 개요 다이어그램](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/data-cassandra-diagram-01.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/data-cassandra-diagram-01.svg)
+[![확장 함수 API 개요 다이어그램](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/data-cassandra-diagram-01.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/data-cassandra-diagram-01.svg)
 
-_배포본 README: [`data/cassandra/README.ko.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/data/cassandra/README.ko.md)_
+_배포본 README: [`data/cassandra/README.ko.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/data/cassandra/README.ko.md)_
 
 ### 주요 API 구조 다이어그램
 
-[![주요 API 구조 다이어그램](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/data-cassandra-diagram-02.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/data-cassandra-diagram-02.svg)
+[![주요 API 구조 다이어그램](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/data-cassandra-diagram-02.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/data-cassandra-diagram-02.svg)
 
-_배포본 README: [`data/cassandra/README.ko.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/data/cassandra/README.ko.md)_
+_배포본 README: [`data/cassandra/README.ko.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/data/cassandra/README.ko.md)_
 
 ### 비동기 쿼리 실행 흐름 다이어그램
 
-[![비동기 쿼리 실행 흐름 다이어그램](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/data-cassandra-sequence-01.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/data-cassandra-sequence-01.svg)
+[![비동기 쿼리 실행 흐름 다이어그램](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/data-cassandra-sequence-01.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/data-cassandra-sequence-01.svg)
 
-_배포본 README: [`data/cassandra/README.ko.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/data/cassandra/README.ko.md)_
+_배포본 README: [`data/cassandra/README.ko.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/data/cassandra/README.ko.md)_
 
 <!-- release-readme-diagrams:end -->

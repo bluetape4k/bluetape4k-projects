@@ -15,14 +15,14 @@ This lets the coroutine leave its wait. It does not prove that a send accepted b
 
 ## Close failure and cancellation
 
-Version 1.11.0 `withPulsarClient`, `withProducer`, `withConsumer`, and `withReader` await `closeAsync()` in `finally` and log a warning on failure.
+Version 1.12.1 `withPulsarClient`, `withProducer`, `withConsumer`, and `withReader` await `closeAsync()` in `finally` and log a warning on failure.
 
 There are two limits:
 
 - Close failure is not rethrown, so a successful block does not prove a clean shutdown.
 - Close await is not wrapped in `NonCancellable`, so cleanup completion is not guaranteed in an already-cancelled context.
 
-These are release-source facts. Do not project the later branch's `PulsarCloseSupport` and cancellation cleanup tests back onto 1.11.0.
+These are release-source facts. Do not project the later branch's `PulsarCloseSupport` and cancellation cleanup tests back onto 1.12.1.
 
 ## Failure-handling principles
 
@@ -43,7 +43,7 @@ Before retrying, determine whether the operation is idempotent. A send timeout c
 
 ## What they do not prove
 
-The 1.11.0 tests have no fixture proving that close completes while the block is cancelled. They also omit broker restarts, network partitions, authentication rotation, schema evolution, retry and dead-letter behavior, pressure limits, and long-running soak tests.
+The 1.12.1 tests have no fixture proving that close completes while the block is cancelled. They also omit broker restarts, network partitions, authentication rotation, schema evolution, retry and dead-letter behavior, pressure limits, and long-running soak tests.
 
 The full module suite uses a real container and is not needed for this documentation-only change. In application CI, serialize it with other Testcontainers suites and separate fast mapper round-trip tests first.
 

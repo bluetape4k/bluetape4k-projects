@@ -60,7 +60,7 @@ query cache는 entity 전체보다 결과 식별자 집합을 저장합니다. �
 
 ## Rollback과 eviction
 
-실패한 transaction의 변경을 새 Session에서 읽었을 때 rollback 전 값이 보여야 합니다. 1.11.0 테스트는 entity update와 delete rollback 뒤 DB와 cache가 기존 값을 유지하는지 검증합니다. 운영 코드가 Redis key를 직접 고치면 Hibernate transaction completion에 맞춘 eviction 흐름을 우회하므로 금지합니다.
+실패한 transaction의 변경을 새 Session에서 읽었을 때 rollback 전 값이 보여야 합니다. 1.12.1 테스트는 entity update와 delete rollback 뒤 DB와 cache가 기존 값을 유지하는지 검증합니다. 운영 코드가 Redis key를 직접 고치면 Hibernate transaction completion에 맞춘 eviction 흐름을 우회하므로 금지합니다.
 
 ## Source와 tests
 

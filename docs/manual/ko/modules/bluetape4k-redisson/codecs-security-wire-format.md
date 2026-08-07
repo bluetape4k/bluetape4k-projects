@@ -11,7 +11,7 @@ chapterId: codecs-security-wire-format
 
 Codec을 바꾸면 같은 Redis key의 byte format이 바뀝니다. 성능 설정 하나를 바꾸는 일이 아니라 rolling deployment와 rollback에 영향을 주는 schema migration입니다. 같은 cache name을 공유하는 모든 producer와 consumer가 key·value Codec을 맞춰야 합니다.
 
-| 목적 | 1.11.0 선택 | 주의할 점 |
+| 목적 | 1.12.1 선택 | 주의할 점 |
 | --- | --- | --- |
 | 일반 내부 객체 | `RedissonCodecs.Fory` | 지원하지 않는 값은 Kryo5 fallback을 사용할 수 있습니다. |
 | 휘발성 고처리량 cache | `FastForyCodec`, `LZ4FastFory` | FastFory data를 기존 ForyCodec이 역방향으로 읽지 못합니다. |

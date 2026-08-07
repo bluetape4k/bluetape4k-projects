@@ -79,7 +79,7 @@ The `Flow` returned by `findAdults` subscribes to the Spring Data publisher when
 
 ## Learning path {#concepts}
 
-The chapters explain execution timing, result cardinality, and the Spring Boot/driver boundary before listing APIs. Each example links to its 1.11.0 source and tests.
+The chapters explain execution timing, result cardinality, and the Spring Boot/driver boundary before listing APIs. Each example links to its 1.12.1 source and tests.
 
 1. [Auto-configuration and ownership boundaries](./bluetape4k-spring-boot-mongodb/auto-configuration-boundaries.md) — identify the fallback bean conditions and configuration owned by Spring Boot and the driver.
 2. [Coroutine reads and cardinality](./bluetape4k-spring-boot-mongodb/coroutine-reads-cardinality.md) — distinguish `Flow`, optional single results, and required single results.
@@ -136,7 +136,7 @@ A tailable cursor is a long-lived subscription. Verify that application shutdown
 ./gradlew :bluetape4k-spring-boot-mongodb:test --no-build-cache --no-configuration-cache
 ```
 
-The 1.11.0 integration suite uses a `MongoDBServer` Testcontainer and a real Spring Boot context. `ReactiveMongoOperationsCoroutinesTest` covers insert, save, reads, updates, upsert, delete, aggregation, and collection management. Criteria, Query, and Update DSL tests compare generated BSON structures without a MongoDB connection.
+The 1.12.1 integration suite uses a `MongoDBServer` Testcontainer and a real Spring Boot context. `ReactiveMongoOperationsCoroutinesTest` covers insert, save, reads, updates, upsert, delete, aggregation, and collection management. Criteria, Query, and Update DSL tests compare generated BSON structures without a MongoDB connection.
 
 Run the Docker-backed suite serially with other Testcontainers work. Keeping the DSL unit tests separate from integration tests helps determine whether a failure comes from query construction or from the server and driver boundary.
 
@@ -146,9 +146,9 @@ No dedicated workshop is registered. `ReactiveMongoOperationsCoroutinesTest` is 
 
 Use [`bluetape4k-mongodb`](./bluetape4k-mongodb.md) when direct control of the MongoDB Kotlin driver API and codecs matters more than Spring Data mapping. If a Spring Data repository interface is required, choose Spring Data's reactive or coroutine repository support separately from these extensions.
 
-## 1.11.0 scope {#limitations}
+## 1.12.1 scope {#limitations}
 
-This manual targets the `bluetape4k-projects` 1.11.0 release source. The module does not generate Spring Data repository implementations and does not configure custom conversions, auditing, a transaction manager, a MongoDB client, or a pool. Although MongoDB Kotlin sync and coroutine driver dependencies are present, its public surface focuses on `ReactiveMongoOperations` extensions and the query DSL.
+This manual targets the `bluetape4k-projects` 1.12.1 release source. The module does not generate Spring Data repository implementations and does not configure custom conversions, auditing, a transaction manager, a MongoDB client, or a pool. Although MongoDB Kotlin sync and coroutine driver dependencies are present, its public surface focuses on `ReactiveMongoOperations` extensions and the query DSL.
 
 `tailAsFlow` requires a capped collection. `paginate` is offset based, can become expensive for large pages, and does not validate its arguments. Implement sorted seek pagination in the application query for large result sets.
 
@@ -169,30 +169,30 @@ This manual targets the `bluetape4k-projects` 1.11.0 release source. The module 
 <!-- release-readme-diagrams:start -->
 ## Release diagrams {#release-diagrams}
 
-These diagrams are loaded directly from README assets published with the `1.11.0` release and pinned to its immutable commit. They describe this manual's released structure and runtime flows, not later Snapshot changes. Select a preview to open the SVG at the same release commit.
+These diagrams are loaded directly from README assets published with the `1.12.1` release and pinned to its immutable commit. They describe this manual's released structure and runtime flows, not later Snapshot changes. Select a preview to open the SVG at the same release commit.
 
 ### Core Class Structure diagram
 
-[![Core Class Structure diagram](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/spring-boot-mongodb-diagram-01.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/spring-boot-mongodb-diagram-01.svg)
+[![Core Class Structure diagram](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/spring-boot-mongodb-diagram-01.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/spring-boot-mongodb-diagram-01.svg)
 
-_Release README: [`spring-boot/mongodb/README.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/spring-boot/mongodb/README.md)_
+_Release README: [`spring-boot/mongodb/README.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/spring-boot/mongodb/README.md)_
 
 ### ReactiveMongoOperations Coroutine Extension Flow diagram
 
-[![ReactiveMongoOperations Coroutine Extension Flow diagram](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/spring-boot-mongodb-diagram-02.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/spring-boot-mongodb-diagram-02.svg)
+[![ReactiveMongoOperations Coroutine Extension Flow diagram](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/spring-boot-mongodb-diagram-02.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/spring-boot-mongodb-diagram-02.svg)
 
-_Release README: [`spring-boot/mongodb/README.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/spring-boot/mongodb/README.md)_
+_Release README: [`spring-boot/mongodb/README.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/spring-boot/mongodb/README.md)_
 
 ### Criteria / Query / Update DSL Flow diagram
 
-[![Criteria / Query / Update DSL Flow diagram](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/spring-boot-mongodb-diagram-03.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/spring-boot-mongodb-diagram-03.svg)
+[![Criteria / Query / Update DSL Flow diagram](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/spring-boot-mongodb-diagram-03.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/spring-boot-mongodb-diagram-03.svg)
 
-_Release README: [`spring-boot/mongodb/README.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/spring-boot/mongodb/README.md)_
+_Release README: [`spring-boot/mongodb/README.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/spring-boot/mongodb/README.md)_
 
 ### Coroutine Conversion Sequence diagram
 
-[![Coroutine Conversion Sequence diagram](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/spring-boot-mongodb-sequence-01.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/spring-boot-mongodb-sequence-01.svg)
+[![Coroutine Conversion Sequence diagram](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/spring-boot-mongodb-sequence-01.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/spring-boot-mongodb-sequence-01.svg)
 
-_Release README: [`spring-boot/mongodb/README.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/spring-boot/mongodb/README.md)_
+_Release README: [`spring-boot/mongodb/README.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/spring-boot/mongodb/README.md)_
 
 <!-- release-readme-diagrams:end -->

@@ -23,7 +23,7 @@ val restored = codec.deserialize("events", bytes)
 
 `AbstractKafkaCodec`은 기본적으로 `bluetape4k.kafka.codec.value.type` header에 Java FQN을 씁니다. 역직렬화할 때 Jackson codec은 이 header로 class를 고릅니다. wire format은 payload bytes만이 아니라 이 header까지 포함합니다.
 
-header를 신뢰할 수 없는 producer가 바꿀 수 있다면 class loading 입력도 공격자가 결정합니다. 그래서 1.11.0의 `allowedTypePackages` 기본값은 빈 집합, 즉 모두 거부입니다.
+header를 신뢰할 수 없는 producer가 바꿀 수 있다면 class loading 입력도 공격자가 결정합니다. 그래서 1.12.1의 `allowedTypePackages` 기본값은 빈 집합, 즉 모두 거부입니다.
 
 ```kotlin
 val codec = JacksonKafkaCodec(
@@ -41,7 +41,7 @@ entry는 정확한 FQN 또는 package prefix로 비교합니다. `ALLOW_ALL_TYPE
 
 ## binary codec과 선택 dependency
 
-`KafkaCodecs`에는 Kryo/Fory와 LZ4·Snappy·Zstd 조합이 있습니다. Kryo, Fory, Snappy와 Zstd는 1.11.0 build에서 선택형 dependency입니다. 해당 singleton을 처음 사용할 때 runtime class가 없으면 실패할 수 있습니다.
+`KafkaCodecs`에는 Kryo/Fory와 LZ4·Snappy·Zstd 조합이 있습니다. Kryo, Fory, Snappy와 Zstd는 1.12.1 build에서 선택형 dependency입니다. 해당 singleton을 처음 사용할 때 runtime class가 없으면 실패할 수 있습니다.
 
 Fory 계열은 등록하지 않은 class를 허용하는 기본 serializer를 사용하므로 trusted topic에만 적용합니다. registry를 강제해야 한다면 application이 구성한 `BinarySerializer` 기반 codec을 별도로 만듭니다.
 

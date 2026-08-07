@@ -88,7 +88,7 @@ class Product(
 
 ## 학습 경로 {#concepts}
 
-각 장은 개념 설명, 설정 예제, 잘못 쓰기 쉬운 지점과 1.11.0 배포 소스·테스트를 함께 제공합니다.
+각 장은 개념 설명, 설정 예제, 잘못 쓰기 쉬운 지점과 1.12.1 배포 소스·테스트를 함께 제공합니다.
 
 1. [자동 구성 조건과 활성화 순서](./bluetape4k-spring-boot-hibernate-lettuce/auto-configuration-conditions.md) — 세 auto-configuration이 언제 등록되고 물러나는지 확인합니다.
 2. [설정과 Hibernate property 매핑](./bluetape4k-spring-boot-hibernate-lettuce/properties-and-hibernate-mapping.md) — 기본값, duration과 region별 TTL 변환을 다룹니다.
@@ -153,9 +153,9 @@ Testcontainers가 필요한 전체 test는 다른 database·container test와 �
 
 작은 단위로는 `LettuceNearCacheAutoConfigurationTest`에서 property 하나씩 바꿔 보고, 그다음 통합 테스트에서 실제 Hibernate statistics 변화를 확인하는 순서가 좋습니다.
 
-## 1.11.0 범위 {#limitations}
+## 1.12.1 범위 {#limitations}
 
-이 매뉴얼은 `bluetape4k-projects` 1.11.0 배포 commit의 소스와 테스트를 기준으로 합니다. 모듈은 Spring Boot 4 전용이며 Spring Boot 3 package·auto-configuration 경로를 지원하지 않습니다.
+이 매뉴얼은 `bluetape4k-projects` 1.12.1 배포 commit의 소스와 테스트를 기준으로 합니다. 모듈은 Spring Boot 4 전용이며 Spring Boot 3 package·auto-configuration 경로를 지원하지 않습니다.
 
 제공되는 gauge는 활성 region 수와 전체 local entry 수 두 개뿐입니다. region별 L1/L2 통계는 Actuator endpoint 또는 Hibernate statistics에서 읽습니다. endpoint와 binder는 관측 실패를 완화하므로, 값이 비거나 gauge가 없다는 사실만으로 cache backend 원인을 단정할 수 없습니다.
 
@@ -173,18 +173,18 @@ Testcontainers가 필요한 전체 test는 다른 database·container test와 �
 <!-- release-readme-diagrams:start -->
 ## 배포본 다이어그램 {#release-diagrams}
 
-아래 그림은 `1.11.0` 배포본의 README 자산을 해당 배포 커밋에서 직접 불러옵니다. 이후 SNAPSHOT이 아니라 이 매뉴얼 버전의 구조와 실행 흐름을 보여 줍니다. 미리보기를 누르면 같은 배포 커밋의 SVG 원본이 열립니다.
+아래 그림은 `1.12.1` 배포본의 README 자산을 해당 배포 커밋에서 직접 불러옵니다. 이후 SNAPSHOT이 아니라 이 매뉴얼 버전의 구조와 실행 흐름을 보여 줍니다. 미리보기를 누르면 같은 배포 커밋의 SVG 원본이 열립니다.
 
 ### Spring Boot Hibernate Lettuce 클래스 구조도
 
-[![Spring Boot Hibernate Lettuce 클래스 구조도](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/spring-boot-hibernate-lettuce-diagram-01.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/spring-boot-hibernate-lettuce-diagram-01.svg)
+[![Spring Boot Hibernate Lettuce 클래스 구조도](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/spring-boot-hibernate-lettuce-diagram-01.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/spring-boot-hibernate-lettuce-diagram-01.svg)
 
-_배포본 README: [`spring-boot/hibernate-lettuce/README.ko.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/spring-boot/hibernate-lettuce/README.ko.md)_
+_배포본 README: [`spring-boot/hibernate-lettuce/README.ko.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/spring-boot/hibernate-lettuce/README.ko.md)_
 
 ### Spring Boot Hibernate Lettuce auto-configuration 처리 흐름
 
-[![Spring Boot Hibernate Lettuce auto-configuration 처리 흐름](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/spring-boot-hibernate-lettuce-diagram-02.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/spring-boot-hibernate-lettuce-diagram-02.svg)
+[![Spring Boot Hibernate Lettuce auto-configuration 처리 흐름](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/spring-boot-hibernate-lettuce-diagram-02.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/spring-boot-hibernate-lettuce-diagram-02.svg)
 
-_배포본 README: [`spring-boot/hibernate-lettuce/README.ko.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/spring-boot/hibernate-lettuce/README.ko.md)_
+_배포본 README: [`spring-boot/hibernate-lettuce/README.ko.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/spring-boot/hibernate-lettuce/README.ko.md)_
 
 <!-- release-readme-diagrams:end -->

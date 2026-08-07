@@ -70,7 +70,7 @@ client.databaseClient
 
 ## README 예제보다 test를 우선한다
 
-1.11.0 README에는 배포 소스에 없는 `awaitList`, `awaitSingleAsMap`, `awaitCount`, `awaitExists`가 등장합니다. 이 장은 해당 이름을 사용하지 않고 `ExecuteTest`에서 검증한 Spring R2DBC의 `awaitOne`, `awaitOneOrNull`, `flow`, `awaitRowsUpdated`만 사용합니다.
+1.12.1 README에는 배포 소스에 없는 `awaitList`, `awaitSingleAsMap`, `awaitCount`, `awaitExists`가 등장합니다. 이 장은 해당 이름을 사용하지 않고 `ExecuteTest`에서 검증한 Spring R2DBC의 `awaitOne`, `awaitOneOrNull`, `flow`, `awaitRowsUpdated`만 사용합니다.
 
 ## 실패와 cancellation
 

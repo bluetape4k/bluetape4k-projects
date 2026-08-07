@@ -75,7 +75,7 @@ try {
 
 ## Learning path {#concepts}
 
-These chapters follow the 1.11.0 release source and executable tests. They cover instance ownership, async boundaries, concurrent evaluation, L1/L2 ordering, and listener serialization, including the state left behind after failures.
+These chapters follow the 1.12.1 release source and executable tests. They cover instance ownership, async boundaries, concurrent evaluation, L1/L2 ordering, and listener serialization, including the state left behind after failures.
 
 1. [JCache and HazelcastInstance ownership](./bluetape4k-cache-hazelcast/jcache-instance-ownership.md) — provider choice, manager creation, cache names, and instance lifecycle.
 2. [Suspend JCache and async boundaries](./bluetape4k-cache-hazelcast/suspend-jcache-async-boundaries.md) — `ICache` unwrap, `await`, IO fallback, and non-atomic `getAndPut`.
@@ -132,34 +132,34 @@ Use `HazelcastCachesTest` for minimal factory construction and the synchronous a
 
 Continue to [Exposed Workshop](https://github.com/bluetape4k/exposed-workshop) and [bluetape4k-workshop](https://github.com/bluetape4k/bluetape4k-workshop) for database cache-aside and loader/writer exercises.
 
-## 1.11.0 scope {#limitations}
+## 1.12.1 scope {#limitations}
 
-This manual targets release commit `6187173b58e8b4c5c435c145e00e94708f31ef75`. `META-INF/services/javax.cache.spi.CachingProvider` contains no provider class; `HazelcastJCaching` explicitly creates `HazelcastCachingProvider`.
+This manual targets release commit `7cf0b73646af05c0f8872cc4f6a16983949c4e3e`. `META-INF/services/javax.cache.spi.CachingProvider` contains no provider class; `HazelcastJCaching` explicitly creates `HazelcastCachingProvider`.
 
 The standalone `ResilientHazelcastNearCache` and write-behind queue described by the README do not exist in this release source. Use only the `cache-core` `withResilience` decorator. Factory-created JCache near caches run in a listener-free degraded mode and do not provide peer front-cache propagation.
 
 <!-- release-readme-diagrams:start -->
 ## Release diagrams {#release-diagrams}
 
-These diagrams are loaded directly from README assets published with the `1.11.0` release and pinned to its immutable commit. They describe this manual's released structure and runtime flows, not later Snapshot changes. Select a preview to open the SVG at the same release commit.
+These diagrams are loaded directly from README assets published with the `1.12.1` release and pinned to its immutable commit. They describe this manual's released structure and runtime flows, not later Snapshot changes. Select a preview to open the SVG at the same release commit.
 
 ### HazelcastNearCache Class Hierarchy diagram
 
-[![HazelcastNearCache Class Hierarchy diagram](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/cache-cache-hazelcast-diagram-01.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/cache-cache-hazelcast-diagram-01.svg)
+[![HazelcastNearCache Class Hierarchy diagram](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/cache-cache-hazelcast-diagram-01.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/cache-cache-hazelcast-diagram-01.svg)
 
-_Release README: [`cache/cache-hazelcast/README.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/cache/cache-hazelcast/README.md)_
+_Release README: [`cache/cache-hazelcast/README.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/cache/cache-hazelcast/README.md)_
 
 ### HazelcastNearCache Runtime Flow diagram
 
-[![HazelcastNearCache Runtime Flow diagram](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/cache-cache-hazelcast-diagram-02.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/cache-cache-hazelcast-diagram-02.svg)
+[![HazelcastNearCache Runtime Flow diagram](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/cache-cache-hazelcast-diagram-02.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/cache-cache-hazelcast-diagram-02.svg)
 
-_Release README: [`cache/cache-hazelcast/README.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/cache/cache-hazelcast/README.md)_
+_Release README: [`cache/cache-hazelcast/README.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/cache/cache-hazelcast/README.md)_
 
 ### 2-Tier NearCache Flow diagram
 
-[![2-Tier NearCache Flow diagram](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/cache-cache-hazelcast-sequence-01.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/cache-cache-hazelcast-sequence-01.svg)
+[![2-Tier NearCache Flow diagram](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/cache-cache-hazelcast-sequence-01.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/cache-cache-hazelcast-sequence-01.svg)
 
-_Release README: [`cache/cache-hazelcast/README.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/cache/cache-hazelcast/README.md)_
+_Release README: [`cache/cache-hazelcast/README.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/cache/cache-hazelcast/README.md)_
 
 <!-- release-readme-diagrams:end -->
 

@@ -58,7 +58,7 @@ The block closes the prepared statement; the outer `withConnect` closes the conn
 
 ## Batch-row contract
 
-`executeBatch(sql, paramsList, batchSize)` divides parameter rows into JDBC batches. Version 1.11.0 checks that every row has the same parameter count before preparing the statement, preventing a shorter row from reusing bindings from the previous row.
+`executeBatch(sql, paramsList, batchSize)` divides parameter rows into JDBC batches. Version 1.12.1 checks that every row has the same parameter count before preparing the statement, preventing a shorter row from reusing bindings from the previous row.
 
 ```kotlin
 val rows = listOf(
@@ -74,7 +74,7 @@ val results: List<IntArray> = dataSource.executeBatch(
 )
 ```
 
-The check does not prove that row width matches the SQL placeholder count; the driver validates that during execution. Version 1.11.0 also does not validate that `batchSize` is positive. Reject zero and negative values when loading application configuration.
+The check does not prove that row width matches the SQL placeholder count; the driver validates that during execution. Version 1.12.1 also does not validate that `batchSize` is positive. Reject zero and negative values when loading application configuration.
 
 `executeLargeBatch` combines results into a `LongArray`. `executeBatch` returns one `IntArray` for each executed chunk, which is useful when observing or diagnosing chunk boundaries.
 

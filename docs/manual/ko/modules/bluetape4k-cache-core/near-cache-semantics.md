@@ -35,7 +35,7 @@ front를 먼저 바꾸는 구현에서 back write가 실패하면 local 값만 �
 
 `NearJCache`는 back cache entry listener를 등록해 변경 event를 front에 반영합니다. `SuspendNearJCache.withoutListener`는 listener를 cluster에 직렬화할 수 없는 환경을 위한 degraded 경로입니다. 이 모드에서는 다른 process의 변경을 자동으로 반영한다고 가정하면 안 됩니다.
 
-provider마다 event 보장이 다릅니다. 1.11.0 source는 Redisson bulk operation이 entry event를 내지 않는 경우를 고려해 key별 remove 경로를 사용합니다.
+provider마다 event 보장이 다릅니다. 1.12.1 source는 Redisson bulk operation이 entry event를 내지 않는 경우를 고려해 key별 remove 경로를 사용합니다.
 
 ## 통계를 읽는 법
 

@@ -1,7 +1,7 @@
 ---
 manualId: bluetape4k-kafka
 title: "Kafka 클라이언트 확장"
-description: "Kafka 3.x client, coroutine producer, Spring Kafka·Reactor Kafka adapter와 Kafka Streams Kotlin factory를 1.11.0 소스 기준으로 설명합니다."
+description: "Kafka 3.x client, coroutine producer, Spring Kafka·Reactor Kafka adapter와 Kafka Streams Kotlin factory를 1.12.1 소스 기준으로 설명합니다."
 kind: library
 group: messaging
 learningOrder: 700
@@ -96,7 +96,7 @@ producer.use {
 
 ## 연동 {#integrations}
 
-1.11.0 build는 Kafka client를 API로, Spring Kafka와 Reactor Kafka를 implementation으로 사용합니다. Kafka Streams, Spring Kafka test, resilience4j, Kryo·Fory와 일부 compressor는 선택형 edge입니다. 해당 API를 호출하면 애플리케이션 runtime에도 그 dependency가 있어야 합니다.
+1.12.1 build는 Kafka client를 API로, Spring Kafka와 Reactor Kafka를 implementation으로 사용합니다. Kafka Streams, Spring Kafka test, resilience4j, Kryo·Fory와 일부 compressor는 선택형 edge입니다. 해당 API를 호출하면 애플리케이션 runtime에도 그 dependency가 있어야 합니다.
 
 `bluetape4k-kafka`는 Kafka 3.9.x/Spring Kafka 3.x/Jackson 2 line입니다. Kafka 4.2.x/Spring Kafka 4.x/Jackson 3 line은 `bluetape4k-kafka4`를 선택합니다. Logback event를 Kafka로 내보내는 기능은 별도 [`bluetape4k-kafka-logback`](./bluetape4k-kafka-logback.md) artifact가 맡습니다.
 
@@ -116,7 +116,7 @@ native producer와 Spring 발송 adapter는 callback 또는 future의 예외를 
 
 producer의 send error·retry·request latency·buffer available bytes, consumer lag·rebalance·poll interval·commit failure, Streams state store와 restore 상태를 관찰합니다. shutdown 순서는 새 입력 중단, in-flight 처리와 commit/flush, client close 순으로 애플리케이션이 정합니다.
 
-1.11.0은 취약한 `org.lz4:lz4-java`를 제외하고 호환 namespace의 `at.yawk.lz4` 구현을 API로 노출합니다. 의존성 tree에서 예전 artifact가 다시 들어오지 않는지 배포 전에 확인합니다.
+1.12.1은 취약한 `org.lz4:lz4-java`를 제외하고 호환 namespace의 `at.yawk.lz4` 구현을 API로 노출합니다. 의존성 tree에서 예전 artifact가 다시 들어오지 않는지 배포 전에 확인합니다.
 
 ## 테스트 {#testing}
 
@@ -140,14 +140,14 @@ server 없는 helper test부터 실행하고 Kafka가 필요한 통합 test는 �
 
 전용 workshop은 manual manifest에 등록되어 있지 않습니다. README 예제로 API 모양을 확인한 뒤, `coroutines`, `spring/core`, `streams/kstream` test를 실행 가능한 학습 자료로 사용합니다. 애플리케이션에서는 production과 같은 serializer, security와 topic 설정으로 별도 통합 test를 둡니다.
 
-## 1.11.0 범위 {#limitations}
+## 1.12.1 범위 {#limitations}
 
-이 매뉴얼은 release `1.11.0`의 commit `6187173b58e8b4c5c435c145e00e94708f31ef75`를 설명합니다. 현재 개발 branch에는 Kafka test 임시 directory 격리와 `SuspendKafkaConsumerTemplate.close()` 진단·예외 처리 개선이 추가되어 있습니다. 1.11.0에서는 `AutoCloseable` receiver만 닫고, 아닌 경우 별도 경고가 없으며, `close()` 예외도 직접 전파됩니다.
+이 매뉴얼은 release `1.12.1`의 commit `7cf0b73646af05c0f8872cc4f6a16983949c4e3e`를 설명합니다. 현재 개발 branch에는 Kafka test 임시 directory 격리와 `SuspendKafkaConsumerTemplate.close()` 진단·예외 처리 개선이 추가되어 있습니다. 1.12.1에서는 `AutoCloseable` receiver만 닫고, 아닌 경우 별도 경고가 없으며, `close()` 예외도 직접 전파됩니다.
 
 ## Source와 tests {#sources}
 
 - [모듈 README](../../../../infra/kafka/README.ko.md)
-- [1.11.0 build](../../../../infra/kafka/build.gradle.kts)
+- [1.12.1 build](../../../../infra/kafka/build.gradle.kts)
 - [`ProducerCoroutines.kt`](../../../../infra/kafka/src/main/kotlin/io/bluetape4k/kafka/coroutines/ProducerCoroutines.kt)
 - [`KafkaCodec.kt`](../../../../infra/kafka/src/main/kotlin/io/bluetape4k/kafka/codec/KafkaCodec.kt)
 - [`SuspendKafkaProducerTemplate.kt`](../../../../infra/kafka/src/main/kotlin/io/bluetape4k/kafka/spring/core/SuspendKafkaProducerTemplate.kt)
@@ -157,24 +157,24 @@ server 없는 helper test부터 실행하고 Kafka가 필요한 통합 test는 �
 <!-- release-readme-diagrams:start -->
 ## 배포본 다이어그램 {#release-diagrams}
 
-아래 그림은 `1.11.0` 배포본의 README 자산을 해당 배포 커밋에서 직접 불러옵니다. 이후 SNAPSHOT이 아니라 이 매뉴얼 버전의 구조와 실행 흐름을 보여 줍니다. 미리보기를 누르면 같은 배포 커밋의 SVG 원본이 열립니다.
+아래 그림은 `1.12.1` 배포본의 README 자산을 해당 배포 커밋에서 직접 불러옵니다. 이후 SNAPSHOT이 아니라 이 매뉴얼 버전의 구조와 실행 흐름을 보여 줍니다. 미리보기를 누르면 같은 배포 커밋의 SVG 원본이 열립니다.
 
 ### Kafka API 구조
 
-[![Kafka API 구조](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/infra-kafka-diagram-01.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/infra-kafka-diagram-01.svg)
+[![Kafka API 구조](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/infra-kafka-diagram-01.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/infra-kafka-diagram-01.svg)
 
-_배포본 README: [`infra/kafka/README.ko.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/infra/kafka/README.ko.md)_
+_배포본 README: [`infra/kafka/README.ko.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/infra/kafka/README.ko.md)_
 
 ### Kafka Streams 다이어그램
 
-[![Kafka Streams 다이어그램](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/infra-kafka-diagram-02.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/infra-kafka-diagram-02.svg)
+[![Kafka Streams 다이어그램](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/infra-kafka-diagram-02.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/infra-kafka-diagram-02.svg)
 
-_배포본 README: [`infra/kafka/README.ko.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/infra/kafka/README.ko.md)_
+_배포본 README: [`infra/kafka/README.ko.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/infra/kafka/README.ko.md)_
 
 ### Producer/Consumer 다이어그램
 
-[![Producer/Consumer 다이어그램](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/infra-kafka-sequence-01.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/infra-kafka-sequence-01.svg)
+[![Producer/Consumer 다이어그램](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/infra-kafka-sequence-01.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/infra-kafka-sequence-01.svg)
 
-_배포본 README: [`infra/kafka/README.ko.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/infra/kafka/README.ko.md)_
+_배포본 README: [`infra/kafka/README.ko.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/infra/kafka/README.ko.md)_
 
 <!-- release-readme-diagrams:end -->

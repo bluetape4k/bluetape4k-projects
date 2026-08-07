@@ -35,7 +35,7 @@ suspend fun createPost(command: CreatePost): Post =
 - startup schema migration
 - shutdown 시 pool 종료
 
-1.11.0 테스트의 `R2dbcBlogApplication`은 H2 `ConnectionFactory`를 직접 만들고 initializer bean을 등록합니다. 이는 테스트 애플리케이션 구성 예제이지 모듈이 제공하는 auto-configuration이 아닙니다.
+1.12.1 테스트의 `R2dbcBlogApplication`은 H2 `ConnectionFactory`를 직접 만들고 initializer bean을 등록합니다. 이는 테스트 애플리케이션 구성 예제이지 모듈이 제공하는 auto-configuration이 아닙니다.
 
 ## 실패를 결과와 구분하기
 
@@ -52,7 +52,7 @@ suspend fun createPost(command: CreatePost): Post =
 
 `null`, `0L`, exception은 서로 다른 계약입니다. repository에서 모두 같은 domain 결과로 뭉개지 않습니다.
 
-## 1.11.0 통합 테스트 구조
+## 1.12.1 통합 테스트 구조
 
 테스트 application은 `r2dbc:h2:mem:///test` connection을 만들고 `schema.sql`로 `posts`, `comments` table을 초기화합니다. `ApplicationReadyEvent` listener가 기본 post 2건과 comment 4건을 삽입합니다.
 

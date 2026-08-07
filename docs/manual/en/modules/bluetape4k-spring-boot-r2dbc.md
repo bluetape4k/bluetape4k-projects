@@ -78,7 +78,7 @@ The query behind `selectAllSuspending` runs when the returned `Flow` is collecte
 
 ## Learning path {#concepts}
 
-The chapters go beyond an API inventory. They use the 1.11.0 source and tests to explain the cardinality, transaction, and failure boundaries encountered in a real repository. Each chapter links directly to the relevant implementation and verification code.
+The chapters go beyond an API inventory. They use the 1.12.1 source and tests to explain the cardinality, transaction, and failure boundaries encountered in a real repository. Each chapter links directly to the relevant implementation and verification code.
 
 1. [Start with entity operations](./bluetape4k-spring-boot-r2dbc/entity-operations.md) — Understand receiver types, ID helpers, and the configuration this module does not own.
 2. [Flow and result cardinality](./bluetape4k-spring-boot-r2dbc/flow-and-cardinality.md) — Distinguish multi-row, exactly-one, first-row, and nullable results.
@@ -115,7 +115,7 @@ ConnectionFactory / R2DBC driver / database
 
 The module has no property class, auto-configuration class, or `src/main/resources` configuration. Spring Boot configures `spring.r2dbc.*`, the driver, `ConnectionFactory`, and pool. Applications that configure R2DBC manually must provide `R2dbcEntityOperations` as well.
 
-The 1.11.0 test application creates an H2 `ConnectionFactory` through `AbstractR2dbcConfiguration` and applies a schema with `ConnectionFactoryInitializer`. That code is a test fixture, not an auto-configuration feature of this module.
+The 1.12.1 test application creates an H2 `ConnectionFactory` through `AbstractR2dbcConfiguration` and applies a schema with `ConnectionFactoryInitializer`. That code is a test fixture, not an auto-configuration feature of this module.
 
 ## Failure behavior {#failures}
 
@@ -131,7 +131,7 @@ A `Flow` does not automatically bound database or memory load. Add sorting and l
 
 ## Testing {#testing}
 
-The 1.11.0 tests use an H2 in-memory database and a real Spring Boot context to verify reads, inserts, updates, deletes, and WebFlux endpoints.
+The 1.12.1 tests use an H2 in-memory database and a real Spring Boot context to verify reads, inserts, updates, deletes, and WebFlux endpoints.
 
 ```bash
 ./gradlew :bluetape4k-spring-boot-r2dbc:test --no-build-cache --no-configuration-cache
@@ -145,40 +145,40 @@ The in-module `coroutines.blog` test application is the closest runnable example
 
 Continue to the [Exposed R2DBC Workshop](https://github.com/bluetape4k/exposed-r2dbc-workshop) for a higher-level SQL DSL and repository exercises. To start from raw R2DBC, follow the [`bluetape4k-r2dbc` learning path](./bluetape4k-r2dbc/ecosystem-paths.md).
 
-## 1.11.0 scope {#limitations}
+## 1.12.1 scope {#limitations}
 
-This manual targets the `bluetape4k-projects` 1.11.0 release source. Despite `spring-boot` in the module name, it has no separate auto-configuration, conditions, property binding, or pool management. It does not generate `R2dbcRepository` implementations or extend Spring Data repository interfaces.
+This manual targets the `bluetape4k-projects` 1.12.1 release source. Despite `spring-boot` in the module name, it has no separate auto-configuration, conditions, property binding, or pool management. It does not generate `R2dbcRepository` implementations or extend Spring Data repository interfaces.
 
 The API depends on reified types and Spring Data entity mapping. Use `bluetape4k-r2dbc` or Spring `DatabaseClient` for raw SQL, batching, detailed generated-key control, or custom row mapping.
 
 <!-- release-readme-diagrams:start -->
 ## Release diagrams {#release-diagrams}
 
-These diagrams are loaded directly from README assets published with the `1.11.0` release and pinned to its immutable commit. They describe this manual's released structure and runtime flows, not later Snapshot changes. Select a preview to open the SVG at the same release commit.
+These diagrams are loaded directly from README assets published with the `1.12.1` release and pinned to its immutable commit. They describe this manual's released structure and runtime flows, not later Snapshot changes. Select a preview to open the SVG at the same release commit.
 
 ### Core Class Structure diagram
 
-[![Core Class Structure diagram](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/spring-boot-r2dbc-diagram-01.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/spring-boot-r2dbc-diagram-01.svg)
+[![Core Class Structure diagram](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/spring-boot-r2dbc-diagram-01.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/spring-boot-r2dbc-diagram-01.svg)
 
-_Release README: [`spring-boot/r2dbc/README.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/spring-boot/r2dbc/README.md)_
+_Release README: [`spring-boot/r2dbc/README.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/spring-boot/r2dbc/README.md)_
 
 ### R2DBC + Coroutines Data Flow diagram
 
-[![R2DBC + Coroutines Data Flow diagram](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/spring-boot-r2dbc-diagram-02.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/spring-boot-r2dbc-diagram-02.svg)
+[![R2DBC + Coroutines Data Flow diagram](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/spring-boot-r2dbc-diagram-02.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/spring-boot-r2dbc-diagram-02.svg)
 
-_Release README: [`spring-boot/r2dbc/README.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/spring-boot/r2dbc/README.md)_
+_Release README: [`spring-boot/r2dbc/README.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/spring-boot/r2dbc/README.md)_
 
 ### CRUD Operation Hierarchy diagram
 
-[![CRUD Operation Hierarchy diagram](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/spring-boot-r2dbc-diagram-03.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/spring-boot-r2dbc-diagram-03.svg)
+[![CRUD Operation Hierarchy diagram](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/spring-boot-r2dbc-diagram-03.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/spring-boot-r2dbc-diagram-03.svg)
 
-_Release README: [`spring-boot/r2dbc/README.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/spring-boot/r2dbc/README.md)_
+_Release README: [`spring-boot/r2dbc/README.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/spring-boot/r2dbc/README.md)_
 
 ### Coroutine Conversion Sequence diagram
 
-[![Coroutine Conversion Sequence diagram](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/spring-boot-r2dbc-sequence-01.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/spring-boot-r2dbc-sequence-01.svg)
+[![Coroutine Conversion Sequence diagram](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/spring-boot-r2dbc-sequence-01.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/spring-boot-r2dbc-sequence-01.svg)
 
-_Release README: [`spring-boot/r2dbc/README.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/spring-boot/r2dbc/README.md)_
+_Release README: [`spring-boot/r2dbc/README.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/spring-boot/r2dbc/README.md)_
 
 <!-- release-readme-diagrams:end -->
 

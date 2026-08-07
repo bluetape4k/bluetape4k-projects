@@ -51,7 +51,7 @@ suspend fun hasComments(postId: Long): Boolean {
 
 ## WebFlux까지 Flow 유지하기
 
-1.11.0의 `PostController`는 repository의 `Flow<Post>`를 그대로 반환합니다.
+1.12.1의 `PostController`는 repository의 `Flow<Post>`를 그대로 반환합니다.
 
 ```kotlin
 @GetMapping

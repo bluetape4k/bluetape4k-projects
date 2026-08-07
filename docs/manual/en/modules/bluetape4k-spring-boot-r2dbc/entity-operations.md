@@ -49,7 +49,7 @@ val first: LegacyPost =
     operations.findFirstByIdSuspending(1L, LegacyPost::postId.name)
 ```
 
-`idName` is the name used in the query. When the property and physical column differ, confirm the Spring Data mapping rule and pass the intended name explicitly. The 1.11.0 tests cover both the default `id` and `Post::id.name` forms.
+`idName` is the name used in the query. When the property and physical column differ, confirm the Spring Data mapping rule and pass the intended name explicitly. The 1.12.1 tests cover both the default `id` and `Post::id.name` forms.
 
 ## Exactly one versus first
 

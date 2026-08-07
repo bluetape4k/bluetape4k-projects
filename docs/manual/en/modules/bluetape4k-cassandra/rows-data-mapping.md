@@ -116,7 +116,7 @@ Tuple values use the same pattern with `TupleValue` and `setTupleValue`/`getTupl
 
 ## Connect application types with codecs
 
-Register types not covered by built-in codecs with `CqlSessionBuilder.addTypeCodecs(...)`. The 1.11.0 examples register `MappingCodec`, enum, `Optional`, and array codecs before using `getValue<T>` and `setValue`.
+Register types not covered by built-in codecs with `CqlSessionBuilder.addTypeCodecs(...)`. The 1.12.1 examples register `MappingCodec`, enum, `Optional`, and array codecs before using `getValue<T>` and `setValue`.
 
 ```kotlin
 sessionBuilder.addTypeCodecs(CqlIntToStringCodec())
@@ -146,7 +146,7 @@ The `bind` defaults are `NullSavingStrategy.DO_NOT_SET` and `lenient = true`. `D
 
 With `lenient = true`, entity properties without matching target columns are skipped, so the statement may be only partially populated. With `lenient = false`, every non-computed entity property must have a matching target column or binding throws `IllegalArgumentException`. Choose both arguments after checking the intended write and the prepared statement's bind markers.
 
-`bluetape4k-cassandra` 1.11.0 exposes the DataStax mapper runtime as an API dependency. An annotation processor must still generate the application's `EntityHelper<T>` code. A runtime dependency on its own does not create helpers. Without processor configuration, an explicit typed row mapper is often the simpler boundary.
+`bluetape4k-cassandra` 1.12.1 exposes the DataStax mapper runtime as an API dependency. An annotation processor must still generate the application's `EntityHelper<T>` code. A runtime dependency on its own does not create helpers. Without processor configuration, an explicit typed row mapper is often the simpler boundary.
 
 ## Selection guide
 

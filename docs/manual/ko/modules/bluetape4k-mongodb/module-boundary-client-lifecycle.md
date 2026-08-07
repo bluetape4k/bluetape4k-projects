@@ -9,7 +9,7 @@ chapterId: module-boundary-client-lifecycle
 
 ## 공식 driver 위의 작은 helper
 
-1.11.0 production source는 일곱 파일입니다. client 생성·cache·session, database와 collection extension, `Document` helper와 aggregation stage builder를 제공합니다. network protocol, pool, retry, codec 실행과 `Flow` 구현은 MongoDB Kotlin Coroutine Driver의 책임입니다.
+1.12.1 production source는 일곱 파일입니다. client 생성·cache·session, database와 collection extension, `Document` helper와 aggregation stage builder를 제공합니다. network protocol, pool, retry, codec 실행과 `Flow` 구현은 MongoDB Kotlin Coroutine Driver의 책임입니다.
 
 build는 coroutine driver, Kotlin extensions와 BSON Kotlin을 API dependency로 노출합니다. 따라서 이 artifact를 추가하면 driver API도 사용할 수 있지만, bluetape4k가 driver 설정을 대신 정하거나 server를 구성하지는 않습니다.
 
@@ -41,9 +41,9 @@ val second = MongoClientProvider.getOrCreate(url)
 check(first === second)
 ```
 
-provider에서 받은 client를 한 호출자가 임의로 닫으면 같은 instance를 공유하는 다른 호출자가 실패할 수 있습니다. 1.11.0에는 entry를 제거하거나 모두 닫는 public API가 없으므로 provider를 application-lifetime singleton으로 취급합니다.
+provider에서 받은 client를 한 호출자가 임의로 닫으면 같은 instance를 공유하는 다른 호출자가 실패할 수 있습니다. 1.12.1에는 entry를 제거하거나 모두 닫는 public API가 없으므로 provider를 application-lifetime singleton으로 취급합니다.
 
-## 1.11.0의 두 cache
+## 1.12.1의 두 cache
 
 release source에는 URL 문자열 cache와 `MongoClientSettings` cache가 따로 있습니다. 이 차이는 단순 구현 세부가 아니라 instance identity에 영향을 줍니다.
 
@@ -57,7 +57,7 @@ release source에는 URL 문자열 cache와 `MongoClientSettings` cache가 따�
 
 ## cache cardinality와 credential
 
-connection string에 tenant나 credential이 포함되면 문자열마다 새 client와 pool이 생깁니다. 제거 API가 없는 1.11.0 provider에 동적인 tenant 목록을 계속 넣지 않습니다. tenant 수가 제한되지 않는다면 application registry에서 client의 생성과 종료를 명시적으로 관리합니다.
+connection string에 tenant나 credential이 포함되면 문자열마다 새 client와 pool이 생깁니다. 제거 API가 없는 1.12.1 provider에 동적인 tenant 목록을 계속 넣지 않습니다. tenant 수가 제한되지 않는다면 application registry에서 client의 생성과 종료를 명시적으로 관리합니다.
 
 URL을 log에 출력하는 provider source도 함께 확인해야 합니다. credential을 connection string에 포함하는 배포에서는 log 정책과 driver 설정 방식을 검토합니다.
 

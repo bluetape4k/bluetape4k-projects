@@ -63,7 +63,7 @@ Aggregate gauges can hide a hot region's eviction spike. Combine them with:
 - database query count and latency
 - cache configuration and deployment events
 
-Local eviction cleanup may be asynchronous. The 1.11.0 integration test therefore checks a non-negative local size rather than an exact instantaneous count. Use trends and correlation with database load.
+Local eviction cleanup may be asynchronous. The 1.12.1 integration test therefore checks a non-negative local size rather than an exact instantaneous count. Use trends and correlation with database load.
 
 ## Registration failures
 

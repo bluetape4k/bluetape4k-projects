@@ -56,7 +56,7 @@ Cumulative ack compresses several processing results into one position. Keep pro
 
 When cancellation occurs while awaiting receive, Flow cancels the pending future and rethrows cancellation. Receive and ack failures propagate as Pulsar exceptions. The helpers add no automatic nack, retry, redelivery delay, or dead-letter action.
 
-Flow does not close its Consumer. A `withConsumer` block or explicit owner must do so, and the 1.11.0 `withConsumer` helper does not guarantee close completion during cancellation.
+Flow does not close its Consumer. A `withConsumer` block or explicit owner must do so, and the 1.12.1 `withConsumer` helper does not guarantee close completion during cancellation.
 
 ## Operational signals
 

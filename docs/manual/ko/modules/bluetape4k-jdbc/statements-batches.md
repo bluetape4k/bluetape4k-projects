@@ -65,7 +65,7 @@ dataSource.withConnect { connection ->
 
 ## Batch row 계약
 
-`executeBatch(sql, paramsList, batchSize)`는 parameter row를 여러 JDBC batch로 나눕니다. 1.11.0은 statement를 만들기 전에 모든 row의 parameter 수가 같은지 검사합니다. 짧은 row가 이전 row의 binding을 재사용하는 일을 막기 위한 계약입니다.
+`executeBatch(sql, paramsList, batchSize)`는 parameter row를 여러 JDBC batch로 나눕니다. 1.12.1은 statement를 만들기 전에 모든 row의 parameter 수가 같은지 검사합니다. 짧은 row가 이전 row의 binding을 재사용하는 일을 막기 위한 계약입니다.
 
 ```kotlin
 val rows = listOf(
@@ -83,7 +83,7 @@ val results: List<IntArray> = dataSource.executeBatch(
 
 두 번째 row에 값이 하나뿐이면 statement 실행 전에 `IllegalArgumentException`이 발생합니다. 이 검증은 SQL placeholder 수와 row 크기가 일치하는지까지 알아내지는 못합니다. 그 부분은 driver가 실행 시 검증합니다.
 
-1.11.0은 `batchSize`가 양수인지 먼저 검사하지 않습니다. `0`이나 음수를 넘겼을 때 안정된 validation exception을 기대하지 말고, 애플리케이션 설정을 읽는 경계에서 양수로 제한합니다.
+1.12.1은 `batchSize`가 양수인지 먼저 검사하지 않습니다. `0`이나 음수를 넘겼을 때 안정된 validation exception을 기대하지 말고, 애플리케이션 설정을 읽는 경계에서 양수로 제한합니다.
 
 `executeLargeBatch`는 각 실행 결과를 합친 `LongArray`를 반환합니다. `executeBatch`는 실제로 실행한 batch마다 `IntArray`를 담은 목록을 반환하므로, 부분 실패 분석이나 chunk 단위 관찰이 필요할 때 구분해서 사용합니다.
 

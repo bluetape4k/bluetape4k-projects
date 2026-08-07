@@ -39,7 +39,7 @@ The database repository supplies the actual `MapLoader` and `MapWriter`. The loa
 
 ## Unsupported settings fail fast
 
-The 1.11.0 conversion cannot directly apply `ttl`, `maxSize`, or `deleteFromDBOnInvalidate`. Non-default values fail with `IllegalArgumentException` instead of being ignored.
+The 1.12.1 conversion cannot directly apply `ttl`, `maxSize`, or `deleteFromDBOnInvalidate`. Non-default values fail with `IllegalArgumentException` instead of being ignored.
 
 - Use `RMapCache` entry expiration for TTL.
 - Use `nearCacheMaxSize`, `nearCacheTtl`, and `nearCacheMaxIdleTime` for local bounds.

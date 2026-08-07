@@ -1,6 +1,6 @@
 ---
 title: CqlSession 수명주기와 캐시 경계
-description: 직접 만든 세션과 provider가 관리하는 세션의 소유권, identity와 1.11.0 bootstrap 제한을 설명합니다.
+description: 직접 만든 세션과 provider가 관리하는 세션의 소유권, identity와 1.12.1 bootstrap 제한을 설명합니다.
 manualId: bluetape4k-cassandra
 chapterId: session-lifecycle
 ---
@@ -78,13 +78,13 @@ fun tenantOrdersSession(
 }
 ```
 
-`builderSupplier`는 호출될 때마다 새 builder를 반환해야 합니다. 1.11.0은 새 세션을 만들 때 `${identity.context}`를 INFO 로그에 기록합니다. 따라서 비밀번호, 토큰, 실제 사용자 이름, 테넌트나 고객 식별자는 `context`에 넣지 않습니다. 로그에 노출해도 되는 불투명한 라우팅 프로필 ID나 자격 증명 버전만 사용합니다.
+`builderSupplier`는 호출될 때마다 새 builder를 반환해야 합니다. 1.12.1은 새 세션을 만들 때 `${identity.context}`를 INFO 로그에 기록합니다. 따라서 비밀번호, 토큰, 실제 사용자 이름, 테넌트나 고객 식별자는 `context`에 넣지 않습니다. 로그에 노출해도 되는 불투명한 라우팅 프로필 ID나 자격 증명 버전만 사용합니다.
 
-요청 ID, 상관관계 ID, 임의 UUID처럼 요청마다 달라지는 값도 identity에 넣으면 안 됩니다. 1.11.0 캐시에는 크기 제한이나 유휴 제거(`idle eviction`)가 없어서 값이 달라질 때마다 세션이 늘어나며, 닫거나 프로세스를 종료할 때까지 남습니다. 위 예제의 `clientId`, `routingProfile`, `credentialVersion`은 배포 설정에서 가져오는 수가 제한된 값입니다.
+요청 ID, 상관관계 ID, 임의 UUID처럼 요청마다 달라지는 값도 identity에 넣으면 안 됩니다. 1.12.1 캐시에는 크기 제한이나 유휴 제거(`idle eviction`)가 없어서 값이 달라질 때마다 세션이 늘어나며, 닫거나 프로세스를 종료할 때까지 남습니다. 위 예제의 `clientId`, `routingProfile`, `credentialVersion`은 배포 설정에서 가져오는 수가 제한된 값입니다.
 
-## 1.11.0 bootstrap 제한
+## 1.12.1 bootstrap 제한
 
-1.11.0에서 `CqlSessionProvider`는 keyspace가 없을 때를 대비해 두 세션을 순서대로 만듭니다.
+1.12.1에서 `CqlSessionProvider`는 keyspace가 없을 때를 대비해 두 세션을 순서대로 만듭니다.
 
 ```kotlin
 builderSupplier().build().use { adminSession ->
@@ -99,7 +99,7 @@ builderSupplier()
 
 따라서 `builderSupplier`는 관리 세션과 최종 세션에 모두 필요한 접속 지점, `localDatacenter`, 인증, TLS 설정을 제공해야 합니다. 마지막 builder 블록은 최종 세션에만 적용됩니다. 위 예제의 `withApplicationName("order-reader")`가 bootstrap 세션에는 적용되지 않는 이유입니다.
 
-이 제약은 1.11.0 뒤에 병합된 bootstrap builder 수정 전 동작입니다. 애플리케이션이 keyspace DDL을 맡지 않거나 bootstrap에 별도 설정이 필요하면 배포 단계에서 keyspace를 관리하고, 직접 소유하는 세션을 `cqlSessionOf`로 여는 방식을 선택합니다.
+이 제약은 1.12.1 뒤에 병합된 bootstrap builder 수정 전 동작입니다. 애플리케이션이 keyspace DDL을 맡지 않거나 bootstrap에 별도 설정이 필요하면 배포 단계에서 keyspace를 관리하고, 직접 소유하는 세션을 `cqlSessionOf`로 여는 방식을 선택합니다.
 
 ## 종료
 
@@ -109,7 +109,7 @@ builderSupplier()
 
 ## 실패 표
 
-| 상황 | 1.11.0 동작 | 대응 |
+| 상황 | 1.12.1 동작 | 대응 |
 | --- | --- | --- |
 | 빈 keyspace | `CqlSessionIdentity`와 keyspace 오버로드가 `IllegalArgumentException`을 던집니다. | 입력 경계에서 keyspace를 검증합니다. |
 | 빈 local datacenter | `newCqlSessionBuilder`가 `IllegalArgumentException`을 던집니다. | 드라이버 설정을 읽은 직후 빈 값을 거부합니다. |

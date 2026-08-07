@@ -1,6 +1,6 @@
 ---
 title: Client configuration and lifecycle
-description: PulsarClient builders, direct and block-scoped ownership, configuration, and the 1.11.0 close boundary.
+description: PulsarClient builders, direct and block-scoped ownership, configuration, and the 1.12.1 close boundary.
 manualId: bluetape4k-pulsar
 chapterId: client-lifecycle-configuration
 ---
@@ -38,11 +38,11 @@ val result = withPulsarClient(url) {
 
 Producer, Consumer, and Reader `with*` functions use the same structure. Do not leak their receiver outside the block; it may already be closed.
 
-## The 1.11.0 close contract
+## The 1.12.1 close contract
 
-Version 1.11.0 runs `runCatching { closeAsync().awaitSuspending() }` and logs close failures as warnings. A close failure does not replace the block result or original exception.
+Version 1.12.1 runs `runCatching { closeAsync().awaitSuspending() }` and logs close failures as warnings. A close failure does not replace the block result or original exception.
 
-There is a cancellation limit. This release does not await close in a `NonCancellable` context. Attempting close is not the same guarantee as completing close while the coroutine is cancelled. A later branch's `PulsarCloseSupport` is not part of 1.11.0.
+There is a cancellation limit. This release does not await close in a `NonCancellable` context. Attempting close is not the same guarantee as completing close while the coroutine is cancelled. A later branch's `PulsarCloseSupport` is not part of 1.12.1.
 
 ## Application-lifetime clients
 

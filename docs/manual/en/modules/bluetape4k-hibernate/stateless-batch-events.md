@@ -20,7 +20,7 @@ session.withBatchSize(100) {
 }
 ```
 
-In 1.11.0, failure to read the old value falls back to zero and restoration failure is warning-only.
+In 1.12.1, failure to read the old value falls back to zero and restoration failure is warning-only.
 
 ## Features omitted by StatelessSession
 
@@ -37,9 +37,9 @@ sessionFactory.withStateless { stateless ->
 
 Insert related entities explicitly.
 
-## 1.11.0 Spring limitation
+## 1.12.1 Spring limitation
 
-The 1.11.0 `StatelessSessionFactoryBean` binds its resource under the `SessionFactory` key and can collide with an existing JPA transaction resource. The dedicated-key fix came after the release. Prefer explicit `SessionFactory.withStateless` over the injected Spring proxy in 1.11.0.
+The 1.12.1 `StatelessSessionFactoryBean` binds its resource under the `SessionFactory` key and can collide with an existing JPA transaction resource. The dedicated-key fix came after the release. Prefer explicit `SessionFactory.withStateless` over the injected Spring proxy in 1.12.1.
 
 `registerEventListener` adds Hibernate listeners; the misspelled `registEventListener` is deprecated. Built-in logging listeners can print full entities at trace level. Keep credentials and personal data out of entity string output, and use a durable audit design when audit delivery matters.
 

@@ -9,7 +9,7 @@ chapterId: module-boundary-client-records
 
 ## Kafka 3.x를 위한 Kotlin 보조 계층
 
-1.11.0의 `bluetape4k-kafka`는 Kafka 3.9.x와 Spring Kafka 3.x에 맞춘 모듈입니다. Kafka client, Reactor Kafka와 Spring Kafka API를 감싸되 broker, topic, consumer group이나 Spring bean을 만들지 않습니다. `src/main/resources`도 없습니다.
+1.12.1의 `bluetape4k-kafka`는 Kafka 3.9.x와 Spring Kafka 3.x에 맞춘 모듈입니다. Kafka client, Reactor Kafka와 Spring Kafka API를 감싸되 broker, topic, consumer group이나 Spring bean을 만들지 않습니다. `src/main/resources`도 없습니다.
 
 Kafka client API는 `api` dependency라 consumer가 직접 사용할 수 있습니다. Kafka Streams는 `compileOnly`이므로 Streams helper를 쓰는 애플리케이션이 runtime dependency를 제공해야 합니다.
 

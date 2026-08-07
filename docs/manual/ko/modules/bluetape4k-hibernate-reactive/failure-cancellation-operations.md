@@ -17,7 +17,7 @@ transaction block의 실패 처리는 Hibernate Reactive `withTransaction`에 �
 
 Mutiny와 Stage wrapper는 모든 callback에서 `CancellationException`을 잡아 그대로 다시 던집니다. 이는 coroutine→`Uni` 또는 coroutine→`CompletableFuture` 경계에서 취소를 일반 오류로 바꾸지 않기 위한 처리입니다.
 
-그러나 `1.11.0` 테스트에는 실행 중인 driver query가 즉시 취소되는지 검증하는 사례가 없습니다. 취소는 coroutine 협력 계약이며, 이미 DB 서버로 전달된 SQL의 중단 시점까지 보장하지 않습니다. query timeout과 database-side timeout을 별도로 둡니다.
+그러나 `1.12.1` 테스트에는 실행 중인 driver query가 즉시 취소되는지 검증하는 사례가 없습니다. 취소는 coroutine 협력 계약이며, 이미 DB 서버로 전달된 SQL의 중단 시점까지 보장하지 않습니다. query timeout과 database-side timeout을 별도로 둡니다.
 
 ## Event loop를 막지 않기
 

@@ -75,7 +75,7 @@ Nats.connect(options).use { connection ->
 
 ## 학습 경로 {#concepts}
 
-아래 여섯 장은 1.11.0 배포 소스와 테스트를 따라 connection ownership에서 core messaging, JetStream과 운영 경계까지 이어집니다. 각 장에는 바로 실행 흐름을 만들 수 있는 예제와 실패 조건, 다음에 읽을 source가 함께 있습니다.
+아래 여섯 장은 1.12.1 배포 소스와 테스트를 따라 connection ownership에서 core messaging, JetStream과 운영 경계까지 이어집니다. 각 장에는 바로 실행 흐름을 만들 수 있는 예제와 실패 조건, 다음에 읽을 source가 함께 있습니다.
 
 1. [Connection과 option 소유권](./bluetape4k-nats/connection-options-ownership.md) — option DSL, connection lifecycle, reconnect와 shutdown 책임을 정합니다.
 2. [Core pub-sub와 request-reply](./bluetape4k-nats/core-pubsub-request-reply.md) — 휘발성 전달, flush, timeout과 no-responder를 구분합니다.
@@ -142,9 +142,9 @@ builder와 위임 계약은 MockK 기반 unit test로 확인할 수 있지만, �
 
 예제를 그대로 production 설정으로 옮기지는 않습니다. test는 memory storage와 짧은 timeout을 주로 사용하므로 실제 retention, replicas, file storage와 shutdown 기준은 서비스 요구에 맞춰 다시 정합니다.
 
-## 1.11.0 범위 {#limitations}
+## 1.12.1 범위 {#limitations}
 
-이 매뉴얼은 release commit `6187173b58e8b4c5c435c145e00e94708f31ef75`의 1.11.0 소스와 테스트를 기준으로 합니다. module은 jNATS builder DSL과 작은 extension을 제공하며 자체 broker, schema registry, serializer contract, retry framework, outbox, tracing instrumentation을 제공하지 않습니다.
+이 매뉴얼은 release commit `7cf0b73646af05c0f8872cc4f6a16983949c4e3e`의 1.12.1 소스와 테스트를 기준으로 합니다. module은 jNATS builder DSL과 작은 extension을 제공하며 자체 broker, schema registry, serializer contract, retry framework, outbox, tracing instrumentation을 제공하지 않습니다.
 
 Spring Boot auto-configuration과 Spring Cloud Stream binder도 포함하지 않습니다. `nats-spring`은 compile-time API edge일 뿐이며 애플리케이션이 dependency와 lifecycle을 직접 구성해야 합니다.
 
@@ -166,12 +166,12 @@ Spring Boot auto-configuration과 Spring Cloud Stream binder도 포함하지 않
 <!-- release-readme-diagrams:start -->
 ## 배포본 다이어그램 {#release-diagrams}
 
-아래 그림은 `1.11.0` 배포본의 README 자산을 해당 배포 커밋에서 직접 불러옵니다. 이후 SNAPSHOT이 아니라 이 매뉴얼 버전의 구조와 실행 흐름을 보여 줍니다. 미리보기를 누르면 같은 배포 커밋의 SVG 원본이 열립니다.
+아래 그림은 `1.12.1` 배포본의 README 자산을 해당 배포 커밋에서 직접 불러옵니다. 이후 SNAPSHOT이 아니라 이 매뉴얼 버전의 구조와 실행 흐름을 보여 줍니다. 미리보기를 누르면 같은 배포 커밋의 SVG 원본이 열립니다.
 
 ### nats 클래스 구조도
 
-[![nats 클래스 구조도](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/infra-nats-diagram-01.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/infra-nats-diagram-01.svg)
+[![nats 클래스 구조도](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/infra-nats-diagram-01.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/infra-nats-diagram-01.svg)
 
-_배포본 README: [`infra/nats/README.ko.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/infra/nats/README.ko.md)_
+_배포본 README: [`infra/nats/README.ko.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/infra/nats/README.ko.md)_
 
 <!-- release-readme-diagrams:end -->

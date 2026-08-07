@@ -34,7 +34,7 @@ Most CRUD methods call Redisson JCache `*Async()` methods and `await()` them. `p
 
 ## `getAndPut` is not atomic
 
-Redisson JCache has no `getAndPutAsync()` in this path. The 1.11.0 wrapper performs `get` followed by `put`, allowing another writer to interleave. Use an atomic `RMap` operation when strict read-modify-write semantics matter.
+Redisson JCache has no `getAndPutAsync()` in this path. The 1.12.1 wrapper performs `get` followed by `put`, allowing another writer to interleave. Use an atomic `RMap` operation when strict read-modify-write semantics matter.
 
 ## Close is not deletion
 

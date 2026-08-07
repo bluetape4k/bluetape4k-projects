@@ -81,4 +81,4 @@ core dispatcher는 application 처리 속도보다 publish 속도가 빠르면 p
 - [`SubscriptionExtensionsTest.kt`](../../../../../infra/nats/src/test/kotlin/io/bluetape4k/nats/client/SubscriptionExtensionsTest.kt)
 - [`SimplePublishExample.kt`](../../../../../infra/nats/src/test/kotlin/io/bluetape4k/nats/SimplePublishExample.kt)
 
-1.11.0 helper는 `Flow<Message>` adapter나 bounded worker pool을 제공하지 않습니다. application이 처리 모델과 backpressure를 선택합니다.
+1.12.1 helper는 `Flow<Message>` adapter나 bounded worker pool을 제공하지 않습니다. application이 처리 모델과 backpressure를 선택합니다.

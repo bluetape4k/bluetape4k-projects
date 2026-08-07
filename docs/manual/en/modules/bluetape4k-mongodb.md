@@ -62,7 +62,7 @@ try {
 | Task | Start with | Boundary to remember |
 | --- | --- | --- |
 | Create a caller-owned client | `mongoClient`, `mongoClientOf` | The caller closes the returned client. |
-| Share a client in the JVM | `MongoClientProvider.getOrCreate` | Release 1.11.0 has no explicit eviction or close-all API. |
+| Share a client in the JVM | `MongoClientProvider.getOrCreate` | Release 1.12.1 has no explicit eviction or close-all API. |
 | Collect database or collection names | `listDatabaseNamesAsList`, `listCollectionNamesList` | These collect every name into memory. |
 | Obtain a typed collection | `getCollectionOf<T>` | Encoding and decoding remain codec-registry responsibilities. |
 | Find one, check existence, or upsert | `findFirst`, `exists`, `upsert` | These compose native driver operations. |
@@ -73,9 +73,9 @@ try {
 
 ## Learning path {#concepts}
 
-These chapters follow the 1.11.0 release source and tests from client ownership through transactions, codecs, and operational validation. Each chapter separates official driver behavior from the helper added by this module.
+These chapters follow the 1.12.1 release source and tests from client ownership through transactions, codecs, and operational validation. Each chapter separates official driver behavior from the helper added by this module.
 
-1. [Module boundary and client lifecycle](./bluetape4k-mongodb/module-boundary-client-lifecycle.md) — compare direct clients with provider caching and inspect the 1.11.0 cache-key constraints.
+1. [Module boundary and client lifecycle](./bluetape4k-mongodb/module-boundary-client-lifecycle.md) — compare direct clients with provider caching and inspect the 1.12.1 cache-key constraints.
 2. [Database, Collection, and Flow](./bluetape4k-mongodb/database-collection-flow.md) — use typed collections, first-result lookup, existence checks, upsert, and lazy query results.
 3. [Documents, codecs, and query boundaries](./bluetape4k-mongodb/documents-codecs-queries.md) — distinguish the `Document` DSL, safe casts, codec registry, and official query extensions.
 4. [Sessions and transactions](./bluetape4k-mongodb/sessions-transactions.md) — follow session passing, commit, abort, close, and cancellation boundaries.
@@ -86,7 +86,7 @@ For a first adoption, follow chapters 1→2→3 and complete one client and one 
 
 ## Recommended patterns {#patterns}
 
-Do not create a client for every operation. Share it for the lifetime of an application component. The component closes directly created clients; provider-returned clients are shared resources and should be identified as such at the call site. The 1.11.0 provider does not include builder settings in the string-cache key, so use the completed `MongoClientSettings` overload when the same URL needs distinct settings.
+Do not create a client for every operation. Share it for the lifetime of an application component. The component closes directly created clients; provider-returned clients are shared resources and should be identified as such at the call site. The 1.12.1 provider does not include builder settings in the string-cache key, so use the completed `MongoClientSettings` overload when the same URL needs distinct settings.
 
 For potentially large results, keep the driver `Flow` instead of using eager helpers such as `listDatabaseNamesAsList`. Give `findAsFlow` a stable sort and explicit bounds. For repeated paging APIs, compare the cost of large skips with cursor-based pagination.
 
@@ -115,13 +115,13 @@ Do not log connection strings that contain credentials. Provider caches use eith
 
 Helpers do not translate MongoDB exceptions or add retries. `findFirst` returns `null` when nothing matches. `Document.getAs<T>` returns `null` when a key is absent or its runtime type differs. Add explicit validation when those cases must be distinguished from corrupt data.
 
-`inTransaction` commits on success and attempts an abort before rethrowing the original failure. An abort failure is attached as a suppressed exception. In 1.11.0, cancellation-path abort does not run in a `NonCancellable` context, so do not assume cleanup is guaranteed under aggressive cancellation.
+`inTransaction` commits on success and attempts an abort before rethrowing the original failure. An abort failure is attached as a suppressed exception. In 1.12.1, cancellation-path abort does not run in a `NonCancellable` context, so do not assume cleanup is guaranteed under aggressive cancellation.
 
 ## Operations {#operations}
 
 Observe driver command latency, server-selection timeout, connection-pool wait, retries, and transaction aborts. Use bounded operation and collection labels; never put filter values or entire documents into high-cardinality metric labels.
 
-When using the provider, monitor client creation and settings cardinality. Release 1.11.0 has no cache eviction API, so it is not a suitable dynamic registry for an unbounded number of tenants or credentials.
+When using the provider, monitor client creation and settings cardinality. Release 1.12.1 has no cache eviction API, so it is not a suitable dynamic registry for an unbounded number of tenants or credentials.
 
 ## Testing {#testing}
 
@@ -139,34 +139,34 @@ When using the provider, monitor client creation and settings cardinality. Relea
 
 Continue with the [`bluetape4k-spring-boot-mongodb`](./bluetape4k-spring-boot-mongodb.md) manual for Spring Data mapping, Criteria, Query, Update, and reactive operations. Understanding the driver-level boundary first makes the framework's lifecycle and exception translation easier to evaluate.
 
-## Release 1.11.0 scope {#limitations}
+## Release 1.12.1 scope {#limitations}
 
-This manual targets release commit `6187173b58e8b4c5c435c145e00e94708f31ef75`. Its production API consists of seven Kotlin source files covering client, database, collection, BSON, and aggregation helpers.
+This manual targets release commit `7cf0b73646af05c0f8872cc4f6a16983949c4e3e`. Its production API consists of seven Kotlin source files covering client, database, collection, BSON, and aggregation helpers.
 
-It does not provide repositories, an object-mapping framework, schema migration, auto-configuration, health indicators, metrics, or a transaction manager. Explicit provider-cache close APIs and `NonCancellable` transaction cleanup are also outside the 1.11.0 scope.
+It does not provide repositories, an object-mapping framework, schema migration, auto-configuration, health indicators, metrics, or a transaction manager. Explicit provider-cache close APIs and `NonCancellable` transaction cleanup are also outside the 1.12.1 scope.
 
 <!-- release-readme-diagrams:start -->
 ## Release diagrams {#release-diagrams}
 
-These diagrams are loaded directly from README assets published with the `1.11.0` release and pinned to its immutable commit. They describe this manual's released structure and runtime flows, not later Snapshot changes. Select a preview to open the SVG at the same release commit.
+These diagrams are loaded directly from README assets published with the `1.12.1` release and pinned to its immutable commit. They describe this manual's released structure and runtime flows, not later Snapshot changes. Select a preview to open the SVG at the same release commit.
 
 ### Core Class Structure diagram
 
-[![Core Class Structure diagram](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/data-mongodb-diagram-01.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/data-mongodb-diagram-01.svg)
+[![Core Class Structure diagram](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/data-mongodb-diagram-01.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/data-mongodb-diagram-01.svg)
 
-_Release README: [`data/mongodb/README.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/data/mongodb/README.md)_
+_Release README: [`data/mongodb/README.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/data/mongodb/README.md)_
 
 ### Module API Structure diagram
 
-[![Module API Structure diagram](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/data-mongodb-diagram-02.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/data-mongodb-diagram-02.svg)
+[![Module API Structure diagram](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/data-mongodb-diagram-02.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/data-mongodb-diagram-02.svg)
 
-_Release README: [`data/mongodb/README.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/data/mongodb/README.md)_
+_Release README: [`data/mongodb/README.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/data/mongodb/README.md)_
 
 ### Aggregation Pipeline Data Flow diagram
 
-[![Aggregation Pipeline Data Flow diagram](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/data-mongodb-diagram-03.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/data-mongodb-diagram-03.svg)
+[![Aggregation Pipeline Data Flow diagram](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/data-mongodb-diagram-03.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/data-mongodb-diagram-03.svg)
 
-_Release README: [`data/mongodb/README.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/data/mongodb/README.md)_
+_Release README: [`data/mongodb/README.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/data/mongodb/README.md)_
 
 <!-- release-readme-diagrams:end -->
 

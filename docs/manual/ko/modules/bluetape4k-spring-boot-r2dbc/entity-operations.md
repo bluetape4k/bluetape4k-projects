@@ -49,7 +49,7 @@ val first: LegacyPost =
     operations.findFirstByIdSuspending(1L, LegacyPost::postId.name)
 ```
 
-`idName`은 query에 사용할 이름입니다. property와 실제 column 이름이 다르면 Spring Data mapping 규칙을 확인하고 명시적으로 넘깁니다. 1.11.0 테스트는 기본 `id`와 `Post::id.name` 경로를 모두 검증합니다.
+`idName`은 query에 사용할 이름입니다. property와 실제 column 이름이 다르면 Spring Data mapping 규칙을 확인하고 명시적으로 넘깁니다. 1.12.1 테스트는 기본 `id`와 `Post::id.name` 경로를 모두 검증합니다.
 
 ## 정확히 한 건과 첫 행
 

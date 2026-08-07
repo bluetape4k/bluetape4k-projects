@@ -75,7 +75,7 @@ try {
 
 ## 학습 경로 {#concepts}
 
-아래 장은 1.11.0 배포 소스와 실행 가능한 테스트를 따라 instance 소유권, async 경계, 동시 계산, L1/L2 순서와 listener 직렬화 실패를 설명합니다. 각 장에서 정상 경로뿐 아니라 실패 뒤 어느 계층이 바뀌어 있는지도 확인합니다.
+아래 장은 1.12.1 배포 소스와 실행 가능한 테스트를 따라 instance 소유권, async 경계, 동시 계산, L1/L2 순서와 listener 직렬화 실패를 설명합니다. 각 장에서 정상 경로뿐 아니라 실패 뒤 어느 계층이 바뀌어 있는지도 확인합니다.
 
 1. [JCache와 HazelcastInstance 소유권](./bluetape4k-cache-hazelcast/jcache-instance-ownership.md) — provider 선택, manager 생성, cache 이름과 instance 수명주기를 정리합니다.
 2. [Suspend JCache와 async 경계](./bluetape4k-cache-hazelcast/suspend-jcache-async-boundaries.md) — `ICache` unwrap, `await`, IO fallback과 비원자적 `getAndPut`을 다룹니다.
@@ -132,9 +132,9 @@ Near Cache 테스트는 CRUD, bulk, 통계와 중복 close를, memoizer 테스�
 
 database cache-aside와 loader/writer를 함께 실습하려면 [Exposed Workshop](https://github.com/bluetape4k/exposed-workshop)과 [bluetape4k-workshop](https://github.com/bluetape4k/bluetape4k-workshop)으로 이어갑니다.
 
-## 1.11.0 범위 {#limitations}
+## 1.12.1 범위 {#limitations}
 
-이 매뉴얼은 release commit `6187173b58e8b4c5c435c145e00e94708f31ef75`의 1.11.0 소스와 테스트를 기준으로 합니다. `META-INF/services/javax.cache.spi.CachingProvider`에는 provider class가 등록되지 않았으며 `HazelcastJCaching`이 `HazelcastCachingProvider`를 명시적으로 생성합니다.
+이 매뉴얼은 release commit `7cf0b73646af05c0f8872cc4f6a16983949c4e3e`의 1.12.1 소스와 테스트를 기준으로 합니다. `META-INF/services/javax.cache.spi.CachingProvider`에는 provider class가 등록되지 않았으며 `HazelcastJCaching`이 `HazelcastCachingProvider`를 명시적으로 생성합니다.
 
 README에 남아 있는 `ResilientHazelcastNearCache`와 전용 write-behind queue 구현은 이 release source에 없습니다. resilience가 필요하면 `cache-core`의 `withResilience` decorator 범위에서 사용합니다. factory가 만든 JCache Near Cache는 listener-free degraded mode이며 peer front-cache propagation을 제공하지 않습니다.
 
@@ -152,24 +152,24 @@ README에 남아 있는 `ResilientHazelcastNearCache`와 전용 write-behind que
 <!-- release-readme-diagrams:start -->
 ## 배포본 다이어그램 {#release-diagrams}
 
-아래 그림은 `1.11.0` 배포본의 README 자산을 해당 배포 커밋에서 직접 불러옵니다. 이후 SNAPSHOT이 아니라 이 매뉴얼 버전의 구조와 실행 흐름을 보여 줍니다. 미리보기를 누르면 같은 배포 커밋의 SVG 원본이 열립니다.
+아래 그림은 `1.12.1` 배포본의 README 자산을 해당 배포 커밋에서 직접 불러옵니다. 이후 SNAPSHOT이 아니라 이 매뉴얼 버전의 구조와 실행 흐름을 보여 줍니다. 미리보기를 누르면 같은 배포 커밋의 SVG 원본이 열립니다.
 
 ### HazelcastNearCache 클래스 계층도
 
-[![HazelcastNearCache 클래스 계층도](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/cache-cache-hazelcast-diagram-01.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/cache-cache-hazelcast-diagram-01.svg)
+[![HazelcastNearCache 클래스 계층도](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/cache-cache-hazelcast-diagram-01.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/cache-cache-hazelcast-diagram-01.svg)
 
-_배포본 README: [`cache/cache-hazelcast/README.ko.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/cache/cache-hazelcast/README.ko.md)_
+_배포본 README: [`cache/cache-hazelcast/README.ko.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/cache/cache-hazelcast/README.ko.md)_
 
 ### HazelcastNearCache 런타임 처리 흐름
 
-[![HazelcastNearCache 런타임 처리 흐름](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/cache-cache-hazelcast-diagram-02.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/cache-cache-hazelcast-diagram-02.svg)
+[![HazelcastNearCache 런타임 처리 흐름](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/cache-cache-hazelcast-diagram-02.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/cache-cache-hazelcast-diagram-02.svg)
 
-_배포본 README: [`cache/cache-hazelcast/README.ko.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/cache/cache-hazelcast/README.ko.md)_
+_배포본 README: [`cache/cache-hazelcast/README.ko.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/cache/cache-hazelcast/README.ko.md)_
 
 ### IMap EntryListener Invalidation 다이어그램
 
-[![IMap EntryListener Invalidation 다이어그램](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/cache-cache-hazelcast-sequence-01.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/cache-cache-hazelcast-sequence-01.svg)
+[![IMap EntryListener Invalidation 다이어그램](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/cache-cache-hazelcast-sequence-01.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/cache-cache-hazelcast-sequence-01.svg)
 
-_배포본 README: [`cache/cache-hazelcast/README.ko.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/cache/cache-hazelcast/README.ko.md)_
+_배포본 README: [`cache/cache-hazelcast/README.ko.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/cache/cache-hazelcast/README.ko.md)_
 
 <!-- release-readme-diagrams:end -->

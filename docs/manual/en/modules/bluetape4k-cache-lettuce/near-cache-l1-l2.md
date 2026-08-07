@@ -66,7 +66,7 @@ This is write-through between cache tiers, not to a database. Remove operations 
 val snapshot = users.stats()
 ```
 
-Caffeine hit, miss, and eviction counters are meaningful only with `recordStats=true`. Redis counters are updated by the single-key `get` path after an L1 miss; 1.11.0 `getAll` results do not update the same counters. Use them as directional metrics and compare them with Redis telemetry.
+Caffeine hit, miss, and eviction counters are meaningful only with `recordStats=true`. Redis counters are updated by the single-key `get` path after an L1 miss; 1.12.1 `getAll` results do not update the same counters. Use them as directional metrics and compare them with Redis telemetry.
 
 ## Sources and tests
 

@@ -29,7 +29,7 @@ This is not a distributed lock. Use locking, fencing, and idempotency when evalu
 | `asyncMemoizer` | `CompletionStage<R>` | Java future-based services |
 | `suspendMemoizer` | `suspend (T) -> R` | Coroutine services |
 
-All three use `putIfAbsent` to handle Redis races. Sync and suspend variants return the stored winner. The 1.11.0 async path completes with its evaluated value even if another process won the Redis `putIfAbsent`, so cross-process callers can temporarily observe different return values.
+All three use `putIfAbsent` to handle Redis races. Sync and suspend variants return the stored winner. The 1.12.1 async path completes with its evaluated value even if another process won the Redis `putIfAbsent`, so cross-process callers can temporarily observe different return values.
 
 ## Recovery after failure or cancellation
 

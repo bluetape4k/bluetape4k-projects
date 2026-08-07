@@ -62,7 +62,7 @@ Once new code uses only Lettuce and all Redisson calls are gone, replace the coo
 
 ## Learning path {#concepts}
 
-These chapters start from the actual 1.11.0 Gradle contract. They do not invent umbrella APIs or tests; they show how to select, operate, and remove client dependencies using concrete build examples.
+These chapters start from the actual 1.12.1 Gradle contract. They do not invent umbrella APIs or tests; they show how to select, operate, and remove client dependencies using concrete build examples.
 
 1. [Umbrella dependency contract](./bluetape4k-redis/umbrella-dependency-contract.md) — inspect the two exported artifacts and the capabilities the umbrella does not provide.
 2. [Choosing Lettuce or Redisson](./bluetape4k-redis/lettuce-vs-redisson.md) — compare a command-oriented client with a distributed-object client by requirement.
@@ -81,7 +81,7 @@ The umbrella makes a migration easy to start but does not prove that it is compl
 
 ## Integrations {#integrations}
 
-The 1.11.0 build declares exactly two integration edges:
+The 1.12.1 build declares exactly two integration edges:
 
 ```kotlin
 api(project(":bluetape4k-lettuce"))
@@ -117,28 +117,28 @@ Both tasks use Redis Testcontainers, so do not run them in parallel with other h
 
 There is no umbrella-specific workshop. Use `LettuceClientsTest` and `RedisFutureSupportTest` for small Lettuce examples, and `RedissonClientSupportTest` and `RStreamSupportTest` for Redisson. Continue to [bluetape4k-workshop](https://github.com/bluetape4k/bluetape4k-workshop) and [Exposed Workshop](https://github.com/bluetape4k/exposed-workshop) for cache-and-database scenarios.
 
-## 1.11.0 scope {#limitations}
+## 1.12.1 scope {#limitations}
 
-This manual follows `infra/redis/build.gradle.kts` at the `bluetape4k-projects` 1.11.0 release commit. The umbrella supplies both submodule artifacts. It does not supply a common facade, automatic client selection, Spring configuration, a cache provider, or integration tests.
+This manual follows `infra/redis/build.gradle.kts` at the `bluetape4k-projects` 1.12.1 release commit. The umbrella supplies both submodule artifacts. It does not supply a common facade, automatic client selection, Spring configuration, a cache provider, or integration tests.
 
-The README command for `:bluetape4k-redis:test` shows how to run a Gradle task; it does not mean that the umbrella contains test code. Changes made to submodules after 1.11.0 are not described as release behavior here.
+The README command for `:bluetape4k-redis:test` shows how to run a Gradle task; it does not mean that the umbrella contains test code. Changes made to submodules after 1.12.1 are not described as release behavior here.
 
 <!-- release-readme-diagrams:start -->
 ## Release diagrams {#release-diagrams}
 
-These diagrams are loaded directly from README assets published with the `1.11.0` release and pinned to its immutable commit. They describe this manual's released structure and runtime flows, not later Snapshot changes. Select a preview to open the SVG at the same release commit.
+These diagrams are loaded directly from README assets published with the `1.12.1` release and pinned to its immutable commit. They describe this manual's released structure and runtime flows, not later Snapshot changes. Select a preview to open the SVG at the same release commit.
 
 ### Module Dependency Structure diagram
 
-[![Module Dependency Structure diagram](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/infra-redis-diagram-01.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/infra-redis-diagram-01.svg)
+[![Module Dependency Structure diagram](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/infra-redis-diagram-01.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/infra-redis-diagram-01.svg)
 
-_Release README: [`infra/redis/README.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/infra/redis/README.md)_
+_Release README: [`infra/redis/README.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/infra/redis/README.md)_
 
 ### Exported API Surface diagram
 
-[![Exported API Surface diagram](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/infra-redis-diagram-02.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/infra-redis-diagram-02.svg)
+[![Exported API Surface diagram](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/infra-redis-diagram-02.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/infra-redis-diagram-02.svg)
 
-_Release README: [`infra/redis/README.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/infra/redis/README.md)_
+_Release README: [`infra/redis/README.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/infra/redis/README.md)_
 
 <!-- release-readme-diagrams:end -->
 

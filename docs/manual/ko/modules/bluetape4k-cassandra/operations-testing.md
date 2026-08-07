@@ -29,7 +29,7 @@ val version = CassandraAdmin.getReleaseVersion(adminSession)
 
 ## 권한과 bootstrap 설정
 
-`CqlSessionProvider` 1.11.0은 대상 keyspace를 만들기 위해 먼저 admin session을 엽니다. 이 admin session은 `builderSupplier`가 반환한 builder로 만들고, 마지막 builder 블록은 최종 session에만 적용합니다. 접속 지점, `localDatacenter`, 인증, TLS처럼 bootstrap에도 필요한 설정은 `builderSupplier`에 있어야 합니다.
+`CqlSessionProvider` 1.12.1은 대상 keyspace를 만들기 위해 먼저 admin session을 엽니다. 이 admin session은 `builderSupplier`가 반환한 builder로 만들고, 마지막 builder 블록은 최종 session에만 적용합니다. 접속 지점, `localDatacenter`, 인증, TLS처럼 bootstrap에도 필요한 설정은 `builderSupplier`에 있어야 합니다.
 
 ```kotlin
 val session = CqlSessionProvider.getOrCreateSession(
@@ -43,7 +43,7 @@ val session = CqlSessionProvider.getOrCreateSession(
 }
 ```
 
-admin 계정에는 keyspace 생성 권한이 필요합니다. 애플리케이션 계정에 그 권한을 줄 수 없거나 admin과 업무 접속 설정을 분리해야 한다면 배포 단계에서 keyspace를 관리하고 직접 소유하는 session을 엽니다. 이 제약은 1.11.0 뒤에 병합된 bootstrap builder 수정 전 동작입니다.
+admin 계정에는 keyspace 생성 권한이 필요합니다. 애플리케이션 계정에 그 권한을 줄 수 없거나 admin과 업무 접속 설정을 분리해야 한다면 배포 단계에서 keyspace를 관리하고 직접 소유하는 session을 엽니다. 이 제약은 1.12.1 뒤에 병합된 bootstrap builder 수정 전 동작입니다.
 
 ## 무엇을 관찰할까
 
@@ -58,7 +58,7 @@ admin 계정에는 keyspace 생성 권한이 필요합니다. 애플리케이션
 | batch | batch type, partition 범위, statement 수, payload, 지연과 timeout |
 | 종료 | direct/provider 소유권, close 시작·완료, 진행 중인 작업 수 |
 
-1.11.0은 session을 만들 때 `CqlSessionIdentity.context`를 INFO로 기록합니다. 비밀번호, token, 실제 사용자·tenant·고객 식별자를 context에 넣지 않습니다. 요청 ID나 임의 UUID도 cache key의 종류를 끝없이 늘리므로 사용하지 않습니다. 로그에 허용된 수가 제한된 routing profile ID나 credential version만 사용합니다.
+1.12.1은 session을 만들 때 `CqlSessionIdentity.context`를 INFO로 기록합니다. 비밀번호, token, 실제 사용자·tenant·고객 식별자를 context에 넣지 않습니다. 요청 ID나 임의 UUID도 cache key의 종류를 끝없이 늘리므로 사용하지 않습니다. 로그에 허용된 수가 제한된 routing profile ID나 credential version만 사용합니다.
 
 query value를 그대로 기록하면 개인정보와 credential이 노출될 수 있습니다. 진단에는 CQL 구조와 marker 이름을 우선 사용하고 실제 값은 애플리케이션의 마스킹 정책을 따릅니다.
 
@@ -66,7 +66,7 @@ query value를 그대로 기록하면 개인정보와 credential이 노출될 �
 
 | 증상 | 먼저 확인할 경계 |
 | --- | --- |
-| bootstrap 인증 또는 연결 실패 | 1.11.0 admin session에 필요한 설정이 `builderSupplier`에 있는지 확인 |
+| bootstrap 인증 또는 연결 실패 | 1.12.1 admin session에 필요한 설정이 `builderSupplier`에 있는지 확인 |
 | 같은 keyspace의 잘못된 session 재사용 | `CqlSessionIdentity` context에 connection/tenant 경계가 있는지 확인 |
 | Flow가 일부 row만 반환 | collection cancellation, mapper exception, next-page fetch failure 확인 |
 | 종료 후 connection이 남음 | direct session과 provider-owned session의 종료 책임 구분 |
@@ -93,7 +93,7 @@ query value를 그대로 기록하면 개인정보와 credential이 노출될 �
 ## 소스와 대표 테스트
 
 - [`CassandraAdmin.kt`](../../../../../data/cassandra/src/main/kotlin/io/bluetape4k/cassandra/CassandraAdmin.kt): keyspace create/drop과 release version 조회
-- [`CqlSessionProvider.kt`](../../../../../data/cassandra/src/main/kotlin/io/bluetape4k/cassandra/CqlSessionProvider.kt): 1.11.0 bootstrap, identity cache, 종료 등록
+- [`CqlSessionProvider.kt`](../../../../../data/cassandra/src/main/kotlin/io/bluetape4k/cassandra/CqlSessionProvider.kt): 1.12.1 bootstrap, identity cache, 종료 등록
 - [`AbstractCassandraTest.kt`](../../../../../data/cassandra/src/test/kotlin/io/bluetape4k/cassandra/AbstractCassandraTest.kt): Cassandra 4 Testcontainers fixture와 session 종료
 - [`CassandraAdminTest.kt`](../../../../../data/cassandra/src/test/kotlin/io/bluetape4k/cassandra/CassandraAdminTest.kt): schema side effect와 version 검증
 - [`CqlSessionProviderTest.kt`](../../../../../data/cassandra/src/test/kotlin/io/bluetape4k/cassandra/CqlSessionProviderTest.kt): identity reuse와 connection context 분리

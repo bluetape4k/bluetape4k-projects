@@ -23,7 +23,7 @@ chapterId: spring-kafka-templates-listeners
 val result = kafkaTemplate.suspendSend("orders", order.id, order)
 ```
 
-`spring.core`의 Flow helper는 1.11.0에서 `onCompletion { flush() }`를 사용합니다. 정상 완료뿐 아니라 exception·cancellation에서도 flush가 호출될 수 있습니다. 이 동작이 필요하지 않다면 native coroutine helper 또는 개별 `suspendSend`를 사용합니다.
+`spring.core`의 Flow helper는 1.12.1에서 `onCompletion { flush() }`를 사용합니다. 정상 완료뿐 아니라 exception·cancellation에서도 flush가 호출될 수 있습니다. 이 동작이 필요하지 않다면 native coroutine helper 또는 개별 `suspendSend`를 사용합니다.
 
 ## Reactor Kafka producer template
 
@@ -59,9 +59,9 @@ template.receive().collect { record ->
 
 `commitCurrentOffsets`는 현재 position을 `OffsetAndMetadata`로 만들고 `commitSync`합니다. 요청한 partition이 현재 assignment에 없으면 `IllegalArgumentException`입니다. `committed`와 `offsetsForTimes` map의 값은 Kafka가 null을 반환할 수 있어 nullable입니다.
 
-## 1.11.0 종료 경계
+## 1.12.1 종료 경계
 
-consumer template close는 scope를 취소한 다음 receiver가 `AutoCloseable`일 때만 닫습니다. `AutoCloseable`이 아니면 아무 경고도 없고, close가 예외를 던지면 호출자에게 그대로 전파됩니다. 현재 branch의 경고와 예외 흡수는 1.11.0 이후 변경이라 이 release 계약에 포함하지 않습니다.
+consumer template close는 scope를 취소한 다음 receiver가 `AutoCloseable`일 때만 닫습니다. `AutoCloseable`이 아니면 아무 경고도 없고, close가 예외를 던지면 호출자에게 그대로 전파됩니다. 현재 branch의 경고와 예외 흡수는 1.12.1 이후 변경이라 이 release 계약에 포함하지 않습니다.
 
 ## listener adapter는 container를 만들지 않는다
 

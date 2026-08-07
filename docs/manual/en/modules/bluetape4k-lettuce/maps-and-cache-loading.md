@@ -31,7 +31,7 @@ Write-through calls the writer before Redis, so writer failure leaves Redis unch
 
 `delete` changes the writer and Redis; `evict` removes only Redis state. Pattern invalidation uses `SCAN` plus `UNLINK`. Closing a write-behind map drains up to its shutdown timeout and warns about remaining entries. The suspended implementation cancels its owned job, not the caller's whole scope.
 
-## The 1.11.0 near-cache boundary
+## The 1.12.1 near-cache boundary
 
 The `nearCache*` fields and presets are validated but not consumed by loaded maps. There is no Caffeine store or RESP3 tracking invalidation in this release. Implement a local layer separately or verify the concrete contract in `bluetape4k-cache-lettuce`.
 

@@ -46,7 +46,7 @@ Spring Boot MongoDB reactive auto-configuration이 정상적으로 적용되면 
 
 ## Custom conversion과 auditing
 
-1.11.0 소스에는 `MongoCustomConversions` bean이나 `@EnableMongoAuditing`이 없습니다. 필요한 애플리케이션은 별도 configuration을 둡니다.
+1.12.1 소스에는 `MongoCustomConversions` bean이나 `@EnableMongoAuditing`이 없습니다. 필요한 애플리케이션은 별도 configuration을 둡니다.
 
 ```kotlin
 @Configuration(proxyBeanMethods = false)

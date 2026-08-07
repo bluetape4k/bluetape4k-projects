@@ -33,7 +33,7 @@ The native path uses `fastRemove`/`fastRemoveAsync` for multiple keys. The legac
 
 ## Metric limits
 
-Redisson does not expose a separate local-versus-Redis hit result through this wrapper. In 1.11.0, local hit/miss/eviction fields are zero, while back hit/miss fields count the integrated `get` result. Combine them with Redisson and Redis network metrics before judging near-cache effectiveness.
+Redisson does not expose a separate local-versus-Redis hit result through this wrapper. In 1.12.1, local hit/miss/eviction fields are zero, while back hit/miss fields count the integrated `get` result. Combine them with Redisson and Redis network metrics before judging near-cache effectiveness.
 
 ## Source and tests
 

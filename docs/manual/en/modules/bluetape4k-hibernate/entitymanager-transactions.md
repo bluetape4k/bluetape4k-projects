@@ -19,7 +19,7 @@ val id = emf.withNewEntityManager { em ->
 }
 ```
 
-In 1.11.0, rollback failure is warning-only. The original exception is preserved, but the rollback error is not attached as suppressed; retain the helper logger when diagnosing failures.
+In 1.12.1, rollback failure is warning-only. The original exception is preserved, but the rollback error is not attached as suppressed; retain the helper logger when diagnosing failures.
 
 ## Continue with the merge result
 

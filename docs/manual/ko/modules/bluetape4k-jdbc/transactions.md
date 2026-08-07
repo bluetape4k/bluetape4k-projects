@@ -75,7 +75,7 @@ try {
 
 `withIsolationLevel`, `withAutoCommit`, `withReadOnly`, `withHoldability`는 한 속성을 block 동안 바꿨다가 `finally`에서 돌려놓습니다. 이 helper들은 commit이나 rollback을 수행하지 않습니다. transaction이 필요하면 `withTransaction`을 사용합니다.
 
-1.11.0에서 이 단일 속성 helper들은 block 실패와 복원 실패가 동시에 발생했을 때 복원 예외가 원래 예외를 가릴 수 있습니다. rollback과 suppressed exception 보존이 필요한 transaction 작업에는 `withTransaction`을 사용하고, 단일 속성 helper를 쓰는 호출 경로에서도 복원 실패를 별도 failure mode로 테스트합니다.
+1.12.1에서 이 단일 속성 helper들은 block 실패와 복원 실패가 동시에 발생했을 때 복원 예외가 원래 예외를 가릴 수 있습니다. rollback과 suppressed exception 보존이 필요한 transaction 작업에는 `withTransaction`을 사용하고, 단일 속성 helper를 쓰는 호출 경로에서도 복원 실패를 별도 failure mode로 테스트합니다.
 
 ## DataSource wrapper와 같은 connection
 

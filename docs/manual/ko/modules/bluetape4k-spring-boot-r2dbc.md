@@ -78,7 +78,7 @@ class PostRepository(
 
 ## 학습 경로 {#concepts}
 
-각 장은 API 목록에 그치지 않고 실제 repository를 만들 때 마주치는 cardinality, transaction, failure 경계를 1.11.0 소스와 테스트로 설명합니다. 예제를 따라간 뒤에는 같은 페이지의 source와 test 링크에서 구현을 바로 확인할 수 있습니다.
+각 장은 API 목록에 그치지 않고 실제 repository를 만들 때 마주치는 cardinality, transaction, failure 경계를 1.12.1 소스와 테스트로 설명합니다. 예제를 따라간 뒤에는 같은 페이지의 source와 test 링크에서 구현을 바로 확인할 수 있습니다.
 
 1. [Entity operation 시작하기](./bluetape4k-spring-boot-r2dbc/entity-operations.md) — receiver type과 ID 조회 helper, module이 소유하지 않는 구성 요소를 구분합니다.
 2. [Flow와 조회 cardinality](./bluetape4k-spring-boot-r2dbc/flow-and-cardinality.md) — 여러 행, 정확히 한 행, 첫 행, nullable 결과의 차이를 익힙니다.
@@ -115,7 +115,7 @@ ConnectionFactory / R2DBC driver / database
 
 이 모듈에는 property class, auto-configuration class, `src/main/resources` 설정 파일이 없습니다. `spring.r2dbc.*`와 driver dependency, `ConnectionFactory`, pool은 Spring Boot 애플리케이션이 구성합니다. 직접 구성하는 애플리케이션은 `R2dbcEntityOperations` bean까지 제공해야 합니다.
 
-1.11.0 테스트 애플리케이션은 `AbstractR2dbcConfiguration`에서 H2 `ConnectionFactory`를 직접 만들고 `ConnectionFactoryInitializer`로 schema를 적용합니다. 이 코드는 확장 모듈의 자동 구성 기능이 아니라 테스트 fixture입니다.
+1.12.1 테스트 애플리케이션은 `AbstractR2dbcConfiguration`에서 H2 `ConnectionFactory`를 직접 만들고 `ConnectionFactoryInitializer`로 schema를 적용합니다. 이 코드는 확장 모듈의 자동 구성 기능이 아니라 테스트 fixture입니다.
 
 ## 실패 동작 {#failures}
 
@@ -131,7 +131,7 @@ insert mapping 오류, constraint 위반, connection 획득 실패도 그대로 
 
 ## 테스트 {#testing}
 
-1.11.0 대표 테스트는 H2 in-memory database와 실제 Spring Boot context를 사용해 조회, insert, update, delete, WebFlux endpoint를 검증합니다.
+1.12.1 대표 테스트는 H2 in-memory database와 실제 Spring Boot context를 사용해 조회, insert, update, delete, WebFlux endpoint를 검증합니다.
 
 ```bash
 ./gradlew :bluetape4k-spring-boot-r2dbc:test --no-build-cache --no-configuration-cache
@@ -145,9 +145,9 @@ insert mapping 오류, constraint 위반, connection 획득 실패도 그대로 
 
 더 높은 수준의 SQL DSL과 repository를 연습하려면 [Exposed R2DBC Workshop](https://github.com/bluetape4k/exposed-r2dbc-workshop)으로 이어갑니다. raw R2DBC부터 시작하고 싶다면 [`bluetape4k-r2dbc` 학습 경로](./bluetape4k-r2dbc/ecosystem-paths.md)를 먼저 읽습니다.
 
-## 1.11.0 범위 {#limitations}
+## 1.12.1 범위 {#limitations}
 
-이 매뉴얼은 `bluetape4k-projects` 1.11.0 배포 소스를 기준으로 합니다. 모듈 이름에 `spring-boot`가 들어가지만 별도 auto-configuration, condition, property binding, pool 관리 기능은 없습니다. `R2dbcRepository` 구현을 생성하지 않으며 Spring Data repository interface를 확장하지도 않습니다.
+이 매뉴얼은 `bluetape4k-projects` 1.12.1 배포 소스를 기준으로 합니다. 모듈 이름에 `spring-boot`가 들어가지만 별도 auto-configuration, condition, property binding, pool 관리 기능은 없습니다. `R2dbcRepository` 구현을 생성하지 않으며 Spring Data repository interface를 확장하지도 않습니다.
 
 API는 reified type과 Spring Data entity mapping에 의존합니다. raw SQL, batch, generated key 세부 제어, custom row mapping이 필요하면 `bluetape4k-r2dbc` 또는 Spring `DatabaseClient`를 사용합니다.
 
@@ -168,30 +168,30 @@ API는 reified type과 Spring Data entity mapping에 의존합니다. raw SQL, b
 <!-- release-readme-diagrams:start -->
 ## 배포본 다이어그램 {#release-diagrams}
 
-아래 그림은 `1.11.0` 배포본의 README 자산을 해당 배포 커밋에서 직접 불러옵니다. 이후 SNAPSHOT이 아니라 이 매뉴얼 버전의 구조와 실행 흐름을 보여 줍니다. 미리보기를 누르면 같은 배포 커밋의 SVG 원본이 열립니다.
+아래 그림은 `1.12.1` 배포본의 README 자산을 해당 배포 커밋에서 직접 불러옵니다. 이후 SNAPSHOT이 아니라 이 매뉴얼 버전의 구조와 실행 흐름을 보여 줍니다. 미리보기를 누르면 같은 배포 커밋의 SVG 원본이 열립니다.
 
 ### Spring Boot R2DBC 핵심 클래스 구조 다이어그램
 
-[![Spring Boot R2DBC 핵심 클래스 구조 다이어그램](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/spring-boot-r2dbc-diagram-01.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/spring-boot-r2dbc-diagram-01.svg)
+[![Spring Boot R2DBC 핵심 클래스 구조 다이어그램](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/spring-boot-r2dbc-diagram-01.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/spring-boot-r2dbc-diagram-01.svg)
 
-_배포본 README: [`spring-boot/r2dbc/README.ko.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/spring-boot/r2dbc/README.ko.md)_
+_배포본 README: [`spring-boot/r2dbc/README.ko.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/spring-boot/r2dbc/README.ko.md)_
 
 ### R2DBC와 Coroutines 데이터 흐름 다이어그램
 
-[![R2DBC와 Coroutines 데이터 흐름 다이어그램](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/spring-boot-r2dbc-diagram-02.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/spring-boot-r2dbc-diagram-02.svg)
+[![R2DBC와 Coroutines 데이터 흐름 다이어그램](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/spring-boot-r2dbc-diagram-02.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/spring-boot-r2dbc-diagram-02.svg)
 
-_배포본 README: [`spring-boot/r2dbc/README.ko.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/spring-boot/r2dbc/README.ko.md)_
+_배포본 README: [`spring-boot/r2dbc/README.ko.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/spring-boot/r2dbc/README.ko.md)_
 
 ### R2DBC CRUD 연산 계층 구조 다이어그램
 
-[![R2DBC CRUD 연산 계층 구조 다이어그램](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/spring-boot-r2dbc-diagram-03.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/spring-boot-r2dbc-diagram-03.svg)
+[![R2DBC CRUD 연산 계층 구조 다이어그램](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/spring-boot-r2dbc-diagram-03.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/spring-boot-r2dbc-diagram-03.svg)
 
-_배포본 README: [`spring-boot/r2dbc/README.ko.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/spring-boot/r2dbc/README.ko.md)_
+_배포본 README: [`spring-boot/r2dbc/README.ko.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/spring-boot/r2dbc/README.ko.md)_
 
 ### R2DBC 코루틴 변환 시퀀스 다이어그램
 
-[![R2DBC 코루틴 변환 시퀀스 다이어그램](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/spring-boot-r2dbc-sequence-01.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/docs/images/readme-diagrams/spring-boot-r2dbc-sequence-01.svg)
+[![R2DBC 코루틴 변환 시퀀스 다이어그램](https://raw.githubusercontent.com/bluetape4k/bluetape4k-projects/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/spring-boot-r2dbc-sequence-01.png)](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/docs/images/readme-diagrams/spring-boot-r2dbc-sequence-01.svg)
 
-_배포본 README: [`spring-boot/r2dbc/README.ko.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/6187173b58e8b4c5c435c145e00e94708f31ef75/spring-boot/r2dbc/README.ko.md)_
+_배포본 README: [`spring-boot/r2dbc/README.ko.md`](https://github.com/bluetape4k/bluetape4k-projects/blob/7cf0b73646af05c0f8872cc4f6a16983949c4e3e/spring-boot/r2dbc/README.ko.md)_
 
 <!-- release-readme-diagrams:end -->

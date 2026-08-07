@@ -40,7 +40,7 @@ Spring이 client를 소유하면 bean lifecycle에 맡기고 수동으로 중복
 
 cache hit ratio만 높아도 stale incident가 늘면 좋은 상태가 아닙니다. hit ratio와 source-of-truth freshness를 함께 확인합니다.
 
-## 1.11.0 테스트 읽는 순서
+## 1.12.1 테스트 읽는 순서
 
 `AbstractRedissonTest`는 Redis Testcontainer와 공용 client fixture를 제공합니다. 그 위에서 다음 test를 순서대로 읽으면 기능과 경계가 이어집니다.
 

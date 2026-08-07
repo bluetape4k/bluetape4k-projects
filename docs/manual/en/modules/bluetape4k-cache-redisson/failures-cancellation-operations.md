@@ -9,7 +9,7 @@ chapterId: failures-cancellation-operations
 
 ## Failure contracts by path
 
-| Failure point | 1.11.0 behavior | Operational decision |
+| Failure point | 1.12.1 behavior | Operational decision |
 | --- | --- | --- |
 | JCache CRUD | `await()` propagates the Redisson future failure | Keep timeout and retry ownership in one layer. |
 | Sync evaluator | Fails the promise and removes in-flight state | A later request can evaluate again. |

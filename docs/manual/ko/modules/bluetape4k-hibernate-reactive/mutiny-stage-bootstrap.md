@@ -17,7 +17,7 @@ Hibernate Reactive는 같은 ORM 기능을 Mutiny와 Stage 두 API로 노출합�
 | Java library와 `CompletionStage`로 연동 | Stage |
 | Kotlin service가 suspend 함수만 노출 | 팀이 운영하기 쉬운 한쪽을 정해 일관되게 사용 |
 
-Mutiny가 Stage의 완전한 별칭은 아닙니다. `1.11.0`에서 Mutiny `findAs`·`getAs`는 JPA `LockModeType`과 EntityGraph 기반 조회 오버로드를 더 제공하지만 Stage에는 그 오버로드가 없습니다.
+Mutiny가 Stage의 완전한 별칭은 아닙니다. `1.12.1`에서 Mutiny `findAs`·`getAs`는 JPA `LockModeType`과 EntityGraph 기반 조회 오버로드를 더 제공하지만 Stage에는 그 오버로드가 없습니다.
 
 ## Reactive provider 구성
 
@@ -32,7 +32,7 @@ Reactive persistence unit은 provider를 명시하고 entity를 등록합니다.
 </persistence-unit>
 ```
 
-테스트는 Jakarta Persistence XML schema 3.0 문서를 사용합니다. 이는 BOM이 제공하는 Jakarta Persistence API 버전과 별개입니다. README의 Hibernate Reactive·ORM 버전 표도 `1.11.0` version catalog와 맞지 않으므로 사용자 설정에 복사하지 않습니다.
+테스트는 Jakarta Persistence XML schema 3.0 문서를 사용합니다. 이는 BOM이 제공하는 Jakarta Persistence API 버전과 별개입니다. README의 Hibernate Reactive·ORM 버전 표도 `1.12.1` version catalog와 맞지 않으므로 사용자 설정에 복사하지 않습니다.
 
 ## Factory unwrap
 

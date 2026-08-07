@@ -41,7 +41,7 @@ val users = client.getMap(options)
 
 ## 지원하지 않는 설정은 fail-fast 한다
 
-1.11.0 option 변환은 `ttl`, `maxSize`, `deleteFromDBOnInvalidate`를 직접 적용할 수 없습니다. 기본값이 아닌 값이 들어오면 `IllegalArgumentException`을 던집니다. 조용히 무시하지 않으므로 잘못된 일관성 기대를 배포 전에 찾을 수 있습니다.
+1.12.1 option 변환은 `ttl`, `maxSize`, `deleteFromDBOnInvalidate`를 직접 적용할 수 없습니다. 기본값이 아닌 값이 들어오면 `IllegalArgumentException`을 던집니다. 조용히 무시하지 않으므로 잘못된 일관성 기대를 배포 전에 찾을 수 있습니다.
 
 - entry TTL은 `RMapCache`의 entry expiration API를 사용합니다.
 - local size와 TTL은 `nearCacheMaxSize`, `nearCacheTtl`, `nearCacheMaxIdleTime`으로 설정합니다.
