@@ -2,7 +2,7 @@
 
 ## Release 식별 정보
 
-| Field               | Value                                                                  |
+| 항목                | 값                                                                     |
 |---------------------|------------------------------------------------------------------------|
 | 흐름                | AWS consumer validation으로 이어지는 routine replacement snapshot       |
 | Producer            | `d8974d2688b543a35a0fc307cffb1b5e04257036`의 `bluetape4k-projects`    |
@@ -13,7 +13,7 @@
 | Consumer            | `bluetape4k-aws`; catalog가 이미 `1.11.1-SNAPSHOT`을 선택한다.        |
 | 권한                | 현재 snapshot을 사용해 진행하라는 2026-07-11 사용자 지시             |
 
-## Topology
+## 토폴로지
 
 `bluetape4k-projects`(snapshot producer) -> `bluetape4k-aws`(consumer validation).
 이 흐름에는 catalog ref, 안정 release, tag 또는 Maven Central release가
@@ -46,10 +46,10 @@
 - [x] PRE-10: `d8974d268`의 `.github/workflows/publish-snapshot.yml`은 선택적
   boolean input `diagnoseSigning`만 선언하며 dispatch도 이 input만 사용한다.
 
-## Dispatch hold
+## 디스패치 보류
 
-- [x] Branch SHA `d8974d2688b543a35a0fc307cffb1b5e04257036` is pushed to `origin`.
-- [x] CI run `29125650184` completed successfully for the exact SHA.
+- [x] Branch SHA `d8974d2688b543a35a0fc307cffb1b5e04257036`를 `origin`에 push했다.
+- [x] CI run `29125650184`가 정확한 SHA에서 성공적으로 완료됐다.
 - [x] dispatch 전에 workflow schema, branch SHA, issue/PR 상태와 현재 Central
   metadata(`1.11.1-20260710.195152-13`)를 갱신했다.
 - [x] replacement workflow run `29126253922`가 `d8974d268`에서 signing
@@ -61,6 +61,6 @@
 
 ## 범위 제외
 
-- Stable release, tag, GitHub Release, and milestone closure.
-- Removing repository test mutexes before consumer validation.
-- Repairing the repository-wide developer organization POM metadata gap.
+- 안정 release, tag, GitHub Release 및 milestone 종료.
+- consumer 검증 전 저장소 테스트 mutex 제거.
+- 저장소 전체 developer organization POM 메타데이터 공백 수정.

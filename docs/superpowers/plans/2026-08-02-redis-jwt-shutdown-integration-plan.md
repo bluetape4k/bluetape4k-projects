@@ -19,7 +19,7 @@
 - 생성: `docs/lessons/2026-08-02-issue-1295-redis-jwt-shutdown.md` — 재사용 가능한 Testcontainers/ownership 학습을 증거와 함께 기록한다.
 - 기존: `docs/superpowers/specs/2026-08-02-redis-jwt-shutdown-integration-design.md` — 구현 중 확인된 delegate ownership을 반영한 설계.
 
-Production Kotlin 파일, 중앙 catalog 버전 정의 및 공용 `testing/testcontainers` API는 실패하는 통합 테스트가 별도의 production defect를 입증하지 않는 한 의도적으로 변경하지 않는다.
+프로덕션 Kotlin 파일, 중앙 catalog 버전 정의 및 공용 `testing/testcontainers` API는 실패하는 통합 테스트가 별도의 프로덕션 결함을 입증하지 않는 한 의도적으로 변경하지 않는다.
 
 ## 작업 1: test dependency와 RED 테스트 뼈대 추가
 
