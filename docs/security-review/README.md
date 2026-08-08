@@ -1,5 +1,8 @@
-# Security Review Archive
+# 보안 검토 아카이브
 
-These reports preserve point-in-time findings. Older reports can refer to retired paths such as `spring-boot3/*` because those paths existed when the review was written.
+이 보고서는 특정 시점의 findings를 보존한다. 이전 보고서에는 검토 당시 존재했던
+`spring-boot3/*` 같은 retired path가 나타날 수 있다.
 
-Current-facing Spring module documentation is Spring Boot 4.x only. Treat Spring Boot 3 references in this directory as historical review evidence unless a newer issue, PR, or README explicitly reopens that support line.
+현재 독자를 위한 Spring module 문서는 Spring Boot 4.x만 다룬다. 더 최신 issue,
+PR 또는 README가 해당 지원 라인을 명시적으로 다시 열지 않는 한 이 디렉터리의
+Spring Boot 3 언급은 historical review evidence로 취급한다.

@@ -1,7 +1,7 @@
 # Superpowers archive
 
-이 directory에는 과거 작업의 내부 spec, plan, research note를 보관한다. 파일은
-의사결정 history로 보존하므로 오래된 문서에는 `spring-boot3/*` 같은 retired
+이 디렉터리에는 과거 작업의 내부 spec, plan, research note를 보관한다. 파일은
+의사결정 이력으로 보존하므로 오래된 문서에는 `spring-boot3/*` 같은 retired
 module line이나 Spring Boot 3.x 호환성 작업이 언급될 수 있다.
 
 현재 독자를 위한 project 문서는 repository root의 `README.md`,
