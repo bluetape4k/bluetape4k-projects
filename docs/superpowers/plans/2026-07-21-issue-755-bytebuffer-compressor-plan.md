@@ -45,7 +45,7 @@
 - 현재 격리 worktree와 branch는 각각
   `.worktrees/issue-755-bytebuffer-codecs`,
   `feat/issue-755-bytebuffer-codecs`이다. 사용자가 승인한 현재 head 이름은
-  Task 5의 `feat/issue-755-bytebuffer-deflate` 이름을 대체하지만, Task 5의 파일 범위,
+  작업 5의 `feat/issue-755-bytebuffer-deflate` 이름을 대체하지만, 작업 5의 파일 범위,
   TDD 순서, 문서 범위와 검증 계약은 변경하지 않는다.
 - 현재 실행 범위는 Task 5 Deflate slice다. 이 PR의 exact-head CI/review와 별도 merge
   승인 전에는 Task 6 Snappy branch 또는 구현을 시작하지 않는다.
@@ -274,7 +274,7 @@ merge checkpoint shell tests는 `gh` stub으로 live PR `state`, `baseRefName`, 
 | `CHANGELOG.md`                                                                              | 수정           | `1.12.0` opt-in API와 rollback 정책                                          |
 | `docs/lessons/2026-07-21-issue-755-bytebuffer-compressor.md`                                | 생성/후속 수정 | dependency surprise, slice 결과, evidence guard 누적                         |
 
-### Backend slice
+### Backend 슬라이스
 
 | Slice   | production             | tests                                | 문서                                                  |
 |---------|------------------------|--------------------------------------|-------------------------------------------------------|
@@ -499,7 +499,7 @@ terminal block evidence는 sequence `5`, checksum
     -
   **Failure:** checksum/state가 달라지면 source/PR progression을 멈추고 helper `verify`와 receipt diagnosis로 돌아간다. direct `.bluetape` mutation은 금지한다.
 
-Task 0.1–0.5의 coordinator commands는 최초 계획과 실제 실패 지점을 보존하는 audit record다. **Active WF-04A fallback에서는 아래 Task 0.1–0.5
+단계 0.1–0.5의 coordinator 명령은 최초 계획과 실제 실패 지점을 보존하는 감사 기록이다. **Active WF-04A fallback에서는 아래 단계 0.1–0.5
 commands를 다시 실행하지
 않는다.** source implementation은 CG-01–CG-10, A-01–A-09, TDD, native liveness, six-perspective review를 계속 적용한다.
 
@@ -3476,7 +3476,7 @@ main integration은 Deflate operation-primary cleanup, LZ4/Snappy/Zstd native bo
 | caller/user   | P2 2건    | capability/claim 분리와 한국어 retry 문구 수정 후 VERIFIED |
 
 main integration은 실제 helper 이름 `writeToCallerBufferViews`, 승인된 현재 branch,
-Task 5 PR command, 한국어 KDoc 및 docs validator 누락을 P1로 추가 확인해 수정했다.
+작업 5 PR 명령, 한국어 KDoc 및 docs validator 누락을 P1로 추가 확인해 수정했다.
 현재 Task 5 계획의 최신 결과는 P0=0, P1=0이며 남은 P2/P3는 없다. Task 6 이후의
 과거 snippet은 각 slice 시작 전 현재 source/API에 다시 정합해야 하며, 이번 Task 5의
 실행 authority로 사용하지 않는다.

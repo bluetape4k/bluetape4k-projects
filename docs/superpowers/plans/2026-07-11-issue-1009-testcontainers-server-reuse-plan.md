@@ -35,7 +35,7 @@ rg -n 'reuse\s*:\s*Boolean\s*=\s*true|withReuse\(true\)' \
 
 최종 검색 결과에는 일치 항목이 없어야 한다.
 
-## Evidence
+## 근거
 
 - RED: 구현 전 policy test가 영향받는 파일 52개를 찾았다.
 - GREEN: 기본값 111건을 `false`로 바꾼 뒤 policy test를 통과했다.
