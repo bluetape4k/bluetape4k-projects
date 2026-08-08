@@ -1,25 +1,25 @@
-# Near-Cache Backend Capability Matrix
+# Near-cache backend capability matrix
 
-This matrix defines the supported near-cache behavior for cache modules. It is a
-runtime support boundary, not just a test inventory.
+이 matrix는 cache module이 지원하는 near-cache 동작을 정의한다. 단순한 test
+inventory가 아니라 runtime 지원 경계다.
 
-Capability states:
+Capability 상태:
 
-- `Supported`: implemented and covered by the shared conformance fixtures.
-- `Factory degraded`: factory methods intentionally avoid listener
-  registration; read-through and write-through work, but peer front-cache
-  propagation is not promised.
-- `Local only`: usable as a local/front cache or local JCache provider; it does
-  not provide distributed back-cache invalidation by itself.
-- `Unsupported`: direct construction is expected to fail or is not part of the
-  public contract.
+- `Supported`: 구현되어 있으며 공용 conformance fixture가 검증한다.
+- `Factory degraded`: factory method가 의도적으로 listener를 등록하지 않는다.
+  read-through와 write-through는 동작하지만 peer front-cache 전파는 보장하지
+  않는다.
+- `Local only`: local/front cache 또는 local JCache provider로 사용할 수 있다.
+  자체적으로 distributed back-cache invalidation을 제공하지 않는다.
+- `Unsupported`: 직접 생성하면 실패하도록 설계했거나 public contract에 포함되지
+  않는다.
 
-## Native NearCache APIs
+## Native NearCache API
 
-Native APIs implement `NearCacheOperations<V>` or
-`SuspendNearCacheOperations<V>`.
+Native API는 `NearCacheOperations<V>` 또는 `SuspendNearCacheOperations<V>`를
+구현한다.
 
-| Backend | Sync near-cache | Suspend near-cache | Listener or invalidation source | put/replace/remove propagation | removeAll semantics | Back cache scope | Conformance |
+| backend | 동기 near-cache | suspend near-cache | listener 또는 invalidation source | put/replace/remove 전파 | removeAll 의미 | back cache 범위 | conformance |
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | Lettuce | Supported | Supported | Redis RESP3 `CLIENT TRACKING` plus explicit write-through | Supported | Removes selected keys from front and Redis back cache | Distributed Redis | `AbstractNearCacheOperationsTest`, `AbstractSuspendNearCacheOperationsTest` |
 | Hazelcast IMap | Supported | Supported | Hazelcast `IMap` entry listener | Supported | Removes selected keys from front and IMap back cache | Distributed Hazelcast map | `AbstractNearCacheOperationsTest`, `AbstractSuspendNearCacheOperationsTest` |
@@ -27,11 +27,11 @@ Native APIs implement `NearCacheOperations<V>` or
 | Caffeine | Local only | Local only | Local cache events only | Local only | Local only | Local JVM | Covered as front/local cache, not native distributed near-cache |
 | Cache2k | Local only | Not provided as native suspend near-cache | Local cache events only | Local only | Local only | Local JVM | Covered as local/JCache provider, not native distributed near-cache |
 
-## JCache NearCache APIs
+## JCache NearCache API
 
-JCache APIs implement `NearJCache<K,V>` or `SuspendNearJCache<K,V>`.
+JCache API는 `NearJCache<K,V>` 또는 `SuspendNearJCache<K,V>`를 구현한다.
 
-| Back provider | Sync `NearJCache` | Suspend `SuspendNearJCache` | Listener registration | Peer front propagation | removeAll semantics | Back cache scope | Conformance |
+| back provider | 동기 `NearJCache` | suspend `SuspendNearJCache` | listener 등록 | peer front 전파 | removeAll 의미 | back cache 범위 | conformance |
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | Lettuce JCache | Supported | Supported | Supported | Supported | Supported through per-entry removal where needed | Distributed Redis | `AbstractNearJCacheTest`, `AbstractSuspendNearJCacheTest` |
 | Redisson JCache | Supported | Supported | Supported | Supported | Supported through per-entry removal where needed | Distributed Redis via Redisson | `AbstractNearJCacheTest`, `AbstractSuspendNearJCacheTest` |
@@ -41,13 +41,14 @@ JCache APIs implement `NearJCache<K,V>` or `SuspendNearJCache<K,V>`.
 | Caffeine JCache/front | Local only | Supported as front `SuspendJCache` | Local provider listener | Same-JVM only | Local/front only unless paired with a distributed back cache | Local JVM | Used as front cache in suspend JCache conformance |
 | Ehcache JCache | Supported | Not provided in this suite | Local provider listener | Same-JVM only | Supported by the sync JCache fixture | Local JVM | `AbstractNearJCacheTest` |
 
-## Test Ownership
+## Test 소유권
 
-- `cache-core/src/testFixtures/.../AbstractNearCacheOperationsTest.kt` and
-  `AbstractSuspendNearCacheOperationsTest.kt` define native near-cache
-  conformance.
-- `cache-core/src/testFixtures/.../jcache/AbstractNearJCacheTest.kt` and
-  `AbstractSuspendNearJCacheTest.kt` define JCache near-cache conformance.
-- Backend modules inherit these fixtures for supported combinations.
-- Unsupported combinations must use active tests that assert the unsupported or
-  degraded behavior; disabled test classes are not an acceptable support marker.
+- `cache-core/src/testFixtures/.../AbstractNearCacheOperationsTest.kt`와
+  `AbstractSuspendNearCacheOperationsTest.kt`가 native near-cache conformance를
+  정의한다.
+- `cache-core/src/testFixtures/.../jcache/AbstractNearJCacheTest.kt`와
+  `AbstractSuspendNearJCacheTest.kt`가 JCache near-cache conformance를 정의한다.
+- backend module은 지원 조합에 이 fixture를 상속한다.
+- 지원하지 않는 조합은 unsupported 또는 degraded 동작을 검증하는 active test를
+  사용해야 한다. 비활성화한 test class는 지원 여부를 나타내는 표식으로 사용할
+  수 없다.
