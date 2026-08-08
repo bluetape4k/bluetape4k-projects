@@ -1,10 +1,11 @@
-# Issue 652 R2DBC Pool Guidance Plan
+# Issue 652 R2DBC 풀 지침 계획
 
-## Steps
+## 단계
 
-1. Inspect prior PR #98, current benchmark classes, pool config conversion, and README guidance.
-2. Extend benchmark result reporting without changing production pool defaults.
-3. Add default versus high-throughput H2 contention coverage with explicit acquired/failed counters.
-4. Run compile, targeted pool tests, H2 acquire/contention, and sequential PostgreSQL/MySQL Testcontainers acquire benchmarks.
-5. Update README tables, charts, and issue evidence with benchmark results.
-6. Capture the overload interpretation rule in a short lesson.
+1. 이전 PR #98, 현재 벤치마크 클래스, 풀 설정 변환, README 지침을 조사한다.
+2. 프로덕션 풀 기본값은 변경하지 않고 벤치마크 결과 보고를 확장한다.
+3. 획득 성공/실패 카운터를 명시한 기본 처리량과 고처리량 H2 경합 검증을 추가한다.
+4. 컴파일, 대상 풀 테스트, H2 획득/경합 검증, PostgreSQL/MySQL Testcontainers
+   획득 벤치마크를 순차적으로 실행한다.
+5. 벤치마크 결과를 반영해 README 표·차트와 이슈 증거를 갱신한다.
+6. 과부하 해석 규칙을 짧은 lesson에 기록한다.
