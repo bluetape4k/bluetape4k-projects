@@ -3,7 +3,7 @@
   <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%">
     <feDropShadow dx="0" dy="5" stdDeviation="5" flood-color="#203040" flood-opacity="0.10"/>
   </filter>
-  <marker id="arrow" markerWidth="13" markerHeight="13" refX="11" refY="6.5" orient="auto" markerUnits="userSpaceOnUse">
+  <marker id="arrow" markerWidth="14" markerHeight="14" refX="11" refY="6.5" orient="auto" markerUnits="userSpaceOnUse" viewBox="0 0 13 13" data-role="primary" data-tip-direction="positive-x">
     <path d="M 1.5 1.5 L 11 6.5 L 1.5 11.5 Z" fill="#64748B" stroke="#64748B" stroke-width="1" stroke-dasharray="none" style="stroke-dasharray:none"/>
   </marker>
   <marker id="openArrow" markerWidth="13" markerHeight="13" refX="11" refY="6.5" orient="auto" markerUnits="userSpaceOnUse">

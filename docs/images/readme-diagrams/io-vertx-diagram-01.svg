@@ -21,11 +21,11 @@
       .label { font-size: 13px; }
       .footer { font-size: 14px; fill: #60727d; }
     </style>
-    <marker id="arrowRoute" markerWidth="12" markerHeight="12" refX="11" refY="6" orient="auto" markerUnits="userSpaceOnUse"><path d="M 0 0 L 12 6 L 0 12 Z" fill="#7b67a8"/></marker>
-    <marker id="arrowCore" markerWidth="12" markerHeight="12" refX="11" refY="6" orient="auto" markerUnits="userSpaceOnUse"><path d="M 0 0 L 12 6 L 0 12 Z" fill="#3f7d9c"/></marker>
-    <marker id="arrowWeb" markerWidth="12" markerHeight="12" refX="11" refY="6" orient="auto" markerUnits="userSpaceOnUse"><path d="M 0 0 L 12 6 L 0 12 Z" fill="#6e8f4f"/></marker>
-    <marker id="arrowSql" markerWidth="12" markerHeight="12" refX="11" refY="6" orient="auto" markerUnits="userSpaceOnUse"><path d="M 0 0 L 12 6 L 0 12 Z" fill="#a97b3d"/></marker>
-    <marker id="arrowRes" markerWidth="12" markerHeight="12" refX="11" refY="6" orient="auto" markerUnits="userSpaceOnUse"><path d="M 0 0 L 12 6 L 0 12 Z" fill="#b86868"/></marker>
+    <marker id="arrowRoute" markerWidth="14" markerHeight="14" refX="11" refY="6" orient="auto" markerUnits="userSpaceOnUse" viewBox="0 0 12 12" data-role="primary" data-tip-direction="positive-x"><path d="M 0 0 L 12 6 L 0 12 Z" fill="#7b67a8" stroke-dasharray="none"/></marker>
+    <marker id="arrowCore" markerWidth="14" markerHeight="14" refX="11" refY="6" orient="auto" markerUnits="userSpaceOnUse" viewBox="0 0 12 12" data-role="primary" data-tip-direction="positive-x"><path d="M 0 0 L 12 6 L 0 12 Z" fill="#3f7d9c" stroke-dasharray="none"/></marker>
+    <marker id="arrowWeb" markerWidth="14" markerHeight="14" refX="11" refY="6" orient="auto" markerUnits="userSpaceOnUse" viewBox="0 0 12 12" data-role="primary" data-tip-direction="positive-x"><path d="M 0 0 L 12 6 L 0 12 Z" fill="#6e8f4f" stroke-dasharray="none"/></marker>
+    <marker id="arrowSql" markerWidth="14" markerHeight="14" refX="11" refY="6" orient="auto" markerUnits="userSpaceOnUse" viewBox="0 0 12 12" data-role="primary" data-tip-direction="positive-x"><path d="M 0 0 L 12 6 L 0 12 Z" fill="#a97b3d" stroke-dasharray="none"/></marker>
+    <marker id="arrowRes" markerWidth="14" markerHeight="14" refX="11" refY="6" orient="auto" markerUnits="userSpaceOnUse" viewBox="0 0 12 12" data-role="primary" data-tip-direction="positive-x"><path d="M 0 0 L 12 6 L 0 12 Z" fill="#b86868" stroke-dasharray="none"/></marker>
   </defs>
 
   <rect x="24" y="24" width="1452" height="932" rx="20" class="frame"/>

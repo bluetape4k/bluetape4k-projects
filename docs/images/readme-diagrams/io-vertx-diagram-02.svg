@@ -21,11 +21,11 @@
       .label { font-size: 13px; }
       .footer { font-size: 14px; fill: #60727d; }
     </style>
-    <marker id="arrowFlow" markerWidth="12" markerHeight="12" refX="11" refY="6" orient="auto" markerUnits="userSpaceOnUse"><path d="M 0 0 L 12 6 L 0 12 Z" fill="#7b67a8" stroke-dasharray="none" style="stroke-dasharray:none"/></marker>
-    <marker id="arrowAsync" markerWidth="12" markerHeight="12" refX="11" refY="6" orient="auto" markerUnits="userSpaceOnUse"><path d="M 0 0 L 12 6 L 0 12 Z" fill="#3f7d9c" stroke-dasharray="none" style="stroke-dasharray:none"/></marker>
-    <marker id="arrowSuccess" markerWidth="12" markerHeight="12" refX="11" refY="6" orient="auto" markerUnits="userSpaceOnUse"><path d="M 0 0 L 12 6 L 0 12 Z" fill="#6e8f4f" stroke-dasharray="none" style="stroke-dasharray:none"/></marker>
-    <marker id="arrowFailure" markerWidth="12" markerHeight="12" refX="11" refY="6" orient="auto" markerUnits="userSpaceOnUse"><path d="M 0 0 L 12 6 L 0 12 Z" fill="#b86868" stroke-dasharray="none" style="stroke-dasharray:none"/></marker>
-    <marker id="arrowSupport" markerWidth="11" markerHeight="11" refX="10" refY="5.5" orient="auto" markerUnits="userSpaceOnUse"><path d="M 0 0 L 11 5.5 L 0 11 Z" fill="#9b7d54" stroke-dasharray="none" style="stroke-dasharray:none"/></marker>
+    <marker id="arrowFlow" markerWidth="14" markerHeight="14" refX="11" refY="6" orient="auto" markerUnits="userSpaceOnUse" viewBox="0 0 12 12" data-role="primary" data-tip-direction="positive-x"><path d="M 0 0 L 12 6 L 0 12 Z" fill="#7b67a8" stroke-dasharray="none" style="stroke-dasharray:none"/></marker>
+    <marker id="arrowAsync" markerWidth="14" markerHeight="14" refX="11" refY="6" orient="auto" markerUnits="userSpaceOnUse" viewBox="0 0 12 12" data-role="primary" data-tip-direction="positive-x"><path d="M 0 0 L 12 6 L 0 12 Z" fill="#3f7d9c" stroke-dasharray="none" style="stroke-dasharray:none"/></marker>
+    <marker id="arrowSuccess" markerWidth="14" markerHeight="14" refX="11" refY="6" orient="auto" markerUnits="userSpaceOnUse" viewBox="0 0 12 12" data-role="primary" data-tip-direction="positive-x"><path d="M 0 0 L 12 6 L 0 12 Z" fill="#6e8f4f" stroke-dasharray="none" style="stroke-dasharray:none"/></marker>
+    <marker id="arrowFailure" markerWidth="14" markerHeight="14" refX="11" refY="6" orient="auto" markerUnits="userSpaceOnUse" viewBox="0 0 12 12" data-role="primary" data-tip-direction="positive-x"><path d="M 0 0 L 12 6 L 0 12 Z" fill="#b86868" stroke-dasharray="none" style="stroke-dasharray:none"/></marker>
+    <marker id="arrowSupport" markerWidth="14" markerHeight="14" refX="10" refY="5.5" orient="auto" markerUnits="userSpaceOnUse" viewBox="0 0 11 11" data-role="primary" data-tip-direction="positive-x"><path d="M 0 0 L 11 5.5 L 0 11 Z" fill="#9b7d54" stroke-dasharray="none" style="stroke-dasharray:none"/></marker>
   </defs>
 
   <rect x="24" y="24" width="1452" height="932" rx="20" class="frame"/>

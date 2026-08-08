@@ -1,11 +1,11 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1700" height="1020" viewBox="0 0 1700 1020" role="img" aria-label="JUnit5 extension component overview" data-intent="Show how JUnit extension inputs activate bluetape4k testing capabilities and produce stable fixtures, failures, and reports." data-evidence="testing/junit5/README.md; testing/junit5/src/main" data-source-read="testing/junit5/README.md; testing/junit5/src/main" data-allow-grid="true">
 <defs>
   <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="6" stdDeviation="5" flood-color="#0F172A" flood-opacity="0.10"/></filter>
-  <marker id="arrowBlue" markerWidth="14" markerHeight="12" refX="12" refY="6" orient="auto" markerUnits="userSpaceOnUse"><path d="M 1 1 L 13 6 L 1 11 Z" fill="#2563EB"/></marker>
-  <marker id="arrowTeal" markerWidth="14" markerHeight="12" refX="12" refY="6" orient="auto" markerUnits="userSpaceOnUse"><path d="M 1 1 L 13 6 L 1 11 Z" fill="#0D9488"/></marker>
-  <marker id="arrowAmber" markerWidth="14" markerHeight="12" refX="12" refY="6" orient="auto" markerUnits="userSpaceOnUse"><path d="M 1 1 L 13 6 L 1 11 Z" fill="#D97706"/></marker>
-  <marker id="arrowPink" markerWidth="14" markerHeight="12" refX="12" refY="6" orient="auto" markerUnits="userSpaceOnUse"><path d="M 1 1 L 13 6 L 1 11 Z" fill="#DB2777"/></marker>
-  <marker id="arrowGreen" markerWidth="14" markerHeight="12" refX="12" refY="6" orient="auto" markerUnits="userSpaceOnUse"><path d="M 1 1 L 13 6 L 1 11 Z" fill="#16A34A"/></marker>
+  <marker id="arrowBlue" markerWidth="14" markerHeight="14" refX="12" refY="6" orient="auto" markerUnits="userSpaceOnUse" viewBox="0 0 14 12" data-role="primary" data-tip-direction="positive-x"><path d="M 1 1 L 13 6 L 1 11 Z" fill="#2563EB" stroke-dasharray="none"/></marker>
+  <marker id="arrowTeal" markerWidth="14" markerHeight="14" refX="12" refY="6" orient="auto" markerUnits="userSpaceOnUse" viewBox="0 0 14 12" data-role="primary" data-tip-direction="positive-x"><path d="M 1 1 L 13 6 L 1 11 Z" fill="#0D9488" stroke-dasharray="none"/></marker>
+  <marker id="arrowAmber" markerWidth="14" markerHeight="14" refX="12" refY="6" orient="auto" markerUnits="userSpaceOnUse" viewBox="0 0 14 12" data-role="primary" data-tip-direction="positive-x"><path d="M 1 1 L 13 6 L 1 11 Z" fill="#D97706" stroke-dasharray="none"/></marker>
+  <marker id="arrowPink" markerWidth="14" markerHeight="14" refX="12" refY="6" orient="auto" markerUnits="userSpaceOnUse" viewBox="0 0 14 12" data-role="primary" data-tip-direction="positive-x"><path d="M 1 1 L 13 6 L 1 11 Z" fill="#DB2777" stroke-dasharray="none"/></marker>
+  <marker id="arrowGreen" markerWidth="14" markerHeight="14" refX="12" refY="6" orient="auto" markerUnits="userSpaceOnUse" viewBox="0 0 14 12" data-role="primary" data-tip-direction="positive-x"><path d="M 1 1 L 13 6 L 1 11 Z" fill="#16A34A" stroke-dasharray="none"/></marker>
   <style>
     svg{font-family:"Architects Daughter","Comic Mono","Comic Sans MS",ui-sans-serif,system-ui,sans-serif}
     .canvas{fill:#F8FAFC}.frame{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.5;filter:url(#shadow)}

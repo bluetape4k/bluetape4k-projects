@@ -1,11 +1,11 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1800" height="1020" viewBox="0 0 1800 1020" role="img" aria-label="Mock web server routing overview" data-intent="The mock web server routes test HTTP requests through web content and httpbin controllers with shared HTTPS and exception configuration." data-evidence="testing/mock-web-server/README.md,testing/mock-web-server/src/main/kotlin" data-source-read="testing/mock-web-server/README.md; testing/mock-web-server/src/main/kotlin">
 <defs>
   <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="5" stdDeviation="4" flood-color="#0F172A" flood-opacity="0.10"/></filter>
-  <marker id="arrowBlue" markerWidth="13" markerHeight="10" refX="12" refY="5" orient="auto" markerUnits="userSpaceOnUse"><path d="M 0 0 L 12 5 L 0 10 Z" fill="#2563EB"/></marker>
-  <marker id="arrowTeal" markerWidth="13" markerHeight="10" refX="12" refY="5" orient="auto" markerUnits="userSpaceOnUse"><path d="M 0 0 L 12 5 L 0 10 Z" fill="#0D9488"/></marker>
-  <marker id="arrowGreen" markerWidth="13" markerHeight="10" refX="12" refY="5" orient="auto" markerUnits="userSpaceOnUse"><path d="M 0 0 L 12 5 L 0 10 Z" fill="#16A34A"/></marker>
-  <marker id="arrowOrange" markerWidth="13" markerHeight="10" refX="12" refY="5" orient="auto" markerUnits="userSpaceOnUse"><path d="M 0 0 L 12 5 L 0 10 Z" fill="#D97706"/></marker>
-  <marker id="arrowPink" markerWidth="13" markerHeight="10" refX="12" refY="5" orient="auto" markerUnits="userSpaceOnUse"><path d="M 0 0 L 12 5 L 0 10 Z" fill="#DB2777"/></marker>
+  <marker id="arrowBlue" markerWidth="14" markerHeight="14" refX="12" refY="5" orient="auto" markerUnits="userSpaceOnUse" viewBox="0 0 13 10" data-role="primary" data-tip-direction="positive-x"><path d="M 0 0 L 12 5 L 0 10 Z" fill="#2563EB" stroke-dasharray="none"/></marker>
+  <marker id="arrowTeal" markerWidth="14" markerHeight="14" refX="12" refY="5" orient="auto" markerUnits="userSpaceOnUse" viewBox="0 0 13 10" data-role="primary" data-tip-direction="positive-x"><path d="M 0 0 L 12 5 L 0 10 Z" fill="#0D9488" stroke-dasharray="none"/></marker>
+  <marker id="arrowGreen" markerWidth="14" markerHeight="14" refX="12" refY="5" orient="auto" markerUnits="userSpaceOnUse" viewBox="0 0 13 10" data-role="primary" data-tip-direction="positive-x"><path d="M 0 0 L 12 5 L 0 10 Z" fill="#16A34A" stroke-dasharray="none"/></marker>
+  <marker id="arrowOrange" markerWidth="14" markerHeight="14" refX="12" refY="5" orient="auto" markerUnits="userSpaceOnUse" viewBox="0 0 13 10" data-role="primary" data-tip-direction="positive-x"><path d="M 0 0 L 12 5 L 0 10 Z" fill="#D97706" stroke-dasharray="none"/></marker>
+  <marker id="arrowPink" markerWidth="14" markerHeight="14" refX="12" refY="5" orient="auto" markerUnits="userSpaceOnUse" viewBox="0 0 13 10" data-role="primary" data-tip-direction="positive-x"><path d="M 0 0 L 12 5 L 0 10 Z" fill="#DB2777" stroke-dasharray="none"/></marker>
   <style>
     svg{font-family:"Architects Daughter","Comic Mono","Comic Sans MS",ui-sans-serif,system-ui,sans-serif}
     .canvas{fill:#F8FAFC}.frame{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.5;filter:url(#shadow)}

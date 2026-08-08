@@ -6,10 +6,10 @@
     <marker id="hollowDark" markerWidth="15" markerHeight="13" refX="1.5" refY="6.5" orient="auto" markerUnits="userSpaceOnUse">
       <path d="M 13.5 1.5 L 1.5 6.5 L 13.5 11.5 Z" fill="#ffffff" stroke="#263238" stroke-width="2.1" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none" />
     </marker>
-    <marker id="openBlue" markerWidth="11" markerHeight="10" refX="9" refY="5" orient="auto" markerUnits="userSpaceOnUse">
+    <marker id="openBlue" markerWidth="18" markerHeight="16" refX="9" refY="5" orient="auto" markerUnits="userSpaceOnUse" viewBox="0 0 11 10" data-role="uml-hollow" data-tip-direction="positive-x">
       <path d="M 1.5 1.5 L 9 5 L 1.5 8.5" fill="none" stroke="#4079a8" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none"  style="stroke-dasharray:none"/>
     </marker>
-    <marker id="openAmber" markerWidth="11" markerHeight="10" refX="9" refY="5" orient="auto" markerUnits="userSpaceOnUse">
+    <marker id="openAmber" markerWidth="18" markerHeight="16" refX="9" refY="5" orient="auto" markerUnits="userSpaceOnUse" viewBox="0 0 11 10" data-role="uml-hollow" data-tip-direction="positive-x">
       <path d="M 1.5 1.5 L 9 5 L 1.5 8.5" fill="none" stroke="#b98220" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none"  style="stroke-dasharray:none"/>
     </marker>
     <style>

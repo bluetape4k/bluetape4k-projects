@@ -10,14 +10,14 @@
     <filter id="shadow" x="-8%" y="-10%" width="116%" height="124%">
       <feDropShadow dx="0" dy="5" stdDeviation="5" flood-color="#0f172a" flood-opacity="0.10"/>
     </filter>
-    <marker id="arrowBlue" markerWidth="14" markerHeight="14" refX="12" refY="7" orient="auto" markerUnits="userSpaceOnUse">
-      <path d="M 1 1 L 13 7 L 1 13 Z" fill="#3f7d9c"/>
+    <marker id="arrowBlue" markerWidth="14" markerHeight="14" refX="12" refY="7" orient="auto" markerUnits="userSpaceOnUse" viewBox="0 0 14 14" data-role="primary" data-tip-direction="positive-x">
+      <path d="M 1 1 L 13 7 L 1 13 Z" fill="#3f7d9c" stroke-dasharray="none"/>
     </marker>
-    <marker id="arrowGreen" markerWidth="14" markerHeight="14" refX="12" refY="7" orient="auto" markerUnits="userSpaceOnUse">
-      <path d="M 1 1 L 13 7 L 1 13 Z" fill="#6e8f4f"/>
+    <marker id="arrowGreen" markerWidth="14" markerHeight="14" refX="12" refY="7" orient="auto" markerUnits="userSpaceOnUse" viewBox="0 0 14 14" data-role="primary" data-tip-direction="positive-x">
+      <path d="M 1 1 L 13 7 L 1 13 Z" fill="#6e8f4f" stroke-dasharray="none"/>
     </marker>
-    <marker id="arrowAmber" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto" markerUnits="userSpaceOnUse">
-      <path d="M 1 1 L 9 5 L 1 9 Z" fill="#a2743d"/>
+    <marker id="arrowAmber" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto" markerUnits="userSpaceOnUse" viewBox="0 0 10 10" data-role="secondary" data-tip-direction="positive-x">
+      <path d="M 1 1 L 9 5 L 1 9 Z" fill="#a2743d" stroke-dasharray="none"/>
     </marker>
     <style>
       svg { font-family: "Comic Mono", ui-monospace, monospace; }
