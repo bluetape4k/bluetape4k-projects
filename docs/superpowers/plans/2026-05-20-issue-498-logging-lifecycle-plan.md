@@ -15,7 +15,7 @@
     - `close()`가 idempotent하고 close 이후 event가 버려지는지 검증한다.
 
 3. public 문서를 갱신한다.
-    - 변경된 public API에는 English KDoc을 작성한다.
+    - 변경된 public API에는 한국어 KDoc을 작성한다.
     - `README.md`와 `README.ko.md`에 lifecycle 및 사용 지침을 갱신한다.
 
 4. 검증한다.
