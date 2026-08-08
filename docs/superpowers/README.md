@@ -1,8 +1,12 @@
-# Superpowers Archive
+# Superpowers archive
 
-This directory stores internal specs, plans, and research notes from past work. Files are preserved as decision history, so older documents can mention retired module lines such as `spring-boot3/*` or Spring Boot 3.x compatibility work.
+이 directory에는 과거 작업의 내부 spec, plan, research note를 보관한다. 파일은
+의사결정 history로 보존하므로 오래된 문서에는 `spring-boot3/*` 같은 retired
+module line이나 Spring Boot 3.x 호환성 작업이 언급될 수 있다.
 
-Current-facing project documentation is the repository root `README.md`,
-`README.ko.md`, module READMEs, and repo-local `AGENTS.md`. For Spring modules, those current-facing documents define the active support line as Spring Boot 4.x only.
+현재 독자를 위한 project 문서는 repository root의 `README.md`,
+`README.ko.md`, module README와 repo-local `AGENTS.md`다. Spring module의 경우
+이 current-facing 문서가 활성 지원 라인을 Spring Boot 4.x only로 정의한다.
 
-When updating historical files, do not rewrite old evidence casually. Add local archive context only when a note is likely to be mistaken for current support.
+history 파일을 갱신할 때는 과거 evidence를 가볍게 다시 쓰지 않는다. note를
+현재 지원 범위로 오해할 가능성이 있을 때만 local archive context를 추가한다.
