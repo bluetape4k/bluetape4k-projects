@@ -34,22 +34,22 @@
       .usesRed { fill: none; stroke: #b65f68; stroke-width: 1.8; stroke-dasharray: 7 5; marker-end: url(#arrowRed); }
       .flowBlue { fill: none; stroke: #4b74a5; stroke-width: 2; marker-end: url(#arrowBlue); }
     </style>
-    <marker id="arrowBlue" viewBox="0 0 14 12" markerWidth="13" markerHeight="11" refX="12" refY="6" orient="auto" markerUnits="userSpaceOnUse">
+    <marker id="arrowBlue" viewBox="0 0 19.3846 17.4545" markerWidth="18" markerHeight="16" refX="12" refY="6" orient="auto" markerUnits="userSpaceOnUse" data-role="uml-hollow" data-tip-direction="positive-x">
       <path d="M 1 1 L 13 6 L 1 11" fill="none" stroke="#4b74a5" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none"/>
     </marker>
-    <marker id="arrowGreen" viewBox="0 0 14 12" markerWidth="13" markerHeight="11" refX="12" refY="6" orient="auto" markerUnits="userSpaceOnUse">
+    <marker id="arrowGreen" viewBox="0 0 19.3846 17.4545" markerWidth="18" markerHeight="16" refX="12" refY="6" orient="auto" markerUnits="userSpaceOnUse" data-role="uml-hollow" data-tip-direction="positive-x">
       <path d="M 1 1 L 13 6 L 1 11" fill="none" stroke="#5d7b63" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none"/>
     </marker>
-    <marker id="arrowGold" viewBox="0 0 14 12" markerWidth="13" markerHeight="11" refX="12" refY="6" orient="auto" markerUnits="userSpaceOnUse">
+    <marker id="arrowGold" viewBox="0 0 19.3846 17.4545" markerWidth="18" markerHeight="16" refX="12" refY="6" orient="auto" markerUnits="userSpaceOnUse" data-role="uml-hollow" data-tip-direction="positive-x">
       <path d="M 1 1 L 13 6 L 1 11" fill="none" stroke="#a2743d" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none"/>
     </marker>
-    <marker id="arrowRed" viewBox="0 0 14 12" markerWidth="13" markerHeight="11" refX="12" refY="6" orient="auto" markerUnits="userSpaceOnUse">
+    <marker id="arrowRed" viewBox="0 0 19.3846 17.4545" markerWidth="18" markerHeight="16" refX="12" refY="6" orient="auto" markerUnits="userSpaceOnUse" data-role="uml-hollow" data-tip-direction="positive-x">
       <path d="M 1 1 L 13 6 L 1 11" fill="none" stroke="#b65f68" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none"/>
     </marker>
-    <marker id="hollowDark" viewBox="0 0 18 16" markerWidth="16" markerHeight="14" refX="16" refY="8" orient="auto" markerUnits="userSpaceOnUse">
+    <marker id="hollowDark" viewBox="0 0 20.25 18.2857" markerWidth="18" markerHeight="16" refX="16" refY="8" orient="auto" markerUnits="userSpaceOnUse" data-role="uml-hollow" data-tip-direction="positive-x">
       <path d="M 1 1 L 16 8 L 1 15 Z" fill="#fbfcf8" stroke="#263238" stroke-width="1.7" stroke-dasharray="none" style="stroke-dasharray:none"/>
     </marker>
-    <marker id="hollowSlate" viewBox="0 0 18 16" markerWidth="16" markerHeight="14" refX="16" refY="8" orient="auto" markerUnits="userSpaceOnUse">
+    <marker id="hollowSlate" viewBox="0 0 20.25 18.2857" markerWidth="18" markerHeight="16" refX="16" refY="8" orient="auto" markerUnits="userSpaceOnUse" data-role="uml-hollow" data-tip-direction="positive-x">
       <path d="M 1 1 L 16 8 L 1 15 Z" fill="#fbfcf8" stroke="#455a64" stroke-width="1.7" stroke-dasharray="none" style="stroke-dasharray:none"/>
     </marker>
   </defs>

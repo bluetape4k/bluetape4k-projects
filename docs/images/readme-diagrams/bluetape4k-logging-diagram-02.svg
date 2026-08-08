@@ -1,14 +1,14 @@
-<svg data-intent="Explain logging processing as a caller-to-logger path where Kotlin delegates, lazy message suppliers, MDC/context helpers, and backend logging calls remain separate responsibilities." data-evidence="bluetape4k/logging/README.md; bluetape4k/logging/src/main/kotlin/io/bluetape4k/logging" data-source-read="bluetape4k/logging/README.md; bluetape4k/logging/src/main/kotlin/io/bluetape4k/logging" xmlns="http://www.w3.org/2000/svg" width="1480" height="910" viewBox="0 0 1480 910" role="img" aria-label="Logging Processing Flow" data-layout="decision-flow">
+<svg xmlns="http://www.w3.org/2000/svg" data-intent="Explain logging processing as a caller-to-logger path where Kotlin delegates, lazy message suppliers, MDC/context helpers, and backend logging calls remain separate responsibilities." data-evidence="bluetape4k/logging/README.md; bluetape4k/logging/src/main/kotlin/io/bluetape4k/logging" data-source-read="bluetape4k/logging/README.md; bluetape4k/logging/src/main/kotlin/io/bluetape4k/logging" width="1480" height="910" viewBox="0 0 1480 910" role="img" aria-label="Logging Processing Flow" data-layout="decision-flow">
 <defs>
-  <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="6" stdDeviation="5" flood-color="#0F172A" flood-opacity="0.10"/></filter>
-  <marker id="arrow-blue" markerWidth="14" markerHeight="14" refX="13" refY="7" orient="auto" markerUnits="userSpaceOnUse"><path d="M 1 1 L 13 7 L 1 13 Z" fill="#1D4ED8"/></marker>
-  <marker id="arrow-green" markerWidth="14" markerHeight="14" refX="13" refY="7" orient="auto" markerUnits="userSpaceOnUse"><path d="M 1 1 L 13 7 L 1 13 Z" fill="#15803D"/></marker>
-  <marker id="arrow-teal" markerWidth="14" markerHeight="14" refX="13" refY="7" orient="auto" markerUnits="userSpaceOnUse"><path d="M 1 1 L 13 7 L 1 13 Z" fill="#0F766E"/></marker>
-  <marker id="arrow-amber" markerWidth="14" markerHeight="14" refX="13" refY="7" orient="auto" markerUnits="userSpaceOnUse"><path d="M 1 1 L 13 7 L 1 13 Z" fill="#C2410C"/></marker>
-  <marker id="arrow-pink" markerWidth="14" markerHeight="14" refX="13" refY="7" orient="auto" markerUnits="userSpaceOnUse"><path d="M 1 1 L 13 7 L 1 13 Z" fill="#BE185D"/></marker>
-  <marker id="arrow-purple" markerWidth="14" markerHeight="14" refX="13" refY="7" orient="auto" markerUnits="userSpaceOnUse"><path d="M 1 1 L 13 7 L 1 13 Z" fill="#7E22CE"/></marker>
-  <marker id="arrow-olive" markerWidth="14" markerHeight="14" refX="13" refY="7" orient="auto" markerUnits="userSpaceOnUse"><path d="M 1 1 L 13 7 L 1 13 Z" fill="#4D7C0F"/></marker>
-  <marker id="arrow-gray" markerWidth="14" markerHeight="14" refX="13" refY="7" orient="auto" markerUnits="userSpaceOnUse"><path d="M 1 1 L 13 7 L 1 13 Z" fill="#4B5563"/></marker>
+  <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="6" stdDeviation="5" flood-color="#0F172A" flood-opacity="0.10" /></filter>
+  <marker id="arrow-blue" markerWidth="14" markerHeight="14" refX="13" refY="7" orient="auto" markerUnits="userSpaceOnUse" viewBox="0 0 14 14" data-role="primary" data-tip-direction="positive-x"><path d="M 1 1 L 13 7 L 1 13 Z" fill="#1D4ED8" stroke-dasharray="none" /></marker>
+  <marker id="arrow-green" markerWidth="14" markerHeight="14" refX="13" refY="7" orient="auto" markerUnits="userSpaceOnUse"><path d="M 1 1 L 13 7 L 1 13 Z" fill="#15803D" /></marker>
+  <marker id="arrow-teal" markerWidth="14" markerHeight="14" refX="13" refY="7" orient="auto" markerUnits="userSpaceOnUse" viewBox="0 0 14 14" data-role="primary" data-tip-direction="positive-x"><path d="M 1 1 L 13 7 L 1 13 Z" fill="#0F766E" stroke-dasharray="none" /></marker>
+  <marker id="arrow-amber" markerWidth="14" markerHeight="14" refX="13" refY="7" orient="auto" markerUnits="userSpaceOnUse" viewBox="0 0 14 14" data-role="primary" data-tip-direction="positive-x"><path d="M 1 1 L 13 7 L 1 13 Z" fill="#C2410C" stroke-dasharray="none" /></marker>
+  <marker id="arrow-pink" markerWidth="14" markerHeight="14" refX="13" refY="7" orient="auto" markerUnits="userSpaceOnUse" viewBox="0 0 14 14" data-role="primary" data-tip-direction="positive-x"><path d="M 1 1 L 13 7 L 1 13 Z" fill="#BE185D" stroke-dasharray="none" /></marker>
+  <marker id="arrow-purple" markerWidth="14" markerHeight="14" refX="13" refY="7" orient="auto" markerUnits="userSpaceOnUse" viewBox="0 0 14 14" data-role="primary" data-tip-direction="positive-x"><path d="M 1 1 L 13 7 L 1 13 Z" fill="#7E22CE" stroke-dasharray="none" /></marker>
+  <marker id="arrow-olive" markerWidth="14" markerHeight="14" refX="13" refY="7" orient="auto" markerUnits="userSpaceOnUse"><path d="M 1 1 L 13 7 L 1 13 Z" fill="#4D7C0F" /></marker>
+  <marker id="arrow-gray" markerWidth="14" markerHeight="14" refX="13" refY="7" orient="auto" markerUnits="userSpaceOnUse" viewBox="0 0 14 14" data-role="primary" data-tip-direction="positive-x"><path d="M 1 1 L 13 7 L 1 13 Z" fill="#4B5563" stroke-dasharray="none" /></marker>
   <style>
     svg{font-family:"Architects Daughter","Comic Mono","Comic Sans MS",ui-sans-serif,system-ui,sans-serif}
     .canvas{fill:#F8FAFC}.frame{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.5;filter:url(#shadow)}
@@ -21,61 +21,61 @@
     .dashed{stroke-dasharray:8 7}.lifeline{fill:none;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
   </style>
 </defs>
-<rect class="canvas" width="1480" height="910"/>
-<rect class="frame" x="34" y="30" width="1412" height="850" rx="8"/>
+<rect class="canvas" width="1480" height="910" />
+<rect class="frame" x="34" y="30" width="1412" height="850" rx="8" />
 <text class="title" x="72" y="84">Logging Processing Flow</text>
 <text class="subtitle" x="76" y="116">Logger extensions keep call sites small while lazy suppliers, MDC context, and backend emission stay distinct.</text>
 <g id="caller">
-  <rect class="card" x="120" y="250" width="300" height="80" rx="8" fill="#EFF6FF" stroke="#2563EB"/>
+  <rect class="card" x="120" y="250" width="300" height="80" rx="8" fill="#EFF6FF" stroke="#2563EB" />
   <text class="cardTitle" x="270" y="283" text-anchor="middle" dominant-baseline="middle">Application code</text>
   <text class="detail" x="270" y="313" text-anchor="middle" dominant-baseline="middle">calls logger extension</text>
 </g>
 <g id="delegate">
-  <rect class="card" x="520" y="235" width="340" height="110" rx="8" fill="#F0FDF4" stroke="#16A34A"/>
+  <rect class="card" x="520" y="235" width="340" height="110" rx="8" fill="#F0FDF4" stroke="#16A34A" />
   <text class="cardTitle" x="690" y="274" text-anchor="middle" dominant-baseline="middle">KotlinLogging facade</text>
   <text class="detail" x="690" y="304" text-anchor="middle" dominant-baseline="middle">KLogging / loggerOf</text>
   <text class="detail" x="690" y="322" text-anchor="middle" dominant-baseline="middle">lazy message lambdas</text>
 </g>
 <g id="context">
-  <rect class="card" x="1000" y="170" width="340" height="96" rx="8" fill="#FAF5FF" stroke="#9333EA"/>
+  <rect class="card" x="1000" y="170" width="340" height="96" rx="8" fill="#FAF5FF" stroke="#9333EA" />
   <text class="cardTitle" x="1170" y="202" text-anchor="middle" dominant-baseline="middle">MDC and coroutine context</text>
   <text class="detail" x="1170" y="232" text-anchor="middle" dominant-baseline="middle">correlation values</text>
   <text class="detail" x="1170" y="250" text-anchor="middle" dominant-baseline="middle">scoped cleanup</text>
 </g>
 <g id="supplier">
-  <rect class="card" x="1000" y="360" width="340" height="96" rx="8" fill="#FFF7ED" stroke="#EA580C"/>
+  <rect class="card" x="1000" y="360" width="340" height="96" rx="8" fill="#FFF7ED" stroke="#EA580C" />
   <text class="cardTitle" x="1170" y="401" text-anchor="middle" dominant-baseline="middle">Message supplier</text>
   <text class="detail" x="1170" y="431" text-anchor="middle" dominant-baseline="middle">evaluated only when enabled</text>
 </g>
 <g id="enabled">
-  <polygon class="card card-shape" points="710,520 860,584 710,648 560,584" fill="#F0FDFA" stroke="#0D9488"/>
+  <polygon class="card card-shape" points="710,520 860,584 710,648 560,584" fill="#F0FDFA" stroke="#0D9488" />
   <text class="cardTitle" x="710" y="576" text-anchor="middle" dominant-baseline="middle">Level enabled?</text>
   <text class="detail" x="710" y="605" text-anchor="middle" dominant-baseline="middle">trace/debug/info/warn/error</text>
 </g>
 <g id="skip">
-  <rect class="card" x="145" y="690" width="280" height="76" rx="8" fill="#F9FAFB" stroke="#6B7280"/>
+  <rect class="card" x="145" y="690" width="280" height="76" rx="8" fill="#F9FAFB" stroke="#6B7280" />
   <text class="cardTitle" x="285" y="721" text-anchor="middle" dominant-baseline="middle">Skip allocation</text>
   <text class="detail" x="285" y="751" text-anchor="middle" dominant-baseline="middle">supplier is not evaluated</text>
 </g>
 <g id="backend">
-  <rect class="card" x="600" y="720" width="340" height="86" rx="8" fill="#FDF2F8" stroke="#DB2777"/>
+  <rect class="card" x="600" y="720" width="340" height="86" rx="8" fill="#FDF2F8" stroke="#DB2777" />
   <text class="cardTitle" x="770" y="756" text-anchor="middle" dominant-baseline="middle">SLF4J backend</text>
   <text class="detail" x="770" y="786" text-anchor="middle" dominant-baseline="middle">Logback or bound logger</text>
 </g>
 <g id="event">
-  <rect class="card" x="1040" y="710" width="320" height="96" rx="8" fill="#F7FEE7" stroke="#65A30D"/>
+  <rect class="card" x="1040" y="710" width="320" height="96" rx="8" fill="#F7FEE7" stroke="#65A30D" />
   <text class="cardTitle" x="1200" y="751" text-anchor="middle" dominant-baseline="middle">Log event</text>
   <text class="detail" x="1200" y="781" text-anchor="middle" dominant-baseline="middle">message, throwable, MDC fields</text>
 </g>
-<path class="route" data-from="caller" data-to="delegate" d="M420 290 L520 290" stroke="#1D4ED8" marker-end="url(#arrow-blue)"/>
-<path class="route" data-from="delegate" data-to="context" d="M860 275 L906 275 Q920 275 920 261 L920 232 Q920 218 934 218 L1000 218" stroke="#7E22CE" marker-end="url(#arrow-purple)"/>
-<path class="route" data-from="delegate" data-to="supplier" d="M860 290 L906 290 Q920 290 920 304 L920 394 Q920 408 934 408 L1000 408" stroke="#C2410C" marker-end="url(#arrow-amber)"/>
-<path class="route" data-from="delegate" data-to="enabled" d="M690 345 L690 520" stroke="#0F766E" marker-end="url(#arrow-teal)"/>
-<path class="route dashed" data-from="enabled" data-to="skip" d="M560 584 Q510 584 475 625 Q440 666 475 700 Q447 728 439 728 L425 728" stroke="#4B5563" marker-end="url(#arrow-gray)"/>
-<g><rect class="labelPill" x="476" y="657" width="48" height="26" rx="8"/><text class="detail" x="500" y="671" text-anchor="middle" dominant-baseline="middle" style="fill:#4B5563">no</text></g>
-<path class="route" data-from="enabled" data-to="backend" d="M710 648 L710 720" stroke="#BE185D" marker-end="url(#arrow-pink)"/>
-<g><rect class="labelPill" x="740" y="673" width="52" height="26" rx="8"/><text class="detail" x="766" y="687" text-anchor="middle" dominant-baseline="middle" style="fill:#BE185D">yes</text></g>
-<path class="route" data-from="context" data-to="event" d="M1340 218 L1376 218 Q1390 218 1390 232 L1390 744 Q1390 758 1376 758 L1360 758" stroke="#7E22CE" marker-end="url(#arrow-purple)"/>
-<path class="route" data-from="supplier" data-to="event" d="M1170 456 L1170 710" stroke="#C2410C" marker-end="url(#arrow-amber)"/>
-<path class="route" data-from="backend" data-to="event" d="M940 758 L1040 758" stroke="#BE185D" marker-end="url(#arrow-pink)"/>
+<path class="route" data-from="caller" data-to="delegate" d="M420 290 L520 290" stroke="#1D4ED8" marker-end="url(#arrow-blue)" />
+<path class="route" data-from="delegate" data-to="context" d="M860 275 L906 275 Q920 275 920 261 L920 232 Q920 218 934 218 L1000 218" stroke="#7E22CE" marker-end="url(#arrow-purple)" />
+<path class="route" data-from="delegate" data-to="supplier" d="M860 290 L906 290 Q920 290 920 304 L920 394 Q920 408 934 408 L1000 408" stroke="#C2410C" marker-end="url(#arrow-amber)" />
+<path class="route" data-from="delegate" data-to="enabled" d="M690 345 L690 520" stroke="#0F766E" marker-end="url(#arrow-teal)" />
+<path class="route dashed" data-from="enabled" data-to="skip" d="M560 584 Q510 584 475 625 Q440 666 475 700 Q448 728 440 728 L425 728" stroke="#4B5563" marker-end="url(#arrow-gray)" />
+<g><rect class="labelPill" x="476" y="657" width="48" height="26" rx="8" /><text class="detail" x="500" y="671" text-anchor="middle" dominant-baseline="middle" style="fill:#4B5563">no</text></g>
+<path class="route" data-from="enabled" data-to="backend" d="M710 648 L710 720" stroke="#BE185D" marker-end="url(#arrow-pink)" />
+<g><rect class="labelPill" x="740" y="673" width="52" height="26" rx="8" /><text class="detail" x="766" y="687" text-anchor="middle" dominant-baseline="middle" style="fill:#BE185D">yes</text></g>
+<path class="route" data-from="context" data-to="event" d="M1340 218 L1376 218 Q1390 218 1390 232 L1390 744 Q1390 758 1376 758 L1360 758" stroke="#7E22CE" marker-end="url(#arrow-purple)" />
+<path class="route" data-from="supplier" data-to="event" d="M1170 456 L1170 710" stroke="#C2410C" marker-end="url(#arrow-amber)" />
+<path class="route" data-from="backend" data-to="event" d="M940 758 L1040 758" stroke="#BE185D" marker-end="url(#arrow-pink)" />
 </svg>

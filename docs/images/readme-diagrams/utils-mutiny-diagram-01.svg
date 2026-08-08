@@ -4,7 +4,7 @@
 
   <marker id="arrow-teal" markerWidth="20" markerHeight="16" refX="18" refY="8" orient="auto" markerUnits="userSpaceOnUse" viewBox="0 0 20 16"><path stroke-dasharray="none" d="M2 2 L18 8 L2 14 Z" fill="#0F766E" style="stroke-dasharray:none"/></marker>
 
-  <marker id="arrow-blue" markerWidth="20" markerHeight="16" refX="18" refY="8" orient="auto" markerUnits="userSpaceOnUse" viewBox="0 0 20 16"><path stroke-dasharray="none" d="M2 2 L18 8 L2 14 Z" fill="#1D4ED8" style="stroke-dasharray:none"/></marker>
+  <marker id="arrow-blue" markerWidth="14" markerHeight="14" refX="18" refY="8" orient="auto" markerUnits="userSpaceOnUse" viewBox="0 0 14 14" data-role="primary" data-tip-direction="positive-x"><path stroke-dasharray="none" d="M2 2 L18 8 L2 14 Z" fill="#1D4ED8" style="stroke-dasharray:none"/></marker>
 
   <marker id="arrow-green" markerWidth="20" markerHeight="16" refX="18" refY="8" orient="auto" markerUnits="userSpaceOnUse" viewBox="0 0 20 16"><path stroke-dasharray="none" d="M2 2 L18 8 L2 14 Z" fill="#15803D" style="stroke-dasharray:none"/></marker>
 
@@ -14,7 +14,7 @@
 
   <marker id="arrow-slate" markerWidth="20" markerHeight="16" refX="18" refY="8" orient="auto" markerUnits="userSpaceOnUse" viewBox="0 0 20 16"><path stroke-dasharray="none" d="M2 2 L18 8 L2 14 Z" fill="#475569" style="stroke-dasharray:none"/></marker>
 
-  <marker id="arrow-violet" markerWidth="20" markerHeight="16" refX="18" refY="8" orient="auto" markerUnits="userSpaceOnUse" viewBox="0 0 20 16"><path stroke-dasharray="none" d="M2 2 L18 8 L2 14 Z" fill="#6D28D9" style="stroke-dasharray:none"/></marker>
+  <marker id="arrow-violet" markerWidth="14" markerHeight="14" refX="18" refY="8" orient="auto" markerUnits="userSpaceOnUse" viewBox="0 0 14 14" data-role="primary" data-tip-direction="positive-x"><path stroke-dasharray="none" d="M2 2 L18 8 L2 14 Z" fill="#6D28D9" style="stroke-dasharray:none"/></marker>
   <style>
     svg{font-family:"Architects Daughter","Comic Mono","Comic Sans MS",ui-sans-serif,system-ui,sans-serif}
     .canvas{fill:#F8FAFC}.frame{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.5;filter:url(#shadow)}

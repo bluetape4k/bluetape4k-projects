@@ -1,8 +1,8 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1900" height="1120" viewBox="0 0 1900 1120" role="img" aria-label="Mock web server source-backed class structure">
 <defs>
   <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="5" stdDeviation="4" flood-color="#0F172A" flood-opacity="0.10" /></filter>
-  <marker id="useArrow" markerWidth="18" markerHeight="18" refX="16" refY="9" orient="auto" markerUnits="userSpaceOnUse" overflow="visible" viewBox="0 0 18 18"><path d="M 3 3 L 16 9 L 3 15" fill="none" stroke="#2563EB" stroke-width="2.4" stroke-linecap="butt" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none" /></marker>
-  <marker id="hasArrow" markerWidth="14" markerHeight="12" refX="12" refY="6" orient="auto" markerUnits="userSpaceOnUse"><path d="M 2 2 L 12 6 L 2 10" fill="none" stroke="#16A34A" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none" /></marker>
+  <marker id="useArrow" markerWidth="18" markerHeight="16" refX="16" refY="9" orient="auto" markerUnits="userSpaceOnUse" overflow="visible" viewBox="0 0 18 16" data-role="uml-hollow" data-tip-direction="positive-x"><path d="M 3 3 L 16 9 L 3 15" fill="none" stroke="#2563EB" stroke-width="2.4" stroke-linecap="butt" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none"/></marker>
+  <marker id="hasArrow" markerWidth="18" markerHeight="16" refX="12" refY="6" orient="auto" markerUnits="userSpaceOnUse" viewBox="0 0 14 12" data-role="uml-hollow" data-tip-direction="positive-x"><path d="M 2 2 L 12 6 L 2 10" fill="none" stroke="#16A34A" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none"/></marker>
   <style>
     svg{font-family:"Architects Daughter","Comic Mono","Comic Sans MS",ui-sans-serif,system-ui,sans-serif}
     .canvas{fill:#F8FAFC}.frame{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.5;filter:url(#shadow)}

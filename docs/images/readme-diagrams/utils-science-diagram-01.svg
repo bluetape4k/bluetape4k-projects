@@ -4,15 +4,15 @@
 
   <marker id="arrow-slate" markerWidth="22" markerHeight="22" refX="19" refY="11" orient="auto" markerUnits="userSpaceOnUse"><path stroke-dasharray="none" d="M 3 3 L 19 11 L 3 19 Z" fill="#475569" style="stroke-dasharray:none"/></marker>
 
-  <marker id="arrow-blue" markerWidth="22" markerHeight="22" refX="19" refY="11" orient="auto" markerUnits="userSpaceOnUse"><path stroke-dasharray="none" d="M 3 3 L 19 11 L 3 19 Z" fill="#1D4ED8" style="stroke-dasharray:none"/></marker>
+  <marker id="arrow-blue" markerWidth="14" markerHeight="14" refX="19" refY="11" orient="auto" markerUnits="userSpaceOnUse" viewBox="0 0 22 22" data-role="primary" data-tip-direction="positive-x"><path stroke-dasharray="none" d="M 3 3 L 19 11 L 3 19 Z" fill="#1D4ED8" style="stroke-dasharray:none"/></marker>
 
-  <marker id="arrow-teal" markerWidth="22" markerHeight="22" refX="19" refY="11" orient="auto" markerUnits="userSpaceOnUse"><path stroke-dasharray="none" d="M 3 3 L 19 11 L 3 19 Z" fill="#0F766E" style="stroke-dasharray:none"/></marker>
+  <marker id="arrow-teal" markerWidth="14" markerHeight="14" refX="19" refY="11" orient="auto" markerUnits="userSpaceOnUse" viewBox="0 0 22 22" data-role="primary" data-tip-direction="positive-x"><path stroke-dasharray="none" d="M 3 3 L 19 11 L 3 19 Z" fill="#0F766E" style="stroke-dasharray:none"/></marker>
 
-  <marker id="arrow-green" markerWidth="22" markerHeight="22" refX="19" refY="11" orient="auto" markerUnits="userSpaceOnUse"><path stroke-dasharray="none" d="M 3 3 L 19 11 L 3 19 Z" fill="#15803D" style="stroke-dasharray:none"/></marker>
+  <marker id="arrow-green" markerWidth="14" markerHeight="14" refX="19" refY="11" orient="auto" markerUnits="userSpaceOnUse" viewBox="0 0 22 22" data-role="primary" data-tip-direction="positive-x"><path stroke-dasharray="none" d="M 3 3 L 19 11 L 3 19 Z" fill="#15803D" style="stroke-dasharray:none"/></marker>
 
-  <marker id="arrow-amber" markerWidth="22" markerHeight="22" refX="19" refY="11" orient="auto" markerUnits="userSpaceOnUse"><path stroke-dasharray="none" d="M 3 3 L 19 11 L 3 19 Z" fill="#C2410C" style="stroke-dasharray:none"/></marker>
+  <marker id="arrow-amber" markerWidth="14" markerHeight="14" refX="19" refY="11" orient="auto" markerUnits="userSpaceOnUse" viewBox="0 0 22 22" data-role="primary" data-tip-direction="positive-x"><path stroke-dasharray="none" d="M 3 3 L 19 11 L 3 19 Z" fill="#C2410C" style="stroke-dasharray:none"/></marker>
 
-  <marker id="arrow-pink" markerWidth="22" markerHeight="22" refX="19" refY="11" orient="auto" markerUnits="userSpaceOnUse"><path stroke-dasharray="none" d="M 3 3 L 19 11 L 3 19 Z" fill="#BE185D" style="stroke-dasharray:none"/></marker>
+  <marker id="arrow-pink" markerWidth="14" markerHeight="14" refX="19" refY="11" orient="auto" markerUnits="userSpaceOnUse" viewBox="0 0 22 22" data-role="primary" data-tip-direction="positive-x"><path stroke-dasharray="none" d="M 3 3 L 19 11 L 3 19 Z" fill="#BE185D" style="stroke-dasharray:none"/></marker>
 
   <marker id="arrow-violet" markerWidth="22" markerHeight="22" refX="19" refY="11" orient="auto" markerUnits="userSpaceOnUse"><path stroke-dasharray="none" d="M 3 3 L 19 11 L 3 19 Z" fill="#6D28D9" style="stroke-dasharray:none"/></marker>
   <style>

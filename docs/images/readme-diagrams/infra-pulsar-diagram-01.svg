@@ -3,20 +3,20 @@
     <filter id="softShadow" x="-8%" y="-8%" width="116%" height="116%">
       <feDropShadow dx="0" dy="5" stdDeviation="4" flood-color="#0F172A" flood-opacity="0.10"/>
     </filter>
-    <marker id="arrowBlue" markerWidth="14" markerHeight="14" refX="12" refY="7" orient="auto" markerUnits="userSpaceOnUse">
-      <path d="M 2 2 L 12 7 L 2 12" fill="none" stroke="#2563EB" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+    <marker id="arrowBlue" markerWidth="18" markerHeight="16" refX="12" refY="7" orient="auto" markerUnits="userSpaceOnUse" viewBox="0 0 14 14" data-role="uml-hollow" data-tip-direction="positive-x">
+      <path d="M 2 2 L 12 7 L 2 12" fill="none" stroke="#2563EB" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none"/>
     </marker>
-    <marker id="arrowPurple" markerWidth="14" markerHeight="14" refX="12" refY="7" orient="auto" markerUnits="userSpaceOnUse">
-      <path d="M 2 2 L 12 7 L 2 12" fill="none" stroke="#9333EA" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+    <marker id="arrowPurple" markerWidth="18" markerHeight="16" refX="12" refY="7" orient="auto" markerUnits="userSpaceOnUse" viewBox="0 0 14 14" data-role="uml-hollow" data-tip-direction="positive-x">
+      <path d="M 2 2 L 12 7 L 2 12" fill="none" stroke="#9333EA" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none"/>
     </marker>
-    <marker id="arrowTeal" markerWidth="14" markerHeight="14" refX="12" refY="7" orient="auto" markerUnits="userSpaceOnUse">
-      <path d="M 2 2 L 12 7 L 2 12" fill="none" stroke="#0D9488" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+    <marker id="arrowTeal" markerWidth="18" markerHeight="16" refX="12" refY="7" orient="auto" markerUnits="userSpaceOnUse" viewBox="0 0 14 14" data-role="uml-hollow" data-tip-direction="positive-x">
+      <path d="M 2 2 L 12 7 L 2 12" fill="none" stroke="#0D9488" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none"/>
     </marker>
-    <marker id="arrowGreen" markerWidth="14" markerHeight="14" refX="12" refY="7" orient="auto" markerUnits="userSpaceOnUse">
-      <path d="M 2 2 L 12 7 L 2 12" fill="none" stroke="#16A34A" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+    <marker id="arrowGreen" markerWidth="18" markerHeight="16" refX="12" refY="7" orient="auto" markerUnits="userSpaceOnUse" viewBox="0 0 14 14" data-role="uml-hollow" data-tip-direction="positive-x">
+      <path d="M 2 2 L 12 7 L 2 12" fill="none" stroke="#16A34A" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none"/>
     </marker>
-    <marker id="arrowOrange" markerWidth="14" markerHeight="14" refX="12" refY="7" orient="auto" markerUnits="userSpaceOnUse">
-      <path d="M 2 2 L 12 7 L 2 12" fill="none" stroke="#EA580C" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+    <marker id="arrowOrange" markerWidth="18" markerHeight="16" refX="12" refY="7" orient="auto" markerUnits="userSpaceOnUse" viewBox="0 0 14 14" data-role="uml-hollow" data-tip-direction="positive-x">
+      <path d="M 2 2 L 12 7 L 2 12" fill="none" stroke="#EA580C" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none"/>
     </marker>
     <style>
       svg{font-family:"Architects Daughter","Comic Mono","Comic Sans MS",ui-sans-serif,system-ui,sans-serif}

@@ -5,19 +5,19 @@
   <marker id="arrow-teal" markerWidth="22" markerHeight="22" refX="19" refY="11" orient="auto" markerUnits="userSpaceOnUse"><path d="M 2 2 L 19 11 L 2 20" fill="none" stroke="#0F766E" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></marker>
   <marker id="triangle-teal" markerWidth="26" markerHeight="22" refX="23" refY="11" orient="auto" markerUnits="userSpaceOnUse"><path d="M 2 2 L 23 11 L 2 20 Z" fill="#FFFFFF" stroke="#0F766E" stroke-width="2.2"/></marker>
 
-  <marker id="arrow-blue" markerWidth="22" markerHeight="22" refX="19" refY="11" orient="auto" markerUnits="userSpaceOnUse"><path d="M 2 2 L 19 11 L 2 20" fill="none" stroke="#1D4ED8" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></marker>
+  <marker id="arrow-blue" markerWidth="18" markerHeight="16" refX="19" refY="11" orient="auto" markerUnits="userSpaceOnUse" viewBox="0 0 22 22" data-role="uml-hollow" data-tip-direction="positive-x"><path d="M 2 2 L 19 11 L 2 20" fill="none" stroke="#1D4ED8" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none"/></marker>
   <marker id="triangle-blue" markerWidth="26" markerHeight="22" refX="23" refY="11" orient="auto" markerUnits="userSpaceOnUse"><path d="M 2 2 L 23 11 L 2 20 Z" fill="#FFFFFF" stroke="#1D4ED8" stroke-width="2.2"/></marker>
 
   <marker id="arrow-green" markerWidth="22" markerHeight="22" refX="19" refY="11" orient="auto" markerUnits="userSpaceOnUse"><path d="M 2 2 L 19 11 L 2 20" fill="none" stroke="#15803D" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></marker>
-  <marker id="triangle-green" markerWidth="26" markerHeight="22" refX="23" refY="11" orient="auto" markerUnits="userSpaceOnUse"><path d="M 2 2 L 23 11 L 2 20 Z" fill="#FFFFFF" stroke="#15803D" stroke-width="2.2"/></marker>
+  <marker id="triangle-green" markerWidth="18" markerHeight="16" refX="23" refY="11" orient="auto" markerUnits="userSpaceOnUse" viewBox="0 0 26 22" data-role="uml-hollow" data-tip-direction="positive-x"><path d="M 2 2 L 23 11 L 2 20 Z" fill="#FFFFFF" stroke="#15803D" stroke-width="2.2" stroke-dasharray="none"/></marker>
 
-  <marker id="arrow-amber" markerWidth="22" markerHeight="22" refX="19" refY="11" orient="auto" markerUnits="userSpaceOnUse"><path d="M 2 2 L 19 11 L 2 20" fill="none" stroke="#C2410C" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></marker>
+  <marker id="arrow-amber" markerWidth="18" markerHeight="16" refX="19" refY="11" orient="auto" markerUnits="userSpaceOnUse" viewBox="0 0 22 22" data-role="uml-hollow" data-tip-direction="positive-x"><path d="M 2 2 L 19 11 L 2 20" fill="none" stroke="#C2410C" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none"/></marker>
   <marker id="triangle-amber" markerWidth="26" markerHeight="22" refX="23" refY="11" orient="auto" markerUnits="userSpaceOnUse"><path d="M 2 2 L 23 11 L 2 20 Z" fill="#FFFFFF" stroke="#C2410C" stroke-width="2.2"/></marker>
 
-  <marker id="arrow-pink" markerWidth="22" markerHeight="22" refX="19" refY="11" orient="auto" markerUnits="userSpaceOnUse"><path d="M 2 2 L 19 11 L 2 20" fill="none" stroke="#BE185D" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></marker>
+  <marker id="arrow-pink" markerWidth="18" markerHeight="16" refX="19" refY="11" orient="auto" markerUnits="userSpaceOnUse" viewBox="0 0 22 22" data-role="uml-hollow" data-tip-direction="positive-x"><path d="M 2 2 L 19 11 L 2 20" fill="none" stroke="#BE185D" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none"/></marker>
   <marker id="triangle-pink" markerWidth="26" markerHeight="22" refX="23" refY="11" orient="auto" markerUnits="userSpaceOnUse"><path d="M 2 2 L 23 11 L 2 20 Z" fill="#FFFFFF" stroke="#BE185D" stroke-width="2.2"/></marker>
 
-  <marker id="arrow-slate" markerWidth="22" markerHeight="22" refX="19" refY="11" orient="auto" markerUnits="userSpaceOnUse"><path d="M 2 2 L 19 11 L 2 20" fill="none" stroke="#475569" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></marker>
+  <marker id="arrow-slate" markerWidth="18" markerHeight="16" refX="19" refY="11" orient="auto" markerUnits="userSpaceOnUse" viewBox="0 0 22 22" data-role="uml-hollow" data-tip-direction="positive-x"><path d="M 2 2 L 19 11 L 2 20" fill="none" stroke="#475569" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none"/></marker>
   <marker id="triangle-slate" markerWidth="26" markerHeight="22" refX="23" refY="11" orient="auto" markerUnits="userSpaceOnUse"><path d="M 2 2 L 23 11 L 2 20 Z" fill="#FFFFFF" stroke="#475569" stroke-width="2.2"/></marker>
   <style>
     svg{font-family:"Architects Daughter","Comic Mono","Comic Sans MS",ui-sans-serif,system-ui,sans-serif}

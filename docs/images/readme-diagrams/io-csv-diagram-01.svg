@@ -3,13 +3,13 @@
     <filter id="softShadow" x="-8%" y="-8%" width="116%" height="116%">
       <feDropShadow dx="0" dy="6" stdDeviation="5" flood-color="#0F172A" flood-opacity="0.12"/>
     </filter>
-    <marker id="open-blue" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto" markerUnits="userSpaceOnUse">
+    <marker id="open-blue" markerWidth="18" markerHeight="16" refX="9" refY="5" orient="auto" markerUnits="userSpaceOnUse" viewBox="0 0 10 10" data-role="uml-hollow" data-tip-direction="positive-x">
       <path d="M 1 1 L 9 5 L 1 9" fill="none" stroke="#2563EB" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none"/>
     </marker>
-    <marker id="open-green" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto" markerUnits="userSpaceOnUse">
+    <marker id="open-green" markerWidth="18" markerHeight="16" refX="9" refY="5" orient="auto" markerUnits="userSpaceOnUse" viewBox="0 0 10 10" data-role="uml-hollow" data-tip-direction="positive-x">
       <path d="M 1 1 L 9 5 L 1 9" fill="none" stroke="#16A34A" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none"/>
     </marker>
-    <marker id="open-orange" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto" markerUnits="userSpaceOnUse">
+    <marker id="open-orange" markerWidth="18" markerHeight="16" refX="9" refY="5" orient="auto" markerUnits="userSpaceOnUse" viewBox="0 0 10 10" data-role="uml-hollow" data-tip-direction="positive-x">
       <path d="M 1 1 L 9 5 L 1 9" fill="none" stroke="#EA580C" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none"/>
     </marker>
     <style>

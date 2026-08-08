@@ -24,16 +24,16 @@
       .legend { font-size: 13px; }
       .footer { font-size: 14px; fill: #60727d; }
     </style>
-    <marker id="openArrow" markerWidth="12" markerHeight="10" refX="10" refY="5" orient="auto" markerUnits="userSpaceOnUse">
+    <marker id="openArrow" markerWidth="18" markerHeight="16" refX="10" refY="5" orient="auto" markerUnits="userSpaceOnUse" viewBox="0 0 12 10" data-role="uml-hollow" data-tip-direction="positive-x">
       <path d="M 1 1 L 10 5 L 1 9" fill="none" stroke="#7b67a8" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none"/>
     </marker>
-    <marker id="openCore" markerWidth="12" markerHeight="10" refX="10" refY="5" orient="auto" markerUnits="userSpaceOnUse">
+    <marker id="openCore" markerWidth="18" markerHeight="16" refX="10" refY="5" orient="auto" markerUnits="userSpaceOnUse" viewBox="0 0 12 10" data-role="uml-hollow" data-tip-direction="positive-x">
       <path d="M 1 1 L 10 5 L 1 9" fill="none" stroke="#3f7d9c" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none"/>
     </marker>
-    <marker id="openRes" markerWidth="12" markerHeight="10" refX="10" refY="5" orient="auto" markerUnits="userSpaceOnUse">
+    <marker id="openRes" markerWidth="18" markerHeight="16" refX="10" refY="5" orient="auto" markerUnits="userSpaceOnUse" viewBox="0 0 12 10" data-role="uml-hollow" data-tip-direction="positive-x">
       <path d="M 1 1 L 10 5 L 1 9" fill="none" stroke="#b86868" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none"/>
     </marker>
-    <marker id="openSql" markerWidth="12" markerHeight="10" refX="10" refY="5" orient="auto" markerUnits="userSpaceOnUse">
+    <marker id="openSql" markerWidth="18" markerHeight="16" refX="10" refY="5" orient="auto" markerUnits="userSpaceOnUse" viewBox="0 0 12 10" data-role="uml-hollow" data-tip-direction="positive-x">
       <path d="M 1 1 L 10 5 L 1 9" fill="none" stroke="#a97b3d" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none" style="stroke-dasharray:none"/>
     </marker>
   </defs>

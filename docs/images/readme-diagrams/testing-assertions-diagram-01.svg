@@ -1,10 +1,10 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1800" height="1050" viewBox="0 0 1800 1050" role="img" aria-label="bluetape4k assertions architecture" data-intent="Show how test-side assertion APIs map to DSL families and JUnit/OpenTest4J failure semantics." data-evidence="testing/assertions/README.md; testing/assertions/src/main" data-source-read="testing/assertions/README.md; testing/assertions/src/main">
 <defs>
   <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="5" stdDeviation="4" flood-color="#0F172A" flood-opacity="0.10"/></filter>
-  <marker id="arrowBlue" markerWidth="13" markerHeight="10" refX="12" refY="5" orient="auto" markerUnits="userSpaceOnUse"><path d="M 0 0 L 12 5 L 0 10 Z" fill="#2563EB"/></marker>
-  <marker id="arrowGreen" markerWidth="13" markerHeight="10" refX="12" refY="5" orient="auto" markerUnits="userSpaceOnUse"><path d="M 0 0 L 12 5 L 0 10 Z" fill="#16A34A"/></marker>
-  <marker id="arrowOrange" markerWidth="13" markerHeight="10" refX="12" refY="5" orient="auto" markerUnits="userSpaceOnUse"><path d="M 0 0 L 12 5 L 0 10 Z" fill="#D97706"/></marker>
-  <marker id="arrowPurple" markerWidth="13" markerHeight="10" refX="12" refY="5" orient="auto" markerUnits="userSpaceOnUse"><path d="M 0 0 L 12 5 L 0 10 Z" fill="#7C3AED"/></marker>
+  <marker id="arrowBlue" markerWidth="14" markerHeight="14" refX="12" refY="5" orient="auto" markerUnits="userSpaceOnUse" viewBox="0 0 13 10" data-role="primary" data-tip-direction="positive-x"><path d="M 0 0 L 12 5 L 0 10 Z" fill="#2563EB" stroke-dasharray="none"/></marker>
+  <marker id="arrowGreen" markerWidth="14" markerHeight="14" refX="12" refY="5" orient="auto" markerUnits="userSpaceOnUse" viewBox="0 0 13 10" data-role="primary" data-tip-direction="positive-x"><path d="M 0 0 L 12 5 L 0 10 Z" fill="#16A34A" stroke-dasharray="none"/></marker>
+  <marker id="arrowOrange" markerWidth="14" markerHeight="14" refX="12" refY="5" orient="auto" markerUnits="userSpaceOnUse" viewBox="0 0 13 10" data-role="primary" data-tip-direction="positive-x"><path d="M 0 0 L 12 5 L 0 10 Z" fill="#D97706" stroke-dasharray="none"/></marker>
+  <marker id="arrowPurple" markerWidth="14" markerHeight="14" refX="12" refY="5" orient="auto" markerUnits="userSpaceOnUse" viewBox="0 0 13 10" data-role="primary" data-tip-direction="positive-x"><path d="M 0 0 L 12 5 L 0 10 Z" fill="#7C3AED" stroke-dasharray="none"/></marker>
   <style>
     svg{font-family:"Architects Daughter","Comic Mono","Comic Sans MS",ui-sans-serif,system-ui,sans-serif}
     .canvas{fill:#F8FAFC}.frame{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.5;filter:url(#shadow)}
