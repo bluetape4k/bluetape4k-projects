@@ -31,7 +31,7 @@ delay-error 및 overflow 후보를 현재 `bluetape4k-coroutines` 계약과 비�
   Reactive Streams `request(n)` 또는 `MissingBackpressureException`을
   제공하지 않는다.
 
-## Caller evidence
+## 호출자 근거
 
 2026-08-03 isolated worktree에서 production 영역을 검색한 결과, #1300 후보
 호출은 없었다. 직접 검증 가능한 기존 caller/test는 다음과 같다.
@@ -42,7 +42,7 @@ delay-error 및 overflow 후보를 현재 `bluetape4k-coroutines` 계약과 비�
 - `bluetape4k/coroutines/README.md` 및 `README.ko.md`의 기존 merge 설명
 - `docs/flow-operator-inventory.md`의 #1300 후속 링크
 
-따라서 이번 milestone tranche에서는 새 후보 API의 implementation caller를
+따라서 이번 milestone 단위에서는 새 후보 API의 구현 호출자를
 추정하지 않는다.
 
 ## 재개 조건

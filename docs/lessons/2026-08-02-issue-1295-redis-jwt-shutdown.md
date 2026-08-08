@@ -1,12 +1,12 @@
-# Issue #1295 Redis-backed JWT shutdown 통합 검증 lesson
+# 이슈 #1295 Redis 기반 JWT 종료 통합 검증 교훈
 
-## Context
+## 배경
 
 Issue #1276에서 JWT key-chain/provider의 timer를 명시적으로 닫을 수 있게 한
 뒤에도 Redis/Redisson 실제 경로와 proxy 장애 복구는 검증되지 않았다. Issue
 #1295는 이 공백을 milestone `1.12.0`에서 닫기 위한 test-only 통합 작업이다.
 
-## Decision
+## 결정
 
 - `gradle/libs.versions.toml`의 기존 `testcontainers-toxiproxy` alias를
   `utils/jwt`의 `testImplementation`으로만 연결했다.
@@ -22,7 +22,7 @@ Issue #1276에서 JWT key-chain/provider의 timer를 명시적으로 닫을 수 
   repository close, application owner의 client shutdown 순서를 테스트와 README
   두 locale에 동일하게 기록했다.
 
-## Verification evidence
+## 검증 근거
 
 - RED: direct ToxiProxy dependency를 제거한 상태에서 새 test source set의
   `compileTestKotlin`이 실패했다. 이는 `bluetape4k-testcontainers`의
@@ -35,7 +35,7 @@ Issue #1276에서 JWT key-chain/provider의 timer를 명시적으로 닫을 수 
   bounded false 결과, enable 후 recovery, 반복 close, delegate close 후
   expired key-chain 재회전 억제, client의 명시적 terminal shutdown을 검증한다.
 
-## Reusable guard
+## 재사용 가드
 
 실제 Redis를 사용하는 borrowed-client fixture에서는 component close가 외부
 client close를 의미하지 않는다. integration test는 proxy/container/client를
@@ -43,9 +43,10 @@ client close를 의미하지 않는다. integration test는 proxy/container/clie
 한다. Docker가 없는 hosted CI에서는 이 통합 행을 성공으로 추정하지 말고
 `PENDING`으로 보고한다.
 
-## Follow-up
+## 후속 작업
 
-Fresh targeted/module tests, detekt, docs parity, diff-check, and runtime
-dependency-scope checks pass locally; the ToxiProxy dependency appears only on
-`testCompileClasspath`, not `runtimeClasspath`. Exact PR head/CI/review evidence
-is added at PR delivery. Production ownership/API 변경은 이 lesson의 범위가 아니다.
+로컬에서 표적/모듈 테스트, detekt, 문서 parity, diff-check, runtime
+dependency-scope 검사를 통과했다. ToxiProxy dependency는
+`testCompileClasspath`에만 나타나며 `runtimeClasspath`에는 나타나지 않는다.
+정확한 PR head/CI/review 근거는 PR 전달 단계에서 추가한다. Production
+ownership/API 변경은 이 교훈의 범위가 아니다.

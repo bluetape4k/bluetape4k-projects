@@ -1,4 +1,4 @@
-# Issue #1297 Flow operator parity lesson
+# 이슈 #1297 Flow 연산자 동등성 교훈
 
 ## 결정
 

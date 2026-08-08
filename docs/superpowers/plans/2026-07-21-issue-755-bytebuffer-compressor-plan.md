@@ -1,4 +1,4 @@
-# Issue #755 Caller-Owned ByteBuffer Compressor 구현 계획
+# 이슈 #755 호출자 소유 ByteBuffer 압축기 구현 계획
 
 > **agentic worker용:** 필수 sub-skill: 이 계획은 superpowers:subagent-driven-development(권장) 또는 superpowers:executing-plans로 task별 구현한다. 진행 상태는 checkbox(`- [ ]`) syntax로 추적한다.
 
@@ -12,7 +12,7 @@
 
 ## 1. 승인 기준과 실행 경계
 
-- Work type: **Type A - Full Feature**
+- 작업 유형: **Type A - Full Feature**
 - Basis: broad public API, 네 개 codec backend, JNI/native 실패 계약, ABI fixture, concurrency, allocation benchmark와 다중 PR 전달 train.
 - 승인 명세:
   `docs/superpowers/specs/2026-07-21-issue-755-bytebuffer-compressor-design.md`
@@ -61,7 +61,7 @@
 - 현재 실행 범위는 Task 6 Snappy slice다. 이 PR의 exact-head CI/review와 별도 merge
   승인 전에는 Task 7 Zstd branch 또는 구현을 시작하지 않는다.
 
-## 2. Broad Backend Matrix 전달 topology
+## 2. 광범위한 Backend Matrix 전달 토폴로지
 
 | 순서 | 역할              | head branch                                     | base              | 독립 결과                                                         | 다음 단계 진입 조건               |
 |-----:|-------------------|-------------------------------------------------|-------------------|-------------------------------------------------------------------|-----------------------------------|
@@ -74,7 +74,7 @@
 
 각 slice는 하나의 worktree만 쓰고 native/JNI test와 benchmark는 다른 worktree와 병렬 실행하지 않는다. PR이 merge되면 `develop`을 fast-forward한 다음 ancestry를 확인하고 해당 local worktree를 final documented checklist/PR train completion까지 보존한다. coordination/core worktree와 모든 local/remote branch 삭제는 그 completion 뒤 별도 명시 cleanup 승인을 받기 전까지 수행하지 않는다.
 
-### 2.1 모든 slice의 merge-ready와 post-approval checkpoint
+### 2.1 모든 slice의 merge-ready와 승인 후 checkpoint
 
 각 PR은 다음 readiness block으로 exact head, required checks와 unresolved thread 0을 증명한다.
 
@@ -249,7 +249,7 @@ merge checkpoint shell tests는 `gh` stub으로 live PR `state`, `baseRefName`, 
 
 이 checkpoint 성공 전 다음 branch/worktree를 만들지 않는다. merge 승인은 cleanup, remote branch deletion, tag/release 권한을 포함하지 않는다.
 
-### 2.2 review-fix exact-head protocol
+### 2.2 review-fix exact-head 프로토콜
 
 어느 six-perspective/CI/review 단계에서든 수정이 생기면 Lore commit 후 affected targeted test와 해당 slice full verification을 다시 실행한다. 그 다음 `test -z "$(git status --porcelain)"`, current branch를 push하고 local `HEAD`,
 `git ls-remote origin "refs/heads/$(git branch --show-current)"` SHA, PR `headRefOid` equality를 확인한 뒤 readiness block 전체를 재실행한다. final slice 수정은 Step 10.6의 descendant/diff-allowlist/ABI/evidence validator까지 새
@@ -274,7 +274,7 @@ merge checkpoint shell tests는 `gh` stub으로 live PR `state`, `baseRefName`, 
 | `CHANGELOG.md`                                                                              | 수정           | `1.12.0` opt-in API와 rollback 정책                                          |
 | `docs/lessons/2026-07-21-issue-755-bytebuffer-compressor.md`                                | 생성/후속 수정 | dependency surprise, slice 결과, evidence guard 누적                         |
 
-### Backend slices
+### Backend slice
 
 | Slice   | production             | tests                                | 문서                                                  |
 |---------|------------------------|--------------------------------------|-------------------------------------------------------|
@@ -325,7 +325,7 @@ fun decompress(source: ByteBuffer, target: ByteBuffer): Int
 9. `Error`와 cancellation은 identity를 보존한다. Deflate는 operation failure가 있으면 그 throwable identity를 항상 primary로 유지하고 cleanup failure를 suppressed로 붙인다. operation failure가 없을 때만 cleanup failure 자체를 그대로 전파한다.
 10. fallback은 correctness path이며 allocation 개선 대상으로 승격하지 않는다.
 
-## 5. Step 3-P 위험 예측
+## 5. 단계 3-P 위험 예측
 
 | 위험                                                      | 조기 신호                                                        | 예방/완화                                                                                      | rollback 또는 rerun 지점                                                 |
 |-----------------------------------------------------------|------------------------------------------------------------------|------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------|
@@ -344,7 +344,7 @@ fun decompress(source: ByteBuffer, target: ByteBuffer): Int
 
 ---
 
-## Task 0: 승인된 plan으로 workflow run과 core slice를 시작한다
+## 작업 0: 승인된 plan으로 workflow run과 core slice를 시작한다
 
 **복잡도:** 낮음 **Dependency:** 이 계획의 사용자 승인 **Write
 scope:** `.bluetape` coordinator state만 helper가 기록; repository source 변경 없음 **Pattern
@@ -832,7 +832,7 @@ DoD:** WF-04A fallback에서 run의 blocked checksum과 valid receipt chain이 �
 
 ---
 
-## Task 1: Core RED — public contract와 ABI authority를 먼저 고정한다
+## 작업 1: Core RED — public contract와 ABI authority를 먼저 고정한다
 
 **복잡도:** 높음 **Dependency:** Task 0 WF-04A fallback DoD PASS **Write
 scope:** core test/ABI resources와 `scripts/check-compressor-buffer-abi.sh`만 **Pattern
@@ -1173,7 +1173,7 @@ bash scripts/check-compressor-buffer-abi.sh \
 
 ---
 
-## Task 2: Core GREEN — fallback과 상태 commit wrapper를 구현한다
+## 작업 2: Core GREEN — fallback과 상태 commit wrapper를 구현한다
 
 **복잡도:** 높음 **Dependency:** Task 1 **Write
 scope:** `Compressor.kt`, 신규 `CompressorBufferSupport.kt`, Task 1 test 보정만 **Pattern
@@ -1370,7 +1370,7 @@ repo-test-summary -- ./gradlew :bluetape4k-io:test \
 
 ---
 
-## Task 3: Core slice 문서·검증·PR을 수렴한다
+## 작업 3: Core slice 문서·검증·PR을 수렴한다
 
 **복잡도:** 중간 **Dependency:** Task 2 **작성 범위:** 양쪽 README, CHANGELOG, issue lesson, core test/ABI artifact
 **Pattern skill:** `bluetape-writer`, `verification-before-completion`, `requesting-code-review`
@@ -1502,7 +1502,7 @@ PR body는 English이며 issue #755를 연결하고 final `##` heading을 `## Do
 
 ---
 
-## Task 4: LZ4 slice — bounded payload를 사용하는 전체 storage override를 전달한다
+## 작업 4: LZ4 slice — bounded payload를 사용하는 전체 storage override를 전달한다
 
 **복잡도:** 높음 **Dependency:** core PR merge + updated `develop` sync **Write
 scope:** `LZ4Compressor.kt`, LZ4 test, README locale rows, shared lesson LZ4 section **Pattern
@@ -1724,7 +1724,7 @@ Six-perspective review, CI, live threads가 P0=0/P1=0일 때 exact PR/head를 �
 
 ---
 
-## Task 5: Deflate slice — bounded JDK loop와 deterministic cleanup을 전달한다
+## 작업 5: Deflate slice — bounded JDK loop와 deterministic cleanup을 전달한다
 
 **복잡도:** 높음 **Dependency:** LZ4 PR merge + updated `develop` sync **Write
 scope:** `DeflateCompressor.kt`, Deflate test, README locale rows, docs checker의 Deflate expected
@@ -1983,7 +1983,7 @@ gh pr create --repo bluetape4k/bluetape4k-projects \
 
 ---
 
-## Task 6: Snappy slice — validation-first matched-storage native path를 전달한다
+## 작업 6: Snappy slice — validation-first matched-storage native path를 전달한다
 
 **복잡도:** 높음 **Dependency:** Deflate PR merge + updated `develop` sync **Write
 scope:** `SnappyCompressor.kt`, Snappy test, README locale rows, validator, Snappy design/plan
@@ -2102,7 +2102,7 @@ gh pr create --repo bluetape4k/bluetape4k-projects \
 
 ---
 
-## Task 7: Zstd slice — declared-size destination bound와 예외 의미를 전달한다
+## 작업 7: Zstd slice — declared-size destination bound와 예외 의미를 전달한다
 
 **복잡도:** 높음 **Dependency:** Snappy PR merge + updated `develop` sync **Write
 scope:** `ZstdCompressor.kt`, Zstd test, README locale rows, lesson native-bound section **Pattern
@@ -2344,7 +2344,7 @@ gh pr create --repo bluetape4k/bluetape4k-projects \
 
 ---
 
-## Task 8: Adoption RED/GREEN — singleton concurrency와 caller examples를 수렴한다
+## 작업 8: Adoption RED/GREEN — singleton concurrency와 caller examples를 수렴한다
 
 **복잡도:** 높음 **Dependency:** Zstd PR merge + updated `develop` sync **Write
 scope:** cross-codec integration tests와 public examples only **Pattern
@@ -2555,7 +2555,7 @@ Not-tested: Allocation evidence is produced by the next task'
 
 ---
 
-## Task 9: Benchmark RED/GREEN — thread-local harness와 fail-closed evidence tool을 만든다
+## 작업 9: Benchmark RED/GREEN — thread-local harness와 fail-closed evidence tool을 만든다
 
 **복잡도:** 높음 **Dependency:** Task 8 **작성 범위:** io existing benchmark source와 `io/io/scripts` only **Pattern
 skill:** `bluetape-kotlin-patterns`, `test-driven-development`
@@ -3119,7 +3119,7 @@ DoD:** committed harness는 `Scope.Thread`, measured allocation-free setup disci
 
 ---
 
-## Task 10: Canonical evidence·문서·최종 PR을 exact head에서 수렴한다
+## 작업 10: Canonical evidence·문서·최종 PR을 exact head에서 수렴한다
 
 **복잡도:** 높음 **Dependency:** Task 9 commit **Write
 scope:** raw evidence, benchmark report/index, module benchmark/readmes, CHANGELOG, shared lesson **Pattern
@@ -3357,7 +3357,7 @@ CI와 current review/thread가 exact head에서 수렴하면 PR number/head SHA�
 
 ---
 
-## Task 11: final merge 승인 후 documented checklist를 닫고 cleanup gate에서 멈춘다
+## 작업 11: 최종 merge 승인 후 documented checklist를 닫고 cleanup gate에서 멈춘다
 
 **복잡도:** 중간 **Dependency:** final PR exact-head fresh merge approval **Write
 scope:** approved GitHub merge와 local sync only; terminal blocked `.bluetape` receipt는 read-only **Pattern

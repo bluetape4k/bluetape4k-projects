@@ -1,4 +1,4 @@
-# Issue #1279 Web-framework benchmark lifecycle lesson
+# 이슈 #1279 웹 프레임워크 벤치마크 수명주기 교훈
 
 ## 배경
 

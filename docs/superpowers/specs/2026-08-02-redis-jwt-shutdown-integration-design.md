@@ -1,4 +1,4 @@
-# Redis-backed JWT shutdown integration 설계
+# Redis 기반 JWT 종료 통합 설계
 
 ## 목표
 
@@ -94,7 +94,7 @@ recovery를 재현하지 못해 issue의 핵심 수용 기준을 충족하지 �
 | 문서화 | README 두 locale에 Redis-backed ownership/close 순서 추가 |
 | 품질 | targeted integration test, JWT detekt, diff-check 및 proportional module test |
 
-## Definition of Done
+## 완료 정의
 
 - test-only dependency만 추가되고 production ownership/API는 변경하지 않는다.
 - 테스트가 Docker가 있는 로컬 환경에서 통과하고, hosted CI에서 Docker 결과가

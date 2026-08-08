@@ -1,4 +1,4 @@
-# Caller-owned ByteBuffer Compressor Allocation Benchmark - 2026-08-01
+# 호출자 소유 ByteBuffer 압축기 할당 벤치마크 - 2026-08-01
 
 ## 한눈에 보기
 
@@ -17,33 +17,33 @@
 
 ## 범위와 판정 기준
 
-- Issue: [#755](https://github.com/bluetape4k/bluetape4k-projects/issues/755),
+- 이슈: [#755](https://github.com/bluetape4k/bluetape4k-projects/issues/755),
   [#1260](https://github.com/bluetape4k/bluetape4k-projects/issues/1260)
-- Module: `:bluetape4k-io`
-- Codecs: LZ4, Deflate, Snappy, Zstd
-- Operations: compression, decompression
-- Storage: heap, direct, heap-to-direct, direct-to-heap
-- Payloads: small 1,147 B, medium 65,718 B, large 524,349 B
-- Allocation gate: 두 run 모두에서 candidate `gc.alloc.rate.norm`이 baseline보다 5% 이상
+- 모듈: `:bluetape4k-io`
+- 코덱: LZ4, Deflate, Snappy, Zstd
+- 연산: compression, decompression
+- 저장소: heap, direct, heap-to-direct, direct-to-heap
+- 페이로드: small 1,147 B, medium 65,718 B, large 524,349 B
+- 할당 게이트: 두 run 모두에서 candidate `gc.alloc.rate.norm`이 baseline보다 5% 이상
   낮고 error interval이 겹치지 않으며, small에서 large로 갈수록 절감량이 커져야 한다.
-- Throughput guard: 두 run 모두에서 candidate throughput이 baseline보다 20% 이상 낮고 error
+- 처리량 가드: 두 run 모두에서 candidate throughput이 baseline보다 20% 이상 낮고 error
   interval이 겹치지 않으면 자동 채택하지 않고 design review 대상으로 분리한다.
 
 ## 실행 조건과 불변 identity
 
-| Field | Value |
+| 항목 | 값 |
 |---|---|
-| Commit | `c0ba3dc5e72851370257584ddb99c9785111199b` |
-| Tree | `3b88638ac2bf4f09e7a261b6f46a6c87191d1cbe` |
-| Benchmark JAR SHA-256 | `540a36a7011bd1a9205b1933123edb5482cbb80a752c09ff823e09451d6f24c3` |
-| Run 1 | `run-20260731T235242Z-300ece58` · 288 records · PASS |
-| Run 2 | `run-20260801T011556Z-956940c2` · 288 records · PASS |
+| 커밋 | `c0ba3dc5e72851370257584ddb99c9785111199b` |
+| 트리 | `3b88638ac2bf4f09e7a261b6f46a6c87191d1cbe` |
+| 벤치마크 JAR SHA-256 | `540a36a7011bd1a9205b1933123edb5482cbb80a752c09ff823e09451d6f24c3` |
+| 실행 1 | `run-20260731T235242Z-300ece58` · 288 records · PASS |
+| 실행 2 | `run-20260801T011556Z-956940c2` · 288 records · PASS |
 | JDK | GraalVM JDK `21.0.12` |
 | JMH | `1.37`, 1 thread, 2 forks, 3 warmups, 5 measurements, 1 second each |
-| Heap / GC | `-Xms1g -Xmx1g -XX:+UseG1GC` |
-| Host | Apple M4 Pro, macOS 26.5.2 arm64 |
+| 힙 / GC | `-Xms1g -Xmx1g -XX:+UseG1GC` |
+| 호스트 | Apple M4 Pro, macOS 26.5.2 arm64 |
 
-Runner는 commit, tree, JAR hash, dependency hash, 실제 JVM args와 결과 수를 검증한 뒤에만
+실행기는 commit, tree, JAR hash, dependency hash, 실제 JVM args와 결과 수를 검증한 뒤에만
 staging directory를 immutable run directory로 publish한다. 두 run의 identity가 다르거나
 필요한 JMH secondary metric이 누락되면 비교 파일을 만들지 않는다.
 
@@ -53,7 +53,7 @@ staging directory를 immutable run directory로 publish한다. 두 run의 identi
 `ineligible`은 correctness path로는 유효하지만 allocation 채택 대상으로 사용하지 않는다는
 뜻이다.
 
-| Codec | Operation | heap | direct | heap → direct | direct → heap |
+| 코덱 | 연산 | heap | direct | heap → direct | direct → heap |
 |---|---|---|---|---|---|
 | LZ4 | compress | accepted | accepted | accepted | accepted |
 | LZ4 | decompress | accepted | accepted | accepted | accepted |
@@ -74,7 +74,7 @@ Deflate 24개, Snappy 3개, Zstd 12개다.
 절감량이 payload보다 클 수 있는 이유는 baseline이 입력·출력 외에도 payload 크기에 비례하는
 임시 객체를 만들기 때문이다.
 
-| Codec / operation | Storage | Saved B/op range | Candidate throughput / baseline |
+| 코덱 / 연산 | 저장소 | 절감 B/op 범위 | 후보 처리량 / 기준선 |
 |---|---|---:|---:|
 | LZ4 compress | heap | 1,640–597,504 | 103.0–117.2% |
 | LZ4 compress | direct | 2,680–1,121,744 | 109.0–118.7% |

@@ -1,6 +1,6 @@
 # #1270 Lettuce JCache destroy 실패 가시성과 재시도 상태
 
-## Context
+## 배경
 
 `LettuceCacheManager.destroyCache`는 기존에 registry에서 캐시를 먼저
 제거한 뒤 `clear()`와 `close()` 예외를 `runCatching`으로 삼켰습니다. 따라서
@@ -9,7 +9,7 @@ Redis 데이터 삭제가 실패해도 호출자는 성공으로 오인하고, �
 clear 뒤 wrapper를 닫지 않았고, blocking JCache wrapper의 resource close
 실패 역시 숨겨졌습니다.
 
-## Decision or Finding
+## 결정 또는 발견
 
 - sync/suspend `destroyCache`는 `clear()`를 먼저 완료한 뒤 `close()`를 수행하고,
   두 단계의 실패를 `CacheException`으로 호출자에게 전파합니다.
@@ -23,14 +23,14 @@ clear 뒤 wrapper를 닫지 않았고, blocking JCache wrapper의 resource close
   그대로 재전파하며, 정상 종료 시에는 현재 wrapper와 일치하는 registry entry만
   제거합니다.
 
-## Outcome
+## 결과
 
 호출자는 clear 또는 close의 terminal 상태와 원래 원인을 관찰할 수 있습니다.
 clear 실패 뒤에는 캐시가 registry에 남아 재시도할 수 있고, 성공적인 clear 뒤
 동일한 이름으로 캐시를 재생성해도 이전 Redis hash 데이터가 보이지 않습니다.
 blocking과 suspend 경로의 삭제 순서, registry 정책, 예외 가시성이 일치합니다.
 
-## Verification
+## 검증
 
 - RED: sync/suspend manager targeted suite에서 clear/close 예외 전파와 직접
   resource close 가시성에 대한 5개 회귀 실패를 먼저 재현했습니다.
@@ -40,7 +40,7 @@ blocking과 suspend 경로의 삭제 순서, registry 정책, 예외 가시성�
 - `:bluetape4k-cache-lettuce:compileKotlin` 및 `compileTestKotlin` 통과.
 - `git diff --check` 통과.
 
-## Future Guidance
+## 향후 지침
 
 JCache lifecycle을 변경할 때는 데이터 삭제, resource close, registry 제거를
 서로 다른 terminal 단계로 취급합니다. cleanup 실패를 로그로만 남기지 말고

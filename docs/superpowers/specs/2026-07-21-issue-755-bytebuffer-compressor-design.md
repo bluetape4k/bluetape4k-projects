@@ -1,4 +1,4 @@
-# Issue #755 caller-owned ByteBuffer compressor 설계
+# 이슈 #755 호출자 소유 ByteBuffer 압축기 설계
 
 - 상태: 대안 1 구현 승인, core API와 LZ4 반영 완료, Deflate 이후 순차 구현 중
 - 대상 issue: `#755 Add caller-owned ByteBuffer compressor APIs for lower GC pressure`
@@ -564,7 +564,7 @@ Kotlin/Java README 예제는 compile test에 포함하고 source position 불변
 | fallback을 저할당으로 오해                                    | KDoc/README/benchmark eligibility 표                                    | allocation claim 금지                                                                                                                 |
 | native/JDK resource cleanup 누락                              | `finally`에서 `end`/close                                               | 누수 없이 원래 failure 보존                                                                                                           |
 
-## 15. acceptance criteria
+## 15. 수용 기준
 
 1. `Compressor`가 두 caller-owned `ByteBuffer` 기본 메서드를 제공한다.
 2. 동일 erased signature의 default 충돌이 없는 기존 외부 구현체와 Kotlin/Java caller의 source/binary compatibility가 exact baseline fixture로 유지된다.
@@ -582,7 +582,7 @@ Kotlin/Java README 예제는 compile test에 포함하고 source position 불변
 12. benchmark raw evidence의 commit/tree/JAR/environment identity와 append-only run이 fail-closed validator로 증명된다.
 13. fallback decompression의 target bound 한계가 압축률이 큰 payload/small-target contract test와 KDoc/양쪽 README에서 명시된다.
 
-## 16. Definition of Done
+## 16. 완료 정의
 
 - 설계와 구현 계획의 모든 acceptance criterion이 test/doc/benchmark task에 추적된다.
 - targeted tests, 전체 `:bluetape4k-io:test`, compile, Detekt, ABI fixture,

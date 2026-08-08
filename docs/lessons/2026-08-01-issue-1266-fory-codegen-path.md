@@ -1,6 +1,6 @@
 # 이슈 #1266 Fory 동시성 테스트의 codegen 경로 검증
 
-## Context
+## 배경
 
 `SerializerEdgeCaseTest`의 멀티스레드 직렬화 테스트는 메서드 내부에 `Item` data class를
 선언하고 있었다. Fory는 이 local class의 enclosing test 이름까지 포함해 Java codec 이름을
@@ -8,7 +8,7 @@
 기존 비동기 compilation 설정에서는 생성 실패 후 interpreter serializer로 fallback했지만,
 직렬화 결과와 동시성 assertion만으로는 이 경로 이탈을 감지하지 못했다.
 
-## Decision or Finding
+## 결정 또는 발견
 
 - 동시성 fixture를 테스트 클래스의 안정적인 `ConcurrentItem` nested data class로 옮겼다.
   메서드 이름이나 display name이 generated Java codec 이름에 포함되지 않도록 fixture의
@@ -21,7 +21,7 @@
 - production serializer configuration이나 public API는 변경하지 않는다. 문제의 원인은
   serializer 구현이 아니라 test fixture 이름의 codegen 적합성이다.
 
-## Outcome
+## 결과
 
 - 기존 local `Item`을 그대로 둔 RED 단계에서는 Janino가
   `SerializerEdgeCaseTest_Fory codegen path uses a generated serializer for the concurrency fixture_ItemForyRefCodec_0`
@@ -29,7 +29,7 @@
 - `ConcurrentItem`으로 교체한 GREEN 단계에서는 generated serializer assertion과 기존
   멀티스레드 round-trip assertion이 함께 통과한다.
 
-## Verification
+## 검증
 
 ```bash
 ./gradlew :bluetape4k-io:test \
@@ -41,7 +41,7 @@
 - GREEN: `SUCCESS: Executed 32 tests in 2.4s`, `BUILD SUCCESSFUL`.
 - GREEN 로그에 `CompileException`이 없고 generated serializer regression test가 PASSED다.
 
-## Future Guidance
+## 향후 지침
 
 1. Fory codegen을 검증하는 테스트 fixture는 method-local class로 선언하지 말고 stable
    top-level 또는 static nested class를 사용한다.

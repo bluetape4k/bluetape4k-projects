@@ -1,4 +1,4 @@
-# Issue #1297 Step 3-R 계획 리뷰
+# 이슈 #1297 단계 3-R 계획 리뷰
 
 ## 리뷰 범위
 
@@ -15,13 +15,13 @@
 
 | # | 필수 검사 | 근거 | 결과 |
 |---:|---|---|---|
-| 1 | 모든 명세 요구사항과 DoD가 구체적인 task에 대응한다 | Task 1-5는 inventory, API 계열 3개, 문서, 테스트, benchmark, 후속 작업을 다루고 Task 6은 전체 검증, lesson, PR train, exact-head DoD를 다룬다. | PASS |
-| 2 | 현재 코드에서 task 순서를 구현할 수 있다 | Task 1에서 중복 검색과 inventory를 먼저 고정하고 Task 2-4에서 코드를 작성한다. Task 5에서 완성된 API를 문서화하고 Task 6에서 통합 branch를 검증한다. | PASS |
-| 3 | 뒤의 산출물에 선행 의존하는 task가 없다 | 각 테스트는 구현 전에 RED이며 README 예제는 최종 signature임을 명시하고 API task 뒤에 확정한다. 최종 리뷰는 모든 slice 뒤에 수행한다. | PASS |
+| 1 | 모든 명세 요구사항과 DoD가 구체적인 작업에 대응한다 | 작업 1-5는 inventory, API 계열 3개, 문서, 테스트, benchmark, 후속 작업을 다루고 작업 6은 전체 검증, lesson, PR train, exact-head DoD를 다룬다. | PASS |
+| 2 | 현재 코드에서 작업 순서를 구현할 수 있다 | 작업 1에서 중복 검색과 inventory를 먼저 고정하고 작업 2-4에서 코드를 작성한다. 작업 5에서 완성된 API를 문서화하고 작업 6에서 통합 branch를 검증한다. | PASS |
+| 3 | 뒤의 산출물에 선행 의존하는 작업이 없다 | 각 테스트는 구현 전에 RED이며 README 예제는 최종 signature임을 명시하고 API 작업 뒤에 확정한다. 최종 리뷰는 모든 slice 뒤에 수행한다. | PASS |
 | 4 | 테스트가 성공, 실패, 경계, 동시성, coroutine, 수명주기, backend capability를 다룬다 | 개수/시간, 부분 완료, upstream/fallback 오류, 잘못된 인자, 같은 시각 경합, `take(1)` 정리, 제한된 동시성/순서, child 실패를 명시했다. Module-local Flow 변경이므로 backend/Testcontainers는 명시적으로 N/A다. | PASS |
-| 5 | 검증 명령이 구체적이고 대상이 명확하다 | 각 slice에 정확한 Gradle `--tests` 명령이 있고 Task 6에 module test/check/benchmark와 `git diff --check`가 있다. | PASS |
-| 6 | README가 공개 동작을 다룬다 | Task 1과 Task 5에서 `README.md`와 `README.ko.md`를 동일한 예제와 경계 의미로 수정한다. | PASS |
-| 7 | 한국어 KDoc과 영문 공개 GitHub 산출물 | Task 5는 한국어 우선 KDoc을 요구하고 Task 1은 영어 후속 issue 본문을 사용한다. Task 6은 `## DoD Status`로 끝나는 영어 PR metadata를 요구한다. | PASS |
+| 5 | 검증 명령이 구체적이고 대상이 명확하다 | 각 slice에 정확한 Gradle `--tests` 명령이 있고 작업 6에 module test/check/benchmark와 `git diff --check`가 있다. | PASS |
+| 6 | README가 공개 동작을 다룬다 | 작업 1과 작업 5에서 `README.md`와 `README.ko.md`를 동일한 예제와 경계 의미로 수정한다. | PASS |
+| 7 | 한국어 KDoc과 영문 공개 GitHub 산출물 | 작업 5는 한국어 우선 KDoc을 요구하고 작업 1은 영어 후속 issue 본문을 사용한다. 작업 6은 `## DoD Status`로 끝나는 영어 PR metadata를 요구한다. | PASS |
 | 8 | 새 module 등록/BOM/CI/resource | Module을 추가, 이동, 게시하지 않는다. Settings/catalog/dependency 범위를 변경하지 않음을 계획에 명시했다. | 범위 근거로 N/A |
 | 9 | Spring Boot auto-configuration guard | Spring Boot module이나 auto-configuration을 수정하지 않는다. | N/A |
 | 10 | Exposed deprecated import/receiver shadowing | Exposed module이나 receiver API를 수정하지 않는다. | N/A |
@@ -58,6 +58,6 @@
 - P2: **1건 보류**(외부 Rx/Reactor runtime 상호 운용성, 이 module-local
   slice의 범위가 아님)
 - P3: 열린 항목 **0**
-- Step 3-R 상태: **PASS**
-- 구현 gate: **OPEN**. 이 리뷰와 Step 2-R 근거를 workflow receipt에 기록한
-  뒤에만 Task 1을 시작한다.
+- 단계 3-R 상태: **PASS**
+- 구현 gate: **OPEN**. 이 리뷰와 단계 2-R 근거를 workflow receipt에 기록한
+  뒤에만 작업 1을 시작한다.
