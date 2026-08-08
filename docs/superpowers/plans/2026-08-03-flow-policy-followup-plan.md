@@ -1,12 +1,12 @@
 # Flow 정책 후속 작업 실행 계획
 
-> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
+> **에이전트 작업 지침:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. 단계는 checkbox(`- [ ]`) 형식으로 추적한다.
 
-**Goal:** Issue #1300의 delay-error/overflow 후보를 새 public API 없이 계약 매트릭스, 호출자 근거, 결정적 회귀 테스트로 정리한다.
+**목표:** Issue #1300의 delay-error/overflow 후보를 새 public API 없이 계약 매트릭스, 호출자 근거, 결정적 회귀 테스트로 정리한다.
 
-**Architecture:** 현재 concat, merge, onBackpressureDrop 구현은 변경하지 않는다. 표준 Kotlin Flow의 buffer/conflate 계약과 기존 custom operator의 fail-fast/cancellation 경계를 테스트로 고정하고, 양국어 README에서 Reactive Streams demand와의 차이 및 #1300 비목표를 연결한다.
+**아키텍처:** 현재 concat, merge, onBackpressureDrop 구현은 변경하지 않는다. 표준 Kotlin Flow의 buffer/conflate 계약과 기존 custom operator의 fail-fast/cancellation 경계를 테스트로 고정하고, 양국어 README에서 Reactive Streams demand와의 차이 및 #1300 비목표를 연결한다.
 
-**Tech Stack:** Kotlin 2.3, kotlinx.coroutines Flow, JUnit 5, kotlinx-coroutines-test, bluetape assertions, Gradle.
+**기술 스택:** Kotlin 2.3, kotlinx.coroutines Flow, JUnit 5, kotlinx-coroutines-test, bluetape assertions, Gradle.
 
 ---
 
@@ -20,19 +20,19 @@
 | bluetape4k/coroutines/README.ko.md | 한국어 사용자에게 같은 계약과 비목표를 설명한다. |
 | docs/lessons/2026-08-03-issue-1300-flow-policy.md | 증거, 선택, 재개 조건, 검증 결과를 한국어로 기록한다. |
 
-production Kotlin source, dependency catalog, module registration, benchmark source는 수정하지 않는다.
+production Kotlin 소스, dependency catalog, module registration, benchmark 소스는 수정하지 않는다.
 
-### Task 1: Baseline과 RED 경계 고정
+### 작업 1: Baseline과 RED 경계 고정
 
-**Files:**
+**대상 파일:**
 
 - Test: bluetape4k/coroutines/src/test/kotlin/io/bluetape4k/coroutines/flow/extensions/ConcatTest.kt
 - Test: bluetape4k/coroutines/src/test/kotlin/io/bluetape4k/coroutines/flow/extensions/MergeFlowsTest.kt
 - Test: bluetape4k/coroutines/src/test/kotlin/io/bluetape4k/coroutines/flow/extensions/OnBackpressureDropTest.kt
 
-- [x] **Step 1: 기존 contract test를 먼저 실행한다.**
+- [x] **단계 1: 기존 contract test를 먼저 실행한다.**
 
-Run:
+실행:
 
 ~~~
 ./gradlew :bluetape4k-coroutines:test \
@@ -42,11 +42,11 @@ Run:
   --no-configuration-cache --console=plain
 ~~~
 
-Expected: BUILD SUCCESSFUL; 기존 API의 정상 순서·도착 순서·drop 결과가 통과한다. 이 단계는 no-production-change tranche의 baseline이며, 새 API가 없으므로 compile RED를 의도하지 않는다.
+예상 결과: BUILD SUCCESSFUL; 기존 API의 정상 순서·도착 순서·drop 결과가 통과한다. 이 단계는 no-production-change 단위의 baseline이며, 새 API가 없으므로 compile RED를 의도하지 않는다.
 
-- [x] **Step 2: 새 테스트 파일을 만들기 전에 대상 범위와 dirty state를 확인한다.**
+- [x] **단계 2: 새 테스트 파일을 만들기 전에 대상 범위와 dirty state를 확인한다.**
 
-Run:
+실행:
 
 ~~~
 git status --short --branch
@@ -56,15 +56,15 @@ rg -n --glob '!build/**' \
   bluetape4k/coroutines/src/main bluetape4k/coroutines/src/test
 ~~~
 
-Expected: 기존 spec/matrix commit 외에 unrelated change가 없고, production 호출자 검색 결과가 비어 있으며, 후보 이름은 문서 또는 의도적 비목표에서만 나온다.
+예상 결과: 기존 spec/matrix commit 외에 unrelated change가 없고, production 호출자 검색 결과가 비어 있으며, 후보 이름은 문서 또는 의도적 비목표에서만 나온다.
 
-### Task 2: 결정적 Flow policy 회귀 테스트 작성
+### 작업 2: 결정적 Flow policy 회귀 테스트 작성
 
-**Files:**
+**대상 파일:**
 
-- Create: bluetape4k/coroutines/src/test/kotlin/io/bluetape4k/coroutines/flow/extensions/FlowPolicyContractTest.kt
+- 생성: bluetape4k/coroutines/src/test/kotlin/io/bluetape4k/coroutines/flow/extensions/FlowPolicyContractTest.kt
 
-- [x] **Step 1: 다음 테스트를 작성한다.**
+- [x] **단계 1: 다음 테스트를 작성한다.**
 
 ~~~
 package io.bluetape4k.coroutines.flow.extensions
@@ -215,11 +215,11 @@ class FlowPolicyContractTest: AbstractFlowTest() {
 }
 ~~~
 
-The test intentionally exercises only existing public operators and standard Flow operators. thirdEmit proves that a capacity-one buffer suspends rather than silently growing; the conflate test proves the latest-value loss policy. The two cancellation tests make CancellationException preservation explicit.
+이 테스트는 기존 public operator와 표준 Flow operator만 의도적으로 실행한다. `thirdEmit`은 용량 1인 buffer가 조용히 커지는 대신 suspend됨을 증명하고, conflate 테스트는 최신 값 손실 정책을 증명한다. 두 cancellation 테스트는 `CancellationException` 보존을 명시적으로 고정한다.
 
-- [x] **Step 2: Run the new test class.**
+- [x] **단계 2: 새 테스트 클래스를 실행한다.**
 
-Run:
+실행:
 
 ~~~
 ./gradlew :bluetape4k-coroutines:test \
@@ -227,11 +227,11 @@ Run:
   --no-configuration-cache --console=plain
 ~~~
 
-Expected: BUILD SUCCESSFUL with six passing tests. If a test fails, diagnose the existing contract or test synchronization first; do not add a new public operator to make the test pass.
+예상 결과: BUILD SUCCESSFUL과 6개 테스트 통과. 테스트가 실패하면 먼저 기존 계약 또는 테스트 동기화를 진단하며, 테스트를 통과시키기 위해 새 public operator를 추가하지 않는다.
 
-- [x] **Step 3: Run the focused regression set together.**
+- [x] **단계 3: 집중 회귀 집합을 함께 실행한다.**
 
-Run:
+실행:
 
 ~~~
 ./gradlew :bluetape4k-coroutines:test \
@@ -242,37 +242,37 @@ Run:
   --no-configuration-cache --console=plain
 ~~~
 
-Expected: all selected classes pass with zero failures and zero errors.
+예상 결과: 선택한 모든 클래스가 실패 0건, 오류 0건으로 통과한다.
 
-- [x] **Step 4: Commit the test-only contract lock.**
+- [x] **단계 4: 테스트 전용 계약 고정 커밋을 만든다.**
 
 ~~~
 git add bluetape4k/coroutines/src/test/kotlin/io/bluetape4k/coroutines/flow/extensions/FlowPolicyContractTest.kt
 git commit -m 'Lock Flow policy contracts without API expansion' -m $'Constraint: #1300 requires deterministic failure, cancellation, and bounded-memory evidence before new policy APIs.\nRejected: delay-error and Reactive Streams overflow wrappers | no caller evidence and no Flow demand protocol.\nConfidence: high\nScope-risk: narrow\nDirective: Keep these tests characterization-only until a separately approved caller-backed API contract exists.\nTested: focused Flow policy and existing concat/merge/drop tests.\nNot-tested: full module check is run in the next verification task.'
 ~~~
 
-### Task 3: README parity와 비목표 링크
+### 작업 3: README parity와 비목표 링크
 
-**Files:**
+**대상 파일:**
 
-- Modify: bluetape4k/coroutines/README.md in the existing Rx/Reactor-style parity section
-- Modify: bluetape4k/coroutines/README.ko.md in the existing Rx/Reactor 스타일 대응 section
+- 수정: bluetape4k/coroutines/README.md의 기존 Rx/Reactor-style parity section
+- 수정: bluetape4k/coroutines/README.ko.md의 기존 Rx/Reactor 스타일 대응 section
 
-- [x] **Step 1: 영어 README에 다음 내용을 추가한다.**
+- [x] **단계 1: 영어 README에 다음 내용을 추가한다.**
 
 ~~~
 Delay-error and explicit overflow families are tracked in [follow-up issue #1300](https://github.com/bluetape4k/bluetape4k-projects/issues/1300); the current contracts, caller evidence, and re-open conditions are recorded in the [Flow operator policy matrix](../../docs/flow-operator-policy-matrix.md).
 ~~~
 
-- [x] **Step 2: 한국어 README에 같은 계약을 한국어로 추가한다.**
+- [x] **단계 2: 한국어 README에 같은 계약을 한국어로 추가한다.**
 
 ~~~
 delay-error와 명시적 overflow 정책은 [후속 이슈 #1300](https://github.com/bluetape4k/bluetape4k-projects/issues/1300)에서 다루며, 현재 계약·호출자 근거·재개 조건은 [Flow 연산자 정책 매트릭스](../../docs/flow-operator-policy-matrix.md)에 기록합니다.
 ~~~
 
-- [x] **Step 3: 양국어 링크와 문서 diff를 검증한다.**
+- [x] **단계 3: 양국어 링크와 문서 diff를 검증한다.**
 
-Run:
+실행:
 
 ~~~
 git diff --check
@@ -280,27 +280,27 @@ rg -n 'flow-operator-policy-matrix|Flow policy follow-up|Flow 정책 후속' \
   bluetape4k/coroutines/README.md bluetape4k/coroutines/README.ko.md
 ~~~
 
-Expected: 두 README에 각각 한 개의 matrix link가 있고 whitespace 오류가 없다. README의 기존 예제·이미지 링크는 변경하지 않는다.
+예상 결과: 두 README에 각각 한 개의 matrix link가 있고 whitespace 오류가 없다. README의 기존 예제·이미지 링크는 변경하지 않는다.
 
-- [x] **Step 4: 문서 parity commit을 만든다.**
+- [x] **단계 4: 문서 parity 커밋을 만든다.**
 
 ~~~
 git add bluetape4k/coroutines/README.md bluetape4k/coroutines/README.ko.md
 git commit -m 'Document Flow policy follow-up boundaries' -m $'Constraint: Public README locales must explain Kotlin Flow semantics without implying Reactive Streams demand.\nRejected: API alias documentation | the approved tranche adds no production operator.\nConfidence: high\nScope-risk: narrow\nDirective: Keep both README locales aligned with the policy matrix before reopening #1300 deferred families.\nTested: git diff --check and bilingual link search.\nNot-tested: full module verification remains pending.'
 ~~~
 
-### Task 4: Lesson과 최종 no-production-change 증거
+### 작업 4: Lesson과 최종 no-production-change 근거
 
-**Files:**
+**대상 파일:**
 
-- Create: docs/lessons/2026-08-03-issue-1300-flow-policy.md
+- 생성: docs/lessons/2026-08-03-issue-1300-flow-policy.md
 
-- [x] **Step 1: 검증 결과를 한국어 lesson에 기록한다.**
+- [x] **단계 1: 검증 결과를 한국어 lesson에 기록한다.**
 
 Lesson은 다음 구조를 사용하고 실제 결과를 채운다.
 
 ~~~
-# Issue #1300 Flow 정책 후속 lesson
+# 이슈 #1300 Flow 정책 후속 작업 교훈
 
 ## 결정
 
@@ -325,9 +325,9 @@ overflow 정책을 별도 승인한 뒤에만 delay-error 또는 explicit overfl
 추가한다.
 ~~~
 
-- [x] **Step 2: production API diff가 없는지 확인한다.**
+- [x] **단계 2: production API diff가 없는지 확인한다.**
 
-Run:
+실행:
 
 ~~~
 git diff --name-only origin/develop...HEAD -- \
@@ -335,46 +335,46 @@ git diff --name-only origin/develop...HEAD -- \
   'gradle/**' '**/build.gradle.kts' 'settings.gradle.kts'
 ~~~
 
-Expected: 출력이 비어 있다. 출력이 생기면 원인을 확인한 뒤 A안 범위를 벗어난 변경으로 보고한다.
+예상 결과: 출력이 비어 있다. 출력이 생기면 원인을 확인한 뒤 A안 범위를 벗어난 변경으로 보고한다.
 
-- [x] **Step 3: lesson commit을 만든다.**
+- [x] **단계 3: lesson 커밋을 만든다.**
 
 ~~~
 git add docs/lessons/2026-08-03-issue-1300-flow-policy.md
 git commit -m 'Record evidence-backed Flow policy lesson' -m $'Constraint: Milestone 1.12.0 requires durable Korean project lessons and no speculative API parity.\nRejected: closing #1300 as implemented | deferred families still lack caller-backed contracts.\nConfidence: high\nScope-risk: narrow\nDirective: Reopen only with live caller evidence and fresh cancellation/memory tests.\nTested: focused tests, module check, diff and scope audits.\nNot-tested: GitHub PR/merge/release gates were not requested.'
 ~~~
 
-### Task 5: 최종 검증과 DoD
+### 작업 5: 최종 검증과 DoD
 
-**Files:**
+**대상 파일:**
 
-- Verify: all changed files in this branch
+- 검증: 이 브랜치에서 변경된 모든 파일
 
-- [x] **Step 1: module check를 실행한다.**
+- [x] **단계 1: module check를 실행한다.**
 
-Run:
+실행:
 
 ~~~
 ./gradlew :bluetape4k-coroutines:check \
   --no-configuration-cache --console=plain
 ~~~
 
-Expected: BUILD SUCCESSFUL, including test and applicable detekt/static checks.
+예상 결과: BUILD SUCCESSFUL이며 테스트와 해당 detekt/static check를 포함한다.
 
-- [x] **Step 2: 전체 coroutine module test를 실행한다.**
+- [x] **단계 2: 전체 coroutine module test를 실행한다.**
 
-Run:
+실행:
 
 ~~~
 ./gradlew :bluetape4k-coroutines:test \
   --no-configuration-cache --console=plain
 ~~~
 
-Expected: BUILD SUCCESSFUL and zero failed/error tests.
+예상 결과: BUILD SUCCESSFUL이며 실패/오류 테스트가 0건이다.
 
-- [x] **Step 3: final scope and whitespace audit를 실행한다.**
+- [x] **단계 3: 최종 범위 및 whitespace audit를 실행한다.**
 
-Run:
+실행:
 
 ~~~
 git diff --check
@@ -382,26 +382,26 @@ git diff --name-only origin/develop...HEAD
 git status --short --branch
 ~~~
 
-Expected: only the approved spec, matrix, plan, contract test, two README locales, and lesson are present; no untracked files, no production Kotlin source/dependency/module changes, and no whitespace errors.
+예상 결과: 승인된 spec, matrix, plan, contract test, 두 README locale 및 lesson만 존재하며, untracked 파일·production Kotlin source/dependency/module 변경·whitespace 오류가 없다.
 
-- [x] **Step 4: workflow completion evidence를 기록한다.**
+- [x] **단계 4: workflow completion 근거를 기록한다.**
 
-Record in the final DoD: plan item statuses, exact test/check results, commit heads, no-PR/no-merge scope, blocked independent gpt-5.6-luna max research lane, and any unchecked GitHub publication gates as PENDING.
+최종 DoD에 계획 항목 상태, 정확한 test/check 결과, 커밋 head, no-PR/no-merge 범위, blocked 상태인 independent gpt-5.6-luna max research lane 및 확인하지 않은 GitHub publication gate를 PENDING으로 기록한다.
 
 ## Self-review
 
-### Spec coverage
+### 명세 범위
 
-- Current API semantics and Flow standard mappings are covered by Task 2 tests.
-- Caller evidence and deferred families remain in the committed matrix and are linked from both README locales in Task 3.
-- Failure, cancellation, and bounded-memory acceptance is covered by the six deterministic tests in Task 2.
-- No production API/dependency/catalog change is enforced by Task 4 scope audit.
-- Durable Korean lesson and no PR/merge boundary are covered by Task 4.
+- 현재 API 의미와 Flow 표준 대응은 작업 2의 테스트로 검증한다.
+- 호출자 근거와 보류된 계열은 커밋된 matrix에 남기고 작업 3에서 두 README locale에 연결한다.
+- 실패, cancellation 및 bounded-memory 수용 기준은 작업 2의 결정적 테스트 6개로 검증한다.
+- 작업 4의 범위 감사를 통해 production API/dependency/catalog 변경이 없음을 보장한다.
+- 내구성 있는 한국어 lesson과 PR/merge 경계는 작업 4에서 다룬다.
 
-### Placeholder scan
+### 자리표시자 검사
 
-No TBD, TODO, or unspecified implementation step is used. Every mutation step names an exact path, command, expected result, and Lore commit trailer.
+TBD, TODO 또는 지정되지 않은 구현 단계가 없다. 모든 변경 단계는 정확한 경로, 명령, 예상 결과 및 Lore 커밋 trailer를 명시한다.
 
-### Type consistency
+### 타입 일관성
 
-The test class uses only existing functions (concat, merge, standard Flow buffer/conflate, Flow.collect) and does not refer to any API proposed by the deferred families. The README link resolves to the matrix created in the approved design commit.
+테스트 클래스는 기존 함수(concat, merge, 표준 Flow buffer/conflate, Flow.collect)만 사용하며 보류된 계열에서 제안한 API를 참조하지 않는다. README 링크는 승인된 설계 커밋에서 생성한 matrix로 연결된다.

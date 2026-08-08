@@ -1,6 +1,6 @@
 # #1269 Near Cache write-behind mutation 실패 전파
 
-## Context
+## 배경
 
 `ResilientNearJCache`와 `ResilientSuspendNearJCache`는 front cache를 먼저
 변경하고 back cache mutation을 queue 또는 channel에서 비동기로 처리합니다.
@@ -8,7 +8,7 @@
 특히 remove 실패 뒤 tombstone을 해제하고 clear 실패 뒤 `clearPending`을 해제해,
 back cache의 stale value가 삭제 또는 clear 성공처럼 다시 보일 수 있었습니다.
 
-## Decision or Finding
+## 결정 또는 발견
 
 - write-behind mutation 메서드(`put`, `putAll`, `remove`, `removeAll`, `clearAll`)는
   back cache 반영 완료를 나타내는 `CompletableFuture<Unit>`을 반환합니다. 정상 완료는
@@ -27,7 +27,7 @@ back cache의 stale value가 삭제 또는 clear 성공처럼 다시 보일 수 
   close timeout 정책을 사용합니다. drain timeout은
   `ResilientNearJCacheConfig.closeDrainTimeout`으로 조정할 수 있습니다.
 
-## Outcome
+## 결과
 
 호출자는 mutation의 terminal 상태를 future로 관찰할 수 있고, 실패한 삭제 또는
 clear가 stale back state를 성공처럼 되살리지 않습니다. 수락된 명령은 close 시
@@ -35,7 +35,7 @@ clear가 stale back state를 성공처럼 되살리지 않습니다. 수락된 �
 남습니다. 성공 명령은 기존 write-behind 순서와 front cache 즉시 반영 동작을
 유지합니다.
 
-## Verification
+## 검증
 
 - RED: blocking/suspend remove, removeAll, clear retry exhaustion에서 back value가
   다시 읽히는 6개 회귀 실패를 재현했습니다.
@@ -53,7 +53,7 @@ clear가 stale back state를 성공처럼 되살리지 않습니다. 수락된 �
   `Package / Import Stability` package-name 오류로 실패했습니다. 변경 KDoc 자체의
   unresolved link 경고(`CacheEntryListenerException`, `Cache`)도 남아 있습니다.
 
-## Future Guidance
+## 향후 지침
 
 write-behind API를 변경할 때는 front 반영 성공과 back 반영 완료를 같은 상태로
 취급하지 말고, caller가 terminal failure를 관찰할 수 있는 계약을 먼저 정의합니다.

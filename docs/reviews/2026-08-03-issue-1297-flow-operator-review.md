@@ -1,4 +1,4 @@
-# Issue #1297 Flow 연산자 동등성 최종 리뷰
+# 이슈 #1297 Flow 연산자 동등성 최종 리뷰
 
 ## 범위와 판정
 
@@ -51,7 +51,7 @@
   fallback 실패는 다시 작성하지 않는다.
 - Fallback은 upstream 정리 후 정확히 한 번만 수집한다.
 
-### Bounded `concatMapEager`
+### 제한된 `concatMapEager`
 
 - 추가한 overload는 `maxConcurrency > 0`과 `bufferCapacity >= 0`을 검증한다.
 - `Semaphore`는 활성 내부 collector 수를 제한하고 내부 항목별 `Channel`은 대기

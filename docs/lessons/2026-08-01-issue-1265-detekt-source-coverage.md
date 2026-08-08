@@ -1,4 +1,4 @@
-# 이슈 #1265 Kotlin 서브프로젝트 Detekt source coverage
+# 이슈 #1265 Kotlin 서브프로젝트 Detekt 소스 커버리지
 
 ## 배경
 

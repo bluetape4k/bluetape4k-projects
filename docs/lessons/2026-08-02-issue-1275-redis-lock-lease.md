@@ -1,4 +1,4 @@
-# 이슈 #1275 Redis key-chain rotation lock lease
+# 이슈 #1275 Redis 키 체인 회전 잠금 lease
 
 이슈 #1275는 `RedisKeyChainRepository`가 rotation lock에 30초 고정 lease를
 사용하고, lock 해제 과정의 오류를 `runCatching`으로 삼키던 문제를 다룬다. Redis
