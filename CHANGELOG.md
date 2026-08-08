@@ -1,4 +1,4 @@
-# Changelog
+# 변경 기록
 
 모든 주요 변경 사항은 이 파일에 기록됩니다. 형식은 [Keep a Changelog](https://keepachangelog.com/ko/1.0.0/)를 따르며, 이 프로젝트는 [Semantic Versioning](https://semver.org/lang/ko/)을 따릅니다.
 
@@ -6,145 +6,87 @@
 
 ## [1.12.1] — 2026-08-06
 
-### Fixed
+### 버그 수정
 
-- Unified the publication and BOM module classifiers so the BOM no longer
-  constrains benchmark or application-only modules that are absent from Maven
-  Central. Publication validation now fails when the generated BOM inventory
-  differs from the generated publication POM inventory
+- Maven Central에 없는 benchmark 또는 application 전용 모듈이 BOM에 포함되지 않도록 publication과 BOM module classifier를 통일했다. 생성한 BOM inventory와 publication POM inventory가 다르면 publication validation이 실패한다
   ([#1313](https://github.com/bluetape4k/bluetape4k-projects/issues/1313)).
-- Kept the Java platform outside library publication setup while including its
-  `Bluetape4k` publication in the NMCP aggregate, so snapshot and stable bundles
-  contain the BOM alongside all 74 publishable library modules
+- Java platform은 library publication 설정 밖에 두되 `Bluetape4k` publication을 NMCP aggregate에 포함했다. 따라서 snapshot과 stable bundle은 74개 publishable library module과 함께 BOM을 포함한다
   ([#1315](https://github.com/bluetape4k/bluetape4k-projects/issues/1315)).
 
 ## [1.12.0] — 2026-08-05
 
-### Added
+### 추가
 
-- Added an opt-in bounded-wait HTTP idempotency conformance fixture for JUnit 5,
-  with identical Ktor and Spring MockMvc reference proofs. It validates observable
-  HTTP behavior only; adopters still own atomic persistence, restart recovery,
-  authorization, rate limiting, and external-side-effect idempotency
+- JUnit 5용 opt-in bounded-wait HTTP idempotency conformance fixture를 추가했다. Ktor와 Spring MockMvc에서 동일한 reference proof를 제공한다. 이 fixture는 관찰 가능한 HTTP 동작만 검증하며, atomic persistence, restart recovery, authorization, rate limiting 및 외부 부작용의 idempotency는 도입자가 계속 책임진다
   ([#1055](https://github.com/bluetape4k/bluetape4k-projects/issues/1055)). Adoption
-  is opt-in and can be rolled back by removing the fixture call or pinning the
-  previous library version; changing the public policy requires client migration.
-- Added reusable caller-validation and invariant helpers, plus Redis-backed
-  multi-key leases, fencing tokens, locks, and synchronizers with explicit
-  ownership contracts
+  은 opt-in이며 fixture 호출을 제거하거나 이전 library version을 고정해 되돌릴 수 있다. public policy를 바꾸려면 client migration이 필요하다.
+- 재사용 가능한 caller-validation 및 invariant helper와 함께, 명시적인 ownership contract를 갖춘 Redis 기반 multi-key lease, fencing token, lock 및 synchronizer를 추가했다
   ([#1065](https://github.com/bluetape4k/bluetape4k-projects/issues/1065),
   [#1068](https://github.com/bluetape4k/bluetape4k-projects/issues/1068),
   [#1076](https://github.com/bluetape4k/bluetape4k-projects/issues/1076),
   [#1080](https://github.com/bluetape4k/bluetape4k-projects/issues/1080)).
-- Expanded `bluetape4k-coroutines` with selected, contract-tested Flow parity operators for
-  count-or-time batching, switching, idle timeout/fallback, and bounded eager
-  concatenation. Standard `kotlinx.coroutines` operators remain preferred when
-  they already provide the required semantics
+- `bluetape4k-coroutines`에 count-or-time batching, switching, idle timeout/fallback 및 bounded eager concatenation을 위한 선별된 contract-tested Flow parity operator를 확장했다. 필요한 의미론을 이미 제공하는 경우에는 표준 `kotlinx.coroutines` operator를 계속 우선한다
   ([#1297](https://github.com/bluetape4k/bluetape4k-projects/issues/1297)).
 
-### Fixed
+### 버그 수정
 
-- Cache and persistence paths now surface destructive failures, preserve
-  retryable state, and retain distributed ownership through commit boundaries
-  instead of silently reporting success
+- Cache와 persistence 경로가 이제 destructive failure를 표면화하고 retryable state를 보존하며, 성공을 조용히 보고하는 대신 commit boundary를 통과해 distributed ownership을 유지한다
   ([#1269](https://github.com/bluetape4k/bluetape4k-projects/issues/1269),
   [#1270](https://github.com/bluetape4k/bluetape4k-projects/issues/1270),
   [#1273](https://github.com/bluetape4k/bluetape4k-projects/issues/1273),
   [#1275](https://github.com/bluetape4k/bluetape4k-projects/issues/1275)).
-- Hibernate cache-key canonicalization in `bluetape4k-hibernate-cache-lettuce`
-  no longer falls back to `toString()` or `hashCode()` bytes for unsupported
-  identifier graphs. Reads now miss, writes are ignored, and keyed eviction
-  reports the failure rather than allowing cross-identifier key collisions
+- `bluetape4k-hibernate-cache-lettuce`의 Hibernate cache-key canonicalization은 지원하지 않는 identifier graph에 대해 더 이상 `toString()` 또는 `hashCode()` byte로 fallback하지 않는다. 이제 read는 miss가 되고 write는 무시되며 keyed eviction은 cross-identifier key collision을 허용하지 않고 failure를 보고한다
   ([#1274](https://github.com/bluetape4k/bluetape4k-projects/issues/1274)).
 
-  **Migration:** Cache entries written under the former text/hashCode fallback
-  keys are unreachable. Flush those Redis keys before deployment when such
-  identifiers may have been stored. Every object reachable from a Hibernate
-  cache identifier must now be fully `java.io.Serializable`.
-- Preserved coroutine terminal fanout, blocking-thread interruption, tracing
-  correlation, and closeable JWT refresh lifecycles across cancellation and
-  shutdown paths
+  **마이그레이션:** 이전 text/hashCode fallback key로 기록한 cache entry는 접근할 수 없다. 그러한 identifier가 저장되었을 수 있으면 배포 전에 해당 Redis key를 flush해야 한다. 이제 Hibernate cache identifier에서 도달 가능한 모든 object는 완전한 `java.io.Serializable`이어야 한다.
+- cancellation 및 shutdown 경로에서 coroutine terminal fanout, blocking-thread interruption, tracing correlation 및 closeable JWT refresh lifecycle을 보존했다
   ([#1267](https://github.com/bluetape4k/bluetape4k-projects/issues/1267),
   [#1276](https://github.com/bluetape4k/bluetape4k-projects/issues/1276),
   [#1277](https://github.com/bluetape4k/bluetape4k-projects/issues/1277),
   [#1278](https://github.com/bluetape4k/bluetape4k-projects/issues/1278)).
-- Hardened Zstd malformed-wire, native-result, and caller-owned `ByteBuffer`
-  boundary behavior with storage-pairing conformance coverage
+- storage-pairing conformance coverage를 통해 Zstd malformed-wire, native-result 및 caller-owned `ByteBuffer` boundary 동작을 강화했다
   ([#1263](https://github.com/bluetape4k/bluetape4k-projects/issues/1263),
   [#1264](https://github.com/bluetape4k/bluetape4k-projects/issues/1264)).
 
-### Performance
+### 성능
 
 <!-- issue-755-migration:start -->
-- Added opt-in caller-owned `ByteBuffer` compressor defaults with source-state
-  preservation and target position commit/rollback contracts. Compatibility
-  defaults may still allocate payload-sized arrays; codec-native paths are
-  delivered and measured separately under #755. Existing callers do not need
-  to migrate: unlike some existing one-argument `ByteBuffer` methods that may
-  consume the source position, the new two-argument methods preserve all source
-  state. Opt in only with reusable targets and an optimized storage pairing;
-  fallback pairings are correctness-only. As with standard Java interface
-  evolution, an implementation inheriting another erased-signature-equivalent
-  default may require an explicit override and is not claimed conflict-free.
-- Two reproducible canonical JMH GC-profiler runs accepted lower-allocation
-  adoption for all LZ4 and Deflate storage pairings, matched heap/direct Zstd
-  pairings, and Snappy direct compression. Snappy direct decompression remains
-  adoption-ineligible because validation-first decoding regressed medium/large
-  throughput by about 37-41% despite reducing allocation
+- source state 보존과 target position commit/rollback contract를 갖춘 opt-in caller-owned `ByteBuffer` compressor default를 추가했다. Compatibility default는 여전히 payload 크기의 array를 할당할 수 있으며 codec-native 경로는 #755에서 별도로 제공하고 측정한다. 기존 caller는 migration할 필요가 없다. source position을 소비할 수 있는 일부 기존 one-argument `ByteBuffer` method와 달리 새 two-argument method는 모든 source state를 보존한다. 재사용 가능한 target과 최적화된 storage pairing에서만 opt-in해야 하며 fallback pairing은 correctness 전용이다. 표준 Java interface 진화와 마찬가지로 다른 erased-signature-equivalent default를 상속하는 구현은 명시적 override가 필요할 수 있고 conflict-free라고 보장하지 않는다.
+- 재현 가능한 canonical JMH GC-profiler 두 번의 실행을 통해 모든 LZ4 및 Deflate storage pairing, 일치하는 heap/direct Zstd pairing 및 Snappy direct compression에 대해 allocation 감소 도입을 승인했다. Snappy direct decompression은 allocation을 줄였지만 validation-first decoding으로 medium/large throughput이 약 37~41% 감소했으므로 도입 대상에서 제외한다
   ([#1260](https://github.com/bluetape4k/bluetape4k-projects/issues/1260), [evidence](docs/benchmarks/2026-07-21-bytebuffer-compressor-allocation.md)).
 <!-- issue-755-migration:end -->
 <!-- issue-755-rollback:start -->
-- If a codec-native override proves defective, a patch keeps the public default
-  methods and wire contract and reverts only that override to the compatibility
-  fallback. Until that patch, use an existing allocating API or a documented
-  fallback storage pairing; no runtime feature flag is provided.
+- codec-native override에 결함이 있으면 patch는 public default method와 wire contract를 유지하고 해당 override만 compatibility fallback으로 되돌린다. 그 patch 전에는 기존 allocating API 또는 문서화된 fallback storage pairing을 사용하며 runtime feature flag는 제공하지 않는다.
 <!-- issue-755-rollback:end -->
-- Added caller-owned `ByteBuffer` APIs for Protobuf message packing and serializer encode while preserving the existing
-  `ByteArray` APIs; serializer decode retains the inherited copied `ByteBuffer` compatibility path
+- 기존 `ByteArray` API를 보존하면서 Protobuf message packing 및 serializer encode용 caller-owned `ByteBuffer` API를 추가했다. serializer decode는 상속된 copied `ByteBuffer` compatibility path를 유지한다
   ([#757](https://github.com/bluetape4k/bluetape4k-projects/issues/757)).
-- Added a lower-copy contiguous Redisson `ByteBuf` decode path that avoids the codec-owned `ByteArray` copy when a
-  single NIO buffer is available; composite and trusted-fallback inputs retain their isolated copied paths
+- 단일 NIO buffer를 사용할 수 있을 때 codec-owned `ByteArray` copy를 피하는 lower-copy contiguous Redisson `ByteBuf` decode path를 추가했다. composite 및 trusted-fallback input은 격리된 copied path를 유지한다
   ([#757](https://github.com/bluetape4k/bluetape4k-projects/issues/757)).
-- Added a bounded absolute-index Lettuce Protobuf writer for caller-owned heap/direct `ByteBuf` targets. It commits the
-  writer index only after success and preserves copied behavior for compressed, fallback, custom-prefix, and
-  single-argument `ByteBuffer` paths. Two canonical JMH runs measured about 28.8% lower allocation than the copied
-  Lettuce baseline; this is not a zero-copy or throughput guarantee
+- caller-owned heap/direct `ByteBuf` target을 위한 bounded absolute-index Lettuce Protobuf writer를 추가했다. 성공한 뒤에만 writer index를 commit하며 compressed, fallback, custom-prefix 및 single-argument `ByteBuffer` path에서는 copied behavior를 유지한다. canonical JMH 두 번의 실행에서 copied Lettuce baseline보다 allocation이 약 28.8% 낮았지만 zero-copy 또는 throughput 보장은 아니다
   ([#757](https://github.com/bluetape4k/bluetape4k-projects/issues/757), [evidence](docs/benchmarks/2026-07-18-protobuf-buffer-allocation.md)).
-- Added reproducible two-run JMH allocation evidence for serializer ByteBuffer paths. Serializer decode cells remain in
-  the matrix as claim-ineligible compatibility measurements after the shared direct decode dispatch rollback; retained
-  encode and Redisson claims still require the 5% B/op gate ([#1039](https://github.com/bluetape4k/bluetape4k-projects/issues/1039), [evidence](docs/benchmarks/2026-07-18-bytebuffer-serializer-allocation.md)).
-- Separated web-framework startup and steady-state memory measurements and made
-  benchmark teardown failure-safe so lifecycle noise cannot be reported as a
-  framework result
+- serializer `ByteBuffer` path를 위한 재현 가능한 JMH 2회 allocation evidence를 추가했다. shared direct decode dispatch rollback 뒤 serializer decode cell은 claim-ineligible compatibility measurement로 matrix에 남는다. 유지된 encode 및 Redisson claim에는 여전히 5% B/op gate가 필요하다
+  ([#1039](https://github.com/bluetape4k/bluetape4k-projects/issues/1039), [evidence](docs/benchmarks/2026-07-18-bytebuffer-serializer-allocation.md)).
+- web-framework startup과 steady-state memory 측정을 분리하고 benchmark teardown을 failure-safe로 만들어 lifecycle noise가 framework result로 보고되지 않게 했다
   ([#1279](https://github.com/bluetape4k/bluetape4k-projects/issues/1279)).
 
-### Changed
+### 변경
 
-- Trusted Redisson fallback decoders must consume their temporary input synchronously and return independent values.
-  Input retention, cross-thread transfer, and derived `ByteBuf` views are unsupported; callers that must preserve the
-  decoded bytes should return an independently owned `ByteBuf.copy()`.
-- Detekt now runs against Kotlin subprojects and fails when a configured source
-  set unexpectedly resolves to `NO-SOURCE`
+- trusted Redisson fallback decoder는 temporary input을 동기적으로 소비하고 독립된 value를 반환해야 한다. Input retention, cross-thread transfer 및 derived `ByteBuf` view는 지원하지 않는다. decoded byte를 보존해야 하는 caller는 독립적으로 소유한 `ByteBuf.copy()`를 반환해야 한다.
+- 이제 Detekt가 Kotlin subproject를 대상으로 실행되며 구성한 source set이 예기치 않게 `NO-SOURCE`로 확인되면 실패한다
   ([#1265](https://github.com/bluetape4k/bluetape4k-projects/issues/1265)).
 
-### Documentation
+### 문서화
 
-- Koreanized repository-owned project documentation and Kotlin KDoc while
-  preserving public identifiers, commands, links, and bilingual manual parity
+- public identifier, command, link 및 bilingual manual parity를 보존하면서 repository-owned project documentation과 Kotlin KDoc을 한국어화했다
   ([#1092](https://github.com/bluetape4k/bluetape4k-projects/issues/1092)).
-- Recorded the supported Flow failure, cancellation, and bounded-buffer policy:
-  delay-error and Reactive Streams-style overflow APIs remain deferred until a
-  concrete caller demonstrates a contract that standard Flow operators cannot
-  satisfy
+- 지원하는 Flow failure, cancellation 및 bounded-buffer policy를 기록했다. 구체적인 caller가 표준 Flow operator로 충족할 수 없는 contract를 제시할 때까지 delay-error와 Reactive Streams 방식 overflow API는 보류한다
   ([#1300](https://github.com/bluetape4k/bluetape4k-projects/issues/1300)).
 
 ## [1.11.0] — 2026-06-27
 
-### Security
+### 보안
 
-- Hardened serialization, encryption, codec, SQL interpolation, and plaintext
-  transport boundaries across Jackson, Hibernate, Cassandra, Redis/Redisson,
-  Protobuf, R2DBC, Kafka Logback, HTTP logging, and gRPC helpers
+- Jackson, Hibernate, Cassandra, Redis/Redisson, Protobuf, R2DBC, Kafka Logback, HTTP logging 및 gRPC helper 전반에서 serialization, encryption, codec, SQL interpolation 및 plaintext transport boundary를 강화했다
   ([#790](https://github.com/bluetape4k/bluetape4k-projects/issues/790),
   [#791](https://github.com/bluetape4k/bluetape4k-projects/issues/791),
   [#792](https://github.com/bluetape4k/bluetape4k-projects/issues/792),
@@ -159,14 +101,12 @@
   [#816](https://github.com/bluetape4k/bluetape4k-projects/issues/816),
   [#822](https://github.com/bluetape4k/bluetape4k-projects/issues/822),
   [#848](https://github.com/bluetape4k/bluetape4k-projects/issues/848)).
-- Authenticated the gitleaks release lookup path used by secret-scanning CI
+- secret-scanning CI가 사용하는 gitleaks release lookup 경로를 인증했다
   ([#860](https://github.com/bluetape4k/bluetape4k-projects/issues/860)).
 
-### Fixed
+### 버그 수정
 
-- Restored cancellation, failure propagation, typed-null binding, JDBC/R2DBC,
-  Cassandra, Hibernate, rule-engine, date/time, measured-unit, histogram,
-  JWT, Flake, and Spring bean lookup contracts with targeted regression tests
+- 대상 regression test와 함께 cancellation, failure propagation, typed-null binding, JDBC/R2DBC, Cassandra, Hibernate, rule-engine, date/time, measured-unit, histogram, JWT, Flake 및 Spring bean lookup contract를 복원했다
   ([#817](https://github.com/bluetape4k/bluetape4k-projects/issues/817),
   [#818](https://github.com/bluetape4k/bluetape4k-projects/issues/818),
   [#819](https://github.com/bluetape4k/bluetape4k-projects/issues/819),
@@ -186,16 +126,13 @@
   [#855](https://github.com/bluetape4k/bluetape4k-projects/issues/855),
   [#856](https://github.com/bluetape4k/bluetape4k-projects/issues/856),
   [#908](https://github.com/bluetape4k/bluetape4k-projects/issues/908)).
-- Preserved coroutine Flow terminal contracts and Feign coroutine `Unit`
-  response handling
+- coroutine Flow terminal contract와 Feign coroutine `Unit` response handling을 보존했다
   ([#770](https://github.com/bluetape4k/bluetape4k-projects/issues/770),
   [#773](https://github.com/bluetape4k/bluetape4k-projects/issues/773)).
 
-### Changed
+### 변경
 
-- Aligned Hibernate Reactive, Hibernate converter, Cassandra mapper, Redis
-  serializer, Ktor OpenAPI, and Testcontainers dependencies with their runtime
-  API exposure and deprecation boundaries
+- Hibernate Reactive, Hibernate converter, Cassandra mapper, Redis serializer, Ktor OpenAPI 및 Testcontainers dependency를 runtime API 노출 및 deprecation boundary에 맞췄다
   ([#811](https://github.com/bluetape4k/bluetape4k-projects/issues/811),
   [#814](https://github.com/bluetape4k/bluetape4k-projects/issues/814),
   [#830](https://github.com/bluetape4k/bluetape4k-projects/issues/830),
@@ -203,17 +140,13 @@
   [#880](https://github.com/bluetape4k/bluetape4k-projects/issues/880),
   [#893](https://github.com/bluetape4k/bluetape4k-projects/issues/893),
   [#912](https://github.com/bluetape4k/bluetape4k-projects/issues/912)).
-- Expanded data-module CI coverage and kept the `1.11.0` release-train
-  tracking issue closed with all milestone work completed
+- data-module CI coverage를 확장하고 milestone 작업을 모두 완료하여 `1.11.0` release-train tracking issue를 닫힌 상태로 유지했다
   ([#900](https://github.com/bluetape4k/bluetape4k-projects/issues/900),
   [#723](https://github.com/bluetape4k/bluetape4k-projects/issues/723)).
 
-### Documentation
+### 문서화
 
-- Corrected consumer-facing README and API documentation for Redis serializers,
-  Hibernate Lettuce, Cassandra demos, Spring WebClient, mock servers,
-  Ktor OpenAPI, R2DBC binding, Jackson Tink keyset durability, and geo usage
-  examples
+- Redis serializer, Hibernate Lettuce, Cassandra demo, Spring WebClient, mock server, Ktor OpenAPI, R2DBC binding, Jackson Tink keyset durability 및 geo 사용 예제의 consumer-facing README와 API documentation을 바로잡았다
   ([#826](https://github.com/bluetape4k/bluetape4k-projects/issues/826),
   [#829](https://github.com/bluetape4k/bluetape4k-projects/issues/829),
   [#833](https://github.com/bluetape4k/bluetape4k-projects/issues/833),
@@ -226,7 +159,7 @@
 
 ## [1.10.0] — 2026-06-01
 
-### Added
+### 추가
 
 - Added the `bluetape4k-ktor-core`, `bluetape4k-ktor-observability`, and
   `bluetape4k-ktor-testing` module family, including route helpers,
@@ -242,7 +175,7 @@
   ([#678](https://github.com/bluetape4k/bluetape4k-projects/pull/678),
   [#679](https://github.com/bluetape4k/bluetape4k-projects/pull/679)).
 
-### Changed
+### 변경
 
 - Kept Ktor client helper APIs in `io-http` after the module-boundary review
   and benchmark-backed planning pass
@@ -267,7 +200,7 @@
   [#684](https://github.com/bluetape4k/bluetape4k-projects/pull/684),
   [#687](https://github.com/bluetape4k/bluetape4k-projects/pull/687)).
 
-### Fixed
+### 버그 수정
 
 - Preserved coroutine cancellation and interruption contracts for gRPC shutdown,
   Vert.x routes, and Lettuce suspended loaded-map close paths
@@ -280,7 +213,7 @@
 
 ## [1.9.2] — 2026-05-26
 
-### Added
+### 추가
 
 - `bluetape4k-testcontainers` now provides a reusable DynamoDB Local launcher
   for AWS-compatible local integration tests.
@@ -294,7 +227,7 @@
   [#585](https://github.com/bluetape4k/bluetape4k-projects/issues/585),
   [#589](https://github.com/bluetape4k/bluetape4k-projects/issues/589)).
 
-### Changed
+### 변경
 
 - The `io-http` README guidance now recommends Apache HC5 as the primary HTTP
   client surface after the 1.9.2 design evaluation
@@ -302,7 +235,7 @@
 - The default bluetape4k dependency catalog source was pinned to the current
   release-train catalog ref for repeatable snapshot and release validation.
 
-### Fixed
+### 버그 수정
 
 - Redisson container smoke tests avoid the Fory codec path that is unnecessary
   for the test support launcher.
@@ -312,13 +245,13 @@
 
 ## [1.9.1] — 2026-05-23
 
-### Added
+### 추가
 
 - `bluetape4k-core` now publishes `io.bluetape4k.support.truncateUtf8(maxBytes)`,
   a UTF-8 byte-boundary-safe string truncation helper used to unblock downstream
   `bluetape4k-leader` migration work ([#607](https://github.com/bluetape4k/bluetape4k-projects/issues/607)).
 
-### Fixed
+### 버그 수정
 
 - Apache Fory was kept on the 0.17.0-compatible `buildThreadSafeForyPool(int)`
   API so Fory-backed serializers and Redisson codecs do not hit the removed
@@ -326,7 +259,7 @@
 
 ## [1.9.0] — 2026-05-22
 
-### Added
+### 추가
 
 - Added a reusable `EtcdServer` Testcontainers launcher and coverage for etcd
   readiness behavior ([#596](https://github.com/bluetape4k/bluetape4k-projects/issues/596)).
@@ -334,7 +267,7 @@
   conformance tests across cache backends
   ([#493](https://github.com/bluetape4k/bluetape4k-projects/issues/493)).
 
-### Breaking Changes
+### 호환성 변경
 
 - Removed deprecated OpenTelemetry aliases `SpanBuilder.useSuspendSpan`, `spanExportOf`, and
   `batchSpanProcess`; use `useSpanSuspending`, `spanExporterOf`, and `batchSpanProcessorOf`
@@ -347,7 +280,7 @@
   `SuspendDecorators.decoreate`). Use the canonical replacements documented in
   each module instead ([#474](https://github.com/bluetape4k/bluetape4k-projects/issues/474)).
 
-### Fixed
+### 버그 수정
 
 - Stabilized Nightly slices for IO HTTP, Elasticsearch-backed search messaging,
   and Memgraph-backed graph tests by tightening shared external test service
@@ -360,11 +293,11 @@
 
 ## [Unreleased]
 
-### Changed
+### 변경
 
 - Opened the `1.11.0` development line after the `1.10.0` stable release.
 
-### Added
+### 추가
 
 - `bluetape4k-assertions` module was added as the project-local assertion library foundation ([#326](https://github.com/bluetape4k/bluetape4k-projects/pull/326)).
 - Collection assertion helper `shouldNotContainAny` was added ([#342](https://github.com/bluetape4k/bluetape4k-projects/pull/342)).
@@ -377,7 +310,7 @@
 - Governance and agent guidance docs were expanded for lessons capture, Kover coverage policy, dependency governance, and GNO knowledge retrieval ([#370](https://github.com/bluetape4k/bluetape4k-projects/pull/370), [#373](https://github.com/bluetape4k/bluetape4k-projects/pull/373), [#377](https://github.com/bluetape4k/bluetape4k-projects/pull/377), [#398](https://github.com/bluetape4k/bluetape4k-projects/pull/398)).
 - `bluetape4k-bucket4j` `RateLimitDiagnostics`, `RateLimitRejectionReason`, and rejected-result `retryAfter` were added to make retry and rejection reporting independent from Bucket4j probe types ([#434](https://github.com/bluetape4k/bluetape4k-projects/issues/434)).
 
-### Changed
+### 변경
 
 - Cache modules were reorganized under `cache/` while preserving existing Gradle project names, Maven artifact IDs, and Kotlin packages; users do not need to change `io.bluetape4k.cache.*` imports for the folder move ([#350](https://github.com/bluetape4k/bluetape4k-projects/pull/350), [#354](https://github.com/bluetape4k/bluetape4k-projects/issues/354)).
 - Spring Boot 4 became the standard Spring Boot line, with migration follow-up fixes and versionless `spring-boot/*` modules ([#348](https://github.com/bluetape4k/bluetape4k-projects/pull/348), [#351](https://github.com/bluetape4k/bluetape4k-projects/pull/351)).
@@ -393,7 +326,7 @@
 - WIP and README image documentation were refreshed after the idgenerator example lane completed ([#417](https://github.com/bluetape4k/bluetape4k-projects/pull/417), [#425](https://github.com/bluetape4k/bluetape4k-projects/pull/425), [#429](https://github.com/bluetape4k/bluetape4k-projects/pull/429)).
 - `bluetape4k-bucket4j` now validates prefixed bucket keys at 512 bytes, documents provider lifecycle/expiration ownership, supports distributed coroutine operation timeouts while retaining the Java one-argument constructor overload, and preserves identified-bandwidth configuration replacement behavior ([#434](https://github.com/bluetape4k/bluetape4k-projects/issues/434)).
 
-### Breaking Changes
+### 호환성 변경
 
 - `RateLimitResult(consumedTokens, availableTokens)` was removed. Use `RateLimitResult.consumed(...)` or `RateLimitResult.rejected(...)` and read the new `diagnostics` / `retryAfter` fields for retry guidance ([#434](https://github.com/bluetape4k/bluetape4k-projects/issues/434)).
 - `RateLimitResult` primary constructor, `copy(...)`, and `componentN()` shape changed because `diagnostics` was added. Recompile Kotlin callers and update Java callers that construct or destructure the value type directly ([#434](https://github.com/bluetape4k/bluetape4k-projects/issues/434)).
@@ -410,7 +343,7 @@
 | Failed `decompress()` returns `emptyByteArray` | Use `decompressOrNull()` when corrupt input should return `null`, or catch the propagated exception from `decompress()`. |
 | Corrupt compressed data is ignored | Use `decompressOrNull()` for nullable recovery, or catch the propagated exception from `decompress()`. |
 
-### Fixed
+### 버그 수정
 
 - `AbstractCompressor.compress/decompress` no longer swallows exceptions; this behavior change is documented as a breaking change in this release ([#317](https://github.com/bluetape4k/bluetape4k-projects/pull/317)).
 - `runSuspendIO` timeout was increased and `BluetapeHttpServer` eager initialization was fixed ([#337](https://github.com/bluetape4k/bluetape4k-projects/pull/337)).
@@ -428,7 +361,7 @@
 
 ## [1.8.0] — 2026-05-17
 
-### Added
+### 추가
 
 #### images/** — libvips 고성능 이미지 처리 신규 모듈 그룹 ([#236](https://github.com/bluetape4k/bluetape4k-projects/pull/236), [#136](https://github.com/bluetape4k/bluetape4k-projects/issues/136))
 
@@ -735,7 +668,7 @@ Hibernate ORM 6.6.x → 7.2.7.Final, Hibernate Reactive 2.4.x → 3.2.0.Final로
 
 ---
 
-### Fixed
+### 버그 수정
 
 #### infra/kafka + infra/kafka4 — JacksonKafkaCodec class-reference 설정 시 allowedTypePackages 미적용 수정 ([#515](https://github.com/bluetape4k/bluetape4k-projects/pull/515))
 
@@ -846,7 +779,7 @@ Hibernate ORM 6.6.x → 7.2.7.Final, Hibernate Reactive 2.4.x → 3.2.0.Final로
 
 ---
 
-### Changed
+### 변경
 
 #### images/ 그룹 디렉토리 신설 — utils/images* 이동 ([#237](https://github.com/bluetape4k/bluetape4k-projects/pull/237))
 
@@ -933,7 +866,7 @@ Hibernate ORM 7.x + Spring Boot 4 조합 호환성 이슈를 수정했습니다.
 
 ---
 
-### Documentation
+### 문서화
 
 #### utils/science — README 전면 재작성 (GIS/Shapefile/JTS/PostGIS/NetCDF 통합 가이드) ([#128](https://github.com/bluetape4k/bluetape4k-projects/issues/128))
 
@@ -995,7 +928,7 @@ Hibernate ORM 7.x + Spring Boot 4 조합 호환성 이슈를 수정했습니다.
 
 ## [1.7.0] — 2026-04-24
 
-### Added
+### 추가
 
 #### io/csv — univocity-parsers 제거, 자체 RFC 4180 엔진으로 교체 ([`c8ad4f97e`](https://github.com/bluetape4k/bluetape4k-projects/commit/c8ad4f97e))
 
@@ -1079,7 +1012,7 @@ Spring Boot 4 + WebFlux + Kotlin Coroutines 기반의 비동기 Mock HTTP 서버
 - `/delay/{seconds}` 경로가 `0.5`와 같은 소수점 값을 수신하여 밀리초 단위 delay 가능
 - `Double` 파싱으로 교체하여 `1000`, `0.5`, `1.5` 모두 지원
 
-### Fixed
+### 버그 수정
 
 #### testing/testcontainers — graphdb 서버 Docker 이미지 TAG 고정 버전으로 수정 ([`f4a3c700e`](https://github.com/bluetape4k/bluetape4k-projects/commit/f4a3c700e))
 
@@ -1100,7 +1033,7 @@ Spring Boot 4 + WebFlux + Kotlin Coroutines 기반의 비동기 Mock HTTP 서버
 
 - `registerTrackingKey` / `registerTrackingKeys`: fire-and-forget → `await` 방식으로 변경
 
-### Changed
+### 변경
 
 #### 빌드 — Gradle 빌드 출력을 표준 모듈별 `build/` 디렉토리로 변경 ([`fe920ba2`](https://github.com/bluetape4k/bluetape4k-projects/commit/fe920ba2))
 
@@ -1122,7 +1055,7 @@ Spring Boot 4 + WebFlux + Kotlin Coroutines 기반의 비동기 Mock HTTP 서버
 
 - `kotlin-stdlib` 2.3.20 → 2.3.21
 
-### Performance
+### 성능
 
 #### bluetape4k/coroutines — Flow 처리량 +32.7% ([`549fa341`](https://github.com/bluetape4k/bluetape4k-projects/commit/549fa341))
 
@@ -1144,7 +1077,7 @@ Spring Boot 4 + WebFlux + Kotlin Coroutines 기반의 비동기 Mock HTTP 서버
 
 - R2DBC 연결 풀 `initialSize` / `maxSize` / `maxIdleTime` 설정 최적화 가이드 고정 (#98)
 
-### Removed
+### 제거
 
 #### data/exposed-jasypt — 모듈 전체 삭제 ([`120c1f5a2`](https://github.com/bluetape4k/bluetape4k-projects/commit/120c1f5a2))
 
@@ -1188,7 +1121,7 @@ jasypt(`org.jasypt.*`) 기반 `Encryptor`, `Digester` 등 암호화 유틸리티
 
 ## [1.6.2] - 2026-04-16
 
-### Removed
+### 제거
 
 #### spring-boot3/4 core — Retrofit2 통합 전면 제거
 
@@ -1206,7 +1139,7 @@ Jackson 버전 불일치(`spring-boot4`의 `DefaultRetrofitClientConfiguration`�
 
 ## [1.6.1] - 2026-04-16
 
-### Added
+### 추가
 
 #### testing/mock-web-server — `bluetape4k-mock-web-server` 신규 모듈 ([
 `a340e49b4`](https://github.com/bluetape4k/bluetape4k-projects/commit/a340e49b4))
@@ -1227,7 +1160,7 @@ Spring Boot 4 + Java 25 + Virtual Threads 기반의 자체 내장 Mock HTTP 서�
 - `httpbinUrl`, `jsonplaceholderUrl`, `pingUrl` 프로퍼티 제공
 - 기존 `HttpbinServer`, `HttpbinHttp2Server` 및 관련 테스트 제거
 
-### Changed
+### 변경
 
 #### testing/mock-web-server — 전체 모듈 `BluetapeHttpServer` 마이그레이션 ([
 `22986785c`](https://github.com/bluetape4k/bluetape4k-projects/commit/22986785c))
@@ -1257,7 +1190,7 @@ SB4 모듈이 SB3 BOM에 오염되던 문제를 해소합니다.
 
 ## [1.6.0] - 2026-04-14
 
-### Added
+### 추가
 
 #### spring-boot3/batch-exposed — Spring Batch 5.x + Exposed JDBC Partitioned Step 모듈 추가 ([`853c140bc`](https://github.com/bluetape4k/bluetape4k-projects/commit/853c140bc))
 
@@ -1328,7 +1261,7 @@ SB4 모듈이 SB3 BOM에 오염되던 문제를 해소합니다.
 - `r2dbcConnectionPool(url) { }` — URL + 풀 설정 간결 방식
 - `R2dbcPoolConfig.toConnectionPoolConfiguration(factory)` 변환 유틸
 
-### Changed
+### 변경
 
 #### io/feign — 기본 구현 클래스와 상수 이름 정리 ([`11ec8881a`](https://github.com/bluetape4k/bluetape4k-projects/commit/11ec8881a))
 
@@ -1370,7 +1303,7 @@ SB4 모듈이 SB3 BOM에 오염되던 문제를 해소합니다.
 - `Deferred.zip(other)`: 두 `Deferred` 결과를 `Pair`로 결합
 - `Deferred.zipWith(other, transform)`: 두 결과를 변환 함수로 합성
 
-### Fixed
+### 버그 수정
 
 #### utils/workflow — suspend 워크플로 취소 전파 보강 ([`514b8c4d8`](https://github.com/bluetape4k/bluetape4k-projects/commit/514b8c4d8))
 
@@ -1406,7 +1339,7 @@ SB4 모듈이 SB3 BOM에 오염되던 문제를 해소합니다.
 
 ## [1.5.0] - 2026-04-05
 
-### Added
+### 추가
 
 #### utils/workflow — Kotlin DSL 워크플로 모듈 추가 ([`685e25a4d`](https://github.com/bluetape4k/bluetape4k-projects/commit/685e25a4d))
 
@@ -1484,13 +1417,13 @@ j-easy/easy-flows에서 영감을 받아 Kotlin 2.3 + 코루틴 + Virtual Thread
 - autocommit 전용 (Trino는 트랜잭션 미지원)
 - `testcontainers`의 `TrinoServer`와 연동 테스트 포함
 
-### Changed
+### 변경
 
 #### data/exposed-trino, exposed-bigquery, exposed-duckdb — Codex 개선 적용 ([`4ce6750b`](https://github.com/bluetape4k/bluetape4k-projects/commit/4ce6750b), [`c50998bf`](https://github.com/bluetape4k/bluetape4k-projects/commit/c50998bf))
 
 - API 일관성·KDoc·테스트 코드 정리
 
-### Fixed
+### 버그 수정
 
 - `virtualthread/api` — `StructuredTaskScopeAll.joinUntil(Instant)` 메서드 추가, `Jdk21AllScope` 구현: `ParallelWorkFlow` 타임아웃이 실제로 동작하지 않던 문제 수정 ([`685e25a4d`](https://github.com/bluetape4k/bluetape4k-projects/commit/685e25a4d))
 - `virtualthread/jdk25` — `Jdk25AllScope.joinUntil(Instant)` 구현: JDK 25 `StructuredTaskScope`에 `joinUntil` 없음 → 스케줄러로 스레드 인터럽트 후 `TimeoutException` 변환
@@ -1502,7 +1435,7 @@ j-easy/easy-flows에서 영감을 받아 Kotlin 2.3 + 코루틴 + Virtual Thread
 
 ## [1.5.0-RC1] - 2026-04-01
 
-### Added
+### 추가
 
 #### utils/science — GIS 공간 데이터 처리 모듈 신규 추가 ([`a32d243b`](https://github.com/bluetape4k/bluetape4k-projects/commit/a32d243b))
 
@@ -1547,7 +1480,7 @@ debop4k-science를 Kotlin 2.3 + 최신 라이브러리로 완전 재작성한 `b
 - `Table.geoGeometry(name)` 확장함수
 - `ST_Distance(geography)`, `ST_DWithin(geography)`, `ST_Intersects`, `ST_Contains`, `ST_Within` Expression 클래스 추가
 
-### Changed
+### 변경
 
 #### aws-kotlin — 클라이언트 생성/해제 패턴 통일 ([`af247f65`](https://github.com/bluetape4k/bluetape4k-projects/commit/af247f65))
 
@@ -1561,7 +1494,7 @@ debop4k-science를 Kotlin 2.3 + 최신 라이브러리로 완전 재작성한 `b
 > AWS Kotlin SDK 클라이언트는 내부 HTTP 커넥션 풀·스레드를 보유합니다.
 > 사용 후 반드시 `close()`를 호출하거나, **`withXxxClient { }` 블록을 사용하면 자동으로 리소스가 해제**됩니다.
 
-### Fixed
+### 버그 수정
 
 - mutiny 테스트 병렬 실행 비활성화 ([`e0082a82`](https://github.com/bluetape4k/bluetape4k-projects/commit/e0082a82))
 - JUnit Jupiter 병렬 실행 비활성화 ([`70cd469e`](https://github.com/bluetape4k/bluetape4k-projects/commit/70cd469e))
@@ -1570,7 +1503,7 @@ debop4k-science를 Kotlin 2.3 + 최신 라이브러리로 완전 재작성한 `b
 
 ## [1.5.0-Beta3] - 2026-03-31
 
-### Added
+### 추가
 
 #### spring-boot3/4 — Exposed Spring Data JDBC/R2DBC Repository 이관
 
@@ -1694,7 +1627,7 @@ debop4k-science를 Kotlin 2.3 + 최신 라이브러리로 완전 재작성한 `b
 - 테스트 코드 전반의 `TimebasedUuid` → `Uuid` 클래스 교체 완료 ([`db55831f`](https://github.com/bluetape4k/bluetape4k-projects/commit/db55831f))
   - `Uuid.V7` (EpochTimebased), `Uuid.V1` (DefaultTimebased), `Uuid.V6` (Reordered), `Uuid.V4` (Random), `Uuid.V5` (Namebased)
 
-### Fixed
+### 버그 수정
 
 #### core/coroutines
 
@@ -1750,7 +1683,7 @@ debop4k-science를 Kotlin 2.3 + 최신 라이브러리로 완전 재작성한 `b
 
 - **UUID 시퀀스 API**: Base62 시퀀스 `size` 검증 일관성 정렬 ([`17f509b8`](https://github.com/bluetape4k/bluetape4k-projects/commit/17f509b8))
 
-### Changed
+### 변경
 
 #### 의존성 버전 업데이트
 
@@ -1769,7 +1702,7 @@ debop4k-science를 Kotlin 2.3 + 최신 라이브러리로 완전 재작성한 `b
 
 ## [1.5.0-Beta2] - 2026-03-21
 
-### Added
+### 추가
 
 #### utils/idgenerators — ULID 통합
 
@@ -1785,7 +1718,7 @@ debop4k-science를 Kotlin 2.3 + 최신 라이브러리로 완전 재작성한 `b
 - **`SnowflakeGenerator`**: `Snowflake` 구현체를 주입받는 `IdGenerator<Long>` 어댑터 추가 ([`694a8340`](https://github.com/bluetape4k/bluetape4k-projects/commit/694a8340))
 - **`Snowflakers.default(machineId)`** / **`Snowflakers.global()`** 팩토리 함수 추가 ([`694a8340`](https://github.com/bluetape4k/bluetape4k-projects/commit/694a8340))
 
-### Changed
+### 변경
 
 #### utils/idgenerators — ID 생성기 API 통일 (Uuid 패턴)
 
@@ -1812,7 +1745,7 @@ UUID, KSUID를 `object Uuid { interface Generator; object V1..V7 }` 패턴으로
 
 ---
 
-### Added (Beta1)
+### 추가 (Beta1)
 
 #### spring-boot4 — Spring Boot 4.x 전용 모듈 신규 추가
 
@@ -1825,7 +1758,7 @@ UUID, KSUID를 `object Uuid { interface Generator; object V1..V7 }` 패턴으로
 
 > Spring Boot 4 BOM은 `implementation(platform(...))` 방식으로 적용 (`dependencyManagement { imports }` 방식은 KGP 2.3.x와 충돌)
 
-### Changed
+### 변경
 
 #### spring-boot3, spring-boot4 — Deprecated 함수 제거
 
@@ -1835,7 +1768,7 @@ UUID, KSUID를 `object Uuid { interface Generator; object V1..V7 }` 패턴으로
   - 제거: `suspendQuery`, `coQuery`, `suspendExecute`, `suspendSelectOne`, `suspendInsert`, `suspendUpdate`, `suspendDelete` 등
   - 사용처 모두 `XyzSuspending` 형식으로 교체 완료
 
-### Fixed
+### 버그 수정
 
 - `gradle.properties`에서 deprecated `kotlin.incremental.useClasspathSnapshot=false` 속성 제거 (KGP 2.3.x에서 불필요)
 
@@ -1868,7 +1801,7 @@ UUID, KSUID를 `object Uuid { interface Generator; object V1..V7 }` 패턴으로
 - 통합 모듈별 README.md 신규 작성: `spring/boot3`, `vertx`, `aws`, `aws-kotlin`, `utils/geo`
 - `io/jackson2`, `io/jackson3` — 바이너리(CBOR, Ion, Smile, Avro, Protobuf) 및 텍스트(YAML, CSV, TOML, Properties) 포맷 지원 섹션 추가
 
-### Changed
+### 변경
 
 #### 모듈 리네이밍
 
@@ -1910,7 +1843,7 @@ UUID, KSUID를 `object Uuid { interface Generator; object V1..V7 }` 패턴으로
 - `JCache NearCache`를 `nearcache.jcache` 서브패키지로 이동 ([
   `f405197b`](https://github.com/bluetape4k/bluetape4k-projects/commit/f405197b))
 
-### Deprecated
+### 사용 중단
 
 #### io/crypto
 
@@ -1933,7 +1866,7 @@ UUID, KSUID를 `object Uuid { interface Generator; object V1..V7 }` 패턴으로
 - **`mutiny-examples`**: 예제성 모듈 → `utils-deprecated/` 이동, 빌드 제외 ([
   `2cdfacf4`](https://github.com/bluetape4k/bluetape4k-projects/commit/2cdfacf4))
 
-### Removed
+### 제거
 
 - 구 서브모듈 소스 파일 정리 (`jackson-binary/text`, `jackson3-binary/text`, `geocode`, `geohash`, `geoip2`, `vertx/core`, `vertx/sqlclient`, `vertx/resilience4j`, aws 개별 서브모듈) ([`c7fb930c`](https://github.com/bluetape4k/bluetape4k-projects/commit/c7fb930c))
 - **`TiDBServer`**: 테스트 인프라에서 TiDB Testcontainers 지원 제거 ([
@@ -1950,7 +1883,7 @@ UUID, KSUID를 `object Uuid { interface Generator; object V1..V7 }` 패턴으로
 - **`javers`**: 사용 빈도 낮아 `x-obsoleted/javers`로 이동
 - **`tokenizer`**: 사용 빈도 낮아 `x-obsoleted/tokenizer`로 이동
 
-### Fixed
+### 버그 수정
 
 #### utils/javatimes
 
@@ -1979,7 +1912,7 @@ UUID, KSUID를 `object Uuid { interface Generator; object V1..V7 }` 패턴으로
 
 > **Full diff**: [`1.3.0...1.4.0`](https://github.com/bluetape4k/bluetape4k-projects/compare/1.3.0...1.4.0)
 
-### Added
+### 추가
 
 #### infra/lettuce
 
@@ -2017,7 +1950,7 @@ UUID, KSUID를 `object Uuid { interface Generator; object V1..V7 }` 패턴으로
 
 - `io/io` 모듈의 okio 패키지 → `io/okio` 독립 모듈로 분리 ([`5b92c2d`](https://github.com/bluetape4k/bluetape4k-projects/commit/5b92c2dd))
 
-### Changed
+### 변경
 
 #### infra/lettuce
 
@@ -2056,7 +1989,7 @@ UUID, KSUID를 `object Uuid { interface Generator; object V1..V7 }` 패턴으로
 
 - **`ServerPoolExample`**: `@TestInstance(PER_CLASS)` + `@BeforeAll`/`@AfterAll` 방식으로 NATS 서버 관리 개선, 순차 기동으로 Docker 레이스 컨디션 방지 ([`db4d25b`](https://github.com/bluetape4k/bluetape4k-projects/commit/db4d25b8))
 
-### Removed
+### 제거
 
 #### infra/cache-ignite2
 
@@ -2067,7 +2000,7 @@ UUID, KSUID를 `object Uuid { interface Generator; object V1..V7 }` 패턴으로
 
 - vertx 관련 예제 제거 (미사용) ([`fa64ee3`](https://github.com/bluetape4k/bluetape4k-projects/commit/fa64ee3c))
 
-### Fixed
+### 버그 수정
 
 #### infra/lettuce
 
@@ -2137,7 +2070,7 @@ UUID, KSUID를 `object Uuid { interface Generator; object V1..V7 }` 패턴으로
 
 ## [1.3.0] - 2026-03-06
 
-### Added
+### 추가
 
 #### io/tink (신규 모듈)
 
@@ -2166,7 +2099,7 @@ UUID, KSUID를 `object Uuid { interface Generator; object V1..V7 }` 패턴으로
 
 - **`ForyBinarySerializer` / `KryoBinarySerializer`**: 보안 모드 (`secureFory` / `secure`) 추가
 
-### Changed
+### 변경
 
 #### cache-core / cache-* (모듈 통합)
 
@@ -2187,7 +2120,7 @@ UUID, KSUID를 `object Uuid { interface Generator; object V1..V7 }` 패턴으로
 - Gradle 9.3.1 → 9.4.0 업그레이드
 - 전역 싱글톤 `unsafeLazy` → `lazy(SYNCHRONIZED)` 일괄 변경
 
-### Fixed
+### 버그 수정
 
 - 암호화 모듈에서 민감 정보 로깅 제거 (보안)
 - io/avro: codec 기본값·Snappy 매핑 정합화, reflect 안정성 개선
@@ -2199,7 +2132,7 @@ UUID, KSUID를 `object Uuid { interface Generator; object V1..V7 }` 패턴으로
 
 ## [1.2.3] - 2026-03-03
 
-### Added
+### 추가
 
 #### data/mongodb (신규 모듈)
 
@@ -2234,7 +2167,7 @@ UUID, KSUID를 `object Uuid { interface Generator; object V1..V7 }` 패턴으로
 
 - **Ignite3 NearCache JCache SPI** 구현 (CachingProvider, CacheManager)
 
-### Changed
+### 변경
 
 - KDoc 표준화 보강 (spring/aws/kafka/opentelemetry/micrometer/bucket4j/cache/redis/nats/resilience4j/jackson/feign/retrofit2 등 전 모듈)
 
@@ -2242,7 +2175,7 @@ UUID, KSUID를 `object Uuid { interface Generator; object V1..V7 }` 패턴으로
 
 ## [1.2.2] - 2026-03-01
 
-### Fixed
+### 버그 수정
 
 - Snapshot 배포(publish) 버그 수정
 
@@ -2250,7 +2183,7 @@ UUID, KSUID를 `object Uuid { interface Generator; object V1..V7 }` 패턴으로
 
 ## [1.2.1] - 2026-02-28
 
-### Changed
+### 변경
 
 - Maven Central 배포 설정 변경
 
@@ -2258,7 +2191,7 @@ UUID, KSUID를 `object Uuid { interface Generator; object V1..V7 }` 패턴으로
 
 ## [1.2.0] - 2026-02-28
 
-### Added
+### 추가
 
 #### aws / aws-kotlin
 
@@ -2277,7 +2210,7 @@ UUID, KSUID를 `object Uuid { interface Generator; object V1..V7 }` 패턴으로
 - **`bluetape4k-measured`** 코어 모듈: Units/Measure 기반 단위 조합 연산 (Length/Time/Mass)
 - Measured 확장: Angle, Area, Storage, Pressure, Volume, Temperature
 
-### Changed
+### 변경
 
 - cache 모듈을 core/provider 구조로 재편:
     - `bluetape4k-cache-core` (공통 API, NearCache, SuspendCache 추상화)
@@ -2289,7 +2222,7 @@ UUID, KSUID를 `object Uuid { interface Generator; object V1..V7 }` 패턴으로
 
 ## [1.1.0] - 2026-02-22
 
-### Added
+### 추가
 
 #### utils/virtualthread (신규 모듈)
 
@@ -2310,7 +2243,7 @@ UUID, KSUID를 `object Uuid { interface Generator; object V1..V7 }` 패턴으로
 - **WebClient** 설정 개선 및 테스트 보강
 - **spring-tests**: HTTP 클라이언트 확장 함수 추가
 
-### Changed
+### 변경
 
 - `CloseableCoroutineScope` 도입 및 Scope 구현체 리팩토링
 - Coroutines MDC 컨텍스트 처리 개선 (`logging` 모듈 의존성 변경)
@@ -2318,7 +2251,7 @@ UUID, KSUID를 `object Uuid { interface Generator; object V1..V7 }` 패턴으로
 - Cassandra 코루틴 함수명 정리
 - 리소스 종료(shutdown) 로직 안전성 개선
 
-### Fixed
+### 버그 수정
 
 - `Ksuid`, `KsuidMillis`에서 사용하는 `BytesBase62` 버그 수정
 - `javatimes` range/period 로직 및 테스트 보강
@@ -2328,12 +2261,12 @@ UUID, KSUID를 `object Uuid { interface Generator; object V1..V7 }` 패턴으로
 
 ## [1.0.0] - 2026-02-03
 
-### Added
+### 추가
 
 - **Eclipse Collections** 적용 및 컬렉션 처리 전반 최적화
 - **spring-tests**: `RestClient` / `WebClient` / `WebTestClient` 확장 함수 추가
 
-### Changed
+### 변경
 
 - Atomic 관련 구조: `kotlinx.atomicfu` 기반으로 통일
 - UUID 대신 Base58로 키 생성 방식 변경
@@ -2343,13 +2276,13 @@ UUID, KSUID를 `object Uuid { interface Generator; object V1..V7 }` 패턴으로
 
 ## [0.1.7] - 2026-01-26
 
-### Changed
+### 변경
 
 - `ExposedRepository.batchUpdate` → `batchUpsert`로 변경 및 기능 개선
 - `kotlinx-atomicfu` → Java standard atomics로 교체
 - Exposed Entity `toStringBuilder` 명칭 변경
 
-### Fixed
+### 버그 수정
 
 - `TimebasedUuid` Deprecated 메시지 오타 수정
 
@@ -2357,7 +2290,7 @@ UUID, KSUID를 `object Uuid { interface Generator; object V1..V7 }` 패턴으로
 
 ## [0.1.6] - 2026-01-23
 
-### Changed
+### 변경
 
 - **`KLogging` → `KLoggingChannel`** 전환 (전 모듈, 코루틴 환경 로깅 개선)
 - `TimebasedUuid` 생성 방식 변경 (Reordered 사용)
@@ -2374,7 +2307,7 @@ UUID, KSUID를 `object Uuid { interface Generator; object V1..V7 }` 패턴으로
 
 ## [0.1.4] - 2026-01-09
 
-### Added
+### 추가
 
 #### io/jackson3 (신규 모듈)
 
@@ -2401,7 +2334,7 @@ UUID, KSUID를 `object Uuid { interface Generator; object V1..V7 }` 패턴으로
 
 ## [0.1.2] - 2025-09-26
 
-### Changed
+### 변경
 
 - **Fory Codec** 관련 Serializer 추가
 - **Fury Serializer** Deprecated 처리 시작
@@ -2410,7 +2343,7 @@ UUID, KSUID를 `object Uuid { interface Generator; object V1..V7 }` 패턴으로
 
 ## [0.1.0] - 2025-09-26
 
-### Changed
+### 변경
 
 - **Fury → Fory** 전체 교체 (`io.fury.*` → `org.apache.fory.*`)
 - 대규모 의존성 버전 업그레이드 (Kotlin, Spring Boot, Exposed, Hibernate, Vert.x, AWS 등)
@@ -2422,7 +2355,7 @@ UUID, KSUID를 `object Uuid { interface Generator; object V1..V7 }` 패턴으로
 
 ## [0.0.10] - 2025-06-11
 
-### Changed
+### 변경
 
 - `runSuspendTest` → `runSuspendIO` 리네이밍
 - suspend 함수 리네이밍 전반 (`coXxx` → `xxxSuspending` 패턴 적용)
@@ -2440,17 +2373,17 @@ UUID, KSUID를 `object Uuid { interface Generator; object V1..V7 }` 패턴으로
 
 ## [0.0.8] - 2025-05-28
 
-### Added
+### 추가
 
 - **Exposed-R2DBC 확장**: `TableExtensions`, `QueryExtensions`, `ReadableExtensions`
 - `BatchInsertOnConflictDoNothing` 지원
 - R2DBC 기반 Redisson 캐싱 및 테스트
 
-### Changed
+### 변경
 
 - Exposed v1.0.0-beta-2 업그레이드 및 API 마이그레이션
 
-### Fixed
+### 버그 수정
 
 - `findAll()` 함수 `List<T>` 반환 수정
 - `findLastOrNull()` 함수 수정
@@ -2465,7 +2398,7 @@ UUID, KSUID를 `object Uuid { interface Generator; object V1..V7 }` 패턴으로
 
 ## [0.0.6] - 2025-05-19
 
-### Changed
+### 변경
 
 - **`KLogging` → `KLoggingChannel`** 전환 시작 (코루틴 환경 로깅 개선)
 - Fury 0.10.2 업그레이드 (Javers 예외 해결)
@@ -2474,12 +2407,12 @@ UUID, KSUID를 `object Uuid { interface Generator; object V1..V7 }` 패턴으로
 
 ## [0.0.5] - 2025-03-25
 
-### Added
+### 추가
 
 - **`bluetape4k-fastjson2`**: Fastjson2 기반 직렬화 모듈
 - **`bluetape4k-exposed-fastjson2`**: Exposed Fastjson2 JSON 컬럼 지원
 
-### Fixed
+### 버그 수정
 
 - Pulsar, RabbitMQ, ZipKin 버전 다운그레이드 (안정성)
 - Entity `equals`에 type 비교 추가
@@ -2489,7 +2422,7 @@ UUID, KSUID를 `object Uuid { interface Generator; object V1..V7 }` 패턴으로
 
 ## [0.0.4] - 2025-03-11
 
-### Added
+### 추가
 
 - **`bluetape4k-exposed-jasypt`**: Jasypt 기반 Exposed 암호화 컬럼 지원
 - **`bluetape4k-exposed-tests`**: Exposed 공통 테스트 인프라
@@ -2497,7 +2430,7 @@ UUID, KSUID를 `object Uuid { interface Generator; object V1..V7 }` 패턴으로
 - Exposed Jackson 컬럼 (`jackson`, `jacksonb`) 구현
 - `KsuidMillisTable` 추가
 
-### Changed
+### 변경
 
 - Gradle 8.13, Spring Boot 3.4.3, Exposed 0.60.0 업그레이드
 
@@ -2505,14 +2438,14 @@ UUID, KSUID를 `object Uuid { interface Generator; object V1..V7 }` 패턴으로
 
 ## [0.0.2] - 2024-11-28
 
-### Added
+### 추가
 
 - **`bluetape4k-spring-r2dbc`**: Spring Data R2DBC 모듈
 - **`bluetape4k-spring-tests`**: Spring 테스트 유틸리티 모듈
 - **`Measurable` / `MeasurableUnit`** 인터페이스 도입 (단위 추상화 기반)
 - Temperature, Angle 단위 추가
 
-### Changed
+### 변경
 
 - Kotlin 2.1.0 업그레이드
 - Gradle 8.11.1 업그레이드
@@ -2522,7 +2455,7 @@ UUID, KSUID를 `object Uuid { interface Generator; object V1..V7 }` 패턴으로
 
 ## [0.0.1] - 2024-11-22
 
-### Added
+### 추가
 
 초기 릴리즈. 다음 모듈 포함:
 
