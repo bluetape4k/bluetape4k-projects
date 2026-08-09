@@ -65,6 +65,11 @@ matching 단계에서 실패했다.
   `gradle_exit=0`
 - `actionlint .github/workflows/*.yml`, 중앙 catalog/release policy 11개,
   `git diff --check`: PASS
+- GitHub Settings → Advanced Security를 새로고침한 뒤 Automatic Dependency
+  Submission이 `Disabled`로 표시되는 것을 확인했다.
+- repository-owned workflow의 수동 dispatch는 아직 workflow가 default branch에
+  없어서 GitHub API가 `HTTP 404: workflow ... not found on the default branch`를
+  반환했다. merge 후 `develop` push에서 hosted workflow를 검증한다.
 
 이전 PR head의 hosted CI에서는 `Test Examples`가 JDK 25에서 JDK 21 provider를
 소비해 3개 StructuredTaskScope 테스트를 실패했고
