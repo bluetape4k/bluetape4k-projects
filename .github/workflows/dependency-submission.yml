@@ -1,0 +1,38 @@
+name: Dependency Submission
+
+on:
+  push:
+    branches: [develop]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: dependency-submission-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  JAVA_VERSION: '25'
+  JAVA_DISTRIBUTION: 'temurin'
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: 'true'
+
+jobs:
+  dependency-submission:
+    name: Dependency Submission
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v7
+
+      - name: Setup Java
+        uses: actions/setup-java@v5.6.0
+        with:
+          distribution: ${{ env.JAVA_DISTRIBUTION }}
+          java-version: ${{ env.JAVA_VERSION }}
+
+      - name: Generate and submit dependency graph
+        uses: gradle/actions/dependency-submission@v6.3.0
+        with:
+          additional-arguments: --no-configuration-cache --no-daemon

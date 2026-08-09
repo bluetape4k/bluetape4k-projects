@@ -1,7 +1,7 @@
 ---
 manualId: bluetape4k-examples-virtualthreads-demo
 title: "Java 가상 스레드 예제"
-description: "Java 21의 Virtual Threads를 효과적으로 사용하기 위한 모범 사례와 규칙을 학습하는 예제 모음입니다."
+description: "Java 25의 Virtual Threads와 Structured Concurrency를 효과적으로 사용하기 위한 모범 사례와 규칙을 학습하는 예제 모음입니다."
 kind: example
 group: examples
 learningOrder: 1410
@@ -11,7 +11,7 @@ learningOrder: 1410
 
 ## 해결하는 문제 {#problem}
 
-Java 21의 Virtual Threads를 효과적으로 사용하기 위한 모범 사례와 규칙을 학습하는 예제 모음입니다. 이 매뉴얼은 README의 기능 목록을 반복하지 않고 현재 build, source entry point, test, 설정 resource, lifecycle 근거를 연결합니다.
+Java 25의 Virtual Threads와 Structured Concurrency를 효과적으로 사용하기 위한 모범 사례와 규칙을 학습하는 예제 모음입니다. 이 매뉴얼은 README의 기능 목록을 반복하지 않고 현재 build, source entry point, test, 설정 resource, lifecycle 근거를 연결합니다.
 
 ## 사용 시점 {#when-to-use}
 
@@ -51,7 +51,7 @@ README 근거는 **예제 목록**, **Virtual Threads 사용 규칙**, **주요 
 
 ```kotlin
 implementation(project(":bluetape4k-core"))
-runtimeOnly(project(":bluetape4k-virtualthread-jdk21"))
+runtimeOnly(project(":bluetape4k-virtualthread-jdk25"))
 ```
 
 `compileOnly` edge는 caller가 제공해야 하는 capability이므로 API를 사용하기 전에 runtime에 실제 dependency가 있는지 확인합니다.

@@ -1,8 +1,8 @@
-# Module Examples - Java 21 Virtual Threads
+# Module Examples - Java 25 Virtual Threads
 
 [English](./README.md) | 한국어
 
-Java 21의 Virtual Threads를 효과적으로 사용하기 위한 모범 사례와 규칙을 학습하는 예제 모음입니다.
+Java 25의 Virtual Threads와 Structured Concurrency를 효과적으로 사용하기 위한 모범 사례와 규칙을 학습하는 예제 모음입니다.
 
 ![Virtual threads demo decision map](../../docs/images/readme-diagrams/examples-virtualthreads-demo-diagram-01.png)
 
@@ -72,7 +72,7 @@ synchronized 블록은 Virtual Thread를 차단(pinning)할 수 있습니다.
 ## 실행 방법
 
 ```bash
-# 모든 예제 실행 (Java 21+ 필요)
+# 모든 예제 실행 (Java 25+ 필요)
 ./gradlew :examples:virtualthreads:test
 
 # 특정 규칙 예제만 실행
@@ -81,8 +81,7 @@ synchronized 블록은 Virtual Thread를 차단(pinning)할 수 있습니다.
 
 ## 요구사항
 
-- Java 21 이상
-- `--enable-preview` 플래그 (Java 21에서 필요할 수 있음)
+- Java 25 이상
 
 ## 참고
 

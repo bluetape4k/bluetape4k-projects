@@ -4,9 +4,9 @@ configurations {
 
 dependencies {
 
-    // Virtual Threads for JDK 21
+    // Virtual Threads and Structured Concurrency for JDK 25
     implementation(project(":bluetape4k-core"))
-    runtimeOnly(project(":bluetape4k-virtualthread-jdk21"))
+    runtimeOnly(project(":bluetape4k-virtualthread-jdk25"))
 
     // Coroutines
     testImplementation(libs.kotlinx.coroutines.core)

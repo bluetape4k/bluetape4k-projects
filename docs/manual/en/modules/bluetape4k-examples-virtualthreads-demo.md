@@ -1,7 +1,7 @@
 ---
 manualId: bluetape4k-examples-virtualthreads-demo
 title: "Java Virtual Thread Examples"
-description: "A collection of examples covering best practices and rules for using Java 21 Virtual Threads effectively."
+description: "A collection of examples covering best practices and rules for using Java 25 Virtual Threads and Structured Concurrency effectively."
 kind: example
 group: examples
 learningOrder: 1410
@@ -11,7 +11,7 @@ learningOrder: 1410
 
 ## Problem {#problem}
 
-A collection of examples covering best practices and rules for using Java 21 Virtual Threads effectively. This manual connects that purpose to the current build, source entry points, tests, configuration resources, and lifecycle evidence instead of duplicating the README feature list.
+A collection of examples covering best practices and rules for using Java 25 Virtual Threads and Structured Concurrency effectively. This manual connects that purpose to the current build, source entry points, tests, configuration resources, and lifecycle evidence instead of duplicating the README feature list.
 
 ## When to use {#when-to-use}
 
@@ -51,7 +51,7 @@ The current build declares these integration edges:
 
 ```kotlin
 implementation(project(":bluetape4k-core"))
-runtimeOnly(project(":bluetape4k-virtualthread-jdk21"))
+runtimeOnly(project(":bluetape4k-virtualthread-jdk25"))
 ```
 
 Treat `compileOnly` edges as caller-provided capabilities and verify runtime availability before using their APIs.

@@ -5,6 +5,6 @@ configurations {
 dependencies {
     implementation(project(":bluetape4k-logging"))
     testImplementation(project(":bluetape4k-junit5"))
-    // ServiceLoader로 등록된 StructuredTaskScopeProvider 구현체를 test runtime에 제공
+    // Java 21 compatibility island의 test runtime provider
     testRuntimeOnly(project(":bluetape4k-virtualthread-jdk21"))
 }

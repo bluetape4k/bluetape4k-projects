@@ -19,6 +19,9 @@ Kotlin 2.4, JDK 25, Gradle 9.7.0 기준과 일치하지 않는다.
   baseline”을 이유로 21을 고정한 mock server 애플리케이션은 기본 기준과 함께
   25로 전환한다.
 - 빌드 기준을 설명하거나 검사하는 문서와 workflow를 실제 설정과 일치시킨다.
+- JDK 25로 실행되는 consumer와 example은 JDK 21 preview provider를 runtime에
+  끌어오지 않도록 JDK 25 provider를 사용한다. JDK 21 compatibility island의
+  compile contract와 전용 provider 테스트는 유지한다.
 
 ## 현재 증거
 
@@ -95,6 +98,12 @@ JVM 25 variant를 게시한다. 향후 `virtualthread/jdk21`을 제거하거나 
 line으로 분리할 때만 이 목록을 축소하며, 변경 전 project dependency closure와
 JDK 21 test runtime을 다시 검증한다.
 
+단, JDK 25로 실행되는 `bluetape4k-core`, `utils/workflow`, example의 runtime
+dependency는 `virtualthread-jdk25`를 선택한다. `virtualthread/api`는 Java 21
+compatibility island의 consumer이므로 test runtime도 `virtualthread-jdk21`을
+유지한다. Java 21 호환성은 provider 자체와 JDK 21 launcher 테스트로 증명하고,
+JDK 25 실행 경로는 JDK 25 provider와 함께 검증한다.
+
 이 방식은 전체 모듈에 JDK 설정을 중복하지 않고, 기본 기준과 명시적 예외의
 소유권을 구분한다.
 
@@ -140,6 +149,10 @@ Java 21용 artifact라는 공개 호환성 의미와 `--release 21` 계약을 �
 - `testing/mock-web-server/build.gradle.kts`
 - `testing/mock-webflux-server/build.gradle.kts`
 - `virtualthread/jdk21/build.gradle.kts`
+- `bluetape4k/core/build.gradle.kts`
+- `utils/workflow/build.gradle.kts`
+- `virtualthread/api/build.gradle.kts`
+- `examples/virtualthreads-demo/build.gradle.kts`
 
 ### CI
 
@@ -151,6 +164,7 @@ Java 21용 artifact라는 공개 호환성 의미와 `--release 21` 계약을 �
 - `.github/workflows/publish-snapshot.yml`
 - `.github/workflows/release.yml`
 - `.github/workflows/security.yml`
+- `.github/workflows/dependency-submission.yml`
 
 ### 문서와 agent-facing 기준
 
@@ -256,9 +270,10 @@ workflow 권한 완화는 이 이슈의 복구 수단으로 허용하지 않는�
 - `git diff --check`
 - 최종 diff에서 P0/P1 검토 결과 0건
 
-PR 생성이 승인 범위 밖이므로 GitHub-hosted workflow 실행은 이 로컬 완료 단계에서
-검증할 수 없다. 로컬에서는 workflow syntax와 보안 경계, JDK 25 build/test를
-검증하고, 실제 hosted CI 성공은 PR 전달 단계의 명시적 미확인 항목으로 남긴다.
+PR 전달 후 GitHub-hosted workflow 실행은 exact head 기준으로 검증한다. GitHub
+managed dependency submission은 JDK 21로 실행되어 JDK 25 build logic과
+충돌하므로 repository-owned JDK 25 workflow로 대체하고, live setting에서
+managed action이 비활성화됐음을 확인한다.
 향후 PR 전달 시 변경된 CI, examples, CodeQL, security, manual-docs, nightly-tests,
 snapshot, release workflow의 실행 또는 해당 trigger에 맞는 check 결과를 확인하고,
 모든 실행이 JDK 25 설정 단계와 후속 Gradle task를 성공한 때에만 이 항목을 완료로

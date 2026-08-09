@@ -1,8 +1,8 @@
-# Module Examples - Java 21 Virtual Threads
+# Module Examples - Java 25 Virtual Threads
 
 English | [한국어](./README.ko.md)
 
-A collection of examples covering best practices and rules for using Java 21 Virtual Threads effectively.
+A collection of examples covering best practices and rules for using Java 25 Virtual Threads and Structured Concurrency effectively.
 
 ![Virtual threads demo decision map](../../docs/images/readme-diagrams/examples-virtualthreads-demo-diagram-01.png)
 
@@ -72,7 +72,7 @@ Because Virtual Threads can be created in large numbers, be mindful of memory us
 ## How to Run
 
 ```bash
-# Run all examples (requires Java 21+)
+# Run all examples (requires Java 25+)
 ./gradlew :examples:virtualthreads:test
 
 # Run a specific rule example
@@ -81,8 +81,7 @@ Because Virtual Threads can be created in large numbers, be mindful of memory us
 
 ## Requirements
 
-- Java 21 or later
-- `--enable-preview` flag (may be required on Java 21)
+- Java 25 or later
 
 ## References
 

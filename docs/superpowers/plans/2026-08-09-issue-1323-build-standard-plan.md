@@ -5,8 +5,9 @@
 **목표:** 저장소 기본 빌드 기준을 Kotlin 2.4, JDK 25, Gradle 9.7.0으로
 정렬하면서 `virtualthread/jdk21`의 Java 21 호환성 계약을 보존한다.
 
-**범위:** 로컬 feature branch의 빌드 설정, workflow, 현재 기준 문서만 변경한다.
-PR, push, merge, publish, release와 Dependabot 의존성 갱신은 수행하지 않는다.
+**범위:** feature branch의 빌드 설정, workflow, 현재 기준 문서와 PR CI
+복구 경로를 변경한다. PR 생성과 push는 승인된 전달 단계에서 수행하며,
+merge, publish, release와 중앙 Dependabot 버전 갱신은 수행하지 않는다.
 
 ## Task 1: Gradle Wrapper 9.7.0 재생성
 
@@ -84,6 +85,47 @@ PR, push, merge, publish, release와 Dependabot 의존성 갱신은 수행하지
    fork, `pull_request_target`, action ref가 바뀌지 않았는지 diff로 확인한다.
 4. `actionlint .github/workflows/*.yml`을 실행한다.
 
+## Task 4A: JDK 25 runtime provider 정렬
+
+**Files:**
+
+- Modify: `bluetape4k/core/build.gradle.kts`
+- Modify: `utils/workflow/build.gradle.kts`
+- Modify: `virtualthread/api/build.gradle.kts`
+- Modify: `examples/virtualthreads-demo/build.gradle.kts`
+- Modify: `examples/virtualthreads-demo/README.md`
+- Modify: `examples/virtualthreads-demo/README.ko.md`
+- Modify: `docs/manual/en/modules/bluetape4k-examples-virtualthreads-demo.md`
+- Modify: `docs/manual/ko/modules/bluetape4k-examples-virtualthreads-demo.md`
+
+**Steps:**
+
+1. JDK 25 기본 모듈과 example의 runtime provider를 `virtualthread-jdk25`로
+   맞춘다.
+2. Java 21 compatibility island의 API compile contract와 test runtime provider는
+   `bluetape4k-virtualthread-jdk21`으로 유지한다. JDK 25 기본 모듈과 example만
+   `bluetape4k-virtualthread-jdk25` provider를 사용한다.
+3. EN/KO README와 manual의 실행 JDK, provider dependency 설명을 실제 build와
+   일치시킨다.
+4. example, core, workflow, API 표적 test를 순차 실행하고 provider 이름 및
+   실패 없는 StructuredTaskScope 실행을 확인한다.
+
+## Task 4B: Gradle dependency submission 실행 경로 교체
+
+**Files:**
+
+- Add: `.github/workflows/dependency-submission.yml`
+- Modify: `docs/lessons/2026-08-10-issue-1323-build-standard.md`
+
+**Steps:**
+
+1. repository-owned workflow에서 Temurin JDK 25와 Gradle dependency-submission
+   action을 사용해 default branch dependency graph를 제출한다.
+2. GitHub-managed Automatic Dependency Submission을 repository 설정에서
+   비활성화해 JDK 21 dynamic `submit-gradle` job과 중복 실행하지 않는다.
+3. workflow permissions와 action refs를 최소 범위로 검증하고, live setting과
+   workflow dispatch 결과를 기록한다.
+
 ## Task 5: 현재 빌드 기준 문서 갱신
 
 **Files:**
@@ -134,3 +176,5 @@ PR, push, merge, publish, release와 Dependabot 의존성 갱신은 수행하지
 - repository, credential, permissions 또는 workflow trigger 경계 변경이 필요한 경우
 - Docker/Jib 또는 hosted CI가 로컬 권한·환경 때문에 실행 불가능한 경우에는 다른
   검증을 계속하고 해당 항목만 DoD의 명시적 미확인으로 남긴다.
+- GitHub Automatic Dependency Submission 설정 API/UI 권한이 없으면 저장소
+  소유 workflow와 로컬 검증까지 수행하고 설정 변경만 PENDING으로 남긴다.
