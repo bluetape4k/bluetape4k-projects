@@ -23,7 +23,7 @@ def named_step(workflow: str, name: str) -> str:
 
 class CodeqlWorkflowPolicyTest(unittest.TestCase):
 
-    def test_java_kotlin_uses_the_checked_out_central_catalog(self) -> None:
+    def test_java_kotlin_uses_the_checked_out_central_catalog_without_rewrite(self) -> None:
         checkout = named_step(CODEQL, "Checkout dependencies catalog")
         pin = named_step(CODEQL, "Pin Kotlin for CodeQL extractor")
 
@@ -31,9 +31,9 @@ class CodeqlWorkflowPolicyTest(unittest.TestCase):
         self.assertIn("ref: ${{ steps.catalog-ref.outputs.ref }}", checkout)
         self.assertIn("path: .catalog/bluetape4k-dependencies", checkout)
         self.assertIn("BLUETAPE4K_DEPENDENCIES_CATALOG_PATH", CODEQL)
-        self.assertIn('catalog_file="$BLUETAPE4K_DEPENDENCIES_CATALOG_PATH"', pin)
-        self.assertIn(r's/^kotlin\h*=\h*"2\.4\.0"', pin)
-        self.assertNotIn("gradle/libs.versions.toml", pin.replace("$catalog_file", ""))
+        self.assertEqual("", pin)
+        self.assertNotIn("Pin Kotlin for CodeQL extractor", CODEQL)
+        self.assertNotIn("2.3.21", CODEQL)
 
     def test_catalog_ref_is_resolved_from_the_checked_in_settings(self) -> None:
         resolve = named_step(CODEQL, "Resolve dependencies catalog ref")
