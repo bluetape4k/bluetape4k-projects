@@ -14,9 +14,10 @@ Kotlin 2.4, JDK 25, Gradle 9.7.0 기준과 일치하지 않는다.
 - 기본 Kotlin compiler language/API 수준을 2.4로 정렬한다.
 - 기본 Java toolchain, 로컬 Java/jenv 선택, CI 실행 JDK를 25로 정렬한다.
 - Gradle Wrapper의 properties, JAR, Unix/Windows 스크립트를 9.7.0으로 갱신한다.
-- JDK 21 호환성을 명시적으로 소유하는 `virtualthread/jdk21` 모듈만 기존
-  toolchain/release 21 예외를 유지한다. 현재 “workspace baseline”을 이유로 21을
-  고정한 mock server 애플리케이션은 기본 기준과 함께 25로 전환한다.
+- JDK 21 호환성을 명시적으로 소유하는 `virtualthread/jdk21`과 그 project
+  dependency closure만 toolchain/release 21 예외를 유지한다. 현재 “workspace
+  baseline”을 이유로 21을 고정한 mock server 애플리케이션은 기본 기준과 함께
+  25로 전환한다.
 - 빌드 기준을 설명하거나 검사하는 문서와 workflow를 실제 설정과 일치시킨다.
 
 ## 현재 증거
@@ -51,6 +52,10 @@ Kotlin 2.4, JDK 25, Gradle 9.7.0 기준과 일치하지 않는다.
 1. 루트 `build.gradle.kts`의 기본 `jvmToolchain`을 25로, Kotlin language/API를
    `KOTLIN_2_4`로 변경한다. Kotlin `jvmTarget`은 `JVM_25`, Java compile
    `options.release`는 25로 명시해 toolchain과 bytecode 계약을 일치시킨다.
+   Java 21 호환성 섬은 중앙 project 이름 목록으로 21을 선택한다. Kotlin 2.4에서
+   context parameters와 새 annotation use-site target 규칙이 안정화되므로 기존
+   `-Xcontext-parameters`, `-Xannotation-default-target=param-property` 실험 옵션은
+   같은 언어 동작을 유지한 채 제거한다.
 2. `buildSrc/build.gradle.kts`의 Kotlin language/API와 `jvmTarget`도
    `KOTLIN_2_4`/`JVM_25`로 맞춘다.
 3. 현재 JDK 21/Gradle 9.6 기준에서 공식 Gradle Wrapper task를 두 번 실행해
@@ -64,14 +69,31 @@ Kotlin 2.4, JDK 25, Gradle 9.7.0 기준과 일치하지 않는다.
    `2.4.0` 확인은 유지하고, Gradle 9.7/Kotlin 2.4 build와 충돌하는 extractor용
    workflow-local `2.3.21` 치환 단계는 제거한다. 기존 `github/codeql-action@v4`
    action ref는 유지하며, hosted 실행에서 CodeQL bundle 2.26.0 이상을 확인한다.
-6. `README.md`, `AGENTS.md`, `.github/copilot-instructions.md`의 기본 빌드 기준을
-   갱신한다. JDK 21 전용 모듈 설명은 호환성 계약이므로 유지한다.
+6. `README.md`, `README.ko.md`, `AGENTS.md`, `.github/copilot-instructions.md`의
+   기본 빌드 기준을 갱신한다. JDK 21 전용 모듈 설명은 호환성 계약이므로 유지한다.
 7. `testing/mock-web-server`와 `testing/mock-webflux-server`의 toolchain, release,
    test launcher, Jib base image를 JDK 25로 맞춘다. 이 고정은 공개 JDK 21
    호환성 계약이 아니라 과거 workspace baseline의 복제이므로 예외로 남기지 않는다.
 8. 루트의 명시적 `JVM_25` 기본값이 하위 모듈에 상속되므로
    `virtualthread/jdk21`에는 Kotlin `jvmTarget=JVM_21`을 명시해 Java/Kotlin
    classfile 21 예외를 완결한다.
+
+## Java 21 호환성 예외
+
+Gradle variant matching은 Java 21 consumer가 Java 25 project artifact에 의존하는
+것을 거부한다. 따라서 `virtualthread/jdk21`만 21로 두면 main/test dependency
+resolution이 실패한다. 실제 project dependency closure를 따라 다음 다섯 모듈을
+최소 호환성 섬으로 유지한다.
+
+- `bluetape4k-virtualthread-jdk21`: Java 21 runtime 구현체
+- `bluetape4k-virtualthread-api`: 두 runtime 구현체가 공유하는 API
+- `bluetape4k-logging`: API와 JDK 21 구현체의 main dependency
+- `bluetape4k-assertions`, `bluetape4k-junit5`: 위 모듈들의 test dependency closure
+
+이 예외는 루트 `java21CompatibilityProjects` 한 곳에서 소유한다. 나머지 모듈은
+JVM 25 variant를 게시한다. 향후 `virtualthread/jdk21`을 제거하거나 별도 release
+line으로 분리할 때만 이 목록을 축소하며, 변경 전 project dependency closure와
+JDK 21 test runtime을 다시 검증한다.
 
 이 방식은 전체 모듈에 JDK 설정을 중복하지 않고, 기본 기준과 명시적 예외의
 소유권을 구분한다.
@@ -132,8 +154,9 @@ Java 21용 artifact라는 공개 호환성 의미와 `--release 21` 계약을 �
 
 ### 문서와 agent-facing 기준
 
-- `README.md`: 기본 요구사항을 Java 25와 Gradle Wrapper 9.7.0으로 표시하고,
-  `.java-version=25` 및 `virtualthread/jdk21`의 Java 21 호환성 예외를 설명한다.
+- `README.md`, `README.ko.md`: 기본 요구사항을 Java 25와 Gradle Wrapper 9.7.0으로 표시하고,
+  `.java-version=25` 및 `virtualthread/jdk21` dependency closure의 Java 21
+  호환성 예외를 설명한다.
 - `AGENTS.md`: build configuration 기준을 Java 25와 Kotlin 2.4로 맞추되
   `virtualthread/jdk21` 예외 규칙은 유지한다.
 - `.github/copilot-instructions.md`: Kotlin 2.4/Java 25 기본값과 JDK 21 전용 모듈

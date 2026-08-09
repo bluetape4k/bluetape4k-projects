@@ -3,8 +3,8 @@
 [![CI](https://github.com/bluetape4k/bluetape4k-projects/actions/workflows/ci.yml/badge.svg)](https://github.com/bluetape4k/bluetape4k-projects/actions/workflows/ci.yml)
 [![Coverage](https://coveralls.io/repos/github/bluetape4k/bluetape4k-projects/badge.svg?branch=develop)](https://coveralls.io/github/bluetape4k/bluetape4k-projects)
 [![Maven](https://badges.mvnrepository.com/badge/io.github.bluetape4k/bluetape4k-bom/badge.svg?label=Maven)](https://mvnrepository.com/artifact/io.github.bluetape4k/bluetape4k-bom)
-[![Kotlin](https://img.shields.io/badge/Kotlin-2.3-7F52FF?logo=kotlin)](https://kotlinlang.org)
-[![JVM](https://img.shields.io/badge/JVM-21-ED8B00?logo=openjdk)](https://openjdk.org)
+[![Kotlin](https://img.shields.io/badge/Kotlin-2.4-7F52FF?logo=kotlin)](https://kotlinlang.org)
+[![JVM](https://img.shields.io/badge/JVM-25-ED8B00?logo=openjdk)](https://openjdk.org)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
 JVM 환경에서 Kotlin 언어로 개발할 때 사용하는 공용 라이브러리
@@ -62,8 +62,9 @@ Kotlin 언어를 배우고, 사용하면서, Backend 개발에 자주 사용하�
 
 ## 기술 스택
 
-- **Java**: 21 (JVM Toolchain)
-- **Kotlin**: 2.3 (Language & API Version)
+- **Java**: 25 (기본 JVM toolchain 및 `.java-version`); `virtualthread/jdk21`과 최소 `virtualthread-api`/`logging`/testing dependency closure는 Java 21 호환성을 명시적으로 유지합니다.
+- **Kotlin**: 2.4 (기본 Language, API 및 JVM 25 target)
+- **Gradle**: 저장소에 포함된 Wrapper 기준 9.7.0
 - **Spring Boot**: 4.x 전용. 과거 계획서와 리뷰 문서에는 은퇴한 Spring Boot 3 모듈 언급이 남아 있을 수 있지만, 현재 사용자 대상 모듈과 예제는 Spring Boot 4.x를 기준으로 합니다.
 - **JetBrains Exposed**: 1.2.x (외부 `bluetape4k-exposed` artifact는 독립 레포에서 별도 릴리즈됨)
 - **데이터베이스**: H2, PostgreSQL, MySQL

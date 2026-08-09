@@ -37,7 +37,9 @@ PR, push, merge, publish, release와 Dependabot 의존성 갱신은 수행하지
 **Steps:**
 
 1. 루트 Kotlin language/API를 `KOTLIN_2_4`, `jvmTarget`을 `JVM_25`로 설정한다.
-2. 루트 Java compile release와 Kotlin/Java toolchain 기본값을 25로 설정한다.
+2. 루트 Java compile release와 Kotlin/Java toolchain 기본값을 25로 설정하고,
+   `virtualthread-jdk21`, `virtualthread-api`, `logging`, `assertions`, `junit5`의
+   최소 project dependency closure만 중앙 목록에서 Java/JVM 21로 선택한다.
 3. `buildSrc` language/API와 JVM target을 2.4/25로 설정한다.
 4. `virtualthread/jdk21`의 Kotlin JVM target을 `JVM_21`로 명시해 기존 Java
    toolchain/release/test launcher 21과 정렬한다.
@@ -87,6 +89,7 @@ PR, push, merge, publish, release와 Dependabot 의존성 갱신은 수행하지
 **Files:**
 
 - Modify: `README.md`
+- Modify: `README.ko.md`
 - Modify: `AGENTS.md`
 - Modify: `CLAUDE.md`
 - Modify: `.github/copilot-instructions.md`
@@ -100,7 +103,8 @@ PR, push, merge, publish, release와 Dependabot 의존성 갱신은 수행하지
 **Steps:**
 
 1. 현재 저장소 baseline을 Java 25/Kotlin 2.4/Gradle 9.7.0으로 맞춘다.
-2. `.java-version=25`와 `virtualthread/jdk21`의 명시적 Java 21 예외를 설명한다.
+2. `.java-version=25`와 `virtualthread/jdk21` dependency closure의 명시적 Java 21
+   예외를 설명한다.
 3. `AGENTS.md`, `CLAUDE.md`, Copilot 지침은 기존 영어 instruction 문체를
    유지한다.
 4. 과거 설계·계획·benchmark 환경 기록과 Java 21 기능 설명은 변경하지 않는다.

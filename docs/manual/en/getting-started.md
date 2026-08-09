@@ -33,4 +33,4 @@ Read the guide for orientation, use the module manual for contracts and failure 
 
 ## 4. Validate the environment
 
-The repository uses Java 21 and Kotlin 2.3. Framework-specific manuals state narrower Spring Boot, Ktor, database, container, or native requirements.
+The repository uses Java 25, Kotlin 2.4, and the Gradle 9.7.0 Wrapper. The tracked `.java-version` selects JDK 25; `virtualthread/jdk21` and its minimal API, logging, and testing dependency closure retain Java 21 compatibility. Framework-specific manuals state narrower Spring Boot, Ktor, database, container, or native requirements.

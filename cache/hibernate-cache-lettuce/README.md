@@ -23,7 +23,7 @@ No user import migration is required for the reorganization.
 
 - **Hibernate ORM**: 7.2.7.Final or later
 - **Jakarta Persistence API**: 3.2.0 (enforced via `configurations.all` to override Spring Boot downgrades)
-- **Java**: JDK 21+ (aligned with bluetape4k project baseline)
+- **Java**: JDK 25+ (aligned with the bluetape4k project baseline)
 - **Redis**: 6+ when using RESP3 Client Tracking (set `use_resp3=false` for older Redis)
 
 ## Architecture

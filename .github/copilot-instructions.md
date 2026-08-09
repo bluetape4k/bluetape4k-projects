@@ -12,7 +12,9 @@ Follow the workspace and repo-local `AGENTS.md` files when they provide stricter
 
 ## Kotlin And Module Policy
 
-- Use Kotlin 2.3+ and the repository's Java 21 toolchain.
+- Use Kotlin 2.4 and the repository's default Java/JVM 25 toolchain. Preserve
+  the explicit Java/JVM 21 compatibility island for `virtualthread/jdk21`,
+  `virtualthread-api`, `logging`, `assertions`, and `junit5`.
 - Use Spring Boot 4.x only for this repository's Spring Boot modules.
 - Prefer Kotlin extensions, DSLs, immutable values, and existing bluetape4k helpers before adding new utilities.
 - Reuse established module patterns from the current source tree and `settings.gradle.kts`.

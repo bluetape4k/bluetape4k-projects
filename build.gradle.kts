@@ -13,7 +13,9 @@ import nmcp.NmcpAggregationExtension
 import nmcp.NmcpExtension
 import org.gradle.api.Project
 import org.gradle.api.file.FileTree
+import org.gradle.api.tasks.compile.JavaCompile
 import org.gradle.language.base.plugins.LifecycleBasePlugin
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.dsl.KotlinVersion
 import java.io.File
 
@@ -114,6 +116,16 @@ private val detektExplicitExclusionReasons = linkedMapOf(
     "exposed-jdbc-tests" to "Documented Testcontainers-backed test exception; this project is not registered in this repository.",
 )
 
+// These modules form the minimum Java 21-compatible dependency island required by
+// bluetape4k-virtualthread-jdk21. All other modules use the Java/JVM 25 default.
+private val java21CompatibilityProjects = setOf(
+    "bluetape4k-assertions",
+    "bluetape4k-junit5",
+    "bluetape4k-logging",
+    "bluetape4k-virtualthread-api",
+    "bluetape4k-virtualthread-jdk21",
+)
+
 fun Project.detektExclusionReason(): String? = when {
     name in detektExplicitExclusionReasons -> detektExplicitExclusionReasons.getValue(name)
     isSampleOrBenchmarkProject() -> "Examples, demos, benchmarks, and workshop sources are excluded from library analysis."
@@ -190,18 +202,22 @@ subprojects {
     }
 
     pluginManager.withPlugin("org.jetbrains.kotlin.jvm") {
+        val javaCompatibilityVersion = if (project.name in java21CompatibilityProjects) 21 else 25
+        val kotlinJvmTarget = if (javaCompatibilityVersion == 21) JvmTarget.JVM_21 else JvmTarget.JVM_25
+
         kotlin {
-            jvmToolchain(21)
+            jvmToolchain(javaCompatibilityVersion)
             compilerOptions {
-                languageVersion.set(KotlinVersion.KOTLIN_2_3)
-                apiVersion.set(KotlinVersion.KOTLIN_2_3)
+                languageVersion.set(KotlinVersion.KOTLIN_2_4)
+                apiVersion.set(KotlinVersion.KOTLIN_2_4)
+                jvmTarget.set(kotlinJvmTarget)
+                // Kotlin 2.4 stabilizes context parameters and makes param-property the default
+                // annotation target rule, so the former experimental flags are intentionally omitted.
                 freeCompilerArgs = listOf(
                     "-Xjsr305=strict",
                     "-jvm-default=enable",
                     // "-Xinline-classes",
                     "-Xstring-concat=indy",         // since Kotlin 1.4.20 for JVM 9+
-                    "-Xcontext-parameters",           // since Kotlin 1.6
-                    "-Xannotation-default-target=param-property"
                 )
                 val experimentalAnnotations = listOf(
                     "kotlin.RequiresOptIn",
@@ -215,6 +231,10 @@ subprojects {
                 )
                 freeCompilerArgs.addAll(experimentalAnnotations.map { "-opt-in=$it" })
             }
+        }
+
+        tasks.withType<JavaCompile>().configureEach {
+            options.release.set(javaCompatibilityVersion)
         }
     }
 
