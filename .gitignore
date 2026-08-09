@@ -3,6 +3,7 @@
 
 # Git Worktrees
 .worktrees/
+.bluetape/
 
 # Log file
 *.log
