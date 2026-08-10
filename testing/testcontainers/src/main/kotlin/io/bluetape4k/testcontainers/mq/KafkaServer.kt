@@ -49,7 +49,7 @@ class KafkaServer private constructor(
     companion object: KLogging() {
         const val IMAGE = "confluentinc/cp-kafka"
         const val NAME = "kafka"
-        const val TAG = "7.5.2"
+        const val TAG = "7.5.16"
         const val PORT = 9093
 
         /**

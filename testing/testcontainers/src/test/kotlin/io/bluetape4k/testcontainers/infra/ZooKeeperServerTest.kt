@@ -60,7 +60,7 @@ class ZooKeeperServerTest: AbstractContainerTest() {
 
     @Test
     fun `전달받은 image 를 사용한다`() {
-        val server = ZooKeeperServer(image = "zookeeper", tag = "3.9")
-        assertEquals("zookeeper:3.9", server.dockerImageName)
+        val server = ZooKeeperServer(image = "zookeeper", tag = ZooKeeperServer.TAG)
+        assertEquals("zookeeper:${ZooKeeperServer.TAG}", server.dockerImageName)
     }
 }

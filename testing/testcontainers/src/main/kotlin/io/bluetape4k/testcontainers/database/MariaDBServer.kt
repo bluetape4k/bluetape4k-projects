@@ -32,7 +32,7 @@ class MariaDBServer private constructor(
 
     companion object: KLogging() {
         const val IMAGE = "mariadb"
-        const val TAG = "12"
+        const val TAG = "12.3.2"
         const val NAME = "mariadb"
         const val PORT: Int = 3306
         const val USERNAME = "test"
@@ -43,7 +43,7 @@ class MariaDBServer private constructor(
          * [MariaDBServer]를 생성합니다.
          *
          * ```kotlin
-         * val server = MariaDBServer(image = "mariadb", tag = "12")
+         * val server = MariaDBServer(image = "mariadb", tag = TAG)
          * // server.url.startsWith("jdbc:mariadb://") == true (시작 후)
          * ```
          *
@@ -76,7 +76,7 @@ class MariaDBServer private constructor(
          * [MariaDBServer]를 생성합니다.
          *
          * ```kotlin
-         * val image = DockerImageName.parse("mariadb").withTag("12")
+         * val image = DockerImageName.parse("mariadb").withTag(TAG)
          * val server = MariaDBServer(image)
          * // server.isRunning == false
          * ```

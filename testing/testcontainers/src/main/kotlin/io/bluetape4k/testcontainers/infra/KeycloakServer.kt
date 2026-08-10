@@ -25,7 +25,7 @@ class KeycloakServer private constructor(
 
     companion object: KLogging() {
         const val IMAGE = "quay.io/keycloak/keycloak"
-        const val TAG = "26.2"
+        const val TAG = "26.7.1"
         const val NAME = "keycloak"
         const val PORT = 8080
 
@@ -33,7 +33,7 @@ class KeycloakServer private constructor(
          * [DockerImageName]으로 [KeycloakServer] 인스턴스를 생성합니다.
          *
          * ```kotlin
-         * val image = DockerImageName.parse("quay.io/keycloak/keycloak").withTag("26.2")
+         * val image = DockerImageName.parse("quay.io/keycloak/keycloak").withTag(TAG)
          * val server = KeycloakServer(image)
          * // server.isRunning == false
          * ```
@@ -55,7 +55,7 @@ class KeycloakServer private constructor(
          * 이미지 이름/태그로 [KeycloakServer] 인스턴스를 생성합니다.
          *
          * ```kotlin
-         * val server = KeycloakServer(image = "quay.io/keycloak/keycloak", tag = "26.2")
+         * val server = KeycloakServer(image = "quay.io/keycloak/keycloak", tag = TAG)
          * // server.url.startsWith("http://") == true (시작 후)
          * ```
          *

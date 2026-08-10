@@ -28,7 +28,7 @@ class JaegerServer private constructor(
     companion object: KLogging() {
         const val IMAGE = "jaegertracing/all-in-one"
         const val NAME = "jaeger"
-        const val TAG = "1"
+        const val TAG = "1.76.0"
 
         const val ZIPKIN_PORT = 9411
         const val FRONTEND_PORT = 16686

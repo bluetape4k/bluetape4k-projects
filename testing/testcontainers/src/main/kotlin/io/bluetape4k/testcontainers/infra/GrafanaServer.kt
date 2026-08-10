@@ -47,7 +47,7 @@ class GrafanaServer private constructor(
         const val IMAGE = "grafana/grafana"
 
         /** Default Docker image tag. */
-        const val TAG = "11.6.1"
+        const val TAG = "13.1.3"
 
         /** Server identifier used for system property registration. */
         const val NAME = "grafana"

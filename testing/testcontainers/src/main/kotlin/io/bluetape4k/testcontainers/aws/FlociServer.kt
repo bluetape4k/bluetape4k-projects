@@ -55,7 +55,7 @@ class FlociServer private constructor(
         const val IMAGE = "floci/floci"
 
         /** Default pinned Floci Docker image tag. */
-        const val TAG = "1.5.27"
+        const val TAG = "1.6.0"
 
         /** PropertyExportingServer namespace and container identifier. */
         const val NAME = "floci"

@@ -47,7 +47,7 @@ class FalkorDBServer private constructor(
         const val IMAGE = "falkordb/falkordb"
 
         /** 기본으로 사용하는 FalkorDB 이미지 태그 */
-        const val TAG = "v4.18.1"
+        const val TAG = "v4.20.2"
 
         /** 시스템 프로퍼티 접두사에 사용되는 서버 이름 */
         const val NAME = "falkordb"

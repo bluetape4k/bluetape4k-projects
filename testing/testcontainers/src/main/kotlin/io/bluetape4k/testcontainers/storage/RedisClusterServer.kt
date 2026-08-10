@@ -79,7 +79,7 @@ class RedisClusterServer private constructor(
          * - 이 함수는 컨테이너를 시작하지 않습니다.
          *
          * ```kotlin
-         * val image = DockerImageName.parse("tommy351/redis-cluster").withTag("6.2")
+         * val image = DockerImageName.parse("tommy351/redis-cluster").withTag(TAG)
          * val cluster = RedisClusterServer(image)
          * // cluster.isRunning == false
          * ```
@@ -102,7 +102,7 @@ class RedisClusterServer private constructor(
          * - 컨테이너 시작은 호출자가 `start()`로 수행해야 합니다.
          *
          * ```kotlin
-         * val cluster = RedisClusterServer(image = "tommy351/redis-cluster", tag = "6.2")
+         * val cluster = RedisClusterServer(image = "tommy351/redis-cluster", tag = TAG)
          * // cluster.url.startsWith("redis://") == true
          * ```
          */

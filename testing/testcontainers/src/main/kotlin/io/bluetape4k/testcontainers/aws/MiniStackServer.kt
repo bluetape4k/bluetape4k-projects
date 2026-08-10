@@ -20,7 +20,7 @@ import java.time.Duration
  * MIT 라이선스 기반의 경량 AWS 에뮬레이터로, 31개 이상의 AWS 서비스를 지원합니다.
  * LocalStack Community Edition 아카이브(2026-03-23) 이후의 주력 대안입니다.
  *
- * - Docker 이미지: `ministackorg/ministack:1.3.14` (~270MB, ~30MB RAM, ~2초 기동)
+ * - Docker 이미지: `ministackorg/ministack:1.4.14` (~270MB, ~30MB RAM, ~2초 기동)
  * - 헬스 엔드포인트: `/_ministack/health`
  * - KMS 전 기능 지원 (DisableKey/EnableKey/Grant 포함)
  * - DynamoDB GSI Pagination 지원
@@ -57,7 +57,7 @@ class MiniStackServer private constructor(
         const val IMAGE = "ministackorg/ministack"
 
         /** MiniStack Docker 이미지 기본 태그 */
-        const val TAG = "1.3.14"
+        const val TAG = "1.4.14"
 
         /** PropertyExportingServer 네임스페이스 및 컨테이너 식별자 */
         const val NAME = "ministack"
@@ -78,7 +78,7 @@ class MiniStackServer private constructor(
          * 이미지 이름/태그로 [MiniStackServer] 인스턴스를 생성합니다.
          *
          * ```kotlin
-         * val server = MiniStackServer(image = "ministackorg/ministack", tag = "1.3.14")
+         * val server = MiniStackServer(image = "ministackorg/ministack", tag = TAG)
          * server.start()
          * // server.url.startsWith("http://") == true
          * ```
@@ -108,7 +108,7 @@ class MiniStackServer private constructor(
          * [DockerImageName]으로 [MiniStackServer] 인스턴스를 생성합니다.
          *
          * ```kotlin
-         * val image = DockerImageName.parse("ministackorg/ministack").withTag("1.3.14")
+         * val image = DockerImageName.parse("ministackorg/ministack").withTag(TAG)
          * val server = MiniStackServer(image)
          * // server.isRunning == false (아직 start 전)
          * ```

@@ -35,7 +35,7 @@ class Neo4jServer private constructor(
         const val IMAGE = "neo4j"
 
         /** Neo4j Docker 이미지 태그 — Neo4j 5.x LTS 최신 패치 */
-        const val TAG = "5.26.24"
+        const val TAG = "5.26.29"
 
         /** 시스템 프로퍼티 등록에 사용할 서버 이름 */
         const val NAME = "neo4j"

@@ -35,7 +35,7 @@ class MailpitServer private constructor(
      */
     companion object: KLogging() {
         const val IMAGE = "axllent/mailpit"
-        const val TAG = "v1.29"
+        const val TAG = "v1.30.7"
         const val NAME = "mailpit"
         const val SMTP_PORT = 1025
         const val UI_PORT = 8025
@@ -44,7 +44,7 @@ class MailpitServer private constructor(
          * 이미지 이름/태그로 [MailpitServer] 인스턴스를 생성합니다.
          *
          * ```kotlin
-         * val server = MailpitServer(image = "axllent/mailpit", tag = "v1.29")
+         * val server = MailpitServer(image = "axllent/mailpit", tag = TAG)
          * // server.url.startsWith("smtp://") == true (시작 후)
          * ```
          *
@@ -71,7 +71,7 @@ class MailpitServer private constructor(
          * [DockerImageName]으로 [MailpitServer] 인스턴스를 생성합니다.
          *
          * ```kotlin
-         * val image = DockerImageName.parse("axllent/mailpit").withTag("v1.29")
+         * val image = DockerImageName.parse("axllent/mailpit").withTag(TAG)
          * val server = MailpitServer(image)
          * // server.isRunning == false
          * ```

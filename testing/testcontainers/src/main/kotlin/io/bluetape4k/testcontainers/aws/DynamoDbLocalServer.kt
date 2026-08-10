@@ -37,7 +37,7 @@ class DynamoDbLocalServer private constructor(
         const val IMAGE = "amazon/dynamodb-local"
 
         /** Default DynamoDB Local image tag. */
-        const val TAG = "2.6.1"
+        const val TAG = "3.3.1"
 
         /** Property namespace for exported connection properties. */
         const val NAME = "dynamodb-local"

@@ -54,7 +54,7 @@ class RedisServer private constructor(
    PropertyExportingServer {
     companion object: KLogging() {
         const val IMAGE = "redis"
-        const val TAG = "8"
+        const val TAG = "8.8.1"
         const val NAME = "redis"
         const val PORT = 6379
 
@@ -92,7 +92,7 @@ class RedisServer private constructor(
          * - 이 함수는 컨테이너를 시작하지 않습니다.
          *
          * ```kotlin
-         * val image = DockerImageName.parse("redis").withTag("8")
+         * val image = DockerImageName.parse("redis").withTag(TAG)
          * val server = RedisServer(image)
          * // server.isRunning == false
          * ```

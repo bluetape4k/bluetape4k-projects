@@ -34,7 +34,7 @@ class PrometheusServer private constructor(
         const val IMAGE = "prom/prometheus"
 
         /** 기본 Docker 이미지 태그입니다. */
-        const val TAG = "v3.7.3"
+        const val TAG = "v3.13.2"
 
         /** 시스템 프로퍼티 등록 시 사용하는 서버 식별자입니다. */
         const val NAME = "prometheus"
@@ -55,7 +55,7 @@ class PrometheusServer private constructor(
          * 이미지 이름/태그로 [PrometheusServer] 인스턴스를 생성합니다.
          *
          * ```kotlin
-         * val server = PrometheusServer(image = "prom/prometheus", tag = "v3.7.3")
+         * val server = PrometheusServer(image = "prom/prometheus", tag = TAG)
          * // server.url.startsWith("http://") == true (시작 후)
          * ```
          *

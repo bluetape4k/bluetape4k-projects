@@ -36,7 +36,7 @@ Testcontainers `2.0.3` 기반 통합 테스트를 빠르게 구성하기 위한 
 - **메일 테스트**: `MailpitServer` — SMTP + Web UI로 이메일 통합 테스트 지원
 -
 
-**관측성**: `ZipkinServer` — 분산 추적 (`openzipkin/zipkin-slim:2.23`), `GrafanaServer` — 대시보드 + 데이터소스 프로비저닝 (`grafana/grafana:11.6.1`), `K3sServer` — 경량 Kubernetes 클러스터 (`rancher/k3s`; `--privileged` Docker 모드 필요)
+**관측성**: `ZipkinServer` — 분산 추적 (`openzipkin/zipkin-slim:2.23`), `GrafanaServer` — 대시보드 + 데이터소스 프로비저닝 (`grafana/grafana:13.1.3`), `K3sServer` — 경량 Kubernetes 클러스터 (`rancher/k3s`; `--privileged` Docker 모드 필요)
 - **고정 포트 매핑 옵션**: `useDefaultPort=true` 설정 시 기본 포트로 바인딩
 - **시스템 프로퍼티 자동 등록**: 컨테이너 시작 시 연결 정보 자동 등록
 - **Spring Boot 설정 단순화**: `${testcontainers...}` placeholder로 연결 정보 주입
@@ -94,6 +94,76 @@ Testcontainers `2.0.3` 기반 통합 테스트를 빠르게 구성하기 위한 
 | BluetapeHttpServer     | `bluetape-http`     | `host`, `port`, `url`, `httpbin-url`, `jsonplaceholder-url`, `web-url`, `https-port`, `https-url`, `https-httpbin-url`, `https-jsonplaceholder-url`, `https-web-url` |
 | BluetapeWebfluxServer  | `bluetape-webflux`  | `host`, `port`, `url`, `httpbin-url`, `jsonplaceholder-url`, `web-url`, `https-port`, `https-url`, `https-httpbin-url`, `https-jsonplaceholder-url`, `https-web-url` |
 
+## 기본 Docker 이미지 태그
+
+아래 기본값은 2026-08-10에 확인한 최신 안정 이미지 태그를 고정한 것입니다.
+재현 가능한 로컬·CI 실행을 위해 변경 가능한 `latest`, major-only, rolling minor
+태그는 사용하지 않습니다.
+
+| 그룹 | 서버 | 이미지 | 기본 태그 |
+|---|---|---|---|
+| AWS | `DynamoDbLocalServer` | `amazon/dynamodb-local` | `3.3.1` |
+| AWS | `FlociServer` | `floci/floci` | `1.6.0` |
+| AWS | `LocalStackServer` | `localstack/localstack` | `4` (deprecated wrapper) |
+| AWS | `MiniStackServer` | `ministackorg/ministack` | `1.4.14` |
+| Database | `ClickHouseServer` | `clickhouse/clickhouse-server` | `26.7.3.19` |
+| Database | `CockroachServer` | `cockroachdb/cockroach` | `v25.4.14` |
+| Database | `MariaDBServer` | `mariadb` | `12.3.2` |
+| Database | `MySQL5Server` | `biarms/mysql` | `5` |
+| Database | `MySQL8Server` | `mysql` | `8.4.11` |
+| Database | `PgvectorServer` | `pgvector/pgvector` | `0.8.6-pg16` |
+| Database | `PostgisServer` | `postgis/postgis` | `16-3.5` |
+| Database | `PostgreSQLServer` | `postgres` | `18.4-alpine` |
+| Database | `TrinoServer` | `trinodb/trino` | `483` |
+| Graph DB | `FalkorDBServer` | `falkordb/falkordb` | `v4.20.2` |
+| Graph DB | `MemgraphServer` | `memgraph/memgraph` | `3.12.0` |
+| Graph DB | `Neo4jServer` | `neo4j` | `5.26.29` |
+| Graph DB | `PostgreSQLAgeServer` | `apache/age` | `release_PG18_1.7.0` |
+| HTTP | `BluetapeHttpServer` | `bluetape4k/mock-web-server` | `1.13.0` |
+| HTTP | `BluetapeWebfluxServer` | `bluetape4k/mock-webflux-server` | `1.13.0` |
+| HTTP | `NginxServer` | `nginx` | `1.30.4-alpine` |
+| HTTP | `WireMockServer` | `wiremock/wiremock` | `3.13.2` |
+| Infrastructure | `ConsulServer` | `hashicorp/consul` | `1.22.7` |
+| Infrastructure | `EtcdServer` | `gcr.io/etcd-development/etcd` | `v3.6.14` |
+| Infrastructure | `GrafanaServer` | `grafana/grafana` | `13.1.3` |
+| Infrastructure | `JaegerServer` | `jaegertracing/all-in-one` | `1.76.0` |
+| Infrastructure | `K3sServer` | `rancher/k3s` | `v1.36.3-k3s1` |
+| Infrastructure | `KeycloakServer` | `quay.io/keycloak/keycloak` | `26.7.1` |
+| Infrastructure | `PrometheusServer` | `prom/prometheus` | `v3.13.2` |
+| Infrastructure | `ToxiproxyServer` | `ghcr.io/shopify/toxiproxy` | `2.9.0` |
+| Infrastructure | `VaultServer` | `hashicorp/vault` | `1.20.4` |
+| Infrastructure | `ZipkinServer` | `openzipkin/zipkin-slim` | `2.23` |
+| Infrastructure | `ZooKeeperServer` | `zookeeper` | `3.9.5` |
+| LLM | `ChromaDBServer` | `chromadb/chroma` | `0.5.23` |
+| LLM | `OllamaServer` | `ollama/ollama` | `0.32.6` |
+| Mail | `MailpitServer` | `axllent/mailpit` | `v1.30.7` |
+| Messaging | `KafkaServer` | `confluentinc/cp-kafka` | `7.5.16` |
+| Messaging | `NatsServer` | `nats` | `2.14.4` |
+| Messaging | `PulsarServer` | `apachepulsar/pulsar` | `3.3.9` (Java 17+ 제약) |
+| Messaging | `RabbitMQServer` | `rabbitmq` | `3.13` (4.x wrapper 실패) |
+| Messaging | `RedpandaServer` | `docker.redpanda.com/redpandadata/redpanda` | `v26.2.1` |
+| Storage | `CassandraServer` | `cassandra` | `5.0.8` |
+| Storage | `ElasticsearchOssServer` | `docker.elastic.co/elasticsearch/elasticsearch-oss` | `7.10.2` |
+| Storage | `ElasticsearchServer` | `docker.elastic.co/elasticsearch/elasticsearch` | `9.5.0` |
+| Storage | `HazelcastServer` | `hazelcast/hazelcast` | `5.7.0-slim-jdk25` |
+| Storage | `Ignite2Server` | `apacheignite/ignite` | `2.18.0` (aarch64는 `-arm64`) |
+| Storage | `Ignite3Server` | `apacheignite/ignite` | `3.1.0` |
+| Storage | `InfluxDBServer` | `influxdb` | `2.9.1` |
+| Storage | `MinIOServer` | `minio/minio` | `RELEASE.2025-07-23T15-54-02Z` (호환성 fixture) |
+| Storage | `MongoDBServer` | `mongo` | `8.0.28` |
+| Storage | `OpenSearchServer` | `opensearchproject/opensearch` | `3.8.0` |
+| Storage | `RedisClusterServer` | `tommy351/redis-cluster` | `6.2` (호환성 fixture) |
+| Storage | `RedisServer` | `redis` | `8.8.1` |
+
+예외는 의도적으로 유지합니다. `MySQL5Server`는 ARM을 지원하는
+`biarms/mysql:5` 별칭을 사용하고, `ElasticsearchOssServer`는 legacy OSS 이미지에
+고정합니다. `ChromaDBServer`는 개발 버전이 아닌 마지막 안정 태그를 사용하며,
+`ZipkinServer`는 최신 이미지에서 현재 계약이 실패하므로 `2.23`을 유지합니다.
+`PulsarServer`와 `RabbitMQServer`는 wrapper와 호환되는 major 버전을 유지하고,
+`MinIOServer`와 `RedisClusterServer`는 명시적 호환성 fixture로 남깁니다.
+`LocalStackServer`는 deprecated이므로 새 AWS 테스트에는 `FlociServer` 또는
+`MiniStackServer`를 사용하세요.
+
 ## 사용 예
 
 ### 데이터베이스
@@ -129,10 +199,10 @@ val server = PostgreSQLServer.Launcher.withExtensions("uuid-ossp", "hstore")
 
 | 서버 클래스           | Docker 이미지       | 기본 태그            | 프로토콜  | 기본 포트   |
 |-----------------------|---------------------|----------------------|-----------|-------------|
-| `Neo4jServer`         | `neo4j`             | `5.26.24`            | Bolt/HTTP | 7687 / 7474 |
-| `MemgraphServer`      | `memgraph/memgraph` | `3.9.0`              | Bolt      | 7687        |
-| `FalkorDBServer`      | `falkordb/falkordb` | `v4.18.1`            | Redis     | 6379        |
-| `PostgreSQLAgeServer` | `apache/age`        | `release_PG17_1.6.0` | JDBC      | 5432        |
+| `Neo4jServer`         | `neo4j`             | `5.26.29`            | Bolt/HTTP | 7687 / 7474 |
+| `MemgraphServer`      | `memgraph/memgraph` | `3.12.0`             | Bolt      | 7687        |
+| `FalkorDBServer`      | `falkordb/falkordb` | `v4.20.2`            | Redis     | 6379        |
+| `PostgreSQLAgeServer` | `apache/age`        | `release_PG18_1.7.0` | JDBC      | 5432        |
 
 ```kotlin
 // Neo4j 서버

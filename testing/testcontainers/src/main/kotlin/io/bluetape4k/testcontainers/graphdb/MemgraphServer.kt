@@ -47,7 +47,7 @@ class MemgraphServer private constructor(
         const val IMAGE = "memgraph/memgraph"
 
         /** 기본으로 사용하는 Memgraph 이미지 태그 — 재현 가능한 테스트를 위해 고정 버전을 사용합니다. */
-        const val TAG = "3.9.0"
+        const val TAG = "3.12.0"
 
         /** 시스템 프로퍼티 접두사에 사용되는 서버 이름 */
         const val NAME = "memgraph"

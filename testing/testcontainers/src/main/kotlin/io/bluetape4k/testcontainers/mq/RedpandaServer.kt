@@ -35,7 +35,7 @@ class RedpandaServer private constructor(
 
     companion object: KLogging() {
         const val IMAGE = "docker.redpanda.com/redpandadata/redpanda"
-        const val TAG = "v24.3.1"
+        const val TAG = "v26.2.1"
         const val NAME = "redpanda"
 
         const val PORT = 9092

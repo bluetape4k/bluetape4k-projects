@@ -26,7 +26,7 @@ class ChromaDBServer private constructor(
         const val IMAGE = "chromadb/chroma"
 
         /** 기본 Docker 이미지 태그입니다. */
-        const val TAG = "0.5.23" // "latest"
+        const val TAG = "0.5.23"
 
         /** 시스템 프로퍼티 등록 시 사용하는 서버 식별자입니다. */
         const val NAME = "chromadb"
