@@ -107,6 +107,51 @@ class CqlSessionProviderTest: AbstractCassandraTest() {
     }
 
     @Test
+    fun `identity overload 는 bootstrap 과 session builder 를 분리한다`() {
+        val identity = cqlSessionIdentityOf(
+            keyspace = "provider_identity_${UUID.randomUUID().toString().take(8)}",
+            contextParts = listOf("contactPoint=${cassandra4.host}:${cassandra4.port}")
+        )
+        val builderSupplier = {
+            CqlSessionProvider.newCqlSessionBuilder(
+                InetSocketAddress(cassandra4.host, cassandra4.port),
+                CqlSessionProvider.DEFAULT_LOCAL_DATACENTER
+            )
+        }
+
+        val session = CqlSessionProvider.getOrCreateSession(
+            identity = identity,
+            builderSupplier = builderSupplier,
+            bootstrapBuilder = { withApplicationName("provider-identity-bootstrap") },
+            sessionBuilder = { withApplicationName("provider-identity-session") }
+        )
+
+        session.keyspace.orElseThrow().asInternal() shouldBeEqualTo identity.keyspace
+        session.closeSafe()
+    }
+
+    @Test
+    fun `keyspace overload 는 bootstrap 과 session builder 를 분리한다`() {
+        val keyspace = "provider_split_${UUID.randomUUID().toString().take(8)}"
+        val builderSupplier = {
+            CqlSessionProvider.newCqlSessionBuilder(
+                InetSocketAddress(cassandra4.host, cassandra4.port),
+                CqlSessionProvider.DEFAULT_LOCAL_DATACENTER
+            )
+        }
+
+        val session = CqlSessionProvider.getOrCreateSession(
+            keyspace = keyspace,
+            builderSupplier = builderSupplier,
+            bootstrapBuilder = { withApplicationName("provider-split-bootstrap") },
+            sessionBuilder = { withApplicationName("provider-split-session") }
+        )
+
+        session.keyspace.orElseThrow().asInternal() shouldBeEqualTo keyspace
+        session.closeSafe()
+    }
+
+    @Test
     fun `blank keyspace 는 허용하지 않는다`() {
         assertFailsWith<IllegalArgumentException> {
             CqlSessionProvider.getOrCreateSession(" ") {
@@ -120,5 +165,14 @@ class CqlSessionProviderTest: AbstractCassandraTest() {
         assertFailsWith<IllegalArgumentException> {
             CqlSessionProvider.newCqlSessionBuilder(localDatacenter = " ")
         }
+    }
+
+    @Test
+    @Suppress("DEPRECATION")
+    fun `legacy identity factory delegates to normalized context`() {
+        val identity = CqlSessionIdentity.of("identity_factory", listOf(" b ", "a", ""))
+
+        identity.keyspace shouldBeEqualTo "identity_factory"
+        identity.context shouldBeEqualTo "a|b"
     }
 }
