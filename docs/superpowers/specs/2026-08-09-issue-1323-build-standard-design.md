@@ -22,6 +22,13 @@ Kotlin 2.4, JDK 25, Gradle 9.7.0 기준과 일치하지 않는다.
 - JDK 25로 실행되는 consumer와 example은 JDK 21 preview provider를 runtime에
   끌어오지 않도록 JDK 25 provider를 사용한다. JDK 21 compatibility island의
   compile contract와 전용 provider 테스트는 유지한다.
+- JDK 25에서 실행되는 `bluetape4k-coroutines` 테스트는 JDK 21 preview provider를
+  test runtime에 함께 올리지 않고 JDK 25 provider만 선택한다. 그래야 ServiceLoader가
+  JDK 21 preview classfile을 먼저 읽다가 탐색을 중단하지 않는다.
+- JDK 25/Kotlin 2.4 classfile descriptor와 충돌하는 괄호 포함 테스트명 내부의
+  로컬 클래스는 테스트 동작을 바꾸지 않는 안전한 이름으로 정리하고, Java platform
+  nullable 반환값을 사용하는 Kafka test stub은 명시적 non-null test contract로
+  고정한다.
 
 ## 현재 증거
 
@@ -197,6 +204,12 @@ Java 21용 artifact라는 공개 호환성 의미와 `--release 21` 계약을 �
 - `docs/manual/en/modules/bluetape4k-workflow.md`,
   `docs/manual/ko/modules/bluetape4k-workflow.md`: workflow의 JDK 25 provider를
   실제 build와 일치시킨다.
+- `bluetape4k/coroutines/build.gradle.kts`: JDK 25 test runtime provider를
+  직접 선택해 JDK 21 preview provider 전이를 차단한다.
+- `infra/kafka/src/test/kotlin/io/bluetape4k/kafka/spring/core/SuspendKafkaConsumerTemplateTest.kt`:
+  Kotlin 2.4/JDK 25 compiler의 Java platform type 추론에 맞춘 test stub을 둔다.
+- `data/r2dbc/src/test/kotlin/io/bluetape4k/r2dbc/query/QueryBuilderSupportTest.kt`:
+  Spring ASM classpath scan에서 해석 가능한 테스트 이름을 사용한다.
 - `cache/hibernate-cache-lettuce/README.md`,
   `cache/hibernate-cache-lettuce/README.ko.md`: 저장소 기본 정책 참조를 JDK 25+로
   갱신한다.

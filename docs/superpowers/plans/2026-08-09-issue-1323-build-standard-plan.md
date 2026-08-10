@@ -93,6 +93,7 @@ merge, publish, release와 중앙 Dependabot 버전 갱신은 수행하지 않�
 - Modify: `utils/workflow/build.gradle.kts`
 - Modify: `virtualthread/api/build.gradle.kts`
 - Modify: `testing/junit5/build.gradle.kts`
+- Modify: `bluetape4k/coroutines/build.gradle.kts`
 - Modify: `examples/redisson-demo/build.gradle.kts`
 - Modify: `examples/virtualthreads-demo/build.gradle.kts`
 - Modify: `examples/virtualthreads-demo/README.md`
@@ -103,6 +104,8 @@ merge, publish, release와 중앙 Dependabot 버전 갱신은 수행하지 않�
 - Modify: `docs/manual/ko/modules/bluetape4k-junit5.md`
 - Modify: `docs/manual/en/modules/bluetape4k-workflow.md`
 - Modify: `docs/manual/ko/modules/bluetape4k-workflow.md`
+- Modify: `infra/kafka/src/test/kotlin/io/bluetape4k/kafka/spring/core/SuspendKafkaConsumerTemplateTest.kt`
+- Modify: `data/r2dbc/src/test/kotlin/io/bluetape4k/r2dbc/query/QueryBuilderSupportTest.kt`
 
 **Steps:**
 
@@ -113,9 +116,15 @@ merge, publish, release와 중앙 Dependabot 버전 갱신은 수행하지 않�
    provider를 자체 test에만 사용하고 published consumer에 강제하지 않는다.
 3. Java 25에서 StructuredTaskScope를 실행하는 `examples/redisson-demo`는
    `testRuntimeOnly(":bluetape4k-virtualthread-jdk25")`를 명시한다.
-4. EN/KO README와 manual의 실행 JDK, provider dependency 설명을 실제 build와
+4. JDK 25로 실행되는 `bluetape4k-coroutines` 테스트는 JDK 21 preview provider가
+   ServiceLoader 탐색을 중단시키지 않도록 JDK 25 provider만 `testRuntimeOnly`로
+   선택한다.
+5. EN/KO README와 manual의 실행 JDK, provider dependency 설명을 실제 build와
    일치시킨다.
-5. example, core, workflow, API, junit5, redisson 표적 test를 순차 실행하고
+6. JDK 25에서 Kotlin이 생성하는 classfile descriptor와 호환되지 않는 테스트
+   이름/로컬 클래스 조합을 안전한 테스트 이름으로 고치고, Kafka 테스트 stub의
+   nullable Java platform type을 JDK 25 Kotlin compiler에 맞게 정리한다.
+7. example, core, workflow, API, junit5, coroutines, Kafka, R2DBC 표적 test를 순차 실행하고
    provider 이름 및 실패 없는 StructuredTaskScope 실행을 확인한다.
 
 ## Task 4B: Gradle dependency submission 실행 경로 교체
@@ -178,6 +187,10 @@ merge, publish, release와 중앙 Dependabot 버전 갱신은 수행하지 않�
    확인한다.
 7. 최종 diff 독립 리뷰에서 P0/P1이 없음을 확인하고 변경을 Lore 형식으로
    커밋한다.
+
+8. JDK 25 hosted CI에서 Kafka `compileTestKotlin`, coroutines
+   `StructuredConcurrencyTest`, R2DBC Spring context scan 실패가 재발하지 않는지
+   exact head 기준으로 확인한다.
 
 ## 중단 조건
 

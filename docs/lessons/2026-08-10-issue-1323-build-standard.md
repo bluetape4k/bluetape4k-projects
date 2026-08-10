@@ -93,6 +93,39 @@ CodeQL catalog checkout에도 resolved 40자리 commit과 실제 checkout HEAD�
 일치하는지 확인하는 단계를 복원해, 중앙 catalog 무결성 검사를 정책 test와
 workflow 양쪽에서 유지한다.
 
+## JDK 25 hosted CI 후속 실패와 보수 수정
+
+exact-head hosted run `31343640725`에서 기존 provider 보수 이후에도 다음 세
+경계가 드러났다.
+
+- `Test / Kafka Infra`는 `SuspendKafkaConsumerTemplateTest`의
+  `Mono<Any?>` platform type 추론 차이로 `compileTestKotlin`이 실패했다.
+  테스트 stub을 `doOnConsumer<Any>`와 non-null callback으로 고정해 JDK 25
+  Kotlin compiler가 동일한 test contract를 사용하도록 했다.
+- `Test / Core`의 coroutines 테스트는 test runtime에 JDK 21 preview provider와
+  JDK 25 provider가 함께 있었다. ServiceLoader가 JDK 21 preview classfile을
+  읽는 순간 `UnsupportedClassVersionError`로 `hasNext()`를 중단해 JDK 25
+  provider를 탐색하지 못했다. `bluetape4k-coroutines`에서 JDK 21
+  `compileOnly` 전이를 제거하고 JDK 25 provider만 `testRuntimeOnly`로
+  선택했다.
+- `Test / Data`의 R2DBC Spring context scan은 괄호가 포함된 테스트 함수명 내부
+  로컬 `Item` 클래스가 잘못된 JVM method descriptor를 생성해
+  `Bad method descriptor`를 발생시켰다. 테스트 의미는 유지한 채 함수명을
+  괄호 없는 이름으로 바꿔 classpath scan 경계를 닫았다.
+
+로컬 재검증은 다음과 같이 모두 성공했다.
+
+- `:bluetape4k-coroutines:test --tests '*StructuredConcurrencyTest*'`:
+  `BUILD SUCCESSFUL`
+- `:bluetape4k-kafka:test --max-workers=2 --no-configuration-cache`:
+  265 tests passing, `BUILD SUCCESSFUL`
+- `:bluetape4k-r2dbc:test --max-workers=2 --no-configuration-cache`:
+  `BUILD SUCCESSFUL`
+
+새 커밋 push 뒤에는 이 세 경계와 기존 Examples/Build/정책 체크를 같은 exact
+head에서 다시 확인해야 하며, hosted CI가 통과하기 전에는 merge-ready로
+판정하지 않는다.
+
 이전 PR head의 hosted CI에서는 `Test Examples`가 JDK 25에서 JDK 21 provider를
 소비해 3개 StructuredTaskScope 테스트를 실패했고
 (`31324376319/93272283919`), GitHub-managed `submit-gradle`은 JDK 21로
