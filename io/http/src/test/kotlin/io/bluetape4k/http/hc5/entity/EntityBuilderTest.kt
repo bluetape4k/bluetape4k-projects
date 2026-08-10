@@ -8,6 +8,11 @@ import io.bluetape4k.assertions.shouldNotBeNull
 import io.bluetape4k.assertions.shouldNotBeNullOrEmpty
 import org.apache.hc.core5.http.ContentType
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.io.TempDir
+import java.io.ByteArrayInputStream
+import java.io.File
+import java.nio.file.Files
+import org.apache.hc.core5.http.message.BasicNameValuePair
 
 class EntityBuilderTest {
 
@@ -108,5 +113,52 @@ class EntityBuilderTest {
 
         val result = entity.toStringOrNull()
         result shouldBeEqualTo text
+    }
+
+    @Test
+    fun `httpEntityOf supports input stream and content encoding`() {
+        val bytes = "stream content".toByteArray()
+        val entity = httpEntityOf(
+            inputStream = ByteArrayInputStream(bytes),
+            contentType = ContentType.TEXT_PLAIN,
+            contentEncoding = "UTF-8",
+            gzipCompressed = true,
+        )
+
+        entity.contentEncoding.shouldNotBeNullOrEmpty()
+        entity.contentType.shouldNotBeNull()
+    }
+
+    @Test
+    fun `httpEntityOf supports file content`(@TempDir tempDir: File) {
+        val file = Files.createTempFile(tempDir.toPath(), "entity", ".txt").toFile()
+        file.writeText("file content")
+
+        val entity = httpEntityOf(
+            file = file,
+            contentType = ContentType.TEXT_PLAIN,
+            builder = { setContentEncoding("UTF-8") },
+        )
+
+        String(entity.toByteArrayOrNull().shouldNotBeNull(), Charsets.UTF_8) shouldBeEqualTo "file content"
+    }
+
+    @Test
+    fun `httpEntityOf supports serializable and form parameters`() {
+        val serializableEntity = httpEntityOf(
+            serializable = "serializable value",
+            contentType = ContentType.APPLICATION_OCTET_STREAM,
+        )
+        serializableEntity.toByteArrayOrNull().shouldNotBeNull()
+
+        val parameters = listOf(
+            BasicNameValuePair("name", "alice"),
+            BasicNameValuePair("role", "admin"),
+        )
+        val parameterEntity = httpEntityOf(
+            parameters = parameters,
+            contentType = ContentType.APPLICATION_FORM_URLENCODED,
+        )
+        parameterEntity.toStringOrNull().shouldNotBeNull()
     }
 }

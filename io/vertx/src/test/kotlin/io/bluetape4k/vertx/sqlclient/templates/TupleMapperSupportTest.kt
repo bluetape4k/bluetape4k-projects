@@ -39,4 +39,15 @@ class TupleMapperSupportTest {
         val params = emptyList<UserRecord>().toParameters()
         params.shouldBeEmpty()
     }
+
+    @Test
+    fun `tupleMapperOfRecord는 이름 기반 Tuple을 생성한다`() {
+        val record = UserRecord(id = 7L, name = "bob", enabled = true)
+        val mapper = tupleMapperOfRecord<UserRecord>()
+        val tuple = mapper.map({ index -> listOf("id", "name", "enabled")[index] }, 3, record)
+
+        tuple.getLong(0) shouldBeEqualTo 7L
+        tuple.getString(1) shouldBeEqualTo "bob"
+        tuple.getBoolean(2).shouldBeTrue()
+    }
 }

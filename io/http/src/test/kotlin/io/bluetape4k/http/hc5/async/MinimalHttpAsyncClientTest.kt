@@ -3,6 +3,7 @@ package io.bluetape4k.http.hc5.async
 import io.bluetape4k.http.hc5.AbstractHc5Test
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
+import io.bluetape4k.junit5.coroutines.runSuspendIO
 import kotlinx.coroutines.test.runTest
 import io.bluetape4k.assertions.shouldNotBeNull
 import org.apache.hc.client5.http.impl.async.MinimalH2AsyncClient
@@ -58,6 +59,22 @@ class MinimalHttpAsyncClientTest: AbstractHc5Test() {
             val host = org.apache.hc.core5.http.HttpHost(url.protocol, url.host, url.port)
             val endpoint = client.leaseSuspending(host)
             log.debug { "Leased endpoint: $endpoint" }
+            endpoint.shouldNotBeNull()
+            endpoint.releaseAndDiscard()
+        } finally {
+            client.close()
+        }
+    }
+
+    @Test
+    @Suppress("DEPRECATION")
+    fun `suspendLease deprecated overload도 엔드포인트를 획득한다`() = runSuspendIO {
+        val client = minimalHttpAsyncClientOf()
+        client.start()
+        try {
+            val url = java.net.URI.create(httpbinBaseUrl).toURL()
+            val host = org.apache.hc.core5.http.HttpHost(url.protocol, url.host, url.port)
+            val endpoint = client.suspendLease(host)
             endpoint.shouldNotBeNull()
             endpoint.releaseAndDiscard()
         } finally {

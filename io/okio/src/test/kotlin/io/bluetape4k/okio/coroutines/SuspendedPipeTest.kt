@@ -12,6 +12,7 @@ import kotlinx.coroutines.coroutineScope
 import net.datafaker.Faker
 import okio.Buffer
 import okio.IOException
+import okio.Timeout
 import org.junit.jupiter.api.Test
 
 class SuspendedPipeTest: AbstractOkioTest() {
@@ -96,6 +97,64 @@ class SuspendedPipeTest: AbstractOkioTest() {
         assertFailsWith<IllegalStateException> {
             pipe.source.read(Buffer(), 10)
         }
+    }
+
+    @Test
+    fun `folded sink receives later writes and lifecycle calls`() = runSuspendIO {
+        val pipe = SuspendedPipe(1024)
+        val foldedSink = object: SuspendedSink {
+            val result = Buffer()
+            var flushed = false
+            var closed = false
+
+            override suspend fun write(source: Buffer, byteCount: Long) {
+                result.write(source, byteCount)
+            }
+
+            override suspend fun flush() {
+                flushed = true
+            }
+
+            override suspend fun close() {
+                closed = true
+            }
+
+            override fun timeout() = pipe.sink.timeout()
+        }
+
+        pipe.fold(foldedSink)
+        val later = bufferOf("later")
+        pipe.sink.write(later, later.size)
+        pipe.sink.flush()
+        pipe.sink.close()
+
+        foldedSink.result.readUtf8() shouldBeEqualTo "later"
+        foldedSink.flushed shouldBeEqualTo true
+        foldedSink.closed shouldBeEqualTo true
+    }
+
+    @Test
+    fun `fold closes an already closed sink and closed operations fail`() = runSuspendIO {
+        val pipe = SuspendedPipe(1024)
+        pipe.sink.close()
+        val foldedSink = object: SuspendedSink {
+            var closed = false
+
+            override suspend fun write(source: Buffer, byteCount: Long) = Unit
+            override suspend fun flush() = Unit
+            override suspend fun close() {
+                closed = true
+            }
+
+            override fun timeout() = Timeout.NONE
+        }
+
+        pipe.fold(foldedSink)
+        foldedSink.closed shouldBeEqualTo true
+        assertFailsWith<IllegalStateException> { pipe.sink.flush() }
+
+        pipe.source.close()
+        assertFailsWith<IllegalStateException> { pipe.source.read(Buffer(), 1L) }
     }
 
     @Test
