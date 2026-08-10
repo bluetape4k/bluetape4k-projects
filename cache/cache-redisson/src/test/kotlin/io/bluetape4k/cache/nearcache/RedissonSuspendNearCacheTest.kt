@@ -45,7 +45,7 @@ class RedissonSuspendNearCacheTest: AbstractSuspendNearCacheOperationsTest<Strin
             cache.close()
             cache.isClosed.shouldBeTrue()
         } finally {
-            runCatching { cache.close() }
+            cache.close()
         }
     }
 
@@ -61,7 +61,7 @@ class RedissonSuspendNearCacheTest: AbstractSuspendNearCacheOperationsTest<Strin
             cache.put("factory-key", "factory-value")
             cache.get("factory-key") shouldBeEqualTo "factory-value"
         } finally {
-            runCatching { cache.close() }
+            cache.close()
         }
     }
 }

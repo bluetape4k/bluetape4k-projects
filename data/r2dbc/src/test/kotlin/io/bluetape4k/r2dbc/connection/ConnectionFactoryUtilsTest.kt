@@ -1,11 +1,13 @@
 package io.bluetape4k.r2dbc.connection
 
+import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeSameInstanceAs
 import io.bluetape4k.assertions.shouldNotBeNull
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.r2dbc.spi.ConnectionFactories
 import org.junit.jupiter.api.Test
+import org.springframework.transaction.NoTransactionException
 
 class ConnectionFactoryUtilsTest {
 
@@ -27,7 +29,9 @@ class ConnectionFactoryUtilsTest {
         val direct = factory.doGetConnectionAndAwait().shouldNotBeNull()
         factory.doReleaseConnectionAndAwait(direct)
 
-        val currentFailure = runCatching { factory.currentAndAwait() }.exceptionOrNull()
-        currentFailure.shouldNotBeNull()
+        val failure = assertFailsWith<NoTransactionException> {
+            factory.currentAndAwait()
+        }
+        failure.message shouldBeEqualTo "No transaction in context"
     }
 }

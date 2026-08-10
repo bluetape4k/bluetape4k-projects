@@ -8,6 +8,11 @@ import com.querydsl.core.types.TemplateFactory
 import com.querydsl.core.types.dsl.Expressions
 import com.querydsl.core.types.dsl.BooleanExpression
 import com.querydsl.core.types.dsl.SimpleExpression
+import com.querydsl.core.types.dsl.SimpleTemplate
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeInstanceOf
+import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.assertions.shouldNotBeEmpty
 import io.bluetape4k.assertions.shouldNotBeNull
 import org.junit.jupiter.api.Test
 import java.lang.reflect.Method
@@ -27,6 +32,58 @@ class InlineQuerydslCoverageTest {
     private val expressionUtilsSupport = Class.forName("io.bluetape4k.hibernate.querydsl.core.ExpressionUtilsSupportKt")
 
     private enum class Status { ACTIVE }
+
+    private val reifiedMarkerMethods = mutableSetOf<String>()
+
+    private val expectedReifiedMarkerMethods = setOf(
+        "arrayPathOf",
+        "collectionOperation",
+        "collectionPathOf",
+        "comparableEntityPathOf",
+        "comparableOperation",
+        "comparablePathOf",
+        "comparableTemplate",
+        "comparableTemplateOf",
+        "dateOperation",
+        "datePathOf",
+        "dateTemplate",
+        "dateTemplateOf",
+        "dateTimePathOf",
+        "dateTimeTemplate",
+        "dateTimeTemplateOf",
+        "dslOperation",
+        "dslPathOf",
+        "dslTemplate",
+        "dslTemplateOf",
+        "enumOperation",
+        "enumPathOf",
+        "enumTemplate",
+        "enumTemplateOf",
+        "expressionListOf",
+        "expressionSetOf",
+        "listPathOf",
+        "mapPathOf",
+        "newOperation",
+        "newTemplateExpression",
+        "nullExpressionOf",
+        "numberOperation",
+        "numberPathOf",
+        "numberTemplate",
+        "numberTemplateOf",
+        "pathOf",
+        "setPathOf",
+        "simpleExpressionListOf",
+        "simpleExpressionSetOf",
+        "simpleOperation",
+        "simplePathOf",
+        "simpleTemplate",
+        "simpleTemplateOf",
+        "templateExpressionOf",
+        "timeOperation",
+        "timePathOf",
+        "timeTemplate",
+        "timeTemplateOf",
+    )
 
     @Test
     fun `ExpressionsSupport inline facades execute through JVM entry points`() {
@@ -162,6 +219,9 @@ class InlineQuerydslCoverageTest {
         call(expressionsSupport, "asString", stringPath)
         call(expressionsSupport, "asSimple", "value")
         callExact(expressionsSupport, "asSimple", arrayOf(Expression::class.java), arrayOf(stringPath))
+
+        reifiedMarkerMethods.shouldNotBeEmpty()
+        reifiedMarkerMethods.all { it in expectedReifiedMarkerMethods }.shouldBeTrue()
     }
 
     @Test
@@ -214,7 +274,29 @@ class InlineQuerydslCoverageTest {
         call(expressionUtilsSupport, "all", listPathOf<String, SimpleExpression<String>>(metadata))
         call(expressionUtilsSupport, "any", listPathOf<String, SimpleExpression<String>>(metadata))
 
-        expressions.size.shouldNotBeNull()
+        reifiedMarkerMethods.shouldNotBeEmpty()
+        reifiedMarkerMethods.all { it in expectedReifiedMarkerMethods }.shouldBeTrue()
+    }
+
+    @Test
+    fun `querydsl facades preserve expression results`() {
+        val name = Expressions.stringPath("name")
+        val alias = name.alias(Expressions.stringPath("alias"))
+        alias.shouldBeInstanceOf<SimpleExpression<*>>()
+
+        val constant = "value".toExpression()
+        constant.toString() shouldBeEqualTo "value"
+
+        val template = simpleTemplateOf<String>("{0}", "value")
+        template.shouldBeInstanceOf<SimpleTemplate<*>>()
+        template.toString().shouldNotBeEmpty()
+
+        val path = simplePathOf<String>("name")
+        path.metadata.name shouldBeEqualTo "name"
+
+        val predicates = listOf(name.eq("value"))
+        predicates.allOrNull().shouldNotBeNull()
+        listOf<Expression<*>>(name, name).distinctList().size shouldBeEqualTo 1
     }
 
     private fun call(type: Class<*>, name: String, vararg args: Any?): Any? {
@@ -232,12 +314,13 @@ class InlineQuerydslCoverageTest {
 
     private fun invokeAllowingReifiedMarker(method: Method, args: Array<out Any?>): Any? =
         try {
-            method.invoke(null, *args)
+            method.invoke(null, *args).shouldNotBeNull()
         } catch (e: InvocationTargetException) {
             val cause = e.targetException
             if (cause is UnsupportedOperationException &&
                 cause.message?.contains("reified type parameter") == true
             ) {
+                reifiedMarkerMethods += method.name
                 null
             } else {
                 throw cause

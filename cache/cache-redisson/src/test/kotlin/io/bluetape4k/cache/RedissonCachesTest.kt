@@ -30,7 +30,7 @@ class RedissonCachesTest {
         try {
             cache shouldBeInstanceOf JCache::class
         } finally {
-            runCatching { cache.close() }
+            cache.close()
         }
     }
 
@@ -41,7 +41,7 @@ class RedissonCachesTest {
         try {
             cache shouldBeInstanceOf RedissonSuspendJCache::class
         } finally {
-            runCatching { runSuspendIO { cache.close() } }
+            runSuspendIO { cache.close() }
         }
     }
 
@@ -56,7 +56,7 @@ class RedissonCachesTest {
             cache shouldBeInstanceOf JCache::class
             cache.put("config-key", "config-value")
         } finally {
-            runCatching { cache.close() }
+            cache.close()
         }
     }
 
@@ -71,7 +71,7 @@ class RedissonCachesTest {
             cache shouldBeInstanceOf RedissonSuspendJCache::class
             cache.put("config-key", "config-value")
         } finally {
-            runCatching { cache.close() }
+            cache.close()
         }
     }
 
@@ -82,7 +82,7 @@ class RedissonCachesTest {
         try {
             cache shouldBeInstanceOf NearJCache::class
         } finally {
-            runCatching { cache.close() }
+            cache.close()
         }
     }
 
@@ -93,7 +93,7 @@ class RedissonCachesTest {
         try {
             cache shouldBeInstanceOf SuspendNearJCache::class
         } finally {
-            runCatching { runSuspendIO { cache.close() } }
+            runSuspendIO { cache.close() }
         }
     }
 
@@ -104,7 +104,7 @@ class RedissonCachesTest {
             cache shouldBeInstanceOf NearCacheOperations::class
             cache shouldBeInstanceOf RedissonNearCache::class
         } finally {
-            runCatching { cache.close() }
+            cache.close()
         }
     }
 
@@ -115,7 +115,7 @@ class RedissonCachesTest {
             cache shouldBeInstanceOf SuspendNearCacheOperations::class
             cache shouldBeInstanceOf RedissonSuspendNearCache::class
         } finally {
-            runCatching { runSuspendIO { cache.close() } }
+            runSuspendIO { cache.close() }
         }
     }
 }
