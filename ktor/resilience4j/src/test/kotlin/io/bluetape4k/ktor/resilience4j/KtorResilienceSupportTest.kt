@@ -18,7 +18,10 @@ import io.github.resilience4j.retry.RetryConfig
 import io.github.resilience4j.timelimiter.TimeLimiter
 import io.github.resilience4j.timelimiter.TimeLimiterConfig
 import io.ktor.client.request.get
+import io.ktor.client.request.post
+import io.ktor.client.request.put
 import io.ktor.client.statement.bodyAsText
+import io.ktor.http.HttpMethod
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.install
 import io.ktor.server.plugins.statuspages.StatusPages
@@ -66,6 +69,38 @@ class KtorResilienceSupportTest {
         response.status shouldBeEqualTo HttpStatusCode.OK
         response.bodyAsText() shouldBeEqualTo "ok"
         attempts.get() shouldBeEqualTo 2
+    }
+
+    @Test
+    fun `resilientPost protects a POST route and returns success`() = testApplication {
+        application {
+            routing {
+                resilientPost("/submit", KtorResiliencePolicies()) {
+                    call.respondText("accepted")
+                }
+            }
+        }
+
+        val response = client.post("/submit")
+
+        response.status shouldBeEqualTo HttpStatusCode.OK
+        response.bodyAsText() shouldBeEqualTo "accepted"
+    }
+
+    @Test
+    fun `resilientRoute protects a custom HTTP method route`() = testApplication {
+        application {
+            routing {
+                resilientRoute(HttpMethod.Put, "/replace", KtorResiliencePolicies()) {
+                    call.respondText("replaced")
+                }
+            }
+        }
+
+        val response = client.put("/replace")
+
+        response.status shouldBeEqualTo HttpStatusCode.OK
+        response.bodyAsText() shouldBeEqualTo "replaced"
     }
 
     @Test
