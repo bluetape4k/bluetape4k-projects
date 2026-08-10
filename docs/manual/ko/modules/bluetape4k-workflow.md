@@ -62,7 +62,7 @@ README 근거는 **아키텍처**, **개념 개요**, **WorkReport 상태**, **�
 ```kotlin
 api(project(":bluetape4k-core"))
 implementation(project(":bluetape4k-virtualthread-api"))
-runtimeOnly(project(":bluetape4k-virtualthread-jdk21"))
+runtimeOnly(project(":bluetape4k-virtualthread-jdk25"))
 implementation(project(":bluetape4k-coroutines"))
 implementation(libs.kotlinx.coroutines.core)
 ```

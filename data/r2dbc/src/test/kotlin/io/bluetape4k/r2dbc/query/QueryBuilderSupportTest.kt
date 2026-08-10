@@ -54,7 +54,7 @@ class QueryBuilderSupportTest {
      * [parameterNullable]은 프로퍼티 이름을 키로 사용해야 합니다.
      */
     @Test
-    fun `parameterNullable(property) - 프로퍼티 이름을 키로 사용한다`() {
+    fun `parameterNullable property - 프로퍼티 이름을 키로 사용한다`() {
         data class Item(val title: String?)
 
         val query = query {

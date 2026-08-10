@@ -3,8 +3,8 @@
 [![CI](https://github.com/bluetape4k/bluetape4k-projects/actions/workflows/ci.yml/badge.svg)](https://github.com/bluetape4k/bluetape4k-projects/actions/workflows/ci.yml)
 [![Coverage](https://coveralls.io/repos/github/bluetape4k/bluetape4k-projects/badge.svg?branch=develop)](https://coveralls.io/github/bluetape4k/bluetape4k-projects)
 [![Maven](https://badges.mvnrepository.com/badge/io.github.bluetape4k/bluetape4k-bom/badge.svg?label=Maven)](https://mvnrepository.com/artifact/io.github.bluetape4k/bluetape4k-bom)
-[![Kotlin](https://img.shields.io/badge/Kotlin-2.3-7F52FF?logo=kotlin)](https://kotlinlang.org)
-[![JVM](https://img.shields.io/badge/JVM-21-ED8B00?logo=openjdk)](https://openjdk.org)
+[![Kotlin](https://img.shields.io/badge/Kotlin-2.4-7F52FF?logo=kotlin)](https://kotlinlang.org)
+[![JVM](https://img.shields.io/badge/JVM-25-ED8B00?logo=openjdk)](https://openjdk.org)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
 Shared Kotlin/JVM library collection for backend development
@@ -60,8 +60,9 @@ Feel free to open an Issue if you need something that isn't here yet.
 
 ## Tech Stack
 
-- **Java**: 21 (JVM Toolchain)
-- **Kotlin**: 2.3 (Language & API Version)
+- **Java**: 25 (default JVM toolchain and `.java-version`); `virtualthread/jdk21` and its minimal `virtualthread-api`/`logging`/testing dependency closure explicitly preserve Java 21 compatibility
+- **Kotlin**: 2.4 (Language, API, and JVM 25 target by default)
+- **Gradle**: 9.7.0 via the checked-in Wrapper
 - **Spring Boot**: 4.x only. Historical planning and review notes may mention retired Spring Boot 3 modules, but current-facing modules and examples target Spring Boot 4.x.
 - **JetBrains Exposed**: 1.2.x (external `bluetape4k-exposed` artifacts are released from the standalone repository)
 - **Databases**: H2, PostgreSQL, MySQL

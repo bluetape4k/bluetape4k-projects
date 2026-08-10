@@ -26,7 +26,7 @@ dependencies {
 }
 ```
 
-The repository compiles with Java 21 and Kotlin 2.3. Core is an API dependency of several higher bluetape4k modules.
+The repository compiles core with the default Java/JVM 25 toolchain and Kotlin 2.4. Core is an API dependency of several higher bluetape4k modules.
 
 ## Concepts {#concepts}
 

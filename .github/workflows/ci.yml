@@ -39,7 +39,7 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  JAVA_VERSION: '21'
+  JAVA_VERSION: '25'
   JAVA_DISTRIBUTION: 'temurin'
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: 'true'
   BLUETAPE4K_DEPENDENCIES_CATALOG_REF: '3d2fb6e0087a6bbef5418aee8024bba9dd527e26'

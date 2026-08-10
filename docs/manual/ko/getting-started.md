@@ -33,4 +33,4 @@ dependencies {
 
 ## 4. 실행 환경 확인하기
 
-이 저장소는 Java 21과 Kotlin 2.3을 사용합니다. Spring Boot, Ktor, 데이터베이스, container, native 조건은 해당 매뉴얼에서 더 좁게 설명합니다.
+이 저장소는 Java 25, Kotlin 2.4와 Gradle 9.7.0 Wrapper를 사용합니다. 저장소의 `.java-version`은 JDK 25를 선택하며, `virtualthread/jdk21`과 최소 API, logging, testing dependency closure는 Java 21 호환성을 유지합니다. Spring Boot, Ktor, 데이터베이스, container, native 조건은 해당 매뉴얼에서 더 좁게 설명합니다.

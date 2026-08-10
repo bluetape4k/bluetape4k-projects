@@ -11,7 +11,7 @@ permissions:
   security-events: write
 
 env:
-  JAVA_VERSION: '21'
+  JAVA_VERSION: '25'
   JAVA_DISTRIBUTION: 'temurin'
   GITLEAKS_VERSION: 'v8.30.1'
 

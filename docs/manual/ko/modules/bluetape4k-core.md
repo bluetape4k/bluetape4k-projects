@@ -26,7 +26,7 @@ dependencies {
 }
 ```
 
-저장소 기준은 Java 21과 Kotlin 2.3입니다. 여러 상위 bluetape4k 모듈이 core를 API dependency로 사용합니다.
+저장소는 core를 기본 Java/JVM 25 toolchain과 Kotlin 2.4로 compile합니다. 여러 상위 bluetape4k 모듈이 core를 API dependency로 사용합니다.
 
 ## 핵심 개념 {#concepts}
 

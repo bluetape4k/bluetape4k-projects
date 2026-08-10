@@ -7,19 +7,19 @@ plugins {
     alias(bt4k.plugins.gatling)
 }
 
-// Java 21 toolchain (workspace baseline)
-java { toolchain { languageVersion.set(JavaLanguageVersion.of(21)) } }
-kotlin { jvmToolchain(21) }
-tasks.withType<JavaCompile>().configureEach { options.release.set(21) }
+// Java 25 toolchain (workspace baseline)
+java { toolchain { languageVersion.set(JavaLanguageVersion.of(25)) } }
+kotlin { jvmToolchain(25) }
+tasks.withType<JavaCompile>().configureEach { options.release.set(25) }
 tasks.withType<Test>().configureEach {
-    javaLauncher.set(javaToolchains.launcherFor { languageVersion.set(JavaLanguageVersion.of(21)) })
+    javaLauncher.set(javaToolchains.launcherFor { languageVersion.set(JavaLanguageVersion.of(25)) })
 }
 
 // Spring Boot Application 모듈: fat-jar 빌드, publishing 불필요
 tasks.withType<AbstractPublishToMaven>().configureEach { enabled = false }
 
 dependencies {
-    // Spring Boot 4 BOM: platform() 방식 필수 (dependencyManagement 사용 금지 - KGP 2.3 충돌)
+    // Spring Boot 4 BOM: platform() 방식 필수 (dependencyManagement plugin classpath 충돌 방지)
     implementation(platform(bt4k.spring.boot4.dependencies))
     // Jackson 3 BOM: Spring Boot 4는 tools.jackson.* (Jackson 3) 사용
     implementation(platform("tools.jackson:jackson-bom:${bt4k.versions.jackson3.get()}"))
@@ -71,7 +71,7 @@ val hostArch = when (System.getProperty("os.arch")) {
 
 jib {
     from {
-        image = "eclipse-temurin:21-jre-alpine"
+        image = "eclipse-temurin:25-jre-alpine"
         platforms {
             if (jibMultiPlatform) {
                 platform { architecture = "amd64"; os = "linux" }

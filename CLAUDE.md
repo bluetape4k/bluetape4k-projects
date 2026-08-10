@@ -43,8 +43,12 @@ repo-test-summary -- ./gradlew :module:test   # summarized test output
 
 ## Build Configuration
 
-- JVM toolchain: Java 21.
-- Kotlin language/API: 2.3.
+- JVM toolchain: Java 25 by default; `.java-version` selects 25.
+- Kotlin language/API: 2.4 with JVM 25 as the default target.
+- Gradle Wrapper: 9.7.0.
+- Compatibility exception: `virtualthread/jdk21` and its minimal
+  `virtualthread-api`, `logging`, `assertions`, and `junit5` dependency closure
+  explicitly target Java/JVM 21.
 - Spring Boot line: 4.x only.
 - Version catalog: `gradle/libs.versions.toml`.
 - Project coordinates: `gradle.properties` owns `projectGroup`, `baseVersion`, `snapshotVersion`, and external `exposedVersion`.

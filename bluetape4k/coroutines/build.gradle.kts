@@ -38,7 +38,9 @@ configurations {
 dependencies {
     api(project(":bluetape4k-core"))
     api(project(":bluetape4k-virtualthread-api"))
-    compileOnly(project(":bluetape4k-virtualthread-jdk21"))
+    // JDK 25 test runtime에서는 preview classfile인 JDK 21 provider를 함께
+    // 올리지 않고, 실행 JDK에 맞는 provider만 ServiceLoader에 노출한다.
+    testRuntimeOnly(project(":bluetape4k-virtualthread-jdk25"))
     testImplementation(project(":bluetape4k-junit5"))
 
     // Coroutines

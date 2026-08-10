@@ -22,7 +22,7 @@ cache 폴더 재편으로 소스 위치는 `cache/hibernate-cache-lettuce/`가 �
 
 - **Hibernate ORM**: 7.2.7.Final 이상
 - **Jakarta Persistence API**: 3.2.0 (Spring Boot 다운그레이드를 방지하기 위해 `configurations.all`로 강제)
-- **Java**: JDK 21+ (bluetape4k 프로젝트 기본 정책)
+- **Java**: JDK 25+ (bluetape4k 프로젝트 기본 정책)
 - **Redis**: RESP3 Client Tracking 사용 시 6+ (구 버전은 `use_resp3=false` 설정)
 
 ## 아키텍처

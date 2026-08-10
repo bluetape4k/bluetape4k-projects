@@ -7,7 +7,8 @@ dependencies {
 
     api(project(":bluetape4k-logging"))
     api(project(":bluetape4k-virtualthread-api"))
-    runtimeOnly(project(":bluetape4k-virtualthread-jdk21"))
+    // consumer가 실행 JDK에 맞는 provider를 선택하므로 이 모듈 test에서만 JDK 21 provider를 사용한다.
+    testRuntimeOnly(project(":bluetape4k-virtualthread-jdk21"))
 
     api(libs.kotlin.test.junit5)
 

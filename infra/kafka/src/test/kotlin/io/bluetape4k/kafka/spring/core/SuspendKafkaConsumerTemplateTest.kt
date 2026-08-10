@@ -228,8 +228,8 @@ class SuspendKafkaConsumerTemplateTest: AbstractKafkaTest() {
         receiver: KafkaReceiver<String, String>,
         consumer: Consumer<String, String>,
     ) {
-        every { receiver.doOnConsumer<Any?>(any()) } answers {
-            val callback = firstArg<Function<Consumer<String, String>, Any?>>()
+        every { receiver.doOnConsumer<Any>(any()) } answers {
+            val callback = firstArg<Function<Consumer<String, String>, Any>>()
             Mono.justOrEmpty(callback.apply(consumer))
         }
     }
