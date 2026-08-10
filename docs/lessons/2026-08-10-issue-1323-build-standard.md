@@ -112,6 +112,11 @@ exact-head hosted run `31343640725`에서 기존 provider 보수 이후에도 �
   로컬 `Item` 클래스가 잘못된 JVM method descriptor를 생성해
   `Bad method descriptor`를 발생시켰다. 테스트 의미는 유지한 채 함수명을
   괄호 없는 이름으로 바꿔 classpath scan 경계를 닫았다.
+- `Test / IO`는 `io.bluetape4k.okio.DeflaterSinkTest`에서 닫힌 Deflater의 원인을
+  JDK 21의 `NullPointerException`으로만 단정해 실패했다. JDK 25에서는 같은
+  상태가 `IllegalStateException: Deflater has been closed`로 바뀌지만 Okio의
+  공통 계약은 두 플랫폼 예외를 `IOException` 원인으로 보존하는 것이다. 원인
+  검증을 두 예외 타입으로 제한해 실행 JDK에 종속되지 않도록 했다.
 
 로컬 재검증은 다음과 같이 모두 성공했다.
 
@@ -121,10 +126,17 @@ exact-head hosted run `31343640725`에서 기존 provider 보수 이후에도 �
   265 tests passing, `BUILD SUCCESSFUL`
 - `:bluetape4k-r2dbc:test --max-workers=2 --no-configuration-cache`:
   `BUILD SUCCESSFUL`
+- `:bluetape4k-okio:test --tests 'io.bluetape4k.okio.DeflaterSinkTest'`:
+  `BUILD SUCCESSFUL`
 
-새 커밋 push 뒤에는 이 세 경계와 기존 Examples/Build/정책 체크를 같은 exact
+새 커밋 push 뒤에는 이 네 경계와 기존 Examples/Build/정책 체크를 같은 exact
 head에서 다시 확인해야 하며, hosted CI가 통과하기 전에는 merge-ready로
 판정하지 않는다.
+
+새 exact-head hosted run `31345334608`에서는 위 provider/Kafka/R2DBC 경계가
+통과했고 `Test / IO`만 Okio의 JDK 25 예외 타입 가정으로 실패했다. 이 실패는
+JDK 25 로컬에서 동일하게 재현한 뒤 테스트 계약을 보수적으로 수정했으며, 수정
+커밋 push 후 전체 hosted matrix를 다시 실행해야 한다.
 
 이전 PR head의 hosted CI에서는 `Test Examples`가 JDK 25에서 JDK 21 provider를
 소비해 3개 StructuredTaskScope 테스트를 실패했고

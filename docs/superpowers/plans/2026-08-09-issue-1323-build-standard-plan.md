@@ -106,6 +106,7 @@ merge, publish, release와 중앙 Dependabot 버전 갱신은 수행하지 않�
 - Modify: `docs/manual/ko/modules/bluetape4k-workflow.md`
 - Modify: `infra/kafka/src/test/kotlin/io/bluetape4k/kafka/spring/core/SuspendKafkaConsumerTemplateTest.kt`
 - Modify: `data/r2dbc/src/test/kotlin/io/bluetape4k/r2dbc/query/QueryBuilderSupportTest.kt`
+- Modify: `io/okio/src/test/kotlin/io/bluetape4k/okio/DeflaterSinkTest.kt`
 
 **Steps:**
 
@@ -189,8 +190,9 @@ merge, publish, release와 중앙 Dependabot 버전 갱신은 수행하지 않�
    커밋한다.
 
 8. JDK 25 hosted CI에서 Kafka `compileTestKotlin`, coroutines
-   `StructuredConcurrencyTest`, R2DBC Spring context scan 실패가 재발하지 않는지
-   exact head 기준으로 확인한다.
+   `StructuredConcurrencyTest`, R2DBC Spring context scan, Okio DeflaterSink의
+   closed-deflater 예외 계약 실패가 재발하지 않는지 exact head 기준으로
+   확인한다.
 
 ## 중단 조건
 

@@ -2,7 +2,7 @@ package io.bluetape4k.okio
 
 import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldBeInstanceOf
+import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.junit5.faker.Fakers
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
@@ -151,20 +151,23 @@ class DeflaterSinkTest: AbstractOkioTest() {
     }
 
     /**
-     * 이 테스트는 Deflater에서 NullPointerException을 IOException으로 다시 던지는지 확인합니다.
+     * 닫힌 Deflater의 플랫폼별 실패를 IOException으로 다시 던지는지 확인합니다.
+     * JDK 21은 NullPointerException을, JDK 25는 IllegalStateException을 발생시킵니다.
      */
     @RepeatedTest(REPEAT_SIZE)
-    fun `rethrow null pointer as IOException`() {
+    fun `rethrow closed deflater failure as IOException`() {
         val deflater = Deflater()
-        // close to cause a NullPointerException
+        // close to cause a platform-specific failure
         deflater.end()
 
         val data = bufferOf(Fakers.randomString())
         val deflaterSink = DeflaterSink(data, deflater)
 
-        assertFailsWith<IOException> {
+        val cause = assertFailsWith<IOException> {
             deflaterSink.write(data, data.size)
-        }.cause shouldBeInstanceOf NullPointerException::class
+        }.cause
+
+        (cause is NullPointerException || cause is IllegalStateException).shouldBeTrue()
     }
 
     /**

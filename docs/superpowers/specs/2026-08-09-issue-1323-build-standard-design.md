@@ -29,6 +29,9 @@ Kotlin 2.4, JDK 25, Gradle 9.7.0 기준과 일치하지 않는다.
   로컬 클래스는 테스트 동작을 바꾸지 않는 안전한 이름으로 정리하고, Java platform
   nullable 반환값을 사용하는 Kafka test stub은 명시적 non-null test contract로
   고정한다.
+- JDK 21과 JDK 25가 닫힌 `java.util.zip.Deflater`에 서로 다른 예외 타입을
+  던질 수 있으므로, Okio `DeflaterSink` 테스트는 두 플랫폼 예외가 `IOException`
+  원인으로 보존되는 공통 계약만 검증한다.
 
 ## 현재 증거
 
@@ -210,6 +213,9 @@ Java 21용 artifact라는 공개 호환성 의미와 `--release 21` 계약을 �
   Kotlin 2.4/JDK 25 compiler의 Java platform type 추론에 맞춘 test stub을 둔다.
 - `data/r2dbc/src/test/kotlin/io/bluetape4k/r2dbc/query/QueryBuilderSupportTest.kt`:
   Spring ASM classpath scan에서 해석 가능한 테스트 이름을 사용한다.
+- `io/okio/src/test/kotlin/io/bluetape4k/okio/DeflaterSinkTest.kt`: 닫힌 Deflater의
+  JDK 21 `NullPointerException`/JDK 25 `IllegalStateException` 차이를 허용하되
+  `IOException` wrapping 계약을 유지한다.
 - `cache/hibernate-cache-lettuce/README.md`,
   `cache/hibernate-cache-lettuce/README.ko.md`: 저장소 기본 정책 참조를 JDK 25+로
   갱신한다.
