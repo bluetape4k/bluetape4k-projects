@@ -245,24 +245,17 @@ subprojects {
         }
     }
 
-    // testFixtures 소스셋은 테스트 유틸리티이므로 커버리지 측정에서 제외
-    pluginManager.withPlugin("java-test-fixtures") {
-        pluginManager.withPlugin("org.jetbrains.kotlinx.kover") {
-            kover {
-                currentProject {
-                    sources {
-                        excludedSourceSets.add("testFixtures")
-                        excludedSourceSets.add("benchmark")
-                    }
-                }
-            }
-        }
-    }
-
     // Kotlin 인터페이스 default 메서드 bridge 클래스는 컴파일러 생성 코드 — 커버리지 제외
     pluginManager.withPlugin("org.jetbrains.kotlinx.kover") {
         kover {
             currentProject {
+                sources {
+                    // Test fixtures and benchmark code are support surfaces, not production API.
+                    if (pluginManager.hasPlugin("java-test-fixtures")) {
+                        excludedSourceSets.add("testFixtures")
+                    }
+                    excludedSourceSets.add("benchmark")
+                }
                 instrumentation {
                     excludedClasses.add("**\$DefaultImpls")
                 }
