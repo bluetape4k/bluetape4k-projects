@@ -346,4 +346,3 @@ rg -n 'assertThrows|org\.assertj|org\.junit\.jupiter\.api\.Assertions|kotlin\.te
 - 코드·테스트 변경, module report, aggregate report, CI logs, Kotlin checklist가 모두 fresh evidence를 가진다.
 - 미달 모듈·불안정한 외부 service·실행하지 못한 검증은 숨기지 않고 `PENDING`으로 남긴다.
 - 완료 전 `verification-before-completion` 체크리스트로 “12 modules pass / aggregate pass / CI pass / no known errors”를 재확인한다.
-
