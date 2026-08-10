@@ -52,6 +52,9 @@ class PrimitiveNumericArrayListExtensionsTest: AbstractCollectionTest() {
             dynamicTest("$typeName: iterable to primitive array list") {
                 kotlinList.toIntArrayList() shouldBeEqualTo expectedArrayList
             },
+            dynamicTest("$typeName: number iterable as primitive array list") {
+                listOf<Number>(1, 2L, 3.0).asIntArrayList() shouldBeEqualTo intArrayListOf(1, 2, 3)
+            },
             dynamicTest("$typeName: stream to primitive array list") {
                 IntStream.range(1, 6).toIntArrayList() shouldBeEqualTo expectedArrayList
             },
@@ -108,6 +111,9 @@ class PrimitiveNumericArrayListExtensionsTest: AbstractCollectionTest() {
             dynamicTest("$typeName: iterable to primitive array list") {
                 kotlinList.toLongArrayList() shouldBeEqualTo expectedArrayList
             },
+            dynamicTest("$typeName: number iterable as primitive array list") {
+                listOf<Number>(1, 2L, 3.0).asLongArrayList() shouldBeEqualTo longArrayListOf(1, 2, 3)
+            },
             dynamicTest("$typeName: stream to primitive array list") {
                 LongStream.range(1, 6).toLongArrayList() shouldBeEqualTo expectedArrayList
             },
@@ -142,6 +148,62 @@ class PrimitiveNumericArrayListExtensionsTest: AbstractCollectionTest() {
             dynamicTest("$typeName: get product") {
                 longArrayListOf(1, 3, 5).product() shouldBeEqualTo (1 * 3 * 5).toDouble()
                 longArrayListOf(-1, -3, -5).product() shouldBeEqualTo (-1 * -3 * -5).toDouble()
+            },
+        )
+    }
+
+    private object ShortDriver: TypeDriver {
+        override val typeName: String = "Short"
+
+        private val kotlinList = fastList(5) { (it + 1).toShort() }
+        private val kotlinSet = kotlinList.toUnifiedSet()
+        private val expectedArray = shortArrayOf(1, 2, 3, 4, 5)
+        private val expectedArrayList = shortArrayListOf(1, 2, 3, 4, 5)
+
+        override fun tests(): List<DynamicTest> = listOf(
+            dynamicTest("$typeName: kotlin array to eclipse array") {
+                expectedArray.toShortArrayList() shouldBeEqualTo expectedArrayList
+            },
+            dynamicTest("$typeName: sequence to primitive array list") {
+                kotlinList.take(5).toShortArrayList() shouldBeEqualTo expectedArrayList
+            },
+            dynamicTest("$typeName: iterable to primitive array list") {
+                kotlinList.toShortArrayList() shouldBeEqualTo expectedArrayList
+            },
+            dynamicTest("$typeName: number iterable as primitive array list") {
+                listOf<Number>(1, 2L, 3.0).asShortArrayList() shouldBeEqualTo shortArrayListOf(1, 2, 3)
+            },
+            dynamicTest("$typeName: convert primitive array list") {
+                val array = shortArrayList(5) { (it + 1).toShort() }
+                array.size() shouldBeEqualTo 5
+                array shouldBeEqualTo expectedArrayList
+            },
+            dynamicTest("$typeName: primitive list asList") {
+                val list = shortArrayListOf(1, 2, 3, 4, 5).asList()
+                list.size shouldBeEqualTo 5
+                list shouldBeEqualTo kotlinList
+            },
+            dynamicTest("$typeName: primitive set asSet") {
+                val set = shortArrayListOf(1, 2, 2, 3, 3, 4, 5).asSet()
+                set.size shouldBeEqualTo 5
+                set shouldBeEqualTo kotlinSet
+            },
+            dynamicTest("$typeName: primitive array list to list") {
+                val array = shortArrayListOf(1, 2, 3, 4, 4, 5)
+                val expected = array.asList()
+
+                array.toArray() shouldBeEqualTo expected.toShortArray()
+                array.asIterable().toList() shouldBeEqualTo expected
+                array.asSequence().toList() shouldBeEqualTo expected
+                array.asIterator().toList() shouldBeEqualTo expected
+                array.asList() shouldBeEqualTo expected
+                array.asSet() shouldBeEqualTo expected.toSet()
+                array.toFastList() shouldBeEqualTo expected
+                array.toUnifiedSet() shouldBeEqualTo expected.toSet()
+            },
+            dynamicTest("$typeName: get product") {
+                shortArrayListOf(1, 3, 5).product() shouldBeEqualTo (1 * 3 * 5).toDouble()
+                shortArrayListOf(-1, -3, -5).product() shouldBeEqualTo (-1 * -3 * -5).toDouble()
             },
         )
     }
@@ -310,6 +372,7 @@ class PrimitiveNumericArrayListExtensionsTest: AbstractCollectionTest() {
     private val drivers: List<TypeDriver> = listOf(
         IntDriver,
         LongDriver,
+        ShortDriver,
         FloatDriver,
         DoubleDriver,
         ByteDriver,

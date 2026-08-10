@@ -53,4 +53,29 @@ class TreeMultimapSupportTest: AbstractCollectionTest() {
         userGroup[22].map { it.name } shouldBeEqualTo listOf("sam", "bob")
         userGroup[44].map { it.name } shouldBeEqualTo listOf("rex")
     }
+
+    @Test
+    fun `Key와 value selector로 TreeMultimap 생성`() {
+        val userGroup = users.toTreeMultimap(
+            keySelector = { it.age },
+            valueSelector = { it.name },
+        )
+
+        userGroup.keysView().size() shouldBeEqualTo 3
+        userGroup[11].toList() shouldBeEqualTo listOf("alex", "jane")
+        userGroup[22].toList() shouldBeEqualTo listOf("bob", "sam")
+    }
+
+    @Test
+    fun `Comparator와 selector로 TreeMultimap 생성`() {
+        val userGroup = users.toTreeMultimap(
+            comparator = Comparator.reverseOrder<String>(),
+            keySelector = { it.age },
+            valueSelector = { it.name },
+        )
+
+        userGroup.keysView().size() shouldBeEqualTo 3
+        userGroup[11].toList() shouldBeEqualTo listOf("jane", "alex")
+        userGroup[22].toList() shouldBeEqualTo listOf("sam", "bob")
+    }
 }

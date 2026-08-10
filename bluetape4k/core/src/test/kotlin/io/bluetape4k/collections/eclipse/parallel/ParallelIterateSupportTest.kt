@@ -2,6 +2,7 @@ package io.bluetape4k.collections.eclipse.parallel
 
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeLessThan
+import io.bluetape4k.assertions.shouldContainSame
 import io.bluetape4k.collections.AbstractCollectionTest
 import io.bluetape4k.collections.eclipse.fastList
 import io.bluetape4k.collections.eclipse.stream.toFastList
@@ -140,6 +141,24 @@ class ParallelIterateSupportTest: AbstractCollectionTest() {
         aggregated.keys.size shouldBeEqualTo 10
         aggregated.forEach { (key, value) ->
             value shouldBeEqualTo xs.filter { it % 10 == key }.sumOf { it + 1L }
+        }
+    }
+
+    @Test
+    fun `병렬 방식으로 in-place aggregate 하기`() {
+        val aggregated = xs.parAggregateInPlaceBy(
+            LIST_COUNT,
+            groupBy = { it % 10 },
+            zeroValueFactory = { ConcurrentLinkedQueue<Int>() },
+            mutatingAggregator = { acc, item -> acc.add(item + 1) },
+        )
+
+        aggregated.keys.size shouldBeEqualTo 10
+        aggregated.forEach { (key, value) ->
+            val expected = xs.filter { it % 10 == key }.map { it + 1 }
+            value.size shouldBeEqualTo expected.size
+            value.sum() shouldBeEqualTo expected.sum()
+            value shouldContainSame expected
         }
     }
 

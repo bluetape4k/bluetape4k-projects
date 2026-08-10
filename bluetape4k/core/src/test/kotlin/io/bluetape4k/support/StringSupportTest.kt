@@ -19,7 +19,6 @@ import io.bluetape4k.junit5.random.RandomizedTest
 import io.bluetape4k.logging.KLogging
 import org.junit.jupiter.api.RepeatedTest
 import org.junit.jupiter.api.Test
-import kotlin.text.dropLast
 import kotlin.text.takeLast
 
 @RandomizedTest
@@ -375,6 +374,7 @@ class StringSupportTest: AbstractCoreTest() {
         someValue.dropLast(2) shouldBeEqualTo "deb"
 
         someValue.dropLast(someValue.length) shouldBeEqualTo EMPTY_STRING
+        assertFailsWith<IllegalArgumentException> { someValue.dropLast(-1) }
     }
 
     @Test

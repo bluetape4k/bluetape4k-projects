@@ -105,11 +105,13 @@ class IterableSupportTest {
     @Test
     fun `as array conversions`() {
         listOf('a', 'b').asCharArray().contentEquals(charArrayOf('a', 'b')).shouldBeTrue()
+        listOf<Any?>(1, null, 2).asByteArray(fallback = 7).contentEquals(byteArrayOf(1, 7, 2)).shouldBeTrue()
         listOf(1, 2).asIntArray().contentEquals(intArrayOf(1, 2)).shouldBeTrue()
         listOf(1L, 2L).asLongArray().contentEquals(longArrayOf(1L, 2L)).shouldBeTrue()
         listOf(1.0F, 2.0F).asFloatArray().contentEquals(floatArrayOf(1.0F, 2.0F)).shouldBeTrue()
         listOf(1.0, 2.0).asDoubleArray().contentEquals(doubleArrayOf(1.0, 2.0)).shouldBeTrue()
         listOf("a", "b").asStringArray().contentEquals(arrayOf("a", "b")).shouldBeTrue()
+        emptyList<Any?>().asByteArray().contentEquals(byteArrayOf()).shouldBeTrue()
 
         val mixed = listOf(1, "a").asArray<String>()
         mixed.size shouldBeEqualTo 2
@@ -134,5 +136,13 @@ class IterableSupportTest {
         forEachResults.size shouldBeEqualTo 2
         forEachResults[0].isSuccess.shouldBeTrue()
         forEachResults[1].isFailure.shouldBeTrue()
+
+        emptyList<Int>().mapCatching { it }.shouldBeEmpty()
+        emptyList<Int>().mapIfSuccess { it }.shouldBeEmpty()
+        emptyList<Int>().forEachCatching { }.shouldBeEmpty()
+
+        var emptyCount = 0
+        emptyList<Int>().tryForEach { emptyCount += 1 }
+        emptyCount shouldBeEqualTo 0
     }
 }

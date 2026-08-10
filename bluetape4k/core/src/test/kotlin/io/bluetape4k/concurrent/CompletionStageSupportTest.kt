@@ -90,6 +90,25 @@ class CompletionStageSupportTest {
     }
 
     @Test
+    fun `map flatMap and mapResult transform completion stages`() {
+        success.map { it + 1 }.toCompletableFuture().get() shouldBeEqualTo 43
+        assertFailsWith<java.util.concurrent.ExecutionException> {
+            failed.map { it + 1 }.toCompletableFuture().get()
+        }.cause shouldBeInstanceOf RuntimeException::class
+
+        success.flatMap { CompletableFuture.completedFuture(it + 1) }
+            .toCompletableFuture().get() shouldBeEqualTo 43
+        assertFailsWith<java.util.concurrent.ExecutionException> {
+            failed.flatMap { CompletableFuture.completedFuture(it + 1) }.toCompletableFuture().get()
+        }.cause shouldBeInstanceOf RuntimeException::class
+
+        success.mapResult { value, error -> error == null && value == 42 }
+            .toCompletableFuture().get().shouldBeTrue()
+        failed.mapResult { value, error -> value == null && error is RuntimeException }
+            .toCompletableFuture().get().shouldBeTrue()
+    }
+
+    @Test
     fun `combineOf - 2개부터 6개까지 CompletionStage 결합`() {
         val a = CompletableFuture.completedFuture(1)
         val b = CompletableFuture.completedFuture("hello")

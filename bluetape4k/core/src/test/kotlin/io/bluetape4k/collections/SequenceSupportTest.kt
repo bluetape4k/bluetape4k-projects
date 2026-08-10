@@ -111,15 +111,52 @@ class SequenceSupportTest {
     @Test
     fun `sequence array conversions`() {
         sequenceOf('a', 'b').asCharArray().contentEquals(charArrayOf('a', 'b')).shouldBeTrue()
+        sequenceOf(1, 2).map { it.toShort() }.toShortArray().contentEquals(shortArrayOf(1, 2)).shouldBeTrue()
+        sequenceOf<Any?>(1, null).asByteArray(fallback = 7).contentEquals(byteArrayOf(1, 7)).shouldBeTrue()
         sequenceOf(1, 2).asIntArray().contentEquals(intArrayOf(1, 2)).shouldBeTrue()
         sequenceOf(1L, 2L).asLongArray().contentEquals(longArrayOf(1L, 2L)).shouldBeTrue()
         sequenceOf(1.0F, 2.0F).asFloatArray().contentEquals(floatArrayOf(1.0F, 2.0F)).shouldBeTrue()
         sequenceOf(1.0, 2.0).asDoubleArray().contentEquals(doubleArrayOf(1.0, 2.0)).shouldBeTrue()
         sequenceOf("a", "b").asStringArray().contentEquals(arrayOf("a", "b")).shouldBeTrue()
 
+        emptySequence<Short>().toShortArray().contentEquals(shortArrayOf()).shouldBeTrue()
+        emptySequence<Any?>().asByteArray().contentEquals(byteArrayOf()).shouldBeTrue()
+
         val mixed = sequenceOf(1, "a").asArray<String>()
         mixed.size shouldBeEqualTo 2
         mixed[0] shouldBeEqualTo null
         mixed[1] shouldBeEqualTo "a"
+    }
+
+    @Test
+    fun `sequence catching helpers preserve successful and failed elements`() {
+        val mapped = sequenceOf(1, 0).mapCatching { 10 / it }.toList()
+        mapped[0].getOrThrow() shouldBeEqualTo 10
+        mapped[1].isFailure.shouldBeTrue()
+
+        sequenceOf(1, 0).mapIfSuccess { 10 / it }.toList() shouldBeEqualTo listOf(10)
+
+        var sum = 0
+        sequenceOf(1, 0).tryForEach { sum += 10 / it }
+        sum shouldBeEqualTo 10
+
+        val actions = sequenceOf(1, 0).forEachCatching { 10 / it }.toList()
+        actions[0].isSuccess.shouldBeTrue()
+        actions[1].isFailure.shouldBeTrue()
+
+        emptySequence<Int>().mapCatching { it }.toList() shouldBeEqualTo emptyList()
+        emptySequence<Int>().mapIfSuccess { it }.toList() shouldBeEqualTo emptyList()
+        emptySequence<Int>().forEachCatching { }.toList() shouldBeEqualTo emptyList()
+
+        var emptyCount = 0
+        emptySequence<Int>().tryForEach { emptyCount += 1 }
+        emptyCount shouldBeEqualTo 0
+    }
+
+    @Test
+    fun `sequence sliding transform and empty input`() {
+        sequenceOf(1, 2, 3, 4).sliding(3, partialWindows = true) { it.sum() }
+            .toList() shouldBeEqualTo listOf(6, 9, 7, 4)
+        emptySequence<Int>().sliding(3).toList() shouldBeEqualTo emptyList()
     }
 }

@@ -139,4 +139,47 @@ class VirtualThreadSupportTest: AbstractVirtualThreadTest() {
 
         thread.join()
     }
+
+    @Test
+    fun `named virtualThread overload creates an unstarted virtual thread`() {
+        var executed = false
+        val thread = virtualThread(
+            start = false,
+            name = "named-virtual-thread",
+            inheritThreadLocals = false,
+        ) {
+            executed = true
+        }
+
+        thread.state shouldBeEqualTo Thread.State.NEW
+        thread.name shouldBeEqualTo "named-virtual-thread"
+        thread.isVirtual.shouldBeTrue()
+
+        thread.start()
+        thread.join()
+        executed.shouldBeTrue()
+    }
+
+    @Test
+    fun `platformThread creates a configured unstarted platform thread`() {
+        var executed = false
+        val thread = platformThread(
+            start = false,
+            isDaemon = true,
+            name = "named-platform-thread",
+            priority = 7,
+        ) {
+            executed = true
+        }
+
+        thread.state shouldBeEqualTo Thread.State.NEW
+        thread.name shouldBeEqualTo "named-platform-thread"
+        thread.isDaemon.shouldBeTrue()
+        thread.priority shouldBeEqualTo 7
+        thread.isVirtual.shouldBeFalse()
+
+        thread.start()
+        thread.join()
+        executed.shouldBeTrue()
+    }
 }
