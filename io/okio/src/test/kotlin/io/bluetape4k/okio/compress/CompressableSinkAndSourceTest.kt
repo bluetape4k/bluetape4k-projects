@@ -10,6 +10,8 @@ import io.bluetape4k.okio.AbstractOkioTest
 import io.bluetape4k.okio.bufferOf
 import io.bluetape4k.okio.byteStringOf
 import okio.Buffer
+import okio.Sink
+import okio.Source
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
 import java.io.IOException
@@ -274,5 +276,53 @@ class CompressableSinkAndSourceTest: AbstractOkioTest() {
 
         val restored = bufferOf(compressed.asDecompressSource(compressor))
         restored.readUtf8() shouldBeEqualTo expected
+    }
+
+    @org.junit.jupiter.api.Test
+    fun `named sink and source extensions round trip`() {
+        extensionRoundTrip({ deflateSink() }, { inflateSource() })
+        extensionRoundTrip({ gzipSink() }, { gzipSource() })
+        extensionRoundTrip({ lz4Sink() }, { lz4Source() })
+        extensionRoundTrip({ snappySink() }, { snappySource() })
+        extensionRoundTrip({ zstdSink() }, { zstdSource() })
+        extensionRoundTrip({ bzip2Sink() }, { bzip2Source() })
+    }
+
+    @org.junit.jupiter.api.Test
+    fun `named Compressable factories round trip`() {
+        factoryRoundTrip({ Compressable.Sinks.deflate(it) }, { Compressable.Sources.deflate(it) })
+        factoryRoundTrip({ Compressable.Sinks.gzip(it) }, { Compressable.Sources.gzip(it) })
+        factoryRoundTrip({ Compressable.Sinks.lz4(it) }, { Compressable.Sources.lz4(it) })
+        factoryRoundTrip({ Compressable.Sinks.snappy(it) }, { Compressable.Sources.snappy(it) })
+        factoryRoundTrip({ Compressable.Sinks.zstd(it) }, { Compressable.Sources.zstd(it) })
+        factoryRoundTrip({ Compressable.Sinks.bzip2(it) }, { Compressable.Sources.bzip2(it) })
+    }
+
+    private fun extensionRoundTrip(
+        createSink: Sink.() -> CompressableSink,
+        createSource: Source.() -> DecompressableSource,
+    ) {
+        val expected = "named extension roundtrip"
+        val compressed = Buffer()
+        createSink.invoke(compressed).use { sink ->
+            val source = bufferOf(expected)
+            sink.write(source, source.size)
+        }
+
+        bufferOf(createSource.invoke(compressed)).readUtf8() shouldBeEqualTo expected
+    }
+
+    private fun factoryRoundTrip(
+        createSink: (Sink) -> CompressableSink,
+        createSource: (Source) -> DecompressableSource,
+    ) {
+        val expected = "named factory roundtrip"
+        val compressed = Buffer()
+        createSink(compressed).use { sink ->
+            val source = bufferOf(expected)
+            sink.write(source, source.size)
+        }
+
+        bufferOf(createSource(compressed)).readUtf8() shouldBeEqualTo expected
     }
 }

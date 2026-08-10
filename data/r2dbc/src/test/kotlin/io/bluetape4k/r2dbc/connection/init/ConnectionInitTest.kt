@@ -53,6 +53,20 @@ class ConnectionInitTest {
         populator.shouldBeInstanceOf<ResourceDatabasePopulator>()
     }
 
+    @Test
+    fun `resourceDatabasePopulatorOf - 실행 옵션과 인코딩을 함께 설정한다`() {
+        val populator =
+            resourceDatabasePopulatorOf(
+                continueOnError = true,
+                ignoreFailedDrops = true,
+                sqlScriptEncoding = "UTF-8",
+                ClassPathResource("schema/h2/person.sql"),
+            )
+
+        populator.shouldNotBeNull()
+        populator.shouldBeInstanceOf<ResourceDatabasePopulator>()
+    }
+
     /**
      * [compositeDatabasePopulatorOf]는 여러 populator를 묶는 [CompositeDatabasePopulator]를 생성해야 합니다.
      */

@@ -12,6 +12,7 @@ import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.assertions.shouldBeInstanceOf
 import org.junit.jupiter.api.Test
+import org.redisson.config.Config
 
 /**
  * [RedissonCaches] 팩토리의 smoke test.
@@ -29,7 +30,7 @@ class RedissonCachesTest {
         try {
             cache shouldBeInstanceOf JCache::class
         } finally {
-            runCatching { cache.close() }
+            cache.close()
         }
     }
 
@@ -40,7 +41,37 @@ class RedissonCachesTest {
         try {
             cache shouldBeInstanceOf RedissonSuspendJCache::class
         } finally {
-            runCatching { runSuspendIO { cache.close() } }
+            runSuspendIO { cache.close() }
+        }
+    }
+
+    @Test
+    fun `Config 기반 JCache 팩토리는 Redis 연결로 캐시를 생성한다`() {
+        val name = RedisServers.randomName()
+        val config = Config().apply {
+            useSingleServer().setAddress(RedisServers.redisServer.url)
+        }
+        val cache = RedissonCaches.jcache<String, String>(name, config)
+        try {
+            cache shouldBeInstanceOf JCache::class
+            cache.put("config-key", "config-value")
+        } finally {
+            cache.close()
+        }
+    }
+
+    @Test
+    fun `Config 기반 suspendJCache 팩토리는 Redis 연결로 캐시를 생성한다`() = runSuspendIO {
+        val name = RedisServers.randomName()
+        val config = Config().apply {
+            useSingleServer().setAddress(RedisServers.redisServer.url)
+        }
+        val cache = RedissonCaches.suspendJCache<String, String>(name, config)
+        try {
+            cache shouldBeInstanceOf RedissonSuspendJCache::class
+            cache.put("config-key", "config-value")
+        } finally {
+            cache.close()
         }
     }
 
@@ -51,7 +82,7 @@ class RedissonCachesTest {
         try {
             cache shouldBeInstanceOf NearJCache::class
         } finally {
-            runCatching { cache.close() }
+            cache.close()
         }
     }
 
@@ -62,7 +93,7 @@ class RedissonCachesTest {
         try {
             cache shouldBeInstanceOf SuspendNearJCache::class
         } finally {
-            runCatching { runSuspendIO { cache.close() } }
+            runSuspendIO { cache.close() }
         }
     }
 
@@ -73,7 +104,7 @@ class RedissonCachesTest {
             cache shouldBeInstanceOf NearCacheOperations::class
             cache shouldBeInstanceOf RedissonNearCache::class
         } finally {
-            runCatching { cache.close() }
+            cache.close()
         }
     }
 
@@ -84,7 +115,7 @@ class RedissonCachesTest {
             cache shouldBeInstanceOf SuspendNearCacheOperations::class
             cache shouldBeInstanceOf RedissonSuspendNearCache::class
         } finally {
-            runCatching { runSuspendIO { cache.close() } }
+            runSuspendIO { cache.close() }
         }
     }
 }

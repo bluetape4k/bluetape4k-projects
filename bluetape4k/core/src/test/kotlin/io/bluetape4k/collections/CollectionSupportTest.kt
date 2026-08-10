@@ -1,6 +1,7 @@
 package io.bluetape4k.collections
 
 import io.bluetape4k.assertions.assertFailsWith
+import io.bluetape4k.assertions.shouldBeEmpty
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeNull
 import io.bluetape4k.assertions.shouldContainSame
@@ -97,5 +98,33 @@ class CollectionSupportTest {
         val map = list.eachCount()
         map shouldBeEqualTo mapOf(1 to 1, 2 to 2, 3 to 1)
         map.keys.toList() shouldBeEqualTo listOf(1, 2, 3)
+        emptyList<Int>().eachCount() shouldBeEqualTo emptyMap()
+    }
+
+    @Test
+    fun `split iterable into chunks when predicate matches`() {
+        listOf(1, 2, 3, 4, 5).chunkedBy { it % 3 == 0 } shouldBeEqualTo
+                listOf(listOf(1, 2), listOf(3, 4, 5))
+        listOf(3, 4).chunkedBy { it % 3 == 0 } shouldBeEqualTo listOf(listOf(3, 4))
+        emptyList<Int>().chunkedBy { true }.shouldBeEmpty()
+    }
+
+    @Test
+    fun `safely take a sub list within clamped bounds`() {
+        val origin = listOf(1, 2, 3, 4, 5)
+
+        origin.safeSubList(-1, 100) shouldBeEqualTo origin
+        origin.safeSubList(1, 3) shouldBeEqualTo listOf(2, 3)
+        origin.safeSubList(4, 2).shouldBeEmpty()
+        emptyList<Int>().safeSubList(-1, 1).shouldBeEmpty()
+    }
+
+    @Test
+    fun `zip iterable elements with their indexes`() {
+        listOf("a", "b").zipWithIndex() shouldBeEqualTo listOf(
+            IndexedValue(0, "a"),
+            IndexedValue(1, "b"),
+        )
+        emptyList<String>().zipWithIndex().shouldBeEmpty()
     }
 }

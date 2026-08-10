@@ -1,6 +1,9 @@
 package io.bluetape4k.cassandra.querybuilder
 
+import com.datastax.oss.driver.api.core.CqlIdentifier
 import com.datastax.oss.driver.api.core.type.DataTypes
+import com.datastax.oss.driver.api.core.type.codec.TypeCodecs
+import com.datastax.oss.driver.api.core.type.codec.registry.CodecRegistry
 import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.cassandra.cql.userDefinedTypeOf
@@ -49,6 +52,37 @@ class TermSupportTest {
     }
 
     @Test
+    fun `function term overloads support iterable and identifiers`() {
+        val args = listOf("a".raw(), "b".raw())
+        val functionId = CqlIdentifier.fromCql("fn")
+        val keyspaceId = CqlIdentifier.fromCql("ks")
+
+        functionTerm("f", args).asCql() shouldBeEqualTo "f(a,b)"
+        functionTerm("ks", "f", args).asCql() shouldBeEqualTo "ks.f(a,b)"
+        functionTerm(functionId, args).asCql() shouldBeEqualTo "fn(a,b)"
+        functionTerm(functionId, *args.toTypedArray()).asCql() shouldBeEqualTo "fn(a,b)"
+        functionTerm(keyspaceId, functionId, args).asCql() shouldBeEqualTo "ks.fn(a,b)"
+        functionTerm(keyspaceId, functionId, *args.toTypedArray()).asCql() shouldBeEqualTo "ks.fn(a,b)"
+    }
+
+    @Test
+    fun `collection terms report idempotence`() {
+        listOf(1.literal(), 2.literal()).tuple().isIdempotent shouldBeEqualTo true
+        ListTerm(listOf(1.literal())).isIdempotent shouldBeEqualTo true
+        SetTerm(listOf(1.literal())).isIdempotent shouldBeEqualTo true
+        MapTerm(mapOf(1.literal() to 2.literal())).isIdempotent shouldBeEqualTo true
+    }
+
+    @Test
+    fun `identifier query builder overloads create markers and UDT references`() {
+        val identifier = CqlIdentifier.fromCql("address")
+
+        identifier.bindMarker().asCql() shouldBeEqualTo ":address"
+        "address".udt().name shouldBeEqualTo CqlIdentifier.fromCql("address")
+        identifier.udt().name shouldBeEqualTo identifier
+    }
+
+    @Test
     fun `generate type hint terms`() {
         "1".raw().typeHint(DataTypes.BIGINT).asCql() shouldBeEqualTo "(bigint)1"
     }
@@ -72,6 +106,29 @@ class TermSupportTest {
         val udtValue = udtType.newValue().setString("first_name", "Jane").setString("last_name", "Doe")
         udtValue.literal().asCql() shouldBeEqualTo "{first_name:'Jane',last_name:'Doe'}"
         null.literal().asCql() shouldBeEqualTo "NULL"
+    }
+
+    @Test
+    fun `generate collection literals with registry and codec`() {
+        "foo".literal(CodecRegistry.DEFAULT).asCql() shouldBeEqualTo "'foo'"
+        listOf(1, 2).literal(CodecRegistry.DEFAULT).asCql() shouldBeEqualTo "[1,2]"
+        setOf("a", "b").literal(CodecRegistry.DEFAULT).asCql() shouldBeEqualTo "{'a','b'}"
+        mapOf("one" to 1).literal(CodecRegistry.DEFAULT).asCql() shouldBeEqualTo "{'one':1}"
+
+        42.literal(TypeCodecs.INT).asCql() shouldBeEqualTo "42"
+        listOf(1, 2).literal(TypeCodecs.INT).asCql() shouldBeEqualTo "[1,2]"
+        setOf(1, 2).literal(TypeCodecs.INT).asCql() shouldBeEqualTo "{1,2}"
+        mapOf(1 to 2).literal(TypeCodecs.INT).asCql() shouldBeEqualTo "{1:2}"
+    }
+
+    @Test
+    fun `codec literals reject null collection members`() {
+        assertFailsWith<IllegalArgumentException> {
+            listOf(null).literal(TypeCodecs.INT)
+        }
+        assertFailsWith<IllegalArgumentException> {
+            mapOf(1 to null).literal(TypeCodecs.INT)
+        }
     }
 
     @Test

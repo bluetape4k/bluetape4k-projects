@@ -6,9 +6,15 @@ import org.junit.jupiter.api.Test
 import java.time.DayOfWeek
 import java.time.Instant
 import java.time.LocalDate
+import java.time.LocalDateTime
+import java.time.LocalTime
+import java.time.OffsetDateTime
+import java.time.OffsetTime
 import java.time.ZoneId
 import java.time.ZoneOffset
+import java.time.ZonedDateTime
 import java.time.temporal.ChronoUnit
+import java.time.temporal.Temporal
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
@@ -195,5 +201,44 @@ class TemporalSupportTest {
 
         date.toEpochMillis(ZoneOffset.UTC) shouldBeEqualTo 0L
         date.toEpochMillis(ZoneOffset.ofHours(9)) shouldBeEqualTo -9L * 60L * 60L * 1000L
+    }
+
+    @Test
+    fun `temporal conversion preserves the instant in the requested zone`() {
+        val zone = ZoneId.of("Asia/Seoul")
+        val instant = Instant.parse("2025-08-17T03:22:33Z")
+        val localDate = LocalDate.of(2025, 8, 17)
+        val localDateTime = LocalDateTime.of(2025, 8, 17, 12, 22, 33)
+        val offsetDateTime = OffsetDateTime.of(localDateTime, ZoneOffset.ofHours(9))
+        val zonedDateTime = ZonedDateTime.of(localDateTime, zone)
+
+        instant.asTemporal() shouldBeEqualTo instant
+        localDate.asTemporal(ZoneOffset.UTC) shouldBeEqualTo localDate
+        localDateTime.asTemporal(ZoneOffset.ofHours(9)) shouldBeEqualTo localDateTime
+        offsetDateTime.asTemporal(ZoneOffset.UTC) shouldBeEqualTo
+                offsetDateTime.toInstant().atOffset(ZoneOffset.UTC)
+        zonedDateTime.asTemporal(ZoneOffset.UTC) shouldBeEqualTo
+                zonedDateTime.toInstant().atZone(ZoneOffset.UTC)
+
+        val expectedEpochDay = localDate.toEpochDay()
+        listOf<Temporal>(instant, localDate, localDateTime, offsetDateTime, zonedDateTime)
+            .forEach { temporal -> temporal.toEpochDay() shouldBeEqualTo expectedEpochDay }
+    }
+
+    @Test
+    fun `startOfMillis truncates supported temporal values`() {
+        (Instant.parse("2025-08-17T03:22:33.123456789Z") as Temporal).startOfMillis() shouldBeEqualTo
+                Instant.parse("2025-08-17T03:22:33.123Z")
+        (LocalDateTime.parse("2025-08-17T12:22:33.123456789") as Temporal).startOfMillis() shouldBeEqualTo
+                LocalDateTime.parse("2025-08-17T12:22:33.123")
+        (OffsetDateTime.parse("2025-08-17T12:22:33.123456789+09:00") as Temporal).startOfMillis() shouldBeEqualTo
+                OffsetDateTime.parse("2025-08-17T12:22:33.123+09:00")
+        (ZonedDateTime.parse("2025-08-17T12:22:33.123456789+09:00[Asia/Seoul]") as Temporal)
+            .startOfMillis() shouldBeEqualTo
+                ZonedDateTime.parse("2025-08-17T12:22:33.123+09:00[Asia/Seoul]")
+        (LocalTime.parse("12:22:33.123456789") as Temporal).startOfMillis() shouldBeEqualTo
+                LocalTime.parse("12:22:33.123")
+        (OffsetTime.parse("12:22:33.123456789+09:00") as Temporal).startOfMillis() shouldBeEqualTo
+                OffsetTime.parse("12:22:33.123+09:00")
     }
 }

@@ -1,7 +1,10 @@
 package io.bluetape4k.cassandra.data
 
+import com.datastax.oss.driver.api.core.CqlIdentifier
 import com.datastax.oss.driver.api.core.data.CqlDuration
 import com.datastax.oss.driver.api.core.data.GettableByIndex
+import com.datastax.oss.driver.api.core.data.GettableById
+import com.datastax.oss.driver.api.core.data.GettableByName
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeNull
 import io.mockk.clearAllMocks
@@ -15,6 +18,9 @@ import java.net.InetAddress
 class GettableSupportTest {
 
     private val gettable = mockk<GettableByIndex>(relaxed = true)
+    private val gettableById = mockk<GettableById>(relaxed = true)
+    private val gettableByName = mockk<GettableByName>(relaxed = true)
+    private val id = CqlIdentifier.fromCql("col")
     private val inetAddress: InetAddress = InetAddress.getByName("127.0.0.1")
     private val duration: CqlDuration = CqlDuration.newInstance(1, 2, 3)
 
@@ -52,5 +58,54 @@ class GettableSupportTest {
         every { gettable.get(0, String::class.java) } returns "value-0"
 
         gettable.getValue<String>(0) shouldBeEqualTo "value-0"
+    }
+
+    @Test
+    fun `id and name getters forward reified values`() {
+        every { gettableById.get(id, String::class.java) } returns "id-value"
+        every { gettableByName.get("name", String::class.java) } returns "name-value"
+
+        gettableById.getValue<String>(id) shouldBeEqualTo "id-value"
+        gettableByName.getValue<String>("name") shouldBeEqualTo "name-value"
+    }
+
+    @Test
+    fun `getObject supports index and name string access`() {
+        every { gettable.isNull(0) } returns false
+        every { gettable.getString(0) } returns "index-value"
+        gettable.getObject(0, String::class) shouldBeEqualTo "index-value"
+
+        every { gettableByName.firstIndexOf("name") } returns 0
+        every { gettableByName.isNull(0) } returns false
+        every { gettableByName.getString(0) } returns "name-value"
+        gettableByName.getObject("name", String::class) shouldBeEqualTo "name-value"
+    }
+
+    @Test
+    fun `collection getters forward reified element and map types`() {
+        val list = mutableListOf("a", "b")
+        val set = mutableSetOf("admin")
+        val map = mutableMapOf("role" to 1)
+
+        every { gettable.getList(0, String::class.java) } returns list
+        every { gettable.getSet(1, String::class.java) } returns set
+        every { gettable.getMap(2, String::class.java, Int::class.java) } returns map
+        gettable.getList<String>(0) shouldBeEqualTo list
+        gettable.getSet<String>(1) shouldBeEqualTo set
+        gettable.getMap<String, Int>(2)
+
+        every { gettableById.getList(id, String::class.java) } returns list
+        every { gettableById.getSet(id, String::class.java) } returns set
+        every { gettableById.getMap(id, String::class.java, Int::class.java) } returns map
+        gettableById.getList<String>(id) shouldBeEqualTo list
+        gettableById.getSet<String>(id) shouldBeEqualTo set
+        gettableById.getMap<String, Int>(id)
+
+        every { gettableByName.getList("tags", String::class.java) } returns list
+        every { gettableByName.getSet("roles", String::class.java) } returns set
+        every { gettableByName.getMap("attributes", String::class.java, Int::class.java) } returns map
+        gettableByName.getList<String>("tags") shouldBeEqualTo list
+        gettableByName.getSet<String>("roles") shouldBeEqualTo set
+        gettableByName.getMap<String, Int>("attributes")
     }
 }

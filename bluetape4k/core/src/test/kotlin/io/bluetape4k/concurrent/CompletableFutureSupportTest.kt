@@ -36,7 +36,14 @@ class CompletableFutureSupportTest {
     @Test
     fun `flatMap transforms success and propagates failure`() {
         success.flatMap { r -> immediateFutureOf { r + 1 } }.get() shouldBeEqualTo 2
-        failed.map { r -> immediateFutureOf { r + 1 } }.shouldCauseBe<IllegalArgumentException>()
+        failed.flatMap { r -> immediateFutureOf { r + 1 } }.shouldCauseBe<IllegalArgumentException>()
+    }
+
+    @Test
+    fun `mapResult exposes success and failure metadata`() {
+        success.mapResult { value, error -> error == null && value == 1 }.get().shouldBeTrue()
+        failed.mapResult { value, error -> value == null && error is IllegalArgumentException }
+            .get().shouldBeTrue()
     }
 
     @Test

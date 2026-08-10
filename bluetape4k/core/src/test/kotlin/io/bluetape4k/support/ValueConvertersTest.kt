@@ -26,6 +26,8 @@ import java.time.ZoneOffset
 import java.time.ZonedDateTime
 import java.util.*
 import kotlin.toBigDecimal
+import kotlin.uuid.ExperimentalUuidApi
+import kotlin.uuid.Uuid
 
 @RandomizedTest
 class ValueConvertersTest {
@@ -305,6 +307,22 @@ class ValueConvertersTest {
         val str = "동해물과 백두산이"; str.asByteArray() shouldBeEqualTo str.toUtf8Bytes()
         42.asByteArray() shouldBeEqualTo 42.toByteArray(); 42L.asByteArray() shouldBeEqualTo 42L.toByteArray()
         val uuid2 = UUID.randomUUID(); uuid2.asByteArray() shouldBeEqualTo uuid2.toByteArray()
+    }
+
+    @OptIn(ExperimentalUuidApi::class)
+    @Test
+    fun `convert any to Kotlin UUID or null`() {
+        val uuidString = "24738134-9d88-6645-4ec8-d63aa2031015"
+        val javaUuid = UUID.fromString(uuidString)
+        val kotlinUuid = Uuid.parse(uuidString)
+
+        uuidString.asKotlinUuidOrNull() shouldBeEqualTo kotlinUuid
+        javaUuid.asKotlinUuidOrNull() shouldBeEqualTo kotlinUuid
+        javaUuid.toBigInt().asKotlinUuidOrNull() shouldBeEqualTo kotlinUuid
+        kotlinUuid.asKotlinUuidOrNull() shouldBeEqualTo kotlinUuid
+
+        null.asKotlinUuidOrNull().shouldBeNull()
+        "not-a-uuid".asKotlinUuidOrNull().shouldBeNull()
     }
 
     @Test

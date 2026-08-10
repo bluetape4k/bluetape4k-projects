@@ -7,8 +7,11 @@ import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import io.bluetape4k.okio.AbstractOkioTest
 import io.bluetape4k.okio.SEGMENT_SIZE
+import io.bluetape4k.okio.bufferOf
 import kotlinx.coroutines.test.runTest
 import okio.Buffer
+import okio.ByteString
+import okio.ByteString.Companion.encodeUtf8
 import okio.Timeout
 import org.junit.jupiter.api.Test
 import java.io.IOException
@@ -87,6 +90,44 @@ class BufferedSuspendedSinkTest: AbstractOkioTest() {
             0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x88.toByte()
         )
         fakeSink.buffer.readByteArray() shouldBeEqualTo expected
+    }
+
+    @Test
+    fun `all buffered write overloads emit to the delegate`() = runTest {
+        val fakeSink = FakeSuspendedSink()
+        val bufferedSink = RealBufferedSuspendedSink(fakeSink)
+
+        with(bufferedSink) {
+            write("bytes".encodeUtf8())
+            write("array".toByteArray())
+            writeUtf8("utf8")
+            writeUtf8("code-point")
+            writeUtf8CodePoint('✓'.code)
+            writeByte(0x01)
+            writeShort(0x0203)
+            writeShortLe(0x0405)
+            writeInt(0x06070809)
+            writeIntLe(0x0A0B0C0D)
+            writeLong(0x0102030405060708L)
+            writeLongLe(0x1112131415161718L)
+            writeDecimalLong(123456789L)
+            writeHexadecimalUnsignedLong(0xABCDEFL)
+
+            val bufferSource = bufferOf("buffer")
+            write(bufferSource, bufferSource.size)
+
+            val suspendedSource = (bufferOf("suspended") as okio.Source).asSuspended()
+            write(suspendedSource, 9L)
+
+            val allSource: okio.Source = bufferOf("all")
+            writeAll(allSource.asSuspended()) shouldBeEqualTo 3L
+
+            emit()
+            emitCompleteSegments()
+            flush()
+        }
+
+        (fakeSink.buffer.size > 0L).shouldBeTrue()
     }
 
     @Test

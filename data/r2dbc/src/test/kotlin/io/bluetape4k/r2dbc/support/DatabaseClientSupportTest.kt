@@ -78,4 +78,12 @@ class DatabaseClientSupportTest {
             spec.bindNullable<String>(-1, "john")
         }
     }
+
+    @Test
+    fun `bindNullable은 named와 indexed 값을 typed Parameter로 위임한다`() {
+        val spec = mockk<DatabaseClient.GenericExecuteSpec>(relaxed = true)
+
+        spec.bindNullable<String>("username", "john") shouldBeSameInstanceAs spec
+        spec.bindNullable<String>(0, null) shouldBeSameInstanceAs spec
+    }
 }
