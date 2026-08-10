@@ -252,6 +252,7 @@ subprojects {
                 currentProject {
                     sources {
                         excludedSourceSets.add("testFixtures")
+                        excludedSourceSets.add("benchmark")
                     }
                 }
             }
