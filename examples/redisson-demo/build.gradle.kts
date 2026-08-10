@@ -48,6 +48,8 @@ dependencies {
     testImplementation(project(":bluetape4k-idgenerators"))
     testImplementation(project(":bluetape4k-junit5"))
     testImplementation(project(":bluetape4k-testcontainers"))
+    // 저장소 JDK 25 기준으로 실행하며 StructuredTaskScopeTester를 사용한다.
+    testRuntimeOnly(project(":bluetape4k-virtualthread-jdk25"))
 
     // Redisson Map Read/Write Through 예제를 위해 
     testImplementation(project(":bluetape4k-jdbc"))

@@ -62,7 +62,7 @@ The current build declares these integration edges:
 ```kotlin
 api(project(":bluetape4k-core"))
 implementation(project(":bluetape4k-virtualthread-api"))
-runtimeOnly(project(":bluetape4k-virtualthread-jdk21"))
+runtimeOnly(project(":bluetape4k-virtualthread-jdk25"))
 implementation(project(":bluetape4k-coroutines"))
 implementation(libs.kotlinx.coroutines.core)
 ```

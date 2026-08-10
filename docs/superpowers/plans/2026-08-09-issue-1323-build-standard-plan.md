@@ -92,23 +92,31 @@ merge, publish, release와 중앙 Dependabot 버전 갱신은 수행하지 않�
 - Modify: `bluetape4k/core/build.gradle.kts`
 - Modify: `utils/workflow/build.gradle.kts`
 - Modify: `virtualthread/api/build.gradle.kts`
+- Modify: `testing/junit5/build.gradle.kts`
+- Modify: `examples/redisson-demo/build.gradle.kts`
 - Modify: `examples/virtualthreads-demo/build.gradle.kts`
 - Modify: `examples/virtualthreads-demo/README.md`
 - Modify: `examples/virtualthreads-demo/README.ko.md`
 - Modify: `docs/manual/en/modules/bluetape4k-examples-virtualthreads-demo.md`
 - Modify: `docs/manual/ko/modules/bluetape4k-examples-virtualthreads-demo.md`
+- Modify: `docs/manual/en/modules/bluetape4k-junit5.md`
+- Modify: `docs/manual/ko/modules/bluetape4k-junit5.md`
+- Modify: `docs/manual/en/modules/bluetape4k-workflow.md`
+- Modify: `docs/manual/ko/modules/bluetape4k-workflow.md`
 
 **Steps:**
 
 1. JDK 25 기본 모듈과 example의 runtime provider를 `virtualthread-jdk25`로
    맞춘다.
 2. Java 21 compatibility island의 API compile contract와 test runtime provider는
-   `bluetape4k-virtualthread-jdk21`으로 유지한다. JDK 25 기본 모듈과 example만
-   `bluetape4k-virtualthread-jdk25` provider를 사용한다.
-3. EN/KO README와 manual의 실행 JDK, provider dependency 설명을 실제 build와
+   `bluetape4k-virtualthread-jdk21`으로 유지한다. `bluetape4k-junit5`는 JDK 21
+   provider를 자체 test에만 사용하고 published consumer에 강제하지 않는다.
+3. Java 25에서 StructuredTaskScope를 실행하는 `examples/redisson-demo`는
+   `testRuntimeOnly(":bluetape4k-virtualthread-jdk25")`를 명시한다.
+4. EN/KO README와 manual의 실행 JDK, provider dependency 설명을 실제 build와
    일치시킨다.
-4. example, core, workflow, API 표적 test를 순차 실행하고 provider 이름 및
-   실패 없는 StructuredTaskScope 실행을 확인한다.
+5. example, core, workflow, API, junit5, redisson 표적 test를 순차 실행하고
+   provider 이름 및 실패 없는 StructuredTaskScope 실행을 확인한다.
 
 ## Task 4B: Gradle dependency submission 실행 경로 교체
 
@@ -123,7 +131,9 @@ merge, publish, release와 중앙 Dependabot 버전 갱신은 수행하지 않�
    action을 사용해 default branch dependency graph를 제출한다.
 2. GitHub-managed Automatic Dependency Submission을 repository 설정에서
    비활성화해 JDK 21 dynamic `submit-gradle` job과 중복 실행하지 않는다.
-3. workflow permissions와 action refs를 최소 범위로 검증하고, live setting과
+3. `workflow_dispatch`도 `develop`만 checkout하도록 guard하고, contents write를
+   사용하는 action ref는 release commit SHA로 고정한다.
+4. workflow permissions와 action refs를 최소 범위로 검증하고, live setting과
    workflow dispatch 결과를 기록한다.
 
 ## Task 5: 현재 빌드 기준 문서 갱신

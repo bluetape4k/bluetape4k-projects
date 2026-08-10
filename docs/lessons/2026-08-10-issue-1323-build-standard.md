@@ -71,12 +71,30 @@ matching 단계에서 실패했다.
   없어서 GitHub API가 `HTTP 404: workflow ... not found on the default branch`를
   반환했다. merge 후 `develop` push에서 hosted workflow를 검증한다.
 
+최신 exact-head hosted run에서는 `examples/virtualthreads-demo`가 통과했지만
+`examples/redisson-demo`가 같은 provider 오류로 5건 실패했다. 원인은
+`testing/junit5`의 `runtimeOnly(virtualthread-jdk21)`가 JDK 25 consumer의
+test runtime까지 전파되어 `core`의 JDK 25 provider와 함께 ServiceLoader
+provider 충돌을 만든 것이었다. 따라서 JUnit 5 module은 JDK 21 provider를
+자체 `testRuntimeOnly`로만 사용하고, Redisson example은 JDK 25 provider를
+`testRuntimeOnly`로 직접 선택한다. JDK 25 example에서 실행 JDK와 provider를
+함께 선언하지 않으면 provider 경계가 닫히지 않는다는 점을 확인했다.
+
+repository-owned dependency submission workflow에는 develop branch만 checkout하는
+guard와 release commit SHA pin을 추가했다. `workflow_dispatch`가 다른 branch
+내용으로 `contents: write` 작업을 실행하지 않도록 하고, 새 privileged action의
+mutable tag 의존도 제거했다. GitHub Settings의 fresh reload 화면은
+Automatic Dependency Submission을 `Disabled`로 표시했으며, REST workflow 목록은
+동적 workflow를 `active`로 남겨 설정 자체를 제공하지 않는다. 설정 변경 이후
+새 동적 submission run은 생성되지 않았고, default branch에 workflow가 없던
+시점의 dispatch 404는 merge 후 develop push에서 재검증한다.
+
 이전 PR head의 hosted CI에서는 `Test Examples`가 JDK 25에서 JDK 21 provider를
 소비해 3개 StructuredTaskScope 테스트를 실패했고
 (`31324376319/93272283919`), GitHub-managed `submit-gradle`은 JDK 21로
-`buildSrc`를 실행해 실패했다(`31324372759/93272269283`). 새 head의 hosted
-CI와 managed submission setting은 push 후 exact head에서 재검증해야 하므로
-아직 완료로 표시하지 않는다.
+`buildSrc`를 실행해 실패했다(`31324372759/93272269283`). 최신 head에서도
+Redisson consumer의 누락된 provider가 추가로 드러났으므로 새 수정 push 후
+exact-head hosted CI와 managed submission 중단 상태를 다시 확인해야 한다.
 
 설계 경계와 전체 명령은
 [`2026-08-09-issue-1323-build-standard-design.md`](../superpowers/specs/2026-08-09-issue-1323-build-standard-design.md)와
@@ -97,6 +115,9 @@ dependency submission이 저장소의 JDK 25 build logic과 독립적으로 JDK 
   실제 test launcher를 한 세트로 검증한다.
 - provider를 바꿀 때는 consumer의 Gradle Java variant와 실행 JDK를 함께
   확인하고, compatibility island 경계를 넘는 provider를 연결하지 않는다.
+- `bluetape4k-junit5`처럼 virtual-thread API를 제공하는 test helper는 provider를
+  published runtime으로 강제하지 말고, 각 consumer가 실행 JDK에 맞게 선택하게
+  한다.
 - GitHub-managed workflow의 실행 환경을 저장소 YAML로 추측하지 말고 실패
   로그의 JDK와 workflow ownership을 확인한 뒤 repository-owned workflow로
   대체할지 결정한다.

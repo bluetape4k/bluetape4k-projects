@@ -63,7 +63,7 @@ README 근거는 **아키텍처**, **확장 기능 구성 다이어그램**, **�
 implementation(platform(libs.junit.bom))
 api(project(":bluetape4k-logging"))
 api(project(":bluetape4k-virtualthread-api"))
-runtimeOnly(project(":bluetape4k-virtualthread-jdk21"))
+testRuntimeOnly(project(":bluetape4k-virtualthread-jdk21"))
 api(libs.kotlin.test.junit5)
 api(libs.junit.jupiter)
 api(libs.junit.jupiter.engine)
@@ -74,7 +74,11 @@ api(libs.mockk)
 api(libs.awaitility.kotlin)
 ```
 
-`compileOnly` edge는 caller가 제공해야 하는 capability이므로 API를 사용하기 전에 runtime에 실제 dependency가 있는지 확인합니다.
+이 모듈의 test는 JDK 21 provider를 사용하지만, publish된 consumer는 실행 JDK에
+맞는 `bluetape4k-virtualthread-jdk21` 또는 `bluetape4k-virtualthread-jdk25`
+provider를 직접 추가해야 합니다. JUnit 5 helper가 consumer에 provider를
+강제로 추가하지 않도록 합니다. `compileOnly` edge는 caller가 제공해야 하는
+capability이므로 API를 사용하기 전에 runtime에 실제 dependency가 있는지 확인합니다.
 
 ## 설정 {#configuration}
 

@@ -72,6 +72,8 @@ Kotlin 2.4, JDK 25, Gradle 9.7.0 기준과 일치하지 않는다.
    `2.4.0` 확인은 유지하고, Gradle 9.7/Kotlin 2.4 build와 충돌하는 extractor용
    workflow-local `2.3.21` 치환 단계는 제거한다. 기존 `github/codeql-action@v4`
    action ref는 유지하며, hosted 실행에서 CodeQL bundle 2.26.0 이상을 확인한다.
+   repository-owned dependency submission은 `develop` branch만 checkout하고
+   `contents: write` action ref를 release commit SHA로 고정한다.
 6. `README.md`, `README.ko.md`, `AGENTS.md`, `.github/copilot-instructions.md`의
    기본 빌드 기준을 갱신한다. JDK 21 전용 모듈 설명은 호환성 계약이므로 유지한다.
 7. `testing/mock-web-server`와 `testing/mock-webflux-server`의 toolchain, release,
@@ -101,8 +103,12 @@ JDK 21 test runtime을 다시 검증한다.
 단, JDK 25로 실행되는 `bluetape4k-core`, `utils/workflow`, example의 runtime
 dependency는 `virtualthread-jdk25`를 선택한다. `virtualthread/api`는 Java 21
 compatibility island의 consumer이므로 test runtime도 `virtualthread-jdk21`을
-유지한다. Java 21 호환성은 provider 자체와 JDK 21 launcher 테스트로 증명하고,
-JDK 25 실행 경로는 JDK 25 provider와 함께 검증한다.
+유지한다. `bluetape4k-junit5`도 자체 test에만 JDK 21 provider를 연결하고,
+published consumer에는 provider를 노출하지 않는다. Java 25에서
+`StructuredTaskScopeTester`를 사용하는 `examples/redisson-demo`는 JDK 25
+provider를 test runtime에 직접 추가한다. Java 21 호환성은 provider 자체와 JDK
+21 launcher 테스트로 증명하고, JDK 25 실행 경로는 JDK 25 provider와 함께
+검증한다.
 
 이 방식은 전체 모듈에 JDK 설정을 중복하지 않고, 기본 기준과 명시적 예외의
 소유권을 구분한다.
@@ -152,6 +158,8 @@ Java 21용 artifact라는 공개 호환성 의미와 `--release 21` 계약을 �
 - `bluetape4k/core/build.gradle.kts`
 - `utils/workflow/build.gradle.kts`
 - `virtualthread/api/build.gradle.kts`
+- `testing/junit5/build.gradle.kts`
+- `examples/redisson-demo/build.gradle.kts`
 - `examples/virtualthreads-demo/build.gradle.kts`
 
 ### CI
@@ -183,6 +191,12 @@ Java 21용 artifact라는 공개 호환성 의미와 `--release 21` 계약을 �
 - `docs/manual/en/modules/bluetape4k-core.md`,
   `docs/manual/ko/modules/bluetape4k-core.md`: core의 현재 compile 기준을
   Java 25/Kotlin 2.4로 갱신한다.
+- `docs/manual/en/modules/bluetape4k-junit5.md`,
+  `docs/manual/ko/modules/bluetape4k-junit5.md`: JDK provider를 consumer가
+  선택하고 JUnit 5 module은 자체 test에만 provider를 사용하는 경계를 기록한다.
+- `docs/manual/en/modules/bluetape4k-workflow.md`,
+  `docs/manual/ko/modules/bluetape4k-workflow.md`: workflow의 JDK 25 provider를
+  실제 build와 일치시킨다.
 - `cache/hibernate-cache-lettuce/README.md`,
   `cache/hibernate-cache-lettuce/README.ko.md`: 저장소 기본 정책 참조를 JDK 25+로
   갱신한다.

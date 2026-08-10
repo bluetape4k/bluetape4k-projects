@@ -73,10 +73,10 @@ synchronized 블록은 Virtual Thread를 차단(pinning)할 수 있습니다.
 
 ```bash
 # 모든 예제 실행 (Java 25+ 필요)
-./gradlew :examples:virtualthreads:test
+./gradlew :bluetape4k-examples-virtualthreads-demo:test
 
 # 특정 규칙 예제만 실행
-./gradlew :examples:virtualthreads:test --tests "*Rule2*"
+./gradlew :bluetape4k-examples-virtualthreads-demo:test --tests "*Rule2*"
 ```
 
 ## 요구사항

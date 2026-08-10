@@ -63,7 +63,7 @@ The current build declares these integration edges:
 implementation(platform(libs.junit.bom))
 api(project(":bluetape4k-logging"))
 api(project(":bluetape4k-virtualthread-api"))
-runtimeOnly(project(":bluetape4k-virtualthread-jdk21"))
+testRuntimeOnly(project(":bluetape4k-virtualthread-jdk21"))
 api(libs.kotlin.test.junit5)
 api(libs.junit.jupiter)
 api(libs.junit.jupiter.engine)
@@ -74,6 +74,9 @@ api(libs.mockk)
 api(libs.awaitility.kotlin)
 ```
 
+The module's own tests use the JDK 21 provider, but published consumers must add the
+`bluetape4k-virtualthread-jdk21` or `bluetape4k-virtualthread-jdk25` provider that
+matches their runtime JDK. The JUnit 5 helper must not force a provider on consumers.
 Treat `compileOnly` edges as caller-provided capabilities and verify runtime availability before using their APIs.
 
 ## Configuration {#configuration}

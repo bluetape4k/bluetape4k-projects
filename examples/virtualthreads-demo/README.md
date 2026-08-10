@@ -73,10 +73,10 @@ Because Virtual Threads can be created in large numbers, be mindful of memory us
 
 ```bash
 # Run all examples (requires Java 25+)
-./gradlew :examples:virtualthreads:test
+./gradlew :bluetape4k-examples-virtualthreads-demo:test
 
 # Run a specific rule example
-./gradlew :examples:virtualthreads:test --tests "*Rule2*"
+./gradlew :bluetape4k-examples-virtualthreads-demo:test --tests "*Rule2*"
 ```
 
 ## Requirements
