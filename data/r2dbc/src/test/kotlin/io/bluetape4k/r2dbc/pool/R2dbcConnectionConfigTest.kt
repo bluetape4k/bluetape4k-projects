@@ -29,11 +29,13 @@ class R2dbcConnectionConfigTest {
             protocol = "mem"
             database = "test_${System.nanoTime()}"
             option(Option.valueOf("DB_CLOSE_DELAY"), "-1")
+            lockWaitTimeout = Duration.ofSeconds(2)
         }
 
         options.shouldNotBeNull()
         options.getRequiredValue(ConnectionFactoryOptions.DRIVER) shouldBeEqualTo "h2"
         options.getRequiredValue(ConnectionFactoryOptions.PROTOCOL) shouldBeEqualTo "mem"
+        options.getRequiredValue(ConnectionFactoryOptions.LOCK_WAIT_TIMEOUT) shouldBeEqualTo Duration.ofSeconds(2)
 
         log.debug { "H2 ConnectionFactoryOptions: $options" }
     }

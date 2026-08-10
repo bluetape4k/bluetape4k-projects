@@ -6,13 +6,19 @@ import io.bluetape4k.assertions.shouldBeNull
 import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.assertions.shouldNotBeNull
 import org.junit.jupiter.api.Test
+import java.lang.reflect.Method
+import java.lang.reflect.Modifier
 import java.math.BigDecimal
 import java.math.BigInteger
+import java.sql.Timestamp
+import java.time.ZonedDateTime
 import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
 import java.time.OffsetDateTime
+import java.util.Date
+import java.util.UUID
 
 class ReadableSupportTest {
     private class FakeReadable(
@@ -186,5 +192,66 @@ class ReadableSupportTest {
     fun `instant 변환을 지원한다`() {
         readable.instant("instantVal") shouldBeEqualTo Instant.ofEpochSecond(1739495230L)
         readable.instantOrNull("nullable").shouldBeNull()
+    }
+
+    @Test
+    fun `Readable 지원 함수의 JVM overload를 실제 변환 경로로 검증한다`() {
+        val supportClass = Class.forName("io.bluetape4k.r2dbc.support.ReadableSupportKt")
+
+        supportClass.declaredMethods
+            .asSequence()
+            .filter { method -> Modifier.isStatic(method.modifiers) }
+            .filter { method -> method.parameterTypes.size == 2 }
+            .filter { method -> method.name !in setOf("getAs", "getAsOrNull") }
+            .filter { method -> method.parameterTypes[0] == Readable::class.java }
+            .forEach { method ->
+                val nullable = method.name.endsWith("OrNull")
+                val value = readableValue(method.name, nullable)
+                val target =
+                    FakeReadable(
+                        indexValues = mapOf(0 to value),
+                        nameValues = mapOf("value" to value),
+                    )
+                val argument = if (method.parameterTypes[1] == Int::class.javaPrimitiveType) 0 else "value"
+
+                val result = method.invoke(null, target, argument)
+                if (nullable) {
+                    result.shouldBeNull()
+                } else {
+                    result.shouldNotBeNull()
+                }
+            }
+    }
+
+    private fun readableValue(
+        methodName: String,
+        nullable: Boolean,
+    ): Any? {
+        if (nullable) return null
+
+        return when {
+            methodName.startsWith("boolean") -> true
+            methodName.startsWith("char") -> "A"
+            methodName.startsWith("byteArray") -> byteArrayOf(1, 2, 3)
+            methodName.startsWith("byte") -> 7.toByte()
+            methodName.startsWith("short") -> 8.toShort()
+            methodName.startsWith("int") -> 9
+            methodName.startsWith("long") -> 10L
+            methodName.startsWith("float") -> 1.25f
+            methodName.startsWith("double") -> 2.5
+            methodName.startsWith("bigInt") -> "123"
+            methodName.startsWith("bigDecimal") -> "1.25"
+            methodName.startsWith("string") -> "text"
+            methodName.startsWith("date") -> Date.from(Instant.parse("2026-02-14T01:20:30Z"))
+            methodName.startsWith("timestamp") -> Timestamp.from(Instant.parse("2026-02-14T01:20:30Z"))
+            methodName.startsWith("instant") -> Instant.parse("2026-02-14T01:20:30Z")
+            methodName.startsWith("localDateTime") -> LocalDateTime.of(2026, 2, 14, 10, 20, 30)
+            methodName.startsWith("localDate") -> LocalDate.of(2026, 2, 14)
+            methodName.startsWith("localTime") -> LocalTime.of(10, 20, 30)
+            methodName.startsWith("offsetDateTime") -> OffsetDateTime.parse("2026-02-14T10:20:30+09:00")
+            methodName.startsWith("zonedDateTime") -> ZonedDateTime.parse("2026-02-14T10:20:30+09:00[Asia/Seoul]")
+            methodName.startsWith("uuid") -> UUID.fromString("123e4567-e89b-12d3-a456-426614174000")
+            else -> error("지원하지 않는 Readable 함수: $methodName")
+        }
     }
 }

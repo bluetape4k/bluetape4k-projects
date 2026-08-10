@@ -309,6 +309,30 @@ class QueryBuilderTest {
     }
 
     @Test
+    fun `property parameter와 nested filter는 count builder에서도 동작한다`() {
+        val query = QueryBuilder().buildCount {
+            selectCount("select count(*) from actor")
+            parameter(Actor::id, 7L)
+            parameter(Actor::name, null, String::class.java)
+            parameterNull(Actor::id, Long::class.java)
+            whereGroup("or") {
+                where("id = :id")
+                whereGroup {
+                    where("name = :name")
+                }
+            }
+        }
+
+        query.sql shouldBeEqualTo """
+            select count(*) from actor
+            where id = :id or name = :name
+            """.trimIndent()
+        query.parameters.keys shouldBeEqualTo setOf("id", "name")
+        (query.parameters["id"] as Parameter).value shouldBeEqualTo null
+        (query.parameters["name"] as Parameter).value shouldBeEqualTo null
+    }
+
+    @Test
     fun `nullable parameter helper는 typed null parameter를 생성한다`() {
         val query = query {
             select("select * from actor")
