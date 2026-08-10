@@ -35,6 +35,12 @@ class CodeqlWorkflowPolicyTest(unittest.TestCase):
         self.assertNotIn("Pin Kotlin for CodeQL extractor", CODEQL)
         self.assertNotIn("2.3.21", CODEQL)
 
+    def test_catalog_checkout_verifies_the_immutable_commit(self) -> None:
+        verify = named_step(CODEQL, "Verify dependencies catalog commit")
+
+        self.assertIn("git -C .catalog/bluetape4k-dependencies rev-parse HEAD", verify)
+        self.assertIn("steps.catalog-ref.outputs.ref", verify)
+
     def test_catalog_ref_is_resolved_from_the_checked_in_settings(self) -> None:
         resolve = named_step(CODEQL, "Resolve dependencies catalog ref")
 

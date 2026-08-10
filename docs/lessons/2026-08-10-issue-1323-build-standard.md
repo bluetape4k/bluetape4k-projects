@@ -89,6 +89,10 @@ Automatic Dependency Submission을 `Disabled`로 표시했으며, REST workflow 
 새 동적 submission run은 생성되지 않았고, default branch에 workflow가 없던
 시점의 dispatch 404는 merge 후 develop push에서 재검증한다.
 
+CodeQL catalog checkout에도 resolved 40자리 commit과 실제 checkout HEAD가
+일치하는지 확인하는 단계를 복원해, 중앙 catalog 무결성 검사를 정책 test와
+workflow 양쪽에서 유지한다.
+
 이전 PR head의 hosted CI에서는 `Test Examples`가 JDK 25에서 JDK 21 provider를
 소비해 3개 StructuredTaskScope 테스트를 실패했고
 (`31324376319/93272283919`), GitHub-managed `submit-gradle`은 JDK 21로

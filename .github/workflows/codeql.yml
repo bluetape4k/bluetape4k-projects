@@ -72,6 +72,13 @@ jobs:
           ref: ${{ steps.catalog-ref.outputs.ref }}
           path: .catalog/bluetape4k-dependencies
 
+      - name: Verify dependencies catalog commit
+        if: matrix.language == 'java-kotlin'
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git -C .catalog/bluetape4k-dependencies rev-parse HEAD)" = "${{ steps.catalog-ref.outputs.ref }}"
+
       - name: Initialize CodeQL
         uses: github/codeql-action/init@v4
         with:
