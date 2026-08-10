@@ -32,7 +32,7 @@ class OllamaServer private constructor(
         const val IMAGE = "ollama/ollama"
 
         /** 기본 Docker 이미지 태그입니다. */
-        const val TAG = "0.5.11"
+        const val TAG = "0.32.6"
 
         /** 시스템 프로퍼티 등록 시 사용하는 서버 식별자입니다. */
         const val NAME = "ollama"
@@ -44,7 +44,7 @@ class OllamaServer private constructor(
          * 이미지 이름/태그로 [OllamaServer] 인스턴스를 생성합니다.
          *
          * ```kotlin
-         * val server = OllamaServer(image = "ollama/ollama", tag = "0.5.11")
+         * val server = OllamaServer(image = "ollama/ollama", tag = TAG)
          * // server.url.startsWith("http://") == true (시작 후)
          * ```
          *
@@ -70,7 +70,7 @@ class OllamaServer private constructor(
          * [DockerImageName]으로 [OllamaServer] 인스턴스를 생성합니다.
          *
          * ```kotlin
-         * val image = DockerImageName.parse("ollama/ollama").withTag("0.5.11")
+         * val image = DockerImageName.parse("ollama/ollama").withTag(TAG)
          * val server = OllamaServer(image)
          * // server.isRunning == false
          * ```

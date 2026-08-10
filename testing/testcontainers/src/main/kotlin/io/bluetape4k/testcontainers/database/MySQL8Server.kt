@@ -32,7 +32,7 @@ class MySQL8Server private constructor(
 
     companion object: KLogging() {
         const val IMAGE = "mysql"
-        const val TAG = "8.4"       // https://hub.docker.com/_/mysql/tags?page=&page_size=&ordering=&name=8
+        const val TAG = "8.4.11"       // https://hub.docker.com/_/mysql/tags?page=&page_size=&ordering=&name=8
         const val NAME = "mysql"
         const val PORT: Int = 3306
         const val USERNAME = "test"
@@ -43,7 +43,7 @@ class MySQL8Server private constructor(
          * [MySQL8Server]를 생성합니다.
          *
          * ```kotlin
-         * val server = MySQL8Server(image = "mysql", tag = "8.4")
+         * val server = MySQL8Server(image = "mysql", tag = TAG)
          * // server.url.startsWith("jdbc:mysql://") == true (시작 후)
          * ```
          *
@@ -76,7 +76,7 @@ class MySQL8Server private constructor(
          * [MySQL8Server]를 생성합니다.
          *
          * ```kotlin
-         * val image = DockerImageName.parse("mysql").withTag("8.4")
+         * val image = DockerImageName.parse("mysql").withTag(TAG)
          * val server = MySQL8Server(image)
          * // server.isRunning == false
          * ```

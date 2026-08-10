@@ -25,7 +25,7 @@ class VaultServer private constructor(
 
     companion object: KLogging() {
         const val IMAGE = "hashicorp/vault"
-        const val TAG = "1.13.1"
+        const val TAG = "1.20.4"
         const val NAME = "vault"
         const val PORT = 8200
 
@@ -33,7 +33,7 @@ class VaultServer private constructor(
          * [DockerImageName]으로 [VaultServer] 인스턴스를 생성합니다.
          *
          * ```kotlin
-         * val image = DockerImageName.parse("hashicorp/vault").withTag("1.13.1")
+         * val image = DockerImageName.parse("hashicorp/vault").withTag(TAG)
          * val server = VaultServer(image)
          * // server.isRunning == false
          * ```
@@ -55,7 +55,7 @@ class VaultServer private constructor(
          * 이미지 이름/태그로 [VaultServer] 인스턴스를 생성합니다.
          *
          * ```kotlin
-         * val server = VaultServer(image = "hashicorp/vault", tag = "1.13.1")
+         * val server = VaultServer(image = "hashicorp/vault", tag = TAG)
          * // server.url.startsWith("http://") == true (시작 후)
          * ```
          *

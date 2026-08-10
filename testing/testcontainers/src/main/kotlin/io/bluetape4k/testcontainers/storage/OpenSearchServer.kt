@@ -33,7 +33,7 @@ class OpenSearchServer private constructor(
 
     companion object Companion: KLogging() {
         const val IMAGE = "opensearchproject/opensearch"
-        const val TAG = "3"
+        const val TAG = "3.8.0"
         const val NAME = "opensearch"
 
         const val HTTP_PORT = 9200
@@ -47,7 +47,7 @@ class OpenSearchServer private constructor(
          * - 컨테이너 시작은 수행하지 않으며 `start()`는 호출자가 수행해야 합니다.
          *
          * ```kotlin
-         * val image = DockerImageName.parse("opensearchproject/opensearch").withTag("3")
+         * val image = DockerImageName.parse("opensearchproject/opensearch").withTag(TAG)
          * val server = OpenSearchServer(image)
          * // server.isRunning == false
          * ```
@@ -70,7 +70,7 @@ class OpenSearchServer private constructor(
          * - 이 함수는 컨테이너를 시작하지 않습니다.
          *
          * ```kotlin
-         * val server = OpenSearchServer(image = "opensearchproject/opensearch", tag = "3")
+         * val server = OpenSearchServer(image = "opensearchproject/opensearch", tag = TAG)
          * // server.url.contains(\":\") == true
          * ```
          *

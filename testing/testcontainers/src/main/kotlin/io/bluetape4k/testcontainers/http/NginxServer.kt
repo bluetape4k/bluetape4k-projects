@@ -26,7 +26,7 @@ class NginxServer private constructor(
 
     companion object: KLogging() {
         const val IMAGE = "nginx"
-        const val TAG = "1.25-alpine"
+        const val TAG = "1.30.4-alpine"
         const val NAME = "nginx"
         const val PORT = 80
 
@@ -36,7 +36,7 @@ class NginxServer private constructor(
          * 이미지 이름/태그로 [NginxServer] 인스턴스를 생성합니다.
          *
          * ```kotlin
-         * val server = NginxServer(image = "nginx", tag = "1.25-alpine")
+         * val server = NginxServer(image = "nginx", tag = TAG)
          * // server.url.startsWith("http://") == true (시작 후)
          * ```
          *
@@ -59,7 +59,7 @@ class NginxServer private constructor(
          * [DockerImageName]으로 [NginxServer] 인스턴스를 생성합니다.
          *
          * ```kotlin
-         * val image = DockerImageName.parse("nginx").withTag("1.25-alpine")
+         * val image = DockerImageName.parse("nginx").withTag(TAG)
          * val server = NginxServer(image)
          * // server.isRunning == false
          * ```

@@ -36,7 +36,7 @@ class InfluxDBServer private constructor(
 
     companion object: KLogging() {
         const val IMAGE = "influxdb"
-        const val TAG = "2.7"
+        const val TAG = "2.9.1"
         const val NAME = "influxdb"
         const val PORT = 8086
 
@@ -50,7 +50,7 @@ class InfluxDBServer private constructor(
          * 이미지 이름/태그로 [InfluxDBServer] 인스턴스를 생성합니다.
          *
          * ```kotlin
-         * val server = InfluxDBServer(image = "influxdb", tag = "2.7")
+         * val server = InfluxDBServer(image = "influxdb", tag = TAG)
          * // server.url.startsWith("http://") == true (시작 후)
          * ```
          *
@@ -95,7 +95,7 @@ class InfluxDBServer private constructor(
          * [DockerImageName]으로 [InfluxDBServer] 인스턴스를 생성합니다.
          *
          * ```kotlin
-         * val image = DockerImageName.parse("influxdb").withTag("2.7")
+         * val image = DockerImageName.parse("influxdb").withTag(TAG)
          * val server = InfluxDBServer(image)
          * // server.isRunning == false
          * ```

@@ -52,7 +52,7 @@ class RabbitMQServer private constructor(
          * - 컨테이너 시작은 호출자가 `start()`로 수행해야 합니다.
          *
          * ```kotlin
-         * val server = RabbitMQServer(image = "rabbitmq", tag = "3.13")
+         * val server = RabbitMQServer(image = "rabbitmq", tag = TAG)
          * // server.url.startsWith("amqp://") == true
          * ```
          */

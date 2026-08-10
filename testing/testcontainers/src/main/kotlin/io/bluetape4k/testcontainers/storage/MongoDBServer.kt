@@ -38,7 +38,7 @@ class MongoDBServer private constructor(
 
     companion object: KLogging() {
         const val IMAGE = "mongo"
-        const val TAG = "8"
+        const val TAG = "8.0.28"
         const val NAME = "mongo"
         const val PORT = 27017
         const val DATABASE_NAME = "test"
@@ -85,7 +85,7 @@ class MongoDBServer private constructor(
          * - 컨테이너 시작은 호출자가 `start()`로 직접 수행해야 합니다.
          *
          * ```kotlin
-         * val image = DockerImageName.parse("mongo").withTag("8")
+         * val image = DockerImageName.parse("mongo").withTag(TAG)
          * val server = MongoDBServer(image, databaseName = "test")
          * // server.isRunning == false
          * ```

@@ -45,8 +45,8 @@ class EtcdServerTest: AbstractContainerTest() {
 
     @Test
     fun `uses provided image`() {
-        val server = EtcdServer(image = "gcr.io/etcd-development/etcd", tag = "v3.6.0")
-        assertEquals("gcr.io/etcd-development/etcd:v3.6.0", server.dockerImageName)
+        val server = EtcdServer(image = "gcr.io/etcd-development/etcd", tag = EtcdServer.TAG)
+        assertEquals("gcr.io/etcd-development/etcd:${EtcdServer.TAG}", server.dockerImageName)
     }
 
     companion object {

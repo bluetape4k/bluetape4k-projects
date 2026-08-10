@@ -43,7 +43,7 @@ class PgvectorServer private constructor(
 
     companion object: KLogging() {
         const val IMAGE = "pgvector/pgvector"
-        const val TAG: String = "pg16"
+        const val TAG: String = "0.8.6-pg16"
         const val NAME = "pgvector"
         const val PORT = 5432
         const val USERNAME = "test"
@@ -58,12 +58,12 @@ class PgvectorServer private constructor(
          * [PgvectorServer]를 생성합니다.
          *
          * ```kotlin
-         * val server = PgvectorServer(image = "pgvector/pgvector", tag = "pg16")
+         * val server = PgvectorServer(image = "pgvector/pgvector", tag = TAG)
          * // server.url.startsWith("jdbc:postgresql://") == true (시작 후)
          * ```
          *
          * @param image docker image (기본: `pgvector/pgvector`)
-         * @param tag docker image tag (기본: `pg16`)
+         * @param tag docker image tag (기본: [TAG])
          * @param useDefaultPort 기본 포트를 사용할지 여부 (기본: `false`)
          * @param reuse 재사용 여부 (기본: `false`)
          * @param username 사용자 이름 (기본: `test`)
@@ -90,7 +90,7 @@ class PgvectorServer private constructor(
          * [PgvectorServer]를 생성합니다.
          *
          * ```kotlin
-         * val image = DockerImageName.parse("pgvector/pgvector:pg16").asCompatibleSubstituteFor("postgres")
+         * val image = DockerImageName.parse("pgvector/pgvector").withTag(TAG).asCompatibleSubstituteFor("postgres")
          * val server = PgvectorServer(image)
          * // server.isRunning == false
          * ```

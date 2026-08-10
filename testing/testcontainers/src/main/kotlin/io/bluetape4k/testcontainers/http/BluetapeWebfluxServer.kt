@@ -46,7 +46,7 @@ class BluetapeWebfluxServer private constructor(
         const val IMAGE = "bluetape4k/mock-webflux-server"
 
         /** Docker 이미지 태그 */
-        const val TAG = "latest"
+        const val TAG = "1.13.0"
 
         /** 서버 이름 (시스템 프로퍼티 네임스페이스로 사용됨) */
         const val NAME = "bluetape-webflux"
@@ -66,7 +66,7 @@ class BluetapeWebfluxServer private constructor(
          * - `useDefaultPort`에 따라 포트 고정 바인딩 여부가 초기화 시점에 결정됩니다.
          *
          * ```kotlin
-         * val image = DockerImageName.parse("bluetape4k/mock-webflux-server").withTag("latest")
+         * val image = DockerImageName.parse("bluetape4k/mock-webflux-server").withTag(TAG)
          * val server = BluetapeWebfluxServer(image, useDefaultPort = false)
          * // server.isRunning == false
          * ```
@@ -93,7 +93,7 @@ class BluetapeWebfluxServer private constructor(
          * - 이 함수는 컨테이너를 시작하지 않습니다.
          *
          * ```kotlin
-         * val server = BluetapeWebfluxServer(image = "bluetape4k/mock-webflux-server", tag = "latest")
+         * val server = BluetapeWebfluxServer(image = "bluetape4k/mock-webflux-server", tag = TAG)
          * // server.url.startsWith("http://") == true
          * ```
          *

@@ -43,7 +43,7 @@ class PostgisServer private constructor(
 
     companion object: KLogging() {
         const val IMAGE = "postgis/postgis"
-        const val TAG: String = "16-3.4"
+        const val TAG: String = "16-3.5"
         const val NAME = "postgis"
         const val PORT = 5432
         const val USERNAME = "test"
@@ -58,12 +58,12 @@ class PostgisServer private constructor(
          * [PostgisServer]를 생성합니다.
          *
          * ```kotlin
-         * val server = PostgisServer(image = "postgis/postgis", tag = "16-3.4")
+         * val server = PostgisServer(image = "postgis/postgis", tag = TAG)
          * // server.url.startsWith("jdbc:postgresql://") == true (시작 후)
          * ```
          *
          * @param image docker image (기본: `postgis/postgis`)
-         * @param tag docker image tag (기본: `16-3.4`)
+         * @param tag docker image tag (기본: [TAG])
          * @param useDefaultPort 기본 포트를 사용할지 여부 (기본: `false`)
          * @param reuse 재사용 여부 (기본: `false`)
          * @param username 사용자 이름 (기본: `test`)
@@ -90,7 +90,7 @@ class PostgisServer private constructor(
          * [PostgisServer]를 생성합니다.
          *
          * ```kotlin
-         * val image = DockerImageName.parse("postgis/postgis:16-3.4").asCompatibleSubstituteFor("postgres")
+         * val image = DockerImageName.parse("postgis/postgis").withTag(TAG).asCompatibleSubstituteFor("postgres")
          * val server = PostgisServer(image)
          * // server.isRunning == false
          * ```

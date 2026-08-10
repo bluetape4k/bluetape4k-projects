@@ -32,7 +32,7 @@ class ZooKeeperServer private constructor(
         const val IMAGE = "zookeeper"
 
         /** 기본 Docker 이미지 태그입니다. */
-        const val TAG = "3.9"
+        const val TAG = "3.9.5"
 
         /** 시스템 프로퍼티 등록 시 사용하는 서버 식별자입니다. */
         const val NAME = "zookeeper"
@@ -44,7 +44,7 @@ class ZooKeeperServer private constructor(
          * [DockerImageName]으로 [ZooKeeperServer] 인스턴스를 생성합니다.
          *
          * ```kotlin
-         * val image = DockerImageName.parse("zookeeper").withTag("3.9")
+         * val image = DockerImageName.parse("zookeeper").withTag(TAG)
          * val server = ZooKeeperServer(image)
          * // server.isRunning == false
          * ```
@@ -66,7 +66,7 @@ class ZooKeeperServer private constructor(
          * 이미지 이름/태그로 [ZooKeeperServer] 인스턴스를 생성합니다.
          *
          * ```kotlin
-         * val server = ZooKeeperServer(image = "zookeeper", tag = "3.9")
+         * val server = ZooKeeperServer(image = "zookeeper", tag = TAG)
          * // server.url.contains(":2181") == true (시작 후)
          * ```
          *

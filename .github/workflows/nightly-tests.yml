@@ -1154,7 +1154,7 @@ jobs:
 
       - name: Pre-pull Memgraph Docker image
         if: ${{ matrix.group == 'graphdb-memgraph' }}
-        run: timeout --kill-after=60s 10m docker pull memgraph/memgraph:3.9.0
+        run: timeout --kill-after=60s 10m docker pull memgraph/memgraph:3.12.0
 
       - name: Test testcontainers (${{ matrix.group }})
         uses: nick-fields/retry@v4

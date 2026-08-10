@@ -31,7 +31,7 @@ class HazelcastServer private constructor(
 
     companion object: KLogging() {
         const val IMAGE = "hazelcast/hazelcast"
-        const val TAG = "5-slim"
+        const val TAG = "5.7.0-slim-jdk25"
         const val NAME = "hazelcast"
         const val PORT = 5701
 
@@ -43,7 +43,7 @@ class HazelcastServer private constructor(
          * [DockerImageName]으로 [HazelcastServer] 인스턴스를 생성합니다.
          *
          * ```kotlin
-         * val image = DockerImageName.parse("hazelcast/hazelcast").withTag("5-slim")
+         * val image = DockerImageName.parse("hazelcast/hazelcast").withTag(TAG)
          * val server = HazelcastServer(image)
          * // server.isRunning == false
          * ```
@@ -65,7 +65,7 @@ class HazelcastServer private constructor(
          * 이미지 이름/태그로 [HazelcastServer] 인스턴스를 생성합니다.
          *
          * ```kotlin
-         * val server = HazelcastServer(image = "hazelcast/hazelcast", tag = "5-slim")
+         * val server = HazelcastServer(image = "hazelcast/hazelcast", tag = TAG)
          * // server.url.contains(":5701") || server.port > 0
          * ```
          *

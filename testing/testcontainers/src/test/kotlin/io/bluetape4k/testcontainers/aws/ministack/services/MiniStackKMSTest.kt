@@ -30,7 +30,7 @@ import software.amazon.awssdk.services.kms.model.KeyUsageType
 /**
  * MiniStack KMS 서비스 통합 테스트.
  *
- * **알려진 제한사항 (MiniStack v1.3.14)**:
+ * **알려진 제한사항 (현재 고정 태그)**:
  * - `CreateGrant`, `ListGrants`, `RevokeGrant` 미지원 (Unknown action 400 오류 반환)
  * - 해당 테스트는 `@Disabled`로 표시되어 있으며, 향후 MiniStack 업그레이드 시 재활성화 가능
  */
@@ -119,7 +119,7 @@ class MiniStackKMSTest: AbstractMiniStackServiceTest() {
 
     @Test
     @Order(7)
-    @Disabled("MiniStack v1.3.14 미지원: CreateGrant (Unknown action 400) — 향후 업그레이드 시 재활성화")
+    @Disabled("MiniStack v1.4.14 미지원: CreateGrant (Unknown action 400) — 향후 업그레이드 시 재활성화")
     fun `create grant`() {
         val response = kmsClient.createGrant {
             it.keyId(keyId)
@@ -132,7 +132,7 @@ class MiniStackKMSTest: AbstractMiniStackServiceTest() {
 
     @Test
     @Order(8)
-    @Disabled("MiniStack v1.3.14 미지원: ListGrants (Unknown action 400) — 향후 업그레이드 시 재활성화")
+    @Disabled("MiniStack v1.4.14 미지원: ListGrants (Unknown action 400) — 향후 업그레이드 시 재활성화")
     fun `list grants`() {
         val grants = kmsClient.listGrants { it.keyId(keyId).limit(15) }.grants()
         grants.forEach { log.debug { "Grant id=${it.grantId()}" } }
@@ -141,7 +141,7 @@ class MiniStackKMSTest: AbstractMiniStackServiceTest() {
 
     @Test
     @Order(9)
-    @Disabled("MiniStack v1.3.14 미지원: RevokeGrant — create grant가 비활성화되어 grantId 없음")
+    @Disabled("MiniStack v1.4.14 미지원: RevokeGrant — create grant가 비활성화되어 grantId 없음")
     fun `revoke grant`() {
         val response = kmsClient.revokeGrant { it.keyId(keyId).grantId(grantId) }
         response.sdkHttpResponse().isSuccessful.shouldBeTrue()

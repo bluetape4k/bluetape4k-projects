@@ -36,7 +36,7 @@ class FlociServerTest: AbstractContainerTest() {
 
     @Test
     fun `Floci server uses the current stable image tag`() {
-        FlociServer.TAG shouldBeEqualTo "1.5.27"
+        FlociServer.TAG shouldBeEqualTo "1.6.0"
     }
 
     @Test

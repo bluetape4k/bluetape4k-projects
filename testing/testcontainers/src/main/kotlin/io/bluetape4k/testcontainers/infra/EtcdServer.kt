@@ -35,7 +35,7 @@ class EtcdServer private constructor(
         const val IMAGE = "gcr.io/etcd-development/etcd"
 
         /** Default etcd image tag. */
-        const val TAG = "v3.6.0"
+        const val TAG = "v3.6.14"
 
         /** System property namespace. */
         const val NAME = "etcd"

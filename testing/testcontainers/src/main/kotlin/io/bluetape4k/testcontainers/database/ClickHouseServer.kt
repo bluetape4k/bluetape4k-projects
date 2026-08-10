@@ -27,7 +27,7 @@ class ClickHouseServer private constructor(
         const val IMAGE = "clickhouse/clickhouse-server"
 
         /** 기본 Docker 이미지 태그입니다. */
-        const val TAG = "25.4"
+        const val TAG = "26.7.3.19"
 
         /** 시스템 프로퍼티 등록 시 사용하는 서버 식별자입니다. */
         const val NAME = "clickhouse"
@@ -54,12 +54,12 @@ class ClickHouseServer private constructor(
          * [ClickHouseServer]를 생성합니다.
          *
          * ```kotlin
-         * val server = ClickHouseServer(image = "clickhouse/clickhouse-server", tag = "25.4")
+         * val server = ClickHouseServer(image = "clickhouse/clickhouse-server", tag = TAG)
          * // server.url.startsWith("jdbc:clickhouse://") == true (시작 후)
          * ```
          *
          * @param image             docker image (기본: `clickhouse/clickhouse-server`)
-         * @param tag               docker image tag (기본: `25.4`)
+         * @param tag               docker image tag (기본: [TAG])
          * @param username          사용자 이름 (기본: `test`)
          * @param password          비밀번호 (기본: `test`)
          * @param useDefaultPort    기본 포트를 사용할지 여부 (기본: `false`)
@@ -85,7 +85,7 @@ class ClickHouseServer private constructor(
          * [DockerImageName]으로 [ClickHouseServer] 인스턴스를 생성합니다.
          *
          * ```kotlin
-         * val image = DockerImageName.parse("clickhouse/clickhouse-server").withTag("25.4")
+         * val image = DockerImageName.parse("clickhouse/clickhouse-server").withTag(TAG)
          * val server = ClickHouseServer(image)
          * // server.isRunning == false
          * ```

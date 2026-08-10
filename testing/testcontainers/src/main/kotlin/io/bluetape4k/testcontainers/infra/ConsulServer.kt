@@ -26,7 +26,7 @@ class ConsulServer private constructor(
         const val IMAGE = "hashicorp/consul"
 
         /** 기본 Docker 이미지 태그입니다. */
-        const val TAG = "1.20"
+        const val TAG = "1.22.7"
 
         /** 시스템 프로퍼티 등록 시 사용하는 서버 식별자입니다. */
         const val NAME = "consul"
@@ -47,7 +47,7 @@ class ConsulServer private constructor(
          * 이미지 이름/태그로 [ConsulServer] 인스턴스를 생성합니다.
          *
          * ```kotlin
-         * val server = ConsulServer(image = "hashicorp/consul", tag = "1.20")
+         * val server = ConsulServer(image = "hashicorp/consul", tag = TAG)
          * // server.url.startsWith("http://") == true (시작 후)
          * ```
          *

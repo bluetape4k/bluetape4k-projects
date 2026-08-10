@@ -39,11 +39,11 @@ class Ignite2Server private constructor(
         const val IMAGE = "apacheignite/ignite"
 
         /** 기본 태그 (안정 버전) */
-        const val TAG = "2.17.0"
+        const val TAG = "2.18.0"
 
         /**
          * 현재 아키텍처에 맞는 기본 태그.
-         * arm64(Apple Silicon 등)에서는 에뮬레이션 없이 실행하기 위해 `2.17.0-arm64` 태그를 사용합니다.
+         * arm64(Apple Silicon 등)에서는 에뮬레이션 없이 실행하기 위해 `2.18.0-arm64` 태그를 사용합니다.
          */
         val DEFAULT_TAG: String = if (System.getProperty("os.arch") == "aarch64") "$TAG-arm64" else TAG
 
@@ -57,7 +57,7 @@ class Ignite2Server private constructor(
          * [DockerImageName]으로 [Ignite2Server]를 생성합니다.
          *
          * ```kotlin
-         * val image = DockerImageName.parse("apacheignite/ignite").withTag("2.17.0")
+         * val image = DockerImageName.parse("apacheignite/ignite").withTag(TAG)
          * val server = Ignite2Server(image)
          * // server.isRunning == false
          * ```
@@ -77,7 +77,7 @@ class Ignite2Server private constructor(
          * 이미지 이름과 태그로 [Ignite2Server]를 생성합니다.
          *
          * ```kotlin
-         * val server = Ignite2Server(image = "apacheignite/ignite", tag = "2.17.0")
+         * val server = Ignite2Server(image = "apacheignite/ignite", tag = TAG)
          * // server.url.contains(":10800") == true (시작 후)
          * ```
          *

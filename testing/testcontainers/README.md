@@ -31,7 +31,7 @@ A server wrapper and utility library for building integration tests quickly on t
 - **Distributed cache/grid**: `HazelcastServer` (5.x slim), `Ignite2Server`, `Ignite3Server` (auto cluster-init)
 -
 
-**Observability**: `ZipkinServer` (distributed tracing, `openzipkin/zipkin-slim:2.23`), `GrafanaServer` (dashboards + datasource provisioning, `grafana/grafana:11.6.1`), `K3sServer` (lightweight Kubernetes cluster, `rancher/k3s`; requires `--privileged` Docker mode)
+**Observability**: `ZipkinServer` (distributed tracing, `openzipkin/zipkin-slim:2.23`), `GrafanaServer` (dashboards + datasource provisioning, `grafana/grafana:13.1.3`), `K3sServer` (lightweight Kubernetes cluster, `rancher/k3s`; requires `--privileged` Docker mode)
 - Shared `GenericServer` / `GenericContainer` utilities
 - Automatic PostgreSQL extension activation for PostGIS and pgvector
 - Declarative activation of extra PostgreSQL extensions through `withExtensions()`
@@ -89,6 +89,77 @@ Every server implements
 | BluetapeHttpServer     | `bluetape-http`     | `host`, `port`, `url`, `httpbin-url`, `jsonplaceholder-url`, `web-url`, `https-port`, `https-url`, `https-httpbin-url`, `https-jsonplaceholder-url`, `https-web-url` |
 | BluetapeWebfluxServer  | `bluetape-webflux`  | `host`, `port`, `url`, `httpbin-url`, `jsonplaceholder-url`, `web-url`, `https-port`, `https-url`, `https-httpbin-url`, `https-jsonplaceholder-url`, `https-web-url` |
 
+## Default Docker Image Tags
+
+The defaults below are pinned to the latest stable image tag verified on
+2026-08-10. Mutable `latest`, major-only, and rolling minor tags are avoided so
+that Testcontainers runs remain reproducible across local machines and CI.
+
+| Group | Server | Image | Default tag |
+|---|---|---|---|
+| AWS | `DynamoDbLocalServer` | `amazon/dynamodb-local` | `3.3.1` |
+| AWS | `FlociServer` | `floci/floci` | `1.6.0` |
+| AWS | `LocalStackServer` | `localstack/localstack` | `4` (deprecated wrapper) |
+| AWS | `MiniStackServer` | `ministackorg/ministack` | `1.4.14` |
+| Database | `ClickHouseServer` | `clickhouse/clickhouse-server` | `26.7.3.19` |
+| Database | `CockroachServer` | `cockroachdb/cockroach` | `v25.4.14` |
+| Database | `MariaDBServer` | `mariadb` | `12.3.2` |
+| Database | `MySQL5Server` | `biarms/mysql` | `5` |
+| Database | `MySQL8Server` | `mysql` | `8.4.11` |
+| Database | `PgvectorServer` | `pgvector/pgvector` | `0.8.6-pg16` |
+| Database | `PostgisServer` | `postgis/postgis` | `16-3.5` |
+| Database | `PostgreSQLServer` | `postgres` | `18.4-alpine` |
+| Database | `TrinoServer` | `trinodb/trino` | `483` |
+| Graph DB | `FalkorDBServer` | `falkordb/falkordb` | `v4.20.2` |
+| Graph DB | `MemgraphServer` | `memgraph/memgraph` | `3.12.0` |
+| Graph DB | `Neo4jServer` | `neo4j` | `5.26.29` |
+| Graph DB | `PostgreSQLAgeServer` | `apache/age` | `release_PG18_1.7.0` |
+| HTTP | `BluetapeHttpServer` | `bluetape4k/mock-web-server` | `1.13.0` |
+| HTTP | `BluetapeWebfluxServer` | `bluetape4k/mock-webflux-server` | `1.13.0` |
+| HTTP | `NginxServer` | `nginx` | `1.30.4-alpine` |
+| HTTP | `WireMockServer` | `wiremock/wiremock` | `3.13.2` |
+| Infrastructure | `ConsulServer` | `hashicorp/consul` | `1.22.7` |
+| Infrastructure | `EtcdServer` | `gcr.io/etcd-development/etcd` | `v3.6.14` |
+| Infrastructure | `GrafanaServer` | `grafana/grafana` | `13.1.3` |
+| Infrastructure | `JaegerServer` | `jaegertracing/all-in-one` | `1.76.0` |
+| Infrastructure | `K3sServer` | `rancher/k3s` | `v1.36.3-k3s1` |
+| Infrastructure | `KeycloakServer` | `quay.io/keycloak/keycloak` | `26.7.1` |
+| Infrastructure | `PrometheusServer` | `prom/prometheus` | `v3.13.2` |
+| Infrastructure | `ToxiproxyServer` | `ghcr.io/shopify/toxiproxy` | `2.9.0` |
+| Infrastructure | `VaultServer` | `hashicorp/vault` | `1.20.4` |
+| Infrastructure | `ZipkinServer` | `openzipkin/zipkin-slim` | `2.23` |
+| Infrastructure | `ZooKeeperServer` | `zookeeper` | `3.9.5` |
+| LLM | `ChromaDBServer` | `chromadb/chroma` | `0.5.23` |
+| LLM | `OllamaServer` | `ollama/ollama` | `0.32.6` |
+| Mail | `MailpitServer` | `axllent/mailpit` | `v1.30.7` |
+| Messaging | `KafkaServer` | `confluentinc/cp-kafka` | `7.5.16` |
+| Messaging | `NatsServer` | `nats` | `2.14.4` |
+| Messaging | `PulsarServer` | `apachepulsar/pulsar` | `3.3.9` (Java 17+ constraint) |
+| Messaging | `RabbitMQServer` | `rabbitmq` | `3.13` (4.x wrapper failure) |
+| Messaging | `RedpandaServer` | `docker.redpanda.com/redpandadata/redpanda` | `v26.2.1` |
+| Storage | `CassandraServer` | `cassandra` | `5.0.8` |
+| Storage | `ElasticsearchOssServer` | `docker.elastic.co/elasticsearch/elasticsearch-oss` | `7.10.2` |
+| Storage | `ElasticsearchServer` | `docker.elastic.co/elasticsearch/elasticsearch` | `9.5.0` |
+| Storage | `HazelcastServer` | `hazelcast/hazelcast` | `5.7.0-slim-jdk25` |
+| Storage | `Ignite2Server` | `apacheignite/ignite` | `2.18.0` (`-arm64` on aarch64) |
+| Storage | `Ignite3Server` | `apacheignite/ignite` | `3.1.0` |
+| Storage | `InfluxDBServer` | `influxdb` | `2.9.1` |
+| Storage | `MinIOServer` | `minio/minio` | `RELEASE.2025-07-23T15-54-02Z` (compatibility fixture) |
+| Storage | `MongoDBServer` | `mongo` | `8.0.28` |
+| Storage | `OpenSearchServer` | `opensearchproject/opensearch` | `3.8.0` |
+| Storage | `RedisClusterServer` | `tommy351/redis-cluster` | `6.2` (compatibility fixture) |
+| Storage | `RedisServer` | `redis` | `8.8.1` |
+
+Compatibility exceptions are intentional: `MySQL5Server` keeps the ARM-capable
+`biarms/mysql:5` alias, `ElasticsearchOssServer` remains on the legacy OSS image,
+`ChromaDBServer` remains on its last stable non-development tag, `ZipkinServer`
+stays on `2.23` because newer images fail its current contract, `PulsarServer`
+and `RabbitMQServer` remain on the newest wrapper-compatible major versions,
+`MinIOServer` and `RedisClusterServer` remain explicit compatibility fixtures,
+and `PostgreSQLAgeServer` stays on the latest stable PG18 image rather than the
+`1.8.0-rc0` release candidate. `LocalStackServer` is deprecated; new AWS tests
+should use `FlociServer` or `MiniStackServer`.
+
 ## Usage Examples
 
 ### Database
@@ -124,10 +195,10 @@ val server = PostgreSQLServer.Launcher.withExtensions("uuid-ossp", "hstore")
 
 | Server                | Docker Image        | Default Tag          | Protocol  | Default Port |
 |-----------------------|---------------------|----------------------|-----------|--------------|
-| `Neo4jServer`         | `neo4j`             | `5.26.24`            | Bolt/HTTP | 7687 / 7474  |
-| `MemgraphServer`      | `memgraph/memgraph` | `3.9.0`              | Bolt      | 7687         |
-| `FalkorDBServer`      | `falkordb/falkordb` | `v4.18.1`            | Redis     | 6379         |
-| `PostgreSQLAgeServer` | `apache/age`        | `release_PG17_1.6.0` | JDBC      | 5432         |
+| `Neo4jServer`         | `neo4j`             | `5.26.29`            | Bolt/HTTP | 7687 / 7474  |
+| `MemgraphServer`      | `memgraph/memgraph` | `3.12.0`             | Bolt      | 7687         |
+| `FalkorDBServer`      | `falkordb/falkordb` | `v4.20.2`            | Redis     | 6379         |
+| `PostgreSQLAgeServer` | `apache/age`        | `release_PG18_1.7.0` | JDBC      | 5432         |
 
 ```kotlin
 // Neo4j

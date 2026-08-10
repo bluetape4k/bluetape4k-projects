@@ -44,7 +44,7 @@ class K3sServer private constructor(
         const val IMAGE = "rancher/k3s"
 
         /** Default Docker image tag. */
-        const val TAG = "v1.32.4-k3s1"
+        const val TAG = "v1.36.3-k3s1"
 
         /** Server identifier used for system property registration. */
         const val NAME = "k3s"
