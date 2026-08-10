@@ -9,6 +9,8 @@ import io.bluetape4k.assertions.shouldContain
 import io.bluetape4k.assertions.shouldNotBeEmpty
 import io.bluetape4k.assertions.shouldNotBeNull
 import org.junit.jupiter.api.Test
+import java.sql.ResultSet
+import java.sql.SQLException
 import io.bluetape4k.assertions.assertFailsWith
 
 class ResultSetExtensionsTest: AbstractJdbcSqlTest() {
@@ -89,6 +91,26 @@ class ResultSetExtensionsTest: AbstractJdbcSqlTest() {
     }
 
     @Test
+    fun `columnLabels - 별칭을 포함한 컬럼 레이블 목록 반환`() {
+        val labels =
+            dataSource.runQuery("SELECT id AS actor_id, firstname AS actor_name FROM Actors LIMIT 1") { rs ->
+                rs.next()
+                rs.columnLabels
+            }
+
+        labels shouldBeEqualTo listOf("ACTOR_ID", "ACTOR_NAME")
+    }
+
+    @Test
+    fun `ResultSet get 연산자는 인덱스와 레이블을 통해 null을 보존한다`() {
+        dataSource.runQuery("SELECT NULL AS nullable_value FROM Actors LIMIT 1") { rs ->
+            rs.next()
+            rs[1].shouldBeNull()
+            rs["nullable_value"].shouldBeNull()
+        }
+    }
+
+    @Test
     fun `columnCount - 컬럼 수 반환`() {
         val count =
             dataSource.runQuery("SELECT id, firstname, lastname FROM Actors LIMIT 1") { rs ->
@@ -139,6 +161,16 @@ class ResultSetExtensionsTest: AbstractJdbcSqlTest() {
             }
 
         name shouldBeEqualTo "Sunghyouk"
+    }
+
+    @Test
+    fun `singleBigDecimal - 단일 BigDecimal 값 반환`() {
+        val value =
+            dataSource.runQuery("SELECT CAST(12.50 AS DECIMAL(10, 2)) FROM Actors LIMIT 1") { rs ->
+                rs.singleBigDecimal()
+            }
+
+        value shouldBeEqualTo java.math.BigDecimal("12.50")
     }
 
     @Test
@@ -242,6 +274,155 @@ class ResultSetExtensionsTest: AbstractJdbcSqlTest() {
             }
 
         result.shouldBeNull()
+    }
+
+    @Test
+    fun `first - 조건을 만족하는 첫 번째 행 반환`() {
+        val firstname =
+            dataSource.runQuery("SELECT * FROM Actors ORDER BY id") { rs ->
+                rs.first(
+                    predicate = { it.getInt("id") == 1 },
+                    mapper = { it.getString("firstname") }
+                )
+            }
+
+        firstname shouldBeEqualTo "Sunghyouk"
+    }
+
+    @Test
+    fun `first - 조건을 만족하는 행이 없으면 예외 발생`() {
+        assertFailsWith<NoSuchElementException> {
+            dataSource.runQuery("SELECT * FROM Actors") { rs ->
+                rs.first(
+                    predicate = { it.getInt("id") < 0 },
+                    mapper = { it.getString("firstname") }
+                )
+            }
+        }
+    }
+
+    @Test
+    fun `ResultSet iterator - mapper 없이 현재 ResultSet을 순회한다`() {
+        val ids =
+            dataSource.runQuery("SELECT id FROM Actors ORDER BY id LIMIT 2") { rs ->
+                val iterator = rs.iterator()
+                buildList {
+                    while (iterator.hasNext()) {
+                        add(iterator.next().getInt("id"))
+                    }
+                }
+            }
+
+        ids shouldBeEqualTo listOf(1, 2)
+    }
+
+    @Test
+    fun `mapAsSequence - ResultSet을 지연 Sequence로 변환한다`() {
+        val ids =
+            dataSource.runQuery("SELECT id FROM Actors ORDER BY id LIMIT 2") { rs ->
+                rs.mapAsSequence { getInt("id") }.toList()
+            }
+
+        ids shouldBeEqualTo listOf(1, 2)
+    }
+
+    @Test
+    fun `emptyResultToNull - 정상 결과와 SQLException을 각각 처리한다`() {
+        val value =
+            dataSource.runQuery("SELECT id FROM Actors LIMIT 1") { rs ->
+                rs.emptyResultToNull { resultSet ->
+                    resultSet.next()
+                    resultSet.getInt(1)
+                }
+            }
+        value shouldBeEqualTo 1
+
+        val empty =
+            dataSource.runQuery("SELECT id FROM Actors LIMIT 1") { rs ->
+                rs.emptyResultToNull<Int> { throw SQLException("synthetic failure") }
+            }
+        empty.shouldBeNull()
+    }
+
+    @Test
+    @Suppress("DEPRECATION")
+    fun `deprecated cursor helpers and moveToPrevious preserve their contracts`() {
+        dataSource.runQuery("SELECT id FROM Actors ORDER BY id LIMIT 2") { rs ->
+            rs.isNotEmpty().shouldBeTrue()
+            rs.isEmpty().shouldBeFalse()
+        }
+
+        val scrollableResultSet = java.lang.reflect.Proxy.newProxyInstance(
+            ResultSet::class.java.classLoader,
+            arrayOf(ResultSet::class.java)
+        ) { _, method, _ ->
+            method.name == "previous"
+        } as ResultSet
+        scrollableResultSet.moveToPrevious().shouldBeTrue()
+
+        val resultSet = java.lang.reflect.Proxy.newProxyInstance(
+            ResultSet::class.java.classLoader,
+            arrayOf(ResultSet::class.java)
+        ) { _, method, _ ->
+            if (method.name == "previous") {
+                throw SQLException("not scrollable")
+            }
+            false
+        } as ResultSet
+
+        resultSet.moveToPrevious().shouldBeFalse()
+    }
+
+    @Test
+    fun `all nullable ResultSet getters return null for SQL NULL`() {
+        val resultSet = java.lang.reflect.Proxy.newProxyInstance(
+            ResultSet::class.java.classLoader,
+            arrayOf(ResultSet::class.java)
+        ) { _, method, _ ->
+            when {
+                method.name == "wasNull" -> true
+                method.returnType == Boolean::class.javaPrimitiveType -> false
+                method.returnType == Byte::class.javaPrimitiveType -> 0.toByte()
+                method.returnType == Short::class.javaPrimitiveType -> 0.toShort()
+                method.returnType == Int::class.javaPrimitiveType -> 0
+                method.returnType == Long::class.javaPrimitiveType -> 0L
+                method.returnType == Float::class.javaPrimitiveType -> 0.0f
+                method.returnType == Double::class.javaPrimitiveType -> 0.0
+                else -> null
+            }
+        } as ResultSet
+
+        val values = listOf(
+            resultSet.getBooleanOrNull(1), resultSet.getBooleanOrNull("value"),
+            resultSet.getByteOrNull(1), resultSet.getByteOrNull("value"),
+            resultSet.getShortOrNull(1), resultSet.getShortOrNull("value"),
+            resultSet.getIntOrNull(1), resultSet.getIntOrNull("value"),
+            resultSet.getLongOrNull(1), resultSet.getLongOrNull("value"),
+            resultSet.getFloatOrNull(1), resultSet.getFloatOrNull("value"),
+            resultSet.getDoubleOrNull(1), resultSet.getDoubleOrNull("value"),
+            resultSet.getBigDecimalOrNull(1), resultSet.getBigDecimalOrNull("value"),
+            resultSet.getBytesOrNull(1), resultSet.getBytesOrNull("value"),
+            resultSet.getObjectOrNull(1), resultSet.getObjectOrNull("value"),
+            resultSet.getArrayOrNull(1), resultSet.getArrayOrNull("value"),
+            resultSet.getDateOrNull(1), resultSet.getDateOrNull("value"),
+            resultSet.getTimeOrNull(1), resultSet.getTimeOrNull("value"),
+            resultSet.getTimestampOrNull(1), resultSet.getTimestampOrNull("value"),
+            resultSet.getAsciiStreamOrNull(1), resultSet.getAsciiStreamOrNull("value"),
+            resultSet.getBinaryStreamOrNull(1), resultSet.getBinaryStreamOrNull("value"),
+            resultSet.getCharacterStreamOrNull(1), resultSet.getCharacterStreamOrNull("value"),
+            resultSet.getNCharacterStreamOrNull(1), resultSet.getNCharacterStreamOrNull("value"),
+            resultSet.getStringOrNull(1), resultSet.getStringOrNull("value"),
+            resultSet.getNStringOrNull(1), resultSet.getNStringOrNull("value"),
+            resultSet.getBlobOrNull(1), resultSet.getBlobOrNull("value"),
+            resultSet.getClobOrNull(1), resultSet.getClobOrNull("value"),
+            resultSet.getNClobOrNull(1), resultSet.getNClobOrNull("value"),
+            resultSet.getSQLXMLOrNull(1), resultSet.getSQLXMLOrNull("value"),
+            resultSet.getRefOrNull(1), resultSet.getRefOrNull("value"),
+            resultSet.getRowIdOrNull(1), resultSet.getRowIdOrNull("value"),
+            resultSet.getURLOrNull(1), resultSet.getURLOrNull("value")
+        )
+
+        values.all { it == null }.shouldBeTrue()
     }
 
     // ─── filterMap ────────────────────────────────────────────────────────────
