@@ -77,7 +77,25 @@ val json = mapper.writeValueAsString(value)
 val restored = mapper.readValue(json, ModelEnvelope::class.java)
 ```
 
-신뢰할 수 없는 JSON에는 deprecated된 `Jackson.typedJsonMapper`를 사용하지 마세요. 이 mapper는 호환성을 위해 기존 `Any` base default typing 동작을 유지하므로 외부 payload에 안전하지 않습니다.
+allowlist prefix는 앞뒤 공백을 제거한 뒤 `.`로 끝나는 package boundary로 정규화합니다.
+공백 또는 `.`만으로 된 prefix는 거부하므로 `"com.example"`은
+`com.example.*`만 허용하고 `com.exampleevil.*` 같은 인접 package는 허용하지 않습니다.
+
+기본 mapper는 다형성 typing을 활성화하지 않습니다. `Jackson.typedJsonMapper`,
+`Jackson.prettyTypedJsonWriter`, `Jackson.createDefaultJsonMapper(needTypeInfo = true)`는
+source compatibility를 위한 deprecated symbol으로 남아 있지만, `1.13.0`부터 접근 즉시
+`UnsupportedOperationException`을 발생시키며 더 이상 `Any` base validator를 설치하지 않습니다.
+다음과 같이 명시적 allowlist factory로 마이그레이션하세요.
+
+```kotlin
+val mapper = Jackson.createTypedJsonMapper("com.example.model.")
+val prettyWriter = mapper.writerWithDefaultPrettyPrinter()
+```
+
+이 factory는 애플리케이션이 관리하는 신뢰된 subtype package의 payload에만 사용하세요.
+신뢰할 수 없거나 외부에서 들어오는 JSON은 구체적인 DTO(또는 별도로 검증한 형태)로
+역직렬화하고 Jackson default typing을 활성화하지 마세요. deprecated symbol은 `1.13.0`에서
+마이그레이션 신호로만 유지하며, 다음 major release에서 제거를 검토합니다.
 
 ### 2. JacksonSerializer
 

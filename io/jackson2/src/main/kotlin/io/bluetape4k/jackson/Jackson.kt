@@ -20,7 +20,7 @@ import java.io.IOException
  * ## 동작/계약
  * - [defaultJsonMapper] is lazily initialized and reused.
  * - Use [createTypedJsonMapper] for allowlisted default typing.
- * - [typedJsonMapper] is legacy compatibility API and must not be used for untrusted JSON.
+ * - [typedJsonMapper] and [prettyTypedJsonWriter] are legacy APIs and fail explicitly when accessed.
  * - 매퍼 생성 중 I/O/설정 오류가 발생하면 [IllegalStateException]으로 전파됩니다.
  *
  * ```kotlin
@@ -31,6 +31,8 @@ import java.io.IOException
 object Jackson: KLogging() {
 
     private const val DEFAULT_TYPE_PROPERTY_NAME = "@class"
+    private const val LEGACY_TYPED_MAPPER_MESSAGE =
+        "Legacy polymorphic typing is disabled. Use Jackson.createTypedJsonMapper(\"trusted.package.\") with an explicit allowlist."
 
     /** 기본 JsonMapper 인스턴스입니다. */
     val defaultJsonMapper: JsonMapper by lazy { createDefaultJsonMapper() }
@@ -41,26 +43,26 @@ object Jackson: KLogging() {
     /**
      * 타입 정보를 포함하는 JsonMapper 인스턴스입니다.
      *
-     * @deprecated 보안 취약점(allowIfBaseType(Any::class.java))이 있습니다.
-     * [createTypedJsonMapper]("com.example.") 를 사용하세요.
-     */
+     * @deprecated legacy permissive typing 경로이므로 접근 시 [UnsupportedOperationException]이 발생합니다.
+     * 신뢰된 패키지 allowlist를 사용하는 [createTypedJsonMapper]("com.example.") 를 사용하세요.
+    */
     @Deprecated(
-        "allowIfBaseType(Any::class.java)는 모든 타입을 허용하여 RCE 취약점을 야기할 수 있습니다. " +
+        "legacy permissive typing은 모든 타입을 허용하여 RCE 취약점을 야기할 수 있습니다. " +
                 "createTypedJsonMapper(\"com.example.\") 를 사용하세요.",
-        ReplaceWith("Jackson.createTypedJsonMapper()")
+        ReplaceWith("Jackson.createTypedJsonMapper(\"com.example.\")")
     )
     val typedJsonMapper: JsonMapper by lazy { createDefaultJsonMapper(needTypeInfo = true) }
 
     /**
      * 타입 정보를 포함하며 포맷된 JSON을 출력하는 [ObjectWriter]
      *
-     * @deprecated [typedJsonMapper]와 함께 deprecated됩니다.
+     * @deprecated legacy permissive typing 경로이므로 접근 시 [UnsupportedOperationException]이 발생합니다.
      * [createTypedJsonMapper](...).writerWithDefaultPrettyPrinter() 를 사용하세요.
      */
     @Deprecated(
         "typedJsonMapper와 함께 deprecated됩니다. " +
                 "createTypedJsonMapper(...).writerWithDefaultPrettyPrinter() 를 사용하세요.",
-        ReplaceWith("Jackson.createTypedJsonMapper().writerWithDefaultPrettyPrinter()")
+        ReplaceWith("Jackson.createTypedJsonMapper(\"com.example.\").writerWithDefaultPrettyPrinter()")
     )
     val prettyTypedJsonWriter: ObjectWriter by lazy {
         createDefaultJsonMapper(needTypeInfo = true).writerWithDefaultPrettyPrinter()
@@ -68,11 +70,13 @@ object Jackson: KLogging() {
 
     /**
      * property 기반 타입 정보를 기록하고 신뢰된 타입만 허용하는 [JsonMapper]를 생성합니다
-     * subtype packages.
+     * trusted subtype packages.
      *
      * ## Security contract
      * - [allowedBasePackages] must contain trusted subtype package prefixes.
      * - Empty allowlists are rejected with [IllegalArgumentException].
+     * - 공백 또는 `.`만인 prefix는 거부하고, 모든 prefix를 검증 전에
+     *   `.`으로 끝나는 package boundary로 정규화합니다.
      * - Type ids are written as the `@class` property and validated during polymorphic deserialization.
      *
      * ```kotlin
@@ -81,6 +85,7 @@ object Jackson: KLogging() {
      * ```
      *
      * @param allowedBasePackages Trusted subtype package prefixes, for example `"com.example."`.
+     * 마지막 `.`을 생략하면 자동으로 추가하여 인접 package 이름이 매칭되지 않도록 합니다.
      * @param typing Default typing strategy. Defaults to [ObjectMapper.DefaultTyping.NON_FINAL_AND_ENUMS].
      */
     fun createTypedJsonMapper(
@@ -90,9 +95,10 @@ object Jackson: KLogging() {
         require(allowedBasePackages.isNotEmpty()) {
             "보안상 허용할 패키지를 하나 이상 지정해야 합니다. 예: createTypedJsonMapper(\"com.example.\")"
         }
-        log.info { "Create TypedJsonMapper ... allowedBasePackages=${allowedBasePackages.toList()}" }
+        val normalizedAllowedBasePackages = allowedBasePackages.map(::normalizeAllowedBasePackage)
+        log.info { "Create TypedJsonMapper ... allowedBasePackages=$normalizedAllowedBasePackages" }
         val validator = BasicPolymorphicTypeValidator.builder().apply {
-            allowedBasePackages.forEach { allowIfSubType(it) }
+            normalizedAllowedBasePackages.forEach { allowIfSubType(it) }
             allowIfSubTypeIsArray()
         }.build()
         return createDefaultJsonMapper().apply {
@@ -107,15 +113,20 @@ object Jackson: KLogging() {
      * ## 동작/계약
      * - classpath의 Jackson 모듈을 자동 등록합니다.
      * - Kotlin null/collection 관련 기능과 직렬화·역직렬화 feature를 기본 활성화합니다.
-     * - [needTypeInfo]가 `true`이면 default typing을 활성화하고 검증 직렬화/역직렬화를 수행합니다.
+     * - [needTypeInfo]가 `true`이면 legacy permissive typing을 차단하기 위해
+     *   [UnsupportedOperationException]을 발생시킵니다. 명시적 allowlist가 필요하면
+     *   [createTypedJsonMapper]를 사용하세요.
      *
      * ```kotlin
-     * val mapper = Jackson.createDefaultJsonMapper(needTypeInfo = true)
+     * val mapper = Jackson.createTypedJsonMapper("com.example.")
      * // mapper !== Jackson.defaultJsonMapper
      * ```
-     * @param needTypeInfo 타입 정보 포함 여부
+     * @param needTypeInfo legacy source compatibility를 위한 옵션입니다. `true`는 migration failure입니다.
      */
     fun createDefaultJsonMapper(needTypeInfo: Boolean = false): JsonMapper {
+        if (needTypeInfo) {
+            throw UnsupportedOperationException(LEGACY_TYPED_MAPPER_MESSAGE)
+        }
         log.info { "Create JsonMapper instance ... needTypeInfo=$needTypeInfo" }
 
         return jsonMapper {
@@ -158,24 +169,15 @@ object Jackson: KLogging() {
                 JsonReadFeature.ALLOW_TRAILING_COMMA
             )
 
-        }.apply {
-            if (needTypeInfo) {
-                // 보안 경고: allowIfBaseType(Any::class.java)는 모든 클래스를 기본 타입으로 허용합니다.
-                // 신뢰할 수 없는 JSON 데이터를 역직렬화할 경우 임의 코드 실행(RCE) 취약점이 발생할 수 있습니다.
-                // (CVE-2019-12384 계열 취약점 참고)
-                // 보안이 중요한 환경에서는 allowIfBaseType() 에 신뢰할 패키지만 명시적으로 지정하세요.
-                // 예: .allowIfBaseType("com.example.model")
-                activateDefaultTypingAsProperty(
-                    BasicPolymorphicTypeValidator.builder()
-                        .allowIfBaseType(Any::class.java)
-                        .allowIfSubTypeIsArray()
-                        .build(),
-                    ObjectMapper.DefaultTyping.NON_FINAL_AND_ENUMS,
-                    DEFAULT_TYPE_PROPERTY_NAME
-                )
-                verifyTypeInclusion(this)
-            }
         }
+    }
+
+    private fun normalizeAllowedBasePackage(packagePrefix: String): String {
+        val normalized = packagePrefix.trim().trimEnd('.')
+        require(normalized.isNotEmpty()) {
+            "허용 패키지 prefix는 공백 또는 '.'만으로 지정할 수 없습니다."
+        }
+        return "$normalized."
     }
 
     private fun verifyTypeInclusion(mapper: JsonMapper) {

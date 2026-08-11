@@ -68,6 +68,47 @@ class JacksonTest {
     }
 
     @Test
+    fun `createTypedJsonMapper - blank package prefix는 예외 발생`() {
+        listOf("", "   ", ".", ".. ").forEach { prefix ->
+            assertFailsWith<IllegalArgumentException> {
+                Jackson.createTypedJsonMapper(prefix)
+            }
+        }
+    }
+
+    @Test
+    fun `createTypedJsonMapper - package boundary 밖의 nested type은 거부`() {
+        val mapper = Jackson.createTypedJsonMapper("com.example.disallow")
+        val nestedJson = """
+            {
+              "payload": {
+                "@class": "${DisallowedTypedPayload::class.qualifiedName}",
+                "value": "blocked"
+              }
+            }
+        """.trimIndent()
+
+        assertFailsWith<InvalidTypeIdException> {
+            mapper.readValue(nestedJson, TypedPayloadEnvelope::class.java)
+        }
+    }
+
+    @Test
+    fun `createTypedJsonMapper - package boundary 밖의 root type은 거부`() {
+        val mapper = Jackson.createTypedJsonMapper("com.example.disallow")
+        val rootJson = """
+            {
+              "@class": "${DisallowedTypedPayload::class.qualifiedName}",
+              "value": "blocked"
+            }
+        """.trimIndent()
+
+        assertFailsWith<InvalidTypeIdException> {
+            mapper.readValue(rootJson, Any::class.java)
+        }
+    }
+
+    @Test
     fun `createTypedJsonMapper - 여러 패키지 허용 가능`() {
         val mapper = Jackson.createTypedJsonMapper("io.bluetape4k.", "com.example.")
         mapper.shouldNotBeNull()
@@ -116,6 +157,35 @@ class JacksonTest {
         assertFailsWith<InvalidTypeIdException> {
             mapper.readValue(json, Any::class.java)
         }
+    }
+
+    @Suppress("DEPRECATION")
+    @Test
+    fun `legacy typedJsonMapper는 명시적 migration failure로 차단한다`() {
+        val exception = assertFailsWith<UnsupportedOperationException> {
+            Jackson.typedJsonMapper
+        }
+
+        exception.message shouldContain "createTypedJsonMapper"
+    }
+
+    @Suppress("DEPRECATION")
+    @Test
+    fun `legacy prettyTypedJsonWriter는 명시적 migration failure로 차단한다`() {
+        val exception = assertFailsWith<UnsupportedOperationException> {
+            Jackson.prettyTypedJsonWriter
+        }
+
+        exception.message shouldContain "createTypedJsonMapper"
+    }
+
+    @Test
+    fun `createDefaultJsonMapper의 legacy type info 옵션은 명시적 migration failure로 차단한다`() {
+        val exception = assertFailsWith<UnsupportedOperationException> {
+            Jackson.createDefaultJsonMapper(needTypeInfo = true)
+        }
+
+        exception.message shouldContain "createTypedJsonMapper"
     }
 
     @Test
