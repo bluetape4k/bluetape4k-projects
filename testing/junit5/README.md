@@ -523,6 +523,26 @@ The listener sequence below shows how JUnit callbacks become a Mermaid Gantt rep
 
 ![Mermaid report sequence](../../docs/images/readme-diagrams/testing-junit5-diagram-03.png)
 
+### Awaitility + Coroutines
+
+`untilSuspending` and `awaitSuspending` keep the `ConditionFactory` timing contract while evaluating a
+`suspend` condition on a coroutine dispatcher.
+
+```kotlin
+await
+    .atLeast(Duration.ofMillis(100))
+    .during(Duration.ofMillis(200))
+    .atMost(Duration.ofSeconds(2))
+    .pollInterval(Duration.ofMillis(25))
+    .untilSuspending { isReady() }
+```
+
+The coroutine adapter preserves `atLeast`, `during`, `failFast`, poll delay/interval, and ignored-exception
+settings. It rethrows coroutine cancellation and cancels an in-flight poll when the overall `atMost` deadline is
+reached. The condition itself must be cancellation-cooperative; a non-cooperative blocking call cannot be made
+non-blocking by this adapter. Awaitility settings are read through a small version adapter; an unsupported
+`ConditionFactory` layout fails explicitly instead of silently applying arbitrary defaults.
+
 ## Best Practices
 
 - Use `TempFolderExtension` instead of ad hoc file paths in tests.

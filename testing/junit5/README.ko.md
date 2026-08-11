@@ -221,6 +221,23 @@ fun `suspend 조건 대기`() = runSuspendTest {
 }
 ```
 
+`untilSuspending`/`awaitSuspending`은 `ConditionFactory`의 `atLeast`, `during`, `failFast`, poll delay/interval,
+ignore-exception 설정을 유지하면서 suspend 조건을 코루틴 dispatcher에서 평가합니다. `atMost` 기한에 도달하면
+진행 중인 poll을 취소하고, 코루틴 cancellation은 호출자에게 다시 전달합니다.
+
+조건 블록은 cancellation 협조적이어야 합니다. 협조하지 않는 blocking 호출을 이 adapter가 자동으로
+non-blocking으로 바꾸지는 않습니다. Awaitility의 private 설정 구조를 지원하지 않는 버전에서는 임의 기본값으로
+계속 진행하지 않고 명시적인 예외를 발생시켜 설정 손실에 따른 false-positive를 막습니다.
+
+```kotlin
+await
+    .atLeast(100.milliseconds)
+    .during(200.milliseconds)
+    .atMost(2.seconds)
+    .pollInterval(25.milliseconds)
+    .untilSuspending { isReady() }
+```
+
 ### 8. Coroutine Cancellation Contracts
 
 callback, future, HTTP call, 공유 waiter를 감싸는 suspend API는 cancellation 계약을 명시적으로 테스트하세요.

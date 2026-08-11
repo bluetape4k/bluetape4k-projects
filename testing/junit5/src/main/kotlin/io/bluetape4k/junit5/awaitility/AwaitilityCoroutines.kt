@@ -1,19 +1,11 @@
 package io.bluetape4k.junit5.awaitility
 
-import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.async
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.selects.onTimeout
-import kotlinx.coroutines.selects.select
 import kotlinx.coroutines.withContext
 import org.awaitility.Durations
-import org.awaitility.constraint.WaitConstraint
 import org.awaitility.core.ConditionFactory
 import org.awaitility.core.ConditionTimeoutException
-import org.awaitility.core.ExceptionIgnorer
-import org.awaitility.pollinterval.FixedPollInterval
-import org.awaitility.pollinterval.PollInterval
 import java.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
 
@@ -60,8 +52,11 @@ suspend inline infix fun ConditionFactory.awaitSuspending(
  * - 초기 지연과 poll interval을 반영해 반복 호출하며, 호출 스레드를 block 하지 않습니다.
  * - 개별 poll을 별도 timeout으로 취소하지 않고, 전체 await timeout 안에서 suspend block을 실행합니다.
  * - 예외 무시 설정이 있으면 해당 예외는 마지막 원인으로 저장하고 계속 재시도합니다.
+ * - `atLeast`는 조건이 너무 일찍 만족되면 Awaitility와 동일하게 최소 시간 위반 timeout을 던집니다.
+ * - `during`은 조건이 지정된 hold 기간 동안 계속 true인지 확인하며, 중간 false에서 hold를 다시 시작합니다.
+ * - `failFast`는 각 poll 전에 평가하고 terminal failure를 즉시 전파합니다.
  * - 타임아웃 초과 시 [ConditionTimeoutException]을 던집니다.
- * - 수신 [ConditionFactory]는 변경하지 않고, 내부 루프 상태만 지역 변수로 관리합니다.
+ * - 수신 [ConditionFactory]는 변경하지 않고, private 설정 접근은 adapter에 한정하며 설정 손실 시 명시적으로 실패합니다.
  *
  * ```kotlin
  * var attempts = 0
@@ -74,23 +69,21 @@ suspend inline infix fun ConditionFactory.awaitSuspending(
 suspend infix fun ConditionFactory.untilSuspending(
     block: suspend () -> Boolean,
 ) = withContext(Dispatchers.IO) {
-    val timeout = timeoutConstraintOrDefault().maxWaitTime
-    val pollInterval = pollIntervalOrDefault()
-    val initialPollDelay = pollDelayOrDefault(pollInterval)
-    val exceptionIgnorer = exceptionIgnorerOrNull()
+    val settings = readAwaitilityConditionSettings()
+    val timeout = settings.maxWaitTime
+    val timeoutNanos = timeout.toNanosSafely()
+    val initialPollDelay = settings.pollDelay
+    val initialPollDelayNanos = initialPollDelay.toNanosSafely()
 
-    var pollCount = 1
+    var pollCount = 0
     var lastInterval: Duration = initialPollDelay
     var lastThrowable: Throwable? = null
-
+    var firstSatisfiedAtNanos: Long? = null
     val startNanos = System.nanoTime()
-    val timeoutNanos = timeout.toNanosSafely()
 
-    if (!initialPollDelay.isZero && !initialPollDelay.isNegative) {
-        val initialDelayNanos = minOf(initialPollDelay.toNanosSafely(), timeoutNanos)
-        if (initialDelayNanos > 0) {
-            delay(nanosToMillisCeil(initialDelayNanos).milliseconds)
-        }
+    if (initialPollDelayNanos > 0) {
+        val delayNanos = minOf(initialPollDelayNanos, timeoutNanos)
+        delay(nanosToMillisCeil(delayNanos).milliseconds)
     }
 
     while (true) {
@@ -99,52 +92,29 @@ suspend infix fun ConditionFactory.untilSuspending(
             throw conditionTimeoutException(timeout, lastThrowable)
         }
 
-        val satisfied = try {
-            val pollDeferred = async {
-                try {
-                    Result.success(block())
-                } catch (e: CancellationException) {
-                    throw e  // 부모 취소는 반드시 전파 — Result.failure로 포장하지 않음
-                } catch (e: Throwable) {
-                    Result.failure(e)
-                }
-            }
-            val pollResult = select<Any?> {
-                pollDeferred.onAwait { result ->
-                    result
-                }
-                onTimeout(nanosToMillisCeil(remainingNanos).milliseconds) {
-                    pollDeferred.cancel()
-                    PollTimedOut
-                }
+        evaluateFailFastCondition(settings.failFastCondition)
+
+        val poll = evaluatePoll(block, remainingNanos, timeout, settings.exceptionIgnorer, lastThrowable)
+        lastThrowable = poll.lastThrowable
+
+        val evaluatedAtNanos = System.nanoTime()
+        if (poll.satisfied) {
+            if (firstSatisfiedAtNanos == null) {
+                firstSatisfiedAtNanos = evaluatedAtNanos
             }
 
-            if (pollResult === PollTimedOut) {
-                throw conditionTimeoutException(timeout, lastThrowable)
+            if (isHoldSatisfied(firstSatisfiedAtNanos, evaluatedAtNanos, settings.holdPredicateTime)) {
+                val elapsedNanos = evaluatedAtNanos - startNanos
+                if (elapsedNanos < settings.minWaitTime.toNanosSafely()) {
+                    throw minimumWaitTimeoutException(elapsedNanos, settings.minWaitTime)
+                }
+                return@withContext
             }
-
-            @Suppress("UNCHECKED_CAST")
-            (pollResult as Result<Boolean>).getOrThrow().also {
-                lastThrowable = null
-            }
-        } catch (e: Throwable) {
-            if (e is CancellationException) {
-                throw e  // CancellationException은 exceptionIgnorer에 전달하지 않고 반드시 전파
-            }
-            if (e is ConditionTimeoutException) {
-                throw e
-            }
-            if (exceptionIgnorer?.shouldIgnoreException(e) == true) {
-                lastThrowable = e
-                false
-            } else {
-                throw e
-            }
+        } else {
+            firstSatisfiedAtNanos = null
         }
 
-        if (satisfied) return@withContext
-
-        val nextInterval = pollInterval.next(pollCount++, lastInterval)
+        val nextInterval = settings.pollInterval.next(++pollCount, lastInterval)
         lastInterval = nextInterval
 
         val sleepNanos = minOf(nextInterval.toNanosSafely(), timeoutNanos - (System.nanoTime() - startNanos))
@@ -153,66 +123,3 @@ suspend infix fun ConditionFactory.untilSuspending(
         }
     }
 }
-
-
-private fun ConditionFactory.timeoutConstraintOrDefault(): WaitConstraint =
-    // Awaitility 4.2+ 에서 필드명이 waitConstraint 로 변경됨 (구: timeoutConstraint)
-    readPrivateField("waitConstraint")
-        ?: readPrivateField("timeoutConstraint")
-        ?: object: WaitConstraint {
-            override fun getMaxWaitTime(): Duration = DEFAULT_TIMEOUT
-            override fun getMinWaitTime(): Duration = Duration.ZERO
-            override fun getHoldPredicateTime(): Duration = Duration.ZERO
-
-            override fun withMinWaitTime(minWaitTime: Duration): WaitConstraint = this
-            override fun withMaxWaitTime(maxWaitTime: Duration): WaitConstraint = this
-            override fun withHoldPredicateTime(holdConditionTime: Duration): WaitConstraint = this
-        }
-
-private fun ConditionFactory.pollIntervalOrDefault(): PollInterval =
-    readPrivateField<PollInterval>("pollInterval")
-        ?: FixedPollInterval(Duration.ofMillis(DEFAULT_POLL_INTERVAL.toMillis()))
-
-private fun ConditionFactory.pollDelayOrDefault(pollInterval: PollInterval): Duration {
-    return readPrivateField<Duration>("pollDelay")
-        ?: if (pollInterval is FixedPollInterval) Duration.ZERO else Duration.ZERO
-}
-
-private fun ConditionFactory.exceptionIgnorerOrNull(): ExceptionIgnorer? =
-    readPrivateField("exceptionsIgnorer")
-
-private fun Duration.toNanosSafely(): Long = runCatching { toNanos() }.getOrElse { Long.MAX_VALUE }
-
-private fun Duration.toMillisCeil(): Long {
-    val nanos = toNanosSafely()
-    return nanosToMillisCeil(nanos)
-}
-
-private fun nanosToMillisCeil(nanos: Long): Long =
-    if (nanos <= 0L) 0L else (nanos + 999_999L) / 1_000_000L
-
-private fun conditionTimeoutException(timeout: Duration, cause: Throwable?): ConditionTimeoutException {
-    val message = "Condition was not fulfilled within $timeout."
-    val rootCause = cause.unwrapConditionTimeout()
-    return if (rootCause != null) ConditionTimeoutException(message, rootCause) else ConditionTimeoutException(message)
-}
-
-private object PollTimedOut
-
-private tailrec fun Throwable?.unwrapConditionTimeout(): Throwable? = when (this) {
-    is ConditionTimeoutException -> cause.unwrapConditionTimeout()
-    else                         -> this
-}
-
-@Suppress("UNCHECKED_CAST")
-private fun <T> ConditionFactory.readPrivateField(name: String): T? = runCatching {
-    val field = ConditionFactory::class.java.getDeclaredField(name)
-    field.isAccessible = true
-    field.get(this) as T
-}.onFailure { e ->
-    // Awaitility 버전 변경 시 필드 이름이 바뀌면 기본값으로 폴백됩니다.
-    // 이 경우 경고 로그를 확인하고 Awaitility 버전 호환성을 검토해 주세요.
-    if (e !is NoSuchFieldException) {
-        println("WARN: ConditionFactory.$name 필드 접근 실패 (Awaitility 버전 비호환 가능성): ${e.message}")
-    }
-}.getOrNull()
