@@ -75,8 +75,8 @@ object Jackson: KLogging() {
      * ## Security contract
      * - [allowedBasePackages] must contain trusted subtype package prefixes.
      * - Empty allowlists are rejected with [IllegalArgumentException].
-     * - Blank or dot-only prefixes are rejected, and every prefix is normalized
-     *   to a dot-terminated package boundary before validation.
+     * - 공백 또는 `.`만인 prefix는 거부하고, 모든 prefix를 검증 전에
+     *   `.`으로 끝나는 package boundary로 정규화합니다.
      * - Type ids are written as the `@class` property and validated during polymorphic deserialization.
      *
      * ```kotlin
@@ -85,7 +85,7 @@ object Jackson: KLogging() {
      * ```
      *
      * @param allowedBasePackages Trusted subtype package prefixes, for example `"com.example."`.
-     * A trailing dot is added when omitted so adjacent package names cannot match.
+     * 마지막 `.`을 생략하면 자동으로 추가하여 인접 package 이름이 매칭되지 않도록 합니다.
      * @param typing Default typing strategy. Defaults to [ObjectMapper.DefaultTyping.NON_FINAL_AND_ENUMS].
      */
     fun createTypedJsonMapper(
