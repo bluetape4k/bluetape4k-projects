@@ -4,14 +4,37 @@ import io.bluetape4k.cache.jcache.JCache
 import io.bluetape4k.cache.jcache.JCacheEntryEventListener
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
+import io.bluetape4k.logging.error
 import io.bluetape4k.logging.info
 import io.bluetape4k.logging.trace
+import io.bluetape4k.logging.warn
 import io.bluetape4k.support.asyncRunWithTimeout
 import java.time.Duration
+import java.util.concurrent.CancellationException
+import java.util.concurrent.CompletableFuture
+import java.util.concurrent.CompletionException
+import java.util.concurrent.CompletionStage
+import java.util.concurrent.CopyOnWriteArrayList
+import java.util.concurrent.ExecutionException
+import java.util.concurrent.TimeoutException
+import java.util.concurrent.atomic.AtomicLong
+import java.util.concurrent.atomic.AtomicReference
 import java.util.concurrent.locks.ReentrantLock
 import javax.cache.Cache
 import javax.cache.configuration.MutableCacheEntryListenerConfiguration
 import kotlin.concurrent.withLock
+
+/**
+ * Back Cache write-through 작업의 operation별 완료 결과입니다.
+ *
+ * [completion]은 관찰 전용 [CompletionStage]이며, 동일 [NearJCache] 인스턴스의
+ * 다른 mutation 결과와 섞이지 않도록 [operationId]로 상관관계를 유지합니다.
+ */
+data class BackCacheWriteCompletion(
+    val operationId: Long,
+    val operation: String,
+    val completion: CompletionStage<Unit>,
+)
 
 /**
  * 분산 환경에서 로컬 캐시(Front Cache)와 원격 캐시(Back Cache)를 함께 사용하는 2-Tier 캐시 구현체입니다.
@@ -58,6 +81,9 @@ class NearJCache<K: Any, V: Any>(
         /** 기본 원격 캐시 동기화 타임아웃 (500ms) */
         val DEFAULT_SYNC_REMOTE_TIMEOUT: Duration = Duration.ofMillis(500)
 
+        /** Back Cache bulk remove 작업의 배치 크기 */
+        private const val REMOVE_BATCH_SIZE = 100
+
         /**
          * NearCache 인스턴스를 생성합니다.
          *
@@ -95,6 +121,52 @@ class NearJCache<K: Any, V: Any>(
     }
 
     private val lock = ReentrantLock()
+    private data class BackCacheWriteState(
+        val operationId: Long,
+        val operation: String,
+        val completion: CompletableFuture<Unit>,
+    )
+
+    private val nextBackCacheWriteOperationId = AtomicLong()
+    private val lastBackCacheWrite = AtomicReference(
+        BackCacheWriteState(
+            operationId = 0L,
+            operation = "initial",
+            completion = CompletableFuture.completedFuture(Unit),
+        )
+    )
+    private val backCacheWriteListeners = CopyOnWriteArrayList<(BackCacheWriteCompletion) -> Unit>()
+
+    /**
+     * 마지막으로 예약한 Back Cache write-through의 완료 상태입니다.
+     *
+     * 동기 모드에서는 성공 또는 실패가 즉시 완료된 [CompletableFuture]로 기록되고,
+     * 비동기 모드에서는 bounded retry와 timeout을 포함한 Back Cache 작업의 성공·실패가
+     * 기록됩니다. 반환값은 내부 completion의 복사본이므로 호출자가 완료 상태를 변경할 수
+     * 없습니다.
+     */
+    val lastBackCacheWriteCompletion: CompletableFuture<Unit>
+        get() = lastBackCacheWrite.get().completion.copy()
+
+    /** 마지막 write-through 작업의 operation ID입니다. */
+    val lastBackCacheWriteOperationId: Long
+        get() = lastBackCacheWrite.get().operationId
+
+    /**
+     * 모든 write-through 작업의 operation별 completion을 관찰할 listener를 등록합니다.
+     *
+     * timeout은 terminal failure로 기록하며, timeout 시 이미 실행 중인 backend 작업은
+     * 취소되지 않을 수 있고 late completion은 재시도하지 않습니다. 즉, 중복 write를
+     * 피하면서 호출자가 timeout과 late write 가능성을 모두 관찰할 수 있습니다.
+     */
+    fun addBackCacheWriteListener(listener: (BackCacheWriteCompletion) -> Unit): AutoCloseable {
+        backCacheWriteListeners += listener
+        return object: AutoCloseable {
+            override fun close() {
+                backCacheWriteListeners.remove(listener)
+            }
+        }
+    }
 
     override fun iterator(): MutableIterator<Cache.Entry<K, V>> = frontCache.iterator()
 
@@ -122,8 +194,10 @@ class NearJCache<K: Any, V: Any>(
             "front cache, back cache 모두 clear 합니다. 단 back cache 를 공유한 다른 near cache에는 전파되지 않습니다. " +
                     "전파를 위해서는 removeAll을 사용하세요"
         }
-        runCatching { frontCache.clear() }
-        runCatching { backCache.clear() }
+        frontCache.clear()
+        syncBackCache("clearAllCache", synchronous = true) {
+            backCache.clear()
+        }
     }
 
     override fun close() {
@@ -197,25 +271,23 @@ class NearJCache<K: Any, V: Any>(
     }
 
     override fun put(key: K, value: V) {
-        frontCache.put(key, value).apply {
-            syncBackCache {
-                backCache.put(key, value)
-            }
+        frontCache.put(key, value)
+        syncBackCache("put") {
+            backCache.put(key, value)
         }
     }
 
     override fun putAll(map: Map<out K, V>) {
-        frontCache.putAll(map).apply {
-            syncBackCache {
-                backCache.putAll(map)
-            }
+        frontCache.putAll(map)
+        syncBackCache("putAll") {
+            backCache.putAll(map)
         }
     }
 
     override fun putIfAbsent(key: K, value: V): Boolean =
         frontCache.putIfAbsent(key, value).also {
             if (it) {
-                syncBackCache {
+                syncBackCache("putIfAbsent") {
                     if (!backCache.containsKey(key)) {
                         backCache.put(key, value)
                     }
@@ -226,7 +298,7 @@ class NearJCache<K: Any, V: Any>(
     override fun remove(key: K): Boolean =
         frontCache.remove(key).also {
             if (it) {
-                syncBackCache {
+                syncBackCache("remove") {
                     backCache.remove(key)
                 }
             }
@@ -235,7 +307,7 @@ class NearJCache<K: Any, V: Any>(
     override fun remove(key: K, oldValue: V): Boolean =
         frontCache.remove(key, oldValue).also {
             if (it) {
-                syncBackCache {
+                syncBackCache("remove(key, oldValue)") {
                     // Back cache listener 전파를 remove(key) 경로로 통일하기 위해 값 비교 후 단일 키 삭제를 사용한다.
                     if (backCache.containsKey(key) && backCache.get(key) == oldValue) {
                         backCache.remove(key)
@@ -246,21 +318,22 @@ class NearJCache<K: Any, V: Any>(
 
     override fun removeAll() {
         frontCache.removeAll().apply {
-            syncBackCache {
+            syncBackCache("removeAll") {
                 // Redisson 에서는 bulk operation 의 경우 event 가 발생하지 않습니다!!!
-                backCache.chunked(100) { chunk ->
-                    chunk.forEach { runCatching { backCache.remove(it.key) } }
-                    // Thread.sleep(1)
-                }
+                val failures = backCache
+                    .chunked(REMOVE_BATCH_SIZE)
+                    .flatMap { chunk -> removeBackCacheEntries(chunk.map { it.key }) }
+                throwIfFailures("removeAll", failures)
             }
         }
     }
 
     override fun removeAll(keys: Set<K>) {
         frontCache.removeAll(keys).apply {
-            syncBackCache {
+            syncBackCache("removeAll(keys)") {
                 // Redisson 에서는 bulk operation 의 경우 event 가 발생하지 않습니다!!!
-                keys.forEach { runCatching { backCache.remove(it) } }
+                val failures = removeBackCacheEntries(keys)
+                throwIfFailures("removeAll(keys)", failures)
             }
         }
     }
@@ -284,7 +357,7 @@ class NearJCache<K: Any, V: Any>(
     override fun replace(key: K, oldValue: V, newValue: V): Boolean =
         frontCache.replace(key, oldValue, newValue).also {
             if (it) {
-                syncBackCache {
+                syncBackCache("replace(key, oldValue, newValue)") {
                     if (backCache.containsKey(key) && backCache.get(key) == oldValue) {
                         backCache.put(key, newValue)
                     }
@@ -295,7 +368,7 @@ class NearJCache<K: Any, V: Any>(
     override fun replace(key: K, value: V): Boolean =
         frontCache.replace(key, value).also {
             if (it) {
-                syncBackCache {
+                syncBackCache("replace") {
                     // Redisson 에서는 replace 가 event 를 발생시키지 않습니다.
                     if (backCache.containsKey(key)) {
                         backCache.put(key, value)
@@ -311,14 +384,143 @@ class NearJCache<K: Any, V: Any>(
         return null
     }
 
-    private inline fun syncBackCache(crossinline syncTask: () -> Unit) {
-        if (config.isSynchronous) {
-            runCatching { syncTask() }
-        } else {
-            val timeoutMillis = config.syncRemoteTimeout.coerceAtLeast(NearJCacheConfig.DEFAULT_SYNC_REMOTE_TIMEOUT)
-            asyncRunWithTimeout(timeoutMillis) {
-                runCatching { syncTask() }
+    @Suppress("TooGenericExceptionCaught")
+    private fun removeBackCacheEntries(keys: Iterable<K>): List<RuntimeException> {
+        val failures = mutableListOf<RuntimeException>()
+        keys.forEach { key ->
+            try {
+                backCache.remove(key)
+            } catch (e: RuntimeException) {
+                failures += e
+            }
+        }
+        return failures
+    }
+
+    private fun throwIfFailures(operation: String, failures: List<RuntimeException>) {
+        if (failures.isEmpty()) return
+
+        val primary = failures.first()
+        failures.drop(1).forEach { failure ->
+            val suppressed =
+                if (failure === primary) {
+                    IllegalStateException("Repeated back cache failure", failure)
+                } else {
+                    failure
+                }
+            primary.addSuppressed(suppressed)
+        }
+        log.error(primary) {
+            "NearJCache back cache bulk write failed. operation=$operation, failureCount=${failures.size}"
+        }
+        throw primary
+    }
+
+    @Suppress("TooGenericExceptionCaught")
+    private fun syncBackCache(
+        operation: String,
+        synchronous: Boolean = config.isSynchronous,
+        syncTask: () -> Unit,
+    ): CompletableFuture<Unit> {
+        val completion = CompletableFuture<Unit>()
+        publishBackCacheWrite(operation, completion)
+        if (synchronous) {
+            return try {
+                syncTask()
+                completion.complete(Unit)
+                completion
+            } catch (e: RuntimeException) {
+                completion.completeExceptionally(e)
+                throw e
+            }
+        }
+
+        val timeoutMillis = config.syncRemoteTimeout.coerceAtLeast(NearJCacheConfig.DEFAULT_SYNC_REMOTE_TIMEOUT)
+        runAsyncBackCacheWrite(
+            operation = operation,
+            timeoutMillis = timeoutMillis,
+            retriesRemaining = config.syncRemoteRetryCount.coerceIn(
+                0,
+                NearJCacheConfig.MAX_SYNC_REMOTE_RETRY_COUNT
+            ),
+            completion = completion,
+            syncTask = syncTask,
+        )
+        return completion
+    }
+
+    @Suppress("TooGenericExceptionCaught")
+    private fun publishBackCacheWrite(
+        operation: String,
+        completion: CompletableFuture<Unit>,
+    ) {
+        val state = BackCacheWriteState(
+            operationId = nextBackCacheWriteOperationId.incrementAndGet(),
+            operation = operation,
+            completion = completion,
+        )
+        lastBackCacheWrite.set(state)
+        completion.whenComplete { _, _ ->
+            val result = BackCacheWriteCompletion(
+                operationId = state.operationId,
+                operation = state.operation,
+                completion = completion.minimalCompletionStage(),
+            )
+            backCacheWriteListeners.forEach { listener ->
+                try {
+                    listener(result)
+                } catch (e: RuntimeException) {
+                    log.error(e) {
+                        "NearJCache back cache write listener failed. operationId=${state.operationId}"
+                    }
+                }
             }
         }
     }
+
+    private fun runAsyncBackCacheWrite(
+        operation: String,
+        timeoutMillis: Long,
+        retriesRemaining: Int,
+        completion: CompletableFuture<Unit>,
+        syncTask: () -> Unit,
+    ) {
+        asyncRunWithTimeout(timeoutMillis) {
+            syncTask()
+        }.whenComplete { _, error ->
+            if (error == null) {
+                completion.complete(Unit)
+                return@whenComplete
+            }
+
+            val failure = unwrapCompletionFailure(error)
+            val retryable = failure is RuntimeException &&
+                    failure !is TimeoutException &&
+                    failure !is CancellationException
+            if (retryable && retriesRemaining > 0) {
+                log.warn(failure) {
+                    "NearJCache retrying asynchronous back cache write. " +
+                            "operation=$operation, retriesRemaining=${retriesRemaining - 1}"
+                }
+                runAsyncBackCacheWrite(
+                    operation = operation,
+                    timeoutMillis = timeoutMillis,
+                    retriesRemaining = retriesRemaining - 1,
+                    completion = completion,
+                    syncTask = syncTask,
+                )
+            } else {
+                log.error(failure) {
+                    "NearJCache asynchronous back cache write failed. operation=$operation"
+                }
+                completion.completeExceptionally(failure)
+            }
+        }
+    }
+
+    private fun unwrapCompletionFailure(error: Throwable): Throwable =
+        when (error) {
+            is CompletionException, is ExecutionException -> error.cause ?: error
+            else -> error
+        }
 }

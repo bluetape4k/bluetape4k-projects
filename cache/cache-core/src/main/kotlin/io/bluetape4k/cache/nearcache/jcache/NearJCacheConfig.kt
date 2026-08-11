@@ -33,6 +33,7 @@ import javax.cache.expiry.Duration
  * @property frontCacheConfiguration Front Cache 설정 (만료 시간 등)
  * @property isSynchronous Front-Back 캐시 간 동기화 방식 (true: 동기, false: 비동기)
  * @property syncRemoteTimeout 원격 캐시 동기화 타임아웃 (밀리초)
+ * @property syncRemoteRetryCount 비동기 원격 캐시 write-through의 bounded retry 횟수
  *
  * @see NearJCache
  */
@@ -42,6 +43,7 @@ data class NearJCacheConfig<K: Any, V: Any>(
     val frontCacheConfiguration: MutableConfiguration<K, V> = getDefaultFrontCacheConfiguration(),
     val isSynchronous: Boolean = false,
     val syncRemoteTimeout: Long = NearJCacheConfig.DEFAULT_SYNC_REMOTE_TIMEOUT,
+    val syncRemoteRetryCount: Int = NearJCacheConfig.DEFAULT_SYNC_REMOTE_RETRY_COUNT,
 ): Serializable {
 
     companion object {
@@ -55,6 +57,12 @@ data class NearJCacheConfig<K: Any, V: Any>(
 
         /** 기본 원격 캐시 동기화 타임아웃 (500ms) */
         const val DEFAULT_SYNC_REMOTE_TIMEOUT = 500L
+
+        /** 비동기 원격 캐시 write-through의 기본 재시도 횟수 */
+        const val DEFAULT_SYNC_REMOTE_RETRY_COUNT = 1
+
+        /** 원격 캐시 write-through 재시도 횟수 상한 */
+        const val MAX_SYNC_REMOTE_RETRY_COUNT = 3
 
         /** Caffeine 캐시를 위한 기본 [CacheManager] 팩토리 */
         val CaffeineCacheManagerFactory = Factory {

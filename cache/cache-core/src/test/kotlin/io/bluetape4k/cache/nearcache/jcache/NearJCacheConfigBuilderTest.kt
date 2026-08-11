@@ -16,6 +16,7 @@ class NearJCacheConfigBuilderTest {
         config.cacheName.shouldNotBeBlank()
         config.isSynchronous shouldBeEqualTo false
         config.syncRemoteTimeout shouldBeEqualTo NearJCacheConfig.DEFAULT_SYNC_REMOTE_TIMEOUT
+        config.syncRemoteRetryCount shouldBeEqualTo NearJCacheConfig.DEFAULT_SYNC_REMOTE_RETRY_COUNT
     }
 
     @Test
@@ -24,10 +25,12 @@ class NearJCacheConfigBuilderTest {
             cacheName = "test-cache"
             isSynchronous = true
             syncRemoteTimeout = 1000L
+            syncRemoteRetryCount = 2
         }
 
         config.cacheName shouldBeEqualTo "test-cache"
         config.isSynchronous shouldBeEqualTo true
         config.syncRemoteTimeout shouldBeEqualTo 1000L
+        config.syncRemoteRetryCount shouldBeEqualTo 2
     }
 }

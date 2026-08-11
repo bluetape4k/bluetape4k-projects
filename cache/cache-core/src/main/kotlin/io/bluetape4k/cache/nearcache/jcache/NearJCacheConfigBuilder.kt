@@ -36,6 +36,9 @@ class NearJCacheConfigBuilder<K: Any, V: Any> {
     /** 원격 캐시 동기화 타임아웃 (밀리초). 기본값: 500ms */
     var syncRemoteTimeout: Long = NearJCacheConfig.DEFAULT_SYNC_REMOTE_TIMEOUT
 
+    /** 비동기 원격 캐시 write-through 재시도 횟수. 기본값: 1회 */
+    var syncRemoteRetryCount: Int = NearJCacheConfig.DEFAULT_SYNC_REMOTE_RETRY_COUNT
+
     /**
      * 설정값으로 [NearJCacheConfig] 인스턴스를 생성합니다.
      */
@@ -45,6 +48,7 @@ class NearJCacheConfigBuilder<K: Any, V: Any> {
         frontCacheConfiguration = frontCacheConfiguration,
         isSynchronous = isSynchronous,
         syncRemoteTimeout = syncRemoteTimeout,
+        syncRemoteRetryCount = syncRemoteRetryCount,
     )
 }
 
