@@ -118,6 +118,35 @@ class JacksonTest {
         }
     }
 
+    @Suppress("DEPRECATION")
+    @Test
+    fun `legacy typedJsonMapper는 명시적 migration failure로 차단한다`() {
+        val exception = assertFailsWith<UnsupportedOperationException> {
+            Jackson.typedJsonMapper
+        }
+
+        exception.message shouldContain "createTypedJsonMapper"
+    }
+
+    @Suppress("DEPRECATION")
+    @Test
+    fun `legacy prettyTypedJsonWriter는 명시적 migration failure로 차단한다`() {
+        val exception = assertFailsWith<UnsupportedOperationException> {
+            Jackson.prettyTypedJsonWriter
+        }
+
+        exception.message shouldContain "createTypedJsonMapper"
+    }
+
+    @Test
+    fun `createDefaultJsonMapper의 legacy type info 옵션은 명시적 migration failure로 차단한다`() {
+        val exception = assertFailsWith<UnsupportedOperationException> {
+            Jackson.createDefaultJsonMapper(needTypeInfo = true)
+        }
+
+        exception.message shouldContain "createTypedJsonMapper"
+    }
+
     @Test
     fun `registeredModuleIdList - 등록된 모듈 ID를 List로 반환`() {
         val ids = Jackson.defaultJsonMapper.registeredModuleIdList()
