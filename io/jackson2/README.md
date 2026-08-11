@@ -182,6 +182,10 @@ val json = mapper.writeValueAsString(value)
 val restored = mapper.readValue(json, ModelEnvelope::class.java)
 ```
 
+Allowlist prefixes are trimmed and normalized to a dot-terminated package boundary.
+Blank or dot-only prefixes are rejected, so `"com.example"` matches
+`com.example.*` but not an adjacent package such as `com.exampleevil.*`.
+
 The default mapper does not activate polymorphic typing. The legacy entry points
 `Jackson.typedJsonMapper`, `Jackson.prettyTypedJsonWriter`, and
 `Jackson.createDefaultJsonMapper(needTypeInfo = true)` are source-compatible deprecated symbols,

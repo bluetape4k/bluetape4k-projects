@@ -77,6 +77,10 @@ val json = mapper.writeValueAsString(value)
 val restored = mapper.readValue(json, ModelEnvelope::class.java)
 ```
 
+allowlist prefix는 앞뒤 공백을 제거한 뒤 `.`로 끝나는 package boundary로 정규화합니다.
+공백 또는 `.`만으로 된 prefix는 거부하므로 `"com.example"`은
+`com.example.*`만 허용하고 `com.exampleevil.*` 같은 인접 package는 허용하지 않습니다.
+
 기본 mapper는 다형성 typing을 활성화하지 않습니다. `Jackson.typedJsonMapper`,
 `Jackson.prettyTypedJsonWriter`, `Jackson.createDefaultJsonMapper(needTypeInfo = true)`는
 source compatibility를 위한 deprecated symbol으로 남아 있지만, `1.13.0`부터 접근 즉시

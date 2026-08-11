@@ -68,6 +68,47 @@ class JacksonTest {
     }
 
     @Test
+    fun `createTypedJsonMapper - blank package prefix는 예외 발생`() {
+        listOf("", "   ", ".", ".. ").forEach { prefix ->
+            assertFailsWith<IllegalArgumentException> {
+                Jackson.createTypedJsonMapper(prefix)
+            }
+        }
+    }
+
+    @Test
+    fun `createTypedJsonMapper - package boundary 밖의 nested type은 거부`() {
+        val mapper = Jackson.createTypedJsonMapper("com.example.disallow")
+        val nestedJson = """
+            {
+              "payload": {
+                "@class": "${DisallowedTypedPayload::class.qualifiedName}",
+                "value": "blocked"
+              }
+            }
+        """.trimIndent()
+
+        assertFailsWith<InvalidTypeIdException> {
+            mapper.readValue(nestedJson, TypedPayloadEnvelope::class.java)
+        }
+    }
+
+    @Test
+    fun `createTypedJsonMapper - package boundary 밖의 root type은 거부`() {
+        val mapper = Jackson.createTypedJsonMapper("com.example.disallow")
+        val rootJson = """
+            {
+              "@class": "${DisallowedTypedPayload::class.qualifiedName}",
+              "value": "blocked"
+            }
+        """.trimIndent()
+
+        assertFailsWith<InvalidTypeIdException> {
+            mapper.readValue(rootJson, Any::class.java)
+        }
+    }
+
+    @Test
     fun `createTypedJsonMapper - 여러 패키지 허용 가능`() {
         val mapper = Jackson.createTypedJsonMapper("io.bluetape4k.", "com.example.")
         mapper.shouldNotBeNull()

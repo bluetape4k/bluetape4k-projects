@@ -75,6 +75,8 @@ object Jackson: KLogging() {
      * ## Security contract
      * - [allowedBasePackages] must contain trusted subtype package prefixes.
      * - Empty allowlists are rejected with [IllegalArgumentException].
+     * - Blank or dot-only prefixes are rejected, and every prefix is normalized
+     *   to a dot-terminated package boundary before validation.
      * - Type ids are written as the `@class` property and validated during polymorphic deserialization.
      *
      * ```kotlin
@@ -83,6 +85,7 @@ object Jackson: KLogging() {
      * ```
      *
      * @param allowedBasePackages Trusted subtype package prefixes, for example `"com.example."`.
+     * A trailing dot is added when omitted so adjacent package names cannot match.
      * @param typing Default typing strategy. Defaults to [ObjectMapper.DefaultTyping.NON_FINAL_AND_ENUMS].
      */
     fun createTypedJsonMapper(
@@ -92,9 +95,10 @@ object Jackson: KLogging() {
         require(allowedBasePackages.isNotEmpty()) {
             "보안상 허용할 패키지를 하나 이상 지정해야 합니다. 예: createTypedJsonMapper(\"com.example.\")"
         }
-        log.info { "Create TypedJsonMapper ... allowedBasePackages=${allowedBasePackages.toList()}" }
+        val normalizedAllowedBasePackages = allowedBasePackages.map(::normalizeAllowedBasePackage)
+        log.info { "Create TypedJsonMapper ... allowedBasePackages=$normalizedAllowedBasePackages" }
         val validator = BasicPolymorphicTypeValidator.builder().apply {
-            allowedBasePackages.forEach { allowIfSubType(it) }
+            normalizedAllowedBasePackages.forEach { allowIfSubType(it) }
             allowIfSubTypeIsArray()
         }.build()
         return createDefaultJsonMapper().apply {
@@ -166,6 +170,14 @@ object Jackson: KLogging() {
             )
 
         }
+    }
+
+    private fun normalizeAllowedBasePackage(packagePrefix: String): String {
+        val normalized = packagePrefix.trim().trimEnd('.')
+        require(normalized.isNotEmpty()) {
+            "허용 패키지 prefix는 공백 또는 '.'만으로 지정할 수 없습니다."
+        }
+        return "$normalized."
     }
 
     private fun verifyTypeInclusion(mapper: JsonMapper) {

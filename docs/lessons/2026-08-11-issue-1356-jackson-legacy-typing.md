@@ -26,6 +26,10 @@ deprecated 경고를 무시하면 allowlist 없이 default typing을 활성화�
   `allowIfSubType(...)`와 배열 subtype 규칙으로만 구성한다.
 - `1.13.0`에서는 legacy symbol을 migration signal로 남기고 runtime에서 즉시 차단한다.
   다음 major release에서 public symbol 제거를 재검토한다.
+- `createTypedJsonMapper(...)`의 prefix는 Jackson의 `startsWith` 판정에 직접 전달하지
+  않는다. 공백을 제거하고 마지막 `.`을 보정한 package boundary로 정규화하며, 공백 또는
+  `.`만으로 된 입력은 거부한다. 따라서 빈 prefix의 전체 subtype 허용과
+  `com.example`가 `com.exampleevil`을 허용하는 인접 package 우회를 차단한다.
 
 ## 안전한 사용 경계
 
@@ -39,10 +43,13 @@ payload에만 사용한다. untrusted 또는 외부 JSON은 구체적인 DTO나 
 
 - RED: legacy 세 진입점이 예외를 던져야 한다는 신규 테스트가 기존 구현에서 3건 실패하고,
   기존 테스트 10건은 통과했다.
+- RED: blank/dot-only prefix와 package boundary 밖의 root/nested type id를 검증하는 신규
+  보안 테스트 3건이 정규화 전 구현에서 실패했다.
 - GREEN: 세 migration-failure 테스트와 기존 allowlist root/nested 거부 및 허용 round-trip을
-  포함한 `JacksonTest` 전체가 통과했다.
+  포함한 `JacksonTest` 전체가 통과했고, 정규화된 prefix 없이 인접 package를 허용하지
+  않는 root/nested 회귀 테스트도 통과했다.
 - `./gradlew :bluetape4k-jackson2:test --no-daemon --no-configuration-cache`:
-  473 tests passed.
+  476 tests passed.
 - `./gradlew :bluetape4k-jackson2:compileTestKotlin --warning-mode all --rerun-tasks
   --no-daemon --no-configuration-cache`: `BUILD SUCCESSFUL`.
 - `./gradlew :bluetape4k-jackson2:detekt --no-daemon --no-configuration-cache`:
