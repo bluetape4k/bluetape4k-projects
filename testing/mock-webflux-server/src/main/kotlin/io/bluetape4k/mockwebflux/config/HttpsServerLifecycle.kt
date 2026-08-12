@@ -17,7 +17,7 @@ import javax.net.ssl.KeyManagerFactory
  * Reactor Netty를 사용해 HTTPS 보조 서버를 [SmartLifecycle]로 구동하는 컴포넌트.
  *
  * 기존 HTTP 포트(80)는 그대로 유지하고,
- * [httpsPort](기본값 443)에 SSL이 활성화된 별도 Netty 서버를 추가한다.
+ * [httpsPort]에 SSL이 활성화된 별도 Netty 서버를 추가한다.
  * 인증서는 `src/main/resources/certs/localhost.p12`에 번들되어 있다.
  */
 @Component
@@ -31,20 +31,26 @@ class HttpsServerLifecycle(
 
     private var disposableServer: DisposableServer? = null
 
+    /** 현재 HTTPS 서버에 실제로 바인딩된 포트. 시작 전이나 종료 후에는 0이다. */
+    val boundPort: Int
+        get() = disposableServer?.port() ?: 0
+
     override fun start() {
         val sslContext = buildSslContext()
-        disposableServer = HttpServer.create()
+        val server = HttpServer.create()
             .port(httpsPort)
             .secure { spec -> spec.sslContext(sslContext) }
             .handle(ReactorHttpHandlerAdapter(httpHandler))
             .bindNow()
-        log.info { "HTTPS 보조 서버 시작: port=$httpsPort" }
+        disposableServer = server
+        log.info { "HTTPS 보조 서버 시작: configuredPort=$httpsPort, boundPort=${server.port()}" }
     }
 
     override fun stop() {
+        val stoppedPort = boundPort
         disposableServer?.dispose()
         disposableServer = null
-        log.info { "HTTPS 보조 서버 종료: port=$httpsPort" }
+        log.info { "HTTPS 보조 서버 종료: port=$stoppedPort" }
     }
 
     override fun isRunning(): Boolean = disposableServer?.isDisposed == false
