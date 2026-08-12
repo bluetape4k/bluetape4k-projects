@@ -17,11 +17,14 @@ import java.util.concurrent.CompletionException
 import java.util.concurrent.CompletionStage
 import java.util.concurrent.CopyOnWriteArrayList
 import java.util.concurrent.ExecutionException
+import java.util.concurrent.Executors
 import java.util.concurrent.TimeoutException
+import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicLong
 import java.util.concurrent.atomic.AtomicReference
 import java.util.concurrent.locks.ReentrantLock
 import javax.cache.Cache
+import javax.cache.CacheException
 import javax.cache.configuration.CacheEntryListenerConfiguration
 import javax.cache.configuration.Configuration
 import javax.cache.configuration.MutableCacheEntryListenerConfiguration
@@ -613,17 +616,28 @@ class NearJCache<K: Any, V: Any>(
             }
         }
         if (synchronous) {
+            val timeoutMillis = config.syncRemoteTimeout.coerceAtLeast(NearJCacheConfig.DEFAULT_SYNC_REMOTE_TIMEOUT)
             return try {
-                guardedSyncTask()
+                runSynchronousBackCacheWrite(timeoutMillis, guardedSyncTask)
                 completion.complete(Unit)
                 completion
-            } catch (e: RuntimeException) {
-                completion.completeExceptionally(e)
-                log.error(e) {
+            } catch (e: Throwable) {
+                val failure = unwrapCompletionFailure(e)
+                val callerFailure = if (failure is TimeoutException) {
+                    CacheException(
+                        "NearJCache synchronous back cache write timed out after ${timeoutMillis}ms. " +
+                                "operation=$operation, cache=${config.cacheName}",
+                        failure
+                    )
+                } else {
+                    failure
+                }
+                completion.completeExceptionally(callerFailure)
+                log.error(callerFailure) {
                     "NearJCache synchronous back cache write failed. operation=$operation, " +
                             "cache=${config.cacheName}, provider=${backCache.javaClass.name}"
                 }
-                throw e
+                throw callerFailure
             }
         }
 
@@ -639,6 +653,31 @@ class NearJCache<K: Any, V: Any>(
             syncTask = guardedSyncTask,
         )
         return completion
+    }
+
+    /**
+     * 동기 write-through도 호출자 스레드를 원격 provider의 blocking wait에 묶지 않습니다.
+     * timeout 시 작업을 interrupt하고 executor를 즉시 종료해 테스트/애플리케이션 lifecycle에
+     * 남는 전용 실행기를 최소화합니다. Provider가 interrupt를 무시하면 실제 backend 작업은
+     * 늦게 완료될 수 있으므로 [backWriteLock]이 완료 순서를 계속 직렬화합니다.
+     */
+    @Suppress("ThrowsCount")
+    private fun runSynchronousBackCacheWrite(timeoutMillis: Long, syncTask: () -> Unit) {
+        val executor = Executors.newVirtualThreadPerTaskExecutor()
+        val future = executor.submit { syncTask() }
+        try {
+            future.get(timeoutMillis, TimeUnit.MILLISECONDS)
+        } catch (e: ExecutionException) {
+            throw unwrapCompletionFailure(e)
+        } catch (e: InterruptedException) {
+            Thread.currentThread().interrupt()
+            throw CancellationException("Synchronous back cache write was interrupted").also { it.initCause(e) }
+        } catch (e: TimeoutException) {
+            future.cancel(true)
+            throw e
+        } finally {
+            executor.shutdownNow()
+        }
     }
 
     private fun frontContainsKey(key: K): Boolean = mutationGate.withLock {

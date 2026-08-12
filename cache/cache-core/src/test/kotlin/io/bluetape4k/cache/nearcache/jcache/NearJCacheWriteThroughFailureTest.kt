@@ -13,6 +13,7 @@ import java.util.concurrent.TimeUnit
 import java.util.concurrent.TimeoutException
 import java.util.concurrent.atomic.AtomicInteger
 import javax.cache.Cache
+import javax.cache.CacheException
 
 class NearJCacheWriteThroughFailureTest {
 
@@ -179,6 +180,44 @@ class NearJCacheWriteThroughFailureTest {
         assertFailsWith<IllegalStateException> {
             nearCache.clearAllCache()
         }.message shouldBeEqualTo failure.message
+    }
+
+    @Test
+    fun `동기 write-through timeout은 호출자와 completion을 bounded failure로 완료한다`() {
+        val frontCache = mockk<JCache<String, String>>(relaxed = true)
+        val backCache = mockk<JCache<String, String>>(relaxed = true)
+        val release = CountDownLatch(1)
+        every { backCache.put("key", "value") } answers {
+            release.await()
+        }
+
+        val nearCache =
+            NearJCache(
+                frontCache = frontCache,
+                backCache = backCache,
+                config = NearJCacheConfig(isSynchronous = true, syncRemoteTimeout = 50L),
+            )
+
+        try {
+            val startedAt = System.nanoTime()
+            val error = assertFailsWith<CacheException> {
+                nearCache.put("key", "value")
+            }
+            val elapsedMillis = TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - startedAt)
+
+            check(elapsedMillis < 1_000L) { "synchronous write-through exceeded bounded timeout: ${elapsedMillis}ms" }
+            check(error.cause is TimeoutException) {
+                "Expected timeout cause but got ${error.cause}"
+            }
+            val completionError = assertFailsWith<ExecutionException> {
+                nearCache.lastBackCacheWriteCompletion.get(1, TimeUnit.SECONDS)
+            }
+            check(completionError.cause is CacheException) {
+                "Expected completion CacheException but got ${completionError.cause}"
+            }
+        } finally {
+            release.countDown()
+        }
     }
 
     @Test
