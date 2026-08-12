@@ -81,6 +81,14 @@ class DistributedSuspendRateLimiter @JvmOverloads constructor(
             }
             toRateLimitResult(probe, numToken)
         } catch (e: CancellationException) {
+            // CompletableFuture.get() converts an exceptional completion with a
+            // CancellationException into a new CancellationException and keeps
+            // the original coroutine cancellation as its cause. Restore that
+            // cause so callers observe the cancellation they actually supplied.
+            val cause = e.cause
+            if (cause is CancellationException && cause !== e) {
+                throw cause
+            }
             throw e
         } catch (e: Exception) {
             log.warn(e) { "Rate Limiter 적용에 실패했습니다. key=$key" }
