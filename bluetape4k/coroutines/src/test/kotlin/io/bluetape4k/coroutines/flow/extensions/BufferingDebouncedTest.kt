@@ -41,6 +41,18 @@ class BufferingDebouncedTest: AbstractFlowTest() {
     }
 
     @Test
+    fun `첫 요소를 수신하기 전의 지연은 디바운스 윈도우를 소진시키지 않습니다`() = runSuspendIO {
+        val source = flow {
+            delay(250.milliseconds)
+            emit(1)
+            delay(50.milliseconds)
+            emit(2)
+        }
+
+        source.bufferingDebounce(100.milliseconds).toList() shouldBeEqualTo listOf(listOf(1, 2))
+    }
+
+    @Test
     fun `flow 에서 예외를 발생 시키면, 그동안 버퍼링한 것들을 발행한다`() = runSuspendIO {
         val source =
             flow {
