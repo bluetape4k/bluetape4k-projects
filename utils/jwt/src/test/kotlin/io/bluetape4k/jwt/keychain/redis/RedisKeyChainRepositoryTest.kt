@@ -9,6 +9,7 @@ import io.bluetape4k.jwt.keychain.AbstractKeyChainRepositoryTest
 import io.bluetape4k.jwt.keychain.KeyChain
 import io.bluetape4k.jwt.keychain.KeyChainDto
 import io.bluetape4k.jwt.keychain.repository.KeyChainRepository
+import io.bluetape4k.jwt.keychain.repository.redis.REDIS_ROTATION_LOCK_WAIT_SECONDS
 import io.bluetape4k.jwt.keychain.repository.redis.RedisKeyChainRepository
 import io.bluetape4k.jwt.keychain.repository.redis.withRedisRotationLock
 import io.bluetape4k.testcontainers.storage.RedisServer
@@ -45,18 +46,18 @@ class RedisKeyChainRepositoryTest: AbstractKeyChainRepositoryTest() {
         val redisson = mockk<RedissonClient>(relaxed = true)
         every { redisson.getDeque<KeyChainDto>(any<String>()) } returns queue
         every { redisson.getLock(any<String>()) } returns lock
-        every { lock.tryLock(5, TimeUnit.SECONDS) } returns true
+        every { lock.tryLock(REDIS_ROTATION_LOCK_WAIT_SECONDS, TimeUnit.SECONDS) } returns true
         every { lock.isHeldByCurrentThread } returns true
 
         RedisKeyChainRepository(redisson).forcedRotate(KeyChain()).shouldBeTrue()
 
-        verify(exactly = 1) { lock.tryLock(5, TimeUnit.SECONDS) }
+        verify(exactly = 1) { lock.tryLock(REDIS_ROTATION_LOCK_WAIT_SECONDS, TimeUnit.SECONDS) }
     }
 
     @Test
     fun `rotation reports ownership loss before commit`() {
         val lock = mockk<RLock>()
-        every { lock.tryLock(5, TimeUnit.SECONDS) } returns true
+        every { lock.tryLock(REDIS_ROTATION_LOCK_WAIT_SECONDS, TimeUnit.SECONDS) } returns true
         every { lock.isHeldByCurrentThread } returns false
 
         val failure = assertFailsWith<IllegalStateException> {
@@ -71,7 +72,7 @@ class RedisKeyChainRepositoryTest: AbstractKeyChainRepositoryTest() {
         val lock = mockk<RLock>()
         val primaryFailure = IllegalStateException("commit failed")
         val unlockFailure = IllegalStateException("unlock failed")
-        every { lock.tryLock(5, TimeUnit.SECONDS) } returns true
+        every { lock.tryLock(REDIS_ROTATION_LOCK_WAIT_SECONDS, TimeUnit.SECONDS) } returns true
         every { lock.isHeldByCurrentThread } returns true
         every { lock.unlock() } throws unlockFailure
 
