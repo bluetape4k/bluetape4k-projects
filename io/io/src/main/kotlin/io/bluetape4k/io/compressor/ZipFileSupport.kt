@@ -378,8 +378,8 @@ private fun resolveZipTarget(canonicalDestDir: Path, entryName: String): Path {
     }
 
     val targetPath = canonicalDestDir.resolve(normalizedEntry).normalize()
-    require(targetPath.startsWith(canonicalDestDir)) {
-        "Zip entry is outside of the target dir: $entryName"
+    if (!targetPath.startsWith(canonicalDestDir)) {
+        throw IllegalArgumentException("Zip entry is outside of the target dir: $entryName")
     }
     return targetPath
 }
