@@ -9,8 +9,10 @@ import io.bluetape4k.utils.ShutdownQueue
 import org.apache.curator.framework.CuratorFramework
 import org.apache.curator.retry.RetryOneTime
 import org.testcontainers.containers.GenericContainer
-import org.testcontainers.containers.wait.strategy.Wait
 import org.testcontainers.utility.DockerImageName
+
+private const val CURATOR_RETRY_DELAY_MS = 1_000
+private const val CURATOR_CONNECTION_TIMEOUT_MS = 10_000
 
 /**
  * [ZooKeeper](https://zookeeper.apache.org/) 서버의 docker image를 testcontainers 환경 하에서 실행하는 클래스입니다.
@@ -106,7 +108,7 @@ class ZooKeeperServer private constructor(
     init {
         withExposedPorts(PORT)
         withReuse(reuse)
-        waitingFor(Wait.forListeningPort())
+        waitingFor(ZooKeeperWaitStrategy())
 
         if (useDefaultPort) {
             exposeCustomPorts(PORT)
@@ -144,8 +146,8 @@ class ZooKeeperServer private constructor(
         fun getCuratorFramework(zookeeper: ZooKeeperServer): CuratorFramework {
             return curatorFrameworkOf {
                 connectString(zookeeper.url)
-                retryPolicy(RetryOneTime(1000))
-                connectionTimeoutMs(10_000)
+                retryPolicy(RetryOneTime(CURATOR_RETRY_DELAY_MS))
+                connectionTimeoutMs(CURATOR_CONNECTION_TIMEOUT_MS)
             }
         }
     }
