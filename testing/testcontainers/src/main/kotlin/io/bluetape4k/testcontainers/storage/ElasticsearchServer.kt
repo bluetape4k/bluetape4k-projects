@@ -7,8 +7,11 @@ import io.bluetape4k.testcontainers.GenericServer
 import io.bluetape4k.testcontainers.PropertyExportingServer
 import io.bluetape4k.testcontainers.exposeCustomPorts
 import io.bluetape4k.utils.ShutdownQueue
+import org.testcontainers.containers.wait.strategy.Wait
 import org.testcontainers.elasticsearch.ElasticsearchContainer
+import org.testcontainers.utility.ComparableVersion
 import org.testcontainers.utility.DockerImageName
+import java.time.Duration
 
 
 /**
@@ -113,6 +116,18 @@ class ElasticsearchServer private constructor(
         withReuse(reuse)
         withPassword(password)
         withEnv("ES_JAVA_OPTS", "-Xms512m -Xmx512m")
+
+        // Elasticsearch 8+는 HTTPS 보안을 기본 활성화하므로 실제 인증 API 응답을
+        // 확인합니다. 구버전 사용자 지정 이미지는 기존 HTTP 계약을 유지합니다.
+        val readiness = Wait.forHttp("/")
+            .forPort(PORT)
+            .withBasicCredentials("elastic", password)
+            .forStatusCode(200)
+        if (ComparableVersion(imageName.versionPart).isGreaterThanOrEqualTo("8.0.0")) {
+            readiness.usingTls().allowInsecure()
+        }
+        readiness.withStartupTimeout(Duration.ofMinutes(3))
+        waitingFor(readiness)
 
         if (useDefaultPort) {
             exposeCustomPorts(PORT, TCP_PORT)
