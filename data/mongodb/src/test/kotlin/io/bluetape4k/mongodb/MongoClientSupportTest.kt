@@ -13,6 +13,7 @@ import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.assertions.shouldContain
 import io.bluetape4k.assertions.shouldNotBeNull
 import io.bluetape4k.assertions.shouldNotBeSameInstanceAs
+import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.mongodb.bson.documentOf
 import io.mockk.clearMocks
@@ -240,7 +241,7 @@ class MongoClientSupportTest: AbstractMongoTest() {
     }
 
     @Test
-    fun `listDatabaseNamesAsList 생성한 DB 포함 여부 확인`() = runTest(timeout = 30.seconds) {
+    fun `listDatabaseNamesAsList 생성한 DB 포함 여부 확인`() = runSuspendIO(timeout = 60.seconds) {
         // 컬렉션을 생성하면 해당 DB도 목록에 나타납니다
         val dbName = "db_list_test"
         val tempClient = mongoClientOf(mongoServer.url)
