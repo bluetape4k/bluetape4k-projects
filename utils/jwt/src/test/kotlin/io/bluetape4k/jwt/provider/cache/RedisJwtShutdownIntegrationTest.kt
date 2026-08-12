@@ -4,8 +4,10 @@ import eu.rekawek.toxiproxy.Proxy
 import eu.rekawek.toxiproxy.ToxiproxyClient
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeFalse
+import io.bluetape4k.assertions.shouldBeLessThan
 import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.jwt.keychain.KeyChain
+import io.bluetape4k.jwt.keychain.repository.redis.REDIS_ROTATION_LOCK_WAIT_SECONDS
 import io.bluetape4k.jwt.keychain.repository.redis.RedisKeyChainRepository
 import io.bluetape4k.jwt.provider.DefaultJwtProvider
 import io.bluetape4k.testcontainers.infra.ToxiproxyServer
@@ -18,7 +20,6 @@ import org.redisson.api.RedissonClient
 import org.testcontainers.containers.Network
 import java.time.Duration
 import java.util.UUID
-import kotlin.test.assertTrue
 
 @Execution(ExecutionMode.SAME_THREAD)
 class RedisJwtShutdownIntegrationTest {
@@ -33,9 +34,9 @@ class RedisJwtShutdownIntegrationTest {
                     val proxy = createRedisProxy(toxiproxy)
                     val redisson = createRedisson(toxiproxy)
                     val repository = createRepository(redisson)
-                    val delegate = DefaultJwtProvider.forTesting(
+                    // 네트워크 실패 시간은 짧은 test timer의 경쟁 없이 단일 caller operation으로 측정한다.
+                    val delegate = DefaultJwtProvider(
                         keyChainRepository = repository,
-                        rotationIntervalMillis = ROTATION_INTERVAL_MILLIS,
                     )
                     val provider = RedissonJwtProvider(delegate, redisson)
 
@@ -92,11 +93,8 @@ class RedisJwtShutdownIntegrationTest {
         proxy.disable()
         val interruptedAt = System.nanoTime()
         provider.forcedRotate().shouldBeFalse()
-        val interruptedMillis = Duration.ofNanos(System.nanoTime() - interruptedAt).toMillis()
-        assertTrue(
-            interruptedMillis < 5_000,
-            "proxy interruption must remain bounded: ${interruptedMillis}ms",
-        )
+        val interruptedDuration = Duration.ofNanos(System.nanoTime() - interruptedAt)
+        interruptedDuration shouldBeLessThan MAX_PROXY_INTERRUPTION
 
         proxy.enable()
         provider.forcedRotate().shouldBeTrue()
@@ -109,7 +107,6 @@ class RedisJwtShutdownIntegrationTest {
         delegate.close()
         val expiredKeyChain = KeyChain(expiredTtl = Duration.ofMillis(1))
         repository.forcedRotate(expiredKeyChain).shouldBeTrue()
-        Thread.sleep(ROTATION_INTERVAL_MILLIS * 5)
         repository.current().id shouldBeEqualTo expiredKeyChain.id
 
         repository.close()
@@ -134,6 +131,9 @@ class RedisJwtShutdownIntegrationTest {
     }
 
     private companion object {
-        const val ROTATION_INTERVAL_MILLIS = 50L
+        val MAX_PROXY_INTERRUPTION: Duration =
+            Duration.ofSeconds(REDIS_ROTATION_LOCK_WAIT_SECONDS + TRANSPORT_MARGIN_SECONDS)
+
+        const val TRANSPORT_MARGIN_SECONDS = 2L
     }
 }

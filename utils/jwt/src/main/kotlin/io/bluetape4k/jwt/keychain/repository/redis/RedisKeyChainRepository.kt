@@ -123,7 +123,8 @@ class RedisKeyChainRepository private constructor(
     }
 }
 
-private const val ROTATION_LOCK_WAIT_SECONDS = 5L
+/** Redis key-chain rotation lock 획득을 기다리는 최대 시간(초)입니다. */
+internal const val REDIS_ROTATION_LOCK_WAIT_SECONDS = 5L
 
 /**
  * Redis rotation 작업을 Redisson watchdog 기반 lock 소유권 안에서 실행합니다.
@@ -133,7 +134,7 @@ private const val ROTATION_LOCK_WAIT_SECONDS = 5L
  * 해제 오류를 suppressed exception으로 보존해 원래 오류를 주 오류로 유지합니다.
  */
 internal fun <T> withRedisRotationLock(lock: RLock, action: () -> T): T {
-    check(lock.tryLock(ROTATION_LOCK_WAIT_SECONDS, TimeUnit.SECONDS)) {
+    check(lock.tryLock(REDIS_ROTATION_LOCK_WAIT_SECONDS, TimeUnit.SECONDS)) {
         "Failed to acquire Redis keychain rotation lock."
     }
 
