@@ -357,6 +357,8 @@ unzip(File("project.zip"), File("output/"))
 unzip(File("project.zip"), File("output/"), "*.kt", "*.xml")
 ```
 
+`unzip` rejects archive traversal paths and refuses to follow symbolic links in the output path. Existing output directories and files are revalidated before writing to reduce symlink and TOCTOU risks.
+
 ### Serialization
 
 ```kotlin

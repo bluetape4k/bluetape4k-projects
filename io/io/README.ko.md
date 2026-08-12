@@ -357,6 +357,8 @@ unzip(File("project.zip"), File("output/"))
 unzip(File("project.zip"), File("output/"), "*.kt", "*.xml")
 ```
 
+`unzip`은 archive traversal 경로를 거부하고 출력 경로의 심볼릭 링크를 따라가지 않습니다. 기존 출력 디렉토리와 파일을 쓰기 전에 다시 검증하여 symlink 및 TOCTOU 위험을 줄입니다.
+
 ### 직렬화
 
 ```kotlin

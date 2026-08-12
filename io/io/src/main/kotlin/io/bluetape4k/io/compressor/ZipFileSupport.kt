@@ -14,7 +14,12 @@ import java.io.FileOutputStream
 import java.io.IOException
 import java.io.InputStream
 import java.io.OutputStream
+import java.nio.channels.Channels
 import java.nio.file.FileSystems
+import java.nio.file.Files
+import java.nio.file.LinkOption
+import java.nio.file.Path
+import java.nio.file.StandardOpenOption
 import java.util.zip.Deflater
 import java.util.zip.DeflaterOutputStream
 import java.util.zip.GZIPInputStream
@@ -301,7 +306,7 @@ fun unzip(zipFile: File, destDir: File, vararg patterns: String) {
         var entryCount = 0
         var declaredUncompressedSize = 0L
         var extractedUncompressedSize = 0L
-        val canonicalDestDir = destDir.canonicalFile
+        val canonicalDestDir = prepareZipDestination(destDir)
 
         while (entries.hasMoreElements()) {
             val entry = entries.nextElement()
@@ -328,21 +333,15 @@ fun unzip(zipFile: File, destDir: File, vararg patterns: String) {
                 if (!matched) continue
             }
 
-            val file = resolveZipTarget(canonicalDestDir, entryName)
+            val target = resolveZipTarget(canonicalDestDir, entryName)
 
             if (entry.isDirectory) {
-                if (!file.mkdirs() && !file.isDirectory) {
-                    throw IOException("Fail to create directory: $file")
-                }
+                createZipDirectories(canonicalDestDir, target)
             } else {
-                val parent = file.parentFile
-                if (parent != null && !parent.exists()) {
-                    if (!parent.mkdirs() && !parent.isDirectory) {
-                        throw IOException("Failed to create directory: $parent")
-                    }
-                }
+                createZipDirectories(canonicalDestDir, target.parent ?: canonicalDestDir)
+                verifyNoSymlinkPath(canonicalDestDir, target)
                 zip.getInputStream(entry).use { input ->
-                    FileOutputStream(file).buffered().use { output ->
+                    openZipOutput(target).buffered().use { output ->
                         extractedUncompressedSize += input.copyToLimited(
                             output = output,
                             remainingLimit = ZIP_MAX_UNCOMPRESSED_SIZE - extractedUncompressedSize,
@@ -357,12 +356,82 @@ fun unzip(zipFile: File, destDir: File, vararg patterns: String) {
     }
 }
 
-private fun resolveZipTarget(canonicalDestDir: File, entryName: String): File {
-    val targetFile = File(canonicalDestDir, entryName).canonicalFile
-    require(targetFile.toPath().startsWith(canonicalDestDir.toPath())) {
+private fun prepareZipDestination(destDir: File): Path {
+    val destination = destDir.toPath().toAbsolutePath().normalize()
+    if (Files.isSymbolicLink(destination)) {
+        throw IOException("ZIP 대상 디렉토리는 심볼릭 링크일 수 없습니다: $destDir")
+    }
+    Files.createDirectories(destination)
+    verifyNoSymlinkPath(destination, destination)
+    return destination.toRealPath()
+}
+
+private fun resolveZipTarget(canonicalDestDir: Path, entryName: String): Path {
+    val entryPath = Path.of(entryName)
+    require(!entryPath.isAbsolute) {
         "Zip entry is outside of the target dir: $entryName"
     }
-    return targetFile
+
+    val normalizedEntry = entryPath.normalize()
+    require(normalizedEntry.nameCount > 0 && normalizedEntry.toString() != ".") {
+        "Zip entry must not be empty: $entryName"
+    }
+
+    val targetPath = canonicalDestDir.resolve(normalizedEntry).normalize()
+    require(targetPath.startsWith(canonicalDestDir)) {
+        "Zip entry is outside of the target dir: $entryName"
+    }
+    return targetPath
+}
+
+private fun createZipDirectories(canonicalDestDir: Path, target: Path) {
+    val relative = canonicalDestDir.relativize(target)
+    var current = canonicalDestDir
+    for (part in relative) {
+        val child = current.resolve(part)
+        if (!Files.exists(child, LinkOption.NOFOLLOW_LINKS)) {
+            try {
+                Files.createDirectory(child)
+            } catch (_: java.nio.file.FileAlreadyExistsException) {
+                // 동시 생성자가 먼저 만든 경우이며, 아래 no-follow 검사가 안전성을 판단합니다.
+            }
+        }
+        if (Files.isSymbolicLink(child) || !Files.isDirectory(child, LinkOption.NOFOLLOW_LINKS)) {
+            throw IOException("ZIP 대상 경로에 심볼릭 링크 또는 파일이 있습니다: $child")
+        }
+        current = child
+    }
+    verifyNoSymlinkPath(canonicalDestDir, target)
+}
+
+private fun verifyNoSymlinkPath(canonicalDestDir: Path, target: Path) {
+    require(target.startsWith(canonicalDestDir)) {
+        "ZIP 대상 경로가 대상 디렉토리 밖에 있습니다: $target"
+    }
+
+    var current = canonicalDestDir
+    if (Files.isSymbolicLink(current)) {
+        throw IOException("ZIP 대상 디렉토리는 심볼릭 링크일 수 없습니다: $current")
+    }
+    for (part in canonicalDestDir.relativize(target)) {
+        current = current.resolve(part)
+        if (Files.isSymbolicLink(current)) {
+            throw IOException("ZIP 대상 경로에 심볼릭 링크가 있습니다: $current")
+        }
+    }
+}
+
+private fun openZipOutput(target: Path): OutputStream {
+    val channel = Files.newByteChannel(
+        target,
+        setOf(
+            StandardOpenOption.CREATE,
+            StandardOpenOption.TRUNCATE_EXISTING,
+            StandardOpenOption.WRITE,
+            LinkOption.NOFOLLOW_LINKS,
+        ),
+    )
+    return Channels.newOutputStream(channel)
 }
 
 private fun InputStream.copyToLimited(output: OutputStream, remainingLimit: Long): Long {
