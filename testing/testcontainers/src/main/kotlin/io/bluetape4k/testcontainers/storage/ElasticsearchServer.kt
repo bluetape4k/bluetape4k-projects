@@ -7,8 +7,10 @@ import io.bluetape4k.testcontainers.GenericServer
 import io.bluetape4k.testcontainers.PropertyExportingServer
 import io.bluetape4k.testcontainers.exposeCustomPorts
 import io.bluetape4k.utils.ShutdownQueue
+import org.testcontainers.containers.wait.strategy.Wait
 import org.testcontainers.elasticsearch.ElasticsearchContainer
 import org.testcontainers.utility.DockerImageName
+import java.time.Duration
 
 
 /**
@@ -113,6 +115,18 @@ class ElasticsearchServer private constructor(
         withReuse(reuse)
         withPassword(password)
         withEnv("ES_JAVA_OPTS", "-Xms512m -Xmx512m")
+
+        // Elasticsearch 9.x는 로그의 `started` 메시지보다 실제 HTTPS API 응답이
+        // 준비 상태를 더 정확하게 나타냅니다. 이미지 cold-start가 긴 CI에서도
+        // 인증된 API가 200을 반환할 때까지 기다려 로그 타이밍 경쟁을 피합니다.
+        waitingFor(
+            Wait.forHttps("/")
+                .forPort(PORT)
+                .withBasicCredentials("elastic", password)
+                .allowInsecure()
+                .forStatusCode(200)
+                .withStartupTimeout(Duration.ofMinutes(3))
+        )
 
         if (useDefaultPort) {
             exposeCustomPorts(PORT, TCP_PORT)
