@@ -10,6 +10,7 @@ import org.apache.pulsar.client.api.ClientBuilder
 import org.apache.pulsar.client.api.PulsarClient
 import org.testcontainers.pulsar.PulsarContainer
 import org.testcontainers.utility.DockerImageName
+import java.time.Duration
 
 /**
  * Apache Pulsar 테스트 서버 컨테이너를 실행하고 브로커 연결 정보를 제공합니다.
@@ -122,6 +123,13 @@ class PulsarServer private constructor(
     override fun start() {
         super.start()
         writeToSystemProperties()
+    }
+
+    override fun configure() {
+        super.configure()
+        // Pulsar의 standalone broker가 JVM/컨테이너 자원 경합 환경에서
+        // 기본 30초보다 늦게 HTTP admin endpoint를 열 수 있습니다.
+        getWaitStrategy().withStartupTimeout(Duration.ofMinutes(2))
     }
 
     /**
