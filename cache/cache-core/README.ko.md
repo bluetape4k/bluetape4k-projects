@@ -111,10 +111,11 @@ back을 조회하며, back hit는 front에 populate합니다. `clear`는 해당 
 
 공유 back cache를 사용하는 다른 wrapper의 front에 이미 들어간 값까지
 `clear`가 listener로 지운다고 보장하지 않습니다. peer 무효화가 필요하면
-기존 per-entry `removeAll` 경로를 사용하세요. `getAndRemove`와
-`getAndReplace`는 기존 front-only read 왕복을 유지하며, cross-tier compound
-원자성은 [#1355](https://github.com/bluetape4k/bluetape4k-projects/issues/1355)에서
-별도로 다룹니다.
+기존 per-entry `removeAll` 경로를 사용하세요. `getAndPut`, `getAndRemove`,
+`getAndReplace`는 back provider의 원자 compound 연산을 먼저 수행한 뒤
+local front를 조정합니다. 따라서 front를 먼저 읽고 back을 별도로 쓰는
+왕복을 사용하지 않으며, back provider 실패 시 front를 변경하기 전에
+예외를 전달합니다.
 
 기본 front 설정은 store-by-reference입니다. 필터링된 provider별 copier 계약이
 정해지기 전에는 custom store-by-value front 설정을 생성 단계에서 거부합니다.

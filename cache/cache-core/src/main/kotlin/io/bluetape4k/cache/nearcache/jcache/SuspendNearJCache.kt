@@ -149,20 +149,33 @@ class SuspendNearJCache<K: Any, V: Any> internal constructor(
         return frontCache.getAll(keys)
     }
 
+    /**
+     * Back Cache의 원자 compound 연산 결과를 기준으로 Front Cache를 동기화합니다.
+     * Front Cache만 먼저 조회하거나 `get` 후 변경하는 조합은 front miss와
+     * 동시 호출에서 JCache 반환값·정합성을 보장하지 못하므로 사용하지 않습니다.
+     */
     override suspend fun getAndPut(key: K, value: V): V? {
-        return frontCache.getAndPut(key, value)?.apply {
-            backCache.putIfAbsent(key, value)
-        }
+        val oldValue = backCache.getAndPut(key, value)
+        frontCache.put(key, value)
+        return oldValue
     }
 
     override suspend fun getAndRemove(key: K): V? {
         log.trace { "get and remove if exists cache entry. key=$key" }
-        return get(key)?.apply { remove(key) }
+        val oldValue = backCache.getAndRemove(key)
+        frontCache.remove(key)
+        return oldValue
     }
 
     override suspend fun getAndReplace(key: K, value: V): V? {
         log.trace { "get entry, and put new value if exists. key=$key, new value=$value" }
-        return get(key)?.apply { put(key, value) }
+        val oldValue = backCache.getAndReplace(key, value)
+        if (oldValue == null) {
+            frontCache.remove(key)
+        } else {
+            frontCache.put(key, value)
+        }
+        return oldValue
     }
 
     override suspend fun put(key: K, value: V) {

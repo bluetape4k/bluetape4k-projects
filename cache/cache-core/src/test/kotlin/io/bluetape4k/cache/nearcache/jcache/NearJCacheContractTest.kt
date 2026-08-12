@@ -462,22 +462,20 @@ class NearJCacheContractTest {
     }
 
     @Test
-    fun `compound getAndRemove와 getAndReplace는 front-only read 왕복을 유지한다`() {
+    fun `compound operation은 back 원자 연산 후 front를 동기화한다`() {
         val frontCache = mockk<JCache<String, String>>(relaxed = true)
         val backCache = mockk<JCache<String, String>>(relaxed = true)
-        every { frontCache.containsKey("remove") } returns true
-        every { frontCache.get("remove") } returns "remove-value"
-        every { frontCache.remove("remove") } returns true
-        every { frontCache.containsKey("replace") } returns true
-        every { frontCache.get("replace") } returns "old-value"
-        every { frontCache.put("replace", "new-value") } returns Unit
+        every { backCache.getAndRemove("remove") } returns "remove-value"
+        every { backCache.getAndReplace("replace", "new-value") } returns "old-value"
         val nearCache = newNearCache(frontCache, backCache)
 
         nearCache.getAndRemove("remove") shouldBeEqualTo "remove-value"
         nearCache.getAndReplace("replace", "new-value") shouldBeEqualTo "old-value"
 
-        verify(exactly = 0) { backCache.containsKey(any()) }
-        verify(exactly = 0) { backCache.get(any()) }
+        verify(exactly = 1) { backCache.getAndRemove("remove") }
+        verify(exactly = 1) { backCache.getAndReplace("replace", "new-value") }
+        verify(exactly = 1) { frontCache.remove("remove") }
+        verify(exactly = 1) { frontCache.put("replace", "new-value") }
     }
 
     private fun newNearCache(

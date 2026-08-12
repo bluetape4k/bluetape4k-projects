@@ -65,9 +65,10 @@ standard `get` and `clear` behavior.
 The clear operation does not promise invalidation of another wrapper's already
 populated front cache when the back cache is shared or listener propagation is
 unavailable. Use the existing per-entry `removeAll` path when peer invalidation
-is required. `getAndRemove` and `getAndReplace` keep their existing front-only
-read round trips; cross-tier compound atomicity is tracked separately in issue
-[#1355](https://github.com/bluetape4k/bluetape4k-projects/issues/1355).
+is required. `getAndPut`, `getAndRemove`, and `getAndReplace` use the back
+provider's atomic compound operation and then reconcile the local front cache;
+they do not implement a front-read/back-write round trip. A provider failure is
+propagated before the front cache is changed.
 
 The default front configuration uses store-by-reference. A custom store-by-value
 front configuration is rejected until a filtered, provider-specific copier

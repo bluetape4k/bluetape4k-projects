@@ -89,6 +89,13 @@ class HazelcastNearJCacheTest {
             cache.put("k", "v")
             cache.get("k") shouldBeEqualTo "v"
 
+            cache.getAndPut("compound", "v1").shouldBeNull()
+            cache.getAndPut("compound", "v2") shouldBeEqualTo "v1"
+            cache.getAndReplace("compound", "v3") shouldBeEqualTo "v2"
+            cache.getAndRemove("compound") shouldBeEqualTo "v3"
+            cache.get("compound").shouldBeNull()
+            cache.backCache.get("compound").shouldBeNull()
+
             cache.clear()
             cache.get("k").shouldBeNull()
             cache.getDeeply("k").shouldBeNull()
