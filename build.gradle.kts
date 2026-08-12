@@ -7,13 +7,18 @@ import io.bluetape4k.gradle.isPublishableLibraryProject
 import io.bluetape4k.gradle.isPublishedProject
 import io.bluetape4k.gradle.resolveCentralPublishingConfig
 import io.bluetape4k.gradle.resolvePublishingSigningConfig
+import io.bluetape4k.gradle.shouldSerializeTestcontainersTests
 import dev.detekt.gradle.Detekt
 import dev.detekt.gradle.report.ReportMergeTask
 import nmcp.NmcpAggregationExtension
 import nmcp.NmcpExtension
 import org.gradle.api.Project
+import org.gradle.api.artifacts.ProjectDependency
 import org.gradle.api.file.FileTree
 import org.gradle.api.tasks.compile.JavaCompile
+import org.gradle.api.tasks.testing.Test
+import org.gradle.api.services.BuildService
+import org.gradle.api.services.BuildServiceParameters
 import org.gradle.language.base.plugins.LifecycleBasePlugin
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.dsl.KotlinVersion
@@ -67,6 +72,15 @@ val centralSnapshotsParallelism: Int = providers
 val projectGroup: String by project
 val baseVersion: String by project
 val snapshotVersion: String by project
+
+abstract class TestcontainersMutexService: BuildService<BuildServiceParameters.None>
+
+val testcontainersMutex = gradle.sharedServices.registerIfAbsent(
+    "testcontainers-test-mutex",
+    TestcontainersMutexService::class,
+) {
+    maxParallelUsages.set(1)
+}
 
 allprojects {
     group = projectGroup
@@ -163,6 +177,21 @@ subprojects {
                 password.set(centralPassword)
                 publishingType.set("AUTOMATIC")
                 uploadSnapshotsParallelism.set(centralSnapshotsParallelism)
+            }
+        }
+    }
+
+    afterEvaluate {
+        val dependencyProjectPaths = configurations
+            .flatMap { configuration ->
+                configuration.dependencies
+                    .withType<ProjectDependency>()
+                    .map(ProjectDependency::getPath)
+            }
+
+        if (shouldSerializeTestcontainersTests(path, dependencyProjectPaths)) {
+            tasks.withType<Test>().configureEach {
+                usesService(testcontainersMutex)
             }
         }
     }
