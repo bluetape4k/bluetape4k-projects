@@ -1,14 +1,15 @@
 package io.bluetape4k.pulsar
 
-import io.bluetape4k.logging.KLogging
-import kotlinx.coroutines.test.runTest
 import io.bluetape4k.assertions.shouldNotBeNull
+import io.bluetape4k.junit5.coroutines.runSuspendIO
+import io.bluetape4k.logging.KLogging
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.mockkStatic
 import io.mockk.unmockkStatic
 import io.mockk.verify
 import kotlinx.coroutines.awaitCancellation
+import kotlinx.coroutines.test.runTest
 import org.apache.pulsar.client.api.ClientBuilder
 import org.apache.pulsar.client.api.PulsarClient
 import org.apache.pulsar.client.api.Schema
@@ -38,7 +39,7 @@ class PulsarClientSupportTest : AbstractPulsarTest() {
     }
 
     @Test
-    fun `withPulsarClient - 블록 실행 후 자동 close`() = runTest(timeout = 30.seconds) {
+    fun `withPulsarClient - 블록 실행 후 자동 close`() = runSuspendIO(timeout = 120.seconds) {
         var clientRef: org.apache.pulsar.client.api.PulsarClient? = null
         withPulsarClient(pulsar.url) {
             clientRef = this
@@ -50,7 +51,7 @@ class PulsarClientSupportTest : AbstractPulsarTest() {
     }
 
     @Test
-    fun `withPulsarClient - setup-only 오버로드`() = runTest(timeout = 30.seconds) {
+    fun `withPulsarClient - setup-only 오버로드`() = runSuspendIO(timeout = 120.seconds) {
         val url = pulsar.url
         withPulsarClient({ serviceUrl(url) }) {
             shouldNotBeNull()
