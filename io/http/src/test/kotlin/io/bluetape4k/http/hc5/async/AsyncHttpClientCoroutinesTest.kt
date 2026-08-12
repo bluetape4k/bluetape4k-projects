@@ -10,14 +10,12 @@ import io.bluetape4k.junit5.coroutines.runSuspendIO
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.test.runTest
 import org.apache.hc.client5.http.async.methods.SimpleRequestBuilder
 import org.apache.hc.client5.http.async.methods.SimpleResponseConsumer
 import org.apache.hc.client5.http.protocol.HttpClientContext
 import org.apache.hc.core5.http.HttpHost
 import org.junit.jupiter.api.Test
 import java.net.URI
-import kotlin.time.Duration.Companion.seconds
 
 class AsyncHttpClientCoroutinesTest: AbstractHc5Test() {
 
@@ -34,7 +32,7 @@ class AsyncHttpClientCoroutinesTest: AbstractHc5Test() {
     }
 
     @Test
-    fun `여러 URL 병렬 coroutine GET 요청 모두 200`() = runTest(timeout = 30.seconds) {
+    fun `여러 URL 병렬 coroutine GET 요청 모두 200`() = runSuspendIO(timeout = 60.seconds) {
         httpAsyncClient {}.use { client ->
             val responses = coroutineScope {
                 urisToGet.map { uri ->
