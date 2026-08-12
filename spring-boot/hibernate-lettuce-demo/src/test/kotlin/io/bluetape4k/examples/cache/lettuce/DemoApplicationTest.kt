@@ -5,20 +5,23 @@ import io.bluetape4k.examples.cache.lettuce.repository.ProductRepository
 import io.bluetape4k.testcontainers.storage.RedisServer
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldHaveSize
+import io.bluetape4k.assertions.shouldNotBeBlank
 import io.bluetape4k.assertions.shouldNotBeNull
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.http.HttpStatus
 import org.springframework.test.context.DynamicPropertyRegistry
 import org.springframework.test.context.DynamicPropertySource
+import org.springframework.test.web.servlet.MockMvc
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
+import org.springframework.test.web.servlet.setup.MockMvcBuilders
 import org.springframework.transaction.annotation.Transactional
-import org.springframework.web.client.RestClient
-import org.springframework.web.client.toEntity
+import org.springframework.web.context.WebApplicationContext
 
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK)
 class DemoApplicationTest {
 
     companion object {
@@ -36,17 +39,15 @@ class DemoApplicationTest {
     @Autowired
     private lateinit var productRepository: ProductRepository
 
-    @Value("\${local.server.port}")
-    private var port: Int = 0
+    @Autowired
+    private lateinit var applicationContext: WebApplicationContext
 
-    private lateinit var client: RestClient
+    private lateinit var mockMvc: MockMvc
 
     @BeforeEach
     fun setup() {
         productRepository.deleteAll()
-        client = RestClient.builder()
-            .baseUrl("http://localhost:$port")
-            .build()
+        mockMvc = MockMvcBuilders.webAppContextSetup(applicationContext).build()
     }
 
     @Test
@@ -104,13 +105,10 @@ class DemoApplicationTest {
         val product = productRepository.save(Product(name = "Mac Studio", price = 1_999.0))
         productRepository.findById(product.id!!).orElseThrow()
 
-        val response = client.get()
-            .uri("/api/cache/stats")
-            .retrieve()
-            .toEntity<String>()
+        val response = mockMvc.perform(get("/api/cache/stats")).andReturn()
 
-        response.statusCode shouldBeEqualTo HttpStatus.OK
-        response.body.shouldNotBeNull()
+        response.response.status shouldBeEqualTo HttpStatus.OK.value()
+        response.response.contentAsString.shouldNotBeBlank()
     }
 
     @Test
@@ -118,18 +116,12 @@ class DemoApplicationTest {
         val product = productRepository.save(Product(name = "Vision Pro", price = 3_499.0))
         productRepository.findById(product.id!!).orElseThrow()
 
-        val before = client.get()
-            .uri("/api/cache/stats")
-            .retrieve()
-            .toEntity<String>()
-        before.statusCode shouldBeEqualTo HttpStatus.OK
+        val before = mockMvc.perform(get("/api/cache/stats")).andReturn()
+        before.response.status shouldBeEqualTo HttpStatus.OK.value()
 
-        val evict = client.delete()
-            .uri("/api/cache/evict")
-            .retrieve()
-            .toEntity<String>()
+        val evict = mockMvc.perform(delete("/api/cache/evict")).andReturn()
 
-        evict.statusCode shouldBeEqualTo HttpStatus.OK
-        evict.body.shouldNotBeNull()
+        evict.response.status shouldBeEqualTo HttpStatus.OK.value()
+        evict.response.contentAsString.shouldNotBeBlank()
     }
 }
