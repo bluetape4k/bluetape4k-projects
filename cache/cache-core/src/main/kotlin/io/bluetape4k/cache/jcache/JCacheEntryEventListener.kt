@@ -29,7 +29,7 @@ import javax.cache.event.CacheEntryUpdatedListener
  * @property targetCache [javax.cache.event.CacheEntryEvent]가 반영될 Local Cache
  * @property eventHandler 선택적으로 이벤트 적용 경계를 호출하는 핸들러
  */
-class JCacheEntryEventListener<K, V>(
+class JCacheEntryEventListener<K, V> @JvmOverloads constructor(
     private val targetCache: JCache<K, V>,
     private val eventHandler: ((EventType, List<CacheEntryEvent<out K, out V>>) -> Unit)? = null,
 ): CacheEntryCreatedListener<K, V>,
