@@ -304,7 +304,9 @@ class NearJCacheContractTest {
         every { frontCache.putAll(mapOf("key" to "value")) } throws failure
         val nearCache = newNearCache(frontCache, backCache)
 
-        assertFailsWith<CancellationException> { nearCache.getAll(setOf("key")) }.message shouldBeEqualTo failure.message
+        assertFailsWith<CancellationException> {
+            nearCache.getAll(setOf("key"))
+        }.message shouldBeEqualTo failure.message
     }
 
     @Test
