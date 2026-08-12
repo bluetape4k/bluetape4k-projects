@@ -48,7 +48,9 @@ fun <T> Flow<T>.bufferingDebounce(timeout: Duration): Flow<List<T>> = flow {
                 }
                 itemChannel.onReceiveCatching { result ->
                     val receiveTimeNs = System.nanoTime()
-                    deboundedTimeout -= (receiveTimeNs - prevTimeNs).nanoseconds
+                    if (bufferedItems.isNotEmpty()) {
+                        deboundedTimeout -= (receiveTimeNs - prevTimeNs).nanoseconds
+                    }
                     prevTimeNs = receiveTimeNs
                     result
                         .onSuccess { item -> bufferedItems.add(item) }
