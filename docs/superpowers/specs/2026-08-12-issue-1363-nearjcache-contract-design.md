@@ -105,6 +105,13 @@ back mutation은 `backWriteLock` 아래에서 실행한다. 표준 mutation마�
 late backend write가 `clear()` 반환 뒤 back 값을 되살릴 수 없다. clear 중 새
 mutation은 gate가 풀린 뒤 새 generation으로 시작한다.
 
+NearJCache가 등록한 back listener는 동일한 `mutationGate`를 통해 front를 갱신하고
+이벤트 적용 때마다 `mutationEpoch`를 증가시킨다. 따라서 listener update/remove와
+동시 진행 중인 read-through도 stale 값을 front에 덮어쓰지 않는다. `clear()`는
+listener를 먼저 비활성화·deregister하고 front/back clear barrier를 완료한 뒤
+새 registration을 설치한다. 이미 큐에 들어온 이전 registration의 callback은
+active 세대 검사를 통과하지 못하므로 clear 이후 front를 재점유할 수 없다.
+
 ### compound operation 경계
 
 `getAndPut`, `getAndRemove`, `getAndReplace`, `putIfAbsent`, `replace`의
@@ -119,7 +126,8 @@ back을 조회하게 되더라도 compound 메서드는 내부 `frontContainsKey
 `NearJCacheConfig.getDefaultFrontCacheConfiguration()`은
 `setStoreByValue(false)`를 사용해 기본 Caffeine front cache를
 store-by-reference로 만든다. `NearJCache`는 `frontCacheConfiguration`이
-store-by-value로 설정된 custom config를 fail-closed로 거부한다. 따라서
+store-by-value로 설정된 custom config와 실제 전달된 front cache의
+`Configuration.isStoreByValue`가 true인 경우를 모두 fail-closed로 거부한다. 따라서
 back 값을 자동 populate할 때 필터 없는 Java serialization copier가 기본
 경로에 들어오지 않는다. 운영자가 별도 provider/copy 정책을 선택해야 하는
 경우에는 해당 provider의 안전한 serialization/filter 정책을 별도 설계해야
@@ -181,6 +189,11 @@ key, value, raw payload, credential 또는 provider payload를 기록하지 않�
    추가하지 않는지 호출 수로 검증한다.
 11. 기존 backend fixture(Lettuce, Redisson, Hazelcast, Cache2k, Ehcache)의
    지원/degraded/unsupported 경계를 깨지 않는지 순차 검증한다.
+12. clear 전에 전달된 listener update/create/remove 이벤트가 clear 이후
+   front를 재점유하지 않는지, listener update와 read-through 경합에서 stale
+   populate가 차단되는지 검증한다.
+13. `get`/`getAll` front populate에서 `CancellationException`이 재전파되고,
+   listener/populate 로그에 raw key/value/payload가 포함되지 않는지 검증한다.
 
 compound operation 테스트는 #1355에 중복 등록하지 않으며, 이번 변경으로
 새롭게 노출되는 경계가 있으면 해당 이슈에 연결만 남긴다.
@@ -192,6 +205,7 @@ compound operation 테스트는 #1355에 중복 등록하지 않으며, 이번 �
 | back read가 실패함 | provider 예외를 숨기지 않고 호출자에게 전달; 대상 테스트에서 예외 계약 확인 |
 | front populate가 실패함 | back에서 확보한 값은 반환하고 경고 로그 기록; 다음 read가 재시도 가능해야 함 |
 | read-through와 mutation이 경합함 | epoch가 바뀌면 populate를 건너뛰고, stale 값을 front에 저장하지 않음 |
+| listener event가 read/clear와 경합함 | listener를 mutation gate에 연결하고 epoch/active registration 세대로 stale 적용을 차단 |
 | timeout-late write가 clear와 경합함 | backWriteLock과 epoch barrier로 실제 backend 호출 종료 후 clear를 수행 |
 | 공유 back `clear` 후 peer front가 stale함 | `clear`는 peer listener 전파를 보장하지 않는다고 문서·matrix에 명시; peer 전파는 `removeAll` 사용 |
 | 기존 테스트가 front-only 가정을 고정함 | 계약 테스트를 표준 `Cache` 기준으로 전환하고, peer/degraded 테스트는 의도한 경계를 분리 |
@@ -206,8 +220,11 @@ compound operation 테스트는 #1355에 중복 등록하지 않으며, 이번 �
 - [ ] `clear`가 해당 front/back를 지우고 peer 전파 한계를 문서화한다.
 - [ ] `getDeeply`·`clearAllCache` 호환 동작이 고정된다.
 - [ ] mutation epoch와 back-write barrier가 동시 read/clear 및 timeout-late write의 stale 재삽입을 차단한다.
+- [ ] listener event가 동일한 mutation gate/epoch와 clear 세대 경계를 통과한다.
 - [ ] `getAll` bulk 호출 수와 compound front-only 경계가 회귀 테스트로 고정된다.
 - [ ] 기본 front config가 store-by-reference이며 store-by-value custom config를 fail-closed한다.
+- [ ] 실제 front cache configuration도 store-by-value이면 생성이 fail-closed한다.
+- [ ] cancellation 재전파와 raw payload 없는 로그 회귀 테스트가 통과한다.
 - [ ] `README.md`, `README.ko.md`, capability matrix가 동일한 계약을 설명한다.
 - [ ] `:bluetape4k-cache-core:test`와 영향 backend 검증이 통과한다.
 - [ ] `git diff --check`, Kotlin checklist, Type-A pre-PR review에서 P0/P1이 0건이다.

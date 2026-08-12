@@ -2,6 +2,7 @@ package io.bluetape4k.cache.nearcache.jcache
 
 import io.bluetape4k.cache.jcache.JCache
 import io.bluetape4k.cache.jcache.JCacheEntryEventListener
+import io.bluetape4k.cache.jcache.getConfiguration
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.error
@@ -21,7 +22,11 @@ import java.util.concurrent.atomic.AtomicLong
 import java.util.concurrent.atomic.AtomicReference
 import java.util.concurrent.locks.ReentrantLock
 import javax.cache.Cache
+import javax.cache.configuration.CacheEntryListenerConfiguration
+import javax.cache.configuration.Configuration
 import javax.cache.configuration.MutableCacheEntryListenerConfiguration
+import javax.cache.event.CacheEntryEvent
+import javax.cache.event.EventType
 import kotlin.concurrent.withLock
 
 /**
@@ -69,6 +74,7 @@ data class BackCacheWriteCompletion(
  * @see NearJCacheConfig
  * @see io.bluetape4k.cache.jcache.JCacheEntryEventListener
  */
+@Suppress("TooManyFunctions")
 class NearJCache<K: Any, V: Any>(
     val frontCache: JCache<K, V>,
     val backCache: JCache<K, V>,
@@ -78,6 +84,10 @@ class NearJCache<K: Any, V: Any>(
         require(!config.frontCacheConfiguration.isStoreByValue) {
             "NearJCache front cache must use store-by-reference; " +
                     "configure a filtered copier before enabling store-by-value"
+        }
+        require(!frontCache.getConfiguration<K, V, Configuration<K, V>>().isStoreByValue) {
+            "NearJCache actual front cache must use store-by-reference; " +
+                    "the supplied cache configuration is store-by-value"
         }
     }
 
@@ -100,10 +110,15 @@ class NearJCache<K: Any, V: Any>(
          * @param backCache 분산 환경에서 사용할 원격 캐시 인스턴스
          * @return [NearJCache] 인스턴스
          */
+        @Suppress("TooGenericExceptionCaught")
         operator fun <K: Any, V: Any> invoke(
             nearCacheCfg: NearJCacheConfig<K, V>,
             backCache: JCache<K, V>,
         ): NearJCache<K, V> {
+            require(!nearCacheCfg.frontCacheConfiguration.isStoreByValue) {
+                "NearJCache front cache must use store-by-reference; " +
+                        "configure a filtered copier before enabling store-by-value"
+            }
             val frontCacheManager = nearCacheCfg.cacheManagerFactory.create()
 
             // back cache의 event를 수신하여 반영할 front cache 생성
@@ -111,27 +126,29 @@ class NearJCache<K: Any, V: Any>(
             val frontCache =
                 frontCacheManager.createCache(nearCacheCfg.cacheName, nearCacheCfg.frontCacheConfiguration)
 
-            // back cache의 event를 받아 front cache에 반영합니다.
-            val jCacheEntryEventListenerCfg =
-                MutableCacheEntryListenerConfiguration(
-                    { JCacheEntryEventListener(frontCache) },
-                    null,
-                    false,
-                    nearCacheCfg.isSynchronous
-                )
-            log.info { "back cache의 이벤트를 수신할 수 있도록 listener 등록. listenerCfg=$jCacheEntryEventListenerCfg" }
-            backCache.registerCacheEntryListener(jCacheEntryEventListenerCfg)
-
             log.info { "Create NearCache instance. config=$nearCacheCfg" }
-            return NearJCache(frontCache, backCache, nearCacheCfg)
+            return try {
+                NearJCache(frontCache, backCache, nearCacheCfg).also {
+                    it.registerBackCacheListener()
+                }
+            } catch (e: RuntimeException) {
+                runCatching { frontCache.close() }
+                throw e
+            }
         }
     }
 
     private val lock = ReentrantLock()
     private val mutationGate = ReentrantLock()
     private val backWriteLock = ReentrantLock(true)
+    private val listenerRegistrationLock = ReentrantLock()
     private val mutationEpoch = AtomicLong()
     private val backWriteGeneration = AtomicLong()
+    private class BackCacheListenerRegistration<K: Any, V: Any>(
+        val configuration: CacheEntryListenerConfiguration<K, V>,
+        val active: AtomicReference<Boolean> = AtomicReference(true),
+    )
+    private val backCacheListener = AtomicReference<BackCacheListenerRegistration<K, V>?>(null)
     private data class BackCacheWriteState(
         val operationId: Long,
         val operation: String,
@@ -182,17 +199,58 @@ class NearJCache<K: Any, V: Any>(
     override fun iterator(): MutableIterator<Cache.Entry<K, V>> = frontCache.iterator()
 
     override fun clear() {
-        mutationGate.withLock {
-            mutationEpoch.incrementAndGet()
-            val expectedBackWriteGeneration = backWriteGeneration.incrementAndGet()
-            log.debug { "Near Cache의 Front와 Back cache를 Clear합니다." }
-            frontCache.clear()
-            syncBackCache(
-                operation = "clear",
-                synchronous = true,
-                expectedBackWriteGeneration = expectedBackWriteGeneration,
-            ) {
-                backCache.clear()
+        val hadBackCacheListener = backCacheListener.get() != null
+        detachBackCacheListener()
+        try {
+            mutationGate.withLock {
+                mutationEpoch.incrementAndGet()
+                val expectedBackWriteGeneration = backWriteGeneration.incrementAndGet()
+                log.debug { "Near Cache의 Front와 Back cache를 Clear합니다." }
+                frontCache.clear()
+                syncBackCache(
+                    operation = "clear",
+                    synchronous = true,
+                    expectedBackWriteGeneration = expectedBackWriteGeneration,
+                ) {
+                    backCache.clear()
+                }
+            }
+        } finally {
+            if (hadBackCacheListener) registerBackCacheListener()
+        }
+    }
+
+    /**
+     * Back Cache 이벤트를 이 NearJCache의 mutation gate로 연결합니다.
+     *
+     * 기본 팩토리는 자동으로 호출합니다. 직접 생성자를 사용하는 외부 팩토리는
+     * 이벤트 기반 Front 동기화가 필요할 때 한 번 호출해야 하며, 이미 등록된 경우
+     * 중복 등록하지 않습니다.
+     */
+    @Suppress("TooGenericExceptionCaught")
+    fun registerBackCacheListener() {
+        listenerRegistrationLock.withLock {
+            if (backCacheListener.get() != null) return
+
+            lateinit var registration: BackCacheListenerRegistration<K, V>
+            val listener = JCacheEntryEventListener<K, V>(frontCache) { eventType, events ->
+                applyBackCacheEvents(registration, eventType, events)
+            }
+            val configuration = MutableCacheEntryListenerConfiguration(
+                { listener },
+                null,
+                false,
+                config.isSynchronous
+            )
+            registration = BackCacheListenerRegistration(configuration)
+            backCacheListener.set(registration)
+            try {
+                log.info { "back cache 이벤트 listener 등록. cache=${config.cacheName}" }
+                backCache.registerCacheEntryListener(configuration)
+            } catch (e: RuntimeException) {
+                backCacheListener.compareAndSet(registration, null)
+                registration.active.set(false)
+                throw e
             }
         }
     }
@@ -220,6 +278,7 @@ class NearJCache<K: Any, V: Any>(
     }
 
     override fun close() {
+        detachBackCacheListener()
         lock.withLock {
             log.debug { "Near Cache 의 Front Cache를 Close 합니다." }
             runCatching {
@@ -249,6 +308,7 @@ class NearJCache<K: Any, V: Any>(
      * 않습니다. Front populate 실패 중 [RuntimeException]은 Back에서 확보한 값을
      * 호출자에게 반환하고, [Error]와 Back 조회 예외는 숨기지 않습니다.
      */
+    @Suppress("ReturnCount", "TooGenericExceptionCaught")
     override operator fun get(key: K): V? {
         val (frontValue, observedEpoch) = mutationGate.withLock {
             frontCache.get(key) to mutationEpoch.get()
@@ -262,6 +322,8 @@ class NearJCache<K: Any, V: Any>(
             if (mutationEpoch.get() == observedEpoch) {
                 try {
                     frontCache.put(key, backValue)
+                } catch (e: CancellationException) {
+                    throw e
                 } catch (e: RuntimeException) {
                     log.warn(e) {
                         "NearJCache front populate failed. operation=get, " +
@@ -291,6 +353,7 @@ class NearJCache<K: Any, V: Any>(
 
     fun getAll(vararg keys: K): MutableMap<K, V> = getAll(keys.toSet())
 
+    @Suppress("TooGenericExceptionCaught")
     override fun getAll(keys: Set<K>): MutableMap<K, V> {
         val (frontValues, missingKeys, observedEpoch) = mutationGate.withLock {
             val values = frontCache.getAll(keys)
@@ -307,6 +370,8 @@ class NearJCache<K: Any, V: Any>(
                 if (mutationEpoch.get() == observedEpoch) {
                     try {
                         frontCache.putAll(backValues)
+                    } catch (e: CancellationException) {
+                        throw e
                     } catch (e: RuntimeException) {
                         log.warn(e) {
                             "NearJCache front populate failed. operation=getAll, " +
@@ -536,6 +601,10 @@ class NearJCache<K: Any, V: Any>(
                 completion
             } catch (e: RuntimeException) {
                 completion.completeExceptionally(e)
+                log.error(e) {
+                    "NearJCache synchronous back cache write failed. operation=$operation, " +
+                            "cache=${config.cacheName}, provider=${backCache.javaClass.name}"
+                }
                 throw e
             }
         }
@@ -636,4 +705,30 @@ class NearJCache<K: Any, V: Any>(
             is CompletionException, is ExecutionException -> error.cause ?: error
             else -> error
         }
+
+    private fun detachBackCacheListener() {
+        listenerRegistrationLock.withLock {
+            val registration = backCacheListener.getAndSet(null) ?: return
+            registration.active.set(false)
+            backCache.deregisterCacheEntryListener(registration.configuration)
+        }
+    }
+
+    private fun applyBackCacheEvents(
+        registration: BackCacheListenerRegistration<K, V>,
+        eventType: EventType,
+        events: List<CacheEntryEvent<out K, out V>>,
+    ) {
+        if (!registration.active.get()) return
+        mutationGate.withLock {
+            if (!registration.active.get() || backCacheListener.get() !== registration) return
+            mutationEpoch.incrementAndGet()
+            when (eventType) {
+                EventType.CREATED, EventType.UPDATED ->
+                    frontCache.putAll(events.associate { it.key to it.value })
+                EventType.REMOVED, EventType.EXPIRED ->
+                    frontCache.removeAll(events.map { it.key }.toSet())
+            }
+        }
+    }
 }

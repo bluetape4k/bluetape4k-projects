@@ -36,7 +36,7 @@ class HazelcastNearJCacheTest {
         }
         failure.message shouldContain "MutableCacheEntryListenerConfiguration"
         failure.stackTraceToString() shouldContain "NotSerializableException"
-        failure.stackTraceToString() shouldContain "com.github.benmanes.caffeine.jcache.CacheProxy"
+        failure.stackTraceToString() shouldContain "JCacheEntryEventListener"
     }
 
     @Test

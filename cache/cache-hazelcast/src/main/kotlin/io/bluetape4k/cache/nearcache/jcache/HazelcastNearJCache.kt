@@ -3,12 +3,10 @@ package io.bluetape4k.cache.nearcache.jcache
 import com.hazelcast.core.HazelcastInstance
 import io.bluetape4k.cache.jcache.HazelcastJCaching
 import io.bluetape4k.cache.jcache.JCache
-import io.bluetape4k.cache.jcache.JCacheEntryEventListener
 import io.bluetape4k.cache.jcache.getDefaultJCacheConfiguration
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.info
 import javax.cache.configuration.Configuration
-import javax.cache.configuration.MutableCacheEntryListenerConfiguration
 
 /**
  * Hazelcast JCache 기반 [NearJCache] 팩토리 오브젝트입니다.
@@ -54,21 +52,12 @@ object HazelcastNearJCache: KLogging() {
         configuration: Configuration<K, V> = getDefaultJCacheConfiguration(),
         nearCacheCfg: NearJCacheConfig<K, V>,
     ): NearJCache<K, V> {
-        // back cache의 event를 받아 front cache에 반영합니다.
-        val cacheEntryEventListenerCfg =
-            MutableCacheEntryListenerConfiguration(
-                { JCacheEntryEventListener(frontCache) },
-                null,
-                false,
-                nearCacheCfg.isSynchronous
-            )
-
         val backCache: JCache<K, V> =
             HazelcastJCaching.getOrCreate(hazelcastInstance, nearCacheCfg.cacheName, configuration)
-        log.info { "back cache의 이벤트를 수신할 수 있도록 listener 등록. listenerCfg=$cacheEntryEventListenerCfg" }
-        backCache.registerCacheEntryListener(cacheEntryEventListenerCfg)
 
         log.info { "Create NearCache instance. config=$nearCacheCfg" }
-        return NearJCache(frontCache, backCache, nearCacheCfg)
+        return NearJCache(frontCache, backCache, nearCacheCfg).also {
+            it.registerBackCacheListener()
+        }
     }
 }

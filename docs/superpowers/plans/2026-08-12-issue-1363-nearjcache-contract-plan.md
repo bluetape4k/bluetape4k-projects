@@ -63,6 +63,7 @@ Expected: FAIL because standard `get`, `containsKey`, `getAll`, and `clear` curr
   waits for the actual backend call before returning. Add tests that front
   population catches `RuntimeException` but rethrows `Error`, and that captured
   logs contain operation/provider metadata only (no key/value/payload). Add
+  listener update/clear-generation tests and cancellation rethrow tests. Add
   call-count tests for `getAndRemove` and `getAndReplace` proving their
   front-only helpers do not introduce the new standard back read round trips.
 
@@ -71,8 +72,9 @@ Expected: FAIL because standard `get`, `containsKey`, `getAll`, and `clear` curr
   Assert the default `NearJCacheConfig` sets `isStoreByValue == false` and that
   constructing `NearJCache` with a custom store-by-value front configuration
   fails closed with a clear `IllegalArgumentException` before any back value is
-  read or populated. This keeps the default auto-populate path away from an
-  unfiltered Java serialization copier.
+  read or populated. Also reject a directly supplied front cache whose actual
+  `Configuration.isStoreByValue` is true. This keeps the default auto-populate
+  path away from an unfiltered Java serialization copier.
 
 ## Task 2: Implement the two-tier contract with epoch and backend barriers (GREEN)
 
