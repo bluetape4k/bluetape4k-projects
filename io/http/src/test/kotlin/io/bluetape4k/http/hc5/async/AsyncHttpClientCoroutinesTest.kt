@@ -15,6 +15,7 @@ import org.apache.hc.client5.http.async.methods.SimpleResponseConsumer
 import org.apache.hc.client5.http.protocol.HttpClientContext
 import org.apache.hc.core5.http.HttpHost
 import org.junit.jupiter.api.Test
+import kotlin.time.Duration.Companion.seconds
 import java.net.URI
 
 class AsyncHttpClientCoroutinesTest: AbstractHc5Test() {
