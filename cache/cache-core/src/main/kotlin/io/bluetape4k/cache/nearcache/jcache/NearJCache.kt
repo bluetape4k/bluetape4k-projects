@@ -198,9 +198,11 @@ class NearJCache<K: Any, V: Any>(
 
     override fun iterator(): MutableIterator<Cache.Entry<K, V>> = frontCache.iterator()
 
+    @Suppress("TooGenericExceptionCaught")
     override fun clear() {
         val hadBackCacheListener = backCacheListener.get() != null
         detachBackCacheListener()
+        var primaryFailure: Throwable? = null
         try {
             mutationGate.withLock {
                 mutationEpoch.incrementAndGet()
@@ -215,9 +217,21 @@ class NearJCache<K: Any, V: Any>(
                     backCache.clear()
                 }
             }
-        } finally {
-            if (hadBackCacheListener) registerBackCacheListener()
+        } catch (e: Throwable) {
+            primaryFailure = e
         }
+        if (hadBackCacheListener) {
+            try {
+                registerBackCacheListener()
+            } catch (registrationFailure: Throwable) {
+                if (primaryFailure == null) {
+                    primaryFailure = registrationFailure
+                } else if (registrationFailure !== primaryFailure) {
+                    primaryFailure.addSuppressed(registrationFailure)
+                }
+            }
+        }
+        primaryFailure?.let { throw it }
     }
 
     /**
@@ -247,9 +261,13 @@ class NearJCache<K: Any, V: Any>(
             try {
                 log.info { "back cache 이벤트 listener 등록. cache=${config.cacheName}" }
                 backCache.registerCacheEntryListener(configuration)
-            } catch (e: RuntimeException) {
+            } catch (e: Throwable) {
                 backCacheListener.compareAndSet(registration, null)
                 registration.active.set(false)
+                log.error(e) {
+                    "NearJCache back cache listener registration failed. " +
+                            "operation=register, cache=${config.cacheName}"
+                }
                 throw e
             }
         }
