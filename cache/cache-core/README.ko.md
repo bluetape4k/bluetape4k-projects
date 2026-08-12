@@ -103,6 +103,22 @@ val value = memo("recover")      // 새로 계산하여 7 반환
 `JCache<K,V>` / `SuspendJCache<K,V>` 인터페이스를 직접 구현하는 2-tier 캐시입니다. `JCache<K,V> by backCache` 위임으로 JCache 호환성을 유지하며,
 `NearJCacheConfig` Builder DSL로 설정할 수 있습니다.
 
+`NearJCache<K,V>`의 표준 `javax.cache.Cache` 메서드는 논리적 2-tier 캐시를
+관찰합니다. `get`, `containsKey`, `getAll`은 front를 먼저 확인하고 miss이면
+back을 조회하며, back hit는 front에 populate합니다. `clear`는 해당 wrapper가
+소유한 front와 back의 매핑을 함께 삭제합니다. 기존 `getDeeply`와
+`clearAllCache` 이름은 각각 표준 `get`과 `clear`의 소스 호환 alias로 유지됩니다.
+
+공유 back cache를 사용하는 다른 wrapper의 front에 이미 들어간 값까지
+`clear`가 listener로 지운다고 보장하지 않습니다. peer 무효화가 필요하면
+기존 per-entry `removeAll` 경로를 사용하세요. `getAndRemove`와
+`getAndReplace`는 기존 front-only read 왕복을 유지하며, cross-tier compound
+원자성은 [#1355](https://github.com/bluetape4k/bluetape4k-projects/issues/1355)에서
+별도로 다룹니다.
+
+기본 front 설정은 store-by-reference입니다. 필터링된 provider별 copier 계약이
+정해지기 전에는 custom store-by-value front 설정을 생성 단계에서 거부합니다.
+
 ##### SuspendJCache 인터페이스
 
 ![SuspendJCache coroutine interface diagram](../../docs/images/readme-diagrams/cache-cache-core-diagram-04.png)

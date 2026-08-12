@@ -53,6 +53,26 @@ Add the appropriate provider module if you need distributed caching.
 
 ## Detailed Features
 
+### JCache NearCache contract
+
+`NearJCache<K,V>` is a logical two-tier implementation of `javax.cache.Cache`.
+Standard `get`, `containsKey`, and `getAll` check the front cache first, fall
+back to the back cache on a miss, and populate the front cache with back hits.
+Standard `clear` removes mappings from both layers owned by the wrapper. The
+`getDeeply` and `clearAllCache` names remain source-compatible aliases for the
+standard `get` and `clear` behavior.
+
+The clear operation does not promise invalidation of another wrapper's already
+populated front cache when the back cache is shared or listener propagation is
+unavailable. Use the existing per-entry `removeAll` path when peer invalidation
+is required. `getAndRemove` and `getAndReplace` keep their existing front-only
+read round trips; cross-tier compound atomicity is tracked separately in issue
+[#1355](https://github.com/bluetape4k/bluetape4k-projects/issues/1355).
+
+The default front configuration uses store-by-reference. A custom store-by-value
+front configuration is rejected until a filtered, provider-specific copier
+contract is supplied.
+
 ## Near-Cache Capability Matrix
 
 The shared support boundary for native and JCache near-cache variants is tracked

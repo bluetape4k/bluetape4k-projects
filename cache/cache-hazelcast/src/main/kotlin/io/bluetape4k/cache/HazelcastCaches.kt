@@ -252,10 +252,15 @@ object HazelcastCaches: KLogging() {
      * @param config [NearJCacheConfig] 설정
      * @return [NearJCache] 인스턴스
      */
+    @Suppress("TooGenericExceptionCaught")
     inline fun <reified K: Any, reified V: Any> nearJCache(
         hazelcastInstance: HazelcastInstance,
         config: NearJCacheConfig<K, V>,
     ): NearJCache<K, V> {
+        require(!config.frontCacheConfiguration.isStoreByValue) {
+            "NearJCache front cache must use store-by-reference; " +
+                    "configure a filtered copier before enabling store-by-value"
+        }
         val configuration = MutableConfiguration<K, V>().apply {
             setTypes(K::class.java, V::class.java)
         }
@@ -271,7 +276,12 @@ object HazelcastCaches: KLogging() {
             frontCacheManager.createCache(config.cacheName, config.frontCacheConfiguration)
 
         log.info { "NearJCache 생성. config=$config" }
-        return NearJCache(frontCache, backCache, config)
+        return try {
+            NearJCache(frontCache, backCache, config)
+        } catch (e: RuntimeException) {
+            runCatching { frontCache.close() }
+            throw e
+        }
     }
 
     /**

@@ -2,6 +2,7 @@ package io.bluetape4k.cache.nearcache.jcache
 
 import io.bluetape4k.cache.jcache.JCache
 import io.bluetape4k.cache.jcache.JCacheEntryEventListener
+import io.bluetape4k.cache.jcache.getConfiguration
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.error
@@ -21,7 +22,11 @@ import java.util.concurrent.atomic.AtomicLong
 import java.util.concurrent.atomic.AtomicReference
 import java.util.concurrent.locks.ReentrantLock
 import javax.cache.Cache
+import javax.cache.configuration.CacheEntryListenerConfiguration
+import javax.cache.configuration.Configuration
 import javax.cache.configuration.MutableCacheEntryListenerConfiguration
+import javax.cache.event.CacheEntryEvent
+import javax.cache.event.EventType
 import kotlin.concurrent.withLock
 
 /**
@@ -69,11 +74,23 @@ data class BackCacheWriteCompletion(
  * @see NearJCacheConfig
  * @see io.bluetape4k.cache.jcache.JCacheEntryEventListener
  */
+@Suppress("TooManyFunctions")
 class NearJCache<K: Any, V: Any>(
     val frontCache: JCache<K, V>,
     val backCache: JCache<K, V>,
     private val config: NearJCacheConfig<K, V>,
 ): JCache<K, V> by backCache {
+    init {
+        require(!config.frontCacheConfiguration.isStoreByValue) {
+            "NearJCache front cache must use store-by-reference; " +
+                    "configure a filtered copier before enabling store-by-value"
+        }
+        require(!frontCache.getConfiguration<K, V, Configuration<K, V>>().isStoreByValue) {
+            "NearJCache actual front cache must use store-by-reference; " +
+                    "the supplied cache configuration is store-by-value"
+        }
+    }
+
     companion object: KLogging() {
         /** Redis SCAN 명령의 배치 크기 */
         const val SCAN_BATCH_SIZE = 100L
@@ -93,10 +110,15 @@ class NearJCache<K: Any, V: Any>(
          * @param backCache 분산 환경에서 사용할 원격 캐시 인스턴스
          * @return [NearJCache] 인스턴스
          */
+        @Suppress("TooGenericExceptionCaught")
         operator fun <K: Any, V: Any> invoke(
             nearCacheCfg: NearJCacheConfig<K, V>,
             backCache: JCache<K, V>,
         ): NearJCache<K, V> {
+            require(!nearCacheCfg.frontCacheConfiguration.isStoreByValue) {
+                "NearJCache front cache must use store-by-reference; " +
+                        "configure a filtered copier before enabling store-by-value"
+            }
             val frontCacheManager = nearCacheCfg.cacheManagerFactory.create()
 
             // back cache의 event를 수신하여 반영할 front cache 생성
@@ -104,23 +126,29 @@ class NearJCache<K: Any, V: Any>(
             val frontCache =
                 frontCacheManager.createCache(nearCacheCfg.cacheName, nearCacheCfg.frontCacheConfiguration)
 
-            // back cache의 event를 받아 front cache에 반영합니다.
-            val jCacheEntryEventListenerCfg =
-                MutableCacheEntryListenerConfiguration(
-                    { JCacheEntryEventListener(frontCache) },
-                    null,
-                    false,
-                    nearCacheCfg.isSynchronous
-                )
-            log.info { "back cache의 이벤트를 수신할 수 있도록 listener 등록. listenerCfg=$jCacheEntryEventListenerCfg" }
-            backCache.registerCacheEntryListener(jCacheEntryEventListenerCfg)
-
             log.info { "Create NearCache instance. config=$nearCacheCfg" }
-            return NearJCache(frontCache, backCache, nearCacheCfg)
+            return try {
+                NearJCache(frontCache, backCache, nearCacheCfg).also {
+                    it.registerBackCacheListener()
+                }
+            } catch (e: RuntimeException) {
+                runCatching { frontCache.close() }
+                throw e
+            }
         }
     }
 
     private val lock = ReentrantLock()
+    private val mutationGate = ReentrantLock()
+    private val backWriteLock = ReentrantLock(true)
+    private val listenerRegistrationLock = ReentrantLock()
+    private val mutationEpoch = AtomicLong()
+    private val backWriteGeneration = AtomicLong()
+    private class BackCacheListenerRegistration<K: Any, V: Any>(
+        val configuration: CacheEntryListenerConfiguration<K, V>,
+        val active: AtomicReference<Boolean> = AtomicReference(true),
+    )
+    private val backCacheListener = AtomicReference<BackCacheListenerRegistration<K, V>?>(null)
     private data class BackCacheWriteState(
         val operationId: Long,
         val operation: String,
@@ -171,8 +199,60 @@ class NearJCache<K: Any, V: Any>(
     override fun iterator(): MutableIterator<Cache.Entry<K, V>> = frontCache.iterator()
 
     override fun clear() {
-        log.debug { "Near Cache의 Front cache를 Clear합니다." }
-        runCatching { frontCache.clear() }
+        val hadBackCacheListener = backCacheListener.get() != null
+        detachBackCacheListener()
+        try {
+            mutationGate.withLock {
+                mutationEpoch.incrementAndGet()
+                val expectedBackWriteGeneration = backWriteGeneration.incrementAndGet()
+                log.debug { "Near Cache의 Front와 Back cache를 Clear합니다." }
+                frontCache.clear()
+                syncBackCache(
+                    operation = "clear",
+                    synchronous = true,
+                    expectedBackWriteGeneration = expectedBackWriteGeneration,
+                ) {
+                    backCache.clear()
+                }
+            }
+        } finally {
+            if (hadBackCacheListener) registerBackCacheListener()
+        }
+    }
+
+    /**
+     * Back Cache 이벤트를 이 NearJCache의 mutation gate로 연결합니다.
+     *
+     * 기본 팩토리는 자동으로 호출합니다. 직접 생성자를 사용하는 외부 팩토리는
+     * 이벤트 기반 Front 동기화가 필요할 때 한 번 호출해야 하며, 이미 등록된 경우
+     * 중복 등록하지 않습니다.
+     */
+    @Suppress("TooGenericExceptionCaught")
+    fun registerBackCacheListener() {
+        listenerRegistrationLock.withLock {
+            if (backCacheListener.get() != null) return
+
+            lateinit var registration: BackCacheListenerRegistration<K, V>
+            val listener = JCacheEntryEventListener<K, V>(frontCache) { eventType, events ->
+                applyBackCacheEvents(registration, eventType, events)
+            }
+            val configuration = MutableCacheEntryListenerConfiguration(
+                { listener },
+                null,
+                false,
+                config.isSynchronous
+            )
+            registration = BackCacheListenerRegistration(configuration)
+            backCacheListener.set(registration)
+            try {
+                log.info { "back cache 이벤트 listener 등록. cache=${config.cacheName}" }
+                backCache.registerCacheEntryListener(configuration)
+            } catch (e: RuntimeException) {
+                backCacheListener.compareAndSet(registration, null)
+                registration.active.set(false)
+                throw e
+            }
+        }
     }
 
     /**
@@ -194,13 +274,11 @@ class NearJCache<K: Any, V: Any>(
             "front cache, back cache 모두 clear 합니다. 단 back cache 를 공유한 다른 near cache에는 전파되지 않습니다. " +
                     "전파를 위해서는 removeAll을 사용하세요"
         }
-        frontCache.clear()
-        syncBackCache("clearAllCache", synchronous = true) {
-            backCache.clear()
-        }
+        clear()
     }
 
     override fun close() {
+        detachBackCacheListener()
         lock.withLock {
             log.debug { "Near Cache 의 Front Cache를 Close 합니다." }
             runCatching {
@@ -211,44 +289,105 @@ class NearJCache<K: Any, V: Any>(
 
     override fun isClosed(): Boolean = frontCache.isClosed
 
-    // clear()는 front만 비우므로 containsKey()도 front만 확인하는 것이 의도된 동작
-    override fun containsKey(key: K): Boolean = frontCache.containsKey(key)
-
-    override operator fun get(key: K): V? { // 모든 조회는 Front 에서만 한다
-        return frontCache.get(key)
+    /**
+     * 논리적 2-tier 캐시에서 키의 존재 여부를 확인합니다.
+     *
+     * 값 자체를 읽거나 Front Cache를 채우지 않고 Front, Back 순서로 확인합니다.
+     */
+    override fun containsKey(key: K): Boolean {
+        if (mutationGate.withLock { frontCache.containsKey(key) }) {
+            return true
+        }
+        return backCache.containsKey(key)
     }
 
     /**
-     * Front Cache에서 값을 우선 조회하고, 없으면 Back Cache까지 조회합니다.
+     * Front Cache를 먼저 조회하고 miss이면 Back Cache에서 읽어 Front Cache에 채웁니다.
      *
-     * Back Cache에서 값을 찾은 경우 Front Cache에 채워 넣어 이후 조회를 빠르게 처리합니다.
+     * Back 조회와 Front mutation이 겹쳐 epoch가 변경되면 오래된 값을 Front에 채우지
+     * 않습니다. Front populate 실패 중 [RuntimeException]은 Back에서 확보한 값을
+     * 호출자에게 반환하고, [Error]와 Back 조회 예외는 숨기지 않습니다.
+     */
+    @Suppress("ReturnCount", "TooGenericExceptionCaught")
+    override operator fun get(key: K): V? {
+        val (frontValue, observedEpoch) = mutationGate.withLock {
+            frontCache.get(key) to mutationEpoch.get()
+        }
+        if (frontValue != null) {
+            return frontValue
+        }
+
+        val backValue = backCache.get(key) ?: return null
+        mutationGate.withLock {
+            if (mutationEpoch.get() == observedEpoch) {
+                try {
+                    frontCache.put(key, backValue)
+                } catch (e: CancellationException) {
+                    throw e
+                } catch (e: RuntimeException) {
+                    log.warn(e) {
+                        "NearJCache front populate failed. operation=get, " +
+                                "cache=${config.cacheName}, provider=${frontCache.javaClass.name}"
+                    }
+                }
+            }
+        }
+        return backValue
+    }
+
+    /**
+     * 표준 [Cache.get]과 동일한 논리적 2-tier read-through를 수행합니다.
      *
      * ```kotlin
      * val nearCache = NearJCache(frontCache, backCache, config)
      * nearCache.put("hello", 5)
-     * nearCache.clear()  // front만 비움
+     * nearCache.clear()
      * val value = nearCache.getDeeply("hello")
-     * // value == 5  (back cache에서 조회 후 front에 채워 넣음)
+     * // value == null
      * ```
      *
      * @param key 조회할 캐시 키
      * @return 조회된 값, 없으면 `null`
      */
-    fun getDeeply(key: K): V? =
-        frontCache.get(key)
-            ?: backCache.get(key)?.also { value ->
-                runCatching { frontCache.put(key, value) }
-            }
+    fun getDeeply(key: K): V? = get(key)
 
     fun getAll(vararg keys: K): MutableMap<K, V> = getAll(keys.toSet())
 
-    override fun getAll(keys: Set<K>): MutableMap<K, V> { // 모든 조회는 Front 에서만 한다
-        return frontCache.getAll(keys)
+    @Suppress("TooGenericExceptionCaught")
+    override fun getAll(keys: Set<K>): MutableMap<K, V> {
+        val (frontValues, missingKeys, observedEpoch) = mutationGate.withLock {
+            val values = frontCache.getAll(keys)
+            val missing = keys.filterNot(values::containsKey).toSet()
+            Triple(values, missing, mutationEpoch.get())
+        }
+        if (missingKeys.isEmpty()) {
+            return frontValues
+        }
+
+        val backValues = backCache.getAll(missingKeys)
+        if (backValues.isNotEmpty()) {
+            mutationGate.withLock {
+                if (mutationEpoch.get() == observedEpoch) {
+                    try {
+                        frontCache.putAll(backValues)
+                    } catch (e: CancellationException) {
+                        throw e
+                    } catch (e: RuntimeException) {
+                        log.warn(e) {
+                            "NearJCache front populate failed. operation=getAll, " +
+                                    "cache=${config.cacheName}, provider=${frontCache.javaClass.name}"
+                        }
+                    }
+                }
+            }
+        }
+
+        return frontValues.toMutableMap().apply { putAll(backValues) }
     }
 
     override fun getAndRemove(key: K): V? {
-        if (containsKey(key)) {
-            val oldValue = get(key)
+        if (frontContainsKey(key)) {
+            val oldValue = frontGet(key)
             remove(key)
             return oldValue
         }
@@ -257,9 +396,9 @@ class NearJCache<K: Any, V: Any>(
 
     override fun getAndReplace(key: K, value: V): V? {
         log.trace { "get and replace. key=$key" }
-        if (containsKey(key)) {
+        if (frontContainsKey(key)) {
             log.trace { "get entry, and put new value. key=$key, new value=$value" }
-            val oldValue = get(key)
+            val oldValue = frontGet(key)
             put(key, value)
             return oldValue
         }
@@ -271,43 +410,54 @@ class NearJCache<K: Any, V: Any>(
     }
 
     override fun put(key: K, value: V) {
-        frontCache.put(key, value)
-        syncBackCache("put") {
-            backCache.put(key, value)
+        mutationGate.withLock {
+            mutationEpoch.incrementAndGet()
+            frontCache.put(key, value)
+            syncBackCache("put", expectedBackWriteGeneration = backWriteGeneration.get()) {
+                backCache.put(key, value)
+            }
         }
     }
 
     override fun putAll(map: Map<out K, V>) {
-        frontCache.putAll(map)
-        syncBackCache("putAll") {
-            backCache.putAll(map)
+        mutationGate.withLock {
+            mutationEpoch.incrementAndGet()
+            frontCache.putAll(map)
+            syncBackCache("putAll", expectedBackWriteGeneration = backWriteGeneration.get()) {
+                backCache.putAll(map)
+            }
         }
     }
 
-    override fun putIfAbsent(key: K, value: V): Boolean =
-        frontCache.putIfAbsent(key, value).also {
-            if (it) {
-                syncBackCache("putIfAbsent") {
+    override fun putIfAbsent(key: K, value: V): Boolean = mutationGate.withLock {
+        frontCache.putIfAbsent(key, value).also { inserted ->
+            if (inserted) {
+                mutationEpoch.incrementAndGet()
+                syncBackCache("putIfAbsent", expectedBackWriteGeneration = backWriteGeneration.get()) {
                     if (!backCache.containsKey(key)) {
                         backCache.put(key, value)
                     }
                 }
             }
         }
+    }
 
-    override fun remove(key: K): Boolean =
-        frontCache.remove(key).also {
-            if (it) {
-                syncBackCache("remove") {
+    override fun remove(key: K): Boolean = mutationGate.withLock {
+        frontCache.remove(key).also { removed ->
+            if (removed) {
+                mutationEpoch.incrementAndGet()
+                syncBackCache("remove", expectedBackWriteGeneration = backWriteGeneration.get()) {
                     backCache.remove(key)
                 }
             }
         }
+    }
 
-    override fun remove(key: K, oldValue: V): Boolean =
-        frontCache.remove(key, oldValue).also {
-            if (it) {
-                syncBackCache("remove(key, oldValue)") {
+    override fun remove(key: K, oldValue: V): Boolean = mutationGate.withLock {
+        frontCache.remove(key, oldValue).also { removed ->
+            if (removed) {
+                mutationEpoch.incrementAndGet()
+                syncBackCache("remove(key, oldValue)", expectedBackWriteGeneration = backWriteGeneration.get()) {
                     // Back cache listener 전파를 remove(key) 경로로 통일하기 위해 값 비교 후 단일 키 삭제를 사용한다.
                     if (backCache.containsKey(key) && backCache.get(key) == oldValue) {
                         backCache.remove(key)
@@ -315,10 +465,13 @@ class NearJCache<K: Any, V: Any>(
                 }
             }
         }
+    }
 
     override fun removeAll() {
-        frontCache.removeAll().apply {
-            syncBackCache("removeAll") {
+        mutationGate.withLock {
+            mutationEpoch.incrementAndGet()
+            frontCache.removeAll()
+            syncBackCache("removeAll", expectedBackWriteGeneration = backWriteGeneration.get()) {
                 // Redisson 에서는 bulk operation 의 경우 event 가 발생하지 않습니다!!!
                 val failures = backCache
                     .chunked(REMOVE_BATCH_SIZE)
@@ -329,8 +482,10 @@ class NearJCache<K: Any, V: Any>(
     }
 
     override fun removeAll(keys: Set<K>) {
-        frontCache.removeAll(keys).apply {
-            syncBackCache("removeAll(keys)") {
+        mutationGate.withLock {
+            mutationEpoch.incrementAndGet()
+            frontCache.removeAll(keys)
+            syncBackCache("removeAll(keys)", expectedBackWriteGeneration = backWriteGeneration.get()) {
                 // Redisson 에서는 bulk operation 의 경우 event 가 발생하지 않습니다!!!
                 val failures = removeBackCacheEntries(keys)
                 throwIfFailures("removeAll(keys)", failures)
@@ -354,21 +509,27 @@ class NearJCache<K: Any, V: Any>(
         removeAll(keys.toSet())
     }
 
-    override fun replace(key: K, oldValue: V, newValue: V): Boolean =
-        frontCache.replace(key, oldValue, newValue).also {
-            if (it) {
-                syncBackCache("replace(key, oldValue, newValue)") {
+    override fun replace(key: K, oldValue: V, newValue: V): Boolean = mutationGate.withLock {
+        frontCache.replace(key, oldValue, newValue).also { replaced ->
+            if (replaced) {
+                mutationEpoch.incrementAndGet()
+                syncBackCache(
+                    "replace(key, oldValue, newValue)",
+                    expectedBackWriteGeneration = backWriteGeneration.get()
+                ) {
                     if (backCache.containsKey(key) && backCache.get(key) == oldValue) {
                         backCache.put(key, newValue)
                     }
                 }
             }
         }
+    }
 
-    override fun replace(key: K, value: V): Boolean =
-        frontCache.replace(key, value).also {
-            if (it) {
-                syncBackCache("replace") {
+    override fun replace(key: K, value: V): Boolean = mutationGate.withLock {
+        frontCache.replace(key, value).also { replaced ->
+            if (replaced) {
+                mutationEpoch.incrementAndGet()
+                syncBackCache("replace", expectedBackWriteGeneration = backWriteGeneration.get()) {
                     // Redisson 에서는 replace 가 event 를 발생시키지 않습니다.
                     if (backCache.containsKey(key)) {
                         backCache.put(key, value)
@@ -376,6 +537,7 @@ class NearJCache<K: Any, V: Any>(
                 }
             }
         }
+    }
 
     override fun <T: Any> unwrap(clazz: Class<T>): T? {
         if (clazz.isAssignableFrom(javaClass)) {
@@ -420,17 +582,29 @@ class NearJCache<K: Any, V: Any>(
     private fun syncBackCache(
         operation: String,
         synchronous: Boolean = config.isSynchronous,
+        expectedBackWriteGeneration: Long = backWriteGeneration.get(),
         syncTask: () -> Unit,
     ): CompletableFuture<Unit> {
         val completion = CompletableFuture<Unit>()
         publishBackCacheWrite(operation, completion)
+        val guardedSyncTask = {
+            backWriteLock.withLock {
+                if (expectedBackWriteGeneration == backWriteGeneration.get()) {
+                    syncTask()
+                }
+            }
+        }
         if (synchronous) {
             return try {
-                syncTask()
+                guardedSyncTask()
                 completion.complete(Unit)
                 completion
             } catch (e: RuntimeException) {
                 completion.completeExceptionally(e)
+                log.error(e) {
+                    "NearJCache synchronous back cache write failed. operation=$operation, " +
+                            "cache=${config.cacheName}, provider=${backCache.javaClass.name}"
+                }
                 throw e
             }
         }
@@ -444,9 +618,17 @@ class NearJCache<K: Any, V: Any>(
                 NearJCacheConfig.MAX_SYNC_REMOTE_RETRY_COUNT
             ),
             completion = completion,
-            syncTask = syncTask,
+            syncTask = guardedSyncTask,
         )
         return completion
+    }
+
+    private fun frontContainsKey(key: K): Boolean = mutationGate.withLock {
+        frontCache.containsKey(key)
+    }
+
+    private fun frontGet(key: K): V? = mutationGate.withLock {
+        frontCache.get(key)
     }
 
     @Suppress("TooGenericExceptionCaught")
@@ -523,4 +705,30 @@ class NearJCache<K: Any, V: Any>(
             is CompletionException, is ExecutionException -> error.cause ?: error
             else -> error
         }
+
+    private fun detachBackCacheListener() {
+        listenerRegistrationLock.withLock {
+            val registration = backCacheListener.getAndSet(null) ?: return
+            registration.active.set(false)
+            backCache.deregisterCacheEntryListener(registration.configuration)
+        }
+    }
+
+    private fun applyBackCacheEvents(
+        registration: BackCacheListenerRegistration<K, V>,
+        eventType: EventType,
+        events: List<CacheEntryEvent<out K, out V>>,
+    ) {
+        if (!registration.active.get()) return
+        mutationGate.withLock {
+            if (!registration.active.get() || backCacheListener.get() !== registration) return
+            mutationEpoch.incrementAndGet()
+            when (eventType) {
+                EventType.CREATED, EventType.UPDATED ->
+                    frontCache.putAll(events.associate { it.key to it.value })
+                EventType.REMOVED, EventType.EXPIRED ->
+                    frontCache.removeAll(events.map { it.key }.toSet())
+            }
+        }
+    }
 }

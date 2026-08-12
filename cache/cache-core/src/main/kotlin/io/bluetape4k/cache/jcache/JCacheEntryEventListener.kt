@@ -3,8 +3,10 @@ package io.bluetape4k.cache.jcache
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.error
 import io.bluetape4k.logging.trace
+import java.util.concurrent.CancellationException
 import javax.cache.event.CacheEntryCreatedListener
 import javax.cache.event.CacheEntryEvent
+import javax.cache.event.EventType
 import javax.cache.event.CacheEntryExpiredListener
 import javax.cache.event.CacheEntryRemovedListener
 import javax.cache.event.CacheEntryUpdatedListener
@@ -25,9 +27,11 @@ import javax.cache.event.CacheEntryUpdatedListener
  * ```
  *
  * @property targetCache [javax.cache.event.CacheEntryEvent]가 반영될 Local Cache
+ * @property eventHandler 선택적으로 이벤트 적용 경계를 호출하는 핸들러
  */
-class JCacheEntryEventListener<K, V>(
+class JCacheEntryEventListener<K, V> @JvmOverloads constructor(
     private val targetCache: JCache<K, V>,
+    private val eventHandler: ((EventType, List<CacheEntryEvent<out K, out V>>) -> Unit)? = null,
 ): CacheEntryCreatedListener<K, V>,
    CacheEntryUpdatedListener<K, V>,
    CacheEntryRemovedListener<K, V>,
@@ -36,57 +40,48 @@ class JCacheEntryEventListener<K, V>(
     companion object: KLogging()
 
     override fun onCreated(events: Iterable<CacheEntryEvent<out K, out V>>) {
-        log.trace {
-            "Back cache entry is created. targetCache=${targetCache.name}, events=${events.joinToString { it.asText() }}"
-        }
-        if (!targetCache.isClosed) {
-            runCatching {
-                targetCache.putAll(events.associate { it.key to it.value })
-            }.onFailure { e ->
-                log.error(e) { "Fail to put all created cache entries." }
-            }
+        handleEvents(EventType.CREATED, events) { eventList ->
+            targetCache.putAll(eventList.associate { it.key to it.value })
         }
     }
 
     override fun onUpdated(events: Iterable<CacheEntryEvent<out K, out V>>) {
-        log.trace {
-            "Back cache entry is updated. targetCache=${targetCache.name}, events=${events.joinToString { it.asText() }}"
-        }
-        if (!targetCache.isClosed) {
-            runCatching {
-                targetCache.putAll(events.associate { it.key to it.value })
-            }.onFailure { e ->
-                log.error(e) { "Fail to put all updated cache entries." }
-            }
+        handleEvents(EventType.UPDATED, events) { eventList ->
+            targetCache.putAll(eventList.associate { it.key to it.value })
         }
     }
 
     override fun onRemoved(events: Iterable<CacheEntryEvent<out K, out V>>) {
-        log.trace {
-            "Back cache entry is removed. targetCache=${targetCache.name}, events=${events.joinToString { it.asText() }}"
-        }
-        if (!targetCache.isClosed) {
-            runCatching {
-                targetCache.removeAll(events.map { it.key }.toSet())
-            }.onFailure { e ->
-                log.error(e) { "Fail to remove all removed cache entries." }
-            }
+        handleEvents(EventType.REMOVED, events) { eventList ->
+            targetCache.removeAll(eventList.map { it.key }.toSet())
         }
     }
 
     override fun onExpired(events: Iterable<CacheEntryEvent<out K, out V>>) {
-        log.trace {
-            "Back cache entry is expired. targetCache=${targetCache.name}, events=${events.joinToString { it.asText() }}"
-        }
-        if (!targetCache.isClosed) {
-            runCatching {
-                targetCache.removeAll(events.map { it.key }.toSet())
-            }.onFailure { e ->
-                log.error(e) { "Fail to remove all expired cache entries." }
-            }
+        handleEvents(EventType.EXPIRED, events) { eventList ->
+            targetCache.removeAll(eventList.map { it.key }.toSet())
         }
     }
 
-    private fun <K, V> CacheEntryEvent<K, V>.asText(): String =
-        "source=$source, key=$key, value=$value"
+    @Suppress("TooGenericExceptionCaught")
+    private fun handleEvents(
+        eventType: EventType,
+        events: Iterable<CacheEntryEvent<out K, out V>>,
+        defaultHandler: (List<CacheEntryEvent<out K, out V>>) -> Unit,
+    ) {
+        val eventList = events.toList()
+        log.trace {
+            "Back cache event received. type=$eventType, targetCache=${targetCache.name}, " +
+                    "eventCount=${eventList.size}"
+        }
+        if (targetCache.isClosed) return
+
+        try {
+            eventHandler?.invoke(eventType, eventList) ?: defaultHandler(eventList)
+        } catch (e: CancellationException) {
+            throw e
+        } catch (e: RuntimeException) {
+            log.error(e) { "Failed to apply back cache event. type=$eventType, eventCount=${eventList.size}" }
+        }
+    }
 }
