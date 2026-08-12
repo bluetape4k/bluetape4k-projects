@@ -81,7 +81,7 @@ class BehaviorSubjectTest {
     }
 
     @Test
-    fun `일반적인 Subject 작동 예`() = runTest {
+    fun `일반적인 Subject 작동 예`() = runSuspendDefault {
         withSingleThread { executor ->
             val subject = BehaviorSubject<Int>()
             val result = mutableListOf<Int>()
