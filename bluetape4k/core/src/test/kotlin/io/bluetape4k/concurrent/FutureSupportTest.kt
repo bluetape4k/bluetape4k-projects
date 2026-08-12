@@ -90,6 +90,51 @@ class FutureSupportTest {
     }
 
     @Test
+    fun `cancel returns true when wrapped Future cancellation races with watcher cancellation`() {
+        val watcherStarted = CountDownLatch(1)
+        val wrapperCompletionObserved = CountDownLatch(1)
+        val future = object : Future<String> {
+            private val cancelled = AtomicBoolean(false)
+            private val getterThread = AtomicReference<Thread>()
+
+            override fun cancel(mayInterruptIfRunning: Boolean): Boolean {
+                cancelled.set(true)
+                getterThread.get().interrupt()
+                wrapperCompletionObserved.await(1, TimeUnit.SECONDS).shouldBeTrue()
+                return true
+            }
+
+            override fun isCancelled(): Boolean = cancelled.get()
+
+            override fun isDone(): Boolean = cancelled.get()
+
+            override fun get(): String {
+                getterThread.set(Thread.currentThread())
+                watcherStarted.countDown()
+                CountDownLatch(1).await()
+                error("unreachable")
+            }
+
+            override fun get(timeout: Long, unit: TimeUnit): String {
+                getterThread.set(Thread.currentThread())
+                watcherStarted.countDown()
+                if (!CountDownLatch(1).await(timeout, unit)) {
+                    throw TimeoutException()
+                }
+                error("unreachable")
+            }
+        }
+        val completableFuture = future.asCompletableFuture()
+        watcherStarted.await(1, TimeUnit.SECONDS).shouldBeTrue()
+        completableFuture.whenComplete { _, _ -> wrapperCompletionObserved.countDown() }
+
+        completableFuture.cancel(true).shouldBeTrue()
+
+        future.isCancelled.shouldBeTrue()
+        completableFuture.isCancelled.shouldBeTrue()
+    }
+
+    @Test
     fun `Massive Future as CompletableFuture`() {
         val futures = List(ITEM_COUNT) {
             FutureTask {

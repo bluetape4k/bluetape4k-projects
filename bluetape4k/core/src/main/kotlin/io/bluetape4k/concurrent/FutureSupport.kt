@@ -64,9 +64,12 @@ private class FutureToCompletableFutureWrapper<T>(private val wrapped: Future<T>
     }
 
     override fun cancel(mayInterruptIfRunning: Boolean): Boolean {
-        wrapped.cancel(mayInterruptIfRunning)
-        watcher.cancel(true)
-        return super.cancel(mayInterruptIfRunning)
+        val cancelled = super.cancel(mayInterruptIfRunning)
+        if (cancelled) {
+            wrapped.cancel(mayInterruptIfRunning)
+            watcher.cancel(true)
+        }
+        return cancelled
     }
 }
 
