@@ -19,6 +19,7 @@ import org.junit.jupiter.api.Test
 import java.util.concurrent.CancellationException
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
+import java.util.concurrent.atomic.AtomicInteger
 import javax.cache.Cache
 import javax.cache.configuration.CacheEntryListenerConfiguration
 import javax.cache.configuration.Configuration
@@ -358,6 +359,46 @@ class NearJCacheContractTest {
         assertFailsWith<IllegalStateException> { nearCache.clear() }
 
         verify(exactly = 0) { backCache.clear() }
+    }
+
+    @Test
+    fun `clear primary failure는 listener 재등록 failure를 suppressed로 보존한다`() {
+        val frontCache = mockk<JCache<String, String>>(relaxed = true)
+        val backCache = mockk<JCache<String, String>>(relaxed = true)
+        val primaryFailure = IllegalStateException("front unavailable")
+        val registrationFailure = IllegalArgumentException("listener unavailable")
+        val registrationCount = AtomicInteger()
+        every { backCache.registerCacheEntryListener(any()) } answers {
+            if (registrationCount.incrementAndGet() == 2) throw registrationFailure
+        }
+        every { frontCache.clear() } throws primaryFailure
+        val nearCache = newNearCache(frontCache, backCache)
+        nearCache.registerBackCacheListener()
+
+        val error = assertFailsWith<IllegalStateException> { nearCache.clear() }
+
+        (error === primaryFailure).shouldBeTrue()
+        error.suppressed.single() shouldBeEqualTo registrationFailure
+        verify(exactly = 0) { backCache.clear() }
+    }
+
+    @Test
+    fun `clear 성공 후 listener 재등록 failure는 호출자에게 전달한다`() {
+        val frontCache = mockk<JCache<String, String>>(relaxed = true)
+        val backCache = mockk<JCache<String, String>>(relaxed = true)
+        val registrationFailure = IllegalArgumentException("listener unavailable")
+        val registrationCount = AtomicInteger()
+        every { backCache.registerCacheEntryListener(any()) } answers {
+            if (registrationCount.incrementAndGet() == 2) throw registrationFailure
+        }
+        val nearCache = newNearCache(frontCache, backCache)
+        nearCache.registerBackCacheListener()
+
+        val error = assertFailsWith<IllegalArgumentException> { nearCache.clear() }
+
+        (error === registrationFailure).shouldBeTrue()
+        verify(exactly = 1) { frontCache.clear() }
+        verify(exactly = 1) { backCache.clear() }
     }
 
     @Test
