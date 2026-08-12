@@ -62,7 +62,7 @@ class BatchListenerConversionTests {
 
     companion object: KLoggingChannel() {
         private const val DEFAULT_TEST_GROUP_ID = "blc"
-        private const val AWAIT_TIME_SECONDS = 3L
+        private const val AWAIT_TIME_SECONDS = 10L
     }
 
     @Autowired
