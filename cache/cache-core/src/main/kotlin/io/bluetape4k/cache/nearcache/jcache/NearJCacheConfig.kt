@@ -85,6 +85,7 @@ data class NearJCacheConfig<K: Any, V: Any>(
          */
         fun <K, V> getDefaultFrontCacheConfiguration(): MutableConfiguration<K, V> =
             MutableConfiguration<K, V>().apply {
+                setStoreByValue(false)
                 setExpiryPolicyFactory { AccessedExpiryPolicy(Duration.THIRTY_MINUTES) }
             }
     }

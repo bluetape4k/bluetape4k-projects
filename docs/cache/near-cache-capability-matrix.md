@@ -31,10 +31,23 @@ Native API는 `NearCacheOperations<V>` 또는 `SuspendNearCacheOperations<V>`를
 
 JCache API는 `NearJCache<K,V>` 또는 `SuspendNearJCache<K,V>`를 구현한다.
 
+동기 `NearJCache`의 표준 `get`, `containsKey`, `getAll`은 front miss를 back에서
+읽고 back hit를 front에 채우는 논리적 2-tier read 계약을 따른다. 표준 `clear`와
+호환 alias `clearAllCache`는 현재 wrapper의 front와 back을 함께 지운다. 공유
+back을 사용하는 peer wrapper의 기존 front까지 listener로 지우는 것은 보장하지
+않는다. `getDeeply`는 표준 `get`의 alias이며, compound 원자성은
+[#1355](https://github.com/bluetape4k/bluetape4k-projects/issues/1355)의 별도
+계약이다.
+
+`NearJCacheConfig`의 기본 front는 store-by-reference이며, 안전한 filtered copier
+계약이 없는 custom store-by-value 설정은 생성 단계에서 거부한다. read-through
+populate는 mutation epoch로 stale 값을 차단하고, clear는 timeout-late backend
+write가 끝난 뒤 back을 지우는 barrier를 사용한다.
+
 | back provider | 동기 `NearJCache` | suspend `SuspendNearJCache` | listener 등록 | peer front 전파 | removeAll 의미 | back cache 범위 | conformance |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| Lettuce JCache | Supported | Supported | Supported | Supported | Supported through per-entry removal where needed | Distributed Redis | `AbstractNearJCacheTest`, `AbstractSuspendNearJCacheTest` |
-| Redisson JCache | Supported | Supported | Supported | Supported | Supported through per-entry removal where needed | Distributed Redis via Redisson | `AbstractNearJCacheTest`, `AbstractSuspendNearJCacheTest` |
+| Lettuce JCache | Supported | Supported | Supported | Supported for per-entry mutations; clear peer-front invalidation is not promised | Supported through per-entry removal where needed | Distributed Redis | `AbstractNearJCacheTest`, `AbstractSuspendNearJCacheTest` |
+| Redisson JCache | Supported | Supported | Supported | Supported for per-entry mutations; clear peer-front invalidation is not promised | Supported through per-entry removal where needed | Distributed Redis via Redisson | `AbstractNearJCacheTest`, `AbstractSuspendNearJCacheTest` |
 | Hazelcast JCache direct listener construction | Unsupported | Unsupported | Unsupported: listener configuration must be serializable for cluster distribution | Unsupported | Unsupported in listener-backed direct construction | Distributed Hazelcast JCache | Explicit unsupported tests in `cache-hazelcast` |
 | Hazelcast factory methods | Factory degraded | Factory degraded | Not registered intentionally | Not promised | `clearAllCache` / `clearAll` clear front and back for the local wrapper; listener propagation is not promised | Distributed Hazelcast JCache | Explicit factory behavior tests in `cache-hazelcast` |
 | Cache2k JCache | Supported except whole-cache `removeAll()` propagation | Not provided | Local provider listener | Same-JVM only | Whole-cache `removeAll()` propagation is explicitly unsupported by conformance test | Local JVM | `AbstractNearJCacheTest` with explicit unsupported override |

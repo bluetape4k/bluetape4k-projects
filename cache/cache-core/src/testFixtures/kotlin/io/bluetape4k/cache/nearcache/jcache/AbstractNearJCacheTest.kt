@@ -89,7 +89,8 @@ abstract class AbstractNearJCacheTest {
 
         try {
             backCache.put(key, value)
-            nearJCache.containsKey(key).shouldBeFalse()
+            // 표준 containsKey는 Back Cache까지 조회하므로 front miss만 직접 확인합니다.
+            nearJCache.frontCache.containsKey(key).shouldBeFalse()
 
             nearJCache.getDeeply(key) shouldBeEqualTo value
             nearJCache[key] shouldBeEqualTo value
@@ -504,7 +505,7 @@ abstract class AbstractNearJCacheTest {
     }
 
     @RepeatedTest(TEST_SIZE)
-    fun `clear - cache를 clear 합니다 - front cache만 clear 될 뿐 back cache는 유지됩니다`() {
+    fun `clear - 표준 Cache clear는 현재 wrapper의 front와 back을 함께 삭제합니다`() {
         val key1 = randomKey()
         val value1 = randomValue()
         val key2 = randomKey()
@@ -516,14 +517,17 @@ abstract class AbstractNearJCacheTest {
         nearJCache2.put(key2, value2)
         await atMost (awaitTimeout) until { nearJCache1.containsKey(key2) }
 
-        // 로컬 캐시만 삭제됩니다. backCache는 삭제되지 않습니다.
         nearJCache1.clear()
 
-        // frontCache에서 containsKey 를 조회합니다.
+        // 호출한 wrapper에서는 표준 containsKey도 front/back 모두 miss입니다.
         nearJCache1.containsKey(key1).shouldBeFalse()
         nearJCache1.containsKey(key2).shouldBeFalse()
+        backCache.containsKey(key1).shouldBeFalse()
+        backCache.containsKey(key2).shouldBeFalse()
 
-        // 다른 캐시에는 전파되지 않습니다
+        // listener 없는 peer front에는 clear가 전파된다고 보장하지 않습니다.
+        nearJCache2.frontCache.containsKey(key1).shouldBeTrue()
+        nearJCache2.frontCache.containsKey(key2).shouldBeTrue()
         nearJCache2.containsKey(key1).shouldBeTrue()
         nearJCache2.containsKey(key2).shouldBeTrue()
     }

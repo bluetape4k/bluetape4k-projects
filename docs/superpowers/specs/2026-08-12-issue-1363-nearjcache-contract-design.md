@@ -93,13 +93,17 @@ epoch를 캡처하고, back 조회가 끝난 뒤 동일 epoch일 때만 front po
 수행한다. epoch가 바뀌었으면 back에서 읽은 값은 호출 결과로 반환할 수 있지만
 front에는 저장하지 않는다. 모든 front mutation과 `clear`는 epoch를 증가시킨다.
 
-back mutation은 `backWriteLock` 아래에서 실행한다. 비동기 write는 예약 시
-epoch를 캡처하고 lock을 얻은 뒤 현재 epoch가 다르면 backend 작업을 건너뛴다.
-`clear`는 mutation gate를 잡고 새 epoch를 발행한 다음 front를 지우고, 기존
-write가 실제 backend 호출을 끝내 lock을 놓을 때까지 기다린 뒤 back을 지운다.
-따라서 timeout으로 completion이 먼저 실패해도 late backend write가
-`clear()` 반환 뒤 back 값을 되살릴 수 없다. clear 중 새 mutation은 gate가
-풀린 뒤 새 epoch로 시작한다.
+back mutation은 `backWriteLock` 아래에서 실행한다. 표준 mutation마다 전역
+`mutationEpoch`를 증가시키지만, 서로 다른 키의 정상적인 비동기 write를
+무효화하지 않도록 backend 작업에는 별도의 `backWriteGeneration`을 사용한다.
+일반 write는 현재 generation을 캡처하고, `clear`만 generation을 증가시킨다.
+따라서 clear 전에 예약되어 아직 실행되지 않은 write는 건너뛰고, clear 중
+실행 중인 write는 실제 backend 호출을 끝낼 때까지 lock을 유지한다.
+`clear`는 mutation gate를 잡고 새 mutation/read epoch와 backend generation을
+발행한 다음 front를 지우고, 기존 write가 실제 backend 호출을 끝내 lock을
+놓을 때까지 기다린 뒤 back을 지운다. timeout으로 completion이 먼저 실패해도
+late backend write가 `clear()` 반환 뒤 back 값을 되살릴 수 없다. clear 중 새
+mutation은 gate가 풀린 뒤 새 generation으로 시작한다.
 
 ### compound operation 경계
 

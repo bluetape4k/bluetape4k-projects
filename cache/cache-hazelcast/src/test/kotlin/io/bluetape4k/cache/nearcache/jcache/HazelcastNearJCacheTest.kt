@@ -53,7 +53,7 @@ class HazelcastNearJCacheTest {
 
             cache.clear()
             cache.get("k").shouldBeNull()
-            cache.getDeeply("k") shouldBeEqualTo "v"
+            cache.getDeeply("k").shouldBeNull()
         } finally {
             cache.clearAllCache()
             cache.close()

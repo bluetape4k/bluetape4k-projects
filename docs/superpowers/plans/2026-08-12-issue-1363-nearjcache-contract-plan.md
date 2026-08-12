@@ -32,19 +32,19 @@ configuration surface for them.
 **Files:**
 - Create: `cache/cache-core/src/test/kotlin/io/bluetape4k/cache/nearcache/jcache/NearJCacheContractTest.kt`
 
-- [ ] **Step 1: Add a `Cache<String, String>` read-through test**
+- [x] **Step 1: Add a `Cache<String, String>` read-through test**
 
 Use the existing `JCache` typealias, relaxed MockK caches, and a `NearJCacheConfig(isSynchronous = true)` constructor. Stub `front.get("remote")` to return null, `back.get("remote")` to return `"value"`, assign the near cache to `val standardCache: Cache<String, String>`, call `standardCache.get("remote")`, then assert the value and verify `front.put("remote", "value")` once.
 
-- [ ] **Step 2: Add contains-key and mixed getAll tests**
+- [x] **Step 2: Add contains-key and mixed getAll tests**
 
 Stub front `containsKey("remote")` false and back true, then assert `standardCache.containsKey("remote")` true. For `getAll`, stub front to return `mutableMapOf("front" to "front-value")`, back to return `mutableMapOf("remote" to "back-value")` for the missing-key set, call through `Cache`, assert both mappings, and verify only the back value is populated into front.
 
-- [ ] **Step 3: Add clear and compatibility-alias tests**
+- [x] **Step 3: Add clear and compatibility-alias tests**
 
 Stub `front.clear()` and `back.clear()`, call `standardCache.clear()`, and verify both exactly once. Add a test that `getDeeply` follows the standard `get` path and a test that `clearAllCache` clears both layers through the same implementation. Use existing Bluetape assertions and `io.mockk.verify` rather than raw JUnit assertions where ecosystem helpers cover the assertion.
 
-- [ ] **Step 4: Run the new tests before implementation**
+- [x] **Step 4: Run the new tests before implementation**
 
 Run:
 
@@ -54,7 +54,7 @@ Run:
 
 Expected: FAIL because standard `get`, `containsKey`, `getAll`, and `clear` currently remain front-only/clear-front behavior. Preserve the raw failure evidence in the task log; do not implement before observing RED.
 
-- [ ] **Step 5: Add concurrency, failure, and boundary tests**
+- [x] **Step 5: Add concurrency, failure, and boundary tests**
 
   Add deterministic `CountDownLatch` tests for `get`/`getAll` racing with
   `put`, `replace`, `remove`, and `clear`; the stale back value may be returned
@@ -66,7 +66,7 @@ Expected: FAIL because standard `get`, `containsKey`, `getAll`, and `clear` curr
   call-count tests for `getAndRemove` and `getAndReplace` proving their
   front-only helpers do not introduce the new standard back read round trips.
 
-- [ ] **Step 6: Add serialization trust-boundary tests**
+- [x] **Step 6: Add serialization trust-boundary tests**
 
   Assert the default `NearJCacheConfig` sets `isStoreByValue == false` and that
   constructing `NearJCache` with a custom store-by-value front configuration
@@ -80,17 +80,19 @@ Expected: FAIL because standard `get`, `containsKey`, `getAll`, and `clear` curr
 - Modify: `cache/cache-core/src/main/kotlin/io/bluetape4k/cache/nearcache/jcache/NearJCache.kt` around lines 173-247.
 - Modify: `cache/cache-core/src/main/kotlin/io/bluetape4k/cache/nearcache/jcache/NearJCacheConfig.kt` default front configuration.
 
-- [ ] **Step 1: Add mutation gate, epoch, and backend write lock**
+- [x] **Step 1: Add mutation gate, epoch, and backend write lock**
 
-  Introduce a `ReentrantLock` mutation gate, a monotonic `AtomicLong` epoch,
-  and a separate `ReentrantLock` around every backend mutation. Every front
-  mutation increments the epoch before changing front state and passes the
-  captured epoch to `syncBackCache`. A backend task that acquires the lock
-  skips itself when its expected epoch is stale. Keep the existing timeout and
-  retry behavior, but ensure the lock is held until the real backend call ends,
-  including after an async completion timeout.
+  Introduce a `ReentrantLock` mutation gate, a monotonic `AtomicLong`
+  `mutationEpoch` for read-through fencing, a separate `AtomicLong`
+  `backWriteGeneration` advanced only by `clear`, and a `ReentrantLock` around
+  every backend mutation. Every front mutation increments `mutationEpoch` before
+  changing front state. A backend task captures the current generation and
+  skips itself only when a later clear has advanced it; different-key async
+  writes must not be discarded merely because another mutation occurred. Keep
+  the existing timeout and retry behavior, but ensure the lock is held until
+  the real backend call ends, including after an async completion timeout.
 
-- [ ] **Step 2: Implement standard get with back fallback and fenced populate**
+- [x] **Step 2: Implement standard get with back fallback and fenced populate**
 
   Make `get(key)` read front first, capture the observed epoch, then read back on
   miss. When back returns a value, populate front only if the epoch is unchanged;
@@ -99,7 +101,7 @@ Expected: FAIL because standard `get`, `containsKey`, `getAll`, and `clear` curr
   only stable operation/provider/cache metadata and never raw key/value/payload.
   Keep the code non-suspending and do not introduce `!!` or new dependencies.
 
-- [ ] **Step 3: Implement containsKey and getAll over the logical cache**
+- [x] **Step 3: Implement containsKey and getAll over the logical cache**
 
   Implement `containsKey` as front lookup followed by back lookup without calling
   `get` or triggering population. Implement `getAll(keys)` by fetching front
@@ -108,7 +110,7 @@ Expected: FAIL because standard `get`, `containsKey`, `getAll`, and `clear` curr
   current. Merge front and back maps without changing the existing `MutableMap`
   return type; return early without a back call when all keys are front hits.
 
-- [ ] **Step 4: Make clear and aliases share one implementation**
+- [x] **Step 4: Make clear and aliases share one implementation**
 
  Implement `clear()` as a mutation-gate operation: publish a new epoch, clear
  front, then synchronously acquire the backend-write lock and clear back. This
@@ -119,7 +121,7 @@ Expected: FAIL because standard `get`, `containsKey`, `getAll`, and `clear` curr
  `get(key)`. Update Korean KDoc to describe standard semantics, peer-front
  propagation limits, and the alias relationship.
 
-- [ ] **Step 5: Preserve compound-operation round trips**
+- [x] **Step 5: Preserve compound-operation round trips**
 
   Add private `frontContainsKey`/`frontGet` helpers and update
   `getAndRemove`/`getAndReplace` to use them, leaving #1355's cross-tier
@@ -127,14 +129,14 @@ Expected: FAIL because standard `get`, `containsKey`, `getAll`, and `clear` curr
   in the epoch/backend barrier, but they must not call the newly logical
   standard `containsKey`/`get` and add an extra back round trip.
 
-- [ ] **Step 6: Enforce the serialization boundary in configuration**
+- [x] **Step 6: Enforce the serialization boundary in configuration**
 
   Set `setStoreByValue(false)` on the default front configuration. In the
   `NearJCache` constructor reject a custom front configuration whose
   `isStoreByValue` is true. Do not add a bypass flag; providers that need
   serialized values require a separate filtered-copy design.
 
-- [ ] **Step 7: Run the focused tests GREEN**
+- [x] **Step 7: Run the focused tests GREEN**
 
 Run:
 
@@ -151,15 +153,15 @@ Expected: all contract tests pass. If a test fails, inspect the exact mock inter
 - Modify: any exact callers found by `git grep -n 'clear().*getDeeply\|getDeeply.*clear' -- cache`.
 - Modify: `cache/cache-hazelcast/src/test/kotlin/io/bluetape4k/cache/nearcache/jcache/HazelcastNearJCacheTest.kt` if the factory test still expects a back value after `clear()`.
 
-- [ ] **Step 1: Replace front-only fixture assumptions**
+- [x] **Step 1: Replace front-only fixture assumptions**
 
 Rename the existing front-only `clear` test to assert that the invoking near cache has no front or back mapping after `clear()`. Keep the explicit peer-front assertion only where it proves the documented non-guarantee: a peer may retain a stale front entry when listener propagation is unavailable. Add a standard `Cache`-typed fixture assertion if the deterministic contract test does not cover a real provider path.
 
-- [ ] **Step 2: Update factory/degraded backend tests**
+- [x] **Step 2: Update factory/degraded backend tests**
 
 For Hazelcast factory degraded mode, assert `cache.clear()` removes the local wrapper’s front and back value and that `cache.getDeeply(key)` is null afterward. Preserve the separate unsupported direct-listener test and do not claim peer propagation for the degraded factory.
 
-- [ ] **Step 3: Run cache-core and affected backend tests sequentially**
+- [x] **Step 3: Run cache-core and affected backend tests sequentially**
 
 Run in this order, waiting for each command to finish before the next:
 
@@ -172,7 +174,7 @@ Run in this order, waiting for each command to finish before the next:
 
 If a Testcontainers-backed command is unavailable or fails for environment reasons, capture the exact failure and run the provider-neutral contract tests plus compile checks; do not label the backend proof PASS.
 
-- [ ] **Step 4: Recheck timeout and peer propagation boundaries**
+- [x] **Step 4: Recheck timeout and peer propagation boundaries**
 
   Confirm a shared-back peer can retain a stale front entry after another near
   cache calls `clear()`, while the invoking wrapper's own front and back are
@@ -187,15 +189,15 @@ If a Testcontainers-backed command is unavailable or fails for environment reaso
 - Modify: `cache/cache-core/README.ko.md` lines 101-156 and the class table.
 - Modify: `docs/cache/near-cache-capability-matrix.md` JCache NearCache section.
 
-- [ ] **Step 1: Document identical standard read/clear semantics in both locales**
+- [x] **Step 1: Document identical standard read/clear semantics in both locales**
 
 State that `NearJCache` is a JCache-compatible logical 2-tier cache: standard `get`/`containsKey`/`getAll` read front then back, back hits populate front, and `clear` clears the wrapper’s front and back. State that `getDeeply` and `clearAllCache` remain compatibility aliases and that compound operations are tracked separately by #1355.
 
-- [ ] **Step 2: Document peer propagation and degraded boundaries**
+- [x] **Step 2: Document peer propagation and degraded boundaries**
 
 Explain that JCache `clear` does not promise listener-based peer-front invalidation; use `removeAll` when per-entry propagation is required. Keep Hazelcast factory degraded/unsupported rows precise and ensure English and Korean claims match.
 
-- [ ] **Step 3: Verify docs and link contracts**
+- [x] **Step 3: Verify docs and link contracts**
 
 Run:
 
@@ -208,7 +210,7 @@ Expected: no stale statement says standard `clear` or standard reads are front-o
 
 ## Task 5: Final verification, lesson gate, and branch commit
 
-- [ ] **Step 1: Run proportional Kotlin verification**
+- [x] **Step 1: Run proportional Kotlin verification**
 
 Run:
 
@@ -220,9 +222,9 @@ git status --short
 
 Read all results. The cache-core test task, detekt, and diff check must pass before pre-PR review. No new warnings, deprecated imports, or `!!` may be introduced in touched Kotlin files.
 
-- [ ] **Step 2: Complete the Kotlin checklist and lesson decision**
+- [x] **Step 2: Complete the Kotlin checklist and lesson decision**
 
-Load `bluetape-kotlin-patterns/references/checklist.md` and the testing reference because Kotlin tests/fixtures are touched. Record KT-01 through KT-05 evidence, including public KDoc/README parity, mock contract coverage, and exact backend-test gaps. Create a Korean durable lesson only if this change yields reusable guidance not already covered by the existing cache consistency rule; otherwise record why no novel failure/recovery/design/operational guidance exists.
+Load `bluetape-kotlin-patterns/references/checklist.md` and the testing reference because Kotlin tests/fixtures are touched. Record KT-01 through KT-05 evidence, including public KDoc/README parity, mock contract coverage, and exact backend-test gaps. This change yielded reusable read-epoch/backend-generation and clear-barrier guidance, recorded in `docs/lessons/2026-08-12-issue-1363-nearjcache-contract.md`.
 
 - [ ] **Step 3: Commit the converged implementation**
 
