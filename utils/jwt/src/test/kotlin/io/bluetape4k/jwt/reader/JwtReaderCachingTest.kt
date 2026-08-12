@@ -15,6 +15,7 @@ import io.bluetape4k.testcontainers.storage.RedisServer
 import org.awaitility.kotlin.atMost
 import org.awaitility.kotlin.await
 import org.awaitility.kotlin.until
+import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.RepeatedTest
 import org.redisson.codec.LZ4Codec
 import java.util.*
@@ -124,21 +125,36 @@ class JwtReaderCachingTest: AbstractJwtTest() {
 
     @RepeatedTest(REPEAT_SIZE)
     fun `caching reader with two near cache`() {
-        val nearJCacheConfig1 = NearJCacheConfig<String, JwtReaderDto>(isSynchronous = true)
-        val nearJCacheConfig2 = NearJCacheConfig<String, JwtReaderDto>(isSynchronous = true)
+        // Redisson JCache의 blocking `put`은 provider 내부 lock까지 포함하므로
+        // 테스트에서는 bounded async write-through를 사용하고 back 반영을 await한다.
+        val nearJCacheConfig1 = NearJCacheConfig<String, JwtReaderDto>(isSynchronous = false)
+        val nearJCacheConfig2 = NearJCacheConfig<String, JwtReaderDto>(isSynchronous = false)
         val nearJCache1 = NearJCache(nearJCacheConfig1, backCache)
         val nearJCache2 = NearJCache(nearJCacheConfig2, backCache)
 
-        // Cache 1 에서 저장
-        nearJCache1.put(jwt, reader.toDto())
-        assertSameReader(reader, nearJCache1.get(jwt)!!.toJwtReader())
+        try {
+            // Cache 1 에서 저장
+            nearJCache1.put(jwt, reader.toDto())
+            nearJCache1.lastBackCacheWriteCompletion.toCompletableFuture().join()
+            assertSameReader(reader, nearJCache1.get(jwt)!!.toJwtReader())
 
-        await atMost 10.seconds until { nearJCache2.containsKey(jwt) }
+            await atMost 10.seconds until { nearJCache2.containsKey(jwt) }
 
-        // Cache 2 에서 조회
-        val actual = nearJCache2.get(jwt)!!.toJwtReader()
+            // Cache 2 에서 조회
+            val actual = nearJCache2.get(jwt)!!.toJwtReader()
 
-        assertSameReader(reader, actual)
+            assertSameReader(reader, actual)
+        } finally {
+            nearJCache1.close()
+            nearJCache2.close()
+        }
+    }
+
+    @AfterAll
+    fun closeCaches() {
+        runCatching { backCache.close() }
+        runCatching { frontCache1.close() }
+        runCatching { frontCache2.close() }
     }
 
     private fun assertSameReader(expected: JwtReader, actual: JwtReader) {
