@@ -61,23 +61,26 @@ class OkHttp3SupportTest: AbstractHttpTest() {
 
                 client.executeAsync(request)
                     .onSuccess { response ->
-                        sw.stop()
-                        log.trace { "Run $index elapsed time=${sw.formatTime()}" }
-                        response.isSuccessful.shouldBeTrue()
+                        response.use {
+                            sw.stop()
+                            log.trace { "Run $index elapsed time=${sw.formatTime()}" }
+                            it.isSuccessful.shouldBeTrue()
+                            it.bodyAsString().shouldNotBeBlank()
+                        }
                     }
                     .onFailure { error -> fail(error) }
             }
 
-            val responses = futures.allAsList().get()
-            responses.all { it.isSuccessful }.shouldBeTrue()
+            futures.allAsList().get()
         }
 
         private fun CompletableFuture<okhttp3.Response>.verifyResponse() {
             this
                 .onSuccess { response ->
-                    val bodyStr = response.bodyAsString()
-                    log.trace { "Response body=$bodyStr" }
-                    bodyStr!!.shouldNotBeBlank()
+                    response.use {
+                        val bodyStr = it.bodyAsString().shouldNotBeNull().shouldNotBeBlank()
+                        log.trace { "Response body=$bodyStr" }
+                    }
                 }
                 .onFailure { error ->
                     log.error(error) { "Failed to execute request" }
@@ -109,22 +112,23 @@ class OkHttp3SupportTest: AbstractHttpTest() {
                 async(Dispatchers.IO) {
                     val sw = StopWatch.createStarted()
 
-                    client.executeSuspending(request)
-                        .apply {
-                            sw.stop()
-                            log.trace { "Run $index elapsed time=${sw.formatTime()}" }
-                            this.isSuccessful.shouldBeTrue()
-                        }
+                    client.executeSuspending(request).use {
+                        sw.stop()
+                        log.trace { "Run $index elapsed time=${sw.formatTime()}" }
+                        it.isSuccessful.shouldBeTrue()
+                        it.bodyAsString().shouldNotBeBlank()
+                    }
                 }
             }
 
-            val responses = tasks.awaitAll()
-            responses.all { it.isSuccessful }.shouldBeTrue()
+            tasks.awaitAll()
         }
 
         private fun okhttp3.Response.verifyResponse() {
-            val bodyStr = bodyAsString().shouldNotBeNull().shouldNotBeBlank()
-            log.trace { "Response body=$bodyStr" }
+            use {
+                val bodyStr = it.bodyAsString().shouldNotBeNull().shouldNotBeBlank()
+                log.trace { "Response body=$bodyStr" }
+            }
         }
     }
 }
