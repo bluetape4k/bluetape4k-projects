@@ -10,6 +10,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
 import java.io.File
 import java.io.IOException
+import java.nio.file.Files
 import io.bluetape4k.assertions.assertFailsWith
 
 class ZipFileSupportTest {
@@ -167,6 +168,48 @@ class ZipFileSupportTest {
         }
 
         File(tempDir, "safe-output-sibling/evil.txt").exists() shouldBeEqualTo false
+    }
+
+    @Test
+    fun `unzip은 기존 출력 디렉토리 심볼릭 링크를 따라가지 않는다`() {
+        val outsideDir = File(tempDir.parentFile, "zip-slip-outside-dir").apply { mkdirs() }
+        val destDir = File(tempDir, "symlink-output").apply { mkdirs() }
+        Files.createSymbolicLink(File(destDir, "linked").toPath(), outsideDir.toPath())
+
+        val zipFile = File(tempDir, "symlink-directory.zip")
+        zipFile.writeBytes(
+            ZipBuilder.ofInMemory()
+                .add("악성 내용").path("linked/evil.txt").save()
+                .toBytes(),
+        )
+
+        assertFailsWith<IOException> {
+            unzip(zipFile, destDir)
+        }
+
+        File(outsideDir, "evil.txt").exists() shouldBeEqualTo false
+    }
+
+    @Test
+    fun `unzip은 기존 출력 파일 심볼릭 링크를 덮어쓰지 않는다`() {
+        val outsideFile = File(tempDir.parentFile, "zip-slip-outside-file.txt").apply {
+            writeText("기존 안전한 내용")
+        }
+        val destDir = File(tempDir, "symlink-file-output").apply { mkdirs() }
+        Files.createSymbolicLink(File(destDir, "escape.txt").toPath(), outsideFile.toPath())
+
+        val zipFile = File(tempDir, "symlink-file.zip")
+        zipFile.writeBytes(
+            ZipBuilder.ofInMemory()
+                .add("악성 덮어쓰기").path("escape.txt").save()
+                .toBytes(),
+        )
+
+        assertFailsWith<IOException> {
+            unzip(zipFile, destDir)
+        }
+
+        outsideFile.readText() shouldBeEqualTo "기존 안전한 내용"
     }
 
     @Test
