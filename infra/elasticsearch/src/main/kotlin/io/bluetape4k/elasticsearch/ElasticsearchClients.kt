@@ -6,10 +6,16 @@ import co.elastic.clients.json.JsonpMapper
 import co.elastic.clients.transport.ElasticsearchTransport
 import co.elastic.clients.transport.ElasticsearchTransportConfig
 import co.elastic.clients.transport.rest5_client.Rest5ClientTransport
+import co.elastic.clients.transport.rest5_client.Rest5ClientOptions
 import co.elastic.clients.transport.rest5_client.low_level.Rest5Client
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.support.requireNotBlank
 import io.bluetape4k.support.requirePositiveNumber
+import org.apache.hc.client5.http.config.ConnectionConfig
+import org.apache.hc.core5.http.Header
+import org.apache.hc.core5.http.message.BasicHeader
+import org.apache.hc.core5.util.Timeout
+import java.util.Base64
 import javax.net.ssl.SSLContext
 
 /**
@@ -42,6 +48,9 @@ import javax.net.ssl.SSLContext
  * `synchronized` / `@Synchronized` 를 사용하지 않으며, 필요한 경우 `ReentrantLock` 을 사용합니다.
  */
 object ElasticsearchClients : KLogging() {
+
+    /** Testcontainers 및 JVM cold-start 환경에서 연결 handshake를 허용하는 시간입니다. */
+    private const val DEFAULT_CONNECT_TIMEOUT_MILLIS: Long = 10_000L
 
     /** 기본 Elasticsearch 호스트 */
     const val DEFAULT_HOST: String = ElasticsearchDefaults.DEFAULT_HOST
@@ -191,7 +200,11 @@ object ElasticsearchClients : KLogging() {
      *     .sslContext(sslContext)                     // SSL 있을 때만
      *     .jsonMapper(mapper)                         // mapper 있을 때만
      *     .build()
-     *     .buildTransport()   // Rest5ClientTransport 자동 생성
+     *     .buildTransport()   // 기본 Rest5ClientTransport 생성
+     *
+     * 기본 Rest5Client의 연결 timeout은 1초이므로, Testcontainers 및 JVM cold-start
+     * 환경을 위해 low-level Rest5Client를 직접 구성하면서 나머지 transport 설정은
+     * 그대로 전달합니다.
      * ```
      *
      * @param host       연결할 Elasticsearch 호스트
@@ -237,6 +250,28 @@ object ElasticsearchClients : KLogging() {
             }
             .build()
 
-        return config.buildTransport()
+        return Rest5ClientTransport(
+            Rest5Client.builder(config.hosts())
+                .apply {
+                    val username = config.username()
+                    val password = config.password()
+                    if (username != null && password != null) {
+                        val credentials = Base64.getEncoder()
+                            .encodeToString("$username:$password".toByteArray(Charsets.UTF_8))
+                        setDefaultHeaders(
+                            arrayOf<Header>(BasicHeader("Authorization", "Basic $credentials"))
+                        )
+                    }
+                    config.sslContext()?.let(::setSSLContext)
+                    setCompressionEnabled(config.useCompression())
+                    setConnectionConfigCallback { connectionConfig: ConnectionConfig.Builder ->
+                        connectionConfig.setConnectTimeout(Timeout.ofMilliseconds(DEFAULT_CONNECT_TIMEOUT_MILLIS))
+                    }
+                }
+                .build(),
+            config.mapper() ?: co.elastic.clients.json.jackson.JacksonJsonpMapper(),
+            Rest5ClientOptions.of(config.transportOptions()),
+            config.instrumentation(),
+        )
     }
 }
