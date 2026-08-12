@@ -10,8 +10,16 @@ import io.bluetape4k.assertions.shouldContain
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeNull
 import com.hazelcast.nio.serialization.HazelcastSerializationException
+import io.mockk.every
+import io.mockk.just
+import io.mockk.mockk
+import io.mockk.runs
+import io.mockk.verify
 import org.junit.jupiter.api.Test
 import org.testcontainers.utility.Base58
+import javax.cache.CacheManager
+import javax.cache.configuration.Configuration
+import javax.cache.configuration.Factory
 import javax.cache.configuration.MutableConfiguration
 
 class HazelcastNearJCacheTest {
@@ -37,6 +45,36 @@ class HazelcastNearJCacheTest {
         failure.message shouldContain "MutableCacheEntryListenerConfiguration"
         failure.stackTraceToString() shouldContain "NotSerializableException"
         failure.stackTraceToString() shouldContain "JCacheEntryEventListener"
+    }
+
+    @Suppress("UNCHECKED_CAST")
+    @Test
+    fun `factory closes front cache when NearJCache construction fails`() {
+        val cacheName = "hazelcast-near-jcache-failure-" + Base58.randomString(6)
+        val frontCache = mockk<JCache<String, String>>(relaxed = true)
+        val frontCacheManager = mockk<CacheManager>()
+        val storeByValueConfiguration = MutableConfiguration<String, String>().apply {
+            setStoreByValue(true)
+        }
+        val configurationClass = Configuration::class.java as Class<Configuration<String, String>>
+        every {
+            frontCache.getConfiguration(configurationClass)
+        } returns storeByValueConfiguration
+        every { frontCache.close() } just runs
+        every {
+            frontCacheManager.createCache<String, String, MutableConfiguration<String, String>>(cacheName, any())
+        } returns frontCache
+
+        val config = NearJCacheConfig<String, String>(
+            cacheName = cacheName,
+            cacheManagerFactory = Factory { frontCacheManager },
+        )
+
+        assertFailsWith<IllegalArgumentException> {
+            HazelcastCaches.nearJCache<String, String>(hazelcastClient, config)
+        }
+
+        verify(exactly = 1) { frontCache.close() }
     }
 
     @Test
