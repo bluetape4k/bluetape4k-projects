@@ -32,12 +32,13 @@ Native API는 `NearCacheOperations<V>` 또는 `SuspendNearCacheOperations<V>`를
 JCache API는 `NearJCache<K,V>` 또는 `SuspendNearJCache<K,V>`를 구현한다.
 
 동기 `NearJCache`의 표준 `get`, `containsKey`, `getAll`은 front miss를 back에서
-읽고 back hit를 front에 채우는 논리적 2-tier read 계약을 따른다. 표준 `clear`와
+읽고 back hit를 front에 채우는 논리적 2-tier read 계약을 따른다. `getAndPut`,
+`getAndRemove`, `getAndReplace`는 back provider의 원자 compound 연산을
+수행한 뒤 front를 갱신한다. 표준 `clear`와
 호환 alias `clearAllCache`는 현재 wrapper의 front와 back을 함께 지운다. 공유
 back을 사용하는 peer wrapper의 기존 front까지 listener로 지우는 것은 보장하지
-않는다. `getDeeply`는 표준 `get`의 alias이며, compound 원자성은
-[#1355](https://github.com/bluetape4k/bluetape4k-projects/issues/1355)의 별도
-계약이다.
+않는다. `getDeeply`는 표준 `get`의 alias이며, compound 원자성은 provider의
+back atomic operation을 먼저 완료한 뒤 front를 reconciliation하는 계약으로 고정한다.
 
 `NearJCacheConfig`의 기본 front는 store-by-reference이며, 안전한 filtered copier
 계약이 없는 custom store-by-value 설정은 생성 단계에서 거부한다. read-through

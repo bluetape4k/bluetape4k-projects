@@ -143,6 +143,7 @@ class NearJCache<K: Any, V: Any>(
 
     private val lock = ReentrantLock()
     private val mutationGate = ReentrantLock()
+    private val compoundGate = ReentrantLock()
     private val backWriteLock = ReentrantLock(true)
     private val listenerRegistrationLock = ReentrantLock()
     private val mutationEpoch = AtomicLong()
@@ -167,6 +168,8 @@ class NearJCache<K: Any, V: Any>(
         )
     )
     private val backCacheWriteListeners = CopyOnWriteArrayList<(BackCacheWriteCompletion) -> Unit>()
+
+    private object CompoundResultUnset
 
     /**
      * 마지막으로 예약한 Back Cache write-through의 완료 상태입니다.
@@ -203,38 +206,40 @@ class NearJCache<K: Any, V: Any>(
 
     @Suppress("TooGenericExceptionCaught")
     override fun clear() {
-        val hadBackCacheListener = backCacheListener.get() != null
-        detachBackCacheListener()
-        var primaryFailure: Throwable? = null
-        try {
-            mutationGate.withLock {
-                mutationEpoch.incrementAndGet()
-                val expectedBackWriteGeneration = backWriteGeneration.incrementAndGet()
-                log.debug { "Near Cache의 Front와 Back cache를 Clear합니다." }
-                frontCache.clear()
-                syncBackCache(
-                    operation = "clear",
-                    synchronous = true,
-                    expectedBackWriteGeneration = expectedBackWriteGeneration,
-                ) {
-                    backCache.clear()
-                }
-            }
-        } catch (e: Throwable) {
-            primaryFailure = e
-        }
-        if (hadBackCacheListener) {
+        compoundGate.withLock {
+            val hadBackCacheListener = backCacheListener.get() != null
+            detachBackCacheListener()
+            var primaryFailure: Throwable? = null
             try {
-                registerBackCacheListener()
-            } catch (registrationFailure: Throwable) {
-                if (primaryFailure == null) {
-                    primaryFailure = registrationFailure
-                } else if (registrationFailure !== primaryFailure) {
-                    primaryFailure.addSuppressed(registrationFailure)
+                mutationGate.withLock {
+                    mutationEpoch.incrementAndGet()
+                    val expectedBackWriteGeneration = backWriteGeneration.incrementAndGet()
+                    log.debug { "Near Cache의 Front와 Back cache를 Clear합니다." }
+                    frontCache.clear()
+                    syncBackCache(
+                        operation = "clear",
+                        synchronous = true,
+                        expectedBackWriteGeneration = expectedBackWriteGeneration,
+                    ) {
+                        backCache.clear()
+                    }
+                }
+            } catch (e: Throwable) {
+                primaryFailure = e
+            }
+            if (hadBackCacheListener) {
+                try {
+                    registerBackCacheListener()
+                } catch (registrationFailure: Throwable) {
+                    if (primaryFailure == null) {
+                        primaryFailure = registrationFailure
+                    } else if (registrationFailure !== primaryFailure) {
+                        primaryFailure.addSuppressed(registrationFailure)
+                    }
                 }
             }
+            primaryFailure?.let { throw it }
         }
-        primaryFailure?.let { throw it }
     }
 
     /**
@@ -299,11 +304,13 @@ class NearJCache<K: Any, V: Any>(
     }
 
     override fun close() {
-        detachBackCacheListener()
-        lock.withLock {
-            log.debug { "Near Cache 의 Front Cache를 Close 합니다." }
-            runCatching {
-                frontCache.close()
+        compoundGate.withLock {
+            detachBackCacheListener()
+            lock.withLock {
+                log.debug { "Near Cache 의 Front Cache를 Close 합니다." }
+                runCatching {
+                    frontCache.close()
+                }
             }
         }
     }
@@ -406,24 +413,48 @@ class NearJCache<K: Any, V: Any>(
         return frontValues.toMutableMap().apply { putAll(backValues) }
     }
 
-    override fun getAndRemove(key: K): V? {
-        if (frontContainsKey(key)) {
-            val oldValue = frontGet(key)
-            remove(key)
-            return oldValue
+    /**
+     * Back Cache의 원자 compound 연산 결과를 기준으로 Front Cache를 동기화합니다.
+     *
+     * JCache compound 연산은 호출자가 이전 값을 즉시 받아야 하므로 설정의
+     * 비동기 write-through 여부와 무관하게 Back Cache 원자 연산을 완료한 뒤
+     * Front Cache를 갱신합니다. Back provider가 호출 중 동기 listener를
+     * 실행할 수 있으므로 Back 호출 중에는 mutation gate를 잡지 않고,
+     * 동일 wrapper의 compound 순서만 별도 gate로 직렬화합니다. Back provider가
+     * 제공하는 `getAnd*` 경계를 우회하는 front read/put 조합은 사용하지 않습니다.
+     */
+    override fun getAndPut(key: K, value: V): V? = compoundGate.withLock {
+        mutationGate.withLock { mutationEpoch.incrementAndGet() }
+        val oldValue = runCompoundBackCacheOperation("getAndPut") {
+            backCache.getAndPut(key, value)
         }
-        return null
+        mutationGate.withLock { frontCache.put(key, value) }
+        oldValue
     }
 
-    override fun getAndReplace(key: K, value: V): V? {
-        log.trace { "get and replace. key=$key" }
-        if (frontContainsKey(key)) {
-            log.trace { "get entry, and put new value. key=$key, new value=$value" }
-            val oldValue = frontGet(key)
-            put(key, value)
-            return oldValue
+    override fun getAndRemove(key: K): V? = compoundGate.withLock {
+        mutationGate.withLock { mutationEpoch.incrementAndGet() }
+        val oldValue = runCompoundBackCacheOperation("getAndRemove") {
+            backCache.getAndRemove(key)
         }
-        return null
+        mutationGate.withLock { frontCache.remove(key) }
+        oldValue
+    }
+
+    override fun getAndReplace(key: K, value: V): V? = compoundGate.withLock {
+        log.trace { "get and replace. key=$key" }
+        mutationGate.withLock { mutationEpoch.incrementAndGet() }
+        val oldValue = runCompoundBackCacheOperation("getAndReplace") {
+            backCache.getAndReplace(key, value)
+        }
+        mutationGate.withLock {
+            if (oldValue == null) {
+                frontCache.remove(key)
+            } else {
+                frontCache.put(key, value)
+            }
+        }
+        oldValue
     }
 
     operator fun set(key: K, value: V) {
@@ -680,12 +711,21 @@ class NearJCache<K: Any, V: Any>(
         }
     }
 
-    private fun frontContainsKey(key: K): Boolean = mutationGate.withLock {
-        frontCache.containsKey(key)
-    }
-
-    private fun frontGet(key: K): V? = mutationGate.withLock {
-        frontCache.get(key)
+    private fun <R> runCompoundBackCacheOperation(operation: String, operationBlock: () -> R): R {
+        val result = AtomicReference<Any?>(CompoundResultUnset)
+        syncBackCache(
+            operation = operation,
+            synchronous = true,
+            expectedBackWriteGeneration = backWriteGeneration.get(),
+        ) {
+            result.set(operationBlock())
+        }
+        val value = result.get()
+        check(value !== CompoundResultUnset) {
+            "NearJCache compound operation completed without a result. operation=$operation"
+        }
+        @Suppress("UNCHECKED_CAST")
+        return value as R
     }
 
     @Suppress("TooGenericExceptionCaught")
