@@ -18,6 +18,7 @@ import io.bluetape4k.cache.nearcache.jcache.NearJCacheConfigBuilder
 import io.bluetape4k.cache.nearcache.jcache.SuspendNearJCache
 import io.bluetape4k.cache.nearcache.jcache.nearJCacheConfig
 import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.error
 import io.bluetape4k.logging.info
 import java.util.concurrent.TimeUnit
 import javax.cache.configuration.Configuration
@@ -251,6 +252,10 @@ object HazelcastCaches: KLogging() {
      * @param hazelcastInstance Hazelcast 인스턴스
      * @param config [NearJCacheConfig] 설정
      * @return [NearJCache] 인스턴스
+     *
+     * 반환된 wrapper의 `close()`는 이 팩토리가 생성한 front cache만 닫고,
+     * 전달받은 Hazelcast 인스턴스와 back cache는 닫지 않습니다. 생성 rollback도
+     * front 정리 실패를 주 예외의 suppressed 예외로 보존합니다.
      */
     @Suppress("TooGenericExceptionCaught")
     inline fun <reified K: Any, reified V: Any> nearJCache(
@@ -278,8 +283,19 @@ object HazelcastCaches: KLogging() {
         log.info { "NearJCache 생성. config=$config" }
         return try {
             NearJCache(frontCache, backCache, config)
-        } catch (e: RuntimeException) {
-            runCatching { frontCache.close() }
+        } catch (e: Throwable) {
+            try {
+                frontCache.close()
+            } catch (cleanupFailure: Throwable) {
+                if (cleanupFailure !== e) {
+                    e.addSuppressed(cleanupFailure)
+                }
+                log.error(cleanupFailure) {
+                    "Hazelcast NearJCache front cleanup failed. " +
+                            "operation=constructor-rollback, cache=${config.cacheName}, " +
+                            "provider=${frontCache.javaClass.name}"
+                }
+            }
             throw e
         }
     }

@@ -74,6 +74,15 @@ The default front configuration uses store-by-reference. A custom store-by-value
 front configuration is rejected until a filtered, provider-specific copier
 contract is supplied.
 
+`close()` deregisters the listener registered by this wrapper and closes only its
+owned front cache; it never closes the supplied back cache or provider. Cleanup
+failures are observable: the first failure is propagated and later cleanup
+failures are attached as suppressed exceptions. A successful `close()` is
+idempotent, while a listener-deregistration or front-close failure is retried by
+the next call. Listener registration is rejected once close has started. If
+construction fails after the front cache is created, the same
+primary/suppressed exception policy is applied during rollback.
+
 ## Near-Cache Capability Matrix
 
 The shared support boundary for native and JCache near-cache variants is tracked

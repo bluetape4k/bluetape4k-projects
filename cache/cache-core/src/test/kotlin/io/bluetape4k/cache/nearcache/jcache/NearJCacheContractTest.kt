@@ -21,14 +21,244 @@ import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicInteger
 import javax.cache.Cache
+import javax.cache.CacheManager
 import javax.cache.configuration.CacheEntryListenerConfiguration
 import javax.cache.configuration.Configuration
+import javax.cache.configuration.Factory
 import javax.cache.configuration.MutableConfiguration
 import javax.cache.event.CacheEntryEvent
 import javax.cache.event.CacheEntryCreatedListener
 import javax.cache.event.CacheEntryUpdatedListener
 
 class NearJCacheContractTest {
+
+    @Test
+    fun `명시적 close는 front cleanup failure를 호출자에게 전달한다`() {
+        val frontCache = mockk<JCache<String, String>>(relaxed = true)
+        val backCache = mockk<JCache<String, String>>(relaxed = true)
+        val failure = IllegalStateException("front close failed")
+        every { frontCache.close() } throws failure
+        val nearCache = newNearCache(frontCache, backCache)
+
+        val error = assertFailsWith<IllegalStateException> { nearCache.close() }
+
+        (error === failure).shouldBeTrue()
+        verify(exactly = 1) { frontCache.close() }
+    }
+
+    @Test
+    fun `front cleanup failure 후 close는 다음 호출에서 front 정리를 재시도한다`() {
+        val frontCache = mockk<JCache<String, String>>(relaxed = true)
+        val backCache = mockk<JCache<String, String>>(relaxed = true)
+        val failure = IllegalStateException("front close failed")
+        val closeAttempts = AtomicInteger()
+        every { frontCache.close() } answers {
+            if (closeAttempts.incrementAndGet() == 1) {
+                throw failure
+            }
+        }
+        val nearCache = newNearCache(frontCache, backCache)
+
+        assertFailsWith<IllegalStateException> { nearCache.close() }
+        nearCache.close()
+
+        verify(exactly = 2) { frontCache.close() }
+    }
+
+    @Test
+    fun `close cleanup 로그는 operation cache provider metadata를 기록한다`() {
+        val frontCache = mockk<JCache<String, String>>(relaxed = true)
+        val backCache = mockk<JCache<String, String>>(relaxed = true)
+        val cacheName = "near-jcache-cleanup-log"
+        every { frontCache.close() } throws IllegalStateException("front unavailable")
+        val nearCache = NearJCache(
+            frontCache = frontCache,
+            backCache = backCache,
+            config = NearJCacheConfig(cacheName = cacheName, isSynchronous = true),
+        )
+        val logger = NearJCache.log as Logger
+        val previousLevel = logger.level
+        val appender = ListAppender<ILoggingEvent>().apply { start() }
+        logger.level = Level.TRACE
+        logger.addAppender(appender)
+        try {
+            assertFailsWith<IllegalStateException> { nearCache.close() }
+            appender.list.map { it.formattedMessage }.any { message ->
+                message.contains("operation=close") &&
+                        message.contains("cache=$cacheName") &&
+                        message.contains("provider=")
+            }.shouldBeTrue()
+        } finally {
+            logger.detachAppender(appender)
+            appender.stop()
+            logger.level = previousLevel
+        }
+    }
+
+    @Test
+    fun `listener registration failure 로그는 operation cache provider metadata를 기록한다`() {
+        val frontCache = mockk<JCache<String, String>>(relaxed = true)
+        val backCache = mockk<JCache<String, String>>(relaxed = true)
+        val cacheName = "near-jcache-registration-log"
+        val failure = IllegalStateException("listener unavailable")
+        every { backCache.registerCacheEntryListener(any()) } throws failure
+        val nearCache = NearJCache(
+            frontCache = frontCache,
+            backCache = backCache,
+            config = NearJCacheConfig(cacheName = cacheName, isSynchronous = true),
+        )
+        val logger = NearJCache.log as Logger
+        val previousLevel = logger.level
+        val appender = ListAppender<ILoggingEvent>().apply { start() }
+        logger.level = Level.TRACE
+        logger.addAppender(appender)
+        try {
+            assertFailsWith<IllegalStateException> { nearCache.registerBackCacheListener() }
+            appender.list.map { it.formattedMessage }.any { message ->
+                message.contains("operation=register") &&
+                        message.contains("cache=$cacheName") &&
+                        message.contains("provider=")
+            }.shouldBeTrue()
+        } finally {
+            logger.detachAppender(appender)
+            appender.stop()
+            logger.level = previousLevel
+        }
+    }
+
+    @Test
+    fun `명시적 close는 listener와 front cleanup failure를 모두 보존한다`() {
+        val frontCache = mockk<JCache<String, String>>(relaxed = true)
+        val backCache = mockk<JCache<String, String>>(relaxed = true)
+        val listenerFailure = IllegalStateException("listener close failed")
+        val frontFailure = IllegalArgumentException("front close failed")
+        every { backCache.registerCacheEntryListener(any()) } returns Unit
+        every { backCache.deregisterCacheEntryListener(any()) } throws listenerFailure
+        every { frontCache.close() } throws frontFailure
+        val nearCache = newNearCache(frontCache, backCache)
+        nearCache.registerBackCacheListener()
+
+        val error = assertFailsWith<IllegalStateException> { nearCache.close() }
+
+        (error === listenerFailure).shouldBeTrue()
+        error.suppressed.single() shouldBeEqualTo frontFailure
+        verify(exactly = 1) { frontCache.close() }
+    }
+
+    @Test
+    fun `성공한 close는 중복 호출해도 front와 listener를 한 번만 정리한다`() {
+        val frontCache = mockk<JCache<String, String>>(relaxed = true)
+        val backCache = mockk<JCache<String, String>>(relaxed = true)
+        every { backCache.registerCacheEntryListener(any()) } returns Unit
+        every { backCache.deregisterCacheEntryListener(any()) } returns Unit
+        every { frontCache.close() } returns Unit
+        val nearCache = newNearCache(frontCache, backCache)
+        nearCache.registerBackCacheListener()
+
+        nearCache.close()
+        nearCache.close()
+
+        verify(exactly = 1) { backCache.deregisterCacheEntryListener(any()) }
+        verify(exactly = 1) { frontCache.close() }
+    }
+
+    @Test
+    fun `listener cleanup failure 후 close는 다음 호출에서 listener 정리를 재시도한다`() {
+        val frontCache = mockk<JCache<String, String>>(relaxed = true)
+        val backCache = mockk<JCache<String, String>>(relaxed = true)
+        val failure = IllegalStateException("listener close failed")
+        val deregisterAttempts = AtomicInteger()
+        every { backCache.registerCacheEntryListener(any()) } returns Unit
+        every { backCache.deregisterCacheEntryListener(any()) } answers {
+            if (deregisterAttempts.incrementAndGet() == 1) {
+                throw failure
+            }
+        }
+        every { frontCache.close() } returns Unit
+        val nearCache = newNearCache(frontCache, backCache)
+        nearCache.registerBackCacheListener()
+
+        assertFailsWith<IllegalStateException> { nearCache.close() }
+        nearCache.close()
+
+        verify(exactly = 2) { backCache.deregisterCacheEntryListener(any()) }
+        verify(exactly = 1) { frontCache.close() }
+    }
+
+    @Test
+    fun `listener와 front cleanup이 함께 실패해도 다음 close에서 둘 다 재시도한다`() {
+        val frontCache = mockk<JCache<String, String>>(relaxed = true)
+        val backCache = mockk<JCache<String, String>>(relaxed = true)
+        val listenerFailure = IllegalStateException("listener close failed")
+        val frontFailure = IllegalArgumentException("front close failed")
+        val deregisterAttempts = AtomicInteger()
+        val closeAttempts = AtomicInteger()
+        every { backCache.registerCacheEntryListener(any()) } returns Unit
+        every { backCache.deregisterCacheEntryListener(any()) } answers {
+            if (deregisterAttempts.incrementAndGet() == 1) {
+                throw listenerFailure
+            }
+        }
+        every { frontCache.close() } answers {
+            if (closeAttempts.incrementAndGet() == 1) {
+                throw frontFailure
+            }
+        }
+        val nearCache = newNearCache(frontCache, backCache)
+        nearCache.registerBackCacheListener()
+
+        val error = assertFailsWith<IllegalStateException> { nearCache.close() }
+        (error === listenerFailure).shouldBeTrue()
+        error.suppressed.single() shouldBeEqualTo frontFailure
+
+        nearCache.close()
+
+        verify(exactly = 2) { backCache.deregisterCacheEntryListener(any()) }
+        verify(exactly = 2) { frontCache.close() }
+    }
+
+    @Test
+    fun `close 이후 listener 재등록은 거부한다`() {
+        val frontCache = mockk<JCache<String, String>>(relaxed = true)
+        val backCache = mockk<JCache<String, String>>(relaxed = true)
+        val nearCache = newNearCache(frontCache, backCache)
+
+        nearCache.close()
+
+        assertFailsWith<IllegalStateException> { nearCache.registerBackCacheListener() }
+        verify(exactly = 0) { backCache.registerCacheEntryListener(any()) }
+    }
+
+    @Suppress("UNCHECKED_CAST")
+    @Test
+    fun `생성 rollback은 listener primary failure와 front cleanup failure를 함께 보존한다`() {
+        val cacheName = "near-jcache-construction-failure"
+        val frontCache = mockk<JCache<String, String>>(relaxed = true)
+        val frontCacheManager = mockk<CacheManager>()
+        val backCache = mockk<JCache<String, String>>(relaxed = true)
+        val listenerFailure = IllegalStateException("listener registration failed")
+        val cleanupFailure = IllegalArgumentException("front close failed")
+        val configuration = MutableConfiguration<String, String>().setStoreByValue(false)
+        val configurationClass = Configuration::class.java as Class<Configuration<String, String>>
+        every { frontCache.getConfiguration(configurationClass) } returns configuration
+        every {
+            frontCacheManager.createCache<String, String, MutableConfiguration<String, String>>(cacheName, any())
+        } returns frontCache
+        every { backCache.registerCacheEntryListener(any()) } throws listenerFailure
+        every { frontCache.close() } throws cleanupFailure
+
+        val nearConfig = NearJCacheConfig<String, String>(
+            cacheManagerFactory = Factory { frontCacheManager },
+            cacheName = cacheName,
+            isSynchronous = true,
+        )
+
+        val error = assertFailsWith<IllegalStateException> { NearJCache(nearConfig, backCache) }
+
+        (error === listenerFailure).shouldBeTrue()
+        error.suppressed.single() shouldBeEqualTo cleanupFailure
+        verify(exactly = 1) { frontCache.close() }
+    }
 
     @Test
     fun `표준 Cache get은 back miss를 fallback하고 front를 채운다`() {
