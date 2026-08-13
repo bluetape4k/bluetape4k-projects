@@ -11,9 +11,7 @@ import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeNull
 import com.hazelcast.nio.serialization.HazelcastSerializationException
 import io.mockk.every
-import io.mockk.just
 import io.mockk.mockk
-import io.mockk.runs
 import io.mockk.verify
 import org.junit.jupiter.api.Test
 import org.testcontainers.utility.Base58
@@ -56,11 +54,12 @@ class HazelcastNearJCacheTest {
         val storeByValueConfiguration = MutableConfiguration<String, String>().apply {
             setStoreByValue(true)
         }
+        val cleanupFailure = IllegalStateException("front close failed")
         val configurationClass = Configuration::class.java as Class<Configuration<String, String>>
         every {
             frontCache.getConfiguration(configurationClass)
         } returns storeByValueConfiguration
-        every { frontCache.close() } just runs
+        every { frontCache.close() } throws cleanupFailure
         every {
             frontCacheManager.createCache<String, String, MutableConfiguration<String, String>>(cacheName, any())
         } returns frontCache
@@ -70,10 +69,11 @@ class HazelcastNearJCacheTest {
             cacheManagerFactory = Factory { frontCacheManager },
         )
 
-        assertFailsWith<IllegalArgumentException> {
+        val error = assertFailsWith<IllegalArgumentException> {
             HazelcastCaches.nearJCache<String, String>(hazelcastClient, config)
         }
 
+        error.suppressed.single() shouldBeEqualTo cleanupFailure
         verify(exactly = 1) { frontCache.close() }
     }
 

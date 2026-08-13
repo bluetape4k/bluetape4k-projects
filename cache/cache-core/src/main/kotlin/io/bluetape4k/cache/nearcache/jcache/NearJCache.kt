@@ -20,6 +20,7 @@ import java.util.concurrent.ExecutionException
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeoutException
 import java.util.concurrent.TimeUnit
+import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicLong
 import java.util.concurrent.atomic.AtomicReference
 import java.util.concurrent.locks.ReentrantLock
@@ -134,9 +135,34 @@ class NearJCache<K: Any, V: Any>(
                 NearJCache(frontCache, backCache, nearCacheCfg).also {
                     it.registerBackCacheListener()
                 }
-            } catch (e: RuntimeException) {
-                runCatching { frontCache.close() }
+            } catch (e: Throwable) {
+                closeFrontCacheAfterFailure(
+                    frontCache = frontCache,
+                    primaryFailure = e,
+                    operation = "constructor-rollback",
+                    cacheName = nearCacheCfg.cacheName,
+                )
                 throw e
+            }
+        }
+
+        @Suppress("TooGenericExceptionCaught")
+        private fun closeFrontCacheAfterFailure(
+            frontCache: JCache<*, *>,
+            primaryFailure: Throwable,
+            operation: String,
+            cacheName: String,
+        ) {
+            try {
+                frontCache.close()
+            } catch (cleanupFailure: Throwable) {
+                if (cleanupFailure !== primaryFailure) {
+                    primaryFailure.addSuppressed(cleanupFailure)
+                }
+                log.error(cleanupFailure) {
+                    "NearJCache front cleanup failed. " +
+                            "operation=$operation, cache=$cacheName, provider=${frontCache.javaClass.name}"
+                }
             }
         }
     }
@@ -146,6 +172,9 @@ class NearJCache<K: Any, V: Any>(
     private val compoundGate = ReentrantLock()
     private val backWriteLock = ReentrantLock(true)
     private val listenerRegistrationLock = ReentrantLock()
+    private val frontCloseCompleted = AtomicBoolean(false)
+    private val closeStarted = AtomicBoolean(false)
+    private val closeCompleted = AtomicBoolean(false)
     private val mutationEpoch = AtomicLong()
     private val backWriteGeneration = AtomicLong()
     private class BackCacheListenerRegistration<K: Any, V: Any>(
@@ -251,32 +280,36 @@ class NearJCache<K: Any, V: Any>(
      */
     @Suppress("TooGenericExceptionCaught")
     fun registerBackCacheListener() {
-        listenerRegistrationLock.withLock {
-            if (backCacheListener.get() != null) return
+        compoundGate.withLock {
+            check(!closeStarted.get()) { "NearJCache listener registration is unavailable after close started" }
+            listenerRegistrationLock.withLock {
+                if (backCacheListener.get() != null) return
 
-            lateinit var registration: BackCacheListenerRegistration<K, V>
-            val listener = JCacheEntryEventListener<K, V>(frontCache) { eventType, events ->
-                applyBackCacheEvents(registration, eventType, events)
-            }
-            val configuration = MutableCacheEntryListenerConfiguration(
-                { listener },
-                null,
-                false,
-                config.isSynchronous
-            )
-            registration = BackCacheListenerRegistration(configuration)
-            backCacheListener.set(registration)
-            try {
-                log.info { "back cache 이벤트 listener 등록. cache=${config.cacheName}" }
-                backCache.registerCacheEntryListener(configuration)
-            } catch (e: Throwable) {
-                backCacheListener.compareAndSet(registration, null)
-                registration.active.set(false)
-                log.error(e) {
-                    "NearJCache back cache listener registration failed. " +
-                            "operation=register, cache=${config.cacheName}"
+                lateinit var registration: BackCacheListenerRegistration<K, V>
+                val listener = JCacheEntryEventListener<K, V>(frontCache) { eventType, events ->
+                    applyBackCacheEvents(registration, eventType, events)
                 }
-                throw e
+                val configuration = MutableCacheEntryListenerConfiguration(
+                    { listener },
+                    null,
+                    false,
+                    config.isSynchronous
+                )
+                registration = BackCacheListenerRegistration(configuration)
+                backCacheListener.set(registration)
+                try {
+                    log.info { "back cache 이벤트 listener 등록. cache=${config.cacheName}" }
+                    backCache.registerCacheEntryListener(configuration)
+                } catch (e: Throwable) {
+                    backCacheListener.compareAndSet(registration, null)
+                    registration.active.set(false)
+                    log.error(e) {
+                        "NearJCache back cache listener registration failed. " +
+                                "operation=register, cache=${config.cacheName}, " +
+                                "provider=${backCache.javaClass.name}"
+                    }
+                    throw e
+                }
             }
         }
     }
@@ -303,15 +336,54 @@ class NearJCache<K: Any, V: Any>(
         clear()
     }
 
+    /**
+     * 이 wrapper가 등록한 Back listener와 소유한 Front cache만 정리합니다.
+     * 전달받은 Back cache/provider는 닫지 않습니다.
+     *
+     * listener 또는 Front 정리 실패는 호출자에게 전달하며, 여러 정리 단계가 실패하면
+     * 첫 실패를 주 예외로 유지하고 이후 실패를 suppressed 예외로 연결합니다. 성공한
+     * close는 idempotent하며, listener 또는 Front 정리 실패 후에는 다음 호출에서
+     * 해당 정리를 재시도합니다. close가 시작된 뒤에는 listener를 다시 등록할 수 없습니다.
+     */
+    @Suppress("TooGenericExceptionCaught")
     override fun close() {
         compoundGate.withLock {
-            detachBackCacheListener()
-            lock.withLock {
-                log.debug { "Near Cache 의 Front Cache를 Close 합니다." }
-                runCatching {
-                    frontCache.close()
+            if (closeCompleted.get()) return
+            closeStarted.set(true)
+
+            var primaryFailure: Throwable? = null
+            try {
+                detachBackCacheListener()
+            } catch (listenerFailure: Throwable) {
+                primaryFailure = listenerFailure
+                log.error(listenerFailure) {
+                    "NearJCache cleanup failed. operation=close-listener, " +
+                            "cache=${config.cacheName}, provider=${backCache.javaClass.name}"
                 }
             }
+
+            if (!frontCloseCompleted.get()) {
+                try {
+                    lock.withLock {
+                        log.debug { "Near Cache 의 Front Cache를 Close 합니다." }
+                        frontCache.close()
+                    }
+                    frontCloseCompleted.set(true)
+                } catch (frontFailure: Throwable) {
+                    if (primaryFailure == null) {
+                        primaryFailure = frontFailure
+                    } else if (frontFailure !== primaryFailure) {
+                        primaryFailure.addSuppressed(frontFailure)
+                    }
+                    log.error(frontFailure) {
+                        "NearJCache front cleanup failed. operation=close, " +
+                                "cache=${config.cacheName}, provider=${frontCache.javaClass.name}"
+                    }
+                }
+            }
+
+            primaryFailure?.let { throw it }
+            closeCompleted.set(true)
         }
     }
 
@@ -805,9 +877,10 @@ class NearJCache<K: Any, V: Any>(
 
     private fun detachBackCacheListener() {
         listenerRegistrationLock.withLock {
-            val registration = backCacheListener.getAndSet(null) ?: return
+            val registration = backCacheListener.get() ?: return
             registration.active.set(false)
             backCache.deregisterCacheEntryListener(registration.configuration)
+            backCacheListener.compareAndSet(registration, null)
         }
     }
 

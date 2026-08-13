@@ -94,6 +94,12 @@ JCache near caches support read-through and write-through, but peer front-cache
 propagation is not promised. Direct listener-backed construction is unsupported
 and covered by explicit tests.
 
+The factory-created wrapper owns only its front cache for lifecycle purposes.
+Calling `close()` does not close the supplied Hazelcast instance or back cache.
+Cleanup failures are propagated with the first failure as primary and later
+failures as suppressed; a successful close is idempotent. If construction fails
+after front creation, rollback follows the same exception policy.
+
 See the full [Near-Cache Backend Capability Matrix](../../docs/cache/near-cache-capability-matrix.md).
 
 ## Class Structure

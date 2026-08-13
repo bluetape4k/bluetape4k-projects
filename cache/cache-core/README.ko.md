@@ -120,6 +120,14 @@ local front를 조정합니다. 따라서 front를 먼저 읽고 back을 별도�
 기본 front 설정은 store-by-reference입니다. 필터링된 provider별 copier 계약이
 정해지기 전에는 custom store-by-value front 설정을 생성 단계에서 거부합니다.
 
+`close()`는 이 wrapper가 등록한 listener와 소유한 front cache만 정리하며,
+전달받은 back cache 또는 provider는 닫지 않습니다. 정리 실패는 호출자에게
+관찰 가능하게 전달합니다. 첫 번째 실패는 주 예외로 유지하고 이후 정리 실패는
+suppressed 예외로 연결합니다. 성공한 `close()`는 idempotent이며, listener
+deregister 또는 front close가 실패하면 다음 호출에서 해당 정리를 재시도합니다.
+close가 시작된 뒤에는 listener 재등록을 거부합니다. front cache를 생성한 뒤
+생성이 실패한 경우에도 동일한 주 예외/suppressed 예외 정책으로 rollback합니다.
+
 ##### SuspendJCache 인터페이스
 
 ![SuspendJCache coroutine interface diagram](../../docs/images/readme-diagrams/cache-cache-core-diagram-04.png)

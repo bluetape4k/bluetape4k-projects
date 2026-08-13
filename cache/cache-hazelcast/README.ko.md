@@ -144,6 +144,12 @@ Hazelcast JCache NearCache factory는 listener 없이 생성되는 degraded 모�
 read-through와 write-through는 지원하지만 peer front-cache propagation은 보장하지 않습니다.
 직접 listener-backed `NearJCache` / `SuspendNearJCache` 생성은 unsupported이며 active test로 고정합니다.
 
+팩토리가 반환한 wrapper가 lifecycle 관점에서 소유하는 것은 front cache뿐입니다.
+`close()`를 호출해도 전달받은 Hazelcast 인스턴스나 back cache는 닫지 않습니다.
+정리 실패는 첫 번째 실패를 주 예외로, 이후 실패를 suppressed 예외로 보존해
+전달하며, 성공한 close는 idempotent입니다. front 생성 이후 팩토리 생성이
+실패하면 동일한 예외 정책으로 rollback합니다.
+
 전체 행렬은 [Near-Cache Backend Capability Matrix](../../docs/cache/near-cache-capability-matrix.md)를 참고하세요.
 
 ### NearJCache 사용 예
