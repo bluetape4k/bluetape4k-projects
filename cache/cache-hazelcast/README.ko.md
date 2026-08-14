@@ -140,8 +140,9 @@ val resilient = HazelcastCaches.resilientNearCache<String>(hazelcastInstance, ne
 Hazelcast IMap native NearCache는 공통 `NearCacheOperations` /
 `SuspendNearCacheOperations` conformance suite에서 supported로 검증됩니다.
 
-Hazelcast JCache NearCache factory는 listener 없이 생성되는 degraded 모드입니다.
-read-through와 write-through는 지원하지만 peer front-cache propagation은 보장하지 않습니다.
+`HazelcastCaches.nearJCache(...)`와 `HazelcastNearJCache(...)`를 포함한 Hazelcast JCache
+NearCache factory는 listener 없이 생성되는 degraded 모드입니다. read-through와
+write-through는 지원하지만 peer front-cache propagation은 보장하지 않습니다.
 직접 listener-backed `NearJCache` / `SuspendNearJCache` 생성은 unsupported이며 active test로 고정합니다.
 
 팩토리가 반환한 wrapper가 lifecycle 관점에서 소유하는 것은 front cache뿐입니다.
