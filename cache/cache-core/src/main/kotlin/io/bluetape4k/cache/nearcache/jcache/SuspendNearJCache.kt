@@ -22,6 +22,12 @@ import javax.cache.configuration.MutableCacheEntryListenerConfiguration
  * @param V Cache entry value type
  * @property frontCache 로컬 캐시
  * @property backCache 분산환경에서 사용할 원격 캐시
+ *
+ * 일반 mutation은 back cache를 기준 데이터 원본으로 삼아 back-first 순서로
+ * 수행합니다. back mutation이 실패하면 front cache를 변경하지 않으며, back
+ * mutation 후 front 반영이 실패하면 front key를 invalidate하여 미커밋 값을
+ * 반환하지 않도록 합니다. [kotlinx.coroutines.CancellationException]은
+ * fallback이나 retry로 대체하지 않고 호출자에게 재전파합니다.
  * @constructor Create empty Co near cache
  */
 class SuspendNearJCache<K: Any, V: Any> internal constructor(
@@ -179,15 +185,13 @@ class SuspendNearJCache<K: Any, V: Any> internal constructor(
     }
 
     override suspend fun put(key: K, value: V) {
-        frontCache.put(key, value).apply {
-            backCache.put(key, value)
-        }
+        backCache.put(key, value)
+        syncFrontAfterBack({ frontCache.put(key, value) }, { invalidateFront(key) })
     }
 
     override suspend fun putAll(map: Map<K, V>) {
-        frontCache.putAll(map).apply {
-            backCache.putAll(map)
-        }
+        backCache.putAll(map)
+        syncFrontAfterBack({ frontCache.putAll(map) }) { invalidateFront(map.keys) }
     }
 
     override suspend fun putAllFlow(entries: Flow<Pair<K, V>>) {
@@ -195,23 +199,26 @@ class SuspendNearJCache<K: Any, V: Any> internal constructor(
     }
 
     override suspend fun putIfAbsent(key: K, value: V): Boolean {
-        return frontCache.putIfAbsent(key, value).apply {
-            backCache.putIfAbsent(key, value)
+        val inserted = backCache.putIfAbsent(key, value)
+        if (inserted) {
+            syncFrontAfterBack({ frontCache.put(key, value) }, { invalidateFront(key) })
+        } else {
+            // Back가 이미 보유한 값이 front의 stale 값보다 우선하므로 miss로 되돌립니다.
+            syncFrontAfterBack({ frontCache.remove(key) }) { invalidateFront(key) }
         }
+        return inserted
     }
 
     override suspend fun remove(key: K): Boolean {
-        return frontCache.remove(key).apply {
-            backCache.remove(key)
-        }
+        val removed = backCache.remove(key)
+        syncFrontAfterBack({ frontCache.remove(key) }) { invalidateFront(key) }
+        return removed
     }
 
     override suspend fun remove(key: K, oldValue: V): Boolean {
-        frontCache.remove(key, oldValue)
-        if (backCache.containsKey(key) && backCache.get(key) == oldValue) {
-            return backCache.remove(key)
-        }
-        return false
+        val removed = backCache.remove(key, oldValue)
+        syncFrontAfterBack({ frontCache.remove(key) }) { invalidateFront(key) }
+        return removed
     }
 
     override suspend fun removeAll() {
@@ -233,24 +240,51 @@ class SuspendNearJCache<K: Any, V: Any> internal constructor(
     }
 
     override suspend fun replace(key: K, oldValue: V, newValue: V): Boolean {
-        frontCache.replace(key, oldValue, newValue)
-
-        // NOTE: Redisson에서는 replace 가 event 를 발생시키지 않습니다!!!
-        if (backCache.containsKey(key) && backCache.get(key) == oldValue) {
-            put(key, newValue)
-            return true
+        val replaced = backCache.replace(key, oldValue, newValue)
+        if (replaced) {
+            syncFrontAfterBack({ frontCache.put(key, newValue) }, { invalidateFront(key) })
+        } else {
+            syncFrontAfterBack({ frontCache.remove(key) }) { invalidateFront(key) }
         }
-        return false
+        return replaced
     }
 
     override suspend fun replace(key: K, value: V): Boolean {
-        frontCache.replace(key, value)
-
-        // NOTE: Redisson에서는 replace 가 event 를 발생시키지 않습니다!!!
-        if (backCache.containsKey(key)) {
-            put(key, value)
-            return true
+        val replaced = backCache.replace(key, value)
+        if (replaced) {
+            syncFrontAfterBack({ frontCache.put(key, value) }, { invalidateFront(key) })
+        } else {
+            syncFrontAfterBack({ frontCache.remove(key) }) { invalidateFront(key) }
         }
-        return false
+        return replaced
+    }
+
+    @Suppress("TooGenericExceptionCaught")
+    private suspend fun syncFrontAfterBack(
+        sync: suspend () -> Unit,
+        invalidate: suspend () -> Unit,
+    ) {
+        try {
+            sync()
+        } catch (failure: Throwable) {
+            try {
+                invalidate()
+            } catch (invalidateFailure: Throwable) {
+                if (invalidateFailure !== failure) {
+                    failure.addSuppressed(invalidateFailure)
+                }
+            }
+            throw failure
+        }
+    }
+
+    private suspend fun invalidateFront(key: K) {
+        frontCache.remove(key)
+    }
+
+    private suspend fun invalidateFront(keys: Set<K>) {
+        if (keys.isNotEmpty()) {
+            frontCache.removeAll(keys)
+        }
     }
 }
