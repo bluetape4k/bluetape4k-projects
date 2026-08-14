@@ -83,6 +83,8 @@ class HazelcastNearJCacheTest {
         }
 
         frontCache.isClosed shouldBeEqualTo true
+        nearCache.backCache.isClosed shouldBeEqualTo false
+        hazelcastClient.lifecycleService.isRunning shouldBeEqualTo true
     }
 
     @Suppress("UNCHECKED_CAST")
