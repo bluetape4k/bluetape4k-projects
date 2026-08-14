@@ -26,6 +26,7 @@
 
 - [ ] 변경된 모듈의 `README.md` + `README.ko.md` 업데이트
 - [ ] 공개 API에 KDoc 추가
+- [ ] `cache/` 공개 설정/직렬화 변경 시 prior-release ABI(Java/Kotlin) fixture와 serialized fixture evidence 첨부 (증거가 없으면 stable publication을 진행하지 않음)
 - [ ] `spring-boot/` 모듈 변경 시 Spring Boot 4 BOM 적용 및 Spring Framework 7.x 호환성 확인
 - [ ] `spring-boot/` 모듈 변경 시 `.github/workflows/nightly-tests.yml`의 독립 test task 및 비-demo kover task 등록 확인
 - [ ] `worktree`에서 작업 후 PR 생성
