@@ -2,6 +2,8 @@ package io.bluetape4k.cache.nearcache.jcache
 
 import io.bluetape4k.cache.jcache.jcacheManagerOf
 import io.bluetape4k.codec.Base58
+import java.io.IOException
+import java.io.ObjectInputStream
 import java.io.Serializable
 import javax.cache.CacheManager
 import javax.cache.configuration.Factory
@@ -45,6 +47,70 @@ data class NearJCacheConfig<K: Any, V: Any>(
     val syncRemoteTimeout: Long = NearJCacheConfig.DEFAULT_SYNC_REMOTE_TIMEOUT,
     val syncRemoteRetryCount: Int = NearJCacheConfig.DEFAULT_SYNC_REMOTE_RETRY_COUNT,
 ): Serializable {
+
+    /**
+     * prior-release의 5-인자 JVM constructor descriptor를 유지합니다.
+     */
+    constructor(
+        cacheManagerFactory: Factory<CacheManager>,
+        cacheName: String,
+        frontCacheConfiguration: MutableConfiguration<K, V>,
+        isSynchronous: Boolean,
+        syncRemoteTimeout: Long,
+    ) : this(
+        cacheManagerFactory = cacheManagerFactory,
+        cacheName = cacheName,
+        frontCacheConfiguration = frontCacheConfiguration,
+        isSynchronous = isSynchronous,
+        syncRemoteTimeout = syncRemoteTimeout,
+        syncRemoteRetryCount = DEFAULT_SYNC_REMOTE_RETRY_COUNT,
+    )
+
+    /** prior-release의 5-인자 JVM copy descriptor를 유지합니다. */
+    fun copy(
+        cacheManagerFactory: Factory<CacheManager>,
+        cacheName: String,
+        frontCacheConfiguration: MutableConfiguration<K, V>,
+        isSynchronous: Boolean,
+        syncRemoteTimeout: Long,
+    ): NearJCacheConfig<K, V> = NearJCacheConfig(
+        cacheManagerFactory = cacheManagerFactory,
+        cacheName = cacheName,
+        frontCacheConfiguration = frontCacheConfiguration,
+        isSynchronous = isSynchronous,
+        syncRemoteTimeout = syncRemoteTimeout,
+        syncRemoteRetryCount = DEFAULT_SYNC_REMOTE_RETRY_COUNT,
+    )
+
+    /**
+     * Java serialization은 constructor를 호출하지 않으므로, 기존 stream의 누락 필드를
+     * [ObjectInputStream.GetField.defaulted]로 구분해 새 정책 기본값을 복원합니다.
+     */
+    @Suppress("UNCHECKED_CAST")
+    @Throws(IOException::class, ClassNotFoundException::class)
+    private fun readObject(input: ObjectInputStream) {
+        val fields = input.readFields()
+        setSerializedField("cacheManagerFactory", fields.get("cacheManagerFactory", null) as Factory<CacheManager>)
+        setSerializedField("cacheName", fields.get("cacheName", null) as String)
+        setSerializedField(
+            "frontCacheConfiguration",
+            fields.get("frontCacheConfiguration", null) as MutableConfiguration<K, V>,
+        )
+        setSerializedField("isSynchronous", fields.get("isSynchronous", false))
+        setSerializedField("syncRemoteTimeout", fields.get("syncRemoteTimeout", DEFAULT_SYNC_REMOTE_TIMEOUT))
+        setSerializedField("syncRemoteRetryCount", if (fields.defaulted("syncRemoteRetryCount")) {
+            DEFAULT_SYNC_REMOTE_RETRY_COUNT
+        } else {
+            fields.get("syncRemoteRetryCount", DEFAULT_SYNC_REMOTE_RETRY_COUNT)
+        })
+    }
+
+    private fun setSerializedField(name: String, value: Any?) {
+        javaClass.getDeclaredField(name).apply {
+            isAccessible = true
+            set(this@NearJCacheConfig, value)
+        }
+    }
 
     companion object {
         private const val serialVersionUID: Long = 1L
