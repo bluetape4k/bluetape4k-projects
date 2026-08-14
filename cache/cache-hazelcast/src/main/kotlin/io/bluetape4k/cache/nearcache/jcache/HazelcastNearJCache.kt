@@ -42,7 +42,8 @@ object HazelcastNearJCache: KLogging() {
      * // value == "v"
      * ```
      *
-     * @param frontCache 프론트 JCache (로컬 캐시)
+     * @param frontCache 프론트 JCache (로컬 캐시). [NearJCache.close] 호출 시 이 캐시가 닫히며,
+     * 호출자가 제공한 Hazelcast back cache와 [HazelcastInstance]는 닫지 않습니다.
      * @param hazelcastInstance 연결된 Hazelcast 인스턴스
      * @param configuration JCache 설정
      * @param nearCacheCfg [NearJCacheConfig] 설정

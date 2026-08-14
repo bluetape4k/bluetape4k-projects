@@ -17,7 +17,8 @@ Hazelcast JCache listener 설정은 cluster 배포를 위해 직렬화되어야 
 - RED: `JAVA_HOME=/Library/Java/JavaVirtualMachines/graalvm-jdk-25/Contents/Home ./gradlew :bluetape4k-cache-hazelcast:test --tests 'io.bluetape4k.cache.nearcache.jcache.HazelcastNearJCacheTest.public factory creates listener-free NearJCache on Hazelcast JCache' --no-configuration-cache --no-build-cache --rerun-tasks --max-workers=1` — 기존 구현은 listener 직렬화 때문에 `HazelcastSerializationException`으로 실패했다.
 - GREEN: 같은 targeted test가 `BUILD SUCCESSFUL in 23s`로 통과했다.
 - 회귀: `:bluetape4k-cache-hazelcast:test` 전체가 `BUILD SUCCESSFUL in 29s`로 통과했고, direct listener unsupported test와 두 listener-free factory test를 함께 실행했다.
+- 리뷰 보완 후 `HazelcastNearJCacheTest` 전체가 `BUILD SUCCESSFUL in 48s`로 통과했고, write-through back 저장, back-only read-through, front 소유권 close, listener-backed cleanup을 추가로 검증했다. `:bluetape4k-cache-hazelcast:test` 전체도 같은 변경 상태에서 순차 재실행했다.
 
 ## 놓친 점과 다음 guard
 
-기존 unsupported test는 `NearJCache(config, backCache)` 직접 생성 경로만 고정하고 공개 factory 호출은 검증하지 않았다. 또한 새 integration test는 Caffeine front가 store-by-reference여야 하므로 `NearJCacheConfig.getDefaultFrontCacheConfiguration()`을 사용해야 했다. 앞으로 Hazelcast JCache factory를 추가하거나 변경할 때는 listener capability를 KDoc와 capability matrix에 명시하고, 공개 factory integration test와 direct listener unsupported test를 모두 유지한다. Testcontainers 기반 검증은 모듈 간 동시 실행 없이 순차적으로 수행한다.
+기존 unsupported test는 `NearJCache(config, backCache)` 직접 생성 경로만 고정하고 공개 factory 호출은 검증하지 않았다. 또한 새 integration test는 Caffeine front가 store-by-reference여야 하므로 `NearJCacheConfig.getDefaultFrontCacheConfiguration()`을 사용해야 했다. public factory 문서에서는 supplied front의 ownership과 `clear()`의 front/back 범위를 명시해야 한다. 앞으로 Hazelcast JCache factory를 추가하거나 변경할 때는 listener capability를 KDoc와 capability matrix에 명시하고, 공개 factory integration test와 direct listener unsupported test를 모두 유지한다. Testcontainers 기반 검증은 모듈 간 동시 실행 없이 순차적으로 수행한다.

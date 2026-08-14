@@ -15,7 +15,7 @@ release tests는 직접 listener-backed 구성이 `HazelcastSerializationExcepti
 
 ## Hazelcast factory는 listener를 빼고 만든다
 
-`HazelcastCaches.nearJCache`와 공개 `HazelcastNearJCache(...)` factory는 Caffeine front JCache와 Hazelcast back JCache를 직접 조합하고 listener를 등록하지 않습니다. `suspendNearJCache`도 고정된 Caffeine front를 만들고 `SuspendNearJCache.withoutListener`를 사용합니다.
+`HazelcastCaches.nearJCache`는 Caffeine front JCache와 Hazelcast back JCache를 직접 조합하고 listener를 등록하지 않습니다. 공개 `HazelcastNearJCache(...)` factory는 호출자가 제공한 front JCache와 Hazelcast back JCache를 같은 listener-free 경로로 조합합니다. `suspendNearJCache`도 고정된 Caffeine front를 만들고 `SuspendNearJCache.withoutListener`를 사용합니다.
 
 ```kotlin
 val cache = HazelcastCaches.nearJCache<String, User>(hazelcast) {
@@ -23,7 +23,7 @@ val cache = HazelcastCaches.nearJCache<String, User>(hazelcast) {
 }
 
 cache.put("42", user)
-cache.clear()             // front only
+cache.clear()             // front and back
 check(cache.getDeeply("42") == user)
 ```
 

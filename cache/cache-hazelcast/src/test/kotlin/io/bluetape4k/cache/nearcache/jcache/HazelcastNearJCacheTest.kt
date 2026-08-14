@@ -38,12 +38,16 @@ class HazelcastNearJCacheTest {
         val config = NearJCacheConfig<String, Any>(cacheName = "hazelcast-front-" + Base58.randomString(6))
         val backCache = backCache(cacheName)
 
-        val failure = assertFailsWith<HazelcastSerializationException> {
-            NearJCache(config, backCache)
+        try {
+            val failure = assertFailsWith<HazelcastSerializationException> {
+                NearJCache(config, backCache)
+            }
+            failure.message shouldContain "MutableCacheEntryListenerConfiguration"
+            failure.stackTraceToString() shouldContain "NotSerializableException"
+            failure.stackTraceToString() shouldContain "JCacheEntryEventListener"
+        } finally {
+            backCache.close()
         }
-        failure.message shouldContain "MutableCacheEntryListenerConfiguration"
-        failure.stackTraceToString() shouldContain "NotSerializableException"
-        failure.stackTraceToString() shouldContain "JCacheEntryEventListener"
     }
 
     @Test
@@ -64,10 +68,21 @@ class HazelcastNearJCacheTest {
         try {
             nearCache.put("k", "v")
             nearCache.get("k") shouldBeEqualTo "v"
+            nearCache.backCache.get("k") shouldBeEqualTo "v"
+
+            nearCache.backCache.put("back-only", "from-back")
+            nearCache.frontCache.clear()
+            nearCache.get("back-only") shouldBeEqualTo "from-back"
+            nearCache.frontCache.get("back-only") shouldBeEqualTo "from-back"
         } finally {
-            nearCache.clearAllCache()
-            nearCache.close()
+            try {
+                nearCache.clearAllCache()
+            } finally {
+                nearCache.close()
+            }
         }
+
+        frontCache.isClosed shouldBeEqualTo true
     }
 
     @Suppress("UNCHECKED_CAST")

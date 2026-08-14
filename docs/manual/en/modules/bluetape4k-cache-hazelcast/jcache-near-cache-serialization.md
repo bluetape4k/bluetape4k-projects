@@ -15,7 +15,7 @@ Release tests explicitly expect `HazelcastSerializationException` with an underl
 
 ## Hazelcast factory methods create a listener-free composition
 
-Both `HazelcastCaches.nearJCache` and the public `HazelcastNearJCache(...)` factory create a Caffeine front JCache and Hazelcast back JCache without listener registration. `suspendNearJCache` also creates a fixed Caffeine front and calls `SuspendNearJCache.withoutListener`.
+`HazelcastCaches.nearJCache` creates a Caffeine front JCache and Hazelcast back JCache without listener registration. The public `HazelcastNearJCache(...)` factory combines the caller-supplied front JCache with a Hazelcast back JCache through the same listener-free path. `suspendNearJCache` also creates a fixed Caffeine front and calls `SuspendNearJCache.withoutListener`.
 
 ```kotlin
 val cache = HazelcastCaches.nearJCache<String, User>(hazelcast) {
@@ -23,7 +23,7 @@ val cache = HazelcastCaches.nearJCache<String, User>(hazelcast) {
 }
 
 cache.put("42", user)
-cache.clear()             // front only
+cache.clear()             // front and back
 check(cache.getDeeply("42") == user)
 ```
 
