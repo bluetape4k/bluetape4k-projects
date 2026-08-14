@@ -90,9 +90,10 @@ Hazelcast IMap native near caches are fully supported by the shared
 Hazelcast JCache near-cache factories are intentionally listener-free because
 Hazelcast distributes JCache listener configuration through serialization and
 the current listener captures non-serializable front-cache state. Factory-created
-JCache near caches support read-through and write-through, but peer front-cache
-propagation is not promised. Direct listener-backed construction is unsupported
-and covered by explicit tests.
+JCache near caches, including `HazelcastCaches.nearJCache(...)` and
+`HazelcastNearJCache(...)`, support read-through and write-through, but peer
+front-cache propagation is not promised. Direct listener-backed construction is
+unsupported and covered by explicit tests.
 
 The factory-created wrapper owns only its front cache for lifecycle purposes.
 Calling `close()` does not close the supplied Hazelcast instance or back cache.

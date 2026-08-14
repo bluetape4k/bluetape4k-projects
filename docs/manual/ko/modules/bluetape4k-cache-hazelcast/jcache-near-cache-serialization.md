@@ -9,13 +9,13 @@ chapterId: jcache-near-cache-serialization
 
 ## 직접 listener를 등록하면 왜 실패하는가
 
-`HazelcastNearJCache`는 back JCache event를 받아 front cache를 갱신하려고 `MutableCacheEntryListenerConfiguration`을 등록합니다. listener factory가 Caffeine cache proxy를 캡처하면 Hazelcast가 이 구성을 cluster로 보내는 과정에서 직렬화하지 못합니다.
+직접 `NearJCache(config, backCache)`를 생성하면 back JCache event로 front cache를 갱신하려고 `MutableCacheEntryListenerConfiguration`을 등록합니다. listener factory가 Caffeine cache proxy를 캡처하면 Hazelcast가 이 구성을 cluster로 보내는 과정에서 직렬화하지 못합니다. 공개 `HazelcastNearJCache(...)` factory는 더 이상 이 listener-backed 경로를 사용하지 않습니다.
 
-release tests는 이 경로가 `HazelcastSerializationException`과 내부 `NotSerializableException`으로 실패하는 것을 명시적으로 검증합니다. 즉, 이 factory는 문서상 가능한 조합처럼 보여도 1.12.1 client JCache 구성에서는 지원 경로가 아닙니다.
+release tests는 직접 listener-backed 구성이 `HazelcastSerializationException`과 내부 `NotSerializableException`으로 실패하는 것을 명시적으로 검증합니다. 따라서 이 생성자는 Hazelcast client JCache back cache에서 계속 지원하지 않습니다.
 
-## HazelcastCaches factory는 listener를 빼고 만든다
+## Hazelcast factory는 listener를 빼고 만든다
 
-`HazelcastCaches.nearJCache`는 Caffeine front JCache와 Hazelcast back JCache를 직접 조합하고 listener를 등록하지 않습니다. `suspendNearJCache`도 고정된 Caffeine front를 만들고 `SuspendNearJCache.withoutListener`를 사용합니다.
+`HazelcastCaches.nearJCache`와 공개 `HazelcastNearJCache(...)` factory는 Caffeine front JCache와 Hazelcast back JCache를 직접 조합하고 listener를 등록하지 않습니다. `suspendNearJCache`도 고정된 Caffeine front를 만들고 `SuspendNearJCache.withoutListener`를 사용합니다.
 
 ```kotlin
 val cache = HazelcastCaches.nearJCache<String, User>(hazelcast) {
@@ -36,7 +36,7 @@ peer 변경 무효화가 필요하면 JCache factory 대신 `HazelcastNearCache`
 | 선택 | 장점 | 제한 |
 | --- | --- | --- |
 | factory JCache Near Cache | JCache front/back 계약 재사용 | listener 없음, peer L1 propagation 없음 |
-| direct listener-backed JCache factory | 의도는 event propagation | 1.12.1에서 직렬화 실패 |
+| direct listener-backed JCache construction | 의도는 event propagation | 1.12.1에서 직렬화 실패 |
 | native IMap Near Cache | client-side entry listener 무효화 | String key, JCache API가 아님 |
 
 ## suspend factory의 고정 front 설정

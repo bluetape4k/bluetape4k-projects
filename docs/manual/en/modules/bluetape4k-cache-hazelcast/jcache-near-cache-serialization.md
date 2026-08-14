@@ -9,13 +9,13 @@ chapterId: jcache-near-cache-serialization
 
 ## Why direct listener registration fails
 
-`HazelcastNearJCache` registers a `MutableCacheEntryListenerConfiguration` so back-cache events can update the front cache. When the listener factory captures a Caffeine cache proxy, Hazelcast cannot serialize that configuration for the cluster.
+Direct `NearJCache(config, backCache)` construction registers a `MutableCacheEntryListenerConfiguration` so back-cache events can update the front cache. When the listener factory captures a Caffeine cache proxy, Hazelcast cannot serialize that configuration for the cluster. The public `HazelcastNearJCache(...)` factory no longer takes this listener-backed path.
 
-Release tests explicitly expect `HazelcastSerializationException` with an underlying `NotSerializableException`. Although the factory expresses the intended composition, it is not a supported client JCache path in 1.12.1.
+Release tests explicitly expect `HazelcastSerializationException` with an underlying `NotSerializableException` from the direct listener-backed construction. That constructor remains unsupported for a Hazelcast client JCache back cache.
 
-## HazelcastCaches creates a listener-free composition
+## Hazelcast factory methods create a listener-free composition
 
-`HazelcastCaches.nearJCache` creates a Caffeine front JCache and Hazelcast back JCache directly without listener registration. `suspendNearJCache` also creates a fixed Caffeine front and calls `SuspendNearJCache.withoutListener`.
+Both `HazelcastCaches.nearJCache` and the public `HazelcastNearJCache(...)` factory create a Caffeine front JCache and Hazelcast back JCache without listener registration. `suspendNearJCache` also creates a fixed Caffeine front and calls `SuspendNearJCache.withoutListener`.
 
 ```kotlin
 val cache = HazelcastCaches.nearJCache<String, User>(hazelcast) {
@@ -36,7 +36,7 @@ When peer invalidation is required, use the `IMap.addEntryListener` path in `Haz
 | Choice | Benefit | Limit |
 | --- | --- | --- |
 | factory JCache near cache | Reuses JCache front/back contracts | No listener or peer L1 propagation |
-| direct listener-backed JCache factory | Intended event propagation | Serialization failure in 1.12.1 |
+| direct listener-backed JCache construction | Intended event propagation | Serialization failure in 1.12.1 |
 | native IMap near cache | Client-side listener invalidation | String keys and no JCache API |
 
 ## Fixed suspend-front settings

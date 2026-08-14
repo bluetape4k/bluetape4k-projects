@@ -3,6 +3,7 @@ package io.bluetape4k.cache.nearcache.jcache
 import io.bluetape4k.cache.HazelcastCaches
 import io.bluetape4k.cache.HazelcastServers
 import io.bluetape4k.cache.HazelcastServers.hazelcastClient
+import io.bluetape4k.cache.jcache.JCaching
 import io.bluetape4k.cache.jcache.JCache
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.assertions.assertFailsWith
@@ -43,6 +44,30 @@ class HazelcastNearJCacheTest {
         failure.message shouldContain "MutableCacheEntryListenerConfiguration"
         failure.stackTraceToString() shouldContain "NotSerializableException"
         failure.stackTraceToString() shouldContain "JCacheEntryEventListener"
+    }
+
+    @Test
+    fun `public factory creates listener-free NearJCache on Hazelcast JCache`() {
+        val cacheName = "hazelcast-public-near-jcache-" + Base58.randomString(6)
+        val frontConfiguration = NearJCacheConfig.getDefaultFrontCacheConfiguration<String, String>()
+        val frontCache = JCaching.Caffeine.getOrCreate<String, String>(
+            "hazelcast-public-front-" + Base58.randomString(6),
+            frontConfiguration,
+        )
+        val config = NearJCacheConfig<String, String>(cacheName = cacheName)
+        val nearCache = HazelcastNearJCache(
+            frontCache = frontCache,
+            hazelcastInstance = hazelcastClient,
+            nearCacheCfg = config,
+        )
+
+        try {
+            nearCache.put("k", "v")
+            nearCache.get("k") shouldBeEqualTo "v"
+        } finally {
+            nearCache.clearAllCache()
+            nearCache.close()
+        }
     }
 
     @Suppress("UNCHECKED_CAST")

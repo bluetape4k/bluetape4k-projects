@@ -8,6 +8,8 @@
 
 ### 버그 수정
 
+- `HazelcastNearJCache(...)` 공개 factory가 Hazelcast JCache listener 직렬화 경계를 넘지 않도록 listener-free degraded 경로를 사용한다. read-through와 write-through는 유지하지만 peer front-cache propagation은 보장하지 않는다
+  ([#1411](https://github.com/bluetape4k/bluetape4k-projects/issues/1411)).
 - Maven Central에 없는 benchmark 또는 application 전용 모듈이 BOM에 포함되지 않도록 publication과 BOM module classifier를 통일했다. 생성한 BOM inventory와 publication POM inventory가 다르면 publication validation이 실패한다
   ([#1313](https://github.com/bluetape4k/bluetape4k-projects/issues/1313)).
 - Java platform은 library publication 설정 밖에 두되 `Bluetape4k` publication을 NMCP aggregate에 포함했다. 따라서 snapshot과 stable bundle은 74개 publishable library module과 함께 BOM을 포함한다
