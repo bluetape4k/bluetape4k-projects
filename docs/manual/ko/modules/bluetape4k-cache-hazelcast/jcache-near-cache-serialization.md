@@ -23,8 +23,9 @@ val cache = HazelcastCaches.nearJCache<String, User>(hazelcast) {
 }
 
 cache.put("42", user)
-cache.clear()             // front and back
 check(cache.getDeeply("42") == user)
+cache.clear()             // front and back
+check(cache.getDeeply("42") == null)
 ```
 
 read-through와 두 계층 write는 동작하지만 다른 process가 back cache를 바꿔도 이 front cache를 지울 listener가 없습니다. factory 성공을 peer invalidation 지원으로 해석하면 안 됩니다.
