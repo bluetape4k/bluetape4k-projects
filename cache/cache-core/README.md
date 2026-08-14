@@ -70,6 +70,13 @@ provider's atomic compound operation and then reconcile the local front cache;
 they do not implement a front-read/back-write round trip. A provider failure is
 propagated before the front cache is changed.
 
+`SuspendNearJCache` uses the same back-first rule for ordinary mutations:
+`put`, `putAll`, `putIfAbsent`, `remove`, and `replace` update the back cache
+before reconciling the local front cache. A back failure leaves the front
+unchanged; if front reconciliation fails after a back commit, the affected
+front key(s) are invalidated so an uncommitted value is not returned. Coroutine
+cancellation is propagated without fallback or retry.
+
 The default front configuration uses store-by-reference. A custom store-by-value
 front configuration is rejected until a filtered, provider-specific copier
 contract is supplied.

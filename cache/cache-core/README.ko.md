@@ -117,6 +117,13 @@ local front를 조정합니다. 따라서 front를 먼저 읽고 back을 별도�
 왕복을 사용하지 않으며, back provider 실패 시 front를 변경하기 전에
 예외를 전달합니다.
 
+`SuspendNearJCache`의 일반 mutation도 동일한 back-first 규칙을 적용합니다.
+`put`, `putAll`, `putIfAbsent`, `remove`, `replace`는 back cache를 먼저
+변경한 뒤 local front를 조정합니다. back 실패 시 front는 변경하지 않으며,
+back commit 후 front 조정이 실패하면 해당 front key를 invalidate하여
+미커밋 값을 반환하지 않습니다. 코루틴 cancellation은 fallback이나 retry로
+대체하지 않고 호출자에게 재전파합니다.
+
 기본 front 설정은 store-by-reference입니다. 필터링된 provider별 copier 계약이
 정해지기 전에는 custom store-by-value front 설정을 생성 단계에서 거부합니다.
 
