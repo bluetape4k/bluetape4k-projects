@@ -8,10 +8,10 @@
 - 작업 브랜치: `feat/1351-nearcache-management`
 - 선행 브랜치: `fix/1348-lettuce-entryprocessor-atomicity`
 - 기준 커밋: `513f70e785ea6975fc150844b6b8f23b9238031c`
-- 설계 버전: v2.2
-- 설계 승인: 2026-08-16 사용자 승인
+- 설계 버전: v2.3
+- 설계 승인: v2.2는 2026-08-16 사용자 승인, v2.3 Step 3-R 보정은 구현 계획과 함께 승인 대기
 - 구현 상태: 미시작
-- 문서 상태: 작성본 검토 대기
+- 문서 상태: Step 3-R 보정 완료, 통합 승인 대기
 
 이 문서는 `NearJCache`가 실제 front/back 동작을 관찰하면서도 JCache 표준 통계,
 Near Cache tier 통계, provider capability를 서로 혼동하지 않도록 공개 계약과 lifecycle을
@@ -110,6 +110,11 @@ back cache를 참조하지 않는다.
 snapshot 생성은 공개 API 실행, reflection, provider-specific `unwrap`, loader/writer factory
 실행을 하지 않는다.
 
+실제 cache의 `getConfiguration`이 requested configuration class를 지원하지 않아
+`IllegalArgumentException`을 던질 때만 해당 후보를 unavailable로 보고 다음 후보로 fallback한다.
+closed cache의 `IllegalStateException`, provider `CacheException`, `SecurityException`과 다른 runtime
+failure는 실제 construction 오류로 원인 그대로 전달하며 fallback으로 숨기지 않는다.
+
 ### 5.2 type 결정
 
 key/value type은 pair 단위로 다음 순서에서 결정한다.
@@ -160,7 +165,10 @@ instance가 같은 MBeanServer/ObjectName을 동시에 소유하는 rolling over
 
 `statisticsScope`의 안정적인 값은 `NEAR_JCACHE_WRAPPER_V1`이다. `supportedOperations`는
 `get`, `getAll`, `put`, `putAll`, `putIfAbsent`, `replace`, `remove`, `getAndPut`,
-`getAndReplace`, `getAndRemove`를 안정적인 순서의 문자열 배열로 반환한다.
+`getAndReplace`, `getAndRemove`를 안정적인 순서의 문자열 배열로 반환한다. 각 getter 호출은
+내부 상수를 오염시키지 않는 `copyOf()`를 반환한다. `replace`와 `remove`는 overload 전체를
+뜻하는 stable family token이다. `containsKey`, `clear`, 두 `removeAll`, `loadAll`, `invoke`,
+`invokeAll`은 이 배열에 포함하지 않는다. public token과 순서는 상수와 exact-array test로 고정한다.
 `backWriteCompletionIncluded=false`는 표준 mutation 수치가 remote completion을 포함하지
 않는다는 capability 신호다.
 
@@ -286,11 +294,17 @@ wrapper에는 recorder 선택을 위한 예측 가능한 final reference/NoOp �
 recorder API는 higher-order function을 받지 않는 direct method로 제한한다. active recorder의
 `startTimeNanos()`만 package-internal `TimeSource`를 호출하고 NoOp recorder는 clock을 호출하지
 않는 sentinel을 반환한다. counting fake `TimeSource`로 disabled 호출 수 0을 검증한다.
+이 검증은 recorder를 직접 호출하는 자명한 NoOp test로 대체하지 않는다. package-internal
+factory/fixture로 counting fake를 실제 `NearJCache`에 주입하고 disabled 상태에서 대표 read, bulk,
+mutation, compound operation을 실행한 뒤 clock 호출과 counter update가 모두 0인지 확인한다.
 
-disabled 성능 회귀는 동일 benchmark 안의 계측 전 control path와 disabled recorder path를
-비교한다. JMH/JFR 또는 저장소의 기존 JVM benchmark 도구로 steady-state allocation delta
-`0 B/op`, median throughput regression `5%` 이하를 확인한다. 이 수치는 기능 테스트의 flaky
-pass/fail 조건으로 사용하지 않고 동일 머신·JDK·fork/warmup 조건의 release evidence로 보존한다.
+disabled 성능 회귀는 같은 source hash의 benchmark에서 계측 전 control path와 disabled recorder
+path를 비교한다. 대표 read/bulk/mutation/compound operation과 front-hit 1/2/4/8/16 thread profile을
+JMH GC profiler로 측정한다. `0 B/op`은 exact 0 단정이 아니라 baseline/candidate score error의 합과
+`0.001 B/op` 중 큰 noise budget 안에서 새 allocation이 관찰되지 않는다는 뜻이다. 모든 method/thread의
+median throughput regression은 `5%` 이하로 제한한다. active recorder concurrency는 hard gate가 아닌
+contention 관찰 자료로 보존한다. 이 수치는 기능 테스트의 flaky pass/fail 조건으로 사용하지 않고
+동일 머신·JDK·JMH metadata/fork/warmup/measurement 조건의 release evidence로 보존한다.
 
 기존 `NearJCacheStatisticsMXBean()` no-arg constructor와 public `add*`는 active standalone
 bean으로 유지한다. `EmptyNearJCacheStatisticsMXBean`은 NoOp recorder를 사용하고
@@ -348,6 +362,11 @@ class NearJCacheMBeanRegistrationException(
 ): RuntimeException(cause)
 ```
 
+top-level extension 파일은 `@file:JvmName("NearJCacheMBeans")`를 사용해 Java에서
+`NearJCacheMBeans.registerMBeans(cache, server, managerId, cacheId)`로 호출한다. facade class와
+static method descriptor는 additive public ABI로 고정하며 Kotlin default argument나 synthetic
+convenience overload를 만들지 않는다.
+
 exception은 명시적인 `serialVersionUID`를 제공한다. `recoveryRegistration`은 current process에서
 즉시 retry할 때만 사용하는 transient handle이다. 직렬화된 exception은 defensive immutable
 `remainingObjectNames`만 진단 정보로 보존하며 deserialization 뒤 handle은 `null`이다.
@@ -367,8 +386,13 @@ io.bluetape4k.cache:type=NearJCacheConfiguration,manager=<quoted>,cache=<quoted>
 io.bluetape4k.cache:type=NearJCacheStatistics,manager=<quoted>,cache=<quoted>
 ```
 
-`manager`와 `cache` property는 `ObjectName.quote`로 인코딩한다. 표준 interface를 유지하되
-provider가 소유한 `javax.cache` namespace와 충돌하지 않는다.
+`manager`와 `cache` property는 단일 ObjectName factory에서 항상 `ObjectName.quote`로 인코딩한다.
+ID는 Unicode/case normalization하지 않고 원문 기준 1..256자, non-blank, 앞뒤 whitespace 없음,
+ISO control character 없음으로 제한하며 case-sensitive key로 취급한다. `:`, `,`, `=`, `*`, `?`,
+backslash, quote는 허용하고 quote/unquote round-trip으로
+보존한다. 공개 KDoc은 ID와 remaining ObjectName이 JMX metadata와 exception에 나타날 수 있으므로
+credential, token, PII를 넣지 말라고 명시한다. 표준 interface를 유지하되 provider가 소유한
+`javax.cache` namespace와 충돌하지 않는다.
 
 ```kotlin
 val server = ManagementFactory.getPlatformMBeanServer()
@@ -413,17 +437,29 @@ flag와 handle inventory로 구분한다.
 ### 7.3 원자성, 충돌, 해제
 
 - `NearJCache` lifecycle은 논리적으로 `OPEN -> CLOSING -> CLOSED`로만 전이한다. 기존
-  `closeStarted`/`closeCompleted` 상태와 `close()`가 사용하는 동일 lifecycle lock 안에서
-  전이를 구현하며 별도 경쟁 lock을 만들지 않는다.
-- `registerMBeans()`는 lifecycle lock 안에서 `OPEN` 확인, MBean 등록, handle의 cache registry
-  삽입까지 수행한다. 등록/rollback이 진행 중인 동안 `close()`는 같은 lock에서 대기한다.
-- `close()`는 lock 안에서 먼저 `CLOSING`으로 전이해 이후 등록을 거부하고 registry의 handle을
-  모두 drain한다. rollback failure의 recovery handle도 exception을 던지기 전에 같은 lock 안에서
-  registry에 삽입한다.
+  `closeStarted`/`closeCompleted`와 `compoundGate`를 state reservation에 재사용하되,
+  caller-owned `MBeanServer` 호출이나 handle completion 대기는 이 lock 밖에서 수행한다.
+- `registerMBeans()`는 lifecycle lock 안에서 `OPEN` 확인과 pending registration reservation만
+  만든다. 실제 register/rollback은 lock 밖에서 수행하고, 다시 lock 안에서 handle 또는 recovery
+  handle을 registry에 publish한 뒤 reservation을 완료한다. 이 reservation이 먼저 생성됐으면
+  register가 close보다 먼저 선형화된 것으로 본다.
+- `close()`는 lock 안에서 `CLOSING`으로 전이해 새 reservation을 거부하고 pending reservation과
+  현재 handle의 snapshot만 얻는다. lock을 해제한 뒤 pending completion을 기다리고 최종 registry를
+  drain한다. 외부 server callback이 같은 thread에서 cache close/register로 재진입하면
+  thread-local operation guard가 `IllegalStateException`으로 fail-fast한다.
+- lock 순서는 `compoundGate` state reservation -> release -> handle state reservation -> release ->
+  `MBeanServer` call이다. 어느 code path도 두 internal lock을 함께 잡지 않고, 외부 호출 또는 future
+  wait 중 internal lock을 유지하지 않는다.
 - 등록할 ObjectName이 이미 있으면 기존 MBean을 교체하거나 해제하지 않고 실패한다.
 - collision의 `InstanceAlreadyExistsException`을 포함한 `JMException`은 원인을 보존해 caller에게 전달한다.
 - registrar는 `registerMBean`이 `ObjectInstance`를 정상 반환한 ObjectName만 current transaction의
   owned set에 넣는다. 두 bean 등록 중 두 번째가 실패하면 owned set만 rollback한다.
+- 각 등록은 internal `StandardMBean` descriptor의 non-secret registration token을 handle에 함께
+  기록한다. cleanup 직전 현재 descriptor token이 일치할 때만 unregister한다. 이미 다른 MBean으로
+  교체돼 token이 없거나 다르면 foreign bean을 보존하고 해당 이름을 `RECOVERY_REQUIRED`로 남긴다.
+- JMX에는 token 비교와 unregister를 하나로 수행하는 CAS가 없다. 따라서 caller는 handle이 열린
+  동안 exact ObjectName을 외부에서 unregister/re-register하지 않는 exclusive namespace 계약을
+  지켜야 한다. token 검사는 cleanup 전에 완료된 교체를 방어하지만 이 precondition을 대체하지 않는다.
 - `InstanceAlreadyExistsException`이 발생한 collision 이름과 정상 반환 전에 실패한 이름은 다른
   owner의 MBean일 수 있으므로 절대 unregister하지 않는다.
 - rollback/unregister 중 `InstanceNotFoundException`은 이미 해제된 성공 상태로 처리해 remaining
@@ -449,6 +485,22 @@ flag와 handle inventory로 구분한다.
   다시 실행하지 않으며 모든 resource cleanup이 성공한 경우에만 `CLOSED`/`closeCompleted=true`로
   전이한다.
 - `MBeanServer`, back cache, provider는 caller 소유이며 registrar/cache close가 닫지 않는다.
+
+close failure 상태 전이는 다음과 같다.
+
+| 시작 상태 | 결과 | 다음 상태 | 재시도 |
+|---|---|---|---|
+| `REGISTERED` | 모든 owned name 해제 | `CLOSED` | 없음 |
+| `REGISTERED` | 일부 해제 실패/token 불일치 | `RECOVERY_REQUIRED` | 실패/불명확 이름만 |
+| `RECOVERY_REQUIRED` | 남은 이름 모두 해제 또는 absent | `CLOSED` | 없음 |
+| `RECOVERY_REQUIRED` | 하나 이상 재실패 | `RECOVERY_REQUIRED` | 다시 실패한 이름만 |
+| `CLOSING` | concurrent close 진입 | 진행 중 결과 공유 | 별도 unregister 없음 |
+
+cache close는 JMX, listener, front 순으로 실행해 첫 실패를 primary로 유지하고 이후 실패를 resource
+순서대로 suppressed에 추가한다. 같은 close attempt를 기다리는 concurrent caller는 같은 terminal
+성공 또는 같은 failure snapshot을 관찰한다. 다음 explicit close attempt는 미완료 resource만 새로
+시도한다. production API는 caller-owned server의 임의 blocking을 임의 timeout으로 중단하지 않으며,
+concurrency test만 bounded timeout과 executor cleanup으로 deadlock을 fail-fast 검출한다.
 
 configuration bean은 immutable snapshot만, statistics bean은 recorder만 보유한다. 어느 bean도
 `NearJCache`, front/back cache, provider에 대한 strong reference를 보유하지 않는다.
@@ -485,6 +537,8 @@ exception은 additive public API다. 공개 type에는 한국어 KDoc과 실제 
 | generic provider의 eviction 미관찰 | eviction 0과 support false를 함께 노출 |
 | close 시작 뒤 등록 요청 | `IllegalStateException`으로 조기 거부 |
 | ID에 `:`, `,`, `=`, `*`, `?`, quote 포함 | `ObjectName.quote`를 적용하고 pattern ObjectName을 만들지 않음 |
+| 등록 뒤 같은 ObjectName이 foreign MBean으로 교체됨 | descriptor token 불일치로 unregister하지 않고 `RECOVERY_REQUIRED` 유지 |
+| 외부 server callback의 register/close 재진입 | operation guard로 fail-fast하고 lifecycle lock을 보유한 채 외부 호출하지 않음 |
 
 ## 10. 테스트 전략
 
@@ -509,16 +563,19 @@ exception은 additive public API다. 공개 type에는 한국어 KDoc과 실제 
 - cache `clear()`와 statistics `clear()` 독립성
 - concurrent update/reset generation 경계
 - async caller-return count와 back-write observation 분리
-- exceptional `BackCacheWriteCompletion`을 동일 operation ID의 remote failure로 분류
+- 수동 completion/barrier로 caller 반환 뒤 실패, scheduling 실패, retry, listener/cache close 경합을 결정적으로 재현
+- listener가 받은 단일 `BackCacheWriteCompletion` snapshot으로 동일 operation ID의 remote failure를 분류
 - `statisticsScope`, stable `supportedOperations`, `backWriteCompletionIncluded=false`
+- caller가 반환 배열을 변경해도 다음 `supportedOperations` 결과가 변하지 않음
 - unsupported eviction의 `0 + support=false`
 
 ### 10.3 disabled path
 
 - NoOp recorder가 atomic/adder state를 만들지 않음
-- counting fake `TimeSource`에서 disabled operation의 clock 호출이 0
+- 실제 wrapper read/bulk/mutation/compound 호출을 거친 counting fake `TimeSource` 호출이 0
 - recorder direct method 경계에서 operation별 lambda/통계 allocation/update가 없음
-- 동일 조건 benchmark에서 disabled allocation delta `0 B/op`, throughput regression `5%` 이하
+- 대표 operation과 1/2/4/8/16 thread 동일 조건 benchmark에서 disabled allocation 신규 관찰 없음,
+  median throughput regression `5%` 이하; active concurrency는 관찰 자료로 보존
 - `EmptyNearJCacheStatisticsMXBean.addRemovals` 포함 모든 mutator가 no-op
 
 ### 10.4 JMX와 lifecycle
@@ -527,17 +584,19 @@ exception은 additive public API다. 공개 type에는 한국어 KDoc과 실제 
 - `REGISTERED`, `RECOVERY_REQUIRED`, `CLOSING`, `CLOSED`와 active ObjectName snapshot
 - `MBeanInfo`에 custom/standard getter와 `clear`만 노출되고 legacy `add*`가 노출되지 않음
 - statistics ObjectName 하나가 inherited standard/custom attribute와 shared `clear()`를 제공
-- special-character ID quoting과 non-pattern ObjectName
+- ID 길이/control-character 거부, special-character quote/unquote round-trip과 non-pattern ObjectName
 - URI/credential/key/value가 ObjectName, exception, log에 포함되지 않음
 - duplicate collision에서 기존 MBean 보존
 - 두 번째 이름 collision에서도 first owned MBean만 rollback하고 collision MBean은 보존
 - 두 번째 등록 실패 rollback과 rollback failure suppression
 - rollback 실패 뒤 recovery handle explicit/cache-close retry
 - recovery exception serialization은 immutable remaining names를 보존하고 transient handle을 제외
-- registration/close 경합에서 `OPEN -> CLOSING` 선형화와 registry drain
+- registration/close 경합에서 two-phase reservation의 `OPEN -> CLOSING` 선형화와 registry drain
+- blocking/reentrant server에서 external call 중 lifecycle lock 미보유와 reentry fail-fast
 - confirmed-owned set만 rollback, collision MBean 비삭제, `InstanceNotFoundException` 성공 처리
+- descriptor token이 다른 foreign replacement를 보존하고 `RECOVERY_REQUIRED` 유지
 - handle close, cache close, concurrent close의 idempotency
-- unregister 실패 뒤 retry와 최종 상태
+- unregister 실패 뒤 retry, concurrent caller 결과 공유, primary/suppressed exact 순서
 - cache close 시작 뒤 등록 거부
 - caller-owned `MBeanServer`, back cache, provider가 닫히지 않음
 - runbook의 configured/live inventory 분류와 MBeanServer query 예제
@@ -570,14 +629,18 @@ README/manual의 운영 절은 다음 절차를 제공한다.
 
 1. `managerId`는 environment/cluster/application instance를 구분하는 안정적인 non-secret ID,
    `cacheId`는 application 안의 logical cache를 구분하는 안정적인 non-secret ID로 정한다.
-   raw URI, hostname credential, tenant 개인정보는 사용하지 않는다. 사람이 읽는 cache name과
+   두 ID는 1..256자이고 control character를 포함하지 않는다. raw URI, hostname credential,
+   tenant 개인정보는 사용하지 않는다. 사람이 읽는 cache name과
    opaque ID의 mapping은 application config와 dashboard inventory에 보관한다.
 2. application 시작 시 configured flag와 registration handle inventory를 비교해
    `DISABLED`, `NOT_REGISTERED`, `REGISTERED`, `RECOVERY_REQUIRED`를 분류한다. 기대한
    `activeObjectNames`가 MBeanServer query 결과에 없으면 health/alert 실패로 처리한다.
 3. collision에서는 기존 MBean을 교체하지 않는다. 동일 process에서 같은 ID를 사용하는 살아 있는
    owner를 먼저 확인한다. stale registration으로 확인된 이름만 해당 owner handle 또는
-   `recoveryRegistration`으로 해제하고 재등록한다.
+   `recoveryRegistration`으로 해제하고 재등록한다. handle lifetime 동안 exact ObjectName은 해당
+   handle의 exclusive namespace이며 외부에서 unregister/re-register하지 않는다. descriptor token
+   불일치는 완료된 foreign replacement를 보존하지만 token check와 unregister 사이의 경합을
+   atomic하게 막지는 못한다.
 4. `RECOVERY_REQUIRED`는 즉시 alert하고 handle `close()`를 재시도한다. `CLOSING`은 bounded transient
    상태로만 허용하며 종료 뒤에도 남으면 cleanup failure로 처리한다.
 5. `statisticsScope=NEAR_JCACHE_WRAPPER_V1`, `supportedOperations`,
@@ -585,10 +648,17 @@ README/manual의 운영 절은 다음 절차를 제공한다.
    `backWriteCompletionIncluded`를 dashboard annotation과 alert 조건에 반영한다. 0인 unsupported
    counter를 “사건 없음”으로 해석하지 않는다.
 6. 비동기 write에서는 MXBean put/remove 성공을 remote commit 성공으로 사용하지 않는다.
-   `lastBackCacheWrite` 또는 `addBackCacheWriteListener`의 같은 `operationId` completion을 확인하고
-   exceptional completion을 별도 장애 신호로 처리한다.
+   concurrent mutation은 `addBackCacheWriteListener`가 전달한 단일 snapshot의 `operationId`,
+   `operation`, `completion`을 함께 사용하고 exceptional completion을 별도 장애 신호로 처리한다.
+   `operation`은 diagnostic 분류값이고 stable correlation key는 `operationId`다.
 7. 종료 시 handle close와 MBeanServer query로 `activeObjectNames`가 모두 사라졌는지 확인한다.
    caller-owned `MBeanServer`, back cache, provider는 종료 대상에 포함하지 않는다.
+
+synchronous migration은 old handle close → old cache close → 새 instance/handle 순서다. async v1은
+global drain API를 제공하지 않는다. online migration이 필요하면 application coordinator가 새 write를
+먼저 중지하고 각 mutation 직후 보존한 atomic `BackCacheWriteCompletion` inventory가 모두 terminal인지
+확인해야 한다. inventory가 없거나 pending completion이 있으면 online migration을 진행하지 않고
+synchronous mode 또는 application restart/provider convergence 절차를 사용한다.
 
 JMX-only dashboard는 존재하지 않는 MBean만으로 `DISABLED`와 `NOT_REGISTERED`를 구분할 수 없다.
 application health/inventory가 configured flag와 handle state를 함께 제공해야 한다. owner component가
@@ -598,6 +668,10 @@ application health/inventory가 configured flag와 handle state를 함께 제공
 
 runbook example은 configuration/statistics MBean query, configured/live state 분류, collision과
 recovery retry, async completion 상관관계, unsupported metric 해석을 포함한다.
+동반 operations guide/template은 base/head/tree와 artifact/config identity, canary target,
+query/window/threshold/result, rollback identity, MBean cleanup inventory, owner/reviewer sign-off를
+기록한다. `RECOVERY_REQUIRED`는 즉시 alert하고 `CLOSING` 허용 시간과 async remote failure threshold는
+rollout 전에 양수/구체 값으로 고정한다. JMX absence만으로 `DISABLED`를 판정하는 증거는 거부한다.
 
 ## 12. Issue 수용 기준 추적성
 
