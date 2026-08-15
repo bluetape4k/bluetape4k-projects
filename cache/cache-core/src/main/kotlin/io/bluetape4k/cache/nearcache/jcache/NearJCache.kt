@@ -218,8 +218,15 @@ class NearJCache<K: Any, V: Any>(
         val completion: CompletableFuture<Unit>,
     )
 
+    private fun BackCacheWriteState.toCompletion(): BackCacheWriteCompletion =
+        BackCacheWriteCompletion(
+            operationId = operationId,
+            operation = operation,
+            completion = completion.minimalCompletionStage(),
+        )
+
     private val nextBackCacheWriteOperationId = AtomicLong()
-    private val lastBackCacheWrite = AtomicReference(
+    private val lastBackCacheWriteState = AtomicReference(
         BackCacheWriteState(
             operationId = 0L,
             operation = "initial",
@@ -231,19 +238,36 @@ class NearJCache<K: Any, V: Any>(
     private object CompoundResultUnset
 
     /**
+     * 마지막으로 예약한 Back Cache write-through의 operation ID, 이름, 완료 상태를
+     * 하나의 원자 스냅숏으로 반환합니다.
+     *
+     * `completion`은 내부 future를 변경할 수 없는 관찰 전용 단계입니다. 여러
+     * property를 따로 읽어 operation 상관관계를 맞추지 말고, 상관관계가 필요한
+     * 모니터링·재시도·감사 코드에서는 이 스냅숏을 한 번 읽어 사용하세요.
+     */
+    val lastBackCacheWrite: BackCacheWriteCompletion
+        get() = lastBackCacheWriteState.get().toCompletion()
+
+    /**
      * 마지막으로 예약한 Back Cache write-through의 완료 상태입니다.
      *
      * 동기 모드에서는 성공 또는 실패가 즉시 완료된 [CompletableFuture]로 기록되고,
      * 비동기 모드에서는 bounded retry와 timeout을 포함한 Back Cache 작업의 성공·실패가
-     * 기록됩니다. 반환값은 내부 completion의 복사본이므로 호출자가 완료 상태를 변경할 수
-     * 없습니다.
+     * 기록됩니다. 이 property는 기존 호출자 호환성을 위한 단일 값 접근자이며,
+     * operation ID와 함께 관찰해야 하면 [lastBackCacheWrite]를 사용하세요. 반환값은
+     * 내부 completion의 복사본이므로 호출자가 완료 상태를 변경할 수 없습니다.
      */
     val lastBackCacheWriteCompletion: CompletableFuture<Unit>
-        get() = lastBackCacheWrite.get().completion.copy()
+        get() = lastBackCacheWriteState.get().completion.copy()
 
-    /** 마지막 write-through 작업의 operation ID입니다. */
+    /**
+     * 마지막 write-through 작업의 operation ID입니다.
+     *
+     * 기존 호환성을 위한 접근자이며 operation 결과와 함께 읽을 때는
+     * [lastBackCacheWrite]를 사용하세요.
+     */
     val lastBackCacheWriteOperationId: Long
-        get() = lastBackCacheWrite.get().operationId
+        get() = lastBackCacheWriteState.get().operationId
 
     /**
      * 모든 write-through 작업의 operation별 completion을 관찰할 listener를 등록합니다.
@@ -943,7 +967,7 @@ class NearJCache<K: Any, V: Any>(
             operation = operation,
             completion = completion,
         )
-        lastBackCacheWrite.set(state)
+        lastBackCacheWriteState.set(state)
         completion.whenComplete { _, _ ->
             val result = BackCacheWriteCompletion(
                 operationId = state.operationId,
