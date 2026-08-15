@@ -171,6 +171,7 @@ class NearJCache<K: Any, V: Any>(
     private val mutationGate = ReentrantLock()
     private val compoundGate = ReentrantLock()
     private val backWriteLock = ReentrantLock(true)
+    private val inlineSelfEventReconciliation = ThreadLocal<Boolean>()
     private val listenerRegistrationLock = ReentrantLock()
     private val frontCloseCompleted = AtomicBoolean(false)
     private val closeStarted = AtomicBoolean(false)
@@ -711,10 +712,15 @@ class NearJCache<K: Any, V: Any>(
     ): CompletableFuture<Unit> {
         val completion = CompletableFuture<Unit>()
         publishBackCacheWrite(operation, completion)
+        val reconcileInlineSelfEvent = synchronous && mutationGate.isHeldByCurrentThread()
         val guardedSyncTask = {
             backWriteLock.withLock {
                 if (expectedBackWriteGeneration == backWriteGeneration.get()) {
-                    syncTask()
+                    if (reconcileInlineSelfEvent) {
+                        withInlineSelfEventReconciliation(syncTask)
+                    } else {
+                        syncTask()
+                    }
                 }
             }
         }
@@ -763,6 +769,11 @@ class NearJCache<K: Any, V: Any>(
      * timeout 시 작업을 interrupt하고 executor를 즉시 종료해 테스트/애플리케이션 lifecycle에
      * 남는 전용 실행기를 최소화합니다. Provider가 interrupt를 무시하면 실제 backend 작업은
      * 늦게 완료될 수 있으므로 [backWriteLock]이 완료 순서를 계속 직렬화합니다.
+     *
+     * 동기 mutation이 호출자 [mutationGate]를 잡은 동안 provider가 같은 write의 listener를
+     * inline으로 호출하면, 해당 self-event는 write worker가 직접 Front에 반영합니다. 이
+     * 경우에만 worker가 [mutationGate]를 다시 획득하지 않으며, 다른 wrapper나 외부 write의
+     * listener event는 기존처럼 [mutationGate]를 통해 직렬화됩니다.
      */
     @Suppress("ThrowsCount")
     private fun runSynchronousBackCacheWrite(timeoutMillis: Long, syncTask: () -> Unit) {
@@ -798,6 +809,20 @@ class NearJCache<K: Any, V: Any>(
         }
         @Suppress("UNCHECKED_CAST")
         return value as R
+    }
+
+    private inline fun <R> withInlineSelfEventReconciliation(block: () -> R): R {
+        val previous = inlineSelfEventReconciliation.get()
+        inlineSelfEventReconciliation.set(true)
+        return try {
+            block()
+        } finally {
+            if (previous == null) {
+                inlineSelfEventReconciliation.remove()
+            } else {
+                inlineSelfEventReconciliation.set(previous)
+            }
+        }
     }
 
     @Suppress("TooGenericExceptionCaught")
@@ -890,15 +915,27 @@ class NearJCache<K: Any, V: Any>(
         events: List<CacheEntryEvent<out K, out V>>,
     ) {
         if (!registration.active.get()) return
-        mutationGate.withLock {
-            if (!registration.active.get() || backCacheListener.get() !== registration) return
-            mutationEpoch.incrementAndGet()
-            when (eventType) {
-                EventType.CREATED, EventType.UPDATED ->
-                    frontCache.putAll(events.associate { it.key to it.value })
-                EventType.REMOVED, EventType.EXPIRED ->
-                    frontCache.removeAll(events.map { it.key }.toSet())
+        if (inlineSelfEventReconciliation.get() == true) {
+            applyBackCacheEventsToFront(registration, eventType, events)
+        } else {
+            mutationGate.withLock {
+                applyBackCacheEventsToFront(registration, eventType, events)
             }
+        }
+    }
+
+    private fun applyBackCacheEventsToFront(
+        registration: BackCacheListenerRegistration<K, V>,
+        eventType: EventType,
+        events: List<CacheEntryEvent<out K, out V>>,
+    ) {
+        if (!registration.active.get() || backCacheListener.get() !== registration) return
+        mutationEpoch.incrementAndGet()
+        when (eventType) {
+            EventType.CREATED, EventType.UPDATED ->
+                frontCache.putAll(events.associate { it.key to it.value })
+            EventType.REMOVED, EventType.EXPIRED ->
+                frontCache.removeAll(events.map { it.key }.toSet())
         }
     }
 }

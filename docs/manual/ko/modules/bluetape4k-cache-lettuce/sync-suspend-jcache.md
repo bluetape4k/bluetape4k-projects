@@ -41,6 +41,18 @@ check(sessions.putIfAbsent("a", another) == false)
 
 `replace(key, old, new)`와 `remove(key, old)`는 읽고 비교한 뒤 별도 Redis 명령을 수행합니다. 여러 client가 같은 key를 동시에 바꾸는 상황에서 원자적 compare-and-set을 보장하지 않습니다. 원자적 조건 변경은 Near Cache의 Lua CAS나 별도 Redis script를 사용합니다.
 
+## 동기 NearCache write-through
+
+`isSynchronous=true`로 설정한 `NearJCache`의 `put`, `putAll`, `putIfAbsent`, `remove`,
+`replace`는 500ms 이상으로 보정된 `syncRemoteTimeout` 안에서 Lettuce back write가
+끝나기를 기다립니다. Lettuce는 write worker에서 해당 write의 listener를 inline으로
+호출할 수 있습니다. `NearJCache`는 이 self-event를 caller가 잡은 mutation gate를
+다시 획득하지 않고 front에 직접 반영하므로 write가 자기 listener를 기다리는 교착을
+막습니다. 다른 wrapper나 외부 write의 event는 계속 mutation gate를 획득하며, 비동기
+write-through도 기존 gate 경로를 유지합니다. provider가 interrupt를 무시하면 호출자가
+timeout을 관찰한 뒤 back completion이 늦게 도착할 수 있지만, back-write barrier가
+후속 write와 순서를 보존합니다.
+
 ## listener와 EntryProcessor
 
 cache entry listener는 이 `LettuceJCache` instance가 수행한 CREATED·UPDATED·REMOVED 이벤트를 process 안에서 호출합니다. Redis의 다른 client가 값을 바꿔도 JCache listener가 자동으로 알림을 받는 구조는 아닙니다.

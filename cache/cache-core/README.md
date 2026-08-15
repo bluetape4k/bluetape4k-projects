@@ -70,6 +70,16 @@ provider's atomic compound operation and then reconcile the local front cache;
 they do not implement a front-read/back-write round trip. A provider failure is
 propagated before the front cache is changed.
 
+When `NearJCacheConfig.isSynchronous=true`, synchronous write-through runs the
+blocking provider call on a dedicated virtual thread and waits only up to the
+bounded `syncRemoteTimeout` (with a 500 ms minimum). If a provider invokes the
+listener for that same write inline, the write worker reconciles the self-event
+directly to the front cache instead of reacquiring `mutationGate`; this prevents
+self-deadlock. Peer or external events still use `mutationGate`, and asynchronous
+write-through keeps the existing gated path. A provider that ignores interruption
+may complete after the caller observes a timeout; `backWriteLock` serializes that
+late completion with following writes.
+
 `SuspendNearJCache` uses the same back-first rule for ordinary mutations:
 `put`, `putAll`, `putIfAbsent`, `remove`, and `replace` update the back cache
 before reconciling the local front cache. A back failure leaves the front

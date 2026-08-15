@@ -34,6 +34,19 @@ check(found.keys == setOf("a", "b"))
 
 `replace(key, old, new)` and `remove(key, old)` read and compare before issuing another Redis command. They are not distributed compare-and-set operations. Use the near-cache Lua CAS or a dedicated Redis script when the comparison must be atomic.
 
+## Synchronous near-cache write-through
+
+For `NearJCache` configured with `isSynchronous=true`, `put`, `putAll`,
+`putIfAbsent`, `remove`, and `replace` wait for the Lettuce back write with the
+bounded `syncRemoteTimeout` (at least 500 ms). Lettuce can dispatch the listener
+for that write inline on the write worker. `NearJCache` applies this self-event
+directly to the front cache instead of reacquiring the caller-held mutation gate,
+so the write cannot wait on its own listener. Events from another wrapper or
+external write still acquire the mutation gate, and asynchronous write-through
+keeps the normal gated path. If a provider ignores interruption, a late backend
+completion can follow a caller-visible timeout; the back-write barrier preserves
+ordering with subsequent writes.
+
 ## Listeners and EntryProcessor
 
 Entry listeners observe CREATED, UPDATED, and REMOVED operations executed by this cache instance. Writes from another Redis client do not automatically become JCache listener events.
