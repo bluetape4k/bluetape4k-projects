@@ -1,7 +1,10 @@
 package io.bluetape4k.cache.jcache
 
 import io.bluetape4k.cache.RedisServers
+import io.bluetape4k.junit5.concurrency.MultithreadingTester
 import io.bluetape4k.logging.KLogging
+import io.bluetape4k.redis.lettuce.codec.LettuceBinaryCodecs
+import io.bluetape4k.redis.lettuce.map.LettuceMap
 import io.lettuce.core.codec.StringCodec
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeFalse
@@ -16,9 +19,15 @@ import org.junit.jupiter.api.TestInstance
 import io.bluetape4k.assertions.assertFailsWith
 import java.net.URI
 import java.util.*
+import java.util.concurrent.CopyOnWriteArrayList
+import java.util.concurrent.atomic.AtomicInteger
 import java.util.concurrent.TimeUnit
 import javax.cache.CacheException
+import javax.cache.configuration.MutableCacheEntryListenerConfiguration
+import javax.cache.event.CacheEntryEvent
+import javax.cache.event.CacheEntryUpdatedListener
 import javax.cache.processor.EntryProcessor
+import javax.cache.processor.EntryProcessorException
 import javax.cache.processor.MutableEntry
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
@@ -227,6 +236,132 @@ class LettuceJCacheTest {
         results["k2"]?.get() shouldBeEqualTo "v2-x"
         cache.get("k1") shouldBeEqualTo "v1-x"
         cache.get("k2") shouldBeEqualTo "v2-x"
+    }
+
+    @Test
+    fun `invoke serializes read modify write across cache instances`() {
+        val mapName = "invoke-atomic-" + UUID.randomUUID().toString().take(8)
+        val first = standaloneCache(mapName)
+        val second = standaloneCache(mapName)
+        val nextCache = AtomicInteger()
+        val totalInvocations = 8 * 10
+
+        try {
+            first.put("counter", 0)
+
+            MultithreadingTester()
+                .workers(8)
+                .rounds(10)
+                .add {
+                    val target = if (nextCache.getAndIncrement() % 2 == 0) first else second
+                    target.invoke(
+                        "counter",
+                        EntryProcessor<String, Int, Int> { entry: MutableEntry<String, Int>, _: Array<out Any?> ->
+                            val current = entry.value ?: 0
+                            Thread.sleep(2)
+                            val updated = current + 1
+                            entry.setValue(updated)
+                            updated
+                        }
+                    )
+                }
+                .run()
+
+            first.get("counter") shouldBeEqualTo totalInvocations
+        } finally {
+            runCatching { first.clear() }
+            runCatching { first.close() }
+            runCatching { second.close() }
+        }
+    }
+
+    @Test
+    fun `invoke exception does not commit a partial entry update`() {
+        cache.put("key1", "original")
+
+        assertFailsWith<EntryProcessorException> {
+            cache.invoke(
+                "key1",
+                EntryProcessor<String, String, String> { entry: MutableEntry<String, String>, _: Array<out Any?> ->
+                    entry.setValue("transient")
+                    error("processor failed")
+                }
+            )
+        }
+
+        cache.get("key1") shouldBeEqualTo "original"
+    }
+
+    @Test
+    fun `invokeAll keeps per key result and exception contracts`() {
+        cache.putAll(mapOf("ok" to "value", "bad" to "value").toMutableMap())
+
+        val results = cache.invokeAll(
+            setOf("ok", "bad"),
+            EntryProcessor<String, String, String> { entry: MutableEntry<String, String>, _: Array<out Any?> ->
+                if (entry.key == "bad") error("bad entry")
+                val updated = entry.value + "-updated"
+                entry.setValue(updated)
+                updated
+            }
+        )
+
+        results["ok"]?.get() shouldBeEqualTo "value-updated"
+        assertFailsWith<EntryProcessorException> { results["bad"]?.get() }
+        cache.get("ok") shouldBeEqualTo "value-updated"
+        cache.get("bad") shouldBeEqualTo "value"
+    }
+
+    @Test
+    fun `invoke refreshes ttl and dispatches updated listener event`() {
+        val ttlCache = manager.createCache(
+            "invoke-ttl-" + UUID.randomUUID().toString().take(8),
+            lettuceCacheConfigOf<String, String>(ttlSeconds = 60)
+        ) as LettuceJCache<String, String>
+        val updatedEvents = CopyOnWriteArrayList<String>()
+        val listener = object : CacheEntryUpdatedListener<String, String> {
+            override fun onUpdated(events: Iterable<CacheEntryEvent<out String, out String>>) {
+                events.forEach { event -> updatedEvents += "${event.key}:${event.value}" }
+            }
+        }
+
+        try {
+            ttlCache.registerCacheEntryListener(
+                MutableCacheEntryListenerConfiguration({ listener }, null, false, true)
+            )
+            ttlCache.put("key1", "value1")
+            updatedEvents.clear()
+
+            ttlCache.invoke(
+                "key1",
+                EntryProcessor<String, String, String> { entry: MutableEntry<String, String>, _: Array<out Any?> ->
+                    val updated = entry.value + "-updated"
+                    entry.setValue(updated)
+                    updated
+                }
+            )
+
+            ttlCache.get("key1") shouldBeEqualTo "value1-updated"
+            updatedEvents shouldBeEqualTo listOf("key1:value1-updated")
+            RedisServers.redisClient.connect(StringCodec.UTF8).use { connection ->
+                (connection.sync().ttl(ttlCache.name) > 0L).shouldBeTrue()
+            }
+        } finally {
+            runCatching { ttlCache.close() }
+        }
+    }
+
+    private fun standaloneCache(mapName: String): LettuceJCache<String, Int> {
+        val connection = RedisServers.redisClient.connect(LettuceCacheManager.STRING_BYTES_CODEC)
+        val map = LettuceMap<ByteArray>(connection, mapName)
+        val configuration = lettuceCacheConfigOf<String, Int>(codec = LettuceBinaryCodecs.lz4Fory<Int>())
+        return LettuceJCache(
+            map = map,
+            codec = LettuceBinaryCodecs.lz4Fory<Int>(),
+            cacheManager = manager as LettuceCacheManager,
+            configuration = configuration,
+            closeResource = { connection.close() },
+        )
     }
 
     @Test

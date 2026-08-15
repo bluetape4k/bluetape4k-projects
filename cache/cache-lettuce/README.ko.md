@@ -216,7 +216,16 @@ Caffeine           |
 - Redis 8 이상에서는 `HSETEX`를 우선 사용하고 hash key `EXPIRE`도 함께 갱신합니다.
 - Redis 7 이하 서버에서는 자동으로 `HSET/HMSET + EXPIRE` 경로로 fallback 합니다.
 - TTL이 지나면 해당 cacheName에 속한 항목이 함께 만료됩니다.
-- 현재 JCache의 `EntryProcessor` 기반 `invoke` / `invokeAll`은 지원하지 않으며 호출 시 `CacheException`을 반환합니다.
+- JCache의 `EntryProcessor` 기반 `invoke` / `invokeAll`은 지원합니다. 같은 cache name을 공유하는
+  `LettuceJCache` 인스턴스의 모든 변경 작업은 Redis 분산 락으로 직렬화되므로,
+  `invoke`의 read-modify-write가 연결 간에도 원자적으로 실행됩니다.
+- `invokeAll`은 키별로 독립된 원자 구간을 만들며, 성공한 키의 결과와 실패한 키의
+  `EntryProcessorException`을 각각 `EntryProcessorResult`에 보존합니다. 프로세서가 예외를
+  던지면 해당 키에는 변경 내용을 커밋하지 않습니다.
+- `ttlSeconds`가 설정된 경우 `invoke`로 갱신한 값도 캐시 hash TTL을 다시 적용하고,
+  등록된 `CacheEntryUpdatedListener`에 갱신 이벤트를 전달합니다.
+- 분산 락의 기본 lease는 1분, 획득 대기는 5분입니다. 프로세서는 기본 lease 안에
+  완료되어야 하며, 더 긴 실행 시간을 허용하는 정책은 별도 설정 계약으로 다룹니다.
 
 ```kotlin
 import io.bluetape4k.cache.jcache.LettuceJCaching
