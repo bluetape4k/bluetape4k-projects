@@ -136,6 +136,71 @@ class NearJCacheWriteThroughReentrancyTest {
     }
 
     @Test
+    fun `비동기 self-event는 mutation gate 순서를 유지한다`() {
+        val frontCache = mockk<JCache<String, String>>(relaxed = true)
+        val backCache = mockk<JCache<String, String>>(relaxed = true)
+        val listenerConfiguration = slot<CacheEntryListenerConfiguration<String, String>>()
+        val event = mockk<CacheEntryEvent<String, String>>(relaxed = true)
+        every { event.key } returns "key"
+        every { event.value } returns "value"
+        every { backCache.registerCacheEntryListener(capture(listenerConfiguration)) } just runs
+
+        val backWriteStarted = CountDownLatch(1)
+        val releaseBackWrite = CountDownLatch(1)
+        val callbackStarted = CountDownLatch(1)
+        val callbackReturned = CountDownLatch(1)
+        val blockerStarted = CountDownLatch(1)
+        val releaseBlocker = CountDownLatch(1)
+        every { frontCache.put("blocker", "value") } answers {
+            blockerStarted.countDown()
+            releaseBlocker.await(2, TimeUnit.SECONDS)
+        }
+
+        val nearCache = NearJCache(
+            frontCache = frontCache,
+            backCache = backCache,
+            config = NearJCacheConfig(isSynchronous = false, syncRemoteTimeout = 100L),
+        )
+        nearCache.registerBackCacheListener()
+        val listener = listenerConfiguration.captured.cacheEntryListenerFactory!!.create()
+            as CacheEntryCreatedListener<String, String>
+        every { backCache.put("key", "value") } answers {
+            backWriteStarted.countDown()
+            releaseBackWrite.await(2, TimeUnit.SECONDS)
+            callbackStarted.countDown()
+            listener.onCreated(listOf(event))
+            callbackReturned.countDown()
+        }
+
+        try {
+            nearCache.put("key", "value")
+            check(backWriteStarted.await(2, TimeUnit.SECONDS)) { "async back write did not start" }
+
+            val blocker = virtualThread(start = false, name = "near-jcache-async-gate-blocker") {
+                nearCache.put("blocker", "value")
+            }
+            blocker.start()
+            check(blockerStarted.await(2, TimeUnit.SECONDS)) { "mutation gate blocker did not start" }
+
+            releaseBackWrite.countDown()
+            check(callbackStarted.await(2, TimeUnit.SECONDS)) { "async self-event did not start" }
+            check(!callbackReturned.await(100, TimeUnit.MILLISECONDS)) {
+                "async self-event bypassed mutationGate ordering"
+            }
+            verify(exactly = 0) { frontCache.putAll(mapOf("key" to "value")) }
+
+            releaseBlocker.countDown()
+            check(callbackReturned.await(2, TimeUnit.SECONDS)) { "async self-event did not complete" }
+            blocker.join(2_000)
+            verify(exactly = 1) { frontCache.putAll(mapOf("key" to "value")) }
+        } finally {
+            releaseBackWrite.countDown()
+            releaseBlocker.countDown()
+            nearCache.close()
+        }
+    }
+
+    @Test
     fun `timeout 뒤 late back completion은 후속 write보다 먼저 종료된다`() {
         val frontCache = mockk<JCache<String, String>>(relaxed = true)
         val backCache = mockk<JCache<String, String>>(relaxed = true)
