@@ -45,9 +45,10 @@ check(sessions.putIfAbsent("a", another) == false)
 
 `isSynchronous=true`로 설정한 `NearJCache`의 `put`, `putAll`, `putIfAbsent`, `remove`,
 `replace`는 500ms 이상으로 보정된 `syncRemoteTimeout` 안에서 Lettuce back write가
-끝나기를 기다립니다. Lettuce는 write worker에서 해당 write의 listener를 inline으로
-호출할 수 있습니다. `NearJCache`는 이 self-event를 caller가 잡은 mutation gate를
-다시 획득하지 않고 front에 직접 반영하므로 write가 자기 listener를 기다리는 교착을
+끝나기를 기다립니다. Lettuce는 write worker 또는 synchronous callback thread에서 해당
+write의 listener를 호출할 수 있습니다. `NearJCache`는 operation-scoped key/type/value
+상관관계가 맞는 self-event를 caller가 잡은 mutation gate를 다시 획득하지 않고 front에
+직접 반영하므로 write가 자기 listener를 기다리는 교착을
 막습니다. 다른 wrapper나 외부 write의 event는 계속 mutation gate를 획득하며, 비동기
 write-through도 기존 gate 경로를 유지합니다. provider가 interrupt를 무시하면 호출자가
 timeout을 관찰한 뒤 back completion이 늦게 도착할 수 있지만, back-write barrier가

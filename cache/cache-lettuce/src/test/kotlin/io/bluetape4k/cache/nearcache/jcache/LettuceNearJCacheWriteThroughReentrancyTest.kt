@@ -37,7 +37,7 @@ class LettuceNearJCacheWriteThroughReentrancyTest {
             cache.get("replace-key") shouldBeEqualTo "new-value"
             cache.get("remove-key") shouldBeEqualTo null
         } finally {
-            runCatching { cache.close() }
+            cache.close()
         }
     }
 }

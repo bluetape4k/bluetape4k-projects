@@ -52,8 +52,9 @@ register cache-entry listeners and support peer front-cache propagation.
 For a JCache near cache configured with `isSynchronous=true`, `put`, `putAll`,
 `putIfAbsent`, `remove`, and `replace` wait for the Lettuce write-through with
 the bounded `syncRemoteTimeout`. Lettuce may dispatch the write's listener inline
-on the write worker; `NearJCache` reconciles that self-event directly to the
-front cache so the worker does not reacquire the caller-held mutation gate. Peer
+on the write worker; `NearJCache` uses an operation-scoped key/type/value match to
+reconcile that self-event directly to the front cache so the callback does not
+reacquire the caller-held mutation gate. Peer
 or external events still use the gate, and asynchronous mode keeps its existing
 ordering. A provider that completes after an observed timeout remains serialized
 by the near cache's back-write barrier.
