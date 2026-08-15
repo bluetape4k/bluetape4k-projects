@@ -121,8 +121,9 @@ local front를 조정합니다. 따라서 front를 먼저 읽고 back을 별도�
 전용 virtual thread에서 실행하고, 500ms 이상으로 보정된 `syncRemoteTimeout`까지만
 기다립니다. provider가 같은 write의 listener를 inline 또는 synchronous callback thread에서
 호출하는 경우 key/type/value 상관관계가 맞는 self-event를 front에 직접 반영하고
-`mutationGate`를 다시 획득하지 않아 self-deadlock을 차단합니다. 다른 wrapper나 외부 write의 event는 계속 `mutationGate`로 직렬화하며,
-비동기 write-through도 기존 gate 경로를 유지합니다. provider가 interrupt를 무시하면
+`mutationGate`를 다시 획득하지 않아 self-deadlock을 차단합니다. 매칭되지 않는 다른 wrapper나 외부 write의 event는 계속
+`mutationGate`로 직렬화하며, 비동기 write-through도 기존 gate 경로를 유지합니다. JCache event에는 operation ID가 없으므로
+동일 key/type/value의 외부 event는 활성 self-event와 구분할 수 없습니다. provider가 interrupt를 무시하면
 호출자가 timeout을 관찰한 뒤 back write가 완료될 수 있으며, `backWriteLock`이 해당
 late completion과 후속 write의 순서를 직렬화합니다.
 

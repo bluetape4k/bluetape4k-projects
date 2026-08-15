@@ -798,7 +798,11 @@ class NearJCache<K: Any, V: Any>(
         val guardedSyncTask = {
             backWriteLock.withLock {
                 if (expectedBackWriteGeneration == backWriteGeneration.get()) {
-                    val context = selfEventMatcher?.let { ActiveSelfEventContext(it) }
+                    // 호출자가 mutationGate를 잡은 동기 mutation만 operation context를 사용합니다.
+                    // 비동기 write는 provider callback 전에 gate를 해제하므로 기존 순서 경로를 유지합니다.
+                    val context = selfEventMatcher
+                        ?.takeIf { reconcileInlineSelfEvent }
+                        ?.let { ActiveSelfEventContext(it) }
                     context?.let(activeSelfEventContexts::add)
                     try {
                         if (reconcileInlineSelfEvent) {
@@ -861,8 +865,9 @@ class NearJCache<K: Any, V: Any>(
      * 동기 mutation이 호출자 [mutationGate]를 잡은 동안 provider가 같은 write의 listener를
      * inline 또는 synchronous callback thread에서 호출하면, key/type/value가 일치하는
      * self-event는 write worker 또는 active operation context를 통해 Front에 직접 반영합니다.
-     * 다른 wrapper나 외부 write의 listener event는 기존처럼 [mutationGate]를 통해
-     * 직렬화됩니다.
+     * 매칭되지 않는 다른 wrapper나 외부 write의 listener event와 비동기 write는 기존처럼
+     * [mutationGate]를 통해 직렬화됩니다. JCache event에는 operation ID가 없으므로
+     * 동일 key/type/value의 외부 event는 self-event와 구분할 수 없습니다.
      */
     @Suppress("ThrowsCount")
     private fun runSynchronousBackCacheWrite(timeoutMillis: Long, syncTask: () -> Unit) {

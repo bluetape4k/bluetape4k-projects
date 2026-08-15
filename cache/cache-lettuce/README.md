@@ -54,9 +54,10 @@ For a JCache near cache configured with `isSynchronous=true`, `put`, `putAll`,
 the bounded `syncRemoteTimeout`. Lettuce may dispatch the write's listener inline
 on the write worker; `NearJCache` uses an operation-scoped key/type/value match to
 reconcile that self-event directly to the front cache so the callback does not
-reacquire the caller-held mutation gate. Peer
-or external events still use the gate, and asynchronous mode keeps its existing
-ordering. A provider that completes after an observed timeout remains serialized
+reacquire the caller-held mutation gate. Non-matching peer or external events
+still use the gate, and asynchronous mode keeps its existing ordering. JCache
+events do not carry an operation ID, so an external event with the same
+key/type/value cannot be distinguished from the active self-event. A provider that completes after an observed timeout remains serialized
 by the near cache's back-write barrier.
 
 See the full [Near-Cache Backend Capability Matrix](../../docs/cache/near-cache-capability-matrix.md).

@@ -76,8 +76,10 @@ bounded `syncRemoteTimeout` (with a 500 ms minimum). If a provider invokes the
 listener for that same write inline or on a synchronous callback thread,
 `NearJCache` uses an operation-scoped key/type/value match to reconcile the
 self-event directly to the front cache instead of reacquiring `mutationGate`;
-this prevents self-deadlock. Peer or external events still use `mutationGate`,
-and asynchronous write-through keeps the existing gated path. A provider that
+this prevents self-deadlock. Non-matching peer or external events still use
+`mutationGate`, and asynchronous write-through keeps the existing gated path.
+JCache events do not carry an operation ID, so an external event with the same
+key/type/value cannot be distinguished from the active self-event. A provider that
 ignores interruption may complete after the caller observes a timeout;
 `backWriteLock` serializes that late completion with following writes.
 

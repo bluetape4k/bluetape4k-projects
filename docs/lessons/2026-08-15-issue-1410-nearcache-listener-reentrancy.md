@@ -18,6 +18,9 @@ worker를 기다리고 worker는 호출자를 기다리는 교착이 발생했�
   다시 self-event로 처리하지 않습니다.
 - 다른 wrapper 또는 외부 write의 listener event와 비동기 경로는 기존처럼
   `mutationGate`를 통해 직렬화합니다.
+- JCache event에는 operation ID가 없으므로 동일 key/type/value의 외부 event는
+  active self-event와 구분할 수 없습니다. 엄격한 operation correlation이 필요한
+  provider는 이 heuristic 경계를 별도로 검토해야 합니다.
 - provider 호출은 기존 `backWriteLock`과 bounded timeout을 그대로 사용해 timeout,
   cancellation, late completion의 순서 계약을 변경하지 않았습니다.
 - 호출자 gate를 provider I/O 전에 무조건 해제하는 대안은 late completion과 후속

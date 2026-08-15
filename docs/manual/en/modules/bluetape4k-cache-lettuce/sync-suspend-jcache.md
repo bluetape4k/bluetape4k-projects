@@ -42,9 +42,11 @@ bounded `syncRemoteTimeout` (at least 500 ms). Lettuce can dispatch the listener
 for that write inline on the write worker or on a synchronous callback thread.
 `NearJCache` uses an operation-scoped key/type/value match to apply this self-event
 directly to the front cache instead of reacquiring the caller-held mutation gate,
-so the write cannot wait on its own listener. Events from another wrapper or
-external write still acquire the mutation gate, and asynchronous write-through
-keeps the normal gated path. If a provider ignores interruption, a late backend
+so the write cannot wait on its own listener. Non-matching events from another
+wrapper or external write still acquire the mutation gate, and asynchronous
+write-through keeps the normal gated path. JCache events do not carry an operation
+ID, so an external event with the same key/type/value cannot be distinguished from
+the active self-event. If a provider ignores interruption, a late backend
 completion can follow a caller-visible timeout; the back-write barrier preserves
 ordering with subsequent writes.
 
