@@ -796,25 +796,12 @@ class NearJCache<K: Any, V: Any>(
         publishBackCacheWrite(operation, completion)
         val reconcileInlineSelfEvent = synchronous && mutationGate.isHeldByCurrentThread()
         val guardedSyncTask = {
-            backWriteLock.withLock {
-                if (expectedBackWriteGeneration == backWriteGeneration.get()) {
-                    // 호출자가 mutationGate를 잡은 동기 mutation만 operation context를 사용합니다.
-                    // 비동기 write는 provider callback 전에 gate를 해제하므로 기존 순서 경로를 유지합니다.
-                    val context = selfEventMatcher
-                        ?.takeIf { reconcileInlineSelfEvent }
-                        ?.let { ActiveSelfEventContext(it) }
-                    context?.let(activeSelfEventContexts::add)
-                    try {
-                        if (reconcileInlineSelfEvent) {
-                            withInlineSelfEventReconciliation(syncTask)
-                        } else {
-                            syncTask()
-                        }
-                    } finally {
-                        context?.let(activeSelfEventContexts::remove)
-                    }
-                }
-            }
+            runGuardedBackCacheWrite(
+                expectedBackWriteGeneration = expectedBackWriteGeneration,
+                selfEventMatcher = selfEventMatcher,
+                reconcileInlineSelfEvent = reconcileInlineSelfEvent,
+                syncTask = syncTask,
+            )
         }
         if (synchronous) {
             val timeoutMillis = config.syncRemoteTimeout.coerceAtLeast(NearJCacheConfig.DEFAULT_SYNC_REMOTE_TIMEOUT)
@@ -854,6 +841,33 @@ class NearJCache<K: Any, V: Any>(
             syncTask = guardedSyncTask,
         )
         return completion
+    }
+
+    private fun runGuardedBackCacheWrite(
+        expectedBackWriteGeneration: Long,
+        selfEventMatcher: SelfEventMatcher<K, V>?,
+        reconcileInlineSelfEvent: Boolean,
+        syncTask: () -> Unit,
+    ) {
+        backWriteLock.withLock {
+            if (expectedBackWriteGeneration != backWriteGeneration.get()) return@withLock
+
+            // 호출자가 mutationGate를 잡은 동기 mutation만 operation context를 사용합니다.
+            // 비동기 write는 provider callback 전에 gate를 해제하므로 기존 순서 경로를 유지합니다.
+            val context = selfEventMatcher
+                ?.takeIf { reconcileInlineSelfEvent }
+                ?.let { ActiveSelfEventContext(it) }
+            context?.let(activeSelfEventContexts::add)
+            try {
+                if (reconcileInlineSelfEvent) {
+                    withInlineSelfEventReconciliation(syncTask)
+                } else {
+                    syncTask()
+                }
+            } finally {
+                context?.let(activeSelfEventContexts::remove)
+            }
+        }
     }
 
     /**
