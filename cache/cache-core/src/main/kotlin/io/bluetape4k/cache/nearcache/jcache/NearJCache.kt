@@ -15,6 +15,7 @@ import java.util.concurrent.CancellationException
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.CompletionException
 import java.util.concurrent.CompletionStage
+import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.CopyOnWriteArrayList
 import java.util.concurrent.ExecutionException
 import java.util.concurrent.Executors
@@ -182,7 +183,35 @@ class NearJCache<K: Any, V: Any>(
         val configuration: CacheEntryListenerConfiguration<K, V>,
         val active: AtomicReference<Boolean> = AtomicReference(true),
     )
+    private class SelfEventMatcher<K: Any, V: Any>(
+        val keys: Set<K>,
+        private val eventTypes: Set<EventType>,
+        private val values: Map<K, V>? = null,
+    ) {
+        fun matches(eventType: EventType, events: List<CacheEntryEvent<out K, out V>>): Boolean {
+            if (events.isEmpty() || eventType !in eventTypes) return false
+            return events.all { event ->
+                event.key in keys &&
+                    (values == null || (values.containsKey(event.key) && values[event.key] == event.value))
+            }
+        }
+    }
+
+    private class ActiveSelfEventContext<K: Any, V: Any>(
+        val matcher: SelfEventMatcher<K, V>,
+    ) {
+        private val remainingKeys = ConcurrentHashMap.newKeySet<K>().apply { addAll(matcher.keys) }
+
+        @Synchronized
+        fun matchesAndConsume(eventType: EventType, events: List<CacheEntryEvent<out K, out V>>): Boolean {
+            if (!matcher.matches(eventType, events) || events.any { it.key !in remainingKeys }) return false
+            events.forEach { remainingKeys.remove(it.key) }
+            return true
+        }
+    }
+
     private val backCacheListener = AtomicReference<BackCacheListenerRegistration<K, V>?>(null)
+    private val activeSelfEventContexts = CopyOnWriteArrayList<ActiveSelfEventContext<K, V>>()
     private data class BackCacheWriteState(
         val operationId: Long,
         val operation: String,
@@ -538,9 +567,15 @@ class NearJCache<K: Any, V: Any>(
         mutationGate.withLock {
             mutationEpoch.incrementAndGet()
             frontCache.put(key, value)
-            syncBackCache("put", expectedBackWriteGeneration = backWriteGeneration.get()) {
-                backCache.put(key, value)
-            }
+            syncBackCache(
+                operation = "put",
+                expectedBackWriteGeneration = backWriteGeneration.get(),
+                selfEventMatcher = SelfEventMatcher(
+                    keys = setOf(key),
+                    eventTypes = setOf(EventType.CREATED, EventType.UPDATED),
+                    values = mapOf(key to value),
+                ),
+            ) { backCache.put(key, value) }
         }
     }
 
@@ -548,9 +583,15 @@ class NearJCache<K: Any, V: Any>(
         mutationGate.withLock {
             mutationEpoch.incrementAndGet()
             frontCache.putAll(map)
-            syncBackCache("putAll", expectedBackWriteGeneration = backWriteGeneration.get()) {
-                backCache.putAll(map)
-            }
+            syncBackCache(
+                operation = "putAll",
+                expectedBackWriteGeneration = backWriteGeneration.get(),
+                selfEventMatcher = SelfEventMatcher(
+                    keys = map.keys,
+                    eventTypes = setOf(EventType.CREATED, EventType.UPDATED),
+                    values = map.entries.associate { it.key to it.value },
+                ),
+            ) { backCache.putAll(map) }
         }
     }
 
@@ -558,7 +599,15 @@ class NearJCache<K: Any, V: Any>(
         frontCache.putIfAbsent(key, value).also { inserted ->
             if (inserted) {
                 mutationEpoch.incrementAndGet()
-                syncBackCache("putIfAbsent", expectedBackWriteGeneration = backWriteGeneration.get()) {
+                syncBackCache(
+                    operation = "putIfAbsent",
+                    expectedBackWriteGeneration = backWriteGeneration.get(),
+                    selfEventMatcher = SelfEventMatcher(
+                        keys = setOf(key),
+                        eventTypes = setOf(EventType.CREATED),
+                        values = mapOf(key to value),
+                    ),
+                ) {
                     if (!backCache.containsKey(key)) {
                         backCache.put(key, value)
                     }
@@ -571,9 +620,14 @@ class NearJCache<K: Any, V: Any>(
         frontCache.remove(key).also { removed ->
             if (removed) {
                 mutationEpoch.incrementAndGet()
-                syncBackCache("remove", expectedBackWriteGeneration = backWriteGeneration.get()) {
-                    backCache.remove(key)
-                }
+                syncBackCache(
+                    operation = "remove",
+                    expectedBackWriteGeneration = backWriteGeneration.get(),
+                    selfEventMatcher = SelfEventMatcher(
+                        keys = setOf(key),
+                        eventTypes = setOf(EventType.REMOVED),
+                    ),
+                ) { backCache.remove(key) }
             }
         }
     }
@@ -582,7 +636,14 @@ class NearJCache<K: Any, V: Any>(
         frontCache.remove(key, oldValue).also { removed ->
             if (removed) {
                 mutationEpoch.incrementAndGet()
-                syncBackCache("remove(key, oldValue)", expectedBackWriteGeneration = backWriteGeneration.get()) {
+                syncBackCache(
+                    operation = "remove(key, oldValue)",
+                    expectedBackWriteGeneration = backWriteGeneration.get(),
+                    selfEventMatcher = SelfEventMatcher(
+                        keys = setOf(key),
+                        eventTypes = setOf(EventType.REMOVED),
+                    ),
+                ) {
                     // Back cache listener 전파를 remove(key) 경로로 통일하기 위해 값 비교 후 단일 키 삭제를 사용한다.
                     if (backCache.containsKey(key) && backCache.get(key) == oldValue) {
                         backCache.remove(key)
@@ -610,7 +671,14 @@ class NearJCache<K: Any, V: Any>(
         mutationGate.withLock {
             mutationEpoch.incrementAndGet()
             frontCache.removeAll(keys)
-            syncBackCache("removeAll(keys)", expectedBackWriteGeneration = backWriteGeneration.get()) {
+            syncBackCache(
+                operation = "removeAll(keys)",
+                expectedBackWriteGeneration = backWriteGeneration.get(),
+                selfEventMatcher = SelfEventMatcher(
+                    keys = keys,
+                    eventTypes = setOf(EventType.REMOVED),
+                ),
+            ) {
                 // Redisson 에서는 bulk operation 의 경우 event 가 발생하지 않습니다!!!
                 val failures = removeBackCacheEntries(keys)
                 throwIfFailures("removeAll(keys)", failures)
@@ -639,8 +707,13 @@ class NearJCache<K: Any, V: Any>(
             if (replaced) {
                 mutationEpoch.incrementAndGet()
                 syncBackCache(
-                    "replace(key, oldValue, newValue)",
-                    expectedBackWriteGeneration = backWriteGeneration.get()
+                    operation = "replace(key, oldValue, newValue)",
+                    expectedBackWriteGeneration = backWriteGeneration.get(),
+                    selfEventMatcher = SelfEventMatcher(
+                        keys = setOf(key),
+                        eventTypes = setOf(EventType.UPDATED),
+                        values = mapOf(key to newValue),
+                    ),
                 ) {
                     if (backCache.containsKey(key) && backCache.get(key) == oldValue) {
                         backCache.put(key, newValue)
@@ -654,7 +727,15 @@ class NearJCache<K: Any, V: Any>(
         frontCache.replace(key, value).also { replaced ->
             if (replaced) {
                 mutationEpoch.incrementAndGet()
-                syncBackCache("replace", expectedBackWriteGeneration = backWriteGeneration.get()) {
+                syncBackCache(
+                    operation = "replace",
+                    expectedBackWriteGeneration = backWriteGeneration.get(),
+                    selfEventMatcher = SelfEventMatcher(
+                        keys = setOf(key),
+                        eventTypes = setOf(EventType.UPDATED),
+                        values = mapOf(key to value),
+                    ),
+                ) {
                     // Redisson 에서는 replace 가 event 를 발생시키지 않습니다.
                     if (backCache.containsKey(key)) {
                         backCache.put(key, value)
@@ -708,6 +789,7 @@ class NearJCache<K: Any, V: Any>(
         operation: String,
         synchronous: Boolean = config.isSynchronous,
         expectedBackWriteGeneration: Long = backWriteGeneration.get(),
+        selfEventMatcher: SelfEventMatcher<K, V>? = null,
         syncTask: () -> Unit,
     ): CompletableFuture<Unit> {
         val completion = CompletableFuture<Unit>()
@@ -716,10 +798,16 @@ class NearJCache<K: Any, V: Any>(
         val guardedSyncTask = {
             backWriteLock.withLock {
                 if (expectedBackWriteGeneration == backWriteGeneration.get()) {
-                    if (reconcileInlineSelfEvent) {
-                        withInlineSelfEventReconciliation(syncTask)
-                    } else {
-                        syncTask()
+                    val context = selfEventMatcher?.let { ActiveSelfEventContext(it) }
+                    context?.let(activeSelfEventContexts::add)
+                    try {
+                        if (reconcileInlineSelfEvent) {
+                            withInlineSelfEventReconciliation(syncTask)
+                        } else {
+                            syncTask()
+                        }
+                    } finally {
+                        context?.let(activeSelfEventContexts::remove)
                     }
                 }
             }
@@ -771,9 +859,10 @@ class NearJCache<K: Any, V: Any>(
      * 늦게 완료될 수 있으므로 [backWriteLock]이 완료 순서를 계속 직렬화합니다.
      *
      * 동기 mutation이 호출자 [mutationGate]를 잡은 동안 provider가 같은 write의 listener를
-     * inline으로 호출하면, 해당 self-event는 write worker가 직접 Front에 반영합니다. 이
-     * 경우에만 worker가 [mutationGate]를 다시 획득하지 않으며, 다른 wrapper나 외부 write의
-     * listener event는 기존처럼 [mutationGate]를 통해 직렬화됩니다.
+     * inline 또는 synchronous callback thread에서 호출하면, key/type/value가 일치하는
+     * self-event는 write worker 또는 active operation context를 통해 Front에 직접 반영합니다.
+     * 다른 wrapper나 외부 write의 listener event는 기존처럼 [mutationGate]를 통해
+     * 직렬화됩니다.
      */
     @Suppress("ThrowsCount")
     private fun runSynchronousBackCacheWrite(timeoutMillis: Long, syncTask: () -> Unit) {
@@ -915,7 +1004,10 @@ class NearJCache<K: Any, V: Any>(
         events: List<CacheEntryEvent<out K, out V>>,
     ) {
         if (!registration.active.get()) return
-        if (inlineSelfEventReconciliation.get() == true) {
+        val activeSelfEvent = activeSelfEventContexts.any { context ->
+            context.matchesAndConsume(eventType, events)
+        }
+        if (inlineSelfEventReconciliation.get() == true || activeSelfEvent) {
             applyBackCacheEventsToFront(registration, eventType, events)
         } else {
             mutationGate.withLock {
