@@ -49,6 +49,15 @@ conformance suites. Native `LettuceNearCache` and `LettuceSuspendNearCache` use
 Redis RESP3 `CLIENT TRACKING` plus explicit write-through. JCache variants
 register cache-entry listeners and support peer front-cache propagation.
 
+For a JCache near cache configured with `isSynchronous=true`, `put`, `putAll`,
+`putIfAbsent`, `remove`, and `replace` wait for the Lettuce write-through with
+the bounded `syncRemoteTimeout`. Lettuce may dispatch the write's listener inline
+on the write worker; `NearJCache` reconciles that self-event directly to the
+front cache so the worker does not reacquire the caller-held mutation gate. Peer
+or external events still use the gate, and asynchronous mode keeps its existing
+ordering. A provider that completes after an observed timeout remains serialized
+by the near cache's back-write barrier.
+
 See the full [Near-Cache Backend Capability Matrix](../../docs/cache/near-cache-capability-matrix.md).
 
 ## Factory (`LettuceCaches`)

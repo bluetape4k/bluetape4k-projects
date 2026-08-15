@@ -93,6 +93,14 @@ Lettuce native/JCache NearCache는 공통 conformance suite에서 supported로 �
 Native `LettuceNearCache` / `LettuceSuspendNearCache`는 Redis RESP3 `CLIENT TRACKING`과 write-through를 사용합니다.
 JCache 변형은 cache-entry listener로 peer front-cache 전파를 지원합니다.
 
+`isSynchronous=true`인 JCache NearCache의 `put`, `putAll`, `putIfAbsent`, `remove`,
+`replace`는 제한된 `syncRemoteTimeout` 안에서 Lettuce write-through 완료를 기다립니다.
+Lettuce가 write worker에서 해당 write의 listener를 inline 호출할 수 있으므로,
+`NearJCache`는 self-event를 front에 직접 반영해 caller가 잡은 mutation gate를 worker가
+다시 획득하지 않도록 합니다. 다른 wrapper나 외부 write의 event는 계속 gate로
+직렬화하며 비동기 모드의 기존 순서도 유지합니다. timeout 이후 provider가 늦게 완료하는
+경우에도 near cache의 back-write barrier가 후속 write와 순서를 보장합니다.
+
 전체 행렬은 [Near-Cache Backend Capability Matrix](../../docs/cache/near-cache-capability-matrix.md)를 참고하세요.
 
 `LettuceCacheConfig`/`LettuceNearCacheConfig` 사용 시:
