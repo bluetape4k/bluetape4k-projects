@@ -5,6 +5,7 @@ import io.bluetape4k.cache.jcache.JCacheEntryEventListener
 import io.bluetape4k.cache.jcache.getConfiguration
 import io.bluetape4k.cache.nearcache.jcache.management.ActiveNearJCacheStatisticsRecorder
 import io.bluetape4k.cache.nearcache.jcache.management.NearJCacheConfigurationSnapshot
+import io.bluetape4k.cache.nearcache.jcache.management.NearJCacheRecordingContext
 import io.bluetape4k.cache.nearcache.jcache.management.NearJCacheStatisticsRecorder
 import io.bluetape4k.cache.nearcache.jcache.management.NearJCacheTimeSource
 import io.bluetape4k.cache.nearcache.jcache.management.NoOpNearJCacheStatisticsRecorder
@@ -616,38 +617,59 @@ class NearJCache<K: Any, V: Any> private constructor(
      * 동일 wrapper의 compound 순서만 별도 gate로 직렬화합니다. Back provider가
      * 제공하는 `getAnd*` 경계를 우회하는 front read/put 조합은 사용하지 않습니다.
      */
-    override fun getAndPut(key: K, value: V): V? = compoundGate.withLock {
-        mutationGate.withLock { mutationEpoch.incrementAndGet() }
-        val oldValue = runCompoundBackCacheOperation("getAndPut") {
-            backCache.getAndPut(key, value)
-        }
-        mutationGate.withLock { frontCache.put(key, value) }
-        oldValue
-    }
-
-    override fun getAndRemove(key: K): V? = compoundGate.withLock {
-        mutationGate.withLock { mutationEpoch.incrementAndGet() }
-        val oldValue = runCompoundBackCacheOperation("getAndRemove") {
-            backCache.getAndRemove(key)
-        }
-        mutationGate.withLock { frontCache.remove(key) }
-        oldValue
-    }
-
-    override fun getAndReplace(key: K, value: V): V? = compoundGate.withLock {
-        log.trace { "get and replace. key=$key" }
-        mutationGate.withLock { mutationEpoch.incrementAndGet() }
-        val oldValue = runCompoundBackCacheOperation("getAndReplace") {
-            backCache.getAndReplace(key, value)
-        }
-        mutationGate.withLock {
-            if (oldValue == null) {
-                frontCache.remove(key)
-            } else {
-                frontCache.put(key, value)
+    override fun getAndPut(key: K, value: V): V? {
+        val recording = statisticsRecorder.current()
+        val startedAt = recording.startTimeNanos()
+        val oldValue = compoundGate.withLock {
+            mutationGate.withLock { mutationEpoch.incrementAndGet() }
+            val previous = runCompoundBackCacheOperation("getAndPut") {
+                backCache.getAndPut(key, value)
             }
+            mutationGate.withLock { frontCache.put(key, value) }
+            previous
         }
-        oldValue
+        recordCompoundGet(recording, startedAt, oldValue)
+        recording.recordPut(startedAt, 1L)
+        return oldValue
+    }
+
+    override fun getAndRemove(key: K): V? {
+        val recording = statisticsRecorder.current()
+        val startedAt = recording.startTimeNanos()
+        val oldValue = compoundGate.withLock {
+            mutationGate.withLock { mutationEpoch.incrementAndGet() }
+            val previous = runCompoundBackCacheOperation("getAndRemove") {
+                backCache.getAndRemove(key)
+            }
+            mutationGate.withLock { frontCache.remove(key) }
+            previous
+        }
+        recordCompoundGet(recording, startedAt, oldValue)
+        if (oldValue != null) recording.recordRemove(startedAt, 1L)
+        return oldValue
+    }
+
+    override fun getAndReplace(key: K, value: V): V? {
+        val recording = statisticsRecorder.current()
+        val startedAt = recording.startTimeNanos()
+        val oldValue = compoundGate.withLock {
+            log.trace { "get and replace. key=$key" }
+            mutationGate.withLock { mutationEpoch.incrementAndGet() }
+            val previous = runCompoundBackCacheOperation("getAndReplace") {
+                backCache.getAndReplace(key, value)
+            }
+            mutationGate.withLock {
+                if (previous == null) {
+                    frontCache.remove(key)
+                } else {
+                    frontCache.put(key, value)
+                }
+            }
+            previous
+        }
+        recordCompoundGet(recording, startedAt, oldValue)
+        if (oldValue != null) recording.recordPut(startedAt, 1L)
+        return oldValue
     }
 
     operator fun set(key: K, value: V) {
@@ -655,6 +677,8 @@ class NearJCache<K: Any, V: Any> private constructor(
     }
 
     override fun put(key: K, value: V) {
+        val recording = statisticsRecorder.current()
+        val startedAt = recording.startTimeNanos()
         mutationGate.withLock {
             mutationEpoch.incrementAndGet()
             frontCache.put(key, value)
@@ -668,9 +692,14 @@ class NearJCache<K: Any, V: Any> private constructor(
                 ),
             ) { backCache.put(key, value) }
         }
+        recording.recordPut(startedAt, 1L)
     }
 
     override fun putAll(map: Map<out K, V>) {
+        if (map.isEmpty()) return
+
+        val recording = statisticsRecorder.current()
+        val startedAt = recording.startTimeNanos()
         mutationGate.withLock {
             mutationEpoch.incrementAndGet()
             frontCache.putAll(map)
@@ -684,64 +713,83 @@ class NearJCache<K: Any, V: Any> private constructor(
                 ),
             ) { backCache.putAll(map) }
         }
+        recording.recordPut(startedAt, map.size.toLong())
     }
 
-    override fun putIfAbsent(key: K, value: V): Boolean = mutationGate.withLock {
-        frontCache.putIfAbsent(key, value).also { inserted ->
-            if (inserted) {
-                mutationEpoch.incrementAndGet()
-                syncBackCache(
-                    operation = "putIfAbsent",
-                    expectedBackWriteGeneration = backWriteGeneration.get(),
-                    selfEventMatcher = SelfEventMatcher(
-                        keys = setOf(key),
-                        eventTypes = setOf(EventType.CREATED),
-                        values = mapOf(key to value),
-                    ),
-                ) {
-                    if (!backCache.containsKey(key)) {
-                        backCache.put(key, value)
+    override fun putIfAbsent(key: K, value: V): Boolean {
+        val recording = statisticsRecorder.current()
+        val startedAt = recording.startTimeNanos()
+        val inserted = mutationGate.withLock {
+            frontCache.putIfAbsent(key, value).also { inserted ->
+                if (inserted) {
+                    mutationEpoch.incrementAndGet()
+                    syncBackCache(
+                        operation = "putIfAbsent",
+                        expectedBackWriteGeneration = backWriteGeneration.get(),
+                        selfEventMatcher = SelfEventMatcher(
+                            keys = setOf(key),
+                            eventTypes = setOf(EventType.CREATED),
+                            values = mapOf(key to value),
+                        ),
+                    ) {
+                        if (!backCache.containsKey(key)) {
+                            backCache.put(key, value)
+                        }
                     }
                 }
             }
         }
+        if (inserted) recording.recordPut(startedAt, 1L)
+        return inserted
     }
 
-    override fun remove(key: K): Boolean = mutationGate.withLock {
-        frontCache.remove(key).also { removed ->
-            if (removed) {
-                mutationEpoch.incrementAndGet()
-                syncBackCache(
-                    operation = "remove",
-                    expectedBackWriteGeneration = backWriteGeneration.get(),
-                    selfEventMatcher = SelfEventMatcher(
-                        keys = setOf(key),
-                        eventTypes = setOf(EventType.REMOVED),
-                    ),
-                ) { backCache.remove(key) }
+    override fun remove(key: K): Boolean {
+        val recording = statisticsRecorder.current()
+        val startedAt = recording.startTimeNanos()
+        val removed = mutationGate.withLock {
+            frontCache.remove(key).also { removed ->
+                if (removed) {
+                    mutationEpoch.incrementAndGet()
+                    syncBackCache(
+                        operation = "remove",
+                        expectedBackWriteGeneration = backWriteGeneration.get(),
+                        selfEventMatcher = SelfEventMatcher(
+                            keys = setOf(key),
+                            eventTypes = setOf(EventType.REMOVED),
+                        ),
+                    ) { backCache.remove(key) }
+                }
             }
         }
+        if (removed) recording.recordRemove(startedAt, 1L)
+        return removed
     }
 
-    override fun remove(key: K, oldValue: V): Boolean = mutationGate.withLock {
-        frontCache.remove(key, oldValue).also { removed ->
-            if (removed) {
-                mutationEpoch.incrementAndGet()
-                syncBackCache(
-                    operation = "remove(key, oldValue)",
-                    expectedBackWriteGeneration = backWriteGeneration.get(),
-                    selfEventMatcher = SelfEventMatcher(
-                        keys = setOf(key),
-                        eventTypes = setOf(EventType.REMOVED),
-                    ),
-                ) {
-                    // Back cache listener 전파를 remove(key) 경로로 통일하기 위해 값 비교 후 단일 키 삭제를 사용한다.
-                    if (backCache.containsKey(key) && backCache.get(key) == oldValue) {
-                        backCache.remove(key)
+    override fun remove(key: K, oldValue: V): Boolean {
+        val recording = statisticsRecorder.current()
+        val startedAt = recording.startTimeNanos()
+        val removed = mutationGate.withLock {
+            frontCache.remove(key, oldValue).also { removed ->
+                if (removed) {
+                    mutationEpoch.incrementAndGet()
+                    syncBackCache(
+                        operation = "remove(key, oldValue)",
+                        expectedBackWriteGeneration = backWriteGeneration.get(),
+                        selfEventMatcher = SelfEventMatcher(
+                            keys = setOf(key),
+                            eventTypes = setOf(EventType.REMOVED),
+                        ),
+                    ) {
+                        // Back cache listener 전파를 remove(key) 경로로 통일하기 위해 값 비교 후 단일 키 삭제를 사용한다.
+                        if (backCache.containsKey(key) && backCache.get(key) == oldValue) {
+                            backCache.remove(key)
+                        }
                     }
                 }
             }
         }
+        if (removed) recording.recordRemove(startedAt, 1L)
+        return removed
     }
 
     override fun removeAll() {
@@ -793,47 +841,59 @@ class NearJCache<K: Any, V: Any> private constructor(
         removeAll(keys.toSet())
     }
 
-    override fun replace(key: K, oldValue: V, newValue: V): Boolean = mutationGate.withLock {
-        frontCache.replace(key, oldValue, newValue).also { replaced ->
-            if (replaced) {
-                mutationEpoch.incrementAndGet()
-                syncBackCache(
-                    operation = "replace(key, oldValue, newValue)",
-                    expectedBackWriteGeneration = backWriteGeneration.get(),
-                    selfEventMatcher = SelfEventMatcher(
-                        keys = setOf(key),
-                        eventTypes = setOf(EventType.UPDATED),
-                        values = mapOf(key to newValue),
-                    ),
-                ) {
-                    if (backCache.containsKey(key) && backCache.get(key) == oldValue) {
-                        backCache.put(key, newValue)
+    override fun replace(key: K, oldValue: V, newValue: V): Boolean {
+        val recording = statisticsRecorder.current()
+        val startedAt = recording.startTimeNanos()
+        val replaced = mutationGate.withLock {
+            frontCache.replace(key, oldValue, newValue).also { replaced ->
+                if (replaced) {
+                    mutationEpoch.incrementAndGet()
+                    syncBackCache(
+                        operation = "replace(key, oldValue, newValue)",
+                        expectedBackWriteGeneration = backWriteGeneration.get(),
+                        selfEventMatcher = SelfEventMatcher(
+                            keys = setOf(key),
+                            eventTypes = setOf(EventType.UPDATED),
+                            values = mapOf(key to newValue),
+                        ),
+                    ) {
+                        if (backCache.containsKey(key) && backCache.get(key) == oldValue) {
+                            backCache.put(key, newValue)
+                        }
                     }
                 }
             }
         }
+        if (replaced) recording.recordPut(startedAt, 1L)
+        return replaced
     }
 
-    override fun replace(key: K, value: V): Boolean = mutationGate.withLock {
-        frontCache.replace(key, value).also { replaced ->
-            if (replaced) {
-                mutationEpoch.incrementAndGet()
-                syncBackCache(
-                    operation = "replace",
-                    expectedBackWriteGeneration = backWriteGeneration.get(),
-                    selfEventMatcher = SelfEventMatcher(
-                        keys = setOf(key),
-                        eventTypes = setOf(EventType.UPDATED),
-                        values = mapOf(key to value),
-                    ),
-                ) {
-                    // Redisson 에서는 replace 가 event 를 발생시키지 않습니다.
-                    if (backCache.containsKey(key)) {
-                        backCache.put(key, value)
+    override fun replace(key: K, value: V): Boolean {
+        val recording = statisticsRecorder.current()
+        val startedAt = recording.startTimeNanos()
+        val replaced = mutationGate.withLock {
+            frontCache.replace(key, value).also { replaced ->
+                if (replaced) {
+                    mutationEpoch.incrementAndGet()
+                    syncBackCache(
+                        operation = "replace",
+                        expectedBackWriteGeneration = backWriteGeneration.get(),
+                        selfEventMatcher = SelfEventMatcher(
+                            keys = setOf(key),
+                            eventTypes = setOf(EventType.UPDATED),
+                            values = mapOf(key to value),
+                        ),
+                    ) {
+                        // Redisson 에서는 replace 가 event 를 발생시키지 않습니다.
+                        if (backCache.containsKey(key)) {
+                            backCache.put(key, value)
+                        }
                     }
                 }
             }
         }
+        if (replaced) recording.recordPut(startedAt, 1L)
+        return replaced
     }
 
     override fun <T: Any> unwrap(clazz: Class<T>): T? {
@@ -1008,6 +1068,23 @@ class NearJCache<K: Any, V: Any> private constructor(
         }
         @Suppress("UNCHECKED_CAST")
         return value as R
+    }
+
+    private fun recordCompoundGet(
+        recording: NearJCacheRecordingContext,
+        startedAt: Long,
+        oldValue: V?,
+    ) {
+        val hit = oldValue != null
+        recording.recordGet(
+            startedAt = startedAt,
+            hits = if (hit) 1 else 0,
+            misses = if (hit) 0 else 1,
+            frontHits = 0,
+            frontMisses = 1,
+            backHits = if (hit) 1 else 0,
+            backMisses = if (hit) 0 else 1,
+        )
     }
 
     private inline fun <R> withInlineSelfEventReconciliation(block: () -> R): R {
