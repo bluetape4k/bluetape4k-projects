@@ -10,7 +10,9 @@ import io.bluetape4k.cache.nearcache.jcache.NearJCacheConfig
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
+import org.junit.jupiter.api.Assertions.assertSame
 import org.junit.jupiter.api.Test
+import java.util.concurrent.CancellationException
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.ExecutionException
 import java.util.concurrent.TimeUnit
@@ -125,6 +127,48 @@ class NearJCacheOperationStatisticsTest {
 
         fixture.statistics.cacheGets shouldBeEqualTo 0L
         fixture.cache.statisticsRecorder.current().totalGetTimeNanos shouldBeEqualTo 0L
+    }
+
+    @Test
+    fun `getAll back RuntimeException은 identity를 보존하고 front와 통계를 변경하지 않는다`() {
+        val fixture = statisticsEnabledFixture()
+        val keys = setOf("back", "missing")
+        val failure = IllegalStateException("provider unavailable")
+        every { fixture.front.getAll(keys) } returns emptyMap()
+        every { fixture.back.getAll(keys) } throws failure
+
+        val thrown = assertFailsWith<IllegalStateException> { fixture.cache.getAll(keys) }
+
+        assertSame(failure, thrown)
+        verify(exactly = 0) { fixture.front.putAll(any()) }
+        fixture.statistics.cacheGets shouldBeEqualTo 0L
+        fixture.statistics.cacheHits shouldBeEqualTo 0L
+        fixture.statistics.cacheMisses shouldBeEqualTo 0L
+        fixture.statistics.getFrontHits() shouldBeEqualTo 0L
+        fixture.statistics.getFrontMisses() shouldBeEqualTo 0L
+        fixture.statistics.getBackHits() shouldBeEqualTo 0L
+        fixture.statistics.getBackMisses() shouldBeEqualTo 0L
+    }
+
+    @Test
+    fun `getAll back CancellationException은 identity를 보존하고 front와 통계를 변경하지 않는다`() {
+        val fixture = statisticsEnabledFixture()
+        val keys = setOf("back", "missing")
+        val failure = CancellationException("caller cancelled")
+        every { fixture.front.getAll(keys) } returns emptyMap()
+        every { fixture.back.getAll(keys) } throws failure
+
+        val thrown = assertFailsWith<CancellationException> { fixture.cache.getAll(keys) }
+
+        assertSame(failure, thrown)
+        verify(exactly = 0) { fixture.front.putAll(any()) }
+        fixture.statistics.cacheGets shouldBeEqualTo 0L
+        fixture.statistics.cacheHits shouldBeEqualTo 0L
+        fixture.statistics.cacheMisses shouldBeEqualTo 0L
+        fixture.statistics.getFrontHits() shouldBeEqualTo 0L
+        fixture.statistics.getFrontMisses() shouldBeEqualTo 0L
+        fixture.statistics.getBackHits() shouldBeEqualTo 0L
+        fixture.statistics.getBackMisses() shouldBeEqualTo 0L
     }
 
     @Test

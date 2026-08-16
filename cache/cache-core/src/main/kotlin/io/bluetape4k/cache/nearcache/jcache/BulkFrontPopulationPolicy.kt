@@ -38,3 +38,8 @@ sealed interface BulkFrontPopulationPolicy: Serializable {
         }
     }
 }
+
+internal fun BulkFrontPopulationPolicy.shouldPopulate(backValueCount: Int): Boolean = when (this) {
+    BulkFrontPopulationPolicy.BypassFront -> false
+    is BulkFrontPopulationPolicy.PopulateIfAtMost -> backValueCount <= maximumEntryCount
+}
