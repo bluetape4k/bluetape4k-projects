@@ -499,14 +499,21 @@ class NearJCache<K: Any, V: Any> private constructor(
      */
     @Suppress("ReturnCount", "TooGenericExceptionCaught")
     override operator fun get(key: K): V? {
+        val recording = statisticsRecorder.current()
+        val startedAt = recording.startTimeNanos()
         val (frontValue, observedEpoch) = mutationGate.withLock {
             frontCache.get(key) to mutationEpoch.get()
         }
         if (frontValue != null) {
+            recording.recordGet(startedAt, 1, 0, 1, 0, 0, 0)
             return frontValue
         }
 
-        val backValue = backCache.get(key) ?: return null
+        val backValue = backCache.get(key)
+        if (backValue == null) {
+            recording.recordGet(startedAt, 0, 1, 0, 1, 0, 1)
+            return null
+        }
         mutationGate.withLock {
             if (mutationEpoch.get() == observedEpoch) {
                 try {
@@ -521,6 +528,7 @@ class NearJCache<K: Any, V: Any> private constructor(
                 }
             }
         }
+        recording.recordGet(startedAt, 1, 0, 0, 1, 1, 0)
         return backValue
     }
 
@@ -544,12 +552,25 @@ class NearJCache<K: Any, V: Any> private constructor(
 
     @Suppress("TooGenericExceptionCaught")
     override fun getAll(keys: Set<K>): MutableMap<K, V> {
+        if (keys.isEmpty()) return mutableMapOf()
+
+        val recording = statisticsRecorder.current()
+        val startedAt = recording.startTimeNanos()
         val (frontValues, missingKeys, observedEpoch) = mutationGate.withLock {
             val values = frontCache.getAll(keys)
             val missing = keys.filterNot(values::containsKey).toSet()
             Triple(values, missing, mutationEpoch.get())
         }
         if (missingKeys.isEmpty()) {
+            recording.recordGet(
+                startedAt = startedAt,
+                hits = keys.size.toLong(),
+                misses = 0,
+                frontHits = keys.size.toLong(),
+                frontMisses = 0,
+                backHits = 0,
+                backMisses = 0,
+            )
             return frontValues
         }
 
@@ -571,6 +592,17 @@ class NearJCache<K: Any, V: Any> private constructor(
             }
         }
 
+        val frontHitCount = keys.size - missingKeys.size
+        val backHitCount = missingKeys.count(backValues::containsKey)
+        recording.recordGet(
+            startedAt = startedAt,
+            hits = (frontHitCount + backHitCount).toLong(),
+            misses = (missingKeys.size - backHitCount).toLong(),
+            frontHits = frontHitCount.toLong(),
+            frontMisses = missingKeys.size.toLong(),
+            backHits = backHitCount.toLong(),
+            backMisses = (missingKeys.size - backHitCount).toLong(),
+        )
         return frontValues.toMutableMap().apply { putAll(backValues) }
     }
 
