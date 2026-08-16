@@ -24,8 +24,8 @@ state, handle이 추적하는 `activeObjectNames`, 실제 server에 등록된 ex
 ## Rollout과 canary
 
 Rollout 전에 base/head/tree SHA, artifact identity, configuration identity, canary
-대상과 모든 query마다 query·window·comparator·allowed direction·threshold·observed result를
-JSON 템플릿에 기록한다. 비동기 threshold는
+대상과 모든 query마다 query·window·comparator·allowed direction·threshold를 JSON 템플릿에
+기록한다. 비동기 threshold는
 application별 traffic과 remote SLO를 기준으로 rollout 전에 정한다. 공통 default를
 사후에 맞추지 않는다.
 
@@ -34,7 +34,7 @@ Issue #1369 bulk policy canary는 다음 evidence가 모두 준비된 뒤 시작
 - configuration의 `managementEnabled`와 `statisticsEnabled`가 모두 true다.
 - `registerMBeans`를 호출했고 configuration/statistics `ObjectName`을 기록했다.
 - `canaryTarget`, 모든 query의 동일 traffic `window`, 비교 연산자, 허용 방향, 사전
-  `threshold`, observed `result`, `rollbackIdentity`를 rollout 전에 채웠다.
+  `threshold`, `rollbackIdentity`를 rollout 전에 채웠다.
 - Configuration MXBean의 `bulkFrontPopulationPolicy`가 `BYPASS_FRONT` 또는
   `POPULATE_IF_AT_MOST`이고 `bulkFrontPopulationMaximumEntryCount`가 의도한 값이다.
 
@@ -48,6 +48,9 @@ Statistics MXBean의 `FrontHits`, `FrontMisses`, `BackHits`, `BackMisses`,
 `observed result`가 모든 사전 threshold를 만족하는지 확인하는 AND 조건이다. 하나라도
 초과하거나 evidence가 누락되면 rollout을 중단하고 아래 정상 rollback을 실행한다.
 배포 결과를 본 뒤 threshold를 바꾸거나 실패 항목을 평균으로 상쇄하지 않는다.
+`observedResult`와 `passed`는 사전 traffic window를 끝낸 뒤, 최종 AND 판정 전에 모든
+query에 채운다. 관측 전의 `null`은 정상 pre-rollout 상태지만 최종 판정 시의 `null`은
+evidence 누락으로 처리한다.
 
 Logical counter의 `statisticsScope`는 `NEAR_JCACHE_WRAPPER_V1`이다.
 `supportedOperations` 밖의 `loadAll`, `invoke`, `invokeAll`, `SuspendNearJCache`를

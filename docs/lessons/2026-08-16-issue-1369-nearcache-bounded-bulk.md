@@ -75,6 +75,9 @@ front까지 닫을 수 있다는 P1이 발견됐다. Replacement의 별도 front
 전환 전 필수 조건으로 만들고, old front close와 replacement front open을 사후 증거로 추가했다. 같은
 검토의 P2에 따라 canary template을 query별 comparator·direction·threshold·result 구조로 바꾸고,
 break-glass에 시작 시각·최대 사용 시간·승인자·승인 시각을 추가했다.
+재검토에서는 첫 query만 확인하던 regex와 사전 `observedResult` 기록 문구를 다시 수정했다. 실행 test는
+6개 ID, query별 필수 필드, 동일 window, 중복 부재와 결손·중복 negative fixture를 검사한다.
+`observedResult`와 `passed`는 traffic window가 끝난 뒤 최종 AND 판정 전에 기록한다.
 
 JMH가 생성한 JSON은 EOF에 불필요한 빈 줄 두 개를 남겨 `git diff --check`가 실패했다. JSON 의미를
 바꾸지 않고 마지막 newline 하나로 정규화한 뒤 raw evidence commit을 다시 고정했다. 비교 실행의 임시

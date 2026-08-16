@@ -180,7 +180,15 @@ class NearJCacheDocumentationTest {
         ).forEach { field ->
             template.contains("\"$field\"").shouldBeTrue()
         }
-        QUERY_EVIDENCE_SHAPE.containsMatchIn(template).shouldBeTrue()
+        canaryQueriesAreComplete(template).shouldBeTrue()
+        val lastPassed = template.lastIndexOf("\"passed\"")
+        (lastPassed > 0).shouldBeTrue()
+        canaryQueriesAreComplete(
+            template.replaceRange(lastPassed, lastPassed + "\"passed\"".length, "\"missingPassed\""),
+        ).shouldBeFalse()
+        canaryQueriesAreComplete(
+            template.replace("\"id\": \"external-back-read-load\"", "\"id\": \"front-hits\""),
+        ).shouldBeFalse()
         FRONT_OWNERSHIP_SHAPE.containsMatchIn(template).shouldBeTrue()
         BREAK_GLASS_SHAPE.containsMatchIn(template).shouldBeTrue()
         guide.contains("JMX 부재만으로 `DISABLED`로 분류하지 않는다").shouldBeTrue()
@@ -310,6 +318,34 @@ class NearJCacheDocumentationTest {
         document.windowed(token.length).count(token::equals)
     }
 
+    private fun canaryQueriesAreComplete(template: String): Boolean {
+        val queries = flatJsonObjectsInArray(template, "queries")
+        if (queries.size != EXPECTED_CANARY_QUERY_IDS.size) return false
+
+        val ids = queries.mapNotNull { jsonStringValue(it, "id") }
+        if (ids.size != ids.toSet().size || ids.toSet() != EXPECTED_CANARY_QUERY_IDS) return false
+        if (queries.any { query -> REQUIRED_CANARY_QUERY_FIELDS.any { "\"$it\"" !in query } }) return false
+
+        val windows = queries.mapNotNull { jsonStringValue(it, "window") }
+        return windows.size == queries.size && windows.distinct().size == 1
+    }
+
+    private fun flatJsonObjectsInArray(document: String, field: String): List<String> {
+        val fieldStart = document.indexOf("\"$field\"")
+        if (fieldStart < 0) return emptyList()
+        val arrayStart = document.indexOf('[', fieldStart)
+        if (arrayStart < 0) return emptyList()
+        val arrayEnd = document.indexOf(']', arrayStart)
+        if (arrayEnd < 0) return emptyList()
+        return FLAT_JSON_OBJECT.findAll(document.substring(arrayStart + 1, arrayEnd))
+            .map { it.value }
+            .toList()
+    }
+
+    private fun jsonStringValue(document: String, field: String): String? = Regex(
+        """\"${Regex.escape(field)}\"\s*:\s*\"([^\"]+)\"""",
+    ).find(document)?.groupValues?.get(1)
+
     companion object {
         private const val START_MARKER = "<!-- issue-1351-nearcache-management:start -->"
         private const val END_MARKER = "<!-- issue-1351-nearcache-management:end -->"
@@ -340,11 +376,24 @@ class NearJCacheDocumentationTest {
             "front-only|front cache only|clear\\(\\).*front.{0,20}only|clear\\(\\).*front.{0,20}비우",
             setOf(RegexOption.IGNORE_CASE, RegexOption.DOT_MATCHES_ALL),
         )
-        private val QUERY_EVIDENCE_SHAPE = Regex(
-            """\"queries\"\s*:\s*\[\s*\{[^}]*\"id\"[^}]*\"query\"[^}]*\"window\"[^}]*""" +
-                    """\"comparator\"[^}]*\"allowedDirection\"[^}]*\"threshold\"[^}]*""" +
-                    """\"observedResult\"[^}]*\"passed\"""",
-            RegexOption.DOT_MATCHES_ALL,
+        private val FLAT_JSON_OBJECT = Regex("""\{[^{}]*}""", RegexOption.DOT_MATCHES_ALL)
+        private val EXPECTED_CANARY_QUERY_IDS = setOf(
+            "front-hits",
+            "front-misses",
+            "back-hits",
+            "back-misses",
+            "average-get-time",
+            "external-back-read-load",
+        )
+        private val REQUIRED_CANARY_QUERY_FIELDS = setOf(
+            "id",
+            "query",
+            "window",
+            "comparator",
+            "allowedDirection",
+            "threshold",
+            "observedResult",
+            "passed",
         )
         private val FRONT_OWNERSHIP_SHAPE = Regex(
             """\"frontOwnership\"\s*:\s*\{[^}]*\"oldFrontCacheIdentity\"[^}]*""" +
