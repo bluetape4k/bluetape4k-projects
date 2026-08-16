@@ -3,7 +3,12 @@ package io.bluetape4k.cache.nearcache.jcache
 import io.bluetape4k.cache.jcache.JCache
 import io.bluetape4k.cache.jcache.JCacheEntryEventListener
 import io.bluetape4k.cache.jcache.getConfiguration
+import io.bluetape4k.cache.nearcache.jcache.management.ActiveNearJCacheStatisticsRecorder
 import io.bluetape4k.cache.nearcache.jcache.management.NearJCacheConfigurationSnapshot
+import io.bluetape4k.cache.nearcache.jcache.management.NearJCacheStatisticsRecorder
+import io.bluetape4k.cache.nearcache.jcache.management.NearJCacheTimeSource
+import io.bluetape4k.cache.nearcache.jcache.management.NoOpNearJCacheStatisticsRecorder
+import io.bluetape4k.cache.nearcache.jcache.management.SystemNearJCacheTimeSource
 import io.bluetape4k.cache.nearcache.jcache.management.nearJCacheConfigurationSnapshot
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
@@ -82,12 +87,20 @@ data class BackCacheWriteCompletion(
  * @see io.bluetape4k.cache.jcache.JCacheEntryEventListener
  */
 @Suppress("TooManyFunctions")
-class NearJCache<K: Any, V: Any>(
+class NearJCache<K: Any, V: Any> private constructor(
     val frontCache: JCache<K, V>,
     val backCache: JCache<K, V>,
     private val config: NearJCacheConfig<K, V>,
+    timeSource: NearJCacheTimeSource,
 ): JCache<K, V> by backCache {
     internal val configurationSnapshot: NearJCacheConfigurationSnapshot
+    internal val statisticsRecorder: NearJCacheStatisticsRecorder
+
+    constructor(
+        frontCache: JCache<K, V>,
+        backCache: JCache<K, V>,
+        config: NearJCacheConfig<K, V>,
+    ) : this(frontCache, backCache, config, SystemNearJCacheTimeSource)
 
     init {
         require(!config.frontCacheConfiguration.isStoreByValue) {
@@ -103,9 +116,22 @@ class NearJCache<K: Any, V: Any>(
             suppliedFront = config.frontCacheConfiguration,
             actualBack = backCache,
         )
+        statisticsRecorder = if (configurationSnapshot.statisticsEnabled) {
+            ActiveNearJCacheStatisticsRecorder(timeSource)
+        } else {
+            NoOpNearJCacheStatisticsRecorder
+        }
     }
 
     companion object: KLogging() {
+        @JvmSynthetic
+        internal fun <K: Any, V: Any> withTimeSource(
+            frontCache: JCache<K, V>,
+            backCache: JCache<K, V>,
+            config: NearJCacheConfig<K, V>,
+            timeSource: NearJCacheTimeSource,
+        ): NearJCache<K, V> = NearJCache(frontCache, backCache, config, timeSource)
+
         /** Redis SCAN 명령의 배치 크기 */
         const val SCAN_BATCH_SIZE = 100L
 

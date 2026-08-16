@@ -3,6 +3,8 @@ package io.bluetape4k.cache.nearcache.jcache.management
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeInRange
+import io.bluetape4k.assertions.shouldBeFalse
+import io.bluetape4k.assertions.shouldBeTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 
@@ -141,6 +143,34 @@ class NearJCacheStatisticsMXBeanTest {
         stats.cacheRemovals shouldBeEqualTo 0L
         stats.cacheEvictions shouldBeEqualTo 0L
     }
+
+    @Test
+    fun `tier capability와 scope를 안정적으로 노출한다`() {
+        stats.getFrontEvictions() shouldBeEqualTo 0L
+        stats.isFrontEvictionObservationSupported().shouldBeFalse()
+        stats.isBulkRemovalCountSupported().shouldBeFalse()
+        stats.getStatisticsScope() shouldBeEqualTo "NEAR_JCACHE_WRAPPER_V1"
+        stats.isBackWriteCompletionIncluded().shouldBeFalse()
+    }
+
+    @Test
+    fun `supportedOperations는 caller mutation으로부터 방어한다`() {
+        val first = stats.getSupportedOperations()
+        first[0] = "corrupted"
+
+        stats.getSupportedOperations().toList() shouldBeEqualTo listOf(
+            "get",
+            "getAll",
+            "put",
+            "putAll",
+            "putIfAbsent",
+            "replace",
+            "remove",
+            "getAndPut",
+            "getAndReplace",
+            "getAndRemove",
+        )
+    }
 }
 
 class EmptyNearJCacheStatisticsMXBeanTest {
@@ -168,6 +198,12 @@ class EmptyNearJCacheStatisticsMXBeanTest {
     }
 
     @Test
+    fun `addRemovals - no-op으로 항상 0 유지`() {
+        stats.addRemovals(100L)
+        stats.cacheRemovals shouldBeEqualTo 0L
+    }
+
+    @Test
     fun `addEvictions - no-op으로 항상 0 유지`() {
         stats.addEvictions(100L)
         stats.cacheEvictions shouldBeEqualTo 0L
@@ -189,5 +225,18 @@ class EmptyNearJCacheStatisticsMXBeanTest {
     fun `addRemoveTime - no-op이므로 averageRemoveTime은 0`() {
         stats.addRemoveTime(1_000_000L)
         stats.averageRemoveTime shouldBeEqualTo 0f
+    }
+
+    @Test
+    fun `tier capability도 unsupported와 0을 반환한다`() {
+        stats.getFrontHits() shouldBeEqualTo 0L
+        stats.getFrontMisses() shouldBeEqualTo 0L
+        stats.getBackHits() shouldBeEqualTo 0L
+        stats.getBackMisses() shouldBeEqualTo 0L
+        stats.getFrontEvictions() shouldBeEqualTo 0L
+        stats.isFrontEvictionObservationSupported().shouldBeFalse()
+        stats.isBulkRemovalCountSupported().shouldBeFalse()
+        stats.isBackWriteCompletionIncluded().shouldBeFalse()
+        stats.getSupportedOperations().isNotEmpty().shouldBeTrue()
     }
 }
