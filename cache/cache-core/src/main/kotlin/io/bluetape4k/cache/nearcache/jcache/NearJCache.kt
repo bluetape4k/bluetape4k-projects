@@ -596,6 +596,32 @@ class NearJCache<K: Any, V: Any> private constructor(
      */
     @Suppress("ReturnCount", "TooGenericExceptionCaught")
     override operator fun get(key: K): V? {
+        if (configurationSnapshot.statisticsEnabled) return getWithStatistics(key)
+        val (frontValue, observedEpoch) = mutationGate.withLock {
+            frontCache.get(key) to mutationEpoch.get()
+        }
+        if (frontValue != null) return frontValue
+
+        val backValue = backCache.get(key) ?: return null
+        mutationGate.withLock {
+            if (mutationEpoch.get() == observedEpoch) {
+                try {
+                    frontCache.put(key, backValue)
+                } catch (e: CancellationException) {
+                    throw e
+                } catch (e: RuntimeException) {
+                    log.warn(e) {
+                        "NearJCache front populate failed. operation=get, " +
+                                "cache=${config.cacheName}, provider=${frontCache.javaClass.name}"
+                    }
+                }
+            }
+        }
+        return backValue
+    }
+
+    @Suppress("ReturnCount", "TooGenericExceptionCaught")
+    private fun getWithStatistics(key: K): V? {
         val recording = statisticsRecorder.current()
         val startedAt = recording.startTimeNanos()
         val (frontValue, observedEpoch) = mutationGate.withLock {

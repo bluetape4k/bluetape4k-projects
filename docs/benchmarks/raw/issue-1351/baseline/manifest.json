@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "issue": 1351,
   "profileId": "near-jcache-statistics-disabled-v1",
-  "recordedAt": "2026-08-16T01:25:12Z",
+  "recordedAt": "2026-08-16T04:28:30Z",
   "harnessCommit": "136979bff4702be0d23fbc1f92335f3bbb81e952",
   "source": {
     "path": "cache/cache-lettuce/src/benchmark/kotlin/io/bluetape4k/cache/nearcache/benchmark/NearJCacheStatisticsBenchmark.kt",
@@ -10,7 +10,7 @@
   },
   "artifact": {
     "path": "cache/cache-lettuce/build/benchmarks/benchmark/jars/bluetape4k-cache-lettuce-benchmark-jmh-1.13.0-JMH.jar",
-    "sha256": "532a858dc3c9b6389e126e518566dfd04b0235a36b8890799411bc248612ca5b"
+    "sha256": "c2949db3a166ce008f4bce64fe6fdb68cf4fb4ee5e6c9eab722172c34adcf5d8"
   },
   "environment": {
     "os": "Darwin debop-m4-pro.local 25.6.0 Darwin Kernel Version 25.6.0: Sat Jul 11 15:27:27 PDT 2026; root:xnu-12377.161.13~4/RELEASE_ARM64_T6041 arm64",
@@ -56,7 +56,13 @@
     },
     "concurrency": {
       "benchmark": "frontHit",
-      "threads": [1, 2, 4, 8, 16]
+      "threads": [
+        1,
+        2,
+        4,
+        8,
+        16
+      ]
     }
   },
   "commands": {
