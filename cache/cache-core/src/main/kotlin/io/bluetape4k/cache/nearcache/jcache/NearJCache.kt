@@ -3,6 +3,8 @@ package io.bluetape4k.cache.nearcache.jcache
 import io.bluetape4k.cache.jcache.JCache
 import io.bluetape4k.cache.jcache.JCacheEntryEventListener
 import io.bluetape4k.cache.jcache.getConfiguration
+import io.bluetape4k.cache.nearcache.jcache.management.NearJCacheConfigurationSnapshot
+import io.bluetape4k.cache.nearcache.jcache.management.nearJCacheConfigurationSnapshot
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.error
@@ -85,6 +87,8 @@ class NearJCache<K: Any, V: Any>(
     val backCache: JCache<K, V>,
     private val config: NearJCacheConfig<K, V>,
 ): JCache<K, V> by backCache {
+    internal val configurationSnapshot: NearJCacheConfigurationSnapshot
+
     init {
         require(!config.frontCacheConfiguration.isStoreByValue) {
             "NearJCache front cache must use store-by-reference; " +
@@ -94,6 +98,11 @@ class NearJCache<K: Any, V: Any>(
             "NearJCache actual front cache must use store-by-reference; " +
                     "the supplied cache configuration is store-by-value"
         }
+        configurationSnapshot = nearJCacheConfigurationSnapshot(
+            actualFront = frontCache,
+            suppliedFront = config.frontCacheConfiguration,
+            actualBack = backCache,
+        )
     }
 
     companion object: KLogging() {

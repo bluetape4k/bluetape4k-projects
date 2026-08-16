@@ -1,70 +1,60 @@
 package io.bluetape4k.cache.nearcache.jcache.management
 
-import io.bluetape4k.cache.jcache.JCaching
-import io.bluetape4k.cache.jcache.jcacheConfiguration
-import io.bluetape4k.cache.nearcache.jcache.NearJCache
-import io.bluetape4k.cache.nearcache.jcache.NearJCacheConfig
-import io.bluetape4k.logging.KLogging
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeFalse
+import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.cache.nearcache.jcache.NearJCache
 import org.junit.jupiter.api.Test
-import javax.cache.expiry.EternalExpiryPolicy
 
 class NearJCacheManagementMXBeanTest {
 
-    companion object: KLogging()
-
-    private fun newBackCache() = JCaching.Caffeine.getOrCreate<String, Any>(
-        name = "back-cache-management-test-${System.nanoTime()}",
-        configuration = jcacheConfiguration {
-            setExpiryPolicyFactory(EternalExpiryPolicy.factoryOf())
-        }
+    private val snapshot = NearJCacheConfigurationSnapshot(
+        keyType = "java.lang.String",
+        valueType = "java.lang.Long",
+        typeResolutionSource = NearJCacheTypeResolutionSource.SUPPLIED_FRONT,
+        typeResolutionExact = false,
+        readThrough = true,
+        writeThrough = true,
+        storeByValue = false,
+        statisticsEnabled = true,
+        managementEnabled = true,
     )
 
-    private fun newNearCache(): NearJCache<String, Any> {
-        val backCache = newBackCache()
-        return NearJCache(NearJCacheConfig(), backCache)
+    @Test
+    fun `snapshot의 표준 configuration 속성을 노출한다`() {
+        val bean = NearJCacheManagementMXBean.fromSnapshot(snapshot)
+
+        bean.keyType shouldBeEqualTo "java.lang.String"
+        bean.valueType shouldBeEqualTo "java.lang.Long"
+        bean.isReadThrough.shouldBeTrue()
+        bean.isWriteThrough.shouldBeTrue()
+        bean.isStoreByValue.shouldBeFalse()
+        bean.isStatisticsEnabled.shouldBeTrue()
+        bean.isManagementEnabled.shouldBeTrue()
     }
 
     @Test
-    fun `getKeyType - Object 반환`() {
-        val bean = NearJCacheManagementMXBean(newNearCache())
-        bean.keyType shouldBeEqualTo "java.lang.Object"
+    fun `type resolution source와 exact 여부를 노출한다`() {
+        val bean = NearJCacheManagementMXBean.fromSnapshot(snapshot)
+
+        bean.getTypeResolutionSource() shouldBeEqualTo "SUPPLIED_FRONT"
+        bean.isTypeResolutionExact().shouldBeFalse()
     }
 
     @Test
-    fun `getValueType - Object 반환`() {
-        val bean = NearJCacheManagementMXBean(newNearCache())
-        bean.valueType shouldBeEqualTo "java.lang.Object"
+    fun `기존 NearJCache public constructor 하나만 유지한다`() {
+        val publicConstructors = NearJCacheManagementMXBean::class.java.constructors
+            .filterNot { it.isSynthetic }
+
+        publicConstructors.size shouldBeEqualTo 1
+        publicConstructors.single().parameterTypes.toList() shouldBeEqualTo listOf(NearJCache::class.java)
     }
 
     @Test
-    fun `isReadThrough - false 반환`() {
-        val bean = NearJCacheManagementMXBean(newNearCache())
-        bean.isReadThrough.shouldBeFalse()
-    }
+    fun `snapshot factory는 JVM public surface에 노출하지 않는다`() {
+        val factory = NearJCacheManagementMXBean.Companion::class.java.declaredMethods
+            .single { it.name.startsWith("fromSnapshot") }
 
-    @Test
-    fun `isWriteThrough - false 반환`() {
-        val bean = NearJCacheManagementMXBean(newNearCache())
-        bean.isWriteThrough.shouldBeFalse()
-    }
-
-    @Test
-    fun `isStoreByValue - true 반환`() {
-        val bean = NearJCacheManagementMXBean(newNearCache())
-        bean.isStoreByValue shouldBeEqualTo true
-    }
-
-    @Test
-    fun `isStatisticsEnabled - false 반환`() {
-        val bean = NearJCacheManagementMXBean(newNearCache())
-        bean.isStatisticsEnabled.shouldBeFalse()
-    }
-
-    @Test
-    fun `isManagementEnabled - false 반환`() {
-        val bean = NearJCacheManagementMXBean(newNearCache())
-        bean.isManagementEnabled.shouldBeFalse()
+        factory.isSynthetic.shouldBeTrue()
     }
 }
