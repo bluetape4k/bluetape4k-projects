@@ -140,9 +140,15 @@ class NearJCacheDocumentationTest {
             "artifactIdentity",
             "configurationIdentity",
             "canaryTarget",
+            "queries",
+            "id",
             "query",
             "window",
+            "comparator",
+            "allowedDirection",
             "threshold",
+            "observedResult",
+            "passed",
             "result",
             "rollbackIdentity",
             "operationInventory",
@@ -152,21 +158,31 @@ class NearJCacheDocumentationTest {
             "bulkFrontPopulationPolicy",
             "bulkFrontPopulationMaximumEntryCount",
             "objectName",
-            "preDeploymentThreshold",
             "externalBackReadLoad",
             "bypassReasonCounterAvailable",
             "normalMode",
             "preIssue1369ArtifactAllowed",
+            "oldFrontCacheIdentity",
+            "replacementFrontCacheIdentity",
+            "frontCacheShared",
+            "oldFrontClosed",
+            "replacementFrontOpen",
+            "startedAt",
             "expiresAt",
+            "maximumDuration",
+            "approver",
+            "approvedAt",
             "frontHeapCap",
             "trafficLimit",
             "forwardFix",
             "decisionRule",
-            "thresholdEvaluation",
             "handoverSequence",
         ).forEach { field ->
             template.contains("\"$field\"").shouldBeTrue()
         }
+        QUERY_EVIDENCE_SHAPE.containsMatchIn(template).shouldBeTrue()
+        FRONT_OWNERSHIP_SHAPE.containsMatchIn(template).shouldBeTrue()
+        BREAK_GLASS_SHAPE.containsMatchIn(template).shouldBeTrue()
         guide.contains("JMX 부재만으로 `DISABLED`로 분류하지 않는다").shouldBeTrue()
         (guide.contains("RECOVERY_REQUIRED") && guide.contains("즉시 alert")).shouldBeTrue()
         listOf(
@@ -184,6 +200,12 @@ class NearJCacheDocumentationTest {
             "forward-fix",
             "판정식",
             "admission",
+            "별도 front cache",
+            "front cache를 공유하지",
+            "모든 query마다",
+            "승인자",
+            "승인 시각",
+            "최대 사용 시간",
         ).forEach { token -> guide.contains(token).shouldBeTrue() }
     }
 
@@ -317,6 +339,23 @@ class NearJCacheDocumentationTest {
         private val STALE_CLEAR_PHRASE = Regex(
             "front-only|front cache only|clear\\(\\).*front.{0,20}only|clear\\(\\).*front.{0,20}비우",
             setOf(RegexOption.IGNORE_CASE, RegexOption.DOT_MATCHES_ALL),
+        )
+        private val QUERY_EVIDENCE_SHAPE = Regex(
+            """\"queries\"\s*:\s*\[\s*\{[^}]*\"id\"[^}]*\"query\"[^}]*\"window\"[^}]*""" +
+                    """\"comparator\"[^}]*\"allowedDirection\"[^}]*\"threshold\"[^}]*""" +
+                    """\"observedResult\"[^}]*\"passed\"""",
+            RegexOption.DOT_MATCHES_ALL,
+        )
+        private val FRONT_OWNERSHIP_SHAPE = Regex(
+            """\"frontOwnership\"\s*:\s*\{[^}]*\"oldFrontCacheIdentity\"[^}]*""" +
+                    """\"replacementFrontCacheIdentity\"[^}]*\"frontCacheShared\"\s*:\s*false[^}]*""" +
+                    """\"oldFrontClosed\"[^}]*\"replacementFrontOpen\"""",
+            RegexOption.DOT_MATCHES_ALL,
+        )
+        private val BREAK_GLASS_SHAPE = Regex(
+            """\"breakGlass\"\s*:\s*\{[^}]*\"enabled\"[^}]*\"startedAt\"[^}]*\"expiresAt\"[^}]*""" +
+                    """\"maximumDuration\"[^}]*\"approver\"[^}]*\"approvedAt\"""",
+            RegexOption.DOT_MATCHES_ALL,
         )
         private val CLASSIFICATION_STATES = listOf(
             "DISABLED",

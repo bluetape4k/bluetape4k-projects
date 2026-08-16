@@ -24,7 +24,8 @@ state, handle이 추적하는 `activeObjectNames`, 실제 server에 등록된 ex
 ## Rollout과 canary
 
 Rollout 전에 base/head/tree SHA, artifact identity, configuration identity, canary
-대상, query·window·threshold·result를 JSON 템플릿에 기록한다. 비동기 threshold는
+대상과 모든 query마다 query·window·comparator·allowed direction·threshold·observed result를
+JSON 템플릿에 기록한다. 비동기 threshold는
 application별 traffic과 remote SLO를 기준으로 rollout 전에 정한다. 공통 default를
 사후에 맞추지 않는다.
 
@@ -32,8 +33,8 @@ Issue #1369 bulk policy canary는 다음 evidence가 모두 준비된 뒤 시작
 
 - configuration의 `managementEnabled`와 `statisticsEnabled`가 모두 true다.
 - `registerMBeans`를 호출했고 configuration/statistics `ObjectName`을 기록했다.
-- `canaryTarget`, `query`, 동일 traffic `window`, 사전 `threshold`, observed `result`,
-  `rollbackIdentity`를 rollout 전에 채웠다.
+- `canaryTarget`, 모든 query의 동일 traffic `window`, 비교 연산자, 허용 방향, 사전
+  `threshold`, observed `result`, `rollbackIdentity`를 rollout 전에 채웠다.
 - Configuration MXBean의 `bulkFrontPopulationPolicy`가 `BYPASS_FRONT` 또는
   `POPULATE_IF_AT_MOST`이고 `bulkFrontPopulationMaximumEntryCount`가 의도한 값이다.
 
@@ -67,12 +68,18 @@ migration 전에 새 admission을 중단하고 outstanding operation inventory�
 정상 replacement와 rollback은 다음 순서로 수행한다.
 
 1. 현재 wrapper로 들어오는 새 admission을 중단한다.
-2. 비동기 write가 있으면 outstanding operation inventory가 모두 terminal 상태가 될 때까지 drain한다. 비동기 write가 없으면 빈 inventory를 증거로 남긴다.
-3. 더 작은 `PopulateIfAtMost(n)` 또는 `BypassFront`로 replacement wrapper를 만들고 새 ID로 MBean을 등록한다.
+2. 비동기 write가 있으면 outstanding operation inventory가 모두 terminal 상태가 될 때까지
+   drain한다. 비동기 write가 없으면 빈 inventory를 증거로 남긴다.
+3. 더 작은 `PopulateIfAtMost(n)` 또는 `BypassFront`로 replacement wrapper를 만든다.
+   Replacement는 old wrapper와 front cache를 공유하지 않는 별도 front cache를 소유해야 하며,
+   두 front identity를 기록한다. 새 ID로 MBean을 등록한다.
 4. Replacement Configuration MXBean의 정책·상한과 사전 query를 확인한다.
+   `frontCacheShared=false`와 서로 다른 front identity를 확인하지 못하면 traffic을 전환하지 않는다.
 5. Traffic을 replacement wrapper로 전환한다.
-6. old registration handle과 old `NearJCache`를 차례로 `close()`한다. 공유 back cache와 provider는 닫지 않는다.
-7. 사후 classifier, 동일 window metric, active name 부재, back/provider 생존을 기록한다.
+6. old registration handle과 old `NearJCache`를 차례로 `close()`한다. 공유 back cache와
+   provider는 닫지 않는다.
+7. 사후 classifier, 동일 window metric, active name 부재, old front close, replacement front
+   open, back/provider 생존을 기록한다.
 
 `statistics.clear()`는 counter generation만 교체하며 data를 지우지 않는다.
 `nearCache.clear()`는 해당 wrapper의 front와 back data를 모두 지운다. Rollback은
@@ -80,9 +87,10 @@ migration 전에 새 admission을 중단하고 outstanding operation inventory�
 기록하며, 위 handover sequence가 끝나기 전에는 rollback 성공으로 판정하지 않는다.
 
 Issue #1369 이전 artifact는 무제한 batch population을 복원하므로 일반 rollback
-대상에서 제외한다. 해당 artifact는 break-glass 절차로만 사용할 수 있다. 이때 사용
-시간, front heap cap, traffic 제한, 책임자와 종료 시각을 먼저 기록하고 즉시
-forward-fix를 시작한다. 제한이나 종료 시각이 없으면 이전 artifact를 배포하지 않는다.
+대상에서 제외한다. 해당 artifact는 break-glass 절차로만 사용할 수 있다. 이때 시작 시각,
+종료 시각, 최대 사용 시간, front heap cap, traffic 제한, 책임자, 승인자와 승인 시각을 먼저
+기록하고 즉시 forward-fix를 시작한다. `enabled=true`일 때 이 필드가 하나라도 없거나 종료
+시각이 시작 시각과 최대 사용 시간의 경계를 넘으면 이전 artifact를 배포하지 않는다.
 
 ## Collision, recovery, stale owner
 

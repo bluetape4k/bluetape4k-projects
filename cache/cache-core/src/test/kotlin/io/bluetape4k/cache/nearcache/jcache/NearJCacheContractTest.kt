@@ -581,6 +581,7 @@ class NearJCacheContractTest {
         releaseRead.countDown()
         reader.join(2_000)
 
+        reader.isAlive.shouldBeFalse()
         result[0] shouldBeEqualTo "stale"
         verify(exactly = 1) { frontCache.put("key", "fresh") }
         verify(exactly = 0) { frontCache.put("key", "stale") }

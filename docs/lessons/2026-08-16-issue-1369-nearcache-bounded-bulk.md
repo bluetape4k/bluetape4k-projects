@@ -70,6 +70,12 @@ locale parity test의 약한 heading 검증, JUnit assertion 혼용, 일부 문�
 실행 test로 고정했다. 카나리 AND 판정식과 admission stop부터 old wrapper close까지의 순서도 runbook과
 JSON template에 함께 반영한 뒤 writer/spec 재검토가 `CLEAR`로 수렴했다.
 
+최종 운영 검토에서는 replacement가 old wrapper와 front cache를 공유하면 old `close()`가 replacement
+front까지 닫을 수 있다는 P1이 발견됐다. Replacement의 별도 front identity와 비공유 증거를 traffic
+전환 전 필수 조건으로 만들고, old front close와 replacement front open을 사후 증거로 추가했다. 같은
+검토의 P2에 따라 canary template을 query별 comparator·direction·threshold·result 구조로 바꾸고,
+break-glass에 시작 시각·최대 사용 시간·승인자·승인 시각을 추가했다.
+
 JMH가 생성한 JSON은 EOF에 불필요한 빈 줄 두 개를 남겨 `git diff --check`가 실패했다. JSON 의미를
 바꾸지 않고 마지막 newline 하나로 정규화한 뒤 raw evidence commit을 다시 고정했다. 비교 실행의 임시
 파일 삭제 명령은 안전 guard에 거부됐으므로, 새 `mktemp -d` 내부에만 임시 결과를 쓰고 성공한 artifact만
@@ -85,5 +91,6 @@ JMH가 생성한 JSON은 EOF에 불필요한 빈 줄 두 개를 남겨 `git diff
 - 한 comparison row라도 실패하면 candidate만 다시 측정하지 않는다. 환경 drift나 flake가 의심되면
   plan을 다시 승인받고 baseline/candidate 전체 pair를 새 profile로 수집한다.
 - 운영 rollback은 admission 중단, outstanding drain, replacement 등록과 preflight, traffic 전환, old
-  wrapper close, 사후 evidence 기록 순서를 지킨다. back cache와 provider ownership은 이전하지 않는다.
+  wrapper close, 사후 evidence 기록 순서를 지킨다. Replacement는 old wrapper와 별도 front를 소유하며,
+  back cache와 provider ownership은 이전하지 않는다.
 - #1368은 #1369 PR의 exact head CI와 review blocker가 모두 해소된 뒤 이 branch 위에 쌓는다.
