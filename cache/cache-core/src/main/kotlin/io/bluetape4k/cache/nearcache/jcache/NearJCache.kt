@@ -5,6 +5,9 @@ import io.bluetape4k.cache.jcache.JCacheEntryEventListener
 import io.bluetape4k.cache.jcache.getConfiguration
 import io.bluetape4k.cache.nearcache.jcache.management.ActiveNearJCacheStatisticsRecorder
 import io.bluetape4k.cache.nearcache.jcache.management.NearJCacheConfigurationSnapshot
+import io.bluetape4k.cache.nearcache.jcache.management.NearJCacheMBeanOperationGuard
+import io.bluetape4k.cache.nearcache.jcache.management.NearJCacheMBeanRegistration
+import io.bluetape4k.cache.nearcache.jcache.management.NearJCacheMBeanRegistrationException
 import io.bluetape4k.cache.nearcache.jcache.management.NearJCacheRecordingContext
 import io.bluetape4k.cache.nearcache.jcache.management.NearJCacheStatisticsRecorder
 import io.bluetape4k.cache.nearcache.jcache.management.NearJCacheTimeSource
@@ -19,6 +22,7 @@ import io.bluetape4k.logging.trace
 import io.bluetape4k.logging.warn
 import io.bluetape4k.support.asyncRunWithTimeout
 import java.time.Duration
+import java.util.LinkedHashSet
 import java.util.concurrent.CancellationException
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.CompletionException
@@ -213,11 +217,24 @@ class NearJCache<K: Any, V: Any> private constructor(
     private val frontCloseCompleted = AtomicBoolean(false)
     private val closeStarted = AtomicBoolean(false)
     private val closeCompleted = AtomicBoolean(false)
+    @get:JvmSynthetic
+    internal val mBeanOperationGuard = NearJCacheMBeanOperationGuard()
+    private val pendingMBeanRegistrations = LinkedHashSet<MBeanRegistrationReservation>()
+    private val mBeanRegistrations = LinkedHashSet<NearJCacheMBeanRegistration>()
+    private var activeCloseAttempt: CompletableFuture<Throwable?>? = null
     private val mutationEpoch = AtomicLong()
     private val backWriteGeneration = AtomicLong()
     private class BackCacheListenerRegistration<K: Any, V: Any>(
         val configuration: CacheEntryListenerConfiguration<K, V>,
         val active: AtomicReference<Boolean> = AtomicReference(true),
+    )
+    private class MBeanRegistrationReservation(
+        val completion: CompletableFuture<Unit> = CompletableFuture(),
+    )
+    private data class CacheCloseAttempt(
+        val completion: CompletableFuture<Throwable?>,
+        val owner: Boolean,
+        val pendingRegistrations: List<MBeanRegistrationReservation>,
     )
     private class SelfEventMatcher<K: Any, V: Any>(
         val keys: Set<K>,
@@ -426,55 +443,134 @@ class NearJCache<K: Any, V: Any> private constructor(
         clear()
     }
 
-    /**
-     * 이 wrapper가 등록한 Back listener와 소유한 Front cache만 정리합니다.
-     * 전달받은 Back cache/provider는 닫지 않습니다.
-     *
-     * listener 또는 Front 정리 실패는 호출자에게 전달하며, 여러 정리 단계가 실패하면
-     * 첫 실패를 주 예외로 유지하고 이후 실패를 suppressed 예외로 연결합니다. 성공한
-     * close는 idempotent하며, listener 또는 Front 정리 실패 후에는 다음 호출에서
-     * 해당 정리를 재시도합니다. close가 시작된 뒤에는 listener를 다시 등록할 수 없습니다.
-     */
-    @Suppress("TooGenericExceptionCaught")
-    override fun close() {
-        compoundGate.withLock {
-            if (closeCompleted.get()) return
-            closeStarted.set(true)
-
-            var primaryFailure: Throwable? = null
-            try {
-                detachBackCacheListener()
-            } catch (listenerFailure: Throwable) {
-                primaryFailure = listenerFailure
-                log.error(listenerFailure) {
-                    "NearJCache cleanup failed. operation=close-listener, " +
-                            "cache=${config.cacheName}, provider=${backCache.javaClass.name}"
-                }
+    @JvmSynthetic
+    internal fun registerMBeansAtomically(
+        registration: () -> NearJCacheMBeanRegistration,
+    ): NearJCacheMBeanRegistration {
+        mBeanOperationGuard.checkNotActive()
+        val reservation = compoundGate.withLock {
+            check(!closeStarted.get()) {
+                "NearJCache MBean registration is unavailable after close started"
             }
-
-            if (!frontCloseCompleted.get()) {
-                try {
-                    lock.withLock {
-                        log.debug { "Near Cache 의 Front Cache를 Close 합니다." }
-                        frontCache.close()
-                    }
-                    frontCloseCompleted.set(true)
-                } catch (frontFailure: Throwable) {
-                    if (primaryFailure == null) {
-                        primaryFailure = frontFailure
-                    } else if (frontFailure !== primaryFailure) {
-                        primaryFailure.addSuppressed(frontFailure)
-                    }
-                    log.error(frontFailure) {
-                        "NearJCache front cleanup failed. operation=close, " +
-                                "cache=${config.cacheName}, provider=${frontCache.javaClass.name}"
-                    }
-                }
-            }
-
-            primaryFailure?.let { throw it }
-            closeCompleted.set(true)
+            MBeanRegistrationReservation().also(pendingMBeanRegistrations::add)
         }
+
+        val result = runCatching(registration)
+        compoundGate.withLock {
+            val handle = result.getOrNull()
+                ?: (result.exceptionOrNull() as? NearJCacheMBeanRegistrationException)?.recoveryRegistration
+            if (handle != null && !handle.isClosed) {
+                mBeanRegistrations += handle
+            }
+            pendingMBeanRegistrations.remove(reservation)
+            reservation.completion.complete(Unit)
+        }
+        return result.getOrThrow()
+    }
+
+    @JvmSynthetic
+    internal fun removeMBeanRegistration(registration: NearJCacheMBeanRegistration) {
+        compoundGate.withLock {
+            mBeanRegistrations.remove(registration)
+        }
+    }
+
+    /**
+     * 이 wrapper가 명시적으로 등록한 JMX handle, Back listener, 소유한 Front cache를
+     * 순서대로 정리합니다. 전달받은 `MBeanServer`, Back cache/provider는 닫지 않습니다.
+     *
+     * JMX, listener 또는 Front 정리 실패는 호출자에게 전달하며, 여러 정리 단계가 실패하면
+     * 첫 실패를 주 예외로 유지하고 이후 실패를 suppressed 예외로 연결합니다. 성공한
+     * close는 idempotent하며, 실패 후에는 다음 호출에서 미완료 resource만 재시도합니다.
+     * close가 시작된 뒤에는 listener와 JMX handle을 새로 등록할 수 없습니다.
+     */
+    override fun close() {
+        mBeanOperationGuard.checkNotActive()
+        val attempt = reserveCloseAttempt() ?: return
+
+        if (!attempt.owner) {
+            attempt.completion.join()?.let { throw it }
+            return
+        }
+
+        attempt.pendingRegistrations.forEach { it.completion.join() }
+        val registrations = compoundGate.withLock { mBeanRegistrations.toList() }
+        var primaryFailure = closeMBeanRegistrations(registrations)
+        primaryFailure = closeBackCacheListener(primaryFailure)
+        primaryFailure = closeFrontCache(primaryFailure)
+
+        compoundGate.withLock {
+            if (primaryFailure == null) closeCompleted.set(true)
+            attempt.completion.complete(primaryFailure)
+            activeCloseAttempt = null
+        }
+        primaryFailure?.let { throw it }
+    }
+
+    private fun reserveCloseAttempt(): CacheCloseAttempt? = compoundGate.withLock {
+        if (closeCompleted.get()) return null
+        val running = activeCloseAttempt
+        if (running != null) {
+            CacheCloseAttempt(running, false, emptyList())
+        } else {
+            closeStarted.set(true)
+            val completion = CompletableFuture<Throwable?>()
+            activeCloseAttempt = completion
+            CacheCloseAttempt(completion, true, pendingMBeanRegistrations.toList())
+        }
+    }
+
+    @Suppress("TooGenericExceptionCaught")
+    private fun closeMBeanRegistrations(registrations: List<NearJCacheMBeanRegistration>): Throwable? {
+        var primaryFailure: Throwable? = null
+        registrations.forEach { registration ->
+            try {
+                registration.close()
+            } catch (jmxFailure: Throwable) {
+                primaryFailure = appendCleanupFailure(primaryFailure, jmxFailure)
+                log.error(jmxFailure) {
+                    "NearJCache cleanup failed. operation=close-jmx, cache=${config.cacheName}"
+                }
+            }
+        }
+        return primaryFailure
+    }
+
+    @Suppress("TooGenericExceptionCaught")
+    private fun closeBackCacheListener(primaryFailure: Throwable?): Throwable? = try {
+        detachBackCacheListener()
+        primaryFailure
+    } catch (listenerFailure: Throwable) {
+        log.error(listenerFailure) {
+            "NearJCache cleanup failed. operation=close-listener, " +
+                    "cache=${config.cacheName}, provider=${backCache.javaClass.name}"
+        }
+        appendCleanupFailure(primaryFailure, listenerFailure)
+    }
+
+    @Suppress("TooGenericExceptionCaught")
+    private fun closeFrontCache(primaryFailure: Throwable?): Throwable? {
+        if (frontCloseCompleted.get()) return primaryFailure
+        return try {
+            lock.withLock {
+                log.debug { "Near Cache 의 Front Cache를 Close 합니다." }
+                frontCache.close()
+            }
+            frontCloseCompleted.set(true)
+            primaryFailure
+        } catch (frontFailure: Throwable) {
+            log.error(frontFailure) {
+                "NearJCache front cleanup failed. operation=close, " +
+                        "cache=${config.cacheName}, provider=${frontCache.javaClass.name}"
+            }
+            appendCleanupFailure(primaryFailure, frontFailure)
+        }
+    }
+
+    private fun appendCleanupFailure(primary: Throwable?, next: Throwable): Throwable {
+        if (primary == null) return next
+        if (next !== primary) primary.addSuppressed(next)
+        return primary
     }
 
     override fun isClosed(): Boolean = frontCache.isClosed

@@ -8,6 +8,7 @@ import java.util.Collections
 import java.util.LinkedHashMap
 import java.util.LinkedHashSet
 import java.util.UUID
+import java.util.concurrent.CompletableFuture
 import java.util.concurrent.locks.ReentrantLock
 import javax.management.ImmutableDescriptor
 import javax.management.InstanceNotFoundException
@@ -58,11 +59,30 @@ fun NearJCache<*, *>.registerMBeans(
     mBeanServer: MBeanServer,
     managerId: String,
     cacheId: String,
+): NearJCacheMBeanRegistration = registerMBeansAtomically {
+    registerMBeansDirect(
+        cache = this,
+        mBeanServer = mBeanServer,
+        managerId = managerId,
+        cacheId = cacheId,
+        operationGuard = mBeanOperationGuard,
+        onClosed = ::removeMBeanRegistration,
+    )
+}
+
+@Suppress("TooGenericExceptionCaught")
+private fun registerMBeansDirect(
+    cache: NearJCache<*, *>,
+    mBeanServer: MBeanServer,
+    managerId: String,
+    cacheId: String,
+    operationGuard: NearJCacheMBeanOperationGuard,
+    onClosed: (NearJCacheMBeanRegistration) -> Unit,
 ): NearJCacheMBeanRegistration {
     validateMBeanId("managerId", managerId)
     validateMBeanId("cacheId", cacheId)
 
-    val snapshot = configurationSnapshot
+    val snapshot = cache.configurationSnapshot
     check(snapshot.managementEnabled || snapshot.statisticsEnabled) {
         "NearJCache management and statistics are both disabled"
     }
@@ -71,35 +91,54 @@ fun NearJCache<*, *>.registerMBeans(
     try {
         if (snapshot.managementEnabled) {
             val token = newOwnershipToken()
-            val objectInstance = mBeanServer.registerMBean(
-                OwnedStandardMBean(
-                    NearJCacheManagementMXBean.fromSnapshot(snapshot) as NearJCacheConfigurationMXBean,
-                    NearJCacheConfigurationMXBean::class.java,
-                    token,
-                ),
-                nearJCacheObjectName(CONFIGURATION_MBEAN_TYPE, managerId, cacheId),
-            )
+            val objectInstance = operationGuard.run {
+                mBeanServer.registerMBean(
+                    OwnedStandardMBean(
+                        NearJCacheManagementMXBean.fromSnapshot(snapshot) as NearJCacheConfigurationMXBean,
+                        NearJCacheConfigurationMXBean::class.java,
+                        token,
+                    ),
+                    nearJCacheObjectName(CONFIGURATION_MBEAN_TYPE, managerId, cacheId),
+                )
+            }
             owned[objectInstance.objectName] = token
         }
         if (snapshot.statisticsEnabled) {
             val token = newOwnershipToken()
-            val objectInstance = mBeanServer.registerMBean(
-                OwnedStandardMBean(
-                    NearJCacheStatisticsMXBean.fromRecorder(statisticsRecorder) as NearJCacheTierStatisticsMXBean,
-                    NearJCacheTierStatisticsMXBean::class.java,
-                    token,
-                ),
-                nearJCacheObjectName(STATISTICS_MBEAN_TYPE, managerId, cacheId),
-            )
+            val objectInstance = operationGuard.run {
+                mBeanServer.registerMBean(
+                    OwnedStandardMBean(
+                        NearJCacheStatisticsMXBean.fromRecorder(cache.statisticsRecorder) as
+                                NearJCacheTierStatisticsMXBean,
+                        NearJCacheTierStatisticsMXBean::class.java,
+                        token,
+                    ),
+                    nearJCacheObjectName(STATISTICS_MBEAN_TYPE, managerId, cacheId),
+                )
+            }
             owned[objectInstance.objectName] = token
         }
     } catch (registrationFailure: Throwable) {
         if (owned.isEmpty()) throw registrationFailure
-        val recovery = DefaultNearJCacheMBeanRegistration(mBeanServer, managerId, cacheId, owned)
+        val recovery = DefaultNearJCacheMBeanRegistration(
+            mBeanServer,
+            managerId,
+            cacheId,
+            owned,
+            operationGuard,
+            onClosed,
+        )
         recovery.rollbackAfterRegistrationFailure(registrationFailure)
     }
 
-    return DefaultNearJCacheMBeanRegistration(mBeanServer, managerId, cacheId, owned)
+    return DefaultNearJCacheMBeanRegistration(
+        mBeanServer,
+        managerId,
+        cacheId,
+        owned,
+        operationGuard,
+        onClosed,
+    )
 }
 
 /**
@@ -205,9 +244,12 @@ private class DefaultNearJCacheMBeanRegistration(
     override val managerId: String,
     override val cacheId: String,
     ownedNames: Map<ObjectName, String>,
+    private val operationGuard: NearJCacheMBeanOperationGuard,
+    private val onClosed: (NearJCacheMBeanRegistration) -> Unit,
 ): NearJCacheMBeanRegistration {
     private val stateLock = ReentrantLock()
     private val owned = LinkedHashMap(ownedNames)
+    private var activeCloseAttempt: CompletableFuture<NearJCacheMBeanRegistrationException?>? = null
 
     @Volatile
     private var currentState = NearJCacheMBeanRegistrationState.REGISTERED
@@ -224,29 +266,51 @@ private class DefaultNearJCacheMBeanRegistration(
         get() = currentState == NearJCacheMBeanRegistrationState.CLOSED
 
     override fun close() {
-        val names = stateLock.withLock {
-            if (currentState == NearJCacheMBeanRegistrationState.CLOSED) return
-            check(currentState != NearJCacheMBeanRegistrationState.CLOSING) {
-                "NearJCache MBean cleanup is already in progress"
+        operationGuard.checkNotActive()
+        val attempt = stateLock.withLock {
+            when (currentState) {
+                NearJCacheMBeanRegistrationState.CLOSED -> return
+                NearJCacheMBeanRegistrationState.CLOSING ->
+                    CloseAttempt(activeCloseAttempt ?: error("Missing active MBean close attempt"), false, emptyList())
+
+                NearJCacheMBeanRegistrationState.REGISTERED,
+                NearJCacheMBeanRegistrationState.RECOVERY_REQUIRED,
+                -> {
+                    val completion = CompletableFuture<NearJCacheMBeanRegistrationException?>()
+                    activeCloseAttempt = completion
+                    currentState = NearJCacheMBeanRegistrationState.CLOSING
+                    CloseAttempt(
+                        completion,
+                        true,
+                        owned.entries.map { it.key to it.value }.asReversed(),
+                    )
+                }
             }
-            currentState = NearJCacheMBeanRegistrationState.CLOSING
-            owned.entries.map { it.key to it.value }.asReversed()
         }
 
-        val result = cleanup(names)
-        stateLock.withLock {
+        if (!attempt.owner) {
+            attempt.completion.join()?.let { throw it }
+            return
+        }
+
+        val result = operationGuard.run { cleanup(attempt.names) }
+        val failure = stateLock.withLock {
             result.removedNames.forEach(owned::remove)
             currentState = if (owned.isEmpty()) {
                 NearJCacheMBeanRegistrationState.CLOSED
             } else {
                 NearJCacheMBeanRegistrationState.RECOVERY_REQUIRED
             }
+            val closeFailure = result.failures.firstOrNull()?.let { primary ->
+                result.failures.drop(1).forEach(primary::addSuppressed)
+                NearJCacheMBeanRegistrationException(this, immutableOwnedNames(), primary)
+            }
+            attempt.completion.complete(closeFailure)
+            activeCloseAttempt = null
+            closeFailure
         }
-        if (result.failures.isNotEmpty()) {
-            val primary = result.failures.first()
-            result.failures.drop(1).forEach(primary::addSuppressed)
-            throw NearJCacheMBeanRegistrationException(this, activeObjectNames, primary)
-        }
+        if (isClosed) onClosed(this)
+        failure?.let { throw it }
     }
 
     fun rollbackAfterRegistrationFailure(registrationFailure: Throwable): Nothing {
@@ -254,7 +318,7 @@ private class DefaultNearJCacheMBeanRegistration(
             currentState = NearJCacheMBeanRegistrationState.CLOSING
             owned.entries.map { it.key to it.value }.asReversed()
         }
-        val result = cleanup(names)
+        val result = operationGuard.run { cleanup(names) }
         result.failures.forEach { rollbackFailure ->
             if (rollbackFailure !== registrationFailure) registrationFailure.addSuppressed(rollbackFailure)
         }
@@ -266,6 +330,7 @@ private class DefaultNearJCacheMBeanRegistration(
                 NearJCacheMBeanRegistrationState.RECOVERY_REQUIRED
             }
         }
+        if (isClosed) onClosed(this)
         if (activeObjectNames.isEmpty()) throw registrationFailure
         throw NearJCacheMBeanRegistrationException(this, activeObjectNames, registrationFailure)
     }
@@ -304,4 +369,33 @@ private class DefaultNearJCacheMBeanRegistration(
         val removedNames: Set<ObjectName>,
         val failures: List<Throwable>,
     )
+
+    private data class CloseAttempt(
+        val completion: CompletableFuture<NearJCacheMBeanRegistrationException?>,
+        val owner: Boolean,
+        val names: List<Pair<ObjectName, String>>,
+    )
+
+    private fun immutableOwnedNames(): Set<ObjectName> =
+        Collections.unmodifiableSet(LinkedHashSet(owned.keys))
+}
+
+internal class NearJCacheMBeanOperationGuard {
+    private val active = ThreadLocal<Boolean>()
+
+    fun checkNotActive() {
+        check(active.get() != true) {
+            "NearJCache MBean lifecycle operation cannot re-enter from an MBeanServer callback"
+        }
+    }
+
+    fun <T> run(operation: () -> T): T {
+        checkNotActive()
+        active.set(true)
+        return try {
+            operation()
+        } finally {
+            active.remove()
+        }
+    }
 }
