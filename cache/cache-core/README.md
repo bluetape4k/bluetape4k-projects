@@ -106,14 +106,86 @@ The default front configuration uses store-by-reference. A custom store-by-value
 front configuration is rejected until a filtered, provider-specific copier
 contract is supplied.
 
-`close()` deregisters the listener registered by this wrapper and closes only its
-owned front cache; it never closes the supplied back cache or provider. Cleanup
+`close()` closes explicitly registered MXBean handles, deregisters the listener
+registered by this wrapper, and closes only its owned front cache; it never
+closes the supplied back cache, `MBeanServer`, cache manager, or provider. Cleanup
 failures are observable: the first failure is propagated and later cleanup
 failures are attached as suppressed exceptions. A successful `close()` is
 idempotent, while a listener-deregistration or front-close failure is retried by
 the next call. Listener registration is rejected once close has started. If
 construction fails after the front cache is created, the same
 primary/suppressed exception policy is applied during rollback.
+
+<!-- issue-1351-nearcache-management:start -->
+### Explicit NearJCache management and statistics
+
+Management is opt-in. Configure the cache types and both feature flags before
+constructing the wrapper, keep `storeByValue` disabled for the front cache, and
+register the MXBeans in a caller-owned `MBeanServer` with stable, non-secret
+IDs. The IDs become part of `ObjectName`; do not use credentials, tokens, or
+personal data.
+
+```kotlin
+import io.bluetape4k.cache.nearcache.jcache.NearJCache
+import io.bluetape4k.cache.nearcache.jcache.NearJCacheConfig
+import io.bluetape4k.cache.nearcache.jcache.management.NearJCacheConfigurationMXBean
+import io.bluetape4k.cache.nearcache.jcache.management.NearJCacheTierStatisticsMXBean
+import io.bluetape4k.cache.nearcache.jcache.management.registerMBeans
+import java.lang.management.ManagementFactory
+import javax.cache.configuration.MutableConfiguration
+import javax.management.JMX
+
+val manager = NearJCacheConfig.CaffeineCacheManagerFactory.create()
+val configuration = MutableConfiguration<String, String>()
+    .setTypes(String::class.java, String::class.java)
+    .setStatisticsEnabled(true)
+    .setManagementEnabled(true)
+    .setStoreByValue(false)
+val front = manager.createCache("orders-front", configuration)
+val back = manager.createCache("orders-back", configuration)
+val nearCache = NearJCache(front, back, NearJCacheConfig(frontCacheConfiguration = configuration))
+val server = ManagementFactory.getPlatformMBeanServer()
+val registration = nearCache.registerMBeans(server, "orders-service", "orders-v1")
+val names = registration.activeObjectNames.associateBy { it.getKeyProperty("type") }
+val management = JMX.newMXBeanProxy(server, names.getValue("NearJCacheConfiguration"), NearJCacheConfigurationMXBean::class.java)
+val statistics = JMX.newMXBeanProxy(server, names.getValue("NearJCacheStatistics"), NearJCacheTierStatisticsMXBean::class.java)
+
+statistics.clear() // resets only logical/tier counters
+nearCache.clear()  // removes data from this wrapper's front and back caches
+registration.close()
+nearCache.close()
+back.close()
+```
+
+The factory returns a provider-managed cache manager. Close that manager only
+as part of the application's provider shutdown, not as wrapper cleanup.
+
+Java callers use
+`NearJCacheMBeans.registerMBeans(nearCache, server, managerId, cacheId)`.
+The immutable management snapshot reports the configuration used at wrapper
+construction. Statistics use `statisticsScope=NEAR_JCACHE_WRAPPER_V1`; inspect
+`supportedOperations` before interpreting a counter. The capability getters
+`isFrontEvictionObservationSupported`, `isBulkRemovalCountSupported`, and
+`isBackWriteCompletionIncluded` currently return `false`. A `false` capability
+means “not observed,” not “the event never happened.”
+
+For asynchronous write-through, a successful API return counts caller-visible
+acceptance only. Track each `BackCacheWriteCompletion` by the stable
+`operationId` and its diagnostic `operation` name until remote completion.
+There is no zero-loss global drain API. Before migration, stop new admission
+and keep an application-owned inventory of outstanding completions. For a
+synchronous handover, close the old registration handle, close the old
+`nearCache`, and only then create/register the replacement.
+
+Registration owns only the exact MXBean names returned by its handle. It never
+owns the `MBeanServer`, back cache, cache manager, or provider. Keep that
+namespace exclusive while the handle is active. On a collision, inspect the
+existing owner before retrying. Treat `RECOVERY_REQUIRED` as an immediate
+cleanup incident and retry `close()` on the recovery handle; the ownership
+token is a best-effort stale-owner defense, not an atomic JMX compare-and-swap.
+See the [operations guide](../../docs/operations/issue-1351-nearcache-management.md)
+for rollout classification and cleanup evidence.
+<!-- issue-1351-nearcache-management:end -->
 
 ## Near-Cache Capability Matrix
 

@@ -45,6 +45,20 @@ back atomic operation을 먼저 완료한 뒤 front를 reconciliation하는 계�
 populate는 mutation epoch로 stale 값을 차단하고, clear는 timeout-late backend
 write가 끝난 뒤 back을 지우는 barrier를 사용한다.
 
+### Blocking `NearJCache` management 범위
+
+Blocking `NearJCache`는 생성 시점의 `immutable configuration snapshot`, wrapper
+단위 `logical/tier statistics`, caller가 선택한 server에 대한
+`explicit custom-domain JMX` 등록을 지원한다.
+
+| 범위 | 지원 경계 |
+| --- | --- |
+| 통계 대상 연산 | `get`, `getAll`, `put`, `putAll`, `putIfAbsent`, `replace`, `remove`, `getAndPut`, `getAndReplace`, `getAndRemove` |
+| 통계 비대상 연산 | `loadAll`, `invoke`, `invokeAll`, `SuspendNearJCache` |
+| capability | `isFrontEvictionObservationSupported=false`, `isBulkRemovalCountSupported=false`, `isBackWriteCompletionIncluded=false` |
+| 등록 | management/statistics flag에 따른 명시적 등록, exclusive ObjectName namespace, caller-owned `MBeanServer` |
+| lifecycle | registration handle 정리 후 listener, front 순서로 wrapper 자원을 정리하며 back/provider는 소유하지 않음 |
+
 | back provider | 동기 `NearJCache` | suspend `SuspendNearJCache` | listener 등록 | peer front 전파 | removeAll 의미 | back cache 범위 | conformance |
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | Lettuce JCache | Supported | Supported | Supported | Supported for per-entry mutations; clear peer-front invalidation is not promised | Supported through per-entry removal where needed | Distributed Redis | `AbstractNearJCacheTest`, `AbstractSuspendNearJCacheTest` |

@@ -23,7 +23,7 @@ This path moves data between cache tiers; it does not load source data. The call
 
 `clearLocal()` empties only the current process's front tier. A later get can refill it from the back cache. `clearAll()` empties both tiers.
 
-Legacy `NearJCache.clear()` also clears only the front, while `clearAllCache()` clears both. A plain back-cache clear may not notify another Near Cache that shares it. Use provider-backed key removal or invalidation when remote local entries must be removed.
+`NearJCache.clear()` and its compatibility alias `clearAllCache()` both clear this wrapper's front and back caches. A plain back-cache clear may not notify another Near Cache that shares it. Use provider-backed key removal or invalidation when remote local entries must be removed.
 
 ## A cache-tier write is not persistence write-through
 
@@ -45,10 +45,79 @@ Provider event guarantees differ. The 1.12.1 source uses per-key removal where R
 - Rising local and back misses point to the cache-aside loader and source-store load.
 - Eviction rising with load latency can mean the hot set exceeds local capacity.
 
+<!-- issue-1351-nearcache-management:start -->
+## Explicit NearJCache management
+
+Configure both opt-in flags before construction. The front uses Caffeine through
+`NearJCacheConfig.CaffeineCacheManagerFactory`; the example sets exact types and
+keeps `setStoreByValue(false)`.
+
+```kotlin
+import io.bluetape4k.cache.nearcache.jcache.NearJCache
+import io.bluetape4k.cache.nearcache.jcache.NearJCacheConfig
+import io.bluetape4k.cache.nearcache.jcache.management.NearJCacheConfigurationMXBean
+import io.bluetape4k.cache.nearcache.jcache.management.NearJCacheTierStatisticsMXBean
+import io.bluetape4k.cache.nearcache.jcache.management.registerMBeans
+import java.lang.management.ManagementFactory
+import javax.cache.configuration.MutableConfiguration
+import javax.management.JMX
+
+val manager = NearJCacheConfig.CaffeineCacheManagerFactory.create()
+val configuration = MutableConfiguration<String, String>()
+    .setTypes(String::class.java, String::class.java)
+    .setStatisticsEnabled(true)
+    .setManagementEnabled(true)
+    .setStoreByValue(false)
+val front = manager.createCache("orders-front", configuration)
+val back = manager.createCache("orders-back", configuration)
+val nearCache = NearJCache(front, back, NearJCacheConfig(frontCacheConfiguration = configuration))
+val server = ManagementFactory.getPlatformMBeanServer()
+val registration = nearCache.registerMBeans(server, "orders-service", "orders-v1")
+val names = registration.activeObjectNames.associateBy { it.getKeyProperty("type") }
+val management = JMX.newMXBeanProxy(server, names.getValue("NearJCacheConfiguration"), NearJCacheConfigurationMXBean::class.java)
+val statistics = JMX.newMXBeanProxy(server, names.getValue("NearJCacheStatistics"), NearJCacheTierStatisticsMXBean::class.java)
+
+nearCache.put("42", "Ada")
+statistics.clear()
+check(nearCache.get("42") != null) // data remains; only counters were reset
+nearCache.clear()
+check(nearCache.get("42") == null) // front and back data were removed
+registration.close()
+nearCache.close()
+back.close()
+```
+
+The factory returns a provider-managed cache manager. Close it only during the
+application's provider shutdown, not as part of wrapper cleanup.
+
+Java uses `NearJCacheMBeans.registerMBeans(nearCache, server, managerId, cacheId)`.
+The caller owns the `MBeanServer`; the registration does not own the back cache,
+cache manager, or provider. IDs must be stable and non-secret because they are
+visible in `ObjectName` and recovery errors.
+
+The immutable configuration snapshot and logical/tier counters use
+`statisticsScope=NEAR_JCACHE_WRAPPER_V1`. Check `supportedOperations` and the
+capabilities `isFrontEvictionObservationSupported`,
+`isBulkRemovalCountSupported`, and `isBackWriteCompletionIncluded`; their
+current value is `false`, meaning unsupported observation rather than a zero
+event count.
+
+For asynchronous writes, API success records caller-visible acceptance. Keep an
+inventory of every `BackCacheWriteCompletion`, correlating its diagnostic
+`operation` with the stable `operationId` until remote completion. No zero-loss
+global drain exists, so stop admission before migration. For synchronous
+migration, close the old registration, close the old cache, then register the
+replacement. Keep the JMX namespace exclusive, investigate collisions, and
+treat `RECOVERY_REQUIRED` as immediate cleanup work. The ownership token only
+provides best-effort stale-owner protection.
+<!-- issue-1351-nearcache-management:end -->
+
 ## Sources and tests
 
 - [`NearCacheOperations.kt`](../../../../../cache/cache-core/src/main/kotlin/io/bluetape4k/cache/nearcache/NearCacheOperations.kt)
 - [`SuspendNearCacheOperations.kt`](../../../../../cache/cache-core/src/main/kotlin/io/bluetape4k/cache/nearcache/SuspendNearCacheOperations.kt)
 - [`NearJCache.kt`](../../../../../cache/cache-core/src/main/kotlin/io/bluetape4k/cache/nearcache/jcache/NearJCache.kt)
+- [`NearJCacheMBeanRegistration.kt`](../../../../../cache/cache-core/src/main/kotlin/io/bluetape4k/cache/nearcache/jcache/management/NearJCacheMBeanRegistration.kt)
+- [`NearJCacheTierStatisticsMXBean.kt`](../../../../../cache/cache-core/src/main/kotlin/io/bluetape4k/cache/nearcache/jcache/management/NearJCacheTierStatisticsMXBean.kt)
 - [`SuspendNearJCache.kt`](../../../../../cache/cache-core/src/main/kotlin/io/bluetape4k/cache/nearcache/jcache/SuspendNearJCache.kt)
 - [`AbstractNearCacheOperationsTest.kt`](../../../../../cache/cache-core/src/testFixtures/kotlin/io/bluetape4k/cache/nearcache/AbstractNearCacheOperationsTest.kt)
