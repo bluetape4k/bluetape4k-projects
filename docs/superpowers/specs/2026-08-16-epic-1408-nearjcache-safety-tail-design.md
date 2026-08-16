@@ -4,7 +4,7 @@
 - 선행 이슈: [#1363](https://github.com/bluetape4k/bluetape4k-projects/issues/1363)
 - 대상 이슈: [#1369](https://github.com/bluetape4k/bluetape4k-projects/issues/1369), [#1368](https://github.com/bluetape4k/bluetape4k-projects/issues/1368)
 - 날짜: 2026-08-16
-- 상태: written-spec 검토 요청
+- 상태: 사용자 승인 후 Step 3-R 호환성·운영 증거 보강
 - 분류: Type-A Full Feature
 - 대상 모듈: `cache/cache-core`, `cache/cache-lettuce`, `cache/cache-hazelcast`, `cache/cache-redisson`
 
@@ -127,20 +127,27 @@ front와 back 결과를 모두 병합해 반환한다. front populate 여부만 
 
 epoch가 back 조회 중 바뀌면 기존 계약대로 front populate를 건너뛴다. 정책 판정은
 back 조회가 성공한 뒤, `mutationGate` 안에서 epoch 일치 여부와 함께 확인한다.
-front `putAll` 실패 시 back 결과는 반환하고 sanitized warning을 남기며,
+front `putAll` 실패 시 back 결과는 반환하고 원본 throwable/message를 연결하지 않은 sanitized warning을 남기며,
 `CancellationException`은 기존 계약대로 다시 던진다. back `getAll` 예외도 provider
 예외를 숨기지 않는다.
+
+이 정책은 front residency entry 수만 제한한다. 요청 집합, provider 응답, 반환 map,
+value byte 크기의 allocation은 제한하지 않으며 완전한 OOM 방어로 표현하지 않는다.
+JCache provider가 반환한 map은 동기 호출 중 안정적이라는 기존 신뢰 경계를 유지하고,
+공격 입력을 다시 전체 복사하는 방어는 이 PR에서 추가하지 않는다.
 
 ### ABI와 serialization 호환성
 
 - published prior-release 5-인자 constructor와 `copy` descriptor를 유지한다.
 - train 기준의 6-인자 constructor와 `copy`도 명시적 overload로 유지한다.
+- 1.12.1 5-field와 pre-#1369 6-field Kotlin default constructor/`copy$default`
+  synthetic descriptor는 hidden bridge로 유지한다.
 - `serialVersionUID`는 `1L`을 유지한다.
 - legacy stream에 `bulkFrontPopulationPolicy`가 없으면 `readObject`가
   `BypassFront`를 복원한다.
 - 명시한 `PopulateIfAtMost` 값은 현재 stream round-trip 뒤 동일하게 복원한다.
 - 새 primary data-class shape의 `componentN`, `copy`, `copy$default`와 보존 대상
-  overload를 reflection test로 고정한다.
+  direct/synthetic overload를 reflection, `javap`, precompiled Java/Kotlin consumer로 고정한다.
 - builder는 동일한 safe default를 제공하며 명시한 policy를 config에 전달한다.
 
 과거 stream의 기존 무제한 populate를 재현하지 않고 새 safe default를 적용하는 것은
@@ -250,8 +257,16 @@ capability matrix, 영문/한글 manual, release-facing migration note에 다음
 - `cache/cache-core/src/main/kotlin/io/bluetape4k/cache/nearcache/jcache/NearJCache.kt`
 - `cache/cache-core/src/main/kotlin/io/bluetape4k/cache/nearcache/jcache/management/*`
 - `cache/cache-core/src/test/kotlin/io/bluetape4k/cache/nearcache/jcache/*`
+- `cache/cache-core/src/test/java/io/bluetape4k/cache/nearcache/jcache/*`
+- `cache/cache-core/src/test/resources/compat/issue-1369/*`
+- `cache/cache-lettuce/src/benchmark/kotlin/io/bluetape4k/cache/nearcache/benchmark/NearJCacheBulkPopulationBenchmark.kt`
 - `cache/cache-core/README.md`, `cache/cache-core/README.ko.md`
+- `cache/cache-lettuce/README.md`, `cache/cache-lettuce/README.ko.md`
+- `cache/cache-hazelcast/README.md`, `cache/cache-hazelcast/README.ko.md`
 - `docs/cache/near-cache-capability-matrix.md`
+- `docs/manual/en/modules/bluetape4k-cache-core/near-cache-semantics.md`
+- `docs/manual/ko/modules/bluetape4k-cache-core/near-cache-semantics.md`
+- `docs/benchmarks/raw/issue-1369/*`
 
 ### PR 2 예상 파일
 
@@ -284,8 +299,11 @@ symbol search에서 추가 public factory나 manual 예제가 발견되면 같�
 6. 큰 value도 반환 정확성을 유지하며, byte size가 아니라 entry count를 적용함을 고정한다.
 7. front/back 부분 hit와 missing key가 섞여도 반환 map과 logical/tier 통계가 정확하다.
 8. epoch 경합, back 예외, front populate 예외, cancellation 계약을 유지한다.
-9. 5/6-인자 constructor·copy, 새 data-class shape, legacy/current serialization을 검증한다.
-10. builder와 configuration MXBean이 실제 적용 policy/token/limit을 노출한다.
+9. 1.12.1/pre-#1369 precompiled consumer로 5/6 direct·synthetic descriptor와 새
+   data-class shape, legacy/current/null/malformed serialization을 검증한다.
+10. builder와 실제 등록된 configuration MXBean이 적용 policy/token/limit을 노출한다.
+11. front/back path, batch size, mutation-gate contention을 동일 JMH harness의
+   baseline/candidate로 비교한다.
 
 ### PR 2 RED/회귀 테스트
 
@@ -353,5 +371,5 @@ Testcontainers 환경을 확인한다. 병렬 worktree에서 Docker-backed test�
 - [x] `removeAll()` 우회를 포함한 namespace-wide operation을 식별했다.
 - [x] prior API/serialization, provider factory, JMX, 문서 migration을 포함했다.
 - [x] 두 PR의 base/head와 merge 후 rebase 검증 순서를 고정했다.
-- [ ] 사용자 written-spec 승인
-- [ ] 승인된 spec 기반 implementation plan
+- [x] 사용자 written-spec 승인
+- [x] 승인된 spec 기반 implementation plan
