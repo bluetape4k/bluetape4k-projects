@@ -3,6 +3,7 @@ package io.bluetape4k.cache.nearcache.jcache
 import io.bluetape4k.cache.jcache.jcacheManagerOf
 import io.bluetape4k.codec.Base58
 import java.io.IOException
+import java.io.InvalidObjectException
 import java.io.ObjectInputStream
 import java.io.Serializable
 import javax.cache.CacheManager
@@ -36,16 +37,19 @@ import javax.cache.expiry.Duration
  * @property isSynchronous Front-Back 캐시 간 동기화 방식 (true: 동기, false: 비동기)
  * @property syncRemoteTimeout 원격 캐시 동기화 타임아웃 (밀리초)
  * @property syncRemoteRetryCount 비동기 원격 캐시 write-through의 bounded retry 횟수
+ * @property bulkFrontPopulationPolicy `getAll`의 실제 `backValues.size`가 상한 이하일 때만 batch 전체를
+ *   front에 저장하는 정책입니다. 기본값은 안전한 저장 우회입니다.
  *
  * @see NearJCache
  */
 data class NearJCacheConfig<K: Any, V: Any>(
     val cacheManagerFactory: Factory<CacheManager> = CaffeineCacheManagerFactory,
-    val cacheName: String = "near-jcache-" + Base58.randomString(8),
+    val cacheName: String = "near-jcache-" + Base58.randomString(DEFAULT_CACHE_NAME_LENGTH),
     val frontCacheConfiguration: MutableConfiguration<K, V> = getDefaultFrontCacheConfiguration(),
     val isSynchronous: Boolean = false,
     val syncRemoteTimeout: Long = NearJCacheConfig.DEFAULT_SYNC_REMOTE_TIMEOUT,
     val syncRemoteRetryCount: Int = NearJCacheConfig.DEFAULT_SYNC_REMOTE_RETRY_COUNT,
+    val bulkFrontPopulationPolicy: BulkFrontPopulationPolicy = BulkFrontPopulationPolicy.BypassFront,
 ): Serializable {
 
     /**
@@ -64,9 +68,110 @@ data class NearJCacheConfig<K: Any, V: Any>(
         isSynchronous = isSynchronous,
         syncRemoteTimeout = syncRemoteTimeout,
         syncRemoteRetryCount = DEFAULT_SYNC_REMOTE_RETRY_COUNT,
+        bulkFrontPopulationPolicy = BulkFrontPopulationPolicy.BypassFront,
     )
 
-    /** prior-release의 5-인자 JVM copy descriptor를 유지합니다. */
+    /** prior-release의 6-인자 JVM constructor descriptor를 유지합니다. */
+    constructor(
+        cacheManagerFactory: Factory<CacheManager>,
+        cacheName: String,
+        frontCacheConfiguration: MutableConfiguration<K, V>,
+        isSynchronous: Boolean,
+        syncRemoteTimeout: Long,
+        syncRemoteRetryCount: Int,
+    ) : this(
+        cacheManagerFactory = cacheManagerFactory,
+        cacheName = cacheName,
+        frontCacheConfiguration = frontCacheConfiguration,
+        isSynchronous = isSynchronous,
+        syncRemoteTimeout = syncRemoteTimeout,
+        syncRemoteRetryCount = syncRemoteRetryCount,
+        bulkFrontPopulationPolicy = BulkFrontPopulationPolicy.BypassFront,
+    )
+
+    @Deprecated("Binary compatibility bridge", level = DeprecationLevel.HIDDEN)
+    @Suppress("INVISIBLE_REFERENCE", "INVISIBLE_MEMBER", "UNUSED_PARAMETER")
+    constructor(
+        cacheManagerFactory: Factory<CacheManager>?,
+        cacheName: String?,
+        frontCacheConfiguration: MutableConfiguration<K, V>?,
+        isSynchronous: Boolean,
+        syncRemoteTimeout: Long,
+        mask: Int,
+        marker: kotlin.jvm.internal.DefaultConstructorMarker?,
+    ) : this(
+        cacheManagerFactory = if (mask and CACHE_MANAGER_FACTORY_MASK != 0) {
+            CaffeineCacheManagerFactory
+        } else {
+            requireNotNull(cacheManagerFactory)
+        },
+        cacheName = if (mask and CACHE_NAME_MASK != 0) {
+            "near-jcache-" + Base58.randomString(DEFAULT_CACHE_NAME_LENGTH)
+        } else {
+            requireNotNull(cacheName)
+        },
+        frontCacheConfiguration = if (mask and FRONT_CACHE_CONFIGURATION_MASK != 0) {
+            getDefaultFrontCacheConfiguration()
+        } else {
+            requireNotNull(frontCacheConfiguration)
+        },
+        isSynchronous = if (mask and SYNCHRONOUS_MASK != 0) false else isSynchronous,
+        syncRemoteTimeout = if (mask and REMOTE_TIMEOUT_MASK != 0) {
+            DEFAULT_SYNC_REMOTE_TIMEOUT
+        } else {
+            syncRemoteTimeout
+        },
+        syncRemoteRetryCount = DEFAULT_SYNC_REMOTE_RETRY_COUNT,
+        bulkFrontPopulationPolicy = BulkFrontPopulationPolicy.BypassFront,
+    )
+
+    @Deprecated("Binary compatibility bridge", level = DeprecationLevel.HIDDEN)
+    @Suppress("INVISIBLE_REFERENCE", "INVISIBLE_MEMBER", "UNUSED_PARAMETER")
+    constructor(
+        cacheManagerFactory: Factory<CacheManager>?,
+        cacheName: String?,
+        frontCacheConfiguration: MutableConfiguration<K, V>?,
+        isSynchronous: Boolean,
+        syncRemoteTimeout: Long,
+        syncRemoteRetryCount: Int,
+        mask: Int,
+        marker: kotlin.jvm.internal.DefaultConstructorMarker?,
+    ) : this(
+        cacheManagerFactory = if (mask and CACHE_MANAGER_FACTORY_MASK != 0) {
+            CaffeineCacheManagerFactory
+        } else {
+            requireNotNull(cacheManagerFactory)
+        },
+        cacheName = if (mask and CACHE_NAME_MASK != 0) {
+            "near-jcache-" + Base58.randomString(DEFAULT_CACHE_NAME_LENGTH)
+        } else {
+            requireNotNull(cacheName)
+        },
+        frontCacheConfiguration = if (mask and FRONT_CACHE_CONFIGURATION_MASK != 0) {
+            getDefaultFrontCacheConfiguration()
+        } else {
+            requireNotNull(frontCacheConfiguration)
+        },
+        isSynchronous = if (mask and SYNCHRONOUS_MASK != 0) false else isSynchronous,
+        syncRemoteTimeout = if (mask and REMOTE_TIMEOUT_MASK != 0) {
+            DEFAULT_SYNC_REMOTE_TIMEOUT
+        } else {
+            syncRemoteTimeout
+        },
+        syncRemoteRetryCount = if (mask and REMOTE_RETRY_COUNT_MASK != 0) {
+            DEFAULT_SYNC_REMOTE_RETRY_COUNT
+        } else {
+            syncRemoteRetryCount
+        },
+        bulkFrontPopulationPolicy = BulkFrontPopulationPolicy.BypassFront,
+    )
+
+    /**
+     * prior-release의 5-인자 JVM copy descriptor를 유지합니다.
+     *
+     * 기존 descriptor에는 bulk 정책이 없으므로 bounded source도 안전한 [BulkFrontPopulationPolicy.BypassFront]로
+     * 재설정합니다.
+     */
     fun copy(
         cacheManagerFactory: Factory<CacheManager>,
         cacheName: String,
@@ -80,6 +185,30 @@ data class NearJCacheConfig<K: Any, V: Any>(
         isSynchronous = isSynchronous,
         syncRemoteTimeout = syncRemoteTimeout,
         syncRemoteRetryCount = DEFAULT_SYNC_REMOTE_RETRY_COUNT,
+        bulkFrontPopulationPolicy = BulkFrontPopulationPolicy.BypassFront,
+    )
+
+    /**
+     * prior-release의 6-인자 JVM copy descriptor를 유지합니다.
+     *
+     * 기존 descriptor에는 bulk 정책이 없으므로 bounded source도 안전한 [BulkFrontPopulationPolicy.BypassFront]로
+     * 재설정합니다.
+     */
+    fun copy(
+        cacheManagerFactory: Factory<CacheManager>,
+        cacheName: String,
+        frontCacheConfiguration: MutableConfiguration<K, V>,
+        isSynchronous: Boolean,
+        syncRemoteTimeout: Long,
+        syncRemoteRetryCount: Int,
+    ): NearJCacheConfig<K, V> = NearJCacheConfig(
+        cacheManagerFactory = cacheManagerFactory,
+        cacheName = cacheName,
+        frontCacheConfiguration = frontCacheConfiguration,
+        isSynchronous = isSynchronous,
+        syncRemoteTimeout = syncRemoteTimeout,
+        syncRemoteRetryCount = syncRemoteRetryCount,
+        bulkFrontPopulationPolicy = BulkFrontPopulationPolicy.BypassFront,
     )
 
     /**
@@ -103,6 +232,19 @@ data class NearJCacheConfig<K: Any, V: Any>(
         } else {
             fields.get("syncRemoteRetryCount", DEFAULT_SYNC_REMOTE_RETRY_COUNT)
         })
+        val restoredPolicy = if (fields.defaulted("bulkFrontPopulationPolicy")) {
+            BulkFrontPopulationPolicy.BypassFront
+        } else {
+            fields.get("bulkFrontPopulationPolicy", null) as? BulkFrontPopulationPolicy
+                ?: BulkFrontPopulationPolicy.BypassFront
+        }
+        if (
+            restoredPolicy is BulkFrontPopulationPolicy.PopulateIfAtMost &&
+            restoredPolicy.maximumEntryCount <= 0
+        ) {
+            throw InvalidObjectException("Invalid bulk front population policy")
+        }
+        setSerializedField("bulkFrontPopulationPolicy", restoredPolicy)
     }
 
     private fun setSerializedField(name: String, value: Any?) {
@@ -114,6 +256,86 @@ data class NearJCacheConfig<K: Any, V: Any>(
 
     companion object {
         private const val serialVersionUID: Long = 1L
+
+        @JvmStatic
+        @JvmName("copy\$default")
+        @Deprecated("Binary compatibility bridge", level = DeprecationLevel.HIDDEN)
+        fun <K: Any, V: Any> copyDefault5(
+            source: NearJCacheConfig<K, V>,
+            cacheManagerFactory: Factory<CacheManager>?,
+            cacheName: String?,
+            frontCacheConfiguration: MutableConfiguration<K, V>?,
+            isSynchronous: Boolean,
+            syncRemoteTimeout: Long,
+            mask: Int,
+            marker: Any?,
+        ): NearJCacheConfig<K, V> {
+            if (marker != null) {
+                throw UnsupportedOperationException("Super calls with default arguments are not supported")
+            }
+            return source.copy(
+                if (mask and CACHE_MANAGER_FACTORY_MASK != 0) {
+                    source.cacheManagerFactory
+                } else {
+                    requireNotNull(cacheManagerFactory)
+                },
+                if (mask and CACHE_NAME_MASK != 0) source.cacheName else requireNotNull(cacheName),
+                if (mask and FRONT_CACHE_CONFIGURATION_MASK != 0) {
+                    source.frontCacheConfiguration
+                } else {
+                    requireNotNull(frontCacheConfiguration)
+                },
+                if (mask and SYNCHRONOUS_MASK != 0) source.isSynchronous else isSynchronous,
+                if (mask and REMOTE_TIMEOUT_MASK != 0) source.syncRemoteTimeout else syncRemoteTimeout,
+            )
+        }
+
+        @JvmStatic
+        @JvmName("copy\$default")
+        @Deprecated("Binary compatibility bridge", level = DeprecationLevel.HIDDEN)
+        fun <K: Any, V: Any> copyDefault6(
+            source: NearJCacheConfig<K, V>,
+            cacheManagerFactory: Factory<CacheManager>?,
+            cacheName: String?,
+            frontCacheConfiguration: MutableConfiguration<K, V>?,
+            isSynchronous: Boolean,
+            syncRemoteTimeout: Long,
+            syncRemoteRetryCount: Int,
+            mask: Int,
+            marker: Any?,
+        ): NearJCacheConfig<K, V> {
+            if (marker != null) {
+                throw UnsupportedOperationException("Super calls with default arguments are not supported")
+            }
+            return source.copy(
+                if (mask and CACHE_MANAGER_FACTORY_MASK != 0) {
+                    source.cacheManagerFactory
+                } else {
+                    requireNotNull(cacheManagerFactory)
+                },
+                if (mask and CACHE_NAME_MASK != 0) source.cacheName else requireNotNull(cacheName),
+                if (mask and FRONT_CACHE_CONFIGURATION_MASK != 0) {
+                    source.frontCacheConfiguration
+                } else {
+                    requireNotNull(frontCacheConfiguration)
+                },
+                if (mask and SYNCHRONOUS_MASK != 0) source.isSynchronous else isSynchronous,
+                if (mask and REMOTE_TIMEOUT_MASK != 0) source.syncRemoteTimeout else syncRemoteTimeout,
+                if (mask and REMOTE_RETRY_COUNT_MASK != 0) {
+                    source.syncRemoteRetryCount
+                } else {
+                    syncRemoteRetryCount
+                },
+            )
+        }
+
+        private const val CACHE_MANAGER_FACTORY_MASK = 0x01
+        private const val CACHE_NAME_MASK = 0x02
+        private const val FRONT_CACHE_CONFIGURATION_MASK = 0x04
+        private const val SYNCHRONOUS_MASK = 0x08
+        private const val REMOTE_TIMEOUT_MASK = 0x10
+        private const val REMOTE_RETRY_COUNT_MASK = 0x20
+        private const val DEFAULT_CACHE_NAME_LENGTH = 8
 
         /** 최소 만료 검사 주기 (1초) */
         const val MIN_EXPIRY_CHECK_PERIOD = 1000L

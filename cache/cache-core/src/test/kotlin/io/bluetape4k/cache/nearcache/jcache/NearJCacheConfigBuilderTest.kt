@@ -17,6 +17,7 @@ class NearJCacheConfigBuilderTest {
         config.isSynchronous shouldBeEqualTo false
         config.syncRemoteTimeout shouldBeEqualTo NearJCacheConfig.DEFAULT_SYNC_REMOTE_TIMEOUT
         config.syncRemoteRetryCount shouldBeEqualTo NearJCacheConfig.DEFAULT_SYNC_REMOTE_RETRY_COUNT
+        config.bulkFrontPopulationPolicy shouldBeEqualTo BulkFrontPopulationPolicy.BypassFront
     }
 
     @Test
@@ -26,11 +27,13 @@ class NearJCacheConfigBuilderTest {
             isSynchronous = true
             syncRemoteTimeout = 1000L
             syncRemoteRetryCount = 2
+            bulkFrontPopulationPolicy = BulkFrontPopulationPolicy.PopulateIfAtMost(3)
         }
 
         config.cacheName shouldBeEqualTo "test-cache"
         config.isSynchronous shouldBeEqualTo true
         config.syncRemoteTimeout shouldBeEqualTo 1000L
         config.syncRemoteRetryCount shouldBeEqualTo 2
+        config.bulkFrontPopulationPolicy shouldBeEqualTo BulkFrontPopulationPolicy.PopulateIfAtMost(3)
     }
 }
