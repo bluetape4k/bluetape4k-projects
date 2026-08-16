@@ -6,6 +6,7 @@ import io.bluetape4k.redis.lettuce.codec.LettuceBinaryCodec
 import io.bluetape4k.redis.lettuce.codec.LettuceBinaryCodecs
 import io.bluetape4k.redis.lettuce.map.LettuceMap
 import java.time.Duration
+import java.util.UUID
 import java.util.concurrent.ConcurrentHashMap
 import javax.cache.Cache
 import javax.cache.CacheManager
@@ -62,6 +63,14 @@ class LettuceJCache<K: Any, V: Any>(
         check(!closed.value) { "LettuceCache[$cacheName]가 이미 닫혀 있습니다." }
     }
 
+    /**
+     * Redis hash 단위의 분산 락으로 JCache 쓰기 구간을 보호합니다.
+     * EntryProcessor의 read-modify-write와 일반 쓰기가 서로 다른 Lettuce 연결에서
+     * 실행되어도 같은 cacheName에 대해 직렬화되도록 호출마다 새 토큰을 사용합니다.
+     */
+    private fun <R> withWriteLock(block: () -> R): R =
+        map.withDistributedLock(UUID.randomUUID().toString().toByteArray(), block = block)
+
     private fun encodeKey(key: K): String = keyCodec(key)
 
     private fun decodeKey(field: String): K {
@@ -76,6 +85,17 @@ class LettuceJCache<K: Any, V: Any>(
     }
 
     private fun encodeValue(value: V): ByteArray = codec.serializer.serialize(value)
+
+    private fun putTtl(field: String, value: ByteArray): Boolean {
+        val added = map.putTtl(field, value, ttlDuration)
+        map.refreshTtl(ttlDuration)
+        return added
+    }
+
+    private fun putAllTtl(entries: Map<String, ByteArray>) {
+        map.putAllTtl(entries, ttlDuration)
+        map.refreshTtl(ttlDuration)
+    }
 
     @Suppress("UNCHECKED_CAST")
     private fun decodeValue(bytes: ByteArray): V = codec.serializer.deserialize(bytes)!!
@@ -117,150 +137,172 @@ class LettuceJCache<K: Any, V: Any>(
 
     override fun put(key: K, value: V) {
         checkNotClosed()
-        log.debug { "put: cacheName=$cacheName, key=$key" }
-        val field = encodeKey(key)
-        val bytes = encodeValue(value)
-        val existed = map.containsKey(field)
+        withWriteLock {
+            log.debug { "put: cacheName=$cacheName, key=$key" }
+            val field = encodeKey(key)
+            val bytes = encodeValue(value)
+            val existed = map.containsKey(field)
 
-        map.putTtl(field, bytes, ttlDuration)
+            putTtl(field, bytes)
 
-        val eventType = if (existed) EventType.UPDATED else EventType.CREATED
-        dispatchEvent(eventType, key, value)
+            val eventType = if (existed) EventType.UPDATED else EventType.CREATED
+            dispatchEvent(eventType, key, value)
+        }
     }
 
     override fun getAndPut(key: K, value: V): V? {
         checkNotClosed()
-        val field = encodeKey(key)
-        val oldBytes = map.get(field)
-        val existed = oldBytes != null
-        val bytes = encodeValue(value)
+        return withWriteLock {
+            val field = encodeKey(key)
+            val oldBytes = map.get(field)
+            val existed = oldBytes != null
+            val bytes = encodeValue(value)
 
-        map.putTtl(field, bytes, ttlDuration)
+            putTtl(field, bytes)
 
-        val eventType = if (existed) EventType.UPDATED else EventType.CREATED
-        dispatchEvent(eventType, key, value)
+            val eventType = if (existed) EventType.UPDATED else EventType.CREATED
+            dispatchEvent(eventType, key, value)
 
-        return oldBytes?.let { decodeValue(it) }
+            oldBytes?.let { decodeValue(it) }
+        }
     }
 
     override fun putAll(map: Map<out K, V>) {
         checkNotClosed()
         if (map.isEmpty()) return
-        val encodedMap = map.entries.associate { (k, v) -> encodeKey(k) to encodeValue(v) }
-        // 개선: 기존엔 `map.keys.filter { containsKey(it) }` 로 key 당 HEXISTS 한 번씩 호출해
-        //       N-round-trip 이 발생했습니다. 리스너가 있을 때만 단일 HMGET (`this.map.getAll`)
-        //       로 일괄 조회하여 round-trip 을 1회로 줄입니다.
-        val existingKeys: Set<K> = if (listeners.isNotEmpty()) {
-            val fetched = this.map.getAll(encodedMap.keys.toList())
-            map.keys.filter { fetched[encodeKey(it)] != null }.toSet()
-        } else {
-            emptySet()
-        }
-        this.map.putAllTtl(encodedMap, ttlDuration)
-        if (listeners.isNotEmpty()) {
-            map.forEach { (k, v) ->
-                val eventType = if (k in existingKeys) EventType.UPDATED else EventType.CREATED
-                dispatchEvent(eventType, k, v)
+        withWriteLock {
+            val encodedMap = map.entries.associate { (k, v) -> encodeKey(k) to encodeValue(v) }
+            // 개선: 기존엔 `map.keys.filter { containsKey(it) }` 로 key 당 HEXISTS 한 번씩 호출해
+            //       N-round-trip 이 발생했습니다. 리스너가 있을 때만 단일 HMGET (`this.map.getAll`)
+            //       로 일괄 조회하여 round-trip 을 1회로 줄입니다.
+            val existingKeys: Set<K> = if (listeners.isNotEmpty()) {
+                val fetched = this.map.getAll(encodedMap.keys.toList())
+                map.keys.filter { fetched[encodeKey(it)] != null }.toSet()
+            } else {
+                emptySet()
+            }
+            putAllTtl(encodedMap)
+            if (listeners.isNotEmpty()) {
+                map.forEach { (k, v) ->
+                    val eventType = if (k in existingKeys) EventType.UPDATED else EventType.CREATED
+                    dispatchEvent(eventType, k, v)
+                }
             }
         }
     }
 
     override fun putIfAbsent(key: K, value: V): Boolean {
         checkNotClosed()
-        val field = encodeKey(key)
-        val bytes = encodeValue(value)
-        val added = map.putIfAbsentTtl(field, bytes, ttlDuration)
-        if (added) {
-            dispatchEvent(EventType.CREATED, key, value)
+        return withWriteLock {
+            val field = encodeKey(key)
+            val bytes = encodeValue(value)
+            val added = map.putIfAbsentTtl(field, bytes, ttlDuration)
+            if (added) {
+                dispatchEvent(EventType.CREATED, key, value)
+            }
+            added
         }
-        return added
     }
 
     override fun remove(key: K): Boolean {
         checkNotClosed()
-        val field = encodeKey(key)
-        val removed = map.remove(field) > 0L
-        if (removed) {
-            dispatchEvent(EventType.REMOVED, key, null)
+        return withWriteLock {
+            val field = encodeKey(key)
+            val removed = map.remove(field) > 0L
+            if (removed) {
+                dispatchEvent(EventType.REMOVED, key, null)
+            }
+            removed
         }
-        return removed
     }
 
     override fun remove(key: K, oldValue: V): Boolean {
         checkNotClosed()
-        val field = encodeKey(key)
-        val currentBytes = map.get(field) ?: return false
-        val currentValue = decodeValue(currentBytes)
-        return if (currentValue == oldValue) {
-            val removed = map.remove(field) > 0L
-            if (removed) dispatchEvent(EventType.REMOVED, key, null)
-            removed
-        } else {
-            false
+        return withWriteLock {
+            val field = encodeKey(key)
+            val currentBytes = map.get(field) ?: return@withWriteLock false
+            val currentValue = decodeValue(currentBytes)
+            if (currentValue == oldValue) {
+                val removed = map.remove(field) > 0L
+                if (removed) dispatchEvent(EventType.REMOVED, key, null)
+                removed
+            } else {
+                false
+            }
         }
     }
 
     override fun getAndRemove(key: K): V? {
         checkNotClosed()
-        val field = encodeKey(key)
-        val bytes = map.get(field) ?: return null
-        map.remove(field)
-        dispatchEvent(EventType.REMOVED, key, null)
-        return decodeValue(bytes)
+        return withWriteLock {
+            val field = encodeKey(key)
+            val bytes = map.get(field) ?: return@withWriteLock null
+            map.remove(field)
+            dispatchEvent(EventType.REMOVED, key, null)
+            decodeValue(bytes)
+        }
     }
 
     override fun replace(key: K, oldValue: V, newValue: V): Boolean {
         checkNotClosed()
-        val field = encodeKey(key)
-        val currentBytes = map.get(field) ?: return false
-        val currentValue = decodeValue(currentBytes)
-        return if (currentValue == oldValue) {
-            val bytes = encodeValue(newValue)
-            map.putTtl(field, bytes, ttlDuration)
-            dispatchEvent(EventType.UPDATED, key, newValue)
-            true
-        } else {
-            false
+        return withWriteLock {
+            val field = encodeKey(key)
+            val currentBytes = map.get(field) ?: return@withWriteLock false
+            val currentValue = decodeValue(currentBytes)
+            if (currentValue == oldValue) {
+                val bytes = encodeValue(newValue)
+                putTtl(field, bytes)
+                dispatchEvent(EventType.UPDATED, key, newValue)
+                true
+            } else {
+                false
+            }
         }
     }
 
     override fun replace(key: K, value: V): Boolean {
         checkNotClosed()
-        if (!containsKey(key)) return false
-        val field = encodeKey(key)
-        val bytes = encodeValue(value)
-        map.putTtl(field, bytes, ttlDuration)
-        dispatchEvent(EventType.UPDATED, key, value)
-        return true
+        return withWriteLock {
+            if (!containsKey(key)) return@withWriteLock false
+            val field = encodeKey(key)
+            val bytes = encodeValue(value)
+            putTtl(field, bytes)
+            dispatchEvent(EventType.UPDATED, key, value)
+            true
+        }
     }
 
     override fun getAndReplace(key: K, value: V): V? {
         checkNotClosed()
-        val field = encodeKey(key)
-        val oldBytes = map.get(field) ?: return null
-        val bytes = encodeValue(value)
-        map.putTtl(field, bytes, ttlDuration)
-        dispatchEvent(EventType.UPDATED, key, value)
-        return decodeValue(oldBytes)
+        return withWriteLock {
+            val field = encodeKey(key)
+            val oldBytes = map.get(field) ?: return@withWriteLock null
+            val bytes = encodeValue(value)
+            putTtl(field, bytes)
+            dispatchEvent(EventType.UPDATED, key, value)
+            decodeValue(oldBytes)
+        }
     }
 
     override fun removeAll(keys: Set<K>) {
         checkNotClosed()
         if (keys.isEmpty()) return
-        keys.forEach { key ->
-            map.remove(encodeKey(key))
-            dispatchEvent(EventType.REMOVED, key, null)
+        withWriteLock {
+            keys.forEach { key ->
+                val removed = map.remove(encodeKey(key)) > 0L
+                if (removed) dispatchEvent(EventType.REMOVED, key, null)
+            }
         }
     }
 
     override fun removeAll() {
         checkNotClosed()
-        map.clear()
+        withWriteLock { map.clear() }
     }
 
     override fun clear() {
         checkNotClosed()
-        map.clear()
+        withWriteLock { map.clear() }
     }
 
     override fun iterator(): MutableIterator<Cache.Entry<K, V>> {
@@ -306,15 +348,17 @@ class LettuceJCache<K: Any, V: Any>(
         vararg arguments: Any?,
     ): T {
         checkNotClosed()
-        val field = encodeKey(key)
-        val entry = MutableEntryImpl(key, field)
-        val result = try {
-            entryProcessor.process(entry, *arguments)
-        } catch (e: Exception) {
-            throw EntryProcessorException(e)
+        return withWriteLock {
+            val field = encodeKey(key)
+            val entry = MutableEntryImpl(key, field)
+            val result = try {
+                entryProcessor.process(entry, *arguments)
+            } catch (e: Exception) {
+                throw EntryProcessorException(e)
+            }
+            entry.commit()
+            result
         }
-        entry.commit()
-        return result
     }
 
     override fun <T: Any> invokeAll(
@@ -424,9 +468,17 @@ class LettuceJCache<K: Any, V: Any>(
         fun commit() {
             ensureLoaded()
             when {
-                removeRequested && exists -> this@LettuceJCache.remove(key)
+                removeRequested && exists -> {
+                    val removed = map.remove(field) > 0L
+                    if (removed) dispatchEvent(EventType.REMOVED, key, null)
+                }
                 removeRequested -> Unit
-                updatedValue != null      -> this@LettuceJCache.put(key, updatedValue!!)
+                updatedValue != null      -> {
+                    val value = updatedValue ?: return
+                    putTtl(field, encodeValue(value))
+                    val eventType = if (exists) EventType.UPDATED else EventType.CREATED
+                    dispatchEvent(eventType, key, value)
+                }
             }
         }
 

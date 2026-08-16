@@ -62,6 +62,23 @@ by the near cache's back-write barrier.
 
 See the full [Near-Cache Backend Capability Matrix](../../docs/cache/near-cache-capability-matrix.md).
 
+## JCache EntryProcessor Atomicity
+
+`LettuceJCache` supports JCache `EntryProcessor` operations. All mutating
+operations for the same cache name share a Redis distributed lock, so an
+`invoke` read-modify-write sequence remains atomic across independent Lettuce
+connections and cache instances.
+
+- `invokeAll` creates an independent atomic section for each key. Successful
+  values and `EntryProcessorException` failures are preserved per key through
+  `EntryProcessorResult`.
+- If a processor throws, its entry is not committed. A successful mutation
+  refreshes the configured cache hash TTL and dispatches the corresponding
+  cache-entry listener event.
+- The default lock lease is one minute and the default acquisition wait is five
+  minutes. Processors must finish within the default lease; a longer execution
+  policy is a separate configuration contract.
+
 ## Factory (`LettuceCaches`)
 
 `LettuceCaches` exposes factory methods for:

@@ -4,11 +4,14 @@ import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import io.bluetape4k.support.requireNotBlank
 import io.lettuce.core.HSetExArgs
+import io.lettuce.core.ScriptOutputType
+import io.lettuce.core.SetArgs
 import io.lettuce.core.api.StatefulRedisConnection
 import io.lettuce.core.api.async.RedisAsyncCommands
 import io.lettuce.core.api.sync.RedisCommands
 import java.time.Duration
 import java.util.concurrent.CompletableFuture
+import java.util.concurrent.locks.LockSupport
 
 /**
  * Lettuce Redis 클라이언트를 이용한 분산 Map(Distributed Map) 구현체입니다.
@@ -40,7 +43,13 @@ open class LettuceMap<V: Any>(
     val mapKey: String,
     val supportsHSetEx: Boolean = false,
 ) {
-    companion object: KLogging()
+    companion object: KLogging() {
+        private const val LOCK_SUFFIX = ":__bluetape4k:lock"
+        private const val LOCK_RETRY_DELAY_MILLIS = 50L
+        private const val LOCK_RETRY_DELAY_NANOS = LOCK_RETRY_DELAY_MILLIS * 1_000_000L
+        private const val RELEASE_LOCK_SCRIPT =
+            "if redis.call('get', KEYS[1]) == ARGV[1] then return redis.call('del', KEYS[1]) else return 0 end"
+    }
 
     init {
         mapKey.requireNotBlank("mapKey")
@@ -233,6 +242,77 @@ open class LettuceMap<V: Any>(
         val count = syncCommands.del(mapKey)
         log.debug { "LettuceMap clear: mapKey=$mapKey" }
         return count
+    }
+
+    /**
+     * Hash 전체에 TTL을 적용합니다.
+     *
+     * [putTtl]이 Redis 8의 HSETEX 경로를 선택하면 field TTL만 갱신하므로,
+     * hash 키 수명 계약을 사용하는 상위 캐시가 필요할 때 이 메서드를 함께 호출합니다.
+     */
+    fun refreshTtl(ttl: Duration?) {
+        if (ttl != null) syncCommands.expire(mapKey, ttl)
+    }
+
+    /**
+     * Redis `SET NX PX` 기반 분산 락을 획득한 동안 [block]을 실행합니다.
+     *
+     * 락 키는 Hash 키와 분리되며, [token]과 일치할 때만 Lua 스크립트로 해제합니다.
+     * 따라서 서로 다른 Lettuce 연결을 사용하는 호출도 같은 [mapKey] 범위에서
+     * read-modify-write 구간을 직렬화할 수 있습니다. [leaseTime]은 호출자가 장애로
+     * 중단된 경우를 위한 상한이므로, 블록 실행 시간보다 충분히 길게 설정해야 합니다.
+     *
+     * @param token 호출마다 새로 생성해야 하는 락 소유 토큰
+     * @param leaseTime 락 자동 만료 시간 (기본 1분)
+     * @param waitTime 락 획득을 기다리는 최대 시간 (기본 5분)
+     * @param block 락을 보유한 상태에서 실행할 작업
+     * @return [block]의 반환 값
+     * @throws IllegalStateException [waitTime] 안에 락을 획득하지 못한 경우
+     */
+    fun <R> withDistributedLock(
+        token: V,
+        leaseTime: Duration = Duration.ofMinutes(1),
+        waitTime: Duration = Duration.ofMinutes(5),
+        block: () -> R,
+    ): R {
+        require(!leaseTime.isNegative && !leaseTime.isZero && leaseTime.toMillis() > 0) {
+            "leaseTime은 양수여야 합니다."
+        }
+        require(!waitTime.isNegative) {
+            "waitTime은 음수가 될 수 없습니다."
+        }
+
+        val lockKey = "$mapKey$LOCK_SUFFIX"
+        val deadline = System.nanoTime() + waitTime.toNanos()
+        val leaseMillis = leaseTime.toMillis()
+        val lockArgs = SetArgs().nx().px(leaseMillis)
+
+        while (syncCommands.set(lockKey, token, lockArgs) == null) {
+            if (System.nanoTime() >= deadline) {
+                throw IllegalStateException("LettuceMap[$mapKey] 분산 락 획득 시간이 초과되었습니다.")
+            }
+            LockSupport.parkNanos(LOCK_RETRY_DELAY_NANOS)
+        }
+
+        val blockResult = runCatching(block)
+        val releaseFailure = runCatching { releaseDistributedLock(lockKey, token) }.exceptionOrNull()
+        if (releaseFailure != null) {
+            blockResult.exceptionOrNull()?.addSuppressed(releaseFailure)
+                ?: throw releaseFailure
+        }
+        return blockResult.getOrThrow()
+    }
+
+    private fun releaseDistributedLock(lockKey: String, token: V) {
+        val released = syncCommands.eval<Long>(
+            RELEASE_LOCK_SCRIPT,
+            ScriptOutputType.INTEGER,
+            arrayOf(lockKey),
+            token,
+        )
+        check(released == 1L) {
+            "LettuceMap[$mapKey] 분산 락 해제에 실패했습니다. 토큰이 만료되었거나 소유자가 아닙니다."
+        }
     }
 
     /**

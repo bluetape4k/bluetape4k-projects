@@ -5,6 +5,7 @@ import io.bluetape4k.redis.lettuce.AbstractLettuceTest
 import io.bluetape4k.redis.lettuce.LettuceClients
 import io.bluetape4k.redis.lettuce.LettuceTestUtils
 import io.lettuce.core.codec.StringCodec
+import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeFalse
 import io.bluetape4k.assertions.shouldBeNull
@@ -14,6 +15,7 @@ import io.bluetape4k.assertions.shouldHaveSize
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import java.time.Duration
 
 class LettuceMapTest: AbstractLettuceTest() {
 
@@ -135,6 +137,30 @@ class LettuceMapTest: AbstractLettuceTest() {
 
         map.clear() shouldBeEqualTo 1L
         map.isEmpty().shouldBeTrue()
+    }
+
+    @Test
+    fun `withDistributedLock - 같은 mapKey의 연결 간 임계 구간을 직렬화`() {
+        val secondConnection = LettuceTestUtils.client.connect(StringCodec.UTF8)
+        val secondMap = LettuceMap<String>(secondConnection, map.mapKey)
+
+        try {
+            map.withDistributedLock("owner-1", waitTime = Duration.ZERO) {
+                assertFailsWith<IllegalStateException> {
+                    secondMap.withDistributedLock(
+                        token = "owner-2",
+                        waitTime = Duration.ofMillis(100),
+                    ) { }
+                }
+            }
+
+            secondMap.withDistributedLock("owner-2", waitTime = Duration.ofSeconds(1)) {
+                secondMap.put("field", "value")
+            }
+            map.get("field") shouldBeEqualTo "value"
+        } finally {
+            secondConnection.close()
+        }
     }
 
     @Test
