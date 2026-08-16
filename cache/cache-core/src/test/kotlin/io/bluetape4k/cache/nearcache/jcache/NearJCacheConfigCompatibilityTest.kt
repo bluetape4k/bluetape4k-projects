@@ -4,6 +4,7 @@ import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldNotBeNull
 import io.bluetape4k.cache.nearcache.jcache.management.NearJCacheManagementMXBean
+import io.bluetape4k.cache.nearcache.jcache.management.NearJCacheConfigurationMXBean
 import io.bluetape4k.cache.nearcache.jcache.management.NearJCacheStatisticsMXBean
 import org.junit.jupiter.api.Test
 import java.io.ByteArrayInputStream
@@ -28,6 +29,18 @@ class NearJCacheConfigCompatibilityTest {
         publicConstructors.single().parameterTypes.toList() shouldBeEqualTo
             listOf(Cache::class.java, Cache::class.java, NearJCacheConfig::class.java)
         NearJCacheManagementMXBean::class.java.getConstructor(NearJCache::class.java).shouldNotBeNull()
+        NearJCacheConfigurationMXBean::class.java
+            .getMethod("getBulkFrontPopulationPolicy")
+            .returnType shouldBeEqualTo String::class.java
+        NearJCacheConfigurationMXBean::class.java
+            .getMethod("getBulkFrontPopulationMaximumEntryCount")
+            .returnType shouldBeEqualTo Int::class.javaPrimitiveType
+        NearJCacheManagementMXBean::class.java
+            .getMethod("getBulkFrontPopulationPolicy")
+            .returnType shouldBeEqualTo String::class.java
+        NearJCacheManagementMXBean::class.java
+            .getMethod("getBulkFrontPopulationMaximumEntryCount")
+            .returnType shouldBeEqualTo Int::class.javaPrimitiveType
         NearJCacheStatisticsMXBean::class.java.getConstructor().shouldNotBeNull()
         NearJCacheStatisticsMXBean::class.java
             .getMethod("addRemovals", Long::class.javaPrimitiveType)

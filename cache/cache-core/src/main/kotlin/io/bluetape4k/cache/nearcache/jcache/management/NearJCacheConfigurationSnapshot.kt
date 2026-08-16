@@ -1,5 +1,6 @@
 package io.bluetape4k.cache.nearcache.jcache.management
 
+import io.bluetape4k.cache.nearcache.jcache.BulkFrontPopulationPolicy
 import javax.cache.Cache
 import javax.cache.configuration.CompleteConfiguration
 import javax.cache.configuration.Configuration
@@ -22,6 +23,8 @@ internal data class NearJCacheConfigurationSnapshot(
     val storeByValue: Boolean,
     val statisticsEnabled: Boolean,
     val managementEnabled: Boolean,
+    val bulkFrontPopulationPolicy: String,
+    val bulkFrontPopulationMaximumEntryCount: Int,
 )
 
 /**
@@ -34,6 +37,7 @@ internal fun nearJCacheConfigurationSnapshot(
     actualFront: Cache<*, *>,
     suppliedFront: Configuration<*, *>,
     actualBack: Cache<*, *>,
+    bulkFrontPopulationPolicy: BulkFrontPopulationPolicy,
 ): NearJCacheConfigurationSnapshot {
     val actualFrontConfiguration = actualFront.configurationOrNull()
     val (typePair, source, exact) = sequenceOf(
@@ -50,6 +54,16 @@ internal fun nearJCacheConfigurationSnapshot(
         )
 
     val completeConfiguration = actualFront.completeConfigurationOrNull()
+    val bulkFrontPopulationMetadata = when (bulkFrontPopulationPolicy) {
+        BulkFrontPopulationPolicy.BypassFront -> BulkFrontPopulationMetadata(
+            policy = "BYPASS_FRONT",
+            maximumEntryCount = 0,
+        )
+        is BulkFrontPopulationPolicy.PopulateIfAtMost -> BulkFrontPopulationMetadata(
+            policy = "POPULATE_IF_AT_MOST",
+            maximumEntryCount = bulkFrontPopulationPolicy.maximumEntryCount,
+        )
+    }
     return NearJCacheConfigurationSnapshot(
         keyType = typePair.keyType.name,
         valueType = typePair.valueType.name,
@@ -60,8 +74,15 @@ internal fun nearJCacheConfigurationSnapshot(
         storeByValue = false,
         statisticsEnabled = completeConfiguration?.isStatisticsEnabled ?: false,
         managementEnabled = completeConfiguration?.isManagementEnabled ?: false,
+        bulkFrontPopulationPolicy = bulkFrontPopulationMetadata.policy,
+        bulkFrontPopulationMaximumEntryCount = bulkFrontPopulationMetadata.maximumEntryCount,
     )
 }
+
+private data class BulkFrontPopulationMetadata(
+    val policy: String,
+    val maximumEntryCount: Int,
+)
 
 private data class TypeCandidate(
     val configuration: Configuration<*, *>?,

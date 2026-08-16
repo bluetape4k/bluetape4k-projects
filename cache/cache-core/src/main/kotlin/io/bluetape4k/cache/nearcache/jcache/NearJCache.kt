@@ -120,6 +120,7 @@ class NearJCache<K: Any, V: Any> private constructor(
             actualFront = frontCache,
             suppliedFront = config.frontCacheConfiguration,
             actualBack = backCache,
+            bulkFrontPopulationPolicy = config.bulkFrontPopulationPolicy,
         )
         statisticsRecorder = if (configurationSnapshot.statisticsEnabled) {
             ActiveNearJCacheStatisticsRecorder(timeSource)

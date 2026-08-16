@@ -28,6 +28,13 @@ class NearJCacheManagementMXBean private constructor(
 
     override fun isTypeResolutionExact(): Boolean = snapshot.typeResolutionExact
 
+    /** bulk `getAll` 결과의 front population 정책을 stable token으로 반환합니다. */
+    override fun getBulkFrontPopulationPolicy(): String = snapshot.bulkFrontPopulationPolicy
+
+    /** bulk front population에 허용되는 최대 entry 수를 반환하며, 적용 불가이면 `0`입니다. */
+    override fun getBulkFrontPopulationMaximumEntryCount(): Int =
+        snapshot.bulkFrontPopulationMaximumEntryCount
+
     override fun isReadThrough(): Boolean = snapshot.readThrough
 
     override fun isWriteThrough(): Boolean = snapshot.writeThrough

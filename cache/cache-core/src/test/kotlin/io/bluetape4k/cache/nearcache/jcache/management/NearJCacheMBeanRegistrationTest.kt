@@ -6,6 +6,7 @@ import io.bluetape4k.assertions.shouldBeFalse
 import io.bluetape4k.assertions.shouldBeNull
 import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.cache.jcache.JCache
+import io.bluetape4k.cache.nearcache.jcache.BulkFrontPopulationPolicy
 import io.bluetape4k.cache.nearcache.jcache.NearJCache
 import io.bluetape4k.cache.nearcache.jcache.NearJCacheConfig
 import io.mockk.every
@@ -118,6 +119,45 @@ class NearJCacheMBeanRegistrationTest {
         ("SupportedOperations" in attributeNames).shouldBeTrue()
         operationNames shouldBeEqualTo setOf("clear")
         info.descriptor.getFieldValue("nearJCacheRegistrationToken").toString().isNotBlank().shouldBeTrue()
+    }
+
+    @Test
+    fun `configuration MBean은 bulk 정책을 exact read-only descriptor로 노출하고 cleanup한다`() {
+        listOf(
+            Triple(BulkFrontPopulationPolicy.BypassFront, "BYPASS_FRONT", 0),
+            Triple(BulkFrontPopulationPolicy.PopulateIfAtMost(17), "POPULATE_IF_AT_MOST", 17),
+        ).forEach { (policy, expectedPolicy, expectedMaximumEntryCount) ->
+            val server = MBeanServerFactory.newMBeanServer()
+            val registration = fixture(
+                management = true,
+                statistics = false,
+                bulkFrontPopulationPolicy = policy,
+            ).cache.registerMBeans(server, "manager", "cache")
+            val configurationName = registration.activeObjectNames.single()
+
+            try {
+                val attributes = server.getMBeanInfo(configurationName).attributes.associateBy { it.name }
+                attributes.getValue("BulkFrontPopulationPolicy").apply {
+                    type shouldBeEqualTo String::class.java.name
+                    isReadable.shouldBeTrue()
+                    isWritable.shouldBeFalse()
+                }
+                attributes.getValue("BulkFrontPopulationMaximumEntryCount").apply {
+                    type shouldBeEqualTo Int::class.javaPrimitiveType!!.name
+                    isReadable.shouldBeTrue()
+                    isWritable.shouldBeFalse()
+                }
+                server.getAttribute(configurationName, "BulkFrontPopulationPolicy") shouldBeEqualTo expectedPolicy
+                server.getAttribute(
+                    configurationName,
+                    "BulkFrontPopulationMaximumEntryCount",
+                ) shouldBeEqualTo expectedMaximumEntryCount
+            } finally {
+                registration.close()
+            }
+
+            server.isRegistered(configurationName).shouldBeFalse()
+        }
     }
 
     @Test
@@ -262,7 +302,11 @@ class NearJCacheMBeanRegistrationTest {
         methods.single().returnType shouldBeEqualTo NearJCacheMBeanRegistration::class.java
     }
 
-    private fun fixture(management: Boolean, statistics: Boolean): Fixture {
+    private fun fixture(
+        management: Boolean,
+        statistics: Boolean,
+        bulkFrontPopulationPolicy: BulkFrontPopulationPolicy = BulkFrontPopulationPolicy.BypassFront,
+    ): Fixture {
         val configuration = MutableConfiguration<String, String>()
             .setTypes(String::class.java, String::class.java)
             .setStoreByValue(false)
@@ -274,7 +318,10 @@ class NearJCacheMBeanRegistrationTest {
             cache = NearJCache(
                 frontCache = front,
                 backCache = back,
-                config = NearJCacheConfig(frontCacheConfiguration = configuration),
+                config = NearJCacheConfig(
+                    frontCacheConfiguration = configuration,
+                    bulkFrontPopulationPolicy = bulkFrontPopulationPolicy,
+                ),
             ),
         )
     }
