@@ -1,0 +1,59 @@
+{
+  "schemaVersion": 1,
+  "issue": 1351,
+  "revision": {
+    "baseSha": "REPLACE_WITH_BASE_SHA",
+    "headSha": "REPLACE_WITH_HEAD_SHA",
+    "treeSha": "REPLACE_WITH_TREE_SHA"
+  },
+  "identity": {
+    "artifactIdentity": "REPLACE_WITH_ARTIFACT_IDENTITY",
+    "configurationIdentity": "REPLACE_WITH_CONFIGURATION_IDENTITY"
+  },
+  "classification": {
+    "state": "NOT_REGISTERED",
+    "classificationStates": [
+      "DISABLED",
+      "NOT_REGISTERED",
+      "REGISTERED",
+      "RECOVERY_REQUIRED",
+      "CLOSING",
+      "CLOSED"
+    ],
+    "inputs": {
+      "managementEnabled": true,
+      "statisticsEnabled": true,
+      "handleState": null,
+      "activeObjectNames": [],
+      "registeredObjectNames": []
+    },
+    "closingAlertAfterSeconds": 30
+  },
+  "canary": {
+    "canaryTarget": "REPLACE_WITH_CANARY_TARGET",
+    "query": "REPLACE_WITH_QUERY",
+    "window": "REPLACE_WITH_WINDOW",
+    "threshold": "REPLACE_WITH_PRE_ROLLOUT_THRESHOLD",
+    "result": "PENDING"
+  },
+  "rollback": {
+    "rollbackIdentity": "REPLACE_WITH_ROLLBACK_IDENTITY",
+    "result": "NOT_RUN"
+  },
+  "asyncWriteThrough": {
+    "operationInventory": [],
+    "admissionStopped": false,
+    "terminalCount": 0,
+    "outstandingCount": 0
+  },
+  "cleanup": {
+    "cleanupEvidence": [],
+    "activeObjectNamesAfterClose": [],
+    "backCacheOpen": true,
+    "providerRunning": true
+  },
+  "ownership": {
+    "owner": "REPLACE_WITH_OWNER",
+    "reviewer": "REPLACE_WITH_REVIEWER"
+  }
+}

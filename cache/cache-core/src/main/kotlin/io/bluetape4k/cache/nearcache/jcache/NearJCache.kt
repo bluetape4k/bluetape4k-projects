@@ -3,6 +3,17 @@ package io.bluetape4k.cache.nearcache.jcache
 import io.bluetape4k.cache.jcache.JCache
 import io.bluetape4k.cache.jcache.JCacheEntryEventListener
 import io.bluetape4k.cache.jcache.getConfiguration
+import io.bluetape4k.cache.nearcache.jcache.management.ActiveNearJCacheStatisticsRecorder
+import io.bluetape4k.cache.nearcache.jcache.management.NearJCacheConfigurationSnapshot
+import io.bluetape4k.cache.nearcache.jcache.management.NearJCacheMBeanOperationGuard
+import io.bluetape4k.cache.nearcache.jcache.management.NearJCacheMBeanRegistration
+import io.bluetape4k.cache.nearcache.jcache.management.NearJCacheMBeanRegistrationException
+import io.bluetape4k.cache.nearcache.jcache.management.NearJCacheRecordingContext
+import io.bluetape4k.cache.nearcache.jcache.management.NearJCacheStatisticsRecorder
+import io.bluetape4k.cache.nearcache.jcache.management.NearJCacheTimeSource
+import io.bluetape4k.cache.nearcache.jcache.management.NoOpNearJCacheStatisticsRecorder
+import io.bluetape4k.cache.nearcache.jcache.management.SystemNearJCacheTimeSource
+import io.bluetape4k.cache.nearcache.jcache.management.nearJCacheConfigurationSnapshot
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.error
@@ -11,6 +22,7 @@ import io.bluetape4k.logging.trace
 import io.bluetape4k.logging.warn
 import io.bluetape4k.support.asyncRunWithTimeout
 import java.time.Duration
+import java.util.LinkedHashSet
 import java.util.concurrent.CancellationException
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.CompletionException
@@ -80,11 +92,21 @@ data class BackCacheWriteCompletion(
  * @see io.bluetape4k.cache.jcache.JCacheEntryEventListener
  */
 @Suppress("TooManyFunctions")
-class NearJCache<K: Any, V: Any>(
+class NearJCache<K: Any, V: Any> private constructor(
     val frontCache: JCache<K, V>,
     val backCache: JCache<K, V>,
     private val config: NearJCacheConfig<K, V>,
+    timeSource: NearJCacheTimeSource,
 ): JCache<K, V> by backCache {
+    internal val configurationSnapshot: NearJCacheConfigurationSnapshot
+    internal val statisticsRecorder: NearJCacheStatisticsRecorder
+
+    constructor(
+        frontCache: JCache<K, V>,
+        backCache: JCache<K, V>,
+        config: NearJCacheConfig<K, V>,
+    ) : this(frontCache, backCache, config, SystemNearJCacheTimeSource)
+
     init {
         require(!config.frontCacheConfiguration.isStoreByValue) {
             "NearJCache front cache must use store-by-reference; " +
@@ -94,9 +116,27 @@ class NearJCache<K: Any, V: Any>(
             "NearJCache actual front cache must use store-by-reference; " +
                     "the supplied cache configuration is store-by-value"
         }
+        configurationSnapshot = nearJCacheConfigurationSnapshot(
+            actualFront = frontCache,
+            suppliedFront = config.frontCacheConfiguration,
+            actualBack = backCache,
+        )
+        statisticsRecorder = if (configurationSnapshot.statisticsEnabled) {
+            ActiveNearJCacheStatisticsRecorder(timeSource)
+        } else {
+            NoOpNearJCacheStatisticsRecorder
+        }
     }
 
     companion object: KLogging() {
+        @JvmSynthetic
+        internal fun <K: Any, V: Any> withTimeSource(
+            frontCache: JCache<K, V>,
+            backCache: JCache<K, V>,
+            config: NearJCacheConfig<K, V>,
+            timeSource: NearJCacheTimeSource,
+        ): NearJCache<K, V> = NearJCache(frontCache, backCache, config, timeSource)
+
         /** Redis SCAN 명령의 배치 크기 */
         const val SCAN_BATCH_SIZE = 100L
 
@@ -177,11 +217,24 @@ class NearJCache<K: Any, V: Any>(
     private val frontCloseCompleted = AtomicBoolean(false)
     private val closeStarted = AtomicBoolean(false)
     private val closeCompleted = AtomicBoolean(false)
+    @get:JvmSynthetic
+    internal val mBeanOperationGuard = NearJCacheMBeanOperationGuard()
+    private val pendingMBeanRegistrations = LinkedHashSet<MBeanRegistrationReservation>()
+    private val mBeanRegistrations = LinkedHashSet<NearJCacheMBeanRegistration>()
+    private var activeCloseAttempt: CompletableFuture<Throwable?>? = null
     private val mutationEpoch = AtomicLong()
     private val backWriteGeneration = AtomicLong()
     private class BackCacheListenerRegistration<K: Any, V: Any>(
         val configuration: CacheEntryListenerConfiguration<K, V>,
         val active: AtomicReference<Boolean> = AtomicReference(true),
+    )
+    private class MBeanRegistrationReservation(
+        val completion: CompletableFuture<Unit> = CompletableFuture(),
+    )
+    private data class CacheCloseAttempt(
+        val completion: CompletableFuture<Throwable?>,
+        val owner: Boolean,
+        val pendingRegistrations: List<MBeanRegistrationReservation>,
     )
     private class SelfEventMatcher<K: Any, V: Any>(
         val keys: Set<K>,
@@ -390,55 +443,134 @@ class NearJCache<K: Any, V: Any>(
         clear()
     }
 
-    /**
-     * 이 wrapper가 등록한 Back listener와 소유한 Front cache만 정리합니다.
-     * 전달받은 Back cache/provider는 닫지 않습니다.
-     *
-     * listener 또는 Front 정리 실패는 호출자에게 전달하며, 여러 정리 단계가 실패하면
-     * 첫 실패를 주 예외로 유지하고 이후 실패를 suppressed 예외로 연결합니다. 성공한
-     * close는 idempotent하며, listener 또는 Front 정리 실패 후에는 다음 호출에서
-     * 해당 정리를 재시도합니다. close가 시작된 뒤에는 listener를 다시 등록할 수 없습니다.
-     */
-    @Suppress("TooGenericExceptionCaught")
-    override fun close() {
-        compoundGate.withLock {
-            if (closeCompleted.get()) return
-            closeStarted.set(true)
-
-            var primaryFailure: Throwable? = null
-            try {
-                detachBackCacheListener()
-            } catch (listenerFailure: Throwable) {
-                primaryFailure = listenerFailure
-                log.error(listenerFailure) {
-                    "NearJCache cleanup failed. operation=close-listener, " +
-                            "cache=${config.cacheName}, provider=${backCache.javaClass.name}"
-                }
+    @JvmSynthetic
+    internal fun registerMBeansAtomically(
+        registration: () -> NearJCacheMBeanRegistration,
+    ): NearJCacheMBeanRegistration {
+        mBeanOperationGuard.checkNotActive()
+        val reservation = compoundGate.withLock {
+            check(!closeStarted.get()) {
+                "NearJCache MBean registration is unavailable after close started"
             }
-
-            if (!frontCloseCompleted.get()) {
-                try {
-                    lock.withLock {
-                        log.debug { "Near Cache 의 Front Cache를 Close 합니다." }
-                        frontCache.close()
-                    }
-                    frontCloseCompleted.set(true)
-                } catch (frontFailure: Throwable) {
-                    if (primaryFailure == null) {
-                        primaryFailure = frontFailure
-                    } else if (frontFailure !== primaryFailure) {
-                        primaryFailure.addSuppressed(frontFailure)
-                    }
-                    log.error(frontFailure) {
-                        "NearJCache front cleanup failed. operation=close, " +
-                                "cache=${config.cacheName}, provider=${frontCache.javaClass.name}"
-                    }
-                }
-            }
-
-            primaryFailure?.let { throw it }
-            closeCompleted.set(true)
+            MBeanRegistrationReservation().also(pendingMBeanRegistrations::add)
         }
+
+        val result = runCatching(registration)
+        compoundGate.withLock {
+            val handle = result.getOrNull()
+                ?: (result.exceptionOrNull() as? NearJCacheMBeanRegistrationException)?.recoveryRegistration
+            if (handle != null && !handle.isClosed) {
+                mBeanRegistrations += handle
+            }
+            pendingMBeanRegistrations.remove(reservation)
+            reservation.completion.complete(Unit)
+        }
+        return result.getOrThrow()
+    }
+
+    @JvmSynthetic
+    internal fun removeMBeanRegistration(registration: NearJCacheMBeanRegistration) {
+        compoundGate.withLock {
+            mBeanRegistrations.remove(registration)
+        }
+    }
+
+    /**
+     * 이 wrapper가 명시적으로 등록한 JMX handle, Back listener, 소유한 Front cache를
+     * 순서대로 정리합니다. 전달받은 `MBeanServer`, Back cache/provider는 닫지 않습니다.
+     *
+     * JMX, listener 또는 Front 정리 실패는 호출자에게 전달하며, 여러 정리 단계가 실패하면
+     * 첫 실패를 주 예외로 유지하고 이후 실패를 suppressed 예외로 연결합니다. 성공한
+     * close는 idempotent하며, 실패 후에는 다음 호출에서 미완료 resource만 재시도합니다.
+     * close가 시작된 뒤에는 listener와 JMX handle을 새로 등록할 수 없습니다.
+     */
+    override fun close() {
+        mBeanOperationGuard.checkNotActive()
+        val attempt = reserveCloseAttempt() ?: return
+
+        if (!attempt.owner) {
+            attempt.completion.join()?.let { throw it }
+            return
+        }
+
+        attempt.pendingRegistrations.forEach { it.completion.join() }
+        val registrations = compoundGate.withLock { mBeanRegistrations.toList() }
+        var primaryFailure = closeMBeanRegistrations(registrations)
+        primaryFailure = closeBackCacheListener(primaryFailure)
+        primaryFailure = closeFrontCache(primaryFailure)
+
+        compoundGate.withLock {
+            if (primaryFailure == null) closeCompleted.set(true)
+            attempt.completion.complete(primaryFailure)
+            activeCloseAttempt = null
+        }
+        primaryFailure?.let { throw it }
+    }
+
+    private fun reserveCloseAttempt(): CacheCloseAttempt? = compoundGate.withLock {
+        if (closeCompleted.get()) return null
+        val running = activeCloseAttempt
+        if (running != null) {
+            CacheCloseAttempt(running, false, emptyList())
+        } else {
+            closeStarted.set(true)
+            val completion = CompletableFuture<Throwable?>()
+            activeCloseAttempt = completion
+            CacheCloseAttempt(completion, true, pendingMBeanRegistrations.toList())
+        }
+    }
+
+    @Suppress("TooGenericExceptionCaught")
+    private fun closeMBeanRegistrations(registrations: List<NearJCacheMBeanRegistration>): Throwable? {
+        var primaryFailure: Throwable? = null
+        registrations.forEach { registration ->
+            try {
+                registration.close()
+            } catch (jmxFailure: Throwable) {
+                primaryFailure = appendCleanupFailure(primaryFailure, jmxFailure)
+                log.error(jmxFailure) {
+                    "NearJCache cleanup failed. operation=close-jmx, cache=${config.cacheName}"
+                }
+            }
+        }
+        return primaryFailure
+    }
+
+    @Suppress("TooGenericExceptionCaught")
+    private fun closeBackCacheListener(primaryFailure: Throwable?): Throwable? = try {
+        detachBackCacheListener()
+        primaryFailure
+    } catch (listenerFailure: Throwable) {
+        log.error(listenerFailure) {
+            "NearJCache cleanup failed. operation=close-listener, " +
+                    "cache=${config.cacheName}, provider=${backCache.javaClass.name}"
+        }
+        appendCleanupFailure(primaryFailure, listenerFailure)
+    }
+
+    @Suppress("TooGenericExceptionCaught")
+    private fun closeFrontCache(primaryFailure: Throwable?): Throwable? {
+        if (frontCloseCompleted.get()) return primaryFailure
+        return try {
+            lock.withLock {
+                log.debug { "Near Cache 의 Front Cache를 Close 합니다." }
+                frontCache.close()
+            }
+            frontCloseCompleted.set(true)
+            primaryFailure
+        } catch (frontFailure: Throwable) {
+            log.error(frontFailure) {
+                "NearJCache front cleanup failed. operation=close, " +
+                        "cache=${config.cacheName}, provider=${frontCache.javaClass.name}"
+            }
+            appendCleanupFailure(primaryFailure, frontFailure)
+        }
+    }
+
+    private fun appendCleanupFailure(primary: Throwable?, next: Throwable): Throwable {
+        if (primary == null) return next
+        if (next !== primary) primary.addSuppressed(next)
+        return primary
     }
 
     override fun isClosed(): Boolean = frontCache.isClosed
@@ -464,12 +596,11 @@ class NearJCache<K: Any, V: Any>(
      */
     @Suppress("ReturnCount", "TooGenericExceptionCaught")
     override operator fun get(key: K): V? {
+        if (configurationSnapshot.statisticsEnabled) return getWithStatistics(key)
         val (frontValue, observedEpoch) = mutationGate.withLock {
             frontCache.get(key) to mutationEpoch.get()
         }
-        if (frontValue != null) {
-            return frontValue
-        }
+        if (frontValue != null) return frontValue
 
         val backValue = backCache.get(key) ?: return null
         mutationGate.withLock {
@@ -486,6 +617,41 @@ class NearJCache<K: Any, V: Any>(
                 }
             }
         }
+        return backValue
+    }
+
+    @Suppress("ReturnCount", "TooGenericExceptionCaught")
+    private fun getWithStatistics(key: K): V? {
+        val recording = statisticsRecorder.current()
+        val startedAt = recording.startTimeNanos()
+        val (frontValue, observedEpoch) = mutationGate.withLock {
+            frontCache.get(key) to mutationEpoch.get()
+        }
+        if (frontValue != null) {
+            recording.recordGet(startedAt, 1, 0, 1, 0, 0, 0)
+            return frontValue
+        }
+
+        val backValue = backCache.get(key)
+        if (backValue == null) {
+            recording.recordGet(startedAt, 0, 1, 0, 1, 0, 1)
+            return null
+        }
+        mutationGate.withLock {
+            if (mutationEpoch.get() == observedEpoch) {
+                try {
+                    frontCache.put(key, backValue)
+                } catch (e: CancellationException) {
+                    throw e
+                } catch (e: RuntimeException) {
+                    log.warn(e) {
+                        "NearJCache front populate failed. operation=get, " +
+                                "cache=${config.cacheName}, provider=${frontCache.javaClass.name}"
+                    }
+                }
+            }
+        }
+        recording.recordGet(startedAt, 1, 0, 0, 1, 1, 0)
         return backValue
     }
 
@@ -509,12 +675,25 @@ class NearJCache<K: Any, V: Any>(
 
     @Suppress("TooGenericExceptionCaught")
     override fun getAll(keys: Set<K>): MutableMap<K, V> {
+        if (keys.isEmpty()) return mutableMapOf()
+
+        val recording = statisticsRecorder.current()
+        val startedAt = recording.startTimeNanos()
         val (frontValues, missingKeys, observedEpoch) = mutationGate.withLock {
             val values = frontCache.getAll(keys)
             val missing = keys.filterNot(values::containsKey).toSet()
             Triple(values, missing, mutationEpoch.get())
         }
         if (missingKeys.isEmpty()) {
+            recording.recordGet(
+                startedAt = startedAt,
+                hits = keys.size.toLong(),
+                misses = 0,
+                frontHits = keys.size.toLong(),
+                frontMisses = 0,
+                backHits = 0,
+                backMisses = 0,
+            )
             return frontValues
         }
 
@@ -536,6 +715,17 @@ class NearJCache<K: Any, V: Any>(
             }
         }
 
+        val frontHitCount = keys.size - missingKeys.size
+        val backHitCount = missingKeys.count(backValues::containsKey)
+        recording.recordGet(
+            startedAt = startedAt,
+            hits = (frontHitCount + backHitCount).toLong(),
+            misses = (missingKeys.size - backHitCount).toLong(),
+            frontHits = frontHitCount.toLong(),
+            frontMisses = missingKeys.size.toLong(),
+            backHits = backHitCount.toLong(),
+            backMisses = (missingKeys.size - backHitCount).toLong(),
+        )
         return frontValues.toMutableMap().apply { putAll(backValues) }
     }
 
@@ -549,38 +739,59 @@ class NearJCache<K: Any, V: Any>(
      * 동일 wrapper의 compound 순서만 별도 gate로 직렬화합니다. Back provider가
      * 제공하는 `getAnd*` 경계를 우회하는 front read/put 조합은 사용하지 않습니다.
      */
-    override fun getAndPut(key: K, value: V): V? = compoundGate.withLock {
-        mutationGate.withLock { mutationEpoch.incrementAndGet() }
-        val oldValue = runCompoundBackCacheOperation("getAndPut") {
-            backCache.getAndPut(key, value)
-        }
-        mutationGate.withLock { frontCache.put(key, value) }
-        oldValue
-    }
-
-    override fun getAndRemove(key: K): V? = compoundGate.withLock {
-        mutationGate.withLock { mutationEpoch.incrementAndGet() }
-        val oldValue = runCompoundBackCacheOperation("getAndRemove") {
-            backCache.getAndRemove(key)
-        }
-        mutationGate.withLock { frontCache.remove(key) }
-        oldValue
-    }
-
-    override fun getAndReplace(key: K, value: V): V? = compoundGate.withLock {
-        log.trace { "get and replace. key=$key" }
-        mutationGate.withLock { mutationEpoch.incrementAndGet() }
-        val oldValue = runCompoundBackCacheOperation("getAndReplace") {
-            backCache.getAndReplace(key, value)
-        }
-        mutationGate.withLock {
-            if (oldValue == null) {
-                frontCache.remove(key)
-            } else {
-                frontCache.put(key, value)
+    override fun getAndPut(key: K, value: V): V? {
+        val recording = statisticsRecorder.current()
+        val startedAt = recording.startTimeNanos()
+        val oldValue = compoundGate.withLock {
+            mutationGate.withLock { mutationEpoch.incrementAndGet() }
+            val previous = runCompoundBackCacheOperation("getAndPut") {
+                backCache.getAndPut(key, value)
             }
+            mutationGate.withLock { frontCache.put(key, value) }
+            previous
         }
-        oldValue
+        recordCompoundGet(recording, startedAt, oldValue)
+        recording.recordPut(startedAt, 1L)
+        return oldValue
+    }
+
+    override fun getAndRemove(key: K): V? {
+        val recording = statisticsRecorder.current()
+        val startedAt = recording.startTimeNanos()
+        val oldValue = compoundGate.withLock {
+            mutationGate.withLock { mutationEpoch.incrementAndGet() }
+            val previous = runCompoundBackCacheOperation("getAndRemove") {
+                backCache.getAndRemove(key)
+            }
+            mutationGate.withLock { frontCache.remove(key) }
+            previous
+        }
+        recordCompoundGet(recording, startedAt, oldValue)
+        if (oldValue != null) recording.recordRemove(startedAt, 1L)
+        return oldValue
+    }
+
+    override fun getAndReplace(key: K, value: V): V? {
+        val recording = statisticsRecorder.current()
+        val startedAt = recording.startTimeNanos()
+        val oldValue = compoundGate.withLock {
+            log.trace { "get and replace. key=$key" }
+            mutationGate.withLock { mutationEpoch.incrementAndGet() }
+            val previous = runCompoundBackCacheOperation("getAndReplace") {
+                backCache.getAndReplace(key, value)
+            }
+            mutationGate.withLock {
+                if (previous == null) {
+                    frontCache.remove(key)
+                } else {
+                    frontCache.put(key, value)
+                }
+            }
+            previous
+        }
+        recordCompoundGet(recording, startedAt, oldValue)
+        if (oldValue != null) recording.recordPut(startedAt, 1L)
+        return oldValue
     }
 
     operator fun set(key: K, value: V) {
@@ -588,6 +799,8 @@ class NearJCache<K: Any, V: Any>(
     }
 
     override fun put(key: K, value: V) {
+        val recording = statisticsRecorder.current()
+        val startedAt = recording.startTimeNanos()
         mutationGate.withLock {
             mutationEpoch.incrementAndGet()
             frontCache.put(key, value)
@@ -601,9 +814,14 @@ class NearJCache<K: Any, V: Any>(
                 ),
             ) { backCache.put(key, value) }
         }
+        recording.recordPut(startedAt, 1L)
     }
 
     override fun putAll(map: Map<out K, V>) {
+        if (map.isEmpty()) return
+
+        val recording = statisticsRecorder.current()
+        val startedAt = recording.startTimeNanos()
         mutationGate.withLock {
             mutationEpoch.incrementAndGet()
             frontCache.putAll(map)
@@ -617,64 +835,83 @@ class NearJCache<K: Any, V: Any>(
                 ),
             ) { backCache.putAll(map) }
         }
+        recording.recordPut(startedAt, map.size.toLong())
     }
 
-    override fun putIfAbsent(key: K, value: V): Boolean = mutationGate.withLock {
-        frontCache.putIfAbsent(key, value).also { inserted ->
-            if (inserted) {
-                mutationEpoch.incrementAndGet()
-                syncBackCache(
-                    operation = "putIfAbsent",
-                    expectedBackWriteGeneration = backWriteGeneration.get(),
-                    selfEventMatcher = SelfEventMatcher(
-                        keys = setOf(key),
-                        eventTypes = setOf(EventType.CREATED),
-                        values = mapOf(key to value),
-                    ),
-                ) {
-                    if (!backCache.containsKey(key)) {
-                        backCache.put(key, value)
+    override fun putIfAbsent(key: K, value: V): Boolean {
+        val recording = statisticsRecorder.current()
+        val startedAt = recording.startTimeNanos()
+        val inserted = mutationGate.withLock {
+            frontCache.putIfAbsent(key, value).also { inserted ->
+                if (inserted) {
+                    mutationEpoch.incrementAndGet()
+                    syncBackCache(
+                        operation = "putIfAbsent",
+                        expectedBackWriteGeneration = backWriteGeneration.get(),
+                        selfEventMatcher = SelfEventMatcher(
+                            keys = setOf(key),
+                            eventTypes = setOf(EventType.CREATED),
+                            values = mapOf(key to value),
+                        ),
+                    ) {
+                        if (!backCache.containsKey(key)) {
+                            backCache.put(key, value)
+                        }
                     }
                 }
             }
         }
+        if (inserted) recording.recordPut(startedAt, 1L)
+        return inserted
     }
 
-    override fun remove(key: K): Boolean = mutationGate.withLock {
-        frontCache.remove(key).also { removed ->
-            if (removed) {
-                mutationEpoch.incrementAndGet()
-                syncBackCache(
-                    operation = "remove",
-                    expectedBackWriteGeneration = backWriteGeneration.get(),
-                    selfEventMatcher = SelfEventMatcher(
-                        keys = setOf(key),
-                        eventTypes = setOf(EventType.REMOVED),
-                    ),
-                ) { backCache.remove(key) }
+    override fun remove(key: K): Boolean {
+        val recording = statisticsRecorder.current()
+        val startedAt = recording.startTimeNanos()
+        val removed = mutationGate.withLock {
+            frontCache.remove(key).also { removed ->
+                if (removed) {
+                    mutationEpoch.incrementAndGet()
+                    syncBackCache(
+                        operation = "remove",
+                        expectedBackWriteGeneration = backWriteGeneration.get(),
+                        selfEventMatcher = SelfEventMatcher(
+                            keys = setOf(key),
+                            eventTypes = setOf(EventType.REMOVED),
+                        ),
+                    ) { backCache.remove(key) }
+                }
             }
         }
+        if (removed) recording.recordRemove(startedAt, 1L)
+        return removed
     }
 
-    override fun remove(key: K, oldValue: V): Boolean = mutationGate.withLock {
-        frontCache.remove(key, oldValue).also { removed ->
-            if (removed) {
-                mutationEpoch.incrementAndGet()
-                syncBackCache(
-                    operation = "remove(key, oldValue)",
-                    expectedBackWriteGeneration = backWriteGeneration.get(),
-                    selfEventMatcher = SelfEventMatcher(
-                        keys = setOf(key),
-                        eventTypes = setOf(EventType.REMOVED),
-                    ),
-                ) {
-                    // Back cache listener 전파를 remove(key) 경로로 통일하기 위해 값 비교 후 단일 키 삭제를 사용한다.
-                    if (backCache.containsKey(key) && backCache.get(key) == oldValue) {
-                        backCache.remove(key)
+    override fun remove(key: K, oldValue: V): Boolean {
+        val recording = statisticsRecorder.current()
+        val startedAt = recording.startTimeNanos()
+        val removed = mutationGate.withLock {
+            frontCache.remove(key, oldValue).also { removed ->
+                if (removed) {
+                    mutationEpoch.incrementAndGet()
+                    syncBackCache(
+                        operation = "remove(key, oldValue)",
+                        expectedBackWriteGeneration = backWriteGeneration.get(),
+                        selfEventMatcher = SelfEventMatcher(
+                            keys = setOf(key),
+                            eventTypes = setOf(EventType.REMOVED),
+                        ),
+                    ) {
+                        // Back cache listener 전파를 remove(key) 경로로 통일하기 위해 값 비교 후 단일 키 삭제를 사용한다.
+                        if (backCache.containsKey(key) && backCache.get(key) == oldValue) {
+                            backCache.remove(key)
+                        }
                     }
                 }
             }
         }
+        if (removed) recording.recordRemove(startedAt, 1L)
+        return removed
     }
 
     override fun removeAll() {
@@ -726,47 +963,59 @@ class NearJCache<K: Any, V: Any>(
         removeAll(keys.toSet())
     }
 
-    override fun replace(key: K, oldValue: V, newValue: V): Boolean = mutationGate.withLock {
-        frontCache.replace(key, oldValue, newValue).also { replaced ->
-            if (replaced) {
-                mutationEpoch.incrementAndGet()
-                syncBackCache(
-                    operation = "replace(key, oldValue, newValue)",
-                    expectedBackWriteGeneration = backWriteGeneration.get(),
-                    selfEventMatcher = SelfEventMatcher(
-                        keys = setOf(key),
-                        eventTypes = setOf(EventType.UPDATED),
-                        values = mapOf(key to newValue),
-                    ),
-                ) {
-                    if (backCache.containsKey(key) && backCache.get(key) == oldValue) {
-                        backCache.put(key, newValue)
+    override fun replace(key: K, oldValue: V, newValue: V): Boolean {
+        val recording = statisticsRecorder.current()
+        val startedAt = recording.startTimeNanos()
+        val replaced = mutationGate.withLock {
+            frontCache.replace(key, oldValue, newValue).also { replaced ->
+                if (replaced) {
+                    mutationEpoch.incrementAndGet()
+                    syncBackCache(
+                        operation = "replace(key, oldValue, newValue)",
+                        expectedBackWriteGeneration = backWriteGeneration.get(),
+                        selfEventMatcher = SelfEventMatcher(
+                            keys = setOf(key),
+                            eventTypes = setOf(EventType.UPDATED),
+                            values = mapOf(key to newValue),
+                        ),
+                    ) {
+                        if (backCache.containsKey(key) && backCache.get(key) == oldValue) {
+                            backCache.put(key, newValue)
+                        }
                     }
                 }
             }
         }
+        if (replaced) recording.recordPut(startedAt, 1L)
+        return replaced
     }
 
-    override fun replace(key: K, value: V): Boolean = mutationGate.withLock {
-        frontCache.replace(key, value).also { replaced ->
-            if (replaced) {
-                mutationEpoch.incrementAndGet()
-                syncBackCache(
-                    operation = "replace",
-                    expectedBackWriteGeneration = backWriteGeneration.get(),
-                    selfEventMatcher = SelfEventMatcher(
-                        keys = setOf(key),
-                        eventTypes = setOf(EventType.UPDATED),
-                        values = mapOf(key to value),
-                    ),
-                ) {
-                    // Redisson 에서는 replace 가 event 를 발생시키지 않습니다.
-                    if (backCache.containsKey(key)) {
-                        backCache.put(key, value)
+    override fun replace(key: K, value: V): Boolean {
+        val recording = statisticsRecorder.current()
+        val startedAt = recording.startTimeNanos()
+        val replaced = mutationGate.withLock {
+            frontCache.replace(key, value).also { replaced ->
+                if (replaced) {
+                    mutationEpoch.incrementAndGet()
+                    syncBackCache(
+                        operation = "replace",
+                        expectedBackWriteGeneration = backWriteGeneration.get(),
+                        selfEventMatcher = SelfEventMatcher(
+                            keys = setOf(key),
+                            eventTypes = setOf(EventType.UPDATED),
+                            values = mapOf(key to value),
+                        ),
+                    ) {
+                        // Redisson 에서는 replace 가 event 를 발생시키지 않습니다.
+                        if (backCache.containsKey(key)) {
+                            backCache.put(key, value)
+                        }
                     }
                 }
             }
         }
+        if (replaced) recording.recordPut(startedAt, 1L)
+        return replaced
     }
 
     override fun <T: Any> unwrap(clazz: Class<T>): T? {
@@ -941,6 +1190,23 @@ class NearJCache<K: Any, V: Any>(
         }
         @Suppress("UNCHECKED_CAST")
         return value as R
+    }
+
+    private fun recordCompoundGet(
+        recording: NearJCacheRecordingContext,
+        startedAt: Long,
+        oldValue: V?,
+    ) {
+        val hit = oldValue != null
+        recording.recordGet(
+            startedAt = startedAt,
+            hits = if (hit) 1 else 0,
+            misses = if (hit) 0 else 1,
+            frontHits = 0,
+            frontMisses = 1,
+            backHits = if (hit) 1 else 0,
+            backMisses = if (hit) 0 else 1,
+        )
     }
 
     private inline fun <R> withInlineSelfEventReconciliation(block: () -> R): R {

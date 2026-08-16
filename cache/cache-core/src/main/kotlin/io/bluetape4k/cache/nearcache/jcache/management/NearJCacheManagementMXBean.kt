@@ -1,83 +1,40 @@
 package io.bluetape4k.cache.nearcache.jcache.management
 
 import io.bluetape4k.cache.nearcache.jcache.NearJCache
-import javax.cache.management.CacheMXBean
 
 /**
- * [NearJCache]에 대한 [CacheMXBean] 구현체입니다.
+ * [NearJCache] 생성 시점의 immutable configuration을 노출합니다.
  *
- * NOTE: Configuration 정보를 얻기 위한 getConfiguration 에서 CapturedType 문제가 있어
- * 현재는 안전한 기본값을 반환합니다. 추후 Java 클래스로 재작성하여 완전히 구현해야 합니다.
- *
- * ```kotlin
- * val nearCache: NearJCache<String, Int> = NearJCache(backCache)
- * val mxBean = NearJCacheManagementMXBean(nearCache)
- * val keyType = mxBean.keyType
- * // keyType == "java.lang.Object"
- * val isStatisticsEnabled = mxBean.isStatisticsEnabled
- * // isStatisticsEnabled == false
- * ```
+ * bean은 cache/front/back reference를 보유하지 않으며, runtime configuration 변경은
+ * 이미 생성된 bean의 값에 반영되지 않습니다.
  */
-class NearJCacheManagementMXBean(
-    private val cache: NearJCache<*, *>,
-): CacheMXBean {
-    /**
-     * Determines the required type of keys for this [Cache], if any.
-     *
-     * @return the fully qualified class name of the key type,
-     * or "java.lang.Object" if the type is undefined.
-     */
-    override fun getKeyType(): String = "java.lang.Object"
+class NearJCacheManagementMXBean private constructor(
+    private val snapshot: NearJCacheConfigurationSnapshot,
+): NearJCacheConfigurationMXBean {
 
-    /**
-     * Determines the required type of values for this [Cache], if any.
-     * @return the fully qualified class name of the value type,
-     * or "java.lang.Object" if the type is undefined.
-     */
-    override fun getValueType(): String = "java.lang.Object"
+    constructor(cache: NearJCache<*, *>) : this(cache.configurationSnapshot)
 
-    /**
-     * Determines if a [Cache] should operate in read-through mode.
-     *
-     * 기본값은 `false`입니다.
-     *
-     * @return `true` when a [Cache] is in "read-through" mode.
-     */
-    override fun isReadThrough(): Boolean = false
+    companion object {
+        @JvmSynthetic
+        internal fun fromSnapshot(snapshot: NearJCacheConfigurationSnapshot): NearJCacheManagementMXBean =
+            NearJCacheManagementMXBean(snapshot)
+    }
 
-    /**
-     * Determines if a [Cache] should operate in "write-through" mode.
-     *
-     * 기본값은 `false`입니다.
-     *
-     * @return `true` when a [Cache] is in "write-through" mode.
-     */
-    override fun isWriteThrough(): Boolean = false
+    override fun getKeyType(): String = snapshot.keyType
 
-    /**
-     * Whether storeByValue (true) or storeByReference (false).
-     *
-     * 기본값은 `true`입니다.
-     *
-     * @return true if the cache is store by value
-     */
-    override fun isStoreByValue(): Boolean = true
+    override fun getValueType(): String = snapshot.valueType
 
-    /**
-     * Checks whether statistics collection is enabled in this cache.
-     *
-     * 기본값은 `false`입니다.
-     *
-     * @return true if statistics collection is enabled
-     */
-    override fun isStatisticsEnabled(): Boolean = false
+    override fun getTypeResolutionSource(): String = snapshot.typeResolutionSource.name
 
-    /**
-     * Checks whether management is enabled on this cache.
-     *
-     * 기본값은 `false`입니다.
-     *
-     * @return true if management is enabled
-     */
-    override fun isManagementEnabled(): Boolean = false
+    override fun isTypeResolutionExact(): Boolean = snapshot.typeResolutionExact
+
+    override fun isReadThrough(): Boolean = snapshot.readThrough
+
+    override fun isWriteThrough(): Boolean = snapshot.writeThrough
+
+    override fun isStoreByValue(): Boolean = snapshot.storeByValue
+
+    override fun isStatisticsEnabled(): Boolean = snapshot.statisticsEnabled
+
+    override fun isManagementEnabled(): Boolean = snapshot.managementEnabled
 }

@@ -8,6 +8,7 @@ publishes chart artifacts under `docs/images/readme-charts/`.
 
 | Report | Scope | Raw artifacts | Chart artifact |
 |---|---|---|---|
+| [NearJCache Statistics Disabled-Path Budget](./2026-08-16-issue-1351-nearcache-statistics.md) | `:bluetape4k-cache-core`, `:bluetape4k-cache-lettuce`, issue #1351 | [`raw/issue-1351/`](./raw/issue-1351/) | Not produced |
 | [Caller-owned ByteBuffer Compressor Allocation Benchmark](./2026-07-21-bytebuffer-compressor-allocation.md) | `:bluetape4k-io`, issues #755/#1260 | [`raw/issue-755/`](./raw/issue-755/) | Not produced |
 | [Issue 756 Fory/FastFory Buffer Follow-up](./2026-07-23-issue-756-fory-codec-followup.md) | `:bluetape4k-io`, `:bluetape4k-lettuce`, `:bluetape4k-redisson`, issue #756 | [`raw/issue-756-fory-followup/`](./raw/issue-756-fory-followup/) | [`issue756-fory-followup-allocation-chart-01.png`](../images/readme-charts/issue756-fory-followup-allocation-chart-01.png) |
 | [Kafka ByteBuffer Codec Allocation Benchmark](./2026-07-19-kafka-bytebuffer-codec-allocation.md) | `:bluetape4k-kafka4`, issue #758 | [`raw/issue-758/`](./raw/issue-758/) | Not produced |

@@ -7,8 +7,6 @@ kover {
     reports {
         filters {
             excludes {
-                // management MXBean 클래스는 향후 전면 재정비 예정 — 커버리지 측정 제외
-                packages("io.bluetape4k.cache.nearcache.jcache.management")
                 // testFixtures의 abstract 테스트 클래스: 실제 실행은 downstream 모듈(cache-lettuce/redisson/hazelcast)에서만 됨
                 // cache-core 자체 테스트에서 0% 커버되므로 제외
                 classes(

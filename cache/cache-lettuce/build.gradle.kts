@@ -28,6 +28,11 @@ benchmark {
     }
 }
 
+tasks.matching { it.name.endsWith("BenchmarkJar") }.configureEach {
+    this as org.gradle.jvm.tasks.Jar
+    exclude("META-INF/*.RSA", "META-INF/*.DSA", "META-INF/*.SF")
+}
+
 configurations {
     // compileOnly 나 runtimeOnly로 지정된 Dependency를 testImplementation 으로도 지정하도록 합니다.
     testImplementation.get().extendsFrom(compileOnly.get(), runtimeOnly.get())

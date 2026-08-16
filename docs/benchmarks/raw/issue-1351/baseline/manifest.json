@@ -1,0 +1,77 @@
+{
+  "schemaVersion": 1,
+  "issue": 1351,
+  "profileId": "near-jcache-statistics-disabled-v1",
+  "recordedAt": "2026-08-16T04:28:30Z",
+  "harnessCommit": "136979bff4702be0d23fbc1f92335f3bbb81e952",
+  "source": {
+    "path": "cache/cache-lettuce/src/benchmark/kotlin/io/bluetape4k/cache/nearcache/benchmark/NearJCacheStatisticsBenchmark.kt",
+    "sha256": "910dd0f209af0f34fa2479f60a4ab15f89bb5bb6c349d2de265de438cd4c9fb3"
+  },
+  "artifact": {
+    "path": "cache/cache-lettuce/build/benchmarks/benchmark/jars/bluetape4k-cache-lettuce-benchmark-jmh-1.13.0-JMH.jar",
+    "sha256": "c2949db3a166ce008f4bce64fe6fdb68cf4fb4ee5e6c9eab722172c34adcf5d8"
+  },
+  "environment": {
+    "os": "Darwin debop-m4-pro.local 25.6.0 Darwin Kernel Version 25.6.0: Sat Jul 11 15:27:27 PDT 2026; root:xnu-12377.161.13~4/RELEASE_ARM64_T6041 arm64",
+    "cpu": "Apple M4 Pro",
+    "memoryBytes": 51539607552,
+    "javaHome": "/Users/debop/.jenv/versions/25",
+    "javaVersion": "25.0.4",
+    "javaRuntime": "Oracle GraalVM 25.2.4+7.1",
+    "vmName": "Java HotSpot(TM) 64-Bit Server VM",
+    "vmVersion": "25.0.4+7-LTS-jvmci-25.2-b20"
+  },
+  "profile": {
+    "jmhVersion": "1.37",
+    "jvm": "/Library/Java/JavaVirtualMachines/graalvm-jdk-25/Contents/Home/bin/java",
+    "jvmArgs": [
+      "-XX:ThreadPriorityPolicy=1",
+      "-XX:+UnlockExperimentalVMOptions",
+      "-XX:+EnableJVMCIProduct",
+      "-XX:+EnableJVMCI",
+      "-XX:-UnlockExperimentalVMOptions"
+    ],
+    "mode": "thrpt",
+    "scoreUnit": "ops/ms",
+    "allocationUnit": "B/op",
+    "forks": 3,
+    "warmupIterations": 5,
+    "warmupTime": "1 s",
+    "measurementIterations": 10,
+    "measurementTime": "1 s",
+    "profiler": "gc",
+    "parameters": {
+      "statisticsEnabled": "false"
+    },
+    "singleThread": {
+      "threads": 1,
+      "benchmarks": [
+        "bulkHit",
+        "frontHit",
+        "getAndPut",
+        "put",
+        "putAll"
+      ]
+    },
+    "concurrency": {
+      "benchmark": "frontHit",
+      "threads": [
+        1,
+        2,
+        4,
+        8,
+        16
+      ]
+    }
+  },
+  "commands": {
+    "build": "./gradlew :bluetape4k-cache-lettuce:benchmarkBenchmarkJar --rerun-tasks --no-configuration-cache --console=plain",
+    "singleThread": "java -jar cache/cache-lettuce/build/benchmarks/benchmark/jars/bluetape4k-cache-lettuce-benchmark-jmh-1.13.0-JMH.jar '.*NearJCacheStatisticsBenchmark.*' -p statisticsEnabled=false -t 1 -f 3 -wi 5 -i 10 -w 1s -r 1s -prof gc -rf json -rff docs/benchmarks/raw/issue-1351/baseline/jmh.json",
+    "concurrencyTemplate": "java -jar cache/cache-lettuce/build/benchmarks/benchmark/jars/bluetape4k-cache-lettuce-benchmark-jmh-1.13.0-JMH.jar '.*NearJCacheStatisticsBenchmark.frontHit.*' -p statisticsEnabled=false -t ${threads} -f 3 -wi 5 -i 10 -w 1s -r 1s -prof gc -rf json -rff cache/cache-lettuce/build/benchmarks/issue-1351/baseline-concurrency/threads-${threads}.json"
+  },
+  "rawResults": {
+    "singleThread": "docs/benchmarks/raw/issue-1351/baseline/jmh.json",
+    "concurrency": "docs/benchmarks/raw/issue-1351/baseline/concurrency.json"
+  }
+}

@@ -148,13 +148,81 @@ back commit 후 front 조정이 실패하면 해당 front key를 invalidate하�
 기본 front 설정은 store-by-reference입니다. 필터링된 provider별 copier 계약이
 정해지기 전에는 custom store-by-value front 설정을 생성 단계에서 거부합니다.
 
-`close()`는 이 wrapper가 등록한 listener와 소유한 front cache만 정리하며,
-전달받은 back cache 또는 provider는 닫지 않습니다. 정리 실패는 호출자에게
+`close()`는 명시적으로 등록한 MXBean handle, 이 wrapper가 등록한 listener, 소유한
+front cache 순서로 정리하며, 전달받은 back cache, `MBeanServer`, cache manager,
+provider는 닫지 않습니다. 정리 실패는 호출자에게
 관찰 가능하게 전달합니다. 첫 번째 실패는 주 예외로 유지하고 이후 정리 실패는
 suppressed 예외로 연결합니다. 성공한 `close()`는 idempotent이며, listener
 deregister 또는 front close가 실패하면 다음 호출에서 해당 정리를 재시도합니다.
 close가 시작된 뒤에는 listener 재등록을 거부합니다. front cache를 생성한 뒤
 생성이 실패한 경우에도 동일한 주 예외/suppressed 예외 정책으로 rollback합니다.
+
+<!-- issue-1351-nearcache-management:start -->
+#### NearJCache management·statistics 명시적 등록
+
+Management는 opt-in입니다. wrapper를 만들기 전에 cache type과 두 feature flag를
+설정하고 front cache의 `storeByValue`를 끕니다. caller가 소유한 `MBeanServer`에
+안정적이고 비밀이 아닌 ID로 MXBean을 등록합니다. ID는 `ObjectName`에 노출되므로
+credential, token, 개인정보를 넣지 않습니다.
+
+```kotlin
+import io.bluetape4k.cache.nearcache.jcache.NearJCache
+import io.bluetape4k.cache.nearcache.jcache.NearJCacheConfig
+import io.bluetape4k.cache.nearcache.jcache.management.NearJCacheConfigurationMXBean
+import io.bluetape4k.cache.nearcache.jcache.management.NearJCacheTierStatisticsMXBean
+import io.bluetape4k.cache.nearcache.jcache.management.registerMBeans
+import java.lang.management.ManagementFactory
+import javax.cache.configuration.MutableConfiguration
+import javax.management.JMX
+
+val manager = NearJCacheConfig.CaffeineCacheManagerFactory.create()
+val configuration = MutableConfiguration<String, String>()
+    .setTypes(String::class.java, String::class.java)
+    .setStatisticsEnabled(true)
+    .setManagementEnabled(true)
+    .setStoreByValue(false)
+val front = manager.createCache("orders-front", configuration)
+val back = manager.createCache("orders-back", configuration)
+val nearCache = NearJCache(front, back, NearJCacheConfig(frontCacheConfiguration = configuration))
+val server = ManagementFactory.getPlatformMBeanServer()
+val registration = nearCache.registerMBeans(server, "orders-service", "orders-v1")
+val names = registration.activeObjectNames.associateBy { it.getKeyProperty("type") }
+val management = JMX.newMXBeanProxy(server, names.getValue("NearJCacheConfiguration"), NearJCacheConfigurationMXBean::class.java)
+val statistics = JMX.newMXBeanProxy(server, names.getValue("NearJCacheStatistics"), NearJCacheTierStatisticsMXBean::class.java)
+
+statistics.clear() // logical/tier counter만 초기화
+nearCache.clear()  // 이 wrapper의 front와 back data를 삭제
+registration.close()
+nearCache.close()
+back.close()
+```
+
+Factory는 provider-managed cache manager를 반환합니다. Wrapper cleanup에서 manager를
+닫지 말고 application의 provider shutdown 시점에만 닫습니다.
+
+Java에서는 `NearJCacheMBeans.registerMBeans(nearCache, server, managerId, cacheId)`를
+사용합니다. Management bean은 wrapper 생성 시점의 immutable configuration snapshot을
+노출합니다. 통계의 `statisticsScope`는 `NEAR_JCACHE_WRAPPER_V1`이며, counter를 해석하기
+전에 `supportedOperations`를 확인합니다. Capability getter
+`isFrontEvictionObservationSupported`, `isBulkRemovalCountSupported`,
+`isBackWriteCompletionIncluded`는 현재 `false`입니다. Capability가 `false`이면 해당
+사건을 관찰하지 않는다는 뜻이지 사건이 없었다는 증거가 아닙니다.
+
+비동기 write-through의 API 성공은 caller-visible acceptance만 셉니다. 각
+`BackCacheWriteCompletion`을 안정적인 correlation key인 `operationId`와 진단용
+`operation` 이름으로 remote completion까지 추적합니다. zero-loss global drain API는
+없습니다. Migration 전에 새 admission을 중단하고 application이 outstanding completion
+inventory를 유지해야 합니다. 동기 handover는 old registration handle close, old
+`nearCache` close, replacement 생성·등록 순서로 수행합니다.
+
+Registration은 handle이 반환한 exact MXBean name만 소유합니다. `MBeanServer`, back
+cache, cache manager, provider는 소유하지 않습니다. Handle이 활성인 동안 namespace를
+독점합니다. Collision이 나면 기존 owner를 확인한 뒤 재시도합니다.
+`RECOVERY_REQUIRED`는 즉시 cleanup incident로 처리하고 recovery handle의 `close()`를
+재시도합니다. Ownership token은 stale owner 교체를 줄이는 best-effort 방어이며 atomic
+JMX compare-and-swap은 아닙니다. Rollout 분류와 cleanup 증거는
+[운영 가이드](../../docs/operations/issue-1351-nearcache-management.md)를 따릅니다.
+<!-- issue-1351-nearcache-management:end -->
 
 ##### SuspendJCache 인터페이스
 
