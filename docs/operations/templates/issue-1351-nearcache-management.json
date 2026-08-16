@@ -24,8 +24,11 @@
       "managementEnabled": true,
       "statisticsEnabled": true,
       "handleState": null,
+      "objectName": "REPLACE_WITH_CONFIGURATION_OBJECT_NAME",
       "activeObjectNames": [],
-      "registeredObjectNames": []
+      "registeredObjectNames": [],
+      "bulkFrontPopulationPolicy": "BYPASS_FRONT",
+      "bulkFrontPopulationMaximumEntryCount": 0
     },
     "closingAlertAfterSeconds": 30
   },
@@ -34,10 +37,42 @@
     "query": "REPLACE_WITH_QUERY",
     "window": "REPLACE_WITH_WINDOW",
     "threshold": "REPLACE_WITH_PRE_ROLLOUT_THRESHOLD",
-    "result": "PENDING"
+    "preDeploymentThreshold": "REPLACE_WITH_PRE_DEPLOYMENT_THRESHOLD",
+    "decisionRule": "STOP_AND_ROLLBACK_IF_ANY_THRESHOLD_FAILS_OR_EVIDENCE_IS_MISSING",
+    "thresholdEvaluation": [],
+    "result": "PENDING",
+    "statistics": [
+      "FrontHits",
+      "FrontMisses",
+      "BackHits",
+      "BackMisses",
+      "AverageGetTime"
+    ],
+    "externalBackReadLoad": "REPLACE_WITH_EXTERNAL_BACK_READ_LOAD_QUERY",
+    "bypassReasonCounterAvailable": false
   },
   "rollback": {
     "rollbackIdentity": "REPLACE_WITH_ROLLBACK_IDENTITY",
+    "normalMode": "NEW_WRAPPER_HANDOVER",
+    "normalPolicy": "BYPASS_FRONT",
+    "handoverSequence": [
+      "STOP_ADMISSION",
+      "DRAIN_OUTSTANDING_OPERATIONS",
+      "CREATE_AND_REGISTER_REPLACEMENT",
+      "VERIFY_POLICY_AND_PREFLIGHT_QUERY",
+      "SHIFT_TRAFFIC",
+      "CLOSE_OLD_REGISTRATION_AND_WRAPPER",
+      "RECORD_CLASSIFIER_AND_METRICS"
+    ],
+    "preIssue1369ArtifactAllowed": false,
+    "breakGlass": {
+      "enabled": false,
+      "expiresAt": null,
+      "frontHeapCap": null,
+      "trafficLimit": null,
+      "owner": null,
+      "forwardFix": null
+    },
     "result": "NOT_RUN"
   },
   "asyncWriteThrough": {

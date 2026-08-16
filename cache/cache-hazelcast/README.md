@@ -103,6 +103,30 @@ after front creation, rollback follows the same exception policy.
 
 See the full [Near-Cache Backend Capability Matrix](../../docs/cache/near-cache-capability-matrix.md).
 
+<!-- issue-1369-bulk-policy:start -->
+## Bounded bulk front residency
+
+<!-- contract: default-bypass; bounded-all-or-nothing; single-key-get-unchanged; repeated-back-read; legacy-safe-default -->
+
+```kotlin
+val cache = HazelcastCaches.nearJCache<String, User>(hazelcastInstance) {
+    cacheName = "users"
+    bulkFrontPopulationPolicy = BulkFrontPopulationPolicy.PopulateIfAtMost(128)
+}
+```
+
+`BulkFrontPopulationPolicy.BypassFront` is the safe default for new config and
+a restored legacy stream. It returns every hit but can cause repeated back reads
+on repeated `getAll` calls. `BulkFrontPopulationPolicy.PopulateIfAtMost(n)`
+stores all bulk back hits only when `backValues.size <= n`; it never stores a
+partial oversized batch. This entry count is not resident byte size or a back
+query size limit. Single-key `get()` population is unchanged.
+
+The configuration MXBean reports `BYPASS_FRONT` or `POPULATE_IF_AT_MOST` and
+`bulkFrontPopulationMaximumEntryCount`; `0` means not applicable for bypass.
+Choose a bound only after reviewing Caffeine capacity and local heap budget.
+<!-- issue-1369-bulk-policy:end -->
+
 ## Class Structure
 
 The main pieces are:

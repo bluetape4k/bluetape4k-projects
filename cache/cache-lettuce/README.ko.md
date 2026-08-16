@@ -104,6 +104,30 @@ Lettuce가 write worker에서 해당 write의 listener를 inline 호출할 수 �
 
 전체 행렬은 [Near-Cache Backend Capability Matrix](../../docs/cache/near-cache-capability-matrix.md)를 참고하세요.
 
+<!-- issue-1369-bulk-policy:start -->
+## Bulk 결과의 front 저장 상한
+
+<!-- contract: default-bypass; bounded-all-or-nothing; single-key-get-unchanged; repeated-back-read; legacy-safe-default -->
+
+```kotlin
+val cache = LettuceCaches.nearJCache<String, User>(redisClient) {
+    cacheName = "users"
+    bulkFrontPopulationPolicy = BulkFrontPopulationPolicy.PopulateIfAtMost(128)
+}
+```
+
+`BulkFrontPopulationPolicy.BypassFront`는 새 설정과 복원한 legacy stream의 안전한
+기본값입니다. 모든 hit를 반환하지만 반복 `getAll`에서 back을 반복 조회할 수 있습니다.
+`BulkFrontPopulationPolicy.PopulateIfAtMost(n)`은 `backValues.size <= n`일 때만
+bulk back hit 전체를 저장하며 초과 batch의 일부는 저장하지 않습니다. 이 entry 수는
+메모리에 상주하는 byte 크기나 back 조회 크기 제한이 아닙니다. single-key `get()` 저장은
+바뀌지 않습니다.
+
+Configuration MXBean은 `BYPASS_FRONT` 또는 `POPULATE_IF_AT_MOST`와
+`bulkFrontPopulationMaximumEntryCount`를 노출합니다. `0`은 bypass 정책에 상한을
+적용하지 않는다는 뜻입니다. Caffeine 용량과 로컬 heap 예산을 검토한 뒤 상한을 선택합니다.
+<!-- issue-1369-bulk-policy:end -->
+
 `LettuceCacheConfig`/`LettuceNearCacheConfig` 사용 시:
 
 - 배치 크기, 큐 크기, 재시도 횟수, local cache 크기는 0보다 커야 합니다.

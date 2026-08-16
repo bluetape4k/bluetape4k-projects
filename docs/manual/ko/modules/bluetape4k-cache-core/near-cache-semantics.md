@@ -45,6 +45,33 @@ provider마다 event 보장이 다릅니다. 1.12.1 source는 Redisson bulk oper
 - local·back miss가 함께 급증하면 cache-aside loader와 원본 저장소 부하를 확인합니다.
 - eviction과 load latency가 함께 오르면 hot set보다 capacity가 작은지 측정합니다.
 
+<!-- issue-1369-bulk-policy:start -->
+## Bulk `getAll` 결과의 front 저장 정책
+
+<!-- contract: default-bypass; bounded-all-or-nothing; single-key-get-unchanged; repeated-back-read; legacy-safe-default -->
+
+```kotlin
+val safeDefault = NearJCacheConfig<String, User>()
+val bounded = NearJCacheConfig<String, User>(
+    bulkFrontPopulationPolicy = BulkFrontPopulationPolicy.PopulateIfAtMost(128),
+)
+```
+
+기본 `BulkFrontPopulationPolicy.BypassFront`는 front hit와 모든 back hit를
+반환하면서 bulk 조회의 back 결과를 front에 저장하지 않습니다.
+`BulkFrontPopulationPolicy.PopulateIfAtMost(n)`은 `backValues.size <= n`일 때만
+batch 전체를 저장하며 초과 batch의 일부는 저장하지 않습니다. entry 수는 메모리에
+상주하는 byte 크기나 back 조회 크기 제한이 아니며, single-key `get()`의 read-through
+저장은 바뀌지 않습니다.
+
+Configuration MXBean은 `BYPASS_FRONT` 또는 `POPULATE_IF_AT_MOST`와
+`bulkFrontPopulationMaximumEntryCount`를 노출합니다. `0`은 bypass 정책에 상한을
+적용하지 않는다는 뜻입니다. 새 설정과 복원한 legacy stream은 모두 안전한 기본값을 선택합니다.
+정확한 결과가 같은 front 저장 상태를 뜻하지는 않습니다. 반복 `getAll`은 back을 반복 조회해
+로컬 hit ratio와 back 부하를 바꿀 수 있습니다. 이전 무제한 방식은 복원하지 않으며,
+front 용량과 로컬 heap 예산을 검토한 뒤 명시적 상한을 사용합니다.
+<!-- issue-1369-bulk-policy:end -->
+
 <!-- issue-1351-nearcache-management:start -->
 ## NearJCache management 명시적 등록
 

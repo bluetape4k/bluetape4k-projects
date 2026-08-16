@@ -1,11 +1,11 @@
 package io.bluetape4k.cache.nearcache.jcache
 
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeFalse
+import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.cache.nearcache.jcache.management.NearJCacheConfigurationMXBean
 import io.bluetape4k.cache.nearcache.jcache.management.NearJCacheTierStatisticsMXBean
 import io.bluetape4k.cache.nearcache.jcache.management.registerMBeans
-import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.Assertions.assertFalse
-import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import java.nio.file.Files
 import java.nio.file.Path
@@ -49,19 +49,19 @@ class NearJCacheDocumentationTest {
             )
 
             nearCache.put("42", "Ada")
-            assertEquals("Ada", nearCache.get("42"))
-            assertEquals("NEAR_JCACHE_WRAPPER_V1", statistics.getStatisticsScope())
-            assertTrue(statistics.getSupportedOperations().contains("getAndPut"))
-            assertTrue(management.isStatisticsEnabled)
+            nearCache.get("42") shouldBeEqualTo "Ada"
+            statistics.getStatisticsScope() shouldBeEqualTo "NEAR_JCACHE_WRAPPER_V1"
+            statistics.getSupportedOperations().contains("getAndPut").shouldBeTrue()
+            management.isStatisticsEnabled.shouldBeTrue()
 
             statistics.clear()
-            assertEquals("Ada", nearCache.get("42"))
+            nearCache.get("42") shouldBeEqualTo "Ada"
             nearCache.clear()
-            assertEquals(null, nearCache.get("42"))
+            nearCache.get("42") shouldBeEqualTo null
         } finally {
             nearCache.close()
             if (!back.isClosed) back.close()
-            assertFalse(manager.isClosed)
+            manager.isClosed.shouldBeFalse()
         }
     }
 
@@ -98,9 +98,9 @@ class NearJCacheDocumentationTest {
         documents.forEach { (path, document) ->
             val section = markedSection(document)
             requiredTokens.forEach { token ->
-                assertTrue(section.contains(token), "$path 문서에 $token 이(가) 없습니다")
+                section.contains(token).shouldBeTrue()
             }
-            assertFalse(STALE_CLEAR_PHRASE.containsMatchIn(section), "$path 문서에 오래된 clear 설명이 있습니다")
+            STALE_CLEAR_PHRASE.containsMatchIn(section).shouldBeFalse()
         }
     }
 
@@ -121,7 +121,7 @@ class NearJCacheDocumentationTest {
             "isFrontEvictionObservationSupported=false",
             "isBulkRemovalCountSupported=false",
             "isBackWriteCompletionIncluded=false",
-        ).forEach { token -> assertTrue(matrix.contains(token), "capability matrix에 $token 이(가) 없습니다") }
+        ).forEach { token -> matrix.contains(token).shouldBeTrue() }
     }
 
     @Test
@@ -130,8 +130,8 @@ class NearJCacheDocumentationTest {
         val template = read("docs/operations/templates/issue-1351-nearcache-management.json")
 
         CLASSIFICATION_STATES.forEach { state ->
-            assertTrue(guide.contains(state), "운영 가이드에 $state 상태가 없습니다")
-            assertTrue(template.contains("\"$state\""), "운영 템플릿에 $state 상태가 없습니다")
+            guide.contains(state).shouldBeTrue()
+            template.contains("\"$state\"").shouldBeTrue()
         }
         listOf(
             "baseSha",
@@ -149,9 +149,109 @@ class NearJCacheDocumentationTest {
             "cleanupEvidence",
             "owner",
             "reviewer",
-        ).forEach { field -> assertTrue(template.contains("\"$field\""), "운영 템플릿에 $field 필드가 없습니다") }
-        assertTrue(guide.contains("JMX 부재만으로 `DISABLED`로 분류하지 않는다"))
-        assertTrue(guide.contains("RECOVERY_REQUIRED") && guide.contains("즉시 alert"))
+            "bulkFrontPopulationPolicy",
+            "bulkFrontPopulationMaximumEntryCount",
+            "objectName",
+            "preDeploymentThreshold",
+            "externalBackReadLoad",
+            "bypassReasonCounterAvailable",
+            "normalMode",
+            "preIssue1369ArtifactAllowed",
+            "expiresAt",
+            "frontHeapCap",
+            "trafficLimit",
+            "forwardFix",
+            "decisionRule",
+            "thresholdEvaluation",
+            "handoverSequence",
+        ).forEach { field ->
+            template.contains("\"$field\"").shouldBeTrue()
+        }
+        guide.contains("JMX 부재만으로 `DISABLED`로 분류하지 않는다").shouldBeTrue()
+        (guide.contains("RECOVERY_REQUIRED") && guide.contains("즉시 alert")).shouldBeTrue()
+        listOf(
+            "managementEnabled",
+            "statisticsEnabled",
+            "BYPASS_FRONT",
+            "POPULATE_IF_AT_MOST",
+            "FrontHits",
+            "FrontMisses",
+            "BackHits",
+            "BackMisses",
+            "AverageGetTime",
+            "rollbackIdentity",
+            "break-glass",
+            "forward-fix",
+            "판정식",
+            "admission",
+        ).forEach { token -> guide.contains(token).shouldBeTrue() }
+    }
+
+    @Test
+    fun `bulk getAll residency 정책은 문서와 provider DSL에서 양언어 동등하다`() {
+        val documents = BULK_POLICY_DOCUMENTS.associateWith { path ->
+            issue1369Section(read(path))
+        }
+        val requiredTokens = listOf(
+            "BulkFrontPopulationPolicy.BypassFront",
+            "BulkFrontPopulationPolicy.PopulateIfAtMost",
+            "BYPASS_FRONT",
+            "POPULATE_IF_AT_MOST",
+            "bulkFrontPopulationMaximumEntryCount",
+            "backValues.size",
+            "legacy",
+        )
+        val contractTokens = listOf(
+            "default-bypass",
+            "bounded-all-or-nothing",
+            "single-key-get-unchanged",
+            "repeated-back-read",
+            "legacy-safe-default",
+        )
+
+        documents.forEach { (path, section) ->
+            requiredTokens.forEach { token ->
+                section.contains(token).shouldBeTrue()
+            }
+            contractTokens.forEach { token ->
+                section.contains(token).shouldBeTrue()
+            }
+        }
+
+        listOf(
+            "cache/cache-core/README.md" to "cache/cache-core/README.ko.md",
+            "cache/cache-lettuce/README.md" to "cache/cache-lettuce/README.ko.md",
+            "cache/cache-hazelcast/README.md" to "cache/cache-hazelcast/README.ko.md",
+            "docs/manual/en/modules/bluetape4k-cache-core/near-cache-semantics.md" to
+                    "docs/manual/ko/modules/bluetape4k-cache-core/near-cache-semantics.md",
+        ).forEach { (englishPath, koreanPath) ->
+            val english = documents.getValue(englishPath)
+            val korean = documents.getValue(koreanPath)
+
+            fencedCodeBlocks(english) shouldBeEqualTo fencedCodeBlocks(korean)
+            numericTokens(english) shouldBeEqualTo numericTokens(korean)
+            headingSignature(english) shouldBeEqualTo headingSignature(korean)
+            tokenOccurrences(english) shouldBeEqualTo tokenOccurrences(korean)
+        }
+
+        documents.getValue("cache/cache-lettuce/README.md")
+            .contains("LettuceCaches.nearJCache").shouldBeTrue()
+        documents.getValue("cache/cache-lettuce/README.ko.md")
+            .contains("LettuceCaches.nearJCache").shouldBeTrue()
+        documents.getValue("cache/cache-hazelcast/README.md")
+            .contains("HazelcastCaches.nearJCache").shouldBeTrue()
+        documents.getValue("cache/cache-hazelcast/README.ko.md")
+            .contains("HazelcastCaches.nearJCache").shouldBeTrue()
+
+        listOf(
+            "and populate the front cache with back hits",
+            "back hit는 front에 populate합니다",
+            "back hit를 front에 채우는",
+        ).forEach { stalePhrase ->
+            BULK_POLICY_DOCUMENTS.forEach { path ->
+                read(path).contains(stalePhrase).shouldBeFalse()
+            }
+        }
     }
 
     private fun read(relativePath: String): String = Files.readString(repositoryRoot.resolve(relativePath))
@@ -159,14 +259,61 @@ class NearJCacheDocumentationTest {
     private fun markedSection(document: String): String {
         val start = document.indexOf(START_MARKER)
         val end = document.indexOf(END_MARKER)
-        assertTrue(start >= 0, "$START_MARKER marker가 없습니다")
-        assertTrue(end > start, "$END_MARKER marker가 없습니다")
+        (start >= 0).shouldBeTrue()
+        (end > start).shouldBeTrue()
         return document.substring(start, end + END_MARKER.length)
+    }
+
+    private fun issue1369Section(document: String): String {
+        val start = document.indexOf(BULK_POLICY_START_MARKER)
+        val end = document.indexOf(BULK_POLICY_END_MARKER)
+        (start >= 0).shouldBeTrue()
+        (end > start).shouldBeTrue()
+        return document.substring(start, end + BULK_POLICY_END_MARKER.length)
+    }
+
+    private fun fencedCodeBlocks(document: String): List<String> = FENCED_CODE.findAll(document)
+        .map { it.groupValues[1].trim() }
+        .toList()
+
+    private fun numericTokens(document: String): List<String> = NUMBER.findAll(document)
+        .map { it.value }
+        .toList()
+
+    private fun headingSignature(document: String): List<Int> = HEADING.findAll(document)
+        .map { it.value.indexOf(' ') }
+        .toList()
+
+    private fun tokenOccurrences(document: String): Map<String, Int> = PARITY_TOKENS.associateWith { token ->
+        document.windowed(token.length).count(token::equals)
     }
 
     companion object {
         private const val START_MARKER = "<!-- issue-1351-nearcache-management:start -->"
         private const val END_MARKER = "<!-- issue-1351-nearcache-management:end -->"
+        private const val BULK_POLICY_START_MARKER = "<!-- issue-1369-bulk-policy:start -->"
+        private const val BULK_POLICY_END_MARKER = "<!-- issue-1369-bulk-policy:end -->"
+        private val FENCED_CODE = Regex("```(?:kotlin)?\\n(.*?)```", RegexOption.DOT_MATCHES_ALL)
+        private val NUMBER = Regex("\\b\\d[\\d_]*\\b")
+        private val HEADING = Regex("^#{1,6} ", RegexOption.MULTILINE)
+        private val PARITY_TOKENS = listOf(
+            "BulkFrontPopulationPolicy.BypassFront",
+            "BulkFrontPopulationPolicy.PopulateIfAtMost",
+            "BYPASS_FRONT",
+            "POPULATE_IF_AT_MOST",
+            "bulkFrontPopulationMaximumEntryCount",
+            "backValues.size",
+            "legacy",
+            "getAll",
+            "get()",
+            "default-bypass",
+            "bounded-all-or-nothing",
+            "single-key-get-unchanged",
+            "repeated-back-read",
+            "legacy-safe-default",
+            "LettuceCaches.nearJCache",
+            "HazelcastCaches.nearJCache",
+        )
         private val STALE_CLEAR_PHRASE = Regex(
             "front-only|front cache only|clear\\(\\).*front.{0,20}only|clear\\(\\).*front.{0,20}비우",
             setOf(RegexOption.IGNORE_CASE, RegexOption.DOT_MATCHES_ALL),
@@ -178,6 +325,17 @@ class NearJCacheDocumentationTest {
             "RECOVERY_REQUIRED",
             "CLOSING",
             "CLOSED",
+        )
+        private val BULK_POLICY_DOCUMENTS = listOf(
+            "cache/cache-core/README.md",
+            "cache/cache-core/README.ko.md",
+            "cache/cache-lettuce/README.md",
+            "cache/cache-lettuce/README.ko.md",
+            "cache/cache-hazelcast/README.md",
+            "cache/cache-hazelcast/README.ko.md",
+            "docs/manual/en/modules/bluetape4k-cache-core/near-cache-semantics.md",
+            "docs/manual/ko/modules/bluetape4k-cache-core/near-cache-semantics.md",
+            "docs/cache/near-cache-capability-matrix.md",
         )
         private val repositoryRoot: Path by lazy {
             generateSequence(Path.of("").toAbsolutePath()) { it.parent }
