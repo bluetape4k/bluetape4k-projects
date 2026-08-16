@@ -70,6 +70,18 @@ provider's atomic compound operation and then reconcile the local front cache;
 they do not implement a front-read/back-write round trip. A provider failure is
 propagated before the front cache is changed.
 
+Use `nearCache.lastBackCacheWrite` when correlating the latest write-through
+operation ID, operation name, and completion. It is one atomic observation
+snapshot, and its completion stage is read-only. The legacy
+`lastBackCacheWriteOperationId` and `lastBackCacheWriteCompletion` properties
+remain for source compatibility, but separate reads are not a correlated
+snapshot.
+
+```kotlin
+val observation = nearCache.lastBackCacheWrite
+observation.completion.toCompletableFuture().join()
+```
+
 When `NearJCacheConfig.isSynchronous=true`, synchronous write-through runs the
 blocking provider call on a dedicated virtual thread and waits only up to the
 bounded `syncRemoteTimeout` (with a 500 ms minimum). If a provider invokes the

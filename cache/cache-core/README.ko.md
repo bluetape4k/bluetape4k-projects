@@ -117,6 +117,17 @@ local front를 조정합니다. 따라서 front를 먼저 읽고 back을 별도�
 왕복을 사용하지 않으며, back provider 실패 시 front를 변경하기 전에
 예외를 전달합니다.
 
+마지막 write-through의 operation ID·operation 이름·completion을 함께 상관관계로
+관찰하려면 `nearCache.lastBackCacheWrite`를 사용하세요. 이 값은 하나의 원자
+스냅숏이며 completion stage는 읽기 전용입니다. 기존
+`lastBackCacheWriteOperationId`와 `lastBackCacheWriteCompletion` property는 소스
+호환성을 위해 유지하지만, 두 값을 따로 읽어 상관관계를 구성하지는 마세요.
+
+```kotlin
+val observation = nearCache.lastBackCacheWrite
+observation.completion.toCompletableFuture().join()
+```
+
 `NearJCacheConfig.isSynchronous=true`이면 동기 write-through의 blocking provider 호출을
 전용 virtual thread에서 실행하고, 500ms 이상으로 보정된 `syncRemoteTimeout`까지만
 기다립니다. provider가 같은 write의 listener를 inline 또는 synchronous callback thread에서

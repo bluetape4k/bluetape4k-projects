@@ -2,10 +2,13 @@ package io.bluetape4k.cache.nearcache.jcache
 
 import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.cache.jcache.JCache
+import io.bluetape4k.junit5.concurrency.MultithreadingTester
 import io.mockk.every
 import io.mockk.mockk
 import org.junit.jupiter.api.Test
+import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.CopyOnWriteArrayList
 import java.util.concurrent.ExecutionException
@@ -354,6 +357,57 @@ class NearJCacheWriteThroughFailureTest {
     }
 
     @Test
+    fun `동시 write 중 snapshot은 동일 operation의 completion과 함께 관찰된다`() {
+        val frontCache = mockk<JCache<String, String>>(relaxed = true)
+        val backCache = mockk<JCache<String, String>>(relaxed = true)
+        val sequence = AtomicInteger()
+        val snapshots = CopyOnWriteArrayList<BackCacheWriteCompletion>()
+        val observed = ConcurrentHashMap<Long, BackCacheWriteCompletion>()
+        val expectedWrites = 4 * 16
+        val completed = CountDownLatch(expectedWrites)
+        every { backCache.put(any(), any()) } answers {
+            if (firstArg<String>().contains("-failed-")) throw failure
+        }
+        val nearCache =
+            NearJCache(
+                frontCache = frontCache,
+                backCache = backCache,
+                config = NearJCacheConfig(isSynchronous = false, syncRemoteRetryCount = 0),
+            )
+        val registration = nearCache.addBackCacheWriteListener {
+            observed[it.operationId] = it
+            completed.countDown()
+        }
+
+        try {
+            MultithreadingTester()
+                .workers(4)
+                .rounds(16)
+                .add {
+                    val ordinal = sequence.incrementAndGet()
+                    val outcome = if (ordinal % 2 == 0) "failed" else "succeeded"
+                    nearCache.put("key-$ordinal-$outcome", "value")
+                    snapshots.add(nearCache.lastBackCacheWrite)
+                }
+                .run()
+
+            completed.await(5, TimeUnit.SECONDS).shouldBeTrue()
+            snapshots.size shouldBeEqualTo expectedWrites
+            observed.size shouldBeEqualTo expectedWrites
+            snapshots.forEach { snapshot ->
+                val completion = observed[snapshot.operationId]
+                checkNotNull(completion) { "snapshot operation was not observed: ${snapshot.operationId}" }
+                snapshot.operation shouldBeEqualTo "put"
+                snapshot.operation shouldBeEqualTo completion.operation
+                snapshot.completion.toCompletableFuture().isCompletedExceptionally shouldBeEqualTo
+                    completion.completion.toCompletableFuture().isCompletedExceptionally
+            }
+        } finally {
+            registration.close()
+        }
+    }
+
+    @Test
     fun `last completion 복사본을 변경해도 실제 write 결과는 보존된다`() {
         val frontCache = mockk<JCache<String, String>>(relaxed = true)
         val backCache = mockk<JCache<String, String>>(relaxed = true)
@@ -371,15 +425,21 @@ class NearJCacheWriteThroughFailureTest {
 
         try {
             nearCache.put("key", "value")
+            val snapshot = nearCache.lastBackCacheWrite
             nearCache.lastBackCacheWriteCompletion.complete(Unit)
+            snapshot.completion.toCompletableFuture().complete(Unit)
         } finally {
             release.countDown()
         }
 
         val error = assertFailsWith<ExecutionException> {
-            nearCache.lastBackCacheWriteCompletion.get(2, TimeUnit.SECONDS)
+            nearCache.lastBackCacheWrite.completion.toCompletableFuture().get(2, TimeUnit.SECONDS)
         }
         error.cause?.message shouldBeEqualTo failure.message
+        val legacyError = assertFailsWith<ExecutionException> {
+            nearCache.lastBackCacheWriteCompletion.get(2, TimeUnit.SECONDS)
+        }
+        legacyError.cause?.message shouldBeEqualTo failure.message
     }
 
     @Test
