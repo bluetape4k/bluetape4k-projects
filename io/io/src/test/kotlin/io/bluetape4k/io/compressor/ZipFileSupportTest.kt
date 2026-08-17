@@ -6,11 +6,17 @@ import io.bluetape4k.support.closeSafe
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.assertions.shouldNotBeNull
+import io.bluetape4k.junit5.concurrency.MultithreadingTester
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
 import java.io.File
 import java.io.IOException
 import java.nio.file.Files
+import java.nio.file.LinkOption
+import java.nio.file.StandardCopyOption
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.TimeUnit
+import java.util.concurrent.atomic.AtomicBoolean
 import io.bluetape4k.assertions.assertFailsWith
 
 class ZipFileSupportTest {
@@ -208,6 +214,93 @@ class ZipFileSupportTest {
         assertFailsWith<IOException> {
             unzip(zipFile, destDir)
         }
+
+        outsideFile.readText() shouldBeEqualTo "기존 안전한 내용"
+    }
+
+    @Test
+    fun `unzip은 대상 디렉토리의 조상 심볼릭 링크를 따라가지 않는다`() {
+        val outsideDir = File(tempDir.parentFile, "zip-slip-ancestor-outside-${System.nanoTime()}").apply {
+            mkdirs()
+        }
+        val destinationParent = File(tempDir, "destination-parent").apply { mkdirs() }
+        Files.createSymbolicLink(
+            File(destinationParent, "redirect").toPath(),
+            outsideDir.toPath(),
+        )
+        val destDir = File(destinationParent, "redirect/extracted")
+
+        val zipFile = File(tempDir, "symlink-ancestor.zip")
+        zipFile.writeBytes(
+            ZipBuilder.ofInMemory()
+                .add("악성 조상 경로 쓰기").path("evil.txt").save()
+                .toBytes(),
+        )
+
+        assertFailsWith<IOException> {
+            unzip(zipFile, destDir)
+        }
+
+        File(outsideDir, "extracted/evil.txt").exists() shouldBeEqualTo false
+    }
+
+    @Test
+    fun `unzip은 중간 디렉토리 교체 경합에서 외부 파일을 쓰지 않는다`() {
+        val outsideDir = File(tempDir.parentFile, "zip-slip-race-outside").apply { mkdirs() }
+        val outsideFile = File(outsideDir, "evil.txt").apply { writeText("기존 안전한 내용") }
+        val destDir = File(tempDir, "race-output").apply { mkdirs() }
+        File(destDir, "nested").mkdirs()
+        val parkedDir = File(destDir, "nested-parked")
+        val payload = ByteArray(8 * 1024 * 1024) { 'A'.code.toByte() }
+        val zipFile = File(tempDir, "symlink-directory-race.zip")
+        val builder = ZipBuilder.ofInMemory()
+        repeat(4) { index ->
+            builder.add(payload).path("nested/evil-$index.txt").save()
+        }
+        zipFile.writeBytes(builder.toBytes())
+
+        val ready = CountDownLatch(2)
+        val stop = AtomicBoolean(false)
+        MultithreadingTester()
+            .workers(2)
+            .rounds(1)
+            .add {
+                ready.countDown()
+                ready.await(5, TimeUnit.SECONDS).shouldBeTrue()
+                try {
+                    unzip(zipFile, destDir)
+                } catch (_: IOException) {
+                    // 경합으로 추출이 중단되는 것은 허용하지만 외부 쓰기는 허용하지 않는다.
+                } finally {
+                    stop.set(true)
+                }
+            }
+            .add {
+                ready.countDown()
+                ready.await(5, TimeUnit.SECONDS).shouldBeTrue()
+                while (!stop.get()) {
+                    try {
+                        val nested = File(destDir, "nested").toPath()
+                        val parked = parkedDir.toPath()
+                        if (Files.exists(nested, LinkOption.NOFOLLOW_LINKS)) {
+                            if (!Files.exists(parked, LinkOption.NOFOLLOW_LINKS)) {
+                                Files.move(nested, parked, StandardCopyOption.ATOMIC_MOVE)
+                            }
+                            if (!Files.isSymbolicLink(nested)) {
+                                Files.createSymbolicLink(nested, outsideDir.toPath())
+                            }
+                        } else if (Files.isSymbolicLink(nested)) {
+                            Files.deleteIfExists(nested)
+                            if (Files.exists(parked, LinkOption.NOFOLLOW_LINKS)) {
+                                Files.move(parked, nested, StandardCopyOption.ATOMIC_MOVE)
+                            }
+                        }
+                    } catch (_: IOException) {
+                        // 추출기와 디렉토리 교체가 동시에 진행되는 동안의 정상적인 충돌이다.
+                    }
+                }
+            }
+            .run()
 
         outsideFile.readText() shouldBeEqualTo "기존 안전한 내용"
     }
