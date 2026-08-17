@@ -38,6 +38,29 @@ JCache 변형은 cache-entry listener를 등록하며, Redisson bulk event가 �
 
 전체 행렬은 [Near-Cache Backend Capability Matrix](../../docs/cache/near-cache-capability-matrix.md)를 참고하세요.
 
+<!-- nearjcache-clear-authority-contract -->
+### #1368 Redisson NearJCache clear authority
+
+`RedissonCaches.nearJCache`의 기본값은 `NearJCacheClearAuthority.DENY`이며 Redis
+namespace ownership을 추론하지 않습니다. `clear()`, `clearAllCache()`, 인자 없는
+`removeAll()`은 `SecurityException`을 발생시키므로, 전체 back namespace를 caller가
+소유한다고 확인한 경우에만 `NearJCacheClearAuthority.EXCLUSIVE_BACK_CACHE`를 전달합니다.
+공유 tenant에는 key-scoped `removeAll(keys)`를 사용합니다. wrapper `close()`는 front만
+닫고 전달받은 back cache나 Redisson provider는 닫지 않습니다. Native
+`RedissonNearCache.clearAll()`은 별도 API입니다.
+
+```kotlin
+val shared = RedissonCaches.nearJCache(backCache, NearJCacheConfig())
+shared.removeAll(setOf("tenant-a:key-1"))
+val owner = RedissonCaches.nearJCache(
+    backCache,
+    NearJCacheConfig(cacheName = "users-owner"),
+    NearJCacheClearAuthority.EXCLUSIVE_BACK_CACHE,
+)
+owner.clearAllCache()
+```
+<!-- /nearjcache-clear-authority-contract -->
+
 ## 의존성
 
 ```kotlin

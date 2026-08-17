@@ -86,6 +86,29 @@ The configuration MXBean reports `BYPASS_FRONT` or `POPULATE_IF_AT_MOST` and
 Choose a bound only after reviewing Caffeine capacity and local heap budget.
 <!-- issue-1369-bulk-policy:end -->
 
+<!-- nearjcache-clear-authority-contract -->
+### #1368 Lettuce NearJCache clear authority
+
+`LettuceCaches.nearJCache` defaults to `NearJCacheClearAuthority.DENY` and does
+not infer Redis namespace ownership. `clear()`, `clearAllCache()`, and no-arg
+`removeAll()` therefore raise `SecurityException`; use the explicit
+`NearJCacheClearAuthority.EXCLUSIVE_BACK_CACHE` overload only for an exclusive
+owner. Key-scoped `removeAll(keys)` remains the shared-namespace path. The
+wrapper `close()` closes its front but not the Redis back cache or client.
+
+```kotlin
+val shared = LettuceCaches.nearJCache<String, User>(redisClient) {
+    cacheName = "users"
+}
+shared.removeAll(setOf("tenant-a:key-1"))
+val owner = LettuceCaches.nearJCache<String, User>(
+    redisClient,
+    NearJCacheClearAuthority.EXCLUSIVE_BACK_CACHE,
+) { cacheName = "users-owner" }
+owner.clear()
+```
+<!-- /nearjcache-clear-authority-contract -->
+
 ## JCache EntryProcessor Atomicity
 
 `LettuceJCache` supports JCache `EntryProcessor` operations. All mutating

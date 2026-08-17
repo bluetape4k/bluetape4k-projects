@@ -40,6 +40,29 @@ Redisson does not emit bulk events.
 
 See the full [Near-Cache Backend Capability Matrix](../../docs/cache/near-cache-capability-matrix.md).
 
+<!-- nearjcache-clear-authority-contract -->
+### #1368 Redisson NearJCache clear authority
+
+`RedissonCaches.nearJCache` defaults to `NearJCacheClearAuthority.DENY` and does
+not infer Redis namespace ownership. `clear()`, `clearAllCache()`, and no-arg
+`removeAll()` raise `SecurityException`; pass
+`NearJCacheClearAuthority.EXCLUSIVE_BACK_CACHE` only when the caller owns the
+entire back namespace. Key-scoped `removeAll(keys)` remains safe for shared
+tenants. The wrapper `close()` closes its front but not the supplied back cache
+or Redisson provider. Native `RedissonNearCache.clearAll()` is a separate API.
+
+```kotlin
+val shared = RedissonCaches.nearJCache(backCache, NearJCacheConfig())
+shared.removeAll(setOf("tenant-a:key-1"))
+val owner = RedissonCaches.nearJCache(
+    backCache,
+    NearJCacheConfig(cacheName = "users-owner"),
+    NearJCacheClearAuthority.EXCLUSIVE_BACK_CACHE,
+)
+owner.clearAllCache()
+```
+<!-- /nearjcache-clear-authority-contract -->
+
 ## Dependency
 
 ```kotlin

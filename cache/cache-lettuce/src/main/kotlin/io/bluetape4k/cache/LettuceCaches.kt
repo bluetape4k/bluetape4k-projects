@@ -12,6 +12,7 @@ import io.bluetape4k.cache.nearcache.LettuceSuspendNearCache
 import io.bluetape4k.cache.nearcache.NearCacheOperations
 import io.bluetape4k.cache.nearcache.SuspendNearCacheOperations
 import io.bluetape4k.cache.nearcache.jcache.NearJCache
+import io.bluetape4k.cache.nearcache.jcache.NearJCacheClearAuthority
 import io.bluetape4k.cache.nearcache.jcache.NearJCacheConfig
 import io.bluetape4k.cache.nearcache.jcache.NearJCacheConfigBuilder
 import io.bluetape4k.cache.nearcache.jcache.SuspendNearJCache
@@ -38,6 +39,7 @@ import java.util.concurrent.TimeUnit
  * }
  * ```
  */
+@Suppress("TooManyFunctions")
 object LettuceCaches: KLogging() {
     // -------------------------------------------------------------------------
     // JCache
@@ -105,7 +107,27 @@ object LettuceCaches: KLogging() {
         block: NearJCacheConfigBuilder<K, V>.() -> Unit,
     ): NearJCache<K, V> {
         val config = nearJCacheConfig(block)
-        return nearJCache(redisClient, config, codec)
+        return nearJCache(redisClient, config, NearJCacheClearAuthority.DENY, codec)
+    }
+
+    /**
+     * 명시적인 clear authority로 Lettuce 기반 [NearJCache]를 생성합니다.
+     * factory가 back namespace의 ownership을 판정하지 않으므로 독점 owner만
+     * [NearJCacheClearAuthority.EXCLUSIVE_BACK_CACHE]를 전달해야 합니다.
+     * 기존 overload는 [NearJCacheClearAuthority.DENY]를 사용합니다. 반환된 wrapper의
+     * `close()`는 wrapper가 생성한 front만 정리하며 Redis back cache와 [redisClient]는
+     * caller 소유로 남습니다.
+     *
+     * @param clearAuthority caller가 확인한 back namespace 권한
+     */
+    inline fun <reified K: Any, reified V: Any> nearJCache(
+        redisClient: RedisClient,
+        clearAuthority: NearJCacheClearAuthority,
+        codec: LettuceBinaryCodec<V> = LettuceBinaryCodecs.default<V>(),
+        block: NearJCacheConfigBuilder<K, V>.() -> Unit,
+    ): NearJCache<K, V> {
+        val config = nearJCacheConfig(block)
+        return nearJCache(redisClient, config, clearAuthority, codec)
     }
 
     /**
@@ -121,10 +143,25 @@ object LettuceCaches: KLogging() {
         redisClient: RedisClient,
         config: NearJCacheConfig<K, V>,
         codec: LettuceBinaryCodec<V> = LettuceBinaryCodecs.default<V>(),
+    ): NearJCache<K, V> = nearJCache(redisClient, config, NearJCacheClearAuthority.DENY, codec)
+
+    /**
+     * [NearJCacheClearAuthority]를 명시하는 Lettuce [NearJCache] 설정 factory입니다.
+     * factory가 Redis namespace ownership을 추론하지 않으므로 기존 overload는
+     * [NearJCacheClearAuthority.DENY]를 사용합니다. `close()`는 wrapper front만 닫고
+     * Redis back cache와 [redisClient]는 닫지 않습니다.
+     *
+     * @param clearAuthority caller가 확인한 back namespace 권한
+     */
+    inline fun <reified K: Any, reified V: Any> nearJCache(
+        redisClient: RedisClient,
+        config: NearJCacheConfig<K, V>,
+        clearAuthority: NearJCacheClearAuthority,
+        codec: LettuceBinaryCodec<V> = LettuceBinaryCodecs.default<V>(),
     ): NearJCache<K, V> {
         val backCache = jcache<K, V>(redisClient, config.cacheName, codec = codec)
         log.info { "Lettuce NearJCache 생성. cacheName=${config.cacheName}" }
-        return NearJCache(config, backCache)
+        return NearJCache(config, backCache, clearAuthority)
     }
 
     // -------------------------------------------------------------------------

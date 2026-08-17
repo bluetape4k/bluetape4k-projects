@@ -177,6 +177,27 @@ Configuration MXBean은 `BYPASS_FRONT` 또는 `POPULATE_IF_AT_MOST`와
 적용하지 않는다는 뜻입니다. Caffeine 용량과 로컬 heap 예산을 검토한 뒤 상한을 선택합니다.
 <!-- issue-1369-bulk-policy:end -->
 
+<!-- nearjcache-clear-authority-contract -->
+### #1368 Hazelcast NearJCache clear authority
+
+`HazelcastCaches.nearJCache`의 기본값은 `NearJCacheClearAuthority.DENY`이며
+Hazelcast namespace ownership을 추론하지 않습니다. `clear()`, `clearAllCache()`, 인자
+없는 `removeAll()`은 `SecurityException`을 발생시키며, 독점 owner만
+`NearJCacheClearAuthority.EXCLUSIVE_BACK_CACHE`로 opt-in합니다. 공유 namespace에는
+key-scoped `removeAll(keys)`를 사용합니다. Listener-free factory 생성은 권한을 바꾸지
+않으며 `close()`는 wrapper front만 닫고 Hazelcast back과 instance는 닫지 않습니다.
+
+```kotlin
+val shared = HazelcastCaches.nearJCache<String, User>(hazelcastInstance)
+shared.removeAll(setOf("tenant-a:key-1"))
+val owner = HazelcastCaches.nearJCache<String, User>(
+    hazelcastInstance,
+    NearJCacheClearAuthority.EXCLUSIVE_BACK_CACHE,
+) { cacheName = "users-owner" }
+owner.clear()
+```
+<!-- /nearjcache-clear-authority-contract -->
+
 ### NearJCache 사용 예
 
 ```kotlin

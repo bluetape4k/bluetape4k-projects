@@ -5,6 +5,7 @@ import io.bluetape4k.assertions.shouldBeFalse
 import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.cache.jcache.JCache
 import io.bluetape4k.cache.nearcache.jcache.NearJCache
+import io.bluetape4k.cache.nearcache.jcache.NearJCacheClearAuthority
 import io.bluetape4k.cache.nearcache.jcache.NearJCacheConfig
 import io.mockk.every
 import io.mockk.mockk
@@ -135,14 +136,22 @@ class NearJCacheStatisticsRecorderTest {
     @Test
     fun `public constructor descriptor와 synthetic test factory를 유지한다`() {
         val cacheConstructors = NearJCache::class.java.constructors.filterNot { it.isSynthetic }
-        cacheConstructors.size shouldBeEqualTo 1
-        cacheConstructors.single().parameterTypes.toList() shouldBeEqualTo listOf(
-            javax.cache.Cache::class.java,
-            javax.cache.Cache::class.java,
-            NearJCacheConfig::class.java,
+        cacheConstructors.size shouldBeEqualTo 2
+        cacheConstructors.map { it.parameterTypes.toList() }.toSet() shouldBeEqualTo setOf(
+            listOf(
+                javax.cache.Cache::class.java,
+                javax.cache.Cache::class.java,
+                NearJCacheConfig::class.java,
+            ),
+            listOf(
+                javax.cache.Cache::class.java,
+                javax.cache.Cache::class.java,
+                NearJCacheConfig::class.java,
+                NearJCacheClearAuthority::class.java,
+            ),
         )
         NearJCache.Companion::class.java.declaredMethods
-            .single { it.name.startsWith("withTimeSource") }
+            .single { it.name.startsWith("withTimeSource") && !it.name.contains("default") }
             .isSynthetic.shouldBeTrue()
 
         val beanConstructors = NearJCacheStatisticsMXBean::class.java.constructors.filterNot { it.isSynthetic }

@@ -87,6 +87,9 @@ data class BackCacheWriteCompletion(
  * @property frontCache 로컬 캐시 (예: Caffeine, Ehcache)
  * @property backCache 원격 캐시 (예: Redis, Hazelcast)
  * @property config NearCache 설정
+ * @property clearAuthority namespace-wide `clear()` 권한. 기존 생성 경로의 기본값은
+ *     [NearJCacheClearAuthority.DENY]이며, caller가 back namespace 독점을 확인한 경우에만
+ *     [NearJCacheClearAuthority.EXCLUSIVE_BACK_CACHE]를 명시합니다.
  *
  * @see NearJCacheConfig
  * @see io.bluetape4k.cache.jcache.JCacheEntryEventListener
@@ -96,10 +99,34 @@ class NearJCache<K: Any, V: Any> private constructor(
     val frontCache: JCache<K, V>,
     val backCache: JCache<K, V>,
     private val config: NearJCacheConfig<K, V>,
+    val clearAuthority: NearJCacheClearAuthority,
     timeSource: NearJCacheTimeSource,
 ): JCache<K, V> by backCache {
+
+    private constructor(
+        frontCache: JCache<K, V>,
+        backCache: JCache<K, V>,
+        config: NearJCacheConfig<K, V>,
+        timeSource: NearJCacheTimeSource,
+    ) : this(frontCache, backCache, config, NearJCacheClearAuthority.DENY, timeSource)
+
     internal val configurationSnapshot: NearJCacheConfigurationSnapshot
     internal val statisticsRecorder: NearJCacheStatisticsRecorder
+
+    /**
+     * Caller가 back namespace 독점 여부를 확인한 상태로 front/back wrapper를 생성합니다.
+     * [NearJCacheClearAuthority.DENY]는 namespace-wide clear를 fail-closed로 차단하며,
+     * [NearJCacheClearAuthority.EXCLUSIVE_BACK_CACHE]만 명시적으로 destructive clear를
+     * 허용합니다. 이 authority는 [NearJCacheConfig]에 저장되거나 직렬화되지 않습니다.
+     *
+     * @param clearAuthority namespace-wide destructive operation 권한
+     */
+    constructor(
+        frontCache: JCache<K, V>,
+        backCache: JCache<K, V>,
+        config: NearJCacheConfig<K, V>,
+        clearAuthority: NearJCacheClearAuthority,
+    ) : this(frontCache, backCache, config, clearAuthority, SystemNearJCacheTimeSource)
 
     constructor(
         frontCache: JCache<K, V>,
@@ -121,6 +148,7 @@ class NearJCache<K: Any, V: Any> private constructor(
             suppliedFront = config.frontCacheConfiguration,
             actualBack = backCache,
             bulkFrontPopulationPolicy = config.bulkFrontPopulationPolicy,
+            clearAuthority = clearAuthority,
         )
         statisticsRecorder = if (configurationSnapshot.statisticsEnabled) {
             ActiveNearJCacheStatisticsRecorder(timeSource)
@@ -136,7 +164,8 @@ class NearJCache<K: Any, V: Any> private constructor(
             backCache: JCache<K, V>,
             config: NearJCacheConfig<K, V>,
             timeSource: NearJCacheTimeSource,
-        ): NearJCache<K, V> = NearJCache(frontCache, backCache, config, timeSource)
+            clearAuthority: NearJCacheClearAuthority = NearJCacheClearAuthority.DENY,
+        ): NearJCache<K, V> = NearJCache(frontCache, backCache, config, clearAuthority, timeSource)
 
         /** Redis SCAN 명령의 배치 크기 */
         const val SCAN_BATCH_SIZE = 100L
@@ -160,6 +189,24 @@ class NearJCache<K: Any, V: Any> private constructor(
         operator fun <K: Any, V: Any> invoke(
             nearCacheCfg: NearJCacheConfig<K, V>,
             backCache: JCache<K, V>,
+        ): NearJCache<K, V> = invoke(nearCacheCfg, backCache, NearJCacheClearAuthority.DENY)
+
+        /**
+         * 명시적으로 back namespace 독점 권한을 전달해 NearJCache를 생성합니다.
+         *
+         * factory가 back cache를 생성하거나 재사용했다는 사실만으로 권한을 승격하지
+         * 않으며, caller가 [clearAuthority]를 직접 선택해야 합니다.
+         * `EXCLUSIVE_BACK_CACHE`를 선택하면 `clear()`, `clearAllCache()`, no-arg
+         * `removeAll()`이 이 wrapper의 front와 back namespace를 함께 삭제할 수 있습니다.
+         * key-scoped `removeAll(keys)`는 authority와 무관하게 사용할 수 있습니다.
+         *
+         * @param clearAuthority namespace-wide destructive operation 권한
+         */
+        @Suppress("TooGenericExceptionCaught")
+        operator fun <K: Any, V: Any> invoke(
+            nearCacheCfg: NearJCacheConfig<K, V>,
+            backCache: JCache<K, V>,
+            clearAuthority: NearJCacheClearAuthority,
         ): NearJCache<K, V> {
             require(!nearCacheCfg.frontCacheConfiguration.isStoreByValue) {
                 "NearJCache front cache must use store-by-reference; " +
@@ -174,7 +221,7 @@ class NearJCache<K: Any, V: Any> private constructor(
 
             log.info { "Create NearCache instance. config=$nearCacheCfg" }
             return try {
-                NearJCache(frontCache, backCache, nearCacheCfg).also {
+                NearJCache(frontCache, backCache, nearCacheCfg, clearAuthority).also {
                     it.registerBackCacheListener()
                 }
             } catch (e: Throwable) {
@@ -343,6 +390,7 @@ class NearJCache<K: Any, V: Any> private constructor(
 
     @Suppress("TooGenericExceptionCaught")
     override fun clear() {
+        requireClearAuthority("clear")
         compoundGate.withLock {
             val hadBackCacheListener = backCacheListener.get() != null
             detachBackCacheListener()
@@ -437,6 +485,7 @@ class NearJCache<K: Any, V: Any> private constructor(
      * ```
      */
     fun clearAllCache() {
+        requireClearAuthority("clearAllCache")
         log.debug {
             "front cache, back cache 모두 clear 합니다. 단 back cache 를 공유한 다른 near cache에는 전파되지 않습니다. " +
                     "전파를 위해서는 removeAll을 사용하세요"
@@ -920,6 +969,7 @@ class NearJCache<K: Any, V: Any> private constructor(
     }
 
     override fun removeAll() {
+        requireClearAuthority("removeAll")
         mutationGate.withLock {
             mutationEpoch.incrementAndGet()
             frontCache.removeAll()
@@ -930,6 +980,15 @@ class NearJCache<K: Any, V: Any> private constructor(
                     .flatMap { chunk -> removeBackCacheEntries(chunk.map { it.key }) }
                 throwIfFailures("removeAll", failures)
             }
+        }
+    }
+
+    private fun requireClearAuthority(operation: String) {
+        if (clearAuthority == NearJCacheClearAuthority.DENY) {
+            throw SecurityException(
+                "NearJCache operation=$operation requires clearAuthority=EXCLUSIVE_BACK_CACHE; " +
+                        "configured authority=DENY"
+            )
         }
     }
 

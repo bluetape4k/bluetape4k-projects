@@ -46,6 +46,25 @@ back atomic operation을 먼저 완료한 뒤 front를 reconciliation하는 계�
 populate는 mutation epoch로 stale 값을 차단하고, clear는 timeout-late backend
 write가 끝난 뒤 back을 지우는 barrier를 사용한다.
 
+### Blocking `NearJCache` destructive clear authority
+
+`NearJCacheClearAuthority`는 `NearJCacheConfig`와 분리된 runtime-only 권한이다.
+기존 constructor와 provider factory의 기본값은 `DENY`이며, caller가 back namespace
+전체를 독점한다고 확인한 경우에만 `EXCLUSIVE_BACK_CACHE`를 명시한다.
+
+| operation | default `DENY` | `EXCLUSIVE_BACK_CACHE` | shared-back rule |
+| --- | --- | --- | --- |
+| `remove(key)` / `removeAll(keys)` | 허용 | 허용 | tenant 또는 key 목록 범위만 삭제 |
+| `clear()` / `clearAllCache()` | `SecurityException`, mutation 없음 | wrapper front와 back namespace 삭제 | peer wrapper의 이미 채워진 front는 보장하지 않음 |
+| no-arg `removeAll()` | `SecurityException`, mutation 없음 | wrapper front와 back namespace 삭제 | namespace 독점 caller만 사용 |
+| `close()` | front/listener/MXBean 정리 | 동일 | back cache, provider, `MBeanServer`는 닫지 않음 |
+
+`nearCache.backCache.clear()` 같은 caller-owned provider 직접 호출은 이 wrapper
+guard의 대상이 아니다. 따라서 back-cache reference를 권한 없는 코드에 전달하지 않는다.
+`ResilientNearJCache`와 `ResilientSuspendNearJCache`의 `ClearBack`은 이 PR2 matrix의
+보장 범위가 아니며 별도 follow-up으로 다룬다. Configuration MXBean은
+`getClearAuthority()`에서 `DENY` 또는 `EXCLUSIVE_BACK_CACHE` stable token만 노출한다.
+
 <!-- issue-1369-bulk-policy:start -->
 ### Bulk `getAll` 결과의 front 저장 정책
 

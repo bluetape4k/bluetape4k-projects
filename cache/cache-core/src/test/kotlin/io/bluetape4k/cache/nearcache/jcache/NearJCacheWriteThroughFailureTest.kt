@@ -483,5 +483,6 @@ class NearJCacheWriteThroughFailureTest {
             frontCache = frontCache,
             backCache = backCache,
             config = NearJCacheConfig(isSynchronous = true),
+            clearAuthority = NearJCacheClearAuthority.EXCLUSIVE_BACK_CACHE,
         )
 }

@@ -127,6 +127,28 @@ The configuration MXBean reports `BYPASS_FRONT` or `POPULATE_IF_AT_MOST` and
 Choose a bound only after reviewing Caffeine capacity and local heap budget.
 <!-- issue-1369-bulk-policy:end -->
 
+<!-- nearjcache-clear-authority-contract -->
+### #1368 Hazelcast NearJCache clear authority
+
+`HazelcastCaches.nearJCache` defaults to `NearJCacheClearAuthority.DENY` and does
+not infer Hazelcast namespace ownership. `clear()`, `clearAllCache()`, and no-arg
+`removeAll()` raise `SecurityException`; an exclusive owner must opt in with
+`NearJCacheClearAuthority.EXCLUSIVE_BACK_CACHE`. Key-scoped `removeAll(keys)` is
+safe for a shared namespace. Listener-free factory creation does not change this
+authority, and `close()` closes only the wrapper front, not the Hazelcast back or
+instance.
+
+```kotlin
+val shared = HazelcastCaches.nearJCache<String, User>(hazelcastInstance)
+shared.removeAll(setOf("tenant-a:key-1"))
+val owner = HazelcastCaches.nearJCache<String, User>(
+    hazelcastInstance,
+    NearJCacheClearAuthority.EXCLUSIVE_BACK_CACHE,
+) { cacheName = "users-owner" }
+owner.clear()
+```
+<!-- /nearjcache-clear-authority-contract -->
+
 ## Class Structure
 
 The main pieces are:

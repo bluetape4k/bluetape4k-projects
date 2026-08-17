@@ -60,8 +60,18 @@ Standard `get`, `containsKey`, and `getAll` check the front cache first, fall
 back to the back cache on a miss, and return every hit from both tiers. Front
 residency for bulk back hits follows the configured policy described below.
 Standard `clear` removes mappings from both layers owned by the wrapper. The
-`getDeeply` and `clearAllCache` names remain source-compatible aliases for the
-standard `get` and `clear` behavior.
+legacy constructors and provider factories use
+`NearJCacheClearAuthority.DENY`, so `clear()`, `clearAllCache()`, and no-argument
+`removeAll()` fail with `SecurityException` before mutating either tier. A caller
+that has verified exclusive ownership of the back namespace must opt in with
+`NearJCacheClearAuthority.EXCLUSIVE_BACK_CACHE`; key-scoped `removeAll(keys)` and
+single-key `remove` remain available without that authority. The authority is
+runtime-only and is not part of `NearJCacheConfig` serialization. A direct
+`nearCache.backCache.clear()` call is a caller-owned escape hatch outside this
+wrapper guard, so do not pass the back-cache reference to untrusted code. The
+`ResilientNearJCache` and `ResilientSuspendNearJCache` `ClearBack` paths are not
+covered by this contract. The `getDeeply` and `clearAllCache` names remain
+source-compatible aliases for the standard `get` and `clear` behavior.
 
 <!-- issue-1369-bulk-policy:start -->
 ### Bulk `getAll` front residency policy
@@ -156,6 +166,7 @@ personal data.
 
 ```kotlin
 import io.bluetape4k.cache.nearcache.jcache.NearJCache
+import io.bluetape4k.cache.nearcache.jcache.NearJCacheClearAuthority
 import io.bluetape4k.cache.nearcache.jcache.NearJCacheConfig
 import io.bluetape4k.cache.nearcache.jcache.management.NearJCacheConfigurationMXBean
 import io.bluetape4k.cache.nearcache.jcache.management.NearJCacheTierStatisticsMXBean
@@ -172,7 +183,12 @@ val configuration = MutableConfiguration<String, String>()
     .setStoreByValue(false)
 val front = manager.createCache("orders-front", configuration)
 val back = manager.createCache("orders-back", configuration)
-val nearCache = NearJCache(front, back, NearJCacheConfig(frontCacheConfiguration = configuration))
+val nearCache = NearJCache(
+    front,
+    back,
+    NearJCacheConfig(frontCacheConfiguration = configuration),
+    NearJCacheClearAuthority.EXCLUSIVE_BACK_CACHE,
+)
 val server = ManagementFactory.getPlatformMBeanServer()
 val registration = nearCache.registerMBeans(server, "orders-service", "orders-v1")
 val names = registration.activeObjectNames.associateBy { it.getKeyProperty("type") }
@@ -215,6 +231,27 @@ token is a best-effort stale-owner defense, not an atomic JMX compare-and-swap.
 See the [operations guide](../../docs/operations/issue-1351-nearcache-management.md)
 for rollout classification and cleanup evidence.
 <!-- issue-1351-nearcache-management:end -->
+
+<!-- nearjcache-clear-authority-contract -->
+### #1368 shared-back clear authority
+
+The default wrapper is safe for a shared back namespace. Use key-scoped removal
+for a tenant-owned key set; only an explicitly verified exclusive owner may use
+namespace-wide clear operations. The enum is runtime-only and does not change
+the serializable `NearJCacheConfig`.
+
+```kotlin
+val shared = NearJCache(front, back, NearJCacheConfig(), NearJCacheClearAuthority.DENY)
+shared.removeAll(setOf("tenant-a:key-1"))
+val owner = NearJCache(
+    front,
+    back,
+    NearJCacheConfig(),
+    NearJCacheClearAuthority.EXCLUSIVE_BACK_CACHE,
+)
+owner.clearAllCache()
+```
+<!-- /nearjcache-clear-authority-contract -->
 
 ## Near-Cache Capability Matrix
 

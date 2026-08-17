@@ -44,8 +44,12 @@ abstract class AbstractNearJCacheTest {
     open val nearCacheCfg1 = NearJCacheConfig<String, Any>()
     open val nearCacheCfg2 = NearJCacheConfig<String, Any>()
 
-    protected open val nearJCache1: NearJCache<String, Any> by lazy { NearJCache(nearCacheCfg1, backCache) }
-    protected open val nearJCache2: NearJCache<String, Any> by lazy { NearJCache(nearCacheCfg2, backCache) }
+    protected open val nearJCache1: NearJCache<String, Any> by lazy {
+        NearJCache(nearCacheCfg1, backCache, NearJCacheClearAuthority.EXCLUSIVE_BACK_CACHE)
+    }
+    protected open val nearJCache2: NearJCache<String, Any> by lazy {
+        NearJCache(nearCacheCfg2, backCache, NearJCacheClearAuthority.EXCLUSIVE_BACK_CACHE)
+    }
 
     @BeforeEach
     fun setup() {

@@ -25,6 +25,18 @@ This path moves data between cache tiers; it does not load source data. The call
 
 `NearJCache.clear()` and its compatibility alias `clearAllCache()` both clear this wrapper's front and back caches. A plain back-cache clear may not notify another Near Cache that shares it. Use provider-backed key removal or invalidation when remote local entries must be removed.
 
+The legacy `NearJCache` constructors and provider factories default to
+`NearJCacheClearAuthority.DENY`. Therefore `clear()`, `clearAllCache()`, and
+no-argument `removeAll()` throw `SecurityException` before changing either tier.
+Choose `NearJCacheClearAuthority.EXCLUSIVE_BACK_CACHE` only after verifying that
+the caller exclusively owns the back namespace. Key-scoped `removeAll(keys)` and
+single-key `remove` remain available for tenant-scoped cleanup. The authority is
+runtime-only and is not serialized with `NearJCacheConfig`. A direct
+`nearCache.backCache.clear()` call is outside the wrapper guard and must remain
+caller-owned; do not expose that reference to untrusted code. `ClearBack` on
+`ResilientNearJCache` and `ResilientSuspendNearJCache` is outside this PR2
+contract.
+
 ## A cache-tier write is not persistence write-through
 
 The common `put` contract requires a provider to update local and back caches along one operation path. It does not mention a database, JDBC repository, or Exposed table.
@@ -82,6 +94,7 @@ keeps `setStoreByValue(false)`.
 
 ```kotlin
 import io.bluetape4k.cache.nearcache.jcache.NearJCache
+import io.bluetape4k.cache.nearcache.jcache.NearJCacheClearAuthority
 import io.bluetape4k.cache.nearcache.jcache.NearJCacheConfig
 import io.bluetape4k.cache.nearcache.jcache.management.NearJCacheConfigurationMXBean
 import io.bluetape4k.cache.nearcache.jcache.management.NearJCacheTierStatisticsMXBean
@@ -98,7 +111,12 @@ val configuration = MutableConfiguration<String, String>()
     .setStoreByValue(false)
 val front = manager.createCache("orders-front", configuration)
 val back = manager.createCache("orders-back", configuration)
-val nearCache = NearJCache(front, back, NearJCacheConfig(frontCacheConfiguration = configuration))
+val nearCache = NearJCache(
+    front,
+    back,
+    NearJCacheConfig(frontCacheConfiguration = configuration),
+    NearJCacheClearAuthority.EXCLUSIVE_BACK_CACHE,
+)
 val server = ManagementFactory.getPlatformMBeanServer()
 val registration = nearCache.registerMBeans(server, "orders-service", "orders-v1")
 val names = registration.activeObjectNames.associateBy { it.getKeyProperty("type") }
@@ -139,6 +157,27 @@ replacement. Keep the JMX namespace exclusive, investigate collisions, and
 treat `RECOVERY_REQUIRED` as immediate cleanup work. The ownership token only
 provides best-effort stale-owner protection.
 <!-- issue-1351-nearcache-management:end -->
+
+<!-- nearjcache-clear-authority-contract -->
+### #1368 shared-back clear authority
+
+The default wrapper is safe for a shared back namespace. Use key-scoped removal
+for a tenant-owned key set; only an explicitly verified exclusive owner may use
+namespace-wide clear operations. The enum is runtime-only and does not change
+the serializable `NearJCacheConfig`.
+
+```kotlin
+val shared = NearJCache(front, back, NearJCacheConfig(), NearJCacheClearAuthority.DENY)
+shared.removeAll(setOf("tenant-a:key-1"))
+val owner = NearJCache(
+    front,
+    back,
+    NearJCacheConfig(),
+    NearJCacheClearAuthority.EXCLUSIVE_BACK_CACHE,
+)
+owner.clearAllCache()
+```
+<!-- /nearjcache-clear-authority-contract -->
 
 ## Sources and tests
 

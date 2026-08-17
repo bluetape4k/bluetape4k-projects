@@ -12,6 +12,7 @@ import io.bluetape4k.cache.nearcache.RedissonNearCacheConfig
 import io.bluetape4k.cache.nearcache.RedissonSuspendNearCache
 import io.bluetape4k.cache.nearcache.SuspendNearCacheOperations
 import io.bluetape4k.cache.nearcache.jcache.NearJCache
+import io.bluetape4k.cache.nearcache.jcache.NearJCacheClearAuthority
 import io.bluetape4k.cache.nearcache.jcache.NearJCacheConfig
 import io.bluetape4k.cache.nearcache.jcache.SuspendNearJCache
 import io.bluetape4k.logging.KLogging
@@ -34,6 +35,7 @@ import javax.cache.configuration.MutableConfiguration
  * val suspendNear = RedissonCaches.suspendNearCache<String>("my-near", redisson)
  * ```
  */
+@Suppress("TooManyFunctions")
 object RedissonCaches: KLogging() {
     // ─────────────────────────────────────────────
     // JCache
@@ -165,7 +167,21 @@ object RedissonCaches: KLogging() {
     fun <K: Any, V: Any> nearJCache(
         backCache: JCache<K, V>,
         nearJCacheConfig: NearJCacheConfig<K, V> = NearJCacheConfig(),
-    ): NearJCache<K, V> = NearJCache(nearJCacheConfig, backCache)
+    ): NearJCache<K, V> = nearJCache(backCache, nearJCacheConfig, NearJCacheClearAuthority.DENY)
+
+    /**
+     * [NearJCacheClearAuthority]를 명시하는 기존 back-cache 기반 factory입니다.
+     * 기존 overload는 [NearJCacheClearAuthority.DENY]를 사용하며, factory가 Redisson
+     * back namespace ownership을 추론하지 않습니다. wrapper `close()`는 생성한 front만
+     * 닫고 supplied [backCache]와 Redisson provider는 caller가 관리합니다.
+     *
+     * @param clearAuthority caller가 확인한 back namespace 권한
+     */
+    fun <K: Any, V: Any> nearJCache(
+        backCache: JCache<K, V>,
+        nearJCacheConfig: NearJCacheConfig<K, V>,
+        clearAuthority: NearJCacheClearAuthority,
+    ): NearJCache<K, V> = NearJCache(nearJCacheConfig, backCache, clearAuthority)
 
     /**
      * RedissonClient로 백엔드 캐시를 생성하고 [NearJCache]를 반환합니다.
@@ -193,9 +209,34 @@ object RedissonCaches: KLogging() {
                 setTypes(K::class.java, V::class.java)
             },
         nearJCacheConfig: NearJCacheConfig<K, V> = NearJCacheConfig(),
+    ): NearJCache<K, V> = nearJCache(
+        backCacheName = backCacheName,
+        redisson = redisson,
+        clearAuthority = NearJCacheClearAuthority.DENY,
+        backCacheConfiguration = backCacheConfiguration,
+        nearJCacheConfig = nearJCacheConfig,
+    )
+
+    /**
+     * Redisson client 기반 [NearJCache]에 명시적 clear authority를 전달합니다.
+     * 기존 overload는 [NearJCacheClearAuthority.DENY]를 사용합니다. `EXCLUSIVE_BACK_CACHE`
+     * 는 caller가 해당 Redisson back namespace를 독점한다고 확인한 경우에만 선택합니다.
+     * wrapper `close()`는 생성한 front만 닫고 [redisson] provider와 back cache는 닫지 않습니다.
+     *
+     * @param clearAuthority caller가 확인한 back namespace 권한
+     */
+    inline fun <reified K: Any, reified V: Any> nearJCache(
+        backCacheName: String,
+        redisson: RedissonClient,
+        clearAuthority: NearJCacheClearAuthority,
+        backCacheConfiguration: Configuration<K, V> =
+            MutableConfiguration<K, V>().apply {
+                setTypes(K::class.java, V::class.java)
+            },
+        nearJCacheConfig: NearJCacheConfig<K, V> = NearJCacheConfig(),
     ): NearJCache<K, V> {
         val backCache = RedissonJCaching.getOrCreate(backCacheName, redisson, backCacheConfiguration)
-        return NearJCache(nearJCacheConfig, backCache)
+        return NearJCache(nearJCacheConfig, backCache, clearAuthority)
     }
 
     // ─────────────────────────────────────────────

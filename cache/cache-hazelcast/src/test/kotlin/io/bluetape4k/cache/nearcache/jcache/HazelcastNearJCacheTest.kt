@@ -5,6 +5,7 @@ import io.bluetape4k.cache.HazelcastServers
 import io.bluetape4k.cache.HazelcastServers.hazelcastClient
 import io.bluetape4k.cache.jcache.JCaching
 import io.bluetape4k.cache.jcache.JCache
+import io.bluetape4k.cache.nearcache.jcache.NearJCacheClearAuthority.EXCLUSIVE_BACK_CACHE
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldContain
@@ -75,11 +76,8 @@ class HazelcastNearJCacheTest {
             nearCache.get("back-only") shouldBeEqualTo "from-back"
             nearCache.frontCache.get("back-only") shouldBeEqualTo "from-back"
         } finally {
-            try {
-                nearCache.clearAllCache()
-            } finally {
-                nearCache.close()
-            }
+            nearCache.removeAll(setOf("k", "back-only"))
+            nearCache.close()
         }
 
         frontCache.isClosed shouldBeEqualTo true
@@ -123,7 +121,7 @@ class HazelcastNearJCacheTest {
     fun `factory creates listener-free NearJCache with read-through and write-through`() {
         val cacheName = "hazelcast-near-jcache-" + Base58.randomString(6)
         val cache =
-            HazelcastCaches.nearJCache<String, String>(hazelcastClient) {
+            HazelcastCaches.nearJCache<String, String>(hazelcastClient, EXCLUSIVE_BACK_CACHE) {
                 this.cacheName = cacheName
             }
 
@@ -143,6 +141,36 @@ class HazelcastNearJCacheTest {
             cache.getDeeply("k").shouldBeNull()
         } finally {
             cache.clearAllCache()
+            cache.close()
+        }
+    }
+
+    @Test
+    fun `기존 Hazelcast factory는 clear authority를 기본 거부한다`() {
+        val cache = HazelcastCaches.nearJCache<String, String>(hazelcastClient) {
+            cacheName = "hazelcast-near-jcache-default-authority-" + Base58.randomString(6)
+        }
+
+        try {
+            assertFailsWith<SecurityException> { cache.clear() }
+        } finally {
+            cache.close()
+        }
+    }
+
+    @Test
+    fun `Hazelcast factory는 explicit exclusive authority overload를 전달한다`() {
+        val cache = HazelcastCaches.nearJCache<String, String>(
+            hazelcastClient,
+            EXCLUSIVE_BACK_CACHE,
+        ) {
+            cacheName = "hazelcast-near-jcache-exclusive-authority-" + Base58.randomString(6)
+        }
+
+        try {
+            cache.clearAllCache()
+            cache.removeAll()
+        } finally {
             cache.close()
         }
     }
