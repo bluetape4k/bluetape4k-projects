@@ -1,0 +1,11 @@
+chart-gate: asset=issue1369-nearcache-bulk-throughput-ratio-chart-01
+source=docs/images/readme-charts/issue1369-nearcache-bulk-chart-source.json
+manifestSha256=5885fc483326647602f637ecc45de0d3a28e712bdbb6e7505039a5717854dbb4
+metric=candidate throughput / baseline throughput
+pathAggregation=minimum ratio per scenario across batchSize 1,4,128 at thread 1
+contentionAggregation=minimum-maximum ratio range per policy across threads 1,2,4,8,16 with median marker
+gate=0.95 minimum ratio
+unitDirection=higher-is-better
+render=SVG validated with xmllint and rendered to 3200x2160 opaque PNG via CairoSVG
+visualAudit=PASS; no text hazards; full-canvas occupancy and labels visually inspected
+status=PASS

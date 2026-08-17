@@ -1,0 +1,102 @@
+{
+  "schemaVersion": 1,
+  "issue": 1369,
+  "manifest": {
+    "path": "docs/benchmarks/raw/issue-1369/candidate/manifest.json",
+    "sha256": "5885fc483326647602f637ecc45de0d3a28e712bdbb6e7505039a5717854dbb4"
+  },
+  "comparisonInputs": [
+    {
+      "path": "docs/benchmarks/raw/issue-1369/candidate/path-t1-comparison.json",
+      "sha256": "935b9b93a6900181564d845a85d2d1a0a921fb5e889890df606eff343739a289",
+      "rows": 21,
+      "scope": "path, thread=1"
+    },
+    {
+      "path": "docs/benchmarks/raw/issue-1369/candidate/contention-t1-comparison.json",
+      "sha256": "37171f371d5530b591f4c5f2b33d8c22a37d4544818face43f50e74835afbed2",
+      "rows": 2,
+      "scope": "contention, threads=1"
+    },
+    {
+      "path": "docs/benchmarks/raw/issue-1369/candidate/contention-t2-comparison.json",
+      "sha256": "338f17415e8dd5c3f93b141fcf35ce2858b051c34bcc3c997d824fb55da16b9e",
+      "rows": 2,
+      "scope": "contention, threads=2"
+    },
+    {
+      "path": "docs/benchmarks/raw/issue-1369/candidate/contention-t4-comparison.json",
+      "sha256": "c2854282cdcdf9ce53107db4bbcf445975a9d2835a6d07d7edd23d783ce14b0b",
+      "rows": 2,
+      "scope": "contention, threads=4"
+    },
+    {
+      "path": "docs/benchmarks/raw/issue-1369/candidate/contention-t8-comparison.json",
+      "sha256": "f9c8496ba3583668ec44f920838cf5ca50d2b2ef47cfb93885446e30d3fa39a5",
+      "rows": 2,
+      "scope": "contention, threads=8"
+    },
+    {
+      "path": "docs/benchmarks/raw/issue-1369/candidate/contention-t16-comparison.json",
+      "sha256": "566fcff917052b9463ec32b7f9fd5a98434715d4444453956df212175d73a679",
+      "rows": 2,
+      "scope": "contention, threads=16"
+    }
+  ],
+  "transformation": {
+    "metricDirection": {
+      "throughputRatio": "higher is better; candidate / baseline",
+      "allocationReductionPct": "higher is better; (baseline - candidate) / baseline * 100"
+    },
+    "path": {
+      "groupBy": "params.scenario",
+      "thread": 1,
+      "batchSizes": [1, 4, 128],
+      "throughputRatio": "minimum ratio across the three batch sizes",
+      "allocationReductionPct": "median reduction across the three batch sizes"
+    },
+    "contention": {
+      "groupBy": "params.policy",
+      "threads": [1, 2, 4, 8, 16],
+      "throughputRatio": "minimum and maximum ratio across thread counts, with median marker",
+      "allocationReductionPct": "median reduction across thread counts"
+    }
+  },
+  "throughputRatio": {
+    "path": [
+      {"scenario": "BACK_HIT_BOUNDED", "minimum": 1.0387123790680224},
+      {"scenario": "BACK_HIT_BYPASS", "minimum": 1.2247389278232454},
+      {"scenario": "BACK_HIT_OVERSIZED", "minimum": 1.2253485724867363},
+      {"scenario": "BACK_MISS_BOUNDED", "minimum": 1.0108615989810232},
+      {"scenario": "BACK_MISS_BYPASS", "minimum": 0.9970691233317408},
+      {"scenario": "FRONT_HIT_BOUNDED", "minimum": 1.007032700399837},
+      {"scenario": "FRONT_HIT_BYPASS", "minimum": 0.9889508759282967}
+    ],
+    "contention": [
+      {"policy": "BYPASS_FRONT", "minimum": 1.2915508577020685, "maximum": 1.774692209490313, "median": 1.4308418180803206},
+      {"policy": "POPULATE_IF_AT_MOST", "minimum": 1.035547971320155, "maximum": 1.1035495312284316, "median": 1.0606325118587252}
+    ]
+  },
+  "allocationReductionPct": {
+    "path": [
+      {"scenario": "BACK_HIT_BOUNDED", "median": 0.0010447403372477347},
+      {"scenario": "BACK_HIT_BYPASS", "median": 21.31099546423984},
+      {"scenario": "BACK_HIT_OVERSIZED", "median": 21.30062036050065}
+    ],
+    "contention": [
+      {"policy": "BYPASS_FRONT", "median": 22.148412581240002},
+      {"policy": "POPULATE_IF_AT_MOST", "median": -0.005632997237341318}
+    ],
+    "excluded": [
+      {"scope": "FRONT_HIT_*", "reason": "front hits do not exercise back-hit population; median absolute reduction is below 0.01%"},
+      {"scope": "BACK_MISS_*", "reason": "back misses do not return values to populate; median absolute reduction is below 0.01%"}
+    ]
+  },
+  "assets": {
+    "semanticLedger": "docs/images/readme-charts/issue1369-nearcache-bulk-chart.semantic.json",
+    "throughputSvg": "docs/images/readme-charts/issue1369-nearcache-bulk-throughput-ratio-chart-01.svg",
+    "throughputPng": "docs/images/readme-charts/issue1369-nearcache-bulk-throughput-ratio-chart-01.png",
+    "allocationSvg": "docs/images/readme-charts/issue1369-nearcache-bulk-allocation-reduction-chart-01.svg",
+    "allocationPng": "docs/images/readme-charts/issue1369-nearcache-bulk-allocation-reduction-chart-01.png"
+  }
+}

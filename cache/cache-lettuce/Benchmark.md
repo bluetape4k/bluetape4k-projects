@@ -36,6 +36,14 @@ Requires Docker (Testcontainers Redis 7+).
 
 ---
 
+## Issue #1369 bounded bulk report
+
+The `NearJCacheBulkPathBenchmark` and `NearJCacheBulkContentionBenchmark` evidence is maintained in the
+[Issue #1369 report](../../docs/benchmarks/2026-08-17-issue-1369-nearcache-bounded-bulk.md). It is a separate,
+committed JMH snapshot for the bounded `getAll()` front-population policy; the legacy `LettuceNearCache`
+results below are intentionally preserved and are not mixed with that report. The report links the raw
+baseline/candidate JSON and separate throughput/allocation charts.
+
 ## Results
 
 ### Summary Table (Throughput: ops/ms, higher is better)

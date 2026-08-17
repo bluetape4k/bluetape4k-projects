@@ -1,0 +1,78 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1080" viewBox="0 0 1600 1080" role="img" aria-labelledby="title desc" data-manifest-sha="5885fc483326647602f637ecc45de0d3a28e712bdbb6e7505039a5717854dbb4" data-source-file="issue1369-nearcache-bulk-chart-source.json" data-semantic-ledger="issue1369-nearcache-bulk-chart.semantic.json">
+  <title id="title">Issue #1369 NearJCache bounded bulk throughput ratio</title>
+  <desc id="desc">The conservative path minimum and contention ratio range remain above the 0.95 candidate throughput gate. Higher ratio is better.</desc>
+  <defs>
+    <style>
+      .canvas{fill:#F6F9FD}.frame{fill:#FFFFFF;stroke:#C9D8E8;stroke-width:2}.panel{fill:#FFFFFF;stroke:#C9D8E8;stroke-width:1.8}.note{fill:#F7FBFF;stroke:#4F83FF;stroke-width:1.5}
+      .title{font-family:"goorm Sans","Apple SD Gothic Neo",sans-serif;font-size:36px;fill:#22304A;font-weight:700}.subtitle{font-family:"goorm Sans","Apple SD Gothic Neo",sans-serif;font-size:16px;fill:#5B6B83}.panelTitle{font-family:"goorm Sans","Apple SD Gothic Neo",sans-serif;font-size:24px;fill:#22304A;font-weight:700}
+      .label,.axis,.value,.small,.tiny,.legend{font-family:"goorm Sans Code","Apple SD Gothic Neo",monospace;fill:#22304A}.label{font-size:15px;font-weight:700}.axis{font-size:12px;fill:#5B6B83}.value{font-size:13px;font-weight:700}.small{font-size:14px}.tiny{font-size:12px;fill:#5B6B83}.legend{font-size:13px}
+      .grid{stroke:#E1E9F3;stroke-width:1}.axisLine{stroke:#B7C8DC;stroke-width:1.5}.pathBar{fill:#8BB8FF;stroke:#4F83FF;stroke-width:1.4}.range{stroke:#18A98F;stroke-width:12;stroke-linecap:round}.rangePoint{fill:#FFFFFF;stroke:#18A98F;stroke-width:3}.median{fill:#18A98F;stroke:#FFFFFF;stroke-width:3}.gate{stroke:#D95C5C;stroke-width:2;stroke-dasharray:7 6}.divider{stroke:#E1E9F3;stroke-width:1}
+    </style>
+  </defs>
+  <rect class="canvas" width="1600" height="1080"/>
+  <rect class="frame" x="1" y="1" width="1598" height="1078" rx="16"/>
+  <text class="title" x="800" y="58" text-anchor="middle">#1369 NearJCache bounded bulk 처리량 비율</text>
+  <text class="subtitle" x="800" y="88" text-anchor="middle">candidate / baseline · path는 batchSize 1·4·128 중 최솟값 · contention은 thread 1·2·4·8·16 범위</text>
+
+  <g transform="translate(1080 112)">
+    <rect x="0" y="0" width="20" height="14" rx="4" class="pathBar"/><text class="legend" x="30" y="12">path 최솟값</text>
+    <line x1="150" y1="7" x2="190" y2="7" class="range"/><circle cx="170" cy="7" r="6" class="median"/><text class="legend" x="204" y="12">contention 범위 / 중앙값</text>
+    <line x1="430" y1="0" x2="430" y2="14" class="gate"/><text class="legend" x="442" y="12">0.95 gate</text>
+  </g>
+
+  <rect class="panel" x="64" y="142" width="1472" height="720" rx="14"/>
+  <text class="panelTitle" x="98" y="184">Throughput ratio (higher is better)</text>
+  <text class="axis" x="950" y="184" text-anchor="middle">candidate / baseline (ratio)</text>
+
+  <line class="gate" x1="460" y1="214" x2="460" y2="790"/>
+  <line class="grid" x1="460" y1="214" x2="460" y2="790"/>
+  <line class="grid" x1="518" y1="214" x2="518" y2="790"/>
+  <line class="grid" x1="748" y1="214" x2="748" y2="790"/>
+  <line class="grid" x1="979" y1="214" x2="979" y2="790"/>
+  <line class="grid" x1="1209" y1="214" x2="1209" y2="790"/>
+  <line class="grid" x1="1440" y1="214" x2="1440" y2="790"/>
+  <line class="axisLine" x1="460" y1="790" x2="1440" y2="790"/>
+  <text class="axis" x="460" y="814" text-anchor="middle">0.95</text>
+  <text class="axis" x="518" y="814" text-anchor="middle">1.0</text>
+  <text class="axis" x="748" y="814" text-anchor="middle">1.2</text>
+  <text class="axis" x="979" y="814" text-anchor="middle">1.4</text>
+  <text class="axis" x="1209" y="814" text-anchor="middle">1.6</text>
+  <text class="axis" x="1440" y="814" text-anchor="middle">1.8</text>
+
+  <text class="tiny" x="98" y="218">PATH / thread=1 / batch size별 보수적 최솟값</text>
+  <g data-series="path" data-scenario="BACK_HIT_BOUNDED" data-value="1.0387123790680224">
+    <text class="label" x="98" y="258">BACK_HIT_BOUNDED</text><rect class="pathBar" x="460" y="238" width="102.4" height="26" rx="6"/><text class="value" x="572" y="257">1.0387</text>
+  </g>
+  <g data-series="path" data-scenario="BACK_HIT_BYPASS" data-value="1.2247389278232454">
+    <text class="label" x="98" y="313">BACK_HIT_BYPASS</text><rect class="pathBar" x="460" y="293" width="316.7" height="26" rx="6"/><text class="value" x="786" y="312">1.2247</text>
+  </g>
+  <g data-series="path" data-scenario="BACK_HIT_OVERSIZED" data-value="1.2253485724867363">
+    <text class="label" x="98" y="368">BACK_HIT_OVERSIZED</text><rect class="pathBar" x="460" y="348" width="317.4" height="26" rx="6"/><text class="value" x="787" y="367">1.2253</text>
+  </g>
+  <g data-series="path" data-scenario="BACK_MISS_BOUNDED" data-value="1.0108615989810232">
+    <text class="label" x="98" y="423">BACK_MISS_BOUNDED</text><rect class="pathBar" x="460" y="403" width="70.2" height="26" rx="6"/><text class="value" x="540" y="422">1.0109</text>
+  </g>
+  <g data-series="path" data-scenario="BACK_MISS_BYPASS" data-value="0.9970691233317408">
+    <text class="label" x="98" y="478">BACK_MISS_BYPASS</text><rect class="pathBar" x="460" y="458" width="54.3" height="26" rx="6"/><text class="value" x="524" y="477">0.9971</text>
+  </g>
+  <g data-series="path" data-scenario="FRONT_HIT_BOUNDED" data-value="1.007032700399837">
+    <text class="label" x="98" y="533">FRONT_HIT_BOUNDED</text><rect class="pathBar" x="460" y="513" width="65.8" height="26" rx="6"/><text class="value" x="536" y="532">1.0070</text>
+  </g>
+  <g data-series="path" data-scenario="FRONT_HIT_BYPASS" data-value="0.9889508759282967">
+    <text class="label" x="98" y="588">FRONT_HIT_BYPASS</text><rect class="pathBar" x="460" y="568" width="44.9" height="26" rx="6"/><text class="value" x="515" y="587">0.9890</text>
+  </g>
+
+  <line class="divider" x1="98" y1="620" x2="1502" y2="620"/>
+  <text class="tiny" x="98" y="650">CONTENTION / 정책별 thread 1·2·4·8·16 범위</text>
+  <g data-series="contention" data-policy="BYPASS_FRONT" data-min="1.2915508577020685" data-max="1.774692209490313" data-median="1.4308418180803206">
+    <text class="label" x="98" y="698">BYPASS_FRONT</text><line class="range" x1="854" y1="688" x2="1410" y2="688"/><circle class="rangePoint" cx="854" cy="688" r="8"/><circle class="rangePoint" cx="1410" cy="688" r="8"/><circle class="median" cx="1014" cy="688" r="9"/><text class="value" x="1490" y="670" text-anchor="end">1.292–1.775 (중앙 1.431)</text>
+  </g>
+  <g data-series="contention" data-policy="POPULATE_IF_AT_MOST" data-min="1.035547971320155" data-max="1.1035495312284316" data-median="1.0606325118587252">
+    <text class="label" x="98" y="753">POPULATE_IF_AT_MOST</text><line class="range" x1="559" y1="743" x2="637" y2="743"/><circle class="rangePoint" cx="559" cy="743" r="8"/><circle class="rangePoint" cx="637" cy="743" r="8"/><circle class="median" cx="587" cy="743" r="9"/><text class="value" x="655" y="748">1.036–1.104 (중앙 1.061)</text>
+  </g>
+
+  <rect class="note" x="64" y="894" width="1472" height="124" rx="14"/>
+  <text class="panelTitle" x="98" y="934">읽는 법</text>
+  <text class="small" x="98" y="966">모든 path 행과 contention 정책이 0.95 throughput gate를 통과했다. 차트는 비교 scan용이며 정확한 수치는 report 표와 raw comparison JSON을 기준으로 한다.</text>
+  <text class="small" x="98" y="994">Path 막대는 세 batchSize 중 최솟값이고, contention 선은 thread별 최솟값–최댓값과 중앙값을 나타낸다. 단일 로컬 Apple M4 Pro 측정이다.</text>
+</svg>

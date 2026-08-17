@@ -1,0 +1,72 @@
+{
+  "kind": "chart",
+  "source": {
+    "question": "#1369 bounded bulk 정책이 throughput gate를 지키면서 back-hit allocation을 얼마나 줄였는가?",
+    "revision": "151dd874a6d1701df5215cf80aca017ef75bad05",
+    "paths": [
+      "docs/benchmarks/raw/issue-1369/candidate/path-t1-comparison.json",
+      "docs/benchmarks/raw/issue-1369/candidate/contention-t1-comparison.json",
+      "docs/benchmarks/raw/issue-1369/candidate/contention-t2-comparison.json",
+      "docs/benchmarks/raw/issue-1369/candidate/contention-t4-comparison.json",
+      "docs/benchmarks/raw/issue-1369/candidate/contention-t8-comparison.json",
+      "docs/benchmarks/raw/issue-1369/candidate/contention-t16-comparison.json"
+    ]
+  },
+  "nodes": [
+    {
+      "id": "path-comparison",
+      "label": "path t1 comparison rows",
+      "source": "docs/benchmarks/raw/issue-1369/candidate/path-t1-comparison.json"
+    },
+    {
+      "id": "contention-comparison",
+      "label": "contention comparison rows",
+      "source": "docs/benchmarks/raw/issue-1369/candidate/contention-t1-comparison.json"
+    },
+    {
+      "id": "throughput-ratio",
+      "label": "throughput ratio chart",
+      "source": "docs/images/readme-charts/issue1369-nearcache-bulk-throughput-ratio-chart-01.svg"
+    },
+    {
+      "id": "allocation-reduction",
+      "label": "allocation reduction chart",
+      "source": "docs/images/readme-charts/issue1369-nearcache-bulk-allocation-reduction-chart-01.svg"
+    }
+  ],
+  "edges": [
+    {
+      "id": "path-to-throughput",
+      "from": "path-comparison",
+      "to": "throughput-ratio",
+      "kind": "aggregation",
+      "source": "docs/benchmarks/raw/issue-1369/candidate/path-t1-comparison.json"
+    },
+    {
+      "id": "contention-to-throughput",
+      "from": "contention-comparison",
+      "to": "throughput-ratio",
+      "kind": "aggregation",
+      "source": "docs/benchmarks/raw/issue-1369/candidate/contention-t1-comparison.json"
+    },
+    {
+      "id": "path-to-allocation",
+      "from": "path-comparison",
+      "to": "allocation-reduction",
+      "kind": "aggregation",
+      "source": "docs/benchmarks/raw/issue-1369/candidate/path-t1-comparison.json"
+    },
+    {
+      "id": "contention-to-allocation",
+      "from": "contention-comparison",
+      "to": "allocation-reduction",
+      "kind": "aggregation",
+      "source": "docs/benchmarks/raw/issue-1369/candidate/contention-t1-comparison.json"
+    }
+  ],
+  "behavior": {
+    "branches": 0,
+    "loops": 0
+  },
+  "repairs": []
+}
