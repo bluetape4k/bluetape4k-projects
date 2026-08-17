@@ -18,6 +18,8 @@ class NearJCacheManagementMXBeanTest {
         storeByValue = false,
         statisticsEnabled = true,
         managementEnabled = true,
+        bulkFrontPopulationPolicy = "POPULATE_IF_AT_MOST",
+        bulkFrontPopulationMaximumEntryCount = 17,
     )
 
     @Test
@@ -39,6 +41,14 @@ class NearJCacheManagementMXBeanTest {
 
         bean.getTypeResolutionSource() shouldBeEqualTo "SUPPLIED_FRONT"
         bean.isTypeResolutionExact().shouldBeFalse()
+    }
+
+    @Test
+    fun `bulk front population 정책의 stable metadata를 노출한다`() {
+        val bean = NearJCacheManagementMXBean.fromSnapshot(snapshot)
+
+        bean.getBulkFrontPopulationPolicy() shouldBeEqualTo "POPULATE_IF_AT_MOST"
+        bean.getBulkFrontPopulationMaximumEntryCount() shouldBeEqualTo 17
     }
 
     @Test

@@ -39,6 +39,9 @@ class NearJCacheConfigBuilder<K: Any, V: Any> {
     /** 비동기 원격 캐시 write-through 재시도 횟수. 기본값: 1회 */
     var syncRemoteRetryCount: Int = NearJCacheConfig.DEFAULT_SYNC_REMOTE_RETRY_COUNT
 
+    /** `getAll`의 실제 `backValues.size`가 상한 이하일 때만 batch 전체를 저장하는 정책. 기본값: 저장 우회 */
+    var bulkFrontPopulationPolicy: BulkFrontPopulationPolicy = BulkFrontPopulationPolicy.BypassFront
+
     /**
      * 설정값으로 [NearJCacheConfig] 인스턴스를 생성합니다.
      */
@@ -49,6 +52,7 @@ class NearJCacheConfigBuilder<K: Any, V: Any> {
         isSynchronous = isSynchronous,
         syncRemoteTimeout = syncRemoteTimeout,
         syncRemoteRetryCount = syncRemoteRetryCount,
+        bulkFrontPopulationPolicy = bulkFrontPopulationPolicy,
     )
 }
 

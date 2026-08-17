@@ -105,9 +105,37 @@ val value = memo("recover")      // 새로 계산하여 7 반환
 
 `NearJCache<K,V>`의 표준 `javax.cache.Cache` 메서드는 논리적 2-tier 캐시를
 관찰합니다. `get`, `containsKey`, `getAll`은 front를 먼저 확인하고 miss이면
-back을 조회하며, back hit는 front에 populate합니다. `clear`는 해당 wrapper가
+back을 조회하며 두 계층에서 찾은 값을 모두 반환합니다. bulk back hit의 front
+residency는 아래 설정 정책을 따릅니다. `clear`는 해당 wrapper가
 소유한 front와 back의 매핑을 함께 삭제합니다. 기존 `getDeeply`와
 `clearAllCache` 이름은 각각 표준 `get`과 `clear`의 소스 호환 alias로 유지됩니다.
+
+<!-- issue-1369-bulk-policy:start -->
+### Bulk `getAll` 결과의 front 저장 정책
+
+<!-- contract: default-bypass; bounded-all-or-nothing; single-key-get-unchanged; repeated-back-read; legacy-safe-default -->
+
+```kotlin
+val safeDefault = NearJCacheConfig<String, User>()
+val bounded = NearJCacheConfig<String, User>(
+    bulkFrontPopulationPolicy = BulkFrontPopulationPolicy.PopulateIfAtMost(128),
+)
+```
+
+기본 `BulkFrontPopulationPolicy.BypassFront`도 front hit와 모든 back hit를
+반환하지만, bulk 조회의 back 결과를 front에 저장하지 않습니다.
+`BulkFrontPopulationPolicy.PopulateIfAtMost(n)`은 `backValues.size <= n`일 때만
+batch 전체를 저장하며, 초과 batch의 일부만 저장하지 않습니다. entry 수는
+메모리에 상주하는 byte 크기도 back 조회 크기 제한도 아닙니다. single-key `get()`의
+read-through 저장은 바뀌지 않습니다.
+
+Configuration MXBean은 `BYPASS_FRONT` 또는 `POPULATE_IF_AT_MOST`와
+`bulkFrontPopulationMaximumEntryCount`를 노출합니다. `0`은 bypass 정책에 상한을
+적용하지 않는다는 뜻입니다. 새 설정과 복원한 legacy stream은 모두 안전한 bypass를
+기본으로 사용합니다. 반환 결과는 같지만 반복 `getAll`은 back을 반복 조회해 로컬 hit
+ratio와 back 부하를 바꿀 수 있습니다. 이전 무제한 batch 저장 방식은 복원하지 마세요.
+front 용량과 로컬 heap 예산을 검토한 뒤 상한 정책을 명시합니다.
+<!-- issue-1369-bulk-policy:end -->
 
 공유 back cache를 사용하는 다른 wrapper의 front에 이미 들어간 값까지
 `clear`가 listener로 지운다고 보장하지 않습니다. peer 무효화가 필요하면

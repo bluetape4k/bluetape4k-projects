@@ -45,6 +45,34 @@ Provider event guarantees differ. The 1.12.1 source uses per-key removal where R
 - Rising local and back misses point to the cache-aside loader and source-store load.
 - Eviction rising with load latency can mean the hot set exceeds local capacity.
 
+<!-- issue-1369-bulk-policy:start -->
+## Bulk `getAll` front residency policy
+
+<!-- contract: default-bypass; bounded-all-or-nothing; single-key-get-unchanged; repeated-back-read; legacy-safe-default -->
+
+```kotlin
+val safeDefault = NearJCacheConfig<String, User>()
+val bounded = NearJCacheConfig<String, User>(
+    bulkFrontPopulationPolicy = BulkFrontPopulationPolicy.PopulateIfAtMost(128),
+)
+```
+
+The default `BulkFrontPopulationPolicy.BypassFront` returns front hits and every
+back hit without storing the bulk back result in front.
+`BulkFrontPopulationPolicy.PopulateIfAtMost(n)` stores the whole batch only when
+`backValues.size <= n`; an oversized batch is never partially stored. The entry
+count is not resident byte size or a back query size limit, and single-key
+`get()` read-through population is unchanged.
+
+The configuration MXBean exposes `BYPASS_FRONT` or `POPULATE_IF_AT_MOST` plus
+`bulkFrontPopulationMaximumEntryCount`; `0` means not applicable for bypass.
+New configuration and a restored legacy stream both select the safe default.
+Correct results do not imply the same residency: repeated `getAll` calls can
+repeat back reads and change local hit ratio and back load. The former unlimited
+mode is not restored; use an explicit bound only after reviewing front capacity
+and local heap budget.
+<!-- issue-1369-bulk-policy:end -->
+
 <!-- issue-1351-nearcache-management:start -->
 ## Explicit NearJCache management
 

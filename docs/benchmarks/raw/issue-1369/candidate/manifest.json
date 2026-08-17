@@ -1,0 +1,115 @@
+{
+  "schemaVersion": 1,
+  "provenance": {
+    "measurementCommit": "027ee9f675015bdd6d6e7be1490ef96c551e0a85",
+    "measurementTree": "4bde98f4e408d456d6159a40723837893045f677",
+    "cleanAtMeasurement": true,
+    "rawEvidenceCommit": "9b1737f73a562e1e0b0feec3775cce79ec8a309f"
+  },
+  "artifacts": {
+    "benchmarkSourcePath": "cache/cache-lettuce/src/benchmark/kotlin/io/bluetape4k/cache/nearcache/benchmark/NearJCacheBulkPopulationBenchmark.kt",
+    "benchmarkSourceSha256": "42efaf18c3ab37dec9861ecf032d1f91c10741c22fce3662d550e61260c397ab",
+    "jmhJarPath": "cache/cache-lettuce/build/benchmarks/benchmark/jars/bluetape4k-cache-lettuce-benchmark-jmh-1.13.0-JMH.jar",
+    "jmhJarSha256": "de0f58a05953fa62ea83db817e80a59667152cf21290702fe95aaf8b20426900"
+  },
+  "invariants": {
+    "environment": {
+      "os": "Darwin 26.6.1 arm64",
+      "cpu": "Apple M4 Pro",
+      "java": "Oracle Corporation 25.0.4+7-LTS-jvmci-25.2-b20 Java HotSpot(TM) 64-Bit Server VM"
+    },
+    "toolchain": {
+      "gradle": "9.7.0",
+      "jmh": "1.37",
+      "jvmArgs": []
+    },
+    "profile": {
+      "mode": "thrpt",
+      "scoreUnit": "ops/ms",
+      "allocationMetric": "gc.alloc.rate.norm",
+      "allocationUnit": "B/op",
+      "profiler": "gc",
+      "forks": 3,
+      "warmupIterations": 3,
+      "warmupTime": "500 ms",
+      "measurementIterations": 5,
+      "measurementTime": "500 ms",
+      "threads": [
+        1,
+        2,
+        4,
+        8,
+        16
+      ]
+    },
+    "fixture": {
+      "scenarioCount": 7,
+      "scenarios": [
+        "FRONT_HIT_BYPASS",
+        "FRONT_HIT_BOUNDED",
+        "BACK_MISS_BYPASS",
+        "BACK_MISS_BOUNDED",
+        "BACK_HIT_BYPASS",
+        "BACK_HIT_BOUNDED",
+        "BACK_HIT_OVERSIZED"
+      ],
+      "batchSizes": [
+        1,
+        4,
+        128
+      ],
+      "contentionPolicies": [
+        "BYPASS_FRONT",
+        "POPULATE_IF_AT_MOST"
+      ],
+      "contentionBatchSize": 128
+    }
+  },
+  "rawResults": {
+    "path": "docs/benchmarks/raw/issue-1369/candidate/path-t1.json",
+    "contention": {
+      "1": "docs/benchmarks/raw/issue-1369/candidate/contention-t1.json",
+      "2": "docs/benchmarks/raw/issue-1369/candidate/contention-t2.json",
+      "4": "docs/benchmarks/raw/issue-1369/candidate/contention-t4.json",
+      "8": "docs/benchmarks/raw/issue-1369/candidate/contention-t8.json",
+      "16": "docs/benchmarks/raw/issue-1369/candidate/contention-t16.json"
+    }
+  },
+  "comparison": {
+    "validator": "docs/benchmarks/issue-1351-compare.jq",
+    "throughputMinimumRatio": 0.95,
+    "allocationMaximumFormula": "baseline allocation + max(0.001, baseline scoreError + candidate scoreError)",
+    "profiles": {
+      "path-t1": {
+        "artifact": "docs/benchmarks/raw/issue-1369/candidate/path-t1-comparison.json",
+        "rowCount": 21,
+        "pass": true
+      },
+      "contention-t1": {
+        "artifact": "docs/benchmarks/raw/issue-1369/candidate/contention-t1-comparison.json",
+        "rowCount": 2,
+        "pass": true
+      },
+      "contention-t2": {
+        "artifact": "docs/benchmarks/raw/issue-1369/candidate/contention-t2-comparison.json",
+        "rowCount": 2,
+        "pass": true
+      },
+      "contention-t4": {
+        "artifact": "docs/benchmarks/raw/issue-1369/candidate/contention-t4-comparison.json",
+        "rowCount": 2,
+        "pass": true
+      },
+      "contention-t8": {
+        "artifact": "docs/benchmarks/raw/issue-1369/candidate/contention-t8-comparison.json",
+        "rowCount": 2,
+        "pass": true
+      },
+      "contention-t16": {
+        "artifact": "docs/benchmarks/raw/issue-1369/candidate/contention-t16-comparison.json",
+        "rowCount": 2,
+        "pass": true
+      }
+    }
+  }
+}

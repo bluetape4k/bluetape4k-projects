@@ -120,6 +120,7 @@ class NearJCache<K: Any, V: Any> private constructor(
             actualFront = frontCache,
             suppliedFront = config.frontCacheConfiguration,
             actualBack = backCache,
+            bulkFrontPopulationPolicy = config.bulkFrontPopulationPolicy,
         )
         statisticsRecorder = if (configurationSnapshot.statisticsEnabled) {
             ActiveNearJCacheStatisticsRecorder(timeSource)
@@ -700,15 +701,19 @@ class NearJCache<K: Any, V: Any> private constructor(
         val backValues = backCache.getAll(missingKeys)
         if (backValues.isNotEmpty()) {
             mutationGate.withLock {
-                if (mutationEpoch.get() == observedEpoch) {
+                if (
+                    mutationEpoch.get() == observedEpoch &&
+                    config.bulkFrontPopulationPolicy.shouldPopulate(backValues.size)
+                ) {
                     try {
                         frontCache.putAll(backValues)
                     } catch (e: CancellationException) {
                         throw e
                     } catch (e: RuntimeException) {
-                        log.warn(e) {
+                        log.warn {
                             "NearJCache front populate failed. operation=getAll, " +
-                                    "cache=${config.cacheName}, provider=${frontCache.javaClass.name}"
+                                    "provider=${frontCache.javaClass.name}, " +
+                                    "failureType=${e.javaClass.name}"
                         }
                     }
                 }

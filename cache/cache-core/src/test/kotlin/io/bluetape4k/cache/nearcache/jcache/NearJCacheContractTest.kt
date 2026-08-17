@@ -10,12 +10,16 @@ import io.bluetape4k.assertions.shouldBeFalse
 import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.cache.jcache.JCache
 import io.bluetape4k.cache.jcache.JCacheEntryEventListener
+import io.bluetape4k.cache.jcache.JCaching
 import io.bluetape4k.concurrent.virtualthread.virtualThread
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.slot
+import io.mockk.spyk
 import io.mockk.verify
+import org.junit.jupiter.api.Assertions.assertSame
 import org.junit.jupiter.api.Test
+import java.util.UUID
 import java.util.concurrent.CancellationException
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
@@ -288,20 +292,132 @@ class NearJCacheContractTest {
     }
 
     @Test
-    fun `표준 Cache getAll은 front와 back 결과를 한 번씩 병합하고 populate한다`() {
+    fun `표준 Cache getAll은 bounded opt-in에서 front와 back 결과를 병합하고 populate한다`() {
         val frontCache = mockk<JCache<String, String>>(relaxed = true)
         val backCache = mockk<JCache<String, String>>(relaxed = true)
         every { frontCache.getAll(setOf("front", "remote")) } returns
                 mutableMapOf("front" to "front-value")
         every { backCache.getAll(setOf("remote")) } returns
                 mutableMapOf("remote" to "back-value")
-        val standardCache: Cache<String, String> = newNearCache(frontCache, backCache)
+        val standardCache: Cache<String, String> = newNearCache(
+            frontCache,
+            backCache,
+            NearJCacheConfig(
+                isSynchronous = true,
+                bulkFrontPopulationPolicy = BulkFrontPopulationPolicy.PopulateIfAtMost(1),
+            ),
+        )
 
         val result = standardCache.getAll(setOf("front", "remote"))
 
         result shouldBeEqualTo mapOf("front" to "front-value", "remote" to "back-value")
         verify(exactly = 1) { backCache.getAll(setOf("remote")) }
         verify(exactly = 1) { frontCache.putAll(mapOf("remote" to "back-value")) }
+    }
+
+    @Test
+    fun `getAll 기본 정책은 back hit를 반환하고 front populate를 우회한다`() {
+        val frontCache = mockk<JCache<String, String>>(relaxed = true)
+        val backCache = mockk<JCache<String, String>>(relaxed = true)
+        every { frontCache.getAll(setOf("front", "remote")) } returns
+                mutableMapOf("front" to "front-value")
+        every { backCache.getAll(setOf("remote")) } returns
+                mutableMapOf("remote" to "back-value")
+        val cache = newNearCache(frontCache, backCache)
+
+        cache.getAll(setOf("front", "remote")) shouldBeEqualTo
+                mapOf("front" to "front-value", "remote" to "back-value")
+
+        verify(exactly = 1) { backCache.getAll(setOf("remote")) }
+        verify(exactly = 0) { frontCache.putAll(any()) }
+    }
+
+    @Test
+    fun `bounded policy는 back hit 수가 상한 이하이면 batch 전체를 populate한다`() {
+        val frontCache = mockk<JCache<String, String>>(relaxed = true)
+        val backCache = mockk<JCache<String, String>>(relaxed = true)
+        val backValues = mutableMapOf("a" to "1", "b" to "2")
+        every { frontCache.getAll(backValues.keys) } returns mutableMapOf()
+        every { backCache.getAll(backValues.keys) } returns backValues
+        val cache = newNearCache(
+            frontCache,
+            backCache,
+            NearJCacheConfig(
+                isSynchronous = true,
+                bulkFrontPopulationPolicy = BulkFrontPopulationPolicy.PopulateIfAtMost(2),
+            ),
+        )
+
+        cache.getAll(backValues.keys) shouldBeEqualTo backValues
+
+        verify(exactly = 1) { frontCache.putAll(backValues) }
+    }
+
+    @Test
+    fun `bounded policy는 back hit 수가 상한을 넘으면 batch 전체 populate를 우회한다`() {
+        val frontCache = mockk<JCache<String, String>>(relaxed = true)
+        val backCache = mockk<JCache<String, String>>(relaxed = true)
+        val backValues = mutableMapOf("a" to "1", "b" to "2", "c" to "3")
+        every { frontCache.getAll(backValues.keys) } returns mutableMapOf()
+        every { backCache.getAll(backValues.keys) } returns backValues
+        val cache = newNearCache(
+            frontCache,
+            backCache,
+            NearJCacheConfig(
+                isSynchronous = true,
+                bulkFrontPopulationPolicy = BulkFrontPopulationPolicy.PopulateIfAtMost(2),
+            ),
+        )
+
+        cache.getAll(backValues.keys) shouldBeEqualTo backValues
+
+        verify(exactly = 0) { frontCache.putAll(any()) }
+        verify(exactly = 0) { frontCache.put(any(), any()) }
+    }
+
+    @Test
+    fun `bounded policy는 요청 수가 아니라 실제 back hit 수를 기준으로 populate한다`() {
+        val frontCache = mockk<JCache<String, String>>(relaxed = true)
+        val backCache = mockk<JCache<String, String>>(relaxed = true)
+        val keys = (1..100).map { "key-$it" }.toSet()
+        val backValues = mutableMapOf("key-1" to "one", "key-100" to "hundred")
+        every { frontCache.getAll(keys) } returns mutableMapOf()
+        every { backCache.getAll(keys) } returns backValues
+        val cache = newNearCache(
+            frontCache,
+            backCache,
+            NearJCacheConfig(
+                isSynchronous = true,
+                bulkFrontPopulationPolicy = BulkFrontPopulationPolicy.PopulateIfAtMost(2),
+            ),
+        )
+
+        cache.getAll(keys) shouldBeEqualTo backValues
+
+        verify(exactly = 1) { frontCache.putAll(backValues) }
+    }
+
+    @Test
+    fun `bounded policy는 value byte 크기를 추정하지 않고 entry 수만 사용한다`() {
+        val frontCache = mockk<JCache<String, String>>(relaxed = true)
+        val backCache = mockk<JCache<String, String>>(relaxed = true)
+        val keys = setOf("large")
+        val largeValue = "x".repeat(1_000_000)
+        val backValues = mutableMapOf("large" to largeValue)
+        every { frontCache.getAll(keys) } returns mutableMapOf()
+        every { backCache.getAll(keys) } returns backValues
+        val cache = newNearCache(
+            frontCache,
+            backCache,
+            NearJCacheConfig(
+                isSynchronous = true,
+                bulkFrontPopulationPolicy = BulkFrontPopulationPolicy.PopulateIfAtMost(1),
+            ),
+        )
+
+        cache.getAll(keys) shouldBeEqualTo backValues
+
+        verify(exactly = 1) { frontCache.putAll(backValues) }
     }
 
     @Test
@@ -314,6 +430,102 @@ class NearJCacheContractTest {
         standardCache.getAll(setOf("front")) shouldBeEqualTo mapOf("front" to "front-value")
 
         verify(exactly = 0) { backCache.getAll(any()) }
+        verify(exactly = 0) { frontCache.putAll(any()) }
+    }
+
+    @Test
+    fun `실제 Caffeine cache에서 기본 bypass는 반복 read마다 back을 조회한다`() {
+        val configuration = MutableConfiguration<String, String>()
+            .setTypes(String::class.java, String::class.java)
+            .setStoreByValue(false)
+        val frontCache = JCaching.Caffeine.getOrCreate<String, String>(
+            "issue-1369-bypass-front-${UUID.randomUUID()}",
+            configuration,
+        )
+        val backCache = spyk(
+            JCaching.Caffeine.getOrCreate<String, String>(
+                "issue-1369-bypass-back-${UUID.randomUUID()}",
+                configuration,
+            ),
+        )
+        val keys = setOf("one", "two")
+        val values = mapOf("one" to "1", "two" to "2")
+        backCache.putAll(values)
+        val cache = newNearCache(frontCache, backCache)
+
+        try {
+            cache.getAll(keys) shouldBeEqualTo values
+            cache.getAll(keys) shouldBeEqualTo values
+
+            verify(exactly = 2) { backCache.getAll(keys) }
+            frontCache.getAll(keys) shouldBeEqualTo emptyMap()
+        } finally {
+            cache.close()
+            backCache.close()
+        }
+    }
+
+    @Test
+    fun `실제 Caffeine cache에서 bounded in-range는 첫 read 이후 front hit를 사용한다`() {
+        val configuration = MutableConfiguration<String, String>()
+            .setTypes(String::class.java, String::class.java)
+            .setStoreByValue(false)
+        val frontCache = JCaching.Caffeine.getOrCreate<String, String>(
+            "issue-1369-bounded-front-${UUID.randomUUID()}",
+            configuration,
+        )
+        val backCache = spyk(
+            JCaching.Caffeine.getOrCreate<String, String>(
+                "issue-1369-bounded-back-${UUID.randomUUID()}",
+                configuration,
+            ),
+        )
+        val keys = setOf("one", "two")
+        val values = mapOf("one" to "1", "two" to "2")
+        backCache.putAll(values)
+        val cache = newNearCache(
+            frontCache,
+            backCache,
+            NearJCacheConfig(
+                frontCacheConfiguration = configuration,
+                isSynchronous = true,
+                bulkFrontPopulationPolicy = BulkFrontPopulationPolicy.PopulateIfAtMost(2),
+            ),
+        )
+
+        try {
+            cache.getAll(keys) shouldBeEqualTo values
+            cache.getAll(keys) shouldBeEqualTo values
+
+            verify(exactly = 1) { backCache.getAll(keys) }
+            frontCache.getAll(keys) shouldBeEqualTo values
+        } finally {
+            cache.close()
+            backCache.close()
+        }
+    }
+
+    @Test
+    fun `empty와 전체 back miss getAll은 빈 결과와 front no-op을 유지한다`() {
+        val frontCache = mockk<JCache<String, String>>(relaxed = true)
+        val backCache = mockk<JCache<String, String>>(relaxed = true)
+        val keys = setOf("missing")
+        every { frontCache.getAll(keys) } returns mutableMapOf()
+        every { backCache.getAll(keys) } returns mutableMapOf()
+        val cache = newNearCache(
+            frontCache,
+            backCache,
+            NearJCacheConfig(
+                isSynchronous = true,
+                bulkFrontPopulationPolicy = BulkFrontPopulationPolicy.PopulateIfAtMost(1),
+            ),
+        )
+
+        cache.getAll(emptySet()) shouldBeEqualTo emptyMap()
+        cache.getAll(keys) shouldBeEqualTo emptyMap()
+
+        verify(exactly = 1) { frontCache.getAll(keys) }
+        verify(exactly = 1) { backCache.getAll(keys) }
         verify(exactly = 0) { frontCache.putAll(any()) }
     }
 
@@ -369,6 +581,7 @@ class NearJCacheContractTest {
         releaseRead.countDown()
         reader.join(2_000)
 
+        reader.isAlive.shouldBeFalse()
         result[0] shouldBeEqualTo "stale"
         verify(exactly = 1) { frontCache.put("key", "fresh") }
         verify(exactly = 0) { frontCache.put("key", "stale") }
@@ -386,18 +599,29 @@ class NearJCacheContractTest {
             releaseRead.await(2, TimeUnit.SECONDS)
             mutableMapOf("key" to "stale")
         }
-        val nearCache = newNearCache(frontCache, backCache)
+        val nearCache = newNearCache(
+            frontCache,
+            backCache,
+            NearJCacheConfig(
+                isSynchronous = true,
+                bulkFrontPopulationPolicy = BulkFrontPopulationPolicy.PopulateIfAtMost(10),
+            ),
+        )
         val result = arrayOfNulls<MutableMap<String, String>>(1)
         val reader = virtualThread(start = false, name = "near-jcache-stale-get-all") {
             result[0] = nearCache.getAll(setOf("key"))
         }
 
-        reader.start()
-        readStarted.await(2, TimeUnit.SECONDS).shouldBeTrue()
-        nearCache.put("key", "fresh")
-        releaseRead.countDown()
-        reader.join(2_000)
+        try {
+            reader.start()
+            readStarted.await(2, TimeUnit.SECONDS).shouldBeTrue()
+            nearCache.put("key", "fresh")
+        } finally {
+            releaseRead.countDown()
+            reader.join(2_000)
+        }
 
+        reader.isAlive.shouldBeFalse()
         result[0] shouldBeEqualTo mapOf("key" to "stale")
         verify(exactly = 1) { frontCache.put("key", "fresh") }
         verify(exactly = 0) { frontCache.putAll(mapOf("key" to "stale")) }
@@ -526,18 +750,96 @@ class NearJCacheContractTest {
     }
 
     @Test
-    fun `getAll front populate CancellationException은 호출자에게 재전파한다`() {
+    fun `getAll front RuntimeException은 결과를 유지하고 retry 없이 gate를 해제하며 로그를 정제한다`() {
+        val frontCache = mockk<JCache<String, String>>(relaxed = true)
+        val backCache = mockk<JCache<String, String>>(relaxed = true)
+        val keys = setOf("secret-key")
+        val backValues = mutableMapOf("secret-key" to "secret-value")
+        val cacheName = "tenant-a\nsecret-cache"
+        val attempts = AtomicInteger()
+        every { frontCache.getAll(keys) } returns mutableMapOf()
+        every { backCache.getAll(keys) } returns backValues
+        every { frontCache.putAll(backValues) } answers {
+            if (attempts.incrementAndGet() == 1) {
+                throw IllegalStateException("secret-key secret-value")
+            }
+        }
+        val nearCache = newNearCache(
+            frontCache,
+            backCache,
+            NearJCacheConfig(
+                cacheName = cacheName,
+                isSynchronous = true,
+                bulkFrontPopulationPolicy = BulkFrontPopulationPolicy.PopulateIfAtMost(1),
+            ),
+        )
+        val logger = NearJCache.log as Logger
+        val previousLevel = logger.level
+        val appender = ListAppender<ILoggingEvent>().apply { start() }
+        logger.level = Level.WARN
+        logger.addAppender(appender)
+        try {
+            nearCache.getAll(keys) shouldBeEqualTo backValues
+            verify(exactly = 1) { frontCache.putAll(backValues) }
+
+            val secondResult = arrayOfNulls<MutableMap<String, String>>(1)
+            val secondReader = virtualThread(start = false, name = "near-jcache-get-all-runtime-recovery") {
+                secondResult[0] = nearCache.getAll(keys)
+            }
+            secondReader.start()
+            secondReader.join(2_000)
+
+            secondReader.isAlive.shouldBeFalse()
+            secondResult[0] shouldBeEqualTo backValues
+            verify(exactly = 2) { frontCache.putAll(backValues) }
+            val warning = appender.list.single { it.formattedMessage.contains("operation=getAll") }
+            warning.formattedMessage.contains(cacheName).shouldBeFalse()
+            warning.formattedMessage.contains("tenant-a").shouldBeFalse()
+            warning.formattedMessage.contains("secret-key").shouldBeFalse()
+            warning.formattedMessage.contains("secret-value").shouldBeFalse()
+            (warning.throwableProxy == null).shouldBeTrue()
+        } finally {
+            logger.detachAppender(appender)
+            appender.stop()
+            logger.level = previousLevel
+        }
+    }
+
+    @Test
+    fun `getAll front populate CancellationException은 identity를 보존하고 gate를 해제한다`() {
         val frontCache = mockk<JCache<String, String>>(relaxed = true)
         val backCache = mockk<JCache<String, String>>(relaxed = true)
         val failure = CancellationException("caller cancelled")
+        val attempts = AtomicInteger()
         every { frontCache.getAll(setOf("key")) } returns mutableMapOf()
         every { backCache.getAll(setOf("key")) } returns mutableMapOf("key" to "value")
-        every { frontCache.putAll(mapOf("key" to "value")) } throws failure
-        val nearCache = newNearCache(frontCache, backCache)
+        every { frontCache.putAll(mapOf("key" to "value")) } answers {
+            if (attempts.incrementAndGet() == 1) throw failure
+        }
+        val nearCache = newNearCache(
+            frontCache,
+            backCache,
+            NearJCacheConfig(
+                isSynchronous = true,
+                bulkFrontPopulationPolicy = BulkFrontPopulationPolicy.PopulateIfAtMost(1),
+            ),
+        )
 
-        assertFailsWith<CancellationException> {
+        val thrown = assertFailsWith<CancellationException> {
             nearCache.getAll(setOf("key"))
-        }.message shouldBeEqualTo failure.message
+        }
+        assertSame(failure, thrown)
+
+        val secondResult = arrayOfNulls<MutableMap<String, String>>(1)
+        val secondReader = virtualThread(start = false, name = "near-jcache-get-all-cancellation-recovery") {
+            secondResult[0] = nearCache.getAll(setOf("key"))
+        }
+        secondReader.start()
+        secondReader.join(2_000)
+
+        secondReader.isAlive.shouldBeFalse()
+        secondResult[0] shouldBeEqualTo mapOf("key" to "value")
+        verify(exactly = 2) { frontCache.putAll(mapOf("key" to "value")) }
     }
 
     @Test
@@ -711,10 +1013,11 @@ class NearJCacheContractTest {
     private fun newNearCache(
         frontCache: JCache<String, String>,
         backCache: JCache<String, String>,
+        config: NearJCacheConfig<String, String> = NearJCacheConfig(isSynchronous = true),
     ): NearJCache<String, String> =
         NearJCache(
             frontCache = frontCache,
             backCache = backCache,
-            config = NearJCacheConfig(isSynchronous = true),
+            config = config,
         )
 }

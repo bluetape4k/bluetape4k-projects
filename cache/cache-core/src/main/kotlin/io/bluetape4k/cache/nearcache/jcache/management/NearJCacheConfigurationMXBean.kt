@@ -15,4 +15,10 @@ interface NearJCacheConfigurationMXBean: CacheMXBean {
 
     /** 타입 pair가 실제 front cache configuration에서 직접 확인됐는지 반환합니다. */
     fun isTypeResolutionExact(): Boolean
+
+    /** bulk `getAll` 결과의 front population 정책을 stable token으로 반환합니다. */
+    fun getBulkFrontPopulationPolicy(): String
+
+    /** bulk front population에 허용되는 최대 entry 수를 반환하며, 적용 불가이면 `0`입니다. */
+    fun getBulkFrontPopulationMaximumEntryCount(): Int
 }

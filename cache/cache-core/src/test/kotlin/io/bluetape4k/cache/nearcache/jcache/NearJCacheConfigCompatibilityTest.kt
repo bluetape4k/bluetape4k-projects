@@ -1,12 +1,15 @@
 package io.bluetape4k.cache.nearcache.jcache
 
+import io.bluetape4k.assertions.assertFailsWith
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldNotBeNull
 import io.bluetape4k.cache.nearcache.jcache.management.NearJCacheManagementMXBean
+import io.bluetape4k.cache.nearcache.jcache.management.NearJCacheConfigurationMXBean
 import io.bluetape4k.cache.nearcache.jcache.management.NearJCacheStatisticsMXBean
-import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Test
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
+import java.io.InvalidObjectException
 import java.io.ObjectInputStream
 import java.io.ObjectOutputStream
 import java.io.ObjectStreamClass
@@ -22,49 +25,110 @@ class NearJCacheConfigCompatibilityTest {
     @Test
     fun `NearJCache와 management bean의 public constructor ABI를 유지한다`() {
         val publicConstructors = NearJCache::class.java.constructors.filterNot { it.isSynthetic }
-        assertEquals(1, publicConstructors.size)
-        assertEquals(
-            listOf(Cache::class.java, Cache::class.java, NearJCacheConfig::class.java),
-            publicConstructors.single().parameterTypes.toList(),
-        )
-        assertNotNull(
-            NearJCacheManagementMXBean::class.java.getConstructor(NearJCache::class.java),
-        )
-        assertNotNull(NearJCacheStatisticsMXBean::class.java.getConstructor())
-        assertEquals(
-            Void.TYPE,
-            NearJCacheStatisticsMXBean::class.java
-                .getMethod("addRemovals", Long::class.javaPrimitiveType)
-                .returnType,
-        )
+        publicConstructors.size shouldBeEqualTo 1
+        publicConstructors.single().parameterTypes.toList() shouldBeEqualTo
+            listOf(Cache::class.java, Cache::class.java, NearJCacheConfig::class.java)
+        NearJCacheManagementMXBean::class.java.getConstructor(NearJCache::class.java).shouldNotBeNull()
+        NearJCacheConfigurationMXBean::class.java
+            .getMethod("getBulkFrontPopulationPolicy")
+            .returnType shouldBeEqualTo String::class.java
+        NearJCacheConfigurationMXBean::class.java
+            .getMethod("getBulkFrontPopulationMaximumEntryCount")
+            .returnType shouldBeEqualTo Int::class.javaPrimitiveType
+        NearJCacheManagementMXBean::class.java
+            .getMethod("getBulkFrontPopulationPolicy")
+            .returnType shouldBeEqualTo String::class.java
+        NearJCacheManagementMXBean::class.java
+            .getMethod("getBulkFrontPopulationMaximumEntryCount")
+            .returnType shouldBeEqualTo Int::class.javaPrimitiveType
+        NearJCacheStatisticsMXBean::class.java.getConstructor().shouldNotBeNull()
+        NearJCacheStatisticsMXBean::class.java
+            .getMethod("addRemovals", Long::class.javaPrimitiveType)
+            .returnType shouldBeEqualTo Void.TYPE
     }
 
     @Test
     fun `NearJCacheConfig data class ABI를 유지한다`() {
+        verifyDirectConstructors()
+        verifySyntheticConstructors()
+        verifyDirectCopyMethods()
+        verifyCopyDefaultMethods()
+        verifyComponentsAndSerialVersion()
+    }
+
+    private fun verifyDirectConstructors() {
         val configClass = NearJCacheConfig::class.java
         val factoryType = Factory::class.java
         val configurationType = MutableConfiguration::class.java
 
-        assertNotNull(
-            configClass.getConstructor(
-                factoryType,
-                String::class.java,
-                configurationType,
-                Boolean::class.javaPrimitiveType,
-                Long::class.javaPrimitiveType,
-            ),
-        )
-        assertNotNull(
-            configClass.getConstructor(
-                factoryType,
-                String::class.java,
-                configurationType,
-                Boolean::class.javaPrimitiveType,
-                Long::class.javaPrimitiveType,
-                Int::class.javaPrimitiveType,
-            ),
-        )
+        configClass.getConstructor(
+            factoryType,
+            String::class.java,
+            configurationType,
+            Boolean::class.javaPrimitiveType,
+            Long::class.javaPrimitiveType,
+        ).shouldNotBeNull()
+        configClass.getConstructor(
+            factoryType,
+            String::class.java,
+            configurationType,
+            Boolean::class.javaPrimitiveType,
+            Long::class.javaPrimitiveType,
+            Int::class.javaPrimitiveType,
+        ).shouldNotBeNull()
+        configClass.getConstructor(
+            factoryType,
+            String::class.java,
+            configurationType,
+            Boolean::class.javaPrimitiveType,
+            Long::class.javaPrimitiveType,
+            Int::class.javaPrimitiveType,
+            BulkFrontPopulationPolicy::class.java,
+        ).shouldNotBeNull()
+        configClass.getConstructor().shouldNotBeNull()
+    }
 
+    private fun verifySyntheticConstructors() {
+        val configClass = NearJCacheConfig::class.java
+        val factoryType = Factory::class.java
+        val configurationType = MutableConfiguration::class.java
+        val markerType = Class.forName("kotlin.jvm.internal.DefaultConstructorMarker")
+        configClass.getDeclaredConstructor(
+            factoryType,
+            String::class.java,
+            configurationType,
+            Boolean::class.javaPrimitiveType,
+            Long::class.javaPrimitiveType,
+            Int::class.javaPrimitiveType,
+            markerType,
+        ).shouldNotBeNull()
+        configClass.getDeclaredConstructor(
+            factoryType,
+            String::class.java,
+            configurationType,
+            Boolean::class.javaPrimitiveType,
+            Long::class.javaPrimitiveType,
+            Int::class.javaPrimitiveType,
+            Int::class.javaPrimitiveType,
+            markerType,
+        ).shouldNotBeNull()
+        configClass.getDeclaredConstructor(
+            factoryType,
+            String::class.java,
+            configurationType,
+            Boolean::class.javaPrimitiveType,
+            Long::class.javaPrimitiveType,
+            Int::class.javaPrimitiveType,
+            BulkFrontPopulationPolicy::class.java,
+            Int::class.javaPrimitiveType,
+            markerType,
+        ).shouldNotBeNull()
+    }
+
+    private fun verifyDirectCopyMethods() {
+        val configClass = NearJCacheConfig::class.java
+        val factoryType = Factory::class.java
+        val configurationType = MutableConfiguration::class.java
         val copy = configClass.getMethod(
             "copy",
             factoryType,
@@ -74,8 +138,33 @@ class NearJCacheConfigCompatibilityTest {
             Long::class.javaPrimitiveType,
             Int::class.javaPrimitiveType,
         )
-        assertEquals(configClass, copy.returnType)
-        val copyDefault = configClass.getDeclaredMethod(
+        copy.returnType shouldBeEqualTo configClass
+        configClass.getMethod(
+            "copy",
+            factoryType,
+            String::class.java,
+            configurationType,
+            Boolean::class.javaPrimitiveType,
+            Long::class.javaPrimitiveType,
+        ).returnType shouldBeEqualTo configClass
+        val copyCurrent = configClass.getMethod(
+            "copy",
+            factoryType,
+            String::class.java,
+            configurationType,
+            Boolean::class.javaPrimitiveType,
+            Long::class.javaPrimitiveType,
+            Int::class.javaPrimitiveType,
+            BulkFrontPopulationPolicy::class.java,
+        )
+        copyCurrent.returnType shouldBeEqualTo configClass
+    }
+
+    private fun verifyCopyDefaultMethods() {
+        val configClass = NearJCacheConfig::class.java
+        val factoryType = Factory::class.java
+        val configurationType = MutableConfiguration::class.java
+        configClass.getDeclaredMethod(
             "copy\$default",
             configClass,
             factoryType,
@@ -84,18 +173,41 @@ class NearJCacheConfigCompatibilityTest {
             Boolean::class.javaPrimitiveType,
             Long::class.javaPrimitiveType,
             Int::class.javaPrimitiveType,
+            Any::class.java,
+        ).returnType shouldBeEqualTo configClass
+        configClass.getDeclaredMethod(
+            "copy\$default",
+            configClass,
+            factoryType,
+            String::class.java,
+            configurationType,
+            Boolean::class.javaPrimitiveType,
+            Long::class.javaPrimitiveType,
+            Int::class.javaPrimitiveType,
+            BulkFrontPopulationPolicy::class.java,
             Int::class.javaPrimitiveType,
             Any::class.java,
-        )
-        assertEquals(configClass, copyDefault.returnType)
+        ).returnType shouldBeEqualTo configClass
+        configClass.getDeclaredMethod(
+            "copy\$default",
+            configClass,
+            factoryType,
+            String::class.java,
+            configurationType,
+            Boolean::class.javaPrimitiveType,
+            Long::class.javaPrimitiveType,
+            Int::class.javaPrimitiveType,
+            Any::class.java,
+        ).returnType shouldBeEqualTo configClass
+    }
 
-        (1..6).forEach { component ->
-            assertNotNull(configClass.getMethod("component$component"))
+    private fun verifyComponentsAndSerialVersion() {
+        val configClass = NearJCacheConfig::class.java
+        (1..7).forEach { component ->
+            configClass.getMethod("component$component").shouldNotBeNull()
         }
-        assertEquals(
-            1L,
-            ObjectStreamClass.lookup(configClass).serialVersionUID,
-        )
+        configClass.getMethod("component7").returnType shouldBeEqualTo BulkFrontPopulationPolicy::class.java
+        ObjectStreamClass.lookup(configClass).serialVersionUID shouldBeEqualTo 1L
     }
 
     @Test
@@ -104,14 +216,8 @@ class NearJCacheConfigCompatibilityTest {
         val frontConfiguration = MutableConfiguration<String, String>()
         val configClass = NearJCacheConfig::class.java
 
-        assertEquals(
-            Int::class.javaPrimitiveType,
-            configClass.getMethod("getSyncRemoteRetryCount").returnType,
-        )
-        assertEquals(
-            Int::class.javaPrimitiveType,
-            configClass.getMethod("component6").returnType,
-        )
+        configClass.getMethod("getSyncRemoteRetryCount").returnType shouldBeEqualTo Int::class.javaPrimitiveType
+        configClass.getMethod("component6").returnType shouldBeEqualTo Int::class.javaPrimitiveType
 
         val config = LegacyNearJCacheConfigConsumer.construct(
             factory,
@@ -143,12 +249,126 @@ class NearJCacheConfigCompatibilityTest {
             500L,
         )
 
-        assertEquals("legacy-cache", config.cacheName)
-        assertEquals(NearJCacheConfig.DEFAULT_SYNC_REMOTE_RETRY_COUNT, config.syncRemoteRetryCount)
-        assertEquals("legacy-copy", copy.cacheName)
-        assertEquals(NearJCacheConfig.DEFAULT_SYNC_REMOTE_RETRY_COUNT, copy.syncRemoteRetryCount)
-        assertEquals("kotlin-legacy-cache", kotlinConfig.cacheName)
-        assertEquals("kotlin-legacy-copy", kotlinCopy.cacheName)
+        config.cacheName shouldBeEqualTo "legacy-cache"
+        config.syncRemoteRetryCount shouldBeEqualTo NearJCacheConfig.DEFAULT_SYNC_REMOTE_RETRY_COUNT
+        config.bulkFrontPopulationPolicy shouldBeEqualTo BulkFrontPopulationPolicy.BypassFront
+        copy.cacheName shouldBeEqualTo "legacy-copy"
+        copy.syncRemoteRetryCount shouldBeEqualTo NearJCacheConfig.DEFAULT_SYNC_REMOTE_RETRY_COUNT
+        copy.bulkFrontPopulationPolicy shouldBeEqualTo BulkFrontPopulationPolicy.BypassFront
+        kotlinConfig.cacheName shouldBeEqualTo "kotlin-legacy-cache"
+        kotlinCopy.cacheName shouldBeEqualTo "kotlin-legacy-copy"
+        kotlinConfig.bulkFrontPopulationPolicy shouldBeEqualTo BulkFrontPopulationPolicy.BypassFront
+        kotlinCopy.bulkFrontPopulationPolicy shouldBeEqualTo BulkFrontPopulationPolicy.BypassFront
+    }
+
+    @Test
+    fun `current Java consumer invokes no-arg and six and seven argument ABI`() {
+        val factory = SerializableCacheManagerFactory()
+        val frontConfiguration = MutableConfiguration<String, String>()
+        val bounded = BulkFrontPopulationPolicy.PopulateIfAtMost(2)
+        val defaultConfig = CurrentNearJCacheConfigConsumer.constructWithNoArguments()
+        val sixArgumentConfig = CurrentNearJCacheConfigConsumer.constructWithSixArguments(
+            factory,
+            "current-six",
+            frontConfiguration,
+            false,
+            250L,
+            2,
+        )
+        val sevenArgumentConfig = CurrentNearJCacheConfigConsumer.constructWithSevenArguments(
+            factory,
+            "current-seven",
+            frontConfiguration,
+            false,
+            250L,
+            2,
+            bounded,
+        )
+        val sixArgumentCopy = CurrentNearJCacheConfigConsumer.copyWithSixArguments(
+            sevenArgumentConfig,
+            factory,
+            "current-six-copy",
+            frontConfiguration,
+            true,
+            500L,
+            3,
+        )
+        val sevenArgumentCopy = CurrentNearJCacheConfigConsumer.copyWithSevenArguments(
+            sixArgumentConfig,
+            factory,
+            "current-seven-copy",
+            frontConfiguration,
+            true,
+            500L,
+            3,
+            bounded,
+        )
+
+        defaultConfig.bulkFrontPopulationPolicy shouldBeEqualTo BulkFrontPopulationPolicy.BypassFront
+        sixArgumentConfig.bulkFrontPopulationPolicy shouldBeEqualTo BulkFrontPopulationPolicy.BypassFront
+        CurrentNearJCacheConfigConsumer.policy(sevenArgumentConfig) shouldBeEqualTo bounded
+        sixArgumentCopy.bulkFrontPopulationPolicy shouldBeEqualTo BulkFrontPopulationPolicy.BypassFront
+        CurrentNearJCacheConfigConsumer.policy(sevenArgumentCopy) shouldBeEqualTo bounded
+    }
+
+    @Test
+    fun `old copy default bridges intentionally reset a bounded policy`() {
+        val source = NearJCacheConfig<String, String>(
+            bulkFrontPopulationPolicy = BulkFrontPopulationPolicy.PopulateIfAtMost(2),
+        )
+        val configClass = NearJCacheConfig::class.java
+        val factoryType = Factory::class.java
+        val configurationType = MutableConfiguration::class.java
+        val copyDefault5 = configClass.getDeclaredMethod(
+            "copy\$default",
+            configClass,
+            factoryType,
+            String::class.java,
+            configurationType,
+            Boolean::class.javaPrimitiveType,
+            Long::class.javaPrimitiveType,
+            Int::class.javaPrimitiveType,
+            Any::class.java,
+        )
+        val copyDefault6 = configClass.getDeclaredMethod(
+            "copy\$default",
+            configClass,
+            factoryType,
+            String::class.java,
+            configurationType,
+            Boolean::class.javaPrimitiveType,
+            Long::class.javaPrimitiveType,
+            Int::class.javaPrimitiveType,
+            Int::class.javaPrimitiveType,
+            Any::class.java,
+        )
+
+        val copy5 = copyDefault5.invoke(
+            null,
+            source,
+            null,
+            null,
+            null,
+            false,
+            0L,
+            FIVE_FIELD_DEFAULT_MASK,
+            null,
+        ) as NearJCacheConfig<*, *>
+        val copy6 = copyDefault6.invoke(
+            null,
+            source,
+            null,
+            null,
+            null,
+            false,
+            0L,
+            0,
+            SIX_FIELD_DEFAULT_MASK,
+            null,
+        ) as NearJCacheConfig<*, *>
+
+        copy5.bulkFrontPopulationPolicy shouldBeEqualTo BulkFrontPopulationPolicy.BypassFront
+        copy6.bulkFrontPopulationPolicy shouldBeEqualTo BulkFrontPopulationPolicy.BypassFront
     }
 
     @Test
@@ -163,8 +383,9 @@ class NearJCacheConfigCompatibilityTest {
 
         val restored = deserializeAsCurrent(serialize(legacy))
 
-        assertEquals("legacy-stream", restored.cacheName)
-        assertEquals(NearJCacheConfig.DEFAULT_SYNC_REMOTE_RETRY_COUNT, restored.syncRemoteRetryCount)
+        restored.cacheName shouldBeEqualTo "legacy-stream"
+        restored.syncRemoteRetryCount shouldBeEqualTo NearJCacheConfig.DEFAULT_SYNC_REMOTE_RETRY_COUNT
+        restored.bulkFrontPopulationPolicy shouldBeEqualTo BulkFrontPopulationPolicy.BypassFront
     }
 
     @Test
@@ -173,7 +394,85 @@ class NearJCacheConfigCompatibilityTest {
 
         val restored = deserializeAsCurrent(serialize(original))
 
-        assertEquals(0, restored.syncRemoteRetryCount)
+        restored.syncRemoteRetryCount shouldBeEqualTo 0
+    }
+
+    @Test
+    fun `current serialization preserves an explicit bulk policy`() {
+        val original = NearJCacheConfig<String, String>(
+            syncRemoteRetryCount = 0,
+            bulkFrontPopulationPolicy = BulkFrontPopulationPolicy.PopulateIfAtMost(2),
+        )
+
+        val restored = deserializeAsCurrent(serialize(original))
+
+        restored.syncRemoteRetryCount shouldBeEqualTo 0
+        restored.bulkFrontPopulationPolicy shouldBeEqualTo original.bulkFrontPopulationPolicy
+    }
+
+    @Test
+    fun `current Kotlin copy preserves a bounded policy`() {
+        val original = NearJCacheConfig<String, String>(
+            bulkFrontPopulationPolicy = BulkFrontPopulationPolicy.PopulateIfAtMost(2),
+        )
+
+        val copied = original.copy(syncRemoteRetryCount = 2)
+
+        copied.bulkFrontPopulationPolicy shouldBeEqualTo original.bulkFrontPopulationPolicy
+    }
+
+    @Test
+    fun `old five argument copy intentionally resets a bounded policy`() {
+        val source = NearJCacheConfig<String, String>(
+            bulkFrontPopulationPolicy = BulkFrontPopulationPolicy.PopulateIfAtMost(2),
+        )
+
+        val copied = source.copy(
+            source.cacheManagerFactory,
+            "legacy-copy",
+            source.frontCacheConfiguration,
+            source.isSynchronous,
+            source.syncRemoteTimeout,
+        )
+
+        copied.bulkFrontPopulationPolicy shouldBeEqualTo BulkFrontPopulationPolicy.BypassFront
+    }
+
+    @Test
+    fun `explicit null policy in a serialized stream restores the safe default`() {
+        val original = NearJCacheConfig<String, String>()
+        NearJCacheConfig::class.java.getDeclaredField("bulkFrontPopulationPolicy").apply {
+            isAccessible = true
+            set(original, null)
+        }
+
+        val restored = deserializeAsCurrent(serialize(original))
+
+        restored.bulkFrontPopulationPolicy shouldBeEqualTo BulkFrontPopulationPolicy.BypassFront
+    }
+
+    @Test
+    fun `constructor validation is restored for reflection-mutated invalid policies`() {
+        listOf(0, -1).forEach { invalidCount ->
+            val invalidPolicy = BulkFrontPopulationPolicy.PopulateIfAtMost(2)
+            invalidPolicy.javaClass.getDeclaredField("maximumEntryCount").apply {
+                isAccessible = true
+                setInt(invalidPolicy, invalidCount)
+            }
+            val original = NearJCacheConfig<String, String>(
+                cacheName = "cache-name",
+                bulkFrontPopulationPolicy = invalidPolicy,
+            )
+
+            val error = assertFailsWith<InvalidObjectException> {
+                deserializeAsCurrent(serialize(original))
+            }
+            val message = error.message.orEmpty()
+            message.contains("cache-name") shouldBeEqualTo false
+            message.contains("key") shouldBeEqualTo false
+            message.contains("value") shouldBeEqualTo false
+            message.contains("NearJCacheConfig") shouldBeEqualTo false
+        }
     }
 
     private fun serialize(value: Any): ByteArray = ByteArrayOutputStream().use { bytes ->
@@ -230,5 +529,10 @@ class NearJCacheConfigCompatibilityTest {
         companion object {
             private const val serialVersionUID: Long = 1L
         }
+    }
+
+    companion object {
+        private const val FIVE_FIELD_DEFAULT_MASK = 0x1F
+        private const val SIX_FIELD_DEFAULT_MASK = 0x3F
     }
 }

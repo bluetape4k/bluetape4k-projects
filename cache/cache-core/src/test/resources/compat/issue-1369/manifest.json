@@ -1,0 +1,48 @@
+{
+  "baselines": {
+    "1.12.1": {
+      "coordinate": "io.github.bluetape4k:bluetape4k-cache-core:1.12.1",
+      "url": "https://repo1.maven.org/maven2/io/github/bluetape4k/bluetape4k-cache-core/1.12.1/bluetape4k-cache-core-1.12.1.jar",
+      "artifactSha256": "0943cea523c581b82ecdbef700a9e8629e669ceca60cfd1d6ba02986d39d59e6"
+    },
+    "pre-1369": {
+      "commit": "05e3174ac11fc488a8c1ebc6027df3759271aa55",
+      "artifact": ".codex/lib-sources/issue-1369/pre-1369/bluetape4k-cache-core-1.13.0.jar",
+      "artifactBuildPath": "cache/cache-core/build/libs/bluetape4k-cache-core-1.13.0.jar",
+      "artifactScope": "historical build output from the pinned pre-1369 commit before Task 2 production edits",
+      "artifactSha256": "bea720dc5cc3927092d104174101013048195915736279be43e696495d10d9cd"
+    },
+    "cache-api": {
+      "coordinate": "javax.cache:cache-api:1.1.1",
+      "url": "https://repo1.maven.org/maven2/javax/cache/cache-api/1.1.1/cache-api-1.1.1.jar",
+      "artifactSha256": "9f34e007edfa82a7b2a2e1b969477dcf5099ce7f4f926fb54ce7e27c4a0cd54b"
+    }
+  },
+  "compilers": {
+    "java": "java version \"25.0.4\" 2026-07-21 LTS",
+    "javac": "javac 25.0.4",
+    "kotlin": "kotlinc-jvm 2.4.10",
+    "jar": "jar 25.0.4",
+    "runtime": "Oracle GraalVM 25.0.4+7-LTS-jvmci-25.2-b20"
+  },
+  "consumers": [
+    { "name": "NearJCacheConfigConsumer1121.java", "sha256": "3399766fbcaf7ce65a65fdbf6a6102d9832a55e88f8c5a75ad26a8fe213c6fe7" },
+    { "name": "NearJCacheConfigConsumer1121.kt", "sha256": "ae03c5fcfaeafae656b2524f71fd7708a5087837d3434f58317fc066445d95d4" },
+    { "name": "NearJCacheConfigConsumerPre1369.java", "sha256": "25d16952bc2222bef770a247d883978897a90eca87c94a5e0fb71c063e46ba4e" },
+    { "name": "NearJCacheConfigConsumerPre1369.kt", "sha256": "bea9d2920f2c0331571d6eecd7ce24d46bac82e507d64a0196a7a32cf924d7ce" },
+    { "name": "CurrentNearJCacheConfigConsumer.java", "sha256": "b87611f1b5c1cbf27f402a986b80c2920212d7f5313103444654752257922ac7" },
+    { "name": "nearjcache-config-1.12.1-consumers.jar", "sha256": "998a98573cb15829dee572a2367077aeb954cada95f762c97e621dbca0161c26" },
+    { "name": "nearjcache-config-pre-1369-consumers.jar", "sha256": "14f784088a51cee1a7276fbd964a5ece75919d2a61a6d8456555b725c7ec1c82" }
+  ],
+  "compileArgv": {
+    "1.12.1-kotlin": "kotlinc NearJCacheConfigConsumer1121.kt -classpath bluetape4k-cache-core-1.12.1.jar:cache-api-1.1.1.jar -jvm-target 21",
+    "1.12.1-java": "javac --release 21 -classpath bluetape4k-cache-core-1.12.1.jar:cache-api-1.1.1.jar:classes-1121 NearJCacheConfigConsumer1121.java",
+    "pre-1369-kotlin": "kotlinc NearJCacheConfigConsumerPre1369.kt -classpath bluetape4k-cache-core-1.13.0.jar:cache-api-1.1.1.jar -jvm-target 25",
+    "pre-1369-java": "javac --release 25 -classpath bluetape4k-cache-core-1.13.0.jar:cache-api-1.1.1.jar:classes-pre1369 NearJCacheConfigConsumerPre1369.java"
+  },
+  "jvmTargets": { "1.12.1": 21, "pre-1369": 25 },
+  "expectedDescriptors": {
+    "constructors": ["()V", "5-field direct", "5-field synthetic", "6-field direct", "6-field synthetic", "7-field direct", "7-field synthetic"],
+    "copyDefault": ["5-field copy$default", "6-field copy$default", "7-field copy$default"]
+  }
+}

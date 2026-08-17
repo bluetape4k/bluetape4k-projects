@@ -24,20 +24,123 @@
       "managementEnabled": true,
       "statisticsEnabled": true,
       "handleState": null,
+      "objectName": "REPLACE_WITH_CONFIGURATION_OBJECT_NAME",
       "activeObjectNames": [],
-      "registeredObjectNames": []
+      "registeredObjectNames": [],
+      "bulkFrontPopulationPolicy": "BYPASS_FRONT",
+      "bulkFrontPopulationMaximumEntryCount": 0
     },
     "closingAlertAfterSeconds": 30
   },
   "canary": {
     "canaryTarget": "REPLACE_WITH_CANARY_TARGET",
-    "query": "REPLACE_WITH_QUERY",
-    "window": "REPLACE_WITH_WINDOW",
-    "threshold": "REPLACE_WITH_PRE_ROLLOUT_THRESHOLD",
-    "result": "PENDING"
+    "queries": [
+      {
+        "id": "front-hits",
+        "query": "NearJCacheStatistics.FrontHits",
+        "window": "REPLACE_WITH_IDENTICAL_TRAFFIC_WINDOW",
+        "comparator": "REPLACE_WITH_COMPARATOR",
+        "allowedDirection": "REPLACE_WITH_ALLOWED_DIRECTION",
+        "threshold": "REPLACE_WITH_PRE_ROLLOUT_THRESHOLD",
+        "observedResult": null,
+        "passed": null
+      },
+      {
+        "id": "front-misses",
+        "query": "NearJCacheStatistics.FrontMisses",
+        "window": "REPLACE_WITH_IDENTICAL_TRAFFIC_WINDOW",
+        "comparator": "REPLACE_WITH_COMPARATOR",
+        "allowedDirection": "REPLACE_WITH_ALLOWED_DIRECTION",
+        "threshold": "REPLACE_WITH_PRE_ROLLOUT_THRESHOLD",
+        "observedResult": null,
+        "passed": null
+      },
+      {
+        "id": "back-hits",
+        "query": "NearJCacheStatistics.BackHits",
+        "window": "REPLACE_WITH_IDENTICAL_TRAFFIC_WINDOW",
+        "comparator": "REPLACE_WITH_COMPARATOR",
+        "allowedDirection": "REPLACE_WITH_ALLOWED_DIRECTION",
+        "threshold": "REPLACE_WITH_PRE_ROLLOUT_THRESHOLD",
+        "observedResult": null,
+        "passed": null
+      },
+      {
+        "id": "back-misses",
+        "query": "NearJCacheStatistics.BackMisses",
+        "window": "REPLACE_WITH_IDENTICAL_TRAFFIC_WINDOW",
+        "comparator": "REPLACE_WITH_COMPARATOR",
+        "allowedDirection": "REPLACE_WITH_ALLOWED_DIRECTION",
+        "threshold": "REPLACE_WITH_PRE_ROLLOUT_THRESHOLD",
+        "observedResult": null,
+        "passed": null
+      },
+      {
+        "id": "average-get-time",
+        "query": "NearJCacheStatistics.AverageGetTime",
+        "window": "REPLACE_WITH_IDENTICAL_TRAFFIC_WINDOW",
+        "comparator": "REPLACE_WITH_COMPARATOR",
+        "allowedDirection": "REPLACE_WITH_ALLOWED_DIRECTION",
+        "threshold": "REPLACE_WITH_PRE_ROLLOUT_THRESHOLD",
+        "observedResult": null,
+        "passed": null
+      },
+      {
+        "id": "external-back-read-load",
+        "query": "REPLACE_WITH_EXTERNAL_BACK_READ_LOAD_QUERY",
+        "window": "REPLACE_WITH_IDENTICAL_TRAFFIC_WINDOW",
+        "comparator": "REPLACE_WITH_COMPARATOR",
+        "allowedDirection": "REPLACE_WITH_ALLOWED_DIRECTION",
+        "threshold": "REPLACE_WITH_PRE_ROLLOUT_THRESHOLD",
+        "observedResult": null,
+        "passed": null
+      }
+    ],
+    "decisionRule": "STOP_AND_ROLLBACK_IF_ANY_THRESHOLD_FAILS_OR_EVIDENCE_IS_MISSING",
+    "result": "PENDING",
+    "statistics": [
+      "FrontHits",
+      "FrontMisses",
+      "BackHits",
+      "BackMisses",
+      "AverageGetTime"
+    ],
+    "externalBackReadLoad": "external-back-read-load",
+    "bypassReasonCounterAvailable": false
   },
   "rollback": {
     "rollbackIdentity": "REPLACE_WITH_ROLLBACK_IDENTITY",
+    "normalMode": "NEW_WRAPPER_HANDOVER",
+    "normalPolicy": "BYPASS_FRONT",
+    "handoverSequence": [
+      "STOP_ADMISSION",
+      "DRAIN_OUTSTANDING_OPERATIONS",
+      "CREATE_AND_REGISTER_REPLACEMENT",
+      "VERIFY_POLICY_AND_PREFLIGHT_QUERY",
+      "SHIFT_TRAFFIC",
+      "CLOSE_OLD_REGISTRATION_AND_WRAPPER",
+      "RECORD_CLASSIFIER_AND_METRICS"
+    ],
+    "frontOwnership": {
+      "oldFrontCacheIdentity": "REPLACE_WITH_OLD_FRONT_CACHE_IDENTITY",
+      "replacementFrontCacheIdentity": "REPLACE_WITH_REPLACEMENT_FRONT_CACHE_IDENTITY",
+      "frontCacheShared": false,
+      "oldFrontClosed": null,
+      "replacementFrontOpen": null
+    },
+    "preIssue1369ArtifactAllowed": false,
+    "breakGlass": {
+      "enabled": false,
+      "startedAt": null,
+      "expiresAt": null,
+      "maximumDuration": null,
+      "approver": null,
+      "approvedAt": null,
+      "frontHeapCap": null,
+      "trafficLimit": null,
+      "owner": null,
+      "forwardFix": null
+    },
     "result": "NOT_RUN"
   },
   "asyncWriteThrough": {

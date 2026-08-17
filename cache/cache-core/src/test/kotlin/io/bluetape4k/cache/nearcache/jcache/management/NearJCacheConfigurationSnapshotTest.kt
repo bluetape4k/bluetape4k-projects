@@ -3,6 +3,7 @@ package io.bluetape4k.cache.nearcache.jcache.management
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeFalse
 import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.cache.nearcache.jcache.BulkFrontPopulationPolicy
 import io.mockk.every
 import io.mockk.mockk
 import org.junit.jupiter.api.Test
@@ -23,6 +24,7 @@ class NearJCacheConfigurationSnapshotTest {
             actualFront = cacheOf(actualFront),
             suppliedFront = configuration<UUID, Double>(),
             actualBack = cacheOf(configuration<Int, Boolean>()),
+            bulkFrontPopulationPolicy = BulkFrontPopulationPolicy.BypassFront,
         )
 
         snapshot.keyType shouldBeEqualTo "java.lang.String"
@@ -42,6 +44,7 @@ class NearJCacheConfigurationSnapshotTest {
             actualFront = cacheOf(configuration<Any, Any>()),
             suppliedFront = configuration<String, Long>(),
             actualBack = cacheOf(configuration<Int, Boolean>()),
+            bulkFrontPopulationPolicy = BulkFrontPopulationPolicy.BypassFront,
         )
 
         snapshot.keyType shouldBeEqualTo "java.lang.String"
@@ -56,6 +59,7 @@ class NearJCacheConfigurationSnapshotTest {
             actualFront = cacheOf(configuration<Any, Any>()),
             suppliedFront = configuration<Any, Any>(),
             actualBack = cacheOf(configuration<UUID, Long>()),
+            bulkFrontPopulationPolicy = BulkFrontPopulationPolicy.BypassFront,
         )
 
         snapshot.keyType shouldBeEqualTo "java.util.UUID"
@@ -70,6 +74,7 @@ class NearJCacheConfigurationSnapshotTest {
             actualFront = cacheOf(configuration<Any, Any>()),
             suppliedFront = configuration<Any, Any>(),
             actualBack = cacheOf(configuration<Any, Any>()),
+            bulkFrontPopulationPolicy = BulkFrontPopulationPolicy.BypassFront,
         )
 
         snapshot.keyType shouldBeEqualTo "java.lang.Object"
@@ -88,6 +93,7 @@ class NearJCacheConfigurationSnapshotTest {
             actualFront = cacheOf(actualFront),
             suppliedFront = suppliedFront,
             actualBack = cacheOf(actualBack),
+            bulkFrontPopulationPolicy = BulkFrontPopulationPolicy.BypassFront,
         )
 
         snapshot.keyType shouldBeEqualTo "java.lang.Object"
@@ -106,6 +112,7 @@ class NearJCacheConfigurationSnapshotTest {
             actualFront = actualFront,
             suppliedFront = configuration<String, Long>(),
             actualBack = cacheOf(configuration<String, Long>()),
+            bulkFrontPopulationPolicy = BulkFrontPopulationPolicy.BypassFront,
         )
 
         snapshot.readThrough.shouldBeFalse()
@@ -133,6 +140,7 @@ class NearJCacheConfigurationSnapshotTest {
                     ),
                     suppliedFront = configuration<String, Long>(),
                     actualBack = cacheOf(configuration<String, Long>()),
+                    bulkFrontPopulationPolicy = BulkFrontPopulationPolicy.BypassFront,
                 )
             }
 
@@ -147,6 +155,7 @@ class NearJCacheConfigurationSnapshotTest {
             actualFront = cacheOf(actualFront),
             suppliedFront = configuration<UUID, Double>(),
             actualBack = cacheOf(configuration<Int, Boolean>()),
+            bulkFrontPopulationPolicy = BulkFrontPopulationPolicy.BypassFront,
         )
 
         actualFront
@@ -161,6 +170,32 @@ class NearJCacheConfigurationSnapshotTest {
         snapshot.writeThrough.shouldBeTrue()
         snapshot.statisticsEnabled.shouldBeTrue()
         snapshot.managementEnabled.shouldBeTrue()
+    }
+
+    @Test
+    fun `BypassFront 정책은 stable token과 적용 불가 limit로 snapshot한다`() {
+        val snapshot = nearJCacheConfigurationSnapshot(
+            actualFront = cacheOf(configuration<String, Long>()),
+            suppliedFront = configuration<String, Long>(),
+            actualBack = cacheOf(configuration<String, Long>()),
+            bulkFrontPopulationPolicy = BulkFrontPopulationPolicy.BypassFront,
+        )
+
+        snapshot.bulkFrontPopulationPolicy shouldBeEqualTo "BYPASS_FRONT"
+        snapshot.bulkFrontPopulationMaximumEntryCount shouldBeEqualTo 0
+    }
+
+    @Test
+    fun `PopulateIfAtMost 정책은 stable token과 양수 limit로 snapshot한다`() {
+        val snapshot = nearJCacheConfigurationSnapshot(
+            actualFront = cacheOf(configuration<String, Long>()),
+            suppliedFront = configuration<String, Long>(),
+            actualBack = cacheOf(configuration<String, Long>()),
+            bulkFrontPopulationPolicy = BulkFrontPopulationPolicy.PopulateIfAtMost(17),
+        )
+
+        snapshot.bulkFrontPopulationPolicy shouldBeEqualTo "POPULATE_IF_AT_MOST"
+        snapshot.bulkFrontPopulationMaximumEntryCount shouldBeEqualTo 17
     }
 
     @Suppress("UNCHECKED_CAST")

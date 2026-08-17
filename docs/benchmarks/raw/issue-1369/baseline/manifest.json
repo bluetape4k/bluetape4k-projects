@@ -1,0 +1,78 @@
+{
+  "schemaVersion": 1,
+  "provenance": {
+    "measurementCommit": "72265cfb64d06629ad337a3a332eeb4c47f8d1c8",
+    "measurementTree": "8596ea28dde4fc7bbdd207944ff38cb3af5ed9ee",
+    "cleanAtMeasurement": true,
+    "rawEvidenceCommit": "5a9f5499dc6256f00e9ea57f0844f332ea16347b"
+  },
+  "artifacts": {
+    "benchmarkSourcePath": "cache/cache-lettuce/src/benchmark/kotlin/io/bluetape4k/cache/nearcache/benchmark/NearJCacheBulkPopulationBenchmark.kt",
+    "benchmarkSourceSha256": "42efaf18c3ab37dec9861ecf032d1f91c10741c22fce3662d550e61260c397ab",
+    "jmhJarPath": "cache/cache-lettuce/build/benchmarks/benchmark/jars/bluetape4k-cache-lettuce-benchmark-jmh-1.13.0-JMH.jar",
+    "jmhJarSha256": "d22d345b97685ff5e4c4d7817c28199960d3e7e7a3a47df96fa1b255aa527026"
+  },
+  "invariants": {
+    "environment": {
+      "os": "Darwin 26.6.1 arm64",
+      "cpu": "Apple M4 Pro",
+      "java": "Oracle Corporation 25.0.4+7-LTS-jvmci-25.2-b20 Java HotSpot(TM) 64-Bit Server VM"
+    },
+    "toolchain": {
+      "gradle": "9.7.0",
+      "jmh": "1.37",
+      "jvmArgs": []
+    },
+    "profile": {
+      "mode": "thrpt",
+      "scoreUnit": "ops/ms",
+      "allocationMetric": "gc.alloc.rate.norm",
+      "allocationUnit": "B/op",
+      "profiler": "gc",
+      "forks": 3,
+      "warmupIterations": 3,
+      "warmupTime": "500 ms",
+      "measurementIterations": 5,
+      "measurementTime": "500 ms",
+      "threads": [
+        1,
+        2,
+        4,
+        8,
+        16
+      ]
+    },
+    "fixture": {
+      "scenarioCount": 7,
+      "scenarios": [
+        "FRONT_HIT_BYPASS",
+        "FRONT_HIT_BOUNDED",
+        "BACK_MISS_BYPASS",
+        "BACK_MISS_BOUNDED",
+        "BACK_HIT_BYPASS",
+        "BACK_HIT_BOUNDED",
+        "BACK_HIT_OVERSIZED"
+      ],
+      "batchSizes": [
+        1,
+        4,
+        128
+      ],
+      "contentionPolicies": [
+        "BYPASS_FRONT",
+        "POPULATE_IF_AT_MOST"
+      ],
+      "contentionBatchSize": 128
+    }
+  },
+  "rawResults": {
+    "path": "docs/benchmarks/raw/issue-1369/baseline/path-t1.json",
+    "contention": {
+      "1": "docs/benchmarks/raw/issue-1369/baseline/contention-t1.json",
+      "2": "docs/benchmarks/raw/issue-1369/baseline/contention-t2.json",
+      "4": "docs/benchmarks/raw/issue-1369/baseline/contention-t4.json",
+      "8": "docs/benchmarks/raw/issue-1369/baseline/contention-t8.json",
+      "16": "docs/benchmarks/raw/issue-1369/baseline/contention-t16.json"
+    }
+  }
+}

@@ -31,8 +31,9 @@ Native API는 `NearCacheOperations<V>` 또는 `SuspendNearCacheOperations<V>`를
 
 JCache API는 `NearJCache<K,V>` 또는 `SuspendNearJCache<K,V>`를 구현한다.
 
-동기 `NearJCache`의 표준 `get`, `containsKey`, `getAll`은 front miss를 back에서
-읽고 back hit를 front에 채우는 논리적 2-tier read 계약을 따른다. `getAndPut`,
+동기 `NearJCache`의 표준 `get`과 `containsKey`는 front miss를 back에서 읽어
+front에 채운다. `getAll`은 front hit와 모든 back hit를 반환하고, bulk back hit의
+front residency는 설정된 정책을 따른다. `getAndPut`,
 `getAndRemove`, `getAndReplace`는 back provider의 원자 compound 연산을
 수행한 뒤 front를 갱신한다. 표준 `clear`와
 호환 alias `clearAllCache`는 현재 wrapper의 front와 back을 함께 지운다. 공유
@@ -44,6 +45,25 @@ back atomic operation을 먼저 완료한 뒤 front를 reconciliation하는 계�
 계약이 없는 custom store-by-value 설정은 생성 단계에서 거부한다. read-through
 populate는 mutation epoch로 stale 값을 차단하고, clear는 timeout-late backend
 write가 끝난 뒤 back을 지우는 barrier를 사용한다.
+
+<!-- issue-1369-bulk-policy:start -->
+### Bulk `getAll` 결과의 front 저장 정책
+
+<!-- contract: default-bypass; bounded-all-or-nothing; single-key-get-unchanged; repeated-back-read; legacy-safe-default -->
+
+기본 `BulkFrontPopulationPolicy.BypassFront`는 결과를 모두 반환하되 bulk back hit를
+front에 저장하지 않는다. `BulkFrontPopulationPolicy.PopulateIfAtMost(n)`은
+`backValues.size <= n`일 때만 batch 전체를 저장하며 초과 batch의 일부는 저장하지
+않는다. entry 수는 메모리에 상주하는 byte 크기나 back 조회 크기 제한이 아니고,
+single-key `get()` 저장은 바뀌지 않는다.
+
+Configuration MXBean의 고정 token은 `BYPASS_FRONT`와
+`POPULATE_IF_AT_MOST`이며 `bulkFrontPopulationMaximumEntryCount`가 `0`이면 bypass에
+상한이 적용되지 않는다는 뜻이다. 새 config와 복원한 legacy stream은 안전한 기본값을
+사용한다. 따라서 반복 `getAll`에서 back 반복 조회가 발생할 수 있다. 이전 무제한
+batch 저장을 복원하지 않고 front 용량과 로컬 heap 예산에 맞는 상한만
+명시한다.
+<!-- issue-1369-bulk-policy:end -->
 
 ### Blocking `NearJCache` management 범위
 

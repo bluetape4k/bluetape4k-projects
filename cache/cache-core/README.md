@@ -57,10 +57,39 @@ Add the appropriate provider module if you need distributed caching.
 
 `NearJCache<K,V>` is a logical two-tier implementation of `javax.cache.Cache`.
 Standard `get`, `containsKey`, and `getAll` check the front cache first, fall
-back to the back cache on a miss, and populate the front cache with back hits.
+back to the back cache on a miss, and return every hit from both tiers. Front
+residency for bulk back hits follows the configured policy described below.
 Standard `clear` removes mappings from both layers owned by the wrapper. The
 `getDeeply` and `clearAllCache` names remain source-compatible aliases for the
 standard `get` and `clear` behavior.
+
+<!-- issue-1369-bulk-policy:start -->
+### Bulk `getAll` front residency policy
+
+<!-- contract: default-bypass; bounded-all-or-nothing; single-key-get-unchanged; repeated-back-read; legacy-safe-default -->
+
+```kotlin
+val safeDefault = NearJCacheConfig<String, User>()
+val bounded = NearJCacheConfig<String, User>(
+    bulkFrontPopulationPolicy = BulkFrontPopulationPolicy.PopulateIfAtMost(128),
+)
+```
+
+The default `BulkFrontPopulationPolicy.BypassFront` still returns front hits and
+all back hits, but it does not store the bulk back result in front. With
+`BulkFrontPopulationPolicy.PopulateIfAtMost(n)`, the whole batch is stored only
+when `backValues.size <= n`; an oversized batch is not partially stored. The
+entry count is neither resident byte size nor a limit on the back query size.
+Single-key `get()` read-through population is unchanged.
+
+The configuration MXBean reports `BYPASS_FRONT` or `POPULATE_IF_AT_MOST` and
+`bulkFrontPopulationMaximumEntryCount`; `0` means the limit does not apply to
+the bypass policy. New configuration and a restored legacy stream both use the
+safe bypass default. Results remain correct, but repeated `getAll` calls can
+perform repeated back reads and change local hit ratio and back load. Do not
+restore the former unlimited batch-population mode. Opt in to a bounded policy
+only after checking front capacity and the local heap budget.
+<!-- issue-1369-bulk-policy:end -->
 
 The clear operation does not promise invalidation of another wrapper's already
 populated front cache when the back cache is shared or listener propagation is
