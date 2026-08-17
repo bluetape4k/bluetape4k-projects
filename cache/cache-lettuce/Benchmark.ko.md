@@ -36,6 +36,13 @@ Docker 필요 (Testcontainers Redis 7+).
 
 ---
 
+## Issue #1369 bounded bulk 보고서
+
+`NearJCacheBulkPathBenchmark`와 `NearJCacheBulkContentionBenchmark`의 증거는 [Issue #1369 보고서](../../docs/benchmarks/2026-08-17-issue-1369-nearcache-bounded-bulk.md)에
+고정했다. 이 보고서는 bounded `getAll()` front population 정책을 위한 별도의 committed JMH snapshot이며,
+아래의 기존 `LettuceNearCache` 결과와 의도적으로 섞지 않는다. 보고서에서 baseline/candidate raw JSON과
+처리량·allocation 차트를 함께 확인할 수 있다.
+
 ## 결과
 
 ### 요약 표 (처리량: ops/ms, 높을수록 좋음)

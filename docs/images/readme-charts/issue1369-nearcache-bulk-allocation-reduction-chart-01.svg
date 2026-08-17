@@ -1,0 +1,62 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="920" viewBox="0 0 1600 920" role="img" aria-labelledby="title desc" data-manifest-sha="5885fc483326647602f637ecc45de0d3a28e712bdbb6e7505039a5717854dbb4" data-source-file="issue1369-nearcache-bulk-chart-source.json" data-semantic-ledger="issue1369-nearcache-bulk-chart.semantic.json">
+  <title id="title">Issue #1369 NearJCache allocation reduction</title>
+  <desc id="desc">Back-hit paths and contention policies show allocation reduction as a percentage of baseline allocation. Higher is better. Front-hit and back-miss rows are excluded because their median absolute change is below 0.01 percent.</desc>
+  <defs>
+    <style>
+      .canvas{fill:#F6F9FD}.frame{fill:#FFFFFF;stroke:#C9D8E8;stroke-width:2}.panel{fill:#FFFFFF;stroke:#C9D8E8;stroke-width:1.8}.note{fill:#FFF9F1;stroke:#E2A548;stroke-width:1.5}
+      .title{font-family:"goorm Sans","Apple SD Gothic Neo",sans-serif;font-size:36px;fill:#22304A;font-weight:700}.subtitle{font-family:"goorm Sans","Apple SD Gothic Neo",sans-serif;font-size:16px;fill:#5B6B83}.panelTitle{font-family:"goorm Sans","Apple SD Gothic Neo",sans-serif;font-size:24px;fill:#22304A;font-weight:700}
+      .label,.axis,.value,.small,.tiny,.legend{font-family:"goorm Sans Code","Apple SD Gothic Neo",monospace;fill:#22304A}.label{font-size:15px;font-weight:700}.axis{font-size:12px;fill:#5B6B83}.value{font-size:13px;font-weight:700}.small{font-size:14px}.tiny{font-size:12px;fill:#5B6B83}.legend{font-size:13px}
+      .grid{stroke:#E1E9F3;stroke-width:1}.axisLine{stroke:#B7C8DC;stroke-width:1.5}.positive{fill:#75D9C7;stroke:#18A98F;stroke-width:1.4}.negative{fill:#F3B5A8;stroke:#D95C5C;stroke-width:1.4}.zero{stroke:#22304A;stroke-width:2}.divider{stroke:#E1E9F3;stroke-width:1}.point{fill:#22304A}
+    </style>
+  </defs>
+  <rect class="canvas" width="1600" height="920"/>
+  <rect class="frame" x="1" y="1" width="1598" height="918" rx="16"/>
+  <text class="title" x="800" y="58" text-anchor="middle">#1369 NearJCache allocation 절감률</text>
+  <text class="subtitle" x="800" y="88" text-anchor="middle">(baseline allocation - candidate allocation) / baseline allocation · 높을수록 절감</text>
+  <g transform="translate(1180 112)">
+    <rect x="0" y="0" width="20" height="14" rx="4" class="positive"/><text class="legend" x="30" y="12">절감</text>
+    <rect x="100" y="0" width="20" height="14" rx="4" class="negative"/><text class="legend" x="130" y="12">증가</text>
+    <circle cx="225" cy="7" r="6" class="point"/><text class="legend" x="240" y="12">0에 가까운 변화</text>
+  </g>
+
+  <rect class="panel" x="64" y="142" width="1472" height="550" rx="14"/>
+  <text class="panelTitle" x="98" y="184">Allocation reduction (percent, higher is better)</text>
+  <text class="axis" x="980" y="184" text-anchor="middle">reduction versus baseline (%)</text>
+
+  <line class="grid" x1="460" y1="214" x2="460" y2="620"/>
+  <line class="grid" x1="533" y1="214" x2="533" y2="620"/>
+  <line class="grid" x1="714" y1="214" x2="714" y2="620"/>
+  <line class="grid" x1="896" y1="214" x2="896" y2="620"/>
+  <line class="grid" x1="1077" y1="214" x2="1077" y2="620"/>
+  <line class="grid" x1="1259" y1="214" x2="1259" y2="620"/>
+  <line class="grid" x1="1440" y1="214" x2="1440" y2="620"/>
+  <line class="zero" x1="533" y1="214" x2="533" y2="620"/>
+  <line class="axisLine" x1="460" y1="620" x2="1440" y2="620"/>
+  <text class="axis" x="460" y="644" text-anchor="middle">-2</text><text class="axis" x="533" y="644" text-anchor="middle">0</text><text class="axis" x="714" y="644" text-anchor="middle">5</text><text class="axis" x="896" y="644" text-anchor="middle">10</text><text class="axis" x="1077" y="644" text-anchor="middle">15</text><text class="axis" x="1259" y="644" text-anchor="middle">20</text><text class="axis" x="1440" y="644" text-anchor="middle">25</text>
+
+  <text class="tiny" x="98" y="218">BACK-HIT path / thread=1 / 세 batchSize의 allocation reduction 중앙값</text>
+  <g data-series="path" data-scenario="BACK_HIT_BOUNDED" data-value="0.0010447403372477347">
+    <text class="label" x="98" y="278">BACK_HIT_BOUNDED</text><circle class="point" cx="533.04" cy="268" r="7"/><text class="value" x="552" y="273">0.001%</text>
+  </g>
+  <g data-series="path" data-scenario="BACK_HIT_BYPASS" data-value="21.31099546423984">
+    <text class="label" x="98" y="343">BACK_HIT_BYPASS</text><rect class="positive" x="533" y="323" width="774" height="28" rx="6"/><text class="value" x="1292" y="343">21.311%</text>
+  </g>
+  <g data-series="path" data-scenario="BACK_HIT_OVERSIZED" data-value="21.30062036050065">
+    <text class="label" x="98" y="408">BACK_HIT_OVERSIZED</text><rect class="positive" x="533" y="388" width="773" height="28" rx="6"/><text class="value" x="1291" y="408">21.301%</text>
+  </g>
+
+  <line class="divider" x1="98" y1="443" x2="1502" y2="443"/>
+  <text class="tiny" x="98" y="472">CONTENTION / 정책별 thread 1·2·4·8·16 allocation reduction 중앙값</text>
+  <g data-series="contention" data-policy="BYPASS_FRONT" data-value="22.148412581240002">
+    <text class="label" x="98" y="533">BYPASS_FRONT</text><rect class="positive" x="533" y="513" width="804" height="28" rx="6"/><text class="value" x="1322" y="533">22.148%</text>
+  </g>
+  <g data-series="contention" data-policy="POPULATE_IF_AT_MOST" data-value="-0.005632997237341318">
+    <text class="label" x="98" y="598">POPULATE_IF_AT_MOST</text><circle class="point" cx="532.80" cy="578" r="7"/><text class="value" x="552" y="583">-0.006%</text>
+  </g>
+
+  <rect class="note" x="64" y="724" width="1472" height="136" rx="14"/>
+  <text class="panelTitle" x="98" y="764">범위와 해석</text>
+  <text class="small" x="98" y="796">Back-hit bypass/oversized path는 약 21.3% allocation 절감률을 보였고, contention BYPASS_FRONT 중앙값은 22.148%였다.</text>
+  <text class="small" x="98" y="824">FRONT_HIT_*와 BACK_MISS_*는 정책이 back-hit 값을 population하는 경로가 아니므로 절감률이 0.01% 미만인 행을 차트에서 제외했다.</text>
+  <text class="small" x="98" y="852">절감률은 `gc.alloc.rate.norm` B/op의 변환값이며, zero-allocation 또는 다른 JVM/워크로드의 일반 성능을 뜻하지 않는다.</text>
+</svg>

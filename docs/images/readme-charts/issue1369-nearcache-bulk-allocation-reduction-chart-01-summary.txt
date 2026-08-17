@@ -1,0 +1,11 @@
+chart-gate: asset=issue1369-nearcache-bulk-allocation-reduction-chart-01
+source=docs/images/readme-charts/issue1369-nearcache-bulk-chart-source.json
+manifestSha256=5885fc483326647602f637ecc45de0d3a28e712bdbb6e7505039a5717854dbb4
+metric=(baseline allocation - candidate allocation) / baseline allocation * 100
+unit=B/op transformed to allocation reduction percent
+included=back-hit path scenarios and contention policies
+excluded=front-hit and back-miss rows with policy-neutral reduction below 0.01 percent
+unitDirection=higher-is-better
+render=SVG validated with xmllint and rendered to 3200x1840 opaque PNG via CairoSVG
+visualAudit=PASS; no text hazards; full-canvas occupancy and labels visually inspected
+status=PASS
