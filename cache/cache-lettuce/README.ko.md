@@ -128,6 +128,29 @@ Configuration MXBean은 `BYPASS_FRONT` 또는 `POPULATE_IF_AT_MOST`와
 적용하지 않는다는 뜻입니다. Caffeine 용량과 로컬 heap 예산을 검토한 뒤 상한을 선택합니다.
 <!-- issue-1369-bulk-policy:end -->
 
+<!-- nearjcache-clear-authority-contract -->
+### #1368 Lettuce NearJCache clear authority
+
+`LettuceCaches.nearJCache`의 기본값은 `NearJCacheClearAuthority.DENY`이며 Redis
+namespace ownership을 추론하지 않습니다. 따라서 `clear()`, `clearAllCache()`, 인자
+없는 `removeAll()`은 `SecurityException`을 발생시킵니다. 독점 owner일 때만 명시적
+`NearJCacheClearAuthority.EXCLUSIVE_BACK_CACHE` overload를 선택하고, 공유 namespace는
+key-scoped `removeAll(keys)`로 처리합니다. wrapper `close()`는 front만 닫고 Redis back
+cache와 client는 닫지 않습니다.
+
+```kotlin
+val shared = LettuceCaches.nearJCache<String, User>(redisClient) {
+    cacheName = "users"
+}
+shared.removeAll(setOf("tenant-a:key-1"))
+val owner = LettuceCaches.nearJCache<String, User>(
+    redisClient,
+    NearJCacheClearAuthority.EXCLUSIVE_BACK_CACHE,
+) { cacheName = "users-owner" }
+owner.clear()
+```
+<!-- /nearjcache-clear-authority-contract -->
+
 `LettuceCacheConfig`/`LettuceNearCacheConfig` 사용 시:
 
 - 배치 크기, 큐 크기, 재시도 횟수, local cache 크기는 0보다 커야 합니다.

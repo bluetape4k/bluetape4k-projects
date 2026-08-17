@@ -17,8 +17,22 @@ Release tests explicitly expect `HazelcastSerializationException` with an underl
 
 `HazelcastCaches.nearJCache` creates a Caffeine front JCache and Hazelcast back JCache without listener registration. The public `HazelcastNearJCache(...)` factory combines the caller-supplied front JCache with a Hazelcast back JCache through the same listener-free path. `suspendNearJCache` also creates a fixed Caffeine front and calls `SuspendNearJCache.withoutListener`.
 
+Serialization-safe `NearJCacheConfig` and the destructive-clear authority are
+separate contracts. Existing Hazelcast factory calls default to
+`NearJCacheClearAuthority.DENY`; use a key-scoped `removeAll(keys)` for shared
+namespaces. Pass `NearJCacheClearAuthority.EXCLUSIVE_BACK_CACHE` only when the
+caller owns the entire back namespace before calling `clear()` or
+`clearAllCache()`. The authority is runtime-only and is not sent through
+Hazelcast configuration serialization. The wrapper closes only its supplied
+front cache; it does not close the Hazelcast back cache or provider.
+
 ```kotlin
-val cache = HazelcastCaches.nearJCache<String, User>(hazelcast) {
+import io.bluetape4k.cache.nearcache.jcache.NearJCacheClearAuthority
+
+val cache = HazelcastCaches.nearJCache<String, User>(
+    hazelcast,
+    NearJCacheClearAuthority.EXCLUSIVE_BACK_CACHE,
+) {
     cacheName = "users-v1"
 }
 
@@ -43,6 +57,24 @@ When peer invalidation is required, use the `IMap.addEntryListener` path in `Haz
 ## Fixed suspend-front settings
 
 The 1.12.1 `suspendNearJCache` factory builds Caffeine with a 10,000-entry maximum and 30-minute expire-after-access. It uses the supplied cache name for the back cache but does not apply custom front capacity and expiry from `NearJCacheConfig` to this fixed front.
+
+<!-- nearjcache-clear-authority-contract -->
+### #1368 shared-back clear authority
+
+The listener-free factory still defaults to `DENY`; a key-scoped operation is the
+safe path for a shared namespace. An exclusive owner may opt in to a namespace
+clear, while the runtime-only authority remains outside serialized configuration.
+
+```kotlin
+val shared = HazelcastCaches.nearJCache<String, User>(hazelcast)
+shared.removeAll(setOf("tenant-a:key-1"))
+val owner = HazelcastCaches.nearJCache<String, User>(
+    hazelcast,
+    NearJCacheClearAuthority.EXCLUSIVE_BACK_CACHE,
+) { cacheName = "users-owner" }
+owner.clear()
+```
+<!-- /nearjcache-clear-authority-contract -->
 
 ## Sources and tests
 

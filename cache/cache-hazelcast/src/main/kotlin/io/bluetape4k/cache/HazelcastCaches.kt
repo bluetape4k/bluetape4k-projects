@@ -13,6 +13,7 @@ import io.bluetape4k.cache.nearcache.NearCacheOperations
 import io.bluetape4k.cache.nearcache.SuspendNearCacheOperations
 import io.bluetape4k.cache.nearcache.hazelcastNearCacheConfig
 import io.bluetape4k.cache.nearcache.jcache.NearJCache
+import io.bluetape4k.cache.nearcache.jcache.NearJCacheClearAuthority
 import io.bluetape4k.cache.nearcache.jcache.NearJCacheConfig
 import io.bluetape4k.cache.nearcache.jcache.NearJCacheConfigBuilder
 import io.bluetape4k.cache.nearcache.jcache.SuspendNearJCache
@@ -34,6 +35,7 @@ import javax.cache.configuration.MutableConfiguration
  * val near  = HazelcastCaches.nearCache<String>(hazelcast) { cacheName = "my-near" }
  * ```
  */
+@Suppress("TooManyFunctions")
 object HazelcastCaches: KLogging() {
     // ─────────────────────────────────────────────
     // JCache
@@ -231,9 +233,23 @@ object HazelcastCaches: KLogging() {
     inline fun <reified K: Any, reified V: Any> nearJCache(
         hazelcastInstance: HazelcastInstance,
         block: NearJCacheConfigBuilder<K, V>.() -> Unit,
+    ): NearJCache<K, V> = nearJCache(hazelcastInstance, NearJCacheClearAuthority.DENY, block)
+
+    /**
+     * 명시적인 clear authority로 Hazelcast 기반 [NearJCache]를 생성합니다.
+     * 기존 overload는 [NearJCacheClearAuthority.DENY]를 사용하며 factory가 Hazelcast
+     * back namespace ownership을 추론하지 않습니다. `EXCLUSIVE_BACK_CACHE`는 caller가
+     * back namespace를 독점한다고 확인한 경우에만 전달합니다.
+     *
+     * @param clearAuthority caller가 확인한 back namespace 권한
+     */
+    inline fun <reified K: Any, reified V: Any> nearJCache(
+        hazelcastInstance: HazelcastInstance,
+        clearAuthority: NearJCacheClearAuthority,
+        block: NearJCacheConfigBuilder<K, V>.() -> Unit,
     ): NearJCache<K, V> {
         val config = nearJCacheConfig(block)
-        return nearJCache(hazelcastInstance, config)
+        return nearJCache(hazelcastInstance, config, clearAuthority)
     }
 
     /**
@@ -261,6 +277,21 @@ object HazelcastCaches: KLogging() {
     inline fun <reified K: Any, reified V: Any> nearJCache(
         hazelcastInstance: HazelcastInstance,
         config: NearJCacheConfig<K, V>,
+    ): NearJCache<K, V> = nearJCache(hazelcastInstance, config, NearJCacheClearAuthority.DENY)
+
+    /**
+     * [NearJCacheClearAuthority]를 명시하는 Hazelcast [NearJCache] 설정 factory입니다.
+     * 기존 overload는 [NearJCacheClearAuthority.DENY]를 사용합니다. 반환된 wrapper의
+     * `close()`는 factory가 만든 front만 닫고 Hazelcast back cache와
+     * [hazelcastInstance]는 닫지 않습니다.
+     *
+     * @param clearAuthority caller가 확인한 back namespace 권한
+     */
+    @Suppress("TooGenericExceptionCaught")
+    inline fun <reified K: Any, reified V: Any> nearJCache(
+        hazelcastInstance: HazelcastInstance,
+        config: NearJCacheConfig<K, V>,
+        clearAuthority: NearJCacheClearAuthority,
     ): NearJCache<K, V> {
         require(!config.frontCacheConfiguration.isStoreByValue) {
             "NearJCache front cache must use store-by-reference; " +
@@ -282,7 +313,7 @@ object HazelcastCaches: KLogging() {
 
         log.info { "NearJCache 생성. config=$config" }
         return try {
-            NearJCache(frontCache, backCache, config)
+            NearJCache(frontCache, backCache, config, clearAuthority)
         } catch (e: Throwable) {
             try {
                 frontCache.close()

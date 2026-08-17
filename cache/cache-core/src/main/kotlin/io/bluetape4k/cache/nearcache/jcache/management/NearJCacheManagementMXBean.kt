@@ -35,6 +35,8 @@ class NearJCacheManagementMXBean private constructor(
     override fun getBulkFrontPopulationMaximumEntryCount(): Int =
         snapshot.bulkFrontPopulationMaximumEntryCount
 
+    override fun getClearAuthority(): String = snapshot.clearAuthority
+
     override fun isReadThrough(): Boolean = snapshot.readThrough
 
     override fun isWriteThrough(): Boolean = snapshot.writeThrough

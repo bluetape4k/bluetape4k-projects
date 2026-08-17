@@ -707,6 +707,7 @@ class NearJCacheContractTest {
                 frontCache = frontCache,
                 backCache = backCache,
                 config = NearJCacheConfig(isSynchronous = false, syncRemoteTimeout = 1L),
+                clearAuthority = NearJCacheClearAuthority.EXCLUSIVE_BACK_CACHE,
             )
         nearCache.put("key", "value")
         writeStarted.await(2, TimeUnit.SECONDS).shouldBeTrue()
@@ -967,6 +968,7 @@ class NearJCacheContractTest {
                 frontCache = frontCache,
                 backCache = backCache,
                 config = NearJCacheConfig(isSynchronous = true),
+                clearAuthority = NearJCacheClearAuthority.EXCLUSIVE_BACK_CACHE,
             )
         }
     }
@@ -1019,5 +1021,6 @@ class NearJCacheContractTest {
             frontCache = frontCache,
             backCache = backCache,
             config = config,
+            clearAuthority = NearJCacheClearAuthority.EXCLUSIVE_BACK_CACHE,
         )
 }

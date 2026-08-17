@@ -6,6 +6,7 @@ import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.cache.jcache.JCache
 import io.bluetape4k.cache.nearcache.jcache.BackCacheWriteCompletion
 import io.bluetape4k.cache.nearcache.jcache.NearJCache
+import io.bluetape4k.cache.nearcache.jcache.NearJCacheClearAuthority
 import io.bluetape4k.cache.nearcache.jcache.NearJCacheConfig
 import io.mockk.every
 import io.mockk.mockk
@@ -368,6 +369,7 @@ class NearJCacheOperationStatisticsTest {
                 syncRemoteRetryCount = retryCount,
             ),
             timeSource = timeSource,
+            clearAuthority = NearJCacheClearAuthority.EXCLUSIVE_BACK_CACHE,
         )
         return StatisticsFixture(
             cache = cache,

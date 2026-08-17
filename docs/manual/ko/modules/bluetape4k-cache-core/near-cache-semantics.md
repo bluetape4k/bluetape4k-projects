@@ -25,6 +25,17 @@ get(key)
 
 `NearJCache.clear()`와 호환 alias `clearAllCache()`는 모두 이 wrapper의 front와 back을 비웁니다. 하지만 공유 back cache를 사용하는 다른 Near Cache의 front까지 event로 비운다고 보장하지 않습니다. 다른 process의 local entry까지 없애야 한다면 provider가 보장하는 `removeAll` 또는 invalidation channel을 사용합니다.
 
+기존 `NearJCache` 생성자와 provider factory의 기본 권한은
+`NearJCacheClearAuthority.DENY`입니다. 따라서 `clear()`, `clearAllCache()`, 인자 없는
+`removeAll()`은 어느 계층도 바꾸기 전에 `SecurityException`을 던집니다. caller가 back
+namespace를 독점한다고 확인한 경우에만
+`NearJCacheClearAuthority.EXCLUSIVE_BACK_CACHE`를 선택합니다. tenant별 정리에는
+key-scoped `removeAll(keys)`와 단일 key `remove`를 사용합니다. 이 권한은 runtime-only이며
+`NearJCacheConfig`와 함께 직렬화되지 않습니다. `nearCache.backCache.clear()` 같은 직접
+호출은 wrapper guard 밖의 caller-owned 경로이므로 권한 없는 코드에 reference를
+노출하지 마세요. `ResilientNearJCache`와 `ResilientSuspendNearJCache`의 `ClearBack`은
+이번 PR2 계약 범위가 아닙니다.
+
 ## 쓰기는 persistence write-through가 아니다
 
 공통 interface의 `put`은 provider 구현이 local과 back cache를 같은 연산 경로에서 갱신하도록 요구합니다. 이는 cache tier 간 동기화입니다. database, JDBC repository, Exposed table은 이 interface에 등장하지 않으므로 persistence write-through가 아닙니다.
@@ -81,6 +92,7 @@ front 용량과 로컬 heap 예산을 검토한 뒤 명시적 상한을 사용�
 
 ```kotlin
 import io.bluetape4k.cache.nearcache.jcache.NearJCache
+import io.bluetape4k.cache.nearcache.jcache.NearJCacheClearAuthority
 import io.bluetape4k.cache.nearcache.jcache.NearJCacheConfig
 import io.bluetape4k.cache.nearcache.jcache.management.NearJCacheConfigurationMXBean
 import io.bluetape4k.cache.nearcache.jcache.management.NearJCacheTierStatisticsMXBean
@@ -97,7 +109,12 @@ val configuration = MutableConfiguration<String, String>()
     .setStoreByValue(false)
 val front = manager.createCache("orders-front", configuration)
 val back = manager.createCache("orders-back", configuration)
-val nearCache = NearJCache(front, back, NearJCacheConfig(frontCacheConfiguration = configuration))
+val nearCache = NearJCache(
+    front,
+    back,
+    NearJCacheConfig(frontCacheConfiguration = configuration),
+    NearJCacheClearAuthority.EXCLUSIVE_BACK_CACHE,
+)
 val server = ManagementFactory.getPlatformMBeanServer()
 val registration = nearCache.registerMBeans(server, "orders-service", "orders-v1")
 val names = registration.activeObjectNames.associateBy { it.getKeyProperty("type") }
@@ -136,6 +153,27 @@ old cache close, replacement 등록 순서로 수행합니다. JMX namespace를 
 기존 owner를 확인하며 `RECOVERY_REQUIRED`를 즉시 cleanup 대상으로 처리합니다. Ownership
 token은 stale owner를 줄이는 best-effort 방어입니다.
 <!-- issue-1351-nearcache-management:end -->
+
+<!-- nearjcache-clear-authority-contract -->
+### #1368 shared-back clear authority
+
+기본 wrapper는 공유 back namespace에서 안전하게 동작합니다. tenant가 소유한 key
+목록은 key-scoped removal로 처리하고, namespace-wide clear는 독점 소유를 확인한
+caller만 명시적으로 선택합니다. 이 enum은 runtime-only이며 직렬화되는
+`NearJCacheConfig`를 바꾸지 않습니다.
+
+```kotlin
+val shared = NearJCache(front, back, NearJCacheConfig(), NearJCacheClearAuthority.DENY)
+shared.removeAll(setOf("tenant-a:key-1"))
+val owner = NearJCache(
+    front,
+    back,
+    NearJCacheConfig(),
+    NearJCacheClearAuthority.EXCLUSIVE_BACK_CACHE,
+)
+owner.clearAllCache()
+```
+<!-- /nearjcache-clear-authority-contract -->
 
 ## Source와 tests
 

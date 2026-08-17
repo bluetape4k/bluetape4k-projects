@@ -1,6 +1,7 @@
 package io.bluetape4k.cache.nearcache.jcache.management
 
 import io.bluetape4k.cache.nearcache.jcache.BulkFrontPopulationPolicy
+import io.bluetape4k.cache.nearcache.jcache.NearJCacheClearAuthority
 import javax.cache.Cache
 import javax.cache.configuration.CompleteConfiguration
 import javax.cache.configuration.Configuration
@@ -25,6 +26,7 @@ internal data class NearJCacheConfigurationSnapshot(
     val managementEnabled: Boolean,
     val bulkFrontPopulationPolicy: String,
     val bulkFrontPopulationMaximumEntryCount: Int,
+    val clearAuthority: String = NearJCacheClearAuthority.DENY.name,
 )
 
 /**
@@ -38,6 +40,7 @@ internal fun nearJCacheConfigurationSnapshot(
     suppliedFront: Configuration<*, *>,
     actualBack: Cache<*, *>,
     bulkFrontPopulationPolicy: BulkFrontPopulationPolicy,
+    clearAuthority: NearJCacheClearAuthority = NearJCacheClearAuthority.DENY,
 ): NearJCacheConfigurationSnapshot {
     val actualFrontConfiguration = actualFront.configurationOrNull()
     val (typePair, source, exact) = sequenceOf(
@@ -76,6 +79,7 @@ internal fun nearJCacheConfigurationSnapshot(
         managementEnabled = completeConfiguration?.isManagementEnabled ?: false,
         bulkFrontPopulationPolicy = bulkFrontPopulationMetadata.policy,
         bulkFrontPopulationMaximumEntryCount = bulkFrontPopulationMetadata.maximumEntryCount,
+        clearAuthority = clearAuthority.name,
     )
 }
 

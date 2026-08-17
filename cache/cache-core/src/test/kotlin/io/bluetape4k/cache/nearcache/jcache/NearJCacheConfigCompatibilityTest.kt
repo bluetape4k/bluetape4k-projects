@@ -25,9 +25,16 @@ class NearJCacheConfigCompatibilityTest {
     @Test
     fun `NearJCache와 management bean의 public constructor ABI를 유지한다`() {
         val publicConstructors = NearJCache::class.java.constructors.filterNot { it.isSynthetic }
-        publicConstructors.size shouldBeEqualTo 1
-        publicConstructors.single().parameterTypes.toList() shouldBeEqualTo
-            listOf(Cache::class.java, Cache::class.java, NearJCacheConfig::class.java)
+        publicConstructors.size shouldBeEqualTo 2
+        publicConstructors.map { it.parameterTypes.toList() }.toSet() shouldBeEqualTo setOf(
+            listOf(Cache::class.java, Cache::class.java, NearJCacheConfig::class.java),
+            listOf(
+                Cache::class.java,
+                Cache::class.java,
+                NearJCacheConfig::class.java,
+                NearJCacheClearAuthority::class.java,
+            ),
+        )
         NearJCacheManagementMXBean::class.java.getConstructor(NearJCache::class.java).shouldNotBeNull()
         NearJCacheConfigurationMXBean::class.java
             .getMethod("getBulkFrontPopulationPolicy")
@@ -45,6 +52,11 @@ class NearJCacheConfigCompatibilityTest {
         NearJCacheStatisticsMXBean::class.java
             .getMethod("addRemovals", Long::class.javaPrimitiveType)
             .returnType shouldBeEqualTo Void.TYPE
+    }
+
+    @Test
+    fun `기존 Java MXBean 구현체는 새 authority getter의 DENY 기본값을 사용한다`() {
+        LegacyNearJCacheConfigurationMXBean().getClearAuthority() shouldBeEqualTo "DENY"
     }
 
     @Test

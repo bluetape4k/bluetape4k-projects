@@ -54,11 +54,33 @@ object HazelcastNearJCache: KLogging() {
         hazelcastInstance: HazelcastInstance,
         configuration: Configuration<K, V> = getDefaultJCacheConfiguration(),
         nearCacheCfg: NearJCacheConfig<K, V>,
+    ): NearJCache<K, V> = invoke(
+        frontCache = frontCache,
+        hazelcastInstance = hazelcastInstance,
+        configuration = configuration,
+        nearCacheCfg = nearCacheCfg,
+        clearAuthority = NearJCacheClearAuthority.DENY,
+    )
+
+    /**
+     * caller가 명시한 clear authority를 사용하는 listener-free factory입니다.
+     * 기존 overload는 [NearJCacheClearAuthority.DENY]를 사용합니다. 이 overload는
+     * caller가 공급한 front cache를 wrapper `close()`에서 닫고, factory가 생성하거나
+     * 재사용한 Hazelcast back cache와 [HazelcastInstance]는 닫지 않습니다.
+     *
+     * @param clearAuthority caller가 확인한 back namespace 권한
+     */
+    inline operator fun <reified K: Any, reified V: Any> invoke(
+        frontCache: JCache<K, V>,
+        hazelcastInstance: HazelcastInstance,
+        configuration: Configuration<K, V> = getDefaultJCacheConfiguration(),
+        nearCacheCfg: NearJCacheConfig<K, V>,
+        clearAuthority: NearJCacheClearAuthority,
     ): NearJCache<K, V> {
         val backCache: JCache<K, V> =
             HazelcastJCaching.getOrCreate(hazelcastInstance, nearCacheCfg.cacheName, configuration)
 
         log.info { "Create NearCache instance. config=$nearCacheCfg" }
-        return NearJCache(frontCache, backCache, nearCacheCfg)
+        return NearJCache(frontCache, backCache, nearCacheCfg, clearAuthority)
     }
 }

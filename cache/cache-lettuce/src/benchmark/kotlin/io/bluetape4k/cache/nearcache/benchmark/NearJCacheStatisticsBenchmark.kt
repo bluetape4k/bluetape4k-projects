@@ -4,6 +4,7 @@ import io.bluetape4k.cache.jcache.JCache
 import io.bluetape4k.cache.jcache.JCaching
 import io.bluetape4k.cache.jcache.jcacheConfiguration
 import io.bluetape4k.cache.nearcache.jcache.NearJCache
+import io.bluetape4k.cache.nearcache.jcache.NearJCacheClearAuthority
 import io.bluetape4k.cache.nearcache.jcache.NearJCacheConfig
 import org.openjdk.jmh.annotations.Benchmark
 import org.openjdk.jmh.annotations.BenchmarkMode
@@ -57,6 +58,7 @@ open class NearJCacheStatisticsBenchmark {
             frontCache = front,
             backCache = backCache,
             config = NearJCacheConfig(frontCacheConfiguration = frontConfig, isSynchronous = true),
+            clearAuthority = NearJCacheClearAuthority.EXCLUSIVE_BACK_CACHE,
         )
         nearCache.putAll(entries)
     }

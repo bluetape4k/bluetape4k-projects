@@ -21,4 +21,7 @@ interface NearJCacheConfigurationMXBean: CacheMXBean {
 
     /** bulk front population에 허용되는 최대 entry 수를 반환하며, 적용 불가이면 `0`입니다. */
     fun getBulkFrontPopulationMaximumEntryCount(): Int
+
+    /** namespace-wide clear 권한을 stable token으로 반환하며, 기존 구현의 기본값은 `DENY`입니다. */
+    fun getClearAuthority(): String = "DENY"
 }

@@ -31,6 +31,7 @@ class NearJCacheDocumentationTest {
             frontCache = front,
             backCache = back,
             config = NearJCacheConfig(frontCacheConfiguration = configuration),
+            clearAuthority = NearJCacheClearAuthority.EXCLUSIVE_BACK_CACHE,
         )
         val server = MBeanServerFactory.newMBeanServer()
         val registration = nearCache.registerMBeans(server, "docs-manager", "docs-cache-$suffix")
@@ -53,6 +54,7 @@ class NearJCacheDocumentationTest {
             statistics.getStatisticsScope() shouldBeEqualTo "NEAR_JCACHE_WRAPPER_V1"
             statistics.getSupportedOperations().contains("getAndPut").shouldBeTrue()
             management.isStatisticsEnabled.shouldBeTrue()
+            management.getClearAuthority() shouldBeEqualTo "EXCLUSIVE_BACK_CACHE"
 
             statistics.clear()
             nearCache.get("42") shouldBeEqualTo "Ada"
@@ -284,6 +286,21 @@ class NearJCacheDocumentationTest {
         }
     }
 
+    @Test
+    fun `clear authority marker는 EN KO 문서 쌍의 계약을 동일하게 고정한다`() {
+        AUTHORITY_CONTRACT_DOCUMENTS.forEach { (englishPath, koreanPath) ->
+            val english = authorityContractSection(read(englishPath))
+            val korean = authorityContractSection(read(koreanPath))
+
+            headingSignature(english) shouldBeEqualTo headingSignature(korean)
+            fencedCodeBlocks(english) shouldBeEqualTo fencedCodeBlocks(korean)
+            numericTokens(english) shouldBeEqualTo numericTokens(korean)
+            authorityTokenOccurrences(english) shouldBeEqualTo authorityTokenOccurrences(korean)
+            STALE_AUTHORITY_CLEAR_PHRASE.containsMatchIn(english).shouldBeFalse()
+            STALE_AUTHORITY_CLEAR_PHRASE.containsMatchIn(korean).shouldBeFalse()
+        }
+    }
+
     private fun read(relativePath: String): String = Files.readString(repositoryRoot.resolve(relativePath))
 
     private fun markedSection(document: String): String {
@@ -302,6 +319,14 @@ class NearJCacheDocumentationTest {
         return document.substring(start, end + BULK_POLICY_END_MARKER.length)
     }
 
+    private fun authorityContractSection(document: String): String {
+        val start = document.indexOf(AUTHORITY_START_MARKER)
+        val end = document.indexOf(AUTHORITY_END_MARKER)
+        (start >= 0).shouldBeTrue()
+        (end > start).shouldBeTrue()
+        return document.substring(start, end + AUTHORITY_END_MARKER.length)
+    }
+
     private fun fencedCodeBlocks(document: String): List<String> = FENCED_CODE.findAll(document)
         .map { it.groupValues[1].trim() }
         .toList()
@@ -317,6 +342,11 @@ class NearJCacheDocumentationTest {
     private fun tokenOccurrences(document: String): Map<String, Int> = PARITY_TOKENS.associateWith { token ->
         document.windowed(token.length).count(token::equals)
     }
+
+    private fun authorityTokenOccurrences(document: String): Map<String, Int> =
+        AUTHORITY_PARITY_TOKENS.associateWith { token ->
+            document.windowed(token.length).count(token::equals)
+        }
 
     private fun canaryQueriesAreComplete(template: String): Boolean {
         val queries = flatJsonObjectsInArray(template, "queries")
@@ -351,6 +381,8 @@ class NearJCacheDocumentationTest {
         private const val END_MARKER = "<!-- issue-1351-nearcache-management:end -->"
         private const val BULK_POLICY_START_MARKER = "<!-- issue-1369-bulk-policy:start -->"
         private const val BULK_POLICY_END_MARKER = "<!-- issue-1369-bulk-policy:end -->"
+        private const val AUTHORITY_START_MARKER = "<!-- nearjcache-clear-authority-contract -->"
+        private const val AUTHORITY_END_MARKER = "<!-- /nearjcache-clear-authority-contract -->"
         private val FENCED_CODE = Regex("```(?:kotlin)?\\n(.*?)```", RegexOption.DOT_MATCHES_ALL)
         private val NUMBER = Regex("\\b\\d[\\d_]*\\b")
         private val HEADING = Regex("^#{1,6} ", RegexOption.MULTILINE)
@@ -375,6 +407,25 @@ class NearJCacheDocumentationTest {
         private val STALE_CLEAR_PHRASE = Regex(
             "front-only|front cache only|clear\\(\\).*front.{0,20}only|clear\\(\\).*front.{0,20}비우",
             setOf(RegexOption.IGNORE_CASE, RegexOption.DOT_MATCHES_ALL),
+        )
+        private val STALE_AUTHORITY_CLEAR_PHRASE = Regex(
+            "front[ -]only|프론트만|front-only",
+            RegexOption.IGNORE_CASE,
+        )
+        private val AUTHORITY_PARITY_TOKENS = listOf(
+            "NearJCacheClearAuthority",
+            "DENY",
+            "EXCLUSIVE_BACK_CACHE",
+            "clearAllCache",
+            "removeAll",
+            "SecurityException",
+            "NearJCache",
+            "LettuceCaches.nearJCache",
+            "HazelcastCaches.nearJCache",
+            "RedissonCaches.nearJCache",
+            "128",
+            "1368",
+            "1369",
         )
         private val FLAT_JSON_OBJECT = Regex("""\{[^{}]*}""", RegexOption.DOT_MATCHES_ALL)
         private val EXPECTED_CANARY_QUERY_IDS = setOf(
@@ -424,6 +475,16 @@ class NearJCacheDocumentationTest {
             "docs/manual/en/modules/bluetape4k-cache-core/near-cache-semantics.md",
             "docs/manual/ko/modules/bluetape4k-cache-core/near-cache-semantics.md",
             "docs/cache/near-cache-capability-matrix.md",
+        )
+        private val AUTHORITY_CONTRACT_DOCUMENTS = listOf(
+            "cache/cache-core/README.md" to "cache/cache-core/README.ko.md",
+            "cache/cache-lettuce/README.md" to "cache/cache-lettuce/README.ko.md",
+            "cache/cache-hazelcast/README.md" to "cache/cache-hazelcast/README.ko.md",
+            "cache/cache-redisson/README.md" to "cache/cache-redisson/README.ko.md",
+            "docs/manual/en/modules/bluetape4k-cache-core/near-cache-semantics.md" to
+                    "docs/manual/ko/modules/bluetape4k-cache-core/near-cache-semantics.md",
+            "docs/manual/en/modules/bluetape4k-cache-hazelcast/jcache-near-cache-serialization.md" to
+                    "docs/manual/ko/modules/bluetape4k-cache-hazelcast/jcache-near-cache-serialization.md",
         )
         private val repositoryRoot: Path by lazy {
             generateSequence(Path.of("").toAbsolutePath()) { it.parent }
