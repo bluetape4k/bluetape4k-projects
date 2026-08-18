@@ -8,6 +8,8 @@
 
 ### 버그 수정
 
+- WireMock client-only 경로에서 사용하지 않는 Handlebars와 Jetty 11 embedded server 전이를 제외하고, 사용되지 않는 Kafka 4 generator를 제거해 JGit 취약 전이를 차단했다. Dokka와 dependency-check repo tooling의 jsoup은 first patched `1.23.1` 이상으로 해석되며 중앙 catalog와 publication dependency constraint는 변경하지 않는다
+  ([#1414](https://github.com/bluetape4k/bluetape4k-projects/issues/1414)).
 - `ZipFileSupport.unzip`이 정규화된 archive entry 경로와 `SecureDirectoryStream` 디렉토리 상대 handle을 사용하도록 강화했다. `NOFOLLOW_LINKS`와 디렉토리 식별자 검증으로 대상 조상·중간 디렉토리 교체와 최종 파일 symlink를 통한 외부 쓰기를 차단하며, secure directory handle을 지원하지 않는 파일 시스템에서는 `IOException`으로 fail-closed 한다. hard link·mount 변경·적대적인 파일 시스템 관리자는 여전히 caller가 통제해야 한다
   ([#1413](https://github.com/bluetape4k/bluetape4k-projects/issues/1413)).
 - `HazelcastNearJCache(...)` 공개 factory가 Hazelcast JCache listener 직렬화 경계를 넘지 않도록 listener-free degraded 경로를 사용한다. read-through와 write-through는 유지하지만 peer front-cache propagation은 보장하지 않는다

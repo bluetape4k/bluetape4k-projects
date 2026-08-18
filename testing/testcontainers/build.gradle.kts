@@ -245,7 +245,12 @@ dependencies {
     compileOnly(libs.testcontainers.nginx)
 
     // Wiremock
-    compileOnly(bt4k.wiremock)
+    compileOnly(bt4k.wiremock) {
+        // WireMock container client만 노출하며 embedded server와 template engine은 사용하지 않는다.
+        exclude(group = "com.github.jknack")
+        exclude(group = "org.eclipse.jetty")
+        exclude(group = "org.eclipse.jetty.http2")
+    }
 
     // Keycloak
     compileOnly(bt4k.keycloak.testcontainers)
