@@ -100,7 +100,12 @@ dependencies {
     api(project(":bluetape4k-resilience4j"))
     testImplementation(project(":bluetape4k-junit5"))
     testImplementation(project(":bluetape4k-testcontainers"))
-    testImplementation(bt4k.wiremock)
+    testImplementation(bt4k.wiremock) {
+        // 이 모듈은 Docker WireMock의 client API만 사용하므로 embedded server 전이는 필요하지 않다.
+        exclude(group = "com.github.jknack")
+        exclude(group = "org.eclipse.jetty")
+        exclude(group = "org.eclipse.jetty.http2")
+    }
 
     // Benchmark
     testImplementation(bt4k.kotlinx.benchmark.runtime)

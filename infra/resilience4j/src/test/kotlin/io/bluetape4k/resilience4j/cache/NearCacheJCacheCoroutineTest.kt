@@ -2,6 +2,7 @@ package io.bluetape4k.resilience4j.cache
 
 import io.bluetape4k.cache.jcache.RedissonJCaching
 import io.bluetape4k.cache.nearcache.jcache.NearJCache
+import io.bluetape4k.cache.nearcache.jcache.NearJCacheClearAuthority
 import io.bluetape4k.cache.nearcache.jcache.NearJCacheConfig
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.testcontainers.storage.RedisServer
@@ -20,7 +21,7 @@ class NearCacheJCacheCoroutineTest: AbstractJCacheCoroutinesTest() {
     override val jcache: NearJCache<String, String> by lazy {
         val nearCacheCfg = NearJCacheConfig<String, String>()
         val backCache = RedissonJCaching.getOrCreate<String, String>("back-coroutines", redisson)
-        NearJCache(nearCacheCfg, backCache)
+        NearJCache(nearCacheCfg, backCache, NearJCacheClearAuthority.EXCLUSIVE_BACK_CACHE)
     }
 
     @BeforeEach

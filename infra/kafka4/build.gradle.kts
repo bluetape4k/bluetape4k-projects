@@ -37,7 +37,6 @@ dependencies {
     // Kafka (kafka4: 4.2.x — spring-kafka 4.x compatible)
     api(bt4k.kafka4.clients)
     compileOnly(bt4k.kafka4.streams)
-    compileOnly(bt4k.kafka4.generator)
     testImplementation(bt4k.kafka4.streams.test.utils)
     testRuntimeOnly(bt4k.kafka4.server.common)
     testImplementation(libs.testcontainers.kafka)

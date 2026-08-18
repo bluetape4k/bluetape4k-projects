@@ -94,6 +94,19 @@ allprojects {
         // UCAR/Unidata — NetCDF/CDM 라이브러리
         maven("https://artifacts.unidata.ucar.edu/repository/unidata-all/")
     }
+
+    configurations.matching { it.name.startsWith("dokka") }.configureEach {
+        resolutionStrategy.eachDependency {
+            if (
+                requested.group == "org.jsoup" &&
+                requested.name == "jsoup" &&
+                requested.version == "1.16.1"
+            ) {
+                useVersion("1.23.1")
+                because("CVE-2026-71497: Dokka tooling must use the first patched jsoup release")
+            }
+        }
+    }
 }
 
 // Capture root-project catalog reference once; used inside subprojects {} closures

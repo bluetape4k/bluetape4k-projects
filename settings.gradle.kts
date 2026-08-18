@@ -4,6 +4,14 @@ pluginManagement {
         mavenCentral()
         google()
     }
+    resolutionStrategy {
+        eachPlugin {
+            if (requested.id.id == "org.owasp.dependencycheck" && requested.version == "12.2.2") {
+                // Repo tooling 전이의 CVE-2026-71497을 제거한다. 중앙 catalog의 공통 버전 권한은 변경하지 않는다.
+                useVersion("13.0.0")
+            }
+        }
+    }
     plugins {
         // https://plugins.gradle.org/plugin/org.gradle.toolchains.foojay-resolver-convention
         id("org.gradle.toolchains.foojay-resolver-convention") version ("1.0.0")
