@@ -209,7 +209,15 @@ jobs:
       - name: Resolve Gradle catalog from checked-out source
         env:
           BLUETAPE4K_DEPENDENCIES_CATALOG_PATH: ${{ github.workspace }}/.catalog/bluetape4k-dependencies/gradle/libs.versions.toml
-        run: ./gradlew help --no-daemon
+        run: |
+          set -euo pipefail
+          warning_log="$(mktemp)"
+          trap 'rm -f "$warning_log"' EXIT
+          ./gradlew help --no-daemon --no-configuration-cache --warning-mode all --console=plain 2>&1 | tee "$warning_log"
+          if grep -Eq 'scheduled to be removed in Gradle 10|will fail with an error in Gradle 10' "$warning_log"; then
+            echo 'Gradle 10 removal warnings detected.' >&2
+            exit 1
+          fi
 
   build:
     name: Build

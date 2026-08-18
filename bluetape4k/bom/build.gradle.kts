@@ -13,7 +13,7 @@ dependencies {
     constraints {
         rootProject.subprojects {
             if (isPublishableLibraryProject()) {
-                api(this)
+                api(rootProject.dependencies.project(path))
             }
         }
     }

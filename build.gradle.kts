@@ -69,9 +69,9 @@ val centralSnapshotsParallelism: Int = providers
     .orElse(8)
     .get()
 
-val projectGroup: String by project
-val baseVersion: String by project
-val snapshotVersion: String by project
+val projectGroup: String = providers.gradleProperty("projectGroup").get()
+val baseVersion: String = providers.gradleProperty("baseVersion").get()
+val snapshotVersion: String = providers.gradleProperty("snapshotVersion").get()
 
 abstract class TestcontainersMutexService: BuildService<BuildServiceParameters.None>
 
@@ -969,13 +969,13 @@ subprojects {
     }
 
     dependencies {
-        val api by configurations
-        val implementation by configurations
-        val testImplementation by configurations
+        val api = configurations.getByName("api")
+        val implementation = configurations.getByName("implementation")
+        val testImplementation = configurations.getByName("testImplementation")
 
-        val compileOnly by configurations
-        val testCompileOnly by configurations
-        val testRuntimeOnly by configurations
+        val compileOnly = configurations.getByName("compileOnly")
+        val testCompileOnly = configurations.getByName("testCompileOnly")
+        val testRuntimeOnly = configurations.getByName("testRuntimeOnly")
 
         api(rootBt4k.jetbrains.annotations)
 
@@ -1031,12 +1031,12 @@ subprojects {
                 create<MavenPublication>("Bluetape4k") {
                     val binaryJar = components["java"]
 
-                    val sourcesJar by tasks.registering(Jar::class) {
+                    val sourcesJar = tasks.register<Jar>("sourcesJar") {
                         archiveClassifier.set("sources")
                         from(sourceSets["main"].allSource)
                     }
 
-                    val javadocJar by tasks.registering(Jar::class) {
+                    val javadocJar = tasks.register<Jar>("javadocJar") {
                         archiveClassifier.set("javadoc")
                         val javadocDir = layout.buildDirectory.asFile.get().resolve("javadoc")
                         from(javadocDir.path)
@@ -1099,7 +1099,7 @@ val detektTargetProjects = subprojects
 val detektSourceCoverageReport = layout.buildDirectory.file("reports/detekt/source-coverage.md")
 val detektSourceFilesByProject = detektTargetProjects.associateWith { it.detektKotlinSourceFiles() }
 
-val detektSourceCoverage by tasks.registering {
+val detektSourceCoverage = tasks.register("detektSourceCoverage") {
     group = LifecycleBasePlugin.VERIFICATION_GROUP
     description = "Verifies and reports the Kotlin source scope analyzed by Detekt."
 
@@ -1170,7 +1170,7 @@ val detektModuleTasks = detektTargetProjects.map { module ->
     module.tasks.named<Detekt>("detekt")
 }
 
-val detektReportMerge by tasks.registering(ReportMergeTask::class) {
+val detektReportMerge = tasks.register<ReportMergeTask>("detektReportMerge") {
     group = LifecycleBasePlugin.VERIFICATION_GROUP
     description = "Merges XML reports from all Detekt Kotlin subprojects."
     output.set(layout.buildDirectory.file("reports/detekt/merged.xml"))
@@ -1292,7 +1292,7 @@ dependencies {
 }
 
 // ── Disabled Test Release Gate ──────────────────────────────────────────────
-val checkDisabledTests by tasks.registering(DisabledTestReportTask::class) {
+val checkDisabledTests = tasks.register<DisabledTestReportTask>("checkDisabledTests") {
     group = LifecycleBasePlugin.VERIFICATION_GROUP
     description = "Scans JUnit disabled tests and fails known-bug skips without GitHub issue references."
     sourceRoot.set(layout.projectDirectory)
