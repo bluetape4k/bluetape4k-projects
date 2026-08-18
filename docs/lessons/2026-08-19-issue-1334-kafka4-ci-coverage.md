@@ -11,6 +11,7 @@
 - `scripts/validate-ci-kafka4-coverage.rb`를 `changes` 작업에서 실행해 다음 계약을 fail-closed로 검사한다.
   - `settings.gradle.kts`의 `infra` 자동 등록과 `infra/kafka4/build.gradle.kts` 존재
   - 경로 필터와 `test-kafka-infra` 스케줄링 조건
+  - test step의 무조건 실행과 Kover step의 `if: always()` 조건
   - Kafka3/Kafka4 테스트·Kover task 및 테스트 실패 전파
   - 테스트 결과 XML과 Kover 보고서 artifact 경로
 - validator 회귀 스크립트에서 경로, task, 조건, artifact, 자동 등록 누락을 각각 실패 fixture로 고정한다.
