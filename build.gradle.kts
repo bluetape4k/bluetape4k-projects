@@ -3,6 +3,7 @@ import io.bluetape4k.gradle.applyBluetape4kPomMetadata
 import io.bluetape4k.gradle.centralSnapshotsRepository
 import io.bluetape4k.gradle.configurePublishingSigning
 import io.bluetape4k.gradle.DisabledTestReportTask
+import io.bluetape4k.gradle.DetektSourceCoverageTask
 import io.bluetape4k.gradle.isPublishableLibraryProject
 import io.bluetape4k.gradle.isPublishedProject
 import io.bluetape4k.gradle.resolveCentralPublishingConfig
@@ -1098,72 +1099,27 @@ val detektTargetProjects = subprojects
 
 val detektSourceCoverageReport = layout.buildDirectory.file("reports/detekt/source-coverage.md")
 val detektSourceFilesByProject = detektTargetProjects.associateWith { it.detektKotlinSourceFiles() }
+val detektSourceCoverageProjects = detektTargetProjects.associate { module ->
+    module.path to module.projectDir.absolutePath
+}
+val detektSourceCoverageExclusions = (
+    subprojects
+        .mapNotNull { module -> module.detektExclusionReason()?.let { module.path to it } } +
+        detektExplicitExclusionReasons
+            .filterKeys { moduleName -> subprojects.none { it.name == moduleName } }
+            .map { (moduleName, reason) -> ":$moduleName" to reason }
+    )
+    .toMap()
 
-val detektSourceCoverage = tasks.register("detektSourceCoverage") {
+val detektSourceCoverage = tasks.register<DetektSourceCoverageTask>("detektSourceCoverage") {
     group = LifecycleBasePlugin.VERIFICATION_GROUP
     description = "Verifies and reports the Kotlin source scope analyzed by Detekt."
 
-    inputs.files(detektSourceFilesByProject.values)
-    outputs.file(detektSourceCoverageReport)
-
-    doLast {
-        val rows = detektSourceFilesByProject.map { (module, sourceFiles) ->
-            val files = sourceFiles.files
-            val mainRoot = module.projectDir.toPath().resolve("src/main/kotlin")
-            val testRoot = module.projectDir.toPath().resolve("src/test/kotlin")
-            val mainCount = files.count { it.toPath().startsWith(mainRoot) }
-            val testCount = files.count { it.toPath().startsWith(testRoot) }
-            module to Triple(mainCount, testCount, files.size)
-        }
-        val emptyModules = rows.filter { (_, counts) -> counts.third == 0 }
-        val totalMain = rows.sumOf { it.second.first }
-        val totalTest = rows.sumOf { it.second.second }
-        val totalFiles = rows.sumOf { it.second.third }
-        val exclusions = (
-            subprojects
-                .mapNotNull { module -> module.detektExclusionReason()?.let { module.path to it } } +
-                detektExplicitExclusionReasons
-                    .filterKeys { moduleName -> subprojects.none { it.name == moduleName } }
-                    .map { (moduleName, reason) -> ":$moduleName" to reason }
-            )
-            .sortedBy { it.first }
-
-        val report = detektSourceCoverageReport.get().asFile
-        report.parentFile.mkdirs()
-        report.writeText(buildString {
-            appendLine("# Detekt source coverage")
-            appendLine()
-            appendLine("- Included modules: ${rows.size}")
-            appendLine("- Kotlin source files: $totalFiles (main: $totalMain, test: $totalTest)")
-            appendLine("- Empty included modules: ${emptyModules.size}")
-            appendLine()
-            appendLine("## Included modules")
-            appendLine()
-            appendLine("| Project | Main Kotlin | Test Kotlin | Total |")
-            appendLine("| --- | ---: | ---: | ---: |")
-            rows.forEach { (module, counts) ->
-                appendLine("| `${module.path}` | ${counts.first} | ${counts.second} | ${counts.third} |")
-            }
-            appendLine()
-            appendLine("## Explicit exclusions")
-            appendLine()
-            if (exclusions.isEmpty()) {
-                appendLine("No explicit exclusions.")
-            } else {
-                exclusions.forEach { (modulePath, reason) ->
-                    appendLine("- `$modulePath` — $reason")
-                }
-            }
-        })
-
-        check(emptyModules.isEmpty()) {
-            "Detekt source coverage is empty for included modules: ${emptyModules.joinToString { it.first.path }}"
-        }
-        logger.lifecycle(
-            "Detekt source coverage: ${rows.size} modules, $totalFiles Kotlin files " +
-                "(main: $totalMain, test: $totalTest)",
-        )
-    }
+    projectPaths.set(detektTargetProjects.map(Project::getPath))
+    projectRoots.set(detektSourceCoverageProjects)
+    explicitExclusions.set(detektSourceCoverageExclusions)
+    sourceFiles.from(detektSourceFilesByProject.values)
+    reportFile.set(detektSourceCoverageReport)
 }
 
 val detektModuleTasks = detektTargetProjects.map { module ->

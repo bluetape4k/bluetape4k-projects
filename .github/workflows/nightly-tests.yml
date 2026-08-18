@@ -369,7 +369,7 @@ jobs:
       - name: Detekt static analysis
         run: |
           for attempt in 1 2 3; do
-            ./gradlew detekt --parallel --no-configuration-cache && break
+            ./gradlew detekt --parallel --configuration-cache-problems=fail && break
             echo "Attempt $attempt failed"
             [ $attempt -lt 3 ] && sleep 10 || exit 1
           done
