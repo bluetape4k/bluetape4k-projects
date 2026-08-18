@@ -119,6 +119,8 @@ jobs:
       - uses: actions/checkout@v7
       - name: Validate CSV CI coverage
         run: ruby scripts/validate-ci-csv-coverage.rb
+      - name: Validate Kafka4 CI coverage
+        run: ruby scripts/validate-ci-kafka4-coverage.rb
       - uses: dorny/paths-filter@v4
         id: filter
         with:
@@ -167,6 +169,7 @@ jobs:
               - 'cache/cache-redisson/**'
             kafka-infra:
               - 'infra/kafka/**'
+              - 'infra/kafka4/**'
             telemetry-infra:
               - 'infra/opentelemetry/**'
               - 'infra/kafka-logback/**'
@@ -706,6 +709,7 @@ jobs:
           command: |
             ./gradlew \
               :bluetape4k-kafka:test \
+              :bluetape4k-kafka4:test \
               --max-workers=2 \
               --no-configuration-cache
         env:
@@ -716,6 +720,7 @@ jobs:
         run: |
           ./gradlew \
             :bluetape4k-kafka:koverXmlReport \
+            :bluetape4k-kafka4:koverXmlReport \
             --max-workers=2 \
             --no-configuration-cache
         continue-on-error: true
