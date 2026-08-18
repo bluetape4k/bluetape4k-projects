@@ -148,7 +148,7 @@ val reader1 = jwtProvider.parse(jwt1)  // OK (저장소에 이전 KeyChain이 �
 
 ### 수명주기와 자원 소유권
 
-`JwtProvider`와 `KeyChainRepository`는 `AutoCloseable`을 구현합니다. 기본 Provider는 자신의 KeyChain 회전 타이머를 소유하지만, 주입받은 저장소는 빌려서 사용하므로 Provider가 닫지 않습니다. 애플리케이션이나 테스트에서 함께 생성한 경우 두 객체를 명시적으로 닫으세요.
+`JwtProvider`와 `KeyChainRepository`는 `AutoCloseable`을 구현합니다. 기본 Provider는 자신의 KeyChain 회전 타이머와 Provider별 parser 캐시 엔트리를 소유하여 `close()`에서 정리하지만, 주입받은 저장소는 빌려서 사용하므로 Provider가 닫지 않습니다. 애플리케이션이나 테스트에서 함께 생성한 경우 두 객체를 명시적으로 닫으세요.
 
 ```kotlin
 import io.bluetape4k.jwt.keychain.repository.inmemory.InMemoryKeyChainRepository
@@ -161,12 +161,16 @@ try {
     val jwt = jwtProvider.compose { subject = "alice" }
     jwtProvider.parse(jwt)
 } finally {
-    jwtProvider.close() // Provider의 회전 타이머를 취소합니다.
+    jwtProvider.close() // 회전 타이머와 Provider parser 캐시 엔트리를 정리합니다.
     repository.close()  // 저장소의 refresh 타이머를 취소합니다.
 }
 ```
 
-Cache Provider는 delegate를 빌려 사용하므로 회전 타이머를 소유한 원래 delegate를 별도로 닫아야 합니다. 백그라운드 작업이 없는 구현체는 기본 no-op `close()` 구현을 그대로 사용할 수 있습니다.
+parser 캐시는 프로세스 전역에서 Provider를 키로 사용합니다. 운영 진단에서는 Provider
+생성·종료 횟수와 함께 `jwtParserCache.size`를 관찰하세요. Provider를 반복해서 생성·파싱·
+종료해도 캐시 크기와 힙에 남는 객체가 계속 증가하지 않아야 합니다.
+
+Cache Provider는 delegate를 빌려 사용하므로 회전 타이머를 소유한 원래 delegate를 별도로 닫아야 합니다. 백그라운드 작업이 없는 구현체도 기본 `close()` 구현을 사용할 수 있으며, 이 구현은 Provider parser 캐시 엔트리를 정리합니다.
 
 Redis 기반 Provider를 사용할 때 `RedissonClient`와 delegate의 소유자는
 애플리케이션입니다. `RedissonJwtProvider`는 delegate와 cache를 빌려 쓰므로

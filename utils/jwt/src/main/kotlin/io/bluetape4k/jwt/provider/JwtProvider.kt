@@ -153,10 +153,14 @@ interface JwtProvider: AutoCloseable {
     }.getOrNull()
 
     /**
-     * 이 공급자가 소유한 백그라운드 작업을 종료합니다.
+     * 이 공급자가 소유한 백그라운드 작업과 parser 캐시 엔트리를 정리합니다.
      *
-     * 백그라운드 작업이 없는 구현체는 기본 구현을 그대로 사용하면 됩니다. 주입받은
-     * repository나 delegate의 소유권은 구현체 문서를 따르며, 기본 공급자는 이를 닫지 않습니다.
+     * parser의 `Locator`가 공급자의 키체인 조회 함수를 캡처하므로 이 메서드는 공급자별
+     * parser 캐시 엔트리도 제거합니다. 백그라운드 작업이 없는 구현체는 기본 구현을 그대로
+     * 사용하면 됩니다. 주입받은 repository나 delegate의 소유권은 구현체 문서를 따르며,
+     * 기본 공급자는 이를 닫지 않습니다.
      */
-    override fun close() = Unit
+    override fun close() {
+        clearJwtParserCache(this)
+    }
 }

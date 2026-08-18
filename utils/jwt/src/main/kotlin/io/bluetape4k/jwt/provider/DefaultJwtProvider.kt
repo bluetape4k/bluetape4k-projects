@@ -21,7 +21,7 @@ import kotlin.concurrent.withLock
  * - 생성 시 즉시 최초 키체인 로테이션을 수행합니다.
  * - 60초 간격으로 키체인 만료를 검사하고 필요 시 로테이션합니다.
  * - [repository]를 통해 키체인을 영속화합니다.
- * - 회전 타이머는 이 공급자가 소유하므로 [close]로 취소합니다.
+ * - 회전 타이머와 공급자별 parser 캐시 엔트리는 이 공급자가 소유하므로 [close]로 정리합니다.
  * - [repository]는 빌려서 사용하며 [close]에서 닫지 않습니다. 저장소 수명주기는 호출자가 관리합니다.
  *
  * @property signatureAlgorithm RSA 기반 서명 알고리즘
@@ -87,8 +87,9 @@ class DefaultJwtProvider private constructor(
     /**
      * 이 공급자가 소유한 key-chain rotation timer를 취소합니다.
      *
-     * [repository]는 빌린 자원이므로 닫지 않습니다. 공급자와 저장소를 함께 생성한 호출자도
-     * 각각 [close]를 호출해 두 자원의 수명을 명시해야 합니다.
+     * parser 캐시 엔트리도 제거해 parser의 [io.jsonwebtoken.Locator]가 캡처한 공급자와
+     * 저장소가 전역 캐시에 남지 않도록 합니다. [repository]는 빌린 자원이므로 닫지 않습니다.
+     * 공급자와 저장소를 함께 생성한 호출자도 각각 [close]를 호출해 두 자원의 수명을 명시해야 합니다.
      */
     override fun close() {
         synchronized(lifecycleLock) {
@@ -97,6 +98,7 @@ class DefaultJwtProvider private constructor(
             closed = true
             timer?.cancel()
             timer = null
+            clearJwtParserCache(this)
         }
     }
 
