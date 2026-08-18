@@ -139,7 +139,7 @@ val reader1 = jwtProvider.parse(jwt1)
 
 ### Lifecycle and resource ownership
 
-`JwtProvider` and `KeyChainRepository` implement `AutoCloseable`. The default provider owns its key rotation timer, while an injected repository is borrowed and is not closed by the provider. Close both explicitly when they share an application or test scope:
+`JwtProvider` and `KeyChainRepository` implement `AutoCloseable`. The default provider owns its key rotation timer and removes its provider-specific parser cache entry on `close()`, while an injected repository is borrowed and is not closed by the provider. Close both explicitly when they share an application or test scope:
 
 ```kotlin
 import io.bluetape4k.jwt.keychain.repository.inmemory.InMemoryKeyChainRepository
@@ -152,12 +152,16 @@ try {
     val jwt = jwtProvider.compose { subject = "alice" }
     jwtProvider.parse(jwt)
 } finally {
-    jwtProvider.close() // cancels the provider's rotation timer
+    jwtProvider.close() // cancels the timer and removes the provider parser cache entry
     repository.close()  // cancels the repository's refresh timer
 }
 ```
 
-Cache providers borrow their delegate; close the original delegate separately when it owns a rotation timer. Implementations without background work may keep the default no-op `close()` implementation.
+The parser cache is process-wide and keyed by provider. Observe `jwtParserCache.size`
+alongside provider creation and close counts in diagnostics; repeated create/parse/close
+cycles should not cause the size or retained heap to grow.
+
+Cache providers borrow their delegate; close the original delegate separately when it owns a rotation timer. Implementations without background work may keep the default `close()` implementation, which still removes the provider parser cache entry.
 
 For a Redis-backed provider, both the `RedissonClient` and the delegate remain
 application-owned. `RedissonJwtProvider` borrows the delegate and cache, so close

@@ -11,7 +11,23 @@ import java.security.Key
 import java.util.concurrent.ConcurrentHashMap
 
 
+/**
+ * provider별 parser를 보관하는 process-wide 캐시입니다.
+ *
+ * 운영 진단에서는 `jwtParserCache.size`를 provider 생성·종료량과 함께 관찰합니다.
+ * 정상적인 생성·파싱·종료 반복에서는 종료된 provider가 이 크기를 계속 증가시키지 않아야 합니다.
+ */
 internal val jwtParserCache = ConcurrentHashMap<JwtProvider, JwtParser>()
+
+/**
+ * 공급자별로 보관한 parser를 제거합니다.
+ *
+ * parser의 [Locator]가 공급자의 키체인 조회 함수를 캡처하므로 공급자 수명 종료 시
+ * 캐시 엔트리도 함께 제거해야 공급자와 저장소가 전역 캐시에 남지 않습니다.
+ */
+internal fun clearJwtParserCache(provider: JwtProvider) {
+    jwtParserCache.remove(provider)
+}
 
 /**
  * [JwtProvider]에 대응하는 [JwtParser]를 캐싱하여 반환합니다.
