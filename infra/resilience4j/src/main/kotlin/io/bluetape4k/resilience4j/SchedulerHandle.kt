@@ -34,6 +34,26 @@ internal class SchedulerHandle private constructor(
     companion object {
         fun acquire(scheduler: ScheduledExecutorService?): SchedulerHandle =
             scheduler?.let { SchedulerHandle(it, owned = false) }
-                ?: SchedulerHandle(Executors.newSingleThreadScheduledExecutor(), owned = true)
+                ?: SchedulerHandle(defaultSchedulerFactory.get().invoke(), owned = true)
+
+        /**
+         * 기본 스케줄러의 소유권 계약을 검증하기 위한 내부 테스트 seam입니다.
+         */
+        internal fun <T> withDefaultSchedulerFactory(
+            factory: () -> ScheduledExecutorService,
+            block: () -> T,
+        ): T {
+            val previous = defaultSchedulerFactory.get()
+            defaultSchedulerFactory.set(factory)
+            return try {
+                block()
+            } finally {
+                defaultSchedulerFactory.set(previous)
+            }
+        }
+
+        private val defaultSchedulerFactory = ThreadLocal.withInitial<() -> ScheduledExecutorService> {
+            { Executors.newSingleThreadScheduledExecutor() }
+        }
     }
 }

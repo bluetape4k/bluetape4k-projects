@@ -3,6 +3,7 @@ package io.bluetape4k.resilience4j
 import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeFalse
+import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.resilience4j.retry.completableFuture
 import io.bluetape4k.resilience4j.retry.completableFutureFunction
 import io.bluetape4k.resilience4j.retry.completionStage
@@ -20,6 +21,7 @@ import java.util.concurrent.CompletableFuture
 import java.util.concurrent.ExecutionException
 import java.util.concurrent.Executors
 import java.util.concurrent.ScheduledExecutorService
+import java.util.concurrent.ScheduledThreadPoolExecutor
 import java.util.concurrent.TimeUnit
 
 class SchedulerOwnershipContractTest {
@@ -165,6 +167,40 @@ class SchedulerOwnershipContractTest {
     }
 
     @Test
+    fun `TimeLimiter default schedulers terminate after success and timeout`() {
+        withTrackedDefaultSchedulers { schedulers ->
+            val successful = timeLimiter().completableFuture { input: Int ->
+                CompletableFuture.completedFuture(input * 2)
+            }
+            successful(21).get() shouldBeEqualTo 42
+
+            val timedOut = timeLimiter().completableFuture { _: Int ->
+                CompletableFuture<Int>()
+            }
+            assertFailsWith<ExecutionException> { timedOut(1).get(1, TimeUnit.SECONDS) }
+
+            schedulers.size shouldBeEqualTo 2
+        }
+    }
+
+    @Test
+    fun `Retry default schedulers terminate after success and failure`() {
+        withTrackedDefaultSchedulers { schedulers ->
+            val successful = retry().completableFuture { input: Int ->
+                CompletableFuture.completedFuture(input * 2)
+            }
+            successful(21).get() shouldBeEqualTo 42
+
+            val failed = retry().completableFuture<Int, Int> {
+                CompletableFuture.failedFuture(IOException("failure"))
+            }
+            assertFailsWith<ExecutionException> { failed(1).get(1, TimeUnit.SECONDS) }
+
+            schedulers.size shouldBeEqualTo 2
+        }
+    }
+
+    @Test
     fun `decorator builder preserves caller scheduler ownership`() {
         val scheduler = newScheduler()
         try {
@@ -183,6 +219,27 @@ class SchedulerOwnershipContractTest {
 
     private fun newScheduler(): ScheduledExecutorService =
         Executors.newScheduledThreadPool(2)
+
+    private fun withTrackedDefaultSchedulers(
+        block: (List<ScheduledThreadPoolExecutor>) -> Unit,
+    ) {
+        val schedulers = mutableListOf<ScheduledThreadPoolExecutor>()
+        SchedulerHandle.withDefaultSchedulerFactory(
+            factory = {
+                ScheduledThreadPoolExecutor(1).also(schedulers::add)
+            },
+            block = {
+                try {
+                    block(schedulers)
+                } finally {
+                    schedulers.forEach { scheduler ->
+                        scheduler.isShutdown.shouldBeTrue()
+                        scheduler.awaitTermination(1, TimeUnit.SECONDS).shouldBeTrue()
+                    }
+                }
+            },
+        )
+    }
 
     private fun retry(): Retry = Retry.of(
         "scheduler-${System.nanoTime()}",
