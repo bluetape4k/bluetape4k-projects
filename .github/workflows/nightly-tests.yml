@@ -452,6 +452,7 @@ jobs:
         with:
           name: nightly-coverage-core
           path: '**/build/reports/kover/'
+          if-no-files-found: error
           retention-days: 14
 
   # ── I/O 모듈 테스트 ───────────────────────────────────────────────────────
@@ -530,6 +531,7 @@ jobs:
         with:
           name: nightly-coverage-io
           path: '**/build/reports/kover/'
+          if-no-files-found: error
           retention-days: 14
 
     # ── IO HTTP 클라이언트 모듈 테스트 (Testcontainers) ──────────────────────
@@ -597,6 +599,7 @@ jobs:
               with:
                   name: nightly-coverage-io-http
                   path: '**/build/reports/kover/'
+                  if-no-files-found: error
                   retention-days: 14
 
   # ── Ktor 모듈 테스트 ─────────────────────────────────────────────────────
@@ -661,6 +664,7 @@ jobs:
         with:
           name: nightly-coverage-ktor
           path: '**/build/reports/kover/'
+          if-no-files-found: error
           retention-days: 14
 
   # ── Utils 모듈 테스트 ─────────────────────────────────────────────────────
@@ -744,6 +748,7 @@ jobs:
         with:
           name: nightly-coverage-utils
           path: '**/build/reports/kover/'
+          if-no-files-found: error
           retention-days: 14
 
   # ── Misc 모듈 테스트 ──────────────────────────────────────────────────────
@@ -825,6 +830,7 @@ jobs:
         with:
           name: nightly-coverage-misc
           path: '**/build/reports/kover/'
+          if-no-files-found: error
           retention-days: 14
 
   # ── 
@@ -937,6 +943,7 @@ jobs:
         with:
           name: nightly-coverage-infra-${{ matrix.group }}
           path: '**/build/reports/kover/'
+          if-no-files-found: error
           retention-days: 14
 
   # ── Data 모듈 테스트 (Testcontainers) — Matrix 병렬 ──────────────────────
@@ -1019,6 +1026,7 @@ jobs:
         with:
           name: nightly-coverage-data-${{ matrix.group }}
           path: '**/build/reports/kover/'
+          if-no-files-found: error
           retention-days: 14
 
   # ── Spring Boot Docker 테스트 — Matrix 병렬 ───────────────────────────
@@ -1114,6 +1122,7 @@ jobs:
         with:
           name: nightly-coverage-spring-${{ matrix.group }}
           path: '**/build/reports/kover/'
+          if-no-files-found: error
           retention-days: 14
 
   # ── Testcontainers (nightly 전용) — Matrix 병렬 ──────────────────────────
@@ -1202,6 +1211,7 @@ jobs:
         with:
           name: nightly-coverage-testcontainers-${{ matrix.group }}
           path: '**/build/reports/kover/'
+          if-no-files-found: error
           retention-days: 14
 
   # ── 커버리지 집계 ─────────────────────────────────────────────────────────
@@ -1226,17 +1236,46 @@ jobs:
     steps:
       - uses: actions/checkout@v7
 
+      - name: Prepare expected coverage manifest
+        id: expected-coverage
+        env:
+          EXPECTED_COVERAGE_JOBS: |
+            test-core=${{ needs.test-core.result }}
+            test-io=${{ needs.test-io.result }}
+            test-io-http=${{ needs.test-io-http.result }}
+            test-ktor=${{ needs.test-ktor.result }}
+            test-utils=${{ needs.test-utils.result }}
+            test-misc=${{ needs.test-misc.result }}
+            test-infra=${{ needs.test-infra.result }}
+            test-data=${{ needs.test-data.result }}
+            test-spring-docker=${{ needs.test-spring-docker.result }}
+            test-testcontainers=${{ needs.plan.outputs.run_testcontainers_coverage == 'true' && needs.test-testcontainers.result || 'skipped' }}
+        run: |
+          mkdir -p coverage-artifacts
+          printf '%s\n' "$EXPECTED_COVERAGE_JOBS" > coverage-artifacts/expected-jobs.manifest
+          if grep -q '=success$' coverage-artifacts/expected-jobs.manifest; then
+            echo 'has_expected=true' >> "$GITHUB_OUTPUT"
+          else
+            echo 'has_expected=false' >> "$GITHUB_OUTPUT"
+          fi
+
       - name: Download all coverage artifacts
+        id: download-coverage
+        if: steps.expected-coverage.outputs.has_expected == 'true'
         uses: actions/download-artifact@v8
         with:
           pattern: nightly-coverage-*
           path: coverage-artifacts
           merge-multiple: false
-        continue-on-error: true
 
       - name: Aggregate Kover coverage summary
         if: always()
-        run: python3 .github/scripts/aggregate-kover-coverage.py coverage-artifacts
+        env:
+          COVERAGE_DOWNLOAD_OUTCOME: ${{ steps.download-coverage.outcome }}
+        run: >-
+          python3 .github/scripts/aggregate-kover-coverage.py coverage-artifacts
+          --expected-manifest coverage-artifacts/expected-jobs.manifest
+          --download-outcome "$COVERAGE_DOWNLOAD_OUTCOME"
 
       - name: Upload aggregated coverage
         if: always()
@@ -1244,6 +1283,7 @@ jobs:
         with:
           name: nightly-coverage-all
           path: coverage-artifacts/
+          if-no-files-found: error
           retention-days: 14
 
   # ── 결과 집계 ─────────────────────────────────────────────────────────────
