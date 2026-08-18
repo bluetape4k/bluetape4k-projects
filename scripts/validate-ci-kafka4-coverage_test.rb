@@ -75,6 +75,24 @@ with_workflow_variant(nil, ->(out, err, result) {
 end
 
 with_workflow_variant(nil, ->(out, err, result) {
+  assert_failure(out, err, result, "Kafka4 test condition", "must not be conditional")
+}) do |content|
+  content.sub(
+    "      - name: Test Kafka infra modules\n        uses: nick-fields/retry@v4",
+    "      - name: Test Kafka infra modules\n        if: ${{ false }}\n        uses: nick-fields/retry@v4",
+  )
+end
+
+with_workflow_variant(nil, ->(out, err, result) {
+  assert_failure(out, err, result, "Kafka4 Kover condition", "must always run")
+}) do |content|
+  content.sub(
+    "      - name: Generate Kover XML report\n        if: always()\n        run: |\n          ./gradlew \\\n            :bluetape4k-kafka:koverXmlReport",
+    "      - name: Generate Kover XML report\n        if: failure()\n        run: |\n          ./gradlew \\\n            :bluetape4k-kafka:koverXmlReport",
+  )
+end
+
+with_workflow_variant(nil, ->(out, err, result) {
   assert_failure(out, err, result, "Kafka4 test-results artifact", "XML test results")
 }) do |content|
   content.sub(

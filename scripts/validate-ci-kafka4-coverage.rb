@@ -98,7 +98,9 @@ test_step = steps.find { |step| step["name"] == "Test Kafka infra modules" }
 kover_step = steps.find { |step| step["name"] == "Generate Kover XML report" }
 fail_validation("#{KAFKA_JOB} job must define Test Kafka infra modules") unless test_step
 fail_validation("#{KAFKA_JOB} job must define Generate Kover XML report") unless kover_step
+fail_validation("Test Kafka infra modules must not be conditional") if test_step.key?("if")
 fail_validation("Test Kafka infra modules must fail the #{KAFKA_JOB} job") if test_step.key?("continue-on-error")
+fail_validation("Generate Kover XML report must always run") unless kover_step["if"] == "always()"
 
 test_tokens = command_tokens(test_step, "Kafka test command")
 kover_tokens = command_tokens(kover_step, "Kafka Kover command")
