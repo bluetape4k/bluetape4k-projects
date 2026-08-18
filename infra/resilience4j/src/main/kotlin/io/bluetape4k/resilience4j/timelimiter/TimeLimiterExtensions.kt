@@ -1,12 +1,11 @@
 package io.bluetape4k.resilience4j.timelimiter
 
+import io.bluetape4k.resilience4j.SchedulerHandle
 import io.github.resilience4j.timelimiter.TimeLimiter
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.CompletionStage
-import java.util.concurrent.Executors
 import java.util.concurrent.Future
 import java.util.concurrent.ScheduledExecutorService
-import java.util.concurrent.TimeUnit
 
 /**
  * [futureSupplier] 를 실행할 때 [TimeLimiter] 를 적용하여 실행합니다.
@@ -42,24 +41,23 @@ inline fun <T, F: Future<T>> TimeLimiter.futureSupplier(
  * ```
  *
  * @receiver [TimeLimiter] 인스턴스
- * @param scheduler 스케줄러
+ * @param scheduler 호출자가 소유한 스케줄러. `null`이면 호출마다 전용 스케줄러를 만들고 완료 후 종료하며,
+ * 제공된 스케줄러는 종료하지 않으므로 호출자가 수명주기를 관리해야 합니다.
  * @param futureSupplier 실행할 CompletionStage 를 생성하는 함수
  */
 inline fun <T, F: CompletionStage<T>> TimeLimiter.completionStage(
-    scheduler: ScheduledExecutorService = Executors.newSingleThreadScheduledExecutor(),
+    scheduler: ScheduledExecutorService? = null,
     crossinline futureSupplier: () -> F,
 ): () -> T = {
-    TimeLimiter
-        .decorateCompletionStage(this, scheduler) { futureSupplier.invoke() }
-        .get()
-        .whenComplete { _, _ ->
-            runCatching {
-                scheduler.shutdown()
-                scheduler.awaitTermination(1, TimeUnit.SECONDS)
-            }
-        }
-        .toCompletableFuture()
-        .get()
+    val handle = SchedulerHandle.acquire(scheduler)
+    handle.execute { executor ->
+        TimeLimiter
+            .decorateCompletionStage(this, executor) { futureSupplier.invoke() }
+            .get()
+            .whenComplete { _, _ -> handle.close() }
+            .toCompletableFuture()
+            .get()
+    }
 }
 
 /**
@@ -75,11 +73,12 @@ inline fun <T, F: CompletionStage<T>> TimeLimiter.completionStage(
  * ```
  *
  * @receiver [TimeLimiter] 인스턴스
- * @param scheduler 스케줄러
+ * @param scheduler 호출자가 소유한 스케줄러. `null`이면 호출마다 전용 스케줄러를 만들고 terminal completion 후 종료하며,
+ * 제공된 스케줄러는 종료하지 않으므로 호출자가 수명주기를 관리해야 합니다.
  * @param func 실행할 CompletableFuture 를 생성하는 함수
  */
 inline fun <T, R: CompletableFuture<T>> TimeLimiter.completableFuture(
-    scheduler: ScheduledExecutorService = Executors.newSingleThreadScheduledExecutor(),
+    scheduler: ScheduledExecutorService? = null,
     crossinline func: (T) -> R,
 ): (T) -> R {
     return decorateCompletableFuture(scheduler, func)
@@ -98,20 +97,19 @@ inline fun <T, R: CompletableFuture<T>> TimeLimiter.completableFuture(
  * ```
  *
  * @receiver [TimeLimiter] 인스턴스
- * @param scheduler 스케줄러
+ * @param scheduler 호출자가 소유한 스케줄러. `null`이면 호출마다 전용 스케줄러를 만들고 terminal completion 후 종료하며,
+ * 제공된 스케줄러는 종료하지 않으므로 호출자가 수명주기를 관리해야 합니다.
  * @param func 실행할 CompletableFuture 를 생성하는 함수
  */
 @Suppress("UNCHECKED_CAST")
 inline fun <T, R: CompletableFuture<T>> TimeLimiter.decorateCompletableFuture(
-    scheduler: ScheduledExecutorService = Executors.newSingleThreadScheduledExecutor(),
+    scheduler: ScheduledExecutorService? = null,
     crossinline func: (T) -> R,
 ): (T) -> R = { input: T ->
-    this.executeCompletionStage<T, R>(scheduler) { func(input) }
-        .toCompletableFuture()
-        .whenComplete { _, _ ->
-            runCatching {
-                scheduler.shutdown()
-                scheduler.awaitTermination(1, TimeUnit.SECONDS)
-            }
-        } as R
+    val handle = SchedulerHandle.acquire(scheduler)
+    handle.execute { executor ->
+        this.executeCompletionStage<T, R>(executor) { func(input) }
+            .toCompletableFuture()
+            .whenComplete { _, _ -> handle.close() } as R
+    }
 }

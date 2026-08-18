@@ -222,6 +222,34 @@ val decorated = timeLimiter.decorateSuspendFunction1 { id: String ->
 }
 ```
 
+### Async scheduler ownership
+
+The async `Retry` and `TimeLimiter` extensions (`completionStage`, `completableFuture`,
+`completableFutureFunction`, and `withRetry`) accept an optional `ScheduledExecutorService`.
+When the scheduler is omitted (or `null`), a private scheduler is created for each invocation and shut down
+after terminal completion. When a scheduler is supplied, it remains caller-owned and is never shut down by the
+decorator, including on success, failure, or timeout. This makes a decorated function safe to invoke repeatedly and
+allows one scheduler to be shared by multiple decorators.
+
+```kotlin
+import java.util.concurrent.CompletableFuture
+import java.util.concurrent.Executors
+
+val scheduler = Executors.newScheduledThreadPool(2)
+try {
+    val protectedCall = timeLimiter.completableFuture(scheduler) { input: Int ->
+        CompletableFuture.completedFuture(input * 2)
+    }
+    protectedCall(21).get() // 42
+    protectedCall(22).get() // 44
+} finally {
+    scheduler.shutdown()
+}
+```
+
+The caller must close a supplied scheduler after all decorated calls finish. The same ownership rule applies to
+`decorateCompletableFutureFunction(...).withRetry(retry, scheduler)`.
+
 ### 6. SuspendDecorators (Composable Decorators)
 
 Compose multiple Resilience4j components together.
