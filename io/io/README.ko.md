@@ -357,7 +357,7 @@ unzip(File("project.zip"), File("output/"))
 unzip(File("project.zip"), File("output/"), "*.kt", "*.xml")
 ```
 
-`unzip`은 archive traversal 경로를 거부하고 출력 경로의 심볼릭 링크를 따라가지 않습니다. 기존 출력 디렉토리와 파일을 쓰기 전에 다시 검증하여 symlink 및 TOCTOU 위험을 줄입니다.
+`unzip`은 모든 archive entry를 정규화하고 대상 디렉토리 밖으로 벗어나는 경로를 거부합니다. 출력 바이트는 `SecureDirectoryStream`의 디렉토리 상대 handle과 `NOFOLLOW_LINKS`를 통해서만 열며, 쓰기 전에 대상 및 중간 디렉토리의 식별자를 확인합니다. secure directory handle을 지원하지 않는 파일 시스템에서는 path-only 쓰기로 우회하지 않고 `IOException`으로 fail-closed 합니다. 따라서 symlink 및 디렉토리 교체 TOCTOU 공격이 출력 sink까지 도달하는 것을 차단하지만, hard link·mount 변경·적대적인 파일 시스템 관리자는 이 계약의 범위 밖이므로 caller는 신뢰할 수 있는 대상 디렉토리와 적절한 권한을 사용해야 합니다.
 
 ### 직렬화
 

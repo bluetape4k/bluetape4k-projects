@@ -357,7 +357,7 @@ unzip(File("project.zip"), File("output/"))
 unzip(File("project.zip"), File("output/"), "*.kt", "*.xml")
 ```
 
-`unzip` rejects archive traversal paths and refuses to follow symbolic links in the output path. Existing output directories and files are revalidated before writing to reduce symlink and TOCTOU risks.
+`unzip` normalizes every archive entry and rejects traversal outside the destination. Output bytes are opened only through `SecureDirectoryStream` directory-relative handles with `NOFOLLOW_LINKS`, while destination and intermediate directory identities are checked before the write. A file system without secure directory-handle support fails closed with `IOException` instead of falling back to a path-only write. This protects the extraction sink from symlink and directory-replacement TOCTOU attacks; callers should still use a trusted destination with appropriate permissions because hard links, mount changes, and hostile filesystem administration remain outside this contract.
 
 ### Serialization
 

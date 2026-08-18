@@ -19,7 +19,11 @@ import java.nio.file.FileSystems
 import java.nio.file.Files
 import java.nio.file.LinkOption
 import java.nio.file.Path
+import java.nio.file.PathMatcher
+import java.nio.file.SecureDirectoryStream
 import java.nio.file.StandardOpenOption
+import java.nio.file.attribute.BasicFileAttributeView
+import java.nio.file.attribute.BasicFileAttributes
 import java.util.zip.Deflater
 import java.util.zip.DeflaterOutputStream
 import java.util.zip.GZIPInputStream
@@ -272,7 +276,11 @@ fun unzip(zipFilename: String, destDirName: String, vararg patterns: String) {
 /**
  * ZIP 파일을 대상 디렉토리에 압축 해제합니다.
  *
- * Zip Slip 공격을 방어하여, 엔트리 경로가 대상 디렉토리 외부를 가리키면 [IllegalArgumentException]을 발생시킵니다.
+ * Zip Slip 공격을 방어하여, 정규화한 엔트리 경로가 대상 디렉토리 외부를 가리키면
+ * [IllegalArgumentException]을 발생시킵니다. 출력 파일은 [SecureDirectoryStream]의
+ * 디렉토리 상대 handle과 [LinkOption.NOFOLLOW_LINKS]로 열고, 추출 중 디렉토리 식별자가
+ * 바뀌면 [IOException]으로 중단합니다. secure directory handle을 지원하지 않는 파일
+ * 시스템에서도 외부 경로에 쓰지 않고 [IOException]으로 실패합니다.
  *
  * 예시:
  * ```kotlin
@@ -291,6 +299,8 @@ fun unzip(zipFilename: String, destDirName: String, vararg patterns: String) {
  * @param destDir 대상 디렉토리
  * @param patterns glob 패턴 (비어 있으면 모든 엔트리 추출)
  * @throws IllegalArgumentException Zip Slip 공격이 감지되면 발생
+ * @throws IOException 출력 경로의 심볼릭 링크·디렉토리 경합이 감지되거나 파일 시스템이
+ * secure directory handle을 지원하지 않으면 발생
  */
 fun unzip(zipFile: File, destDir: File, vararg patterns: String) {
     val zip = ZipFile(zipFile)
@@ -306,48 +316,36 @@ fun unzip(zipFile: File, destDir: File, vararg patterns: String) {
         var entryCount = 0
         var declaredUncompressedSize = 0L
         var extractedUncompressedSize = 0L
-        val canonicalDestDir = prepareZipDestination(destDir)
+        val preparedDestination = prepareZipDestination(destDir)
+        val canonicalDestDir = preparedDestination.path
+        openSecureDirectory(canonicalDestDir).use { destinationDirectory ->
+            verifyDirectoryIdentity(preparedDestination, destinationDirectory)
 
-        while (entries.hasMoreElements()) {
-            val entry = entries.nextElement()
-            val entryName = entry.name
-
-            // zip bomb 방어: 엔트리 수 제한
-            entryCount++
-            require(entryCount <= ZIP_MAX_ENTRIES) {
-                "ZIP 엔트리 수가 허용 한도를 초과했습니다: $entryCount > $ZIP_MAX_ENTRIES"
-            }
-
-            // zip bomb 방어: 비압축 크기 제한 (엔트리 헤더의 크기 정보 기준)
-            if (entry.size > 0) {
-                declaredUncompressedSize += entry.size
-                require(declaredUncompressedSize <= ZIP_MAX_UNCOMPRESSED_SIZE) {
-                    "ZIP 비압축 총 크기가 허용 한도를 초과했습니다: $declaredUncompressedSize > $ZIP_MAX_UNCOMPRESSED_SIZE bytes"
+            while (entries.hasMoreElements()) {
+                val entry = entries.nextElement()
+                // zip bomb 방어: 엔트리 수 제한
+                entryCount++
+                require(entryCount <= ZIP_MAX_ENTRIES) {
+                    "ZIP 엔트리 수가 허용 한도를 초과했습니다: $entryCount > $ZIP_MAX_ENTRIES"
                 }
-            }
 
-            // 패턴 필터링
-            if (matchers.isNotEmpty()) {
-                val entryPath = java.nio.file.Path.of(entryName)
-                val matched = matchers.any { it.matches(entryPath) }
-                if (!matched) continue
-            }
-
-            val target = resolveZipTarget(canonicalDestDir, entryName)
-
-            if (entry.isDirectory) {
-                createZipDirectories(canonicalDestDir, target)
-            } else {
-                createZipDirectories(canonicalDestDir, target.parent ?: canonicalDestDir)
-                verifyNoSymlinkPath(canonicalDestDir, target)
-                zip.getInputStream(entry).use { input ->
-                    openZipOutput(target).buffered().use { output ->
-                        extractedUncompressedSize += input.copyToLimited(
-                            output = output,
-                            remainingLimit = ZIP_MAX_UNCOMPRESSED_SIZE - extractedUncompressedSize,
-                        )
+                // zip bomb 방어: 비압축 크기 제한 (엔트리 헤더의 크기 정보 기준)
+                if (entry.size > 0) {
+                    declaredUncompressedSize += entry.size
+                    require(declaredUncompressedSize <= ZIP_MAX_UNCOMPRESSED_SIZE) {
+                        "ZIP 비압축 총 크기가 허용 한도를 초과했습니다: " +
+                            "$declaredUncompressedSize > $ZIP_MAX_UNCOMPRESSED_SIZE bytes"
                     }
                 }
+
+                extractedUncompressedSize += extractZipEntry(
+                    zip = zip,
+                    entry = entry,
+                    matchers = matchers,
+                    canonicalDestDir = canonicalDestDir,
+                    destinationDirectory = destinationDirectory,
+                    remainingLimit = ZIP_MAX_UNCOMPRESSED_SIZE - extractedUncompressedSize,
+                )
             }
         }
     } finally {
@@ -356,14 +354,19 @@ fun unzip(zipFile: File, destDir: File, vararg patterns: String) {
     }
 }
 
-private fun prepareZipDestination(destDir: File): Path {
-    val destination = destDir.toPath().toAbsolutePath().normalize()
-    if (Files.isSymbolicLink(destination)) {
-        throw IOException("ZIP 대상 디렉토리는 심볼릭 링크일 수 없습니다: $destDir")
+private data class PreparedZipDestination(val path: Path, val fileKey: Any)
+
+private fun prepareZipDestination(destDir: File): PreparedZipDestination {
+    val lexicalDestination = destDir.toPath().toAbsolutePath().normalize()
+    verifyNoSymlinkAncestors(lexicalDestination)
+    Files.createDirectories(lexicalDestination)
+    verifyNoSymlinkAncestors(lexicalDestination)
+    if (!Files.isDirectory(lexicalDestination, LinkOption.NOFOLLOW_LINKS)) {
+        throw IOException("ZIP 대상 경로는 디렉토리여야 합니다: $destDir")
     }
-    Files.createDirectories(destination)
-    verifyNoSymlinkPath(destination, destination)
-    return destination.toRealPath()
+    val destination = lexicalDestination.toRealPath()
+    val fileKey = readFileKey(destination)
+    return PreparedZipDestination(destination, fileKey)
 }
 
 private fun resolveZipTarget(canonicalDestDir: Path, entryName: String): Path {
@@ -384,18 +387,64 @@ private fun resolveZipTarget(canonicalDestDir: Path, entryName: String): Path {
     return targetPath
 }
 
+private fun extractZipEntry(
+    zip: ZipFile,
+    entry: ZipEntry,
+    matchers: List<PathMatcher>,
+    canonicalDestDir: Path,
+    destinationDirectory: SecureDirectoryStream<Path>,
+    remainingLimit: Long,
+): Long {
+    val entryName = entry.name
+    val matched = matchers.isEmpty() || matchers.any { it.matches(Path.of(entryName)) }
+    return when {
+        !matched -> 0L
+        entry.isDirectory -> {
+            createZipDirectories(canonicalDestDir, resolveZipTarget(canonicalDestDir, entryName))
+            0L
+        }
+
+        else -> {
+            val target = resolveZipTarget(canonicalDestDir, entryName)
+            val parent = target.parent ?: canonicalDestDir
+            createZipDirectories(canonicalDestDir, parent)
+            verifyNoSymlinkPath(canonicalDestDir, target)
+            val relativeTarget = canonicalDestDir.relativize(target)
+            val fileName = relativeTarget.fileName
+                ?: throw IOException("ZIP 대상 파일 이름이 비어 있습니다: $entryName")
+            val relativeParent = relativeTarget.parent
+            val expectedParentKeys = captureDirectoryKeys(canonicalDestDir, relativeParent)
+
+            withSecureParentDirectory(
+                destinationDirectory,
+                relativeParent,
+                expectedParentKeys,
+            ) { parentDirectory ->
+                zip.getInputStream(entry).use { input ->
+                    openZipOutput(parentDirectory, fileName).buffered().use { output ->
+                        input.copyToLimited(output = output, remainingLimit = remainingLimit)
+                    }
+                }
+            }
+        }
+    }
+}
+
 private fun createZipDirectories(canonicalDestDir: Path, target: Path) {
     val relative = canonicalDestDir.relativize(target)
     var current = canonicalDestDir
     for (part in relative) {
         val child = current.resolve(part)
+        verifyNoSymlinkPath(canonicalDestDir, child)
         if (!Files.exists(child, LinkOption.NOFOLLOW_LINKS)) {
             try {
                 Files.createDirectory(child)
             } catch (_: java.nio.file.FileAlreadyExistsException) {
-                // 동시 생성자가 먼저 만든 경우이며, 아래 no-follow 검사가 안전성을 판단합니다.
+                // 동시 생성자가 먼저 만든 경우이며, 아래 no-follow 검사가
+                // 안전성을 판단합니다.
             }
         }
+        verifyNoSymlinkPath(canonicalDestDir, child)
         if (Files.isSymbolicLink(child) || !Files.isDirectory(child, LinkOption.NOFOLLOW_LINKS)) {
             throw IOException("ZIP 대상 경로에 심볼릭 링크 또는 파일이 있습니다: $child")
         }
@@ -409,21 +458,145 @@ private fun verifyNoSymlinkPath(canonicalDestDir: Path, target: Path) {
         "ZIP 대상 경로가 대상 디렉토리 밖에 있습니다: $target"
     }
 
-    var current = canonicalDestDir
-    if (Files.isSymbolicLink(current)) {
-        throw IOException("ZIP 대상 디렉토리는 심볼릭 링크일 수 없습니다: $current")
-    }
-    for (part in canonicalDestDir.relativize(target)) {
-        current = current.resolve(part)
+    verifyNoSymlinkAncestors(target)
+}
+
+private fun verifyNoSymlinkAncestors(path: Path) {
+    val root = path.root ?: return
+    var current = path
+    while (current != root) {
         if (Files.isSymbolicLink(current)) {
-            throw IOException("ZIP 대상 경로에 심볼릭 링크가 있습니다: $current")
+            if (current == path || current.parent != root) {
+                throw IOException("ZIP 대상 경로에 심볼릭 링크가 있습니다: $current")
+            }
+            // macOS의 /var, /tmp 같은 루트 직계 alias는 real path로 고정한 뒤 허용합니다.
+            return
         }
+        current = current.parent ?: break
     }
 }
 
-private fun openZipOutput(target: Path): OutputStream {
-    val channel = Files.newByteChannel(
-        target,
+private fun readFileKey(path: Path): Any {
+    val attributes = Files.readAttributes(
+        path,
+        BasicFileAttributes::class.java,
+        LinkOption.NOFOLLOW_LINKS,
+    )
+    return attributes.fileKey()
+        ?: throw IOException("ZIP 대상 경로의 파일 식별자를 확인할 수 없습니다: $path")
+}
+
+private fun readDirectoryFileKey(directory: SecureDirectoryStream<Path>): Any {
+    val view = directory.getFileAttributeView(BasicFileAttributeView::class.java)
+        ?: throw IOException("ZIP 대상 디렉토리의 파일 속성 보기를 열 수 없습니다")
+    return view.readAttributes().fileKey()
+        ?: throw IOException("ZIP 대상 디렉토리의 파일 식별자를 확인할 수 없습니다")
+}
+
+private fun verifyDirectoryIdentity(
+    preparedDestination: PreparedZipDestination,
+    destinationDirectory: SecureDirectoryStream<Path>,
+) {
+    if (preparedDestination.fileKey != readDirectoryFileKey(destinationDirectory)) {
+        throw IOException("ZIP 대상 디렉토리가 열기 전에 교체되었습니다: ${preparedDestination.path}")
+    }
+}
+
+private fun openSecureDirectory(path: Path): SecureDirectoryStream<Path> {
+    val root = path.root ?: throw IOException("ZIP 대상 경로에 루트가 없습니다: $path")
+    val rootStream = Files.newDirectoryStream(root)
+    val rootDirectory = rootStream as? SecureDirectoryStream<Path>
+        ?: run {
+            rootStream.close()
+            throw IOException(
+                "ZIP 추출에 secure directory handle을 지원하는 파일 시스템이 필요합니다",
+            )
+        }
+
+    var current = rootDirectory
+    try {
+        for (part in root.relativize(path)) {
+            val next = current.newDirectoryStream(part, LinkOption.NOFOLLOW_LINKS)
+            current.close()
+            current = next
+        }
+        return current
+    } catch (error: IOException) {
+        current.close()
+        throw error
+    }
+}
+
+private fun captureDirectoryKeys(canonicalDestDir: Path, relativeParent: Path?): List<Any> {
+    val keys = mutableListOf(readFileKey(canonicalDestDir))
+    if (relativeParent == null) return keys
+
+    var current = canonicalDestDir
+    for (part in relativeParent) {
+        current = current.resolve(part)
+        keys += readFileKey(current)
+    }
+    return keys
+}
+
+private inline fun <T> withSecureParentDirectory(
+    destinationDirectory: SecureDirectoryStream<Path>,
+    relativeParent: Path?,
+    expectedKeys: List<Any>,
+    block: (SecureDirectoryStream<Path>) -> T,
+): T {
+    if (relativeParent == null) {
+        return block(destinationDirectory)
+    }
+
+    val parentDirectory = openSecureRelativeDirectory(destinationDirectory, relativeParent, expectedKeys)
+    return try {
+        block(parentDirectory)
+    } finally {
+        parentDirectory.close()
+    }
+}
+
+private fun openSecureRelativeDirectory(
+    destinationDirectory: SecureDirectoryStream<Path>,
+    relativeParent: Path,
+    expectedKeys: List<Any>,
+): SecureDirectoryStream<Path> {
+    var current = destinationDirectory
+    var owned = false
+    var expectedIndex = 1
+    try {
+        for (part in relativeParent) {
+            val next = current.newDirectoryStream(part, LinkOption.NOFOLLOW_LINKS)
+            try {
+                val actualKey = readDirectoryFileKey(next)
+                val expectedKey = expectedKeys.getOrNull(expectedIndex)
+                    ?: throw IOException("ZIP 대상 디렉토리 식별자 수가 일치하지 않습니다")
+                if (actualKey != expectedKey) {
+                    throw IOException("ZIP 대상 중간 디렉토리가 열기 전에 교체되었습니다: $part")
+                }
+            } catch (error: IOException) {
+                next.close()
+                throw error
+            }
+            if (owned) current.close()
+            current = next
+            owned = true
+            expectedIndex++
+        }
+        if (expectedIndex != expectedKeys.size) {
+            throw IOException("ZIP 대상 디렉토리 식별자 검증이 완료되지 않았습니다")
+        }
+        return current
+    } catch (error: IOException) {
+        if (owned) current.close()
+        throw error
+    }
+}
+
+private fun openZipOutput(parentDirectory: SecureDirectoryStream<Path>, fileName: Path): OutputStream {
+    val channel = parentDirectory.newByteChannel(
+        fileName,
         setOf(
             StandardOpenOption.CREATE,
             StandardOpenOption.TRUNCATE_EXISTING,
@@ -452,7 +625,8 @@ private fun InputStream.copyToLimited(output: OutputStream, remainingLimit: Long
 
         copied += read
         require(copied <= remainingLimit) {
-            "ZIP 실제 비압축 총 크기가 허용 한도를 초과했습니다: ${ZIP_MAX_UNCOMPRESSED_SIZE - remainingLimit + copied} > $ZIP_MAX_UNCOMPRESSED_SIZE bytes"
+            "ZIP 실제 비압축 총 크기가 허용 한도를 초과했습니다: " +
+                "${ZIP_MAX_UNCOMPRESSED_SIZE - remainingLimit + copied} > $ZIP_MAX_UNCOMPRESSED_SIZE bytes"
         }
         output.write(buffer, 0, read)
     }
