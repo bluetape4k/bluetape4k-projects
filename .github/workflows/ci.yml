@@ -209,7 +209,37 @@ jobs:
       - name: Resolve Gradle catalog from checked-out source
         env:
           BLUETAPE4K_DEPENDENCIES_CATALOG_PATH: ${{ github.workspace }}/.catalog/bluetape4k-dependencies/gradle/libs.versions.toml
-        run: ./gradlew help --no-daemon
+        run: |
+          set -euo pipefail
+          gradle10_removal_pattern='(scheduled (to be removed|for removal)|will (be )?removed|will become (an )?error|will fail with an error)[^[:cntrl:]]*Gradle 10([.][0-9]+){0,2}'
+          positive_gradle10_warnings=(
+            'This behavior is scheduled to be removed in Gradle 10.'
+            'This behavior will be removed in Gradle 10.0.0.'
+            'This behavior is scheduled for removal in Gradle 10.'
+            'This behavior will become an error in Gradle 10.'
+            'This behavior will fail with an error in Gradle 10.'
+          )
+          for warning in "${positive_gradle10_warnings[@]}"; do
+            if ! grep -Eiq "$gradle10_removal_pattern" <<<"$warning"; then
+              echo "Gradle 10 warning fixture was not detected: $warning" >&2
+              exit 1
+            fi
+          done
+          if grep -Eiq "$gradle10_removal_pattern" <<< 'This behavior will be removed in Gradle 9.7.'; then
+            echo 'Gradle 9 warning fixture was incorrectly detected.' >&2
+            exit 1
+          fi
+          if grep -Eiq "$gradle10_removal_pattern" <<< 'Gradle 10 supports this behavior.'; then
+            echo 'Non-removal Gradle 10 fixture was incorrectly detected.' >&2
+            exit 1
+          fi
+          warning_log="$(mktemp)"
+          trap 'rm -f "$warning_log"' EXIT
+          ./gradlew help --no-daemon --no-configuration-cache --warning-mode all --console=plain 2>&1 | tee "$warning_log"
+          if grep -Eiq "$gradle10_removal_pattern" "$warning_log"; then
+            echo 'Gradle 10 removal warnings detected.' >&2
+            exit 1
+          fi
 
   build:
     name: Build

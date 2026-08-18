@@ -6,12 +6,12 @@ configurations {
     testImplementation.get().extendsFrom(compileOnly.get(), runtimeOnly.get())
 }
 
-val consumerRuntimeTest by sourceSets.creating {
+val consumerRuntimeTest = sourceSets.create("consumerRuntimeTest") {
     compileClasspath += sourceSets.main.get().output + configurations.runtimeClasspath.get()
     runtimeClasspath += output + compileClasspath
 }
 
-val consumerRuntimeTestImplementation by configurations.getting
+val consumerRuntimeTestImplementation = configurations.getByName("consumerRuntimeTestImplementation")
 
 tasks.register<Test>("consumerRuntimeTest") {
     description = "Runs Redis serializer smoke tests with the published runtime classpath."
