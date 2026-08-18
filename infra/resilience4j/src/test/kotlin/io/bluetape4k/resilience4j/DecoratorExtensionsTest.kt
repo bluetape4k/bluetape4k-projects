@@ -39,23 +39,28 @@ class DecoratorsExtensionsTest {
             futureOf { helloWorldService.returnHelloWorldWithName(name) }
         }
 
-        val decorated = decorateCompletableFutureFunction(func)
-            .withRetry(Retry.ofDefaults("defaults"), Executors.newSingleThreadScheduledExecutor())
-            .withCircuitBreaker(circuitBreaker)
-            .withBulkhead(Bulkhead.ofDefaults("default"))
-            .withRateLimiter(RateLimiter.ofDefaults("default"))
-            .decorate()
+        val scheduler = Executors.newSingleThreadScheduledExecutor()
+        try {
+            val decorated = decorateCompletableFutureFunction(func)
+                .withRetry(Retry.ofDefaults("defaults"), scheduler)
+                .withCircuitBreaker(circuitBreaker)
+                .withBulkhead(Bulkhead.ofDefaults("default"))
+                .withRateLimiter(RateLimiter.ofDefaults("default"))
+                .decorate()
 
-        val result = decorated.invoke("world").join()
-        result shouldBeEqualTo "Hello world!"
+            val result = decorated.invoke("world").join()
+            result shouldBeEqualTo "Hello world!"
 
-        with(circuitBreaker.metrics) {
-            numberOfBufferedCalls shouldBeEqualTo 1
-            numberOfSuccessfulCalls shouldBeEqualTo 1
-            numberOfFailedCalls shouldBeEqualTo 0
+            with(circuitBreaker.metrics) {
+                numberOfBufferedCalls shouldBeEqualTo 1
+                numberOfSuccessfulCalls shouldBeEqualTo 1
+                numberOfFailedCalls shouldBeEqualTo 0
+            }
+
+            verify(exactly = 1) { helloWorldService.returnHelloWorldWithName("world") }
+            confirmVerified(helloWorldService)
+        } finally {
+            scheduler.shutdownNow()
         }
-
-        verify(exactly = 1) { helloWorldService.returnHelloWorldWithName("world") }
-        confirmVerified(helloWorldService)
     }
 }

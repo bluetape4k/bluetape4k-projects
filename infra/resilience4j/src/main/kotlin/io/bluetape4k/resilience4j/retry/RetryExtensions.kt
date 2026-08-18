@@ -1,12 +1,11 @@
 package io.bluetape4k.resilience4j.retry
 
+import io.bluetape4k.resilience4j.SchedulerHandle
 import io.github.resilience4j.core.functions.CheckedRunnable
 import io.github.resilience4j.retry.Retry
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.CompletionStage
-import java.util.concurrent.Executors
 import java.util.concurrent.ScheduledExecutorService
-import java.util.concurrent.TimeUnit
 
 /**
  * [runnable] 실행 시, [Retry] 를 적용합니다.
@@ -177,24 +176,23 @@ inline fun <T, R> Retry.checkedFunction(
  * ```
  *
  * @param retry [Retry] 인스턴스
- * @param scheduler [ScheduledExecutorService] 인스턴스
+ * @param scheduler 호출자가 소유한 [ScheduledExecutorService]. `null`이면 호출마다 전용 스케줄러를 만들고
+ * terminal completion 후 종료하며, 제공된 스케줄러는 종료하지 않으므로 호출자가 수명주기를 관리해야 합니다.
  * @param supplier 실행할 비동기 Supplier
  * @return Retry 를 적용한 비동기 Supplier
  */
 inline fun <T, R> withRetry(
     retry: Retry,
-    scheduler: ScheduledExecutorService = Executors.newSingleThreadScheduledExecutor(),
+    scheduler: ScheduledExecutorService? = null,
     crossinline supplier: (T) -> CompletableFuture<R>,
 ): (T) -> CompletableFuture<R> = { input: T ->
-    Retry.decorateCompletionStage(retry, scheduler) { supplier.invoke(input) }
-        .get()
-        .toCompletableFuture()
-        .whenComplete { _, _ ->
-            runCatching {
-                scheduler.shutdown()
-                scheduler.awaitTermination(3, TimeUnit.SECONDS)
-            }
-        }
+    val handle = SchedulerHandle.acquire(scheduler)
+    handle.execute { executor ->
+        Retry.decorateCompletionStage(retry, executor) { supplier.invoke(input) }
+            .get()
+            .toCompletableFuture()
+            .whenComplete { _, _ -> handle.close() }
+    }
 }
 
 
@@ -210,21 +208,21 @@ inline fun <T, R> withRetry(
  * val result = supplier().get()  // 42
  * ```
  *
+ * @param scheduler 호출자가 소유한 스케줄러. `null`이면 호출마다 전용 스케줄러를 만들고 terminal completion 후 종료하며,
+ * 제공된 스케줄러는 종료하지 않으므로 호출자가 수명주기를 관리해야 합니다.
  * @param supplier 실행할 작업
  * @return Retry 를 적용한 Supplier
  */
 inline fun <T> Retry.completionStage(
-    scheduler: ScheduledExecutorService = Executors.newSingleThreadScheduledExecutor(),
+    scheduler: ScheduledExecutorService? = null,
     crossinline supplier: () -> CompletionStage<T>,
 ): () -> CompletionStage<T> = {
-    Retry.decorateCompletionStage(this, scheduler) { supplier() }
-        .get()
-        .whenComplete { _, _ ->
-            runCatching {
-                scheduler.shutdown()
-                scheduler.awaitTermination(1, TimeUnit.SECONDS)
-            }
-        }
+    val handle = SchedulerHandle.acquire(scheduler)
+    handle.execute { executor ->
+        Retry.decorateCompletionStage(this, executor) { supplier() }
+            .get()
+            .whenComplete { _, _ -> handle.close() }
+    }
 }
 
 
@@ -237,12 +235,13 @@ inline fun <T> Retry.completionStage(
  * val result = func(21).get()  // 42
  * ```
  *
- * @param scheduler [ScheduledExecutorService] 인스턴스
+ * @param scheduler 호출자가 소유한 [ScheduledExecutorService]. `null`이면 호출마다 전용 스케줄러를 만들고
+ * terminal completion 후 종료하며, 제공된 스케줄러는 종료하지 않으므로 호출자가 수명주기를 관리해야 합니다.
  * @param func 실행할 비동기 작업
  * @return Retry 를 적용한 비동기 Function
  */
 inline fun <T, R> Retry.completableFutureFunction(
-    scheduler: ScheduledExecutorService = Executors.newSingleThreadScheduledExecutor(),
+    scheduler: ScheduledExecutorService? = null,
     crossinline func: (T) -> CompletableFuture<R>,
 ): (T) -> CompletableFuture<R> {
     return completableFuture(scheduler, func)
@@ -257,20 +256,19 @@ inline fun <T, R> Retry.completableFutureFunction(
  * val result = func(21).get()  // 42
  * ```
  *
- * @param scheduler [ScheduledExecutorService] 인스턴스
+ * @param scheduler 호출자가 소유한 [ScheduledExecutorService]. `null`이면 호출마다 전용 스케줄러를 만들고
+ * terminal completion 후 종료하며, 제공된 스케줄러는 종료하지 않으므로 호출자가 수명주기를 관리해야 합니다.
  * @param func 실행할 비동기 작업
  * @return Retry 를 적용한 비동기 Function
  */
 inline fun <T, R> Retry.completableFuture(
-    scheduler: ScheduledExecutorService = Executors.newSingleThreadScheduledExecutor(),
+    scheduler: ScheduledExecutorService? = null,
     crossinline func: (T) -> CompletableFuture<R>,
 ): (T) -> CompletableFuture<R> = { input: T ->
-    this.executeCompletionStage<R>(scheduler) { func.invoke(input) }
-        .toCompletableFuture()
-        .whenComplete { _, _ ->
-            runCatching {
-                scheduler.shutdown()
-                scheduler.awaitTermination(1, TimeUnit.SECONDS)
-            }
-        }
+    val handle = SchedulerHandle.acquire(scheduler)
+    handle.execute { executor ->
+        this.executeCompletionStage<R>(executor) { func.invoke(input) }
+            .toCompletableFuture()
+            .whenComplete { _, _ -> handle.close() }
+    }
 }

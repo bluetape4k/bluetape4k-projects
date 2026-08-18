@@ -9,7 +9,6 @@ import io.github.resilience4j.circuitbreaker.CircuitBreaker
 import io.github.resilience4j.ratelimiter.RateLimiter
 import io.github.resilience4j.retry.Retry
 import java.util.concurrent.CompletableFuture
-import java.util.concurrent.Executors
 import java.util.concurrent.ScheduledExecutorService
 
 /**
@@ -98,12 +97,13 @@ class DecorateCompletableFutureFunction<T, R>(
      * [Retry]를 적용합니다.
      *
      * @param retry 적용할 retry 인스턴스
-     * @param scheduler 재시도 스케줄링에 사용할 executor
+     * @param scheduler 재시도 스케줄링에 사용할 executor. `null`이면 호출마다 전용 executor를 만들고 terminal completion
+     * 후 종료하며, 제공된 executor는 종료하지 않으므로 호출자가 수명주기를 관리해야 합니다.
      * @return 현재 데코레이터 빌더
      */
     fun withRetry(
         retry: Retry,
-        scheduler: ScheduledExecutorService = Executors.newSingleThreadScheduledExecutor(),
+        scheduler: ScheduledExecutorService? = null,
     ): DecorateCompletableFutureFunction<T, R> =
         apply {
             func = retry.completableFuture(scheduler, func)

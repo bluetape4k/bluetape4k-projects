@@ -222,6 +222,33 @@ val decorated = timeLimiter.decorateSuspendFunction1 { id: String ->
 }
 ```
 
+### 비동기 scheduler 소유권
+
+비동기 `Retry` 및 `TimeLimiter` 확장 함수(`completionStage`, `completableFuture`,
+`completableFutureFunction`, `withRetry`)는 선택적인 `ScheduledExecutorService`를 받습니다.
+스케줄러를 생략하거나 `null`로 전달하면 호출마다 전용 스케줄러를 만들고 terminal completion 후 종료합니다.
+스케줄러를 전달하면 성공·실패·timeout을 포함해 데코레이터가 종료하지 않으며 caller가 계속 소유합니다.
+따라서 데코레이트한 함수를 반복 호출할 수 있고 여러 데코레이터가 하나의 스케줄러를 공유할 수 있습니다.
+
+```kotlin
+import java.util.concurrent.CompletableFuture
+import java.util.concurrent.Executors
+
+val scheduler = Executors.newScheduledThreadPool(2)
+try {
+    val protectedCall = timeLimiter.completableFuture(scheduler) { input: Int ->
+        CompletableFuture.completedFuture(input * 2)
+    }
+    protectedCall(21).get() // 42
+    protectedCall(22).get() // 44
+} finally {
+    scheduler.shutdown()
+}
+```
+
+전달한 스케줄러의 모든 데코레이트 호출이 끝나면 caller가 직접 종료해야 합니다. 같은 소유권 규칙은
+`decorateCompletableFutureFunction(...).withRetry(retry, scheduler)`에도 적용됩니다.
+
 ### 6. SuspendDecorators (조합 데코레이터)
 
 여러 Resilience4j 컴포넌트를 조합하여 사용합니다.

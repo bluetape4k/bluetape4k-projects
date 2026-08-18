@@ -16,6 +16,8 @@
   ([#1411](https://github.com/bluetape4k/bluetape4k-projects/issues/1411)).
 - `NearJCache`의 namespace-wide `clear()`, `clearAllCache()`, 인자 없는 `removeAll()`을 기본 `NearJCacheClearAuthority.DENY`로 fail-closed 처리하고, back namespace 독점 소유를 확인한 caller만 `EXCLUSIVE_BACK_CACHE`로 opt-in하도록 했다. key-scoped removal은 유지하며 runtime-only 권한은 `NearJCacheConfig` 직렬화에 포함하지 않는다. 기존 destructive clear 호출자는 명시적 owner overload로 전환해야 한다
   ([#1368](https://github.com/bluetape4k/bluetape4k-projects/issues/1368)).
+- Resilience4j 비동기 `Retry`와 `TimeLimiter` 확장의 caller-owned `ScheduledExecutorService`를 데코레이터가 종료하지 않도록 하고, scheduler를 생략한 호출은 invocation별 전용 scheduler를 terminal completion 뒤 정리하도록 고정했다. 따라서 동일한 decorated function의 반복 호출과 scheduler 공유가 성공·실패·timeout 경계에서 안전하다
+  ([#1424](https://github.com/bluetape4k/bluetape4k-projects/issues/1424)).
 - Maven Central에 없는 benchmark 또는 application 전용 모듈이 BOM에 포함되지 않도록 publication과 BOM module classifier를 통일했다. 생성한 BOM inventory와 publication POM inventory가 다르면 publication validation이 실패한다
   ([#1313](https://github.com/bluetape4k/bluetape4k-projects/issues/1313)).
 - Java platform은 library publication 설정 밖에 두되 `Bluetape4k` publication을 NMCP aggregate에 포함했다. 따라서 snapshot과 stable bundle은 74개 publishable library module과 함께 BOM을 포함한다
