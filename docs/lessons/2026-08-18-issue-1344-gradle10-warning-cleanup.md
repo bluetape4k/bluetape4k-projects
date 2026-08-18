@@ -15,9 +15,11 @@ constraint에서 Gradle 10 제거 예정 경고를 출력했다. 경고는 빌�
 - Java Platform BOM constraint에는 Project 객체를 넘기지 않고
   `rootProject.dependencies.project(path)`로 project dependency notation을 만든다.
 - CI의 catalog-governance 단계에서 `help --warning-mode all`을 실행하고,
-  `scheduled to be removed in Gradle 10` 또는 `will fail with an error in Gradle 10`
-  문구가 있으면 실패시킨다. 다른 라이브러리의 독립적인 deprecation은 이 gate의
-  범위에 포함하지 않는다.
+  `scheduled to be removed`, `scheduled for removal`, `will be removed`,
+  `will become an error`, `will fail with an error` 중 하나가 `Gradle 10` 또는
+  `Gradle 10.x.y`와 함께 나타나면 실패시킨다. CI 단계는 각 문구의 positive fixture와
+  Gradle 9/non-removal negative fixture를 먼저 검증한다. 다른 라이브러리의 독립적인
+  deprecation은 이 gate의 범위에 포함하지 않는다.
 - 등록된 task의 이름과 Provider 기반 연결(`artifact`, `dependsOn`)은 기존 이름과
   동작을 유지한다.
 
@@ -42,7 +44,7 @@ constraint에서 Gradle 10 제거 예정 경고를 출력했다. 경고는 빌�
   :bluetape4k-hibernate:compileTestKotlin --no-configuration-cache --no-daemon`이
   성공했다.
 - `.github/workflows/ci.yml`은 `actionlint`와 `scripts/validate-ci-csv-coverage.rb`를
-  통과했다.
+  통과했고, Gradle 10 removal 문구 변형의 positive/negative shell fixture도 통과했다.
 
 ## 향후 지침
 
