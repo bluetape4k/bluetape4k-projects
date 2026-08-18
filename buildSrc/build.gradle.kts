@@ -9,6 +9,7 @@ plugins {
 
 dependencies {
     testImplementation(kotlin("test"))
+    testImplementation(gradleTestKit())
 }
 
 tasks.test {
