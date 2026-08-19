@@ -351,6 +351,7 @@ jobs:
         with:
           name: coverage-core
           path: '**/build/reports/kover/'
+          if-no-files-found: error
           retention-days: 30
 
   # ── 4. I/O 모듈 테스트 ───────────────────────────────────────────────────
@@ -424,6 +425,7 @@ jobs:
         with:
           name: coverage-io
           path: '**/build/reports/kover/'
+          if-no-files-found: error
           retention-days: 30
 
   # ── 4-b. I/O HTTP 클라이언트 테스트 (Testcontainers) ───────────────────────
@@ -492,6 +494,7 @@ jobs:
         with:
           name: coverage-io-http
           path: '**/build/reports/kover/'
+          if-no-files-found: error
           retention-days: 30
 
   # ── 5. Ktor 모듈 테스트 ──────────────────────────────────────────────────
@@ -557,6 +560,7 @@ jobs:
         with:
           name: coverage-ktor
           path: '**/build/reports/kover/'
+          if-no-files-found: error
           retention-days: 30
 
   # ── 6. 핵심 Utils 테스트 (Docker 없음) ───────────────────────────────────
@@ -616,6 +620,7 @@ jobs:
         with:
           name: coverage-key-utils
           path: '**/build/reports/kover/'
+          if-no-files-found: error
           retention-days: 30
 
   # ── 7. 핵심 Infra 테스트 (Redis — Testcontainers) ────────────────────────
@@ -678,6 +683,7 @@ jobs:
         with:
           name: coverage-infra
           path: '**/build/reports/kover/'
+          if-no-files-found: error
           retention-days: 30
 
   # ── 7-a. Kafka Infra 테스트 (Testcontainers) ────────────────────────────
@@ -739,6 +745,7 @@ jobs:
         with:
           name: coverage-kafka-infra
           path: '**/build/reports/kover/'
+          if-no-files-found: error
           retention-days: 30
 
   # ── 7-b. Telemetry Infra 테스트 (Kafka / OpenTelemetry) ─────────────────
@@ -800,6 +807,7 @@ jobs:
         with:
           name: coverage-telemetry-infra
           path: '**/build/reports/kover/'
+          if-no-files-found: error
           retention-days: 30
 
   # ── 7-c. Data 모듈 테스트 (Testcontainers) ───────────────────────────────
@@ -871,6 +879,7 @@ jobs:
         with:
           name: coverage-data
           path: '**/build/reports/kover/'
+          if-no-files-found: error
           retention-days: 30
 
   # ── 나머지 모듈 → Nightly에서 실행 ─────────────────────────────────
@@ -888,17 +897,45 @@ jobs:
     steps:
       - uses: actions/checkout@v7
 
+      - name: Prepare expected coverage manifest
+        id: expected-coverage
+        env:
+          EXPECTED_COVERAGE_JOBS: |
+            test-core=${{ needs.test-core.result }}
+            test-io=${{ needs.test-io.result }}
+            test-io-http=${{ needs.test-io-http.result }}
+            test-ktor=${{ needs.test-ktor.result }}
+            test-key-utils=${{ needs.test-key-utils.result }}
+            test-infra=${{ needs.test-infra.result }}
+            test-kafka-infra=${{ needs.test-kafka-infra.result }}
+            test-telemetry-infra=${{ needs.test-telemetry-infra.result }}
+            test-data=${{ needs.test-data.result }}
+        run: |
+          mkdir -p coverage-artifacts
+          printf '%s\n' "$EXPECTED_COVERAGE_JOBS" > coverage-artifacts/expected-jobs.manifest
+          if grep -q '=success$' coverage-artifacts/expected-jobs.manifest; then
+            echo 'has_expected=true' >> "$GITHUB_OUTPUT"
+          else
+            echo 'has_expected=false' >> "$GITHUB_OUTPUT"
+          fi
+
       - name: Download all coverage artifacts
+        id: download-coverage
+        if: steps.expected-coverage.outputs.has_expected == 'true'
         uses: actions/download-artifact@v8
         with:
           pattern: coverage-*
           path: coverage-artifacts
           merge-multiple: false
-        continue-on-error: true
 
       - name: Aggregate Kover coverage summary
         if: always()
-        run: python3 .github/scripts/aggregate-kover-coverage.py coverage-artifacts
+        env:
+          COVERAGE_DOWNLOAD_OUTCOME: ${{ steps.download-coverage.outcome }}
+        run: >-
+          python3 .github/scripts/aggregate-kover-coverage.py coverage-artifacts
+          --expected-manifest coverage-artifacts/expected-jobs.manifest
+          --download-outcome "$COVERAGE_DOWNLOAD_OUTCOME"
 
       - name: Upload aggregated coverage
         if: always()
@@ -906,16 +943,28 @@ jobs:
         with:
           name: coverage-all
           path: coverage-artifacts/
+          if-no-files-found: error
           retention-days: 14
 
+      - name: Prepare Coveralls file list
+        id: coveralls-files
+        if: ${{ always() && hashFiles('coverage-artifacts/**/reports/kover/report.xml') != '' }}
+        run: |
+          files=$(find coverage-artifacts -type f -path '*/reports/kover/report.xml' -print | sort | paste -sd ' ' -)
+          if [ -z "$files" ]; then
+            echo 'No Kover report files found for Coveralls.' >&2
+            exit 1
+          fi
+          echo "files=$files" >> "$GITHUB_OUTPUT"
+
       - name: Upload coverage to Coveralls
-        if: always()
+        if: ${{ always() && steps.coveralls-files.outcome == 'success' }}
         uses: coverallsapp/github-action@v2
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
-          files: coverage-artifacts/**/reports/kover/report.xml
+          files: ${{ steps.coveralls-files.outputs.files }}
           format: jacoco
-          fail-on-error: false
+          fail-on-error: true
 
   # ── 9. 결과 집계 ──────────────────────────────────────────────────────────
   ci-status:

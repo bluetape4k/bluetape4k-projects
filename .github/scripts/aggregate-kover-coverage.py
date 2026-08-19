@@ -10,7 +10,10 @@ the same module are merged. This matters for nightly matrix jobs where each
 matrix entry runs a subset of the same module's tests and uploads a partial
 Kover XML report.
 """
+from __future__ import annotations
+
 from dataclasses import dataclass, field
+import argparse
 import fnmatch
 import os
 import sys
@@ -85,8 +88,12 @@ def parse_report(
     """Return method-level INSTRUCTION counters, falling back to report root."""
     try:
         root = ET.parse(path).getroot()
-        methods: dict[tuple[str, str, str], InstructionCounter] = {}
+    except (ET.ParseError, OSError) as error:
+        raise ValueError(f"invalid Kover report {path}: {error}") from error
 
+    methods: dict[tuple[str, str, str], InstructionCounter] = {}
+
+    try:
         for pkg in root.findall("package"):
             for klass in pkg.findall("class"):
                 class_name = klass.get("name", "")
@@ -112,8 +119,60 @@ def parse_report(
                 fallback.missed += int(c.get("missed", "0"))
                 fallback.covered += int(c.get("covered", "0"))
         return methods, fallback
-    except Exception:
-        return {}, InstructionCounter()
+    except (TypeError, ValueError) as error:
+        raise ValueError(f"invalid Kover report {path}: {error}") from error
+
+
+def parse_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("coverage_root", nargs="?", default="coverage-artifacts")
+    parser.add_argument(
+        "--expected-manifest",
+        help="newline-delimited job=result manifest produced by the workflow",
+    )
+    parser.add_argument(
+        "--download-outcome",
+        default="success",
+        help="outcome of the artifact download step",
+    )
+    return parser.parse_args()
+
+
+def load_expected_manifest(path: str | None) -> dict[str, str]:
+    if path is None:
+        return {"manual": "success"}
+
+    try:
+        with open(path, encoding="utf-8") as manifest_file:
+            lines = manifest_file.read().splitlines()
+    except OSError as error:
+        raise ValueError(f"cannot read expected coverage manifest {path}: {error}") from error
+
+    jobs: dict[str, str] = {}
+    allowed_results = {"success", "skipped", "failure", "cancelled"}
+    for line_number, line in enumerate(lines, start=1):
+        line = line.strip()
+        if not line or line.startswith("#"):
+            continue
+        if "=" not in line:
+            raise ValueError(f"invalid expected coverage manifest line {line_number}: {line}")
+        name, result = (part.strip() for part in line.split("=", 1))
+        if not name or result not in allowed_results:
+            raise ValueError(f"invalid expected coverage manifest line {line_number}: {line}")
+        if name in jobs:
+            raise ValueError(f"duplicate expected coverage job: {name}")
+        jobs[name] = result
+
+    if not jobs:
+        raise ValueError("expected coverage manifest must contain at least one job")
+    return jobs
+
+
+def write_summary(output: str, summary_path: str | None) -> None:
+    if summary_path:
+        with open(summary_path, "a", encoding="utf-8") as fp:
+            fp.write(output)
+    print(output)
 
 
 def module_from_path(path: str) -> str:
@@ -130,8 +189,34 @@ def module_from_path(path: str) -> str:
 
 
 def main() -> int:
-    root_dir = sys.argv[1] if len(sys.argv) > 1 else "coverage-artifacts"
+    args = parse_args()
+    root_dir = args.coverage_root
     summary_path = os.environ.get("GITHUB_STEP_SUMMARY")
+
+    try:
+        expected_jobs = load_expected_manifest(args.expected_manifest)
+    except ValueError as error:
+        print(f"ERROR: {error}", file=sys.stderr)
+        return 1
+
+    failed_jobs = sorted(
+        name for name, result in expected_jobs.items() if result in {"failure", "cancelled"}
+    )
+    expected_success_jobs = sorted(
+        name for name, result in expected_jobs.items() if result == "success"
+    )
+    if failed_jobs:
+        print(
+            "ERROR: expected coverage job(s) failed or cancelled: " + ", ".join(failed_jobs),
+            file=sys.stderr,
+        )
+        return 1
+    if expected_success_jobs and args.download_outcome != "success":
+        print(
+            f"ERROR: coverage artifact download finished with {args.download_outcome}",
+            file=sys.stderr,
+        )
+        return 1
 
     patterns = [
         f"{root_dir}/**/report.xml",
@@ -144,10 +229,40 @@ def main() -> int:
     total_missed = 0
     skipped_zero_total = 0
 
-    for pattern in patterns:
-        for xml_path in sorted(glob.glob(pattern, recursive=True)):
+    report_paths = sorted(
+        {
+            xml_path
+            for pattern in patterns
+            for xml_path in glob.glob(pattern, recursive=True)
+        }
+    )
+
+    if not expected_success_jobs:
+        if report_paths:
+            print(
+                "ERROR: coverage reports were uploaded even though all coverage jobs were skipped",
+                file=sys.stderr,
+            )
+            return 1
+        output = "## Kover Coverage Summary\n\n_No coverage reports expected: all coverage jobs were skipped._\n"
+        write_summary(output, summary_path)
+        return 0
+
+    if not report_paths:
+        print(
+            "ERROR: expected coverage job(s) produced no Kover reports: "
+            + ", ".join(expected_success_jobs),
+            file=sys.stderr,
+        )
+        return 1
+
+    try:
+        for xml_path in report_paths:
             module = module_from_path(xml_path)
             modules.setdefault(module, ModuleCoverage()).add_report(xml_path, module)
+    except ValueError as error:
+        print(f"ERROR: {error}", file=sys.stderr)
+        return 1
 
     for module in sorted(modules):
         coverage = modules[module]
@@ -162,29 +277,26 @@ def main() -> int:
         total_covered += covered
         total_missed += missed
 
+    if not rows:
+        print("ERROR: Kover reports contain no instruction coverage", file=sys.stderr)
+        return 1
+
     lines: list[str] = []
     lines.append("## Kover Coverage Summary")
     lines.append("")
-    if not rows:
-        lines.append("_No coverage reports found._")
-    else:
-        lines.append("| Module | Reports | Instruction Covered | Instruction Missed | Coverage |")
-        lines.append("|--------|--------:|--------------------:|-------------------:|---------:|")
-        for module, covered, missed, pct, report_count in rows:
-            lines.append(f"| `{module}` | {report_count} | {covered} | {missed} | {pct:.2f}% |")
-        grand_total = total_covered + total_missed
-        grand_pct = (total_covered * 100.0 / grand_total) if grand_total else 0.0
-        lines.append(f"| **TOTAL** |  | **{total_covered}** | **{total_missed}** | **{grand_pct:.2f}%** |")
-        if skipped_zero_total:
-            lines.append("")
-            lines.append(f"_Skipped {skipped_zero_total} zero-total coverage report(s)._")
+    lines.append("| Module | Reports | Instruction Covered | Instruction Missed | Coverage |")
+    lines.append("|--------|--------:|--------------------:|-------------------:|---------:|")
+    for module, covered, missed, pct, report_count in rows:
+        lines.append(f"| `{module}` | {report_count} | {covered} | {missed} | {pct:.2f}% |")
+    grand_total = total_covered + total_missed
+    grand_pct = (total_covered * 100.0 / grand_total) if grand_total else 0.0
+    lines.append(f"| **TOTAL** |  | **{total_covered}** | **{total_missed}** | **{grand_pct:.2f}%** |")
+    if skipped_zero_total:
+        lines.append("")
+        lines.append(f"_Skipped {skipped_zero_total} zero-total coverage report(s)._")
 
     output = "\n".join(lines) + "\n"
-    if summary_path:
-        with open(summary_path, "a", encoding="utf-8") as fp:
-            fp.write(output)
-    # 로그용 stdout 출력
-    print(output)
+    write_summary(output, summary_path)
     return 0
 
 
