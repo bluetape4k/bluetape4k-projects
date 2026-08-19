@@ -58,6 +58,24 @@ jobs:
       - name: Verify Maven-only release policy
         run: python3 -m unittest scripts/test_release_workflow_policy.py -v
 
+  jvm-release-contract:
+    name: JVM Release Contract
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-java@v5.7.0
+        with:
+          java-version: ${{ env.JAVA_VERSION }}
+          distribution: ${{ env.JAVA_DISTRIBUTION }}
+      - uses: gradle/actions/setup-gradle@v6.3.0
+        with:
+          gradle-version: wrapper
+      - name: Verify static JVM release contract
+        run: python3 -m unittest scripts/test_jvm_release_contract.py -v
+      - name: Verify compiled classfile contract
+        run: ./scripts/check-jvm-release-contract.sh
+
   codeql-policy:
     name: CodeQL Workflow Policy
     runs-on: ubuntu-latest
@@ -452,6 +470,16 @@ jobs:
         run: ./gradlew :bluetape4k-mock-web-server:jibDockerBuild --no-configuration-cache
         env:
           GRADLE_OPTS: "-Dorg.gradle.daemon=false"
+
+      - name: Build mock-webflux-server Docker image
+        run: ./gradlew :bluetape4k-mock-webflux-server:jibDockerBuild --no-configuration-cache
+        env:
+          GRADLE_OPTS: "-Dorg.gradle.daemon=false"
+
+      - name: Verify default mock-server image tags
+        run: |
+          docker image inspect bluetape4k/mock-web-server:2.0.0
+          docker image inspect bluetape4k/mock-webflux-server:2.0.0
 
       - name: Test HTTP client modules
         uses: nick-fields/retry@v4
@@ -971,7 +999,7 @@ jobs:
     name: CI Status
     runs-on: ubuntu-latest
     timeout-minutes: 10
-    needs: [release-policy, codeql-policy, catalog-governance, gitleaks, validate-wrapper, changes, build, test-core, test-io, test-io-http, test-ktor, test-key-utils, test-infra, test-kafka-infra, test-telemetry-infra, test-data, coverage-report]
+    needs: [release-policy, jvm-release-contract, codeql-policy, catalog-governance, gitleaks, validate-wrapper, changes, build, test-core, test-io, test-io-http, test-ktor, test-key-utils, test-infra, test-kafka-infra, test-telemetry-infra, test-data, coverage-report]
     if: always()
     steps:
       - name: Check all jobs

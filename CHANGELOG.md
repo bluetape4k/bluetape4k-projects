@@ -4,6 +4,19 @@
 
 ---
 
+<!-- issue-1335-java25-semver:start -->
+## [Unreleased]
+
+### 호환성 변경
+
+- 일반 published artifact의 Java runtime 바닥선을 Java 25로 올릴 준비를
+  하고 `2.0.0` 호환성 계약을 고정했다. Java 21 호환성 섬은
+  `bluetape4k-assertions`, `bluetape4k-junit5`, `bluetape4k-logging`,
+  `bluetape4k-virtualthread-api`, `bluetape4k-virtualthread-jdk21`로
+  유지한다. Java 21–24 소비자는 Java 25로 이동하거나 `1.13.x`를 유지해야
+  한다 ([#1335](https://github.com/bluetape4k/bluetape4k-projects/issues/1335)).
+<!-- issue-1335-java25-semver:end -->
+
 ## [1.12.1] — 2026-08-06
 
 ### 버그 수정
@@ -20,7 +33,7 @@
   ([#1424](https://github.com/bluetape4k/bluetape4k-projects/issues/1424)).
 - Maven Central에 없는 benchmark 또는 application 전용 모듈이 BOM에 포함되지 않도록 publication과 BOM module classifier를 통일했다. 생성한 BOM inventory와 publication POM inventory가 다르면 publication validation이 실패한다
   ([#1313](https://github.com/bluetape4k/bluetape4k-projects/issues/1313)).
-- Java platform은 library publication 설정 밖에 두되 `Bluetape4k` publication을 NMCP aggregate에 포함했다. 따라서 snapshot과 stable bundle은 74개 publishable library module과 함께 BOM을 포함한다
+- Java platform은 library publication 설정 밖에 두되 `Bluetape4k` publication을 NMCP aggregate에 포함했다. 따라서 `snapshot`과 stable bundle은 74개 publishable library module과 함께 BOM을 포함한다
   ([#1315](https://github.com/bluetape4k/bluetape4k-projects/issues/1315)).
 
 ## [1.12.0] — 2026-08-05
@@ -243,7 +256,7 @@
   client surface after the 1.9.2 design evaluation
   ([#586](https://github.com/bluetape4k/bluetape4k-projects/issues/586)).
 - The default bluetape4k dependency catalog source was pinned to the current
-  release-train catalog ref for repeatable snapshot and release validation.
+  release-train catalog ref for repeatable `snapshot` and release validation.
 
 ### 버그 수정
 

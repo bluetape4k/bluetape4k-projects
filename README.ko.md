@@ -69,6 +69,21 @@ Kotlin 언어를 배우고, 사용하면서, Backend 개발에 자주 사용하�
 - **JetBrains Exposed**: 1.2.x (외부 `bluetape4k-exposed` artifact는 독립 레포에서 별도 릴리즈됨)
 - **데이터베이스**: H2, PostgreSQL, MySQL
 
+<!-- issue-1335-java25-semver:start -->
+### JVM 호환성과 2.0.0
+
+`2.0.0`부터 일반 Bluetape4k artifact는 Java 25 runtime이 필요합니다.
+Java 21 호환성 섬은 `bluetape4k-assertions`, `bluetape4k-junit5`,
+`bluetape4k-logging`, `bluetape4k-virtualthread-api`,
+`bluetape4k-virtualthread-jdk21`의 다섯 모듈로 한정되며, 모든 artifact가
+Java 21과 호환된다는 뜻이 아닙니다.
+
+Java 21–24에서 일반 artifact를 사용 중이면 `2.0.0`을 위해 Java 25로
+이동하거나 `1.13.x`를 유지해야 합니다. Java 21을 유지해야 한다면
+호환성 섬 모듈만 선택하고 Java 25 target artifact를 같은 classpath에
+섞지 않아야 합니다.
+<!-- issue-1335-java25-semver:end -->
+
 ## 모듈 구조
 
 Bluetape4k는 기능별로 분리된 멀티 모듈 Gradle 프로젝트입니다.
@@ -327,7 +342,7 @@ Jib으로 Mock Server Docker 이미지를 다시 빌드할 때는 Gradle configu
 
 ```properties
 projectGroup=io.github.bluetape4k
-baseVersion=1.11.0
+baseVersion=2.0.0
 snapshotVersion=
 ```
 

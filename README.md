@@ -67,6 +67,21 @@ Feel free to open an Issue if you need something that isn't here yet.
 - **JetBrains Exposed**: 1.2.x (external `bluetape4k-exposed` artifacts are released from the standalone repository)
 - **Databases**: H2, PostgreSQL, MySQL
 
+<!-- issue-1335-java25-semver:start -->
+### JVM Compatibility and 2.0.0
+
+Starting with `2.0.0`, general Bluetape4k artifacts require a Java 25 runtime.
+The five-module Java 21 compatibility island is limited to
+`bluetape4k-assertions`, `bluetape4k-junit5`, `bluetape4k-logging`,
+`bluetape4k-virtualthread-api`, and `bluetape4k-virtualthread-jdk21`; it does
+not make every artifact Java 21 compatible.
+
+Consumers on Java 21–24 should move to Java 25 for `2.0.0` or remain on
+`1.13.x`. Consumers that must stay on Java 21 should select only the
+compatibility-island modules and must not mix Java 25-targeted artifacts into
+the same classpath.
+<!-- issue-1335-java25-semver:end -->
+
 ## Module Structure
 
 Bluetape4k is a multi-module Gradle project organized by domain.
@@ -326,7 +341,7 @@ Check `gradle.properties` for the current version:
 
 ```properties
 projectGroup=io.github.bluetape4k
-baseVersion=1.11.0
+baseVersion=2.0.0
 snapshotVersion=
 ```
 
