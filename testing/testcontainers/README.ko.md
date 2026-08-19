@@ -448,6 +448,9 @@ val kmsClient = KmsClient.builder()
     .region(Region.of(miniStack.regionName))
     .build()
 
+// 고정된 ministackorg/ministack:1.4.14 이미지는 위 예제에서 사용하는 KMS 핵심 기능을 지원합니다.
+// CreateGrant, ListGrants, RevokeGrant는 이 태그에서 지원하지 않으므로 해당 테스트는 비활성화되어 있습니다.
+
 // FlociServer — GraalVM Native 기반 LocalStack 대체 OSS 경로
 val floci = FlociServer.Launcher.floci
 val sqsClient = SqsClient.builder()

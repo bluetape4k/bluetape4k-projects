@@ -356,7 +356,7 @@ JMH(Java Microbenchmark Harness) 기반 벤치마크 3종으로 클라이언트�
 > 다운로드 후 `-PasyncProfilerLib` 에 네이티브 `libasyncProfiler.so` / `libasyncProfiler.dylib` 경로를 지정하세요.
 > kotlinx-benchmark 런타임이 에이전트를 자동 감지하여 JMH forks를 0으로 설정합니다.
 
-> **요구 사항**: 모든 프로파일러는 프로젝트 툴체인인 JDK 21에서 동작합니다. 추가 Gradle 의존성 불필요.
+> **요구 사항**: 모든 프로파일러는 프로젝트 툴체인인 JDK 25에서 동작합니다. 추가 Gradle 의존성 불필요.
 
 ![Profiling workflow](../../docs/images/readme-diagrams/io-http-diagram-05.png)
 

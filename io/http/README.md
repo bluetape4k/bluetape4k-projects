@@ -355,7 +355,7 @@ Output files are written to `build/benchmark-profiling/`.
 > and point `-PasyncProfilerLib` at the native `libasyncProfiler.so` / `libasyncProfiler.dylib`.
 > The kotlinx-benchmark runtime detects the agent and automatically sets JMH forks to 0.
 
-> **Requirements**: All profilers run on JDK 21 (the project toolchain). No extra Gradle dependencies needed.
+> **Requirements**: All profilers run on JDK 25 (the project toolchain). No extra Gradle dependencies needed.
 
 ![Profiling workflow](../../docs/images/readme-diagrams/io-http-diagram-05.png)
 

@@ -82,7 +82,7 @@ class ToxiproxyServer private constructor(
          * - 컨테이너를 시작하지 않으며 호출자가 `start()`를 직접 호출해야 합니다.
          *
          * ```kotlin
-         * val server = ToxiproxyServer(image = "ghcr.io/shopify/toxiproxy", tag = "2.9.0")
+         * val server = ToxiproxyServer(image = "ghcr.io/shopify/toxiproxy", tag = TAG)
          * server.start()
          * ```
          *

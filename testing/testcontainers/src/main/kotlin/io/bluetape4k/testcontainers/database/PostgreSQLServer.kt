@@ -51,7 +51,7 @@ class PostgreSQLServer private constructor(
          * [PostgreSQLServer]를 생성합니다.
          *
          * @param image docker image (기본: `postgres`)
-         * @param tag docker image tag (기본: `9.6`)
+         * @param tag docker image tag (기본: [TAG])
          * @param useDefaultPort 기본 포트를 사용할지 여부 (기본: `false`)
          * @param reuse 재사용 여부 (기본: `false`)
          * @param username 사용자 이름 (기본: `test`)

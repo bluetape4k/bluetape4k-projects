@@ -38,7 +38,7 @@ class ChromaDBServer private constructor(
          * [DockerImageName]으로 [ChromaDBServer] 인스턴스를 생성합니다.
          *
          * ```kotlin
-         * val image = DockerImageName.parse("chromadb/chroma").withTag("0.5.23")
+         * val image = DockerImageName.parse("chromadb/chroma").withTag(TAG)
          * val server = ChromaDBServer(image)
          * // server.isRunning == false
          * ```
@@ -60,7 +60,7 @@ class ChromaDBServer private constructor(
          * 이미지 이름/태그로 [ChromaDBServer] 인스턴스를 생성합니다.
          *
          * ```kotlin
-         * val server = ChromaDBServer(image = "chromadb/chroma", tag = "0.5.23")
+         * val server = ChromaDBServer(image = "chromadb/chroma", tag = TAG)
          * // server.url.startsWith("http://") == true (시작 후)
          * ```
          *
