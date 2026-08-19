@@ -144,6 +144,11 @@ jobs:
           gradle-version: wrapper
           cache-read-only: true
 
+      - name: Verify JVM release contract
+        run: |
+          python3 -m unittest scripts/test_jvm_release_contract.py -v
+          ./scripts/check-jvm-release-contract.sh
+
       - name: Diagnose signing inputs
         if: ${{ github.event_name == 'workflow_dispatch' && inputs.diagnoseSigning }}
         shell: bash
