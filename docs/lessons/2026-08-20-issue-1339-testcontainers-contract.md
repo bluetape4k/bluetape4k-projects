@@ -26,7 +26,8 @@ JDK 21을 기준으로 안내하고 있었다.
 ## 결과
 
 문서와 KDoc은 현재 이미지 태그 및 MiniStack capability를 설명하고, README
-두 locale은 같은 기본 태그와 제한 문구를 제공한다. 생산 코드의 실행 동작과
+두 locale은 같은 기본 태그와 제한 문구를 제공한다. 계약 검사는 PR CI와 release
+preflight에서 함께 실행되어 이후 drift를 차단한다. 생산 코드의 실행 동작과
 컨테이너 이미지는 변경하지 않는다.
 
 ## 검증

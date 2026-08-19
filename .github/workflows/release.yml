@@ -139,6 +139,10 @@ jobs:
           java-version: ${{ env.JAVA_VERSION }}
           distribution: ${{ env.JAVA_DISTRIBUTION }}
 
+      - uses: actions/setup-python@v7
+        with:
+          python-version: '3.12'
+
       - uses: gradle/actions/setup-gradle@v6.3.0
         with:
           gradle-version: wrapper
@@ -147,6 +151,7 @@ jobs:
       - name: Verify JVM release contract
         run: |
           python3 -m unittest scripts/test_jvm_release_contract.py -v
+          python3 -m unittest scripts/test_testcontainers_contract.py -v
           ./scripts/check-jvm-release-contract.sh
 
       - name: Diagnose signing inputs
