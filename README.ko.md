@@ -245,6 +245,7 @@ Bluetape4k는 기능별로 분리된 멀티 모듈 Gradle 프로젝트입니다.
 - **[assertions](./testing/assertions/README.ko.md)**: 테스트용 bluetape4k assertion DSL 기반
 - **[junit5](./testing/junit5/README.ko.md)**: JUnit 5 확장 및 유틸리티
 - **[testcontainers](./testing/testcontainers/README.ko.md)**: Testcontainers 지원 (Redis, Kafka, DB 등)
+- **[testcontainers-spring](./testing/testcontainers-spring/README.ko.md)**: Testcontainers 프로퍼티를 Spring `DynamicPropertyRegistry`에 연결하는 선택 모듈
 - **[mock-web-server](./testing/mock-web-server/README.ko.md)**: 통합 테스트용 MVC Mock HTTP Server Docker 이미지
 - **[mock-webflux-server](./testing/mock-webflux-server/README.ko.md)**: 통합 테스트용 WebFlux Mock HTTP Server Docker 이미지
 

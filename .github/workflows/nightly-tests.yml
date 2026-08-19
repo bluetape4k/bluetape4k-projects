@@ -1214,6 +1214,52 @@ jobs:
           if-no-files-found: error
           retention-days: 14
 
+  # ── Testcontainers Spring bridge (nightly JVM-only contract) ─────────────
+  test-testcontainers-spring:
+    name: Test / Testcontainers Spring bridge
+    runs-on: ubuntu-latest
+    needs: [build, plan]
+    if: ${{ needs.plan.outputs.scope == 'full' || needs.plan.outputs.scope == 'testcontainers' }}
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-java@v5.7.0
+        with:
+          java-version: ${{ env.JAVA_VERSION }}
+          distribution: ${{ env.JAVA_DISTRIBUTION }}
+
+      - uses: gradle/actions/setup-gradle@v6.3.0
+        with:
+          gradle-version: wrapper
+          cache-read-only: true
+
+      - name: Test Testcontainers Spring bridge
+        run: ./gradlew :bluetape4k-testcontainers-spring:test --no-configuration-cache
+        env:
+          GRADLE_OPTS: "-Dorg.gradle.daemon=false"
+
+      - name: Generate Kover XML report
+        if: ${{ always() && needs.plan.outputs.run_testcontainers_coverage == 'true' }}
+        run: ./gradlew :bluetape4k-testcontainers-spring:koverXmlReport --no-configuration-cache
+        continue-on-error: true
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: nightly-test-results-testcontainers-spring
+          path: '**/build/test-results/test/*.xml'
+          retention-days: 14
+
+      - name: Upload coverage report
+        if: ${{ always() && needs.plan.outputs.run_testcontainers_coverage == 'true' }}
+        uses: actions/upload-artifact@v7
+        with:
+          name: nightly-coverage-testcontainers-spring
+          path: '**/build/reports/kover/'
+          if-no-files-found: error
+          retention-days: 14
+
   # ── 커버리지 집계 ─────────────────────────────────────────────────────────
   coverage-report:
     name: Coverage Report
@@ -1232,6 +1278,7 @@ jobs:
       - test-data
       - test-spring-docker
       - test-testcontainers
+      - test-testcontainers-spring
     if: always()
     steps:
       - uses: actions/checkout@v7
@@ -1250,6 +1297,7 @@ jobs:
             test-data=${{ needs.test-data.result }}
             test-spring-docker=${{ needs.test-spring-docker.result }}
             test-testcontainers=${{ needs.plan.outputs.run_testcontainers_coverage == 'true' && needs.test-testcontainers.result || 'skipped' }}
+            test-testcontainers-spring=${{ needs.plan.outputs.run_testcontainers_coverage == 'true' && needs.test-testcontainers-spring.result || 'skipped' }}
         run: |
           mkdir -p coverage-artifacts
           printf '%s\n' "$EXPECTED_COVERAGE_JOBS" > coverage-artifacts/expected-jobs.manifest
@@ -1304,6 +1352,7 @@ jobs:
       - test-data
       - test-spring-docker
       - test-testcontainers
+      - test-testcontainers-spring
       - coverage-report
     if: always()
     steps:

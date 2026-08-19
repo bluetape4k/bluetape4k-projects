@@ -180,6 +180,7 @@ jobs:
               - 'io/vertx/**'
               - 'testing/mock-web-server/**'
               - 'testing/testcontainers/**'
+              - 'testing/testcontainers-spring/**'
             ktor:
               - 'ktor/**'
             key-utils:
@@ -486,7 +487,7 @@ jobs:
           docker image inspect bluetape4k/mock-web-server:2.0.0
           docker image inspect bluetape4k/mock-webflux-server:2.0.0
 
-      - name: Test HTTP client modules
+      - name: Test HTTP client and Testcontainers Spring bridge modules
         uses: nick-fields/retry@v4
         with:
           timeout_minutes: 60
@@ -498,6 +499,7 @@ jobs:
               :bluetape4k-http:test \
               :bluetape4k-retrofit2:test \
               :bluetape4k-vertx:test \
+              :bluetape4k-testcontainers-spring:test \
               --no-configuration-cache
         env:
           GRADLE_OPTS: "-Dorg.gradle.daemon=false"
@@ -510,6 +512,7 @@ jobs:
             :bluetape4k-http:koverXmlReport \
             :bluetape4k-retrofit2:koverXmlReport \
             :bluetape4k-vertx:koverXmlReport \
+            :bluetape4k-testcontainers-spring:koverXmlReport \
             --no-configuration-cache
         continue-on-error: true
 

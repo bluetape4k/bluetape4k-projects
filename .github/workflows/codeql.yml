@@ -39,13 +39,14 @@ jobs:
             scope: frameworks
             roots: ktor:spring-boot:virtualthread
           # testing/testcontainers remains excluded: its single compileKotlin
-          # task timed out after 20 minutes while every other scope passed:
+          # task timed out after 20 minutes while every other scope passed. The
+          # small Spring adapter is analyzed separately and has no Docker tests:
           # https://github.com/bluetape4k/bluetape4k-projects/actions/runs/29648755583
           # See the durable lesson for measurements and reconsideration gates:
           # docs/lessons/2026-07-18-codeql-testcontainers-exclusion.md
           - language: java-kotlin
             scope: testing-core
-            roots: testing/assertions:testing/junit5:testing/mock-web-server:testing/mock-webflux-server
+            roots: testing/assertions:testing/junit5:testing/mock-web-server:testing/mock-webflux-server:testing/testcontainers-spring
 
     steps:
       - name: Checkout repository
