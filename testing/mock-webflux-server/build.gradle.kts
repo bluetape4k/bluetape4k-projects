@@ -80,6 +80,7 @@ tasks.withType<com.google.cloud.tools.jib.gradle.BuildImageTask>().configureEach
 }
 
 val jibMultiPlatform = project.hasProperty("jibMultiPlatform")
+val baseVersionTag = providers.gradleProperty("baseVersion").get()
 val hostArch = when (System.getProperty("os.arch")) {
     "aarch64" -> "arm64"
     else      -> "amd64"
@@ -99,7 +100,7 @@ jib {
     }
     to {
         image = "bluetape4k/mock-webflux-server"
-        tags = setOf("latest", project.version.toString())
+        tags = setOf("latest", baseVersionTag, project.version.toString())
     }
     container {
         ports = listOf("80", "8443")

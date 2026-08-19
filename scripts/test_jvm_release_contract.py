@@ -71,6 +71,34 @@ class JvmReleaseContractTest(unittest.TestCase):
                 msg=f"stale mock-server image tag in {source_path}",
             )
 
+    def test_mock_server_jib_keeps_snapshot_and_default_tags_available(self) -> None:
+        expected_tag_expression = 'tags = setOf("latest", baseVersionTag, project.version.toString())'
+        for source_path in (
+            "testing/mock-web-server/build.gradle.kts",
+            "testing/mock-webflux-server/build.gradle.kts",
+        ):
+            source = read(source_path)
+            self.assertIn(
+                'val baseVersionTag = providers.gradleProperty("baseVersion").get()',
+                source,
+                msg=f"missing baseVersion image tag source in {source_path}",
+            )
+            self.assertIn(expected_tag_expression, source, msg=f"snapshot tag drift in {source_path}")
+
+    def test_ci_builds_and_inspects_both_mock_server_images(self) -> None:
+        workflow = read(".github/workflows/ci.yml")
+        for image in ("mock-web-server", "mock-webflux-server"):
+            self.assertIn(f":bluetape4k-{image}:jibDockerBuild", workflow)
+            self.assertIn(f"bluetape4k/{image}:2.0.0", workflow)
+
+    def test_testcontainers_docs_follow_release_image_tags(self) -> None:
+        for relative in ("testing/testcontainers/README.md", "testing/testcontainers/README.ko.md"):
+            source = read(relative)
+            self.assertIn("`bluetape4k/mock-web-server` | `2.0.0`", source)
+            self.assertIn("`bluetape4k/mock-webflux-server` | `2.0.0`", source)
+            self.assertNotIn("`bluetape4k/mock-web-server` | `1.13.0`", source)
+            self.assertNotIn("`bluetape4k/mock-webflux-server` | `1.13.0`", source)
+
     def test_readme_locales_share_the_migration_contract(self) -> None:
         english = block(read("README.md"))
         korean = block(read("README.ko.md"))

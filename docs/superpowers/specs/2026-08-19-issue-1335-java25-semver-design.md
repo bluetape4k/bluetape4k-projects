@@ -18,6 +18,9 @@
 
 - 현재 `gradle.properties`의 `baseVersion`은 `1.13.0`이다.
 - 루트 Gradle 설정은 Java 25를 기본 target으로 사용한다.
+- mock server Jib 설정은 `project.version`을 Docker 태그로 사용하고, 사전 배포 workflow는
+  `snapshotVersion=-SNAPSHOT`을 주입하므로 Testcontainers 기본 태그와 별도의 사전 배포
+  태그가 동시에 필요하다.
 - 다음 다섯 모듈은 Java 21 호환성 섬으로 중앙 설정에 명시되어 있다.
   - `bluetape4k-assertions`
   - `bluetape4k-junit5`
@@ -35,13 +38,13 @@
 2. 일반 artifact와 Java 21 호환성 섬의 런타임 경계를 영어·한국어 문서에 동일하게 설명한다.
 3. version, module target, classfile major, 문서 marker의 drift를 CI에서 조기에 차단한다.
 4. release workflow가 publish 전에 같은 JVM compatibility contract를 재검증하도록 한다.
-5. 다음 stacked slot(#1339)이 이 Slot의 merge head를 정확히 기준으로 작업할 수 있게 변경 범위를 작게 유지한다.
+5. mock server의 release·사전 배포 Jib 태그와 Testcontainers 기본 태그를 같은 계약으로 고정한다.
+6. 다음 stacked slot(#1339)이 이 Slot의 merge head를 정확히 기준으로 작업할 수 있게 변경 범위를 작게 유지한다.
 
 ## 비목표
 
 - 실제 `2.0.0` Git tag 생성 또는 Maven Central release publish
 - 일반 모듈을 Java 21 target으로 되돌리거나 Java 21 섬을 추가·확장하는 작업
-- Testcontainers TAG/KDoc 수정(#1339)
 - `PropertyExportingServer`의 Spring `DynamicPropertyRegistry` 연동(#1321)
 - image family startup/workload gate(#1337)
 - 새 public API, dependency, module 추가
@@ -62,7 +65,26 @@
 
 새로운 모듈이 호환성 섬에 들어가려면 별도 이슈와 compatibility 근거가 필요하며, 이번 Slot에서 암묵적으로 추가하지 않는다.
 
-### 2. 독자-facing 문서
+### 2. mock server image tag 계약
+
+사전 배포 workflow는 `-PsnapshotVersion=-SNAPSHOT`으로 `project.version`을
+`2.0.0-SNAPSHOT`으로 만든다. 반면 `BluetapeHttpServer.TAG`와
+`BluetapeWebfluxServer.TAG`는 공개 `const val` API로서 `baseVersion`인 `2.0.0`을
+기본값으로 사용한다. 두 실행 경계를 맞추기 위해 두 Jib 설정은 다음 태그를 함께
+생성한다.
+
+- `latest`: 기존 로컬 개발 별칭
+- `baseVersionTag`: Testcontainers 기본값이 항상 찾는 안정적인 통합 테스트 별칭
+- `project.version`: release의 `2.0.0` 또는 사전 배포의 `2.0.0-SNAPSHOT` 식별자
+
+release에서는 `baseVersionTag`와 `project.version`이 같은 태그로 deduplicate되고,
+사전 배포에서는 두 버전 태그가 모두 남는다. 따라서 사전 배포 빌드도 기본
+Testcontainers 경로를 깨뜨리지 않으면서 정확한 사전 배포 이미지를 직접 검증할 수
+있다. 이 Slot에서 TAG/KDoc, `testing/testcontainers` EN/KO 표, 두 Jib 설정, PR CI의
+두 이미지 직접 빌드를 함께 고정하며, #1339에는 `DynamicPropertyRegistry` 연동과
+그 이슈의 독립 API 변경만 남긴다.
+
+### 3. 독자-facing 문서
 
 다음 문서를 함께 갱신한다.
 
@@ -82,7 +104,7 @@
 
 `CHANGELOG.md`에는 실제 배포일을 넣지 않는 `Unreleased` 항목을 추가한다. 항목에는 #1335 링크, runtime floor 상승, Java 21 섬 유지, migration 선택지를 기록한다. 실제 release heading/date는 tag 작업에서 별도로 결정한다.
 
-### 3. 정적 release contract test
+### 4. 정적 release contract test
 
 새 `scripts/test_jvm_release_contract.py`는 표준 library test runner 없이 실행할 수 있는 Python `unittest`로 작성한다. 최소 검사는 다음과 같다.
 
@@ -93,10 +115,13 @@
 - `CHANGELOG.md`의 `Unreleased`에 #1335와 Java 25/Java 21 migration contract가 있는지 확인
 - stale `baseVersion=1.11.0` publication 예제가 남아 있지 않은지 확인
 - `.github/workflows/ci.yml`와 `.github/workflows/release.yml`이 이 계약 검증을 호출하는지 확인
+- 두 mock server Jib 설정이 `baseVersionTag`와 `project.version`을 모두 태그하는지 확인
+- PR CI가 두 mock server 이미지를 직접 빌드하고 `2.0.0` 기본 태그를 inspect하는지 확인
+- `testing/testcontainers` EN/KO 표가 두 기본 이미지의 `2.0.0` 태그와 일치하는지 확인
 
 검사는 파일 전체의 문구 수를 임의로 고정하지 않고, 의미가 있는 marker와 정확한 version·module 집합을 검증한다. 따라서 문서 표현을 자연스럽게 다듬어도 계약 검사는 유지된다.
 
-### 4. classfile release contract check
+### 5. classfile release contract check
 
 새 `scripts/check-jvm-release-contract.sh`는 다음을 순서대로 수행한다.
 
@@ -107,9 +132,9 @@
 
 대표 class 선택은 현재 source의 안정적인 public implementation을 사용한다. 검사는 모든 모듈을 중복 compile하지 않고, 중앙 JVM target 경계가 실제 산출물에 반영되는 최소 representative set만 확인한다.
 
-### 5. CI 및 release workflow 연계
+### 6. CI 및 release workflow 연계
 
-`.github/workflows/ci.yml`에는 정적 Python contract test와 classfile check를 실행하는 검증 단계를 추가한다. 기존 release workflow policy, publication inventory, metadata 검사는 그대로 유지한다.
+`.github/workflows/ci.yml`에는 정적 Python contract test와 classfile check를 실행하는 검증 단계를 추가한다. `test-io-http` job은 두 mock server Jib 이미지를 순서대로 빌드하고 `2.0.0` 기본 태그를 직접 inspect한다. 기존 release workflow policy, publication inventory, metadata 검사는 그대로 유지한다.
 
 `.github/workflows/release.yml`의 Java 25 setup과 tag↔`baseVersion` 일치 검사는 유지한다. Maven Central publish task보다 앞에 JVM release contract check를 두어, 버전이 맞더라도 classfile/document contract가 깨진 artifact는 publish하지 않는다.
 
@@ -148,6 +173,16 @@
 python3 -m unittest scripts/test_jvm_release_contract.py -v
 ./scripts/check-jvm-release-contract.sh
 python3 -m unittest scripts/test_release_workflow_policy.py -v
+./gradlew :bluetape4k-mock-web-server:jibDockerBuild --no-configuration-cache
+./gradlew :bluetape4k-mock-webflux-server:jibDockerBuild --no-configuration-cache
+./gradlew :bluetape4k-mock-web-server:jibDockerBuild \
+  -PsnapshotVersion=-SNAPSHOT --no-configuration-cache
+./gradlew :bluetape4k-mock-webflux-server:jibDockerBuild \
+  -PsnapshotVersion=-SNAPSHOT --no-configuration-cache
+docker image inspect bluetape4k/mock-web-server:2.0.0 \
+  bluetape4k/mock-web-server:2.0.0-SNAPSHOT
+docker image inspect bluetape4k/mock-webflux-server:2.0.0 \
+  bluetape4k/mock-webflux-server:2.0.0-SNAPSHOT
 ./gradlew :bluetape4k-testcontainers:compileKotlin \
   :bluetape4k-virtualthread-jdk21:compileKotlin \
   :bluetape4k-virtualthread-jdk25:compileKotlin \
@@ -165,6 +200,8 @@ node ~/.codex/skills/bluetape-writer/scripts/audit-korean-terms.mjs \
 - [ ] 일반/Java 21 섬 target과 representative classfile major 검증
 - [ ] README EN/KO parity 및 migration 문단
 - [ ] `CHANGELOG.md` Unreleased/#1335 기록
+- [ ] 두 mock server Jib가 release·사전 배포 태그와 Testcontainers 기본 태그를 함께 제공
+- [ ] `testing/testcontainers` EN/KO 표와 PR CI의 두 이미지 직접 검증
 - [ ] CI/release workflow contract hook
 - [ ] 정적 test, classfile check, release policy test, compile, diff check, 한국어 용어 감사 통과
 - [ ] PR body 마지막 섹션이 `## DoD Status`이고 `Required checks: X/Y; N/A: N; Blocked: N`을 포함
@@ -175,6 +212,7 @@ node ~/.codex/skills/bluetape-writer/scripts/audit-korean-terms.mjs \
 | 위험 | 탐지 | 대응 |
 | --- | --- | --- |
 | version source와 tag 불일치 | release workflow tag check | publish 중단, tag 작업 전 version 수정 |
+| 사전 배포 Jib tag와 Testcontainers 기본 tag 불일치 | 정적 tag expression test 및 두 이미지 `docker image inspect` | `baseVersionTag`와 `project.version`을 모두 생성하고 두 Jib 경로를 CI에서 빌드 |
 | 일반 모듈이 Java 21로 잘못 생성됨 | representative major check | 중앙 target 설정을 복구하고 재검증 |
 | 호환성 섬이 무심코 확대됨 | 정확한 module-set static test | 섬 외부 target 변경을 revert하거나 별도 이슈로 분리 |
 | EN/KO migration 문구 drift | marker parity test 및 writer audit | 두 locale을 같은 변경에서 수정 |
@@ -196,4 +234,4 @@ tag 단계까지 version·문서·CI contract drift를 발견하지 못하므로
 
 ## 완료 조건
 
-이 설계 문서와 구현 계획이 승인되고, Slot 1의 모든 검증이 fresh exact head에서 통과하며, PR #1335의 최신 review blocker가 없고 merge approval이 새로 확인될 때만 후속 #1339 슬롯으로 이동한다.
+이 설계 문서와 구현 계획이 승인되고, Slot 1의 모든 검증이 fresh exact head에서 통과하며, 두 mock server 이미지의 release·사전 배포 태그 증거와 PR #1335의 최신 review blocker 해소, merge approval이 새로 확인될 때만 후속 #1339 슬롯으로 이동한다.

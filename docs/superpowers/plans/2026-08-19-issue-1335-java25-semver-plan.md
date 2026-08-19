@@ -2,9 +2,9 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** 일반 published artifact의 Java 25 runtime 바닥선과 다섯 모듈의 Java 21 호환성 섬을 `2.0.0` release contract로 고정하고, 문서·CI·release workflow가 동일한 계약을 검증하게 한다.
+**Goal:** 일반 published artifact의 Java 25 runtime 바닥선과 다섯 모듈의 Java 21 호환성 섬, mock server release·사전 배포 이미지 태그를 `2.0.0` release contract로 고정하고, 문서·CI·release workflow가 동일한 계약을 검증하게 한다.
 
-**Architecture:** `gradle.properties`를 version source of truth로 유지하고 기존 중앙 JVM target 계산은 변경하지 않는다. 정적 Python contract test는 version/module-set/document/workflow drift를 검증하고, 독립 shell check는 대표 classfile의 실제 major version을 검증한다. CI와 release workflow는 publish 전에 두 검사를 호출한다.
+**Architecture:** `gradle.properties`를 version source of truth로 유지하고 기존 중앙 JVM target 계산은 변경하지 않는다. 정적 Python contract test는 version/module-set/document/workflow와 두 mock server Jib tag drift를 검증하고, 독립 shell check는 대표 classfile의 실제 major version을 검증한다. Jib는 `baseVersionTag`와 `project.version`을 함께 생성해 사전 배포에서도 공개 Testcontainers 기본 태그를 유지한다. CI와 release workflow는 publish 전에 두 검사를 호출하고 PR CI는 두 이미지를 직접 빌드한다.
 
 **Tech Stack:** Kotlin 2.4, Gradle 9.7.0, Java 25 toolchain, Python 3.12 `unittest`, POSIX Bash, GitHub Actions.
 
@@ -21,6 +21,9 @@
 | `scripts/check-jvm-release-contract.sh` | 대표 산출물 compile 및 `javap` classfile major 계약 |
 | `.github/workflows/ci.yml` | pull request/push에서 정적·classfile 계약 실행 |
 | `.github/workflows/release.yml` | Maven Central publish 전에 동일 계약 재실행 |
+| `testing/mock-web-server/build.gradle.kts`, `testing/mock-webflux-server/build.gradle.kts` | release·사전 배포 Jib 태그(`baseVersionTag`, `project.version`) |
+| `testing/testcontainers/.../BluetapeHttpServer.kt`, `BluetapeWebfluxServer.kt` | 공개 기본 이미지 태그와 사전 배포 동작 KDoc |
+| `testing/testcontainers/README.md`, `README.ko.md` | 두 mock server 기본 이미지 태그 표 |
 | `docs/superpowers/specs/2026-08-19-issue-1335-java25-semver-design.md` | 승인된 설계 결정의 기록(이미 커밋됨) |
 
 ### Task 1: 정적 JVM release contract test를 먼저 작성한다
@@ -110,6 +113,31 @@ class JvmReleaseContractTest(unittest.TestCase):
             self.assertIn("scripts/test_jvm_release_contract.py", workflow)
             self.assertIn("scripts/check-jvm-release-contract.sh", workflow)
 
+    def test_mock_server_jib_keeps_snapshot_and_default_tags_available(self) -> None:
+        expected_tag_expression = 'tags = setOf("latest", baseVersionTag, project.version.toString())'
+        for source_path in (
+            "testing/mock-web-server/build.gradle.kts",
+            "testing/mock-webflux-server/build.gradle.kts",
+        ):
+            source = read(source_path)
+            self.assertIn(
+                'val baseVersionTag = providers.gradleProperty("baseVersion").get()',
+                source,
+            )
+            self.assertIn(expected_tag_expression, source)
+
+    def test_ci_builds_and_inspects_both_mock_server_images(self) -> None:
+        workflow = read(".github/workflows/ci.yml")
+        for image in ("mock-web-server", "mock-webflux-server"):
+            self.assertIn(f":bluetape4k-{image}:jibDockerBuild", workflow)
+            self.assertIn(f"bluetape4k/{image}:2.0.0", workflow)
+
+    def test_testcontainers_docs_follow_release_image_tags(self) -> None:
+        for relative in ("testing/testcontainers/README.md", "testing/testcontainers/README.ko.md"):
+            source = read(relative)
+            self.assertIn("`bluetape4k/mock-web-server` | `2.0.0`", source)
+            self.assertIn("`bluetape4k/mock-webflux-server` | `2.0.0`", source)
+
 if __name__ == "__main__":
     unittest.main()
 ```
@@ -197,6 +225,32 @@ Run: `python3 -m unittest scripts/test_jvm_release_contract.py -v`
 
 Expected: version/module/document 검사는 통과하고, classfile/workflow 검사는 Task 3–4 완료 전까지 실패한다.
 
+### Task 2b: mock server release·사전 배포 이미지 태그를 고정한다
+
+**Files:**
+- Modify: `testing/mock-web-server/build.gradle.kts`
+- Modify: `testing/mock-webflux-server/build.gradle.kts`
+- Modify: `testing/testcontainers/src/main/kotlin/io/bluetape4k/testcontainers/http/BluetapeHttpServer.kt`
+- Modify: `testing/testcontainers/src/main/kotlin/io/bluetape4k/testcontainers/http/BluetapeWebfluxServer.kt`
+- Modify: `testing/testcontainers/README.md`, `testing/testcontainers/README.ko.md`
+
+- [x] **Step 1: Jib가 baseVersion·project.version을 함께 태그하도록 고정한다**
+
+두 mock server의 Jib `to.tags`는 `latest`, `baseVersionTag`, `project.version`을
+사용한다. release에서는 두 version tag가 같은 값으로 deduplicate되고, 사전 배포에서는
+`2.0.0` 기본 Testcontainers 태그와 `2.0.0-SNAPSHOT` 식별자가 모두 생성된다.
+
+- [x] **Step 2: 공개 TAG KDoc과 EN/KO 표를 같은 계약으로 갱신한다**
+
+`BluetapeHttpServer.TAG`와 `BluetapeWebfluxServer.TAG`는 공개 `const val` API를
+유지한 채 `2.0.0` 기본 태그와 사전 배포의 baseVersion 별칭을 설명한다. 두 locale
+모듈 표에서 오래된 `1.13.0` 태그를 제거한다.
+
+- [x] **Step 3: static contract와 PR CI 직접 gate를 연결한다**
+
+정적 Python test가 두 Jib 설정·두 문서·CI 명령을 모두 읽고, `test-io-http`가 두
+이미지를 순서대로 build한 뒤 `2.0.0` 태그를 `docker image inspect`로 확인한다.
+
 ### Task 3: 실제 classfile major 검증 스크립트를 구현한다
 
 **Files:**
@@ -267,6 +321,7 @@ Expected: 세 대표 classfile이 각각 `major=69`, `major=65`, `major=69`로 �
 **Files:**
 - Modify: `.github/workflows/ci.yml` (jobs 아래 `jvm-release-contract` 추가)
 - Modify: `.github/workflows/release.yml` (Java setup/Gradle setup 뒤, publication metadata 앞)
+- Test: `testing/mock-web-server/build.gradle.kts`, `testing/mock-webflux-server/build.gradle.kts`
 
 - [x] **Step 1: CI에 독립 JVM release contract job을 추가한다**
 
@@ -311,6 +366,9 @@ Run: `python3 -m unittest scripts/test_jvm_release_contract.py -v`
 
 Expected: 두 workflow가 두 checker를 모두 호출하므로 전체 정적 테스트가 통과한다.
 
+PR의 `test-io-http` job은 두 Jib task와 두 `docker image inspect`를 직접 실행해
+WebFlux 이미지가 HTTP 이미지와 같은 release boundary를 지키는지도 고정한다.
+
 ### Task 5: 직접 검증을 수행하고 작업 단위를 커밋한다
 
 **Files:**
@@ -318,6 +376,8 @@ Expected: 두 workflow가 두 checker를 모두 호출하므로 전체 정적 �
 - Test: `scripts/check-jvm-release-contract.sh`
 - Test: `.github/workflows/ci.yml`, `.github/workflows/release.yml`
 - Test: `README.md`, `README.ko.md`, `CHANGELOG.md`
+- Test: `testing/mock-web-server/build.gradle.kts`, `testing/mock-webflux-server/build.gradle.kts`
+- Test: `testing/testcontainers/README.md`, `testing/testcontainers/README.ko.md`
 
 - [x] **Step 1: 정적·정책 검증을 실행한다**
 
@@ -326,6 +386,16 @@ Run:
 ```bash
 python3 -m unittest scripts/test_jvm_release_contract.py -v
 python3 -m unittest scripts/test_release_workflow_policy.py -v
+./gradlew :bluetape4k-mock-web-server:jibDockerBuild --no-configuration-cache
+./gradlew :bluetape4k-mock-webflux-server:jibDockerBuild --no-configuration-cache
+./gradlew :bluetape4k-mock-web-server:jibDockerBuild \
+  -PsnapshotVersion=-SNAPSHOT --no-configuration-cache
+./gradlew :bluetape4k-mock-webflux-server:jibDockerBuild \
+  -PsnapshotVersion=-SNAPSHOT --no-configuration-cache
+docker image inspect bluetape4k/mock-web-server:2.0.0 \
+  bluetape4k/mock-web-server:2.0.0-SNAPSHOT
+docker image inspect bluetape4k/mock-webflux-server:2.0.0 \
+  bluetape4k/mock-webflux-server:2.0.0-SNAPSHOT
 ```
 
 Expected: 두 unittest suite 모두 실패 없이 종료한다.
@@ -414,6 +484,6 @@ PR #1의 exact head, required checks, reviews/threads, mergeability, linked issu
 
 ## Plan self-review checklist
 
-- Spec coverage: version/JVM target은 Task 2, 문서는 Task 2, 정적 contract는 Task 1, classfile contract는 Task 3, CI/release hook은 Task 4, migration/DoD/handoff는 Task 5–6에서 다룬다.
+- Spec coverage: version/JVM target은 Task 2, mock server image tag는 Task 2b, 문서는 Task 2, 정적 contract는 Task 1, classfile contract는 Task 3, CI/release hook은 Task 4, migration/DoD/handoff는 Task 5–6에서 다룬다.
 - Placeholder scan: 미해결 placeholder나 모호한 구현 지시를 사용하지 않고 정확한 경로·marker·명령·기대 결과를 고정했다.
 - Type consistency: README/CHANGELOG marker는 `issue-1335-java25-semver`, 대표 classfile은 `PropertyExportingServer`/`Jdk21StructuredTaskScopeProvider`/`Jdk25StructuredTaskScopeProvider`, module set은 설계 문서와 동일하다.

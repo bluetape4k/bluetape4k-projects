@@ -62,6 +62,7 @@ tasks.withType<com.google.cloud.tools.jib.gradle.BuildImageTask>().configureEach
 
 // 멀티 플랫폼 여부: -PjibMultiPlatform=true 로 활성화 (CI/CD registry push 전용)
 val jibMultiPlatform = project.hasProperty("jibMultiPlatform")
+val baseVersionTag = providers.gradleProperty("baseVersion").get()
 
 // 호스트 아키텍처 감지: aarch64 = arm64 (Apple Silicon), 그 외 = amd64
 val hostArch = when (System.getProperty("os.arch")) {
@@ -83,7 +84,7 @@ jib {
     }
     to {
         image = "bluetape4k/mock-web-server"
-        tags = setOf("latest", project.version.toString())
+        tags = setOf("latest", baseVersionTag, project.version.toString())
     }
     container {
         ports = listOf("80", "8443")
