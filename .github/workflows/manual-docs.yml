@@ -69,8 +69,5 @@ jobs:
           ruby scripts/manual/sync_navigation_metadata.rb --check
           ruby scripts/manual/export_manifest.rb --check
 
-      - name: Validate 1.11 release provenance
-        run: >-
-          ruby scripts/manual/validate_release_manuals.rb
-          1.11.0
-          6187173b58e8b4c5c435c145e00e94708f31ef75
+      - name: Validate manifest release provenance
+        run: ruby scripts/manual/validate_release_manuals.rb --manifest docs/manual/manifest.yaml
