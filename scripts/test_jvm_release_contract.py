@@ -55,6 +55,22 @@ class JvmReleaseContractTest(unittest.TestCase):
         )
         self.assertIn("options.release.set(javaCompatibilityVersion)", build)
 
+    def test_local_mock_server_image_tags_follow_release_version(self) -> None:
+        properties = read("gradle.properties")
+        version = re.search(r"(?m)^baseVersion=([^\n]+)$", properties)
+        self.assertIsNotNone(version)
+        release_version = version.group(1)
+        for source_path in (
+            "testing/testcontainers/src/main/kotlin/io/bluetape4k/testcontainers/http/BluetapeHttpServer.kt",
+            "testing/testcontainers/src/main/kotlin/io/bluetape4k/testcontainers/http/BluetapeWebfluxServer.kt",
+        ):
+            source = read(source_path)
+            self.assertRegex(
+                source,
+                rf'(?m)^\s*const val TAG = "{re.escape(release_version)}"$',
+                msg=f"stale mock-server image tag in {source_path}",
+            )
+
     def test_readme_locales_share_the_migration_contract(self) -> None:
         english = block(read("README.md"))
         korean = block(read("README.ko.md"))

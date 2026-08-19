@@ -44,7 +44,7 @@ class BluetapeHttpServer private constructor(
         const val IMAGE = "bluetape4k/mock-web-server"
 
         /** Docker 이미지 태그 */
-        const val TAG = "1.13.0"
+        const val TAG = "2.0.0"
 
         /** 서버 이름 (시스템 프로퍼티 네임스페이스로 사용됨) */
         const val NAME = "bluetape-http"
