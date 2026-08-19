@@ -59,10 +59,11 @@ metadata를 같은 변경에서 동기화하는 것이다.
   link는 relative로 유지한다.
 - Release contract validator를 실행해 모든 relative source와 test target이 문서화된 release
   commit에 존재함을 증명한다.
-- Validator는 해당 release에 `sourceDir`이 없는 manifest module에서 snapshot-only manual을
+- Validator는 해당 release에 `sourceDir`이 없는 manifest module에서 release source가 없는
+  기준 데이터 전용 매뉴얼을
   도출한다. Release tree에 존재하는 module에 대해 manual skip list를 추가하거나 link check를
   약화하지 않는다.
-- Public-site snapshot publisher는 repository-relative link를 immutable release tag 또는 commit으로
+- Public-site 불변 게시기는 repository-relative link를 immutable release tag 또는 commit으로
   rewrite해야 한다. Deployment 전에 대표 generated URL을 검증한다. `develop` link는 release
   provenance가 아니다.
 - Generated consumer example에는 central `bluetape4k-dependencies` BOM만 사용한다. Repository-local
@@ -77,7 +78,7 @@ metadata를 같은 변경에서 동기화하는 것이다.
 ./gradlew exportManualModuleInventory --no-configuration-cache
 ruby scripts/manual/validate_manuals.rb
 ruby scripts/manual/export_manifest.rb --check
-ruby scripts/manual/validate_release_manuals.rb 1.11.0 6187173b58e8b4c5c435c145e00e94708f31ef75
+ruby scripts/manual/validate_release_manuals.rb --manifest docs/manual/manifest.yaml
 git diff --check
 rg -n "<old-module-name>|<old-artifact-name>|<old-path>"
 rg -n "<new-module-name>|<new-artifact-name>" README.md README.ko.md AGENTS.md

@@ -297,6 +297,62 @@ class ReleaseContractTest < Minitest::Test
     end
   end
 
+  def test_cli_reads_release_provenance_from_the_manifest
+    with_repository do |root, sha|
+      write_manual(root, "[Present](../../../../src/present.kt)\n")
+      write_file(root, "docs/manual/manifest.yaml", <<~YAML)
+        releaseRef: 1.11.0
+        releaseCommit: #{sha}
+      YAML
+      validator_script = install_validator_scripts(root)
+
+      stdout, stderr, status = Open3.capture3(
+        RbConfig.ruby,
+        validator_script,
+        "--manifest",
+        "docs/manual/manifest.yaml",
+        chdir: root,
+      )
+
+      assert status.success?, stderr
+      assert_equal "Release manuals are compatible with 1.11.0 (#{sha}): 1 checked, 0 missing.\n", stdout
+      assert_empty stderr
+    end
+  end
+
+  def test_cli_rejects_release_provenance_that_differs_from_the_manifest
+    with_repository do |root, sha|
+      write_manual(root, "[Present](../../../../src/present.kt)\n")
+      write_file(root, "docs/manual/manifest.yaml", <<~YAML)
+        releaseRef: 1.11.0
+        releaseCommit: #{sha}
+      YAML
+      validator_script = install_validator_scripts(root)
+
+      stdout, stderr, status = Open3.capture3(
+        RbConfig.ruby,
+        validator_script,
+        "--manifest",
+        "docs/manual/manifest.yaml",
+        "1.11.0",
+        "b" * 40,
+        chdir: root,
+      )
+
+      refute status.success?
+      assert_empty stdout
+      assert_includes stderr, "manual manifest release provenance mismatch"
+    end
+  end
+
+  def test_manual_workflow_delegates_release_provenance_to_the_manifest
+    workflow = File.read(File.expand_path("../../.github/workflows/manual-docs.yml", __dir__))
+
+    assert_includes workflow, "ruby scripts/manual/validate_release_manuals.rb --manifest docs/manual/manifest.yaml"
+    refute_includes workflow, "1.11.0"
+    refute_includes workflow, "6187173b58e8b4c5c435c145e00e94708f31ef75"
+  end
+
   def test_accepts_a_release_directory_when_the_inventory_contains_descendants
     runner = lambda do |arguments|
       case arguments.first
