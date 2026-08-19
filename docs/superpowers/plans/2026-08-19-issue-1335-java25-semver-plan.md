@@ -29,7 +29,7 @@
 - Create: `scripts/test_jvm_release_contract.py`
 - Test: `scripts/test_jvm_release_contract.py`
 
-- [ ] **Step 1: 현재 상태에서 실패하는 계약 테스트를 작성한다**
+- [x] **Step 1: 현재 상태에서 실패하는 계약 테스트를 작성한다**
 
 `scripts/test_jvm_release_contract.py`는 아래 구현을 사용한다. Marker 추출은 README/CHANGELOG의 계약 범위만 읽고, module set은 `build.gradle.kts`의 중앙 선언만 읽는다.
 
@@ -114,13 +114,13 @@ if __name__ == "__main__":
     unittest.main()
 ```
 
-- [ ] **Step 2: 테스트가 현재 base에서 실패하는지 확인한다**
+- [x] **Step 2: 테스트가 현재 base에서 실패하는지 확인한다**
 
 Run: `python3 -m unittest scripts/test_jvm_release_contract.py -v`
 
 Expected: 현재 `baseVersion=1.13.0`과 marker/workflow 부재 때문에 실패한다. 이 실패는 구현 전 red 상태를 증명한다.
 
-- [ ] **Step 3: 정적 테스트 파일 자체의 문법을 확인한다**
+- [x] **Step 3: 정적 테스트 파일 자체의 문법을 확인한다**
 
 Run: `python3 -m py_compile scripts/test_jvm_release_contract.py`
 
@@ -134,7 +134,7 @@ Expected: exit code `0`; 생성된 `__pycache__`는 커밋하지 않는다.
 - Modify: `README.ko.md` (기술 스택 뒤, 배포 예제)
 - Modify: `CHANGELOG.md` (최상단 release entry 앞)
 
-- [ ] **Step 1: version source를 2.0.0으로 변경한다**
+- [x] **Step 1: version source를 2.0.0으로 변경한다**
 
 `gradle.properties`에서 다음 두 줄을 정확히 유지한다.
 
@@ -145,7 +145,7 @@ snapshotVersion=
 
 `build.gradle.kts`의 publication 계산과 Java target 중앙 설정은 수정하지 않는다.
 
-- [ ] **Step 2: 영어 README에 계약 marker와 migration 문단을 추가한다**
+- [x] **Step 2: 영어 README에 계약 marker와 migration 문단을 추가한다**
 
 Tech Stack 섹션 뒤에 다음 marker block을 추가한다.
 
@@ -168,11 +168,11 @@ the same classpath.
 
 Publishing 예제의 `baseVersion=1.11.0`을 `baseVersion=2.0.0`으로 바꾼다.
 
-- [ ] **Step 3: 한국어 README에 의미가 같은 marker와 migration 문단을 추가한다**
+- [x] **Step 3: 한국어 README에 의미가 같은 marker와 migration 문단을 추가한다**
 
 동일한 marker를 사용하고 한국어로 Java 25 일반 artifact, 다섯 모듈 Java 21 섬, `2.0.0`/`1.13.x` 선택지를 설명한다. Publishing 예제의 `baseVersion=1.11.0`은 `baseVersion=2.0.0`으로 바꾼다.
 
-- [ ] **Step 4: CHANGELOG에 배포 전 호환성 변경을 기록한다**
+- [x] **Step 4: CHANGELOG에 배포 전 호환성 변경을 기록한다**
 
 파일 최상단의 최신 release heading 앞에 실제 날짜가 없는 다음 block을 추가한다.
 
@@ -191,7 +191,7 @@ Publishing 예제의 `baseVersion=1.11.0`을 `baseVersion=2.0.0`으로 바꾼다
 <!-- issue-1335-java25-semver:end -->
 ```
 
-- [ ] **Step 5: 정적 contract test를 다시 실행한다**
+- [x] **Step 5: 정적 contract test를 다시 실행한다**
 
 Run: `python3 -m unittest scripts/test_jvm_release_contract.py -v`
 
@@ -203,7 +203,7 @@ Expected: version/module/document 검사는 통과하고, classfile/workflow 검
 - Create: `scripts/check-jvm-release-contract.sh`
 - Test: `scripts/check-jvm-release-contract.sh`
 
-- [ ] **Step 1: shell checker를 작성한다**
+- [x] **Step 1: shell checker를 작성한다**
 
 아래 구현은 compile task와 representative classfile path를 한 곳에서 고정한다.
 
@@ -245,7 +245,7 @@ assert_major "$JAVA21_CLASS" 65
 assert_major "$JAVA25_CLASS" 69
 ```
 
-- [ ] **Step 2: 실행 권한과 shell 문법을 검증한다**
+- [x] **Step 2: 실행 권한과 shell 문법을 검증한다**
 
 Run:
 
@@ -256,7 +256,7 @@ bash -n scripts/check-jvm-release-contract.sh
 
 Expected: `bash -n` exit code `0`; 실행 권한 변경은 같은 commit에 포함한다.
 
-- [ ] **Step 3: classfile checker를 실행한다**
+- [x] **Step 3: classfile checker를 실행한다**
 
 Run: `./scripts/check-jvm-release-contract.sh`
 
@@ -268,7 +268,7 @@ Expected: 세 대표 classfile이 각각 `major=69`, `major=65`, `major=69`로 �
 - Modify: `.github/workflows/ci.yml` (jobs 아래 `jvm-release-contract` 추가)
 - Modify: `.github/workflows/release.yml` (Java setup/Gradle setup 뒤, publication metadata 앞)
 
-- [ ] **Step 1: CI에 독립 JVM release contract job을 추가한다**
+- [x] **Step 1: CI에 독립 JVM release contract job을 추가한다**
 
 `release-policy` job과 같은 checkout 정책을 사용하고 Java 25와 Gradle wrapper를 준비한 뒤 두 검사를 순서대로 실행한다.
 
@@ -292,7 +292,7 @@ Expected: 세 대표 classfile이 각각 `major=69`, `major=65`, `major=69`로 �
         run: ./scripts/check-jvm-release-contract.sh
 ```
 
-- [ ] **Step 2: release workflow publish 전에 같은 검증을 추가한다**
+- [x] **Step 2: release workflow publish 전에 같은 검증을 추가한다**
 
 기존 `actions/setup-java`와 `gradle/actions/setup-gradle` 직후에 다음 단계를 둔다.
 
@@ -305,7 +305,7 @@ Expected: 세 대표 classfile이 각각 `major=69`, `major=65`, `major=69`로 �
 
 이 단계는 기존 `Verify gradle.properties matches tag`, publication metadata validation, `nmcpPublishAggregationToCentralPortal` 순서를 유지하면서 publish 직전에 추가된다. signing credential이나 GitHub release 생성은 호출하지 않는다.
 
-- [ ] **Step 3: workflow hook 정적 테스트를 실행한다**
+- [x] **Step 3: workflow hook 정적 테스트를 실행한다**
 
 Run: `python3 -m unittest scripts/test_jvm_release_contract.py -v`
 
@@ -319,7 +319,7 @@ Expected: 두 workflow가 두 checker를 모두 호출하므로 전체 정적 �
 - Test: `.github/workflows/ci.yml`, `.github/workflows/release.yml`
 - Test: `README.md`, `README.ko.md`, `CHANGELOG.md`
 
-- [ ] **Step 1: 정적·정책 검증을 실행한다**
+- [x] **Step 1: 정적·정책 검증을 실행한다**
 
 Run:
 
@@ -330,13 +330,13 @@ python3 -m unittest scripts/test_release_workflow_policy.py -v
 
 Expected: 두 unittest suite 모두 실패 없이 종료한다.
 
-- [ ] **Step 2: classfile 및 targeted compile을 실행한다**
+- [x] **Step 2: classfile 및 targeted compile을 실행한다**
 
 Run: `./scripts/check-jvm-release-contract.sh`
 
 Expected: Gradle compile이 성공하고 representative classfile major가 `69/65/69`로 출력된다.
 
-- [ ] **Step 3: 문서·diff 품질 검사를 실행한다**
+- [x] **Step 3: 문서·diff 품질 검사를 실행한다**
 
 Run:
 
@@ -350,21 +350,21 @@ node ~/.codex/skills/bluetape-writer/scripts/audit-korean-terms.mjs \
 
 Expected: whitespace 오류와 한국어 용어 감사 finding이 없다.
 
-- [ ] **Step 4: 첫 번째 구현 커밋을 만든다**
+- [x] **Step 4: 첫 번째 구현 커밋을 만든다**
 
 ```bash
 git add scripts/test_jvm_release_contract.py gradle.properties README.md README.ko.md CHANGELOG.md
 git commit -m "2.0.0 Java 호환성 계약을 문서와 테스트에 반영한다" -m "#1335의 runtime floor 상승을 version source와 reader-facing migration contract로 고정한다.\n\nConstraint: 일반 artifact는 Java 25이고 Java 21 호환성은 다섯 모듈로 제한된다\nRejected: published target을 분리해 1.13.0을 유지하는 안은 이번 Slot 범위를 넘어선다\nConfidence: high\nScope-risk: narrow\nDirective: 후속 #1339는 이 커밋의 선행 merge head에서만 시작한다\nTested: scripts/test_jvm_release_contract.py, git diff --check\nNot-tested: classfile checker와 hosted CI는 다음 커밋/검증 단계에서 실행한다"
 ```
 
-- [ ] **Step 5: 두 번째 구현 커밋을 만든다**
+- [x] **Step 5: 두 번째 구현 커밋을 만든다**
 
 ```bash
 git add scripts/check-jvm-release-contract.sh .github/workflows/ci.yml .github/workflows/release.yml
 git commit -m "Java 25 classfile 계약을 CI와 release workflow에 연결한다" -m "publish 전에 version/document contract와 실제 classfile major를 함께 검증한다.\n\nConstraint: release workflow는 기존 tag, credential, Maven-only policy를 보존해야 한다\nRejected: 문서-only 검증은 잘못된 classfile target을 탐지하지 못하므로 제외했다\nConfidence: high\nScope-risk: narrow\nDirective: publish side effect보다 앞에서 계약 검증을 실패시켜야 한다\nTested: JVM release contract, release workflow policy, targeted Gradle compile\nNot-tested: hosted GitHub Actions 실행 결과는 PR CI에서 확인한다"
 ```
 
-- [ ] **Step 6: final local state를 확인한다**
+- [x] **Step 6: final local state를 확인한다**
 
 Run: `git status --short --branch && git log -2 --oneline`
 
@@ -375,7 +375,7 @@ Expected: worktree가 clean이고 두 구현 커밋이 설계·plan 커밋 위�
 **Files:**
 - Modify: PR body only after PR creation, with `## DoD Status` as the final heading.
 
-- [ ] **Step 1: exact base/head와 issue metadata를 재조회한다**
+- [x] **Step 1: exact base/head와 issue metadata를 재조회한다**
 
 Run:
 
