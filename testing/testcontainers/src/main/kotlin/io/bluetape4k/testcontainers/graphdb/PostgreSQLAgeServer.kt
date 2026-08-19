@@ -75,7 +75,7 @@ class PostgreSQLAgeServer private constructor(
          * [PostgreSQLAgeServer]를 생성합니다.
          *
          * @param image Docker 이미지 (기본: `apache/age`)
-         * @param tag Docker 이미지 태그 (기본: `release_PG17_1.6.0`)
+         * @param tag Docker 이미지 태그 (기본: [TAG])
          * @param useDefaultPort 기본 포트를 사용할지 여부 (기본: `false`)
          * @param reuse 재사용 여부 (기본: `false`)
          */

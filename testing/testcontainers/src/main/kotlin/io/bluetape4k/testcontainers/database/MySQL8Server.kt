@@ -48,7 +48,7 @@ class MySQL8Server private constructor(
          * ```
          *
          * @param image             docker image (기본: `mysql`)
-         * @param tag               docker image tag (기본: `8.4`)
+         * @param tag               docker image tag (기본: [TAG])
          * @param useDefaultPort    기본 포트를 사용할지 여부 (기본: `false`)
          * @param reuse             재사용 여부 (기본: `false`)
          * @param username          사용자 이름 (기본: `test`)

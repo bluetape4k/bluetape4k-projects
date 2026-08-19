@@ -52,7 +52,7 @@ class MongoDBServer private constructor(
          * - 컨테이너 시작은 수행하지 않고 새 인스턴스만 반환합니다.
          *
          * ```kotlin
-         * val server = MongoDBServer(image = "mongo", tag = "8", databaseName = "app")
+         * val server = MongoDBServer(image = "mongo", tag = TAG, databaseName = "app")
          * // server.url.contains("/app") == true
          * ```
          *

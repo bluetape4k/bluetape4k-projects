@@ -44,7 +44,7 @@ class CockroachServer private constructor(
          * ```
          *
          * @param image docker image (기본: `cockroachdb/cockroach`)
-         * @param tag docker image tag (기본: `v22.2.8`)
+         * @param tag docker image tag (기본: [TAG])
          * @param username 사용자 이름 (기본: `test`)
          * @param password 비밀번호 (기본: `test`)
          * @param useDefaultPort 기본 포트를 사용할지 여부 (기본: `false`)
@@ -75,7 +75,7 @@ class CockroachServer private constructor(
          * // server.isRunning == false
          * ```
          *
-         * @param imageName docker image name (eg: `cockroachdb/cockroach:v22.2.8`)
+         * @param imageName docker image name (예: `cockroachdb/cockroach:TAG`)
          * @param username 사용자 이름 (기본: `test`)
          * @param password 비밀번호 (기본: `test`)
          * @param useDefaultPort 기본 포트를 사용할지 여부 (기본: `false`)

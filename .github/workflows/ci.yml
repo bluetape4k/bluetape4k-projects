@@ -64,6 +64,9 @@ jobs:
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: '3.12'
       - uses: actions/setup-java@v5.7.0
         with:
           java-version: ${{ env.JAVA_VERSION }}
@@ -73,6 +76,8 @@ jobs:
           gradle-version: wrapper
       - name: Verify static JVM release contract
         run: python3 -m unittest scripts/test_jvm_release_contract.py -v
+      - name: Verify Testcontainers image-tag and documentation contract
+        run: python3 -m unittest scripts/test_testcontainers_contract.py -v
       - name: Verify compiled classfile contract
         run: ./scripts/check-jvm-release-contract.sh
 

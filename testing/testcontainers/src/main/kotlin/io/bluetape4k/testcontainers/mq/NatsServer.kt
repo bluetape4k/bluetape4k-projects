@@ -67,7 +67,7 @@ class NatsServer private constructor(
          * - 컨테이너 시작은 호출자가 `start()`로 수행해야 합니다.
          *
          * ```kotlin
-         * val server = NatsServer(image = "nats", tag = "2.10")
+         * val server = NatsServer(image = "nats", tag = TAG)
          * // server.url.startsWith("nats://") == true
          * ```
          */

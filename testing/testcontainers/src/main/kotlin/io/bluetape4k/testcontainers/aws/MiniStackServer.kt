@@ -22,7 +22,8 @@ import java.time.Duration
  *
  * - Docker 이미지: `ministackorg/ministack:1.4.14` (~270MB, ~30MB RAM, ~2초 기동)
  * - 헬스 엔드포인트: `/_ministack/health`
- * - KMS 전 기능 지원 (DisableKey/EnableKey/Grant 포함)
+ * - KMS 핵심 기능 지원 (DisableKey/EnableKey 등)
+ * - KMS Grant API(`CreateGrant`, `ListGrants`, `RevokeGrant`)는 고정 태그에서 미지원
  * - DynamoDB GSI Pagination 지원
  *
  * MiniStack은 모든 AWS 서비스를 항상 활성화합니다.

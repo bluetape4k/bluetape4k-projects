@@ -67,7 +67,7 @@ class RedisServer private constructor(
          * - 컨테이너 시작은 수행하지 않습니다.
          *
          * ```kotlin
-         * val server = RedisServer(image = "redis", tag = "8")
+         * val server = RedisServer(image = "redis", tag = TAG)
          * // server.port > 0
          * ```
          */
@@ -155,7 +155,7 @@ class RedisServer private constructor(
                     start()
                     ShutdownQueue.register(this)
 
-                    // Redisson 을 사용하는 경우에만 warm up 을 수행한다 
+                    // Redisson 을 사용하는 경우에만 warm up 을 수행한다
                     if (classIsPresent("org.redisson.Redisson")) {
                         // Testcontainers 첫 실행 시 Docker 포트 프록시가 완전히 준비되기 전에
                         // Redisson pub/sub 채널을 열면 StacklessClosedChannelException이 발생합니다.

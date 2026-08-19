@@ -59,7 +59,7 @@ class CassandraServer private constructor(
          * 이미지 이름/태그로 [CassandraServer] 인스턴스를 생성합니다.
          *
          * ```kotlin
-         * val server = CassandraServer(image = "cassandra", tag = "5")
+         * val server = CassandraServer(image = "cassandra", tag = TAG)
          * // server.cqlPort > 0 (시작 후)
          * ```
          *
@@ -86,7 +86,7 @@ class CassandraServer private constructor(
          * [DockerImageName]으로 [CassandraServer] 인스턴스를 생성합니다.
          *
          * ```kotlin
-         * val image = DockerImageName.parse("cassandra").withTag("5")
+         * val image = DockerImageName.parse("cassandra").withTag(TAG)
          * val server = CassandraServer(image)
          * // server.isRunning == false
          * ```

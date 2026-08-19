@@ -41,7 +41,7 @@ class JaegerServer private constructor(
          * [DockerImageName]으로 [JaegerServer] 인스턴스를 생성합니다.
          *
          * ```kotlin
-         * val image = DockerImageName.parse("jaegertracing/all-in-one").withTag("1")
+         * val image = DockerImageName.parse("jaegertracing/all-in-one").withTag(TAG)
          * val server = JaegerServer(image)
          * // server.isRunning == false
          * ```
@@ -63,7 +63,7 @@ class JaegerServer private constructor(
          * 이미지 이름/태그로 [JaegerServer] 인스턴스를 생성합니다.
          *
          * ```kotlin
-         * val server = JaegerServer(image = "jaegertracing/all-in-one", tag = "1")
+         * val server = JaegerServer(image = "jaegertracing/all-in-one", tag = TAG)
          * // server.url.startsWith("http://") == true (시작 후)
          * ```
          *

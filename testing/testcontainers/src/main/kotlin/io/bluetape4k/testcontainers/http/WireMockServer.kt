@@ -53,7 +53,7 @@ class WireMockServer private constructor(
          * [WireMockServer]를 생성합니다.
          *
          * @param image         Docker 이미지 이름 (기본: `wiremock/wiremock`)
-         * @param tag           Docker 이미지 태그 (기본: `3.13.2`)
+         * @param tag           Docker 이미지 태그 (기본: [TAG])
          * @param useDefaultPort 기본 HTTP 포트를 사용할지 여부 (기본: `false`)
          * @param reuse         컨테이너 재사용 여부 (기본: `false`)
          */

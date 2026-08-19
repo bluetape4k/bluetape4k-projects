@@ -49,7 +49,7 @@ class ElasticsearchOssServer private constructor(
          * - 이 함수는 컨테이너를 시작하지 않습니다.
          *
          * ```kotlin
-         * val server = ElasticsearchOssServer(image = ElasticsearchOssServer.IMAGE, tag = "7.10.2")
+         * val server = ElasticsearchOssServer(image = ElasticsearchOssServer.IMAGE, tag = TAG)
          * // server.isRunning == false
          * ```
          *
@@ -80,7 +80,7 @@ class ElasticsearchOssServer private constructor(
          * - 컨테이너 시작은 호출자가 `start()`를 직접 호출해야 합니다.
          *
          * ```kotlin
-         * val image = DockerImageName.parse(ElasticsearchOssServer.IMAGE).withTag("7.10.2")
+         * val image = DockerImageName.parse(ElasticsearchOssServer.IMAGE).withTag(TAG)
          * val server = ElasticsearchOssServer(image)
          * // server.port > 0
          * ```

@@ -35,7 +35,7 @@ class ZipkinServer private constructor(
          * [DockerImageName]으로 [ZipkinServer] 인스턴스를 생성합니다.
          *
          * ```kotlin
-         * val image = DockerImageName.parse("openzipkin/zipkin-slim").withTag("2.23")
+         * val image = DockerImageName.parse("openzipkin/zipkin-slim").withTag(TAG)
          * val server = ZipkinServer(image)
          * // server.isRunning == false
          * ```
@@ -57,7 +57,7 @@ class ZipkinServer private constructor(
          * 이미지 이름/태그로 [ZipkinServer] 인스턴스를 생성합니다.
          *
          * ```kotlin
-         * val server = ZipkinServer(image = "openzipkin/zipkin-slim", tag = "2.23")
+         * val server = ZipkinServer(image = "openzipkin/zipkin-slim", tag = TAG)
          * // server.url.startsWith("http://") == true (시작 후)
          * ```
          *
