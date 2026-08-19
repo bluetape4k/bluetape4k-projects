@@ -368,7 +368,7 @@ git commit -m "Java 25 classfile 계약을 CI와 release workflow에 연결한�
 
 Run: `git status --short --branch && git log -2 --oneline`
 
-Expected: worktree가 clean이고 두 구현 커밋이 설계 커밋 위에 있으며 branch가 `origin/develop`보다 정확히 세 commit 앞선다(설계 1 + 구현 2).
+Expected: worktree가 clean이고 두 구현 커밋이 설계·plan 커밋 위에 있으며 branch가 `origin/develop`보다 최소 네 commit 앞선다(설계 1 + plan 1 + 구현 2; writer audit 보정이 있으면 추가 commit을 허용한다).
 
 ### Task 6: PR train handoff 증거를 준비한다
 

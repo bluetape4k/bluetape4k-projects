@@ -33,7 +33,7 @@
   ([#1424](https://github.com/bluetape4k/bluetape4k-projects/issues/1424)).
 - Maven Central에 없는 benchmark 또는 application 전용 모듈이 BOM에 포함되지 않도록 publication과 BOM module classifier를 통일했다. 생성한 BOM inventory와 publication POM inventory가 다르면 publication validation이 실패한다
   ([#1313](https://github.com/bluetape4k/bluetape4k-projects/issues/1313)).
-- Java platform은 library publication 설정 밖에 두되 `Bluetape4k` publication을 NMCP aggregate에 포함했다. 따라서 snapshot과 stable bundle은 74개 publishable library module과 함께 BOM을 포함한다
+- Java platform은 library publication 설정 밖에 두되 `Bluetape4k` publication을 NMCP aggregate에 포함했다. 따라서 `snapshot`과 stable bundle은 74개 publishable library module과 함께 BOM을 포함한다
   ([#1315](https://github.com/bluetape4k/bluetape4k-projects/issues/1315)).
 
 ## [1.12.0] — 2026-08-05
@@ -256,7 +256,7 @@
   client surface after the 1.9.2 design evaluation
   ([#586](https://github.com/bluetape4k/bluetape4k-projects/issues/586)).
 - The default bluetape4k dependency catalog source was pinned to the current
-  release-train catalog ref for repeatable snapshot and release validation.
+  release-train catalog ref for repeatable `snapshot` and release validation.
 
 ### 버그 수정
 
