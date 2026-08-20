@@ -21,6 +21,10 @@ artifact를 다시 다운로드한 뒤 aggregate artifact를 같은 이름 계�
   되지 않게 한다.
 - aggregate 단계가 성공한 경우에만 Coveralls 파일 목록과 업로드를 실행해,
   집계 실패 뒤 partial report가 외부 서비스로 전송되지 않게 한다.
+- Coveralls 잔여 실패를 수정할 때는 exact parent head의 모듈 Kover line
+  counter를 기준선으로 고정하고, 같은 명령의 candidate counter와 비교한다.
+  이 차이는 보강할 테스트 범위를 정하는 근거이며, 최종 판정은 hosted
+  Coveralls 결과로 내린다.
 - CI와 nightly의 모든 Kover 생성 단계는 실패를 무시하지 않아 partial report를
   성공 결과로 남기지 않는다. nightly도 `aggregate-nightly-coverage-all`을 raw 패턴 밖으로 분리하고,
   Infra 13개 모듈의 expected manifest를 집계기에 전달한다. Redis
@@ -39,6 +43,11 @@ Coverage percentage threshold를 완화하거나 Coveralls 실패를 N/A로 바�
 - `ruby scripts/validate-ci-kafka4-coverage.rb`: 통과
 - CodeQL/Testcontainers 정책 unittest: 9개 통과
 - `git diff --check`: 통과
+- #1459 local parent line counter: missed 1,226 / covered 7,901 / 86.5673%
+- #1459 candidate line counter: missed 1,078 / covered 8,049 / 88.1889%
+  (`:bluetape4k-lettuce:test`, topology recovery, Kover를 직렬 재실행하고
+  별도 성능 특성화 task는 제외)
+- #1459 production covered line 순증가: 148
 
 새 commit의 hosted CI와 Coveralls 결과는 push 후 exact head에서 다시 확인한다.
 
@@ -52,3 +61,10 @@ artifact 교체만 보장하므로, 다운로드 패턴과 aggregate 이름이 �
 새 coverage job이나 module을 추가할 때는 expected job manifest, expected
 module manifest, raw/aggregate artifact 이름을 함께 검토하고, fixture에
 누락·빈 report와 재실행 중복 경계를 유지한다.
+
+종료 후 `Closed` 계약만 추가한 첫 보강은 covered line을 21개 늘리는 데
+그쳤다. 잔여치를 수치화하지 않았다면 충분하지 않은 테스트를 다시 push할
+수 있었다. 실제 connection failure와 deterministic executor failure를 함께
+검증해 sync/async/suspend의 backend·integrity 분류를 고정한 뒤에야 순증가가
+148개가 됐다. 반대로 성능 특성화 task의 probe 오류는 일반 테스트와 Kover
+생성 실패로 합치지 않고 별도 신호로 기록해야 한다.
