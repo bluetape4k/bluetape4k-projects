@@ -12,11 +12,13 @@ import io.lettuce.core.codec.StringCodec
 import kotlinx.coroutines.future.await
 import org.junit.jupiter.api.Test
 import java.time.Duration
+import java.util.concurrent.CancellationException
 
 /**
  * 공개 lock adapter가 종료 이후 모든 실행 모델에서 동일한 terminal 결과를
  * 유지하는지 검증합니다.
  */
+@Suppress("LargeClass")
 internal class LettuceClosedLockCoverageTest {
 
     @Test
@@ -73,8 +75,14 @@ internal class LettuceClosedLockCoverageTest {
                 fun cleanup(block: () -> Unit) {
                     try {
                         block()
-                    } catch (failure: Throwable) {
-                        cleanupFailures += failure
+                    } catch (failure: Exception) {
+                        if (failure is CancellationException) {
+                            bodyFailure?.addSuppressed(failure) ?: throw failure
+                        } else {
+                            cleanupFailures += failure
+                        }
+                    } catch (failure: Error) {
+                        bodyFailure?.addSuppressed(failure) ?: throw failure
                     }
                 }
                 cleanup { blocking?.close() }
@@ -140,8 +148,14 @@ internal class LettuceClosedLockCoverageTest {
                 fun cleanup(block: () -> Unit) {
                     try {
                         block()
-                    } catch (failure: Throwable) {
-                        cleanupFailures += failure
+                    } catch (failure: Exception) {
+                        if (failure is CancellationException) {
+                            bodyFailure?.addSuppressed(failure) ?: throw failure
+                        } else {
+                            cleanupFailures += failure
+                        }
+                    } catch (failure: Error) {
+                        bodyFailure?.addSuppressed(failure) ?: throw failure
                     }
                 }
                 cleanup { blocking?.close() }
@@ -194,8 +208,14 @@ internal class LettuceClosedLockCoverageTest {
                 fun cleanup(block: () -> Unit) {
                     try {
                         block()
-                    } catch (failure: Throwable) {
-                        cleanupFailures += failure
+                    } catch (failure: Exception) {
+                        if (failure is CancellationException) {
+                            bodyFailure?.addSuppressed(failure) ?: throw failure
+                        } else {
+                            cleanupFailures += failure
+                        }
+                    } catch (failure: Error) {
+                        bodyFailure?.addSuppressed(failure) ?: throw failure
                     }
                 }
                 cleanup { blocking?.close() }
@@ -244,8 +264,14 @@ internal class LettuceClosedLockCoverageTest {
             fun cleanup(block: () -> Unit) {
                 try {
                     block()
-                } catch (failure: Throwable) {
-                    cleanupFailures += failure
+                } catch (failure: Exception) {
+                    if (failure is CancellationException) {
+                        bodyFailure?.addSuppressed(failure) ?: throw failure
+                    } else {
+                        cleanupFailures += failure
+                    }
+                } catch (failure: Error) {
+                    bodyFailure?.addSuppressed(failure) ?: throw failure
                 }
             }
             cleanup { blocking?.close() }
@@ -265,40 +291,62 @@ internal class LettuceClosedLockCoverageTest {
         blocking: LettuceMultiLock,
         handle: MultiLockHandle,
     ) {
-        blocking.tryAcquire(OWNER_1, REQUEST_1, LEASE)
-            .shouldBeInstanceOf<LockAcquireResult.BackendFailure>()
-        blocking.tryAcquireAsync(OWNER_1, REQUEST_1, LEASE).await()
-            .shouldBeInstanceOf<LockAcquireResult.BackendFailure>()
-        blocking.acquire(OWNER_1, REQUEST_1, WAIT, LEASE)
-            .shouldBeInstanceOf<LockAcquireResult.BackendFailure>()
-        blocking.acquireAsync(OWNER_1, REQUEST_1, WAIT, LEASE).await()
-            .shouldBeInstanceOf<LockAcquireResult.BackendFailure>()
-        blocking.inspect(handle).shouldBeInstanceOf<LockInspectResult.BackendFailure>()
-        blocking.inspectAsync(handle).await().shouldBeInstanceOf<LockInspectResult.BackendFailure>()
-        blocking.reconcile(OWNER_1, REQUEST_1)
-            .shouldBeInstanceOf<LockReconcileResult.BackendFailure>()
-        blocking.reconcileAsync(OWNER_1, REQUEST_1).await()
-            .shouldBeInstanceOf<LockReconcileResult.BackendFailure>()
-        blocking.renew(handle, EXTENSION).shouldBeInstanceOf<LockMutationResult.BackendFailure>()
-        blocking.renewAsync(handle, EXTENSION).await()
-            .shouldBeInstanceOf<LockMutationResult.BackendFailure>()
-        blocking.release(handle).shouldBeInstanceOf<LockMutationResult.BackendFailure>()
-        blocking.releaseAsync(handle).await().shouldBeInstanceOf<LockMutationResult.BackendFailure>()
+        expectBackends(
+            blocking.tryAcquire(OWNER_1, REQUEST_1, LEASE)
+                .shouldBeInstanceOf<LockAcquireResult.BackendFailure>().failure to
+                LockRecoveryAction.RECONCILE_REQUEST,
+            blocking.tryAcquireAsync(OWNER_1, REQUEST_1, LEASE).await()
+                .shouldBeInstanceOf<LockAcquireResult.BackendFailure>().failure to
+                LockRecoveryAction.RECONCILE_REQUEST,
+            blocking.acquire(OWNER_1, REQUEST_1, WAIT, LEASE)
+                .shouldBeInstanceOf<LockAcquireResult.BackendFailure>().failure to
+                LockRecoveryAction.RECONCILE_REQUEST,
+            blocking.acquireAsync(OWNER_1, REQUEST_1, WAIT, LEASE).await()
+                .shouldBeInstanceOf<LockAcquireResult.BackendFailure>().failure to
+                LockRecoveryAction.RECONCILE_REQUEST,
+            blocking.inspect(handle).shouldBeInstanceOf<LockInspectResult.BackendFailure>().failure to
+                LockRecoveryAction.INSPECT_HANDLE,
+            blocking.inspectAsync(handle).await().shouldBeInstanceOf<LockInspectResult.BackendFailure>().failure to
+                LockRecoveryAction.INSPECT_HANDLE,
+            blocking.reconcile(OWNER_1, REQUEST_1)
+                .shouldBeInstanceOf<LockReconcileResult.BackendFailure>().failure to
+                LockRecoveryAction.RECONCILE_REQUEST,
+            blocking.reconcileAsync(OWNER_1, REQUEST_1).await()
+                .shouldBeInstanceOf<LockReconcileResult.BackendFailure>().failure to
+                LockRecoveryAction.RECONCILE_REQUEST,
+            blocking.renew(handle, EXTENSION).shouldBeInstanceOf<LockMutationResult.BackendFailure>().failure to
+                LockRecoveryAction.RETRY_SAME_HANDLE,
+            blocking.renewAsync(handle, EXTENSION).await()
+                .shouldBeInstanceOf<LockMutationResult.BackendFailure>().failure to
+                LockRecoveryAction.RETRY_SAME_HANDLE,
+            blocking.release(handle).shouldBeInstanceOf<LockMutationResult.BackendFailure>().failure to
+                LockRecoveryAction.RETRY_SAME_HANDLE,
+            blocking.releaseAsync(handle).await().shouldBeInstanceOf<LockMutationResult.BackendFailure>().failure to
+                LockRecoveryAction.RETRY_SAME_HANDLE,
+        )
     }
 
     private suspend fun verifySuspendingMultiBackendFailure(
         suspending: LettuceSuspendMultiLock,
         handle: MultiLockHandle,
     ) {
-        suspending.tryAcquire(OWNER_2, REQUEST_2, LEASE)
-            .shouldBeInstanceOf<LockAcquireResult.BackendFailure>()
-        suspending.acquire(OWNER_2, REQUEST_2, WAIT, LEASE)
-            .shouldBeInstanceOf<LockAcquireResult.BackendFailure>()
-        suspending.inspect(handle).shouldBeInstanceOf<LockInspectResult.BackendFailure>()
-        suspending.reconcile(OWNER_2, REQUEST_2)
-            .shouldBeInstanceOf<LockReconcileResult.BackendFailure>()
-        suspending.renew(handle, EXTENSION).shouldBeInstanceOf<LockMutationResult.BackendFailure>()
-        suspending.release(handle).shouldBeInstanceOf<LockMutationResult.BackendFailure>()
+        expectBackends(
+            suspending.tryAcquire(OWNER_2, REQUEST_2, LEASE)
+                .shouldBeInstanceOf<LockAcquireResult.BackendFailure>().failure to
+                LockRecoveryAction.RECONCILE_REQUEST,
+            suspending.acquire(OWNER_2, REQUEST_2, WAIT, LEASE)
+                .shouldBeInstanceOf<LockAcquireResult.BackendFailure>().failure to
+                LockRecoveryAction.RECONCILE_REQUEST,
+            suspending.inspect(handle).shouldBeInstanceOf<LockInspectResult.BackendFailure>().failure to
+                LockRecoveryAction.INSPECT_HANDLE,
+            suspending.reconcile(OWNER_2, REQUEST_2)
+                .shouldBeInstanceOf<LockReconcileResult.BackendFailure>().failure to
+                LockRecoveryAction.RECONCILE_REQUEST,
+            suspending.renew(handle, EXTENSION).shouldBeInstanceOf<LockMutationResult.BackendFailure>().failure to
+                LockRecoveryAction.RETRY_SAME_HANDLE,
+            suspending.release(handle).shouldBeInstanceOf<LockMutationResult.BackendFailure>().failure to
+                LockRecoveryAction.RETRY_SAME_HANDLE,
+        )
     }
 
     @Test
@@ -350,8 +398,14 @@ internal class LettuceClosedLockCoverageTest {
             fun cleanup(block: () -> Unit) {
                 try {
                     block()
-                } catch (failure: Throwable) {
-                    cleanupFailures += failure
+                } catch (failure: Exception) {
+                    if (failure is CancellationException) {
+                        bodyFailure?.addSuppressed(failure) ?: throw failure
+                    } else {
+                        cleanupFailures += failure
+                    }
+                } catch (failure: Error) {
+                    bodyFailure?.addSuppressed(failure) ?: throw failure
                 }
             }
             cleanup { blocking?.close() }
@@ -463,62 +517,124 @@ internal class LettuceClosedLockCoverageTest {
         view: LettuceReadWriteLock.ReadLockView,
         handle: ReadLockHandle,
     ) {
-        view.tryAcquire(OWNER_1, REQUEST_1, LEASE).shouldBeInstanceOf<LockAcquireResult.BackendFailure>()
-        view.tryAcquireAsync(OWNER_1, REQUEST_1, LEASE).await().shouldBeInstanceOf<LockAcquireResult.BackendFailure>()
-        view.acquire(OWNER_1, REQUEST_1, WAIT, LEASE).shouldBeInstanceOf<LockAcquireResult.BackendFailure>()
-        view.acquireAsync(OWNER_1, REQUEST_1, WAIT, LEASE).await()
-            .shouldBeInstanceOf<LockAcquireResult.BackendFailure>()
-        view.inspect(handle).shouldBeInstanceOf<LockInspectResult.BackendFailure>()
-        view.inspectAsync(handle).await().shouldBeInstanceOf<LockInspectResult.BackendFailure>()
-        view.reconcile(OWNER_1, REQUEST_1).shouldBeInstanceOf<LockReconcileResult.BackendFailure>()
-        view.reconcileAsync(OWNER_1, REQUEST_1).await().shouldBeInstanceOf<LockReconcileResult.BackendFailure>()
-        view.renew(handle, EXTENSION).shouldBeInstanceOf<LockMutationResult.BackendFailure>()
-        view.renewAsync(handle, EXTENSION).await().shouldBeInstanceOf<LockMutationResult.BackendFailure>()
-        view.release(handle).shouldBeInstanceOf<LockMutationResult.BackendFailure>()
-        view.releaseAsync(handle).await().shouldBeInstanceOf<LockMutationResult.BackendFailure>()
+        expectBackends(
+            view.tryAcquire(OWNER_1, REQUEST_1, LEASE)
+                .shouldBeInstanceOf<LockAcquireResult.BackendFailure>().failure to
+                LockRecoveryAction.RECONCILE_REQUEST,
+            view.tryAcquireAsync(OWNER_1, REQUEST_1, LEASE).await()
+                .shouldBeInstanceOf<LockAcquireResult.BackendFailure>().failure to
+                LockRecoveryAction.RECONCILE_REQUEST,
+            view.acquire(OWNER_1, REQUEST_1, WAIT, LEASE)
+                .shouldBeInstanceOf<LockAcquireResult.BackendFailure>().failure to
+                LockRecoveryAction.RECONCILE_REQUEST,
+            view.acquireAsync(OWNER_1, REQUEST_1, WAIT, LEASE).await()
+                .shouldBeInstanceOf<LockAcquireResult.BackendFailure>().failure to
+                LockRecoveryAction.RECONCILE_REQUEST,
+            view.inspect(handle).shouldBeInstanceOf<LockInspectResult.BackendFailure>().failure to
+                LockRecoveryAction.INSPECT_HANDLE,
+            view.inspectAsync(handle).await().shouldBeInstanceOf<LockInspectResult.BackendFailure>().failure to
+                LockRecoveryAction.INSPECT_HANDLE,
+            view.reconcile(OWNER_1, REQUEST_1)
+                .shouldBeInstanceOf<LockReconcileResult.BackendFailure>().failure to
+                LockRecoveryAction.RECONCILE_REQUEST,
+            view.reconcileAsync(OWNER_1, REQUEST_1).await()
+                .shouldBeInstanceOf<LockReconcileResult.BackendFailure>().failure to
+                LockRecoveryAction.RECONCILE_REQUEST,
+            view.renew(handle, EXTENSION).shouldBeInstanceOf<LockMutationResult.BackendFailure>().failure to
+                LockRecoveryAction.RETRY_SAME_HANDLE,
+            view.renewAsync(handle, EXTENSION).await()
+                .shouldBeInstanceOf<LockMutationResult.BackendFailure>().failure to
+                LockRecoveryAction.RETRY_SAME_HANDLE,
+            view.release(handle).shouldBeInstanceOf<LockMutationResult.BackendFailure>().failure to
+                LockRecoveryAction.RETRY_SAME_HANDLE,
+            view.releaseAsync(handle).await().shouldBeInstanceOf<LockMutationResult.BackendFailure>().failure to
+                LockRecoveryAction.RETRY_SAME_HANDLE,
+        )
     }
 
     private suspend fun verifyBlockingWriteBackendFailure(
         view: LettuceReadWriteLock.WriteLockView,
         handle: WriteLockHandle,
     ) {
-        view.tryAcquire(OWNER_1, REQUEST_2, LEASE).shouldBeInstanceOf<LockAcquireResult.BackendFailure>()
-        view.tryAcquireAsync(OWNER_1, REQUEST_2, LEASE).await().shouldBeInstanceOf<LockAcquireResult.BackendFailure>()
-        view.acquire(OWNER_1, REQUEST_2, WAIT, LEASE).shouldBeInstanceOf<LockAcquireResult.BackendFailure>()
-        view.acquireAsync(OWNER_1, REQUEST_2, WAIT, LEASE).await()
-            .shouldBeInstanceOf<LockAcquireResult.BackendFailure>()
-        view.inspect(handle).shouldBeInstanceOf<LockInspectResult.BackendFailure>()
-        view.inspectAsync(handle).await().shouldBeInstanceOf<LockInspectResult.BackendFailure>()
-        view.reconcile(OWNER_1, REQUEST_2).shouldBeInstanceOf<LockReconcileResult.BackendFailure>()
-        view.reconcileAsync(OWNER_1, REQUEST_2).await().shouldBeInstanceOf<LockReconcileResult.BackendFailure>()
-        view.renew(handle, EXTENSION).shouldBeInstanceOf<LockMutationResult.BackendFailure>()
-        view.renewAsync(handle, EXTENSION).await().shouldBeInstanceOf<LockMutationResult.BackendFailure>()
-        view.release(handle).shouldBeInstanceOf<LockMutationResult.BackendFailure>()
-        view.releaseAsync(handle).await().shouldBeInstanceOf<LockMutationResult.BackendFailure>()
+        expectBackends(
+            view.tryAcquire(OWNER_1, REQUEST_2, LEASE)
+                .shouldBeInstanceOf<LockAcquireResult.BackendFailure>().failure to
+                LockRecoveryAction.RECONCILE_REQUEST,
+            view.tryAcquireAsync(OWNER_1, REQUEST_2, LEASE).await()
+                .shouldBeInstanceOf<LockAcquireResult.BackendFailure>().failure to
+                LockRecoveryAction.RECONCILE_REQUEST,
+            view.acquire(OWNER_1, REQUEST_2, WAIT, LEASE)
+                .shouldBeInstanceOf<LockAcquireResult.BackendFailure>().failure to
+                LockRecoveryAction.RECONCILE_REQUEST,
+            view.acquireAsync(OWNER_1, REQUEST_2, WAIT, LEASE).await()
+                .shouldBeInstanceOf<LockAcquireResult.BackendFailure>().failure to
+                LockRecoveryAction.RECONCILE_REQUEST,
+            view.inspect(handle).shouldBeInstanceOf<LockInspectResult.BackendFailure>().failure to
+                LockRecoveryAction.INSPECT_HANDLE,
+            view.inspectAsync(handle).await().shouldBeInstanceOf<LockInspectResult.BackendFailure>().failure to
+                LockRecoveryAction.INSPECT_HANDLE,
+            view.reconcile(OWNER_1, REQUEST_2)
+                .shouldBeInstanceOf<LockReconcileResult.BackendFailure>().failure to
+                LockRecoveryAction.RECONCILE_REQUEST,
+            view.reconcileAsync(OWNER_1, REQUEST_2).await()
+                .shouldBeInstanceOf<LockReconcileResult.BackendFailure>().failure to
+                LockRecoveryAction.RECONCILE_REQUEST,
+            view.renew(handle, EXTENSION).shouldBeInstanceOf<LockMutationResult.BackendFailure>().failure to
+                LockRecoveryAction.RETRY_SAME_HANDLE,
+            view.renewAsync(handle, EXTENSION).await()
+                .shouldBeInstanceOf<LockMutationResult.BackendFailure>().failure to
+                LockRecoveryAction.RETRY_SAME_HANDLE,
+            view.release(handle).shouldBeInstanceOf<LockMutationResult.BackendFailure>().failure to
+                LockRecoveryAction.RETRY_SAME_HANDLE,
+            view.releaseAsync(handle).await().shouldBeInstanceOf<LockMutationResult.BackendFailure>().failure to
+                LockRecoveryAction.RETRY_SAME_HANDLE,
+        )
     }
 
     private suspend fun verifySuspendingReadBackendFailure(
         view: LettuceSuspendReadWriteLock.ReadLockView,
         handle: ReadLockHandle,
     ) {
-        view.tryAcquire(OWNER_2, REQUEST_1, LEASE).shouldBeInstanceOf<LockAcquireResult.BackendFailure>()
-        view.acquire(OWNER_2, REQUEST_1, WAIT, LEASE).shouldBeInstanceOf<LockAcquireResult.BackendFailure>()
-        view.inspect(handle).shouldBeInstanceOf<LockInspectResult.BackendFailure>()
-        view.reconcile(OWNER_2, REQUEST_1).shouldBeInstanceOf<LockReconcileResult.BackendFailure>()
-        view.renew(handle, EXTENSION).shouldBeInstanceOf<LockMutationResult.BackendFailure>()
-        view.release(handle).shouldBeInstanceOf<LockMutationResult.BackendFailure>()
+        expectBackends(
+            view.tryAcquire(OWNER_2, REQUEST_1, LEASE)
+                .shouldBeInstanceOf<LockAcquireResult.BackendFailure>().failure to
+                LockRecoveryAction.RECONCILE_REQUEST,
+            view.acquire(OWNER_2, REQUEST_1, WAIT, LEASE)
+                .shouldBeInstanceOf<LockAcquireResult.BackendFailure>().failure to
+                LockRecoveryAction.RECONCILE_REQUEST,
+            view.inspect(handle).shouldBeInstanceOf<LockInspectResult.BackendFailure>().failure to
+                LockRecoveryAction.INSPECT_HANDLE,
+            view.reconcile(OWNER_2, REQUEST_1)
+                .shouldBeInstanceOf<LockReconcileResult.BackendFailure>().failure to
+                LockRecoveryAction.RECONCILE_REQUEST,
+            view.renew(handle, EXTENSION).shouldBeInstanceOf<LockMutationResult.BackendFailure>().failure to
+                LockRecoveryAction.RETRY_SAME_HANDLE,
+            view.release(handle).shouldBeInstanceOf<LockMutationResult.BackendFailure>().failure to
+                LockRecoveryAction.RETRY_SAME_HANDLE,
+        )
     }
 
     private suspend fun verifySuspendingWriteBackendFailure(
         view: LettuceSuspendReadWriteLock.WriteLockView,
         handle: WriteLockHandle,
     ) {
-        view.tryAcquire(OWNER_2, REQUEST_2, LEASE).shouldBeInstanceOf<LockAcquireResult.BackendFailure>()
-        view.acquire(OWNER_2, REQUEST_2, WAIT, LEASE).shouldBeInstanceOf<LockAcquireResult.BackendFailure>()
-        view.inspect(handle).shouldBeInstanceOf<LockInspectResult.BackendFailure>()
-        view.reconcile(OWNER_2, REQUEST_2).shouldBeInstanceOf<LockReconcileResult.BackendFailure>()
-        view.renew(handle, EXTENSION).shouldBeInstanceOf<LockMutationResult.BackendFailure>()
-        view.release(handle).shouldBeInstanceOf<LockMutationResult.BackendFailure>()
+        expectBackends(
+            view.tryAcquire(OWNER_2, REQUEST_2, LEASE)
+                .shouldBeInstanceOf<LockAcquireResult.BackendFailure>().failure to
+                LockRecoveryAction.RECONCILE_REQUEST,
+            view.acquire(OWNER_2, REQUEST_2, WAIT, LEASE)
+                .shouldBeInstanceOf<LockAcquireResult.BackendFailure>().failure to
+                LockRecoveryAction.RECONCILE_REQUEST,
+            view.inspect(handle).shouldBeInstanceOf<LockInspectResult.BackendFailure>().failure to
+                LockRecoveryAction.INSPECT_HANDLE,
+            view.reconcile(OWNER_2, REQUEST_2)
+                .shouldBeInstanceOf<LockReconcileResult.BackendFailure>().failure to
+                LockRecoveryAction.RECONCILE_REQUEST,
+            view.renew(handle, EXTENSION).shouldBeInstanceOf<LockMutationResult.BackendFailure>().failure to
+                LockRecoveryAction.RETRY_SAME_HANDLE,
+            view.release(handle).shouldBeInstanceOf<LockMutationResult.BackendFailure>().failure to
+                LockRecoveryAction.RETRY_SAME_HANDLE,
+        )
     }
 
     private fun cleanupRedisKeys(vararg keySets: List<String>) {
@@ -527,6 +643,15 @@ internal class LettuceClosedLockCoverageTest {
             connection.sync().del(*keys)
             connection.sync().exists(*keys) shouldBeEqualTo 0L
         }
+    }
+
+    private fun expectBackend(failure: LockBackendFailure, action: LockRecoveryAction) {
+        failure.kind shouldBeEqualTo LockBackendFailureKind.COMMAND
+        failure.recoveryAction shouldBeEqualTo action
+    }
+
+    private fun expectBackends(vararg failures: Pair<LockBackendFailure, LockRecoveryAction>) {
+        failures.forEach { (failure, action) -> expectBackend(failure, action) }
     }
 
     private fun reportCleanupFailures(bodyFailure: Throwable?, cleanupFailures: List<Throwable>) {
