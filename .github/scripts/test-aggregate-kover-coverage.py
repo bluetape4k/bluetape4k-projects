@@ -12,6 +12,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
 AGGREGATOR = ROOT / ".github/scripts/aggregate-kover-coverage.py"
+CI_WORKFLOW = ROOT / ".github/workflows/ci.yml"
 
 
 REPORT = """<?xml version="1.0" encoding="UTF-8"?>
@@ -103,6 +104,66 @@ class AggregateKoverCoverageTest(unittest.TestCase):
         self.assertEqual(result.returncode, 0, result.stderr)
         self.assertIn("io/fixture", result.stdout)
         self.assertIn("**TOTAL**", summary)
+
+    def test_missing_expected_module_fails_closed(self):
+        result, _ = self.run_aggregator(
+            "test-core=success\n",
+            REPORT,
+            extra_args=["--expected-module", "infra/lettuce"],
+        )
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn("expected coverage module", result.stderr)
+
+    def test_empty_expected_module_fails_closed(self):
+        result, _ = self.run_aggregator(
+            "test-core=success\n",
+            """<?xml version="1.0" encoding="UTF-8"?>
+<report name="empty"><counter type="INSTRUCTION" missed="0" covered="0" /></report>
+""",
+            extra_args=["--expected-module", "io/fixture"],
+        )
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn("empty Kover report", result.stderr)
+
+    def test_expected_module_is_accepted_when_report_has_instructions(self):
+        result, _ = self.run_aggregator(
+            "test-core=success\n",
+            REPORT,
+            extra_args=["--expected-module", "io/fixture"],
+        )
+        self.assertEqual(result.returncode, 0, result.stderr)
+
+    def test_duplicate_expected_module_fails_closed(self):
+        result, _ = self.run_aggregator(
+            "test-core=success\n",
+            REPORT,
+            extra_args=[
+                "--expected-module",
+                "io/fixture",
+                "--expected-module",
+                "io/fixture",
+            ],
+        )
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn("duplicate expected coverage module", result.stderr)
+
+    def test_ci_separates_raw_and_aggregate_artifacts(self):
+        workflow = CI_WORKFLOW.read_text(encoding="utf-8")
+        self.assertIn("pattern: coverage-*", workflow)
+        self.assertIn("name: aggregate-coverage-all", workflow)
+        self.assertNotIn("name: coverage-all", workflow)
+
+    def test_ci_requires_the_infra_module_inventory(self):
+        workflow = CI_WORKFLOW.read_text(encoding="utf-8")
+        self.assertIn("Verify Infra coverage inventory", workflow)
+        for module in (
+            "infra/lettuce",
+            "cache/cache-lettuce",
+            "infra/redisson",
+            "cache/cache-redisson",
+        ):
+            self.assertIn(module, workflow)
+        self.assertIn("--expected-module", workflow)
 
     def test_duplicate_reports_keep_union_semantics(self):
         with tempfile.TemporaryDirectory() as directory:

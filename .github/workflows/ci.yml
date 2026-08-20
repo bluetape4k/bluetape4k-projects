@@ -145,6 +145,8 @@ jobs:
         run: ruby scripts/validate-ci-csv-coverage.rb
       - name: Validate Kafka4 CI coverage
         run: ruby scripts/validate-ci-kafka4-coverage.rb
+      - name: Validate Kover coverage aggregation
+        run: python3 .github/scripts/test-aggregate-kover-coverage.py -v
       - uses: dorny/paths-filter@v4
         id: filter
         with:
@@ -352,8 +354,6 @@ jobs:
       - name: Generate Kover XML report
         if: always()
         run: |
-          # Kover discovers registered Redis characterization tasks as report inputs;
-          # keep the aggregate deterministic by measuring the regular test suite only.
           ./gradlew \
             :bluetape4k-annotations:koverXmlReport \
             :bluetape4k-core:koverXmlReport \
@@ -746,6 +746,8 @@ jobs:
       - name: Generate Kover XML report
         if: always()
         run: |
+          # Kover discovers registered Redis characterization tasks as report inputs;
+          # keep the aggregate deterministic by measuring the regular test suite only.
           ./gradlew \
             :bluetape4k-redisson:koverXmlReport \
             :bluetape4k-lettuce:koverXmlReport \
@@ -756,7 +758,21 @@ jobs:
             -x :bluetape4k-lettuce:coordinationLockTopologyRecoveryTest \
             -x :bluetape4k-lettuce:multiKeyLeasePerformanceTest \
             -x :bluetape4k-lettuce:coordinationLockPerformanceTest
-        continue-on-error: true
+
+      - name: Verify Infra coverage inventory
+        if: always()
+        run: |
+          set -euo pipefail
+          for report in \
+            infra/lettuce/build/reports/kover/report.xml \
+            cache/cache-lettuce/build/reports/kover/report.xml \
+            infra/redisson/build/reports/kover/report.xml \
+            cache/cache-redisson/build/reports/kover/report.xml; do
+            if [ ! -s "$report" ]; then
+              echo "Missing or empty Infra Kover report: $report" >&2
+              exit 1
+            fi
+          done
 
       - name: Upload test results
         if: always()
@@ -1003,6 +1019,15 @@ jobs:
         run: |
           mkdir -p coverage-artifacts
           printf '%s\n' "$EXPECTED_COVERAGE_JOBS" > coverage-artifacts/expected-jobs.manifest
+          : > coverage-artifacts/expected-modules.manifest
+          if grep -q '^test-infra=success$' coverage-artifacts/expected-jobs.manifest; then
+            printf '%s\n' \
+              'infra/lettuce' \
+              'cache/cache-lettuce' \
+              'infra/redisson' \
+              'cache/cache-redisson' \
+              > coverage-artifacts/expected-modules.manifest
+          fi
           if grep -q '=success$' coverage-artifacts/expected-jobs.manifest; then
             echo 'has_expected=true' >> "$GITHUB_OUTPUT"
           else
@@ -1022,16 +1047,23 @@ jobs:
         if: always()
         env:
           COVERAGE_DOWNLOAD_OUTCOME: ${{ steps.download-coverage.outcome }}
-        run: >-
-          python3 .github/scripts/aggregate-kover-coverage.py coverage-artifacts
-          --expected-manifest coverage-artifacts/expected-jobs.manifest
-          --download-outcome "$COVERAGE_DOWNLOAD_OUTCOME"
+        run: |
+          expected_module_args=()
+          while IFS= read -r module; do
+            if [ -n "$module" ]; then
+              expected_module_args+=(--expected-module "$module")
+            fi
+          done < coverage-artifacts/expected-modules.manifest
+          python3 .github/scripts/aggregate-kover-coverage.py coverage-artifacts \
+            --expected-manifest coverage-artifacts/expected-jobs.manifest \
+            --download-outcome "$COVERAGE_DOWNLOAD_OUTCOME" \
+            "${expected_module_args[@]}"
 
       - name: Upload aggregated coverage
         if: always()
         uses: actions/upload-artifact@v7
         with:
-          name: coverage-all
+          name: aggregate-coverage-all
           overwrite: true
           path: coverage-artifacts/
           if-no-files-found: error
