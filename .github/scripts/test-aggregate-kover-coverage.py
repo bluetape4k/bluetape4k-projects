@@ -205,6 +205,22 @@ class AggregateKoverCoverageTest(unittest.TestCase):
             self.assertIn(module, workflow)
         self.assertIn("expected_module_args+=(--expected-module \"$module\")", workflow)
 
+    def test_nightly_keeps_redis_characterization_out_of_coverage(self):
+        workflow = NIGHTLY_WORKFLOW.read_text(encoding="utf-8")
+        for task in (
+            "fencingLeaseTopologyRecoveryTest",
+            "coordinationLockTopologyRecoveryTest",
+            "multiKeyLeasePerformanceTest",
+            "coordinationLockPerformanceTest",
+        ):
+            self.assertIn(f"-x :bluetape4k-lettuce:{task}", workflow)
+
+    def test_nightly_overwrites_aggregate_artifact_on_rerun(self):
+        workflow = NIGHTLY_WORKFLOW.read_text(encoding="utf-8")
+        aggregate_name = workflow.index("name: aggregate-nightly-coverage-all")
+        overwrite = workflow.index("overwrite: true", aggregate_name)
+        self.assertLess(overwrite, workflow.index("path: coverage-artifacts/", aggregate_name))
+
     def test_duplicate_reports_keep_union_semantics(self):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory) / "coverage-artifacts"

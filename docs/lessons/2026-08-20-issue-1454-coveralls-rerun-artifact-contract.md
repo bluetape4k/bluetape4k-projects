@@ -22,14 +22,16 @@ artifact를 다시 다운로드한 뒤 aggregate artifact를 같은 이름 계�
 - aggregate 단계가 성공한 경우에만 Coveralls 파일 목록과 업로드를 실행해,
   집계 실패 뒤 partial report가 외부 서비스로 전송되지 않게 한다.
 - nightly도 `aggregate-nightly-coverage-all`을 raw 패턴 밖으로 분리하고,
-  Infra 13개 모듈의 expected manifest를 집계기에 전달한다.
+  Infra 13개 모듈의 expected manifest를 집계기에 전달한다. Redis
+  characterization task는 CI와 같은 제외 목록으로 regular coverage에서
+  분리하고, aggregate artifact는 rerun 시 `overwrite: true`로 교체한다.
 
 Coverage percentage threshold를 완화하거나 Coveralls 실패를 N/A로 바꾸지는
 않는다. 이 변경은 report 생성·수집 경계만 fail-closed로 고정한다.
 
 ## 결과와 검증
 
-- `.github/scripts/test-aggregate-kover-coverage.py -v`: 18개 fixture 통과
+- `.github/scripts/test-aggregate-kover-coverage.py -v`: 20개 fixture 통과
 - `actionlint .github/workflows/ci.yml .github/workflows/nightly-tests.yml .github/workflows/codeql.yml`: 통과
 - `ruby scripts/validate-ci-csv-coverage.rb`: 통과
 - `ruby scripts/validate-ci-kafka4-coverage.rb`: 통과

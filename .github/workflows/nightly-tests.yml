@@ -926,7 +926,12 @@ jobs:
           KOVER_TASKS: ${{ matrix.kover_tasks }}
         run: |
           read -ra tasks <<< "$KOVER_TASKS"
-          ./gradlew "${tasks[@]}" --parallel --no-configuration-cache
+          # Keep Redis characterization tasks opt-in; nightly coverage measures the regular suite.
+          ./gradlew "${tasks[@]}" --parallel --no-configuration-cache \
+            -x :bluetape4k-lettuce:fencingLeaseTopologyRecoveryTest \
+            -x :bluetape4k-lettuce:coordinationLockTopologyRecoveryTest \
+            -x :bluetape4k-lettuce:multiKeyLeasePerformanceTest \
+            -x :bluetape4k-lettuce:coordinationLockPerformanceTest
         continue-on-error: true
 
       - name: Upload test results
@@ -1358,6 +1363,7 @@ jobs:
         uses: actions/upload-artifact@v7
         with:
           name: aggregate-nightly-coverage-all
+          overwrite: true
           path: coverage-artifacts/
           if-no-files-found: error
           retention-days: 14
