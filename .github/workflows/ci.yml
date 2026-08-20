@@ -132,6 +132,7 @@ jobs:
       core: ${{ steps.filter.outputs.core }}
       io: ${{ steps.filter.outputs.io }}
       io-http: ${{ steps.filter.outputs.io-http }}
+      testcontainers-spring: ${{ steps.filter.outputs.testcontainers-spring }}
       ktor: ${{ steps.filter.outputs.ktor }}
       key-utils: ${{ steps.filter.outputs.key-utils }}
       infra: ${{ steps.filter.outputs.infra }}
@@ -180,6 +181,7 @@ jobs:
               - 'io/vertx/**'
               - 'testing/mock-web-server/**'
               - 'testing/testcontainers/**'
+            testcontainers-spring:
               - 'testing/testcontainers-spring/**'
             ktor:
               - 'ktor/**'
@@ -487,7 +489,7 @@ jobs:
           docker image inspect bluetape4k/mock-web-server:2.0.0
           docker image inspect bluetape4k/mock-webflux-server:2.0.0
 
-      - name: Test HTTP client and Testcontainers Spring bridge modules
+      - name: Test HTTP client modules
         uses: nick-fields/retry@v4
         with:
           timeout_minutes: 60
@@ -499,7 +501,6 @@ jobs:
               :bluetape4k-http:test \
               :bluetape4k-retrofit2:test \
               :bluetape4k-vertx:test \
-              :bluetape4k-testcontainers-spring:test \
               --no-configuration-cache
         env:
           GRADLE_OPTS: "-Dorg.gradle.daemon=false"
@@ -512,7 +513,6 @@ jobs:
             :bluetape4k-http:koverXmlReport \
             :bluetape4k-retrofit2:koverXmlReport \
             :bluetape4k-vertx:koverXmlReport \
-            :bluetape4k-testcontainers-spring:koverXmlReport \
             --no-configuration-cache
         continue-on-error: true
 
@@ -529,6 +529,53 @@ jobs:
         uses: actions/upload-artifact@v7
         with:
           name: coverage-io-http
+          path: '**/build/reports/kover/'
+          if-no-files-found: error
+          retention-days: 30
+
+  # ── 4-c. Testcontainers Spring bridge (JVM-only) ─────────────────────────
+  test-testcontainers-spring:
+    name: Test / Testcontainers Spring bridge
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    needs: [build, changes]
+    if: ${{ needs.changes.outputs['testcontainers-spring'] == 'true' || needs.changes.outputs.shared == 'true' || github.event_name == 'workflow_dispatch' }}
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-java@v5.7.0
+        with:
+          java-version: ${{ env.JAVA_VERSION }}
+          distribution: ${{ env.JAVA_DISTRIBUTION }}
+
+      - uses: gradle/actions/setup-gradle@v6.3.0
+        with:
+          gradle-version: wrapper
+          cache-read-only: true
+
+      - name: Test Testcontainers Spring bridge
+        run: ./gradlew :bluetape4k-testcontainers-spring:test --no-configuration-cache
+        env:
+          GRADLE_OPTS: "-Dorg.gradle.daemon=false"
+
+      - name: Generate Kover XML report
+        if: always()
+        run: ./gradlew :bluetape4k-testcontainers-spring:koverXmlReport --no-configuration-cache
+        continue-on-error: true
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: test-results-testcontainers-spring
+          path: '**/build/test-results/test/*.xml'
+          retention-days: 30
+
+      - name: Upload coverage report
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: coverage-testcontainers-spring
           path: '**/build/reports/kover/'
           if-no-files-found: error
           retention-days: 30
@@ -928,7 +975,7 @@ jobs:
     name: Coverage Report
     runs-on: ubuntu-latest
     timeout-minutes: 10
-    needs: [test-core, test-io, test-io-http, test-ktor, test-key-utils, test-infra, test-kafka-infra, test-telemetry-infra, test-data]
+    needs: [test-core, test-io, test-io-http, test-testcontainers-spring, test-ktor, test-key-utils, test-infra, test-kafka-infra, test-telemetry-infra, test-data]
     if: always()
     steps:
       - uses: actions/checkout@v7
@@ -940,6 +987,7 @@ jobs:
             test-core=${{ needs.test-core.result }}
             test-io=${{ needs.test-io.result }}
             test-io-http=${{ needs.test-io-http.result }}
+            test-testcontainers-spring=${{ needs.test-testcontainers-spring.result }}
             test-ktor=${{ needs.test-ktor.result }}
             test-key-utils=${{ needs.test-key-utils.result }}
             test-infra=${{ needs.test-infra.result }}
@@ -1007,7 +1055,7 @@ jobs:
     name: CI Status
     runs-on: ubuntu-latest
     timeout-minutes: 10
-    needs: [release-policy, jvm-release-contract, codeql-policy, catalog-governance, gitleaks, validate-wrapper, changes, build, test-core, test-io, test-io-http, test-ktor, test-key-utils, test-infra, test-kafka-infra, test-telemetry-infra, test-data, coverage-report]
+    needs: [release-policy, jvm-release-contract, codeql-policy, catalog-governance, gitleaks, validate-wrapper, changes, build, test-core, test-io, test-testcontainers-spring, test-ktor, test-key-utils, test-infra, test-kafka-infra, test-telemetry-infra, test-data, coverage-report]
     if: always()
     steps:
       - name: Check all jobs
