@@ -1218,7 +1218,9 @@ jobs:
   test-testcontainers-spring:
     name: Test / Testcontainers Spring bridge
     runs-on: ubuntu-latest
-    needs: [build, plan]
+    # Keep the JVM-only bridge after the Docker-backed Testcontainers lane so
+    # repository-level Testcontainers verification remains sequential.
+    needs: [test-testcontainers, plan]
     if: ${{ needs.plan.outputs.scope == 'full' || needs.plan.outputs.scope == 'testcontainers' }}
     steps:
       - uses: actions/checkout@v7
