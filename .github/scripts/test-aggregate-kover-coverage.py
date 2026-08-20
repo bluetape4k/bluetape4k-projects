@@ -13,6 +13,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[2]
 AGGREGATOR = ROOT / ".github/scripts/aggregate-kover-coverage.py"
 CI_WORKFLOW = ROOT / ".github/workflows/ci.yml"
+NIGHTLY_WORKFLOW = ROOT / ".github/workflows/nightly-tests.yml"
 
 
 REPORT = """<?xml version="1.0" encoding="UTF-8"?>
@@ -164,6 +165,45 @@ class AggregateKoverCoverageTest(unittest.TestCase):
         ):
             self.assertIn(module, workflow)
         self.assertIn("--expected-module", workflow)
+
+    def test_ci_only_uploads_coveralls_after_successful_aggregation(self):
+        workflow = CI_WORKFLOW.read_text(encoding="utf-8")
+        self.assertIn("id: aggregate-coverage", workflow)
+        self.assertIn(
+            "if: ${{ steps.aggregate-coverage.outcome == 'success' && hashFiles('coverage-artifacts/**/reports/kover/report.xml') != '' }}",
+            workflow,
+        )
+        self.assertIn(
+            "if: ${{ steps.aggregate-coverage.outcome == 'success' && steps.coveralls-files.outcome == 'success' }}",
+            workflow,
+        )
+
+    def test_nightly_separates_raw_and_aggregate_artifacts(self):
+        workflow = NIGHTLY_WORKFLOW.read_text(encoding="utf-8")
+        self.assertIn("pattern: nightly-coverage-*", workflow)
+        self.assertIn("name: aggregate-nightly-coverage-all", workflow)
+        self.assertNotIn("name: nightly-coverage-all", workflow)
+
+    def test_nightly_requires_the_infra_module_inventory(self):
+        workflow = NIGHTLY_WORKFLOW.read_text(encoding="utf-8")
+        self.assertIn("expected-modules.manifest", workflow)
+        for module in (
+            "infra/redis",
+            "infra/redisson",
+            "infra/lettuce",
+            "cache/cache-lettuce",
+            "cache/cache-redisson",
+            "infra/kafka",
+            "infra/kafka4",
+            "infra/resilience4j",
+            "infra/bucket4j",
+            "infra/micrometer",
+            "cache/cache-hazelcast",
+            "infra/elasticsearch",
+            "infra/nats",
+        ):
+            self.assertIn(module, workflow)
+        self.assertIn("expected_module_args+=(--expected-module \"$module\")", workflow)
 
     def test_duplicate_reports_keep_union_semantics(self):
         with tempfile.TemporaryDirectory() as directory:

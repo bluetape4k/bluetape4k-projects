@@ -1304,6 +1304,24 @@ jobs:
         run: |
           mkdir -p coverage-artifacts
           printf '%s\n' "$EXPECTED_COVERAGE_JOBS" > coverage-artifacts/expected-jobs.manifest
+          : > coverage-artifacts/expected-modules.manifest
+          if grep -q '^test-infra=success$' coverage-artifacts/expected-jobs.manifest; then
+            printf '%s\n' \
+              'infra/redis' \
+              'infra/redisson' \
+              'infra/lettuce' \
+              'cache/cache-lettuce' \
+              'cache/cache-redisson' \
+              'infra/kafka' \
+              'infra/kafka4' \
+              'infra/resilience4j' \
+              'infra/bucket4j' \
+              'infra/micrometer' \
+              'cache/cache-hazelcast' \
+              'infra/elasticsearch' \
+              'infra/nats' \
+              > coverage-artifacts/expected-modules.manifest
+          fi
           if grep -q '=success$' coverage-artifacts/expected-jobs.manifest; then
             echo 'has_expected=true' >> "$GITHUB_OUTPUT"
           else
@@ -1323,16 +1341,23 @@ jobs:
         if: always()
         env:
           COVERAGE_DOWNLOAD_OUTCOME: ${{ steps.download-coverage.outcome }}
-        run: >-
-          python3 .github/scripts/aggregate-kover-coverage.py coverage-artifacts
-          --expected-manifest coverage-artifacts/expected-jobs.manifest
-          --download-outcome "$COVERAGE_DOWNLOAD_OUTCOME"
+        run: |
+          expected_module_args=()
+          while IFS= read -r module; do
+            if [ -n "$module" ]; then
+              expected_module_args+=(--expected-module "$module")
+            fi
+          done < coverage-artifacts/expected-modules.manifest
+          python3 .github/scripts/aggregate-kover-coverage.py coverage-artifacts \
+            --expected-manifest coverage-artifacts/expected-jobs.manifest \
+            --download-outcome "$COVERAGE_DOWNLOAD_OUTCOME" \
+            "${expected_module_args[@]}"
 
       - name: Upload aggregated coverage
         if: always()
         uses: actions/upload-artifact@v7
         with:
-          name: nightly-coverage-all
+          name: aggregate-nightly-coverage-all
           path: coverage-artifacts/
           if-no-files-found: error
           retention-days: 14

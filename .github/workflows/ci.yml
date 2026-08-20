@@ -1044,6 +1044,7 @@ jobs:
           merge-multiple: false
 
       - name: Aggregate Kover coverage summary
+        id: aggregate-coverage
         if: always()
         env:
           COVERAGE_DOWNLOAD_OUTCOME: ${{ steps.download-coverage.outcome }}
@@ -1071,7 +1072,7 @@ jobs:
 
       - name: Prepare Coveralls file list
         id: coveralls-files
-        if: ${{ always() && hashFiles('coverage-artifacts/**/reports/kover/report.xml') != '' }}
+        if: ${{ steps.aggregate-coverage.outcome == 'success' && hashFiles('coverage-artifacts/**/reports/kover/report.xml') != '' }}
         run: |
           files=$(find coverage-artifacts -type f -path '*/reports/kover/report.xml' -print | sort | paste -sd ' ' -)
           if [ -z "$files" ]; then
@@ -1081,7 +1082,7 @@ jobs:
           echo "files=$files" >> "$GITHUB_OUTPUT"
 
       - name: Upload coverage to Coveralls
-        if: ${{ always() && steps.coveralls-files.outcome == 'success' }}
+        if: ${{ steps.aggregate-coverage.outcome == 'success' && steps.coveralls-files.outcome == 'success' }}
         uses: coverallsapp/github-action@v2
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
