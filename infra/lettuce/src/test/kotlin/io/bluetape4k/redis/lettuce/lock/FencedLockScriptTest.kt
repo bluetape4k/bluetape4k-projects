@@ -3,6 +3,8 @@ package io.bluetape4k.redis.lettuce.lock
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeInstanceOf
 import io.bluetape4k.assertions.shouldBeZero
+import io.bluetape4k.assertions.assertFailsWith
+import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.redis.lettuce.AbstractLettuceTest
 import io.bluetape4k.redis.lettuce.LettuceTestUtils
 import io.bluetape4k.redis.lettuce.lock.internal.FencedLockKeys
@@ -21,6 +23,7 @@ internal class FencedLockScriptTest : AbstractLettuceTest() {
     private lateinit var commands: RedisCommands<String, String>
     private lateinit var lock: LettuceFencedLock
     private lateinit var keys: FencedLockKeys
+    private lateinit var lockName: String
 
     private val owner = LockOwnerId.from("fenced-script-owner")
     private val lease = LeasePolicy.Fixed(Duration.ofSeconds(3))
@@ -30,6 +33,7 @@ internal class FencedLockScriptTest : AbstractLettuceTest() {
         connection = LettuceTestUtils.client.connect(StringCodec.UTF8)
         commands = connection.sync()
         val name = "fenced-script-${randomName().substringAfter(':')}"
+        lockName = name
         val config = FencedLockConfig(epoch = 7)
         keys = deriveFencedLockKeys(name, config, StringCodec.UTF8)
         deleteKeys()
@@ -182,6 +186,74 @@ internal class FencedLockScriptTest : AbstractLettuceTest() {
         lock.tryAcquireAsync(owner, LockRequestId.from("async"), lease).get()
             .shouldBeInstanceOf<LockAcquireResult.Acquired<FencedLockHandle>>()
             .handle.let(lock::release)
+    }
+
+    @Test
+    fun `bounded acquire adapters time out and reject foreign handles`() = runSuspendIO {
+        lock.bootstrapFencing() shouldBeEqualTo FencedBootstrapResult.Initialized
+        val holder = lock.tryAcquire(owner, LockRequestId.from("bounded-holder"), lease)
+            .shouldBeInstanceOf<LockAcquireResult.Acquired<FencedLockHandle>>()
+            .handle
+
+        val foreignName = "fenced-foreign-${randomName().substringAfter(':')}"
+        val foreign = LettuceFencedLock.create(connection, foreignName, FencedLockConfig(epoch = 7))
+        val foreignKeys = deriveFencedLockKeys(foreignName, FencedLockConfig(epoch = 7), connection.codec)
+        try {
+            foreign.bootstrapFencing()
+            val foreignHandle = foreign.tryAcquire(
+                LockOwnerId.from("foreign-owner"),
+                LockRequestId.from("foreign-request"),
+                lease,
+            ).shouldBeInstanceOf<LockAcquireResult.Acquired<FencedLockHandle>>().handle
+            assertFailsWith<IllegalArgumentException> { lock.inspect(foreignHandle) }
+            assertFailsWith<IllegalArgumentException> { lock.release(foreignHandle) }
+
+            lock.acquire(
+                LockOwnerId.from("sync-timeout"),
+                LockRequestId.from("sync-timeout"),
+                Duration.ofMillis(35),
+                lease,
+            ) shouldBeEqualTo LockAcquireResult.TimedOut
+            lock.acquireAsync(
+                LockOwnerId.from("async-timeout"),
+                LockRequestId.from("async-timeout"),
+                Duration.ofMillis(35),
+                lease,
+            ).get(2, java.util.concurrent.TimeUnit.SECONDS) shouldBeEqualTo LockAcquireResult.TimedOut
+
+            val suspendLock = LettuceSuspendFencedLock.create(
+                connection,
+                lockName,
+                FencedLockConfig(epoch = 7),
+            )
+            try {
+                suspendLock.bootstrapFencing()
+                suspendLock.acquire(
+                    LockOwnerId.from("suspend-timeout"),
+                    LockRequestId.from("suspend-timeout"),
+                    Duration.ofMillis(35),
+                    lease,
+                ) shouldBeEqualTo LockAcquireResult.TimedOut
+            } finally {
+                suspendLock.close()
+            }
+
+            assertFailsWith<IllegalArgumentException> {
+                lock.acquire(
+                    LockOwnerId.from("too-long"),
+                    LockRequestId.from("too-long"),
+                    Duration.ofHours(24).plusMillis(1),
+                    lease,
+                )
+            }
+            assertFailsWith<IllegalArgumentException> { lock.inspect(holder.copy(epoch = 8)) }
+            foreign.release(foreignHandle) shouldBeEqualTo LockMutationResult.Released(0)
+        } finally {
+            connection.sync().del(*foreignKeys.all)
+            foreign.close()
+        }
+
+        lock.release(holder) shouldBeEqualTo LockMutationResult.Released(0)
     }
 
     private fun deleteKeys() {

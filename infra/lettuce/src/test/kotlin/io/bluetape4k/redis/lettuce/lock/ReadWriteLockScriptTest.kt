@@ -2,6 +2,7 @@ package io.bluetape4k.redis.lettuce.lock
 
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeInstanceOf
+import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.redis.lettuce.AbstractLettuceTest
 import io.bluetape4k.redis.lettuce.LettuceTestUtils
 import io.bluetape4k.redis.lettuce.lock.internal.deriveReadWriteLockKeys
@@ -20,13 +21,15 @@ internal class ReadWriteLockScriptTest : AbstractLettuceTest() {
 
     private lateinit var connection: StatefulRedisConnection<String, String>
     private lateinit var lock: LettuceReadWriteLock
+    private lateinit var lockName: String
 
     private val lease = LeasePolicy.Fixed(Duration.ofSeconds(3))
 
     @BeforeEach
     fun setUp() {
         connection = LettuceTestUtils.client.connect(StringCodec.UTF8)
-        lock = LettuceReadWriteLock.create(connection, "read-write-script-${randomName().substringAfter(':')}")
+        lockName = "read-write-script-${randomName().substringAfter(':')}"
+        lock = LettuceReadWriteLock.create(connection, lockName)
     }
 
     @AfterEach
@@ -253,6 +256,65 @@ internal class ReadWriteLockScriptTest : AbstractLettuceTest() {
     }
 
     @Test
+    fun `bounded acquire paths reject foreign handles and time out`() = runSuspendIO {
+        val writer = acquireWrite("bounded-writer", "bounded-write")
+        val other = LettuceReadWriteLock.create(connection, "read-write-foreign-${randomName().substringAfter(':')}")
+        val foreignHandle = other.writeLock().tryAcquire(owner("foreign-owner"), request("foreign-write"), lease)
+            .shouldBeInstanceOf<LockAcquireResult.Acquired<WriteLockHandle>>()
+            .handle
+        try {
+            assertFailsWith<IllegalArgumentException> {
+                lock.writeLock().inspect(foreignHandle)
+            }
+            assertFailsWith<IllegalArgumentException> {
+                lock.writeLock().release(foreignHandle)
+            }
+
+            lock.readLock().acquire(
+                owner("sync-timeout"),
+                request("sync-timeout"),
+                Duration.ofMillis(35),
+                lease,
+            ) shouldBeEqualTo LockAcquireResult.TimedOut
+            lock.readLock().acquireAsync(
+                owner("async-timeout"),
+                request("async-timeout"),
+                Duration.ofMillis(35),
+                lease,
+            ).get(2, TimeUnit.SECONDS) shouldBeEqualTo LockAcquireResult.TimedOut
+
+            val suspendLock = LettuceSuspendReadWriteLock.create(
+                connection,
+                lockName,
+            )
+            try {
+                suspendLock.readLock().acquire(
+                    owner("suspend-timeout"),
+                    request("suspend-timeout"),
+                    Duration.ofMillis(35),
+                    lease,
+                ) shouldBeEqualTo LockAcquireResult.TimedOut
+            } finally {
+                suspendLock.close()
+            }
+
+            assertFailsWith<IllegalArgumentException> {
+                lock.readLock().acquire(
+                    owner("too-long"),
+                    request("too-long"),
+                    Duration.ofHours(24).plusMillis(1),
+                    lease,
+                )
+            }
+        } finally {
+            other.writeLock().release(foreignHandle)
+            other.close()
+        }
+
+        lock.writeLock().release(writer) shouldBeEqualTo LockMutationResult.Released(0)
+    }
+
+    @Test
     fun `async and suspend views preserve read write lifecycle parity`() = runSuspendIO {
         val asyncReader = lock.readLock().tryAcquireAsync(owner("async-reader"), request("async-read"), lease)
             .get(2, TimeUnit.SECONDS)
@@ -285,7 +347,11 @@ internal class ReadWriteLockScriptTest : AbstractLettuceTest() {
         val suspendName = "read-write-suspend-${randomName().substringAfter(':')}"
         val suspendLock = LettuceSuspendReadWriteLock.create(connection, suspendName)
         try {
-            val suspendReader = suspendLock.readLock().tryAcquire(owner("suspend-reader"), request("suspend-read"), lease)
+            val suspendReader = suspendLock.readLock().tryAcquire(
+                owner("suspend-reader"),
+                request("suspend-read"),
+                lease,
+            )
                 .shouldBeInstanceOf<LockAcquireResult.Acquired<ReadLockHandle>>()
                 .handle
             suspendLock.readLock().inspect(suspendReader)
@@ -296,7 +362,11 @@ internal class ReadWriteLockScriptTest : AbstractLettuceTest() {
                 .shouldBeInstanceOf<LockMutationResult.Renewed<ReadLockHandle>>()
             suspendLock.readLock().release(suspendReader) shouldBeEqualTo LockMutationResult.Released(0)
 
-            val suspendWriter = suspendLock.writeLock().tryAcquire(owner("suspend-writer"), request("suspend-write"), lease)
+            val suspendWriter = suspendLock.writeLock().tryAcquire(
+                owner("suspend-writer"),
+                request("suspend-write"),
+                lease,
+            )
                 .shouldBeInstanceOf<LockAcquireResult.Acquired<WriteLockHandle>>()
                 .handle
             suspendLock.writeLock().inspect(suspendWriter)
@@ -344,7 +414,9 @@ internal class ReadWriteLockScriptTest : AbstractLettuceTest() {
 
     @Test
     fun `public and internal surfaces expose no read-to-write upgrade`() {
-        LettuceReadWriteLock::class.java.methods.none { it.name.contains("upgrade", ignoreCase = true) } shouldBeEqualTo true
+        LettuceReadWriteLock::class.java.methods.none {
+            it.name.contains("upgrade", ignoreCase = true)
+        } shouldBeEqualTo true
         LettuceReadWriteLock.ReadLockView::class.java.methods
             .none { it.name.contains("upgrade", ignoreCase = true) } shouldBeEqualTo true
         LettuceSuspendReadWriteLock::class.java.methods

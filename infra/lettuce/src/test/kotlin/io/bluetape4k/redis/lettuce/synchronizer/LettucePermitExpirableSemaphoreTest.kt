@@ -2,6 +2,7 @@ package io.bluetape4k.redis.lettuce.synchronizer
 
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeInstanceOf
+import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.redis.lettuce.AbstractLettuceTest
 import io.bluetape4k.redis.lettuce.LettuceTestUtils
 import io.bluetape4k.redis.lettuce.synchronizer.internal.deriveSemaphoreKeys
@@ -185,6 +186,102 @@ class LettucePermitExpirableSemaphoreTest: AbstractLettuceTest() {
                 PermitAcquireResult.Closed
         } finally {
             semaphore.close()
+            connection.sync().del(*keys.all.toTypedArray())
+            connection.close()
+        }
+    }
+
+    @Test
+    fun `replay and stale generations preserve allocation contract`() {
+        val connection = LettuceTestUtils.client.connect(StringCodec.UTF8)
+        val name = "expirable-replay-${randomName().substringAfter(':')}"
+        val config = ExpirableSemaphoreConfig(leaseTime = Duration.ofSeconds(5))
+        val keys = deriveSemaphoreKeys(name, config.semaphore, StringCodec.UTF8)
+        connection.sync().del(*keys.all.toTypedArray())
+        val semaphore = LettucePermitExpirableSemaphore.create(connection, name, config)
+        try {
+            semaphore.trySetPermits(3)
+            val owner = SemaphoreOwnerId.from("replay-owner")
+            val request = SemaphoreRequestId.from("replay-request")
+            val first = semaphore.tryAcquire(owner, request, 2)
+                .shouldBeInstanceOf<PermitAcquireResult.Acquired<ExpirablePermitHandle>>()
+                .handle
+            val replay = semaphore.tryAcquire(owner, request, 2)
+                .shouldBeInstanceOf<PermitAcquireResult.Acquired<ExpirablePermitHandle>>()
+                .handle
+            replay shouldBeEqualTo first
+            semaphore.availablePermits() shouldBeEqualTo 1
+
+            val stale = first.copy(permit = first.permit.copy(generation = first.permit.generation + 1))
+            semaphore.inspect(stale) shouldBeEqualTo PermitInspectResult.StaleGeneration
+            semaphore.release(stale) shouldBeEqualTo PermitMutationResult.StaleGeneration
+            semaphore.renew(stale, Duration.ofSeconds(1)) shouldBeEqualTo PermitRenewResult.StaleGeneration
+            semaphore.reconcile(owner, request)
+                .shouldBeInstanceOf<PermitReconcileResult.Owned<ExpirablePermitHandle>>()
+            semaphore.release(first) shouldBeEqualTo PermitMutationResult.Released(first, 3)
+            semaphore.tryAcquire(owner, request, 2) shouldBeEqualTo PermitAcquireResult.Unavailable
+        } finally {
+            semaphore.close()
+            connection.sync().del(*keys.all.toTypedArray())
+            connection.close()
+        }
+    }
+
+    @Test
+    fun `invalid bounds and closed adapters remain explicit`() = runTest {
+        val connection = LettuceTestUtils.client.connect(StringCodec.UTF8)
+        val name = "expirable-boundary-${randomName().substringAfter(':')}"
+        val config = ExpirableSemaphoreConfig(leaseTime = Duration.ofSeconds(5))
+        val keys = deriveSemaphoreKeys(name, config.semaphore, StringCodec.UTF8)
+        connection.sync().del(*keys.all.toTypedArray())
+        val future = LettucePermitExpirableSemaphore.create(connection, name, config)
+        val suspending = LettuceSuspendPermitExpirableSemaphore.create(connection, name, config)
+        try {
+            future.trySetPermits(1)
+            val owner = SemaphoreOwnerId.from("boundary-owner")
+            val request = SemaphoreRequestId.from("boundary-request")
+            assertFailsWith<IllegalArgumentException> { future.tryAcquire(owner, request, 0) }
+            assertFailsWith<IllegalArgumentException> {
+                future.acquire(owner, request, 1, Duration.ZERO)
+            }
+            assertFailsWith<IllegalArgumentException> {
+                future.acquire(owner, request, 1, Duration.ofHours(24).plusMillis(1))
+            }
+
+            val held = future.tryAcquire(owner, request, 1)
+                .shouldBeInstanceOf<PermitAcquireResult.Acquired<ExpirablePermitHandle>>()
+                .handle
+            assertFailsWith<IllegalArgumentException> {
+                future.renew(held, Duration.ofMillis(99))
+            }
+            future.acquire(
+                SemaphoreOwnerId.from("sync-timeout"),
+                SemaphoreRequestId.from("sync-timeout"),
+                1,
+                Duration.ofMillis(35),
+            ) shouldBeEqualTo PermitAcquireResult.TimedOut
+            future.acquireAsync(
+                SemaphoreOwnerId.from("async-timeout"),
+                SemaphoreRequestId.from("async-timeout"),
+                1,
+                Duration.ofMillis(35),
+            ).get() shouldBeEqualTo PermitAcquireResult.TimedOut
+            suspending.acquire(
+                SemaphoreOwnerId.from("suspend-timeout"),
+                SemaphoreRequestId.from("suspend-timeout"),
+                1,
+                Duration.ofMillis(35),
+            ) shouldBeEqualTo PermitAcquireResult.TimedOut
+
+            future.close()
+            future.availablePermitsAsync().get() shouldBeEqualTo -1
+            future.inspectAsync(held).get() shouldBeEqualTo PermitInspectResult.Closed
+            future.releaseAsync(held).get() shouldBeEqualTo PermitMutationResult.Closed
+            future.renewAsync(held, Duration.ofSeconds(1)).get() shouldBeEqualTo PermitRenewResult.Closed
+            future.reconcileAsync(owner, request).get() shouldBeEqualTo PermitReconcileResult.Closed
+        } finally {
+            future.close()
+            suspending.close()
             connection.sync().del(*keys.all.toTypedArray())
             connection.close()
         }
