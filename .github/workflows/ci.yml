@@ -363,7 +363,6 @@ jobs:
             :bluetape4k-virtualthread-jdk21:koverXmlReport \
             :bluetape4k-virtualthread-jdk25:koverXmlReport \
             --parallel
-        continue-on-error: true
 
       - name: Upload test results
         if: always()
@@ -437,7 +436,6 @@ jobs:
             :bluetape4k-grpc:koverXmlReport \
             :bluetape4k-tink:koverXmlReport \
             --parallel
-        continue-on-error: true
 
       - name: Upload test results
         if: always()
@@ -516,7 +514,6 @@ jobs:
             :bluetape4k-retrofit2:koverXmlReport \
             :bluetape4k-vertx:koverXmlReport \
             --no-configuration-cache
-        continue-on-error: true
 
       - name: Upload test results
         if: always()
@@ -563,7 +560,6 @@ jobs:
       - name: Generate Kover XML report
         if: always()
         run: ./gradlew :bluetape4k-testcontainers-spring:koverXmlReport --no-configuration-cache
-        continue-on-error: true
 
       - name: Upload test results
         if: always()
@@ -629,7 +625,6 @@ jobs:
             :bluetape4k-ktor-resilience4j:koverXmlReport \
             :bluetape4k-ktor-testing:koverXmlReport \
             --parallel
-        continue-on-error: true
 
       - name: Upload test results
         if: always()
@@ -689,7 +684,6 @@ jobs:
             :bluetape4k-idgenerators:koverXmlReport \
             :bluetape4k-cache-core:koverXmlReport \
             --parallel
-        continue-on-error: true
 
       - name: Upload test results
         if: always()
@@ -834,7 +828,6 @@ jobs:
             :bluetape4k-kafka4:koverXmlReport \
             --max-workers=2 \
             --no-configuration-cache
-        continue-on-error: true
 
       - name: Upload test results
         if: always()
@@ -896,7 +889,6 @@ jobs:
             :bluetape4k-kafka-logback:koverXmlReport \
             --max-workers=2 \
             --no-configuration-cache
-        continue-on-error: true
 
       - name: Upload test results
         if: always()
@@ -968,7 +960,6 @@ jobs:
             :bluetape4k-cassandra:koverXmlReport \
             --parallel \
             --no-configuration-cache
-        continue-on-error: true
 
       - name: Upload test results
         if: always()
