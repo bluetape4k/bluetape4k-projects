@@ -160,6 +160,30 @@ internal class FencedLockScriptTest : AbstractLettuceTest() {
             .failure.kind shouldBeEqualTo LockIntegrityFailureKind.INVALID_STATE
     }
 
+    @Test
+    fun `bootstrap renew reconcile and release expose replay-safe terminal outcomes`() {
+        lock.bootstrapFencing() shouldBeEqualTo FencedBootstrapResult.Initialized
+        lock.bootstrapFencing() shouldBeEqualTo FencedBootstrapResult.AlreadyInitialized
+
+        val handle = lock.tryAcquire(owner, LockRequestId.from("lifecycle"), lease)
+            .shouldBeInstanceOf<LockAcquireResult.Acquired<FencedLockHandle>>()
+            .handle
+        lock.renew(handle, Duration.ofSeconds(2))
+            .shouldBeInstanceOf<LockMutationResult.Renewed<FencedLockHandle>>()
+        lock.inspect(handle).shouldBeInstanceOf<LockInspectResult.Owned<FencedLockHandle>>()
+        lock.reconcile(owner, LockRequestId.from("lifecycle"))
+            .shouldBeInstanceOf<LockReconcileResult.Owned<FencedLockHandle>>()
+        lock.release(handle) shouldBeEqualTo LockMutationResult.Released(0)
+        lock.release(handle) shouldBeEqualTo LockMutationResult.AlreadyReleased
+        lock.inspect(handle) shouldBeEqualTo LockInspectResult.Released
+        lock.renew(handle, Duration.ofSeconds(1)) shouldBeEqualTo LockMutationResult.AlreadyReleased
+
+        lock.bootstrapFencingAsync().get() shouldBeEqualTo FencedBootstrapResult.AlreadyInitialized
+        lock.tryAcquireAsync(owner, LockRequestId.from("async"), lease).get()
+            .shouldBeInstanceOf<LockAcquireResult.Acquired<FencedLockHandle>>()
+            .handle.let(lock::release)
+    }
+
     private fun deleteKeys() {
         commands.del(*keys.all)
     }

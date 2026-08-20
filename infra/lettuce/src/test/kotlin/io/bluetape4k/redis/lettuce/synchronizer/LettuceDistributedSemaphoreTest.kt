@@ -67,4 +67,53 @@ class LettuceDistributedSemaphoreTest: AbstractLettuceTest() {
             connection.close()
         }
     }
+
+    @Test
+    fun `async and suspend lifecycle surfaces reconcile released requests and close fail closed`() = runSuspendIO {
+        val connection = LettuceTestUtils.client.connect(StringCodec.UTF8)
+        val name = "semaphore-lifecycle-${randomName().substringAfter(':')}"
+        val keys = deriveSemaphoreKeys(name, SemaphoreConfig(), StringCodec.UTF8)
+        connection.sync().del(*keys.all.toTypedArray())
+        val blocking = LettuceDistributedSemaphore.create(connection, name)
+        val suspending = LettuceSuspendDistributedSemaphore.create(connection, name)
+        try {
+            blocking.trySetPermitsAsync(2).get()
+                .shouldBeInstanceOf<SemaphoreInitializationResult.Initialized>()
+            blocking.availablePermitsAsync().get() shouldBeEqualTo 2
+
+            val owner = SemaphoreOwnerId.from("async-owner")
+            val request = SemaphoreRequestId.from("async-request")
+            val handle = blocking.tryAcquireAsync(owner, request, 1).get()
+                .shouldBeInstanceOf<PermitAcquireResult.Acquired<PermitHandle>>()
+                .handle
+            blocking.inspectAsync(handle).get()
+                .shouldBeInstanceOf<PermitInspectResult.Owned<PermitHandle>>()
+            blocking.reconcileAsync(owner, request).get()
+                .shouldBeInstanceOf<PermitReconcileResult.Owned<PermitHandle>>()
+            blocking.releaseAsync(handle).get()
+                .shouldBeInstanceOf<PermitMutationResult.Released<PermitHandle>>()
+
+            suspending.reconcile(owner, request) shouldBeEqualTo PermitReconcileResult.Released
+            val suspendOwner = SemaphoreOwnerId.from("suspend-owner")
+            val suspendRequest = SemaphoreRequestId.from("suspend-request")
+            val suspendHandle = suspending.tryAcquire(suspendOwner, suspendRequest, 1)
+                .shouldBeInstanceOf<PermitAcquireResult.Acquired<PermitHandle>>()
+                .handle
+            suspending.inspect(suspendHandle)
+                .shouldBeInstanceOf<PermitInspectResult.Owned<PermitHandle>>()
+            suspending.reconcile(suspendOwner, suspendRequest)
+                .shouldBeInstanceOf<PermitReconcileResult.Owned<PermitHandle>>()
+            suspending.release(suspendHandle)
+                .shouldBeInstanceOf<PermitMutationResult.Released<PermitHandle>>()
+
+            blocking.close()
+            blocking.availablePermitsAsync().get() shouldBeEqualTo -1
+            blocking.trySetPermitsAsync(1).get() shouldBeEqualTo SemaphoreInitializationResult.Closed
+        } finally {
+            suspending.close()
+            blocking.close()
+            connection.sync().del(*keys.all.toTypedArray())
+            connection.close()
+        }
+    }
 }

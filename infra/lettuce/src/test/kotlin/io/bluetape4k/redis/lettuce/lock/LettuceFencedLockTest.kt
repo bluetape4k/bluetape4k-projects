@@ -123,6 +123,49 @@ internal class LettuceFencedLockTest {
     }
 
     @Test
+    fun `future and suspend lifecycle operations preserve fenced terminal states`() = runSuspendIO {
+        LettuceTestUtils.client.connect(StringCodec.UTF8).use { connection ->
+            val name = "fenced-lifecycle-${System.nanoTime()}"
+            val config = FencedLockConfig(epoch = 32)
+            val blocking = LettuceFencedLock.create(connection, name, config)
+            val suspending = LettuceSuspendFencedLock.create(connection, name, config)
+            val keys = deriveFencedLockKeys(name, config, connection.codec)
+            try {
+                blocking.bootstrapFencing() shouldBeEqualTo FencedBootstrapResult.Initialized
+                val futureHandle = blocking.tryAcquireAsync(OWNER, REQUEST_1, LEASE).await()
+                    .shouldBeInstanceOf<LockAcquireResult.Acquired<FencedLockHandle>>()
+                    .handle
+                blocking.inspectAsync(futureHandle).await()
+                    .shouldBeInstanceOf<LockInspectResult.Owned<FencedLockHandle>>()
+                blocking.reconcileAsync(OWNER, REQUEST_1).await()
+                    .shouldBeInstanceOf<LockReconcileResult.Owned<FencedLockHandle>>()
+                blocking.renewAsync(futureHandle, Duration.ofSeconds(1)).await()
+                    .shouldBeInstanceOf<LockMutationResult.Renewed<FencedLockHandle>>()
+                blocking.releaseAsync(futureHandle).await() shouldBeEqualTo LockMutationResult.Released(0)
+                blocking.inspectAsync(futureHandle).await() shouldBeEqualTo LockInspectResult.Released
+                blocking.renewAsync(futureHandle, Duration.ofSeconds(1)).await() shouldBeEqualTo
+                    LockMutationResult.AlreadyReleased
+
+                suspending.bootstrapFencing() shouldBeEqualTo FencedBootstrapResult.AlreadyInitialized
+                val suspendHandle = suspending.tryAcquire(OTHER_OWNER, REQUEST_2, LEASE)
+                    .shouldBeInstanceOf<LockAcquireResult.Acquired<FencedLockHandle>>()
+                    .handle
+                suspending.inspect(suspendHandle)
+                    .shouldBeInstanceOf<LockInspectResult.Owned<FencedLockHandle>>()
+                suspending.reconcile(OTHER_OWNER, REQUEST_2)
+                    .shouldBeInstanceOf<LockReconcileResult.Owned<FencedLockHandle>>()
+                suspending.renew(suspendHandle, Duration.ofSeconds(1))
+                    .shouldBeInstanceOf<LockMutationResult.Renewed<FencedLockHandle>>()
+                suspending.release(suspendHandle) shouldBeEqualTo LockMutationResult.Released(0)
+            } finally {
+                blocking.close()
+                suspending.close()
+                connection.sync().del(*keys.all)
+            }
+        }
+    }
+
+    @Test
     fun `future cancellation stops the bounded wait without acquiring later`() {
         LettuceTestUtils.client.connect(StringCodec.UTF8).use { connection ->
             val fixture = FencedFixture(connection, "fenced-cancel-${System.nanoTime()}", epoch = 41)

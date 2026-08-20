@@ -150,4 +150,43 @@ class LettucePermitExpirableSemaphoreTest: AbstractLettuceTest() {
             connection.close()
         }
     }
+
+    @Test
+    fun `async reconcile and closed surfaces preserve expirable allocation ownership`() {
+        val connection = LettuceTestUtils.client.connect(StringCodec.UTF8)
+        val name = "expirable-reconcile-${randomName().substringAfter(':')}"
+        val config = ExpirableSemaphoreConfig(leaseTime = Duration.ofSeconds(5))
+        val keys = deriveSemaphoreKeys(name, config.semaphore, StringCodec.UTF8)
+        connection.sync().del(*keys.all.toTypedArray())
+        val semaphore = LettucePermitExpirableSemaphore.create(connection, name, config)
+        try {
+            semaphore.trySetPermitsAsync(2).get()
+                .shouldBeInstanceOf<SemaphoreInitializationResult.Initialized>()
+            semaphore.availablePermitsAsync().get() shouldBeEqualTo 2
+
+            val owner = SemaphoreOwnerId.from("reconcile-owner")
+            val request = SemaphoreRequestId.from("reconcile-request")
+            val handle = semaphore.tryAcquireAsync(owner, request).get()
+                .shouldBeInstanceOf<PermitAcquireResult.Acquired<ExpirablePermitHandle>>()
+                .handle
+            semaphore.reconcileAsync(owner, request).get()
+                .shouldBeInstanceOf<PermitReconcileResult.Owned<ExpirablePermitHandle>>()
+            semaphore.releaseAsync(handle).get()
+                .shouldBeInstanceOf<PermitMutationResult.Released<ExpirablePermitHandle>>()
+            semaphore.reconcile(owner, request) shouldBeEqualTo PermitReconcileResult.Released
+            semaphore.reconcileAsync(
+                SemaphoreOwnerId.from("missing-owner"),
+                SemaphoreRequestId.from("missing-request"),
+            ).get() shouldBeEqualTo PermitReconcileResult.NotFound
+
+            semaphore.close()
+            semaphore.availablePermitsAsync().get() shouldBeEqualTo -1
+            semaphore.tryAcquireAsync(owner, SemaphoreRequestId.from("after-close")).get() shouldBeEqualTo
+                PermitAcquireResult.Closed
+        } finally {
+            semaphore.close()
+            connection.sync().del(*keys.all.toTypedArray())
+            connection.close()
+        }
+    }
 }

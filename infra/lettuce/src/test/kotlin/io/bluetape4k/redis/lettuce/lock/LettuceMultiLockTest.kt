@@ -83,6 +83,41 @@ internal class LettuceMultiLockTest {
     }
 
     @Test
+    fun `future and suspend lifecycle views preserve multi-lock ownership`() = runSuspendIO {
+        LettuceTestUtils.client.connect(StringCodec.UTF8).use { connection ->
+            val config = config("parity")
+            val future = LettuceMultiLock.create(connection, NAMES, config)
+            val suspending = LettuceSuspendMultiLock.create(connection, NAMES, config)
+            try {
+                val futureHandle = future.tryAcquireAsync(OWNER_1, REQUEST_1, LEASE).await()
+                    .shouldBeInstanceOf<LockAcquireResult.Acquired<MultiLockHandle>>()
+                    .handle
+                future.inspectAsync(futureHandle).await()
+                    .shouldBeInstanceOf<LockInspectResult.Owned<MultiLockHandle>>()
+                future.reconcileAsync(OWNER_1, REQUEST_1).await()
+                    .shouldBeInstanceOf<LockReconcileResult.Owned<MultiLockHandle>>()
+                future.renewAsync(futureHandle, Duration.ofSeconds(1)).await()
+                    .shouldBeInstanceOf<LockMutationResult.Renewed<MultiLockHandle>>()
+                future.releaseAsync(futureHandle).await() shouldBeEqualTo LockMutationResult.Released(0)
+
+                val suspendHandle = suspending.tryAcquire(OWNER_2, REQUEST_2, LEASE)
+                    .shouldBeInstanceOf<LockAcquireResult.Acquired<MultiLockHandle>>()
+                    .handle
+                suspending.inspect(suspendHandle)
+                    .shouldBeInstanceOf<LockInspectResult.Owned<MultiLockHandle>>()
+                suspending.reconcile(OWNER_2, REQUEST_2)
+                    .shouldBeInstanceOf<LockReconcileResult.Owned<MultiLockHandle>>()
+                suspending.renew(suspendHandle, Duration.ofSeconds(1))
+                    .shouldBeInstanceOf<LockMutationResult.Renewed<MultiLockHandle>>()
+                suspending.release(suspendHandle) shouldBeEqualTo LockMutationResult.Released(0)
+            } finally {
+                future.close()
+                suspending.close()
+            }
+        }
+    }
+
+    @Test
     fun `reconcile replays the request bound multi handle`() {
         LettuceTestUtils.client.connect(StringCodec.UTF8).use { connection ->
             val lock = LettuceMultiLock.create(connection, NAMES, config("reconcile"))

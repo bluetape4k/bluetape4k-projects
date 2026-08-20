@@ -4,6 +4,7 @@ import io.bluetape4k.cache.jcache.JCache
 import io.bluetape4k.cache.jcache.LettuceSuspendJCache
 import io.bluetape4k.cache.nearcache.LettuceNearCache
 import io.bluetape4k.cache.nearcache.LettuceSuspendNearCache
+import io.bluetape4k.cache.nearcache.LettuceNearCacheConfig
 import io.bluetape4k.cache.nearcache.NearCacheOperations
 import io.bluetape4k.cache.nearcache.ResilientNearCacheDecorator
 import io.bluetape4k.cache.nearcache.ResilientSuspendNearCacheDecorator
@@ -54,6 +55,38 @@ class LettuceJCachesTest {
             cache.shouldBeInstanceOf<LettuceSuspendNearCache<*>>()
         } finally {
             runCatching { runBlocking { cache.close() } }
+        }
+    }
+
+    @Test
+    fun `nearCache DSL은 명시한 설정으로 캐시를 생성한다`() {
+        val name = "lettuce-near-cache-dsl-" + Base58.randomString(6)
+        val cache = LettuceCaches.nearCache<String>(redisClient) {
+            cacheName = name
+            maxLocalSize = 32
+        }
+        try {
+            cache.cacheName shouldBeEqualTo name
+            cache.put("k1", "v1")
+            cache.get("k1") shouldBeEqualTo "v1"
+        } finally {
+            runCatching { cache.close() }
+        }
+    }
+
+    @Test
+    fun `suspendNearCache config overload은 명시한 설정으로 캐시를 생성한다`() = runTest {
+        val name = "lettuce-suspend-near-cache-config-" + Base58.randomString(6)
+        val cache = LettuceCaches.suspendNearCache<String>(
+            redisClient,
+            LettuceNearCacheConfig(cacheName = name, maxLocalSize = 32)
+        )
+        try {
+            cache.cacheName shouldBeEqualTo name
+            cache.put("k1", "v1")
+            cache.get("k1") shouldBeEqualTo "v1"
+        } finally {
+            runCatching { cache.close() }
         }
     }
 
