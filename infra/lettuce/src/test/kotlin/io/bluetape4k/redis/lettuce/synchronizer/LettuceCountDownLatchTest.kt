@@ -8,12 +8,89 @@ import io.bluetape4k.redis.lettuce.script.RedisScriptRunner
 import io.bluetape4k.redis.lettuce.synchronizer.internal.deriveLatchKeys
 import io.lettuce.core.ScriptOutputType
 import io.lettuce.core.codec.StringCodec
+import io.bluetape4k.junit5.coroutines.runSuspendIO
 import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.Test
 import java.time.Duration
 import java.util.concurrent.TimeUnit
 
 class LettuceCountDownLatchTest: AbstractLettuceTest() {
+
+    @Test
+    fun `zero count and stale generation preserve lifecycle`() = runSuspendIO {
+        val connection = LettuceTestUtils.client.connect(StringCodec.UTF8)
+        val name = "latch-boundaries-${randomName().substringAfter(':')}"
+        val config = LatchConfig(maxCount = 2)
+        val keys = deriveLatchKeys(name, config, StringCodec.UTF8)
+        connection.sync().del(*keys.all.toTypedArray())
+        val latch = LettuceCountDownLatch.create(connection, name, config)
+        val suspending = LettuceSuspendCountDownLatch.create(connection, name, config)
+        try {
+            latch.trySetCount(-1, LatchRequestId.random()) shouldBeEqualTo LatchSetCountResult.InvalidCount
+            latch.trySetCountAsync(3, LatchRequestId.random()).get() shouldBeEqualTo
+                LatchSetCountResult.InvalidCount
+
+            val completed = latch.trySetCount(0, LatchRequestId.from("zero-count"))
+                .shouldBeInstanceOf<LatchSetCountResult.Created>()
+            latch.getCount(completed.generation)
+                .shouldBeInstanceOf<LatchCountResult.Completed>()
+            latch.await(completed.generation, LatchRequestId.from("zero-await"), Duration.ofMillis(20)) shouldBeEqualTo
+                LatchAwaitResult.Completed
+            latch.countDown(completed.generation, LatchRequestId.from("zero-down")) shouldBeEqualTo
+                LatchMutationResult.AlreadyCompleted
+            latch.delete(completed.generation, LatchRequestId.from("zero-delete")) shouldBeEqualTo
+                LatchMutationResult.Deleted
+
+            val active = latch.trySetCount(1, LatchRequestId.from("active-count"))
+                .shouldBeInstanceOf<LatchSetCountResult.Created>()
+            latch.await(active.generation, LatchRequestId.from("sync-timeout"), Duration.ofMillis(30)) shouldBeEqualTo
+                LatchAwaitResult.TimedOut
+            latch.awaitAsync(
+                active.generation,
+                LatchRequestId.from("async-timeout"),
+                Duration.ofMillis(30),
+            ).get() shouldBeEqualTo LatchAwaitResult.TimedOut
+            suspending.await(
+                active.generation,
+                LatchRequestId.from("suspend-timeout"),
+                Duration.ofMillis(30),
+            ) shouldBeEqualTo LatchAwaitResult.TimedOut
+
+            val stale = LatchGeneration(active.generation.value + 1)
+            latch.getCount(stale) shouldBeEqualTo LatchCountResult.StaleGeneration
+            latch.getCountAsync(stale).get() shouldBeEqualTo LatchCountResult.StaleGeneration
+            latch.await(stale, LatchRequestId.from("stale-await"), Duration.ofMillis(20)) shouldBeEqualTo
+                LatchAwaitResult.StaleGeneration
+            latch.awaitAsync(
+                stale,
+                LatchRequestId.from("stale-await-async"),
+                Duration.ofMillis(20),
+            ).get() shouldBeEqualTo
+                LatchAwaitResult.StaleGeneration
+            latch.countDown(stale, LatchRequestId.from("stale-down")) shouldBeEqualTo
+                LatchMutationResult.StaleGeneration
+            latch.delete(stale, LatchRequestId.from("stale-delete")) shouldBeEqualTo
+                LatchMutationResult.StaleGeneration
+
+            latch.countDown(active.generation, LatchRequestId.from("complete")) shouldBeEqualTo
+                LatchMutationResult.Completed
+            latch.delete(active.generation, LatchRequestId.from("delete")) shouldBeEqualTo
+                LatchMutationResult.Deleted
+
+            latch.close()
+            latch.trySetCount(1, LatchRequestId.random()) shouldBeEqualTo LatchSetCountResult.Closed
+            latch.getCount(active.generation) shouldBeEqualTo LatchCountResult.Closed
+            latch.getCountAsync(active.generation).get() shouldBeEqualTo LatchCountResult.Closed
+            latch.await(active.generation, LatchRequestId.random(), Duration.ofMillis(20)) shouldBeEqualTo
+                LatchAwaitResult.Closed
+            latch.delete(active.generation, LatchRequestId.random()) shouldBeEqualTo LatchMutationResult.Closed
+        } finally {
+            suspending.close()
+            latch.close()
+            connection.sync().del(*keys.all.toTypedArray())
+            connection.close()
+        }
+    }
 
     @Test
     fun `generation increases across delete and recreate while count stays at zero`() {

@@ -2,6 +2,7 @@ package io.bluetape4k.redis.lettuce.map
 
 import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeFalse
 import io.bluetape4k.assertions.shouldBeLessThan
 import io.bluetape4k.assertions.shouldBeNull
 import io.bluetape4k.assertions.shouldBeTrue
@@ -231,6 +232,63 @@ class LettuceSuspendedLoadedMapTest: AbstractLettuceTest() {
             result["k2"] shouldBeEqualTo "fallback-k2"
             result["k3"] shouldBeEqualTo "fallback-k3"
             loaderCallCount.get() shouldBeEqualTo 3
+        }
+    }
+
+    @Test
+    fun `getAll - loader가 null을 반환한 키는 결과와 캐시에 포함하지 않는다`() = runSuspendIO {
+        val loader = object: SuspendedMapLoader<String, String> {
+            override suspend fun load(key: String): String? = if (key == "missing") null else "loaded-$key"
+
+            override suspend fun loadAllKeys(): List<String> = emptyList()
+        }
+
+        newMap(loader = loader).use { map ->
+            val result = map.getAll(setOf("present", "missing"))
+            result["present"] shouldBeEqualTo "loaded-present"
+            result.containsKey("missing").shouldBeFalse()
+            map.get("missing").shouldBeNull()
+        }
+    }
+
+    @Test
+    fun `evict와 evictAll은 DB writer를 호출하지 않고 캐시만 제거한다`() = runSuspendIO {
+        val deleted = mutableListOf<String>()
+        val writer = object: SuspendedMapWriter<String, String> {
+            override suspend fun write(map: Map<String, String>) = Unit
+
+            override suspend fun delete(keys: Collection<String>) {
+                deleted.addAll(keys)
+            }
+        }
+
+        newMap(writer = writer).use { map ->
+            map.set("k1", "v1")
+            map.set("k2", "v2")
+            map.evict("k1")
+            map.evictAll(emptyList())
+            map.get("k1").shouldBeNull()
+            map.get("k2") shouldBeEqualTo "v2"
+            deleted shouldBeEqualTo emptyList<String>()
+        }
+    }
+
+    @Test
+    fun `invalidateByPattern과 clear는 keyPrefix 범위만 비동기로 삭제한다`() = runSuspendIO {
+        newMap(config = LettuceCacheConfig.READ_ONLY).use { map ->
+            map.set("user:1", "one")
+            map.set("user:2", "two")
+            map.set("order:1", "order")
+
+            val deleted = map.invalidateByPattern("user:*")
+
+            deleted shouldBeEqualTo 2L
+            map.get("user:1").shouldBeNull()
+            map.get("user:2").shouldBeNull()
+            map.get("order:1") shouldBeEqualTo "order"
+
+            map.clear()
+            map.get("order:1").shouldBeNull()
         }
     }
 }

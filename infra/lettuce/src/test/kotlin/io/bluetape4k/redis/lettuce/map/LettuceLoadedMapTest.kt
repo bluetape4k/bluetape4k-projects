@@ -3,6 +3,7 @@ package io.bluetape4k.redis.lettuce.map
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.redis.lettuce.AbstractLettuceTest
 import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeFalse
 import io.bluetape4k.assertions.shouldBeNull
 import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.assertions.shouldNotBeNull
@@ -271,6 +272,22 @@ class LettuceLoadedMapTest: AbstractLettuceTest() {
         }
     }
 
+    @Test
+    fun `getAll - loader가 null을 반환한 키는 결과와 캐시에 포함하지 않는다`() {
+        val loader = object: MapLoader<String, String> {
+            override fun load(key: String): String? = if (key == "missing") null else "loaded-$key"
+
+            override fun loadAllKeys(): Iterable<String> = emptyList()
+        }
+
+        newMap(loader = loader).use { map ->
+            val result = map.getAll(setOf("present", "missing"))
+            result["present"] shouldBeEqualTo "loaded-present"
+            result.containsKey("missing").shouldBeFalse()
+            map["missing"].shouldBeNull()
+        }
+    }
+
     // =========================================================================
     // deleteAll / clear
     // =========================================================================
@@ -289,6 +306,43 @@ class LettuceLoadedMapTest: AbstractLettuceTest() {
             map["k1"].shouldBeNull()
             map["k2"].shouldBeNull()
             map["k3"] shouldBeEqualTo "v3"
+        }
+    }
+
+    @Test
+    fun `deleteAll과 evict는 빈 입력과 캐시 전용 삭제 계약을 지킨다`() {
+        val written = mutableMapOf<String, String>()
+        val writer = object: MapWriter<String, String> {
+            override fun write(map: Map<String, String>) = written.putAll(map)
+
+            override fun delete(keys: Collection<String>) = keys.forEach(written::remove)
+        }
+
+        newMap(writer = writer).use { map ->
+            map["k1"] = "v1"
+            map["k2"] = "v2"
+            map.deleteAll(emptyList())
+            map.evict("k1")
+            map.evictAll(emptyList())
+            map["k1"].shouldBeNull()
+            written["k1"] shouldBeEqualTo "v1"
+            map["k2"] shouldBeEqualTo "v2"
+        }
+    }
+
+    @Test
+    fun `invalidateByPattern은 같은 keyPrefix의 캐시 항목만 제거한다`() {
+        newMap(config = LettuceCacheConfig.READ_ONLY).use { map ->
+            map["user:1"] = "one"
+            map["user:2"] = "two"
+            map["order:1"] = "order"
+
+            val deleted = map.invalidateByPattern("user:*")
+
+            deleted shouldBeEqualTo 2L
+            map["user:1"].shouldBeNull()
+            map["user:2"].shouldBeNull()
+            map["order:1"] shouldBeEqualTo "order"
         }
     }
 
