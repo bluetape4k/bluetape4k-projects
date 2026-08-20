@@ -1218,6 +1218,7 @@ jobs:
   test-testcontainers-spring:
     name: Test / Testcontainers Spring bridge
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     # Keep the JVM-only bridge after the Docker-backed Testcontainers lane so
     # repository-level Testcontainers verification remains sequential.
     needs: [test-testcontainers, plan]

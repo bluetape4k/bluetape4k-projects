@@ -180,8 +180,8 @@ jobs:
               - 'io/retrofit2/**'
               - 'io/vertx/**'
               - 'testing/mock-web-server/**'
-              - 'testing/testcontainers/**'
             testcontainers-spring:
+              - 'testing/testcontainers/**'
               - 'testing/testcontainers-spring/**'
             ktor:
               - 'ktor/**'
