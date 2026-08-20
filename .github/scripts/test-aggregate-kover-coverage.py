@@ -215,6 +215,10 @@ class AggregateKoverCoverageTest(unittest.TestCase):
         ):
             self.assertIn(f"-x :bluetape4k-lettuce:{task}", workflow)
 
+    def test_nightly_kover_failures_are_not_ignored(self):
+        workflow = NIGHTLY_WORKFLOW.read_text(encoding="utf-8")
+        self.assertNotIn("continue-on-error: true", workflow)
+
     def test_nightly_overwrites_aggregate_artifact_on_rerun(self):
         workflow = NIGHTLY_WORKFLOW.read_text(encoding="utf-8")
         aggregate_name = workflow.index("name: aggregate-nightly-coverage-all")
