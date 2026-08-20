@@ -2,6 +2,7 @@ package io.bluetape4k.redis.lettuce.lock
 
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeInstanceOf
+import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.redis.lettuce.LettuceTestUtils
 import io.bluetape4k.redis.lettuce.lock.internal.deriveFencedLockKeys
@@ -18,8 +19,41 @@ import java.util.concurrent.CancellationException
  * 공개 lock adapter가 종료 이후 모든 실행 모델에서 동일한 terminal 결과를
  * 유지하는지 검증합니다.
  */
-@Suppress("LargeClass") // Exhaustive sync/async/suspending API matrix is intentionally kept together.
+@Suppress("LargeClass") // 동기·비동기·suspending API 전체 조합을 한 곳에서 대조합니다.
 internal class LettuceClosedLockCoverageTest {
+
+    @Test
+    fun `cleanup preserves fatal failure and runs every block`() {
+        val events = mutableListOf<String>()
+        val cancellation = CancellationException("cancel")
+        val error = AssertionError("error")
+        val ordinary = IllegalStateException("ordinary")
+
+        val failure = assertFailsWith<CancellationException> {
+            cleanupAll(
+                null,
+                failingCleanup(events, "cancel", cancellation),
+                failingCleanup(events, "error", error),
+                failingCleanup(events, "ordinary", ordinary),
+                { events += "last" },
+            )
+        }
+
+        events shouldBeEqualTo listOf("cancel", "error", "ordinary", "last")
+        failure shouldBeEqualTo cancellation
+        failure.suppressed.toList() shouldBeEqualTo listOf(error, ordinary)
+
+        val bodyFailure = IllegalStateException("body")
+        val cleanupError = AssertionError("cleanup-error")
+        val bodyEvents = mutableListOf<String>()
+        cleanupAll(
+            bodyFailure,
+            failingCleanup(bodyEvents, "error", cleanupError),
+            failingCleanup(bodyEvents, "ordinary", IllegalStateException("cleanup-ordinary")),
+        )
+        bodyFailure.suppressed.single() shouldBeEqualTo cleanupError
+        cleanupError.suppressed.single().message shouldBeEqualTo "cleanup-ordinary"
+    }
 
     @Test
     fun `multi lock surfaces return Closed after close`() = runSuspendIO {
@@ -611,6 +645,15 @@ internal class LettuceClosedLockCoverageTest {
 
     private fun expectBackends(vararg failures: Pair<LockBackendFailure, LockRecoveryAction>) {
         failures.forEach { (failure, action) -> expectBackend(failure, action) }
+    }
+
+    private fun failingCleanup(
+        events: MutableList<String>,
+        name: String,
+        failure: Throwable,
+    ): () -> Unit = {
+        events += name
+        throw failure
     }
 
     private fun cleanupAll(bodyFailure: Throwable?, vararg blocks: () -> Unit) {
