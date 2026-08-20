@@ -352,6 +352,8 @@ jobs:
       - name: Generate Kover XML report
         if: always()
         run: |
+          # Kover discovers registered Redis characterization tasks as report inputs;
+          # keep the aggregate deterministic by measuring the regular test suite only.
           ./gradlew \
             :bluetape4k-annotations:koverXmlReport \
             :bluetape4k-core:koverXmlReport \
@@ -749,7 +751,11 @@ jobs:
             :bluetape4k-lettuce:koverXmlReport \
             :bluetape4k-cache-lettuce:koverXmlReport \
             :bluetape4k-cache-redisson:koverXmlReport \
-            --parallel
+            --parallel \
+            -x :bluetape4k-lettuce:fencingLeaseTopologyRecoveryTest \
+            -x :bluetape4k-lettuce:coordinationLockTopologyRecoveryTest \
+            -x :bluetape4k-lettuce:multiKeyLeasePerformanceTest \
+            -x :bluetape4k-lettuce:coordinationLockPerformanceTest
         continue-on-error: true
 
       - name: Upload test results
@@ -1026,6 +1032,7 @@ jobs:
         uses: actions/upload-artifact@v7
         with:
           name: coverage-all
+          overwrite: true
           path: coverage-artifacts/
           if-no-files-found: error
           retention-days: 14
