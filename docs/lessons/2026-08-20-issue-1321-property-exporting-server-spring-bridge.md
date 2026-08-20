@@ -34,7 +34,7 @@ projects API로 승격했지만, core의 SDK-neutral 경계는 유지해야 했�
 - `./gradlew projects --no-daemon --no-configuration-cache --no-build-cache`에서
   `:bluetape4k-testcontainers-spring` project가 자동 등록됐다.
 - 구현 전 module test는 extension 미해결 참조로 RED가 됐다.
-- 구현 후 bridge contract 7개가 통과했고 `:bluetape4k-testcontainers-spring:check`
+- 구현 후 bridge contract 8개가 통과했고 `:bluetape4k-testcontainers-spring:check`
   와 detekt가 성공했다.
 - core runtime dependency report에는 `spring-test`가 없고, adapter report에는
   Spring Test 7.0.8이 나타났다.
