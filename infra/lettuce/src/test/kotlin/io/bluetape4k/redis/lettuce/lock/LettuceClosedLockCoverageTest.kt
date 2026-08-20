@@ -7,6 +7,7 @@ import io.bluetape4k.redis.lettuce.LettuceTestUtils
 import io.bluetape4k.redis.lettuce.lock.internal.deriveFencedLockKeys
 import io.bluetape4k.redis.lettuce.lock.internal.deriveMultiLockKeys
 import io.bluetape4k.redis.lettuce.lock.internal.deriveReadWriteLockKeys
+import io.lettuce.core.api.StatefulRedisConnection
 import io.lettuce.core.codec.StringCodec
 import kotlinx.coroutines.future.await
 import org.junit.jupiter.api.Test
@@ -212,98 +213,157 @@ internal class LettuceClosedLockCoverageTest {
 
     @Test
     fun `multi lock surfaces return backend failure after disconnect`() = runSuspendIO {
-        val connection = LettuceTestUtils.client.connect(StringCodec.UTF8)
+        var connection: StatefulRedisConnection<String, String>? = null
         val blockingConfig = multiConfig("disconnected-blocking")
         val suspendingConfig = multiConfig("disconnected-suspending")
-        val blocking = LettuceMultiLock.create(connection, NAMES, blockingConfig)
-        val suspending = LettuceSuspendMultiLock.create(connection, NAMES, suspendingConfig)
+        var blocking: LettuceMultiLock? = null
+        var suspending: LettuceSuspendMultiLock? = null
+        var bodyFailure: Throwable? = null
         try {
-            val blockingHandle = blocking.tryAcquire(OWNER_1, REQUEST_1, LEASE)
+            connection = LettuceTestUtils.client.connect(StringCodec.UTF8)
+            val activeConnection = requireNotNull(connection)
+            blocking = LettuceMultiLock.create(activeConnection, NAMES, blockingConfig)
+            suspending = LettuceSuspendMultiLock.create(activeConnection, NAMES, suspendingConfig)
+            val activeBlocking = requireNotNull(blocking)
+            val activeSuspending = requireNotNull(suspending)
+            val blockingHandle = activeBlocking.tryAcquire(OWNER_1, REQUEST_1, LEASE)
                 .shouldBeInstanceOf<LockAcquireResult.Acquired<MultiLockHandle>>()
                 .handle
-            val suspendingHandle = suspending.tryAcquire(OWNER_2, REQUEST_2, LEASE)
+            val suspendingHandle = activeSuspending.tryAcquire(OWNER_2, REQUEST_2, LEASE)
                 .shouldBeInstanceOf<LockAcquireResult.Acquired<MultiLockHandle>>()
                 .handle
-            connection.close()
+            activeConnection.close()
 
-            blocking.tryAcquire(OWNER_1, REQUEST_1, LEASE).shouldBeInstanceOf<LockAcquireResult.BackendFailure>()
-            blocking.tryAcquireAsync(OWNER_1, REQUEST_1, LEASE).await()
-                .shouldBeInstanceOf<LockAcquireResult.BackendFailure>()
-            blocking.acquire(OWNER_1, REQUEST_1, WAIT, LEASE).shouldBeInstanceOf<LockAcquireResult.BackendFailure>()
-            blocking.acquireAsync(OWNER_1, REQUEST_1, WAIT, LEASE).await()
-                .shouldBeInstanceOf<LockAcquireResult.BackendFailure>()
-            blocking.inspect(blockingHandle).shouldBeInstanceOf<LockInspectResult.BackendFailure>()
-            blocking.inspectAsync(blockingHandle).await().shouldBeInstanceOf<LockInspectResult.BackendFailure>()
-            blocking.reconcile(OWNER_1, REQUEST_1).shouldBeInstanceOf<LockReconcileResult.BackendFailure>()
-            blocking.reconcileAsync(OWNER_1, REQUEST_1).await().shouldBeInstanceOf<LockReconcileResult.BackendFailure>()
-            blocking.renew(blockingHandle, EXTENSION).shouldBeInstanceOf<LockMutationResult.BackendFailure>()
-            blocking.renewAsync(blockingHandle, EXTENSION).await()
-                .shouldBeInstanceOf<LockMutationResult.BackendFailure>()
-            blocking.release(blockingHandle).shouldBeInstanceOf<LockMutationResult.BackendFailure>()
-            blocking.releaseAsync(blockingHandle).await().shouldBeInstanceOf<LockMutationResult.BackendFailure>()
-
-            suspending.tryAcquire(OWNER_2, REQUEST_2, LEASE).shouldBeInstanceOf<LockAcquireResult.BackendFailure>()
-            suspending.acquire(OWNER_2, REQUEST_2, WAIT, LEASE).shouldBeInstanceOf<LockAcquireResult.BackendFailure>()
-            suspending.inspect(suspendingHandle).shouldBeInstanceOf<LockInspectResult.BackendFailure>()
-            suspending.reconcile(OWNER_2, REQUEST_2).shouldBeInstanceOf<LockReconcileResult.BackendFailure>()
-            suspending.renew(suspendingHandle, EXTENSION).shouldBeInstanceOf<LockMutationResult.BackendFailure>()
-            suspending.release(suspendingHandle).shouldBeInstanceOf<LockMutationResult.BackendFailure>()
+            verifyMultiBackendFailure(activeBlocking, blockingHandle)
+            verifySuspendingMultiBackendFailure(activeSuspending, suspendingHandle)
+        } catch (failure: Throwable) {
+            bodyFailure = failure
+            throw failure
         } finally {
-            blocking.close()
-            suspending.close()
-            connection.close()
-            LettuceTestUtils.client.connect(StringCodec.UTF8).use { cleanupConnection ->
-                val cleanupKeys = deriveMultiLockKeys(NAMES, blockingConfig, cleanupConnection.codec)
-                    .all.toTypedArray() + deriveMultiLockKeys(NAMES, suspendingConfig, cleanupConnection.codec)
-                    .all.toTypedArray()
-                cleanupConnection.sync().del(*cleanupKeys)
-                cleanupConnection.sync().exists(*cleanupKeys) shouldBeEqualTo 0L
+            val cleanupFailures = mutableListOf<Throwable>()
+            fun cleanup(block: () -> Unit) {
+                try {
+                    block()
+                } catch (failure: Throwable) {
+                    cleanupFailures += failure
+                }
             }
+            cleanup { blocking?.close() }
+            cleanup { suspending?.close() }
+            cleanup { connection?.close() }
+            cleanup {
+                cleanupRedisKeys(
+                    deriveMultiLockKeys(NAMES, blockingConfig, StringCodec.UTF8).all,
+                    deriveMultiLockKeys(NAMES, suspendingConfig, StringCodec.UTF8).all,
+                )
+            }
+            reportCleanupFailures(bodyFailure, cleanupFailures)
         }
+    }
+
+    private suspend fun verifyMultiBackendFailure(
+        blocking: LettuceMultiLock,
+        handle: MultiLockHandle,
+    ) {
+        blocking.tryAcquire(OWNER_1, REQUEST_1, LEASE)
+            .shouldBeInstanceOf<LockAcquireResult.BackendFailure>()
+        blocking.tryAcquireAsync(OWNER_1, REQUEST_1, LEASE).await()
+            .shouldBeInstanceOf<LockAcquireResult.BackendFailure>()
+        blocking.acquire(OWNER_1, REQUEST_1, WAIT, LEASE)
+            .shouldBeInstanceOf<LockAcquireResult.BackendFailure>()
+        blocking.acquireAsync(OWNER_1, REQUEST_1, WAIT, LEASE).await()
+            .shouldBeInstanceOf<LockAcquireResult.BackendFailure>()
+        blocking.inspect(handle).shouldBeInstanceOf<LockInspectResult.BackendFailure>()
+        blocking.inspectAsync(handle).await().shouldBeInstanceOf<LockInspectResult.BackendFailure>()
+        blocking.reconcile(OWNER_1, REQUEST_1)
+            .shouldBeInstanceOf<LockReconcileResult.BackendFailure>()
+        blocking.reconcileAsync(OWNER_1, REQUEST_1).await()
+            .shouldBeInstanceOf<LockReconcileResult.BackendFailure>()
+        blocking.renew(handle, EXTENSION).shouldBeInstanceOf<LockMutationResult.BackendFailure>()
+        blocking.renewAsync(handle, EXTENSION).await()
+            .shouldBeInstanceOf<LockMutationResult.BackendFailure>()
+        blocking.release(handle).shouldBeInstanceOf<LockMutationResult.BackendFailure>()
+        blocking.releaseAsync(handle).await().shouldBeInstanceOf<LockMutationResult.BackendFailure>()
+    }
+
+    private suspend fun verifySuspendingMultiBackendFailure(
+        suspending: LettuceSuspendMultiLock,
+        handle: MultiLockHandle,
+    ) {
+        suspending.tryAcquire(OWNER_2, REQUEST_2, LEASE)
+            .shouldBeInstanceOf<LockAcquireResult.BackendFailure>()
+        suspending.acquire(OWNER_2, REQUEST_2, WAIT, LEASE)
+            .shouldBeInstanceOf<LockAcquireResult.BackendFailure>()
+        suspending.inspect(handle).shouldBeInstanceOf<LockInspectResult.BackendFailure>()
+        suspending.reconcile(OWNER_2, REQUEST_2)
+            .shouldBeInstanceOf<LockReconcileResult.BackendFailure>()
+        suspending.renew(handle, EXTENSION).shouldBeInstanceOf<LockMutationResult.BackendFailure>()
+        suspending.release(handle).shouldBeInstanceOf<LockMutationResult.BackendFailure>()
     }
 
     @Test
     fun `read write lock surfaces return backend failure after disconnect`() = runSuspendIO {
-        val connection = LettuceTestUtils.client.connect(StringCodec.UTF8)
+        var connection: StatefulRedisConnection<String, String>? = null
         val blockingName = "disconnected-rw-blocking-${System.nanoTime()}"
         val suspendingName = "disconnected-rw-suspending-${System.nanoTime()}"
         val config = ReadWriteLockConfig()
-        val blocking = LettuceReadWriteLock.create(connection, blockingName, config)
-        val suspending = LettuceSuspendReadWriteLock.create(connection, suspendingName, config)
+        var blocking: LettuceReadWriteLock? = null
+        var suspending: LettuceSuspendReadWriteLock? = null
+        var bodyFailure: Throwable? = null
         try {
-            val blockingRead = blocking.readLock().tryAcquire(OWNER_1, REQUEST_1, LEASE)
+            connection = LettuceTestUtils.client.connect(StringCodec.UTF8)
+            val activeConnection = requireNotNull(connection)
+            blocking = LettuceReadWriteLock.create(activeConnection, blockingName, config)
+            suspending = LettuceSuspendReadWriteLock.create(activeConnection, suspendingName, config)
+            val activeBlocking = requireNotNull(blocking)
+            val activeSuspending = requireNotNull(suspending)
+            val blockingRead = activeBlocking.readLock().tryAcquire(OWNER_1, REQUEST_1, LEASE)
                 .shouldBeInstanceOf<LockAcquireResult.Acquired<ReadLockHandle>>()
                 .handle
-            blocking.readLock().release(blockingRead) shouldBeEqualTo LockMutationResult.Released(0)
-            val blockingWrite = blocking.writeLock().tryAcquire(OWNER_1, REQUEST_2, LEASE)
+            activeBlocking.readLock().release(blockingRead) shouldBeEqualTo LockMutationResult.Released(0)
+            val blockingWrite = activeBlocking.writeLock().tryAcquire(OWNER_1, REQUEST_2, LEASE)
                 .shouldBeInstanceOf<LockAcquireResult.Acquired<WriteLockHandle>>()
                 .handle
-            val suspendingRead = suspending.readLock().tryAcquire(OWNER_2, REQUEST_1, LEASE)
+            val suspendingRead = activeSuspending.readLock().tryAcquire(OWNER_2, REQUEST_1, LEASE)
                 .shouldBeInstanceOf<LockAcquireResult.Acquired<ReadLockHandle>>()
                 .handle
-            suspending.readLock().release(suspendingRead) shouldBeEqualTo LockMutationResult.Released(0)
-            val suspendingWrite = suspending.writeLock().tryAcquire(OWNER_2, REQUEST_2, LEASE)
+            activeSuspending.readLock().release(suspendingRead) shouldBeEqualTo LockMutationResult.Released(0)
+            val suspendingWrite = activeSuspending.writeLock().tryAcquire(OWNER_2, REQUEST_2, LEASE)
                 .shouldBeInstanceOf<LockAcquireResult.Acquired<WriteLockHandle>>()
                 .handle
-            connection.close()
+            activeConnection.close()
 
-            verifyBlockingReadBackendFailure(blocking.readLock(), blockingRead)
-            verifyBlockingWriteBackendFailure(blocking.writeLock(), blockingWrite)
-            blocking.downgrade(blockingWrite).shouldBeInstanceOf<DowngradeResult.BackendFailure>()
-            blocking.downgradeAsync(blockingWrite).await().shouldBeInstanceOf<DowngradeResult.BackendFailure>()
-            verifySuspendingReadBackendFailure(suspending.readLock(), suspendingRead)
-            verifySuspendingWriteBackendFailure(suspending.writeLock(), suspendingWrite)
-            suspending.downgrade(suspendingWrite).shouldBeInstanceOf<DowngradeResult.BackendFailure>()
+            verifyBlockingReadBackendFailure(activeBlocking.readLock(), blockingRead)
+            verifyBlockingWriteBackendFailure(activeBlocking.writeLock(), blockingWrite)
+            activeBlocking.downgrade(blockingWrite).shouldBeInstanceOf<DowngradeResult.BackendFailure>()
+            activeBlocking.downgradeAsync(blockingWrite).await()
+                .shouldBeInstanceOf<DowngradeResult.BackendFailure>()
+            verifySuspendingReadBackendFailure(activeSuspending.readLock(), suspendingRead)
+            verifySuspendingWriteBackendFailure(activeSuspending.writeLock(), suspendingWrite)
+            activeSuspending.downgrade(suspendingWrite)
+                .shouldBeInstanceOf<DowngradeResult.BackendFailure>()
+        } catch (failure: Throwable) {
+            bodyFailure = failure
+            throw failure
         } finally {
-            blocking.close()
-            suspending.close()
-            connection.close()
-            LettuceTestUtils.client.connect(StringCodec.UTF8).use { cleanupConnection ->
-                val cleanupKeys = deriveReadWriteLockKeys(blockingName, config, cleanupConnection.codec).all +
-                    deriveReadWriteLockKeys(suspendingName, config, cleanupConnection.codec).all
-                cleanupConnection.sync().del(*cleanupKeys)
-                cleanupConnection.sync().exists(*cleanupKeys) shouldBeEqualTo 0L
+            val cleanupFailures = mutableListOf<Throwable>()
+            fun cleanup(block: () -> Unit) {
+                try {
+                    block()
+                } catch (failure: Throwable) {
+                    cleanupFailures += failure
+                }
             }
+            cleanup { blocking?.close() }
+            cleanup { suspending?.close() }
+            cleanup { connection?.close() }
+            cleanup {
+                cleanupRedisKeys(
+                    deriveReadWriteLockKeys(blockingName, config, StringCodec.UTF8).all.toList(),
+                    deriveReadWriteLockKeys(suspendingName, config, StringCodec.UTF8).all.toList(),
+                )
+            }
+            reportCleanupFailures(bodyFailure, cleanupFailures)
         }
     }
 
