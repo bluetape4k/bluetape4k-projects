@@ -85,9 +85,24 @@ class PropertyExportingServerDynamicPropertyRegistryTest {
         server.values = mapOf("host" to "after")
         registry.value("testcontainers.bridge-contract.host") shouldBeEqualTo "after"
         server.propertiesCalls shouldBeEqualTo 1
+    }
+
+    @Test
+    fun `supplier 는 값을 캐시하지 않고 반복 평가마다 properties 를 호출한다`() {
+        val server = FakeServer(
+            keys = setOf("host"),
+            values = mapOf("host" to "after"),
+        )
+        val registry = RecordingRegistry()
+
+        server.registerDynamicProperties(registry)
 
         server.values = mapOf("host" to "latest")
         registry.value("testcontainers.bridge-contract.host") shouldBeEqualTo "latest"
+        server.propertiesCalls shouldBeEqualTo 1
+
+        server.values = mapOf("host" to "final")
+        registry.value("testcontainers.bridge-contract.host") shouldBeEqualTo "final"
         server.propertiesCalls shouldBeEqualTo 2
     }
 
