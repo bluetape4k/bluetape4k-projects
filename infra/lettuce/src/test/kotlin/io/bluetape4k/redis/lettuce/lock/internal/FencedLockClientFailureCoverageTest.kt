@@ -110,21 +110,25 @@ internal class FencedLockClientFailureCoverageTest {
                 LockIntegrityFailureKind.MALFORMED_REPLY,
             )
             expectIntegrity(
-                client.bootstrapFencingAsync().await().shouldBeInstanceOf<FencedBootstrapResult.IntegrityFailure>().failure,
+                client.bootstrapFencingAsync().await()
+                    .shouldBeInstanceOf<FencedBootstrapResult.IntegrityFailure>().failure,
                 LockIntegrityFailureKind.MALFORMED_REPLY,
             )
             expectIntegrity(
-                client.bootstrapFencingSuspending().shouldBeInstanceOf<FencedBootstrapResult.IntegrityFailure>().failure,
+                client.bootstrapFencingSuspending()
+                    .shouldBeInstanceOf<FencedBootstrapResult.IntegrityFailure>().failure,
                 LockIntegrityFailureKind.MALFORMED_REPLY,
             )
 
             listOf(
-                client.tryAcquire(OWNER, REQUEST, LEASE).shouldBeInstanceOf<LockAcquireResult.IntegrityFailure>().failure,
+                client.tryAcquire(OWNER, REQUEST, LEASE)
+                    .shouldBeInstanceOf<LockAcquireResult.IntegrityFailure>().failure,
                 client.tryAcquireAsync(OWNER, REQUEST, LEASE).await()
                     .shouldBeInstanceOf<LockAcquireResult.IntegrityFailure>().failure,
                 client.tryAcquireSuspending(OWNER, REQUEST, LEASE)
                     .shouldBeInstanceOf<LockAcquireResult.IntegrityFailure>().failure,
-                client.acquire(OWNER, REQUEST, WAIT, LEASE).shouldBeInstanceOf<LockAcquireResult.IntegrityFailure>().failure,
+                client.acquire(OWNER, REQUEST, WAIT, LEASE)
+                    .shouldBeInstanceOf<LockAcquireResult.IntegrityFailure>().failure,
                 client.acquireAsync(OWNER, REQUEST, WAIT, LEASE).await()
                     .shouldBeInstanceOf<LockAcquireResult.IntegrityFailure>().failure,
                 client.acquireSuspending(OWNER, REQUEST, WAIT, LEASE)
