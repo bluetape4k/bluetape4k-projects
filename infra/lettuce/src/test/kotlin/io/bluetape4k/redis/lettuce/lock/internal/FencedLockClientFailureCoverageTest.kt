@@ -9,14 +9,19 @@ import io.bluetape4k.redis.lettuce.lock.FencedLockConfig
 import io.bluetape4k.redis.lettuce.lock.FencedLockHandle
 import io.bluetape4k.redis.lettuce.lock.LeasePolicy
 import io.bluetape4k.redis.lettuce.lock.LockAcquireResult
+import io.bluetape4k.redis.lettuce.lock.LockBackendFailure
+import io.bluetape4k.redis.lettuce.lock.LockBackendFailureKind
 import io.bluetape4k.redis.lettuce.lock.LockGeneration
 import io.bluetape4k.redis.lettuce.lock.LockHandle
 import io.bluetape4k.redis.lettuce.lock.LockInspectResult
+import io.bluetape4k.redis.lettuce.lock.LockIntegrityFailure
+import io.bluetape4k.redis.lettuce.lock.LockIntegrityFailureKind
 import io.bluetape4k.redis.lettuce.lock.LockKind
 import io.bluetape4k.redis.lettuce.lock.LockMutationResult
 import io.bluetape4k.redis.lettuce.lock.LockObservationSink
 import io.bluetape4k.redis.lettuce.lock.LockOwnerId
 import io.bluetape4k.redis.lettuce.lock.LockReconcileResult
+import io.bluetape4k.redis.lettuce.lock.LockRecoveryAction
 import io.bluetape4k.redis.lettuce.lock.LockRequestId
 import io.lettuce.core.RedisConnectionException
 import kotlinx.coroutines.future.await
@@ -31,69 +36,121 @@ internal class FencedLockClientFailureCoverageTest {
     fun `sync async suspend surfaces classify connection failures`() = runSuspendIO {
         val client = failingClient(RedisConnectionException("connection sentinel"))
         try {
-            client.bootstrapFencing().shouldBeInstanceOf<FencedBootstrapResult.BackendFailure>()
-            client.bootstrapFencingAsync().await().shouldBeInstanceOf<FencedBootstrapResult.BackendFailure>()
-            client.bootstrapFencingSuspending().shouldBeInstanceOf<FencedBootstrapResult.BackendFailure>()
-
-            client.tryAcquire(OWNER, REQUEST, LEASE).shouldBeInstanceOf<LockAcquireResult.Ambiguous>()
-            client.tryAcquireAsync(OWNER, REQUEST, LEASE).await()
-                .shouldBeInstanceOf<LockAcquireResult.Ambiguous>()
-            client.tryAcquireSuspending(OWNER, REQUEST, LEASE)
-                .shouldBeInstanceOf<LockAcquireResult.Ambiguous>()
-            client.acquire(OWNER, REQUEST, WAIT, LEASE).shouldBeInstanceOf<LockAcquireResult.Ambiguous>()
-            client.acquireAsync(OWNER, REQUEST, WAIT, LEASE).await()
-                .shouldBeInstanceOf<LockAcquireResult.Ambiguous>()
-            client.acquireSuspending(OWNER, REQUEST, WAIT, LEASE)
-                .shouldBeInstanceOf<LockAcquireResult.Ambiguous>()
-
-            client.inspect(HANDLE).shouldBeInstanceOf<LockInspectResult.BackendFailure>()
-            client.inspectAsync(HANDLE).await().shouldBeInstanceOf<LockInspectResult.BackendFailure>()
-            client.inspectSuspending(HANDLE).shouldBeInstanceOf<LockInspectResult.BackendFailure>()
-            client.reconcile(OWNER, REQUEST).shouldBeInstanceOf<LockReconcileResult.BackendFailure>()
-            client.reconcileAsync(OWNER, REQUEST).await().shouldBeInstanceOf<LockReconcileResult.BackendFailure>()
-            client.reconcileSuspending(OWNER, REQUEST).shouldBeInstanceOf<LockReconcileResult.BackendFailure>()
-            client.renew(HANDLE, EXTENSION).shouldBeInstanceOf<LockMutationResult.BackendFailure>()
-            client.renewAsync(HANDLE, EXTENSION).await().shouldBeInstanceOf<LockMutationResult.BackendFailure>()
-            client.renewSuspending(HANDLE, EXTENSION).shouldBeInstanceOf<LockMutationResult.BackendFailure>()
-            client.release(HANDLE).shouldBeInstanceOf<LockMutationResult.BackendFailure>()
-            client.releaseAsync(HANDLE).await().shouldBeInstanceOf<LockMutationResult.BackendFailure>()
-            client.releaseSuspending(HANDLE).shouldBeInstanceOf<LockMutationResult.BackendFailure>()
+            verifyConnectionBootstrap(client)
+            verifyConnectionAcquire(client)
+            verifyConnectionOperations(client)
         } finally {
             client.close()
         }
+    }
+
+    private suspend fun verifyConnectionBootstrap(client: FencedLockClient) {
+        listOf(
+            client.bootstrapFencing().shouldBeInstanceOf<FencedBootstrapResult.BackendFailure>().failure,
+            client.bootstrapFencingAsync().await()
+                .shouldBeInstanceOf<FencedBootstrapResult.BackendFailure>().failure,
+            client.bootstrapFencingSuspending().shouldBeInstanceOf<FencedBootstrapResult.BackendFailure>().failure,
+        ).forEach { expectBackend(it, LockRecoveryAction.INSPECT_HANDLE) }
+    }
+
+    private suspend fun verifyConnectionAcquire(client: FencedLockClient) {
+        listOf(
+            client.tryAcquire(OWNER, REQUEST, LEASE).shouldBeInstanceOf<LockAcquireResult.Ambiguous>(),
+            client.tryAcquireAsync(OWNER, REQUEST, LEASE).await()
+                .shouldBeInstanceOf<LockAcquireResult.Ambiguous>(),
+            client.tryAcquireSuspending(OWNER, REQUEST, LEASE).shouldBeInstanceOf<LockAcquireResult.Ambiguous>(),
+            client.acquire(OWNER, REQUEST, WAIT, LEASE).shouldBeInstanceOf<LockAcquireResult.Ambiguous>(),
+            client.acquireAsync(OWNER, REQUEST, WAIT, LEASE).await()
+                .shouldBeInstanceOf<LockAcquireResult.Ambiguous>(),
+            client.acquireSuspending(OWNER, REQUEST, WAIT, LEASE).shouldBeInstanceOf<LockAcquireResult.Ambiguous>(),
+        ).forEach(::expectAmbiguous)
+    }
+
+    private suspend fun verifyConnectionOperations(client: FencedLockClient) {
+        listOf(
+            client.inspect(HANDLE).shouldBeInstanceOf<LockInspectResult.BackendFailure>().failure to
+                LockRecoveryAction.INSPECT_HANDLE,
+            client.inspectAsync(HANDLE).await().shouldBeInstanceOf<LockInspectResult.BackendFailure>().failure to
+                LockRecoveryAction.INSPECT_HANDLE,
+            client.inspectSuspending(HANDLE).shouldBeInstanceOf<LockInspectResult.BackendFailure>().failure to
+                LockRecoveryAction.INSPECT_HANDLE,
+            client.reconcile(OWNER, REQUEST).shouldBeInstanceOf<LockReconcileResult.BackendFailure>().failure to
+                LockRecoveryAction.RECONCILE_REQUEST,
+            client.reconcileAsync(OWNER, REQUEST).await()
+                .shouldBeInstanceOf<LockReconcileResult.BackendFailure>().failure to
+                LockRecoveryAction.RECONCILE_REQUEST,
+            client.reconcileSuspending(OWNER, REQUEST)
+                .shouldBeInstanceOf<LockReconcileResult.BackendFailure>().failure to
+                LockRecoveryAction.RECONCILE_REQUEST,
+            client.renew(HANDLE, EXTENSION).shouldBeInstanceOf<LockMutationResult.BackendFailure>().failure to
+                LockRecoveryAction.RETRY_SAME_HANDLE,
+            client.renewAsync(HANDLE, EXTENSION).await()
+                .shouldBeInstanceOf<LockMutationResult.BackendFailure>().failure to
+                LockRecoveryAction.RETRY_SAME_HANDLE,
+            client.renewSuspending(HANDLE, EXTENSION)
+                .shouldBeInstanceOf<LockMutationResult.BackendFailure>().failure to
+                LockRecoveryAction.RETRY_SAME_HANDLE,
+            client.release(HANDLE).shouldBeInstanceOf<LockMutationResult.BackendFailure>().failure to
+                LockRecoveryAction.RETRY_SAME_HANDLE,
+            client.releaseAsync(HANDLE).await()
+                .shouldBeInstanceOf<LockMutationResult.BackendFailure>().failure to
+                LockRecoveryAction.RETRY_SAME_HANDLE,
+            client.releaseSuspending(HANDLE)
+                .shouldBeInstanceOf<LockMutationResult.BackendFailure>().failure to
+                LockRecoveryAction.RETRY_SAME_HANDLE,
+        ).forEach { (failure, action) -> expectBackend(failure, action) }
     }
 
     @Test
     fun `sync async suspend surfaces fail closed on malformed replies`() = runSuspendIO {
         val client = malformedClient()
         try {
-            client.bootstrapFencing().shouldBeInstanceOf<FencedBootstrapResult.IntegrityFailure>()
-            client.bootstrapFencingAsync().await().shouldBeInstanceOf<FencedBootstrapResult.IntegrityFailure>()
-            client.bootstrapFencingSuspending().shouldBeInstanceOf<FencedBootstrapResult.IntegrityFailure>()
+            expectIntegrity(
+                client.bootstrapFencing().shouldBeInstanceOf<FencedBootstrapResult.IntegrityFailure>().failure,
+                LockIntegrityFailureKind.MALFORMED_REPLY,
+            )
+            expectIntegrity(
+                client.bootstrapFencingAsync().await().shouldBeInstanceOf<FencedBootstrapResult.IntegrityFailure>().failure,
+                LockIntegrityFailureKind.MALFORMED_REPLY,
+            )
+            expectIntegrity(
+                client.bootstrapFencingSuspending().shouldBeInstanceOf<FencedBootstrapResult.IntegrityFailure>().failure,
+                LockIntegrityFailureKind.MALFORMED_REPLY,
+            )
 
-            client.tryAcquire(OWNER, REQUEST, LEASE).shouldBeInstanceOf<LockAcquireResult.IntegrityFailure>()
-            client.tryAcquireAsync(OWNER, REQUEST, LEASE).await()
-                .shouldBeInstanceOf<LockAcquireResult.IntegrityFailure>()
-            client.tryAcquireSuspending(OWNER, REQUEST, LEASE)
-                .shouldBeInstanceOf<LockAcquireResult.IntegrityFailure>()
-            client.acquire(OWNER, REQUEST, WAIT, LEASE).shouldBeInstanceOf<LockAcquireResult.IntegrityFailure>()
-            client.acquireAsync(OWNER, REQUEST, WAIT, LEASE).await()
-                .shouldBeInstanceOf<LockAcquireResult.IntegrityFailure>()
-            client.acquireSuspending(OWNER, REQUEST, WAIT, LEASE)
-                .shouldBeInstanceOf<LockAcquireResult.IntegrityFailure>()
+            listOf(
+                client.tryAcquire(OWNER, REQUEST, LEASE).shouldBeInstanceOf<LockAcquireResult.IntegrityFailure>().failure,
+                client.tryAcquireAsync(OWNER, REQUEST, LEASE).await()
+                    .shouldBeInstanceOf<LockAcquireResult.IntegrityFailure>().failure,
+                client.tryAcquireSuspending(OWNER, REQUEST, LEASE)
+                    .shouldBeInstanceOf<LockAcquireResult.IntegrityFailure>().failure,
+                client.acquire(OWNER, REQUEST, WAIT, LEASE).shouldBeInstanceOf<LockAcquireResult.IntegrityFailure>().failure,
+                client.acquireAsync(OWNER, REQUEST, WAIT, LEASE).await()
+                    .shouldBeInstanceOf<LockAcquireResult.IntegrityFailure>().failure,
+                client.acquireSuspending(OWNER, REQUEST, WAIT, LEASE)
+                    .shouldBeInstanceOf<LockAcquireResult.IntegrityFailure>().failure,
+            ).forEach { expectIntegrity(it, LockIntegrityFailureKind.MALFORMED_REPLY) }
 
-            client.inspect(HANDLE).shouldBeInstanceOf<LockInspectResult.IntegrityFailure>()
-            client.inspectAsync(HANDLE).await().shouldBeInstanceOf<LockInspectResult.IntegrityFailure>()
-            client.inspectSuspending(HANDLE).shouldBeInstanceOf<LockInspectResult.IntegrityFailure>()
-            client.reconcile(OWNER, REQUEST).shouldBeInstanceOf<LockReconcileResult.IntegrityFailure>()
-            client.reconcileAsync(OWNER, REQUEST).await().shouldBeInstanceOf<LockReconcileResult.IntegrityFailure>()
-            client.reconcileSuspending(OWNER, REQUEST).shouldBeInstanceOf<LockReconcileResult.IntegrityFailure>()
-            client.renew(HANDLE, EXTENSION).shouldBeInstanceOf<LockMutationResult.IntegrityFailure>()
-            client.renewAsync(HANDLE, EXTENSION).await().shouldBeInstanceOf<LockMutationResult.IntegrityFailure>()
-            client.renewSuspending(HANDLE, EXTENSION).shouldBeInstanceOf<LockMutationResult.IntegrityFailure>()
-            client.release(HANDLE).shouldBeInstanceOf<LockMutationResult.IntegrityFailure>()
-            client.releaseAsync(HANDLE).await().shouldBeInstanceOf<LockMutationResult.IntegrityFailure>()
-            client.releaseSuspending(HANDLE).shouldBeInstanceOf<LockMutationResult.IntegrityFailure>()
+            listOf(
+                client.inspect(HANDLE).shouldBeInstanceOf<LockInspectResult.IntegrityFailure>().failure,
+                client.inspectAsync(HANDLE).await().shouldBeInstanceOf<LockInspectResult.IntegrityFailure>().failure,
+                client.inspectSuspending(HANDLE).shouldBeInstanceOf<LockInspectResult.IntegrityFailure>().failure,
+                client.reconcile(OWNER, REQUEST).shouldBeInstanceOf<LockReconcileResult.IntegrityFailure>().failure,
+                client.reconcileAsync(OWNER, REQUEST).await()
+                    .shouldBeInstanceOf<LockReconcileResult.IntegrityFailure>().failure,
+                client.reconcileSuspending(OWNER, REQUEST)
+                    .shouldBeInstanceOf<LockReconcileResult.IntegrityFailure>().failure,
+                client.renew(HANDLE, EXTENSION).shouldBeInstanceOf<LockMutationResult.IntegrityFailure>().failure,
+                client.renewAsync(HANDLE, EXTENSION).await()
+                    .shouldBeInstanceOf<LockMutationResult.IntegrityFailure>().failure,
+                client.renewSuspending(HANDLE, EXTENSION)
+                    .shouldBeInstanceOf<LockMutationResult.IntegrityFailure>().failure,
+                client.release(HANDLE).shouldBeInstanceOf<LockMutationResult.IntegrityFailure>().failure,
+                client.releaseAsync(HANDLE).await()
+                    .shouldBeInstanceOf<LockMutationResult.IntegrityFailure>().failure,
+                client.releaseSuspending(HANDLE)
+                    .shouldBeInstanceOf<LockMutationResult.IntegrityFailure>().failure,
+            ).forEach { expectIntegrity(it, LockIntegrityFailureKind.MALFORMED_REPLY) }
         } finally {
             client.close()
         }
@@ -104,61 +161,131 @@ internal class FencedLockClientFailureCoverageTest {
         val executor = MutableResponseExecutor()
         val client = client(executor)
         try {
-            executor.response = listOf("COUNTER_REGRESSION")
-            client.bootstrapFencing().shouldBeInstanceOf<FencedBootstrapResult.IntegrityFailure>()
-            executor.response = listOf("INTEGRITY")
-            client.bootstrapFencing().shouldBeInstanceOf<FencedBootstrapResult.IntegrityFailure>()
-
-            executor.response = listOf("REPLAY", "1", "2", "1000", "F:1000", CONFIG.epoch.toString(), "2")
-            client.tryAcquire(OWNER, REQUEST, LEASE).shouldBeInstanceOf<LockAcquireResult.Reentered<FencedLockHandle>>()
-            executor.response = listOf("CONTENDED", "20")
-            client.tryAcquire(OWNER, REQUEST, LEASE).shouldBeEqualTo(LockAcquireResult.Contended(20))
-            executor.response = listOf("CAPACITY")
-            client.tryAcquire(OWNER, REQUEST, LEASE) shouldBeEqualTo LockAcquireResult.CapacityExceeded
-            executor.response = listOf("COUNTER_REGRESSION")
-            client.tryAcquire(OWNER, REQUEST, LEASE).shouldBeInstanceOf<LockAcquireResult.IntegrityFailure>()
-            executor.response = listOf("INTEGRITY")
-            client.tryAcquire(OWNER, REQUEST, LEASE).shouldBeInstanceOf<LockAcquireResult.IntegrityFailure>()
-            executor.response = listOf("ACQUIRED", "0", "1", "1000", "F:1000", CONFIG.epoch.toString(), "2")
-            client.tryAcquire(OWNER, REQUEST, LEASE).shouldBeInstanceOf<LockAcquireResult.IntegrityFailure>()
-
-            listOf(
-                "RELEASED" to LockInspectResult.Released,
-                "EXPIRED" to LockInspectResult.Expired,
-                "STALE" to LockInspectResult.StaleGeneration,
-                "LOST" to LockInspectResult.OwnershipLost,
-            ).forEach { (tag, expected) ->
-                executor.response = listOf(tag)
-                client.inspect(HANDLE) shouldBeEqualTo expected
-            }
-            executor.response = listOf("COUNTER_REGRESSION")
-            client.inspect(HANDLE).shouldBeInstanceOf<LockInspectResult.IntegrityFailure>()
-            executor.response = listOf("INTEGRITY")
-            client.inspect(HANDLE).shouldBeInstanceOf<LockInspectResult.IntegrityFailure>()
-
-            executor.response = listOf("RELEASED")
-            client.reconcile(OWNER, REQUEST) shouldBeEqualTo LockReconcileResult.Released
-            executor.response = listOf("NOT_FOUND")
-            client.reconcile(OWNER, REQUEST) shouldBeEqualTo LockReconcileResult.NotFound
-            executor.response = listOf("COUNTER_REGRESSION")
-            client.reconcile(OWNER, REQUEST).shouldBeInstanceOf<LockReconcileResult.IntegrityFailure>()
-            executor.response = listOf("INTEGRITY")
-            client.reconcile(OWNER, REQUEST).shouldBeInstanceOf<LockReconcileResult.IntegrityFailure>()
-
-            terminalMutationReplies().forEach { (tag, expected) ->
-                executor.response = listOf(tag)
-                client.renew(HANDLE, EXTENSION) shouldBeEqualTo expected
-                client.release(HANDLE) shouldBeEqualTo expected
-            }
-            executor.response = listOf("COUNTER_REGRESSION")
-            client.renew(HANDLE, EXTENSION).shouldBeInstanceOf<LockMutationResult.IntegrityFailure>()
-            client.release(HANDLE).shouldBeInstanceOf<LockMutationResult.IntegrityFailure>()
-            executor.response = listOf("INTEGRITY")
-            client.renew(HANDLE, EXTENSION).shouldBeInstanceOf<LockMutationResult.IntegrityFailure>()
-            client.release(HANDLE).shouldBeInstanceOf<LockMutationResult.IntegrityFailure>()
+            verifyTerminalBootstrap(executor, client)
+            verifyTerminalAcquire(executor, client)
+            verifyTerminalInspect(executor, client)
+            verifyTerminalReconcile(executor, client)
+            verifyTerminalMutation(executor, client)
         } finally {
             client.close()
         }
+    }
+
+    private fun verifyTerminalBootstrap(executor: MutableResponseExecutor, client: FencedLockClient) {
+        executor.response = listOf("COUNTER_REGRESSION")
+        expectIntegrity(
+            client.bootstrapFencing().shouldBeInstanceOf<FencedBootstrapResult.IntegrityFailure>().failure,
+            LockIntegrityFailureKind.COUNTER_REGRESSION,
+        )
+        executor.response = listOf("INTEGRITY")
+        expectIntegrity(
+            client.bootstrapFencing().shouldBeInstanceOf<FencedBootstrapResult.IntegrityFailure>().failure,
+            LockIntegrityFailureKind.INVALID_STATE,
+        )
+    }
+
+    private fun verifyTerminalAcquire(executor: MutableResponseExecutor, client: FencedLockClient) {
+        executor.response = listOf("REPLAY", "1", "2", "1000", "F:1000", CONFIG.epoch.toString(), "2")
+        client.tryAcquire(OWNER, REQUEST, LEASE).shouldBeInstanceOf<LockAcquireResult.Reentered<FencedLockHandle>>()
+        executor.response = listOf("CONTENDED", "20")
+        client.tryAcquire(OWNER, REQUEST, LEASE).shouldBeEqualTo(LockAcquireResult.Contended(20))
+        executor.response = listOf("CAPACITY")
+        client.tryAcquire(OWNER, REQUEST, LEASE) shouldBeEqualTo LockAcquireResult.CapacityExceeded
+        executor.response = listOf("COUNTER_REGRESSION")
+        expectIntegrity(
+            client.tryAcquire(OWNER, REQUEST, LEASE).shouldBeInstanceOf<LockAcquireResult.IntegrityFailure>().failure,
+            LockIntegrityFailureKind.COUNTER_REGRESSION,
+        )
+        executor.response = listOf("INTEGRITY")
+        expectIntegrity(
+            client.tryAcquire(OWNER, REQUEST, LEASE).shouldBeInstanceOf<LockAcquireResult.IntegrityFailure>().failure,
+            LockIntegrityFailureKind.INVALID_STATE,
+        )
+        executor.response = listOf("ACQUIRED", "0", "1", "1000", "F:1000", CONFIG.epoch.toString(), "2")
+        expectIntegrity(
+            client.tryAcquire(OWNER, REQUEST, LEASE).shouldBeInstanceOf<LockAcquireResult.IntegrityFailure>().failure,
+            LockIntegrityFailureKind.MALFORMED_REPLY,
+        )
+    }
+
+    private fun verifyTerminalInspect(executor: MutableResponseExecutor, client: FencedLockClient) {
+        listOf(
+            "RELEASED" to LockInspectResult.Released,
+            "EXPIRED" to LockInspectResult.Expired,
+            "STALE" to LockInspectResult.StaleGeneration,
+            "LOST" to LockInspectResult.OwnershipLost,
+        ).forEach { (tag, expected) ->
+            executor.response = listOf(tag)
+            client.inspect(HANDLE) shouldBeEqualTo expected
+        }
+        executor.response = listOf("COUNTER_REGRESSION")
+        expectIntegrity(
+            client.inspect(HANDLE).shouldBeInstanceOf<LockInspectResult.IntegrityFailure>().failure,
+            LockIntegrityFailureKind.COUNTER_REGRESSION,
+        )
+        executor.response = listOf("INTEGRITY")
+        expectIntegrity(
+            client.inspect(HANDLE).shouldBeInstanceOf<LockInspectResult.IntegrityFailure>().failure,
+            LockIntegrityFailureKind.INVALID_STATE,
+        )
+    }
+
+    private fun verifyTerminalReconcile(executor: MutableResponseExecutor, client: FencedLockClient) {
+        executor.response = listOf("RELEASED")
+        client.reconcile(OWNER, REQUEST) shouldBeEqualTo LockReconcileResult.Released
+        executor.response = listOf("NOT_FOUND")
+        client.reconcile(OWNER, REQUEST) shouldBeEqualTo LockReconcileResult.NotFound
+        executor.response = listOf("COUNTER_REGRESSION")
+        expectIntegrity(
+            client.reconcile(OWNER, REQUEST).shouldBeInstanceOf<LockReconcileResult.IntegrityFailure>().failure,
+            LockIntegrityFailureKind.COUNTER_REGRESSION,
+        )
+        executor.response = listOf("INTEGRITY")
+        expectIntegrity(
+            client.reconcile(OWNER, REQUEST).shouldBeInstanceOf<LockReconcileResult.IntegrityFailure>().failure,
+            LockIntegrityFailureKind.INVALID_STATE,
+        )
+    }
+
+    private fun verifyTerminalMutation(executor: MutableResponseExecutor, client: FencedLockClient) {
+        terminalMutationReplies().forEach { (tag, expected) ->
+            executor.response = listOf(tag)
+            client.renew(HANDLE, EXTENSION) shouldBeEqualTo expected
+            client.release(HANDLE) shouldBeEqualTo expected
+        }
+        executor.response = listOf("COUNTER_REGRESSION")
+        expectIntegrity(
+            client.renew(HANDLE, EXTENSION).shouldBeInstanceOf<LockMutationResult.IntegrityFailure>().failure,
+            LockIntegrityFailureKind.COUNTER_REGRESSION,
+        )
+        expectIntegrity(
+            client.release(HANDLE).shouldBeInstanceOf<LockMutationResult.IntegrityFailure>().failure,
+            LockIntegrityFailureKind.COUNTER_REGRESSION,
+        )
+        executor.response = listOf("INTEGRITY")
+        expectIntegrity(
+            client.renew(HANDLE, EXTENSION).shouldBeInstanceOf<LockMutationResult.IntegrityFailure>().failure,
+            LockIntegrityFailureKind.INVALID_STATE,
+        )
+        expectIntegrity(
+            client.release(HANDLE).shouldBeInstanceOf<LockMutationResult.IntegrityFailure>().failure,
+            LockIntegrityFailureKind.INVALID_STATE,
+        )
+    }
+
+    private fun expectBackend(failure: LockBackendFailure, action: LockRecoveryAction) {
+        failure.kind shouldBeEqualTo LockBackendFailureKind.CONNECTION
+        failure.recoveryAction shouldBeEqualTo action
+    }
+
+    private fun expectIntegrity(failure: LockIntegrityFailure, kind: LockIntegrityFailureKind) {
+        failure.kind shouldBeEqualTo kind
+    }
+
+    private fun expectAmbiguous(result: LockAcquireResult.Ambiguous) {
+        result.ownerId shouldBeEqualTo OWNER
+        result.requestId shouldBeEqualTo REQUEST
+        result.recoveryAction shouldBeEqualTo LockRecoveryAction.RECONCILE_REQUEST
     }
 
     private fun failingClient(failure: Throwable): FencedLockClient =
