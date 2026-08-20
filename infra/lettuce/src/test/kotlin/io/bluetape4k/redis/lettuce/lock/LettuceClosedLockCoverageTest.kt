@@ -18,7 +18,7 @@ import java.util.concurrent.CancellationException
  * 공개 lock adapter가 종료 이후 모든 실행 모델에서 동일한 terminal 결과를
  * 유지하는지 검증합니다.
  */
-@Suppress("LargeClass")
+@Suppress("LargeClass") // Exhaustive sync/async/suspending API matrix is intentionally kept together.
 internal class LettuceClosedLockCoverageTest {
 
     @Test
@@ -71,29 +71,17 @@ internal class LettuceClosedLockCoverageTest {
                 bodyFailure = failure
                 throw failure
             } finally {
-                val cleanupFailures = mutableListOf<Throwable>()
-                fun cleanup(block: () -> Unit) {
-                    try {
-                        block()
-                    } catch (failure: Exception) {
-                        if (failure is CancellationException) {
-                            bodyFailure?.addSuppressed(failure) ?: throw failure
-                        } else {
-                            cleanupFailures += failure
-                        }
-                    } catch (failure: Error) {
-                        bodyFailure?.addSuppressed(failure) ?: throw failure
-                    }
-                }
-                cleanup { blocking?.close() }
-                cleanup { suspending?.close() }
-                cleanup {
-                    cleanupRedisKeys(
-                        deriveMultiLockKeys(NAMES, blockingConfig, StringCodec.UTF8).all,
-                        deriveMultiLockKeys(NAMES, suspendingConfig, StringCodec.UTF8).all,
-                    )
-                }
-                reportCleanupFailures(bodyFailure, cleanupFailures)
+                cleanupAll(
+                    bodyFailure,
+                    { blocking?.close() },
+                    { suspending?.close() },
+                    {
+                        cleanupRedisKeys(
+                            deriveMultiLockKeys(NAMES, blockingConfig, StringCodec.UTF8).all,
+                            deriveMultiLockKeys(NAMES, suspendingConfig, StringCodec.UTF8).all,
+                        )
+                    },
+                )
             }
         }
     }
@@ -144,29 +132,17 @@ internal class LettuceClosedLockCoverageTest {
                 bodyFailure = failure
                 throw failure
             } finally {
-                val cleanupFailures = mutableListOf<Throwable>()
-                fun cleanup(block: () -> Unit) {
-                    try {
-                        block()
-                    } catch (failure: Exception) {
-                        if (failure is CancellationException) {
-                            bodyFailure?.addSuppressed(failure) ?: throw failure
-                        } else {
-                            cleanupFailures += failure
-                        }
-                    } catch (failure: Error) {
-                        bodyFailure?.addSuppressed(failure) ?: throw failure
-                    }
-                }
-                cleanup { blocking?.close() }
-                cleanup { suspending?.close() }
-                cleanup {
-                    cleanupRedisKeys(
-                        deriveReadWriteLockKeys(blockingName, config, StringCodec.UTF8).all.toList(),
-                        deriveReadWriteLockKeys(suspendingName, config, StringCodec.UTF8).all.toList(),
-                    )
-                }
-                reportCleanupFailures(bodyFailure, cleanupFailures)
+                cleanupAll(
+                    bodyFailure,
+                    { blocking?.close() },
+                    { suspending?.close() },
+                    {
+                        cleanupRedisKeys(
+                            deriveReadWriteLockKeys(blockingName, config, StringCodec.UTF8).all.toList(),
+                            deriveReadWriteLockKeys(suspendingName, config, StringCodec.UTF8).all.toList(),
+                        )
+                    },
+                )
             }
         }
     }
@@ -204,29 +180,17 @@ internal class LettuceClosedLockCoverageTest {
                 bodyFailure = failure
                 throw failure
             } finally {
-                val cleanupFailures = mutableListOf<Throwable>()
-                fun cleanup(block: () -> Unit) {
-                    try {
-                        block()
-                    } catch (failure: Exception) {
-                        if (failure is CancellationException) {
-                            bodyFailure?.addSuppressed(failure) ?: throw failure
-                        } else {
-                            cleanupFailures += failure
-                        }
-                    } catch (failure: Error) {
-                        bodyFailure?.addSuppressed(failure) ?: throw failure
-                    }
-                }
-                cleanup { blocking?.close() }
-                cleanup { suspending?.close() }
-                cleanup {
-                    cleanupRedisKeys(
-                        deriveFencedLockKeys(blockingName, config, StringCodec.UTF8).all.toList(),
-                        deriveFencedLockKeys(suspendingName, config, StringCodec.UTF8).all.toList(),
-                    )
-                }
-                reportCleanupFailures(bodyFailure, cleanupFailures)
+                cleanupAll(
+                    bodyFailure,
+                    { blocking?.close() },
+                    { suspending?.close() },
+                    {
+                        cleanupRedisKeys(
+                            deriveFencedLockKeys(blockingName, config, StringCodec.UTF8).all.toList(),
+                            deriveFencedLockKeys(suspendingName, config, StringCodec.UTF8).all.toList(),
+                        )
+                    },
+                )
             }
         }
     }
@@ -260,30 +224,18 @@ internal class LettuceClosedLockCoverageTest {
             bodyFailure = failure
             throw failure
         } finally {
-            val cleanupFailures = mutableListOf<Throwable>()
-            fun cleanup(block: () -> Unit) {
-                try {
-                    block()
-                } catch (failure: Exception) {
-                    if (failure is CancellationException) {
-                        bodyFailure?.addSuppressed(failure) ?: throw failure
-                    } else {
-                        cleanupFailures += failure
-                    }
-                } catch (failure: Error) {
-                    bodyFailure?.addSuppressed(failure) ?: throw failure
-                }
-            }
-            cleanup { blocking?.close() }
-            cleanup { suspending?.close() }
-            cleanup { connection?.close() }
-            cleanup {
-                cleanupRedisKeys(
-                    deriveMultiLockKeys(NAMES, blockingConfig, StringCodec.UTF8).all,
-                    deriveMultiLockKeys(NAMES, suspendingConfig, StringCodec.UTF8).all,
-                )
-            }
-            reportCleanupFailures(bodyFailure, cleanupFailures)
+            cleanupAll(
+                bodyFailure,
+                { blocking?.close() },
+                { suspending?.close() },
+                { connection?.close() },
+                {
+                    cleanupRedisKeys(
+                        deriveMultiLockKeys(NAMES, blockingConfig, StringCodec.UTF8).all,
+                        deriveMultiLockKeys(NAMES, suspendingConfig, StringCodec.UTF8).all,
+                    )
+                },
+            )
         }
     }
 
@@ -383,41 +335,25 @@ internal class LettuceClosedLockCoverageTest {
 
             verifyBlockingReadBackendFailure(activeBlocking.readLock(), blockingRead)
             verifyBlockingWriteBackendFailure(activeBlocking.writeLock(), blockingWrite)
-            activeBlocking.downgrade(blockingWrite).shouldBeInstanceOf<DowngradeResult.BackendFailure>()
-            activeBlocking.downgradeAsync(blockingWrite).await()
-                .shouldBeInstanceOf<DowngradeResult.BackendFailure>()
             verifySuspendingReadBackendFailure(activeSuspending.readLock(), suspendingRead)
             verifySuspendingWriteBackendFailure(activeSuspending.writeLock(), suspendingWrite)
-            activeSuspending.downgrade(suspendingWrite)
-                .shouldBeInstanceOf<DowngradeResult.BackendFailure>()
+            verifyReadWriteDowngradeBackendFailure(activeBlocking, blockingWrite, activeSuspending, suspendingWrite)
         } catch (failure: Throwable) {
             bodyFailure = failure
             throw failure
         } finally {
-            val cleanupFailures = mutableListOf<Throwable>()
-            fun cleanup(block: () -> Unit) {
-                try {
-                    block()
-                } catch (failure: Exception) {
-                    if (failure is CancellationException) {
-                        bodyFailure?.addSuppressed(failure) ?: throw failure
-                    } else {
-                        cleanupFailures += failure
-                    }
-                } catch (failure: Error) {
-                    bodyFailure?.addSuppressed(failure) ?: throw failure
-                }
-            }
-            cleanup { blocking?.close() }
-            cleanup { suspending?.close() }
-            cleanup { connection?.close() }
-            cleanup {
-                cleanupRedisKeys(
-                    deriveReadWriteLockKeys(blockingName, config, StringCodec.UTF8).all.toList(),
-                    deriveReadWriteLockKeys(suspendingName, config, StringCodec.UTF8).all.toList(),
-                )
-            }
-            reportCleanupFailures(bodyFailure, cleanupFailures)
+            cleanupAll(
+                bodyFailure,
+                { blocking?.close() },
+                { suspending?.close() },
+                { connection?.close() },
+                {
+                    cleanupRedisKeys(
+                        deriveReadWriteLockKeys(blockingName, config, StringCodec.UTF8).all.toList(),
+                        deriveReadWriteLockKeys(suspendingName, config, StringCodec.UTF8).all.toList(),
+                    )
+                },
+            )
         }
     }
 
@@ -438,6 +374,29 @@ internal class LettuceClosedLockCoverageTest {
         view.renewAsync(handle, EXTENSION).await() shouldBeEqualTo LockMutationResult.Closed
         view.release(handle) shouldBeEqualTo LockMutationResult.Closed
         view.releaseAsync(handle).await() shouldBeEqualTo LockMutationResult.Closed
+    }
+
+    private suspend fun verifyReadWriteDowngradeBackendFailure(
+        blocking: LettuceReadWriteLock,
+        blockingHandle: WriteLockHandle,
+        suspending: LettuceSuspendReadWriteLock,
+        suspendingHandle: WriteLockHandle,
+    ) {
+        expectBackend(
+            blocking.downgrade(blockingHandle)
+                .shouldBeInstanceOf<DowngradeResult.BackendFailure>().failure,
+            LockRecoveryAction.RETRY_SAME_HANDLE,
+        )
+        expectBackend(
+            blocking.downgradeAsync(blockingHandle).await()
+                .shouldBeInstanceOf<DowngradeResult.BackendFailure>().failure,
+            LockRecoveryAction.RETRY_SAME_HANDLE,
+        )
+        expectBackend(
+            suspending.downgrade(suspendingHandle)
+                .shouldBeInstanceOf<DowngradeResult.BackendFailure>().failure,
+            LockRecoveryAction.RETRY_SAME_HANDLE,
+        )
     }
 
     private suspend fun verifyBlockingWriteClosed(
@@ -652,6 +611,23 @@ internal class LettuceClosedLockCoverageTest {
 
     private fun expectBackends(vararg failures: Pair<LockBackendFailure, LockRecoveryAction>) {
         failures.forEach { (failure, action) -> expectBackend(failure, action) }
+    }
+
+    private fun cleanupAll(bodyFailure: Throwable?, vararg blocks: () -> Unit) {
+        val fatalFailures = mutableListOf<Throwable>()
+        val cleanupFailures = mutableListOf<Throwable>()
+        blocks.forEach { block ->
+            try {
+                block()
+            } catch (failure: CancellationException) {
+                fatalFailures += failure
+            } catch (failure: Error) {
+                fatalFailures += failure
+            } catch (failure: Exception) {
+                cleanupFailures += failure
+            }
+        }
+        reportCleanupFailures(bodyFailure, fatalFailures + cleanupFailures)
     }
 
     private fun reportCleanupFailures(bodyFailure: Throwable?, cleanupFailures: List<Throwable>) {
