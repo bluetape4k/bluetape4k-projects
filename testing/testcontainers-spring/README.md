@@ -22,6 +22,7 @@ catalog; do not pin a separate Spring Test version.
 
 ```kotlin
 import io.bluetape4k.testcontainers.spring.registerDynamicProperties
+import io.bluetape4k.testcontainers.storage.RedisServer
 import org.springframework.test.context.DynamicPropertyRegistry
 import org.springframework.test.context.DynamicPropertySource
 
