@@ -20,6 +20,8 @@ private const val SYSTEM_PROPERTY_PREFIX = "testcontainers"
  * 덮어쓰지 않고 Spring registry의 등록 순서와 우선순위 semantics에 위임합니다.
  *
  * ```kotlin
+ * import org.springframework.test.context.DynamicPropertyRegistry
+ * import org.springframework.test.context.DynamicPropertySource
  * import io.bluetape4k.testcontainers.storage.RedisServer
  *
  * companion object {

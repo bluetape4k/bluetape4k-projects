@@ -6,6 +6,7 @@ import io.bluetape4k.testcontainers.PropertyExportingServer
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
 import org.springframework.test.context.DynamicPropertyRegistry
+import org.springframework.test.context.DynamicPropertySource
 import java.util.function.Supplier
 
 /**
@@ -15,6 +16,18 @@ import java.util.function.Supplier
  * 예외 전달 및 시스템 프로퍼티 비변경을 검증합니다.
  */
 class PropertyExportingServerDynamicPropertyRegistryTest {
+
+    companion object {
+        @JvmStatic
+        @DynamicPropertySource
+        fun registerReadmeStyleProperties(registry: DynamicPropertyRegistry) {
+            FakeServer(
+                propertyNamespace = "redis",
+                keys = setOf("host"),
+                values = mapOf("host" to "localhost"),
+            ).registerDynamicProperties(registry)
+        }
+    }
 
     private val systemPropertyKey = "testcontainers.bridge-contract.host"
 
@@ -26,6 +39,7 @@ class PropertyExportingServerDynamicPropertyRegistryTest {
     @Test
     fun `propertyKeys 를 full Spring property key 로 등록한다`() {
         val server = FakeServer(
+            propertyNamespace = "redis",
             keys = linkedSetOf("host", "port", "url"),
             values = mapOf(
                 "host" to "localhost",
@@ -38,14 +52,14 @@ class PropertyExportingServerDynamicPropertyRegistryTest {
         server.registerDynamicProperties(registry)
 
         registry.names shouldBeEqualTo listOf(
-            "testcontainers.bridge-contract.host",
-            "testcontainers.bridge-contract.port",
-            "testcontainers.bridge-contract.url",
+            "testcontainers.redis.host",
+            "testcontainers.redis.port",
+            "testcontainers.redis.url",
         )
         server.propertiesCalls shouldBeEqualTo 0
-        registry.value("testcontainers.bridge-contract.host") shouldBeEqualTo "localhost"
-        registry.value("testcontainers.bridge-contract.port") shouldBeEqualTo "6379"
-        registry.value("testcontainers.bridge-contract.url") shouldBeEqualTo "redis://localhost:6379"
+        registry.value("testcontainers.redis.host") shouldBeEqualTo "localhost"
+        registry.value("testcontainers.redis.port") shouldBeEqualTo "6379"
+        registry.value("testcontainers.redis.url") shouldBeEqualTo "redis://localhost:6379"
     }
 
     @Test

@@ -13,7 +13,8 @@
 분리된 JVM unit test를 실행한다.
 
 **Tech Stack:** Kotlin 2.4, Gradle 9.7, Java 25 default target, Spring Boot 4
-dependency platform, Spring Test `DynamicPropertyRegistry`, JUnit 5/Kluent.
+dependency platform, Spring Test `DynamicPropertyRegistry`, JUnit 5, and
+bluetape4k assertions.
 
 ---
 
