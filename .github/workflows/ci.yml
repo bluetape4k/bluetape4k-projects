@@ -133,6 +133,7 @@ jobs:
       io: ${{ steps.filter.outputs.io }}
       io-http: ${{ steps.filter.outputs.io-http }}
       testcontainers-spring: ${{ steps.filter.outputs.testcontainers-spring }}
+      testcontainers-image-gate: ${{ steps.filter.outputs.testcontainers-image-gate }}
       ktor: ${{ steps.filter.outputs.ktor }}
       key-utils: ${{ steps.filter.outputs.key-utils }}
       infra: ${{ steps.filter.outputs.infra }}
@@ -185,6 +186,17 @@ jobs:
             testcontainers-spring:
               - 'testing/testcontainers/**'
               - 'testing/testcontainers-spring/**'
+            testcontainers-image-gate:
+              - 'testing/testcontainers/**'
+              - 'scripts/testcontainers_image_gate_manifest.json'
+              - 'scripts/testcontainers_image_gate.py'
+              - 'scripts/test_testcontainers_contract.py'
+              - 'scripts/test_testcontainers_image_gate.py'
+              - 'scripts/run_testcontainers_image_gate.py'
+              - 'scripts/test_run_testcontainers_image_gate.py'
+              - '.github/workflows/ci.yml'
+              - '.github/workflows/nightly-tests.yml'
+              - '.github/workflows/release.yml'
             ktor:
               - 'ktor/**'
             key-utils:
@@ -575,6 +587,81 @@ jobs:
         with:
           name: coverage-testcontainers-spring
           path: '**/build/reports/kover/'
+          if-no-files-found: error
+          retention-days: 30
+
+  # ── 4-d. 변경 Testcontainers image family startup/workload gate ──────────
+  testcontainers-image-gate:
+    name: Test / Testcontainers image startup-workload gate
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+    needs: [build, changes]
+    if: ${{ needs.changes.outputs['testcontainers-image-gate'] == 'true' || needs.changes.outputs.shared == 'true' || github.event_name == 'workflow_dispatch' }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-java@v5.7.0
+        with:
+          java-version: ${{ env.JAVA_VERSION }}
+          distribution: ${{ env.JAVA_DISTRIBUTION }}
+
+      - uses: actions/setup-python@v7
+        with:
+          python-version: '3.12'
+
+      - uses: gradle/actions/setup-gradle@v6.3.0
+        with:
+          gradle-version: wrapper
+          cache-read-only: true
+
+      - name: Collect changed paths
+        id: changed-paths
+        shell: bash
+        env:
+          PR_BASE_SHA: ${{ github.event.pull_request.base.sha || '' }}
+          BEFORE_SHA: ${{ github.event.before || '' }}
+          CURRENT_SHA: ${{ github.sha }}
+        run: |
+          set -euo pipefail
+          base_sha="$PR_BASE_SHA"
+          if [[ -z "$base_sha" ]]; then
+            base_sha="$BEFORE_SHA"
+          fi
+          if [[ -z "$base_sha" || "$base_sha" =~ ^0+$ ]]; then
+            git diff --name-only HEAD^ HEAD > "$RUNNER_TEMP/testcontainers-changed-paths.txt"
+          else
+            git diff --name-only "$base_sha" "$CURRENT_SHA" > "$RUNNER_TEMP/testcontainers-changed-paths.txt"
+          fi
+          sed -n '1,120p' "$RUNNER_TEMP/testcontainers-changed-paths.txt"
+
+      - name: Run changed image family gate sequentially
+        env:
+          DOCKER_AUTH_CONFIG: ${{ secrets.TESTCONTAINERS_DOCKER_AUTH_CONFIG }}
+          TESTCONTAINERS_REGISTRY_MIRROR: ${{ vars.TESTCONTAINERS_REGISTRY_MIRROR || '' }}
+          GRADLE_OPTS: "-Dorg.gradle.daemon=false"
+        run: >-
+          python3 scripts/run_testcontainers_image_gate.py
+          --scope changed
+          --changed-path-file "$RUNNER_TEMP/testcontainers-changed-paths.txt"
+          --report-dir build/reports/testcontainers-image-gate
+          --max-attempts 2
+          --timeout-minutes 30
+
+      - name: Publish image gate summary
+        if: always()
+        run: |
+          if [ -f build/reports/testcontainers-image-gate/summary.md ]; then
+            cat build/reports/testcontainers-image-gate/summary.md
+          fi
+
+      - name: Upload image gate evidence
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: testcontainers-image-gate-${{ github.run_id }}
+          path: build/reports/testcontainers-image-gate/
           if-no-files-found: error
           retention-days: 30
 
@@ -1086,7 +1173,7 @@ jobs:
     name: CI Status
     runs-on: ubuntu-latest
     timeout-minutes: 10
-    needs: [release-policy, jvm-release-contract, codeql-policy, catalog-governance, gitleaks, validate-wrapper, changes, build, test-core, test-io, test-testcontainers-spring, test-ktor, test-key-utils, test-infra, test-kafka-infra, test-telemetry-infra, test-data, coverage-report]
+    needs: [release-policy, jvm-release-contract, codeql-policy, catalog-governance, gitleaks, validate-wrapper, changes, build, test-core, test-io, test-testcontainers-spring, testcontainers-image-gate, test-ktor, test-key-utils, test-infra, test-kafka-infra, test-telemetry-infra, test-data, coverage-report]
     if: always()
     steps:
       - name: Check all jobs

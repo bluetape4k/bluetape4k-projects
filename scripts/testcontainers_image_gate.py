@@ -150,4 +150,13 @@ def select_entries(
     if scope == "full":
         return list(entries)
     normalized = {path.replace("\\", "/") for path in changed_paths}
+    shared_prefixes = (
+        "scripts/testcontainers_image_gate",
+        "scripts/run_testcontainers_image_gate.py",
+        ".github/workflows/ci.yml",
+        ".github/workflows/nightly-tests.yml",
+        ".github/workflows/release.yml",
+    )
+    if any(path.startswith(prefix) for path in normalized for prefix in shared_prefixes):
+        return list(entries)
     return [entry for entry in entries if str(entry["source"]) in normalized]

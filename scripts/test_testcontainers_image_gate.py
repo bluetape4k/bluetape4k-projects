@@ -30,9 +30,20 @@ class TestTestcontainersImageGate(unittest.TestCase):
         self.assertEqual(["FlociServer"], [entry["server"] for entry in changed])
         self.assertEqual(self.entries, select_entries(self.entries, set(), scope="full"))
 
+        shared = select_entries(self.entries, {"scripts/run_testcontainers_image_gate.py"})
+        self.assertEqual(EXPECTED_FAMILY_COUNT, len(shared))
+
     def test_invalid_manifest_reports_drift_without_running_docker(self) -> None:
         invalid = [dict(self.entries[0], image="wrong/image")]
         self.assertIn("image drift", " ".join(validate_manifest(invalid, self.root)))
+
+    def test_ci_workflow_runs_changed_gate_and_uploads_evidence(self) -> None:
+        workflow = (self.root / ".github/workflows/ci.yml").read_text(encoding="utf-8")
+        self.assertIn("testcontainers-image-gate:", workflow)
+        self.assertIn("--scope changed", workflow)
+        self.assertIn("--changed-path-file", workflow)
+        self.assertIn("build/reports/testcontainers-image-gate/", workflow)
+        self.assertIn("testcontainers-image-gate, test-ktor", workflow)
 
 
 if __name__ == "__main__":
