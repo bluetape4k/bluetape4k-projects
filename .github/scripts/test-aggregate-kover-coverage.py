@@ -219,6 +219,15 @@ class AggregateKoverCoverageTest(unittest.TestCase):
         workflow = NIGHTLY_WORKFLOW.read_text(encoding="utf-8")
         self.assertNotIn("continue-on-error: true", workflow)
 
+    def test_nightly_spring_demos_skip_coverage_upload_without_kover_tasks(self):
+        workflow = NIGHTLY_WORKFLOW.read_text(encoding="utf-8")
+        spring_docker_start = workflow.index("  test-spring-docker:")
+        spring_docker_end = workflow.index("\n  # ── Testcontainers", spring_docker_start)
+        spring_docker = workflow[spring_docker_start:spring_docker_end]
+        self.assertIn('kover_tasks: ""', spring_docker)
+        coverage_upload = spring_docker[spring_docker.index("      - name: Upload coverage report") :]
+        self.assertIn("if: ${{ always() && matrix.kover_tasks != '' }}", coverage_upload)
+
     def test_ci_kover_failures_are_not_ignored(self):
         workflow = CI_WORKFLOW.read_text(encoding="utf-8")
         self.assertNotIn("continue-on-error: true", workflow)

@@ -1102,7 +1102,7 @@ jobs:
           retention-days: 14
 
       - name: Upload coverage report
-        if: always()
+        if: ${{ always() && matrix.kover_tasks != '' }}
         uses: actions/upload-artifact@v7
         with:
           name: nightly-coverage-spring-${{ matrix.group }}
