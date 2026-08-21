@@ -436,8 +436,6 @@ jobs:
             :bluetape4k-coroutines:koverXmlReport \
             :bluetape4k-logging:koverXmlReport \
             --parallel
-        continue-on-error: true
-
       - name: Upload test results
         if: always()
         uses: actions/upload-artifact@v7
@@ -515,8 +513,6 @@ jobs:
               :bluetape4k-protobuf:koverXmlReport \
               :bluetape4k-tink:koverXmlReport \
             --parallel
-        continue-on-error: true
-
       - name: Upload test results
         if: always()
         uses: actions/upload-artifact@v7
@@ -583,8 +579,6 @@ jobs:
                     :bluetape4k-retrofit2:koverXmlReport \
                     :bluetape4k-vertx:koverXmlReport \
                     --parallel
-              continue-on-error: true
-
           -   name: Upload test results
               if: always()
               uses: actions/upload-artifact@v7
@@ -648,8 +642,6 @@ jobs:
             :bluetape4k-ktor-resilience4j:koverXmlReport \
             :bluetape4k-ktor-testing:koverXmlReport \
             --parallel
-        continue-on-error: true
-
       - name: Upload test results
         if: always()
         uses: actions/upload-artifact@v7
@@ -732,8 +724,6 @@ jobs:
             :bluetape4k-geo:koverXmlReport \
             :bluetape4k-science:koverXmlReport \
             --parallel
-        continue-on-error: true
-
       - name: Upload test results
         if: always()
         uses: actions/upload-artifact@v7
@@ -807,15 +797,11 @@ jobs:
             :bluetape4k-mock-web-server:koverXmlReport \
             :bluetape4k-r2dbc:koverXmlReport \
             --parallel
-        continue-on-error: true
-
       - name: Generate mock webflux Kover XML report
         if: ${{ always() && steps.validate-kover-isolation.outcome == 'success' }}
         run: >-
           ./gradlew --no-configuration-cache
           :bluetape4k-mock-webflux-server:koverXmlReport
-        continue-on-error: true
-
       - name: Upload test results
         if: always()
         uses: actions/upload-artifact@v7
@@ -926,9 +912,12 @@ jobs:
           KOVER_TASKS: ${{ matrix.kover_tasks }}
         run: |
           read -ra tasks <<< "$KOVER_TASKS"
-          ./gradlew "${tasks[@]}" --parallel --no-configuration-cache
-        continue-on-error: true
-
+          # Keep Redis characterization tasks opt-in; nightly coverage measures the regular suite.
+          ./gradlew "${tasks[@]}" --parallel --no-configuration-cache \
+            -x :bluetape4k-lettuce:fencingLeaseTopologyRecoveryTest \
+            -x :bluetape4k-lettuce:coordinationLockTopologyRecoveryTest \
+            -x :bluetape4k-lettuce:multiKeyLeasePerformanceTest \
+            -x :bluetape4k-lettuce:coordinationLockPerformanceTest
       - name: Upload test results
         if: always()
         uses: actions/upload-artifact@v7
@@ -1010,8 +999,6 @@ jobs:
         run: |
           read -ra tasks <<< "$KOVER_TASKS"
           ./gradlew "${tasks[@]}" --parallel --no-configuration-cache
-        continue-on-error: true
-
       - name: Upload test results
         if: always()
         uses: actions/upload-artifact@v7
@@ -1106,8 +1093,6 @@ jobs:
         run: |
           read -ra tasks <<< "$KOVER_TASKS"
           ./gradlew "${tasks[@]}" --parallel --no-configuration-cache
-        continue-on-error: true
-
       - name: Upload test results
         if: always()
         uses: actions/upload-artifact@v7
@@ -1195,8 +1180,6 @@ jobs:
         if: ${{ always() && needs.plan.outputs.run_testcontainers_coverage == 'true' }}
         timeout-minutes: 10
         run: ./gradlew :bluetape4k-testcontainers:koverXmlReport -x :bluetape4k-testcontainers:test --no-configuration-cache
-        continue-on-error: true
-
       - name: Upload test results
         if: always()
         uses: actions/upload-artifact@v7
@@ -1210,6 +1193,53 @@ jobs:
         uses: actions/upload-artifact@v7
         with:
           name: nightly-coverage-testcontainers-${{ matrix.group }}
+          path: '**/build/reports/kover/'
+          if-no-files-found: error
+          retention-days: 14
+
+  # ── Testcontainers Spring bridge (nightly JVM-only contract) ─────────────
+  test-testcontainers-spring:
+    name: Test / Testcontainers Spring bridge
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    # Keep the JVM-only bridge after the Docker-backed Testcontainers lane so
+    # repository-level Testcontainers verification remains sequential.
+    needs: [test-testcontainers, plan]
+    if: ${{ needs.plan.outputs.scope == 'full' || needs.plan.outputs.scope == 'testcontainers' }}
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-java@v5.7.0
+        with:
+          java-version: ${{ env.JAVA_VERSION }}
+          distribution: ${{ env.JAVA_DISTRIBUTION }}
+
+      - uses: gradle/actions/setup-gradle@v6.3.0
+        with:
+          gradle-version: wrapper
+          cache-read-only: true
+
+      - name: Test Testcontainers Spring bridge
+        run: ./gradlew :bluetape4k-testcontainers-spring:test --no-configuration-cache
+        env:
+          GRADLE_OPTS: "-Dorg.gradle.daemon=false"
+
+      - name: Generate Kover XML report
+        if: ${{ always() && needs.plan.outputs.run_testcontainers_coverage == 'true' }}
+        run: ./gradlew :bluetape4k-testcontainers-spring:koverXmlReport --no-configuration-cache
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: nightly-test-results-testcontainers-spring
+          path: '**/build/test-results/test/*.xml'
+          retention-days: 14
+
+      - name: Upload coverage report
+        if: ${{ always() && needs.plan.outputs.run_testcontainers_coverage == 'true' }}
+        uses: actions/upload-artifact@v7
+        with:
+          name: nightly-coverage-testcontainers-spring
           path: '**/build/reports/kover/'
           if-no-files-found: error
           retention-days: 14
@@ -1232,6 +1262,7 @@ jobs:
       - test-data
       - test-spring-docker
       - test-testcontainers
+      - test-testcontainers-spring
     if: always()
     steps:
       - uses: actions/checkout@v7
@@ -1250,9 +1281,28 @@ jobs:
             test-data=${{ needs.test-data.result }}
             test-spring-docker=${{ needs.test-spring-docker.result }}
             test-testcontainers=${{ needs.plan.outputs.run_testcontainers_coverage == 'true' && needs.test-testcontainers.result || 'skipped' }}
+            test-testcontainers-spring=${{ needs.plan.outputs.run_testcontainers_coverage == 'true' && needs.test-testcontainers-spring.result || 'skipped' }}
         run: |
           mkdir -p coverage-artifacts
           printf '%s\n' "$EXPECTED_COVERAGE_JOBS" > coverage-artifacts/expected-jobs.manifest
+          : > coverage-artifacts/expected-modules.manifest
+          if grep -q '^test-infra=success$' coverage-artifacts/expected-jobs.manifest; then
+            printf '%s\n' \
+              'infra/redis' \
+              'infra/redisson' \
+              'infra/lettuce' \
+              'cache/cache-lettuce' \
+              'cache/cache-redisson' \
+              'infra/kafka' \
+              'infra/kafka4' \
+              'infra/resilience4j' \
+              'infra/bucket4j' \
+              'infra/micrometer' \
+              'cache/cache-hazelcast' \
+              'infra/elasticsearch' \
+              'infra/nats' \
+              > coverage-artifacts/expected-modules.manifest
+          fi
           if grep -q '=success$' coverage-artifacts/expected-jobs.manifest; then
             echo 'has_expected=true' >> "$GITHUB_OUTPUT"
           else
@@ -1272,16 +1322,24 @@ jobs:
         if: always()
         env:
           COVERAGE_DOWNLOAD_OUTCOME: ${{ steps.download-coverage.outcome }}
-        run: >-
-          python3 .github/scripts/aggregate-kover-coverage.py coverage-artifacts
-          --expected-manifest coverage-artifacts/expected-jobs.manifest
-          --download-outcome "$COVERAGE_DOWNLOAD_OUTCOME"
+        run: |
+          expected_module_args=()
+          while IFS= read -r module; do
+            if [ -n "$module" ]; then
+              expected_module_args+=(--expected-module "$module")
+            fi
+          done < coverage-artifacts/expected-modules.manifest
+          python3 .github/scripts/aggregate-kover-coverage.py coverage-artifacts \
+            --expected-manifest coverage-artifacts/expected-jobs.manifest \
+            --download-outcome "$COVERAGE_DOWNLOAD_OUTCOME" \
+            "${expected_module_args[@]}"
 
       - name: Upload aggregated coverage
         if: always()
         uses: actions/upload-artifact@v7
         with:
-          name: nightly-coverage-all
+          name: aggregate-nightly-coverage-all
+          overwrite: true
           path: coverage-artifacts/
           if-no-files-found: error
           retention-days: 14
@@ -1304,6 +1362,7 @@ jobs:
       - test-data
       - test-spring-docker
       - test-testcontainers
+      - test-testcontainers-spring
       - coverage-report
     if: always()
     steps:

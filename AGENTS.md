@@ -49,7 +49,7 @@ repo-test-summary -- ./gradlew :module:test
 | `cache/` | Cache umbrella/core/backend modules and Hibernate Lettuce cache bridge |
 | `ktor/` | Ktor server foundation modules: core, observability, and testing helpers |
 | `spring-boot/` | Spring Boot 4.x modules and demos; no `spring-boot3/*` line remains |
-| `testing/` | `assertions`, `junit5`, `testcontainers`, mock web server images |
+| `testing/` | `assertions`, `junit5`, `testcontainers`, optional `testcontainers-spring` bridge, mock web server images |
 | `utils/` | Geo, ID generators, date/time, JWT, math, measured, money, mutiny, probabilistic, rule-engine, science, states, workflow |
 | `virtualthread/` | `api`, `jdk21`, `jdk25`; update all related modules together |
 | `examples/` | Library examples; not published to Maven |

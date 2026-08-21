@@ -135,6 +135,12 @@ def parse_args() -> argparse.Namespace:
         default="success",
         help="outcome of the artifact download step",
     )
+    parser.add_argument(
+        "--expected-module",
+        action="append",
+        default=[],
+        help="module path that must have a non-empty Kover report; repeatable",
+    )
     return parser.parse_args()
 
 
@@ -199,6 +205,11 @@ def main() -> int:
         print(f"ERROR: {error}", file=sys.stderr)
         return 1
 
+    expected_modules = sorted(set(args.expected_module))
+    if len(expected_modules) != len(args.expected_module):
+        print("ERROR: duplicate expected coverage module", file=sys.stderr)
+        return 1
+
     failed_jobs = sorted(
         name for name, result in expected_jobs.items() if result in {"failure", "cancelled"}
     )
@@ -238,6 +249,12 @@ def main() -> int:
     )
 
     if not expected_success_jobs:
+        if expected_modules:
+            print(
+                "ERROR: expected coverage modules were declared even though all coverage jobs were skipped",
+                file=sys.stderr,
+            )
+            return 1
         if report_paths:
             print(
                 "ERROR: coverage reports were uploaded even though all coverage jobs were skipped",
@@ -263,6 +280,29 @@ def main() -> int:
     except ValueError as error:
         print(f"ERROR: {error}", file=sys.stderr)
         return 1
+
+    if expected_modules:
+        available_modules = set(modules)
+        missing_modules = sorted(set(expected_modules) - available_modules)
+        empty_modules = sorted(
+            module
+            for module in expected_modules
+            if module in modules and sum(modules[module].totals()) == 0
+        )
+        if missing_modules:
+            print(
+                "ERROR: expected coverage module(s) produced no Kover report: "
+                + ", ".join(missing_modules),
+                file=sys.stderr,
+            )
+            return 1
+        if empty_modules:
+            print(
+                "ERROR: expected coverage module(s) produced an empty Kover report: "
+                + ", ".join(empty_modules),
+                file=sys.stderr,
+            )
+            return 1
 
     for module in sorted(modules):
         coverage = modules[module]

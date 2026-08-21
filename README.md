@@ -244,6 +244,7 @@ auth helpers stay in backlog until their extension points are proven.
 - **[assertions](./testing/assertions/README.md)**: bluetape4k assertion DSL foundation for tests
 - **[junit5](./testing/junit5/README.md)**: JUnit 5 extensions and utilities
 - **[testcontainers](./testing/testcontainers/README.md)**: Testcontainers support (Redis, Kafka, databases, etc.)
+- **[testcontainers-spring](./testing/testcontainers-spring/README.md)**: Optional Spring Test `DynamicPropertyRegistry` bridge for Testcontainers properties
 - **[mock-web-server](./testing/mock-web-server/README.md)**: MVC mock HTTP server Docker image for integration tests
 - **[mock-webflux-server](./testing/mock-webflux-server/README.md)**: WebFlux mock HTTP server Docker image for integration tests
 

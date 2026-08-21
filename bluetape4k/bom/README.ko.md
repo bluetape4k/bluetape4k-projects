@@ -11,7 +11,8 @@ BOM**. bluetape4k 생태계의 토대 계층이며, `bluetape4k/*`, `data/*`, `i
 ![bluetape4k-bom platform constraints diagram](../../docs/images/readme-diagrams/bluetape4k-bom-diagram-01.png)
 
 BOM 은 Gradle `java-platform` 으로 `<dependencyManagement>` constraint 만 게시하며 런타임 클래스는 포함하지 않는다.
-`rootProject.subprojects` 를 동적으로 끌어오며 자기 자신, `*-demo`, `examples/*`, `workshop/*` 만 제외한다.
+`rootProject.subprojects` 에서 게시 가능한 라이브러리를 동적으로 끌어오며 자기 자신, 애플리케이션 전용 모듈,
+`*-demo`, `*-benchmark`, `examples/*`, `workshop/*` 를 제외한다.
 
 ## 핵심 기능
 
@@ -28,11 +29,11 @@ BOM 은 Gradle `java-platform` 으로 `<dependencyManagement>` constraint 만 �
 | `infra/*`         | 18      | 캐시 (`cache`, `cache-core`, `cache-lettuce`, `cache-redisson`, `cache-hazelcast`), `bucket4j`, `elasticsearch`, `kafka-logback` 등                                                |
 | `io/*`            | 16      | `jackson2`, `fastjson2`, `avro`, `csv`, `grpc`, `feign`, `http`, `io`                                                                                                              |
 | `spring-boot/*`   | 8       | `spring-boot-core`, `spring-boot-r2dbc`, `spring-boot-mongodb`, `spring-boot-cassandra`, `spring-boot-redis`, `spring-boot-hibernate-lettuce` 등                                   |
-| `testing/*`       | 5       | `bluetape4k-assertions`, `bluetape4k-junit5`, `bluetape4k-mock-web-server`, `bluetape4k-mock-webflux-server`, `bluetape4k-testcontainers`                                          |
+| `testing/*`       | 4       | `bluetape4k-assertions`, `bluetape4k-junit5`, `bluetape4k-testcontainers`, `bluetape4k-testcontainers-spring`                                                                      |
 | `utils/*`         | 13      | `jwt`, `money`, `javatimes`, `geo`, `idgenerators`, `math`, `measured`, `mutiny` 등                                                                                                |
 | `virtualthread/*` | 3       | `virtualthread-api`, `virtualthread-jdk21`, `virtualthread-jdk25`                                                                                                                  |
 
-> constraint 에서 제외: `*-demo`, `examples/*`, `workshop/*`.
+> constraint 에서 제외: 애플리케이션 전용 Docker image 모듈 (`bluetape4k-mock-web-server`, `bluetape4k-mock-webflux-server`), `*-demo`, `*-benchmark`, `examples/*`, `workshop/*`.
 
 ## 사용 예제
 

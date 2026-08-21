@@ -11,7 +11,7 @@ The **root Maven BOM** for the entire `io.github.bluetape4k:*` module set publis
 
 ![bluetape4k-bom platform constraints diagram](../../docs/images/readme-diagrams/bluetape4k-bom-diagram-01.png)
 
-The BOM is a Gradle `java-platform` that publishes only `<dependencyManagement>` constraints — no runtime classes. It dynamically pulls in all `rootProject.subprojects` except itself, `*-demo` modules, `examples/*`, and `workshop/*`.
+The BOM is a Gradle `java-platform` that publishes only `<dependencyManagement>` constraints — no runtime classes. It dynamically pulls in publishable libraries from `rootProject.subprojects`, excluding itself, application-only modules, `*-demo` modules, `*-benchmark` modules, `examples/*`, and `workshop/*`.
 
 ## Core Features
 
@@ -28,11 +28,11 @@ The BOM is a Gradle `java-platform` that publishes only `<dependencyManagement>`
 | `infra/*`         | 18                | cache (`cache`, `cache-core`, `cache-lettuce`, `cache-redisson`, `cache-hazelcast`), `bucket4j`, `elasticsearch`, `kafka-logback`, etc.                                            |
 | `io/*`            | 16                | `jackson2`, `fastjson2`, `avro`, `csv`, `grpc`, `feign`, `http`, `io`                                                                                                              |
 | `spring-boot/*`   | 8                 | `spring-boot-core`, `spring-boot-r2dbc`, `spring-boot-mongodb`, `spring-boot-cassandra`, `spring-boot-redis`, `spring-boot-hibernate-lettuce`, ...                                 |
-| `testing/*`       | 5                 | `bluetape4k-assertions`, `bluetape4k-junit5`, `bluetape4k-mock-web-server`, `bluetape4k-mock-webflux-server`, `bluetape4k-testcontainers`                                          |
+| `testing/*`       | 4                 | `bluetape4k-assertions`, `bluetape4k-junit5`, `bluetape4k-testcontainers`, `bluetape4k-testcontainers-spring`                                                                      |
 | `utils/*`         | 13                | `jwt`, `money`, `javatimes`, `geo`, `idgenerators`, `math`, `measured`, `mutiny`, ...                                                                                              |
 | `virtualthread/*` | 3                 | `virtualthread-api`, `virtualthread-jdk21`, `virtualthread-jdk25`                                                                                                                  |
 
-> Excluded from constraints: `*-demo`, `examples/*`, `workshop/*`.
+> Excluded from constraints: application-only Docker image modules (`bluetape4k-mock-web-server`, `bluetape4k-mock-webflux-server`), `*-demo`, `*-benchmark`, `examples/*`, and `workshop/*`.
 
 ## Usage Examples
 

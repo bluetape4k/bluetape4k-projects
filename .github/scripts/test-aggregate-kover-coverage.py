@@ -12,6 +12,8 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
 AGGREGATOR = ROOT / ".github/scripts/aggregate-kover-coverage.py"
+CI_WORKFLOW = ROOT / ".github/workflows/ci.yml"
+NIGHTLY_WORKFLOW = ROOT / ".github/workflows/nightly-tests.yml"
 
 
 REPORT = """<?xml version="1.0" encoding="UTF-8"?>
@@ -103,6 +105,129 @@ class AggregateKoverCoverageTest(unittest.TestCase):
         self.assertEqual(result.returncode, 0, result.stderr)
         self.assertIn("io/fixture", result.stdout)
         self.assertIn("**TOTAL**", summary)
+
+    def test_missing_expected_module_fails_closed(self):
+        result, _ = self.run_aggregator(
+            "test-core=success\n",
+            REPORT,
+            extra_args=["--expected-module", "infra/lettuce"],
+        )
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn("expected coverage module", result.stderr)
+
+    def test_empty_expected_module_fails_closed(self):
+        result, _ = self.run_aggregator(
+            "test-core=success\n",
+            """<?xml version="1.0" encoding="UTF-8"?>
+<report name="empty"><counter type="INSTRUCTION" missed="0" covered="0" /></report>
+""",
+            extra_args=["--expected-module", "io/fixture"],
+        )
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn("empty Kover report", result.stderr)
+
+    def test_expected_module_is_accepted_when_report_has_instructions(self):
+        result, _ = self.run_aggregator(
+            "test-core=success\n",
+            REPORT,
+            extra_args=["--expected-module", "io/fixture"],
+        )
+        self.assertEqual(result.returncode, 0, result.stderr)
+
+    def test_duplicate_expected_module_fails_closed(self):
+        result, _ = self.run_aggregator(
+            "test-core=success\n",
+            REPORT,
+            extra_args=[
+                "--expected-module",
+                "io/fixture",
+                "--expected-module",
+                "io/fixture",
+            ],
+        )
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn("duplicate expected coverage module", result.stderr)
+
+    def test_ci_separates_raw_and_aggregate_artifacts(self):
+        workflow = CI_WORKFLOW.read_text(encoding="utf-8")
+        self.assertIn("pattern: coverage-*", workflow)
+        self.assertIn("name: aggregate-coverage-all", workflow)
+        self.assertNotIn("name: coverage-all", workflow)
+
+    def test_ci_requires_the_infra_module_inventory(self):
+        workflow = CI_WORKFLOW.read_text(encoding="utf-8")
+        self.assertIn("Verify Infra coverage inventory", workflow)
+        for module in (
+            "infra/lettuce",
+            "cache/cache-lettuce",
+            "infra/redisson",
+            "cache/cache-redisson",
+        ):
+            self.assertIn(module, workflow)
+        self.assertIn("--expected-module", workflow)
+
+    def test_ci_only_uploads_coveralls_after_successful_aggregation(self):
+        workflow = CI_WORKFLOW.read_text(encoding="utf-8")
+        self.assertIn("id: aggregate-coverage", workflow)
+        self.assertIn(
+            "if: ${{ steps.aggregate-coverage.outcome == 'success' && hashFiles('coverage-artifacts/**/reports/kover/report.xml') != '' }}",
+            workflow,
+        )
+        self.assertIn(
+            "if: ${{ steps.aggregate-coverage.outcome == 'success' && steps.coveralls-files.outcome == 'success' }}",
+            workflow,
+        )
+
+    def test_nightly_separates_raw_and_aggregate_artifacts(self):
+        workflow = NIGHTLY_WORKFLOW.read_text(encoding="utf-8")
+        self.assertIn("pattern: nightly-coverage-*", workflow)
+        self.assertIn("name: aggregate-nightly-coverage-all", workflow)
+        self.assertNotIn("name: nightly-coverage-all", workflow)
+
+    def test_nightly_requires_the_infra_module_inventory(self):
+        workflow = NIGHTLY_WORKFLOW.read_text(encoding="utf-8")
+        self.assertIn("expected-modules.manifest", workflow)
+        for module in (
+            "infra/redis",
+            "infra/redisson",
+            "infra/lettuce",
+            "cache/cache-lettuce",
+            "cache/cache-redisson",
+            "infra/kafka",
+            "infra/kafka4",
+            "infra/resilience4j",
+            "infra/bucket4j",
+            "infra/micrometer",
+            "cache/cache-hazelcast",
+            "infra/elasticsearch",
+            "infra/nats",
+        ):
+            self.assertIn(module, workflow)
+        self.assertIn("expected_module_args+=(--expected-module \"$module\")", workflow)
+
+    def test_nightly_keeps_redis_characterization_out_of_coverage(self):
+        workflow = NIGHTLY_WORKFLOW.read_text(encoding="utf-8")
+        for task in (
+            "fencingLeaseTopologyRecoveryTest",
+            "coordinationLockTopologyRecoveryTest",
+            "multiKeyLeasePerformanceTest",
+            "coordinationLockPerformanceTest",
+        ):
+            self.assertIn(f"-x :bluetape4k-lettuce:{task}", workflow)
+
+    def test_nightly_kover_failures_are_not_ignored(self):
+        workflow = NIGHTLY_WORKFLOW.read_text(encoding="utf-8")
+        self.assertNotIn("continue-on-error: true", workflow)
+
+    def test_ci_kover_failures_are_not_ignored(self):
+        workflow = CI_WORKFLOW.read_text(encoding="utf-8")
+        self.assertNotIn("continue-on-error: true", workflow)
+
+    def test_nightly_overwrites_aggregate_artifact_on_rerun(self):
+        workflow = NIGHTLY_WORKFLOW.read_text(encoding="utf-8")
+        aggregate_name = workflow.index("name: aggregate-nightly-coverage-all")
+        overwrite = workflow.index("overwrite: true", aggregate_name)
+        self.assertLess(overwrite, workflow.index("path: coverage-artifacts/", aggregate_name))
 
     def test_duplicate_reports_keep_union_semantics(self):
         with tempfile.TemporaryDirectory() as directory:

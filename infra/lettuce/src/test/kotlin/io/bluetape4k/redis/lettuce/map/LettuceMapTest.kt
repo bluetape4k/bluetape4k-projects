@@ -8,6 +8,7 @@ import io.lettuce.core.codec.StringCodec
 import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeFalse
+import io.bluetape4k.assertions.shouldBeGreaterThan
 import io.bluetape4k.assertions.shouldBeNull
 import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.assertions.shouldContainAll
@@ -137,6 +138,44 @@ class LettuceMapTest: AbstractLettuceTest() {
 
         map.clear() shouldBeEqualTo 1L
         map.isEmpty().shouldBeTrue()
+    }
+
+    @Test
+    fun `TTL API는 null과 기존 필드 및 Hash key 수명을 구분한다`() {
+        map.putTtl("plain", "value", null).shouldBeTrue()
+        map.putTtl("expiring", "value", Duration.ofSeconds(30)).shouldBeTrue()
+        map.putTtl("expiring", "updated", Duration.ofSeconds(30)).shouldBeFalse()
+
+        connection.sync().ttl(map.mapKey) shouldBeGreaterThan 0L
+        map.refreshTtl(null)
+        map.refreshTtl(Duration.ofSeconds(45))
+        connection.sync().ttl(map.mapKey) shouldBeGreaterThan 0L
+
+        map.putAllTtl(emptyMap(), Duration.ofSeconds(10))
+        map.putAllTtl(mapOf("batch-1" to "v1", "batch-2" to "v2"), null)
+        map.get("batch-1") shouldBeEqualTo "v1"
+        map.putAllTtl(mapOf("batch-3" to "v3"), Duration.ofSeconds(30))
+        map.get("batch-3") shouldBeEqualTo "v3"
+    }
+
+    @Test
+    fun `분산 락은 예외 후에도 소유권을 해제하고 인자 범위를 검증한다`() {
+        assertFailsWith<IllegalArgumentException> {
+            map.withDistributedLock("owner", leaseTime = Duration.ZERO) { }
+        }
+        assertFailsWith<IllegalArgumentException> {
+            map.withDistributedLock("owner", waitTime = Duration.ofMillis(-1)) { }
+        }
+        assertFailsWith<IllegalStateException> {
+            map.withDistributedLock("owner-1") {
+                error("block failure")
+            }
+        }
+
+        map.withDistributedLock("owner-2", waitTime = Duration.ofSeconds(1)) {
+            map.put("after-failure", "released")
+        }
+        map.get("after-failure") shouldBeEqualTo "released"
     }
 
     @Test
