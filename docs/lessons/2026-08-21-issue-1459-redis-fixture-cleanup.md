@@ -29,8 +29,10 @@ Lua 스크립트가 증가시킨 뒤 별도 만료 없이 남을 수 있었다. 
 
 disconnect 테스트는 setup 또는 검증 중 예외가 나도 독립 커넥션으로 모든 파생
 키를 정리하고, backend/integrity 분류의 세 실행 모델 계약을 구체적인 payload로
-확인한다. terminal protocol tag characterization은 sync decoder 범위로 문서화해
-실제 Lua/transport 보장과 혼동하지 않는다.
+확인한다. fault-injection은 fatal/cancellation 및 일반 예외에서도 모든 teardown을
+실행하고 primary·suppressed 예외 우선순위를 보존하는지 검증한다. terminal protocol
+tag characterization은 sync decoder 범위로 문서화해 실제 Lua/transport 보장과
+혼동하지 않는다.
 
 ## 검증
 
@@ -38,8 +40,10 @@ disconnect 테스트는 setup 또는 검증 중 예외가 나도 독립 커넥�
 'io.bluetape4k.redis.lettuce.lock.LettuceClosedLockCoverageTest'
 --tests
 'io.bluetape4k.redis.lettuce.lock.internal.FencedLockClientFailureCoverageTest'
---no-parallel --max-workers=1` 결과는 8개 테스트 통과다. `git diff --check`와
-Kotlin 컴파일도 같은 Gradle 실행에서 통과했다.
+--no-parallel --max-workers=1` 결과는 9개 테스트 통과다.
+`:bluetape4k-lettuce:test --no-parallel --max-workers=1` 전체 모듈 검증은 912개
+테스트가 통과했다. `git diff --check`와 Kotlin 컴파일도 같은 검증 흐름에서
+통과했다.
 
 ## 향후 지침
 
