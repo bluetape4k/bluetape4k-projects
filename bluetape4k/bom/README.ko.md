@@ -28,7 +28,7 @@ BOM 은 Gradle `java-platform` 으로 `<dependencyManagement>` constraint 만 �
 | `infra/*`         | 18      | 캐시 (`cache`, `cache-core`, `cache-lettuce`, `cache-redisson`, `cache-hazelcast`), `bucket4j`, `elasticsearch`, `kafka-logback` 등                                                |
 | `io/*`            | 16      | `jackson2`, `fastjson2`, `avro`, `csv`, `grpc`, `feign`, `http`, `io`                                                                                                              |
 | `spring-boot/*`   | 8       | `spring-boot-core`, `spring-boot-r2dbc`, `spring-boot-mongodb`, `spring-boot-cassandra`, `spring-boot-redis`, `spring-boot-hibernate-lettuce` 등                                   |
-| `testing/*`       | 5       | `bluetape4k-assertions`, `bluetape4k-junit5`, `bluetape4k-mock-web-server`, `bluetape4k-mock-webflux-server`, `bluetape4k-testcontainers`                                          |
+| `testing/*`       | 6       | `bluetape4k-assertions`, `bluetape4k-junit5`, `bluetape4k-mock-web-server`, `bluetape4k-mock-webflux-server`, `bluetape4k-testcontainers`, `bluetape4k-testcontainers-spring`     |
 | `utils/*`         | 13      | `jwt`, `money`, `javatimes`, `geo`, `idgenerators`, `math`, `measured`, `mutiny` 등                                                                                                |
 | `virtualthread/*` | 3       | `virtualthread-api`, `virtualthread-jdk21`, `virtualthread-jdk25`                                                                                                                  |
 
