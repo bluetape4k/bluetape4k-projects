@@ -65,9 +65,81 @@ jobs:
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
           echo "ref=refs/tags/$VERSION" >> "$GITHUB_OUTPUT"
 
+  testcontainers-image-gate:
+    name: Verify Testcontainers image gate
+    needs: resolve-version
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+    env:
+      DOCKER_AUTH_CONFIG: ${{ secrets.TESTCONTAINERS_DOCKER_AUTH_CONFIG }}
+      TESTCONTAINERS_REGISTRY_MIRROR: ${{ vars.TESTCONTAINERS_REGISTRY_MIRROR || '' }}
+      GRADLE_OPTS: "-Dorg.gradle.daemon=false"
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ needs.resolve-version.outputs.ref }}
+          fetch-depth: 0
+
+      - uses: actions/setup-java@v5.7.0
+        with:
+          java-version: ${{ env.JAVA_VERSION }}
+          distribution: ${{ env.JAVA_DISTRIBUTION }}
+
+      - uses: actions/setup-python@v7
+        with:
+          python-version: '3.12'
+
+      - uses: gradle/actions/setup-gradle@v6.3.0
+        with:
+          gradle-version: wrapper
+          cache-read-only: true
+
+      - name: Build mock-web-server Docker image
+        run: ./gradlew :bluetape4k-mock-web-server:jibDockerBuild --no-configuration-cache
+
+      - name: Build mock-webflux-server Docker image
+        run: ./gradlew :bluetape4k-mock-webflux-server:jibDockerBuild --no-configuration-cache
+
+      - name: Run full image family gate
+        run: >-
+          python3 scripts/run_testcontainers_image_gate.py
+          --scope full
+          --report-dir build/reports/testcontainers-image-gate
+          --max-attempts 2
+          --timeout-minutes 30
+
+      - name: Verify stable release gate summary
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+
+          summary_path = Path("build/reports/testcontainers-image-gate/summary.json")
+          summary = json.loads(summary_path.read_text(encoding="utf-8"))
+          if summary.get("coverage") != "52/52":
+              raise SystemExit(f"stable release requires coverage=52/52, got {summary.get('coverage')!r}")
+          if summary.get("release_gate") is not True:
+              raise SystemExit("stable release image gate is not green")
+          if any(summary.get(key, 0) for key in ("product_failure", "infrastructure_failure", "blocked")):
+              raise SystemExit("stable release image gate contains a failure classification")
+          print(f"coverage={summary['coverage']}")
+          print(f"manifest_digest={summary['manifest_digest']}")
+          PY
+
+      - name: Upload image gate evidence
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: release-testcontainers-image-gate-${{ github.run_id }}
+          path: build/reports/testcontainers-image-gate/
+          if-no-files-found: error
+          retention-days: 30
+
   publish:
     name: Publish RELEASE to Maven Central Portal
-    needs: resolve-version
+    needs: [resolve-version, testcontainers-image-gate]
     runs-on: ubuntu-latest
     environment: maven-central-release
     steps:

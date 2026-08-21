@@ -53,6 +53,13 @@ class TestTestcontainersImageGate(unittest.TestCase):
         self.assertIn("needs: [test-testcontainers, test-testcontainers-image-gate, plan]", workflow)
         self.assertIn("- test-testcontainers-image-gate", workflow)
 
+    def test_release_publish_depends_on_full_gate_summary(self) -> None:
+        workflow = (self.root / ".github/workflows/release.yml").read_text(encoding="utf-8")
+        self.assertIn("testcontainers-image-gate:", workflow)
+        self.assertIn("needs: [resolve-version, testcontainers-image-gate]", workflow)
+        self.assertIn("--scope full", workflow)
+        self.assertIn("coverage=52/52", workflow)
+
 
 if __name__ == "__main__":
     unittest.main(verbosity=2)
