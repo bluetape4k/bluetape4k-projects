@@ -164,6 +164,49 @@ Testcontainers `2.0.3` 기반 통합 테스트를 빠르게 구성하기 위한 
 `LocalStackServer`는 deprecated이므로 새 AWS 테스트에는 `FlociServer` 또는
 `MiniStackServer`를 사용하세요.
 
+## 이미지 family startup·workload gate
+
+52개 Docker 기반 서버 family는
+[`scripts/testcontainers_image_gate_manifest.json`](../../scripts/testcontainers_image_gate_manifest.json)에 선언합니다.
+manifest는 고정 image/tag와 Kotlin wrapper, 대표 테스트 클래스, readiness 계약,
+workload 증거, 진단 명령을 연결합니다.
+
+동일한 실행기를 PR CI, Nightly, 안정 버전 배포 workflow에서 사용합니다. 선택된
+family는 `max-parallel: 1`로 순차 실행하고 `success`, `product_failure`,
+`infrastructure_failure`, `blocked`로 분류하며 `summary.json`, `summary.md`,
+family별 JSON을 남깁니다. 안정 버전 배포는 `52/52`, `release_gate=true`,
+모든 실패 분류 0을 요구합니다. Docker Hub 인증과 mirror 설정은 환경변수 또는
+CI secret으로만 전달하며, 증거에는 credential을 기록하지 않습니다.
+
+<!-- TESTCONTAINERS_IMAGE_GATE_COMMAND_START -->
+저장소 루트에서 변경 family gate를 실행합니다.
+
+```bash
+python3 scripts/run_testcontainers_image_gate.py \
+  --scope changed \
+  --report-dir build/reports/testcontainers-image-gate \
+  --max-attempts 2 \
+  --timeout-minutes 30
+```
+
+안정 버전 배포와 같은 전체 gate를 실행합니다.
+
+```bash
+./gradlew :bluetape4k-mock-web-server:jibDockerBuild \
+  :bluetape4k-mock-webflux-server:jibDockerBuild \
+  --no-configuration-cache
+python3 scripts/run_testcontainers_image_gate.py \
+  --scope full \
+  --report-dir build/reports/testcontainers-image-gate \
+  --max-attempts 2 \
+  --timeout-minutes 30
+```
+<!-- TESTCONTAINERS_IMAGE_GATE_COMMAND_END -->
+
+family 실패 시 JSON artifact와 제한된 Docker/K3s 진단을 먼저 확인한 뒤 재시도합니다.
+registry rate limit, daemon 장애, readiness timeout은 인프라 증거로 남기며 gate를
+건너뛰거나 배포를 진행하는 근거로 사용하지 않습니다.
+
 ## 사용 예
 
 ### 데이터베이스
