@@ -97,6 +97,20 @@ class TestRunTestcontainersImageGate(unittest.TestCase):
             self.assertEqual("blocked", summary["results"][0]["status"])
             self.assertFalse(summary["release_gate"])
 
+    def test_success_after_long_gradle_output_is_not_blocked(self) -> None:
+        long_success = ("progress\n" * 4000) + "BUILD SUCCESSFUL\n"
+        with tempfile.TemporaryDirectory() as directory:
+            summary = GateRunner(
+                [entry()],
+                Path(directory),
+                command_runner=lambda command, timeout_seconds: SimpleNamespace(
+                    returncode=0, stdout=long_success, stderr=""
+                ),
+                max_attempts=1,
+            ).run()
+            self.assertEqual("success", summary["results"][0]["status"])
+            self.assertTrue(summary["release_gate"])
+
     def test_secret_redaction_applies_to_artifact_text(self) -> None:
         safe = redact("TOKEN=super-secret password=hunter2 Authorization: Bearer abc123")
         self.assertNotIn("super-secret", safe)

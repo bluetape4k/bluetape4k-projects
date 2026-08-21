@@ -177,10 +177,12 @@ class GateRunner:
             started = time.monotonic()
             result = self.command_runner(command, self.timeout_seconds)
             elapsed = round(time.monotonic() - started, 3)
-            stdout = _bounded(getattr(result, "stdout", ""))
-            stderr = _bounded(getattr(result, "stderr", ""))
+            raw_stdout = getattr(result, "stdout", "")
+            raw_stderr = getattr(result, "stderr", "")
+            stdout = _bounded(raw_stdout)
+            stderr = _bounded(raw_stderr)
             returncode = getattr(result, "returncode", None)
-            status = _classify_command_result(returncode, stdout, stderr)
+            status = _classify_command_result(returncode, raw_stdout, raw_stderr)
             attempts.append(
                 {
                     "attempt": attempt,
