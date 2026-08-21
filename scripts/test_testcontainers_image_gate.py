@@ -45,6 +45,14 @@ class TestTestcontainersImageGate(unittest.TestCase):
         self.assertIn("build/reports/testcontainers-image-gate/", workflow)
         self.assertIn("testcontainers-image-gate, test-ktor", workflow)
 
+    def test_nightly_runs_full_gate_sequentially_before_spring_bridge(self) -> None:
+        workflow = (self.root / ".github/workflows/nightly-tests.yml").read_text(encoding="utf-8")
+        self.assertIn("test-testcontainers-image-gate:", workflow)
+        self.assertIn("--scope full", workflow)
+        self.assertIn("TESTCONTAINERS_IMAGE_GATE_MAX_PARALLEL: '1'", workflow)
+        self.assertIn("needs: [test-testcontainers, test-testcontainers-image-gate, plan]", workflow)
+        self.assertIn("- test-testcontainers-image-gate", workflow)
+
 
 if __name__ == "__main__":
     unittest.main(verbosity=2)
