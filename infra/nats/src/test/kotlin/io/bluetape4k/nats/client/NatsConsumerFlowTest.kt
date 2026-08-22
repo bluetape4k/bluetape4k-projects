@@ -26,6 +26,7 @@ import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.withTimeout
 import org.junit.jupiter.api.Test
 import java.time.Duration
+import java.util.concurrent.CancellationException
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 import kotlin.time.Duration.Companion.milliseconds
@@ -283,5 +284,96 @@ class NatsConsumerFlowTest {
     fun `default push limits are finite and bounded`() {
         (defaultNatsFlowPushOptions.pendingMessageLimit <= 1_024L).shouldBeTrue()
         (defaultNatsFlowPushOptions.pendingByteLimit <= 16L * 1024 * 1024).shouldBeTrue()
+    }
+
+    @Test
+    fun `consumer flow exception rejects negative dropped count`() {
+        assertFailsWith<IllegalArgumentException> {
+            NatsConsumerFlowException(-1)
+        }
+    }
+
+    @Test
+    fun `pending limit mismatch preserves a diagnostic cause`() = runTest {
+        val jetStream = mockk<JetStream>()
+        val subscription = mockk<JetStreamSubscription>()
+        val options = pushSubscriptionOptions {
+            pendingMessageLimit(8)
+            pendingByteLimit(1024)
+        }
+        every { jetStream.subscribe("events", options) } returns subscription
+        every { subscription.pendingMessageLimit } returns 4
+        every { subscription.pendingByteLimit } returns 1024
+        every { subscription.droppedCount } returns 0
+        every { subscription.unsubscribe() } just runs
+
+        val failure = assertFailsWith<NatsConsumerFlowException> {
+            jetStream.consumeAsFlow("events", options).toList()
+        }
+
+        failure.droppedMessages shouldBeEqualTo 0L
+        check(failure.cause?.message?.contains("read-back mismatch") == true)
+        verify(exactly = 1) { subscription.unsubscribe() }
+    }
+
+    @Test
+    fun `push subscribe failure does not attempt cleanup`() = runTest {
+        val jetStream = mockk<JetStream>()
+        val subscription = mockk<JetStreamSubscription>()
+        val subscribeFailure = IllegalStateException("subscribe failed")
+        val options = pushSubscriptionOptions {
+            pendingMessageLimit(8)
+            pendingByteLimit(1024)
+        }
+        every { jetStream.subscribe("events", options) } throws subscribeFailure
+
+        val failure = assertFailsWith<IllegalStateException> {
+            jetStream.consumeAsFlow("events", options).toList()
+        }
+
+        verify(exactly = 0) { subscription.unsubscribe() }
+    }
+
+    @Test
+    fun `pull iterate failure does not attempt cleanup`() = runTest {
+        val context = mockk<ConsumerContext>()
+        val consumer = mockk<IterableConsumer>()
+        val iterateFailure = IllegalStateException("iterate failed")
+        every { context.iterate(any<ConsumeOptions>()) } throws iterateFailure
+
+        val failure = assertFailsWith<IllegalStateException> {
+            context.consumeAsFlow().toList()
+        }
+
+        verify(exactly = 0) { consumer.close() }
+    }
+
+    @Test
+    fun `final pending readback cancellation is not wrapped`() = runTest {
+        val jetStream = mockk<JetStream>()
+        val subscription = mockk<JetStreamSubscription>()
+        val cancellation = CancellationException("readback cancelled")
+        val options = pushSubscriptionOptions {
+            pendingMessageLimit(8)
+            pendingByteLimit(1024)
+        }
+        var droppedReads = 0
+        every { jetStream.subscribe("events", options) } returns subscription
+        every { subscription.pendingMessageLimit } returns 8
+        every { subscription.pendingByteLimit } returns 1024
+        every { subscription.droppedCount } answers {
+            droppedReads += 1
+            if (droppedReads <= 3) 0 else throw cancellation
+        }
+        every { subscription.nextMessage(any<Duration>()) } returns null
+        every { subscription.isActive } returns false
+        every { subscription.unsubscribe() } just runs
+
+        val failure = assertFailsWith<CancellationException> {
+            jetStream.consumeAsFlow("events", options).toList()
+        }
+
+        check(failure.cause == null || failure.cause === cancellation)
+        verify(exactly = 1) { subscription.unsubscribe() }
     }
 }
