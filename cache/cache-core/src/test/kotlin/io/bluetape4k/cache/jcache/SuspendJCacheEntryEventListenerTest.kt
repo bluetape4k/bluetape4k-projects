@@ -113,6 +113,27 @@ class SuspendJCacheEntryEventListenerTest {
     }
 
     @Test
+    fun `onRemoved는 null value 이벤트를 key-only snapshot으로 처리한다`() = runTest {
+        val targetCache = mockk<SuspendJCache<String, String>>(relaxed = true)
+        every { targetCache.isClosed() } returns false
+        coEvery { targetCache.removeAll(any<Set<String>>()) } returns Unit
+
+        val listenerScope = CoroutineScope(coroutineContext + SupervisorJob())
+        val listener = SuspendJCacheEntryEventListener.forTest(targetCache, listenerScope)
+        val event = mockk<CacheEntryEvent<String, String>>()
+        every { event.key } returns "removed-without-value"
+        every { event.value } returns null
+        every { event.eventType } returns EventType.REMOVED
+        every { event.source } returns mockk(relaxed = true)
+
+        listener.onRemoved(mutableListOf(event))
+        runCurrent()
+
+        coVerify { targetCache.removeAll(setOf("removed-without-value")) }
+        listener.close()
+    }
+
+    @Test
     fun `onExpired - targetCache에 removeAll 이 호출된다`() = runTest {
         val targetCache = mockk<SuspendJCache<String, String>>(relaxed = true)
         every { targetCache.isClosed() } returns false

@@ -118,13 +118,13 @@ class SuspendJCacheEntryEventListener<K: Any, V: Any> private constructor(
      * @throws CacheEntryListenerException if there is problem executing the listener
      */
     override fun onRemoved(events: MutableIterable<CacheEntryEvent<out K, out V>>) {
-        val eventCopies = events.map { EventCopy(it.key, it.value) }
-        log.trace { "BackCache cache entry removed. cache=$cacheIdentifier count=${eventCopies.size}" }
+        val eventKeys = events.map { it.key }
+        log.trace { "BackCache cache entry removed. cache=$cacheIdentifier count=${eventKeys.size}" }
         if (shouldAcceptCallback()) {
             scope.launch {
                 if (closed.get()) return@launch
                 applyEvent("remove all removed cache entries") {
-                    targetCache.removeAll(eventCopies.mapTo(LinkedHashSet()) { it.key })
+                    targetCache.removeAll(eventKeys.toCollection(LinkedHashSet()))
                 }
             }
         }
@@ -138,13 +138,13 @@ class SuspendJCacheEntryEventListener<K: Any, V: Any> private constructor(
      * @throws CacheEntryListenerException if there is problem executing the listener
      */
     override fun onExpired(events: MutableIterable<CacheEntryEvent<out K, out V>>) {
-        val eventCopies = events.map { EventCopy(it.key, it.value) }
-        log.trace { "BackCache cache entry expired. cache=$cacheIdentifier count=${eventCopies.size}" }
+        val eventKeys = events.map { it.key }
+        log.trace { "BackCache cache entry expired. cache=$cacheIdentifier count=${eventKeys.size}" }
         if (shouldAcceptCallback()) {
             scope.launch {
                 if (closed.get()) return@launch
                 applyEvent("remove all expired cache entries") {
-                    targetCache.removeAll(eventCopies.mapTo(LinkedHashSet()) { it.key })
+                    targetCache.removeAll(eventKeys.toCollection(LinkedHashSet()))
                 }
             }
         }

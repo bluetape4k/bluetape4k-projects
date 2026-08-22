@@ -31,6 +31,7 @@
 - `SuspendJCacheEntryEventListener`와 `SuspendNearJCache`가
   `CancellationException`을 일반 실패로 소실하지 않고 호출자와 listener child job에
   재전파한다. listener callback은 immutable event snapshot과 close gate를 사용하며,
+  제거·만료 이벤트의 nullable value는 읽지 않고 key-only snapshot으로 전파한다.
   비결정적인 `Thread.sleep` 검증을 `runTest` 기반 수명주기·비동기 회귀 검증으로
   교체했다. 1,000개 cooperative callback burst의 close 취소와 raw event metadata
   비노출도 검증했으며, callback fan-out bounded admission/coalescing은 별도 후속
