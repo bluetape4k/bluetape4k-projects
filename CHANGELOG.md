@@ -17,6 +17,16 @@
   한다 ([#1335](https://github.com/bluetape4k/bluetape4k-projects/issues/1335)).
 <!-- issue-1335-java25-semver:end -->
 
+### 추가
+
+- NATS JetStream `ConsumerContext` pull consumer와 `JetStream` push
+  subscription을 수집마다 생성·정리하는 cold `Flow<Message>` API를 추가했다.
+  유한한 Flow 용량과 NATS pending limit을 검증하고, 취소 시 adapter 소유
+  handle만 닫으며 pending queue drop은 `NatsConsumerFlowException`으로
+  보고한다. adapter는 manual ack만 제공해 업무 처리 성공 뒤 caller가
+  `ack()`/`nak()`/`term()`을 선택하도록 한다
+  ([#1350](https://github.com/bluetape4k/bluetape4k-projects/issues/1350)).
+
 ### 버그 수정
 
 - `BufferedSuspendedSink` 회귀 테스트가 모든 `write`/`writeAll` 오버로드의 정확한
@@ -28,6 +38,16 @@
   모두 drain되고 첫 terminal cause가 유지되며, terminal 전에 enqueue하지 못한
   producer는 `IllegalStateException`으로 명시적으로 거부된다
   ([#1349](https://github.com/bluetape4k/bluetape4k-projects/issues/1349)).
+- `SuspendJCacheEntryEventListener`와 `SuspendNearJCache`가
+  `CancellationException`을 일반 실패로 소실하지 않고 호출자와 listener child job에
+  재전파한다. listener callback은 immutable event snapshot과 close gate를 사용하며,
+  제거·만료 이벤트의 nullable value는 읽지 않고 key-only snapshot으로 전파한다.
+  비결정적인 `Thread.sleep` 검증을 `runTest` 기반 수명주기·비동기 회귀 검증으로
+  교체했다. 1,000개 cooperative callback burst의 close 취소와 raw event metadata
+  비노출도 검증했으며, callback fan-out bounded admission/coalescing은 별도 후속
+  이슈로 분리했다
+  ([#1360](https://github.com/bluetape4k/bluetape4k-projects/issues/1360),
+  [#1474](https://github.com/bluetape4k/bluetape4k-projects/issues/1474)).
 
 ## [1.12.1] — 2026-08-06
 
