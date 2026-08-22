@@ -7,6 +7,7 @@ import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.info
 import io.bluetape4k.logging.trace
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.map
@@ -99,20 +100,34 @@ class SuspendNearJCache<K: Any, V: Any> internal constructor(
      * // value == null
      * ```
      */
+    @Suppress("TooGenericExceptionCaught")
     suspend fun clearAll() {
         log.info {
             "front cache, back cache 모두 clear 합니다. 단 back cache 를 공유한 다른 near cache에는 전파되지 않습니다. " +
                     "전파를 위해서는 removeAll을 사용하세요"
         }
         frontCache.clear()
-        runCatching { backCache.clear() }
+        try {
+            backCache.clear()
+        } catch (e: CancellationException) {
+            throw e
+        } catch (e: Exception) {
+            log.debug(e) { "Back cache clear failed while clearing near cache." }
+        }
 
         log.info { "front cache, back cache 모두 clear 완료." }
     }
 
+    @Suppress("TooGenericExceptionCaught")
     override suspend fun close() {
         log.info { "Near Cache 의 Front Cache를 Close 합니다." }
-        runCatching { frontCache.close() }
+        try {
+            frontCache.close()
+        } catch (e: CancellationException) {
+            throw e
+        } catch (e: Exception) {
+            log.debug(e) { "Front cache close failed while closing near cache." }
+        }
     }
 
     override fun isClosed(): Boolean = frontCache.isClosed()

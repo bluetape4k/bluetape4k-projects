@@ -3,11 +3,13 @@ package io.bluetape4k.cache.jcache
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.error
 import io.bluetape4k.logging.trace
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
+import java.util.concurrent.atomic.AtomicBoolean
 import javax.cache.event.CacheEntryCreatedListener
 import javax.cache.event.CacheEntryEvent
 import javax.cache.event.CacheEntryExpiredListener
@@ -36,21 +38,38 @@ import javax.cache.event.CacheEntryUpdatedListener
  * @param V 캐시 값 타입
  * @property targetCache 이벤트를 반영할 Front Cache
  */
-class SuspendJCacheEntryEventListener<K: Any, V: Any>(
+class SuspendJCacheEntryEventListener<K: Any, V: Any> private constructor(
     private val targetCache: SuspendJCache<K, V>,
+    private val scope: CoroutineScope,
+    @Suppress("UNUSED_PARAMETER") marker: Unit,
 ): CacheEntryCreatedListener<K, V>,
    CacheEntryUpdatedListener<K, V>,
    CacheEntryRemovedListener<K, V>,
    CacheEntryExpiredListener<K, V>,
    AutoCloseable {
 
-    companion object: KLoggingChannel()
+    constructor(targetCache: SuspendJCache<K, V>): this(
+        targetCache,
+        CoroutineScope(SupervisorJob() + Dispatchers.IO),
+        Unit,
+    )
 
-    // JCache 이벤트 스레드를 블로킹하지 않기 위해 전용 코루틴 스코프 사용
-    private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+    companion object: KLoggingChannel() {
+        @JvmSynthetic
+        internal fun <K: Any, V: Any> forTest(
+            targetCache: SuspendJCache<K, V>,
+            scope: CoroutineScope,
+        ): SuspendJCacheEntryEventListener<K, V> =
+            SuspendJCacheEntryEventListener(targetCache, scope, Unit)
+    }
+
+    private val closed = AtomicBoolean(false)
+    private val cacheIdentifier = targetCache::class.java.name.sanitizeLogIdentifier()
 
     override fun close() {
-        scope.cancel()
+        if (closed.compareAndSet(false, true)) {
+            scope.cancel()
+        }
     }
 
     /**
@@ -60,13 +79,13 @@ class SuspendJCacheEntryEventListener<K: Any, V: Any>(
      * @throws CacheEntryListenerException if there is problem executing the listener
      */
     override fun onCreated(events: MutableIterable<CacheEntryEvent<out K, out V>>) {
-        log.trace { "BackCache cache entry created. events=${events.joinToString { it.asText() }}" }
-        if (!targetCache.isClosed()) {
+        val eventCopies = events.map { EventCopy(it.key, it.value) }
+        log.trace { "BackCache cache entry created. cache=$cacheIdentifier count=${eventCopies.size}" }
+        if (shouldAcceptCallback()) {
             scope.launch {
-                runCatching {
-                    targetCache.putAll(events.associate { it.key to it.value })
-                }.onFailure { e ->
-                    log.error(e) { "Fail to put all created cache entries." }
+                if (closed.get()) return@launch
+                applyEvent("put all created cache entries") {
+                    targetCache.putAll(eventCopies.associate { it.key to it.value })
                 }
             }
         }
@@ -79,13 +98,13 @@ class SuspendJCacheEntryEventListener<K: Any, V: Any>(
      * @throws CacheEntryListenerException if there is problem executing the listener
      */
     override fun onUpdated(events: MutableIterable<CacheEntryEvent<out K, out V>>) {
-        log.trace { "BackCache cache entry updated. events=${events.joinToString { it.asText() }}" }
-        if (!targetCache.isClosed()) {
+        val eventCopies = events.map { EventCopy(it.key, it.value) }
+        log.trace { "BackCache cache entry updated. cache=$cacheIdentifier count=${eventCopies.size}" }
+        if (shouldAcceptCallback()) {
             scope.launch {
-                runCatching {
-                    targetCache.putAll(events.associate { it.key to it.value })
-                }.onFailure { e ->
-                    log.error(e) { "Fail to put all updated cache entries." }
+                if (closed.get()) return@launch
+                applyEvent("put all updated cache entries") {
+                    targetCache.putAll(eventCopies.associate { it.key to it.value })
                 }
             }
         }
@@ -99,13 +118,13 @@ class SuspendJCacheEntryEventListener<K: Any, V: Any>(
      * @throws CacheEntryListenerException if there is problem executing the listener
      */
     override fun onRemoved(events: MutableIterable<CacheEntryEvent<out K, out V>>) {
-        log.trace { "BackCache cache entry removed. events=${events.joinToString { it.asText() }}" }
-        if (!targetCache.isClosed()) {
+        val eventCopies = events.map { EventCopy(it.key, it.value) }
+        log.trace { "BackCache cache entry removed. cache=$cacheIdentifier count=${eventCopies.size}" }
+        if (shouldAcceptCallback()) {
             scope.launch {
-                runCatching {
-                    targetCache.removeAll(events.map { it.key }.toSet())
-                }.onFailure { e ->
-                    log.error(e) { "Fail to remove all removed cache entries." }
+                if (closed.get()) return@launch
+                applyEvent("remove all removed cache entries") {
+                    targetCache.removeAll(eventCopies.mapTo(LinkedHashSet()) { it.key })
                 }
             }
         }
@@ -119,18 +138,38 @@ class SuspendJCacheEntryEventListener<K: Any, V: Any>(
      * @throws CacheEntryListenerException if there is problem executing the listener
      */
     override fun onExpired(events: MutableIterable<CacheEntryEvent<out K, out V>>) {
-        log.trace { "BackCache cache entry expired. events=${events.joinToString { it.asText() }}" }
-        if (!targetCache.isClosed()) {
+        val eventCopies = events.map { EventCopy(it.key, it.value) }
+        log.trace { "BackCache cache entry expired. cache=$cacheIdentifier count=${eventCopies.size}" }
+        if (shouldAcceptCallback()) {
             scope.launch {
-                runCatching {
-                    targetCache.removeAll(events.map { it.key }.toSet())
-                }.onFailure { e ->
-                    log.error(e) { "Fail to remove all expired cache entries." }
+                if (closed.get()) return@launch
+                applyEvent("remove all expired cache entries") {
+                    targetCache.removeAll(eventCopies.mapTo(LinkedHashSet()) { it.key })
                 }
             }
         }
     }
 
-    private fun <K, V> CacheEntryEvent<K, V>.asText(): String =
-        "source=$source, key=$key, value=$value"
+    private fun shouldAcceptCallback(): Boolean = !closed.get() && !targetCache.isClosed()
+
+    @Suppress("TooGenericExceptionCaught")
+    private suspend fun applyEvent(
+        operation: String,
+        block: suspend () -> Unit,
+    ) {
+        try {
+            block()
+        } catch (e: CancellationException) {
+            throw e
+        } catch (e: Exception) {
+            log.error(e) { "Fail to $operation." }
+        }
+    }
+
+    private data class EventCopy<K: Any, V: Any>(val key: K, val value: V)
+
+    private fun String.sanitizeLogIdentifier(): String {
+        val sanitized = replace(Regex("[^A-Za-z0-9._\\$-]"), "_").take(128)
+        return sanitized.ifEmpty { "unknown" }
+    }
 }
