@@ -376,4 +376,74 @@ class NatsConsumerFlowTest {
         check(failure.cause == null || failure.cause === cancellation)
         verify(exactly = 1) { subscription.unsubscribe() }
     }
+
+    @Test
+    fun `push cleanup error preserves Error`() = runTest {
+        val jetStream = mockk<JetStream>()
+        val subscription = mockk<JetStreamSubscription>()
+        val options = pushSubscriptionOptions {
+            pendingMessageLimit(8)
+            pendingByteLimit(1024)
+        }
+        every { jetStream.subscribe("events", options) } returns subscription
+        every { subscription.pendingMessageLimit } returns 8
+        every { subscription.pendingByteLimit } returns 1024
+        every { subscription.droppedCount } returns 0
+        every { subscription.nextMessage(any<Duration>()) } returns null
+        every { subscription.isActive } returns false
+        every { subscription.unsubscribe() } throws AssertionError("unsubscribe failed")
+
+        val failure = assertFailsWith<AssertionError> {
+            jetStream.consumeAsFlow("events", options).toList()
+        }
+
+        failure.message shouldBeEqualTo "unsubscribe failed"
+        verify(exactly = 1) { subscription.unsubscribe() }
+    }
+
+    @Test
+    fun `pull cleanup error preserves Error`() = runTest {
+        val context = mockk<ConsumerContext>()
+        val consumer = mockk<IterableConsumer>()
+        every { context.iterate(any<ConsumeOptions>()) } returns consumer
+        every { consumer.nextMessage(any<Duration>()) } returns null
+        every { consumer.isStopped } returns true
+        every { consumer.isFinished } returns false
+        every { consumer.close() } throws AssertionError("close failed")
+
+        val failure = assertFailsWith<AssertionError> {
+            context.consumeAsFlow().toList()
+        }
+
+        failure.message shouldBeEqualTo "close failed"
+        verify(exactly = 1) { consumer.close() }
+    }
+
+    @Test
+    fun `final pending readback Error is preserved`() = runTest {
+        val jetStream = mockk<JetStream>()
+        val subscription = mockk<JetStreamSubscription>()
+        val options = pushSubscriptionOptions {
+            pendingMessageLimit(8)
+            pendingByteLimit(1024)
+        }
+        var droppedReads = 0
+        every { jetStream.subscribe("events", options) } returns subscription
+        every { subscription.pendingMessageLimit } returns 8
+        every { subscription.pendingByteLimit } returns 1024
+        every { subscription.droppedCount } answers {
+            droppedReads += 1
+            if (droppedReads <= 3) 0 else throw AssertionError("drop readback failed")
+        }
+        every { subscription.nextMessage(any<Duration>()) } returns null
+        every { subscription.isActive } returns false
+        every { subscription.unsubscribe() } just runs
+
+        val failure = assertFailsWith<AssertionError> {
+            jetStream.consumeAsFlow("events", options).toList()
+        }
+
+        failure.message shouldBeEqualTo "drop readback failed"
+        verify(exactly = 1) { subscription.unsubscribe() }
+    }
 }
