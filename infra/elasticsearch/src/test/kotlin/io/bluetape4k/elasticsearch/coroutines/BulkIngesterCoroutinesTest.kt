@@ -2,6 +2,7 @@ package io.bluetape4k.elasticsearch.coroutines
 
 import co.elastic.clients.elasticsearch.core.BulkRequest
 import co.elastic.clients.elasticsearch.core.bulk.BulkOperation
+import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeFalse
 import io.bluetape4k.assertions.shouldBeGreaterOrEqualTo
@@ -57,6 +58,16 @@ class BulkIngesterCoroutinesTest: AbstractElasticsearchTest() {
             ingester.shouldNotBeNull()
         } finally {
             ingester.close()
+        }
+    }
+
+    @Test
+    fun `bulkIngesterOf 는 양수 maxOperations 만 허용한다`() {
+        assertFailsWith<IllegalArgumentException> {
+            bulkIngesterOf<Void>(client = client, maxOperations = 0)
+        }
+        assertFailsWith<IllegalArgumentException> {
+            bulkIngesterOf<Void>(client = asyncClient, maxOperations = 0)
         }
     }
 
@@ -148,6 +159,32 @@ class BulkIngesterCoroutinesTest: AbstractElasticsearchTest() {
             }.shouldBeNull()
         } finally {
             handle.close()
+        }
+    }
+
+    @Test
+    fun `bulkProgressListener emits Error events`() = runTest {
+        val handle = bulkProgressListener<Void>()
+        val (listener, events) = handle
+        val failure = IllegalStateException("bulk failed")
+
+        try {
+            listener.afterBulk(3L, bulkRequestOf("error"), emptyList(), failure)
+
+            val event = events.first()
+            event shouldBeInstanceOf BulkProgressEvent.Error::class
+            val errorEvent = event as BulkProgressEvent.Error<Void>
+            errorEvent.executionId shouldBeEqualTo 3L
+            errorEvent.exception shouldBeEqualTo failure
+        } finally {
+            handle.close()
+        }
+    }
+
+    @Test
+    fun `bulkProgressListener 는 양수 bufferCapacity 만 허용한다`() {
+        assertFailsWith<IllegalArgumentException> {
+            bulkProgressListener<Void>(bufferCapacity = 0)
         }
     }
 
