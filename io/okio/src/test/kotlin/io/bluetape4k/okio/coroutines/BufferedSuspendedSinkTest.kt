@@ -27,14 +27,21 @@ class BufferedSuspendedSinkTest: AbstractOkioTest() {
         val buffer = Buffer()
         var closed = false
             private set
+        var flushCount = 0
+            private set
+        var closeCount = 0
+            private set
 
         override suspend fun write(source: Buffer, byteCount: Long) {
             log.debug { "Read source and write to buffer. byteCount=$byteCount" }
             buffer.write(source, byteCount)
         }
 
-        override suspend fun flush() {}
+        override suspend fun flush() {
+            flushCount++
+        }
         override suspend fun close() {
+            closeCount++
             closed = true
         }
 
@@ -42,25 +49,53 @@ class BufferedSuspendedSinkTest: AbstractOkioTest() {
     }
 
     @Test
-    fun `write and emitCompleteSegments writes only complete segments`() = runTest {
+    fun `emitCompleteSegments keeps complete segments delegated and tail internal`() = runTest {
         val fakeSink = FakeSuspendedSink()
-        val bufferedSink: BufferedSuspendedSink = fakeSink.buffered() // RealBufferedSuspendedSink(fakeSink)
-        val data = ByteArray(SEGMENT_SIZE.toInt()) { it.toByte() } // SEGMENT_SIZE * 2
+        val bufferedSink: BufferedSuspendedSink = fakeSink.buffered()
+        val completeSegment = ByteArray(SEGMENT_SIZE.toInt()) { it.toByte() }
+        val tail = "tail-after-complete-segment".encodeUtf8()
+        val expectedDelegate = Buffer().apply { write(completeSegment) }.snapshot()
 
-        bufferedSink.write(data, 0, SEGMENT_SIZE.toInt())
-        fakeSink.buffer.size shouldBeEqualTo SEGMENT_SIZE
+        bufferedSink.write(completeSegment, 0, completeSegment.size)
+        fakeSink.buffer.snapshot() shouldBeEqualTo expectedDelegate
+        bufferedSink.buffer.snapshot() shouldBeEqualTo ByteString.EMPTY
+
+        bufferedSink.write(tail)
+        fakeSink.buffer.snapshot() shouldBeEqualTo expectedDelegate
+        bufferedSink.buffer.snapshot() shouldBeEqualTo tail
+        fakeSink.flushCount shouldBeEqualTo 0
+        fakeSink.closeCount shouldBeEqualTo 0
     }
 
     @Test
-    fun `flush writes remaining data`() = runTest {
+    fun `flush transfers one tail and close transfers subsequent tail exactly once`() = runTest {
         val fakeSink = FakeSuspendedSink()
         val bufferedSink = RealBufferedSuspendedSink(fakeSink)
-        val text = "hello, world! 안녕하세요."
-        val data = text.toByteArray()
+        val firstTail = "tail-before-flush".encodeUtf8()
+        val secondTail = "tail-before-close".encodeUtf8()
+        val expected = Buffer().apply {
+            write(firstTail)
+            write(secondTail)
+        }.snapshot()
 
-        bufferedSink.write(data, 0, data.size)
+        bufferedSink.write(firstTail)
+        fakeSink.buffer.snapshot() shouldBeEqualTo ByteString.EMPTY
+        bufferedSink.buffer.snapshot() shouldBeEqualTo firstTail
+
         bufferedSink.flush()
-        fakeSink.buffer.readUtf8() shouldBeEqualTo text
+        fakeSink.buffer.snapshot() shouldBeEqualTo firstTail
+        bufferedSink.buffer.snapshot() shouldBeEqualTo ByteString.EMPTY
+        fakeSink.flushCount shouldBeEqualTo 1
+
+        bufferedSink.write(secondTail)
+        fakeSink.buffer.snapshot() shouldBeEqualTo firstTail
+        bufferedSink.buffer.snapshot() shouldBeEqualTo secondTail
+
+        bufferedSink.close()
+        fakeSink.buffer.snapshot() shouldBeEqualTo expected
+        bufferedSink.buffer.snapshot() shouldBeEqualTo ByteString.EMPTY
+        fakeSink.flushCount shouldBeEqualTo 1
+        fakeSink.closeCount shouldBeEqualTo 1
     }
 
     @Test
@@ -71,7 +106,8 @@ class BufferedSuspendedSinkTest: AbstractOkioTest() {
         bufferedSink.writeUtf8("bye", 0, 3)
         bufferedSink.close()
         fakeSink.closed.shouldBeTrue()
-        fakeSink.buffer.readUtf8() shouldBeEqualTo "bye"
+        fakeSink.buffer.snapshot() shouldBeEqualTo "bye".encodeUtf8()
+        fakeSink.closeCount shouldBeEqualTo 1
     }
 
     @Test
@@ -84,50 +120,119 @@ class BufferedSuspendedSinkTest: AbstractOkioTest() {
             flush()
         }
 
-        // int: 0x12 0x34 0x56 0x78, long: 0x11 0x22 0x33 0x44 0x55 0x66 0x77 0x88
-        val expected = byteArrayOf(
-            0x12, 0x34, 0x56, 0x78,
-            0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x88.toByte()
-        )
-        fakeSink.buffer.readByteArray() shouldBeEqualTo expected
+        val expected = Buffer().apply {
+            writeInt(0x12345678)
+            writeLong(0x1122334455667788L)
+        }.snapshot()
+        fakeSink.buffer.snapshot() shouldBeEqualTo expected
+        fakeSink.flushCount shouldBeEqualTo 1
     }
 
     @Test
-    fun `all buffered write overloads emit to the delegate`() = runTest {
+    fun `all buffered write overloads preserve exact payload`() = runTest {
         val fakeSink = FakeSuspendedSink()
         val bufferedSink = RealBufferedSuspendedSink(fakeSink)
+        val expected = Buffer()
+        val writeAllPayload = "write-all-sentinel"
 
-        with(bufferedSink) {
-            write("bytes".encodeUtf8())
-            write("array".toByteArray())
-            writeUtf8("utf8")
-            writeUtf8("code-point")
-            writeUtf8CodePoint('✓'.code)
-            writeByte(0x01)
-            writeShort(0x0203)
-            writeShortLe(0x0405)
-            writeInt(0x06070809)
-            writeIntLe(0x0A0B0C0D)
-            writeLong(0x0102030405060708L)
-            writeLongLe(0x1112131415161718L)
-            writeDecimalLong(123456789L)
-            writeHexadecimalUnsignedLong(0xABCDEFL)
+        bufferedSink.writeByteStringAndTextOverloads(expected)
+        bufferedSink.writeNumericOverloads(expected)
+        val writeAllCount = bufferedSink.writeSourceOverloads(expected, writeAllPayload)
+        writeAllCount shouldBeEqualTo writeAllPayload.encodeUtf8().size.toLong()
 
-            val bufferSource = bufferOf("buffer")
-            write(bufferSource, bufferSource.size)
+        bufferedSink.emitCompleteSegments()
+        bufferedSink.emit()
+        bufferedSink.flush()
 
-            val suspendedSource = (bufferOf("suspended") as okio.Source).asSuspended()
-            write(suspendedSource, 9L)
+        fakeSink.buffer.snapshot() shouldBeEqualTo expected.snapshot()
+        bufferedSink.buffer.snapshot() shouldBeEqualTo ByteString.EMPTY
+        fakeSink.flushCount shouldBeEqualTo 1
+    }
 
-            val allSource: okio.Source = bufferOf("all")
-            writeAll(allSource.asSuspended()) shouldBeEqualTo 3L
+    private suspend fun BufferedSuspendedSink.writeByteStringAndTextOverloads(expected: Buffer) {
+        val byteString = "byte-string-sentinel".encodeUtf8()
+        write(byteString)
+        expected.write(byteString)
 
-            emit()
-            emitCompleteSegments()
-            flush()
-        }
+        val byteArray = byteArrayOf(0x21, 0x22, 0x23, 0x24, 0x25)
+        val byteArrayOffset = 1
+        val byteArrayCount = 3
+        write(byteArray, byteArrayOffset, byteArrayCount)
+        expected.write(byteArray, byteArrayOffset, byteArrayCount)
 
-        (fakeSink.buffer.size > 0L).shouldBeTrue()
+        val fullUtf8 = "utf8-full-sentinel-한글"
+        writeUtf8(fullUtf8)
+        expected.writeUtf8(fullUtf8)
+
+        val utf8 = "prefix-utf8-range-suffix"
+        val utf8BeginIndex = 7
+        val utf8EndIndex = 17
+        writeUtf8(utf8, utf8BeginIndex, utf8EndIndex)
+        expected.writeUtf8(utf8, utf8BeginIndex, utf8EndIndex)
+
+        val codePoint = 0x1F642
+        writeUtf8CodePoint(codePoint)
+        expected.writeUtf8CodePoint(codePoint)
+    }
+
+    private suspend fun BufferedSuspendedSink.writeNumericOverloads(expected: Buffer) {
+        val byte = 0x2A
+        writeByte(byte)
+        expected.writeByte(byte)
+
+        val short = 0x3142
+        writeShort(short)
+        expected.writeShort(short)
+
+        val shortLe = 0x4354
+        writeShortLe(shortLe)
+        expected.writeShortLe(shortLe)
+
+        val int = 0x51525354
+        writeInt(int)
+        expected.writeInt(int)
+
+        val intLe = 0x61626364
+        writeIntLe(intLe)
+        expected.writeIntLe(intLe)
+
+        val long = 0x0102030405060708L
+        writeLong(long)
+        expected.writeLong(long)
+
+        val longLe = 0x1112131415161718L
+        writeLongLe(longLe)
+        expected.writeLongLe(longLe)
+
+        val decimalLong = -9876543210L
+        writeDecimalLong(decimalLong)
+        expected.writeDecimalLong(decimalLong)
+
+        val hexadecimalUnsignedLong = 0x1234ABCDL
+        writeHexadecimalUnsignedLong(hexadecimalUnsignedLong)
+        expected.writeHexadecimalUnsignedLong(hexadecimalUnsignedLong)
+    }
+
+    private suspend fun BufferedSuspendedSink.writeSourceOverloads(expected: Buffer, writeAllPayload: String): Long {
+        val bufferPayload = "buffer-source-sentinel"
+        val bufferByteCount = 6L
+        val bufferSource = bufferOf(bufferPayload)
+        val expectedBufferSource = bufferOf(bufferPayload)
+        write(bufferSource, bufferByteCount)
+        expected.write(expectedBufferSource, bufferByteCount)
+
+        val fixedSourcePayload = "fixed-source-sentinel"
+        val fixedByteCount = 7L
+        val fixedSource: okio.Source = bufferOf(fixedSourcePayload)
+        val expectedFixedSource = bufferOf(fixedSourcePayload)
+        write(fixedSource.asSuspended(), fixedByteCount)
+        expected.write(expectedFixedSource, fixedByteCount)
+
+        val writeAllSource: okio.Source = bufferOf(writeAllPayload)
+        val expectedWriteAllSource = bufferOf(writeAllPayload)
+        val writeAllCount = writeAll(writeAllSource.asSuspended())
+        expected.write(expectedWriteAllSource, expectedWriteAllSource.size)
+        return writeAllCount
     }
 
     @Test

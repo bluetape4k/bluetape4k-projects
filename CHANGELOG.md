@@ -17,6 +17,13 @@
   한다 ([#1335](https://github.com/bluetape4k/bluetape4k-projects/issues/1335)).
 <!-- issue-1335-java25-semver:end -->
 
+### 버그 수정
+
+- `BufferedSuspendedSink` 회귀 테스트가 모든 `write`/`writeAll` 오버로드의 정확한
+  바이트열과 `flush()`/`close()`의 하위 sink 위임 횟수 및 데이터 전달 경계를
+  검증하도록 강화됐다
+  ([#1341](https://github.com/bluetape4k/bluetape4k-projects/issues/1341)).
+
 ## [1.12.1] — 2026-08-06
 
 ### 버그 수정
