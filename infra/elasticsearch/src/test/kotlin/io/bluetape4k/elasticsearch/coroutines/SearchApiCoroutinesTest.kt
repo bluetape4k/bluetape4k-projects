@@ -104,6 +104,18 @@ class SearchApiCoroutinesTest: AbstractElasticsearchTest() {
             closed.shouldBeTrue()
         }
 
+    @Test
+    fun `PIT 와 searchAsFlow 는 기본 옵션으로도 동작한다`() = runTest(timeout = 60.seconds) {
+        val pitId = asyncClient.openPointInTimeSuspending(indexName)
+        pitId.shouldNotBeBlank()
+        asyncClient.closePointInTimeSuspending(pitId).shouldBeTrue()
+
+        val first = asyncClient.searchAsFlow<SearchDoc>(indexName)
+            .take(1)
+            .toList()
+        first.size shouldBeEqualTo 1
+    }
+
     // -------------------------------------------------------------------------
     // searchAsFlow — 전체 10000건 순회
     // -------------------------------------------------------------------------
