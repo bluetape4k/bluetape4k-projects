@@ -2,6 +2,7 @@ package io.bluetape4k.elasticsearch.coroutines
 
 import co.elastic.clients.elasticsearch.core.BulkRequest
 import co.elastic.clients.elasticsearch.core.bulk.BulkOperation
+import co.elastic.clients.util.ObjectBuilder
 import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeFalse
@@ -25,6 +26,7 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
+import java.util.function.Function
 
 /**
  * [BulkIngester] Coroutines 확장함수 테스트.
@@ -100,6 +102,30 @@ class BulkIngesterCoroutinesTest: AbstractElasticsearchTest() {
             index(indexName)
         }
         countResponse.count() shouldBeGreaterOrEqualTo docCount.toLong()
+    }
+
+    @Test
+    fun `builder lambda addSuspend 로 문서를 인덱싱한다`() = runTest(timeout = 60.seconds) {
+        val ingester = bulkIngesterOf<Void>(
+            client = asyncClient,
+            maxOperations = 1,
+        )
+
+        ingester.use {
+            it.addSuspend(
+                Function<BulkOperation.Builder, ObjectBuilder<BulkOperation>> { operation ->
+                    operation.index<Map<String, Any?>> { index ->
+                        index.index(indexName)
+                            .id("builder-doc")
+                            .document(mapOf("title" to "Builder document"))
+                    }
+                },
+            )
+        }
+
+        asyncClient.indices().refresh { it.index(indexName) }.await()
+        val countResponse = asyncClient.countSuspending { index(indexName) }
+        countResponse.count() shouldBeGreaterOrEqualTo 1L
     }
 
     @Test
