@@ -150,6 +150,11 @@ class SuspendJCacheEntryEventListener<K: Any, V: Any> private constructor(
         }
     }
 
+    /**
+     * Callback admission is linearized by the [closed] read immediately before launch.
+     * A callback that has already passed this gate is in flight; [close] requests
+     * cooperative cancellation without waiting for that backend call to return.
+     */
     private fun shouldAcceptCallback(): Boolean = !closed.get() && !targetCache.isClosed()
 
     @Suppress("TooGenericExceptionCaught")
