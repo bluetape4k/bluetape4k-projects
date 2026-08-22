@@ -187,7 +187,15 @@ class AggregateKoverCoverageTest(unittest.TestCase):
     def test_nightly_requires_the_infra_module_inventory(self):
         workflow = NIGHTLY_WORKFLOW.read_text(encoding="utf-8")
         self.assertIn("expected-modules.manifest", workflow)
-        for module in (
+        manifest_start = workflow.index("          if grep -q '^test-infra=success$'")
+        manifest_end = workflow.index("          fi", manifest_start)
+        manifest = workflow[manifest_start:manifest_end]
+        actual_modules = {
+            line.strip().removesuffix("\\").strip().strip("'")
+            for line in manifest.splitlines()
+            if line.strip().startswith("'")
+        }
+        expected_modules = {
             "infra/redisson",
             "infra/lettuce",
             "cache/cache-lettuce",
@@ -200,8 +208,8 @@ class AggregateKoverCoverageTest(unittest.TestCase):
             "cache/cache-hazelcast",
             "infra/elasticsearch",
             "infra/nats",
-        ):
-            self.assertIn(module, workflow)
+        }
+        self.assertSetEqual(actual_modules, expected_modules)
         self.assertIn("expected_module_args+=(--expected-module \"$module\")", workflow)
 
     def test_nightly_excludes_code_free_redis_umbrella_from_coverage(self):
