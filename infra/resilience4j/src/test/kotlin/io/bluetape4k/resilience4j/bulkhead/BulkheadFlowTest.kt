@@ -12,6 +12,7 @@ import io.github.resilience4j.bulkhead.Bulkhead
 import io.github.resilience4j.bulkhead.BulkheadConfig
 import io.github.resilience4j.bulkhead.BulkheadFullException
 import io.github.resilience4j.kotlin.bulkhead.bulkhead
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Job
@@ -26,8 +27,8 @@ import kotlinx.coroutines.launch
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import java.time.Duration
-import java.util.concurrent.Phaser
 import kotlin.time.Duration.Companion.milliseconds
+import kotlin.time.Duration.Companion.seconds
 
 class BulkheadFlowTest {
 
@@ -147,57 +148,20 @@ class BulkheadFlowTest {
     }
 
     @Test
-    fun `실행이 취소되었을 경우 bulkhead는 완료로 기록되지 않습니다`() = runSuspendTest {
-        val phaser = Phaser(1)
-        var flowCompleted = false
-        val bulkhead = Bulkhead.of("testName") {
-            BulkheadConfig.custom()
-                .maxConcurrentCalls(1)
-                .maxWaitDuration(Duration.ZERO)
-                .build()
-        }.registerEventListener()
+    fun `실행이 취소되었을 경우 bulkhead는 완료로 기록되지 않습니다`() =
+        runSuspendTest(timeout = 10.seconds) {
+            val started = CompletableDeferred<Unit>()
+            var flowCompleted = false
+            val bulkhead = Bulkhead.of("testName") {
+                BulkheadConfig.custom()
+                    .maxConcurrentCalls(1)
+                    .maxWaitDuration(Duration.ZERO)
+                    .build()
+            }.registerEventListener()
 
-        val job = launch(start = CoroutineStart.ATOMIC) {
-            flow {
-                phaser.arrive()
-                delay(5000L.milliseconds)
-                emit(1)
-                flowCompleted = true
-            }
-                .bulkhead(bulkhead)
-                .first()
-        }
-
-        phaser.awaitAdvance(1)
-        job.cancelAndJoin()
-
-        job.isCompleted.shouldBeTrue()
-        job.isCancelled.shouldBeTrue()
-        flowCompleted.shouldBeFalse()
-
-        permittedEvents shouldBeEqualTo 1
-        rejectedEvents shouldBeEqualTo 0
-        finishedEvents shouldBeEqualTo 0
-    }
-
-    @Test
-    fun `작업이 예외로 인한 취소가 되었을 경우 bulkhead는 완료로 기록되지 않습니다`() = runSuspendTest {
-        val phaser = Phaser(1)
-        val parentJob = Job()
-        var flowCompleted = false
-
-        val bulkhead = Bulkhead.of("testName") {
-            BulkheadConfig.custom()
-                .maxConcurrentCalls(1)
-                .maxWaitDuration(Duration.ZERO)
-                .build()
-        }.registerEventListener()
-
-        val parentScope = CoroutineScope(parentJob)
-        val job = parentScope.launch {
-            launch(start = CoroutineStart.ATOMIC) {
+            val job = launch(start = CoroutineStart.ATOMIC) {
                 flow {
-                    phaser.arrive()
+                    started.complete(Unit)
                     delay(5000L.milliseconds)
                     emit(1)
                     flowCompleted = true
@@ -205,18 +169,57 @@ class BulkheadFlowTest {
                     .bulkhead(bulkhead)
                     .first()
             }
-            error("exceptional cancellation")
+
+            started.await()
+            job.cancelAndJoin()
+
+            job.isCompleted.shouldBeTrue()
+            job.isCancelled.shouldBeTrue()
+            flowCompleted.shouldBeFalse()
+
+            permittedEvents shouldBeEqualTo 1
+            rejectedEvents shouldBeEqualTo 0
+            finishedEvents shouldBeEqualTo 0
         }
 
-        phaser.awaitAdvance(1)
-        parentJob.runCatching { join() }
+    @Test
+    fun `작업이 예외로 인한 취소가 되었을 경우 bulkhead는 완료로 기록되지 않습니다`() =
+        runSuspendTest(timeout = 10.seconds) {
+            val started = CompletableDeferred<Unit>()
+            val parentJob = Job()
+            var flowCompleted = false
 
-        job.isCompleted.shouldBeTrue()
-        job.isCancelled.shouldBeTrue()
-        flowCompleted.shouldBeFalse()
+            val bulkhead = Bulkhead.of("testName") {
+                BulkheadConfig.custom()
+                    .maxConcurrentCalls(1)
+                    .maxWaitDuration(Duration.ZERO)
+                    .build()
+            }.registerEventListener()
 
-        permittedEvents shouldBeEqualTo 1
-        rejectedEvents shouldBeEqualTo 0
-        finishedEvents shouldBeEqualTo 0
-    }
+            val parentScope = CoroutineScope(parentJob)
+            val job = parentScope.launch {
+                launch(start = CoroutineStart.ATOMIC) {
+                    flow {
+                        started.complete(Unit)
+                        delay(5000L.milliseconds)
+                        emit(1)
+                        flowCompleted = true
+                    }
+                        .bulkhead(bulkhead)
+                        .first()
+                }
+                error("exceptional cancellation")
+            }
+
+            started.await()
+            parentJob.runCatching { join() }
+
+            job.isCompleted.shouldBeTrue()
+            job.isCancelled.shouldBeTrue()
+            flowCompleted.shouldBeFalse()
+
+            permittedEvents shouldBeEqualTo 1
+            rejectedEvents shouldBeEqualTo 0
+            finishedEvents shouldBeEqualTo 0
+        }
 }

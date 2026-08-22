@@ -1,0 +1,174 @@
+#!/usr/bin/env python3
+"""Unit tests for the Docker-backed image gate runner."""
+
+from __future__ import annotations
+
+import json
+import tempfile
+import unittest
+from pathlib import Path
+from types import SimpleNamespace
+
+from scripts.run_testcontainers_image_gate import (
+    GateRunner,
+    classify_failure,
+    redact,
+)
+
+
+def entry(server: str = "FlociServer") -> dict[str, object]:
+    return {
+        "id": server.lower(),
+        "server": server,
+        "source": "testing/testcontainers/src/main/kotlin/example/Server.kt",
+        "testSource": "testing/testcontainers/src/test/kotlin/example/ServerTest.kt",
+        "image": "example/image",
+        "tag": "1.0",
+        "testPattern": f"example.{server}Test",
+        "readiness": "testcontainers_wait_strategy_and_workload_readiness",
+        "workload": f"example.{server}Test:representative_test",
+        "diagnostics": ["docker_inspect", "docker_logs", "docker_events"],
+        "releaseRequired": True,
+    }
+
+
+class TestRunTestcontainersImageGate(unittest.TestCase):
+    def test_successful_family_records_command_and_coverage(self) -> None:
+        calls: list[list[str]] = []
+
+        def command_runner(command: list[str], timeout_seconds: int) -> SimpleNamespace:
+            calls.append(command)
+            return SimpleNamespace(returncode=0, stdout="BUILD SUCCESSFUL", stderr="")
+
+        with tempfile.TemporaryDirectory() as directory:
+            summary = GateRunner(
+                [entry()],
+                Path(directory),
+                command_runner=command_runner,
+                max_attempts=1,
+            ).run()
+            self.assertEqual("success", summary["results"][0]["status"])
+            self.assertEqual("1/1", summary["coverage"])
+            self.assertTrue(summary["release_gate"])
+            self.assertIn("--tests", calls[0])
+            self.assertTrue((Path(directory) / "summary.json").is_file())
+
+    def test_infrastructure_failure_retries_and_collects_diagnostics(self) -> None:
+        calls: list[list[str]] = []
+        diagnostics: list[str] = []
+
+        def command_runner(command: list[str], timeout_seconds: int) -> SimpleNamespace:
+            calls.append(command)
+            return SimpleNamespace(returncode=1, stdout="toomanyrequests: rate limit", stderr="")
+
+        def diagnostic_runner(family: dict[str, object]) -> dict[str, str]:
+            diagnostics.append(str(family["server"]))
+            return {"docker_logs": "<redacted>"}
+
+        with tempfile.TemporaryDirectory() as directory:
+            summary = GateRunner(
+                [entry()],
+                Path(directory),
+                command_runner=command_runner,
+                diagnostic_runner=diagnostic_runner,
+                max_attempts=2,
+            ).run()
+            result = summary["results"][0]
+            self.assertEqual("infrastructure_failure", result["status"])
+            self.assertEqual(2, len(result["attempts"]))
+            self.assertEqual(["FlociServer"], diagnostics)
+            self.assertFalse(summary["release_gate"])
+
+    def test_product_failure_and_timeout_are_distinct(self) -> None:
+        self.assertEqual("product_failure", classify_failure(1, "AssertionError: expected 200", ""))
+        self.assertEqual("infrastructure_failure", classify_failure(1, "connection refused", ""))
+        self.assertEqual("infrastructure_failure", classify_failure(None, "", "timeout"))
+
+    def test_test_discovery_failure_wins_over_unrelated_docker_output(self) -> None:
+        stdout = "building image to Docker daemon\ntimeout while preparing unrelated diagnostics\n"
+        stderr = (
+            "Execution failed for task ':bluetape4k-testcontainers:test'.\n"
+            "> No tests found for given includes: "
+            "[io.bluetape4k.testcontainers.infra.K3sServerTest](--tests filter)"
+        )
+
+        self.assertEqual("product_failure", classify_failure(1, stdout, stderr))
+
+    def test_test_discovery_words_without_gradle_failure_context_do_not_override_infrastructure(self) -> None:
+        stdout = "building image to Docker daemon\n"
+        stderr = "diagnostic note: No tests found for given includes may be reported later"
+
+        self.assertEqual("infrastructure_failure", classify_failure(1, stdout, stderr))
+
+    def test_family_specific_test_task_overrides_the_default_task(self) -> None:
+        calls: list[list[str]] = []
+        k3s = entry("K3sServer")
+        k3s["testTask"] = ":bluetape4k-testcontainers:k8sTest"
+
+        def command_runner(command: list[str], timeout_seconds: int) -> SimpleNamespace:
+            calls.append(command)
+            return SimpleNamespace(returncode=0, stdout="BUILD SUCCESSFUL", stderr="")
+
+        with tempfile.TemporaryDirectory() as directory:
+            GateRunner(
+                [k3s],
+                Path(directory),
+                command_runner=command_runner,
+                max_attempts=1,
+            ).run()
+
+        self.assertEqual(
+            ["./gradlew", ":bluetape4k-testcontainers:k8sTest"],
+            calls[0][:2],
+        )
+
+    def test_zero_exit_without_gradle_success_evidence_is_blocked(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            summary = GateRunner(
+                [entry()],
+                Path(directory),
+                command_runner=lambda command, timeout_seconds: SimpleNamespace(
+                    returncode=0, stdout="completed without the Gradle result", stderr=""
+                ),
+                max_attempts=1,
+            ).run()
+            self.assertEqual("blocked", summary["results"][0]["status"])
+            self.assertFalse(summary["release_gate"])
+
+    def test_success_after_long_gradle_output_is_not_blocked(self) -> None:
+        long_success = ("progress\n" * 4000) + "BUILD SUCCESSFUL\n"
+        with tempfile.TemporaryDirectory() as directory:
+            summary = GateRunner(
+                [entry()],
+                Path(directory),
+                command_runner=lambda command, timeout_seconds: SimpleNamespace(
+                    returncode=0, stdout=long_success, stderr=""
+                ),
+                max_attempts=1,
+            ).run()
+            self.assertEqual("success", summary["results"][0]["status"])
+            self.assertTrue(summary["release_gate"])
+
+    def test_secret_redaction_applies_to_artifact_text(self) -> None:
+        safe = redact("TOKEN=super-secret password=hunter2 Authorization: Bearer abc123")
+        self.assertNotIn("super-secret", safe)
+        self.assertNotIn("hunter2", safe)
+        self.assertNotIn("abc123", safe)
+        self.assertIn("<redacted>", safe)
+
+    def test_summary_json_is_machine_readable(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            summary = GateRunner(
+                [entry()],
+                Path(directory),
+                command_runner=lambda command, timeout_seconds: SimpleNamespace(
+                    returncode=0, stdout="BUILD SUCCESSFUL", stderr=""
+                ),
+                max_attempts=1,
+            ).run()
+            read_back = json.loads((Path(directory) / "summary.json").read_text())
+            self.assertEqual(summary["manifest_digest"], read_back["manifest_digest"])
+
+
+if __name__ == "__main__":
+    unittest.main(verbosity=2)

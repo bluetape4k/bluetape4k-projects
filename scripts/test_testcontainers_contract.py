@@ -7,6 +7,8 @@ import re
 import unittest
 from pathlib import Path
 
+from scripts.testcontainers_image_gate import load_manifest, validate_manifest
+
 
 ROOT = Path(__file__).resolve().parents[1]
 KOTLIN_ROOT = ROOT / "testing/testcontainers/src/main/kotlin"
@@ -136,6 +138,10 @@ class TestTestcontainersContract(unittest.TestCase):
                 self.assertIn("not supported", content)
             else:
                 self.assertIn("지원하지 않", content)
+
+    def test_image_gate_manifest_matches_this_contract(self) -> None:
+        manifest = load_manifest(ROOT / "scripts/testcontainers_image_gate_manifest.json")
+        self.assertEqual([], validate_manifest(manifest, ROOT))
 
 
 if __name__ == "__main__":

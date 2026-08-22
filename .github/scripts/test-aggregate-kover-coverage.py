@@ -187,8 +187,15 @@ class AggregateKoverCoverageTest(unittest.TestCase):
     def test_nightly_requires_the_infra_module_inventory(self):
         workflow = NIGHTLY_WORKFLOW.read_text(encoding="utf-8")
         self.assertIn("expected-modules.manifest", workflow)
-        for module in (
-            "infra/redis",
+        manifest_start = workflow.index("          if grep -q '^test-infra=success$'")
+        manifest_end = workflow.index("          fi", manifest_start)
+        manifest = workflow[manifest_start:manifest_end]
+        actual_modules = {
+            line.strip().removesuffix("\\").strip().strip("'")
+            for line in manifest.splitlines()
+            if line.strip().startswith("'")
+        }
+        expected_modules = {
             "infra/redisson",
             "infra/lettuce",
             "cache/cache-lettuce",
@@ -201,9 +208,22 @@ class AggregateKoverCoverageTest(unittest.TestCase):
             "cache/cache-hazelcast",
             "infra/elasticsearch",
             "infra/nats",
-        ):
-            self.assertIn(module, workflow)
+        }
+        self.assertSetEqual(actual_modules, expected_modules)
         self.assertIn("expected_module_args+=(--expected-module \"$module\")", workflow)
+
+    def test_nightly_excludes_code_free_redis_umbrella_from_coverage(self):
+        workflow = NIGHTLY_WORKFLOW.read_text(encoding="utf-8")
+        redis_start = workflow.index("          - group: redis")
+        redis_end = workflow.index("          - group: kafka-resilience", redis_start)
+        redis_group = workflow[redis_start:redis_end]
+        self.assertNotIn(":bluetape4k-redis:test", redis_group)
+        self.assertNotIn(":bluetape4k-redis:koverXmlReport", redis_group)
+
+        manifest_start = workflow.index("          if grep -q '^test-infra=success$'")
+        manifest_end = workflow.index("          fi", manifest_start)
+        expected_modules = workflow[manifest_start:manifest_end]
+        self.assertNotIn("'infra/redis'", expected_modules)
 
     def test_nightly_keeps_redis_characterization_out_of_coverage(self):
         workflow = NIGHTLY_WORKFLOW.read_text(encoding="utf-8")
@@ -218,6 +238,15 @@ class AggregateKoverCoverageTest(unittest.TestCase):
     def test_nightly_kover_failures_are_not_ignored(self):
         workflow = NIGHTLY_WORKFLOW.read_text(encoding="utf-8")
         self.assertNotIn("continue-on-error: true", workflow)
+
+    def test_nightly_spring_demos_skip_coverage_upload_without_kover_tasks(self):
+        workflow = NIGHTLY_WORKFLOW.read_text(encoding="utf-8")
+        spring_docker_start = workflow.index("  test-spring-docker:")
+        spring_docker_end = workflow.index("\n  # ── Testcontainers", spring_docker_start)
+        spring_docker = workflow[spring_docker_start:spring_docker_end]
+        self.assertIn('kover_tasks: ""', spring_docker)
+        coverage_upload = spring_docker[spring_docker.index("      - name: Upload coverage report") :]
+        self.assertIn("if: ${{ always() && matrix.kover_tasks != '' }}", coverage_upload)
 
     def test_ci_kover_failures_are_not_ignored(self):
         workflow = CI_WORKFLOW.read_text(encoding="utf-8")

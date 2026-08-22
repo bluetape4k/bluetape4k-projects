@@ -1,0 +1,893 @@
+{
+  "version": 1,
+  "families": [
+    {
+      "id": "dynamo-db-local",
+      "server": "DynamoDbLocalServer",
+      "source": "testing/testcontainers/src/main/kotlin/io/bluetape4k/testcontainers/aws/DynamoDbLocalServer.kt",
+      "testSource": "testing/testcontainers/src/test/kotlin/io/bluetape4k/testcontainers/aws/DynamoDbLocalServerTest.kt",
+      "image": "amazon/dynamodb-local",
+      "tag": "3.3.1",
+      "testPattern": "io.bluetape4k.testcontainers.aws.DynamoDbLocalServerTest",
+      "readiness": "testcontainers_wait_strategy_and_workload_readiness",
+      "workload": "io.bluetape4k.testcontainers.aws.DynamoDbLocalServerTest:representative_test",
+      "diagnostics": [
+        "docker_inspect",
+        "docker_logs",
+        "docker_events"
+      ],
+      "releaseRequired": true
+    },
+    {
+      "id": "floci",
+      "server": "FlociServer",
+      "source": "testing/testcontainers/src/main/kotlin/io/bluetape4k/testcontainers/aws/FlociServer.kt",
+      "testSource": "testing/testcontainers/src/test/kotlin/io/bluetape4k/testcontainers/aws/FlociServerTest.kt",
+      "image": "floci/floci",
+      "tag": "1.6.0",
+      "testPattern": "io.bluetape4k.testcontainers.aws.FlociServerTest",
+      "readiness": "testcontainers_wait_strategy_and_workload_readiness",
+      "workload": "io.bluetape4k.testcontainers.aws.FlociServerTest:representative_test",
+      "diagnostics": [
+        "docker_inspect",
+        "docker_logs",
+        "docker_events"
+      ],
+      "releaseRequired": true
+    },
+    {
+      "id": "local-stack",
+      "server": "LocalStackServer",
+      "source": "testing/testcontainers/src/main/kotlin/io/bluetape4k/testcontainers/aws/LocalStackServer.kt",
+      "testSource": "testing/testcontainers/src/test/kotlin/io/bluetape4k/testcontainers/aws/LocalStackServerTest.kt",
+      "image": "localstack/localstack",
+      "tag": "4",
+      "testPattern": "io.bluetape4k.testcontainers.aws.LocalStackServerTest",
+      "readiness": "testcontainers_wait_strategy_and_workload_readiness",
+      "workload": "io.bluetape4k.testcontainers.aws.LocalStackServerTest:representative_test",
+      "diagnostics": [
+        "docker_inspect",
+        "docker_logs",
+        "docker_events"
+      ],
+      "releaseRequired": true
+    },
+    {
+      "id": "mini-stack",
+      "server": "MiniStackServer",
+      "source": "testing/testcontainers/src/main/kotlin/io/bluetape4k/testcontainers/aws/MiniStackServer.kt",
+      "testSource": "testing/testcontainers/src/test/kotlin/io/bluetape4k/testcontainers/aws/MiniStackServerTest.kt",
+      "image": "ministackorg/ministack",
+      "tag": "1.4.14",
+      "testPattern": "io.bluetape4k.testcontainers.aws.MiniStackServerTest",
+      "readiness": "testcontainers_wait_strategy_and_workload_readiness",
+      "workload": "io.bluetape4k.testcontainers.aws.MiniStackServerTest:representative_test",
+      "diagnostics": [
+        "docker_inspect",
+        "docker_logs",
+        "docker_events"
+      ],
+      "releaseRequired": true
+    },
+    {
+      "id": "click-house",
+      "server": "ClickHouseServer",
+      "source": "testing/testcontainers/src/main/kotlin/io/bluetape4k/testcontainers/database/ClickHouseServer.kt",
+      "testSource": "testing/testcontainers/src/test/kotlin/io/bluetape4k/testcontainers/database/ClickHouseServerTest.kt",
+      "image": "clickhouse/clickhouse-server",
+      "tag": "26.7.3.19",
+      "testPattern": "io.bluetape4k.testcontainers.database.ClickHouseServerTest",
+      "readiness": "testcontainers_wait_strategy_and_workload_readiness",
+      "workload": "io.bluetape4k.testcontainers.database.ClickHouseServerTest:representative_test",
+      "diagnostics": [
+        "docker_inspect",
+        "docker_logs",
+        "docker_events"
+      ],
+      "releaseRequired": true
+    },
+    {
+      "id": "cockroach",
+      "server": "CockroachServer",
+      "source": "testing/testcontainers/src/main/kotlin/io/bluetape4k/testcontainers/database/CockroachServer.kt",
+      "testSource": "testing/testcontainers/src/test/kotlin/io/bluetape4k/testcontainers/database/CockroachServerTest.kt",
+      "image": "cockroachdb/cockroach",
+      "tag": "v25.4.14",
+      "testPattern": "io.bluetape4k.testcontainers.database.CockroachServerTest",
+      "readiness": "testcontainers_wait_strategy_and_workload_readiness",
+      "workload": "io.bluetape4k.testcontainers.database.CockroachServerTest:representative_test",
+      "diagnostics": [
+        "docker_inspect",
+        "docker_logs",
+        "docker_events"
+      ],
+      "releaseRequired": true
+    },
+    {
+      "id": "maria-d-b",
+      "server": "MariaDBServer",
+      "source": "testing/testcontainers/src/main/kotlin/io/bluetape4k/testcontainers/database/MariaDBServer.kt",
+      "testSource": "testing/testcontainers/src/test/kotlin/io/bluetape4k/testcontainers/database/MariaDBServerTest.kt",
+      "image": "mariadb",
+      "tag": "12.3.2",
+      "testPattern": "io.bluetape4k.testcontainers.database.MariaDBServerTest",
+      "readiness": "testcontainers_wait_strategy_and_workload_readiness",
+      "workload": "io.bluetape4k.testcontainers.database.MariaDBServerTest:representative_test",
+      "diagnostics": [
+        "docker_inspect",
+        "docker_logs",
+        "docker_events"
+      ],
+      "releaseRequired": true
+    },
+    {
+      "id": "my-s-q-l5",
+      "server": "MySQL5Server",
+      "source": "testing/testcontainers/src/main/kotlin/io/bluetape4k/testcontainers/database/MySQL5Server.kt",
+      "testSource": "testing/testcontainers/src/test/kotlin/io/bluetape4k/testcontainers/database/MySQL5ServerTest.kt",
+      "image": "biarms/mysql",
+      "tag": "5",
+      "testPattern": "io.bluetape4k.testcontainers.database.MySQL5ServerTest",
+      "readiness": "testcontainers_wait_strategy_and_workload_readiness",
+      "workload": "io.bluetape4k.testcontainers.database.MySQL5ServerTest:representative_test",
+      "diagnostics": [
+        "docker_inspect",
+        "docker_logs",
+        "docker_events"
+      ],
+      "releaseRequired": true
+    },
+    {
+      "id": "my-s-q-l8",
+      "server": "MySQL8Server",
+      "source": "testing/testcontainers/src/main/kotlin/io/bluetape4k/testcontainers/database/MySQL8Server.kt",
+      "testSource": "testing/testcontainers/src/test/kotlin/io/bluetape4k/testcontainers/database/MySQL8ServerTest.kt",
+      "image": "mysql",
+      "tag": "8.4.11",
+      "testPattern": "io.bluetape4k.testcontainers.database.MySQL8ServerTest",
+      "readiness": "testcontainers_wait_strategy_and_workload_readiness",
+      "workload": "io.bluetape4k.testcontainers.database.MySQL8ServerTest:representative_test",
+      "diagnostics": [
+        "docker_inspect",
+        "docker_logs",
+        "docker_events"
+      ],
+      "releaseRequired": true
+    },
+    {
+      "id": "pgvector",
+      "server": "PgvectorServer",
+      "source": "testing/testcontainers/src/main/kotlin/io/bluetape4k/testcontainers/database/PgvectorServer.kt",
+      "testSource": "testing/testcontainers/src/test/kotlin/io/bluetape4k/testcontainers/database/PgvectorServerTest.kt",
+      "image": "pgvector/pgvector",
+      "tag": "0.8.6-pg16",
+      "testPattern": "io.bluetape4k.testcontainers.database.PgvectorServerTest",
+      "readiness": "testcontainers_wait_strategy_and_workload_readiness",
+      "workload": "io.bluetape4k.testcontainers.database.PgvectorServerTest:representative_test",
+      "diagnostics": [
+        "docker_inspect",
+        "docker_logs",
+        "docker_events"
+      ],
+      "releaseRequired": true
+    },
+    {
+      "id": "postgis",
+      "server": "PostgisServer",
+      "source": "testing/testcontainers/src/main/kotlin/io/bluetape4k/testcontainers/database/PostgisServer.kt",
+      "testSource": "testing/testcontainers/src/test/kotlin/io/bluetape4k/testcontainers/database/PostgisServerTest.kt",
+      "image": "postgis/postgis",
+      "tag": "16-3.5",
+      "testPattern": "io.bluetape4k.testcontainers.database.PostgisServerTest",
+      "readiness": "testcontainers_wait_strategy_and_workload_readiness",
+      "workload": "io.bluetape4k.testcontainers.database.PostgisServerTest:representative_test",
+      "diagnostics": [
+        "docker_inspect",
+        "docker_logs",
+        "docker_events"
+      ],
+      "releaseRequired": true
+    },
+    {
+      "id": "postgre-s-q-l",
+      "server": "PostgreSQLServer",
+      "source": "testing/testcontainers/src/main/kotlin/io/bluetape4k/testcontainers/database/PostgreSQLServer.kt",
+      "testSource": "testing/testcontainers/src/test/kotlin/io/bluetape4k/testcontainers/database/PostgreSQLServerTest.kt",
+      "image": "postgres",
+      "tag": "18.4-alpine",
+      "testPattern": "io.bluetape4k.testcontainers.database.PostgreSQLServerTest",
+      "readiness": "testcontainers_wait_strategy_and_workload_readiness",
+      "workload": "io.bluetape4k.testcontainers.database.PostgreSQLServerTest:representative_test",
+      "diagnostics": [
+        "docker_inspect",
+        "docker_logs",
+        "docker_events"
+      ],
+      "releaseRequired": true
+    },
+    {
+      "id": "trino",
+      "server": "TrinoServer",
+      "source": "testing/testcontainers/src/main/kotlin/io/bluetape4k/testcontainers/database/TrinoServer.kt",
+      "testSource": "testing/testcontainers/src/test/kotlin/io/bluetape4k/testcontainers/database/TrinoServerTest.kt",
+      "image": "trinodb/trino",
+      "tag": "483",
+      "testPattern": "io.bluetape4k.testcontainers.database.TrinoServerTest",
+      "readiness": "testcontainers_wait_strategy_and_workload_readiness",
+      "workload": "io.bluetape4k.testcontainers.database.TrinoServerTest:representative_test",
+      "diagnostics": [
+        "docker_inspect",
+        "docker_logs",
+        "docker_events"
+      ],
+      "releaseRequired": true
+    },
+    {
+      "id": "falkor-d-b",
+      "server": "FalkorDBServer",
+      "source": "testing/testcontainers/src/main/kotlin/io/bluetape4k/testcontainers/graphdb/FalkorDBServer.kt",
+      "testSource": "testing/testcontainers/src/test/kotlin/io/bluetape4k/testcontainers/graphdb/FalkorDBServerTest.kt",
+      "image": "falkordb/falkordb",
+      "tag": "v4.20.2",
+      "testPattern": "io.bluetape4k.testcontainers.graphdb.FalkorDBServerTest",
+      "readiness": "testcontainers_wait_strategy_and_workload_readiness",
+      "workload": "io.bluetape4k.testcontainers.graphdb.FalkorDBServerTest:representative_test",
+      "diagnostics": [
+        "docker_inspect",
+        "docker_logs",
+        "docker_events"
+      ],
+      "releaseRequired": true
+    },
+    {
+      "id": "memgraph",
+      "server": "MemgraphServer",
+      "source": "testing/testcontainers/src/main/kotlin/io/bluetape4k/testcontainers/graphdb/MemgraphServer.kt",
+      "testSource": "testing/testcontainers/src/test/kotlin/io/bluetape4k/testcontainers/graphdb/MemgraphServerTest.kt",
+      "image": "memgraph/memgraph",
+      "tag": "3.12.0",
+      "testPattern": "io.bluetape4k.testcontainers.graphdb.MemgraphServerTest",
+      "readiness": "testcontainers_wait_strategy_and_workload_readiness",
+      "workload": "io.bluetape4k.testcontainers.graphdb.MemgraphServerTest:representative_test",
+      "diagnostics": [
+        "docker_inspect",
+        "docker_logs",
+        "docker_events"
+      ],
+      "releaseRequired": true
+    },
+    {
+      "id": "neo4j",
+      "server": "Neo4jServer",
+      "source": "testing/testcontainers/src/main/kotlin/io/bluetape4k/testcontainers/graphdb/Neo4jServer.kt",
+      "testSource": "testing/testcontainers/src/test/kotlin/io/bluetape4k/testcontainers/graphdb/Neo4jServerTest.kt",
+      "image": "neo4j",
+      "tag": "5.26.29",
+      "testPattern": "io.bluetape4k.testcontainers.graphdb.Neo4jServerTest",
+      "readiness": "testcontainers_wait_strategy_and_workload_readiness",
+      "workload": "io.bluetape4k.testcontainers.graphdb.Neo4jServerTest:representative_test",
+      "diagnostics": [
+        "docker_inspect",
+        "docker_logs",
+        "docker_events"
+      ],
+      "releaseRequired": true
+    },
+    {
+      "id": "postgre-s-q-l-age",
+      "server": "PostgreSQLAgeServer",
+      "source": "testing/testcontainers/src/main/kotlin/io/bluetape4k/testcontainers/graphdb/PostgreSQLAgeServer.kt",
+      "testSource": "testing/testcontainers/src/test/kotlin/io/bluetape4k/testcontainers/graphdb/PostgreSQLAgeServerTest.kt",
+      "image": "apache/age",
+      "tag": "release_PG18_1.7.0",
+      "testPattern": "io.bluetape4k.testcontainers.graphdb.PostgreSQLAgeServerTest",
+      "readiness": "testcontainers_wait_strategy_and_workload_readiness",
+      "workload": "io.bluetape4k.testcontainers.graphdb.PostgreSQLAgeServerTest:representative_test",
+      "diagnostics": [
+        "docker_inspect",
+        "docker_logs",
+        "docker_events"
+      ],
+      "releaseRequired": true
+    },
+    {
+      "id": "bluetape-http",
+      "server": "BluetapeHttpServer",
+      "source": "testing/testcontainers/src/main/kotlin/io/bluetape4k/testcontainers/http/BluetapeHttpServer.kt",
+      "testSource": "testing/testcontainers/src/test/kotlin/io/bluetape4k/testcontainers/http/BluetapeHttpServerTest.kt",
+      "image": "bluetape4k/mock-web-server",
+      "tag": "2.0.0",
+      "testPattern": "io.bluetape4k.testcontainers.http.BluetapeHttpServerTest",
+      "readiness": "http_endpoint_readiness",
+      "workload": "io.bluetape4k.testcontainers.http.BluetapeHttpServerTest:representative_test",
+      "diagnostics": [
+        "docker_inspect",
+        "docker_logs",
+        "docker_events"
+      ],
+      "releaseRequired": true
+    },
+    {
+      "id": "bluetape-webflux",
+      "server": "BluetapeWebfluxServer",
+      "source": "testing/testcontainers/src/main/kotlin/io/bluetape4k/testcontainers/http/BluetapeWebfluxServer.kt",
+      "testSource": "testing/testcontainers/src/test/kotlin/io/bluetape4k/testcontainers/http/BluetapeWebfluxServerTest.kt",
+      "image": "bluetape4k/mock-webflux-server",
+      "tag": "2.0.0",
+      "testPattern": "io.bluetape4k.testcontainers.http.BluetapeWebfluxServerTest",
+      "readiness": "http_endpoint_readiness",
+      "workload": "io.bluetape4k.testcontainers.http.BluetapeWebfluxServerTest:representative_test",
+      "diagnostics": [
+        "docker_inspect",
+        "docker_logs",
+        "docker_events"
+      ],
+      "releaseRequired": true
+    },
+    {
+      "id": "nginx",
+      "server": "NginxServer",
+      "source": "testing/testcontainers/src/main/kotlin/io/bluetape4k/testcontainers/http/NginxServer.kt",
+      "testSource": "testing/testcontainers/src/test/kotlin/io/bluetape4k/testcontainers/http/NginxServerTest.kt",
+      "image": "nginx",
+      "tag": "1.30.4-alpine",
+      "testPattern": "io.bluetape4k.testcontainers.http.NginxServerTest",
+      "readiness": "http_endpoint_readiness",
+      "workload": "io.bluetape4k.testcontainers.http.NginxServerTest:representative_test",
+      "diagnostics": [
+        "docker_inspect",
+        "docker_logs",
+        "docker_events"
+      ],
+      "releaseRequired": true
+    },
+    {
+      "id": "wire-mock",
+      "server": "WireMockServer",
+      "source": "testing/testcontainers/src/main/kotlin/io/bluetape4k/testcontainers/http/WireMockServer.kt",
+      "testSource": "testing/testcontainers/src/test/kotlin/io/bluetape4k/testcontainers/http/WireMockServerTest.kt",
+      "image": "wiremock/wiremock",
+      "tag": "3.13.2",
+      "testPattern": "io.bluetape4k.testcontainers.http.WireMockServerTest",
+      "readiness": "http_endpoint_readiness",
+      "workload": "io.bluetape4k.testcontainers.http.WireMockServerTest:representative_test",
+      "diagnostics": [
+        "docker_inspect",
+        "docker_logs",
+        "docker_events"
+      ],
+      "releaseRequired": true
+    },
+    {
+      "id": "consul",
+      "server": "ConsulServer",
+      "source": "testing/testcontainers/src/main/kotlin/io/bluetape4k/testcontainers/infra/ConsulServer.kt",
+      "testSource": "testing/testcontainers/src/test/kotlin/io/bluetape4k/testcontainers/infra/ConsulServerTest.kt",
+      "image": "hashicorp/consul",
+      "tag": "1.22.7",
+      "testPattern": "io.bluetape4k.testcontainers.infra.ConsulServerTest",
+      "readiness": "testcontainers_wait_strategy_and_workload_readiness",
+      "workload": "io.bluetape4k.testcontainers.infra.ConsulServerTest:representative_test",
+      "diagnostics": [
+        "docker_inspect",
+        "docker_logs",
+        "docker_events"
+      ],
+      "releaseRequired": true
+    },
+    {
+      "id": "etcd",
+      "server": "EtcdServer",
+      "source": "testing/testcontainers/src/main/kotlin/io/bluetape4k/testcontainers/infra/EtcdServer.kt",
+      "testSource": "testing/testcontainers/src/test/kotlin/io/bluetape4k/testcontainers/infra/EtcdServerTest.kt",
+      "image": "gcr.io/etcd-development/etcd",
+      "tag": "v3.6.14",
+      "testPattern": "io.bluetape4k.testcontainers.infra.EtcdServerTest",
+      "readiness": "testcontainers_wait_strategy_and_workload_readiness",
+      "workload": "io.bluetape4k.testcontainers.infra.EtcdServerTest:representative_test",
+      "diagnostics": [
+        "docker_inspect",
+        "docker_logs",
+        "docker_events"
+      ],
+      "releaseRequired": true
+    },
+    {
+      "id": "grafana",
+      "server": "GrafanaServer",
+      "source": "testing/testcontainers/src/main/kotlin/io/bluetape4k/testcontainers/infra/GrafanaServer.kt",
+      "testSource": "testing/testcontainers/src/test/kotlin/io/bluetape4k/testcontainers/infra/GrafanaServerTest.kt",
+      "image": "grafana/grafana",
+      "tag": "13.1.3",
+      "testPattern": "io.bluetape4k.testcontainers.infra.GrafanaServerTest",
+      "readiness": "testcontainers_wait_strategy_and_workload_readiness",
+      "workload": "io.bluetape4k.testcontainers.infra.GrafanaServerTest:representative_test",
+      "diagnostics": [
+        "docker_inspect",
+        "docker_logs",
+        "docker_events"
+      ],
+      "releaseRequired": true
+    },
+    {
+      "id": "jaeger",
+      "server": "JaegerServer",
+      "source": "testing/testcontainers/src/main/kotlin/io/bluetape4k/testcontainers/infra/JaegerServer.kt",
+      "testSource": "testing/testcontainers/src/test/kotlin/io/bluetape4k/testcontainers/infra/JaegerServerTest.kt",
+      "image": "jaegertracing/all-in-one",
+      "tag": "1.76.0",
+      "testPattern": "io.bluetape4k.testcontainers.infra.JaegerServerTest",
+      "readiness": "testcontainers_wait_strategy_and_workload_readiness",
+      "workload": "io.bluetape4k.testcontainers.infra.JaegerServerTest:representative_test",
+      "diagnostics": [
+        "docker_inspect",
+        "docker_logs",
+        "docker_events"
+      ],
+      "releaseRequired": true
+    },
+    {
+      "id": "k3s",
+      "server": "K3sServer",
+      "source": "testing/testcontainers/src/main/kotlin/io/bluetape4k/testcontainers/infra/K3sServer.kt",
+      "testSource": "testing/testcontainers/src/test/kotlin/io/bluetape4k/testcontainers/infra/K3sServerTest.kt",
+      "image": "rancher/k3s",
+      "tag": "v1.36.3-k3s1",
+      "testPattern": "io.bluetape4k.testcontainers.infra.K3sServerTest",
+      "testTask": ":bluetape4k-testcontainers:k8sTest",
+      "readiness": "k3s_api_and_pod_readiness",
+      "workload": "io.bluetape4k.testcontainers.infra.K3sServerTest:representative_test",
+      "diagnostics": [
+        "docker_inspect",
+        "docker_logs",
+        "docker_events",
+        "kubectl_pods",
+        "kubectl_events",
+        "kubectl_logs"
+      ],
+      "releaseRequired": true
+    },
+    {
+      "id": "keycloak",
+      "server": "KeycloakServer",
+      "source": "testing/testcontainers/src/main/kotlin/io/bluetape4k/testcontainers/infra/KeycloakServer.kt",
+      "testSource": "testing/testcontainers/src/test/kotlin/io/bluetape4k/testcontainers/infra/KeycloakServerTest.kt",
+      "image": "quay.io/keycloak/keycloak",
+      "tag": "26.7.1",
+      "testPattern": "io.bluetape4k.testcontainers.infra.KeycloakServerTest",
+      "readiness": "testcontainers_wait_strategy_and_workload_readiness",
+      "workload": "io.bluetape4k.testcontainers.infra.KeycloakServerTest:representative_test",
+      "diagnostics": [
+        "docker_inspect",
+        "docker_logs",
+        "docker_events"
+      ],
+      "releaseRequired": true
+    },
+    {
+      "id": "prometheus",
+      "server": "PrometheusServer",
+      "source": "testing/testcontainers/src/main/kotlin/io/bluetape4k/testcontainers/infra/PrometheusServer.kt",
+      "testSource": "testing/testcontainers/src/test/kotlin/io/bluetape4k/testcontainers/infra/PrometheusServerTest.kt",
+      "image": "prom/prometheus",
+      "tag": "v3.13.2",
+      "testPattern": "io.bluetape4k.testcontainers.infra.PrometheusServerTest",
+      "readiness": "testcontainers_wait_strategy_and_workload_readiness",
+      "workload": "io.bluetape4k.testcontainers.infra.PrometheusServerTest:representative_test",
+      "diagnostics": [
+        "docker_inspect",
+        "docker_logs",
+        "docker_events"
+      ],
+      "releaseRequired": true
+    },
+    {
+      "id": "toxiproxy",
+      "server": "ToxiproxyServer",
+      "source": "testing/testcontainers/src/main/kotlin/io/bluetape4k/testcontainers/infra/ToxiproxyServer.kt",
+      "testSource": "testing/testcontainers/src/test/kotlin/io/bluetape4k/testcontainers/infra/ToxiproxyServerTest.kt",
+      "image": "ghcr.io/shopify/toxiproxy",
+      "tag": "2.9.0",
+      "testPattern": "io.bluetape4k.testcontainers.infra.ToxiproxyServerTest",
+      "readiness": "testcontainers_wait_strategy_and_workload_readiness",
+      "workload": "io.bluetape4k.testcontainers.infra.ToxiproxyServerTest:representative_test",
+      "diagnostics": [
+        "docker_inspect",
+        "docker_logs",
+        "docker_events"
+      ],
+      "releaseRequired": true
+    },
+    {
+      "id": "vault",
+      "server": "VaultServer",
+      "source": "testing/testcontainers/src/main/kotlin/io/bluetape4k/testcontainers/infra/VaultServer.kt",
+      "testSource": "testing/testcontainers/src/test/kotlin/io/bluetape4k/testcontainers/infra/VaultServerTest.kt",
+      "image": "hashicorp/vault",
+      "tag": "1.20.4",
+      "testPattern": "io.bluetape4k.testcontainers.infra.VaultServerTest",
+      "readiness": "testcontainers_wait_strategy_and_workload_readiness",
+      "workload": "io.bluetape4k.testcontainers.infra.VaultServerTest:representative_test",
+      "diagnostics": [
+        "docker_inspect",
+        "docker_logs",
+        "docker_events"
+      ],
+      "releaseRequired": true
+    },
+    {
+      "id": "zipkin",
+      "server": "ZipkinServer",
+      "source": "testing/testcontainers/src/main/kotlin/io/bluetape4k/testcontainers/infra/ZipkinServer.kt",
+      "testSource": "testing/testcontainers/src/test/kotlin/io/bluetape4k/testcontainers/infra/ZipkinServerTest.kt",
+      "image": "openzipkin/zipkin-slim",
+      "tag": "2.23",
+      "testPattern": "io.bluetape4k.testcontainers.infra.ZipkinServerTest",
+      "readiness": "testcontainers_wait_strategy_and_workload_readiness",
+      "workload": "io.bluetape4k.testcontainers.infra.ZipkinServerTest:representative_test",
+      "diagnostics": [
+        "docker_inspect",
+        "docker_logs",
+        "docker_events"
+      ],
+      "releaseRequired": true
+    },
+    {
+      "id": "zoo-keeper",
+      "server": "ZooKeeperServer",
+      "source": "testing/testcontainers/src/main/kotlin/io/bluetape4k/testcontainers/infra/ZooKeeperServer.kt",
+      "testSource": "testing/testcontainers/src/test/kotlin/io/bluetape4k/testcontainers/infra/ZooKeeperServerTest.kt",
+      "image": "zookeeper",
+      "tag": "3.9.5",
+      "testPattern": "io.bluetape4k.testcontainers.infra.ZooKeeperServerTest",
+      "readiness": "curator_session_readiness",
+      "workload": "io.bluetape4k.testcontainers.infra.ZooKeeperServerTest:representative_test",
+      "diagnostics": [
+        "docker_inspect",
+        "docker_logs",
+        "docker_events"
+      ],
+      "releaseRequired": true
+    },
+    {
+      "id": "chroma-d-b",
+      "server": "ChromaDBServer",
+      "source": "testing/testcontainers/src/main/kotlin/io/bluetape4k/testcontainers/llm/ChromaDBServer.kt",
+      "testSource": "testing/testcontainers/src/test/kotlin/io/bluetape4k/testcontainers/llm/ChromaDBServerTest.kt",
+      "image": "chromadb/chroma",
+      "tag": "0.5.23",
+      "testPattern": "io.bluetape4k.testcontainers.llm.ChromaDBServerTest",
+      "readiness": "testcontainers_wait_strategy_and_workload_readiness",
+      "workload": "io.bluetape4k.testcontainers.llm.ChromaDBServerTest:representative_test",
+      "diagnostics": [
+        "docker_inspect",
+        "docker_logs",
+        "docker_events"
+      ],
+      "releaseRequired": true
+    },
+    {
+      "id": "ollama",
+      "server": "OllamaServer",
+      "source": "testing/testcontainers/src/main/kotlin/io/bluetape4k/testcontainers/llm/OllamaServer.kt",
+      "testSource": "testing/testcontainers/src/test/kotlin/io/bluetape4k/testcontainers/llm/OllamaServerTest.kt",
+      "image": "ollama/ollama",
+      "tag": "0.32.6",
+      "testPattern": "io.bluetape4k.testcontainers.llm.OllamaServerTest",
+      "readiness": "testcontainers_wait_strategy_and_workload_readiness",
+      "workload": "io.bluetape4k.testcontainers.llm.OllamaServerTest:representative_test",
+      "diagnostics": [
+        "docker_inspect",
+        "docker_logs",
+        "docker_events"
+      ],
+      "releaseRequired": true
+    },
+    {
+      "id": "mailpit",
+      "server": "MailpitServer",
+      "source": "testing/testcontainers/src/main/kotlin/io/bluetape4k/testcontainers/mail/MailpitServer.kt",
+      "testSource": "testing/testcontainers/src/test/kotlin/io/bluetape4k/testcontainers/mail/MailpitServerTest.kt",
+      "image": "axllent/mailpit",
+      "tag": "v1.30.7",
+      "testPattern": "io.bluetape4k.testcontainers.mail.MailpitServerTest",
+      "readiness": "testcontainers_wait_strategy_and_workload_readiness",
+      "workload": "io.bluetape4k.testcontainers.mail.MailpitServerTest:representative_test",
+      "diagnostics": [
+        "docker_inspect",
+        "docker_logs",
+        "docker_events"
+      ],
+      "releaseRequired": true
+    },
+    {
+      "id": "kafka",
+      "server": "KafkaServer",
+      "source": "testing/testcontainers/src/main/kotlin/io/bluetape4k/testcontainers/mq/KafkaServer.kt",
+      "testSource": "testing/testcontainers/src/test/kotlin/io/bluetape4k/testcontainers/mq/KafkaServerTest.kt",
+      "image": "confluentinc/cp-kafka",
+      "tag": "7.5.16",
+      "testPattern": "io.bluetape4k.testcontainers.mq.KafkaServerTest",
+      "readiness": "testcontainers_wait_strategy_and_workload_readiness",
+      "workload": "io.bluetape4k.testcontainers.mq.KafkaServerTest:representative_test",
+      "diagnostics": [
+        "docker_inspect",
+        "docker_logs",
+        "docker_events"
+      ],
+      "releaseRequired": true
+    },
+    {
+      "id": "nats",
+      "server": "NatsServer",
+      "source": "testing/testcontainers/src/main/kotlin/io/bluetape4k/testcontainers/mq/NatsServer.kt",
+      "testSource": "testing/testcontainers/src/test/kotlin/io/bluetape4k/testcontainers/mq/NatsServerTest.kt",
+      "image": "nats",
+      "tag": "2.14.4",
+      "testPattern": "io.bluetape4k.testcontainers.mq.NatsServerTest",
+      "readiness": "testcontainers_wait_strategy_and_workload_readiness",
+      "workload": "io.bluetape4k.testcontainers.mq.NatsServerTest:representative_test",
+      "diagnostics": [
+        "docker_inspect",
+        "docker_logs",
+        "docker_events"
+      ],
+      "releaseRequired": true
+    },
+    {
+      "id": "pulsar",
+      "server": "PulsarServer",
+      "source": "testing/testcontainers/src/main/kotlin/io/bluetape4k/testcontainers/mq/PulsarServer.kt",
+      "testSource": "testing/testcontainers/src/test/kotlin/io/bluetape4k/testcontainers/mq/PulsarServerTest.kt",
+      "image": "apachepulsar/pulsar",
+      "tag": "3.3.9",
+      "testPattern": "io.bluetape4k.testcontainers.mq.PulsarServerTest",
+      "readiness": "testcontainers_wait_strategy_and_workload_readiness",
+      "workload": "io.bluetape4k.testcontainers.mq.PulsarServerTest:representative_test",
+      "diagnostics": [
+        "docker_inspect",
+        "docker_logs",
+        "docker_events"
+      ],
+      "releaseRequired": true
+    },
+    {
+      "id": "rabbit-m-q",
+      "server": "RabbitMQServer",
+      "source": "testing/testcontainers/src/main/kotlin/io/bluetape4k/testcontainers/mq/RabbitMQServer.kt",
+      "testSource": "testing/testcontainers/src/test/kotlin/io/bluetape4k/testcontainers/mq/RabbitMQServerTest.kt",
+      "image": "rabbitmq",
+      "tag": "3.13",
+      "testPattern": "io.bluetape4k.testcontainers.mq.RabbitMQServerTest",
+      "readiness": "testcontainers_wait_strategy_and_workload_readiness",
+      "workload": "io.bluetape4k.testcontainers.mq.RabbitMQServerTest:representative_test",
+      "diagnostics": [
+        "docker_inspect",
+        "docker_logs",
+        "docker_events"
+      ],
+      "releaseRequired": true
+    },
+    {
+      "id": "redpanda",
+      "server": "RedpandaServer",
+      "source": "testing/testcontainers/src/main/kotlin/io/bluetape4k/testcontainers/mq/RedpandaServer.kt",
+      "testSource": "testing/testcontainers/src/test/kotlin/io/bluetape4k/testcontainers/mq/RedpandaServerTest.kt",
+      "image": "docker.redpanda.com/redpandadata/redpanda",
+      "tag": "v26.2.1",
+      "testPattern": "io.bluetape4k.testcontainers.mq.RedpandaServerTest",
+      "readiness": "testcontainers_wait_strategy_and_workload_readiness",
+      "workload": "io.bluetape4k.testcontainers.mq.RedpandaServerTest:representative_test",
+      "diagnostics": [
+        "docker_inspect",
+        "docker_logs",
+        "docker_events"
+      ],
+      "releaseRequired": true
+    },
+    {
+      "id": "cassandra",
+      "server": "CassandraServer",
+      "source": "testing/testcontainers/src/main/kotlin/io/bluetape4k/testcontainers/storage/CassandraServer.kt",
+      "testSource": "testing/testcontainers/src/test/kotlin/io/bluetape4k/testcontainers/storage/CassandraServerTest.kt",
+      "image": "cassandra",
+      "tag": "5.0.8",
+      "testPattern": "io.bluetape4k.testcontainers.storage.CassandraServerTest",
+      "readiness": "testcontainers_wait_strategy_and_workload_readiness",
+      "workload": "io.bluetape4k.testcontainers.storage.CassandraServerTest:representative_test",
+      "diagnostics": [
+        "docker_inspect",
+        "docker_logs",
+        "docker_events"
+      ],
+      "releaseRequired": true
+    },
+    {
+      "id": "elasticsearch-oss",
+      "server": "ElasticsearchOssServer",
+      "source": "testing/testcontainers/src/main/kotlin/io/bluetape4k/testcontainers/storage/ElasticsearchOssServer.kt",
+      "testSource": "testing/testcontainers/src/test/kotlin/io/bluetape4k/testcontainers/storage/ElasticsearchOssServerTest.kt",
+      "image": "docker.elastic.co/elasticsearch/elasticsearch-oss",
+      "tag": "7.10.2",
+      "testPattern": "io.bluetape4k.testcontainers.storage.ElasticsearchOssServerTest",
+      "readiness": "testcontainers_wait_strategy_and_workload_readiness",
+      "workload": "io.bluetape4k.testcontainers.storage.ElasticsearchOssServerTest:representative_test",
+      "diagnostics": [
+        "docker_inspect",
+        "docker_logs",
+        "docker_events"
+      ],
+      "releaseRequired": true
+    },
+    {
+      "id": "elasticsearch",
+      "server": "ElasticsearchServer",
+      "source": "testing/testcontainers/src/main/kotlin/io/bluetape4k/testcontainers/storage/ElasticsearchServer.kt",
+      "testSource": "testing/testcontainers/src/test/kotlin/io/bluetape4k/testcontainers/storage/ElasticsearchServerTest.kt",
+      "image": "docker.elastic.co/elasticsearch/elasticsearch",
+      "tag": "9.5.0",
+      "testPattern": "io.bluetape4k.testcontainers.storage.ElasticsearchServerTest",
+      "readiness": "testcontainers_wait_strategy_and_workload_readiness",
+      "workload": "io.bluetape4k.testcontainers.storage.ElasticsearchServerTest:representative_test",
+      "diagnostics": [
+        "docker_inspect",
+        "docker_logs",
+        "docker_events"
+      ],
+      "releaseRequired": true
+    },
+    {
+      "id": "hazelcast",
+      "server": "HazelcastServer",
+      "source": "testing/testcontainers/src/main/kotlin/io/bluetape4k/testcontainers/storage/HazelcastServer.kt",
+      "testSource": "testing/testcontainers/src/test/kotlin/io/bluetape4k/testcontainers/storage/HazelcastServerTest.kt",
+      "image": "hazelcast/hazelcast",
+      "tag": "5.7.0-slim-jdk25",
+      "testPattern": "io.bluetape4k.testcontainers.storage.HazelcastServerTest",
+      "readiness": "testcontainers_wait_strategy_and_workload_readiness",
+      "workload": "io.bluetape4k.testcontainers.storage.HazelcastServerTest:representative_test",
+      "diagnostics": [
+        "docker_inspect",
+        "docker_logs",
+        "docker_events"
+      ],
+      "releaseRequired": true
+    },
+    {
+      "id": "ignite2",
+      "server": "Ignite2Server",
+      "source": "testing/testcontainers/src/main/kotlin/io/bluetape4k/testcontainers/storage/Ignite2Server.kt",
+      "testSource": "testing/testcontainers/src/test/kotlin/io/bluetape4k/testcontainers/storage/Ignite2ServerTest.kt",
+      "image": "apacheignite/ignite",
+      "tag": "2.18.0",
+      "testPattern": "io.bluetape4k.testcontainers.storage.Ignite2ServerTest",
+      "readiness": "testcontainers_wait_strategy_and_workload_readiness",
+      "workload": "io.bluetape4k.testcontainers.storage.Ignite2ServerTest:representative_test",
+      "diagnostics": [
+        "docker_inspect",
+        "docker_logs",
+        "docker_events"
+      ],
+      "releaseRequired": true
+    },
+    {
+      "id": "ignite3",
+      "server": "Ignite3Server",
+      "source": "testing/testcontainers/src/main/kotlin/io/bluetape4k/testcontainers/storage/Ignite3Server.kt",
+      "testSource": "testing/testcontainers/src/test/kotlin/io/bluetape4k/testcontainers/storage/Ignite3ServerTest.kt",
+      "image": "apacheignite/ignite",
+      "tag": "3.1.0",
+      "testPattern": "io.bluetape4k.testcontainers.storage.Ignite3ServerTest",
+      "readiness": "testcontainers_wait_strategy_and_workload_readiness",
+      "workload": "io.bluetape4k.testcontainers.storage.Ignite3ServerTest:representative_test",
+      "diagnostics": [
+        "docker_inspect",
+        "docker_logs",
+        "docker_events"
+      ],
+      "releaseRequired": true
+    },
+    {
+      "id": "influx-d-b",
+      "server": "InfluxDBServer",
+      "source": "testing/testcontainers/src/main/kotlin/io/bluetape4k/testcontainers/storage/InfluxDBServer.kt",
+      "testSource": "testing/testcontainers/src/test/kotlin/io/bluetape4k/testcontainers/storage/InfluxDBServerTest.kt",
+      "image": "influxdb",
+      "tag": "2.9.1",
+      "testPattern": "io.bluetape4k.testcontainers.storage.InfluxDBServerTest",
+      "readiness": "testcontainers_wait_strategy_and_workload_readiness",
+      "workload": "io.bluetape4k.testcontainers.storage.InfluxDBServerTest:representative_test",
+      "diagnostics": [
+        "docker_inspect",
+        "docker_logs",
+        "docker_events"
+      ],
+      "releaseRequired": true
+    },
+    {
+      "id": "min-i-o",
+      "server": "MinIOServer",
+      "source": "testing/testcontainers/src/main/kotlin/io/bluetape4k/testcontainers/storage/MinIOServer.kt",
+      "testSource": "testing/testcontainers/src/test/kotlin/io/bluetape4k/testcontainers/storage/MinIOServerTest.kt",
+      "image": "minio/minio",
+      "tag": "RELEASE.2025-07-23T15-54-02Z",
+      "testPattern": "io.bluetape4k.testcontainers.storage.MinIOServerTest",
+      "readiness": "testcontainers_wait_strategy_and_workload_readiness",
+      "workload": "io.bluetape4k.testcontainers.storage.MinIOServerTest:representative_test",
+      "diagnostics": [
+        "docker_inspect",
+        "docker_logs",
+        "docker_events"
+      ],
+      "releaseRequired": true
+    },
+    {
+      "id": "mongo-d-b",
+      "server": "MongoDBServer",
+      "source": "testing/testcontainers/src/main/kotlin/io/bluetape4k/testcontainers/storage/MongoDBServer.kt",
+      "testSource": "testing/testcontainers/src/test/kotlin/io/bluetape4k/testcontainers/storage/MongoDBServerTest.kt",
+      "image": "mongo",
+      "tag": "8.0.28",
+      "testPattern": "io.bluetape4k.testcontainers.storage.MongoDBServerTest",
+      "readiness": "testcontainers_wait_strategy_and_workload_readiness",
+      "workload": "io.bluetape4k.testcontainers.storage.MongoDBServerTest:representative_test",
+      "diagnostics": [
+        "docker_inspect",
+        "docker_logs",
+        "docker_events"
+      ],
+      "releaseRequired": true
+    },
+    {
+      "id": "open-search",
+      "server": "OpenSearchServer",
+      "source": "testing/testcontainers/src/main/kotlin/io/bluetape4k/testcontainers/storage/OpenSearchServer.kt",
+      "testSource": "testing/testcontainers/src/test/kotlin/io/bluetape4k/testcontainers/storage/OpenSearchServerTest.kt",
+      "image": "opensearchproject/opensearch",
+      "tag": "3.8.0",
+      "testPattern": "io.bluetape4k.testcontainers.storage.OpenSearchServerTest",
+      "readiness": "testcontainers_wait_strategy_and_workload_readiness",
+      "workload": "io.bluetape4k.testcontainers.storage.OpenSearchServerTest:representative_test",
+      "diagnostics": [
+        "docker_inspect",
+        "docker_logs",
+        "docker_events"
+      ],
+      "releaseRequired": true
+    },
+    {
+      "id": "redis-cluster",
+      "server": "RedisClusterServer",
+      "source": "testing/testcontainers/src/main/kotlin/io/bluetape4k/testcontainers/storage/RedisClusterServer.kt",
+      "testSource": "testing/testcontainers/src/test/kotlin/io/bluetape4k/testcontainers/storage/RedisClusterServerTest.kt",
+      "image": "tommy351/redis-cluster",
+      "tag": "6.2",
+      "testPattern": "io.bluetape4k.testcontainers.storage.RedisClusterServerTest",
+      "readiness": "testcontainers_wait_strategy_and_workload_readiness",
+      "workload": "io.bluetape4k.testcontainers.storage.RedisClusterServerTest:representative_test",
+      "diagnostics": [
+        "docker_inspect",
+        "docker_logs",
+        "docker_events"
+      ],
+      "releaseRequired": true
+    },
+    {
+      "id": "redis",
+      "server": "RedisServer",
+      "source": "testing/testcontainers/src/main/kotlin/io/bluetape4k/testcontainers/storage/RedisServer.kt",
+      "testSource": "testing/testcontainers/src/test/kotlin/io/bluetape4k/testcontainers/storage/RedisServerTest.kt",
+      "image": "redis",
+      "tag": "8.8.1",
+      "testPattern": "io.bluetape4k.testcontainers.storage.RedisServerTest",
+      "readiness": "testcontainers_wait_strategy_and_workload_readiness",
+      "workload": "io.bluetape4k.testcontainers.storage.RedisServerTest:representative_test",
+      "diagnostics": [
+        "docker_inspect",
+        "docker_logs",
+        "docker_events"
+      ],
+      "releaseRequired": true
+    }
+  ]
+}

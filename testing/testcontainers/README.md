@@ -160,6 +160,51 @@ and `PostgreSQLAgeServer` stays on the latest stable PG18 image rather than the
 `1.8.0-rc0` release candidate. `LocalStackServer` is deprecated; new AWS tests
 should use `FlociServer` or `MiniStackServer`.
 
+## Image Family Startup and Workload Gate
+
+The 52 Docker-backed server families are declared in
+[`scripts/testcontainers_image_gate_manifest.json`](../../scripts/testcontainers_image_gate_manifest.json).
+The manifest links each pinned image/tag to its Kotlin wrapper, representative
+test class, readiness contract, workload evidence, and diagnostic commands.
+
+The same runner is used by pull-request CI, Nightly, and the stable release
+workflow. It executes the selected families sequentially (`max-parallel: 1`),
+records `success`, `product_failure`, `infrastructure_failure`, or `blocked`,
+and writes `summary.json`, `summary.md`, and one JSON file per family. Stable
+publication requires `52/52`, `release_gate=true`, and zero failure-classification
+counts. Docker Hub authentication and mirror settings are supplied through
+environment variables or CI secrets; credentials are redacted from evidence.
+
+<!-- TESTCONTAINERS_IMAGE_GATE_COMMAND_START -->
+Run the changed-family gate from the repository root:
+
+```bash
+python3 scripts/run_testcontainers_image_gate.py \
+  --scope changed \
+  --report-dir build/reports/testcontainers-image-gate \
+  --max-attempts 2 \
+  --timeout-minutes 30
+```
+
+Run the complete release-equivalent gate:
+
+```bash
+./gradlew :bluetape4k-mock-web-server:jibDockerBuild \
+  :bluetape4k-mock-webflux-server:jibDockerBuild \
+  --no-configuration-cache
+python3 scripts/run_testcontainers_image_gate.py \
+  --scope full \
+  --report-dir build/reports/testcontainers-image-gate \
+  --max-attempts 2 \
+  --timeout-minutes 30
+```
+<!-- TESTCONTAINERS_IMAGE_GATE_COMMAND_END -->
+
+When a family fails, inspect its JSON artifact and the bounded Docker/K3s
+diagnostics before retrying. Registry rate limits, daemon failures, and
+readiness timeouts remain infrastructure evidence; they are not a reason to
+skip the gate or publish a release.
+
 ## Usage Examples
 
 ### Database

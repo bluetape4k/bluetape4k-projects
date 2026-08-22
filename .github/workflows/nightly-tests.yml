@@ -834,13 +834,11 @@ jobs:
         include:
           - group: redis
             test_tasks: >-
-              :bluetape4k-redis:test
               :bluetape4k-redisson:test
               :bluetape4k-lettuce:test
               :bluetape4k-cache-lettuce:test
               :bluetape4k-cache-redisson:test
             kover_tasks: >-
-              :bluetape4k-redis:koverXmlReport
               :bluetape4k-redisson:koverXmlReport
               :bluetape4k-lettuce:koverXmlReport
               :bluetape4k-cache-lettuce:koverXmlReport
@@ -1102,7 +1100,7 @@ jobs:
           retention-days: 14
 
       - name: Upload coverage report
-        if: always()
+        if: ${{ always() && matrix.kover_tasks != '' }}
         uses: actions/upload-artifact@v7
         with:
           name: nightly-coverage-spring-${{ matrix.group }}
@@ -1197,6 +1195,65 @@ jobs:
           if-no-files-found: error
           retention-days: 14
 
+  # ── Testcontainers image startup/workload gate — 단일 순차 lane ───────────
+  test-testcontainers-image-gate:
+    name: Test / Testcontainers image startup-workload gate
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+    needs: [build, plan]
+    if: ${{ needs.plan.outputs.scope == 'full' || needs.plan.outputs.scope == 'testcontainers' }}
+    env:
+      TESTCONTAINERS_IMAGE_GATE_MAX_PARALLEL: '1'
+      DOCKER_AUTH_CONFIG: ${{ secrets.TESTCONTAINERS_DOCKER_AUTH_CONFIG }}
+      TESTCONTAINERS_REGISTRY_MIRROR: ${{ vars.TESTCONTAINERS_REGISTRY_MIRROR || '' }}
+      GRADLE_OPTS: "-Dorg.gradle.daemon=false"
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-java@v5.7.0
+        with:
+          java-version: ${{ env.JAVA_VERSION }}
+          distribution: ${{ env.JAVA_DISTRIBUTION }}
+
+      - uses: actions/setup-python@v7
+        with:
+          python-version: '3.12'
+
+      - uses: gradle/actions/setup-gradle@v6.3.0
+        with:
+          gradle-version: wrapper
+          cache-read-only: true
+
+      - name: Build mock-web-server Docker image
+        run: ./gradlew :bluetape4k-mock-web-server:jibDockerBuild --no-configuration-cache
+
+      - name: Build mock-webflux-server Docker image
+        run: ./gradlew :bluetape4k-mock-webflux-server:jibDockerBuild --no-configuration-cache
+
+      - name: Run full image family gate sequentially
+        run: >-
+          python3 scripts/run_testcontainers_image_gate.py
+          --scope full
+          --report-dir build/reports/testcontainers-image-gate
+          --max-attempts 2
+          --timeout-minutes 30
+
+      - name: Publish image gate summary
+        if: always()
+        run: |
+          if [ -f build/reports/testcontainers-image-gate/summary.md ]; then
+            cat build/reports/testcontainers-image-gate/summary.md
+          fi
+
+      - name: Upload image gate evidence
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: nightly-testcontainers-image-gate-${{ github.run_id }}
+          path: build/reports/testcontainers-image-gate/
+          if-no-files-found: error
+          retention-days: 14
+
   # ── Testcontainers Spring bridge (nightly JVM-only contract) ─────────────
   test-testcontainers-spring:
     name: Test / Testcontainers Spring bridge
@@ -1204,7 +1261,7 @@ jobs:
     timeout-minutes: 10
     # Keep the JVM-only bridge after the Docker-backed Testcontainers lane so
     # repository-level Testcontainers verification remains sequential.
-    needs: [test-testcontainers, plan]
+    needs: [test-testcontainers, test-testcontainers-image-gate, plan]
     if: ${{ needs.plan.outputs.scope == 'full' || needs.plan.outputs.scope == 'testcontainers' }}
     steps:
       - uses: actions/checkout@v7
@@ -1262,6 +1319,7 @@ jobs:
       - test-data
       - test-spring-docker
       - test-testcontainers
+      - test-testcontainers-image-gate
       - test-testcontainers-spring
     if: always()
     steps:
@@ -1288,7 +1346,6 @@ jobs:
           : > coverage-artifacts/expected-modules.manifest
           if grep -q '^test-infra=success$' coverage-artifacts/expected-jobs.manifest; then
             printf '%s\n' \
-              'infra/redis' \
               'infra/redisson' \
               'infra/lettuce' \
               'cache/cache-lettuce' \
@@ -1362,6 +1419,7 @@ jobs:
       - test-data
       - test-spring-docker
       - test-testcontainers
+      - test-testcontainers-image-gate
       - test-testcontainers-spring
       - coverage-report
     if: always()
