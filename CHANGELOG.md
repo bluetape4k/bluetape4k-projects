@@ -17,6 +17,16 @@
   한다 ([#1335](https://github.com/bluetape4k/bluetape4k-projects/issues/1335)).
 <!-- issue-1335-java25-semver:end -->
 
+### 추가
+
+- NATS JetStream `ConsumerContext` pull consumer와 `JetStream` push
+  subscription을 수집마다 생성·정리하는 cold `Flow<Message>` API를 추가했다.
+  유한한 Flow 용량과 NATS pending limit을 검증하고, 취소 시 adapter 소유
+  handle만 닫으며 pending queue drop은 `NatsConsumerFlowException`으로
+  보고한다. adapter는 manual ack만 제공해 업무 처리 성공 뒤 caller가
+  `ack()`/`nak()`/`term()`을 선택하도록 한다
+  ([#1350](https://github.com/bluetape4k/bluetape4k-projects/issues/1350)).
+
 ### 버그 수정
 
 - `BufferedSuspendedSink` 회귀 테스트가 모든 `write`/`writeAll` 오버로드의 정확한
