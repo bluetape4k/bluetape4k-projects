@@ -148,7 +148,9 @@ class BulkheadFlowTest {
     }
 
     @Test
-    fun `실행이 취소되었을 경우 bulkhead는 완료로 기록되지 않습니다`() = runSuspendTest(timeout = 10.seconds) {
+    fun `실행이 취소되었을 경우 bulkhead는 완료로 기록되지 않습니다`() = runSuspendTest(
+        timeout = 10.seconds,
+    ) {
         val started = CompletableDeferred<Unit>()
         var flowCompleted = false
         val bulkhead = Bulkhead.of("testName") {
@@ -182,7 +184,8 @@ class BulkheadFlowTest {
     }
 
     @Test
-    fun `작업이 예외로 인한 취소가 되었을 경우 bulkhead는 완료로 기록되지 않습니다`() = runSuspendTest(timeout = 10.seconds) {
+    fun `작업이 예외로 인한 취소가 되었을 경우 bulkhead는 완료로 기록되지 않습니다`() =
+        runSuspendTest(timeout = 10.seconds) {
         val started = CompletableDeferred<Unit>()
         val parentJob = Job()
         var flowCompleted = false
