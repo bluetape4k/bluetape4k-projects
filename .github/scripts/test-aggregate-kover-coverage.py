@@ -166,6 +166,21 @@ class AggregateKoverCoverageTest(unittest.TestCase):
             self.assertIn(module, workflow)
         self.assertIn("--expected-module", workflow)
 
+    def test_ci_routes_search_messaging_changes_to_nats_and_elasticsearch(self):
+        workflow = CI_WORKFLOW.read_text(encoding="utf-8")
+        self.assertIn("search-messaging: ${{ steps.filter.outputs.search-messaging }}", workflow)
+        self.assertIn("'infra/elasticsearch/**'", workflow)
+        self.assertIn("'infra/nats/**'", workflow)
+        self.assertIn("test-search-messaging:", workflow)
+        self.assertIn(":bluetape4k-elasticsearch:test --max-workers=1", workflow)
+        self.assertIn(":bluetape4k-nats:test --max-workers=1", workflow)
+        self.assertIn(":bluetape4k-elasticsearch:koverXmlReport --max-workers=1", workflow)
+        self.assertIn(":bluetape4k-nats:koverXmlReport --max-workers=1", workflow)
+        self.assertIn("test-search-messaging=${{ needs.test-search-messaging.result }}", workflow)
+        self.assertIn("'infra/elasticsearch'", workflow)
+        self.assertIn("'infra/nats'", workflow)
+        self.assertIn("test-search-messaging, test-kafka-infra", workflow)
+
     def test_ci_only_uploads_coveralls_after_successful_aggregation(self):
         workflow = CI_WORKFLOW.read_text(encoding="utf-8")
         self.assertIn("id: aggregate-coverage", workflow)

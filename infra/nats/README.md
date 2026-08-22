@@ -13,7 +13,7 @@ This module provides Kotlin-idiomatic extension functions and DSLs for the NATS 
 ## Features
 
 - **Kotlin extension functions** — NATS Java client in idiomatic Kotlin style
-- **Coroutines support** — `suspend` functions for async operations (`requestSuspending`, `publishSuspending`, `drainSuspending`)
+- **Coroutines support** — `suspend` functions and cold `Flow<Message>` consumers for async operations (`requestSuspending`, `publishSuspending`, `drainSuspending`)
 - **JetStream support** — stream creation, publish/subscribe, consumer management
 - **NATS Service** — build microservice endpoints with DSL
 - **DSL builders** — fluent configuration for Streams, Consumers, Key-Value stores, and Object Stores
@@ -248,7 +248,92 @@ val consumerCtx2 = consumerContextOf(connection, "my-stream", consumerConfigurat
 })
 ```
 
-### 11. StreamInfoOptions
+### 11. Cold JetStream Consumer Flow
+
+`ConsumerContext.consumeAsFlow` uses a pull consumer, while
+`JetStream.consumeAsFlow` creates a synchronous push subscription for each
+collector. Both flows are cold: subscription and cleanup happen per collection.
+The adapter accepts finite NATS options, limits the Flow channel to
+`capacity + 1` held messages, and fails with `NatsConsumerFlowException` if the
+NATS pending queue reports a drop.
+
+```kotlin
+import io.bluetape4k.nats.client.*
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.take
+import kotlin.time.Duration.Companion.seconds
+
+val capacity = 32                   // 1..1024; adapter holds at most capacity + 1
+
+// Pull consumer: IterableConsumer is closed when collection is cancelled.
+consumerCtx.consumeAsFlow(capacity = capacity, receiveTimeout = 1.seconds)
+    .take(100)
+    .collect { message ->
+        process(message)
+        message.ack()                // manual ack after business success
+    }
+
+// Push subscription: finite client pending limits are required for drop detection.
+val pushOptions = pushSubscriptionOptions {
+    stream("my-stream")
+    pendingMessageLimit(1_024)
+    pendingByteLimit(16L * 1024 * 1024)
+}
+jetStream.consumeAsFlow(
+    subject = "events.>",
+    options = pushOptions,
+    capacity = capacity,
+    receiveTimeout = 1.seconds,
+).collect { message ->
+    process(message)
+    message.ack()
+}
+```
+
+The adapter is manual-ack only: it never calls `ack`, `nak`, or `term` for the
+collector. Call `nak()` for retryable failures and `term()` for poison messages.
+An unacknowledged message can be redelivered according to the server consumer's
+`ackWait`/`maxDeliver`; configure `maxAckPending` separately on the consumer.
+`capacity` bounds the Flow side and does not change NATS pending limits. If the
+pending queue drops messages, inspect `NatsConsumerFlowException.droppedMessages`
+instead of continuing with silent loss. A second concurrent collection of the
+same Flow instance is rejected; create a new Flow instance when needed.
+
+The adapter validates `capacity` in `1..1024` and a finite `receiveTimeout` of at
+least `100.milliseconds`. Push options must keep `pendingMessageLimit` in
+`1..65_536` and `pendingByteLimit` in `1..64 MiB`; the default is 1,024 messages
+and 16 MiB. Pull `batchBytes > 0` is rejected before the consumer is created, and
+the effective message batch is normalized to `min(originalBatchSize, capacity + 1)`.
+The adapter only closes the subscription or iterable consumer it created; the
+caller still owns `Connection`, `JetStream`, and consumer configuration.
+
+Failure precedence is cancellation, receive/collector failure, drop or pending
+state read-back failure, then observable cleanup failure. Cleanup failures are
+suppressed behind an earlier failure. A pure drop has a null exception cause;
+pending-state read-back failures retain their original cause in
+`NatsConsumerFlowException`.
+
+The push-side message bound is `pendingMessageLimit + capacity + 1`: the NATS
+pending queue, Flow buffer, and one message held by the receiver. The pending
+byte limit applies to the NATS queue independently; Flow capacity is a message
+count. Pull uses `min(originalBatchSize, capacity + 1)` and one receiver-held
+message, so the adapter never requests an unbounded batch.
+
+Handle an observable drop or pending-state read-back failure explicitly:
+
+```kotlin
+try {
+    jetStream.consumeAsFlow("events.>", pushOptions).collect { message ->
+        process(message)
+        message.ack()
+    }
+} catch (failure: NatsConsumerFlowException) {
+    log.error("NATS consumer Flow stopped after ${failure.droppedMessages} dropped messages", failure)
+    throw failure
+}
+```
+
+### 12. StreamInfoOptions
 
 ```kotlin
 import io.bluetape4k.nats.client.api.*
