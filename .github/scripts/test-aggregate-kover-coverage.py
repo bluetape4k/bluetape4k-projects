@@ -188,7 +188,6 @@ class AggregateKoverCoverageTest(unittest.TestCase):
         workflow = NIGHTLY_WORKFLOW.read_text(encoding="utf-8")
         self.assertIn("expected-modules.manifest", workflow)
         for module in (
-            "infra/redis",
             "infra/redisson",
             "infra/lettuce",
             "cache/cache-lettuce",
@@ -204,6 +203,19 @@ class AggregateKoverCoverageTest(unittest.TestCase):
         ):
             self.assertIn(module, workflow)
         self.assertIn("expected_module_args+=(--expected-module \"$module\")", workflow)
+
+    def test_nightly_excludes_code_free_redis_umbrella_from_coverage(self):
+        workflow = NIGHTLY_WORKFLOW.read_text(encoding="utf-8")
+        redis_start = workflow.index("          - group: redis")
+        redis_end = workflow.index("          - group: kafka-resilience", redis_start)
+        redis_group = workflow[redis_start:redis_end]
+        self.assertNotIn(":bluetape4k-redis:test", redis_group)
+        self.assertNotIn(":bluetape4k-redis:koverXmlReport", redis_group)
+
+        manifest_start = workflow.index("          if grep -q '^test-infra=success$'")
+        manifest_end = workflow.index("          fi", manifest_start)
+        expected_modules = workflow[manifest_start:manifest_end]
+        self.assertNotIn("'infra/redis'", expected_modules)
 
     def test_nightly_keeps_redis_characterization_out_of_coverage(self):
         workflow = NIGHTLY_WORKFLOW.read_text(encoding="utf-8")

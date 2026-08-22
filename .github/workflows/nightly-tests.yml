@@ -834,13 +834,11 @@ jobs:
         include:
           - group: redis
             test_tasks: >-
-              :bluetape4k-redis:test
               :bluetape4k-redisson:test
               :bluetape4k-lettuce:test
               :bluetape4k-cache-lettuce:test
               :bluetape4k-cache-redisson:test
             kover_tasks: >-
-              :bluetape4k-redis:koverXmlReport
               :bluetape4k-redisson:koverXmlReport
               :bluetape4k-lettuce:koverXmlReport
               :bluetape4k-cache-lettuce:koverXmlReport
@@ -1348,7 +1346,6 @@ jobs:
           : > coverage-artifacts/expected-modules.manifest
           if grep -q '^test-infra=success$' coverage-artifacts/expected-jobs.manifest; then
             printf '%s\n' \
-              'infra/redis' \
               'infra/redisson' \
               'infra/lettuce' \
               'cache/cache-lettuce' \
