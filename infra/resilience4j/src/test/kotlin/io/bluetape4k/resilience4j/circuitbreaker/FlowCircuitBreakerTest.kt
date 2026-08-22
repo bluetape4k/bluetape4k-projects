@@ -10,6 +10,7 @@ import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.github.resilience4j.circuitbreaker.CallNotPermittedException
 import io.github.resilience4j.circuitbreaker.CircuitBreaker
 import io.github.resilience4j.kotlin.circuitbreaker.circuitBreaker
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Job
@@ -20,8 +21,8 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.launch
 import org.junit.jupiter.api.Test
-import java.util.concurrent.Phaser
 import kotlin.time.Duration.Companion.milliseconds
+import kotlin.time.Duration.Companion.seconds
 
 class FlowCircuitBreakerTest {
 
@@ -138,8 +139,8 @@ class FlowCircuitBreakerTest {
     }
 
     @Test
-    fun `Job 취소 시에는 fail로 기록하지 않습니다`() = runSuspendTest {
-        val phaser = Phaser(1)
+    fun `Job 취소 시에는 fail로 기록하지 않습니다`() = runSuspendTest(timeout = 10.seconds) {
+        val started = CompletableDeferred<Unit>()
         var flowCompleted = false
         val circuitBreaker = CircuitBreaker.ofDefaults("testName")
         val metrics = circuitBreaker.metrics
@@ -147,7 +148,7 @@ class FlowCircuitBreakerTest {
 
         val job = launch(start = CoroutineStart.ATOMIC) {
             flow {
-                phaser.arrive()
+                started.complete(Unit)
                 delay(5000L.milliseconds)
                 emit(1)
                 flowCompleted = true
@@ -156,7 +157,7 @@ class FlowCircuitBreakerTest {
                 .first()
         }
 
-        phaser.awaitAdvance(1)
+        started.await()
         job.cancelAndJoin()
 
         job.isCompleted.shouldBeTrue()
@@ -170,9 +171,9 @@ class FlowCircuitBreakerTest {
     }
 
     @Test
-    fun `Job 예외 취소 시에는 fail로 기록하지 않습니다`() = runSuspendTest {
+    fun `Job 예외 취소 시에는 fail로 기록하지 않습니다`() = runSuspendTest(timeout = 10.seconds) {
         val parentJob = Job()
-        val phaser = Phaser(1)
+        val started = CompletableDeferred<Unit>()
         var flowCompleted = false
         val circuitBreaker = CircuitBreaker.ofDefaults("testName")
         val metrics = circuitBreaker.metrics
@@ -182,7 +183,7 @@ class FlowCircuitBreakerTest {
         val job = parentScope.launch {
             launch(start = CoroutineStart.ATOMIC) {
                 flow {
-                    phaser.arrive()
+                    started.complete(Unit)
                     delay(5000L.milliseconds)
                     emit(1)
                     flowCompleted = true
@@ -193,7 +194,7 @@ class FlowCircuitBreakerTest {
             error("exceptional cancellation")
         }
 
-        phaser.awaitAdvance(1)
+        started.await()
         parentJob.runCatching { join() }
 
         job.isCompleted.shouldBeTrue()
