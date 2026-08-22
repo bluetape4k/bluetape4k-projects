@@ -23,6 +23,11 @@
   바이트열과 `flush()`/`close()`의 하위 sink 위임 횟수 및 데이터 전달 경계를
   검증하도록 강화됐다
   ([#1341](https://github.com/bluetape4k/bluetape4k-projects/issues/1341)).
+- `BufferedResumableCollector`가 producer admission과 첫 terminal 상태를 하나의
+  atomic 상태로 조정한다. `complete`/`error`와 producer가 경합해도 이미 수락된 값은
+  모두 drain되고 첫 terminal cause가 유지되며, terminal 전에 enqueue하지 못한
+  producer는 `IllegalStateException`으로 명시적으로 거부된다
+  ([#1349](https://github.com/bluetape4k/bluetape4k-projects/issues/1349)).
 
 ## [1.12.1] — 2026-08-06
 
