@@ -84,6 +84,44 @@ class TestRunTestcontainersImageGate(unittest.TestCase):
         self.assertEqual("infrastructure_failure", classify_failure(1, "connection refused", ""))
         self.assertEqual("infrastructure_failure", classify_failure(None, "", "timeout"))
 
+    def test_test_discovery_failure_wins_over_unrelated_docker_output(self) -> None:
+        stdout = "building image to Docker daemon\ntimeout while preparing unrelated diagnostics\n"
+        stderr = (
+            "Execution failed for task ':bluetape4k-testcontainers:test'.\n"
+            "> No tests found for given includes: "
+            "[io.bluetape4k.testcontainers.infra.K3sServerTest](--tests filter)"
+        )
+
+        self.assertEqual("product_failure", classify_failure(1, stdout, stderr))
+
+    def test_test_discovery_words_without_gradle_failure_context_do_not_override_infrastructure(self) -> None:
+        stdout = "building image to Docker daemon\n"
+        stderr = "diagnostic note: No tests found for given includes may be reported later"
+
+        self.assertEqual("infrastructure_failure", classify_failure(1, stdout, stderr))
+
+    def test_family_specific_test_task_overrides_the_default_task(self) -> None:
+        calls: list[list[str]] = []
+        k3s = entry("K3sServer")
+        k3s["testTask"] = ":bluetape4k-testcontainers:k8sTest"
+
+        def command_runner(command: list[str], timeout_seconds: int) -> SimpleNamespace:
+            calls.append(command)
+            return SimpleNamespace(returncode=0, stdout="BUILD SUCCESSFUL", stderr="")
+
+        with tempfile.TemporaryDirectory() as directory:
+            GateRunner(
+                [k3s],
+                Path(directory),
+                command_runner=command_runner,
+                max_attempts=1,
+            ).run()
+
+        self.assertEqual(
+            ["./gradlew", ":bluetape4k-testcontainers:k8sTest"],
+            calls[0][:2],
+        )
+
     def test_zero_exit_without_gradle_success_evidence_is_blocked(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             summary = GateRunner(

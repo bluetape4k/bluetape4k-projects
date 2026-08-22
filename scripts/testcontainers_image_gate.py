@@ -25,6 +25,7 @@ REQUIRED_FIELDS = {
     "diagnostics",
     "releaseRequired",
 }
+KNOWN_TEST_TASKS = {":bluetape4k-testcontainers:k8sTest"}
 
 
 def _contract_module() -> Any:
@@ -132,6 +133,13 @@ def validate_manifest(entries: list[dict[str, Any]], root: Path = ROOT) -> list[
             errors.append(f"diagnostics is empty for {server}")
         if not isinstance(entry["releaseRequired"], bool):
             errors.append(f"releaseRequired must be boolean for {server}")
+        test_task = entry.get("testTask")
+        if test_task is not None and (
+            not isinstance(test_task, str) or not test_task.startswith(":")
+        ):
+            errors.append(f"testTask must be a Gradle task path for {server}")
+        elif test_task is not None and test_task not in KNOWN_TEST_TASKS:
+            errors.append(f"unknown testTask for {server}: {test_task}")
 
     missing_servers = expected_servers - names
     extra_servers = names - expected_servers

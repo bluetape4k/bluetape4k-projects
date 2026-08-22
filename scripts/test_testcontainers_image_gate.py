@@ -25,6 +25,14 @@ class TestTestcontainersImageGate(unittest.TestCase):
         self.assertEqual(EXPECTED_FAMILY_COUNT, len(self.entries))
         self.assertEqual([], validate_manifest(self.entries, self.root))
 
+    def test_k3s_family_uses_the_existing_tagged_test_task(self) -> None:
+        k3s = next(entry for entry in self.entries if entry["server"] == "K3sServer")
+        self.assertEqual(":bluetape4k-testcontainers:k8sTest", k3s["testTask"])
+        build_script = (
+            self.root / "testing/testcontainers/build.gradle.kts"
+        ).read_text(encoding="utf-8")
+        self.assertIn('tasks.register<Test>("k8sTest")', build_script)
+
     def test_changed_scope_is_deterministic_and_full_scope_is_complete(self) -> None:
         changed = select_entries(self.entries, {"testing/testcontainers/src/main/kotlin/io/bluetape4k/testcontainers/aws/FlociServer.kt"})
         self.assertEqual(["FlociServer"], [entry["server"] for entry in changed])
@@ -36,6 +44,20 @@ class TestTestcontainersImageGate(unittest.TestCase):
     def test_invalid_manifest_reports_drift_without_running_docker(self) -> None:
         invalid = [dict(self.entries[0], image="wrong/image")]
         self.assertIn("image drift", " ".join(validate_manifest(invalid, self.root)))
+
+    def test_invalid_family_specific_test_task_reports_drift(self) -> None:
+        invalid = [dict(self.entries[0], testTask="test")]
+        self.assertIn(
+            "testTask must be a Gradle task path",
+            " ".join(validate_manifest(invalid, self.root)),
+        )
+
+    def test_unknown_family_specific_test_task_reports_drift(self) -> None:
+        invalid = [dict(self.entries[0], testTask=":not-existing-task")]
+        self.assertIn(
+            "unknown testTask",
+            " ".join(validate_manifest(invalid, self.root)),
+        )
 
     def test_ci_workflow_runs_changed_gate_and_uploads_evidence(self) -> None:
         workflow = (self.root / ".github/workflows/ci.yml").read_text(encoding="utf-8")

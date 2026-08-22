@@ -434,6 +434,7 @@
       "image": "rancher/k3s",
       "tag": "v1.36.3-k3s1",
       "testPattern": "io.bluetape4k.testcontainers.infra.K3sServerTest",
+      "testTask": ":bluetape4k-testcontainers:k8sTest",
       "readiness": "k3s_api_and_pod_readiness",
       "workload": "io.bluetape4k.testcontainers.infra.K3sServerTest:representative_test",
       "diagnostics": [

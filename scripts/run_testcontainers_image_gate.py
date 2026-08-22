@@ -40,6 +40,11 @@ INFRASTRUCTURE_MARKERS = (
     "connection reset",
     "eof",
 )
+TEST_DISCOVERY_FAILURE_PATTERN = re.compile(
+    r"execution failed for task ['\"][^'\"]+['\"].*"
+    r"no tests found for given includes",
+    re.IGNORECASE | re.DOTALL,
+)
 SECRET_PATTERN = re.compile(
     r"(?i)(password|passwd|token|secret|authorization|api[_-]?key)\s*[:=]\s*([^\s,;]+)"
 )
@@ -67,7 +72,11 @@ def classify_failure(returncode: int | None, stdout: str, stderr: str) -> str:
     if returncode == 0:
         return "success"
     haystack = f"{stdout}\n{stderr}".lower()
-    if returncode is None or any(marker in haystack for marker in INFRASTRUCTURE_MARKERS):
+    if returncode is None:
+        return "infrastructure_failure"
+    if TEST_DISCOVERY_FAILURE_PATTERN.search(haystack):
+        return "product_failure"
+    if any(marker in haystack for marker in INFRASTRUCTURE_MARKERS):
         return "infrastructure_failure"
     return "product_failure"
 
@@ -132,6 +141,11 @@ class GateRunner:
 
     def _command(self, entry: dict[str, Any]) -> list[str]:
         command = shlex.split(self.gradle_task)
+        if test_task := entry.get("testTask"):
+            task_positions = [index for index, part in enumerate(command) if part.startswith(":")]
+            if len(task_positions) != 1:
+                raise ValueError(f"expected one Gradle task in command: {self.gradle_task}")
+            command[task_positions[0]] = str(test_task)
         command.extend(("--tests", str(entry["testPattern"]), "--no-configuration-cache"))
         return command
 
