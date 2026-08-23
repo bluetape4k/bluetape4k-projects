@@ -37,6 +37,12 @@ internal class SpscArrayQueue<T> private constructor(capacity: Int) {
 
     val isEmpty: Boolean get() = consumerIndex.value == producerIndex.value
 
+    val canOffer: Boolean
+        get() {
+            val offset = producerIndex.value and mask
+            return referenceArray.get(offset) == EMPTY
+        }
+
     fun offer(value: T): Boolean {
         val pi = producerIndex.value
 

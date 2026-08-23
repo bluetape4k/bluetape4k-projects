@@ -2,6 +2,7 @@ package io.bluetape4k.cache.nearcache.jcache
 
 import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.cache.jcache.SuspendJCache
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.mockk.coEvery
@@ -11,6 +12,7 @@ import io.mockk.just
 import io.mockk.mockk
 import io.mockk.runs
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.Test
 
 class SuspendNearJCacheBackFirstContractTest {
@@ -160,5 +162,35 @@ class SuspendNearJCacheBackFirstContractTest {
 
         error.message shouldBeEqualTo cancellation.message
         coVerify(exactly = 1) { frontCache.remove("key") }
+    }
+
+    @Test
+    fun `clearAll은 back CancellationException을 호출자에게 재전파한다`() = runTest {
+        val cancellation = CancellationException("clear cancelled")
+        val frontCache = mockk<SuspendJCache<String, String>>(relaxed = true)
+        val backCache = mockk<SuspendJCache<String, String>>(relaxed = true)
+        coEvery { frontCache.clear() } just runs
+        coEvery { backCache.clear() } throws cancellation
+        val nearCache = SuspendNearJCache.withoutListener(frontCache, backCache)
+
+        val thrown = assertFailsWith<CancellationException> { nearCache.clearAll() }
+
+        (thrown === cancellation).shouldBeTrue()
+        coVerify { frontCache.clear() }
+        coVerify { backCache.clear() }
+    }
+
+    @Test
+    fun `close는 CancellationException을 호출자에게 재전파한다`() = runTest {
+        val cancellation = CancellationException("close cancelled")
+        val frontCache = mockk<SuspendJCache<String, String>>(relaxed = true)
+        val backCache = mockk<SuspendJCache<String, String>>(relaxed = true)
+        coEvery { frontCache.close() } throws cancellation
+        val nearCache = SuspendNearJCache.withoutListener(frontCache, backCache)
+
+        val thrown = assertFailsWith<CancellationException> { nearCache.close() }
+
+        (thrown === cancellation).shouldBeTrue()
+        coVerify { frontCache.close() }
     }
 }

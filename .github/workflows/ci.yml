@@ -137,6 +137,7 @@ jobs:
       ktor: ${{ steps.filter.outputs.ktor }}
       key-utils: ${{ steps.filter.outputs.key-utils }}
       infra: ${{ steps.filter.outputs.infra }}
+      search-messaging: ${{ steps.filter.outputs.search-messaging }}
       kafka-infra: ${{ steps.filter.outputs.kafka-infra }}
       telemetry-infra: ${{ steps.filter.outputs.telemetry-infra }}
       data: ${{ steps.filter.outputs.data }}
@@ -207,6 +208,9 @@ jobs:
               - 'infra/lettuce/**'
               - 'cache/cache-lettuce/**'
               - 'cache/cache-redisson/**'
+            search-messaging:
+              - 'infra/elasticsearch/**'
+              - 'infra/nats/**'
             kafka-infra:
               - 'infra/kafka/**'
               - 'infra/kafka4/**'
@@ -872,7 +876,62 @@ jobs:
           if-no-files-found: error
           retention-days: 30
 
-  # ── 7-a. Kafka Infra 테스트 (Testcontainers) ────────────────────────────
+  # ── 7-a. Search & Messaging 테스트 (Testcontainers) ─────────────────────
+  test-search-messaging:
+    name: Test / Search & Messaging
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    needs: [build, changes]
+    if: ${{ needs.changes.outputs['search-messaging'] == 'true' || needs.changes.outputs.shared == 'true' || github.event_name == 'workflow_dispatch' }}
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-java@v5.7.0
+        with:
+          java-version: ${{ env.JAVA_VERSION }}
+          distribution: ${{ env.JAVA_DISTRIBUTION }}
+
+      - uses: gradle/actions/setup-gradle@v6.3.0
+        with:
+          gradle-version: wrapper
+          cache-read-only: true
+
+      - name: Test search and messaging modules
+        uses: nick-fields/retry@v4
+        with:
+          timeout_minutes: 60
+          max_attempts: 3
+          shell: bash
+          command: |
+            ./gradlew :bluetape4k-elasticsearch:test --max-workers=1 --no-configuration-cache
+            ./gradlew :bluetape4k-nats:test --max-workers=1 --no-configuration-cache
+        env:
+          GRADLE_OPTS: "-Dorg.gradle.daemon=false"
+
+      - name: Generate Kover XML report
+        if: always()
+        run: |
+          ./gradlew :bluetape4k-elasticsearch:koverXmlReport --max-workers=1 --no-configuration-cache
+          ./gradlew :bluetape4k-nats:koverXmlReport --max-workers=1 --no-configuration-cache
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: test-results-search-messaging
+          path: '**/build/test-results/test/*.xml'
+          retention-days: 30
+
+      - name: Upload coverage report
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: coverage-search-messaging
+          path: '**/build/reports/kover/'
+          if-no-files-found: error
+          retention-days: 30
+
+  # ── 7-b. Kafka Infra 테스트 (Testcontainers) ────────────────────────────
   test-kafka-infra:
     name: Test / Kafka Infra
     runs-on: ubuntu-latest
@@ -1075,7 +1134,7 @@ jobs:
     name: Coverage Report
     runs-on: ubuntu-latest
     timeout-minutes: 10
-    needs: [test-core, test-io, test-io-http, test-testcontainers-spring, test-ktor, test-key-utils, test-infra, test-kafka-infra, test-telemetry-infra, test-data]
+    needs: [test-core, test-io, test-io-http, test-testcontainers-spring, test-ktor, test-key-utils, test-infra, test-search-messaging, test-kafka-infra, test-telemetry-infra, test-data]
     if: always()
     steps:
       - uses: actions/checkout@v7
@@ -1091,6 +1150,7 @@ jobs:
             test-ktor=${{ needs.test-ktor.result }}
             test-key-utils=${{ needs.test-key-utils.result }}
             test-infra=${{ needs.test-infra.result }}
+            test-search-messaging=${{ needs.test-search-messaging.result }}
             test-kafka-infra=${{ needs.test-kafka-infra.result }}
             test-telemetry-infra=${{ needs.test-telemetry-infra.result }}
             test-data=${{ needs.test-data.result }}
@@ -1105,6 +1165,12 @@ jobs:
               'infra/redisson' \
               'cache/cache-redisson' \
               > coverage-artifacts/expected-modules.manifest
+          fi
+          if grep -q '^test-search-messaging=success$' coverage-artifacts/expected-jobs.manifest; then
+            printf '%s\n' \
+              'infra/elasticsearch' \
+              'infra/nats' \
+              >> coverage-artifacts/expected-modules.manifest
           fi
           if grep -q '=success$' coverage-artifacts/expected-jobs.manifest; then
             echo 'has_expected=true' >> "$GITHUB_OUTPUT"
@@ -1173,7 +1239,7 @@ jobs:
     name: CI Status
     runs-on: ubuntu-latest
     timeout-minutes: 10
-    needs: [release-policy, jvm-release-contract, codeql-policy, catalog-governance, gitleaks, validate-wrapper, changes, build, test-core, test-io, test-testcontainers-spring, testcontainers-image-gate, test-ktor, test-key-utils, test-infra, test-kafka-infra, test-telemetry-infra, test-data, coverage-report]
+    needs: [release-policy, jvm-release-contract, codeql-policy, catalog-governance, gitleaks, validate-wrapper, changes, build, test-core, test-io, test-testcontainers-spring, testcontainers-image-gate, test-ktor, test-key-utils, test-infra, test-search-messaging, test-kafka-infra, test-telemetry-infra, test-data, coverage-report]
     if: always()
     steps:
       - name: Check all jobs

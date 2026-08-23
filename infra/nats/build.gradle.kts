@@ -15,8 +15,9 @@ dependencies {
     // nats_spring_cloud_stream_binder: 사용하지 않으므로 제외
 
     // Coroutines
-    compileOnly(project(":bluetape4k-coroutines"))
-    compileOnly(libs.kotlinx.coroutines.core)
+    api(project(":bluetape4k-coroutines"))
+    // Public consumeAsFlow API exposes Flow and coroutine cancellation semantics.
+    api(libs.kotlinx.coroutines.core)
     compileOnly(libs.kotlinx.coroutines.reactor)
     testImplementation(libs.kotlinx.coroutines.test)
 
