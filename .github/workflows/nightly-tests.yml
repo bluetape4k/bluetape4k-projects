@@ -1199,13 +1199,13 @@ jobs:
           if-no-files-found: error
           retention-days: 14
 
-  # ── Testcontainers image startup/workload gate — 단일 순차 lane ───────────
+  # ── Testcontainers image startup/workload gate — full Nightly 전용 ────────
   test-testcontainers-image-gate:
     name: Test / Testcontainers image startup-workload gate
     runs-on: ubuntu-latest
     timeout-minutes: 360
     needs: [build, plan]
-    if: ${{ needs.plan.outputs.scope == 'full' || needs.plan.outputs.scope == 'testcontainers' }}
+    if: ${{ needs.plan.outputs.scope == 'full' }}
     env:
       TESTCONTAINERS_IMAGE_GATE_MAX_PARALLEL: '1'
       DOCKER_AUTH_CONFIG: ${{ secrets.TESTCONTAINERS_DOCKER_AUTH_CONFIG }}
@@ -1263,10 +1263,11 @@ jobs:
     name: Test / Testcontainers Spring bridge
     runs-on: ubuntu-latest
     timeout-minutes: 10
-    # Keep the JVM-only bridge after the Docker-backed Testcontainers lane so
-    # repository-level Testcontainers verification remains sequential.
+    # Full Nightly waits for the Docker-backed image gate. A targeted
+    # testcontainers dispatch has no image gate and may run this JVM-only bridge
+    # after its matrix completes.
     needs: [test-testcontainers, test-testcontainers-image-gate, plan]
-    if: ${{ needs.plan.outputs.scope == 'full' || needs.plan.outputs.scope == 'testcontainers' }}
+    if: ${{ always() && (needs.plan.outputs.scope == 'full' || needs.plan.outputs.scope == 'testcontainers') && needs.test-testcontainers.result == 'success' && (needs.test-testcontainers-image-gate.result == 'success' || needs.test-testcontainers-image-gate.result == 'skipped') }}
     steps:
       - uses: actions/checkout@v7
 
