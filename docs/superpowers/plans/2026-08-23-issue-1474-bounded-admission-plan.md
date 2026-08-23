@@ -223,8 +223,8 @@ module, dependency, registration, or container behavior changes.
 
   Validate `maxInFlightCallbacks > 0` with `require` before constructing the
   `Semaphore`, then create `private val admission = Semaphore(maxInFlightCallbacks)`.
-  Import only `kotlinx.coroutines.sync.Semaphore` and the coroutine start type
-  needed by the lazy-start release guard; add no dependency.
+  Import `io.bluetape4k.logging.debug`, `kotlinx.coroutines.CoroutineStart`, and
+  `kotlinx.coroutines.sync.Semaphore`; add no dependency.
 
 - [ ] **Step 2: Add the submit helper with explicit close and permit-race handling.**
 
@@ -352,15 +352,17 @@ insufficient to prove the unchanged registration contract.
   ```bash
   jar_path=$(find cache/cache-core/build/libs -maxdepth 1 \
     -name 'bluetape4k-cache-core-*.jar' ! -name '*sources*' ! -name '*javadoc*' \
+    ! -name '*test-fixtures*' \
     | head -1)
   test -n "$jar_path"
   javap -classpath "$jar_path" \
     io.bluetape4k.cache.jcache.SuspendJCacheEntryEventListener \
-    | rg 'public io\.bluetape4k\.cache\.jcache\.SuspendJCacheEntryEventListener'
+    | rg '^  public .*SuspendJCacheEntryEventListener\(io\.bluetape4k\.cache\.jcache\.SuspendJCache<.*>\);$'
   ```
 
-  Expected: the one-argument public constructor remains present; no public
-  capacity constructor or public metrics type appears.
+  Expected: exactly the one-argument public constructor remains present. Kotlin's
+  synthetic `DefaultConstructorMarker` bridge is ignored by the exact signature
+  filter; no public capacity constructor or public metrics type appears.
 
 - [ ] **Step 3: Run source/documentation hygiene checks.**
 
