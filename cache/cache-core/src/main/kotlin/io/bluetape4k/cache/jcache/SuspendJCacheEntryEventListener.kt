@@ -1,14 +1,17 @@
 package io.bluetape4k.cache.jcache
 
 import io.bluetape4k.logging.coroutines.KLoggingChannel
+import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.error
 import io.bluetape4k.logging.trace
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Semaphore
 import java.util.concurrent.atomic.AtomicBoolean
 import javax.cache.event.CacheEntryCreatedListener
 import javax.cache.event.CacheEntryEvent
@@ -16,11 +19,17 @@ import javax.cache.event.CacheEntryExpiredListener
 import javax.cache.event.CacheEntryRemovedListener
 import javax.cache.event.CacheEntryUpdatedListener
 
+private const val DEFAULT_MAX_IN_FLIGHT_CALLBACKS = 64
+
 /**
  * Back Cache의 엔트리 이벤트(생성/수정/삭제/만료)를 수신하여 Front Cache([targetCache])에 반영하는 리스너입니다.
  *
  * JCache 이벤트 콜백은 동기식으로 호출되므로, `runBlocking` 대신 전용 [kotlinx.coroutines.CoroutineScope]에서
  * `launch`를 사용하여 스레드 풀 고갈과 데드락을 방지합니다.
+ * callback admission은 non-blocking `tryAcquire()`로 선형화하며, 기본적으로
+ * listener마다 최대 64개의 in-flight callback job만 허용합니다. 상한에 도달한
+ * callback은 내부 queue 없이 즉시 거부하고 sanitized debug log를 남깁니다.
+ * [close]는 취소를 요청하지만 callback 완료를 기다리지 않습니다.
  *
  * ```kotlin
  * val frontCache = CaffeineSuspendJCache<String, Int> { maximumSize(1000) }
@@ -41,6 +50,7 @@ import javax.cache.event.CacheEntryUpdatedListener
 class SuspendJCacheEntryEventListener<K: Any, V: Any> private constructor(
     private val targetCache: SuspendJCache<K, V>,
     private val scope: CoroutineScope,
+    private val maxInFlightCallbacks: Int,
     @Suppress("UNUSED_PARAMETER") marker: Unit,
 ): CacheEntryCreatedListener<K, V>,
    CacheEntryUpdatedListener<K, V>,
@@ -51,6 +61,7 @@ class SuspendJCacheEntryEventListener<K: Any, V: Any> private constructor(
     constructor(targetCache: SuspendJCache<K, V>): this(
         targetCache,
         CoroutineScope(SupervisorJob() + Dispatchers.IO),
+        DEFAULT_MAX_IN_FLIGHT_CALLBACKS,
         Unit,
     )
 
@@ -59,12 +70,18 @@ class SuspendJCacheEntryEventListener<K: Any, V: Any> private constructor(
         internal fun <K: Any, V: Any> forTest(
             targetCache: SuspendJCache<K, V>,
             scope: CoroutineScope,
+            maxInFlightCallbacks: Int = DEFAULT_MAX_IN_FLIGHT_CALLBACKS,
         ): SuspendJCacheEntryEventListener<K, V> =
-            SuspendJCacheEntryEventListener(targetCache, scope, Unit)
+            SuspendJCacheEntryEventListener(targetCache, scope, maxInFlightCallbacks, Unit)
+    }
+
+    init {
+        require(maxInFlightCallbacks > 0) { "maxInFlightCallbacks must be positive" }
     }
 
     private val closed = AtomicBoolean(false)
     private val cacheIdentifier = targetCache::class.java.name.sanitizeLogIdentifier()
+    private val admission = Semaphore(maxInFlightCallbacks)
 
     override fun close() {
         if (closed.compareAndSet(false, true)) {
@@ -81,13 +98,8 @@ class SuspendJCacheEntryEventListener<K: Any, V: Any> private constructor(
     override fun onCreated(events: MutableIterable<CacheEntryEvent<out K, out V>>) {
         val eventCopies = events.map { EventCopy(it.key, it.value) }
         log.trace { "BackCache cache entry created. cache=$cacheIdentifier count=${eventCopies.size}" }
-        if (shouldAcceptCallback()) {
-            scope.launch {
-                if (closed.get()) return@launch
-                applyEvent("put all created cache entries") {
-                    targetCache.putAll(eventCopies.associate { it.key to it.value })
-                }
-            }
+        submit("put all created cache entries") {
+            targetCache.putAll(eventCopies.associate { it.key to it.value })
         }
     }
 
@@ -100,13 +112,8 @@ class SuspendJCacheEntryEventListener<K: Any, V: Any> private constructor(
     override fun onUpdated(events: MutableIterable<CacheEntryEvent<out K, out V>>) {
         val eventCopies = events.map { EventCopy(it.key, it.value) }
         log.trace { "BackCache cache entry updated. cache=$cacheIdentifier count=${eventCopies.size}" }
-        if (shouldAcceptCallback()) {
-            scope.launch {
-                if (closed.get()) return@launch
-                applyEvent("put all updated cache entries") {
-                    targetCache.putAll(eventCopies.associate { it.key to it.value })
-                }
-            }
+        submit("put all updated cache entries") {
+            targetCache.putAll(eventCopies.associate { it.key to it.value })
         }
     }
 
@@ -120,13 +127,8 @@ class SuspendJCacheEntryEventListener<K: Any, V: Any> private constructor(
     override fun onRemoved(events: MutableIterable<CacheEntryEvent<out K, out V>>) {
         val eventKeys = events.map { it.key }
         log.trace { "BackCache cache entry removed. cache=$cacheIdentifier count=${eventKeys.size}" }
-        if (shouldAcceptCallback()) {
-            scope.launch {
-                if (closed.get()) return@launch
-                applyEvent("remove all removed cache entries") {
-                    targetCache.removeAll(eventKeys.toCollection(LinkedHashSet()))
-                }
-            }
+        submit("remove all removed cache entries") {
+            targetCache.removeAll(eventKeys.toCollection(LinkedHashSet()))
         }
     }
 
@@ -140,20 +142,43 @@ class SuspendJCacheEntryEventListener<K: Any, V: Any> private constructor(
     override fun onExpired(events: MutableIterable<CacheEntryEvent<out K, out V>>) {
         val eventKeys = events.map { it.key }
         log.trace { "BackCache cache entry expired. cache=$cacheIdentifier count=${eventKeys.size}" }
-        if (shouldAcceptCallback()) {
-            scope.launch {
-                if (closed.get()) return@launch
-                applyEvent("remove all expired cache entries") {
-                    targetCache.removeAll(eventKeys.toCollection(LinkedHashSet()))
+        submit("remove all expired cache entries") {
+            targetCache.removeAll(eventKeys.toCollection(LinkedHashSet()))
+        }
+    }
+
+    private fun submit(operation: String, block: suspend () -> Unit) {
+        if (!shouldAcceptCallback()) return
+        if (!admission.tryAcquire()) {
+            log.debug {
+                "Reject callback because admission is full. " +
+                        "operation=$operation cache=$cacheIdentifier maxInFlight=$maxInFlightCallbacks"
+            }
+            return
+        }
+        if (!shouldAcceptCallback()) {
+            admission.release()
+        } else {
+            val job = scope.launch(start = CoroutineStart.LAZY) {
+                try {
+                    if (!closed.get()) {
+                        applyEvent(operation, block)
+                    }
+                } finally {
+                    admission.release()
                 }
+            }
+            if (!job.start()) {
+                admission.release()
             }
         }
     }
 
     /**
-     * Callback admission is linearized by the [closed] read immediately before launch.
-     * A callback that has already passed this gate is in flight; [close] requests
-     * cooperative cancellation without waiting for that backend call to return.
+     * Callback admission is linearized by a successful [Semaphore.tryAcquire] after
+     * the closed and target-cache checks. A callback that owns a permit is in flight;
+     * [close] requests cooperative cancellation without waiting for that backend call
+     * to return.
      */
     private fun shouldAcceptCallback(): Boolean = !closed.get() && !targetCache.isClosed()
 
@@ -167,7 +192,7 @@ class SuspendJCacheEntryEventListener<K: Any, V: Any> private constructor(
         } catch (e: CancellationException) {
             throw e
         } catch (e: Exception) {
-            log.error(e) { "Fail to $operation." }
+            log.error(e) { "Fail to $operation. cache=$cacheIdentifier" }
         }
     }
 
