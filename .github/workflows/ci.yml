@@ -41,6 +41,7 @@ concurrency:
 env:
   JAVA_VERSION: '25'
   JAVA_DISTRIBUTION: 'temurin'
+  ORG_GRADLE_PROJECT_excludeBenchmarks: 'true'
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: 'true'
   BLUETAPE4K_DEPENDENCIES_CATALOG_REF: '91f9ea9336b5ea991f5675323a1cf25ccfd6f5ed'
   GITLEAKS_VERSION: 'v8.30.1'
@@ -311,7 +312,11 @@ jobs:
       - name: Build (compile only)
         run: |
           for attempt in 1 2 3; do
-            ./gradlew build -x test --parallel && break
+            ./gradlew build -x test \
+              -x :protobuf-codec-benchmark:build \
+              -x :serializer-benchmark:build \
+              -x :web-framework-benchmark:build \
+              --parallel && break
             echo "Attempt $attempt failed"
             [ $attempt -lt 3 ] && sleep 10 || exit 1
           done

@@ -10,6 +10,21 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
 CI_WORKFLOW = ROOT / ".github/workflows/ci.yml"
+NIGHTLY_WORKFLOW = ROOT / ".github/workflows/nightly-tests.yml"
+ROOT_BUILD = ROOT / "build.gradle.kts"
+
+BENCHMARK_TESTS = (
+    ROOT / "infra/lettuce/src/test/kotlin/io/bluetape4k/redis/lettuce/benchmark/LettuceThroughputBenchmark.kt",
+    ROOT / "infra/redisson/src/test/kotlin/io/bluetape4k/redis/redisson/benchmark/RedissonConcurrencyBenchmark.kt",
+    ROOT / "io/http/src/test/kotlin/io/bluetape4k/http/benchmark/HttpClientBenchmarkTest.kt",
+    ROOT / "utils/workflow/src/test/kotlin/io/bluetape4k/workflow/examples/OrderProcessingExecutionModelBenchmarkTest.kt",
+)
+
+BENCHMARK_PROJECTS = (
+    "protobuf-codec-benchmark",
+    "serializer-benchmark",
+    "web-framework-benchmark",
+)
 
 DOMAIN_JOBS = (
     "test-core",
@@ -77,6 +92,31 @@ class CiDomainParallelizationTest(unittest.TestCase):
         changes = job_block(self.workflow, "changes")
         self.assertIn("Validate CI domain dependency graph", changes)
         self.assertIn("python3 .github/scripts/test-ci-domain-parallelization.py -v", changes)
+
+    def test_ci_and_nightly_exclude_benchmark_tag(self):
+        for workflow_path in (CI_WORKFLOW, NIGHTLY_WORKFLOW):
+            with self.subTest(workflow=workflow_path.name):
+                workflow = workflow_path.read_text(encoding="utf-8")
+                self.assertIn("ORG_GRADLE_PROJECT_excludeBenchmarks: 'true'", workflow)
+
+    def test_ci_and_nightly_compile_builds_exclude_benchmark_projects(self):
+        for workflow_path in (CI_WORKFLOW, NIGHTLY_WORKFLOW):
+            build = job_block(workflow_path.read_text(encoding="utf-8"), "build")
+            for project_name in BENCHMARK_PROJECTS:
+                with self.subTest(workflow=workflow_path.name, project=project_name):
+                    self.assertIn(f"-x :{project_name}:build", build)
+
+    def test_root_test_tasks_honor_benchmark_exclusion_property(self):
+        root_build = ROOT_BUILD.read_text(encoding="utf-8")
+        self.assertIn('gradleProperty("excludeBenchmarks")', root_build)
+        self.assertIn('excludeTags("benchmark")', root_build)
+
+    def test_junit_benchmarks_use_the_benchmark_tag(self):
+        for benchmark_test in BENCHMARK_TESTS:
+            with self.subTest(test=benchmark_test.relative_to(ROOT)):
+                source = benchmark_test.read_text(encoding="utf-8")
+                self.assertIn("import org.junit.jupiter.api.Tag", source)
+                self.assertIn('@Tag("benchmark")', source)
 
 
 if __name__ == "__main__":

@@ -22,6 +22,11 @@ Daily CI는 이미 `dorny/paths-filter`로 `core`, `io`, `infra`, `data` 등 변
   의도적으로 `skipped`인 경우만 report 부재를 허용한다.
 - `.github/scripts/test-ci-domain-parallelization.py`로 위 의존 그래프를 회귀 계약으로
   고정하고 `changes` job에서 실행한다.
+- 성능 수집은 일반 회귀 검증과 분리한다. `CI`와 `Nightly`는
+  `excludeBenchmarks=true`를 전달하고, 공통 Gradle test 설정은 `benchmark` tag가 붙은
+  JUnit benchmark만 제외한다.
+- 전체 compile build에서도 `protobuf-codec-benchmark`, `serializer-benchmark`,
+  `web-framework-benchmark`의 `build` task를 제외한다.
 
 ## 결과
 
@@ -34,6 +39,12 @@ Daily CI는 이미 `dorny/paths-filter`로 `core`, `io`, `infra`, `data` 등 변
 변경되면 기존 `shared` 규칙에 따라 모든 도메인 테스트가 계속 실행된다. 관련 없는
 테스트만 건너뛰되, 공통 빌드 계약의 영향 범위는 축소하지 않았다.
 
+별도 JMH task는 두 workflow에서 호출하지 않고, benchmark 전용 프로젝트도 compile
+build 대상에서 제외한다. 일반 `test`에 섞여 있던 Lettuce,
+Redisson, HTTP client, workflow 실행 모델 benchmark는 동일한 `benchmark` tag로 분류해
+CI 자원을 사용하지 않게 했다. benchmark fixture와 지원 코드의 correctness test는 일반
+회귀 테스트로 남겨 성능 실행 제외가 기능 검증 공백으로 이어지지 않게 했다.
+
 ## 검증
 
 - RED: 기존 workflow에서 12개 도메인 job이 `build`를 기다려 계약 테스트가 실패했다.
@@ -43,6 +54,10 @@ Daily CI는 이미 `dorny/paths-filter`로 `core`, `io`, `infra`, `data` 등 변
   `build`를 계속 집계하는지 확인했다.
 - `Coverage Report`가 image gate를 제외한 모든 coverage job을 계속 기다리는지
   확인했다.
+- benchmark 제외 계약은 RED 6 failures에서 시작해 workflow opt-out, Gradle tag filter,
+  네 benchmark class의 tag를 연결한 뒤 전체 7개 계약 테스트가 통과했다.
+- 네 benchmark class만 각각 선택한 Gradle 검증에서 모두 `0 passing`과
+  `No tests found for given includes`를 확인해 실행 계획에서 제외됐음을 증명했다.
 
 ## 놓친 점과 주의사항
 
@@ -64,6 +79,8 @@ Daily CI에서 시작 시점만 앞당겼으며, gate 내부 실행 방식이나
 - 도메인 job은 변경 감지와 공통 catalog 검증 뒤에 실행하고, 전체 `Build`와 병렬화한다.
 - 새 coverage job을 추가하면 `Coverage Report`의 `needs`, expected manifest, artifact
   계약을 같은 변경에서 갱신한다.
+- 새 JUnit benchmark는 `@Tag("benchmark")`를 붙인다. CI나 Nightly에 benchmark를 다시
+  포함하려면 일반 test에 섞지 말고 별도 opt-in workflow와 실행 예산을 둔다.
 - 첫 hosted PR 실행에서는 job 시작 시각과 전체 소요 시간을 비교해 병렬 실행이 실제로
   적용됐는지 확인한다.
 

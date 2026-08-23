@@ -27,6 +27,7 @@ concurrency:
 env:
   JAVA_VERSION: '25'
   JAVA_DISTRIBUTION: 'temurin'
+  ORG_GRADLE_PROJECT_excludeBenchmarks: 'true'
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: 'true'
 
 jobs:
@@ -303,12 +304,15 @@ jobs:
           gradle-version: wrapper
           cache-read-only: false
 
-      - name: Build (compile only, excluding examples)
+      - name: Build (compile only, excluding examples and benchmarks)
         shell: bash
         run: |
           set -euo pipefail
 
           excluded_tasks=(
+            -x :protobuf-codec-benchmark:build
+            -x :serializer-benchmark:build
+            -x :web-framework-benchmark:build
             -x :bluetape4k-examples-coroutines-demo:build
             -x :bluetape4k-examples-jpa-blazepersistence-demo:build
             -x :bluetape4k-examples-jpa-querydsl-demo:build

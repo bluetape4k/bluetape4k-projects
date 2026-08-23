@@ -73,6 +73,9 @@ val centralSnapshotsParallelism: Int = providers
 val projectGroup: String = providers.gradleProperty("projectGroup").get()
 val baseVersion: String = providers.gradleProperty("baseVersion").get()
 val snapshotVersion: String = providers.gradleProperty("snapshotVersion").get()
+val excludeBenchmarks = providers.gradleProperty("excludeBenchmarks")
+    .map(String::toBoolean)
+    .orElse(false)
 
 abstract class TestcontainersMutexService: BuildService<BuildServiceParameters.None>
 
@@ -344,6 +347,12 @@ subprojects {
 
         test {
             useJUnitPlatform()
+
+            if (excludeBenchmarks.get()) {
+                useJUnitPlatform {
+                    excludeTags("benchmark")
+                }
+            }
 
             // bluetape4k.* 시스템 프로퍼티를 테스트 JVM에 전달 (골든 이미지 갱신 모드 등)
             System.getProperties()

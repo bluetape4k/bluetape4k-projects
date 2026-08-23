@@ -10,6 +10,7 @@ import io.bluetape4k.workflow.api.WorkReport
 import io.bluetape4k.workflow.api.workContext
 import io.bluetape4k.workflow.core.sequentialFlow
 import io.bluetape4k.workflow.coroutines.suspendSequentialFlow
+import org.junit.jupiter.api.Tag
 import org.junit.jupiter.api.Test
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
@@ -18,6 +19,7 @@ import kotlin.time.TimeSource
 /**
  * 동기(Virtual Threads)와 코루틴 워크플로 실행 시간을 같은 시나리오로 비교하는 benchmark 성격의 테스트입니다.
  */
+@Tag("benchmark")
 class OrderProcessingExecutionModelBenchmarkTest {
 
     companion object: KLogging()
