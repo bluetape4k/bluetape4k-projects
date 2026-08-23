@@ -271,8 +271,20 @@ Caffeine           |
   던지면 해당 키에는 변경 내용을 커밋하지 않습니다.
 - `ttlSeconds`가 설정된 경우 `invoke`로 갱신한 값도 캐시 hash TTL을 다시 적용하고,
   등록된 `CacheEntryUpdatedListener`에 갱신 이벤트를 전달합니다.
-- 분산 락의 기본 lease는 1분, 획득 대기는 5분입니다. 프로세서는 기본 lease 안에
-  완료되어야 하며, 더 긴 실행 시간을 허용하는 정책은 별도 설정 계약으로 다룹니다.
+- 분산 락의 기본 lease는 1분, 획득 대기는 5분입니다. 긴 프로세서는
+  `LettuceCacheConfig.lockLeaseSeconds`로 캐시별 lease를 조정할 수 있습니다.
+
+  ```kotlin
+  val sessions = LettuceJCaching.getOrCreate<String, String>(
+      redisClient,
+      "sessions",
+      lettuceCacheConfigOf(lockLeaseSeconds = 120),
+  )
+  ```
+
+- 프로세서가 lease보다 오래 실행되면 `entry.commit()`을 거부합니다. 락 소유권
+  검증과 값/TTL 쓰기를 하나의 Redis 트랜잭션으로 처리하므로, 이후 락을 획득한
+  호출자의 결과를 이전 호출자의 stale 값이 덮어쓰지 않습니다.
 
 ```kotlin
 import io.bluetape4k.cache.jcache.LettuceJCaching

@@ -123,8 +123,20 @@ connections and cache instances.
   refreshes the configured cache hash TTL and dispatches the corresponding
   cache-entry listener event.
 - The default lock lease is one minute and the default acquisition wait is five
-  minutes. Processors must finish within the default lease; a longer execution
-  policy is a separate configuration contract.
+  minutes. Set `LettuceCacheConfig.lockLeaseSeconds` for processors that need a
+  longer lease:
+
+  ```kotlin
+  val sessions = LettuceJCaching.getOrCreate<String, String>(
+      redisClient,
+      "sessions",
+      lettuceCacheConfigOf(lockLeaseSeconds = 120),
+  )
+  ```
+
+- If a processor outlives its lease, its `entry.commit()` is rejected. The
+  ownership check and the value/TTL write are committed as one Redis
+  transaction, so a later lock owner cannot be overwritten by a stale result.
 
 ## Factory (`LettuceCaches`)
 
