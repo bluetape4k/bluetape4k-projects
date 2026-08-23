@@ -15,6 +15,7 @@ EXPECTED_ISLAND = {
     "bluetape4k-virtualthread-jdk21",
 }
 COMMON_TOKENS = ("2.0.0", "1.13.x", "Java 25", "Java 21")
+HTTP_READMES = ("io/http/README.md", "io/http/README.ko.md")
 
 
 def read(relative: str) -> str:
@@ -98,6 +99,12 @@ class JvmReleaseContractTest(unittest.TestCase):
             self.assertIn("`bluetape4k/mock-webflux-server` | `2.0.0`", source)
             self.assertNotIn("`bluetape4k/mock-web-server` | `1.13.0`", source)
             self.assertNotIn("`bluetape4k/mock-webflux-server` | `1.13.0`", source)
+
+    def test_jdk_baseline_is_25_in_both_http_readmes(self) -> None:
+        for relative in HTTP_READMES:
+            content = read(relative)
+            self.assertIn("JDK 25", content, relative)
+            self.assertNotIn("JDK 21", content, relative)
 
     def test_readme_locales_share_the_migration_contract(self) -> None:
         english = block(read("README.md"))
