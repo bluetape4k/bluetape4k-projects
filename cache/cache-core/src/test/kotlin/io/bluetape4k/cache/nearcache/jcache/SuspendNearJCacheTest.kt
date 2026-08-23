@@ -1,20 +1,28 @@
 package io.bluetape4k.cache.nearcache.jcache
 
-import io.bluetape4k.cache.jcache.CaffeineSuspendJCache
-import io.bluetape4k.cache.jcache.SuspendJCache
-import io.bluetape4k.codec.encodeBase62
-import io.bluetape4k.junit5.coroutines.runSuspendIO
-import io.bluetape4k.junit5.faker.Fakers
-import io.bluetape4k.logging.coroutines.KLoggingChannel
-import kotlinx.coroutines.flow.count
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.toList
+import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeFalse
 import io.bluetape4k.assertions.shouldBeNull
 import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.assertions.shouldNotBeEmpty
 import io.bluetape4k.assertions.shouldNotBeNull
+import io.bluetape4k.cache.jcache.CaffeineSuspendJCache
+import io.bluetape4k.cache.jcache.SuspendJCache
+import io.bluetape4k.codec.encodeBase62
+import io.bluetape4k.junit5.coroutines.runSuspendIO
+import io.bluetape4k.junit5.faker.Fakers
+import io.bluetape4k.logging.coroutines.KLoggingChannel
+import io.mockk.coEvery
+import io.mockk.coVerify
+import io.mockk.just
+import io.mockk.mockk
+import io.mockk.runs
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.flow.count
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.toList
+import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.parallel.Execution
@@ -191,6 +199,37 @@ class SuspendNearJCacheTest {
     }
 
     @Test
+    fun `clearAll은 ordinary back failure를 기존처럼 관찰 후 완료한다`() = runTest {
+        val failure = IllegalStateException("back unavailable")
+        val frontCache = mockk<SuspendJCache<String, String>>(relaxed = true)
+        val backCache = mockk<SuspendJCache<String, String>>(relaxed = true)
+        coEvery { frontCache.clear() } just runs
+        coEvery { backCache.clear() } throws failure
+        val localNearCache = SuspendNearJCache.withoutListener(frontCache, backCache)
+
+        localNearCache.clearAll()
+
+        coVerify { frontCache.clear() }
+        coVerify { backCache.clear() }
+    }
+
+    @Test
+    fun `clearAll은 fatal back Error를 호출자에게 전달한다`() = runTest {
+        val failure = AssertionError("back cache is broken")
+        val frontCache = mockk<SuspendJCache<String, String>>(relaxed = true)
+        val backCache = mockk<SuspendJCache<String, String>>(relaxed = true)
+        coEvery { frontCache.clear() } just runs
+        coEvery { backCache.clear() } throws failure
+        val localNearCache = SuspendNearJCache.withoutListener(frontCache, backCache)
+
+        val thrown = assertFailsWith<AssertionError> { localNearCache.clearAll() }
+
+        (thrown === failure).shouldBeTrue()
+        coVerify { frontCache.clear() }
+        coVerify { backCache.clear() }
+    }
+
+    @Test
     fun `getAndPut - 이전 값을 반환하고 새 값을 저장한다`() = runSuspendIO {
         val key = randomKey()
         val value1 = randomValue()
@@ -313,5 +352,32 @@ class SuspendNearJCacheTest {
         nearCache.isClosed().shouldBeFalse()
         nearCache.close()
         nearCache.isClosed().shouldBeTrue()
+    }
+
+    @Test
+    fun `close는 ordinary front failure를 기존처럼 관찰 후 완료한다`() = runTest {
+        val failure = IllegalStateException("front unavailable")
+        val frontCache = mockk<SuspendJCache<String, String>>(relaxed = true)
+        val backCache = mockk<SuspendJCache<String, String>>(relaxed = true)
+        coEvery { frontCache.close() } throws failure
+        val localNearCache = SuspendNearJCache.withoutListener(frontCache, backCache)
+
+        localNearCache.close()
+
+        coVerify { frontCache.close() }
+    }
+
+    @Test
+    fun `close는 fatal front Error를 호출자에게 전달한다`() = runTest {
+        val failure = AssertionError("front cache is broken")
+        val frontCache = mockk<SuspendJCache<String, String>>(relaxed = true)
+        val backCache = mockk<SuspendJCache<String, String>>(relaxed = true)
+        coEvery { frontCache.close() } throws failure
+        val localNearCache = SuspendNearJCache.withoutListener(frontCache, backCache)
+
+        val thrown = assertFailsWith<AssertionError> { localNearCache.close() }
+
+        (thrown === failure).shouldBeTrue()
+        coVerify { frontCache.close() }
     }
 }

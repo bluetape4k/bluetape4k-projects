@@ -13,7 +13,7 @@
 ## 특징
 
 - **Kotlin 확장 함수** — NATS Java 클라이언트를 코틀린 스타일로 사용
-- **코루틴 지원** — `suspend` 함수로 비동기 처리 (`requestSuspending`, `publishSuspending`, `drainSuspending`)
+- **코루틴 지원** — `suspend` 함수와 cold `Flow<Message>` 소비자 (`requestSuspending`, `publishSuspending`, `drainSuspending`)
 - **JetStream 지원** — 스트림 생성, 메시지 발행/구독, 소비자 관리
 - **NATS Service** — DSL 기반 마이크로서비스 엔드포인트 구축
 - **DSL 빌더** — Stream, Consumer, Key-Value, Object Store 설정을 위한 유창한 DSL
@@ -248,7 +248,93 @@ val consumerCtx2 = consumerContextOf(connection, "my-stream", consumerConfigurat
 })
 ```
 
-### 11. StreamInfoOptions
+### 11. Cold JetStream Consumer Flow
+
+`ConsumerContext.consumeAsFlow`는 pull consumer를 사용하고,
+`JetStream.consumeAsFlow`는 수집마다 동기식 push subscription을 생성합니다.
+두 Flow 모두 cold이므로 수집할 때마다 subscription과 정리 lifecycle이
+독립적으로 시작됩니다. adapter는 유한한 NATS 옵션과 `capacity + 1`개의
+message 보유 한계를 사용하며, NATS pending queue drop을
+`NatsConsumerFlowException`으로 보고합니다.
+
+```kotlin
+import io.bluetape4k.nats.client.*
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.take
+import kotlin.time.Duration.Companion.seconds
+
+val capacity = 32                   // 1..1024, adapter 보유 상한은 capacity + 1
+
+// Pull consumer: 수집이 취소되면 IterableConsumer를 닫습니다.
+consumerCtx.consumeAsFlow(capacity = capacity, receiveTimeout = 1.seconds)
+    .take(100)
+    .collect { message ->
+        process(message)
+        message.ack()                // 업무 처리가 성공한 뒤 수동 승인
+    }
+
+// Push subscription: drop 검출을 위해 유한한 client pending limit을 사용합니다.
+val pushOptions = pushSubscriptionOptions {
+    stream("my-stream")
+    pendingMessageLimit(1_024)
+    pendingByteLimit(16L * 1024 * 1024)
+}
+jetStream.consumeAsFlow(
+    subject = "events.>",
+    options = pushOptions,
+    capacity = capacity,
+    receiveTimeout = 1.seconds,
+).collect { message ->
+    process(message)
+    message.ack()
+}
+```
+
+adapter는 수동 ack만 지원하며 수집자를 대신해 `ack`, `nak`, `term`을 호출하지
+않습니다. 재시도 가능한 실패에는 `nak()`, poison message에는 `term()`을
+호출하도록 caller가 선택합니다. 승인하지 않은 message는 server consumer의 `ackWait`/`maxDeliver`
+정책에 따라 redelivery될 수 있으며, `maxAckPending`은 consumer에 별도로
+설정해야 합니다. `capacity`는 Flow 측 상한이며 NATS pending limit을 바꾸지
+않습니다. pending queue가 drop되면 조용히 계속하지 않고
+`NatsConsumerFlowException.droppedMessages`로 확인합니다. 같은 Flow 인스턴스를
+동시에 collect하면 거부되므로 필요한 경우 새 Flow 인스턴스를 만드십시오.
+
+adapter는 `capacity`를 `1..1024`, `receiveTimeout`을 유한한
+`100.milliseconds` 이상으로 검증합니다. Push options의
+`pendingMessageLimit`은 `1..65_536`, `pendingByteLimit`은 `1..64 MiB` 범위여야
+하며 기본값은 1,024개 message와 16 MiB입니다. Pull의 `batchBytes > 0`은
+consumer를 만들기 전에 거부하고, message batch는
+`min(originalBatchSize, capacity + 1)`로 정규화합니다. Adapter가 생성한
+subscription 또는 iterable consumer만 닫으며 `Connection`, `JetStream`,
+consumer 설정의 소유권은 caller에게 있습니다.
+
+실패 우선순위는 취소, receive/collector 실패, drop 또는 pending 상태
+read-back 실패, 관찰 가능한 cleanup 실패 순서입니다. 앞선 실패가 있으면
+cleanup 실패는 suppressed로 보존합니다. 순수 drop의 exception `cause`는
+`null`이고 pending 상태 read-back 실패는 원래 원인을
+`NatsConsumerFlowException`에 보존합니다.
+
+Push 측 message 총량 상한은 `pendingMessageLimit + capacity + 1`입니다. 즉,
+NATS pending queue, Flow buffer, receiver가 보유 중인 한 개 message를 합친
+값이며, `pendingByteLimit`은 NATS queue에 독립적으로 적용됩니다. Pull은
+`min(originalBatchSize, capacity + 1)` batch와 receiver가 보유하는 한 개
+message만 요청하므로 무제한 batch를 만들지 않습니다.
+
+Drop 또는 pending 상태 read-back 실패는 명시적으로 처리하십시오.
+
+```kotlin
+try {
+    jetStream.consumeAsFlow("events.>", pushOptions).collect { message ->
+        process(message)
+        message.ack()
+    }
+} catch (failure: NatsConsumerFlowException) {
+    log.error("NATS consumer Flow가 ${failure.droppedMessages}개 drop 후 종료되었습니다.", failure)
+    throw failure
+}
+```
+
+### 12. StreamInfoOptions
 
 ```kotlin
 import io.bluetape4k.nats.client.api.*
