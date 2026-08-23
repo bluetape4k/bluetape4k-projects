@@ -181,15 +181,20 @@ class AggregateKoverCoverageTest(unittest.TestCase):
         self.assertIn("'infra/nats'", workflow)
         self.assertIn("test-search-messaging, test-kafka-infra", workflow)
 
-    def test_ci_only_uploads_coveralls_after_successful_aggregation(self):
+    def test_ci_keeps_coveralls_out_of_path_filtered_coverage(self):
         workflow = CI_WORKFLOW.read_text(encoding="utf-8")
         self.assertIn("id: aggregate-coverage", workflow)
+        self.assertNotIn("coverallsapp/github-action@v2", workflow)
+
+    def test_nightly_uploads_coveralls_only_for_full_scope(self):
+        workflow = NIGHTLY_WORKFLOW.read_text(encoding="utf-8")
+        self.assertIn("name: Upload full-scope coverage to Coveralls", workflow)
+        self.assertIn("needs.plan.outputs.scope == 'full'", workflow)
+        self.assertIn("coverallsapp/github-action@v2", workflow)
+        self.assertIn("format: jacoco", workflow)
+        self.assertIn("! -path '*/nightly-coverage-testcontainers-*/*'", workflow)
         self.assertIn(
-            "if: ${{ steps.aggregate-coverage.outcome == 'success' && hashFiles('coverage-artifacts/**/reports/kover/report.xml') != '' }}",
-            workflow,
-        )
-        self.assertIn(
-            "if: ${{ steps.aggregate-coverage.outcome == 'success' && steps.coveralls-files.outcome == 'success' }}",
+            "if: ${{ needs.plan.outputs.scope == 'full' && steps.aggregate-coverage.outcome == 'success' && steps.full-coveralls-files.outcome == 'success' }}",
             workflow,
         )
 

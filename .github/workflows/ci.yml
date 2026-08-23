@@ -1216,26 +1216,6 @@ jobs:
           if-no-files-found: error
           retention-days: 14
 
-      - name: Prepare Coveralls file list
-        id: coveralls-files
-        if: ${{ steps.aggregate-coverage.outcome == 'success' && hashFiles('coverage-artifacts/**/reports/kover/report.xml') != '' }}
-        run: |
-          files=$(find coverage-artifacts -type f -path '*/reports/kover/report.xml' -print | sort | paste -sd ' ' -)
-          if [ -z "$files" ]; then
-            echo 'No Kover report files found for Coveralls.' >&2
-            exit 1
-          fi
-          echo "files=$files" >> "$GITHUB_OUTPUT"
-
-      - name: Upload coverage to Coveralls
-        if: ${{ steps.aggregate-coverage.outcome == 'success' && steps.coveralls-files.outcome == 'success' }}
-        uses: coverallsapp/github-action@v2
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          files: ${{ steps.coveralls-files.outputs.files }}
-          format: jacoco
-          fail-on-error: true
-
   # ── 9. 결과 집계 ──────────────────────────────────────────────────────────
   ci-status:
     name: CI Status

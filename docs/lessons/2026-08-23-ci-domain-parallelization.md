@@ -33,6 +33,11 @@ Daily CI는 이미 `dorny/paths-filter`로 `core`, `io`, `infra`, `data` 등 변
 - 각 도메인의 Testcontainers 사용 테스트는 유지하고, `mock-web-server`와
   `mock-webflux-server` 변경은 실제 소비자인 IO HTTP 도메인 테스트가 모두 받는다.
 - Nightly의 `full`·`testcontainers` scope와 release의 전체 image gate는 유지한다.
+- Daily coverage는 경로 필터로 선택된 부분 집계만 포함하므로 Coveralls 업로드를 하지
+  않는다. Daily의 Kover 집계와 fail-closed artifact 검증은 계속 유지한다.
+- Coveralls는 전체 저장소 범위를 보장하는 Nightly `full` scope에서만 업로드한다.
+  Testcontainers matrix shard의 동일 모듈 부분 report는 외부 비교 목록에서 제외하고,
+  로컬 Nightly aggregate에는 계속 포함한다.
 
 ## 결과
 
@@ -57,6 +62,13 @@ CI 자원을 사용하지 않게 했다. benchmark fixture와 지원 코드의 c
 Testcontainers 사용 테스트가 맡고, 전체 image family drift는 Nightly와 release gate가
 계속 검증한다.
 
+Coveralls 실패도 같은 범위 문제였다. PR `32640318114`의 Daily aggregate에는 45개
+Kover report가 있었고 custom aggregate는 `92.50%`였지만, `develop` 기준 실행
+`32632717769`는 path-filter 결과 2개 report만 업로드했다. 따라서 Coveralls가 서로 다른
+부분 집계를 저장소 전체 기준선으로 비교해 `Coverage decreased (-6.7%) to 81.715%`를
+보고했다. 이는 report 생성·업로드 실패가 아니라 외부 비교 범위가 불변하지 않았던
+계약 오류다.
+
 ## 검증
 
 - RED: 기존 workflow에서 12개 도메인 job이 `build`를 기다려 계약 테스트가 실패했다.
@@ -75,6 +87,13 @@ Testcontainers 사용 테스트가 맡고, 전체 image family drift는 Nightly�
   테스트가 통과했다.
 - Nightly의 `full`·`testcontainers` 전체 gate와 Testcontainers 본체·Spring bridge
   테스트가 유지되는지 계약으로 확인했다.
+- Coveralls 범위 계약은 Daily 업로드가 존재하는 상태에서 RED가 되었고, Daily 업로드
+  제거와 Nightly `full` 전용 업로드·Testcontainers shard 제외를 적용한 뒤 Kover 계약
+  테스트 26개, 도메인 CI 계약 테스트 12개, Kafka4/CSV coverage 검증, `actionlint`가
+  통과했다.
+- 수정 전 PR에서 GitHub Actions 자체는 모두 성공했고 Coveralls만 실패했으며, 현재
+  원인은 비동기 Coveralls 비교 범위로 재현했다. 새 head의 hosted CI에서 Daily에
+  `coverage/coveralls` status가 다시 생성되지 않는지 확인해야 한다.
 
 ## 놓친 점과 주의사항
 
@@ -87,6 +106,12 @@ Daily CI에서 image gate job이 `skipped`됐다는 결과는 image family cover
 검증했다는 뜻이 아니다. 이는 해당 diff가 별도 startup-workload 검증 대상이 아니라는
 트리거 판정의 증거이며, 전체 family coverage는 Nightly `full`·`testcontainers`와
 release gate의 성공으로 판단해야 한다.
+
+Daily Kover aggregate가 성공했다는 사실도 Coveralls 저장소 기준선과 동일한 범위를
+사용했다는 뜻이 아니다. path-filter CI에서는 외부 coverage publisher를 연결하지 말고,
+전체 범위가 보장되는 Nightly `full` 결과만 장기 기준선으로 사용해야 한다. Nightly
+matrix에 같은 모듈의 부분 report를 추가할 때는 Coveralls 입력에서 중복 shard를
+제외하거나 먼저 합치는 계약을 갱신한다.
 
 Manual Documentation은 Gradle module inventory와 `docs/manual/manifest.yaml`의
 모듈 목록도 대조한다. `bluetape4k-testcontainers-spring` 모듈이 추가된 뒤 manifest와
@@ -104,6 +129,8 @@ EN/KO manual이 함께 등록되지 않아, `build.gradle.kts` 변경만으로�
 - 도메인 job은 변경 감지와 공통 catalog 검증 뒤에 실행하고, 전체 `Build`와 병렬화한다.
 - 새 coverage job을 추가하면 `Coverage Report`의 `needs`, expected manifest, artifact
   계약을 같은 변경에서 갱신한다.
+- Coverage publisher는 invariant full-scope input에서만 실행한다. Daily처럼 선택된
+  도메인만 테스트하는 workflow에 Coveralls를 다시 연결하지 않는다.
 - 새 JUnit benchmark는 `@Tag("benchmark")`를 붙인다. CI나 Nightly에 benchmark를 다시
   포함하려면 일반 test에 섞지 말고 별도 opt-in workflow와 실행 예산을 둔다.
 - 새 Testcontainers image family나 gate 구현 파일을 추가하면 Daily image gate path
