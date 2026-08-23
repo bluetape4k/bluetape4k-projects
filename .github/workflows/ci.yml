@@ -149,6 +149,8 @@ jobs:
         run: ruby scripts/validate-ci-kafka4-coverage.rb
       - name: Validate Kover coverage aggregation
         run: python3 .github/scripts/test-aggregate-kover-coverage.py -v
+      - name: Validate CI domain dependency graph
+        run: python3 .github/scripts/test-ci-domain-parallelization.py -v
       - uses: dorny/paths-filter@v4
         id: filter
         with:
@@ -333,7 +335,7 @@ jobs:
     name: Test / Core
     runs-on: ubuntu-latest
     timeout-minutes: 10
-    needs: [build, changes]
+    needs: [changes, catalog-governance]
     if: ${{ needs.changes.outputs.core == 'true' || needs.changes.outputs.shared == 'true' || github.event_name == 'workflow_dispatch' }}
     steps:
       - uses: actions/checkout@v7
@@ -402,7 +404,7 @@ jobs:
     name: Test / IO
     runs-on: ubuntu-latest
     timeout-minutes: 10
-    needs: [build, changes]
+    needs: [changes, catalog-governance]
     if: ${{ needs.changes.outputs.io == 'true' || needs.changes.outputs.shared == 'true' || github.event_name == 'workflow_dispatch' }}
     steps:
       - uses: actions/checkout@v7
@@ -475,7 +477,7 @@ jobs:
     name: Test / IO HTTP
     runs-on: ubuntu-latest
     timeout-minutes: 15
-    needs: [build, changes]
+    needs: [changes, catalog-governance]
     if: ${{ needs.changes.outputs['io-http'] == 'true' || needs.changes.outputs.shared == 'true' || github.event_name == 'workflow_dispatch' }}
     steps:
       - uses: actions/checkout@v7
@@ -553,7 +555,7 @@ jobs:
     name: Test / Testcontainers Spring bridge
     runs-on: ubuntu-latest
     timeout-minutes: 10
-    needs: [build, changes]
+    needs: [changes, catalog-governance]
     if: ${{ needs.changes.outputs['testcontainers-spring'] == 'true' || needs.changes.outputs.shared == 'true' || github.event_name == 'workflow_dispatch' }}
     steps:
       - uses: actions/checkout@v7
@@ -599,7 +601,7 @@ jobs:
     name: Test / Testcontainers image startup-workload gate
     runs-on: ubuntu-latest
     timeout-minutes: 360
-    needs: [build, changes]
+    needs: [changes, catalog-governance]
     if: ${{ needs.changes.outputs['testcontainers-image-gate'] == 'true' || needs.changes.outputs.shared == 'true' || github.event_name == 'workflow_dispatch' }}
     steps:
       - uses: actions/checkout@v7
@@ -674,7 +676,7 @@ jobs:
     name: Test / Ktor
     runs-on: ubuntu-latest
     timeout-minutes: 10
-    needs: [build, changes]
+    needs: [changes, catalog-governance]
     if: ${{ needs.changes.outputs.ktor == 'true' || needs.changes.outputs.shared == 'true' || github.event_name == 'workflow_dispatch' }}
     steps:
       - uses: actions/checkout@v7
@@ -739,7 +741,7 @@ jobs:
     name: Test / Key Utils
     runs-on: ubuntu-latest
     timeout-minutes: 10
-    needs: [build, changes]
+    needs: [changes, catalog-governance]
     if: ${{ needs.changes.outputs['key-utils'] == 'true' || needs.changes.outputs.shared == 'true' || github.event_name == 'workflow_dispatch' }}
     steps:
       - uses: actions/checkout@v7
@@ -798,7 +800,7 @@ jobs:
     name: Test / Infra (Redis)
     runs-on: ubuntu-latest
     timeout-minutes: 10
-    needs: [build, changes]
+    needs: [changes, catalog-governance]
     if: ${{ needs.changes.outputs.infra == 'true' || needs.changes.outputs.shared == 'true' || github.event_name == 'workflow_dispatch' }}
     steps:
       - uses: actions/checkout@v7
@@ -881,7 +883,7 @@ jobs:
     name: Test / Search & Messaging
     runs-on: ubuntu-latest
     timeout-minutes: 20
-    needs: [build, changes]
+    needs: [changes, catalog-governance]
     if: ${{ needs.changes.outputs['search-messaging'] == 'true' || needs.changes.outputs.shared == 'true' || github.event_name == 'workflow_dispatch' }}
     steps:
       - uses: actions/checkout@v7
@@ -936,7 +938,7 @@ jobs:
     name: Test / Kafka Infra
     runs-on: ubuntu-latest
     timeout-minutes: 20
-    needs: [build, changes]
+    needs: [changes, catalog-governance]
     if: ${{ needs.changes.outputs['kafka-infra'] == 'true' || needs.changes.outputs.shared == 'true' || github.event_name == 'workflow_dispatch' }}
     steps:
       - uses: actions/checkout@v7
@@ -997,7 +999,7 @@ jobs:
     name: Test / Telemetry Infra
     runs-on: ubuntu-latest
     timeout-minutes: 20
-    needs: [build, changes]
+    needs: [changes, catalog-governance]
     if: ${{ needs.changes.outputs['telemetry-infra'] == 'true' || needs.changes.outputs.shared == 'true' || github.event_name == 'workflow_dispatch' }}
     steps:
       - uses: actions/checkout@v7
@@ -1058,7 +1060,7 @@ jobs:
     name: Test / Data
     runs-on: ubuntu-latest
     timeout-minutes: 75
-    needs: [build, changes]
+    needs: [changes, catalog-governance]
     if: ${{ needs.changes.outputs.data == 'true' || needs.changes.outputs.shared == 'true' || github.event_name == 'workflow_dispatch' }}
     steps:
       - uses: actions/checkout@v7
