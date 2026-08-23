@@ -4,6 +4,7 @@ import ch.qos.logback.classic.Level
 import ch.qos.logback.classic.Logger
 import ch.qos.logback.classic.spi.ILoggingEvent
 import ch.qos.logback.core.read.ListAppender
+import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.logging.coroutines.KLoggingChannel
@@ -39,6 +40,21 @@ class SuspendJCacheEntryEventListenerTest {
         every { event.eventType } returns eventType
         every { event.source } returns mockk(relaxed = true)
         return event
+    }
+
+    @Test
+    fun `maxInFlightCallbacks는 양수여야 한다`() = runTest {
+        val targetCache = mockk<SuspendJCache<String, String>>(relaxed = true)
+        every { targetCache.isClosed() } returns false
+        val listenerScope = CoroutineScope(coroutineContext + SupervisorJob())
+
+        assertFailsWith<IllegalArgumentException> {
+            SuspendJCacheEntryEventListener.forTest(
+                targetCache = targetCache,
+                scope = listenerScope,
+                maxInFlightCallbacks = 0,
+            )
+        }
     }
 
     @Test
@@ -188,16 +204,26 @@ class SuspendJCacheEntryEventListenerTest {
         val targetCache = mockk<SuspendJCache<String, String>>(relaxed = true)
         every { targetCache.isClosed() } returns false
         val started = CompletableDeferred<Unit>()
+        val secondStarted = CompletableDeferred<Unit>()
         val release = CompletableDeferred<Unit>()
         val cancellation = CancellationException("listener cancelled")
+        val invocationCount = AtomicInteger()
         coEvery { targetCache.putAll(any()) } coAnswers {
-            started.complete(Unit)
-            release.await()
+            if (invocationCount.incrementAndGet() == 1) {
+                started.complete(Unit)
+                release.await()
+            } else {
+                secondStarted.complete(Unit)
+            }
         }
 
         val listenerScope = CoroutineScope(coroutineContext + SupervisorJob())
         val listenerJob = listenerScope.coroutineContext[Job]!!
-        val listener = SuspendJCacheEntryEventListener.forTest(targetCache, listenerScope)
+        val listener = SuspendJCacheEntryEventListener.forTest(
+            targetCache,
+            listenerScope,
+            maxInFlightCallbacks = 1,
+        )
         listener.onCreated(mutableListOf(mockEvent("k7", "v7", EventType.CREATED)))
         runCurrent()
         started.await()
@@ -208,6 +234,12 @@ class SuspendJCacheEntryEventListenerTest {
         child.join()
 
         child.isCancelled.shouldBeTrue()
+
+        listener.onCreated(mutableListOf(mockEvent("k7-second", "v7-second", EventType.CREATED)))
+        runCurrent()
+        secondStarted.await()
+        coVerify(exactly = 2) { targetCache.putAll(any()) }
+
         listener.close()
     }
 
@@ -237,14 +269,52 @@ class SuspendJCacheEntryEventListenerTest {
     }
 
     @Test
-    fun `close는 유한한 cooperative callback burst를 모두 취소한다`() = runTest {
-        val callbackCount = 1_000
+    fun `bounded admission은 callback job 수와 accepted operation 수를 제한한다`() = runTest {
+        val maxInFlight = 2
+        val callbackCount = 8
+        val targetCache = mockk<SuspendJCache<String, String>>(relaxed = true)
+        every { targetCache.isClosed() } returns false
+        val startedCount = AtomicInteger()
+        val allStarted = CompletableDeferred<Unit>()
+        val release = CompletableDeferred<Unit>()
+        coEvery { targetCache.putAll(any()) } coAnswers {
+            if (startedCount.incrementAndGet() == maxInFlight) {
+                allStarted.complete(Unit)
+            }
+            release.await()
+        }
+
+        val listenerScope = CoroutineScope(coroutineContext + SupervisorJob())
+        val listenerJob = listenerScope.coroutineContext[Job]!!
+        val listener = SuspendJCacheEntryEventListener.forTest(
+            targetCache,
+            listenerScope,
+            maxInFlightCallbacks = maxInFlight,
+        )
+        repeat(callbackCount) { index ->
+            listener.onCreated(mutableListOf(mockEvent("burst-$index", "value", EventType.CREATED)))
+        }
+        runCurrent()
+        allStarted.await()
+
+        listenerJob.children.toList().size.shouldBeEqualTo(maxInFlight)
+        release.complete(Unit)
+        runCurrent()
+
+        coVerify(exactly = maxInFlight) { targetCache.putAll(any()) }
+        listener.close()
+    }
+
+    @Test
+    fun `close는 bounded cooperative callback burst를 모두 취소한다`() = runTest {
+        val maxInFlight = 2
+        val callbackCount = 8
         val targetCache = mockk<SuspendJCache<String, String>>(relaxed = true)
         every { targetCache.isClosed() } returns false
         val startedCount = AtomicInteger()
         val allStarted = CompletableDeferred<Unit>()
         coEvery { targetCache.putAll(any()) } coAnswers {
-            if (startedCount.incrementAndGet() == callbackCount) {
+            if (startedCount.incrementAndGet() == maxInFlight) {
                 allStarted.complete(Unit)
             }
             awaitCancellation()
@@ -252,20 +322,163 @@ class SuspendJCacheEntryEventListenerTest {
 
         val listenerScope = CoroutineScope(coroutineContext + SupervisorJob())
         val listenerJob = listenerScope.coroutineContext[Job]!!
-        val listener = SuspendJCacheEntryEventListener.forTest(targetCache, listenerScope)
+        val listener = SuspendJCacheEntryEventListener.forTest(
+            targetCache,
+            listenerScope,
+            maxInFlightCallbacks = maxInFlight,
+        )
         repeat(callbackCount) { index ->
-            listener.onCreated(mutableListOf(mockEvent("burst-$index", "value", EventType.CREATED)))
+            listener.onCreated(mutableListOf(mockEvent("close-burst-$index", "value", EventType.CREATED)))
         }
         runCurrent()
         allStarted.await()
         val children = listenerJob.children.toList()
 
-        children.size.shouldBeEqualTo(callbackCount)
+        children.size.shouldBeEqualTo(maxInFlight)
         listener.close()
         runCurrent()
         children.joinAll()
 
         children.all { it.isCancelled }.shouldBeTrue()
+    }
+
+    @Test
+    fun `취소된 scope에서 시작되지 않은 lazy child도 permit을 반환한다`() = runTest {
+        val targetCache = mockk<SuspendJCache<String, String>>(relaxed = true)
+        every { targetCache.isClosed() } returns false
+        coEvery { targetCache.putAll(any()) } returns Unit
+
+        val logger = SuspendJCacheEntryEventListener.log as Logger
+        val previousLevel = logger.level
+        val appender = ListAppender<ILoggingEvent>().apply { start() }
+        logger.level = Level.DEBUG
+        logger.addAppender(appender)
+        val cancelledJob = SupervisorJob().apply { cancel() }
+        val listenerScope = CoroutineScope(coroutineContext + cancelledJob)
+        val listener = SuspendJCacheEntryEventListener.forTest(
+            targetCache,
+            listenerScope,
+            maxInFlightCallbacks = 1,
+        )
+        try {
+            listener.onCreated(mutableListOf(mockEvent("lazy-1", "value", EventType.CREATED)))
+            listener.onCreated(mutableListOf(mockEvent("lazy-2", "value", EventType.CREATED)))
+            runCurrent()
+
+            appender.list
+                .map { it.formattedMessage }
+                .count { it.contains("admission is full") }
+                .shouldBeEqualTo(0)
+            coVerify(exactly = 0) { targetCache.putAll(any()) }
+        } finally {
+            listener.close()
+            logger.detachAppender(appender)
+            appender.stop()
+            logger.level = previousLevel
+        }
+    }
+
+    @Test
+    fun `일반 예외는 sibling callback을 취소하지 않는다`() = runTest {
+        val targetCache = mockk<SuspendJCache<String, String>>(relaxed = true)
+        every { targetCache.isClosed() } returns false
+        val invocationCount = AtomicInteger()
+        val secondStarted = CompletableDeferred<Unit>()
+        coEvery { targetCache.putAll(any()) } coAnswers {
+            if (invocationCount.incrementAndGet() == 1) {
+                throw IllegalStateException("backend failure")
+            }
+            secondStarted.complete(Unit)
+        }
+
+        val logger = SuspendJCacheEntryEventListener.log as Logger
+        val previousLevel = logger.level
+        val appender = ListAppender<ILoggingEvent>().apply { start() }
+        logger.level = Level.ERROR
+        logger.addAppender(appender)
+        val listenerScope = CoroutineScope(coroutineContext + SupervisorJob())
+        val listenerJob = listenerScope.coroutineContext[Job]!!
+        val listener = SuspendJCacheEntryEventListener.forTest(
+            targetCache,
+            listenerScope,
+            maxInFlightCallbacks = 2,
+        )
+        try {
+            listener.onCreated(mutableListOf(mockEvent("exception-1", "value", EventType.CREATED)))
+            listener.onCreated(mutableListOf(mockEvent("exception-2", "value", EventType.CREATED)))
+            runCurrent()
+            secondStarted.await()
+
+            listenerJob.isActive.shouldBeTrue()
+            coVerify(exactly = 2) { targetCache.putAll(any()) }
+            val errorMessages = appender.list
+                .map { it.formattedMessage }
+                .filter { it.contains("Fail to put all created cache entries") }
+            errorMessages.isNotEmpty().shouldBeTrue()
+            errorMessages.all { it.contains("cache=") && !it.contains("backend failure") }.shouldBeTrue()
+        } finally {
+            listener.close()
+            logger.detachAppender(appender)
+            appender.stop()
+            logger.level = previousLevel
+        }
+    }
+
+    @Test
+    fun `admission overflow log에는 raw payload가 포함되지 않는다`() = runTest {
+        val secretKey = "overflow-secret-key"
+        val secretValue = "overflow-secret-value"
+        val secretSource = "overflow-secret-source"
+        val targetCache = mockk<SuspendJCache<String, String>>(relaxed = true)
+        every { targetCache.isClosed() } returns false
+        val started = CompletableDeferred<Unit>()
+        coEvery { targetCache.putAll(any()) } coAnswers {
+            started.complete(Unit)
+            awaitCancellation()
+        }
+        val overflowEvent = mockk<CacheEntryEvent<String, String>>()
+        val source = mockk<Cache<Any, Any>>()
+        every { overflowEvent.key } returns secretKey
+        every { overflowEvent.value } returns secretValue
+        every { overflowEvent.eventType } returns EventType.CREATED
+        every { source.toString() } returns secretSource
+        every { overflowEvent.source } returns source
+
+        val logger = SuspendJCacheEntryEventListener.log as Logger
+        val previousLevel = logger.level
+        val appender = ListAppender<ILoggingEvent>().apply { start() }
+        logger.level = Level.DEBUG
+        logger.addAppender(appender)
+        val listenerScope = CoroutineScope(coroutineContext + SupervisorJob())
+        val listener = SuspendJCacheEntryEventListener.forTest(
+            targetCache,
+            listenerScope,
+            maxInFlightCallbacks = 1,
+        )
+        try {
+            listener.onCreated(mutableListOf(mockEvent("first", "value", EventType.CREATED)))
+            runCurrent()
+            started.await()
+            listener.onCreated(mutableListOf(overflowEvent))
+            runCurrent()
+
+            val overflowMessages = appender.list
+                .map { it.formattedMessage }
+                .filter { it.contains("admission is full") }
+            overflowMessages.isNotEmpty().shouldBeTrue()
+            overflowMessages.all { message ->
+                message.contains("operation=put all created cache entries") &&
+                        !message.contains(secretKey) &&
+                        !message.contains(secretValue) &&
+                        !message.contains(secretSource)
+            }.shouldBeTrue()
+        } finally {
+            listener.close()
+            runCurrent()
+            logger.detachAppender(appender)
+            appender.stop()
+            logger.level = previousLevel
+        }
     }
 
     @Test
