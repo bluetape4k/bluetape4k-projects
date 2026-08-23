@@ -67,6 +67,11 @@ data class BackCacheWriteCompletion(
  * - **유연한 동기화**: 동기/비동기 모드 지원
  * - **자동 만료 감지**: 백그라운드 스레드로 Back Cache 만료 감지 및 Front Cache 갱신
  *
+ * 조건부 mutation인 `putIfAbsent`, `remove`, `remove(key, oldValue)`, `replace`는
+ * Back Cache의 원자 결과를 먼저 확정합니다. 성공한 경우에만 Front Cache를 반영하고,
+ * 조건 불충족 결과나 Front 보정 실패에서는 해당 key를 invalidate하여 stale 값을
+ * 반환하지 않습니다. Back 호출이 실패하면 Front mutation을 수행하지 않습니다.
+ *
  * ```kotlin
  * // Redis를 Back Cache로 사용하는 NearCache 생성
  * val nearCache = NearCache(
@@ -895,24 +900,15 @@ class NearJCache<K: Any, V: Any> private constructor(
     override fun putIfAbsent(key: K, value: V): Boolean {
         val recording = statisticsRecorder.current()
         val startedAt = recording.startTimeNanos()
-        val inserted = mutationGate.withLock {
-            frontCache.putIfAbsent(key, value).also { inserted ->
-                if (inserted) {
-                    mutationEpoch.incrementAndGet()
-                    syncBackCache(
-                        operation = "putIfAbsent",
-                        expectedBackWriteGeneration = backWriteGeneration.get(),
-                        selfEventMatcher = SelfEventMatcher(
-                            keys = setOf(key),
-                            eventTypes = setOf(EventType.CREATED),
-                            values = mapOf(key to value),
-                        ),
-                    ) {
-                        if (!backCache.containsKey(key)) {
-                            backCache.put(key, value)
-                        }
-                    }
-                }
+        val inserted = runBackFirstConditionalMutation(
+            operation = "putIfAbsent",
+            key = key,
+            backMutation = { backCache.putIfAbsent(key, value) },
+        ) { committed ->
+            if (committed) {
+                frontCache.put(key, value)
+            } else {
+                frontCache.remove(key)
             }
         }
         if (inserted) recording.recordPut(startedAt, 1L)
@@ -922,20 +918,12 @@ class NearJCache<K: Any, V: Any> private constructor(
     override fun remove(key: K): Boolean {
         val recording = statisticsRecorder.current()
         val startedAt = recording.startTimeNanos()
-        val removed = mutationGate.withLock {
-            frontCache.remove(key).also { removed ->
-                if (removed) {
-                    mutationEpoch.incrementAndGet()
-                    syncBackCache(
-                        operation = "remove",
-                        expectedBackWriteGeneration = backWriteGeneration.get(),
-                        selfEventMatcher = SelfEventMatcher(
-                            keys = setOf(key),
-                            eventTypes = setOf(EventType.REMOVED),
-                        ),
-                    ) { backCache.remove(key) }
-                }
-            }
+        val removed = runBackFirstConditionalMutation(
+            operation = "remove",
+            key = key,
+            backMutation = { backCache.remove(key) },
+        ) {
+            frontCache.remove(key)
         }
         if (removed) recording.recordRemove(startedAt, 1L)
         return removed
@@ -944,25 +932,12 @@ class NearJCache<K: Any, V: Any> private constructor(
     override fun remove(key: K, oldValue: V): Boolean {
         val recording = statisticsRecorder.current()
         val startedAt = recording.startTimeNanos()
-        val removed = mutationGate.withLock {
-            frontCache.remove(key, oldValue).also { removed ->
-                if (removed) {
-                    mutationEpoch.incrementAndGet()
-                    syncBackCache(
-                        operation = "remove(key, oldValue)",
-                        expectedBackWriteGeneration = backWriteGeneration.get(),
-                        selfEventMatcher = SelfEventMatcher(
-                            keys = setOf(key),
-                            eventTypes = setOf(EventType.REMOVED),
-                        ),
-                    ) {
-                        // Back cache listener 전파를 remove(key) 경로로 통일하기 위해 값 비교 후 단일 키 삭제를 사용한다.
-                        if (backCache.containsKey(key) && backCache.get(key) == oldValue) {
-                            backCache.remove(key)
-                        }
-                    }
-                }
-            }
+        val removed = runBackFirstConditionalMutation(
+            operation = "remove(key, oldValue)",
+            key = key,
+            backMutation = { backCache.remove(key, oldValue) },
+        ) {
+            frontCache.remove(key)
         }
         if (removed) recording.recordRemove(startedAt, 1L)
         return removed
@@ -1030,24 +1005,15 @@ class NearJCache<K: Any, V: Any> private constructor(
     override fun replace(key: K, oldValue: V, newValue: V): Boolean {
         val recording = statisticsRecorder.current()
         val startedAt = recording.startTimeNanos()
-        val replaced = mutationGate.withLock {
-            frontCache.replace(key, oldValue, newValue).also { replaced ->
-                if (replaced) {
-                    mutationEpoch.incrementAndGet()
-                    syncBackCache(
-                        operation = "replace(key, oldValue, newValue)",
-                        expectedBackWriteGeneration = backWriteGeneration.get(),
-                        selfEventMatcher = SelfEventMatcher(
-                            keys = setOf(key),
-                            eventTypes = setOf(EventType.UPDATED),
-                            values = mapOf(key to newValue),
-                        ),
-                    ) {
-                        if (backCache.containsKey(key) && backCache.get(key) == oldValue) {
-                            backCache.put(key, newValue)
-                        }
-                    }
-                }
+        val replaced = runBackFirstConditionalMutation(
+            operation = "replace(key, oldValue, newValue)",
+            key = key,
+            backMutation = { backCache.replace(key, oldValue, newValue) },
+        ) { committed ->
+            if (committed) {
+                frontCache.put(key, newValue)
+            } else {
+                frontCache.remove(key)
             }
         }
         if (replaced) recording.recordPut(startedAt, 1L)
@@ -1057,25 +1023,15 @@ class NearJCache<K: Any, V: Any> private constructor(
     override fun replace(key: K, value: V): Boolean {
         val recording = statisticsRecorder.current()
         val startedAt = recording.startTimeNanos()
-        val replaced = mutationGate.withLock {
-            frontCache.replace(key, value).also { replaced ->
-                if (replaced) {
-                    mutationEpoch.incrementAndGet()
-                    syncBackCache(
-                        operation = "replace",
-                        expectedBackWriteGeneration = backWriteGeneration.get(),
-                        selfEventMatcher = SelfEventMatcher(
-                            keys = setOf(key),
-                            eventTypes = setOf(EventType.UPDATED),
-                            values = mapOf(key to value),
-                        ),
-                    ) {
-                        // Redisson 에서는 replace 가 event 를 발생시키지 않습니다.
-                        if (backCache.containsKey(key)) {
-                            backCache.put(key, value)
-                        }
-                    }
-                }
+        val replaced = runBackFirstConditionalMutation(
+            operation = "replace",
+            key = key,
+            backMutation = { backCache.replace(key, value) },
+        ) { committed ->
+            if (committed) {
+                frontCache.put(key, value)
+            } else {
+                frontCache.remove(key)
             }
         }
         if (replaced) recording.recordPut(startedAt, 1L)
@@ -1254,6 +1210,44 @@ class NearJCache<K: Any, V: Any> private constructor(
         }
         @Suppress("UNCHECKED_CAST")
         return value as R
+    }
+
+    /**
+     * 조건부 mutation은 Back Cache의 원자 결과를 먼저 확정한 뒤 Front Cache를
+     * 보정합니다. Front 반영 중 예외가 발생하면 key를 invalidate하여 부분 반영을
+     * 숨기고, Back 호출이 실패한 경우에는 Front를 건드리지 않습니다.
+     */
+    private fun <R> runBackFirstConditionalMutation(
+        operation: String,
+        key: K,
+        backMutation: () -> R,
+        frontMutation: (R) -> Unit,
+    ): R = compoundGate.withLock {
+        mutationGate.withLock { mutationEpoch.incrementAndGet() }
+        val result = runCompoundBackCacheOperation(operation, backMutation)
+        mutationGate.withLock {
+            syncFrontAfterBack(
+                sync = { frontMutation(result) },
+                invalidate = { frontCache.remove(key) },
+            )
+        }
+        result
+    }
+
+    @Suppress("TooGenericExceptionCaught")
+    private fun syncFrontAfterBack(sync: () -> Unit, invalidate: () -> Unit) {
+        try {
+            sync()
+        } catch (failure: Throwable) {
+            try {
+                invalidate()
+            } catch (invalidateFailure: Throwable) {
+                if (invalidateFailure !== failure) {
+                    failure.addSuppressed(invalidateFailure)
+                }
+            }
+            throw failure
+        }
     }
 
     private fun recordCompoundGet(

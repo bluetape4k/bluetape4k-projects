@@ -196,8 +196,7 @@ class NearJCacheOperationStatisticsTest {
     @Test
     fun `putIfAbsent는 실제 삽입 성공만 put으로 기록한다`() {
         val fixture = statisticsEnabledFixture()
-        every { fixture.front.putIfAbsent("key", "value") } returnsMany listOf(true, false)
-        every { fixture.back.containsKey("key") } returns false
+        every { fixture.back.putIfAbsent("key", "value") } returnsMany listOf(true, false)
 
         fixture.cache.putIfAbsent("key", "value").shouldBeTrue()
         fixture.cache.putIfAbsent("key", "value") shouldBeEqualTo false
@@ -208,8 +207,8 @@ class NearJCacheOperationStatisticsTest {
     @Test
     fun `replace overload는 실제 교체 성공만 put으로 기록한다`() {
         val fixture = statisticsEnabledFixture()
-        every { fixture.front.replace("key", "value") } returnsMany listOf(true, false)
-        every { fixture.front.replace("key", "old", "new") } returnsMany listOf(true, false)
+        every { fixture.back.replace("key", "value") } returnsMany listOf(true, false)
+        every { fixture.back.replace("key", "old", "new") } returnsMany listOf(true, false)
 
         fixture.cache.replace("key", "value").shouldBeTrue()
         fixture.cache.replace("key", "value") shouldBeEqualTo false
@@ -222,8 +221,8 @@ class NearJCacheOperationStatisticsTest {
     @Test
     fun `remove overload는 실제 삭제 성공만 removal로 기록한다`() {
         val fixture = statisticsEnabledFixture()
-        every { fixture.front.remove("key") } returnsMany listOf(true, false)
-        every { fixture.front.remove("key", "old") } returnsMany listOf(true, false)
+        every { fixture.back.remove("key") } returnsMany listOf(true, false)
+        every { fixture.back.remove("key", "old") } returnsMany listOf(true, false)
 
         fixture.cache.remove("key").shouldBeTrue()
         fixture.cache.remove("key") shouldBeEqualTo false

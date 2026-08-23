@@ -154,6 +154,14 @@ local front를 조정합니다. 따라서 front를 먼저 읽고 back을 별도�
 왕복을 사용하지 않으며, back provider 실패 시 front를 변경하기 전에
 예외를 전달합니다.
 
+`putIfAbsent`, `remove`, `remove(key, oldValue)`, `replace`도 back provider의
+원자 조건부 연산을 먼저 수행하고 그 결과를 호출자에게 반환합니다.
+`isSynchronous=false`인 설정에서도 조건부 결과를 확정하기 위해 해당 back
+호출은 완료될 때까지 기다립니다. 성공하면 새 값을 front에 반영하고, 조건이
+충족되지 않으면 front key를 제거하여 stale 값을 남기지 않습니다. back 호출이
+실패하면 front를 변경하지 않으며, back commit 후 front 반영이 실패해도 front
+key를 invalidate한 뒤 원래 예외를 전달합니다.
+
 마지막 write-through의 operation ID·operation 이름·completion을 함께 상관관계로
 관찰하려면 `nearCache.lastBackCacheWrite`를 사용하세요. 이 값은 하나의 원자
 스냅숏이며 completion stage는 읽기 전용입니다. 기존
