@@ -37,6 +37,8 @@ import javax.cache.processor.MutableEntry
  * - 리소스 close 실패는 [CacheException]으로 호출자에게 전파하며, wrapper는 닫힌
  *   상태로 유지됩니다.
  * - 직렬화는 [codec]의 serializer로 처리하며, 기본값은 LZ4+Fory 기반 직렬화입니다.
+ * - [LettuceCacheConfig.lockLeaseSeconds]로 EntryProcessor 락 lease를 조정할 수 있으며,
+ *   lease 만료 후 도착한 stale commit은 원자적 소유권 검증에서 거부됩니다.
  */
 class LettuceJCache<K: Any, V: Any>(
     private val map: LettuceMap<ByteArray>,
@@ -58,6 +60,11 @@ class LettuceJCache<K: Any, V: Any>(
     private val listeners = ConcurrentHashMap<CacheEntryListenerConfiguration<K, V>, CacheEntryListener<K, V>>()
 
     private val ttlDuration: Duration? by lazy { ttlSeconds?.let(Duration::ofSeconds) }
+    private val lockLeaseDuration: Duration by lazy {
+        val leaseSeconds = (configuration as? LettuceCacheConfig<*, *>)?.lockLeaseSeconds
+            ?: LettuceCacheConfig.DEFAULT_LOCK_LEASE_SECONDS
+        Duration.ofSeconds(leaseSeconds)
+    }
 
     private fun checkNotClosed() {
         check(!closed.value) { "LettuceCache[$cacheName]가 이미 닫혀 있습니다." }
@@ -68,8 +75,17 @@ class LettuceJCache<K: Any, V: Any>(
      * EntryProcessor의 read-modify-write와 일반 쓰기가 서로 다른 Lettuce 연결에서
      * 실행되어도 같은 cacheName에 대해 직렬화되도록 호출마다 새 토큰을 사용합니다.
      */
-    private fun <R> withWriteLock(block: () -> R): R =
-        map.withDistributedLock(UUID.randomUUID().toString().toByteArray(), block = block)
+    private fun <R> withWriteLock(block: () -> R): R {
+        val token = UUID.randomUUID().toString().toByteArray()
+        return map.withDistributedLock(token, leaseTime = lockLeaseDuration, block = block)
+    }
+
+    private fun <R> withEntryProcessorLock(block: (ByteArray) -> R): R {
+        val token = UUID.randomUUID().toString().toByteArray()
+        return map.withDistributedLock(token, leaseTime = lockLeaseDuration) {
+            block(token)
+        }
+    }
 
     private fun encodeKey(key: K): String = keyCodec(key)
 
@@ -348,7 +364,7 @@ class LettuceJCache<K: Any, V: Any>(
         vararg arguments: Any?,
     ): T {
         checkNotClosed()
-        return withWriteLock {
+        return withEntryProcessorLock { token ->
             val field = encodeKey(key)
             val entry = MutableEntryImpl(key, field)
             val result = try {
@@ -356,7 +372,7 @@ class LettuceJCache<K: Any, V: Any>(
             } catch (e: Exception) {
                 throw EntryProcessorException(e)
             }
-            entry.commit()
+            entry.commit(token)
             result
         }
     }
@@ -465,17 +481,21 @@ class LettuceJCache<K: Any, V: Any>(
 
         override fun <T> unwrap(clazz: Class<T>): T = clazz.cast(this)
 
-        fun commit() {
+        fun commit(token: ByteArray) {
             ensureLoaded()
             when {
                 removeRequested && exists -> {
-                    val removed = map.remove(field) > 0L
-                    if (removed) dispatchEvent(EventType.REMOVED, key, null)
+                    check(map.removeIfLockOwned(field, token)) {
+                        "LettuceCache[$cacheName] EntryProcessor commit을 적용할 때 분산 락 소유권을 잃었습니다."
+                    }
+                    dispatchEvent(EventType.REMOVED, key, null)
                 }
                 removeRequested -> Unit
                 updatedValue != null      -> {
                     val value = updatedValue ?: return
-                    putTtl(field, encodeValue(value))
+                    check(map.putTtlIfLockOwned(field, encodeValue(value), ttlDuration, token)) {
+                        "LettuceCache[$cacheName] EntryProcessor commit을 적용할 때 분산 락 소유권을 잃었습니다."
+                    }
                     val eventType = if (exists) EventType.UPDATED else EventType.CREATED
                     dispatchEvent(eventType, key, value)
                 }

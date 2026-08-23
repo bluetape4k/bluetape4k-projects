@@ -203,6 +203,18 @@ class LettuceMapTest: AbstractLettuceTest() {
     }
 
     @Test
+    fun `락 소유권 검증 쓰기는 소유 토큰이 일치할 때만 커밋`() {
+        map.put("field", "before")
+
+        map.withDistributedLock("owner") {
+            map.putTtlIfLockOwned("field", "updated", ttl = null, token = "owner").shouldBeTrue()
+            map.putTtlIfLockOwned("field", "stale", ttl = null, token = "other").shouldBeFalse()
+        }
+
+        map.get("field") shouldBeEqualTo "updated"
+    }
+
+    @Test
     fun `putAll - 빈 맵은 무시`() {
         map.putAll(emptyMap())
         map.isEmpty().shouldBeTrue()

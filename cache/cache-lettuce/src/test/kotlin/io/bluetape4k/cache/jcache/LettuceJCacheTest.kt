@@ -10,6 +10,7 @@ import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeFalse
 import io.bluetape4k.assertions.shouldBeNull
 import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.assertions.shouldBeInstanceOf
 import io.bluetape4k.assertions.shouldNotBeNull
 import org.awaitility.kotlin.await
 import org.junit.jupiter.api.AfterEach
@@ -20,6 +21,8 @@ import io.bluetape4k.assertions.assertFailsWith
 import java.net.URI
 import java.util.*
 import java.util.concurrent.CopyOnWriteArrayList
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.Executors
 import java.util.concurrent.atomic.AtomicInteger
 import java.util.concurrent.TimeUnit
 import javax.cache.CacheException
@@ -276,6 +279,62 @@ class LettuceJCacheTest {
     }
 
     @Test
+    fun `invoke rejects stale commit after lease expiry and lock handoff`() {
+        val mapName = "invoke-lease-expiry-" + UUID.randomUUID().toString().take(8)
+        val first = standaloneCache(mapName, lockLeaseSeconds = 1)
+        val second = standaloneCache(mapName, lockLeaseSeconds = 1)
+        val processorEntered = CountDownLatch(1)
+        val releaseProcessor = CountDownLatch(1)
+        val executor = Executors.newSingleThreadExecutor()
+        val lockKey = "$mapName:__bluetape4k:lock"
+
+        try {
+            first.put("counter", 0)
+            val firstInvocation = executor.submit<Throwable?> {
+                try {
+                    first.invoke(
+                        "counter",
+                        EntryProcessor<String, Int, Int> { entry: MutableEntry<String, Int>, _: Array<out Any?> ->
+                            processorEntered.countDown()
+                            check(releaseProcessor.await(5, TimeUnit.SECONDS))
+                            entry.setValue(1)
+                            1
+                        }
+                    )
+                    null
+                } catch (error: Throwable) {
+                    error
+                }
+            }
+
+            check(processorEntered.await(5, TimeUnit.SECONDS))
+            await.atMost(5, TimeUnit.SECONDS).until {
+                RedisServers.redisClient.connect(StringCodec.UTF8).use { connection ->
+                    connection.sync().exists(lockKey) == 0L
+                }
+            }
+
+            second.invoke(
+                "counter",
+                EntryProcessor<String, Int, Int> { entry: MutableEntry<String, Int>, _: Array<out Any?> ->
+                    entry.setValue(2)
+                    2
+                }
+            ) shouldBeEqualTo 2
+
+            releaseProcessor.countDown()
+            firstInvocation.get(5, TimeUnit.SECONDS).shouldBeInstanceOf<IllegalStateException>()
+            first.get("counter") shouldBeEqualTo 2
+        } finally {
+            releaseProcessor.countDown()
+            executor.shutdownNow()
+            runCatching { first.clear() }
+            runCatching { first.close() }
+            runCatching { second.close() }
+        }
+    }
+
+    @Test
     fun `invoke exception does not commit a partial entry update`() {
         cache.put("key1", "original")
 
@@ -351,10 +410,16 @@ class LettuceJCacheTest {
         }
     }
 
-    private fun standaloneCache(mapName: String): LettuceJCache<String, Int> {
+    private fun standaloneCache(
+        mapName: String,
+        lockLeaseSeconds: Long = LettuceCacheConfig.DEFAULT_LOCK_LEASE_SECONDS,
+    ): LettuceJCache<String, Int> {
         val connection = RedisServers.redisClient.connect(LettuceCacheManager.STRING_BYTES_CODEC)
         val map = LettuceMap<ByteArray>(connection, mapName)
-        val configuration = lettuceCacheConfigOf<String, Int>(codec = LettuceBinaryCodecs.lz4Fory<Int>())
+        val configuration = lettuceCacheConfigOf<String, Int>(
+            codec = LettuceBinaryCodecs.lz4Fory<Int>(),
+            lockLeaseSeconds = lockLeaseSeconds,
+        )
         return LettuceJCache(
             map = map,
             codec = LettuceBinaryCodecs.lz4Fory<Int>(),

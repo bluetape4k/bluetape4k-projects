@@ -303,6 +303,77 @@ open class LettuceMap<V: Any>(
         return blockResult.getOrThrow()
     }
 
+    /**
+     * 현재 분산 락 토큰을 보유한 경우에만 필드를 쓰기 트랜잭션으로 갱신합니다.
+     *
+     * `WATCH/MULTI/EXEC`로 락 키를 감시하므로 소유권을 확인한 뒤 lease가 만료되거나
+     * 다른 호출자가 락을 인수하면 트랜잭션 전체가 취소됩니다. 따라서 lease 만료 후
+     * 이전 호출자가 늦게 도착해 stale 값을 기록하는 것을 막을 수 있습니다.
+     *
+     * @param field 설정할 필드명
+     * @param value 설정할 값
+     * @param ttl 적용할 Hash key TTL (null이면 TTL 없음)
+     * @param token 현재 분산 락 소유 토큰
+     * @return 트랜잭션이 커밋되었으면 true, 락 소유권이 없거나 변경되었으면 false
+     */
+    fun putTtlIfLockOwned(field: String, value: V, ttl: Duration?, token: V): Boolean =
+        executeIfLockOwned(token) {
+            if (ttl == null) {
+                syncCommands.hset(mapKey, field, value)
+            } else if (supportsHSetEx) {
+                syncCommands.hsetex(mapKey, HSetExArgs.Builder.ex(ttl), mapOf(field to value))
+            } else {
+                syncCommands.hset(mapKey, field, value)
+                syncCommands.expire(mapKey, ttl)
+            }
+        }
+
+    /**
+     * 현재 분산 락 토큰을 보유한 경우에만 필드를 삭제합니다.
+     *
+     * @param field 삭제할 필드명
+     * @param token 현재 분산 락 소유 토큰
+     * @return 트랜잭션이 커밋되었으면 true, 락 소유권이 없거나 변경되었으면 false
+     */
+    fun removeIfLockOwned(field: String, token: V): Boolean =
+        executeIfLockOwned(token) {
+            syncCommands.hdel(mapKey, field)
+        }
+
+    @Suppress("TooGenericExceptionCaught")
+    private fun executeIfLockOwned(token: V, block: () -> Unit): Boolean {
+        val lockKey = "$mapKey$LOCK_SUFFIX"
+        var transactionStarted = false
+        syncCommands.watch(lockKey)
+        return try {
+            if (!lockTokenMatches(syncCommands.get(lockKey), token)) return false
+            syncCommands.multi()
+            transactionStarted = true
+            block()
+            commitWatchedTransaction()
+        } catch (error: Exception) {
+            if (transactionStarted) runCatching { syncCommands.discard() }
+            throw error
+        } finally {
+            runCatching { syncCommands.unwatch() }
+        }
+    }
+
+    private fun commitWatchedTransaction(): Boolean {
+        val result = syncCommands.exec()
+        if (result.wasDiscarded()) return false
+        result.forEach { outcome ->
+            if (outcome is Throwable) throw outcome
+        }
+        return true
+    }
+
+    private fun lockTokenMatches(actual: V?, expected: V): Boolean =
+        when {
+            actual is ByteArray && expected is ByteArray -> actual.contentEquals(expected)
+            else -> actual == expected
+        }
+
     private fun releaseDistributedLock(lockKey: String, token: V) {
         val released = syncCommands.eval<Long>(
             RELEASE_LOCK_SCRIPT,

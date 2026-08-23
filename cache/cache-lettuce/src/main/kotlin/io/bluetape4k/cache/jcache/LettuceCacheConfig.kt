@@ -17,6 +17,11 @@ import javax.cache.configuration.MutableConfiguration
  * - Redis 7 이하에서는 `HSET/HMSET + EXPIRE` fallback 경로를 사용합니다.
  * - `null`이면 만료를 사용하지 않습니다.
  *
+ * ## EntryProcessor 락 lease 계약
+ * - [lockLeaseSeconds]는 EntryProcessor read-modify-write 락의 lease(초)입니다.
+ * - lease 만료 뒤 늦게 도착한 commit은 원자적 소유권 검증에서 거부됩니다.
+ * - 기본값은 60초이며, 긴 processor는 캐시별로 충분히 큰 값을 지정해야 합니다.
+ *
  * ```kotlin
  * val config = lettuceCacheConfigOf<String, String>(ttlSeconds = 300)
  * // config.ttlSeconds == 300L
@@ -34,6 +39,18 @@ class LettuceCacheConfig<K: Any, V: Any>(
     keyType: Class<K>,
     valueType: Class<V>,
 ): MutableConfiguration<K, V>() {
+    companion object {
+        /** EntryProcessor 분산 락 lease 기본값(초)입니다. */
+        const val DEFAULT_LOCK_LEASE_SECONDS: Long = 60L
+    }
+
+    /** EntryProcessor 분산 락 lease(초)입니다. 양수만 허용합니다. */
+    var lockLeaseSeconds: Long = DEFAULT_LOCK_LEASE_SECONDS
+        set(value) {
+            require(value > 0) { "lockLeaseSeconds는 양수여야 합니다." }
+            field = value
+        }
+
     init {
         setTypes(keyType, valueType)
     }
@@ -55,11 +72,14 @@ inline fun <reified K: Any, reified V: Any> lettuceCacheConfigOf(
     noinline keyCodec: ((K) -> String)? = null,
     noinline keyDecoder: ((String) -> K)? = null,
     codec: LettuceBinaryCodec<*> = LettuceBinaryCodecs.lz4Fory<Any>(),
-): LettuceCacheConfig<K, V> = LettuceCacheConfig(
+    lockLeaseSeconds: Long = LettuceCacheConfig.DEFAULT_LOCK_LEASE_SECONDS,
+): LettuceCacheConfig<K, V> = LettuceCacheConfig<K, V>(
     ttlSeconds = ttlSeconds,
     keyCodec = keyCodec,
     keyDecoder = keyDecoder,
     codec = codec,
     keyType = K::class.java,
     valueType = V::class.java,
-)
+).apply {
+    this.lockLeaseSeconds = lockLeaseSeconds
+}
