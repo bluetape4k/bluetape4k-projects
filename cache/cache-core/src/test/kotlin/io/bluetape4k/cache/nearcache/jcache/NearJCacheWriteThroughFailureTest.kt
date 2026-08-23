@@ -52,9 +52,7 @@ class NearJCacheWriteThroughFailureTest {
     fun `동기 putIfAbsent는 back cache 실패를 전달한다`() {
         val frontCache = mockk<JCache<String, String>>(relaxed = true)
         val backCache = mockk<JCache<String, String>>(relaxed = true)
-        every { frontCache.putIfAbsent("key", "value") } returns true
-        every { backCache.containsKey("key") } returns false
-        every { backCache.put("key", "value") } throws failure
+        every { backCache.putIfAbsent("key", "value") } throws failure
 
         val nearCache = newNearCache(frontCache, backCache)
 
@@ -81,10 +79,7 @@ class NearJCacheWriteThroughFailureTest {
     fun `동기 조건부 remove는 back cache 실패를 전달한다`() {
         val frontCache = mockk<JCache<String, String>>(relaxed = true)
         val backCache = mockk<JCache<String, String>>(relaxed = true)
-        every { frontCache.remove("key", "old") } returns true
-        every { backCache.containsKey("key") } returns true
-        every { backCache.get("key") } returns "old"
-        every { backCache.remove("key") } throws failure
+        every { backCache.remove("key", "old") } throws failure
 
         val nearCache = newNearCache(frontCache, backCache)
 
@@ -97,9 +92,7 @@ class NearJCacheWriteThroughFailureTest {
     fun `동기 replace는 back cache 실패를 전달한다`() {
         val frontCache = mockk<JCache<String, String>>(relaxed = true)
         val backCache = mockk<JCache<String, String>>(relaxed = true)
-        every { frontCache.replace("key", "value") } returns true
-        every { backCache.containsKey("key") } returns true
-        every { backCache.put("key", "value") } throws failure
+        every { backCache.replace("key", "value") } throws failure
 
         val nearCache = newNearCache(frontCache, backCache)
 
@@ -112,10 +105,7 @@ class NearJCacheWriteThroughFailureTest {
     fun `동기 조건부 replace는 back cache 실패를 전달한다`() {
         val frontCache = mockk<JCache<String, String>>(relaxed = true)
         val backCache = mockk<JCache<String, String>>(relaxed = true)
-        every { frontCache.replace("key", "old", "new") } returns true
-        every { backCache.containsKey("key") } returns true
-        every { backCache.get("key") } returns "old"
-        every { backCache.put("key", "new") } throws failure
+        every { backCache.replace("key", "old", "new") } throws failure
 
         val nearCache = newNearCache(frontCache, backCache)
 

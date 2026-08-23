@@ -109,6 +109,15 @@ provider's atomic compound operation and then reconcile the local front cache;
 they do not implement a front-read/back-write round trip. A provider failure is
 propagated before the front cache is changed.
 
+`putIfAbsent`, `remove`, `remove(key, oldValue)`, and both `replace` overloads
+also execute the back provider's atomic conditional operation first and return
+that back result. Even when `isSynchronous=false`, the back call is awaited so
+the blocking API can return the logical result. A successful result reconciles
+the new value into the front cache; a condition miss removes the front key so
+stale data is not retained. A back failure leaves the front untouched, while a
+front reconciliation failure after a back commit invalidates the key and
+rethrows the original exception.
+
 Use `nearCache.lastBackCacheWrite` when correlating the latest write-through
 operation ID, operation name, and completion. It is one atomic observation
 snapshot, and its completion stage is read-only. The legacy

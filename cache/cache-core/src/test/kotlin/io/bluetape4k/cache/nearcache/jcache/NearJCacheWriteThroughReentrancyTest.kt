@@ -65,13 +65,10 @@ class NearJCacheWriteThroughReentrancyTest {
     private fun testPutIfAbsent() {
         runInlineListenerOperation(
             operation = "putIfAbsent",
-            configureFront = { frontCache ->
-                every { frontCache.putIfAbsent("key", "value") } returns true
-            },
             configureBack = { backCache, fire ->
-                every { backCache.containsKey("key") } returns false
-                every { backCache.put("key", "value") } answers {
+                every { backCache.putIfAbsent("key", "value") } answers {
                     fire(EventType.CREATED)
+                    true
                 }
             },
             invoke = { it.putIfAbsent("key", "value") },
@@ -103,13 +100,10 @@ class NearJCacheWriteThroughReentrancyTest {
     private fun testReplace() {
         runInlineListenerOperation(
             operation = "replace",
-            configureFront = { frontCache ->
-                every { frontCache.replace("key", "value") } returns true
-            },
             configureBack = { backCache, fire ->
-                every { backCache.containsKey("key") } returns true
-                every { backCache.put("key", "value") } answers {
+                every { backCache.replace("key", "value") } answers {
                     fire(EventType.UPDATED)
+                    true
                 }
             },
             invoke = { it.replace("key", "value") },
