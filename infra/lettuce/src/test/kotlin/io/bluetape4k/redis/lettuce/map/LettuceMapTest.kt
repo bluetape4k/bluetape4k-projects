@@ -326,6 +326,28 @@ class LettuceMapTest: AbstractLettuceTest() {
     }
 
     @Test
+    fun `락 소유권 검증 트랜잭션 결과의 Redis 오류를 전파하고 discard`() {
+        val commands = mockk<RedisCommands<String, String>>(relaxed = true)
+        val mockedConnection = mockk<StatefulRedisConnection<String, String>>()
+        val transaction = mockk<TransactionResult>()
+        val redisError = IllegalStateException("트랜잭션 명령 실패")
+        every { mockedConnection.sync() } returns commands
+        every { commands.get("mock-map:__bluetape4k:lock") } returns "owner"
+        every { transaction.wasDiscarded() } returns false
+        every { transaction.iterator() } returns mutableListOf<Any>(redisError).iterator()
+        every { commands.exec() } returns transaction
+
+        val error = assertFailsWith<IllegalStateException> {
+            LettuceMap(mockedConnection, "mock-map")
+                .putTtlIfLockOwned("field", "value", ttl = null, token = "owner")
+        }
+
+        error shouldBeEqualTo redisError
+        verify(exactly = 1) { commands.discard() }
+        verify(exactly = 1) { commands.unwatch() }
+    }
+
+    @Test
     fun `putAll - 빈 맵은 무시`() {
         map.putAll(emptyMap())
         map.isEmpty().shouldBeTrue()
