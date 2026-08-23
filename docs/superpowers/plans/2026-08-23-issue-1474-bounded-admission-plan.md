@@ -146,7 +146,16 @@ module, dependency, registration, or container behavior changes.
   This proves `finally { admission.release() }` rather than only checking a job
   status.
 
-- [ ] **Step 4: Add ordinary-exception sibling isolation.**
+- [ ] **Step 4: Prove the lazy close-before-start permit release.**
+
+  Create the listener with a cancelled `SupervisorJob` in its scope and
+  `maxInFlightCallbacks = 1`. Submit two callbacks while capturing the
+  sanitized overflow logger. Both lazy jobs must fail to start, neither backend
+  operation may run, and the second submission must not emit an admission-full
+  log. This deterministically exercises the `job.start() == false` branch and
+  proves that the caller-side release does not strand the permit.
+
+- [ ] **Step 5: Add ordinary-exception sibling isolation.**
 
   Configure `maxInFlightCallbacks = 2`. Make the first `putAll` throw a regular
   `IllegalStateException` and the second `putAll` complete a deferred. Submit
@@ -155,7 +164,7 @@ module, dependency, registration, or container behavior changes.
   operation and sanitized cache id. This preserves the existing broad-exception
   isolation contract while the semaphore permit is returned.
 
-- [ ] **Step 5: Add deterministic close and overflow-redaction cases.**
+- [ ] **Step 6: Add deterministic close and overflow-redaction cases.**
 
   - Use `maxInFlightCallbacks = 2`, eight `awaitCancellation()` callbacks, and
     a barrier that completes after two callbacks start. Assert the listener job
@@ -170,7 +179,7 @@ module, dependency, registration, or container behavior changes.
   The RED result must either lack an overflow log or show the old unbounded
   second child; no timing sleeps are allowed.
 
-- [ ] **Step 6: Run only the new tests to verify RED.**
+- [ ] **Step 7: Run only the new tests to verify RED.**
 
   Run from the implementation worktree:
 
