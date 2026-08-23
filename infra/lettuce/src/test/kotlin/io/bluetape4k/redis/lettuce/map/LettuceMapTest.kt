@@ -4,6 +4,10 @@ import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.redis.lettuce.AbstractLettuceTest
 import io.bluetape4k.redis.lettuce.LettuceClients
 import io.bluetape4k.redis.lettuce.LettuceTestUtils
+import io.lettuce.core.HSetExArgs
+import io.lettuce.core.TransactionResult
+import io.lettuce.core.api.StatefulRedisConnection
+import io.lettuce.core.api.sync.RedisCommands
 import io.lettuce.core.codec.StringCodec
 import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
@@ -13,6 +17,9 @@ import io.bluetape4k.assertions.shouldBeNull
 import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.assertions.shouldContainAll
 import io.bluetape4k.assertions.shouldHaveSize
+import io.mockk.every
+import io.mockk.mockk
+import io.mockk.verify
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -212,6 +219,74 @@ class LettuceMapTest: AbstractLettuceTest() {
         }
 
         map.get("field") shouldBeEqualTo "updated"
+    }
+
+    @Test
+    fun `락 소유권 검증 쓰기는 fallback TTL과 삭제를 원자적으로 적용`() {
+        map.withDistributedLock("owner") {
+            map.putTtlIfLockOwned(
+                field = "field",
+                value = "updated",
+                ttl = Duration.ofSeconds(30),
+                token = "owner",
+            ).shouldBeTrue()
+            connection.sync().ttl(map.mapKey) shouldBeGreaterThan 0L
+            map.removeIfLockOwned("field", "owner").shouldBeTrue()
+        }
+
+        map.get("field").shouldBeNull()
+    }
+
+    @Test
+    fun `락 소유권 검증 트랜잭션은 Redis 명령 실패 후 discard`() {
+        connection.sync().set(map.mapKey, "wrong-type")
+
+        try {
+            assertFailsWith<Exception> {
+                map.withDistributedLock("owner") {
+                    map.putTtlIfLockOwned("field", "value", ttl = null, token = "owner")
+                }
+            }
+        } finally {
+            connection.sync().del(map.mapKey)
+        }
+    }
+
+    @Test
+    fun `락 소유권 검증 쓰기는 HSETEX 지원 경로를 커밋`() {
+        val commands = mockk<RedisCommands<String, String>>(relaxed = true)
+        val mockedConnection = mockk<StatefulRedisConnection<String, String>>()
+        val transaction = mockk<TransactionResult>()
+        every { mockedConnection.sync() } returns commands
+        every { commands.get("mock-map:__bluetape4k:lock") } returns "owner"
+        every { transaction.wasDiscarded() } returns false
+        every { transaction.iterator() } returns mutableListOf<Any>().iterator()
+        every { commands.exec() } returns transaction
+
+        val hsetExMap = LettuceMap(mockedConnection, "mock-map", supportsHSetEx = true)
+
+        hsetExMap.putTtlIfLockOwned("field", "value", Duration.ofSeconds(30), "owner")
+            .shouldBeTrue()
+
+        verify(exactly = 1) {
+            commands.hsetex("mock-map", any<HSetExArgs>(), mapOf("field" to "value"))
+        }
+    }
+
+    @Test
+    fun `락 소유권 검증 쓰기는 WATCH 변경으로 discard된 트랜잭션을 거부`() {
+        val commands = mockk<RedisCommands<String, String>>(relaxed = true)
+        val mockedConnection = mockk<StatefulRedisConnection<String, String>>()
+        val transaction = mockk<TransactionResult>()
+        every { mockedConnection.sync() } returns commands
+        every { commands.get("mock-map:__bluetape4k:lock") } returns "owner"
+        every { transaction.wasDiscarded() } returns true
+        every { commands.exec() } returns transaction
+
+        val watchedMap = LettuceMap(mockedConnection, "mock-map")
+
+        watchedMap.putTtlIfLockOwned("field", "value", ttl = null, token = "owner")
+            .shouldBeFalse()
     }
 
     @Test
