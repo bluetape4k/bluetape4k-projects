@@ -171,15 +171,17 @@ Testcontainers `2.0.3` 기반 통합 테스트를 빠르게 구성하기 위한 
 manifest는 고정 image/tag와 Kotlin wrapper, 대표 테스트 클래스, readiness 계약,
 workload 증거, 진단 명령을 연결합니다.
 
-동일한 실행기를 PR CI, Nightly, 안정 버전 배포 workflow에서 사용합니다. 선택된
-family는 `max-parallel: 1`로 순차 실행하고 `success`, `product_failure`,
+동일한 실행기를 전체 Nightly와 안정 버전 배포 workflow에서 사용합니다. PR은
+저비용 JVM·모듈 검증을 유지하고 Docker 기반 family gate는 전체 Nightly/배포
+경로로 한정합니다. 선택된 family는 `max-parallel: 1`로 순차 실행하고
+`success`, `product_failure`,
 `infrastructure_failure`, `blocked`로 분류하며 `summary.json`, `summary.md`,
 family별 JSON을 남깁니다. 안정 버전 배포는 `52/52`, `release_gate=true`,
 모든 실패 분류 0을 요구합니다. Docker Hub 인증과 mirror 설정은 환경변수 또는
 CI secret으로만 전달하며, 증거에는 credential을 기록하지 않습니다.
 
 <!-- TESTCONTAINERS_IMAGE_GATE_COMMAND_START -->
-저장소 루트에서 변경 family gate를 실행합니다.
+특정 변경을 조사할 때 저장소 루트에서 대상 family gate를 실행합니다.
 
 ```bash
 python3 scripts/run_testcontainers_image_gate.py \

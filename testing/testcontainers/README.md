@@ -167,8 +167,10 @@ The 52 Docker-backed server families are declared in
 The manifest links each pinned image/tag to its Kotlin wrapper, representative
 test class, readiness contract, workload evidence, and diagnostic commands.
 
-The same runner is used by pull-request CI, Nightly, and the stable release
-workflow. It executes the selected families sequentially (`max-parallel: 1`),
+The same runner is used by the full Nightly and stable release workflows. Pull
+requests keep their low-cost JVM and module checks; the Docker-backed family
+gate is intentionally reserved for the full Nightly/release path. The runner
+executes the selected families sequentially (`max-parallel: 1`),
 records `success`, `product_failure`, `infrastructure_failure`, or `blocked`,
 and writes `summary.json`, `summary.md`, and one JSON file per family. Stable
 publication requires `52/52`, `release_gate=true`, and zero failure-classification
@@ -176,7 +178,8 @@ counts. Docker Hub authentication and mirror settings are supplied through
 environment variables or CI secrets; credentials are redacted from evidence.
 
 <!-- TESTCONTAINERS_IMAGE_GATE_COMMAND_START -->
-Run the changed-family gate from the repository root:
+Run a targeted local family gate from the repository root when investigating a
+specific change:
 
 ```bash
 python3 scripts/run_testcontainers_image_gate.py \

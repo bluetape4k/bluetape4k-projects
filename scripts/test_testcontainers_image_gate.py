@@ -59,20 +59,19 @@ class TestTestcontainersImageGate(unittest.TestCase):
             " ".join(validate_manifest(invalid, self.root)),
         )
 
-    def test_ci_workflow_runs_changed_gate_and_uploads_evidence(self) -> None:
+    def test_ci_workflow_excludes_image_gate(self) -> None:
         workflow = (self.root / ".github/workflows/ci.yml").read_text(encoding="utf-8")
-        self.assertIn("testcontainers-image-gate:", workflow)
-        self.assertIn("--scope changed", workflow)
-        self.assertIn("--changed-path-file", workflow)
-        self.assertIn("build/reports/testcontainers-image-gate/", workflow)
-        self.assertIn("testcontainers-image-gate, test-ktor", workflow)
+        self.assertNotIn("testcontainers-image-gate", workflow)
+        self.assertIn("test-testcontainers-spring:", workflow)
 
-    def test_nightly_runs_full_gate_sequentially_before_spring_bridge(self) -> None:
+    def test_nightly_runs_full_gate_only_before_spring_bridge(self) -> None:
         workflow = (self.root / ".github/workflows/nightly-tests.yml").read_text(encoding="utf-8")
         self.assertIn("test-testcontainers-image-gate:", workflow)
+        self.assertIn("if: ${{ needs.plan.outputs.scope == 'full' }}", workflow)
         self.assertIn("--scope full", workflow)
         self.assertIn("TESTCONTAINERS_IMAGE_GATE_MAX_PARALLEL: '1'", workflow)
         self.assertIn("needs: [test-testcontainers, test-testcontainers-image-gate, plan]", workflow)
+        self.assertIn("needs.test-testcontainers-image-gate.result == 'skipped'", workflow)
         self.assertIn("- test-testcontainers-image-gate", workflow)
 
     def test_release_publish_depends_on_full_gate_summary(self) -> None:
