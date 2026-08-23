@@ -27,6 +27,7 @@ concurrency:
 env:
   JAVA_VERSION: '25'
   JAVA_DISTRIBUTION: 'temurin'
+  ORG_GRADLE_PROJECT_excludeBenchmarks: 'true'
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: 'true'
 
 jobs:
@@ -303,12 +304,15 @@ jobs:
           gradle-version: wrapper
           cache-read-only: false
 
-      - name: Build (compile only, excluding examples)
+      - name: Build (compile only, excluding examples and benchmarks)
         shell: bash
         run: |
           set -euo pipefail
 
           excluded_tasks=(
+            -x :protobuf-codec-benchmark:build
+            -x :serializer-benchmark:build
+            -x :web-framework-benchmark:build
             -x :bluetape4k-examples-coroutines-demo:build
             -x :bluetape4k-examples-jpa-blazepersistence-demo:build
             -x :bluetape4k-examples-jpa-querydsl-demo:build
@@ -1376,6 +1380,7 @@ jobs:
           merge-multiple: false
 
       - name: Aggregate Kover coverage summary
+        id: aggregate-coverage
         if: always()
         env:
           COVERAGE_DOWNLOAD_OUTCOME: ${{ steps.download-coverage.outcome }}
@@ -1400,6 +1405,37 @@ jobs:
           path: coverage-artifacts/
           if-no-files-found: error
           retention-days: 14
+
+      # Daily CI intentionally aggregates only changed domains. Keep that
+      # local, fail-closed summary separate from Coveralls' repository-wide
+      # comparison and publish external coverage only from the full scope.
+      - name: Prepare full-scope Coveralls file list
+        id: full-coveralls-files
+        if: ${{ needs.plan.outputs.scope == 'full' && steps.aggregate-coverage.outcome == 'success' && hashFiles('coverage-artifacts/**/reports/kover/report.xml') != '' }}
+        run: |
+          # Testcontainers matrix shards emit partial reports for the same
+          # module. The aggregate above still consumes every shard, but those
+          # duplicate partial files must not be compared as a repository-wide
+          # Coveralls baseline.
+          files=$(find coverage-artifacts \
+            -type f \
+            -path '*/reports/kover/report.xml' \
+            ! -path '*/nightly-coverage-testcontainers-*/*' \
+            -print | sort | paste -sd ' ' -)
+          if [ -z "$files" ]; then
+            echo 'No full-scope Kover report files found for Coveralls.' >&2
+            exit 1
+          fi
+          echo "files=$files" >> "$GITHUB_OUTPUT"
+
+      - name: Upload full-scope coverage to Coveralls
+        if: ${{ needs.plan.outputs.scope == 'full' && steps.aggregate-coverage.outcome == 'success' && steps.full-coveralls-files.outcome == 'success' }}
+        uses: coverallsapp/github-action@v2
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          files: ${{ steps.full-coveralls-files.outputs.files }}
+          format: jacoco
+          fail-on-error: true
 
   # ── 결과 집계 ─────────────────────────────────────────────────────────────
   nightly-status:

@@ -13,6 +13,7 @@ import io.bluetape4k.assertions.shouldBeGreaterThan
 import org.redisson.client.codec.StringCodec
 import org.junit.jupiter.api.MethodOrderer
 import org.junit.jupiter.api.Order
+import org.junit.jupiter.api.Tag
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestMethodOrder
 import java.io.File
@@ -25,6 +26,7 @@ import kotlin.system.measureTimeMillis
  * 결과는 .omc/self-improve-redisson/state/benchmark_last.json 에 기록됩니다.
  */
 @TestMethodOrder(MethodOrderer.OrderAnnotation::class)
+@Tag("benchmark")
 class RedissonConcurrencyBenchmark {
 
     companion object: KLogging() {

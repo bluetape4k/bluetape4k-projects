@@ -41,6 +41,7 @@ concurrency:
 env:
   JAVA_VERSION: '25'
   JAVA_DISTRIBUTION: 'temurin'
+  ORG_GRADLE_PROJECT_excludeBenchmarks: 'true'
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: 'true'
   BLUETAPE4K_DEPENDENCIES_CATALOG_REF: '91f9ea9336b5ea991f5675323a1cf25ccfd6f5ed'
   GITLEAKS_VERSION: 'v8.30.1'
@@ -149,6 +150,8 @@ jobs:
         run: ruby scripts/validate-ci-kafka4-coverage.rb
       - name: Validate Kover coverage aggregation
         run: python3 .github/scripts/test-aggregate-kover-coverage.py -v
+      - name: Validate CI domain dependency graph
+        run: python3 .github/scripts/test-ci-domain-parallelization.py -v
       - uses: dorny/paths-filter@v4
         id: filter
         with:
@@ -184,6 +187,7 @@ jobs:
               - 'io/retrofit2/**'
               - 'io/vertx/**'
               - 'testing/mock-web-server/**'
+              - 'testing/mock-webflux-server/**'
             testcontainers-spring:
               - 'testing/testcontainers/**'
               - 'testing/testcontainers-spring/**'
@@ -191,13 +195,7 @@ jobs:
               - 'testing/testcontainers/**'
               - 'scripts/testcontainers_image_gate_manifest.json'
               - 'scripts/testcontainers_image_gate.py'
-              - 'scripts/test_testcontainers_contract.py'
-              - 'scripts/test_testcontainers_image_gate.py'
               - 'scripts/run_testcontainers_image_gate.py'
-              - 'scripts/test_run_testcontainers_image_gate.py'
-              - '.github/workflows/ci.yml'
-              - '.github/workflows/nightly-tests.yml'
-              - '.github/workflows/release.yml'
             ktor:
               - 'ktor/**'
             key-utils:
@@ -309,7 +307,11 @@ jobs:
       - name: Build (compile only)
         run: |
           for attempt in 1 2 3; do
-            ./gradlew build -x test --parallel && break
+            ./gradlew build -x test \
+              -x :protobuf-codec-benchmark:build \
+              -x :serializer-benchmark:build \
+              -x :web-framework-benchmark:build \
+              --parallel && break
             echo "Attempt $attempt failed"
             [ $attempt -lt 3 ] && sleep 10 || exit 1
           done
@@ -333,7 +335,7 @@ jobs:
     name: Test / Core
     runs-on: ubuntu-latest
     timeout-minutes: 10
-    needs: [build, changes]
+    needs: [changes, catalog-governance]
     if: ${{ needs.changes.outputs.core == 'true' || needs.changes.outputs.shared == 'true' || github.event_name == 'workflow_dispatch' }}
     steps:
       - uses: actions/checkout@v7
@@ -402,7 +404,7 @@ jobs:
     name: Test / IO
     runs-on: ubuntu-latest
     timeout-minutes: 10
-    needs: [build, changes]
+    needs: [changes, catalog-governance]
     if: ${{ needs.changes.outputs.io == 'true' || needs.changes.outputs.shared == 'true' || github.event_name == 'workflow_dispatch' }}
     steps:
       - uses: actions/checkout@v7
@@ -475,7 +477,7 @@ jobs:
     name: Test / IO HTTP
     runs-on: ubuntu-latest
     timeout-minutes: 15
-    needs: [build, changes]
+    needs: [changes, catalog-governance]
     if: ${{ needs.changes.outputs['io-http'] == 'true' || needs.changes.outputs.shared == 'true' || github.event_name == 'workflow_dispatch' }}
     steps:
       - uses: actions/checkout@v7
@@ -553,7 +555,7 @@ jobs:
     name: Test / Testcontainers Spring bridge
     runs-on: ubuntu-latest
     timeout-minutes: 10
-    needs: [build, changes]
+    needs: [changes, catalog-governance]
     if: ${{ needs.changes.outputs['testcontainers-spring'] == 'true' || needs.changes.outputs.shared == 'true' || github.event_name == 'workflow_dispatch' }}
     steps:
       - uses: actions/checkout@v7
@@ -594,13 +596,13 @@ jobs:
           if-no-files-found: error
           retention-days: 30
 
-  # ── 4-d. 변경 Testcontainers image family startup/workload gate ──────────
+  # ── 4-d. 관련 변경 Testcontainers image family startup/workload gate ─────
   testcontainers-image-gate:
     name: Test / Testcontainers image startup-workload gate
     runs-on: ubuntu-latest
     timeout-minutes: 360
-    needs: [build, changes]
-    if: ${{ needs.changes.outputs['testcontainers-image-gate'] == 'true' || needs.changes.outputs.shared == 'true' || github.event_name == 'workflow_dispatch' }}
+    needs: [changes, catalog-governance]
+    if: ${{ needs.changes.outputs['testcontainers-image-gate'] == 'true' || github.event_name == 'workflow_dispatch' }}
     steps:
       - uses: actions/checkout@v7
         with:
@@ -674,7 +676,7 @@ jobs:
     name: Test / Ktor
     runs-on: ubuntu-latest
     timeout-minutes: 10
-    needs: [build, changes]
+    needs: [changes, catalog-governance]
     if: ${{ needs.changes.outputs.ktor == 'true' || needs.changes.outputs.shared == 'true' || github.event_name == 'workflow_dispatch' }}
     steps:
       - uses: actions/checkout@v7
@@ -739,7 +741,7 @@ jobs:
     name: Test / Key Utils
     runs-on: ubuntu-latest
     timeout-minutes: 10
-    needs: [build, changes]
+    needs: [changes, catalog-governance]
     if: ${{ needs.changes.outputs['key-utils'] == 'true' || needs.changes.outputs.shared == 'true' || github.event_name == 'workflow_dispatch' }}
     steps:
       - uses: actions/checkout@v7
@@ -798,7 +800,7 @@ jobs:
     name: Test / Infra (Redis)
     runs-on: ubuntu-latest
     timeout-minutes: 10
-    needs: [build, changes]
+    needs: [changes, catalog-governance]
     if: ${{ needs.changes.outputs.infra == 'true' || needs.changes.outputs.shared == 'true' || github.event_name == 'workflow_dispatch' }}
     steps:
       - uses: actions/checkout@v7
@@ -881,7 +883,7 @@ jobs:
     name: Test / Search & Messaging
     runs-on: ubuntu-latest
     timeout-minutes: 20
-    needs: [build, changes]
+    needs: [changes, catalog-governance]
     if: ${{ needs.changes.outputs['search-messaging'] == 'true' || needs.changes.outputs.shared == 'true' || github.event_name == 'workflow_dispatch' }}
     steps:
       - uses: actions/checkout@v7
@@ -936,7 +938,7 @@ jobs:
     name: Test / Kafka Infra
     runs-on: ubuntu-latest
     timeout-minutes: 20
-    needs: [build, changes]
+    needs: [changes, catalog-governance]
     if: ${{ needs.changes.outputs['kafka-infra'] == 'true' || needs.changes.outputs.shared == 'true' || github.event_name == 'workflow_dispatch' }}
     steps:
       - uses: actions/checkout@v7
@@ -997,7 +999,7 @@ jobs:
     name: Test / Telemetry Infra
     runs-on: ubuntu-latest
     timeout-minutes: 20
-    needs: [build, changes]
+    needs: [changes, catalog-governance]
     if: ${{ needs.changes.outputs['telemetry-infra'] == 'true' || needs.changes.outputs.shared == 'true' || github.event_name == 'workflow_dispatch' }}
     steps:
       - uses: actions/checkout@v7
@@ -1058,7 +1060,7 @@ jobs:
     name: Test / Data
     runs-on: ubuntu-latest
     timeout-minutes: 75
-    needs: [build, changes]
+    needs: [changes, catalog-governance]
     if: ${{ needs.changes.outputs.data == 'true' || needs.changes.outputs.shared == 'true' || github.event_name == 'workflow_dispatch' }}
     steps:
       - uses: actions/checkout@v7
@@ -1213,26 +1215,6 @@ jobs:
           path: coverage-artifacts/
           if-no-files-found: error
           retention-days: 14
-
-      - name: Prepare Coveralls file list
-        id: coveralls-files
-        if: ${{ steps.aggregate-coverage.outcome == 'success' && hashFiles('coverage-artifacts/**/reports/kover/report.xml') != '' }}
-        run: |
-          files=$(find coverage-artifacts -type f -path '*/reports/kover/report.xml' -print | sort | paste -sd ' ' -)
-          if [ -z "$files" ]; then
-            echo 'No Kover report files found for Coveralls.' >&2
-            exit 1
-          fi
-          echo "files=$files" >> "$GITHUB_OUTPUT"
-
-      - name: Upload coverage to Coveralls
-        if: ${{ steps.aggregate-coverage.outcome == 'success' && steps.coveralls-files.outcome == 'success' }}
-        uses: coverallsapp/github-action@v2
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          files: ${{ steps.coveralls-files.outputs.files }}
-          format: jacoco
-          fail-on-error: true
 
   # ── 9. 결과 집계 ──────────────────────────────────────────────────────────
   ci-status:
