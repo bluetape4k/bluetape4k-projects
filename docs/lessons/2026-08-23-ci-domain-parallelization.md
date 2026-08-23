@@ -88,6 +88,12 @@ Daily CI에서 image gate job이 `skipped`됐다는 결과는 image family cover
 트리거 판정의 증거이며, 전체 family coverage는 Nightly `full`·`testcontainers`와
 release gate의 성공으로 판단해야 한다.
 
+Manual Documentation은 Gradle module inventory와 `docs/manual/manifest.yaml`의
+모듈 목록도 대조한다. `bluetape4k-testcontainers-spring` 모듈이 추가된 뒤 manifest와
+EN/KO manual이 함께 등록되지 않아, `build.gradle.kts` 변경만으로도 이 계약이 실패했다.
+새 모듈을 추가할 때는 `manifest.yaml`, 생성된 manifest JSON, 양쪽 locale 문서를
+같은 변경에서 갱신하고 `exportManualModuleInventory`와 매뉴얼 검증을 실행한다.
+
 전체 `Build`가 일찍 실패해도 이미 시작한 도메인 테스트는 계속 실행될 수 있어 실패한
 실행의 runner 사용량은 늘 수 있다. 성공 경로의 직렬 대기를 제거하고 독립된 실패 증거를
 함께 수집하기 위한 의도적인 절충이며, `CI Status`는 어느 한쪽 실패도 성공으로 바꾸지 않는다.
@@ -108,11 +114,12 @@ release gate의 성공으로 판단해야 한다.
 
 ## 문서 SPW 감사
 
-- SPW-01: PASS — 대상 독자는 CI 유지보수자이고, 근거는 현재 `ci.yml`, 계약 테스트,
-  최근 Actions 실행이다.
-- SPW-02: PASS — 배경, 결정, 결과, 검증, 놓친 점, 향후 가드를 기록했다.
+- SPW-01: PASS — 대상 독자는 CI 유지보수자이고, 근거는 현재 `ci.yml`, Manual
+  Documentation 실행, `testcontainers-spring` README·소스·테스트다.
+- SPW-02: PASS — 배경, 결정, 결과, 검증, 매뉴얼 manifest 보수, 놓친 점, 향후 가드를
+  기록했다.
 - SPW-03: PASS — 식별자와 명령을 보존하고 한국어 기술 문장으로 작성했다.
-- SPW-04: PASS — 의존 그래프와 coverage fail-closed 계약을 workflow 및 테스트와
-  대조했다.
-- SPW-05: PASS — 최종 diff와 Markdown을 다시 읽어 구조, 링크, 식별자, 검증 범위를
-  확인했다.
+- SPW-04: PASS — 의존 그래프, coverage fail-closed 계약, Gradle inventory와 manual
+  manifest 정렬을 workflow·검증기·소스와 대조했다.
+- SPW-05: PASS — 최종 diff와 EN/KO Markdown을 다시 읽고 매뉴얼 계약·링크·식별자·검증
+  범위를 확인했다.

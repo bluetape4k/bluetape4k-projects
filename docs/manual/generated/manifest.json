@@ -2569,6 +2569,31 @@
       ]
     },
     {
+      "artifact": "io.github.bluetape4k:bluetape4k-testcontainers-spring",
+      "en": "en/modules/bluetape4k-testcontainers-spring.md",
+      "gradlePath": ":bluetape4k-testcontainers-spring",
+      "group": "testing",
+      "id": "bluetape4k-testcontainers-spring",
+      "kind": "library",
+      "ko": "ko/modules/bluetape4k-testcontainers-spring.md",
+      "learningOrder": 1150,
+      "sourceDir": "testing/testcontainers-spring",
+      "sourcePaths": [
+        "testing/testcontainers-spring/src/main/kotlin"
+      ],
+      "testPaths": [
+        "testing/testcontainers-spring/src/test/kotlin",
+        "testing/testcontainers-spring/src/test/resources"
+      ],
+      "title": {
+        "en": "Spring Testcontainers Property Bridge",
+        "ko": "Spring Testcontainers 프로퍼티 브리지"
+      },
+      "workshops": [
+
+      ]
+    },
+    {
       "artifact": "io.github.bluetape4k:bluetape4k-tink",
       "en": "en/modules/bluetape4k-tink.md",
       "gradlePath": ":bluetape4k-tink",

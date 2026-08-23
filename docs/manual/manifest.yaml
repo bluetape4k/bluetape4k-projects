@@ -1795,6 +1795,24 @@ modules:
   - testing/testcontainers/src/test/kotlin
   - testing/testcontainers/src/test/resources
   workshops: []
+- id: bluetape4k-testcontainers-spring
+  title:
+    en: "Spring Testcontainers Property Bridge"
+    ko: "Spring Testcontainers 프로퍼티 브리지"
+  learningOrder: 1150
+  gradlePath: ":bluetape4k-testcontainers-spring"
+  sourceDir: testing/testcontainers-spring
+  kind: library
+  group: testing
+  artifact: io.github.bluetape4k:bluetape4k-testcontainers-spring
+  en: en/modules/bluetape4k-testcontainers-spring.md
+  ko: ko/modules/bluetape4k-testcontainers-spring.md
+  sourcePaths:
+  - testing/testcontainers-spring/src/main/kotlin
+  testPaths:
+  - testing/testcontainers-spring/src/test/kotlin
+  - testing/testcontainers-spring/src/test/resources
+  workshops: []
 - id: bluetape4k-tink
   title:
     en: "Google Tink Cryptography"
