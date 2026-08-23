@@ -141,7 +141,7 @@ class MiniStackKMSTest: AbstractMiniStackServiceTest() {
 
     @Test
     @Order(9)
-    @Disabled("MiniStack v1.4.14 미지원: RevokeGrant — create grant가 비활성화되어 grantId 없음")
+    @Disabled("MiniStack v1.4.14 미지원: RevokeGrant (Unknown action 400) — create grant가 비활성화되어 grantId 없음")
     fun `revoke grant`() {
         val response = kmsClient.revokeGrant { it.keyId(keyId).grantId(grantId) }
         response.sdkHttpResponse().isSuccessful.shouldBeTrue()

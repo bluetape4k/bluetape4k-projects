@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Validate the Testcontainers image-tag and documentation contract."""
+"""Validate the Testcontainers source/documentation parity contract."""
 
 from __future__ import annotations
 
@@ -7,15 +7,17 @@ import re
 import unittest
 from pathlib import Path
 
-from scripts.testcontainers_image_gate import load_manifest, validate_manifest
-
-
 ROOT = Path(__file__).resolve().parents[1]
 KOTLIN_ROOT = ROOT / "testing/testcontainers/src/main/kotlin"
 README_EN = ROOT / "testing/testcontainers/README.md"
 README_KO = ROOT / "testing/testcontainers/README.ko.md"
 MINISTACK_SOURCE = KOTLIN_ROOT / "io/bluetape4k/testcontainers/aws/MiniStackServer.kt"
-HTTP_READMES = (ROOT / "io/http/README.md", ROOT / "io/http/README.ko.md")
+MINISTACK_KMS_TEST = (
+    ROOT
+    / "testing/testcontainers/src/test/kotlin"
+    / "io/bluetape4k/testcontainers/aws/ministack/services/MiniStackKMSTest.kt"
+)
+CI_WORKFLOW = ROOT / ".github/workflows/ci.yml"
 
 
 def read(path: Path) -> str:
@@ -117,11 +119,61 @@ class TestTestcontainersContract(unittest.TestCase):
                         stale.append(f"{name}: literal tag {value!r}")
         self.assertEqual([], stale, "stale KDoc tag literals: " + "; ".join(stale))
 
-    def test_jdk_baseline_is_25_in_both_http_readmes(self) -> None:
-        for path in HTTP_READMES:
+    def test_markdown_changes_run_the_contract_job(self) -> None:
+        workflow = read(CI_WORKFLOW)
+        self.assertIn("jvm-release-contract:", workflow)
+        self.assertIn("scripts/test_testcontainers_contract.py", workflow)
+
+        event_pattern = re.compile(
+            r"^  (?P<event>push|pull_request):\n"
+            r"(?P<body>.*?)(?=^  (?:push|pull_request|workflow_dispatch):|^concurrency:)",
+            re.MULTILINE | re.DOTALL,
+        )
+        events = {
+            match.group("event"): match.group("body")
+            for match in event_pattern.finditer(workflow)
+        }
+        self.assertEqual({"push", "pull_request"}, set(events))
+        for event, body in events.items():
+            self.assertNotIn("**.md", body, f"README changes are ignored for {event}")
+
+    def test_kdoc_defaults_reference_bounded_images_and_architecture_tags(self) -> None:
+        mysql = read(KOTLIN_ROOT / "io/bluetape4k/testcontainers/database/MySQL5Server.kt")
+        self.assertRegex(mysql, r"@param\s+image\s+docker image \(기본: \[IMAGE\]\)")
+        self.assertNotIn("(기본: `mysql`)", mysql)
+
+        ignite = read(KOTLIN_ROOT / "io/bluetape4k/testcontainers/storage/Ignite2Server.kt")
+        self.assertIn("withTag(DEFAULT_TAG)", ignite)
+        self.assertIn("tag = DEFAULT_TAG", ignite)
+        self.assertRegex(ignite, r"@param\s+tag\s+Docker 이미지 태그.*\[DEFAULT_TAG\]")
+        self.assertNotIn("withTag(TAG)", ignite)
+        self.assertNotIn("tag = TAG", ignite)
+
+        for path in (README_EN, README_KO):
             content = read(path)
-            self.assertIn("JDK 25", content, path.as_posix())
-            self.assertNotIn("JDK 21", content, path.as_posix())
+            self.assertIn("Ignite2Server", content, path.as_posix())
+            self.assertIn("2.18.0", content, path.as_posix())
+            self.assertIn("-arm64", content, path.as_posix())
+
+    def test_ministack_disabled_inventory_matches_pinned_tag_and_known_errors(self) -> None:
+        source = read(MINISTACK_KMS_TEST)
+        pinned_tag = str(self.sources["MiniStackServer"]["tag"])
+        entries = {
+            match.group("action"): match.group("reason")
+            for match in re.finditer(
+                rf'@Disabled\("(?P<reason>MiniStack v{re.escape(pinned_tag)} 미지원: (?P<action>[A-Za-z]+)[^"]*)"\)',
+                source,
+            )
+        }
+        expected = {
+            "CreateGrant": "create grant",
+            "ListGrants": "list grants",
+            "RevokeGrant": "revoke grant",
+        }
+        self.assertEqual(set(expected), set(entries))
+        for action, test_name in expected.items():
+            self.assertIn("Unknown action 400", entries[action])
+            self.assertIn(f"fun `{test_name}`", source)
 
     def test_ministack_grant_limitation_is_explicit(self) -> None:
         source = read(MINISTACK_SOURCE)
@@ -138,11 +190,6 @@ class TestTestcontainersContract(unittest.TestCase):
                 self.assertIn("not supported", content)
             else:
                 self.assertIn("지원하지 않", content)
-
-    def test_image_gate_manifest_matches_this_contract(self) -> None:
-        manifest = load_manifest(ROOT / "scripts/testcontainers_image_gate_manifest.json")
-        self.assertEqual([], validate_manifest(manifest, ROOT))
-
 
 if __name__ == "__main__":
     result = unittest.main(verbosity=2, exit=False)
