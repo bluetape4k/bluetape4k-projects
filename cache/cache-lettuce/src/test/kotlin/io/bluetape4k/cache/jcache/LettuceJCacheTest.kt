@@ -105,6 +105,13 @@ class LettuceJCacheTest {
     }
 
     @Test
+    fun `lock lease seconds must be positive`() {
+        assertFailsWith<IllegalArgumentException> {
+            lettuceCacheConfigOf<String, String>(lockLeaseSeconds = 0)
+        }
+    }
+
+    @Test
     fun `putIfAbsent applies ttl when configured`() {
         val ttlCache = manager.createCache(
             "ttl-cache-" + UUID.randomUUID().toString().take(8),

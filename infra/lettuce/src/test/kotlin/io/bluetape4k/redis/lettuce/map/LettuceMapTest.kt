@@ -274,6 +274,42 @@ class LettuceMapTest: AbstractLettuceTest() {
     }
 
     @Test
+    fun `락 소유권 검증은 ByteArray 토큰을 내용 기준으로 비교`() {
+        val commands = mockk<RedisCommands<String, ByteArray>>(relaxed = true)
+        val mockedConnection = mockk<StatefulRedisConnection<String, ByteArray>>()
+        val transaction = mockk<TransactionResult>()
+        val token = "owner".toByteArray()
+
+        every { mockedConnection.sync() } returns commands
+        every { commands.get("mock-map:__bluetape4k:lock") } returns token.copyOf()
+        every { transaction.wasDiscarded() } returns false
+        every { transaction.iterator() } returns mutableListOf<Any>().iterator()
+        every { commands.exec() } returns transaction
+
+        val byteMap = LettuceMap(mockedConnection, "mock-map")
+
+        byteMap.putTtlIfLockOwned("field", "value".toByteArray(), ttl = null, token = token)
+            .shouldBeTrue()
+    }
+
+    @Test
+    fun `락 소유권 조회 실패는 트랜잭션 시작 전에도 연결을 정리`() {
+        val commands = mockk<RedisCommands<String, String>>(relaxed = true)
+        val mockedConnection = mockk<StatefulRedisConnection<String, String>>()
+        every { mockedConnection.sync() } returns commands
+        every { commands.get("mock-map:__bluetape4k:lock") } throws IllegalStateException("조회 실패")
+
+        val failingMap = LettuceMap(mockedConnection, "mock-map")
+
+        assertFailsWith<IllegalStateException> {
+            failingMap.putTtlIfLockOwned("field", "value", ttl = null, token = "owner")
+        }
+
+        verify(exactly = 1) { commands.unwatch() }
+        verify(exactly = 0) { commands.discard() }
+    }
+
+    @Test
     fun `락 소유권 검증 쓰기는 WATCH 변경으로 discard된 트랜잭션을 거부`() {
         val commands = mockk<RedisCommands<String, String>>(relaxed = true)
         val mockedConnection = mockk<StatefulRedisConnection<String, String>>()
