@@ -61,6 +61,18 @@ def inline_needs(block: str) -> set[str]:
     return {item.strip() for item in match.group(1).split(",")}
 
 
+def path_filter_block(workflow: str, filter_name: str) -> str:
+    marker = f"            {filter_name}:\n"
+    start = workflow.index(marker)
+    next_filter = re.search(
+        r"^            [a-z0-9][a-z0-9-]*:\n",
+        workflow[start + len(marker) :],
+        re.MULTILINE,
+    )
+    end = start + len(marker) + next_filter.start() if next_filter else len(workflow)
+    return workflow[start:end]
+
+
 class CiDomainParallelizationTest(unittest.TestCase):
     @classmethod
     def setUpClass(cls) -> None:
@@ -117,6 +129,53 @@ class CiDomainParallelizationTest(unittest.TestCase):
                 source = benchmark_test.read_text(encoding="utf-8")
                 self.assertIn("import org.junit.jupiter.api.Tag", source)
                 self.assertIn('@Tag("benchmark")', source)
+
+    def test_daily_image_gate_runs_only_for_relevant_changes_or_manual_dispatch(self):
+        gate = job_block(self.workflow, "testcontainers-image-gate")
+        self.assertIn(
+            "if: ${{ needs.changes.outputs['testcontainers-image-gate'] == 'true' || "
+            "github.event_name == 'workflow_dispatch' }}",
+            gate,
+        )
+        self.assertNotIn("needs.changes.outputs.shared", gate)
+
+    def test_daily_image_gate_filter_excludes_generic_workflow_and_contract_test_changes(self):
+        image_gate_filter = path_filter_block(self.workflow, "testcontainers-image-gate")
+        for required_path in (
+            "'testing/testcontainers/**'",
+            "'scripts/testcontainers_image_gate_manifest.json'",
+            "'scripts/testcontainers_image_gate.py'",
+            "'scripts/run_testcontainers_image_gate.py'",
+        ):
+            with self.subTest(required_path=required_path):
+                self.assertIn(required_path, image_gate_filter)
+
+        for excluded_path in (
+            "'.github/workflows/ci.yml'",
+            "'.github/workflows/nightly-tests.yml'",
+            "'.github/workflows/release.yml'",
+            "'scripts/test_testcontainers_contract.py'",
+            "'scripts/test_testcontainers_image_gate.py'",
+            "'scripts/test_run_testcontainers_image_gate.py'",
+        ):
+            with self.subTest(excluded_path=excluded_path):
+                self.assertNotIn(excluded_path, image_gate_filter)
+
+    def test_http_domain_tests_cover_both_local_mock_server_images(self):
+        io_http_filter = path_filter_block(self.workflow, "io-http")
+        self.assertIn("'testing/mock-web-server/**'", io_http_filter)
+        self.assertIn("'testing/mock-webflux-server/**'", io_http_filter)
+
+    def test_nightly_keeps_full_testcontainers_and_image_gate_verification(self):
+        nightly = NIGHTLY_WORKFLOW.read_text(encoding="utf-8")
+        image_gate = job_block(nightly, "test-testcontainers-image-gate")
+        self.assertIn(
+            "if: ${{ needs.plan.outputs.scope == 'full' || needs.plan.outputs.scope == 'testcontainers' }}",
+            image_gate,
+        )
+        self.assertIn("--scope full", image_gate)
+        self.assertIn("test-testcontainers:", nightly)
+        self.assertIn("test-testcontainers-spring:", nightly)
 
 
 if __name__ == "__main__":

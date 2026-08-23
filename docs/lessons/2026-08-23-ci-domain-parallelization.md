@@ -27,6 +27,12 @@ Daily CI는 이미 `dorny/paths-filter`로 `core`, `io`, `infra`, `data` 등 변
   JUnit benchmark만 제외한다.
 - 전체 compile build에서도 `protobuf-codec-benchmark`, `serializer-benchmark`,
   `web-framework-benchmark`의 `build` task를 제외한다.
+- Daily CI의 별도 Testcontainers image gate는 `testing/testcontainers/**`, image gate
+  manifest·runner 변경 또는 `workflow_dispatch`에서만 실행한다. 일반 `shared` 변경과
+  workflow·계약 테스트 파일 변경만으로는 실행하지 않는다.
+- 각 도메인의 Testcontainers 사용 테스트는 유지하고, `mock-web-server`와
+  `mock-webflux-server` 변경은 실제 소비자인 IO HTTP 도메인 테스트가 모두 받는다.
+- Nightly의 `full`·`testcontainers` scope와 release의 전체 image gate는 유지한다.
 
 ## 결과
 
@@ -45,6 +51,12 @@ Redisson, HTTP client, workflow 실행 모델 benchmark는 동일한 `benchmark`
 CI 자원을 사용하지 않게 했다. benchmark fixture와 지원 코드의 correctness test는 일반
 회귀 테스트로 남겨 성능 실행 제외가 기능 검증 공백으로 이어지지 않게 했다.
 
+별도 image startup-workload gate는 52개 image family를 순차 검증하므로 일반 CI에서
+40분 이상 걸릴 수 있다. 이를 없애지는 않고, Daily CI에서는 Testcontainers 서버나 gate
+자체가 바뀌는 경우와 수동 실행으로 한정했다. 일반 모듈 변경은 해당 도메인의 실제
+Testcontainers 사용 테스트가 맡고, 전체 image family drift는 Nightly와 release gate가
+계속 검증한다.
+
 ## 검증
 
 - RED: 기존 workflow에서 12개 도메인 job이 `build`를 기다려 계약 테스트가 실패했다.
@@ -58,6 +70,11 @@ CI 자원을 사용하지 않게 했다. benchmark fixture와 지원 코드의 c
   네 benchmark class의 tag를 연결한 뒤 전체 7개 계약 테스트가 통과했다.
 - 네 benchmark class만 각각 선택한 Gradle 검증에서 모두 `0 passing`과
   `No tests found for given includes`를 확인해 실행 계획에서 제외됐음을 증명했다.
+- image gate 선택 실행 계약은 기존 workflow에서 일반 `shared`·workflow·계약 테스트
+  변경까지 트리거해 RED가 되었고, 관련 경로와 수동 실행만 남긴 뒤 전체 12개 계약
+  테스트가 통과했다.
+- Nightly의 `full`·`testcontainers` 전체 gate와 Testcontainers 본체·Spring bridge
+  테스트가 유지되는지 계약으로 확인했다.
 
 ## 놓친 점과 주의사항
 
@@ -66,8 +83,10 @@ path filter로 job이 `skipped`됐다는 사실은 해당 영역의 테스트 co
 새 도메인이나 공통 build logic을 추가할 때 filter와 의존 그래프 계약을 함께 갱신해야
 한다.
 
-Testcontainers image gate의 순차 실행 계약과 release gate는 이번 변경 범위가 아니다.
-Daily CI에서 시작 시점만 앞당겼으며, gate 내부 실행 방식이나 판정 조건은 바꾸지 않았다.
+Daily CI에서 image gate job이 `skipped`됐다는 결과는 image family coverage 자체를
+검증했다는 뜻이 아니다. 이는 해당 diff가 별도 startup-workload 검증 대상이 아니라는
+트리거 판정의 증거이며, 전체 family coverage는 Nightly `full`·`testcontainers`와
+release gate의 성공으로 판단해야 한다.
 
 전체 `Build`가 일찍 실패해도 이미 시작한 도메인 테스트는 계속 실행될 수 있어 실패한
 실행의 runner 사용량은 늘 수 있다. 성공 경로의 직렬 대기를 제거하고 독립된 실패 증거를
@@ -81,6 +100,9 @@ Daily CI에서 시작 시점만 앞당겼으며, gate 내부 실행 방식이나
   계약을 같은 변경에서 갱신한다.
 - 새 JUnit benchmark는 `@Tag("benchmark")`를 붙인다. CI나 Nightly에 benchmark를 다시
   포함하려면 일반 test에 섞지 말고 별도 opt-in workflow와 실행 예산을 둔다.
+- 새 Testcontainers image family나 gate 구현 파일을 추가하면 Daily image gate path
+  filter, manifest, 선택 계약을 함께 갱신한다. 일반 `shared` 트리거는 다시 추가하지 않는다.
+- mock server image를 추가하거나 이동하면 실제 소비 도메인의 path filter에도 연결한다.
 - 첫 hosted PR 실행에서는 job 시작 시각과 전체 소요 시간을 비교해 병렬 실행이 실제로
   적용됐는지 확인한다.
 

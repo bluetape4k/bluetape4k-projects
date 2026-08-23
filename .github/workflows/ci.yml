@@ -187,6 +187,7 @@ jobs:
               - 'io/retrofit2/**'
               - 'io/vertx/**'
               - 'testing/mock-web-server/**'
+              - 'testing/mock-webflux-server/**'
             testcontainers-spring:
               - 'testing/testcontainers/**'
               - 'testing/testcontainers-spring/**'
@@ -194,13 +195,7 @@ jobs:
               - 'testing/testcontainers/**'
               - 'scripts/testcontainers_image_gate_manifest.json'
               - 'scripts/testcontainers_image_gate.py'
-              - 'scripts/test_testcontainers_contract.py'
-              - 'scripts/test_testcontainers_image_gate.py'
               - 'scripts/run_testcontainers_image_gate.py'
-              - 'scripts/test_run_testcontainers_image_gate.py'
-              - '.github/workflows/ci.yml'
-              - '.github/workflows/nightly-tests.yml'
-              - '.github/workflows/release.yml'
             ktor:
               - 'ktor/**'
             key-utils:
@@ -601,13 +596,13 @@ jobs:
           if-no-files-found: error
           retention-days: 30
 
-  # ── 4-d. 변경 Testcontainers image family startup/workload gate ──────────
+  # ── 4-d. 관련 변경 Testcontainers image family startup/workload gate ─────
   testcontainers-image-gate:
     name: Test / Testcontainers image startup-workload gate
     runs-on: ubuntu-latest
     timeout-minutes: 360
     needs: [changes, catalog-governance]
-    if: ${{ needs.changes.outputs['testcontainers-image-gate'] == 'true' || needs.changes.outputs.shared == 'true' || github.event_name == 'workflow_dispatch' }}
+    if: ${{ needs.changes.outputs['testcontainers-image-gate'] == 'true' || github.event_name == 'workflow_dispatch' }}
     steps:
       - uses: actions/checkout@v7
         with:
