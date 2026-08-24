@@ -646,20 +646,22 @@ class GateRunner:
                     item = json.loads(line)
                     actor = item.get("Actor", {})
                     attributes = actor.get("Attributes", {}) if isinstance(actor, dict) else {}
+                    actor_id = str(actor.get("ID") or "") if isinstance(actor, dict) else ""
                     refs = {
                         str(item.get("from") or ""),
                         str(attributes.get("name") or ""),
                         str(attributes.get("image") or ""),
+                        actor_id,
                     }
                     ids = {
                         str(item.get("id") or ""),
-                        str(actor.get("ID") or "") if isinstance(actor, dict) else "",
+                        actor_id,
                     }
                     matching_ref = next((value for value in refs if value in expected_refs), "")
                     matching_id = next((value for value in ids if value in expected_ids), "")
                     if not matching_ref and not matching_id:
                         continue
-                    event_id = str(item.get("id") or actor.get("ID") or "")
+                    event_id = str(item.get("id") or actor_id)
                     event_ref = matching_ref
                     event_image_id = matching_id
                     break
