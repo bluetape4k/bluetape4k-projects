@@ -26,6 +26,18 @@ BENCHMARK_PROJECTS = (
     "web-framework-benchmark",
 )
 
+SHARED_FILTER_PATHS = (
+    "'buildSrc/**'",
+    "'build.gradle.kts'",
+    "'settings.gradle.kts'",
+    "'gradle/**'",
+    "'gradle.properties'",
+    "'.github/workflows/**'",
+    "'.github/scripts/**'",
+    "'.github/actions/**'",
+    "'scripts/validate-ci-*.rb'",
+)
+
 DOMAIN_JOBS = (
     "test-core",
     "test-io",
@@ -103,6 +115,12 @@ class CiDomainParallelizationTest(unittest.TestCase):
         changes = job_block(self.workflow, "changes")
         self.assertIn("Validate CI domain dependency graph", changes)
         self.assertIn("python3 .github/scripts/test-ci-domain-parallelization.py -v", changes)
+
+    def test_shared_filter_covers_ci_orchestration_inputs(self):
+        shared_filter = path_filter_block(self.workflow, "shared")
+        for path_pattern in SHARED_FILTER_PATHS:
+            with self.subTest(path_pattern=path_pattern):
+                self.assertIn(path_pattern, shared_filter)
 
     def test_ci_and_nightly_exclude_benchmark_tag(self):
         for workflow_path in (CI_WORKFLOW, NIGHTLY_WORKFLOW):
