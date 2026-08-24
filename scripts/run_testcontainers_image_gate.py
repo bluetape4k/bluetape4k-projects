@@ -324,6 +324,20 @@ class GateRunner:
             # Existing fake runners intentionally expose the old two-argument contract.
             return self.command_runner(command, timeout_seconds)
 
+    @staticmethod
+    def _sanitized_runtime_env() -> dict[str, str]:
+        """Keep registry credentials and Docker overrides out of Gradle and diagnostics."""
+
+        env = os.environ.copy()
+        for key in (
+            "DOCKER_AUTH_CONFIG",
+            "TESTCONTAINERS_REGISTRY_MIRROR",
+            "DOCKER_HOST",
+            "DOCKER_CONTEXT",
+        ):
+            env.pop(key, None)
+        return env
+
     def _command(self, entry: dict[str, Any], evidence_dir: Path | None = None) -> list[str]:
         strict = bool(entry.get("executionEvidenceRequired"))
         if strict and entry.get("_selected_platform_id") == "arm64" and evidence_dir is not None:
@@ -399,7 +413,11 @@ class GateRunner:
             )
         diagnostics: dict[str, str] = {}
         for label, command in commands:
-            result = self._invoke(command, min(self.diagnostic_timeout_seconds, 60))
+            result = self._invoke(
+                command,
+                min(self.diagnostic_timeout_seconds, 60),
+                self._sanitized_runtime_env(),
+            )
             diagnostics[label] = self._diagnostic_bounded(
                 f"exit={getattr(result, 'returncode', None)}\n"
                 f"stdout={getattr(result, 'stdout', '')}\n"
@@ -632,7 +650,7 @@ class GateRunner:
             test_timeout = self.timeout_seconds
             if platform:
                 test_timeout = int(entry.get("platformTimeouts", {}).get(platform["id"], {}).get("testMinutes", self.timeout_seconds // 60)) * 60
-            result = self._invoke(command, test_timeout)
+            result = self._invoke(command, test_timeout, self._sanitized_runtime_env())
             elapsed = round(time.monotonic() - attempt_started, 3)
             self._elapsed_seconds += elapsed
             raw_stdout = getattr(result, "stdout", "")

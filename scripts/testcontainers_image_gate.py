@@ -310,14 +310,9 @@ def select_entries(
             selected["_selected_platform_id"] = selected_platform["id"]
         return [selected]
     if scope == "full":
-        selected = [dict(entry) for entry in entries]
-        for entry in selected:
-            selected_platform = platform_for_entry(
-                entry, platform_id, default_platform_id=default_platform_id
-            )
-            if selected_platform is not None:
-                entry["_selected_platform_id"] = selected_platform["id"]
-        return selected
+        # Full scope keeps manifest entries canonical; the runner resolves a
+        # strict family's default platform at execution time.
+        return list(entries)
     normalized = {(path or "").replace("\\", "/") for path in (changed_paths or set())}
     shared_prefixes = (
         "scripts/testcontainers_image_gate",
