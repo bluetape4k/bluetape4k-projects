@@ -529,8 +529,13 @@ class GateRunner:
         auth_config = os.environ.get("DOCKER_AUTH_CONFIG", "")
         register_secret(auth_config)
         env = os.environ.copy()
-        env.pop("DOCKER_AUTH_CONFIG", None)
-        env.pop("TESTCONTAINERS_REGISTRY_MIRROR", None)
+        for key in (
+            "DOCKER_AUTH_CONFIG",
+            "TESTCONTAINERS_REGISTRY_MIRROR",
+            "DOCKER_HOST",
+            "DOCKER_CONTEXT",
+        ):
+            env.pop(key, None)
         config_dir: Path | None = None
         try:
             if auth_config:
@@ -575,8 +580,23 @@ class GateRunner:
             runner_arch = canonical_architecture(getattr(uname, "stdout", "").strip())
             if daemon_arch != architecture or runner_arch != architecture:
                 return "blocked", {"requested_ref": f"docker.io/{image_ref}", "attempts": attempt, "status": "blocked", "error": "daemon or runner architecture mismatch"}
+            event_since = str(int(pull_started))
+            event_until = str(int(time.time()) + 2)
             event = self._invoke(
-                ["docker", "events", "--since", "1s", "--filter", "type=image", "--filter", "event=pull", "--format", "{{json .}}"],
+                [
+                    "docker",
+                    "events",
+                    "--since",
+                    event_since,
+                    "--until",
+                    event_until,
+                    "--filter",
+                    "type=image",
+                    "--filter",
+                    "event=pull",
+                    "--format",
+                    "{{json .}}",
+                ],
                 self.pull_timeout_seconds,
                 env,
             )
