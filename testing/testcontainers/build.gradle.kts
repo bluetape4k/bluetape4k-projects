@@ -37,6 +37,14 @@ kover {
 
 // testcontainers 테스트 실행 전 mock-server Docker 이미지를 자동으로 빌드합니다.
 // Jib은 소스 변경이 없으면 up-to-date 체크로 스킵하므로 매번 느리지 않습니다.
+// Java 25+에서 Ignite 2 thin client의 레거시 reflection에 필요한 최소 범위입니다.
+tasks.withType<Test>().configureEach {
+    jvmArgs(
+        "--add-opens=java.base/java.nio=ALL-UNNAMED",
+        "--add-opens=java.base/java.util=ALL-UNNAMED",
+    )
+}
+
 tasks.test {
     dependsOn(":bluetape4k-mock-web-server:jibDockerBuild")
     dependsOn(":bluetape4k-mock-webflux-server:jibDockerBuild")
