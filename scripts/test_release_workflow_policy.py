@@ -49,21 +49,24 @@ def release_policy_errors(workflow: str) -> list[str]:
         "resolve-version",
         "testcontainers-manifest-contract",
         "testcontainers-image-gate",
+        "testcontainers-ignite2-arm64-image-gate",
         "publish",
     }
     if job_ids(workflow) != expected_jobs:
         errors.append(
             "release workflow must contain resolve-version, testcontainers-manifest-contract, "
-            "testcontainers-image-gate, and publish jobs"
+            "testcontainers-image-gate, testcontainers-ignite2-arm64-image-gate, and publish jobs"
         )
     if "needs: [resolve-version, testcontainers-manifest-contract]" not in workflow:
         errors.append("full Testcontainers image gate must wait for the manifest contract")
     if (
-        "needs: [resolve-version, testcontainers-manifest-contract, testcontainers-image-gate]"
+        "needs: [resolve-version, testcontainers-manifest-contract, testcontainers-image-gate, testcontainers-ignite2-arm64-image-gate]"
         not in workflow
     ):
         errors.append("publish must depend on the manifest contract and full image gate")
-    if "--scope full" not in workflow or "coverage=52/52" not in workflow:
+    if "--scope full" not in workflow or not (
+        "coverage=52/52" in workflow or "expected_coverage=\"52/52\"" in workflow
+    ):
         errors.append("release workflow must verify the full 52/52 image gate")
     return errors
 
@@ -124,7 +127,7 @@ class ReleaseWorkflowPolicyTest(unittest.TestCase):
     def test_release_workflow_blocks_publish_without_full_image_gate(self) -> None:
         workflow = (WORKFLOWS / "release.yml").read_text(encoding="utf-8")
         mutated = workflow.replace(
-            "needs: [resolve-version, testcontainers-manifest-contract, testcontainers-image-gate]",
+            "needs: [resolve-version, testcontainers-manifest-contract, testcontainers-image-gate, testcontainers-ignite2-arm64-image-gate]",
             "needs: resolve-version",
         )
         errors = release_policy_errors(mutated)
