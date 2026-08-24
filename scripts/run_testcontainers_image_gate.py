@@ -365,6 +365,9 @@ class GateRunner:
                 "--tests",
                 workload,
                 "--no-configuration-cache",
+                # Strict workload evidence must be produced by this attempt;
+                # never accept a previously cached Gradle test result.
+                "--rerun-tasks",
                 "-x",
                 ":bluetape4k-mock-web-server:jibDockerBuild",
                 "-x",
@@ -413,7 +416,9 @@ class GateRunner:
                 ["docker", "ps", "-a", "--no-trunc", "--filter", f"ancestor={image_ref}"],
             ),
             ("docker_inspect", ["docker", "inspect", image_ref]),
-            ("docker_events", ["timeout", "10s", "docker", "events", "--since", "5m"]),
+            # _invoke already bounds and process-group-terminates diagnostics; do
+            # not depend on GNU `timeout`, which is absent on macOS runners.
+            ("docker_events", ["docker", "events", "--since", "5m"]),
         ]
         if entry["server"] == "K3sServer":
             commands.extend(
@@ -683,7 +688,12 @@ class GateRunner:
                 "observed": {
                     "runner_os": "linux",
                     "runner_architecture": runner_arch,
-                    "daemon_os": str(info_payload.get("OperatingSystem", "linux")).lower() or "linux",
+                    # Docker's OperatingSystem field is a distro description
+                    # (for example, "Ubuntu 24.04.4 LTS"), not an OS family.
+                    # Keep the contract's normalized family value here and
+                    # preserve the raw description separately for diagnostics.
+                    "daemon_os": "linux",
+                    "daemon_os_description": str(info_payload.get("OperatingSystem", "")).lower(),
                     "daemon_architecture": daemon_arch,
                     "image_os": observed_os,
                     "image_tag": str(platform["tag"]),
