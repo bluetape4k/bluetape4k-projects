@@ -40,6 +40,11 @@ kover {
 tasks.test {
     dependsOn(":bluetape4k-mock-web-server:jibDockerBuild")
     dependsOn(":bluetape4k-mock-webflux-server:jibDockerBuild")
+    // Ignite 2.18 thin client reflects on java.nio.Buffer under Java 25.
+    jvmArgs(
+        "--add-opens=java.base/java.nio=ALL-UNNAMED",
+        "--add-opens=java.base/java.util=ALL-UNNAMED",
+    )
     useJUnitPlatform {
         // K3s requires a privileged Docker runner. Excluded from regular CI by default.
         // Enable with: ./gradlew :bluetape4k-testcontainers:test -PincludeK8s
@@ -74,6 +79,9 @@ dependencies {
 
     api(libs.testcontainers)
     api(libs.testcontainers.junit.jupiter)
+
+    // Ignite 2 thin-client workload is test-only; it must not enter the published POM.
+    testImplementation(bt4k.ignite.core)
 
     api(libs.awaitility.kotlin)
 

@@ -100,6 +100,13 @@ Testcontainers `2.0.3` 기반 통합 테스트를 빠르게 구성하기 위한 
 재현 가능한 로컬·CI 실행을 위해 변경 가능한 `latest`, major-only, rolling minor
 태그는 사용하지 않습니다.
 
+`Ignite2Server`는 canonical `apacheignite/ignite` 이미지를 지연 해석합니다.
+`x86_64`/`amd64`에서는 `2.18.0`, `aarch64`/`arm64`에서는
+`2.18.0-arm64`를 사용합니다. canonical tag를 생략한 상태에서 지원하지 않는
+아키텍처를 만나면 즉시 실패합니다. Custom image는 명시적인 tag가 필요하고,
+명시한 custom tag는 모든 아키텍처에서 허용됩니다. 아래처럼 서버와
+`IgniteClient`를 `use`/`close`로 함께 정리하세요.
+
 | 그룹 | 서버 | 이미지 | 기본 태그 |
 |---|---|---|---|
 | AWS | `DynamoDbLocalServer` | `amazon/dynamodb-local` | `3.3.1` |
@@ -146,7 +153,7 @@ Testcontainers `2.0.3` 기반 통합 테스트를 빠르게 구성하기 위한 
 | Storage | `ElasticsearchOssServer` | `docker.elastic.co/elasticsearch/elasticsearch-oss` | `7.10.2` |
 | Storage | `ElasticsearchServer` | `docker.elastic.co/elasticsearch/elasticsearch` | `9.5.0` |
 | Storage | `HazelcastServer` | `hazelcast/hazelcast` | `5.7.0-slim-jdk25` |
-| Storage | `Ignite2Server` | `apacheignite/ignite` | `2.18.0` (aarch64는 `-arm64`) |
+| Storage | `Ignite2Server` | `apacheignite/ignite` | `2.18.0` (x86_64/amd64) 또는 `2.18.0-arm64` (aarch64/arm64) |
 | Storage | `Ignite3Server` | `apacheignite/ignite` | `3.1.0` |
 | Storage | `InfluxDBServer` | `influxdb` | `2.9.1` |
 | Storage | `MinIOServer` | `minio/minio` | `RELEASE.2025-07-23T15-54-02Z` (호환성 fixture) |
@@ -459,11 +466,20 @@ val client = HazelcastClient.newHazelcastClient(
     ClientConfig().apply { networkConfig.addAddress("${hazelcast.host}:${hazelcast.port}") }
 )
 
-// Apache Ignite 2.x — 씬 클라이언트 포트 10800
-val ignite2 = Ignite2Server.Launcher.ignite2
-val client = IgniteClient.start(ClientConfiguration().apply {
-    setAddresses("${ignite2.host}:${ignite2.port}")
-})
+// Apache Ignite 2.x — native 이미지 tag와 씬 클라이언트 포트 10800
+Ignite2Server().use { ignite2 ->
+    ignite2.start()
+    Ignition.startClient(
+        ClientConfiguration()
+            .setAddresses(ignite2.url)
+            .setTimeout(30_000)
+            .setRequestTimeout(30_000),
+    ).use { client ->
+        val cache = client.getOrCreateCache<String, String>("example-cache")
+        cache.put("key", "value")
+        check(cache.get("key") == "value")
+    }
+}
 
 // Apache Ignite 3.x — 클러스터 자동 초기화, 씬 클라이언트 포트 10800
 val ignite3 = Ignite3Server.Launcher.ignite3

@@ -95,6 +95,13 @@ The defaults below are pinned to the latest stable image tag verified on
 2026-08-10. Mutable `latest`, major-only, and rolling minor tags are avoided so
 that Testcontainers runs remain reproducible across local machines and CI.
 
+`Ignite2Server` resolves the canonical `apacheignite/ignite` image lazily:
+`x86_64`/`amd64` uses `2.18.0`, while `aarch64`/`arm64` uses
+`2.18.0-arm64`. An unknown architecture fails fast when the canonical tag is
+omitted. Custom images must provide an explicit tag; an explicit custom tag is
+accepted on any architecture. Start the server and close both the server and
+the `IgniteClient` with `use`/`close` as shown below.
+
 | Group | Server | Image | Default tag |
 |---|---|---|---|
 | AWS | `DynamoDbLocalServer` | `amazon/dynamodb-local` | `3.3.1` |
@@ -141,7 +148,7 @@ that Testcontainers runs remain reproducible across local machines and CI.
 | Storage | `ElasticsearchOssServer` | `docker.elastic.co/elasticsearch/elasticsearch-oss` | `7.10.2` |
 | Storage | `ElasticsearchServer` | `docker.elastic.co/elasticsearch/elasticsearch` | `9.5.0` |
 | Storage | `HazelcastServer` | `hazelcast/hazelcast` | `5.7.0-slim-jdk25` |
-| Storage | `Ignite2Server` | `apacheignite/ignite` | `2.18.0` (`-arm64` on aarch64) |
+| Storage | `Ignite2Server` | `apacheignite/ignite` | `2.18.0` (x86_64/amd64) or `2.18.0-arm64` (aarch64/arm64) |
 | Storage | `Ignite3Server` | `apacheignite/ignite` | `3.1.0` |
 | Storage | `InfluxDBServer` | `influxdb` | `2.9.1` |
 | Storage | `MinIOServer` | `minio/minio` | `RELEASE.2025-07-23T15-54-02Z` (compatibility fixture) |
@@ -496,11 +503,20 @@ val client = HazelcastClient.newHazelcastClient(
     ClientConfig().apply { networkConfig.addAddress("${hazelcast.host}:${hazelcast.port}") }
 )
 
-// Apache Ignite 2.x — thin client port 10800
-val ignite2 = Ignite2Server.Launcher.ignite2
-val client = IgniteClient.start(ClientConfiguration().apply {
-    setAddresses("${ignite2.host}:${ignite2.port}")
-})
+// Apache Ignite 2.x — native image tag and thin-client port 10800
+Ignite2Server().use { ignite2 ->
+    ignite2.start()
+    Ignition.startClient(
+        ClientConfiguration()
+            .setAddresses(ignite2.url)
+            .setTimeout(30_000)
+            .setRequestTimeout(30_000),
+    ).use { client ->
+        val cache = client.getOrCreateCache<String, String>("example-cache")
+        cache.put("key", "value")
+        check(cache.get("key") == "value")
+    }
+}
 
 // Apache Ignite 3.x — auto cluster-init, thin client port 10800
 val ignite3 = Ignite3Server.Launcher.ignite3
