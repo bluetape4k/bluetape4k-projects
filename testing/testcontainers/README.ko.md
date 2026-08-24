@@ -107,6 +107,12 @@ Testcontainers `2.0.3` 기반 통합 테스트를 빠르게 구성하기 위한 
 명시한 custom tag는 모든 아키텍처에서 허용됩니다. 아래처럼 서버와
 `IgniteClient`를 `use`/`close`로 함께 정리하세요.
 
+Java 25+에서 Ignite 2 thin-client 테스트에 필요한 JVM 옵션은
+`--add-opens=java.base/java.nio=ALL-UNNAMED`와
+`--add-opens=java.base/java.util=ALL-UNNAMED` 두 개로 확정했습니다. 이 옵션은
+`bluetape4k-testcontainers` 모듈의 `Test` 태스크에만 적용하며 저장소 전체의
+전역 JVM 기본값으로 사용하지 않습니다.
+
 | 그룹 | 서버 | 이미지 | 기본 태그 |
 |---|---|---|---|
 | AWS | `DynamoDbLocalServer` | `amazon/dynamodb-local` | `3.3.1` |
