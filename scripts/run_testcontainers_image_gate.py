@@ -91,11 +91,29 @@ _KNOWN_SECRETS: set[str] = set()
 class CommandResult:
     """Bounded subprocess result shared by real and fake command runners."""
 
-    def __init__(self, returncode: int | None, stdout: str = "", stderr: str = "", elapsed: float = 0.0):
+    def __init__(
+        self,
+        returncode: int | None,
+        stdout: str = "",
+        stderr: str = "",
+        elapsed: float = 0.0,
+        *,
+        stdout_overflow: bool = False,
+        stderr_overflow: bool = False,
+    ):
         self.returncode = returncode
         self.stdout = stdout
         self.stderr = stderr
         self.elapsed_seconds = elapsed
+        self.stdout_overflow = stdout_overflow
+        self.stderr_overflow = stderr_overflow
+
+
+def _has_output_overflow(result: object) -> bool:
+    return bool(
+        getattr(result, "stdout_overflow", False)
+        or getattr(result, "stderr_overflow", False)
+    )
 
 
 def redact(value: str) -> str:
@@ -187,9 +205,18 @@ def _read_bounded(path: Path, limit: int) -> str:
     return redact(data.decode("utf-8", errors="replace"))
 
 
-def classify_failure(returncode: int | None, stdout: str, stderr: str) -> str:
+def classify_failure(
+    returncode: int | None,
+    stdout: str,
+    stderr: str,
+    *,
+    stdout_overflow: bool = False,
+    stderr_overflow: bool = False,
+) -> str:
     """Classify a command result without conflating registry/daemon failures with product bugs."""
 
+    if stdout_overflow or stderr_overflow:
+        return "blocked"
     if returncode == 0:
         return "success"
     haystack = f"{stdout}\n{stderr}".lower()
@@ -202,10 +229,25 @@ def classify_failure(returncode: int | None, stdout: str, stderr: str) -> str:
     return "product_failure"
 
 
-def _classify_command_result(returncode: int | None, stdout: str, stderr: str) -> str:
+def _classify_command_result(
+    returncode: int | None,
+    stdout: str,
+    stderr: str,
+    *,
+    stdout_overflow: bool = False,
+    stderr_overflow: bool = False,
+) -> str:
+    if stdout_overflow or stderr_overflow:
+        return "blocked"
     if "job budget exceeded" in f"{stdout}\n{stderr}".lower():
         return "blocked"
-    status = classify_failure(returncode, stdout, stderr)
+    status = classify_failure(
+        returncode,
+        stdout,
+        stderr,
+        stdout_overflow=stdout_overflow,
+        stderr_overflow=stderr_overflow,
+    )
     if status == "success" and not re.search(r"\bBUILD SUCCESSFUL\b", f"{stdout}\n{stderr}"):
         return "blocked"
     return status
@@ -239,6 +281,7 @@ def _subprocess_runner(command: list[str], timeout_seconds: int, *, env: dict[st
     )
     selector = selectors.DefaultSelector()
     captures: dict[str, bytearray] = {"stdout": bytearray(), "stderr": bytearray()}
+    overflows = {"stdout": False, "stderr": False}
     for name, stream in (("stdout", process.stdout), ("stderr", process.stderr)):
         if stream is not None:
             selector.register(stream, selectors.EVENT_READ, name)
@@ -262,6 +305,7 @@ def _subprocess_runner(command: list[str], timeout_seconds: int, *, env: dict[st
                 capture = captures[key.data]
                 capture.extend(chunk)
                 if len(capture) > MAX_OUTPUT_CHARS:
+                    overflows[key.data] = True
                     del capture[:-MAX_OUTPUT_CHARS]
         if not timed_out:
             process.wait(timeout=max(1, deadline - time.monotonic()))
@@ -282,6 +326,8 @@ def _subprocess_runner(command: list[str], timeout_seconds: int, *, env: dict[st
         _bounded(stdout),
         _bounded(stderr),
         time.monotonic() - started,
+        stdout_overflow=overflows["stdout"],
+        stderr_overflow=overflows["stderr"],
     )
 
 
@@ -790,10 +836,31 @@ class GateRunner:
                     "status": "blocked",
                     "error": "job budget exceeded",
                 }
-            pull_status = classify_failure(getattr(pull, "returncode", None), getattr(pull, "stdout", ""), getattr(pull, "stderr", ""))
-            if getattr(pull, "returncode", None) != 0:
-                return pull_status, {"requested_ref": f"docker.io/{image_ref}", "attempts": attempt, "status": pull_status}
+            pull_status = classify_failure(
+                getattr(pull, "returncode", None),
+                getattr(pull, "stdout", ""),
+                getattr(pull, "stderr", ""),
+                stdout_overflow=bool(getattr(pull, "stdout_overflow", False)),
+                stderr_overflow=bool(getattr(pull, "stderr_overflow", False)),
+            )
+            if pull_status != "success":
+                error = "pull command output overflow" if _has_output_overflow(pull) else None
+                evidence = {
+                    "requested_ref": f"docker.io/{image_ref}",
+                    "attempts": attempt,
+                    "status": pull_status,
+                }
+                if error:
+                    evidence["error"] = error
+                return pull_status, evidence
             inspect = self._invoke(["docker", "image", "inspect", image_ref], self.pull_timeout_seconds, env)
+            if _has_output_overflow(inspect):
+                return "blocked", {
+                    "requested_ref": f"docker.io/{image_ref}",
+                    "attempts": attempt,
+                    "status": "blocked",
+                    "error": "image inspect output overflow",
+                }
             try:
                 payload = json.loads(getattr(inspect, "stdout", ""))
                 image = payload[0] if isinstance(payload, list) else payload
@@ -828,6 +895,13 @@ class GateRunner:
             info = self._invoke(["docker", "info", "--format", "{{json .}}"], self.pull_timeout_seconds, env)
             uname = self._invoke(["uname", "-m"], self.pull_timeout_seconds, env)
             uname_os = self._invoke(["uname", "-s"], self.pull_timeout_seconds, env)
+            if any(_has_output_overflow(item) for item in (context, info, uname, uname_os)):
+                return "blocked", {
+                    "requested_ref": f"docker.io/{image_ref}",
+                    "attempts": attempt,
+                    "status": "blocked",
+                    "error": "Docker environment output overflow",
+                }
             if (
                 getattr(context, "returncode", 1) != 0
                 or getattr(context, "stdout", "").strip() != "default"
@@ -869,6 +943,13 @@ class GateRunner:
                 self.pull_timeout_seconds,
                 env,
             )
+            if _has_output_overflow(event):
+                return "blocked", {
+                    "requested_ref": f"docker.io/{image_ref}",
+                    "attempts": attempt,
+                    "status": "blocked",
+                    "error": "Docker event output overflow",
+                }
             event_id = ""
             event_id_source = ""
             event_ref = ""
@@ -1031,11 +1112,23 @@ class GateRunner:
             raw_stdout = getattr(result, "stdout", "")
             raw_stderr = getattr(result, "stderr", "")
             returncode = getattr(result, "returncode", None)
-            status = _classify_command_result(returncode, raw_stdout, raw_stderr)
+            stdout_overflow = bool(getattr(result, "stdout_overflow", False))
+            stderr_overflow = bool(getattr(result, "stderr_overflow", False))
+            status = _classify_command_result(
+                returncode,
+                raw_stdout,
+                raw_stderr,
+                stdout_overflow=stdout_overflow,
+                stderr_overflow=stderr_overflow,
+            )
             if status == "success" and self._deadline is not None and time.monotonic() >= self._deadline:
                 status = "blocked"
                 raw_stderr = f"{raw_stderr}\njob budget exceeded"
             attempt_result: dict[str, Any] = {"attempt": attempt, "command": redact(" ".join(command)), "returncode": returncode, "elapsed_seconds": elapsed, "status": status}
+            if stdout_overflow:
+                attempt_result["stdout_overflow"] = True
+            if stderr_overflow:
+                attempt_result["stderr_overflow"] = True
             if strict and status == "success":
                 try:
                     junit = self._parse_junit(entry, self._xml_candidates(attempt_started_ns, evidence_dir))
