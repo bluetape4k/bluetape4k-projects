@@ -45,10 +45,24 @@ def release_policy_errors(workflow: str) -> list[str]:
         errors.append("release workflow must not request write access to repository contents")
     if ISSUE_RELEASE_MACHINERY.search(workflow):
         errors.append("release workflow must not contain issue-specific release machinery")
-    if job_ids(workflow) != {"resolve-version", "testcontainers-image-gate", "publish"}:
-        errors.append("release workflow must contain resolve-version, testcontainers-image-gate, and publish jobs")
-    if "needs: [resolve-version, testcontainers-image-gate]" not in workflow:
-        errors.append("publish must depend on the full Testcontainers image gate")
+    expected_jobs = {
+        "resolve-version",
+        "testcontainers-manifest-contract",
+        "testcontainers-image-gate",
+        "publish",
+    }
+    if job_ids(workflow) != expected_jobs:
+        errors.append(
+            "release workflow must contain resolve-version, testcontainers-manifest-contract, "
+            "testcontainers-image-gate, and publish jobs"
+        )
+    if "needs: [resolve-version, testcontainers-manifest-contract]" not in workflow:
+        errors.append("full Testcontainers image gate must wait for the manifest contract")
+    if (
+        "needs: [resolve-version, testcontainers-manifest-contract, testcontainers-image-gate]"
+        not in workflow
+    ):
+        errors.append("publish must depend on the manifest contract and full image gate")
     if "--scope full" not in workflow or "coverage=52/52" not in workflow:
         errors.append("release workflow must verify the full 52/52 image gate")
     return errors
@@ -109,9 +123,21 @@ class ReleaseWorkflowPolicyTest(unittest.TestCase):
 
     def test_release_workflow_blocks_publish_without_full_image_gate(self) -> None:
         workflow = (WORKFLOWS / "release.yml").read_text(encoding="utf-8")
-        mutated = workflow.replace("needs: [resolve-version, testcontainers-image-gate]", "needs: resolve-version")
+        mutated = workflow.replace(
+            "needs: [resolve-version, testcontainers-manifest-contract, testcontainers-image-gate]",
+            "needs: resolve-version",
+        )
         errors = release_policy_errors(mutated)
-        self.assertIn("publish must depend on the full Testcontainers image gate", errors)
+        self.assertIn("publish must depend on the manifest contract and full image gate", errors)
+
+    def test_release_workflow_blocks_image_gate_without_manifest_contract(self) -> None:
+        workflow = (WORKFLOWS / "release.yml").read_text(encoding="utf-8")
+        mutated = workflow.replace(
+            "needs: [resolve-version, testcontainers-manifest-contract]",
+            "needs: resolve-version",
+        )
+        errors = release_policy_errors(mutated)
+        self.assertIn("full Testcontainers image gate must wait for the manifest contract", errors)
 
     def test_snapshot_workflow_is_not_coupled_to_issue_754_release_state(self) -> None:
         workflow = (WORKFLOWS / "publish-snapshot.yml").read_text(encoding="utf-8")
