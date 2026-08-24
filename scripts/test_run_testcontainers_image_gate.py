@@ -13,6 +13,8 @@ from scripts.run_testcontainers_image_gate import (
     GateRunner,
     classify_failure,
     redact,
+    verify_release_summary,
+    worst_case_budget_minutes,
 )
 
 
@@ -30,6 +32,27 @@ def entry(server: str = "FlociServer") -> dict[str, object]:
         "diagnostics": ["docker_inspect", "docker_logs", "docker_events"],
         "releaseRequired": True,
     }
+
+
+def strict_entry() -> dict[str, object]:
+    value = entry("Ignite2Server")
+    value.update(
+        {
+            "id": "ignite2",
+            "image": "apacheignite/ignite",
+            "tag": "2.18.0",
+            "testPattern": "io.bluetape4k.testcontainers.storage.Ignite2ServerTest",
+            "workloadTestPattern": "io.bluetape4k.testcontainers.storage.Ignite2ServerTest.representativeStartupAndWorkload",
+            "executionEvidenceRequired": True,
+            "pullEvidenceRequired": True,
+            "platforms": [
+                {"id": "amd64", "os": "linux", "architecture": "amd64", "tag": "2.18.0", "runner": "ubuntu-24.04"},
+            ],
+            "defaultPlatformId": "amd64",
+            "platformTimeouts": {"amd64": {"testMinutes": 6, "clientConnectSeconds": 30, "clientRequestSeconds": 30}},
+        }
+    )
+    return value
 
 
 class TestRunTestcontainersImageGate(unittest.TestCase):
@@ -168,6 +191,142 @@ class TestRunTestcontainersImageGate(unittest.TestCase):
             ).run()
             read_back = json.loads((Path(directory) / "summary.json").read_text())
             self.assertEqual(summary["manifest_digest"], read_back["manifest_digest"])
+
+    def test_strict_family_requires_pull_platform_and_workload_evidence(self) -> None:
+        calls: list[list[str]] = []
+
+        def command_runner(command: list[str], timeout_seconds: int, **_: object) -> SimpleNamespace:
+            calls.append(command)
+            if command[:2] == ["docker", "pull"]:
+                return SimpleNamespace(returncode=0, stdout="Status: Downloaded newer image", stderr="")
+            if command[:3] == ["docker", "image", "inspect"]:
+                return SimpleNamespace(
+                    returncode=0,
+                    stdout=json.dumps([{"Id": "sha256:image", "RepoDigests": ["apacheignite/ignite@sha256:digest"], "Os": "linux", "Architecture": "amd64"}]),
+                    stderr="",
+                )
+            if command[:3] == ["docker", "context", "show"]:
+                return SimpleNamespace(returncode=0, stdout="default\n", stderr="")
+            if command[:2] == ["docker", "info"]:
+                return SimpleNamespace(returncode=0, stdout=json.dumps({"Architecture": "amd64"}), stderr="")
+            if command[:2] == ["uname", "-m"]:
+                return SimpleNamespace(returncode=0, stdout="x86_64\n", stderr="")
+            if command[:2] == ["docker", "events"]:
+                return SimpleNamespace(returncode=0, stdout=json.dumps({"id": "pull-event-1"}) + "\n", stderr="")
+            evidence = next((Path(part.split("=", 1)[1]) for part in command if part.startswith("-Dtestcontainers.image-gate.evidence-dir=")), None)
+            assert evidence is not None
+            evidence.joinpath("startup.marker").write_text("Ignite node started OK\n", encoding="utf-8")
+            evidence.joinpath("TEST-Ignite2ServerTest.xml").write_text(
+                '<testsuite name="io.bluetape4k.testcontainers.storage.Ignite2ServerTest" tests="1" skipped="0" failures="0" errors="0">'
+                '<testcase classname="io.bluetape4k.testcontainers.storage.Ignite2ServerTest" name="representativeStartupAndWorkload"/>'
+                '</testsuite>',
+                encoding="utf-8",
+            )
+            return SimpleNamespace(returncode=0, stdout="BUILD SUCCESSFUL", stderr="")
+
+        with tempfile.TemporaryDirectory() as directory:
+            summary = GateRunner(
+                [strict_entry()],
+                Path(directory),
+                command_runner=command_runner,
+                max_attempts=1,
+                scope="family",
+            ).run()
+            result = summary["results"][0]
+            self.assertEqual("success", result["status"])
+            self.assertEqual("amd64", result["platform_id"])
+            self.assertEqual("pull-event-1", result["pull"]["event_id"])
+            self.assertEqual(1, result["junit"]["workload_tests"])
+            self.assertTrue(result["startup"]["ready"])
+            self.assertEqual(1, sum(command[:2] == ["docker", "pull"] for command in calls))
+
+    def test_strict_family_without_marker_is_blocked(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            result = GateRunner(
+                [strict_entry()],
+                Path(directory),
+                command_runner=lambda command, timeout_seconds, **_: SimpleNamespace(
+                    returncode=0, stdout="BUILD SUCCESSFUL", stderr=""
+                ),
+                max_attempts=1,
+            ).run()["results"][0]
+            self.assertEqual("blocked", result["status"])
+
+    def test_arm64_strict_command_is_fixed_and_excludes_mock_jib(self) -> None:
+        value = strict_entry()
+        value["platforms"] = [
+            {"id": "arm64", "os": "linux", "architecture": "arm64", "tag": "2.18.0-arm64", "runner": "ubuntu-24.04-arm"},
+        ]
+        value["defaultPlatformId"] = "arm64"
+        value["_selected_platform_id"] = "arm64"
+        with tempfile.TemporaryDirectory() as directory:
+            runner = GateRunner([value], Path(directory), scope="family")
+            command = runner._command(value, Path(directory) / "attempt")
+        self.assertEqual("-Dtestcontainers.image-gate.evidence-dir", command[1].split("=", 1)[0])
+        self.assertIn("--tests", command)
+        self.assertIn("io.bluetape4k.testcontainers.storage.Ignite2ServerTest.representativeStartupAndWorkload", command)
+        self.assertEqual(2, command.count("-x"))
+        self.assertNotIn("jibDockerBuild", command[:3])
+
+    def test_release_verifier_rejects_partial_or_missing_evidence(self) -> None:
+        summary = {
+            "schema_version": 2,
+            "coverage": "1/1",
+            "release_gate": True,
+            "status": "success",
+            "selected": 1,
+            "blocked": 0,
+            "product_failure": 0,
+            "infrastructure_failure": 0,
+            "platforms": [{"platform_id": "arm64", "status": "success", "expected": {"tag": "2.18.0-arm64", "architecture": "arm64"}, "observed": {"image_tag": "2.18.0-arm64", "image_architecture": "arm64"}, "pull": {}, "junit": {}, "family_artifact": "ignite2.json"}],
+        }
+        errors = verify_release_summary(summary, expected_coverage="1/1", platform_id="arm64", expected_tag="2.18.0-arm64", expected_architecture="arm64")
+        self.assertIn("pull event and digest evidence are required", errors)
+
+    def test_budget_formula_and_52_family_artifact_guard(self) -> None:
+        self.assertEqual(
+            318,
+            worst_case_budget_minutes(
+                generic_families=51,
+                generic_attempts=1,
+                generic_pull_minutes=1,
+                generic_test_minutes=4,
+                generic_diagnostic_minutes=0.5,
+                strict_families=1,
+                strict_attempts=1,
+                strict_pull_minutes=1,
+                strict_test_minutes=6,
+                strict_diagnostic_minutes=0.5,
+                setup_slack_minutes=30,
+            ),
+        )
+        self.assertEqual(
+            84,
+            worst_case_budget_minutes(
+                generic_families=0,
+                generic_attempts=1,
+                generic_pull_minutes=0,
+                generic_test_minutes=0,
+                generic_diagnostic_minutes=0,
+                strict_families=1,
+                strict_attempts=2,
+                strict_pull_minutes=5,
+                strict_test_minutes=30,
+                strict_diagnostic_minutes=2,
+                setup_slack_minutes=10,
+            ),
+        )
+        with tempfile.TemporaryDirectory() as directory:
+            entries = [entry(f"Family{index}") | {"id": f"family-{index}"} for index in range(52)]
+            summary = GateRunner(
+                entries,
+                Path(directory),
+                command_runner=lambda command, timeout_seconds, **_: SimpleNamespace(returncode=0, stdout="BUILD SUCCESSFUL", stderr=""),
+                max_attempts=1,
+            ).run()
+            artifact_size = sum(path.stat().st_size for path in Path(directory).iterdir() if path.is_file())
+            self.assertEqual("52/52", summary["coverage"])
+            self.assertLessEqual(artifact_size, 8 * 1024 * 1024)
 
 
 if __name__ == "__main__":
