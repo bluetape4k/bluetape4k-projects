@@ -161,7 +161,10 @@ jobs:
               - 'settings.gradle.kts'
               - 'gradle/**'
               - 'gradle.properties'
-              - '.github/workflows/ci.yml'
+              - '.github/workflows/**'
+              - '.github/scripts/**'
+              - '.github/actions/**'
+              - 'scripts/validate-ci-*.rb'
             core:
               - 'bluetape4k/annotations/**'
               - 'bluetape4k/core/**'
