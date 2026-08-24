@@ -1,12 +1,12 @@
 package io.bluetape4k.testcontainers
 
+import io.bluetape4k.assertions.assertFailsWith
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeNull
 import io.mockk.every
 import io.mockk.mockk
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
-import kotlin.test.assertEquals
-import io.bluetape4k.assertions.assertFailsWith
-import kotlin.test.assertNull
 
 class GenericServerSupportTest {
 
@@ -30,11 +30,11 @@ class GenericServerSupportTest {
 
         server.writeToSystemProperties("redis", mapOf("ssl" to true, "nullable" to null))
 
-        assertEquals("127.0.0.1", System.getProperty("testcontainers.redis.host"))
-        assertEquals("6379", System.getProperty("testcontainers.redis.port"))
-        assertEquals("127.0.0.1:6379", System.getProperty("testcontainers.redis.url"))
-        assertEquals("true", System.getProperty("testcontainers.redis.ssl"))
-        assertNull(System.getProperty("testcontainers.redis.nullable"))
+        System.getProperty("testcontainers.redis.host") shouldBeEqualTo "127.0.0.1"
+        System.getProperty("testcontainers.redis.port") shouldBeEqualTo "6379"
+        System.getProperty("testcontainers.redis.url") shouldBeEqualTo "127.0.0.1:6379"
+        System.getProperty("testcontainers.redis.ssl") shouldBeEqualTo "true"
+        System.getProperty("testcontainers.redis.nullable").shouldBeNull()
     }
 
     @Test
@@ -50,10 +50,10 @@ class GenericServerSupportTest {
 
         server.writeToSystemProperties("redis", mapOf("timeoutMs" to 1500))
 
-        assertEquals("10.0.0.15", System.getProperty("testcontainers.redis.host"))
-        assertEquals("16379", System.getProperty("testcontainers.redis.port"))
-        assertEquals("10.0.0.15:16379", System.getProperty("testcontainers.redis.url"))
-        assertEquals("1500", System.getProperty("testcontainers.redis.timeoutMs"))
+        System.getProperty("testcontainers.redis.host") shouldBeEqualTo "10.0.0.15"
+        System.getProperty("testcontainers.redis.port") shouldBeEqualTo "16379"
+        System.getProperty("testcontainers.redis.url") shouldBeEqualTo "10.0.0.15:16379"
+        System.getProperty("testcontainers.redis.timeoutMs") shouldBeEqualTo "1500"
     }
 
     @Test

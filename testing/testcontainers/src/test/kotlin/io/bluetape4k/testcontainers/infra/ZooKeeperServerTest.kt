@@ -8,7 +8,6 @@ import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeTrue
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
-import kotlin.test.assertEquals
 import io.bluetape4k.assertions.assertFailsWith
 
 class ZooKeeperServerTest: AbstractContainerTest() {
@@ -61,6 +60,6 @@ class ZooKeeperServerTest: AbstractContainerTest() {
     @Test
     fun `전달받은 image 를 사용한다`() {
         val server = ZooKeeperServer(image = "zookeeper", tag = ZooKeeperServer.TAG)
-        assertEquals("zookeeper:${ZooKeeperServer.TAG}", server.dockerImageName)
+        server.dockerImageName shouldBeEqualTo "zookeeper:${ZooKeeperServer.TAG}"
     }
 }

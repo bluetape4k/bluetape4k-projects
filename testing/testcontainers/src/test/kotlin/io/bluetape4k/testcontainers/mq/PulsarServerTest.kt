@@ -8,7 +8,6 @@ import org.apache.pulsar.client.api.PulsarClient
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import java.util.concurrent.TimeUnit
-import kotlin.test.assertEquals
 import io.bluetape4k.assertions.assertFailsWith
 
 class PulsarServerTest: AbstractContainerTest() {
@@ -90,6 +89,6 @@ class PulsarServerTest: AbstractContainerTest() {
     @Test
     fun `전달받은 image 를 사용한다`() {
         val server = PulsarServer(image = "apachepulsar/pulsar", tag = "3.3.5")
-        assertEquals("apachepulsar/pulsar:3.3.5", server.dockerImageName)
+        server.dockerImageName shouldBeEqualTo "apachepulsar/pulsar:3.3.5"
     }
 }
