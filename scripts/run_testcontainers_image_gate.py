@@ -98,12 +98,11 @@ class CommandResult:
 def redact(value: str) -> str:
     """Remove common credential values before text enters logs or artifacts."""
 
-    redacted = value
-    for secret in sorted((item for item in _KNOWN_SECRETS if item), key=len, reverse=True):
-        redacted = redacted.replace(secret, "<redacted>")
-    redacted = BASIC_AUTH_URL_PATTERN.sub(r"\1<redacted>:<redacted>@", redacted)
+    redacted = BASIC_AUTH_URL_PATTERN.sub(r"\1<redacted>:<redacted>@", value)
     redacted = BEARER_PATTERN.sub(r"\1<redacted>", redacted)
     redacted = SECRET_PATTERN.sub(r"\1=<redacted>", redacted)
+    for secret in sorted((item for item in _KNOWN_SECRETS if item), key=len, reverse=True):
+        redacted = redacted.replace(secret, "<redacted>")
     return redacted
 
 

@@ -15,6 +15,7 @@ from scripts.run_testcontainers_image_gate import (
     GateRunner,
     classify_failure,
     redact,
+    register_secret,
     verify_release_summary,
     worst_case_budget_minutes,
 )
@@ -219,6 +220,25 @@ class TestRunTestcontainersImageGate(unittest.TestCase):
         self.assertNotIn("abc123", safe)
         self.assertIn("<redacted>", safe)
 
+    def test_nested_docker_auth_values_are_registered_for_redaction(self) -> None:
+        register_secret(
+            json.dumps(
+                {
+                    "auths": {
+                        "registry.example": {
+                            "auth": "dXNlcjpwYXNz",
+                            "username": "user",
+                            "password": "pass",
+                        }
+                    }
+                }
+            )
+        )
+        safe = redact("auth=dXNlcjpwYXNz username=user password=pass user:pass")
+        self.assertNotIn("dXNlcjpwYXNz", safe)
+        self.assertNotIn("user", safe)
+        self.assertNotIn("pass", safe)
+
     def test_summary_json_is_machine_readable(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             summary = GateRunner(
@@ -292,6 +312,17 @@ class TestRunTestcontainersImageGate(unittest.TestCase):
             self.assertEqual(1, result["junit"]["workload_tests"])
             self.assertTrue(result["startup"]["ready"])
             self.assertEqual(1, sum(command[:2] == ["docker", "pull"] for command in calls))
+            self.assertEqual(
+                [],
+                verify_release_summary(
+                    summary,
+                    expected_coverage="1/1",
+                    platform_id="amd64",
+                    expected_tag="2.18.0",
+                    expected_architecture="amd64",
+                    report_dir=Path(directory),
+                ),
+            )
             event_command = next(command for command in calls if command[:2] == ["docker", "events"])
             self.assertIn("--since", event_command)
             self.assertIn("--until", event_command)
