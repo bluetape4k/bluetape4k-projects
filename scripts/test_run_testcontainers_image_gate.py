@@ -16,6 +16,7 @@ from types import SimpleNamespace
 from scripts.run_testcontainers_image_gate import (
     GateRunner,
     MAX_OUTPUT_CHARS,
+    MAX_OUTPUT_LINES,
     _classify_command_result,
     _subprocess_runner,
     classify_failure,
@@ -255,6 +256,54 @@ class TestRunTestcontainersImageGate(unittest.TestCase):
         self.assertFalse(result.stdout_overflow)
         self.assertTrue(result.stderr_overflow)
         self.assertLessEqual(len(result.stderr.encode("utf-8")), MAX_OUTPUT_CHARS)
+        self.assertEqual(
+            "blocked",
+            _classify_command_result(
+                result.returncode,
+                result.stdout,
+                result.stderr,
+                stdout_overflow=result.stdout_overflow,
+                stderr_overflow=result.stderr_overflow,
+            ),
+        )
+
+    def test_stdout_line_overflow_with_zero_exit_is_blocked(self) -> None:
+        command = [
+            sys.executable,
+            "-c",
+            f"import sys; sys.stdout.write('x\\n' * {MAX_OUTPUT_LINES + 1}); sys.stdout.write('BUILD SUCCESSFUL\\n'); sys.stdout.flush()",
+        ]
+
+        result = _subprocess_runner(command, timeout_seconds=5)
+
+        self.assertEqual(0, result.returncode)
+        self.assertTrue(result.stdout_overflow)
+        self.assertFalse(result.stderr_overflow)
+        self.assertIn("...[line limit]", result.stdout)
+        self.assertEqual(
+            "blocked",
+            _classify_command_result(
+                result.returncode,
+                result.stdout,
+                result.stderr,
+                stdout_overflow=result.stdout_overflow,
+                stderr_overflow=result.stderr_overflow,
+            ),
+        )
+
+    def test_stderr_line_overflow_with_zero_exit_is_blocked(self) -> None:
+        command = [
+            sys.executable,
+            "-c",
+            f"import sys; sys.stdout.write('BUILD SUCCESSFUL\\n'); sys.stderr.write('x\\n' * {MAX_OUTPUT_LINES + 1}); sys.stderr.flush()",
+        ]
+
+        result = _subprocess_runner(command, timeout_seconds=5)
+
+        self.assertEqual(0, result.returncode)
+        self.assertFalse(result.stdout_overflow)
+        self.assertTrue(result.stderr_overflow)
+        self.assertIn("...[line limit]", result.stderr)
         self.assertEqual(
             "blocked",
             _classify_command_result(
