@@ -50,6 +50,10 @@ MAX_XML_BYTES = 4 * 1024 * 1024
 MAX_XML_FILES = 8
 MAX_XML_TESTCASES = 2_048
 MAX_XML_COUNTER = 10_000
+EXPECTED_RUNNERS = {
+    "amd64": "ubuntu-24.04",
+    "arm64": "ubuntu-24.04-arm",
+}
 SAFE_ID = re.compile(r"^[a-z0-9][a-z0-9._-]{0,63}$")
 SAFE_TAG = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$")
 INFRASTRUCTURE_MARKERS = (
@@ -238,6 +242,13 @@ def verify_release_summary(
             errors.append("expected/observed tag mismatch")
         if expected.get("architecture") != expected_architecture or observed.get("image_architecture") != expected_architecture:
             errors.append("expected/observed architecture mismatch")
+        if expected.get("runner") != EXPECTED_RUNNERS.get(platform_id):
+            errors.append("expected runner label mismatch")
+        if (
+            observed.get("runner_architecture") != expected_architecture
+            or observed.get("daemon_architecture") != expected_architecture
+        ):
+            errors.append("runner/daemon architecture evidence is required")
         if expected.get("os") != "linux" or observed.get("image_os") != "linux":
             errors.append("expected/observed OS mismatch")
         if observed.get("runner_os") != "linux" or observed.get("daemon_os") != "linux":

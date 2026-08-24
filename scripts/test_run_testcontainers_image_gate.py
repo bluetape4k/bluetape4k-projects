@@ -410,6 +410,8 @@ class TestRunTestcontainersImageGate(unittest.TestCase):
         }
         errors = verify_release_summary(summary, expected_coverage="1/1", platform_id="arm64", expected_tag="2.18.0-arm64", expected_architecture="arm64")
         self.assertIn("pull event and digest evidence are required", errors)
+        self.assertIn("expected runner label mismatch", errors)
+        self.assertIn("runner/daemon architecture evidence is required", errors)
         summary["platforms"][0]["observed"].pop("image_tag")
         self.assertIn(
             "expected/observed tag mismatch",
