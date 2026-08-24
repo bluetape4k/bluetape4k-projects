@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import json
+import os
 import tempfile
 import unittest
 from pathlib import Path
@@ -56,6 +57,24 @@ def strict_entry() -> dict[str, object]:
 
 
 class TestRunTestcontainersImageGate(unittest.TestCase):
+    def test_runtime_environment_removes_docker_credentials_and_overrides(self) -> None:
+        original = {
+            key: os.environ.get(key)
+            for key in ("DOCKER_AUTH_CONFIG", "TESTCONTAINERS_REGISTRY_MIRROR", "DOCKER_HOST", "DOCKER_CONTEXT")
+        }
+        try:
+            for key in original:
+                os.environ[key] = "secret-or-override"
+            sanitized = GateRunner._sanitized_runtime_env()
+            for key in original:
+                self.assertNotIn(key, sanitized)
+        finally:
+            for key, value in original.items():
+                if value is None:
+                    os.environ.pop(key, None)
+                else:
+                    os.environ[key] = value
+
     def test_successful_family_records_command_and_coverage(self) -> None:
         calls: list[list[str]] = []
 
@@ -239,6 +258,9 @@ class TestRunTestcontainersImageGate(unittest.TestCase):
             self.assertEqual(1, result["junit"]["workload_tests"])
             self.assertTrue(result["startup"]["ready"])
             self.assertEqual(1, sum(command[:2] == ["docker", "pull"] for command in calls))
+            event_command = next(command for command in calls if command[:2] == ["docker", "events"])
+            self.assertIn("--since", event_command)
+            self.assertIn("--until", event_command)
 
     def test_strict_family_without_marker_is_blocked(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
