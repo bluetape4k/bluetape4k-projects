@@ -745,6 +745,9 @@ class GateRunner:
                     final_status = pull_status
                     self._elapsed_seconds += time.monotonic() - attempt_started
                     if pull_status == "infrastructure_failure" and attempt < self.max_attempts:
+                        # A failed pull is not reusable evidence for the next
+                        # attempt; require a fresh pull/inspect/event chain.
+                        pull_evidence = None
                         shutil.rmtree(evidence_dir, ignore_errors=True)
                         continue
                     break

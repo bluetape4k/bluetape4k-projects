@@ -309,6 +309,76 @@ class TestRunTestcontainersImageGate(unittest.TestCase):
             ).run()["results"][0]
             self.assertEqual("blocked", result["status"])
 
+    def test_strict_pull_infrastructure_failure_retries_the_complete_pull_chain(self) -> None:
+        calls: list[list[str]] = []
+        pull_attempts = 0
+
+        def command_runner(command: list[str], timeout_seconds: int, **_: object) -> SimpleNamespace:
+            nonlocal pull_attempts
+            calls.append(command)
+            if command[:2] == ["docker", "pull"]:
+                pull_attempts += 1
+                if pull_attempts == 1:
+                    return SimpleNamespace(returncode=1, stdout="", stderr="connection refused")
+                return SimpleNamespace(returncode=0, stdout="Status: Downloaded newer image", stderr="")
+            if command[:3] == ["docker", "image", "inspect"]:
+                return SimpleNamespace(
+                    returncode=0,
+                    stdout=json.dumps([{"Id": "sha256:" + "a" * 64, "RepoDigests": ["apacheignite/ignite@sha256:" + "b" * 64], "Os": "linux", "Architecture": "amd64"}]),
+                    stderr="",
+                )
+            if command[:3] == ["docker", "context", "show"]:
+                return SimpleNamespace(returncode=0, stdout="default\n", stderr="")
+            if command[:2] == ["docker", "info"]:
+                return SimpleNamespace(returncode=0, stdout=json.dumps({"Architecture": "amd64"}), stderr="")
+            if command[:2] == ["uname", "-m"]:
+                return SimpleNamespace(returncode=0, stdout="x86_64\n", stderr="")
+            if command[:2] == ["docker", "events"]:
+                return SimpleNamespace(
+                    returncode=0,
+                    stdout=json.dumps({
+                        "id": "sha256:" + "a" * 64,
+                        "from": "apacheignite/ignite:2.18.0",
+                        "Actor": {"ID": "sha256:" + "a" * 64, "Attributes": {"name": "apacheignite/ignite:2.18.0"}},
+                    }) + "\n",
+                    stderr="",
+                )
+            evidence = next((Path(part.split("=", 1)[1]) for part in command if part.startswith("-Dtestcontainers.image-gate.evidence-dir=")), None)
+            assert evidence is not None
+            evidence.joinpath("startup.marker").write_text("Ignite node started OK\n", encoding="utf-8")
+            evidence.joinpath("workload.image-id").write_text("sha256:" + "a" * 64 + "\n", encoding="utf-8")
+            evidence.joinpath("TEST-Ignite2ServerTest.xml").write_text(
+                '<testsuite name="io.bluetape4k.testcontainers.storage.Ignite2ServerTest" tests="1" skipped="0" failures="0" errors="0">'
+                '<testcase classname="io.bluetape4k.testcontainers.storage.Ignite2ServerTest" name="representativeStartupAndWorkload"/>'
+                '</testsuite>',
+                encoding="utf-8",
+            )
+            return SimpleNamespace(returncode=0, stdout="BUILD SUCCESSFUL", stderr="")
+
+        with tempfile.TemporaryDirectory() as directory:
+            result = GateRunner(
+                [strict_entry()],
+                Path(directory),
+                command_runner=command_runner,
+                max_attempts=2,
+                scope="family",
+            ).run()["results"][0]
+
+        self.assertEqual("success", result["status"])
+        self.assertEqual(2, pull_attempts)
+        self.assertEqual(2, len(result["attempts"]))
+        self.assertEqual("infrastructure_failure", result["attempts"][0]["status"])
+        self.assertEqual("success", result["attempts"][1]["status"])
+        self.assertEqual(
+            1,
+            sum(
+                command and command[0] == "./gradlew" and any(
+                    part.startswith("-Dtestcontainers.image-gate.evidence-dir=") for part in command
+                )
+                for command in calls
+            ),
+        )
+
     def test_arm64_strict_command_is_fixed_and_excludes_mock_jib(self) -> None:
         value = strict_entry()
         value["platforms"] = [
