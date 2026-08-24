@@ -128,10 +128,16 @@ class TestTestcontainersImageGate(unittest.TestCase):
             "needs: [resolve-version, testcontainers-manifest-contract]",
             release_workflow,
         )
-        self.assertIn(
-            "needs: [resolve-version, testcontainers-manifest-contract, testcontainers-image-gate]",
-            release_workflow,
-        )
+        if "testcontainers-ignite2-arm64-image-gate:" in release_workflow:
+            self.assertIn(
+                "needs: [resolve-version, testcontainers-manifest-contract, testcontainers-image-gate, testcontainers-ignite2-arm64-image-gate]",
+                release_workflow,
+            )
+        else:
+            self.assertIn(
+                "needs: [resolve-version, testcontainers-manifest-contract, testcontainers-image-gate]",
+                release_workflow,
+            )
 
         publish_match = re.search(
             r"^  publish:\n.*\Z",
@@ -147,20 +153,44 @@ class TestTestcontainersImageGate(unittest.TestCase):
         self.assertIn("if: ${{ needs.plan.outputs.scope == 'full' }}", workflow)
         self.assertIn("--scope full", workflow)
         self.assertIn("TESTCONTAINERS_IMAGE_GATE_MAX_PARALLEL: '1'", workflow)
-        self.assertIn("needs: [test-testcontainers, test-testcontainers-image-gate, plan]", workflow)
-        self.assertIn("needs.test-testcontainers-image-gate.result == 'skipped'", workflow)
-        self.assertIn("- test-testcontainers-image-gate", workflow)
+        if "test-testcontainers-ignite2-arm64-image-gate:" in workflow:
+            self.assertIn("--default-platform-id amd64", workflow)
+            self.assertIn("--job-budget-minutes 360", workflow)
+            self.assertIn("--family-id ignite2", workflow)
+            self.assertIn("--platform-id arm64", workflow)
+            self.assertIn("--job-budget-minutes 90", workflow)
+            self.assertIn(
+                "needs: [test-testcontainers, test-testcontainers-image-gate, test-testcontainers-ignite2-arm64-image-gate, plan]",
+                workflow,
+            )
+            self.assertIn("needs.test-testcontainers-image-gate.result == 'skipped'", workflow)
+            self.assertIn("needs.test-testcontainers-ignite2-arm64-image-gate.result == 'skipped'", workflow)
+            self.assertIn("- test-testcontainers-ignite2-arm64-image-gate", workflow)
+            self.assertNotIn("io.bluetape4k.testcontainers.storage.Ignite2ServerTest\",", workflow)
+        else:
+            self.assertIn("needs: [test-testcontainers, test-testcontainers-image-gate, plan]", workflow)
+            self.assertIn("needs.test-testcontainers-image-gate.result == 'skipped'", workflow)
 
     def test_release_publish_depends_on_full_gate_summary(self) -> None:
         workflow = (self.root / ".github/workflows/release.yml").read_text(encoding="utf-8")
         self.assertIn("testcontainers-manifest-contract:", workflow)
         self.assertIn("testcontainers-image-gate:", workflow)
-        self.assertIn(
-            "needs: [resolve-version, testcontainers-manifest-contract, testcontainers-image-gate]",
-            workflow,
-        )
+        if "testcontainers-ignite2-arm64-image-gate:" in workflow:
+            self.assertIn(
+                "needs: [resolve-version, testcontainers-manifest-contract, testcontainers-image-gate, testcontainers-ignite2-arm64-image-gate]",
+                workflow,
+            )
+        else:
+            self.assertIn(
+                "needs: [resolve-version, testcontainers-manifest-contract, testcontainers-image-gate]",
+                workflow,
+            )
         self.assertIn("--scope full", workflow)
-        self.assertIn("coverage=52/52", workflow)
+        if "testcontainers-ignite2-arm64-image-gate:" in workflow:
+            self.assertIn('expected_coverage="52/52"', workflow)
+            self.assertIn('expected_coverage="1/1"', workflow)
+        else:
+            self.assertIn("coverage=52/52", workflow)
 
 
 if __name__ == "__main__":
