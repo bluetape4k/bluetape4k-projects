@@ -224,6 +224,7 @@ jobs:
         run: |
           python3 -m unittest scripts/test_jvm_release_contract.py -v
           python3 -m unittest scripts/test_testcontainers_contract.py -v
+          python3 -m unittest scripts/test_testcontainers_image_gate.py -v
           ./scripts/check-jvm-release-contract.sh
 
       - name: Diagnose signing inputs
