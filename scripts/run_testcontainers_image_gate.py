@@ -5,10 +5,12 @@ from __future__ import annotations
 
 import argparse
 import hashlib
+import inspect
 import json
 import os
 import re
 import shlex
+import selectors
 import signal
 import shutil
 import tempfile
@@ -119,8 +121,20 @@ def _bounded(value: object) -> str:
 def register_secret(value: object) -> None:
     """Register raw/decoded credentials for every report boundary."""
 
+    if isinstance(value, (dict, list, tuple)):
+        for item in value:
+            register_secret(item)
+        if isinstance(value, dict):
+            for item in value.values():
+                register_secret(item)
+        return
     if isinstance(value, str) and value:
         _KNOWN_SECRETS.add(value)
+        if value.lstrip().startswith(("{", "[")):
+            try:
+                register_secret(json.loads(value))
+            except (TypeError, ValueError, json.JSONDecodeError):
+                pass
         try:
             import base64
 
@@ -155,54 +169,86 @@ def classify_failure(returncode: int | None, stdout: str, stderr: str) -> str:
 
 
 def _classify_command_result(returncode: int | None, stdout: str, stderr: str) -> str:
+    if "job budget exceeded" in f"{stdout}\n{stderr}".lower():
+        return "blocked"
     status = classify_failure(returncode, stdout, stderr)
     if status == "success" and not re.search(r"\bBUILD SUCCESSFUL\b", f"{stdout}\n{stderr}"):
         return "blocked"
     return status
 
 
-def _subprocess_runner(command: list[str], timeout_seconds: int, *, env: dict[str, str] | None = None) -> Any:
-    started = time.monotonic()
-    stdout_file = tempfile.TemporaryFile()
-    stderr_file = tempfile.TemporaryFile()
-    process: subprocess.Popen[bytes] | None = None
+def _terminate_process(process: subprocess.Popen[bytes]) -> None:
     try:
-        process = subprocess.Popen(
-            command,
-            stdout=stdout_file,
-            stderr=stderr_file,
-            env=env,
-            start_new_session=True,
-        )
+        os.killpg(process.pid, signal.SIGTERM)
+        process.wait(timeout=5)
+    except (OSError, subprocess.TimeoutExpired):
         try:
-            process.wait(timeout=timeout_seconds)
+            os.killpg(process.pid, signal.SIGKILL)
+        except OSError:
+            pass
+        try:
+            process.wait(timeout=5)
         except subprocess.TimeoutExpired:
-            try:
-                os.killpg(process.pid, signal.SIGTERM)
-                process.wait(timeout=5)
-            except (OSError, subprocess.TimeoutExpired):
-                try:
-                    os.killpg(process.pid, signal.SIGKILL)
-                except OSError:
-                    pass
-                process.wait()
-            return CommandResult(None, _bounded(_read_tail(stdout_file)), _bounded(_read_tail(stderr_file) + " timeout"), time.monotonic() - started)
-        return CommandResult(
-            process.returncode,
-            _bounded(_read_tail(stdout_file)),
-            _bounded(_read_tail(stderr_file)),
-            time.monotonic() - started,
-        )
+            pass
+
+
+def _subprocess_runner(command: list[str], timeout_seconds: int, *, env: dict[str, str] | None = None) -> Any:
+    """Run a command while continuously draining capped stdout/stderr pipes."""
+
+    started = time.monotonic()
+    process = subprocess.Popen(
+        command,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        env=env,
+        start_new_session=True,
+    )
+    selector = selectors.DefaultSelector()
+    captures: dict[str, bytearray] = {"stdout": bytearray(), "stderr": bytearray()}
+    for name, stream in (("stdout", process.stdout), ("stderr", process.stderr)):
+        if stream is not None:
+            selector.register(stream, selectors.EVENT_READ, name)
+    deadline = started + max(1, timeout_seconds)
+    timed_out = False
+    try:
+        while selector.get_map():
+            remaining = deadline - time.monotonic()
+            if remaining <= 0:
+                timed_out = True
+                _terminate_process(process)
+                break
+            events = selector.select(min(remaining, 0.25))
+            for key, _ in events:
+                stream = key.fileobj
+                chunk = os.read(stream.fileno(), 8192)
+                if not chunk:
+                    selector.unregister(stream)
+                    stream.close()
+                    continue
+                capture = captures[key.data]
+                capture.extend(chunk)
+                if len(capture) > MAX_OUTPUT_CHARS:
+                    del capture[:-MAX_OUTPUT_CHARS]
+        if not timed_out:
+            process.wait(timeout=max(1, deadline - time.monotonic()))
+    except subprocess.TimeoutExpired:
+        timed_out = True
+        _terminate_process(process)
     finally:
-        stdout_file.close()
-        stderr_file.close()
-
-
-def _read_tail(file_object: Any, limit: int = MAX_OUTPUT_CHARS) -> str:
-    file_object.seek(0, os.SEEK_END)
-    size = file_object.tell()
-    file_object.seek(max(0, size - limit - 1))
-    return file_object.read(limit + 1).decode("utf-8", errors="replace")
+        selector.close()
+        for stream in (process.stdout, process.stderr):
+            if stream is not None and not stream.closed:
+                stream.close()
+    stdout = bytes(captures["stdout"]).decode("utf-8", errors="replace")
+    stderr = bytes(captures["stderr"]).decode("utf-8", errors="replace")
+    if timed_out:
+        stderr = f"{stderr}\n...[timeout]"
+    return CommandResult(
+        None if timed_out else process.returncode,
+        _bounded(stdout),
+        _bounded(stderr),
+        time.monotonic() - started,
+    )
 
 
 def verify_release_summary(
@@ -212,6 +258,7 @@ def verify_release_summary(
     platform_id: str,
     expected_tag: str,
     expected_architecture: str,
+    report_dir: Path | None = None,
 ) -> list[str]:
     """Return fail-closed Release verifier findings for one native platform gate."""
 
@@ -257,10 +304,19 @@ def verify_release_summary(
             errors.append("pull status must be success")
         if pull.get("event_ref") not in {image_ref, f"docker.io/{image_ref}"}:
             errors.append("pull event requested-ref correlation is required")
+        expected_repository = image_ref.rsplit(":", 1)[0]
+        digest = str(pull.get("digest", ""))
+        if pull.get("digest_ref") not in {
+            f"{expected_repository}@{digest}",
+            f"docker.io/{expected_repository}@{digest}",
+        }:
+            errors.append("pull digest must belong to the requested repository")
         if (
             not pull.get("event_id")
+            or pull.get("event_image_id") not in {pull.get("image_id"), pull.get("digest")}
+            or not pull.get("event_timestamp_ns")
             or not str(pull.get("image_id", "")).startswith("sha256:")
-            or not str(pull.get("digest", "")).startswith("sha256:")
+            or not re.fullmatch(r"sha256:[0-9a-f]{64}", digest)
         ):
             errors.append("pull event and digest evidence are required")
         workload_image = result.get("workload_image", {})
@@ -268,8 +324,20 @@ def verify_release_summary(
             errors.append("workload image must match pulled image")
         if junit.get("workload_tests") != 1 or junit.get("skipped", 1) != 0 or junit.get("failures", 1) != 0 or junit.get("errors", 1) != 0:
             errors.append("successful workload JUnit evidence is required")
-        if result.get("family_artifact") in {None, ""}:
+        artifact = result.get("family_artifact")
+        family_id = str(result.get("family_id", ""))
+        if not SAFE_ID.fullmatch(family_id) or artifact != f"{family_id}.json":
             errors.append("family artifact reference is required")
+        elif report_dir is not None:
+            report_root = report_dir.resolve()
+            artifact_path = report_dir / artifact
+            try:
+                artifact_path.resolve().relative_to(report_root)
+            except ValueError:
+                errors.append("family artifact escapes report directory")
+            else:
+                if artifact_path.is_symlink() or not artifact_path.is_file():
+                    errors.append("family artifact file is missing or not regular")
     return errors
 
 
@@ -335,6 +403,7 @@ class GateRunner:
         self.manifest_digest = self._digest(manifest_path)
         self._staging_root: Path | None = None
         self._elapsed_seconds = 0.0
+        self._deadline: float | None = None
 
     def _digest(self, manifest_path: Path | None) -> str:
         if manifest_path and manifest_path.is_file():
@@ -343,13 +412,25 @@ class GateRunner:
         return hashlib.sha256(canonical).hexdigest()
 
     def _invoke(self, command: list[str], timeout_seconds: int, env: dict[str, str] | None = None) -> Any:
+        effective_timeout = timeout_seconds
+        if self._deadline is not None:
+            remaining = int(self._deadline - time.monotonic())
+            if remaining <= 0:
+                return CommandResult(None, "", "job budget exceeded")
+            effective_timeout = min(timeout_seconds, remaining)
         if env is None:
-            return self.command_runner(command, timeout_seconds)
+            return self.command_runner(command, effective_timeout)
         try:
-            return self.command_runner(command, timeout_seconds, env=env)
-        except TypeError:
-            # Existing fake runners intentionally expose the old two-argument contract.
-            return self.command_runner(command, timeout_seconds)
+            parameters = inspect.signature(self.command_runner).parameters.values()
+            accepts_env = any(
+                parameter.name == "env" or parameter.kind is inspect.Parameter.VAR_KEYWORD
+                for parameter in parameters
+            )
+        except (TypeError, ValueError):
+            accepts_env = False
+        if accepts_env:
+            return self.command_runner(command, effective_timeout, env=env)
+        return self.command_runner(command, effective_timeout)
 
     @staticmethod
     def _sanitized_runtime_env() -> dict[str, str]:
@@ -358,6 +439,7 @@ class GateRunner:
         env = os.environ.copy()
         for key in (
             "DOCKER_AUTH_CONFIG",
+            "DOCKER_CONFIG",
             "TESTCONTAINERS_REGISTRY_MIRROR",
             "DOCKER_HOST",
             "DOCKER_CONTEXT",
@@ -374,14 +456,28 @@ class GateRunner:
             env["DOCKER_HOST"] = local_socket
         return env
 
+    def _isolated_runtime_env(self) -> dict[str, str]:
+        env = self._sanitized_runtime_env()
+        if self._staging_root is None:
+            return env
+        config_dir = self._staging_root / "runtime-docker-config"
+        config_dir.mkdir(mode=0o700, exist_ok=True)
+        config_file = config_dir / "config.json"
+        if not config_file.exists():
+            config_file.write_text("{}\n", encoding="utf-8")
+            config_file.chmod(0o600)
+        env["DOCKER_CONFIG"] = str(config_dir)
+        return env
+
     def _command(self, entry: dict[str, Any], evidence_dir: Path | None = None) -> list[str]:
         strict = bool(entry.get("executionEvidenceRequired"))
-        if strict and entry.get("_selected_platform_id") == "arm64" and evidence_dir is not None:
+        if strict and evidence_dir is not None:
             workload = str(entry.get("workloadTestPattern", entry["testPattern"])).removesuffix("()")
+            test_task = str(entry.get("testTask", ":bluetape4k-testcontainers:test"))
             return [
                 "./gradlew",
                 f"-Dtestcontainers.image-gate.evidence-dir={evidence_dir}",
-                ":bluetape4k-testcontainers:test",
+                test_task,
                 "--tests",
                 workload,
                 "--no-configuration-cache",
@@ -433,7 +529,7 @@ class GateRunner:
         commands: list[tuple[str, list[str]]] = [
             (
                 "docker_ps",
-                ["docker", "ps", "-a", "--no-trunc", "--filter", f"ancestor={image_ref}"],
+                ["docker", "ps", "-aq", "--no-trunc", "--filter", f"ancestor={image_ref}"],
             ),
             ("docker_inspect", ["docker", "inspect", image_ref]),
             # _invoke already bounds and process-group-terminates diagnostics; do
@@ -459,13 +555,35 @@ class GateRunner:
             result = self._invoke(
                 command,
                 min(self.diagnostic_timeout_seconds, 60),
-                self._sanitized_runtime_env(),
+                self._isolated_runtime_env(),
             )
             diagnostics[label] = self._diagnostic_bounded(
                 f"exit={getattr(result, 'returncode', None)}\n"
                 f"stdout={getattr(result, 'stdout', '')}\n"
                 f"stderr={getattr(result, 'stderr', '')}"
             )
+            if label == "docker_ps":
+                container_ids = [
+                    line.strip()
+                    for line in str(getattr(result, "stdout", "")).splitlines()
+                    if re.fullmatch(r"[0-9a-f]{12,64}", line.strip())
+                ][:5]
+                log_chunks: list[str] = []
+                for container_id in container_ids:
+                    log_result = self._invoke(
+                        ["docker", "logs", "--tail=200", container_id],
+                        min(self.diagnostic_timeout_seconds, 60),
+                        self._isolated_runtime_env(),
+                    )
+                    log_chunks.append(
+                        f"container={container_id}\n"
+                        f"exit={getattr(log_result, 'returncode', None)}\n"
+                        f"stdout={getattr(log_result, 'stdout', '')}\n"
+                        f"stderr={getattr(log_result, 'stderr', '')}"
+                    )
+                diagnostics["docker_logs"] = self._diagnostic_bounded(
+                    "\n---\n".join(log_chunks) if log_chunks else "no matching containers"
+                )
         return diagnostics
 
     @staticmethod
@@ -491,7 +609,9 @@ class GateRunner:
                         candidates.append(path)
                 except OSError:
                     continue
-        return candidates[:MAX_XML_FILES]
+        if len(candidates) > MAX_XML_FILES:
+            raise ValueError("JUnit XML file limit exceeded")
+        return candidates
 
     def _parse_junit(self, entry: dict[str, Any], files: list[Path]) -> dict[str, Any]:
         if not files:
@@ -500,9 +620,15 @@ class GateRunner:
         expected_workload = str(entry.get("workloadTestPattern", "")).replace("()", "")
         matched: tuple[Path, ET.Element] | None = None
         for path in files:
-            if path.stat().st_size > MAX_XML_BYTES:
+            try:
+                flags = os.O_RDONLY | getattr(os, "O_NOFOLLOW", 0)
+                fd = os.open(path, flags)
+                with os.fdopen(fd, "rb") as stream:
+                    raw = stream.read(MAX_XML_BYTES + 1)
+            except OSError as error:
+                raise ValueError(f"JUnit XML cannot be opened safely: {path.name}") from error
+            if len(raw) > MAX_XML_BYTES:
                 raise ValueError(f"JUnit XML exceeds {MAX_XML_BYTES} bytes")
-            raw = path.read_bytes()
             if b"<!DOCTYPE" in raw or b"<!ENTITY" in raw:
                 raise ValueError("DTD/ENTITY is not allowed in JUnit XML")
             try:
@@ -510,7 +636,7 @@ class GateRunner:
             except ET.ParseError as error:
                 raise ValueError(f"malformed JUnit XML: {path.name}") from error
             suite_name = root.attrib.get("name", "")
-            if suite_name == expected_suite or suite_name.endswith(expected_suite):
+            if suite_name == expected_suite:
                 matched = (path, root)
                 break
         if matched is None:
@@ -584,6 +710,7 @@ class GateRunner:
         env = os.environ.copy()
         for key in (
             "DOCKER_AUTH_CONFIG",
+            "DOCKER_CONFIG",
             "TESTCONTAINERS_REGISTRY_MIRROR",
             "DOCKER_HOST",
             "DOCKER_CONTEXT",
@@ -596,15 +723,13 @@ class GateRunner:
             and os.environ.get("TESTCONTAINERS_DOCKER_SOCKET_OVERRIDE") == "/var/run/docker.sock"
         ):
             env["DOCKER_HOST"] = local_socket
-        config_dir: Path | None = None
+        config_dir: Path | None = attempt_root / "docker-config"
         try:
-            if auth_config:
-                config_dir = attempt_root / "docker-config"
-                config_dir.mkdir(mode=0o700)
-                config_file = config_dir / "config.json"
-                config_file.write_text(auth_config, encoding="utf-8")
-                config_file.chmod(0o600)
-                env["DOCKER_CONFIG"] = str(config_dir)
+            config_dir.mkdir(mode=0o700)
+            config_file = config_dir / "config.json"
+            config_file.write_text(auth_config or "{}\n", encoding="utf-8")
+            config_file.chmod(0o600)
+            env["DOCKER_CONFIG"] = str(config_dir)
             pull_started_wall = time.time()
             pull_started = time.monotonic()
             pull = self._invoke(
@@ -612,6 +737,13 @@ class GateRunner:
                 self.pull_timeout_seconds,
                 env,
             )
+            if "job budget exceeded" in f"{getattr(pull, 'stdout', '')}\n{getattr(pull, 'stderr', '')}".lower():
+                return "blocked", {
+                    "requested_ref": f"docker.io/{image_ref}",
+                    "attempts": attempt,
+                    "status": "blocked",
+                    "error": "job budget exceeded",
+                }
             pull_status = classify_failure(getattr(pull, "returncode", None), getattr(pull, "stdout", ""), getattr(pull, "stderr", ""))
             if getattr(pull, "returncode", None) != 0:
                 return pull_status, {"requested_ref": f"docker.io/{image_ref}", "attempts": attempt, "status": pull_status}
@@ -621,17 +753,40 @@ class GateRunner:
                 image = payload[0] if isinstance(payload, list) else payload
                 image_id = str(image.get("Id", ""))
                 digests = image.get("RepoDigests", [])
-                digest = next((item.split("@", 1)[1] for item in digests if "@sha256:" in item), "")
+                repository = image_ref.rsplit(":", 1)[0]
+                repository_names = {repository, f"docker.io/{repository}"}
+                digest_ref = next(
+                    (
+                        item
+                        for item in digests
+                        if isinstance(item, str)
+                        and "@sha256:" in item
+                        and item.split("@", 1)[0] in repository_names
+                    ),
+                    "",
+                )
+                digest = digest_ref.split("@", 1)[1] if digest_ref else ""
                 observed_os = str(image.get("Os", ""))
                 observed_arch = canonical_architecture(image.get("Architecture"))
             except (ValueError, IndexError, AttributeError, TypeError, json.JSONDecodeError) as error:
                 return "blocked", {"requested_ref": f"docker.io/{image_ref}", "attempts": attempt, "status": "blocked", "error": _bounded(error)}
-            if not image_id.startswith("sha256:") or not digest.startswith("sha256:") or observed_os != "linux" or observed_arch != architecture:
+            if (
+                not image_id.startswith("sha256:")
+                or not digest.startswith("sha256:")
+                or not digest_ref
+                or observed_os != "linux"
+                or observed_arch != architecture
+            ):
                 return "blocked", {"requested_ref": f"docker.io/{image_ref}", "attempts": attempt, "status": "blocked", "error": "image platform or digest mismatch"}
             context = self._invoke(["docker", "context", "show"], self.pull_timeout_seconds, env)
             info = self._invoke(["docker", "info", "--format", "{{json .}}"], self.pull_timeout_seconds, env)
             uname = self._invoke(["uname", "-m"], self.pull_timeout_seconds, env)
-            if getattr(context, "returncode", 1) != 0 or getattr(context, "stdout", "").strip() != "default":
+            uname_os = self._invoke(["uname", "-s"], self.pull_timeout_seconds, env)
+            if (
+                getattr(context, "returncode", 1) != 0
+                or getattr(context, "stdout", "").strip() != "default"
+                or getattr(uname_os, "returncode", 1) != 0
+            ):
                 return "blocked", {"requested_ref": f"docker.io/{image_ref}", "attempts": attempt, "status": "blocked", "error": "non-default Docker context"}
             try:
                 info_payload = json.loads(getattr(info, "stdout", "{}"))
@@ -639,9 +794,16 @@ class GateRunner:
                 info_payload = {}
             daemon_arch = canonical_architecture(info_payload.get("Architecture"))
             runner_arch = canonical_architecture(getattr(uname, "stdout", "").strip())
-            if daemon_arch != architecture or runner_arch != architecture:
+            daemon_os = str(info_payload.get("OSType", "")).strip().lower()
+            runner_os = str(getattr(uname_os, "stdout", "")).strip().lower()
+            if (
+                daemon_arch != architecture
+                or runner_arch != architecture
+                or daemon_os != "linux"
+                or runner_os != "linux"
+            ):
                 return "blocked", {"requested_ref": f"docker.io/{image_ref}", "attempts": attempt, "status": "blocked", "error": "daemon or runner architecture mismatch"}
-            event_since = str(max(0, int(pull_started_wall) - 1))
+            event_since = str(max(0, int(pull_started_wall)))
             event_until = str(int(time.time()) + 2)
             event = self._invoke(
                 [
@@ -664,6 +826,7 @@ class GateRunner:
             event_id = ""
             event_ref = ""
             event_image_id = ""
+            event_timestamp_ns = 0
             expected_refs = {image_ref, f"docker.io/{image_ref}"}
             expected_ids = {image_id, digest}
             for line in getattr(event, "stdout", "").splitlines():
@@ -684,15 +847,27 @@ class GateRunner:
                     }
                     matching_ref = next((value for value in refs if value in expected_refs), "")
                     matching_id = next((value for value in ids if value in expected_ids), "")
-                    if not matching_ref and not matching_id:
+                    raw_timestamp = item.get("timeNano")
+                    if raw_timestamp is None and item.get("time") is not None:
+                        raw_timestamp = int(float(item["time"]) * 1_000_000_000)
+                    try:
+                        candidate_timestamp_ns = int(raw_timestamp)
+                    except (TypeError, ValueError):
+                        candidate_timestamp_ns = 0
+                    if (
+                        not matching_ref
+                        or not matching_id
+                        or candidate_timestamp_ns < int(pull_started_wall * 1_000_000_000)
+                    ):
                         continue
                     event_id = str(item.get("id") or actor_id)
                     event_ref = matching_ref
                     event_image_id = matching_id
+                    event_timestamp_ns = candidate_timestamp_ns
                     break
                 except json.JSONDecodeError:
                     continue
-            if getattr(event, "returncode", 0) != 0 or not event_id:
+            if getattr(event, "returncode", 0) != 0 or not event_id or not event_ref or not event_image_id:
                 return "blocked", {"requested_ref": f"docker.io/{image_ref}", "attempts": attempt, "status": "blocked", "error": "pull event correlation is missing"}
             return "success", {
                 "requested_ref": f"docker.io/{image_ref}",
@@ -702,17 +877,19 @@ class GateRunner:
                 "event_id": event_id,
                 "event_ref": event_ref or None,
                 "event_image_id": event_image_id or None,
+                "event_timestamp_ns": event_timestamp_ns,
                 "image_id": image_id,
                 "digest": digest,
+                "digest_ref": digest_ref,
                 "elapsed_seconds": round(time.monotonic() - pull_started, 3),
                 "observed": {
-                    "runner_os": "linux",
+                    "runner_os": runner_os,
                     "runner_architecture": runner_arch,
                     # Docker's OperatingSystem field is a distro description
                     # (for example, "Ubuntu 24.04.4 LTS"), not an OS family.
                     # Keep the contract's normalized family value here and
                     # preserve the raw description separately for diagnostics.
-                    "daemon_os": "linux",
+                    "daemon_os": daemon_os,
                     "daemon_os_description": str(info_payload.get("OperatingSystem", "")).lower(),
                     "daemon_architecture": daemon_arch,
                     "image_os": observed_os,
@@ -766,13 +943,16 @@ class GateRunner:
             test_timeout = self.timeout_seconds
             if platform:
                 test_timeout = int(entry.get("platformTimeouts", {}).get(platform["id"], {}).get("testMinutes", self.timeout_seconds // 60)) * 60
-            result = self._invoke(command, test_timeout, self._sanitized_runtime_env())
+            result = self._invoke(command, test_timeout, self._isolated_runtime_env())
             elapsed = round(time.monotonic() - attempt_started, 3)
             self._elapsed_seconds += elapsed
             raw_stdout = getattr(result, "stdout", "")
             raw_stderr = getattr(result, "stderr", "")
             returncode = getattr(result, "returncode", None)
             status = _classify_command_result(returncode, raw_stdout, raw_stderr)
+            if status == "success" and self._deadline is not None and time.monotonic() >= self._deadline:
+                status = "blocked"
+                raw_stderr = f"{raw_stderr}\njob budget exceeded"
             attempt_result: dict[str, Any] = {"attempt": attempt, "command": redact(" ".join(command)), "returncode": returncode, "elapsed_seconds": elapsed, "status": status}
             if strict and status == "success":
                 try:
@@ -838,6 +1018,24 @@ class GateRunner:
 
     def run(self) -> dict[str, Any]:
         self.report_dir.mkdir(parents=True, exist_ok=True)
+        invalid_ids = [str(entry.get("id", "")) for entry in self.entries if not SAFE_ID.fullmatch(str(entry.get("id", "")))]
+        if invalid_ids:
+            raise ValueError(f"unsafe family id: {', '.join(invalid_ids)}")
+        allowed_names = {f"{entry['id']}.json" for entry in self.entries} | {"summary.json", "summary.md"}
+        unexpected = [
+            path.name
+            for path in self.report_dir.iterdir()
+            if path.is_symlink() or (path.is_file() and path.name not in allowed_names)
+        ]
+        if unexpected:
+            raise RuntimeError(
+                f"report directory contains unexpected artifacts: {', '.join(sorted(unexpected))}"
+            )
+        self._deadline = (
+            time.monotonic() + self.job_budget_seconds
+            if self.job_budget_seconds is not None
+            else None
+        )
         # Secret-bearing Docker config lives outside the artifact tree, including on timeout paths.
         self._staging_root = Path(tempfile.mkdtemp(prefix=".image-gate-"))
         results = []
@@ -884,6 +1082,7 @@ class GateRunner:
             "results": results,
             "platforms": [
                 {
+                    "family_id": result.get("id"),
                     "platform_id": result.get("platform_id"),
                     "status": result.get("status"),
                     "image_ref": result.get("image_ref"),

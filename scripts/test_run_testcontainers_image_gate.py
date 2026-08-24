@@ -6,6 +6,7 @@ from __future__ import annotations
 import json
 import os
 import tempfile
+import time
 import unittest
 from pathlib import Path
 from types import SimpleNamespace
@@ -60,7 +61,7 @@ class TestRunTestcontainersImageGate(unittest.TestCase):
     def test_runtime_environment_removes_docker_credentials_and_overrides(self) -> None:
         original = {
             key: os.environ.get(key)
-            for key in ("DOCKER_AUTH_CONFIG", "TESTCONTAINERS_REGISTRY_MIRROR", "DOCKER_HOST", "DOCKER_CONTEXT")
+            for key in ("DOCKER_AUTH_CONFIG", "DOCKER_CONFIG", "TESTCONTAINERS_REGISTRY_MIRROR", "DOCKER_HOST", "DOCKER_CONTEXT")
         }
         try:
             for key in original:
@@ -247,13 +248,16 @@ class TestRunTestcontainersImageGate(unittest.TestCase):
             if command[:3] == ["docker", "context", "show"]:
                 return SimpleNamespace(returncode=0, stdout="default\n", stderr="")
             if command[:2] == ["docker", "info"]:
-                return SimpleNamespace(returncode=0, stdout=json.dumps({"Architecture": "amd64"}), stderr="")
+                return SimpleNamespace(returncode=0, stdout=json.dumps({"Architecture": "amd64", "OSType": "linux"}), stderr="")
             if command[:2] == ["uname", "-m"]:
                 return SimpleNamespace(returncode=0, stdout="x86_64\n", stderr="")
+            if command[:2] == ["uname", "-s"]:
+                return SimpleNamespace(returncode=0, stdout="Linux\n", stderr="")
             if command[:2] == ["docker", "events"]:
                 return SimpleNamespace(
                     returncode=0,
                     stdout=json.dumps({
+                        "timeNano": str(time.time_ns()),
                         "id": "sha256:" + "a" * 64,
                         "from": "apacheignite/ignite:2.18.0",
                         "Actor": {"ID": "sha256:" + "a" * 64, "Attributes": {"name": "apacheignite/ignite:2.18.0"}},
@@ -330,13 +334,16 @@ class TestRunTestcontainersImageGate(unittest.TestCase):
             if command[:3] == ["docker", "context", "show"]:
                 return SimpleNamespace(returncode=0, stdout="default\n", stderr="")
             if command[:2] == ["docker", "info"]:
-                return SimpleNamespace(returncode=0, stdout=json.dumps({"Architecture": "amd64"}), stderr="")
+                return SimpleNamespace(returncode=0, stdout=json.dumps({"Architecture": "amd64", "OSType": "linux"}), stderr="")
             if command[:2] == ["uname", "-m"]:
                 return SimpleNamespace(returncode=0, stdout="x86_64\n", stderr="")
+            if command[:2] == ["uname", "-s"]:
+                return SimpleNamespace(returncode=0, stdout="Linux\n", stderr="")
             if command[:2] == ["docker", "events"]:
                 return SimpleNamespace(
                     returncode=0,
                     stdout=json.dumps({
+                        "timeNano": str(time.time_ns()),
                         "id": "sha256:" + "a" * 64,
                         "from": "apacheignite/ignite:2.18.0",
                         "Actor": {"ID": "sha256:" + "a" * 64, "Attributes": {"name": "apacheignite/ignite:2.18.0"}},
