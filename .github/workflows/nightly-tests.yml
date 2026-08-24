@@ -1260,6 +1260,7 @@ jobs:
               platform_id="amd64",
               expected_tag="2.18.0",
               expected_architecture="amd64",
+              report_dir=Path("build/reports/testcontainers-image-gate"),
           )
           if errors:
               raise SystemExit("; ".join(errors))
@@ -1272,14 +1273,35 @@ jobs:
             cat build/reports/testcontainers-image-gate/summary.md
           fi
 
+      - name: Stage exact image gate evidence
+        if: always()
+        run: |
+          set -euo pipefail
+          rm -rf build/reports/testcontainers-image-gate-artifact
+          mkdir -p build/reports/testcontainers-image-gate-artifact
+          python3 - <<'PY'
+          import shutil
+          from pathlib import Path
+          from scripts.testcontainers_image_gate import load_manifest
+
+          report = Path("build/reports/testcontainers-image-gate")
+          stage = Path("build/reports/testcontainers-image-gate-artifact")
+          names = [f"{entry['id']}.json" for entry in load_manifest()]
+          names.extend(("summary.json", "summary.md"))
+          for name in names:
+              source = report / name
+              if source.is_symlink() or not source.is_file():
+                  raise SystemExit(f"missing exact image-gate artifact: {source}")
+              shutil.copy2(source, stage / name)
+          PY
+
       - name: Upload image gate evidence
         if: always()
         uses: actions/upload-artifact@v7
         with:
           name: nightly-testcontainers-image-gate-${{ github.run_id }}-amd64
           path: |
-            build/reports/testcontainers-image-gate/*.json
-            build/reports/testcontainers-image-gate/summary.md
+            build/reports/testcontainers-image-gate-artifact
           if-no-files-found: error
           retention-days: 14
 
@@ -1339,6 +1361,7 @@ jobs:
               platform_id="arm64",
               expected_tag="2.18.0-arm64",
               expected_architecture="arm64",
+              report_dir=Path("build/reports/testcontainers-image-gate"),
           )
           if errors:
               raise SystemExit("; ".join(errors))
@@ -1351,14 +1374,25 @@ jobs:
             cat build/reports/testcontainers-image-gate/summary.md
           fi
 
+      - name: Stage exact Ignite2 arm64 image gate evidence
+        if: always()
+        run: |
+          set -euo pipefail
+          rm -rf build/reports/testcontainers-image-gate-artifact
+          mkdir -p build/reports/testcontainers-image-gate-artifact
+          for name in ignite2.json summary.json summary.md; do
+            test -f "build/reports/testcontainers-image-gate/$name"
+            test ! -L "build/reports/testcontainers-image-gate/$name"
+            cp -p "build/reports/testcontainers-image-gate/$name" "build/reports/testcontainers-image-gate-artifact/$name"
+          done
+
       - name: Upload Ignite2 arm64 image gate evidence
         if: always()
         uses: actions/upload-artifact@v7
         with:
           name: nightly-testcontainers-image-gate-${{ github.run_id }}-arm64
           path: |
-            build/reports/testcontainers-image-gate/*.json
-            build/reports/testcontainers-image-gate/summary.md
+            build/reports/testcontainers-image-gate-artifact
           if-no-files-found: error
           retention-days: 14
 
