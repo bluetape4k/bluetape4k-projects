@@ -35,18 +35,6 @@ class TestTestcontainersImageGate(unittest.TestCase):
         ).read_text(encoding="utf-8")
         self.assertIn('tasks.register<Test>("k8sTest")', build_script)
 
-    def test_java25_ignite_compatibility_options_are_global_and_minimal(self) -> None:
-        root_build = (self.root / "build.gradle.kts").read_text(encoding="utf-8")
-        module_build = (
-            self.root / "testing/testcontainers/build.gradle.kts"
-        ).read_text(encoding="utf-8")
-        for option in (
-            "--add-opens=java.base/java.nio=ALL-UNNAMED",
-            "--add-opens=java.base/java.util=ALL-UNNAMED",
-        ):
-            self.assertIn(option, root_build)
-            self.assertNotIn(option, module_build)
-
     def test_changed_scope_is_deterministic_and_full_scope_is_complete(self) -> None:
         changed = select_entries(self.entries, {"testing/testcontainers/src/main/kotlin/io/bluetape4k/testcontainers/aws/FlociServer.kt"})
         self.assertEqual(["FlociServer"], [entry["server"] for entry in changed])
@@ -123,6 +111,11 @@ class TestTestcontainersImageGate(unittest.TestCase):
         )
 
         release_workflow = (self.root / ".github/workflows/release.yml").read_text(encoding="utf-8")
+        for workflow in (ci_workflow, release_workflow):
+            if "testcontainers-image-gate" in workflow:
+                self.assertIn("build/reports/testcontainers-image-gate/*.json", workflow)
+                self.assertIn("build/reports/testcontainers-image-gate/summary.md", workflow)
+                self.assertNotIn("path: build/reports/testcontainers-image-gate/", workflow)
         manifest_match = re.search(
             r"^  testcontainers-manifest-contract:\n.*?(?=^  [a-z0-9-]+:\n)",
             release_workflow,

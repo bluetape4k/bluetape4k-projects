@@ -150,7 +150,9 @@ jobs:
         uses: actions/upload-artifact@v7
         with:
           name: release-testcontainers-image-gate-${{ github.run_id }}
-          path: build/reports/testcontainers-image-gate/
+          path: |
+            build/reports/testcontainers-image-gate/*.json
+            build/reports/testcontainers-image-gate/summary.md
           if-no-files-found: error
           retention-days: 30
 
