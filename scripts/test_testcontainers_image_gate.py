@@ -78,6 +78,10 @@ class TestTestcontainersImageGate(unittest.TestCase):
         invalid = [dict(self.entries[0], image="wrong/image")]
         self.assertIn("image drift", " ".join(validate_manifest(invalid, self.root)))
 
+    def test_manifest_rejects_unsafe_family_id(self) -> None:
+        invalid = [dict(self.entries[0], id="../escape")]
+        self.assertIn("id is invalid", " ".join(validate_manifest(invalid, self.root)))
+
     def test_invalid_family_specific_test_task_reports_drift(self) -> None:
         invalid = [dict(self.entries[0], testTask="test")]
         self.assertIn(
@@ -113,8 +117,12 @@ class TestTestcontainersImageGate(unittest.TestCase):
         release_workflow = (self.root / ".github/workflows/release.yml").read_text(encoding="utf-8")
         for workflow in (ci_workflow, release_workflow):
             if "testcontainers-image-gate" in workflow:
-                self.assertIn("build/reports/testcontainers-image-gate/*.json", workflow)
-                self.assertIn("build/reports/testcontainers-image-gate/summary.md", workflow)
+                if "testcontainers-ignite2-arm64-image-gate" in workflow:
+                    self.assertIn("build/reports/testcontainers-image-gate-artifact", workflow)
+                    self.assertNotIn("build/reports/testcontainers-image-gate/*.json", workflow)
+                else:
+                    self.assertIn("build/reports/testcontainers-image-gate/*.json", workflow)
+                    self.assertIn("build/reports/testcontainers-image-gate/summary.md", workflow)
                 self.assertNotIn("path: build/reports/testcontainers-image-gate/", workflow)
         manifest_match = re.search(
             r"^  testcontainers-manifest-contract:\n.*?(?=^  [a-z0-9-]+:\n)",
