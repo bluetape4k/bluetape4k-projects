@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import json
 import os
+import sys
 import tempfile
 import time
 import unittest
@@ -14,6 +15,9 @@ from types import SimpleNamespace
 
 from scripts.run_testcontainers_image_gate import (
     GateRunner,
+    MAX_OUTPUT_CHARS,
+    _classify_command_result,
+    _subprocess_runner,
     classify_failure,
     redact,
     register_secret,
@@ -213,6 +217,54 @@ class TestRunTestcontainersImageGate(unittest.TestCase):
             ).run()
             self.assertEqual("success", summary["results"][0]["status"])
             self.assertTrue(summary["release_gate"])
+
+    def test_stdout_overflow_with_zero_exit_is_blocked(self) -> None:
+        command = [
+            sys.executable,
+            "-c",
+            f"import sys; sys.stdout.write('x' * {MAX_OUTPUT_CHARS + 1}); sys.stdout.flush()",
+        ]
+
+        result = _subprocess_runner(command, timeout_seconds=5)
+
+        self.assertEqual(0, result.returncode)
+        self.assertTrue(result.stdout_overflow)
+        self.assertFalse(result.stderr_overflow)
+        self.assertLessEqual(len(result.stdout.encode("utf-8")), MAX_OUTPUT_CHARS)
+        self.assertEqual(
+            "blocked",
+            _classify_command_result(
+                result.returncode,
+                result.stdout,
+                result.stderr,
+                stdout_overflow=result.stdout_overflow,
+                stderr_overflow=result.stderr_overflow,
+            ),
+        )
+
+    def test_stderr_overflow_with_zero_exit_is_blocked(self) -> None:
+        command = [
+            sys.executable,
+            "-c",
+            f"import sys; sys.stdout.write('BUILD SUCCESSFUL\\n'); sys.stderr.write('x' * {MAX_OUTPUT_CHARS + 1}); sys.stderr.flush()",
+        ]
+
+        result = _subprocess_runner(command, timeout_seconds=5)
+
+        self.assertEqual(0, result.returncode)
+        self.assertFalse(result.stdout_overflow)
+        self.assertTrue(result.stderr_overflow)
+        self.assertLessEqual(len(result.stderr.encode("utf-8")), MAX_OUTPUT_CHARS)
+        self.assertEqual(
+            "blocked",
+            _classify_command_result(
+                result.returncode,
+                result.stdout,
+                result.stderr,
+                stdout_overflow=result.stdout_overflow,
+                stderr_overflow=result.stderr_overflow,
+            ),
+        )
 
     def test_secret_redaction_applies_to_artifact_text(self) -> None:
         safe = redact("TOKEN=super-secret password=hunter2 Authorization: Bearer abc123")
