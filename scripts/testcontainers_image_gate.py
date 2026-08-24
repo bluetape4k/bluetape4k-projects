@@ -219,8 +219,8 @@ def validate_manifest(entries: list[dict[str, Any]], root: Path = ROOT) -> list[
         if server in names:
             errors.append(f"duplicate server: {server}")
         names.add(server)
-        if not isinstance(family_id, str) or not family_id:
-            errors.append(f"{prefix} id must be a non-empty string")
+        if not _safe_string(family_id, ID_PATTERN):
+            errors.append(f"{prefix} id is invalid")
         elif family_id in ids:
             errors.append(f"duplicate id: {family_id}")
         else:
