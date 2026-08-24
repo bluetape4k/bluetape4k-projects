@@ -9,6 +9,7 @@ from pathlib import Path
 
 from scripts.testcontainers_image_gate import (
     EXPECTED_FAMILY_COUNT,
+    SelectionError,
     load_manifest,
     select_entries,
     validate_manifest,
@@ -41,6 +42,37 @@ class TestTestcontainersImageGate(unittest.TestCase):
 
         shared = select_entries(self.entries, {"scripts/run_testcontainers_image_gate.py"})
         self.assertEqual(EXPECTED_FAMILY_COUNT, len(shared))
+
+    def test_family_selector_is_exact_and_requires_platform_when_requested(self) -> None:
+        ignite = dict(self.entries[0])
+        ignite["id"] = "ignite2"
+        ignite["platforms"] = [
+            {"id": "amd64", "os": "linux", "architecture": "amd64", "tag": "2.18.0", "runner": "ubuntu-24.04"},
+            {"id": "arm64", "os": "linux", "architecture": "arm64", "tag": "2.18.0-arm64", "runner": "ubuntu-24.04-arm"},
+        ]
+        ignite["defaultPlatformId"] = "amd64"
+        selected = select_entries([ignite], set(), scope="family", family_id="ignite2", platform_id="arm64", require_selection=True)
+        self.assertEqual("arm64", selected[0]["_selected_platform_id"])
+        with self.assertRaises(SelectionError):
+            select_entries([ignite], set(), scope="family", family_id="missing", platform_id="arm64", require_selection=True)
+
+    def test_strict_platform_contract_rejects_unsafe_runner_and_workload(self) -> None:
+        invalid = dict(self.entries[0])
+        invalid.update(
+            {
+                "executionEvidenceRequired": True,
+                "pullEvidenceRequired": True,
+                "defaultPlatformId": "amd64",
+                "workloadTestPattern": "../unsafe",
+                "platforms": [
+                    {"id": "amd64", "os": "linux", "architecture": "amd64", "tag": "2.18.0", "runner": "self-hosted"},
+                ],
+                "platformTimeouts": {"amd64": {"testMinutes": 6, "clientConnectSeconds": 30, "clientRequestSeconds": 30}},
+            }
+        )
+        errors = validate_manifest([invalid], self.root)
+        self.assertIn("runner is unsupported", " ".join(errors))
+        self.assertIn("workloadTestPattern is invalid", " ".join(errors))
 
     def test_invalid_manifest_reports_drift_without_running_docker(self) -> None:
         invalid = [dict(self.entries[0], image="wrong/image")]
