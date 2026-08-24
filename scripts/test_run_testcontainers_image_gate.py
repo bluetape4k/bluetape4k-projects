@@ -75,6 +75,26 @@ class TestRunTestcontainersImageGate(unittest.TestCase):
                 else:
                     os.environ[key] = value
 
+    def test_runtime_environment_preserves_only_managed_local_unix_socket(self) -> None:
+        original = {
+            key: os.environ.get(key)
+            for key in ("DOCKER_HOST", "TESTCONTAINERS_DOCKER_SOCKET_OVERRIDE")
+        }
+        try:
+            os.environ["DOCKER_HOST"] = "unix:///Users/test/.colima/default/docker.sock"
+            os.environ["TESTCONTAINERS_DOCKER_SOCKET_OVERRIDE"] = "/var/run/docker.sock"
+            sanitized = GateRunner._sanitized_runtime_env()
+            self.assertEqual(
+                "unix:///Users/test/.colima/default/docker.sock",
+                sanitized.get("DOCKER_HOST"),
+            )
+        finally:
+            for key, value in original.items():
+                if value is None:
+                    os.environ.pop(key, None)
+                else:
+                    os.environ[key] = value
+
     def test_successful_family_records_command_and_coverage(self) -> None:
         calls: list[list[str]] = []
 
