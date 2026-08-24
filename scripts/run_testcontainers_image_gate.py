@@ -563,6 +563,8 @@ class GateRunner:
             "DOCKER_CONTEXT",
         ):
             env.pop(key, None)
+        # 호출자가 선택한 context는 무시하고 저장소가 허용한 기본 Unix socket 경계만 사용한다.
+        env["DOCKER_CONTEXT"] = "default"
         config_dir: Path | None = None
         try:
             if auth_config:
