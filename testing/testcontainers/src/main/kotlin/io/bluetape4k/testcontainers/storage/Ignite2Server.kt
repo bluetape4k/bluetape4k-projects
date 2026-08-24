@@ -61,6 +61,7 @@ class Ignite2Server private constructor(
             get() = defaultTagForArchitecture(System.getProperty("os.arch"))
 
         private const val DEFAULT_TAG_SENTINEL = "__ignite2_default_tag__"
+        private const val STARTUP_TIMEOUT_MINUTES = 5L
 
         private fun defaultTagForArchitecture(architecture: String?): String = when (architecture?.lowercase()) {
             "x86_64", "amd64" -> TAG
@@ -115,7 +116,8 @@ class Ignite2Server private constructor(
          * ```
          *
          * @param image          Docker 이미지 이름, blank이면 [IllegalArgumentException]이 발생합니다.
-         * @param tag            Docker 이미지 태그, blank이면 [IllegalArgumentException]이 발생합니다 (기본: [DEFAULT_TAG]; aarch64에서는 [TAG]-arm64).
+         * @param tag            Docker 이미지 태그, blank이면 [IllegalArgumentException]이 발생합니다
+         *                       (기본: [DEFAULT_TAG]; aarch64에서는 [TAG]-arm64).
          * @param useDefaultPort `true`면 10800 포트를 고정 바인딩합니다.
          * @param reuse          컨테이너 재사용 여부입니다.
          */
@@ -163,7 +165,7 @@ class Ignite2Server private constructor(
         // Ignite 2.x 노드가 완전히 초기화될 때까지 로그 메시지로 대기
         waitingFor(
             Wait.forLogMessage(".*Ignite node started OK.*", 1)
-                .withStartupTimeout(Duration.ofMinutes(5))
+                .withStartupTimeout(Duration.ofMinutes(STARTUP_TIMEOUT_MINUTES))
         )
 
         if (useDefaultPort) {
