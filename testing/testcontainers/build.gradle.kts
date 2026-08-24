@@ -43,6 +43,10 @@ tasks.withType<Test>().configureEach {
         "--add-opens=java.base/java.nio=ALL-UNNAMED",
         "--add-opens=java.base/java.util=ALL-UNNAMED",
     )
+    // Strict image gate 증거 경로를 실제 테스트 JVM에도 전달합니다.
+    System.getProperty("testcontainers.image-gate.evidence-dir")?.let {
+        systemProperty("testcontainers.image-gate.evidence-dir", it)
+    }
 }
 
 tasks.test {

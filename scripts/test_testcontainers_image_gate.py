@@ -41,6 +41,7 @@ class TestTestcontainersImageGate(unittest.TestCase):
             self.root / "testing/testcontainers/build.gradle.kts"
         ).read_text(encoding="utf-8")
         self.assertIn("tasks.withType<Test>().configureEach", module_build)
+        self.assertIn('systemProperty("testcontainers.image-gate.evidence-dir", it)', module_build)
         for option in (
             "--add-opens=java.base/java.nio=ALL-UNNAMED",
             "--add-opens=java.base/java.util=ALL-UNNAMED",
