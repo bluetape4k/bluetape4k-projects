@@ -1220,18 +1220,23 @@ def main(argv: Sequence[str] | None = None) -> int:
         _blocked_summary(args.report_dir, [str(error)], args.manifest)
         print(f"BLOCKED: {error}", file=sys.stderr)
         return 2
-    summary = GateRunner(
-        selected,
-        args.report_dir,
-        gradle_task=args.gradle_task,
-        max_attempts=args.max_attempts,
-        timeout_minutes=args.timeout_minutes,
-        manifest_path=args.manifest,
-        pull_timeout_seconds=args.pull_timeout_seconds,
-        diagnostic_timeout_seconds=args.diagnostic_timeout_seconds,
-        job_budget_minutes=args.job_budget_minutes,
-        scope=args.scope,
-    ).run()
+    try:
+        summary = GateRunner(
+            selected,
+            args.report_dir,
+            gradle_task=args.gradle_task,
+            max_attempts=args.max_attempts,
+            timeout_minutes=args.timeout_minutes,
+            manifest_path=args.manifest,
+            pull_timeout_seconds=args.pull_timeout_seconds,
+            diagnostic_timeout_seconds=args.diagnostic_timeout_seconds,
+            job_budget_minutes=args.job_budget_minutes,
+            scope=args.scope,
+        ).run()
+    except (OSError, RuntimeError, ValueError) as error:
+        _blocked_summary(args.report_dir, [str(error)], args.manifest)
+        print(f"BLOCKED: {error}", file=sys.stderr)
+        return 1
     print(json.dumps({key: summary[key] for key in (
         "status", "coverage", "product_failure", "infrastructure_failure", "blocked", "release_gate"
     )}, ensure_ascii=False))
