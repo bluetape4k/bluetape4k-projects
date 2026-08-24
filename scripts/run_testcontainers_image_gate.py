@@ -127,15 +127,20 @@ def redact(value: str) -> str:
     return redacted
 
 
-def _bounded(value: object) -> str:
+def _bounded_with_overflow(value: object) -> tuple[str, bool]:
     text = redact(str(value or ""))
     lines = text.splitlines()
+    overflow = len(lines) > MAX_OUTPUT_LINES
     if len(lines) > MAX_OUTPUT_LINES:
         text = "\n".join(lines[:MAX_OUTPUT_LINES]) + "\n...[line limit]"
     if len(text.encode("utf-8")) <= MAX_OUTPUT_CHARS:
-        return text
+        return text, overflow
     encoded = text.encode("utf-8")[:MAX_OUTPUT_CHARS]
-    return encoded.decode("utf-8", errors="ignore") + "\n...[byte limit]"
+    return encoded.decode("utf-8", errors="ignore") + "\n...[byte limit]", True
+
+
+def _bounded(value: object) -> str:
+    return _bounded_with_overflow(value)[0]
 
 
 def register_secret(value: object) -> None:
@@ -319,15 +324,17 @@ def _subprocess_runner(command: list[str], timeout_seconds: int, *, env: dict[st
                 stream.close()
     stdout = bytes(captures["stdout"]).decode("utf-8", errors="replace")
     stderr = bytes(captures["stderr"]).decode("utf-8", errors="replace")
+    bounded_stdout, stdout_bounded_overflow = _bounded_with_overflow(stdout)
+    bounded_stderr, stderr_bounded_overflow = _bounded_with_overflow(stderr)
     if timed_out:
-        stderr = f"{stderr}\n...[timeout]"
+        bounded_stderr = f"{bounded_stderr}\n...[timeout]"
     return CommandResult(
         None if timed_out else process.returncode,
-        _bounded(stdout),
-        _bounded(stderr),
+        bounded_stdout,
+        bounded_stderr,
         time.monotonic() - started,
-        stdout_overflow=overflows["stdout"],
-        stderr_overflow=overflows["stderr"],
+        stdout_overflow=overflows["stdout"] or stdout_bounded_overflow,
+        stderr_overflow=overflows["stderr"] or stderr_bounded_overflow,
     )
 
 
