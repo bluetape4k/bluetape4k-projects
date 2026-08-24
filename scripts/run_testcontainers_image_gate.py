@@ -352,6 +352,15 @@ class GateRunner:
             "DOCKER_CONTEXT",
         ):
             env.pop(key, None)
+        # Local Colima is the only approved host override: it is a Unix socket
+        # paired with Testcontainers' canonical in-container socket. Never
+        # carry TCP endpoints or arbitrary context selections into the gate.
+        local_socket = os.environ.get("DOCKER_HOST", "")
+        if (
+            local_socket.startswith("unix://")
+            and os.environ.get("TESTCONTAINERS_DOCKER_SOCKET_OVERRIDE") == "/var/run/docker.sock"
+        ):
+            env["DOCKER_HOST"] = local_socket
         return env
 
     def _command(self, entry: dict[str, Any], evidence_dir: Path | None = None) -> list[str]:
