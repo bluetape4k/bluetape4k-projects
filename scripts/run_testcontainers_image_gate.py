@@ -82,6 +82,9 @@ SECRET_PATTERN = re.compile(
 )
 BEARER_PATTERN = re.compile(r"(?i)(bearer\s+)[^\s,;]+")
 BASIC_AUTH_URL_PATTERN = re.compile(r"(?i)(https?://)([^/@:\s]+):([^/@\s]+)@")
+DOCKER_TEXT_PULL_EVENT_PATTERN = re.compile(
+    r"^(?P<timestamp>\S+)\s+image\s+pull\s+(?P<ref>\S+)(?:\s|$)"
+)
 _KNOWN_SECRETS: set[str] = set()
 
 
@@ -142,6 +145,38 @@ def register_secret(value: object) -> None:
             decoded = ""
         if decoded:
             _KNOWN_SECRETS.add(decoded)
+
+
+def _parse_iso_timestamp_ns(value: object) -> int:
+    """Parse Docker's ISO event timestamp without losing nanosecond precision."""
+
+    text = str(value or "").strip()
+    match = re.fullmatch(
+        r"(?P<date>\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2})"
+        r"(?:\.(?P<fraction>\d{1,9}))?(?P<zone>Z|[+-]\d{2}:\d{2})",
+        text,
+    )
+    if not match:
+        return 0
+    try:
+        parsed = datetime.fromisoformat(text.replace("Z", "+00:00"))
+        seconds = int(parsed.timestamp())
+    except ValueError:
+        return 0
+    fraction = int((match.group("fraction") or "").ljust(9, "0") or "0")
+    return seconds * 1_000_000_000 + fraction
+
+
+def _parse_text_pull_event(line: str) -> tuple[str, int] | None:
+    """Parse a Docker text event into its requested reference and timestamp."""
+
+    match = DOCKER_TEXT_PULL_EVENT_PATTERN.match(line.strip())
+    if not match:
+        return None
+    timestamp_ns = _parse_iso_timestamp_ns(match.group("timestamp"))
+    if timestamp_ns <= 0:
+        return None
+    return match.group("ref"), timestamp_ns
 
 
 def _read_bounded(path: Path, limit: int) -> str:
@@ -310,6 +345,18 @@ def verify_release_summary(
             f"docker.io/{expected_repository}@{digest}",
         }:
             errors.append("pull digest must belong to the requested repository")
+        event_id_source = pull.get("event_id_source")
+        event_image_id_source = pull.get("event_image_id_source")
+        if event_id_source not in {"docker_event", "ref_timestamp_receipt"}:
+            errors.append("pull event ID source is required")
+        if event_image_id_source not in {"docker_event", "post_pull_inspect"}:
+            errors.append("pull event image ID source is required")
+        if event_id_source == "ref_timestamp_receipt" and pull.get("event_id") != (
+            f"ref_timestamp:{pull.get('event_timestamp_ns')}:{pull.get('event_ref')}"
+        ):
+            errors.append("pull text event receipt is invalid")
+        if event_image_id_source == "post_pull_inspect" and pull.get("event_image_id") != pull.get("image_id"):
+            errors.append("post-pull inspect image ID binding is required")
         if (
             not pull.get("event_id")
             or pull.get("event_image_id") not in {pull.get("image_id"), pull.get("digest")}
@@ -823,14 +870,18 @@ class GateRunner:
                 env,
             )
             event_id = ""
+            event_id_source = ""
             event_ref = ""
             event_image_id = ""
+            event_image_id_source = ""
             event_timestamp_ns = 0
             expected_refs = {image_ref, f"docker.io/{image_ref}"}
             expected_ids = {image_id, digest}
             for line in getattr(event, "stdout", "").splitlines():
                 try:
                     item = json.loads(line)
+                    if not isinstance(item, dict):
+                        continue
                     actor = item.get("Actor", {})
                     attributes = actor.get("Attributes", {}) if isinstance(actor, dict) else {}
                     actor_id = str(actor.get("ID") or "") if isinstance(actor, dict) else ""
@@ -855,18 +906,48 @@ class GateRunner:
                         candidate_timestamp_ns = 0
                     if (
                         not matching_ref
-                        or not matching_id
                         or candidate_timestamp_ns < int(pull_started_wall * 1_000_000_000)
                     ):
                         continue
-                    event_id = str(item.get("id") or actor_id)
                     event_ref = matching_ref
-                    event_image_id = matching_id
                     event_timestamp_ns = candidate_timestamp_ns
+                    if matching_id:
+                        event_id = str(item.get("id") or actor_id)
+                        event_id_source = "docker_event"
+                        event_image_id = matching_id
+                        event_image_id_source = "docker_event"
+                    else:
+                        event_id = f"ref_timestamp:{event_timestamp_ns}:{event_ref}"
+                        event_id_source = "ref_timestamp_receipt"
+                        event_image_id = image_id
+                        event_image_id_source = "post_pull_inspect"
                     break
                 except json.JSONDecodeError:
-                    continue
-            if getattr(event, "returncode", 0) != 0 or not event_id or not event_ref or not event_image_id:
+                    text_event = _parse_text_pull_event(line)
+                    if text_event is None:
+                        continue
+                    text_ref, candidate_timestamp_ns = text_event
+                    matching_ref = text_ref if text_ref in expected_refs else ""
+                    if (
+                        not matching_ref
+                        or candidate_timestamp_ns < int(pull_started_wall * 1_000_000_000)
+                    ):
+                        continue
+                    event_ref = matching_ref
+                    event_timestamp_ns = candidate_timestamp_ns
+                    event_id = f"ref_timestamp:{event_timestamp_ns}:{event_ref}"
+                    event_id_source = "ref_timestamp_receipt"
+                    event_image_id = image_id
+                    event_image_id_source = "post_pull_inspect"
+                    break
+            if (
+                getattr(event, "returncode", 0) != 0
+                or not event_id
+                or not event_ref
+                or not event_image_id
+                or not event_id_source
+                or not event_image_id_source
+            ):
                 return "blocked", {"requested_ref": f"docker.io/{image_ref}", "attempts": attempt, "status": "blocked", "error": "pull event correlation is missing"}
             return "success", {
                 "requested_ref": f"docker.io/{image_ref}",
@@ -874,8 +955,10 @@ class GateRunner:
                 "status": "success",
                 "cache": "up_to_date" if "already exists" in getattr(pull, "stdout", "").lower() else "pulled",
                 "event_id": event_id,
+                "event_id_source": event_id_source,
                 "event_ref": event_ref or None,
                 "event_image_id": event_image_id or None,
+                "event_image_id_source": event_image_id_source,
                 "event_timestamp_ns": event_timestamp_ns,
                 "image_id": image_id,
                 "digest": digest,

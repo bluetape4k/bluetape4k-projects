@@ -188,13 +188,17 @@ platform 선택은 exact
 2. `pullEvidenceRequired` entry는 선택된 `<image>:<tag>`를 pull하고 pull
    결과/event와 cache 여부를 기록한다. pull 전 bounded event observer를 시작해
    `run_id`, `family_id`, `platform_id`, `attempt`, requested ref로 correlation하고,
-   observer가 확인한 pull event id를 schema에 남긴다. authoritative 실행에서
+   observer가 확인한 pull event id를 schema에 남긴다. hosted Docker가 ID 없는
+   text event를 반환하면 exact requested ref와 pull 이후 event timestamp를
+   deterministic receipt로 남기고, 직후 image inspect의 image ID/digest에
+   binding한다. authoritative 실행에서
    pull은 첫 attempt에 최대 1회만 수행하고, pull 단계가 registry transport
    failure였을 때만 두 번째 attempt에서 1회 재시도한다(실행당 최대 2회).
    pull 성공 후에는 verified image ID/digest를 다음 test retry에서 재사용하고
    tag를 다시 해석하지 않는다. pull 직후 image ID와 `RepoDigests`를 고정하고,
    container inspect의 image ID/digest가 그 값과 일치하는지 확인한다.
-   `RepoDigests`가 비어 있거나 event correlation이 없으면 성공하지 않는다. registry
+   `RepoDigests`가 비어 있거나 requested ref·timestamp correlation 및 post-pull
+   image binding이 없으면 성공하지 않는다. registry
    credential은 dedicated pull subprocess의 ephemeral `DOCKER_CONFIG`에만
    주입한다. Gradle/test/diagnostic subprocess에는 sanitized environment만
    전달하고, pull 직후 temporary config와 helper credential을 삭제한다.

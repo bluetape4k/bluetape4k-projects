@@ -8,6 +8,7 @@ import os
 import tempfile
 import time
 import unittest
+from datetime import datetime, timezone
 from pathlib import Path
 from types import SimpleNamespace
 
@@ -331,6 +332,88 @@ class TestRunTestcontainersImageGate(unittest.TestCase):
             event_command = next(command for command in calls if command[:2] == ["docker", "events"])
             self.assertIn("--since", event_command)
             self.assertIn("--until", event_command)
+
+    def test_strict_family_accepts_text_pull_event_bound_to_post_pull_inspect(self) -> None:
+        """Hosted Docker may emit text pull events without an event/image ID."""
+
+        def command_runner(command: list[str], timeout_seconds: int, **_: object) -> SimpleNamespace:
+            if command[:2] == ["docker", "pull"]:
+                return SimpleNamespace(returncode=0, stdout="Status: Downloaded newer image", stderr="")
+            if command[:3] == ["docker", "image", "inspect"]:
+                return SimpleNamespace(
+                    returncode=0,
+                    stdout=json.dumps(
+                        [
+                            {
+                                "Id": "sha256:" + "a" * 64,
+                                "RepoDigests": ["apacheignite/ignite@sha256:" + "b" * 64],
+                                "Os": "linux",
+                                "Architecture": "amd64",
+                            }
+                        ]
+                    ),
+                    stderr="",
+                )
+            if command[:3] == ["docker", "context", "show"]:
+                return SimpleNamespace(returncode=0, stdout="default\n", stderr="")
+            if command[:2] == ["docker", "info"]:
+                return SimpleNamespace(returncode=0, stdout=json.dumps({"Architecture": "amd64", "OSType": "linux"}), stderr="")
+            if command[:2] == ["uname", "-m"]:
+                return SimpleNamespace(returncode=0, stdout="x86_64\n", stderr="")
+            if command[:2] == ["uname", "-s"]:
+                return SimpleNamespace(returncode=0, stdout="Linux\n", stderr="")
+            if command[:2] == ["docker", "events"]:
+                timestamp = datetime.now(timezone.utc).isoformat(timespec="microseconds").replace("+00:00", "Z")
+                return SimpleNamespace(
+                    returncode=0,
+                    stdout=(
+                        f"{timestamp} image pull apacheignite/ignite:2.18.0 "
+                        "(name=apacheignite/ignite, org.opencontainers.image.ref.name=ubuntu)\n"
+                    ),
+                    stderr="",
+                )
+            evidence = next(
+                (
+                    Path(part.split("=", 1)[1])
+                    for part in command
+                    if part.startswith("-Dtestcontainers.image-gate.evidence-dir=")
+                ),
+                None,
+            )
+            assert evidence is not None
+            evidence.joinpath("startup.marker").write_text("Ignite node started OK\n", encoding="utf-8")
+            evidence.joinpath("workload.image-id").write_text("sha256:" + "a" * 64 + "\n", encoding="utf-8")
+            evidence.joinpath("TEST-Ignite2ServerTest.xml").write_text(
+                '<testsuite name="io.bluetape4k.testcontainers.storage.Ignite2ServerTest" tests="1" skipped="0" failures="0" errors="0">'
+                '<testcase classname="io.bluetape4k.testcontainers.storage.Ignite2ServerTest" name="representativeStartupAndWorkload"/>'
+                "</testsuite>",
+                encoding="utf-8",
+            )
+            return SimpleNamespace(returncode=0, stdout="BUILD SUCCESSFUL", stderr="")
+
+        with tempfile.TemporaryDirectory() as directory:
+            summary = GateRunner(
+                [strict_entry()],
+                Path(directory),
+                command_runner=command_runner,
+                max_attempts=1,
+                scope="family",
+            ).run()
+
+        result = summary["results"][0]
+        self.assertEqual("success", result["status"])
+        self.assertEqual("apacheignite/ignite:2.18.0", result["pull"]["event_ref"])
+        self.assertEqual("post_pull_inspect", result["pull"]["event_image_id_source"])
+        self.assertEqual(
+            [],
+            verify_release_summary(
+                summary,
+                expected_coverage="1/1",
+                platform_id="amd64",
+                expected_tag="2.18.0",
+                expected_architecture="amd64",
+            ),
+        )
 
     def test_strict_family_without_marker_is_blocked(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
