@@ -1,10 +1,10 @@
 package io.bluetape4k.junit5.utils
 
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldNotBeNull
 import io.mockk.mockk
 import org.junit.jupiter.api.Test
 import org.junit.platform.engine.TestExecutionResult
-import kotlin.test.assertEquals
-import kotlin.test.assertTrue
 
 class RecordingExecutionListenerTest {
 
@@ -19,8 +19,8 @@ class RecordingExecutionListenerTest {
         val successful = listener.getFinishedEventsByStatus(TestExecutionResult.Status.SUCCESSFUL)
         val failed = listener.getFinishedEventsByStatus(TestExecutionResult.Status.FAILED)
 
-        assertEquals(1, successful.size)
-        assertEquals(1, failed.size)
+        successful.size shouldBeEqualTo 1
+        failed.size shouldBeEqualTo 1
     }
 
     @Test
@@ -29,7 +29,6 @@ class RecordingExecutionListenerTest {
         val event = ExecutionEvent.executionFinished(descriptor, TestExecutionResult.successful())
 
         val payload = event.getPayload(TestExecutionResult::class.java)
-        assertTrue(payload != null)
-        assertEquals(TestExecutionResult.Status.SUCCESSFUL, payload.status)
+        payload.shouldNotBeNull().status shouldBeEqualTo TestExecutionResult.Status.SUCCESSFUL
     }
 }

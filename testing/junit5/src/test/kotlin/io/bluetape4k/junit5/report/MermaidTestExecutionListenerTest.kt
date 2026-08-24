@@ -1,5 +1,8 @@
 package io.bluetape4k.junit5.report
 
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeFalse
+import io.bluetape4k.assertions.shouldBeTrue
 import io.mockk.every
 import io.mockk.mockk
 import org.junit.jupiter.api.Test
@@ -12,9 +15,6 @@ import java.time.Clock
 import java.time.Instant
 import java.time.ZoneOffset
 import java.util.*
-import kotlin.test.assertEquals
-import kotlin.test.assertFalse
-import kotlin.test.assertTrue
 
 class MermaidTestExecutionListenerTest {
 
@@ -34,9 +34,9 @@ class MermaidTestExecutionListenerTest {
         listener.executionFinished(failed, TestExecutionResult.failed(IllegalStateException("boom")))
 
         val chart = listener.mermaidGanttChart()
-        assertTrue(chart.contains("section io.sample.DemoTest"))
-        assertTrue(chart.contains("success-task(✅) : active"))
-        assertTrue(chart.contains("failed-task(🔥) : crit"))
+        chart.contains("section io.sample.DemoTest").shouldBeTrue()
+        chart.contains("success-task(✅) : active").shouldBeTrue()
+        chart.contains("failed-task(🔥) : crit").shouldBeTrue()
     }
 
     @Test
@@ -52,9 +52,9 @@ class MermaidTestExecutionListenerTest {
         listener.executionFinished(test, TestExecutionResult.successful())
         listener.testPlanExecutionFinished(mockk<TestPlan>(relaxed = true))
 
-        assertEquals(2, outputs.size)
-        assertEquals("Test execution completed.", outputs[0])
-        assertTrue(outputs[1].startsWith("gantt"))
+        outputs.size shouldBeEqualTo 2
+        outputs[0] shouldBeEqualTo "Test execution completed."
+        outputs[1].startsWith("gantt").shouldBeTrue()
     }
 
     @Test
@@ -69,7 +69,7 @@ class MermaidTestExecutionListenerTest {
         listener.executionFinished(nonTest, TestExecutionResult.successful())
 
         val chart = listener.mermaidGanttChart()
-        assertFalse(chart.contains("container"))
+        chart.contains("container").shouldBeFalse()
     }
 
     private fun testIdentifier(

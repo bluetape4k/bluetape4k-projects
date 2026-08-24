@@ -5,6 +5,7 @@ import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.info
 import io.bluetape4k.assertions.shouldBeEmpty
 import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeFalse
 import io.bluetape4k.assertions.shouldBeNull
 import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.assertions.shouldHaveSize
@@ -12,7 +13,6 @@ import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.RepeatedTest
 import org.junit.jupiter.api.Test
-import kotlin.test.assertTrue
 
 class InMemoryLogbackAppenderTest {
 
@@ -70,7 +70,7 @@ class InMemoryLogbackAppenderTest {
 
         val localAppender = InMemoryLogbackAppender(LocalClass::class)
         try {
-            assertTrue(localAppender.isStarted)
+            localAppender.isStarted.shouldBeTrue()
         } finally {
             localAppender.stop()
         }
@@ -101,7 +101,7 @@ class InMemoryLogbackAppenderTest {
     @Test
     fun `stop 호출 후 isStarted 는 false 이다`() {
         appender.stop()
-        assertTrue(!appender.isStarted)
+        appender.isStarted.shouldBeFalse()
         appender.size shouldBeEqualTo 0
     }
 }

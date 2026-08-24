@@ -1,12 +1,12 @@
 package io.bluetape4k.junit5.utils
 
+import io.bluetape4k.assertions.shouldBeTrue
 import org.junit.jupiter.api.Test
 import org.junit.platform.engine.TestDescriptor
 import org.junit.platform.engine.UniqueId
 import org.junit.platform.engine.discovery.DiscoverySelectors.selectClass
 import org.junit.platform.launcher.core.LauncherDiscoveryRequestBuilder
 import java.nio.file.Files
-import kotlin.test.assertTrue
 
 class ExtensionTesterTest {
 
@@ -14,8 +14,8 @@ class ExtensionTesterTest {
     fun `execute 는 테스트 이벤트를 기록한다`() {
         val listener = ExtensionTester.execute(selectClass(SampleJupiterTest::class.java))
 
-        assertTrue(listener.countEventsByType(ExecutionEvent.EventType.STARTED) > 0)
-        assertTrue(listener.countEventsByType(ExecutionEvent.EventType.FINISHED) > 0)
+        (listener.countEventsByType(ExecutionEvent.EventType.STARTED) > 0).shouldBeTrue()
+        (listener.countEventsByType(ExecutionEvent.EventType.FINISHED) > 0).shouldBeTrue()
     }
 
     @Test
@@ -26,9 +26,9 @@ class ExtensionTesterTest {
 
         val outputDir = creator.createOutputDirectory(descriptor)
 
-        assertTrue(outputDir.isAbsolute)
-        assertTrue(outputDir.startsWith(root))
-        assertTrue(Files.exists(outputDir))
+        outputDir.isAbsolute.shouldBeTrue()
+        outputDir.startsWith(root).shouldBeTrue()
+        Files.exists(outputDir).shouldBeTrue()
     }
 
     private fun discoverDescriptor(testClass: Class<*>): TestDescriptor {
@@ -44,7 +44,7 @@ class ExtensionTesterTest {
     class SampleJupiterTest {
         @Test
         fun pass() {
-            assertTrue(true)
+            true.shouldBeTrue()
         }
     }
 }

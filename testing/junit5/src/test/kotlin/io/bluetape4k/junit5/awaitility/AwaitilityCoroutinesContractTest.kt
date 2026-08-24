@@ -1,6 +1,7 @@
 package io.bluetape4k.junit5.awaitility
 
 import io.bluetape4k.assertions.assertFailsWith
+import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.delay
@@ -13,7 +14,6 @@ import java.time.Duration
 import java.util.concurrent.Callable
 import java.util.concurrent.atomic.AtomicInteger
 import java.util.concurrent.atomic.AtomicLong
-import kotlin.test.assertTrue
 import kotlin.time.Duration.Companion.milliseconds
 
 class AwaitilityCoroutinesContractTest {
@@ -28,7 +28,7 @@ class AwaitilityCoroutinesContractTest {
                 .untilSuspending { true }
         }
 
-        assertTrue(exception.message.orEmpty().contains("earlier than expected minimum timeout"))
+        exception.message.orEmpty().contains("earlier than expected minimum timeout").shouldBeTrue()
     }
 
     @Test
@@ -44,7 +44,7 @@ class AwaitilityCoroutinesContractTest {
             }
 
         val elapsedMillis = (System.nanoTime() - startedAt).toDurationMillis()
-        assertTrue(elapsedMillis >= 220, "during contract completed too early: ${elapsedMillis}ms")
+        (elapsedMillis >= 220).shouldBeTrue()
     }
 
     @Test
@@ -91,7 +91,7 @@ class AwaitilityCoroutinesContractTest {
             }
 
         val elapsedMillis = (firstPollAt.get() - startedAt).toDurationMillis()
-        assertTrue(elapsedMillis >= 60, "default fixed poll delay was lost: ${elapsedMillis}ms")
+        (elapsedMillis >= 60).shouldBeTrue()
     }
 
     @Test
@@ -110,7 +110,7 @@ class AwaitilityCoroutinesContractTest {
                 true
             }
 
-        assertTrue(attempts.get() >= 3)
+        (attempts.get() >= 3).shouldBeTrue()
     }
 
     @Test
@@ -129,7 +129,7 @@ class AwaitilityCoroutinesContractTest {
                 true
             }
 
-        assertTrue(attempts.get() >= 2)
+        (attempts.get() >= 2).shouldBeTrue()
     }
 
     @Test

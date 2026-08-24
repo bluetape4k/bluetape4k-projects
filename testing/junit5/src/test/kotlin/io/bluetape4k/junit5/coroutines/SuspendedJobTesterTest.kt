@@ -7,10 +7,10 @@ import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.test.runTest
 import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.assertFails
+import io.bluetape4k.assertions.assertFailsWith
 import org.junit.jupiter.api.Test
 import java.util.concurrent.atomic.AtomicInteger
-import kotlin.test.assertFails
-import io.bluetape4k.assertions.assertFailsWith
 import kotlin.time.Duration.Companion.milliseconds
 
 class SuspendedJobTesterTest {

@@ -9,12 +9,12 @@ import kotlinx.coroutines.withTimeout
 import kotlinx.coroutines.yield
 import io.bluetape4k.assertions.shouldBeGreaterThan
 import io.bluetape4k.assertions.shouldBeLessOrEqualTo
+import io.bluetape4k.assertions.shouldBeInstanceOf
 import org.awaitility.core.ConditionTimeoutException
 import org.awaitility.kotlin.await
 import org.junit.jupiter.api.Test
 import java.time.Duration
 import io.bluetape4k.assertions.assertFailsWith
-import kotlin.test.assertIs
 import kotlin.time.Duration.Companion.milliseconds
 
 class AwaitilityCoroutinesTest {
@@ -121,7 +121,7 @@ class AwaitilityCoroutinesTest {
                 }
         }
 
-        assertIs<IllegalStateException>(exception.findRootCause())
+        exception.findRootCause().shouldBeInstanceOf<IllegalStateException>()
     }
 
     @Test
