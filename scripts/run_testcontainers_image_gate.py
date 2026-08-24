@@ -233,12 +233,28 @@ def verify_release_summary(
         observed = result.get("observed", {})
         pull = result.get("pull", {})
         junit = result.get("junit", {})
-        if expected.get("tag") != expected_tag or observed.get("image_tag") not in {expected_tag, None}:
+        image_ref = str(result.get("image_ref", ""))
+        if expected.get("tag") != expected_tag or observed.get("image_tag") != expected_tag:
             errors.append("expected/observed tag mismatch")
-        if expected.get("architecture") != expected_architecture or observed.get("image_architecture") not in {expected_architecture, None}:
+        if expected.get("architecture") != expected_architecture or observed.get("image_architecture") != expected_architecture:
             errors.append("expected/observed architecture mismatch")
-        if not pull.get("event_id") or not str(pull.get("digest", "")).startswith("sha256:"):
+        if expected.get("os") != "linux" or observed.get("image_os") != "linux":
+            errors.append("expected/observed OS mismatch")
+        if observed.get("runner_os") != "linux" or observed.get("daemon_os") != "linux":
+            errors.append("runner/daemon OS evidence is required")
+        if pull.get("status") != "success":
+            errors.append("pull status must be success")
+        if pull.get("event_ref") not in {image_ref, f"docker.io/{image_ref}"}:
+            errors.append("pull event requested-ref correlation is required")
+        if (
+            not pull.get("event_id")
+            or not str(pull.get("image_id", "")).startswith("sha256:")
+            or not str(pull.get("digest", "")).startswith("sha256:")
+        ):
             errors.append("pull event and digest evidence are required")
+        workload_image = result.get("workload_image", {})
+        if workload_image.get("image_id") != pull.get("image_id"):
+            errors.append("workload image must match pulled image")
         if junit.get("workload_tests") != 1 or junit.get("skipped", 1) != 0 or junit.get("failures", 1) != 0 or junit.get("errors", 1) != 0:
             errors.append("successful workload JUnit evidence is required")
         if result.get("family_artifact") in {None, ""}:
@@ -388,7 +404,9 @@ class GateRunner:
         return text
 
     def _collect_diagnostics(self, entry: dict[str, Any]) -> dict[str, str]:
-        image_ref = f"{entry['image']}:{entry['tag']}"
+        platform = self._strict_platform(entry)
+        selected_tag = str(platform["tag"]) if platform else str(entry["tag"])
+        image_ref = f"{entry['image']}:{selected_tag}"
         commands: list[tuple[str, list[str]]] = [
             (
                 "docker_ps",
@@ -523,6 +541,15 @@ class GateRunner:
             raise ValueError("startup marker content mismatch")
         return {"ready": True, "marker": content, "marker_source": "bounded_attempt_marker"}
 
+    def _workload_image(self, evidence_dir: Path) -> dict[str, Any]:
+        receipt = evidence_dir / "workload.image-id"
+        if not self._is_regular(receipt) or receipt.stat().st_size > 256:
+            raise ValueError("workload image receipt is missing or oversized")
+        image_id = receipt.read_text(encoding="utf-8").strip()
+        if not re.fullmatch(r"sha256:[0-9a-f]{64}", image_id):
+            raise ValueError("workload image receipt is not a Docker image ID")
+        return {"image_id": image_id, "source": receipt.name}
+
     def _pull_evidence(self, entry: dict[str, Any], platform: dict[str, Any], attempt_root: Path, attempt: int) -> tuple[str, dict[str, Any]]:
         image_ref = f"{entry['image']}:{platform['tag']}"
         architecture = str(platform["id"])
@@ -545,6 +572,7 @@ class GateRunner:
                 config_file.write_text(auth_config, encoding="utf-8")
                 config_file.chmod(0o600)
                 env["DOCKER_CONFIG"] = str(config_dir)
+            pull_started_wall = time.time()
             pull_started = time.monotonic()
             pull = self._invoke(
                 ["docker", "pull", "--platform", f"linux/{architecture}", image_ref],
@@ -580,7 +608,7 @@ class GateRunner:
             runner_arch = canonical_architecture(getattr(uname, "stdout", "").strip())
             if daemon_arch != architecture or runner_arch != architecture:
                 return "blocked", {"requested_ref": f"docker.io/{image_ref}", "attempts": attempt, "status": "blocked", "error": "daemon or runner architecture mismatch"}
-            event_since = str(int(pull_started))
+            event_since = str(max(0, int(pull_started_wall) - 1))
             event_until = str(int(time.time()) + 2)
             event = self._invoke(
                 [
@@ -601,13 +629,35 @@ class GateRunner:
                 env,
             )
             event_id = ""
+            event_ref = ""
+            event_image_id = ""
+            expected_refs = {image_ref, f"docker.io/{image_ref}"}
+            expected_ids = {image_id, digest}
             for line in getattr(event, "stdout", "").splitlines():
                 try:
                     item = json.loads(line)
-                    event_id = str(item.get("id") or item.get("Actor", {}).get("ID") or "")
+                    actor = item.get("Actor", {})
+                    attributes = actor.get("Attributes", {}) if isinstance(actor, dict) else {}
+                    refs = {
+                        str(item.get("from") or ""),
+                        str(attributes.get("name") or ""),
+                        str(attributes.get("image") or ""),
+                    }
+                    ids = {
+                        str(item.get("id") or ""),
+                        str(actor.get("ID") or "") if isinstance(actor, dict) else "",
+                    }
+                    matching_ref = next((value for value in refs if value in expected_refs), "")
+                    matching_id = next((value for value in ids if value in expected_ids), "")
+                    if not matching_ref and not matching_id:
+                        continue
+                    event_id = str(item.get("id") or actor.get("ID") or "")
+                    event_ref = matching_ref
+                    event_image_id = matching_id
+                    break
                 except json.JSONDecodeError:
                     continue
-            if not event_id:
+            if getattr(event, "returncode", 0) != 0 or not event_id:
                 return "blocked", {"requested_ref": f"docker.io/{image_ref}", "attempts": attempt, "status": "blocked", "error": "pull event correlation is missing"}
             return "success", {
                 "requested_ref": f"docker.io/{image_ref}",
@@ -615,6 +665,8 @@ class GateRunner:
                 "status": "success",
                 "cache": "up_to_date" if "already exists" in getattr(pull, "stdout", "").lower() else "pulled",
                 "event_id": event_id,
+                "event_ref": event_ref or None,
+                "event_image_id": event_image_id or None,
                 "image_id": image_id,
                 "digest": digest,
                 "elapsed_seconds": round(time.monotonic() - pull_started, 3),
@@ -648,6 +700,7 @@ class GateRunner:
             raise RuntimeError("runner staging root is not initialized")
         final_status = "blocked"
         pull_evidence: dict[str, Any] | None = None
+        workload_image: dict[str, Any] | None = None
         selected_tag = str(platform.get("tag")) if platform else str(entry["tag"])
         selected_image = str(entry["image"])
         for attempt in range(1, self.max_attempts + 1):
@@ -682,8 +735,12 @@ class GateRunner:
                 try:
                     junit = self._parse_junit(entry, self._xml_candidates(attempt_started_ns, evidence_dir))
                     startup = self._marker(evidence_dir, attempt_started_ns)
+                    workload_image = self._workload_image(evidence_dir)
+                    if pull_evidence and workload_image["image_id"] != pull_evidence.get("image_id"):
+                        raise ValueError("workload image does not match pulled image")
                     attempt_result["junit"] = junit
                     attempt_result["startup"] = startup
+                    attempt_result["workload_image"] = workload_image
                 except (OSError, ValueError) as error:
                     status = "blocked"
                     attempt_result["status"] = status
@@ -721,6 +778,7 @@ class GateRunner:
                     "expected": {"os": platform.get("os"), "tag": selected_tag, "architecture": platform.get("architecture"), "runner": platform.get("runner")},
                     "pull": pull_evidence or {"status": "blocked"},
                     "observed": (pull_evidence or {}).get("observed", {}),
+                    "workload_image": workload_image or {},
                     "provenance": {"commit": self.commit, "ref": self.ref, "workflow_run_id": self.workflow_run_id},
                 }
             )
@@ -737,7 +795,8 @@ class GateRunner:
 
     def run(self) -> dict[str, Any]:
         self.report_dir.mkdir(parents=True, exist_ok=True)
-        self._staging_root = Path(tempfile.mkdtemp(prefix=".image-gate-", dir=self.report_dir))
+        # Secret-bearing Docker config lives outside the artifact tree, including on timeout paths.
+        self._staging_root = Path(tempfile.mkdtemp(prefix=".image-gate-"))
         results = []
         try:
             for entry in self.entries:
@@ -784,12 +843,14 @@ class GateRunner:
                 {
                     "platform_id": result.get("platform_id"),
                     "status": result.get("status"),
+                    "image_ref": result.get("image_ref"),
                     "family_artifact": f"{result.get('id')}.json",
                     "expected": result.get("expected", {}),
                     "observed": result.get("observed", {}),
                     "pull": result.get("pull", {}),
                     "junit": result.get("junit", {}),
                     "startup": result.get("startup", {}),
+                    "workload_image": result.get("workload_image", {}),
                 }
                 for result in results
             ],

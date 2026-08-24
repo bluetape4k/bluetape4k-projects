@@ -221,7 +221,7 @@ class TestRunTestcontainersImageGate(unittest.TestCase):
             if command[:3] == ["docker", "image", "inspect"]:
                 return SimpleNamespace(
                     returncode=0,
-                    stdout=json.dumps([{"Id": "sha256:image", "RepoDigests": ["apacheignite/ignite@sha256:digest"], "Os": "linux", "Architecture": "amd64"}]),
+                    stdout=json.dumps([{"Id": "sha256:" + "a" * 64, "RepoDigests": ["apacheignite/ignite@sha256:" + "b" * 64], "Os": "linux", "Architecture": "amd64"}]),
                     stderr="",
                 )
             if command[:3] == ["docker", "context", "show"]:
@@ -231,10 +231,19 @@ class TestRunTestcontainersImageGate(unittest.TestCase):
             if command[:2] == ["uname", "-m"]:
                 return SimpleNamespace(returncode=0, stdout="x86_64\n", stderr="")
             if command[:2] == ["docker", "events"]:
-                return SimpleNamespace(returncode=0, stdout=json.dumps({"id": "pull-event-1"}) + "\n", stderr="")
+                return SimpleNamespace(
+                    returncode=0,
+                    stdout=json.dumps({
+                        "id": "sha256:" + "a" * 64,
+                        "from": "apacheignite/ignite:2.18.0",
+                        "Actor": {"ID": "sha256:" + "a" * 64, "Attributes": {"name": "apacheignite/ignite:2.18.0"}},
+                    }) + "\n",
+                    stderr="",
+                )
             evidence = next((Path(part.split("=", 1)[1]) for part in command if part.startswith("-Dtestcontainers.image-gate.evidence-dir=")), None)
             assert evidence is not None
             evidence.joinpath("startup.marker").write_text("Ignite node started OK\n", encoding="utf-8")
+            evidence.joinpath("workload.image-id").write_text("sha256:" + "a" * 64 + "\n", encoding="utf-8")
             evidence.joinpath("TEST-Ignite2ServerTest.xml").write_text(
                 '<testsuite name="io.bluetape4k.testcontainers.storage.Ignite2ServerTest" tests="1" skipped="0" failures="0" errors="0">'
                 '<testcase classname="io.bluetape4k.testcontainers.storage.Ignite2ServerTest" name="representativeStartupAndWorkload"/>'
@@ -254,10 +263,16 @@ class TestRunTestcontainersImageGate(unittest.TestCase):
             result = summary["results"][0]
             self.assertEqual("success", result["status"])
             self.assertEqual("amd64", result["platform_id"])
-            self.assertEqual("pull-event-1", result["pull"]["event_id"])
+            self.assertEqual("sha256:" + "a" * 64, result["pull"]["event_id"])
+            self.assertEqual("apacheignite/ignite:2.18.0", result["pull"]["event_ref"])
             self.assertEqual(1, result["junit"]["workload_tests"])
             self.assertTrue(result["startup"]["ready"])
             self.assertEqual(1, sum(command[:2] == ["docker", "pull"] for command in calls))
+            event_command = next(command for command in calls if command[:2] == ["docker", "events"])
+            self.assertIn("--since", event_command)
+            self.assertIn("--until", event_command)
+            since = int(event_command[event_command.index("--since") + 1])
+            self.assertGreater(since, 1_000_000_000)
             event_command = next(command for command in calls if command[:2] == ["docker", "events"])
             self.assertIn("--since", event_command)
             self.assertIn("--until", event_command)
@@ -300,10 +315,15 @@ class TestRunTestcontainersImageGate(unittest.TestCase):
             "blocked": 0,
             "product_failure": 0,
             "infrastructure_failure": 0,
-            "platforms": [{"platform_id": "arm64", "status": "success", "expected": {"tag": "2.18.0-arm64", "architecture": "arm64"}, "observed": {"image_tag": "2.18.0-arm64", "image_architecture": "arm64"}, "pull": {}, "junit": {}, "family_artifact": "ignite2.json"}],
+            "platforms": [{"platform_id": "arm64", "status": "success", "image_ref": "apacheignite/ignite:2.18.0-arm64", "expected": {"os": "linux", "tag": "2.18.0-arm64", "architecture": "arm64"}, "observed": {"image_tag": "2.18.0-arm64", "image_architecture": "arm64", "image_os": "linux", "runner_os": "linux", "daemon_os": "linux"}, "pull": {}, "junit": {}, "workload_image": {}, "family_artifact": "ignite2.json"}],
         }
         errors = verify_release_summary(summary, expected_coverage="1/1", platform_id="arm64", expected_tag="2.18.0-arm64", expected_architecture="arm64")
         self.assertIn("pull event and digest evidence are required", errors)
+        summary["platforms"][0]["observed"].pop("image_tag")
+        self.assertIn(
+            "expected/observed tag mismatch",
+            verify_release_summary(summary, expected_coverage="1/1", platform_id="arm64", expected_tag="2.18.0-arm64", expected_architecture="arm64"),
+        )
 
     def test_budget_formula_and_52_family_artifact_guard(self) -> None:
         self.assertEqual(

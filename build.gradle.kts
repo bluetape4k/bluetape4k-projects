@@ -318,12 +318,6 @@ subprojects {
 
     tasks {
         val signingUsesGpgCmd = resolvePublishingSigningConfig().useGpgCmd
-        // Java 25+에서 Ignite 2 thin client의 레거시 reflection을 허용한다.
-        // 검증된 최소 범위만 모든 테스트 JVM에 적용해 모듈별 설정 드리프트를 막는다.
-        val java25CompatibilityJvmArgs = listOf(
-            "--add-opens=java.base/java.nio=ALL-UNNAMED",
-            "--add-opens=java.base/java.util=ALL-UNNAMED",
-        )
 
         compileJava {
             options.isIncremental = true
@@ -349,10 +343,6 @@ subprojects {
             NmcpPublishMutexService::class
         ) {
             maxParallelUsages.set(1)
-        }
-
-        withType<Test>().configureEach {
-            jvmArgs(java25CompatibilityJvmArgs)
         }
 
         test {
