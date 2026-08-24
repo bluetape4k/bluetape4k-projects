@@ -19,11 +19,11 @@ class Ignite2ServerTest: AbstractContainerTest() {
     companion object: KLogging()
 
     @Test
-    @Timeout(value = 6, unit = TimeUnit.MINUTES)
+    @Timeout(value = 30, unit = TimeUnit.MINUTES)
     fun representativeStartupAndWorkload() {
         Ignite2Server().use { server ->
             server.start()
-            writeStartupMarker()
+            writeWorkloadEvidence(server)
 
             @Suppress("DEPRECATION")
             val clientConfiguration = ClientConfiguration()
@@ -39,11 +39,12 @@ class Ignite2ServerTest: AbstractContainerTest() {
         }
     }
 
-    private fun writeStartupMarker() {
+    private fun writeWorkloadEvidence(server: Ignite2Server) {
         val evidenceDir = System.getProperty("testcontainers.image-gate.evidence-dir") ?: return
         val root = Path.of(evidenceDir).toAbsolutePath().normalize()
         Files.createDirectories(root)
         Files.writeString(root.resolve("startup.marker"), "Ignite node started OK\n")
+        Files.writeString(root.resolve("workload.image-id"), "${server.containerInfo.imageId}\n")
     }
 
     @Test

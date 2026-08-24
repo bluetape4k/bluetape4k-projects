@@ -35,6 +35,27 @@ class TestTestcontainersImageGate(unittest.TestCase):
         ).read_text(encoding="utf-8")
         self.assertIn('tasks.register<Test>("k8sTest")', build_script)
 
+    def test_java25_ignite_options_are_module_scoped_and_minimal(self) -> None:
+        root_build = (self.root / "build.gradle.kts").read_text(encoding="utf-8")
+        module_build = (
+            self.root / "testing/testcontainers/build.gradle.kts"
+        ).read_text(encoding="utf-8")
+        self.assertIn("tasks.withType<Test>().configureEach", module_build)
+        for option in (
+            "--add-opens=java.base/java.nio=ALL-UNNAMED",
+            "--add-opens=java.base/java.util=ALL-UNNAMED",
+        ):
+            self.assertIn(option, module_build)
+            self.assertNotIn(option, root_build)
+
+    def test_ignite_workload_receipt_matches_the_long_arm_timeout_contract(self) -> None:
+        source = (
+            self.root
+            / "testing/testcontainers/src/test/kotlin/io/bluetape4k/testcontainers/storage/Ignite2ServerTest.kt"
+        ).read_text(encoding="utf-8")
+        self.assertIn('Files.writeString(root.resolve("workload.image-id")', source)
+        self.assertIn("@Timeout(value = 30, unit = TimeUnit.MINUTES)", source)
+
     def test_changed_scope_is_deterministic_and_full_scope_is_complete(self) -> None:
         changed = select_entries(self.entries, {"testing/testcontainers/src/main/kotlin/io/bluetape4k/testcontainers/aws/FlociServer.kt"})
         self.assertEqual(["FlociServer"], [entry["server"] for entry in changed])
