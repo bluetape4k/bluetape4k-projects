@@ -154,6 +154,8 @@ class TestTestcontainersImageGate(unittest.TestCase):
         self.assertIn("--scope full", workflow)
         self.assertIn("TESTCONTAINERS_IMAGE_GATE_MAX_PARALLEL: '1'", workflow)
         if "test-testcontainers-ignite2-arm64-image-gate:" in workflow:
+            self.assertIn("runs-on: ubuntu-24.04", workflow)
+            self.assertIn("runs-on: ubuntu-24.04-arm", workflow)
             self.assertIn("--default-platform-id amd64", workflow)
             self.assertIn("--job-budget-minutes 360", workflow)
             self.assertIn("--family-id ignite2", workflow)
@@ -167,6 +169,8 @@ class TestTestcontainersImageGate(unittest.TestCase):
             self.assertIn("needs.test-testcontainers-ignite2-arm64-image-gate.result == 'skipped'", workflow)
             self.assertIn("- test-testcontainers-ignite2-arm64-image-gate", workflow)
             self.assertNotIn("io.bluetape4k.testcontainers.storage.Ignite2ServerTest\",", workflow)
+            self.assertIn("name: nightly-testcontainers-image-gate-${{ github.run_id }}-amd64", workflow)
+            self.assertIn("name: nightly-testcontainers-image-gate-${{ github.run_id }}-arm64", workflow)
         else:
             self.assertIn("needs: [test-testcontainers, test-testcontainers-image-gate, plan]", workflow)
             self.assertIn("needs.test-testcontainers-image-gate.result == 'skipped'", workflow)
@@ -187,8 +191,12 @@ class TestTestcontainersImageGate(unittest.TestCase):
             )
         self.assertIn("--scope full", workflow)
         if "testcontainers-ignite2-arm64-image-gate:" in workflow:
+            self.assertIn("runs-on: ubuntu-24.04", workflow)
+            self.assertIn("runs-on: ubuntu-24.04-arm", workflow)
             self.assertIn('expected_coverage="52/52"', workflow)
             self.assertIn('expected_coverage="1/1"', workflow)
+            self.assertIn("name: release-testcontainers-image-gate-${{ github.run_id }}-amd64", workflow)
+            self.assertIn("name: release-testcontainers-image-gate-${{ github.run_id }}-arm64", workflow)
         else:
             self.assertIn("coverage=52/52", workflow)
 
