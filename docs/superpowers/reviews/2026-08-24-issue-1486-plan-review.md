@@ -44,8 +44,8 @@ ref 계약이 계획에 고정되지 않은 점이었다. 이전 설계의 5분/
    `[resolve-version, testcontainers-manifest-contract, testcontainers-image-gate,
    testcontainers-ignite2-arm64-image-gate]`로 보존하도록 plan에 추가했다.
    Release artifact 이름은
-   `release-testcontainers-image-gate-${{ github.run_id }}`와
-   `release-testcontainers-ignite2-arm64-image-gate-${{ github.run_id }}`로
+   `release-testcontainers-image-gate-${{ github.run_id }}-amd64`와
+   `release-testcontainers-image-gate-${{ github.run_id }}-arm64`로
    고정하고 두 artifact의 `if: always()`, `if-no-files-found: error`, 30일
    보존을 assert하도록 했다.
 6. 52-family 최악 8 MiB artifact와 30분 setup slack을 포함한 wall-clock budget

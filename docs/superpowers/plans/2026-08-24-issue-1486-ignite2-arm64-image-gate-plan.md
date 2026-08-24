@@ -284,8 +284,8 @@ python3 scripts/run_testcontainers_image_gate.py --scope family --family-id igni
       삭제되는 child-process environment fixture를 통과시킨다. artifact에는
       Nightly의 고정 x64/arm64 run-platform literal 이름과 `if: always()`,
       `if-no-files-found: error`, retention 14일을 assert한다. Release는 정확히
-      `release-testcontainers-image-gate-${{ github.run_id }}`와
-      `release-testcontainers-ignite2-arm64-image-gate-${{ github.run_id }}` 두
+      `release-testcontainers-image-gate-${{ github.run_id }}-amd64`와
+      `release-testcontainers-image-gate-${{ github.run_id }}-arm64` 두
       literal 이름을 사용하고, 두 artifact 모두 `if: always()`,
       `if-no-files-found: error`, retention 30일을 사용한다. raw logs/system-out은
       업로드하지 않는다.
