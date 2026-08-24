@@ -5,9 +5,10 @@ import org.junit.jupiter.api.Test
 import java.io.ByteArrayInputStream
 import java.io.StringReader
 import java.lang.reflect.InvocationHandler
+import java.lang.reflect.Method
 import java.lang.reflect.Proxy
 import java.math.BigDecimal
-import java.net.URL
+import java.net.URI
 import java.sql.Array
 import java.sql.Blob
 import java.sql.Clob
@@ -30,8 +31,47 @@ import java.util.GregorianCalendar
 class JdbcDelegationCoverageTest: AbstractJdbcSqlTest() {
 
     @Test
-    fun `PreparedStatementArgumentSetter delegates every typed setter and overload`() {
-        val preparedStatement = preparedStatementProxy()
+    fun `PreparedStatementArgumentSetter forwards exact delegated arguments`() {
+        val recording = RecordingJdbcInvocationHandler()
+        val setter = PreparedStatementArgumentSetter(recording.proxy(PreparedStatement::class.java))
+        val calendar = GregorianCalendar()
+
+        setter.string[1] = "value"
+        setter.int[2] = 42
+        setter.`object`.set(3, Types.VARCHAR, 2, "scaled")
+        setter.date.set(4, calendar, Date(0))
+        setter.`object`.set(5, Types.VARCHAR, "typed")
+
+        recording.calls.single { it.method == "setString" }.args shouldBeEqualTo listOf(1, "value")
+        recording.calls.single { it.method == "setInt" }.args shouldBeEqualTo listOf(2, 42)
+        recording.calls.single { it.method == "setObject" && it.args.size == 4 }.args shouldBeEqualTo
+            listOf(3, "scaled", Types.VARCHAR, 2)
+        recording.calls.single { it.method == "setDate" }.args shouldBeEqualTo
+            listOf(4, Date(0), calendar)
+        recording.calls.single { it.method == "setObject" && it.args.size == 3 }.args shouldBeEqualTo
+            listOf(5, "typed", Types.VARCHAR)
+    }
+
+    @Test
+    fun `ResultSetGetColumnTokens returns delegated values and records column access`() {
+        val recording = RecordingJdbcInvocationHandler()
+        val tokens = ResultSetGetColumnTokens(recording.proxy(ResultSet::class.java))
+
+        tokens.int[1] shouldBeEqualTo 42
+        tokens.string["name"] shouldBeEqualTo "result"
+        tokens.intOrNull[2] shouldBeEqualTo 42
+        tokens.stringOrNull["name"] shouldBeEqualTo "result"
+
+        recording.calls.map { it.method } shouldBeEqualTo
+            listOf("getInt", "getString", "getInt", "wasNull", "getString", "wasNull")
+        recording.calls[0].args shouldBeEqualTo listOf(1)
+        recording.calls[1].args shouldBeEqualTo listOf("name")
+    }
+
+    @Test
+    fun `PreparedStatementArgumentSetter records every typed setter and overload`() {
+        val recording = RecordingJdbcInvocationHandler()
+        val preparedStatement = recording.proxy(PreparedStatement::class.java)
         val setter = PreparedStatementArgumentSetter(preparedStatement)
         val calendar = GregorianCalendar()
         val stream = ByteArrayInputStream(byteArrayOf(1, 2, 3))
@@ -82,7 +122,7 @@ class JdbcDelegationCoverageTest: AbstractJdbcSqlTest() {
         setter.time.set(43, calendar, Time(0))
         setter.timestamp[44] = Timestamp(0)
         setter.timestamp.set(45, calendar, Timestamp(0))
-        setter.url[46] = URL("https://example.com")
+        setter.url[46] = URI("https://example.com").toURL()
 
         val exposedSetters = listOf(
             setter.array, setter.asciiStream, setter.bigDecimal, setter.binaryStream,
@@ -94,21 +134,31 @@ class JdbcDelegationCoverageTest: AbstractJdbcSqlTest() {
         )
         exposedSetters.size shouldBeEqualTo 27
 
-        allowUnsupported { setter.setObject(47, "value", JDBCType.VARCHAR) }
-        allowUnsupported { setter.setObject(48, "value", JDBCType.VARCHAR, 2) }
-        allowUnsupported { setter.executeLargeUpdate() }
-        allowUnsupported { setter.getLargeUpdateCount() }
-        allowUnsupported { setter.setLargeMaxRows(10L) }
-        allowUnsupported { setter.getLargeMaxRows() }
-        allowUnsupported { setter.executeLargeBatch() }
-        allowUnsupported { setter.executeLargeUpdate("UPDATE Actors SET lastname='delegate'") }
-        allowUnsupported { setter.executeLargeUpdate("UPDATE Actors SET lastname='delegate'", 1) }
-        allowUnsupported { setter.executeLargeUpdate("UPDATE Actors SET lastname='delegate'", intArrayOf(1)) }
-        allowUnsupported { setter.executeLargeUpdate("UPDATE Actors SET lastname='delegate'", arrayOf("id")) }
-        allowUnsupported { setter.enquoteLiteral("value") }
-        allowUnsupported { setter.enquoteIdentifier("value", true) }
-        allowUnsupported { setter.isSimpleIdentifier("value") }
-        allowUnsupported { setter.enquoteNCharLiteral("value") }
+        recording.calls.map { it.method } shouldBeEqualTo EXPECTED_PREPARED_STATEMENT_CALLS
+
+        allowKnownUnsupported("setObject") { setter.setObject(47, "value", JDBCType.VARCHAR) }
+        allowKnownUnsupported("setObject") { setter.setObject(48, "value", JDBCType.VARCHAR, 2) }
+        allowKnownUnsupported("executeLargeUpdate") { setter.executeLargeUpdate() }
+        allowKnownUnsupported("getLargeUpdateCount") { setter.getLargeUpdateCount() }
+        allowKnownUnsupported("setLargeMaxRows") { setter.setLargeMaxRows(10L) }
+        assertKnownDefault(0L) { setter.getLargeMaxRows() }
+        allowKnownUnsupported("executeLargeBatch") { setter.executeLargeBatch() }
+        allowKnownUnsupported("executeLargeUpdate") {
+            setter.executeLargeUpdate("UPDATE Actors SET lastname='delegate'")
+        }
+        allowKnownUnsupported("executeLargeUpdate") {
+            setter.executeLargeUpdate("UPDATE Actors SET lastname='delegate'", 1)
+        }
+        allowKnownUnsupported("executeLargeUpdate") {
+            setter.executeLargeUpdate("UPDATE Actors SET lastname='delegate'", intArrayOf(1))
+        }
+        allowKnownUnsupported("executeLargeUpdate") {
+            setter.executeLargeUpdate("UPDATE Actors SET lastname='delegate'", arrayOf("id"))
+        }
+        assertKnownDefault("'value'") { setter.enquoteLiteral("value") }
+        assertKnownDefault("\"value\"") { setter.enquoteIdentifier("value", true) }
+        assertKnownDefault(true) { setter.isSimpleIdentifier("value") }
+        assertKnownDefault("N'value'") { setter.enquoteNCharLiteral("value") }
     }
 
     @Test
@@ -133,45 +183,78 @@ class JdbcDelegationCoverageTest: AbstractJdbcSqlTest() {
         exposedTokens.size shouldBeEqualTo 50
         tokens.int[1]
         tokens.string["value"]
-        allowUnsupported { tokens.updateObject(1, "value", JDBCType.VARCHAR) }
-        allowUnsupported { tokens.updateObject(2, "value", JDBCType.VARCHAR, 2) }
-        allowUnsupported { tokens.updateObject("value", "value", JDBCType.VARCHAR) }
-        allowUnsupported { tokens.updateObject("value", "value", JDBCType.VARCHAR, 2) }
+        allowKnownUnsupported("updateObject") { tokens.updateObject(1, "value", JDBCType.VARCHAR) }
+        allowKnownUnsupported("updateObject") { tokens.updateObject(2, "value", JDBCType.VARCHAR, 2) }
+        allowKnownUnsupported("updateObject") { tokens.updateObject("value", "value", JDBCType.VARCHAR) }
+        allowKnownUnsupported("updateObject") { tokens.updateObject("value", "value", JDBCType.VARCHAR, 2) }
     }
 
-    private fun preparedStatementProxy(): PreparedStatement = proxyFor(PreparedStatement::class.java)
-
-    private fun resultSetProxy(): ResultSet = proxyFor(ResultSet::class.java)
-
-    private fun allowUnsupported(action: () -> Unit) {
+    private fun allowKnownUnsupported(methodName: String, action: () -> Unit) {
         try {
             action()
-        } catch (_: SQLFeatureNotSupportedException) {
-            // JDBC default methods may intentionally reject newer overloads.
-        } catch (_: UnsupportedOperationException) {
-            // JDBC default methods may intentionally reject newer overloads.
+        } catch (e: SQLFeatureNotSupportedException) {
+            e.message shouldBeEqualTo "$methodName not implemented"
+            return
+        } catch (e: UnsupportedOperationException) {
+            e.message shouldBeEqualTo "$methodName not implemented"
+            return
         }
+        throw AssertionError("$methodName unexpectedly succeeded")
     }
+
+    private fun <T> assertKnownDefault(expected: T, action: () -> T) {
+        action() shouldBeEqualTo expected
+    }
+
+    private fun resultSetProxy(): ResultSet = proxyFor(ResultSet::class.java)
 
     private inline fun <reified T> interfaceProxy(): T = proxyFor(T::class.java)
 
     @Suppress("UNCHECKED_CAST")
-    private fun <T> proxyFor(type: Class<T>): T {
-        val handler = InvocationHandler { _, method, _ ->
-            when (method.returnType) {
-                Boolean::class.javaPrimitiveType -> false
-                Byte::class.javaPrimitiveType -> 0.toByte()
-                Short::class.javaPrimitiveType -> 0.toShort()
-                Int::class.javaPrimitiveType -> 0
-                Long::class.javaPrimitiveType -> 0L
-                Float::class.javaPrimitiveType -> 0.0f
-                Double::class.javaPrimitiveType -> 0.0
-                Void.TYPE -> null
-                IntArray::class.java -> IntArray(0)
-                LongArray::class.java -> LongArray(0)
-                else -> null
+    private fun <T> proxyFor(type: Class<T>): T = RecordingJdbcInvocationHandler().proxy(type)
+}
+
+private data class JdbcInvocation(
+    val method: String,
+    val args: List<Any?>,
+)
+
+private val EXPECTED_PREPARED_STATEMENT_CALLS = listOf(
+    "setArray", "setAsciiStream", "setAsciiStream", "setAsciiStream", "setBigDecimal",
+    "setBinaryStream", "setBinaryStream", "setBinaryStream", "setBlob", "setBlob", "setBlob",
+    "setBoolean", "setByte", "setBytes", "setCharacterStream", "setCharacterStream",
+    "setCharacterStream", "setClob", "setClob", "setClob", "setDate", "setDate", "setDouble",
+    "setFloat", "setInt", "setLong", "setNCharacterStream", "setNCharacterStream", "setNClob",
+    "setNClob", "setNClob", "setNString", "setNull", "setNull", "setObject", "setObject",
+    "setObject", "setRef", "setRowId", "setSQLXML", "setString", "setTime", "setTime",
+    "setTimestamp", "setTimestamp", "setURL"
+)
+
+private class RecordingJdbcInvocationHandler: InvocationHandler {
+
+    val calls = mutableListOf<JdbcInvocation>()
+
+    @Suppress("UNCHECKED_CAST")
+    fun <T> proxy(type: Class<T>): T =
+        Proxy.newProxyInstance(type.classLoader, arrayOf(type), this) as T
+
+    override fun invoke(proxy: Any, method: Method, args: kotlin.Array<out Any?>?): Any? {
+        val arguments = args?.toList().orEmpty()
+        calls += JdbcInvocation(method.name, arguments)
+
+        return when (method.name) {
+            "getInt" -> 42
+            "getString" -> "result"
+            "wasNull" -> false
+            "toString" -> "RecordingJdbcInvocationHandler"
+            "hashCode" -> System.identityHashCode(proxy)
+            "equals" -> proxy === arguments.firstOrNull()
+            else -> {
+                check(method.returnType == Void.TYPE) {
+                    "Unexpected delegated method ${method.name}"
+                }
+                null
             }
         }
-        return Proxy.newProxyInstance(type.classLoader, arrayOf(type), handler) as T
     }
 }
