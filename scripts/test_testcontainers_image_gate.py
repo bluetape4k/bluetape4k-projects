@@ -3,6 +3,7 @@
 
 from __future__ import annotations
 
+import re
 import unittest
 from pathlib import Path
 
@@ -63,6 +64,31 @@ class TestTestcontainersImageGate(unittest.TestCase):
         workflow = (self.root / ".github/workflows/ci.yml").read_text(encoding="utf-8")
         self.assertNotIn("testcontainers-image-gate", workflow)
         self.assertIn("test-testcontainers-spring:", workflow)
+
+    def test_ci_and_release_run_manifest_contract_without_docker(self) -> None:
+        ci_workflow = (self.root / ".github/workflows/ci.yml").read_text(encoding="utf-8")
+        ci_match = re.search(
+            r"^  jvm-release-contract:\n.*?(?=^  [a-z0-9-]+:\n)",
+            ci_workflow,
+            re.MULTILINE | re.DOTALL,
+        )
+        self.assertIsNotNone(ci_match, "CI JVM release contract job is missing")
+        self.assertIn(
+            "python3 -m unittest scripts/test_testcontainers_image_gate.py -v",
+            ci_match.group(0),
+        )
+
+        release_workflow = (self.root / ".github/workflows/release.yml").read_text(encoding="utf-8")
+        release_match = re.search(
+            r"^      - name: Verify JVM release contract\n.*?(?=^      - name:)",
+            release_workflow,
+            re.MULTILINE | re.DOTALL,
+        )
+        self.assertIsNotNone(release_match, "Release JVM contract step is missing")
+        self.assertIn(
+            "python3 -m unittest scripts/test_testcontainers_image_gate.py -v",
+            release_match.group(0),
+        )
 
     def test_nightly_runs_full_gate_only_before_spring_bridge(self) -> None:
         workflow = (self.root / ".github/workflows/nightly-tests.yml").read_text(encoding="utf-8")

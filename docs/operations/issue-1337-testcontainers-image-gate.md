@@ -4,16 +4,24 @@
 
 이 runbook은 52개 Docker 기반 Testcontainers 서버 family의 startup,
 애플리케이션 readiness, 대표 workload를 같은 기준으로 실행하고 실패 원인을
-재현 가능한 증거로 남기기 위한 운영 계약입니다. source of truth는
+재현 가능한 증거로 남기기 위한 운영 계약입니다. 기준 데이터 원본은
 [`scripts/testcontainers_image_gate_manifest.json`](../../scripts/testcontainers_image_gate_manifest.json)이며,
-Kotlin wrapper·테스트·EN/KO README와 정적 parity 검증을 함께 통과해야 합니다.
+Kotlin wrapper·테스트·EN/KO README와 정적 manifest 검증을 함께 통과해야 합니다.
+
+정적 manifest 검증과 Docker 기반 startup/workload 검증은 서로 다른 책임을
+가집니다. `scripts/test_testcontainers_image_gate.py`는 Docker를 실행하지 않고
+schema, source, test, README drift를 검사합니다. 이 검사는 PR CI의
+`jvm-release-contract`와 Release pre-publish contract에서 실행합니다.
+`scripts/run_testcontainers_image_gate.py`는 실제 이미지를 시작하고 workload를
+실행하는 고비용 runner이므로 PR CI에서 실행하지 않으며, Nightly `full`과 안정
+버전 배포에서만 실행합니다.
 
 대상 workflow는 다음과 같습니다.
 
 | 단계 | scope | 성공 조건 | artifact |
 |---|---|---|---|
-| PR CI | `changed` | 변경 family 모두 `success` 또는 변경 없음 `skipped` | `testcontainers-image-gate-*` |
-| Nightly | `full` 또는 `testcontainers` | 선택 family 전체 `success`, 순차 실행 | `nightly-testcontainers-image-gate-*` |
+| PR CI `jvm-release-contract` | 정적 manifest | schema·source·test·README drift 없음, Docker 미실행 | unittest 출력 |
+| Nightly | `full` | 52개 family 전체 `success`, 순차 실행 | `nightly-testcontainers-image-gate-*` |
 | 안정 버전 배포 | `full` | `52/52`, `release_gate=true`, 제품·인프라·차단 0 | `release-testcontainers-image-gate-*` |
 
 ## 실행 명령
@@ -47,7 +55,9 @@ python3 scripts/run_testcontainers_image_gate.py \
 
 1. `testing/testcontainers/src/main/kotlin/**`의 `IMAGE`/`TAG`, 대응 `*Test.kt`, EN/KO README를 함께 확인합니다.
 2. manifest 항목의 `source`, `testSource`, `image`, `tag`, `testPattern`, `readiness`, `workload`, `diagnostics`, `releaseRequired`를 갱신합니다.
-3. 정적 계약과 실행기 단위 테스트를 실행합니다.
+3. 정적 manifest 계약과 실행기 단위 테스트를 실행합니다. PR CI와 Release는
+   아래 목록의 두 정적 계약 스크립트를 실행하고, Docker 기반 runner는
+   호출하지 않습니다.
 
 ```bash
 python3 -m unittest \
