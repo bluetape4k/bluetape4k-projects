@@ -102,6 +102,12 @@ omitted. Custom images must provide an explicit tag; an explicit custom tag is
 accepted on any architecture. Start the server and close both the server and
 the `IgniteClient` with `use`/`close` as shown below.
 
+On Java 25+, the Ignite 2 thin-client tests use only
+`--add-opens=java.base/java.nio=ALL-UNNAMED` and
+`--add-opens=java.base/java.util=ALL-UNNAMED`. These options are scoped to the
+`bluetape4k-testcontainers` module's `Test` tasks; they are not global JVM
+defaults for the repository.
+
 | Group | Server | Image | Default tag |
 |---|---|---|---|
 | AWS | `DynamoDbLocalServer` | `amazon/dynamodb-local` | `3.3.1` |
