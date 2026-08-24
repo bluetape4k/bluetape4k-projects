@@ -302,6 +302,7 @@ class TestRunTestcontainersImageGate(unittest.TestCase):
         self.assertEqual("-Dtestcontainers.image-gate.evidence-dir", command[1].split("=", 1)[0])
         self.assertIn("--tests", command)
         self.assertIn("io.bluetape4k.testcontainers.storage.Ignite2ServerTest.representativeStartupAndWorkload", command)
+        self.assertIn("--rerun-tasks", command)
         self.assertEqual(2, command.count("-x"))
         self.assertNotIn("jibDockerBuild", command[:3])
 
