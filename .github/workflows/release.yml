@@ -65,9 +65,26 @@ jobs:
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
           echo "ref=refs/tags/$VERSION" >> "$GITHUB_OUTPUT"
 
+  testcontainers-manifest-contract:
+    name: Verify Testcontainers manifest contract
+    needs: resolve-version
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ needs.resolve-version.outputs.ref }}
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v7
+        with:
+          python-version: '3.12'
+
+      - name: Verify image-gate manifest contract without runtime gate
+        run: python3 -m unittest scripts/test_testcontainers_image_gate.py -v
+
   testcontainers-image-gate:
     name: Verify Testcontainers image gate
-    needs: resolve-version
+    needs: [resolve-version, testcontainers-manifest-contract]
     runs-on: ubuntu-latest
     timeout-minutes: 360
     env:
@@ -139,7 +156,7 @@ jobs:
 
   publish:
     name: Publish RELEASE to Maven Central Portal
-    needs: [resolve-version, testcontainers-image-gate]
+    needs: [resolve-version, testcontainers-manifest-contract, testcontainers-image-gate]
     runs-on: ubuntu-latest
     environment: maven-central-release
     steps:
@@ -224,7 +241,6 @@ jobs:
         run: |
           python3 -m unittest scripts/test_jvm_release_contract.py -v
           python3 -m unittest scripts/test_testcontainers_contract.py -v
-          python3 -m unittest scripts/test_testcontainers_image_gate.py -v
           ./scripts/check-jvm-release-contract.sh
 
       - name: Diagnose signing inputs

@@ -65,7 +65,7 @@ class TestTestcontainersImageGate(unittest.TestCase):
         self.assertNotIn("testcontainers-image-gate", workflow)
         self.assertIn("test-testcontainers-spring:", workflow)
 
-    def test_ci_and_release_run_manifest_contract_without_docker(self) -> None:
+    def test_ci_and_release_run_manifest_contract_before_docker(self) -> None:
         ci_workflow = (self.root / ".github/workflows/ci.yml").read_text(encoding="utf-8")
         ci_match = re.search(
             r"^  jvm-release-contract:\n.*?(?=^  [a-z0-9-]+:\n)",
@@ -79,16 +79,35 @@ class TestTestcontainersImageGate(unittest.TestCase):
         )
 
         release_workflow = (self.root / ".github/workflows/release.yml").read_text(encoding="utf-8")
-        release_match = re.search(
-            r"^      - name: Verify JVM release contract\n.*?(?=^      - name:)",
+        manifest_match = re.search(
+            r"^  testcontainers-manifest-contract:\n.*?(?=^  [a-z0-9-]+:\n)",
             release_workflow,
             re.MULTILINE | re.DOTALL,
         )
-        self.assertIsNotNone(release_match, "Release JVM contract step is missing")
+        self.assertIsNotNone(manifest_match, "Release manifest contract job is missing")
         self.assertIn(
             "python3 -m unittest scripts/test_testcontainers_image_gate.py -v",
-            release_match.group(0),
+            manifest_match.group(0),
         )
+        self.assertNotRegex(manifest_match.group(0), r"(?i)\bdocker\b")
+        self.assertNotIn("jibDockerBuild", manifest_match.group(0))
+        self.assertNotIn("run_testcontainers_image_gate.py", manifest_match.group(0))
+        self.assertIn(
+            "needs: [resolve-version, testcontainers-manifest-contract]",
+            release_workflow,
+        )
+        self.assertIn(
+            "needs: [resolve-version, testcontainers-manifest-contract, testcontainers-image-gate]",
+            release_workflow,
+        )
+
+        publish_match = re.search(
+            r"^  publish:\n.*\Z",
+            release_workflow,
+            re.MULTILINE | re.DOTALL,
+        )
+        self.assertIsNotNone(publish_match, "Release publish job is missing")
+        self.assertNotIn("scripts/test_testcontainers_image_gate.py", publish_match.group(0))
 
     def test_nightly_runs_full_gate_only_before_spring_bridge(self) -> None:
         workflow = (self.root / ".github/workflows/nightly-tests.yml").read_text(encoding="utf-8")
@@ -102,8 +121,12 @@ class TestTestcontainersImageGate(unittest.TestCase):
 
     def test_release_publish_depends_on_full_gate_summary(self) -> None:
         workflow = (self.root / ".github/workflows/release.yml").read_text(encoding="utf-8")
+        self.assertIn("testcontainers-manifest-contract:", workflow)
         self.assertIn("testcontainers-image-gate:", workflow)
-        self.assertIn("needs: [resolve-version, testcontainers-image-gate]", workflow)
+        self.assertIn(
+            "needs: [resolve-version, testcontainers-manifest-contract, testcontainers-image-gate]",
+            workflow,
+        )
         self.assertIn("--scope full", workflow)
         self.assertIn("coverage=52/52", workflow)
 
