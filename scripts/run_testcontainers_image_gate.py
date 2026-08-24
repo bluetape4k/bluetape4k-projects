@@ -554,6 +554,7 @@ class GateRunner:
         image_ref = f"{entry['image']}:{platform['tag']}"
         architecture = str(platform["id"])
         auth_config = os.environ.get("DOCKER_AUTH_CONFIG", "")
+        local_socket = os.environ.get("DOCKER_HOST", "")
         register_secret(auth_config)
         env = os.environ.copy()
         for key in (
@@ -565,6 +566,11 @@ class GateRunner:
             env.pop(key, None)
         # 호출자가 선택한 context는 무시하고 저장소가 허용한 기본 Unix socket 경계만 사용한다.
         env["DOCKER_CONTEXT"] = "default"
+        if (
+            local_socket.startswith("unix://")
+            and os.environ.get("TESTCONTAINERS_DOCKER_SOCKET_OVERRIDE") == "/var/run/docker.sock"
+        ):
+            env["DOCKER_HOST"] = local_socket
         config_dir: Path | None = None
         try:
             if auth_config:
