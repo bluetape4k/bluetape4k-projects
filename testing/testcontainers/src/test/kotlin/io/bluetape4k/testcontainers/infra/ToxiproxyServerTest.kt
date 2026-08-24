@@ -14,7 +14,6 @@ import org.junit.jupiter.api.TestInstance
 import org.testcontainers.containers.Network
 import kotlin.system.measureTimeMillis
 import io.bluetape4k.assertions.assertFailsWith
-import kotlin.test.assertTrue
 
 /**
  * [ToxiproxyServer] 테스트입니다.
@@ -90,20 +89,14 @@ class ToxiproxyServerTest: AbstractContainerTest() {
                                         val delayedElapsed = measureTimeMillis {
                                             commands.get("toxiproxy:key") shouldBeEqualTo "value"
                                         }
-                                        assertTrue(
-                                            delayedElapsed >= 150,
-                                            "latency toxic 이후 GET 응답은 지연되어야 한다. actual=${delayedElapsed}ms"
-                                        )
+                                        (delayedElapsed >= 150).shouldBeTrue()
 
                                         latency.remove()
 
                                         val recoveredElapsed = measureTimeMillis {
                                             commands.get("toxiproxy:key") shouldBeEqualTo "value"
                                         }
-                                        assertTrue(
-                                            recoveredElapsed < delayedElapsed,
-                                            "latency toxic 제거 후 응답 시간은 감소해야 한다. delayed=${delayedElapsed}ms, recovered=${recoveredElapsed}ms"
-                                        )
+                                        (recoveredElapsed < delayedElapsed).shouldBeTrue()
                                     }
                                 } finally {
                                     runCatching { proxy.delete() }

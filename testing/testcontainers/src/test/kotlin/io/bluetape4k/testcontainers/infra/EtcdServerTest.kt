@@ -10,7 +10,6 @@ import java.net.http.HttpClient
 import java.net.http.HttpRequest
 import java.net.http.HttpResponse
 import java.time.Duration
-import kotlin.test.assertEquals
 
 class EtcdServerTest: AbstractContainerTest() {
 
@@ -46,7 +45,7 @@ class EtcdServerTest: AbstractContainerTest() {
     @Test
     fun `uses provided image`() {
         val server = EtcdServer(image = "gcr.io/etcd-development/etcd", tag = EtcdServer.TAG)
-        assertEquals("gcr.io/etcd-development/etcd:${EtcdServer.TAG}", server.dockerImageName)
+        server.dockerImageName shouldBeEqualTo "gcr.io/etcd-development/etcd:${EtcdServer.TAG}"
     }
 
     companion object {
