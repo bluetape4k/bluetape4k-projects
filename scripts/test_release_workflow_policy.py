@@ -68,6 +68,15 @@ def release_policy_errors(workflow: str) -> list[str]:
         "coverage=52/52" in workflow or "expected_coverage=\"52/52\"" in workflow
     ):
         errors.append("release workflow must verify the full 52/52 image gate")
+    arm_contract = (
+        "testcontainers-ignite2-arm64-image-gate" in workflow
+        and "--scope family" in workflow
+        and "--family-id ignite2" in workflow
+        and "--platform-id arm64" in workflow
+        and "expected_coverage=\"1/1\"" in workflow
+    )
+    if not arm_contract:
+        errors.append("release workflow must verify the exact Ignite2 arm64 1/1 image gate")
     return errors
 
 
@@ -141,6 +150,12 @@ class ReleaseWorkflowPolicyTest(unittest.TestCase):
         )
         errors = release_policy_errors(mutated)
         self.assertIn("full Testcontainers image gate must wait for the manifest contract", errors)
+
+    def test_release_workflow_blocks_arm_gate_without_exact_selector(self) -> None:
+        workflow = (WORKFLOWS / "release.yml").read_text(encoding="utf-8")
+        mutated = workflow.replace("--platform-id arm64", "--platform-id amd64")
+        errors = release_policy_errors(mutated)
+        self.assertIn("release workflow must verify the exact Ignite2 arm64 1/1 image gate", errors)
 
     def test_snapshot_workflow_is_not_coupled_to_issue_754_release_state(self) -> None:
         workflow = (WORKFLOWS / "publish-snapshot.yml").read_text(encoding="utf-8")
