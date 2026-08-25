@@ -640,16 +640,19 @@ internal class FairLockClient private constructor(
             if (result.isDone) return@whenComplete
             if (error != null) {
                 result.completeExceptionally(error)
-            } else if (acquired == LockAcquireResult.TimedOut && waiterIdentity.get() != null) {
-                removeWaiterAsync(ownerId, requestId, waiterIdentity.get()!!).whenComplete { removed, removeError ->
-                    if (removeError != null) {
-                        result.completeExceptionally(removeError)
-                    } else {
-                        result.complete(cleanupResult(removed, ownerId, requestId))
-                    }
-                }
             } else {
-                result.complete(acquired)
+                val identity = waiterIdentity.get()
+                if (acquired == LockAcquireResult.TimedOut && identity != null) {
+                    removeWaiterAsync(ownerId, requestId, identity).whenComplete { removed, removeError ->
+                        if (removeError != null) {
+                            result.completeExceptionally(removeError)
+                        } else {
+                            result.complete(cleanupResult(removed, ownerId, requestId))
+                        }
+                    }
+                } else {
+                    result.complete(acquired)
+                }
             }
         }
         result.whenComplete { _, _ ->
@@ -673,9 +676,10 @@ internal class FairLockClient private constructor(
             val result = waitSupport.acquireSuspending(waitTime) {
                 acquireAttemptSuspending(ownerId, requestId, leasePolicy, waitTime, waiterIdentity)
             }
-            if (result == LockAcquireResult.TimedOut && waiterIdentity.get() != null) {
+            val identity = waiterIdentity.get()
+            if (result == LockAcquireResult.TimedOut && identity != null) {
                 cleanupResult(
-                    removeWaiterSuspending(ownerId, requestId, waiterIdentity.get()!!),
+                    removeWaiterSuspending(ownerId, requestId, identity),
                     ownerId,
                     requestId,
                 )
