@@ -2,6 +2,8 @@ package io.bluetape4k.javatimes
 
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeFalse
+import io.bluetape4k.assertions.shouldBeTrue
 import org.junit.jupiter.api.Test
 import java.time.DayOfWeek
 import java.time.Instant
@@ -15,8 +17,6 @@ import java.time.ZoneOffset
 import java.time.ZonedDateTime
 import java.time.temporal.ChronoUnit
 import java.time.temporal.Temporal
-import kotlin.test.assertFalse
-import kotlin.test.assertTrue
 
 class TemporalSupportTest {
 
@@ -130,35 +130,35 @@ class TemporalSupportTest {
 
     @Test
     fun `Temporal supports operator`() {
-        assertFalse { nowInstant() supports ChronoUnit.ERAS }
-        assertFalse { nowInstant() supports ChronoUnit.CENTURIES }
-        assertFalse { nowInstant() supports ChronoUnit.YEARS }
-        assertFalse { nowInstant() supports ChronoUnit.MONTHS }
+        (nowInstant() supports ChronoUnit.ERAS).shouldBeFalse()
+        (nowInstant() supports ChronoUnit.CENTURIES).shouldBeFalse()
+        (nowInstant() supports ChronoUnit.YEARS).shouldBeFalse()
+        (nowInstant() supports ChronoUnit.MONTHS).shouldBeFalse()
 
-        assertTrue { nowInstant() supports ChronoUnit.DAYS }
-        assertTrue { nowInstant() supports ChronoUnit.HALF_DAYS }
-        assertTrue { nowInstant() supports ChronoUnit.HOURS }
+        (nowInstant() supports ChronoUnit.DAYS).shouldBeTrue()
+        (nowInstant() supports ChronoUnit.HALF_DAYS).shouldBeTrue()
+        (nowInstant() supports ChronoUnit.HOURS).shouldBeTrue()
 
-        assertTrue { nowZonedDateTime() supports ChronoUnit.ERAS }
-        assertTrue { nowZonedDateTime() supports ChronoUnit.CENTURIES }
-        assertTrue { nowZonedDateTime() supports ChronoUnit.YEARS }
-        assertTrue { nowZonedDateTime() supports ChronoUnit.DAYS }
-        assertTrue { nowZonedDateTime() supports ChronoUnit.HALF_DAYS }
-        assertTrue { nowZonedDateTime() supports ChronoUnit.HOURS }
+        (nowZonedDateTime() supports ChronoUnit.ERAS).shouldBeTrue()
+        (nowZonedDateTime() supports ChronoUnit.CENTURIES).shouldBeTrue()
+        (nowZonedDateTime() supports ChronoUnit.YEARS).shouldBeTrue()
+        (nowZonedDateTime() supports ChronoUnit.DAYS).shouldBeTrue()
+        (nowZonedDateTime() supports ChronoUnit.HALF_DAYS).shouldBeTrue()
+        (nowZonedDateTime() supports ChronoUnit.HOURS).shouldBeTrue()
 
-        assertTrue { nowLocalDate() supports ChronoUnit.ERAS }
-        assertTrue { nowLocalDate() supports ChronoUnit.CENTURIES }
-        assertTrue { nowLocalDate() supports ChronoUnit.YEARS }
-        assertTrue { nowLocalDate() supports ChronoUnit.DAYS }
-        assertFalse { nowLocalDate() supports ChronoUnit.HALF_DAYS }
-        assertFalse { nowLocalDate() supports ChronoUnit.HOURS }
+        (nowLocalDate() supports ChronoUnit.ERAS).shouldBeTrue()
+        (nowLocalDate() supports ChronoUnit.CENTURIES).shouldBeTrue()
+        (nowLocalDate() supports ChronoUnit.YEARS).shouldBeTrue()
+        (nowLocalDate() supports ChronoUnit.DAYS).shouldBeTrue()
+        (nowLocalDate() supports ChronoUnit.HALF_DAYS).shouldBeFalse()
+        (nowLocalDate() supports ChronoUnit.HOURS).shouldBeFalse()
 
-        assertTrue { nowLocalDateTime() supports ChronoUnit.ERAS }
-        assertTrue { nowLocalDateTime() supports ChronoUnit.CENTURIES }
-        assertTrue { nowLocalDateTime() supports ChronoUnit.YEARS }
-        assertTrue { nowLocalDateTime() supports ChronoUnit.DAYS }
-        assertTrue { nowLocalDateTime() supports ChronoUnit.HALF_DAYS }
-        assertTrue { nowLocalDateTime() supports ChronoUnit.HOURS }
+        (nowLocalDateTime() supports ChronoUnit.ERAS).shouldBeTrue()
+        (nowLocalDateTime() supports ChronoUnit.CENTURIES).shouldBeTrue()
+        (nowLocalDateTime() supports ChronoUnit.YEARS).shouldBeTrue()
+        (nowLocalDateTime() supports ChronoUnit.DAYS).shouldBeTrue()
+        (nowLocalDateTime() supports ChronoUnit.HALF_DAYS).shouldBeTrue()
+        (nowLocalDateTime() supports ChronoUnit.HOURS).shouldBeTrue()
     }
 
     @Test

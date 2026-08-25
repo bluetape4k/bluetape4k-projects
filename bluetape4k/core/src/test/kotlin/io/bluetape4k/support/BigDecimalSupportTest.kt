@@ -2,23 +2,23 @@ package io.bluetape4k.support
 
 import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeFalse
+import io.bluetape4k.assertions.shouldBeTrue
 import org.junit.jupiter.api.Test
 import java.math.BigDecimal
 import kotlin.minus
 import kotlin.plus
-import kotlin.test.assertFalse
-import kotlin.test.assertTrue
 import kotlin.toBigDecimal
 
 class BigDecimalSupportTest {
 
     @Test
     fun `compare BigDecimal and Number`() {
-        assertTrue { BigDecimal.ONE > 0L }
-        assertTrue { BigDecimal.ONE > 0.5 }
+        (BigDecimal.ONE > 0L).shouldBeTrue()
+        (BigDecimal.ONE > 0.5).shouldBeTrue()
 
-        assertFalse { BigDecimal.ZERO > 0L }
-        assertFalse { BigDecimal.ZERO > 0.5 }
+        (BigDecimal.ZERO > 0L).shouldBeFalse()
+        (BigDecimal.ZERO > 0.5).shouldBeFalse()
     }
 
     @Test
