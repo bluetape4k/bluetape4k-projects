@@ -2,6 +2,8 @@ package io.bluetape4k.coroutines
 
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeFalse
+import io.bluetape4k.assertions.shouldNotBeNull
+import io.bluetape4k.assertions.fail
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.trace
@@ -13,7 +15,6 @@ import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.yield
 import org.junit.jupiter.api.AfterEach
-import org.junit.jupiter.api.Assertions.fail
 import org.junit.jupiter.api.MethodOrderer
 import org.junit.jupiter.api.Order
 import org.junit.jupiter.api.Test
@@ -100,7 +101,7 @@ abstract class AbstractCoroutineScopeTest {
 
             job.join()
             caught?.message shouldBeEqualTo "stop-by-test"
-            scope.coroutineContext[Job]!!.isActive.shouldBeFalse()
+            scope.coroutineContext[Job].shouldNotBeNull().isActive.shouldBeFalse()
         }
     }
 }

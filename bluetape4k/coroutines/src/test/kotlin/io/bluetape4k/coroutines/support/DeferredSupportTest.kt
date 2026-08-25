@@ -12,7 +12,6 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.Test
 import java.util.concurrent.CancellationException
-import kotlin.test.assertTrue
 import kotlin.time.Duration.Companion.milliseconds
 
 class DeferredSupportTest {
@@ -95,7 +94,7 @@ class DeferredSupportTest {
 
         second.isCancelled.shouldBeTrue()
         third.isCancelled.shouldBeTrue()
-        assertTrue(first.isCompleted)
+        first.isCompleted.shouldBeTrue()
     }
 
     @Test
