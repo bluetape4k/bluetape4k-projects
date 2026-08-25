@@ -74,33 +74,39 @@ class Recipes: AbstractHttpTest() {
     @Test
     fun `동기 방식 HTTP GET`() {
         val request = okhttp3RequestOf(HTTPBIN_HTML_URL)
-        val response = client.newCall(request).execute()
-
-        assertResponse(response)
-        printHeaders(response.headers)
-        log.debug { response.bodyAsString() }
+        client.newCall(request).execute().use { response ->
+            assertResponse(response)
+            printHeaders(response.headers)
+            log.debug { response.bodyAsString() }
+        }
     }
 
     @Test
     fun `비동기 방식 HTTP GET`() {
         val lock = CountDownLatch(1)
+        val callbackFailure = AtomicReference<Throwable?>()
 
         val request = okhttp3RequestOf(HTTPBIN_HTML_URL)
         val callback = object: Callback {
             override fun onFailure(call: Call, e: IOException) {
-                e.printStackTrace()
+                callbackFailure.set(e)
                 lock.countDown()
             }
 
             override fun onResponse(call: Call, response: Response) {
-                assertResponse(response)
-                printHeaders(response.headers)
-                log.debug { response.bodyAsString() }
+                runCatching {
+                    response.use {
+                        assertResponse(it)
+                        printHeaders(it.headers)
+                        log.debug { it.bodyAsString() }
+                    }
+                }.onFailure(callbackFailure::set)
                 lock.countDown()
             }
         }
         client.newCall(request).enqueue(callback)
-        lock.await()
+        lock.await(5, TimeUnit.SECONDS).shouldBeTrue()
+        callbackFailure.get()?.let { fail("비동기 HTTP GET callback이 실패했습니다.", it) }
     }
 
     @Test
@@ -113,10 +119,10 @@ class Recipes: AbstractHttpTest() {
             .post(json.toRequestBody("application/json".toMediaTypeOrNull()))
             .build()
 
-        val response = client.newCall(request).execute()
-
-        assertResponse(response)
-        log.debug { response.bodyAsString() }
+        client.newCall(request).execute().use { response ->
+            assertResponse(response)
+            log.debug { response.bodyAsString() }
+        }
     }
 
     @Test
@@ -129,10 +135,10 @@ class Recipes: AbstractHttpTest() {
             .post(json.toRequestBody("application/json".toMediaTypeOrNull(), 0, json.size))
             .build()
 
-        val response = client.newCall(request).execute()
-
-        assertResponse(response)
-        log.debug { response.bodyAsString() }
+        client.newCall(request).execute().use { response ->
+            assertResponse(response)
+            log.debug { response.bodyAsString() }
+        }
     }
 
     @Test
@@ -144,10 +150,10 @@ class Recipes: AbstractHttpTest() {
             .post(json.toRequestBody("application/json".toMediaTypeOrNull()))
             .build()
 
-        val response = client.newCall(request).execute()
-
-        assertResponse(response)
-        log.debug { response.bodyAsString() }
+        client.newCall(request).execute().use { response ->
+            assertResponse(response)
+            log.debug { response.bodyAsString() }
+        }
     }
 
     @Test
@@ -159,10 +165,10 @@ class Recipes: AbstractHttpTest() {
             .post(json.toRequestBody("application/json".toMediaTypeOrNull(), 0, json.size))
             .build()
 
-        val response = client.newCall(request).execute()
-
-        assertResponse(response)
-        log.debug { response.bodyAsString() }
+        client.newCall(request).execute().use { response ->
+            assertResponse(response)
+            log.debug { response.bodyAsString() }
+        }
     }
 
     @Test

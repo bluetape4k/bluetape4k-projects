@@ -7,6 +7,7 @@ import io.bluetape4k.assertions.fail
 import io.bluetape4k.concurrent.allAsList
 import io.bluetape4k.concurrent.onFailure
 import io.bluetape4k.concurrent.onSuccess
+import io.bluetape4k.coroutines.support.awaitSuspending
 import io.bluetape4k.http.AbstractHttpTest
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.KLogging
@@ -71,10 +72,10 @@ class OkHttp3SupportTest: AbstractHttpTest() {
                     .onFailure { error -> fail(cause = error) }
             }
 
-            futures.allAsList().get()
+            futures.allAsList().awaitSuspending()
         }
 
-        private fun CompletableFuture<okhttp3.Response>.verifyResponse() {
+        private suspend fun CompletableFuture<okhttp3.Response>.verifyResponse() {
             this
                 .onSuccess { response ->
                     response.use {
@@ -86,7 +87,7 @@ class OkHttp3SupportTest: AbstractHttpTest() {
                     log.error(error) { "Failed to execute request" }
                     fail("Failed to execute request", error)
                 }
-                .get()  // 이게 Blocking 이라는 겁니다 ㅠㅠ
+                .awaitSuspending()
         }
     }
 
