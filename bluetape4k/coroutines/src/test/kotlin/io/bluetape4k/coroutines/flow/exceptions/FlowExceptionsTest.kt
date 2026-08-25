@@ -1,5 +1,6 @@
 package io.bluetape4k.coroutines.flow.exceptions
 
+import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeInstanceOf
 import io.bluetape4k.assertions.shouldBeNull
@@ -143,7 +144,7 @@ class FlowExceptionsTest {
         val owner2 = kotlinx.coroutines.flow.FlowCollector<Int> { }
         val exception = StopException(owner1)
 
-        kotlin.test.assertFailsWith<StopException> {
+        assertFailsWith<StopException> {
             exception.checkOwnership(owner2)
         }
     }

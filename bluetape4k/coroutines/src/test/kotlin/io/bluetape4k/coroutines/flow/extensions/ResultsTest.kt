@@ -1,16 +1,20 @@
 package io.bluetape4k.coroutines.flow.extensions
 
 import app.cash.turbine.test
+import io.bluetape4k.assertions.assertFailsWith
+import io.bluetape4k.assertions.fail
+import io.bluetape4k.assertions.shouldBe
 import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.runTest
-import org.junit.jupiter.api.Assertions.fail
 import org.junit.jupiter.api.Test
 
 class ResultsTest: AbstractFlowTest() {
@@ -103,6 +107,15 @@ class ResultsTest: AbstractFlowTest() {
 
         receivedFirst.await()
         job.cancelAndJoin()
+        job.isCancelled.shouldBeTrue()
+
+        val cancellation = CancellationException("transform cancelled")
+        val propagated = assertFailsWith<CancellationException> {
+            flowOf(Result.success(1))
+                .mapResultCatching<Int, Int> { throw cancellation }
+                .collect { }
+        }
+        propagated shouldBe cancellation
     }
 
     @Test

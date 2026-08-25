@@ -62,6 +62,8 @@ class StructuredConcurrencyTest {
             taskScope<Unit> {
                 fork { throw RuntimeException("빠른 실패") }
                 fork {
+                    // 의도적인 blocking 경계: taskScope가 withVirtualDispatcher와
+                    // virtual-thread factory로 소유한 JDK structured-task lifecycle을 검증한다.
                     Thread.sleep(500)
                     counter.incrementAndGet()
                 }
@@ -146,6 +148,8 @@ class StructuredConcurrencyTest {
     fun `firstSuccessTaskScope - 여러 소스에서 가장 빠른 결과 선택`() = runSuspendIO {
         val result = firstSuccessTaskScope<String> {
             fork {
+                // 실제 blocking 지연으로 first-success winner 경쟁을 검증한다. blocking task의
+                // 실행 경계는 firstSuccessTaskScope의 withVirtualDispatcher가 소유한다.
                 Thread.sleep(200)
                 "느린 소스"
             }
@@ -370,7 +374,8 @@ class StructuredConcurrencyTest {
         assertFailsWith<TimeoutException> {
             taskScope<Unit> {
                 // StructuredTaskScope.close()는 forked thread 완료까지 대기하므로
-                // sleep을 deadline보다 크되 최소화 (200ms > 50ms deadline)
+                // sleep을 deadline보다 크되 최소화 (200ms > 50ms deadline)한다.
+                // forked task의 blocking 경계는 taskScope가 생성한 virtual thread가 담당한다.
                 fork { Thread.sleep(200) }
                 joinUntil(deadline).throwIfFailed()
             }
@@ -382,6 +387,8 @@ class StructuredConcurrencyTest {
         val deadline = java.time.Instant.now().plusMillis(50)
         assertFailsWith<TimeoutException> {
             supervisedTaskScope<Int, List<Result<Int>>> {
+                // 실제 blocking 지연으로 joinUntil deadline 경계를 검증하며 forked task는
+                // supervisedTaskScope의 virtual-thread 실행 경계를 사용한다.
                 fork { Thread.sleep(200); 1 }
                 joinUntil(deadline)
                 results()

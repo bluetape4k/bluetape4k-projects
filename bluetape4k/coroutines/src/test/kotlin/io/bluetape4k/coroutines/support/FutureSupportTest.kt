@@ -38,6 +38,8 @@ class FutureSupportTest {
             .rounds(ITEM_COUNT / 4)
             .add {
                 val task: FutureTask<Int> = FutureTask {
+                    // MultithreadingTester가 제공하는 worker에서 실제 blocking FutureTask를
+                    // 실행해 Future.get 계약을 검증한다. runTest 가상 시간은 이 경계를 우회한다.
                     Thread.sleep(Random.nextLong(10))
                     log.trace { "counter=${counter.get()}" }
                     counter.incrementAndGet()
