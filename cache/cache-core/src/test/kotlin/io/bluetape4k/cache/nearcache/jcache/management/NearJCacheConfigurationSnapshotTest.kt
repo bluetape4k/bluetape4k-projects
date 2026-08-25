@@ -1,5 +1,6 @@
 package io.bluetape4k.cache.nearcache.jcache.management
 
+import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeFalse
 import io.bluetape4k.assertions.shouldBeTrue
@@ -7,7 +8,6 @@ import io.bluetape4k.cache.nearcache.jcache.BulkFrontPopulationPolicy
 import io.mockk.every
 import io.mockk.mockk
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertThrows
 import java.util.UUID
 import javax.cache.CacheException
 import javax.cache.configuration.CompleteConfiguration
@@ -132,7 +132,7 @@ class NearJCacheConfigurationSnapshotTest {
         )
 
         failures.forEach { failure ->
-            val error = assertThrows<RuntimeException> {
+            val error = assertFailsWith<RuntimeException> {
                 nearJCacheConfigurationSnapshot(
                     actualFront = cacheOf(
                         configuration = configuration<String, Long>(),

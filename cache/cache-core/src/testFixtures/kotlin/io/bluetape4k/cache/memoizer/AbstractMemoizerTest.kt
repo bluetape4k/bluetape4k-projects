@@ -5,9 +5,31 @@ import io.bluetape4k.junit5.concurrency.StructuredTaskScopeTester
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.assertions.shouldBeEqualTo
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertTimeout
 import java.time.Duration
+import java.util.concurrent.ExecutionException
+import java.util.concurrent.Executors
+import java.util.concurrent.TimeUnit
+import java.util.concurrent.TimeoutException
 import kotlin.system.measureTimeMillis
+
+/**
+ * Memoizer tests intentionally exercise synchronous work behind a real thread boundary.
+ * The dedicated worker makes the timeout deterministic without changing the memoizer API.
+ */
+internal fun <T> withBlockingTimeout(timeout: Duration, block: () -> T): T {
+    val watchdog = Executors.newSingleThreadExecutor()
+    val task = watchdog.submit<T> { block() }
+    return try {
+        task.get(timeout.toMillis(), TimeUnit.MILLISECONDS)
+    } catch (e: ExecutionException) {
+        throw (e.cause ?: e)
+    } catch (e: TimeoutException) {
+        task.cancel(true)
+        throw AssertionError("Blocking memoizer test exceeded $timeout", e)
+    } finally {
+        watchdog.shutdownNow()
+    }
+}
 
 abstract class AbstractMemoizerTest {
 
@@ -24,7 +46,7 @@ abstract class AbstractMemoizerTest {
             heavyFunc(10) shouldBeEqualTo 100
         }
 
-        assertTimeout(Duration.ofMillis(1000)) {
+        withBlockingTimeout(Duration.ofMillis(1000)) {
             heavyFunc(10) shouldBeEqualTo 100
         }
     }
@@ -33,7 +55,7 @@ abstract class AbstractMemoizerTest {
     fun `run factorial`() {
         val x1 = factorial.calc(500)
 
-        assertTimeout(Duration.ofMillis(1000)) {
+        withBlockingTimeout(Duration.ofMillis(1000)) {
             factorial.calc(500)
         } shouldBeEqualTo x1
     }
@@ -42,7 +64,7 @@ abstract class AbstractMemoizerTest {
     fun `run fibonacci`() {
         val x1 = fibonacci.calc(500)
 
-        assertTimeout(Duration.ofMillis(1000)) {
+        withBlockingTimeout(Duration.ofMillis(1000)) {
             fibonacci.calc(500)
         } shouldBeEqualTo x1
     }

@@ -7,6 +7,7 @@ import ch.qos.logback.core.read.ListAppender
 import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeFalse
+import io.bluetape4k.assertions.shouldBeSameInstanceAs
 import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.cache.jcache.JCache
 import io.bluetape4k.cache.jcache.JCacheEntryEventListener
@@ -17,7 +18,6 @@ import io.mockk.mockk
 import io.mockk.slot
 import io.mockk.spyk
 import io.mockk.verify
-import org.junit.jupiter.api.Assertions.assertSame
 import org.junit.jupiter.api.Test
 import java.util.UUID
 import java.util.concurrent.CancellationException
@@ -829,7 +829,7 @@ class NearJCacheContractTest {
         val thrown = assertFailsWith<CancellationException> {
             nearCache.getAll(setOf("key"))
         }
-        assertSame(failure, thrown)
+        thrown shouldBeSameInstanceAs failure
 
         val secondResult = arrayOfNulls<MutableMap<String, String>>(1)
         val secondReader = virtualThread(start = false, name = "near-jcache-get-all-cancellation-recovery") {

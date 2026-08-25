@@ -1,11 +1,11 @@
 package io.bluetape4k.cache.cache2k
 
+import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldNotBeNull
 import io.bluetape4k.logging.KLogging
 import org.junit.jupiter.api.Test
 import java.time.Duration
-import kotlin.test.assertFailsWith
 
 class Cache2kSupportExtTest {
 
