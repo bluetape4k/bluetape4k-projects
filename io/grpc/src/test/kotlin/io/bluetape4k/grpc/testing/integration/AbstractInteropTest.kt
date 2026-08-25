@@ -35,13 +35,14 @@ import io.grpc.internal.testing.TestClientStreamTracer
 import io.grpc.internal.testing.TestServerStreamTracer
 import io.grpc.internal.testing.TestStreamTracer
 import io.grpc.testing.TestUtils
-import kotlinx.coroutines.runBlocking
 import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeGreaterOrEqualTo
 import io.bluetape4k.assertions.shouldBeNull
 import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.assertions.shouldContain
 import io.bluetape4k.assertions.shouldNotBeBlank
 import io.bluetape4k.assertions.shouldNotBeNull
+import io.bluetape4k.junit5.coroutines.runSuspendIO
 import org.assertj.core.util.VisibleForTesting
 import org.junit.Rule
 import org.junit.jupiter.api.AfterEach
@@ -57,7 +58,6 @@ import java.util.concurrent.LinkedBlockingQueue
 import java.util.concurrent.ScheduledExecutorService
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicReference
-import kotlin.test.assertTrue
 
 abstract class AbstractInteropTest {
 
@@ -208,7 +208,7 @@ abstract class AbstractInteropTest {
 
     @Test
     fun emptyUnary() {
-        runBlocking {
+        runSuspendIO {
             stub.emptyCall(EMPTY) shouldBeEqualTo EMPTY
         }
     }
@@ -228,7 +228,7 @@ abstract class AbstractInteropTest {
                 payload = Messages.Payload.newBuilder().setBody(ByteString.copyFrom(ByteArray(RESPONSE_SIZE))).build()
             }.build()
 
-        runBlocking {
+        runSuspendIO {
             stub.unaryCall(request) shouldBeEqualTo goldenResponse
         }
     }
@@ -238,77 +238,85 @@ abstract class AbstractInteropTest {
      * Attributes via ClientInterceptor.
      */
     @Test
-    fun `get server address and local address from client`() {
+    fun `get server address and local address from client`() = runSuspendIO {
         obtainRemoteServerAddr().shouldNotBeNull()
         obtainLocalClientAddr().shouldNotBeNull()
     }
 
     /** Sends a large unary rpc with service account credentials.  */
     fun serviceAccountCreds(jsonKey: String, credentialsStream: InputStream?, authScope: String) {
-        // cast to ServiceAccountCredentials to double-check the right type of object was created.
-        var credentials: GoogleCredentials =
-            GoogleCredentials.fromStream(credentialsStream) as ServiceAccountCredentials
-        credentials = credentials.createScoped(authScope)
-        val stub = this.stub.withCallCredentials(MoreCallCredentials.from(credentials))
+        runSuspendIO {
+            // cast to ServiceAccountCredentials to double-check the right type of object was created.
+            var credentials: GoogleCredentials =
+                GoogleCredentials.fromStream(credentialsStream) as ServiceAccountCredentials
+            credentials = credentials.createScoped(authScope)
+            val stub = this@AbstractInteropTest.stub.withCallCredentials(MoreCallCredentials.from(credentials))
 
-        val request = Messages.SimpleRequest.newBuilder()
-            .apply {
-                fillUsername = true
-                fillOauthScope = true
-                responseSize = RESPONSE_SIZE
-                payload = Messages.Payload.newBuilder().setBody(ByteString.copyFrom(ByteArray(REQUEST_SIZE))).build()
-            }.build()
+            val request = Messages.SimpleRequest.newBuilder()
+                .apply {
+                    fillUsername = true
+                    fillOauthScope = true
+                    responseSize = RESPONSE_SIZE
+                    payload = Messages.Payload.newBuilder()
+                        .setBody(ByteString.copyFrom(ByteArray(REQUEST_SIZE)))
+                        .build()
+                }.build()
 
-        val response = runBlocking { stub.unaryCall(request) }
-        response.username.shouldNotBeBlank()
-        jsonKey shouldContain response.username
-        response.oauthScope.shouldNotBeBlank()
-        authScope shouldContain response.oauthScope
+            val response = stub.unaryCall(request)
+            response.username.shouldNotBeBlank()
+            jsonKey shouldContain response.username
+            response.oauthScope.shouldNotBeBlank()
+            authScope shouldContain response.oauthScope
 
-        val goldenResponse = Messages.SimpleResponse.newBuilder()
-            .apply {
-                this.oauthScope = response.oauthScope
-                this.username = response.username
-                this.payload =
-                    Messages.Payload.newBuilder().setBody(ByteString.copyFrom(ByteArray(RESPONSE_SIZE))).build()
-            }.build()
+            val goldenResponse = Messages.SimpleResponse.newBuilder()
+                .apply {
+                    this.oauthScope = response.oauthScope
+                    this.username = response.username
+                    this.payload =
+                        Messages.Payload.newBuilder().setBody(ByteString.copyFrom(ByteArray(RESPONSE_SIZE))).build()
+                }.build()
 
-        assertResponse(goldenResponse, response)
+            assertResponse(goldenResponse, response)
+        }
     }
 
     /** Sends a large unary rpc with compute engine credentials.  */
     fun computeEngineCreds(serviceAccount: String?, oauthScope: String) {
-        val credentials = ComputeEngineCredentials.create()
-        val stub = this.stub.withCallCredentials(MoreCallCredentials.from(credentials))
-        val request = Messages.SimpleRequest.newBuilder()
-            .apply {
-                fillUsername = true
-                fillOauthScope = true
-                responseSize = RESPONSE_SIZE
-                payload = Messages.Payload.newBuilder().setBody(ByteString.copyFrom(ByteArray(REQUEST_SIZE))).build()
-            }.build()
+        runSuspendIO {
+            val credentials = ComputeEngineCredentials.create()
+            val stub = this@AbstractInteropTest.stub.withCallCredentials(MoreCallCredentials.from(credentials))
+            val request = Messages.SimpleRequest.newBuilder()
+                .apply {
+                    fillUsername = true
+                    fillOauthScope = true
+                    responseSize = RESPONSE_SIZE
+                    payload = Messages.Payload.newBuilder()
+                        .setBody(ByteString.copyFrom(ByteArray(REQUEST_SIZE)))
+                        .build()
+                }.build()
 
-        val response = runBlocking { stub.unaryCall(request) }
-        response.username shouldBeEqualTo serviceAccount
-        response.oauthScope.shouldNotBeBlank()
-        oauthScope shouldContain response.oauthScope
+            val response = stub.unaryCall(request)
+            response.username shouldBeEqualTo serviceAccount
+            response.oauthScope.shouldNotBeBlank()
+            oauthScope shouldContain response.oauthScope
 
-        val goldenResponse = Messages.SimpleResponse.newBuilder()
-            .apply {
-                this.oauthScope = response.oauthScope
-                this.username = response.username
-                this.payload =
-                    Messages.Payload.newBuilder().setBody(ByteString.copyFrom(ByteArray(RESPONSE_SIZE))).build()
-            }.build()
+            val goldenResponse = Messages.SimpleResponse.newBuilder()
+                .apply {
+                    this.oauthScope = response.oauthScope
+                    this.username = response.username
+                    this.payload =
+                        Messages.Payload.newBuilder().setBody(ByteString.copyFrom(ByteArray(RESPONSE_SIZE))).build()
+                }.build()
 
-        assertResponse(goldenResponse, response)
+            assertResponse(goldenResponse, response)
+        }
     }
 
     /** Sends an unary rpc with ComputeEngineChannelBuilder.  */
     fun computeEngineChannelCredentials(
         defaultServiceAccount: String,
         computeEngineStub: TestServiceGrpcKt.TestServiceCoroutineStub,
-    ) = runBlocking<Unit> {
+    ) = runSuspendIO {
         val request = Messages.SimpleRequest.newBuilder()
             .apply {
                 fillUsername = true
@@ -330,42 +338,47 @@ abstract class AbstractInteropTest {
 
     /** Test JWT-based auth.  */
     fun jwtTokenCreds(serviceAccountJson: InputStream?) {
-        val request = Messages.SimpleRequest.newBuilder()
-            .apply {
-                responseSize = RESPONSE_SIZE
-                payload = Messages.Payload.newBuilder().setBody(ByteString.copyFrom(ByteArray(REQUEST_SIZE))).build()
-                fillUsername = true
-            }.build()
+        runSuspendIO {
+            val request = Messages.SimpleRequest.newBuilder()
+                .apply {
+                    responseSize = RESPONSE_SIZE
+                    payload = Messages.Payload.newBuilder()
+                        .setBody(ByteString.copyFrom(ByteArray(REQUEST_SIZE)))
+                        .build()
+                    fillUsername = true
+                }.build()
 
-        val credentials = GoogleCredentials.fromStream(serviceAccountJson) as ServiceAccountCredentials
-        val response = runBlocking {
-            stub.withCallCredentials(MoreCallCredentials.from(credentials)).unaryCall(request)
+            val credentials = GoogleCredentials.fromStream(serviceAccountJson) as ServiceAccountCredentials
+            val response = this@AbstractInteropTest.stub
+                .withCallCredentials(MoreCallCredentials.from(credentials))
+                .unaryCall(request)
+            response.username shouldBeEqualTo credentials.clientEmail
+            response.payload.body.size() shouldBeEqualTo 314159
         }
-
-        response.username shouldBeEqualTo credentials.clientEmail
-        response.payload.body.size() shouldBeEqualTo 314159
     }
 
     /** Sends a unary rpc with raw oauth2 access token credentials.  */
     fun oauth2AuthToken(jsonKey: String, credentialsStream: InputStream, authScope: String) {
-        var utilCredentials = GoogleCredentials.fromStream(credentialsStream)
-        utilCredentials = utilCredentials.createScoped(authScope)
-        val accessToken = utilCredentials.refreshAccessToken()
-        val credentials = OAuth2Credentials.create(accessToken)
-        val request = Messages.SimpleRequest.newBuilder()
-            .apply {
-                fillUsername = true
-                fillOauthScope = true
-            }.build()
+        runSuspendIO {
+            var utilCredentials = GoogleCredentials.fromStream(credentialsStream)
+            utilCredentials = utilCredentials.createScoped(authScope)
+            val accessToken = utilCredentials.refreshAccessToken()
+            val credentials = OAuth2Credentials.create(accessToken)
+            val request = Messages.SimpleRequest.newBuilder()
+                .apply {
+                    fillUsername = true
+                    fillOauthScope = true
+                }.build()
 
-        val response = runBlocking {
-            stub.withCallCredentials(MoreCallCredentials.from(credentials)).unaryCall(request)
+            val response = this@AbstractInteropTest.stub
+                .withCallCredentials(MoreCallCredentials.from(credentials))
+                .unaryCall(request)
+            response.username.shouldNotBeBlank()
+            jsonKey shouldContain response.username
+
+            response.oauthScope.shouldNotBeBlank()
+            authScope shouldContain response.oauthScope
         }
-        response.username.shouldNotBeBlank()
-        jsonKey shouldContain response.username
-
-        response.oauthScope.shouldNotBeBlank()
-        authScope shouldContain response.oauthScope
     }
 
     /** Sends a unary rpc with "per rpc" raw oauth2 access token credentials.  */
@@ -380,7 +393,7 @@ abstract class AbstractInteropTest {
         defaultServiceAccount: String,
         googleDefaultStub: TestServiceGrpcKt.TestServiceCoroutineStub,
     ) {
-        runBlocking {
+        runSuspendIO {
             val request = Messages.SimpleRequest.newBuilder()
                 .apply {
                     fillUsername = true
@@ -404,24 +417,24 @@ abstract class AbstractInteropTest {
     }
 
     /** Helper for getting remote address from [io.grpc.ClientCall.getAttributes]  */
-    private fun obtainRemoteServerAddr(): SocketAddress? = runBlocking {
+    private suspend fun obtainRemoteServerAddr(): SocketAddress? {
         stub
             .withInterceptors(recordClientCallInterceptor(clientCallCapture))
             .withDeadlineAfter(5, TimeUnit.SECONDS)
             .unaryCall(Messages.SimpleRequest.getDefaultInstance())
 
-        clientCallCapture.get()?.attributes?.get(Grpc.TRANSPORT_ATTR_REMOTE_ADDR)
+        return clientCallCapture.get()?.attributes?.get(Grpc.TRANSPORT_ATTR_REMOTE_ADDR)
     }
 
 
     /** Helper for getting local address from [io.grpc.ClientCall.getAttributes]  */
-    private fun obtainLocalClientAddr(): SocketAddress? = runBlocking {
+    private suspend fun obtainLocalClientAddr(): SocketAddress? {
         stub
             .withInterceptors(recordClientCallInterceptor(clientCallCapture))
             .withDeadlineAfter(5, TimeUnit.SECONDS)
             .unaryCall(Messages.SimpleRequest.getDefaultInstance())
 
-        clientCallCapture.get()?.attributes?.get(Grpc.TRANSPORT_ATTR_LOCAL_ADDR)
+        return clientCallCapture.get()?.attributes?.get(Grpc.TRANSPORT_ATTR_LOCAL_ADDR)
     }
 
     protected fun operationTimeoutMillis(): Int {
@@ -572,9 +585,7 @@ abstract class AbstractInteropTest {
 
         private fun assumeEnoughMemory() {
             val availableMemory = Runtimex.availableMemory
-            assertTrue("$availableMemory is not sufficient to run this test") {
-                availableMemory >= 64 * 1024 * 1024
-            }
+            availableMemory shouldBeGreaterOrEqualTo 64 * 1024 * 1024
         }
 
         /**

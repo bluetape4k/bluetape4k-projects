@@ -97,7 +97,7 @@ class TinkDecryptSourceTest: AbstractTinkEncryptTest() {
         val encryptedSource = bufferOf(TinkEncryptors.AES256_GCM.encrypt(expected.toUtf8Bytes()))
         val decryptedSource = encryptedSource.asTinkDecryptSource(TinkEncryptors.AES256_GCM)
 
-        kotlin.test.assertFailsWith<IllegalArgumentException> {
+        assertFailsWith<IllegalArgumentException> {
             decryptedSource.read(Buffer(), -1L)
         }
     }
