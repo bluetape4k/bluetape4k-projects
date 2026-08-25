@@ -14,11 +14,17 @@ GIS 좌표 변환, Shapefile 처리, JTS 도형 연산, PostGIS 데이터베이�
 | 2 | **Shapefile 처리** | GeoTools (LGPL) | ✅ 구현 완료 |
 | 3 | **JTS 도형 연산** | JTS Core | ✅ 구현 완료 |
 | 4 | **PostGIS 데이터 파이프라인** | Exposed + PostGIS | ✅ 구현 완료 |
-| 5 | **NetCDF 메타데이터 카탈로그** | UCAR netCDF-Java (스키마 + 저장소만) | ⚠️ 부분 구현 |
+| 5 | **NetCDF 메타데이터 카탈로그** | UCAR netCDF-Java 5.9.1 | ✅ 구현 완료 |
 
-> **NetCDF 현황**: `NetCdfFileTable`, `NetCdfGridValueTable`, `NetCdfFileRepository`, 모든 모델 클래스는
-> 완전히 구현되어 테스트까지 통과했습니다. `NetCdfCatalogService`(실제 `.nc` 파일 읽기)는
-> `edu.ucar:netcdfAll` 의존성 문제로 Phase 5에 구현 예정입니다.
+> **NetCDF 현황**: `NetCdfCatalogService.registerFile()`과
+> `NetCdfCatalogService.importGridValues()`가 구현되어 모듈 테스트로 검증됩니다.
+> 서비스는 UCAR netCDF-Java 5.9.1 기반의 동기(blocking) API이며 UCAR 아티팩트는
+> `compileOnly`로 선언되어 있으므로 서비스를 호출하는 애플리케이션이 런타임에 제공해야 합니다.
+>
+> 현재 임포터는 rank 1~4 변수와 1차원 좌표축을 지원합니다. 5분 heartbeat lease 기반
+> 슬라이스 재개, EPSG:4326 재투영을 위한 CRS 화이트리스트, NaN/`_FillValue` 자동 skip도
+> 제공합니다. `CoordinateAxis2D`와 CF auxiliary-coordinate 격자는 현재 범위 밖이며
+> 후속 이슈 [#1352](https://github.com/bluetape4k/bluetape4k-projects/issues/1352)에서 다룹니다.
 
 ---
 
@@ -77,10 +83,10 @@ io.bluetape4k.science/
     │   └── NetCdfTables.kt         — NetCdfFileTable, NetCdfGridValueTable
     ├── repository/
     │   ├── SpatialFeatureRepository.kt — 공간 피처 CRUD + bbox 검색
-    │   └── NetCdfFileRepository.kt — NetCDF 파일 메타데이터 CRUD
+    │   └── NetCdfRepository.kt    — NetCdfFileRepository 메타데이터 CRUD
     └── service/
         ├── ShapefileImportService.kt — Virtual Thread 배치 임포트
-        └── NetCdfCatalogService.kt  — ⚠️ Phase 5 — 플레이스홀더만 존재
+        └── NetCdfCatalogService.kt  — registerFile() + importGridValues()
 ```
 
 ---
@@ -108,7 +114,9 @@ io.bluetape4k.science/
 | | Virtual Thread 배치 Shapefile 임포트 | `ShapefileImportService` |
 | | NetCDF 파일 메타데이터 카탈로그 | `NetCdfFileRepository` ✅ |
 | | NetCDF 격자 값 저장 스키마 | `NetCdfGridValueTable` ✅ |
-| | `.nc` 파일 임포트 서비스 | `NetCdfCatalogService` ⚠️ Phase 5 |
+| | `.nc` 파일 등록 | `NetCdfCatalogService.registerFile()` ✅ |
+| | rank 1~4 격자 임포트 | `NetCdfCatalogService.importGridValues()` ✅ |
+| | CoordinateAxis2D / auxiliary 좌표 | 후속 [#1352](https://github.com/bluetape4k/bluetape4k-projects/issues/1352) |
 
 ---
 
@@ -234,7 +242,7 @@ DB 스키마와 저장소가 완성되어 있습니다. `NetCdfFileRepository`�
 import io.bluetape4k.science.exposed.model.NetCdfFileRecord
 import io.bluetape4k.science.exposed.model.NetCdfVariableInfo
 import io.bluetape4k.science.exposed.repository.NetCdfFileRepository
-import org.jetbrains.exposed.sql.transactions.transaction
+import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 
 val repo = NetCdfFileRepository()
 
@@ -264,11 +272,47 @@ transaction {
     val saved = repo.save(record)
     println("저장 완료: id=${saved.id}, filename=${saved.filename}")
 
-    val found = repo.findByIdOrNull(saved.id)
+    val found = repo.findById(saved.id)
     println("변수 목록: ${found?.variables?.map { it.name }}")  // [temperature, precipitation]
     println("시간 스텝: ${found?.dimensions?.get("time")}")      // 24
 }
 ```
+
+### 5.6 NetCDF 격자 임포트
+
+`NetCdfCatalogService`는 `.nc` 파일을 열어 메타데이터를 저장하고, 지정한
+변수를 Exposed/PostGIS 격자 테이블로 임포트합니다. 동기(blocking) API이므로
+이벤트 루프 스레드가 아닌 워커 또는 virtual-thread executor에서 호출하세요.
+
+```kotlin
+import io.bluetape4k.science.exposed.repository.NetCdfFileRepository
+import io.bluetape4k.science.exposed.repository.NetCdfImportProgressRepository
+import io.bluetape4k.science.exposed.service.NetCdfCatalogService
+
+val catalog = NetCdfCatalogService(
+    fileRepo = NetCdfFileRepository(),
+    progressRepo = NetCdfImportProgressRepository(),
+)
+
+val fileId = catalog.registerFile("/data/era5/ERA5_2024_01.nc")
+catalog.importGridValues(fileId, variableName = "temperature")
+```
+
+지원 rank의 저장 좌표는 다음과 같습니다.
+
+| 변수 rank | 저장 좌표 |
+|-----------|----------|
+| 1D (`time`) | `timeIdx=t`, `levelIdx=0`, `location=null` |
+| 2D (`lat`, `lon`) | `timeIdx=0`, `levelIdx=0`, 셀마다 PostGIS `POINT` |
+| 3D (`time`, `lat`, `lon`) | `timeIdx=t`, `levelIdx=0`, 셀마다 `POINT` |
+| 4D (`time`, `level`, `lat`, `lon`) | `timeIdx=t`, `levelIdx=k`, 셀마다 `POINT` |
+
+각 `(fileId, variableName)` 임포트는 5분 heartbeat lease와 슬라이스 cursor를
+사용합니다. `COMPLETED` 상태는 no-op이며, 실패했거나 만료된 임포트는
+`lastSliceIdx + 1`부터 재개합니다. 지원 CRS는 EPSG:4326, 4269, 3857, 3031,
+3413, UTM EPSG:32601~32660/32701~32760이며, 그 밖의 값은
+`NetCdfException.UnsupportedProjection`을 발생시킵니다. NaN과 `_FillValue`
+셀은 건너뛰고 `netcdf.import.nan.skipped` counter에 기록합니다.
 
 ---
 
@@ -329,10 +373,16 @@ transaction {
 | `NetCdfFileRecord` | ✅ | 파일 메타데이터 모델 (filename, path, size, variables, dimensions) |
 | `NetCdfVariableInfo` | ✅ | 변수 기술자 (name, dataType, shape, attributes) |
 | `NetCdfDimensionInfo` | ✅ | 차원 기술자 (name, length, isUnlimited) |
-| `NetCdfFileRepository` | ✅ | 파일 메타데이터 CRUD (`save`, `findByIdOrNull`, `findAll`, `deleteById`) |
+| `NetCdfFileRepository` | ✅ | 파일 메타데이터 CRUD (`save`, `findById`, `findAll`, `deleteById`) |
 | `NetCdfFileTable` | ✅ | JSONB 컬럼 + PostGIS bbox + 시간 범위 |
 | `NetCdfGridValueTable` | ✅ | 격자 값 테이블 (location: PostGIS POINT, value, timeIdx, levelIdx) |
-| `NetCdfCatalogService` | ⚠️ Phase 5 | 플레이스홀더 — `NotImplementedError` 발생 (`netcdfAll` 해결 후 구현) |
+| `NetCdfCatalogService` | ✅ | 동기 `registerFile()`·`importGridValues()`; rank 1~4, lease/resume, CRS 화이트리스트, NaN/`_FillValue` 처리 |
+
+`NetCdfCatalogService`는 안정적인 sealed 예외 계약을 제공합니다. 빈 경로와
+변수명은 `IllegalArgumentException`을 발생시키며, 파일·변수·좌표 누락,
+지원하지 않는 rank/CRS, 활성 lease, lease 손실은 각각의 `NetCdfException`
+하위 타입으로 보고합니다. `CoordinateAxis2D`는 현재 `MissingCoordinate`로
+거부되며 [#1352](https://github.com/bluetape4k/bluetape4k-projects/issues/1352)에서 별도로 추적합니다.
 
 ---
 
@@ -392,18 +442,26 @@ implementation("io.github.bluetape4k:bluetape4k-coroutines:${bluetape4kVersion}"
 implementation(Libs.kotlinx_coroutines_core)
 ```
 
-### NetCDF (Phase 5 — 현재 불필요)
+### NetCDF (UCAR netCDF-Java 5.9.1)
 
-`NetCdfCatalogService` 구현 완료 시 필요:
+`utils/science/build.gradle.kts`는 NetCDF 통합을
+`edu.ucar:cdm-core:5.9.1`, `edu.ucar:netcdf4:5.9.1`의 `compileOnly`로
+컴파일합니다. `NetCdfCatalogService`를 호출하는 애플리케이션은 동일한
+아티팩트를 런타임에 제공해야 합니다.
 
 ```kotlin
 repositories {
     maven(url = "https://artifacts.unidata.ucar.edu/repository/unidata-all/") { name = "Unidata" }
 }
 dependencies {
-    implementation("edu.ucar:netcdfAll:5.6.0")
+    implementation("edu.ucar:cdm-core:5.9.1")
+    implementation("edu.ucar:netcdf4:5.9.1")
 }
 ```
+
+이전 aggregate 좌표는 현재 계약이 아니므로 사용하지 않습니다. 루트 빌드는
+Unidata 저장소를 이미 선언하지만, 이 저장소 밖의 애플리케이션은
+의존성 관리가 이를 상속하지 않는 경우 위 저장소를 직접 추가하세요.
 
 ### 전체 의존성 예시
 
@@ -420,6 +478,8 @@ dependencies {
     implementation(Libs.postgis_jdbc)
     implementation("io.github.bluetape4k:bluetape4k-coroutines:${bluetape4kVersion}")
     implementation(Libs.kotlinx_coroutines_core)
+    implementation("edu.ucar:cdm-core:5.9.1")
+    implementation("edu.ucar:netcdf4:5.9.1")
 }
 ```
 
@@ -453,7 +513,7 @@ class NetCdfTableTest : AbstractPostgisTest() {
             )
             val saved = repo.save(record)
 
-            val found = repo.findByIdOrNull(saved.id)
+            val found = repo.findById(saved.id)
             found shouldNotBeNull()
             found.filename shouldBeEqualTo "ERA5_2024_01.nc"
             found.variables.size shouldBeEqualTo 1
@@ -461,14 +521,26 @@ class NetCdfTableTest : AbstractPostgisTest() {
         }
     }
 
-    @Test
-    fun `NetCdfCatalogService - registerFile 호출 시 NotImplementedError 발생`() {
-        assertThrows<NotImplementedError> {
-            catalogService.registerFile("/data/test.nc")
-        }
-    }
 }
 ```
+
+`NetCdfCatalogServiceTest`는 동적으로 생성한 rank 1~4 파일로 현재 서비스
+계약을 검증합니다. 메타데이터 등록, 격자 row 수, 변수·좌표 누락, NaN과
+`_FillValue` 필터링, CRS 재투영 및 화이트리스트 실패, resume/no-op,
+heartbeat lease 경합과 stale owner 보호를 포함합니다. Unidata 공개 CF-1.x
+샘플 회귀는 `slow-netcdf` 태그로 분리되어 있습니다.
+
+```bash
+# 로컬/기본 프로필: 느린 공개 샘플 회귀는 제외합니다.
+./gradlew :bluetape4k-science:test --no-configuration-cache
+
+# 느린 회귀를 명시적으로 실행합니다( nightly workflow가 사용하는 프로필).
+./gradlew :bluetape4k-science:test -PincludeTags=slow-netcdf --no-configuration-cache
+```
+
+모듈 기본 테스트 설정은 `slow-netcdf`를 제외하며, `-PincludeTags`를 지정하면
+해당 제외가 해제됩니다. Testcontainers 기반 테스트에는 동작하는 Docker
+런타임과 PostgreSQL/PostGIS 접근이 필요합니다.
 
 ### Shapefile 임포트 테스트
 
