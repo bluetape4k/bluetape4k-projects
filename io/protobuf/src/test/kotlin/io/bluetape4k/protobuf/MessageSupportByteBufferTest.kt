@@ -1,6 +1,10 @@
 package io.bluetape4k.protobuf
 
 import com.google.protobuf.Message
+import io.bluetape4k.assertions.assertFailsWith
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeNull
+import io.bluetape4k.assertions.shouldContentEqual
 import io.bluetape4k.protobuf.messages.TestMessage
 import io.bluetape4k.protobuf.messages.testMessage
 import io.mockk.every
@@ -11,10 +15,6 @@ import java.nio.BufferOverflowException
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 import java.nio.ReadOnlyBufferException
-import kotlin.test.assertContentEquals
-import kotlin.test.assertEquals
-import kotlin.test.assertFailsWith
-import kotlin.test.assertNull
 
 class MessageSupportByteBufferTest {
     @Test
@@ -41,12 +41,12 @@ class MessageSupportByteBufferTest {
             val capacity = target.capacity()
             val order = target.order()
 
-            assertEquals(expected.size, packMessageTo(message, target))
-            assertEquals(3 + expected.size, target.position())
-            assertEquals(limit, target.limit())
-            assertEquals(capacity, target.capacity())
-            assertEquals(order, target.order())
-            assertContentEquals(expected, target.bytesAt(3, expected.size))
+            packMessageTo(message, target) shouldBeEqualTo expected.size
+            target.position() shouldBeEqualTo 3 + expected.size
+            target.limit() shouldBeEqualTo limit
+            target.capacity() shouldBeEqualTo capacity
+            target.order() shouldBeEqualTo order
+            target.bytesAt(3, expected.size) shouldContentEqual expected
         }
     }
 
@@ -56,8 +56,8 @@ class MessageSupportByteBufferTest {
         val size = packMessage(message).size
 
         listOf(ByteBuffer.allocate(size), ByteBuffer.allocateDirect(size)).forEach { target ->
-            assertEquals(size, packMessageTo(message, target))
-            assertEquals(target.limit(), target.position())
+            packMessageTo(message, target) shouldBeEqualTo size
+            target.position() shouldBeEqualTo target.limit()
         }
     }
 
@@ -72,7 +72,7 @@ class MessageSupportByteBufferTest {
             source.mark()
             val state = source.state()
 
-            assertNull(unpackMessage<TestMessage>(source))
+            unpackMessage<TestMessage>(source).shouldBeNull()
             source.assertState(state)
         }
     }
@@ -91,7 +91,7 @@ class MessageSupportByteBufferTest {
 
         assertFailsWith<ReadOnlyBufferException> { packMessageTo(message, readOnly) }
         readOnly.assertState(readOnlyState)
-        assertContentEquals(readOnlyContent, writable.array())
+        writable.array() shouldContentEqual readOnlyContent
 
         val undersized = ByteBuffer.allocate(size + 2).apply { put(ByteArray(capacity()) { 0x5A }) }
         undersized.position(1)
@@ -102,7 +102,7 @@ class MessageSupportByteBufferTest {
 
         assertFailsWith<BufferOverflowException> { packMessageTo(message, undersized) }
         undersized.assertState(undersizedState)
-        assertContentEquals(undersizedContent, undersized.array())
+        undersized.array() shouldContentEqual undersizedContent
     }
 
     @Test
@@ -119,7 +119,7 @@ class MessageSupportByteBufferTest {
 
         val decoded = unpackMessage<TestMessage>(source)
 
-        assertEquals(message(), decoded)
+        decoded shouldBeEqualTo message()
         source.assertState(state)
     }
 
@@ -149,8 +149,8 @@ class MessageSupportByteBufferTest {
             }
         }
 
-        assertEquals(position, target.position())
-        assertEquals(0x7F, target.get(position).toInt() and 0xFF)
+        target.position() shouldBeEqualTo position
+        target.get(position).toInt() and 0xFF shouldBeEqualTo 0x7F
     }
 
     private fun message(): TestMessage = testMessage {
@@ -167,11 +167,11 @@ class MessageSupportByteBufferTest {
     private fun ByteBuffer.state(): BufferState = BufferState(position(), limit(), order())
 
     private fun ByteBuffer.assertState(expected: BufferState) {
-        assertEquals(expected.position, position())
-        assertEquals(expected.limit, limit())
-        assertEquals(expected.order, order())
+        position() shouldBeEqualTo expected.position
+        limit() shouldBeEqualTo expected.limit
+        order() shouldBeEqualTo expected.order
         reset()
-        assertEquals(expected.position, position())
+        position() shouldBeEqualTo expected.position
     }
 
     private data class BufferState(val position: Int, val limit: Int, val order: ByteOrder)

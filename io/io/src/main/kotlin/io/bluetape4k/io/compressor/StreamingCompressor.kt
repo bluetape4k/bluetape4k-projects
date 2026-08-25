@@ -4,7 +4,6 @@ import io.bluetape4k.io.DEFAULT_BUFFER_SIZE
 import io.bluetape4k.io.copyTo
 import io.bluetape4k.io.toInputStream
 import io.bluetape4k.support.emptyByteArray
-import io.bluetape4k.support.isNullOrEmpty
 import java.io.ByteArrayOutputStream
 import java.io.InputStream
 import java.io.OutputStream
@@ -84,12 +83,13 @@ interface StreamingCompressor {
      * 바이트 배열을 압축합니다.
      */
     fun compress(plain: ByteArray?): ByteArray {
-        if (plain.isNullOrEmpty()) {
+        val value = plain ?: return emptyByteArray
+        if (value.isEmpty()) {
             return emptyByteArray
         }
 
-        val output = ByteArrayOutputStream(plain!!.size.coerceAtLeast(DEFAULT_BUFFER_SIZE))
-        compress(plain.toInputStream(), output)
+        val output = ByteArrayOutputStream(value.size.coerceAtLeast(DEFAULT_BUFFER_SIZE))
+        compress(value.toInputStream(), output)
         return output.toByteArray()
     }
 
@@ -97,12 +97,13 @@ interface StreamingCompressor {
      * 바이트 배열을 복원합니다.
      */
     fun decompress(compressed: ByteArray?): ByteArray {
-        if (compressed.isNullOrEmpty()) {
+        val value = compressed ?: return emptyByteArray
+        if (value.isEmpty()) {
             return emptyByteArray
         }
 
-        val output = ByteArrayOutputStream(compressed!!.size.coerceAtLeast(DEFAULT_BUFFER_SIZE))
-        decompress(compressed.toInputStream(), output)
+        val output = ByteArrayOutputStream(value.size.coerceAtLeast(DEFAULT_BUFFER_SIZE))
+        decompress(value.toInputStream(), output)
         return output.toByteArray()
     }
 }
