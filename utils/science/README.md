@@ -15,11 +15,17 @@ Shapefile I/O, JTS geometry operations, PostGIS database pipelines, and NetCDF m
 | 2 | **Shapefile Processing** | GeoTools (LGPL) | ✅ Implemented |
 | 3 | **JTS Geometry Operations** | JTS Core | ✅ Implemented |
 | 4 | **PostGIS Data Pipeline** | Exposed + PostGIS | ✅ Implemented |
-| 5 | **NetCDF Metadata Catalog** | UCAR netCDF-Java (schema + repo only) | ⚠️ Partial |
+| 5 | **NetCDF Metadata Catalog** | UCAR netCDF-Java 5.9.1 | ✅ Implemented |
 
-> **NetCDF status**: `NetCdfFileTable`, `NetCdfGridValueTable`, `NetCdfFileRepository`, and all model
-> classes are fully implemented and tested. `NetCdfCatalogService` (actual `.nc` file reading) requires
-> `edu.ucar:netcdfAll` and is planned for Phase 5.
+> **NetCDF status**: `NetCdfCatalogService.registerFile()` and
+> `NetCdfCatalogService.importGridValues()` are implemented and covered by the module tests.
+> The service is a blocking API backed by UCAR netCDF-Java 5.9.1, and the UCAR artifacts remain
+> `compileOnly`: applications that call the service must provide them at runtime.
+>
+> The current importer supports rank 1–4 variables and one-dimensional coordinate axes. It also
+> provides resumable slice imports with a five-minute heartbeat lease, a CRS whitelist with
+> reprojection to EPSG:4326, and automatic NaN/`_FillValue` skipping. `CoordinateAxis2D` and CF
+> auxiliary-coordinate grids are outside the current scope; see follow-up issue [#1352](https://github.com/bluetape4k/bluetape4k-projects/issues/1352).
 
 ---
 
@@ -76,10 +82,10 @@ io.bluetape4k.science/
     │   └── NetCdfTables.kt         — NetCdfFileTable, NetCdfGridValueTable
     ├── repository/
     │   ├── SpatialFeatureRepository.kt — Spatial feature CRUD + bbox search
-    │   └── NetCdfFileRepository.kt — NetCDF file metadata CRUD
+    │   └── NetCdfRepository.kt    — NetCdfFileRepository metadata CRUD
     └── service/
         ├── ShapefileImportService.kt — Virtual Thread batch importer
-        └── NetCdfCatalogService.kt  — ⚠️ Phase 5 — placeholder only
+        └── NetCdfCatalogService.kt  — registerFile() + importGridValues()
 ```
 
 ---
@@ -107,7 +113,9 @@ io.bluetape4k.science/
 | | Virtual Thread batch Shapefile import | `ShapefileImportService` |
 | | NetCDF file metadata catalog | `NetCdfFileRepository` ✅ |
 | | NetCDF grid value storage schema | `NetCdfGridValueTable` ✅ |
-| | `.nc` file import service | `NetCdfCatalogService` ⚠️ Phase 5 |
+| | `.nc` file registration | `NetCdfCatalogService.registerFile()` ✅ |
+| | Rank 1–4 grid import | `NetCdfCatalogService.importGridValues()` ✅ |
+| | CoordinateAxis2D / auxiliary coordinates | Follow-up [#1352](https://github.com/bluetape4k/bluetape4k-projects/issues/1352) |
 
 ---
 
@@ -233,7 +241,7 @@ The DB schema and repository are ready. Register NetCDF file metadata directly u
 import io.bluetape4k.science.exposed.model.NetCdfFileRecord
 import io.bluetape4k.science.exposed.model.NetCdfVariableInfo
 import io.bluetape4k.science.exposed.repository.NetCdfFileRepository
-import org.jetbrains.exposed.sql.transactions.transaction
+import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 
 val repo = NetCdfFileRepository()
 
@@ -263,11 +271,47 @@ transaction {
     val saved = repo.save(record)
     println("Saved: id=${saved.id}, filename=${saved.filename}")
 
-    val found = repo.findByIdOrNull(saved.id)
+    val found = repo.findById(saved.id)
     println("Variables: ${found?.variables?.map { it.name }}")  // [temperature, precipitation]
     println("Time steps: ${found?.dimensions?.get("time")}")     // 24
 }
 ```
+
+### 5.6 NetCDF Grid Import
+
+`NetCdfCatalogService` opens a `.nc` file, stores its metadata, and imports one
+variable into the Exposed/PostGIS grid tables. The API is blocking, so call it
+from a worker or virtual-thread executor rather than an event-loop thread.
+
+```kotlin
+import io.bluetape4k.science.exposed.repository.NetCdfFileRepository
+import io.bluetape4k.science.exposed.repository.NetCdfImportProgressRepository
+import io.bluetape4k.science.exposed.service.NetCdfCatalogService
+
+val catalog = NetCdfCatalogService(
+    fileRepo = NetCdfFileRepository(),
+    progressRepo = NetCdfImportProgressRepository(),
+)
+
+val fileId = catalog.registerFile("/data/era5/ERA5_2024_01.nc")
+catalog.importGridValues(fileId, variableName = "temperature")
+```
+
+The importer maps the supported ranks as follows:
+
+| Variable rank | Stored coordinates |
+|---------------|--------------------|
+| 1D (`time`) | `timeIdx=t`, `levelIdx=0`, `location=null` |
+| 2D (`lat`, `lon`) | `timeIdx=0`, `levelIdx=0`, one PostGIS `POINT` per cell |
+| 3D (`time`, `lat`, `lon`) | `timeIdx=t`, `levelIdx=0`, one `POINT` per cell |
+| 4D (`time`, `level`, `lat`, `lon`) | `timeIdx=t`, `levelIdx=k`, one `POINT` per cell |
+
+Each `(fileId, variableName)` import has a five-minute heartbeat lease and a
+slice cursor. `COMPLETED` imports are no-ops; a failed or expired import resumes
+at `lastSliceIdx + 1`. Supported source CRS values are EPSG:4326, 4269, 3857,
+3031, 3413, and UTM EPSG:32601–32660/32701–32760; other values raise
+`NetCdfException.UnsupportedProjection`. NaN and `_FillValue` cells are skipped
+and counted by `netcdf.import.nan.skipped`.
 
 ---
 
@@ -328,10 +372,16 @@ transaction {
 | `NetCdfFileRecord` | ✅ | File metadata model (filename, path, size, variables, dimensions) |
 | `NetCdfVariableInfo` | ✅ | Variable descriptor (name, dataType, shape, attributes) |
 | `NetCdfDimensionInfo` | ✅ | Dimension descriptor (name, length, isUnlimited) |
-| `NetCdfFileRepository` | ✅ | File metadata CRUD (`save`, `findByIdOrNull`, `findAll`, `deleteById`) |
+| `NetCdfFileRepository` | ✅ | File metadata CRUD (`save`, `findById`, `findAll`, `deleteById`) |
 | `NetCdfFileTable` | ✅ | Exposed table — JSONB columns + PostGIS bbox + time range |
 | `NetCdfGridValueTable` | ✅ | Grid value table (location: PostGIS POINT, value, timeIdx, levelIdx) |
-| `NetCdfCatalogService` | ⚠️ Phase 5 | Placeholder — throws `NotImplementedError` until `netcdfAll` is resolved |
+| `NetCdfCatalogService` | ✅ | Blocking `registerFile()` and `importGridValues()`; rank 1–4, lease/resume, CRS whitelist, NaN/`_FillValue` handling |
+
+`NetCdfCatalogService` exposes a stable sealed-exception contract. Blank paths or
+variable names raise `IllegalArgumentException`; missing files, variables,
+coordinates, unsupported ranks/CRS, active leases, and lost leases are reported
+as the corresponding `NetCdfException` subtype. `CoordinateAxis2D` is currently
+rejected as `MissingCoordinate` and is tracked separately in [#1352](https://github.com/bluetape4k/bluetape4k-projects/issues/1352).
 
 ---
 
@@ -391,18 +441,27 @@ implementation("io.github.bluetape4k:bluetape4k-coroutines:${bluetape4kVersion}"
 implementation(Libs.kotlinx_coroutines_core)
 ```
 
-### NetCDF (Phase 5 — not yet required)
+### NetCDF (UCAR netCDF-Java 5.9.1)
 
-When `NetCdfCatalogService` is complete, you will need:
+`utils/science/build.gradle.kts` compiles the NetCDF integration against
+`edu.ucar:cdm-core:5.9.1` and `edu.ucar:netcdf4:5.9.1` as `compileOnly`
+dependencies. The application that calls `NetCdfCatalogService` must provide
+the same artifacts at runtime:
 
 ```kotlin
 repositories {
     maven(url = "https://artifacts.unidata.ucar.edu/repository/unidata-all/") { name = "Unidata" }
 }
 dependencies {
-    implementation("edu.ucar:netcdfAll:5.6.0")
+    implementation("edu.ucar:cdm-core:5.9.1")
+    implementation("edu.ucar:netcdf4:5.9.1")
 }
 ```
+
+The former aggregate coordinate is not part of the current contract and must not
+be used. The Unidata repository is already declared by the root build;
+applications outside this repository should add the repository shown above when
+their dependency management does not inherit it.
 
 ### Full Example
 
@@ -419,6 +478,8 @@ dependencies {
     implementation(Libs.postgis_jdbc)
     implementation("io.github.bluetape4k:bluetape4k-coroutines:${bluetape4kVersion}")
     implementation(Libs.kotlinx_coroutines_core)
+    implementation("edu.ucar:cdm-core:5.9.1")
+    implementation("edu.ucar:netcdf4:5.9.1")
 }
 ```
 
@@ -452,7 +513,7 @@ class NetCdfTableTest : AbstractPostgisTest() {
             )
             val saved = repo.save(record)
 
-            val found = repo.findByIdOrNull(saved.id)
+            val found = repo.findById(saved.id)
             found shouldNotBeNull()
             found.filename shouldBeEqualTo "ERA5_2024_01.nc"
             found.variables.size shouldBeEqualTo 1
@@ -461,6 +522,25 @@ class NetCdfTableTest : AbstractPostgisTest() {
     }
 }
 ```
+
+`NetCdfCatalogServiceTest` covers the current service contract with dynamically
+generated rank 1–4 files: metadata registration, grid-row counts, missing
+variables/coordinates, NaN and `_FillValue` filtering, CRS reprojection and
+whitelist failures, resume/no-op behavior, heartbeat lease contention and
+stale-owner protection. The public Unidata CF-1.x sample regression is tagged
+`slow-netcdf`.
+
+```bash
+# Local/default profile: excludes the slow public-sample regression.
+./gradlew :bluetape4k-science:test --no-configuration-cache
+
+# Explicitly run the slow regression (the nightly workflow uses this profile).
+./gradlew :bluetape4k-science:test -PincludeTags=slow-netcdf --no-configuration-cache
+```
+
+The module's default test configuration excludes `slow-netcdf`; specifying
+`-PincludeTags` disables that exclusion. Testcontainers-backed tests require a
+working Docker runtime and PostgreSQL/PostGIS access.
 
 ### Shapefile Import Test
 
