@@ -2,23 +2,23 @@ package io.bluetape4k.support
 
 import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeFalse
+import io.bluetape4k.assertions.shouldBeTrue
 import org.junit.jupiter.api.Test
 import java.math.BigInteger
-import kotlin.test.assertFalse
-import kotlin.test.assertTrue
 
 class BigIntegerSupportTest {
 
     @Test
     fun `compare BigInteger with Number`() {
-        assertTrue { BigInteger.ZERO < 1L }
-        assertFalse { BigInteger.ZERO > 1L }
+        (BigInteger.ZERO < 1L).shouldBeTrue()
+        (BigInteger.ZERO > 1L).shouldBeFalse()
 
-        assertTrue { BigInteger.ONE > 0L }
-        assertTrue { BigInteger.TEN > 5 }
+        (BigInteger.ONE > 0L).shouldBeTrue()
+        (BigInteger.TEN > 5).shouldBeTrue()
 
-        assertFalse { BigInteger.ZERO > 1L }
-        assertFalse { BigInteger.ZERO > 1.0 }
+        (BigInteger.ZERO > 1L).shouldBeFalse()
+        (BigInteger.ZERO > 1.0).shouldBeFalse()
     }
 
     @Test

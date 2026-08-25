@@ -5,12 +5,12 @@ import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeFalse
 import io.bluetape4k.assertions.shouldBeInstanceOf
 import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.assertions.shouldBeSameInstanceAs
 import io.bluetape4k.assertions.shouldContainSame
 import io.bluetape4k.logging.KLogging
 import org.junit.jupiter.api.Test
 import kotlin.byteArrayOf
 import kotlin.longArrayOf
-import kotlin.test.assertTrue
 
 class ArraySupportTest {
 
@@ -165,27 +165,27 @@ class ArraySupportTest {
     @Test
     fun `padTo - 크기가 같거나 작으면 배열을 변경하지 않는다`() {
         val arr = arrayOf(1, 2, 3)
-        assertTrue { arr.padTo(3, 0) === arr }; assertTrue { arr.padTo(2, 0) === arr }
+        arr.padTo(3, 0).shouldBeSameInstanceAs(arr); arr.padTo(2, 0).shouldBeSameInstanceAs(arr)
 
         val ints = intArrayOf(1, 2, 3)
-        assertTrue { ints.padTo(3, 0) === ints }; assertTrue { ints.padTo(2, 0) === ints }
+        ints.padTo(3, 0).shouldBeSameInstanceAs(ints); ints.padTo(2, 0).shouldBeSameInstanceAs(ints)
 
         val bytes = byteArrayOf(1, 2, 3)
-        assertTrue { bytes.padTo(3, 0) === bytes }; assertTrue { bytes.padTo(2, 0) === bytes }
+        bytes.padTo(3, 0).shouldBeSameInstanceAs(bytes); bytes.padTo(2, 0).shouldBeSameInstanceAs(bytes)
 
         val longs = longArrayOf(1L, 2L, 3L)
-        assertTrue { longs.padTo(3, 0L) === longs }; assertTrue { longs.padTo(2, 0L) === longs }
+        longs.padTo(3, 0L).shouldBeSameInstanceAs(longs); longs.padTo(2, 0L).shouldBeSameInstanceAs(longs)
 
         val floats = floatArrayOf(1.0f, 2.0f, 3.0f)
-        assertTrue { floats.padTo(3, 0.0f) === floats }; assertTrue { floats.padTo(2, 0.0f) === floats }
+        floats.padTo(3, 0.0f).shouldBeSameInstanceAs(floats); floats.padTo(2, 0.0f).shouldBeSameInstanceAs(floats)
 
         val doubles = doubleArrayOf(1.0, 2.0, 3.0)
-        assertTrue { doubles.padTo(3, 0.0) === doubles }; assertTrue { doubles.padTo(2, 0.0) === doubles }
+        doubles.padTo(3, 0.0).shouldBeSameInstanceAs(doubles); doubles.padTo(2, 0.0).shouldBeSameInstanceAs(doubles)
 
         val chars = charArrayOf('a', 'b', 'c')
-        assertTrue { chars.padTo(3, 'x') === chars }; assertTrue { chars.padTo(2, 'x') === chars }
+        chars.padTo(3, 'x').shouldBeSameInstanceAs(chars); chars.padTo(2, 'x').shouldBeSameInstanceAs(chars)
 
         val shorts = shortArrayOf(1, 2, 3)
-        assertTrue { shorts.padTo(3, 0) === shorts }; assertTrue { shorts.padTo(2, 0) === shorts }
+        shorts.padTo(3, 0).shouldBeSameInstanceAs(shorts); shorts.padTo(2, 0).shouldBeSameInstanceAs(shorts)
     }
 }

@@ -4,8 +4,6 @@ import io.bluetape4k.logging.KLogging
 import io.bluetape4k.assertions.shouldBeFalse
 import io.bluetape4k.assertions.shouldBeTrue
 import org.junit.jupiter.api.Test
-import kotlin.test.assertFalse
-import kotlin.test.assertTrue
 
 class RangeSupportTest {
 
@@ -49,8 +47,8 @@ class RangeSupportTest {
     fun `create closed range by BigDecimal`() {
         val range = 5.toBigDecimal()..10.toBigDecimal()
 
-        assertTrue { 6.toBigDecimal() in range }
-        assertFalse { 3.toBigDecimal() in range }
+        (6.toBigDecimal() in range).shouldBeTrue()
+        (3.toBigDecimal() in range).shouldBeFalse()
 
         range.contains(7.toBigDecimal()..10.toBigDecimal()).shouldBeTrue()
         range.contains(7.toBigDecimal()..11.toBigDecimal()).shouldBeFalse()
@@ -61,8 +59,8 @@ class RangeSupportTest {
     fun `create closed range by BigInteger`() {
         val range = 5.toBigInteger()..10.toBigInteger()
 
-        assertTrue { 6.toBigInteger() in range }
-        assertFalse { 3.toBigInteger() in range }
+        (6.toBigInteger() in range).shouldBeTrue()
+        (3.toBigInteger() in range).shouldBeFalse()
 
         range.contains(7.toBigInteger()..10.toBigInteger()).shouldBeTrue()
         range.contains(7.toBigInteger()..11.toBigInteger()).shouldBeFalse()

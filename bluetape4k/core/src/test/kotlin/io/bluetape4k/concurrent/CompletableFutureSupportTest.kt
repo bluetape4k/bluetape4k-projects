@@ -1,18 +1,18 @@
 package io.bluetape4k.concurrent
 
+import io.bluetape4k.assertions.assertFails
 import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeFalse
 import io.bluetape4k.assertions.shouldBeInstanceOf
 import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.assertions.shouldNotBeNull
-import org.junit.jupiter.api.Assertions
+import io.bluetape4k.assertions.fail
 import org.junit.jupiter.api.Test
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.ExecutionException
 import java.util.concurrent.TimeoutException
 import java.util.concurrent.atomic.AtomicInteger
-import kotlin.test.assertFails
 import kotlin.time.Duration.Companion.milliseconds
 
 /**
@@ -90,7 +90,7 @@ class CompletableFutureSupportTest {
     @Test
     fun `onFailure callback fires only on failure`() {
         success.onFailure(DirectExecutor) { e ->
-            Assertions.fail("성공한 future에 대해 onFailure가 호출되면 안됩니다.", e)
+            fail("성공한 future에 대해 onFailure가 호출되면 안됩니다.", e)
         }.get() shouldBeEqualTo 1
 
         var capturedThrowable: Throwable? = null
@@ -167,6 +167,8 @@ class CompletableFutureSupportTest {
 
     @Test
     fun `futureWithTimeout completes within limit or throws TimeoutException`() {
+        // 의도적인 blocking 경계: worker의 실제 지연과 Future.get 결과로 timeout 계약을 검증한다.
+        // runTest나 가상 시간 tester로 치환하면 CompletableFuture scheduler 의미가 달라진다.
         futureWithTimeout(500L) { Thread.sleep(50); 42 }.get() shouldBeEqualTo 42
         futureWithTimeout(50L) { Thread.sleep(3000); 42 }.shouldCauseBe<TimeoutException>()
         futureWithTimeout(500.milliseconds) { Thread.sleep(50); "hello" }.get() shouldBeEqualTo "hello"
