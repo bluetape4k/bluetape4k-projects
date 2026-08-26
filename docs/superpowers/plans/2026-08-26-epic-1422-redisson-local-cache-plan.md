@@ -62,15 +62,18 @@ val redis: RedisServer by lazy {
             try {
                 RedisServer.Launcher.RedissonLib.warmupPubSubChannel(warmupClient)
             } finally {
-                warmupClient.shutdown()
+                warmupClient.shutdown(0, 5, TimeUnit.SECONDS)
             }
         }
     }
 }
 ```
 
-필요한 import는 `io.bluetape4k.support.classIsPresent`, `org.redisson.Redisson`와
-`org.testcontainers.utility.DockerImageName`다. 기존 함수의
+필요한 import는 `io.bluetape4k.support.classIsPresent`, `org.redisson.Redisson`,
+`org.testcontainers.utility.DockerImageName`, `java.util.concurrent.TimeUnit`다. lazy
+초기화 블록은 suspend 경계가 아니므로 `runInterruptible`을 끼워 넣지 않고, Redisson의
+bounded `shutdown(0, 5, TimeUnit.SECONDS)` overload로 warm-up client 종료 상한을
+명시한다. 기존 함수의
 signature는 다음으로 바꾸고, `ShutdownQueue.register`는 조건부로 실행한다. 기본값은
 기존 shared client 동작을 보존한다.
 
