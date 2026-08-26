@@ -401,7 +401,8 @@ return callbackFlow {
 해제한다. `failOnce(cause)`는 `terminalCause`를 CAS한 뒤
 `upstreamJob.cancel(CancellationException("producer terminal failure", cause))`과
 channel close를 수행한다. 각 collection마다 `producerFactory()`는 한 번만
-호출한다.
+호출한다. 두 helper는 `upstreamJob`을 생성하기 전에 같은 `callbackFlow` block의
+local function으로 선언하며, callback thread에서 suspend하지 않는다.
 각 `send`의 반환 Future를 in-flight 항목과 함께 보관해 cancellation 또는 drain
 deadline에서 `cancel(false)`하고, deterministic probe의 `pendingSend`로 그 결과를
 검증한다.
