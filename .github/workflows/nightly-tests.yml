@@ -1018,7 +1018,8 @@ jobs:
           retention-days: 14
 
   # ── Spring Boot Docker 테스트 — Matrix 병렬 ───────────────────────────
-  # 3 groups run in parallel on separate runners
+  # Daily smoke(run_standard=false)에서는 생략하고 weekly/manual full에서 실행한다.
+  # PR CI의 spring-boot/** 변경도 같은 세 group을 별도 test-spring-boot job으로 실행한다.
   test-spring-docker:
     name: Test / Spring Boot (${{ matrix.group }})
     runs-on: ubuntu-latest

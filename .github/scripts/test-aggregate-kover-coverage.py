@@ -181,6 +181,29 @@ class AggregateKoverCoverageTest(unittest.TestCase):
         self.assertIn("'infra/nats'", workflow)
         self.assertIn("test-search-messaging, test-kafka-infra", workflow)
 
+    def test_ci_routes_spring_boot_changes_to_test_and_coverage_manifest(self):
+        workflow = CI_WORKFLOW.read_text(encoding="utf-8")
+        self.assertIn("spring-boot: ${{ steps.filter.outputs.spring-boot }}", workflow)
+        self.assertIn("'spring-boot/**'", workflow)
+        self.assertIn("test-spring-boot:", workflow)
+        self.assertIn(
+            "test-spring-boot=${{ needs.test-spring-boot.result }}",
+            workflow,
+        )
+        self.assertIn(
+            "if grep -q '^test-spring-boot=success$' coverage-artifacts/expected-jobs.manifest",
+            workflow,
+        )
+        for module in (
+            "spring-boot/core",
+            "spring-boot/redis",
+            "spring-boot/r2dbc",
+            "spring-boot/mongodb",
+            "spring-boot/cassandra",
+            "spring-boot/hibernate-lettuce",
+        ):
+            self.assertIn(f"'{module}'", workflow)
+
     def test_ci_keeps_coveralls_out_of_path_filtered_coverage(self):
         workflow = CI_WORKFLOW.read_text(encoding="utf-8")
         self.assertIn("id: aggregate-coverage", workflow)
