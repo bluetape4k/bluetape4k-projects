@@ -814,7 +814,7 @@ python3 .github/scripts/collect-testcontainers-diagnostics.py \
 스크립트는 `--container-id`를 반복 인자로 받아 현재 Gradle invocation에서 새로 생성된
 container만 대상으로 삼는다. ID가 없으면 container 섹션이 빈 manifest가 되며 exit 0으로
 처리하되, `--report-path`가 함께 지정된 경우 report sanitization은 계속 수행한다.
-각 container에 대해 `docker inspect`의 image/name/created와 `docker logs --tail 200`만
+각 container에 대해 `docker inspect`의 image/image ID/name/created와 `docker logs --tail 200`만
 수집한다. 출력은 task 이름으로 정규화한 JSON manifest와 `*.log`로 저장하며,
 token·URI·환경 변수·payload·exception message는 `[REDACTED]`로 치환한다. 로그와
 manifest의 총 산출량은 `--max-total-bytes`(기본 2,000,000 bytes)를 넘지 않으며,
@@ -838,11 +838,12 @@ report를 sanitized 디렉터리에 절대 링크하지 않는다. collector는 
 뒤의 message를 치환한다. 원문 로그는 저장하지 않는다. `--workflow-file`의
 `uses: owner/action@ref`를 파싱해 `workflow_action_refs`에 기록하되 ref가 40자리
 immutable commit SHA가 아니면 실패시킨다. `docker container inspect`의
-`RepoDigests`가 제공되면 이를 우선 사용하고, Docker 엔진이 해당 필드를 생략하는
-경우에는 container의 image reference로 `docker image inspect`를 수행해 allowlist와
-정확히 일치하는 값을 `image_digest`에 기록한다. image ID는 보조 진단 필드로만
-기록하며, 두 inspect 결과 모두에 immutable `RepoDigests`가 없으면 provenance를
-완성할 수 없으므로 실패시킨다.
+`Image` ID가 없으면 mutable `Config.Image`를 provenance 근거로 사용하지 않고
+실패시킨다. `RepoDigests`가 제공되면 이를 우선 사용하고, Docker 엔진이 해당
+필드를 생략하는 경우에는 실제 container `Image` ID로 `docker image inspect`를
+수행한다. image inspect 반환 `Id`가 container `Image` ID와 정확히 일치할 때만
+allowlist와 일치하는 `image_digest`를 기록하며, 두 inspect 결과 모두에 immutable
+`RepoDigests`가 없으면 provenance를 완성할 수 없으므로 실패시킨다.
 허용 image allowlist는 `confluentinc/cp-kafka@sha256:a5040785528b0bce3b146febe9fcacdcf2b9b5acb450307f75170ef0e60ec130`과
 `redis@sha256:4e070415a5713188624f93815e62d6c6a1fcbb416d2e0b578ab3db627db3a93a`로
 고정한다. 해당 image는 `RepoDigests`가 allowlist와 정확히 일치해야 하며, local
