@@ -807,7 +807,7 @@ python3 .github/scripts/collect-testcontainers-diagnostics.py \
   --sanitized-report-dir examples/build/sanitized-test-reports \
   --report-path examples/coroutines-demo/build/test-results/test \
   --report-path examples/coroutines-demo/build/reports/tests/test \
-  --max-report-files 200 \
+  --max-report-files 400 \
   --max-report-total-bytes 2000000
 ```
 
@@ -827,7 +827,7 @@ Docker CLI 자체 오류는 stderr에 task name만 남기고 exit 1로 반환한
 `report-path`가 존재하지 않거나 report 파일이 없으면 해당 단계는 실패시키고, 원본
 report를 sanitized 디렉터리에 절대 링크하지 않는다. collector는 report path를
 재귀적으로 무제한 탐색하지 않고 정렬된 path 목록만 방문하며, 전체 sanitized report는
-`--max-report-files`(기본 200)와 `--max-report-total-bytes`(기본 2,000,000 bytes)를
+`--max-report-files`(기본 200, Examples workflow 400)와 `--max-report-total-bytes`(기본 2,000,000 bytes)를
 동시에 적용한다. 상한 초과 시 추가 파일을 저장하지 않고 manifest에
 `report_truncated=true`를 기록하며 exit 1로 종료한다.
 
@@ -837,10 +837,12 @@ report를 sanitized 디렉터리에 절대 링크하지 않는다. collector는 
 `payload|message|body|value` 라인 전체를 치환하고, (4) `*Exception`/`*Error`
 뒤의 message를 치환한다. 원문 로그는 저장하지 않는다. `--workflow-file`의
 `uses: owner/action@ref`를 파싱해 `workflow_action_refs`에 기록하되 ref가 40자리
-immutable commit SHA가 아니면 실패시킨다. `docker inspect`의 `RepoDigests`에서
-allowlist와 정확히 일치하는 값을 `image_digest`에 기록한다. image ID는 보조 진단
-필드로만 기록할 수 있고, `RepoDigests`가 없으면 provenance를 완성할 수 없으므로
-실패시킨다.
+immutable commit SHA가 아니면 실패시킨다. `docker container inspect`의
+`RepoDigests`가 제공되면 이를 우선 사용하고, Docker 엔진이 해당 필드를 생략하는
+경우에는 container의 image reference로 `docker image inspect`를 수행해 allowlist와
+정확히 일치하는 값을 `image_digest`에 기록한다. image ID는 보조 진단 필드로만
+기록하며, 두 inspect 결과 모두에 immutable `RepoDigests`가 없으면 provenance를
+완성할 수 없으므로 실패시킨다.
 허용 image allowlist는 `confluentinc/cp-kafka@sha256:a5040785528b0bce3b146febe9fcacdcf2b9b5acb450307f75170ef0e60ec130`과
 `redis@sha256:4e070415a5713188624f93815e62d6c6a1fcbb416d2e0b578ab3db627db3a93a`로
 고정한다. 해당 image는 `RepoDigests`가 allowlist와 정확히 일치해야 하며, local
@@ -956,7 +958,7 @@ python3 .github/scripts/collect-testcontainers-diagnostics.py \
   --output-dir examples/build/testcontainers-diagnostics/report-scan \
   --workflow-file .github/workflows/examples.yml \
   --sanitized-report-dir examples/build/sanitized-test-reports \
-  --max-report-files 200 \
+  --max-report-files 400 \
   --max-report-total-bytes 2000000 \
   "${report_paths[@]}" || status=1
 test -d examples/build/sanitized-test-reports || status=1
@@ -975,7 +977,7 @@ exit "$status"
 aggregate status를 1로 유지하되 collector는 빈 manifest를 남겨 `if: always()`에서
 진단 artifact를 확인할 수 있게 한다. 모든 test task가 끝난 뒤 collector를 정확히
 한 번 더 호출해 `report_paths`에 열거한 report 디렉터리만 sanitization하고, 이 호출은
-`--max-report-files=200`과 `--max-report-total-bytes=2000000`을 적용한다.
+`--max-report-files=400`과 `--max-report-total-bytes=2000000`을 적용한다.
 Ktor/Spring Boot 조건부 task는 현재
 `build.gradle.kts`가 존재하는 경우에만 compile/test 배열 각각에 추가한다. compile
 task와 test task를 같은 `--parallel` 배열에 넣지 않는다. ID 목록은 정렬·중복 제거해

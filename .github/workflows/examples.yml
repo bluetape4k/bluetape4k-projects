@@ -182,7 +182,7 @@ jobs:
             --output-dir examples/build/testcontainers-diagnostics/report-scan \
             --workflow-file .github/workflows/examples.yml \
             --sanitized-report-dir examples/build/sanitized-test-reports \
-            --max-report-files 200 \
+            --max-report-files 400 \
             --max-report-total-bytes 2000000 \
             "${report_paths[@]}" || status=1
           test -d examples/build/sanitized-test-reports || status=1
