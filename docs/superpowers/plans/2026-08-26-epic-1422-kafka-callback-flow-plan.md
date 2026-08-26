@@ -456,7 +456,13 @@ return callbackFlow {
     val upstreamJobRef = AtomicReference<Job?>()
 
     fun cancelInFlight() {
-        inFlight.forEach { it.future.get()?.cancel(false) }
+        inFlight.toList().forEach { state ->
+            state.future.get()?.cancel(false)
+            if (state.completed.compareAndSet(false, true)) {
+                inFlight.remove(state)
+                permits.release()
+            }
+        }
     }
 
     fun failOnce(cause: Throwable) {
@@ -503,6 +509,13 @@ return callbackFlow {
                     if (terminalCause.get() != null || downstreamCancelled.get()) {
                         future.cancel(false)
                     }
+                } catch (cause: CancellationException) {
+                    if (state.completed.compareAndSet(false, true)) {
+                        inFlight.remove(state)
+                        permits.release()
+                    }
+                    if (!downstreamCancelled.get()) failOnce(cause)
+                    throw cause
                 } catch (cause: Throwable) {
                     if (state.completed.compareAndSet(false, true)) {
                         inFlight.remove(state)
@@ -512,12 +525,16 @@ return callbackFlow {
                     throw cause
                 }
             }
+        } catch (cause: CancellationException) {
+            if (!downstreamCancelled.get()) failOnce(cause)
+            throw cause
         } catch (cause: Throwable) {
             failOnce(cause)
             throw cause
         } finally {
             withContext(NonCancellable + Dispatchers.IO) {
                 var cleanupFailure: Throwable? = null
+                var cleanupCancellation: CancellationException? = null
                 try {
                     withTimeout(30.seconds) {
                         while (inFlight.isNotEmpty()) delay(10)
@@ -529,9 +546,9 @@ return callbackFlow {
                     if (!downstreamCancelled.get()) failOnce(cause)
                 } catch (cause: CancellationException) {
                     cleanupFailure = cause
+                    cleanupCancellation = cause
                     cancelInFlight()
                     if (!downstreamCancelled.get()) failOnce(cause)
-                    throw cause
                 } catch (cause: Throwable) {
                     cleanupFailure = cause
                     cancelInFlight()
@@ -554,6 +571,9 @@ return callbackFlow {
                     failOnce(closeFailure)
                 }
                 if (terminalCause.get() == null && !downstreamCancelled.get()) close()
+                if (cleanupCancellation != null && terminalCause.get() == null) {
+                    throw cleanupCancellation
+                }
             }
         }
     }
@@ -570,13 +590,15 @@ return callbackFlow {
 각 send는 `SendState`를 먼저 `inFlight`에 등록하고 callback에 전달한다. callback이
 동기 실행되어도 state가 이미 존재하므로 stale Future가 생기지 않는다. callback은
 결과 전달 또는 `failOnce` 처리가 끝난 뒤 `finally`에서 state를 `inFlight`에서 제거하고
-permit을 정확히 한 번 해제한다. worker cleanup은 one-shot signal에 의존하지 않고
+permit을 정확히 한 번 해제한다. `cancelInFlight()`도 state의 completed CAS를 통해
+같은 제거·permit release를 한 번만 수행한다. worker cleanup은 one-shot signal에 의존하지 않고
 bounded loop에서 `inFlight.isEmpty()`를 다시 확인하므로 mixed sync/async callback이
 남아 있으면 flush/close로 진행하지 않는다. 반환 Future는 state에
 저장한 뒤 이미 완료된 callback이면 registry에 남기지 않는다. `awaitClose`는 먼저
-`downstreamCancelled` sentinel을 세우고 cancellation
-signal만 전달한다. 따라서 닫힌 channel에서 도착한 late callback은 새 terminal cause를
-기록하지 않는다. `failOnce(cause)`는 downstream sentinel이 없을 때만
+`downstreamCancelled` sentinel을 세우고 in-flight state를 완료·제거하면서
+non-blocking Future cancellation과 cancellation signal을 전달한다. 따라서 닫힌
+channel에서 도착한 late callback은 새 terminal cause나 permit release를 만들지 않는다.
+`failOnce(cause)`는 downstream sentinel이 없을 때만
 `terminalCause`를 CAS한 뒤 `upstreamJobRef`가 가리키는 Job을 취소하고 channel close를
 수행한다. Job은 `CoroutineStart.LAZY`로 만든 뒤 ref를 저장하고 시작하므로 callback이
 동기 실행되어도 초기화되지 않은 Job을 참조하지 않는다. 각 collection마다
