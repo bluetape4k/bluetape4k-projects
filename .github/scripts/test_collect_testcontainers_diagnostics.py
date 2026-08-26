@@ -67,6 +67,7 @@ Authorization: Bearer authorization-secret
 AWS_SECRET_ACCESS_KEY=upper-secret
 aws_secret_access_key=lower-secret
 clientSecret=client-secret access_token=access-secret
+secretKey=secret-key-secret secret_key=snake-secret-key
 mongodb://user:password@mongo.example/db
 aws_access_key_id=AKIA-SECRET
 private_key=private-key-secret
@@ -90,6 +91,8 @@ IllegalStateException: exception-secret
             "lower-secret",
             "client-secret",
             "access-secret",
+            "secret-key-secret",
+            "snake-secret-key",
             "password@mongo.example",
             "AKIA-SECRET",
             "private-key-secret",

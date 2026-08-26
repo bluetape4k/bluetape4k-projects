@@ -28,7 +28,7 @@ URI = re.compile(
 )
 AUTHORIZATION_LINE = re.compile(r"(?im)^(\s*[\"']?authorization[\"']?\s*[:=]\s*).*$")
 SENSITIVE_KEY = (
-    r"(?:payload|message|body|value|authorization|access[_-]?token|access[_-]?key(?:[_-]?id)?|token|password|secret|"
+    r"(?:payload|message|body|value|authorization|access[_-]?token|access[_-]?key(?:[_-]?id)?|token|password|secret[_-]?key|secret|"
     r"private[_-]?key|api[_-]?key|"
     r"[a-z][a-z0-9_.-]*(?:authorization|access[_-]?token|access[_-]?key(?:[_-]?id)?|token|password|secret|"
     r"private[_-]?key|api[_-]?key)[a-z0-9_.-]*)"
