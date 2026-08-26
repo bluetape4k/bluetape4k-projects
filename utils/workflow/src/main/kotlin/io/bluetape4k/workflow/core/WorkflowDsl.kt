@@ -144,7 +144,7 @@ class SequentialFlowBuilder(private val name: String = "sequential-flow") {
  * [ParallelWorkFlow]를 구성하는 DSL 빌더입니다.
  *
  * 여러 작업을 동시에 병렬 실행하는 워크플로를 선언적으로 정의합니다.
- * [StructuredTaskScopes][io.bluetape4k.concurrent.virtualthread.StructuredTaskScopes] 기반으로 실행되며,
+ * [StructuredTaskScopes][io.bluetape4k.concurrent.virtualthread.api.StructuredTaskScopes] 기반으로 실행되며,
  * [policy]로 실행 전략을 선택할 수 있습니다.
  *
  * ```kotlin

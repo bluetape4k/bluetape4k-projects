@@ -1,6 +1,6 @@
 package io.bluetape4k.concurrent.virtualthread.jdk25
 
-import io.bluetape4k.concurrent.virtualthread.TaskContext
+import io.bluetape4k.concurrent.virtualthread.api.TaskContext
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import io.bluetape4k.assertions.shouldBeEqualTo

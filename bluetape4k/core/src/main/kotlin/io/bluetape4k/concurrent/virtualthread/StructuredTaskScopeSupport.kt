@@ -1,5 +1,12 @@
 package io.bluetape4k.concurrent.virtualthread
 
+import io.bluetape4k.concurrent.virtualthread.api.StructuredTaskScopeAll
+import io.bluetape4k.concurrent.virtualthread.api.StructuredTaskScopeAny
+import io.bluetape4k.concurrent.virtualthread.api.StructuredTaskScopeFailFast
+import io.bluetape4k.concurrent.virtualthread.api.StructuredTaskScopeFirstSuccess
+import io.bluetape4k.concurrent.virtualthread.api.StructuredTaskScopeSupervised
+import io.bluetape4k.concurrent.virtualthread.api.StructuredTaskScopes
+import io.bluetape4k.concurrent.virtualthread.api.VirtualThreads
 import java.util.concurrent.ThreadFactory
 
 /**

@@ -4,6 +4,16 @@
 
 Virtual Thread 기능을 JDK 버전에 독립적으로 사용할 수 있도록 추상화한 API 모듈입니다.
 
+### 패키지 소유권
+
+Java 21 호환 API 타입은
+`io.bluetape4k.concurrent.virtualthread.api` 패키지에 배치합니다. Core
+유틸리티는 `io.bluetape4k.concurrent.virtualthread`에 남겨 published
+`core`와 `virtualthread-api` artifact가 같은 패키지를 공유하지 않도록
+했습니다. `VirtualThreads`, `StructuredTaskScopes`, `TaskContext` 또는
+scope 계약을 import하는 소비자는 import를 갱신하고 재컴파일해야 합니다.
+JDK runtime provider는 동일한 `.api` ServiceLoader 계약에 등록됩니다.
+
 ## 개요
 
 Java 21부터 정식 도입된 Virtual Thread는 기존 Platform Thread에 비해 훨씬 가벼운 경량 스레드입니다. 이 모듈은 JDK 21과 JDK 25의 Virtual Thread 구현체를 ServiceLoader 패턴을 통해 런타임에 자동으로 선택하여 사용할 수 있도록 지원합니다.
@@ -15,7 +25,7 @@ Java 21부터 정식 도입된 Virtual Thread는 기존 Platform Thread에 비�
 현재 JVM 런타임에 맞는 Virtual Thread 구현체를 자동으로 선택하여 사용합니다.
 
 ```kotlin
-import io.bluetape4k.concurrent.virtualthread.VirtualThreads
+import io.bluetape4k.concurrent.virtualthread.api.VirtualThreads
 
 // 현재 런타임 확인
 val runtimeName = VirtualThreads.runtimeName() // "jdk21" 또는 "jdk25"
@@ -65,7 +75,7 @@ Java의 StructuredTaskScope API를 추상화하여 JDK 버전에 관계없이 �
 모든 서브태스크가 성공해야 하며, 하나라도 실패하면 나머지를 즉시 취소합니다.
 
 ```kotlin
-import io.bluetape4k.concurrent.virtualthread.StructuredTaskScopes
+import io.bluetape4k.concurrent.virtualthread.api.StructuredTaskScopes
 
 val results = StructuredTaskScopes.failFast { scope ->
     val task1 = scope.fork { fetchUserData() }
@@ -166,13 +176,13 @@ StructuredTaskScopes.failFast { scope ->
 
 각 JDK 구현 모듈 (`jdk21`, `jdk25`)은 다음 파일들을 제공해야 합니다:
 
-*META-INF/services/io.bluetape4k.concurrent.virtualthread.VirtualThreadRuntime*
+*META-INF/services/io.bluetape4k.concurrent.virtualthread.api.VirtualThreadRuntime*
 
 ```
 io.bluetape4k.concurrent.virtualthread.jdk21.Jdk21VirtualThreadRuntime
 ```
 
-*META-INF/services/io.bluetape4k.concurrent.virtualthread.StructuredTaskScopeProvider*
+*META-INF/services/io.bluetape4k.concurrent.virtualthread.api.StructuredTaskScopeProvider*
 
 ```
 io.bluetape4k.concurrent.virtualthread.jdk21.Jdk21StructuredTaskScopeProvider

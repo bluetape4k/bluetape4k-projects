@@ -4,6 +4,16 @@ English | [한국어](./README.ko.md)
 
 An API module that abstracts virtual-thread features so they can be used independently of the concrete JDK version.
 
+### Package ownership
+
+The Java 21-compatible API types live under
+`io.bluetape4k.concurrent.virtualthread.api`. Core utilities remain under
+`io.bluetape4k.concurrent.virtualthread`, so the published `core` and
+`virtualthread-api` artifacts no longer share a package. Consumers importing
+`VirtualThreads`, `StructuredTaskScopes`, `TaskContext`, or the scope contracts
+must update their imports and recompile. The JDK runtime providers register
+against the matching `.api` ServiceLoader contracts.
+
 ## Overview
 
 Virtual Threads, officially introduced in Java 21, are much lighter-weight than traditional platform threads. This module automatically selects the JDK 21 or JDK 25 virtual-thread implementation at runtime through
@@ -16,7 +26,7 @@ Virtual Threads, officially introduced in Java 21, are much lighter-weight than 
 Automatically selects the appropriate Virtual Thread implementation for the current JVM runtime.
 
 ```kotlin
-import io.bluetape4k.concurrent.virtualthread.VirtualThreads
+import io.bluetape4k.concurrent.virtualthread.api.VirtualThreads
 
 // Check the current runtime
 val runtimeName = VirtualThreads.runtimeName() // "jdk21" or "jdk25"
@@ -66,7 +76,7 @@ Need partial failure tolerance (collect success + failure separately)?
 All subtasks must succeed. If any subtask fails, the rest are cancelled immediately.
 
 ```kotlin
-import io.bluetape4k.concurrent.virtualthread.StructuredTaskScopes
+import io.bluetape4k.concurrent.virtualthread.api.StructuredTaskScopes
 
 val results = StructuredTaskScopes.failFast { scope ->
     val task1 = scope.fork { fetchUserData() }
@@ -167,13 +177,13 @@ This API module uses `java.util.ServiceLoader` to load JDK-specific implementati
 
 Each JDK runtime module (`jdk21`, `jdk25`) must provide the following files:
 
-*META-INF/services/io.bluetape4k.concurrent.virtualthread.VirtualThreadRuntime*
+*META-INF/services/io.bluetape4k.concurrent.virtualthread.api.VirtualThreadRuntime*
 
 ```
 io.bluetape4k.concurrent.virtualthread.jdk21.Jdk21VirtualThreadRuntime
 ```
 
-*META-INF/services/io.bluetape4k.concurrent.virtualthread.StructuredTaskScopeProvider*
+*META-INF/services/io.bluetape4k.concurrent.virtualthread.api.StructuredTaskScopeProvider*
 
 ```
 io.bluetape4k.concurrent.virtualthread.jdk21.Jdk21StructuredTaskScopeProvider

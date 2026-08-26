@@ -1,6 +1,6 @@
 package io.bluetape4k.workflow.core
 
-import io.bluetape4k.concurrent.virtualthread.StructuredTaskScopes
+import io.bluetape4k.concurrent.virtualthread.api.StructuredTaskScopes
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import io.bluetape4k.workflow.api.NamedWork

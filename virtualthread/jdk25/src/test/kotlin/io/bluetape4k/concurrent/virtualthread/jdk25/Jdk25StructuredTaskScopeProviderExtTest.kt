@@ -170,7 +170,7 @@ class Jdk25StructuredTaskScopeProviderExtTest {
 
     @Test
     fun `subtask 성공 상태와 값을 확인해야 한다`() {
-        var capturedSubtask: io.bluetape4k.concurrent.virtualthread.StructuredSubtask<Int>? = null
+        var capturedSubtask: io.bluetape4k.concurrent.virtualthread.api.StructuredSubtask<Int>? = null
         provider.withAll { scope ->
             capturedSubtask = scope.fork { 88 }
             scope.join().throwIfFailed()
@@ -184,7 +184,7 @@ class Jdk25StructuredTaskScopeProviderExtTest {
 
     @Test
     fun `subtask 실패 상태에서 exceptionOrNull 이 예외를 반환해야 한다`() {
-        var capturedSubtask: io.bluetape4k.concurrent.virtualthread.StructuredSubtask<Int>? = null
+        var capturedSubtask: io.bluetape4k.concurrent.virtualthread.api.StructuredSubtask<Int>? = null
         assertFailsWith<RuntimeException> {
             provider.withAll { scope ->
                 capturedSubtask = scope.fork<Int> { throw RuntimeException("jdk25-fail") }
@@ -229,7 +229,7 @@ class Jdk25StructuredTaskScopeProviderExtTest {
 
     @Test
     fun `withAny subtask 성공 상태를 확인해야 한다`() {
-        var capturedSubtask: io.bluetape4k.concurrent.virtualthread.StructuredSubtask<String>? = null
+        var capturedSubtask: io.bluetape4k.concurrent.virtualthread.api.StructuredSubtask<String>? = null
         provider.withAny<String> { scope ->
             capturedSubtask = scope.fork { "jdk25-winner" }
             scope.join().result { IllegalStateException(it) }

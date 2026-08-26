@@ -1,4 +1,4 @@
-package io.bluetape4k.concurrent.virtualthread
+package io.bluetape4k.concurrent.virtualthread.api
 
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
@@ -566,7 +566,7 @@ object StructuredTaskScopes: KLogging() {
         message = "failFast()를 사용하세요.",
         replaceWith = ReplaceWith(
             "StructuredTaskScopes.failFast(name, factory, block)",
-            "io.bluetape4k.concurrent.virtualthread.StructuredTaskScopes"
+            "io.bluetape4k.concurrent.virtualthread.api.StructuredTaskScopes"
         )
     )
     fun <T> all(
@@ -584,7 +584,7 @@ object StructuredTaskScopes: KLogging() {
         message = "firstSuccess()를 사용하세요.",
         replaceWith = ReplaceWith(
             "StructuredTaskScopes.firstSuccess(name, factory, block)",
-            "io.bluetape4k.concurrent.virtualthread.StructuredTaskScopes"
+            "io.bluetape4k.concurrent.virtualthread.api.StructuredTaskScopes"
         )
     )
     fun <T> any(

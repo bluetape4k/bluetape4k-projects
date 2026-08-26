@@ -1,11 +1,11 @@
 package io.bluetape4k.coroutines
 
-import io.bluetape4k.concurrent.virtualthread.StructuredTaskScopeAll
-import io.bluetape4k.concurrent.virtualthread.StructuredTaskScopeAny
-import io.bluetape4k.concurrent.virtualthread.StructuredTaskScopeSupervised
-import io.bluetape4k.concurrent.virtualthread.StructuredTaskScopes
+import io.bluetape4k.concurrent.virtualthread.api.StructuredTaskScopeAll
+import io.bluetape4k.concurrent.virtualthread.api.StructuredTaskScopeAny
+import io.bluetape4k.concurrent.virtualthread.api.StructuredTaskScopeSupervised
+import io.bluetape4k.concurrent.virtualthread.api.StructuredTaskScopes
 import io.bluetape4k.concurrent.virtualthread.VT
-import io.bluetape4k.concurrent.virtualthread.VirtualThreads
+import io.bluetape4k.concurrent.virtualthread.api.VirtualThreads
 import io.bluetape4k.concurrent.virtualthread.withVirtualDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Deferred

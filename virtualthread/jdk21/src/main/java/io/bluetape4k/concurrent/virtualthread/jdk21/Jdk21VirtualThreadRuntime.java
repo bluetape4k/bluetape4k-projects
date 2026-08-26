@@ -1,6 +1,6 @@
 package io.bluetape4k.concurrent.virtualthread.jdk21;
 
-import io.bluetape4k.concurrent.virtualthread.VirtualThreadRuntime;
+import io.bluetape4k.concurrent.virtualthread.api.VirtualThreadRuntime;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.concurrent.ExecutorService;

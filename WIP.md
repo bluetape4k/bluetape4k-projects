@@ -1,5 +1,13 @@
 # WIP - bluetape4k-projects
 
+- 2026-08-26: `bluetape4k-virtualthread-api`의 API package ownership 경계를
+  `io.bluetape4k.concurrent.virtualthread.api`로 분리하는
+  [bluetape4k-graph #563](https://github.com/bluetape4k/bluetape4k-graph/issues/563)
+  지원 PR을 준비했다. core/JDK21/JDK25/API 테스트와 JAR
+  `java --validate-modules`가 통과했으며, 기존 API import는 재컴파일이
+  필요하다. upstream PR merge와 새 snapshot 소비 검증 전까지 graph 후속
+  PR은 대기한다.
+
 - 스냅샷: 2026-08-06 KST
 - 범위: `1.12.1` BOM publication inventory 복구 릴리스
 - 열린 release blocker: [#1313](https://github.com/bluetape4k/bluetape4k-projects/issues/1313)

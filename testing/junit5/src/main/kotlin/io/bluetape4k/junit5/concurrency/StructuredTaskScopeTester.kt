@@ -1,6 +1,6 @@
 package io.bluetape4k.junit5.concurrency
 
-import io.bluetape4k.concurrent.virtualthread.StructuredTaskScopes
+import io.bluetape4k.concurrent.virtualthread.api.StructuredTaskScopes
 import io.bluetape4k.junit5.tester.WorkerStressTester
 import io.bluetape4k.junit5.tester.StressTester.Companion.DEFAULT_ROUNDS_PER_WORKER
 import io.bluetape4k.junit5.tester.StressTester.Companion.MAX_ROUNDS_PER_WORKER
@@ -70,7 +70,7 @@ class StructuredTaskScopeTester: WorkerStressTester<StructuredTaskScopeTester> {
      * 전체 실행에 적용할 타임아웃을 설정합니다.
      *
      * ## 동작/계약
-     * - 설정 시 [run]에서 [io.bluetape4k.concurrent.virtualthread.StructuredTaskScopeAll.joinUntil]을 사용합니다.
+     * - 설정 시 [run]에서 [io.bluetape4k.concurrent.virtualthread.api.StructuredTaskScopeAll.joinUntil]을 사용합니다.
      * - 타임아웃 초과 시 [java.util.concurrent.TimeoutException]이 발생합니다.
      *
      * ```kotlin

@@ -162,7 +162,7 @@
           message = "failFast()를 사용하세요.",
           replaceWith = ReplaceWith(
               "failFast(name, factory, block)",
-              "io.bluetape4k.concurrent.virtualthread.StructuredTaskScopes"
+              "io.bluetape4k.concurrent.virtualthread.api.StructuredTaskScopes"
           )
       )
       fun <T> all(
@@ -177,7 +177,7 @@
           message = "firstSuccess()를 사용하세요.",
           replaceWith = ReplaceWith(
               "firstSuccess(name, factory, block)",
-              "io.bluetape4k.concurrent.virtualthread.StructuredTaskScopes"
+              "io.bluetape4k.concurrent.virtualthread.api.StructuredTaskScopes"
           )
       )
       fun <T> any(
@@ -192,7 +192,7 @@
       // 수정 전
       replaceWith = ReplaceWith("failFast(name, factory, block)", "io...StructuredTaskScopes")
       // 수정 후
-      replaceWith = ReplaceWith("StructuredTaskScopes.failFast(name, factory, block)", "io.bluetape4k.concurrent.virtualthread.StructuredTaskScopes")
+      replaceWith = ReplaceWith("StructuredTaskScopes.failFast(name, factory, block)", "io.bluetape4k.concurrent.virtualthread.api.StructuredTaskScopes")
       ```
       `any()` → `firstSuccess()`도 동일하게 `StructuredTaskScopes.firstSuccess(...)` 형태로 변경
     - 새 `failFast()`/`firstSuccess()` 함수에 KDoc 예제 포함 (fork → join → get 패턴)

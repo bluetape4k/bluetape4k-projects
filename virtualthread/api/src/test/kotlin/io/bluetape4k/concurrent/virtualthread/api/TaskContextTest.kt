@@ -1,4 +1,4 @@
-package io.bluetape4k.concurrent.virtualthread
+package io.bluetape4k.concurrent.virtualthread.api
 
 import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo

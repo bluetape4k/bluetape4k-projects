@@ -10,7 +10,7 @@ import org.junit.jupiter.api.Assertions.fail
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import io.bluetape4k.assertions.assertFailsWith
-import io.bluetape4k.concurrent.virtualthread.VirtualThreads
+import io.bluetape4k.concurrent.virtualthread.api.VirtualThreads
 import io.bluetape4k.concurrent.virtualthread.structuredTaskScopeFailFast
 
 
