@@ -945,9 +945,11 @@ phase_started=$(date +%s)
 for task in "${test_tasks[@]}"; do
   before_ids_file=$(mktemp)
   after_ids_file=$(mktemp)
-  docker ps -aq --filter label=org.testcontainers=true | sort -u >"$before_ids_file" || status=1
+  docker ps -aq --filter label=org.testcontainers=true \
+    --filter label=org.testcontainers.sessionId | sort -u >"$before_ids_file" || status=1
   ./gradlew "$task" --max-workers=1 || status=1
-  docker ps -aq --filter label=org.testcontainers=true | sort -u >"$after_ids_file" || status=1
+  docker ps -aq --filter label=org.testcontainers=true \
+    --filter label=org.testcontainers.sessionId | sort -u >"$after_ids_file" || status=1
   new_ids=$(comm -13 "$before_ids_file" "$after_ids_file")
   container_args=()
   while IFS= read -r container_id; do
@@ -980,13 +982,16 @@ exit "$status"
 
 실제 step에서는 위 배열을 만든 뒤 `./gradlew "${compile_tasks[@]}" --parallel`을
 실행한다. 각 test task 직전에
-`docker ps -aq --filter label=org.testcontainers=true | sort`를 실행 전 기준 목록으로
+`docker ps -aq --filter label=org.testcontainers=true --filter label=org.testcontainers.sessionId | sort`를 실행 전 기준 목록으로
 저장하고, task 종료 직후 실행 후 기준 목록과 `comm -13`으로 새 ID만 계산해 collector의
 반복 `--container-id` 인자로 전달한다. 기준 목록 명령이 Docker 오류를 반환하면
 aggregate status를 1로 유지하되 collector는 빈 manifest를 남겨 `if: always()`에서
 진단 artifact를 확인할 수 있게 한다. 모든 test task가 끝난 뒤 collector를 정확히
 한 번 더 호출해 `report_paths`에 열거한 report 디렉터리만 sanitization하고, 이 호출은
 `--max-report-files=600`과 `--max-report-total-bytes=8000000`을 적용한다.
+두 label filter를 함께 사용해 현재 Testcontainers session에 속한 실제 테스트
+컨테이너만 snapshot하며, session ID가 없는 Ryuk cleanup helper는 image allowlist
+검사의 대상에서 제외한다.
 Ktor/Spring Boot 조건부 task는 현재
 `build.gradle.kts`가 존재하는 경우에만 compile/test 배열 각각에 추가한다. compile
 task와 test task를 같은 `--parallel` 배열에 넣지 않는다. ID 목록은 정렬·중복 제거해
@@ -1002,6 +1007,18 @@ bounded report를 보장한다. source는 32MB까지만 읽고 최종 파일별 
 상한을 유지한다. 보정 후 실제 15,341,646-byte JUnit XML local scan은
 `report_truncated=false`, 12개 report, 19,510 bytes, 최대 9,362 bytes였으며,
 다음 exact-head hosted run에서 전체 report manifest를 재검증한다.
+
+`82c28a6a6f719b1c2471e84d07bc5300342dfc60`에서는 직전 hosted 실패의 잔여
+원인을 확인했다. `coroutines` Kafka와 `redisson` Redis 테스트는 모두
+`BUILD SUCCESSFUL`이었지만, session ID가 없는 Ryuk helper까지
+`org.testcontainers=true` snapshot에 포함되어 image allowlist 검사에서
+`container image is outside the diagnostics allowlist`로 종료됐다. workflow의
+before/after snapshot을 `org.testcontainers.sessionId`까지 필터링해 실제 테스트
+컨테이너만 수집하도록 좁혔고, exact-head Examples run `32994262529`는 9분 38초에
+compile·9개 순차 test·진단 수집·artifact 업로드를 모두 성공했다. report-scan
+manifest는 507개 report, 399,325 bytes, `truncated=false`,
+`report_truncated=false`였고, exact-head CI run `32994262718`도 전체 required
+job과 aggregate coverage를 성공했다.
 
 - [ ] **Step 3: always artifact와 provenance completeness를 고정한다**
 
