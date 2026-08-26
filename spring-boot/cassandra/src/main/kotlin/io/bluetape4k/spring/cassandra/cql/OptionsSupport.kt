@@ -90,7 +90,7 @@ inline fun deleteOptions(builder: DeleteOptions.DeleteOptionsBuilder.() -> Unit)
  * [Insert] 문에 [WriteOptions]의 TTL/타임스탬프를 반영한 새 Statement를 반환합니다.
  *
  * ## 동작/계약
- * - [WriteOptions.isPositiveTtl]가 `true`이면 `usingTtl`을 적용합니다.
+ * - [WriteOptions.isPositiveTtl]가 `true`이면 초 단위 TTL을 `usingTtl`에 적용합니다. zero도 유효한 값입니다.
  * - `timestamp`가 존재하면 `usingTimestamp`를 적용합니다.
  * - 원본 인스턴스를 직접 변경하지 않고 적용된 Statement를 새로 반환합니다.
  *
@@ -102,11 +102,13 @@ inline fun deleteOptions(builder: DeleteOptions.DeleteOptionsBuilder.() -> Unit)
 fun Insert.addWriteOptions(writeOptions: WriteOptions): Insert {
     var applied = this
 
-    if (writeOptions.isPositiveTtl) {
-        applied = applied.usingTtl(writeOptions.ttl!!.seconds.toInt())
-    }
-    writeOptions.timestamp?.run {
-        applied = applied.usingTimestamp(this)
+    writeOptions.ttl
+        ?.takeUnless { it.isNegative }
+        ?.let { ttl ->
+            applied = applied.usingTtl(java.lang.Math.toIntExact(ttl.seconds))
+        }
+    writeOptions.timestamp?.let { timestamp ->
+        applied = applied.usingTimestamp(timestamp)
     }
     return applied
 }
@@ -116,7 +118,7 @@ fun Insert.addWriteOptions(writeOptions: WriteOptions): Insert {
  *
  * ## 동작/계약
  * - 수신 객체가 [UpdateStart]가 아니면 아무 옵션도 적용하지 않고 그대로 반환합니다.
- * - [WriteOptions.isPositiveTtl]가 `true`이면 `usingTtl`을 적용합니다.
+ * - [WriteOptions.isPositiveTtl]가 `true`이면 초 단위 TTL을 `usingTtl`에 적용합니다. zero도 유효한 값입니다.
  * - `timestamp`가 존재하면 `usingTimestamp`를 적용합니다.
  *
  * ```kotlin
@@ -125,24 +127,27 @@ fun Insert.addWriteOptions(writeOptions: WriteOptions): Insert {
  * ```
  */
 fun Update.addWriteOptions(writeOptions: WriteOptions): Update {
-    var applied = this
-
-    if (applied is UpdateStart) {
-        if (writeOptions.isPositiveTtl) {
-            applied = applied.usingTtl(writeOptions.ttl!!.seconds.toInt()) as Update
-        }
-        if (writeOptions.timestamp != null) {
-            applied = (applied as UpdateStart).usingTimestamp(writeOptions.timestamp!!) as Update
-        }
+    if (this !is UpdateStart) {
+        return this
     }
-    return applied
+
+    var applied: UpdateStart = this
+    writeOptions.ttl
+        ?.takeUnless { it.isNegative }
+        ?.let { ttl ->
+            applied = applied.usingTtl(java.lang.Math.toIntExact(ttl.seconds))
+        }
+    writeOptions.timestamp?.let { timestamp ->
+        applied = applied.usingTimestamp(timestamp)
+    }
+    return applied as Update
 }
 
 /**
  * [UpdateStart] 문에 [WriteOptions]의 TTL/타임스탬프를 순서대로 반영합니다.
  *
  * ## 동작/계약
- * - [WriteOptions.isPositiveTtl]가 `true`이면 `usingTtl`을 먼저 적용합니다.
+ * - [WriteOptions.isPositiveTtl]가 `true`이면 초 단위 TTL을 `usingTtl`에 먼저 적용합니다. zero도 유효한 값입니다.
  * - `timestamp`가 존재하면 `usingTimestamp`를 추가 적용합니다.
  * - 적용된 [UpdateStart] 인스턴스를 반환합니다.
  *
@@ -154,11 +159,13 @@ fun Update.addWriteOptions(writeOptions: WriteOptions): Update {
 fun UpdateStart.addWriteOptions(writeOptions: WriteOptions): UpdateStart {
     var applied: UpdateStart = this
 
-    if (writeOptions.isPositiveTtl) {
-        applied = applied.usingTtl(writeOptions.ttl!!.seconds.toInt())
-    }
-    if (writeOptions.timestamp != null) {
-        applied = applied.usingTimestamp(writeOptions.timestamp!!)
+    writeOptions.ttl
+        ?.takeUnless { it.isNegative }
+        ?.let { ttl ->
+            applied = applied.usingTtl(java.lang.Math.toIntExact(ttl.seconds))
+        }
+    writeOptions.timestamp?.let { timestamp ->
+        applied = applied.usingTimestamp(timestamp)
     }
     return applied
 }
@@ -178,14 +185,16 @@ fun UpdateStart.addWriteOptions(writeOptions: WriteOptions): UpdateStart {
 fun Delete.addWriteOptions(writeOptions: WriteOptions): Delete {
     var applied = this
 
-    if (applied is DeleteSelection && writeOptions.timestamp != null) {
-        applied = applied.usingTimestamp(writeOptions.timestamp!!) as Delete
+    if (applied is DeleteSelection) {
+        writeOptions.timestamp?.let { timestamp ->
+            applied = applied.usingTimestamp(timestamp) as Delete
+        }
     }
     return applied
 }
 
 /**
- * TTL이 설정되어 있고 음수가 아니면 `true`를 반환합니다.
+ * TTL이 설정되어 있고 음수가 아니면 `true`를 반환합니다. 이름과 달리 zero도 포함합니다.
  *
  * ## 동작/계약
  * - `ttl == null`이면 `false`를 반환합니다.
@@ -196,4 +205,4 @@ fun Delete.addWriteOptions(writeOptions: WriteOptions): Delete {
  * // result == options.isPositiveTtl
  * ```
  */
-val WriteOptions.isPositiveTtl: Boolean get() = ttl != null && !ttl!!.isNegative
+val WriteOptions.isPositiveTtl: Boolean get() = ttl?.let { !it.isNegative } == true
