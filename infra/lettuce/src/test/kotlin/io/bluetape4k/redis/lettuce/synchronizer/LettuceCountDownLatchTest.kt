@@ -1,17 +1,22 @@
 package io.bluetape4k.redis.lettuce.synchronizer
 
+import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeInstanceOf
+import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.redis.lettuce.AbstractLettuceTest
 import io.bluetape4k.redis.lettuce.LettuceTestUtils
 import io.bluetape4k.redis.lettuce.script.RedisScriptRunner
 import io.bluetape4k.redis.lettuce.synchronizer.internal.deriveLatchKeys
 import io.lettuce.core.ScriptOutputType
 import io.lettuce.core.codec.StringCodec
-import io.bluetape4k.junit5.coroutines.runSuspendIO
 import kotlinx.coroutines.test.runTest
+import org.awaitility.kotlin.atMost
+import org.awaitility.kotlin.await
+import org.awaitility.kotlin.until
 import org.junit.jupiter.api.Test
 import java.time.Duration
+import java.util.concurrent.CancellationException
 import java.util.concurrent.TimeUnit
 
 class LettuceCountDownLatchTest: AbstractLettuceTest() {
@@ -27,7 +32,7 @@ class LettuceCountDownLatchTest: AbstractLettuceTest() {
         val suspending = LettuceSuspendCountDownLatch.create(connection, name, config)
         try {
             latch.trySetCount(-1, LatchRequestId.random()) shouldBeEqualTo LatchSetCountResult.InvalidCount
-            latch.trySetCountAsync(3, LatchRequestId.random()).get() shouldBeEqualTo
+            latch.trySetCountAsync(3, LatchRequestId.random()).get(5, TimeUnit.SECONDS) shouldBeEqualTo
                 LatchSetCountResult.InvalidCount
 
             val completed = latch.trySetCount(0, LatchRequestId.from("zero-count"))
@@ -49,7 +54,7 @@ class LettuceCountDownLatchTest: AbstractLettuceTest() {
                 active.generation,
                 LatchRequestId.from("async-timeout"),
                 Duration.ofMillis(30),
-            ).get() shouldBeEqualTo LatchAwaitResult.TimedOut
+            ).get(5, TimeUnit.SECONDS) shouldBeEqualTo LatchAwaitResult.TimedOut
             suspending.await(
                 active.generation,
                 LatchRequestId.from("suspend-timeout"),
@@ -58,14 +63,14 @@ class LettuceCountDownLatchTest: AbstractLettuceTest() {
 
             val stale = LatchGeneration(active.generation.value + 1)
             latch.getCount(stale) shouldBeEqualTo LatchCountResult.StaleGeneration
-            latch.getCountAsync(stale).get() shouldBeEqualTo LatchCountResult.StaleGeneration
+            latch.getCountAsync(stale).get(5, TimeUnit.SECONDS) shouldBeEqualTo LatchCountResult.StaleGeneration
             latch.await(stale, LatchRequestId.from("stale-await"), Duration.ofMillis(20)) shouldBeEqualTo
                 LatchAwaitResult.StaleGeneration
             latch.awaitAsync(
                 stale,
                 LatchRequestId.from("stale-await-async"),
                 Duration.ofMillis(20),
-            ).get() shouldBeEqualTo
+            ).get(5, TimeUnit.SECONDS) shouldBeEqualTo
                 LatchAwaitResult.StaleGeneration
             latch.countDown(stale, LatchRequestId.from("stale-down")) shouldBeEqualTo
                 LatchMutationResult.StaleGeneration
@@ -80,7 +85,7 @@ class LettuceCountDownLatchTest: AbstractLettuceTest() {
             latch.close()
             latch.trySetCount(1, LatchRequestId.random()) shouldBeEqualTo LatchSetCountResult.Closed
             latch.getCount(active.generation) shouldBeEqualTo LatchCountResult.Closed
-            latch.getCountAsync(active.generation).get() shouldBeEqualTo LatchCountResult.Closed
+            latch.getCountAsync(active.generation).get(5, TimeUnit.SECONDS) shouldBeEqualTo LatchCountResult.Closed
             latch.await(active.generation, LatchRequestId.random(), Duration.ofMillis(20)) shouldBeEqualTo
                 LatchAwaitResult.Closed
             latch.delete(active.generation, LatchRequestId.random()) shouldBeEqualTo LatchMutationResult.Closed
@@ -168,20 +173,17 @@ class LettuceCountDownLatchTest: AbstractLettuceTest() {
                 .shouldBeInstanceOf<LatchSetCountResult.Created>()
                 .generation
             val first = latch.awaitAsync(generation, LatchRequestId.from("wait-1"), Duration.ofSeconds(2))
-            var waiters = 0
-            repeat(40) {
-                waiters = latch.inspect(generation).shouldBeInstanceOf<LatchCountResult.Active>().waiters
-                if (waiters == 1) return@repeat
-                Thread.sleep(5)
+            await atMost Duration.ofSeconds(2) until {
+                (latch.inspect(generation) as? LatchCountResult.Active)?.waiters == 1
             }
-            waiters shouldBeEqualTo 1
+            latch.inspect(generation).shouldBeInstanceOf<LatchCountResult.Active>().waiters shouldBeEqualTo 1
             latch.delete(generation, LatchRequestId.from("blocked-delete")) shouldBeEqualTo
                 LatchMutationResult.ActiveWaiters(1)
             latch.await(generation, LatchRequestId.from("wait-2"), Duration.ofMillis(100)) shouldBeEqualTo
                 LatchAwaitResult.CapacityExceeded
 
             first.cancel(false)
-            runCatching { first.get(2, TimeUnit.SECONDS) }
+            assertFailsWith<CancellationException> { first.get(2, TimeUnit.SECONDS) }
             first.isDone shouldBeEqualTo true
             latch.delete(generation, LatchRequestId.from("delete")) shouldBeEqualTo LatchMutationResult.Deleted
         } finally {
@@ -229,10 +231,8 @@ class LettuceCountDownLatchTest: AbstractLettuceTest() {
                 .shouldBeInstanceOf<LatchSetCountResult.Created>()
             val reusedRequest = LatchRequestId.from("reused-waiter")
             val current = latch.awaitAsync(second.generation, reusedRequest, Duration.ofSeconds(2))
-            repeat(40) {
-                if (latch.inspect(second.generation).shouldBeInstanceOf<LatchCountResult.Active>().waiters == 0) {
-                    Thread.sleep(5)
-                }
+            await atMost Duration.ofSeconds(2) until {
+                (latch.inspect(second.generation) as? LatchCountResult.Active)?.waiters == 1
             }
 
             RedisScriptRunner.run<List<String>>(
@@ -246,7 +246,7 @@ class LettuceCountDownLatchTest: AbstractLettuceTest() {
             latch.inspect(second.generation).shouldBeInstanceOf<LatchCountResult.Active>().waiters shouldBeEqualTo 1
 
             current.cancel(false)
-            runCatching { current.get(2, TimeUnit.SECONDS) }
+            assertFailsWith<CancellationException> { current.get(2, TimeUnit.SECONDS) }
             latch.delete(second.generation, LatchRequestId.from("delete-2")) shouldBeEqualTo
                 LatchMutationResult.Deleted
         } finally {
@@ -266,23 +266,24 @@ class LettuceCountDownLatchTest: AbstractLettuceTest() {
         val future = LettuceCountDownLatch.create(connection, name, config)
         val suspending = LettuceSuspendCountDownLatch.create(connection, name, config)
         try {
-            val futureGeneration = future.trySetCountAsync(2, LatchRequestId.from("future-create")).get()
+            val futureGeneration = future.trySetCountAsync(2, LatchRequestId.from("future-create"))
+                .get(5, TimeUnit.SECONDS)
                 .shouldBeInstanceOf<LatchSetCountResult.Created>().generation
-            future.getCountAsync(futureGeneration).get()
+            future.getCountAsync(futureGeneration).get(5, TimeUnit.SECONDS)
                 .shouldBeInstanceOf<LatchCountResult.Active>().count shouldBeEqualTo 2
             val awaited = future.awaitAsync(
                 futureGeneration,
                 LatchRequestId.from("future-await"),
                 Duration.ofSeconds(2),
             )
-            future.countDownAsync(futureGeneration, LatchRequestId.from("future-down-1")).get()
+            future.countDownAsync(futureGeneration, LatchRequestId.from("future-down-1")).get(5, TimeUnit.SECONDS)
                 .shouldBeInstanceOf<LatchMutationResult.Decremented>().remaining shouldBeEqualTo 1
-            future.countDownAsync(futureGeneration, LatchRequestId.from("future-down-2")).get() shouldBeEqualTo
+            future.countDownAsync(futureGeneration, LatchRequestId.from("future-down-2")).get(5, TimeUnit.SECONDS) shouldBeEqualTo
                 LatchMutationResult.Completed
             awaited.get(2, TimeUnit.SECONDS) shouldBeEqualTo LatchAwaitResult.Completed
-            future.inspectAsync(futureGeneration).get()
+            future.inspectAsync(futureGeneration).get(5, TimeUnit.SECONDS)
                 .shouldBeInstanceOf<LatchCountResult.Completed>()
-            future.deleteAsync(futureGeneration, LatchRequestId.from("future-delete")).get() shouldBeEqualTo
+            future.deleteAsync(futureGeneration, LatchRequestId.from("future-delete")).get(5, TimeUnit.SECONDS) shouldBeEqualTo
                 LatchMutationResult.Deleted
 
             val suspendGeneration = suspending.trySetCount(1, LatchRequestId.from("suspend-create"))

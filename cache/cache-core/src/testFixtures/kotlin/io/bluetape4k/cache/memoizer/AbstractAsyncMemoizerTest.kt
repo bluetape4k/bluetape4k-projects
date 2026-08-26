@@ -5,9 +5,9 @@ import io.bluetape4k.junit5.concurrency.StructuredTaskScopeTester
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.assertions.shouldBeEqualTo
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertTimeout
 import java.time.Duration
 import java.util.concurrent.CompletableFuture
+import java.util.concurrent.TimeUnit
 import kotlin.system.measureTimeMillis
 
 abstract class AbstractAsyncMemoizerTest {
@@ -22,29 +22,29 @@ abstract class AbstractAsyncMemoizerTest {
     @Test
     fun `run heavy function`() {
         measureTimeMillis {
-            heavyFunc(10).get() shouldBeEqualTo 100
+            heavyFunc(10).get(5, TimeUnit.SECONDS) shouldBeEqualTo 100
         }
 
-        assertTimeout(Duration.ofMillis(1000)) {
-            heavyFunc(10).get() shouldBeEqualTo 100
+        withBlockingTimeout(Duration.ofMillis(1000)) {
+            heavyFunc(10).get(5, TimeUnit.SECONDS) shouldBeEqualTo 100
         }
     }
 
     @Test
     fun `run factorial`() {
-        val x1 = factorial.calc(100).get()
+        val x1 = factorial.calc(100).get(5, TimeUnit.SECONDS)
 
-        assertTimeout(Duration.ofSeconds(1)) {
-            factorial.calc(100).get()
+        withBlockingTimeout(Duration.ofSeconds(1)) {
+            factorial.calc(100).get(5, TimeUnit.SECONDS)
         } shouldBeEqualTo x1
     }
 
     @Test
     fun `run fibonacci`() {
-        val x1 = fibonacci.calc(100).get()
+        val x1 = fibonacci.calc(100).get(5, TimeUnit.SECONDS)
 
-        assertTimeout(Duration.ofSeconds(1)) {
-            fibonacci.calc(100).get()
+        withBlockingTimeout(Duration.ofSeconds(1)) {
+            fibonacci.calc(100).get(5, TimeUnit.SECONDS)
         } shouldBeEqualTo x1
     }
 
@@ -54,13 +54,13 @@ abstract class AbstractAsyncMemoizerTest {
      */
     @Test
     fun `async factorial memoizer는 멀티스레드 환경에서 동일한 결과를 반환해야 한다`() {
-        val expected = factorial.calc(100).get()
+        val expected = factorial.calc(100).get(5, TimeUnit.SECONDS)
 
         MultithreadingTester()
             .workers(16)
             .rounds(4)
             .add {
-                factorial.calc(100).get() shouldBeEqualTo expected
+                factorial.calc(100).get(5, TimeUnit.SECONDS) shouldBeEqualTo expected
             }
             .run()
     }
@@ -71,13 +71,13 @@ abstract class AbstractAsyncMemoizerTest {
      */
     @Test
     fun `async fibonacci memoizer는 멀티스레드 환경에서 동일한 결과를 반환해야 한다`() {
-        val expected = fibonacci.calc(100).get()
+        val expected = fibonacci.calc(100).get(5, TimeUnit.SECONDS)
 
         MultithreadingTester()
             .workers(16)
             .rounds(4)
             .add {
-                fibonacci.calc(100).get() shouldBeEqualTo expected
+                fibonacci.calc(100).get(5, TimeUnit.SECONDS) shouldBeEqualTo expected
             }
             .run()
     }
@@ -88,12 +88,12 @@ abstract class AbstractAsyncMemoizerTest {
      */
     @Test
     fun `async factorial memoizer는 Virtual Thread 환경에서 동일한 결과를 반환해야 한다`() {
-        val expected = factorial.calc(100).get()
+        val expected = factorial.calc(100).get(5, TimeUnit.SECONDS)
 
         StructuredTaskScopeTester()
             .rounds(64)
             .add {
-                factorial.calc(100).get() shouldBeEqualTo expected
+                factorial.calc(100).get(5, TimeUnit.SECONDS) shouldBeEqualTo expected
             }
             .run()
     }
@@ -104,12 +104,12 @@ abstract class AbstractAsyncMemoizerTest {
      */
     @Test
     fun `async fibonacci memoizer는 Virtual Thread 환경에서 동일한 결과를 반환해야 한다`() {
-        val expected = fibonacci.calc(100).get()
+        val expected = fibonacci.calc(100).get(5, TimeUnit.SECONDS)
 
         StructuredTaskScopeTester()
             .rounds(64)
             .add {
-                fibonacci.calc(100).get() shouldBeEqualTo expected
+                fibonacci.calc(100).get(5, TimeUnit.SECONDS) shouldBeEqualTo expected
             }
             .run()
     }

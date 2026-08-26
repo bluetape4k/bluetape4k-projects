@@ -2,6 +2,7 @@ package io.bluetape4k.cache.nearcache.jcache.management
 
 import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeSameInstanceAs
 import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.cache.jcache.JCache
 import io.bluetape4k.cache.nearcache.jcache.BackCacheWriteCompletion
@@ -11,7 +12,6 @@ import io.bluetape4k.cache.nearcache.jcache.NearJCacheConfig
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
-import org.junit.jupiter.api.Assertions.assertSame
 import org.junit.jupiter.api.Test
 import java.util.concurrent.CancellationException
 import java.util.concurrent.CompletableFuture
@@ -140,7 +140,7 @@ class NearJCacheOperationStatisticsTest {
 
         val thrown = assertFailsWith<IllegalStateException> { fixture.cache.getAll(keys) }
 
-        assertSame(failure, thrown)
+        thrown shouldBeSameInstanceAs failure
         verify(exactly = 0) { fixture.front.putAll(any()) }
         fixture.statistics.cacheGets shouldBeEqualTo 0L
         fixture.statistics.cacheHits shouldBeEqualTo 0L
@@ -161,7 +161,7 @@ class NearJCacheOperationStatisticsTest {
 
         val thrown = assertFailsWith<CancellationException> { fixture.cache.getAll(keys) }
 
-        assertSame(failure, thrown)
+        thrown shouldBeSameInstanceAs failure
         verify(exactly = 0) { fixture.front.putAll(any()) }
         fixture.statistics.cacheGets shouldBeEqualTo 0L
         fixture.statistics.cacheHits shouldBeEqualTo 0L

@@ -1,9 +1,11 @@
 package io.bluetape4k.io.serializer
 
-import org.junit.jupiter.api.Assertions.assertArrayEquals
-import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.Assertions.assertSame
-import org.junit.jupiter.api.Assertions.assertThrows
+import io.bluetape4k.assertions.assertFails
+import io.bluetape4k.assertions.assertFailsWith
+import io.bluetape4k.assertions.expectThat
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeSameInstanceAs
+import io.bluetape4k.assertions.shouldContentEqual
 import org.junit.jupiter.api.Test
 import java.nio.BufferOverflowException
 import java.nio.ByteBuffer
@@ -25,16 +27,22 @@ class BinarySerializerByteBufferContractTest {
 
             val written = serializer.serializeTo("value", target)
 
-            assertEquals(PAYLOAD.size, written, name)
-            assertEquals(start + written, target.position(), name)
-            assertEquals(limit, target.limit(), name)
-            assertEquals(capacity, target.capacity(), name)
-            assertEquals(order, target.order(), name)
-            assertArrayEquals(PAYLOAD, target.fullBytes().copyOfRange(start, start + written), name)
-            assertArrayEquals(before.copyOfRange(0, start), target.fullBytes().copyOfRange(0, start), name)
-            assertArrayEquals(before.copyOfRange(limit, capacity), target.fullBytes().copyOfRange(limit, capacity), name)
+            expectThat(PAYLOAD.size, name) { written }
+            expectThat(start + written, name) { target.position() }
+            expectThat(limit, name) { target.limit() }
+            expectThat(capacity, name) { target.capacity() }
+            expectThat(order, name) { target.order() }
+            expectThat(PAYLOAD.toList(), name) {
+                target.fullBytes().copyOfRange(start, start + written).toList()
+            }
+            expectThat(before.copyOfRange(0, start).toList(), name) {
+                target.fullBytes().copyOfRange(0, start).toList()
+            }
+            expectThat(before.copyOfRange(limit, capacity).toList(), name) {
+                target.fullBytes().copyOfRange(limit, capacity).toList()
+            }
             target.reset()
-            assertEquals(start, target.position(), "$name mark")
+            expectThat(start, "$name mark") { target.position() }
         }
     }
 
@@ -47,10 +55,10 @@ class BinarySerializerByteBufferContractTest {
         })
         val target = ByteBuffer.allocate(16).asReadOnlyBuffer()
 
-        assertThrows(ReadOnlyBufferException::class.java) { serializer.serializeTo(null, target) }
+        assertFailsWith<ReadOnlyBufferException> { serializer.serializeTo(null, target) }
 
-        assertEquals(0, invocations.get())
-        assertEquals(0, target.position())
+        invocations.get() shouldBeEqualTo 0
+        target.position() shouldBeEqualTo 0
     }
 
     @Test
@@ -59,10 +67,10 @@ class BinarySerializerByteBufferContractTest {
         val target = configuredTarget(0)
         val before = target.fullBytes()
 
-        assertEquals(0, serializer.serializeTo(null, target))
+        serializer.serializeTo(null, target) shouldBeEqualTo 0
 
-        assertEquals(3, target.position())
-        assertArrayEquals(before, target.fullBytes())
+        target.position() shouldBeEqualTo 3
+        target.fullBytes() shouldContentEqual before
     }
 
     @Test
@@ -71,14 +79,14 @@ class BinarySerializerByteBufferContractTest {
         val tooSmall = configuredTarget(PAYLOAD.size - 1)
         val start = tooSmall.position()
 
-        assertThrows(BufferOverflowException::class.java) {
+        assertFailsWith<BufferOverflowException> {
             serializer.serializeTo("value", tooSmall)
         }
-        assertEquals(start, tooSmall.position())
+        tooSmall.position() shouldBeEqualTo start
 
         val retry = configuredTarget(PAYLOAD.size)
-        assertEquals(PAYLOAD.size, serializer.serializeTo("value", retry))
-        assertArrayEquals(PAYLOAD, retry.fullBytes().copyOfRange(3, 3 + PAYLOAD.size))
+        serializer.serializeTo("value", retry) shouldBeEqualTo PAYLOAD.size
+        retry.fullBytes().copyOfRange(3, 3 + PAYLOAD.size) shouldContentEqual PAYLOAD
     }
 
     @Test
@@ -90,17 +98,18 @@ class BinarySerializerByteBufferContractTest {
             val target = configuredTarget(PAYLOAD.size)
             val start = target.position()
 
-            val actual = assertThrows(expected::class.java) {
+            val actual = assertFails {
                 serializer.serializeTo("value", target)
             }
 
-            assertSame(expected, actual)
-            assertEquals(start, target.position())
+            actual::class shouldBeEqualTo expected::class
+            actual shouldBeSameInstanceAs expected
+            target.position() shouldBeEqualTo start
         }
 
         val serializer = binarySerializer(serialize = { PAYLOAD })
         val cleanTarget = configuredTarget(PAYLOAD.size)
-        assertEquals(PAYLOAD.size, serializer.serializeTo("value", cleanTarget))
+        serializer.serializeTo("value", cleanTarget) shouldBeEqualTo PAYLOAD.size
     }
 
     @Test
@@ -115,13 +124,13 @@ class BinarySerializerByteBufferContractTest {
                 "decoded"
             })
 
-            assertEquals("decoded", serializer.deserializeFrom<String>(source), name)
-            assertArrayEquals(PAYLOAD, received, name)
-            assertEquals(start, source.position(), name)
-            assertEquals(limit, source.limit(), name)
-            assertEquals(order, source.order(), name)
+            expectThat("decoded", name) { serializer.deserializeFrom<String>(source) }
+            expectThat(PAYLOAD.toList(), name) { received?.toList() }
+            expectThat(start, name) { source.position() }
+            expectThat(limit, name) { source.limit() }
+            expectThat(order, name) { source.order() }
             source.reset()
-            assertEquals(start, source.position(), "$name mark")
+            expectThat(start, "$name mark") { source.position() }
         }
     }
 
@@ -133,15 +142,15 @@ class BinarySerializerByteBufferContractTest {
             val limit = source.limit()
             val serializer = binarySerializer(deserialize = { throw fatal })
 
-            val actual = assertThrows(AssertionError::class.java) {
+            val actual = assertFailsWith<AssertionError> {
                 serializer.deserializeFrom<String>(source)
             }
 
-            assertSame(fatal, actual, name)
-            assertEquals(start, source.position(), name)
-            assertEquals(limit, source.limit(), name)
+            actual shouldBeSameInstanceAs fatal
+            expectThat(start, name) { source.position() }
+            expectThat(limit, name) { source.limit() }
             source.reset()
-            assertEquals(start, source.position(), "$name mark")
+            expectThat(start, "$name mark") { source.position() }
         }
     }
 
@@ -157,15 +166,15 @@ class BinarySerializerByteBufferContractTest {
             if (repetition % 2 == 0) {
                 val expected = value.encodeToByteArray()
                 val target = ByteBuffer.allocate(expected.size)
-                assertEquals(expected.size, serializer.serializeTo(value, target))
+                serializer.serializeTo(value, target) shouldBeEqualTo expected.size
                 target.flip()
-                assertEquals(value, serializer.deserializeFrom<String>(target.asReadOnlyBuffer()))
+                serializer.deserializeFrom<String>(target.asReadOnlyBuffer()) shouldBeEqualTo value
             } else {
                 val target = ByteBuffer.allocate(value.encodeToByteArray().size - 1)
-                assertThrows(BufferOverflowException::class.java) {
+                assertFailsWith<BufferOverflowException> {
                     serializer.serializeTo(value, target)
                 }
-                assertEquals(0, target.position())
+                target.position() shouldBeEqualTo 0
             }
         }
     }

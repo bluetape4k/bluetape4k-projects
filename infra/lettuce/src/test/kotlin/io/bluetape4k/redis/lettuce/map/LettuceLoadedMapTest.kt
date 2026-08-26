@@ -7,7 +7,11 @@ import io.bluetape4k.assertions.shouldBeFalse
 import io.bluetape4k.assertions.shouldBeNull
 import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.assertions.shouldNotBeNull
+import org.awaitility.kotlin.atMost
+import org.awaitility.kotlin.await
+import org.awaitility.kotlin.until
 import org.junit.jupiter.api.Test
+import java.time.Duration
 import java.util.concurrent.atomic.AtomicInteger
 
 /**
@@ -205,10 +209,7 @@ class LettuceLoadedMapTest: AbstractLettuceTest() {
             map["k1"] shouldBeEqualTo "v1"
 
             // writer는 비동기로 호출됨 — 최대 3초 대기
-            val deadline = System.currentTimeMillis() + 3000L
-            while (writerCallCount.get() == 0 && System.currentTimeMillis() < deadline) {
-                Thread.sleep(50L)
-            }
+            await atMost Duration.ofSeconds(3) until { writerCallCount.get() == 1 }
             writerCallCount.get() shouldBeEqualTo 1
         }
     }

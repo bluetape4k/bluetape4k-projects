@@ -1,10 +1,10 @@
 package io.bluetape4k.redis.lettuce.map
 
+import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeNull
 import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.junit5.coroutines.runSuspendIO
-import kotlin.test.assertFailsWith
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.lettuce.core.RedisClient
 import io.lettuce.core.RedisFuture

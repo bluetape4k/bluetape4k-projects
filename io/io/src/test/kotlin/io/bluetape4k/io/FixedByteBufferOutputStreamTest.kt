@@ -1,9 +1,9 @@
 package io.bluetape4k.io
 
-import org.junit.jupiter.api.Assertions.assertArrayEquals
-import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.Assertions.assertSame
-import org.junit.jupiter.api.Assertions.assertThrows
+import io.bluetape4k.assertions.assertFailsWith
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeSameInstanceAs
+import io.bluetape4k.assertions.shouldContentEqual
 import org.junit.jupiter.api.DynamicTest
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestFactory
@@ -40,22 +40,22 @@ class FixedByteBufferOutputStreamTest {
                 stream.write(payload)
                 stream.close()
 
-                assertEquals(start + payload.size, target.position())
-                assertEquals(originalCapacity, target.capacity())
-                assertEquals(originalLimit, target.limit())
-                assertEquals(originalOrder, target.order())
-                assertArrayEquals(payload, target.bytesBetween(start, start + payload.size))
+                target.position() shouldBeEqualTo start + payload.size
+                target.capacity() shouldBeEqualTo originalCapacity
+                target.limit() shouldBeEqualTo originalLimit
+                target.order() shouldBeEqualTo originalOrder
+                target.bytesBetween(start, start + payload.size) shouldContentEqual payload
 
                 val positionBeforeCopy = target.position()
                 target.reset()
-                assertEquals(start, target.position(), "write must preserve a mark below the committed position")
+                target.position() shouldBeEqualTo start
                 target.position(positionBeforeCopy)
-                assertArrayEquals(payload, stream.toByteArray())
-                assertEquals(positionBeforeCopy, target.position())
+                stream.toByteArray() shouldContentEqual payload
+                target.position() shouldBeEqualTo positionBeforeCopy
 
                 stream.write(50)
-                assertEquals(positionBeforeCopy + 1, target.position(), "close must not disable later writes")
-                assertArrayEquals(byteArrayOf(10, 20, 30, 40, 50), stream.toByteArray())
+                target.position() shouldBeEqualTo positionBeforeCopy + 1
+                stream.toByteArray() shouldContentEqual byteArrayOf(10, 20, 30, 40, 50)
             }
         }
 
@@ -70,9 +70,9 @@ class FixedByteBufferOutputStreamTest {
 
         stream.write(byteArrayOf(1, 2, 3, 4))
 
-        assertEquals(6, target.position())
-        assertArrayEquals(byteArrayOf(1, 2, 3, 4), stream.toByteArray())
-        assertEquals(99, target.get(0))
+        target.position() shouldBeEqualTo 6
+        stream.toByteArray() shouldContentEqual byteArrayOf(1, 2, 3, 4)
+        target.get(0) shouldBeEqualTo 99
     }
 
     @Test
@@ -86,22 +86,22 @@ class FixedByteBufferOutputStreamTest {
         val stream = ByteBufferOutputStream.fixed(target)
         val start = target.position()
 
-        val failure = assertThrows(BufferOverflowException::class.java) {
+        val failure = assertFailsWith<BufferOverflowException> {
             stream.write(byteArrayOf(1, 2, 3, 4))
         }
 
-        assertEquals(BufferOverflowException::class.java, failure.javaClass)
-        assertEquals(start, target.position())
-        assertEquals(91, target.get(0), "prefix canary")
-        assertEquals(92, target.duplicate().limit(target.capacity()).get(6), "post-limit canary")
-        assertArrayEquals(byteArrayOf(), stream.toByteArray())
+        failure.javaClass shouldBeEqualTo BufferOverflowException::class.java
+        target.position() shouldBeEqualTo start
+        target.get(0) shouldBeEqualTo 91
+        target.duplicate().limit(target.capacity()).get(6) shouldBeEqualTo 92
+        stream.toByteArray() shouldContentEqual byteArrayOf()
     }
 
     @Test
     fun `fixed factory rejects read-only buffers immediately`() {
         val target = ByteBuffer.allocate(8).asReadOnlyBuffer()
 
-        assertThrows(ReadOnlyBufferException::class.java) {
+        assertFailsWith<ReadOnlyBufferException> {
             ByteBufferOutputStream.fixed(target)
         }
     }
@@ -110,11 +110,11 @@ class FixedByteBufferOutputStreamTest {
     fun `fixed Java entry point rejects null before factory logic`() {
         val method = ByteBufferOutputStream::class.java.getMethod("fixed", ByteBuffer::class.java)
 
-        val invocation = assertThrows(InvocationTargetException::class.java) {
+        val invocation = assertFailsWith<InvocationTargetException> {
             method.invoke(null, null)
         }
 
-        assertSame(NullPointerException::class.java, invocation.cause?.javaClass)
+        invocation.cause?.javaClass shouldBeSameInstanceAs NullPointerException::class.java
     }
 
     private fun ByteBuffer.bytesBetween(start: Int, end: Int): ByteArray =

@@ -3,7 +3,6 @@ package io.bluetape4k.io.compressor
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.error
 import io.bluetape4k.support.emptyByteArray
-import io.bluetape4k.support.isNullOrEmpty
 import java.io.IOException
 import kotlin.coroutines.cancellation.CancellationException
 
@@ -66,8 +65,9 @@ abstract class AbstractCompressor: Compressor {
      * @throws IllegalArgumentException when input validation or defensive size-limit checks fail
      */
     override fun compress(plain: ByteArray?): ByteArray {
-        if (plain.isNullOrEmpty()) return emptyByteArray
-        return doCompress(plain!!)
+        val value = plain ?: return emptyByteArray
+        if (value.isEmpty()) return emptyByteArray
+        return doCompress(value)
     }
 
     /**
@@ -89,8 +89,9 @@ abstract class AbstractCompressor: Compressor {
      * @throws IllegalArgumentException when corrupt input, invalid headers, or defensive size-limit checks fail
      */
     override fun decompress(compressed: ByteArray?): ByteArray {
-        if (compressed.isNullOrEmpty()) return emptyByteArray
-        return doDecompress(compressed!!)
+        val value = compressed ?: return emptyByteArray
+        if (value.isEmpty()) return emptyByteArray
+        return doDecompress(value)
     }
 
     /**
@@ -109,13 +110,14 @@ abstract class AbstractCompressor: Compressor {
      * @return compressed data or `null`
      */
     fun compressOrNull(plain: ByteArray?): ByteArray? {
-        if (plain.isNullOrEmpty()) return null
+        val value = plain ?: return null
+        if (value.isEmpty()) return null
         return try {
-            doCompress(plain!!)
+            doCompress(value)
         } catch (e: CancellationException) {
             throw e
         } catch (e: Exception) {
-            log.error(e) { "Fail to compress. plain size=${plain?.size}" }
+            log.error(e) { "Fail to compress. plain size=${value.size}" }
             null
         }
     }
@@ -136,13 +138,14 @@ abstract class AbstractCompressor: Compressor {
      * @return decompressed data or `null`
      */
     fun decompressOrNull(compressed: ByteArray?): ByteArray? {
-        if (compressed.isNullOrEmpty()) return null
+        val value = compressed ?: return null
+        if (value.isEmpty()) return null
         return try {
-            doDecompress(compressed!!)
+            doDecompress(value)
         } catch (e: CancellationException) {
             throw e
         } catch (e: Exception) {
-            log.error(e) { "Fail to decompress. compressed size=${compressed?.size}" }
+            log.error(e) { "Fail to decompress. compressed size=${value.size}" }
             null
         }
     }

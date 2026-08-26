@@ -10,7 +10,6 @@ import io.bluetape4k.cache.nearcache.jcache.NearJCacheConfig
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
-import org.junit.jupiter.api.Assertions.assertTimeoutPreemptively
 import org.junit.jupiter.api.Test
 import java.lang.reflect.InvocationTargetException
 import java.lang.reflect.Proxy
@@ -20,6 +19,7 @@ import java.util.concurrent.CountDownLatch
 import java.util.concurrent.ExecutionException
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
+import java.util.concurrent.TimeoutException
 import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicInteger
 import java.util.concurrent.atomic.AtomicReference
@@ -139,7 +139,7 @@ class NearJCacheMBeanLifecycleTest {
         val fixture = fixture(management = true, statistics = false)
         val executor = Executors.newFixedThreadPool(2)
         try {
-            assertTimeoutPreemptively(Duration.ofSeconds(5)) {
+            withBlockingTimeout(Duration.ofSeconds(5)) {
                 val registrationFuture = executor.submit<NearJCacheMBeanRegistration> {
                     fixture.cache.registerMBeans(server, "manager", "cache")
                 }
@@ -180,7 +180,7 @@ class NearJCacheMBeanLifecycleTest {
         every { fixture.front.close() } answers { frontClosed.countDown() }
         val executor = Executors.newFixedThreadPool(2)
         try {
-            assertTimeoutPreemptively(Duration.ofSeconds(5)) {
+            withBlockingTimeout(Duration.ofSeconds(5)) {
                 val handleClose = executor.submit { registration.close() }
                 enteredUnregister.await(2, TimeUnit.SECONDS).shouldBeTrue()
                 val cacheClose = executor.submit { fixture.cache.close() }
@@ -221,7 +221,7 @@ class NearJCacheMBeanLifecycleTest {
         val registration = fixture.cache.registerMBeans(server, "manager", "cache")
         val executor = Executors.newFixedThreadPool(2)
         try {
-            assertTimeoutPreemptively(Duration.ofSeconds(5)) {
+            withBlockingTimeout(Duration.ofSeconds(5)) {
                 val first = executor.submit { registration.close() }
                 enteredUnregister.await(2, TimeUnit.SECONDS).shouldBeTrue()
                 val secondStarted = CountDownLatch(1)
@@ -371,6 +371,26 @@ class NearJCacheMBeanLifecycleTest {
             }
         }
     } as MBeanServer
+
+    /**
+     * JMX lifecycle tests intentionally wait on real executor and latch boundaries.
+     * Run the blocking scenario on a dedicated worker so the timeout can interrupt
+     * the worker without changing the caller's thread or the production lifecycle.
+     */
+    private fun <T> withBlockingTimeout(timeout: Duration, block: () -> T): T {
+        val watchdog = Executors.newSingleThreadExecutor()
+        val task = watchdog.submit<T> { block() }
+        return try {
+            task.get(timeout.toMillis(), TimeUnit.MILLISECONDS)
+        } catch (e: ExecutionException) {
+            throw (e.cause ?: e)
+        } catch (e: TimeoutException) {
+            task.cancel(true)
+            throw AssertionError("Blocking lifecycle test exceeded $timeout", e)
+        } finally {
+            watchdog.shutdownNow()
+        }
+    }
 
     private data class Fixture(
         val cache: NearJCache<String, String>,

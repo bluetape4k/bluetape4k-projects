@@ -140,7 +140,7 @@ class LettuceNearCacheRegionFactoryTest {
 
         val caches = regionFactory.getCaches()
         // getCaches() 반환값이 수정 불가능한지 확인
-        kotlin.test.assertFailsWith<UnsupportedOperationException> {
+        assertFailsWith<UnsupportedOperationException> {
             @Suppress("UNCHECKED_CAST")
             (caches as MutableMap<String, Any>)["injected"] = Any()
         }

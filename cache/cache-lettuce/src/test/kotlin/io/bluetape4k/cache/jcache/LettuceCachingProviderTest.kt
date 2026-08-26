@@ -1,9 +1,9 @@
 package io.bluetape4k.cache.jcache
 
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.assertions.shouldBeSameInstanceAs
 import io.bluetape4k.assertions.shouldNotBeNull
+import io.bluetape4k.logging.KLogging
 import org.junit.jupiter.api.AfterEach
-import org.junit.jupiter.api.Assertions.assertSame
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
@@ -36,7 +36,7 @@ class LettuceCachingProviderTest {
     fun `getCacheManager returns same instance for same URI and classLoader`() {
         val manager1 = provider.getCacheManager(provider.defaultURI, provider.defaultClassLoader)
         val manager2 = provider.getCacheManager(provider.defaultURI, provider.defaultClassLoader)
-        assertSame(manager1, manager2)
+        manager1 shouldBeSameInstanceAs manager2
     }
 
     @Test
