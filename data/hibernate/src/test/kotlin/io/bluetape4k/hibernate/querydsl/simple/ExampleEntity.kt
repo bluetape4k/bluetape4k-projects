@@ -12,8 +12,10 @@ import jakarta.validation.constraints.NotBlank
 /**
  * 트리 구조를 가지는 Self-Referencing Entity
  *
- * [AbstractJpaTreeEntity]를 직접 상속해서 써야 QueryDSL에서 문제가 생기지 않는다.
- * `LongJpaTreeEntity`에서 상속받게 되면 kapt 작업 시 예외가 발생한다.
+ * 현재 Java APT 경로는 [LongJpaTreeEntity] 상속 구조의 Q 타입을 생성하고
+ * `SimpleQuerydslExamples`에서 self-reference query를 실행한다.
+ * `querydsl-kotlin-codegen` 후보는 fixture별 원인을 분리하기 전에
+ * `KotlinEntitySerializer` 단계의 전역 NPE로 실패하므로 활성화하지 않는다.
  */
 @Entity(name = "querydsl_example_entity")
 @Access(AccessType.FIELD)

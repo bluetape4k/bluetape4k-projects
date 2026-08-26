@@ -30,7 +30,7 @@ dependencies {
     implementation("org.hibernate.orm:hibernate-core:7.2.7.Final")
 
     // Querydsl (선택)
-    implementation("com.querydsl:querydsl-jpa:5.1.0:jakarta")
+    implementation("io.github.openfeign.querydsl:querydsl-jpa:7.5")
 }
 ```
 
@@ -348,6 +348,65 @@ val predicate = qUser.active.eq(true)
 val users = queryFactory
     .selectFrom(qUser)
     .where(predicate)
+    .fetch()
+```
+
+#### QueryDSL codegen 호환성
+
+이 모듈이 지원하는 QueryDSL 생성 경로는 Java APT입니다.
+`querydsl-kotlin-codegen` 후보는 clean matrix를 통과할 때까지 의도적으로
+비활성화합니다. 로컬 후보 실행은 fixture별 원인을 분리하기 전에
+`ExtensionsKt.asTypeName(Extensions.kt:48)` 및
+`KotlinEntitySerializer.introClassHeader(KotlinEntitySerializer.kt:109)`의
+`NullPointerException`을 포함한 `AnnotationProcessingError`로 실패했습니다.
+[QueryDSL issue #3454](https://github.com/querydsl/querydsl/issues/3454)를 참고하세요.
+
+| Fixture | Java APT | Kotlin codegen 후보 | 근거 |
+| --- | --- | --- | --- |
+| DTO (`ExampleDto`) | 지원 및 테스트 완료 | 후보가 전역 실패하므로 평가하지 않음 | `SimpleQuerydslExamples` constructor 및 `@QueryProjection` 테스트 |
+| 일반 엔티티 (`AddressEntity`, `JoinUser`) | 지원 및 테스트 완료 | 후보가 전역 실패하므로 평가하지 않음 | `QuerydslCodegenCompatibilityTest` generated-source 검사 |
+| Tree 엔티티 (`ExampleEntity`, `TreeNode`) | 지원 및 테스트 완료 | 후보가 전역 실패하므로 평가하지 않음 | `QExampleEntity`/`QTreeNode` 생성 및 self-reference query |
+| Association/join (`JoinUser.addresses`) | 런타임 지원 및 테스트 완료 | 후보가 전역 실패하므로 평가하지 않음 | `QJoinUser` + `QAddressEntity` repository-path query |
+
+2026-08-26 clean 로컬 측정값은 다음과 같습니다.
+
+- Java APT baseline: wall time 18.54초, generated Java source 81개, `build/generated/source/kapt` 아래 324 KB.
+- Kotlin codegen 후보: wall time 12.29초, `kaptKotlin` 실패, generated source 0개. 실패 시점 관찰값이므로 성능 비교로 해석하지 않습니다.
+
+후보를 사용할 수 없을 때는 Java APT fallback을 명시적으로 구성하세요.
+
+```kotlin
+plugins {
+    kotlin("jvm")
+    kotlin("kapt")
+}
+
+dependencies {
+    implementation("io.github.openfeign.querydsl:querydsl-jpa:7.5")
+    kapt("io.github.openfeign.querydsl:querydsl-apt:7.5:jakarta")
+    kaptTest("io.github.openfeign.querydsl:querydsl-apt:7.5:jakarta")
+}
+
+kapt {
+    correctErrorTypes = true
+    arguments {
+        arg("querydsl.entityAccessors", "true")
+    }
+}
+```
+
+generated source는 `build/generated/source/kapt/main`과
+`build/generated/source/kapt/test`에 생성됩니다. repository path query는
+생성된 타입을 직접 사용할 수 있습니다.
+
+```kotlin
+val user = QJoinUser.joinUser
+val address = QAddressEntity("address")
+val users = JPAQuery<JoinUser>(entityManager)
+    .select(user)
+    .from(user)
+    .innerJoin(user.addresses, address)
+    .where(user.name.eq("querydsl-user"), address.city.eq("Seoul"))
     .fetch()
 ```
 

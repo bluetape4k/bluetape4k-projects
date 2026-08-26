@@ -14,8 +14,8 @@ import org.hibernate.annotations.DynamicUpdate
 /**
  * 트리 구조를 가지는 Self-Referencing Entity
  *
- * [AbstractJpaTreeEntity]를 직접 상속해서 써야 QueryDSL에서 문제가 생기지 않는다.
- * `LongJpaTreeEntity`에서 상속받게 되면 kapt 작업 시 예외가 발생한다.
+ * Java APT 경로는 [LongJpaTreeEntity] 상속 구조의 Q 타입을 생성한다.
+ * Kotlin codegen 후보는 fixture별 상속 원인을 확인하기 전에 전역 NPE로 실패해 활성화하지 않는다.
  */
 @Entity(name = "tree_treenode")
 @Table(indexes = [Index(name = "ix_treenode_parent", columnList = "parent_id")])
@@ -36,7 +36,7 @@ class TreeNode private constructor(
 
     var description: String? = null
 
-    // NOTE: equals 를 재정의하지 않으면, Querydsl kapt 작업이 실패하는 경우가 있습니다.
+    // equals 계약은 엔티티 동등성 테스트의 대상이며, Q 타입 생성 성공 여부의 원인으로 단정하지 않는다.
     override fun equals(other: Any?): Boolean {
         return other != null && super.equals(other)
     }
