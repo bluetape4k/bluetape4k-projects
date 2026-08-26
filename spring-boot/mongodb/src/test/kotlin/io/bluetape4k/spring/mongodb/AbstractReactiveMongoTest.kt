@@ -12,7 +12,7 @@ import org.springframework.test.context.DynamicPropertySource
  * Spring Data MongoDB Reactive 통합 테스트의 기반 클래스입니다.
  *
  * [MongoDBServer] Testcontainer를 통해 Docker 기반 MongoDB를 자동으로 실행하며,
- * [DynamicPropertySource]로 `spring.data.mongodb.uri`를 동적으로 설정합니다.
+ * [DynamicPropertySource]로 Spring Boot 4.1의 `spring.mongodb.uri`를 동적으로 설정합니다.
  *
  * **사용 방법**: 구체 테스트 클래스에 `@SpringBootTest`를 붙이고 이 클래스를 상속합니다.
  * (Spring Boot 4의 `spring-boot-test-autoconfigure`에는 `@DataMongoTest` 슬라이스가 아직 없음)
@@ -37,7 +37,7 @@ abstract class AbstractReactiveMongoTest {
         val faker = Fakers.faker
 
         /**
-         * `spring.data.mongodb.uri` 프로퍼티를 Testcontainer의 연결 URL로 설정합니다.
+         * `spring.mongodb.uri` 프로퍼티를 Testcontainer의 연결 URL로 설정합니다.
          *
          * ## 동작/계약
          * - Spring Framework 5.2.5+ 에서 추상 클래스의 [DynamicPropertySource]는 하위 클래스에 상속됩니다.
@@ -46,7 +46,7 @@ abstract class AbstractReactiveMongoTest {
         @JvmStatic
         @DynamicPropertySource
         fun mongoProperties(registry: DynamicPropertyRegistry) {
-            registry.add("spring.data.mongodb.uri") { mongoServer.url }
+            registry.add("spring.mongodb.uri") { mongoServer.url }
         }
     }
 
