@@ -105,11 +105,11 @@ Kotlin Coroutines의 다양한 기능과 사용 패턴을 학습하기 위한 �
 ```
 
 이 테스트는 Testcontainers가 동적 포트의 Kafka broker를 시작하므로 Docker
-daemon이 필요하다. 각 테스트는 고유 topic을 사용하며 broker poll과 producer
+daemon이 필요하다. 각 테스트는 고유 topic을 사용하며 consumer poll과 producer
 close에는 제한 시간(timeout)이 있다. adapter는 send를 재시도하지 않고 metadata 순서를
 보장하지 않는다. collection이 실패하거나 취소되면 부분 결과가 관찰될 수 있고,
-첫 producer/callback 실패가 terminal cause로 유지되며 in-flight callback은 제한된
-정리 과정에서 취소된 뒤 producer가 닫힌다.
+첫 producer/callback 실패가 terminal cause로 유지되며 in-flight send future는 취소되고
+늦게 도착한 callback은 무시된 뒤 producer가 제한된 정리 과정에서 닫힌다.
 
 ## 주요 학습 포인트
 

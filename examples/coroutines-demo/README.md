@@ -105,11 +105,12 @@ Run the executable Kafka callback example with:
 ```
 
 This test requires a Docker daemon because Testcontainers starts a Kafka broker
-on a dynamic port. Each test uses a unique topic, and broker polling and
+on a dynamic port. Each test uses a unique topic, and consumer polling and
 producer closing have bounded timeouts. The adapter does not retry sends and
 does not guarantee metadata order. A failed or cancelled collection may expose
 partial results; the first producer/callback failure remains the terminal cause,
-and in-flight callbacks are cancelled before bounded cleanup closes the producer.
+and in-flight send futures are cancelled; late callbacks are ignored before
+bounded cleanup closes the producer.
 
 ## Key Learning Points
 
