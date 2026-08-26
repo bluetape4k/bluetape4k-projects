@@ -504,7 +504,8 @@ class CallbackFlowExamples {
         assertFailsWith<CancellationException> { task.await() }
         await.atMost(Duration.ofSeconds(5)) untilSuspending { producer.closeCount.get() > 0 }
         producer.closeCount.get() shouldBeEqualTo 1
-        producer.cancelledPendingSends() shouldBeEqualTo 1
+        producer.sendCount.get() shouldBeEqualTo producer.cancelledPendingSends()
+        producer.pendingSends.all { it.isCancelled }.shouldBeTrue()
     }
 
     @Test
