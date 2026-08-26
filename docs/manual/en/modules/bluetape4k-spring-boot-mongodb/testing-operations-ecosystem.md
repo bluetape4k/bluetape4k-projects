@@ -7,9 +7,9 @@ chapterId: testing-operations-ecosystem
 
 # Testing, operations, and ecosystem
 
-## 1.12.1 test structure
+## Current test structure (Spring Boot 4.1+)
 
-`AbstractReactiveMongoTest` lazily starts a `MongoDBServer` Testcontainer and registers `spring.data.mongodb.uri` dynamically. `AbstractReactiveMongoCoroutineTest` adds a test scope with `Dispatchers.IO` and a `CoroutineName`.
+`AbstractReactiveMongoTest` lazily starts a `MongoDBServer` Testcontainer and registers `spring.mongodb.uri` dynamically. `spring.data.mongodb.uri` is the legacy namespace on Spring Boot 4.1+ and fails fast when it is the only URI key. `AbstractReactiveMongoCoroutineTest` adds a test scope with `Dispatchers.IO` and a `CoroutineName`.
 
 `ReactiveMongoOperationsCoroutinesTest` uses a real Spring Boot context and MongoDB to verify:
 

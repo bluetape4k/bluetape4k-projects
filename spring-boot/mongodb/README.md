@@ -2,12 +2,48 @@
 
 English | [한국어](./README.ko.md)
 
-An extension library for working with [Spring Data MongoDB Reactive](https://docs.spring.io/spring-data/mongodb/docs/current/reference/html/) using Kotlin Coroutines (Spring Boot 4.x).
+An extension library for working with [Spring Data MongoDB Reactive](https://docs.spring.io/spring-data/mongodb/docs/current/reference/html/) using Kotlin Coroutines (Spring Boot 4.1+).
 
 Provides extension functions that convert `Flux`/`Mono` return types from `ReactiveMongoOperations` to `Flow`/
 `suspend`, along with Kotlin infix DSLs for building `Criteria`, `Query`, and `Update` objects.
 
-> This is the versionless Spring Boot 4 implementation.
+> This is the versionless Spring Boot 4.1+ implementation.
+
+## Spring Boot 4.1 Configuration Boundary
+
+Spring Boot 4.1 binds Mongo connection settings under `spring.mongodb.*`.
+Configure the URI with the current namespace:
+
+```yaml
+spring:
+    mongodb:
+        uri: mongodb://127.0.0.1:27018/synthetic
+```
+
+`ReactiveMongoAutoConfiguration` runs after Spring Boot's
+`DataMongoReactiveAutoConfiguration`. A user-provided
+`ReactiveMongoOperations` bean always wins; the library creates a fallback
+`ReactiveMongoTemplate` only when no operations bean exists and both
+`ReactiveMongoDatabaseFactory` and `MongoConverter` are available.
+
+### Migration from `spring.data.mongodb.uri`
+
+| Before | After |
+|--------|-------|
+| `spring.data.mongodb.uri` | `spring.mongodb.uri` |
+
+The legacy-only key fails fast instead of silently connecting to the default
+localhost database:
+
+```text
+IllegalStateException: Unsupported legacy MongoDB property 'spring.data.mongodb.uri'; use 'spring.mongodb.uri' on Spring Boot 4.1+
+```
+
+During a staged migration, if both keys are present, `spring.mongodb.uri` takes
+precedence. Use a synthetic URI in tests and keep credentials out of logs and
+diagnostic artifacts. If migration cannot be completed immediately, pin the
+previous artifact version that still supports the legacy namespace, then
+resume the migration before returning to this Boot 4.1+ artifact.
 
 ## Features
 
@@ -120,6 +156,12 @@ val update = ("name" setTo "Alice")
 ```bash
 ./gradlew :bluetape4k-spring-boot-mongodb:test
 ```
+
+The `ReactiveMongoAutoConfigurationTest` context suite validates namespace
+binding, legacy fail-fast behavior, dual-key precedence, fallback conditions,
+Boot ordering, single-instance creation, and context close without MongoDB
+network I/O. The coroutine integration suite uses the shared Testcontainers
+MongoDB server and should be run separately when validating a real database.
 
 ## References
 

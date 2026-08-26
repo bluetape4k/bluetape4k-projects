@@ -2,12 +2,48 @@
 
 [English](./README.md) | 한국어
 
-[Spring Data MongoDB Reactive](https://docs.spring.io/spring-data/mongodb/docs/current/reference/html/)를 Kotlin Coroutines 기반으로 편리하게 사용할 수 있도록 하는 확장 라이브러리입니다 (Spring Boot 4.x).
+[Spring Data MongoDB Reactive](https://docs.spring.io/spring-data/mongodb/docs/current/reference/html/)를 Kotlin Coroutines 기반으로 편리하게 사용할 수 있도록 하는 확장 라이브러리입니다 (Spring Boot 4.1+).
 
 `ReactiveMongoOperations`의 `Flux`/`Mono` 반환 타입을 `Flow`/`suspend`로 변환하는 확장 함수와,
 `Criteria`·`Query`·`Update` 구성을 위한 Kotlin infix DSL을 제공합니다.
 
-> Spring Boot 4 기반 versionless 표준 구현입니다.
+> Spring Boot 4.1+ 기반 versionless 표준 구현입니다.
+
+## Spring Boot 4.1 설정 경계
+
+Spring Boot 4.1은 Mongo 연결 설정을 `spring.mongodb.*` namespace로
+바인딩합니다. 현재 URI 설정은 다음과 같이 작성하세요.
+
+```yaml
+spring:
+    mongodb:
+        uri: mongodb://127.0.0.1:27018/synthetic
+```
+
+`ReactiveMongoAutoConfiguration`은 Spring Boot의
+`DataMongoReactiveAutoConfiguration` 이후에 실행됩니다. 사용자가 제공한
+`ReactiveMongoOperations` Bean이 항상 우선하며, operations Bean이 없고
+`ReactiveMongoDatabaseFactory`와 `MongoConverter`가 모두 있을 때만
+fallback `ReactiveMongoTemplate`을 생성합니다.
+
+### `spring.data.mongodb.uri`에서 마이그레이션
+
+| 이전 설정 | 현재 설정 |
+|----------|----------|
+| `spring.data.mongodb.uri` | `spring.mongodb.uri` |
+
+legacy key만 남아 있으면 기본 localhost DB로 조용히 연결하지 않고 다음
+예외로 즉시 실패합니다.
+
+```text
+IllegalStateException: Unsupported legacy MongoDB property 'spring.data.mongodb.uri'; use 'spring.mongodb.uri' on Spring Boot 4.1+
+```
+
+단계적 전환 중 두 key가 함께 있으면 `spring.mongodb.uri`가 우선합니다.
+테스트에는 synthetic URI를 사용하고 credential을 로그나 진단 artifact에
+남기지 마세요. 즉시 마이그레이션할 수 없다면 legacy namespace를 지원하는
+이전 artifact 버전을 pin한 뒤 전환을 완료하고 Boot 4.1+ artifact로
+돌아오세요.
 
 ## 특징
 
@@ -120,6 +156,12 @@ val update = ("name" setTo "Alice")
 ```bash
 ./gradlew :bluetape4k-spring-boot-mongodb:test
 ```
+
+`ReactiveMongoAutoConfigurationTest` context suite는 namespace binding,
+legacy fail-fast, dual-key 우선순위, fallback 조건, Boot 순서, 단일 인스턴스
+생성, context close를 MongoDB 네트워크 I/O 없이 검증합니다. 실제 데이터베이스
+검증이 필요한 코루틴 통합 테스트는 공유 Testcontainers MongoDB 서버를
+사용하므로 별도로 실행하세요.
 
 ## 참고 자료
 
