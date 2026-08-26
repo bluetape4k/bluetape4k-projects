@@ -199,7 +199,8 @@ withTimeout(5.seconds) { backendMap.getAsync("count").await() } shouldBeEqualTo 
 ```
 
 `fastPutAsync`로 같은 numeric key를 먼저 직렬화하지 않는다. key가 없을 때 Redis
-`HINCRBY` 경로가 초기값을 만든다는 점을 KDoc와 assertion으로 설명한다.
+`HINCRBY` 경로가 초기값을 만들고, Double은 `HINCRBYFLOAT` 경로를 사용한다는 점을
+KDoc와 assertion으로 설명한다.
 
 - [ ] **Step 2: Double 예제와 제약 KDoc을 추가한다**
 
@@ -262,15 +263,64 @@ fun cleanup() {
                 else firstFailure!!.addSuppressed(failure)
             }
     }
-    firstFailure?.let { throw it }
+firstFailure?.let { throw it }
 }
 ```
+
+모든 Redisson `RFuture`는 base의 다음 bounded helper를 통해 await한다.
+
+필요한 import는 `org.redisson.api.RFuture`, `kotlinx.coroutines.CancellationException`,
+`kotlinx.coroutines.TimeoutCancellationException`, `kotlinx.coroutines.future.await`,
+`kotlinx.coroutines.withTimeout`, `kotlin.time.Duration.Companion.seconds`다.
+
+```kotlin
+protected suspend fun <T> awaitRedis(
+    future: RFuture<T>,
+    timeout: kotlin.time.Duration = 5.seconds,
+): T = try {
+    withTimeout(timeout) { future.await() }
+} catch (cause: TimeoutCancellationException) {
+    future.cancel(false)
+    throw cause
+} catch (cause: CancellationException) {
+    future.cancel(false)
+    throw cause
+}
+```
+
+Task 2–4의 `withTimeout(5.seconds) { future.await() }` 표기는 구현 시
+`awaitRedis(future)`로 치환해 timeout/cancellation 때 underlying future도
+취소한다. helper 자체는 `runSuspendIO`의 IO dispatcher에서 호출하며, 테스트
+종료 시점의 client shutdown과 별개로 pending operation을 남기지 않는다.
 
 두 options와 `backCache`는 같은 concrete codec과 unique `cacheName`을 공유하고,
 shared `redisson`는 base의 `ShutdownQueue` 소유권을 유지한다. Redisson의
 `shutdown(0, 5, TimeUnit.SECONDS)` overload를 사용해 각 test-owned client가
 5초 bounded shutdown을 갖고, 첫 번째 shutdown 예외가 발생하면 두 번째 client도
 정리한 뒤 테스트 lifecycle failure로 보고한다.
+
+기존 `options1`, `options2`, `backCache` 선언도 다음처럼 value codec을 명시한다.
+
+```kotlin
+private val options1 = LocalCachedMapOptions.name<String, Int>(cacheName)
+    .cacheSize(100)
+    .codec(intCodec)
+private val options2 = LocalCachedMapOptions.name<String, Int>(cacheName)
+    .cacheSize(100)
+    .codec(intCodec)
+private val backCache: RMap<String, Int> by lazy { redisson.getMap(cacheName, intCodec) }
+```
+
+이 클래스의 기존 Redis/Testcontainers 세 테스트 wrapper는 모두
+`runSuspendIO`로 바꾸고, `io.bluetape4k.junit5.awaitility.untilSuspending`을
+import해 suspend Redis future를 IO 경계 안에서 평가한다. `runTest`와 동기
+`containsKey`를 남기지 않는다.
+
+각 기존 테스트 선언의 정확한 변경은 `runTest` wrapper를
+`runSuspendIO(timeout = 60.seconds)`로 교체하고,
+`fastPutAsync`·`fastRemoveAsync`·`getAsync`·`containsKeyAsync`의 반환
+`RFuture`를 `awaitRedis(future)` 또는 `untilSuspending` 내부의 bounded await로
+소비하는 것이다.
 
 - [ ] **Step 2: concurrent Int/Double increment를 `SuspendedJobTester`로 검증한다**
 
@@ -283,20 +333,22 @@ fun `concurrent numeric increments match independent remote final value`() = run
     )
     val calls = 32 * 8 // rounds는 전체 호출 수이고 workers는 동시 실행 수다.
 
-    SuspendedJobTester()
-        .workers(4)
-        .rounds(32 * 8)
-        .add { withTimeout(5.seconds) { map.addAndGetAsync("count", 1).await() } }
-        .run()
+    withTimeout(30.seconds) {
+        SuspendedJobTester()
+            .workers(4)
+            .rounds(32 * 8)
+            .add { awaitRedis(map.addAndGetAsync("count", 1)) }
+            .run()
+    }
 
     val remote = redisson.getMap<String, Int>(name, intCodec)
-    withTimeout(5.seconds) { remote.getAsync("count").await() } shouldBeEqualTo calls
+    awaitRedis(remote.getAsync("count")) shouldBeEqualTo calls
 
     val map2 = redisson2.getLocalCachedMap(
         LocalCachedMapOptions.name<String, Int>(name).codec(intCodec)
     )
-    withTimeout(5.seconds) { map.getAsync("count").await() } shouldBeEqualTo calls
-    withTimeout(5.seconds) { map2.getAsync("count").await() } shouldBeEqualTo calls
+    awaitRedis(map.getAsync("count")) shouldBeEqualTo calls
+    awaitRedis(map2.getAsync("count")) shouldBeEqualTo calls
 }
 ```
 
@@ -307,22 +359,54 @@ fun `concurrent numeric increments match independent remote final value`() = run
 `calls * 0.25`와 일치하는지 확인한다. Int와 Double 모두 `redisson2` local
 view를 같은 5초 deadline으로 reread해 remote final value와 일치하는지
 확인한다. worker는 ad hoc thread를 만들지 않는다.
+
+Double 경로의 핵심은 다음처럼 Int와 분리된 map과 동일한 front/back codec을
+사용하는 것이다.
+
+```kotlin
+val name = randomName()
+val calls = 32 * 8
+val doubleMap1 = redisson1.getLocalCachedMap(
+    LocalCachedMapOptions.name<String, Double>(name).codec(doubleCodec)
+)
+val doubleMap2 = redisson2.getLocalCachedMap(
+    LocalCachedMapOptions.name<String, Double>(name).codec(doubleCodec)
+)
+withTimeout(30.seconds) {
+    SuspendedJobTester()
+        .workers(4)
+        .rounds(32 * 8)
+        .add { awaitRedis(doubleMap1.addAndGetAsync("ratio", 0.25)) }
+        .run()
+}
+val remoteDouble = redisson.getMap<String, Double>(name, doubleCodec)
+awaitRedis(remoteDouble.getAsync("ratio")) shouldBeEqualTo calls * 0.25
+awaitRedis(doubleMap2.getAsync("ratio")) shouldBeEqualTo calls * 0.25
+```
 worker는 ad hoc thread를 만들지 않는다.
 
-- [ ] **Step 3: remote put/remove invalidation을 bounded Awaitility로 검증한다**
+- [ ] **Step 3: remote put/remove invalidation을 bounded suspend Awaitility로 검증한다**
 
-기존 세 invalidation 테스트를 보존하면서 매 future await를 `withTimeout(5.seconds)`로 감싼다. remote `fastPutAsync`/`fastRemoveAsync` 뒤에는 다음 조건을 `atMost(5.seconds)`, 100ms poll로 기다린다.
+기존 세 invalidation 테스트를 보존하면서 각 wrapper를 `runSuspendIO`로 바꾸고,
+모든 future를 `awaitRedis(future)`로 감싼다. remote `fastPutAsync`/`fastRemoveAsync`
+뒤에는 blocking `containsKey` 대신 `untilSuspending`에서
+`containsKeyAsync(key).await()`를 IO 경계로 평가한다. 다음 조건을
+`atMost(5.seconds)`, 100ms poll로 기다린다.
 
 ```kotlin
 await.atMost(Duration.ofSeconds(5)).pollInterval(Duration.ofMillis(100))
-    .until { frontCache1.containsKey(key) && frontCache2.containsKey(key) }
-withTimeout(5.seconds) { frontCache1.getAsync(key).await() } shouldBeEqualTo 42
-withTimeout(5.seconds) { frontCache2.getAsync(key).await() } shouldBeEqualTo 42
+    .untilSuspending {
+        awaitRedis(frontCache1.containsKeyAsync(key)) && awaitRedis(frontCache2.containsKeyAsync(key))
+    }
+awaitRedis(frontCache1.getAsync(key)) shouldBeEqualTo 42
+awaitRedis(frontCache2.getAsync(key)) shouldBeEqualTo 42
 
 await.atMost(Duration.ofSeconds(5)).pollInterval(Duration.ofMillis(100))
-    .until { !frontCache1.containsKey(key) && !frontCache2.containsKey(key) }
-withTimeout(5.seconds) { frontCache1.getAsync(key).await() }.shouldBeNull()
-withTimeout(5.seconds) { frontCache2.getAsync(key).await() }.shouldBeNull()
+    .untilSuspending {
+        !awaitRedis(frontCache1.containsKeyAsync(key)) && !awaitRedis(frontCache2.containsKeyAsync(key))
+    }
+awaitRedis(frontCache1.getAsync(key)).shouldBeNull()
+awaitRedis(frontCache2.getAsync(key)).shouldBeNull()
 ```
 
 remote 변경 직후 stale read를 허용하되 bounded await 뒤 두 local view가 갱신/삭제된
@@ -391,8 +475,31 @@ Docker daemon/Testcontainers가 필요하고 dynamic port를 사용한다는 점
 
 ```bash
 git diff --check
-rg -n "bluetape4k-examples-redisson-demo:test|LocalCachedMapExamples|LocalCachedMapTest|CompositeCodec|HINCRBYFLOAT|5초|5 seconds" \
-  examples/redisson-demo/README.md examples/redisson-demo/README.ko.md
+for file in examples/redisson-demo/README.md examples/redisson-demo/README.ko.md; do
+  rg -F -- "bluetape4k-examples-redisson-demo:test" "$file"
+  rg -F -- "LocalCachedMapExamples" "$file"
+  rg -F -- "LocalCachedMapTest" "$file"
+  rg -F -- "--no-configuration-cache" "$file"
+  rg -F -- "--max-workers=1" "$file"
+  rg -F -- "CompositeCodec" "$file"
+  rg -F -- "HINCRBYFLOAT" "$file"
+done
+python3 - <<'PY'
+from pathlib import Path
+
+english = Path("examples/redisson-demo/README.md").read_text()
+korean = Path("examples/redisson-demo/README.ko.md").read_text()
+required = (
+    ":bluetape4k-examples-redisson-demo:test",
+    "LocalCachedMapExamples",
+    "LocalCachedMapTest",
+    "--no-configuration-cache",
+    "--max-workers=1",
+    "CompositeCodec",
+    "HINCRBYFLOAT",
+)
+assert all(token in english and token in korean for token in required)
+PY
 ```
 
 Expected: 두 locale의 task name, test class와 numeric/invalidation 설명이 일치한다.
@@ -443,6 +550,11 @@ parent #1347 merge 전 #1353 child의 base/head SHA와 temporary base ref를 기
 ## Rollback과 stop condition
 
 numeric example/test가 실패하면 Task 2–4 commit을 되돌리고 기존 `fastPutAsync` map example을 유지한다. `newRedisson(registerShutdown = false)`가 기존 test에 영향을 주면 signature 변경만 revert하고 shared default 동작을 복구한다. Redis future timeout, test-owned client leak, invalidation timeout, exact-head CI failure 또는 unresolved P1이면 merge-ready를 중단하고 해당 test·ownership·`## DoD Status`를 다시 검증한다. Redisson codec version, production API, 새 dependency를 추가하지 않는다.
+
+unique map은 Testcontainers Redis 수명과 함께 폐기되며, 테스트 중간에 별도
+delete를 호출하지 않아 invalidation 관찰을 오염시키지 않는다. 장시간 shared Redis의
+잔여 key 정리가 필요해지면 별도 운영 이슈로 다루고 이 child의 numeric 계약에는
+추가하지 않는다.
 
 ## 계획 완료 조건
 

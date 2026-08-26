@@ -94,8 +94,9 @@ fun `callback failure preserves first cause and closes producer once`() = runSus
 
 @Test
 fun `backpressure fails without dropping callback and closes producer once`() = runSuspendIO {
-    val producer = TrackingProducer()
+    val producer = TrackingProducer(holdCallbacks = true)
     val collectorGate = CompletableDeferred<Unit>()
+    val firstItemReceived = CompletableDeferred<Unit>()
     val collection = async {
         var received = 0
         producerResults(
@@ -106,14 +107,21 @@ fun `backpressure fails without dropping callback and closes producer once`() = 
         ).collect {
             val index = received
             received += 1
-            if (index == 0) collectorGate.await()
+            if (index == 0) {
+                firstItemReceived.complete(Unit)
+                collectorGate.await()
+            }
         }
     }
 
-    producer.thirdCallback.await()
+    withTimeout(5.seconds) { producer.allSendsStarted.await() }
+    producer.fireCallback()
+    withTimeout(5.seconds) { firstItemReceived.await() }
+    producer.fireCallback()
+    producer.fireCallback()
     collectorGate.complete(Unit)
     val error = assertFailsWith<IllegalStateException> {
-        collection.await()
+        withTimeout(10.seconds) { collection.await() }
     }
 
     error.message shouldBeEqualTo "callback buffer is full"
@@ -128,7 +136,7 @@ fun `in-flight permit is released after callback`() = runSuspendIO {
     producerResults(
         records = flowOf(record("permit-one"), record("permit-two")),
         producerFactory = { producer.producer },
-        channelCapacity = 1,
+        channelCapacity = 2,
         maxInFlight = 1,
     ).toList()
 
@@ -142,7 +150,7 @@ fun `collector cancellation rethrows CancellationException and closes producer o
         producerResults(flowOf(record("cancel")), { producer.producer }).toList()
     }
 
-    producer.sendStarted.await()
+    withTimeout(5.seconds) { producer.sendStarted.await() }
     task.cancel()
     assertFailsWith<CancellationException> { task.await() }
 
@@ -178,6 +186,19 @@ fun `normal completion drains callbacks flushes and closes once`() = runSuspendI
     producer.flushCount shouldBeEqualTo 1
     producer.closeCount shouldBeEqualTo 1
     producer.callbackCount shouldBeEqualTo 1
+}
+
+@Test
+fun `flush failure becomes the terminal cause after callback drain`() = runSuspendIO {
+    val flushFailure = IllegalStateException("flush failure")
+    val producer = TrackingProducer(flushError = flushFailure)
+
+    val error = assertFailsWith<IllegalStateException> {
+        producerResults(flowOf(record("flush-failure")), { producer.producer }).toList()
+    }
+
+    error shouldBeEqualTo flushFailure
+    producer.closeCount shouldBeEqualTo 1
 }
 
 @Test
@@ -242,6 +263,7 @@ private fun record(value: String): ProducerRecord<String, String> {
 private class TrackingProducer(
     private val callbackError: Exception? = null,
     private val sendError: Exception? = null,
+    private val flushError: Exception? = null,
     val closeError: Exception? = null,
     private val holdCallbacks: Boolean = false,
 ) {
@@ -251,7 +273,8 @@ private class TrackingProducer(
     val flushCount = AtomicInteger()
     val lateCallbackCount = AtomicInteger()
     val sendStarted = CompletableDeferred<Unit>()
-    val thirdCallback = CompletableDeferred<Unit>()
+    val allSendsStarted = CompletableDeferred<Unit>()
+    val sendCount = AtomicInteger()
     val pendingCallbacks = ConcurrentLinkedQueue<Callback>()
     val pendingSend = CompletableFuture<RecordMetadata>()
     private val closed = AtomicBoolean()
@@ -266,12 +289,15 @@ private class TrackingProducer(
             } else {
                 callbackCount.incrementAndGet()
                 callback.onCompletion(metadata, callbackError)
-                if (callbackCount.get() == 3) thirdCallback.complete(Unit)
             }
             sendStarted.complete(Unit)
+            if (sendCount.incrementAndGet() == 3) allSendsStarted.complete(Unit)
             if (holdCallbacks) pendingSend else CompletableFuture.completedFuture(metadata)
         }
-        every { producer.flush() } answers { flushCount.incrementAndGet() }
+        every { producer.flush() } answers {
+            flushCount.incrementAndGet()
+            flushError?.let { throw it }
+        }
         every { producer.close(any<Duration>()) } answers {
             closeCount.incrementAndGet()
             closed.set(true)
@@ -285,11 +311,21 @@ private class TrackingProducer(
             callback.onCompletion(metadata, null)
         }
     }
+
+    fun fireCallback() {
+        pendingCallbacks.poll()?.let { callback ->
+            callbackCount.incrementAndGet()
+            callback.onCompletion(metadata, null)
+        }
+    }
 }
 ```
 
 기본 성공 fixture는 callback을 즉시 호출하고, held fixture는 `pendingCallbacks`를
-보관해 drain timeout과 cancellation을 결정적으로 만든다. `maxInFlight=1`에서
+보관해 drain timeout과 cancellation을 결정적으로 만든다. backpressure 테스트는
+세 `send` 완료를 `allSendsStarted`로 확인한 뒤 `fireCallback()`을 1→2→3 순서로
+수동 발화한다. 첫 callback 수신 후 collector가 gate에서 멈추므로 두 번째 결과가
+1-slot buffer를 채우고 세 번째 callback이 full을 재현한다. `maxInFlight=1`에서
 두 record가 모두 완료되는 테스트가 callback 공통 `finally`의 permit release를
 간접적으로 증명한다. close 이후 callback은 `lateCallbackCount`만 증가시킨다.
 `Producer`의 다른 메서드는 MockK relaxed
@@ -327,11 +363,45 @@ private fun producerResults(
 ): Flow<RecordMetadata>
 ```
 
-Step 2–3에서 이 signature의 함수 body를 완성한다. Flow collection마다
-`producerFactory()`를 한 번 호출하고, `Semaphore(maxInFlight)`와
-`AtomicReference<Throwable?>`를 collection-local 상태로 만든다. callback 성공은
-`channel.trySend(metadata)`로 전달하고, callback 성공·실패·동기 `send` 예외 모두에서
-공통 `finally`로 permit/in-flight를 정확히 한 번만 해제한다.
+Step 2–3에서 이 signature의 함수 body를 완성한다. `channelCapacity`와
+`maxInFlight`를 각각 `1..16`으로 검증하고, 마지막에
+`.buffer(channelCapacity, onBufferOverflow = BufferOverflow.SUSPEND)`를 적용한다.
+`callbackFlow` 내부는 다음 이름과 수명 순서를 그대로 사용한다.
+
+```kotlin
+return callbackFlow {
+    val producer = producerFactory()
+    val terminalCause = AtomicReference<Throwable?>(null)
+    val permits = Semaphore(maxInFlight)
+    val inFlight = ConcurrentHashMap.newKeySet<Future<RecordMetadata>>()
+    val upstreamJob = launch(Dispatchers.IO) {
+        try {
+            records.collect { record ->
+                permits.acquire()
+                try {
+                    val future = producer.send(record, callbackFor(record))
+                    inFlight += future
+                } catch (cause: Throwable) {
+                    permits.release()
+                    failOnce(cause)
+                    throw cause
+                }
+            }
+        } catch (cause: Throwable) {
+            failOnce(cause)
+            throw cause
+        }
+    }
+    awaitClose { upstreamJob.cancel(CancellationException("collector cancelled")) }
+}.buffer(channelCapacity, onBufferOverflow = BufferOverflow.SUSPEND)
+```
+
+`callbackFor(record)`는 callback 성공·실패와 동기 `send` 예외 모두에서 공통
+`finally`로 해당 Future를 `inFlight`에서 제거하고 permit을 정확히 한 번만
+해제한다. `failOnce(cause)`는 `terminalCause`를 CAS한 뒤
+`upstreamJob.cancel(CancellationException("producer terminal failure", cause))`과
+channel close를 수행한다. 각 collection마다 `producerFactory()`는 한 번만
+호출한다.
 각 `send`의 반환 Future를 in-flight 항목과 함께 보관해 cancellation 또는 drain
 deadline에서 `cancel(false)`하고, deterministic probe의 `pendingSend`로 그 결과를
 검증한다.
@@ -342,8 +412,7 @@ deadline에서 `cancel(false)`하고, deterministic probe의 `pendingSend`로 �
 
 ```kotlin
 if (terminalCause.compareAndSet(null, cause)) {
-    worker.cancel(CancellationException("producer terminal failure", cause))
-    upstream.cancel(CancellationException("producer terminal failure", cause))
+    upstreamJob.cancel(CancellationException("producer terminal failure", cause))
     channel.close(cause)
 } else {
     log.debug { "late Kafka callback ignored; failureKind=$failureKind" }
@@ -580,8 +649,31 @@ Run:
 
 ```bash
 git diff --check
-rg -n "bluetape4k-examples-coroutines-demo:test|CallbackFlowExamples|Testcontainers|Docker|timeout" \
-  examples/coroutines-demo/README.md examples/coroutines-demo/README.ko.md
+for file in examples/coroutines-demo/README.md examples/coroutines-demo/README.ko.md; do
+  rg -F -- "bluetape4k-examples-coroutines-demo:test" "$file"
+  rg -F -- "CallbackFlowExamples" "$file"
+  rg -F -- "--no-configuration-cache" "$file"
+  rg -F -- "--max-workers=1" "$file"
+  rg -F -- "Testcontainers" "$file"
+  rg -F -- "Docker" "$file"
+  rg -F -- "timeout" "$file"
+done
+python3 - <<'PY'
+from pathlib import Path
+
+english = Path("examples/coroutines-demo/README.md").read_text()
+korean = Path("examples/coroutines-demo/README.ko.md").read_text()
+required = (
+    ":bluetape4k-examples-coroutines-demo:test",
+    "CallbackFlowExamples",
+    "--no-configuration-cache",
+    "--max-workers=1",
+    "Testcontainers",
+    "Docker",
+    "timeout",
+)
+assert all(token in english and token in korean for token in required)
+PY
 ```
 
 Expected: 두 파일의 task name과 example name이 일치하고 한국어 문서에는 독자용 설명이 자연스럽게 남는다.
@@ -636,6 +728,10 @@ PR 생성 전 child issue #1347의 `## DoD Status`와 parent PR body에 exact he
 ## Rollback과 stop condition
 
 Kafka adapter/test만 실패하면 Task 3–4 commit을 되돌리고 기존 example test를 복구한다. workflow 변경이 60분 budget을 넘기거나 diagnostics completeness가 실패하면 workflow commit만 revert하고 child code evidence를 유지한다. exact-head CI failure, unresolved P1, producer/consumer cleanup timeout이면 merge-ready를 중단하고 해당 task와 `## DoD Status`를 다시 검증한다. production API, dependency version, image/tag 변경이 발견되면 이 계획 범위를 벗어나므로 별도 승인 전에는 진행하지 않는다.
+
+unique topic은 Testcontainers broker 수명과 함께 폐기되므로 정상 경로에서 별도
+삭제 명령을 추가하지 않는다. 장시간 shared broker에서 잔여 topic을 수집해야 하는
+요구가 생기면 별도 운영 이슈로 다루며 이 child의 cleanup 계약을 확장하지 않는다.
 
 ## 계획 완료 조건
 
