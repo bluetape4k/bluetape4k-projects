@@ -175,6 +175,27 @@ fun `collector cancellation rethrows CancellationException and closes producer o
 }
 
 @Test
+fun `cancellation immediately after producer creation closes it once`() = runSuspendIO {
+    val producer = TrackingProducer(holdCallbacks = true)
+    val factoryStarted = CompletableDeferred<Unit>()
+    val task = async {
+        producerResults(
+            flowOf(record("immediate-cancel")),
+            {
+                factoryStarted.complete(Unit)
+                producer.producer
+            },
+        ).toList()
+    }
+
+    withTimeout(5.seconds) { factoryStarted.await() }
+    task.cancel()
+    assertFailsWith<CancellationException> { task.await() }
+
+    producer.closeCount shouldBeEqualTo 1
+}
+
+@Test
 fun `factory and synchronous send failures are terminal causes`() = runSuspendIO {
     val factoryFailure = IllegalArgumentException("factory failure")
     val factoryError = assertFailsWith<IllegalArgumentException> {
@@ -439,12 +460,14 @@ Step 2–3에서 이 signature의 함수 body를 완성한다. `channelCapacity`
 필요한 coroutine import는 `CancellationException`, `CoroutineStart`, `Dispatchers`,
 `Job`, `NonCancellable`, `TimeoutCancellationException`, `delay`, `launch`,
 `runInterruptible`, `withContext`, `withTimeout`이며, callback state에는
-`AtomicBoolean`, `AtomicReference`, `ConcurrentHashMap`, `Semaphore`를 사용한다.
+`AtomicBoolean`, `AtomicReference`, `ConcurrentHashMap`,
+`kotlinx.coroutines.sync.Semaphore`를 사용한다. producer 생성은 LAZY worker 내부의
+`try/finally` 소유 범위에서 수행해 worker가 시작되기 전에 downstream이 취소되면
+producer를 만들지 않고, 생성된 뒤에는 worker가 반드시 close한다.
 `callbackFlow` 내부는 다음 이름과 수명 순서를 그대로 사용한다.
 
 ```kotlin
 return callbackFlow {
-    val producer = producerFactory()
     val terminalCause = AtomicReference<Throwable?>(null)
     val downstreamCancelled = AtomicBoolean()
     val permits = Semaphore(maxInFlight)
@@ -498,6 +521,7 @@ return callbackFlow {
     }
 
     val upstreamJob = launch(context = Dispatchers.IO, start = CoroutineStart.LAZY) {
+        val producer = producerFactory()
         try {
             records.collect { record ->
                 permits.acquire()
@@ -602,8 +626,8 @@ channel에서 도착한 late callback은 새 terminal cause나 permit release를
 `terminalCause`를 CAS한 뒤 `upstreamJobRef`가 가리키는 Job을 취소하고 channel close를
 수행한다. Job은 `CoroutineStart.LAZY`로 만든 뒤 ref를 저장하고 시작하므로 callback이
 동기 실행되어도 초기화되지 않은 Job을 참조하지 않는다. 각 collection마다
-`producerFactory()`는 한 번만
-호출한다. 두 helper는 `upstreamJob`을 생성하기 전에 같은 `callbackFlow` block의
+`producerFactory()`는 LAZY worker가 실제로 시작할 때 한 번만 호출하며 worker의
+`try/finally`가 생성된 producer의 소유자가 된다. 두 helper는 `upstreamJob`을 생성하기 전에 같은 `callbackFlow` block의
 local function으로 선언하며, callback thread에서 suspend하지 않는다.
 각 `send`의 반환 Future는 state에 저장하고, cancellation 또는 drain deadline에서
 모든 in-flight state의 Future를 `cancel(false)`한다. deterministic probe는 send마다
