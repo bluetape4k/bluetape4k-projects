@@ -244,6 +244,37 @@ IllegalStateException: exception-secret
         self.assertEqual(result, 1)
         self.assertIn("image-id-mismatch-task", stderr)
 
+    def test_missing_running_image_id_rejects_mutable_config_image(self):
+        output_dir = self.root / "diagnostics" / "missing-image-id"
+
+        def docker_run(command, **_kwargs):
+            if command[1:3] == ["inspect", CONTAINER_ID]:
+                payload = [{
+                    "Name": "/kafka",
+                    "Config": {"Image": "confluentinc/cp-kafka:mutable"},
+                }]
+                return subprocess.CompletedProcess(command, 0, json.dumps(payload), "")
+            if command[1:3] == ["image", "inspect"]:
+                self.fail("mutable Config.Image must not be used without a running image ID")
+            if command[1:4] == ["logs", "--tail", "200"]:
+                return subprocess.CompletedProcess(command, 0, "", "")
+            self.fail(f"unexpected docker command: {command}")
+
+        result, stderr = self.run_main(
+            "--task-name",
+            "missing-image-id-task",
+            "--output-dir",
+            output_dir,
+            "--workflow-file",
+            self.workflow,
+            "--container-id",
+            CONTAINER_ID,
+            docker_run=docker_run,
+        )
+
+        self.assertEqual(result, 1)
+        self.assertIn("missing-image-id-task", stderr)
+
     def test_image_outside_allowlist_fails_without_leaking_docker_output(self):
         output_dir = self.root / "diagnostics" / "rejected"
 

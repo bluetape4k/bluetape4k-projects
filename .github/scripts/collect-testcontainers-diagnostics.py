@@ -237,12 +237,14 @@ def inspect_container(task_name: str, container_id: str) -> dict[str, Any]:
 
     config = payload.get("Config") or {}
     container_image_id = str(payload.get("Image") or "")
+    if not container_image_id:
+        raise RuntimeError(f"{task_name}: container image id is missing")
     image = str(config.get("Image") or container_image_id)
     repo_digests = payload.get("RepoDigests") or []
     if not repo_digests:
         if not image:
             raise RuntimeError(f"{task_name}: container image is missing")
-        image_reference = container_image_id or image
+        image_reference = container_image_id
         image_inspected = run_docker(task_name, ["image", "inspect", image_reference])
         if image_inspected.returncode != 0:
             raise RuntimeError(f"{task_name}: docker image inspect failed")
