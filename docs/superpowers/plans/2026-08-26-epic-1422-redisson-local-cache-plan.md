@@ -157,7 +157,9 @@ fun `empty Double key is initialized by HINCRBYFLOAT`() = runSuspendIO {
 }
 ```
 
-모든 future await는 `withTimeout(5.seconds)` 안에서 실행하고, assertion은 `bluetape4k-assertions`의 `shouldBeEqualTo`를 사용한다.
+모든 future await는 기본 5초 deadline과 cancellation 전파를 제공하는
+`awaitRedis`로 실행하고, assertion은 `bluetape4k-assertions`의 `shouldBeEqualTo`를
+사용한다.
 
 - [ ] **Step 3: RED 상태를 확인한다**
 
