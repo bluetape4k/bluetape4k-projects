@@ -831,6 +831,14 @@ report를 sanitized 디렉터리에 절대 링크하지 않는다. collector는 
 동시에 적용한다. 상한 초과 시 추가 파일을 저장하지 않고 manifest에
 `report_truncated=true`를 기록하며 exit 1로 종료한다.
 
+표준 출력이 과도한 JUnit/Gradle report는 원본을 무제한으로 보존하지 않는다.
+collector는 32,000,000 bytes의 bounded source window 안에서 JUnit XML의
+`system-out`/`system-err`와 Gradle HTML test report의 `stdout`/`stderr` `<pre>`를
+`[REDACTED]` marker로 compact한 뒤 기존 민감정보 redaction을 적용한다. compact 후에도
+각 sanitized 파일은 2MB, 전체 report는 위의 파일 수·바이트 상한을 넘지 않으며,
+32MB source window를 초과하거나 compact 후 파일 상한을 넘으면
+`report_truncated=true`로 fail-closed 한다.
+
 `sanitize`는 다음 순서의 stdlib 정규식만 사용한다: (1) `authorization`,
 `token`, `password`, `secret`, `api[_-]?key` 등의 key/value를 치환하고,
 (2) `scheme://host/path` 형태의 URI를 치환하며, (3) 대문자 환경 변수 assignment와
@@ -983,6 +991,17 @@ Ktor/Spring Boot 조건부 task는 현재
 `build.gradle.kts`가 존재하는 경우에만 compile/test 배열 각각에 추가한다. compile
 task와 test task를 같은 `--parallel` 배열에 넣지 않는다. ID 목록은 정렬·중복 제거해
 같은 container의 log/manifest를 여러 번 수집하지 않는다.
+
+`9eccc43d8e4f32559781d6541bc77f694963eae6`의 hosted Examples run
+`32990410732`에서 9개 Gradle test task는 모두 성공했지만, virtualthreads 예제의
+`Example1_PlatformAndVirtualThread.xml`이 15,341,647 bytes의 per-test logging으로
+개별 2MB report 상한을 넘어 `report_truncated=true`가 되었다. source test의
+100,000개 virtual thread 실행은 유지하고 collector가 JUnit XML의 `system-out`/
+`system-err`와 Gradle HTML stdout/stderr를 placeholder로 compact하도록 보정해
+bounded report를 보장한다. source는 32MB까지만 읽고 최종 파일별 2MB·전체 8MB
+상한을 유지한다. 보정 후 실제 15,341,646-byte JUnit XML local scan은
+`report_truncated=false`, 12개 report, 19,510 bytes, 최대 9,362 bytes였으며,
+다음 exact-head hosted run에서 전체 report manifest를 재검증한다.
 
 - [ ] **Step 3: always artifact와 provenance completeness를 고정한다**
 

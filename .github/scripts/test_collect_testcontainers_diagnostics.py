@@ -447,7 +447,9 @@ IllegalStateException: exception-secret
             '<testsuite><system-out>token="xml-secret"</system-out></testsuite>', encoding="utf-8"
         )
         (html_reports / "index.html").write_text(
-            '<html><body>https://user:pass@example.test</body></html>', encoding="utf-8"
+            '<html><body>https://user:pass@example.test'
+            '<pre id="root-0-test-stdout-example">verbose-output</pre></body></html>',
+            encoding="utf-8",
         )
         output_dir = self.root / "examples" / "build" / "testcontainers-diagnostics" / "reports"
         destination = self.root / "examples" / "build" / "sanitized-test-reports"
@@ -475,8 +477,51 @@ IllegalStateException: exception-secret
         content = "\n".join(path.read_text(encoding="utf-8") for path in files)
         self.assertNotIn("xml-secret", content)
         self.assertNotIn("user:pass@example.test", content)
+        self.assertNotIn("verbose-output", content)
+        self.assertIn("[REDACTED]", content)
         manifest = json.loads((output_dir / "manifest.json").read_text(encoding="utf-8"))
         self.assertEqual(len(manifest["sanitized_reports"]), 2)
+
+    def test_report_standard_output_is_compacted_before_file_cap(self):
+        test_results = self.root / "examples" / "virtualthreads-demo" / "build" / "test-results" / "test"
+        html_reports = self.root / "examples" / "virtualthreads-demo" / "build" / "reports" / "tests" / "test"
+        test_results.mkdir(parents=True)
+        html_reports.mkdir(parents=True)
+        verbose_output = "debug output\n" * 300_000
+        (test_results / "TEST-verbose.xml").write_text(
+            f"<testsuite><system-out>{verbose_output}</system-out></testsuite>", encoding="utf-8"
+        )
+        (html_reports / "verbose.html").write_text(
+            f'<html><pre id="root-0-test-stdout-verbose">{verbose_output}</pre></html>',
+            encoding="utf-8",
+        )
+        output_dir = self.root / "examples" / "build" / "testcontainers-diagnostics" / "verbose"
+        destination = self.root / "examples" / "build" / "sanitized-test-reports"
+
+        result, stderr = self.run_main(
+            "--task-name",
+            "verbose-report-task",
+            "--output-dir",
+            output_dir,
+            "--workflow-file",
+            self.workflow,
+            "--sanitized-report-dir",
+            destination,
+            "--report-path",
+            test_results,
+            "--report-path",
+            html_reports,
+        )
+
+        self.assertEqual(result, 0)
+        self.assertEqual(stderr, "")
+        manifest = json.loads((output_dir / "manifest.json").read_text(encoding="utf-8"))
+        self.assertFalse(manifest["report_truncated"])
+        self.assertEqual(len(manifest["sanitized_reports"]), 2)
+        self.assertTrue(all(item["bytes"] < 1_000 for item in manifest["sanitized_reports"]))
+        content = "\n".join(path.read_text(encoding="utf-8") for path in destination.rglob("*") if path.is_file())
+        self.assertNotIn("debug output", content)
+        self.assertEqual(content.count("[REDACTED]"), 2)
 
     def test_report_file_cap_is_fail_closed(self):
         reports = self.root / "examples" / "coroutines-demo" / "build" / "test-results" / "test"

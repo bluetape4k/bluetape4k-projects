@@ -16,6 +16,9 @@ from typing import Any, NamedTuple
 DEFAULT_MAX_BYTES = 2_000_000
 DEFAULT_MAX_REPORT_FILES = 200
 MAX_REPORT_FILE_BYTES = 2_000_000
+# Read reports with a bounded source budget before compacting unbounded test output.
+# The sanitized artifact remains capped by MAX_REPORT_FILE_BYTES.
+MAX_REPORT_SOURCE_BYTES = 32_000_000
 MAX_REPORT_ENTRIES = 50_000
 ALLOWLIST = {
     "confluentinc/cp-kafka@sha256:a5040785528b0bce3b146febe9fcacdcf2b9b5acb450307f75170ef0e60ec130",
@@ -38,6 +41,12 @@ SENSITIVE_ASSIGNMENT_KEY = re.compile(
 )
 XML_SENSITIVE = re.compile(
     rf"(?is)(<\s*(?P<tag>{SENSITIVE_KEY}|failure|error)\b[^>]*>).*?(</\s*(?P=tag)\s*>)"
+)
+XML_REPORT_OUTPUT = re.compile(
+    r"(?is)(<\s*(?P<tag>system-out|system-err)\b[^>]*>).*?(</\s*(?P=tag)\s*>)"
+)
+HTML_REPORT_OUTPUT = re.compile(
+    r'(?is)(<pre\b(?=[^>]*\bid\s*=\s*["\'][^"\']*-(?:stdout|stderr)-[^"\']*["\'])[^>]*>).*?(</pre\s*>)'
 )
 SENSITIVE_ENV_LINE = re.compile(
     r"(?im)^\s*[A-Z][A-Z0-9_]*(?:AUTHORIZATION|ACCESS[_-]?TOKEN|ACCESS[_-]?KEY(?:[_-]?ID)?|"
@@ -145,6 +154,14 @@ def sanitize(value: str) -> str:
     value = SENSITIVE_LINE.sub("[REDACTED]", value)
     value = EXCEPTION_MESSAGE.sub(r"\1: [REDACTED]", value)
     return value
+
+
+def sanitize_report(value: str) -> str:
+    """Compact verbose test output before applying the generic redaction rules."""
+
+    value = XML_REPORT_OUTPUT.sub(r"\1[REDACTED]\3", value)
+    value = HTML_REPORT_OUTPUT.sub(r"\1[REDACTED]\2", value)
+    return sanitize(value)
 
 
 def bounded_bytes(value: str, limit: int) -> tuple[bytes, bool]:
@@ -386,10 +403,10 @@ def sanitize_reports(
             break
         per_file_limit = min(MAX_REPORT_FILE_BYTES, remaining)
         with source.open("rb") as handle:
-            raw_bytes = handle.read(per_file_limit + 1)
+            raw_bytes = handle.read(MAX_REPORT_SOURCE_BYTES + 1)
         raw = raw_bytes.decode("utf-8", errors="replace")
-        raw_truncated = len(raw_bytes) > per_file_limit
-        sanitized = sanitize(raw)
+        raw_truncated = len(raw_bytes) > MAX_REPORT_SOURCE_BYTES
+        sanitized = sanitize_report(raw)
         data, was_truncated = bounded_bytes(sanitized, per_file_limit)
         was_truncated = was_truncated or raw_truncated
         if was_truncated:
