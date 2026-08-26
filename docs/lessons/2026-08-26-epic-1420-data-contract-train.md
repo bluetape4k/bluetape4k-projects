@@ -35,15 +35,17 @@ train: `fix/1359-cassandra-write-options-nullable` →
 ## 검증 증거
 
 - #1359: `OptionsSupportTest` 18개, Cassandra detekt 통과.
-- #1346: Java APT compatibility test 2개와 기존 QueryDSL 예제 5개 통과.
+- #1346: Java APT compatibility test 3개(QTreeNode self-reference join 포함)와
+  기존 QueryDSL 예제 5개 통과.
   Java APT clean baseline은 81 generated sources/324 KB, 18.54초였고 Kotlin
   후보는 12.29초에 NPE와 generated sources 0개로 실패했다. 이 모듈에는 JMH
   대상이 없어 별도 benchmark는 N/A다.
 - #1357: root/metrics 2×2와 기본값/optional-class 자동 설정 테스트 20개,
-  detekt 통과.
+  detekt 통과. Actuator endpoint Bean 등록 조건과 HTTP exposure 설정은 서로
+  독립적인 경계로 EN/KO 문서와 KDoc에 기록했다.
 - #1358: network I/O 없는 context 계약 테스트 10개와 실제 MongoDB
   Testcontainers 코루틴 통합 테스트 31개(12.2초) 통과. context와 container
-  실행을 분리해 mock 기반 order/lifecycle 검증이 container startup에
+  실행을 분리해 mock 기반 order/client-close 검증이 container startup에
   의존하지 않도록 했으며, container는 직렬로 한 번만 실행했다.
 - 누적 Cassandra 강제 재실행은 181개까지 진행한 뒤 Gradle daemon이
   `Shutdown in progress`로 사라지고 MockK class redefinition 예외가 겹쳐
