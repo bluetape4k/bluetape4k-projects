@@ -614,10 +614,19 @@ Python 표준 라이브러리만 사용해 다음 CLI 계약을 구현한다.
 python3 .github/scripts/collect-testcontainers-diagnostics.py \
   --task-name :bluetape4k-examples-coroutines-demo:test \
   --output-dir examples/build/testcontainers-diagnostics/_bluetape4k-examples-coroutines-demo_test \
-  --workflow-file .github/workflows/examples.yml
+  --workflow-file .github/workflows/examples.yml \
+  --max-total-bytes 2000000
 ```
 
-스크립트는 `docker ps -a --filter label=org.testcontainers=true`로 container id를 읽고, 각 container에 대해 `docker inspect`의 image/name/created와 `docker logs --tail 200`만 수집한다. 출력은 task 이름으로 정규화한 JSON manifest와 `*.log`로 저장하며, token·URI·환경 변수·payload·exception message는 `[REDACTED]`로 치환한다. container log가 없으면 빈 manifest를 만들고 exit 0으로 종료한다. Docker CLI 자체 오류는 stderr에 task name만 남기고 exit 1로 반환한다.
+스크립트는 `--container-id`를 반복 인자로 받아 현재 Gradle invocation에서 새로 생성된
+container만 대상으로 삼는다. ID가 없으면 빈 manifest를 만들고 exit 0으로 종료한다.
+각 container에 대해 `docker inspect`의 image/name/created와 `docker logs --tail 200`만
+수집한다. 출력은 task 이름으로 정규화한 JSON manifest와 `*.log`로 저장하며,
+token·URI·환경 변수·payload·exception message는 `[REDACTED]`로 치환한다. 로그와
+manifest의 총 산출량은 `--max-total-bytes`(기본 2,000,000 bytes)를 넘지 않으며,
+초과분은 잘라내고 manifest에 `truncated=true`를 기록한다. container log가 없으면
+해당 container의 로그를 생략하고, 전체 ID가 비어 있으면 빈 manifest를 만든다.
+Docker CLI 자체 오류는 stderr에 task name만 남기고 exit 1로 반환한다.
 
 `sanitize`는 다음 순서의 stdlib 정규식만 사용한다: (1) `authorization`,
 `token`, `password`, `secret`, `api[_-]?key` 등의 key/value를 치환하고,
@@ -681,9 +690,15 @@ exit "$status"
 ```
 
 실제 step에서는 위 배열을 만든 뒤 `./gradlew "${compile_tasks[@]}" --parallel`을
-실행한다. Ktor/Spring Boot 조건부 task는 현재 `build.gradle.kts`가 존재하는
-경우에만 compile/test 배열 각각에 추가한다. compile task와 test task를 같은
-`--parallel` 배열에 넣지 않는다.
+실행한다. 각 test task 직전에
+`docker ps -aq --filter label=org.testcontainers=true | sort`를 실행 전 기준 목록으로
+저장하고, task 종료 직후 실행 후 기준 목록과 `comm -13`으로 새 ID만 계산해 collector의
+반복 `--container-id` 인자로 전달한다. 기준 목록 명령이 Docker 오류를 반환하면
+aggregate status를 1로 유지하되 collector는 빈 manifest를 남겨 `if: always()`에서
+진단 artifact를 확인할 수 있게 한다. Ktor/Spring Boot 조건부 task는 현재
+`build.gradle.kts`가 존재하는 경우에만 compile/test 배열 각각에 추가한다. compile
+task와 test task를 같은 `--parallel` 배열에 넣지 않는다. ID 목록은 정렬·중복 제거해
+같은 container의 log/manifest를 여러 번 수집하지 않는다.
 
 - [ ] **Step 3: always artifact와 provenance completeness를 고정한다**
 
@@ -700,8 +715,13 @@ if-no-files-found: error
 각 test invocation 뒤 manifest가 존재하는지 shell에서 검사하고, collector 또는
 manifest 누락이면 aggregate status를 1로 만든다. manifest에는 resolved image
 digest와 workflow action ref를 기록하되, 이 Epic에서는 mutable image/action을
-변경하거나 pinning하지 않는다. `actionlint`, path filter, artifact path와
-순서를 정적 검사한다.
+변경하거나 pinning하지 않는다. 진단 파일은 task별로 새 container ID를 deduplicate하고
+총 2,000,000 bytes 상한을 적용한다. `actionlint`, path filter, artifact path와
+순서를 정적 검사한다. 기존 workflow timeout 60분에서 15분 headroom을 확보하기
+위해 전체 직렬 test phase의 elapsed를 `date +%s`로 측정해
+`examples/build/testcontainers-diagnostics/test-phase-timing.txt`에 기록하고, 45분을 초과하면
+aggregate status를 1로 만든다. 6-R evidence에는 baseline 병렬 elapsed와 계획된
+직렬 elapsed를 함께 남긴다.
 
 - [ ] **Step 4: workflow 정적 검증과 실패 누적을 확인한다**
 
