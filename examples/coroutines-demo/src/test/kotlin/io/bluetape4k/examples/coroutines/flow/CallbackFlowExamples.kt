@@ -3,6 +3,7 @@ package io.bluetape4k.examples.coroutines.flow
 import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.coroutines.assertResult
 import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeSameInstanceAs
 import io.bluetape4k.assertions.shouldHaveSize
 import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.codec.Base58
@@ -79,7 +80,6 @@ class CallbackFlowExamples {
     /**
      * Kafka Producer callback을 `callbackFlow`로 변환하고 backpressure·취소·정리 경계를 검증하는 예제다.
      */
-
     data class Message(val id: Long, val body: String)
     data class Result(val id: Long)
 
@@ -133,6 +133,7 @@ class CallbackFlowExamples {
         producerFactory: () -> Producer<String, String>,
         channelCapacity: Int = 16,
         maxInFlight: Int = 16,
+        beforeRegister: (() -> Unit)? = null,
     ): Flow<RecordMetadata> {
         require(channelCapacity in 1..16) { "channelCapacity must be between 1 and 16" }
         require(maxInFlight in 1..16) { "maxInFlight must be between 1 and 16" }
@@ -161,14 +162,16 @@ class CallbackFlowExamples {
             val inFlight = ConcurrentHashMap.newKeySet<SendState>()
             val upstreamJobRef = AtomicReference<Job?>()
 
-            fun cancelInFlight() {
-                inFlight.toList().forEach { state ->
-                    state.future.get()?.cancel(false)
-                    if (state.completed.compareAndSet(false, true)) {
-                        inFlight.remove(state)
-                        permits.release()
-                    }
+            fun cancelState(state: SendState) {
+                state.future.get()?.cancel(false)
+                if (state.completed.compareAndSet(false, true)) {
+                    inFlight.remove(state)
+                    permits.release()
                 }
+            }
+
+            fun cancelInFlight() {
+                inFlight.toList().forEach(::cancelState)
             }
 
             fun failOnce(cause: Throwable) {
@@ -191,6 +194,8 @@ class CallbackFlowExamples {
                         if (result.isFailure && !result.isClosed && !isDownstreamCancelled()) {
                             failOnce(IllegalStateException("callback buffer is full"))
                         }
+                    } else {
+                        failOnce(IllegalStateException("Kafka callback returned neither metadata nor failure"))
                     }
                 } finally {
                     inFlight.remove(state)
@@ -209,25 +214,30 @@ class CallbackFlowExamples {
                     records.collect { record ->
                         permits.acquire()
                         val state = SendState()
+                        beforeRegister?.invoke()
+                        if (terminalCause() != null || isDownstreamCancelled()) {
+                            cancelState(state)
+                            ensureActive()
+                            return@collect
+                        }
                         inFlight += state
+                        if (terminalCause() != null || isDownstreamCancelled()) {
+                            cancelState(state)
+                            ensureActive()
+                            return@collect
+                        }
                         try {
                             val future = activeProducer.send(record, callbackFor(state))
                             state.future.set(future)
                             if (terminalCause() != null || isDownstreamCancelled()) {
-                                future.cancel(false)
+                                cancelState(state)
                             }
                         } catch (cause: CancellationException) {
-                            if (state.completed.compareAndSet(false, true)) {
-                                inFlight.remove(state)
-                                permits.release()
-                            }
+                            cancelState(state)
                             if (!isDownstreamCancelled()) failOnce(cause.unwrapRecoveredCoroutineCause())
                             throw cause
                         } catch (cause: Throwable) {
-                            if (state.completed.compareAndSet(false, true)) {
-                                inFlight.remove(state)
-                                permits.release()
-                            }
+                            cancelState(state)
                             failOnce(cause.unwrapRecoveredCoroutineCause())
                             throw cause
                         }
@@ -324,9 +334,24 @@ class CallbackFlowExamples {
             producerResults(flowOf(record("failure")), { producer.producer }).toList()
         }
 
-        error.hasCause(failure).shouldBeTrue()
+        error.assertIdentityOrDirectCause(failure)
         producer.closeCount.get() shouldBeEqualTo 1
         producer.callbackCount.get() shouldBeEqualTo 1
+    }
+
+    @Test
+    fun `same type callback wrapper without coroutine boundary preserves wrapper identity`() = runSuspendIO {
+        val original = IllegalStateException("callback root")
+        val wrapper = IllegalStateException("callback wrapper", original)
+        val producer = TrackingProducer(callbackError = wrapper)
+
+        val error = assertFailsWith<IllegalStateException> {
+            producerResults(flowOf(record("wrapper")), { producer.producer }).toList()
+        }
+
+        error.assertIdentityOrDirectCause(wrapper)
+        error.cause?.let { it.cause ?: it } shouldBeSameInstanceAs original
+        producer.closeCount.get() shouldBeEqualTo 1
     }
 
     @Test
@@ -457,6 +482,32 @@ class CallbackFlowExamples {
     }
 
     @Test
+    fun `collector cancellation during registration handoff releases the send state`() = runSuspendIO {
+        val producer = TrackingProducer(holdCallbacks = true)
+        val registrationStarted = CountDownLatch(1)
+        val releaseRegistration = CountDownLatch(1)
+        val task = async {
+            producerResults(
+                records = flowOf(record("cancel-registration")),
+                producerFactory = { producer.producer },
+                beforeRegister = {
+                    registrationStarted.countDown()
+                    releaseRegistration.await(5, TimeUnit.SECONDS)
+                },
+            ).toList()
+        }
+
+        registrationStarted.await(5, TimeUnit.SECONDS).shouldBeTrue()
+        task.cancel()
+        releaseRegistration.countDown()
+
+        assertFailsWith<CancellationException> { task.await() }
+        await.atMost(Duration.ofSeconds(5)) untilSuspending { producer.closeCount.get() > 0 }
+        producer.closeCount.get() shouldBeEqualTo 1
+        producer.cancelledPendingSends() shouldBeEqualTo 1
+    }
+
+    @Test
     fun `collector cancellation keeps its outcome when close fails`() = runSuspendIO {
         val closeFailure = IllegalStateException("close after cancellation")
         val producer = TrackingProducer(holdCallbacks = true, closeError = closeFailure)
@@ -474,7 +525,7 @@ class CallbackFlowExamples {
         val cancellationCleanup = sequenceOf(observed, observed.cause)
             .filterNotNull()
             .flatMap { it.suppressed.asSequence() }
-        cancellationCleanup.any { it.hasCause(closeFailure) }.shouldBeTrue()
+        cancellationCleanup.single().cause shouldBeSameInstanceAs closeFailure
     }
 
     @Test
@@ -504,15 +555,27 @@ class CallbackFlowExamples {
         val factoryError = assertFailsWith<IllegalArgumentException> {
             producerResults(flowOf(record("factory")), { throw factoryFailure }).toList()
         }
-        factoryError.hasCause(factoryFailure).shouldBeTrue()
+        factoryError.assertIdentityOrDirectCause(factoryFailure)
 
         val sendFailure = IllegalStateException("send failure")
         val sendProducer = TrackingProducer(sendError = sendFailure)
         val sendError = assertFailsWith<IllegalStateException> {
             producerResults(flowOf(record("send")), { sendProducer.producer }).toList()
         }
-        sendError.hasCause(sendFailure).shouldBeTrue()
+        sendError.assertIdentityOrDirectCause(sendFailure)
         sendProducer.closeCount.get() shouldBeEqualTo 1
+    }
+
+    @Test
+    fun `malformed callback without metadata or failure is terminal`() = runSuspendIO {
+        val producer = TrackingProducer(callbackWithoutMetadata = true)
+
+        val error = assertFailsWith<IllegalStateException> {
+            producerResults(flowOf(record("malformed-callback")), { producer.producer }).toList()
+        }
+
+        error.message shouldBeEqualTo "Kafka callback returned neither metadata nor failure"
+        producer.closeCount.get() shouldBeEqualTo 1
     }
 
     @Test
@@ -571,7 +634,7 @@ class CallbackFlowExamples {
             producerResults(flowOf(record("flush-failure")), { producer.producer }).toList()
         }
 
-        error.hasCause(flushFailure).shouldBeTrue()
+        error.assertIdentityOrDirectCause(flushFailure)
         producer.closeCount.get() shouldBeEqualTo 1
     }
 
@@ -591,8 +654,8 @@ class CallbackFlowExamples {
             ).toList()
         }
 
-        error.hasCause(upstreamFailure).shouldBeTrue()
-        upstreamFailure.suppressed.any { it.hasCause(closeFailure) }.shouldBeTrue()
+        error.assertIdentityOrDirectCause(upstreamFailure)
+        upstreamFailure.suppressed.single().cause shouldBeSameInstanceAs closeFailure
         producer.closeCount.get() shouldBeEqualTo 1
     }
 
@@ -679,13 +742,10 @@ class CallbackFlowExamples {
         return ProducerRecord(topic, null, null, key, value, headers)
     }
 
-    private fun Throwable.hasCause(expected: Throwable): Boolean {
-        var current: Throwable? = this
-        while (current != null) {
-            if (current === expected) return true
-            current = current.cause
+    private fun Throwable.assertIdentityOrDirectCause(expected: Throwable) {
+        if (this !== expected) {
+            cause shouldBeSameInstanceAs expected
         }
-        return false
     }
 
     private class TrackingProducer(
@@ -693,6 +753,7 @@ class CallbackFlowExamples {
         private val sendError: Exception? = null,
         private val flushError: Exception? = null,
         val closeError: Exception? = null,
+        private val callbackWithoutMetadata: Boolean = false,
         private val holdCallbacks: Boolean = false,
         private val heldSendIndexes: Set<Int> = emptySet(),
         private val callbackStarted: CountDownLatch? = null,
@@ -729,7 +790,7 @@ class CallbackFlowExamples {
                     future
                 } else {
                     callbackCount.incrementAndGet()
-                    callback.onCompletion(metadata, callbackError)
+                    callback.onCompletion(if (callbackWithoutMetadata) null else metadata, callbackError)
                     sendStarted.complete(Unit)
                     CompletableFuture.completedFuture(metadata)
                 }
