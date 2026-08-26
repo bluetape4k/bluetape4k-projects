@@ -84,7 +84,7 @@ class CallbackFlowExamples {
         override suspend fun produce(message: Message, callback: suspend (Result) -> Unit) {
             delay(100.microseconds)
             val result = Result(message.id)
-            log.debug { "Create result. message=$message, result=$result" }
+            log.debug { "Create result. module=callback-flow, recordCount=1, failureKind=none" }
             callback(result)
         }
     }
