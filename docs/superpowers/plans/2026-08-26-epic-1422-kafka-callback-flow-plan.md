@@ -91,8 +91,8 @@ fun `callback failure preserves first cause and closes producer once`() = runSus
     }
 
     error shouldBeEqualTo failure
-    producer.closeCount shouldBeEqualTo 1
-    producer.callbackCount shouldBeEqualTo 1
+    producer.closeCount.get() shouldBeEqualTo 1
+    producer.callbackCount.get() shouldBeEqualTo 1
 }
 
 @Test
@@ -131,8 +131,8 @@ fun `backpressure fails without dropping callback and closes producer once`() = 
     }
 
     error.message shouldBeEqualTo "callback buffer is full"
-    producer.closeCount shouldBeEqualTo 1
-    producer.callbackCount shouldBeEqualTo 3
+    producer.closeCount.get() shouldBeEqualTo 1
+    producer.callbackCount.get() shouldBeEqualTo 3
 }
 
 @Test
@@ -146,7 +146,7 @@ fun `in-flight permit is released after callback`() = runSuspendIO {
         maxInFlight = 1,
     ).toList()
 
-    producer.callbackCount shouldBeEqualTo 2
+    producer.callbackCount.get() shouldBeEqualTo 2
 }
 
 @Test
@@ -163,12 +163,12 @@ fun `collector cancellation rethrows CancellationException and closes producer o
     }
     val cancellation = assertFailsWith<CancellationException> { task.await() }
 
-    producer.closeCount shouldBeEqualTo 1
+    producer.closeCount.get() shouldBeEqualTo 1
     producer.pendingSend.isCancelled shouldBeEqualTo true
     producer.cancelledPendingSends() shouldBeEqualTo 1
     producer.fireLateCallback()
-    producer.callbackCount shouldBeEqualTo 0
-    producer.lateCallbackCount shouldBeEqualTo 1
+    producer.callbackCount.get() shouldBeEqualTo 0
+    producer.lateCallbackCount.get() shouldBeEqualTo 1
     val afterLate = assertFailsWith<CancellationException> { task.await() }
     afterLate::class shouldBeEqualTo cancellation::class
     afterLate.message shouldBeEqualTo cancellation.message
@@ -192,7 +192,7 @@ fun `cancellation immediately after producer creation closes it once`() = runSus
     task.cancel()
     assertFailsWith<CancellationException> { task.await() }
 
-    producer.closeCount shouldBeEqualTo 1
+    producer.closeCount.get() shouldBeEqualTo 1
 }
 
 @Test
@@ -218,9 +218,9 @@ fun `normal completion drains callbacks flushes and closes once`() = runSuspendI
 
     producerResults(flowOf(record("normal")), { producer.producer }).toList()
 
-    producer.flushCount shouldBeEqualTo 1
-    producer.closeCount shouldBeEqualTo 1
-    producer.callbackCount shouldBeEqualTo 1
+    producer.flushCount.get() shouldBeEqualTo 1
+    producer.closeCount.get() shouldBeEqualTo 1
+    producer.callbackCount.get() shouldBeEqualTo 1
 }
 
 @Test
@@ -237,9 +237,9 @@ fun `mixed synchronous and asynchronous callbacks drain before close`() = runSus
     producer.fireCallback()
     collection.await()
 
-    producer.callbackCount shouldBeEqualTo 2
-    producer.flushCount shouldBeEqualTo 1
-    producer.closeCount shouldBeEqualTo 1
+    producer.callbackCount.get() shouldBeEqualTo 2
+    producer.flushCount.get() shouldBeEqualTo 1
+    producer.closeCount.get() shouldBeEqualTo 1
 }
 
 @Test
@@ -252,7 +252,7 @@ fun `flush failure becomes the terminal cause after callback drain`() = runSuspe
     }
 
     error shouldBeEqualTo flushFailure
-    producer.closeCount shouldBeEqualTo 1
+    producer.closeCount.get() shouldBeEqualTo 1
 }
 
 @Test
@@ -272,7 +272,7 @@ fun `upstream exception remains primary and cleanup failure is suppressed`() = r
 
     error shouldBeEqualTo upstreamFailure
     error.suppressed.single() shouldBeEqualTo producer.closeError!!
-    producer.closeCount shouldBeEqualTo 1
+    producer.closeCount.get() shouldBeEqualTo 1
 }
 
 @Test
@@ -294,7 +294,7 @@ fun `callback drain timeout cancels pending sends and preserves timeout cause`()
     }
 
     error::class shouldBeEqualTo TimeoutCancellationException::class
-    producer.closeCount shouldBeEqualTo 1
+    producer.closeCount.get() shouldBeEqualTo 1
     producer.pendingSend.isCancelled shouldBeEqualTo true
     producer.cancelledPendingSends() shouldBeEqualTo 1
 }
