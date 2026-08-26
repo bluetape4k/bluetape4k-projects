@@ -239,6 +239,17 @@ def inspect_container(task_name: str, container_id: str) -> dict[str, Any]:
     image = str(config.get("Image") or payload.get("Image") or "")
     repo_digests = payload.get("RepoDigests") or []
     if not repo_digests:
+        if not image:
+            raise RuntimeError(f"{task_name}: container image is missing")
+        image_inspected = run_docker(task_name, ["image", "inspect", image])
+        if image_inspected.returncode != 0:
+            raise RuntimeError(f"{task_name}: docker image inspect failed")
+        try:
+            image_payload = json.loads(image_inspected.stdout)[0]
+        except (IndexError, json.JSONDecodeError, TypeError) as error:
+            raise RuntimeError(f"{task_name}: invalid docker image inspect response") from error
+        repo_digests = image_payload.get("RepoDigests") or []
+    if not repo_digests:
         raise RuntimeError(f"{task_name}: container image has no immutable repo digest")
     resolved = next((item for item in repo_digests if item in ALLOWLIST), None)
     if resolved is None:
