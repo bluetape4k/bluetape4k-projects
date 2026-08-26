@@ -29,7 +29,7 @@ A collection of examples for learning the features and usage patterns of Kotlin 
 | `SharedFlowExamples.kt`    | Implementing an event bus with SharedFlow      |
 | `StateFlowExamples.kt`     | State management with StateFlow                |
 | `ChannelFlowExamples.kt`   | channelFlow and cold/hot flows                 |
-| `CallbackFlowExamples.kt`  | Converting callback-based APIs to Flow         |
+| `CallbackFlowExamples.kt`  | Converting Kafka producer callbacks to `Flow<RecordMetadata>` with bounded backpressure, cancellation, and cleanup |
 
 ### Channel Examples (channels/)
 
@@ -93,6 +93,23 @@ A collection of examples for learning the features and usage patterns of Kotlin 
 ./gradlew :examples:coroutines:test --tests "io.bluetape4k.examples.coroutines.guide.*"
 ./gradlew :examples:coroutines:test --tests "io.bluetape4k.examples.coroutines.flow.*"
 ```
+
+### Kafka callbackFlow contract
+
+Run the executable Kafka callback example with:
+
+```bash
+./gradlew :bluetape4k-examples-coroutines-demo:test \
+  --tests 'io.bluetape4k.examples.coroutines.flow.CallbackFlowExamples' \
+  --no-configuration-cache --max-workers=1
+```
+
+This test requires a Docker daemon because Testcontainers starts a Kafka broker
+on a dynamic port. Each test uses a unique topic, and broker polling and
+producer closing have bounded timeouts. The adapter does not retry sends and
+does not guarantee metadata order. A failed or cancelled collection may expose
+partial results; the first producer/callback failure remains the terminal cause,
+and in-flight callbacks are cancelled before bounded cleanup closes the producer.
 
 ## Key Learning Points
 

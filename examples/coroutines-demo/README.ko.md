@@ -29,7 +29,7 @@ Kotlin Coroutines의 다양한 기능과 사용 패턴을 학습하기 위한 �
 | `SharedFlowExamples.kt`    | SharedFlow로 이벤트 버스 구현            |
 | `StateFlowExamples.kt`     | StateFlow로 상태 관리                 |
 | `ChannelFlowExamples.kt`   | channelFlow와 콜드/핫 플로우            |
-| `CallbackFlowExamples.kt`  | 콜백 기반 API를 Flow로 변환              |
+| `CallbackFlowExamples.kt`  | Kafka producer callback을 `Flow<RecordMetadata>`로 변환하고 backpressure·취소·정리를 제한 시간으로 검증 |
 
 ### Channel 예제 (channels/)
 
@@ -93,6 +93,23 @@ Kotlin Coroutines의 다양한 기능과 사용 패턴을 학습하기 위한 �
 ./gradlew :examples:coroutines:test --tests "io.bluetape4k.examples.coroutines.guide.*"
 ./gradlew :examples:coroutines:test --tests "io.bluetape4k.examples.coroutines.flow.*"
 ```
+
+### Kafka callbackFlow 계약
+
+실행 가능한 Kafka callback 예제는 다음 명령으로 실행한다.
+
+```bash
+./gradlew :bluetape4k-examples-coroutines-demo:test \
+  --tests 'io.bluetape4k.examples.coroutines.flow.CallbackFlowExamples' \
+  --no-configuration-cache --max-workers=1
+```
+
+이 테스트는 Testcontainers가 동적 포트의 Kafka broker를 시작하므로 Docker
+daemon이 필요하다. 각 테스트는 고유 topic을 사용하며 broker poll과 producer
+close에는 제한 시간(timeout)이 있다. adapter는 send를 재시도하지 않고 metadata 순서를
+보장하지 않는다. collection이 실패하거나 취소되면 부분 결과가 관찰될 수 있고,
+첫 producer/callback 실패가 terminal cause로 유지되며 in-flight callback은 제한된
+정리 과정에서 취소된 뒤 producer가 닫힌다.
 
 ## 주요 학습 포인트
 
