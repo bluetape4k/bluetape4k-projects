@@ -44,8 +44,14 @@ train: `fix/1359-cassandra-write-options-nullable` →
 - #1358: network I/O 없는 context 계약 테스트 10개와 실제 MongoDB
   Testcontainers 코루틴 통합 테스트 31개(12.2초) 통과. context와 container
   실행을 분리해 mock 기반 order/lifecycle 검증이 container startup에
-  의존하지 않도록 했으며, container는 직렬로 한 번만 실행했다. 재시도는
-  필요하지 않았다.
+  의존하지 않도록 했으며, container는 직렬로 한 번만 실행했다.
+- 누적 Cassandra 강제 재실행은 181개까지 진행한 뒤 Gradle daemon이
+  `Shutdown in progress`로 사라지고 MockK class redefinition 예외가 겹쳐
+  18개 initialization failure를 남겼다. 당시 Docker에는 실행 중인 orphan
+  container가 없었고 daemon도 종료 상태였다. 로그와 상태를 보존한 뒤 허용된
+  1회 재시도를 일반 test 명령으로 수행해 269개 전체가 22.6초에 통과했다.
+  따라서 이 실패는 코드 회귀가 아닌 일회성 daemon/JDK instrumentation
+  환경 증거로 남기며, 추가 재시도는 하지 않았다.
 
 ## train 운영과 되돌리기
 
