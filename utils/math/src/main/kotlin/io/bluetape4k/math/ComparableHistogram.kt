@@ -3,6 +3,8 @@ package io.bluetape4k.math
 import io.bluetape4k.ranges.DefaultClosedClosedRange
 import io.bluetape4k.ranges.DefaultClosedOpenRange
 import io.bluetape4k.ranges.Range
+import io.bluetape4k.support.requireNotNull
+import io.bluetape4k.support.requirePositiveNumber
 import java.io.Serializable
 
 
@@ -52,13 +54,14 @@ data class BinModel<out T: Any, in C: Comparable<C>>(
  * val model = data.binByComparable(incrementer = { it + 2 }, valueMapper = { it })
  * // model 은 [1,3], [3,5], [5,7], [7,9] 구간의 BinModel
  * ```
+ * 입력 `Sequence`는 한 번만 소비되며, 빈 입력은 `IllegalArgumentException`을 발생시킵니다.
  */
 inline fun <T: Any, C: Comparable<C>> Sequence<T>.binByComparable(
     incrementer: (C) -> C,
     valueMapper: (T) -> C,
     rangeStart: C? = null,
 ): BinModel<List<T>, C> =
-    asIterable().binByComparable(incrementer, valueMapper, rangeStart)
+    toList().binByComparable(incrementer, valueMapper, rangeStart)
 
 /**
  * Iterable을 Comparable 기준으로 히스토그램 구간으로 분류합니다.
@@ -68,6 +71,7 @@ inline fun <T: Any, C: Comparable<C>> Sequence<T>.binByComparable(
  * val model = data.binByComparable(incrementer = { it + 2 }, valueMapper = { it })
  * // model 은 [1,3], [3,5], [5,7], [7,9] 구간의 BinModel
  * ```
+ * 빈 입력은 `IllegalArgumentException`을 발생시킵니다.
  */
 inline fun <T: Any, C: Comparable<C>> Iterable<T>.binByComparable(
     incrementer: (C) -> C,
@@ -103,13 +107,17 @@ inline fun <T: Any, C: Comparable<C>, G: Any> Iterable<T>.binByComparable(
     rangeStart: C? = null,
     endExclusive: Boolean = false,
 ): BinModel<G, C> {
-    require(count() > 0) { "Collection must not be empty." }
+    count().requirePositiveNumber { "Collection must not be empty." }
 
     val groupByC: MutableMap<C, MutableList<T>> = mutableMapOf()
     this.groupByTo(groupByC, valueMapper)
 
-    val minC: C = rangeStart ?: groupByC.keys.minOrNull()!!
-    val maxC: C = groupByC.keys.maxOrNull()!!
+    val minC: C = rangeStart ?: groupByC.keys.minOrNull().requireNotNull {
+        "Collection must not be empty."
+    }
+    val maxC: C = groupByC.keys.maxOrNull().requireNotNull {
+        "Collection must not be empty."
+    }
 
     // Histogram의 막대의 컬렉션을 구성합니다.
     val bins = mutableListOf<Range<C>>()

@@ -1,6 +1,7 @@
 package io.bluetape4k.math.commons
 
 import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldNotBeNull
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.trace
 import org.apache.commons.math3.stat.ranking.NaNStrategy
@@ -30,11 +31,11 @@ class RankingTest {
 
         val scoreAndRanks = scores.ranking()
 
-        scoreAndRanks[Double.POSITIVE_INFINITY]!! shouldBeEqualTo 0
-        scoreAndRanks[50.0]!! shouldBeEqualTo 1
-        scoreAndRanks[20.0]!! shouldBeEqualTo 4
-        scoreAndRanks[Double.NaN]!! shouldBeEqualTo 8
-        scoreAndRanks[Double.NEGATIVE_INFINITY]!! shouldBeEqualTo 8
+        scoreAndRanks[Double.POSITIVE_INFINITY].shouldNotBeNull() shouldBeEqualTo 0
+        scoreAndRanks[50.0].shouldNotBeNull() shouldBeEqualTo 1
+        scoreAndRanks[20.0].shouldNotBeNull() shouldBeEqualTo 4
+        scoreAndRanks[Double.NaN].shouldNotBeNull() shouldBeEqualTo 8
+        scoreAndRanks[Double.NEGATIVE_INFINITY].shouldNotBeNull() shouldBeEqualTo 8
     }
 
     @Test
@@ -48,11 +49,38 @@ class RankingTest {
         scoreAndRanks.forEach {
             log.trace { "score=${it.key}, rank=${it.value}" }
         }
-        scoreAndRanks[Double.POSITIVE_INFINITY]!! shouldBeEqualTo 0
-        scoreAndRanks[50.0]!! shouldBeEqualTo 1
-        scoreAndRanks[20.0]!! shouldBeEqualTo 4
-        scoreAndRanks[Double.NaN]!! shouldBeEqualTo 8
-        scoreAndRanks[Double.NEGATIVE_INFINITY]!! shouldBeEqualTo 8
+        scoreAndRanks[Double.POSITIVE_INFINITY].shouldNotBeNull() shouldBeEqualTo 0
+        scoreAndRanks[50.0].shouldNotBeNull() shouldBeEqualTo 1
+        scoreAndRanks[20.0].shouldNotBeNull() shouldBeEqualTo 4
+        scoreAndRanks[Double.NaN].shouldNotBeNull() shouldBeEqualTo 8
+        scoreAndRanks[Double.NEGATIVE_INFINITY].shouldNotBeNull() shouldBeEqualTo 8
+    }
+
+    @Test
+    fun `ranking supports single use sequences`() {
+        sequenceOf(30.0, 10.0, 20.0).constrainOnce().ranking() shouldBeEqualTo mapOf(
+            30.0 to 0,
+            10.0 to 2,
+            20.0 to 1,
+        )
+
+        data class Student(val name: String, val score: Double)
+        val students = sequenceOf(
+            Student("Alice", 90.0),
+            Student("Bob", 70.0),
+            Student("Charlie", 80.0),
+        ).constrainOnce()
+
+        var selectorCalls = 0
+        students.ranking {
+            selectorCalls++
+            it.score
+        } shouldBeEqualTo mapOf(
+            Student("Alice", 90.0) to 0,
+            Student("Bob", 70.0) to 2,
+            Student("Charlie", 80.0) to 1,
+        )
+        selectorCalls shouldBeEqualTo 3
     }
 
     @Test
@@ -64,8 +92,8 @@ class RankingTest {
         scoreAndRanks.forEach {
             log.trace { "score=${it.key}, rank=${it.value}" }
         }
-        scoreAndRanks[50.0.toBigDecimal()]!! shouldBeEqualTo 0
-        scoreAndRanks[20.0.toBigDecimal()]!! shouldBeEqualTo 3
+        scoreAndRanks[50.0.toBigDecimal()].shouldNotBeNull() shouldBeEqualTo 0
+        scoreAndRanks[20.0.toBigDecimal()].shouldNotBeNull() shouldBeEqualTo 3
     }
 
     // ----- Iterable.ranking -----
@@ -82,9 +110,9 @@ class RankingTest {
             log.trace { "score=${it.key}, rank=${it.value}" }
         }
 
-        scoreAndRanks[Double.POSITIVE_INFINITY]!! shouldBeEqualTo 0
-        scoreAndRanks[50.0]!! shouldBeEqualTo 1
-        scoreAndRanks[20.0]!! shouldBeEqualTo 4
+        scoreAndRanks[Double.POSITIVE_INFINITY].shouldNotBeNull() shouldBeEqualTo 0
+        scoreAndRanks[50.0].shouldNotBeNull() shouldBeEqualTo 1
+        scoreAndRanks[20.0].shouldNotBeNull() shouldBeEqualTo 4
     }
 
     @Test
@@ -105,5 +133,23 @@ class RankingTest {
         rankMap[students[0]] shouldBeEqualTo 0  // Alice (90) - 1위
         rankMap[students[1]] shouldBeEqualTo 2  // Bob (70) - 3위
         rankMap[students[2]] shouldBeEqualTo 1  // Charlie (80) - 2위
+    }
+
+    @Test
+    fun `ranking empty and duplicate values`() {
+        emptyList<Double>().ranking() shouldBeEqualTo emptyMap<Double, Int>()
+
+        data class Student(val name: String, val score: Double)
+        val students = listOf(
+            Student("Alice", 90.0),
+            Student("Bob", 90.0),
+            Student("Charlie", 80.0),
+        )
+
+        val rankMap = students.ranking { it.score }
+
+        rankMap[students[0]] shouldBeEqualTo 0
+        rankMap[students[1]] shouldBeEqualTo 0
+        rankMap[students[2]] shouldBeEqualTo 2
     }
 }

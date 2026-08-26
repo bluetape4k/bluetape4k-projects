@@ -15,14 +15,14 @@ import io.bluetape4k.javatimes.period.ranges.DayRangeCollection
 import io.bluetape4k.javatimes.period.ranges.MonthRange
 import io.bluetape4k.javatimes.period.samples.SchoolDay
 import io.bluetape4k.javatimes.zonedDateTimeOf
+import io.bluetape4k.assertions.shouldBeEmpty
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.assertions.shouldHaveSize
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.trace
 import kotlinx.coroutines.test.runTest
-import io.bluetape4k.assertions.shouldBeEmpty
-import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldHaveSize
 import org.junit.jupiter.api.Test
-import kotlin.test.assertTrue
 
 class TimeGapCalculatorTest: AbstractPeriodTest() {
 
@@ -369,27 +369,27 @@ class TimeGapCalculatorTest: AbstractPeriodTest() {
         val gaps2 = calculator.gaps(excludePeriods)
 
         gaps2.size shouldBeEqualTo 3
-        assertTrue { gaps2[0].isSamePeriod(schoolDay.break1) }
-        assertTrue { gaps2[1].isSamePeriod(schoolDay.break2) }
-        assertTrue { gaps2[2].isSamePeriod(schoolDay.break3) }
+        gaps2[0].isSamePeriod(schoolDay.break1).shouldBeTrue()
+        gaps2[1].isSamePeriod(schoolDay.break2).shouldBeTrue()
+        gaps2[2].isSamePeriod(schoolDay.break3).shouldBeTrue()
 
         val testRange3 = TimeRange(schoolDay.lesson1.start, schoolDay.lesson4.end)
         val gaps3 = calculator.gaps(excludePeriods, testRange3)
 
         gaps3.size shouldBeEqualTo 3
-        assertTrue { gaps3[0].isSamePeriod(schoolDay.break1) }
-        assertTrue { gaps3[1].isSamePeriod(schoolDay.break2) }
-        assertTrue { gaps3[2].isSamePeriod(schoolDay.break3) }
+        gaps3[0].isSamePeriod(schoolDay.break1).shouldBeTrue()
+        gaps3[1].isSamePeriod(schoolDay.break2).shouldBeTrue()
+        gaps3[2].isSamePeriod(schoolDay.break3).shouldBeTrue()
 
         val testRange4 = TimeRange(schoolDay.start - 1.hours(), schoolDay.end + 1.hours())
         val gaps4 = calculator.gaps(excludePeriods, testRange4)
 
         gaps4.size shouldBeEqualTo 5
-        assertTrue { gaps4[0].isSamePeriod(TimeRange(testRange4.start, schoolDay.start)) }
-        assertTrue { gaps4[1].isSamePeriod(schoolDay.break1) }
-        assertTrue { gaps4[2].isSamePeriod(schoolDay.break2) }
-        assertTrue { gaps4[3].isSamePeriod(schoolDay.break3) }
-        assertTrue { gaps4[4].isSamePeriod(TimeRange(schoolDay.end, testRange4.end)) }
+        gaps4[0].isSamePeriod(TimeRange(testRange4.start, schoolDay.start)).shouldBeTrue()
+        gaps4[1].isSamePeriod(schoolDay.break1).shouldBeTrue()
+        gaps4[2].isSamePeriod(schoolDay.break2).shouldBeTrue()
+        gaps4[3].isSamePeriod(schoolDay.break3).shouldBeTrue()
+        gaps4[4].isSamePeriod(TimeRange(schoolDay.end, testRange4.end)).shouldBeTrue()
 
         excludePeriods.clear()
         excludePeriods += schoolDay.lesson1
@@ -446,18 +446,10 @@ class TimeGapCalculatorTest: AbstractPeriodTest() {
             }
 
             gaps shouldHaveSize 4
-            assertTrue {
-                gaps[0].isSamePeriod(TimeRange(zonedDateTimeOf(2018, 3, 5), 2.days()))
-            }
-            assertTrue {
-                gaps[1].isSamePeriod(TimeRange(zonedDateTimeOf(2018, 3, 9), 1.days()))
-            }
-            assertTrue {
-                gaps[2].isSamePeriod(TimeRange(zonedDateTimeOf(2018, 3, 12), 4.days()))
-            }
-            assertTrue {
-                gaps[3].isSamePeriod(TimeRange(zonedDateTimeOf(2018, 3, 19), 2.days()))
-            }
+            gaps[0].isSamePeriod(TimeRange(zonedDateTimeOf(2018, 3, 5), 2.days())).shouldBeTrue()
+            gaps[1].isSamePeriod(TimeRange(zonedDateTimeOf(2018, 3, 9), 1.days())).shouldBeTrue()
+            gaps[2].isSamePeriod(TimeRange(zonedDateTimeOf(2018, 3, 12), 4.days())).shouldBeTrue()
+            gaps[3].isSamePeriod(TimeRange(zonedDateTimeOf(2018, 3, 19), 2.days())).shouldBeTrue()
         }
     }
 }

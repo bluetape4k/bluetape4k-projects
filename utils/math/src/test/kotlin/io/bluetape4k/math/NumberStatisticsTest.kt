@@ -1,6 +1,7 @@
 package io.bluetape4k.math
 
 import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldNotBeNull
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import io.bluetape4k.math.model.Gender.FEMALE
@@ -10,7 +11,6 @@ import io.bluetape4k.math.model.Patient
 import io.bluetape4k.math.model.SaleDate
 import org.junit.jupiter.api.Test
 import java.time.LocalDate
-import kotlin.test.assertTrue
 
 class NumberStatisticsTest {
 
@@ -40,16 +40,16 @@ class NumberStatisticsTest {
     fun `verify descriptiveBy`() {
         vectors.forEach { vector ->
             groups.zip(vector).descriptiveStatisticsBy().let {
-                assertTrue { it["A"]!!.mean == 2.0 && it["B"]!!.mean == 8.0 }
+                it["A"].shouldNotBeNull().mean shouldBeEqualTo 2.0
+                it["B"].shouldNotBeNull().mean shouldBeEqualTo 8.0
             }
 
             val ziped = groups.zip(vector).descriptiveStatisticsBy(
                 keySelector = { it.first },
                 valueMapper = { it.second }
             )
-            // assertTrue { it["A"]!!.mean == 2.0 && it["B"]!!.mean == 8.0 }
-            ziped["A"]!!.mean shouldBeEqualTo 2.0
-            ziped["B"]!!.mean shouldBeEqualTo 8.0
+            ziped["A"].shouldNotBeNull().mean shouldBeEqualTo 2.0
+            ziped["B"].shouldNotBeNull().mean shouldBeEqualTo 8.0
         }
     }
 
@@ -73,7 +73,8 @@ class NumberStatisticsTest {
     fun `medianBy for vector`() {
         vectors.forEach { vector ->
             groups.zip(vector).medianBy().let {
-                assertTrue { it["A"]!! == 2.0 && it["B"]!! == 8.0 }
+                it["A"] shouldBeEqualTo 2.0
+                it["B"] shouldBeEqualTo 8.0
             }
 
             val ziped = groups.zip(vector).medianBy(
@@ -204,8 +205,8 @@ class NumberStatisticsTest {
 
         vectors.forEach { vector ->
             val norm = groups.zip(vector).normalizeBy()
-            norm["A"]!! shouldBeEqualTo expected["A"]!!
-            norm["B"]!! shouldBeEqualTo expected["B"]!!
+            norm["A"].shouldNotBeNull() shouldBeEqualTo expected["A"].shouldNotBeNull()
+            norm["B"].shouldNotBeNull() shouldBeEqualTo expected["B"].shouldNotBeNull()
         }
     }
 
