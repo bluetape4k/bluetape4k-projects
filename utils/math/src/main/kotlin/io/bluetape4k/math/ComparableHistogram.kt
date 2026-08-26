@@ -54,6 +54,7 @@ data class BinModel<out T: Any, in C: Comparable<C>>(
  * val model = data.binByComparable(incrementer = { it + 2 }, valueMapper = { it })
  * // model 은 [1,3], [3,5], [5,7], [7,9] 구간의 BinModel
  * ```
+ * 입력 `Sequence`는 한 번만 소비되며, 빈 입력은 `IllegalArgumentException`을 발생시킵니다.
  */
 inline fun <T: Any, C: Comparable<C>> Sequence<T>.binByComparable(
     incrementer: (C) -> C,
@@ -70,6 +71,7 @@ inline fun <T: Any, C: Comparable<C>> Sequence<T>.binByComparable(
  * val model = data.binByComparable(incrementer = { it + 2 }, valueMapper = { it })
  * // model 은 [1,3], [3,5], [5,7], [7,9] 구간의 BinModel
  * ```
+ * 빈 입력은 `IllegalArgumentException`을 발생시킵니다.
  */
 inline fun <T: Any, C: Comparable<C>> Iterable<T>.binByComparable(
     incrementer: (C) -> C,
