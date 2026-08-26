@@ -153,7 +153,7 @@ fun `collector cancellation rethrows CancellationException and closes producer o
 
     withTimeout(5.seconds) { producer.sendStarted.await() }
     task.cancel()
-    assertFailsWith<CancellationException> { task.await() }
+    val cancellation = assertFailsWith<CancellationException> { task.await() }
 
     producer.closeCount shouldBeEqualTo 1
     producer.pendingSend.isCancelled shouldBeEqualTo true
@@ -161,6 +161,9 @@ fun `collector cancellation rethrows CancellationException and closes producer o
     producer.fireLateCallback()
     producer.callbackCount shouldBeEqualTo 0
     producer.lateCallbackCount shouldBeEqualTo 1
+    val afterLate = assertFailsWith<CancellationException> { task.await() }
+    afterLate::class shouldBeEqualTo cancellation::class
+    afterLate.message shouldBeEqualTo cancellation.message
 }
 
 @Test
@@ -345,6 +348,8 @@ private class TrackingProducer(
 1-slot buffer를 채우고 세 번째 callback이 full을 재현한다. `maxInFlight=1`에서
 두 record가 모두 완료되는 테스트가 callback 공통 `finally`의 permit release를
 간접적으로 증명한다. close 이후 callback은 `lateCallbackCount`만 증가시킨다.
+취소 테스트는 late callback 뒤에도 동일한 `CancellationException`이 다시 관찰되고
+추가 결과가 발행되지 않음을 확인해 terminal state 불변성을 검증한다.
 각 held send는 서로 다른 Future를 반환하며 `cancelledPendingSends()`로 다중 in-flight
 취소를 검증할 수 있다. `Producer`의 다른 메서드는 MockK relaxed
 기본값으로 두되 `send`, `flush`, `close(Duration)`만 위 계약으로 검증한다. 모든
@@ -390,15 +395,18 @@ Step 2–3에서 이 signature의 함수 body를 완성한다. `channelCapacity`
 return callbackFlow {
     val producer = producerFactory()
     val terminalCause = AtomicReference<Throwable?>(null)
+    val downstreamCancelled = AtomicBoolean()
     val permits = Semaphore(maxInFlight)
     class SendState {
         val future = AtomicReference<Future<RecordMetadata>?>(null)
         val completed = AtomicBoolean()
     }
     val inFlight = ConcurrentHashMap.newKeySet<SendState>()
+    val drained = CompletableDeferred<Unit>()
     lateinit var upstreamJob: Job
 
     fun failOnce(cause: Throwable) {
+        if (downstreamCancelled.get()) return
         if (terminalCause.compareAndSet(null, cause)) {
             upstreamJob.cancel(CancellationException("producer terminal failure", cause))
             close(cause)
@@ -411,11 +419,14 @@ return callbackFlow {
         if (!state.completed.compareAndSet(false, true)) return
         inFlight.remove(state)
         permits.release()
+        if (inFlight.isEmpty()) drained.complete(Unit)
         if (cause != null) {
             failOnce(cause)
         } else if (metadata != null) {
             trySend(metadata).onFailure {
-                failOnce(IllegalStateException("callback buffer is full"))
+                if (!downstreamCancelled.get()) {
+                    failOnce(IllegalStateException("callback buffer is full"))
+                }
             }
         }
     }
@@ -440,6 +451,7 @@ return callbackFlow {
                     if (state.completed.compareAndSet(false, true)) {
                         inFlight.remove(state)
                         permits.release()
+                        if (inFlight.isEmpty()) drained.complete(Unit)
                     }
                     failOnce(cause)
                     throw cause
@@ -450,7 +462,10 @@ return callbackFlow {
             throw cause
         }
     }
-    awaitClose { upstreamJob.cancel(CancellationException("collector cancelled")) }
+    awaitClose {
+        downstreamCancelled.set(true)
+        upstreamJob.cancel(CancellationException("collector cancelled"))
+    }
 }.buffer(channelCapacity, onBufferOverflow = BufferOverflow.SUSPEND)
 ```
 
@@ -458,7 +473,10 @@ return callbackFlow {
 동기 실행되어도 state가 이미 존재하므로 stale Future가 생기지 않는다. callback은
 state의 `completed` CAS를 통과할 때만 `inFlight`에서 제거하고 permit을 정확히 한 번
 해제하며, 반환 Future는 state에 저장한 뒤 이미 완료된 callback이면 registry에 남기지
-않는다. `failOnce(cause)`는 `terminalCause`를 CAS한 뒤
+않는다. `awaitClose`는 먼저 `downstreamCancelled` sentinel을 세우고 cancellation
+signal만 전달한다. 따라서 닫힌 channel에서 도착한 late callback은 새 terminal cause를
+기록하지 않는다. `failOnce(cause)`는 downstream sentinel이 없을 때만
+`terminalCause`를 CAS한 뒤
 `upstreamJob.cancel(CancellationException("producer terminal failure", cause))`과
 channel close를 수행한다. 각 collection마다 `producerFactory()`는 한 번만
 호출한다. 두 helper는 `upstreamJob`을 생성하기 전에 같은 `callbackFlow` block의
@@ -473,7 +491,7 @@ local function으로 선언하며, callback thread에서 suspend하지 않는다
 첫 terminal cause는 다음 규칙을 사용한다.
 
 ```kotlin
-if (terminalCause.compareAndSet(null, cause)) {
+if (!downstreamCancelled.get() && terminalCause.compareAndSet(null, cause)) {
     upstreamJob.cancel(CancellationException("producer terminal failure", cause))
     channel.close(cause)
 } else {
@@ -485,13 +503,22 @@ if (terminalCause.compareAndSet(null, cause)) {
 
 - [ ] **Step 3: awaitClose와 bounded cleanup을 구현한다**
 
-`awaitClose`에서는 cancellation signal만 전달하고 blocking Kafka API를 호출하지 않는다. worker의 `finally` 안에서 다음 순서를 지킨다.
+`awaitClose`에서는 sentinel 설정과 cancellation signal만 수행하고 blocking Kafka API를
+호출하지 않는다. worker의 `finally` 안에서 다음 순서를 지킨다.
 
 1. `withContext(NonCancellable + Dispatchers.IO)`로 진입한다.
 2. callback drain과 `flush()`를 30초 `withTimeout`으로 기다린다.
+   `inFlight`가 이미 비어 있으면 즉시 진행하고, 아니면 callback이 완료할 때
+   `drained`를 깨워 대기한다. 모든 send가 callback 완료 후에만 정상 close로 간다.
 3. deadline을 넘기면 `TimeoutCancellationException`을 first cause로 CAS하고 pending send를 취소한다.
 4. `producer.close(Duration.ofSeconds(5))`를 한 번 실행하고 예외를 suppressed로 연결한다.
 5. `CancellationException`을 broad catch에서 삼키지 않고 재전파한다.
+
+정상적인 `records.collect` 완료에서는 drain과 flush가 끝난 뒤 channel을 성공적으로
+닫고, terminal cause가 있으면 해당 cause로 이미 닫힌 channel을 유지한다. drain 또는
+flush/close 중 발생한 후속 예외는 first cause에만 `suppressed`로 연결한다. pending
+state의 Future는 close 호출 전에 모두 `cancel(false)`해 callback이 뒤늦게 도착해도
+새 결과를 발행하지 않도록 한다.
 
 `runBlocking`이나 IO dispatcher 밖의 blocking Kafka call을 추가하지 않는다.
 
