@@ -70,7 +70,7 @@ class CallbackFlowExamples {
     }
 
     /**
-     * TODO: Kafka Producer의 Callback 을 `callbackFlow` 를 이용하여 Flow 로 구현하는 예제를 만들자
+     * Kafka Producer callback을 `callbackFlow`로 변환하고 backpressure·취소·정리 경계를 검증하는 예제다.
      */
 
     data class Message(val id: Long, val body: String)
@@ -376,6 +376,27 @@ class CallbackFlowExamples {
     }
 
     @Test
+    fun `cancellation immediately after producer creation closes it once`() = runSuspendIO {
+        val producer = TrackingProducer(holdCallbacks = true)
+        val factoryStarted = CompletableDeferred<Unit>()
+        val task = async {
+            producerResults(
+                flowOf(record("immediate-cancel")),
+                {
+                    factoryStarted.complete(Unit)
+                    producer.producer
+                },
+            ).toList()
+        }
+
+        withTimeout(5.seconds) { factoryStarted.await() }
+        task.cancel()
+        assertFailsWith<CancellationException> { task.await() }
+
+        producer.closeCount.get() shouldBeEqualTo 1
+    }
+
+    @Test
     fun `factory and synchronous send failures are terminal causes`() = runSuspendIO {
         val factoryFailure = IllegalArgumentException("factory failure")
         val factoryError = assertFailsWith<IllegalArgumentException> {
@@ -390,6 +411,23 @@ class CallbackFlowExamples {
         }
         sendError shouldBeEqualTo sendFailure
         sendProducer.closeCount.get() shouldBeEqualTo 1
+    }
+
+    @Test
+    fun `producer factory is invoked once for each collection`() = runSuspendIO {
+        val producer = TrackingProducer()
+        val factoryCalls = AtomicInteger()
+
+        producerResults(
+            records = flowOf(record("factory-once"), record("factory-twice")),
+            producerFactory = {
+                factoryCalls.incrementAndGet()
+                producer.producer
+            },
+        ).toList()
+
+        factoryCalls.get() shouldBeEqualTo 1
+        producer.closeCount.get() shouldBeEqualTo 1
     }
 
     @Test

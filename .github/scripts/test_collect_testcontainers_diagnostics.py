@@ -49,6 +49,7 @@ class DiagnosticsCollectorTest(unittest.TestCase):
     def test_sanitize_redacts_credentials_uris_payloads_xml_and_exception_messages(self):
         raw = """\
 https://user:password@example.test/path?token=secret
+Authorization: Bearer authorization-secret
 {"payload":{"nested":"payload-secret","token":"deep-secret"},"message":"message-secret"}
 <body>xml-secret</body>
 AWS_SECRET_ACCESS_KEY=upper-secret
@@ -60,6 +61,7 @@ IllegalStateException: exception-secret
 
         for secret in (
             "password@example.test",
+            "authorization-secret",
             "payload-secret",
             "deep-secret",
             "message-secret",

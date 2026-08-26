@@ -21,6 +21,7 @@ ALLOWLIST = {
 SHA40 = re.compile(r"^[0-9a-fA-F]{40}$")
 USES = re.compile(r"^\s*(?:-\s*)?uses:\s*([^\s#]+)", re.MULTILINE)
 URI = re.compile(r"\b(?:https?|amqps?|redis|kafka|postgres(?:ql)?|file)://[^\s<>\"']+")
+AUTHORIZATION_LINE = re.compile(r"(?im)^(\s*[\"']?authorization[\"']?\s*[:=]\s*).*$")
 SECRET_KEY_QUOTED = re.compile(
     r"(?i)([\"']?\b(?:authorization|token|password|secret|api[_-]?key)\b[\"']?\s*[:=]\s*)(\"|')([^\"']*)(\2)"
 )
@@ -33,7 +34,7 @@ INLINE_SENSITIVE = re.compile(
 XML_SENSITIVE = re.compile(
     r"(?is)(<\s*(?:payload|message|body|value)\b[^>]*>).*?(</\s*(?:payload|message|body|value)\s*>)"
 )
-UPPER_ENV_LINE = re.compile(r"(?im)^\s*[A-Z][A-Z0-9_]*\s*[:=].*$")
+UPPER_ENV_LINE = re.compile(r"(?m)^\s*[A-Z][A-Z0-9_]*\s*[:=].*$")
 LOWER_SENSITIVE_ENV_LINE = re.compile(
     r"(?im)^\s*[a-z][a-z0-9_]*(?:secret|token|password|api[_-]?key)[a-z0-9_]*\s*[:=].*$"
 )
@@ -44,6 +45,7 @@ EXCEPTION_MESSAGE = re.compile(r"(?im)^([^\r\n]*(?:Exception|Error))\s*:\s*[^\r\
 def sanitize(value: str) -> str:
     """Redact credentials, endpoints, payloads, and exception messages."""
 
+    value = AUTHORIZATION_LINE.sub(r"\1[REDACTED]", value)
     value = SECRET_KEY_QUOTED.sub(r"\1\2[REDACTED]\4", value)
     value = SECRET_KEY_UNQUOTED.sub(r"\1[REDACTED]", value)
     value = URI.sub("[REDACTED]", value)
