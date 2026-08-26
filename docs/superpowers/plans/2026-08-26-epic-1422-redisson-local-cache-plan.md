@@ -260,9 +260,9 @@ second shouldBeEqualTo 42
 awaitRedis(backendMap.getAsync("count")) shouldBeEqualTo 42
 ```
 
-`fastPutAsync`로 같은 numeric key를 먼저 직렬화하지 않는다. key가 없을 때 Redis
-`HINCRBY` 경로가 초기값을 만들고, Double은 `HINCRBYFLOAT` 경로를 사용한다는 점을
-KDoc와 assertion으로 설명한다.
+`fastPutAsync`로 같은 numeric key를 먼저 직렬화하지 않는다. key가 없을 때 Redisson의
+`addAndGetAsync`가 Redis `HINCRBYFLOAT` 경로로 초기값을 만들고, Int/Double 모두
+동일한 atomic hash increment 계약을 사용한다는 점을 KDoc와 assertion으로 설명한다.
 
 - [ ] **Step 2: Double 예제와 제약 KDoc을 추가한다**
 
@@ -380,6 +380,9 @@ fun `concurrent numeric increments match independent remote final value`() = run
     val map = redisson1.getLocalCachedMap(
         LocalCachedMapOptions.name<String, Int>(name).codec(intCodec)
     )
+    val map2 = redisson2.getLocalCachedMap(
+        LocalCachedMapOptions.name<String, Int>(name).codec(intCodec)
+    )
     val calls = 32 * 8 // rounds는 전체 호출 수이고 workers는 동시 실행 수다.
 
     withTimeout(30.seconds) {
@@ -393,9 +396,11 @@ fun `concurrent numeric increments match independent remote final value`() = run
     val remote = redisson.getMap<String, Int>(name, intCodec)
     awaitRedis(remote.getAsync("count")) shouldBeEqualTo calls
 
-    val map2 = redisson2.getLocalCachedMap(
-        LocalCachedMapOptions.name<String, Int>(name).codec(intCodec)
-    )
+    await.atMost(Duration.ofSeconds(5)).pollInterval(Duration.ofMillis(100))
+        .untilSuspending {
+            awaitRedis(map.getAsync("count")) == calls &&
+                awaitRedis(map2.getAsync("count")) == calls
+        }
     awaitRedis(map.getAsync("count")) shouldBeEqualTo calls
     awaitRedis(map2.getAsync("count")) shouldBeEqualTo calls
 }
@@ -430,6 +435,12 @@ withTimeout(30.seconds) {
 }
 val remoteDouble = redisson.getMap<String, Double>(name, doubleCodec)
 awaitRedis(remoteDouble.getAsync("ratio")) shouldBeEqualTo calls * 0.25
+await.atMost(Duration.ofSeconds(5)).pollInterval(Duration.ofMillis(100))
+    .untilSuspending {
+        awaitRedis(doubleMap1.getAsync("ratio")) == calls * 0.25 &&
+            awaitRedis(doubleMap2.getAsync("ratio")) == calls * 0.25
+    }
+awaitRedis(doubleMap1.getAsync("ratio")) shouldBeEqualTo calls * 0.25
 awaitRedis(doubleMap2.getAsync("ratio")) shouldBeEqualTo calls * 0.25
 ```
 worker는 ad hoc thread를 만들지 않는다.

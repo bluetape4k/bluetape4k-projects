@@ -521,14 +521,16 @@ return callbackFlow {
     }
 
     val upstreamJob = launch(context = Dispatchers.IO, start = CoroutineStart.LAZY) {
-        val producer = producerFactory()
+        var producer: Producer<String, String>? = null
         try {
+            val activeProducer = producerFactory()
+            producer = activeProducer
             records.collect { record ->
                 permits.acquire()
                 val state = SendState()
                 inFlight += state
                 try {
-                    val future = producer.send(record, callbackFor(state))
+                    val future = activeProducer.send(record, callbackFor(state))
                     state.future.set(future)
                     if (terminalCause.get() != null || downstreamCancelled.get()) {
                         future.cancel(false)
@@ -556,47 +558,49 @@ return callbackFlow {
             failOnce(cause)
             throw cause
         } finally {
-            withContext(NonCancellable + Dispatchers.IO) {
-                var cleanupFailure: Throwable? = null
-                var cleanupCancellation: CancellationException? = null
-                try {
-                    withTimeout(30.seconds) {
-                        while (inFlight.isNotEmpty()) delay(10)
-                        runInterruptible { producer.flush() }
+            producer?.let { activeProducer ->
+                withContext(NonCancellable + Dispatchers.IO) {
+                    var cleanupFailure: Throwable? = null
+                    var cleanupCancellation: CancellationException? = null
+                    try {
+                        withTimeout(30.seconds) {
+                            while (inFlight.isNotEmpty()) delay(10)
+                            runInterruptible { activeProducer.flush() }
+                        }
+                    } catch (cause: TimeoutCancellationException) {
+                        cleanupFailure = cause
+                        cancelInFlight()
+                        if (!downstreamCancelled.get()) failOnce(cause)
+                    } catch (cause: CancellationException) {
+                        cleanupFailure = cause
+                        cleanupCancellation = cause
+                        cancelInFlight()
+                        if (!downstreamCancelled.get()) failOnce(cause)
+                    } catch (cause: Throwable) {
+                        cleanupFailure = cause
+                        cancelInFlight()
+                        if (!downstreamCancelled.get()) failOnce(cause)
                     }
-                } catch (cause: TimeoutCancellationException) {
-                    cleanupFailure = cause
-                    cancelInFlight()
-                    if (!downstreamCancelled.get()) failOnce(cause)
-                } catch (cause: CancellationException) {
-                    cleanupFailure = cause
-                    cleanupCancellation = cause
-                    cancelInFlight()
-                    if (!downstreamCancelled.get()) failOnce(cause)
-                } catch (cause: Throwable) {
-                    cleanupFailure = cause
-                    cancelInFlight()
-                    if (!downstreamCancelled.get()) failOnce(cause)
-                }
 
-                val closeFailure = runCatching {
-                    withTimeout(5.seconds) {
-                        runInterruptible { producer.close(Duration.ofSeconds(5)) }
+                    val closeFailure = runCatching {
+                        withTimeout(5.seconds) {
+                            runInterruptible { activeProducer.close(Duration.ofSeconds(5)) }
+                        }
+                    }.exceptionOrNull()
+                    val first = terminalCause.get()
+                    if (first != null && cleanupFailure != null && first !== cleanupFailure) {
+                        first.addSuppressed(cleanupFailure)
                     }
-                }.exceptionOrNull()
-                val first = terminalCause.get()
-                if (first != null && cleanupFailure != null && first !== cleanupFailure) {
-                    first.addSuppressed(cleanupFailure)
-                }
-                if (first != null && closeFailure != null && first !== closeFailure) {
-                    first.addSuppressed(closeFailure)
-                }
-                if (first == null && closeFailure != null && !downstreamCancelled.get()) {
-                    failOnce(closeFailure)
-                }
-                if (terminalCause.get() == null && !downstreamCancelled.get()) close()
-                if (cleanupCancellation != null && terminalCause.get() == null) {
-                    throw cleanupCancellation
+                    if (first != null && closeFailure != null && first !== closeFailure) {
+                        first.addSuppressed(closeFailure)
+                    }
+                    if (first == null && closeFailure != null && !downstreamCancelled.get()) {
+                        failOnce(closeFailure)
+                    }
+                    if (terminalCause.get() == null && !downstreamCancelled.get()) close()
+                    if (cleanupCancellation != null && terminalCause.get() == null) {
+                        throw cleanupCancellation
+                    }
                 }
             }
         }
