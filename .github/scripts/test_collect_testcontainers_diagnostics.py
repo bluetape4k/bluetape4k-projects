@@ -44,7 +44,12 @@ class DiagnosticsCollectorTest(unittest.TestCase):
             else:
                 def fake_logs(task_name, container_id, max_bytes):
                     del task_name, max_bytes
-                    return docker_run(["docker", "logs", "--tail", "200", container_id])
+                    result = docker_run(["docker", "logs", "--tail", "200", container_id])
+                    return diagnostics.DockerLogsResult(
+                        returncode=result.returncode,
+                        stdout=result.stdout,
+                        truncated=getattr(result, "truncated", False),
+                    )
 
                 with (
                     patch.object(diagnostics.subprocess, "run", side_effect=docker_run),
@@ -192,6 +197,81 @@ IllegalStateException: exception-secret
         self.assertIn("rejected-task", stderr)
         self.assertNotIn("private-secret", stderr)
 
+    def test_docker_log_failure_is_fail_closed_without_leaking_output(self):
+        output_dir = self.root / "diagnostics" / "log-failure"
+        image_digest = next(
+            digest for digest in diagnostics.ALLOWLIST if digest.startswith("confluentinc/cp-kafka@")
+        )
+
+        def docker_run(command, **_kwargs):
+            if command[1:3] == ["inspect", CONTAINER_ID]:
+                payload = [{
+                    "Name": "/kafka",
+                    "Config": {"Image": "confluentinc/cp-kafka:local"},
+                    "Image": "sha256:image-id",
+                    "RepoDigests": [image_digest],
+                }]
+                return subprocess.CompletedProcess(command, 0, json.dumps(payload), "")
+            if command[1:4] == ["logs", "--tail", "200"]:
+                return subprocess.CompletedProcess(command, 1, "token=secret", "private-docker-error")
+            self.fail(f"unexpected docker command: {command}")
+
+        result, stderr = self.run_main(
+            "--task-name",
+            "log-failure-task",
+            "--output-dir",
+            output_dir,
+            "--workflow-file",
+            self.workflow,
+            "--container-id",
+            CONTAINER_ID,
+            docker_run=docker_run,
+        )
+
+        self.assertEqual(result, 1)
+        self.assertIn("log-failure-task", stderr)
+        self.assertNotIn("private-docker-error", stderr)
+        self.assertNotIn("secret", stderr)
+
+    def test_docker_log_truncation_is_preserved_in_manifest(self):
+        output_dir = self.root / "diagnostics" / "log-truncated"
+        image_digest = next(
+            digest for digest in diagnostics.ALLOWLIST if digest.startswith("confluentinc/cp-kafka@")
+        )
+
+        def docker_run(command, **_kwargs):
+            if command[1:3] == ["inspect", CONTAINER_ID]:
+                payload = [{
+                    "Name": "/kafka",
+                    "Config": {"Image": "confluentinc/cp-kafka:local"},
+                    "Image": "sha256:image-id",
+                    "RepoDigests": [image_digest],
+                }]
+                return subprocess.CompletedProcess(command, 0, json.dumps(payload), "")
+            if command[1:4] == ["logs", "--tail", "200"]:
+                result = subprocess.CompletedProcess(command, 0, "token=secret", "")
+                result.truncated = True
+                return result
+            self.fail(f"unexpected docker command: {command}")
+
+        result, stderr = self.run_main(
+            "--task-name",
+            "log-truncated-task",
+            "--output-dir",
+            output_dir,
+            "--workflow-file",
+            self.workflow,
+            "--container-id",
+            CONTAINER_ID,
+            docker_run=docker_run,
+        )
+
+        self.assertEqual(result, 0)
+        self.assertEqual(stderr, "")
+        manifest = json.loads((output_dir / "manifest.json").read_text(encoding="utf-8"))
+        self.assertTrue(manifest["truncated"])
+        self.assertNotIn("secret", (output_dir / f"{CONTAINER_ID}.log").read_text(encoding="utf-8"))
+
     def test_docker_logs_are_bounded_before_decoding(self):
         class FakeProcess:
             def __init__(self):
@@ -211,6 +291,7 @@ IllegalStateException: exception-secret
 
         self.assertEqual(result.returncode, 0)
         self.assertEqual(result.stdout, "01234")
+        self.assertTrue(result.truncated)
         self.assertTrue(process.killed)
 
     def test_local_image_id_without_allowlisted_repo_digest_fails(self):
@@ -224,13 +305,6 @@ IllegalStateException: exception-secret
                     "Image": "sha256:image-id",
                 }]
                 return subprocess.CompletedProcess(command, 0, json.dumps(payload), "")
-            if command[1:4] == ["image", "inspect", "private/image:local"]:
-                return subprocess.CompletedProcess(
-                    command,
-                    0,
-                    json.dumps([{"RepoDigests": []}]),
-                    "",
-                )
             self.fail(f"unexpected docker command: {command}")
 
         result, _ = self.run_main(
@@ -246,6 +320,13 @@ IllegalStateException: exception-secret
         )
 
         self.assertEqual(result, 1)
+
+    def test_bounded_bytes_keeps_utf8_valid(self):
+        data, truncated = diagnostics.bounded_bytes("가나다", 4)
+
+        self.assertTrue(truncated)
+        self.assertEqual(data.decode("utf-8"), "가")
+        self.assertLessEqual(len(data), 4)
 
     def test_report_sanitization_preserves_relative_paths(self):
         test_results = self.root / "examples" / "coroutines-demo" / "build" / "test-results" / "test"

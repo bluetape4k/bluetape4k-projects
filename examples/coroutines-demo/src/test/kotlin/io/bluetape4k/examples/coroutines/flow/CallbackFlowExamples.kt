@@ -7,6 +7,7 @@ import io.bluetape4k.assertions.shouldHaveSize
 import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.codec.Base58
 import io.bluetape4k.coroutines.flow.extensions.log
+import io.bluetape4k.junit5.awaitility.untilSuspending
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
@@ -22,6 +23,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.async
+import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.Flow
@@ -50,6 +52,8 @@ import org.apache.kafka.clients.producer.Producer
 import org.apache.kafka.clients.producer.ProducerRecord
 import org.apache.kafka.clients.producer.RecordMetadata
 import org.apache.kafka.common.header.internals.RecordHeaders
+import org.awaitility.kotlin.atMost
+import org.awaitility.kotlin.await
 import org.junit.jupiter.api.Test
 import org.testcontainers.utility.DockerImageName
 import java.time.Duration
@@ -106,8 +110,7 @@ class CallbackFlowExamples {
                 .collect()
         }
 
-    private fun Throwable.recoveredOrSelf(): Throwable =
-        cause?.takeIf { it::class == this@recoveredOrSelf::class && it.message == message } ?: this
+    private fun Throwable.recoveredOrSelf(): Throwable = this
 
     private fun producerResults(
         records: Flow<ProducerRecord<String, String>>,
@@ -120,13 +123,19 @@ class CallbackFlowExamples {
 
         return callbackFlow {
             var producer: Producer<String, String>? = null
-            val downstreamCancellation = Any()
+            class DownstreamCancellation(val cause: CancellationException)
+
             val terminalState = AtomicReference<Any?>(null)
             val permits = Semaphore(maxInFlight)
+            val callbackFlowJob = currentCoroutineContext()[Job]
 
-            fun isDownstreamCancelled(): Boolean = terminalState.get() === downstreamCancellation
+            fun isDownstreamCancelled(): Boolean = terminalState.get() is DownstreamCancellation
 
-            fun terminalCause(): Throwable? = terminalState.get() as? Throwable
+            fun terminalCause(): Throwable? = when (val terminal = terminalState.get()) {
+                is DownstreamCancellation -> terminal.cause
+                is Throwable -> terminal
+                else -> null
+            }
 
             class SendState {
                 val future = AtomicReference<Future<RecordMetadata>?>(null)
@@ -147,7 +156,6 @@ class CallbackFlowExamples {
             }
 
             fun failOnce(cause: Throwable) {
-                if (isDownstreamCancelled()) return
                 if (terminalState.compareAndSet(null, cause)) {
                     cancelInFlight()
                     upstreamJobRef.get()?.cancel(CancellationException("producer terminal failure", cause))
@@ -277,9 +285,13 @@ class CallbackFlowExamples {
             upstreamJobRef.set(upstreamJob)
             upstreamJob.start()
             awaitClose {
-                terminalState.compareAndSet(null, downstreamCancellation)
+                val cancellation = callbackFlowJob
+                    ?.takeIf { it.isCancelled }
+                    ?.getCancellationException()
+                    ?: CancellationException("collector cancelled")
+                terminalState.compareAndSet(null, DownstreamCancellation(cancellation))
                 cancelInFlight()
-                upstreamJob.cancel(CancellationException("collector cancelled"))
+                upstreamJob.cancel(cancellation)
             }
         }.buffer(channelCapacity, onBufferOverflow = BufferOverflow.SUSPEND)
             .catch { cause ->
@@ -366,9 +378,7 @@ class CallbackFlowExamples {
 
         withTimeout(5.seconds) { producer.sendStarted.await() }
         task.cancel()
-        withTimeout(5.seconds) {
-            while (producer.cancelledPendingSends() == 0) delay(10)
-        }
+        await.atMost(Duration.ofSeconds(5)) untilSuspending { producer.cancelledPendingSends() > 0 }
         val cancellation = assertFailsWith<CancellationException> { task.await() }
 
         producer.closeCount.get() shouldBeEqualTo 1
@@ -401,9 +411,7 @@ class CallbackFlowExamples {
         val callback = async(Dispatchers.IO) { producer.fireCallback() }
         callbackStarted.await(5, TimeUnit.SECONDS).shouldBeTrue()
         task.cancel()
-        withTimeout(5.seconds) {
-            while (producer.closeCount.get() == 0) delay(10)
-        }
+        await.atMost(Duration.ofSeconds(5)) untilSuspending { producer.closeCount.get() > 0 }
         callbackGate.countDown()
         callback.await()
 
@@ -425,13 +433,28 @@ class CallbackFlowExamples {
 
         withTimeout(5.seconds) { producer.twoSendsStarted.await() }
         task.cancel()
-        withTimeout(5.seconds) {
-            while (producer.cancelledPendingSends() < 2) delay(10)
-        }
+        await.atMost(Duration.ofSeconds(5)) untilSuspending { producer.cancelledPendingSends() >= 2 }
         assertFailsWith<CancellationException> { task.await() }
 
         producer.closeCount.get() shouldBeEqualTo 1
         producer.cancelledPendingSends() shouldBeEqualTo 2
+    }
+
+    @Test
+    fun `collector cancellation keeps its outcome when close fails`() = runSuspendIO {
+        val closeFailure = IllegalStateException("close after cancellation")
+        val producer = TrackingProducer(holdCallbacks = true, closeError = closeFailure)
+        val cancellation = CancellationException("collector cancellation")
+        val task = async {
+            producerResults(flowOf(record("cancel-close-failure")), { producer.producer }).toList()
+        }
+
+        withTimeout(5.seconds) { producer.sendStarted.await() }
+        task.cancel(cancellation)
+        val observed = assertFailsWith<CancellationException> { task.await() }
+
+        producer.closeCount.get() shouldBeEqualTo 1
+        observed.message shouldBeEqualTo cancellation.message
     }
 
     @Test

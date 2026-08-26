@@ -352,9 +352,10 @@ artifact upload는 `examples/**/build/test-results/**`,
 - Kafka/Redis image 또는 version을 변경하지 않는다. container startup 실패는
   코드 결함으로 분류하지 않고 raw Docker/CI evidence와 함께 별도 blocker로
   기록한다.
-- 기존 launcher의 mutable image tag와 workflow action reference를 이 Epic에서
-  pinning으로 바꾸지 않는다. 대신 실행마다 resolved image digest와 action
-  ref를 bounded evidence에 기록하고, immutable provenance 전환은 별도 보안
+- 기존 launcher의 mutable image tag는 변경하지 않되, 이 Epic이 수정하는
+  examples workflow의 action reference는 immutable commit SHA로 고정한다.
+  실행마다 resolved image digest와 action ref를 bounded evidence에 기록해
+  CI provenance를 fail-closed로 확인한다. 공용 image/tag 전환은 별도 보안
   후속 이슈로 분리한다.
 
 ## Acceptance criteria와 DoD

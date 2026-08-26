@@ -109,8 +109,8 @@ on a dynamic port. Each test uses a unique topic, and consumer polling and
 producer closing have bounded timeouts. The adapter does not retry sends and
 does not guarantee metadata order. A failed or cancelled collection may expose
 partial results; the first producer/callback failure remains the terminal cause,
-and in-flight send futures are cancelled; late callbacks are ignored before
-bounded cleanup closes the producer.
+and cancellation of in-flight send futures is requested on a best-effort basis;
+late callbacks are ignored before bounded cleanup closes the producer.
 
 ## Key Learning Points
 

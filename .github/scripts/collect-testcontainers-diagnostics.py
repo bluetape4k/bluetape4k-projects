@@ -11,7 +11,7 @@ import subprocess
 import sys
 from collections.abc import Iterable
 from pathlib import Path
-from typing import Any
+from typing import Any, NamedTuple
 
 DEFAULT_MAX_BYTES = 2_000_000
 DEFAULT_MAX_REPORT_FILES = 200
@@ -45,6 +45,12 @@ SENSITIVE_ENV_LINE = re.compile(
 )
 SENSITIVE_LINE = re.compile(r"(?im)^\s*(?:payload|message|body|value)\s*[:=].*$")
 EXCEPTION_MESSAGE = re.compile(r"(?im)^([^\r\n]*(?:Exception|Error))\s*:\s*[^\r\n]*$")
+
+
+class DockerLogsResult(NamedTuple):
+    returncode: int
+    stdout: str
+    truncated: bool
 
 
 def _assignment_value_end(value: str, start: int) -> int:
@@ -145,7 +151,9 @@ def bounded_bytes(value: str, limit: int) -> tuple[bytes, bool]:
     encoded = value.encode("utf-8", errors="replace")
     if len(encoded) <= limit:
         return encoded, False
-    return encoded[:limit], True
+    # Drop an incomplete trailing code point rather than emitting invalid UTF-8.
+    bounded = encoded[:limit].decode("utf-8", errors="ignore").encode("utf-8")
+    return bounded, True
 
 
 def run_docker(task_name: str, args: list[str]) -> subprocess.CompletedProcess[str]:
@@ -162,7 +170,7 @@ def run_docker(task_name: str, args: list[str]) -> subprocess.CompletedProcess[s
         raise RuntimeError(f"{task_name}: docker command unavailable") from error
 
 
-def run_docker_logs(task_name: str, container_id: str, max_bytes: int) -> subprocess.CompletedProcess[str]:
+def run_docker_logs(task_name: str, container_id: str, max_bytes: int) -> DockerLogsResult:
     command = ["docker", "logs", "--tail", "200", container_id]
     try:
         process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
@@ -171,13 +179,15 @@ def run_docker_logs(task_name: str, container_id: str, max_bytes: int) -> subpro
     output = process.stdout.read(max_bytes + 1) if process.stdout is not None else b""
     output_truncated = len(output) > max_bytes
     if output_truncated:
-        process.kill()
+        try:
+            process.kill()
+        except ProcessLookupError:
+            pass
     process.wait()
-    return subprocess.CompletedProcess(
-        command,
-        0 if output_truncated else process.returncode,
-        output.decode("utf-8", errors="replace"),
-        "",
+    return DockerLogsResult(
+        returncode=0 if output_truncated else process.returncode,
+        stdout=output.decode("utf-8", errors="replace"),
+        truncated=output_truncated,
     )
 
 
@@ -229,15 +239,7 @@ def inspect_container(task_name: str, container_id: str) -> dict[str, Any]:
     image = str(config.get("Image") or payload.get("Image") or "")
     repo_digests = payload.get("RepoDigests") or []
     if not repo_digests:
-        image_reference = image or str(payload.get("Image") or "")
-        image_inspected = run_docker(task_name, ["image", "inspect", image_reference])
-        if image_inspected.returncode != 0:
-            raise RuntimeError(f"{task_name}: docker image inspect failed")
-        try:
-            image_payload = json.loads(image_inspected.stdout)[0]
-            repo_digests = image_payload.get("RepoDigests") or []
-        except (IndexError, json.JSONDecodeError, TypeError) as error:
-            raise RuntimeError(f"{task_name}: invalid docker image inspect response") from error
+        raise RuntimeError(f"{task_name}: container image has no immutable repo digest")
     resolved = next((item for item in repo_digests if item in ALLOWLIST), None)
     if resolved is None:
         raise RuntimeError(f"{task_name}: container image is outside the diagnostics allowlist")
@@ -254,13 +256,13 @@ def inspect_container(task_name: str, container_id: str) -> dict[str, Any]:
     return record
 
 
-def collect_container_logs(task_name: str, container_id: str, max_log_bytes: int) -> str | None:
+def collect_container_logs(task_name: str, container_id: str, max_log_bytes: int) -> tuple[str, bool]:
     """Read and sanitize one container's bounded log stream."""
 
     logs_result = run_docker_logs(task_name, container_id, max_log_bytes)
     if logs_result.returncode != 0:
-        return None
-    return sanitize(logs_result.stdout + logs_result.stderr)
+        raise RuntimeError(f"{task_name}: docker logs failed")
+    return sanitize(logs_result.stdout), logs_result.truncated
 
 
 CONTAINER_ID = re.compile(r"^[0-9a-fA-F]{12,64}$")
@@ -409,11 +411,13 @@ def parse_args() -> argparse.Namespace:
     return parser.parse_args()
 
 
-def write_manifest(path: Path, manifest: dict[str, Any], max_bytes: int) -> None:
+def write_manifest(path: Path, manifest: dict[str, Any], max_bytes: int, repo_root: Path | None = None) -> None:
     encoded = json.dumps(manifest, ensure_ascii=False, indent=2, sort_keys=True).encode("utf-8") + b"\n"
     if len(encoded) > max_bytes:
         # The manifest is deliberately small; if a caller supplies an unusable cap, fail closed.
         raise ValueError("manifest exceeds max-total-bytes")
+    if repo_root is not None:
+        reject_symlink_components(path.parent, repo_root)
     if path.is_symlink():
         raise ValueError(f"manifest target is a symlink: {path}")
     path.parent.mkdir(parents=True, exist_ok=True)
@@ -469,9 +473,10 @@ def main() -> int:
         log_budget = max(0, args.max_total_bytes - len(provisional))
         log_used = 0
         for container_id in container_ids:
-            logs = collect_container_logs(args.task_name, container_id, args.max_total_bytes)
-            if logs is None:
-                continue
+            logs, logs_truncated = collect_container_logs(
+                args.task_name, container_id, args.max_total_bytes
+            )
+            manifest["truncated"] = manifest["truncated"] or logs_truncated
             remaining = log_budget - log_used
             data, was_truncated = bounded_bytes(logs, remaining)
             if was_truncated:
@@ -497,12 +502,12 @@ def main() -> int:
             manifest["sanitized_reports"] = reports
             manifest["report_truncated"] = report_truncated
 
-        write_manifest(args.output_dir / "manifest.json", manifest, args.max_total_bytes)
+        write_manifest(args.output_dir / "manifest.json", manifest, args.max_total_bytes, repo_root)
     except (OSError, RuntimeError, ValueError) as error:
         # Do not echo Docker output or report contents; the task name is the only diagnostic detail.
         print(str(error) if str(error).startswith(args.task_name) else f"{args.task_name}: diagnostics failed", file=sys.stderr)
         try:
-            write_manifest(args.output_dir / "manifest.json", manifest, args.max_total_bytes)
+            write_manifest(args.output_dir / "manifest.json", manifest, args.max_total_bytes, repo_root)
         except (OSError, ValueError):
             pass
         return 1
