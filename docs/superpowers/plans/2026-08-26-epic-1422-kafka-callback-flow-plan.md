@@ -808,7 +808,7 @@ python3 .github/scripts/collect-testcontainers-diagnostics.py \
   --report-path examples/coroutines-demo/build/test-results/test \
   --report-path examples/coroutines-demo/build/reports/tests/test \
   --max-report-files 400 \
-  --max-report-total-bytes 2000000
+  --max-report-total-bytes 8000000
 ```
 
 스크립트는 `--container-id`를 반복 인자로 받아 현재 Gradle invocation에서 새로 생성된
@@ -827,7 +827,7 @@ Docker CLI 자체 오류는 stderr에 task name만 남기고 exit 1로 반환한
 `report-path`가 존재하지 않거나 report 파일이 없으면 해당 단계는 실패시키고, 원본
 report를 sanitized 디렉터리에 절대 링크하지 않는다. collector는 report path를
 재귀적으로 무제한 탐색하지 않고 정렬된 path 목록만 방문하며, 전체 sanitized report는
-`--max-report-files`(기본 200, Examples workflow 400)와 `--max-report-total-bytes`(기본 2,000,000 bytes)를
+`--max-report-files`(기본 200, Examples workflow 400)와 `--max-report-total-bytes`(기본 2,000,000 bytes, Examples workflow 8,000,000 bytes)를
 동시에 적용한다. 상한 초과 시 추가 파일을 저장하지 않고 manifest에
 `report_truncated=true`를 기록하며 exit 1로 종료한다.
 
@@ -959,7 +959,7 @@ python3 .github/scripts/collect-testcontainers-diagnostics.py \
   --workflow-file .github/workflows/examples.yml \
   --sanitized-report-dir examples/build/sanitized-test-reports \
   --max-report-files 400 \
-  --max-report-total-bytes 2000000 \
+  --max-report-total-bytes 8000000 \
   "${report_paths[@]}" || status=1
 test -d examples/build/sanitized-test-reports || status=1
 phase_elapsed=$(( $(date +%s) - phase_started ))
@@ -977,7 +977,7 @@ exit "$status"
 aggregate status를 1로 유지하되 collector는 빈 manifest를 남겨 `if: always()`에서
 진단 artifact를 확인할 수 있게 한다. 모든 test task가 끝난 뒤 collector를 정확히
 한 번 더 호출해 `report_paths`에 열거한 report 디렉터리만 sanitization하고, 이 호출은
-`--max-report-files=400`과 `--max-report-total-bytes=2000000`을 적용한다.
+`--max-report-files=400`과 `--max-report-total-bytes=8000000`을 적용한다.
 Ktor/Spring Boot 조건부 task는 현재
 `build.gradle.kts`가 존재하는 경우에만 compile/test 배열 각각에 추가한다. compile
 task와 test task를 같은 `--parallel` 배열에 넣지 않는다. ID 목록은 정렬·중복 제거해

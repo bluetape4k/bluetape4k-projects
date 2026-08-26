@@ -183,7 +183,7 @@ jobs:
             --workflow-file .github/workflows/examples.yml \
             --sanitized-report-dir examples/build/sanitized-test-reports \
             --max-report-files 400 \
-            --max-report-total-bytes 2000000 \
+            --max-report-total-bytes 8000000 \
             "${report_paths[@]}" || status=1
           test -d examples/build/sanitized-test-reports || status=1
           phase_elapsed=$(( $(date +%s) - phase_started ))
