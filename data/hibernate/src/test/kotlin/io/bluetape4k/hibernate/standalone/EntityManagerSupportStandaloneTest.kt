@@ -19,6 +19,7 @@ import io.bluetape4k.hibernate.save
 import io.bluetape4k.hibernate.sessionFactory
 import io.bluetape4k.hibernate.setPaging
 import jakarta.persistence.TypedQuery
+import io.bluetape4k.assertions.assertNotFails
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeFalse
 import io.bluetape4k.assertions.shouldBeNull
@@ -27,7 +28,6 @@ import io.bluetape4k.assertions.shouldHaveSize
 import io.bluetape4k.assertions.shouldNotBeNull
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertDoesNotThrow
 
 class EntityManagerSupportStandaloneTest : AbstractStandaloneHibernateTest() {
 
@@ -78,14 +78,14 @@ class EntityManagerSupportStandaloneTest : AbstractStandaloneHibernateTest() {
         val entity = StandaloneEntity("merge-test")
         inTransaction { save(entity) }
 
-        val id = entity.id!!
+        val id = entity.id.shouldNotBeNull()
         inTransaction {
             // detached 상태에서 save → merge
             entity.name = "merged"
             save(entity)
         }
         readOnly {
-            val loaded = findAs<StandaloneEntity>(id)!!
+            val loaded = findAs<StandaloneEntity>(id).shouldNotBeNull()
             loaded.name shouldBeEqualTo "merged"
         }
     }
@@ -96,7 +96,7 @@ class EntityManagerSupportStandaloneTest : AbstractStandaloneHibernateTest() {
         inTransaction { save(entity) }
 
         readOnly {
-            val loaded = findAs<StandaloneEntity>(entity.id!!)
+            val loaded = findAs<StandaloneEntity>(entity.id.shouldNotBeNull())
             loaded.shouldNotBeNull()
             loaded.name shouldBeEqualTo "find-test"
         }
@@ -116,7 +116,7 @@ class EntityManagerSupportStandaloneTest : AbstractStandaloneHibernateTest() {
         inTransaction { save(entity) }
 
         readOnly {
-            val loaded = findOne<StandaloneEntity>(entity.id!!)
+            val loaded = findOne<StandaloneEntity>(entity.id.shouldNotBeNull())
             loaded.shouldNotBeNull()
         }
     }
@@ -127,7 +127,7 @@ class EntityManagerSupportStandaloneTest : AbstractStandaloneHibernateTest() {
         inTransaction { save(entity) }
 
         readOnly {
-            exists<StandaloneEntity>(entity.id!!).shouldBeTrue()
+            exists<StandaloneEntity>(entity.id.shouldNotBeNull()).shouldBeTrue()
             exists<StandaloneEntity>(Long.MAX_VALUE).shouldBeFalse()
         }
     }
@@ -167,7 +167,7 @@ class EntityManagerSupportStandaloneTest : AbstractStandaloneHibernateTest() {
         inTransaction { save(entity) }
 
         inTransaction {
-            deleteById<StandaloneEntity>(entity.id!!)
+            deleteById<StandaloneEntity>(entity.id.shouldNotBeNull())
         }
 
         readOnly {
@@ -177,7 +177,7 @@ class EntityManagerSupportStandaloneTest : AbstractStandaloneHibernateTest() {
 
     @Test
     fun `deleteById는 없는 id에 대해 예외를 발생시키지 않는다`() {
-        assertDoesNotThrow {
+        assertNotFails {
             inTransaction {
                 deleteById<StandaloneEntity>(Long.MAX_VALUE)
             }
@@ -190,7 +190,7 @@ class EntityManagerSupportStandaloneTest : AbstractStandaloneHibernateTest() {
         inTransaction { save(entity) }
 
         inTransaction {
-            val loaded = findAs<StandaloneEntity>(entity.id!!)!!
+            val loaded = findAs<StandaloneEntity>(entity.id.shouldNotBeNull()).shouldNotBeNull()
             delete(loaded)
         }
 
@@ -205,7 +205,7 @@ class EntityManagerSupportStandaloneTest : AbstractStandaloneHibernateTest() {
         inTransaction { save(entity) }
 
         inTransaction {
-            val loaded = findAs<StandaloneEntity>(entity.id!!)!!
+            val loaded = findAs<StandaloneEntity>(entity.id.shouldNotBeNull()).shouldNotBeNull()
             isLoaded(loaded).shouldBeTrue()
         }
     }
@@ -265,7 +265,7 @@ class EntityManagerSupportStandaloneTest : AbstractStandaloneHibernateTest() {
         inTransaction { save(entity) }
 
         inTransaction {
-            val loaded = findAs<StandaloneEntity>(entity.id!!)!!
+            val loaded = findAs<StandaloneEntity>(entity.id.shouldNotBeNull()).shouldNotBeNull()
             isLoaded(loaded, "name").shouldBeTrue()
             isLoaded(null, "name").shouldBeFalse()
         }
@@ -277,7 +277,7 @@ class EntityManagerSupportStandaloneTest : AbstractStandaloneHibernateTest() {
         inTransaction { save(entity) }
 
         inTransaction {
-            val ref = getReference<StandaloneEntity>(entity.id!!)
+            val ref = getReference<StandaloneEntity>(entity.id.shouldNotBeNull())
             ref.shouldNotBeNull()
         }
     }

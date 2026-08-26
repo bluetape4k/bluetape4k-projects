@@ -2,6 +2,7 @@ package io.bluetape4k.spring.core.io.buffer
 
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeFalse
+import io.bluetape4k.assertions.shouldBeSameInstanceAs
 import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.assertions.shouldNotBeEmpty
 import io.bluetape4k.io.getAllBytes
@@ -16,13 +17,13 @@ import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.reactive.asPublisher
 import kotlinx.coroutines.test.runTest
-import org.junit.jupiter.api.Assertions.assertSame
 import org.junit.jupiter.api.RepeatedTest
 import org.junit.jupiter.api.Test
 import org.springframework.core.io.ByteArrayResource
 import org.springframework.core.io.buffer.DataBuffer
 import org.springframework.core.io.buffer.DefaultDataBufferFactory
 import org.springframework.core.io.buffer.NettyDataBufferFactory
+import org.springframework.core.io.buffer.PooledDataBuffer
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.nio.channels.AsynchronousFileChannel
@@ -84,10 +85,20 @@ class DataBufferSupportTest: AbstractSpringTest() {
     }
 
     @Test
-    fun `Netty의 PooledDataBuffer를 release 하면 false를 반환한다`() {
-        val dataBuffer = nettyBufferFactory.wrap("test".toByteArray())
-        val released = dataBuffer.release()
-        released.shouldBeTrue()
+    fun `Netty의 PooledDataBuffer를 release 하면 소유권을 해제하고 true를 반환한다`() {
+        val dataBuffer = nettyBufferFactory.wrap("test".toByteArray()) as PooledDataBuffer
+        try {
+            dataBuffer.isAllocated.shouldBeTrue()
+
+            val released = dataBuffer.release()
+
+            released.shouldBeTrue()
+            dataBuffer.isAllocated.shouldBeFalse()
+        } finally {
+            if (dataBuffer.isAllocated) {
+                dataBuffer.release()
+            }
+        }
     }
 
     @Test
@@ -247,13 +258,13 @@ class DataBufferSupportTest: AbstractSpringTest() {
     fun `DataBuffer retain은 같은 버퍼를 반환한다`() {
         val buffer = bufferFactory.wrap("test".toByteArray())
         val retained = buffer.retain()
-        assertSame(buffer, retained)
+        retained shouldBeSameInstanceAs buffer
     }
 
     @Test
     fun `DataBuffer touch는 같은 버퍼를 반환한다`() {
         val buffer = bufferFactory.wrap("test".toByteArray())
         val touched = buffer.touch("hint-value")
-        assertSame(buffer, touched)
+        touched shouldBeSameInstanceAs buffer
     }
 }

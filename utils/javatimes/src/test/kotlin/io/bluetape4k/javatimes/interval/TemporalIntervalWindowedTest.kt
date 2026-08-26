@@ -3,16 +3,16 @@ package io.bluetape4k.javatimes.interval
 import io.bluetape4k.javatimes.nowZonedDateTime
 import io.bluetape4k.javatimes.startOf
 import io.bluetape4k.javatimes.temporalAmount
-import io.bluetape4k.logging.KLogging
-import io.bluetape4k.logging.trace
+import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeLessOrEqualTo
-import org.junit.jupiter.api.Assertions
+import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.trace
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.EnumSource
 import java.time.temporal.ChronoUnit
-import io.bluetape4k.assertions.assertFailsWith
 
 class TemporalIntervalWindowedTest {
 
@@ -35,8 +35,8 @@ class TemporalIntervalWindowedTest {
             chunks.forEachIndexed { index, chunk ->
                 log.trace { "chunks[$index] = $chunk" }
                 chunk.size shouldBeLessOrEqualTo 4
-                Assertions.assertTrue { chunk.first() in interval }
-                Assertions.assertTrue { chunk.last() in interval }
+                (chunk.first() in interval).shouldBeTrue()
+                (chunk.last() in interval).shouldBeTrue()
             }
 
             chunks.size shouldBeEqualTo 2
@@ -71,7 +71,7 @@ class TemporalIntervalWindowedTest {
             chunks.size shouldBeEqualTo 2
             chunks.forEach {
                 log.trace { "chunk=$it" }
-                Assertions.assertTrue { it in interval }
+                (it in interval).shouldBeTrue()
             }
         }
     }
@@ -93,8 +93,8 @@ class TemporalIntervalWindowedTest {
             windowed.forEachIndexed { index, items ->
                 log.trace { "index=$index, items=$items" }
 
-                Assertions.assertTrue { items.first() in interval }
-                Assertions.assertTrue { items.last() in interval }
+                (items.first() in interval).shouldBeTrue()
+                (items.last() in interval).shouldBeTrue()
             }
             windowed.count() shouldBeEqualTo 3
 
@@ -130,9 +130,9 @@ class TemporalIntervalWindowedTest {
             zipWithNext.count() shouldBeEqualTo 4
             zipWithNext.forEach { (current, next) ->
                 log.trace { "current=$current, next=$next" }
-                kotlin.test.assertTrue { current in interval }
-                kotlin.test.assertTrue { next in interval }
-                kotlin.test.assertTrue { current < next }
+                (current in interval).shouldBeTrue()
+                (next in interval).shouldBeTrue()
+                (current < next).shouldBeTrue()
             }
         }
     }

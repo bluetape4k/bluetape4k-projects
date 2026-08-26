@@ -2,6 +2,8 @@ package io.bluetape4k.jwt.keychain.redis
 
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeFalse
+import io.bluetape4k.assertions.shouldBeNull
+import io.bluetape4k.assertions.shouldBeSameInstanceAs
 import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.assertions.shouldContain
 import io.bluetape4k.assertions.assertFailsWith
@@ -16,6 +18,7 @@ import io.bluetape4k.testcontainers.storage.RedisServer
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
+import org.awaitility.kotlin.await
 import org.junit.jupiter.api.Test
 import org.redisson.Redisson
 import org.redisson.api.RDeque
@@ -26,8 +29,6 @@ import java.util.*
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
-import kotlin.test.assertNull
-import kotlin.test.assertSame
 
 class RedisKeyChainRepositoryTest: AbstractKeyChainRepositoryTest() {
 
@@ -49,9 +50,14 @@ class RedisKeyChainRepositoryTest: AbstractKeyChainRepositoryTest() {
         every { lock.tryLock(REDIS_ROTATION_LOCK_WAIT_SECONDS, TimeUnit.SECONDS) } returns true
         every { lock.isHeldByCurrentThread } returns true
 
-        RedisKeyChainRepository(redisson).forcedRotate(KeyChain()).shouldBeTrue()
+        val repository = RedisKeyChainRepository(redisson)
+        try {
+            repository.forcedRotate(KeyChain()).shouldBeTrue()
 
-        verify(exactly = 1) { lock.tryLock(REDIS_ROTATION_LOCK_WAIT_SECONDS, TimeUnit.SECONDS) }
+            verify(exactly = 1) { lock.tryLock(REDIS_ROTATION_LOCK_WAIT_SECONDS, TimeUnit.SECONDS) }
+        } finally {
+            repository.close()
+        }
     }
 
     @Test
@@ -80,8 +86,8 @@ class RedisKeyChainRepositoryTest: AbstractKeyChainRepositoryTest() {
             withRedisRotationLock(lock) { throw primaryFailure }
         }
 
-        assertSame(primaryFailure, failure)
-        assertSame(unlockFailure, failure.suppressed.single())
+        failure shouldBeSameInstanceAs primaryFailure
+        failure.suppressed.single() shouldBeSameInstanceAs unlockFailure
     }
 
     @Test
@@ -89,23 +95,31 @@ class RedisKeyChainRepositoryTest: AbstractKeyChainRepositoryTest() {
         val firstClient = createWatchdogClient()
         val secondClient = createWatchdogClient()
         val lockName = "test:jwt:keychain:watchdog:${UUID.randomUUID()}"
-        val ownerLock = LeaseCappingLock(firstClient.getLock(lockName), 250)
+        val ownerLock = firstClient.getLock(lockName)
         val contenderLock = secondClient.getLock(lockName)
         val started = CountDownLatch(1)
+        val releaseCommit = CountDownLatch(1)
         val executor = Executors.newSingleThreadExecutor()
 
         try {
             val result = executor.submit<Boolean> {
                 withRedisRotationLock(ownerLock) {
                     started.countDown()
-                    Thread.sleep(1_200)
+                    releaseCommit.await(5, TimeUnit.SECONDS).shouldBeTrue()
                     true
                 }
             }
 
             started.await(5, TimeUnit.SECONDS).shouldBeTrue()
-            Thread.sleep(600)
-            contenderLock.tryLock(100, TimeUnit.MILLISECONDS).shouldBeFalse()
+            // watchdog timeout(900ms)을 넘는 동안 contender가 lock을 얻지 못해야 갱신이 증명됩니다.
+            await.during(Duration.ofMillis(1_200)).until {
+                val acquired = contenderLock.tryLock(100, TimeUnit.MILLISECONDS)
+                if (acquired) {
+                    contenderLock.unlock()
+                }
+                !acquired
+            }
+            releaseCommit.countDown()
             result.get(5, TimeUnit.SECONDS).shouldBeTrue()
 
             contenderLock.tryLock(1, TimeUnit.SECONDS).shouldBeTrue()
@@ -113,6 +127,7 @@ class RedisKeyChainRepositoryTest: AbstractKeyChainRepositoryTest() {
             if (contenderLock.isHeldByCurrentThread) {
                 contenderLock.unlock()
             }
+            releaseCommit.countDown()
             executor.shutdownNow()
             firstClient.shutdown()
             secondClient.shutdown()
@@ -127,9 +142,8 @@ class RedisKeyChainRepositoryTest: AbstractKeyChainRepositoryTest() {
         val secondNode = RedisKeyChainRepository(redisson, queueName = queueName)
 
         try {
-            val expiredKeyChain = KeyChain(expiredTtl = Duration.ofMillis(1))
+            val expiredKeyChain = alreadyExpiredKeyChain()
             seedRepository.forcedRotate(expiredKeyChain).shouldBeTrue()
-            Thread.sleep(10)
 
             firstNode.current() shouldBeEqualTo expiredKeyChain
             secondNode.current() shouldBeEqualTo expiredKeyChain
@@ -148,9 +162,15 @@ class RedisKeyChainRepositoryTest: AbstractKeyChainRepositoryTest() {
             firstNode.current() shouldBeEqualTo winner
             secondNode.current() shouldBeEqualTo winner
             seedRepository.findOrNull(winner.id) shouldBeEqualTo winner
-            assertNull(seedRepository.findOrNull(loser.id))
+            seedRepository.findOrNull(loser.id).shouldBeNull()
         } finally {
-            seedRepository.deleteAll()
+            try {
+                seedRepository.deleteAll()
+            } finally {
+                firstNode.close()
+                secondNode.close()
+                seedRepository.close()
+            }
         }
     }
 
@@ -163,9 +183,8 @@ class RedisKeyChainRepositoryTest: AbstractKeyChainRepositoryTest() {
         val executor = Executors.newFixedThreadPool(2)
 
         try {
-            val expiredKeyChain = KeyChain(expiredTtl = Duration.ofMillis(1))
+            val expiredKeyChain = alreadyExpiredKeyChain()
             seedRepository.forcedRotate(expiredKeyChain).shouldBeTrue()
-            Thread.sleep(10)
 
             firstNode.current() shouldBeEqualTo expiredKeyChain
             secondNode.current() shouldBeEqualTo expiredKeyChain
@@ -192,10 +211,16 @@ class RedisKeyChainRepositoryTest: AbstractKeyChainRepositoryTest() {
             firstNode.current() shouldBeEqualTo winner
             secondNode.current() shouldBeEqualTo winner
             seedRepository.findOrNull(winner.id) shouldBeEqualTo winner
-            assertNull(seedRepository.findOrNull(loser.id))
+            seedRepository.findOrNull(loser.id).shouldBeNull()
         } finally {
             executor.shutdownNow()
-            seedRepository.deleteAll()
+            try {
+                seedRepository.deleteAll()
+            } finally {
+                firstNode.close()
+                secondNode.close()
+                seedRepository.close()
+            }
         }
     }
 
@@ -206,12 +231,4 @@ class RedisKeyChainRepositoryTest: AbstractKeyChainRepositoryTest() {
             },
         )
 
-    private class LeaseCappingLock(
-        private val delegate: RLock,
-        private val cappedLeaseMillis: Long,
-    ): RLock by delegate {
-
-        override fun tryLock(waitTime: Long, leaseTime: Long, unit: TimeUnit): Boolean =
-            delegate.tryLock(waitTime, cappedLeaseMillis, TimeUnit.MILLISECONDS)
-    }
 }
