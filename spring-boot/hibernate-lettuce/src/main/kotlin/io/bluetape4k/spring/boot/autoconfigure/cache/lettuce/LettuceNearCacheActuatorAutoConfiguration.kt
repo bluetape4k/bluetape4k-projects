@@ -11,7 +11,8 @@ import org.springframework.context.annotation.Bean
 /**
  * Lettuce Near Cache Actuator Endpoint 자동 설정.
  *
- * `spring-boot-actuate`가 classpath에 있을 때 [LettuceNearCacheActuatorEndpoint]를 등록한다.
+ * `spring-boot-starter-actuator`가 classpath에 있고 root/metrics 설정이
+ * 모두 활성화될 때 [LettuceNearCacheActuatorEndpoint]를 등록한다.
  * `@ConditionalOnClass(Endpoint::class)`이 클래스 레벨에 있어, actuate가 없으면 이 클래스 자체가 로드되지 않는다.
  *
  * ```yaml
@@ -47,6 +48,12 @@ import org.springframework.context.annotation.Bean
 @ConditionalOnBean(type = ["jakarta.persistence.EntityManagerFactory"])
 @ConditionalOnProperty(
     prefix = "bluetape4k.cache.lettuce-near",
+    name = ["enabled"],
+    havingValue = "true",
+    matchIfMissing = true,
+)
+@ConditionalOnProperty(
+    prefix = "bluetape4k.cache.lettuce-near.metrics",
     name = ["enabled"],
     havingValue = "true",
     matchIfMissing = true,
