@@ -1,10 +1,7 @@
 package io.bluetape4k.spring.beans
 
 import io.bluetape4k.support.requireNotBlank
-import io.bluetape4k.utils.KotlinDelegates
-import org.springframework.beans.BeanInstantiationException
 import org.springframework.beans.BeanUtils
-import org.springframework.core.KotlinDetector
 import org.springframework.core.MethodParameter
 import java.beans.PropertyDescriptor
 import java.lang.reflect.Constructor
@@ -28,8 +25,8 @@ fun <T: Any> Class<T>.instantiateClass(): T = BeanUtils.instantiateClass(this)
  * 생성자와 인자로 인스턴스를 생성합니다.
  *
  * ## 동작/계약
- * - Kotlin 타입이면 [KotlinDelegates.instantiateClass], 아니면 [BeanUtils.instantiateClass]를 사용합니다.
- * - 생성 과정 예외는 [BeanInstantiationException]으로 감싸서 던집니다.
+ * - Kotlin 기본값/nullable 인자를 포함한 생성은 Spring의 Kotlin-aware [BeanUtils.instantiateClass]에 위임합니다.
+ * - Spring이 제공하는 [org.springframework.beans.BeanInstantiationException]과 원인 예외를 그대로 전파합니다.
  *
  * ```kotlin
  * val ctor = MyType::class.java.getDeclaredConstructor(String::class.java)
@@ -38,18 +35,7 @@ fun <T: Any> Class<T>.instantiateClass(): T = BeanUtils.instantiateClass(this)
  * ```
  */
 fun <T: Any> Constructor<T>.instantiateClass(vararg args: Any?): T =
-    try {
-        when {
-            KotlinDetector.isKotlinType(this.declaringClass) -> {
-                KotlinDelegates.instantiateClass(this, *args)!!
-            }
-            else -> {
-                BeanUtils.instantiateClass(this, *args)
-            }
-        }
-    } catch (e: Exception) {
-        throw BeanInstantiationException(this, "Fail to instantiate", e)
-    }
+    BeanUtils.instantiateClass(this, *args)
 
 /**
  * 수신 클래스로 인스턴스를 생성한 뒤 지정 타입으로 반환합니다.
