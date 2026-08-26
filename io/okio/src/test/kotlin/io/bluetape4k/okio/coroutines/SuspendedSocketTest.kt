@@ -1,8 +1,9 @@
 package io.bluetape4k.okio.coroutines
 
 import io.bluetape4k.assertions.assertFailsWith
+import io.bluetape4k.assertions.fail
 import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.junit5.coroutines.runSuspendTest
+import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.junit5.faker.Fakers
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.okio.AbstractOkioTest
@@ -12,7 +13,6 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withTimeoutOrNull
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.fail
 import java.io.IOException
 import java.net.InetSocketAddress
 import java.net.Socket
@@ -109,7 +109,7 @@ class SuspendedSocketTest: AbstractOkioTest() {
         }
     }
 
-    private fun runSocketTest(block: suspend (client: Socket, server: Socket) -> Unit) = runSuspendTest {
+    private fun runSocketTest(block: suspend (client: Socket, server: Socket) -> Unit) = runSuspendIO {
         withTimeoutOrNull(DEFAULT_TIMEOUT_MS.milliseconds) {
             ServerSocketChannel.open().use { serverSocketChannel ->
                 val serverSocket = serverSocketChannel.socket()

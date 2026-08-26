@@ -11,7 +11,6 @@ import org.junit.jupiter.api.Test
 import java.time.Duration
 import java.util.concurrent.ConcurrentLinkedDeque
 import java.util.concurrent.atomic.AtomicInteger
-import kotlin.test.assertTrue
 
 class DefaultJwtProviderTest: AbstractJwtProviderTest() {
 
@@ -31,12 +30,12 @@ class DefaultJwtProviderTest: AbstractJwtProviderTest() {
             await.atMost(Duration.ofSeconds(2)).until { lifecycleRepository.refreshCount.get() > 0 }
             await.atMost(Duration.ofSeconds(2)).until { hasLiveThread(timerName) }
 
-            assertTrue(lifecycleRepository is AutoCloseable)
-            (lifecycleRepository as AutoCloseable).close()
+            lifecycleRepository.close()
 
             val refreshCountAfterClose = lifecycleRepository.refreshCount.get()
-            Thread.sleep(100)
-            lifecycleRepository.refreshCount.get().shouldBeEqualTo(refreshCountAfterClose)
+            await.during(Duration.ofMillis(100)).until {
+                lifecycleRepository.refreshCount.get() == refreshCountAfterClose
+            }
             await.atMost(Duration.ofSeconds(2)).until { !hasLiveThread(timerName) }
         } finally {
             lifecycleRepository.close()
@@ -56,15 +55,15 @@ class DefaultJwtProviderTest: AbstractJwtProviderTest() {
             await.atMost(Duration.ofSeconds(2)).until { lifecycleRepository.rotateCount.get() > 1 }
             await.atMost(Duration.ofSeconds(2)).until { hasLiveThread(repositoryTimerName) }
 
-            assertTrue(lifecycleProvider is AutoCloseable)
-            (lifecycleProvider as AutoCloseable).close()
+            lifecycleProvider.close()
 
             val rotationCountAfterClose = lifecycleRepository.rotateCount.get()
-            Thread.sleep(100)
-            lifecycleRepository.rotateCount.get().shouldBeEqualTo(rotationCountAfterClose)
+            await.during(Duration.ofMillis(100)).until {
+                lifecycleRepository.rotateCount.get() == rotationCountAfterClose
+            }
             hasLiveThread(repositoryTimerName).shouldBeEqualTo(true)
 
-            (lifecycleRepository as AutoCloseable).close()
+            lifecycleRepository.close()
             await.atMost(Duration.ofSeconds(2)).until { !hasLiveThread(repositoryTimerName) }
         } finally {
             lifecycleProvider.close()

@@ -2,14 +2,15 @@ package io.bluetape4k.logging
 
 import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.assertions.shouldNotBeNull
 import org.junit.jupiter.api.Test
-import kotlin.test.assertTrue
 
 class KotlinLoggingTest {
 
     private val log = KotlinLogging.logger {}
 
-    private val loggerName = KotlinLoggingTest::class.qualifiedName!!
+    private val loggerName = KotlinLoggingTest::class.qualifiedName.shouldNotBeNull()
 
     @Test
     fun `logging trace`() {
@@ -43,6 +44,6 @@ class KotlinLoggingTest {
         class LocalClass
 
         val logger = KotlinLogging.logger(LocalClass::class)
-        assertTrue(logger.name.isNotBlank())
+        logger.name.isNotBlank().shouldBeTrue()
     }
 }

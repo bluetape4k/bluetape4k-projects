@@ -8,6 +8,7 @@ import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.assertions.shouldNotBeNull
 import io.bluetape4k.spring.AbstractSpringTest
 import org.junit.jupiter.api.Test
+import org.springframework.beans.BeanInstantiationException
 
 class BeanUtilsSupportTest: AbstractSpringTest() {
 
@@ -21,6 +22,8 @@ class BeanUtilsSupportTest: AbstractSpringTest() {
     class DerivedBean: BaseBean() {
         override fun execute(): String = "derived"
     }
+
+    class RequiredArgumentBean(val value: String)
 
     @Test
     fun `instantiateClass - 기본 생성자로 인스턴스 생성`() {
@@ -38,10 +41,22 @@ class BeanUtilsSupportTest: AbstractSpringTest() {
 
     @Test
     fun `Constructor instantiateClass - 인자로 인스턴스 생성`() {
-        val ctor = SampleBean::class.java.getDeclaredConstructor(String::class.java, Int::class.javaPrimitiveType!!)
+        val primitiveInt = Int::class.javaPrimitiveType.shouldNotBeNull()
+        val ctor = SampleBean::class.java.getDeclaredConstructor(String::class.java, primitiveInt)
         val instance = ctor.instantiateClass("test", 42)
         instance.name shouldBeEqualTo "test"
         instance.value shouldBeEqualTo 42
+    }
+
+    @Test
+    fun `Constructor instantiateClass - nullable 인자는 원인과 함께 BeanInstantiationException으로 변환`() {
+        val ctor = RequiredArgumentBean::class.java.getDeclaredConstructor(String::class.java)
+
+        val error = assertFailsWith<BeanInstantiationException> {
+            ctor.instantiateClass(null)
+        }
+
+        error.cause.shouldBeInstanceOf<NullPointerException>()
     }
 
     @Test

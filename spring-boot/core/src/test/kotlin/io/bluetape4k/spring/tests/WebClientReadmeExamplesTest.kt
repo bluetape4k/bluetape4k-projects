@@ -1,5 +1,6 @@
 package io.bluetape4k.spring.tests
 
+import io.bluetape4k.assertions.should
 import io.bluetape4k.assertions.shouldNotBeNull
 import kotlinx.coroutines.reactive.asFlow
 import org.junit.jupiter.api.Test
@@ -7,7 +8,6 @@ import org.springframework.web.reactive.function.client.WebClient
 import java.nio.file.Files
 import java.nio.file.Path
 import kotlin.io.path.readText
-import kotlin.test.assertTrue
 
 class WebClientReadmeExamplesTest {
 
@@ -20,10 +20,7 @@ class WebClientReadmeExamplesTest {
                     .map { it.value.replace(Regex("\\s+"), " ") }
                     .toList()
 
-            assertTrue(
-                actual = matches.isEmpty(),
-                message = "$fileName should not chain .retrieve() after httpGet/httpPost: $matches",
-            )
+            matches.should("$fileName should not chain .retrieve() after httpGet/httpPost: $matches") { it.isEmpty() }
         }
     }
 
