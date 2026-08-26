@@ -3,6 +3,7 @@ package io.bluetape4k.math
 import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldContain
+import io.bluetape4k.assertions.shouldNotBeNull
 import io.bluetape4k.collections.repeat
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
@@ -18,8 +19,6 @@ class ComparableHistogramTest {
 
     private val valueVector = sequenceOf(0.0, 1.0, 3.0, 5.0, 11.0)
     private val groups = sequenceOf("A", "B", "B", "C", "C")
-
-    private val grouped = groups.zip(valueVector)
 
     @Test
     fun `histogram by comparable number`() {
@@ -41,9 +40,9 @@ class ComparableHistogramTest {
         histogram.bins.size shouldBeEqualTo 3
 
         // range의 어떤 값이던 상관없다 (BinModel.get operator를 보라)
-        histogram[5.0]!!.range shouldBeEqualTo DefaultClosedClosedRange(0.0, 100.0)
-        histogram[105.0]!!.range shouldBeEqualTo DefaultClosedClosedRange(100.0, 200.0)
-        histogram[205.0]!!.range shouldBeEqualTo DefaultClosedClosedRange(200.0, 300.0)
+        histogram[5.0].shouldNotBeNull().range shouldBeEqualTo DefaultClosedClosedRange(0.0, 100.0)
+        histogram[105.0].shouldNotBeNull().range shouldBeEqualTo DefaultClosedClosedRange(100.0, 200.0)
+        histogram[205.0].shouldNotBeNull().range shouldBeEqualTo DefaultClosedClosedRange(200.0, 300.0)
     }
 
     data class Sale(val accountId: Int, val date: LocalDate, val value: Double)
@@ -70,7 +69,7 @@ class ComparableHistogramTest {
             log.debug { it }
         }
 
-        byQuarter[Month.MAY]!!.value shouldBeEqualTo listOf(sales[4])
+        byQuarter[Month.MAY].shouldNotBeNull().value shouldBeEqualTo listOf(sales[4])
     }
 
     @Test
@@ -93,7 +92,7 @@ class ComparableHistogramTest {
             groupOp = { list -> list.asSequence().map { it.value }.sum() }
         )
         byQuarter.forEach { log.trace { it } }
-        byQuarter[Month.MAY]!!.value shouldBeEqualTo 137.9
+        byQuarter[Month.MAY].shouldNotBeNull().value shouldBeEqualTo 137.9
     }
 
     @Test
@@ -116,7 +115,7 @@ class ComparableHistogramTest {
             rangeStart = 100.0
         )
         binned.forEach { log.trace { it } }
-        binned[110.0]!!.value shouldContain sales[2]
+        binned[110.0].shouldNotBeNull().value shouldContain sales[2]
     }
 
     @Test
@@ -129,5 +128,38 @@ class ComparableHistogramTest {
         assertFailsWith<IllegalArgumentException> {
             values.binByComparable(incrementer = { it - 1 }, valueMapper = { it })
         }
+    }
+
+    @Test
+    fun `binByComparable rejects empty input`() {
+        assertFailsWith<IllegalArgumentException> {
+            emptyList<Int>().binByComparable(incrementer = { it + 1 }, valueMapper = { it })
+        }
+    }
+
+    @Test
+    fun `binByComparable keeps duplicate values in the same bin`() {
+        val values = listOf(1, 1, 2)
+
+        val histogram = values.binByComparable(
+            incrementer = { it + 2 },
+            valueMapper = { it },
+            rangeStart = 1,
+        )
+
+        histogram[1].shouldNotBeNull().value shouldBeEqualTo values
+    }
+
+    @Test
+    fun `sequence binning supports single use sequences`() {
+        val histogram = sequenceOf(1, 1, 2)
+            .constrainOnce()
+            .binByComparable(
+                incrementer = { it + 2 },
+                valueMapper = { it },
+                rangeStart = 1,
+            )
+
+        histogram[1].shouldNotBeNull().value shouldBeEqualTo listOf(1, 1, 2)
     }
 }

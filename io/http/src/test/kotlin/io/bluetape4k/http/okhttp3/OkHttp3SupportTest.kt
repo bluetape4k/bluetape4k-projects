@@ -3,9 +3,11 @@ package io.bluetape4k.http.okhttp3
 import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.assertions.shouldNotBeBlank
 import io.bluetape4k.assertions.shouldNotBeNull
+import io.bluetape4k.assertions.fail
 import io.bluetape4k.concurrent.allAsList
 import io.bluetape4k.concurrent.onFailure
 import io.bluetape4k.concurrent.onSuccess
+import io.bluetape4k.coroutines.support.awaitSuspending
 import io.bluetape4k.http.AbstractHttpTest
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.KLogging
@@ -17,7 +19,6 @@ import kotlinx.coroutines.awaitAll
 import okhttp3.Dispatcher
 import okhttp3.OkHttpClient
 import org.apache.commons.lang3.time.StopWatch
-import org.junit.jupiter.api.Assertions.fail
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.RepeatedTest
 import org.junit.jupiter.api.Test
@@ -41,7 +42,7 @@ class OkHttp3SupportTest: AbstractHttpTest() {
     inner class Async {
 
         @Test
-        fun `OkHttpClient 비동기 GET`() {
+        fun `OkHttpClient 비동기 GET`() = runSuspendIO {
             val request = okhttp3Request {
                 url("$HTTPBIN_URL/get")
                 get()
@@ -50,7 +51,7 @@ class OkHttp3SupportTest: AbstractHttpTest() {
         }
 
         @RepeatedTest(REPEAT_SIZE)
-        fun `OkHttpClient 비동기 GET 통신 성능 테스트`() {
+        fun `OkHttpClient 비동기 GET 통신 성능 테스트`() = runSuspendIO {
             val request = okhttp3Request {
                 url("$HTTPBIN_URL/get")
                 get()
@@ -68,13 +69,13 @@ class OkHttp3SupportTest: AbstractHttpTest() {
                             it.bodyAsString().shouldNotBeBlank()
                         }
                     }
-                    .onFailure { error -> fail(error) }
+                    .onFailure { error -> fail(cause = error) }
             }
 
-            futures.allAsList().get()
+            futures.allAsList().awaitSuspending()
         }
 
-        private fun CompletableFuture<okhttp3.Response>.verifyResponse() {
+        private suspend fun CompletableFuture<okhttp3.Response>.verifyResponse() {
             this
                 .onSuccess { response ->
                     response.use {
@@ -86,7 +87,7 @@ class OkHttp3SupportTest: AbstractHttpTest() {
                     log.error(error) { "Failed to execute request" }
                     fail("Failed to execute request", error)
                 }
-                .get()  // 이게 Blocking 이라는 겁니다 ㅠㅠ
+                .awaitSuspending()
         }
     }
 

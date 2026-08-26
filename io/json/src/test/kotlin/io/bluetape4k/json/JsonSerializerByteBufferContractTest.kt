@@ -1,10 +1,11 @@
 package io.bluetape4k.json
 
-import org.junit.jupiter.api.Assertions.assertArrayEquals
-import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.Assertions.assertSame
-import org.junit.jupiter.api.Assertions.assertThrows
-import org.junit.jupiter.api.Assertions.fail
+import io.bluetape4k.assertions.assertFailsWith
+import io.bluetape4k.assertions.fail
+import io.bluetape4k.assertions.expectThat
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeSameInstanceAs
+import io.bluetape4k.assertions.shouldContentEqual
 import org.junit.jupiter.api.Test
 import java.nio.BufferOverflowException
 import java.nio.ByteBuffer
@@ -30,17 +31,23 @@ class JsonSerializerByteBufferContractTest {
             val capacity = target.capacity()
             val order = target.order()
 
-            assertEquals(PAYLOAD.size, serializer.serializeTo("value", target), name)
+            expectThat(PAYLOAD.size, name) { serializer.serializeTo("value", target) }
 
-            assertEquals(start + PAYLOAD.size, target.position(), name)
-            assertEquals(limit, target.limit(), name)
-            assertEquals(capacity, target.capacity(), name)
-            assertEquals(order, target.order(), name)
-            assertArrayEquals(PAYLOAD, target.fullBytes().copyOfRange(start, start + PAYLOAD.size), name)
-            assertArrayEquals(before.copyOfRange(0, start), target.fullBytes().copyOfRange(0, start), name)
-            assertArrayEquals(before.copyOfRange(limit, capacity), target.fullBytes().copyOfRange(limit, capacity), name)
+            expectThat(start + PAYLOAD.size, name) { target.position() }
+            expectThat(limit, name) { target.limit() }
+            expectThat(capacity, name) { target.capacity() }
+            expectThat(order, name) { target.order() }
+            expectThat(PAYLOAD.toList(), name) {
+                target.fullBytes().copyOfRange(start, start + PAYLOAD.size).toList()
+            }
+            expectThat(before.copyOfRange(0, start).toList(), name) {
+                target.fullBytes().copyOfRange(0, start).toList()
+            }
+            expectThat(before.copyOfRange(limit, capacity).toList(), name) {
+                target.fullBytes().copyOfRange(limit, capacity).toList()
+            }
             target.reset()
-            assertEquals(start, target.position(), "$name mark")
+            expectThat(start, "$name mark") { target.position() }
         }
     }
 
@@ -53,12 +60,12 @@ class JsonSerializerByteBufferContractTest {
         })
         val target = ByteBuffer.allocate(8).asReadOnlyBuffer()
 
-        assertThrows(ReadOnlyBufferException::class.java) {
+        assertFailsWith<ReadOnlyBufferException> {
             serializer.serializeTo(null, target)
         }
 
-        assertEquals(0, invocations.get())
-        assertEquals(0, target.position())
+        invocations.get() shouldBeEqualTo 0
+        target.position() shouldBeEqualTo 0
     }
 
     @Test
@@ -67,32 +74,32 @@ class JsonSerializerByteBufferContractTest {
         val target = configuredTarget(0)
         val before = target.fullBytes()
 
-        assertEquals(0, serializer.serializeTo(null, target))
+        serializer.serializeTo(null, target) shouldBeEqualTo 0
 
-        assertEquals(3, target.position())
-        assertArrayEquals(before, target.fullBytes())
+        target.position() shouldBeEqualTo 3
+        target.fullBytes() shouldContentEqual before
     }
 
     @Test
     fun `overflow and backend failures restore position while Error identity is retained`() {
         val overflowTarget = configuredTarget(PAYLOAD.size - 1)
         val serializer = jsonSerializer(serialize = { PAYLOAD })
-        assertThrows(BufferOverflowException::class.java) {
+        assertFailsWith<BufferOverflowException> {
             serializer.serializeTo("value", overflowTarget)
         }
-        assertEquals(3, overflowTarget.position())
+        overflowTarget.position() shouldBeEqualTo 3
 
         val fatal = AssertionError("fatal")
         val fatalTarget = configuredTarget(PAYLOAD.size)
         val fatalSerializer = jsonSerializer(serialize = { throw fatal })
-        val actual = assertThrows(AssertionError::class.java) {
+        val actual = assertFailsWith<AssertionError> {
             fatalSerializer.serializeTo("value", fatalTarget)
         }
-        assertSame(fatal, actual)
-        assertEquals(3, fatalTarget.position())
+        actual shouldBeSameInstanceAs fatal
+        fatalTarget.position() shouldBeEqualTo 3
 
         val retry = configuredTarget(PAYLOAD.size)
-        assertEquals(PAYLOAD.size, serializer.serializeTo("value", retry))
+        serializer.serializeTo("value", retry) shouldBeEqualTo PAYLOAD.size
     }
 
     @Test
@@ -107,14 +114,14 @@ class JsonSerializerByteBufferContractTest {
                 "decoded"
             })
 
-            assertEquals("decoded", serializer.deserializeFrom(source, String::class.java), name)
-            assertEquals("decoded", serializer.deserialize<String>(source), "$name reified")
-            assertArrayEquals(PAYLOAD, received, name)
-            assertEquals(start, source.position(), name)
-            assertEquals(limit, source.limit(), name)
-            assertEquals(order, source.order(), name)
+            expectThat("decoded", name) { serializer.deserializeFrom(source, String::class.java) }
+            expectThat("decoded", "$name reified") { serializer.deserialize<String>(source) }
+            expectThat(PAYLOAD.toList(), name) { received?.toList() }
+            expectThat(start, name) { source.position() }
+            expectThat(limit, name) { source.limit() }
+            expectThat(order, name) { source.order() }
             source.reset()
-            assertEquals(start, source.position(), "$name mark")
+            expectThat(start, "$name mark") { source.position() }
         }
     }
 
@@ -126,15 +133,15 @@ class JsonSerializerByteBufferContractTest {
             val limit = source.limit()
             val serializer = jsonSerializer(deserialize = { _, _ -> throw fatal })
 
-            val actual = assertThrows(AssertionError::class.java) {
+            val actual = assertFailsWith<AssertionError> {
                 serializer.deserializeFrom(source, String::class.java)
             }
 
-            assertSame(fatal, actual, name)
-            assertEquals(start, source.position(), name)
-            assertEquals(limit, source.limit(), name)
+            actual shouldBeSameInstanceAs fatal
+            expectThat(start, name) { source.position() }
+            expectThat(limit, name) { source.limit() }
             source.reset()
-            assertEquals(start, source.position(), "$name mark")
+            expectThat(start, "$name mark") { source.position() }
         }
     }
 
@@ -151,17 +158,17 @@ class JsonSerializerByteBufferContractTest {
                 throw JsonSerializationException("$kind JSON source")
             })
 
-            val failure = assertThrows(JsonSerializationException::class.java, {
+            val failure = assertFailsWith<JsonSerializationException>(name) {
                 serializer.deserializeFrom(source, String::class.java)
-            }, name)
+            }
 
-            assertEquals("${if (expectedBytes.isEmpty()) "empty" else "malformed"} JSON source", failure.message, name)
-            assertArrayEquals(expectedBytes, received, name)
-            assertEquals(start, source.position(), name)
-            assertEquals(limit, source.limit(), name)
-            assertEquals(order, source.order(), name)
+            failure.message shouldBeEqualTo "${if (expectedBytes.isEmpty()) "empty" else "malformed"} JSON source"
+            received shouldContentEqual expectedBytes
+            source.position() shouldBeEqualTo start
+            source.limit() shouldBeEqualTo limit
+            source.order() shouldBeEqualTo order
             source.reset()
-            assertEquals(start, source.position(), "$name mark")
+            source.position() shouldBeEqualTo start
         }
     }
 
@@ -180,19 +187,19 @@ class JsonSerializerByteBufferContractTest {
             if (repetition % 2 == 0) {
                 val expected = value.encodeToByteArray()
                 val target = ByteBuffer.allocate(expected.size)
-                assertEquals(expected.size, serializer.serializeTo(value, target))
+                serializer.serializeTo(value, target) shouldBeEqualTo expected.size
                 target.flip()
-                assertEquals(value, serializer.deserializeFrom(target.asReadOnlyBuffer(), String::class.java))
+                serializer.deserializeFrom(target.asReadOnlyBuffer(), String::class.java) shouldBeEqualTo value
             } else {
                 val target = ByteBuffer.allocate(value.encodeToByteArray().size - 1)
-                assertThrows(BufferOverflowException::class.java) { serializer.serializeTo(value, target) }
-                assertEquals(0, target.position())
+                assertFailsWith<BufferOverflowException> { serializer.serializeTo(value, target) }
+                target.position() shouldBeEqualTo 0
 
                 val source = ByteBuffer.wrap(MALFORMED.copyOf()).asReadOnlyBuffer()
-                assertThrows(JsonSerializationException::class.java) {
+                assertFailsWith<JsonSerializationException> {
                     serializer.deserializeFrom(source, String::class.java)
                 }
-                assertEquals(0, source.position())
+                source.position() shouldBeEqualTo 0
             }
         }
     }
@@ -324,10 +331,10 @@ private fun verifyJsonBufferConcurrency(
 
         startBarrier.await(JSON_START_TIMEOUT_SECONDS, TimeUnit.SECONDS)
         if (!completion.await(JSON_COMPLETION_TIMEOUT_SECONDS, TimeUnit.SECONDS)) {
-            fail<Unit>("JSON buffer workers timed out; unfinished=${unfinished.sorted().take(JSON_MAX_DIAGNOSTICS)}")
+            fail("JSON buffer workers timed out; unfinished=${unfinished.sorted().take(JSON_MAX_DIAGNOSTICS)}")
         }
         if (failures.isNotEmpty()) {
-            fail<Unit>("JSON buffer worker failures: ${failures.take(JSON_MAX_DIAGNOSTICS)}")
+            fail("JSON buffer worker failures: ${failures.take(JSON_MAX_DIAGNOSTICS)}")
         }
     } finally {
         executor.shutdownNow()
@@ -338,7 +345,7 @@ private fun verifyJsonBufferConcurrency(
                     .map { it.name }
                     .take(JSON_MAX_DIAGNOSTICS)
                     .toList()
-            fail<Unit>(
+            fail(
                 "JSON buffer executor did not terminate; " +
                     "unfinished=${unfinished.sorted().take(JSON_MAX_DIAGNOSTICS)}, threads=$threads",
             )

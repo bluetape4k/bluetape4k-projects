@@ -10,13 +10,13 @@ import io.bluetape4k.javatimes.period.TimeCalendar
 import io.bluetape4k.javatimes.startOfQuarter
 import io.bluetape4k.javatimes.startOfYear
 import io.bluetape4k.javatimes.zonedDateTimeOf
-import io.bluetape4k.logging.KLogging
-import io.bluetape4k.logging.trace
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeFalse
+import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.trace
 import org.junit.jupiter.api.Test
 import kotlin.math.absoluteValue
-import kotlin.test.assertTrue
 
 class QuarterRangeTest: AbstractPeriodTest() {
 
@@ -97,7 +97,7 @@ class QuarterRangeTest: AbstractPeriodTest() {
         val calendar = TimeCalendar.EmptyOffset
 
         fun checkQuarters(qr: QuarterRange, quarter: Quarter) {
-            assertTrue(qr.readonly)
+            qr.readonly.shouldBeTrue()
             qr.quarter shouldBeEqualTo quarter
             qr.start shouldBeEqualTo zonedDateTimeOf(nowYear, quarter.startMonth)
 

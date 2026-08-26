@@ -15,6 +15,8 @@ import org.apache.commons.math3.stat.ranking.TiesStrategy
  * // result == {30.0 -> 0, 10.0 -> 2, 20.0 -> 1}
  * ```
  *
+ * 입력 `Sequence`는 한 번만 소비하도록 materialize하며, 빈 입력은 빈 map을 반환합니다.
+ *
  * @param nanStrategy 값이 NaN 일 경우의 ranking 전략 (기본: 최소값으로 ranking)
  * @param tiesStrategy 값이 같을 경우 순위 전략 (기본: 높은 순위로 지정)
  * @return 요소별 순위 정보
@@ -23,11 +25,16 @@ fun <T> Sequence<T>.ranking(
     nanStrategy: NaNStrategy = NaNStrategy.MINIMAL,
     tiesStrategy: TiesStrategy = TiesStrategy.MAXIMUM,
 ): Map<T, Int> where T: Number, T: Comparable<T> {
+    val items = toList()
+    if (items.isEmpty()) {
+        return emptyMap()
+    }
+
     val ranks = NaturalRanking(nanStrategy, tiesStrategy)
-        .rank(map { it.toDouble() }.toDoubleArray())
+        .rank(items.map { it.toDouble() }.toDoubleArray())
         .map { it.toInt() }
 
-    return this
+    return items
         .mapIndexed { index, item ->
             item to ranks.size - ranks[index]
         }
@@ -66,6 +73,9 @@ fun <T> Iterable<T>.ranking(
  * // result[Student("A", 90.0)] == 0 (1등)
  * ```
  *
+ * `Sequence`는 한 번만 소비하고 `valueSelector`는 각 요소에 대해 한 번만 호출합니다.
+ * 빈 입력은 빈 map을 반환합니다.
+ *
  * @param valueSelector 순위를 매길 값을 선택할 수 있도록 한다
  * @param nanStrategy 값이 NaN 일 경우의 ranking 전략 (기본: 최소값으로 ranking)
  * @param tiesStrategy 값이 같을 경우 순위 전략 (기본: 높은 순위로 지정)
@@ -76,8 +86,10 @@ inline fun <T, V> Sequence<T>.ranking(
     tiesStrategy: TiesStrategy = TiesStrategy.MAXIMUM,
     crossinline valueSelector: (T) -> V,
 ): Map<T, Int> where V: Number, V: Comparable<V> {
-    val ranks: Map<V, Int> = this.map { valueSelector(it) }.ranking(nanStrategy, tiesStrategy)
-    return this.associateWith { ranks[valueSelector(it)]!! }
+    val items = toList()
+    val selected = items.map { it to valueSelector(it) }
+    val ranks: Map<V, Int> = selected.asSequence().map { it.second }.ranking(nanStrategy, tiesStrategy)
+    return selected.associate { (item, value) -> item to ranks.getValue(value) }
 }
 
 /**

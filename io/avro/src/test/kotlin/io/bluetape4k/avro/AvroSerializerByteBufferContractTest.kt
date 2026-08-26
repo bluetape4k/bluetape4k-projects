@@ -1,15 +1,16 @@
 package io.bluetape4k.avro
 
 import io.bluetape4k.avro.message.examples.Employee
+import io.bluetape4k.assertions.assertFailsWith
+import io.bluetape4k.assertions.fail
+import io.bluetape4k.assertions.expectThat
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeSameInstanceAs
+import io.bluetape4k.assertions.shouldContentEqual
 import org.apache.avro.Schema
 import org.apache.avro.generic.GenericData
 import org.apache.avro.generic.GenericRecord
 import org.apache.avro.specific.SpecificRecord
-import org.junit.jupiter.api.Assertions.assertArrayEquals
-import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.Assertions.assertSame
-import org.junit.jupiter.api.Assertions.assertThrows
-import org.junit.jupiter.api.Assertions.fail
 import org.junit.jupiter.api.Test
 import java.nio.BufferOverflowException
 import java.nio.ByteBuffer
@@ -35,21 +36,24 @@ class AvroSerializerByteBufferContractTest {
                 val capacity = target.capacity()
                 val order = target.order()
 
-                assertEquals(PAYLOAD.size, operation(target), "$name $shape")
+                val context = "$name $shape"
+                expectThat(PAYLOAD.size, context) { operation(target) }
 
-                assertEquals(start + PAYLOAD.size, target.position(), "$name $shape")
-                assertEquals(limit, target.limit(), "$name $shape")
-                assertEquals(capacity, target.capacity(), "$name $shape")
-                assertEquals(order, target.order(), "$name $shape")
-                assertArrayEquals(PAYLOAD, target.fullBytes().copyOfRange(start, start + PAYLOAD.size), "$name $shape")
-                assertArrayEquals(before.copyOfRange(0, start), target.fullBytes().copyOfRange(0, start), "$name $shape")
-                assertArrayEquals(
-                    before.copyOfRange(limit, capacity),
-                    target.fullBytes().copyOfRange(limit, capacity),
-                    "$name $shape",
-                )
+                expectThat(start + PAYLOAD.size, context) { target.position() }
+                expectThat(limit, context) { target.limit() }
+                expectThat(capacity, context) { target.capacity() }
+                expectThat(order, context) { target.order() }
+                expectThat(PAYLOAD.toList(), context) {
+                    target.fullBytes().copyOfRange(start, start + PAYLOAD.size).toList()
+                }
+                expectThat(before.copyOfRange(0, start).toList(), context) {
+                    target.fullBytes().copyOfRange(0, start).toList()
+                }
+                expectThat(before.copyOfRange(limit, capacity).toList(), context) {
+                    target.fullBytes().copyOfRange(limit, capacity).toList()
+                }
                 target.reset()
-                assertEquals(start, target.position(), "$name $shape mark")
+                expectThat(start, "$context mark") { target.position() }
             }
         }
     }
@@ -70,9 +74,9 @@ class AvroSerializerByteBufferContractTest {
         operations.forEach { (name, operation) ->
             val target = configuredTarget(0)
             val before = target.fullBytes()
-            assertEquals(0, operation(target), name)
-            assertEquals(3, target.position(), name)
-            assertArrayEquals(before, target.fullBytes(), name)
+            expectThat(0, name) { operation(target) }
+            expectThat(3, name) { target.position() }
+            expectThat(before.toList(), name) { target.fullBytes().toList() }
         }
     }
 
@@ -89,12 +93,12 @@ class AvroSerializerByteBufferContractTest {
         )
 
         operations.forEach { (name, operation) ->
-            assertThrows(ReadOnlyBufferException::class.java, { operation(ByteBuffer.allocate(8).asReadOnlyBuffer()) }, name)
+            assertFailsWith<ReadOnlyBufferException>(name) { operation(ByteBuffer.allocate(8).asReadOnlyBuffer()) }
         }
-        assertEquals(0, reflect.serializeInvocations)
-        assertEquals(0, generic.serializeInvocations)
-        assertEquals(0, specific.serializeInvocations)
-        assertEquals(0, specific.listInvocations)
+        reflect.serializeInvocations shouldBeEqualTo 0
+        generic.serializeInvocations shouldBeEqualTo 0
+        specific.serializeInvocations shouldBeEqualTo 0
+        specific.listInvocations shouldBeEqualTo 0
     }
 
     @Test
@@ -102,14 +106,14 @@ class AvroSerializerByteBufferContractTest {
         outputOperations().forEach { (name, operation) ->
             val target = configuredTarget(PAYLOAD.size - 1)
 
-            assertThrows(BufferOverflowException::class.java, { operation(target) }, name)
+            assertFailsWith<BufferOverflowException>(name) { operation(target) }
 
-            assertEquals(3, target.position(), name)
+            target.position() shouldBeEqualTo 3
         }
 
         outputOperations().forEach { (name, operation) ->
             val retry = configuredTarget(PAYLOAD.size)
-            assertEquals(PAYLOAD.size, operation(retry), "$name retry")
+            expectThat(PAYLOAD.size, "$name retry") { operation(retry) }
         }
     }
 
@@ -128,9 +132,9 @@ class AvroSerializerByteBufferContractTest {
 
         operations.forEach { (name, operation) ->
             val target = configuredTarget(PAYLOAD.size)
-            val actual = assertThrows(AssertionError::class.java, { operation(target) }, name)
-            assertSame(fatal, actual, name)
-            assertEquals(3, target.position(), name)
+            val actual = assertFailsWith<AssertionError>(name) { operation(target) }
+            actual shouldBeSameInstanceAs fatal
+            target.position() shouldBeEqualTo 3
         }
     }
 
@@ -139,37 +143,37 @@ class AvroSerializerByteBufferContractTest {
         sourceBuffers(PAYLOAD).forEach { (shape, source) ->
             val reflect = ReflectFake(deserializeResult = "decoded")
             assertSourcePreserved("reflect $shape", source) {
-                assertEquals("decoded", reflect.deserializeFrom(it, String::class.java))
-                assertEquals("decoded", reflect.deserialize<String>(it))
+                reflect.deserializeFrom(it, String::class.java) shouldBeEqualTo "decoded"
+                reflect.deserialize<String>(it) shouldBeEqualTo "decoded"
             }
-            assertArrayEquals(PAYLOAD, reflect.received)
+            reflect.received shouldContentEqual PAYLOAD
         }
 
         sourceBuffers(PAYLOAD).forEach { (shape, source) ->
             val generic = GenericFake(deserializeResult = GENERIC_RECORD)
             assertSourcePreserved("generic $shape", source) {
-                assertSame(GENERIC_RECORD, generic.deserializeFrom(SCHEMA, it))
-                assertSame(GENERIC_RECORD, generic.deserialize(SCHEMA, it))
+                generic.deserializeFrom(SCHEMA, it) shouldBeSameInstanceAs GENERIC_RECORD
+                generic.deserialize(SCHEMA, it) shouldBeSameInstanceAs GENERIC_RECORD
             }
-            assertArrayEquals(PAYLOAD, generic.received)
+            generic.received shouldContentEqual PAYLOAD
         }
 
         sourceBuffers(PAYLOAD).forEach { (shape, source) ->
             val specific = SpecificFake(deserializeResult = EMPLOYEE, listDeserializeResult = listOf(EMPLOYEE))
             assertSourcePreserved("specific $shape", source) {
-                assertSame(EMPLOYEE, specific.deserializeFrom(it, Employee::class.java))
-                assertSame(EMPLOYEE, specific.deserialize<Employee>(it))
+                specific.deserializeFrom(it, Employee::class.java) shouldBeSameInstanceAs EMPLOYEE
+                specific.deserialize<Employee>(it) shouldBeSameInstanceAs EMPLOYEE
             }
-            assertArrayEquals(PAYLOAD, specific.received)
+            specific.received shouldContentEqual PAYLOAD
         }
 
         sourceBuffers(PAYLOAD).forEach { (shape, source) ->
             val specific = SpecificFake(deserializeResult = EMPLOYEE, listDeserializeResult = listOf(EMPLOYEE))
             assertSourcePreserved("specific list $shape", source) {
-                assertEquals(listOf(EMPLOYEE), specific.deserializeListFrom(it, Employee::class.java))
-                assertEquals(listOf(EMPLOYEE), specific.deserializeList<Employee>(it))
+                specific.deserializeListFrom(it, Employee::class.java) shouldBeEqualTo listOf(EMPLOYEE)
+                specific.deserializeList<Employee>(it) shouldBeEqualTo listOf(EMPLOYEE)
             }
-            assertArrayEquals(PAYLOAD, specific.listReceived)
+            specific.listReceived shouldContentEqual PAYLOAD
         }
     }
 
@@ -179,8 +183,12 @@ class AvroSerializerByteBufferContractTest {
         val operations = listOf<Pair<String, (ByteBuffer) -> Any?>>(
             "reflect" to { source -> ReflectFake(inputFailure = fatal).deserializeFrom(source, String::class.java) },
             "generic" to { source -> GenericFake(inputFailure = fatal).deserializeFrom(SCHEMA, source) },
-            "specific" to { source -> SpecificFake(inputFailure = fatal).deserializeFrom(source, Employee::class.java) },
-            "specific list" to { source -> SpecificFake(inputFailure = fatal).deserializeListFrom(source, Employee::class.java) },
+            "specific" to { source ->
+                SpecificFake(inputFailure = fatal).deserializeFrom(source, Employee::class.java)
+            },
+            "specific list" to { source ->
+                SpecificFake(inputFailure = fatal).deserializeListFrom(source, Employee::class.java)
+            },
         )
 
         operations.forEach { (name, operation) ->
@@ -188,13 +196,13 @@ class AvroSerializerByteBufferContractTest {
             val start = source.position()
             val limit = source.limit()
 
-            val actual = assertThrows(AssertionError::class.java, { operation(source) }, name)
+            val actual = assertFailsWith<AssertionError>(name) { operation(source) }
 
-            assertSame(fatal, actual, name)
-            assertEquals(start, source.position(), name)
-            assertEquals(limit, source.limit(), name)
+            actual shouldBeSameInstanceAs fatal
+            source.position() shouldBeEqualTo start
+            source.limit() shouldBeEqualTo limit
             source.reset()
-            assertEquals(start, source.position(), "$name mark")
+            source.position() shouldBeEqualTo start
         }
     }
 
@@ -203,26 +211,26 @@ class AvroSerializerByteBufferContractTest {
         sourcePolicyCases().forEach { (name, expectedBytes, source) ->
             val reflect = ReflectFake()
             assertSourcePreserved("reflect $name", source) {
-                assertEquals(null, reflect.deserializeFrom(it, String::class.java))
+                reflect.deserializeFrom(it, String::class.java) shouldBeEqualTo null
             }
-            assertArrayEquals(expectedBytes, reflect.received, "reflect $name")
+            reflect.received shouldContentEqual expectedBytes
 
             val generic = GenericFake()
             assertSourcePreserved("generic $name", source) {
-                assertEquals(null, generic.deserializeFrom(SCHEMA, it))
+                generic.deserializeFrom(SCHEMA, it) shouldBeEqualTo null
             }
-            assertArrayEquals(expectedBytes, generic.received, "generic $name")
+            generic.received shouldContentEqual expectedBytes
 
             val specific = SpecificFake()
             assertSourcePreserved("specific $name", source) {
-                assertEquals(null, specific.deserializeFrom(it, Employee::class.java))
+                specific.deserializeFrom(it, Employee::class.java) shouldBeEqualTo null
             }
-            assertArrayEquals(expectedBytes, specific.received, "specific $name")
+            specific.received shouldContentEqual expectedBytes
 
             assertSourcePreserved("specific list $name", source) {
-                assertEquals(emptyList<Employee>(), specific.deserializeListFrom(it, Employee::class.java))
+                specific.deserializeListFrom(it, Employee::class.java) shouldBeEqualTo emptyList<Employee>()
             }
-            assertArrayEquals(expectedBytes, specific.listReceived, "specific list $name")
+            specific.listReceived shouldContentEqual expectedBytes
         }
     }
 
@@ -241,20 +249,24 @@ class AvroSerializerByteBufferContractTest {
             if (repetition % 2 == 0) {
                 assertAvroWriteAndRead(
                     write = { target -> reflect.serializeTo("value", target) },
-                    read = { source -> assertEquals("decoded", reflect.deserializeFrom(source, String::class.java)) },
+                    read = { source -> reflect.deserializeFrom(source, String::class.java) shouldBeEqualTo "decoded" },
                 )
                 assertAvroWriteAndRead(
                     write = { target -> generic.serializeTo(SCHEMA, GENERIC_RECORD, target) },
-                    read = { source -> assertSame(GENERIC_RECORD, generic.deserializeFrom(SCHEMA, source)) },
+                    read = { source ->
+                        generic.deserializeFrom(SCHEMA, source) shouldBeSameInstanceAs GENERIC_RECORD
+                    },
                 )
                 assertAvroWriteAndRead(
                     write = { target -> specific.serializeTo(EMPLOYEE, target) },
-                    read = { source -> assertSame(EMPLOYEE, specific.deserializeFrom(source, Employee::class.java)) },
+                    read = { source ->
+                        specific.deserializeFrom(source, Employee::class.java) shouldBeSameInstanceAs EMPLOYEE
+                    },
                 )
                 assertAvroWriteAndRead(
                     write = { target -> specific.serializeListTo(listOf(EMPLOYEE), target) },
                     read = { source ->
-                        assertEquals(listOf(EMPLOYEE), specific.deserializeListFrom(source, Employee::class.java))
+                        specific.deserializeListFrom(source, Employee::class.java) shouldBeEqualTo listOf(EMPLOYEE)
                     },
                 )
             } else {
@@ -263,11 +275,17 @@ class AvroSerializerByteBufferContractTest {
                 assertAvroOverflow { target -> specific.serializeTo(EMPLOYEE, target) }
                 assertAvroOverflow { target -> specific.serializeListTo(listOf(EMPLOYEE), target) }
 
-                assertAvroMalformed { source -> assertEquals(null, reflect.deserializeFrom(source, String::class.java)) }
-                assertAvroMalformed { source -> assertEquals(null, generic.deserializeFrom(SCHEMA, source)) }
-                assertAvroMalformed { source -> assertEquals(null, specific.deserializeFrom(source, Employee::class.java)) }
                 assertAvroMalformed { source ->
-                    assertEquals(emptyList<Employee>(), specific.deserializeListFrom(source, Employee::class.java))
+                    reflect.deserializeFrom(source, String::class.java) shouldBeEqualTo null
+                }
+                assertAvroMalformed { source ->
+                    generic.deserializeFrom(SCHEMA, source) shouldBeEqualTo null
+                }
+                assertAvroMalformed { source ->
+                    specific.deserializeFrom(source, Employee::class.java) shouldBeEqualTo null
+                }
+                assertAvroMalformed { source ->
+                    specific.deserializeListFrom(source, Employee::class.java) shouldBeEqualTo emptyList<Employee>()
                 }
             }
         }
@@ -290,21 +308,21 @@ class AvroSerializerByteBufferContractTest {
         read: (ByteBuffer) -> Unit,
     ) {
         val target = ByteBuffer.allocate(PAYLOAD.size)
-        assertEquals(PAYLOAD.size, write(target))
+        write(target) shouldBeEqualTo PAYLOAD.size
         target.flip()
         read(target.asReadOnlyBuffer())
     }
 
     private fun assertAvroOverflow(write: (ByteBuffer) -> Int) {
         val target = ByteBuffer.allocate(PAYLOAD.size - 1)
-        assertThrows(BufferOverflowException::class.java) { write(target) }
-        assertEquals(0, target.position())
+        assertFailsWith<BufferOverflowException> { write(target) }
+        target.position() shouldBeEqualTo 0
     }
 
     private fun assertAvroMalformed(read: (ByteBuffer) -> Unit) {
         val source = ByteBuffer.wrap(MALFORMED.copyOf()).asReadOnlyBuffer()
         read(source)
-        assertEquals(0, source.position())
+        source.position() shouldBeEqualTo 0
     }
 
     private fun assertSourcePreserved(
@@ -318,11 +336,11 @@ class AvroSerializerByteBufferContractTest {
 
         operation(source)
 
-        assertEquals(start, source.position(), name)
-        assertEquals(limit, source.limit(), name)
-        assertEquals(order, source.order(), name)
+        expectThat(start, name) { source.position() }
+        source.limit() shouldBeEqualTo limit
+        source.order() shouldBeEqualTo order
         source.reset()
-        assertEquals(start, source.position(), "$name mark")
+        source.position() shouldBeEqualTo start
     }
 
     private class ReflectFake(
@@ -531,10 +549,10 @@ private fun verifyAvroBufferConcurrency(
 
         startBarrier.await(AVRO_START_TIMEOUT_SECONDS, TimeUnit.SECONDS)
         if (!completion.await(AVRO_COMPLETION_TIMEOUT_SECONDS, TimeUnit.SECONDS)) {
-            fail<Unit>("Avro buffer workers timed out; unfinished=${unfinished.sorted().take(AVRO_MAX_DIAGNOSTICS)}")
+            fail("Avro buffer workers timed out; unfinished=${unfinished.sorted().take(AVRO_MAX_DIAGNOSTICS)}")
         }
         if (failures.isNotEmpty()) {
-            fail<Unit>("Avro buffer worker failures: ${failures.take(AVRO_MAX_DIAGNOSTICS)}")
+            fail("Avro buffer worker failures: ${failures.take(AVRO_MAX_DIAGNOSTICS)}")
         }
     } finally {
         executor.shutdownNow()
@@ -545,7 +563,7 @@ private fun verifyAvroBufferConcurrency(
                     .map { it.name }
                     .take(AVRO_MAX_DIAGNOSTICS)
                     .toList()
-            fail<Unit>(
+            fail(
                 "Avro buffer executor did not terminate; " +
                     "unfinished=${unfinished.sorted().take(AVRO_MAX_DIAGNOSTICS)}, threads=$threads",
             )

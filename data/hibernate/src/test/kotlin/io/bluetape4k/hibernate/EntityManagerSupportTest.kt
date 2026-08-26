@@ -2,20 +2,20 @@ package io.bluetape4k.hibernate
 
 import io.bluetape4k.hibernate.mapping.naturalid.NaturalIdBook
 import io.bluetape4k.hibernate.mapping.simple.SimpleEntity
+import io.bluetape4k.assertions.assertFailsWith
+import io.bluetape4k.assertions.assertNotFails
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeFalse
 import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.assertions.shouldNotBe
 import io.bluetape4k.assertions.shouldNotBeNull
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertDoesNotThrow
-import io.bluetape4k.assertions.assertFailsWith
 
 class EntityManagerSupportTest: AbstractHibernateTest() {
 
     @Test
     fun `deleteById는 없는 id에 대해서도 예외를 발생시키지 않는다`() {
-        assertDoesNotThrow {
+        assertNotFails {
             em.deleteById<SimpleEntity>(Long.MAX_VALUE)
         }
     }
@@ -37,7 +37,7 @@ class EntityManagerSupportTest: AbstractHibernateTest() {
         em.persist(entity)
         flushAndClear()
 
-        em.deleteById<SimpleEntity>(entity.id!!)
+        em.deleteById<SimpleEntity>(entity.id.shouldNotBeNull())
         flushAndClear()
 
         em.countAll<SimpleEntity>() shouldBeEqualTo 0L
@@ -49,7 +49,7 @@ class EntityManagerSupportTest: AbstractHibernateTest() {
         em.persist(entity)
         flushAndClear()
 
-        em.exists<SimpleEntity>(entity.id!!).shouldBeTrue()
+        em.exists<SimpleEntity>(entity.id.shouldNotBeNull()).shouldBeTrue()
         em.exists<SimpleEntity>(Long.MAX_VALUE).shouldBeFalse()
     }
 
@@ -59,7 +59,7 @@ class EntityManagerSupportTest: AbstractHibernateTest() {
         em.persist(entity)
         flushAndClear()
 
-        val detached = em.findAs<SimpleEntity>(entity.id!!)
+        val detached = em.findAs<SimpleEntity>(entity.id.shouldNotBeNull())
         detached.shouldNotBeNull()
         clear() // detatch explicitly
 
@@ -68,7 +68,7 @@ class EntityManagerSupportTest: AbstractHibernateTest() {
         merged.shouldNotBeNull()
         flushAndClear()
 
-        val reloaded = em.findAs<SimpleEntity>(entity.id!!)
+        val reloaded = em.findAs<SimpleEntity>(entity.id.shouldNotBeNull())
         reloaded.shouldNotBeNull()
         reloaded.description shouldBeEqualTo "after"
     }
@@ -79,7 +79,7 @@ class EntityManagerSupportTest: AbstractHibernateTest() {
         em.persist(entity)
         flushAndClear()
 
-        val detached = em.findAs<SimpleEntity>(entity.id!!)
+        val detached = em.findAs<SimpleEntity>(entity.id.shouldNotBeNull())
         detached.shouldNotBeNull()
         clear()
 
@@ -132,7 +132,7 @@ class EntityManagerSupportTest: AbstractHibernateTest() {
         em.persist(entity)
         flushAndClear()
 
-        val proxy = em.getReference<SimpleEntity>(entity.id!!)
+        val proxy = em.getReference<SimpleEntity>(entity.id.shouldNotBeNull())
         em.isLoaded(proxy).shouldBeFalse()
         em.isLoaded(proxy, "name").shouldBeFalse()
 
