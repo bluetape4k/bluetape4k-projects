@@ -5,7 +5,7 @@
 - 작성일: 2026-08-26
 - 저장소: `bluetape4k/bluetape4k-projects`
 - 기준 branch: `feat/epic-1422-kafka-callback-flow`
-- 기준 base: `origin/develop` / `a907d144f39bfb94cba783cf65a5412e0714e9d5`
+- 기준 base: `origin/develop` / `552d9921520492033ad650743e8696e6352402c2`
 - 관련 Epic: [#1422](https://github.com/bluetape4k/bluetape4k-projects/issues/1422)
 - child 순서: [#1347](https://github.com/bluetape4k/bluetape4k-projects/issues/1347) → [#1353](https://github.com/bluetape4k/bluetape4k-projects/issues/1353)
 - 분류: Type A — 여러 examples 모듈과 외부 broker/cache lifecycle을 함께 검증하는 Full Feature
@@ -278,12 +278,12 @@ numeric 예제는 map 이름과 value type을 분리한다.
 `set +e; status=0; for task in "${test_tasks[@]}"; do ./gradlew "$task"
 --max-workers=1 || status=1; done; set -e; exit "$status"` 형태로 실패를
 누적하고 가능한 후속 test를 계속 실행한 뒤 마지막에 aggregate failure를
-반환한다. `if: always()` artifact 단계는 모든 결과를 수집한다. test report와
-bounded container diagnostic log는
-`examples/build/testcontainers-diagnostics/<task-name>/` 경로에 저장하고,
-artifact upload는 `examples/**/build/test-results/**`,
-`examples/**/build/reports/tests/test/**`,
-`examples/build/testcontainers-diagnostics/**`를 포함한다. workflow를 변경하면
+반환한다. `if: always()` artifact 단계는 모든 결과를 수집한다. test report는
+민감 정보가 제거된 sanitized 사본만, bounded container diagnostic log는
+`examples/build/testcontainers-diagnostics/<task-name>/` 경로에 저장한다.
+artifact upload는 `examples/build/sanitized-test-reports/**`와
+`examples/build/testcontainers-diagnostics/**`만 포함하며 원본 report는
+업로드하지 않는다. workflow를 변경하면
 `actionlint`, path filter, artifact upload 경로와 직렬 순서를 정적 검사한다.
 현재 60분 job timeout 안에 들어오는지 기존 병렬 실행의 wall-clock과 비교하고,
 초과하면 테스트 범위를 줄이지 말고 job budget 변경 근거를 기록한다.
