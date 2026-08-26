@@ -22,6 +22,13 @@
 - [ ] **Code review 에이전트 실행 완료** (`oh-my-claudecode:code-reviewer` 또는 `pr-review-toolkit:code-reviewer`) — HIGH/CRITICAL 이슈 모두 해소
 - [ ] OMC Code Review 확인 후 머지
 
+## Issue 연결 및 자동 종료
+
+- [ ] 단일 PR 또는 default branch 대상 PR은 실제로 해결하는 issue마다 `Closes #<issue-number>`를 한 줄씩 명시한다.
+- [ ] stacked child PR(base가 `develop`/`main`이 아닌 경우)은 `Part of #<epic-number>` 또는 `Refs #<issue-number>`를 사용하며 issue 자동 종료를 기대하지 않는다.
+- [ ] stacked train의 최종 PR(base가 `develop` 또는 `main`)은 모든 child issue에 대해 `Closes #<issue-number>`를 한 줄씩 명시한다. GitHub는 이 PR이 default branch에 merge될 때 해당 issue를 자동 종료한다.
+- [ ] merge 후 `closingIssuesReferences`와 issue state를 live read-back한다. 자동 종료가 의도되지 않은 PR에는 `Closes` 대신 `Part of`/`Refs`를 사용한다.
+
 ## 체크리스트
 
 - [ ] 변경된 모듈의 `README.md` + `README.ko.md` 업데이트
