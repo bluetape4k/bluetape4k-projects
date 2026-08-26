@@ -1,10 +1,10 @@
 package io.bluetape4k.redis.redisson.cache
 
-import io.bluetape4k.redis.redisson.codec.RedissonCodecs
-import io.bluetape4k.assertions.shouldBeEqualTo
-import org.junit.jupiter.api.Assertions.assertSame
-import org.junit.jupiter.api.Test
 import io.bluetape4k.assertions.assertFailsWith
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeSameInstanceAs
+import io.bluetape4k.redis.redisson.codec.RedissonCodecs
+import org.junit.jupiter.api.Test
 import org.redisson.api.map.WriteMode
 import org.redisson.api.options.LocalCachedMapOptions
 import org.redisson.api.options.LocalCachedMapParams
@@ -28,7 +28,7 @@ class RedissonCacheConfigTest {
         val params = options as MapParams<String, String>
 
         params.name shouldBeEqualTo "users"
-        assertSame(RedissonCodecs.String, params.codec)
+        params.codec shouldBeSameInstanceAs RedissonCodecs.String
         params.writeMode shouldBeEqualTo WriteMode.WRITE_BEHIND
         params.writeBehindBatchSize shouldBeEqualTo 128
         params.writeBehindDelay shouldBeEqualTo 250
@@ -52,7 +52,7 @@ class RedissonCacheConfigTest {
         val params = options as LocalCachedMapParams<String, String>
 
         params.name shouldBeEqualTo "profiles"
-        assertSame(RedissonCodecs.String, params.codec)
+        params.codec shouldBeSameInstanceAs RedissonCodecs.String
         params.cacheSize shouldBeEqualTo 256
         params.timeToLiveInMillis shouldBeEqualTo 30_000L
         params.maxIdleInMillis shouldBeEqualTo 10_000L

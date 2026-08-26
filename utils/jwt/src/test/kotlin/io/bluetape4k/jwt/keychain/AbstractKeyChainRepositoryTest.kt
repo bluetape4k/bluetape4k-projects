@@ -6,11 +6,11 @@ import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.assertions.shouldNotBeEqualTo
 import io.bluetape4k.jwt.keychain.repository.KeyChainRepository
 import io.bluetape4k.logging.KLogging
+import org.awaitility.kotlin.await
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import java.time.Duration
-import kotlin.test.assertTrue
 
 abstract class AbstractKeyChainRepositoryTest {
 
@@ -51,8 +51,9 @@ abstract class AbstractKeyChainRepositoryTest {
         repository.rotate(prevKeyChain).shouldBeTrue()
         repository.current() shouldBeEqualTo prevKeyChain
 
-        Thread.sleep(10)
-        assertTrue { prevKeyChain.createdAt + 1 < System.currentTimeMillis() }
+        // 실제 TTL 만료 경계를 검증하므로 wall-clock 대기를 유지합니다.
+        awaitExpired(prevKeyChain)
+        (prevKeyChain.createdAt + 1 < System.currentTimeMillis()).shouldBeTrue()
 
         // 기존 key chain 이 만료되었으므로 rotate 되어야 한다 
         val newKeyChain = KeyChain()
@@ -87,16 +88,16 @@ abstract class AbstractKeyChainRepositoryTest {
         val keyChain = KeyChain(expiredTtl = Duration.ZERO)
         repository.rotate(keyChain).shouldBeTrue()
 
-        Thread.sleep(10)
         repository.rotate(keyChain).shouldBeFalse()
     }
 
     @Test
     fun `current KeyChain이 가장 최신이어야 한다`() {
-        repository.rotate(KeyChain(expiredTtl = Duration.ofMillis(1))).shouldBeTrue()
-        Thread.sleep(1)
-        repository.rotate(KeyChain(expiredTtl = Duration.ofMillis(1))).shouldBeTrue()
-        Thread.sleep(1)
+        val firstKeyChain = alreadyExpiredKeyChain()
+        repository.rotate(firstKeyChain).shouldBeTrue()
+
+        val secondKeyChain = alreadyExpiredKeyChain()
+        repository.rotate(secondKeyChain).shouldBeTrue()
 
         val newestKeyChain = KeyChain(expiredTtl = Duration.ZERO)
         repository.rotate(newestKeyChain).shouldBeTrue()
@@ -106,12 +107,11 @@ abstract class AbstractKeyChainRepositoryTest {
 
     @Test
     fun `read KeyChain by id`() {
-        repository.rotate(KeyChain(expiredTtl = Duration.ofMillis(1))).shouldBeTrue()
-        Thread.sleep(1)
+        val expiredKeyChain = alreadyExpiredKeyChain()
+        repository.rotate(expiredKeyChain).shouldBeTrue()
 
         val keyChain = KeyChain(expiredTtl = Duration.ZERO)
         repository.rotate(keyChain).shouldBeTrue()
-        Thread.sleep(1)
 
         repository.rotate(KeyChain(expiredTtl = Duration.ZERO)).shouldBeFalse()
 
@@ -123,8 +123,8 @@ abstract class AbstractKeyChainRepositoryTest {
     fun `capacity 이상으로 rotate를 하면, 오래된 것은 삭제된다`() {
 
         repeat(repository.capacity * 2) {
-            repository.rotate(KeyChain(expiredTtl = Duration.ofMillis(1))).shouldBeTrue()
-            Thread.sleep(2)
+            val expiredKeyChain = alreadyExpiredKeyChain()
+            repository.rotate(expiredKeyChain).shouldBeTrue()
         }
 
         val keyChain = KeyChain()
@@ -145,4 +145,14 @@ abstract class AbstractKeyChainRepositoryTest {
 
         repository.current() shouldBeEqualTo keyChain
     }
+
+    protected fun awaitExpired(keyChain: KeyChain) {
+        await.atMost(Duration.ofSeconds(1)).until { keyChain.isExpired }
+    }
+
+    protected fun alreadyExpiredKeyChain(): KeyChain =
+        KeyChain(
+            createdAt = System.currentTimeMillis() - 1_000,
+            expiredTtl = Duration.ofMillis(1),
+        )
 }

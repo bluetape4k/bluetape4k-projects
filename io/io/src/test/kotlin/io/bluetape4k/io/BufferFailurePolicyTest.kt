@@ -1,10 +1,10 @@
 package io.bluetape4k.io
 
 import com.esotericsoftware.kryo.io.KryoBufferOverflowException
-import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.Assertions.assertNull
-import org.junit.jupiter.api.Assertions.assertSame
-import org.junit.jupiter.api.Assertions.assertTrue
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeNull
+import io.bluetape4k.assertions.shouldBeSameInstanceAs
+import io.bluetape4k.assertions.shouldBeTrue
 import org.junit.jupiter.api.Test
 import java.nio.BufferOverflowException
 import java.util.concurrent.CancellationException
@@ -13,7 +13,7 @@ class BufferFailurePolicyTest {
 
     @Test
     fun `no failures produces no public failure`() {
-        assertNull(BufferFailurePolicy.classify(null, null))
+        BufferFailurePolicy.classify(null, null).shouldBeNull()
     }
 
     @Test
@@ -23,8 +23,8 @@ class BufferFailurePolicyTest {
 
         val actual = BufferFailurePolicy.classify(operation, cleanup)
 
-        assertSame(operation, actual)
-        assertSame(cleanup, operation.suppressed.single())
+        actual shouldBeSameInstanceAs operation
+        operation.suppressed.single() shouldBeSameInstanceAs cleanup
     }
 
     @Test
@@ -35,9 +35,9 @@ class BufferFailurePolicyTest {
 
         val actual = BufferFailurePolicy.classify(operation, cleanup)
 
-        assertEquals(BufferOverflowException::class.java, actual?.javaClass)
-        assertSame(operation, actual?.cause)
-        assertSame(cleanup, actual?.suppressed?.single())
+        actual?.javaClass shouldBeEqualTo BufferOverflowException::class.java
+        actual?.cause shouldBeSameInstanceAs operation
+        actual?.suppressed?.single() shouldBeSameInstanceAs cleanup
     }
 
     @Test
@@ -48,16 +48,16 @@ class BufferFailurePolicyTest {
 
         val actual = BufferFailurePolicy.classify(operation, cleanup)
 
-        assertEquals(BufferOverflowException::class.java, actual?.javaClass)
-        assertSame(operation, actual?.cause)
-        assertSame(cleanup, actual?.suppressed?.single())
+        actual?.javaClass shouldBeEqualTo BufferOverflowException::class.java
+        actual?.cause shouldBeSameInstanceAs operation
+        actual?.suppressed?.single() shouldBeSameInstanceAs cleanup
     }
 
     @Test
     fun `direct cleanup overflow after success remains the same instance`() {
         val cleanup = BufferOverflowException()
 
-        assertSame(cleanup, BufferFailurePolicy.classify(null, cleanup))
+        BufferFailurePolicy.classify(null, cleanup) shouldBeSameInstanceAs cleanup
     }
 
     @Test
@@ -66,8 +66,8 @@ class BufferFailurePolicyTest {
 
         val actual = BufferFailurePolicy.classify(null, cleanup)
 
-        assertEquals(BufferOverflowException::class.java, actual?.javaClass)
-        assertSame(cleanup, actual?.cause)
+        actual?.javaClass shouldBeEqualTo BufferOverflowException::class.java
+        actual?.cause shouldBeSameInstanceAs cleanup
     }
 
     @Test
@@ -77,8 +77,8 @@ class BufferFailurePolicyTest {
 
         val actual = BufferFailurePolicy.classify(operation, cleanup)
 
-        assertSame(operation, actual)
-        assertSame(cleanup, operation.suppressed.single())
+        actual shouldBeSameInstanceAs operation
+        operation.suppressed.single() shouldBeSameInstanceAs cleanup
     }
 
     @Test
@@ -88,7 +88,7 @@ class BufferFailurePolicyTest {
             addSuppressed(fatal)
         }
 
-        assertSame(fatal, BufferFailurePolicy.classify(operation, null))
+        BufferFailurePolicy.classify(operation, null) shouldBeSameInstanceAs fatal
     }
 
     @Test
@@ -98,8 +98,8 @@ class BufferFailurePolicyTest {
 
         val actual = BufferFailurePolicy.classify(operation, cleanup)
 
-        assertSame(cleanup, actual)
-        assertSame(operation, cleanup.suppressed.single())
+        actual shouldBeSameInstanceAs cleanup
+        cleanup.suppressed.single() shouldBeSameInstanceAs operation
     }
 
     @Test
@@ -110,8 +110,8 @@ class BufferFailurePolicyTest {
 
         val actual = BufferFailurePolicy.classify(operation, cleanup)
 
-        assertSame(cancellation, actual)
-        assertSame(cleanup, cancellation.suppressed.single())
+        actual shouldBeSameInstanceAs cancellation
+        cancellation.suppressed.single() shouldBeSameInstanceAs cleanup
     }
 
     @Test
@@ -122,7 +122,7 @@ class BufferFailurePolicyTest {
             addSuppressed(fatal)
         }
 
-        assertSame(fatal, BufferFailurePolicy.classify(operation, null))
+        BufferFailurePolicy.classify(operation, null) shouldBeSameInstanceAs fatal
     }
 
     @Test
@@ -133,7 +133,7 @@ class BufferFailurePolicyTest {
             addSuppressed(fatal)
         }
 
-        assertSame(fatal, BufferFailurePolicy.findControlFailure(failure))
+        BufferFailurePolicy.findControlFailure(failure) shouldBeSameInstanceAs fatal
     }
 
     @Test
@@ -141,7 +141,7 @@ class BufferFailurePolicyTest {
         val cancellation = CancellationException("cancelled")
         val failure = IllegalStateException("wrapper", cancellation)
 
-        assertSame(cancellation, BufferFailurePolicy.findControlFailure(failure))
+        BufferFailurePolicy.findControlFailure(failure) shouldBeSameInstanceAs cancellation
     }
 
     @Test
@@ -149,8 +149,8 @@ class BufferFailurePolicyTest {
         val jdkOverflow = IllegalStateException("wrapper", BufferOverflowException())
         val kryoOverflow = IllegalStateException("wrapper", KryoBufferOverflowException("native"))
 
-        assertNull(BufferFailurePolicy.findControlFailure(jdkOverflow))
-        assertNull(BufferFailurePolicy.findControlFailure(kryoOverflow))
+        BufferFailurePolicy.findControlFailure(jdkOverflow).shouldBeNull()
+        BufferFailurePolicy.findControlFailure(kryoOverflow).shouldBeNull()
     }
 
     @Test
@@ -160,7 +160,7 @@ class BufferFailurePolicyTest {
         failure.initCause(cycle)
         cycle.addSuppressed(failure)
 
-        assertNull(BufferFailurePolicy.findControlFailure(failure))
+        BufferFailurePolicy.findControlFailure(failure).shouldBeNull()
     }
 
     @Test
@@ -171,8 +171,8 @@ class BufferFailurePolicyTest {
 
         val actual = BufferFailurePolicy.classify(operation, cleanup)
 
-        assertSame(cancellation, actual)
-        assertTrue(cancellation.suppressed.isEmpty())
+        actual shouldBeSameInstanceAs cancellation
+        cancellation.suppressed.isEmpty().shouldBeTrue()
     }
 
     @Test
@@ -182,8 +182,8 @@ class BufferFailurePolicyTest {
 
         val actual = BufferFailurePolicy.classify(operation, cleanup)
 
-        assertSame(operation, actual)
-        assertSame(cleanup, operation.suppressed.single())
+        actual shouldBeSameInstanceAs operation
+        operation.suppressed.single() shouldBeSameInstanceAs cleanup
     }
 
     @Test
@@ -196,8 +196,8 @@ class BufferFailurePolicyTest {
 
         val actual = BufferFailurePolicy.classify(operation, null)
 
-        assertEquals(BufferOverflowException::class.java, actual?.javaClass)
-        assertSame(operation, actual?.cause)
+        actual?.javaClass shouldBeEqualTo BufferOverflowException::class.java
+        actual?.cause shouldBeSameInstanceAs operation
     }
 
     @Test
@@ -208,7 +208,7 @@ class BufferFailurePolicyTest {
 
         val actual = BufferFailurePolicy.classify(operation, cleanup)
 
-        assertSame(operation, actual)
-        assertTrue(operation.suppressed.isEmpty())
+        actual shouldBeSameInstanceAs operation
+        operation.suppressed.isEmpty().shouldBeTrue()
     }
 }

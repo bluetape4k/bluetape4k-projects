@@ -1,8 +1,9 @@
 package io.bluetape4k.io.serializer
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.Assertions.assertTrue
+import io.bluetape4k.assertions.expectThat
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeTrue
 import org.junit.jupiter.api.Test
 import java.nio.ByteBuffer
 import java.security.MessageDigest
@@ -16,18 +17,18 @@ class SerializerBufferAbiCompatibilityTest {
             ObjectMapper().readTree(requireNotNull(input))
         }
 
-        assertEquals(PRE_CHANGE_COMMIT, manifest.path("producer").path("commit").asText())
-        assertEquals(PRE_CHANGE_TREE, manifest.path("producer").path("tree").asText())
-        assertEquals(3, manifest.path("jars").size(), "baseline jar authority count")
-        assertEquals(5, manifest.path("fixtures").size(), "frozen fixture count")
+        manifest.path("producer").path("commit").asText() shouldBeEqualTo PRE_CHANGE_COMMIT
+        manifest.path("producer").path("tree").asText() shouldBeEqualTo PRE_CHANGE_TREE
+        manifest.path("jars").size() shouldBeEqualTo 3
+        manifest.path("fixtures").size() shouldBeEqualTo 5
 
         manifest.path("fixtures").forEach { fixture ->
             val path = fixture.path("path").asText()
             val bytes = javaClass.classLoader.getResourceAsStream("$root/$path").use { input ->
                 requireNotNull(input) { "Missing frozen fixture: $path" }.readBytes()
             }
-            assertEquals(fixture.path("size").asInt(), bytes.size, path)
-            assertEquals(fixture.path("sha256").asText(), bytes.sha256(), path)
+            expectThat(fixture.path("size").asInt(), path) { bytes.size }
+            expectThat(fixture.path("sha256").asText(), path) { bytes.sha256() }
         }
     }
 
@@ -43,8 +44,8 @@ class SerializerBufferAbiCompatibilityTest {
             ByteBuffer::class.java,
         )
 
-        assertTrue(serializeTo.isDefault, "serializeTo must be an executable JVM default")
-        assertTrue(deserializeFrom.isDefault, "deserializeFrom must be an executable JVM default")
+        serializeTo.isDefault.shouldBeTrue()
+        deserializeFrom.isDefault.shouldBeTrue()
     }
 
     @Test

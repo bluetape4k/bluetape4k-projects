@@ -2,12 +2,12 @@ package io.bluetape4k.math
 
 import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldNotBeNull
 import io.bluetape4k.collections.repeat
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import org.junit.jupiter.api.Test
 import java.math.BigDecimal
-import kotlin.test.assertTrue
 
 class BigDecimalHistogramTest {
 
@@ -15,8 +15,6 @@ class BigDecimalHistogramTest {
 
     private val valueVector = sequenceOf(0.0, 1.0, 3.0, 5.0, 11.0).map { it.toBigDecimal() }
     private val groups = sequenceOf("A", "B", "B", "C", "C")
-
-    private val grouped = groups.zip(valueVector)
 
     @Test
     fun `histogram by BigDecimal`() {
@@ -38,21 +36,17 @@ class BigDecimalHistogramTest {
         histogram.bins.size shouldBeEqualTo 3
 
         // range의 어떤 값이던 상관없다 (BinModel.get operator를 보라)
-        assertTrue {
-            histogram[5.0.toBigDecimal()]!!.range.let {
-                it.first == 0.0.toBigDecimal() && it.last == 100.0.toBigDecimal()
-            }
-        }
-        assertTrue {
-            histogram[105.0.toBigDecimal()]!!.range.let {
-                it.first == 100.0.toBigDecimal() && it.last == 200.0.toBigDecimal()
-            }
-        }
-        assertTrue {
-            histogram[205.0.toBigDecimal()]!!.range.let {
-                it.first == 200.0.toBigDecimal() && it.last == 300.0.toBigDecimal()
-            }
-        }
+        val firstRange = histogram[5.0.toBigDecimal()].shouldNotBeNull().range
+        firstRange.first shouldBeEqualTo 0.0.toBigDecimal()
+        firstRange.last shouldBeEqualTo 100.0.toBigDecimal()
+
+        val secondRange = histogram[105.0.toBigDecimal()].shouldNotBeNull().range
+        secondRange.first shouldBeEqualTo 100.0.toBigDecimal()
+        secondRange.last shouldBeEqualTo 200.0.toBigDecimal()
+
+        val thirdRange = histogram[205.0.toBigDecimal()].shouldNotBeNull().range
+        thirdRange.first shouldBeEqualTo 200.0.toBigDecimal()
+        thirdRange.last shouldBeEqualTo 300.0.toBigDecimal()
     }
 
     @Test

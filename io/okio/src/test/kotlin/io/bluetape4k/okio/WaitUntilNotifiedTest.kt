@@ -2,6 +2,7 @@ package io.bluetape4k.okio
 
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.assertions.fail
 import io.bluetape4k.junit5.concurrency.TestingExecutors
 import io.bluetape4k.junit5.system.assumeNotWindows
 import io.bluetape4k.logging.KLogging
@@ -15,7 +16,6 @@ import java.io.InterruptedIOException
 import java.time.Duration
 import java.util.concurrent.ScheduledExecutorService
 import java.util.concurrent.TimeUnit
-import kotlin.test.fail
 
 class WaitUntilNotifiedTest: AbstractOkioTest() {
 

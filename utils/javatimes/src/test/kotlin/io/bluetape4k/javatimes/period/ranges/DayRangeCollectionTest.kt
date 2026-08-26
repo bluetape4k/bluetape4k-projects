@@ -8,11 +8,10 @@ import io.bluetape4k.javatimes.nowZonedDateTime
 import io.bluetape4k.javatimes.period.AbstractPeriodTest
 import io.bluetape4k.javatimes.startOfDay
 import io.bluetape4k.javatimes.todayZonedDateTime
-import io.bluetape4k.logging.KLogging
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.logging.KLogging
 import org.junit.jupiter.api.Test
-import kotlin.test.assertTrue
 
 class DayRangeCollectionTest: AbstractPeriodTest() {
 
@@ -46,7 +45,7 @@ class DayRangeCollectionTest: AbstractPeriodTest() {
         daySeq.count() shouldBeEqualTo dayCount
 
         daySeq.forEachIndexed { index, dr ->
-            assertTrue { dr.isSamePeriod(DayRange(start + index.days())) }
+            dr.isSamePeriod(DayRange(start + index.days())).shouldBeTrue()
         }
     }
 

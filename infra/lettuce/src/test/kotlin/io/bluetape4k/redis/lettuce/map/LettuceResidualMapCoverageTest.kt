@@ -6,6 +6,9 @@ import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.redis.lettuce.AbstractLettuceTest
 import io.lettuce.core.codec.StringCodec
+import org.awaitility.kotlin.atMost
+import org.awaitility.kotlin.await
+import org.awaitility.kotlin.until
 import org.junit.jupiter.api.Test
 import java.time.Duration
 import java.util.concurrent.atomic.AtomicInteger
@@ -36,12 +39,10 @@ internal class LettuceResidualMapCoverageTest: AbstractLettuceTest() {
 
             val connection = client.connect(StringCodec.UTF8)
             try {
-                val deadline = System.currentTimeMillis() + 2_000L
-                var keys = emptyList<String>()
-                while (System.currentTimeMillis() < deadline && keys.none { it == "dead-key" }) {
-                    keys = connection.sync().lrange("$prefix:dead-letter", 0L, -1L)
-                    if (keys.none { it == "dead-key" }) Thread.sleep(25L)
+                await atMost Duration.ofSeconds(2) until {
+                    connection.sync().lrange("$prefix:dead-letter", 0L, -1L).contains("dead-key")
                 }
+                val keys = connection.sync().lrange("$prefix:dead-letter", 0L, -1L)
                 keys.contains("dead-key").shouldBeTrue()
                 attempts.get() shouldBeEqualTo 3
             } finally {

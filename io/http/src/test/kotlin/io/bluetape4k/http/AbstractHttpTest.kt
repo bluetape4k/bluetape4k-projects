@@ -1,8 +1,8 @@
 package io.bluetape4k.http
 
+import io.bluetape4k.assertions.fail
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.testcontainers.http.BluetapeHttpServer
-import org.junit.jupiter.api.fail
 
 abstract class AbstractHttpTest {
 
@@ -37,10 +37,10 @@ abstract class AbstractHttpTest {
 
     fun assertResponse(okResponse: okhttp3.Response?) {
         if (okResponse == null) {
-            fail { "Response is null" }
+            fail("Response is null")
         }
         if (!okResponse.isSuccessful) {
-            fail { "Unexpected code ${okResponse.code}" }
+            fail("Unexpected code ${okResponse.code}")
         }
     }
 }
