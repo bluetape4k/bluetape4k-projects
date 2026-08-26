@@ -158,9 +158,17 @@ jobs:
           for task in "${test_tasks[@]}"; do
             before_ids_file=$(mktemp)
             after_ids_file=$(mktemp)
-            docker ps -aq --filter label=org.testcontainers=true | sort -u >"$before_ids_file" || status=1
+            # Snapshot only test-session containers; Ryuk itself also carries
+            # org.testcontainers=true but is not a test image we collect.
+            docker ps -aq \
+              --filter label=org.testcontainers=true \
+              --filter label=org.testcontainers.sessionId \
+              | sort -u >"$before_ids_file" || status=1
             ./gradlew "$task" --max-workers=1 || status=1
-            docker ps -aq --filter label=org.testcontainers=true | sort -u >"$after_ids_file" || status=1
+            docker ps -aq \
+              --filter label=org.testcontainers=true \
+              --filter label=org.testcontainers.sessionId \
+              | sort -u >"$after_ids_file" || status=1
             new_ids=$(comm -13 "$before_ids_file" "$after_ids_file")
             container_args=()
             while IFS= read -r container_id; do
