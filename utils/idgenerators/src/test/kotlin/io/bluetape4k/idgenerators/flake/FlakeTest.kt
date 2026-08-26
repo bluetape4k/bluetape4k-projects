@@ -21,8 +21,10 @@ import org.junit.jupiter.api.condition.JRE
 import java.time.Clock
 import java.time.Duration
 import java.time.Instant
+import java.time.ZoneId
 import java.time.ZoneOffset
 import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.atomic.AtomicLong
 
 class FlakeTest {
 
@@ -90,12 +92,16 @@ class FlakeTest {
 
     @Test
     fun `1 msec 이 지나면 sequence는 리셋되어야 합니다`() {
-        val seq1 = flake.nextId().copyOfRange(14, 15)
-        Thread.sleep(10)
-        val seq2 = flake.nextId().copyOfRange(14, 15)
+        val initialMillis = 1_700_000_000_000L
+        val clock = MutableClock(initialMillis)
+        val customFlake = Flake({ 123456789L }, clock)
 
-        // 1 msec 이 지나면 sequence가 리셋되어야 합니다.
-        seq2 shouldBeEqualTo seq1
+        val first = customFlake.nextId()
+        clock.advanceBy(Duration.ofMillis(1))
+        val second = customFlake.nextId()
+
+        Flake.asComponentString(first) shouldBeEqualTo "$initialMillis-123456789-1"
+        Flake.asComponentString(second) shouldBeEqualTo "${initialMillis + 1}-123456789-0"
     }
 
     @Test
@@ -153,5 +159,23 @@ class FlakeTest {
                 idMaps.putIfAbsent(id, 1).shouldBeNull()
             }
             .run()
+    }
+
+    private class MutableClock(
+        private val currentMillis: AtomicLong,
+        private val zone: ZoneId,
+    ): Clock() {
+
+        constructor(initialMillis: Long): this(AtomicLong(initialMillis), ZoneOffset.UTC)
+
+        override fun getZone(): ZoneId = zone
+
+        override fun withZone(zone: ZoneId): Clock = MutableClock(currentMillis, zone)
+
+        override fun instant(): Instant = Instant.ofEpochMilli(currentMillis.get())
+
+        fun advanceBy(duration: Duration) {
+            currentMillis.addAndGet(duration.toMillis())
+        }
     }
 }

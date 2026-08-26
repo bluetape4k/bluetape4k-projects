@@ -2,6 +2,7 @@ package io.bluetape4k.idgenerators.uuid.base62
 
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeNull
+import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.assertions.shouldContainSame
 import io.bluetape4k.codec.decodeBase62AsUuid
 import io.bluetape4k.codec.encodeBase62
@@ -21,7 +22,6 @@ import org.junit.jupiter.api.condition.EnabledForJreRange
 import org.junit.jupiter.api.condition.JRE
 import java.util.*
 import java.util.concurrent.ConcurrentHashMap
-import kotlin.test.assertTrue
 
 abstract class AbstractTimebasedUuidBase62Test {
 
@@ -43,8 +43,8 @@ abstract class AbstractTimebasedUuidBase62Test {
             log.debug { "uuid=$it" }
         }
 
-        assertTrue { u2 > u1 }
-        assertTrue { u3 > u2 }
+        (u2 > u1).shouldBeTrue()
+        (u3 > u2).shouldBeTrue()
 
         // u1.version() shouldBeEqualTo 6   // Time based
     }
