@@ -34,16 +34,16 @@ Gradle project path는 `:bluetape4k-virtualthread-api`, source directory는 `vir
 
 ## 빠른 시작 {#quick-start}
 
-위 좌표를 추가하고 Gradle을 refresh한 뒤 필요한 작업을 소유한 가장 작은 entry point에서 시작합니다. 먼저 [`StructuredScopes`](../../../../virtualthread/api/src/main/kotlin/io/bluetape4k/concurrent/virtualthread/api/StructuredScopes.kt)를 확인합니다. 이 파일이 모듈의 구체적인 source entry point입니다.
+위 좌표를 추가하고 Gradle을 refresh한 뒤 필요한 작업을 소유한 가장 작은 entry point에서 시작합니다. 먼저 [`StructuredScopes`](../../../../virtualthread/api/src/main/kotlin/io/bluetape4k/concurrent/virtualthread/StructuredScopes.kt)를 확인합니다. 이 파일이 모듈의 구체적인 source entry point입니다.
 
 ## 작업별 API {#api-by-task}
 
 | Entry point | 확인할 내용 |
 | --- | --- |
-| [`StructuredScopes`](../../../../virtualthread/api/src/main/kotlin/io/bluetape4k/concurrent/virtualthread/api/StructuredScopes.kt) | constructor, function, ownership 계약을 확인합니다. |
-| [`TaskContext`](../../../../virtualthread/api/src/main/kotlin/io/bluetape4k/concurrent/virtualthread/api/TaskContext.kt) | constructor, function, ownership 계약을 확인합니다. |
-| [`VirtualThreadRuntime`](../../../../virtualthread/api/src/main/kotlin/io/bluetape4k/concurrent/virtualthread/api/VirtualThreadRuntime.kt) | constructor, function, ownership 계약을 확인합니다. |
-| [`VirtualThreads`](../../../../virtualthread/api/src/main/kotlin/io/bluetape4k/concurrent/virtualthread/api/VirtualThreads.kt) | constructor, function, ownership 계약을 확인합니다. |
+| [`StructuredScopes`](../../../../virtualthread/api/src/main/kotlin/io/bluetape4k/concurrent/virtualthread/StructuredScopes.kt) | constructor, function, ownership 계약을 확인합니다. |
+| [`TaskContext`](../../../../virtualthread/api/src/main/kotlin/io/bluetape4k/concurrent/virtualthread/TaskContext.kt) | constructor, function, ownership 계약을 확인합니다. |
+| [`VirtualThreadRuntime`](../../../../virtualthread/api/src/main/kotlin/io/bluetape4k/concurrent/virtualthread/VirtualThreadRuntime.kt) | constructor, function, ownership 계약을 확인합니다. |
+| [`VirtualThreads`](../../../../virtualthread/api/src/main/kotlin/io/bluetape4k/concurrent/virtualthread/VirtualThreads.kt) | constructor, function, ownership 계약을 확인합니다. |
 
 ## 권장 패턴 {#patterns}
 
@@ -81,9 +81,9 @@ active work, queue 깊이, cancellation, timeout, executor 포화, shutdown 완�
 
 대표 test anchor는 다음과 같습니다.
 
-- [`StructuredScopesTest`](../../../../virtualthread/api/src/test/kotlin/io/bluetape4k/concurrent/virtualthread/api/StructuredScopesTest.kt)
-- [`TaskContextTest`](../../../../virtualthread/api/src/test/kotlin/io/bluetape4k/concurrent/virtualthread/api/TaskContextTest.kt)
-- [`VirtualThreadsTest`](../../../../virtualthread/api/src/test/kotlin/io/bluetape4k/concurrent/virtualthread/api/VirtualThreadsTest.kt)
+- [`StructuredScopesTest`](../../../../virtualthread/api/src/test/kotlin/io/bluetape4k/concurrent/virtualthread/StructuredScopesTest.kt)
+- [`TaskContextTest`](../../../../virtualthread/api/src/test/kotlin/io/bluetape4k/concurrent/virtualthread/TaskContextTest.kt)
+- [`VirtualThreadsTest`](../../../../virtualthread/api/src/test/kotlin/io/bluetape4k/concurrent/virtualthread/VirtualThreadsTest.kt)
 
 ## 워크숍 {#workshops}
 
@@ -116,10 +116,10 @@ _배포본 README: [`virtualthread/api/README.ko.md`](https://github.com/bluetap
 
 - [모듈 README](../../../../virtualthread/api/README.ko.md)
 - [모듈 build](../../../../virtualthread/api/build.gradle.kts)
-- [`StructuredScopes`](../../../../virtualthread/api/src/main/kotlin/io/bluetape4k/concurrent/virtualthread/api/StructuredScopes.kt)
-- [`TaskContext`](../../../../virtualthread/api/src/main/kotlin/io/bluetape4k/concurrent/virtualthread/api/TaskContext.kt)
-- [`VirtualThreadRuntime`](../../../../virtualthread/api/src/main/kotlin/io/bluetape4k/concurrent/virtualthread/api/VirtualThreadRuntime.kt)
-- [`VirtualThreads`](../../../../virtualthread/api/src/main/kotlin/io/bluetape4k/concurrent/virtualthread/api/VirtualThreads.kt)
-- [`StructuredScopesTest`](../../../../virtualthread/api/src/test/kotlin/io/bluetape4k/concurrent/virtualthread/api/StructuredScopesTest.kt)
-- [`TaskContextTest`](../../../../virtualthread/api/src/test/kotlin/io/bluetape4k/concurrent/virtualthread/api/TaskContextTest.kt)
-- [`VirtualThreadsTest`](../../../../virtualthread/api/src/test/kotlin/io/bluetape4k/concurrent/virtualthread/api/VirtualThreadsTest.kt)
+- [`StructuredScopes`](../../../../virtualthread/api/src/main/kotlin/io/bluetape4k/concurrent/virtualthread/StructuredScopes.kt)
+- [`TaskContext`](../../../../virtualthread/api/src/main/kotlin/io/bluetape4k/concurrent/virtualthread/TaskContext.kt)
+- [`VirtualThreadRuntime`](../../../../virtualthread/api/src/main/kotlin/io/bluetape4k/concurrent/virtualthread/VirtualThreadRuntime.kt)
+- [`VirtualThreads`](../../../../virtualthread/api/src/main/kotlin/io/bluetape4k/concurrent/virtualthread/VirtualThreads.kt)
+- [`StructuredScopesTest`](../../../../virtualthread/api/src/test/kotlin/io/bluetape4k/concurrent/virtualthread/StructuredScopesTest.kt)
+- [`TaskContextTest`](../../../../virtualthread/api/src/test/kotlin/io/bluetape4k/concurrent/virtualthread/TaskContextTest.kt)
+- [`VirtualThreadsTest`](../../../../virtualthread/api/src/test/kotlin/io/bluetape4k/concurrent/virtualthread/VirtualThreadsTest.kt)

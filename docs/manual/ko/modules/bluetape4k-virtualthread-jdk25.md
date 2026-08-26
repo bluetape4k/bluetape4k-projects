@@ -63,8 +63,8 @@ implementation(libs.kotlinx.coroutines.core)
 
 모듈에서 찾은 설정 resource는 다음과 같습니다.
 
-- [`io.bluetape4k.concurrent.virtualthread.api.StructuredTaskScopeProvider`](../../../../virtualthread/jdk25/src/main/resources/META-INF/services/io.bluetape4k.concurrent.virtualthread.api.StructuredTaskScopeProvider)
-- [`io.bluetape4k.concurrent.virtualthread.api.VirtualThreadRuntime`](../../../../virtualthread/jdk25/src/main/resources/META-INF/services/io.bluetape4k.concurrent.virtualthread.api.VirtualThreadRuntime)
+- [`io.bluetape4k.concurrent.virtualthread.StructuredTaskScopeProvider`](../../../../virtualthread/jdk25/src/main/resources/META-INF/services/io.bluetape4k.concurrent.virtualthread.StructuredTaskScopeProvider)
+- [`io.bluetape4k.concurrent.virtualthread.VirtualThreadRuntime`](../../../../virtualthread/jdk25/src/main/resources/META-INF/services/io.bluetape4k.concurrent.virtualthread.VirtualThreadRuntime)
 
 override하기 전에 이 resource와 binding source에서 property 이름과 default를 확인합니다.
 
