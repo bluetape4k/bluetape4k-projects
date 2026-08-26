@@ -115,6 +115,7 @@ fun `backpressure fails without dropping callback and closes producer once`() = 
     }
 
     withTimeout(5.seconds) { producer.allSendsStarted.await() }
+    producer.pendingSends.distinct().size shouldBeEqualTo 3
     producer.fireCallback()
     withTimeout(5.seconds) { firstItemReceived.await() }
     producer.fireCallback()
@@ -156,7 +157,9 @@ fun `collector cancellation rethrows CancellationException and closes producer o
 
     producer.closeCount shouldBeEqualTo 1
     producer.pendingSend.isCancelled shouldBeEqualTo true
+    producer.cancelledPendingSends() shouldBeEqualTo 1
     producer.fireLateCallback()
+    producer.callbackCount shouldBeEqualTo 0
     producer.lateCallbackCount shouldBeEqualTo 1
 }
 
@@ -242,6 +245,7 @@ fun `callback drain timeout cancels pending sends and preserves timeout cause`()
     error::class shouldBeEqualTo TimeoutCancellationException::class
     producer.closeCount shouldBeEqualTo 1
     producer.pendingSend.isCancelled shouldBeEqualTo true
+    producer.cancelledPendingSends() shouldBeEqualTo 1
 }
 ```
 
@@ -275,8 +279,11 @@ private class TrackingProducer(
     val sendStarted = CompletableDeferred<Unit>()
     val allSendsStarted = CompletableDeferred<Unit>()
     val sendCount = AtomicInteger()
-    val pendingCallbacks = ConcurrentLinkedQueue<Callback>()
-    val pendingSend = CompletableFuture<RecordMetadata>()
+    data class Pending(val callback: Callback, val future: CompletableFuture<RecordMetadata>)
+    val pendingCallbacks = ConcurrentLinkedQueue<Pending>()
+    val pendingSends = ConcurrentLinkedQueue<CompletableFuture<RecordMetadata>>()
+    val pendingSend: CompletableFuture<RecordMetadata>
+        get() = pendingSends.peek() ?: error("no pending Kafka send")
     private val closed = AtomicBoolean()
     private val metadata = mockk<RecordMetadata>(relaxed = true)
 
@@ -284,15 +291,20 @@ private class TrackingProducer(
         every { producer.send(any<ProducerRecord<String, String>>(), any()) } answers {
             if (sendError != null) throw sendError
             val callback = secondArg<Callback>()
-            if (holdCallbacks) {
-                pendingCallbacks += callback
+            val resultFuture = if (holdCallbacks) {
+                val future = CompletableFuture<RecordMetadata>()
+                pendingSends += future
+                pendingCallbacks += Pending(callback, future)
+                sendStarted.complete(Unit)
+                future
             } else {
                 callbackCount.incrementAndGet()
                 callback.onCompletion(metadata, callbackError)
+                sendStarted.complete(Unit)
+                CompletableFuture.completedFuture(metadata)
             }
-            sendStarted.complete(Unit)
             if (sendCount.incrementAndGet() == 3) allSendsStarted.complete(Unit)
-            if (holdCallbacks) pendingSend else CompletableFuture.completedFuture(metadata)
+            resultFuture
         }
         every { producer.flush() } answers {
             flushCount.incrementAndGet()
@@ -306,29 +318,35 @@ private class TrackingProducer(
     }
 
     fun fireLateCallback() {
-        pendingCallbacks.poll()?.let { callback ->
+        pendingCallbacks.poll()?.let { pending ->
             if (closed.get()) lateCallbackCount.incrementAndGet()
-            callback.onCompletion(metadata, null)
+            pending.callback.onCompletion(metadata, null)
+            pending.future.complete(metadata)
         }
     }
 
     fun fireCallback() {
-        pendingCallbacks.poll()?.let { callback ->
+        pendingCallbacks.poll()?.let { pending ->
             callbackCount.incrementAndGet()
-            callback.onCompletion(metadata, null)
+            pending.callback.onCompletion(metadata, null)
+            pending.future.complete(metadata)
         }
     }
+
+    fun cancelledPendingSends(): Int = pendingSends.count { it.isCancelled }
 }
 ```
 
-기본 성공 fixture는 callback을 즉시 호출하고, held fixture는 `pendingCallbacks`를
-보관해 drain timeout과 cancellation을 결정적으로 만든다. backpressure 테스트는
+기본 성공 fixture는 callback을 즉시 호출하고, held fixture는 callback과 매번 새로
+생성한 `CompletableFuture`를 `Pending` 쌍으로 보관해 drain timeout과 cancellation을
+결정적으로 만든다. backpressure 테스트는
 세 `send` 완료를 `allSendsStarted`로 확인한 뒤 `fireCallback()`을 1→2→3 순서로
 수동 발화한다. 첫 callback 수신 후 collector가 gate에서 멈추므로 두 번째 결과가
 1-slot buffer를 채우고 세 번째 callback이 full을 재현한다. `maxInFlight=1`에서
 두 record가 모두 완료되는 테스트가 callback 공통 `finally`의 permit release를
 간접적으로 증명한다. close 이후 callback은 `lateCallbackCount`만 증가시킨다.
-`Producer`의 다른 메서드는 MockK relaxed
+각 held send는 서로 다른 Future를 반환하며 `cancelledPendingSends()`로 다중 in-flight
+취소를 검증할 수 있다. `Producer`의 다른 메서드는 MockK relaxed
 기본값으로 두되 `send`, `flush`, `close(Duration)`만 위 계약으로 검증한다. 모든
 assertion은 `assertFailsWith`, `shouldBeEqualTo` 또는 기존 `bluetape4k` matcher를
 사용한다. Timeout 테스트는 adapter의 30초 drain deadline을 그대로 검증하므로
@@ -373,16 +391,56 @@ return callbackFlow {
     val producer = producerFactory()
     val terminalCause = AtomicReference<Throwable?>(null)
     val permits = Semaphore(maxInFlight)
-    val inFlight = ConcurrentHashMap.newKeySet<Future<RecordMetadata>>()
-    val upstreamJob = launch(Dispatchers.IO) {
+    class SendState {
+        val future = AtomicReference<Future<RecordMetadata>?>(null)
+        val completed = AtomicBoolean()
+    }
+    val inFlight = ConcurrentHashMap.newKeySet<SendState>()
+    lateinit var upstreamJob: Job
+
+    fun failOnce(cause: Throwable) {
+        if (terminalCause.compareAndSet(null, cause)) {
+            upstreamJob.cancel(CancellationException("producer terminal failure", cause))
+            close(cause)
+        } else {
+            log.debug { "late Kafka callback ignored; failureKind=${cause::class.simpleName}" }
+        }
+    }
+
+    fun complete(state: SendState, metadata: RecordMetadata?, cause: Exception?) {
+        if (!state.completed.compareAndSet(false, true)) return
+        inFlight.remove(state)
+        permits.release()
+        if (cause != null) {
+            failOnce(cause)
+        } else if (metadata != null) {
+            trySend(metadata).onFailure {
+                failOnce(IllegalStateException("callback buffer is full"))
+            }
+        }
+    }
+
+    fun callbackFor(state: SendState): Callback = Callback { metadata, cause ->
+        complete(state, metadata, cause)
+    }
+
+    upstreamJob = launch(Dispatchers.IO) {
         try {
             records.collect { record ->
                 permits.acquire()
+                val state = SendState()
+                inFlight += state
                 try {
-                    val future = producer.send(record, callbackFor(record))
-                    inFlight += future
+                    val future = producer.send(record, callbackFor(state))
+                    state.future.set(future)
+                    if (state.completed.get() && terminalCause.get() != null) {
+                        future.cancel(false)
+                    }
                 } catch (cause: Throwable) {
-                    permits.release()
+                    if (state.completed.compareAndSet(false, true)) {
+                        inFlight.remove(state)
+                        permits.release()
+                    }
                     failOnce(cause)
                     throw cause
                 }
@@ -396,16 +454,19 @@ return callbackFlow {
 }.buffer(channelCapacity, onBufferOverflow = BufferOverflow.SUSPEND)
 ```
 
-`callbackFor(record)`는 callback 성공·실패와 동기 `send` 예외 모두에서 공통
-`finally`로 해당 Future를 `inFlight`에서 제거하고 permit을 정확히 한 번만
-해제한다. `failOnce(cause)`는 `terminalCause`를 CAS한 뒤
+각 send는 `SendState`를 먼저 `inFlight`에 등록하고 callback에 전달한다. callback이
+동기 실행되어도 state가 이미 존재하므로 stale Future가 생기지 않는다. callback은
+state의 `completed` CAS를 통과할 때만 `inFlight`에서 제거하고 permit을 정확히 한 번
+해제하며, 반환 Future는 state에 저장한 뒤 이미 완료된 callback이면 registry에 남기지
+않는다. `failOnce(cause)`는 `terminalCause`를 CAS한 뒤
 `upstreamJob.cancel(CancellationException("producer terminal failure", cause))`과
 channel close를 수행한다. 각 collection마다 `producerFactory()`는 한 번만
 호출한다. 두 helper는 `upstreamJob`을 생성하기 전에 같은 `callbackFlow` block의
 local function으로 선언하며, callback thread에서 suspend하지 않는다.
-각 `send`의 반환 Future를 in-flight 항목과 함께 보관해 cancellation 또는 drain
-deadline에서 `cancel(false)`하고, deterministic probe의 `pendingSend`로 그 결과를
-검증한다.
+각 `send`의 반환 Future는 state에 저장하고, cancellation 또는 drain deadline에서
+모든 in-flight state의 Future를 `cancel(false)`한다. deterministic probe는 send마다
+서로 다른 pending Future를 반환하고 `pendingSend`와 `cancelledPendingSends()`로 그
+결과를 검증한다.
 
 - [ ] **Step 2: callback failure와 full-buffer terminal path를 구현한다**
 

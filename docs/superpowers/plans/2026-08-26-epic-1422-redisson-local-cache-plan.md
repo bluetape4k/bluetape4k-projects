@@ -137,10 +137,10 @@ fun `empty Int key is initialized by addAndGetAsync`() = runSuspendIO {
         LocalCachedMapOptions.name<String, Int>(name).codec(intCodec)
     )
 
-    val result = withTimeout(5.seconds) { map.addAndGetAsync("count", 32).await() }
+    val result = awaitRedis(map.addAndGetAsync("count", 32))
 
     result shouldBeEqualTo 32
-    withTimeout(5.seconds) { map.getAsync("count").await() } shouldBeEqualTo 32
+    awaitRedis(map.getAsync("count")) shouldBeEqualTo 32
 }
 
 @Test
@@ -150,10 +150,10 @@ fun `empty Double key is initialized by HINCRBYFLOAT`() = runSuspendIO {
         LocalCachedMapOptions.name<String, Double>(name).codec(doubleCodec)
     )
 
-    val result = withTimeout(5.seconds) { map.addAndGetAsync("ratio", 0.25).await() }
+    val result = awaitRedis(map.addAndGetAsync("ratio", 0.25))
 
     result shouldBeEqualTo 0.25
-    withTimeout(5.seconds) { map.getAsync("ratio").await() } shouldBeEqualTo 0.25
+    awaitRedis(map.getAsync("ratio")) shouldBeEqualTo 0.25
 }
 ```
 
@@ -190,12 +190,12 @@ val options = LocalCachedMapOptions.name<String, Int>(name)
 val cachedMap: RLocalCachedMap<String, Int> = redisson.getLocalCachedMap(options)
 val backendMap: RMap<String, Int> = redisson.getMap(name, intCodec)
 
-val first = withTimeout(5.seconds) { cachedMap.addAndGetAsync("count", 32).await() }
-val second = withTimeout(5.seconds) { cachedMap.addAndGetAsync("count", 10).await() }
+val first = awaitRedis(cachedMap.addAndGetAsync("count", 32))
+val second = awaitRedis(cachedMap.addAndGetAsync("count", 10))
 
 first shouldBeEqualTo 32
 second shouldBeEqualTo 42
-withTimeout(5.seconds) { backendMap.getAsync("count").await() } shouldBeEqualTo 42
+awaitRedis(backendMap.getAsync("count")) shouldBeEqualTo 42
 ```
 
 `fastPutAsync`로 같은 numeric key를 먼저 직렬화하지 않는다. key가 없을 때 Redis
@@ -212,9 +212,9 @@ val options = LocalCachedMapOptions.name<String, Double>(name)
 val cachedMap: RLocalCachedMap<String, Double> = redisson.getLocalCachedMap(options)
 val backendMap: RMap<String, Double> = redisson.getMap(name, doubleCodec)
 
-val result = withTimeout(5.seconds) { cachedMap.addAndGetAsync("ratio", 0.25).await() }
+val result = awaitRedis(cachedMap.addAndGetAsync("ratio", 0.25))
 result shouldBeEqualTo 0.25
-withTimeout(5.seconds) { backendMap.getAsync("ratio").await() } shouldBeEqualTo 0.25
+awaitRedis(backendMap.getAsync("ratio")) shouldBeEqualTo 0.25
 ```
 
 KDoc에는 Int/Double map을 섞지 않고 finite Double delta만 사용하며, `HINCRBYFLOAT`가 숫자 hash field를 요구한다는 제약을 한국어로 기록한다.
@@ -355,7 +355,7 @@ fun `concurrent numeric increments match independent remote final value`() = run
 같은 구조로 Double은 `0.25` delta와 `Double` codec을 사용하고, expected 값은
 `calls * 0.25`로 assertion한다. Double도 `redisson2.getLocalCachedMap`으로
 동일한 `name`과 `doubleCodec`을 사용한 두 번째 local view를 만들고,
-`withTimeout(5.seconds) { map2.getAsync("ratio").await() }`가
+`awaitRedis(map2.getAsync("ratio"))`가
 `calls * 0.25`와 일치하는지 확인한다. Int와 Double 모두 `redisson2` local
 view를 같은 5초 deadline으로 reread해 remote final value와 일치하는지
 확인한다. worker는 ad hoc thread를 만들지 않는다.
@@ -390,7 +390,7 @@ worker는 ad hoc thread를 만들지 않는다.
 기존 세 invalidation 테스트를 보존하면서 각 wrapper를 `runSuspendIO`로 바꾸고,
 모든 future를 `awaitRedis(future)`로 감싼다. remote `fastPutAsync`/`fastRemoveAsync`
 뒤에는 blocking `containsKey` 대신 `untilSuspending`에서
-`containsKeyAsync(key).await()`를 IO 경계로 평가한다. 다음 조건을
+`awaitRedis(containsKeyAsync(key))`를 IO 경계로 평가한다. 다음 조건을
 `atMost(5.seconds)`, 100ms poll로 기다린다.
 
 ```kotlin
@@ -423,13 +423,13 @@ message는 비교하지 않아 환경별 Redis endpoint를 노출하지 않는�
 fun `non numeric stored value is rejected by numeric increment`() = runSuspendIO {
     val name = randomName()
     val raw = redisson.getMap<String, String>(name, RedissonCodecs.String)
-    withTimeout(5.seconds) { raw.fastPutAsync("ratio", "not-a-number").await() }
+    awaitRedis(raw.fastPutAsync("ratio", "not-a-number"))
 
     val numeric = redisson1.getLocalCachedMap(
         LocalCachedMapOptions.name<String, Double>(name).codec(doubleCodec)
     )
     assertFailsWith<RedisException> {
-        withTimeout(5.seconds) { numeric.addAndGetAsync("ratio", 0.25).await() }
+        awaitRedis(numeric.addAndGetAsync("ratio", 0.25))
     }
 }
 ```
