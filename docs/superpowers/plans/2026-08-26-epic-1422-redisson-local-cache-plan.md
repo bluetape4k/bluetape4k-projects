@@ -40,7 +40,9 @@ production module에 테스트 전용 helper를 추출하지 않는 것이 이 e
 
 기존 `redis` lazy property가 사용하는 mutable tag 대신 다음 immutable image reference를
 사용한다. `RedisServer`의 기존 `DockerImageName` 생성자와 `ShutdownQueue` ownership을
-그대로 재사용하며, production testcontainers module은 변경하지 않는다.
+그대로 재사용하며, production testcontainers module은 변경하지 않는다. 현재
+`RedisServer.Launcher.redis`가 Redisson classpath에서 수행하는 `warmupPubSubChannel`
+호출도 반드시 보존해 첫 연결 시 `StacklessClosedChannelException`을 예방한다.
 
 ```kotlin
 @JvmStatic
@@ -52,11 +54,23 @@ val redis: RedisServer by lazy {
     ).apply {
         start()
         ShutdownQueue.register(this)
+
+        if (classIsPresent("org.redisson.Redisson")) {
+            val warmupClient = Redisson.create(
+                RedisServer.Launcher.RedissonLib.getRedissonConfig(url)
+            )
+            try {
+                RedisServer.Launcher.RedissonLib.warmupPubSubChannel(warmupClient)
+            } finally {
+                warmupClient.shutdown()
+            }
+        }
     }
 }
 ```
 
-필요한 import는 `org.testcontainers.utility.DockerImageName`다. 기존 함수의
+필요한 import는 `io.bluetape4k.support.classIsPresent`, `org.redisson.Redisson`와
+`org.testcontainers.utility.DockerImageName`다. 기존 함수의
 signature는 다음으로 바꾸고, `ShutdownQueue.register`는 조건부로 실행한다. 기본값은
 기존 shared client 동작을 보존한다.
 

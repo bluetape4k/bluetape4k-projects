@@ -19,9 +19,12 @@
 - Modify: `examples/coroutines-demo/README.md` — 정확한 Gradle task, Docker/Testcontainers precondition, callback contract를 영어로 갱신한다.
 - Modify: `examples/coroutines-demo/README.ko.md` — 같은 명령과 계약을 한국어로 갱신한다.
 - Create: `.github/scripts/collect-testcontainers-diagnostics.py` — task별 bounded/sanitized Docker log와 provenance manifest를 표준 출력 경로에 만든다.
+- Create: `.github/scripts/test_collect-testcontainers-diagnostics.py` — redaction·allowlist·report cap 회귀 fixture를 검증한다.
 - Modify: `.github/workflows/examples.yml` — compile 병렬 phase와 Testcontainers test 순차 phase를 분리하고 aggregate failure/artifact를 고정한다.
 
-이 계획은 production Kafka API, 새 library module, catalog version, Kafka image/tag를 변경하지 않는다. #1353 소유 파일은 이 계획에서 수정하지 않는다.
+이 계획은 production Kafka API, 새 library module, catalog version, 공용 Kafka image/tag를
+변경하지 않는다. CI/test-only broker image는 immutable digest로 고정한다. #1353 소유
+파일은 이 계획에서 수정하지 않는다.
 
 ## Task 1: Kafka example dependency와 baseline 고정
 
@@ -155,6 +158,9 @@ fun `collector cancellation rethrows CancellationException and closes producer o
 
     withTimeout(5.seconds) { producer.sendStarted.await() }
     task.cancel()
+    withTimeout(5.seconds) {
+        while (producer.cancelledPendingSends() == 0) delay(10)
+    }
     val cancellation = assertFailsWith<CancellationException> { task.await() }
 
     producer.closeCount shouldBeEqualTo 1
@@ -430,6 +436,10 @@ private fun producerResults(
 Step 2–3에서 이 signature의 함수 body를 완성한다. `channelCapacity`와
 `maxInFlight`를 각각 `1..16`으로 검증하고, 마지막에
 `.buffer(channelCapacity, onBufferOverflow = BufferOverflow.SUSPEND)`를 적용한다.
+필요한 coroutine import는 `CancellationException`, `CoroutineStart`, `Dispatchers`,
+`Job`, `NonCancellable`, `TimeoutCancellationException`, `delay`, `launch`,
+`runInterruptible`, `withContext`, `withTimeout`이며, callback state에는
+`AtomicBoolean`, `AtomicReference`, `ConcurrentHashMap`, `Semaphore`를 사용한다.
 `callbackFlow` 내부는 다음 이름과 수명 순서를 그대로 사용한다.
 
 ```kotlin
@@ -445,9 +455,14 @@ return callbackFlow {
     val inFlight = ConcurrentHashMap.newKeySet<SendState>()
     val upstreamJobRef = AtomicReference<Job?>()
 
+    fun cancelInFlight() {
+        inFlight.forEach { it.future.get()?.cancel(false) }
+    }
+
     fun failOnce(cause: Throwable) {
         if (downstreamCancelled.get()) return
         if (terminalCause.compareAndSet(null, cause)) {
+            cancelInFlight()
             upstreamJobRef.get()?.cancel(CancellationException("producer terminal failure", cause))
             close(cause)
         } else {
@@ -485,7 +500,7 @@ return callbackFlow {
                 try {
                     val future = producer.send(record, callbackFor(state))
                     state.future.set(future)
-                    if (state.completed.get() && (terminalCause.get() != null || downstreamCancelled.get())) {
+                    if (terminalCause.get() != null || downstreamCancelled.get()) {
                         future.cancel(false)
                     }
                 } catch (cause: Throwable) {
@@ -508,9 +523,18 @@ return callbackFlow {
                         while (inFlight.isNotEmpty()) delay(10)
                         runInterruptible { producer.flush() }
                     }
+                } catch (cause: TimeoutCancellationException) {
+                    cleanupFailure = cause
+                    cancelInFlight()
+                    if (!downstreamCancelled.get()) failOnce(cause)
+                } catch (cause: CancellationException) {
+                    cleanupFailure = cause
+                    cancelInFlight()
+                    if (!downstreamCancelled.get()) failOnce(cause)
+                    throw cause
                 } catch (cause: Throwable) {
                     cleanupFailure = cause
-                    inFlight.forEach { it.future.get()?.cancel(false) }
+                    cancelInFlight()
                     if (!downstreamCancelled.get()) failOnce(cause)
                 }
 
@@ -537,6 +561,7 @@ return callbackFlow {
     upstreamJob.start()
     awaitClose {
         downstreamCancelled.set(true)
+        cancelInFlight()
         upstreamJob.cancel(CancellationException("collector cancelled"))
     }
 }.buffer(channelCapacity, onBufferOverflow = BufferOverflow.SUSPEND)
@@ -566,12 +591,14 @@ local function으로 선언하며, callback thread에서 suspend하지 않는다
 
 - [ ] **Step 2: callback failure와 full-buffer terminal path를 구현한다**
 
-첫 terminal cause는 다음 규칙을 사용한다.
+첫 terminal cause는 다음 규칙을 사용한다. Step 1의 local helper와 동일하게
+`upstreamJobRef`를 사용해 초기화 전 Job 참조를 막고, downstream cancellation 뒤에는
+late callback이 새 원인을 만들지 않는다.
 
 ```kotlin
 if (!downstreamCancelled.get() && terminalCause.compareAndSet(null, cause)) {
-    upstreamJob.cancel(CancellationException("producer terminal failure", cause))
-    channel.close(cause)
+    upstreamJobRef.get()?.cancel(CancellationException("producer terminal failure", cause))
+    close(cause)
 } else {
     log.debug { "late Kafka callback ignored; failureKind=$failureKind" }
 }
@@ -585,8 +612,9 @@ if (!downstreamCancelled.get() && terminalCause.compareAndSet(null, cause)) {
 
 - [ ] **Step 3: awaitClose와 bounded cleanup을 구현한다**
 
-`awaitClose`에서는 sentinel 설정과 cancellation signal만 수행하고 blocking Kafka API를
-호출하지 않는다. worker의 `finally` 안에서 다음 순서를 지킨다.
+`awaitClose`에서는 sentinel 설정, in-flight Future의 non-blocking `cancel(false)`,
+cancellation signal만 수행하고 blocking Kafka API를 호출하지 않는다. worker의
+`finally` 안에서 다음 순서를 지킨다.
 
 1. `withContext(NonCancellable + Dispatchers.IO)`로 진입한다.
 2. callback drain과 `flush()`를 30초 `withTimeout`으로 기다린다.
@@ -594,8 +622,11 @@ if (!downstreamCancelled.get() && terminalCause.compareAndSet(null, cause)) {
    처리가 끝난 뒤에만 flush/close로 진행한다. 모든 send가 callback 완료 후에만
    정상 close로 간다.
 3. deadline을 넘기면 `TimeoutCancellationException`을 first cause로 CAS하고 pending send를 취소한다.
+   cleanup 중 발생한 `CancellationException`은 broad `Throwable` catch로 흡수하지 않고
+   cleanup 후 재전파하며, 기존 upstream/downstream cancellation 원인은 그대로 보존한다.
 4. `producer.close(Duration.ofSeconds(5))`를 한 번 실행하고 예외를 suppressed로 연결한다.
-5. `CancellationException`을 broad catch에서 삼키지 않고 재전파한다.
+5. `CancellationException`을 broad catch에서 삼키지 않고 재전파한다. close 자체의
+   후속 예외는 기존 cancellation 또는 first cause에 `suppressed`로만 연결한다.
 
 정상적인 `records.collect` 완료에서는 drain과 flush가 끝난 뒤 channel을 성공적으로
 닫고, terminal cause가 있으면 해당 cause로 이미 닫힌 channel을 유지한다. drain 또는
@@ -716,12 +747,23 @@ python3 .github/scripts/collect-testcontainers-diagnostics.py \
   --task-name :bluetape4k-examples-coroutines-demo:test \
   --output-dir examples/build/testcontainers-diagnostics/_bluetape4k-examples-coroutines-demo_test \
   --workflow-file .github/workflows/examples.yml \
-  --report-root examples \
-  --max-total-bytes 2000000
+  --max-total-bytes 2000000 \
+  --container-id <new-container-id>
+
+python3 .github/scripts/collect-testcontainers-diagnostics.py \
+  --task-name examples-test-phase-reports \
+  --output-dir examples/build/testcontainers-diagnostics/report-scan \
+  --workflow-file .github/workflows/examples.yml \
+  --sanitized-report-dir examples/build/sanitized-test-reports \
+  --report-path examples/coroutines-demo/build/test-results/test \
+  --report-path examples/coroutines-demo/build/reports/tests/test \
+  --max-report-files 200 \
+  --max-report-total-bytes 2000000
 ```
 
 스크립트는 `--container-id`를 반복 인자로 받아 현재 Gradle invocation에서 새로 생성된
-container만 대상으로 삼는다. ID가 없으면 빈 manifest를 만들고 exit 0으로 종료한다.
+container만 대상으로 삼는다. ID가 없으면 container 섹션이 빈 manifest가 되며 exit 0으로
+처리하되, `--report-path`가 함께 지정된 경우 report sanitization은 계속 수행한다.
 각 container에 대해 `docker inspect`의 image/name/created와 `docker logs --tail 200`만
 수집한다. 출력은 task 이름으로 정규화한 JSON manifest와 `*.log`로 저장하며,
 token·URI·환경 변수·payload·exception message는 `[REDACTED]`로 치환한다. 로그와
@@ -729,27 +771,35 @@ manifest의 총 산출량은 `--max-total-bytes`(기본 2,000,000 bytes)를 넘�
 초과분은 잘라내고 manifest에 `truncated=true`를 기록한다. container log가 없으면
 해당 container의 로그를 생략하고, 전체 ID가 비어 있으면 빈 manifest를 만든다.
 Docker CLI 자체 오류는 stderr에 task name만 남기고 exit 1로 반환한다.
-`--report-root`가 지정되면 `**/build/test-results/**/*.xml`과
-`**/build/reports/tests/test/**/*.{html,css,js}`를 순회해 같은 redaction을 적용한
-파일을 `--sanitized-report-dir` 아래 상대 경로로 복사한다. report-root 자체가
-존재하지 않거나 report 파일이 없으면 해당 단계는 실패시키고, 원본 report를
-sanitized 디렉터리에 절대 링크하지 않는다.
+`--report-path`를 반복 인자로 받으면 전달된 정확한 디렉터리만 순회해
+`**/build/test-results/**/*.xml`과 `**/build/reports/tests/test/**/*.{html,css,js}`에
+같은 redaction을 적용한 파일을 `--sanitized-report-dir` 아래 상대 경로로 복사한다.
+`report-path`가 존재하지 않거나 report 파일이 없으면 해당 단계는 실패시키고, 원본
+report를 sanitized 디렉터리에 절대 링크하지 않는다. collector는 report path를
+재귀적으로 무제한 탐색하지 않고 정렬된 path 목록만 방문하며, 전체 sanitized report는
+`--max-report-files`(기본 200)와 `--max-report-total-bytes`(기본 2,000,000 bytes)를
+동시에 적용한다. 상한 초과 시 추가 파일을 저장하지 않고 manifest에
+`report_truncated=true`를 기록하며 exit 1로 종료한다.
 
 `sanitize`는 다음 순서의 stdlib 정규식만 사용한다: (1) `authorization`,
 `token`, `password`, `secret`, `api[_-]?key` 등의 key/value를 치환하고,
 (2) `scheme://host/path` 형태의 URI를 치환하며, (3) 대문자 환경 변수 assignment와
 `payload|message|body|value` 라인 전체를 치환하고, (4) `*Exception`/`*Error`
 뒤의 message를 치환한다. 원문 로그는 저장하지 않는다. `--workflow-file`의
-`uses: owner/action@ref`를 파싱해 `workflow_action_refs`에 기록하고,
-`docker inspect`의 `RepoDigests` 또는 image ID를 `image_digest`에 기록한다.
+`uses: owner/action@ref`를 파싱해 `workflow_action_refs`에 기록하되 ref가 40자리
+immutable commit SHA가 아니면 실패시킨다. `docker inspect`의 `RepoDigests`에서
+allowlist와 정확히 일치하는 값을 `image_digest`에 기록한다. image ID는 보조 진단
+필드로만 기록할 수 있고, `RepoDigests`가 없으면 provenance를 완성할 수 없으므로
+실패시킨다.
 허용 image allowlist는 `confluentinc/cp-kafka@sha256:a5040785528b0bce3b146febe9fcacdcf2b9b5acb450307f75170ef0e60ec130`과
 `redis@sha256:4e070415a5713188624f93815e62d6c6a1fcbb416d2e0b578ab3db627db3a93a`로
 고정한다. 해당 image는 `RepoDigests`가 allowlist와 정확히 일치해야 하며, local
 image ID만 있거나 예상하지 않은 image면 collector를 실패시킨다.
-같은 `sanitize` 규칙을 `--report-root` 아래의 JUnit XML/HTML에도 적용해
+같은 `sanitize` 규칙을 지정된 `--report-path` 아래의 JUnit XML/HTML에도 적용해
 `examples/build/sanitized-test-reports/`에 복사하고, workflow는 원본 report가 아닌
-이 경로만 artifact로 업로드한다. 각 파일은 2MB를 넘기지 않으며, 원본 경로는
-artifact 대상에서 제외한다. 테스트 source의 logging은 module·recordCount·failureKind
+이 경로만 artifact로 업로드한다. 각 파일은 2MB를 넘기지 않으며 전체 합계·파일 수
+상한도 적용하고, 원본 경로는 artifact 대상에서 제외한다. 테스트 source의 logging은
+module·recordCount·failureKind
 같은 구조화 필드만 남기고 payload/message/result/URI를 기록하지 않는다.
 
 - [ ] **Step 2: compile과 test 배열을 분리한다**
@@ -789,6 +839,43 @@ if [[ -f examples/spring-boot/observability-spring-boot-demo/build.gradle.kts ]]
   test_tasks+=( :observability-spring-boot-demo:test )
 fi
 
+report_paths=(
+  --report-path examples/coroutines-demo/build/test-results/test
+  --report-path examples/coroutines-demo/build/reports/tests/test
+  --report-path examples/jpa-blazepersistence-demo/build/test-results/test
+  --report-path examples/jpa-blazepersistence-demo/build/reports/tests/test
+  --report-path examples/jpa-querydsl-demo/build/test-results/test
+  --report-path examples/jpa-querydsl-demo/build/reports/tests/test
+  --report-path examples/redisson-demo/build/test-results/test
+  --report-path examples/redisson-demo/build/reports/tests/test
+  --report-path examples/virtualthreads-demo/build/test-results/test
+  --report-path examples/virtualthreads-demo/build/reports/tests/test
+)
+if [[ -f examples/ktor/idgenerator-ktor-demo/build.gradle.kts ]]; then
+  report_paths+=(
+    --report-path examples/ktor/idgenerator-ktor-demo/build/test-results/test
+    --report-path examples/ktor/idgenerator-ktor-demo/build/reports/tests/test
+  )
+fi
+if [[ -f examples/ktor/observability-ktor-demo/build.gradle.kts ]]; then
+  report_paths+=(
+    --report-path examples/ktor/observability-ktor-demo/build/test-results/test
+    --report-path examples/ktor/observability-ktor-demo/build/reports/tests/test
+  )
+fi
+if [[ -f examples/spring-boot/idgenerator-spring-boot-demo/build.gradle.kts ]]; then
+  report_paths+=(
+    --report-path examples/spring-boot/idgenerator-spring-boot-demo/build/test-results/test
+    --report-path examples/spring-boot/idgenerator-spring-boot-demo/build/reports/tests/test
+  )
+fi
+if [[ -f examples/spring-boot/observability-spring-boot-demo/build.gradle.kts ]]; then
+  report_paths+=(
+    --report-path examples/spring-boot/observability-spring-boot-demo/build/test-results/test
+    --report-path examples/spring-boot/observability-spring-boot-demo/build/reports/tests/test
+  )
+fi
+
 ./gradlew "${compile_tasks[@]}" --parallel
 
 set +e
@@ -809,14 +896,20 @@ for task in "${test_tasks[@]}"; do
     --task-name "$task" \
     --output-dir "examples/build/testcontainers-diagnostics/${task//:/_}" \
     --workflow-file .github/workflows/examples.yml \
-    --report-root examples \
-    --sanitized-report-dir examples/build/sanitized-test-reports \
     --max-total-bytes 2000000 \
     "${container_args[@]}" || status=1
   test -f "examples/build/testcontainers-diagnostics/${task//:/_}/manifest.json" || status=1
-  test -d examples/build/sanitized-test-reports || status=1
   rm -f "$before_ids_file" "$after_ids_file"
 done
+python3 .github/scripts/collect-testcontainers-diagnostics.py \
+  --task-name examples-test-phase-reports \
+  --output-dir examples/build/testcontainers-diagnostics/report-scan \
+  --workflow-file .github/workflows/examples.yml \
+  --sanitized-report-dir examples/build/sanitized-test-reports \
+  --max-report-files 200 \
+  --max-report-total-bytes 2000000 \
+  "${report_paths[@]}" || status=1
+test -d examples/build/sanitized-test-reports || status=1
 phase_elapsed=$(( $(date +%s) - phase_started ))
 printf 'serial_test_phase_seconds=%s\n' "$phase_elapsed" > examples/build/testcontainers-diagnostics/test-phase-timing.txt
 (( phase_elapsed <= 2700 )) || status=1
@@ -830,7 +923,10 @@ exit "$status"
 저장하고, task 종료 직후 실행 후 기준 목록과 `comm -13`으로 새 ID만 계산해 collector의
 반복 `--container-id` 인자로 전달한다. 기준 목록 명령이 Docker 오류를 반환하면
 aggregate status를 1로 유지하되 collector는 빈 manifest를 남겨 `if: always()`에서
-진단 artifact를 확인할 수 있게 한다. Ktor/Spring Boot 조건부 task는 현재
+진단 artifact를 확인할 수 있게 한다. 모든 test task가 끝난 뒤 collector를 정확히
+한 번 더 호출해 `report_paths`에 열거한 report 디렉터리만 sanitization하고, 이 호출은
+`--max-report-files=200`과 `--max-report-total-bytes=2000000`을 적용한다.
+Ktor/Spring Boot 조건부 task는 현재
 `build.gradle.kts`가 존재하는 경우에만 compile/test 배열 각각에 추가한다. compile
 task와 test task를 같은 `--parallel` 배열에 넣지 않는다. ID 목록은 정렬·중복 제거해
 같은 container의 log/manifest를 여러 번 수집하지 않는다.
@@ -855,15 +951,16 @@ commit SHA로 고정한다. `.github/workflows/examples.yml`의 action 줄은 �
   with:
     persist-credentials: false
 - uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961 # v5.7.0
-- uses: gradle/actions/setup-gradle@67621b124fd2e251c5e8a0e6e3b91318f2287669 # v6.3.0
+- uses: gradle/actions/setup-gradle@9c971963bec38e04b3d30dcc455b5382be2fdbfb # v6.3.0
 - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
 ```
 
 각 test invocation 뒤 manifest가 존재하는지 shell에서 검사하고, collector 또는
-manifest 누락이면 aggregate status를 1로 만든다. manifest에는 resolved image
-digest와 workflow action ref를 기록하되, 이 Epic에서는 mutable image/action을
-변경하거나 pinning하지 않는다. 진단 파일은 task별로 새 container ID를 deduplicate하고
-총 2,000,000 bytes 상한을 적용한다. `actionlint`, path filter, artifact path와
+manifest 누락이면 aggregate status를 1로 만든다. manifest에는 allowlist와 정확히
+일치하는 resolved image digest와 immutable workflow action commit ref를 기록한다.
+mutable image/action ref는 허용하지 않으며, 이 Epic에서는 공용 image/tag를 변경하지
+않는다. 진단 파일은 task별로 새 container ID를 deduplicate하고 총 2,000,000 bytes
+상한을 적용한다. `actionlint`, path filter, artifact path와
 순서를 정적 검사한다. 기존 workflow timeout 60분에서 15분 headroom을 확보하기
 위해 전체 직렬 test phase의 elapsed를 `date +%s`로 측정해
 `examples/build/testcontainers-diagnostics/test-phase-timing.txt`에 기록하고, 45분을 초과하면
@@ -877,10 +974,16 @@ Run:
 ```bash
 actionlint .github/workflows/examples.yml
 python3 -m py_compile .github/scripts/collect-testcontainers-diagnostics.py
+python3 -m unittest discover -s .github/scripts -p 'test_*.py'
 git diff --check
 ```
 
-Expected: actionlint와 Python syntax가 PASS한다. 실제 CI에서는 중간 test failure가 있어도 뒤의 task와 artifact 수집이 실행되고 마지막에 aggregate non-zero가 된다.
+fixture 테스트는 URI userinfo/query, 중첩 JSON/XML payload, 소문자 환경 변수,
+multiline `Exception`/`Error` stack trace의 비밀값이 sanitized output에 남지 않는지,
+allowlist 밖 image와 local image ID를 거부하는지, report 파일 수·전체 바이트 상한과
+`report_truncated=true`를 검증한다. Expected: actionlint, Python syntax, redaction
+fixture가 PASS한다. 실제 CI에서는 중간 test failure가 있어도 뒤의 task와 artifact
+수집이 실행되고 마지막에 aggregate non-zero가 된다.
 
 ## Task 6: coroutines README locale parity를 맞춘다
 
