@@ -4,7 +4,7 @@
 
 - 대상 Epic: [#1420 JDBC·Cassandra·Spring Boot 계약 검증](https://github.com/bluetape4k/bluetape4k-projects/issues/1420)
 - 대상 milestone: `2.0.0`
-- 기준 commit: `24a3eb9b580e1e9307df1b8d37e8424f82f978d4` (`develop == origin/develop`)
+- 기준 commit: 현재 fetch로 확인한 live `origin/develop@a907d144f39bfb94cba783cf65a5412e0714e9d5`로 갱신한다. 초안 기준은 `24a3eb9b580e1e9307df1b8d37e8424f82f978d4`였으며, 구현 직전 remote가 이동하면 rebase·range-diff 후 문서와 receipt를 함께 갱신한다.
 - 분류: Type-A Full Feature, strict linear stacked PR train
 - 현재 상태: 설계 승인 완료, spec/plan 및 구현 전 단계
 
@@ -36,11 +36,11 @@ Epic 본문에는 `Epic·1.13.0`이라는 과거 문구가 남아 있으나 live
 
 ### 3.1 범위
 
-- #1359의 `OptionsSupport` null-safe 구현과 TTL/timestamp/statement subtype matrix
+- #1359의 `OptionsSupport` null-safe 구현과 TTL/timestamp/statement subtype matrix, Cassandra EN/KO README의 microseconds·TTL 경계 문서
 - #1346의 QueryDSL Kotlin codegen 및 일반 Entity 지원성 재현 fixture, build 선택, 문서화
 - #1357의 root/metrics property matrix와 Metrics/Actuator 조건 전파
 - #1358의 Spring Boot 4.1 `spring.mongodb.*` binding, auto-configuration ordering, 테스트 경계 분리
-- 각 slice의 Korean KDoc/README parity, targeted test, module build와 정적 분석
+- 각 slice의 Korean KDoc/README parity, CHANGELOG migration note, targeted test, module build와 정적 분석
 - strict linear branch/base/head, restack, rollback, exact-head CI 증거
 - Type-A spec/plan/lesson과 독립 리뷰 관점별 findings 수렴
 
@@ -81,6 +81,7 @@ Epic 본문에는 `Epic·1.13.0`이라는 과거 문구가 남아 있으나 live
 
 - production: `spring-boot/mongodb/src/main/kotlin/io/bluetape4k/spring/mongodb/config/ReactiveMongoAutoConfiguration.kt`
 - test helpers: `spring-boot/mongodb/src/test/kotlin/io/bluetape4k/spring/mongodb/AbstractReactiveMongoTest.kt`, `MongoTestApplication.kt`
+- test resource: `spring-boot/mongodb/src/test/resources/application.yml` (bean overriding은 비활성화)
 - integration: `spring-boot/mongodb/src/test/kotlin/io/bluetape4k/spring/mongodb/coroutines/ReactiveMongoOperationsCoroutinesTest.kt`
 - KDoc와 `DynamicPropertySource`는 `spring.data.mongodb.*`를 사용하고, `MongoTestApplication`은 수동 `AbstractReactiveMongoConfiguration`으로 binding을 가린다.
 - baseline `CriteriaExtensionsTest` 25개는 통과했다. MongoDB Testcontainers 통합 검증은 구현 후 별도로 한 번에 실행한다.
@@ -103,7 +104,7 @@ Epic 본문에는 `Epic·1.13.0`이라는 과거 문구가 남아 있으나 live
 
 | 순서 | Head branch | PR base | Issue | 핵심 경계 |
 | --- | --- | --- | --- | --- |
-| 1 | `fix/1359-cassandra-write-options-nullable` | `develop@24a3eb9b5` | #1359 | Cassandra production/test/KDoc |
+| 1 | `fix/1359-cassandra-write-options-nullable` | `develop@a907d144f39bfb94cba783cf65a5412e0714e9d5` | #1359 | Cassandra production/test/KDoc/README |
 | 2 | `build/1346-querydsl-kotlin-codegen` | #1359 exact head | #1346 | Hibernate build/fixture/test/docs |
 | 3 | `fix/1357-hibernate-lettuce-root-condition` | #1346 exact head | #1357 | auto-configuration/test/README |
 | 4 | `fix/1358-mongodb-boot41-boundary` | #1357 exact head | #1358 | auto-configuration/test helpers/docs |
@@ -114,24 +115,24 @@ Epic 본문에는 `Epic·1.13.0`이라는 과거 문구가 남아 있으나 live
 
 ### 7.1 #1359 — nullable WriteOptions
 
-- `isPositiveTtl`은 `ttl != null && ttl.isPositive` 의미로 고정하고 zero/negative/null을 모두 statement TTL 적용 대상에서 제외한다.
-- `Insert`, `Update`, `UpdateStart`, `Delete`의 기존 statement builder 의미와 subtype guard를 보존한다.
-- TTL null/negative/zero/positive × timestamp null/present를 각 applicable subtype에 대해 assertion한다.
-- production `!!`는 제거하고, KDoc의 zero/negative 동작과 실제 query 문자열을 일치시킨다.
+- `isPositiveTtl`은 Spring Data Cassandra의 기존 `hasTtl` 의미인 `ttl != null && !ttl.isNegative`로 고정한다. null은 미적용, zero는 `USING TTL 0`, 음수는 builder 단계의 명시적 예외로 처리한다.
+- `Insert`, `Update`, `UpdateStart`, `Delete`의 기존 statement builder 의미와 subtype guard를 보존한다. Delete는 TTL을 적용하지 않지만 timestamp는 계속 보존한다.
+- TTL null/negative/zero/positive × timestamp null/present를 각 applicable subtype에 대해 assertion하고, `Int` 범위를 벗어난 초 값은 `Math.toIntExact` 기반의 명시적 예외로 고정한다.
+- production `!!`는 제거하고, KDoc/EN·KO README의 non-negative/overflow 동작과 실제 query 문자열을 일치시킨다. Cassandra timestamp는 microseconds 단위이며 subsecond TTL은 whole seconds로 절삭된다. `isPositiveTtl`은 이름을 유지하되 zero 포함의 historical 의미를 공개한다.
 - 먼저 failing test를 작성하고, 테스트가 실제 NPE 또는 잘못된 CQL을 재현하는지 확인한 뒤 최소 구현을 적용한다.
 
 ### 7.2 #1346 — QueryDSL codegen 재평가
 
 - data class DTO, 일반 Entity, tree Entity, association/join fixture를 최소 matrix로 나눈다.
 - 기존 `QExampleEntity`/`QExampleDto` Java-style 생성물과 Kotlin codegen 후보를 구분해 compile/runtime 결과를 기록한다.
-- 지원 가능하면 KAPT 생성 source와 실제 query repository 실행을 검증한다.
+- 지원 가능하면 KAPT 생성 source와 실제 query repository 실행을 검증한다. EN/KO README에는 DTO/일반 Entity/tree Entity/association별 지원 matrix, Java APT fallback Gradle snippet, generated source 위치와 repository path 사용법을 같이 둔다.
 - 지원 불가하면 현재 `kapt` 설정을 억지로 켜지 않고, 재현 로그·upstream `#3454`·workaround·후속 추적 항목을 문서화한다.
-- QueryDSL fork나 전면 model rewrite는 하지 않는다.
+- 현재 fixture의 stale KDoc/FIXME는 실험 결과와 무관하게 실제 상속·association·equals 제약만 설명하도록 고친다. QueryDSL fork나 전면 model rewrite는 하지 않는다.
 
 ### 7.3 #1357 — hibernate-lettuce root condition
 
 - root `bluetape4k.cache.lettuce-near.enabled=false`가 customizer, metrics binder, actuator endpoint를 모두 차단한다.
-- root/metrics enabled 조합, 기본값, optional class absence를 `ApplicationContextRunner`로 검증한다.
+- root/metrics enabled 2×2 조합과 기본값, optional class absence를 `ApplicationContextRunner`로 검증한다. Metrics KDoc와 EN/KO README는 `root enabled && metrics enabled` 조건 및 `spring-boot-starter-actuator` dependency를 동일하게 설명한다.
 - Metrics phase에도 root 조건을 직접 적용하고, auto-configuration import/order를 유지한다.
 - 영어/한국어 README의 root disable 설명과 테스트 matrix를 동기화한다.
 
@@ -139,15 +140,18 @@ Epic 본문에는 `Epic·1.13.0`이라는 과거 문구가 남아 있으나 live
 
 - Spring Boot 4.1에서 사용하는 `spring.mongodb.*` property namespace를 binding contract로 고정한다.
 - `ReactiveMongoAutoConfiguration`은 Spring Boot의 Mongo auto-configuration 뒤에 적용되도록 명시적 order를 갖는다.
-- `ApplicationContextRunner`로 property binding, default template, 사용자 bean 우선, required bean 부재를 검증한다.
-- `MongoTestApplication`의 수동 connection 설정을 binding test와 분리하고, Testcontainers integration은 `AbstractReactiveMongoTest`에서 순차 실행한다.
+- `ApplicationContextRunner`와 `FilteredClassLoader`로 property binding, `@ConditionalOnClass` absence, default template, 사용자 bean 우선, required bean 부재를 검증한다.
+- legacy-only `spring.data.mongodb.uri`는 조용한 localhost fallback을 막는 migration fail-fast로 처리하고, 새 `spring.mongodb.uri`가 함께 있으면 새 key를 우선한다. 예외는 `IllegalStateException("Unsupported legacy MongoDB property 'spring.data.mongodb.uri'; use 'spring.mongodb.uri' on Spring Boot 4.1+")`로 고정하고 EN/KO README에 before/after migration과 이전 artifact pin rollback을 기록한다. 지원 범위는 Boot 4.1+로 명시하고 저장소 Boot 4.x compatibility matrix를 검증한다.
+- test resource와 context runner에서는 bean overriding을 끄고, user `ReactiveMongoOperations`가 fallback 및 Boot 기본 template과 충돌 없이 우선하는지 검증한다.
+- `MongoTestApplication`의 수동 connection 설정을 binding test와 분리하고, Testcontainers integration은 `AbstractReactiveMongoTest`에서 순차 실행한다. 공유 서버는 `ShutdownQueue`가 소유하고 context close는 Spring-managed client/template만 닫는다.
+- context/lesson/PR evidence에는 synthetic URI만 남기며 credential이 있는 URI와 properties의 `toString()`을 기록하지 않는다.
 - KDoc/README와 test helper가 같은 namespace와 lifecycle을 설명한다.
 
 ## 8. 실패 모드와 대응
 
 | 실패 모드 | 탐지 방법 | 대응 |
 | --- | --- | --- |
-| null/zero TTL에서 NPE 또는 잘못된 `USING TTL` 생성 | red test의 query assertion 및 `!!` 검색 | `WriteOptions` nullable 분기만 최소 수정하고 subtype matrix 재실행 |
+| nullable TTL에서 NPE, overflow 또는 잘못된 `USING TTL` 생성 | red test의 query/exception assertion 및 `!!` 검색 | `WriteOptions` nullable 분기만 최소 수정하고 subtype matrix 재실행 |
 | QueryDSL KAPT가 tree/일반 Entity 생성에서 실패 | clean compile, generated source 존재, 실제 query test | 지원하지 않는 결론이면 build를 되돌리고 재현/문서/workaround만 남김 |
 | root=false인데 Lettuce metrics/endpoint가 등록됨 | 2×2 `ApplicationContextRunner` bean count | 모든 phase에 root condition 추가 후 optional-class test 재실행 |
 | 수동 Mongo client가 잘못된 property namespace를 가림 | context runner의 bound environment와 manual config 부재 검사 | binding test와 container integration을 분리하고 order annotation을 직접 검증 |
@@ -159,9 +163,10 @@ Epic 본문에는 `Epic·1.13.0`이라는 과거 문구가 남아 있으나 live
 - Kotlin 규칙에 따라 JUnit 5, bluetape4k assertions, `ApplicationContextRunner`, 기존 `MongoDBServer`/공유 fixture를 재사용한다.
 - Testcontainers와 실제 DB 검증은 worktree/모듈 사이에서도 동시에 실행하지 않는다.
 - 각 slice에서 targeted test → affected module test → detekt/compile → `git diff --check` 순서로 수행한다. Kover는 module behavior가 green인 뒤 report-only로 실행한다.
+- 공개 설정 동작이 바뀌는 slice는 `CHANGELOG.md` Unreleased에 호환성/버그 수정/마이그레이션 항목을 남긴다. EN/KO README 핵심 토큰과 설정 예제/표 행은 자동 token 검사와 수동 의미 diff로 parity를 확인한다.
 - Type-A 산출물은 다음과 같다.
   - `docs/superpowers/specs/2026-08-26-epic-1420-data-contract-train-design.md`
-  - `docs/superpowers/plans/2026-08-26-epic-1420-data-contract-train-plan.md`
+  - `docs/superpowers/plans/2026-08-26-epic-1420-data-contract-train.md`
   - `docs/lessons/2026-08-26-epic-1420-data-contract-train.md`
 - spec/plan에는 각 변경 파일, 테스트 명령, rollback/restack, 문서 parity, unresolved risk를 포함한다.
 - PR 전에는 Type-A 여섯 review perspective와 독립 integration review를 수행하고 P0/P1을 0으로 수렴한다.
