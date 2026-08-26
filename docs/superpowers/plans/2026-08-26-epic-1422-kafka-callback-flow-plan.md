@@ -103,7 +103,7 @@ fun `backpressure fails without dropping callback and closes producer once`() = 
             records = flowOf(record("one"), record("two"), record("three")),
             producerFactory = { producer.producer },
             channelCapacity = 1,
-            maxInFlight = 3,
+            maxInFlight = 2,
         ).collect {
             val index = received
             received += 1
@@ -114,10 +114,12 @@ fun `backpressure fails without dropping callback and closes producer once`() = 
         }
     }
 
-    withTimeout(5.seconds) { producer.allSendsStarted.await() }
-    producer.pendingSends.distinct().size shouldBeEqualTo 3
+    withTimeout(5.seconds) { producer.twoSendsStarted.await() }
+    producer.pendingSends.distinct().size shouldBeEqualTo 2
     producer.fireCallback()
     withTimeout(5.seconds) { firstItemReceived.await() }
+    withTimeout(5.seconds) { producer.allSendsStarted.await() }
+    producer.pendingSends.distinct().size shouldBeEqualTo 3
     producer.fireCallback()
     producer.fireCallback()
     collectorGate.complete(Unit)
@@ -195,6 +197,25 @@ fun `normal completion drains callbacks flushes and closes once`() = runSuspendI
 }
 
 @Test
+fun `mixed synchronous and asynchronous callbacks drain before close`() = runSuspendIO {
+    val producer = TrackingProducer(heldSendIndexes = setOf(2))
+    val collection = async {
+        producerResults(
+            flowOf(record("sync"), record("async")),
+            { producer.producer },
+        ).toList()
+    }
+
+    withTimeout(5.seconds) { producer.twoSendsStarted.await() }
+    producer.fireCallback()
+    collection.await()
+
+    producer.callbackCount shouldBeEqualTo 2
+    producer.flushCount shouldBeEqualTo 1
+    producer.closeCount shouldBeEqualTo 1
+}
+
+@Test
 fun `flush failure becomes the terminal cause after callback drain`() = runSuspendIO {
     val flushFailure = IllegalStateException("flush failure")
     val producer = TrackingProducer(flushError = flushFailure)
@@ -253,13 +274,22 @@ fun `callback drain timeout cancels pending sends and preserves timeout cause`()
 ```
 
 `record(value)`는 다음 private helper로 unique topic을 만들고 topic/key/value/header 길이 계약을 검사한다.
+`org.apache.kafka.common.header.internals.RecordHeaders`를 import해 고정된 비밀정보 없는
+header를 하나만 부착한다.
 
 ```kotlin
 private fun record(value: String): ProducerRecord<String, String> {
     val topic = "epic-1422-${Base58.randomString(8)}"
+    val key = "key"
+    val headerName = "x-epic-1422"
+    val headerValue = "example"
     require(topic.length <= 128)
+    require(key.length <= 128)
     require(value.toByteArray(Charsets.UTF_8).size <= 1024)
-    return ProducerRecord(topic, "key", value)
+    require(headerName.toByteArray(Charsets.UTF_8).size <= 256)
+    require(headerValue.toByteArray(Charsets.UTF_8).size <= 256)
+    val headers = RecordHeaders().add(headerName, headerValue.toByteArray(Charsets.UTF_8))
+    return ProducerRecord(topic, null, null, key, value, headers)
 }
 ```
 
@@ -273,6 +303,7 @@ private class TrackingProducer(
     private val flushError: Exception? = null,
     val closeError: Exception? = null,
     private val holdCallbacks: Boolean = false,
+    private val heldSendIndexes: Set<Int> = emptySet(),
 ) {
     val producer: Producer<String, String> = mockk(relaxed = true)
     val callbackCount = AtomicInteger()
@@ -280,6 +311,7 @@ private class TrackingProducer(
     val flushCount = AtomicInteger()
     val lateCallbackCount = AtomicInteger()
     val sendStarted = CompletableDeferred<Unit>()
+    val twoSendsStarted = CompletableDeferred<Unit>()
     val allSendsStarted = CompletableDeferred<Unit>()
     val sendCount = AtomicInteger()
     data class Pending(val callback: Callback, val future: CompletableFuture<RecordMetadata>)
@@ -294,7 +326,9 @@ private class TrackingProducer(
         every { producer.send(any<ProducerRecord<String, String>>(), any()) } answers {
             if (sendError != null) throw sendError
             val callback = secondArg<Callback>()
-            val resultFuture = if (holdCallbacks) {
+            val index = sendCount.incrementAndGet()
+            val hold = holdCallbacks || index in heldSendIndexes
+            val resultFuture = if (hold) {
                 val future = CompletableFuture<RecordMetadata>()
                 pendingSends += future
                 pendingCallbacks += Pending(callback, future)
@@ -306,7 +340,10 @@ private class TrackingProducer(
                 sendStarted.complete(Unit)
                 CompletableFuture.completedFuture(metadata)
             }
-            if (sendCount.incrementAndGet() == 3) allSendsStarted.complete(Unit)
+            when (index) {
+                2 -> twoSendsStarted.complete(Unit)
+                3 -> allSendsStarted.complete(Unit)
+            }
             resultFuture
         }
         every { producer.flush() } answers {
@@ -342,12 +379,16 @@ private class TrackingProducer(
 
 기본 성공 fixture는 callback을 즉시 호출하고, held fixture는 callback과 매번 새로
 생성한 `CompletableFuture`를 `Pending` 쌍으로 보관해 drain timeout과 cancellation을
-결정적으로 만든다. backpressure 테스트는
-세 `send` 완료를 `allSendsStarted`로 확인한 뒤 `fireCallback()`을 1→2→3 순서로
-수동 발화한다. 첫 callback 수신 후 collector가 gate에서 멈추므로 두 번째 결과가
-1-slot buffer를 채우고 세 번째 callback이 full을 재현한다. `maxInFlight=1`에서
+결정적으로 만든다. backpressure 테스트는 `maxInFlight=2`에서 처음 두 `send`를
+`twoSendsStarted`로 확인한 뒤 첫 callback을 발화한다. 첫 callback 수신 후 collector가
+gate에서 멈추고 permit이 반환되면 세 번째 send가 시작된다. `allSendsStarted`를
+확인한 뒤 두 번째·세 번째 callback을 순서대로 발화하면 두 번째 결과가 1-slot
+buffer를 채우고 세 번째 callback이 full을 재현한다. `maxInFlight=1`에서
 두 record가 모두 완료되는 테스트가 callback 공통 `finally`의 permit release를
 간접적으로 증명한다. close 이후 callback은 `lateCallbackCount`만 증가시킨다.
+`heldSendIndexes`를 사용하는 mixed 테스트는 첫 send의 synchronous callback과 두 번째
+send의 asynchronous callback을 함께 실행해 마지막 callback 처리 전에 flush/close가
+시작되지 않음을 검증한다.
 취소 테스트는 late callback 뒤에도 동일한 `CancellationException`이 다시 관찰되고
 추가 결과가 발행되지 않음을 확인해 terminal state 불변성을 검증한다.
 각 held send는 서로 다른 Future를 반환하며 `cancelledPendingSends()`로 다중 in-flight
@@ -402,13 +443,12 @@ return callbackFlow {
         val completed = AtomicBoolean()
     }
     val inFlight = ConcurrentHashMap.newKeySet<SendState>()
-    val drained = CompletableDeferred<Unit>()
-    lateinit var upstreamJob: Job
+    val upstreamJobRef = AtomicReference<Job?>()
 
     fun failOnce(cause: Throwable) {
         if (downstreamCancelled.get()) return
         if (terminalCause.compareAndSet(null, cause)) {
-            upstreamJob.cancel(CancellationException("producer terminal failure", cause))
+            upstreamJobRef.get()?.cancel(CancellationException("producer terminal failure", cause))
             close(cause)
         } else {
             log.debug { "late Kafka callback ignored; failureKind=${cause::class.simpleName}" }
@@ -421,16 +461,14 @@ return callbackFlow {
             if (cause != null) {
                 failOnce(cause)
             } else if (metadata != null) {
-                trySend(metadata).onFailure {
-                    if (!downstreamCancelled.get()) {
-                        failOnce(IllegalStateException("callback buffer is full"))
-                    }
+                val result = trySend(metadata)
+                if (result.isFailure && !result.isClosed && !downstreamCancelled.get()) {
+                    failOnce(IllegalStateException("callback buffer is full"))
                 }
             }
         } finally {
             inFlight.remove(state)
             permits.release()
-            if (inFlight.isEmpty()) drained.complete(Unit)
         }
     }
 
@@ -438,7 +476,7 @@ return callbackFlow {
         complete(state, metadata, cause)
     }
 
-    upstreamJob = launch(Dispatchers.IO) {
+    val upstreamJob = launch(context = Dispatchers.IO, start = CoroutineStart.LAZY) {
         try {
             records.collect { record ->
                 permits.acquire()
@@ -447,7 +485,7 @@ return callbackFlow {
                 try {
                     val future = producer.send(record, callbackFor(state))
                     state.future.set(future)
-                    if (state.completed.get() && terminalCause.get() != null) {
+                    if (state.completed.get() && (terminalCause.get() != null || downstreamCancelled.get())) {
                         future.cancel(false)
                     }
                 } catch (cause: Throwable) {
@@ -456,15 +494,47 @@ return callbackFlow {
                         permits.release()
                     }
                     failOnce(cause)
-                    if (inFlight.isEmpty()) drained.complete(Unit)
                     throw cause
                 }
             }
         } catch (cause: Throwable) {
             failOnce(cause)
             throw cause
+        } finally {
+            withContext(NonCancellable + Dispatchers.IO) {
+                var cleanupFailure: Throwable? = null
+                try {
+                    withTimeout(30.seconds) {
+                        while (inFlight.isNotEmpty()) delay(10)
+                        runInterruptible { producer.flush() }
+                    }
+                } catch (cause: Throwable) {
+                    cleanupFailure = cause
+                    inFlight.forEach { it.future.get()?.cancel(false) }
+                    if (!downstreamCancelled.get()) failOnce(cause)
+                }
+
+                val closeFailure = runCatching {
+                    withTimeout(5.seconds) {
+                        runInterruptible { producer.close(Duration.ofSeconds(5)) }
+                    }
+                }.exceptionOrNull()
+                val first = terminalCause.get()
+                if (first != null && cleanupFailure != null && first !== cleanupFailure) {
+                    first.addSuppressed(cleanupFailure)
+                }
+                if (first != null && closeFailure != null && first !== closeFailure) {
+                    first.addSuppressed(closeFailure)
+                }
+                if (first == null && closeFailure != null && !downstreamCancelled.get()) {
+                    failOnce(closeFailure)
+                }
+                if (terminalCause.get() == null && !downstreamCancelled.get()) close()
+            }
         }
     }
+    upstreamJobRef.set(upstreamJob)
+    upstreamJob.start()
     awaitClose {
         downstreamCancelled.set(true)
         upstreamJob.cancel(CancellationException("collector cancelled"))
@@ -475,21 +545,24 @@ return callbackFlow {
 각 send는 `SendState`를 먼저 `inFlight`에 등록하고 callback에 전달한다. callback이
 동기 실행되어도 state가 이미 존재하므로 stale Future가 생기지 않는다. callback은
 결과 전달 또는 `failOnce` 처리가 끝난 뒤 `finally`에서 state를 `inFlight`에서 제거하고
-permit을 정확히 한 번 해제한다. 마지막 callback의 처리까지 끝난 뒤에만 `drained`를
-완료하므로 worker cleanup이 결과 전달보다 앞서지 않는다. 반환 Future는 state에
+permit을 정확히 한 번 해제한다. worker cleanup은 one-shot signal에 의존하지 않고
+bounded loop에서 `inFlight.isEmpty()`를 다시 확인하므로 mixed sync/async callback이
+남아 있으면 flush/close로 진행하지 않는다. 반환 Future는 state에
 저장한 뒤 이미 완료된 callback이면 registry에 남기지 않는다. `awaitClose`는 먼저
 `downstreamCancelled` sentinel을 세우고 cancellation
 signal만 전달한다. 따라서 닫힌 channel에서 도착한 late callback은 새 terminal cause를
 기록하지 않는다. `failOnce(cause)`는 downstream sentinel이 없을 때만
-`terminalCause`를 CAS한 뒤
-`upstreamJob.cancel(CancellationException("producer terminal failure", cause))`과
-channel close를 수행한다. 각 collection마다 `producerFactory()`는 한 번만
+`terminalCause`를 CAS한 뒤 `upstreamJobRef`가 가리키는 Job을 취소하고 channel close를
+수행한다. Job은 `CoroutineStart.LAZY`로 만든 뒤 ref를 저장하고 시작하므로 callback이
+동기 실행되어도 초기화되지 않은 Job을 참조하지 않는다. 각 collection마다
+`producerFactory()`는 한 번만
 호출한다. 두 helper는 `upstreamJob`을 생성하기 전에 같은 `callbackFlow` block의
 local function으로 선언하며, callback thread에서 suspend하지 않는다.
 각 `send`의 반환 Future는 state에 저장하고, cancellation 또는 drain deadline에서
 모든 in-flight state의 Future를 `cancel(false)`한다. deterministic probe는 send마다
 서로 다른 pending Future를 반환하고 `pendingSend`와 `cancelledPendingSends()`로 그
-결과를 검증한다.
+결과를 검증한다. Future를 state에 저장한 직후 `downstreamCancelled`도 확인하므로
+`sendStarted`와 Future 등록 사이에 collector가 취소되는 경합도 놓치지 않는다.
 
 - [ ] **Step 2: callback failure와 full-buffer terminal path를 구현한다**
 
@@ -504,7 +577,11 @@ if (!downstreamCancelled.get() && terminalCause.compareAndSet(null, cause)) {
 }
 ```
 
-`trySend`가 full이면 `IllegalStateException("callback buffer is full")`을 위 CAS에 넣고 worker/upstream을 취소한다. 이미 닫힌 channel은 downstream cancellation이면 새 cause로 덮지 않는다. callbackFlow channel과 producer close는 각각 한 번만 실행하며, cleanup 예외는 first cause의 `suppressed`에 붙인다.
+`trySend`가 full이면서 channel이 아직 닫히지 않은 경우에만
+`IllegalStateException("callback buffer is full")`을 위 CAS에 넣고 worker/upstream을
+취소한다. `ChannelResult.isClosed` 또는 `downstreamCancelled`인 경우는 정상적인
+종료/취소로 분류해 새 cause를 만들지 않는다. callbackFlow channel과 producer close는
+각각 한 번만 실행하며, cleanup 예외는 first cause의 `suppressed`에 붙인다.
 
 - [ ] **Step 3: awaitClose와 bounded cleanup을 구현한다**
 
@@ -513,8 +590,9 @@ if (!downstreamCancelled.get() && terminalCause.compareAndSet(null, cause)) {
 
 1. `withContext(NonCancellable + Dispatchers.IO)`로 진입한다.
 2. callback drain과 `flush()`를 30초 `withTimeout`으로 기다린다.
-   `inFlight`가 이미 비어 있으면 즉시 진행하고, 아니면 callback이 완료할 때
-   `drained`를 깨워 대기한다. 모든 send가 callback 완료 후에만 정상 close로 간다.
+   `while (inFlight.isNotEmpty()) delay(10)` bounded loop를 사용해 모든 callback
+   처리가 끝난 뒤에만 flush/close로 진행한다. 모든 send가 callback 완료 후에만
+   정상 close로 간다.
 3. deadline을 넘기면 `TimeoutCancellationException`을 first cause로 CAS하고 pending send를 취소한다.
 4. `producer.close(Duration.ofSeconds(5))`를 한 번 실행하고 예외를 suppressed로 연결한다.
 5. `CancellationException`을 broad catch에서 삼키지 않고 재전파한다.
@@ -545,9 +623,28 @@ Expected: Task 2의 failure/lifecycle tests가 PASS하고, close count=1, first 
 
 - Modify: `examples/coroutines-demo/src/test/kotlin/io/bluetape4k/examples/coroutines/flow/CallbackFlowExamples.kt`
 
-- [ ] **Step 1: Testcontainers precondition과 실제 fixture를 사용한다**
+- [ ] **Step 1: digest-pinned Testcontainers precondition과 실제 fixture를 사용한다**
 
-`runSuspendIO(timeout = 120.seconds)`에서 `KafkaServer.Launcher.kafka`를 참조하고, `createStringProducer()`와 `createStringConsumer()`를 각각 한 번 생성한다. topic은 `"epic-1422-callback-" + Base58.randomString(8)`로 만들고, record 수는 128개 이하, value는 1 KiB 이하로 제한한다. producer와 consumer가 broker 자체를 종료하지 않고 collection-scoped/test-owned resource만 닫도록 `use`와 bounded close를 적용한다.
+`runSuspendIO(timeout = 120.seconds)`에서 다음 immutable image reference로 test-owned
+broker를 하나 시작하고 `ShutdownQueue`에 등록한다. `DockerImageName`과 기존
+`KafkaServer.Launcher.createStringProducer(broker)`/`createStringConsumer(broker)`를
+그대로 재사용해 새 client factory를 만들지 않는다.
+필요한 import는 `org.testcontainers.utility.DockerImageName`와
+`io.bluetape4k.utils.ShutdownQueue`다.
+
+```kotlin
+private const val KAFKA_IMAGE_REF =
+    "confluentinc/cp-kafka@sha256:a5040785528b0bce3b146febe9fcacdcf2b9b5acb450307f75170ef0e60ec130"
+
+val broker = KafkaServer(DockerImageName.parse(KAFKA_IMAGE_REF)).apply {
+    start()
+    ShutdownQueue.register(this)
+}
+```
+
+topic은 `"epic-1422-callback-" + Base58.randomString(8)`로 만들고, record 수는 128개
+이하, value는 1 KiB 이하로 제한한다. producer와 consumer가 broker 자체를 종료하지
+않고 collection-scoped/test-owned resource만 닫도록 `use`와 bounded close를 적용한다.
 
 - [ ] **Step 2: success cardinality와 eventual broker result를 검증한다**
 
@@ -559,12 +656,16 @@ fun `real Kafka producer callbacks become metadata flow`() = runSuspendIO(timeou
         ProducerRecord(topic, "key-$index", "value-$index")
     }
 
-    val consumer = KafkaServer.Launcher.createStringConsumer()
+    val broker = KafkaServer(DockerImageName.parse(KAFKA_IMAGE_REF)).apply {
+        start()
+        ShutdownQueue.register(this)
+    }
+    val consumer = KafkaServer.Launcher.createStringConsumer(broker)
     try {
         consumer.subscribe(listOf(topic))
         val metadata = producerResults(
             records = records.asFlow(),
-            producerFactory = { KafkaServer.Launcher.createStringProducer() },
+            producerFactory = { KafkaServer.Launcher.createStringProducer(broker) },
         ).toList()
 
         metadata shouldHaveSize records.size
@@ -615,6 +716,7 @@ python3 .github/scripts/collect-testcontainers-diagnostics.py \
   --task-name :bluetape4k-examples-coroutines-demo:test \
   --output-dir examples/build/testcontainers-diagnostics/_bluetape4k-examples-coroutines-demo_test \
   --workflow-file .github/workflows/examples.yml \
+  --report-root examples \
   --max-total-bytes 2000000
 ```
 
@@ -627,6 +729,11 @@ manifest의 총 산출량은 `--max-total-bytes`(기본 2,000,000 bytes)를 넘�
 초과분은 잘라내고 manifest에 `truncated=true`를 기록한다. container log가 없으면
 해당 container의 로그를 생략하고, 전체 ID가 비어 있으면 빈 manifest를 만든다.
 Docker CLI 자체 오류는 stderr에 task name만 남기고 exit 1로 반환한다.
+`--report-root`가 지정되면 `**/build/test-results/**/*.xml`과
+`**/build/reports/tests/test/**/*.{html,css,js}`를 순회해 같은 redaction을 적용한
+파일을 `--sanitized-report-dir` 아래 상대 경로로 복사한다. report-root 자체가
+존재하지 않거나 report 파일이 없으면 해당 단계는 실패시키고, 원본 report를
+sanitized 디렉터리에 절대 링크하지 않는다.
 
 `sanitize`는 다음 순서의 stdlib 정규식만 사용한다: (1) `authorization`,
 `token`, `password`, `secret`, `api[_-]?key` 등의 key/value를 치환하고,
@@ -635,6 +742,15 @@ Docker CLI 자체 오류는 stderr에 task name만 남기고 exit 1로 반환한
 뒤의 message를 치환한다. 원문 로그는 저장하지 않는다. `--workflow-file`의
 `uses: owner/action@ref`를 파싱해 `workflow_action_refs`에 기록하고,
 `docker inspect`의 `RepoDigests` 또는 image ID를 `image_digest`에 기록한다.
+허용 image allowlist는 `confluentinc/cp-kafka@sha256:a5040785528b0bce3b146febe9fcacdcf2b9b5acb450307f75170ef0e60ec130`과
+`redis@sha256:4e070415a5713188624f93815e62d6c6a1fcbb416d2e0b578ab3db627db3a93a`로
+고정한다. 해당 image는 `RepoDigests`가 allowlist와 정확히 일치해야 하며, local
+image ID만 있거나 예상하지 않은 image면 collector를 실패시킨다.
+같은 `sanitize` 규칙을 `--report-root` 아래의 JUnit XML/HTML에도 적용해
+`examples/build/sanitized-test-reports/`에 복사하고, workflow는 원본 report가 아닌
+이 경로만 artifact로 업로드한다. 각 파일은 2MB를 넘기지 않으며, 원본 경로는
+artifact 대상에서 제외한다. 테스트 source의 logging은 module·recordCount·failureKind
+같은 구조화 필드만 남기고 payload/message/result/URI를 기록하지 않는다.
 
 - [ ] **Step 2: compile과 test 배열을 분리한다**
 
@@ -677,14 +793,33 @@ fi
 
 set +e
 status=0
+phase_started=$(date +%s)
 for task in "${test_tasks[@]}"; do
+  before_ids_file=$(mktemp)
+  after_ids_file=$(mktemp)
+  docker ps -aq --filter label=org.testcontainers=true | sort -u >"$before_ids_file" || status=1
   ./gradlew "$task" --max-workers=1 || status=1
+  docker ps -aq --filter label=org.testcontainers=true | sort -u >"$after_ids_file" || status=1
+  new_ids=$(comm -13 "$before_ids_file" "$after_ids_file")
+  container_args=()
+  while IFS= read -r container_id; do
+    [[ -n "$container_id" ]] && container_args+=(--container-id "$container_id")
+  done <<<"$new_ids"
   python3 .github/scripts/collect-testcontainers-diagnostics.py \
     --task-name "$task" \
     --output-dir "examples/build/testcontainers-diagnostics/${task//:/_}" \
-    --workflow-file .github/workflows/examples.yml || status=1
+    --workflow-file .github/workflows/examples.yml \
+    --report-root examples \
+    --sanitized-report-dir examples/build/sanitized-test-reports \
+    --max-total-bytes 2000000 \
+    "${container_args[@]}" || status=1
   test -f "examples/build/testcontainers-diagnostics/${task//:/_}/manifest.json" || status=1
+  test -d examples/build/sanitized-test-reports || status=1
+  rm -f "$before_ids_file" "$after_ids_file"
 done
+phase_elapsed=$(( $(date +%s) - phase_started ))
+printf 'serial_test_phase_seconds=%s\n' "$phase_elapsed" > examples/build/testcontainers-diagnostics/test-phase-timing.txt
+(( phase_elapsed <= 2700 )) || status=1
 set -e
 exit "$status"
 ```
@@ -706,10 +841,22 @@ task와 test task를 같은 `--parallel` 배열에 넣지 않는다. ID 목록�
 
 ```yaml
 path: |
-  examples/**/build/test-results/**
-  examples/**/build/reports/tests/test/**
+  examples/build/sanitized-test-reports/**
   examples/build/testcontainers-diagnostics/**
 if-no-files-found: error
+```
+
+workflow action은 live tag를 직접 사용하지 않고 2026-08-26에 확인한 immutable
+commit SHA로 고정한다. `.github/workflows/examples.yml`의 action 줄은 다음 ref와
+`# vN` 주석을 사용하고, checkout에는 `persist-credentials: false`를 설정한다.
+
+```yaml
+- uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+  with:
+    persist-credentials: false
+- uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961 # v5.7.0
+- uses: gradle/actions/setup-gradle@67621b124fd2e251c5e8a0e6e3b91318f2287669 # v6.3.0
+- uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
 ```
 
 각 test invocation 뒤 manifest가 존재하는지 shell에서 검사하고, collector 또는

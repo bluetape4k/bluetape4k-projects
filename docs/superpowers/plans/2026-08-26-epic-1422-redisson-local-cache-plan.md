@@ -38,7 +38,27 @@ production module에 테스트 전용 helper를 추출하지 않는 것이 이 e
 
 - [ ] **Step 1: `newRedisson`에 shutdown registration 경계를 추가한다**
 
-기존 함수의 signature를 다음으로 바꾸고, `ShutdownQueue.register`는 조건부로 실행한다. 기본값은 기존 shared client 동작을 보존한다.
+기존 `redis` lazy property가 사용하는 mutable tag 대신 다음 immutable image reference를
+사용한다. `RedisServer`의 기존 `DockerImageName` 생성자와 `ShutdownQueue` ownership을
+그대로 재사용하며, production testcontainers module은 변경하지 않는다.
+
+```kotlin
+@JvmStatic
+val redis: RedisServer by lazy {
+    RedisServer(
+        DockerImageName.parse(
+            "redis@sha256:4e070415a5713188624f93815e62d6c6a1fcbb416d2e0b578ab3db627db3a93a"
+        )
+    ).apply {
+        start()
+        ShutdownQueue.register(this)
+    }
+}
+```
+
+필요한 import는 `org.testcontainers.utility.DockerImageName`다. 기존 함수의
+signature는 다음으로 바꾸고, `ShutdownQueue.register`는 조건부로 실행한다. 기본값은
+기존 shared client 동작을 보존한다.
 
 ```kotlin
 @JvmStatic
@@ -70,6 +90,29 @@ protected fun newRedisson(registerShutdown: Boolean = true): RedissonClient {
 ```
 
 반환 타입은 기존 호출자 호환성을 위해 `RedissonClient`를 유지한다. `redissonClient` lazy property는 인자를 생략해 shared client로 남긴다.
+
+같은 base file에 다음 bounded await helper도 Task 1에서 먼저 추가한다. 필요한
+import는 `org.redisson.api.RFuture`, `kotlinx.coroutines.CancellationException`,
+`kotlinx.coroutines.TimeoutCancellationException`, `kotlinx.coroutines.future.await`,
+`kotlinx.coroutines.withTimeout`, `kotlin.time.Duration.Companion.seconds`다.
+
+```kotlin
+protected suspend fun <T> awaitRedis(
+    future: RFuture<T>,
+    timeout: kotlin.time.Duration = 5.seconds,
+): T = try {
+    withTimeout(timeout) { future.await() }
+} catch (cause: TimeoutCancellationException) {
+    future.cancel(false)
+    throw cause
+} catch (cause: CancellationException) {
+    future.cancel(false)
+    throw cause
+}
+```
+
+Task 2부터 이 helper를 사용할 수 있도록 Task 1의 compile gate가 helper까지
+포함하는지 확인한다.
 
 - [ ] **Step 2: 기존 Redisson example 전체 compile을 확인한다**
 
@@ -269,30 +312,10 @@ firstFailure?.let { throw it }
 }
 ```
 
-모든 Redisson `RFuture`는 base의 다음 bounded helper를 통해 await한다.
-
-필요한 import는 `org.redisson.api.RFuture`, `kotlinx.coroutines.CancellationException`,
-`kotlinx.coroutines.TimeoutCancellationException`, `kotlinx.coroutines.future.await`,
-`kotlinx.coroutines.withTimeout`, `kotlin.time.Duration.Companion.seconds`다.
-
-```kotlin
-protected suspend fun <T> awaitRedis(
-    future: RFuture<T>,
-    timeout: kotlin.time.Duration = 5.seconds,
-): T = try {
-    withTimeout(timeout) { future.await() }
-} catch (cause: TimeoutCancellationException) {
-    future.cancel(false)
-    throw cause
-} catch (cause: CancellationException) {
-    future.cancel(false)
-    throw cause
-}
-```
-
-Task 2–4의 `withTimeout(5.seconds) { future.await() }` 표기는 구현 시
-`awaitRedis(future)`로 치환해 timeout/cancellation 때 underlying future도
-취소한다. helper 자체는 `runSuspendIO`의 IO dispatcher에서 호출하며, 테스트
+모든 Redisson `RFuture`는 Task 1에서 추가한 bounded helper를 통해 await한다.
+Task 2–4의 raw future await 표기는 구현 시 `awaitRedis(future)`로 치환해
+timeout/cancellation 때 underlying future도 취소한다. helper 자체는 `runSuspendIO`의
+IO dispatcher에서 호출하며, 테스트
 종료 시점의 client shutdown과 별개로 pending operation을 남기지 않는다.
 
 두 options와 `backCache`는 같은 concrete codec과 unique `cacheName`을 공유하고,
@@ -301,14 +324,21 @@ shared `redisson`는 base의 `ShutdownQueue` 소유권을 유지한다. Redisson
 5초 bounded shutdown을 갖고, 첫 번째 shutdown 예외가 발생하면 두 번째 client도
 정리한 뒤 테스트 lifecycle failure로 보고한다.
 
-기존 `options1`, `options2`, `backCache` 선언도 다음처럼 value codec을 명시한다.
+기존 `options1`, `options2`의 LFU·maxIdle·timeToLive 동작은 보존하고 value codec만
+명시한다. `backCache`에도 같은 codec을 전달한다.
 
 ```kotlin
 private val options1 = LocalCachedMapOptions.name<String, Int>(cacheName)
     .cacheSize(100)
+    .evictionPolicy(LocalCachedMapOptions.EvictionPolicy.LFU)
+    .maxIdle(10.seconds.toJavaDuration())
+    .timeToLive(5.seconds.toJavaDuration())
     .codec(intCodec)
 private val options2 = LocalCachedMapOptions.name<String, Int>(cacheName)
     .cacheSize(100)
+    .evictionPolicy(LocalCachedMapOptions.EvictionPolicy.LFU)
+    .maxIdle(10.seconds.toJavaDuration())
+    .timeToLive(5.seconds.toJavaDuration())
     .codec(intCodec)
 private val backCache: RMap<String, Int> by lazy { redisson.getMap(cacheName, intCodec) }
 ```
