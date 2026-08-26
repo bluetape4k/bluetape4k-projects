@@ -209,7 +209,7 @@ fun `factory and synchronous send failures are terminal causes`() = runSuspendIO
         producerResults(flowOf(record("send")), { sendProducer.producer }).toList()
     }
     sendError shouldBeEqualTo sendFailure
-    sendProducer.closeCount shouldBeEqualTo 1
+    sendProducer.closeCount.get() shouldBeEqualTo 1
 }
 
 @Test
