@@ -13,8 +13,12 @@ import org.springframework.context.annotation.Bean
 /**
  * Lettuce Near Cache Micrometer Metrics 자동 설정.
  *
+ * root `bluetape4k.cache.lettuce-near.enabled`와
+ * `bluetape4k.cache.lettuce-near.metrics.enabled`가 모두 활성화되고
  * [MeterRegistry]가 있을 때 [LettuceNearCacheMetricsBinder]를 등록한다.
- * Actuator endpoint는 [LettuceNearCacheActuatorAutoConfiguration]에서 별도로 등록된다.
+ * root를 끄면 metrics.enabled가 true여도 binder가 등록되지 않는다.
+ * Actuator endpoint는 [LettuceNearCacheActuatorAutoConfiguration]에서
+ * 동일한 root/metrics 조건으로 별도 등록된다.
  *
  * ```yaml
  * # application.yml — Metrics 활성화 설정
@@ -49,6 +53,12 @@ import org.springframework.context.annotation.Bean
     ]
 )
 @ConditionalOnBean(type = ["jakarta.persistence.EntityManagerFactory", "io.micrometer.core.instrument.MeterRegistry"])
+@ConditionalOnProperty(
+    prefix = "bluetape4k.cache.lettuce-near",
+    name = ["enabled"],
+    havingValue = "true",
+    matchIfMissing = true,
+)
 @ConditionalOnProperty(
     prefix = "bluetape4k.cache.lettuce-near.metrics",
     name = ["enabled"],

@@ -25,6 +25,7 @@ class LettuceNearCacheAutoConfigurationTest {
     private val metricsContextRunner = ApplicationContextRunner()
         .withConfiguration(
             AutoConfigurations.of(
+                LettuceNearCacheHibernateAutoConfiguration::class.java,
                 LettuceNearCacheMetricsAutoConfiguration::class.java,
                 LettuceNearCacheActuatorAutoConfiguration::class.java,
             )
@@ -149,6 +150,70 @@ class LettuceNearCacheAutoConfigurationTest {
             .withBean(SimpleMeterRegistry::class.java, Supplier { SimpleMeterRegistry() })
             .run { context ->
                 context.getBeansOfType<LettuceNearCacheMetricsBinder>().shouldHaveSize(1)
+            }
+    }
+
+    @Test
+    fun `root=false metrics=false이면 세 auto configuration이 모두 비활성화된다`() {
+        metricsContextRunner
+            .withBean(SimpleMeterRegistry::class.java, Supplier { SimpleMeterRegistry() })
+            .withPropertyValues(
+                "bluetape4k.cache.lettuce-near.enabled=false",
+                "bluetape4k.cache.lettuce-near.metrics.enabled=false",
+                "management.endpoints.web.exposure.include=nearcache",
+            )
+            .run { context ->
+                context.getBeansOfType<HibernatePropertiesCustomizer>().shouldBeEmpty()
+                context.getBeansOfType<LettuceNearCacheMetricsBinder>().shouldBeEmpty()
+                context.getBeansOfType<LettuceNearCacheActuatorEndpoint>().shouldBeEmpty()
+            }
+    }
+
+    @Test
+    fun `root=false metrics=true여도 exposure 설정으로 세 auto configuration을 우회할 수 없다`() {
+        metricsContextRunner
+            .withBean(SimpleMeterRegistry::class.java, Supplier { SimpleMeterRegistry() })
+            .withPropertyValues(
+                "bluetape4k.cache.lettuce-near.enabled=false",
+                "bluetape4k.cache.lettuce-near.metrics.enabled=true",
+                "management.endpoints.web.exposure.include=nearcache",
+            )
+            .run { context ->
+                context.getBeansOfType<HibernatePropertiesCustomizer>().shouldBeEmpty()
+                context.getBeansOfType<LettuceNearCacheMetricsBinder>().shouldBeEmpty()
+                context.getBeansOfType<LettuceNearCacheActuatorEndpoint>().shouldBeEmpty()
+            }
+    }
+
+    @Test
+    fun `root=true metrics=false이면 customizer만 등록되고 metrics와 actuator는 비활성화된다`() {
+        metricsContextRunner
+            .withBean(SimpleMeterRegistry::class.java, Supplier { SimpleMeterRegistry() })
+            .withPropertyValues(
+                "bluetape4k.cache.lettuce-near.enabled=true",
+                "bluetape4k.cache.lettuce-near.metrics.enabled=false",
+                "management.endpoints.web.exposure.include=nearcache",
+            )
+            .run { context ->
+                context.getBeansOfType<HibernatePropertiesCustomizer>().shouldHaveSize(1)
+                context.getBeansOfType<LettuceNearCacheMetricsBinder>().shouldBeEmpty()
+                context.getBeansOfType<LettuceNearCacheActuatorEndpoint>().shouldBeEmpty()
+            }
+    }
+
+    @Test
+    fun `root=true metrics=true이고 nearcache가 노출되면 세 auto configuration이 등록된다`() {
+        metricsContextRunner
+            .withBean(SimpleMeterRegistry::class.java, Supplier { SimpleMeterRegistry() })
+            .withPropertyValues(
+                "bluetape4k.cache.lettuce-near.enabled=true",
+                "bluetape4k.cache.lettuce-near.metrics.enabled=true",
+                "management.endpoints.web.exposure.include=nearcache",
+            )
+            .run { context ->
+                context.getBeansOfType<HibernatePropertiesCustomizer>().shouldHaveSize(1)
+                context.getBeansOfType<LettuceNearCacheMetricsBinder>().shouldHaveSize(1)
+                context.getBeansOfType<LettuceNearCacheActuatorEndpoint>().shouldHaveSize(1)
             }
     }
 

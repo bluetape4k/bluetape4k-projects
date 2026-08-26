@@ -190,15 +190,35 @@ bluetape4k:
 | `metrics.enabled=true`               | `hibernate.generate_statistics=true`               |
 | `metrics.enable-caffeine-stats=true` | `hibernate.cache.lettuce.local.record_stats=true`  |
 
+### Root and metrics activation matrix
+
+The root property `bluetape4k.cache.lettuce-near.enabled` gates every phase.
+The Metrics and Actuator phases additionally require
+`bluetape4k.cache.lettuce-near.metrics.enabled=true`. The Actuator endpoint also
+requires the optional `spring-boot-starter-actuator` dependency and an
+`EntityManagerFactory` bean. Endpoint bean registration does not inspect web
+exposure; the HTTP route is reachable only when
+`management.endpoints.web.exposure.include=nearcache` (or an equivalent
+exposure rule) is configured.
+
+| Root `enabled` | `metrics.enabled` | Hibernate customizer | MetricsBinder | Actuator endpoint bean |
+|---------------|-------------------|----------------------|---------------|------------------------|
+| `false`       | `false` or `true`  | absent               | absent        | absent                 |
+| `true`        | `false`           | present              | absent        | absent                 |
+| `true`        | `true`            | present              | present       | present when Actuator conditions are met              |
+
 ## Auto-Configuration Classes
 
 | Class                                        | Condition                                                            | Role                                      |
 |----------------------------------------------|----------------------------------------------------------------------|-------------------------------------------|
-| `LettuceNearCacheHibernateAutoConfiguration` | `LettuceNearCacheRegionFactory`, `EntityManagerFactory` on classpath | Registers `HibernatePropertiesCustomizer` |
-| `LettuceNearCacheMetricsAutoConfiguration`   | `MeterRegistry` on classpath + Bean                                  | Registers `LettuceNearCacheMetricsBinder` |
-| `LettuceNearCacheActuatorAutoConfiguration`  | `Endpoint` (actuate) on classpath + `EntityManagerFactory` Bean      | Registers `/actuator/nearcache` endpoint  |
+| `LettuceNearCacheHibernateAutoConfiguration` | Root `enabled=true` (default) + `LettuceNearCacheRegionFactory`, `EntityManagerFactory`, and `HibernatePropertiesCustomizer` on classpath | Registers `HibernatePropertiesCustomizer` |
+| `LettuceNearCacheMetricsAutoConfiguration`   | Root `enabled=true` + `metrics.enabled=true` (both default) + `MeterRegistry` and `EntityManagerFactory` beans | Registers `LettuceNearCacheMetricsBinder` |
+| `LettuceNearCacheActuatorAutoConfiguration`  | Root `enabled=true` + `metrics.enabled=true` (both default) + Actuator `Endpoint` and `EntityManagerFactory` conditions | Registers the `/actuator/nearcache` endpoint bean  |
 
 ## Actuator Endpoint
+
+The endpoint bean is registered by the conditions above. To expose its HTTP
+route, configure `management.endpoints.web.exposure.include=nearcache`.
 
 ### Retrieve Statistics for All Regions
 
@@ -254,7 +274,9 @@ Response:
 
 ## Micrometer Metrics
 
-When `metrics.enabled=true`, the following Gauges are registered:
+When both the root `enabled=true` and `metrics.enabled=true` conditions hold,
+the following Gauges are registered. Setting `metrics.enabled=false` keeps the
+Hibernate customizer but disables the MetricsBinder and near-cache Actuator endpoint.
 
 | Metric                                  | Description                          |
 |-----------------------------------------|--------------------------------------|
@@ -284,14 +306,19 @@ Example response:
 
 ## Disabling
 
-To completely disable auto-configuration:
+To completely disable auto-configuration, set the root property to false:
 
 ```yaml
 bluetape4k:
     cache:
         lettuce-near:
-            enabled: false   # Disables HibernatePropertiesCustomizer, MetricsBinder, and Endpoint
+            enabled: false   # Disables customizer, MetricsBinder, and Actuator endpoint
 ```
+
+This root switch wins over `metrics.enabled=true` and any Actuator exposure
+setting; `management.endpoints.web.exposure.include=nearcache` cannot re-enable
+the endpoint. To keep Hibernate integration while disabling metrics and the
+endpoint, set `bluetape4k.cache.lettuce-near.metrics.enabled=false` instead.
 
 ## Running Tests
 
