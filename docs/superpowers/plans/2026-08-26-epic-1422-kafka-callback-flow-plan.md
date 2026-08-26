@@ -19,7 +19,7 @@
 - Modify: `examples/coroutines-demo/README.md` — 정확한 Gradle task, Docker/Testcontainers precondition, callback contract를 영어로 갱신한다.
 - Modify: `examples/coroutines-demo/README.ko.md` — 같은 명령과 계약을 한국어로 갱신한다.
 - Create: `.github/scripts/collect-testcontainers-diagnostics.py` — task별 bounded/sanitized Docker log와 provenance manifest를 표준 출력 경로에 만든다.
-- Create: `.github/scripts/test_collect-testcontainers-diagnostics.py` — redaction·allowlist·report cap 회귀 fixture를 검증한다.
+- Create: `.github/scripts/test_collect_testcontainers_diagnostics.py` — redaction·allowlist·report cap 회귀 fixture를 검증한다.
 - Modify: `.github/workflows/examples.yml` — compile 병렬 phase와 Testcontainers test 순차 phase를 분리하고 aggregate failure/artifact를 고정한다.
 
 이 계획은 production Kafka API, 새 library module, catalog version, 공용 Kafka image/tag를
@@ -984,6 +984,8 @@ allowlist 밖 image와 local image ID를 거부하는지, report 파일 수·전
 `report_truncated=true`를 검증한다. Expected: actionlint, Python syntax, redaction
 fixture가 PASS한다. 실제 CI에서는 중간 test failure가 있어도 뒤의 task와 artifact
 수집이 실행되고 마지막에 aggregate non-zero가 된다.
+fixture는 하이픈이 있는 collector 파일을 `importlib.util.spec_from_file_location`으로
+불러오며 실제 Docker 호출은 mock subprocess로 대체해 secret 원문을 남기지 않는다.
 
 ## Task 6: coroutines README locale parity를 맞춘다
 
