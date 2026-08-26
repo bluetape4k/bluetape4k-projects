@@ -184,8 +184,8 @@ IllegalStateException: exception-secret
                     "Image": "sha256:image-id",
                 }]
                 return subprocess.CompletedProcess(command, 0, json.dumps(payload), "")
-            if command[1:4] == ["image", "inspect", "confluentinc/cp-kafka@sha256:" + "a" * 64]:
-                payload = [{"RepoDigests": [image_digest]}]
+            if command[1:4] == ["image", "inspect", "sha256:image-id"]:
+                payload = [{"Id": "sha256:image-id", "RepoDigests": [image_digest]}]
                 return subprocess.CompletedProcess(command, 0, json.dumps(payload), "")
             if command[1:4] == ["logs", "--tail", "200"]:
                 return subprocess.CompletedProcess(command, 0, "", "")
@@ -207,6 +207,42 @@ IllegalStateException: exception-secret
         self.assertEqual(stderr, "")
         manifest = json.loads((output_dir / "manifest.json").read_text(encoding="utf-8"))
         self.assertEqual(manifest["containers"][0]["image_digest"], image_digest)
+
+    def test_allowlisted_digest_rejects_image_id_mismatch(self):
+        output_dir = self.root / "diagnostics" / "image-id-mismatch"
+        image_digest = next(
+            digest for digest in diagnostics.ALLOWLIST if digest.startswith("confluentinc/cp-kafka@")
+        )
+
+        def docker_run(command, **_kwargs):
+            if command[1:3] == ["inspect", CONTAINER_ID]:
+                payload = [{
+                    "Name": "/kafka",
+                    "Config": {"Image": "confluentinc/cp-kafka:mutable"},
+                    "Image": "sha256:running-image",
+                }]
+                return subprocess.CompletedProcess(command, 0, json.dumps(payload), "")
+            if command[1:4] == ["image", "inspect", "sha256:running-image"]:
+                payload = [{"Id": "sha256:current-image", "RepoDigests": [image_digest]}]
+                return subprocess.CompletedProcess(command, 0, json.dumps(payload), "")
+            if command[1:4] == ["logs", "--tail", "200"]:
+                return subprocess.CompletedProcess(command, 0, "", "")
+            self.fail(f"unexpected docker command: {command}")
+
+        result, stderr = self.run_main(
+            "--task-name",
+            "image-id-mismatch-task",
+            "--output-dir",
+            output_dir,
+            "--workflow-file",
+            self.workflow,
+            "--container-id",
+            CONTAINER_ID,
+            docker_run=docker_run,
+        )
+
+        self.assertEqual(result, 1)
+        self.assertIn("image-id-mismatch-task", stderr)
 
     def test_image_outside_allowlist_fails_without_leaking_docker_output(self):
         output_dir = self.root / "diagnostics" / "rejected"
@@ -346,8 +382,8 @@ IllegalStateException: exception-secret
                     "Image": "sha256:image-id",
                 }]
                 return subprocess.CompletedProcess(command, 0, json.dumps(payload), "")
-            if command[1:4] == ["image", "inspect", "private/image:local"]:
-                return subprocess.CompletedProcess(command, 0, json.dumps([{}]), "")
+            if command[1:4] == ["image", "inspect", "sha256:image-id"]:
+                return subprocess.CompletedProcess(command, 0, json.dumps([{"Id": "sha256:image-id"}]), "")
             self.fail(f"unexpected docker command: {command}")
 
         result, _ = self.run_main(
