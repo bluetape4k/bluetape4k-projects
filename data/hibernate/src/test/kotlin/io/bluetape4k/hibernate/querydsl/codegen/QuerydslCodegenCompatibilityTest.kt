@@ -10,12 +10,16 @@ import io.bluetape4k.hibernate.mapping.associations.join.JoinUser
 import io.bluetape4k.hibernate.mapping.associations.join.JoinUserRepository
 import io.bluetape4k.hibernate.mapping.associations.join.QAddressEntity
 import io.bluetape4k.hibernate.mapping.associations.join.QJoinUser
+import io.bluetape4k.hibernate.mapping.tree.QTreeNode
+import io.bluetape4k.hibernate.mapping.tree.TreeNode
+import io.bluetape4k.hibernate.mapping.tree.TreeNodeRepository
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import java.nio.file.Path
 
 class QuerydslCodegenCompatibilityTest(
     @param:Autowired private val userRepository: JoinUserRepository,
+    @param:Autowired private val treeNodeRepository: TreeNodeRepository,
 ): AbstractHibernateTest() {
 
     @Test
@@ -24,11 +28,35 @@ class QuerydslCodegenCompatibilityTest(
         listOf(
             "io/bluetape4k/hibernate/mapping/associations/join/QJoinUser.java",
             "io/bluetape4k/hibernate/mapping/associations/join/QAddressEntity.java",
+            "io/bluetape4k/hibernate/mapping/tree/QTreeNode.java",
             "io/bluetape4k/hibernate/querydsl/simple/QExampleEntity.java",
             "io/bluetape4k/hibernate/querydsl/simple/QExampleDto.java",
         ).forEach { relativePath ->
             generatedSourceRoot.resolve(relativePath).toFile().exists().shouldBeTrue()
         }
+    }
+
+    @Test
+    fun `generated tree Q type resolves self-reference query`() {
+        val root = TreeNode("querydsl-tree-root")
+        root.addChildren(TreeNode("querydsl-tree-child"))
+        treeNodeRepository.saveAndFlush(root)
+        flushAndClear()
+
+        val node = QTreeNode.treeNode
+        val parent = QTreeNode("parent")
+        val result = JPAQuery<TreeNode>(em)
+            .select(node)
+            .from(node)
+            .innerJoin(node.parent(), parent)
+            .where(
+                node.title.eq("querydsl-tree-child"),
+                parent.title.eq("querydsl-tree-root"),
+            )
+            .fetch()
+
+        result shouldHaveSize 1
+        result.first().title shouldBeEqualTo "querydsl-tree-child"
     }
 
     @Test
