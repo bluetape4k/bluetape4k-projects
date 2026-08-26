@@ -63,8 +63,8 @@ Treat `compileOnly` edges as caller-provided capabilities and verify runtime ava
 
 Configuration resources found in the module:
 
-- [`io.bluetape4k.concurrent.virtualthread.StructuredTaskScopeProvider`](../../../../virtualthread/jdk21/src/main/resources/META-INF/services/io.bluetape4k.concurrent.virtualthread.StructuredTaskScopeProvider)
-- [`io.bluetape4k.concurrent.virtualthread.VirtualThreadRuntime`](../../../../virtualthread/jdk21/src/main/resources/META-INF/services/io.bluetape4k.concurrent.virtualthread.VirtualThreadRuntime)
+- [`io.bluetape4k.concurrent.virtualthread.api.StructuredTaskScopeProvider`](https://github.com/bluetape4k/bluetape4k-projects/blob/64edee3462c2dcfacde23e8dabaf962c6779921d/virtualthread/jdk21/src/main/resources/META-INF/services/io.bluetape4k.concurrent.virtualthread.api.StructuredTaskScopeProvider)
+- [`io.bluetape4k.concurrent.virtualthread.api.VirtualThreadRuntime`](https://github.com/bluetape4k/bluetape4k-projects/blob/64edee3462c2dcfacde23e8dabaf962c6779921d/virtualthread/jdk21/src/main/resources/META-INF/services/io.bluetape4k.concurrent.virtualthread.api.VirtualThreadRuntime)
 
 Read property names and defaults from these resources and the binding source before overriding them.
 

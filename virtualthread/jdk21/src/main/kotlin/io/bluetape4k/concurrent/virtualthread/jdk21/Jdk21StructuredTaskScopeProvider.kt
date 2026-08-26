@@ -1,10 +1,10 @@
 package io.bluetape4k.concurrent.virtualthread.jdk21
 
-import io.bluetape4k.concurrent.virtualthread.StructuredSubtask
-import io.bluetape4k.concurrent.virtualthread.StructuredTaskScopeAll
-import io.bluetape4k.concurrent.virtualthread.StructuredTaskScopeAny
-import io.bluetape4k.concurrent.virtualthread.StructuredTaskScopeProvider
-import io.bluetape4k.concurrent.virtualthread.StructuredTaskScopeSupervised
+import io.bluetape4k.concurrent.virtualthread.api.StructuredSubtask
+import io.bluetape4k.concurrent.virtualthread.api.StructuredTaskScopeAll
+import io.bluetape4k.concurrent.virtualthread.api.StructuredTaskScopeAny
+import io.bluetape4k.concurrent.virtualthread.api.StructuredTaskScopeProvider
+import io.bluetape4k.concurrent.virtualthread.api.StructuredTaskScopeSupervised
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.trace

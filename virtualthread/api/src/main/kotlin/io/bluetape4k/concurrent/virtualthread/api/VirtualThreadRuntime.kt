@@ -1,4 +1,4 @@
-package io.bluetape4k.concurrent.virtualthread
+package io.bluetape4k.concurrent.virtualthread.api
 
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.ThreadFactory

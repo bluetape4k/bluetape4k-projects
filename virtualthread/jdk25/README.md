@@ -87,13 +87,13 @@ class Jdk25StructuredTaskScopeProvider: StructuredTaskScopeProvider {
 
 This module contains the following `ServiceLoader` configuration files:
 
-*src/main/resources/META-INF/services/io.bluetape4k.concurrent.virtualthread.VirtualThreadRuntime*
+*src/main/resources/META-INF/services/io.bluetape4k.concurrent.virtualthread.api.VirtualThreadRuntime*
 
 ```
 io.bluetape4k.concurrent.virtualthread.jdk25.Jdk25VirtualThreadRuntime
 ```
 
-*src/main/resources/META-INF/services/io.bluetape4k.concurrent.virtualthread.StructuredTaskScopeProvider*
+*src/main/resources/META-INF/services/io.bluetape4k.concurrent.virtualthread.api.StructuredTaskScopeProvider*
 
 ```
 io.bluetape4k.concurrent.virtualthread.jdk25.Jdk25StructuredTaskScopeProvider
@@ -151,8 +151,8 @@ dependencies {
 Because this module is loaded automatically at runtime, application code only needs to use the API module.
 
 ```kotlin
-import io.bluetape4k.concurrent.virtualthread.VirtualThreads
-import io.bluetape4k.concurrent.virtualthread.StructuredTaskScopes
+import io.bluetape4k.concurrent.virtualthread.api.VirtualThreads
+import io.bluetape4k.concurrent.virtualthread.api.StructuredTaskScopes
 
 fun main() {
     // When running on JDK 25, Jdk25VirtualThreadRuntime is selected automatically

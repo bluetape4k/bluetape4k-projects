@@ -2,6 +2,7 @@
 
 package io.bluetape4k.concurrent.virtualthread
 
+import io.bluetape4k.concurrent.virtualthread.api.VirtualThreads
 import io.bluetape4k.utils.ShutdownQueue
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers

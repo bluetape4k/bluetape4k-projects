@@ -1,6 +1,6 @@
 package io.bluetape4k.examples.virtualthreads.part3
 
-import io.bluetape4k.concurrent.virtualthread.StructuredSubtask
+import io.bluetape4k.concurrent.virtualthread.api.StructuredSubtask
 import io.bluetape4k.concurrent.virtualthread.structuredTaskScopeFailFast
 import io.bluetape4k.concurrent.virtualthread.structuredTaskScopeFirstSuccess
 import io.bluetape4k.examples.virtualthreads.AbstractVirtualThreadTest

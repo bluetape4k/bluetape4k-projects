@@ -4,6 +4,12 @@ English | [한국어](./README.ko.md)
 
 This structure supports Java 21 and Java 25 in the same project by splitting the implementations into separate modules.
 
+The API module owns `io.bluetape4k.concurrent.virtualthread.api`; core
+utilities keep `io.bluetape4k.concurrent.virtualthread`. This explicit
+boundary prevents the published `core` and `virtualthread-api` artifacts from
+forming a split package. API imports must be recompiled after this package
+migration.
+
 ## Architecture
 
 ### Runtime Selection Flow
@@ -105,7 +111,7 @@ val results: List<Result<String>> =
 Applications should depend on the API module and add the implementation module that matches the target runtime to the classpath.
 
 ```kotlin
-import io.bluetape4k.concurrent.virtualthread.VirtualThreads
+import io.bluetape4k.concurrent.virtualthread.api.VirtualThreads
 
 // Create a virtual thread executor
 val executor = VirtualThreads.executorService()

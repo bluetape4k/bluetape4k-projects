@@ -86,7 +86,7 @@ class StructuredConcurrencyTest {
 
     @Test
     fun `taskScope - getOrNull은 실패 subtask에 null 반환`() = runSuspendIO {
-        val captured = mutableListOf<io.bluetape4k.concurrent.virtualthread.StructuredSubtask<Int>>()
+        val captured = mutableListOf<io.bluetape4k.concurrent.virtualthread.api.StructuredSubtask<Int>>()
         assertFailsWith<RuntimeException> {
             taskScope<Int> {
                 captured += fork<Int> { throw RuntimeException("실패") }

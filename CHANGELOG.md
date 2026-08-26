@@ -9,6 +9,14 @@
 
 ### 호환성 변경
 
+- `bluetape4k-virtualthread-api`의 Java 21 호환 API 타입을
+  `io.bluetape4k.concurrent.virtualthread.api`로 이동하고 core 유틸리티의
+  패키지 소유권을 분리했다. JDK21/JDK25 ServiceLoader descriptor와
+  downstream import를 함께 갱신했으며, 기존 패키지를 사용하는 소비자는
+  재컴파일해야 한다. core와 virtualthread-api JAR의
+  `java --validate-modules` 검증이 통과한다
+  ([bluetape4k-graph #563](https://github.com/bluetape4k/bluetape4k-graph/issues/563)).
+
 - 일반 published artifact의 Java runtime 바닥선을 Java 25로 올릴 준비를
   하고 `2.0.0` 호환성 계약을 고정했다. Java 21 호환성 섬은
   `bluetape4k-assertions`, `bluetape4k-junit5`, `bluetape4k-logging`,

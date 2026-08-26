@@ -4,6 +4,12 @@
 
 Java 21/25를 같은 프로젝트에서 모듈 분리로 지원하기 위한 구조입니다.
 
+API 모듈은 `io.bluetape4k.concurrent.virtualthread.api` 패키지를
+소유하고, core 유틸리티는 `io.bluetape4k.concurrent.virtualthread`에
+남깁니다. 이 경계로 published `core`와 `virtualthread-api` artifact의
+split package를 제거했습니다. 패키지 이동 뒤에는 API import를 갱신하고
+소비자를 재컴파일해야 합니다.
+
 ## 아키텍처
 
 ### 런타임 선택 흐름
@@ -105,7 +111,7 @@ val results: List<Result<String>> =
 애플리케이션은 API 모듈을 기준으로 개발하고, 실행 환경에 맞는 구현 모듈을 classpath에 추가합니다.
 
 ```kotlin
-import io.bluetape4k.concurrent.virtualthread.VirtualThreads
+import io.bluetape4k.concurrent.virtualthread.api.VirtualThreads
 
 // 가상 스레드 Executor 생성
 val executor = VirtualThreads.executorService()

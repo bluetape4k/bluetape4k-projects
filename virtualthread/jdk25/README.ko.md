@@ -85,13 +85,13 @@ class Jdk25StructuredTaskScopeProvider: StructuredTaskScopeProvider {
 
 이 모듈은 다음 ServiceLoader 설정 파일을 포함합니다:
 
-*src/main/resources/META-INF/services/io.bluetape4k.concurrent.virtualthread.VirtualThreadRuntime*
+*src/main/resources/META-INF/services/io.bluetape4k.concurrent.virtualthread.api.VirtualThreadRuntime*
 
 ```
 io.bluetape4k.concurrent.virtualthread.jdk25.Jdk25VirtualThreadRuntime
 ```
 
-*src/main/resources/META-INF/services/io.bluetape4k.concurrent.virtualthread.StructuredTaskScopeProvider*
+*src/main/resources/META-INF/services/io.bluetape4k.concurrent.virtualthread.api.StructuredTaskScopeProvider*
 
 ```
 io.bluetape4k.concurrent.virtualthread.jdk25.Jdk25StructuredTaskScopeProvider
@@ -149,8 +149,8 @@ dependencies {
 이 모듈은 런타임에 자동으로 로드되므로, API 모듈만 사용하면 됩니다.
 
 ```kotlin
-import io.bluetape4k.concurrent.virtualthread.VirtualThreads
-import io.bluetape4k.concurrent.virtualthread.StructuredTaskScopes
+import io.bluetape4k.concurrent.virtualthread.api.VirtualThreads
+import io.bluetape4k.concurrent.virtualthread.api.StructuredTaskScopes
 
 fun main() {
     // JDK 25 환경에서 실행 시 자동으로 Jdk25VirtualThreadRuntime 사용
