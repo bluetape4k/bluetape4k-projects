@@ -148,7 +148,10 @@ dependencies {
     api(project(":bluetape4k-idgenerators"))
     api(bt4k.java.uuid.generator)
 
-    // TODO: querydsl-kotlin-codegen 은 tree entity 도 못 만들고, spring-data-jpa 의 repository에서 문제가 생긴다.
+    // querydsl-kotlin-codegen 후보는 clean :bluetape4k-hibernate:compileKotlin에서
+    // AnnotationProcessingError caused by NPE
+    // (ExtensionsKt.asTypeName -> KotlinEntitySerializer.introClassHeader)로 실패한다.
+    // 따라서 Java APT 경로만 유지하고, 후보 설정은 재현 가능한 대체 경로로 남긴다.
     // https://github.com/querydsl/querydsl/issues/3454
     // kapt(libs.querydsl.kotlin.codegen)
     // kaptTest(libs.querydsl.kotlin.codegen)

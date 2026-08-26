@@ -30,7 +30,7 @@ dependencies {
     implementation("org.hibernate.orm:hibernate-core:7.2.7.Final")
 
     // Querydsl (optional)
-    implementation("com.querydsl:querydsl-jpa:5.1.0:jakarta")
+    implementation("io.github.openfeign.querydsl:querydsl-jpa:7.5")
 }
 ```
 
@@ -349,6 +349,65 @@ val predicate = qUser.active.eq(true)
 val users = queryFactory
     .selectFrom(qUser)
     .where(predicate)
+    .fetch()
+```
+
+#### QueryDSL Code Generation Compatibility
+
+This module keeps Java APT as the supported QueryDSL generation path. The
+`querydsl-kotlin-codegen` candidate is intentionally disabled until a clean
+matrix passes; the local candidate run failed before fixture isolation with
+`AnnotationProcessingError` caused by `NullPointerException` in
+`ExtensionsKt.asTypeName(Extensions.kt:48)` and
+`KotlinEntitySerializer.introClassHeader(KotlinEntitySerializer.kt:109)`.
+See [QueryDSL issue #3454](https://github.com/querydsl/querydsl/issues/3454).
+
+| Fixture | Java APT | Kotlin codegen candidate | Evidence |
+| --- | --- | --- | --- |
+| DTO (`ExampleDto`) | Supported and tested | Not evaluated; candidate fails globally | `SimpleQuerydslExamples` constructor and `@QueryProjection` tests |
+| General entities (`AddressEntity`, `JoinUser`) | Supported and tested | Not evaluated; candidate fails globally | `QuerydslCodegenCompatibilityTest` generated-source checks |
+| Tree entity (`ExampleEntity`, `TreeNode`) | Supported and tested | Not evaluated; candidate fails globally | `QExampleEntity`/`QTreeNode` generation and self-reference query |
+| Association/join (`JoinUser.addresses`) | Supported and tested at runtime | Not evaluated; candidate fails globally | `QJoinUser` + `QAddressEntity` repository-path query |
+
+The clean local measurements on 2026-08-26 were:
+
+- Java APT baseline: 18.54s wall time, 81 generated Java sources, 324 KB under `build/generated/source/kapt`.
+- Kotlin codegen candidate: 12.29s wall time, `kaptKotlin` failed, and 0 generated sources. This is a failure-time observation, not a performance comparison.
+
+If the candidate remains unavailable, use the Java APT fallback explicitly:
+
+```kotlin
+plugins {
+    kotlin("jvm")
+    kotlin("kapt")
+}
+
+dependencies {
+    implementation("io.github.openfeign.querydsl:querydsl-jpa:7.5")
+    kapt("io.github.openfeign.querydsl:querydsl-apt:7.5:jakarta")
+    kaptTest("io.github.openfeign.querydsl:querydsl-apt:7.5:jakarta")
+}
+
+kapt {
+    correctErrorTypes = true
+    arguments {
+        arg("querydsl.entityAccessors", "true")
+    }
+}
+```
+
+Generated sources are written to `build/generated/source/kapt/main` and
+`build/generated/source/kapt/test`. A repository-path query can use the
+generated types directly:
+
+```kotlin
+val user = QJoinUser.joinUser
+val address = QAddressEntity("address")
+val users = JPAQuery<JoinUser>(entityManager)
+    .select(user)
+    .from(user)
+    .innerJoin(user.addresses, address)
+    .where(user.name.eq("querydsl-user"), address.city.eq("Seoul"))
     .fetch()
 ```
 
