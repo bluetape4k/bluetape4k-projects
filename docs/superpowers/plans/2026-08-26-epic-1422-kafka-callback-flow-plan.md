@@ -8,6 +8,8 @@
 
 **Tech Stack:** Kotlin 2.4/JVM 25, kotlinx.coroutines `callbackFlow`/`awaitClose`, Apache Kafka 4 client, Testcontainers Kafka, JUnit 5, `runSuspendIO`, `bluetape4k-assertions`, existing Gradle version catalog.
 
+**Approved basis:** `docs/superpowers/specs/2026-08-26-epic-1422-executable-examples-design.md` at commit `7d22431a975e12a237083c93d6e2e6749f966b9d`, based on `origin/develop` `a907d144f39bfb94cba783cf65a5412e0714e9d5`.
+
 ---
 
 ## 계획 범위와 파일 소유권
@@ -93,19 +95,30 @@ fun `callback failure preserves first cause and closes producer once`() = runSus
 @Test
 fun `backpressure fails without dropping callback and closes producer once`() = runSuspendIO {
     val producer = TrackingProducer()
-
-    val error = assertFailsWith<IllegalStateException> {
+    val collectorGate = CompletableDeferred<Unit>()
+    val collection = async {
+        var received = 0
         producerResults(
-            records = flowOf(record("one"), record("two")),
+            records = flowOf(record("one"), record("two"), record("three")),
             producerFactory = { producer.producer },
             channelCapacity = 1,
-            maxInFlight = 2,
-        ).take(1).toList()
+            maxInFlight = 3,
+        ).collect {
+            val index = received
+            received += 1
+            if (index == 0) collectorGate.await()
+        }
+    }
+
+    producer.thirdCallback.await()
+    collectorGate.complete(Unit)
+    val error = assertFailsWith<IllegalStateException> {
+        collection.await()
     }
 
     error.message shouldBeEqualTo "callback buffer is full"
     producer.closeCount shouldBeEqualTo 1
-    producer.callbackCount shouldBeEqualTo 2
+    producer.callbackCount shouldBeEqualTo 3
 }
 
 @Test
@@ -128,13 +141,15 @@ fun `collector cancellation rethrows CancellationException and closes producer o
     val task = async {
         producerResults(flowOf(record("cancel")), { producer.producer }).toList()
     }
-    yield()
 
+    producer.sendStarted.await()
     task.cancel()
     assertFailsWith<CancellationException> { task.await() }
 
     producer.closeCount shouldBeEqualTo 1
-    producer.lateCallbackCount shouldBeEqualTo 0
+    producer.pendingSend.isCancelled shouldBeEqualTo true
+    producer.fireLateCallback()
+    producer.lateCallbackCount shouldBeEqualTo 1
 }
 
 @Test
@@ -146,10 +161,12 @@ fun `factory and synchronous send failures are terminal causes`() = runSuspendIO
     factoryError shouldBeEqualTo factoryFailure
 
     val sendFailure = IllegalStateException("send failure")
+    val sendProducer = TrackingProducer(sendError = sendFailure)
     val sendError = assertFailsWith<IllegalStateException> {
-        producerResults(flowOf(record("send")), { TrackingProducer(sendError = sendFailure).producer }).toList()
+        producerResults(flowOf(record("send")), { sendProducer.producer }).toList()
     }
     sendError shouldBeEqualTo sendFailure
+    sendProducer.closeCount shouldBeEqualTo 1
 }
 
 @Test
@@ -186,10 +203,10 @@ fun `upstream exception remains primary and cleanup failure is suppressed`() = r
 @Test
 fun `channel and in flight bounds reject invalid values`() = runSuspendIO {
     assertFailsWith<IllegalArgumentException> {
-        producerResults(flowOf(record("invalid-capacity")), { TrackingProducer().producer }, channelCapacity = 0)
+        producerResults(flowOf(record("invalid-capacity")), { TrackingProducer().producer }, channelCapacity = 0).toList()
     }
     assertFailsWith<IllegalArgumentException> {
-        producerResults(flowOf(record("invalid-in-flight")), { TrackingProducer().producer }, maxInFlight = 17)
+        producerResults(flowOf(record("invalid-in-flight")), { TrackingProducer().producer }, maxInFlight = 17).toList()
     }
 }
 
@@ -203,6 +220,7 @@ fun `callback drain timeout cancels pending sends and preserves timeout cause`()
 
     error::class shouldBeEqualTo TimeoutCancellationException::class
     producer.closeCount shouldBeEqualTo 1
+    producer.pendingSend.isCancelled shouldBeEqualTo true
 }
 ```
 
@@ -232,24 +250,39 @@ private class TrackingProducer(
     val closeCount = AtomicInteger()
     val flushCount = AtomicInteger()
     val lateCallbackCount = AtomicInteger()
+    val sendStarted = CompletableDeferred<Unit>()
+    val thirdCallback = CompletableDeferred<Unit>()
     val pendingCallbacks = ConcurrentLinkedQueue<Callback>()
+    val pendingSend = CompletableFuture<RecordMetadata>()
+    private val closed = AtomicBoolean()
+    private val metadata = mockk<RecordMetadata>(relaxed = true)
 
     init {
         every { producer.send(any<ProducerRecord<String, String>>(), any()) } answers {
             if (sendError != null) throw sendError
             val callback = secondArg<Callback>()
-            val metadata = RecordMetadata(TopicPartition("probe", 0), 0, 0, 0L, 0, 0)
-            if (holdCallbacks) pendingCallbacks += callback
-            else {
+            if (holdCallbacks) {
+                pendingCallbacks += callback
+            } else {
                 callbackCount.incrementAndGet()
                 callback.onCompletion(metadata, callbackError)
+                if (callbackCount.get() == 3) thirdCallback.complete(Unit)
             }
-            CompletableFuture.completedFuture(metadata)
+            sendStarted.complete(Unit)
+            if (holdCallbacks) pendingSend else CompletableFuture.completedFuture(metadata)
         }
         every { producer.flush() } answers { flushCount.incrementAndGet() }
         every { producer.close(any<Duration>()) } answers {
             closeCount.incrementAndGet()
+            closed.set(true)
             closeError?.let { throw it }
+        }
+    }
+
+    fun fireLateCallback() {
+        pendingCallbacks.poll()?.let { callback ->
+            if (closed.get()) lateCallbackCount.incrementAndGet()
+            callback.onCompletion(metadata, null)
         }
     }
 }
@@ -299,6 +332,9 @@ Step 2–3에서 이 signature의 함수 body를 완성한다. Flow collection�
 `AtomicReference<Throwable?>`를 collection-local 상태로 만든다. callback 성공은
 `channel.trySend(metadata)`로 전달하고, callback 성공·실패·동기 `send` 예외 모두에서
 공통 `finally`로 permit/in-flight를 정확히 한 번만 해제한다.
+각 `send`의 반환 Future를 in-flight 항목과 함께 보관해 cancellation 또는 drain
+deadline에서 `cancel(false)`하고, deterministic probe의 `pendingSend`로 그 결과를
+검증한다.
 
 - [ ] **Step 2: callback failure와 full-buffer terminal path를 구현한다**
 
@@ -360,7 +396,8 @@ fun `real Kafka producer callbacks become metadata flow`() = runSuspendIO(timeou
         ProducerRecord(topic, "key-$index", "value-$index")
     }
 
-    KafkaServer.Launcher.createStringConsumer().use { consumer ->
+    val consumer = KafkaServer.Launcher.createStringConsumer()
+    try {
         consumer.subscribe(listOf(topic))
         val metadata = producerResults(
             records = records.asFlow(),
@@ -375,6 +412,12 @@ fun `real Kafka producer callbacks become metadata flow`() = runSuspendIO(timeou
                 .toList()
         }
         polled shouldHaveSize records.size
+    } finally {
+        withContext(NonCancellable + Dispatchers.IO) {
+            withTimeout(5.seconds) {
+                consumer.close(Duration.ofSeconds(5))
+            }
+        }
     }
 }
 ```
@@ -522,10 +565,14 @@ Expected: actionlint와 Python syntax가 PASS한다. 실제 CI에서는 중간 t
 
 ```bash
 ./gradlew :bluetape4k-examples-coroutines-demo:test \
-  --tests 'io.bluetape4k.examples.coroutines.flow.CallbackFlowExamples'
+  --tests 'io.bluetape4k.examples.coroutines.flow.CallbackFlowExamples' \
+  --no-configuration-cache --max-workers=1
 ```
 
-Docker daemon/Testcontainers dynamic port가 필요하고, topic은 매 test마다 unique하며 poll·producer close는 bounded timeout이라는 설명을 두 locale에 같은 의미로 넣는다.
+Docker daemon/Testcontainers dynamic port가 필요하고, topic은 매 test마다 unique하며
+poll·producer close는 bounded timeout이라는 설명을 두 locale에 같은 의미로 넣는다.
+metadata 순서는 보장하지 않고 adapter는 retry하지 않으며, failure/cancellation 시
+부분 결과가 발생할 수 있다는 caller 계약도 두 locale에 기록한다.
 
 - [ ] **Step 2: README locale parity를 검사한다**
 
@@ -572,7 +619,7 @@ Expected: 세 명령이 모두 PASS하고, Testcontainers 종료 후 다음 chil
 
 - [ ] **Step 3: parent child를 merge-ready 상태로 고정한다**
 
-PR 생성 전 child issue #1347의 `## DoD Status`와 parent PR body에 exact head, required check count, 6-R artifact, known gaps를 기록한다. #1353 branch는 이 parent head를 base로 만들며, parent merge 전 temporary base 절차는 승인된 설계 명세를 그대로 따른다.
+PR 생성 전 child issue #1347의 `## DoD Status`와 parent PR body에 exact head, required check count, 6-R artifact, known gaps를 기록한다. child PR body에는 `Closes #1347`을 사용해 child merge 시 이슈가 자동 종료되도록 하고, 최종 child #1353 PR에만 `Closes #1422`를 둔다. #1353 branch는 이 parent head를 base로 만들며, parent merge 전 temporary base 절차는 승인된 설계 명세를 그대로 따른다. 최종 merge 후 live GitHub에서 두 child issue와 Epic #1422의 closed/DoD 상태를 재확인한다.
 
 ## Kafka plan traceability
 

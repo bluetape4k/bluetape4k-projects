@@ -8,6 +8,8 @@
 
 **Tech Stack:** Kotlin 2.4/JVM 25, Redisson 4.7.0, `RLocalCachedMap`, `CompositeCodec`, `RedissonCodecs.Int`/`Double`, JUnit 5, `runSuspendIO`, `SuspendedJobTester`, Awaitility Kotlin, `bluetape4k-assertions`, Testcontainers Redis.
 
+**Approved basis:** `docs/superpowers/specs/2026-08-26-epic-1422-executable-examples-design.md` at commit `7d22431a975e12a237083c93d6e2e6749f966b9d`, based on `origin/develop` `a907d144f39bfb94cba783cf65a5412e0714e9d5`.
+
 ---
 
 ## 계획 범위와 파일 소유권
@@ -19,6 +21,14 @@
 - Modify: `examples/redisson-demo/README.ko.md` — 같은 명령과 계약을 한국어로 갱신한다.
 
 `examples/redisson-demo/build.gradle.kts`는 이미 `:bluetape4k-testcontainers`, `:bluetape4k-junit5`, `:bluetape4k-redisson`과 Redisson dependency를 선언하므로 변경하지 않는다. Kafka child가 소유하는 `.github/workflows/examples.yml`도 변경하지 않는다.
+
+## Codec 재사용 결정
+
+두 test source가 각각 `Int`/`Double` 제네릭 타입을 추론해야 하므로 file-local
+`CompositeCodec` 상수는 각 파일에 둔다. 값은 새 serializer나 wrapper를 만들지
+않고 공통 `RedissonCodecs.String`, `.Int`, `.Double`을 동일한 순서로 조합한다.
+production module에 테스트 전용 helper를 추출하지 않는 것이 이 examples 범위의
+중복·의존성 경계를 지키는 선택이다.
 
 ## Task 1: test-owned Redisson client lifecycle을 먼저 고정한다
 
@@ -229,6 +239,8 @@ Expected: Redis Testcontainers가 실행 가능한 환경에서 Int/Double round
 `@BeforeAll`의 기존 `newRedisson()` 호출을 다음으로 바꾸고, `@AfterAll`에서 초기화된
 client만 한 번 닫는다.
 
+이 코드 블록에는 `java.util.concurrent.TimeUnit` import를 추가한다.
+
 ```kotlin
 @BeforeAll
 fun setup() {
@@ -238,13 +250,27 @@ fun setup() {
 
 @AfterAll
 fun cleanup() {
-    if (this::redisson1.isInitialized) redisson1.shutdown()
-    if (this::redisson2.isInitialized) redisson2.shutdown()
+    var firstFailure: Throwable? = null
+    if (this::redisson1.isInitialized) {
+        runCatching { redisson1.shutdown(0, 5, TimeUnit.SECONDS) }
+            .onFailure { firstFailure = it }
+    }
+    if (this::redisson2.isInitialized) {
+        runCatching { redisson2.shutdown(0, 5, TimeUnit.SECONDS) }
+            .onFailure { failure ->
+                if (firstFailure == null) firstFailure = failure
+                else firstFailure!!.addSuppressed(failure)
+            }
+    }
+    firstFailure?.let { throw it }
 }
 ```
 
 두 options와 `backCache`는 같은 concrete codec과 unique `cacheName`을 공유하고,
-shared `redisson`는 base의 `ShutdownQueue` 소유권을 유지한다.
+shared `redisson`는 base의 `ShutdownQueue` 소유권을 유지한다. Redisson의
+`shutdown(0, 5, TimeUnit.SECONDS)` overload를 사용해 각 test-owned client가
+5초 bounded shutdown을 갖고, 첫 번째 shutdown 예외가 발생하면 두 번째 client도
+정리한 뒤 테스트 lifecycle failure로 보고한다.
 
 - [ ] **Step 2: concurrent Int/Double increment를 `SuspendedJobTester`로 검증한다**
 
@@ -255,7 +281,7 @@ fun `concurrent numeric increments match independent remote final value`() = run
     val map = redisson1.getLocalCachedMap(
         LocalCachedMapOptions.name<String, Int>(name).codec(intCodec)
     )
-    val calls = 4 * 32 * 8
+    val calls = 32 * 8 // rounds는 전체 호출 수이고 workers는 동시 실행 수다.
 
     SuspendedJobTester()
         .workers(4)
@@ -265,10 +291,23 @@ fun `concurrent numeric increments match independent remote final value`() = run
 
     val remote = redisson.getMap<String, Int>(name, intCodec)
     withTimeout(5.seconds) { remote.getAsync("count").await() } shouldBeEqualTo calls
+
+    val map2 = redisson2.getLocalCachedMap(
+        LocalCachedMapOptions.name<String, Int>(name).codec(intCodec)
+    )
+    withTimeout(5.seconds) { map.getAsync("count").await() } shouldBeEqualTo calls
+    withTimeout(5.seconds) { map2.getAsync("count").await() } shouldBeEqualTo calls
 }
 ```
 
-같은 구조로 Double은 `0.25` delta와 `Double` codec을 사용하고, expected 값은 `calls * 0.25`로 assertion한다. worker는 ad hoc thread를 만들지 않는다.
+같은 구조로 Double은 `0.25` delta와 `Double` codec을 사용하고, expected 값은
+`calls * 0.25`로 assertion한다. Double도 `redisson2.getLocalCachedMap`으로
+동일한 `name`과 `doubleCodec`을 사용한 두 번째 local view를 만들고,
+`withTimeout(5.seconds) { map2.getAsync("ratio").await() }`가
+`calls * 0.25`와 일치하는지 확인한다. Int와 Double 모두 `redisson2` local
+view를 같은 5초 deadline으로 reread해 remote final value와 일치하는지
+확인한다. worker는 ad hoc thread를 만들지 않는다.
+worker는 ad hoc thread를 만들지 않는다.
 
 - [ ] **Step 3: remote put/remove invalidation을 bounded Awaitility로 검증한다**
 
@@ -277,13 +316,13 @@ fun `concurrent numeric increments match independent remote final value`() = run
 ```kotlin
 await.atMost(Duration.ofSeconds(5)).pollInterval(Duration.ofMillis(100))
     .until { frontCache1.containsKey(key) && frontCache2.containsKey(key) }
-frontCache1.getAsync(key).await() shouldBeEqualTo 42
-frontCache2.getAsync(key).await() shouldBeEqualTo 42
+withTimeout(5.seconds) { frontCache1.getAsync(key).await() } shouldBeEqualTo 42
+withTimeout(5.seconds) { frontCache2.getAsync(key).await() } shouldBeEqualTo 42
 
 await.atMost(Duration.ofSeconds(5)).pollInterval(Duration.ofMillis(100))
     .until { !frontCache1.containsKey(key) && !frontCache2.containsKey(key) }
-frontCache1.getAsync(key).await().shouldBeNull()
-frontCache2.getAsync(key).await().shouldBeNull()
+withTimeout(5.seconds) { frontCache1.getAsync(key).await() }.shouldBeNull()
+withTimeout(5.seconds) { frontCache2.getAsync(key).await() }.shouldBeNull()
 ```
 
 remote 변경 직후 stale read를 허용하되 bounded await 뒤 두 local view가 갱신/삭제된
@@ -340,8 +379,10 @@ negative `RedisException` test가 PASS한다. Redis/Testcontainers startup failu
 ```bash
 ./gradlew :bluetape4k-examples-redisson-demo:test \
   --tests 'io.bluetape4k.examples.redisson.coroutines.collections.LocalCachedMapExamples' \
-  --tests 'io.bluetape4k.examples.redisson.coroutines.collections.LocalCachedMapTest'
-./gradlew :bluetape4k-examples-redisson-demo:test
+  --tests 'io.bluetape4k.examples.redisson.coroutines.collections.LocalCachedMapTest' \
+  --no-configuration-cache --max-workers=1
+./gradlew :bluetape4k-examples-redisson-demo:test \
+  --no-configuration-cache --max-workers=1
 ```
 
 Docker daemon/Testcontainers가 필요하고 dynamic port를 사용한다는 점, invalidation 직후 stale read는 허용되지만 5초 bounded await 뒤 local reread가 갱신값 또는 `null`을 확인한다는 점을 두 locale에 같은 의미로 기록한다.
