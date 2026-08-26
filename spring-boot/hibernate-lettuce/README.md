@@ -195,14 +195,17 @@ bluetape4k:
 The root property `bluetape4k.cache.lettuce-near.enabled` gates every phase.
 The Metrics and Actuator phases additionally require
 `bluetape4k.cache.lettuce-near.metrics.enabled=true`. The Actuator endpoint also
-requires the optional `spring-boot-starter-actuator` dependency, an
-`EntityManagerFactory` bean, and `management.endpoints.web.exposure.include=nearcache`.
+requires the optional `spring-boot-starter-actuator` dependency and an
+`EntityManagerFactory` bean. Endpoint bean registration does not inspect web
+exposure; the HTTP route is reachable only when
+`management.endpoints.web.exposure.include=nearcache` (or an equivalent
+exposure rule) is configured.
 
 | Root `enabled` | `metrics.enabled` | Hibernate customizer | MetricsBinder | Actuator endpoint bean |
 |---------------|-------------------|----------------------|---------------|------------------------|
 | `false`       | `false` or `true`  | absent               | absent        | absent                 |
 | `true`        | `false`           | present              | absent        | absent                 |
-| `true`        | `true`            | present              | present       | present when Actuator conditions and exposure are met |
+| `true`        | `true`            | present              | present       | present when Actuator conditions are met              |
 
 ## Auto-Configuration Classes
 
@@ -210,9 +213,12 @@ requires the optional `spring-boot-starter-actuator` dependency, an
 |----------------------------------------------|----------------------------------------------------------------------|-------------------------------------------|
 | `LettuceNearCacheHibernateAutoConfiguration` | Root `enabled=true` (default) + `LettuceNearCacheRegionFactory`, `EntityManagerFactory`, and `HibernatePropertiesCustomizer` on classpath | Registers `HibernatePropertiesCustomizer` |
 | `LettuceNearCacheMetricsAutoConfiguration`   | Root `enabled=true` + `metrics.enabled=true` (both default) + `MeterRegistry` and `EntityManagerFactory` beans | Registers `LettuceNearCacheMetricsBinder` |
-| `LettuceNearCacheActuatorAutoConfiguration`  | Root `enabled=true` + `metrics.enabled=true` (both default) + Actuator `Endpoint` and `EntityManagerFactory` conditions | Registers `/actuator/nearcache` endpoint  |
+| `LettuceNearCacheActuatorAutoConfiguration`  | Root `enabled=true` + `metrics.enabled=true` (both default) + Actuator `Endpoint` and `EntityManagerFactory` conditions | Registers the `/actuator/nearcache` endpoint bean  |
 
 ## Actuator Endpoint
+
+The endpoint bean is registered by the conditions above. To expose its HTTP
+route, configure `management.endpoints.web.exposure.include=nearcache`.
 
 ### Retrieve Statistics for All Regions
 

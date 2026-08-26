@@ -194,15 +194,17 @@ bluetape4k:
 root 속성인 `bluetape4k.cache.lettuce-near.enabled`는 모든 자동 설정 단계를
 제어합니다. Metrics 및 Actuator 단계는 추가로
 `bluetape4k.cache.lettuce-near.metrics.enabled=true`를 요구합니다. Actuator
-엔드포인트에는 선택 의존성 `spring-boot-starter-actuator`,
-`EntityManagerFactory` Bean, `management.endpoints.web.exposure.include=nearcache`
-설정도 필요합니다.
+엔드포인트 Bean에는 선택 의존성 `spring-boot-starter-actuator`와
+`EntityManagerFactory` Bean이 필요합니다. endpoint Bean 등록은 web exposure
+설정을 검사하지 않으며, HTTP route를 열려면
+`management.endpoints.web.exposure.include=nearcache`(또는 동등한 exposure
+규칙)를 별도로 설정해야 합니다.
 
 | Root `enabled` | `metrics.enabled` | Hibernate customizer | MetricsBinder | Actuator endpoint Bean |
 |---------------|-------------------|----------------------|---------------|------------------------|
 | `false`       | `false` 또는 `true` | 없음                 | 없음          | 없음                   |
 | `true`        | `false`           | 있음                 | 없음          | 없음                   |
-| `true`        | `true`            | 있음                 | 있음          | Actuator 조건 및 exposure 충족 시 있음 |
+| `true`        | `true`            | 있음                 | 있음          | Actuator 조건 충족 시 있음              |
 
 ## Auto-Configuration 클래스
 
@@ -210,9 +212,12 @@ root 속성인 `bluetape4k.cache.lettuce-near.enabled`는 모든 자동 설정 �
 |----------------------------------------------|----------------------------------------------------------------------|------------------------------------|
 | `LettuceNearCacheHibernateAutoConfiguration` | Root `enabled=true` (기본값) + `LettuceNearCacheRegionFactory`, `EntityManagerFactory`, `HibernatePropertiesCustomizer` classpath | `HibernatePropertiesCustomizer` 등록 |
 | `LettuceNearCacheMetricsAutoConfiguration`   | Root `enabled=true` + `metrics.enabled=true` (기본값) + `MeterRegistry`, `EntityManagerFactory` Bean | `LettuceNearCacheMetricsBinder` 등록 |
-| `LettuceNearCacheActuatorAutoConfiguration`  | Root `enabled=true` + `metrics.enabled=true` (기본값) + Actuator `Endpoint`, `EntityManagerFactory` 조건 | `/actuator/nearcache` 엔드포인트 등록     |
+| `LettuceNearCacheActuatorAutoConfiguration`  | Root `enabled=true` + `metrics.enabled=true` (기본값) + Actuator `Endpoint`, `EntityManagerFactory` 조건 | `/actuator/nearcache` 엔드포인트 Bean 등록 |
 
 ## Actuator 엔드포인트
+
+위 조건을 만족하면 endpoint Bean이 등록됩니다. HTTP route를 노출하려면
+`management.endpoints.web.exposure.include=nearcache`를 별도로 설정하세요.
 
 ### 전체 Region 통계 조회
 
