@@ -115,7 +115,7 @@ Epic 본문에는 `Epic·1.13.0`이라는 과거 문구가 남아 있으나 live
 
 ### 7.1 #1359 — nullable WriteOptions
 
-- `isPositiveTtl`은 Spring Data Cassandra의 기존 `hasTtl` 의미인 `ttl != null && !ttl.isNegative`로 고정한다. null은 미적용, zero는 `USING TTL 0`, 음수는 builder 단계의 명시적 예외로 처리한다.
+- `isPositiveTtl`은 Spring Data Cassandra의 기존 `hasTtl` 의미인 `ttl != null && !ttl.isNegative`로 고정한다. null은 미적용, zero는 statement 형태에 맞는 TTL 0 clause(`INSERT`의 `USING TTL 0`, `UPDATE`의 `AND TTL 0`), 음수는 builder 단계의 명시적 예외로 처리한다.
 - `Insert`, `Update`, `UpdateStart`, `Delete`의 기존 statement builder 의미와 subtype guard를 보존한다. Delete는 TTL을 적용하지 않지만 timestamp는 계속 보존한다.
 - TTL null/negative/zero/positive × timestamp null/present를 각 applicable subtype에 대해 assertion하고, `Int` 범위를 벗어난 초 값은 `Math.toIntExact` 기반의 명시적 예외로 고정한다.
 - production `!!`는 제거하고, KDoc/EN·KO README의 non-negative/overflow 동작과 실제 query 문자열을 일치시킨다. Cassandra timestamp는 microseconds 단위이며 subsecond TTL은 whole seconds로 절삭된다. `isPositiveTtl`은 이름을 유지하되 zero 포함의 historical 의미를 공개한다.

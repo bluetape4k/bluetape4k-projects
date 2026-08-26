@@ -61,7 +61,7 @@ Epic #1420의 남은 네 계약 결함을 하나의 큰 변경으로 묶지 않�
    - 음수 builder 예외 메시지는 `TTL must be greater than equal to zero`로 고정하고, 초 범위 초과는 `ArithmeticException`의 overflow로 고정한다.
 2. Insert, Update, UpdateStart, Delete 각각에 대해 다음 계약을 테스트한다.
    - ttl이 null이면 TTL clause를 생성하지 않는다.
-   - ttl이 zero이면 기존 semantics대로 USING TTL 0을 생성한다.
+   - ttl이 zero이면 기존 statement semantics대로 TTL 0 clause를 생성한다(`INSERT`는 `USING TTL 0`, `UPDATE`는 `... AND TTL 0`).
    - negative ttl은 Spring Data Cassandra builder의 명시적 IllegalArgumentException으로 거부된다.
    - positive ttl은 seconds clause를 생성하고 Int 범위 초과는 ArithmeticException으로 거부된다.
    - timestamp가 있으면 insert/update/updateStart에 보존된다.
@@ -97,7 +97,7 @@ Epic #1420의 남은 네 계약 결함을 하나의 큰 변경으로 묶지 않�
    - ./gradlew :bluetape4k-spring-boot-cassandra:detekt --no-configuration-cache --console=plain
    - git diff --check
 6. rendered statement를 확인해 null TTL에서는 usingTtl이 호출되지 않고 zero/positive TTL에서는 정확히 한 번만 호출되며, negative/overflow 입력은 명시적 예외로 write가 진행되지 않고 timestamp는 Delete를 포함한 applicable subtype에 한 번만 적용되는지 검증한다. 이 순수 builder 경로에는 네트워크 I/O가 없고 JMH 대상이 없으므로 별도 benchmark는 N/A로 기록한다.
-7. KDoc와 Cassandra EN/KO README를 같은 계약으로 갱신한다. timestamp는 Cassandra microseconds 단위임을 명시하고 `TimeUnit.MILLISECONDS.toMicros(System.currentTimeMillis())` 예시를 사용한다. TTL은 subsecond duration이 whole seconds로 절삭되어 1ms/500ms가 `USING TTL 0`이 되고, zero는 유효하게 유지되며, negative builder는 `IllegalArgumentException("TTL must be greater than equal to zero")`, Int 초 범위 초과는 `ArithmeticException`으로 끝난다는 caller-facing 표를 양쪽 문서에 추가한다. `isPositiveTtl` 이름은 유지하되 zero 포함의 historical 의미를 명시한다.
+7. KDoc와 Cassandra EN/KO README를 같은 계약으로 갱신한다. timestamp는 Cassandra microseconds 단위임을 명시하고 `TimeUnit.MILLISECONDS.toMicros(System.currentTimeMillis())` 예시를 사용한다. TTL은 subsecond duration이 whole seconds로 절삭되어 1ms/500ms가 TTL 0 clause가 되고, zero는 유효하게 유지되며, negative builder는 `IllegalArgumentException("TTL must be greater than equal to zero")`, Int 초 범위 초과는 `ArithmeticException`으로 끝난다는 caller-facing 표를 양쪽 문서에 추가한다. `isPositiveTtl` 이름은 유지하되 zero 포함의 historical 의미를 명시한다.
 8. 변경이 의도한 production/test/docs 파일과 OptionsSupport.kt의 영향을 받은 KDoc에 한정되는지 확인한다.
 9. Lore commit으로 기록한다.
    - intent: Cassandra write option 경계에서 invalid TTL을 제거하고 timestamp를 보존한다
@@ -282,7 +282,7 @@ Epic #1420의 남은 네 계약 결함을 하나의 큰 변경으로 묶지 않�
    - train restack 및 rollback 절차
    - 남은 hosted CI/Nightly gate
 8. CHANGELOG.md의 Unreleased에 공개 계약 변경을 기록한다. Cassandra TTL/timestamp 경계, QueryDSL 지원 matrix, hibernate-lettuce root/metrics 조건, Mongo `spring.mongodb.uri` migration 및 legacy-only fail-fast를 각각 호환성/버그 수정/마이그레이션 항목으로 적고, 구현 결과가 release-note 대상이 아니면 그 근거를 lesson에 남긴다.
-9. EN/KO README parity를 자동화된 최소 검사로 확인한다. 두 파일 모두에 각 계약의 핵심 토큰(`spring.mongodb.uri`, `spring.data.mongodb.uri`, `root`, `metrics.enabled`, `USING TTL 0`, `ArithmeticException`, `querydsl-kotlin-codegen`)과 동일한 설정 예제/표 행이 존재하는지 `for token in ...; do rg -q "$token" <en> && rg -q "$token" <ko> || exit 1; done`으로 검사하고, code block/표의 의미 차이는 수동 diff receipt로 남긴다.
+9. EN/KO README parity를 자동화된 최소 검사로 확인한다. 두 파일 모두에 각 계약의 핵심 토큰(`spring.mongodb.uri`, `spring.data.mongodb.uri`, `root`, `metrics.enabled`, `TTL 0`, `ArithmeticException`, `querydsl-kotlin-codegen`)과 동일한 설정 예제/표 행이 존재하는지 `for token in ...; do rg -q "$token" <en> && rg -q "$token" <ko> || exit 1; done`으로 검사하고, code block/표의 의미 차이는 수동 diff receipt로 남긴다.
 10. lesson을 Korean reader-facing prose로 작성하고 Lore commit으로 기록한다.
 
 완료 증거: 누적 train의 module tests/detekt/diff PASS, lesson commit SHA, no known local errors.
