@@ -7,9 +7,9 @@ chapterId: testing-operations-ecosystem
 
 # 테스트, 운영과 생태계
 
-## 1.12.1 테스트 구조
+## 현재 테스트 구조 (Spring Boot 4.1+)
 
-`AbstractReactiveMongoTest`는 `MongoDBServer` Testcontainer를 지연 시작하고 `spring.data.mongodb.uri`를 동적으로 등록합니다. `AbstractReactiveMongoCoroutineTest`는 여기에 `Dispatchers.IO`와 `CoroutineName`을 가진 test scope를 더합니다.
+`AbstractReactiveMongoTest`는 `MongoDBServer` Testcontainer를 지연 시작하고 `spring.mongodb.uri`를 동적으로 등록합니다. Spring Boot 4.1+에서 `spring.data.mongodb.uri`는 legacy namespace이며 유일한 URI key로 남으면 즉시 실패합니다. `AbstractReactiveMongoCoroutineTest`는 여기에 `Dispatchers.IO`와 `CoroutineName`을 가진 test scope를 더합니다.
 
 `ReactiveMongoOperationsCoroutinesTest`는 실제 Spring Boot context와 MongoDB를 사용해 다음 흐름을 검증합니다.
 

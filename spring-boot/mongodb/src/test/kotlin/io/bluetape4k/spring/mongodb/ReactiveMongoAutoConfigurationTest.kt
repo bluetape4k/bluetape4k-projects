@@ -141,7 +141,7 @@ class ReactiveMongoAutoConfigurationTest {
     }
 
     @Test
-    fun `context close가 Spring 관리 reactive client를 닫고 공유 server lifecycle을 건드리지 않는다`() {
+    fun `context close가 Spring 관리 reactive client를 정확히 한 번 닫는다`() {
         val client = mockk<MongoClient>(relaxed = true)
         val operations = mockk<ReactiveMongoOperations>(relaxed = true)
 

@@ -24,6 +24,8 @@
   유지한다. Java 21–24 소비자는 Java 25로 이동하거나 `1.13.x`를 유지해야
   한다 ([#1335](https://github.com/bluetape4k/bluetape4k-projects/issues/1335)).
 
+<!-- issue-1335-java25-semver:end -->
+
 - QueryDSL Kotlin codegen은 Kotlin 2.4/JDK 25 환경에서 clean annotation
   processing을 통과하지 못하는 upstream `NullPointerException`으로 인해
   기본 지원 경로에서 제외했다. Java APT 생성 Q 타입과 QueryDSL association
@@ -33,9 +35,9 @@
 - Hibernate-Lettuce near-cache의 root `bluetape4k.cache.lettuce-near.enabled`
   조건을 Hibernate customizer, metrics binder, Actuator endpoint 전체에
   일관되게 적용했다. `metrics.enabled=true`만으로 root disabled 상태를
-  우회할 수 없고, 두 조건을 모두 만족할 때만 metrics와 endpoint를 노출한다
+  우회할 수 없고, 두 조건을 모두 만족할 때만 metrics와 endpoint Bean을
+  등록한다. HTTP route 노출은 Spring Boot exposure 설정이 별도로 제어한다
   ([#1357](https://github.com/bluetape4k/bluetape4k-projects/issues/1357)).
-<!-- issue-1335-java25-semver:end -->
 
 ### 마이그레이션
 
