@@ -417,17 +417,20 @@ return callbackFlow {
 
     fun complete(state: SendState, metadata: RecordMetadata?, cause: Exception?) {
         if (!state.completed.compareAndSet(false, true)) return
-        inFlight.remove(state)
-        permits.release()
-        if (inFlight.isEmpty()) drained.complete(Unit)
-        if (cause != null) {
-            failOnce(cause)
-        } else if (metadata != null) {
-            trySend(metadata).onFailure {
-                if (!downstreamCancelled.get()) {
-                    failOnce(IllegalStateException("callback buffer is full"))
+        try {
+            if (cause != null) {
+                failOnce(cause)
+            } else if (metadata != null) {
+                trySend(metadata).onFailure {
+                    if (!downstreamCancelled.get()) {
+                        failOnce(IllegalStateException("callback buffer is full"))
+                    }
                 }
             }
+        } finally {
+            inFlight.remove(state)
+            permits.release()
+            if (inFlight.isEmpty()) drained.complete(Unit)
         }
     }
 
@@ -451,9 +454,9 @@ return callbackFlow {
                     if (state.completed.compareAndSet(false, true)) {
                         inFlight.remove(state)
                         permits.release()
-                        if (inFlight.isEmpty()) drained.complete(Unit)
                     }
                     failOnce(cause)
+                    if (inFlight.isEmpty()) drained.complete(Unit)
                     throw cause
                 }
             }
@@ -471,9 +474,11 @@ return callbackFlow {
 
 각 send는 `SendState`를 먼저 `inFlight`에 등록하고 callback에 전달한다. callback이
 동기 실행되어도 state가 이미 존재하므로 stale Future가 생기지 않는다. callback은
-state의 `completed` CAS를 통과할 때만 `inFlight`에서 제거하고 permit을 정확히 한 번
-해제하며, 반환 Future는 state에 저장한 뒤 이미 완료된 callback이면 registry에 남기지
-않는다. `awaitClose`는 먼저 `downstreamCancelled` sentinel을 세우고 cancellation
+결과 전달 또는 `failOnce` 처리가 끝난 뒤 `finally`에서 state를 `inFlight`에서 제거하고
+permit을 정확히 한 번 해제한다. 마지막 callback의 처리까지 끝난 뒤에만 `drained`를
+완료하므로 worker cleanup이 결과 전달보다 앞서지 않는다. 반환 Future는 state에
+저장한 뒤 이미 완료된 callback이면 registry에 남기지 않는다. `awaitClose`는 먼저
+`downstreamCancelled` sentinel을 세우고 cancellation
 signal만 전달한다. 따라서 닫힌 channel에서 도착한 late callback은 새 terminal cause를
 기록하지 않는다. `failOnce(cause)`는 downstream sentinel이 없을 때만
 `terminalCause`를 CAS한 뒤
