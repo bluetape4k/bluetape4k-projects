@@ -9,7 +9,6 @@ from contextlib import redirect_stderr
 from pathlib import Path
 from unittest.mock import patch
 
-
 SCRIPT = Path(__file__).with_name("collect-testcontainers-diagnostics.py")
 SPEC = importlib.util.spec_from_file_location("collect_testcontainers_diagnostics", SCRIPT)
 assert SPEC and SPEC.loader
@@ -22,6 +21,7 @@ name: fixture
 steps:
   - uses: actions/checkout@0123456789abcdef0123456789abcdef01234567
 """
+CONTAINER_ID = "a" * 12
 
 
 class DiagnosticsCollectorTest(unittest.TestCase):
@@ -42,7 +42,14 @@ class DiagnosticsCollectorTest(unittest.TestCase):
             if docker_run is None:
                 result = diagnostics.main()
             else:
-                with patch.object(diagnostics.subprocess, "run", side_effect=docker_run):
+                def fake_logs(task_name, container_id, max_bytes):
+                    del task_name, max_bytes
+                    return docker_run(["docker", "logs", "--tail", "200", container_id])
+
+                with (
+                    patch.object(diagnostics.subprocess, "run", side_effect=docker_run),
+                    patch.object(diagnostics, "run_docker_logs", side_effect=fake_logs),
+                ):
                     result = diagnostics.main()
         return result, stderr.getvalue()
 
@@ -54,6 +61,14 @@ Authorization: Bearer authorization-secret
 <body>xml-secret</body>
 AWS_SECRET_ACCESS_KEY=upper-secret
 aws_secret_access_key=lower-secret
+clientSecret=client-secret access_token=access-secret
+mongodb://user:password@mongo.example/db
+aws_access_key_id=AKIA-SECRET
+private_key=private-key-secret
+client.privateKey=client-key-secret
+<failure message="failure-attribute-secret">failure-body-secret</failure>
+<error>error-body-secret</error>
+PLAINTEXT://broker:9092
 IllegalStateException: exception-secret
 """
 
@@ -68,9 +83,19 @@ IllegalStateException: exception-secret
             "xml-secret",
             "upper-secret",
             "lower-secret",
+            "client-secret",
+            "access-secret",
+            "password@mongo.example",
+            "AKIA-SECRET",
+            "private-key-secret",
+            "client-key-secret",
+            "failure-attribute-secret",
+            "failure-body-secret",
+            "error-body-secret",
             "exception-secret",
         ):
             self.assertNotIn(secret, sanitized)
+        self.assertIn("PLAINTEXT://broker:9092", sanitized)
         self.assertGreaterEqual(sanitized.count("[REDACTED]"), 7)
 
     def test_empty_container_set_writes_manifest(self):
@@ -99,7 +124,7 @@ IllegalStateException: exception-secret
         )
 
         def docker_run(command, **_kwargs):
-            if command[1:3] == ["inspect", "container-1"]:
+            if command[1:3] == ["inspect", CONTAINER_ID]:
                 payload = [{
                     "Name": "/kafka",
                     "Config": {"Image": "confluentinc/cp-kafka:local"},
@@ -125,7 +150,7 @@ IllegalStateException: exception-secret
             "--workflow-file",
             self.workflow,
             "--container-id",
-            "container-1",
+            CONTAINER_ID,
             docker_run=docker_run,
         )
 
@@ -133,7 +158,7 @@ IllegalStateException: exception-secret
         self.assertEqual(stderr, "")
         manifest = json.loads((output_dir / "manifest.json").read_text(encoding="utf-8"))
         self.assertEqual(manifest["containers"][0]["image_digest"], image_digest)
-        log = (output_dir / "container-1.log").read_text(encoding="utf-8")
+        log = (output_dir / f"{CONTAINER_ID}.log").read_text(encoding="utf-8")
         self.assertNotIn("secret", log)
         self.assertNotIn("sensitive", log)
 
@@ -141,7 +166,7 @@ IllegalStateException: exception-secret
         output_dir = self.root / "diagnostics" / "rejected"
 
         def docker_run(command, **_kwargs):
-            if command[1:3] == ["inspect", "container-1"]:
+            if command[1:3] == ["inspect", CONTAINER_ID]:
                 payload = [{
                     "Name": "/unknown",
                     "Config": {"Image": "private/image:latest"},
@@ -159,7 +184,7 @@ IllegalStateException: exception-secret
             "--workflow-file",
             self.workflow,
             "--container-id",
-            "container-1",
+            CONTAINER_ID,
             docker_run=docker_run,
         )
 
@@ -167,11 +192,32 @@ IllegalStateException: exception-secret
         self.assertIn("rejected-task", stderr)
         self.assertNotIn("private-secret", stderr)
 
+    def test_docker_logs_are_bounded_before_decoding(self):
+        class FakeProcess:
+            def __init__(self):
+                self.stdout = io.BytesIO(b"0123456789")
+                self.returncode = 0
+                self.killed = False
+
+            def kill(self):
+                self.killed = True
+
+            def wait(self):
+                return self.returncode
+
+        process = FakeProcess()
+        with patch.object(diagnostics.subprocess, "Popen", return_value=process):
+            result = diagnostics.run_docker_logs("bounded-task", CONTAINER_ID, 4)
+
+        self.assertEqual(result.returncode, 0)
+        self.assertEqual(result.stdout, "01234")
+        self.assertTrue(process.killed)
+
     def test_local_image_id_without_allowlisted_repo_digest_fails(self):
         output_dir = self.root / "diagnostics" / "local-id"
 
         def docker_run(command, **_kwargs):
-            if command[1:3] == ["inspect", "container-1"]:
+            if command[1:3] == ["inspect", CONTAINER_ID]:
                 payload = [{
                     "Name": "/unknown",
                     "Config": {"Image": "private/image:local"},
@@ -195,7 +241,7 @@ IllegalStateException: exception-secret
             "--workflow-file",
             self.workflow,
             "--container-id",
-            "container-1",
+            CONTAINER_ID,
             docker_run=docker_run,
         )
 
@@ -268,6 +314,103 @@ IllegalStateException: exception-secret
         manifest = json.loads((output_dir / "manifest.json").read_text(encoding="utf-8"))
         self.assertTrue(manifest["report_truncated"])
         self.assertEqual(len(manifest["sanitized_reports"]), 1)
+
+    def test_report_byte_cap_is_fail_closed(self):
+        reports = self.root / "examples" / "coroutines-demo" / "build" / "test-results" / "test"
+        reports.mkdir(parents=True)
+        (reports / "TEST-large.xml").write_text("<testsuite>" + ("x" * 128) + "</testsuite>", encoding="utf-8")
+        output_dir = self.root / "examples" / "build" / "testcontainers-diagnostics" / "byte-cap"
+        destination = self.root / "examples" / "build" / "sanitized-test-reports"
+
+        result, _ = self.run_main(
+            "--task-name",
+            "byte-cap-task",
+            "--output-dir",
+            output_dir,
+            "--workflow-file",
+            self.workflow,
+            "--sanitized-report-dir",
+            destination,
+            "--report-path",
+            reports,
+            "--max-report-total-bytes",
+            "16",
+        )
+
+        self.assertEqual(result, 1)
+        manifest = json.loads((output_dir / "manifest.json").read_text(encoding="utf-8"))
+        self.assertTrue(manifest["report_truncated"])
+        copied = destination / "examples" / "coroutines-demo" / "build" / "test-results" / "test" / "TEST-large.xml"
+        self.assertLessEqual(copied.stat().st_size, 16)
+
+    def test_nested_and_quoted_workflow_action_references_are_checked(self):
+        upload_sha = "abcdef0123456789abcdef0123456789abcdef01"
+        setup_sha = "1234567890abcdef1234567890abcdef12345678"
+        self.workflow.write_text(
+            f'''\
+steps:
+  - "uses": "actions/upload-artifact@{upload_sha}"
+  - {{uses: actions/setup-java@{setup_sha}}}
+''',
+            encoding="utf-8",
+        )
+
+        refs = diagnostics.workflow_action_refs(self.workflow)
+
+        self.assertEqual(
+            refs,
+            [
+                f"actions/upload-artifact@{upload_sha}",
+                f"actions/setup-java@{setup_sha}",
+            ],
+        )
+
+    def test_invalid_container_id_is_rejected_before_docker(self):
+        output_dir = self.root / "diagnostics" / "invalid-id"
+
+        def docker_run(command, **_kwargs):
+            self.fail(f"docker must not run for invalid id: {command}")
+
+        result, stderr = self.run_main(
+            "--task-name",
+            "invalid-id-task",
+            "--output-dir",
+            output_dir,
+            "--workflow-file",
+            self.workflow,
+            "--container-id",
+            "../outside",
+            docker_run=docker_run,
+        )
+
+        self.assertEqual(result, 1)
+        self.assertIn("invalid-id-task", stderr)
+
+    def test_symlink_report_root_is_rejected(self):
+        reports = self.root / "real-reports"
+        reports.mkdir()
+        (reports / "TEST-example.xml").write_text("<testsuite/>", encoding="utf-8")
+        symlink = self.root / "examples" / "coroutines-demo" / "build" / "test-results" / "test"
+        symlink.parent.mkdir(parents=True)
+        symlink.symlink_to(reports, target_is_directory=True)
+        output_dir = self.root / "examples" / "build" / "testcontainers-diagnostics" / "symlink"
+        destination = self.root / "examples" / "build" / "sanitized-test-reports"
+
+        result, stderr = self.run_main(
+            "--task-name",
+            "symlink-task",
+            "--output-dir",
+            output_dir,
+            "--workflow-file",
+            self.workflow,
+            "--sanitized-report-dir",
+            destination,
+            "--report-path",
+            symlink,
+        )
+
+        self.assertEqual(result, 1)
+        self.assertIn("symlink-task", stderr)
 
     def test_mutable_workflow_reference_is_rejected(self):
         self.workflow.write_text("- uses: actions/checkout@v7\n", encoding="utf-8")

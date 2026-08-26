@@ -1,8 +1,10 @@
 package io.bluetape4k.examples.coroutines.flow
 
+import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.coroutines.assertResult
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldHaveSize
+import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.codec.Base58
 import io.bluetape4k.coroutines.flow.extensions.log
 import io.bluetape4k.junit5.coroutines.runSuspendIO
@@ -54,11 +56,12 @@ import java.time.Duration
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.ConcurrentLinkedQueue
+import java.util.concurrent.CountDownLatch
 import java.util.concurrent.Future
+import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicInteger
 import java.util.concurrent.atomic.AtomicReference
-import kotlin.test.assertFailsWith
 import kotlin.time.Duration.Companion.microseconds
 import kotlin.time.Duration.Companion.seconds
 
@@ -117,9 +120,13 @@ class CallbackFlowExamples {
 
         return callbackFlow {
             var producer: Producer<String, String>? = null
-            val terminalCause = AtomicReference<Throwable?>(null)
-            val downstreamCancelled = AtomicBoolean()
+            val downstreamCancellation = Any()
+            val terminalState = AtomicReference<Any?>(null)
             val permits = Semaphore(maxInFlight)
+
+            fun isDownstreamCancelled(): Boolean = terminalState.get() === downstreamCancellation
+
+            fun terminalCause(): Throwable? = terminalState.get() as? Throwable
 
             class SendState {
                 val future = AtomicReference<Future<RecordMetadata>?>(null)
@@ -140,8 +147,8 @@ class CallbackFlowExamples {
             }
 
             fun failOnce(cause: Throwable) {
-                if (downstreamCancelled.get()) return
-                if (terminalCause.compareAndSet(null, cause)) {
+                if (isDownstreamCancelled()) return
+                if (terminalState.compareAndSet(null, cause)) {
                     cancelInFlight()
                     upstreamJobRef.get()?.cancel(CancellationException("producer terminal failure", cause))
                     close(cause)
@@ -157,7 +164,7 @@ class CallbackFlowExamples {
                         failOnce(cause.recoveredOrSelf())
                     } else if (metadata != null) {
                         val result = trySend(metadata)
-                        if (result.isFailure && !result.isClosed && !downstreamCancelled.get()) {
+                        if (result.isFailure && !result.isClosed && !isDownstreamCancelled()) {
                             failOnce(IllegalStateException("callback buffer is full"))
                         }
                     }
@@ -182,7 +189,7 @@ class CallbackFlowExamples {
                         try {
                             val future = activeProducer.send(record, callbackFor(state))
                             state.future.set(future)
-                            if (terminalCause.get() != null || downstreamCancelled.get()) {
+                            if (terminalCause() != null || isDownstreamCancelled()) {
                                 future.cancel(false)
                             }
                         } catch (cause: CancellationException) {
@@ -190,7 +197,7 @@ class CallbackFlowExamples {
                                 inFlight.remove(state)
                                 permits.release()
                             }
-                            if (!downstreamCancelled.get()) failOnce(cause.recoveredOrSelf())
+                            if (!isDownstreamCancelled()) failOnce(cause.recoveredOrSelf())
                             throw cause
                         } catch (cause: Throwable) {
                             if (state.completed.compareAndSet(false, true)) {
@@ -203,7 +210,7 @@ class CallbackFlowExamples {
                         ensureActive()
                     }
                 } catch (cause: CancellationException) {
-                    if (!downstreamCancelled.get()) failOnce(cause.recoveredOrSelf())
+                    if (!isDownstreamCancelled()) failOnce(cause.recoveredOrSelf())
                     throw cause
                 } catch (cause: Throwable) {
                     failOnce(cause.recoveredOrSelf())
@@ -221,16 +228,16 @@ class CallbackFlowExamples {
                             } catch (cause: TimeoutCancellationException) {
                                 cleanupFailure = cause.recoveredOrSelf()
                                 cancelInFlight()
-                                if (!downstreamCancelled.get()) failOnce(cause.recoveredOrSelf())
+                                if (!isDownstreamCancelled()) failOnce(cause.recoveredOrSelf())
                             } catch (cause: CancellationException) {
                                 cleanupFailure = cause.recoveredOrSelf()
                                 cleanupCancellation = cause.recoveredOrSelf() as? CancellationException
                                 cancelInFlight()
-                                if (!downstreamCancelled.get()) failOnce(cause.recoveredOrSelf())
+                                if (!isDownstreamCancelled()) failOnce(cause.recoveredOrSelf())
                             } catch (cause: Throwable) {
                                 cleanupFailure = cause.recoveredOrSelf()
                                 cancelInFlight()
-                                if (!downstreamCancelled.get()) failOnce(cause.recoveredOrSelf())
+                                if (!isDownstreamCancelled()) failOnce(cause.recoveredOrSelf())
                             }
 
                             var closeFailure: Throwable? = null
@@ -246,21 +253,21 @@ class CallbackFlowExamples {
                                 closeFailure = cause.recoveredOrSelf()
                             }
 
-                            val first = terminalCause.get()
+                            val first = terminalCause()
                             if (first != null && cleanupFailure != null && first !== cleanupFailure) {
                                 first.addSuppressed(cleanupFailure)
                             }
                             if (first != null && closeFailure != null && first !== closeFailure) {
                                 first.addSuppressed(closeFailure)
                             }
-                            if (first == null && closeFailure != null && !downstreamCancelled.get()) {
+                            if (first == null && closeFailure != null && !isDownstreamCancelled()) {
                                 failOnce(closeFailure)
                             }
-                            if (terminalCause.get() == null && !downstreamCancelled.get()) close()
-                            if (cleanupCancellation != null && terminalCause.get() == null) {
+                            if (terminalCause() == null && !isDownstreamCancelled()) close()
+                            if (cleanupCancellation != null && terminalCause() == null) {
                                 throw cleanupCancellation
                             }
-                            if (closeCancellation != null && terminalCause.get() == null) {
+                            if (closeCancellation != null && terminalCause() == null) {
                                 throw closeCancellation
                             }
                         }
@@ -270,7 +277,7 @@ class CallbackFlowExamples {
             upstreamJobRef.set(upstreamJob)
             upstreamJob.start()
             awaitClose {
-                downstreamCancelled.set(true)
+                terminalState.compareAndSet(null, downstreamCancellation)
                 cancelInFlight()
                 upstreamJob.cancel(CancellationException("collector cancelled"))
             }
@@ -373,6 +380,58 @@ class CallbackFlowExamples {
         val afterLate = assertFailsWith<CancellationException> { task.await() }
         afterLate::class shouldBeEqualTo cancellation::class
         afterLate.message shouldBeEqualTo cancellation.message
+    }
+
+    @Test
+    fun `collector cancellation wins over a concurrent callback failure`() = runSuspendIO {
+        val callbackFailure = IllegalStateException("late callback failure")
+        val callbackStarted = CountDownLatch(1)
+        val callbackGate = CountDownLatch(1)
+        val producer = TrackingProducer(
+            callbackError = callbackFailure,
+            holdCallbacks = true,
+            callbackStarted = callbackStarted,
+            callbackGate = callbackGate,
+        )
+        val task = async {
+            producerResults(flowOf(record("concurrent-cancel")), { producer.producer }).toList()
+        }
+
+        withTimeout(5.seconds) { producer.sendStarted.await() }
+        val callback = async(Dispatchers.IO) { producer.fireCallback() }
+        callbackStarted.await(5, TimeUnit.SECONDS).shouldBeTrue()
+        task.cancel()
+        withTimeout(5.seconds) {
+            while (producer.closeCount.get() == 0) delay(10)
+        }
+        callbackGate.countDown()
+        callback.await()
+
+        assertFailsWith<CancellationException> { task.await() }
+        producer.closeCount.get() shouldBeEqualTo 1
+        producer.callbackCount.get() shouldBeEqualTo 1
+    }
+
+    @Test
+    fun `collector cancellation cancels every in-flight send`() = runSuspendIO {
+        val producer = TrackingProducer(holdCallbacks = true)
+        val task = async {
+            producerResults(
+                records = flowOf(record("cancel-one"), record("cancel-two")),
+                producerFactory = { producer.producer },
+                maxInFlight = 2,
+            ).toList()
+        }
+
+        withTimeout(5.seconds) { producer.twoSendsStarted.await() }
+        task.cancel()
+        withTimeout(5.seconds) {
+            while (producer.cancelledPendingSends() < 2) delay(10)
+        }
+        assertFailsWith<CancellationException> { task.await() }
+
+        producer.closeCount.get() shouldBeEqualTo 1
+        producer.cancelledPendingSends() shouldBeEqualTo 2
     }
 
     @Test
@@ -557,7 +616,7 @@ class CallbackFlowExamples {
         } finally {
             withContext(NonCancellable + Dispatchers.IO) {
                 withTimeout(5.seconds) {
-                    consumer.close(Duration.ofSeconds(5))
+                    runInterruptible { consumer.close(Duration.ofSeconds(5)) }
                 }
             }
         }
@@ -584,6 +643,8 @@ class CallbackFlowExamples {
         val closeError: Exception? = null,
         private val holdCallbacks: Boolean = false,
         private val heldSendIndexes: Set<Int> = emptySet(),
+        private val callbackStarted: CountDownLatch? = null,
+        private val callbackGate: CountDownLatch? = null,
     ) {
         val producer: Producer<String, String> = mockk(relaxed = true)
         val callbackCount = AtomicInteger()
@@ -648,7 +709,9 @@ class CallbackFlowExamples {
         fun fireCallback() {
             pendingCallbacks.poll()?.let { pending ->
                 callbackCount.incrementAndGet()
-                pending.callback.onCompletion(metadata, null)
+                callbackStarted?.countDown()
+                callbackGate?.await(5, TimeUnit.SECONDS)
+                pending.callback.onCompletion(metadata, callbackError)
                 pending.future.complete(metadata)
             }
         }

@@ -5,54 +5,137 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import re
 import subprocess
 import sys
+from collections.abc import Iterable
 from pathlib import Path
-from typing import Any, Iterable
-
+from typing import Any
 
 DEFAULT_MAX_BYTES = 2_000_000
 DEFAULT_MAX_REPORT_FILES = 200
+MAX_REPORT_FILE_BYTES = 2_000_000
+MAX_REPORT_ENTRIES = 50_000
 ALLOWLIST = {
     "confluentinc/cp-kafka@sha256:a5040785528b0bce3b146febe9fcacdcf2b9b5acb450307f75170ef0e60ec130",
     "redis@sha256:4e070415a5713188624f93815e62d6c6a1fcbb416d2e0b578ab3db627db3a93a",
 }
 SHA40 = re.compile(r"^[0-9a-fA-F]{40}$")
-USES = re.compile(r"^\s*(?:-\s*)?uses:\s*([^\s#]+)", re.MULTILINE)
-URI = re.compile(r"\b(?:https?|amqps?|redis|kafka|postgres(?:ql)?|file)://[^\s<>\"']+")
+USES_KEY = re.compile(r"(?i)(?:^|[,{])\s*(?:-\s*)?(?:[\"']uses[\"']|uses)\s*:")
+URI = re.compile(
+    r"\b(?:https?|amqps?|redis|kafka|postgres(?:ql)?|mongodb(?:\+srv)?|mysql|file|jdbc:[a-z0-9+.-]+)://[^\s<>\"']+"
+)
 AUTHORIZATION_LINE = re.compile(r"(?im)^(\s*[\"']?authorization[\"']?\s*[:=]\s*).*$")
-SECRET_KEY_QUOTED = re.compile(
-    r"(?i)([\"']?\b(?:authorization|token|password|secret|api[_-]?key)\b[\"']?\s*[:=]\s*)(\"|')([^\"']*)(\2)"
+SENSITIVE_KEY = (
+    r"(?:payload|message|body|value|authorization|access[_-]?token|access[_-]?key(?:[_-]?id)?|token|password|secret|"
+    r"private[_-]?key|api[_-]?key|"
+    r"[a-z][a-z0-9_.-]*(?:authorization|access[_-]?token|access[_-]?key(?:[_-]?id)?|token|password|secret|"
+    r"private[_-]?key|api[_-]?key)[a-z0-9_.-]*)"
 )
-SECRET_KEY_UNQUOTED = re.compile(
-    r"(?i)([\"']?\b(?:authorization|token|password|secret|api[_-]?key)\b[\"']?\s*[:=]\s*)(?!\[REDACTED\])([^\"'\s,;&}\]\r\n]+)"
-)
-INLINE_SENSITIVE = re.compile(
-    r'''(?is)([\"']?(?:payload|message|body|value)[\"']?\s*[:=]\s*)(\"(?:\\.|[^\"\\])*\"|'(?:\\.|[^'\\])*'|\{.*?\}|\[.*?\]|[^\s,;&}\]\r\n]+)'''
+SENSITIVE_ASSIGNMENT_KEY = re.compile(
+    rf'''(?is)(?<![a-z0-9_.-])([\"']?{SENSITIVE_KEY}[\"']?\s*[:=]\s*)'''
 )
 XML_SENSITIVE = re.compile(
-    r"(?is)(<\s*(?:payload|message|body|value)\b[^>]*>).*?(</\s*(?:payload|message|body|value)\s*>)"
+    rf"(?is)(<\s*(?P<tag>{SENSITIVE_KEY}|failure|error)\b[^>]*>).*?(</\s*(?P=tag)\s*>)"
 )
-UPPER_ENV_LINE = re.compile(r"(?m)^\s*[A-Z][A-Z0-9_]*\s*[:=].*$")
-LOWER_SENSITIVE_ENV_LINE = re.compile(
-    r"(?im)^\s*[a-z][a-z0-9_]*(?:secret|token|password|api[_-]?key)[a-z0-9_]*\s*[:=].*$"
+SENSITIVE_ENV_LINE = re.compile(
+    r"(?im)^\s*[A-Z][A-Z0-9_]*(?:AUTHORIZATION|ACCESS[_-]?TOKEN|ACCESS[_-]?KEY(?:[_-]?ID)?|"
+    r"TOKEN|PASSWORD|SECRET|PRIVATE[_-]?KEY|API[_-]?KEY|CREDENTIALS?)[A-Z0-9_-]*\s*[:=].*$"
 )
 SENSITIVE_LINE = re.compile(r"(?im)^\s*(?:payload|message|body|value)\s*[:=].*$")
 EXCEPTION_MESSAGE = re.compile(r"(?im)^([^\r\n]*(?:Exception|Error))\s*:\s*[^\r\n]*$")
+
+
+def _assignment_value_end(value: str, start: int) -> int:
+    """Find the end of a scalar, quoted, or balanced object assignment."""
+
+    index = start
+    while index < len(value) and value[index].isspace():
+        index += 1
+    if index >= len(value):
+        return index
+
+    opening = value[index]
+    if opening in "\"'":
+        quote = opening
+        index += 1
+        escaped = False
+        while index < len(value):
+            character = value[index]
+            if escaped:
+                escaped = False
+            elif character == "\\":
+                escaped = True
+            elif character == quote:
+                return index + 1
+            index += 1
+        return index
+
+    if opening in "[{":
+        closing = {"[": "]", "{": "}"}
+        stack = [opening]
+        index += 1
+        quote: str | None = None
+        escaped = False
+        while index < len(value) and stack:
+            character = value[index]
+            if quote is not None:
+                if escaped:
+                    escaped = False
+                elif character == "\\":
+                    escaped = True
+                elif character == quote:
+                    quote = None
+            elif character in "\"'":
+                quote = character
+            elif character in "[{":
+                stack.append(character)
+            elif character in "]}" and character == closing[stack[-1]]:
+                stack.pop()
+            index += 1
+        return index
+
+    while index < len(value) and value[index] not in " \t,;&}]\r\n":
+        index += 1
+    return index
+
+
+def redact_sensitive_assignments(value: str) -> str:
+    """Replace complete sensitive assignment values, including nested objects."""
+
+    spans: list[tuple[int, int]] = []
+    cursor = 0
+    while match := SENSITIVE_ASSIGNMENT_KEY.search(value, cursor):
+        start = match.end()
+        end = _assignment_value_end(value, start)
+        value_start = start
+        while value_start < end and value[value_start].isspace():
+            value_start += 1
+        spans.append((value_start, end))
+        cursor = max(end, match.end() + 1)
+
+    if not spans:
+        return value
+    output: list[str] = []
+    cursor = 0
+    for start, end in spans:
+        if start < cursor:
+            continue
+        output.extend((value[cursor:start], "[REDACTED]"))
+        cursor = end
+    output.append(value[cursor:])
+    return "".join(output)
 
 
 def sanitize(value: str) -> str:
     """Redact credentials, endpoints, payloads, and exception messages."""
 
     value = AUTHORIZATION_LINE.sub(r"\1[REDACTED]", value)
-    value = SECRET_KEY_QUOTED.sub(r"\1\2[REDACTED]\4", value)
-    value = SECRET_KEY_UNQUOTED.sub(r"\1[REDACTED]", value)
+    value = redact_sensitive_assignments(value)
     value = URI.sub("[REDACTED]", value)
-    value = INLINE_SENSITIVE.sub(r"\1[REDACTED]", value)
-    value = XML_SENSITIVE.sub(r"\1[REDACTED]\2", value)
-    value = UPPER_ENV_LINE.sub("[REDACTED]", value)
-    value = LOWER_SENSITIVE_ENV_LINE.sub("[REDACTED]", value)
+    value = XML_SENSITIVE.sub(r"\1[REDACTED]\3", value)
+    value = SENSITIVE_ENV_LINE.sub("[REDACTED]", value)
     value = SENSITIVE_LINE.sub("[REDACTED]", value)
     value = EXCEPTION_MESSAGE.sub(r"\1: [REDACTED]", value)
     return value
@@ -79,22 +162,61 @@ def run_docker(task_name: str, args: list[str]) -> subprocess.CompletedProcess[s
         raise RuntimeError(f"{task_name}: docker command unavailable") from error
 
 
+def run_docker_logs(task_name: str, container_id: str, max_bytes: int) -> subprocess.CompletedProcess[str]:
+    command = ["docker", "logs", "--tail", "200", container_id]
+    try:
+        process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+    except OSError as error:
+        raise RuntimeError(f"{task_name}: docker command unavailable") from error
+    output = process.stdout.read(max_bytes + 1) if process.stdout is not None else b""
+    output_truncated = len(output) > max_bytes
+    if output_truncated:
+        process.kill()
+    process.wait()
+    return subprocess.CompletedProcess(
+        command,
+        0 if output_truncated else process.returncode,
+        output.decode("utf-8", errors="replace"),
+        "",
+    )
+
+
 def workflow_action_refs(path: Path) -> list[str]:
-    text = path.read_text(encoding="utf-8")
     refs: list[str] = []
-    for reference in USES.findall(text):
-        if "@" not in reference:
-            raise ValueError(f"{path}: mutable workflow action reference")
-        action, ref = reference.rsplit("@", 1)
-        if not SHA40.fullmatch(ref):
-            raise ValueError(f"{path}: workflow action is not pinned to a commit SHA")
-        normalized = f"{action}@{ref.lower()}"
-        if normalized not in refs:
-            refs.append(normalized)
+    with path.open("rb") as handle:
+        workflow_bytes = handle.read(MAX_REPORT_FILE_BYTES + 1)
+    if len(workflow_bytes) > MAX_REPORT_FILE_BYTES:
+        raise ValueError(f"{path}: workflow file exceeds size limit")
+    for line_number, original_line in enumerate(
+        workflow_bytes.decode("utf-8", errors="replace").splitlines(), start=1
+    ):
+        if original_line.lstrip().startswith("#"):
+            continue
+        line = original_line.split("#", 1)[0]
+        for match in USES_KEY.finditer(line):
+            tail = line[match.end():].lstrip()
+            if not tail:
+                raise ValueError(f"{path}:{line_number}: missing workflow action reference")
+            if tail[0] in "\"'":
+                quote = tail[0]
+                end = tail.find(quote, 1)
+                if end < 0:
+                    raise ValueError(f"{path}:{line_number}: malformed workflow action reference")
+                reference = tail[1:end]
+            else:
+                reference = re.split(r"[\s,}]+", tail, maxsplit=1)[0]
+            if "@" not in reference:
+                raise ValueError(f"{path}:{line_number}: mutable workflow action reference")
+            action, ref = reference.rsplit("@", 1)
+            if not action or not SHA40.fullmatch(ref):
+                raise ValueError(f"{path}:{line_number}: workflow action is not pinned to a commit SHA")
+            normalized = f"{action}@{ref.lower()}"
+            if normalized not in refs:
+                refs.append(normalized)
     return refs
 
 
-def inspect_container(task_name: str, container_id: str) -> tuple[dict[str, Any], str | None]:
+def inspect_container(task_name: str, container_id: str) -> dict[str, Any]:
     inspected = run_docker(task_name, ["inspect", container_id])
     if inspected.returncode != 0:
         raise RuntimeError(f"{task_name}: docker inspect failed")
@@ -104,7 +226,7 @@ def inspect_container(task_name: str, container_id: str) -> tuple[dict[str, Any]
         raise RuntimeError(f"{task_name}: invalid docker inspect response") from error
 
     config = payload.get("Config") or {}
-    image = str(config.get("Image") or payload.get("Config", {}).get("Image") or "")
+    image = str(config.get("Image") or payload.get("Image") or "")
     repo_digests = payload.get("RepoDigests") or []
     if not repo_digests:
         image_reference = image or str(payload.get("Image") or "")
@@ -129,25 +251,83 @@ def inspect_container(task_name: str, container_id: str) -> tuple[dict[str, Any]
         "image_digest": resolved,
         "created": payload.get("Created"),
     }
-    logs_result = run_docker(task_name, ["logs", "--tail", "200", container_id])
+    return record
+
+
+def collect_container_logs(task_name: str, container_id: str, max_log_bytes: int) -> str | None:
+    """Read and sanitize one container's bounded log stream."""
+
+    logs_result = run_docker_logs(task_name, container_id, max_log_bytes)
     if logs_result.returncode != 0:
-        return record, None
-    return record, sanitize(logs_result.stdout + logs_result.stderr)
+        return None
+    return sanitize(logs_result.stdout + logs_result.stderr)
 
 
-def matching_report_files(root: Path) -> list[Path]:
+CONTAINER_ID = re.compile(r"^[0-9a-fA-F]{12,64}$")
+
+
+def normalized_path(path: Path) -> Path:
+    """Normalize lexical dot segments without following symlinks."""
+
+    return Path(os.path.abspath(path))
+
+
+def reject_symlink_components(path: Path, stop_at: Path | None = None) -> None:
+    """Reject a path or any existing parent component that is a symlink."""
+
+    current = path.absolute()
+    boundary = stop_at.absolute() if stop_at is not None else None
+    while True:
+        if boundary is not None and current == boundary:
+            return
+        if current.is_symlink():
+            raise ValueError(f"path contains a symlink: {path}")
+        if current.parent == current:
+            return
+        current = current.parent
+
+
+def require_relative(path: Path, root: Path, description: str) -> None:
+    try:
+        path.relative_to(root)
+    except ValueError as error:
+        raise ValueError(f"{description} is outside repository: {path}") from error
+
+
+def matching_report_files(root: Path, max_files: int, repo_root: Path) -> tuple[list[Path], bool]:
+    reject_symlink_components(root, repo_root)
     if root.is_symlink():
         raise ValueError(f"report path is a symlink: {root}")
     if not root.is_dir():
         raise ValueError(f"report path does not exist: {root}")
     allowed_suffixes = {".xml", ".html", ".css", ".js"}
     files: list[Path] = []
-    for path in root.rglob("*"):
-        if path.is_symlink():
-            raise ValueError(f"report path contains a symlink: {path}")
-        if path.is_file() and path.suffix.lower() in allowed_suffixes:
-            files.append(path)
-    return sorted(files)
+    directories = [root]
+    entries_seen = 0
+    while directories:
+        directory = directories.pop()
+        entries: list[os.DirEntry[str]] = []
+        try:
+            with os.scandir(directory) as scanner:
+                for entry in scanner:
+                    entries_seen += 1
+                    if entries_seen > MAX_REPORT_ENTRIES:
+                        return sorted(files), True
+                    entries.append(entry)
+        except OSError as error:
+            raise ValueError(f"report path cannot be read: {directory}") from error
+        entries.sort(key=lambda entry: entry.name)
+        for entry in entries:
+            path = Path(entry.path)
+            if entry.is_symlink():
+                raise ValueError(f"report path contains a symlink: {path}")
+            if entry.is_dir(follow_symlinks=False):
+                directories.append(path)
+            elif entry.is_file(follow_symlinks=False) and path.suffix.lower() in allowed_suffixes:
+                files.append(path)
+                if len(files) > max_files:
+                    return sorted(files), True
+    return sorted(files), False
 
 
 def sanitize_reports(
@@ -158,31 +338,47 @@ def sanitize_reports(
     max_total_bytes: int,
 ) -> tuple[list[dict[str, Any]], bool]:
     all_files: list[tuple[Path, Path]] = []
+    truncated = False
     for root in report_paths:
-        files = matching_report_files(root)
+        remaining_files = max_files - len(all_files)
+        if remaining_files <= 0:
+            truncated = True
+            break
+        files, files_truncated = matching_report_files(root, remaining_files + 1, repo_root)
+        truncated = truncated or files_truncated
         if not files:
             raise ValueError(f"report path has no supported files: {root}")
         try:
             relative_root = root.relative_to(repo_root)
         except ValueError as error:
             raise ValueError(f"report path is outside repository: {root}") from error
+        if len(files) > remaining_files:
+            truncated = True
+            files = files[:remaining_files]
         all_files.extend((path, destination / relative_root / path.relative_to(root)) for path in files)
 
-    truncated = len(all_files) > max_files
-    selected = all_files[:max_files]
     written: list[dict[str, Any]] = []
     used = 0
-    for source, target in selected:
-        raw = source.read_text(encoding="utf-8", errors="replace")
-        sanitized = sanitize(raw)
+    for source, target in all_files:
         remaining = max_total_bytes - used
         if remaining <= 0:
             truncated = True
             break
-        data, was_truncated = bounded_bytes(sanitized, min(2_000_000, remaining))
+        per_file_limit = min(MAX_REPORT_FILE_BYTES, remaining)
+        with source.open("rb") as handle:
+            raw_bytes = handle.read(per_file_limit + 1)
+        raw = raw_bytes.decode("utf-8", errors="replace")
+        raw_truncated = len(raw_bytes) > per_file_limit
+        sanitized = sanitize(raw)
+        data, was_truncated = bounded_bytes(sanitized, per_file_limit)
+        was_truncated = was_truncated or raw_truncated
         if was_truncated:
             truncated = True
+        reject_symlink_components(target.parent, repo_root)
         target.parent.mkdir(parents=True, exist_ok=True)
+        reject_symlink_components(target.parent, repo_root)
+        if target.is_symlink():
+            raise ValueError(f"sanitized report target is a symlink: {target}")
         target.write_bytes(data)
         used += len(data)
         written.append(
@@ -218,6 +414,8 @@ def write_manifest(path: Path, manifest: dict[str, Any], max_bytes: int) -> None
     if len(encoded) > max_bytes:
         # The manifest is deliberately small; if a caller supplies an unusable cap, fail closed.
         raise ValueError("manifest exceeds max-total-bytes")
+    if path.is_symlink():
+        raise ValueError(f"manifest target is a symlink: {path}")
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_bytes(encoded)
 
@@ -228,7 +426,28 @@ def main() -> int:
         print(f"{args.task_name}: diagnostic limits must be positive", file=sys.stderr)
         return 1
 
-    args.output_dir.mkdir(parents=True, exist_ok=True)
+    args.workflow_file = normalized_path(args.workflow_file)
+    args.output_dir = normalized_path(args.output_dir)
+    args.report_path = [normalized_path(path) for path in args.report_path]
+    if args.sanitized_report_dir is not None:
+        args.sanitized_report_dir = normalized_path(args.sanitized_report_dir)
+    try:
+        repo_root = args.workflow_file.parents[2]
+        reject_symlink_components(args.workflow_file, repo_root)
+        reject_symlink_components(args.output_dir, repo_root)
+        require_relative(args.workflow_file, repo_root, "workflow file")
+        require_relative(args.output_dir, repo_root, "output directory")
+        if args.sanitized_report_dir is not None:
+            reject_symlink_components(args.sanitized_report_dir, repo_root)
+            require_relative(args.sanitized_report_dir, repo_root, "sanitized report directory")
+        for report_path in args.report_path:
+            reject_symlink_components(report_path, repo_root)
+            require_relative(report_path, repo_root, "report path")
+        args.output_dir.mkdir(parents=True, exist_ok=True)
+    except (OSError, ValueError) as error:
+        print(str(error) if str(error).startswith(args.task_name) else f"{args.task_name}: diagnostics failed", file=sys.stderr)
+        return 1
+
     manifest: dict[str, Any] = {
         "task_name": args.task_name,
         "workflow_action_refs": [],
@@ -239,23 +458,27 @@ def main() -> int:
     }
     try:
         manifest["workflow_action_refs"] = workflow_action_refs(args.workflow_file)
-        container_logs: list[tuple[str, str]] = []
-        for container_id in sorted(set(args.container_id)):
-            record, logs = inspect_container(args.task_name, container_id)
-            manifest["containers"].append(record)
-            if logs:
-                container_logs.append((container_id, logs))
+        container_ids = sorted(set(args.container_id))
+        for container_id in container_ids:
+            if not CONTAINER_ID.fullmatch(container_id):
+                raise ValueError(f"{args.task_name}: invalid container id")
+            manifest["containers"].append(inspect_container(args.task_name, container_id))
 
         # Reserve space for the manifest before writing bounded log files.
         provisional = json.dumps(manifest, ensure_ascii=False, indent=2, sort_keys=True).encode("utf-8") + b"\n"
         log_budget = max(0, args.max_total_bytes - len(provisional))
         log_used = 0
-        for container_id, logs in container_logs:
+        for container_id in container_ids:
+            logs = collect_container_logs(args.task_name, container_id, args.max_total_bytes)
+            if logs is None:
+                continue
             remaining = log_budget - log_used
             data, was_truncated = bounded_bytes(logs, remaining)
             if was_truncated:
                 manifest["truncated"] = True
             log_path = args.output_dir / f"{container_id}.log"
+            if log_path.is_symlink():
+                raise ValueError(f"{args.task_name}: log target is a symlink")
             log_path.write_bytes(data)
             log_used += len(data)
             if was_truncated:
@@ -264,10 +487,9 @@ def main() -> int:
         if args.report_path:
             if args.sanitized_report_dir is None:
                 raise ValueError("sanitized-report-dir is required with report-path")
-            repo_root = args.workflow_file.resolve().parents[2]
             reports, report_truncated = sanitize_reports(
-                [path.resolve() for path in args.report_path],
-                args.sanitized_report_dir.resolve(),
+                args.report_path,
+                args.sanitized_report_dir,
                 repo_root,
                 args.max_report_files,
                 args.max_report_total_bytes,

@@ -87,11 +87,11 @@ Kotlin Coroutines의 다양한 기능과 사용 패턴을 학습하기 위한 �
 
 ```bash
 # 모든 예제 테스트 실행
-./gradlew :examples:coroutines:test
+./gradlew :bluetape4k-examples-coroutines-demo:test
 
 # 특정 예제만 실행
-./gradlew :examples:coroutines:test --tests "io.bluetape4k.examples.coroutines.guide.*"
-./gradlew :examples:coroutines:test --tests "io.bluetape4k.examples.coroutines.flow.*"
+./gradlew :bluetape4k-examples-coroutines-demo:test --tests "io.bluetape4k.examples.coroutines.guide.*"
+./gradlew :bluetape4k-examples-coroutines-demo:test --tests "io.bluetape4k.examples.coroutines.flow.*"
 ```
 
 ### Kafka callbackFlow 계약

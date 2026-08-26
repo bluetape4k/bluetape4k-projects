@@ -87,11 +87,11 @@ A collection of examples for learning the features and usage patterns of Kotlin 
 
 ```bash
 # Run all example tests
-./gradlew :examples:coroutines:test
+./gradlew :bluetape4k-examples-coroutines-demo:test
 
 # Run specific examples
-./gradlew :examples:coroutines:test --tests "io.bluetape4k.examples.coroutines.guide.*"
-./gradlew :examples:coroutines:test --tests "io.bluetape4k.examples.coroutines.flow.*"
+./gradlew :bluetape4k-examples-coroutines-demo:test --tests "io.bluetape4k.examples.coroutines.guide.*"
+./gradlew :bluetape4k-examples-coroutines-demo:test --tests "io.bluetape4k.examples.coroutines.flow.*"
 ```
 
 ### Kafka callbackFlow contract
