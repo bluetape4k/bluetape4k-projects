@@ -23,7 +23,28 @@
   `bluetape4k-virtualthread-api`, `bluetape4k-virtualthread-jdk21`로
   유지한다. Java 21–24 소비자는 Java 25로 이동하거나 `1.13.x`를 유지해야
   한다 ([#1335](https://github.com/bluetape4k/bluetape4k-projects/issues/1335)).
+
+- QueryDSL Kotlin codegen은 Kotlin 2.4/JDK 25 환경에서 clean annotation
+  processing을 통과하지 못하는 upstream `NullPointerException`으로 인해
+  기본 지원 경로에서 제외했다. Java APT 생성 Q 타입과 QueryDSL association
+  query 경로는 유지하며, 후보 재활성화는 upstream fix와 재현 matrix를 다시
+  통과해야 한다 ([#1346](https://github.com/bluetape4k/bluetape4k-projects/issues/1346)).
+
+- Hibernate-Lettuce near-cache의 root `bluetape4k.cache.lettuce-near.enabled`
+  조건을 Hibernate customizer, metrics binder, Actuator endpoint 전체에
+  일관되게 적용했다. `metrics.enabled=true`만으로 root disabled 상태를
+  우회할 수 없고, 두 조건을 모두 만족할 때만 metrics와 endpoint를 노출한다
+  ([#1357](https://github.com/bluetape4k/bluetape4k-projects/issues/1357)).
 <!-- issue-1335-java25-semver:end -->
+
+### 마이그레이션
+
+- Spring Boot 4.1 MongoDB 연결 설정은 `spring.data.mongodb.uri`에서
+  `spring.mongodb.uri`로 이동해야 한다. legacy key만 남으면 기본 localhost
+  연결을 막는 정확한 `IllegalStateException`으로 즉시 실패하고, 두 key가
+  함께 있으면 새 namespace가 우선한다. 즉시 전환할 수 없는 소비자는 legacy
+  namespace를 지원하는 이전 artifact를 임시로 pin한다
+  ([#1358](https://github.com/bluetape4k/bluetape4k-projects/issues/1358)).
 
 ### 추가
 
@@ -36,6 +57,12 @@
   ([#1350](https://github.com/bluetape4k/bluetape4k-projects/issues/1350)).
 
 ### 버그 수정
+
+- Cassandra `WriteOptions`가 nullable TTL/timestamp를 안전하게 처리한다.
+  zero/subsecond TTL은 `TTL 0`으로 보존하고 negative 값은 거부하며, Int
+  seconds 범위 초과는 `ArithmeticException`으로 보고한다. Cassandra
+  timestamp는 microseconds 단위로 전달한다
+  ([#1359](https://github.com/bluetape4k/bluetape4k-projects/issues/1359)).
 
 - `BufferedSuspendedSink` 회귀 테스트가 모든 `write`/`writeAll` 오버로드의 정확한
   바이트열과 `flush()`/`close()`의 하위 sink 위임 횟수 및 데이터 전달 경계를
