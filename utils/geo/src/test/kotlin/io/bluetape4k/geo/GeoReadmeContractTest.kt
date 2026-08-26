@@ -1,10 +1,10 @@
 package io.bluetape4k.geo
 
+import io.bluetape4k.assertions.fail
 import org.junit.jupiter.api.Test
 import java.nio.file.Files
 import java.nio.file.Path
 import kotlin.io.path.readText
-import kotlin.test.assertFalse
 
 class GeoReadmeContractTest {
 
@@ -12,10 +12,9 @@ class GeoReadmeContractTest {
     fun `README examples use current public APIs and consumer coordinates`() {
         readmeTexts().forEach { (filename, text) ->
             forbiddenFragments.forEach { fragment ->
-                assertFalse(
-                    text.contains(fragment),
-                    "$filename must not contain stale or internal reference: $fragment",
-                )
+                if (text.contains(fragment)) {
+                    fail("$filename must not contain stale or internal reference: $fragment")
+                }
             }
         }
     }

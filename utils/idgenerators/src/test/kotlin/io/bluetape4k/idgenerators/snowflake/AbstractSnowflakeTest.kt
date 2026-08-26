@@ -177,6 +177,8 @@ abstract class AbstractSnowflakeTest {
         val snowflakeId1 = snowflake.parse(id1)
         val snowflakeId2 = snowflake.parse(id2)
 
+        // 의도적 tick 경계 지연: Default/GlobalSequencer가 System.currentTimeMillis()를 직접 읽고
+        // 주입 가능한 clock을 노출하지 않으므로 sequencer timestamp 계약 검증에서만 유지합니다.
         Thread.sleep(1L)
         val id3 = snowflake.nextId()
         val snowflakeId3 = snowflake.parse(id3)
@@ -211,6 +213,8 @@ abstract class AbstractSnowflakeTest {
     fun `parse snowflake id as string`() {
         val id1 = snowflake.nextIdAsString()
         val id2 = snowflake.nextIdAsString()
+        // 의도적 tick 경계 지연: Default/GlobalSequencer가 System.currentTimeMillis()를 직접 읽고
+        // 주입 가능한 clock을 노출하지 않으므로 sequencer timestamp 계약 검증에서만 유지합니다.
         Thread.sleep(1L)
         val id3 = snowflake.nextIdAsString()
         val id4 = snowflake.nextIdAsString()
