@@ -110,7 +110,23 @@ class CallbackFlowExamples {
                 .collect()
         }
 
-    private fun Throwable.recoveredOrSelf(): Throwable = this
+    /**
+     * kotlinx.coroutines는 suspend 경계에서 호출자 stack을 복원하려고 예외를 복사할 수 있다.
+     * 이 형태만 unwrap하고 임의의 same-type cause는 원래 identity와 진단 정보를 유지한다.
+     */
+    private fun Throwable.unwrapRecoveredCoroutineCause(): Throwable {
+        val nested = cause ?: return this
+        val recoveredAtCoroutineBoundary = stackTrace.any { it.className == "_COROUTINE._BOUNDARY._" }
+        if (!recoveredAtCoroutineBoundary || nested.javaClass != javaClass || nested.message != message) {
+            return this
+        }
+        suppressed.forEach { suppressedCause ->
+            if (suppressedCause !== nested && nested.suppressed.none { it === suppressedCause }) {
+                nested.addSuppressed(suppressedCause)
+            }
+        }
+        return nested
+    }
 
     private fun producerResults(
         records: Flow<ProducerRecord<String, String>>,
@@ -169,7 +185,7 @@ class CallbackFlowExamples {
                 if (!state.completed.compareAndSet(false, true)) return
                 try {
                     if (cause != null) {
-                        failOnce(cause.recoveredOrSelf())
+                        failOnce(cause.unwrapRecoveredCoroutineCause())
                     } else if (metadata != null) {
                         val result = trySend(metadata)
                         if (result.isFailure && !result.isClosed && !isDownstreamCancelled()) {
@@ -205,23 +221,23 @@ class CallbackFlowExamples {
                                 inFlight.remove(state)
                                 permits.release()
                             }
-                            if (!isDownstreamCancelled()) failOnce(cause.recoveredOrSelf())
+                            if (!isDownstreamCancelled()) failOnce(cause.unwrapRecoveredCoroutineCause())
                             throw cause
                         } catch (cause: Throwable) {
                             if (state.completed.compareAndSet(false, true)) {
                                 inFlight.remove(state)
                                 permits.release()
                             }
-                            failOnce(cause.recoveredOrSelf())
+                            failOnce(cause.unwrapRecoveredCoroutineCause())
                             throw cause
                         }
                         ensureActive()
                     }
                 } catch (cause: CancellationException) {
-                    if (!isDownstreamCancelled()) failOnce(cause.recoveredOrSelf())
+                    if (!isDownstreamCancelled()) failOnce(cause.unwrapRecoveredCoroutineCause())
                     throw cause
                 } catch (cause: Throwable) {
-                    failOnce(cause.recoveredOrSelf())
+                    failOnce(cause.unwrapRecoveredCoroutineCause())
                     throw cause
                 } finally {
                     producer?.let { activeProducer ->
@@ -234,18 +250,18 @@ class CallbackFlowExamples {
                                     runInterruptible { activeProducer.flush() }
                                 }
                             } catch (cause: TimeoutCancellationException) {
-                                cleanupFailure = cause.recoveredOrSelf()
+                                cleanupFailure = cause.unwrapRecoveredCoroutineCause()
                                 cancelInFlight()
-                                if (!isDownstreamCancelled()) failOnce(cause.recoveredOrSelf())
+                                if (!isDownstreamCancelled()) failOnce(cause.unwrapRecoveredCoroutineCause())
                             } catch (cause: CancellationException) {
-                                cleanupFailure = cause.recoveredOrSelf()
-                                cleanupCancellation = cause.recoveredOrSelf() as? CancellationException
+                                cleanupFailure = cause.unwrapRecoveredCoroutineCause()
+                                cleanupCancellation = cause.unwrapRecoveredCoroutineCause() as? CancellationException
                                 cancelInFlight()
-                                if (!isDownstreamCancelled()) failOnce(cause.recoveredOrSelf())
+                                if (!isDownstreamCancelled()) failOnce(cause.unwrapRecoveredCoroutineCause())
                             } catch (cause: Throwable) {
-                                cleanupFailure = cause.recoveredOrSelf()
+                                cleanupFailure = cause.unwrapRecoveredCoroutineCause()
                                 cancelInFlight()
-                                if (!isDownstreamCancelled()) failOnce(cause.recoveredOrSelf())
+                                if (!isDownstreamCancelled()) failOnce(cause.unwrapRecoveredCoroutineCause())
                             }
 
                             var closeFailure: Throwable? = null
@@ -255,10 +271,10 @@ class CallbackFlowExamples {
                                     runInterruptible { activeProducer.close(Duration.ofSeconds(5)) }
                                 }
                             } catch (cause: CancellationException) {
-                                closeFailure = cause.recoveredOrSelf()
-                                closeCancellation = cause.recoveredOrSelf() as? CancellationException
+                                closeFailure = cause.unwrapRecoveredCoroutineCause()
+                                closeCancellation = cause.unwrapRecoveredCoroutineCause() as? CancellationException
                             } catch (cause: Throwable) {
-                                closeFailure = cause.recoveredOrSelf()
+                                closeFailure = cause.unwrapRecoveredCoroutineCause()
                             }
 
                             val first = terminalCause()
@@ -295,7 +311,7 @@ class CallbackFlowExamples {
             }
         }.buffer(channelCapacity, onBufferOverflow = BufferOverflow.SUSPEND)
             .catch { cause ->
-                throw cause.recoveredOrSelf()
+                throw cause.unwrapRecoveredCoroutineCause()
             }
     }
 
@@ -308,7 +324,7 @@ class CallbackFlowExamples {
             producerResults(flowOf(record("failure")), { producer.producer }).toList()
         }
 
-        error shouldBeEqualTo failure
+        error.hasCause(failure).shouldBeTrue()
         producer.closeCount.get() shouldBeEqualTo 1
         producer.callbackCount.get() shouldBeEqualTo 1
     }
@@ -455,6 +471,10 @@ class CallbackFlowExamples {
 
         producer.closeCount.get() shouldBeEqualTo 1
         observed.message shouldBeEqualTo cancellation.message
+        val cancellationCleanup = sequenceOf(observed, observed.cause)
+            .filterNotNull()
+            .flatMap { it.suppressed.asSequence() }
+        cancellationCleanup.any { it.hasCause(closeFailure) }.shouldBeTrue()
     }
 
     @Test
@@ -484,14 +504,14 @@ class CallbackFlowExamples {
         val factoryError = assertFailsWith<IllegalArgumentException> {
             producerResults(flowOf(record("factory")), { throw factoryFailure }).toList()
         }
-        factoryError shouldBeEqualTo factoryFailure
+        factoryError.hasCause(factoryFailure).shouldBeTrue()
 
         val sendFailure = IllegalStateException("send failure")
         val sendProducer = TrackingProducer(sendError = sendFailure)
         val sendError = assertFailsWith<IllegalStateException> {
             producerResults(flowOf(record("send")), { sendProducer.producer }).toList()
         }
-        sendError shouldBeEqualTo sendFailure
+        sendError.hasCause(sendFailure).shouldBeTrue()
         sendProducer.closeCount.get() shouldBeEqualTo 1
     }
 
@@ -551,7 +571,7 @@ class CallbackFlowExamples {
             producerResults(flowOf(record("flush-failure")), { producer.producer }).toList()
         }
 
-        error shouldBeEqualTo flushFailure
+        error.hasCause(flushFailure).shouldBeTrue()
         producer.closeCount.get() shouldBeEqualTo 1
     }
 
@@ -571,8 +591,8 @@ class CallbackFlowExamples {
             ).toList()
         }
 
-        error shouldBeEqualTo upstreamFailure
-        error.suppressed.single() shouldBeEqualTo closeFailure
+        error.hasCause(upstreamFailure).shouldBeTrue()
+        upstreamFailure.suppressed.any { it.hasCause(closeFailure) }.shouldBeTrue()
         producer.closeCount.get() shouldBeEqualTo 1
     }
 
@@ -657,6 +677,15 @@ class CallbackFlowExamples {
         require(headerValue.toByteArray(Charsets.UTF_8).size <= 256)
         val headers = RecordHeaders().add(headerName, headerValue.toByteArray(Charsets.UTF_8))
         return ProducerRecord(topic, null, null, key, value, headers)
+    }
+
+    private fun Throwable.hasCause(expected: Throwable): Boolean {
+        var current: Throwable? = this
+        while (current != null) {
+            if (current === expected) return true
+            current = current.cause
+        }
+        return false
     }
 
     private class TrackingProducer(
