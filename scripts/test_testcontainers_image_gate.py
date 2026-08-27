@@ -9,6 +9,8 @@ from pathlib import Path
 
 from scripts.testcontainers_image_gate import (
     EXPECTED_FAMILY_COUNT,
+    EXPECTED_RELEASE_FAMILY_COUNT,
+    NON_RELEASE_RUNTIME_SERVERS,
     SelectionError,
     load_manifest,
     select_entries,
@@ -26,6 +28,14 @@ class TestTestcontainersImageGate(unittest.TestCase):
     def test_manifest_covers_every_image_family_and_has_required_fields(self) -> None:
         self.assertEqual(EXPECTED_FAMILY_COUNT, len(self.entries))
         self.assertEqual([], validate_manifest(self.entries, self.root))
+
+    def test_disabled_families_are_support_inventory_not_release_runtime(self) -> None:
+        disabled = set(NON_RELEASE_RUNTIME_SERVERS)
+        release_required = {
+            entry["server"] for entry in self.entries if entry["releaseRequired"]
+        }
+        self.assertEqual(EXPECTED_RELEASE_FAMILY_COUNT, len(release_required))
+        self.assertEqual(disabled, {entry["server"] for entry in self.entries if not entry["releaseRequired"]})
 
     def test_k3s_family_uses_the_existing_tagged_test_task(self) -> None:
         k3s = next(entry for entry in self.entries if entry["server"] == "K3sServer")
@@ -182,6 +192,32 @@ class TestTestcontainersImageGate(unittest.TestCase):
         self.assertIsNotNone(publish_match, "Release publish job is missing")
         self.assertNotIn("scripts/test_testcontainers_image_gate.py", publish_match.group(0))
 
+    def test_ci_required_contract_covers_runner_and_its_shared_paths(self) -> None:
+        workflow = (self.root / ".github/workflows/ci.yml").read_text(encoding="utf-8")
+        ci_match = re.search(
+            r"^  jvm-release-contract:\n.*?(?=^  [a-z0-9-]+:\n)",
+            workflow,
+            re.MULTILINE | re.DOTALL,
+        )
+        self.assertIsNotNone(ci_match, "CI JVM release contract job is missing")
+        self.assertIn(
+            "python3 -m unittest scripts/test_run_testcontainers_image_gate.py -v",
+            ci_match.group(0),
+        )
+        shared_match = re.search(
+            r"^            shared:\n.*?(?=^            [a-z0-9-]+:\n)",
+            workflow,
+            re.MULTILINE | re.DOTALL,
+        )
+        self.assertIsNotNone(shared_match, "CI shared path filter is missing")
+        for path in (
+            "scripts/run_testcontainers_image_gate.py",
+            "scripts/test_run_testcontainers_image_gate.py",
+            "scripts/testcontainers_image_gate.py",
+            "scripts/testcontainers_image_gate_manifest.json",
+        ):
+            self.assertIn(f"'{path}'", shared_match.group(0))
+
     def test_nightly_runs_full_gate_only_before_spring_bridge(self) -> None:
         workflow = (self.root / ".github/workflows/nightly-tests.yml").read_text(encoding="utf-8")
         self.assertIn("test-testcontainers-image-gate:", workflow)
@@ -228,7 +264,7 @@ class TestTestcontainersImageGate(unittest.TestCase):
         if "testcontainers-ignite2-arm64-image-gate:" in workflow:
             self.assertIn("runs-on: ubuntu-24.04", workflow)
             self.assertIn("runs-on: ubuntu-24.04-arm", workflow)
-            self.assertIn('expected_coverage="52/52"', workflow)
+            self.assertIn('expected_coverage="48/48"', workflow)
             self.assertIn('expected_coverage="1/1"', workflow)
             self.assertIn("name: release-testcontainers-image-gate-${{ github.run_id }}-amd64", workflow)
             self.assertIn("name: release-testcontainers-image-gate-${{ github.run_id }}-arm64", workflow)

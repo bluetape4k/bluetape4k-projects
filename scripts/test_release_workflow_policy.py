@@ -65,9 +65,9 @@ def release_policy_errors(workflow: str) -> list[str]:
     ):
         errors.append("publish must depend on the manifest contract and full image gate")
     if "--scope full" not in workflow or not (
-        "coverage=52/52" in workflow or "expected_coverage=\"52/52\"" in workflow
+        "coverage=48/48" in workflow or "expected_coverage=\"48/48\"" in workflow
     ):
-        errors.append("release workflow must verify the full 52/52 image gate")
+        errors.append("release workflow must verify the full 48/48 release evidence gate")
     arm_contract = (
         "testcontainers-ignite2-arm64-image-gate" in workflow
         and "--scope family" in workflow
@@ -88,8 +88,8 @@ def snapshot_policy_errors(workflow: str) -> list[str]:
         errors.append("snapshot workflow must not contain release or issue-specific machinery")
     if "contents: write" in workflow:
         errors.append("snapshot workflow must not request write access to repository contents")
-    if job_ids(workflow) != {"publish"}:
-        errors.append("snapshot workflow must contain only the publish job")
+    if job_ids(workflow) != {"validate-full-nightly", "publish"}:
+        errors.append("snapshot workflow must contain validation and publish jobs")
     return errors
 
 
@@ -162,6 +162,36 @@ class ReleaseWorkflowPolicyTest(unittest.TestCase):
 
         self.assertIn("Publish SNAPSHOT to Maven Central", workflow)
         self.assertEqual([], snapshot_policy_errors(workflow))
+
+    def test_snapshot_workflow_requires_full_nightly_validation_before_publish(self) -> None:
+        workflow = (WORKFLOWS / "publish-snapshot.yml").read_text(encoding="utf-8")
+
+        self.assertIn("actions: read", workflow)
+        self.assertIn("validate-full-nightly:", workflow)
+        self.assertIn("needs: validate-full-nightly", workflow)
+        self.assertIn(
+            "needs.validate-full-nightly.outputs.publish_eligible == 'true'",
+            workflow,
+        )
+        self.assertIn('validation_run_id:', workflow)
+        self.assertIn("required: true", workflow)
+        self.assertIn("gh api", workflow)
+        self.assertIn("actions/runs/${validation_run_id}", workflow)
+        self.assertIn("actions/runs/${validation_run_id}/jobs", workflow)
+        self.assertIn("Nightly Status", workflow)
+        self.assertIn("Plan Nightly Scope", workflow)
+        self.assertIn("Test / Core", workflow)
+        self.assertIn("conclusion", workflow)
+        self.assertNotIn("override_full_validation", workflow)
+
+    def test_snapshot_checkout_uses_validated_nightly_head(self) -> None:
+        workflow = (WORKFLOWS / "publish-snapshot.yml").read_text(encoding="utf-8")
+
+        self.assertIn("head_sha", workflow)
+        self.assertIn(
+            "ref: ${{ needs.validate-full-nightly.outputs.head_sha }}",
+            workflow,
+        )
 
     def test_runtime_surfaces_have_no_renamed_release_machinery(self) -> None:
         self.assertEqual([], runtime_policy_errors())
