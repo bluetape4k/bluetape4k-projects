@@ -11,7 +11,6 @@ import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import io.bluetape4k.redis.redisson.codec.RedissonCodecs
-import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.withTimeout
 import org.awaitility.kotlin.await
 import org.junit.jupiter.api.AfterAll
@@ -20,12 +19,12 @@ import org.junit.jupiter.api.Test
 import org.redisson.api.RLocalCachedMap
 import org.redisson.api.RMap
 import org.redisson.api.RedissonClient
-import org.redisson.api.listener.LocalCacheInvalidateListener
 import org.redisson.api.options.LocalCachedMapOptions
 import org.redisson.client.RedisException
 import org.redisson.codec.CompositeCodec
 import java.time.Duration
 import java.util.concurrent.TimeUnit
+import java.util.concurrent.atomic.AtomicInteger
 import kotlin.test.assertFailsWith
 import kotlin.time.Duration.Companion.seconds
 import kotlin.time.toJavaDuration
@@ -186,6 +185,7 @@ class LocalCachedMapTest: AbstractRedissonCoroutineTest() {
     fun `concurrent Int increments match independent remote final value`() = runSuspendIO(timeout = 60.seconds) {
         val name = randomName()
         val calls = 32 * 8
+        val completed = AtomicInteger()
         val map1 = redisson1.getLocalCachedMap(
             LocalCachedMapOptions.name<String, Int>(name).codec(intCodec)
         )
@@ -197,16 +197,24 @@ class LocalCachedMapTest: AbstractRedissonCoroutineTest() {
         awaitRedis(map1.getAsync("count")) shouldBeEqualTo 0
         awaitRedis(map2.getAsync("count")) shouldBeEqualTo 0
 
-        withInvalidationBarrier(map2, "count") {
+        withLocalCacheClearBarrier(map1, map2, "count") {
             withTimeout(30.seconds) {
                 SuspendedJobTester()
                     .workers(4)
                     .rounds(calls)
-                    .add { awaitRedis(map1.addAndGetAsync("count", 1)) }
+                    .add {
+                        awaitRedis(map1.addAndGetAsync("count", 1), timeout = 30.seconds)
+                        completed.incrementAndGet()
+                    }
                     .run()
             }
 
+            completed.get() shouldBeEqualTo calls
             awaitRedis(remote.getAsync("count")) shouldBeEqualTo calls
+        }
+        await.atMost(Duration.ofSeconds(5)).pollInterval(Duration.ofMillis(100)) untilSuspending {
+            awaitRedis(map1.getAsync("count")) == calls &&
+                awaitRedis(map2.getAsync("count")) == calls
         }
         awaitRedis(map1.getAsync("count")) shouldBeEqualTo calls
         awaitRedis(map2.getAsync("count")) shouldBeEqualTo calls
@@ -217,6 +225,7 @@ class LocalCachedMapTest: AbstractRedissonCoroutineTest() {
         val name = randomName()
         val calls = 32 * 8
         val expected = calls * 0.25
+        val completed = AtomicInteger()
         val map1 = redisson1.getLocalCachedMap(
             LocalCachedMapOptions.name<String, Double>(name).codec(doubleCodec)
         )
@@ -228,16 +237,24 @@ class LocalCachedMapTest: AbstractRedissonCoroutineTest() {
         awaitRedis(map1.getAsync("ratio")) shouldBeEqualTo 0.0
         awaitRedis(map2.getAsync("ratio")) shouldBeEqualTo 0.0
 
-        withInvalidationBarrier(map2, "ratio") {
+        withLocalCacheClearBarrier(map1, map2, "ratio") {
             withTimeout(30.seconds) {
                 SuspendedJobTester()
                     .workers(4)
                     .rounds(calls)
-                    .add { awaitRedis(map1.addAndGetAsync("ratio", 0.25)) }
+                    .add {
+                        awaitRedis(map1.addAndGetAsync("ratio", 0.25), timeout = 30.seconds)
+                        completed.incrementAndGet()
+                    }
                     .run()
             }
 
+            completed.get() shouldBeEqualTo calls
             awaitRedis(remote.getAsync("ratio")) shouldBeEqualTo expected
+        }
+        await.atMost(Duration.ofSeconds(5)).pollInterval(Duration.ofMillis(100)) untilSuspending {
+            awaitRedis(map1.getAsync("ratio")) == expected &&
+                awaitRedis(map2.getAsync("ratio")) == expected
         }
         awaitRedis(map1.getAsync("ratio")) shouldBeEqualTo expected
         awaitRedis(map2.getAsync("ratio")) shouldBeEqualTo expected
@@ -259,33 +276,21 @@ class LocalCachedMapTest: AbstractRedissonCoroutineTest() {
     }
 
     /**
-     * 독립 client의 local cache가 실제 invalidation event를 수신할 때까지 기다립니다.
+     * 독립 client들의 local cache가 명시적 clear barrier를 완료할 때까지 기다립니다.
      *
      * [RLocalCachedMap.getAsync]는 cache miss를 Redis 조회로 보충하므로 barrier로 사용하지
-     * 않습니다. 호출 전에 key를 warm-up하고 [LocalCacheInvalidateListener]를 등록해, remote
-     * 값 조회와 local cache 동기화 신호를 분리합니다.
+     * 않습니다. 모든 작업이 끝난 후 [RLocalCachedMap.clearLocalCacheAsync]가 발행하는
+     * 명시적 clear event의 완료를 기다려 양쪽 view가 기준 원격 값을 다시 읽게 합니다.
      */
-    private suspend fun <V> withInvalidationBarrier(
-        map: RLocalCachedMap<String, V>,
+    private suspend fun <V> withLocalCacheClearBarrier(
+        source: RLocalCachedMap<String, V>,
+        observer: RLocalCachedMap<String, V>,
         key: String,
         block: suspend () -> Unit,
     ) {
-        map.cachedKeySet().contains(key).shouldBeTrue()
+        observer.cachedKeySet().contains(key).shouldBeTrue()
 
-        val invalidated = CompletableDeferred<Unit>()
-        val listenerId = map.addListener(
-            LocalCacheInvalidateListener<String, V> { invalidatedKey, _ ->
-                if (invalidatedKey == key) {
-                    invalidated.complete(Unit)
-                }
-            }
-        )
-
-        try {
-            block()
-            withTimeout(5.seconds) { invalidated.await() }
-        } finally {
-            map.removeListener(listenerId)
-        }
+        block()
+        awaitRedis(source.clearLocalCacheAsync())
     }
 }
