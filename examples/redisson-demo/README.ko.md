@@ -45,7 +45,7 @@
 | `SortedSetExamples.kt`         | RSortedSet - 정렬 집합              |
 | `RingBufferExamples.kt`        | RRingBuffer - 링 버퍼              |
 | `StreamExamples.kt`            | RStream - Redis Streams         |
-| `LocalCachedMapExamples.kt`    | RLocalCachedMap - 로컬 캐시 맵       |
+| `LocalCachedMapExamples.kt`    | RLocalCachedMap - 숫자 원자적 갱신과 로컬 무효화 |
 | `SetMultimapCacheExamples.kt`  | RSetMultimapCache - 멀티맵 캐시      |
 | `ListMultimapCacheExamples.kt` | RListMultimapCache - 리스트 멀티맵 캐시 |
 
@@ -110,18 +110,37 @@ bloomFilter.add("user@example.com")
 val exists = bloomFilter.contains("user@example.com")  // true
 ```
 
+### LocalCachedMap 숫자 갱신과 무효화
+
+`LocalCachedMapExamples.kt`는 Int와 Double 값을 서로 다른 맵에 저장하고,
+로컬 view와 backend view에 동일한 `CompositeCodec`(String key와 해당 숫자
+value codec)를 전달합니다. `addAndGetAsync`는 Redis의 `HINCRBYFLOAT`를
+사용하므로 hash field에 저장된 값도 숫자로 해석될 수 있어야 합니다. 타입이
+맞지 않는 값을 저장한 경우에는 Redisson `RedisException`이 발생하는 음수
+계약을 테스트합니다.
+
+`LocalCachedMapTest.kt`는 두 Redisson client를 사용합니다. 한 local cached
+map을 통한 쓰기는 다른 client의 캐시 값을 비동기적으로 무효화합니다. 쓰기
+직후의 읽기에서는 이전 값이 잠시 보일 수 있으므로, 100 ms 간격으로 최대
+5초까지 대기한 뒤 갱신된 값 또는 삭제 결과를 확인합니다. 테스트는
+Testcontainers로 Redis를 시작하고 동적 포트를 사용하므로 Docker daemon이
+실행 중이어야 합니다.
+
 ## 실행 방법
 
 ```bash
 # Redis 실행 (Docker)
 docker run -d --name redis -p 6379:6379 redis:7
 
-# 모든 예제 실행
-./gradlew :examples:redisson:test
+# 이 모듈의 모든 예제 실행
+./gradlew :bluetape4k-examples-redisson-demo:test \
+  --no-configuration-cache --max-workers=1
 
-# 특정 카테고리만 실행
-./gradlew :examples:redisson:test --tests "*locks*"
-./gradlew :examples:redisson:test --tests "*collections*"
+# LocalCachedMap 계약 테스트 실행
+./gradlew :bluetape4k-examples-redisson-demo:test \
+  --tests 'io.bluetape4k.examples.redisson.coroutines.collections.LocalCachedMapExamples' \
+  --tests 'io.bluetape4k.examples.redisson.coroutines.collections.LocalCachedMapTest' \
+  --no-configuration-cache --max-workers=1
 ```
 
 ## 요구사항

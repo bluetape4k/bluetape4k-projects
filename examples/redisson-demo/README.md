@@ -45,7 +45,7 @@ A collection of examples demonstrating distributed Redis patterns using [Redisso
 | `SortedSetExamples.kt`         | RSortedSet - sorted set                  |
 | `RingBufferExamples.kt`        | RRingBuffer - ring buffer                |
 | `StreamExamples.kt`            | RStream - Redis Streams                  |
-| `LocalCachedMapExamples.kt`    | RLocalCachedMap - locally cached map     |
+| `LocalCachedMapExamples.kt`    | RLocalCachedMap - numeric atomic updates and local invalidation |
 | `SetMultimapCacheExamples.kt`  | RSetMultimapCache - set multimap cache   |
 | `ListMultimapCacheExamples.kt` | RListMultimapCache - list multimap cache |
 
@@ -110,18 +110,36 @@ bloomFilter.add("user@example.com")
 val exists = bloomFilter.contains("user@example.com")  // true
 ```
 
+### LocalCachedMap numeric updates and invalidation
+
+`LocalCachedMapExamples.kt` keeps Int and Double values in separate maps and
+passes the same `CompositeCodec` (String keys plus the matching numeric value
+codec) to both the local and backend views. `addAndGetAsync` uses Redis
+`HINCRBYFLOAT`, so the stored hash field must already be numeric-compatible;
+the negative test records Redisson's `RedisException` for a mismatched value.
+
+`LocalCachedMapTest.kt` uses two Redisson clients. A write through one local
+cached map invalidates the other client's cached value asynchronously. A read
+immediately after the write may still observe the old value; the example waits
+up to five seconds with a 100 ms poll interval before asserting the refreshed
+value or deletion. The tests start Redis through Testcontainers, use its dynamic
+port, and therefore require a running Docker daemon.
+
 ## How to Run
 
 ```bash
 # Start Redis (Docker)
 docker run -d --name redis -p 6379:6379 redis:7
 
-# Run all examples
-./gradlew :examples:redisson:test
+# Run all examples in this module
+./gradlew :bluetape4k-examples-redisson-demo:test \
+  --no-configuration-cache --max-workers=1
 
-# Run a specific category
-./gradlew :examples:redisson:test --tests "*locks*"
-./gradlew :examples:redisson:test --tests "*collections*"
+# Run the LocalCachedMap contract tests
+./gradlew :bluetape4k-examples-redisson-demo:test \
+  --tests 'io.bluetape4k.examples.redisson.coroutines.collections.LocalCachedMapExamples' \
+  --tests 'io.bluetape4k.examples.redisson.coroutines.collections.LocalCachedMapTest' \
+  --no-configuration-cache --max-workers=1
 ```
 
 ## Requirements
