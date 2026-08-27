@@ -3,6 +3,7 @@
 
 from __future__ import annotations
 
+import fnmatch
 import re
 import unittest
 from pathlib import Path
@@ -50,6 +51,7 @@ DOMAIN_JOBS = (
     "test-kafka-infra",
     "test-telemetry-infra",
     "test-data",
+    "test-spring-boot",
 )
 
 
@@ -103,6 +105,7 @@ class CiDomainParallelizationTest(unittest.TestCase):
         status_needs = inline_needs(job_block(self.workflow, "ci-status"))
         self.assertIn("build", status_needs)
         self.assertIn("coverage-report", status_needs)
+        self.assertIn("test-spring-boot", status_needs)
         self.assertNotIn("testcontainers-image-gate", status_needs)
 
     def test_coverage_report_still_waits_for_every_coverage_job(self):
@@ -121,6 +124,50 @@ class CiDomainParallelizationTest(unittest.TestCase):
         for path_pattern in SHARED_FILTER_PATHS:
             with self.subTest(path_pattern=path_pattern):
                 self.assertIn(path_pattern, shared_filter)
+
+    def test_spring_boot_fixture_routes_to_the_spring_boot_test_job(self):
+        changes = job_block(self.workflow, "changes")
+        self.assertIn(
+            "spring-boot: ${{ steps.filter.outputs.spring-boot }}",
+            changes,
+        )
+        spring_filter = path_filter_block(self.workflow, "spring-boot")
+        self.assertIn("'spring-boot/**'", spring_filter)
+        fixture = (
+            "spring-boot/cassandra/src/test/kotlin/"
+            "io/bluetape4k/spring/cassandra/convert/CassandraTypeMappingTest.kt"
+        )
+        filter_patterns = re.findall(r"^              - '([^']+)'$", spring_filter, re.MULTILINE)
+        self.assertTrue(any(fnmatch.fnmatchcase(fixture, pattern) for pattern in filter_patterns))
+
+        spring_job = job_block(self.workflow, "test-spring-boot")
+        self.assertIn(
+            "needs.changes.outputs['spring-boot'] == 'true'",
+            spring_job,
+        )
+        self.assertIn(
+            ":bluetape4k-spring-boot-cassandra:test",
+            spring_job,
+        )
+        self.assertIn(
+            ":bluetape4k-spring-boot-cassandra:koverXmlReport",
+            spring_job,
+        )
+
+    def test_spring_boot_skip_is_not_accepted_when_changes_are_detected(self):
+        status = job_block(self.workflow, "ci-status")
+        self.assertIn(
+            "SPRING_BOOT_CHANGED: ${{ needs.changes.outputs['spring-boot'] }}",
+            status,
+        )
+        self.assertIn(
+            "SPRING_BOOT_RESULT: ${{ needs.test-spring-boot.result }}",
+            status,
+        )
+        self.assertIn(
+            '[[ "$SPRING_BOOT_CHANGED" == "true" && "$SPRING_BOOT_RESULT" == "skipped" ]]',
+            status,
+        )
 
     def test_ci_and_nightly_exclude_benchmark_tag(self):
         for workflow_path in (CI_WORKFLOW, NIGHTLY_WORKFLOW):
@@ -166,6 +213,14 @@ class CiDomainParallelizationTest(unittest.TestCase):
         self.assertIn("--scope full", image_gate)
         self.assertIn("test-testcontainers:", nightly)
         self.assertIn("test-testcontainers-spring:", nightly)
+
+    def test_nightly_spring_boot_matrix_is_full_scope_only(self):
+        nightly = NIGHTLY_WORKFLOW.read_text(encoding="utf-8")
+        spring_job = job_block(nightly, "test-spring-docker")
+        self.assertIn(
+            "if: ${{ needs.plan.outputs.run_standard == 'true' }}",
+            spring_job,
+        )
 
 
 if __name__ == "__main__":

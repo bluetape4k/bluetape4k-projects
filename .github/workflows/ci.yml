@@ -141,6 +141,7 @@ jobs:
       kafka-infra: ${{ steps.filter.outputs.kafka-infra }}
       telemetry-infra: ${{ steps.filter.outputs.telemetry-infra }}
       data: ${{ steps.filter.outputs.data }}
+      spring-boot: ${{ steps.filter.outputs.spring-boot }}
     steps:
       - uses: actions/checkout@v7
       - name: Validate CSV CI coverage
@@ -215,6 +216,8 @@ jobs:
             data:
               - 'data/**'
               - 'cache/hibernate-cache-lettuce/**'
+            spring-boot:
+              - 'spring-boot/**'
 
   # ── 2. 전체 빌드 (테스트 제외) ──────────────────────────────────────────
   catalog-governance:
@@ -1048,9 +1051,112 @@ jobs:
           if-no-files-found: error
           retention-days: 30
 
+  # ── 7-d. Spring Boot 모듈 테스트 — PR 변경 시 실행, Nightly full에서도 실행 ──
+  # 검증된 Nightly matrix와 production 모듈·demo 목록을 공유해
+  # spring-boot/** 변경이 PR CI에서 테스트 없이 통과하지 않도록 한다.
+  test-spring-boot:
+    name: Test / Spring Boot (${{ matrix.group }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 75
+    needs: [changes, catalog-governance]
+    if: ${{ needs.changes.outputs['spring-boot'] == 'true' || needs.changes.outputs.shared == 'true' || github.event_name == 'workflow_dispatch' }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - group: core-redis-r2dbc
+            test_tasks: >-
+              :bluetape4k-spring-boot-core:test
+              :bluetape4k-spring-boot-redis:test
+              :bluetape4k-spring-boot-r2dbc:test
+            kover_tasks: >-
+              :bluetape4k-spring-boot-core:koverXmlReport
+              :bluetape4k-spring-boot-redis:koverXmlReport
+              :bluetape4k-spring-boot-r2dbc:koverXmlReport
+          - group: batch-nosql
+            test_tasks: >-
+              :bluetape4k-spring-boot-mongodb:test
+              :bluetape4k-spring-boot-cassandra:test
+              :bluetape4k-spring-boot-hibernate-lettuce:test
+            kover_tasks: >-
+              :bluetape4k-spring-boot-mongodb:koverXmlReport
+              :bluetape4k-spring-boot-cassandra:koverXmlReport
+              :bluetape4k-spring-boot-hibernate-lettuce:koverXmlReport
+          - group: demos
+            test_tasks: >-
+              :bluetape4k-spring-boot-cassandra-demo:test
+              :bluetape4k-spring-boot-hibernate-lettuce-demo:test
+            kover_tasks: ""
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-java@v5.7.0
+        with:
+          java-version: ${{ env.JAVA_VERSION }}
+          distribution: ${{ env.JAVA_DISTRIBUTION }}
+
+      - uses: gradle/actions/setup-gradle@v6.3.0
+        with:
+          gradle-version: wrapper
+          cache-read-only: true
+
+      - name: Build mock-web-server Docker image
+        run: ./gradlew :bluetape4k-mock-web-server:jibDockerBuild --no-configuration-cache
+        env:
+          GRADLE_OPTS: "-Dorg.gradle.daemon=false"
+
+      - name: Build mock-webflux-server Docker image
+        run: ./gradlew :bluetape4k-mock-webflux-server:jibDockerBuild --no-configuration-cache
+        env:
+          GRADLE_OPTS: "-Dorg.gradle.daemon=false"
+
+      - name: Verify default mock-server image tags
+        run: |
+          docker image inspect bluetape4k/mock-web-server:2.0.0
+          docker image inspect bluetape4k/mock-webflux-server:2.0.0
+
+      - name: Test Spring Boot modules (${{ matrix.group }})
+        uses: nick-fields/retry@v4
+        with:
+          timeout_minutes: 60
+          max_attempts: 3
+          shell: bash
+          command: |
+            read -ra tasks <<< "$TEST_TASKS"
+            ./gradlew "${tasks[@]}" --max-workers=2 --no-configuration-cache
+        env:
+          GRADLE_OPTS: "-Dorg.gradle.daemon=false"
+          TEST_TASKS: ${{ matrix.test_tasks }}
+
+      - name: Generate Kover XML report
+        if: ${{ always() && matrix.kover_tasks != '' }}
+        env:
+          KOVER_TASKS: ${{ matrix.kover_tasks }}
+        run: |
+          read -ra tasks <<< "$KOVER_TASKS"
+          ./gradlew "${tasks[@]}" --parallel --no-configuration-cache
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: test-results-spring-boot-${{ matrix.group }}
+          path: '**/build/test-results/test/*.xml'
+          retention-days: 30
+
+      - name: Upload coverage report
+        if: ${{ always() && matrix.kover_tasks != '' }}
+        uses: actions/upload-artifact@v7
+        with:
+          name: coverage-spring-boot-${{ matrix.group }}
+          path: '**/build/reports/kover/'
+          if-no-files-found: error
+          retention-days: 30
+
   # ── 나머지 모듈 → Nightly에서 실행 ─────────────────────────────────
-  # utils 전체, misc, spring3-docker, spring4-docker,
-  # testcontainers 는 nightly-tests.yml (매일 03:00 KST) 에서 실행
+  # utils 전체, misc, testcontainers는 nightly-tests.yml (매일 03:00 KST)에서
+  # 실행하며, Spring Boot는 위 PR matrix와 nightly-tests.yml full scope에서
+  # 실행한다.
   # exposed 모듈은 bluetape4k-exposed 독립 레포로 분리됨 (#334)
 
   # ── 8. 커버리지 집계 ──────────────────────────────────────────────────────
@@ -1058,7 +1164,7 @@ jobs:
     name: Coverage Report
     runs-on: ubuntu-latest
     timeout-minutes: 10
-    needs: [test-core, test-io, test-io-http, test-testcontainers-spring, test-ktor, test-key-utils, test-infra, test-search-messaging, test-kafka-infra, test-telemetry-infra, test-data]
+    needs: [test-core, test-io, test-io-http, test-testcontainers-spring, test-ktor, test-key-utils, test-infra, test-search-messaging, test-kafka-infra, test-telemetry-infra, test-data, test-spring-boot]
     if: always()
     steps:
       - uses: actions/checkout@v7
@@ -1078,6 +1184,7 @@ jobs:
             test-kafka-infra=${{ needs.test-kafka-infra.result }}
             test-telemetry-infra=${{ needs.test-telemetry-infra.result }}
             test-data=${{ needs.test-data.result }}
+            test-spring-boot=${{ needs.test-spring-boot.result }}
         run: |
           mkdir -p coverage-artifacts
           printf '%s\n' "$EXPECTED_COVERAGE_JOBS" > coverage-artifacts/expected-jobs.manifest
@@ -1094,6 +1201,16 @@ jobs:
             printf '%s\n' \
               'infra/elasticsearch' \
               'infra/nats' \
+              >> coverage-artifacts/expected-modules.manifest
+          fi
+          if grep -q '^test-spring-boot=success$' coverage-artifacts/expected-jobs.manifest; then
+            printf '%s\n' \
+              'spring-boot/core' \
+              'spring-boot/redis' \
+              'spring-boot/r2dbc' \
+              'spring-boot/mongodb' \
+              'spring-boot/cassandra' \
+              'spring-boot/hibernate-lettuce' \
               >> coverage-artifacts/expected-modules.manifest
           fi
           if grep -q '=success$' coverage-artifacts/expected-jobs.manifest; then
@@ -1143,16 +1260,22 @@ jobs:
     name: CI Status
     runs-on: ubuntu-latest
     timeout-minutes: 10
-    needs: [release-policy, jvm-release-contract, codeql-policy, catalog-governance, gitleaks, validate-wrapper, changes, build, test-core, test-io, test-testcontainers-spring, test-ktor, test-key-utils, test-infra, test-search-messaging, test-kafka-infra, test-telemetry-infra, test-data, coverage-report]
+    needs: [release-policy, jvm-release-contract, codeql-policy, catalog-governance, gitleaks, validate-wrapper, changes, build, test-core, test-io, test-testcontainers-spring, test-ktor, test-key-utils, test-infra, test-search-messaging, test-kafka-infra, test-telemetry-infra, test-data, test-spring-boot, coverage-report]
     if: always()
     steps:
       - name: Check all jobs
         env:
           RESULTS: ${{ join(needs.*.result, ',') }}
+          SPRING_BOOT_CHANGED: ${{ needs.changes.outputs['spring-boot'] }}
+          SPRING_BOOT_RESULT: ${{ needs.test-spring-boot.result }}
         run: |
           echo "Job results: $RESULTS"
           if echo "$RESULTS" | grep -qE "failure|cancelled"; then
             echo "CI failed"
+            exit 1
+          fi
+          if [[ "$SPRING_BOOT_CHANGED" == "true" && "$SPRING_BOOT_RESULT" == "skipped" ]]; then
+            echo "Spring Boot changes were detected but the Spring Boot test job was skipped"
             exit 1
           fi
           echo "CI passed (skipped jobs treated as success)"
