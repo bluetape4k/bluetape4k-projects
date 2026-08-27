@@ -7,23 +7,52 @@ import io.bluetape4k.junit5.faker.Fakers
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.error
 import io.bluetape4k.redis.redisson.codec.RedissonCodecs
+import io.bluetape4k.support.classIsPresent
 import io.bluetape4k.testcontainers.storage.RedisServer
 import io.bluetape4k.utils.ShutdownQueue
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.TimeoutCancellationException
+import kotlinx.coroutines.future.await
+import kotlinx.coroutines.withTimeout
 import org.redisson.Redisson
+import org.redisson.api.RFuture
 import org.redisson.api.RedissonClient
 import org.redisson.config.Config
+import org.testcontainers.utility.DockerImageName
 import java.time.Duration
+import java.util.concurrent.TimeUnit
+import kotlin.time.Duration.Companion.seconds
 
 abstract class AbstractRedissonCoroutineTest {
 
     companion object: KLoggingChannel() {
 
         @JvmStatic
-        val redis: RedisServer by lazy { RedisServer.Launcher.redis }
+        val redis: RedisServer by lazy {
+            RedisServer(
+                DockerImageName.parse(
+                    "redis@sha256:4e070415a5713188624f93815e62d6c6a1fcbb416d2e0b578ab3db627db3a93a"
+                )
+            ).apply {
+                start()
+                ShutdownQueue.register(this)
+
+                if (classIsPresent("org.redisson.Redisson")) {
+                    val warmupClient = Redisson.create(
+                        RedisServer.Launcher.RedissonLib.getRedissonConfig(url)
+                    )
+                    try {
+                        RedisServer.Launcher.RedissonLib.warmupPubSubChannel(warmupClient)
+                    } finally {
+                        warmupClient.shutdown(0, 5, TimeUnit.SECONDS)
+                    }
+                }
+            }
+        }
 
         @JvmStatic
         val redissonClient by lazy { newRedisson() }
@@ -43,7 +72,7 @@ abstract class AbstractRedissonCoroutineTest {
 
 
         @JvmStatic
-        protected fun newRedisson(): RedissonClient {
+        protected fun newRedisson(registerShutdown: Boolean = true): RedissonClient {
             val config = Config().apply {
                 useSingleServer()
                     .setAddress(redis.url)
@@ -64,10 +93,31 @@ abstract class AbstractRedissonCoroutineTest {
                 setTcpUserTimeout(5000)
             }
 
-            return Redisson.create(config).apply {
-                ShutdownQueue.register { shutdown() }
-            } as Redisson
+            return Redisson.create(config).also { client ->
+                if (registerShutdown) {
+                    ShutdownQueue.register { client.shutdown() }
+                }
+            }
         }
+    }
+
+    /**
+     * Redisson 비동기 호출을 bounded coroutine suspension으로 소비한다.
+     *
+     * Timeout 또는 호출자 취소가 발생하면 아직 완료되지 않은 Redis future에도
+     * 취소를 전파해 테스트 종료 뒤 pending operation을 남기지 않는다.
+     */
+    protected suspend fun <T> awaitRedis(
+        future: RFuture<T>,
+        timeout: kotlin.time.Duration = 5.seconds,
+    ): T = try {
+        withTimeout(timeout) { future.await() }
+    } catch (cause: TimeoutCancellationException) {
+        future.cancel(false)
+        throw cause
+    } catch (cause: CancellationException) {
+        future.cancel(false)
+        throw cause
     }
 
     protected val redisson: RedissonClient get() = redissonClient
