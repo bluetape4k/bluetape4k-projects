@@ -13,6 +13,8 @@ import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Semaphore
 import java.util.concurrent.atomic.AtomicBoolean
+import java.util.concurrent.atomic.AtomicInteger
+import java.util.concurrent.atomic.LongAdder
 import javax.cache.event.CacheEntryCreatedListener
 import javax.cache.event.CacheEntryEvent
 import javax.cache.event.CacheEntryExpiredListener
@@ -20,6 +22,29 @@ import javax.cache.event.CacheEntryRemovedListener
 import javax.cache.event.CacheEntryUpdatedListener
 
 private const val DEFAULT_MAX_IN_FLIGHT_CALLBACKS = 64
+
+/**
+ * SuspendJCache listener의 수명 동안 누적되는 low-cardinality 관측 snapshot입니다.
+ *
+ * 향후 공통 metric backend에 연결할 때의 계약은
+ * `bluetape4k.cache.jcache.listener.callbacks` 이름과
+ * `outcome=accepted|rejected|ignored|cancelled|failed` 태그입니다. `cache_type` 태그는
+ * 정제된 cache 구현 클래스명만 사용하며 key/value/source는 보존하거나 기록하지
+ * 않습니다. 카운터와 in-flight gauge는 listener 인스턴스별로 생성되고 [close] 후에도
+ * reset하지 않습니다. 현재 core 모듈은 backend를 직접 의존하지 않으므로 이 타입은
+ * internal/test-only 경계로 유지합니다.
+ */
+internal data class SuspendJCacheEntryEventListenerObservation(
+    val cacheType: String,
+    val acceptedCallbacks: Long,
+    val rejectedCallbacks: Long,
+    val ignoredCallbacks: Long,
+    val cancelledCallbacks: Long,
+    val failedCallbacks: Long,
+    val closeRequests: Long,
+    val inFlightCallbacks: Int,
+    val maxInFlightCallbacks: Int,
+)
 
 /**
  * Back Cache의 엔트리 이벤트(생성/수정/삭제/만료)를 수신하여 Front Cache([targetCache])에 반영하는 리스너입니다.
@@ -84,12 +109,18 @@ class SuspendJCacheEntryEventListener<K: Any, V: Any> private constructor(
     private val closed = AtomicBoolean(false)
     private val cacheIdentifier = targetCache::class.java.name.sanitizeLogIdentifier()
     private val admission = Semaphore(maxInFlightCallbacks)
+    private val observation = ListenerObservationRecorder(cacheIdentifier, maxInFlightCallbacks)
 
     override fun close() {
         if (closed.compareAndSet(false, true)) {
+            observation.recordCloseRequest()
             scope.cancel()
         }
     }
+
+    @JvmSynthetic
+    internal fun observationSnapshotForTest(): SuspendJCacheEntryEventListenerObservation =
+        observation.snapshot()
 
     /**
      * Called after one or more entries have been created.
@@ -159,19 +190,30 @@ class SuspendJCacheEntryEventListener<K: Any, V: Any> private constructor(
 
     @Suppress("ReturnCount", "TooGenericExceptionCaught")
     private fun submit(operation: String, blockFactory: () -> (suspend () -> Unit)) {
-        if (!shouldAcceptCallback()) return
+        if (!shouldAcceptCallback()) {
+            observation.recordIgnored()
+            return
+        }
         if (!admission.tryAcquire()) {
+            observation.recordRejected()
             log.debug {
                 "Reject callback because admission is full. " +
                         "operation=$operation cache=$cacheIdentifier maxInFlight=$maxInFlightCallbacks"
             }
             return
         }
+        observation.recordAccepted()
         var permitTransferred = false
         try {
-            if (!shouldAcceptCallback()) return
+            if (!shouldAcceptCallback()) {
+                observation.recordIgnored()
+                return
+            }
             val block = blockFactory()
-            if (!shouldAcceptCallback()) return
+            if (!shouldAcceptCallback()) {
+                observation.recordIgnored()
+                return
+            }
             val job = scope.launch(start = CoroutineStart.LAZY) {
                 try {
                     if (!closed.get()) {
@@ -179,15 +221,29 @@ class SuspendJCacheEntryEventListener<K: Any, V: Any> private constructor(
                     }
                 } finally {
                     admission.release()
+                    observation.recordRelease()
+                }
+            }
+            job.invokeOnCompletion { cause ->
+                if (cause is CancellationException) {
+                    observation.recordCancelled()
                 }
             }
             if (!job.start()) {
                 admission.release()
+                observation.recordRelease()
             }
             permitTransferred = true
+        } catch (e: CancellationException) {
+            observation.recordCancelled()
+            throw e
+        } catch (e: Exception) {
+            observation.recordFailed()
+            throw e
         } finally {
             if (!permitTransferred) {
                 admission.release()
+                observation.recordRelease()
             }
         }
     }
@@ -210,6 +266,7 @@ class SuspendJCacheEntryEventListener<K: Any, V: Any> private constructor(
         } catch (e: CancellationException) {
             throw e
         } catch (e: Exception) {
+            observation.recordFailed()
             log.error(e) { "Fail to $operation. cache=$cacheIdentifier" }
         }
     }
@@ -219,5 +276,43 @@ class SuspendJCacheEntryEventListener<K: Any, V: Any> private constructor(
     private fun String.sanitizeLogIdentifier(): String {
         val sanitized = replace(Regex("[^A-Za-z0-9._\\$-]"), "_").take(128)
         return sanitized.ifEmpty { "unknown" }
+    }
+
+    private class ListenerObservationRecorder(
+        private val cacheType: String,
+        private val maxInFlightCallbacks: Int,
+    ) {
+        private val acceptedCallbacks = LongAdder()
+        private val rejectedCallbacks = LongAdder()
+        private val ignoredCallbacks = LongAdder()
+        private val cancelledCallbacks = LongAdder()
+        private val failedCallbacks = LongAdder()
+        private val closeRequests = LongAdder()
+        private val inFlightCallbacks = AtomicInteger()
+
+        fun recordAccepted() {
+            acceptedCallbacks.increment()
+            inFlightCallbacks.incrementAndGet()
+        }
+
+        fun recordRejected() = rejectedCallbacks.increment()
+        fun recordIgnored() = ignoredCallbacks.increment()
+        fun recordCancelled() = cancelledCallbacks.increment()
+        fun recordFailed() = failedCallbacks.increment()
+        fun recordCloseRequest() = closeRequests.increment()
+        fun recordRelease() = inFlightCallbacks.decrementAndGet()
+
+        fun snapshot(): SuspendJCacheEntryEventListenerObservation =
+            SuspendJCacheEntryEventListenerObservation(
+                cacheType = cacheType,
+                acceptedCallbacks = acceptedCallbacks.sum(),
+                rejectedCallbacks = rejectedCallbacks.sum(),
+                ignoredCallbacks = ignoredCallbacks.sum(),
+                cancelledCallbacks = cancelledCallbacks.sum(),
+                failedCallbacks = failedCallbacks.sum(),
+                closeRequests = closeRequests.sum(),
+                inFlightCallbacks = inFlightCallbacks.get(),
+                maxInFlightCallbacks = maxInFlightCallbacks,
+            )
     }
 }

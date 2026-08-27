@@ -29,6 +29,7 @@ import javax.cache.event.CacheEntryEvent
 import javax.cache.event.EventType
 
 @OptIn(ExperimentalCoroutinesApi::class)
+@Suppress("LargeClass") // listener의 callback·admission·lifecycle 계약을 한 곳에서 대조합니다.
 class SuspendJCacheEntryEventListenerTest {
 
     companion object: KLoggingChannel()
@@ -55,6 +56,18 @@ class SuspendJCacheEntryEventListenerTest {
                 maxInFlightCallbacks = 0,
             )
         }
+    }
+
+    @Test
+    fun `기본 maxInFlightCallbacks는 64로 유지된다`() = runTest {
+        val targetCache = mockk<SuspendJCache<String, String>>(relaxed = true)
+        every { targetCache.isClosed() } returns false
+        val listenerScope = CoroutineScope(coroutineContext + SupervisorJob())
+        val listener = SuspendJCacheEntryEventListener.forTest(targetCache, listenerScope)
+
+        listener.observationSnapshotForTest().maxInFlightCallbacks.shouldBeEqualTo(64)
+
+        listener.close()
     }
 
     @Test
@@ -180,6 +193,7 @@ class SuspendJCacheEntryEventListenerTest {
         runCurrent()
 
         coVerify(exactly = 0) { targetCache.putAll(any()) }
+        listener.observationSnapshotForTest().ignoredCallbacks.shouldBeEqualTo(1)
         listener.close()
     }
 
@@ -197,6 +211,8 @@ class SuspendJCacheEntryEventListenerTest {
         listener.onCreated(mutableListOf(mockEvent("k6", "v6", EventType.CREATED)))
         runCurrent()
         coVerify(exactly = 0) { targetCache.putAll(any()) }
+        listener.observationSnapshotForTest().closeRequests.shouldBeEqualTo(1)
+        listener.observationSnapshotForTest().ignoredCallbacks.shouldBeEqualTo(1)
     }
 
     @Test
@@ -427,6 +443,133 @@ class SuspendJCacheEntryEventListenerTest {
     }
 
     @Test
+    fun `listener observation은 accepted overflow cancelled close를 기록한다`() = runTest {
+        val targetCache = mockk<SuspendJCache<String, String>>(relaxed = true)
+        every { targetCache.isClosed() } returns false
+        val started = CompletableDeferred<Unit>()
+        coEvery { targetCache.putAll(any()) } coAnswers {
+            started.complete(Unit)
+            awaitCancellation()
+        }
+
+        val listenerScope = CoroutineScope(coroutineContext + SupervisorJob())
+        val listenerJob = listenerScope.coroutineContext[Job]!!
+        val listener = SuspendJCacheEntryEventListener.forTest(
+            targetCache,
+            listenerScope,
+            maxInFlightCallbacks = 1,
+        )
+        listener.onCreated(mutableListOf(mockEvent("observed-first", "value", EventType.CREATED)))
+        runCurrent()
+        started.await()
+
+        listener.onCreated(mutableListOf(mockEvent("observed-overflow", "value", EventType.CREATED)))
+        runCurrent()
+
+        val admitted = listener.observationSnapshotForTest()
+        admitted.acceptedCallbacks.shouldBeEqualTo(1)
+        admitted.rejectedCallbacks.shouldBeEqualTo(1)
+        admitted.cancelledCallbacks.shouldBeEqualTo(0)
+        admitted.closeRequests.shouldBeEqualTo(0)
+        admitted.inFlightCallbacks.shouldBeEqualTo(1)
+
+        val child = listenerJob.children.single()
+        listener.close()
+        runCurrent()
+        child.join()
+
+        val closed = listener.observationSnapshotForTest()
+        closed.acceptedCallbacks.shouldBeEqualTo(1)
+        closed.rejectedCallbacks.shouldBeEqualTo(1)
+        closed.cancelledCallbacks.shouldBeEqualTo(1)
+        closed.closeRequests.shouldBeEqualTo(1)
+        closed.inFlightCallbacks.shouldBeEqualTo(0)
+        closed.cacheType.contains("SuspendJCache").shouldBeTrue()
+    }
+
+    @Test
+    fun `observation 계측은 payload 접근을 추가하지 않는다`() = runTest {
+        val targetCache = mockk<SuspendJCache<String, String>>(relaxed = true)
+        every { targetCache.isClosed() } returns false
+        val started = CompletableDeferred<Unit>()
+        coEvery { targetCache.putAll(any()) } coAnswers {
+            started.complete(Unit)
+            awaitCancellation()
+        }
+
+        val acceptedReads = AtomicInteger()
+        val acceptedEvent = mockk<CacheEntryEvent<String, String>>()
+        every { acceptedEvent.key } answers {
+            acceptedReads.incrementAndGet()
+            "accepted-key"
+        }
+        every { acceptedEvent.value } answers {
+            acceptedReads.incrementAndGet()
+            "accepted-value"
+        }
+
+        val rejectedReads = AtomicInteger()
+        val rejectedEvent = mockk<CacheEntryEvent<String, String>>()
+        every { rejectedEvent.key } answers {
+            rejectedReads.incrementAndGet()
+            "rejected-key"
+        }
+        every { rejectedEvent.value } answers {
+            rejectedReads.incrementAndGet()
+            "rejected-value"
+        }
+
+        val listenerScope = CoroutineScope(coroutineContext + SupervisorJob())
+        val listenerJob = listenerScope.coroutineContext[Job]!!
+        val listener = SuspendJCacheEntryEventListener.forTest(
+            targetCache,
+            listenerScope,
+            maxInFlightCallbacks = 1,
+        )
+        try {
+            listener.onCreated(mutableListOf(acceptedEvent))
+            runCurrent()
+            started.await()
+
+            listener.onCreated(mutableListOf(rejectedEvent))
+            runCurrent()
+
+            // accepted snapshot의 key/value 2회 외에는 계측이 raw payload를 읽지 않는다.
+            acceptedReads.get().shouldBeEqualTo(2)
+            rejectedReads.get().shouldBeEqualTo(0)
+            listener.observationSnapshotForTest().let { observation ->
+                observation.acceptedCallbacks.shouldBeEqualTo(1)
+                observation.rejectedCallbacks.shouldBeEqualTo(1)
+            }
+        } finally {
+            listener.close()
+            runCurrent()
+            listenerJob.join()
+        }
+    }
+
+    @Test
+    fun `close 이후 callback은 ignored observation으로 기록된다`() = runTest {
+        val targetCache = mockk<SuspendJCache<String, String>>(relaxed = true)
+        every { targetCache.isClosed() } returns false
+        val listenerScope = CoroutineScope(coroutineContext + SupervisorJob())
+        val listener = SuspendJCacheEntryEventListener.forTest(targetCache, listenerScope)
+
+        listener.close()
+        listener.onCreated(mutableListOf(mockEvent("ignored", "value", EventType.CREATED)))
+        runCurrent()
+
+        val observation = listener.observationSnapshotForTest()
+        observation.acceptedCallbacks.shouldBeEqualTo(0)
+        observation.rejectedCallbacks.shouldBeEqualTo(0)
+        observation.ignoredCallbacks.shouldBeEqualTo(1)
+        observation.cancelledCallbacks.shouldBeEqualTo(0)
+        observation.closeRequests.shouldBeEqualTo(1)
+        observation.inFlightCallbacks.shouldBeEqualTo(0)
+        observation.maxInFlightCallbacks.shouldBeEqualTo(64)
+    }
+
+    @Test
     fun `close는 bounded cooperative callback burst를 모두 취소한다`() = runTest {
         val maxInFlight = 2
         val callbackCount = 8
@@ -491,6 +634,10 @@ class SuspendJCacheEntryEventListenerTest {
                 .count { it.contains("admission is full") }
                 .shouldBeEqualTo(0)
             coVerify(exactly = 0) { targetCache.putAll(any()) }
+            val observation = listener.observationSnapshotForTest()
+            observation.acceptedCallbacks.shouldBeEqualTo(2)
+            observation.cancelledCallbacks.shouldBeEqualTo(2)
+            observation.inFlightCallbacks.shouldBeEqualTo(0)
         } finally {
             listener.close()
             logger.detachAppender(appender)
@@ -537,6 +684,7 @@ class SuspendJCacheEntryEventListenerTest {
                 .filter { it.contains("Fail to put all created cache entries") }
             errorMessages.isNotEmpty().shouldBeTrue()
             errorMessages.all { it.contains("cache=") && !it.contains("backend failure") }.shouldBeTrue()
+            listener.observationSnapshotForTest().failedCallbacks.shouldBeEqualTo(1)
         } finally {
             listener.close()
             logger.detachAppender(appender)
