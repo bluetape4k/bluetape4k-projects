@@ -22,10 +22,12 @@ Shapefile I/O, JTS geometry operations, PostGIS database pipelines, and NetCDF m
 > The service is a blocking API backed by UCAR netCDF-Java 5.9.1, and the UCAR artifacts remain
 > `compileOnly`: applications that call the service must provide them at runtime.
 >
-> The current importer supports rank 1–4 variables and one-dimensional coordinate axes. It also
-> provides resumable slice imports with a five-minute heartbeat lease, a CRS whitelist with
-> reprojection to EPSG:4326, and automatic NaN/`_FillValue` skipping. `CoordinateAxis2D` and CF
-> auxiliary-coordinate grids are outside the current scope; see follow-up issue [#1352](https://github.com/bluetape4k/bluetape4k-projects/issues/1352).
+> The current importer supports rank 1–4 variables, one- and two-dimensional coordinate axes,
+> and numeric CF auxiliary coordinates. It provides bounded tile reads, slice-wide duplicate
+> preflight, resumable imports with a five-minute heartbeat lease, a CRS whitelist with
+> reprojection to EPSG:4326, and automatic NaN/`_FillValue` skipping. Auxiliary values are
+> stored in the existing `attrs` JSONB column; canonical `(longitude, latitude)` values remain
+> in the existing PostGIS `location` column.
 
 ---
 
@@ -115,7 +117,7 @@ io.bluetape4k.science/
 | | NetCDF grid value storage schema | `NetCdfGridValueTable` ✅ |
 | | `.nc` file registration | `NetCdfCatalogService.registerFile()` ✅ |
 | | Rank 1–4 grid import | `NetCdfCatalogService.importGridValues()` ✅ |
-| | CoordinateAxis2D / auxiliary coordinates | Follow-up [#1352](https://github.com/bluetape4k/bluetape4k-projects/issues/1352) |
+| | CoordinateAxis2D / CF auxiliary coordinates | `NetCdfCatalogService.importGridValues()` ✅ |
 
 ---
 
@@ -297,14 +299,48 @@ val fileId = catalog.registerFile("/data/era5/ERA5_2024_01.nc")
 catalog.importGridValues(fileId, variableName = "temperature")
 ```
 
+Because both calls are blocking, a virtual-thread caller should own its deadline
+and cancellation lifecycle. A timeout cancels cooperatively; it does not imply
+that an import completed, so callers should read the progress row before retrying.
+
+```kotlin
+import java.util.concurrent.Executors
+import java.util.concurrent.TimeUnit
+import java.util.concurrent.TimeoutException
+
+val executor = Executors.newVirtualThreadPerTaskExecutor()
+val task = executor.submit {
+    val fileId = catalog.registerFile("/srv/netcdf/grid.nc") // trusted-admin path
+    catalog.importGridValues(fileId, "temperature")
+    fileId
+}
+try {
+    task.get(30, TimeUnit.MINUTES)
+} catch (timeout: TimeoutException) {
+    task.cancel(true)
+    throw timeout
+} finally {
+    executor.shutdownNow()
+    check(executor.awaitTermination(30, TimeUnit.SECONDS)) { "import worker did not stop" }
+}
+```
+
 The importer maps the supported ranks as follows:
 
 | Variable rank | Stored coordinates |
 |---------------|--------------------|
 | 1D (`time`) | `timeIdx=t`, `levelIdx=0`, `location=null` |
-| 2D (`lat`, `lon`) | `timeIdx=0`, `levelIdx=0`, one PostGIS `POINT` per cell |
+| 2D (`lat`, `lon`), including `CoordinateAxis2D` | `timeIdx=0`, `levelIdx=0`, one PostGIS `POINT` per cell |
 | 3D (`time`, `lat`, `lon`) | `timeIdx=t`, `levelIdx=0`, one `POINT` per cell |
 | 4D (`time`, `level`, `lat`, `lon`) | `timeIdx=t`, `levelIdx=k`, one `POINT` per cell |
+
+CF `coordinates` tokens that are not time, level, latitude, or longitude are treated as
+numeric auxiliary coordinates and serialized into `attrs` (for example,
+`{"altitude": 125.0}`). The importer preserves non-standard data dimension order such as
+`[time, x, y]`, bounds each tile to 65,536 cells and each JDBC batch to 1,000 rows, and
+rejects duplicate canonical coordinates before writing a slice. Unsupported axes, malformed
+CRS metadata, changed files, corrupt progress, and resource-limit violations are reported as
+typed `NetCdfException` subtypes.
 
 Each `(fileId, variableName)` import has a five-minute heartbeat lease and a
 slice cursor. `COMPLETED` imports are no-ops; a failed or expired import resumes
@@ -375,13 +411,14 @@ and counted by `netcdf.import.nan.skipped`.
 | `NetCdfFileRepository` | ✅ | File metadata CRUD (`save`, `findById`, `findAll`, `deleteById`) |
 | `NetCdfFileTable` | ✅ | Exposed table — JSONB columns + PostGIS bbox + time range |
 | `NetCdfGridValueTable` | ✅ | Grid value table (location: PostGIS POINT, value, timeIdx, levelIdx) |
-| `NetCdfCatalogService` | ✅ | Blocking `registerFile()` and `importGridValues()`; rank 1–4, lease/resume, CRS whitelist, NaN/`_FillValue` handling |
+| `NetCdfCatalogService` | ✅ | Blocking `registerFile()` and `importGridValues()`; rank 1–4, 1D/2D axes, CF numeric auxiliary coordinates, bounded tiles, lease/resume, CRS whitelist, NaN/`_FillValue` handling |
 
 `NetCdfCatalogService` exposes a stable sealed-exception contract. Blank paths or
 variable names raise `IllegalArgumentException`; missing files, variables,
-coordinates, unsupported ranks/CRS, active leases, and lost leases are reported
-as the corresponding `NetCdfException` subtype. `CoordinateAxis2D` is currently
-rejected as `MissingCoordinate` and is tracked separately in [#1352](https://github.com/bluetape4k/bluetape4k-projects/issues/1352).
+coordinates, unsupported ranks/axes/CRS, active leases, lost leases, changed
+files, corrupt progress, duplicates, and resource-limit violations are reported
+as the corresponding `NetCdfException` subtype. Existing schema columns are reused:
+`location` stores canonical `(lon, lat)` and `attrs` stores bounded numeric auxiliary JSONB.
 
 ---
 
