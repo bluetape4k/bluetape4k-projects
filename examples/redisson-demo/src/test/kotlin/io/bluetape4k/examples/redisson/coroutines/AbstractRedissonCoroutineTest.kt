@@ -104,8 +104,11 @@ abstract class AbstractRedissonCoroutineTest {
     /**
      * Redisson 비동기 호출을 bounded coroutine suspension으로 소비한다.
      *
-     * Timeout 또는 호출자 취소가 발생하면 아직 완료되지 않은 Redis future에도
-     * 취소를 전파해 테스트 종료 뒤 pending operation을 남기지 않는다.
+     * Timeout 또는 호출자 취소가 발생하면 아직 완료되지 않은 Redis future에
+     * client-side [java.util.concurrent.Future.cancel]을 best-effort로 시도해
+     * 테스트 종료 뒤의 pending wait를 줄인다. 이미 Redis 서버에 제출된 명령의
+     * 원격 실행 취소까지 보장하는 helper는 아니며, 원래의 cancellation 원인은
+     * 그대로 다시 던진다.
      */
     protected suspend fun <T> awaitRedis(
         future: RFuture<T>,

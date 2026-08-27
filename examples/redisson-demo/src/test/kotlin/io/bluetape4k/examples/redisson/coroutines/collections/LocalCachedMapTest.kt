@@ -24,6 +24,7 @@ import org.redisson.client.RedisException
 import org.redisson.codec.CompositeCodec
 import java.time.Duration
 import java.util.concurrent.TimeUnit
+import java.util.concurrent.atomic.AtomicInteger
 import kotlin.test.assertFailsWith
 import kotlin.time.Duration.Companion.seconds
 import kotlin.time.toJavaDuration
@@ -184,6 +185,7 @@ class LocalCachedMapTest: AbstractRedissonCoroutineTest() {
     fun `concurrent Int increments match independent remote final value`() = runSuspendIO(timeout = 60.seconds) {
         val name = randomName()
         val calls = 32 * 8
+        val completed = AtomicInteger()
         val map1 = redisson1.getLocalCachedMap(
             LocalCachedMapOptions.name<String, Int>(name).codec(intCodec)
         )
@@ -195,17 +197,21 @@ class LocalCachedMapTest: AbstractRedissonCoroutineTest() {
         awaitRedis(map1.getAsync("count")) shouldBeEqualTo 0
         awaitRedis(map2.getAsync("count")) shouldBeEqualTo 0
 
-        withTimeout(30.seconds) {
-            SuspendedJobTester()
-                .workers(4)
-                .rounds(calls)
-                .add { awaitRedis(map1.addAndGetAsync("count", 1)) }
-                .run()
+        withLocalCacheClearBarrier(map1, map2, "count") {
+            withTimeout(30.seconds) {
+                SuspendedJobTester()
+                    .workers(4)
+                    .rounds(calls)
+                    .add {
+                        awaitRedis(map1.addAndGetAsync("count", 1), timeout = 30.seconds)
+                        completed.incrementAndGet()
+                    }
+                    .run()
+            }
+
+            completed.get() shouldBeEqualTo calls
+            awaitRedis(remote.getAsync("count")) shouldBeEqualTo calls
         }
-
-        awaitRedis(remote.getAsync("count")) shouldBeEqualTo calls
-        awaitRedis(map1.addAndGetAsync("count", 0)) shouldBeEqualTo calls
-
         await.atMost(Duration.ofSeconds(5)).pollInterval(Duration.ofMillis(100)) untilSuspending {
             awaitRedis(map1.getAsync("count")) == calls &&
                 awaitRedis(map2.getAsync("count")) == calls
@@ -219,6 +225,7 @@ class LocalCachedMapTest: AbstractRedissonCoroutineTest() {
         val name = randomName()
         val calls = 32 * 8
         val expected = calls * 0.25
+        val completed = AtomicInteger()
         val map1 = redisson1.getLocalCachedMap(
             LocalCachedMapOptions.name<String, Double>(name).codec(doubleCodec)
         )
@@ -230,17 +237,21 @@ class LocalCachedMapTest: AbstractRedissonCoroutineTest() {
         awaitRedis(map1.getAsync("ratio")) shouldBeEqualTo 0.0
         awaitRedis(map2.getAsync("ratio")) shouldBeEqualTo 0.0
 
-        withTimeout(30.seconds) {
-            SuspendedJobTester()
-                .workers(4)
-                .rounds(calls)
-                .add { awaitRedis(map1.addAndGetAsync("ratio", 0.25)) }
-                .run()
+        withLocalCacheClearBarrier(map1, map2, "ratio") {
+            withTimeout(30.seconds) {
+                SuspendedJobTester()
+                    .workers(4)
+                    .rounds(calls)
+                    .add {
+                        awaitRedis(map1.addAndGetAsync("ratio", 0.25), timeout = 30.seconds)
+                        completed.incrementAndGet()
+                    }
+                    .run()
+            }
+
+            completed.get() shouldBeEqualTo calls
+            awaitRedis(remote.getAsync("ratio")) shouldBeEqualTo expected
         }
-
-        awaitRedis(remote.getAsync("ratio")) shouldBeEqualTo expected
-        awaitRedis(map1.addAndGetAsync("ratio", 0.0)) shouldBeEqualTo expected
-
         await.atMost(Duration.ofSeconds(5)).pollInterval(Duration.ofMillis(100)) untilSuspending {
             awaitRedis(map1.getAsync("ratio")) == expected &&
                 awaitRedis(map2.getAsync("ratio")) == expected
@@ -262,5 +273,24 @@ class LocalCachedMapTest: AbstractRedissonCoroutineTest() {
         assertFailsWith<RedisException> {
             awaitRedis(numeric.addAndGetAsync("ratio", 0.25))
         }
+    }
+
+    /**
+     * 독립 client들의 local cache가 명시적 clear barrier를 완료할 때까지 기다립니다.
+     *
+     * [RLocalCachedMap.getAsync]는 cache miss를 Redis 조회로 보충하므로 barrier로 사용하지
+     * 않습니다. 모든 작업이 끝난 후 [RLocalCachedMap.clearLocalCacheAsync]가 발행하는
+     * 명시적 clear event의 완료를 기다려 양쪽 view가 기준 원격 값을 다시 읽게 합니다.
+     */
+    private suspend fun <V> withLocalCacheClearBarrier(
+        source: RLocalCachedMap<String, V>,
+        observer: RLocalCachedMap<String, V>,
+        key: String,
+        block: suspend () -> Unit,
+    ) {
+        observer.cachedKeySet().contains(key).shouldBeTrue()
+
+        block()
+        awaitRedis(source.clearLocalCacheAsync())
     }
 }
