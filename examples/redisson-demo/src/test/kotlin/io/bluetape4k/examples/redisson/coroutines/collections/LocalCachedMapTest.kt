@@ -11,6 +11,7 @@ import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import io.bluetape4k.redis.redisson.codec.RedissonCodecs
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.withTimeout
 import org.awaitility.kotlin.await
 import org.junit.jupiter.api.AfterAll
@@ -19,6 +20,7 @@ import org.junit.jupiter.api.Test
 import org.redisson.api.RLocalCachedMap
 import org.redisson.api.RMap
 import org.redisson.api.RedissonClient
+import org.redisson.api.listener.LocalCacheInvalidateListener
 import org.redisson.api.options.LocalCachedMapOptions
 import org.redisson.client.RedisException
 import org.redisson.codec.CompositeCodec
@@ -195,20 +197,16 @@ class LocalCachedMapTest: AbstractRedissonCoroutineTest() {
         awaitRedis(map1.getAsync("count")) shouldBeEqualTo 0
         awaitRedis(map2.getAsync("count")) shouldBeEqualTo 0
 
-        withTimeout(30.seconds) {
-            SuspendedJobTester()
-                .workers(4)
-                .rounds(calls)
-                .add { awaitRedis(map1.addAndGetAsync("count", 1)) }
-                .run()
-        }
+        withInvalidationBarrier(map2, "count") {
+            withTimeout(30.seconds) {
+                SuspendedJobTester()
+                    .workers(4)
+                    .rounds(calls)
+                    .add { awaitRedis(map1.addAndGetAsync("count", 1)) }
+                    .run()
+            }
 
-        awaitRedis(remote.getAsync("count")) shouldBeEqualTo calls
-        awaitRedis(map1.addAndGetAsync("count", 0)) shouldBeEqualTo calls
-
-        await.atMost(Duration.ofSeconds(5)).pollInterval(Duration.ofMillis(100)) untilSuspending {
-            awaitRedis(map1.getAsync("count")) == calls &&
-                awaitRedis(map2.getAsync("count")) == calls
+            awaitRedis(remote.getAsync("count")) shouldBeEqualTo calls
         }
         awaitRedis(map1.getAsync("count")) shouldBeEqualTo calls
         awaitRedis(map2.getAsync("count")) shouldBeEqualTo calls
@@ -230,20 +228,16 @@ class LocalCachedMapTest: AbstractRedissonCoroutineTest() {
         awaitRedis(map1.getAsync("ratio")) shouldBeEqualTo 0.0
         awaitRedis(map2.getAsync("ratio")) shouldBeEqualTo 0.0
 
-        withTimeout(30.seconds) {
-            SuspendedJobTester()
-                .workers(4)
-                .rounds(calls)
-                .add { awaitRedis(map1.addAndGetAsync("ratio", 0.25)) }
-                .run()
-        }
+        withInvalidationBarrier(map2, "ratio") {
+            withTimeout(30.seconds) {
+                SuspendedJobTester()
+                    .workers(4)
+                    .rounds(calls)
+                    .add { awaitRedis(map1.addAndGetAsync("ratio", 0.25)) }
+                    .run()
+            }
 
-        awaitRedis(remote.getAsync("ratio")) shouldBeEqualTo expected
-        awaitRedis(map1.addAndGetAsync("ratio", 0.0)) shouldBeEqualTo expected
-
-        await.atMost(Duration.ofSeconds(5)).pollInterval(Duration.ofMillis(100)) untilSuspending {
-            awaitRedis(map1.getAsync("ratio")) == expected &&
-                awaitRedis(map2.getAsync("ratio")) == expected
+            awaitRedis(remote.getAsync("ratio")) shouldBeEqualTo expected
         }
         awaitRedis(map1.getAsync("ratio")) shouldBeEqualTo expected
         awaitRedis(map2.getAsync("ratio")) shouldBeEqualTo expected
@@ -261,6 +255,37 @@ class LocalCachedMapTest: AbstractRedissonCoroutineTest() {
 
         assertFailsWith<RedisException> {
             awaitRedis(numeric.addAndGetAsync("ratio", 0.25))
+        }
+    }
+
+    /**
+     * 독립 client의 local cache가 실제 invalidation event를 수신할 때까지 기다립니다.
+     *
+     * [RLocalCachedMap.getAsync]는 cache miss를 Redis 조회로 보충하므로 barrier로 사용하지
+     * 않습니다. 호출 전에 key를 warm-up하고 [LocalCacheInvalidateListener]를 등록해, remote
+     * 값 조회와 local cache 동기화 신호를 분리합니다.
+     */
+    private suspend fun <V> withInvalidationBarrier(
+        map: RLocalCachedMap<String, V>,
+        key: String,
+        block: suspend () -> Unit,
+    ) {
+        map.cachedKeySet().contains(key).shouldBeTrue()
+
+        val invalidated = CompletableDeferred<Unit>()
+        val listenerId = map.addListener(
+            LocalCacheInvalidateListener<String, V> { invalidatedKey, _ ->
+                if (invalidatedKey == key) {
+                    invalidated.complete(Unit)
+                }
+            }
+        )
+
+        try {
+            block()
+            withTimeout(5.seconds) { invalidated.await() }
+        } finally {
+            map.removeListener(listenerId)
         }
     }
 }
