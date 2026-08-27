@@ -83,6 +83,22 @@ def _safe_string(value: object, pattern: re.Pattern[str]) -> bool:
     return isinstance(value, str) and bool(pattern.fullmatch(value)) and "\x00" not in value
 
 
+def _validate_test_selector(entry: dict[str, Any], prefix: str, errors: list[str]) -> None:
+    selector = entry.get("testSelector")
+    if selector is None:
+        return
+    pattern = entry.get("testPattern")
+    if (
+        not isinstance(selector, str)
+        or not selector.strip()
+        or "\x00" in selector
+        or any(character in selector for character in "\r\n\t")
+        or not isinstance(pattern, str)
+        or not selector.startswith(f"{pattern}.")
+    ):
+        errors.append(f"{prefix}.testSelector must target a method under testPattern")
+
+
 def canonical_architecture(value: object) -> str | None:
     """Normalize Docker/runner architecture aliases to the gate vocabulary."""
 
@@ -266,6 +282,7 @@ def validate_manifest(entries: list[dict[str, Any]], root: Path = ROOT) -> list[
             errors.append(f"diagnostics is empty for {server}")
         if not isinstance(entry["releaseRequired"], bool):
             errors.append(f"releaseRequired must be boolean for {server}")
+        _validate_test_selector(entry, prefix, errors)
         _validate_platforms(entry, prefix, errors)
         test_task = entry.get("testTask")
         if test_task is not None and (

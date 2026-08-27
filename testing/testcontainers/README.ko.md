@@ -182,7 +182,9 @@ Java 25+에서 Ignite 2 thin-client 테스트에 필요한 JVM 옵션은
 52개 Docker 기반 서버 family는
 [`scripts/testcontainers_image_gate_manifest.json`](../../scripts/testcontainers_image_gate_manifest.json)에 선언합니다.
 manifest는 고정 image/tag와 Kotlin wrapper, 대표 테스트 클래스, readiness 계약,
-workload 증거, 진단 명령을 연결합니다.
+workload 증거, 진단 명령을 연결합니다. 클래스에 의도적으로 비활성화한 메서드가
+있으면 `testSelector`로 실행할 대표 메서드를 명시할 수 있으며, gate는 무관한
+skipped 테스트가 유효한 실행을 가리지 않도록 해당 메서드만 실행합니다.
 
 동일한 실행기를 전체 Nightly와 안정 버전 배포 workflow에서 사용합니다. PR은
 저비용 JVM·모듈 검증을 유지하고 Docker 기반 family gate는 전체 Nightly/배포

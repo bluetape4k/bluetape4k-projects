@@ -37,6 +37,20 @@ class TestTestcontainersImageGate(unittest.TestCase):
         self.assertEqual(EXPECTED_RELEASE_FAMILY_COUNT, len(release_required))
         self.assertEqual(disabled, {entry["server"] for entry in self.entries if not entry["releaseRequired"]})
 
+    def test_method_selectors_exclude_intentionally_disabled_tests(self) -> None:
+        selectors = {
+            entry["server"]: entry["testSelector"]
+            for entry in self.entries
+            if "testSelector" in entry
+        }
+        self.assertEqual(
+            {
+                "LocalStackServer": "io.bluetape4k.testcontainers.aws.LocalStackServerTest.run S3 Service",
+                "RedisClusterServer": "io.bluetape4k.testcontainers.storage.RedisClusterServerTest.create redis cluster server",
+            },
+            selectors,
+        )
+
     def test_k3s_family_uses_the_existing_tagged_test_task(self) -> None:
         k3s = next(entry for entry in self.entries if entry["server"] == "K3sServer")
         self.assertEqual(":bluetape4k-testcontainers:k8sTest", k3s["testTask"])
@@ -109,6 +123,18 @@ class TestTestcontainersImageGate(unittest.TestCase):
     def test_invalid_manifest_reports_drift_without_running_docker(self) -> None:
         invalid = [dict(self.entries[0], image="wrong/image")]
         self.assertIn("image drift", " ".join(validate_manifest(invalid, self.root)))
+
+    def test_manifest_rejects_test_selector_outside_test_class(self) -> None:
+        invalid = [
+            dict(
+                self.entries[0],
+                testSelector="example.OtherServerTest.representative_test",
+            )
+        ]
+        self.assertIn(
+            "testSelector must target a method under testPattern",
+            " ".join(validate_manifest(invalid, self.root)),
+        )
 
     def test_manifest_rejects_unsafe_family_id(self) -> None:
         invalid = [dict(self.entries[0], id="../escape")]

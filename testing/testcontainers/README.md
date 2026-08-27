@@ -178,7 +178,10 @@ should use `FlociServer` or `MiniStackServer`.
 The 52 Docker-backed server families are declared in
 [`scripts/testcontainers_image_gate_manifest.json`](../../scripts/testcontainers_image_gate_manifest.json).
 The manifest links each pinned image/tag to its Kotlin wrapper, representative
-test class, readiness contract, workload evidence, and diagnostic commands.
+test class, readiness contract, workload evidence, and diagnostic commands. A
+family may provide `testSelector` when the class contains an intentionally
+disabled method; the gate then runs the explicit representative method so a
+valid execution is not reported with an unrelated skipped test.
 
 The same runner is used by the full Nightly and stable release workflows. Pull
 requests keep their low-cost JVM and module checks; the Docker-backed family

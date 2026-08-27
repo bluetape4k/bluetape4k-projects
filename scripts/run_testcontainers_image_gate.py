@@ -629,7 +629,7 @@ class GateRunner:
             task_index = next((index for index, part in enumerate(command) if part.startswith(":")), len(command) - 1)
             command.insert(task_index + 1, f"-Dtestcontainers.image-gate.evidence-dir={evidence_dir}")
         if "--tests" not in command:
-            selector = entry.get("testPattern")
+            selector = entry.get("testSelector", entry.get("testPattern"))
             command.extend(("--tests", str(selector)))
         if "--no-configuration-cache" not in command:
             command.append("--no-configuration-cache")

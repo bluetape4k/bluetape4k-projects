@@ -43,6 +43,7 @@
       "image": "localstack/localstack",
       "tag": "4",
       "testPattern": "io.bluetape4k.testcontainers.aws.LocalStackServerTest",
+      "testSelector": "io.bluetape4k.testcontainers.aws.LocalStackServerTest.run S3 Service",
       "readiness": "testcontainers_wait_strategy_and_workload_readiness",
       "workload": "io.bluetape4k.testcontainers.aws.LocalStackServerTest:representative_test",
       "diagnostics": [
@@ -895,6 +896,7 @@
       "image": "tommy351/redis-cluster",
       "tag": "6.2",
       "testPattern": "io.bluetape4k.testcontainers.storage.RedisClusterServerTest",
+      "testSelector": "io.bluetape4k.testcontainers.storage.RedisClusterServerTest.create redis cluster server",
       "readiness": "testcontainers_wait_strategy_and_workload_readiness",
       "workload": "io.bluetape4k.testcontainers.storage.RedisClusterServerTest:representative_test",
       "diagnostics": [
