@@ -32,7 +32,7 @@ consumer를 두 번 센 것이 아니다.
 
 G1의 consumer 후보 확보는 production 구현 승인이 아니다. 두 domain의 rounding,
 currency validation, 음수·0, 합산, serialization과 persistence 계약이 아직
-일치하지 않으므로 G2는 `FAIL`이다. G2부터 G5까지 모두 통과하고 별도 Type A
+일치하지 않으므로 G2는 `FAIL`이다. G1부터 G5까지 모두 통과하고 별도 Type A
 설계·계획을 승인받기 전에는 owned Money API, compatibility layer, deprecation을
 구현하지 않는다.
 
@@ -159,7 +159,7 @@ G2·G3 증거가 된다.
 | --- | --- | --- | --- |
 | G1 PENDING, production 자격 근거 확보 | runnable consumer 후보의 domain demand를 보존하면서 canonical gate를 임의로 낮추지 않는다. | G1 판정 근거가 추가로 필요하다. | **선택** |
 | library 채택 전까지 G1 FAIL 유지 | 이미 구현된 library consumer만 센다. | G1을 adoption gate로 바꿔 순환 조건을 만든다. | 기각 |
-| owned API 즉시 구현 | 두 consumer migration을 바로 시작할 수 있다. | G2-G5와 별도 Type A 승인 없이 public API를 고정한다. | 기각 |
+| owned API 즉시 구현 | 두 consumer migration을 바로 시작할 수 있다. | G1-G5와 별도 Type A 승인 없이 public API를 고정한다. | 기각 |
 
 ## 검증 증거
 
@@ -179,7 +179,7 @@ G2·G3 증거가 된다.
 - [x] test-only wrapper와 `src/main` service 계산을 구분했다.
 - [x] G1 consumer 후보 두 곳의 source 근거와 production 자격의 미확정 경계를 기록했다.
 - [x] G2의 rounding, mismatch, validation, serialization 미결정 범위를 기록했다.
-- [x] G3-G5와 별도 Type A 승인 전 production 구현 차단을 유지했다.
+- [x] G1-G5와 별도 Type A 승인 전 production 구현 차단을 유지했다.
 - [ ] G1 production consumer 인정 규칙 또는 실제 production 사용 근거 — 후속 작업.
 - [ ] G1 통과 뒤 candidate API manifest와 G2 공통 semantic fixture·bounded input/error contract — 후속 작업.
 - [ ] G3 source/binary/dependency compatibility와 migration/rollback — 후속 작업.
@@ -187,4 +187,4 @@ G2·G3 증거가 된다.
 - [ ] G5 benchmark와 provider lifecycle·failure 계약 — 후속 작업.
 
 최종 판정은 **G1 PENDING, production 구현 보류**다. #1423과 #767은 G1의
-production 자격, G2-G5와 별도 Type A 승인 조건을 추적하기 위해 `OPEN`으로 유지한다.
+production 자격과 G1-G5 및 별도 Type A 승인 조건을 추적하기 위해 `OPEN`으로 유지한다.
