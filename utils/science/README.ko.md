@@ -21,10 +21,11 @@ GIS 좌표 변환, Shapefile 처리, JTS 도형 연산, PostGIS 데이터베이�
 > 서비스는 UCAR netCDF-Java 5.9.1 기반의 동기(blocking) API이며 UCAR 아티팩트는
 > `compileOnly`로 선언되어 있으므로 서비스를 호출하는 애플리케이션이 런타임에 제공해야 합니다.
 >
-> 현재 임포터는 rank 1~4 변수와 1차원 좌표축을 지원합니다. 5분 heartbeat lease 기반
-> 슬라이스 재개, EPSG:4326 재투영을 위한 CRS 화이트리스트, NaN/`_FillValue` 자동 skip도
-> 제공합니다. `CoordinateAxis2D`와 CF auxiliary-coordinate 격자는 현재 범위 밖이며
-> 후속 이슈 [#1352](https://github.com/bluetape4k/bluetape4k-projects/issues/1352)에서 다룹니다.
+> 현재 임포터는 rank 1~4 변수와 1·2차원 좌표축, numeric CF auxiliary coordinate를
+> 지원합니다. bounded tile read, slice 전체 중복 사전 검증, 5분 heartbeat lease 기반
+> 재개, EPSG:4326 재투영을 위한 CRS 화이트리스트, NaN/`_FillValue` 자동 skip도
+> 제공합니다. 보조 좌표 값은 기존 `attrs` JSONB에 저장하고 canonical
+> `(longitude, latitude)`는 기존 PostGIS `location`에 저장합니다.
 
 ---
 
@@ -116,7 +117,7 @@ io.bluetape4k.science/
 | | NetCDF 격자 값 저장 스키마 | `NetCdfGridValueTable` ✅ |
 | | `.nc` 파일 등록 | `NetCdfCatalogService.registerFile()` ✅ |
 | | rank 1~4 격자 임포트 | `NetCdfCatalogService.importGridValues()` ✅ |
-| | CoordinateAxis2D / auxiliary 좌표 | 후속 [#1352](https://github.com/bluetape4k/bluetape4k-projects/issues/1352) |
+| | CoordinateAxis2D / CF auxiliary 좌표 | `NetCdfCatalogService.importGridValues()` ✅ |
 
 ---
 
@@ -298,14 +299,47 @@ val fileId = catalog.registerFile("/data/era5/ERA5_2024_01.nc")
 catalog.importGridValues(fileId, variableName = "temperature")
 ```
 
+두 호출은 blocking이므로 호출자가 virtual-thread의 deadline과 취소 수명주기를
+소유해야 합니다. timeout은 cooperative cancel일 뿐 import 완료를 의미하지 않으므로,
+재시도하기 전에 progress row를 조회하세요.
+
+```kotlin
+import java.util.concurrent.Executors
+import java.util.concurrent.TimeUnit
+import java.util.concurrent.TimeoutException
+
+val executor = Executors.newVirtualThreadPerTaskExecutor()
+val task = executor.submit {
+    val fileId = catalog.registerFile("/srv/netcdf/grid.nc") // trusted-admin 경로
+    catalog.importGridValues(fileId, "temperature")
+    fileId
+}
+try {
+    task.get(30, TimeUnit.MINUTES)
+} catch (timeout: TimeoutException) {
+    task.cancel(true)
+    throw timeout
+} finally {
+    executor.shutdownNow()
+    check(executor.awaitTermination(30, TimeUnit.SECONDS)) { "import worker did not stop" }
+}
+```
+
 지원 rank의 저장 좌표는 다음과 같습니다.
 
 | 변수 rank | 저장 좌표 |
 |-----------|----------|
 | 1D (`time`) | `timeIdx=t`, `levelIdx=0`, `location=null` |
-| 2D (`lat`, `lon`) | `timeIdx=0`, `levelIdx=0`, 셀마다 PostGIS `POINT` |
+| 2D (`lat`, `lon`), `CoordinateAxis2D` 포함 | `timeIdx=0`, `levelIdx=0`, 셀마다 PostGIS `POINT` |
 | 3D (`time`, `lat`, `lon`) | `timeIdx=t`, `levelIdx=0`, 셀마다 `POINT` |
 | 4D (`time`, `level`, `lat`, `lon`) | `timeIdx=t`, `levelIdx=k`, 셀마다 `POINT` |
+
+CF `coordinates` 토큰 중 time·level·latitude·longitude가 아닌 numeric 좌표는
+auxiliary coordinate로 취급해 `attrs`에 직렬화합니다(예: `{"altitude": 125.0}`).
+`[time, x, y]` 같은 비표준 데이터 dimension 순서도 보존하며, tile은 65,536셀,
+JDBC batch는 1,000행으로 제한합니다. slice를 쓰기 전에 canonical 좌표 중복을 검증하고,
+지원하지 않는 축·잘못된 CRS metadata·변경된 파일·손상된 progress·자원 한도 초과는
+typed `NetCdfException` 하위 타입으로 보고합니다.
 
 각 `(fileId, variableName)` 임포트는 5분 heartbeat lease와 슬라이스 cursor를
 사용합니다. `COMPLETED` 상태는 no-op이며, 실패했거나 만료된 임포트는
@@ -376,13 +410,14 @@ catalog.importGridValues(fileId, variableName = "temperature")
 | `NetCdfFileRepository` | ✅ | 파일 메타데이터 CRUD (`save`, `findById`, `findAll`, `deleteById`) |
 | `NetCdfFileTable` | ✅ | JSONB 컬럼 + PostGIS bbox + 시간 범위 |
 | `NetCdfGridValueTable` | ✅ | 격자 값 테이블 (location: PostGIS POINT, value, timeIdx, levelIdx) |
-| `NetCdfCatalogService` | ✅ | 동기 `registerFile()`·`importGridValues()`; rank 1~4, lease/resume, CRS 화이트리스트, NaN/`_FillValue` 처리 |
+| `NetCdfCatalogService` | ✅ | 동기 `registerFile()`·`importGridValues()`; rank 1~4, 1D/2D 축, CF numeric auxiliary, bounded tile, lease/resume, CRS 화이트리스트, NaN/`_FillValue` 처리 |
 
 `NetCdfCatalogService`는 안정적인 sealed 예외 계약을 제공합니다. 빈 경로와
 변수명은 `IllegalArgumentException`을 발생시키며, 파일·변수·좌표 누락,
-지원하지 않는 rank/CRS, 활성 lease, lease 손실은 각각의 `NetCdfException`
-하위 타입으로 보고합니다. `CoordinateAxis2D`는 현재 `MissingCoordinate`로
-거부되며 [#1352](https://github.com/bluetape4k/bluetape4k-projects/issues/1352)에서 별도로 추적합니다.
+지원하지 않는 rank/축/CRS, 활성 lease, lease 손실, 파일 변경, 손상된 progress,
+좌표 중복, 자원 한도 초과는 각각의 `NetCdfException` 하위 타입으로 보고합니다.
+기존 schema를 재사용해 `location`에는 canonical `(lon, lat)`, `attrs`에는
+bounded numeric auxiliary JSONB를 저장합니다.
 
 ---
 

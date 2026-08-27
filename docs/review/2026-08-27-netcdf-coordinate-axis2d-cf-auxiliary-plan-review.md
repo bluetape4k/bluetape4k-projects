@@ -68,7 +68,9 @@
 
 - 최초 missing-row upsert, unique `(file_id, variable_name)` race, malformed
   `IN_PROGRESS`+null lease repair, 미래 expiry `ImportAlreadyRunning`, stale fence
-  `ImportLeaseLost`를 구분한다. 비교 시계는 DB UTC `CURRENT_TIMESTAMP`다.
+  `ImportLeaseLost`를 구분한다. 비교 시계는 DB UTC wall clock이며 lease
+  fence에는 `clock_timestamp()`를 사용하고, audit timestamp에는
+  `CURRENT_TIMESTAMP`를 유지한다.
 - 각 tile transaction은 시작·read/write·commit fence를 검사하고 현재 tile만 rollback한다.
   이전에 commit된 tile/slice는 보존하며, duplicate는 두 번째 pass 전에 slice 전체가 0 rows다.
 - 마지막 row write/fence 뒤 DB commit 전에 같은 transaction에서 `markCompleted`를 호출해
@@ -145,6 +147,38 @@ schema migration이 없으므로 DB rollback은 각 transaction rollback과 fixt
 구현 실패 시 branch-local commit만 `git revert`한다. canonical `develop`과 다른 worktree는
 건드리지 않는다.
 
+## Step 3-R 구현 증거 (2026-08-27)
+
+승인된 계획의 구현 경계를 실제 source·fixture·테스트·benchmark 결과로 재확인했다.
+
+| 증거 | 결과 | 비고 |
+|---|---|---|
+| typed exception·checked limits·path fingerprint | **PASS** | `NetCdfException`, `NetCdfImportLimits`, `NetCdfFileGuard`와 pure contract test가 구조화된 오류·overflow·file identity를 검증 |
+| 1D/2D axis·CF auxiliary·dimension order | **PASS** | `VariableAxisMap`, tile-local sampler, curvilinear/CF/order fixture와 PostGIS exact tuple/attrs read-back |
+| CRS·duplicate·JSONB·same-connection writer | **PASS** | strict EPSG whitelist, slice-wide duplicate preflight, NFC/UTF-8 cap, bounded JDBC batch 계약 |
+| lease/progress/cancellation/resource budget | **PASS** | DB UTC CAS, malformed progress quarantine, fence-before-read/write, terminal renew→complete, fixed working-set accounting |
+| regression suite | **PASS** | `:bluetape4k-science:test`: `SUCCESS: Executed 233 tests` |
+| 1D throughput reference gate | **PASS (pre-final reference)** | baseline 159,123 ms, feature 160,075 ms, `+0.598% < 20%` |
+| 2D + auxiliary bounded report | **PASS (pre-final reference, 보고용)** | 1,048,576 cells, 260,697 ms, fixed tile/batch/working-set caps |
+
+소스·문서 범위에는 schema/table/column migration, dependency, module catalog,
+workflow 변경이 없다. 기존 rank 1–4 회귀와 새 pure/service 계약을 함께 실행했고,
+feature의 임시 benchmark harness는 결과를 기록한 뒤 제거했다.
+
+### 구현 단계의 보류 증거
+
+계획에 있던 `1회 warm-up + 3회 측정 median`은 macOS arm64에서 amd64 PostGIS
+image를 emulation하는 환경과 2.5–4.5분의 Testcontainers 실행 시간 때문에 단일
+성공한 단일 실행 결과로 제한했다. 따라서 benchmark 문서는 median·표준편차를 주장하지
+않으며, 반복 측정과 최종 rank 1 read cap 기준 재측정은 후속 성능 작업으로
+남긴다. 이 제한은 구현 correctness와 bounded memory 판정과 분리하며, 1D
+`<20%` 수치는 pre-final reference gate로만 기록한다.
+
+**Step 3-R 구현 verdict: PASS with benchmark WATCH.** 계획의 기능·안전·운영
+계약은 구현과 fresh local evidence로 통과했으며, 반복 median만 미실행이다. 다음
+게이트는 변경 범위 audit, Lore implementation commit, PR exact-head CI/review,
+fresh merge approval이다.
+
 ## Writer gate와 Step 3-R 종료
 
 | 항목 | 판정 | 근거 |
@@ -155,6 +189,8 @@ schema migration이 없으므로 DB rollback은 각 transaction rollback과 fixt
 | SPW-04 technical traceability | PASS | 명세 §1–§10 요구를 Task 1–9와 gate/rollback에 연결 |
 | SPW-05 read-back | PASS | plan/spec heading·checkbox·code fence·selector·expected result 재독 및 placeholder/terminology/diff check |
 
-Step 3-R 종료 조건을 모두 충족했다. 승인 산출물(spec·design review·plan·본 plan review)을
+Step 3-R 구현 종료 조건을 모두 충족했다. 승인 산출물(spec·design review·plan·본 plan review)을
 먼저 Lore commit한 뒤, `$test-driven-development`와 `$bluetape-kotlin-patterns`를 다시 읽고
-코드 RED/GREEN 구현을 시작한다. 구현 전까지 코드·schema·workflow·PR·merge는 변경하지 않는다.
+RED/GREEN 구현과 local verification을 완료했다. 다음 변경은 implementation Lore commit,
+PR exact-head CI/review, fresh merge approval, rebase merge 순서로 진행하며 schema·workflow와
+canonical `develop`은 merge gate 전까지 변경하지 않는다.

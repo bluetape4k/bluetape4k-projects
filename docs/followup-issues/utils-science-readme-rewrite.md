@@ -20,7 +20,7 @@ README는 다음 기준 정보를 한·영 동일하게 설명합니다.
 | 영역 | 현재 계약 | 근거 |
 |------|-----------|------|
 | 서비스 API | 동기(blocking) `registerFile()`과 `importGridValues()` | [`NetCdfCatalogService.kt`](../../utils/science/src/main/kotlin/io/bluetape4k/science/exposed/service/NetCdfCatalogService.kt) |
-| 변수 범위 | rank 1~4, 1차원 좌표축 | 서비스 KDoc 및 `VariableAxisMap` |
+| 변수 범위 | rank 1~4, 1·2차원 좌표축, numeric CF auxiliary | 서비스 KDoc 및 `VariableAxisMap` |
 | 저장 의미 | rank별 `timeIdx`·`levelIdx`·`location` 매핑 | 서비스 KDoc, `NetCdfGridValueTable` |
 | 재개·동시성 | `(fileId, variableName)`별 5분 heartbeat lease와 `lastSliceIdx` cursor | `NetCdfImportProgressRepository`, 서비스 테스트 |
 | CRS | EPSG:4326/4269/3857/3031/3413 및 UTM 32601~32660·32701~32760 화이트리스트 | `CoordinateReprojector` 및 서비스 테스트 |
@@ -62,13 +62,25 @@ implementation("edu.ucar:netcdf4:5.9.1")
 ## 후속 연결
 
 문서 계약이 확정되었으므로 Epic [#1421](https://github.com/bluetape4k/bluetape4k-projects/issues/1421)의
-다음 단계는 #1352입니다. #1352에서는 2D 좌표축·CF auxiliary coordinate fixture,
-셀 좌표 보존, 지원·비지원 CRS, 기존 rank 1~4 및 lease/resume 회귀를 코드와 테스트로
-고정해야 합니다.
+다음 단계로 #1352 구현 child가 이어졌습니다.
+
+## #1352 구현 결과
+
+현재 child는 다음 계약을 구현하고 테스트로 고정합니다.
+
+- `CoordinateAxis1D`와 `CoordinateAxis2D`, CF numeric auxiliary coordinate를 bounded tile로 읽습니다.
+- `[time, x, y]` 같은 비표준 dimension 순서도 full-rank index로 보존하고,
+  canonical `(lon, lat)`은 `location`, auxiliary는 `attrs` JSONB에 저장합니다.
+- slice 전체 duplicate preflight, strict CRS whitelist/EPSG parser, 파일 fingerprint,
+  progress quarantine, lease fence, typed exception과 resource budget을 적용합니다.
+- 기존 rank 1~4, NaN/`_FillValue`, resume/lease 및 PostGIS read-back 회귀를 유지합니다.
+
+구현 child의 PR 생성·exact-head CI·rebase merge는 별도 게이트이며, 이 문서는 해당
+게이트가 닫히기 전의 후속 상태 기록입니다.
 
 ## DoD Status
 
 - 상태: 문서 정합화 완료
 - 코드 동작 변경: 없음
 - EN/KO README 범위·의존성·quick start·테스트 프로필: 반영
-- 후속 기능 #1352: 별도 대기
+- #1352 좌표축/auxiliary 구현: branch 검증 완료, PR·merge 게이트 대기
