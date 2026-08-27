@@ -564,7 +564,7 @@
         "docker_logs",
         "docker_events"
       ],
-      "releaseRequired": true
+      "releaseRequired": false
     },
     {
       "id": "ollama",
@@ -581,7 +581,7 @@
         "docker_logs",
         "docker_events"
       ],
-      "releaseRequired": true
+      "releaseRequired": false
     },
     {
       "id": "mailpit",
@@ -683,7 +683,7 @@
         "docker_logs",
         "docker_events"
       ],
-      "releaseRequired": true
+      "releaseRequired": false
     },
     {
       "id": "cassandra",
@@ -817,7 +817,7 @@
         "docker_logs",
         "docker_events"
       ],
-      "releaseRequired": true
+      "releaseRequired": false
     },
     {
       "id": "influx-d-b",

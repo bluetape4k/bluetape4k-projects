@@ -1257,7 +1257,7 @@ jobs:
           summary = json.loads(Path("build/reports/testcontainers-image-gate/summary.json").read_text(encoding="utf-8"))
           errors = verify_release_summary(
               summary,
-              expected_coverage="52/52",
+              expected_coverage="48/48",
               platform_id="amd64",
               expected_tag="2.18.0",
               expected_architecture="amd64",

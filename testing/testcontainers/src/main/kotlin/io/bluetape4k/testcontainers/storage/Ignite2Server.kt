@@ -116,7 +116,8 @@ class Ignite2Server private constructor(
          * ```
          *
          * @param image          Docker 이미지 이름, blank이면 [IllegalArgumentException]이 발생합니다.
-         * @param tag            Docker 이미지 태그, blank이면 [IllegalArgumentException]이 발생합니다 (기본: [DEFAULT_TAG]; aarch64에서는 [TAG]-arm64).
+         * @param tag            Docker 이미지 태그, blank이면 [IllegalArgumentException]이 발생합니다 (기본: [DEFAULT_TAG];
+         *                       aarch64에서는 [TAG]-arm64).
          * @param useDefaultPort `true`면 10800 포트를 고정 바인딩합니다.
          * @param reuse          컨테이너 재사용 여부입니다.
          */

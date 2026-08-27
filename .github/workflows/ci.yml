@@ -79,6 +79,8 @@ jobs:
         run: python3 -m unittest scripts/test_testcontainers_contract.py -v
       - name: Verify Testcontainers image-gate manifest contract
         run: python3 -m unittest scripts/test_testcontainers_image_gate.py -v
+      - name: Verify Testcontainers image-gate runner contract
+        run: python3 -m unittest scripts/test_run_testcontainers_image_gate.py -v
       - name: Verify compiled classfile contract
         run: ./scripts/check-jvm-release-contract.sh
 
@@ -166,6 +168,10 @@ jobs:
               - '.github/scripts/**'
               - '.github/actions/**'
               - 'scripts/validate-ci-*.rb'
+              - 'scripts/run_testcontainers_image_gate.py'
+              - 'scripts/test_run_testcontainers_image_gate.py'
+              - 'scripts/testcontainers_image_gate.py'
+              - 'scripts/testcontainers_image_gate_manifest.json'
             core:
               - 'bluetape4k/annotations/**'
               - 'bluetape4k/core/**'

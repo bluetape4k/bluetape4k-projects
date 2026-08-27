@@ -360,6 +360,25 @@ def verify_release_summary(
         errors.append("summary status must be success")
     if summary.get("selected", 0) <= 0 or summary.get("blocked", 0) or summary.get("product_failure", 0) or summary.get("infrastructure_failure", 0):
         errors.append("summary contains incomplete or failed execution")
+    release_results = [
+        result for result in summary.get("results", []) if result.get("release_required") is True
+    ]
+    if summary.get("release_required_selected") != len(release_results):
+        errors.append("release-required result count is inconsistent")
+    if summary.get("release_required_success") != sum(
+        result.get("status") == "success" for result in release_results
+    ):
+        errors.append("release-required success count is inconsistent")
+    for result in release_results:
+        junit = result.get("junit", {})
+        if (
+            not isinstance(junit, dict)
+            or junit.get("tests", 0) <= 0
+            or junit.get("skipped", 1) != 0
+            or junit.get("failures", 1) != 0
+            or junit.get("errors", 1) != 0
+        ):
+            errors.append(f"successful JUnit evidence is required: {result.get('id')}")
     platform_results = [item for item in summary.get("platforms", []) if item.get("platform_id") == platform_id]
     if len(platform_results) != 1:
         errors.append(f"exactly one {platform_id} platform result is required")
@@ -570,6 +589,7 @@ class GateRunner:
 
     def _command(self, entry: dict[str, Any], evidence_dir: Path | None = None) -> list[str]:
         strict = bool(entry.get("executionEvidenceRequired"))
+        junit_required = bool(entry.get("releaseRequired"))
         if strict and evidence_dir is not None:
             workload = str(entry.get("workloadTestPattern", entry["testPattern"])).removesuffix("()")
             test_task = str(entry.get("testTask", ":bluetape4k-testcontainers:test"))
@@ -603,11 +623,20 @@ class GateRunner:
         ):
             task_index = next((index for index, part in enumerate(command) if part.startswith(":")), 1)
             command.insert(task_index, f"-Dtestcontainers.image-gate.evidence-dir={evidence_dir}")
+        elif junit_required and evidence_dir is not None and not any(
+            part.startswith("-Dtestcontainers.image-gate.evidence-dir=") for part in command
+        ):
+            task_index = next((index for index, part in enumerate(command) if part.startswith(":")), len(command) - 1)
+            command.insert(task_index + 1, f"-Dtestcontainers.image-gate.evidence-dir={evidence_dir}")
         if "--tests" not in command:
             selector = entry.get("testPattern")
             command.extend(("--tests", str(selector)))
         if "--no-configuration-cache" not in command:
             command.append("--no-configuration-cache")
+        if junit_required and "--rerun-tasks" not in command:
+            # Release evidence must be produced by this invocation, never by a
+            # previously cached Gradle test result.
+            command.append("--rerun-tasks")
         return command
 
     @staticmethod
@@ -693,13 +722,25 @@ class GateRunner:
     def _canonical_testcase(classname: str, name: str) -> str:
         return f"{classname}.{name[:-2] if name.endswith('()') else name}"
 
-    def _xml_candidates(self, started_ns: int, evidence_dir: Path) -> list[Path]:
+    def _xml_candidates(
+        self,
+        started_ns: int,
+        evidence_dir: Path,
+        entry: dict[str, Any],
+    ) -> list[Path]:
+        test_task = str(entry.get("testTask") or ":bluetape4k-testcontainers:test")
+        task_name = test_task.rsplit(":", 1)[-1] or "test"
         roots = [
+            REPOSITORY_ROOT / "testing/testcontainers/build/test-results" / task_name,
             REPOSITORY_ROOT / "testing/testcontainers/build/test-results/test",
             evidence_dir,
         ]
         candidates: list[Path] = []
+        seen_roots: set[Path] = set()
         for root in roots:
+            if root in seen_roots:
+                continue
+            seen_roots.add(root)
             if not root.is_dir() or root.is_symlink():
                 continue
             for path in root.glob("*.xml"):
@@ -756,18 +797,29 @@ class GateRunner:
         skipped = count("skipped")
         failures = count("failures")
         errors = count("errors")
-        if tests <= 0 or tests <= skipped or failures or errors:
+        if tests <= 0 or skipped != 0 or failures or errors:
             raise ValueError("JUnit suite has no successful execution evidence")
-        workload_matches = []
-        for testcase in testcases:
-            canonical = self._canonical_testcase(testcase.attrib.get("classname", ""), testcase.attrib.get("name", ""))
-            if canonical == expected_workload:
-                workload_matches.append(testcase)
-        if len(workload_matches) != 1:
-            raise ValueError(f"workload testcase mismatch: {expected_workload}")
-        workload = workload_matches[0]
-        if list(workload) or workload.attrib.get("status") == "skipped":
-            raise ValueError("workload testcase failed or was skipped")
+        def failed_or_skipped(testcase: ET.Element) -> bool:
+            return testcase.attrib.get("status") == "skipped" or any(
+                child.tag.rsplit("}", 1)[-1] in {"failure", "error", "skipped"}
+                for child in testcase
+            )
+
+        if any(failed_or_skipped(testcase) for testcase in testcases):
+            raise ValueError("JUnit testcase failed or was skipped")
+        workload_tests = tests
+        if expected_workload:
+            workload_matches = []
+            for testcase in testcases:
+                canonical = self._canonical_testcase(testcase.attrib.get("classname", ""), testcase.attrib.get("name", ""))
+                if canonical == expected_workload:
+                    workload_matches.append(testcase)
+            if len(workload_matches) != 1:
+                raise ValueError(f"workload testcase mismatch: {expected_workload}")
+            workload = workload_matches[0]
+            if failed_or_skipped(workload):
+                raise ValueError("workload testcase failed or was skipped")
+            workload_tests = 1
         return {
             "suite": expected_suite,
             "tests": tests,
@@ -775,7 +827,8 @@ class GateRunner:
             "failures": failures,
             "errors": errors,
             "workload_testcase": expected_workload,
-            "workload_tests": 1,
+            "workload_tests": workload_tests,
+            "evidence_type": "junit",
             "source": path.name,
         }
 
@@ -1078,9 +1131,17 @@ class GateRunner:
     def _run_family(self, entry: dict[str, Any]) -> dict[str, Any]:
         attempts: list[dict[str, Any]] = []
         strict = bool(entry.get("executionEvidenceRequired"))
+        junit_required = bool(entry.get("releaseRequired"))
         platform = self._strict_platform(entry)
         if strict and platform is None:
-            return {"id": entry.get("id"), "server": entry.get("server"), "status": "blocked", "attempts": [], "error": "strict family has no platform"}
+            return {
+                "id": entry.get("id"),
+                "server": entry.get("server"),
+                "release_required": bool(entry.get("releaseRequired")),
+                "status": "blocked",
+                "attempts": [],
+                "error": "strict family has no platform",
+            }
         if platform is not None:
             entry["_selected_platform_id"] = platform["id"]
         if self._staging_root is None:
@@ -1109,7 +1170,7 @@ class GateRunner:
                         shutil.rmtree(evidence_dir, ignore_errors=True)
                         continue
                     break
-            command = self._command(entry, evidence_dir if strict else None)
+            command = self._command(entry, evidence_dir if strict or junit_required else None)
             test_timeout = self.timeout_seconds
             if platform:
                 test_timeout = int(entry.get("platformTimeouts", {}).get(platform["id"], {}).get("testMinutes", self.timeout_seconds // 60)) * 60
@@ -1136,16 +1197,17 @@ class GateRunner:
                 attempt_result["stdout_overflow"] = True
             if stderr_overflow:
                 attempt_result["stderr_overflow"] = True
-            if strict and status == "success":
+            if (strict or junit_required) and status == "success":
                 try:
-                    junit = self._parse_junit(entry, self._xml_candidates(attempt_started_ns, evidence_dir))
-                    startup = self._marker(evidence_dir, attempt_started_ns)
-                    workload_image = self._workload_image(evidence_dir)
-                    if pull_evidence and workload_image["image_id"] != pull_evidence.get("image_id"):
-                        raise ValueError("workload image does not match pulled image")
+                    junit = self._parse_junit(entry, self._xml_candidates(attempt_started_ns, evidence_dir, entry))
                     attempt_result["junit"] = junit
-                    attempt_result["startup"] = startup
-                    attempt_result["workload_image"] = workload_image
+                    if strict:
+                        startup = self._marker(evidence_dir, attempt_started_ns)
+                        workload_image = self._workload_image(evidence_dir)
+                        if pull_evidence and workload_image["image_id"] != pull_evidence.get("image_id"):
+                            raise ValueError("workload image does not match pulled image")
+                        attempt_result["startup"] = startup
+                        attempt_result["workload_image"] = workload_image
                 except (OSError, ValueError) as error:
                     status = "blocked"
                     attempt_result["status"] = status
@@ -1191,6 +1253,10 @@ class GateRunner:
             if successful_attempt:
                 result["junit"] = successful_attempt.get("junit")
                 result["startup"] = successful_attempt.get("startup")
+        else:
+            successful_attempt = next((item for item in attempts if item.get("status") == "success"), None)
+            if successful_attempt and successful_attempt.get("junit"):
+                result["junit"] = successful_attempt["junit"]
         if final_status != "success":
             try:
                 result["diagnostics"] = self.diagnostic_runner(entry)
@@ -1227,7 +1293,14 @@ class GateRunner:
                 results.append(result)
                 payload = json.dumps(result, ensure_ascii=False, indent=2) + "\n"
                 if len(payload.encode("utf-8")) > MAX_FAMILY_JSON_BYTES:
-                    result = {"id": entry.get("id"), "server": entry.get("server"), "status": "blocked", "error": "family artifact limit exceeded", "attempts": []}
+                    result = {
+                        "id": entry.get("id"),
+                        "server": entry.get("server"),
+                        "release_required": bool(entry.get("releaseRequired")),
+                        "status": "blocked",
+                        "error": "family artifact limit exceeded",
+                        "attempts": [],
+                    }
                     results[-1] = result
                     payload = json.dumps(result, ensure_ascii=False, indent=2) + "\n"
                 (self.report_dir / f"{entry['id']}.json").write_text(payload, encoding="utf-8")
@@ -1242,9 +1315,12 @@ class GateRunner:
             "blocked",
         )}
         selected = len(results)
-        release_gate = selected > 0 and counts["success"] == selected and all(
-            result["release_required"] for result in results
-        )
+        release_results = [result for result in results if result["release_required"]]
+        release_selected = len(release_results)
+        release_success = sum(result["status"] == "success" for result in release_results)
+        selected_coverage = f"{counts['success']}/{selected}"
+        release_coverage = f"{release_success}/{release_selected}"
+        release_gate = release_selected > 0 and release_success == release_selected
         summary: dict[str, Any] = {
             "schema_version": 2,
             "generated_at": datetime.now(timezone.utc).isoformat(),
@@ -1258,9 +1334,13 @@ class GateRunner:
             "product_failure": counts["product_failure"],
             "infrastructure_failure": counts["infrastructure_failure"],
             "blocked": counts["blocked"],
-            "coverage": f"{counts['success']}/{selected}",
+            "coverage": release_coverage,
+            "release_coverage": release_coverage,
+            "selected_coverage": selected_coverage,
+            "release_required_selected": release_selected,
+            "release_required_success": release_success,
             "release_gate": release_gate,
-            "status": "success" if release_gate else ("skipped" if selected == 0 else "failed"),
+            "status": "skipped" if selected == 0 else ("success" if counts["success"] == selected else "failed"),
             "results": results,
             "platforms": [
                 {
@@ -1301,7 +1381,8 @@ class GateRunner:
             "# Testcontainers image gate",
             "",
             f"- 상태: `{summary['status']}`",
-            f"- 선택/성공: `{summary['coverage']}`",
+            f"- release 증거 coverage: `{summary['coverage']}`",
+            f"- 전체 선택/성공: `{summary['selected_coverage']}`",
             f"- 제품 실패: `{summary['product_failure']}`",
             f"- 인프라 실패: `{summary['infrastructure_failure']}`",
             f"- 차단: `{summary['blocked']}`",
@@ -1333,6 +1414,10 @@ def _blocked_summary(report_dir: Path, errors: Sequence[str], manifest_path: Pat
         "infrastructure_failure": 0,
         "blocked": 1,
         "coverage": "0/0",
+        "release_coverage": "0/0",
+        "selected_coverage": "0/0",
+        "release_required_selected": 0,
+        "release_required_success": 0,
         "release_gate": False,
         "status": "blocked",
         "errors": list(errors),
@@ -1421,7 +1506,8 @@ def main(argv: Sequence[str] | None = None) -> int:
         print(f"BLOCKED: {error}", file=sys.stderr)
         return 1
     print(json.dumps({key: summary[key] for key in (
-        "status", "coverage", "product_failure", "infrastructure_failure", "blocked", "release_gate"
+        "status", "coverage", "selected_coverage", "product_failure",
+        "infrastructure_failure", "blocked", "release_gate"
     )}, ensure_ascii=False))
     return 0 if summary["status"] in {"success", "skipped"} else 1
 

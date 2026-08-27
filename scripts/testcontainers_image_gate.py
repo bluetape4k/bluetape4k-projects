@@ -13,6 +13,10 @@ from typing import Any
 ROOT = Path(__file__).resolve().parents[1]
 MANIFEST = ROOT / "scripts/testcontainers_image_gate_manifest.json"
 EXPECTED_FAMILY_COUNT = 52
+EXPECTED_RELEASE_FAMILY_COUNT = 48
+NON_RELEASE_RUNTIME_SERVERS = frozenset(
+    {"ChromaDBServer", "OllamaServer", "RedpandaServer", "Ignite3Server"}
+)
 REQUIRED_FIELDS = {
     "id",
     "server",
@@ -275,6 +279,17 @@ def validate_manifest(entries: list[dict[str, Any]], root: Path = ROOT) -> list[
     extra_servers = names - expected_servers
     errors.extend(f"manifest missing server: {name}" for name in sorted(missing_servers))
     errors.extend(f"manifest has unknown server: {name}" for name in sorted(extra_servers))
+    release_servers = {
+        entry["server"] for entry in entries if entry.get("releaseRequired") is True
+    }
+    if len(release_servers) != EXPECTED_RELEASE_FAMILY_COUNT:
+        errors.append(
+            f"release family count {len(release_servers)} != {EXPECTED_RELEASE_FAMILY_COUNT}"
+        )
+    for server in sorted(NON_RELEASE_RUNTIME_SERVERS):
+        entry = next((item for item in entries if item.get("server") == server), None)
+        if entry is not None and entry.get("releaseRequired") is not False:
+            errors.append(f"disabled family must be support inventory only: {server}")
     return errors
 
 

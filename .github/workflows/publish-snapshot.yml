@@ -2,6 +2,7 @@ name: Publish Snapshot
 
 permissions:
   contents: read
+  actions: read
 
 on:
   workflow_run:
@@ -10,6 +11,10 @@ on:
     branches: [develop]
   workflow_dispatch:
     inputs:
+      validation_run_id:
+        description: 'Completed full Nightly run ID used for exact-head validation'
+        required: true
+        type: string
       diagnoseSigning:
         description: 'Run signing diagnostics before publishing'
         required: false
@@ -26,16 +31,102 @@ env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: 'true'
 
 jobs:
+  validate-full-nightly:
+    name: Verify full Nightly validation
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    outputs:
+      publish_eligible: ${{ steps.validate.outputs.publish_eligible }}
+      head_sha: ${{ steps.validate.outputs.head_sha }}
+    steps:
+      - name: Validate full Nightly run
+        id: validate
+        env:
+          GH_TOKEN: ${{ github.token }}
+          EVENT_NAME: ${{ github.event_name }}
+          WORKFLOW_RUN_ID: ${{ github.event.workflow_run.id || '' }}
+          WORKFLOW_RUN_HEAD_SHA: ${{ github.event.workflow_run.head_sha || '' }}
+          MANUAL_VALIDATION_RUN_ID: ${{ inputs.validation_run_id || '' }}
+        run: |
+          set -euo pipefail
+
+          if [ "$EVENT_NAME" = "workflow_run" ]; then
+            validation_run_id="$WORKFLOW_RUN_ID"
+            expected_head_sha="$WORKFLOW_RUN_HEAD_SHA"
+          else
+            validation_run_id="$MANUAL_VALIDATION_RUN_ID"
+            expected_head_sha=""
+          fi
+
+          if ! [[ "$validation_run_id" =~ ^[0-9]+$ ]]; then
+            echo "::error::A completed Nightly validation_run_id is required."
+            exit 1
+          fi
+
+          run_json="$(mktemp)"
+          jobs_json="$(mktemp)"
+          trap 'rm -f "$run_json" "$jobs_json"' EXIT
+
+          gh api "repos/${GITHUB_REPOSITORY}/actions/runs/${validation_run_id}" \
+            --method GET > "$run_json"
+          gh api "repos/${GITHUB_REPOSITORY}/actions/runs/${validation_run_id}/jobs" \
+            --method GET \
+            --paginate \
+            --slurp > "$jobs_json"
+
+          validation_output="$(python3 - "$run_json" "$jobs_json" "$expected_head_sha" <<'PY'
+          import json
+          import sys
+          from pathlib import Path
+
+          run = json.loads(Path(sys.argv[1]).read_text(encoding="utf-8"))
+          pages = json.loads(Path(sys.argv[2]).read_text(encoding="utf-8"))
+          expected_head_sha = sys.argv[3]
+          if isinstance(pages, dict):
+              pages = [pages]
+          jobs = [job for page in pages for job in page.get("jobs", [])]
+          required_names = {
+              "Plan Nightly Scope", "Build", "Detekt", "Test / Core", "Test / IO",
+              "Test / IO HTTP", "Test / Ktor", "Test / Utils", "Test / Misc",
+              "Test / Testcontainers image startup-workload gate",
+              "Test / Testcontainers Ignite2 arm64 image gate",
+              "Test / Testcontainers Spring bridge", "Coverage Report", "Nightly Status",
+          }
+          names = {job.get("name") for job in jobs}
+          errors = []
+          if run.get("status") != "completed": errors.append("run is not completed")
+          if run.get("conclusion") != "success": errors.append("run did not succeed")
+          if run.get("path") != ".github/workflows/nightly-tests.yml": errors.append("run is not Nightly")
+          if run.get("head_branch") != "develop": errors.append("run is not on develop")
+          head_sha = run.get("head_sha", "")
+          if not isinstance(head_sha, str) or not head_sha: errors.append("run has no head SHA")
+          if expected_head_sha and head_sha != expected_head_sha: errors.append("head SHA mismatch")
+          for name in required_names - names: errors.append(f"missing job: {name}")
+          for prefix in ("Test / Infra (", "Test / Data (", "Test / Spring Boot (", "Test / Testcontainers ("):
+              if not any(isinstance(name, str) and name.startswith(prefix) for name in names):
+                  errors.append(f"missing matrix prefix: {prefix}")
+          for job in jobs:
+              if job.get("conclusion") != "success": errors.append(f"non-success job: {job.get('name')}")
+          print(f"head_sha={head_sha}")
+          print(f"publish_eligible={'true' if not errors else 'false'}")
+          for error in errors: print(f"validation_error={error}")
+          PY
+          )"
+          while IFS= read -r line; do
+            case "$line" in
+              head_sha=*|publish_eligible=*|validation_error=*) echo "$line" >> "$GITHUB_OUTPUT" ;;
+            esac
+          done <<< "$validation_output"
+
   publish:
     name: Publish SNAPSHOT to Maven Central
-    if: >-
-      github.event_name == 'workflow_dispatch' ||
-      github.event.workflow_run.conclusion == 'success'
+    needs: validate-full-nightly
+    if: ${{ needs.validate-full-nightly.outputs.publish_eligible == 'true' }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
         with:
-          ref: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.head_sha || github.sha }}
+          ref: ${{ needs.validate-full-nightly.outputs.head_sha }}
           fetch-depth: 0
 
       - uses: actions/setup-java@v5.7.0

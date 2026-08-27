@@ -27,7 +27,7 @@ from scripts.run_testcontainers_image_gate import (
 )
 
 
-def entry(server: str = "FlociServer") -> dict[str, object]:
+def entry(server: str = "FlociServer", *, release_required: bool = True) -> dict[str, object]:
     return {
         "id": server.lower(),
         "server": server,
@@ -39,7 +39,7 @@ def entry(server: str = "FlociServer") -> dict[str, object]:
         "readiness": "testcontainers_wait_strategy_and_workload_readiness",
         "workload": f"example.{server}Test:representative_test",
         "diagnostics": ["docker_inspect", "docker_logs", "docker_events"],
-        "releaseRequired": True,
+        "releaseRequired": release_required,
     }
 
 
@@ -62,6 +62,44 @@ def strict_entry() -> dict[str, object]:
         }
     )
     return value
+
+
+def _evidence_dir(command: list[str]) -> Path:
+    evidence = next(
+        (
+            Path(part.split("=", 1)[1])
+            for part in command
+            if part.startswith("-Dtestcontainers.image-gate.evidence-dir=")
+        ),
+        None,
+    )
+    if evidence is None:
+        raise AssertionError("generic release evidence directory is missing")
+    return evidence
+
+
+def _write_generic_junit(
+    command: list[str],
+    *,
+    tests: int,
+    skipped: int,
+    failures: int = 0,
+    errors: int = 0,
+) -> None:
+    evidence = _evidence_dir(command)
+    pattern = command[command.index("--tests") + 1]
+    evidence.joinpath("TEST-generic.xml").write_text(
+        f'<testsuite name="{pattern}" tests="{tests}" skipped="{skipped}" '
+        f'failures="{failures}" errors="{errors}">'
+        '<testcase classname="example.FamilyTest" name="representative_test"/>'
+        "</testsuite>",
+        encoding="utf-8",
+    )
+
+
+def _generic_success(command: list[str], timeout_seconds: int) -> SimpleNamespace:
+    _write_generic_junit(command, tests=1, skipped=0)
+    return SimpleNamespace(returncode=0, stdout="BUILD SUCCESSFUL", stderr="")
 
 
 class TestRunTestcontainersImageGate(unittest.TestCase):
@@ -108,7 +146,7 @@ class TestRunTestcontainersImageGate(unittest.TestCase):
 
         def command_runner(command: list[str], timeout_seconds: int) -> SimpleNamespace:
             calls.append(command)
-            return SimpleNamespace(returncode=0, stdout="BUILD SUCCESSFUL", stderr="")
+            return _generic_success(command, timeout_seconds)
 
         with tempfile.TemporaryDirectory() as directory:
             summary = GateRunner(
@@ -122,6 +160,64 @@ class TestRunTestcontainersImageGate(unittest.TestCase):
             self.assertTrue(summary["release_gate"])
             self.assertIn("--tests", calls[0])
             self.assertTrue((Path(directory) / "summary.json").is_file())
+
+    def test_release_required_generic_family_rejects_all_skipped_junit(self) -> None:
+        def command_runner(command: list[str], timeout_seconds: int) -> SimpleNamespace:
+            _write_generic_junit(command, tests=12, skipped=12)
+            return SimpleNamespace(returncode=0, stdout="BUILD SUCCESSFUL", stderr="")
+
+        with tempfile.TemporaryDirectory() as directory:
+            summary = GateRunner(
+                [entry()],
+                Path(directory),
+                command_runner=command_runner,
+                max_attempts=1,
+            ).run()
+
+        result = summary["results"][0]
+        self.assertEqual("blocked", result["status"])
+        self.assertIn(
+            "JUnit suite has no successful execution evidence",
+            result["attempts"][0]["evidence_error"],
+        )
+        self.assertEqual("0/1", summary["coverage"])
+        self.assertFalse(summary["release_gate"])
+
+    def test_release_required_generic_family_rejects_empty_junit(self) -> None:
+        def command_runner(command: list[str], timeout_seconds: int) -> SimpleNamespace:
+            _write_generic_junit(command, tests=0, skipped=0)
+            return SimpleNamespace(returncode=0, stdout="BUILD SUCCESSFUL", stderr="")
+
+        with tempfile.TemporaryDirectory() as directory:
+            result = GateRunner(
+                [entry()],
+                Path(directory),
+                command_runner=command_runner,
+                max_attempts=1,
+            ).run()["results"][0]
+
+        self.assertEqual("blocked", result["status"])
+
+    def test_support_inventory_is_excluded_from_release_evidence_coverage(self) -> None:
+        support = entry("SupportServer", release_required=False)
+
+        def command_runner(command: list[str], timeout_seconds: int) -> SimpleNamespace:
+            if any(part.startswith("-Dtestcontainers.image-gate.evidence-dir=") for part in command):
+                _write_generic_junit(command, tests=1, skipped=0)
+            return SimpleNamespace(returncode=0, stdout="BUILD SUCCESSFUL", stderr="")
+
+        with tempfile.TemporaryDirectory() as directory:
+            summary = GateRunner(
+                [entry(), support],
+                Path(directory),
+                command_runner=command_runner,
+                max_attempts=1,
+            ).run()
+
+        self.assertEqual("1/1", summary["coverage"])
+        self.assertEqual("2/2", summary["selected_coverage"])
+        self.assertEqual(1, summary["release_required_selected"])
+        self.assertTrue(summary["release_gate"])
 
     def test_infrastructure_failure_retries_and_collects_diagnostics(self) -> None:
         calls: list[list[str]] = []
@@ -211,8 +307,9 @@ class TestRunTestcontainersImageGate(unittest.TestCase):
             summary = GateRunner(
                 [entry()],
                 Path(directory),
-                command_runner=lambda command, timeout_seconds: SimpleNamespace(
-                    returncode=0, stdout=long_success, stderr=""
+                command_runner=lambda command, timeout_seconds: (
+                    _write_generic_junit(command, tests=1, skipped=0)
+                    or SimpleNamespace(returncode=0, stdout=long_success, stderr="")
                 ),
                 max_attempts=1,
             ).run()
@@ -346,9 +443,7 @@ class TestRunTestcontainersImageGate(unittest.TestCase):
             summary = GateRunner(
                 [entry()],
                 Path(directory),
-                command_runner=lambda command, timeout_seconds: SimpleNamespace(
-                    returncode=0, stdout="BUILD SUCCESSFUL", stderr=""
-                ),
+                command_runner=_generic_success,
                 max_attempts=1,
             ).run()
             read_back = json.loads((Path(directory) / "summary.json").read_text())
@@ -674,7 +769,10 @@ class TestRunTestcontainersImageGate(unittest.TestCase):
             ),
         )
         with tempfile.TemporaryDirectory() as directory:
-            entries = [entry(f"Family{index}") | {"id": f"family-{index}"} for index in range(52)]
+            entries = [
+                entry(f"Family{index}", release_required=False) | {"id": f"family-{index}"}
+                for index in range(52)
+            ]
             summary = GateRunner(
                 entries,
                 Path(directory),
@@ -682,7 +780,7 @@ class TestRunTestcontainersImageGate(unittest.TestCase):
                 max_attempts=1,
             ).run()
             artifact_size = sum(path.stat().st_size for path in Path(directory).iterdir() if path.is_file())
-            self.assertEqual("52/52", summary["coverage"])
+            self.assertEqual("52/52", summary["selected_coverage"])
             self.assertLessEqual(artifact_size, 8 * 1024 * 1024)
 
 
