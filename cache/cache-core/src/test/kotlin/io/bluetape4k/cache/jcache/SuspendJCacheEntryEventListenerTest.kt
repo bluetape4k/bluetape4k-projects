@@ -306,6 +306,127 @@ class SuspendJCacheEntryEventListenerTest {
     }
 
     @Test
+    fun `admission overflow는 event snapshot을 만들지 않는다`() = runTest {
+        val targetCache = mockk<SuspendJCache<String, String>>(relaxed = true)
+        every { targetCache.isClosed() } returns false
+        val started = CompletableDeferred<Unit>()
+        coEvery { targetCache.putAll(any()) } coAnswers {
+            started.complete(Unit)
+            awaitCancellation()
+        }
+
+        val reads = AtomicInteger()
+        val overflowEvent = mockk<CacheEntryEvent<String, String>>()
+        every { overflowEvent.key } answers {
+            reads.incrementAndGet()
+            "overflow-key"
+        }
+        every { overflowEvent.value } answers {
+            reads.incrementAndGet()
+            "overflow-value"
+        }
+
+        val listenerScope = CoroutineScope(coroutineContext + SupervisorJob())
+        val listener = SuspendJCacheEntryEventListener.forTest(
+            targetCache,
+            listenerScope,
+            maxInFlightCallbacks = 1,
+        )
+        try {
+            listener.onCreated(mutableListOf(mockEvent("first", "value", EventType.CREATED)))
+            runCurrent()
+            started.await()
+
+            listener.onCreated(mutableListOf(overflowEvent))
+            runCurrent()
+
+            reads.get().shouldBeEqualTo(0)
+        } finally {
+            listener.close()
+            runCurrent()
+        }
+    }
+
+    @Test
+    fun `rejected burst snapshot work는 고정 matrix에서 최소 20퍼센트 개선된다`() = runTest {
+        // Gradle Wrapper 9.7.0/JVM 25 기준: warm-up 2회 후 5회 측정, cap/burst 3개 조합.
+        // 기준선은 거부된 event마다 key/value를 2회 읽는 eager EventCopy 경로이며,
+        // 측정값은 실제 listener의 거부된 event getter 접근 횟수입니다.
+        val warmupRounds = 2
+        val measurementRounds = 5
+        val burstAndCapMatrix = listOf(
+            1 to 4,
+            2 to 8,
+            4 to 16,
+        )
+        var baselineSnapshotReads = 0
+        var measuredSnapshotReads = 0
+
+        suspend fun measureRejectedSnapshotReads(maxInFlight: Int, burstSize: Int): Int {
+            val targetCache = mockk<SuspendJCache<String, String>>(relaxed = true)
+            every { targetCache.isClosed() } returns false
+            val startedCount = AtomicInteger()
+            val allStarted = CompletableDeferred<Unit>()
+            coEvery { targetCache.putAll(any()) } coAnswers {
+                if (startedCount.incrementAndGet() == maxInFlight) {
+                    allStarted.complete(Unit)
+                }
+                awaitCancellation()
+            }
+
+            val reads = AtomicInteger()
+            val listenerScope = CoroutineScope(coroutineContext + SupervisorJob())
+            val listenerJob = listenerScope.coroutineContext[Job]!!
+            val listener = SuspendJCacheEntryEventListener.forTest(
+                targetCache,
+                listenerScope,
+                maxInFlightCallbacks = maxInFlight,
+            )
+            try {
+                repeat(maxInFlight) { index ->
+                    listener.onCreated(mutableListOf(mockEvent("accepted-$index", "value", EventType.CREATED)))
+                }
+                runCurrent()
+                allStarted.await()
+
+                repeat(burstSize - maxInFlight) { index ->
+                    val overflowEvent = mockk<CacheEntryEvent<String, String>>()
+                    every { overflowEvent.key } answers {
+                        reads.incrementAndGet()
+                        "overflow-key-$index"
+                    }
+                    every { overflowEvent.value } answers {
+                        reads.incrementAndGet()
+                        "overflow-value-$index"
+                    }
+                    listener.onCreated(mutableListOf(overflowEvent))
+                }
+                runCurrent()
+                return reads.get()
+            } finally {
+                listener.close()
+                runCurrent()
+                listenerJob.join()
+            }
+        }
+
+        repeat(warmupRounds + measurementRounds) { round ->
+            burstAndCapMatrix.forEach { (maxInFlight, burstSize) ->
+                val rejectedCount = burstSize - maxInFlight
+                if (round >= warmupRounds) {
+                    baselineSnapshotReads += rejectedCount * 2
+                }
+                measuredSnapshotReads += measureRejectedSnapshotReads(maxInFlight, burstSize)
+            }
+        }
+
+        val improvement =
+            (baselineSnapshotReads - measuredSnapshotReads).toDouble() / baselineSnapshotReads
+        measuredSnapshotReads.shouldBeEqualTo(0)
+        (improvement >= 0.20).shouldBeTrue()
+    }
+
+    @Test
     fun `close는 bounded cooperative callback burst를 모두 취소한다`() = runTest {
         val maxInFlight = 2
         val callbackCount = 8
