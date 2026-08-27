@@ -28,7 +28,9 @@ private const val DEFAULT_MAX_IN_FLIGHT_CALLBACKS = 64
  * `launch`를 사용하여 스레드 풀 고갈과 데드락을 방지합니다.
  * callback admission은 non-blocking `tryAcquire()`로 선형화하며, 기본적으로
  * listener마다 최대 64개의 in-flight callback job만 허용합니다. 상한에 도달한
- * callback은 내부 queue 없이 즉시 거부하고 sanitized debug log를 남깁니다.
+ * callback은 이벤트 snapshot을 만들기 전에 내부 queue 없이 즉시 거부하고
+ * sanitized debug log를 남깁니다. permit을 확보한 callback만 JCache event의
+ * key/value를 immutable snapshot으로 복사합니다.
  * [close]는 취소를 요청하지만 callback 완료를 기다리지 않습니다.
  *
  * ```kotlin
@@ -96,10 +98,12 @@ class SuspendJCacheEntryEventListener<K: Any, V: Any> private constructor(
      * @throws CacheEntryListenerException if there is problem executing the listener
      */
     override fun onCreated(events: MutableIterable<CacheEntryEvent<out K, out V>>) {
-        val eventCopies = events.map { EventCopy(it.key, it.value) }
-        log.trace { "BackCache cache entry created. cache=$cacheIdentifier count=${eventCopies.size}" }
         submit("put all created cache entries") {
-            targetCache.putAll(eventCopies.associate { it.key to it.value })
+            val eventCopies = events.map { EventCopy(it.key, it.value) }
+            log.trace { "BackCache cache entry created. cache=$cacheIdentifier count=${eventCopies.size}" }
+            suspend {
+                targetCache.putAll(eventCopies.associate { it.key to it.value })
+            }
         }
     }
 
@@ -110,10 +114,12 @@ class SuspendJCacheEntryEventListener<K: Any, V: Any> private constructor(
      * @throws CacheEntryListenerException if there is problem executing the listener
      */
     override fun onUpdated(events: MutableIterable<CacheEntryEvent<out K, out V>>) {
-        val eventCopies = events.map { EventCopy(it.key, it.value) }
-        log.trace { "BackCache cache entry updated. cache=$cacheIdentifier count=${eventCopies.size}" }
         submit("put all updated cache entries") {
-            targetCache.putAll(eventCopies.associate { it.key to it.value })
+            val eventCopies = events.map { EventCopy(it.key, it.value) }
+            log.trace { "BackCache cache entry updated. cache=$cacheIdentifier count=${eventCopies.size}" }
+            suspend {
+                targetCache.putAll(eventCopies.associate { it.key to it.value })
+            }
         }
     }
 
@@ -125,10 +131,12 @@ class SuspendJCacheEntryEventListener<K: Any, V: Any> private constructor(
      * @throws CacheEntryListenerException if there is problem executing the listener
      */
     override fun onRemoved(events: MutableIterable<CacheEntryEvent<out K, out V>>) {
-        val eventKeys = events.map { it.key }
-        log.trace { "BackCache cache entry removed. cache=$cacheIdentifier count=${eventKeys.size}" }
         submit("remove all removed cache entries") {
-            targetCache.removeAll(eventKeys.toCollection(LinkedHashSet()))
+            val eventKeys = events.map { it.key }
+            log.trace { "BackCache cache entry removed. cache=$cacheIdentifier count=${eventKeys.size}" }
+            suspend {
+                targetCache.removeAll(eventKeys.toCollection(LinkedHashSet()))
+            }
         }
     }
 
@@ -140,14 +148,17 @@ class SuspendJCacheEntryEventListener<K: Any, V: Any> private constructor(
      * @throws CacheEntryListenerException if there is problem executing the listener
      */
     override fun onExpired(events: MutableIterable<CacheEntryEvent<out K, out V>>) {
-        val eventKeys = events.map { it.key }
-        log.trace { "BackCache cache entry expired. cache=$cacheIdentifier count=${eventKeys.size}" }
         submit("remove all expired cache entries") {
-            targetCache.removeAll(eventKeys.toCollection(LinkedHashSet()))
+            val eventKeys = events.map { it.key }
+            log.trace { "BackCache cache entry expired. cache=$cacheIdentifier count=${eventKeys.size}" }
+            suspend {
+                targetCache.removeAll(eventKeys.toCollection(LinkedHashSet()))
+            }
         }
     }
 
-    private fun submit(operation: String, block: suspend () -> Unit) {
+    @Suppress("ReturnCount", "TooGenericExceptionCaught")
+    private fun submit(operation: String, blockFactory: () -> (suspend () -> Unit)) {
         if (!shouldAcceptCallback()) return
         if (!admission.tryAcquire()) {
             log.debug {
@@ -156,9 +167,11 @@ class SuspendJCacheEntryEventListener<K: Any, V: Any> private constructor(
             }
             return
         }
-        if (!shouldAcceptCallback()) {
-            admission.release()
-        } else {
+        var permitTransferred = false
+        try {
+            if (!shouldAcceptCallback()) return
+            val block = blockFactory()
+            if (!shouldAcceptCallback()) return
             val job = scope.launch(start = CoroutineStart.LAZY) {
                 try {
                     if (!closed.get()) {
@@ -169,6 +182,11 @@ class SuspendJCacheEntryEventListener<K: Any, V: Any> private constructor(
                 }
             }
             if (!job.start()) {
+                admission.release()
+            }
+            permitTransferred = true
+        } finally {
+            if (!permitTransferred) {
                 admission.release()
             }
         }
