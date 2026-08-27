@@ -19,5 +19,8 @@ dependencies {
     testImplementation(project(":bluetape4k-idgenerators"))
     testImplementation(bt4k.java.uuid.generator)
 
+    testImplementation(project(":bluetape4k-kafka4"))
+    testImplementation(project(":bluetape4k-testcontainers"))
+    testImplementation(libs.testcontainers.kafka)
     testImplementation(project(":bluetape4k-junit5"))
 }

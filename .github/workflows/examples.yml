@@ -5,11 +5,13 @@ on:
     branches: [develop, main]
     paths:
       - 'examples/**'
+      - '.github/scripts/**'
       - '.github/workflows/examples.yml'
   push:
     branches: [develop]
     paths:
       - 'examples/**'
+      - '.github/scripts/**'
       - '.github/workflows/examples.yml'
   workflow_dispatch:
 
@@ -31,79 +33,180 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 60
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
 
-      - uses: actions/setup-java@v5.7.0
+      - uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961 # v5.7.0
         with:
           java-version: ${{ env.JAVA_VERSION }}
           distribution: ${{ env.JAVA_DISTRIBUTION }}
 
-      - uses: gradle/actions/setup-gradle@v6.3.0
+      - uses: gradle/actions/setup-gradle@9c971963bec38e04b3d30dcc455b5382be2fdbfb # v6.3.0
         with:
           gradle-version: wrapper
           cache-read-only: ${{ github.event_name == 'pull_request' }}
 
-      - name: Compile and test examples
+      - name: Compile examples
         shell: bash
         run: |
           set -euo pipefail
 
-          tasks=(
+          compile_tasks=(
             :bluetape4k-examples-coroutines-demo:compileKotlin
-            :bluetape4k-examples-coroutines-demo:test
             :bluetape4k-examples-jpa-blazepersistence-demo:compileKotlin
-            :bluetape4k-examples-jpa-blazepersistence-demo:test
             :bluetape4k-examples-jpa-querydsl-demo:compileKotlin
-            :bluetape4k-examples-jpa-querydsl-demo:test
             :bluetape4k-examples-redisson-demo:compileKotlin
-            :bluetape4k-examples-redisson-demo:test
             :bluetape4k-examples-virtualthreads-demo:compileKotlin
-            :bluetape4k-examples-virtualthreads-demo:test
           )
 
           if [[ -f examples/ktor/idgenerator-ktor-demo/build.gradle.kts ]]; then
-            tasks+=(
+            compile_tasks+=(
               :idgenerator-ktor-demo:compileKotlin
-              :idgenerator-ktor-demo:test
             )
           fi
 
           if [[ -f examples/ktor/observability-ktor-demo/build.gradle.kts ]]; then
-            tasks+=(
+            compile_tasks+=(
               :observability-ktor-demo:compileKotlin
-              :observability-ktor-demo:test
             )
           fi
 
           if [[ -f examples/spring-boot/idgenerator-spring-boot-demo/build.gradle.kts ]]; then
-            tasks+=(
+            compile_tasks+=(
               :idgenerator-spring-boot-demo:compileKotlin
-              :idgenerator-spring-boot-demo:test
             )
           fi
 
           if [[ -f examples/spring-boot/observability-spring-boot-demo/build.gradle.kts ]]; then
-            tasks+=(
+            compile_tasks+=(
               :observability-spring-boot-demo:compileKotlin
-              :observability-spring-boot-demo:test
             )
           fi
 
-          ./gradlew "${tasks[@]}" --parallel
+          ./gradlew "${compile_tasks[@]}" --parallel
         env:
           GRADLE_OPTS: "-Dorg.gradle.daemon=false"
 
-      - name: Upload example test results
+      - name: Test examples sequentially and collect diagnostics
         if: always()
-        uses: actions/upload-artifact@v7
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          test_tasks=(
+            :bluetape4k-examples-coroutines-demo:test
+            :bluetape4k-examples-jpa-blazepersistence-demo:test
+            :bluetape4k-examples-jpa-querydsl-demo:test
+            :bluetape4k-examples-redisson-demo:test
+            :bluetape4k-examples-virtualthreads-demo:test
+          )
+
+          if [[ -f examples/ktor/idgenerator-ktor-demo/build.gradle.kts ]]; then
+            test_tasks+=( :idgenerator-ktor-demo:test )
+          fi
+          if [[ -f examples/ktor/observability-ktor-demo/build.gradle.kts ]]; then
+            test_tasks+=( :observability-ktor-demo:test )
+          fi
+          if [[ -f examples/spring-boot/idgenerator-spring-boot-demo/build.gradle.kts ]]; then
+            test_tasks+=( :idgenerator-spring-boot-demo:test )
+          fi
+          if [[ -f examples/spring-boot/observability-spring-boot-demo/build.gradle.kts ]]; then
+            test_tasks+=( :observability-spring-boot-demo:test )
+          fi
+
+          report_paths=(
+            --report-path examples/coroutines-demo/build/test-results/test
+            --report-path examples/coroutines-demo/build/reports/tests/test
+            --report-path examples/jpa-blazepersistence-demo/build/test-results/test
+            --report-path examples/jpa-blazepersistence-demo/build/reports/tests/test
+            --report-path examples/jpa-querydsl-demo/build/test-results/test
+            --report-path examples/jpa-querydsl-demo/build/reports/tests/test
+            --report-path examples/redisson-demo/build/test-results/test
+            --report-path examples/redisson-demo/build/reports/tests/test
+            --report-path examples/virtualthreads-demo/build/test-results/test
+            --report-path examples/virtualthreads-demo/build/reports/tests/test
+          )
+          if [[ -f examples/ktor/idgenerator-ktor-demo/build.gradle.kts ]]; then
+            report_paths+=(
+              --report-path examples/ktor/idgenerator-ktor-demo/build/test-results/test
+              --report-path examples/ktor/idgenerator-ktor-demo/build/reports/tests/test
+            )
+          fi
+          if [[ -f examples/ktor/observability-ktor-demo/build.gradle.kts ]]; then
+            report_paths+=(
+              --report-path examples/ktor/observability-ktor-demo/build/test-results/test
+              --report-path examples/ktor/observability-ktor-demo/build/reports/tests/test
+            )
+          fi
+          if [[ -f examples/spring-boot/idgenerator-spring-boot-demo/build.gradle.kts ]]; then
+            report_paths+=(
+              --report-path examples/spring-boot/idgenerator-spring-boot-demo/build/test-results/test
+              --report-path examples/spring-boot/idgenerator-spring-boot-demo/build/reports/tests/test
+            )
+          fi
+          if [[ -f examples/spring-boot/observability-spring-boot-demo/build.gradle.kts ]]; then
+            report_paths+=(
+              --report-path examples/spring-boot/observability-spring-boot-demo/build/test-results/test
+              --report-path examples/spring-boot/observability-spring-boot-demo/build/reports/tests/test
+            )
+          fi
+
+          set +e
+          status=0
+          phase_started=$(date +%s)
+          for task in "${test_tasks[@]}"; do
+            before_ids_file=$(mktemp)
+            after_ids_file=$(mktemp)
+            # Snapshot only test-session containers; Ryuk itself also carries
+            # org.testcontainers=true but is not a test image we collect.
+            docker ps -aq \
+              --filter label=org.testcontainers=true \
+              --filter label=org.testcontainers.sessionId \
+              | sort -u >"$before_ids_file" || status=1
+            ./gradlew "$task" --max-workers=1 || status=1
+            docker ps -aq \
+              --filter label=org.testcontainers=true \
+              --filter label=org.testcontainers.sessionId \
+              | sort -u >"$after_ids_file" || status=1
+            new_ids=$(comm -13 "$before_ids_file" "$after_ids_file")
+            container_args=()
+            while IFS= read -r container_id; do
+              [[ -n "$container_id" ]] && container_args+=(--container-id "$container_id")
+            done <<<"$new_ids"
+            task_output_dir="examples/build/testcontainers-diagnostics/${task//:/_}"
+            python3 .github/scripts/collect-testcontainers-diagnostics.py \
+              --task-name "$task" \
+              --output-dir "$task_output_dir" \
+              --workflow-file .github/workflows/examples.yml \
+              --max-total-bytes 2000000 \
+              "${container_args[@]}" || status=1
+            test -f "$task_output_dir/manifest.json" || status=1
+            rm -f "$before_ids_file" "$after_ids_file"
+          done
+
+          python3 .github/scripts/collect-testcontainers-diagnostics.py \
+            --task-name examples-test-phase-reports \
+            --output-dir examples/build/testcontainers-diagnostics/report-scan \
+            --workflow-file .github/workflows/examples.yml \
+            --sanitized-report-dir examples/build/sanitized-test-reports \
+            --max-report-files 600 \
+            --max-report-total-bytes 8000000 \
+            "${report_paths[@]}" || status=1
+          test -d examples/build/sanitized-test-reports || status=1
+          phase_elapsed=$(( $(date +%s) - phase_started ))
+          printf 'serial_test_phase_seconds=%s\n' "$phase_elapsed" > examples/build/testcontainers-diagnostics/test-phase-timing.txt || status=1
+          (( phase_elapsed <= 2700 )) || status=1
+          set -e
+          exit "$status"
+
+      - name: Upload sanitized example diagnostics
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         with:
-          name: examples-test-results
+          name: examples-test-diagnostics
           path: |
-            examples/**/build/test-results/test/**
-            examples/**/build/reports/tests/test/**
-            examples/spring-boot/idgenerator-spring-boot-demo/build/test-results/test/**
-            examples/spring-boot/idgenerator-spring-boot-demo/build/reports/tests/test/**
-            examples/spring-boot/observability-spring-boot-demo/build/test-results/test/**
-            examples/spring-boot/observability-spring-boot-demo/build/reports/tests/test/**
-          if-no-files-found: ignore
+            examples/build/sanitized-test-reports/**
+            examples/build/testcontainers-diagnostics/**
+          if-no-files-found: error
           retention-days: 14
