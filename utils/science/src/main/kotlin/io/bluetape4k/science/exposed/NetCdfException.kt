@@ -10,8 +10,13 @@ package io.bluetape4k.science.exposed
  * - [FileRecordNotFound] : DB 에 등록된 파일 레코드가 없을 때
  * - [VariableNotFound] : 지정된 변수가 파일에 없을 때
  * - [UnsupportedVariable] : 변수 rank 가 지원 범위(1~4) 외일 때
- * - [MissingCoordinate] : lat/lon/level 좌표축이 누락되었거나 [ucar.nc2.dataset.CoordinateAxis1D] 가 아닐 때
- * - [UnsupportedProjection] : 좌표 참조계가 화이트리스트(EPSG:4326/3857/3031/3413/UTM 32601~32660·32701~32760) 외이거나 proj4j 변환 실패 시
+ * - [MissingCoordinate] : lat/lon/level 좌표축이 누락되었을 때
+ * - [UnsupportedCoordinateAxis] : 축이 CF 역할·차원·자료형 계약을 만족하지 않을 때
+ * - [UnsupportedProjection] : 좌표 참조계가 화이트리스트(EPSG:4326/4269/3857/3031/3413/UTM 32601~32660·32701~32760) 외이거나 proj4j 변환 실패 시
+ * - [DuplicateCoordinate] : 한 slice 안에서 정규화된 좌표 키가 중복될 때
+ * - [ResourceLimitExceeded] : bounded import resource budget 을 초과할 때
+ * - [FileChanged] : 등록·재개 중 파일 identity fingerprint 가 바뀔 때
+ * - [CorruptProgress] : progress checkpoint/status invariant 가 손상되었을 때
  * - [ImportAlreadyRunning] : 동일 (fileId, variableName) import 가 이미 lease 를 소유 중일 때
  * - [ImportLeaseLost] : lease 만료 후 다른 importer 가 같은 progress row 를 재획득했을 때
  *
@@ -35,13 +40,23 @@ sealed class NetCdfException(message: String, cause: Throwable? = null): Runtime
     class UnsupportedVariable(variableName: String, rank: Int):
         NetCdfException("Variable '$variableName' has unsupported rank=$rank (must be 1, 2, 3, or 4)")
 
-    /**
-     * lat/lon/level 좌표축이 누락되었거나 [ucar.nc2.dataset.CoordinateAxis1D] 가 아닐 때 발생합니다.
-     *
-     * `CoordinateAxis2D` (curvilinear / rotated pole / tripolar grid) 는 본 구현 스코프 외입니다.
-     */
+    /** 필수 좌표축이 누락되었을 때 발생합니다. */
     class MissingCoordinate(axisName: String):
-        NetCdfException("Required coordinate axis '$axisName' is missing or not a 1D numeric axis")
+        NetCdfException("Required coordinate axis '$axisName' is missing")
+
+    /**
+     * 좌표축이 CF 역할·차원·자료형 계약을 만족하지 않을 때 발생합니다.
+     *
+     * 이 subtype 추가는 2.0.0 major API migration 대상입니다. 기존 sealed
+     * `when` 소비자는 명시적인 branch 또는 `else`를 추가해야 합니다.
+     */
+    class UnsupportedCoordinateAxis(
+        val variableName: String,
+        val coordinateName: String?,
+        val reason: String,
+    ): NetCdfException(
+        "Unsupported coordinate axis: variable=$variableName coordinate=$coordinateName reason=$reason",
+    )
 
     /**
      * proj4j 로 EPSG:4326 으로 재투영할 수 없는 CRS 일 때 발생합니다.
@@ -50,6 +65,39 @@ sealed class NetCdfException(message: String, cause: Throwable? = null): Runtime
      */
     class UnsupportedProjection(srcCrs: String, cause: Throwable? = null):
         NetCdfException("Unsupported projection: '$srcCrs' (cannot reproject to EPSG:4326)", cause)
+
+    /** 동일 slice 안에서 canonical 좌표 키가 중복될 때 발생합니다. */
+    class DuplicateCoordinate(
+        val fileId: Long,
+        val variableName: String,
+        val timeIdx: Int,
+        val levelIdx: Int,
+        val longitude: Double,
+        val latitude: Double,
+    ): NetCdfException(
+        "Duplicate coordinate: fileId=$fileId variable=$variableName time=$timeIdx level=$levelIdx " +
+            "lon=$longitude lat=$latitude",
+    )
+
+    /** import 가 bounded resource budget 을 초과할 때 발생합니다. */
+    class ResourceLimitExceeded(
+        val resource: String,
+        val limit: Long,
+        val actual: Long,
+    ): NetCdfException("Resource limit exceeded: $resource limit=$limit actual=$actual")
+
+    /** 파일 fingerprint 가 등록 시점 또는 resume 시점과 달라졌을 때 발생합니다. */
+    class FileChanged(
+        val fileId: Long,
+        val expectedFingerprint: String,
+        val actualFingerprint: String,
+    ): NetCdfException("NetCDF file changed while import was resumable: fileId=$fileId")
+
+    /** progress checkpoint/status invariant 가 손상되었을 때 발생합니다. */
+    class CorruptProgress(
+        val progressId: Long,
+        val detail: String,
+    ): NetCdfException("Corrupt NetCDF import progress: progressId=$progressId detail=$detail")
 
     /**
      * 동일 (fileId, variableName) import 가 활성 lease 를 보유 중일 때 발생합니다.

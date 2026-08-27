@@ -18,6 +18,7 @@ import io.bluetape4k.assertions.shouldBeFalse
 import io.bluetape4k.assertions.shouldBeGreaterThan
 import io.bluetape4k.assertions.shouldBeNull
 import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.assertions.shouldNotBeEmpty
 import io.bluetape4k.assertions.shouldNotBeNull
 import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.jdbc.deleteAll
@@ -127,6 +128,11 @@ class NetCdfCatalogServiceTest: AbstractPostgisTest() {
         }
         count shouldBeEqualTo NetCdfSampleWriter.DEFAULT_TIME_N
         anyNullLoc shouldBeEqualTo true
+
+        val progress = transaction { progressRepo.findByFileAndVariable(fileId, "temperature") }
+        progress.shouldNotBeNull()
+        progress.lastSliceIdx shouldBeEqualTo 0L
+        progress.status shouldBeEqualTo NetCdfImportStatus.COMPLETED
     }
 
     @Test
@@ -627,6 +633,105 @@ class NetCdfCatalogServiceTest: AbstractPostgisTest() {
         service.importGridValues(fileId, "temperature")
         val progress = transaction(db) { progressRepo.findByFileAndVariable(fileId, "temperature") }
         progress.shouldNotBeNull()
+    }
+
+    @Test
+    fun `30a - curvilinear 2D axes preserve every cell coordinate and value`(@TempDir dir: Path) {
+        val path = NetCdfSampleWriter.writeCurvilinearSample(dir.resolve("curvilinear.nc"))
+        val fileId = service.registerFile(path.absolutePathString())
+        service.importGridValues(fileId, "temperature")
+
+        readSpatialTuples(fileId) shouldBeEqualTo NetCdfSampleWriter.CURVILINEAR_TUPLES
+    }
+
+    @Test
+    fun `31 - CF coordinates stores altitude in attrs and excludes time axis`(@TempDir dir: Path) {
+        val path = NetCdfSampleWriter.writeCfAuxiliarySample(dir.resolve("cf-aux.nc"))
+        val fileId = service.registerFile(path.absolutePathString())
+        service.importGridValues(fileId, "temperature")
+
+        val attrs = transaction(db) {
+            NetCdfGridValueTable.selectAll()
+                .where { NetCdfGridValueTable.fileId eq fileId }
+                .mapNotNull { it[NetCdfGridValueTable.attrs] }
+        }
+        attrs.shouldNotBeEmpty()
+        attrs.all { "altitude" in it && "time" !in it && "lat" !in it && "lon" !in it }
+            .shouldBeTrue()
+    }
+
+    @Test
+    fun `32 - non standard data dimension order uses full rank index`(@TempDir dir: Path) {
+        val path = NetCdfSampleWriter.writeCurvilinearSample(
+            dir.resolve("order.nc"), dataOrder = listOf("time", "x", "y"),
+        )
+        val fileId = service.registerFile(path.absolutePathString())
+        service.importGridValues(fileId, "temperature")
+
+        readSpatialTuples(fileId) shouldBeEqualTo NetCdfSampleWriter.CURVILINEAR_TUPLES
+    }
+
+    @Test
+    fun `33 - duplicate canonical coordinate is rejected before any insert`(@TempDir dir: Path) {
+        val path = NetCdfSampleWriter.writeDuplicateCoordinateSample(
+            dir.resolve("duplicate.nc"), duplicateAcrossTiles = true,
+        )
+        val fileId = service.registerFile(path.absolutePathString())
+        assertFailsWith<NetCdfException.DuplicateCoordinate> {
+            service.importGridValues(fileId, "temperature")
+        }
+
+        transaction(db) {
+            NetCdfGridValueTable.selectAll()
+                .where { NetCdfGridValueTable.fileId eq fileId }
+                .count()
+        } shouldBeEqualTo 0L
+    }
+
+    @Test
+    fun `34 - unsupported grid mapping and malformed EPSG are typed failures`(@TempDir dir: Path) {
+        val projected = NetCdfSampleWriter.writeProjected2DSample(
+            dir.resolve("bad-crs.nc"), "EPSG:9999999",
+        )
+        val projectedId = service.registerFile(projected.absolutePathString())
+        assertFailsWith<NetCdfException.UnsupportedProjection> {
+            service.importGridValues(projectedId, "temperature")
+        }
+
+        val malformed = NetCdfSampleWriter.writeProjected2DSample(
+            dir.resolve("malformed-crs.nc"), "EPSG:+4326",
+        )
+        val malformedId = service.registerFile(malformed.absolutePathString())
+        assertFailsWith<NetCdfException.UnsupportedProjection> {
+            service.importGridValues(malformedId, "temperature")
+        }
+    }
+
+    private fun readSpatialTuples(fileId: Long): List<NetCdfSampleWriter.SpatialTuple> = transaction(db) {
+        val expected = NetCdfSampleWriter.CURVILINEAR_TUPLES
+        val sql = "SELECT time_idx, level_idx, ST_X(location), ST_Y(location), value " +
+            "FROM netcdf_grid_values WHERE file_id=? AND location IS NOT NULL"
+        val conn = connection.connection as java.sql.Connection
+        conn.prepareStatement(sql).use { ps ->
+            ps.setLong(1, fileId)
+            ps.executeQuery().use { rs ->
+                buildList {
+                    while (rs.next()) {
+                        val timeIdx = rs.getInt(1)
+                        val levelIdx = rs.getInt(2)
+                        val longitude = rs.getDouble(3)
+                        val latitude = rs.getDouble(4)
+                        val fixtureTuple = expected.singleOrNull {
+                            java.lang.Double.doubleToLongBits(it.longitude) ==
+                                java.lang.Double.doubleToLongBits(longitude) &&
+                                java.lang.Double.doubleToLongBits(it.latitude) ==
+                                java.lang.Double.doubleToLongBits(latitude)
+                        } ?: error("Unexpected spatial tuple: time=$timeIdx level=$levelIdx lon=$longitude lat=$latitude")
+                        add(fixtureTuple.copy(timeIdx = timeIdx, levelIdx = levelIdx, value = rs.getDouble(5)))
+                    }
+                }.sortedWith(compareBy({ it.timeIdx }, { it.levelIdx }, { it.row }, { it.column }))
+            }
+        }
     }
 
     private fun forceExpireLease(fileId: Long, variableName: String) {

@@ -96,57 +96,61 @@ class NetCdfImportProgressRepository {
         variableName: String,
         leaseTtl: Duration = DEFAULT_LEASE_TTL,
     ): NetCdfImportProgress {
-        // Step 1: 기존 row 조회 (COMPLETED 분기)
-        val existing = findByFileAndVariable(fileId, variableName)
-        if (existing != null && existing.status == NetCdfImportStatus.COMPLETED) {
-            log.info { "lease skipped — already completed: fileId=$fileId var=$variableName" }
-            return existing
+        require(leaseTtl.seconds > 0L && leaseTtl.nano == 0) {
+            "leaseTtl must be a positive whole-second duration: $leaseTtl"
         }
-
-        // Step 2: 조건부 UPSERT (PENDING / FAILED / 만료 IN_PROGRESS 만 허용)
-        val now = Instant.now()
-        val leaseExp = now.plus(leaseTtl)
-        // started_at 은 최초 시작 시각을 보존 — 재개(FAILED→IN_PROGRESS) 시 COALESCE 로 기존 값 유지 (M3).
-        // 컬럼은 NOT NULL 이라 EXCLUDED.started_at 분기는 dead — 의도된 방어적 안전망.
+        val leaseSeconds = leaseTtl.seconds
         val sql = """
             INSERT INTO netcdf_import_progress
                 (file_id, variable_name, status, last_slice_idx, lease_expires_at, error_message,
                  started_at, completed_at, updated_at)
-            VALUES (?, ?, ?, NULL, ?, NULL, ?, NULL, ?)
+            VALUES (?, ?, 'IN_PROGRESS', NULL,
+                    clock_timestamp() + (? * INTERVAL '1 second'), NULL,
+                    CURRENT_TIMESTAMP, NULL, CURRENT_TIMESTAMP)
             ON CONFLICT (file_id, variable_name)
             DO UPDATE SET
-                status = EXCLUDED.status,
-                lease_expires_at = EXCLUDED.lease_expires_at,
-                started_at = COALESCE(netcdf_import_progress.started_at, EXCLUDED.started_at),
+                status = 'IN_PROGRESS',
+                lease_expires_at = clock_timestamp() + (? * INTERVAL '1 second'),
                 error_message = NULL,
-                updated_at = EXCLUDED.updated_at
+                completed_at = NULL,
+                updated_at = CURRENT_TIMESTAMP
             WHERE
                 netcdf_import_progress.status IN ('PENDING', 'FAILED')
                 OR (netcdf_import_progress.status = 'IN_PROGRESS'
-                    AND netcdf_import_progress.lease_expires_at < ?)
-            RETURNING id, status, last_slice_idx, lease_expires_at, started_at, updated_at
+                    AND netcdf_import_progress.lease_expires_at <= clock_timestamp())
+            RETURNING id, file_id, variable_name, status, last_slice_idx, lease_expires_at,
+                      error_message, started_at, completed_at, updated_at
         """.trimIndent()
 
         val conn = TransactionManager.current().connection.connection as java.sql.Connection
         return conn.prepareStatement(sql).use { stmt ->
             stmt.setLong(1, fileId)
             stmt.setString(2, variableName)
-            stmt.setString(3, NetCdfImportStatus.IN_PROGRESS.name)
-            stmt.setTimestamp(4, Timestamp.from(leaseExp))
-            stmt.setTimestamp(5, Timestamp.from(now))
-            stmt.setTimestamp(6, Timestamp.from(now))
-            stmt.setTimestamp(7, Timestamp.from(now))
+            stmt.setLong(3, leaseSeconds)
+            stmt.setLong(4, leaseSeconds)
 
             stmt.executeQuery().use { rs ->
                 if (!rs.next()) {
-                    // 0 row 갱신 — 활성 lease 보유 중인 다른 프로세스 존재 또는 동시 호출 race
+                    val current = findByFileAndVariable(fileId, variableName)
+                    if (current?.status == NetCdfImportStatus.COMPLETED) {
+                        log.info { "lease skipped — already completed: fileId=$fileId var=$variableName" }
+                        return@use current
+                    }
+                    if (current?.status == NetCdfImportStatus.IN_PROGRESS && current.leaseExpiresAt == null) {
+                        repairMalformedLease(current.id)
+                        return@use acquireLease(fileId, variableName, leaseTtl)
+                    }
                     throw NetCdfException.ImportAlreadyRunning(fileId, variableName)
                 }
                 val newId = rs.getLong("id")
+                val newFileId = rs.getLong("file_id")
+                val newVariableName = rs.getString("variable_name")
                 val newStatus = NetCdfImportStatus.valueOf(rs.getString("status"))
                 val newLastSliceIdx = rs.getLong("last_slice_idx").takeUnless { rs.wasNull() }
                 val newLeaseExp = rs.getTimestamp("lease_expires_at")?.toInstant()
+                val newError = rs.getString("error_message")
                 val newStartedAt = rs.getTimestamp("started_at").toInstant()
+                val newCompletedAt = rs.getTimestamp("completed_at")?.toInstant()
                 val newUpdatedAt = rs.getTimestamp("updated_at").toInstant()
 
                 log.debug {
@@ -156,14 +160,14 @@ class NetCdfImportProgressRepository {
 
                 NetCdfImportProgress(
                     id = newId,
-                    fileId = fileId,
-                    variableName = variableName,
+                    fileId = newFileId,
+                    variableName = newVariableName,
                     status = newStatus,
                     lastSliceIdx = newLastSliceIdx,
                     leaseExpiresAt = newLeaseExp,
-                    errorMessage = null,
+                    errorMessage = newError,
                     startedAt = newStartedAt,
-                    completedAt = null,
+                    completedAt = newCompletedAt,
                     updatedAt = newUpdatedAt,
                 )
             }
@@ -184,25 +188,57 @@ class NetCdfImportProgressRepository {
         lastSliceIdx: Long,
         leaseTtl: Duration = DEFAULT_LEASE_TTL,
     ): Instant {
-        val now = Instant.now()
-        val newExpires = now.plus(leaseTtl)
+        require(leaseTtl.seconds > 0L && leaseTtl.nano == 0) {
+            "leaseTtl must be a positive whole-second duration: $leaseTtl"
+        }
         val sql = """
             UPDATE netcdf_import_progress
-            SET last_slice_idx = ?, lease_expires_at = ?, updated_at = ?
+            SET last_slice_idx = ?,
+                lease_expires_at = clock_timestamp() + (? * INTERVAL '1 second'),
+                updated_at = CURRENT_TIMESTAMP
             WHERE id = ? AND status = 'IN_PROGRESS' AND lease_expires_at = ?
+              AND lease_expires_at > clock_timestamp()
             RETURNING lease_expires_at
         """.trimIndent()
         val conn = TransactionManager.current().connection.connection as java.sql.Connection
         conn.prepareStatement(sql).use { stmt ->
             stmt.setLong(1, lastSliceIdx)
-            stmt.setTimestamp(2, Timestamp.from(newExpires))
-            stmt.setTimestamp(3, Timestamp.from(now))
-            stmt.setLong(4, progressId)
-            stmt.setTimestamp(5, Timestamp.from(expectedLeaseExpiresAt))
+            stmt.setLong(2, leaseTtl.seconds)
+            stmt.setLong(3, progressId)
+            stmt.setTimestamp(4, Timestamp.from(expectedLeaseExpiresAt))
             stmt.executeQuery().use { rs ->
                 if (!rs.next()) {
                     throw NetCdfException.ImportLeaseLost(progressId)
                 }
+                return rs.getTimestamp("lease_expires_at").toInstant()
+            }
+        }
+    }
+
+    /** checkpoint를 전진시키지 않고 현재 owner lease만 연장합니다. */
+    fun touchLease(
+        progressId: Long,
+        expectedLeaseExpiresAt: Instant,
+        leaseTtl: Duration = DEFAULT_LEASE_TTL,
+    ): Instant {
+        require(leaseTtl.seconds > 0L && leaseTtl.nano == 0) {
+            "leaseTtl must be a positive whole-second duration: $leaseTtl"
+        }
+        val sql = """
+            UPDATE netcdf_import_progress
+            SET lease_expires_at = clock_timestamp() + (? * INTERVAL '1 second'),
+                updated_at = CURRENT_TIMESTAMP
+            WHERE id = ? AND status = 'IN_PROGRESS' AND lease_expires_at = ?
+              AND lease_expires_at > clock_timestamp()
+            RETURNING lease_expires_at
+        """.trimIndent()
+        val conn = TransactionManager.current().connection.connection as java.sql.Connection
+        conn.prepareStatement(sql).use { stmt ->
+            stmt.setLong(1, leaseTtl.seconds)
+            stmt.setLong(2, progressId)
+            stmt.setTimestamp(3, Timestamp.from(expectedLeaseExpiresAt))
+            stmt.executeQuery().use { rs ->
+                if (!rs.next()) throw NetCdfException.ImportLeaseLost(progressId)
                 return rs.getTimestamp("lease_expires_at").toInstant()
             }
         }
@@ -214,19 +250,17 @@ class NetCdfImportProgressRepository {
      * @throws NetCdfException.ImportLeaseLost 같은 progress row 를 다른 importer 가 재획득했을 때
      */
     fun markCompleted(progressId: Long, expectedLeaseExpiresAt: Instant) {
-        val now = Instant.now()
         val sql = """
             UPDATE netcdf_import_progress
-            SET status = 'COMPLETED', completed_at = ?, lease_expires_at = NULL,
-                error_message = NULL, updated_at = ?
+            SET status = 'COMPLETED', completed_at = CURRENT_TIMESTAMP, lease_expires_at = NULL,
+                error_message = NULL, updated_at = CURRENT_TIMESTAMP
             WHERE id = ? AND status = 'IN_PROGRESS' AND lease_expires_at = ?
+              AND lease_expires_at > clock_timestamp()
         """.trimIndent()
         val conn = TransactionManager.current().connection.connection as java.sql.Connection
         conn.prepareStatement(sql).use { stmt ->
-            stmt.setTimestamp(1, Timestamp.from(now))
-            stmt.setTimestamp(2, Timestamp.from(now))
-            stmt.setLong(3, progressId)
-            stmt.setTimestamp(4, Timestamp.from(expectedLeaseExpiresAt))
+            stmt.setLong(1, progressId)
+            stmt.setTimestamp(2, Timestamp.from(expectedLeaseExpiresAt))
             if (stmt.executeUpdate() != 1) {
                 throw NetCdfException.ImportLeaseLost(progressId)
             }
@@ -242,23 +276,67 @@ class NetCdfImportProgressRepository {
      * @throws NetCdfException.ImportLeaseLost 같은 progress row 를 다른 importer 가 재획득했을 때
      */
     fun markFailed(progressId: Long, expectedLeaseExpiresAt: Instant, errorMessage: String) {
-        val now = Instant.now()
         val sql = """
             UPDATE netcdf_import_progress
-            SET status = 'FAILED', error_message = ?, lease_expires_at = NULL, updated_at = ?
+            SET status = 'FAILED', error_message = ?, lease_expires_at = NULL, updated_at = CURRENT_TIMESTAMP
             WHERE id = ? AND status = 'IN_PROGRESS' AND lease_expires_at = ?
+              AND lease_expires_at > clock_timestamp()
         """.trimIndent()
         val conn = TransactionManager.current().connection.connection as java.sql.Connection
         conn.prepareStatement(sql).use { stmt ->
             stmt.setString(1, errorMessage.take(MAX_ERROR_MESSAGE_LENGTH))
-            stmt.setTimestamp(2, Timestamp.from(now))
-            stmt.setLong(3, progressId)
-            stmt.setTimestamp(4, Timestamp.from(expectedLeaseExpiresAt))
+            stmt.setLong(2, progressId)
+            stmt.setTimestamp(3, Timestamp.from(expectedLeaseExpiresAt))
             if (stmt.executeUpdate() != 1) {
                 throw NetCdfException.ImportLeaseLost(progressId)
             }
         }
         log.warn { "import marked FAILED — progressId=$progressId msg=${errorMessage.take(200)}" }
+    }
+
+    /**
+     * 관리자 확인이 필요한 손상 checkpoint를 stable marker로 격리합니다.
+     *
+     * COMPLETED 행은 이미 외부에 관측된 성공 결과이므로 절대로 변경하지 않습니다.
+     * 호출자는 이 메서드가 반환된 뒤 [NetCdfException.CorruptProgress]를 던져야 합니다.
+     */
+    fun quarantineCorruptProgress(progressId: Long, detail: String) {
+        val conn = TransactionManager.current().connection.connection as java.sql.Connection
+        conn.prepareStatement(
+            "SELECT status FROM netcdf_import_progress WHERE id = ? FOR UPDATE",
+        ).use { select ->
+            select.setLong(1, progressId)
+            select.executeQuery().use { rs ->
+                if (!rs.next() || rs.getString(1) == NetCdfImportStatus.COMPLETED.name) return
+            }
+        }
+        conn.prepareStatement(
+            """
+            UPDATE netcdf_import_progress
+            SET status = 'FAILED', error_message = ?, lease_expires_at = NULL,
+                updated_at = CURRENT_TIMESTAMP
+            WHERE id = ? AND status <> 'COMPLETED'
+            """.trimIndent(),
+        ).use { update ->
+            update.setString(1, "CORRUPT_PROGRESS:$progressId:${detail.take(512)}")
+            update.setLong(2, progressId)
+            update.executeUpdate()
+        }
+    }
+
+    private fun repairMalformedLease(progressId: Long) {
+        val sql = """
+            UPDATE netcdf_import_progress
+            SET status = 'FAILED', error_message = ?, lease_expires_at = NULL,
+                updated_at = CURRENT_TIMESTAMP
+            WHERE id = ? AND status = 'IN_PROGRESS' AND lease_expires_at IS NULL
+        """.trimIndent()
+        val conn = TransactionManager.current().connection.connection as java.sql.Connection
+        conn.prepareStatement(sql).use { stmt ->
+            stmt.setString(1, "CORRUPT_PROGRESS:$progressId")
+            stmt.setLong(2, progressId)
+            stmt.executeUpdate()
+        }
     }
 }
 
