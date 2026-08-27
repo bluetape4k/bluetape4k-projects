@@ -1,55 +1,65 @@
 package io.bluetape4k.science.exposed.service
 
 import io.bluetape4k.logging.KLogging
-import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.info
 import io.bluetape4k.science.exposed.NetCdfException
 import io.bluetape4k.science.exposed.model.NetCdfFileRecord
+import io.bluetape4k.science.exposed.model.NetCdfImportProgress
 import io.bluetape4k.science.exposed.model.NetCdfImportStatus
 import io.bluetape4k.science.exposed.model.NetCdfVariableInfo
 import io.bluetape4k.science.exposed.repository.NetCdfFileRepository
 import io.bluetape4k.science.exposed.repository.NetCdfImportProgressRepository
+import io.bluetape4k.science.exposed.service.internal.CoordinateKeySet
 import io.bluetape4k.science.exposed.service.internal.CoordinateReprojector
+import io.bluetape4k.science.exposed.service.internal.JdbcTileBatchWriter
+import io.bluetape4k.science.exposed.service.internal.MAX_AUXILIARY_JSONB_BYTES
+import io.bluetape4k.science.exposed.service.internal.MAX_BATCH_ROWS
+import io.bluetape4k.science.exposed.service.internal.MAX_CELLS
+import io.bluetape4k.science.exposed.service.internal.MAX_DUPLICATE_ENTRY_BYTES
+import io.bluetape4k.science.exposed.service.internal.MAX_GROUP_COUNT
+import io.bluetape4k.science.exposed.service.internal.MAX_GROUP_DEPTH
+import io.bluetape4k.science.exposed.service.internal.MAX_GROUP_DIMENSIONS
+import io.bluetape4k.science.exposed.service.internal.MAX_METADATA_BYTES
+import io.bluetape4k.science.exposed.service.internal.MAX_SLICES
+import io.bluetape4k.science.exposed.service.internal.MAX_TILE_CELLS
+import io.bluetape4k.science.exposed.service.internal.MAX_VARIABLES
+import io.bluetape4k.science.exposed.service.internal.MAX_VARIABLE_NAME_BYTES
+import io.bluetape4k.science.exposed.service.internal.MemoryBudget
+import io.bluetape4k.science.exposed.service.internal.MutableCoordinateSample
+import io.bluetape4k.science.exposed.service.internal.NetCdfFileGuard
+import io.bluetape4k.science.exposed.service.internal.NetCdfTileCoordinateSampler
+import io.bluetape4k.science.exposed.service.internal.NetCdfTile
+import io.bluetape4k.science.exposed.service.internal.NetCdfTilePlanner
+import io.bluetape4k.science.exposed.service.internal.TileRow
+import io.bluetape4k.science.exposed.service.internal.UcarCoordinateReader
 import io.bluetape4k.science.exposed.service.internal.VariableAxisMap
+import io.bluetape4k.science.exposed.service.internal.checkedProduct
+import io.bluetape4k.science.exposed.service.internal.serializeAuxiliaryAttributes
 import io.micrometer.core.instrument.MeterRegistry
 import io.micrometer.core.instrument.Timer
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import ucar.ma2.Array as UcarArray
 import ucar.nc2.Attribute
+import ucar.nc2.Group
+import ucar.nc2.NetcdfFile
 import ucar.nc2.NetcdfFiles
 import ucar.nc2.Variable
 import ucar.nc2.dataset.NetcdfDataset
 import ucar.nc2.dataset.NetcdfDatasets
-import java.nio.file.Files
-import java.nio.file.Paths
+import java.nio.charset.StandardCharsets
+import java.nio.file.Path
 import java.time.Duration
 import java.time.Instant
+import java.util.ArrayDeque
+import java.util.concurrent.CancellationException
+import kotlin.math.abs
 
 /**
- * NetCDF 파일 등록 및 격자 값 임포트를 담당하는 서비스입니다.
+ * NetCDF 파일 등록과 bounded 격자 값 임포트를 담당하는 blocking 서비스입니다.
  *
- * ## 주요 기능
- *
- * - [registerFile] : NetCDF 파일 메타데이터를 DB 에 등록합니다.
- * - [importGridValues] : NetCDF 변수의 격자 값을 슬라이스 단위로 DB 에 임포트합니다.
- *   - rank 1 (시계열) ~ rank 4 (time × level × lat × lon) 지원
- *   - heartbeat lease 기반 동시성 제어 + sliceIdx 기반 재개
- *   - proj4j 기반 비 WGS84 CRS 자동 재투영 (Geographic 1D / Projected 2D pair)
- *   - NaN / `_FillValue` 자동 skip
- *   - 선택적 Micrometer 계측
- *
- * ## 호출 컨텍스트
- *
- * blocking API. 호출자는 Spring Boot Virtual Thread executor 등에서 호출 권장 (VT pinning 위험은 Spec §2.4 R2 참조).
- *
- * ## CoordinateAxis2D 비지원
- *
- * curvilinear / rotated pole / tripolar grid 같은 [ucar.nc2.dataset.CoordinateAxis2D] 좌표축은 본 구현 스코프 외입니다.
- * 1D 가 아닌 lat/lon 축이 발견되면 [NetCdfException.MissingCoordinate] 가 발생합니다.
- *
- * @param fileRepo      파일 메타데이터 Repository
- * @param progressRepo  변수 단위 진행 상태 Repository
- * @param meterRegistry 선택 — null 이면 계측 no-op
+ * 파일 identity를 등록·재개 시점에 확인하고, CF 1D/2D 좌표축을 tile 단위로
+ * 읽습니다. 좌표와 값은 두 번 순회하여 한 slice의 duplicate를 먼저 검증한
+ * 뒤에만 JDBC batch를 실행합니다.
  */
 class NetCdfCatalogService(
     private val fileRepo: NetCdfFileRepository,
@@ -66,478 +76,819 @@ class NetCdfCatalogService(
 
         /** heartbeat 갱신 시간 임계 */
         val HEARTBEAT_INTERVAL: Duration = Duration.ofSeconds(30)
+
+        private val SUPPORTED_RANKS: IntRange = 1..4
+        private const val MAX_SPATIAL_RANK: Int = 4
+        private const val FILL_VALUE_TOLERANCE: Double = 1e-7
     }
 
-    /**
-     * NetCDF 파일을 열어 메타데이터를 DB 에 등록합니다.
-     *
-     * Micrometer `netcdf.register.duration` Timer 로 경과 시간이 계측됩니다 (`status=success|failure` tag).
-     *
-     * 호출자가 [filePath] 의 신뢰성을 검증해야 합니다 (path traversal 등은 호출자 책임 — Spec R11).
-     * 본 메서드는 blocking 으로 동작하므로 향후 `suspend` 변환 시 `runCatching` 대신 try/catch 로
-     * `CancellationException` rethrow 처리 필요 (coding-style 규칙).
-     *
-     * @param filePath NetCDF 파일 전체 경로 (blank 금지)
-     * @return 생성된 파일 레코드 ID
-     * @throws IllegalArgumentException filePath 가 blank 일 때
-     * @throws NetCdfException.FileOpen 파일을 열 수 없을 때
-     */
+    /** NetCDF 파일을 bounded metadata와 identity fingerprint와 함께 등록합니다. */
     fun registerFile(filePath: String): Long {
-        require(filePath.isNotBlank()) { "filePath must not be blank" }
-
         val sample = meterRegistry?.let { Timer.start(it) }
         var success = false
-
         try {
-            val record = runCatching {
-                NetcdfFiles.open(filePath).use { nc ->
-                    val variables = nc.variables.map { v ->
-                        NetCdfVariableInfo(
-                            name = v.fullName,
-                            dataType = v.dataType.name,
-                            shape = v.shape.toList(),
-                            attributes = v.netCdfAttributes().associate { attr ->
-                                attr.shortName to (attr.stringValue ?: attr.numericValue?.toString().orEmpty())
-                            },
-                        )
-                    }
-                    val dimensions = nc.rootGroup.getDimensions().associate { it.shortName to it.length }
-                    val globalAttrs = nc.globalAttributes.associate { attr ->
-                        attr.shortName to (attr.stringValue ?: attr.numericValue?.toString().orEmpty())
-                    }
-
-                    val path = Paths.get(filePath)
-                    NetCdfFileRecord(
-                        filename = path.fileName.toString(),
-                        filePath = filePath,
-                        fileSize = runCatching { Files.size(path) }.getOrDefault(0L),
-                        variables = variables,
-                        dimensions = dimensions,
-                        globalAttrs = globalAttrs,
-                    )
-                }
-            }.getOrElse { throw NetCdfException.FileOpen(filePath, it) }
-
+            val identity = NetCdfFileGuard.validateForRegister(filePath)
+            val record = NetCdfFileGuard.openVerified(
+                fileId = 0L,
+                filePath = identity.path.toString(),
+                expectedFingerprint = identity.fingerprint,
+            ) {
+                NetcdfFiles.open(identity.path.toString())
+            }.use { netcdf ->
+                buildFileRecord(identity.path, identity.fileSize, identity.fingerprint, netcdf)
+            }
             val id = transaction { fileRepo.save(record).id }
             success = true
-            log.info { "NetCDF file registered — id=$id path=$filePath vars=${record.variables.size}" }
+            log.info { "NetCDF file registered — id=$id path=${identity.path} vars=${record.variables.size}" }
             return id
         } finally {
-            sample?.let { sampler ->
-                sampler.stop(
-                    checkNotNull(meterRegistry).timer(
-                        "netcdf.register.duration",
-                        "status", if (success) "success" else "failure",
-                    )
-                )
-            }
+            sample?.stop(
+                checkNotNull(meterRegistry).timer(
+                    "netcdf.register.duration",
+                    "status",
+                    if (success) "success" else "failure",
+                ),
+            )
         }
     }
 
-    /**
-     * NetCDF 파일의 지정된 변수의 격자 값을 DB 에 임포트합니다.
-     *
-     * ## 지원 rank
-     *
-     * - 1D (time)                       : timeIdx=t, levelIdx=0, location=null
-     * - 2D (lat, lon)                   : timeIdx=0, levelIdx=0, location=Point
-     * - 3D (time, lat, lon)             : timeIdx=t, levelIdx=0, location=Point
-     * - 4D (time, level, lat, lon)      : timeIdx=t, levelIdx=k, location=Point
-     *
-     * ## 재개
-     * `(fileId, variableName)` 단위 progress 테이블 + heartbeat lease (5분 TTL).
-     * COMPLETED 면 즉시 no-op. FAILED / 만료된 IN_PROGRESS 면 `lastSliceIdx + 1` 부터 재개.
-     *
-     * ## CRS 재투영
-     * proj4j 화이트리스트 (EPSG:4326/4269/3857/3031/3413/UTM 32601~32660·32701~32760) 외이면 [NetCdfException.UnsupportedProjection].
-     *
-     * ## NaN / `_FillValue`
-     * 자동 skip + `netcdf.import.nan.skipped` counter 증가 + `log.debug`.
-     *
-     * @throws IllegalArgumentException variableName 이 blank 일 때
-     * @throws NetCdfException.FileRecordNotFound DB 에 파일 레코드가 없을 때 (lease 미획득 → metric 미기록)
-     * @throws NetCdfException.VariableNotFound 변수가 없을 때
-     * @throws NetCdfException.UnsupportedVariable rank 가 1~4 외일 때
-     * @throws NetCdfException.MissingCoordinate lat/lon/level 좌표축이 없거나 1D 가 아닐 때
-     * @throws NetCdfException.UnsupportedProjection 화이트리스트 외 CRS 일 때
-     * @throws NetCdfException.ImportAlreadyRunning 다른 프로세스가 활성 lease 보유 중일 때
-     * @throws NetCdfException.ImportLeaseLost lease 만료 후 다른 프로세스가 같은 progress row 를 재획득했을 때
-     */
+    /** 등록된 변수의 값을 slice/tile 단위로 임포트합니다. */
     fun importGridValues(fileId: Long, variableName: String) {
-        require(variableName.isNotBlank()) { "variableName must not be blank" }
+        try {
+            importGridValuesInternal(fileId, variableName)
+        } catch (e: NetCdfException) {
+            if (e !is NetCdfException.FileRecordNotFound) {
+                recordRejection(e)
+            }
+            throw e
+        }
+    }
 
-        // FileRecordNotFound 는 lease 획득 전 → markFailed/counter 호출 없이 raise (Codex Plan v2.1 Medium#4)
+    private fun importGridValuesInternal(fileId: Long, variableName: String) {
+        require(variableName.isNotBlank()) { "variableName must not be blank" }
         val record = transaction { fileRepo.findById(fileId) }
             ?: throw NetCdfException.FileRecordNotFound(fileId)
 
-        val progress = transaction { progressRepo.acquireLease(fileId, variableName, LEASE_TTL) }
-        if (progress.status == NetCdfImportStatus.COMPLETED) {
-            log.info { "import skipped — already completed: fileId=$fileId var=$variableName" }
-            return
-        }
-        val startSliceIdx: Long = (progress.lastSliceIdx ?: -1L) + 1L
-        if (progress.lastSliceIdx != null) {
-            meterRegistry?.counter("netcdf.import.status", "status", "resumed")?.increment()
-            log.info { "resuming import — fileId=$fileId var=$variableName startSliceIdx=$startSliceIdx" }
-        }
-        val initialLeaseToken = checkNotNull(progress.leaseExpiresAt) {
-            "IN_PROGRESS import progress must have leaseExpiresAt"
-        }
-        val lease = ImportLease(initialLeaseToken)
-
-        val dataset = runCatching { NetcdfDatasets.openDataset(record.filePath) }
-            .getOrElse {
-                transaction {
-                    progressRepo.markFailed(progress.id, lease.expiresAt, it.message.orEmpty())
-                }
-                meterRegistry?.counter("netcdf.import.status", "status", "failure")?.increment()
-                throw NetCdfException.FileOpen(record.filePath, it)
+        val expectedFingerprint = record.globalAttrs[NetCdfFileGuard.FINGERPRINT_ATTRIBUTE]
+            ?: run {
+                val actual = NetCdfFileGuard.validateForRegister(record.filePath).fingerprint
+                throw NetCdfException.FileChanged(fileId, "missing-fingerprint", actual)
             }
+        val verifiedIdentity = NetCdfFileGuard.verifyForResume(fileId, record.filePath, expectedFingerprint)
+        val dataset = NetCdfFileGuard.openVerified(
+            fileId = fileId,
+            filePath = record.filePath,
+            expectedFingerprint = expectedFingerprint,
+        ) {
+            NetcdfDatasets.openDataset(verifiedIdentity.path.toString())
+        }
 
         try {
             dataset.use { ncd ->
-                val v = ncd.findVariable(variableName)
+                val variable = ncd.findVariable(variableName)
                     ?: throw NetCdfException.VariableNotFound(fileId, variableName)
-
-                if (v.rank !in 1..4) {
-                    throw NetCdfException.UnsupportedVariable(variableName, v.rank)
+                if (variable.rank !in SUPPORTED_RANKS) {
+                    throw NetCdfException.UnsupportedVariable(variableName, variable.rank)
                 }
-
-                val axisMap = VariableAxisMap.build(v, ncd)
-                val ctx = ImportContext(
+                val axisMap = VariableAxisMap.build(variable, ncd)
+                val layout = ImportLayout.create(variable, axisMap)
+                val prepared = PreparedImport(
                     fileId = fileId,
                     variableName = variableName,
-                    progressId = progress.id,
-                    lease = lease,
-                    variable = v,
+                    variable = variable,
                     axisMap = axisMap,
-                    fillValue = v.findAttribute("_FillValue")?.numericValue?.toDouble(),
+                    layout = layout,
+                    reprojector = if (layout.hasSpatialGrid) {
+                        CoordinateReprojector.from(variable, ncd, axisMap)
+                    } else null,
+                    coordinateReader = UcarCoordinateReader(
+                        buildMap {
+                            (ncd.variables + ncd.coordinateAxes).forEach { candidate ->
+                                put(candidate.fullName, candidate)
+                                putIfAbsent(candidate.shortName, candidate)
+                            }
+                        },
+                        variable.fullName,
+                    ),
+                    fillValue = variable.findAttribute("_FillValue")?.numericValue?.toDouble(),
                 )
-
-                when (v.rank) {
-                    1 -> importRank1(ctx, startSliceIdx)
-                    2 -> importRank2(ctx, ncd, startSliceIdx)
-                    3 -> importRank3(ctx, ncd, startSliceIdx)
-                    4 -> importRank4(ctx, ncd, startSliceIdx)
-                }
-
-                transaction { progressRepo.markCompleted(ctx.progressId, ctx.lease.expiresAt) }
-                meterRegistry?.counter("netcdf.import.status", "status", "success")?.increment()
-                log.info { "import COMPLETED — fileId=$fileId var=$variableName" }
+                runPreparedImport(prepared)
             }
+        } catch (e: CancellationException) {
+            throw e
+        } catch (e: InterruptedException) {
+            Thread.currentThread().interrupt()
+            throw e
+        }
+    }
+
+    private fun runPreparedImport(prepared: PreparedImport) {
+        val progress = transaction {
+            progressRepo.acquireLease(prepared.fileId, prepared.variableName, LEASE_TTL)
+        }
+        validateProgress(prepared, progress)
+        if (progress.status == NetCdfImportStatus.COMPLETED) {
+            log.info { "import skipped — already completed: fileId=${prepared.fileId} var=${prepared.variableName}" }
+            return
+        }
+
+        val initialExpiry = progress.leaseExpiresAt
+            ?: throw NetCdfException.CorruptProgress(progress.id, "active lease is null")
+        val lease = ImportLease(initialExpiry)
+        val context = ImportContext(prepared, progress.id, lease)
+        val startSlice = (progress.lastSliceIdx ?: -1L) + 1L
+        if (progress.lastSliceIdx != null) {
+            meterRegistry?.counter("netcdf.import.status", "status", "resumed")?.increment()
+            log.info {
+                "resuming import — fileId=${prepared.fileId} var=${prepared.variableName} " +
+                    "startSliceIdx=$startSlice"
+            }
+        }
+
+        try {
+            if (prepared.layout.isRankOne) {
+                importRankOne(context, startSlice)
+            } else {
+                importSpatial(context, startSlice)
+            }
+            meterRegistry?.counter("netcdf.import.status", "status", "success")?.increment()
+            log.info { "import COMPLETED — fileId=${prepared.fileId} var=${prepared.variableName}" }
         } catch (e: NetCdfException.ImportAlreadyRunning) {
-            // 다른 프로세스 소유 — progress 변경 없음, failure counter 미증가 (M4)
             throw e
         } catch (e: NetCdfException.ImportLeaseLost) {
-            // lease 만료 후 다른 프로세스가 재획득 — stale importer 는 progress 를 변경하지 않음.
+            throw e
+        } catch (e: CancellationException) {
+            throw e
+        } catch (e: InterruptedException) {
+            Thread.currentThread().interrupt()
             throw e
         } catch (e: Exception) {
-            transaction { progressRepo.markFailed(progress.id, lease.expiresAt, e.message.orEmpty()) }
+            try {
+                transaction { progressRepo.markFailed(progress.id, lease.expiresAt, e.message.orEmpty()) }
+            } catch (failure: Exception) {
+                e.addSuppressed(failure)
+            }
             meterRegistry?.counter("netcdf.import.status", "status", "failure")?.increment()
             throw e
         }
     }
 
-    /**
-     * rank=1 (time only) — location/level null, timeIdx=t.
-     *
-     * 단일 슬라이스: 모든 time step 을 한 번에 read.
-     */
-    private fun importRank1(ctx: ImportContext, startSliceIdx: Long) {
-        if (startSliceIdx > 0L) return  // sliceIdx 는 0 단일이므로 재시작 무의미
-
-        val data = ctx.variable.read()
+    private fun importRankOne(context: ImportContext, startSlice: Long) {
+        if (startSlice > 0L) {
+            checkNotInterrupted()
+            transaction {
+                checkNotInterrupted()
+                progressRepo.markCompleted(context.progressId, context.lease.expiresAt)
+                checkNotInterrupted()
+            }
+            return
+        }
+        val variable = context.prepared.variable
+        val length = variable.shape.singleOrNull()
+            ?: throw NetCdfException.UnsupportedVariable(variable.fullName, variable.rank)
+        val reader = { origin: IntArray, shape: IntArray -> variable.read(origin, shape) }
+        val writer = JdbcTileBatchWriter()
+        val batchPayloadBytes = checkedProduct(
+            MAX_BATCH_ROWS,
+            io.bluetape4k.science.exposed.service.internal.MAX_FIXED_ROW_BYTES + MAX_AUXILIARY_JSONB_BYTES,
+        )
+        MemoryBudget(
+            tileBufferBytes = checkedProduct(MAX_TILE_CELLS, Double.SIZE_BYTES.toLong()),
+            coordinateBytes = 0L,
+            serializerScratchBytes = maxOf(MAX_AUXILIARY_JSONB_BYTES, batchPayloadBytes),
+            duplicateSetBytes = 0L,
+        ).requireWithinLimit()
         var inserted = 0
         var skipped = 0
-
-        val sql = """
-            INSERT INTO netcdf_grid_values (file_id, variable_name, location, time_idx, level_idx, value)
-            VALUES (?, ?, NULL, ?, 0, ?)
-            ON CONFLICT DO NOTHING
-        """.trimIndent()
-
-        transaction {
-            val conn = connection.connection as java.sql.Connection
-            conn.prepareStatement(sql).use { ps ->
-                val iter = data.indexIterator
-                var t = 0
-                while (iter.hasNext()) {
-                    val raw = iter.getDoubleNext()
-                    if (isMissing(raw, ctx.fillValue)) {
+        var offset = 0
+        while (offset < length) {
+            checkNotInterrupted()
+            val count = minOf(MAX_BATCH_ROWS.toInt(), length - offset)
+            val data = reader(intArrayOf(offset), intArrayOf(count))
+            val index = data.index
+            val result = transaction {
+                context.lease.expiresAt = progressRepo.touchLease(
+                    context.progressId,
+                    context.lease.expiresAt,
+                    leaseTtl = LEASE_TTL,
+                )
+                checkNotInterrupted()
+                val pending = ArrayList<TileRow>(MAX_BATCH_ROWS.toInt())
+                var windowInserted = 0
+                repeat(count) { local ->
+                    checkNotInterrupted()
+                    val value = data.getDouble(index.set(local))
+                    if (isMissing(value, context.prepared.fillValue)) {
                         skipped++
                     } else {
-                        ps.setLong(1, ctx.fileId)
-                        ps.setString(2, ctx.variableName)
-                        ps.setInt(3, t)
-                        ps.setDouble(4, raw)
-                        ps.addBatch()
-                        inserted++
+                        pending += TileRow(
+                            fileId = context.prepared.fileId,
+                            variableName = context.prepared.variableName,
+                            longitude = null,
+                            latitude = null,
+                            timeIdx = offset + local,
+                            levelIdx = 0,
+                            value = value,
+                        )
+                        if (pending.size == MAX_BATCH_ROWS.toInt()) {
+                            windowInserted += writer.write(
+                                connection.connection as java.sql.Connection,
+                                pending,
+                            ).inserted
+                            checkNotInterrupted()
+                            pending.clear()
+                        }
                     }
-                    t++
                 }
-                ps.executeBatch()
+                if (pending.isNotEmpty()) {
+                    checkNotInterrupted()
+                    windowInserted += writer.write(
+                        connection.connection as java.sql.Connection,
+                        pending,
+                    ).inserted
+                    checkNotInterrupted()
+                    pending.clear()
+                }
+                checkNotInterrupted()
+                if (offset + count == length) {
+                    checkNotInterrupted()
+                    context.lease.expiresAt = progressRepo.renewLease(
+                        context.progressId,
+                        context.lease.expiresAt,
+                        lastSliceIdx = 0L,
+                        leaseTtl = LEASE_TTL,
+                    )
+                    checkNotInterrupted()
+                    progressRepo.markCompleted(context.progressId, context.lease.expiresAt)
+                    checkNotInterrupted()
+                } else {
+                    checkNotInterrupted()
+                    context.lease.expiresAt = progressRepo.touchLease(
+                        context.progressId,
+                        context.lease.expiresAt,
+                        leaseTtl = LEASE_TTL,
+                    )
+                    checkNotInterrupted()
+                }
+                windowInserted
             }
-            ctx.lease.expiresAt = progressRepo.renewLease(
-                progressId = ctx.progressId,
-                expectedLeaseExpiresAt = ctx.lease.expiresAt,
-                lastSliceIdx = 0L,
-                leaseTtl = LEASE_TTL,
-            )
+            inserted += result
+            offset += count
         }
-        meterRegistry?.counter("netcdf.import.variable.records", "variable", ctx.variableName)
-            ?.increment(inserted.toDouble())
-        if (skipped > 0) {
-            meterRegistry?.counter("netcdf.import.nan.skipped")?.increment(skipped.toDouble())
-        }
-        log.debug { "rank1 imported — variable=${ctx.variableName} inserted=$inserted skipped=$skipped" }
+        recordMetrics(inserted, skipped)
     }
 
-    /**
-     * rank=2 (lat, lon) — 단일 슬라이스, timeIdx=0/levelIdx=0.
-     */
-    private fun importRank2(ctx: ImportContext, ncd: NetcdfDataset, startSliceIdx: Long) {
-        if (startSliceIdx > 0L) return  // 단일 슬라이스
+    private fun importSpatial(context: ImportContext, startSlice: Long) {
+        val layout = context.prepared.layout
+        val finalSlice = layout.totalSlices - 1L
+        if (startSlice > finalSlice) {
+            checkNotInterrupted()
+            transaction {
+                checkNotInterrupted()
+                progressRepo.markCompleted(context.progressId, context.lease.expiresAt)
+                checkNotInterrupted()
+            }
+            return
+        }
+        var slice = startSlice
+        while (slice <= finalSlice) {
+            checkNotInterrupted()
+            val timeIdx = (slice / layout.levelCount).toInt()
+            val levelIdx = (slice % layout.levelCount).toInt()
+            importSlice(context, timeIdx, levelIdx, slice)
+            slice++
+        }
+    }
 
-        // CoordinateReprojector.from 내부에서 latDim/lonDim 검증되므로 not-null 단정 (M4)
-        val reprojector = CoordinateReprojector.from(ctx.variable, ncd, ctx.axisMap)
-        val origin = IntArray(2)
-        val shape = ctx.variable.shape
-        val data = ctx.variable.read(origin, shape)
+    private fun importSlice(
+        context: ImportContext,
+        timeIdx: Int,
+        levelIdx: Int,
+        sliceIdx: Long,
+    ) {
+        val sample = meterRegistry?.let { Timer.start(it) }
+        var success = false
+        try {
+            importSliceInternal(context, timeIdx, levelIdx, sliceIdx)
+            success = true
+        } finally {
+            sample?.stop(
+                checkNotNull(meterRegistry).timer(
+                    "netcdf.import.slice.duration",
+                    "status",
+                    if (success) "success" else "failure",
+                ),
+            )
+        }
+    }
 
-        val latDim = checkNotNull(ctx.axisMap.latDim) { "axisMap.latDim must not be null after CoordinateReprojector.from" }
-        val lonDim = checkNotNull(ctx.axisMap.lonDim) { "axisMap.lonDim must not be null after CoordinateReprojector.from" }
-        val latN = shape[latDim]
-        val lonN = shape[lonDim]
+    private fun importSliceInternal(
+        context: ImportContext,
+        timeIdx: Int,
+        levelIdx: Int,
+        sliceIdx: Long,
+    ) {
+        val prepared = context.prepared
+        val layout = prepared.layout
+        val tiles = NetCdfTilePlanner.plan(layout.rowCount, layout.columnCount)
+        val sliceCells = checkedProduct(layout.rowCount.toLong(), layout.columnCount.toLong())
+        val duplicateSetBytes = checkedProduct(sliceCells, MAX_DUPLICATE_ENTRY_BYTES)
+        if (duplicateSetBytes > io.bluetape4k.science.exposed.service.internal.MAX_DUPLICATE_SET_BYTES) {
+            throw NetCdfException.ResourceLimitExceeded(
+                "duplicate-coordinate-set",
+                io.bluetape4k.science.exposed.service.internal.MAX_DUPLICATE_SET_BYTES,
+                duplicateSetBytes,
+            )
+        }
+        val duplicateKeys = CoordinateKeySet(
+            expectedSize = sliceCells.toInt(),
+        )
 
-        importSlice2D(
-            ctx = ctx,
-            data = data,
-            reprojector = reprojector,
-            latN = latN,
-            lonN = lonN,
-            timeIdxValue = 0,
-            levelIdxValue = 0,
-            sliceIdx = 0L,
+        // 첫 번째 pass: DB transaction 전에 전체 slice의 canonical coordinate를 검증합니다.
+        tiles.forEach { tile ->
+            checkNotInterrupted()
+            transaction {
+                // duplicate preflight도 NetCDF read 전에 lease fence를 확인합니다.
+                checkNotInterrupted()
+                context.lease.expiresAt = progressRepo.touchLease(
+                    context.progressId,
+                    context.lease.expiresAt,
+                    leaseTtl = LEASE_TTL,
+                )
+                checkNotInterrupted()
+                val data = readTile(prepared.variable, layout, tile, timeIdx, levelIdx)
+                checkNotInterrupted()
+                scanTile(prepared, layout, tile, data) { sample, _ ->
+                    if (sample != null &&
+                        !duplicateKeys.add(timeIdx, levelIdx, sample.longitude, sample.latitude)
+                    ) {
+                        throw NetCdfException.DuplicateCoordinate(
+                            fileId = prepared.fileId,
+                            variableName = prepared.variableName,
+                            timeIdx = timeIdx,
+                            levelIdx = levelIdx,
+                            longitude = sample.longitude,
+                            latitude = sample.latitude,
+                        )
+                    }
+                }
+                checkNotInterrupted()
+            }
+        }
+        val tileCells = MAX_TILE_CELLS
+        val coordinateBytes = checkedProduct(
+            tileCells,
+            (2 + prepared.axisMap.auxiliaryAxes.size).toLong(),
+            Double.SIZE_BYTES.toLong(),
+        )
+        val batchPayloadBytes = checkedProduct(
+            MAX_BATCH_ROWS,
+            io.bluetape4k.science.exposed.service.internal.MAX_FIXED_ROW_BYTES + MAX_AUXILIARY_JSONB_BYTES,
+        )
+        MemoryBudget(
+            tileBufferBytes = checkedProduct(tileCells, Double.SIZE_BYTES.toLong()),
+            coordinateBytes = coordinateBytes,
+            serializerScratchBytes = maxOf(MAX_AUXILIARY_JSONB_BYTES, batchPayloadBytes),
+            duplicateSetBytes = duplicateSetBytes,
+        ).requireWithinLimit()
+
+        // 두 번째 pass: 검증이 끝난 뒤 tile별로 같은 Exposed transaction에서 기록합니다.
+        var inserted = 0
+        var skipped = 0
+        tiles.forEachIndexed { tileIndex, tile ->
+            checkNotInterrupted()
+            val result = transaction {
+                val writer = JdbcTileBatchWriter()
+                val pending = ArrayList<TileRow>(MAX_BATCH_ROWS.toInt())
+                var tileInserted = 0
+                // 첫 read/write 전에 fence하여 만료된 owner가 SQL을 실행한 뒤
+                // lease 손실을 발견하는 경로를 차단합니다.
+                context.lease.expiresAt = progressRepo.touchLease(
+                    context.progressId,
+                    context.lease.expiresAt,
+                    leaseTtl = LEASE_TTL,
+                )
+                checkNotInterrupted()
+                val data = readTile(prepared.variable, layout, tile, timeIdx, levelIdx)
+                checkNotInterrupted()
+                scanTile(prepared, layout, tile, data) { sample, value ->
+                    if (sample == null) {
+                        skipped++
+                    } else {
+                        pending += TileRow(
+                            fileId = prepared.fileId,
+                            variableName = prepared.variableName,
+                            longitude = sample.longitude,
+                            latitude = sample.latitude,
+                            timeIdx = timeIdx,
+                            levelIdx = levelIdx,
+                            value = value,
+                            attrsJson = serializeAuxiliaryAttributes(sample.auxiliary),
+                        )
+                        if (pending.size == MAX_BATCH_ROWS.toInt()) {
+                            checkNotInterrupted()
+                            tileInserted += writer.write(connection.connection as java.sql.Connection, pending).inserted
+                            checkNotInterrupted()
+                            pending.clear()
+                        }
+                    }
+                }
+                checkNotInterrupted()
+                if (pending.isNotEmpty()) {
+                    checkNotInterrupted()
+                    tileInserted += writer.write(connection.connection as java.sql.Connection, pending).inserted
+                    checkNotInterrupted()
+                    pending.clear()
+                }
+                checkNotInterrupted()
+                if (tileIndex == tiles.lastIndex && sliceIdx == layout.totalSlices - 1L) {
+                    checkNotInterrupted()
+                    context.lease.expiresAt = progressRepo.renewLease(
+                        context.progressId,
+                        context.lease.expiresAt,
+                        lastSliceIdx = sliceIdx,
+                        leaseTtl = LEASE_TTL,
+                    )
+                    checkNotInterrupted()
+                    progressRepo.markCompleted(context.progressId, context.lease.expiresAt)
+                    checkNotInterrupted()
+                } else if (tileIndex == tiles.lastIndex) {
+                    checkNotInterrupted()
+                    context.lease.expiresAt = progressRepo.renewLease(
+                        context.progressId,
+                        context.lease.expiresAt,
+                        lastSliceIdx = sliceIdx,
+                        leaseTtl = LEASE_TTL,
+                    )
+                    checkNotInterrupted()
+                } else {
+                    checkNotInterrupted()
+                    context.lease.expiresAt = progressRepo.touchLease(
+                        context.progressId,
+                        context.lease.expiresAt,
+                        leaseTtl = LEASE_TTL,
+                    )
+                    checkNotInterrupted()
+                }
+                tileInserted
+            }
+            inserted += result
+        }
+        recordMetrics(inserted, skipped)
+    }
+
+    private fun scanTile(
+        prepared: PreparedImport,
+        layout: ImportLayout,
+        tile: NetCdfTile,
+        data: UcarArray,
+        consume: (io.bluetape4k.science.exposed.service.internal.CoordinateSample?, Double) -> Unit,
+    ) {
+        val index = data.index
+        val indices = IntArray(prepared.variable.rank)
+        layout.timeDim?.let { indices[it] = 0 }
+        layout.levelDim?.let { indices[it] = 0 }
+        val target = MutableCoordinateSample()
+        val reprojector = prepared.reprojector
+        val pointProvider = reprojector
+            ?.takeUnless { it.sourceCrs == CoordinateReprojector.WGS84 || it.sourceCrs == "EPSG:4269" }
+            ?.tilePointProvider(
+                rowOrigin = tile.rowOrigin,
+                columnOrigin = tile.columnOrigin,
+                rowCount = tile.rowCount,
+                columnCount = tile.columnCount,
+            )
+        val sampler = NetCdfTileCoordinateSampler(
+            prepared.axisMap,
+            prepared.coordinateReader,
+            rowOrigin = tile.rowOrigin,
+            columnOrigin = tile.columnOrigin,
+            rowCount = tile.rowCount,
+            columnCount = tile.columnCount,
+            pointProvider = pointProvider,
+        )
+        repeat(tile.rowCount) { localRow ->
+            repeat(tile.columnCount) { localColumn ->
+                indices[layout.rowDim] = localRow
+                indices[layout.columnDim] = localColumn
+                val value = data.getDouble(index.set(indices))
+                if (isMissing(value, prepared.fillValue)) {
+                    consume(null, value)
+                } else {
+                    sampler.sample(tile.rowOrigin + localRow, tile.columnOrigin + localColumn, target)
+                    consume(target.readOnlyCopy(), value)
+                }
+            }
+        }
+    }
+
+    private fun readTile(
+        variable: Variable,
+        layout: ImportLayout,
+        tile: NetCdfTile,
+        timeIdx: Int,
+        levelIdx: Int,
+    ): UcarArray {
+        val origin = IntArray(variable.rank)
+        val shape = IntArray(variable.rank) { 1 }
+        layout.timeDim?.let { origin[it] = timeIdx }
+        layout.levelDim?.let { origin[it] = levelIdx }
+        origin[layout.rowDim] = tile.rowOrigin
+        origin[layout.columnDim] = tile.columnOrigin
+        shape[layout.rowDim] = tile.rowCount
+        shape[layout.columnDim] = tile.columnCount
+        return variable.read(origin, shape)
+    }
+
+    private fun validateProgress(prepared: PreparedImport, progress: NetCdfImportProgress) {
+        val finalSlice = prepared.layout.totalSlices - 1L
+        val checkpoint = progress.lastSliceIdx
+        val detail = when {
+            progress.status == NetCdfImportStatus.COMPLETED &&
+                (progress.leaseExpiresAt != null || progress.completedAt == null) ->
+                "COMPLETED lease/completedAt invariant"
+            progress.status == NetCdfImportStatus.IN_PROGRESS &&
+                (progress.leaseExpiresAt == null || progress.completedAt != null) ->
+                "IN_PROGRESS lease/completedAt invariant"
+            checkpoint != null && (checkpoint < -1L || checkpoint > finalSlice) ->
+                "lastSliceIdx=$checkpoint finalSlice=$finalSlice"
+            progress.status == NetCdfImportStatus.COMPLETED && checkpoint != finalSlice ->
+                "COMPLETED checkpoint=$checkpoint finalSlice=$finalSlice"
+            else -> null
+        }
+        if (detail != null) {
+            if (progress.status != NetCdfImportStatus.COMPLETED) {
+                transaction { progressRepo.quarantineCorruptProgress(progress.id, detail) }
+            }
+            throw NetCdfException.CorruptProgress(progress.id, detail)
+        }
+    }
+
+    private fun buildFileRecord(
+        path: Path,
+        fileSize: Long,
+        fingerprint: String,
+        netcdf: NetcdfFile,
+    ): NetCdfFileRecord {
+        val budget = MetadataBudget()
+        inspectGroup(netcdf.rootGroup, depth = 0, budget)
+        if (netcdf.variables.size.toLong() > MAX_VARIABLES) {
+            throw NetCdfException.ResourceLimitExceeded("variables", MAX_VARIABLES, netcdf.variables.size.toLong())
+        }
+        val variables = netcdf.variables.map { variable ->
+            val nameBytes = variable.fullName.toByteArray(StandardCharsets.UTF_8).size.toLong()
+            if (nameBytes > MAX_VARIABLE_NAME_BYTES) {
+                throw NetCdfException.ResourceLimitExceeded("variable-name-bytes", MAX_VARIABLE_NAME_BYTES, nameBytes)
+            }
+            NetCdfVariableInfo(
+                name = variable.fullName,
+                dataType = variable.dataType.name,
+                shape = variable.shape.toList(),
+                attributes = variable.attributes().associate { attribute ->
+                    attribute.shortName to attributeValue(attribute)
+                },
+            )
+        }
+        val dimensions = netcdf.rootGroup.dimensions.associate { it.shortName to it.length }
+        val globalAttrs = LinkedHashMap<String, String>()
+        netcdf.globalAttributes.forEach { attribute ->
+            if (attribute.shortName == NetCdfFileGuard.FINGERPRINT_ATTRIBUTE) {
+                throw NetCdfException.ResourceLimitExceeded(
+                    "reserved-fingerprint-key",
+                    0L,
+                    1L,
+                )
+            }
+            globalAttrs[attribute.shortName] = attributeValue(attribute)
+        }
+        globalAttrs[NetCdfFileGuard.FINGERPRINT_ATTRIBUTE] = fingerprint
+        return NetCdfFileRecord(
+            filename = path.fileName.toString(),
+            filePath = path.toString(),
+            fileSize = fileSize,
+            variables = variables,
+            dimensions = dimensions,
+            globalAttrs = globalAttrs,
         )
     }
 
-    /**
-     * rank=3 (time, lat, lon) — time 슬라이스별 1 tx. sliceIdx = timeIdx.
-     */
-    private fun importRank3(ctx: ImportContext, ncd: NetcdfDataset, startSliceIdx: Long) {
-        val reprojector = CoordinateReprojector.from(ctx.variable, ncd, ctx.axisMap)
-        val timeDim = ctx.axisMap.timeDim ?: throw NetCdfException.MissingCoordinate("time")
-        val latDim = ctx.axisMap.latDim ?: throw NetCdfException.MissingCoordinate("lat")
-        val lonDim = ctx.axisMap.lonDim ?: throw NetCdfException.MissingCoordinate("lon")
-        val shape = ctx.variable.shape
-        val timeN = shape[timeDim]
-        val latN = shape[latDim]
-        val lonN = shape[lonDim]
-        var lastHeartbeat = Instant.now()
-        var slicesSinceHeartbeat = 0
-
-        for (t in startSliceIdx.toInt() until timeN) {
-            val origin = IntArray(3).also { it[timeDim] = t }
-            val sliceShape = IntArray(3).also { dims ->
-                dims[timeDim] = 1
-                dims[latDim] = latN
-                dims[lonDim] = lonN
+    private fun inspectGroup(group: Group, depth: Int, budget: MetadataBudget) {
+        val pending = ArrayDeque<Pair<Group, Int>>()
+        pending.addLast(group to depth)
+        while (pending.isNotEmpty()) {
+            val (current, currentDepth) = pending.removeLast()
+            if (currentDepth > MAX_GROUP_DEPTH) {
+                throw NetCdfException.ResourceLimitExceeded("group-depth", MAX_GROUP_DEPTH, currentDepth.toLong())
             }
-            val data = ctx.variable.read(origin, sliceShape)
-            slicesSinceHeartbeat++
-            // heartbeat throttle: 마지막 슬라이스 또는 N 슬라이스마다 또는 30초 경과 시 lease 갱신
-            val shouldRenew = (t == timeN - 1) ||
-                slicesSinceHeartbeat >= HEARTBEAT_EVERY_SLICES ||
-                Duration.between(lastHeartbeat, Instant.now()) >= HEARTBEAT_INTERVAL
-            importSlice2D(
-                ctx = ctx,
-                data = data,
-                reprojector = reprojector,
-                latN = latN,
-                lonN = lonN,
-                timeIdxValue = t,
-                levelIdxValue = 0,
-                sliceIdx = t.toLong(),
-                renewProgress = shouldRenew,
-            )
-            if (shouldRenew) {
-                lastHeartbeat = Instant.now()
-                slicesSinceHeartbeat = 0
+            budget.groupCount++
+            budget.dimensionCount = try {
+                Math.addExact(budget.dimensionCount, current.dimensions.size.toLong())
+            } catch (_: ArithmeticException) {
+                Long.MAX_VALUE
             }
-        }
-    }
-
-    /**
-     * rank=4 (time, level, lat, lon) — (time, level) 슬라이스별 1 tx.
-     *
-     * sliceIdx = timeIdx × levelN + levelIdx (Codex C3 선형화).
-     */
-    private fun importRank4(ctx: ImportContext, ncd: NetcdfDataset, startSliceIdx: Long) {
-        val reprojector = CoordinateReprojector.from(ctx.variable, ncd, ctx.axisMap)
-        val timeDim = ctx.axisMap.timeDim ?: throw NetCdfException.MissingCoordinate("time")
-        val levelDim = ctx.axisMap.levelDim ?: throw NetCdfException.MissingCoordinate("level")
-        val latDim = ctx.axisMap.latDim ?: throw NetCdfException.MissingCoordinate("lat")
-        val lonDim = ctx.axisMap.lonDim ?: throw NetCdfException.MissingCoordinate("lon")
-        val shape = ctx.variable.shape
-        val timeN = shape[timeDim]
-        val levelN = shape[levelDim]
-        val latN = shape[latDim]
-        val lonN = shape[lonDim]
-        val totalSlices = timeN.toLong() * levelN.toLong()
-        var lastHeartbeat = Instant.now()
-        var slicesSinceHeartbeat = 0
-
-        for (sliceIdx in startSliceIdx until totalSlices) {
-            val (t, l) = decomposeSliceIdx(sliceIdx, levelN)
-            val origin = IntArray(4).also {
-                it[timeDim] = t
-                it[levelDim] = l
+            if (budget.groupCount > MAX_GROUP_COUNT) {
+                throw NetCdfException.ResourceLimitExceeded("groups", MAX_GROUP_COUNT, budget.groupCount)
             }
-            val sliceShape = IntArray(4).also { dims ->
-                dims[timeDim] = 1
-                dims[levelDim] = 1
-                dims[latDim] = latN
-                dims[lonDim] = lonN
-            }
-            val data = ctx.variable.read(origin, sliceShape)
-            slicesSinceHeartbeat++
-            val isLast = sliceIdx == totalSlices - 1L
-            val shouldRenew = isLast ||
-                slicesSinceHeartbeat >= HEARTBEAT_EVERY_SLICES ||
-                Duration.between(lastHeartbeat, Instant.now()) >= HEARTBEAT_INTERVAL
-            importSlice2D(
-                ctx = ctx,
-                data = data,
-                reprojector = reprojector,
-                latN = latN,
-                lonN = lonN,
-                timeIdxValue = t,
-                levelIdxValue = l,
-                sliceIdx = sliceIdx,
-                renewProgress = shouldRenew,
-            )
-            if (shouldRenew) {
-                lastHeartbeat = Instant.now()
-                slicesSinceHeartbeat = 0
-            }
-        }
-    }
-
-    /**
-     * 단일 (lat × lon) 슬라이스를 한 트랜잭션에서 insert + progress 갱신.
-     *
-     * 중복 방지: ON CONFLICT DO NOTHING — partial expression unique index 자동 매칭 (Spec §4.1 M4).
-     * `geoPointOf` 헬퍼가 부재하므로 PostGIS `ST_SetSRID(ST_MakePoint(lon, lat), 4326)` 직접 사용.
-     */
-    private fun importSlice2D(
-        ctx: ImportContext,
-        data: UcarArray,
-        reprojector: CoordinateReprojector,
-        latN: Int,
-        lonN: Int,
-        timeIdxValue: Int,
-        levelIdxValue: Int,
-        sliceIdx: Long,
-        renewProgress: Boolean = true,
-    ): Pair<Int, Int> {
-        var inserted = 0
-        var skipped = 0
-        val sliceTimer = meterRegistry?.let { Timer.start(it) }
-
-        val sql = """
-            INSERT INTO netcdf_grid_values (file_id, variable_name, location, time_idx, level_idx, value)
-            VALUES (?, ?, ST_SetSRID(ST_MakePoint(?, ?), 4326), ?, ?, ?)
-            ON CONFLICT DO NOTHING
-        """.trimIndent()
-
-        transaction {
-            val conn = connection.connection as java.sql.Connection
-            conn.prepareStatement(sql).use { ps ->
-                val iter = data.indexIterator
-                for (i in 0 until latN) {
-                    for (j in 0 until lonN) {
-                        if (!iter.hasNext()) break
-                        val raw = iter.getDoubleNext()
-                        if (isMissing(raw, ctx.fillValue)) {
-                            skipped++
-                            continue
-                        }
-                        val (lon, lat) = reprojector.pointAt(i, j)
-                        ps.setLong(1, ctx.fileId)
-                        ps.setString(2, ctx.variableName)
-                        ps.setDouble(3, lon)
-                        ps.setDouble(4, lat)
-                        ps.setInt(5, timeIdxValue)
-                        ps.setInt(6, levelIdxValue)
-                        ps.setDouble(7, raw)
-                        ps.addBatch()
-                        inserted++
-                    }
-                }
-                ps.executeBatch()
-            }
-            if (renewProgress) {
-                ctx.lease.expiresAt = progressRepo.renewLease(
-                    progressId = ctx.progressId,
-                    expectedLeaseExpiresAt = ctx.lease.expiresAt,
-                    lastSliceIdx = sliceIdx,
-                    leaseTtl = LEASE_TTL,
+            if (budget.dimensionCount > MAX_GROUP_DIMENSIONS) {
+                throw NetCdfException.ResourceLimitExceeded(
+                    "group-dimensions",
+                    MAX_GROUP_DIMENSIONS,
+                    budget.dimensionCount,
                 )
             }
+            budget.add(current.fullName)
+            current.dimensions.forEach { dimension ->
+                budget.add(dimension.shortName, dimension.length.toString())
+            }
+            current.variables.forEach { variable ->
+                budget.variableCount++
+                if (budget.variableCount > MAX_VARIABLES) {
+                    throw NetCdfException.ResourceLimitExceeded("variables", MAX_VARIABLES, budget.variableCount)
+                }
+                val nameBytes = variable.fullName.toByteArray(StandardCharsets.UTF_8).size.toLong()
+                if (nameBytes > MAX_VARIABLE_NAME_BYTES) {
+                    throw NetCdfException.ResourceLimitExceeded(
+                        "variable-name-bytes",
+                        MAX_VARIABLE_NAME_BYTES,
+                        nameBytes,
+                    )
+                }
+                budget.add(variable.fullName)
+                variable.attributes().forEach { attribute -> budget.add(attribute.shortName, attributeValue(attribute)) }
+            }
+            current.attributes().forEach { attribute -> budget.add(attribute.shortName, attributeValue(attribute)) }
+            current.groups.forEach { child -> pending.addLast(child to (currentDepth + 1)) }
         }
-
-        sliceTimer?.let { sampler ->
-            sampler.stop(checkNotNull(meterRegistry).timer("netcdf.import.slice.duration"))
-        }
-        meterRegistry?.counter("netcdf.import.variable.records", "variable", ctx.variableName)
-            ?.increment(inserted.toDouble())
-        if (skipped > 0) {
-            meterRegistry?.counter("netcdf.import.nan.skipped")?.increment(skipped.toDouble())
-        }
-        return inserted to skipped
     }
 
-    /**
-     * 선형 sliceIdx 를 (timeIdx, levelIdx) 로 분해. row-major 4D ordering.
-     */
-    private fun decomposeSliceIdx(sliceIdx: Long, levelN: Int): Pair<Int, Int> {
-        val t = (sliceIdx / levelN).toInt()
-        val l = (sliceIdx % levelN).toInt()
-        return t to l
+    private fun attributeValue(attribute: Attribute): String =
+        attribute.stringValue ?: attribute.numericValue?.toString().orEmpty()
+
+    private fun recordMetrics(inserted: Int, skipped: Int) {
+        meterRegistry?.counter("netcdf.import.variable.records")?.increment(inserted.toDouble())
+        if (skipped > 0) meterRegistry?.counter("netcdf.import.nan.skipped")?.increment(skipped.toDouble())
     }
 
-    /**
-     * NaN / `_FillValue` 일치 시 missing 으로 판정.
-     *
-     * `_FillValue` 가 Float 인 경우 Double 변환 시 LSB 차이로 strict equality 가 실패할 수 있어
-     * 절대 오차 (`abs(raw - fillValue) <= max(|fillValue|, 1) * 1e-7`) 로 비교한다 (M1).
-     * Float 의 7 자리 정밀도를 고려한 허용 오차.
-     */
+    private fun recordRejection(exception: NetCdfException) {
+        val reason = when (exception) {
+            is NetCdfException.ResourceLimitExceeded -> "resource"
+            is NetCdfException.UnsupportedCoordinateAxis,
+            is NetCdfException.MissingCoordinate -> "axis"
+            is NetCdfException.DuplicateCoordinate -> "duplicate"
+            is NetCdfException.UnsupportedProjection -> "crs"
+            is NetCdfException.FileChanged,
+            is NetCdfException.FileOpen -> "path"
+            is NetCdfException.CorruptProgress -> "progress"
+            is NetCdfException.VariableNotFound,
+            is NetCdfException.UnsupportedVariable,
+            is NetCdfException.ImportAlreadyRunning,
+            is NetCdfException.ImportLeaseLost,
+            is NetCdfException.FileRecordNotFound -> return
+        }
+        meterRegistry?.counter("netcdf.import.rejected", "reason", reason)?.increment()
+    }
+
+    private fun checkNotInterrupted() {
+        if (Thread.currentThread().isInterrupted) throw InterruptedException("NetCDF import interrupted")
+    }
+
     private fun isMissing(raw: Double, fillValue: Double?): Boolean {
         if (raw.isNaN()) return true
-        if (fillValue != null) {
-            val tolerance = kotlin.math.max(kotlin.math.abs(fillValue), 1.0) * 1e-7
-            if (kotlin.math.abs(raw - fillValue) <= tolerance) return true
-        }
+        if (fillValue != null &&
+            abs(raw - fillValue) <= maxOf(abs(fillValue), 1.0) * FILL_VALUE_TOLERANCE
+        ) return true
         return false
     }
 
-    /**
-     * import 컨텍스트 — slice 함수들에 공통으로 전달되는 immutable 데이터.
-     */
-    private data class ImportContext(
+    private data class PreparedImport(
         val fileId: Long,
         val variableName: String,
-        val progressId: Long,
-        val lease: ImportLease,
         val variable: Variable,
         val axisMap: VariableAxisMap,
+        val layout: ImportLayout,
+        val reprojector: CoordinateReprojector?,
+        val coordinateReader: UcarCoordinateReader,
         val fillValue: Double?,
     )
 
-    private data class ImportLease(
-        var expiresAt: Instant,
+    private data class ImportContext(
+        val prepared: PreparedImport,
+        val progressId: Long,
+        val lease: ImportLease,
     )
 
-    private fun Variable.netCdfAttributes(): Iterable<Attribute> = attributes()
+    private data class ImportLease(var expiresAt: Instant)
+
+    private class MetadataBudget {
+        var bytes: Long = 0L
+        var groupCount: Long = 0L
+        var dimensionCount: Long = 0L
+        var variableCount: Long = 0L
+
+        fun add(vararg values: String) {
+            bytes = try {
+                values.fold(bytes) { total, value ->
+                    Math.addExact(total, value.toByteArray(StandardCharsets.UTF_8).size.toLong())
+                }
+            } catch (_: ArithmeticException) {
+                Long.MAX_VALUE
+            }
+            if (bytes > MAX_METADATA_BYTES) {
+                throw NetCdfException.ResourceLimitExceeded("metadata-bytes", MAX_METADATA_BYTES, bytes)
+            }
+        }
+    }
+
+    private data class ImportLayout(
+        val isRankOne: Boolean,
+        val hasSpatialGrid: Boolean,
+        val timeDim: Int?,
+        val levelDim: Int?,
+        val rowDim: Int,
+        val columnDim: Int,
+        val rowCount: Int,
+        val columnCount: Int,
+        val timeCount: Long,
+        val levelCount: Long,
+        val totalSlices: Long,
+    ) {
+        companion object {
+            fun create(variable: Variable, map: VariableAxisMap): ImportLayout {
+                val shape = variable.shape
+                val hasLat = map.latAxis != null
+                val hasLon = map.lonAxis != null
+                if (hasLat != hasLon) throw NetCdfException.MissingCoordinate(if (hasLat) "lon" else "lat")
+                if (!hasLat) {
+                    val timeDim = map.timeDim
+                    if (variable.rank != 1 || timeDim == null) {
+                        throw NetCdfException.MissingCoordinate("lat/lon")
+                    }
+                    val time = shape[timeDim].toLong()
+                    checkDimension(time, "time")
+                    if (time > MAX_CELLS) {
+                        throw NetCdfException.ResourceLimitExceeded("cells", MAX_CELLS, time)
+                    }
+                    return ImportLayout(true, false, timeDim, null, 0, 0, 1, 1, time, 1L, 1L)
+                }
+                val rowDim = map.gridRowDim ?: throw NetCdfException.MissingCoordinate("lat")
+                val columnDim = map.gridColumnDim ?: throw NetCdfException.MissingCoordinate("lon")
+                if (rowDim == columnDim || rowDim !in shape.indices || columnDim !in shape.indices) {
+                    throw NetCdfException.UnsupportedCoordinateAxis(variable.fullName, "lat/lon", "spatial-dimensions")
+                }
+                val timeDim = map.timeDim
+                val levelDim = map.levelDim
+                if (variable.rank == MAX_SPATIAL_RANK && levelDim == null) {
+                    throw NetCdfException.MissingCoordinate("level")
+                }
+                val used = buildSet {
+                    add(rowDim)
+                    add(columnDim)
+                    timeDim?.let(::add)
+                    levelDim?.let(::add)
+                }
+                if (used.size != variable.rank) {
+                    throw NetCdfException.UnsupportedCoordinateAxis(variable.fullName, null, "unmapped-data-dimension")
+                }
+                val rows = shape[rowDim].toLong()
+                val columns = shape[columnDim].toLong()
+                val time = timeDim?.let { shape[it].toLong() } ?: 1L
+                val level = levelDim?.let { shape[it].toLong() } ?: 1L
+                val cells = checkedProduct(rows, columns)
+                if (cells > MAX_CELLS) throw NetCdfException.ResourceLimitExceeded("cells", MAX_CELLS, cells)
+                checkDimension(time, "time")
+                checkDimension(level, "level")
+                val slices = checkedProduct(time, level)
+                if (slices > MAX_SLICES) throw NetCdfException.ResourceLimitExceeded("slices", MAX_SLICES, slices)
+                val totalCells = checkedProduct(cells, slices)
+                if (totalCells > MAX_CELLS) {
+                    throw NetCdfException.ResourceLimitExceeded("total-cells", MAX_CELLS, totalCells)
+                }
+                return ImportLayout(
+                    false,
+                    true,
+                    timeDim,
+                    levelDim,
+                    rowDim,
+                    columnDim,
+                    rows.toIntExact("rows"),
+                    columns.toIntExact("columns"),
+                    time,
+                    level,
+                    slices,
+                )
+            }
+
+            private fun checkDimension(value: Long, name: String) {
+                if (value <= 0L || value > Int.MAX_VALUE) {
+                    throw NetCdfException.ResourceLimitExceeded(name, Int.MAX_VALUE.toLong(), value)
+                }
+            }
+
+            private fun Long.toIntExact(resource: String): Int = try {
+                Math.toIntExact(this)
+            } catch (_: ArithmeticException) {
+                throw NetCdfException.ResourceLimitExceeded(resource, Int.MAX_VALUE.toLong(), this)
+            }
+        }
+    }
 }
