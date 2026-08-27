@@ -191,8 +191,10 @@ skipped 테스트가 유효한 실행을 가리지 않도록 해당 메서드만
 경로로 한정합니다. 선택된 family는 `max-parallel: 1`로 순차 실행하고
 `success`, `product_failure`,
 `infrastructure_failure`, `blocked`로 분류하며 `summary.json`, `summary.md`,
-family별 JSON을 남깁니다. 안정 버전 배포는 `52/52`, `release_gate=true`,
-모든 실패 분류 0을 요구합니다. Docker Hub 인증과 mirror 설정은 환경변수 또는
+family별 JSON을 남깁니다. 안정 버전 배포는 release-required family 48개
+전체(`48/48`), `release_gate=true`, 모든 실패 분류 0을 요구합니다. 나머지
+4개 family는 support inventory로 별도 보고합니다. Docker Hub 인증과 mirror
+설정은 환경변수 또는
 CI secret으로만 전달하며, 증거에는 credential을 기록하지 않습니다.
 
 <!-- TESTCONTAINERS_IMAGE_GATE_COMMAND_START -->

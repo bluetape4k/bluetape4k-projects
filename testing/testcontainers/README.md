@@ -189,8 +189,10 @@ gate is intentionally reserved for the full Nightly/release path. The runner
 executes the selected families sequentially (`max-parallel: 1`),
 records `success`, `product_failure`, `infrastructure_failure`, or `blocked`,
 and writes `summary.json`, `summary.md`, and one JSON file per family. Stable
-publication requires `52/52`, `release_gate=true`, and zero failure-classification
-counts. Docker Hub authentication and mirror settings are supplied through
+publication requires all 48 release-required families (`48/48`),
+`release_gate=true`, and zero failure-classification counts; the remaining four
+families are support inventory and are reported separately. Docker Hub
+authentication and mirror settings are supplied through
 environment variables or CI secrets; credentials are redacted from evidence.
 
 <!-- TESTCONTAINERS_IMAGE_GATE_COMMAND_START -->
