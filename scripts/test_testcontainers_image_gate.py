@@ -51,6 +51,15 @@ class TestTestcontainersImageGate(unittest.TestCase):
             selectors,
         )
 
+    def test_readmes_document_release_required_coverage(self) -> None:
+        coverage = f"{EXPECTED_RELEASE_FAMILY_COUNT}/{EXPECTED_RELEASE_FAMILY_COUNT}"
+        for readme_name in ("README.md", "README.ko.md"):
+            with self.subTest(readme=readme_name):
+                readme = (self.root / "testing/testcontainers" / readme_name).read_text(encoding="utf-8")
+                self.assertIn(coverage, readme)
+                self.assertNotIn("Stable publication requires `52/52`", readme)
+                self.assertNotIn("안정 버전 배포는 `52/52`", readme)
+
     def test_k3s_family_uses_the_existing_tagged_test_task(self) -> None:
         k3s = next(entry for entry in self.entries if entry["server"] == "K3sServer")
         self.assertEqual(":bluetape4k-testcontainers:k8sTest", k3s["testTask"])
@@ -135,6 +144,24 @@ class TestTestcontainersImageGate(unittest.TestCase):
             "testSelector must target a method under testPattern",
             " ".join(validate_manifest(invalid, self.root)),
         )
+
+    def test_manifest_rejects_non_concrete_or_unknown_test_selector(self) -> None:
+        pattern = self.entries[0]["testPattern"]
+        for selector in (
+            f"{pattern}.",
+            f"{pattern}.*",
+            f"{pattern}.missing.method",
+            f"{pattern}.missing\u2028method",
+        ):
+            with self.subTest(selector=selector):
+                errors = validate_manifest(
+                    [dict(self.entries[0], testSelector=selector)],
+                    self.root,
+                )
+                self.assertTrue(
+                    any("testSelector" in error for error in errors),
+                    errors,
+                )
 
     def test_manifest_rejects_unsafe_family_id(self) -> None:
         invalid = [dict(self.entries[0], id="../escape")]

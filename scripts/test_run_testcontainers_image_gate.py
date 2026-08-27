@@ -85,9 +85,10 @@ def _write_generic_junit(
     skipped: int,
     failures: int = 0,
     errors: int = 0,
+    suite_name: str | None = None,
 ) -> None:
     evidence = _evidence_dir(command)
-    pattern = command[command.index("--tests") + 1]
+    pattern = suite_name or command[command.index("--tests") + 1]
     evidence.joinpath("TEST-generic.xml").write_text(
         f'<testsuite name="{pattern}" tests="{tests}" skipped="{skipped}" '
         f'failures="{failures}" errors="{errors}">'
@@ -174,6 +175,40 @@ class TestRunTestcontainersImageGate(unittest.TestCase):
         self.assertEqual(
             "example.FlociServerTest.representative_test",
             command[command.index("--tests") + 1],
+        )
+
+    def test_explicit_selector_produces_successful_junit_release_evidence(self) -> None:
+        selected = entry()
+        selected["testSelector"] = "example.FlociServerTest.representative_test"
+        calls: list[list[str]] = []
+
+        def command_runner(command: list[str], timeout_seconds: int) -> SimpleNamespace:
+            calls.append(command)
+            _write_generic_junit(
+                command,
+                tests=1,
+                skipped=0,
+                suite_name=str(selected["testPattern"]),
+            )
+            return SimpleNamespace(returncode=0, stdout="BUILD SUCCESSFUL", stderr="")
+
+        with tempfile.TemporaryDirectory() as directory:
+            summary = GateRunner(
+                [selected],
+                Path(directory),
+                command_runner=command_runner,
+                max_attempts=1,
+            ).run()
+
+        result = summary["results"][0]
+        self.assertEqual("success", result["status"])
+        self.assertEqual("1/1", summary["coverage"])
+        self.assertTrue(summary["release_gate"])
+        self.assertEqual(1, result["junit"]["tests"])
+        self.assertEqual(0, result["junit"]["skipped"])
+        self.assertEqual(
+            selected["testSelector"],
+            calls[0][calls[0].index("--tests") + 1],
         )
 
     def test_release_required_generic_family_rejects_all_skipped_junit(self) -> None:

@@ -40,6 +40,11 @@ IMAGE_PATTERN = re.compile(
 TAG_PATTERN = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$")
 ID_PATTERN = re.compile(r"^[a-z0-9][a-z0-9._-]{0,63}$")
 WORKLOAD_PATTERN = re.compile(r"^[A-Za-z_$][\w$]*(?:\.[A-Za-z_$][\w$]*)+\.[A-Za-z_$][\w$]*(?:\(\))?$")
+TEST_METHOD_DECLARATION_PATTERN = re.compile(
+    r"(?ms)^\s*@Test(?:\s*\([^)]*\))?\s*(?:\r?\n\s*)+"
+    r"fun\s+(`(?P<quoted>[^`]+)`|(?P<identifier>[A-Za-z_][A-Za-z0-9_]*))\s*\("
+)
+TEST_SELECTOR_WILDCARDS = frozenset("*?[]{}")
 
 
 class SelectionError(ValueError):
@@ -83,7 +88,25 @@ def _safe_string(value: object, pattern: re.Pattern[str]) -> bool:
     return isinstance(value, str) and bool(pattern.fullmatch(value)) and "\x00" not in value
 
 
-def _validate_test_selector(entry: dict[str, Any], prefix: str, errors: list[str]) -> None:
+def _test_method_names(test_source: Path) -> set[str]:
+    """Return concrete JUnit @Test method names declared in a Kotlin source file."""
+
+    try:
+        text = test_source.read_text(encoding="utf-8")
+    except OSError:
+        return set()
+    return {
+        match.group("quoted") or match.group("identifier")
+        for match in TEST_METHOD_DECLARATION_PATTERN.finditer(text)
+    }
+
+
+def _validate_test_selector(
+    entry: dict[str, Any],
+    prefix: str,
+    test_source: Path,
+    errors: list[str],
+) -> None:
     selector = entry.get("testSelector")
     if selector is None:
         return
@@ -91,12 +114,21 @@ def _validate_test_selector(entry: dict[str, Any], prefix: str, errors: list[str
     if (
         not isinstance(selector, str)
         or not selector.strip()
+        or selector != selector.strip()
+        or not selector.isprintable()
         or "\x00" in selector
-        or any(character in selector for character in "\r\n\t")
         or not isinstance(pattern, str)
         or not selector.startswith(f"{pattern}.")
     ):
         errors.append(f"{prefix}.testSelector must target a method under testPattern")
+        return
+
+    method_name = selector[len(pattern) + 1 :]
+    if not method_name or any(character in method_name for character in TEST_SELECTOR_WILDCARDS):
+        errors.append(f"{prefix}.testSelector must name one concrete @Test method")
+        return
+    if test_source.is_file() and method_name not in _test_method_names(test_source):
+        errors.append(f"{prefix}.testSelector must match an @Test method in {entry['testSource']}")
 
 
 def canonical_architecture(value: object) -> str | None:
@@ -282,7 +314,7 @@ def validate_manifest(entries: list[dict[str, Any]], root: Path = ROOT) -> list[
             errors.append(f"diagnostics is empty for {server}")
         if not isinstance(entry["releaseRequired"], bool):
             errors.append(f"releaseRequired must be boolean for {server}")
-        _validate_test_selector(entry, prefix, errors)
+        _validate_test_selector(entry, prefix, test_source, errors)
         _validate_platforms(entry, prefix, errors)
         test_task = entry.get("testTask")
         if test_task is not None and (
