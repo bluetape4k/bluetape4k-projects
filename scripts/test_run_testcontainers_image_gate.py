@@ -161,6 +161,21 @@ class TestRunTestcontainersImageGate(unittest.TestCase):
             self.assertIn("--tests", calls[0])
             self.assertTrue((Path(directory) / "summary.json").is_file())
 
+    def test_release_command_uses_explicit_test_selector(self) -> None:
+        selected = entry()
+        selected["testSelector"] = "example.FlociServerTest.representative_test"
+
+        with tempfile.TemporaryDirectory() as directory:
+            command = GateRunner([selected], Path(directory))._command(
+                selected,
+                Path(directory) / "evidence",
+            )
+
+        self.assertEqual(
+            "example.FlociServerTest.representative_test",
+            command[command.index("--tests") + 1],
+        )
+
     def test_release_required_generic_family_rejects_all_skipped_junit(self) -> None:
         def command_runner(command: list[str], timeout_seconds: int) -> SimpleNamespace:
             _write_generic_junit(command, tests=12, skipped=12)
