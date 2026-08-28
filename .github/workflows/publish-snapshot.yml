@@ -2,28 +2,26 @@ name: Publish Snapshot
 
 permissions:
   contents: read
-  actions: read
 
 on:
-  workflow_run:
-    workflows: ["Nightly"]
-    types: [completed]
-    branches: [develop]
   workflow_dispatch:
     inputs:
-      validation_run_id:
-        description: 'Completed full Nightly run ID used for exact-head validation'
+      verified_ci_run_id:
+        description: 'Completed full Nightly run ID for the exact develop head'
         required: true
         type: string
-      diagnoseSigning:
-        description: 'Run signing diagnostics before publishing'
-        required: false
-        default: false
-        type: boolean
+      expected_head_sha:
+        description: 'Full develop SHA verified by the Nightly run'
+        required: true
+        type: string
+      handoff_issue_number:
+        description: 'Linked issue that receives the immutable handoff evidence'
+        required: true
+        type: string
 
 concurrency:
   group: publish-snapshot
-  cancel-in-progress: true
+  cancel-in-progress: false
 
 env:
   JAVA_VERSION: '25'
@@ -33,33 +31,51 @@ env:
 jobs:
   validate-full-nightly:
     name: Verify full Nightly validation
+    permissions:
+      actions: read
+      contents: read
     runs-on: ubuntu-latest
     timeout-minutes: 10
     outputs:
       publish_eligible: ${{ steps.validate.outputs.publish_eligible }}
       head_sha: ${{ steps.validate.outputs.head_sha }}
+      verified_ci_run_id: ${{ steps.validate.outputs.verified_ci_run_id }}
+      handoff_issue_number: ${{ steps.validate.outputs.handoff_issue_number }}
     steps:
-      - name: Validate full Nightly run
+      - name: Validate exact-head full Nightly run
         id: validate
         env:
           GH_TOKEN: ${{ github.token }}
-          EVENT_NAME: ${{ github.event_name }}
-          WORKFLOW_RUN_ID: ${{ github.event.workflow_run.id || '' }}
-          WORKFLOW_RUN_HEAD_SHA: ${{ github.event.workflow_run.head_sha || '' }}
-          MANUAL_VALIDATION_RUN_ID: ${{ inputs.validation_run_id || '' }}
+          VERIFIED_CI_RUN_ID: ${{ inputs.verified_ci_run_id }}
+          EXPECTED_HEAD_SHA: ${{ inputs.expected_head_sha }}
+          HANDOFF_ISSUE_NUMBER: ${{ inputs.handoff_issue_number }}
+          GITHUB_REF: ${{ github.ref }}
+          GITHUB_SHA: ${{ github.sha }}
         run: |
           set -euo pipefail
 
-          if [ "$EVENT_NAME" = "workflow_run" ]; then
-            validation_run_id="$WORKFLOW_RUN_ID"
-            expected_head_sha="$WORKFLOW_RUN_HEAD_SHA"
-          else
-            validation_run_id="$MANUAL_VALIDATION_RUN_ID"
-            expected_head_sha=""
+          if ! [[ "$VERIFIED_CI_RUN_ID" =~ ^[0-9]+$ ]]; then
+            echo "::error::verified_ci_run_id must be numeric."
+            exit 1
           fi
-
-          if ! [[ "$validation_run_id" =~ ^[0-9]+$ ]]; then
-            echo "::error::A completed Nightly validation_run_id is required."
+          if ! [[ "$EXPECTED_HEAD_SHA" =~ ^[0-9a-f]{40}$ ]]; then
+            echo "::error::expected_head_sha must be a full lowercase Git SHA."
+            exit 1
+          fi
+          if ! [[ "$HANDOFF_ISSUE_NUMBER" =~ ^[1-9][0-9]*$ ]]; then
+            echo "::error::handoff_issue_number must be a positive issue number."
+            exit 1
+          fi
+          if [ "$HANDOFF_ISSUE_NUMBER" -ne 1562 ]; then
+            echo "::error::handoff_issue_number must identify TenantContext issue #1562."
+            exit 1
+          fi
+          if [ "$GITHUB_REF" != "refs/heads/develop" ]; then
+            echo "::error::Publish Snapshot must be dispatched from refs/heads/develop."
+            exit 1
+          fi
+          if [ "$GITHUB_SHA" != "$EXPECTED_HEAD_SHA" ]; then
+            echo "::error::Dispatch SHA does not match expected_head_sha."
             exit 1
           fi
 
@@ -67,14 +83,15 @@ jobs:
           jobs_json="$(mktemp)"
           contract_json="$(mktemp)"
           validator_script="$(mktemp)"
-          trap 'rm -f "$run_json" "$jobs_json" "$contract_json" "$validator_script"' EXIT
+          develop_ref_json="$(mktemp)"
+          trap 'rm -f "$run_json" "$jobs_json" "$contract_json" "$validator_script" "$develop_ref_json"' EXIT
 
-          gh api "repos/${GITHUB_REPOSITORY}/actions/runs/${validation_run_id}" \
+          gh api "repos/${GITHUB_REPOSITORY}/actions/runs/${VERIFIED_CI_RUN_ID}" \
             --method GET > "$run_json"
-          gh api "repos/${GITHUB_REPOSITORY}/actions/runs/${validation_run_id}/jobs" \
-            --method GET \
-            --paginate \
-            --slurp > "$jobs_json"
+          gh api "repos/${GITHUB_REPOSITORY}/actions/runs/${VERIFIED_CI_RUN_ID}/jobs" \
+            --method GET --paginate --slurp > "$jobs_json"
+          gh api "repos/${GITHUB_REPOSITORY}/git/ref/heads/develop" \
+            --method GET > "$develop_ref_json"
 
           validation_head_sha="$(python3 - "$run_json" <<'PY'
           import json
@@ -98,23 +115,54 @@ jobs:
             --method GET \
             --header 'Accept: application/vnd.github.raw' > "$validator_script"
 
-          validation_output="$(python3 "$validator_script" "$run_json" "$jobs_json" "$expected_head_sha" "$contract_json")"
+          validation_output="$(python3 "$validator_script" "$run_json" "$jobs_json" "$EXPECTED_HEAD_SHA" "$contract_json")"
+          develop_sha="$(jq -r '.object.sha // empty' "$develop_ref_json")"
+          if [ "$develop_sha" != "$EXPECTED_HEAD_SHA" ]; then
+            echo "::error::Current develop SHA does not match expected_head_sha."
+            exit 1
+          fi
+          if ! grep -qx 'publish_eligible=true' <<< "$validation_output"; then
+            while IFS= read -r line; do
+              case "$line" in
+                validation_error=*) echo "::error::${line#validation_error=}" ;;
+              esac
+            done <<< "$validation_output"
+            exit 1
+          fi
           while IFS= read -r line; do
             case "$line" in
               head_sha=*|publish_eligible=*|validation_error=*) echo "$line" >> "$GITHUB_OUTPUT" ;;
             esac
           done <<< "$validation_output"
+          {
+            echo "verified_ci_run_id=$VERIFIED_CI_RUN_ID"
+            echo "handoff_issue_number=$HANDOFF_ISSUE_NUMBER"
+          } >> "$GITHUB_OUTPUT"
 
   publish:
     name: Publish SNAPSHOT to Maven Central
+    permissions:
+      contents: read
     needs: validate-full-nightly
     if: ${{ needs.validate-full-nightly.outputs.publish_eligible == 'true' }}
     runs-on: ubuntu-latest
+    environment: maven-central-release
+    timeout-minutes: 50
+    outputs:
+      artifact_name: ${{ steps.receipt.outputs.artifact_name }}
+      artifact_id: ${{ steps.handoff-artifact.outputs.artifact-id }}
+      artifact_digest: ${{ steps.handoff-artifact.outputs.artifact-digest }}
+      artifact_url: ${{ steps.handoff-artifact.outputs.artifact-url }}
     steps:
       - uses: actions/checkout@v7
         with:
           ref: ${{ needs.validate-full-nightly.outputs.head_sha }}
           fetch-depth: 0
+
+      - name: Verify exact checkout
+        env:
+          EXPECTED_HEAD_SHA: ${{ needs.validate-full-nightly.outputs.head_sha }}
+        run: test "$(git rev-parse HEAD)" = "$EXPECTED_HEAD_SHA"
 
       - uses: actions/setup-java@v5.7.0
         with:
@@ -126,22 +174,8 @@ jobs:
           gradle-version: wrapper
           cache-read-only: true
 
-      - name: Diagnose signing inputs
-        if: ${{ github.event_name == 'workflow_dispatch' && inputs.diagnoseSigning }}
-        shell: bash
-        env:
-          SIGNING_KEY_ID: ${{ secrets.SIGNING_KEY_ID }}
-          SIGNING_KEY: ${{ secrets.SIGNING_KEY }}
-          SIGNING_PASSWORD: ${{ secrets.SIGNING_PASSWORD }}
-        run: |
-          python3 - <<'PY'
-          import os
-          for name in ("SIGNING_KEY_ID", "SIGNING_KEY", "SIGNING_PASSWORD"):
-              value = os.environ.get(name, "")
-              print(f"{name} set={bool(value)} length={len(value)}")
-          PY
-
       - name: Validate publication metadata
+        timeout-minutes: 10
         run: |
           ./gradlew generatePomFileForBluetape4kPublication checkPomFileForBluetape4kPublication generateMetadataFileForBluetape4kPublication \
             -PsnapshotVersion=-SNAPSHOT \
@@ -150,6 +184,7 @@ jobs:
           ruby scripts/publication/validate_module_metadata.rb
 
       - name: Publish SNAPSHOT
+        timeout-minutes: 25
         run: >-
           ./gradlew nmcpPublishAggregationToCentralPortalSnapshots
           -PsnapshotVersion=-SNAPSHOT
@@ -163,3 +198,176 @@ jobs:
           SIGNING_KEY_ID: ${{ secrets.SIGNING_KEY_ID }}
           SIGNING_KEY: ${{ secrets.SIGNING_KEY }}
           SIGNING_PASSWORD: ${{ secrets.SIGNING_PASSWORD }}
+
+      - name: Verify public resources and create handoff receipt
+        id: receipt
+        timeout-minutes: 10
+        env:
+          MERGE_SHA: ${{ needs.validate-full-nightly.outputs.head_sha }}
+          VERIFIED_CI_RUN_ID: ${{ needs.validate-full-nightly.outputs.verified_ci_run_id }}
+          PUBLICATION_RUN_ID: ${{ github.run_id }}
+          HANDOFF_ISSUE_NUMBER: ${{ needs.validate-full-nightly.outputs.handoff_issue_number }}
+        run: |
+          set -euo pipefail
+          receipt_values="$(mktemp)"
+          trap 'rm -f "$receipt_values"' EXIT
+
+          verified=false
+          for attempt in $(seq 1 20); do
+            : > "$receipt_values"
+            rm -f tenant-context-handoff.json
+            set +e
+            python3 scripts/create_snapshot_handoff.py \
+              --repository "$GITHUB_REPOSITORY" \
+              --merge-sha "$MERGE_SHA" \
+              --verified-ci-run-id "$VERIFIED_CI_RUN_ID" \
+              --publication-run-id "$PUBLICATION_RUN_ID" \
+              --handoff-issue-number "$HANDOFF_ISSUE_NUMBER" \
+              --group io.github.bluetape4k \
+              --artifact bluetape4k-bom \
+              --base-version 2.0.0 \
+              --resource bluetape4k-bom:pom \
+              --resource bluetape4k-tenant:pom \
+              --resource bluetape4k-tenant:jar \
+              --resource bluetape4k-tenant-reactor:pom \
+              --resource bluetape4k-tenant-reactor:jar \
+              --resource bluetape4k-ktor-tenant:pom \
+              --resource bluetape4k-ktor-tenant:jar \
+              --output tenant-context-handoff.json > "$receipt_values"
+            receipt_status="$?"
+            set -e
+            if [ "$receipt_status" -eq 0 ]; then
+              verified=true
+              break
+            fi
+            if [ "$receipt_status" -ne 75 ]; then
+              echo "::error::Permanent SNAPSHOT handoff validation failure."
+              exit "$receipt_status"
+            fi
+            echo "::notice::Public SNAPSHOT read-back attempt $attempt is not stable yet."
+            sleep 15
+          done
+          if [ "$verified" != true ]; then
+            echo "::error::Public SNAPSHOT read-back did not stabilize within the retry window."
+            exit 1
+          fi
+
+          jq -e \
+            --arg repository "$GITHUB_REPOSITORY" \
+            --arg merge_sha "$MERGE_SHA" \
+            --arg verified_ci_run_id "$VERIFIED_CI_RUN_ID" \
+            --arg publication_run_id "$PUBLICATION_RUN_ID" \
+            --arg handoff_issue_number "$HANDOFF_ISSUE_NUMBER" \
+            '.schema == "bluetape.snapshot-handoff/v1" and
+             .status == "verified" and
+             .repository == $repository and
+             .merge_sha == $merge_sha and
+             .verified_ci_run_id == $verified_ci_run_id and
+             .publication_run_id == $publication_run_id and
+             .handoff_issue_number == $handoff_issue_number and
+             .group == "io.github.bluetape4k" and
+             .artifact == "bluetape4k-bom" and
+             .base_version == "2.0.0" and
+             (.resources | length == 7) and
+             ([.resources[].url] | unique | length == 7) and
+             all(.resources[]; (.sha256 | test("^[0-9a-f]{64}$")))' \
+            tenant-context-handoff.json > /dev/null
+          cat "$receipt_values" >> "$GITHUB_OUTPUT"
+          timestamp="$(jq -r '.timestamp' tenant-context-handoff.json)"
+          build_number="$(jq -r '.build_number' tenant-context-handoff.json)"
+          echo "artifact_name=tenant-context-handoff-${MERGE_SHA}-${timestamp}-${build_number}" \
+            >> "$GITHUB_OUTPUT"
+
+      - name: Upload immutable handoff receipt
+        id: handoff-artifact
+        uses: actions/upload-artifact@v7
+        with:
+          name: ${{ steps.receipt.outputs.artifact_name }}
+          path: tenant-context-handoff.json
+          if-no-files-found: error
+          retention-days: 90
+
+      - name: Summarize handoff evidence
+        env:
+          MERGE_SHA: ${{ needs.validate-full-nightly.outputs.head_sha }}
+          VERIFIED_CI_RUN_ID: ${{ needs.validate-full-nightly.outputs.verified_ci_run_id }}
+          PUBLICATION_RUN_ID: ${{ github.run_id }}
+          ARTIFACT_NAME: ${{ steps.receipt.outputs.artifact_name }}
+          ARTIFACT_ID: ${{ steps.handoff-artifact.outputs.artifact-id }}
+          ARTIFACT_DIGEST: ${{ steps.handoff-artifact.outputs.artifact-digest }}
+          ARTIFACT_URL: ${{ steps.handoff-artifact.outputs.artifact-url }}
+        run: |
+          set -euo pipefail
+          {
+            echo "## TenantContext SNAPSHOT handoff"
+            echo
+            echo "- merge SHA: \`$MERGE_SHA\`"
+            echo "- verified CI run ID: \`$VERIFIED_CI_RUN_ID\`"
+            echo "- publication run ID: \`$PUBLICATION_RUN_ID\`"
+            echo "- artifact: \`$ARTIFACT_NAME\`"
+            echo "- artifact ID: \`$ARTIFACT_ID\`"
+            echo "- artifact digest: \`$ARTIFACT_DIGEST\`"
+            echo "- artifact URL: $ARTIFACT_URL"
+            echo
+            echo "### Public resource SHA-256"
+            jq -r '.resources[] | "- `\(.sha256)` \(.url)"' tenant-context-handoff.json
+          } >> "$GITHUB_STEP_SUMMARY"
+
+  record-handoff:
+    name: Record SNAPSHOT handoff on issue
+    permissions:
+      actions: read
+      contents: read
+      issues: write
+    needs: [validate-full-nightly, publish]
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Download immutable handoff receipt
+        uses: actions/download-artifact@v8
+        with:
+          name: ${{ needs.publish.outputs.artifact_name }}
+
+      - name: Validate and record handoff evidence
+        env:
+          GH_TOKEN: ${{ github.token }}
+          HANDOFF_ISSUE_NUMBER: ${{ needs.validate-full-nightly.outputs.handoff_issue_number }}
+          MERGE_SHA: ${{ needs.validate-full-nightly.outputs.head_sha }}
+          VERIFIED_CI_RUN_ID: ${{ needs.validate-full-nightly.outputs.verified_ci_run_id }}
+          PUBLICATION_RUN_ID: ${{ github.run_id }}
+          ARTIFACT_ID: ${{ needs.publish.outputs.artifact_id }}
+          ARTIFACT_DIGEST: ${{ needs.publish.outputs.artifact_digest }}
+          ARTIFACT_URL: ${{ needs.publish.outputs.artifact_url }}
+        run: |
+          set -euo pipefail
+
+          jq -e \
+            --arg repository "$GITHUB_REPOSITORY" \
+            --arg merge_sha "$MERGE_SHA" \
+            --arg verified_ci_run_id "$VERIFIED_CI_RUN_ID" \
+            --arg publication_run_id "$PUBLICATION_RUN_ID" \
+            --arg handoff_issue_number "$HANDOFF_ISSUE_NUMBER" \
+            '.schema == "bluetape.snapshot-handoff/v1" and
+             .status == "verified" and
+             .repository == $repository and
+             .merge_sha == $merge_sha and
+             .verified_ci_run_id == $verified_ci_run_id and
+             .publication_run_id == $publication_run_id and
+             .handoff_issue_number == $handoff_issue_number' \
+            tenant-context-handoff.json > /dev/null
+
+          comment="$(mktemp)"
+          trap 'rm -f "$comment"' EXIT
+          {
+            echo "TenantContext SNAPSHOT handoff 검증이 완료되었습니다."
+            echo
+            echo "- merge SHA: \`$MERGE_SHA\`"
+            echo "- 검증 CI run ID: \`$VERIFIED_CI_RUN_ID\`"
+            echo "- 출판 run ID: \`$PUBLICATION_RUN_ID\`"
+            echo "- immutable artifact ID: \`$ARTIFACT_ID\`"
+            echo "- artifact digest: \`$ARTIFACT_DIGEST\`"
+            echo "- artifact: $ARTIFACT_URL"
+            echo
+            echo "downstream은 receipt의 timestamp/build number와 resource SHA-256을 모두 확인해야 합니다."
+          } > "$comment"
+          gh issue comment "$HANDOFF_ISSUE_NUMBER" --body-file "$comment"
