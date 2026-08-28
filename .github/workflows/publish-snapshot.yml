@@ -65,7 +65,9 @@ jobs:
 
           run_json="$(mktemp)"
           jobs_json="$(mktemp)"
-          trap 'rm -f "$run_json" "$jobs_json"' EXIT
+          contract_json="$(mktemp)"
+          validator_script="$(mktemp)"
+          trap 'rm -f "$run_json" "$jobs_json" "$contract_json" "$validator_script"' EXIT
 
           gh api "repos/${GITHUB_REPOSITORY}/actions/runs/${validation_run_id}" \
             --method GET > "$run_json"
@@ -74,44 +76,29 @@ jobs:
             --paginate \
             --slurp > "$jobs_json"
 
-          validation_output="$(python3 - "$run_json" "$jobs_json" "$expected_head_sha" <<'PY'
+          validation_head_sha="$(python3 - "$run_json" <<'PY'
           import json
           import sys
           from pathlib import Path
 
           run = json.loads(Path(sys.argv[1]).read_text(encoding="utf-8"))
-          pages = json.loads(Path(sys.argv[2]).read_text(encoding="utf-8"))
-          expected_head_sha = sys.argv[3]
-          if isinstance(pages, dict):
-              pages = [pages]
-          jobs = [job for page in pages for job in page.get("jobs", [])]
-          required_names = {
-              "Plan Nightly Scope", "Build", "Detekt", "Test / Core", "Test / IO",
-              "Test / IO HTTP", "Test / Ktor", "Test / Utils", "Test / Misc",
-              "Test / Testcontainers image startup-workload gate",
-              "Test / Testcontainers Ignite2 arm64 image gate",
-              "Test / Testcontainers Spring bridge", "Coverage Report", "Nightly Status",
-          }
-          names = {job.get("name") for job in jobs}
-          errors = []
-          if run.get("status") != "completed": errors.append("run is not completed")
-          if run.get("conclusion") != "success": errors.append("run did not succeed")
-          if run.get("path") != ".github/workflows/nightly-tests.yml": errors.append("run is not Nightly")
-          if run.get("head_branch") != "develop": errors.append("run is not on develop")
-          head_sha = run.get("head_sha", "")
-          if not isinstance(head_sha, str) or not head_sha: errors.append("run has no head SHA")
-          if expected_head_sha and head_sha != expected_head_sha: errors.append("head SHA mismatch")
-          for name in required_names - names: errors.append(f"missing job: {name}")
-          for prefix in ("Test / Infra (", "Test / Data (", "Test / Spring Boot (", "Test / Testcontainers ("):
-              if not any(isinstance(name, str) and name.startswith(prefix) for name in names):
-                  errors.append(f"missing matrix prefix: {prefix}")
-          for job in jobs:
-              if job.get("conclusion") != "success": errors.append(f"non-success job: {job.get('name')}")
-          print(f"head_sha={head_sha}")
-          print(f"publish_eligible={'true' if not errors else 'false'}")
-          for error in errors: print(f"validation_error={error}")
+          print(run.get("head_sha", ""))
           PY
           )"
+          if ! [[ "$validation_head_sha" =~ ^[0-9a-f]{40}$ ]]; then
+            echo "::error::Nightly validation run has no valid head SHA."
+            exit 1
+          fi
+
+          gh api "repos/${GITHUB_REPOSITORY}/contents/scripts/nightly_matrix_contract.json?ref=${validation_head_sha}" \
+            --method GET \
+            --header 'Accept: application/vnd.github.raw' > "$contract_json"
+
+          gh api "repos/${GITHUB_REPOSITORY}/contents/scripts/validate_nightly_matrix.py?ref=${validation_head_sha}" \
+            --method GET \
+            --header 'Accept: application/vnd.github.raw' > "$validator_script"
+
+          validation_output="$(python3 "$validator_script" "$run_json" "$jobs_json" "$expected_head_sha" "$contract_json")"
           while IFS= read -r line; do
             case "$line" in
               head_sha=*|publish_eligible=*|validation_error=*) echo "$line" >> "$GITHUB_OUTPUT" ;;

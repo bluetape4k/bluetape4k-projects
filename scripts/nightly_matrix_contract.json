@@ -1,0 +1,43 @@
+{
+  "schema_version": 1,
+  "workflow": ".github/workflows/nightly-tests.yml",
+  "matrix_jobs": {
+    "Test / Infra": [
+      "redis",
+      "kafka-resilience",
+      "cache-misc",
+      "search-messaging"
+    ],
+    "Test / Data": [
+      "rdb",
+      "nosql"
+    ],
+    "Test / Spring Boot": [
+      "core-redis-r2dbc",
+      "batch-nosql",
+      "demos"
+    ],
+    "Test / Testcontainers": [
+      "database-core",
+      "database-analytics",
+      "database-contract",
+      "storage-cassandra",
+      "storage-search",
+      "storage-cache",
+      "mq-kafka",
+      "mq-brokers",
+      "aws-core",
+      "aws-localstack",
+      "aws-compatible",
+      "infra",
+      "http",
+      "graphdb-falkordb",
+      "graphdb-memgraph",
+      "graphdb-neo4j",
+      "graphdb-postgresql-age",
+      "misc-contract",
+      "mail",
+      "llm-disabled"
+    ]
+  }
+}
