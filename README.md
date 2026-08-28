@@ -94,6 +94,8 @@ Bluetape4k is a multi-module Gradle project organized by domain.
 - **[core](./bluetape4k/core/README.md)**: Core utilities — assertions, required helpers, collections (BoundedStack, RingBuffer, PaginatedList, Permutation), wildcard pattern matching, XXHasher, and more
 - **[coroutines](./bluetape4k/coroutines/README.md)**: Kotlin Coroutines extensions — DeferredValue, Flow extensions, AsyncFlow
 - **[logging](./bluetape4k/logging/README.md)**: Logging utilities
+- **[tenant](./bluetape4k/tenant/README.md)**: JDK 25 no-default tenant context backed by `ThreadLocal` or `ScopedValue`
+- **[tenant-reactor](./bluetape4k/tenant-reactor/README.md)**: Immutable Reactor subscriber `Context` tenant adapter
 - **[bom](./bluetape4k/bom/README.md)**: Bill of Materials for dependency management
 
 ### I/O Modules (`io/`)
@@ -197,6 +199,7 @@ auth helpers stay in backlog until their extension points are proven.
 - **[observability](./ktor/observability/README.md)**: Call logging, correlation-id, metrics, and Prometheus route helpers
 - **[openapi](./ktor/openapi/README.md)**: Explicit Ktor OpenAPI and Swagger UI documentation route helpers
 - **[resilience4j](./ktor/resilience4j/README.md)**: Route-scoped Resilience4j retry, circuit breaker, rate limiter, and timeout helpers
+- **[tenant](./ktor/tenant/README.md)**: One-call/one-tenant adapter for Ktor `ApplicationCall`
 - **[testing](./ktor/testing/README.md)**: Ktor `testApplication` and JSON client test helpers
 
 ### Text Processing → [bluetape4k-text](https://github.com/bluetape4k/bluetape4k-text)

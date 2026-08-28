@@ -178,6 +178,8 @@ jobs:
               - 'bluetape4k/core/**'
               - 'bluetape4k/coroutines/**'
               - 'bluetape4k/logging/**'
+              - 'bluetape4k/tenant/**'
+              - 'bluetape4k/tenant-reactor/**'
               - 'virtualthread/api/**'
               - 'virtualthread/jdk21/**'
               - 'virtualthread/jdk25/**'
@@ -371,12 +373,18 @@ jobs:
               :bluetape4k-core:test \
               :bluetape4k-coroutines:test \
               :bluetape4k-logging:test \
+              :bluetape4k-tenant:test \
+              :bluetape4k-tenant-reactor:test \
               :bluetape4k-virtualthread-api:test \
               :bluetape4k-virtualthread-jdk21:test \
               :bluetape4k-virtualthread-jdk25:test \
               --parallel
         env:
           GRADLE_OPTS: "-Dorg.gradle.daemon=false"
+
+      - name: Test TenantContext retention
+        timeout-minutes: 2
+        run: ./gradlew :bluetape4k-tenant:tenantRetentionStress --no-configuration-cache
 
       - name: Generate Kover XML report
         if: always()
@@ -386,6 +394,8 @@ jobs:
             :bluetape4k-core:koverXmlReport \
             :bluetape4k-coroutines:koverXmlReport \
             :bluetape4k-logging:koverXmlReport \
+            :bluetape4k-tenant:koverXmlReport \
+            :bluetape4k-tenant-reactor:koverXmlReport \
             :bluetape4k-virtualthread-api:koverXmlReport \
             :bluetape4k-virtualthread-jdk21:koverXmlReport \
             :bluetape4k-virtualthread-jdk25:koverXmlReport \
@@ -396,7 +406,11 @@ jobs:
         uses: actions/upload-artifact@v7
         with:
           name: test-results-core
-          path: '**/build/test-results/test/*.xml'
+          path: |
+            **/build/test-results/test/*.xml
+            bluetape4k/tenant/build/test-results/tenantRetentionStress/*.xml
+            bluetape4k/tenant/build/reports/tests/tenantRetentionStress/**
+            bluetape4k/tenant/build/reports/tenant-retention/**
           retention-days: 30
 
       - name: Upload coverage report
@@ -634,6 +648,7 @@ jobs:
           command: |
             ./gradlew \
               :bluetape4k-ktor-core:test \
+              :bluetape4k-ktor-tenant:test \
               :bluetape4k-ktor-observability:test \
               :bluetape4k-ktor-openapi:test \
               :bluetape4k-ktor-resilience4j:test \
@@ -647,6 +662,7 @@ jobs:
         run: |
           ./gradlew \
             :bluetape4k-ktor-core:koverXmlReport \
+            :bluetape4k-ktor-tenant:koverXmlReport \
             :bluetape4k-ktor-observability:koverXmlReport \
             :bluetape4k-ktor-openapi:koverXmlReport \
             :bluetape4k-ktor-resilience4j:koverXmlReport \
