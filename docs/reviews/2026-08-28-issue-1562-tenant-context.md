@@ -61,8 +61,8 @@ SNAPSHOT dispatch를 하지 않는다.
 - targeted JUnit: core 17, Reactor 6, Ktor 6; 합계 29, failures/errors/skipped=0
 - retention JUnit: 2, failures/errors/skipped=0
 - 세 module `check`, Kover XML, root Detekt, `checkDisabledTests`: 성공
-- workflow/receipt policy: 30 tests, 모두 성공; `actionlint` 성공
-- CI domain policy: 15 tests, 모두 성공
+- workflow/receipt policy: 35 tests, 모두 성공; `actionlint` 성공
+- CI domain policy: 17 tests, 모두 성공
 - module registration, manual inventory, buildSrc tests: 성공
 - publication POM/module metadata: 79 files, failures=0; BOM constraint 세 artifact 각각 1회
 - production logging/MDC/metric/Reactor global hook scan: 0 findings
