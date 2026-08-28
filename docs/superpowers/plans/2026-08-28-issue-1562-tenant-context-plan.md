@@ -353,14 +353,14 @@ git diff --check
 - [ ] checkout이 validation output SHA만 사용하고 branch 이름/current checkout에 fallback하지
       않는 RED를 추가한다.
 - [ ] receipt schema `bluetape.snapshot-handoff/v1`의 `repository`, `merge_sha`,
-      `verified_ci_run_id`, `publication_run_id`, `group`, `artifact`, `base_version`, `timestamp`,
+      `verified_ci_run_id`, `publication_run_id`, `handoff_issue_number`, `group`, `artifact`, `base_version`, `timestamp`,
       `build_number`, `last_updated`, `resources`, `catalog_commit_sha=null`, `created_at`, `status`,
       `supersedes`를 test로 고정한다. 최초 receipt는 `verified`, 실패 receipt는 기존 파일을
       수정하지 않고 digest로 연결한 append-only `rejected`다.
 - [ ] immutable artifact name, 90일 retention, `actions/upload-artifact@v7`, artifact ID/digest와
-      Korean linked-issue comment를 policy test로 고정한다. 최소 workflow permission은
-      `contents: read`, `actions: read`, issue 기록을 위한 `issues: write`뿐이고 signing/Central
-      secret은 publish step에만 scope한다.
+      Korean linked-issue comment를 policy test로 고정한다. validation은 `contents: read`와
+      `actions: read`, publish는 `contents: read`, 별도 issue 기록 job만 `issues: write`를 가지며
+      signing/Central secret은 publish step에만 scope한다.
 - [ ] `create_snapshot_handoff.py`는 Maven metadata를 두 번 읽고 timestamp/build number/
       `lastUpdated`가 호출 전후 같을 때만 BOM과 세 artifact POM/JAR SHA-256을 계산한다.
 - [ ] fixture HTTP server로 success, missing metadata/resource, checksum mismatch, 호출 중 metadata
@@ -426,7 +426,7 @@ repo-test-summary -- ./gradlew :bluetape4k-tenant:tenantRetentionStress \
   :bluetape4k-ktor-tenant:koverXmlReport \
   --no-daemon --no-configuration-cache --no-build-cache
 
-./gradlew detekt disabledTestReport \
+./gradlew detekt checkDisabledTests \
   --no-daemon --no-configuration-cache --no-build-cache
 
 ./gradlew projects --no-daemon --no-configuration-cache --no-build-cache
