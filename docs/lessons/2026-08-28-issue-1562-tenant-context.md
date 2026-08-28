@@ -51,3 +51,15 @@
   실패 진단 artifact를 사용한다.
 - 향후 예방 확인: GC probe는 결정적 API test를 대체하지 않으며 bounded stress/diagnostic gate로만
   사용한다. timeout을 늘리는 것만으로 성공을 만들지 않는다.
+
+## dependency 문자열 검색은 실제 runtime selection 증거가 아니다
+
+- 실패한 가정/판단: core `runtimeClasspath` 출력에 `reactor` 문자열이 있으면 Reactor runtime
+  dependency가 유입됐다고 판단했다.
+- 발견 증거 또는 교정: 출력의 대상은 실제 `reactor-core`가 아니라 공통 version platform의
+  `reactor-bom` constraint였다. 또한 zsh에서 `$project:check...`는 `:c` parameter modifier로
+  해석되어 잘못된 Gradle task 이름을 만들었다.
+- 수정 결정: `dependencyInsight`로 `reactor-core`, Ktor server, Servlet, Spring artifact의 실제
+  selection 부재를 각각 확인하고, 동적 task 이름은 `${project}`처럼 변수 경계를 명시했다.
+- 향후 예방 확인: dependency leakage는 artifact-level `dependencyInsight`로 판정하고 BOM 이름의
+  문자열 hit를 defect로 승격하지 않는다. zsh 변수 바로 뒤에 `:`가 오면 항상 braces를 사용한다.
