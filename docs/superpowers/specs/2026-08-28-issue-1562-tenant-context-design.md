@@ -379,7 +379,7 @@ PR read-back으로 다시 확인한다.
 
 handoff receipt의 schema는 `bluetape.snapshot-handoff/v1`로 고정하고 publish workflow가
 `tenant-context-handoff.json`을 생성한다. 필수 필드는 `repository`, `merge_sha`,
-`verified_ci_run_id`, `publication_run_id`, `group`, `artifact`, `base_version`, `timestamp`,
+`verified_ci_run_id`, `publication_run_id`, `handoff_issue_number`, `group`, `artifact`, `base_version`, `timestamp`,
 `build_number`, `last_updated`, `resources[{url,sha256}]`, `catalog_commit_sha`, `created_at`,
 `status`다. 적용되지 않는 `catalog_commit_sha`는 `null`이고 `status`는 최초 `verified`,
 실패한 downstream이 있으면 새 append-only receipt의 `supersedes`로 연결해 `rejected`로
