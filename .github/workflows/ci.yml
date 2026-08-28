@@ -138,6 +138,7 @@ jobs:
       testcontainers-spring: ${{ steps.filter.outputs.testcontainers-spring }}
       ktor: ${{ steps.filter.outputs.ktor }}
       key-utils: ${{ steps.filter.outputs.key-utils }}
+      science: ${{ steps.filter.outputs.science }}
       infra: ${{ steps.filter.outputs.infra }}
       search-messaging: ${{ steps.filter.outputs.search-messaging }}
       kafka-infra: ${{ steps.filter.outputs.kafka-infra }}
@@ -205,6 +206,8 @@ jobs:
             key-utils:
               - 'utils/idgenerators/**'
               - 'cache/cache-core/**'
+            science:
+              - 'utils/science/**'
             infra:
               - 'infra/redisson/**'
               - 'infra/lettuce/**'
@@ -726,6 +729,66 @@ jobs:
           if-no-files-found: error
           retention-days: 30
 
+  # ── 6-b. Science 모듈 테스트 (정규 회귀; slow-netcdf는 Nightly 전용) ─────
+  test-science:
+    name: Test / Science
+    runs-on: ubuntu-latest
+    timeout-minutes: 75
+    needs: [changes, catalog-governance]
+    if: ${{ needs.changes.outputs.science == 'true' || needs.changes.outputs.shared == 'true' || github.event_name == 'workflow_dispatch' }}
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-java@v5.7.0
+        with:
+          java-version: ${{ env.JAVA_VERSION }}
+          distribution: ${{ env.JAVA_DISTRIBUTION }}
+
+      - uses: gradle/actions/setup-gradle@v6.3.0
+        with:
+          gradle-version: wrapper
+          cache-read-only: true
+
+      - name: Test Science module (regular tests)
+        uses: nick-fields/retry@v4
+        with:
+          timeout_minutes: 60
+          max_attempts: 3
+          shell: bash
+          command: |
+            ./gradlew \
+              :bluetape4k-science:test \
+              -PexcludeTags=slow-netcdf \
+              --no-configuration-cache
+        env:
+          GRADLE_OPTS: "-Dorg.gradle.daemon=false -Duser.language=en -Duser.country=US"
+          LANG: en_US.UTF-8
+          LC_ALL: en_US.UTF-8
+
+      - name: Generate Kover XML report
+        if: always()
+        run: |
+          ./gradlew \
+            :bluetape4k-science:koverXmlReport \
+            --no-configuration-cache
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: test-results-science
+          path: '**/build/test-results/test/*.xml'
+          retention-days: 30
+
+      - name: Upload coverage report
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: coverage-science
+          path: '**/build/reports/kover/'
+          if-no-files-found: error
+          retention-days: 30
+
   # ── 7. 핵심 Infra 테스트 (Redis — Testcontainers) ────────────────────────
   test-infra:
     name: Test / Infra (Redis)
@@ -1160,9 +1223,9 @@ jobs:
           retention-days: 30
 
   # ── 나머지 모듈 → Nightly에서 실행 ─────────────────────────────────
-  # utils 전체, misc, testcontainers는 nightly-tests.yml (매일 03:00 KST)에서
-  # 실행하며, Spring Boot는 위 PR matrix와 nightly-tests.yml full scope에서
-  # 실행한다.
+  # science 정규 회귀는 위 PR job에서 실행하고, slow-netcdf를 포함한 utils 전체,
+  # misc, testcontainers는 nightly-tests.yml (매일 03:00 KST)에서 실행한다.
+  # Spring Boot는 위 PR matrix와 nightly-tests.yml full scope에서 실행한다.
   # exposed 모듈은 bluetape4k-exposed 독립 레포로 분리됨 (#334)
 
   # ── 8. 커버리지 집계 ──────────────────────────────────────────────────────
@@ -1170,7 +1233,7 @@ jobs:
     name: Coverage Report
     runs-on: ubuntu-latest
     timeout-minutes: 10
-    needs: [test-core, test-io, test-io-http, test-testcontainers-spring, test-ktor, test-key-utils, test-infra, test-search-messaging, test-kafka-infra, test-telemetry-infra, test-data, test-spring-boot]
+    needs: [test-core, test-io, test-io-http, test-testcontainers-spring, test-ktor, test-key-utils, test-science, test-infra, test-search-messaging, test-kafka-infra, test-telemetry-infra, test-data, test-spring-boot]
     if: always()
     steps:
       - uses: actions/checkout@v7
@@ -1185,6 +1248,7 @@ jobs:
             test-testcontainers-spring=${{ needs.test-testcontainers-spring.result }}
             test-ktor=${{ needs.test-ktor.result }}
             test-key-utils=${{ needs.test-key-utils.result }}
+            test-science=${{ needs.test-science.result }}
             test-infra=${{ needs.test-infra.result }}
             test-search-messaging=${{ needs.test-search-messaging.result }}
             test-kafka-infra=${{ needs.test-kafka-infra.result }}
@@ -1266,7 +1330,7 @@ jobs:
     name: CI Status
     runs-on: ubuntu-latest
     timeout-minutes: 10
-    needs: [release-policy, jvm-release-contract, codeql-policy, catalog-governance, gitleaks, validate-wrapper, changes, build, test-core, test-io, test-testcontainers-spring, test-ktor, test-key-utils, test-infra, test-search-messaging, test-kafka-infra, test-telemetry-infra, test-data, test-spring-boot, coverage-report]
+    needs: [release-policy, jvm-release-contract, codeql-policy, catalog-governance, gitleaks, validate-wrapper, changes, build, test-core, test-io, test-testcontainers-spring, test-ktor, test-key-utils, test-science, test-infra, test-search-messaging, test-kafka-infra, test-telemetry-infra, test-data, test-spring-boot, coverage-report]
     if: always()
     steps:
       - name: Check all jobs
@@ -1274,6 +1338,8 @@ jobs:
           RESULTS: ${{ join(needs.*.result, ',') }}
           SPRING_BOOT_CHANGED: ${{ needs.changes.outputs['spring-boot'] }}
           SPRING_BOOT_RESULT: ${{ needs.test-spring-boot.result }}
+          SCIENCE_CHANGED: ${{ needs.changes.outputs.science }}
+          SCIENCE_RESULT: ${{ needs.test-science.result }}
         run: |
           echo "Job results: $RESULTS"
           if echo "$RESULTS" | grep -qE "failure|cancelled"; then
@@ -1282,6 +1348,10 @@ jobs:
           fi
           if [[ "$SPRING_BOOT_CHANGED" == "true" && "$SPRING_BOOT_RESULT" == "skipped" ]]; then
             echo "Spring Boot changes were detected but the Spring Boot test job was skipped"
+            exit 1
+          fi
+          if [[ "$SCIENCE_CHANGED" == "true" && "$SCIENCE_RESULT" == "skipped" ]]; then
+            echo "Science changes were detected but the Science test job was skipped"
             exit 1
           fi
           echo "CI passed (skipped jobs treated as success)"

@@ -46,6 +46,7 @@ DOMAIN_JOBS = (
     "test-testcontainers-spring",
     "test-ktor",
     "test-key-utils",
+    "test-science",
     "test-infra",
     "test-search-messaging",
     "test-kafka-infra",
@@ -153,6 +154,75 @@ class CiDomainParallelizationTest(unittest.TestCase):
             ":bluetape4k-spring-boot-cassandra:koverXmlReport",
             spring_job,
         )
+
+    def assert_science_route(self, workflow: str) -> None:
+        changes = job_block(workflow, "changes")
+        self.assertIn(
+            "science: ${{ steps.filter.outputs.science }}",
+            changes,
+        )
+        science_filter = path_filter_block(workflow, "science")
+        self.assertIn("'utils/science/**'", science_filter)
+        fixture = (
+            "utils/science/src/test/kotlin/"
+            "io/bluetape4k/science/exposed/service/NetCdfCatalogServiceTest.kt"
+        )
+        filter_patterns = re.findall(r"^              - '([^']+)'$", science_filter, re.MULTILINE)
+        self.assertTrue(any(fnmatch.fnmatchcase(fixture, pattern) for pattern in filter_patterns))
+
+        science_job = job_block(workflow, "test-science")
+        self.assertIn(
+            "needs.changes.outputs.science == 'true'",
+            science_job,
+        )
+        self.assertIn(":bluetape4k-science:test", science_job)
+        self.assertIn("-PexcludeTags=slow-netcdf", science_job)
+        self.assertIn(":bluetape4k-science:koverXmlReport", science_job)
+        self.assertNotIn("-PincludeTags=slow-netcdf", science_job)
+
+        status = job_block(workflow, "ci-status")
+        self.assertIn(
+            "SCIENCE_CHANGED: ${{ needs.changes.outputs.science }}",
+            status,
+        )
+        self.assertIn(
+            "SCIENCE_RESULT: ${{ needs.test-science.result }}",
+            status,
+        )
+        self.assertIn(
+            '[[ "$SCIENCE_CHANGED" == "true" && "$SCIENCE_RESULT" == "skipped" ]]',
+            status,
+        )
+
+    def test_science_fixture_routes_to_regular_ci_and_slow_netcdf_stays_nightly(self):
+        self.assert_science_route(self.workflow)
+        nightly = NIGHTLY_WORKFLOW.read_text(encoding="utf-8")
+        nightly_utils = job_block(nightly, "test-utils")
+        self.assertIn(":bluetape4k-science:test", nightly_utils)
+        self.assertIn("-PincludeTags=slow-netcdf", nightly_utils)
+
+    def test_science_route_contract_rejects_output_filter_and_job_mutations(self):
+        mutations = {
+            "missing output": self.workflow.replace(
+                "      science: ${{ steps.filter.outputs.science }}\n",
+                "",
+                1,
+            ),
+            "missing path filter": self.workflow.replace(
+                "              - 'utils/science/**'\n",
+                "",
+                1,
+            ),
+            "missing test job": self.workflow.replace(
+                "  test-science:\n",
+                "  test-science-removed:\n",
+                1,
+            ),
+        }
+        for mutation_name, mutated_workflow in mutations.items():
+            with self.subTest(mutation=mutation_name):
+                with self.assertRaises(AssertionError):
+                    self.assert_science_route(mutated_workflow)
 
     def test_spring_boot_skip_is_not_accepted_when_changes_are_detected(self):
         status = job_block(self.workflow, "ci-status")
