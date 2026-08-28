@@ -1,9 +1,16 @@
 #!/usr/bin/env python3
 
+import json
 import re
 import unittest
 from pathlib import Path
 
+from scripts.validate_nightly_matrix import (
+    REQUIRED_JOB_NAMES,
+    expected_matrix_names,
+    matrix_contract_errors,
+    validation_errors,
+)
 
 REPOSITORY = Path(__file__).resolve().parents[1]
 WORKFLOWS = REPOSITORY / ".github" / "workflows"
@@ -115,6 +122,21 @@ def runtime_policy_errors() -> list[str]:
 
 class ReleaseWorkflowPolicyTest(unittest.TestCase):
 
+    @staticmethod
+    def _nightly_matrix_contract() -> dict:
+        return json.loads(
+            (REPOSITORY / "scripts" / "nightly_matrix_contract.json").read_text(
+                encoding="utf-8"
+            )
+        )
+
+    def _successful_matrix_jobs(self) -> list[dict[str, str]]:
+        expected_names, _ = expected_matrix_names(self._nightly_matrix_contract())
+        return [
+            {"name": name, "conclusion": "success"}
+            for name in sorted(expected_names)
+        ]
+
     def test_semantic_checker_rejects_snapshot_task_and_release_action(self) -> None:
         workflow = (WORKFLOWS / "release.yml").read_text(encoding="utf-8")
         mutated = workflow.replace(
@@ -178,11 +200,104 @@ class ReleaseWorkflowPolicyTest(unittest.TestCase):
         self.assertIn("gh api", workflow)
         self.assertIn("actions/runs/${validation_run_id}", workflow)
         self.assertIn("actions/runs/${validation_run_id}/jobs", workflow)
-        self.assertIn("Nightly Status", workflow)
-        self.assertIn("Plan Nightly Scope", workflow)
-        self.assertIn("Test / Core", workflow)
-        self.assertIn("conclusion", workflow)
+        self.assertIn(
+            "contents/scripts/nightly_matrix_contract.json?ref=${validation_head_sha}",
+            workflow,
+        )
+        self.assertIn(
+            "contents/scripts/validate_nightly_matrix.py?ref=${validation_head_sha}",
+            workflow,
+        )
+        self.assertIn("Accept: application/vnd.github.raw", workflow)
+        self.assertIn("valid head SHA", workflow)
+        self.assertIn('python3 "$validator_script"', workflow)
+        self.assertIn("publish_eligible=", workflow)
         self.assertNotIn("override_full_validation", workflow)
+
+    def test_nightly_matrix_contract_matches_current_workflow_groups(self) -> None:
+        workflow = (WORKFLOWS / "nightly-tests.yml").read_text(encoding="utf-8")
+        contract = self._nightly_matrix_contract()
+        expected_groups = {
+            group
+            for groups in contract["matrix_jobs"].values()
+            for group in groups
+        }
+        workflow_groups = set(
+            re.findall(r"^\s*-\s+group:\s*([a-z0-9-]+)", workflow, re.MULTILINE)
+        )
+        workflow_groups.update(
+            re.findall(r'"group":\s*"([a-z0-9-]+)"', workflow)
+        )
+        self.assertEqual(expected_groups, workflow_groups)
+        self.assertEqual(29, len(expected_matrix_names(contract)[0]))
+
+    def test_nightly_matrix_contract_accepts_current_expected_set(self) -> None:
+        contract = self._nightly_matrix_contract()
+        errors = matrix_contract_errors(self._successful_matrix_jobs(), contract)
+        self.assertEqual([], errors)
+
+    def test_nightly_matrix_contract_rejects_missing_shard(self) -> None:
+        contract = self._nightly_matrix_contract()
+        jobs = [
+            job
+            for job in self._successful_matrix_jobs()
+            if job["name"] != "Test / Infra (redis)"
+        ]
+        errors = matrix_contract_errors(jobs, contract)
+        self.assertIn("missing matrix job: Test / Infra (redis)", errors)
+
+    def test_nightly_matrix_contract_rejects_additional_shard(self) -> None:
+        contract = self._nightly_matrix_contract()
+        jobs = self._successful_matrix_jobs() + [
+            {"name": "Test / Infra (unexpected)", "conclusion": "success"}
+        ]
+        errors = matrix_contract_errors(jobs, contract)
+        self.assertIn("unexpected matrix job: Test / Infra (unexpected)", errors)
+
+    def test_nightly_matrix_contract_rejects_renamed_shard(self) -> None:
+        contract = self._nightly_matrix_contract()
+        jobs = [
+            {
+                "name": (
+                    "Test / Infra (renamed)"
+                    if job["name"] == "Test / Infra (redis)"
+                    else job["name"]
+                ),
+                "conclusion": job["conclusion"],
+            }
+            for job in self._successful_matrix_jobs()
+        ]
+        errors = matrix_contract_errors(jobs, contract)
+        self.assertIn("missing matrix job: Test / Infra (redis)", errors)
+        self.assertIn("unexpected matrix job: Test / Infra (renamed)", errors)
+
+    def test_nightly_matrix_contract_rejects_non_success_shard(self) -> None:
+        contract = self._nightly_matrix_contract()
+        jobs = self._successful_matrix_jobs()
+        jobs[0]["conclusion"] = "failure"
+        errors = matrix_contract_errors(jobs, contract)
+        self.assertIn(f"non-success matrix job: {jobs[0]['name']}", errors)
+
+    def test_nightly_matrix_validation_accepts_complete_successful_run(self) -> None:
+        contract = self._nightly_matrix_contract()
+        jobs = [
+            *({"name": name, "conclusion": "success"} for name in REQUIRED_JOB_NAMES),
+            *self._successful_matrix_jobs(),
+        ]
+        head_sha, errors = validation_errors(
+            {
+                "status": "completed",
+                "conclusion": "success",
+                "path": ".github/workflows/nightly-tests.yml",
+                "head_branch": "develop",
+                "head_sha": "a" * 40,
+            },
+            jobs,
+            "a" * 40,
+            contract,
+        )
+        self.assertEqual("a" * 40, head_sha)
+        self.assertEqual([], errors)
 
     def test_snapshot_checkout_uses_validated_nightly_head(self) -> None:
         workflow = (WORKFLOWS / "publish-snapshot.yml").read_text(encoding="utf-8")
