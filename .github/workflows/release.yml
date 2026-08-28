@@ -379,7 +379,7 @@ jobs:
 
       - name: Validate publication metadata
         run: |
-          ./gradlew generatePomFileForBluetape4kPublication generateMetadataFileForBluetape4kPublication \
+          ./gradlew generatePomFileForBluetape4kPublication checkPomFileForBluetape4kPublication generateMetadataFileForBluetape4kPublication \
             --no-daemon --no-configuration-cache --no-build-cache
           ruby scripts/publication/validate_poms.rb
           ruby scripts/publication/validate_module_metadata.rb

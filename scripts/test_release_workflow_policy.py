@@ -4,6 +4,7 @@ import json
 import re
 import unittest
 from pathlib import Path
+from typing import Optional
 
 from scripts.validate_nightly_matrix import (
     REQUIRED_JOB_NAMES,
@@ -15,12 +16,6 @@ from scripts.validate_nightly_matrix import (
 REPOSITORY = Path(__file__).resolve().parents[1]
 WORKFLOWS = REPOSITORY / ".github" / "workflows"
 
-MAVEN_RELEASE_TASK = re.compile(
-    r"(?<![0-9A-Za-z_])nmcpPublishAggregationToCentralPortal(?![0-9A-Za-z_])"
-)
-MAVEN_SNAPSHOT_TASK = re.compile(
-    r"(?<![0-9A-Za-z_])nmcpPublishAggregationToCentralPortalSnapshots(?![0-9A-Za-z_])"
-)
 GITHUB_RELEASE = re.compile(
     r"(?:gh\s+release(?:\s|$)|softprops/action-gh-release|actions/create-release|"
     r"gh\s+api[^\n]*/releases(?:\s|$))",
@@ -33,6 +28,81 @@ ISSUE_RELEASE_MACHINERY = re.compile(
     r"tag[-_ ]immutability)",
     re.IGNORECASE,
 )
+YAML_BLOCK_SCALAR = re.compile(
+    r"^(?P<indent> *)(?:- )?[^#\n][^:\n]*:\s*(?P<style>[|>][+-]?)"
+    r"(?:\s+#.*)?$"
+)
+YAML_EXECUTION_GUARD = re.compile(
+    r"^(?:\"(?P<double>if|continue-on-error)\"|"
+    r"'(?P<single>if|continue-on-error)'|"
+    r"(?P<plain>if|continue-on-error)):\s*(?P<value>.*?)\s*$"
+)
+SNAPSHOT_PUBLISH_JOB_IF = (
+    "${{ needs.validate-full-nightly.outputs.publish_eligible == 'true' }}"
+)
+PUBLICATION_VALIDATION_COMMANDS = (
+    "      - name: Validate publication metadata\n"
+    "        run: |\n"
+    "          ruby scripts/publication/publication_pom_audit_test.rb\n"
+    "          ruby scripts/publication/publication_inventory_audit_test.rb\n"
+    "          ruby scripts/publication/publication_pom_integration_test.rb\n"
+    "          ruby scripts/publication/publication_module_metadata_audit_test.rb\n"
+    "          ./gradlew generatePomFileForBluetape4kPublication "
+    "checkPomFileForBluetape4kPublication "
+    "generateMetadataFileForBluetape4kPublication \\\n"
+    "            -PsnapshotVersion=-SNAPSHOT \\\n"
+    "            --no-daemon --no-configuration-cache --no-build-cache\n"
+    "          ruby scripts/publication/validate_poms.rb\n"
+    "          ruby scripts/publication/validate_module_metadata.rb\n",
+    "      - name: Validate publication metadata\n"
+    "        run: |\n"
+    "          ./gradlew generatePomFileForBluetape4kPublication "
+    "checkPomFileForBluetape4kPublication "
+    "generateMetadataFileForBluetape4kPublication \\\n"
+    "            --no-daemon --no-configuration-cache --no-build-cache\n"
+    "          ruby scripts/publication/validate_poms.rb\n"
+    "          ruby scripts/publication/validate_module_metadata.rb\n",
+    "      - name: Validate publication metadata\n"
+    "        run: |\n"
+    "          ./gradlew generatePomFileForBluetape4kPublication "
+    "checkPomFileForBluetape4kPublication "
+    "generateMetadataFileForBluetape4kPublication \\\n"
+    "            -PsnapshotVersion=-SNAPSHOT \\\n"
+    "            --no-daemon --no-configuration-cache --no-build-cache\n"
+    "          ruby scripts/publication/validate_poms.rb\n"
+    "          ruby scripts/publication/validate_module_metadata.rb\n",
+)
+RELEASE_PUBLICATION_COMMAND = (
+    "      - name: Publish to Central Portal\n"
+    "        run: >-\n"
+    "          ./gradlew nmcpPublishAggregationToCentralPortal\n"
+    "          --no-daemon\n"
+    "          --no-configuration-cache\n"
+    "          --no-build-cache\n"
+    "          --stacktrace\n"
+)
+SNAPSHOT_PUBLICATION_COMMAND = (
+    "      - name: Publish SNAPSHOT\n"
+    "        run: >-\n"
+    "          ./gradlew nmcpPublishAggregationToCentralPortalSnapshots\n"
+    "          -PsnapshotVersion=-SNAPSHOT\n"
+    "          --no-daemon\n"
+    "          --no-configuration-cache\n"
+    "          --no-build-cache\n"
+)
+
+
+def expected_run_contract(step: str) -> tuple[str, tuple[str, ...]]:
+    lines = step.splitlines()
+    style = lines[1].split("run:", 1)[1].strip()
+    return style, tuple(line[10:] for line in lines[2:])
+
+
+PUBLICATION_VALIDATION_RUNS = tuple(
+    expected_run_contract(command) for command in PUBLICATION_VALIDATION_COMMANDS
+)
+RELEASE_PUBLICATION_RUN = expected_run_contract(RELEASE_PUBLICATION_COMMAND)
+SNAPSHOT_PUBLICATION_RUN = expected_run_contract(SNAPSHOT_PUBLICATION_COMMAND)
 
 
 def job_ids(workflow: str) -> set[str]:
@@ -42,9 +112,224 @@ def job_ids(workflow: str) -> set[str]:
     return set(re.findall(r"^  ([a-z0-9_-]+):\s*$", jobs[1], re.MULTILINE))
 
 
+def line_indent(line: str) -> int:
+    return len(line) - len(line.lstrip())
+
+
+def execution_guard_field(
+    line: str, expected_indent: int
+) -> Optional[tuple[str, str]]:
+    if line_indent(line) != expected_indent:
+        return None
+    match = YAML_EXECUTION_GUARD.fullmatch(line.strip())
+    if match is None:
+        return None
+    key = next(
+        value
+        for value in (
+            match.group("double"),
+            match.group("single"),
+            match.group("plain"),
+        )
+        if value is not None
+    )
+    return key, match.group("value")
+
+
+def yaml_block_end(lines: list[str], start: int, header_indent: int) -> int:
+    index = start + 1
+    while index < len(lines):
+        line = lines[index]
+        if line.strip() and line_indent(line) <= header_indent:
+            break
+        index += 1
+    return index
+
+
+def yaml_run_contract(
+    lines: list[str], run_index: int, run_indent: int, style: str
+) -> tuple[tuple[str, tuple[str, ...]], int]:
+    end = yaml_block_end(lines, run_index, run_indent)
+    content = []
+    for line in lines[run_index + 1 : end]:
+        if not line.strip():
+            content.append("")
+        elif line_indent(line) < run_indent + 2:
+            content.append("<invalid-indentation>")
+        else:
+            content.append(line[run_indent + 2 :])
+    while content and not content[-1]:
+        content.pop()
+    return (style, tuple(content)), end
+
+
+def workflow_step_runs(
+    workflow: str, expected_job: str, expected_name: str
+) -> list[tuple[Optional[tuple[str, tuple[str, ...]]], bool]]:
+    lines = workflow.splitlines()
+    runs = []
+    in_jobs = False
+    current_job = None
+    index = 0
+
+    while index < len(lines):
+        line = lines[index]
+        stripped = line.strip()
+        indent = line_indent(line)
+        scalar = YAML_BLOCK_SCALAR.match(line)
+
+        if scalar is not None:
+            index = yaml_block_end(lines, index, len(scalar.group("indent")))
+            continue
+        if not in_jobs:
+            if indent == 0 and stripped == "jobs:":
+                in_jobs = True
+            index += 1
+            continue
+        if stripped and indent == 0:
+            break
+        job_match = re.match(r"^ {2}(?P<job>[a-z0-9_-]+):\s*$", line)
+        if job_match is not None:
+            current_job = job_match.group("job")
+            index += 1
+            continue
+        if indent != 4 or stripped != "steps:":
+            index += 1
+            continue
+
+        index += 1
+        while index < len(lines):
+            step_line = lines[index]
+            step_stripped = step_line.strip()
+            step_indent = line_indent(step_line)
+            if step_stripped and step_indent <= 4:
+                break
+            if step_indent != 6 or not step_stripped.startswith("- "):
+                scalar = YAML_BLOCK_SCALAR.match(step_line)
+                if scalar is not None:
+                    index = yaml_block_end(
+                        lines, index, len(scalar.group("indent"))
+                    )
+                else:
+                    index += 1
+                continue
+
+            name_match = re.match(r"^ {6}- name:\s*(?P<name>.+?)\s*$", step_line)
+            step_name = name_match.group("name") if name_match else None
+            run = None
+            guarded = False
+            index += 1
+            while index < len(lines):
+                field_line = lines[index]
+                field_stripped = field_line.strip()
+                field_indent = line_indent(field_line)
+                if field_stripped and field_indent <= 4:
+                    break
+                if field_indent == 6 and field_stripped.startswith("- "):
+                    break
+
+                run_match = re.match(
+                    r"^ {8}run:\s*(?P<header>.*)$", field_line
+                )
+                if run_match is not None:
+                    header = run_match.group("header").strip()
+                    if re.fullmatch(r"[|>][+-]?", header):
+                        run, index = yaml_run_contract(
+                            lines, index, field_indent, header
+                        )
+                    else:
+                        run = ("inline", (header,))
+                        index += 1
+                    continue
+
+                if execution_guard_field(field_line, 8) is not None:
+                    guarded = True
+                    index += 1
+                    continue
+
+                scalar = YAML_BLOCK_SCALAR.match(field_line)
+                if scalar is not None:
+                    index = yaml_block_end(
+                        lines, index, len(scalar.group("indent"))
+                    )
+                else:
+                    index += 1
+
+            if current_job == expected_job and step_name == expected_name:
+                runs.append((run, guarded))
+
+    return runs
+
+
+def publication_job_guard_errors(
+    workflow: str, expected_job: str, expected_if: Optional[str] = None
+) -> list[str]:
+    lines = workflow.splitlines()
+    guards = []
+    in_jobs = False
+    current_job = None
+    index = 0
+
+    while index < len(lines):
+        line = lines[index]
+        stripped = line.strip()
+        indent = line_indent(line)
+        scalar = YAML_BLOCK_SCALAR.match(line)
+        if scalar is not None:
+            index = yaml_block_end(lines, index, len(scalar.group("indent")))
+            continue
+        if not in_jobs:
+            if indent == 0 and stripped == "jobs:":
+                in_jobs = True
+            index += 1
+            continue
+        if stripped and indent == 0:
+            break
+        job_match = re.match(r"^ {2}(?P<job>[a-z0-9_-]+):\s*$", line)
+        if job_match is not None:
+            current_job = job_match.group("job")
+            index += 1
+            continue
+        if current_job == expected_job:
+            guard = execution_guard_field(line, 4)
+            if guard is not None:
+                guards.append(guard)
+        index += 1
+
+    expected_guards = [] if expected_if is None else [("if", expected_if)]
+    if guards != expected_guards:
+        return ["publication job must use the exact execution guard contract"]
+    return []
+
+
+def publication_validation_errors(
+    workflow: str, expected_job: str, expected_job_if: Optional[str] = None
+) -> list[str]:
+    errors = publication_job_guard_errors(
+        workflow, expected_job, expected_job_if
+    )
+    runs = workflow_step_runs(
+        workflow, expected_job, "Validate publication metadata"
+    )
+    if not runs:
+        errors.append("workflow must contain the publication metadata validation step")
+        return errors
+    if (
+        len(runs) != 1
+        or runs[0][0] not in PUBLICATION_VALIDATION_RUNS
+        or runs[0][1]
+    ):
+        errors.append("publication metadata validation must use the exact Gradle command")
+    return errors
+
+
 def release_policy_errors(workflow: str) -> list[str]:
     errors = []
-    if len(MAVEN_RELEASE_TASK.findall(workflow)) != 1 or MAVEN_SNAPSHOT_TASK.search(workflow):
+    release_runs = workflow_step_runs(
+        workflow, "publish", "Publish to Central Portal"
+    )
+    release_command_valid = release_runs == [(RELEASE_PUBLICATION_RUN, False)]
+    if not release_command_valid:
         errors.append("release workflow must invoke the exact Maven release task")
     if GITHUB_RELEASE.search(workflow):
         errors.append("release workflow must not create a GitHub Release")
@@ -84,12 +369,17 @@ def release_policy_errors(workflow: str) -> list[str]:
     )
     if not arm_contract:
         errors.append("release workflow must verify the exact Ignite2 arm64 1/1 image gate")
+    errors.extend(publication_validation_errors(workflow, "publish"))
+    if not release_command_valid:
+        errors.append("release publication must disable the configuration cache")
     return errors
 
 
 def snapshot_policy_errors(workflow: str) -> list[str]:
     errors = []
-    if len(MAVEN_SNAPSHOT_TASK.findall(workflow)) != 1:
+    snapshot_runs = workflow_step_runs(workflow, "publish", "Publish SNAPSHOT")
+    snapshot_command_valid = snapshot_runs == [(SNAPSHOT_PUBLICATION_RUN, False)]
+    if not snapshot_command_valid:
         errors.append("snapshot workflow must invoke the exact Maven snapshot task")
     if GITHUB_RELEASE.search(workflow) or ISSUE_RELEASE_MACHINERY.search(workflow):
         errors.append("snapshot workflow must not contain release or issue-specific machinery")
@@ -97,6 +387,13 @@ def snapshot_policy_errors(workflow: str) -> list[str]:
         errors.append("snapshot workflow must not request write access to repository contents")
     if job_ids(workflow) != {"validate-full-nightly", "publish"}:
         errors.append("snapshot workflow must contain validation and publish jobs")
+    errors.extend(
+        publication_validation_errors(
+            workflow, "publish", SNAPSHOT_PUBLISH_JOB_IF
+        )
+    )
+    if not snapshot_command_valid:
+        errors.append("snapshot publication must disable the configuration cache")
     return errors
 
 
@@ -148,6 +445,333 @@ class ReleaseWorkflowPolicyTest(unittest.TestCase):
 
         self.assertIn("release workflow must invoke the exact Maven release task", errors)
         self.assertIn("release workflow must not create a GitHub Release", errors)
+
+    def test_publication_validation_contract_is_shared_by_ci_and_publish_workflows(self) -> None:
+        workflow_jobs = {
+            "ci.yml": ("build", None),
+            "release.yml": ("publish", None),
+            "publish-snapshot.yml": ("publish", SNAPSHOT_PUBLISH_JOB_IF),
+        }
+        for workflow_name, (expected_job, expected_if) in workflow_jobs.items():
+            with self.subTest(workflow=workflow_name):
+                workflow = (WORKFLOWS / workflow_name).read_text(encoding="utf-8")
+                self.assertEqual(
+                    [],
+                    publication_validation_errors(
+                        workflow, expected_job, expected_if
+                    ),
+                )
+
+    def test_publication_validation_rejects_required_task_outside_gradle_invocation(self) -> None:
+        workflow = (WORKFLOWS / "release.yml").read_text(encoding="utf-8")
+        mutated = workflow.replace(
+            "          ./gradlew generatePomFileForBluetape4kPublication "
+            "checkPomFileForBluetape4kPublication "
+            "generateMetadataFileForBluetape4kPublication \\\n",
+            "          echo checkPomFileForBluetape4kPublication\n"
+            "          ./gradlew generatePomFileForBluetape4kPublication "
+            "generateMetadataFileForBluetape4kPublication \\\n",
+        )
+
+        self.assertIn(
+            "publication metadata validation must use the exact Gradle command",
+            publication_validation_errors(mutated, "publish"),
+        )
+
+    def test_publication_commands_reject_configuration_cache(self) -> None:
+        release = (WORKFLOWS / "release.yml").read_text(encoding="utf-8")
+        snapshot = (WORKFLOWS / "publish-snapshot.yml").read_text(encoding="utf-8")
+
+        release_without_policy = release.replace(
+            "          ./gradlew nmcpPublishAggregationToCentralPortal\n"
+            "          --no-daemon\n"
+            "          --no-configuration-cache\n",
+            "          ./gradlew nmcpPublishAggregationToCentralPortal\n"
+            "          --no-daemon\n",
+        )
+        snapshot_without_policy = snapshot.replace(
+            "          ./gradlew nmcpPublishAggregationToCentralPortalSnapshots\n"
+            "          -PsnapshotVersion=-SNAPSHOT\n"
+            "          --no-daemon\n"
+            "          --no-configuration-cache\n",
+            "          ./gradlew nmcpPublishAggregationToCentralPortalSnapshots\n"
+            "          -PsnapshotVersion=-SNAPSHOT\n"
+            "          --no-daemon\n",
+        )
+
+        self.assertIn(
+            "release publication must disable the configuration cache",
+            release_policy_errors(release_without_policy),
+        )
+        self.assertIn(
+            "snapshot publication must disable the configuration cache",
+            snapshot_policy_errors(snapshot_without_policy),
+        )
+
+    def test_release_publication_rejects_task_name_embedded_in_an_argument(self) -> None:
+        workflow = (WORKFLOWS / "release.yml").read_text(encoding="utf-8")
+        mutated = workflow.replace(
+            "          ./gradlew nmcpPublishAggregationToCentralPortal\n",
+            "          ./gradlew help "
+            "-Pnote=nmcpPublishAggregationToCentralPortal\n",
+        )
+
+        self.assertIn(
+            "release workflow must invoke the exact Maven release task",
+            release_policy_errors(mutated),
+        )
+
+    def test_release_publication_rejects_task_name_used_as_option_value(self) -> None:
+        workflow = (WORKFLOWS / "release.yml").read_text(encoding="utf-8")
+        mutated = workflow.replace(
+            "          ./gradlew nmcpPublishAggregationToCentralPortal\n",
+            "          ./gradlew --init-script "
+            "nmcpPublishAggregationToCentralPortal help\n",
+        )
+
+        self.assertIn(
+            "release workflow must invoke the exact Maven release task",
+            release_policy_errors(mutated),
+        )
+
+    def test_release_publication_rejects_unsupported_option_value_pair(self) -> None:
+        workflow = (WORKFLOWS / "release.yml").read_text(encoding="utf-8")
+        mutated = workflow.replace(
+            "          ./gradlew nmcpPublishAggregationToCentralPortal\n"
+            "          --no-daemon\n"
+            "          --no-configuration-cache\n",
+            "          ./gradlew nmcpPublishAggregationToCentralPortal\n"
+            "          --no-daemon\n"
+            "          --init-script --no-configuration-cache\n",
+        )
+
+        self.assertIn(
+            "release workflow must invoke the exact Maven release task",
+            release_policy_errors(mutated),
+        )
+
+    def test_release_publication_rejects_task_name_after_shell_operator(self) -> None:
+        workflow = (WORKFLOWS / "release.yml").read_text(encoding="utf-8")
+
+        for operator in ("&&", ";"):
+            with self.subTest(operator=operator):
+                mutated = workflow.replace(
+                    "          ./gradlew nmcpPublishAggregationToCentralPortal\n",
+                    "          ./gradlew help "
+                    f"{operator} echo nmcpPublishAggregationToCentralPortal\n",
+                )
+
+                self.assertIn(
+                    "release workflow must invoke the exact Maven release task",
+                    release_policy_errors(mutated),
+                )
+
+    def test_publication_rejects_gradle_command_inside_heredoc(self) -> None:
+        cases = (
+            (
+                "release.yml",
+                "          ./gradlew nmcpPublishAggregationToCentralPortal\n"
+                "          --no-daemon\n"
+                "          --no-configuration-cache\n"
+                "          --no-build-cache\n"
+                "          --stacktrace\n",
+                "./gradlew nmcpPublishAggregationToCentralPortal "
+                "--no-daemon --no-configuration-cache --no-build-cache --stacktrace",
+                release_policy_errors,
+                "release workflow must invoke the exact Maven release task",
+            ),
+            (
+                "publish-snapshot.yml",
+                "          ./gradlew nmcpPublishAggregationToCentralPortalSnapshots\n"
+                "          -PsnapshotVersion=-SNAPSHOT\n"
+                "          --no-daemon\n"
+                "          --no-configuration-cache\n"
+                "          --no-build-cache\n",
+                "./gradlew nmcpPublishAggregationToCentralPortalSnapshots "
+                "-PsnapshotVersion=-SNAPSHOT --no-daemon "
+                "--no-configuration-cache --no-build-cache",
+                snapshot_policy_errors,
+                "snapshot workflow must invoke the exact Maven snapshot task",
+            ),
+        )
+
+        delimiters = (
+            ("'PUBLICATION_COMMAND'", "PUBLICATION_COMMAND"),
+            ("123", "123"),
+            ("$EOF", "$EOF"),
+            ("\\EOF", "EOF"),
+            ("PUBLICATION-COMMAND", "PUBLICATION-COMMAND"),
+        )
+        for workflow_name, command, fake_command, checker, expected_error in cases:
+            for opener, closer in delimiters:
+                with self.subTest(workflow=workflow_name, delimiter=opener):
+                    workflow = (WORKFLOWS / workflow_name).read_text(encoding="utf-8")
+                    mutated = workflow.replace(
+                        "        run: >-\n" + command,
+                        "        run: |\n"
+                        f"          cat <<{opener}\n"
+                        f"          {fake_command}\n"
+                        f"          {closer}\n",
+                    )
+
+                    self.assertIn(expected_error, checker(mutated))
+
+    def test_release_publication_rejects_exact_contract_in_yaml_scalar(self) -> None:
+        workflow = (WORKFLOWS / "release.yml").read_text(encoding="utf-8")
+        mutated = workflow.replace(
+            RELEASE_PUBLICATION_COMMAND,
+            "      - name: Publish to Central Portal\n"
+            "        run: echo no-publication\n",
+        )
+        mutated += "\npublication_fixture: |\n" + RELEASE_PUBLICATION_COMMAND
+
+        self.assertIn(
+            "release workflow must invoke the exact Maven release task",
+            release_policy_errors(mutated),
+        )
+
+    def test_validation_rejects_exact_contract_in_yaml_scalar(self) -> None:
+        workflow = (WORKFLOWS / "release.yml").read_text(encoding="utf-8")
+        expected_command = PUBLICATION_VALIDATION_COMMANDS[1]
+        mutated = workflow.replace(
+            expected_command,
+            "      - name: Validate publication metadata\n"
+            "        run: echo no-validation\n",
+        )
+        mutated += "\npublication_fixture: |\n" + expected_command
+
+        self.assertIn(
+            "publication metadata validation must use the exact Gradle command",
+            publication_validation_errors(mutated, "publish"),
+        )
+
+    def test_release_publication_rejects_exact_step_in_another_job(self) -> None:
+        workflow = (WORKFLOWS / "release.yml").read_text(encoding="utf-8")
+        mutated = workflow.replace(RELEASE_PUBLICATION_COMMAND, "")
+        mutated = mutated.replace(
+            "    steps:\n",
+            "    steps:\n" + RELEASE_PUBLICATION_COMMAND,
+            1,
+        )
+
+        self.assertIn(
+            "release workflow must invoke the exact Maven release task",
+            release_policy_errors(mutated),
+        )
+
+    def test_publication_steps_reject_execution_guards(self) -> None:
+        cases = (
+            (
+                "release.yml",
+                RELEASE_PUBLICATION_COMMAND,
+                release_policy_errors,
+                "release workflow must invoke the exact Maven release task",
+            ),
+            (
+                "publish-snapshot.yml",
+                SNAPSHOT_PUBLICATION_COMMAND,
+                snapshot_policy_errors,
+                "snapshot workflow must invoke the exact Maven snapshot task",
+            ),
+        )
+
+        for workflow_name, command, checker, expected_error in cases:
+            for guard in (
+                "if: false",
+                "continue-on-error: true",
+                '"if": false',
+                '"continue-on-error": true',
+            ):
+                with self.subTest(workflow=workflow_name, guard=guard):
+                    workflow = (WORKFLOWS / workflow_name).read_text(encoding="utf-8")
+                    mutated = workflow.replace(
+                        command,
+                        command.replace(
+                            "        run:", f"        {guard}\n        run:", 1
+                        ),
+                    )
+
+                    self.assertIn(expected_error, checker(mutated))
+
+    def test_publication_jobs_reject_execution_guard_bypasses(self) -> None:
+        release = (WORKFLOWS / "release.yml").read_text(encoding="utf-8")
+        snapshot = (WORKFLOWS / "publish-snapshot.yml").read_text(encoding="utf-8")
+        cases = (
+            (
+                "release-if",
+                release.replace("  publish:\n", "  publish:\n    if: false\n", 1),
+                release_policy_errors,
+            ),
+            (
+                "release-continue-on-error",
+                release.replace(
+                    "  publish:\n",
+                    "  publish:\n    continue-on-error: true\n",
+                    1,
+                ),
+                release_policy_errors,
+            ),
+            (
+                "snapshot-if",
+                snapshot.replace(
+                    "    if: ${{ needs.validate-full-nightly.outputs.publish_eligible == 'true' }}\n",
+                    "    if: false\n",
+                    1,
+                ),
+                snapshot_policy_errors,
+            ),
+            (
+                "snapshot-continue-on-error",
+                snapshot.replace(
+                    "    if: ${{ needs.validate-full-nightly.outputs.publish_eligible == 'true' }}\n",
+                    "    if: ${{ needs.validate-full-nightly.outputs.publish_eligible == 'true' }}\n"
+                    "    continue-on-error: true\n",
+                    1,
+                ),
+                snapshot_policy_errors,
+            ),
+        )
+
+        for name, mutated, checker in cases:
+            with self.subTest(case=name):
+                self.assertIn(
+                    "publication job must use the exact execution guard contract",
+                    checker(mutated),
+                )
+
+    def test_validation_step_rejects_continue_on_error(self) -> None:
+        workflow = (WORKFLOWS / "release.yml").read_text(encoding="utf-8")
+        command = PUBLICATION_VALIDATION_COMMANDS[1]
+        mutated = workflow.replace(
+            command,
+            command.replace(
+                "        run:", "        continue-on-error: true\n        run:", 1
+            ),
+        )
+
+        self.assertIn(
+            "publication metadata validation must use the exact Gradle command",
+            publication_validation_errors(mutated, "publish"),
+        )
+
+    def test_publication_validation_rejects_requirements_after_shell_operator(self) -> None:
+        workflow = (WORKFLOWS / "release.yml").read_text(encoding="utf-8")
+        mutated = workflow.replace(
+            "          ./gradlew generatePomFileForBluetape4kPublication "
+            "checkPomFileForBluetape4kPublication "
+            "generateMetadataFileForBluetape4kPublication \\\n"
+            "            --no-daemon --no-configuration-cache --no-build-cache\n",
+            "          ./gradlew generatePomFileForBluetape4kPublication "
+            "generateMetadataFileForBluetape4kPublication \\\n"
+            "            --no-daemon --no-build-cache "
+            "&& echo checkPomFileForBluetape4kPublication "
+            "--no-configuration-cache\n",
+        )
+
+        self.assertIn(
+            "publication metadata validation must use the exact Gradle command",
+            publication_validation_errors(mutated, "publish"),
+        )
 
     def test_release_workflow_publishes_only_to_maven_central(self) -> None:
         workflow = (WORKFLOWS / "release.yml").read_text(encoding="utf-8")

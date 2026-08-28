@@ -72,6 +72,8 @@ fun MavenPom.applyBluetape4kPomMetadata(
             id.set("debop")
             name.set("Sunghyouk Bae")
             email.set("sunghyouk.bae@gmail.com")
+            organization.set("Bluetape4k")
+            organizationUrl.set("https://github.com/bluetape4k")
         }
     }
     scm {
