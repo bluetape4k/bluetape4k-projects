@@ -96,6 +96,8 @@ Bluetape4k는 기능별로 분리된 멀티 모듈 Gradle 프로젝트입니다.
 - **[core](./bluetape4k/core/README.ko.md)**: 핵심 유틸리티 (assertions, required, 컬렉션(BoundedStack, RingBuffer, PaginatedList, Permutation), Wildcard 패턴 매칭, XXHasher 등)
 - **[coroutines](./bluetape4k/coroutines/README.ko.md)**: Kotlin Coroutines 확장 (DeferredValue, Flow extensions, AsyncFlow)
 - **[logging](./bluetape4k/logging/README.ko.md)**: 로깅 관련 기능
+- **[tenant](./bluetape4k/tenant/README.ko.md)**: JDK 25 `ThreadLocal`/`ScopedValue` 기반 no-default tenant context
+- **[tenant-reactor](./bluetape4k/tenant-reactor/README.ko.md)**: immutable Reactor subscriber `Context` tenant adapter
 - **[bom](./bluetape4k/bom/README.ko.md)**: Bill of Materials (의존성 관리)
 
 ### I/O 모듈 (`io/`)
@@ -199,6 +201,7 @@ Bluetape4k는 기능별로 분리된 멀티 모듈 Gradle 프로젝트입니다.
 - **[observability](./ktor/observability/README.ko.md)**: Call logging, correlation-id, metrics, Prometheus route helper
 - **[openapi](./ktor/openapi/README.ko.md)**: 명시적인 Ktor OpenAPI 및 Swagger UI 문서 route helper
 - **[resilience4j](./ktor/resilience4j/README.ko.md)**: Route 범위 Resilience4j retry, circuit breaker, rate limiter, timeout helper
+- **[tenant](./ktor/tenant/README.ko.md)**: `ApplicationCall` one-call/one-tenant context adapter
 - **[testing](./ktor/testing/README.ko.md)**: Ktor `testApplication` 및 JSON client 테스트 helper
 
 ### 텍스트 처리 → [bluetape4k-text](https://github.com/bluetape4k/bluetape4k-text)
