@@ -44,13 +44,13 @@ README의 RELEASE와 SNAPSHOT 예시도 동일한 configuration-cache 정책을 
   - core strict POM 검사 실패: `<organization>`, `<organizationUrl>` 누락.
   - configuration cache 저장 문제 8건, 고유 유형 4개:
     `Configuration`, `ConfigurationContainer`, `DependencyHandler`, `Project`.
-- `python3 -m unittest scripts.test_release_workflow_policy -v`: 34개 테스트 통과.
+- `python3 -m unittest scripts.test_release_workflow_policy -v`: 36개 테스트 통과.
 - `./gradlew -p buildSrc test --no-daemon --no-configuration-cache --no-build-cache`:
   성공.
 - core `generatePomFileForBluetape4kPublication`와
   `checkPomFileForBluetape4kPublication`: 성공.
-- 전체 publication 생성·검사: `BUILD SUCCESSFUL`, 419개 task 중 415개 실행,
-  4개 up-to-date.
+- 전체 publication 생성·검사: `BUILD SUCCESSFUL`, 419개 task 중 227개 실행,
+  192개 up-to-date.
 - `validate_poms.rb`: POM 76개, dependency 31,598개, 실패 0.
 - `validate_module_metadata.rb`: metadata 76개, variant 157개, dependency 1,487개,
   실패 0.
@@ -69,9 +69,11 @@ README의 RELEASE와 SNAPSHOT 예시도 동일한 configuration-cache 정책을 
   명령과 정확히 비교하도록 수정했다. exact step을 다른 job으로 옮기거나 quoted key를
   포함한 step-level `if`/`continue-on-error`, release job-level guard로 실행을 무력화하는
   경우도 false green으로 재현해 거부한다. SNAPSHOT publish job은 nightly 검증 결과를
-  확인하는 기존 `if` 조건과 정확히 일치할 때만 허용한다. 앞으로 workflow 정책은 지정
-  job의 실행 guard와 step 구조가 허용 계약에 정확히 일치하는 경우에만 통과시키며 위
-  우회 형태를 음성 fixture로 유지한다.
+  확인하는 기존 `if` 조건과 정확히 일치할 때만 허용한다. 추가 publication 호출은 실제
+  `jobs.*.steps[].run` 블록을 shell token으로 분리해 정확히 한 번만 허용하고, 주석·heredoc
+  본문·`echo`의 동일 문자열은 실행 호출로 세지 않는다. 앞으로 workflow 정책은 지정 job의
+  실행 guard와 step 구조가 허용 계약에 정확히 일치하는 경우에만 통과시키며 위 우회 형태를
+  음성 fixture로 유지한다.
 - `generatePomFileForBluetape4kPublication` 성공은 strict POM 계약 통과를 뜻하지 않는다.
   생성과 `checkPomFileForBluetape4kPublication`을 함께 실행해야 한다.
 - `notCompatibleWithConfigurationCache`는 configuration cache를 자동으로 끄는 옵션이
@@ -112,5 +114,5 @@ README의 RELEASE와 SNAPSHOT 예시도 동일한 configuration-cache 정책을 
 - KO-05: PASS — 장식적 비유와 홍보 표현을 사용하지 않았다.
 - KO-06: PASS — 제목, 본문, 목록, 링크와 code token을 확인했다. 단일 한국어 lesson이라
   대응 locale은 해당하지 않는다.
-- KO-07: PASS — `audit-korean-terms.mjs`로 README와 plan을 포함한 한국어 변경 파일
-  4개를 검사했고 용어 충돌이 없었다.
+- KO-07: PASS — `audit-korean-terms.mjs`로 README, plan, lesson과 review를 포함한
+  한국어 변경 파일 5개를 검사했고 용어 충돌이 없었다.

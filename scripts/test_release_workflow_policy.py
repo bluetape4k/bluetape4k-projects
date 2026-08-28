@@ -2,6 +2,7 @@
 
 import json
 import re
+import shlex
 import unittest
 from pathlib import Path
 from typing import Optional
@@ -164,7 +165,9 @@ def yaml_run_contract(
 
 
 def workflow_step_runs(
-    workflow: str, expected_job: str, expected_name: str
+    workflow: str,
+    expected_job: Optional[str] = None,
+    expected_name: Optional[str] = None,
 ) -> list[tuple[Optional[tuple[str, tuple[str, ...]]], bool]]:
     lines = workflow.splitlines()
     runs = []
@@ -255,7 +258,9 @@ def workflow_step_runs(
                 else:
                     index += 1
 
-            if current_job == expected_job and step_name == expected_name:
+            if (expected_job is None or current_job == expected_job) and (
+                expected_name is None or step_name == expected_name
+            ):
                 runs.append((run, guarded))
 
     return runs
@@ -302,6 +307,65 @@ def publication_job_guard_errors(
     return []
 
 
+def _shell_tokens(line: str) -> list[str]:
+    lexer = shlex.shlex(line, posix=True, punctuation_chars=";&|<>")
+    lexer.whitespace_split = True
+    lexer.commenters = "#"
+    return list(lexer)
+
+
+def _heredoc_delimiter(tokens: list[str]) -> Optional[str]:
+    for index, token in enumerate(tokens):
+        if token == "<<" and index + 1 < len(tokens):
+            return tokens[index + 1].lstrip("-")
+        if token.startswith("<<") and len(token) > 2:
+            return token[2:].lstrip("-").strip("'\"")
+    return None
+
+
+def publication_task_invocation_count(workflow: str, task: str) -> int:
+    count = 0
+    separators = {";", "&&", "||", "&", "|"}
+
+    for run, _ in workflow_step_runs(workflow):
+        if run is None:
+            continue
+        _, lines = run
+        heredoc = None
+        for raw_line in lines:
+            stripped = raw_line.rstrip()
+            if heredoc is not None:
+                if stripped.strip() == heredoc:
+                    heredoc = None
+                continue
+            if stripped.endswith("\\"):
+                stripped = stripped[:-1]
+            try:
+                tokens = _shell_tokens(stripped)
+            except ValueError:
+                continue
+            heredoc = _heredoc_delimiter(tokens)
+            command = []
+            for token in [*tokens, None]:
+                if token is None or token in separators:
+                    if command:
+                        executable_index = 0
+                        while executable_index < len(command) and re.fullmatch(
+                            r"[A-Za-z_][A-Za-z0-9_]*=.*", command[executable_index]
+                        ):
+                            executable_index += 1
+                        if (
+                            executable_index < len(command)
+                            and command[executable_index] == "./gradlew"
+                            and task in command[executable_index + 1 :]
+                        ):
+                            count += 1
+                    command = []
+                else:
+                    command.append(token)
+    return count
+
+
 def publication_validation_errors(
     workflow: str, expected_job: str, expected_job_if: Optional[str] = None
 ) -> list[str]:
@@ -329,8 +393,15 @@ def release_policy_errors(workflow: str) -> list[str]:
         workflow, "publish", "Publish to Central Portal"
     )
     release_command_valid = release_runs == [(RELEASE_PUBLICATION_RUN, False)]
+    release_task_count = publication_task_invocation_count(
+        workflow, "nmcpPublishAggregationToCentralPortal"
+    )
     if not release_command_valid:
         errors.append("release workflow must invoke the exact Maven release task")
+    if release_task_count != 1:
+        errors.append(
+            "release publication task must have exactly one executable invocation"
+        )
     if GITHUB_RELEASE.search(workflow):
         errors.append("release workflow must not create a GitHub Release")
     if "contents: write" in workflow:
@@ -379,8 +450,15 @@ def snapshot_policy_errors(workflow: str) -> list[str]:
     errors = []
     snapshot_runs = workflow_step_runs(workflow, "publish", "Publish SNAPSHOT")
     snapshot_command_valid = snapshot_runs == [(SNAPSHOT_PUBLICATION_RUN, False)]
+    snapshot_task_count = publication_task_invocation_count(
+        workflow, "nmcpPublishAggregationToCentralPortalSnapshots"
+    )
     if not snapshot_command_valid:
         errors.append("snapshot workflow must invoke the exact Maven snapshot task")
+    if snapshot_task_count != 1:
+        errors.append(
+            "snapshot publication task must have exactly one executable invocation"
+        )
     if GITHUB_RELEASE.search(workflow) or ISSUE_RELEASE_MACHINERY.search(workflow):
         errors.append("snapshot workflow must not contain release or issue-specific machinery")
     if "contents: write" in workflow:
@@ -772,6 +850,73 @@ class ReleaseWorkflowPolicyTest(unittest.TestCase):
             "publication metadata validation must use the exact Gradle command",
             publication_validation_errors(mutated, "publish"),
         )
+
+    def test_publication_tasks_reject_duplicate_executable_invocation(self) -> None:
+        cases = (
+            (
+                "release.yml",
+                "./gradlew nmcpPublishAggregationToCentralPortal "
+                "--no-daemon --no-configuration-cache --no-build-cache\n",
+                release_policy_errors,
+                "release publication task must have exactly one executable invocation",
+            ),
+            (
+                "publish-snapshot.yml",
+                "./gradlew nmcpPublishAggregationToCentralPortalSnapshots "
+                "-PsnapshotVersion=-SNAPSHOT --no-daemon "
+                "--no-configuration-cache --no-build-cache\n",
+                snapshot_policy_errors,
+                "snapshot publication task must have exactly one executable invocation",
+            ),
+        )
+
+        for workflow_name, command, checker, expected_error in cases:
+            with self.subTest(workflow=workflow_name):
+                workflow = (WORKFLOWS / workflow_name).read_text(encoding="utf-8")
+                duplicate_step = (
+                    "      - name: Duplicate publication invocation\n"
+                    "        run: |\n"
+                    f"          {command}"
+                )
+                mutated = workflow.replace(
+                    "      - name: Validate publication metadata\n",
+                    duplicate_step
+                    + "      - name: Validate publication metadata\n",
+                    1,
+                )
+
+                self.assertIn(expected_error, checker(mutated))
+
+    def test_publication_task_text_in_comments_and_heredocs_is_not_executable(self) -> None:
+        cases = (
+            ("release.yml", release_policy_errors),
+            ("publish-snapshot.yml", snapshot_policy_errors),
+        )
+
+        for workflow_name, checker in cases:
+            with self.subTest(workflow=workflow_name):
+                workflow = (WORKFLOWS / workflow_name).read_text(encoding="utf-8")
+                task = (
+                    "nmcpPublishAggregationToCentralPortal"
+                    if workflow_name == "release.yml"
+                    else "nmcpPublishAggregationToCentralPortalSnapshots"
+                )
+                non_executable_step = (
+                    "      - name: Publication text fixture\n"
+                    "        run: |\n"
+                    f"          # ./gradlew {task}\n"
+                    "          cat <<'PUBLICATION_FIXTURE'\n"
+                    f"          ./gradlew {task}\n"
+                    "          PUBLICATION_FIXTURE\n"
+                )
+                mutated = workflow.replace(
+                    "      - name: Validate publication metadata\n",
+                    non_executable_step
+                    + "      - name: Validate publication metadata\n",
+                    1,
+                )
+
+                self.assertEqual([], checker(mutated))
 
     def test_release_workflow_publishes_only_to_maven_central(self) -> None:
         workflow = (WORKFLOWS / "release.yml").read_text(encoding="utf-8")
