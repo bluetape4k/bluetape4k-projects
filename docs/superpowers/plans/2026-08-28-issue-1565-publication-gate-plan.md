@@ -63,7 +63,7 @@
 - [x] 재사용 가능한 publication 실패 규칙이면 한국어 lesson을 작성한다.
 - [ ] lesson을 merge 후 canonical `develop`에서 GNO에 갱신하고 대표 검색 결과를 확인한다. `bluetape4k-docs` collection의 exclude 목록에 `.worktrees`가 있어 현재 `gno update`는 0 added/updated를 반환했다.
 - [x] 독립 리뷰가 발견한 validation 문자열·shell parser false green을 RED로 재현하고 허용된 publication step 전체의 exact fail-closed 계약과 중복 executable invocation 검사를 추가한다.
-- [ ] Lore protocol에 맞는 한국어 commit을 생성한다.
+- [x] Lore protocol에 맞는 한국어 commit을 생성한다.
 - [ ] `bluetape4k/bluetape4k-projects`, base `develop`, head `fix/issue-1565-publication-gate`로 한국어 PR을 생성한다.
 - [ ] PR 본문을 `## DoD Status`로 끝내고 issue metadata를 반영한다.
 - [ ] exact-head CI와 review thread를 확인해 merge-ready에서 중단한다. 병합은 별도의 최신 승인을 받는다.
