@@ -351,10 +351,10 @@ snapshotVersion=
 
 ```bash
 # 기본 병렬도(centralSnapshotsParallelism=8)로 SNAPSHOT 배포
-./gradlew nmcpPublishAggregationToCentralPortalSnapshots -PsnapshotVersion=-SNAPSHOT
+./gradlew nmcpPublishAggregationToCentralPortalSnapshots -PsnapshotVersion=-SNAPSHOT --no-configuration-cache
 
 # 병렬도를 낮춰 서버 부담을 줄이고 싶을 때
-./gradlew -PcentralSnapshotsParallelism=4 nmcpPublishAggregationToCentralPortalSnapshots -PsnapshotVersion=-SNAPSHOT
+./gradlew -PcentralSnapshotsParallelism=4 nmcpPublishAggregationToCentralPortalSnapshots -PsnapshotVersion=-SNAPSHOT --no-configuration-cache
 ```
 
 - 루트 집계 task는 `nmcpPublishAggregationToCentralPortalSnapshots` 입니다.

@@ -350,10 +350,10 @@ snapshotVersion=
 
 ```bash
 # Publish a SNAPSHOT with default parallelism (centralSnapshotsParallelism=8)
-./gradlew nmcpPublishAggregationToCentralPortalSnapshots -PsnapshotVersion=-SNAPSHOT
+./gradlew nmcpPublishAggregationToCentralPortalSnapshots -PsnapshotVersion=-SNAPSHOT --no-configuration-cache
 
 # Reduce parallelism to lower server load
-./gradlew -PcentralSnapshotsParallelism=4 nmcpPublishAggregationToCentralPortalSnapshots -PsnapshotVersion=-SNAPSHOT
+./gradlew -PcentralSnapshotsParallelism=4 nmcpPublishAggregationToCentralPortalSnapshots -PsnapshotVersion=-SNAPSHOT --no-configuration-cache
 ```
 
 - The root aggregation task is `nmcpPublishAggregationToCentralPortalSnapshots`.
