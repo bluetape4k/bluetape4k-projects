@@ -59,10 +59,10 @@
 **Files:**
 - Create when reusable: `docs/lessons/2026-08-28-publication-configuration-cache-policy.md`
 
-- [x] 독립 리뷰에서 P0=0/P1=1을 확인하고 job-level·quoted guard 우회를 RED로 재현한 뒤 34개 정책 테스트 GREEN으로 교정해 알려진 P1=0을 확인한다.
+- [x] 독립 리뷰에서 P0=0/P1=1을 확인하고 job-level·quoted guard 우회를 RED로 재현한 뒤 36개 정책 테스트 GREEN으로 교정해 알려진 P1=0을 확인한다.
 - [x] 재사용 가능한 publication 실패 규칙이면 한국어 lesson을 작성한다.
 - [ ] lesson을 merge 후 canonical `develop`에서 GNO에 갱신하고 대표 검색 결과를 확인한다. `bluetape4k-docs` collection의 exclude 목록에 `.worktrees`가 있어 현재 `gno update`는 0 added/updated를 반환했다.
-- [x] 독립 리뷰가 발견한 validation 문자열·shell parser false green을 RED로 재현하고 허용된 publication step 전체의 exact fail-closed 계약으로 교정한다.
+- [x] 독립 리뷰가 발견한 validation 문자열·shell parser false green을 RED로 재현하고 허용된 publication step 전체의 exact fail-closed 계약과 중복 executable invocation 검사를 추가한다.
 - [ ] Lore protocol에 맞는 한국어 commit을 생성한다.
 - [ ] `bluetape4k/bluetape4k-projects`, base `develop`, head `fix/issue-1565-publication-gate`로 한국어 PR을 생성한다.
 - [ ] PR 본문을 `## DoD Status`로 끝내고 issue metadata를 반영한다.
