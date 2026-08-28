@@ -460,9 +460,9 @@ upstream 수정은 새 merge SHA와 새 timestamped SNAPSHOT receipt를 만들�
 
 - 세 module에 `bluetape4k/tenant/README{,.ko}.md`,
   `bluetape4k/tenant-reactor/README{,.ko}.md`, `ktor/tenant/README{,.ko}.md`를 두고 정확한
-  group `io.bluetape4k`, version `2.0.0-SNAPSHOT`, JDK 25 requirement, no-default,
+  group `io.github.bluetape4k`, version `2.0.0-SNAPSHOT`, JDK 25 requirement, no-default,
   lifecycle, unsupported boundary, 최소 사용 예제를 맞춘다.
-- 각 README는 `platform("io.bluetape4k:bluetape4k-bom:2.0.0-SNAPSHOT")`과 해당 artifact
+- 각 README는 `platform("io.github.bluetape4k:bluetape4k-bom:2.0.0-SNAPSHOT")`과 해당 artifact
   `bluetape4k-tenant`, `bluetape4k-tenant-reactor`, `bluetape4k-ktor-tenant`의 Gradle Kotlin
   DSL 및 Maven 예시를 제공한다. SNAPSHOT 소비 예시는 Maven Central snapshots repository와
   changing-module cache 정책이 필요하다는 조건을 함께 표시한다.
