@@ -19,6 +19,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.awaitCancellation
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
@@ -443,7 +444,7 @@ class SuspendJCacheEntryEventListenerTest {
     }
 
     @Test
-    fun `listener observation은 accepted overflow cancelled close를 기록한다`() = runTest {
+    fun `listener observation은 admitted overflow cancelled close를 기록한다`() = runTest {
         val targetCache = mockk<SuspendJCache<String, String>>(relaxed = true)
         every { targetCache.isClosed() } returns false
         val started = CompletableDeferred<Unit>()
@@ -467,8 +468,9 @@ class SuspendJCacheEntryEventListenerTest {
         runCurrent()
 
         val admitted = listener.observationSnapshotForTest()
-        admitted.acceptedCallbacks.shouldBeEqualTo(1)
+        admitted.admittedCallbacks.shouldBeEqualTo(1)
         admitted.rejectedCallbacks.shouldBeEqualTo(1)
+        admitted.completedCallbacks.shouldBeEqualTo(0)
         admitted.cancelledCallbacks.shouldBeEqualTo(0)
         admitted.closeRequests.shouldBeEqualTo(0)
         admitted.inFlightCallbacks.shouldBeEqualTo(1)
@@ -479,12 +481,53 @@ class SuspendJCacheEntryEventListenerTest {
         child.join()
 
         val closed = listener.observationSnapshotForTest()
-        closed.acceptedCallbacks.shouldBeEqualTo(1)
+        closed.admittedCallbacks.shouldBeEqualTo(1)
         closed.rejectedCallbacks.shouldBeEqualTo(1)
+        closed.completedCallbacks.shouldBeEqualTo(0)
         closed.cancelledCallbacks.shouldBeEqualTo(1)
         closed.closeRequests.shouldBeEqualTo(1)
         closed.inFlightCallbacks.shouldBeEqualTo(0)
         closed.cacheType.contains("SuspendJCache").shouldBeTrue()
+    }
+
+    @Test
+    fun `정상 callback도 admitted 분모의 terminal outcome으로 기록한다`() = runTest {
+        val targetCache = mockk<SuspendJCache<String, String>>(relaxed = true)
+        every { targetCache.isClosed() } returns false
+        coEvery { targetCache.putAll(any()) } returns Unit
+
+        val listenerScope = CoroutineScope(coroutineContext + SupervisorJob())
+        val listener = SuspendJCacheEntryEventListener.forTest(
+            targetCache,
+            listenerScope,
+            maxInFlightCallbacks = 1,
+        )
+        try {
+            listener.onCreated(mutableListOf(mockEvent("completed", "value", EventType.CREATED)))
+            runCurrent()
+
+            listener.observationSnapshotForTest().let { observation ->
+                observation.admittedCallbacks.shouldBeEqualTo(1)
+                observation.completedCallbacks.shouldBeEqualTo(1)
+                (observation.completedCallbacks + observation.cancelledCallbacks + observation.failedCallbacks)
+                    .shouldBeEqualTo(observation.admittedCallbacks)
+                observation.inFlightCallbacks.shouldBeEqualTo(0)
+            }
+
+            listener.onCreated(mutableListOf(mockEvent("follow-up", "value", EventType.CREATED)))
+            runCurrent()
+
+            listener.observationSnapshotForTest().let { observation ->
+                observation.admittedCallbacks.shouldBeEqualTo(2)
+                observation.completedCallbacks.shouldBeEqualTo(2)
+                observation.cancelledCallbacks.shouldBeEqualTo(0)
+                observation.failedCallbacks.shouldBeEqualTo(0)
+                observation.inFlightCallbacks.shouldBeEqualTo(0)
+            }
+            coVerify(exactly = 2) { targetCache.putAll(any()) }
+        } finally {
+            listener.close()
+        }
     }
 
     @Test
@@ -497,15 +540,15 @@ class SuspendJCacheEntryEventListenerTest {
             awaitCancellation()
         }
 
-        val acceptedReads = AtomicInteger()
-        val acceptedEvent = mockk<CacheEntryEvent<String, String>>()
-        every { acceptedEvent.key } answers {
-            acceptedReads.incrementAndGet()
-            "accepted-key"
+        val admittedReads = AtomicInteger()
+        val admittedEvent = mockk<CacheEntryEvent<String, String>>()
+        every { admittedEvent.key } answers {
+            admittedReads.incrementAndGet()
+            "admitted-key"
         }
-        every { acceptedEvent.value } answers {
-            acceptedReads.incrementAndGet()
-            "accepted-value"
+        every { admittedEvent.value } answers {
+            admittedReads.incrementAndGet()
+            "admitted-value"
         }
 
         val rejectedReads = AtomicInteger()
@@ -527,18 +570,19 @@ class SuspendJCacheEntryEventListenerTest {
             maxInFlightCallbacks = 1,
         )
         try {
-            listener.onCreated(mutableListOf(acceptedEvent))
+            listener.onCreated(mutableListOf(admittedEvent))
             runCurrent()
             started.await()
 
             listener.onCreated(mutableListOf(rejectedEvent))
             runCurrent()
 
-            // accepted snapshot의 key/value 2회 외에는 계측이 raw payload를 읽지 않는다.
-            acceptedReads.get().shouldBeEqualTo(2)
+            // admitted 이벤트의 key/value 2회 외에는 계측이 raw payload를 읽지 않는다.
+            admittedReads.get().shouldBeEqualTo(2)
             rejectedReads.get().shouldBeEqualTo(0)
             listener.observationSnapshotForTest().let { observation ->
-                observation.acceptedCallbacks.shouldBeEqualTo(1)
+                observation.admittedCallbacks.shouldBeEqualTo(1)
+                observation.completedCallbacks.shouldBeEqualTo(0)
                 observation.rejectedCallbacks.shouldBeEqualTo(1)
             }
         } finally {
@@ -560,9 +604,10 @@ class SuspendJCacheEntryEventListenerTest {
         runCurrent()
 
         val observation = listener.observationSnapshotForTest()
-        observation.acceptedCallbacks.shouldBeEqualTo(0)
+        observation.admittedCallbacks.shouldBeEqualTo(0)
         observation.rejectedCallbacks.shouldBeEqualTo(0)
         observation.ignoredCallbacks.shouldBeEqualTo(1)
+        observation.completedCallbacks.shouldBeEqualTo(0)
         observation.cancelledCallbacks.shouldBeEqualTo(0)
         observation.closeRequests.shouldBeEqualTo(1)
         observation.inFlightCallbacks.shouldBeEqualTo(0)
@@ -635,7 +680,8 @@ class SuspendJCacheEntryEventListenerTest {
                 .shouldBeEqualTo(0)
             coVerify(exactly = 0) { targetCache.putAll(any()) }
             val observation = listener.observationSnapshotForTest()
-            observation.acceptedCallbacks.shouldBeEqualTo(2)
+            observation.admittedCallbacks.shouldBeEqualTo(2)
+            observation.completedCallbacks.shouldBeEqualTo(0)
             observation.cancelledCallbacks.shouldBeEqualTo(2)
             observation.inFlightCallbacks.shouldBeEqualTo(0)
         } finally {
@@ -643,6 +689,42 @@ class SuspendJCacheEntryEventListenerTest {
             logger.detachAppender(appender)
             appender.stop()
             logger.level = previousLevel
+        }
+    }
+
+    @Test
+    fun `start true 후 body 진입 전 취소도 permit을 정확히 반환한다`() = runTest {
+        val targetCache = mockk<SuspendJCache<String, String>>(relaxed = true)
+        every { targetCache.isClosed() } returns false
+        coEvery { targetCache.putAll(any()) } returns Unit
+
+        val listenerScope = CoroutineScope(coroutineContext + SupervisorJob())
+        val listener = SuspendJCacheEntryEventListener.forTest(
+            targetCache,
+            listenerScope,
+            maxInFlightCallbacks = 1,
+        )
+        try {
+            // job.start()는 true를 반환하지만, dispatcher가 body에 진입하기 전에 parent scope를 취소한다.
+            listener.onCreated(mutableListOf(mockEvent("before-body", "value", EventType.CREATED)))
+            listenerScope.coroutineContext[Job]!!.children.single().isActive.shouldBeTrue()
+            listenerScope.cancel()
+            runCurrent()
+
+            // 첫 job이 permit을 누수하면 이 callback은 rejected가 된다.
+            listener.onCreated(mutableListOf(mockEvent("after-cancel", "value", EventType.CREATED)))
+            runCurrent()
+
+            listener.observationSnapshotForTest().let { observation ->
+                observation.admittedCallbacks.shouldBeEqualTo(2)
+                observation.completedCallbacks.shouldBeEqualTo(0)
+                observation.rejectedCallbacks.shouldBeEqualTo(0)
+                observation.cancelledCallbacks.shouldBeEqualTo(2)
+                observation.inFlightCallbacks.shouldBeEqualTo(0)
+            }
+            coVerify(exactly = 0) { targetCache.putAll(any()) }
+        } finally {
+            listener.close()
         }
     }
 
@@ -676,6 +758,7 @@ class SuspendJCacheEntryEventListenerTest {
             listener.onCreated(mutableListOf(mockEvent("exception-2", "value", EventType.CREATED)))
             runCurrent()
             secondStarted.await()
+            runCurrent()
 
             listenerJob.isActive.shouldBeTrue()
             coVerify(exactly = 2) { targetCache.putAll(any()) }
@@ -684,7 +767,18 @@ class SuspendJCacheEntryEventListenerTest {
                 .filter { it.contains("Fail to put all created cache entries") }
             errorMessages.isNotEmpty().shouldBeTrue()
             errorMessages.all { it.contains("cache=") && !it.contains("backend failure") }.shouldBeTrue()
-            listener.observationSnapshotForTest().failedCallbacks.shouldBeEqualTo(1)
+            listener.observationSnapshotForTest().let { observation ->
+                observation.admittedCallbacks.shouldBeEqualTo(2)
+                observation.completedCallbacks.shouldBeEqualTo(1)
+                observation.failedCallbacks.shouldBeEqualTo(1)
+                observation.cancelledCallbacks.shouldBeEqualTo(0)
+                observation.inFlightCallbacks.shouldBeEqualTo(0)
+            }
+
+            listener.onCreated(mutableListOf(mockEvent("exception-follow-up", "value", EventType.CREATED)))
+            runCurrent()
+            listener.observationSnapshotForTest().inFlightCallbacks.shouldBeEqualTo(0)
+            coVerify(exactly = 3) { targetCache.putAll(any()) }
         } finally {
             listener.close()
             logger.detachAppender(appender)
