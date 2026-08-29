@@ -68,6 +68,42 @@ class ReactiveMongoAutoConfigurationTest {
     }
 
     @Test
+    fun `사용자 ReactiveMongoOperations가 있으면 legacy URI 검사를 backoff한다`() {
+        val operations = mockk<ReactiveMongoOperations>(relaxed = true)
+
+        autoConfigurationRunner
+            .withBean(ReactiveMongoOperations::class.java, Supplier { operations })
+            .withPropertyValues("spring.data.mongodb.uri=mongodb://127.0.0.1:27018/legacy")
+            .run { context ->
+                context.getStartupFailure() shouldBeEqualTo null
+                context.getBeansOfType<ReactiveMongoOperations>().values.single() shouldBeSameInstanceAs operations
+                context.getBeansOfType<ReactiveMongoTemplate>().shouldBeEmpty()
+            }
+    }
+
+    @Test
+    fun `Boot 제공 ReactiveMongoOperations가 있으면 legacy URI 검사를 backoff한다`() {
+        val client = mockk<MongoClient>(relaxed = true)
+        val settings = MongoClientSettings.builder().build()
+        val databaseFactory = mockk<ReactiveMongoDatabaseFactory>(relaxed = true)
+        val converter = mockk<MappingMongoConverter>(relaxed = true)
+
+        bootMongoRunner(includeDataMongo = true, client = client, settings = settings)
+            .withBean(ReactiveMongoDatabaseFactory::class.java, Supplier { databaseFactory })
+            .withBean(MappingMongoConverter::class.java, Supplier { converter })
+            .withPropertyValues("spring.data.mongodb.uri=mongodb://127.0.0.1:27018/legacy")
+            .run { context ->
+                context.getStartupFailure() shouldBeEqualTo null
+                context.getBeansOfType<ReactiveMongoOperations>().shouldHaveSize(1)
+                context.beanFactory
+                    .getBeanDefinition("reactiveMongoTemplate")
+                    .factoryBeanName
+                    .shouldNotBeNull()
+                    .shouldContain("DataMongoReactiveAutoConfiguration")
+            }
+    }
+
+    @Test
     fun `새 URI와 legacy URI가 함께 있으면 새 namespace가 우선한다`() {
         val operations = mockk<ReactiveMongoOperations>(relaxed = true)
         bootMongoRunner()

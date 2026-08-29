@@ -21,10 +21,12 @@ spring:
 ```
 
 `ReactiveMongoAutoConfiguration` runs after Spring Boot's
-`DataMongoReactiveAutoConfiguration`. A user-provided
-`ReactiveMongoOperations` bean always wins; the library creates a fallback
-`ReactiveMongoTemplate` only when no operations bean exists and both
-`ReactiveMongoDatabaseFactory` and `MongoConverter` are available.
+`DataMongoReactiveAutoConfiguration`. An existing `ReactiveMongoOperations`
+bean always wins, whether it was provided by the application or Spring Boot.
+The library creates a fallback `ReactiveMongoTemplate` only when no operations
+bean exists and both `ReactiveMongoDatabaseFactory` and `MongoConverter` are
+available. The whole library auto-configuration, including its legacy-property
+guard, backs off when an operations bean already exists.
 
 ### Migration from `spring.data.mongodb.uri`
 
@@ -32,8 +34,8 @@ spring:
 |--------|-------|
 | `spring.data.mongodb.uri` | `spring.mongodb.uri` |
 
-The legacy-only key fails fast instead of silently connecting to the default
-localhost database:
+When the library fallback participates, the legacy-only key fails fast instead
+of silently connecting to the default localhost database:
 
 ```text
 IllegalStateException: Unsupported legacy MongoDB property 'spring.data.mongodb.uri'; use 'spring.mongodb.uri' on Spring Boot 4.1+
@@ -41,9 +43,20 @@ IllegalStateException: Unsupported legacy MongoDB property 'spring.data.mongodb.
 
 During a staged migration, if both keys are present, `spring.mongodb.uri` takes
 precedence. Use a synthetic URI in tests and keep credentials out of logs and
-diagnostic artifacts. If migration cannot be completed immediately, pin the
-previous artifact version that still supports the legacy namespace, then
-resume the migration before returning to this Boot 4.1+ artifact.
+diagnostic artifacts. An application- or Spring Boot-provided
+`ReactiveMongoOperations` bean owns the active connection path, so this library
+does not inspect the legacy key on that backoff path.
+
+If migration cannot be completed immediately, pin the last stable artifact and
+BOM that support the legacy namespace, then resume the migration before
+returning to this Boot 4.1+ artifact:
+
+```kotlin
+dependencies {
+    implementation(platform("io.github.bluetape4k:bluetape4k-bom:1.12.1"))
+    implementation("io.github.bluetape4k:bluetape4k-spring-boot-mongodb:1.12.1")
+}
+```
 
 ## Features
 

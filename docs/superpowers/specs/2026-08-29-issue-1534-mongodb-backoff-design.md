@@ -20,12 +20,15 @@
 - 새 URI와 legacy URI가 함께 있으면 새 namespace가 우선한다.
 
 누락된 consumer 계약은 사용자 소유 operations와 legacy-only URI가 함께 있을 때 application
-context가 정상적으로 시작되고 사용자 Bean이 유지되는지다.
+context가 정상적으로 시작되고 사용자 Bean이 유지되는지다. 또한 class 조건은 Bean의
+provenance를 구분하지 않으므로 Spring Boot가 operations를 먼저 제공한 경로도 같은 backoff
+계약에 포함된다.
 
 ## 목표
 
 1. legacy URI fail-fast를 library fallback이 실제로 참여하는 경계에만 적용한다.
-2. 사용자 소유 `ReactiveMongoOperations`가 있으면 auto-configuration class 전체를 backoff한다.
+2. 사용자 또는 Spring Boot가 제공한 `ReactiveMongoOperations`가 있으면
+   auto-configuration class 전체를 backoff한다.
 3. 사용자 Bean이 없을 때의 legacy-only fail-fast와 dual-key 우선순위는 유지한다.
 4. KDoc와 영문·한글 README에 같은 책임 경계와 정확한 rollback 좌표를 기록한다.
 
@@ -50,12 +53,16 @@ context가 정상적으로 시작되고 사용자 Bean이 유지되는지다.
 `@ConditionalOnMissingBean(ReactiveMongoOperations::class)`을 Bean 메서드에서
 `ReactiveMongoAutoConfiguration` class로 이동한다.
 
-| 사용자 operations | `spring.mongodb.uri` | `spring.data.mongodb.uri` | 결과 |
+| 선행 operations | `spring.mongodb.uri` | `spring.data.mongodb.uri` | 결과 |
 | --- | --- | --- | --- |
 | 있음 | 없음 | 있음 | auto-configuration 전체 backoff, 사용자 Bean 유지 |
 | 없음 | 없음 | 있음 | 기존 `IllegalStateException`으로 fail-fast |
 | 있음 | 있음 | 있음 | auto-configuration backoff, Boot의 현재 URI binding 유지 |
 | 없음 | 없음 | 없음 | factory와 converter가 있으면 fallback template 생성 |
+
+선행 operations에는 애플리케이션이 직접 제공한 Bean과
+`DataMongoReactiveAutoConfiguration`이 제공한 Bean이 모두 포함된다. class-level
+`@ConditionalOnMissingBean`은 provenance가 아니라 동일 타입 Bean의 존재 여부를 판단한다.
 
 예외 메시지는 호환 계약이므로 변경하지 않는다.
 
@@ -79,16 +86,17 @@ implementation(platform("io.github.bluetape4k:bluetape4k-bom:1.12.1"))
 ## 검증
 
 1. 사용자 operations + legacy-only 테스트를 추가하고 현재 코드에서 의도한 이유로 실패하는지 확인한다.
-2. class-level backoff로 최소 수정한 뒤 같은 테스트를 GREEN으로 만든다.
-3. 기존 legacy-only, dual-key, fallback 테스트를 포함한 test class 전체를 실행한다.
-4. module 전체 테스트와 `detekt`, `git diff --check`를 순서대로 실행한다.
-5. 영문·한글 README와 KDoc의 책임 경계, 예외 문자열, rollback 좌표를 대조한다.
+2. Boot 제공 operations + legacy-only 테스트로 같은 backoff 범위를 고정한다.
+3. class-level backoff로 최소 수정한 뒤 두 테스트를 GREEN으로 만든다.
+4. 기존 legacy-only, dual-key, fallback 테스트를 포함한 test class 전체를 실행한다.
+5. module 전체 테스트와 `detekt`, `git diff --check`를 순서대로 실행한다.
+6. 영문·한글 README와 KDoc의 책임 경계, 예외 문자열, rollback 좌표를 대조한다.
 
 ## 수용 기준
 
 - 사용자 operations + legacy-only context가 startup failure 없이 사용자 Bean을 반환한다.
+- Boot 제공 operations + legacy-only context가 startup failure 없이 Boot template을 유지한다.
 - 사용자 operations가 없으면 legacy-only가 기존 예외로 실패한다.
 - 새 URI와 legacy URI가 함께 있을 때의 현재 URI 우선순위가 유지된다.
 - KDoc과 README locale 두 개가 fail-fast 범위와 `1.12.1` rollback 좌표를 동일하게 설명한다.
 - targeted/full module test, detekt, 문서 검증, `git diff --check`가 통과한다.
-

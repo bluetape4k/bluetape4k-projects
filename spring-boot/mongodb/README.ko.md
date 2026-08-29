@@ -21,10 +21,11 @@ spring:
 ```
 
 `ReactiveMongoAutoConfiguration`은 Spring Boot의
-`DataMongoReactiveAutoConfiguration` 이후에 실행됩니다. 사용자가 제공한
-`ReactiveMongoOperations` Bean이 항상 우선하며, operations Bean이 없고
-`ReactiveMongoDatabaseFactory`와 `MongoConverter`가 모두 있을 때만
-fallback `ReactiveMongoTemplate`을 생성합니다.
+`DataMongoReactiveAutoConfiguration` 이후에 실행됩니다. 애플리케이션이나 Spring
+Boot가 이미 제공한 `ReactiveMongoOperations` Bean이 항상 우선하며, operations Bean이
+없고 `ReactiveMongoDatabaseFactory`와 `MongoConverter`가 모두 있을 때만 fallback
+`ReactiveMongoTemplate`을 생성합니다. operations Bean이 이미 있으면 legacy property
+검사까지 포함한 library auto-configuration 전체가 backoff합니다.
 
 ### `spring.data.mongodb.uri`에서 마이그레이션
 
@@ -32,8 +33,8 @@ fallback `ReactiveMongoTemplate`을 생성합니다.
 |----------|----------|
 | `spring.data.mongodb.uri` | `spring.mongodb.uri` |
 
-legacy key만 남아 있으면 기본 localhost DB로 조용히 연결하지 않고 다음
-예외로 즉시 실패합니다.
+library fallback이 참여하는 경로에서 legacy key만 남아 있으면 기본 localhost DB로
+조용히 연결하지 않고 다음 예외로 즉시 실패합니다.
 
 ```text
 IllegalStateException: Unsupported legacy MongoDB property 'spring.data.mongodb.uri'; use 'spring.mongodb.uri' on Spring Boot 4.1+
@@ -41,9 +42,19 @@ IllegalStateException: Unsupported legacy MongoDB property 'spring.data.mongodb.
 
 단계적 전환 중 두 key가 함께 있으면 `spring.mongodb.uri`가 우선합니다.
 테스트에는 synthetic URI를 사용하고 credential을 로그나 진단 artifact에
-남기지 마세요. 즉시 마이그레이션할 수 없다면 legacy namespace를 지원하는
-이전 artifact 버전을 pin한 뒤 전환을 완료하고 Boot 4.1+ artifact로
-돌아오세요.
+남기지 마세요. 애플리케이션이나 Spring Boot가 `ReactiveMongoOperations`를 제공하면
+활성 연결 경로도 해당 Bean이 소유하므로 이 library는 backoff 경로의 legacy key를
+검사하지 않습니다.
+
+즉시 마이그레이션할 수 없다면 legacy namespace를 지원하는 마지막 stable artifact와
+BOM을 고정한 뒤 전환을 완료하고 Boot 4.1+ artifact로 돌아오세요.
+
+```kotlin
+dependencies {
+    implementation(platform("io.github.bluetape4k:bluetape4k-bom:1.12.1"))
+    implementation("io.github.bluetape4k:bluetape4k-spring-boot-mongodb:1.12.1")
+}
+```
 
 ## 특징
 
