@@ -144,6 +144,7 @@ Expected: `BUILD SUCCESSFUL`, JUnit failures 0, skipped 0.
 Expected: `BUILD SUCCESSFUL`.
 
 - [x] **Step 3: 문서 용어와 locale parity를 확인한다**
+- [x] **Step 4: `docs/testlogs/2026-08.md`에 RED/GREEN과 module 검증 결과를 기록한다**
 
 ```bash
 node ~/.codex/skills/bluetape-writer/scripts/audit-korean-terms.mjs \
