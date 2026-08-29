@@ -1214,12 +1214,17 @@ jobs:
           retention-days: 14
 
   # ── Testcontainers image startup/workload gate — full Nightly 전용 ────────
-  test-testcontainers-image-gate:
-    name: Test / Testcontainers image startup-workload gate
+  test-testcontainers-image-gate-shard:
+    name: Test / Testcontainers image startup-workload gate shard ${{ matrix.shard }}
     runs-on: ubuntu-24.04
-    timeout-minutes: 360
+    timeout-minutes: 180
     needs: [build, plan]
     if: ${{ needs.plan.outputs.scope == 'full' }}
+    strategy:
+      fail-fast: false
+      max-parallel: 4
+      matrix:
+        shard: [0, 1, 2, 3]
     env:
       TESTCONTAINERS_IMAGE_GATE_MAX_PARALLEL: '1'
       GRADLE_OPTS: "-Dorg.gradle.daemon=false"
@@ -1246,39 +1251,38 @@ jobs:
       - name: Build mock-webflux-server Docker image
         run: ./gradlew :bluetape4k-mock-webflux-server:jibDockerBuild --no-configuration-cache
 
-      - name: Run full image family gate sequentially
+      - name: Run image family gate shard sequentially
         env:
           DOCKER_AUTH_CONFIG: ${{ secrets.TESTCONTAINERS_DOCKER_AUTH_CONFIG }}
         run: >-
           python3 scripts/run_testcontainers_image_gate.py
           --scope full
+          --shard-index ${{ matrix.shard }}
+          --shard-count 4
           --report-dir build/reports/testcontainers-image-gate
           --default-platform-id amd64
           --max-attempts 1
           --pull-timeout-seconds 60
           --timeout-minutes 4
           --diagnostic-timeout-seconds 30
-          --job-budget-minutes 360
+          --job-budget-minutes 120
 
-      - name: Verify nightly image gate summary
+      - name: Verify image gate shard summary
         if: always()
         run: |
           python3 - <<'PY'
           import json
           from pathlib import Path
-          from scripts.run_testcontainers_image_gate import verify_release_summary
 
           summary = json.loads(Path("build/reports/testcontainers-image-gate/summary.json").read_text(encoding="utf-8"))
-          errors = verify_release_summary(
-              summary,
-              expected_coverage="48/48",
-              platform_id="amd64",
-              expected_tag="2.18.0",
-              expected_architecture="amd64",
-              report_dir=Path("build/reports/testcontainers-image-gate"),
-          )
-          if errors:
-              raise SystemExit("; ".join(errors))
+          expected_index = int("${{ matrix.shard }}")
+          shard = summary.get("shard")
+          if summary.get("schema_version") != 2 or summary.get("scope") != "full":
+              raise SystemExit("invalid image-gate shard summary")
+          if not isinstance(shard, dict) or shard.get("index") != expected_index or shard.get("count") != 4:
+              raise SystemExit("image-gate shard identity mismatch")
+          if summary.get("selected", 0) <= 0 or summary.get("status") != "success":
+              raise SystemExit("image-gate shard is incomplete or failed")
           PY
 
       - name: Publish image gate summary
@@ -1297,6 +1301,92 @@ jobs:
           python3 - <<'PY'
           import shutil
           from pathlib import Path
+          from scripts.testcontainers_image_gate import load_manifest, select_shard_entries
+
+          report = Path("build/reports/testcontainers-image-gate")
+          stage = Path("build/reports/testcontainers-image-gate-artifact")
+
+          selected = select_shard_entries(
+              load_manifest(),
+              shard_index=int("${{ matrix.shard }}"),
+              shard_count=4,
+          )
+          names = [f"{entry['id']}.json" for entry in selected]
+          names.extend(("summary.json", "summary.md"))
+          for name in names:
+              source = report / name
+              if source.is_symlink() or not source.is_file():
+                  raise SystemExit(f"missing exact image-gate artifact: {source}")
+              shutil.copy2(source, stage / name)
+          PY
+
+      - name: Upload image gate evidence
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: nightly-testcontainers-image-gate-${{ github.run_id }}-amd64-shard-${{ matrix.shard }}
+          path: |
+            build/reports/testcontainers-image-gate-artifact
+          if-no-files-found: error
+          retention-days: 14
+
+  # Keep one canonical job/artifact for publication validators while executing
+  # the release-required manifest in four independent amd64 shards above.
+  test-testcontainers-image-gate:
+    name: Test / Testcontainers image startup-workload gate
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    needs: [build, plan, test-testcontainers-image-gate-shard]
+    if: ${{ always() && needs.plan.outputs.scope == 'full' }}
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-python@v7
+        with:
+          python-version: '3.12'
+
+      - name: Download image gate shard evidence
+        if: always()
+        uses: actions/download-artifact@v8
+        with:
+          pattern: nightly-testcontainers-image-gate-${{ github.run_id }}-amd64-shard-*
+          path: shard-artifacts
+          merge-multiple: false
+
+      - name: Aggregate and verify image gate evidence
+        if: always()
+        env:
+          SHARD_RESULT: ${{ needs.test-testcontainers-image-gate-shard.result }}
+        run: |
+          set +e
+          python3 scripts/aggregate_testcontainers_image_gate.py \
+            --input-dir shard-artifacts \
+            --output-dir build/reports/testcontainers-image-gate \
+            --manifest scripts/testcontainers_image_gate_manifest.json \
+            --expected-shards 4 \
+            --platform-id amd64 \
+            --expected-tag 2.18.0 \
+            --expected-architecture amd64
+          aggregate_exit=$?
+          set -e
+          test "$SHARD_RESULT" = success
+          test "$aggregate_exit" -eq 0
+
+      - name: Publish aggregate image gate summary
+        if: always()
+        run: |
+          if [ -f build/reports/testcontainers-image-gate/summary.md ]; then
+            cat build/reports/testcontainers-image-gate/summary.md
+          fi
+
+      - name: Stage exact aggregate image gate evidence
+        if: always()
+        run: |
+          set -euo pipefail
+          mkdir -p build/reports/testcontainers-image-gate-artifact
+          python3 - <<'PY'
+          import shutil
+          from pathlib import Path
           from scripts.testcontainers_image_gate import load_manifest
 
           report = Path("build/reports/testcontainers-image-gate")
@@ -1310,7 +1400,7 @@ jobs:
               shutil.copy2(source, stage / name)
           PY
 
-      - name: Upload image gate evidence
+      - name: Upload aggregate image gate evidence
         if: always()
         uses: actions/upload-artifact@v7
         with:

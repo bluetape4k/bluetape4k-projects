@@ -277,10 +277,12 @@ class CiDomainParallelizationTest(unittest.TestCase):
         nightly = NIGHTLY_WORKFLOW.read_text(encoding="utf-8")
         image_gate = job_block(nightly, "test-testcontainers-image-gate")
         self.assertIn(
-            "if: ${{ needs.plan.outputs.scope == 'full' }}",
+            "needs.plan.outputs.scope == 'full'",
             image_gate,
         )
-        self.assertIn("--scope full", image_gate)
+        shard_gate = job_block(nightly, "test-testcontainers-image-gate-shard")
+        self.assertIn("--scope full", shard_gate)
+        self.assertIn("max-parallel: 4", shard_gate)
         self.assertIn("test-testcontainers:", nightly)
         self.assertIn("test-testcontainers-spring:", nightly)
 

@@ -14,6 +14,7 @@ from scripts.testcontainers_image_gate import (
     SelectionError,
     load_manifest,
     select_entries,
+    select_shard_entries,
     validate_manifest,
 )
 
@@ -97,6 +98,25 @@ class TestTestcontainersImageGate(unittest.TestCase):
 
         shared = select_entries(self.entries, {"scripts/run_testcontainers_image_gate.py"})
         self.assertEqual(EXPECTED_FAMILY_COUNT, len(shared))
+
+    def test_full_manifest_shards_are_disjoint_and_complete(self) -> None:
+        shards = [
+            select_shard_entries(self.entries, shard_index=index, shard_count=4)
+            for index in range(4)
+        ]
+        shard_ids = [[entry["id"] for entry in shard] for shard in shards]
+        self.assertEqual([13, 13, 13, 13], [len(ids) for ids in shard_ids])
+        self.assertCountEqual(
+            [entry["id"] for entry in self.entries],
+            [family_id for ids in shard_ids for family_id in ids],
+        )
+        self.assertEqual(EXPECTED_FAMILY_COUNT, len({family_id for ids in shard_ids for family_id in ids}))
+
+    def test_shard_selection_rejects_invalid_bounds(self) -> None:
+        with self.assertRaises(SelectionError):
+            select_shard_entries(self.entries, shard_index=0, shard_count=0)
+        with self.assertRaises(SelectionError):
+            select_shard_entries(self.entries, shard_index=4, shard_count=4)
 
     def test_family_selector_is_exact_and_requires_platform_when_requested(self) -> None:
         ignite = dict(self.entries[0])
@@ -257,6 +277,10 @@ class TestTestcontainersImageGate(unittest.TestCase):
             "python3 -m unittest scripts/test_run_testcontainers_image_gate.py -v",
             ci_match.group(0),
         )
+        self.assertIn(
+            "python3 -m unittest scripts/test_aggregate_testcontainers_image_gate.py -v",
+            ci_match.group(0),
+        )
         shared_match = re.search(
             r"^            shared:\n.*?(?=^            [a-z0-9-]+:\n)",
             workflow,
@@ -266,6 +290,8 @@ class TestTestcontainersImageGate(unittest.TestCase):
         for path in (
             "scripts/run_testcontainers_image_gate.py",
             "scripts/test_run_testcontainers_image_gate.py",
+            "scripts/aggregate_testcontainers_image_gate.py",
+            "scripts/test_aggregate_testcontainers_image_gate.py",
             "scripts/testcontainers_image_gate.py",
             "scripts/testcontainers_image_gate_manifest.json",
         ):
@@ -274,14 +300,27 @@ class TestTestcontainersImageGate(unittest.TestCase):
     def test_nightly_runs_full_gate_only_before_spring_bridge(self) -> None:
         workflow = (self.root / ".github/workflows/nightly-tests.yml").read_text(encoding="utf-8")
         self.assertIn("test-testcontainers-image-gate:", workflow)
+        self.assertIn("test-testcontainers-image-gate-shard:", workflow)
         self.assertIn("if: ${{ needs.plan.outputs.scope == 'full' }}", workflow)
         self.assertIn("--scope full", workflow)
         self.assertIn("TESTCONTAINERS_IMAGE_GATE_MAX_PARALLEL: '1'", workflow)
+        self.assertIn("max-parallel: 4", workflow)
+        self.assertIn("--shard-index", workflow)
+        self.assertIn("--shard-count 4", workflow)
+        self.assertIn("scripts/aggregate_testcontainers_image_gate.py", workflow)
+        self.assertIn(
+            "name: nightly-testcontainers-image-gate-${{ github.run_id }}-amd64-shard-${{ matrix.shard }}",
+            workflow,
+        )
         if "test-testcontainers-ignite2-arm64-image-gate:" in workflow:
             self.assertIn("runs-on: ubuntu-24.04", workflow)
             self.assertIn("runs-on: ubuntu-24.04-arm", workflow)
             self.assertIn("--default-platform-id amd64", workflow)
-            self.assertIn("--job-budget-minutes 360", workflow)
+            self.assertIn("--job-budget-minutes 120", workflow)
+            self.assertIn(
+                "needs: [build, plan, test-testcontainers-image-gate-shard]",
+                workflow,
+            )
             self.assertIn("--family-id ignite2", workflow)
             self.assertIn("--platform-id arm64", workflow)
             self.assertIn("--job-budget-minutes 90", workflow)
