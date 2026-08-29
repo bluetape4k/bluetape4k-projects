@@ -24,21 +24,25 @@ import javax.cache.event.CacheEntryUpdatedListener
 private const val DEFAULT_MAX_IN_FLIGHT_CALLBACKS = 64
 
 /**
- * SuspendJCache listener의 수명 동안 누적되는 low-cardinality 관측 snapshot입니다.
+ * SuspendJCache listener의 수명 동안 누적되는 low-cardinality 관측 결과입니다.
  *
  * 향후 공통 metric backend에 연결할 때의 계약은
  * `bluetape4k.cache.jcache.listener.callbacks` 이름과
- * `outcome=accepted|rejected|ignored|cancelled|failed` 태그입니다. `cache_type` 태그는
- * 정제된 cache 구현 클래스명만 사용하며 key/value/source는 보존하거나 기록하지
- * 않습니다. 카운터와 in-flight gauge는 listener 인스턴스별로 생성되고 [close] 후에도
- * reset하지 않습니다. 현재 core 모듈은 backend를 직접 의존하지 않으므로 이 타입은
+ * `admission=admitted|rejected|ignored`, `outcome=completed|cancelled|failed` 태그입니다.
+ * [admittedCallbacks]는 permit을 확보한 callback의 admission 분모이고, terminal outcome
+ * 카운터는 해당 callback이 정상 완료·취소·실패한 결과를 상호 배타적으로 기록합니다.
+ * permit 확보 후 close 경합으로 실행되지 못한 callback은 `cancelled`로 종결합니다.
+ * `cache_type` 태그는 정제된 cache 구현 클래스명만 사용하며 key/value/source는 보존하거나
+ * 기록하지 않습니다. 카운터와 in-flight gauge는 listener 인스턴스별로 생성되고 [close]
+ * 후에도 reset하지 않습니다. 현재 core 모듈은 backend를 직접 의존하지 않으므로 이 타입은
  * internal/test-only 경계로 유지합니다.
  */
 internal data class SuspendJCacheEntryEventListenerObservation(
     val cacheType: String,
-    val acceptedCallbacks: Long,
+    val admittedCallbacks: Long,
     val rejectedCallbacks: Long,
     val ignoredCallbacks: Long,
+    val completedCallbacks: Long,
     val cancelledCallbacks: Long,
     val failedCallbacks: Long,
     val closeRequests: Long,
@@ -53,9 +57,9 @@ internal data class SuspendJCacheEntryEventListenerObservation(
  * `launch`를 사용하여 스레드 풀 고갈과 데드락을 방지합니다.
  * callback admission은 non-blocking `tryAcquire()`로 선형화하며, 기본적으로
  * listener마다 최대 64개의 in-flight callback job만 허용합니다. 상한에 도달한
- * callback은 이벤트 snapshot을 만들기 전에 내부 queue 없이 즉시 거부하고
+ * callback은 이벤트를 복사하기 전에 내부 queue 없이 즉시 거부하고
  * sanitized debug log를 남깁니다. permit을 확보한 callback만 JCache event의
- * key/value를 immutable snapshot으로 복사합니다.
+ * key/value를 immutable 복사본으로 보관합니다.
  * [close]는 취소를 요청하지만 callback 완료를 기다리지 않습니다.
  *
  * ```kotlin
@@ -202,48 +206,67 @@ class SuspendJCacheEntryEventListener<K: Any, V: Any> private constructor(
             }
             return
         }
-        observation.recordAccepted()
+        observation.recordAdmitted()
+        submitAdmitted(operation, blockFactory)
+    }
+
+    @Suppress("ReturnCount", "TooGenericExceptionCaught")
+    private fun submitAdmitted(operation: String, blockFactory: () -> (suspend () -> Unit)) {
+        val permitReleased = AtomicBoolean(false)
+        fun releasePermit() {
+            if (permitReleased.compareAndSet(false, true)) {
+                admission.release()
+                observation.recordRelease()
+            }
+        }
+        val terminalRecorded = AtomicBoolean(false)
+        val recordTerminal: (() -> Unit) -> Unit = { record ->
+            if (terminalRecorded.compareAndSet(false, true)) {
+                record()
+            }
+        }
         var permitTransferred = false
         try {
             if (!shouldAcceptCallback()) {
-                observation.recordIgnored()
+                recordTerminal { observation.recordCancelled() }
                 return
             }
             val block = blockFactory()
             if (!shouldAcceptCallback()) {
-                observation.recordIgnored()
+                recordTerminal { observation.recordCancelled() }
                 return
             }
             val job = scope.launch(start = CoroutineStart.LAZY) {
                 try {
                     if (!closed.get()) {
-                        applyEvent(operation, block)
+                        applyEvent(operation, block, recordTerminal)
+                    } else {
+                        recordTerminal { observation.recordCancelled() }
                     }
                 } finally {
-                    admission.release()
-                    observation.recordRelease()
+                    releasePermit()
                 }
             }
             job.invokeOnCompletion { cause ->
                 if (cause is CancellationException) {
-                    observation.recordCancelled()
+                    recordTerminal { observation.recordCancelled() }
                 }
+                releasePermit()
             }
             if (!job.start()) {
-                admission.release()
-                observation.recordRelease()
+                recordTerminal { observation.recordCancelled() }
+                releasePermit()
             }
             permitTransferred = true
         } catch (e: CancellationException) {
-            observation.recordCancelled()
+            recordTerminal { observation.recordCancelled() }
             throw e
         } catch (e: Exception) {
-            observation.recordFailed()
+            recordTerminal { observation.recordFailed() }
             throw e
         } finally {
             if (!permitTransferred) {
-                admission.release()
-                observation.recordRelease()
+                releasePermit()
             }
         }
     }
@@ -260,13 +283,15 @@ class SuspendJCacheEntryEventListener<K: Any, V: Any> private constructor(
     private suspend fun applyEvent(
         operation: String,
         block: suspend () -> Unit,
+        recordTerminal: (() -> Unit) -> Unit,
     ) {
         try {
             block()
+            recordTerminal { observation.recordCompleted() }
         } catch (e: CancellationException) {
             throw e
         } catch (e: Exception) {
-            observation.recordFailed()
+            recordTerminal { observation.recordFailed() }
             log.error(e) { "Fail to $operation. cache=$cacheIdentifier" }
         }
     }
@@ -282,21 +307,23 @@ class SuspendJCacheEntryEventListener<K: Any, V: Any> private constructor(
         private val cacheType: String,
         private val maxInFlightCallbacks: Int,
     ) {
-        private val acceptedCallbacks = LongAdder()
+        private val admittedCallbacks = LongAdder()
         private val rejectedCallbacks = LongAdder()
         private val ignoredCallbacks = LongAdder()
+        private val completedCallbacks = LongAdder()
         private val cancelledCallbacks = LongAdder()
         private val failedCallbacks = LongAdder()
         private val closeRequests = LongAdder()
         private val inFlightCallbacks = AtomicInteger()
 
-        fun recordAccepted() {
-            acceptedCallbacks.increment()
+        fun recordAdmitted() {
+            admittedCallbacks.increment()
             inFlightCallbacks.incrementAndGet()
         }
 
         fun recordRejected() = rejectedCallbacks.increment()
         fun recordIgnored() = ignoredCallbacks.increment()
+        fun recordCompleted() = completedCallbacks.increment()
         fun recordCancelled() = cancelledCallbacks.increment()
         fun recordFailed() = failedCallbacks.increment()
         fun recordCloseRequest() = closeRequests.increment()
@@ -305,9 +332,10 @@ class SuspendJCacheEntryEventListener<K: Any, V: Any> private constructor(
         fun snapshot(): SuspendJCacheEntryEventListenerObservation =
             SuspendJCacheEntryEventListenerObservation(
                 cacheType = cacheType,
-                acceptedCallbacks = acceptedCallbacks.sum(),
+                admittedCallbacks = admittedCallbacks.sum(),
                 rejectedCallbacks = rejectedCallbacks.sum(),
                 ignoredCallbacks = ignoredCallbacks.sum(),
+                completedCallbacks = completedCallbacks.sum(),
                 cancelledCallbacks = cancelledCallbacks.sum(),
                 failedCallbacks = failedCallbacks.sum(),
                 closeRequests = closeRequests.sum(),
