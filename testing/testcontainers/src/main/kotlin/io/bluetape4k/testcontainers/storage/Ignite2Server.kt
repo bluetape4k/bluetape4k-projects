@@ -35,6 +35,15 @@ import java.time.Duration
  * 않는 아키텍처를 만나면 즉시 실패합니다. Custom image는 명시적인 tag가
  * 필요하며, 명시한 custom tag는 canonical resolver를 우회합니다.
  *
+ * ```kotlin
+ * val customTag = "your-pinned-tag"
+ * val byName = Ignite2Server(image = "custom/ignite", tag = customTag)
+ * val byDockerName = Ignite2Server(DockerImageName.parse("custom/ignite:$customTag"))
+ * ```
+ *
+ * `Ignite2Server(image = "custom/ignite")`는 `IllegalArgumentException`으로
+ * 실패하며 canonical tag fallback을 제공하지 않습니다.
+ *
  * @param imageName Docker 이미지 이름 ([DockerImageName])
  * @param useDefaultPort 기본 포트(10800)를 그대로 사용할지 여부. `false`이면 임의 포트가 할당됩니다.
  * @param reuse 컨테이너 재사용 여부
@@ -116,8 +125,8 @@ class Ignite2Server private constructor(
          * ```
          *
          * @param image          Docker 이미지 이름, blank이면 [IllegalArgumentException]이 발생합니다.
-         * @param tag            Docker 이미지 태그, blank이면 [IllegalArgumentException]이 발생합니다 (기본: [DEFAULT_TAG];
-         *                       aarch64에서는 [TAG]-arm64).
+         * @param tag            Docker 이미지 태그 (기본: [DEFAULT_TAG]; aarch64 canonical image는 [TAG]-arm64).
+         *                       blank이면 [IllegalArgumentException]이 발생하며, custom image는 tag를 명시해야 합니다.
          * @param useDefaultPort `true`면 10800 포트를 고정 바인딩합니다.
          * @param reuse          컨테이너 재사용 여부입니다.
          */
