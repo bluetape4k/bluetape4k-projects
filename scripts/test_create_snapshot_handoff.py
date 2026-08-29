@@ -141,6 +141,30 @@ class SnapshotHandoffTest(unittest.TestCase):
             self.assertTrue(all(len(item["sha256"]) == 64 for item in receipt["resources"]))
             self.assertTrue(all(count == 2 for count in fixture.counts.values()))
 
+    def test_verified_receipt_allows_artifact_specific_build_numbers(self) -> None:
+        routes = self.routes()
+        tenant_metadata_path = (
+            f"{self.group_path}/bluetape4k-tenant/2.0.0-SNAPSHOT/maven-metadata.xml"
+        )
+        routes[tenant_metadata_path] = [(200, metadata("bluetape4k-tenant", build="1"))]
+        tenant_resource_path = (
+            f"{self.group_path}/bluetape4k-tenant/2.0.0-SNAPSHOT/"
+            f"bluetape4k-tenant-2.0.0-20260828.123456-1.jar"
+        )
+        routes[tenant_resource_path] = [(200, b"bluetape4k-tenant:jar-build-1")]
+        tenant_pom_path = (
+            f"{self.group_path}/bluetape4k-tenant/2.0.0-SNAPSHOT/"
+            f"bluetape4k-tenant-2.0.0-20260828.123456-1.pom"
+        )
+        routes[tenant_pom_path] = [(200, b"bluetape4k-tenant:pom-build-1")]
+        with tempfile.TemporaryDirectory() as directory, FixtureServer(routes) as fixture:
+            output = Path(directory) / "tenant-context-handoff.json"
+            receipt = self.create(fixture.base_url, output)
+
+            self.assertEqual("20260828.123456", receipt["timestamp"])
+            self.assertEqual("7", receipt["build_number"])
+            self.assertEqual(3, len(receipt["resources"]))
+
     def test_missing_metadata_fails_closed(self) -> None:
         routes = self.routes()
         metadata_path = f"{self.group_path}/bluetape4k-bom/2.0.0-SNAPSHOT/maven-metadata.xml"
@@ -181,6 +205,26 @@ class SnapshotHandoffTest(unittest.TestCase):
         with tempfile.TemporaryDirectory() as directory, FixtureServer(routes) as fixture:
             with self.assertRaisesRegex(self.module.SnapshotHandoffError, "metadata changed"):
                 self.create(fixture.base_url, Path(directory) / "receipt.json")
+
+    def test_artifact_publication_timestamp_mismatch_fails_closed(self) -> None:
+        metadata_set = {
+            "bluetape4k-bom": self.module.parse_metadata(
+                metadata("bluetape4k-bom"),
+                "io.github.bluetape4k",
+                "bluetape4k-bom",
+                "2.0.0",
+            ),
+            "bluetape4k-tenant": self.module.parse_metadata(
+                metadata("bluetape4k-tenant", timestamp="20260828.123457"),
+                "io.github.bluetape4k",
+                "bluetape4k-tenant",
+                "2.0.0",
+            ),
+        }
+        with self.assertRaisesRegex(
+            self.module.SnapshotHandoffError, "publication timestamp mismatch"
+        ):
+            self.module.validate_snapshot_identity(metadata_set, "bluetape4k-bom")
 
     def test_wrong_group_or_artifact_metadata_fails_closed(self) -> None:
         routes = self.routes()

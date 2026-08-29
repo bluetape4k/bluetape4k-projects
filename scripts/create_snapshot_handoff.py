@@ -166,14 +166,17 @@ def validate_snapshot_identity(metadata_set: dict[str, dict], receipt_artifact: 
         raise SnapshotHandoffError("Receipt artifact metadata was not requested")
     identity = (
         canonical["timestamp"],
-        canonical["build_number"],
         canonical["last_updated"],
     )
     for artifact, item in metadata_set.items():
-        candidate = (item["timestamp"], item["build_number"], item["last_updated"])
+        # Maven Central은 artifact별로 SNAPSHOT build number를 독립적으로 부여한다.
+        # receipt identity는 BOM에 두고, 각 resource URL은 artifact별
+        # timestamp/build-number 조합으로 고정한다.
+        candidate = (item["timestamp"], item["last_updated"])
         if candidate != identity:
             raise SnapshotHandoffError(
-                f"Snapshot metadata identity mismatch for {artifact}: {candidate} != {identity}"
+                "Snapshot publication timestamp mismatch for "
+                f"{artifact}: {candidate} != {identity}"
             )
     return canonical
 
