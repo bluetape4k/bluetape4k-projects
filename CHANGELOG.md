@@ -26,6 +26,23 @@
 
 <!-- issue-1335-java25-semver:end -->
 
+<!-- issue-1520-ignite2-migration:start -->
+- `Ignite2Server`의 2.0.0 custom image 계약을 fail-fast로 확정했다.
+  `Ignite2Server(image = "custom/ignite")`는 더 이상 canonical tag를
+  적용하지 않고 `IllegalArgumentException`과
+  `Custom Ignite2 image requires an explicit tag` 메시지로 실패한다.
+  Tag가 없는 `DockerImageName` custom 경로도 `IllegalArgumentException`과
+  `Custom Ignite2 DockerImageName must include an explicit tag` 메시지로
+  실패한다. Custom image는
+  `Ignite2Server(image = "custom/ignite", tag = "2.18.0-custom")`처럼 tag를
+  명시해야 한다. 지원하지 않는 아키텍처에서 canonical tag를 생략하면
+  `IllegalStateException`과
+  `Unsupported Ignite2 default image architecture: <architecture>` 메시지로
+  실패하며, backward-compatible fallback은 제공하지 않는다. Public
+  callable JVM descriptor는 published `1.12.1` baseline과 동일하게 유지한다
+  ([#1520](https://github.com/bluetape4k/bluetape4k-projects/issues/1520)).
+<!-- issue-1520-ignite2-migration:end -->
+
 - QueryDSL Kotlin codegen은 Kotlin 2.4/JDK 25 환경에서 clean annotation
   processing을 통과하지 못하는 upstream `NullPointerException`으로 인해
   기본 지원 경로에서 제외했다. Java APT 생성 Q 타입과 QueryDSL association

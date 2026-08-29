@@ -95,12 +95,37 @@ The defaults below are pinned to the latest stable image tag verified on
 2026-08-10. Mutable `latest`, major-only, and rolling minor tags are avoided so
 that Testcontainers runs remain reproducible across local machines and CI.
 
+<!-- issue-1520-ignite2-migration:start -->
+### `Ignite2Server` migration contract for 2.0.0
+
 `Ignite2Server` resolves the canonical `apacheignite/ignite` image lazily:
 `x86_64`/`amd64` uses `2.18.0`, while `aarch64`/`arm64` uses
-`2.18.0-arm64`. An unknown architecture fails fast when the canonical tag is
-omitted. Custom images must provide an explicit tag; an explicit custom tag is
-accepted on any architecture. Start the server and close both the server and
-the `IgniteClient` with `use`/`close` as shown below.
+`2.18.0-arm64`. Omitting the canonical tag on an unknown architecture fails
+with `IllegalStateException` and the message
+`Unsupported Ignite2 default image architecture: <architecture>`.
+
+Custom images must now provide an explicit tag. Code that previously relied on
+`Ignite2Server(image = "custom/ignite")` compiling to a canonical default tag
+must migrate to one of these forms:
+
+```kotlin
+val byName = Ignite2Server(image = "custom/ignite", tag = "2.18.0-custom")
+val byDockerName = Ignite2Server(DockerImageName.parse("custom/ignite:2.18.0-custom"))
+```
+
+The tagless String call fails with `IllegalArgumentException` and
+`Custom Ignite2 image requires an explicit tag`. The tagless
+`DockerImageName` call fails with `IllegalArgumentException` and
+`Custom Ignite2 DockerImageName must include an explicit tag`. There is no
+fallback to the canonical tag in 2.0.0: the fail-fast behavior keeps custom
+image selection reproducible, while an explicit custom tag bypasses canonical
+architecture resolution. See
+[`docs/release/2.0.0-ignite2-migration.md`](../../docs/release/2.0.0-ignite2-migration.md)
+for the compatibility and JVM descriptor decision.
+<!-- issue-1520-ignite2-migration:end -->
+
+Start the server and close both the server and the `IgniteClient` with
+`use`/`close` as shown below.
 
 On Java 25+, the Ignite 2 thin-client tests use only
 `--add-opens=java.base/java.nio=ALL-UNNAMED` and
