@@ -1192,6 +1192,11 @@ class ReleaseWorkflowPolicyTest(unittest.TestCase):
         self.assertIn("artifact-id", workflow)
         self.assertIn("artifact-digest", workflow)
         self.assertIn("gh issue comment", workflow)
+        self.assertIn(
+            'gh issue comment "$HANDOFF_ISSUE_NUMBER" --repo "$GITHUB_REPOSITORY" '
+            '--body-file "$comment"',
+            workflow,
+        )
         self.assertIn("issues: write", workflow)
         self.assertNotIn("issues: write", workflow.split("\njobs:\n", 1)[0])
         self.assertIn("record-handoff:", workflow)
