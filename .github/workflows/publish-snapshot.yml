@@ -370,4 +370,4 @@ jobs:
             echo
             echo "downstream은 receipt의 timestamp/build number와 resource SHA-256을 모두 확인해야 합니다."
           } > "$comment"
-          gh issue comment "$HANDOFF_ISSUE_NUMBER" --body-file "$comment"
+          gh issue comment "$HANDOFF_ISSUE_NUMBER" --repo "$GITHUB_REPOSITORY" --body-file "$comment"
