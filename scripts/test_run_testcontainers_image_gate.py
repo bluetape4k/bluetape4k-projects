@@ -499,6 +499,18 @@ class TestRunTestcontainersImageGate(unittest.TestCase):
             read_back = json.loads((Path(directory) / "summary.json").read_text())
             self.assertEqual(summary["manifest_digest"], read_back["manifest_digest"])
 
+    def test_shard_summary_records_partition_identity(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            summary = GateRunner(
+                [entry("AlphaServer"), entry("BetaServer")],
+                Path(directory),
+                command_runner=_generic_success,
+                max_attempts=1,
+                shard_index=1,
+                shard_count=4,
+            ).run()
+        self.assertEqual({"index": 1, "count": 4, "family_ids": ["alphaserver", "betaserver"]}, summary["shard"])
+
     def test_strict_family_requires_pull_platform_and_workload_evidence(self) -> None:
         calls: list[list[str]] = []
 

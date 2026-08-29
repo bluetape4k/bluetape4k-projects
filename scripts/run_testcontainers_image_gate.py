@@ -34,6 +34,7 @@ from scripts.testcontainers_image_gate import (
     load_manifest,
     platform_for_entry,
     select_entries,
+    select_shard_entries,
     validate_manifest,
 )
 
@@ -503,7 +504,16 @@ class GateRunner:
         workflow_run_id: str | None = None,
         commit: str | None = None,
         ref: str | None = None,
+        shard_index: int | None = None,
+        shard_count: int | None = None,
     ) -> None:
+        if (shard_index is None) != (shard_count is None):
+            raise ValueError("shard index and count must be provided together")
+        if shard_index is not None and shard_count is not None:
+            if shard_count < 1:
+                raise ValueError("shard count must be positive")
+            if shard_index < 0 or shard_index >= shard_count:
+                raise ValueError("shard index must be within shard count")
         self.entries = [dict(entry) for entry in entries]
         self.report_dir = report_dir
         self.command_runner = command_runner
@@ -518,6 +528,8 @@ class GateRunner:
         self.workflow_run_id = workflow_run_id or os.environ.get("GITHUB_RUN_ID", "local")
         self.commit = commit or os.environ.get("GITHUB_SHA", "local")
         self.ref = ref or os.environ.get("GITHUB_REF", "local")
+        self.shard_index = shard_index
+        self.shard_count = shard_count
         self.manifest_digest = self._digest(manifest_path)
         self._staging_root: Path | None = None
         self._elapsed_seconds = 0.0
@@ -1359,6 +1371,12 @@ class GateRunner:
                 for result in results
             ],
         }
+        if self.shard_index is not None and self.shard_count is not None:
+            summary["shard"] = {
+                "index": self.shard_index,
+                "count": self.shard_count,
+                "family_ids": [result.get("id") for result in results],
+            }
         summary_text = json.dumps(summary, ensure_ascii=False, indent=2) + "\n"
         if len(summary_text.encode("utf-8")) > MAX_SUMMARY_BYTES:
             summary["status"] = "blocked"
@@ -1451,6 +1469,8 @@ def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
     parser.add_argument("--timeout-minutes", type=int, default=30)
     parser.add_argument("--diagnostic-timeout-seconds", type=int, default=30)
     parser.add_argument("--job-budget-minutes", type=int)
+    parser.add_argument("--shard-index", type=int)
+    parser.add_argument("--shard-count", type=int)
     return parser.parse_args(argv)
 
 
@@ -1484,6 +1504,16 @@ def main(argv: Sequence[str] | None = None) -> int:
             require_selection=args.require_selection,
             default_platform_id=args.default_platform_id,
         )
+        if args.shard_index is not None or args.shard_count is not None:
+            if args.scope != "full":
+                raise SelectionError("shards require full scope")
+            if args.shard_index is None or args.shard_count is None:
+                raise SelectionError("shard index and count must be provided together")
+            selected = select_shard_entries(
+                selected,
+                shard_index=args.shard_index,
+                shard_count=args.shard_count,
+            )
     except (ValueError, SelectionError) as error:
         _blocked_summary(args.report_dir, [str(error)], args.manifest)
         print(f"BLOCKED: {error}", file=sys.stderr)
@@ -1500,6 +1530,8 @@ def main(argv: Sequence[str] | None = None) -> int:
             diagnostic_timeout_seconds=args.diagnostic_timeout_seconds,
             job_budget_minutes=args.job_budget_minutes,
             scope=args.scope,
+            shard_index=args.shard_index,
+            shard_count=args.shard_count,
         ).run()
     except (OSError, RuntimeError, ValueError) as error:
         _blocked_summary(args.report_dir, [str(error)], args.manifest)

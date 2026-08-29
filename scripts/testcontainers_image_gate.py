@@ -6,6 +6,7 @@ from __future__ import annotations
 import json
 import re
 import sys
+from collections.abc import Iterable
 from pathlib import Path
 from typing import Any
 
@@ -394,4 +395,26 @@ def select_entries(
         )
         if selected_platform is not None:
             entry["_selected_platform_id"] = selected_platform["id"]
+    return selected
+
+
+def select_shard_entries(
+    entries: Iterable[dict[str, Any]],
+    *,
+    shard_index: int,
+    shard_count: int,
+) -> list[dict[str, Any]]:
+    """Select a deterministic manifest shard without overlap or omission."""
+
+    if shard_count < 1:
+        raise SelectionError("shard count must be positive")
+    if shard_index < 0 or shard_index >= shard_count:
+        raise SelectionError("shard index must be within shard count")
+    selected = [
+        dict(entry)
+        for index, entry in enumerate(entries)
+        if index % shard_count == shard_index
+    ]
+    if not selected:
+        raise SelectionError("shard selection is empty")
     return selected
