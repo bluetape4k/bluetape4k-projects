@@ -15,11 +15,13 @@ import org.springframework.data.mongodb.core.convert.MongoConverter
  *
  * ## 동작/계약
  * - `spring-boot-starter-data-mongodb-reactive` 의존성과 함께 `ReactiveMongoOperations` Bean이
- *   이미 등록되어 있지 않은 경우에만 [ReactiveMongoTemplate]을 등록합니다.
+ *   이미 등록되어 있지 않은 경우에만 이 자동 구성이 활성화되어 [ReactiveMongoTemplate]을 등록합니다.
  * - Spring Boot 4.1의 `MongoReactiveAutoConfiguration`과
  *   `DataMongoReactiveAutoConfiguration` 이후에 적용되어 기본 template과 충돌하지 않습니다.
  * - Spring Boot 4.1의 `MongoProperties` binding namespace인 `spring.mongodb.*`를 사용합니다.
- *   legacy-only `spring.data.mongodb.uri`는 조용한 localhost fallback을 막기 위해 fail-fast합니다.
+ *   library fallback이 참여할 때 legacy-only `spring.data.mongodb.uri`는 조용한 localhost
+ *   fallback을 막기 위해 fail-fast합니다. 사용자 또는 Spring Boot가 제공한
+ *   `ReactiveMongoOperations` Bean이 있으면 이 검사도 함께 backoff합니다.
  *
  * ```yaml
  * spring:
@@ -33,6 +35,7 @@ import org.springframework.data.mongodb.core.convert.MongoConverter
     ],
 )
 @ConditionalOnClass(ReactiveMongoOperations::class)
+@ConditionalOnMissingBean(ReactiveMongoOperations::class)
 class ReactiveMongoAutoConfiguration(
     environment: Environment,
 ) {
@@ -65,7 +68,6 @@ class ReactiveMongoAutoConfiguration(
      * @return [ReactiveMongoTemplate] 인스턴스
      */
     @Bean
-    @ConditionalOnMissingBean(ReactiveMongoOperations::class)
     fun reactiveMongoTemplate(
         databaseFactory: ReactiveMongoDatabaseFactory,
         mongoConverter: MongoConverter,
