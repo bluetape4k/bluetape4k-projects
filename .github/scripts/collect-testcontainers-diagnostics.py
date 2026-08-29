@@ -20,6 +20,7 @@ MAX_REPORT_FILE_BYTES = 2_000_000
 # The sanitized artifact remains capped by MAX_REPORT_FILE_BYTES.
 MAX_REPORT_SOURCE_BYTES = 32_000_000
 MAX_REPORT_ENTRIES = 50_000
+MAX_ARCHIVED_METADATA_BYTES = 4_096
 ALLOWLIST = {
     "confluentinc/cp-kafka@sha256:a5040785528b0bce3b146febe9fcacdcf2b9b5acb450307f75170ef0e60ec130",
     "redis@sha256:4e070415a5713188624f93815e62d6c6a1fcbb416d2e0b578ab3db627db3a93a",
@@ -301,12 +302,50 @@ def collect_container_logs(task_name: str, container_id: str, max_log_bytes: int
 
 
 CONTAINER_ID = re.compile(r"^[0-9a-fA-F]{12,64}$")
+CONTAINER_NAME = re.compile(r"^[a-zA-Z0-9][a-zA-Z0-9_.-]{0,127}$")
+IMAGE_ID = re.compile(r"^sha256:[0-9a-fA-F]{64}$")
+CREATED_AT = re.compile(r"^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9:.+-]+Z?$")
 
 
 def normalized_path(path: Path) -> Path:
     """Normalize lexical dot segments without following symlinks."""
 
     return Path(os.path.abspath(path))
+
+
+def read_archived_container_metadata(task_name: str, path: Path) -> tuple[dict[str, Any], Path]:
+    """Validate a committed pre-cleanup metadata receipt and its paired log."""
+
+    if path.suffix != ".metadata" or not CONTAINER_ID.fullmatch(path.stem):
+        raise ValueError(f"{task_name}: invalid archived container metadata")
+    with path.open("rb") as handle:
+        encoded = handle.read(MAX_ARCHIVED_METADATA_BYTES + 1)
+    if len(encoded) > MAX_ARCHIVED_METADATA_BYTES:
+        raise ValueError(f"{task_name}: archived container metadata exceeds size limit")
+
+    values: dict[str, str] = {}
+    for line in encoded.decode("utf-8", errors="strict").splitlines():
+        key, separator, value = line.partition("=")
+        if not separator or key in values:
+            raise ValueError(f"{task_name}: invalid archived container metadata")
+        values[key] = value
+    required = {"id", "name", "image", "image_id", "image_digest", "created"}
+    if set(values) != required or values["id"] != path.stem:
+        raise ValueError(f"{task_name}: invalid archived container metadata")
+    if not CONTAINER_NAME.fullmatch(values["name"]):
+        raise ValueError(f"{task_name}: invalid archived container name")
+    if values["image"] != values["image_digest"] or values["image_digest"] not in ALLOWLIST:
+        raise ValueError(f"{task_name}: archived image is outside the diagnostics allowlist")
+    if not IMAGE_ID.fullmatch(values["image_id"]) or not CREATED_AT.fullmatch(values["created"]):
+        raise ValueError(f"{task_name}: invalid archived container metadata")
+
+    log_path = path.with_suffix(".log")
+    if log_path.is_symlink() or not log_path.is_file():
+        raise ValueError(f"{task_name}: archived container log does not exist")
+    return {
+        **values,
+        "source": "pre_cleanup_log",
+    }, log_path
 
 
 def reject_symlink_components(path: Path, stop_at: Path | None = None) -> None:
@@ -439,6 +478,8 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--workflow-file", required=True, type=Path)
     parser.add_argument("--max-total-bytes", type=int, default=DEFAULT_MAX_BYTES)
     parser.add_argument("--container-id", action="append", default=[])
+    parser.add_argument("--task-exit-code", type=int, default=0)
+    parser.add_argument("--archived-container-metadata", action="append", default=[], type=Path)
     parser.add_argument("--sanitized-report-dir", type=Path)
     parser.add_argument("--report-path", action="append", default=[], type=Path)
     parser.add_argument("--max-report-files", type=int, default=DEFAULT_MAX_REPORT_FILES)
@@ -461,13 +502,21 @@ def write_manifest(path: Path, manifest: dict[str, Any], max_bytes: int, repo_ro
 
 def main() -> int:
     args = parse_args()
-    if args.max_total_bytes <= 0 or args.max_report_files <= 0 or args.max_report_total_bytes <= 0:
+    if (
+        args.max_total_bytes <= 0
+        or args.max_report_files <= 0
+        or args.max_report_total_bytes <= 0
+        or args.task_exit_code < 0
+    ):
         print(f"{args.task_name}: diagnostic limits must be positive", file=sys.stderr)
         return 1
 
     args.workflow_file = normalized_path(args.workflow_file)
     args.output_dir = normalized_path(args.output_dir)
     args.report_path = [normalized_path(path) for path in args.report_path]
+    args.archived_container_metadata = [
+        normalized_path(path) for path in args.archived_container_metadata
+    ]
     if args.sanitized_report_dir is not None:
         args.sanitized_report_dir = normalized_path(args.sanitized_report_dir)
     try:
@@ -482,6 +531,9 @@ def main() -> int:
         for report_path in args.report_path:
             reject_symlink_components(report_path, repo_root)
             require_relative(report_path, repo_root, "report path")
+        for archived_metadata in args.archived_container_metadata:
+            reject_symlink_components(archived_metadata, repo_root)
+            require_relative(archived_metadata, repo_root, "archived container metadata")
         args.output_dir.mkdir(parents=True, exist_ok=True)
     except (OSError, ValueError) as error:
         print(str(error) if str(error).startswith(args.task_name) else f"{args.task_name}: diagnostics failed", file=sys.stderr)
@@ -489,6 +541,8 @@ def main() -> int:
 
     manifest: dict[str, Any] = {
         "task_name": args.task_name,
+        "task_exit_code": args.task_exit_code,
+        "diagnostic_status": "container_not_observed",
         "workflow_action_refs": [],
         "containers": [],
         "truncated": False,
@@ -498,19 +552,41 @@ def main() -> int:
     try:
         manifest["workflow_action_refs"] = workflow_action_refs(args.workflow_file)
         container_ids = sorted(set(args.container_id))
+        archived_metadata = sorted(set(args.archived_container_metadata))
+        archived_records: list[tuple[dict[str, Any], Path]] = []
+        archived_container_ids: set[str] = set()
+        for metadata_path in archived_metadata:
+            record, archived_log = read_archived_container_metadata(args.task_name, metadata_path)
+            container_id = str(record["id"])
+            if container_id in container_ids or container_id in archived_container_ids:
+                raise ValueError(f"{args.task_name}: duplicate container diagnostics")
+            archived_container_ids.add(container_id)
+            archived_records.append((record, archived_log))
         for container_id in container_ids:
             if not CONTAINER_ID.fullmatch(container_id):
                 raise ValueError(f"{args.task_name}: invalid container id")
             manifest["containers"].append(inspect_container(args.task_name, container_id))
+        manifest["containers"].extend(record for record, _ in archived_records)
 
         # Reserve space for the manifest before writing bounded log files.
         provisional = json.dumps(manifest, ensure_ascii=False, indent=2, sort_keys=True).encode("utf-8") + b"\n"
         log_budget = max(0, args.max_total_bytes - len(provisional))
         log_used = 0
+        collected_logs: list[tuple[str, str, bool]] = []
         for container_id in container_ids:
             logs, logs_truncated = collect_container_logs(
                 args.task_name, container_id, args.max_total_bytes
             )
+            collected_logs.append((container_id, logs, logs_truncated))
+        for record, archived_log in archived_records:
+            container_id = str(record["id"])
+            with archived_log.open("rb") as handle:
+                raw = handle.read(args.max_total_bytes + 1)
+            source_truncated = len(raw) > args.max_total_bytes
+            logs = sanitize(raw[:args.max_total_bytes].decode("utf-8", errors="replace"))
+            collected_logs.append((container_id, logs, source_truncated))
+
+        for container_id, logs, logs_truncated in collected_logs:
             manifest["truncated"] = manifest["truncated"] or logs_truncated
             remaining = log_budget - log_used
             data, was_truncated = bounded_bytes(logs, remaining)
@@ -537,16 +613,25 @@ def main() -> int:
             manifest["sanitized_reports"] = reports
             manifest["report_truncated"] = report_truncated
 
+        if manifest["report_truncated"]:
+            manifest["diagnostic_status"] = "diagnostic_collection_failed"
+        elif manifest["containers"] or manifest["sanitized_reports"]:
+            manifest["diagnostic_status"] = "diagnostic_collection_succeeded"
         write_manifest(args.output_dir / "manifest.json", manifest, args.max_total_bytes, repo_root)
     except (OSError, RuntimeError, ValueError) as error:
         # Do not echo Docker output or report contents; the task name is the only diagnostic detail.
         print(str(error) if str(error).startswith(args.task_name) else f"{args.task_name}: diagnostics failed", file=sys.stderr)
+        manifest["diagnostic_status"] = "diagnostic_collection_failed"
         try:
             write_manifest(args.output_dir / "manifest.json", manifest, args.max_total_bytes, repo_root)
         except (OSError, ValueError):
             pass
         return 1
-    return 1 if manifest["report_truncated"] else 0
+    if manifest["diagnostic_status"] == "diagnostic_collection_failed":
+        return 1
+    if manifest["diagnostic_status"] == "container_not_observed" and args.task_exit_code != 0:
+        return 1
+    return 0
 
 
 if __name__ == "__main__":

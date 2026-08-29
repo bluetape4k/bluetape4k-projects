@@ -56,7 +56,12 @@ import org.apache.kafka.common.header.internals.RecordHeaders
 import org.awaitility.kotlin.atMost
 import org.awaitility.kotlin.await
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.io.TempDir
 import org.testcontainers.utility.DockerImageName
+import java.nio.file.Files
+import java.nio.file.Path
+import java.nio.file.StandardCopyOption
+import java.nio.file.StandardOpenOption
 import java.time.Duration
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.ConcurrentHashMap
@@ -73,6 +78,8 @@ import kotlin.time.Duration.Companion.seconds
 class CallbackFlowExamples {
 
     companion object: KLoggingChannel() {
+        private const val DIAGNOSTICS_DIRECTORY_PROPERTY = "bluetape4k.testcontainers.diagnostics.dir"
+        private const val MAX_RAW_LOG_BYTES = 2_000_000
         private const val KAFKA_IMAGE_REF =
             "confluentinc/cp-kafka@sha256:a5040785528b0bce3b146febe9fcacdcf2b9b5acb450307f75170ef0e60ec130"
     }
@@ -693,39 +700,188 @@ class CallbackFlowExamples {
     }
 
     @Test
-    fun `real Kafka producer callbacks become metadata flow`() = runSuspendIO(timeout = 120.seconds) {
+    fun `failure diagnostics export a bounded pre-cleanup broker log`(@TempDir tempDir: Path) {
+        val containerId = "a".repeat(12)
+
+        writeKafkaFailureDiagnostics(
+            containerId = containerId,
+            logs = "x".repeat(2_100_000).toByteArray(),
+            outputDirectory = tempDir,
+            name = "callback-flow-kafka",
+            image = KAFKA_IMAGE_REF,
+            imageId = "sha256:${"b".repeat(64)}",
+            created = "2026-08-30T00:00:00Z",
+        )
+
+        val rawLog = tempDir.resolve("$containerId.log")
+        val metadata = tempDir.resolve("$containerId.metadata")
+        Files.exists(rawLog).shouldBeTrue()
+        Files.size(rawLog) shouldBeEqualTo 2_000_000L
+        Files.readString(metadata).let { receipt ->
+            receipt.contains("id=$containerId").shouldBeTrue()
+            receipt.contains("image_id=sha256:${"b".repeat(64)}").shouldBeTrue()
+            receipt.contains("created=2026-08-30T00:00:00Z").shouldBeTrue()
+        }
+    }
+
+    @Test
+    fun `real Kafka producer callbacks become metadata flow`(@TempDir tempDir: Path) = runSuspendIO(timeout = 120.seconds) {
         val topic = "epic-1422-callback-${Base58.randomString(8)}"
         val records = (0 until 8).map { index ->
             ProducerRecord(topic, "key-$index", "value-$index")
         }
 
-        val broker = KafkaServer(DockerImageName.parse(KAFKA_IMAGE_REF)).apply {
-            start()
-            ShutdownQueue.register(this)
-        }
-        val consumer = KafkaServer.Launcher.createStringConsumer(broker)
+        val broker = KafkaServer(DockerImageName.parse(KAFKA_IMAGE_REF))
         try {
-            consumer.subscribe(listOf(topic))
-            val metadata = producerResults(
-                records = records.asFlow(),
-                producerFactory = { KafkaServer.Launcher.createStringProducer(broker) },
-            ).toList()
+            broker.start()
+            ShutdownQueue.register(broker)
+            val consumer = KafkaServer.Launcher.createStringConsumer(broker)
+            try {
+                consumer.subscribe(listOf(topic))
+                val metadata = producerResults(
+                    records = records.asFlow(),
+                    producerFactory = { KafkaServer.Launcher.createStringProducer(broker) },
+                ).toList()
 
-            metadata shouldHaveSize records.size
-            val polled = withTimeout(10.seconds) {
-                buildList {
-                    while (size < records.size) {
-                        addAll(consumer.poll(Duration.ofMillis(250)).toList())
+                metadata shouldHaveSize records.size
+                val polled = withTimeout(10.seconds) {
+                    buildList {
+                        while (size < records.size) {
+                            addAll(consumer.poll(Duration.ofMillis(250)).toList())
+                        }
+                    }
+                }
+                polled shouldHaveSize records.size
+
+                val diagnosticsDirectory = configuredDiagnosticsDirectory() ?: tempDir
+                writeKafkaFailureDiagnostics(broker, diagnosticsDirectory)
+                val containerId = broker.containerId
+                val receipt = Files.readString(diagnosticsDirectory.resolve("$containerId.metadata"))
+                receipt.contains("id=$containerId").shouldBeTrue()
+                receipt.contains("image=${broker.dockerImageName}").shouldBeTrue()
+                receipt.contains("image_id=${broker.containerInfo.imageId}").shouldBeTrue()
+                receipt.contains("created=${broker.containerInfo.created}").shouldBeTrue()
+                Files.size(diagnosticsDirectory.resolve("$containerId.log"))
+                    .let { it in 1..MAX_RAW_LOG_BYTES }.shouldBeTrue()
+            } finally {
+                withContext(NonCancellable + Dispatchers.IO) {
+                    withTimeout(5.seconds) {
+                        runInterruptible { consumer.close(Duration.ofSeconds(5)) }
                     }
                 }
             }
-            polled shouldHaveSize records.size
-        } finally {
-            withContext(NonCancellable + Dispatchers.IO) {
-                withTimeout(5.seconds) {
-                    runInterruptible { consumer.close(Duration.ofSeconds(5)) }
+        } catch (failure: Throwable) {
+            try {
+                val outputDirectory = configuredDiagnosticsDirectory()
+                if (outputDirectory != null && broker.isRunning) {
+                    withContext(NonCancellable) {
+                        writeKafkaFailureDiagnostics(broker, outputDirectory)
+                    }
+                }
+            } catch (diagnosticFailure: Exception) {
+                failure.addSuppressed(diagnosticFailure)
+            }
+            throw failure
+        }
+    }
+
+    private fun configuredDiagnosticsDirectory(): Path? =
+        System.getProperty(DIAGNOSTICS_DIRECTORY_PROPERTY)
+            ?.takeIf { it.isNotBlank() }
+            ?.let(Path::of)
+
+    private suspend fun readBoundedKafkaLogs(containerId: String): ByteArray = withTimeout(10.seconds) {
+        runInterruptible(Dispatchers.IO) {
+            val process = ProcessBuilder("docker", "logs", "--tail", "200", containerId)
+                .redirectErrorStream(true)
+                .start()
+            try {
+                val output = process.inputStream.use { it.readNBytes(MAX_RAW_LOG_BYTES + 1) }
+                val truncated = output.size > MAX_RAW_LOG_BYTES
+                if (truncated) {
+                    process.destroyForcibly()
+                }
+                val exitCode = process.waitFor()
+                check(truncated || exitCode == 0) { "docker logs failed" }
+                output.copyOf(minOf(output.size, MAX_RAW_LOG_BYTES))
+            } finally {
+                if (process.isAlive) {
+                    process.destroyForcibly()
                 }
             }
+        }
+    }
+
+    private suspend fun writeKafkaFailureDiagnostics(broker: KafkaServer, outputDirectory: Path) {
+        val info = broker.containerInfo
+        writeKafkaFailureDiagnostics(
+            containerId = broker.containerId,
+            logs = readBoundedKafkaLogs(broker.containerId),
+            outputDirectory = outputDirectory,
+            name = info.name.orEmpty().removePrefix("/"),
+            image = broker.dockerImageName,
+            imageId = info.imageId,
+            created = info.created,
+        )
+    }
+
+    private fun writeKafkaFailureDiagnostics(
+        containerId: String,
+        logs: ByteArray,
+        outputDirectory: Path,
+        name: String,
+        image: String,
+        imageId: String,
+        created: String,
+    ) {
+        require(containerId.matches(Regex("[0-9a-fA-F]{12,64}"))) { "Invalid container ID" }
+        require(name.matches(Regex("[a-zA-Z0-9][a-zA-Z0-9_.-]{0,127}"))) { "Invalid container name" }
+        require(image == KAFKA_IMAGE_REF) { "Unexpected Kafka image" }
+        require(imageId.matches(Regex("sha256:[0-9a-fA-F]{64}"))) { "Invalid image ID" }
+        require(created.matches(Regex("[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9:.+-]+Z?"))) { "Invalid created time" }
+
+        Files.createDirectories(outputDirectory)
+        val logTarget = outputDirectory.resolve("$containerId.log")
+        val metadataTarget = outputDirectory.resolve("$containerId.metadata")
+        val temporarySuffix = ".${ProcessHandle.current().pid()}.${System.nanoTime()}.tmp"
+        val logTemporary = outputDirectory.resolve("$containerId.log$temporarySuffix")
+        val metadataTemporary = outputDirectory.resolve("$containerId.metadata$temporarySuffix")
+        val metadata = """
+            id=$containerId
+            name=$name
+            image=$image
+            image_id=$imageId
+            image_digest=$KAFKA_IMAGE_REF
+            created=$created
+        """.trimIndent() + "\n"
+        require(!Files.exists(logTarget) && !Files.exists(metadataTarget)) {
+            "Diagnostics already exist for container ID"
+        }
+        var logCommitted = false
+        var metadataCommitted = false
+        try {
+            Files.write(
+                logTemporary,
+                logs.copyOf(minOf(logs.size, MAX_RAW_LOG_BYTES)),
+                StandardOpenOption.CREATE_NEW,
+                StandardOpenOption.WRITE,
+            )
+            Files.writeString(
+                metadataTemporary,
+                metadata,
+                StandardOpenOption.CREATE_NEW,
+                StandardOpenOption.WRITE,
+            )
+            Files.move(logTemporary, logTarget, StandardCopyOption.ATOMIC_MOVE)
+            logCommitted = true
+            Files.move(metadataTemporary, metadataTarget, StandardCopyOption.ATOMIC_MOVE)
+            metadataCommitted = true
+        } catch (failure: Exception) {
+            Files.deleteIfExists(logTemporary)
+            Files.deleteIfExists(metadataTemporary)
+            if (logCommitted) Files.deleteIfExists(logTarget)
+            if (metadataCommitted) Files.deleteIfExists(metadataTarget)
+            throw failure
         }
     }
 
