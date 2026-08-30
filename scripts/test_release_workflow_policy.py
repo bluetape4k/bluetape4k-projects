@@ -38,6 +38,16 @@ YAML_EXECUTION_GUARD = re.compile(
     r"'(?P<single>if|continue-on-error)'|"
     r"(?P<plain>if|continue-on-error)):\s*(?P<value>.*?)\s*$"
 )
+WORKFLOW_USES_TARGET = re.compile(
+    r"^\s*(?:-\s*)?(?:\{\s*)?"
+    r"(?:uses|\"uses\"|'uses'):\s+(?P<target>[^\s#},]+)",
+    re.MULTILINE,
+)
+REPOSITORY_ACTION_REF = re.compile(
+    r"(?P<action>[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+(?:/[A-Za-z0-9_.-]+)*)"
+    r"@(?P<ref>[^\s#]+)"
+)
+FULL_COMMIT_SHA = re.compile(r"^[0-9a-f]{40}$")
 SNAPSHOT_PUBLISH_JOB_IF = (
     "${{ needs.validate-full-nightly.outputs.publish_eligible == 'true' }}"
 )
@@ -389,8 +399,33 @@ def publication_validation_errors(
     return errors
 
 
+def workflow_action_refs(workflow: str) -> list[tuple[str, str]]:
+    refs = []
+    for uses_match in WORKFLOW_USES_TARGET.finditer(workflow):
+        action_match = REPOSITORY_ACTION_REF.fullmatch(uses_match.group("target"))
+        if action_match is not None:
+            refs.append((action_match.group("action"), action_match.group("ref")))
+    return refs
+
+
+def privileged_action_ref_errors(workflow: str) -> list[str]:
+    for uses_match in WORKFLOW_USES_TARGET.finditer(workflow):
+        target = uses_match.group("target")
+        if target.startswith("./"):
+            continue
+        action_match = REPOSITORY_ACTION_REF.fullmatch(target)
+        if (
+            action_match is None
+            or FULL_COMMIT_SHA.fullmatch(action_match.group("ref")) is None
+        ):
+            return [
+                "privileged publication action refs must use full commit SHAs"
+            ]
+    return []
+
+
 def release_policy_errors(workflow: str) -> list[str]:
-    errors = []
+    errors = privileged_action_ref_errors(workflow)
     release_runs = workflow_step_runs(
         workflow, "publish", "Publish to Central Portal"
     )
@@ -449,7 +484,7 @@ def release_policy_errors(workflow: str) -> list[str]:
 
 
 def snapshot_policy_errors(workflow: str) -> list[str]:
-    errors = []
+    errors = privileged_action_ref_errors(workflow)
     snapshot_runs = workflow_step_runs(workflow, "publish", "Publish SNAPSHOT")
     snapshot_command_valid = snapshot_runs == [(SNAPSHOT_PUBLICATION_RUN, False)]
     snapshot_task_count = publication_task_invocation_count(
@@ -497,7 +532,11 @@ def snapshot_policy_errors(workflow: str) -> list[str]:
         errors.append("snapshot workflow must not grant issue write permission globally")
     if "record-handoff:" not in workflow or "issues: write" not in workflow:
         errors.append("snapshot handoff job must request issue comment permission")
-    if "actions/upload-artifact@v7" not in workflow or "retention-days: 90" not in workflow:
+    action_refs = workflow_action_refs(workflow)
+    if (
+        not any(action == "actions/upload-artifact" for action, _ in action_refs)
+        or "retention-days: 90" not in workflow
+    ):
         errors.append("snapshot workflow must retain the immutable handoff artifact for 90 days")
     if "create_snapshot_handoff.py" not in workflow:
         errors.append("snapshot workflow must create a public metadata handoff receipt")
@@ -589,6 +628,51 @@ class ReleaseWorkflowPolicyTest(unittest.TestCase):
                         workflow, expected_job, expected_if
                     ),
                 )
+
+    def test_privileged_publication_workflows_reject_mutable_action_refs(self) -> None:
+        cases = (
+            ("release.yml", release_policy_errors),
+            ("publish-snapshot.yml", snapshot_policy_errors),
+        )
+
+        for workflow_name, checker in cases:
+            workflow = (WORKFLOWS / workflow_name).read_text(encoding="utf-8")
+            mutable_entries = (
+                "uses: actions/checkout@v7",
+                '"uses": actions/checkout@v7',
+                "'uses': actions/checkout@v7",
+                "{ uses: actions/checkout@v7 }",
+            )
+            for mutable_entry in mutable_entries:
+                with self.subTest(
+                    workflow=workflow_name,
+                    mutable_entry=mutable_entry,
+                ):
+                    mutated = re.sub(
+                        r"uses:\s+actions/checkout@[^\s#]+",
+                        mutable_entry,
+                        workflow,
+                        count=1,
+                    )
+
+                    self.assertIn(
+                        "privileged publication action refs must use full commit SHAs",
+                        checker(mutated),
+                    )
+
+    def test_privileged_publication_workflows_reject_unpinned_external_targets(self) -> None:
+        workflow = (WORKFLOWS / "release.yml").read_text(encoding="utf-8")
+        mutated = re.sub(
+            r"uses:\s+actions/checkout@[^\s#]+",
+            "uses: docker://alpine:3.22",
+            workflow,
+            count=1,
+        )
+
+        self.assertIn(
+            "privileged publication action refs must use full commit SHAs",
+            release_policy_errors(mutated),
+        )
 
     def test_publication_validation_rejects_required_task_outside_gradle_invocation(self) -> None:
         workflow = (WORKFLOWS / "release.yml").read_text(encoding="utf-8")
@@ -1187,7 +1271,10 @@ class ReleaseWorkflowPolicyTest(unittest.TestCase):
 
         self.assertIn("bluetape.snapshot-handoff/v1", workflow)
         self.assertIn("tenant-context-handoff-${", workflow)
-        self.assertIn("actions/upload-artifact@v7", workflow)
+        self.assertRegex(
+            workflow,
+            r"uses:\s+actions/upload-artifact@[0-9a-f]{40}\s+# v7",
+        )
         self.assertIn("retention-days: 90", workflow)
         self.assertIn("artifact-id", workflow)
         self.assertIn("artifact-digest", workflow)
