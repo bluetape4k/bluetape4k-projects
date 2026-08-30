@@ -1,18 +1,6 @@
 package io.bluetape4k.science.exposed.service
 
-import io.bluetape4k.logging.KLogging
-import io.bluetape4k.logging.debug
-import io.bluetape4k.logging.info
-import io.bluetape4k.science.exposed.AbstractPostgisTest
-import io.bluetape4k.science.exposed.NetCdfException
-import io.bluetape4k.science.exposed.model.NetCdfImportStatus
-import io.bluetape4k.science.exposed.repository.NetCdfFileRepository
-import io.bluetape4k.science.exposed.repository.NetCdfImportProgressRepository
-import io.bluetape4k.science.exposed.schema.NetCdfFileTable
-import io.bluetape4k.science.exposed.schema.NetCdfGridValueTable
-import io.bluetape4k.science.exposed.schema.NetCdfImportProgressTable
-import io.bluetape4k.science.exposed.service.support.NetCdfSampleWriter
-import io.micrometer.core.instrument.simple.SimpleMeterRegistry
+import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeFalse
 import io.bluetape4k.assertions.shouldBeGreaterThan
@@ -20,22 +8,44 @@ import io.bluetape4k.assertions.shouldBeNull
 import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.assertions.shouldNotBeEmpty
 import io.bluetape4k.assertions.shouldNotBeNull
+import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.debug
+import io.bluetape4k.logging.info
+import io.bluetape4k.science.exposed.AbstractPostgisTest
+import io.bluetape4k.science.exposed.NetCdfException
+import io.bluetape4k.science.exposed.model.NetCdfImportProgress
+import io.bluetape4k.science.exposed.model.NetCdfImportStatus
+import io.bluetape4k.science.exposed.repository.NetCdfFileRepository
+import io.bluetape4k.science.exposed.repository.NetCdfImportProgressRepository
+import io.bluetape4k.science.exposed.schema.NetCdfFileTable
+import io.bluetape4k.science.exposed.schema.NetCdfGridValueTable
+import io.bluetape4k.science.exposed.schema.NetCdfImportProgressTable
+import io.bluetape4k.science.exposed.service.support.NetCdfSampleWriter
+import io.micrometer.core.instrument.MeterRegistry
+import io.micrometer.core.instrument.simple.SimpleMeterRegistry
 import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.jdbc.deleteAll
 import org.jetbrains.exposed.v1.jdbc.deleteWhere
 import org.jetbrains.exposed.v1.jdbc.selectAll
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.Assumptions.assumeFalse
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Tag
 import org.junit.jupiter.api.Test
-import io.bluetape4k.assertions.assertFailsWith
 import org.junit.jupiter.api.io.TempDir
 import java.io.IOException
+import java.lang.reflect.Modifier
+import java.lang.reflect.Proxy
+import java.nio.file.Files
 import java.nio.file.Path
+import java.nio.file.StandardCopyOption
+import java.nio.file.attribute.PosixFilePermission
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
+import java.util.concurrent.TimeoutException
+import java.util.concurrent.atomic.AtomicInteger
 import java.util.concurrent.atomic.AtomicReference
 import kotlin.io.path.absolutePathString
 
@@ -109,6 +119,54 @@ class NetCdfCatalogServiceTest: AbstractPostgisTest() {
         val timer = meterRegistry.find("netcdf.register.duration").tag("status", "success").timer()
         timer.shouldNotBeNull()
         timer.count() shouldBeEqualTo 1L
+    }
+
+    // -------------------------------------------------------------------------
+    // findImportProgress
+    // -------------------------------------------------------------------------
+
+    @Test
+    fun `findImportProgress returns null before import`(@TempDir dir: Path) {
+        val path = NetCdfSampleWriter.writeSample(dir.resolve("progress-missing.nc"), rank = 2)
+        val fileId = service.registerFile(path.absolutePathString())
+
+        service.findImportProgress(fileId, "temperature").shouldBeNull()
+
+        val counter = meterRegistry.find("netcdf.import.progress.lookup")
+            .tag("status", "missing")
+            .counter()
+        counter.shouldNotBeNull()
+        counter.count() shouldBeEqualTo 1.0
+    }
+
+    @Test
+    fun `findImportProgress returns completed row without mutation`(@TempDir dir: Path) {
+        val path = NetCdfSampleWriter.writeSample(dir.resolve("progress-completed.nc"), rank = 2)
+        val fileId = service.registerFile(path.absolutePathString())
+        service.importGridValues(fileId, "temperature")
+        val before = transaction(db) {
+            progressRepo.findByFileAndVariable(fileId, "temperature")
+        }.shouldNotBeNull()
+
+        val found = service.findImportProgress(fileId, "temperature")
+
+        found shouldBeEqualTo before
+        val after = transaction(db) {
+            progressRepo.findByFileAndVariable(fileId, "temperature")
+        }
+        after shouldBeEqualTo before
+        val counter = meterRegistry.find("netcdf.import.progress.lookup")
+            .tag("status", "completed")
+            .counter()
+        counter.shouldNotBeNull()
+        counter.count() shouldBeEqualTo 1.0
+    }
+
+    @Test
+    fun `findImportProgress rejects blank variable name`() {
+        assertFailsWith<IllegalArgumentException> {
+            service.findImportProgress(1L, " ")
+        }
     }
 
     // -------------------------------------------------------------------------
@@ -386,6 +444,140 @@ class NetCdfCatalogServiceTest: AbstractPostgisTest() {
     // -------------------------------------------------------------------------
 
     @Test
+    fun `public three argument constructor remains available`() {
+        NetCdfCatalogService::class.java.getConstructor(
+            NetCdfFileRepository::class.java,
+            NetCdfImportProgressRepository::class.java,
+            MeterRegistry::class.java,
+        ).shouldNotBeNull()
+        NetCdfCatalogService::class.java.constructors
+            .filterNot { it.isSynthetic }
+            .map { it.parameterCount } shouldBeEqualTo listOf(3)
+        NetCdfCatalogService::class.java.declaredConstructors
+            .single { !it.isSynthetic && it.parameterCount == 4 }
+            .let { constructor ->
+                Modifier.isPrivate(constructor.modifiers).shouldBeTrue()
+                constructor.parameterTypes.last().simpleName shouldBeEqualTo "ImportCheckpoint"
+            }
+    }
+
+    @Test
+    fun `timeout before import admission leaves no progress and permits retry`(@TempDir dir: Path) {
+        val path = NetCdfSampleWriter.writeSample(dir.resolve("pre-admission-timeout.nc"), rank = 2)
+        val fileId = service.registerFile(path.absolutePathString())
+        val entered = CountDownLatch(1)
+        val releaseAdmission = CountDownLatch(1)
+        val workerThread = AtomicReference<Thread?>()
+        val executor = Executors.newSingleThreadExecutor { task ->
+            Thread(task, "netcdf-pre-admission-timeout")
+        }
+        val future = executor.submit {
+            workerThread.set(Thread.currentThread())
+            entered.countDown()
+            check(releaseAdmission.await(5, TimeUnit.SECONDS)) {
+                "pre-admission timeout test did not release the worker"
+            }
+            service.importGridValues(fileId, "temperature")
+        }
+
+        try {
+            entered.await(5, TimeUnit.SECONDS).shouldBeTrue()
+            assertFailsWith<TimeoutException> {
+                future.get(20, TimeUnit.MILLISECONDS)
+            }
+
+            future.cancel(true).shouldBeTrue()
+            executor.shutdownNow()
+            executor.awaitTermination(5, TimeUnit.SECONDS).shouldBeTrue()
+
+            service.findImportProgress(fileId, "temperature").shouldBeNull()
+            service.importGridValues(fileId, "temperature")
+            service.findImportProgress(fileId, "temperature")
+                .shouldNotBeNull()
+                .status shouldBeEqualTo NetCdfImportStatus.COMPLETED
+        } finally {
+            releaseAdmission.countDown()
+            future.cancel(true)
+            executor.shutdownNow()
+            executor.awaitTermination(5, TimeUnit.SECONDS).shouldBeTrue()
+            workerThread.get()?.isAlive.shouldBeFalse()
+        }
+    }
+
+    @Test
+    fun `post lease interruption rolls back and expired lease resumes`(@TempDir dir: Path) {
+        val path = NetCdfSampleWriter.writeSample(dir.resolve("post-lease-cancel.nc"), rank = 2)
+        val fileId = service.registerFile(path.absolutePathString())
+        val leaseTouched = CountDownLatch(1)
+        val releaseCheckpoint = CountDownLatch(1)
+        val checkpointCalls = AtomicInteger()
+        val workerFailure = AtomicReference<Throwable?>()
+        val workerThread = AtomicReference<Thread?>()
+        val cancellableService = newCatalogWithCheckpoint {
+            workerThread.set(Thread.currentThread())
+            checkpointCalls.incrementAndGet()
+            leaseTouched.countDown()
+            check(releaseCheckpoint.await(5, TimeUnit.SECONDS)) {
+                "post-lease cancellation test did not release the worker"
+            }
+        }
+        val executor = Executors.newSingleThreadExecutor { task ->
+            Thread(task, "netcdf-post-lease-cancel")
+        }
+        val future = executor.submit {
+            try {
+                cancellableService.importGridValues(fileId, "temperature")
+            } catch (failure: Throwable) {
+                workerFailure.set(failure)
+                throw failure
+            }
+        }
+
+        try {
+            leaseTouched.await(5, TimeUnit.SECONDS).shouldBeTrue()
+            val committedBeforeCancel = transaction(db) {
+                progressRepo.findByFileAndVariable(fileId, "temperature")
+            }.shouldNotBeNull()
+
+            future.cancel(true).shouldBeTrue()
+            executor.shutdownNow()
+            executor.awaitTermination(5, TimeUnit.SECONDS).shouldBeTrue()
+
+            assertCancelledImportState(fileId, committedBeforeCancel, workerFailure, checkpointCalls)
+
+            assertFailsWith<NetCdfException.ImportAlreadyRunning> {
+                service.importGridValues(fileId, "temperature")
+            }
+            forceExpireLease(fileId, "temperature")
+            service.importGridValues(fileId, "temperature")
+            service.findImportProgress(fileId, "temperature")
+                .shouldNotBeNull()
+                .status shouldBeEqualTo NetCdfImportStatus.COMPLETED
+        } finally {
+            releaseCheckpoint.countDown()
+            future.cancel(true)
+            executor.shutdownNow()
+            executor.awaitTermination(5, TimeUnit.SECONDS).shouldBeTrue()
+            workerThread.get()?.isAlive.shouldBeFalse()
+        }
+    }
+
+    @Test
+    fun `import checkpoint runs once for spatial preflight and never for rank one`(@TempDir dir: Path) {
+        val checkpointCalls = AtomicInteger()
+        val checkpointService = newCatalogWithCheckpoint { checkpointCalls.incrementAndGet() }
+        val rankOne = NetCdfSampleWriter.writeSample(dir.resolve("checkpoint-rank1.nc"), rank = 1)
+        val rankOneFileId = checkpointService.registerFile(rankOne.absolutePathString())
+        checkpointService.importGridValues(rankOneFileId, "temperature")
+        checkpointCalls.get() shouldBeEqualTo 0
+
+        val spatial = NetCdfSampleWriter.writeSample(dir.resolve("checkpoint-rank3.nc"), rank = 3)
+        val spatialFileId = checkpointService.registerFile(spatial.absolutePathString())
+        checkpointService.importGridValues(spatialFileId, "temperature")
+        checkpointCalls.get() shouldBeEqualTo 1
+    }
+
+    @Test
     fun `22 - importGridValues throws ImportAlreadyRunning on concurrent call`(@TempDir dir: Path) {
         val path = NetCdfSampleWriter.writeSample(dir.resolve("conc.nc"), rank = 2)
         val fileId = service.registerFile(path.absolutePathString())
@@ -490,6 +682,39 @@ class NetCdfCatalogServiceTest: AbstractPostgisTest() {
     // -------------------------------------------------------------------------
     // tx 독립성 / 비표준 dim order / 캐시 / upsert dedup (#24 ~ #28)
     // -------------------------------------------------------------------------
+
+    @Test
+    fun `registered file replacement is rejected before progress creation`(@TempDir dir: Path) {
+        val original = NetCdfSampleWriter.writeSample(dir.resolve("replace.nc"), rank = 2)
+        val fileId = service.registerFile(original.absolutePathString())
+        val replacement = NetCdfSampleWriter.writeSample(dir.resolve("replacement.nc"), rank = 3)
+        Files.move(
+            replacement,
+            original,
+            StandardCopyOption.ATOMIC_MOVE,
+            StandardCopyOption.REPLACE_EXISTING,
+        )
+
+        assertFailsWith<NetCdfException.FileChanged> {
+            service.importGridValues(fileId, "temperature")
+        }
+        service.findImportProgress(fileId, "temperature").shouldBeNull()
+    }
+
+    @Test
+    fun `registerFile rejects unreadable POSIX file`(@TempDir dir: Path) {
+        val path = NetCdfSampleWriter.writeSample(dir.resolve("unreadable.nc"), rank = 2)
+        val originalPermissions = Files.getPosixFilePermissions(path)
+        try {
+            Files.setPosixFilePermissions(path, setOf(PosixFilePermission.OWNER_WRITE))
+            assumeFalse(Files.isReadable(path), "POSIX unreadable-file test requires a non-root user")
+            assertFailsWith<NetCdfException.FileOpen> {
+                service.registerFile(path.absolutePathString())
+            }
+        } finally {
+            Files.setPosixFilePermissions(path, originalPermissions)
+        }
+    }
 
     @Test
     fun `24 - importGridValues commits per slice independently`(@TempDir dir: Path) {
@@ -726,8 +951,13 @@ class NetCdfCatalogServiceTest: AbstractPostgisTest() {
                                 java.lang.Double.doubleToLongBits(longitude) &&
                                 java.lang.Double.doubleToLongBits(it.latitude) ==
                                 java.lang.Double.doubleToLongBits(latitude)
-                        } ?: error("Unexpected spatial tuple: time=$timeIdx level=$levelIdx lon=$longitude lat=$latitude")
-                        add(fixtureTuple.copy(timeIdx = timeIdx, levelIdx = levelIdx, value = rs.getDouble(5)))
+                        } ?: error(
+                            "Unexpected spatial tuple: time=$timeIdx level=$levelIdx " +
+                                "lon=$longitude lat=$latitude",
+                        )
+                        add(
+                            fixtureTuple.copy(timeIdx = timeIdx, levelIdx = levelIdx, value = rs.getDouble(5)),
+                        )
                     }
                 }.sortedWith(compareBy({ it.timeIdx }, { it.levelIdx }, { it.row }, { it.column }))
             }
@@ -745,5 +975,43 @@ class NetCdfCatalogServiceTest: AbstractPostgisTest() {
                 ps.executeUpdate()
             }
         }
+    }
+
+    private fun newCatalogWithCheckpoint(
+        checkpoint: () -> Unit,
+    ): NetCdfCatalogService {
+        val constructor = NetCdfCatalogService::class.java.declaredConstructors
+            .single { !it.isSynthetic && it.parameterCount == 4 }
+        constructor.trySetAccessible().shouldBeTrue()
+        val checkpointType = constructor.parameterTypes.last()
+        val checkpointProxy = Proxy.newProxyInstance(
+            checkpointType.classLoader,
+            arrayOf(checkpointType),
+        ) { _, method, _ ->
+            if (method.name == "afterLeaseTouched") checkpoint()
+            null
+        }
+        return constructor.newInstance(fileRepo, progressRepo, meterRegistry, checkpointProxy)
+            as NetCdfCatalogService
+    }
+
+    private fun assertCancelledImportState(
+        fileId: Long,
+        committedBeforeCancel: NetCdfImportProgress,
+        workerFailure: AtomicReference<Throwable?>,
+        checkpointCalls: AtomicInteger,
+    ) {
+        (workerFailure.get() is InterruptedException).shouldBeTrue()
+        checkpointCalls.get() shouldBeEqualTo 1
+        val afterCancel = service.findImportProgress(fileId, "temperature").shouldNotBeNull()
+        afterCancel.status shouldBeEqualTo committedBeforeCancel.status
+        afterCancel.lastSliceIdx shouldBeEqualTo committedBeforeCancel.lastSliceIdx
+        afterCancel.leaseExpiresAt shouldBeEqualTo committedBeforeCancel.leaseExpiresAt
+        afterCancel.updatedAt shouldBeEqualTo committedBeforeCancel.updatedAt
+        transaction(db) {
+            NetCdfGridValueTable.selectAll()
+                .where { NetCdfGridValueTable.fileId eq fileId }
+                .count()
+        } shouldBeEqualTo 0L
     }
 }
