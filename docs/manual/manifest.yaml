@@ -1022,6 +1022,24 @@ modules:
   - ktor/resilience4j/src/test/kotlin
   - ktor/resilience4j/src/test/resources
   workshops: []
+- id: bluetape4k-ktor-tenant
+  title:
+    en: "Ktor Tenant Context Adapter"
+    ko: "Ktor Tenant Context 어댑터"
+  learningOrder: 850
+  gradlePath: ":bluetape4k-ktor-tenant"
+  sourceDir: ktor/tenant
+  kind: library
+  group: web
+  artifact: io.github.bluetape4k:bluetape4k-ktor-tenant
+  en: en/modules/bluetape4k-ktor-tenant.md
+  ko: ko/modules/bluetape4k-ktor-tenant.md
+  sourcePaths:
+  - ktor/tenant/src/main/kotlin
+  testPaths:
+  - ktor/tenant/src/test/kotlin
+  - ktor/tenant/src/test/resources
+  workshops: []
 - id: bluetape4k-ktor-testing
   title:
     en: "Ktor Test Support"
@@ -1775,6 +1793,42 @@ modules:
   testPaths:
   - utils/states/src/test/kotlin
   - utils/states/src/test/resources
+  workshops: []
+- id: bluetape4k-tenant
+  title:
+    en: "Tenant Context Core"
+    ko: "Tenant Context 공통 API"
+  learningOrder: 250
+  gradlePath: ":bluetape4k-tenant"
+  sourceDir: bluetape4k/tenant
+  kind: library
+  group: concurrency
+  artifact: io.github.bluetape4k:bluetape4k-tenant
+  en: en/modules/bluetape4k-tenant.md
+  ko: ko/modules/bluetape4k-tenant.md
+  sourcePaths:
+  - bluetape4k/tenant/src/main/kotlin
+  testPaths:
+  - bluetape4k/tenant/src/test/kotlin
+  - bluetape4k/tenant/src/test/resources
+  workshops: []
+- id: bluetape4k-tenant-reactor
+  title:
+    en: "Reactor Tenant Context Adapter"
+    ko: "Reactor Tenant Context 어댑터"
+  learningOrder: 260
+  gradlePath: ":bluetape4k-tenant-reactor"
+  sourceDir: bluetape4k/tenant-reactor
+  kind: library
+  group: concurrency
+  artifact: io.github.bluetape4k:bluetape4k-tenant-reactor
+  en: en/modules/bluetape4k-tenant-reactor.md
+  ko: ko/modules/bluetape4k-tenant-reactor.md
+  sourcePaths:
+  - bluetape4k/tenant-reactor/src/main/kotlin
+  testPaths:
+  - bluetape4k/tenant-reactor/src/test/kotlin
+  - bluetape4k/tenant-reactor/src/test/resources
   workshops: []
 - id: bluetape4k-testcontainers
   title:
