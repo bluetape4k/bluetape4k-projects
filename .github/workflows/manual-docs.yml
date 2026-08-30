@@ -7,18 +7,14 @@ on:
   pull_request:
     branches: [develop, main]
     paths:
-      - 'docs/manual/**'
       - 'docs/process/module-documentation-checklist.md'
-      - 'scripts/manual/**'
       - 'build.gradle.kts'
       - 'settings.gradle.kts'
       - '.github/workflows/manual-docs.yml'
   push:
     branches: [develop, main]
     paths:
-      - 'docs/manual/**'
       - 'docs/process/module-documentation-checklist.md'
-      - 'scripts/manual/**'
       - 'build.gradle.kts'
       - 'settings.gradle.kts'
       - '.github/workflows/manual-docs.yml'
@@ -37,6 +33,14 @@ jobs:
       - uses: actions/checkout@v7
         with:
           fetch-depth: 0
+
+      - name: Checkout central manual site
+        uses: actions/checkout@v7
+        with:
+          repository: bluetape4k/bluetape4k.github.io
+          ref: develop
+          path: .manual-site
+          fetch-depth: 1
 
       - uses: actions/setup-java@v6.0.0
         with:
@@ -57,17 +61,37 @@ jobs:
 
       - name: Test manual contracts
         run: |
-          ruby scripts/manual/generate_manuals_test.rb
-          ruby scripts/manual/export_manifest_test.rb
-          ruby scripts/manual/release_contract_test.rb
-          ruby scripts/manual/sync_navigation_metadata_test.rb
-          ruby scripts/manual/validate_manuals_test.rb
+          TOOL_ROOT="$GITHUB_WORKSPACE/.manual-site/scripts/manual/repositories/bluetape4k-projects"
+          MANUAL_ROOT="$GITHUB_WORKSPACE/.manual-site/docs/manual/bluetape4k-projects"
+          ruby -I "$TOOL_ROOT" "$TOOL_ROOT/generate_manuals_test.rb"
+          ruby -I "$TOOL_ROOT" "$TOOL_ROOT/export_manifest_test.rb"
+          BLUETAPE4K_PROJECTS_MANUAL_WORKFLOW="$GITHUB_WORKSPACE/.github/workflows/manual-docs.yml" \
+            ruby -I "$TOOL_ROOT" "$TOOL_ROOT/release_contract_test.rb"
+          ruby -I "$TOOL_ROOT" "$TOOL_ROOT/sync_navigation_metadata_test.rb"
+          BLUETAPE4K_PROJECTS_ROOT="$GITHUB_WORKSPACE" \
+          BLUETAPE4K_PROJECTS_MANUAL_ROOT="$MANUAL_ROOT" \
+            ruby -I "$TOOL_ROOT" "$TOOL_ROOT/validate_manuals_test.rb"
 
       - name: Validate manual source
         run: |
-          ruby scripts/manual/validate_manuals.rb
-          ruby scripts/manual/sync_navigation_metadata.rb --check
-          ruby scripts/manual/export_manifest.rb --check
+          TOOL_ROOT="$GITHUB_WORKSPACE/.manual-site/scripts/manual/repositories/bluetape4k-projects"
+          MANUAL_ROOT="$GITHUB_WORKSPACE/.manual-site/docs/manual/bluetape4k-projects"
+          ruby "$TOOL_ROOT/validate_manuals.rb" \
+            --code-root "$GITHUB_WORKSPACE" \
+            --manual-root "$MANUAL_ROOT" \
+            --inventory "$GITHUB_WORKSPACE/build/manual/module-inventory.json" \
+            --manifest "$MANUAL_ROOT/manifest.yaml"
+          ruby "$TOOL_ROOT/sync_navigation_metadata.rb" --check --manifest "$MANUAL_ROOT/manifest.yaml"
+          ruby "$TOOL_ROOT/export_manifest.rb" --check "$MANUAL_ROOT/manifest.yaml" "$MANUAL_ROOT/generated/manifest.json"
 
       - name: Validate manifest release provenance
-        run: ruby scripts/manual/validate_release_manuals.rb --manifest docs/manual/manifest.yaml
+        run: |
+          TOOL_ROOT="$GITHUB_WORKSPACE/.manual-site/scripts/manual/repositories/bluetape4k-projects"
+          MANUAL_ROOT="$GITHUB_WORKSPACE/.manual-site/docs/manual/bluetape4k-projects"
+          ruby "$TOOL_ROOT/validate_release_manuals.rb" \
+            --code-root "$GITHUB_WORKSPACE" \
+            --manual-root "$MANUAL_ROOT" \
+            --manifest "$MANUAL_ROOT/manifest.yaml" \
+            --inventory "$GITHUB_WORKSPACE/build/manual/module-inventory.json" \
+            --tag 1.12.1 \
+            --sha 7cf0b73646af05c0f8872cc4f6a16983949c4e3e

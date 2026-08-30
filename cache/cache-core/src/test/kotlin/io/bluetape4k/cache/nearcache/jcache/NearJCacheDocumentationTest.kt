@@ -7,6 +7,7 @@ import io.bluetape4k.cache.nearcache.jcache.management.NearJCacheConfigurationMX
 import io.bluetape4k.cache.nearcache.jcache.management.NearJCacheTierStatisticsMXBean
 import io.bluetape4k.cache.nearcache.jcache.management.registerMBeans
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.Assumptions.assumeTrue
 import java.nio.file.Files
 import java.nio.file.Path
 import java.util.UUID
@@ -301,7 +302,13 @@ class NearJCacheDocumentationTest {
         }
     }
 
-    private fun read(relativePath: String): String = Files.readString(repositoryRoot.resolve(relativePath))
+    private fun read(relativePath: String): String {
+        if (relativePath.startsWith("docs/manual/")) {
+            assumeTrue(Files.isDirectory(manualRoot), "central manual checkout is not available")
+            return Files.readString(manualRoot.resolve(relativePath.removePrefix("docs/manual/")))
+        }
+        return Files.readString(repositoryRoot.resolve(relativePath))
+    }
 
     private fun markedSection(document: String): String {
         val start = document.indexOf(START_MARKER)
@@ -489,6 +496,9 @@ class NearJCacheDocumentationTest {
         private val repositoryRoot: Path by lazy {
             generateSequence(Path.of("").toAbsolutePath()) { it.parent }
                 .first { Files.exists(it.resolve("settings.gradle.kts")) }
+        }
+        private val manualRoot: Path by lazy {
+            Path.of(System.getenv("BLUETAPE4K_MANUAL_ROOT") ?: repositoryRoot.resolve("docs/manual").toString())
         }
     }
 }

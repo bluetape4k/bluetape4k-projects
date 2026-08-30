@@ -55,10 +55,20 @@ metadata를 같은 변경에서 동기화하는 것이다.
 
 ### Manual Publication Contract
 
-- Authoring source가 implementation과 같은 변경에서 review 가능하도록 `docs/manual` repository
-  link는 relative로 유지한다.
-- Release contract validator를 실행해 모든 relative source와 test target이 문서화된 release
-  commit에 존재함을 증명한다.
+- Authoring source와 tooling은 implementation repository가 아니라 중앙 문서 사이트에서 관리한다.
+  이 repository에서는 `docs/manual`과 `scripts/manual`을 새로 만들거나 복원하지 않는다.
+  중앙 원본은 `bluetape4k/bluetape4k.github.io`의
+  `docs/manual/bluetape4k-projects`이고, 도구는
+  `scripts/manual/repositories/bluetape4k-projects`이다.
+- 소스 repository의 manual workflow는 중앙 사이트를 `.manual-site`에 checkout한 뒤
+  `SITE_ROOT`, `MANUAL_ROOT`, `TOOL_ROOT`, `MANIFEST`를 명시해 검증한다. 로컬 검증도 같은
+  변수와 중앙 경로를 사용한다.
+- Release 전에는 중앙 manifest의 `publication.contentStatus`를 `in-progress`로 유지하고,
+  미래 tag/commit을 기록하지 않는다. 안정 tag와 공개 artifact를 검증한 뒤에만 정확한
+  `releaseRef`/`releaseCommit`, generated manifest, validator/build 결과를 갱신한다.
+- Release contract validator를 실행해 안정 release에 포함되는 source와 test target이 문서화된
+  release commit에 존재함을 증명한다. 아직 `in-progress`인 중앙 초안의 미래 module은 별도
+  release 세션에서 안정 tag 기준으로 정리한 뒤 검증한다.
 - Validator는 해당 release에 `sourceDir`이 없는 manifest module에서 release source가 없는
   기준 데이터 전용 매뉴얼을
   도출한다. Release tree에 존재하는 module에 대해 manual skip list를 추가하거나 link check를
@@ -76,9 +86,14 @@ metadata를 같은 변경에서 동기화하는 것이다.
 ```bash
 ./gradlew projects --no-configuration-cache
 ./gradlew exportManualModuleInventory --no-configuration-cache
-ruby scripts/manual/validate_manuals.rb
-ruby scripts/manual/export_manifest.rb --check
-ruby scripts/manual/validate_release_manuals.rb --manifest docs/manual/manifest.yaml
+SITE_ROOT=/path/to/bluetape4k.github.io
+MANUAL_ROOT="$SITE_ROOT/docs/manual/bluetape4k-projects"
+TOOL_ROOT="$SITE_ROOT/scripts/manual/repositories/bluetape4k-projects"
+MANIFEST="$MANUAL_ROOT/manifest.yaml"
+ruby "$TOOL_ROOT/validate_manuals.rb" --code-root "$SITE_ROOT" --manual-root "$MANUAL_ROOT"
+ruby "$TOOL_ROOT/export_manifest.rb" --root "$SITE_ROOT" --manual-root "$MANUAL_ROOT" --check
+ruby "$TOOL_ROOT/validate_release_manuals.rb" --code-root "$SITE_ROOT" \
+  --manual-root "$MANUAL_ROOT" --manifest "$MANIFEST"
 git diff --check
 rg -n "<old-module-name>|<old-artifact-name>|<old-path>"
 rg -n "<new-module-name>|<new-artifact-name>" README.md README.ko.md AGENTS.md
@@ -107,6 +122,7 @@ test -d <module-directory>
 - Automatic aggregation이 cover하더라도 BOM/catalog impact를 기록한다.
 - Generated consumer example은 `bluetape4k-dependencies`를 사용하고, published source link는
   `develop`이 아니라 문서화된 release로 resolve된다.
+- 중앙 manifest가 release tag와 artifact 검증 전에 미래 tag/commit을 기록하지 않는다.
 - Stale old module name은 없거나 historical로 명시되어 있다.
 
 ## 일반적인 Skip 사유
