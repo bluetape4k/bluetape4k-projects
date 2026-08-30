@@ -10,6 +10,7 @@ from pathlib import Path
 from unittest.mock import patch
 
 SCRIPT = Path(__file__).with_name("collect-testcontainers-diagnostics.py")
+REPO_ROOT = Path(__file__).resolve().parents[2]
 SPEC = importlib.util.spec_from_file_location("collect_testcontainers_diagnostics", SCRIPT)
 assert SPEC and SPEC.loader
 diagnostics = importlib.util.module_from_spec(SPEC)
@@ -121,9 +122,31 @@ IllegalStateException: exception-secret
         self.assertEqual(stderr, "")
         manifest = json.loads((output_dir / "manifest.json").read_text(encoding="utf-8"))
         self.assertEqual(manifest["containers"], [])
+        self.assertEqual(manifest["diagnostic_status"], "container_not_observed")
+        self.assertEqual(manifest["task_exit_code"], 0)
         self.assertEqual(manifest["workflow_action_refs"], [
             "actions/checkout@0123456789abcdef0123456789abcdef01234567"
         ])
+
+    def test_failed_task_without_container_is_fail_closed(self):
+        output_dir = self.root / "diagnostics" / "failed-empty"
+
+        result, stderr = self.run_main(
+            "--task-name",
+            "failed-empty-task",
+            "--task-exit-code",
+            "1",
+            "--output-dir",
+            output_dir,
+            "--workflow-file",
+            self.workflow,
+        )
+
+        self.assertEqual(result, 1)
+        self.assertEqual(stderr, "")
+        manifest = json.loads((output_dir / "manifest.json").read_text(encoding="utf-8"))
+        self.assertEqual(manifest["diagnostic_status"], "container_not_observed")
+        self.assertEqual(manifest["task_exit_code"], 1)
 
     def test_allowlisted_container_writes_sanitized_log_and_digest(self):
         output_dir = self.root / "diagnostics" / "kafka"
@@ -165,6 +188,7 @@ IllegalStateException: exception-secret
         self.assertEqual(result, 0)
         self.assertEqual(stderr, "")
         manifest = json.loads((output_dir / "manifest.json").read_text(encoding="utf-8"))
+        self.assertEqual(manifest["diagnostic_status"], "diagnostic_collection_succeeded")
         self.assertEqual(manifest["containers"][0]["image_digest"], image_digest)
         log = (output_dir / f"{CONTAINER_ID}.log").read_text(encoding="utf-8")
         self.assertNotIn("secret", log)
@@ -340,6 +364,93 @@ IllegalStateException: exception-secret
         self.assertIn("log-failure-task", stderr)
         self.assertNotIn("private-docker-error", stderr)
         self.assertNotIn("secret", stderr)
+        manifest = json.loads((output_dir / "manifest.json").read_text(encoding="utf-8"))
+        self.assertEqual(manifest["diagnostic_status"], "diagnostic_collection_failed")
+
+    def test_archived_container_log_is_sanitized_after_testcontainers_cleanup(self):
+        output_dir = self.root / "diagnostics" / "archived-kafka"
+        raw_dir = self.root / "examples" / "coroutines-demo" / "build" / "testcontainers-raw"
+        raw_dir.mkdir(parents=True)
+        raw_log = raw_dir / f"{CONTAINER_ID}.log"
+        raw_log.write_text("token=secret\nKafkaServer started\n", encoding="utf-8")
+        image_digest = next(
+            digest for digest in diagnostics.ALLOWLIST if digest.startswith("confluentinc/cp-kafka@")
+        )
+        metadata = raw_dir / f"{CONTAINER_ID}.metadata"
+        metadata.write_text(
+            "\n".join(
+                (
+                    f"id={CONTAINER_ID}",
+                    "name=callback-flow-kafka",
+                    f"image={image_digest}",
+                    "image_id=sha256:" + "b" * 64,
+                    f"image_digest={image_digest}",
+                    "created=2026-08-30T00:00:00Z",
+                )
+            ) + "\n",
+            encoding="utf-8",
+        )
+
+        result, stderr = self.run_main(
+            "--task-name",
+            "archived-kafka-task",
+            "--task-exit-code",
+            "1",
+            "--output-dir",
+            output_dir,
+            "--workflow-file",
+            self.workflow,
+            "--archived-container-metadata",
+            metadata,
+        )
+
+        self.assertEqual(result, 0)
+        self.assertEqual(stderr, "")
+        manifest = json.loads((output_dir / "manifest.json").read_text(encoding="utf-8"))
+        self.assertEqual(manifest["diagnostic_status"], "diagnostic_collection_succeeded")
+        self.assertEqual(manifest["task_exit_code"], 1)
+        self.assertEqual(manifest["containers"][0]["id"], CONTAINER_ID)
+        self.assertEqual(manifest["containers"][0]["name"], "callback-flow-kafka")
+        self.assertEqual(manifest["containers"][0]["image_id"], "sha256:" + "b" * 64)
+        self.assertEqual(manifest["containers"][0]["created"], "2026-08-30T00:00:00Z")
+        self.assertEqual(manifest["containers"][0]["image_digest"], image_digest)
+        self.assertEqual(manifest["containers"][0]["source"], "pre_cleanup_log")
+        sanitized = (output_dir / f"{CONTAINER_ID}.log").read_text(encoding="utf-8")
+        self.assertNotIn("secret", sanitized)
+        self.assertIn("KafkaServer started", sanitized)
+
+    def test_archived_metadata_without_committed_log_is_fail_closed(self):
+        output_dir = self.root / "diagnostics" / "missing-archived-log"
+        raw_dir = self.root / "examples" / "coroutines-demo" / "build" / "testcontainers-raw"
+        raw_dir.mkdir(parents=True)
+        image_digest = next(
+            digest for digest in diagnostics.ALLOWLIST if digest.startswith("confluentinc/cp-kafka@")
+        )
+        metadata = raw_dir / f"{CONTAINER_ID}.metadata"
+        metadata.write_text(
+            f"id={CONTAINER_ID}\nname=kafka\nimage={image_digest}\n"
+            f"image_id=sha256:{'b' * 64}\nimage_digest={image_digest}\n"
+            "created=2026-08-30T00:00:00Z\n",
+            encoding="utf-8",
+        )
+
+        result, stderr = self.run_main(
+            "--task-name",
+            "missing-archived-log-task",
+            "--task-exit-code",
+            "1",
+            "--output-dir",
+            output_dir,
+            "--workflow-file",
+            self.workflow,
+            "--archived-container-metadata",
+            metadata,
+        )
+
+        self.assertEqual(result, 1)
+        self.assertIn("missing-archived-log-task", stderr)
+        manifest = json.loads((output_dir / "manifest.json").read_text(encoding="utf-8"))
+        self.assertEqual(manifest["diagnostic_status"], "diagnostic_collection_failed")
 
     def test_docker_log_truncation_is_preserved_in_manifest(self):
         output_dir = self.root / "diagnostics" / "log-truncated"
@@ -663,6 +774,21 @@ steps:
 
         self.assertEqual(result, 1)
         self.assertIn("mutable-task", stderr)
+
+
+class ExamplesWorkflowDiagnosticsContractTest(unittest.TestCase):
+    def test_callback_flow_task_exports_and_collects_pre_cleanup_logs(self):
+        workflow = (REPO_ROOT / ".github" / "workflows" / "examples.yml").read_text(encoding="utf-8")
+
+        self.assertIn(
+            'raw_diagnostics_dir="$GITHUB_WORKSPACE/examples/coroutines-demo/build/testcontainers-raw"',
+            workflow,
+        )
+        self.assertIn("-Dbluetape4k.testcontainers.diagnostics.dir=", workflow)
+        self.assertIn('--task-exit-code "$task_exit_code"', workflow)
+        self.assertIn('--archived-container-metadata "$archived_metadata"', workflow)
+        self.assertIn('find "$task_output_dir" -mindepth 1 -maxdepth 1 -delete || status=1', workflow)
+        self.assertIn('rm -f "$archived_metadata" "${archived_metadata%.metadata}.log"', workflow)
 
 
 if __name__ == "__main__":

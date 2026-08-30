@@ -164,7 +164,23 @@ jobs:
               --filter label=org.testcontainers=true \
               --filter label=org.testcontainers.sessionId \
               | sort -u >"$before_ids_file" || status=1
-            ./gradlew "$task" --max-workers=1 || status=1
+            task_exit_code=0
+            raw_diagnostics_dir="$GITHUB_WORKSPACE/examples/coroutines-demo/build/testcontainers-raw"
+            raw_diagnostics_ready=false
+            if [[ "$task" == ':bluetape4k-examples-coroutines-demo:test' ]]; then
+              if mkdir -p "$raw_diagnostics_dir" && \
+                find "$raw_diagnostics_dir" -maxdepth 1 -type f -delete; then
+                raw_diagnostics_ready=true
+                ./gradlew "$task" \
+                  "-Dbluetape4k.testcontainers.diagnostics.dir=$raw_diagnostics_dir" \
+                  --max-workers=1 || task_exit_code=$?
+              else
+                task_exit_code=1
+              fi
+            else
+              ./gradlew "$task" --max-workers=1 || task_exit_code=$?
+            fi
+            (( task_exit_code == 0 )) || status=1
             docker ps -aq \
               --filter label=org.testcontainers=true \
               --filter label=org.testcontainers.sessionId \
@@ -174,14 +190,33 @@ jobs:
             while IFS= read -r container_id; do
               [[ -n "$container_id" ]] && container_args+=(--container-id "$container_id")
             done <<<"$new_ids"
+            archived_metadata_files=()
+            archived_args=()
+            if [[ "$raw_diagnostics_ready" == true ]]; then
+              shopt -s nullglob
+              archived_metadata_files=( "$raw_diagnostics_dir"/*.metadata )
+              shopt -u nullglob
+              for archived_metadata in "${archived_metadata_files[@]}"; do
+                archived_args+=(--archived-container-metadata "$archived_metadata")
+              done
+            fi
             task_output_dir="examples/build/testcontainers-diagnostics/${task//:/_}"
+            mkdir -p "$task_output_dir" || status=1
+            find "$task_output_dir" -mindepth 1 -maxdepth 1 -delete || status=1
             python3 .github/scripts/collect-testcontainers-diagnostics.py \
               --task-name "$task" \
+              --task-exit-code "$task_exit_code" \
               --output-dir "$task_output_dir" \
               --workflow-file .github/workflows/examples.yml \
               --max-total-bytes 2000000 \
-              "${container_args[@]}" || status=1
+              "${container_args[@]}" \
+              "${archived_args[@]}" || status=1
             test -f "$task_output_dir/manifest.json" || status=1
+            for archived_metadata in "${archived_metadata_files[@]}"; do
+              rm -f "$archived_metadata" "${archived_metadata%.metadata}.log" || status=1
+            done
+            [[ "$task" != ':bluetape4k-examples-coroutines-demo:test' ]] || \
+              find "$raw_diagnostics_dir" -maxdepth 1 -type f -delete || status=1
             rm -f "$before_ids_file" "$after_ids_file"
           done
 
