@@ -28,6 +28,12 @@ bean exists and both `ReactiveMongoDatabaseFactory` and `MongoConverter` are
 available. The whole library auto-configuration, including its legacy-property
 guard, backs off when an operations bean already exists.
 
+`ReactiveMongoAutoConfiguration` is a framework-managed implementation class,
+not an application-facing API for direct construction. Its public no-arg
+constructor remains available for framework and binary compatibility, while
+Spring injects the `Environment` through its lifecycle callback. The URI guard
+constants are internal implementation details and are not public fields.
+
 ### Migration from `spring.data.mongodb.uri`
 
 | Before | After |

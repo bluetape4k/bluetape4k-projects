@@ -4,6 +4,7 @@ import org.springframework.boot.autoconfigure.AutoConfiguration
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.context.annotation.Bean
+import org.springframework.context.EnvironmentAware
 import org.springframework.core.env.Environment
 import org.springframework.data.mongodb.ReactiveMongoDatabaseFactory
 import org.springframework.data.mongodb.core.ReactiveMongoOperations
@@ -22,6 +23,9 @@ import org.springframework.data.mongodb.core.convert.MongoConverter
  *   library fallback이 참여할 때 legacy-only `spring.data.mongodb.uri`는 조용한 localhost
  *   fallback을 막기 위해 fail-fast합니다. 사용자 또는 Spring Boot가 제공한
  *   `ReactiveMongoOperations` Bean이 있으면 이 검사도 함께 backoff합니다.
+ * - Spring framework가 public no-arg 생성자로 인스턴스를 만들고 [setEnvironment]로
+ *   환경을 주입합니다. no-arg 생성자는 framework 및 binary compatibility를 위해
+ *   유지하며, 애플리케이션에서 이 자동 구성 클래스를 직접 생성하는 방식은 지원하지 않습니다.
  *
  * ```yaml
  * spring:
@@ -36,11 +40,9 @@ import org.springframework.data.mongodb.core.convert.MongoConverter
 )
 @ConditionalOnClass(ReactiveMongoOperations::class)
 @ConditionalOnMissingBean(ReactiveMongoOperations::class)
-class ReactiveMongoAutoConfiguration(
-    environment: Environment,
-) {
+class ReactiveMongoAutoConfiguration : EnvironmentAware {
 
-    init {
+    override fun setEnvironment(environment: Environment) {
         if (environment.containsProperty(LEGACY_URI_PROPERTY) &&
             !environment.containsProperty(CURRENT_URI_PROPERTY)
         ) {
@@ -49,9 +51,9 @@ class ReactiveMongoAutoConfiguration(
     }
 
     private companion object {
-        const val CURRENT_URI_PROPERTY = "spring.mongodb.uri"
-        const val LEGACY_URI_PROPERTY = "spring.data.mongodb.uri"
-        const val LEGACY_URI_MESSAGE =
+        private const val CURRENT_URI_PROPERTY = "spring.mongodb.uri"
+        private const val LEGACY_URI_PROPERTY = "spring.data.mongodb.uri"
+        private const val LEGACY_URI_MESSAGE =
             "Unsupported legacy MongoDB property 'spring.data.mongodb.uri'; use 'spring.mongodb.uri' on Spring Boot 4.1+"
     }
 

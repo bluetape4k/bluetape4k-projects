@@ -27,6 +27,11 @@ Boot가 이미 제공한 `ReactiveMongoOperations` Bean이 항상 우선하며, 
 `ReactiveMongoTemplate`을 생성합니다. operations Bean이 이미 있으면 legacy property
 검사까지 포함한 library auto-configuration 전체가 backoff합니다.
 
+`ReactiveMongoAutoConfiguration`은 Spring framework가 관리하는 구현 클래스이며,
+애플리케이션이 직접 생성하는 public API가 아닙니다. framework 및 binary compatibility를
+위해 public no-arg 생성자를 유지하고, Spring lifecycle callback으로 `Environment`를
+주입합니다. URI 검사 상수는 내부 구현에 속하며 public field로 노출하지 않습니다.
+
 ### `spring.data.mongodb.uri`에서 마이그레이션
 
 | 이전 설정 | 현재 설정 |

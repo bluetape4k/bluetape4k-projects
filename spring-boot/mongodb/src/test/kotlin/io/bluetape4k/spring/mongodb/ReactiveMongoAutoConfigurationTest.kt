@@ -33,6 +33,20 @@ class ReactiveMongoAutoConfigurationTest {
         .withConfiguration(AutoConfigurations.of(ReactiveMongoAutoConfiguration::class.java))
 
     @Test
+    fun `auto configuration은 public no-arg 생성자 ABI를 유지한다`() {
+        ReactiveMongoAutoConfiguration::class.java.constructors
+            .map { it.parameterCount }
+            .shouldBeEqualTo(listOf(0))
+    }
+
+    @Test
+    fun `auto configuration은 public static field를 노출하지 않는다`() {
+        ReactiveMongoAutoConfiguration::class.java.fields
+            .filter { java.lang.reflect.Modifier.isStatic(it.modifiers) }
+            .shouldBeEmpty()
+    }
+
+    @Test
     fun `ReactiveMongoOperations class가 없으면 auto configuration이 비활성화된다`() {
         autoConfigurationRunner
             .withClassLoader(FilteredClassLoader(ReactiveMongoOperations::class.java))
