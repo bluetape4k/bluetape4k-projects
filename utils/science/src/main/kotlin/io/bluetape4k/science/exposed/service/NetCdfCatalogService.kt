@@ -35,6 +35,7 @@ import io.bluetape4k.science.exposed.service.internal.UcarCoordinateReader
 import io.bluetape4k.science.exposed.service.internal.VariableAxisMap
 import io.bluetape4k.science.exposed.service.internal.checkedProduct
 import io.bluetape4k.science.exposed.service.internal.serializeAuxiliaryAttributes
+import io.bluetape4k.support.requireNotBlank
 import io.micrometer.core.instrument.MeterRegistry
 import io.micrometer.core.instrument.Timer
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
@@ -54,18 +55,44 @@ import java.util.ArrayDeque
 import java.util.concurrent.CancellationException
 import kotlin.math.abs
 
+private fun interface ImportCheckpoint {
+
+    @Throws(InterruptedException::class)
+    fun afterLeaseTouched()
+
+    companion object {
+        val NONE: ImportCheckpoint = ImportCheckpoint {}
+    }
+}
+
 /**
  * NetCDF 파일 등록과 bounded 격자 값 임포트를 담당하는 blocking 서비스입니다.
  *
- * 파일 identity를 등록·재개 시점에 확인하고, CF 1D/2D 좌표축을 tile 단위로
- * 읽습니다. 좌표와 값은 두 번 순회하여 한 slice의 duplicate를 먼저 검증한
- * 뒤에만 JDBC batch를 실행합니다.
+ * [registerFile]은 import worker의 deadline 밖에서 먼저 완료해야 합니다. [importGridValues]의
+ * timeout은 cooperative cancellation이므로 worker 종료를 확인하기 전에는 재시도하면 안 됩니다.
+ * 파일 identity를 등록·재개 시점에 확인하고, CF 1D/2D 좌표축을 tile 단위로 읽습니다.
+ * identity fingerprint는 `fileKey|size|lastModifiedTime` 휴리스틱이며 content hash가 아닙니다.
+ * 동일 metadata를 보존한 변경이나 hostile writer와의 TOCTOU를 탐지한다고 보장하지 않습니다.
+ * 좌표와 값은 두 번 순회하여 한 slice의 duplicate를 먼저 검증한 뒤에만 JDBC batch를 실행합니다.
+ *
+ * 이 서비스의 local-file guard는 authentication, authorization, tenant/job binding 또는
+ * allowed-root 정책을 대신하지 않습니다. caller는 register/import/progress/retry마다 권한을
+ * 다시 확인하고, 승인된 immutable/quarantine 경로만 전달해야 합니다. `fileId`는 권한 토큰이
+ * 아니며 progress의 lease 만료 여부는 caller의 local clock으로 판정하지 않습니다. progress를
+ * 외부에 반환할 때는 caller-owned DTO의 allowlist로 상태와 cursor만 복사해야 합니다.
  */
-class NetCdfCatalogService(
+class NetCdfCatalogService private constructor(
     private val fileRepo: NetCdfFileRepository,
     private val progressRepo: NetCdfImportProgressRepository,
-    private val meterRegistry: MeterRegistry? = null,
+    private val meterRegistry: MeterRegistry?,
+    private val importCheckpoint: ImportCheckpoint,
 ) {
+
+    constructor(
+        fileRepo: NetCdfFileRepository,
+        progressRepo: NetCdfImportProgressRepository,
+        meterRegistry: MeterRegistry? = null,
+    ): this(fileRepo, progressRepo, meterRegistry, ImportCheckpoint.NONE)
 
     companion object: KLogging() {
         /** heartbeat lease TTL — 5분 */
@@ -82,7 +109,14 @@ class NetCdfCatalogService(
         private const val FILL_VALUE_TOLERANCE: Double = 1e-7
     }
 
-    /** NetCDF 파일을 bounded metadata와 identity fingerprint와 함께 등록합니다. */
+    /**
+     * NetCDF 파일을 bounded metadata와 identity fingerprint와 함께 등록합니다.
+     *
+     * blocking 호출이며 import task를 제출하기 전에 완료해 `fileId`를 보존해야 합니다. 경로가
+     * local regular file인지와 identity가 안정적인지는 검증하지만, caller-owned allowed-root,
+     * authentication, authorization, tenant 정책은 검증하지 않습니다.
+     * fingerprint는 content integrity 증명이 아니므로 immutable/quarantine source가 별도로 필요합니다.
+     */
     fun registerFile(filePath: String): Long {
         val sample = meterRegistry?.let { Timer.start(it) }
         var success = false
@@ -112,7 +146,44 @@ class NetCdfCatalogService(
         }
     }
 
-    /** 등록된 변수의 값을 slice/tile 단위로 임포트합니다. */
+    /**
+     * `(fileId, variableName)`에 대응하는 임포트 진행 상태를 조회합니다.
+     *
+     * 조회는 lease나 진행 상태를 변경하지 않습니다. [fileId]는 권한 토큰이 아니므로 caller는
+     * 호출 전에 파일 소유권과 tenant/job binding을 다시 검증해야 합니다. 반환 모델은 내부
+     * 운영 정보이므로 HTTP/RPC 응답에서는 허용한 상태와 cursor만 담은 DTO로 변환해야 합니다.
+     * `leaseExpiresAt`과 caller의 local clock만으로 retry 가능 여부를 판정하지 말고, DB가 반환한
+     * [NetCdfException.ImportAlreadyRunning]과 worker 종료 상태를 함께 사용해야 합니다.
+     *
+     * @return 진행 row가 없으면 `null`
+     * @throws IllegalArgumentException [variableName]이 blank인 경우
+     */
+    fun findImportProgress(fileId: Long, variableName: String): NetCdfImportProgress? {
+        variableName.requireNotBlank("variableName")
+        val progress = transaction { progressRepo.findByFileAndVariable(fileId, variableName) }
+        val metricStatus = when (progress?.status) {
+            null -> "missing"
+            NetCdfImportStatus.PENDING -> "pending"
+            NetCdfImportStatus.IN_PROGRESS -> "in-progress"
+            NetCdfImportStatus.COMPLETED -> "completed"
+            NetCdfImportStatus.FAILED -> "failed"
+        }
+        meterRegistry?.counter(
+            "netcdf.import.progress.lookup",
+            "status",
+            metricStatus,
+        )?.increment()
+        return progress
+    }
+
+    /**
+     * 등록된 변수의 값을 slice/tile 단위로 임포트합니다.
+     *
+     * blocking 호출이며 interrupt는 cooperative cancellation입니다. timeout 뒤에는 executor 종료를
+     * bounded하게 확인하고 [findImportProgress]로 상태를 조회한 다음에만 재시도를 검토해야 합니다.
+     * worker가 종료되지 않았거나 활성 lease가 남아 있으면 격리·경보 후 자동 재시도를 중단합니다.
+     * 호출과 재시도마다 [fileId], tenant/job, 변수 접근 권한을 다시 검증해야 합니다.
+     */
     fun importGridValues(fileId: Long, variableName: String) {
         try {
             importGridValuesInternal(fileId, variableName)
@@ -405,7 +476,7 @@ class NetCdfCatalogService(
         )
 
         // 첫 번째 pass: DB transaction 전에 전체 slice의 canonical coordinate를 검증합니다.
-        tiles.forEach { tile ->
+        tiles.forEachIndexed { tileIndex, tile ->
             checkNotInterrupted()
             transaction {
                 // duplicate preflight도 NetCDF read 전에 lease fence를 확인합니다.
@@ -415,6 +486,10 @@ class NetCdfCatalogService(
                     context.lease.expiresAt,
                     leaseTtl = LEASE_TTL,
                 )
+                if (tileIndex == 0 && !context.checkpointReached) {
+                    importCheckpoint.afterLeaseTouched()
+                    context.checkpointReached = true
+                }
                 checkNotInterrupted()
                 val data = readTile(prepared.variable, layout, tile, timeIdx, levelIdx)
                 checkNotInterrupted()
@@ -775,6 +850,7 @@ class NetCdfCatalogService(
         val prepared: PreparedImport,
         val progressId: Long,
         val lease: ImportLease,
+        var checkpointReached: Boolean = false,
     )
 
     private data class ImportLease(var expiresAt: Instant)

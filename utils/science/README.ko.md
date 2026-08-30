@@ -117,6 +117,7 @@ io.bluetape4k.science/
 | | NetCDF 격자 값 저장 스키마 | `NetCdfGridValueTable` ✅ |
 | | `.nc` 파일 등록 | `NetCdfCatalogService.registerFile()` ✅ |
 | | rank 1~4 격자 임포트 | `NetCdfCatalogService.importGridValues()` ✅ |
+| | 임포트 progress 진단 | `NetCdfCatalogService.findImportProgress()` ✅ |
 | | CoordinateAxis2D / CF auxiliary 좌표 | `NetCdfCatalogService.importGridValues()` ✅ |
 
 ---
@@ -299,31 +300,122 @@ val fileId = catalog.registerFile("/data/era5/ERA5_2024_01.nc")
 catalog.importGridValues(fileId, variableName = "temperature")
 ```
 
-두 호출은 blocking이므로 호출자가 virtual-thread의 deadline과 취소 수명주기를
-소유해야 합니다. timeout은 cooperative cancel일 뿐 import 완료를 의미하지 않으므로,
-재시도하기 전에 progress row를 조회하세요.
+두 호출은 blocking입니다. 호출자가 `fileId`를 보존할 수 있도록 등록을 import deadline
+밖에서 완료하고, worker에는 `importGridValues()`만 제출하세요. timeout은 cooperative
+cancellation을 요청할 뿐 worker나 데이터베이스 transaction 종료를 보장하지 않습니다.
 
+<!-- netcdf-timeout-example:start -->
 ```kotlin
+import io.bluetape4k.science.exposed.NetCdfException
+import io.bluetape4k.science.exposed.model.NetCdfImportStatus
+import java.util.concurrent.CancellationException
 import java.util.concurrent.Executors
+import java.util.concurrent.ExecutionException
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.TimeoutException
+import java.util.concurrent.atomic.AtomicReference
 
+val fileId = catalog.registerFile("/srv/netcdf/quarantine/grid.nc")
+val workerFailure = AtomicReference<Throwable?>()
 val executor = Executors.newVirtualThreadPerTaskExecutor()
 val task = executor.submit {
-    val fileId = catalog.registerFile("/srv/netcdf/grid.nc") // trusted-admin 경로
-    catalog.importGridValues(fileId, "temperature")
-    fileId
+    try {
+        catalog.importGridValues(fileId, "temperature")
+    } catch (failure: Throwable) {
+        workerFailure.set(failure)
+        throw failure
+    }
 }
+var outcome = "RUNNING"
+var callerInterrupted = false
 try {
     task.get(30, TimeUnit.MINUTES)
+    outcome = "COMPLETED"
 } catch (timeout: TimeoutException) {
     task.cancel(true)
-    throw timeout
+    outcome = "TIMED_OUT"
+} catch (cancelled: CancellationException) {
+    outcome = "CANCELLED"
+} catch (failure: ExecutionException) {
+    outcome = "FAILED"
+} catch (interrupted: InterruptedException) {
+    task.cancel(true)
+    callerInterrupted = true
+    outcome = "INTERRUPTED"
 } finally {
     executor.shutdownNow()
-    check(executor.awaitTermination(30, TimeUnit.SECONDS)) { "import worker did not stop" }
 }
+
+var workerTerminated = false
+try {
+    workerTerminated = executor.awaitTermination(30, TimeUnit.SECONDS)
+} catch (interrupted: InterruptedException) {
+    callerInterrupted = true
+}
+if (!workerTerminated) {
+    outcome = "RECOVERY_REQUIRED"
+    // Isolate the worker, alert, and do not retry.
+} else {
+    val progress = catalog.findImportProgress(fileId, "temperature")
+    val failure = workerFailure.get()
+    outcome = when {
+        outcome == "COMPLETED" || progress?.status == NetCdfImportStatus.COMPLETED -> "COMPLETED"
+        failure is NetCdfException.ImportAlreadyRunning -> "RUNNING"
+        failure is NetCdfException -> "RECOVERY_REQUIRED"
+        failure != null -> "RECOVERY_REQUIRED"
+        else -> "RETRY_REVIEW"
+    }
+}
+if (callerInterrupted) Thread.currentThread().interrupt()
 ```
+<!-- netcdf-timeout-example:end -->
+
+`awaitTermination=false`는 항상 `RECOVERY_REQUIRED`입니다. worker를 격리하고
+`netcdf.import.worker.stuck` 경보를 보낸 뒤 자동 재시도를 0회로 유지하세요. worker 종료를
+확인한 뒤에는 worker 예외와 progress를 함께 분류합니다.
+
+| Worker/progress/기준 신호 | Outcome | Caller 조치 |
+|--------------------------|---------|-------------|
+| `terminated=false` | `RECOVERY_REQUIRED` | worker 격리, stuck 경보, 재시도 금지 |
+| progress `COMPLETED` | `COMPLETED` | 작업 완료 처리 |
+| 첫 `ImportAlreadyRunning` | `RUNNING` | DB lease 결과를 신뢰하고 재시도 금지 |
+| `PENDING`, `FAILED`, row 없음, 판정할 수 없는 `IN_PROGRESS` | `RETRY_REVIEW` | 자동 재시도 0회, 운영 검토 |
+| 반복 `ImportAlreadyRunning` 또는 attempt 상한 소진 | `RECOVERY_REQUIRED` | 재시도 중단과 경보 |
+| non-transient typed failure | `RECOVERY_REQUIRED` | 입력이나 운영 조건을 수정하기 전 재시도 금지 |
+| 예상하지 못한 worker failure | `RECOVERY_REQUIRED` | fail-closed, 진단 보존, 경보 |
+
+`leaseExpiresAt`과 application host clock을 비교하지 마세요. 만료된 lease의 재획득 가능 여부는
+데이터베이스가 판정하며, `ImportAlreadyRunning`이 활성 lease의 기준 신호입니다. `fileId`는
+권한 토큰이 아닙니다. register, import, progress, retry를 각각 인증·인가하고, 매 호출에서
+tenant/job 소유권을 확인하며, caller-owned allowed-root 정책에 속한 경로만 허용하세요.
+
+서비스는 symlink, 일반 파일이 아닌 경로, identity 변경, open 중 파일 변경을 거부하지만 이
+guard가 sandbox를 대신하지는 않습니다. 업로드 파일은 hostile writer가 접근할 수 없는 immutable
+quarantine directory에 보관하세요. fingerprint는 content hash나 TOCTOU 증명이 아닌
+`fileKey|size|lastModifiedTime` 휴리스틱입니다. 값이 다르면 `FileChanged`가 발생하지만 공격자가
+동일 metadata를 보존할 수 있습니다. fingerprint나 파일 이름이 같다는 이유로 content integrity가
+증명됐거나 등록된 path를 교체해도 안전하다고 가정하면 안 됩니다.
+
+`findImportProgress()`는 운영용 model을 반환합니다. caller-owned DTO에는 status, 마지막 commit
+slice, coarse outcome만 allowlist로 복사하세요. `errorMessage`, `leaseExpiresAt`, timestamp, raw path,
+tenant identifier, fingerprint를 직렬화하면 안 됩니다. library metric
+`netcdf.import.progress.lookup`은 고정 `status` tag를 사용합니다. caller 경보는
+`netcdf.import.timeout`, `netcdf.import.worker.stuck`, `netcdf.import.retry.exhausted`를 사용할 수
+있으며 metric tag는 `operation`, `outcome`처럼 cardinality가 제한된 값만 둡니다. correlation ID는
+metric tag가 아니라 구조화 로그나 trace 필드에 기록하세요.
+
+`NetCdfException`은 sealed 타입이므로 subtype이 추가되면 exhaustive consumer `when`의 source
+migration이 필요할 수 있습니다. integration 경계에는 `else` fallback을 두고 caller가 정책을
+소유한 subtype만 명시적으로 매핑하세요.
+
+운영 복구 순서는 다음과 같습니다.
+
+1. 자동 재시도를 중단합니다.
+2. worker를 격리하고 종료를 확인합니다.
+3. 진단을 위해 progress와 partial grid row를 보존합니다.
+4. raw path, tenant, 예외 text를 tag에 넣지 않고 correlation ID로 경보를 보냅니다.
+5. 입력 identity, 권한, tenant/job binding을 확인합니다.
+6. 명시적인 운영 승인을 받은 뒤에만 수동 cleanup을 수행합니다.
 
 지원 rank의 저장 좌표는 다음과 같습니다.
 
@@ -410,10 +502,12 @@ typed `NetCdfException` 하위 타입으로 보고합니다.
 | `NetCdfFileRepository` | ✅ | 파일 메타데이터 CRUD (`save`, `findById`, `findAll`, `deleteById`) |
 | `NetCdfFileTable` | ✅ | JSONB 컬럼 + PostGIS bbox + 시간 범위 |
 | `NetCdfGridValueTable` | ✅ | 격자 값 테이블 (location: PostGIS POINT, value, timeIdx, levelIdx) |
-| `NetCdfCatalogService` | ✅ | 동기 `registerFile()`·`importGridValues()`; rank 1~4, 1D/2D 축, CF numeric auxiliary, bounded tile, lease/resume, CRS 화이트리스트, NaN/`_FillValue` 처리 |
+| `NetCdfCatalogService` | ✅ | 동기 `registerFile()`·`importGridValues()`와 read-only `findImportProgress()`; rank 1~4, 1D/2D 축, CF numeric auxiliary, bounded tile, lease/resume, CRS 화이트리스트, NaN/`_FillValue` 처리 |
 
-`NetCdfCatalogService`는 안정적인 sealed 예외 계약을 제공합니다. 빈 경로와
-변수명은 `IllegalArgumentException`을 발생시키며, 파일·변수·좌표 누락,
+`NetCdfCatalogService`는 sealed `NetCdfException` subtype으로 typed failure를 보고합니다.
+새 subtype이 추가되면 exhaustive `when`의 source migration이 필요할 수 있으므로 consumer
+code에는 `else` fallback을 유지하세요. 빈 경로와 변수명은 `IllegalArgumentException`을
+발생시키며, 파일·변수·좌표 누락,
 지원하지 않는 rank/축/CRS, 활성 lease, lease 손실, 파일 변경, 손상된 progress,
 좌표 중복, 자원 한도 초과는 각각의 `NetCdfException` 하위 타입으로 보고합니다.
 기존 schema를 재사용해 `location`에는 canonical `(lon, lat)`, `attrs`에는

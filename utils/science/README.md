@@ -117,6 +117,7 @@ io.bluetape4k.science/
 | | NetCDF grid value storage schema | `NetCdfGridValueTable` ✅ |
 | | `.nc` file registration | `NetCdfCatalogService.registerFile()` ✅ |
 | | Rank 1–4 grid import | `NetCdfCatalogService.importGridValues()` ✅ |
+| | Import progress diagnostics | `NetCdfCatalogService.findImportProgress()` ✅ |
 | | CoordinateAxis2D / CF auxiliary coordinates | `NetCdfCatalogService.importGridValues()` ✅ |
 
 ---
@@ -299,31 +300,124 @@ val fileId = catalog.registerFile("/data/era5/ERA5_2024_01.nc")
 catalog.importGridValues(fileId, variableName = "temperature")
 ```
 
-Because both calls are blocking, a virtual-thread caller should own its deadline
-and cancellation lifecycle. A timeout cancels cooperatively; it does not imply
-that an import completed, so callers should read the progress row before retrying.
+Both calls are blocking. Complete registration outside the import deadline so the
+caller retains `fileId`, then submit only `importGridValues()` to the worker. A
+timeout requests cooperative cancellation; it does not prove that the worker or
+database transaction stopped.
 
+<!-- netcdf-timeout-example:start -->
 ```kotlin
+import io.bluetape4k.science.exposed.NetCdfException
+import io.bluetape4k.science.exposed.model.NetCdfImportStatus
+import java.util.concurrent.CancellationException
 import java.util.concurrent.Executors
+import java.util.concurrent.ExecutionException
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.TimeoutException
+import java.util.concurrent.atomic.AtomicReference
 
+val fileId = catalog.registerFile("/srv/netcdf/quarantine/grid.nc")
+val workerFailure = AtomicReference<Throwable?>()
 val executor = Executors.newVirtualThreadPerTaskExecutor()
 val task = executor.submit {
-    val fileId = catalog.registerFile("/srv/netcdf/grid.nc") // trusted-admin path
-    catalog.importGridValues(fileId, "temperature")
-    fileId
+    try {
+        catalog.importGridValues(fileId, "temperature")
+    } catch (failure: Throwable) {
+        workerFailure.set(failure)
+        throw failure
+    }
 }
+var outcome = "RUNNING"
+var callerInterrupted = false
 try {
     task.get(30, TimeUnit.MINUTES)
+    outcome = "COMPLETED"
 } catch (timeout: TimeoutException) {
     task.cancel(true)
-    throw timeout
+    outcome = "TIMED_OUT"
+} catch (cancelled: CancellationException) {
+    outcome = "CANCELLED"
+} catch (failure: ExecutionException) {
+    outcome = "FAILED"
+} catch (interrupted: InterruptedException) {
+    task.cancel(true)
+    callerInterrupted = true
+    outcome = "INTERRUPTED"
 } finally {
     executor.shutdownNow()
-    check(executor.awaitTermination(30, TimeUnit.SECONDS)) { "import worker did not stop" }
 }
+
+var workerTerminated = false
+try {
+    workerTerminated = executor.awaitTermination(30, TimeUnit.SECONDS)
+} catch (interrupted: InterruptedException) {
+    callerInterrupted = true
+}
+if (!workerTerminated) {
+    outcome = "RECOVERY_REQUIRED"
+    // Isolate the worker, alert, and do not retry.
+} else {
+    val progress = catalog.findImportProgress(fileId, "temperature")
+    val failure = workerFailure.get()
+    outcome = when {
+        outcome == "COMPLETED" || progress?.status == NetCdfImportStatus.COMPLETED -> "COMPLETED"
+        failure is NetCdfException.ImportAlreadyRunning -> "RUNNING"
+        failure is NetCdfException -> "RECOVERY_REQUIRED"
+        failure != null -> "RECOVERY_REQUIRED"
+        else -> "RETRY_REVIEW"
+    }
+}
+if (callerInterrupted) Thread.currentThread().interrupt()
 ```
+<!-- netcdf-timeout-example:end -->
+
+`awaitTermination=false` is always `RECOVERY_REQUIRED`: isolate the worker, emit
+`netcdf.import.worker.stuck`, and perform zero automatic retries. After a confirmed
+worker exit, classify the worker exception and progress together:
+
+| Worker/progress/authoritative signal | Outcome | Caller action |
+|--------------------------------------|---------|---------------|
+| `terminated=false` | `RECOVERY_REQUIRED` | Isolate worker, emit stuck alert, do not retry |
+| Progress `COMPLETED` | `COMPLETED` | Finish the job |
+| First `ImportAlreadyRunning` | `RUNNING` | Trust the DB lease result; do not retry |
+| `PENDING`, `FAILED`, no row, or indeterminate `IN_PROGRESS` | `RETRY_REVIEW` | Zero automatic retries; require operational review |
+| Repeated `ImportAlreadyRunning` or exhausted attempt limit | `RECOVERY_REQUIRED` | Stop retries and alert |
+| Non-transient typed failure | `RECOVERY_REQUIRED` | Repair input or operating conditions before retrying |
+| Unexpected worker failure | `RECOVERY_REQUIRED` | Fail closed, preserve diagnostics, and alert |
+
+Do not compare `leaseExpiresAt` with the application host clock. The database decides
+whether an expired lease can be reacquired; `ImportAlreadyRunning` is the authoritative
+active-lease signal. `fileId` is not an authorization token. Authenticate and authorize
+register, import, progress, and retry independently, verify tenant/job ownership each time,
+and accept paths only from a caller-owned allowed-root policy.
+
+The service rejects symlinks, non-regular files, identity changes, and files that change
+during open, but this guard is not a sandbox. Stage uploads in an immutable quarantine
+directory and protect them from hostile writers. The fingerprint is only a
+`fileKey|size|lastModifiedTime` heuristic, not a content hash or TOCTOU proof. A mismatch raises
+`FileChanged`, but an attacker may preserve the same metadata; do not replace the registered path
+and assume a matching fingerprint or filename proves content integrity.
+
+`findImportProgress()` returns an operational model. Convert it to a caller-owned DTO that
+allowlists only status, the last committed slice, and a coarse outcome. Do not serialize
+`errorMessage`, `leaseExpiresAt`, timestamps, raw paths, tenant identifiers, or fingerprints.
+The library metric `netcdf.import.progress.lookup` uses a fixed `status` tag. Caller alerts
+may use `netcdf.import.timeout`, `netcdf.import.worker.stuck`, and
+`netcdf.import.retry.exhausted`; keep metric tags to bounded values such as `operation` and
+`outcome`. Put the correlation ID in a structured log or trace field, never in a metric tag.
+
+`NetCdfException` is sealed, so adding a subtype can require source migration for exhaustive
+consumer `when` expressions. Keep an `else` fallback at integration boundaries and map only
+the subtypes whose policy the caller owns.
+
+Operator recovery order:
+
+1. Stop automatic retries.
+2. Isolate the worker and confirm termination.
+3. Preserve progress and partial grid rows for diagnosis.
+4. Alert with a correlation ID, without raw path, tenant, or exception text tags.
+5. Verify input identity, authorization, and tenant/job binding.
+6. Perform manual cleanup only after explicit operational approval.
 
 The importer maps the supported ranks as follows:
 
@@ -411,10 +505,12 @@ and counted by `netcdf.import.nan.skipped`.
 | `NetCdfFileRepository` | ✅ | File metadata CRUD (`save`, `findById`, `findAll`, `deleteById`) |
 | `NetCdfFileTable` | ✅ | Exposed table — JSONB columns + PostGIS bbox + time range |
 | `NetCdfGridValueTable` | ✅ | Grid value table (location: PostGIS POINT, value, timeIdx, levelIdx) |
-| `NetCdfCatalogService` | ✅ | Blocking `registerFile()` and `importGridValues()`; rank 1–4, 1D/2D axes, CF numeric auxiliary coordinates, bounded tiles, lease/resume, CRS whitelist, NaN/`_FillValue` handling |
+| `NetCdfCatalogService` | ✅ | Blocking `registerFile()`, `importGridValues()`, and read-only `findImportProgress()`; rank 1–4, 1D/2D axes, CF numeric auxiliary coordinates, bounded tiles, lease/resume, CRS whitelist, NaN/`_FillValue` handling |
 
-`NetCdfCatalogService` exposes a stable sealed-exception contract. Blank paths or
-variable names raise `IllegalArgumentException`; missing files, variables,
+`NetCdfCatalogService` reports typed failures through sealed `NetCdfException` subtypes.
+Consumer code should retain an `else` fallback because a new subtype can require source
+migration for an exhaustive `when`. Blank paths or variable names raise
+`IllegalArgumentException`; missing files, variables,
 coordinates, unsupported ranks/axes/CRS, active leases, lost leases, changed
 files, corrupt progress, duplicates, and resource-limit violations are reported
 as the corresponding `NetCdfException` subtype. Existing schema columns are reused:
