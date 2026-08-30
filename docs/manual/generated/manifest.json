@@ -1456,6 +1456,31 @@
       ]
     },
     {
+      "artifact": "io.github.bluetape4k:bluetape4k-ktor-tenant",
+      "en": "en/modules/bluetape4k-ktor-tenant.md",
+      "gradlePath": ":bluetape4k-ktor-tenant",
+      "group": "web",
+      "id": "bluetape4k-ktor-tenant",
+      "kind": "library",
+      "ko": "ko/modules/bluetape4k-ktor-tenant.md",
+      "learningOrder": 850,
+      "sourceDir": "ktor/tenant",
+      "sourcePaths": [
+        "ktor/tenant/src/main/kotlin"
+      ],
+      "testPaths": [
+        "ktor/tenant/src/test/kotlin",
+        "ktor/tenant/src/test/resources"
+      ],
+      "title": {
+        "en": "Ktor Tenant Context Adapter",
+        "ko": "Ktor Tenant Context 어댑터"
+      },
+      "workshops": [
+
+      ]
+    },
+    {
       "artifact": "io.github.bluetape4k:bluetape4k-ktor-testing",
       "en": "en/modules/bluetape4k-ktor-testing.md",
       "gradlePath": ":bluetape4k-ktor-testing",
@@ -2537,6 +2562,56 @@
       "title": {
         "en": "State Machine Utilities",
         "ko": "상태 머신 유틸리티"
+      },
+      "workshops": [
+
+      ]
+    },
+    {
+      "artifact": "io.github.bluetape4k:bluetape4k-tenant",
+      "en": "en/modules/bluetape4k-tenant.md",
+      "gradlePath": ":bluetape4k-tenant",
+      "group": "concurrency",
+      "id": "bluetape4k-tenant",
+      "kind": "library",
+      "ko": "ko/modules/bluetape4k-tenant.md",
+      "learningOrder": 250,
+      "sourceDir": "bluetape4k/tenant",
+      "sourcePaths": [
+        "bluetape4k/tenant/src/main/kotlin"
+      ],
+      "testPaths": [
+        "bluetape4k/tenant/src/test/kotlin",
+        "bluetape4k/tenant/src/test/resources"
+      ],
+      "title": {
+        "en": "Tenant Context Core",
+        "ko": "Tenant Context 공통 API"
+      },
+      "workshops": [
+
+      ]
+    },
+    {
+      "artifact": "io.github.bluetape4k:bluetape4k-tenant-reactor",
+      "en": "en/modules/bluetape4k-tenant-reactor.md",
+      "gradlePath": ":bluetape4k-tenant-reactor",
+      "group": "concurrency",
+      "id": "bluetape4k-tenant-reactor",
+      "kind": "library",
+      "ko": "ko/modules/bluetape4k-tenant-reactor.md",
+      "learningOrder": 260,
+      "sourceDir": "bluetape4k/tenant-reactor",
+      "sourcePaths": [
+        "bluetape4k/tenant-reactor/src/main/kotlin"
+      ],
+      "testPaths": [
+        "bluetape4k/tenant-reactor/src/test/kotlin",
+        "bluetape4k/tenant-reactor/src/test/resources"
+      ],
+      "title": {
+        "en": "Reactor Tenant Context Adapter",
+        "ko": "Reactor Tenant Context 어댑터"
       },
       "workshops": [
 
