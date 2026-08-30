@@ -1,11 +1,14 @@
 ---
 title: 자동 구성 조건과 활성화 순서
-description: Hibernate, Metrics, Actuator 자동 구성이 언제 등록되고 물러나는지 1.12.1 조건으로 확인합니다.
+description: 2.0의 root, metrics, registry, Actuator, exposure 조건이 각 Hibernate-Lettuce 자동 구성 단계에 어떻게 적용되는지 설명합니다.
 manualId: bluetape4k-spring-boot-hibernate-lettuce
 chapterId: auto-configuration-conditions
 ---
 
 # 자동 구성 조건과 활성화 순서
+
+> 계약 범위: `develop`의 **2.0.0 current contract**입니다. 안정 릴리스 rollback
+> 기준은 [1.12.1](https://github.com/bluetape4k/bluetape4k-projects/releases/tag/1.12.1)입니다.
 
 ## 세 구성 클래스의 역할
 
@@ -35,15 +38,26 @@ bluetape4k:
 
 ## Metrics 구성 조건
 
-Metrics binder는 `LettuceNearCacheRegionFactory`, `EntityManagerFactory`, `MeterRegistry` 클래스가 모두 있어야 하며, 실제 `EntityManagerFactory`와 `MeterRegistry` bean도 필요합니다. 여기에 `bluetape4k.cache.lettuce-near.metrics.enabled=true` 조건이 붙습니다. 이 값은 생략해도 true로 간주합니다.
+Metrics binder는 `LettuceNearCacheRegionFactory`, `EntityManagerFactory`,
+`MeterRegistry` 클래스가 모두 있어야 하며, 실제 `EntityManagerFactory`와
+`MeterRegistry` Bean도 필요합니다. `bluetape4k.cache.lettuce-near.enabled`와
+`bluetape4k.cache.lettuce-near.metrics.enabled`가 모두 `true`이거나 생략돼야
+합니다. root 설정을 끄면 metrics 설정만으로 binder를 다시 활성화할 수 없습니다.
 
-Actuator starter가 없거나 애플리케이션이 `MeterRegistry`를 만들지 않으면 cache 자체는 활성화되더라도 binder는 생기지 않습니다. 이는 cache 실패가 아니라 선택 기능의 back-off입니다.
+애플리케이션이 `MeterRegistry`를 만들지 않으면 cache 자체는 활성화되더라도
+binder는 생기지 않습니다. 이는 cache 실패가 아니라 선택 기능의 back-off입니다.
+Actuator 의존성은 별도로 endpoint 등록 여부를 제어합니다.
 
 ## Actuator 구성 조건
 
-Endpoint 구성은 `Endpoint`, RegionFactory와 `EntityManagerFactory` 클래스, 실제 `EntityManagerFactory` bean, 그리고 전체 `enabled` 설정을 확인합니다. metrics 설정은 보지 않습니다. 따라서 metrics를 끈 상태에서도 endpoint bean은 등록될 수 있고, Hibernate statistics가 꺼져 있으면 L2 통계 필드가 `null`일 수 있습니다.
+Endpoint 구성은 `Endpoint`, RegionFactory, `EntityManagerFactory` 클래스와 실제
+`EntityManagerFactory` Bean을 요구합니다. binder와 같은 root/metrics property
+조건을 적용하지만 `MeterRegistry` Bean은 요구하지 않습니다. 둘 중 한 property라도
+끄면 endpoint Bean이 등록되지 않습니다.
 
-HTTP 노출은 bean 등록과 별개입니다.
+HTTP 노출은 Bean 등록과 별개입니다. endpoint Bean이 있어도
+`management.endpoints.web.exposure.include`에 `nearcache`를 넣거나 동등한
+exposure 규칙을 적용해야 HTTP로 조회할 수 있습니다.
 
 ```yaml
 management:
@@ -53,13 +67,28 @@ management:
         include: health,info,nearcache
 ```
 
+## 활성화 matrix
+
+아래 matrix는 앞에서 설명한 classpath 조건을 충족한다고 가정합니다.
+
+| Root `enabled` | `metrics.enabled` | `EntityManagerFactory` | `MeterRegistry` | Actuator | 결과 |
+| --- | --- | --- | --- | --- | --- |
+| `false` | 무관 | 무관 | 무관 | 무관 | customizer, binder, endpoint Bean 모두 없음 |
+| `true` | `false` | 있음 | 있거나 없음 | 있거나 없음 | Hibernate customizer만 있음 |
+| `true` | `true` | 없음 | 무관 | 무관 | binder와 endpoint Bean 모두 없음 |
+| `true` | `true` | 있음 | 없음 | 있음 | endpoint Bean만 있고 Micrometer binder는 없음 |
+| `true` | `true` | 있음 | 있음 | 없음 | Metrics binder만 있고 endpoint Bean은 없음 |
+| `true` | `true` | 있음 | 있음 | 있음 | binder와 endpoint Bean 모두 있음. HTTP 노출은 별도 설정 |
+
 ## 조건을 진단하는 순서
 
 1. Spring Boot condition evaluation report에서 세 auto-configuration 이름을 찾습니다.
-2. 전체 `enabled`와 metrics `enabled`를 구분해 확인합니다.
+2. `bluetape4k.cache.lettuce-near.enabled`를 먼저 확인하고
+   `bluetape4k.cache.lettuce-near.metrics.enabled`를 확인합니다.
 3. `spring-boot-hibernate`, JPA starter, Actuator가 runtime classpath에 있는지 봅니다.
 4. `EntityManagerFactory`와 `MeterRegistry` bean 존재 여부를 확인합니다.
-5. bean이 있어도 endpoint가 HTTP에 안 보이면 management exposure를 확인합니다.
+5. endpoint Bean이 있어도 HTTP에서 보이지 않으면
+   `management.endpoints.web.exposure.include`를 확인합니다.
 
 ## 실행 근거
 

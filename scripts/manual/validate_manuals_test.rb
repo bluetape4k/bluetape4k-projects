@@ -6,6 +6,8 @@ require "yaml"
 require_relative "manual_contract"
 
 class ValidateManualsTest < Minitest::Test
+  REPOSITORY_ROOT = File.expand_path("../..", __dir__)
+
   INVENTORY = [
     {
       "gradlePath" => ":sample",
@@ -265,7 +267,76 @@ class ValidateManualsTest < Minitest::Test
     assert_equal errors.sort, errors
   end
 
+  def test_current_auto_configuration_contract_is_documented_in_both_locales
+    assert_contract_tokens(
+      "MongoDB source",
+      "spring-boot/mongodb/src/main/kotlin/io/bluetape4k/spring/mongodb/config/ReactiveMongoAutoConfiguration.kt",
+      [
+        '"spring.mongodb.uri"',
+        '"spring.data.mongodb.uri"',
+        "DataMongoReactiveAutoConfiguration",
+        "@ConditionalOnMissingBean(ReactiveMongoOperations::class)",
+      ],
+    )
+
+    mongo_tokens = [
+      "2.0.0 current contract",
+      "1.12.1",
+      "`spring.mongodb.uri`",
+      "`spring.data.mongodb.uri`",
+      "`DataMongoReactiveAutoConfiguration`",
+      "`ReactiveMongoOperations`",
+    ]
+    %w[en ko].each do |locale|
+      assert_contract_tokens(
+        "MongoDB #{locale} manual",
+        "docs/manual/#{locale}/modules/bluetape4k-spring-boot-mongodb/auto-configuration-boundaries.md",
+        mongo_tokens,
+      )
+    end
+
+    lettuce_source_tokens = [
+      'prefix = "bluetape4k.cache.lettuce-near"',
+      'prefix = "bluetape4k.cache.lettuce-near.metrics"',
+      "matchIfMissing = true",
+    ]
+    assert_contract_tokens(
+      "Hibernate-Lettuce Metrics source",
+      "spring-boot/hibernate-lettuce/src/main/kotlin/io/bluetape4k/spring/boot/autoconfigure/cache/lettuce/LettuceNearCacheMetricsAutoConfiguration.kt",
+      lettuce_source_tokens + ["MeterRegistry"],
+    )
+    assert_contract_tokens(
+      "Hibernate-Lettuce Actuator source",
+      "spring-boot/hibernate-lettuce/src/main/kotlin/io/bluetape4k/spring/boot/autoconfigure/cache/lettuce/LettuceNearCacheActuatorAutoConfiguration.kt",
+      lettuce_source_tokens + ["EntityManagerFactory"],
+    )
+
+    lettuce_tokens = [
+      "2.0.0 current contract",
+      "1.12.1",
+      "`bluetape4k.cache.lettuce-near.enabled`",
+      "`bluetape4k.cache.lettuce-near.metrics.enabled`",
+      "`EntityManagerFactory`",
+      "`MeterRegistry`",
+      "`management.endpoints.web.exposure.include`",
+    ]
+    %w[en ko].product(%w[auto-configuration-conditions observability-actuator-metrics]).each do |locale, chapter|
+      assert_contract_tokens(
+        "Hibernate-Lettuce #{locale} #{chapter} manual",
+        "docs/manual/#{locale}/modules/bluetape4k-spring-boot-hibernate-lettuce/#{chapter}.md",
+        lettuce_tokens,
+      )
+    end
+  end
+
   private
+
+  def assert_contract_tokens(label, relative_path, tokens)
+    content = File.read(File.join(REPOSITORY_ROOT, relative_path))
+    tokens.each do |token|
+      assert_includes content, token, "#{label} must include #{token}"
+    end
+  end
 
   def validator_for(name)
     root = fixture(name)

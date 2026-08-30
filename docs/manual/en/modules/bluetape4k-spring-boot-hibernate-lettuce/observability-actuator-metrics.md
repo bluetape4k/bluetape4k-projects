@@ -7,9 +7,17 @@ chapterId: observability-actuator-metrics
 
 # Actuator and Micrometer observability
 
+> Contract scope: **2.0.0 current contract** on `develop`. The stable rollback
+> reference remains [1.12.1](https://github.com/bluetape4k/bluetape4k-projects/releases/tag/1.12.1).
+
 ## Enable the endpoint
 
-The `nearcache` endpoint bean is registered when Actuator is on the classpath and an `EntityManagerFactory` bean exists. Add it to management exposure for HTTP access.
+The `nearcache` endpoint bean is registered when both
+`bluetape4k.cache.lettuce-near.enabled` and
+`bluetape4k.cache.lettuce-near.metrics.enabled` are enabled, Actuator is on the
+classpath, and an `EntityManagerFactory` bean exists. The endpoint does not
+require a `MeterRegistry` bean. Add it to
+`management.endpoints.web.exposure.include` for HTTP access.
 
 ```yaml
 management:
@@ -41,7 +49,10 @@ The endpoint wraps factory unwrapping and statistics lookup in `runCatching`. A 
 
 ## Micrometer gauges
 
-After singleton initialization, the binder registers:
+The binder uses the same root and metrics property gates, but additionally
+requires actual `EntityManagerFactory` and `MeterRegistry` beans. Without a
+registry the endpoint may still exist while the gauges remain absent. After
+singleton initialization, the binder registers:
 
 - `lettuce.nearcache.active.regions`: current RegionFactory cache-map size
 - `lettuce.nearcache.total.local.size`: total local entries across all regions
@@ -63,7 +74,9 @@ Aggregate gauges can hide a hot region's eviction spike. Combine them with:
 - database query count and latency
 - cache configuration and deployment events
 
-Local eviction cleanup may be asynchronous. The 1.12.1 integration test therefore checks a non-negative local size rather than an exact instantaneous count. Use trends and correlation with database load.
+Local eviction cleanup may be asynchronous. The current integration test
+therefore checks a non-negative local size rather than an exact instantaneous
+count. Use trends and correlation with database load.
 
 ## Registration failures
 
