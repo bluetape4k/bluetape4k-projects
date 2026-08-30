@@ -7,9 +7,16 @@ chapterId: observability-actuator-metrics
 
 # Actuator와 Micrometer 관측
 
+> 계약 범위: `develop`의 **2.0.0 current contract**입니다. 안정 릴리스 rollback
+> 기준은 [1.12.1](https://github.com/bluetape4k/bluetape4k-projects/releases/tag/1.12.1)입니다.
+
 ## Endpoint 활성화
 
-Actuator가 classpath에 있고 `EntityManagerFactory` bean이 있으면 `nearcache` endpoint bean이 등록됩니다. HTTP로 조회하려면 management exposure에 추가합니다.
+`bluetape4k.cache.lettuce-near.enabled`와
+`bluetape4k.cache.lettuce-near.metrics.enabled`가 모두 활성화되고, classpath에
+Actuator가 있으며 `EntityManagerFactory` Bean이 있으면 `nearcache` endpoint
+Bean이 등록됩니다. endpoint 자체는 `MeterRegistry` Bean을 요구하지 않습니다.
+HTTP로 조회하려면 `management.endpoints.web.exposure.include`에 추가합니다.
 
 ```yaml
 management:
@@ -41,7 +48,9 @@ Endpoint는 factory unwrap과 통계 조회를 `runCatching`으로 감쌉니다.
 
 ## Micrometer gauge
 
-Binder는 singleton 생성이 끝난 뒤 다음 gauge를 등록합니다.
+Binder는 같은 root/metrics property 조건에 더해 실제 `EntityManagerFactory`와
+`MeterRegistry` Bean을 요구합니다. registry가 없으면 endpoint는 등록될 수 있지만
+gauge는 등록되지 않습니다. singleton 생성이 끝나면 다음 gauge를 등록합니다.
 
 - `lettuce.nearcache.active.regions`: 현재 RegionFactory cache map의 크기
 - `lettuce.nearcache.total.local.size`: 모든 region의 local entry 수 합계
@@ -63,7 +72,9 @@ aggregate gauge만 보면 특정 hot region의 eviction 폭증을 놓칠 수 있
 - database query count와 latency
 - cache 설정 변경·배포 시각
 
-local size는 eviction이 비동기 정리되는 순간 정확히 0이 아닐 수 있습니다. 1.12.1 통합 테스트도 local size를 정확한 값이 아니라 0 이상으로 검증합니다. 순간값보다 추세와 database 부하의 상관관계를 봅니다.
+local size는 eviction이 비동기 정리되는 순간 정확히 0이 아닐 수 있습니다. 현재
+통합 테스트도 local size를 정확한 값이 아니라 0 이상으로 검증합니다. 순간값보다
+추세와 database 부하의 상관관계를 봅니다.
 
 ## 등록 실패
 

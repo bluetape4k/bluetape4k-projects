@@ -1,11 +1,14 @@
 ---
 title: Auto-configuration conditions and ordering
-description: Verify when the Hibernate, Metrics, and Actuator auto-configurations register or back off in 1.12.1.
+description: Verify the 2.0 root, metrics, registry, Actuator, and exposure conditions for every Hibernate-Lettuce auto-configuration phase.
 manualId: bluetape4k-spring-boot-hibernate-lettuce
 chapterId: auto-configuration-conditions
 ---
 
 # Auto-configuration conditions and ordering
+
+> Contract scope: **2.0.0 current contract** on `develop`. The stable rollback
+> reference remains [1.12.1](https://github.com/bluetape4k/bluetape4k-projects/releases/tag/1.12.1).
 
 ## Three configuration classes
 
@@ -32,15 +35,26 @@ bluetape4k:
 
 ## Metrics configuration conditions
 
-The metrics binder requires the RegionFactory, `EntityManagerFactory`, and `MeterRegistry` classes plus actual `EntityManagerFactory` and `MeterRegistry` beans. `bluetape4k.cache.lettuce-near.metrics.enabled` must be true or absent.
+The metrics binder requires the RegionFactory, `EntityManagerFactory`, and
+`MeterRegistry` classes plus actual `EntityManagerFactory` and `MeterRegistry`
+beans. Both `bluetape4k.cache.lettuce-near.enabled` and
+`bluetape4k.cache.lettuce-near.metrics.enabled` must be `true` or absent. Root
+disable cannot be overridden by enabling metrics.
 
-If the application has no Actuator starter or creates no registry, the cache may still work while the binder backs off. That is an optional-feature condition, not a cache failure.
+If the application creates no `MeterRegistry`, the cache may still work while
+the binder backs off. That is an optional-feature condition, not a cache
+failure. The Actuator dependency separately controls endpoint registration.
 
 ## Actuator configuration conditions
 
-The endpoint requires the `Endpoint`, RegionFactory, and `EntityManagerFactory` classes, an actual `EntityManagerFactory` bean, and the top-level `enabled` setting. It does not check the metrics setting. An endpoint bean may therefore exist while metrics are disabled, and its L2 fields may be `null` when Hibernate statistics are off.
+The endpoint requires the `Endpoint`, RegionFactory, and `EntityManagerFactory`
+classes plus an actual `EntityManagerFactory` bean. It uses the same root and
+metrics property gates as the binder, but it does not require a `MeterRegistry`
+bean. Disabling either property removes the endpoint bean.
 
-HTTP exposure is separate from bean registration.
+HTTP exposure remains separate from bean registration. A registered endpoint is
+reachable over HTTP only when `management.endpoints.web.exposure.include`
+contains `nearcache` or an equivalent exposure rule applies.
 
 ```yaml
 management:
@@ -50,13 +64,28 @@ management:
         include: health,info,nearcache
 ```
 
+## Activation matrix
+
+The matrix assumes that the classpath conditions described above are satisfied.
+
+| Root `enabled` | `metrics.enabled` | `EntityManagerFactory` | `MeterRegistry` | Actuator | Result |
+| --- | --- | --- | --- | --- | --- |
+| `false` | any | any | any | any | No customizer, binder, or endpoint bean |
+| `true` | `false` | present | present or absent | present or absent | Hibernate customizer only |
+| `true` | `true` | absent | any | any | No binder or endpoint bean |
+| `true` | `true` | present | absent | present | Endpoint bean only; no Micrometer binder |
+| `true` | `true` | present | present | absent | Metrics binder only; no endpoint bean |
+| `true` | `true` | present | present | present | Binder and endpoint bean; HTTP still needs exposure |
+
 ## Diagnostic order
 
 1. Find all three names in the Spring Boot condition evaluation report.
-2. Check top-level `enabled` separately from metrics `enabled`.
+2. Check `bluetape4k.cache.lettuce-near.enabled` before
+   `bluetape4k.cache.lettuce-near.metrics.enabled`.
 3. Verify runtime presence of `spring-boot-hibernate`, the JPA starter, and Actuator.
 4. Check the `EntityManagerFactory` and `MeterRegistry` beans.
-5. If the bean exists but HTTP does not, check management exposure.
+5. If the endpoint bean exists but HTTP does not, check
+   `management.endpoints.web.exposure.include`.
 
 ## Executable evidence
 
