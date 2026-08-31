@@ -544,6 +544,10 @@ def snapshot_policy_errors(workflow: str) -> list[str]:
         errors.append("snapshot workflow must record handoff evidence on the linked issue")
     if "environment: maven-central-release" not in workflow:
         errors.append("snapshot publication must use the protected Maven Central environment")
+    if "          ref: ${{ needs.validate-full-nightly.outputs.head_sha }}" not in workflow:
+        errors.append("snapshot publication must checkout the validated Nightly head SHA")
+    if "Verify exact checkout" not in workflow or "git rev-parse HEAD" not in workflow:
+        errors.append("snapshot publication must verify the exact checkout SHA")
     if "GITHUB_REF" not in workflow or "refs/heads/develop" not in workflow:
         errors.append("snapshot workflow must reject a dispatch ref other than develop")
     if 'if [ "$HANDOFF_ISSUE_NUMBER" -ne 1562 ]' not in workflow:
@@ -672,6 +676,19 @@ class ReleaseWorkflowPolicyTest(unittest.TestCase):
         self.assertIn(
             "privileged publication action refs must use full commit SHAs",
             release_policy_errors(mutated),
+        )
+
+    def test_snapshot_publication_rejects_checkout_source_drift(self) -> None:
+        workflow = (WORKFLOWS / "publish-snapshot.yml").read_text(encoding="utf-8")
+        mutated = workflow.replace(
+            "          ref: ${{ needs.validate-full-nightly.outputs.head_sha }}",
+            "          ref: develop",
+            1,
+        )
+
+        self.assertIn(
+            "snapshot publication must checkout the validated Nightly head SHA",
+            snapshot_policy_errors(mutated),
         )
 
     def test_publication_validation_rejects_required_task_outside_gradle_invocation(self) -> None:
