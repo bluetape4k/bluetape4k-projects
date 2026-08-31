@@ -485,6 +485,7 @@ def release_policy_errors(workflow: str) -> list[str]:
         errors.append("release workflow must not contain issue-specific release machinery")
     expected_jobs = {
         "resolve-version",
+        "verify-full-nightly",
         "testcontainers-manifest-contract",
         "testcontainers-image-gate",
         "testcontainers-ignite2-arm64-image-gate",
@@ -492,16 +493,39 @@ def release_policy_errors(workflow: str) -> list[str]:
     }
     if job_ids(workflow) != expected_jobs:
         errors.append(
-            "release workflow must contain resolve-version, testcontainers-manifest-contract, "
+            "release workflow must contain resolve-version, verify-full-nightly, testcontainers-manifest-contract, "
             "testcontainers-image-gate, testcontainers-ignite2-arm64-image-gate, and publish jobs"
         )
+    nightly_attestation_markers = (
+        "actions: read",
+        "  verify-full-nightly:\n",
+        "name: Verify exact-head Full Nightly",
+        "actions/workflows/nightly-tests.yml/runs",
+        "actions/runs/${NIGHTLY_RUN_ID}/jobs",
+        "scripts/validate_nightly_matrix.py",
+        "scripts/nightly_matrix_contract.json",
+        "grep -qx 'publish_eligible=true'",
+        "head_sha: ${{ steps.nightly.outputs.head_sha }}",
+        "run_id: ${{ steps.nightly.outputs.run_id }}",
+        "run_url: ${{ steps.nightly.outputs.run_url }}",
+    )
+    if any(marker not in workflow for marker in nightly_attestation_markers):
+        errors.append("release workflow must fail closed on exact-head Full Nightly evidence")
     if "needs: [resolve-version, testcontainers-manifest-contract]" not in workflow:
         errors.append("full Testcontainers image gate must wait for the manifest contract")
     if (
-        "needs: [resolve-version, testcontainers-manifest-contract, testcontainers-image-gate, testcontainers-ignite2-arm64-image-gate]"
+        "needs: [resolve-version, verify-full-nightly, testcontainers-manifest-contract, testcontainers-image-gate, testcontainers-ignite2-arm64-image-gate]"
         not in workflow
     ):
-        errors.append("publish must depend on the manifest contract and full image gate")
+        errors.append("publish must depend on exact-head Full Nightly and the image gates")
+    exact_release_source_markers = (
+        "ref: ${{ needs.verify-full-nightly.outputs.head_sha }}",
+        "name: Verify exact release checkout",
+        "EXPECTED_HEAD_SHA: ${{ needs.verify-full-nightly.outputs.head_sha }}",
+        'test "$(git rev-parse HEAD)" = "$EXPECTED_HEAD_SHA"',
+    )
+    if any(marker not in workflow for marker in exact_release_source_markers):
+        errors.append("release publication must use the exact validated Nightly SHA")
     if "--scope full" not in workflow or not (
         "coverage=48/48" in workflow or "expected_coverage=\"48/48\"" in workflow
     ):
@@ -1185,11 +1209,33 @@ class ReleaseWorkflowPolicyTest(unittest.TestCase):
     def test_release_workflow_blocks_publish_without_full_image_gate(self) -> None:
         workflow = (WORKFLOWS / "release.yml").read_text(encoding="utf-8")
         mutated = workflow.replace(
-            "needs: [resolve-version, testcontainers-manifest-contract, testcontainers-image-gate, testcontainers-ignite2-arm64-image-gate]",
+            "needs: [resolve-version, verify-full-nightly, testcontainers-manifest-contract, testcontainers-image-gate, testcontainers-ignite2-arm64-image-gate]",
             "needs: resolve-version",
         )
         errors = release_policy_errors(mutated)
-        self.assertIn("publish must depend on the manifest contract and full image gate", errors)
+        self.assertIn("publish must depend on exact-head Full Nightly and the image gates", errors)
+
+    def test_release_workflow_fails_closed_without_nightly_eligibility_check(self) -> None:
+        workflow = (WORKFLOWS / "release.yml").read_text(encoding="utf-8")
+        mutated = workflow.replace("grep -qx 'publish_eligible=true'", "cat")
+
+        self.assertIn(
+            "release workflow must fail closed on exact-head Full Nightly evidence",
+            release_policy_errors(mutated),
+        )
+
+    def test_release_publication_rejects_tag_ref_after_nightly_validation(self) -> None:
+        workflow = (WORKFLOWS / "release.yml").read_text(encoding="utf-8")
+        mutated = workflow.replace(
+            "ref: ${{ needs.verify-full-nightly.outputs.head_sha }}",
+            "ref: ${{ needs.resolve-version.outputs.ref }}",
+            1,
+        )
+
+        self.assertIn(
+            "release publication must use the exact validated Nightly SHA",
+            release_policy_errors(mutated),
+        )
 
     def test_release_workflow_blocks_image_gate_without_manifest_contract(self) -> None:
         workflow = (WORKFLOWS / "release.yml").read_text(encoding="utf-8")
@@ -1349,6 +1395,42 @@ class ReleaseWorkflowPolicyTest(unittest.TestCase):
             with self.subTest(name=name):
                 _, errors = validation_errors(run, jobs, "a" * 40, contract)
                 self.assertIn(expected_error, errors)
+
+    def test_nightly_matrix_validation_rejects_missing_run_identity(self) -> None:
+        contract = self._nightly_matrix_contract()
+        jobs = [
+            *({"name": name, "conclusion": "success"} for name in REQUIRED_JOB_NAMES),
+            *self._successful_matrix_jobs(),
+        ]
+
+        _, errors = validation_errors({}, jobs, "a" * 40, contract)
+
+        self.assertIn("run is not completed", errors)
+        self.assertIn("run has no head SHA", errors)
+        self.assertIn("head SHA mismatch", errors)
+
+    def test_nightly_matrix_validation_rejects_skipped_job(self) -> None:
+        contract = self._nightly_matrix_contract()
+        jobs = [
+            *({"name": name, "conclusion": "success"} for name in REQUIRED_JOB_NAMES),
+            *self._successful_matrix_jobs(),
+        ]
+        jobs[0]["conclusion"] = "skipped"
+
+        _, errors = validation_errors(
+            {
+                "status": "completed",
+                "conclusion": "success",
+                "path": ".github/workflows/nightly-tests.yml",
+                "head_branch": "develop",
+                "head_sha": "a" * 40,
+            },
+            jobs,
+            "a" * 40,
+            contract,
+        )
+
+        self.assertIn(f"non-success job: {jobs[0]['name']}", errors)
 
     def test_snapshot_workflow_records_dispatch_sha_and_summary(self) -> None:
         workflow = (WORKFLOWS / "publish-snapshot.yml").read_text(encoding="utf-8")

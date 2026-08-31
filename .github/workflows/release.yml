@@ -27,6 +27,7 @@ concurrency:
   cancel-in-progress: false
 
 permissions:
+  actions: read
   contents: read
   packages: read
 
@@ -64,6 +65,83 @@ jobs:
 
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
           echo "ref=refs/tags/$VERSION" >> "$GITHUB_OUTPUT"
+
+  verify-full-nightly:
+    name: Verify exact-head Full Nightly
+    needs: resolve-version
+    runs-on: ubuntu-latest
+    outputs:
+      head_sha: ${{ steps.nightly.outputs.head_sha }}
+      run_id: ${{ steps.nightly.outputs.run_id }}
+      run_url: ${{ steps.nightly.outputs.run_url }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          ref: ${{ needs.resolve-version.outputs.ref }}
+          fetch-depth: 0
+
+      - id: nightly
+        name: Validate matching Full Nightly
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          TARGET_SHA="$(git rev-parse HEAD)"
+          run_pages="$RUNNER_TEMP/nightly-runs.json"
+          run_json="$RUNNER_TEMP/nightly-run.json"
+          jobs_json="$RUNNER_TEMP/nightly-jobs.json"
+          validation_output="$RUNNER_TEMP/nightly-validation.txt"
+
+          gh api --paginate --slurp \
+            "/repos/${GITHUB_REPOSITORY}/actions/workflows/nightly-tests.yml/runs?branch=develop&status=completed&per_page=100" \
+            > "$run_pages"
+          NIGHTLY_RUN_ID="$(jq -r --arg sha "$TARGET_SHA" '
+            [.[].workflow_runs[]
+              | select(
+                  .head_sha == $sha
+                  and .status == "completed"
+                  and .conclusion == "success"
+                  and .path == ".github/workflows/nightly-tests.yml"
+                )]
+            | sort_by(.run_number)
+            | last
+            | .id // empty
+          ' "$run_pages")"
+
+          if [[ -z "$NIGHTLY_RUN_ID" ]]; then
+            echo "::error::No successful Full Nightly candidate found for tag SHA $TARGET_SHA"
+            exit 1
+          fi
+
+          gh api "/repos/${GITHUB_REPOSITORY}/actions/runs/${NIGHTLY_RUN_ID}" > "$run_json"
+          gh api --paginate --slurp \
+            "/repos/${GITHUB_REPOSITORY}/actions/runs/${NIGHTLY_RUN_ID}/jobs?per_page=100" \
+            > "$jobs_json"
+
+          python3 scripts/validate_nightly_matrix.py \
+            "$run_json" \
+            "$jobs_json" \
+            "$TARGET_SHA" \
+            scripts/nightly_matrix_contract.json \
+            | tee "$validation_output"
+          if ! grep -qx 'publish_eligible=true' "$validation_output"; then
+            echo "::error::Full Nightly validation rejected run $NIGHTLY_RUN_ID"
+            exit 1
+          fi
+
+          NIGHTLY_RUN_URL="$(jq -r '.html_url' "$run_json")"
+          {
+            echo "head_sha=$TARGET_SHA"
+            echo "run_id=$NIGHTLY_RUN_ID"
+            echo "run_url=$NIGHTLY_RUN_URL"
+          } >> "$GITHUB_OUTPUT"
+          {
+            echo "### Stable Release Full Nightly attestation"
+            echo "- tag SHA: \`$TARGET_SHA\`"
+            echo "- Nightly run: [$NIGHTLY_RUN_ID]($NIGHTLY_RUN_URL)"
+            echo "- publish eligible: \`true\`"
+          } >> "$GITHUB_STEP_SUMMARY"
 
   testcontainers-manifest-contract:
     name: Verify Testcontainers manifest contract
@@ -275,14 +353,20 @@ jobs:
 
   publish:
     name: Publish RELEASE to Maven Central Portal
-    needs: [resolve-version, testcontainers-manifest-contract, testcontainers-image-gate, testcontainers-ignite2-arm64-image-gate]
+    needs: [resolve-version, verify-full-nightly, testcontainers-manifest-contract, testcontainers-image-gate, testcontainers-ignite2-arm64-image-gate]
     runs-on: ubuntu-latest
     environment: maven-central-release
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
-          ref: ${{ needs.resolve-version.outputs.ref }}
+          ref: ${{ needs.verify-full-nightly.outputs.head_sha }}
           fetch-depth: 0
+
+      - name: Verify exact release checkout
+        shell: bash
+        env:
+          EXPECTED_HEAD_SHA: ${{ needs.verify-full-nightly.outputs.head_sha }}
+        run: test "$(git rev-parse HEAD)" = "$EXPECTED_HEAD_SHA"
 
       - name: Resolve dependencies catalog ref
         shell: bash
