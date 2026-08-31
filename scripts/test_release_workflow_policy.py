@@ -546,7 +546,14 @@ def snapshot_policy_errors(workflow: str) -> list[str]:
         errors.append("snapshot publication must use the protected Maven Central environment")
     if "          ref: ${{ needs.validate-full-nightly.outputs.head_sha }}" not in workflow:
         errors.append("snapshot publication must checkout the validated Nightly head SHA")
-    if "Verify exact checkout" not in workflow or "git rev-parse HEAD" not in workflow:
+    exact_checkout_verification = (
+        "      - name: Verify exact checkout\n"
+        "        env:\n"
+        "          EXPECTED_HEAD_SHA: "
+        "${{ needs.validate-full-nightly.outputs.head_sha }}\n"
+        "        run: test \"$(git rev-parse HEAD)\" = \"$EXPECTED_HEAD_SHA\""
+    )
+    if exact_checkout_verification not in workflow:
         errors.append("snapshot publication must verify the exact checkout SHA")
     if "GITHUB_REF" not in workflow or "refs/heads/develop" not in workflow:
         errors.append("snapshot workflow must reject a dispatch ref other than develop")
@@ -688,6 +695,22 @@ class ReleaseWorkflowPolicyTest(unittest.TestCase):
 
         self.assertIn(
             "snapshot publication must checkout the validated Nightly head SHA",
+            snapshot_policy_errors(mutated),
+        )
+
+    def test_snapshot_publication_rejects_checkout_verification_drift(self) -> None:
+        workflow = (WORKFLOWS / "publish-snapshot.yml").read_text(encoding="utf-8")
+        mutated = workflow.replace(
+            "          EXPECTED_HEAD_SHA: "
+            "${{ needs.validate-full-nightly.outputs.head_sha }}\n"
+            "        run: test \"$(git rev-parse HEAD)\" = \"$EXPECTED_HEAD_SHA\"",
+            "          EXPECTED_HEAD_SHA: ${{ github.sha }}\n"
+            "        run: test \"$(git rev-parse HEAD)\" = \"$EXPECTED_HEAD_SHA\"",
+            1,
+        )
+
+        self.assertIn(
+            "snapshot publication must verify the exact checkout SHA",
             snapshot_policy_errors(mutated),
         )
 
