@@ -173,13 +173,20 @@ def yaml_run_contract(
     return (style, tuple(content)), end
 
 
-def workflow_step_runs(
+def workflow_step_records(
     workflow: str,
     expected_job: Optional[str] = None,
-    expected_name: Optional[str] = None,
-) -> list[tuple[Optional[tuple[str, tuple[str, ...]]], bool]]:
+) -> list[
+    tuple[
+        Optional[str],
+        Optional[str],
+        tuple[str, ...],
+        Optional[tuple[str, tuple[str, ...]]],
+        bool,
+    ]
+]:
     lines = workflow.splitlines()
-    runs = []
+    records = []
     in_jobs = False
     current_job = None
     index = 0
@@ -228,6 +235,11 @@ def workflow_step_runs(
 
             name_match = re.match(r"^ {6}- name:\s*(?P<name>.+?)\s*$", step_line)
             step_name = name_match.group("name") if name_match else None
+            uses_match = re.match(
+                r"^ {6}- uses:\s*(?P<uses>[^\s#]+)", step_line
+            )
+            step_uses = uses_match.group("uses") if uses_match else None
+            fields = []
             run = None
             guarded = False
             index += 1
@@ -240,6 +252,7 @@ def workflow_step_runs(
                 if field_indent == 6 and field_stripped.startswith("- "):
                     break
 
+                fields.append(field_line)
                 run_match = re.match(
                     r"^ {8}run:\s*(?P<header>.*)$", field_line
                 )
@@ -267,12 +280,40 @@ def workflow_step_runs(
                 else:
                     index += 1
 
-            if (expected_job is None or current_job == expected_job) and (
-                expected_name is None or step_name == expected_name
-            ):
-                runs.append((run, guarded))
+            if expected_job is None or current_job == expected_job:
+                records.append(
+                    (step_name, step_uses, tuple(fields), run, guarded)
+                )
 
-    return runs
+    return records
+
+
+def workflow_step_runs(
+    workflow: str,
+    expected_job: Optional[str] = None,
+    expected_name: Optional[str] = None,
+) -> list[tuple[Optional[tuple[str, tuple[str, ...]]], bool]]:
+    return [
+        (run, guarded)
+        for step_name, _, _, run, guarded in workflow_step_records(
+            workflow, expected_job
+        )
+        if expected_name is None or step_name == expected_name
+    ]
+
+
+def workflow_step_field_values(
+    fields: tuple[str, ...], expected_key: str
+) -> list[str]:
+    key = re.escape(expected_key)
+    pattern = re.compile(
+        rf"""^ {{10}}(?:"{key}"|'{key}'|{key}):\s*(?P<value>.*?)\s*$"""
+    )
+    return [
+        match.group("value")
+        for line in fields
+        if (match := pattern.fullmatch(line)) is not None
+    ]
 
 
 def publication_job_guard_errors(
@@ -542,25 +583,69 @@ def snapshot_policy_errors(workflow: str) -> list[str]:
         errors.append("snapshot workflow must not request write permissions")
     if "environment: maven-central-release" not in workflow:
         errors.append("snapshot publication must use the protected Maven Central environment")
-    if "          ref: ${{ github.sha }}" not in workflow:
+
+    publish_steps = workflow_step_records(workflow, "publish")
+    checkout_steps = [
+        step
+        for step in publish_steps
+        if step[1] is not None
+        and step[1].split("@", 1)[0] == "actions/checkout"
+    ]
+    checkout_contract = (
+        len(checkout_steps) == 1
+        and not checkout_steps[0][4]
+        and workflow_step_field_values(checkout_steps[0][2], "ref")
+        == ["${{ github.sha }}"]
+        and workflow_step_field_values(checkout_steps[0][2], "fetch-depth")
+        == ["0"]
+    )
+    if not checkout_contract:
         errors.append("snapshot publication must checkout the dispatch SHA")
-    exact_checkout_verification = (
-        "      - name: Verify exact checkout\n"
-        "        env:\n"
-        "          EXPECTED_HEAD_SHA: ${{ github.sha }}\n"
-        "        run: test \"$(git rev-parse HEAD)\" = \"$EXPECTED_HEAD_SHA\""
+
+    exact_checkout_runs = workflow_step_runs(
+        workflow, "publish", "Verify exact checkout"
     )
-    if exact_checkout_verification not in workflow:
+    exact_checkout_steps = [
+        step
+        for step in publish_steps
+        if step[0] == "Verify exact checkout"
+    ]
+    if exact_checkout_runs != [
+        (
+            (
+                "inline",
+                ('test "$(git rev-parse HEAD)" = "$EXPECTED_HEAD_SHA"',),
+            ),
+            False,
+        )
+    ] or (
+        len(exact_checkout_steps) != 1
+        or workflow_step_field_values(
+            exact_checkout_steps[0][2], "EXPECTED_HEAD_SHA"
+        )
+        != ["${{ github.sha }}"]
+    ):
         errors.append("snapshot publication must verify the exact checkout SHA")
-    summary_contract = (
-        "      - name: Summarize SNAPSHOT publication\n",
-        '            echo "trigger: workflow_dispatch"\n',
-        '            echo "SOURCE_SHA=${{ github.sha }}"\n',
-        '            echo "repeated publication allowed"\n',
+
+    summary_runs = workflow_step_runs(
+        workflow, "publish", "Summarize SNAPSHOT publication"
     )
-    if not all(marker in workflow for marker in summary_contract):
+    summary_run_valid = (
+        len(summary_runs) == 1
+        and summary_runs[0][0] is not None
+        and not summary_runs[0][1]
+        and all(
+            marker in "\n".join(summary_runs[0][0][1])
+            for marker in (
+                'echo "trigger: workflow_dispatch"',
+                'echo "SOURCE_SHA=${{ github.sha }}"',
+                'echo "repeated publication allowed"',
+            )
+        )
+    )
+    if not summary_run_valid:
         errors.append("snapshot workflow must summarize dispatch, source SHA, and repeatability")
-    named_steps = re.findall(r"^      - name: (.+)$", workflow, re.MULTILINE)
+    named_steps = [step[0] for step in publish_steps if step[0] is not None]
     if not named_steps or named_steps[-1] != "Summarize SNAPSHOT publication":
         errors.append("snapshot workflow must end with the publication summary")
     return errors
@@ -696,6 +781,20 @@ class ReleaseWorkflowPolicyTest(unittest.TestCase):
             "        run: test \"$(git rev-parse HEAD)\" = \"$EXPECTED_HEAD_SHA\"",
             "          EXPECTED_HEAD_SHA: ${{ github.ref }}\n"
             "        run: test \"$(git rev-parse HEAD)\" = \"$EXPECTED_HEAD_SHA\"",
+            1,
+        )
+
+        self.assertIn(
+            "snapshot publication must verify the exact checkout SHA",
+            snapshot_policy_errors(mutated),
+        )
+
+    def test_snapshot_publication_rejects_disabled_checkout_verification(self) -> None:
+        workflow = (WORKFLOWS / "publish-snapshot.yml").read_text(encoding="utf-8")
+        mutated = workflow.replace(
+            "        run: test \"$(git rev-parse HEAD)\" = \"$EXPECTED_HEAD_SHA\"\n",
+            "        run: test \"$(git rev-parse HEAD)\" = \"$EXPECTED_HEAD_SHA\"\n"
+            "        if: false\n",
             1,
         )
 
