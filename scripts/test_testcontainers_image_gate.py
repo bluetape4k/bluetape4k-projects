@@ -243,17 +243,17 @@ class TestTestcontainersImageGate(unittest.TestCase):
         self.assertNotIn("jibDockerBuild", manifest_match.group(0))
         self.assertNotIn("run_testcontainers_image_gate.py", manifest_match.group(0))
         self.assertIn(
-            "needs: [resolve-version, testcontainers-manifest-contract]",
+            "needs: [resolve-version, verify-full-nightly, testcontainers-manifest-contract]",
             release_workflow,
         )
         if "testcontainers-ignite2-arm64-image-gate:" in release_workflow:
             self.assertIn(
-                "needs: [resolve-version, testcontainers-manifest-contract, testcontainers-image-gate, testcontainers-ignite2-arm64-image-gate]",
+                "needs: [resolve-version, verify-full-nightly, testcontainers-manifest-contract, testcontainers-image-gate, testcontainers-ignite2-arm64-image-gate]",
                 release_workflow,
             )
         else:
             self.assertIn(
-                "needs: [resolve-version, testcontainers-manifest-contract, testcontainers-image-gate]",
+                "needs: [resolve-version, verify-full-nightly, testcontainers-manifest-contract, testcontainers-image-gate]",
                 release_workflow,
             )
 
@@ -344,12 +344,12 @@ class TestTestcontainersImageGate(unittest.TestCase):
         self.assertIn("testcontainers-image-gate:", workflow)
         if "testcontainers-ignite2-arm64-image-gate:" in workflow:
             self.assertIn(
-                "needs: [resolve-version, testcontainers-manifest-contract, testcontainers-image-gate, testcontainers-ignite2-arm64-image-gate]",
+                "needs: [resolve-version, verify-full-nightly, testcontainers-manifest-contract, testcontainers-image-gate, testcontainers-ignite2-arm64-image-gate]",
                 workflow,
             )
         else:
             self.assertIn(
-                "needs: [resolve-version, testcontainers-manifest-contract, testcontainers-image-gate]",
+                "needs: [resolve-version, verify-full-nightly, testcontainers-manifest-contract, testcontainers-image-gate]",
                 workflow,
             )
         self.assertIn("--scope full", workflow)
