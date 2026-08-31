@@ -122,6 +122,28 @@ def job_ids(workflow: str) -> set[str]:
     return set(re.findall(r"^  ([a-z0-9_-]+):\s*$", jobs[1], re.MULTILINE))
 
 
+def workflow_job_block(workflow: str, job_id: str) -> str:
+    match = re.search(
+        rf"^  {re.escape(job_id)}:\s*$\n(?P<body>.*?)(?=^  [a-z0-9_-]+:\s*$|\Z)",
+        workflow,
+        re.MULTILINE | re.DOTALL,
+    )
+    return match.group("body") if match is not None else ""
+
+
+def workflow_job_needs(workflow: str, job_id: str) -> set[str]:
+    block = workflow_job_block(workflow, job_id)
+    inline = re.search(r"^    needs:\s*\[(?P<needs>[^]]*)]\s*$", block, re.MULTILINE)
+    if inline is not None:
+        return {
+            item.strip()
+            for item in inline.group("needs").split(",")
+            if item.strip()
+        }
+    scalar = re.search(r"^    needs:\s*(?P<need>[a-z0-9_-]+)\s*$", block, re.MULTILINE)
+    return {scalar.group("need")} if scalar is not None else set()
+
+
 def line_indent(line: str) -> int:
     return len(line) - len(line.lstrip())
 
@@ -464,6 +486,26 @@ def privileged_action_ref_errors(workflow: str) -> list[str]:
 
 def release_policy_errors(workflow: str) -> list[str]:
     errors = privileged_action_ref_errors(workflow)
+    resolve_runs = workflow_step_runs(workflow, "resolve-version")
+    resolve_script = (
+        "\n".join(resolve_runs[0][0][1])
+        if len(resolve_runs) == 1 and resolve_runs[0][0] is not None
+        else ""
+    )
+    release_source_markers = (
+        'if [[ "$EVENT_NAME" == "push" ]]',
+        'VERSION="$TAG_NAME"',
+        'VERSION="$INPUT_VERSION"',
+        'echo "ref=refs/tags/$VERSION" >> "$GITHUB_OUTPUT"',
+    )
+    if (
+        "  push:\n" not in workflow.split("\n\nconcurrency:\n", 1)[0]
+        or "  workflow_dispatch:\n" not in workflow.split("\n\nconcurrency:\n", 1)[0]
+        or len(resolve_runs) != 1
+        or resolve_runs[0][1]
+        or any(marker not in resolve_script for marker in release_source_markers)
+    ):
+        errors.append("release workflow must resolve push and dispatch to the requested tag")
     release_runs = workflow_step_runs(
         workflow, "publish", "Publish to Central Portal"
     )
@@ -496,35 +538,91 @@ def release_policy_errors(workflow: str) -> list[str]:
             "release workflow must contain resolve-version, verify-full-nightly, testcontainers-manifest-contract, "
             "testcontainers-image-gate, testcontainers-ignite2-arm64-image-gate, and publish jobs"
         )
+    verify_block = workflow_job_block(workflow, "verify-full-nightly")
+    verify_runs = workflow_step_runs(
+        workflow, "verify-full-nightly", "Validate matching Full Nightly"
+    )
+    verify_script = (
+        "\n".join(verify_runs[0][0][1])
+        if len(verify_runs) == 1 and verify_runs[0][0] is not None
+        else ""
+    )
     nightly_attestation_markers = (
-        "actions: read",
-        "  verify-full-nightly:\n",
-        "name: Verify exact-head Full Nightly",
         "actions/workflows/nightly-tests.yml/runs",
         "actions/runs/${NIGHTLY_RUN_ID}/jobs",
         "scripts/validate_nightly_matrix.py",
         "scripts/nightly_matrix_contract.json",
         "grep -qx 'publish_eligible=true'",
-        "head_sha: ${{ steps.nightly.outputs.head_sha }}",
-        "run_id: ${{ steps.nightly.outputs.run_id }}",
-        "run_url: ${{ steps.nightly.outputs.run_url }}",
+        "sort_by(.run_number)",
     )
-    if any(marker not in workflow for marker in nightly_attestation_markers):
+    verify_contract = (
+        "actions: read" in workflow.split("\njobs:\n", 1)[0]
+        and workflow_job_needs(workflow, "verify-full-nightly") == {"resolve-version"}
+        and "name: Verify exact-head Full Nightly" in verify_block
+        and "head_sha: ${{ steps.nightly.outputs.head_sha }}" in verify_block
+        and "run_id: ${{ steps.nightly.outputs.run_id }}" in verify_block
+        and "run_url: ${{ steps.nightly.outputs.run_url }}" in verify_block
+        and len(verify_runs) == 1
+        and not verify_runs[0][1]
+        and verify_script.count("--paginate --slurp") == 2
+        and all(marker in verify_script for marker in nightly_attestation_markers)
+    )
+    if not verify_contract:
         errors.append("release workflow must fail closed on exact-head Full Nightly evidence")
-    if "needs: [resolve-version, testcontainers-manifest-contract]" not in workflow:
-        errors.append("full Testcontainers image gate must wait for the manifest contract")
-    if (
-        "needs: [resolve-version, verify-full-nightly, testcontainers-manifest-contract, testcontainers-image-gate, testcontainers-ignite2-arm64-image-gate]"
-        not in workflow
+    if not all(
+        workflow_job_needs(workflow, job_id)
+        == {"resolve-version", "verify-full-nightly", "testcontainers-manifest-contract"}
+        for job_id in (
+            "testcontainers-image-gate",
+            "testcontainers-ignite2-arm64-image-gate",
+        )
     ):
+        errors.append("full Testcontainers image gate must wait for the manifest contract")
+    if workflow_job_needs(workflow, "testcontainers-manifest-contract") != {
+        "resolve-version",
+        "verify-full-nightly",
+    }:
+        errors.append("release validation gates must wait for exact-head Full Nightly")
+    if workflow_job_needs(workflow, "publish") != {
+        "resolve-version",
+        "verify-full-nightly",
+        "testcontainers-manifest-contract",
+        "testcontainers-image-gate",
+        "testcontainers-ignite2-arm64-image-gate",
+    }:
         errors.append("publish must depend on exact-head Full Nightly and the image gates")
-    exact_release_source_markers = (
-        "ref: ${{ needs.verify-full-nightly.outputs.head_sha }}",
-        "name: Verify exact release checkout",
-        "EXPECTED_HEAD_SHA: ${{ needs.verify-full-nightly.outputs.head_sha }}",
-        'test "$(git rev-parse HEAD)" = "$EXPECTED_HEAD_SHA"',
+    exact_head_jobs = (
+        "testcontainers-manifest-contract",
+        "testcontainers-image-gate",
+        "testcontainers-ignite2-arm64-image-gate",
+        "publish",
     )
-    if any(marker not in workflow for marker in exact_release_source_markers):
+    exact_head_contract = True
+    for job_id in exact_head_jobs:
+        records = workflow_step_records(workflow, job_id)
+        checkout_steps = [
+            step
+            for step in records
+            if step[1] is not None
+            and step[1].split("@", 1)[0] == "actions/checkout"
+        ]
+        verify_steps = [step for step in records if step[0] == "Verify exact release checkout"]
+        if not (
+            len(checkout_steps) == 1
+            and not checkout_steps[0][4]
+            and workflow_step_field_values(checkout_steps[0][2], "ref")
+            == ["${{ needs.verify-full-nightly.outputs.head_sha }}"]
+            and workflow_step_field_values(checkout_steps[0][2], "fetch-depth") == ["0"]
+            and len(verify_steps) == 1
+            and not verify_steps[0][4]
+            and workflow_step_field_values(verify_steps[0][2], "EXPECTED_HEAD_SHA")
+            == ["${{ needs.verify-full-nightly.outputs.head_sha }}"]
+            and verify_steps[0][3]
+            == ("inline", ('test "$(git rev-parse HEAD)" = "$EXPECTED_HEAD_SHA"',))
+        ):
+            exact_head_contract = False
+            break
+    if not exact_head_contract:
         errors.append("release publication must use the exact validated Nightly SHA")
     if "--scope full" not in workflow or not (
         "coverage=48/48" in workflow or "expected_coverage=\"48/48\"" in workflow
@@ -1224,6 +1322,24 @@ class ReleaseWorkflowPolicyTest(unittest.TestCase):
             release_policy_errors(mutated),
         )
 
+    def test_release_workflow_requires_paginated_nightly_selection(self) -> None:
+        workflow = (WORKFLOWS / "release.yml").read_text(encoding="utf-8")
+        mutated = workflow.replace("gh api --paginate --slurp", "gh api", 1)
+
+        self.assertIn(
+            "release workflow must fail closed on exact-head Full Nightly evidence",
+            release_policy_errors(mutated),
+        )
+
+    def test_release_workflow_keeps_push_and_dispatch_tag_resolution(self) -> None:
+        workflow = (WORKFLOWS / "release.yml").read_text(encoding="utf-8")
+        mutated = workflow.replace('VERSION="$TAG_NAME"', 'VERSION="$INPUT_VERSION"', 1)
+
+        self.assertIn(
+            "release workflow must resolve push and dispatch to the requested tag",
+            release_policy_errors(mutated),
+        )
+
     def test_release_publication_rejects_tag_ref_after_nightly_validation(self) -> None:
         workflow = (WORKFLOWS / "release.yml").read_text(encoding="utf-8")
         mutated = workflow.replace(
@@ -1240,11 +1356,24 @@ class ReleaseWorkflowPolicyTest(unittest.TestCase):
     def test_release_workflow_blocks_image_gate_without_manifest_contract(self) -> None:
         workflow = (WORKFLOWS / "release.yml").read_text(encoding="utf-8")
         mutated = workflow.replace(
-            "needs: [resolve-version, testcontainers-manifest-contract]",
+            "needs: [resolve-version, verify-full-nightly, testcontainers-manifest-contract]",
             "needs: resolve-version",
         )
         errors = release_policy_errors(mutated)
         self.assertIn("full Testcontainers image gate must wait for the manifest contract", errors)
+
+    def test_release_validation_gates_wait_for_full_nightly(self) -> None:
+        workflow = (WORKFLOWS / "release.yml").read_text(encoding="utf-8")
+        mutated = workflow.replace(
+            "needs: [resolve-version, verify-full-nightly]",
+            "needs: resolve-version",
+            1,
+        )
+
+        self.assertIn(
+            "release validation gates must wait for exact-head Full Nightly",
+            release_policy_errors(mutated),
+        )
 
     def test_release_workflow_blocks_arm_gate_without_exact_selector(self) -> None:
         workflow = (WORKFLOWS / "release.yml").read_text(encoding="utf-8")
