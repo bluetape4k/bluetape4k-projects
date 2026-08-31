@@ -1,34 +1,44 @@
-# Snapshot publication source identity를 checkout으로 증명하기
+# 반복 SNAPSHOT publication을 기능 handoff에서 분리하기
 
 ## 맥락
 
-이슈 #1578의 `Publish Snapshot` 대기 실행을 검토하면서 workflow run의
-`headSha`가 곧 publication source라고 판단했다. 그러나 여러 저장소의
-`actions/checkout`은 `ref`를 지정하지 않았고, environment 승인 뒤 runner가
-시작될 때의 기본 branch를 checkout했다.
-
-## 잘못된 가정과 증거
-
-- 잘못된 가정: `workflow_run`으로 시작한 run의 `headSha`가 checkout source를
-  자동으로 고정한다.
-- 반증: AWS와 Exposed의 triggering Nightly SHA는 대기 중인 Publish Snapshot
-  run이 실제 checkout할 최신 `develop` SHA와 달랐다.
-- 결과: reviewer를 제거하면 Nightly가 검증하지 않은 소스를 배포할 수 있었다.
+이슈 #1578의 Snapshot source identity 검토에서 반복적인 SNAPSHOT publication과
+기능 handoff를 같은 workflow에 묶어 두었던 경계를 재평가했다. 반복 publication은
+검증된 기능을 다음 담당자에게 넘기는 단계가 아니라, 사용자가 실행을 승인한
+`workflow_dispatch`의 source를 그대로 배포하는 운영 동작이어야 한다.
 
 ## 결정
 
-- `workflow_run` 경로는 `github.event.workflow_run.head_sha`를 명시적으로
+- `Publish Snapshot`은 입력이 없는 `workflow_dispatch` 전용 workflow로 유지한다.
+- 단일 `publish` job이 `ref: ${{ github.sha }}`와 `fetch-depth: 0`으로 dispatch SHA를
   checkout한다.
-- 수동 dispatch는 environment branch policy가 허용한 dispatch SHA를
-  checkout한다.
-- 별도 validation run을 입력받는 workflow는 해당 run의 성공 여부, branch,
-  `head_sha`를 함께 읽고 그 SHA를 publication job으로 전달한다.
-- checkout 직후 `git rev-parse HEAD`를 expected SHA와 비교해 source identity를
-  실행 증적으로 남긴다.
+- publication 직전에 `git rev-parse HEAD`를
+  `EXPECTED_HEAD_SHA=${{ github.sha }}`와 비교해 실제 source identity를 증명한다.
+- 마지막 summary에는 `workflow_dispatch`, `SOURCE_SHA=${{ github.sha }}`,
+  `repeated publication allowed`를 기록한다.
+- 따라서 routine repeated Snapshot은 dispatch SHA를 사용하며 feature handoff가
+  아니다.
+
+## 유지한 경계
+
+- 보호된 `maven-central-release` environment와
+  `CENTRAL_USERNAME`, `CENTRAL_PASSWORD`, `SIGNING_KEY_ID`, `SIGNING_KEY`,
+  `SIGNING_PASSWORD` secrets
+- `actions/checkout`, `actions/setup-java`, `gradle/actions/setup-gradle`의
+  immutable commit SHA pins
+- 기존 publication metadata validation과 exact Maven Snapshot publication command
+- stable Release workflow의 exact-candidate 검증 경계
+
+## 제거한 결합
+
+- 수동 `verified_ci_run_id`, `expected_head_sha`, `handoff_issue_number`,
+  `validation_run_id` 입력과 validation run/current `develop` SHA 전달
+- `#1562` issue handoff와 `validate-full-nightly`, `record-handoff` job
+- TenantContext receipt 생성·artifact upload·issue comment machinery
 
 ## 재발 방지
 
-Snapshot 자동화 검토에서는 workflow run metadata만 비교하지 않는다. 반드시
-trigger SHA, checkout `ref`, checkout 이후 SHA 검증, environment 대기 중 branch
-변경 가능성을 한 세트로 확인한다. 이 네 조건이 일치하지 않으면 reviewer 제거와
-publication을 보류한다.
+Snapshot policy test는 job이 `publish` 하나인지, trigger가 `workflow_dispatch`만인지,
+입력·issue handoff·receipt machinery가 없는지, checkout과 검증·summary가 같은
+dispatch SHA를 가리키는지를 검사한다. 안정 release의 exact-candidate 검증과
+Snapshot의 반복 publication은 각각의 목적과 승인 경계를 유지한다.
