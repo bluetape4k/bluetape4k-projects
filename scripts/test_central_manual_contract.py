@@ -8,6 +8,7 @@ from pathlib import Path
 REPO_ROOT = Path(__file__).resolve().parents[1]
 INVENTORY = REPO_ROOT / "scripts" / "docs-localization-inventory.py"
 CI_WORKFLOW = REPO_ROOT / ".github" / "workflows" / "ci.yml"
+NIGHTLY_WORKFLOW = REPO_ROOT / ".github" / "workflows" / "nightly-tests.yml"
 DOCUMENTATION_TEST = (
     REPO_ROOT
     / "cache/cache-core/src/test/kotlin/io/bluetape4k/cache/nearcache/jcache"
@@ -122,6 +123,18 @@ class CentralManualCiPolicyTest(unittest.TestCase):
             "python3 -m unittest scripts/test_central_manual_contract.py -v",
             workflow,
         )
+
+    def test_full_nightly_misc_job_provides_pinned_central_manual(self) -> None:
+        workflow = NIGHTLY_WORKFLOW.read_text(encoding="utf-8")
+        misc_job = workflow.split("\n  test-misc:\n", maxsplit=1)[1].split(
+            "\n  test-infra:\n", maxsplit=1
+        )[0]
+
+        self.assertRegex(workflow, r"BLUETAPE4K_MANUAL_REF: '[0-9a-f]{40}'")
+        self.assertIn("repository: bluetape4k/bluetape4k.github.io", misc_job)
+        self.assertIn("ref: ${{ env.BLUETAPE4K_MANUAL_REF }}", misc_job)
+        self.assertIn("BLUETAPE4K_MANUAL_ROOT", misc_job)
+        self.assertIn("docs/manual/bluetape4k-projects/manifest.yaml", misc_job)
 
 
 if __name__ == "__main__":
