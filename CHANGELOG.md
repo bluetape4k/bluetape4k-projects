@@ -7,6 +7,8 @@
 <!-- issue-1335-java25-semver:start -->
 ## [Unreleased]
 
+## [2.0.0] — 2026-09-01
+
 ### 호환성 변경
 
 - `bluetape4k-virtualthread-api`의 Java 21 호환 API 타입을
@@ -397,14 +399,6 @@
 - Fory-backed Kafka and Kafka4 codecs now carry `@BluetapeDelicateApi` and
   explicit trust-boundary documentation so callers are warned about the default
   Fory deserialization risk for shared or external topics ([#580](https://github.com/bluetape4k/bluetape4k-projects/issues/580)).
-
----
-
-## [Unreleased]
-
-### 변경
-
-- Opened the `1.11.0` development line after the `1.10.0` stable release.
 
 ### 추가
 
