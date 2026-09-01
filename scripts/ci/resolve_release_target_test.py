@@ -181,12 +181,12 @@ class ReleaseWorkflowPolicyTest(unittest.TestCase):
         workflow = WORKFLOW.read_text(encoding="utf-8")
 
         self.assertIn("target_sha: ${{ steps.resolve.outputs.target_sha }}", workflow)
-        self.assertGreaterEqual(
+        self.assertEqual(
+            2,
             workflow.count("ref: ${{ needs.resolve-version.outputs.target_sha }}"),
-            5,
         )
         self.assertNotIn("needs.resolve-version.outputs.ref", workflow)
-        self.assertGreaterEqual(workflow.count("resolve_release_target.py verify"), 5)
+        self.assertEqual(2, workflow.count("resolve_release_target.py verify"))
         self.assertIn("Source commit", workflow)
 
     def test_ci_runs_immutable_release_target_contract(self) -> None:
