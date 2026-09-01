@@ -535,15 +535,11 @@ def release_policy_errors(workflow: str) -> list[str]:
     expected_jobs = {
         "resolve-version",
         "verify-full-nightly",
-        "testcontainers-manifest-contract",
-        "testcontainers-image-gate",
-        "testcontainers-ignite2-arm64-image-gate",
         "publish",
     }
     if job_ids(workflow) != expected_jobs:
         errors.append(
-            "release workflow must contain resolve-version, verify-full-nightly, testcontainers-manifest-contract, "
-            "testcontainers-image-gate, testcontainers-ignite2-arm64-image-gate, and publish jobs"
+            "release workflow must contain only resolve-version, verify-full-nightly, and publish jobs"
         )
     verify_block = workflow_job_block(workflow, "verify-full-nightly")
     verify_runs = workflow_step_runs(
@@ -576,33 +572,13 @@ def release_policy_errors(workflow: str) -> list[str]:
     )
     if not verify_contract:
         errors.append("release workflow must fail closed on exact-head Full Nightly evidence")
-    if not all(
-        workflow_job_needs(workflow, job_id)
-        == {"resolve-version", "verify-full-nightly", "testcontainers-manifest-contract"}
-        for job_id in (
-            "testcontainers-image-gate",
-            "testcontainers-ignite2-arm64-image-gate",
-        )
-    ):
-        errors.append("full Testcontainers image gate must wait for the manifest contract")
-    if workflow_job_needs(workflow, "testcontainers-manifest-contract") != {
-        "resolve-version",
-        "verify-full-nightly",
-    }:
-        errors.append("release validation gates must wait for exact-head Full Nightly")
     if workflow_job_needs(workflow, "publish") != {
         "resolve-version",
         "verify-full-nightly",
-        "testcontainers-manifest-contract",
-        "testcontainers-image-gate",
-        "testcontainers-ignite2-arm64-image-gate",
     }:
-        errors.append("publish must depend on exact-head Full Nightly and the image gates")
+        errors.append("publish must depend on exact-head Full Nightly")
     exact_head_jobs = (
         "verify-full-nightly",
-        "testcontainers-manifest-contract",
-        "testcontainers-image-gate",
-        "testcontainers-ignite2-arm64-image-gate",
         "publish",
     )
     exact_head_contract = True
@@ -638,19 +614,8 @@ def release_policy_errors(workflow: str) -> list[str]:
             break
     if not exact_head_contract:
         errors.append("release publication must use the exact validated Nightly SHA")
-    if "--scope full" not in workflow or not (
-        "coverage=48/48" in workflow or "expected_coverage=\"48/48\"" in workflow
-    ):
-        errors.append("release workflow must verify the full 48/48 release evidence gate")
-    arm_contract = (
-        "testcontainers-ignite2-arm64-image-gate" in workflow
-        and "--scope family" in workflow
-        and "--family-id ignite2" in workflow
-        and "--platform-id arm64" in workflow
-        and "expected_coverage=\"1/1\"" in workflow
-    )
-    if not arm_contract:
-        errors.append("release workflow must verify the exact Ignite2 arm64 1/1 image gate")
+    if "run_testcontainers_image_gate.py" in workflow:
+        errors.append("release workflow must reuse Full Nightly image-gate evidence")
     errors.extend(publication_validation_errors(workflow, "publish"))
     if not release_command_valid:
         errors.append("release publication must disable the configuration cache")
@@ -830,11 +795,6 @@ class ReleaseWorkflowPolicyTest(unittest.TestCase):
                 "nightly-tests.yml",
                 "test-testcontainers-image-gate-shard",
                 "Run image family gate shard sequentially",
-            ),
-            (
-                "release.yml",
-                "testcontainers-image-gate",
-                "Run full image family gate",
             ),
         )
 
@@ -1343,14 +1303,14 @@ class ReleaseWorkflowPolicyTest(unittest.TestCase):
         self.assertIn("Publish RELEASE to Maven Central Portal", workflow)
         self.assertEqual([], release_policy_errors(workflow))
 
-    def test_release_workflow_blocks_publish_without_full_image_gate(self) -> None:
+    def test_release_workflow_blocks_publish_without_exact_head_nightly(self) -> None:
         workflow = (WORKFLOWS / "release.yml").read_text(encoding="utf-8")
         mutated = workflow.replace(
-            "needs: [resolve-version, verify-full-nightly, testcontainers-manifest-contract, testcontainers-image-gate, testcontainers-ignite2-arm64-image-gate]",
+            "needs: [resolve-version, verify-full-nightly]",
             "needs: resolve-version",
         )
         errors = release_policy_errors(mutated)
-        self.assertIn("publish must depend on exact-head Full Nightly and the image gates", errors)
+        self.assertIn("publish must depend on exact-head Full Nightly", errors)
 
     def test_release_workflow_fails_closed_without_nightly_eligibility_check(self) -> None:
         workflow = (WORKFLOWS / "release.yml").read_text(encoding="utf-8")
@@ -1392,33 +1352,11 @@ class ReleaseWorkflowPolicyTest(unittest.TestCase):
             release_policy_errors(mutated),
         )
 
-    def test_release_workflow_blocks_image_gate_without_manifest_contract(self) -> None:
+    def test_release_workflow_does_not_rerun_image_gates(self) -> None:
         workflow = (WORKFLOWS / "release.yml").read_text(encoding="utf-8")
-        mutated = workflow.replace(
-            "needs: [resolve-version, verify-full-nightly, testcontainers-manifest-contract]",
-            "needs: resolve-version",
-        )
-        errors = release_policy_errors(mutated)
-        self.assertIn("full Testcontainers image gate must wait for the manifest contract", errors)
-
-    def test_release_validation_gates_wait_for_full_nightly(self) -> None:
-        workflow = (WORKFLOWS / "release.yml").read_text(encoding="utf-8")
-        mutated = workflow.replace(
-            "needs: [resolve-version, verify-full-nightly]",
-            "needs: resolve-version",
-            1,
-        )
-
-        self.assertIn(
-            "release validation gates must wait for exact-head Full Nightly",
-            release_policy_errors(mutated),
-        )
-
-    def test_release_workflow_blocks_arm_gate_without_exact_selector(self) -> None:
-        workflow = (WORKFLOWS / "release.yml").read_text(encoding="utf-8")
-        mutated = workflow.replace("--platform-id arm64", "--platform-id amd64")
-        errors = release_policy_errors(mutated)
-        self.assertIn("release workflow must verify the exact Ignite2 arm64 1/1 image gate", errors)
+        self.assertNotIn("run_testcontainers_image_gate.py", workflow)
+        self.assertNotIn("testcontainers-image-gate:", workflow)
+        self.assertNotIn("testcontainers-ignite2-arm64-image-gate:", workflow)
 
     def test_snapshot_workflow_is_not_coupled_to_issue_754_release_state(self) -> None:
         workflow = (WORKFLOWS / "publish-snapshot.yml").read_text(encoding="utf-8")
