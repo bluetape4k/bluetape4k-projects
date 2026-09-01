@@ -60,9 +60,10 @@ metadata를 같은 변경에서 동기화하는 것이다.
   중앙 원본은 `bluetape4k/bluetape4k.github.io`의
   `docs/manual/bluetape4k-projects`이고, 도구는
   `scripts/manual/repositories/bluetape4k-projects`이다.
-- 소스 repository의 manual workflow는 중앙 사이트를 `.manual-site`에 checkout한 뒤
-  `SITE_ROOT`, `MANUAL_ROOT`, `TOOL_ROOT`, `MANIFEST`를 명시해 검증한다. 로컬 검증도 같은
-  변수와 중앙 경로를 사용한다.
+- 소스 repository의 `Central Manual Contract`와 `Test / Key Utils` CI job은 중앙 사이트를
+  pinned commit으로 `.manual-site`에 checkout한 뒤 `BLUETAPE4K_MANUAL_ROOT`와
+  `BLUETAPE4K_MANUAL_REF`를 명시해 parity와 `NearJCacheDocumentationTest`를 검증한다.
+  로컬 검증도 같은 변수와 중앙 경로를 사용한다.
 - Release 전에는 중앙 manifest의 `publication.contentStatus`를 `in-progress`로 유지하고,
   미래 tag/commit을 기록하지 않는다. 안정 tag와 공개 artifact를 검증한 뒤에만 정확한
   `releaseRef`/`releaseCommit`, generated manifest, validator/build 결과를 갱신한다.

@@ -486,7 +486,11 @@ def privileged_action_ref_errors(workflow: str) -> list[str]:
 
 def release_policy_errors(workflow: str) -> list[str]:
     errors = privileged_action_ref_errors(workflow)
-    resolve_runs = workflow_step_runs(workflow, "resolve-version")
+    resolve_runs = [
+        record
+        for record in workflow_step_runs(workflow, "resolve-version")
+        if record[0] is not None
+    ]
     resolve_script = (
         "\n".join(resolve_runs[0][0][1])
         if len(resolve_runs) == 1 and resolve_runs[0][0] is not None
@@ -496,7 +500,10 @@ def release_policy_errors(workflow: str) -> list[str]:
         'if [[ "$EVENT_NAME" == "push" ]]',
         'VERSION="$TAG_NAME"',
         'VERSION="$INPUT_VERSION"',
-        'echo "ref=refs/tags/$VERSION" >> "$GITHUB_OUTPUT"',
+        "scripts/ci/resolve_release_target.py resolve",
+        '--event-name "$EVENT_NAME"',
+        '--event-sha "$EVENT_SHA"',
+        'cat "$RECEIPT" >> "$GITHUB_OUTPUT"',
     )
     if (
         "  push:\n" not in workflow.split("\n\nconcurrency:\n", 1)[0]
@@ -592,6 +599,7 @@ def release_policy_errors(workflow: str) -> list[str]:
     }:
         errors.append("publish must depend on exact-head Full Nightly and the image gates")
     exact_head_jobs = (
+        "verify-full-nightly",
         "testcontainers-manifest-contract",
         "testcontainers-image-gate",
         "testcontainers-ignite2-arm64-image-gate",
@@ -606,19 +614,25 @@ def release_policy_errors(workflow: str) -> list[str]:
             if step[1] is not None
             and step[1].split("@", 1)[0] == "actions/checkout"
         ]
-        verify_steps = [step for step in records if step[0] == "Verify exact release checkout"]
+        verify_steps = [step for step in records if step[0] == "Verify immutable release target"]
+        verify_script = (
+            "\n".join(verify_steps[0][3][1])
+            if len(verify_steps) == 1 and verify_steps[0][3] is not None
+            else ""
+        )
         if not (
             len(checkout_steps) == 1
             and not checkout_steps[0][4]
             and workflow_step_field_values(checkout_steps[0][2], "ref")
-            == ["${{ needs.verify-full-nightly.outputs.head_sha }}"]
+            == ["${{ needs.resolve-version.outputs.target_sha }}"]
             and workflow_step_field_values(checkout_steps[0][2], "fetch-depth") == ["0"]
             and len(verify_steps) == 1
             and not verify_steps[0][4]
-            and workflow_step_field_values(verify_steps[0][2], "EXPECTED_HEAD_SHA")
-            == ["${{ needs.verify-full-nightly.outputs.head_sha }}"]
-            and verify_steps[0][3]
-            == ("inline", ('test "$(git rev-parse HEAD)" = "$EXPECTED_HEAD_SHA"',))
+            and workflow_step_field_values(verify_steps[0][2], "TARGET_SHA")
+            == ["${{ needs.resolve-version.outputs.target_sha }}"]
+            and 'test "$(git rev-parse HEAD)" = "$TARGET_SHA"' in verify_script
+            and "scripts/ci/resolve_release_target.py verify" in verify_script
+            and '--expected-sha "$TARGET_SHA"' in verify_script
         ):
             exact_head_contract = False
             break
@@ -1343,7 +1357,7 @@ class ReleaseWorkflowPolicyTest(unittest.TestCase):
     def test_release_publication_rejects_tag_ref_after_nightly_validation(self) -> None:
         workflow = (WORKFLOWS / "release.yml").read_text(encoding="utf-8")
         mutated = workflow.replace(
-            "ref: ${{ needs.verify-full-nightly.outputs.head_sha }}",
+            "ref: ${{ needs.resolve-version.outputs.target_sha }}",
             "ref: ${{ needs.resolve-version.outputs.ref }}",
             1,
         )

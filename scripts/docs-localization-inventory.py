@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import argparse
+import os
 import re
 import subprocess
 from collections import Counter
@@ -32,6 +33,7 @@ PUBLIC_ENGLISH_NAMES = {
 }
 MANUAL_EN = Path("docs/manual/en")
 MANUAL_KO = Path("docs/manual/ko")
+MANUAL_REF_PATTERN = re.compile(r"^[0-9a-fA-F]{40,64}$")
 KDOC_BLOCK = re.compile(r"/\\*\\*.*?\\*/", re.DOTALL)
 ENGLISH_KDOC_POLICY = [
     re.compile(r"KDoc\\s+in\\s+English", re.IGNORECASE),
@@ -132,14 +134,29 @@ def find_english_kdoc_policy_drift(root: Path, files: list[Path]) -> list[tuple[
     return findings
 
 
-def manual_relative_set(files: list[Path], root_dir: Path) -> set[Path]:
-    rels: set[Path] = set()
-    for path in files:
-        if path.suffix.lower() not in DOC_SUFFIXES:
-            continue
-        if is_under(path, root_dir):
-            rels.add(path.relative_to(root_dir))
-    return rels
+def central_manual_files(manual_root: Path, locale: str) -> set[Path]:
+    locale_root = manual_root / locale
+    return {
+        path.relative_to(locale_root)
+        for path in locale_root.rglob("*")
+        if path.is_file() and path.suffix.lower() in DOC_SUFFIXES
+    }
+
+
+def require_manual_contract(manual_root: Path, manual_ref: str) -> tuple[Path, str]:
+    resolved_root = manual_root.resolve()
+    if not resolved_root.is_dir():
+        raise ValueError(f"central manual root is not available: {resolved_root}")
+    for locale in ("en", "ko"):
+        if not (resolved_root / locale).is_dir():
+            raise ValueError(
+                f"central manual locale is not available: {resolved_root / locale}"
+            )
+    if not MANUAL_REF_PATTERN.fullmatch(manual_ref):
+        raise ValueError(
+            f"central manual ref must be an immutable commit SHA: {manual_ref or '<empty>'}"
+        )
+    return resolved_root, manual_ref.lower()
 
 
 def render_counter(title: str, counter: Counter[str], limit: int | None = None) -> list[str]:
@@ -159,7 +176,7 @@ def render_sample(title: str, paths: list[Path], limit: int = 40) -> list[str]:
     return lines
 
 
-def inventory(root: Path) -> dict[str, object]:
+def inventory(root: Path, manual_root: Path) -> dict[str, object]:
     files = git_files(root)
     doc_classes = Counter()
     doc_buckets: Counter[str] = Counter()
@@ -186,8 +203,12 @@ def inventory(root: Path) -> dict[str, object]:
     kotlin_buckets = Counter(kotlin_bucket(path) for path in kotlin_files)
     kdoc_buckets = count_kdoc_blocks(root, kotlin_files)
 
-    en_manual = manual_relative_set(files, MANUAL_EN)
-    ko_manual = manual_relative_set(files, MANUAL_KO)
+    en_manual = central_manual_files(manual_root, "en")
+    ko_manual = central_manual_files(manual_root, "ko")
+    parity_only = sorted(
+        {Path("en") / path for path in en_manual}
+        | {Path("ko") / path for path in ko_manual}
+    )
     missing_ko = sorted(en_manual - ko_manual)
     missing_en = sorted(ko_manual - en_manual)
     policy_drift = find_english_kdoc_policy_drift(root, files)
@@ -209,8 +230,8 @@ def inventory(root: Path) -> dict[str, object]:
     }
 
 
-def build_report(root: Path) -> str:
-    data = inventory(root)
+def build_report(root: Path, manual_root: Path, manual_ref: str) -> str:
+    data = inventory(root, manual_root)
     files = data["files"]
     doc_classes = data["doc_classes"]
     doc_buckets = data["doc_buckets"]
@@ -236,10 +257,12 @@ def build_report(root: Path) -> str:
         "- Korean rewrite target: prose in in-scope docs, public/internal KDoc, and meaningful internal/data-class property contracts.",
         "- Preserve exactly: code identifiers, API names, commands, URLs, exact error text, external product names, issue/PR numbers, and measured values.",
         "- Excluded from rewrite: README files, LLM-facing operating guidance, generated workflow state, CHANGELOG, SECURITY, GitHub metadata, release notes, and pushed commit text.",
-        "- Parity-only: `docs/manual/en` and `docs/manual/ko` bilingual manual pairs.",
+        "- Parity-only: central manual `en` and `ko` bilingual pairs.",
         "",
         "## Current Inventory",
         "",
+        f"- Central manual root: `{manual_root}`",
+        f"- Central manual ref: `{manual_ref}`",
         f"- Git-tracked files scanned: {len(files)}",
         f"- In-scope single-language docs: {len(in_scope_docs)}",
         f"- Bilingual manual parity-only docs: {len(parity_only)}",
@@ -274,7 +297,8 @@ def build_report(root: Path) -> str:
         "## Reproduction",
         "",
         "```bash",
-        "python3 scripts/docs-localization-inventory.py",
+        'export BLUETAPE4K_MANUAL_ROOT="/path/to/bluetape4k.github.io/docs/manual/bluetape4k-projects"',
+        'export BLUETAPE4K_MANUAL_REF="$(git -C /path/to/bluetape4k.github.io rev-parse HEAD)"',
         "python3 scripts/docs-localization-inventory.py --check",
         "```",
         "",
@@ -282,12 +306,14 @@ def build_report(root: Path) -> str:
     return "\n".join(lines)
 
 
-def run_check(root: Path) -> int:
-    data = inventory(root)
+def run_check(root: Path, manual_root: Path, manual_ref: str) -> int:
+    data = inventory(root, manual_root)
     missing_ko = data["missing_ko"]
     missing_en = data["missing_en"]
     policy_drift = data["policy_drift"]
     print("Korean localization guardrail")
+    print(f"- central manual root: {manual_root}")
+    print(f"- central manual ref: {manual_ref}")
     print(f"- manual EN missing KO: {len(missing_ko)}")
     print(f"- manual KO missing EN: {len(missing_en)}")
     print(f"- English-KDoc policy drift: {len(policy_drift)}")
@@ -305,14 +331,33 @@ def main() -> None:
         help="Repository root. Defaults to the current directory.",
     )
     parser.add_argument(
+        "--manual-root",
+        type=Path,
+        default=os.environ.get("BLUETAPE4K_MANUAL_ROOT"),
+        help="Central bluetape4k-projects manual root containing en/ and ko/.",
+    )
+    parser.add_argument(
+        "--manual-ref",
+        default=os.environ.get("BLUETAPE4K_MANUAL_REF", ""),
+        help="Immutable central manual commit SHA.",
+    )
+    parser.add_argument(
         "--check",
         action="store_true",
         help="Fail when manual parity or English-KDoc policy drift is detected.",
     )
     args = parser.parse_args()
+    if args.manual_root is None:
+        parser.error(
+            "central manual root is not available: set --manual-root or BLUETAPE4K_MANUAL_ROOT"
+        )
+    try:
+        manual_root, manual_ref = require_manual_contract(args.manual_root, args.manual_ref)
+    except ValueError as error:
+        parser.error(str(error))
     if args.check:
-        raise SystemExit(run_check(args.root.resolve()))
-    print(build_report(args.root.resolve()))
+        raise SystemExit(run_check(args.root.resolve(), manual_root, manual_ref))
+    print(build_report(args.root.resolve(), manual_root, manual_ref))
 
 
 if __name__ == "__main__":

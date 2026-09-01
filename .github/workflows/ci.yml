@@ -42,6 +42,7 @@ env:
   ORG_GRADLE_PROJECT_excludeBenchmarks: 'true'
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: 'true'
   BLUETAPE4K_DEPENDENCIES_CATALOG_REF: '91f9ea9336b5ea991f5675323a1cf25ccfd6f5ed'
+  BLUETAPE4K_MANUAL_REF: '4e3c00262adb12cd61e4e8a30b6488aa6a287acc'
   GITLEAKS_VERSION: 'v8.30.1'
 
 jobs:
@@ -55,7 +56,36 @@ jobs:
         with:
           python-version: '3.12'
       - name: Verify Maven-only release policy
-        run: python3 -m unittest scripts/test_release_workflow_policy.py -v
+        run: |
+          python3 -m unittest scripts/test_release_workflow_policy.py -v
+          python3 -m unittest scripts/ci/resolve_release_target_test.py -v
+
+  manual-contract:
+    name: Central Manual Contract
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/checkout@v7
+        with:
+          repository: bluetape4k/bluetape4k.github.io
+          ref: ${{ env.BLUETAPE4K_MANUAL_REF }}
+          path: .manual-site
+      - uses: actions/setup-python@v7
+        with:
+          python-version: '3.12'
+      - name: Verify immutable central manual checkout
+        run: |
+          test "$(git -C .manual-site rev-parse HEAD)" = "$BLUETAPE4K_MANUAL_REF"
+          test -f .manual-site/docs/manual/bluetape4k-projects/manifest.yaml
+          echo "central manual commit=$BLUETAPE4K_MANUAL_REF"
+          sha256sum .manual-site/docs/manual/bluetape4k-projects/manifest.yaml
+      - name: Verify central manual inventory contract
+        env:
+          BLUETAPE4K_MANUAL_ROOT: ${{ github.workspace }}/.manual-site/docs/manual/bluetape4k-projects
+        run: |
+          python3 -m unittest scripts/test_central_manual_contract.py -v
+          python3 scripts/docs-localization-inventory.py --check
 
   jvm-release-contract:
     name: JVM Release Contract
@@ -697,8 +727,21 @@ jobs:
     timeout-minutes: 10
     needs: [changes, catalog-governance]
     if: ${{ needs.changes.outputs['key-utils'] == 'true' || needs.changes.outputs.shared == 'true' || github.event_name == 'workflow_dispatch' }}
+    env:
+      BLUETAPE4K_MANUAL_ROOT: ${{ github.workspace }}/.manual-site/docs/manual/bluetape4k-projects
     steps:
       - uses: actions/checkout@v7
+
+      - uses: actions/checkout@v7
+        with:
+          repository: bluetape4k/bluetape4k.github.io
+          ref: ${{ env.BLUETAPE4K_MANUAL_REF }}
+          path: .manual-site
+
+      - name: Verify immutable central manual checkout
+        run: |
+          test "$(git -C .manual-site rev-parse HEAD)" = "$BLUETAPE4K_MANUAL_REF"
+          echo "central manual commit=$BLUETAPE4K_MANUAL_REF"
 
       - uses: actions/setup-java@v6.0.0
         with:
@@ -723,6 +766,27 @@ jobs:
               --parallel
         env:
           GRADLE_OPTS: "-Dorg.gradle.daemon=false"
+
+      - name: Verify NearJCache documentation contract result
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          from xml.etree import ElementTree
+
+          result = Path(
+              "cache/cache-core/build/test-results/test/"
+              "TEST-io.bluetape4k.cache.nearcache.jcache.NearJCacheDocumentationTest.xml"
+          )
+          suite = ElementTree.parse(result).getroot()
+          actual = {
+              name: int(suite.attrib.get(name, "0"))
+              for name in ("tests", "skipped", "failures", "errors")
+          }
+          expected = {"tests": 6, "skipped": 0, "failures": 0, "errors": 0}
+          if actual != expected:
+              raise SystemExit(f"NearJCache documentation contract mismatch: {actual}")
+          print("NearJCacheDocumentationTest: tests=6, skipped=0, failures=0, errors=0")
+          PY
 
       - name: Generate Kover XML report
         if: always()
@@ -1350,7 +1414,7 @@ jobs:
     name: CI Status
     runs-on: ubuntu-latest
     timeout-minutes: 10
-    needs: [release-policy, jvm-release-contract, codeql-policy, catalog-governance, gitleaks, validate-wrapper, changes, build, test-core, test-io, test-testcontainers-spring, test-ktor, test-key-utils, test-science, test-infra, test-search-messaging, test-kafka-infra, test-telemetry-infra, test-data, test-spring-boot, coverage-report]
+    needs: [release-policy, manual-contract, jvm-release-contract, codeql-policy, catalog-governance, gitleaks, validate-wrapper, changes, build, test-core, test-io, test-testcontainers-spring, test-ktor, test-key-utils, test-science, test-infra, test-search-messaging, test-kafka-infra, test-telemetry-infra, test-data, test-spring-boot, coverage-report]
     if: always()
     steps:
       - name: Check all jobs
