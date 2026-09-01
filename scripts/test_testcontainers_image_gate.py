@@ -229,33 +229,10 @@ class TestTestcontainersImageGate(unittest.TestCase):
                     self.assertIn("build/reports/testcontainers-image-gate/*.json", workflow)
                     self.assertIn("build/reports/testcontainers-image-gate/summary.md", workflow)
                 self.assertNotIn("path: build/reports/testcontainers-image-gate/", workflow)
-        manifest_match = re.search(
-            r"^  testcontainers-manifest-contract:\n.*?(?=^  [a-z0-9-]+:\n)",
-            release_workflow,
-            re.MULTILINE | re.DOTALL,
-        )
-        self.assertIsNotNone(manifest_match, "Release manifest contract job is missing")
-        self.assertIn(
-            "python3 -m unittest scripts/test_testcontainers_image_gate.py -v",
-            manifest_match.group(0),
-        )
-        self.assertNotRegex(manifest_match.group(0), r"(?i)\bdocker\b")
-        self.assertNotIn("jibDockerBuild", manifest_match.group(0))
-        self.assertNotIn("run_testcontainers_image_gate.py", manifest_match.group(0))
-        self.assertIn(
-            "needs: [resolve-version, verify-full-nightly, testcontainers-manifest-contract]",
-            release_workflow,
-        )
-        if "testcontainers-ignite2-arm64-image-gate:" in release_workflow:
-            self.assertIn(
-                "needs: [resolve-version, verify-full-nightly, testcontainers-manifest-contract, testcontainers-image-gate, testcontainers-ignite2-arm64-image-gate]",
-                release_workflow,
-            )
-        else:
-            self.assertIn(
-                "needs: [resolve-version, verify-full-nightly, testcontainers-manifest-contract, testcontainers-image-gate]",
-                release_workflow,
-            )
+        self.assertNotIn("run_testcontainers_image_gate.py", release_workflow)
+        self.assertNotIn("testcontainers-image-gate:", release_workflow)
+        self.assertNotIn("testcontainers-ignite2-arm64-image-gate:", release_workflow)
+        self.assertIn("needs: [resolve-version, verify-full-nightly]", release_workflow)
 
         publish_match = re.search(
             r"^  publish:\n.*\Z",
@@ -338,30 +315,13 @@ class TestTestcontainersImageGate(unittest.TestCase):
             self.assertIn("needs: [test-testcontainers, test-testcontainers-image-gate, plan]", workflow)
             self.assertIn("needs.test-testcontainers-image-gate.result == 'skipped'", workflow)
 
-    def test_release_publish_depends_on_full_gate_summary(self) -> None:
+    def test_release_publish_reuses_full_nightly_gate_summary(self) -> None:
         workflow = (self.root / ".github/workflows/release.yml").read_text(encoding="utf-8")
-        self.assertIn("testcontainers-manifest-contract:", workflow)
-        self.assertIn("testcontainers-image-gate:", workflow)
-        if "testcontainers-ignite2-arm64-image-gate:" in workflow:
-            self.assertIn(
-                "needs: [resolve-version, verify-full-nightly, testcontainers-manifest-contract, testcontainers-image-gate, testcontainers-ignite2-arm64-image-gate]",
-                workflow,
-            )
-        else:
-            self.assertIn(
-                "needs: [resolve-version, verify-full-nightly, testcontainers-manifest-contract, testcontainers-image-gate]",
-                workflow,
-            )
-        self.assertIn("--scope full", workflow)
-        if "testcontainers-ignite2-arm64-image-gate:" in workflow:
-            self.assertIn("runs-on: ubuntu-24.04", workflow)
-            self.assertIn("runs-on: ubuntu-24.04-arm", workflow)
-            self.assertIn('expected_coverage="48/48"', workflow)
-            self.assertIn('expected_coverage="1/1"', workflow)
-            self.assertIn("name: release-testcontainers-image-gate-${{ github.run_id }}-amd64", workflow)
-            self.assertIn("name: release-testcontainers-image-gate-${{ github.run_id }}-arm64", workflow)
-        else:
-            self.assertIn("coverage=52/52", workflow)
+        self.assertIn("needs: [resolve-version, verify-full-nightly]", workflow)
+        self.assertIn("publish_eligible=true", workflow)
+        self.assertNotIn("run_testcontainers_image_gate.py", workflow)
+        self.assertNotIn("testcontainers-image-gate:", workflow)
+        self.assertNotIn("testcontainers-ignite2-arm64-image-gate:", workflow)
 
 
 if __name__ == "__main__":
