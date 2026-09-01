@@ -824,6 +824,31 @@ class ReleaseWorkflowPolicyTest(unittest.TestCase):
             for name in sorted(expected_names)
         ]
 
+    def test_generic_image_gates_retry_only_transient_infrastructure_failures(self) -> None:
+        cases = (
+            (
+                "nightly-tests.yml",
+                "test-testcontainers-image-gate-shard",
+                "Run image family gate shard sequentially",
+            ),
+            (
+                "release.yml",
+                "testcontainers-image-gate",
+                "Run full image family gate",
+            ),
+        )
+
+        for workflow_name, job_id, step_name in cases:
+            with self.subTest(workflow=workflow_name):
+                workflow = (WORKFLOWS / workflow_name).read_text(encoding="utf-8")
+                runs = workflow_step_runs(workflow, job_id, step_name)
+
+                self.assertEqual(1, len(runs))
+                self.assertIsNotNone(runs[0][0])
+                command = "\n".join(runs[0][0][1])
+                self.assertIn("--max-attempts 2", command)
+                self.assertNotIn("--max-attempts 1", command)
+
     def test_semantic_checker_rejects_snapshot_task_and_release_action(self) -> None:
         workflow = (WORKFLOWS / "release.yml").read_text(encoding="utf-8")
         mutated = workflow.replace(

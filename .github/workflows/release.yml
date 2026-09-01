@@ -251,7 +251,7 @@ jobs:
           --scope full
           --report-dir build/reports/testcontainers-image-gate
           --default-platform-id amd64
-          --max-attempts 1
+          --max-attempts 2
           --pull-timeout-seconds 60
           --timeout-minutes 4
           --diagnostic-timeout-seconds 30
