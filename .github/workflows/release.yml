@@ -42,12 +42,18 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       version: ${{ steps.resolve.outputs.version }}
-      ref: ${{ steps.resolve.outputs.ref }}
+      tag: ${{ steps.resolve.outputs.tag }}
+      target_sha: ${{ steps.resolve.outputs.target_sha }}
     steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          ref: ${{ github.workflow_sha }}
+
       - id: resolve
         shell: bash
         env:
           EVENT_NAME: ${{ github.event_name }}
+          EVENT_SHA: ${{ github.sha }}
           TAG_NAME: ${{ github.ref_name }}
           INPUT_VERSION: ${{ inputs.version }}
         run: |
@@ -58,13 +64,21 @@ jobs:
             VERSION="$INPUT_VERSION"
           fi
 
-          if [[ ! "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z-]+(\.[0-9A-Za-z-]+)*)?$ ]]; then
-            echo "::error::Invalid version format: $VERSION"
-            exit 1
-          fi
+          RECEIPT="$RUNNER_TEMP/release-target.txt"
+          python3 scripts/ci/resolve_release_target.py resolve \
+            --version "$VERSION" \
+            --event-name "$EVENT_NAME" \
+            --event-sha "$EVENT_SHA" > "$RECEIPT"
+          cat "$RECEIPT" >> "$GITHUB_OUTPUT"
 
-          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
-          echo "ref=refs/tags/$VERSION" >> "$GITHUB_OUTPUT"
+          TARGET_SHA=$(sed -n 's/^target_sha=//p' "$RECEIPT")
+          {
+            echo "### Stable release target"
+            echo
+            echo "- Version: \`$VERSION\`"
+            echo "- Tag: \`refs/tags/$VERSION\`"
+            echo "- Source commit: \`$TARGET_SHA\`"
+          } >> "$GITHUB_STEP_SUMMARY"
 
   verify-full-nightly:
     name: Verify exact-head Full Nightly
@@ -77,8 +91,20 @@ jobs:
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
-          ref: ${{ needs.resolve-version.outputs.ref }}
+          ref: ${{ needs.resolve-version.outputs.target_sha }}
           fetch-depth: 0
+
+      - name: Verify immutable release target
+        shell: bash
+        env:
+          VERSION: ${{ needs.resolve-version.outputs.version }}
+          TARGET_SHA: ${{ needs.resolve-version.outputs.target_sha }}
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$TARGET_SHA"
+          python3 scripts/ci/resolve_release_target.py verify \
+            --version "$VERSION" \
+            --expected-sha "$TARGET_SHA"
 
       - name: Validate matching Full Nightly
         id: nightly
@@ -150,14 +176,20 @@ jobs:
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
-          ref: ${{ needs.verify-full-nightly.outputs.head_sha }}
+          ref: ${{ needs.resolve-version.outputs.target_sha }}
           fetch-depth: 0
 
-      - name: Verify exact release checkout
+      - name: Verify immutable release target
         shell: bash
         env:
-          EXPECTED_HEAD_SHA: ${{ needs.verify-full-nightly.outputs.head_sha }}
-        run: test "$(git rev-parse HEAD)" = "$EXPECTED_HEAD_SHA"
+          VERSION: ${{ needs.resolve-version.outputs.version }}
+          TARGET_SHA: ${{ needs.resolve-version.outputs.target_sha }}
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$TARGET_SHA"
+          python3 scripts/ci/resolve_release_target.py verify \
+            --version "$VERSION" \
+            --expected-sha "$TARGET_SHA"
 
       - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7
         with:
@@ -176,14 +208,20 @@ jobs:
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
-          ref: ${{ needs.verify-full-nightly.outputs.head_sha }}
+          ref: ${{ needs.resolve-version.outputs.target_sha }}
           fetch-depth: 0
 
-      - name: Verify exact release checkout
+      - name: Verify immutable release target
         shell: bash
         env:
-          EXPECTED_HEAD_SHA: ${{ needs.verify-full-nightly.outputs.head_sha }}
-        run: test "$(git rev-parse HEAD)" = "$EXPECTED_HEAD_SHA"
+          VERSION: ${{ needs.resolve-version.outputs.version }}
+          TARGET_SHA: ${{ needs.resolve-version.outputs.target_sha }}
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$TARGET_SHA"
+          python3 scripts/ci/resolve_release_target.py verify \
+            --version "$VERSION" \
+            --expected-sha "$TARGET_SHA"
 
       - uses: actions/setup-java@dd06d9cba3e5552c54d9f8ea23572deb30010f7c # v6.0.0
         with:
@@ -286,14 +324,20 @@ jobs:
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
-          ref: ${{ needs.verify-full-nightly.outputs.head_sha }}
+          ref: ${{ needs.resolve-version.outputs.target_sha }}
           fetch-depth: 0
 
-      - name: Verify exact release checkout
+      - name: Verify immutable release target
         shell: bash
         env:
-          EXPECTED_HEAD_SHA: ${{ needs.verify-full-nightly.outputs.head_sha }}
-        run: test "$(git rev-parse HEAD)" = "$EXPECTED_HEAD_SHA"
+          VERSION: ${{ needs.resolve-version.outputs.version }}
+          TARGET_SHA: ${{ needs.resolve-version.outputs.target_sha }}
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$TARGET_SHA"
+          python3 scripts/ci/resolve_release_target.py verify \
+            --version "$VERSION" \
+            --expected-sha "$TARGET_SHA"
 
       - uses: actions/setup-java@dd06d9cba3e5552c54d9f8ea23572deb30010f7c # v6.0.0
         with:
@@ -377,14 +421,20 @@ jobs:
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
-          ref: ${{ needs.verify-full-nightly.outputs.head_sha }}
+          ref: ${{ needs.resolve-version.outputs.target_sha }}
           fetch-depth: 0
 
-      - name: Verify exact release checkout
+      - name: Verify immutable release target
         shell: bash
         env:
-          EXPECTED_HEAD_SHA: ${{ needs.verify-full-nightly.outputs.head_sha }}
-        run: test "$(git rev-parse HEAD)" = "$EXPECTED_HEAD_SHA"
+          VERSION: ${{ needs.resolve-version.outputs.version }}
+          TARGET_SHA: ${{ needs.resolve-version.outputs.target_sha }}
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$TARGET_SHA"
+          python3 scripts/ci/resolve_release_target.py verify \
+            --version "$VERSION" \
+            --expected-sha "$TARGET_SHA"
 
       - name: Resolve dependencies catalog ref
         shell: bash

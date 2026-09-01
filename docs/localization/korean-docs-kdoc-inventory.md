@@ -8,19 +8,26 @@ Issue: #1093
 - Korean rewrite target: prose in in-scope docs, public/internal KDoc, and meaningful internal/data-class property contracts.
 - Preserve exactly: code identifiers, API names, commands, URLs, exact error text, external product names, issue/PR numbers, and measured values.
 - Excluded from rewrite: README files, LLM-facing operating guidance, generated workflow state, CHANGELOG, SECURITY, GitHub metadata, release notes, and pushed commit text.
-- Parity-only: `docs/manual/en` and `docs/manual/ko` bilingual manual pairs.
+- Parity-only: `bluetape4k/bluetape4k.github.io`의
+  `docs/manual/bluetape4k-projects/en`과 `ko` bilingual pair.
 
-## Current inventory
+## 현재 inventory
 
-- Git-tracked files scanned: 7425
-- In-scope single-language docs: 728
-- Bilingual manual parity-only docs: 508
-- Excluded docs: 208
-- Kotlin/KTS files for KDoc follow-up: 4492
-- KDoc blocks found in Kotlin/KTS files: 34362
+- Central manual source: `bluetape4k/bluetape4k.github.io`
+- Central manual root: `docs/manual/bluetape4k-projects`
+- Central manual ref: `4e3c00262adb12cd61e4e8a30b6488aa6a287acc`
+- Git-tracked files scanned: 7233
+- In-scope single-language docs: 879
+- Bilingual manual parity-only docs: 516
+- Excluded docs: 214
+- Kotlin/KTS files for KDoc follow-up: 4613
+- KDoc blocks found in Kotlin/KTS files: 34756
 - Manual EN files missing KO pair: 0
 - Manual KO files missing EN pair: 0
 - English-KDoc policy drift findings: 0
+
+아래 bucket 표는 `#1093` 당시 repository-local manual이 존재하던 historical baseline이다.
+현재 CI guardrail은 위 central manual ref를 기준으로 parity를 검증한다.
 
 ### Document Classification
 
@@ -327,6 +334,7 @@ No English-KDoc policy drift was found in the tracked documentation scope.
 ## Reproduction
 
 ```bash
-python3 scripts/docs-localization-inventory.py
+export BLUETAPE4K_MANUAL_ROOT="/path/to/bluetape4k.github.io/docs/manual/bluetape4k-projects"
+export BLUETAPE4K_MANUAL_REF="$(git -C /path/to/bluetape4k.github.io rev-parse HEAD)"
 python3 scripts/docs-localization-inventory.py --check
 ```
