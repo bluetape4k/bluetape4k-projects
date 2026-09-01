@@ -300,6 +300,30 @@ class TestRunTestcontainersImageGate(unittest.TestCase):
         self.assertEqual("infrastructure_failure", classify_failure(1, "connection refused", ""))
         self.assertEqual("infrastructure_failure", classify_failure(None, "", "timeout"))
 
+    def test_product_failure_does_not_retry(self) -> None:
+        calls: list[list[str]] = []
+
+        def command_runner(command: list[str], timeout_seconds: int) -> SimpleNamespace:
+            calls.append(command)
+            return SimpleNamespace(
+                returncode=1,
+                stdout="",
+                stderr="AssertionError: expected 200",
+            )
+
+        with tempfile.TemporaryDirectory() as directory:
+            summary = GateRunner(
+                [entry()],
+                Path(directory),
+                command_runner=command_runner,
+                max_attempts=2,
+            ).run()
+
+        self.assertEqual("product_failure", summary["results"][0]["status"])
+        self.assertEqual(1, len(summary["results"][0]["attempts"]))
+        gradle_calls = [command for command in calls if command[0] == "./gradlew"]
+        self.assertEqual(1, len(gradle_calls))
+
     def test_test_discovery_failure_wins_over_unrelated_docker_output(self) -> None:
         stdout = "building image to Docker daemon\ntimeout while preparing unrelated diagnostics\n"
         stderr = (
