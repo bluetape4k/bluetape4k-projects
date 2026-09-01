@@ -29,6 +29,7 @@ env:
   JAVA_DISTRIBUTION: 'temurin'
   ORG_GRADLE_PROJECT_excludeBenchmarks: 'true'
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: 'true'
+  BLUETAPE4K_MANUAL_REF: '4e3c00262adb12cd61e4e8a30b6488aa6a287acc'
 
 jobs:
   plan:
@@ -764,8 +765,22 @@ jobs:
     runs-on: ubuntu-latest
     needs: [build, plan]
     if: ${{ needs.plan.outputs.run_standard == 'true' }}
+    env:
+      BLUETAPE4K_MANUAL_ROOT: ${{ github.workspace }}/.manual-site/docs/manual/bluetape4k-projects
     steps:
       - uses: actions/checkout@v7
+
+      - uses: actions/checkout@v7
+        with:
+          repository: bluetape4k/bluetape4k.github.io
+          ref: ${{ env.BLUETAPE4K_MANUAL_REF }}
+          path: .manual-site
+
+      - name: Verify immutable central manual checkout
+        run: |
+          test "$(git -C .manual-site rev-parse HEAD)" = "$BLUETAPE4K_MANUAL_REF"
+          test -f .manual-site/docs/manual/bluetape4k-projects/manifest.yaml
+          echo "central manual commit=$BLUETAPE4K_MANUAL_REF"
 
       - name: Validate mock server Kover isolation
         id: validate-kover-isolation
