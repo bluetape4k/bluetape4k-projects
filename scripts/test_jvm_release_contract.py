@@ -22,6 +22,13 @@ def read(relative: str) -> str:
     return (ROOT / relative).read_text(encoding="utf-8")
 
 
+def base_version() -> str:
+    match = re.search(r"(?m)^baseVersion=([^\n]+)$", read("gradle.properties"))
+    if match is None:
+        raise AssertionError("gradle.properties does not declare baseVersion")
+    return match.group(1)
+
+
 def block(text: str, marker: str = MARKER) -> str:
     pattern = rf"<!-- {re.escape(marker)}:start -->(.*?)<!-- {re.escape(marker)}:end -->"
     matches = re.findall(pattern, text, re.DOTALL)
@@ -31,9 +38,9 @@ def block(text: str, marker: str = MARKER) -> str:
 
 
 class JvmReleaseContractTest(unittest.TestCase):
-    def test_version_source_is_2_0_0_release_ready(self) -> None:
+    def test_version_source_is_next_minor_development_line(self) -> None:
         properties = read("gradle.properties")
-        self.assertRegex(properties, r"(?m)^baseVersion=2\.0\.0$")
+        self.assertRegex(properties, r"(?m)^baseVersion=2\.1\.0$")
         self.assertRegex(properties, r"(?m)^snapshotVersion=$")
 
     def test_java_21_island_and_default_target_are_explicit(self) -> None:
@@ -57,10 +64,7 @@ class JvmReleaseContractTest(unittest.TestCase):
         self.assertIn("options.release.set(javaCompatibilityVersion)", build)
 
     def test_local_mock_server_image_tags_follow_release_version(self) -> None:
-        properties = read("gradle.properties")
-        version = re.search(r"(?m)^baseVersion=([^\n]+)$", properties)
-        self.assertIsNotNone(version)
-        release_version = version.group(1)
+        release_version = base_version()
         for source_path in (
             "testing/testcontainers/src/main/kotlin/io/bluetape4k/testcontainers/http/BluetapeHttpServer.kt",
             "testing/testcontainers/src/main/kotlin/io/bluetape4k/testcontainers/http/BluetapeWebfluxServer.kt",
@@ -88,15 +92,17 @@ class JvmReleaseContractTest(unittest.TestCase):
 
     def test_ci_builds_and_inspects_both_mock_server_images(self) -> None:
         workflow = read(".github/workflows/ci.yml")
+        release_version = base_version()
         for image in ("mock-web-server", "mock-webflux-server"):
             self.assertIn(f":bluetape4k-{image}:jibDockerBuild", workflow)
-            self.assertIn(f"bluetape4k/{image}:2.0.0", workflow)
+            self.assertIn(f"bluetape4k/{image}:{release_version}", workflow)
 
     def test_testcontainers_docs_follow_release_image_tags(self) -> None:
+        release_version = base_version()
         for relative in ("testing/testcontainers/README.md", "testing/testcontainers/README.ko.md"):
             source = read(relative)
-            self.assertIn("`bluetape4k/mock-web-server` | `2.0.0`", source)
-            self.assertIn("`bluetape4k/mock-webflux-server` | `2.0.0`", source)
+            self.assertIn(f"`bluetape4k/mock-web-server` | `{release_version}`", source)
+            self.assertIn(f"`bluetape4k/mock-webflux-server` | `{release_version}`", source)
             self.assertNotIn("`bluetape4k/mock-web-server` | `1.13.0`", source)
             self.assertNotIn("`bluetape4k/mock-webflux-server` | `1.13.0`", source)
 
@@ -112,8 +118,9 @@ class JvmReleaseContractTest(unittest.TestCase):
         for token in COMMON_TOKENS:
             self.assertIn(token, english)
             self.assertIn(token, korean)
-        self.assertIn("baseVersion=2.0.0", read("README.md"))
-        self.assertIn("baseVersion=2.0.0", read("README.ko.md"))
+        current_version = base_version()
+        self.assertIn(f"baseVersion={current_version}", read("README.md"))
+        self.assertIn(f"baseVersion={current_version}", read("README.ko.md"))
         self.assertNotIn("baseVersion=1.11.0", read("README.md"))
         self.assertNotIn("baseVersion=1.11.0", read("README.ko.md"))
 
