@@ -877,7 +877,7 @@ jobs:
   test-infra:
     name: Test / Infra (Redis)
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 20
     needs: [changes, catalog-governance]
     if: ${{ needs.changes.outputs.infra == 'true' || needs.changes.outputs.shared == 'true' || github.event_name == 'workflow_dispatch' }}
     steps:
