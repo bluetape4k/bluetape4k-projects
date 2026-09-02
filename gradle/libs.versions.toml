@@ -507,17 +507,6 @@ agroal-spring-boot-starter = { module = "io.agroal:agroal-spring-boot-starter" }
 
 # Ehcache
 
-# Apache Ignite 2.x
-ignite-clients = { module = "org.apache.ignite:ignite-clients" }
-ignite-aop = { module = "org.apache.ignite:ignite-aop" }
-ignite-aws = { module = "org.apache.ignite:ignite-aws" }
-ignite-compress = { module = "org.apache.ignite:ignite-compress" }
-ignite-indexing = { module = "org.apache.ignite:ignite-indexing" }
-ignite-slf4j = { module = "org.apache.ignite:ignite-slf4j" }
-ignite-spring = { module = "org.apache.ignite:ignite-spring" }
-ignite-tools = { module = "org.apache.ignite:ignite-tools" }
-ignite-zookeeper = { module = "org.apache.ignite:ignite-zookeeper" }
-
 # Hazelcast
 hazelcast-spring = { module = "com.hazelcast:hazelcast-spring" }
 

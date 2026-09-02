@@ -755,55 +755,6 @@
       "releaseRequired": true
     },
     {
-      "id": "ignite2",
-      "server": "Ignite2Server",
-      "source": "testing/testcontainers/src/main/kotlin/io/bluetape4k/testcontainers/storage/Ignite2Server.kt",
-      "testSource": "testing/testcontainers/src/test/kotlin/io/bluetape4k/testcontainers/storage/Ignite2ServerTest.kt",
-      "image": "apacheignite/ignite",
-      "tag": "2.18.0",
-      "testPattern": "io.bluetape4k.testcontainers.storage.Ignite2ServerTest",
-      "readiness": "testcontainers_wait_strategy_and_workload_readiness",
-      "workload": "io.bluetape4k.testcontainers.storage.Ignite2ServerTest:representative_test",
-      "platforms": [
-        {
-          "id": "amd64",
-          "os": "linux",
-          "architecture": "amd64",
-          "tag": "2.18.0",
-          "runner": "ubuntu-24.04"
-        },
-        {
-          "id": "arm64",
-          "os": "linux",
-          "architecture": "arm64",
-          "tag": "2.18.0-arm64",
-          "runner": "ubuntu-24.04-arm"
-        }
-      ],
-      "defaultPlatformId": "amd64",
-      "executionEvidenceRequired": true,
-      "workloadTestPattern": "io.bluetape4k.testcontainers.storage.Ignite2ServerTest.representativeStartupAndWorkload",
-      "platformTimeouts": {
-        "amd64": {
-          "testMinutes": 6,
-          "clientConnectSeconds": 30,
-          "clientRequestSeconds": 30
-        },
-        "arm64": {
-          "testMinutes": 30,
-          "clientConnectSeconds": 30,
-          "clientRequestSeconds": 30
-        }
-      },
-      "pullEvidenceRequired": true,
-      "diagnostics": [
-        "docker_inspect",
-        "docker_logs",
-        "docker_events"
-      ],
-      "releaseRequired": true
-    },
-    {
       "id": "ignite3",
       "server": "Ignite3Server",
       "source": "testing/testcontainers/src/main/kotlin/io/bluetape4k/testcontainers/storage/Ignite3Server.kt",

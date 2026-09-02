@@ -502,12 +502,12 @@ val result = factorial[10]  // 캐싱되어 반복 계산 방지
 
 ### Provider별 호환성 매트릭스
 
-| testFixtures                   | Hazelcast | Ignite2 | Redisson |   Lettuce    |
-|--------------------------------|:---------:|:-------:|:--------:|:------------:|
-| `AbstractSuspendCacheTest`     |     ✅     |    ✅    |    ✅     |      ✅       |
-| `AbstractNearCacheTest`        |     ✅     |    ✅    |    ✅     | N/A(아키텍처 상이) |
-| `AbstractSuspendNearCacheTest` |     ✅     |    ✅    |    ✅     | N/A(아키텍처 상이) |
-| `AbstractMemorizerTest` 3종     |    N/A    |   N/A   |   N/A    |     N/A      |
+| testFixtures                   | Hazelcast | Redisson |   Lettuce    |
+|--------------------------------|:---------:|:--------:|:------------:|
+| `AbstractSuspendCacheTest`     |     ✅     |    ✅     |      ✅       |
+| `AbstractNearCacheTest`        |     ✅     |    ✅     | N/A(아키텍처 상이) |
+| `AbstractSuspendNearCacheTest` |     ✅     |    ✅     | N/A(아키텍처 상이) |
+| `AbstractMemorizerTest` 3종     |    N/A    |   N/A    |     N/A      |
 
 > Memorizer는 로컬 캐시 전용 패턴으로 분산 캐시 모듈에는 해당 없음
 

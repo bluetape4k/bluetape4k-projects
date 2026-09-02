@@ -852,7 +852,7 @@ class GateRunner:
         if stat.st_mtime_ns < started_ns or stat.st_size > 1024:
             raise ValueError("startup marker is stale or oversized")
         content = marker.read_text(encoding="utf-8").strip()
-        if content != "Ignite node started OK":
+        if content != "Container workload ready":
             raise ValueError("startup marker content mismatch")
         return {"ready": True, "marker": content, "marker_source": "bounded_attempt_marker"}
 

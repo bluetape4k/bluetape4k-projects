@@ -28,7 +28,7 @@ A server wrapper and utility library for building integration tests quickly on t
 - **Embedded SQS**: `ElasticMqServer` runs an in-process SQS server — no Docker needed
 - **Mail testing**: `MailpitServer` provides SMTP + Web UI for email integration tests
 - **LLM support**: `ChromaDBServer` (vector DB, port 8000), `OllamaServer` (local LLM inference, port 11434)
-- **Distributed cache/grid**: `HazelcastServer` (5.x slim), `Ignite2Server`, `Ignite3Server` (auto cluster-init)
+- **Distributed cache/grid**: `HazelcastServer` (5.x slim), `Ignite3Server` (auto cluster-init)
 -
 
 **Observability**: `ZipkinServer` (distributed tracing, `openzipkin/zipkin-slim:2.23`), `GrafanaServer` (dashboards + datasource provisioning, `grafana/grafana:13.1.3`), `K3sServer` (lightweight Kubernetes cluster, `rancher/k3s`; requires `--privileged` Docker mode)
@@ -80,7 +80,6 @@ Every server implements
 | JaegerServer           | `jaeger`            | `host`, `port`, `url`, `frontend-port`, `zipkin-port`, `config-port`, `thrift-port`                                                                                  |
 | ElasticsearchOssServer | `elasticsearch-oss` | `host`, `port`, `url`                                                                                                                                                |
 | HazelcastServer        | `hazelcast`         | `host`, `port`, `url`                                                                                                                                                |
-| Ignite2Server          | `ignite2`           | `host`, `port`, `url`                                                                                                                                                |
 | Ignite3Server          | `ignite3`           | `host`, `port`, `url`, `rest-port`                                                                                                                                   |
 | ZipkinServer           | `zipkin`            | `host`, `port`, `url`                                                                                                                                                |
 | NginxServer            | `nginx`             | `host`, `port`, `url`                                                                                                                                                |
@@ -94,44 +93,6 @@ Every server implements
 The defaults below are pinned to the latest stable image tag verified on
 2026-08-10. Mutable `latest`, major-only, and rolling minor tags are avoided so
 that Testcontainers runs remain reproducible across local machines and CI.
-
-<!-- issue-1520-ignite2-migration:start -->
-### `Ignite2Server` migration contract for 2.0.0
-
-`Ignite2Server` resolves the canonical `apacheignite/ignite` image lazily:
-`x86_64`/`amd64` uses `2.18.0`, while `aarch64`/`arm64` uses
-`2.18.0-arm64`. Omitting the canonical tag on an unknown architecture fails
-with `IllegalStateException` and the message
-`Unsupported Ignite2 default image architecture: <architecture>`.
-
-Custom images must now provide an explicit tag. Code that previously relied on
-`Ignite2Server(image = "custom/ignite")` compiling to a canonical default tag
-must migrate to one of these forms:
-
-```kotlin
-val byName = Ignite2Server(image = "custom/ignite", tag = "2.18.0-custom")
-val byDockerName = Ignite2Server(DockerImageName.parse("custom/ignite:2.18.0-custom"))
-```
-
-The tagless String call fails with `IllegalArgumentException` and
-`Custom Ignite2 image requires an explicit tag`. The tagless
-`DockerImageName` call fails with `IllegalArgumentException` and
-`Custom Ignite2 DockerImageName must include an explicit tag`. There is no
-fallback to the canonical tag in 2.0.0: the fail-fast behavior keeps custom
-image selection reproducible, while an explicit custom tag bypasses canonical
-architecture resolution. See
-[`docs/release/2.0.0-ignite2-migration.md`](../../docs/release/2.0.0-ignite2-migration.md)
-for the compatibility and JVM descriptor decision.
-<!-- issue-1520-ignite2-migration:end -->
-
-Start the server and close both the server and the `IgniteClient` with
-`use`/`close` as shown below.
-
-On Java 25+, the Ignite 2 thin-client tests use only
-`--add-opens=java.base/java.nio=ALL-UNNAMED` and
-`--add-opens=java.base/java.util=ALL-UNNAMED`. These options are scoped to the
-`bluetape4k-testcontainers` module's `Test` tasks; they are not global JVM
-defaults for the repository.
 
 | Group | Server | Image | Default tag |
 |---|---|---|---|
@@ -179,7 +140,6 @@ defaults for the repository.
 | Storage | `ElasticsearchOssServer` | `docker.elastic.co/elasticsearch/elasticsearch-oss` | `7.10.2` |
 | Storage | `ElasticsearchServer` | `docker.elastic.co/elasticsearch/elasticsearch` | `9.5.0` |
 | Storage | `HazelcastServer` | `hazelcast/hazelcast` | `5.7.0-slim-jdk25` |
-| Storage | `Ignite2Server` | `apacheignite/ignite` | `2.18.0` (x86_64/amd64) or `2.18.0-arm64` (aarch64/arm64) |
 | Storage | `Ignite3Server` | `apacheignite/ignite` | `3.1.0` |
 | Storage | `InfluxDBServer` | `influxdb` | `2.9.1` |
 | Storage | `MinIOServer` | `minio/minio` | `RELEASE.2025-07-23T15-54-02Z` (compatibility fixture) |
@@ -214,7 +174,7 @@ gate is intentionally reserved for the full Nightly/release path. The runner
 executes the selected families sequentially (`max-parallel: 1`),
 records `success`, `product_failure`, `infrastructure_failure`, or `blocked`,
 and writes `summary.json`, `summary.md`, and one JSON file per family. Stable
-publication requires all 48 release-required families (`48/48`),
+publication requires all 48 release-required families (`47/47`),
 `release_gate=true`, and zero failure-classification counts; the remaining four
 families are support inventory and are reported separately. Docker Hub
 authentication and mirror settings are supplied through
@@ -538,21 +498,6 @@ val hazelcast = HazelcastServer.Launcher.hazelcast
 val client = HazelcastClient.newHazelcastClient(
     ClientConfig().apply { networkConfig.addAddress("${hazelcast.host}:${hazelcast.port}") }
 )
-
-// Apache Ignite 2.x — native image tag and thin-client port 10800
-Ignite2Server().use { ignite2 ->
-    ignite2.start()
-    Ignition.startClient(
-        ClientConfiguration()
-            .setAddresses(ignite2.url)
-            .setTimeout(30_000)
-            .setRequestTimeout(30_000),
-    ).use { client ->
-        val cache = client.getOrCreateCache<String, String>("example-cache")
-        cache.put("key", "value")
-        check(cache.get("key") == "value")
-    }
-}
 
 // Apache Ignite 3.x — auto cluster-init, thin client port 10800
 val ignite3 = Ignite3Server.Launcher.ignite3

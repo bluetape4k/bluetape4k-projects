@@ -19,7 +19,6 @@ REQUIRED_JOB_NAMES = frozenset(
         "Test / Utils",
         "Test / Misc",
         "Test / Testcontainers image startup-workload gate",
-        "Test / Testcontainers Ignite2 arm64 image gate",
         "Test / Testcontainers Spring bridge",
         "Coverage Report",
         "Nightly Status",

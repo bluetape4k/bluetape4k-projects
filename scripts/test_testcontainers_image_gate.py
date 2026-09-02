@@ -69,28 +69,6 @@ class TestTestcontainersImageGate(unittest.TestCase):
         ).read_text(encoding="utf-8")
         self.assertIn('tasks.register<Test>("k8sTest")', build_script)
 
-    def test_java25_ignite_options_are_module_scoped_and_minimal(self) -> None:
-        root_build = (self.root / "build.gradle.kts").read_text(encoding="utf-8")
-        module_build = (
-            self.root / "testing/testcontainers/build.gradle.kts"
-        ).read_text(encoding="utf-8")
-        self.assertIn("tasks.withType<Test>().configureEach", module_build)
-        self.assertIn('systemProperty("testcontainers.image-gate.evidence-dir", it)', module_build)
-        for option in (
-            "--add-opens=java.base/java.nio=ALL-UNNAMED",
-            "--add-opens=java.base/java.util=ALL-UNNAMED",
-        ):
-            self.assertIn(option, module_build)
-            self.assertNotIn(option, root_build)
-
-    def test_ignite_workload_receipt_matches_the_long_arm_timeout_contract(self) -> None:
-        source = (
-            self.root
-            / "testing/testcontainers/src/test/kotlin/io/bluetape4k/testcontainers/storage/Ignite2ServerTest.kt"
-        ).read_text(encoding="utf-8")
-        self.assertIn('Files.writeString(root.resolve("workload.image-id")', source)
-        self.assertIn("@Timeout(value = 30, unit = TimeUnit.MINUTES)", source)
-
     def test_changed_scope_is_deterministic_and_full_scope_is_complete(self) -> None:
         changed = select_entries(self.entries, {"testing/testcontainers/src/main/kotlin/io/bluetape4k/testcontainers/aws/FlociServer.kt"})
         self.assertEqual(["FlociServer"], [entry["server"] for entry in changed])
@@ -105,7 +83,7 @@ class TestTestcontainersImageGate(unittest.TestCase):
             for index in range(4)
         ]
         shard_ids = [[entry["id"] for entry in shard] for shard in shards]
-        self.assertEqual([13, 13, 13, 13], [len(ids) for ids in shard_ids])
+        self.assertEqual([13, 13, 13, 12], [len(ids) for ids in shard_ids])
         self.assertCountEqual(
             [entry["id"] for entry in self.entries],
             [family_id for ids in shard_ids for family_id in ids],
@@ -119,17 +97,17 @@ class TestTestcontainersImageGate(unittest.TestCase):
             select_shard_entries(self.entries, shard_index=4, shard_count=4)
 
     def test_family_selector_is_exact_and_requires_platform_when_requested(self) -> None:
-        ignite = dict(self.entries[0])
-        ignite["id"] = "ignite2"
-        ignite["platforms"] = [
+        strict = dict(self.entries[0])
+        strict["id"] = "strict-family"
+        strict["platforms"] = [
             {"id": "amd64", "os": "linux", "architecture": "amd64", "tag": "2.18.0", "runner": "ubuntu-24.04"},
             {"id": "arm64", "os": "linux", "architecture": "arm64", "tag": "2.18.0-arm64", "runner": "ubuntu-24.04-arm"},
         ]
-        ignite["defaultPlatformId"] = "amd64"
-        selected = select_entries([ignite], set(), scope="family", family_id="ignite2", platform_id="arm64", require_selection=True)
+        strict["defaultPlatformId"] = "amd64"
+        selected = select_entries([strict], set(), scope="family", family_id="strict-family", platform_id="arm64", require_selection=True)
         self.assertEqual("arm64", selected[0]["_selected_platform_id"])
         with self.assertRaises(SelectionError):
-            select_entries([ignite], set(), scope="family", family_id="missing", platform_id="arm64", require_selection=True)
+            select_entries([strict], set(), scope="family", family_id="missing", platform_id="arm64", require_selection=True)
 
     def test_strict_platform_contract_rejects_unsafe_runner_and_workload(self) -> None:
         invalid = dict(self.entries[0])
@@ -222,12 +200,8 @@ class TestTestcontainersImageGate(unittest.TestCase):
         release_workflow = (self.root / ".github/workflows/release.yml").read_text(encoding="utf-8")
         for workflow in (ci_workflow, release_workflow):
             if "testcontainers-image-gate" in workflow:
-                if "testcontainers-ignite2-arm64-image-gate" in workflow:
-                    self.assertIn("build/reports/testcontainers-image-gate-artifact", workflow)
-                    self.assertNotIn("build/reports/testcontainers-image-gate/*.json", workflow)
-                else:
-                    self.assertIn("build/reports/testcontainers-image-gate/*.json", workflow)
-                    self.assertIn("build/reports/testcontainers-image-gate/summary.md", workflow)
+                self.assertIn("build/reports/testcontainers-image-gate/*.json", workflow)
+                self.assertIn("build/reports/testcontainers-image-gate/summary.md", workflow)
                 self.assertNotIn("path: build/reports/testcontainers-image-gate/", workflow)
         self.assertNotIn("run_testcontainers_image_gate.py", release_workflow)
         self.assertNotIn("testcontainers-image-gate:", release_workflow)
@@ -289,31 +263,17 @@ class TestTestcontainersImageGate(unittest.TestCase):
             "name: nightly-testcontainers-image-gate-${{ github.run_id }}-amd64-shard-${{ matrix.shard }}",
             workflow,
         )
-        if "test-testcontainers-ignite2-arm64-image-gate:" in workflow:
-            self.assertIn("runs-on: ubuntu-24.04", workflow)
-            self.assertIn("runs-on: ubuntu-24.04-arm", workflow)
-            self.assertIn("--default-platform-id amd64", workflow)
-            self.assertIn("--job-budget-minutes 120", workflow)
-            self.assertIn(
-                "needs: [build, plan, test-testcontainers-image-gate-shard]",
-                workflow,
-            )
-            self.assertIn("--family-id ignite2", workflow)
-            self.assertIn("--platform-id arm64", workflow)
-            self.assertIn("--job-budget-minutes 90", workflow)
-            self.assertIn(
-                "needs: [test-testcontainers, test-testcontainers-image-gate, test-testcontainers-ignite2-arm64-image-gate, plan]",
-                workflow,
-            )
-            self.assertIn("needs.test-testcontainers-image-gate.result == 'skipped'", workflow)
-            self.assertIn("needs.test-testcontainers-ignite2-arm64-image-gate.result == 'skipped'", workflow)
-            self.assertIn("- test-testcontainers-ignite2-arm64-image-gate", workflow)
-            self.assertNotIn("io.bluetape4k.testcontainers.storage.Ignite2ServerTest\",", workflow)
-            self.assertIn("name: nightly-testcontainers-image-gate-${{ github.run_id }}-amd64", workflow)
-            self.assertIn("name: nightly-testcontainers-image-gate-${{ github.run_id }}-arm64", workflow)
-        else:
-            self.assertIn("needs: [test-testcontainers, test-testcontainers-image-gate, plan]", workflow)
-            self.assertIn("needs.test-testcontainers-image-gate.result == 'skipped'", workflow)
+        self.assertNotIn("test-testcontainers-ignite2-arm64-image-gate:", workflow)
+        self.assertNotIn("runs-on: ubuntu-24.04-arm", workflow)
+        self.assertIn("--default-platform-id amd64", workflow)
+        self.assertIn("--job-budget-minutes 120", workflow)
+        self.assertIn(
+            "needs: [build, plan, test-testcontainers-image-gate-shard]",
+            workflow,
+        )
+        self.assertIn("needs: [test-testcontainers, test-testcontainers-image-gate, plan]", workflow)
+        self.assertIn("needs.test-testcontainers-image-gate.result == 'skipped'", workflow)
+        self.assertIn("name: nightly-testcontainers-image-gate-${{ github.run_id }}-amd64", workflow)
 
     def test_release_publish_reuses_full_nightly_gate_summary(self) -> None:
         workflow = (self.root / ".github/workflows/release.yml").read_text(encoding="utf-8")

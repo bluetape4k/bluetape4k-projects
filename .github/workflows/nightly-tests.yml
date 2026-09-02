@@ -1425,97 +1425,6 @@ jobs:
           if-no-files-found: error
           retention-days: 14
 
-  test-testcontainers-ignite2-arm64-image-gate:
-    name: Test / Testcontainers Ignite2 arm64 image gate
-    runs-on: ubuntu-24.04-arm
-    timeout-minutes: 90
-    needs: [build, plan]
-    if: ${{ needs.plan.outputs.scope == 'full' }}
-    env:
-      GRADLE_OPTS: "-Dorg.gradle.daemon=false"
-    steps:
-      - uses: actions/checkout@v7
-
-      - uses: actions/setup-java@v6.0.0
-        with:
-          java-version: ${{ env.JAVA_VERSION }}
-          distribution: ${{ env.JAVA_DISTRIBUTION }}
-
-      - uses: actions/setup-python@v7
-        with:
-          python-version: '3.12'
-
-      - uses: gradle/actions/setup-gradle@v6.3.0
-        with:
-          gradle-version: wrapper
-          cache-read-only: true
-
-      - name: Run Ignite2 arm64 image gate
-        env:
-          DOCKER_AUTH_CONFIG: ${{ secrets.TESTCONTAINERS_DOCKER_AUTH_CONFIG }}
-        run: >-
-          python3 scripts/run_testcontainers_image_gate.py
-          --scope family
-          --family-id ignite2
-          --platform-id arm64
-          --require-selection
-          --report-dir build/reports/testcontainers-image-gate
-          --max-attempts 2
-          --pull-timeout-seconds 300
-          --timeout-minutes 30
-          --diagnostic-timeout-seconds 120
-          --job-budget-minutes 90
-
-      - name: Verify Ignite2 arm64 image gate summary
-        if: always()
-        run: |
-          python3 - <<'PY'
-          import json
-          from pathlib import Path
-          from scripts.run_testcontainers_image_gate import verify_release_summary
-
-          summary = json.loads(Path("build/reports/testcontainers-image-gate/summary.json").read_text(encoding="utf-8"))
-          errors = verify_release_summary(
-              summary,
-              expected_coverage="1/1",
-              platform_id="arm64",
-              expected_tag="2.18.0-arm64",
-              expected_architecture="arm64",
-              report_dir=Path("build/reports/testcontainers-image-gate"),
-          )
-          if errors:
-              raise SystemExit("; ".join(errors))
-          PY
-
-      - name: Publish Ignite2 arm64 image gate summary
-        if: always()
-        run: |
-          if [ -f build/reports/testcontainers-image-gate/summary.md ]; then
-            cat build/reports/testcontainers-image-gate/summary.md
-          fi
-
-      - name: Stage exact Ignite2 arm64 image gate evidence
-        if: always()
-        run: |
-          set -euo pipefail
-          rm -rf build/reports/testcontainers-image-gate-artifact
-          mkdir -p build/reports/testcontainers-image-gate-artifact
-          for name in ignite2.json summary.json summary.md; do
-            test -f "build/reports/testcontainers-image-gate/$name"
-            test ! -L "build/reports/testcontainers-image-gate/$name"
-            cp -p "build/reports/testcontainers-image-gate/$name" "build/reports/testcontainers-image-gate-artifact/$name"
-          done
-
-      - name: Upload Ignite2 arm64 image gate evidence
-        if: always()
-        uses: actions/upload-artifact@v7
-        with:
-          name: nightly-testcontainers-image-gate-${{ github.run_id }}-arm64
-          path: |
-            build/reports/testcontainers-image-gate-artifact
-          if-no-files-found: error
-          retention-days: 14
-
   # ── Testcontainers Spring bridge (nightly JVM-only contract) ─────────────
   test-testcontainers-spring:
     name: Test / Testcontainers Spring bridge
@@ -1524,8 +1433,8 @@ jobs:
     # Full Nightly waits for the Docker-backed image gate. A targeted
     # testcontainers dispatch has no image gate and may run this JVM-only bridge
     # after its matrix completes.
-    needs: [test-testcontainers, test-testcontainers-image-gate, test-testcontainers-ignite2-arm64-image-gate, plan]
-    if: ${{ always() && (needs.plan.outputs.scope == 'full' || needs.plan.outputs.scope == 'testcontainers') && needs.test-testcontainers.result == 'success' && ((needs.plan.outputs.scope == 'full' && needs.test-testcontainers-image-gate.result == 'success' && needs.test-testcontainers-ignite2-arm64-image-gate.result == 'success') || (needs.plan.outputs.scope == 'testcontainers' && needs.test-testcontainers-image-gate.result == 'skipped' && needs.test-testcontainers-ignite2-arm64-image-gate.result == 'skipped')) }}
+    needs: [test-testcontainers, test-testcontainers-image-gate, plan]
+    if: ${{ always() && (needs.plan.outputs.scope == 'full' || needs.plan.outputs.scope == 'testcontainers') && needs.test-testcontainers.result == 'success' && ((needs.plan.outputs.scope == 'full' && needs.test-testcontainers-image-gate.result == 'success') || (needs.plan.outputs.scope == 'testcontainers' && needs.test-testcontainers-image-gate.result == 'skipped')) }}
     steps:
       - uses: actions/checkout@v7
 
@@ -1583,7 +1492,6 @@ jobs:
       - test-spring-docker
       - test-testcontainers
       - test-testcontainers-image-gate
-      - test-testcontainers-ignite2-arm64-image-gate
       - test-testcontainers-spring
     if: always()
     steps:
@@ -1630,15 +1538,13 @@ jobs:
             echo 'has_expected=false' >> "$GITHUB_OUTPUT"
           fi
 
-      - name: Require both native image gates for full Nightly
+      - name: Require native image gate for full Nightly
         if: ${{ needs.plan.outputs.scope == 'full' }}
         env:
           X64_GATE_RESULT: ${{ needs.test-testcontainers-image-gate.result }}
-          ARM64_GATE_RESULT: ${{ needs.test-testcontainers-ignite2-arm64-image-gate.result }}
         run: |
           set -euo pipefail
           test "$X64_GATE_RESULT" = success
-          test "$ARM64_GATE_RESULT" = success
 
       - name: Download all coverage artifacts
         id: download-coverage
@@ -1726,7 +1632,6 @@ jobs:
       - test-spring-docker
       - test-testcontainers
       - test-testcontainers-image-gate
-      - test-testcontainers-ignite2-arm64-image-gate
       - test-testcontainers-spring
       - coverage-report
     if: always()
@@ -1736,15 +1641,14 @@ jobs:
           RESULTS: ${{ join(needs.*.result, ',') }}
           SCOPE: ${{ needs.plan.outputs.scope }}
           X64_GATE_RESULT: ${{ needs.test-testcontainers-image-gate.result }}
-          ARM64_GATE_RESULT: ${{ needs.test-testcontainers-ignite2-arm64-image-gate.result }}
         run: |
           echo "Nightly results: $RESULTS"
           if echo "$RESULTS" | grep -qE "failure|cancelled"; then
             echo "Nightly tests failed"
             exit 1
           fi
-          if [ "$SCOPE" = full ] && { [ "$X64_GATE_RESULT" != success ] || [ "$ARM64_GATE_RESULT" != success ]; }; then
-            echo "Full Nightly native image gates are not both successful"
+          if [ "$SCOPE" = full ] && [ "$X64_GATE_RESULT" != success ]; then
+            echo "Full Nightly native image gate is not successful"
             exit 1
           fi
           echo "Nightly tests passed"

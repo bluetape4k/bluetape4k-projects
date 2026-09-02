@@ -24,7 +24,7 @@ Testcontainers `2.0.3` 기반 통합 테스트를 빠르게 구성하기 위한 
 - **Graph DB 서버 지원**: Neo4j, Memgraph, FalkorDB, PostgreSQL + Apache AGE
 - **Storage 서버 지원**: Redis/Redis Cluster, MongoDB, Cassandra, Elasticsearch/OSS/OpenSearch, MinIO, InfluxDB
 - `MinIOServer`는 명시적인 MinIO 호환성 테스트용으로 유지하며, 신규 AWS/S3 에뮬레이터 테스트는 `FlociServer` 또는 `MiniStackServer`를 사용하세요.
-- **분산 캐시/그리드**: `HazelcastServer` (5.x slim), `Ignite2Server`, `Ignite3Server` (클러스터 자동 초기화)
+- **분산 캐시/그리드**: `HazelcastServer` (5.x slim), `Ignite3Server` (클러스터 자동 초기화)
 - **MQ 서버 지원**: Kafka, RabbitMQ, Pulsar, Nats, Redpanda
 - **Infra 서버 지원**: Consul, Vault, Prometheus, Jaeger, Zipkin, ZooKeeper, Toxiproxy, Keycloak
 - **분산 SQL 엔진**: Trino
@@ -85,7 +85,6 @@ Testcontainers `2.0.3` 기반 통합 테스트를 빠르게 구성하기 위한 
 | JaegerServer           | `jaeger`            | `host`, `port`, `url`, `frontend-port`, `zipkin-port`, `config-port`, `thrift-port`                                                                                  |
 | ElasticsearchOssServer | `elasticsearch-oss` | `host`, `port`, `url`                                                                                                                                                |
 | HazelcastServer        | `hazelcast`         | `host`, `port`, `url`                                                                                                                                                |
-| Ignite2Server          | `ignite2`           | `host`, `port`, `url`                                                                                                                                                |
 | Ignite3Server          | `ignite3`           | `host`, `port`, `url`, `rest-port`                                                                                                                                   |
 | ZipkinServer           | `zipkin`            | `host`, `port`, `url`                                                                                                                                                |
 | NginxServer            | `nginx`             | `host`, `port`, `url`                                                                                                                                                |
@@ -99,44 +98,6 @@ Testcontainers `2.0.3` 기반 통합 테스트를 빠르게 구성하기 위한 
 아래 기본값은 2026-08-10에 확인한 최신 안정 이미지 태그를 고정한 것입니다.
 재현 가능한 로컬·CI 실행을 위해 변경 가능한 `latest`, major-only, rolling minor
 태그는 사용하지 않습니다.
-
-<!-- issue-1520-ignite2-migration:start -->
-### 2.0.0 `Ignite2Server` 마이그레이션 계약
-
-`Ignite2Server`는 canonical `apacheignite/ignite` 이미지를 지연 해석합니다.
-`x86_64`/`amd64`에서는 `2.18.0`, `aarch64`/`arm64`에서는
-`2.18.0-arm64`를 사용합니다. canonical tag를 생략한 상태에서 지원하지 않는
-아키텍처를 만나면 `IllegalStateException`과
-`Unsupported Ignite2 default image architecture: <architecture>` 메시지로
-즉시 실패합니다.
-
-Custom image에는 이제 명시적인 tag가 필요합니다. 이전에 canonical 기본 tag에
-의존하던 `Ignite2Server(image = "custom/ignite")` 호출은 다음 중 하나로
-변경해야 합니다.
-
-```kotlin
-val byName = Ignite2Server(image = "custom/ignite", tag = "2.18.0-custom")
-val byDockerName = Ignite2Server(DockerImageName.parse("custom/ignite:2.18.0-custom"))
-```
-
-Tag가 없는 String 호출은 `IllegalArgumentException`과
-`Custom Ignite2 image requires an explicit tag` 메시지로 실패합니다.
-Tag가 없는 `DockerImageName` 호출은 `IllegalArgumentException`과
-`Custom Ignite2 DockerImageName must include an explicit tag` 메시지로
-실패합니다. 2.0.0에서는 canonical tag fallback을 제공하지 않습니다. 이
-fail-fast 계약으로 custom image 선택의 재현성을 유지하며, 명시적인 custom
-tag는 canonical 아키텍처 해석을 우회합니다. 호환성과 JVM descriptor 결정은
-[`docs/release/2.0.0-ignite2-migration.md`](../../docs/release/2.0.0-ignite2-migration.md)를
-참고하세요.
-<!-- issue-1520-ignite2-migration:end -->
-
-아래처럼 서버와 `IgniteClient`를 `use`/`close`로 함께 정리하세요.
-
-Java 25+에서 Ignite 2 thin-client 테스트에 필요한 JVM 옵션은
-`--add-opens=java.base/java.nio=ALL-UNNAMED`와
-`--add-opens=java.base/java.util=ALL-UNNAMED` 두 개로 확정했습니다. 이 옵션은
-`bluetape4k-testcontainers` 모듈의 `Test` 태스크에만 적용하며 저장소 전체의
-전역 JVM 기본값으로 사용하지 않습니다.
 
 | 그룹 | 서버 | 이미지 | 기본 태그 |
 |---|---|---|---|
@@ -184,7 +145,6 @@ Java 25+에서 Ignite 2 thin-client 테스트에 필요한 JVM 옵션은
 | Storage | `ElasticsearchOssServer` | `docker.elastic.co/elasticsearch/elasticsearch-oss` | `7.10.2` |
 | Storage | `ElasticsearchServer` | `docker.elastic.co/elasticsearch/elasticsearch` | `9.5.0` |
 | Storage | `HazelcastServer` | `hazelcast/hazelcast` | `5.7.0-slim-jdk25` |
-| Storage | `Ignite2Server` | `apacheignite/ignite` | `2.18.0` (x86_64/amd64) 또는 `2.18.0-arm64` (aarch64/arm64) |
 | Storage | `Ignite3Server` | `apacheignite/ignite` | `3.1.0` |
 | Storage | `InfluxDBServer` | `influxdb` | `2.9.1` |
 | Storage | `MinIOServer` | `minio/minio` | `RELEASE.2025-07-23T15-54-02Z` (호환성 fixture) |
@@ -217,7 +177,7 @@ skipped 테스트가 유효한 실행을 가리지 않도록 해당 메서드만
 `success`, `product_failure`,
 `infrastructure_failure`, `blocked`로 분류하며 `summary.json`, `summary.md`,
 family별 JSON을 남깁니다. 안정 버전 배포는 release-required family 48개
-전체(`48/48`), `release_gate=true`, 모든 실패 분류 0을 요구합니다. 나머지
+전체(`47/47`), `release_gate=true`, 모든 실패 분류 0을 요구합니다. 나머지
 4개 family는 support inventory로 별도 보고합니다. Docker Hub 인증과 mirror
 설정은 환경변수 또는
 CI secret으로만 전달하며, 증거에는 credential을 기록하지 않습니다.
@@ -500,21 +460,6 @@ val hazelcast = HazelcastServer.Launcher.hazelcast
 val client = HazelcastClient.newHazelcastClient(
     ClientConfig().apply { networkConfig.addAddress("${hazelcast.host}:${hazelcast.port}") }
 )
-
-// Apache Ignite 2.x — native 이미지 tag와 씬 클라이언트 포트 10800
-Ignite2Server().use { ignite2 ->
-    ignite2.start()
-    Ignition.startClient(
-        ClientConfiguration()
-            .setAddresses(ignite2.url)
-            .setTimeout(30_000)
-            .setRequestTimeout(30_000),
-    ).use { client ->
-        val cache = client.getOrCreateCache<String, String>("example-cache")
-        cache.put("key", "value")
-        check(cache.get("key") == "value")
-    }
-}
 
 // Apache Ignite 3.x — 클러스터 자동 초기화, 씬 클라이언트 포트 10800
 val ignite3 = Ignite3Server.Launcher.ignite3

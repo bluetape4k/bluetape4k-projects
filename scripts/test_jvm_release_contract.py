@@ -7,7 +7,6 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 MARKER = "issue-1335-java25-semver"
-IGNITE2_MARKER = "issue-1520-ignite2-migration"
 EXPECTED_ISLAND = {
     "bluetape4k-assertions",
     "bluetape4k-junit5",
@@ -17,22 +16,6 @@ EXPECTED_ISLAND = {
 }
 COMMON_TOKENS = ("2.0.0", "1.13.x", "Java 25", "Java 21")
 HTTP_READMES = ("io/http/README.md", "io/http/README.ko.md")
-IGNITE2_MIGRATION_DOCS = (
-    "testing/testcontainers/README.md",
-    "testing/testcontainers/README.ko.md",
-    "CHANGELOG.md",
-    "docs/release/2.0.0-ignite2-migration.md",
-)
-IGNITE2_MIGRATION_TOKENS = (
-    "Ignite2Server",
-    "custom/ignite",
-    "2.18.0-custom",
-    "IllegalArgumentException",
-    "IllegalStateException",
-    "Custom Ignite2 image requires an explicit tag",
-    "Custom Ignite2 DockerImageName must include an explicit tag",
-    "Unsupported Ignite2 default image architecture: <architecture>",
-)
 
 
 def read(relative: str) -> str:
@@ -140,14 +123,6 @@ class JvmReleaseContractTest(unittest.TestCase):
         self.assertIn("#1335", changelog)
         for token in COMMON_TOKENS:
             self.assertIn(token, changelog)
-
-    def test_ignite2_migration_contract_is_synchronized(self) -> None:
-        for relative in IGNITE2_MIGRATION_DOCS:
-            path = ROOT / relative
-            self.assertTrue(path.is_file(), msg=f"missing Ignite2 migration document: {relative}")
-            migration = block(read(relative), IGNITE2_MARKER)
-            for token in IGNITE2_MIGRATION_TOKENS:
-                self.assertIn(token, migration, msg=f"missing {token!r} in {relative}")
 
     def test_ci_and_release_workflows_run_both_contract_checks(self) -> None:
         for workflow in (read(".github/workflows/ci.yml"), read(".github/workflows/release.yml")):

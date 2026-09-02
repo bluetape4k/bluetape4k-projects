@@ -37,12 +37,7 @@ kover {
 
 // testcontainers 테스트 실행 전 mock-server Docker 이미지를 자동으로 빌드합니다.
 // Jib은 소스 변경이 없으면 up-to-date 체크로 스킵하므로 매번 느리지 않습니다.
-// Java 25+에서 Ignite 2 thin client의 레거시 reflection에 필요한 최소 범위입니다.
 tasks.withType<Test>().configureEach {
-    jvmArgs(
-        "--add-opens=java.base/java.nio=ALL-UNNAMED",
-        "--add-opens=java.base/java.util=ALL-UNNAMED",
-    )
     // Strict image gate 증거 경로를 실제 테스트 JVM에도 전달합니다.
     System.getProperty("testcontainers.image-gate.evidence-dir")?.let {
         systemProperty("testcontainers.image-gate.evidence-dir", it)
@@ -86,9 +81,6 @@ dependencies {
 
     api(libs.testcontainers)
     api(libs.testcontainers.junit.jupiter)
-
-    // Ignite 2 thin-client workload is test-only; it must not enter the published POM.
-    testImplementation(bt4k.ignite.core)
 
     api(libs.awaitility.kotlin)
 

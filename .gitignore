@@ -113,6 +113,3 @@ out/
 
 # JavaMoney's default ResourceCache (filesystem)
 **/money/.resourceCache/
-
-# Apache Ignite embedded mode runtime data
-**/cache-ignite2/ignite/

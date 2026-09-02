@@ -37,7 +37,6 @@ dependencies {
     implementation(bt4k.cache2k.core)
     // 이미 cache2k_micrometer에 instrument 가 있지만, 예제용으로 만들기 위해 직접 구현했습니다.
     // compileOnly(bt4k.cache2k.micrometer)
-    // compileOnly(libs.ignite.core)
 
     // Retrofit2 Instrumentations
     implementation(project(":bluetape4k-retrofit2"))
