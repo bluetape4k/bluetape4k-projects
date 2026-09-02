@@ -561,8 +561,8 @@ jobs:
 
       - name: Verify default mock-server image tags
         run: |
-          docker image inspect bluetape4k/mock-web-server:2.0.0
-          docker image inspect bluetape4k/mock-webflux-server:2.0.0
+          docker image inspect bluetape4k/mock-web-server:2.1.0
+          docker image inspect bluetape4k/mock-webflux-server:2.1.0
 
       - name: Test HTTP client modules
         uses: nick-fields/retry@v4
@@ -1265,8 +1265,8 @@ jobs:
 
       - name: Verify default mock-server image tags
         run: |
-          docker image inspect bluetape4k/mock-web-server:2.0.0
-          docker image inspect bluetape4k/mock-webflux-server:2.0.0
+          docker image inspect bluetape4k/mock-web-server:2.1.0
+          docker image inspect bluetape4k/mock-webflux-server:2.1.0
 
       - name: Test Spring Boot modules (${{ matrix.group }})
         uses: nick-fields/retry@v4

@@ -57,4 +57,11 @@ class ElasticsearchServerTest: AbstractContainerTest() {
         assertFailsWith<IllegalArgumentException> { ElasticsearchServer(image = " ") }
         assertFailsWith<IllegalArgumentException> { ElasticsearchServer(tag = " ") }
     }
+
+    @Test
+    fun `Elasticsearch 9 통합 테스트에 필요한 heap을 확보한다`() {
+        ElasticsearchServer(reuse = false).use { es ->
+            es.envMap["ES_JAVA_OPTS"] shouldBeEqualTo "-Xms1g -Xmx1g"
+        }
+    }
 }

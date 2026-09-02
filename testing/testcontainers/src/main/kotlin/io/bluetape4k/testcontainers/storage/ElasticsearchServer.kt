@@ -115,7 +115,9 @@ class ElasticsearchServer private constructor(
         addExposedPorts(PORT, TCP_PORT)
         withReuse(reuse)
         withPassword(password)
-        withEnv("ES_JAVA_OPTS", "-Xms512m -Xmx512m")
+        // Elasticsearch 9.5는 512 MiB heap에서 인증 인덱스 shard가 부하 중
+        // unavailable 상태로 전환될 수 있으므로 통합 테스트용 최소 heap을 확보합니다.
+        withEnv("ES_JAVA_OPTS", "-Xms1g -Xmx1g")
 
         // Elasticsearch 8+는 HTTPS 보안을 기본 활성화하므로 실제 인증 API 응답을
         // 확인합니다. 구버전 사용자 지정 이미지는 기존 HTTP 계약을 유지합니다.

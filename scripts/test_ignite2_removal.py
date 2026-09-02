@@ -51,7 +51,7 @@ class Ignite2RemovalTest(unittest.TestCase):
         for relative in ("CHANGELOG.md", "WIP.md"):
             current = (ROOT / relative).read_text(encoding="utf-8")
             self.assertIn("Ignite 2", current, relative)
-            self.assertIn("3.0.0", current, relative)
+            self.assertIn("2.1.0", current, relative)
         history = ROOT / "docs/release/2.0.0-ignite2-migration.md"
         self.assertTrue(history.is_file())
         self.assertIn("Ignite2Server", history.read_text(encoding="utf-8"))
