@@ -181,6 +181,9 @@ jobs:
       - uses: actions/checkout@v7
       - name: Validate CSV CI coverage
         run: ruby scripts/validate-ci-csv-coverage.rb
+
+      - name: Test CSV CI coverage validator
+        run: ruby scripts/validate-ci-csv-coverage_test.rb
       - name: Validate Kafka4 CI coverage
         run: ruby scripts/validate-ci-kafka4-coverage.rb
       - name: Validate Kover coverage aggregation

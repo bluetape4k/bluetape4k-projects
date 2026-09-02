@@ -10,7 +10,7 @@ KAFKA4_KOVER_TASK = ":bluetape4k-kafka4:koverXmlReport"
 KAFKA_PATH_FILTER = "kafka-infra"
 KAFKA_JOB = "test-kafka-infra"
 KAFKA_JOB_CONDITION = "${{ needs.changes.outputs['kafka-infra'] == 'true' || needs.changes.outputs.shared == 'true' || github.event_name == 'workflow_dispatch' }}"
-FORBIDDEN_GRADLE_OPTIONS = ["-x", "--exclude-task", "-m", "--dry-run"].freeze
+FORBIDDEN_GRADLE_OPTIONS = ["--exclude-task", "-m", "--dry-run"].freeze
 
 def fail_validation(message)
   warn message
@@ -22,7 +22,7 @@ def require_once(values, expected, label)
   fail_validation("expected #{expected} exactly once in #{label}, found #{count}") unless count == 1
 end
 
-def gradle_tokens(command, label)
+def gradle_tokens(command, label, allowed_excluded_tasks: [])
   normalized = command.gsub(/\\\r?\n/, " ").strip
   fail_validation("#{label} must use one simple Gradle invocation") if normalized.match?(/[\r\n#;&|<>$`]/)
 
@@ -34,16 +34,25 @@ def gradle_tokens(command, label)
       token.start_with?("-x=", "-x:", "--exclude-task=", "--dry-run=")
   end
   fail_validation("#{label} must execute its tasks; forbidden option #{forbidden}") if forbidden
+
+  tokens.each_index do |index|
+    next unless tokens[index] == "-x"
+
+    excluded_task = tokens[index + 1]
+    unless allowed_excluded_tasks.include?(excluded_task)
+      fail_validation("#{label} must execute its tasks; forbidden excluded task #{excluded_task || '(missing)'}")
+    end
+  end
   tokens
 rescue ArgumentError => error
   fail_validation("invalid #{label}: #{error.message}")
 end
 
-def command_tokens(step, label)
+def command_tokens(step, label, allowed_excluded_tasks: [])
   command = step["run"] || step.dig("with", "command")
   fail_validation("#{label} must define a command") unless command
 
-  gradle_tokens(command, label)
+  gradle_tokens(command, label, allowed_excluded_tasks: allowed_excluded_tasks)
 end
 
 options = {
@@ -103,7 +112,7 @@ fail_validation("Test Kafka infra modules must fail the #{KAFKA_JOB} job") if te
 fail_validation("Generate Kover XML report must always run") unless kover_step["if"] == "always()"
 
 test_tokens = command_tokens(test_step, "Kafka test command")
-kover_tokens = command_tokens(kover_step, "Kafka Kover command")
+kover_tokens = command_tokens(kover_step, "Kafka Kover command", allowed_excluded_tasks: ["test"])
 require_once(test_tokens, ":bluetape4k-kafka:test", "Kafka test command")
 require_once(test_tokens, KAFKA4_TEST_TASK, "Kafka test command")
 require_once(kover_tokens, ":bluetape4k-kafka:koverXmlReport", "Kafka Kover command")
@@ -111,7 +120,8 @@ require_once(kover_tokens, KAFKA4_KOVER_TASK, "Kafka Kover command")
 
 all_task_tokens = steps.flat_map do |step|
   [step["run"], step.dig("with", "command")].compact.flat_map do |command|
-    command_tokens({ "run" => command }, "Kafka CI command")
+    allowed_excluded_tasks = command.include?(KAFKA4_KOVER_TASK) ? ["test"] : []
+    command_tokens({ "run" => command }, "Kafka CI command", allowed_excluded_tasks: allowed_excluded_tasks)
   end
 end
 require_once(all_task_tokens, KAFKA4_TEST_TASK, "all Kafka CI commands")

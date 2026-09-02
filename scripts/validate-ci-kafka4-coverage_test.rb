@@ -69,6 +69,18 @@ with_workflow_variant(nil, ->(out, err, result) {
 end
 
 with_workflow_variant(nil, ->(out, err, result) {
+  assert_failure(out, err, result, "excluded Kafka4 Kover task", "forbidden excluded task")
+}) do |content|
+  kafka4_kover_index = content.index(":bluetape4k-kafka4:koverXmlReport")
+  exclude_index = content.index("-x test", kafka4_kover_index)
+  raise "Kafka4 Kover exclusion fixture was not found" unless exclude_index
+
+  content.dup.tap do |updated|
+    updated[exclude_index, "-x test".length] = "-x :bluetape4k-kafka4:koverXmlReport"
+  end
+end
+
+with_workflow_variant(nil, ->(out, err, result) {
   assert_failure(out, err, result, "Kafka4 job condition", "kafka-infra output")
 }) do |content|
   content.sub("needs.changes.outputs['kafka-infra'] == 'true'", "needs.changes.outputs['wrong-filter'] == 'true'")
