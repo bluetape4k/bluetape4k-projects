@@ -7,7 +7,7 @@ Issue: #1093
 - In scope: Git-tracked non-README, single-language documentation and Kotlin/KTS KDoc surfaces.
 - Korean rewrite target: prose in in-scope docs, public/internal KDoc, and meaningful internal/data-class property contracts.
 - Preserve exactly: code identifiers, API names, commands, URLs, exact error text, external product names, issue/PR numbers, and measured values.
-- Excluded from rewrite: README files, LLM-facing operating guidance, generated workflow state, CHANGELOG, SECURITY, GitHub metadata, release notes, and pushed commit text.
+- Excluded from rewrite: README files, LLM-facing operating guidance, generated workflow state, and SECURITY.
 - Parity-only: `bluetape4k/bluetape4k.github.io`의
   `docs/manual/bluetape4k-projects/en`과 `ko` bilingual pair.
 
@@ -17,9 +17,9 @@ Issue: #1093
 - Central manual root: `docs/manual/bluetape4k-projects`
 - Central manual ref: `4e3c00262adb12cd61e4e8a30b6488aa6a287acc`
 - Git-tracked files scanned: 7233
-- In-scope single-language docs: 879
+- In-scope single-language docs: 880
 - Bilingual manual parity-only docs: 516
-- Excluded docs: 214
+- Excluded docs: 213
 - Kotlin/KTS files for KDoc follow-up: 4613
 - KDoc blocks found in Kotlin/KTS files: 34756
 - Manual EN files missing KO pair: 0

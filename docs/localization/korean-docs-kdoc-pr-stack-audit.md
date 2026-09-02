@@ -6,7 +6,7 @@ Date: 2026-07-28
 ## 범위
 
 이 문서는 milestone `1.12.0`의 한국어 문서/KDoc localization Epic에 대해 현재 생성된 PR stack과 guardrail 상태를 기록한다.
-GitHub issue/PR 제목과 본문은 repository 정책에 따라 영어로 유지했고, README와 LLM-facing operating 문서는 rewrite scope에서 제외했다.
+GitHub issue/PR 제목과 본문을 포함한 공개 contributor metadata의 독자용 prose는 현행 workspace 계약에 따라 한국어로 작성한다. README와 LLM-facing operating 문서는 rewrite scope에서 제외한다.
 `docs/manual/en` 및 `docs/manual/ko` bilingual manual pair는 rewrite primary scope가 아니라 parity 검증 대상으로만 유지했다.
 
 ## PR stack
@@ -35,7 +35,7 @@ GitHub issue/PR 제목과 본문은 repository 정책에 따라 영어로 유지
 
 ## 세부 실행 이슈 분해
 
-큰 umbrella issue는 다음의 review 가능한 batch issue로 다시 분해했다. 각 issue는 GitHub 정책에 따라 title/body를 영어로 유지한다.
+큰 umbrella issue는 다음의 review 가능한 batch issue로 다시 분해했다. 신규·갱신 issue의 독자용 title/body prose는 한국어로 작성한다.
 
 | Parent | Batch issues |
 |---|---|
@@ -53,10 +53,20 @@ GitHub issue/PR 제목과 본문은 repository 정책에 따라 영어로 유지
 
 ## Guardrail evidence
 
-`python3 scripts/docs-localization-inventory.py --check`:
+다음과 같이 central manual checkout과 immutable ref를 준비한다.
+
+```bash
+export BLUETAPE4K_MANUAL_ROOT="/path/to/bluetape4k.github.io/docs/manual/bluetape4k-projects"
+export BLUETAPE4K_MANUAL_REF="$(git -C /path/to/bluetape4k.github.io rev-parse HEAD)"
+python3 scripts/docs-localization-inventory.py --check
+```
+
+검증 결과:
 
 ```text
 Korean localization guardrail
+- central manual root: /path/to/bluetape4k.github.io/docs/manual/bluetape4k-projects
+- central manual ref: 4e3c00262adb12cd61e4e8a30b6488aa6a287acc
 - manual EN missing KO: 0
 - manual KO missing EN: 0
 - English-KDoc policy drift: 0

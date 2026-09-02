@@ -197,7 +197,6 @@ jobs:
         env:
           EVENT_NAME: ${{ github.event_name }}
           INPUT_CATALOG_REF: ${{ github.event.inputs.catalogRef || '' }}
-          REPOSITORY_CATALOG_REF: ${{ vars.BLUETAPE4K_DEPENDENCIES_CATALOG_REF || '' }}
         run: |
           set -euo pipefail
           DEFAULT_CATALOG_REF=$(sed -nE 's/^[[:space:]]*\.orElse\("([^"]+)"\).*/\1/p' settings.gradle.kts | head -1)
@@ -209,10 +208,13 @@ jobs:
 
           if [[ "$EVENT_NAME" == "workflow_dispatch" && -n "$INPUT_CATALOG_REF" ]]; then
             SELECTED_CATALOG_REF="$INPUT_CATALOG_REF"
-          elif [[ "$EVENT_NAME" == "workflow_dispatch" && -n "$REPOSITORY_CATALOG_REF" ]]; then
-            SELECTED_CATALOG_REF="$REPOSITORY_CATALOG_REF"
           else
             SELECTED_CATALOG_REF="$DEFAULT_CATALOG_REF"
+          fi
+
+          if [[ ! "$SELECTED_CATALOG_REF" =~ ^([0-9a-f]{40}|[0-9a-f]{64})$ ]]; then
+            echo "::error::Catalog ref must be an immutable Git commit SHA: $SELECTED_CATALOG_REF"
+            exit 1
           fi
 
           echo "BLUETAPE4K_DEPENDENCIES_CATALOG_REF=$SELECTED_CATALOG_REF" >> "$GITHUB_ENV"
