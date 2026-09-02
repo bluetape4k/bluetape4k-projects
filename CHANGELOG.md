@@ -7,9 +7,13 @@
 <!-- issue-1335-java25-semver:start -->
 ## [Unreleased]
 
+### 변경
+
+- `2.0.0` 정식 배포 후 다음 minor 개발선을 `2.1.0-SNAPSHOT`으로 열었다.
+
 ### 제거
 
-- `3.0.0` breaking line부터 Apache Ignite 2 runtime 지원을 종료했다.
+- `2.1.0` 개발선부터 Apache Ignite 2 runtime 지원을 종료했다.
   `Ignite2Server`, 전용 Testcontainers image family와 arm64 Nightly gate,
   legacy thin-client 의존성과 Java 25 `--add-opens` 예외를 함께 제거했다.
   이미 공개된 `2.0.0` artifact와 migration 문서는 변경하지 않는다

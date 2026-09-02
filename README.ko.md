@@ -11,6 +11,10 @@ JVM 환경에서 Kotlin 언어로 개발할 때 사용하는 공용 라이브러
 
 [English](./README.md) | 한국어
 
+현재 안정 버전: `2.0.0`
+
+현재 개발선: `develop`의 `2.1.0-SNAPSHOT`
+
 ![bluetape4k Projects 모듈형 백엔드 작업대 일러스트](./docs/assets/projects-workbench.png)
 
 ## 소개

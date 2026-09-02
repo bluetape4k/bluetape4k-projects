@@ -11,6 +11,10 @@ Shared Kotlin/JVM library collection for backend development
 
 English | [한국어](./README.ko.md)
 
+Current stable version: `2.0.0`
+
+Current development line: `2.1.0-SNAPSHOT` on `develop`
+
 ![Bluetape4k Projects modular backend workbench](./docs/assets/projects-workbench.png)
 
 ## Introduction
