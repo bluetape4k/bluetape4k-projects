@@ -447,6 +447,7 @@ jobs:
             :bluetape4k-logging:koverXmlReport \
             :bluetape4k-tenant:koverXmlReport \
             :bluetape4k-tenant-reactor:koverXmlReport \
+            -x test \
             --parallel
       - name: Upload test results
         if: always()
@@ -528,6 +529,7 @@ jobs:
             :bluetape4k-grpc:koverXmlReport \
               :bluetape4k-protobuf:koverXmlReport \
               :bluetape4k-tink:koverXmlReport \
+            -x test \
             --parallel
       - name: Upload test results
         if: always()
@@ -594,6 +596,7 @@ jobs:
                     :bluetape4k-http:koverXmlReport \
                     :bluetape4k-retrofit2:koverXmlReport \
                     :bluetape4k-vertx:koverXmlReport \
+                    -x test \
                     --parallel
           -   name: Upload test results
               if: always()
@@ -659,6 +662,7 @@ jobs:
             :bluetape4k-ktor-openapi:koverXmlReport \
             :bluetape4k-ktor-resilience4j:koverXmlReport \
             :bluetape4k-ktor-testing:koverXmlReport \
+            -x test \
             --parallel
       - name: Upload test results
         if: always()
@@ -741,6 +745,7 @@ jobs:
             :bluetape4k-rule-engine:koverXmlReport \
             :bluetape4k-geo:koverXmlReport \
             :bluetape4k-science:koverXmlReport \
+            -x test \
             --parallel
       - name: Upload test results
         if: always()
@@ -828,12 +833,13 @@ jobs:
             :bluetape4k-opentelemetry:koverXmlReport \
             :bluetape4k-mock-web-server:koverXmlReport \
             :bluetape4k-r2dbc:koverXmlReport \
+            -x test \
             --parallel
       - name: Generate mock webflux Kover XML report
         if: ${{ always() && steps.validate-kover-isolation.outcome == 'success' }}
         run: >-
           ./gradlew --no-configuration-cache
-          :bluetape4k-mock-webflux-server:koverXmlReport
+          :bluetape4k-mock-webflux-server:koverXmlReport -x test
       - name: Upload test results
         if: always()
         uses: actions/upload-artifact@v7
@@ -947,7 +953,8 @@ jobs:
             -x :bluetape4k-lettuce:fencingLeaseTopologyRecoveryTest \
             -x :bluetape4k-lettuce:coordinationLockTopologyRecoveryTest \
             -x :bluetape4k-lettuce:multiKeyLeasePerformanceTest \
-            -x :bluetape4k-lettuce:coordinationLockPerformanceTest
+            -x :bluetape4k-lettuce:coordinationLockPerformanceTest \
+            -x test
       - name: Upload test results
         if: always()
         uses: actions/upload-artifact@v7
@@ -1028,7 +1035,7 @@ jobs:
           KOVER_TASKS: ${{ matrix.kover_tasks }}
         run: |
           read -ra tasks <<< "$KOVER_TASKS"
-          ./gradlew "${tasks[@]}" --parallel --no-configuration-cache
+          ./gradlew "${tasks[@]}" --parallel --no-configuration-cache -x test
       - name: Upload test results
         if: always()
         uses: actions/upload-artifact@v7
@@ -1123,7 +1130,7 @@ jobs:
           KOVER_TASKS: ${{ matrix.kover_tasks }}
         run: |
           read -ra tasks <<< "$KOVER_TASKS"
-          ./gradlew "${tasks[@]}" --parallel --no-configuration-cache
+          ./gradlew "${tasks[@]}" --parallel --no-configuration-cache -x test
       - name: Upload test results
         if: always()
         uses: actions/upload-artifact@v7
@@ -1455,7 +1462,7 @@ jobs:
 
       - name: Generate Kover XML report
         if: ${{ always() && needs.plan.outputs.run_testcontainers_coverage == 'true' }}
-        run: ./gradlew :bluetape4k-testcontainers-spring:koverXmlReport --no-configuration-cache
+        run: ./gradlew :bluetape4k-testcontainers-spring:koverXmlReport -x test --no-configuration-cache
       - name: Upload test results
         if: always()
         uses: actions/upload-artifact@v7
