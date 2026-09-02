@@ -137,23 +137,15 @@ class TestTestcontainersContract(unittest.TestCase):
         for event, body in events.items():
             self.assertNotIn("**.md", body, f"README changes are ignored for {event}")
 
-    def test_kdoc_defaults_reference_bounded_images_and_architecture_tags(self) -> None:
+    def test_kdoc_defaults_reference_bounded_images(self) -> None:
         mysql = read(KOTLIN_ROOT / "io/bluetape4k/testcontainers/database/MySQL5Server.kt")
         self.assertRegex(mysql, r"@param\s+image\s+docker image \(기본: \[IMAGE\]\)")
         self.assertNotIn("(기본: `mysql`)", mysql)
 
-        ignite = read(KOTLIN_ROOT / "io/bluetape4k/testcontainers/storage/Ignite2Server.kt")
-        self.assertIn("withTag(DEFAULT_TAG)", ignite)
-        self.assertIn("tag = DEFAULT_TAG", ignite)
-        self.assertRegex(ignite, r"@param\s+tag\s+Docker 이미지 태그.*\[DEFAULT_TAG\]")
-        self.assertNotIn("withTag(TAG)", ignite)
-        self.assertNotIn("tag = TAG", ignite)
-
         for path in (README_EN, README_KO):
             content = read(path)
-            self.assertIn("Ignite2Server", content, path.as_posix())
-            self.assertIn("2.18.0", content, path.as_posix())
-            self.assertIn("-arm64", content, path.as_posix())
+            self.assertNotIn("Ignite2Server", content, path.as_posix())
+            self.assertIn("Ignite3Server", content, path.as_posix())
 
     def test_ministack_disabled_inventory_matches_pinned_tag_and_known_errors(self) -> None:
         source = read(MINISTACK_KMS_TEST)

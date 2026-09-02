@@ -44,18 +44,18 @@ def entry(server: str = "FlociServer", *, release_required: bool = True) -> dict
 
 
 def strict_entry() -> dict[str, object]:
-    value = entry("Ignite2Server")
+    value = entry("StrictServer")
     value.update(
         {
-            "id": "ignite2",
-            "image": "apacheignite/ignite",
-            "tag": "2.18.0",
-            "testPattern": "io.bluetape4k.testcontainers.storage.Ignite2ServerTest",
-            "workloadTestPattern": "io.bluetape4k.testcontainers.storage.Ignite2ServerTest.representativeStartupAndWorkload",
+            "id": "strict-family",
+            "image": "example/strict",
+            "tag": "1.0",
+            "testPattern": "io.bluetape4k.testcontainers.storage.StrictServerTest",
+            "workloadTestPattern": "io.bluetape4k.testcontainers.storage.StrictServerTest.representativeStartupAndWorkload",
             "executionEvidenceRequired": True,
             "pullEvidenceRequired": True,
             "platforms": [
-                {"id": "amd64", "os": "linux", "architecture": "amd64", "tag": "2.18.0", "runner": "ubuntu-24.04"},
+                {"id": "amd64", "os": "linux", "architecture": "amd64", "tag": "1.0", "runner": "ubuntu-24.04"},
             ],
             "defaultPlatformId": "amd64",
             "platformTimeouts": {"amd64": {"testMinutes": 6, "clientConnectSeconds": 30, "clientRequestSeconds": 30}},
@@ -545,7 +545,7 @@ class TestRunTestcontainersImageGate(unittest.TestCase):
             if command[:3] == ["docker", "image", "inspect"]:
                 return SimpleNamespace(
                     returncode=0,
-                    stdout=json.dumps([{"Id": "sha256:" + "a" * 64, "RepoDigests": ["apacheignite/ignite@sha256:" + "b" * 64], "Os": "linux", "Architecture": "amd64"}]),
+                    stdout=json.dumps([{"Id": "sha256:" + "a" * 64, "RepoDigests": ["example/strict@sha256:" + "b" * 64], "Os": "linux", "Architecture": "amd64"}]),
                     stderr="",
                 )
             if command[:3] == ["docker", "context", "show"]:
@@ -562,18 +562,18 @@ class TestRunTestcontainersImageGate(unittest.TestCase):
                     stdout=json.dumps({
                         "timeNano": str(time.time_ns()),
                         "id": "sha256:" + "a" * 64,
-                        "from": "apacheignite/ignite:2.18.0",
-                        "Actor": {"ID": "sha256:" + "a" * 64, "Attributes": {"name": "apacheignite/ignite:2.18.0"}},
+                        "from": "example/strict:1.0",
+                        "Actor": {"ID": "sha256:" + "a" * 64, "Attributes": {"name": "example/strict:1.0"}},
                     }) + "\n",
                     stderr="",
                 )
             evidence = next((Path(part.split("=", 1)[1]) for part in command if part.startswith("-Dtestcontainers.image-gate.evidence-dir=")), None)
             assert evidence is not None
-            evidence.joinpath("startup.marker").write_text("Ignite node started OK\n", encoding="utf-8")
+            evidence.joinpath("startup.marker").write_text("Container workload ready\n", encoding="utf-8")
             evidence.joinpath("workload.image-id").write_text("sha256:" + "a" * 64 + "\n", encoding="utf-8")
-            evidence.joinpath("TEST-Ignite2ServerTest.xml").write_text(
-                '<testsuite name="io.bluetape4k.testcontainers.storage.Ignite2ServerTest" tests="1" skipped="0" failures="0" errors="0">'
-                '<testcase classname="io.bluetape4k.testcontainers.storage.Ignite2ServerTest" name="representativeStartupAndWorkload"/>'
+            evidence.joinpath("TEST-StrictServerTest.xml").write_text(
+                '<testsuite name="io.bluetape4k.testcontainers.storage.StrictServerTest" tests="1" skipped="0" failures="0" errors="0">'
+                '<testcase classname="io.bluetape4k.testcontainers.storage.StrictServerTest" name="representativeStartupAndWorkload"/>'
                 '</testsuite>',
                 encoding="utf-8",
             )
@@ -591,7 +591,7 @@ class TestRunTestcontainersImageGate(unittest.TestCase):
             self.assertEqual("success", result["status"])
             self.assertEqual("amd64", result["platform_id"])
             self.assertEqual("sha256:" + "a" * 64, result["pull"]["event_id"])
-            self.assertEqual("apacheignite/ignite:2.18.0", result["pull"]["event_ref"])
+            self.assertEqual("example/strict:1.0", result["pull"]["event_ref"])
             self.assertEqual(1, result["junit"]["workload_tests"])
             self.assertTrue(result["startup"]["ready"])
             self.assertEqual(1, sum(command[:2] == ["docker", "pull"] for command in calls))
@@ -601,7 +601,7 @@ class TestRunTestcontainersImageGate(unittest.TestCase):
                     summary,
                     expected_coverage="1/1",
                     platform_id="amd64",
-                    expected_tag="2.18.0",
+                    expected_tag="1.0",
                     expected_architecture="amd64",
                     report_dir=Path(directory),
                 ),
@@ -628,7 +628,7 @@ class TestRunTestcontainersImageGate(unittest.TestCase):
                         [
                             {
                                 "Id": "sha256:" + "a" * 64,
-                                "RepoDigests": ["apacheignite/ignite@sha256:" + "b" * 64],
+                                "RepoDigests": ["example/strict@sha256:" + "b" * 64],
                                 "Os": "linux",
                                 "Architecture": "amd64",
                             }
@@ -649,8 +649,8 @@ class TestRunTestcontainersImageGate(unittest.TestCase):
                 return SimpleNamespace(
                     returncode=0,
                     stdout=(
-                        f"{timestamp} image pull apacheignite/ignite:2.18.0 "
-                        "(name=apacheignite/ignite, org.opencontainers.image.ref.name=ubuntu)\n"
+                        f"{timestamp} image pull example/strict:1.0 "
+                        "(name=example/strict, org.opencontainers.image.ref.name=ubuntu)\n"
                     ),
                     stderr="",
                 )
@@ -663,11 +663,11 @@ class TestRunTestcontainersImageGate(unittest.TestCase):
                 None,
             )
             assert evidence is not None
-            evidence.joinpath("startup.marker").write_text("Ignite node started OK\n", encoding="utf-8")
+            evidence.joinpath("startup.marker").write_text("Container workload ready\n", encoding="utf-8")
             evidence.joinpath("workload.image-id").write_text("sha256:" + "a" * 64 + "\n", encoding="utf-8")
-            evidence.joinpath("TEST-Ignite2ServerTest.xml").write_text(
-                '<testsuite name="io.bluetape4k.testcontainers.storage.Ignite2ServerTest" tests="1" skipped="0" failures="0" errors="0">'
-                '<testcase classname="io.bluetape4k.testcontainers.storage.Ignite2ServerTest" name="representativeStartupAndWorkload"/>'
+            evidence.joinpath("TEST-StrictServerTest.xml").write_text(
+                '<testsuite name="io.bluetape4k.testcontainers.storage.StrictServerTest" tests="1" skipped="0" failures="0" errors="0">'
+                '<testcase classname="io.bluetape4k.testcontainers.storage.StrictServerTest" name="representativeStartupAndWorkload"/>'
                 "</testsuite>",
                 encoding="utf-8",
             )
@@ -684,7 +684,7 @@ class TestRunTestcontainersImageGate(unittest.TestCase):
 
         result = summary["results"][0]
         self.assertEqual("success", result["status"])
-        self.assertEqual("apacheignite/ignite:2.18.0", result["pull"]["event_ref"])
+        self.assertEqual("example/strict:1.0", result["pull"]["event_ref"])
         self.assertEqual("post_pull_inspect", result["pull"]["event_image_id_source"])
         self.assertEqual(
             [],
@@ -692,7 +692,7 @@ class TestRunTestcontainersImageGate(unittest.TestCase):
                 summary,
                 expected_coverage="1/1",
                 platform_id="amd64",
-                expected_tag="2.18.0",
+                expected_tag="1.0",
                 expected_architecture="amd64",
             ),
         )
@@ -724,7 +724,7 @@ class TestRunTestcontainersImageGate(unittest.TestCase):
             if command[:3] == ["docker", "image", "inspect"]:
                 return SimpleNamespace(
                     returncode=0,
-                    stdout=json.dumps([{"Id": "sha256:" + "a" * 64, "RepoDigests": ["apacheignite/ignite@sha256:" + "b" * 64], "Os": "linux", "Architecture": "amd64"}]),
+                    stdout=json.dumps([{"Id": "sha256:" + "a" * 64, "RepoDigests": ["example/strict@sha256:" + "b" * 64], "Os": "linux", "Architecture": "amd64"}]),
                     stderr="",
                 )
             if command[:3] == ["docker", "context", "show"]:
@@ -741,18 +741,18 @@ class TestRunTestcontainersImageGate(unittest.TestCase):
                     stdout=json.dumps({
                         "timeNano": str(time.time_ns()),
                         "id": "sha256:" + "a" * 64,
-                        "from": "apacheignite/ignite:2.18.0",
-                        "Actor": {"ID": "sha256:" + "a" * 64, "Attributes": {"name": "apacheignite/ignite:2.18.0"}},
+                        "from": "example/strict:1.0",
+                        "Actor": {"ID": "sha256:" + "a" * 64, "Attributes": {"name": "example/strict:1.0"}},
                     }) + "\n",
                     stderr="",
                 )
             evidence = next((Path(part.split("=", 1)[1]) for part in command if part.startswith("-Dtestcontainers.image-gate.evidence-dir=")), None)
             assert evidence is not None
-            evidence.joinpath("startup.marker").write_text("Ignite node started OK\n", encoding="utf-8")
+            evidence.joinpath("startup.marker").write_text("Container workload ready\n", encoding="utf-8")
             evidence.joinpath("workload.image-id").write_text("sha256:" + "a" * 64 + "\n", encoding="utf-8")
-            evidence.joinpath("TEST-Ignite2ServerTest.xml").write_text(
-                '<testsuite name="io.bluetape4k.testcontainers.storage.Ignite2ServerTest" tests="1" skipped="0" failures="0" errors="0">'
-                '<testcase classname="io.bluetape4k.testcontainers.storage.Ignite2ServerTest" name="representativeStartupAndWorkload"/>'
+            evidence.joinpath("TEST-StrictServerTest.xml").write_text(
+                '<testsuite name="io.bluetape4k.testcontainers.storage.StrictServerTest" tests="1" skipped="0" failures="0" errors="0">'
+                '<testcase classname="io.bluetape4k.testcontainers.storage.StrictServerTest" name="representativeStartupAndWorkload"/>'
                 '</testsuite>',
                 encoding="utf-8",
             )
@@ -785,7 +785,7 @@ class TestRunTestcontainersImageGate(unittest.TestCase):
     def test_arm64_strict_command_is_fixed_and_excludes_mock_jib(self) -> None:
         value = strict_entry()
         value["platforms"] = [
-            {"id": "arm64", "os": "linux", "architecture": "arm64", "tag": "2.18.0-arm64", "runner": "ubuntu-24.04-arm"},
+            {"id": "arm64", "os": "linux", "architecture": "arm64", "tag": "1.0-arm64", "runner": "ubuntu-24.04-arm"},
         ]
         value["defaultPlatformId"] = "arm64"
         value["_selected_platform_id"] = "arm64"
@@ -794,7 +794,7 @@ class TestRunTestcontainersImageGate(unittest.TestCase):
             command = runner._command(value, Path(directory) / "attempt")
         self.assertEqual("-Dtestcontainers.image-gate.evidence-dir", command[1].split("=", 1)[0])
         self.assertIn("--tests", command)
-        self.assertIn("io.bluetape4k.testcontainers.storage.Ignite2ServerTest.representativeStartupAndWorkload", command)
+        self.assertIn("io.bluetape4k.testcontainers.storage.StrictServerTest.representativeStartupAndWorkload", command)
         self.assertIn("--rerun-tasks", command)
         self.assertEqual(2, command.count("-x"))
         self.assertNotIn("jibDockerBuild", command[:3])
@@ -809,16 +809,16 @@ class TestRunTestcontainersImageGate(unittest.TestCase):
             "blocked": 0,
             "product_failure": 0,
             "infrastructure_failure": 0,
-            "platforms": [{"platform_id": "arm64", "status": "success", "image_ref": "apacheignite/ignite:2.18.0-arm64", "expected": {"os": "linux", "tag": "2.18.0-arm64", "architecture": "arm64"}, "observed": {"image_tag": "2.18.0-arm64", "image_architecture": "arm64", "image_os": "linux", "runner_os": "linux", "daemon_os": "linux"}, "pull": {}, "junit": {}, "workload_image": {}, "family_artifact": "ignite2.json"}],
+            "platforms": [{"platform_id": "arm64", "status": "success", "image_ref": "example/strict:1.0-arm64", "expected": {"os": "linux", "tag": "1.0-arm64", "architecture": "arm64"}, "observed": {"image_tag": "1.0-arm64", "image_architecture": "arm64", "image_os": "linux", "runner_os": "linux", "daemon_os": "linux"}, "pull": {}, "junit": {}, "workload_image": {}, "family_artifact": "strict-family.json"}],
         }
-        errors = verify_release_summary(summary, expected_coverage="1/1", platform_id="arm64", expected_tag="2.18.0-arm64", expected_architecture="arm64")
+        errors = verify_release_summary(summary, expected_coverage="1/1", platform_id="arm64", expected_tag="1.0-arm64", expected_architecture="arm64")
         self.assertIn("pull event and digest evidence are required", errors)
         self.assertIn("expected runner label mismatch", errors)
         self.assertIn("runner/daemon architecture evidence is required", errors)
         summary["platforms"][0]["observed"].pop("image_tag")
         self.assertIn(
             "expected/observed tag mismatch",
-            verify_release_summary(summary, expected_coverage="1/1", platform_id="arm64", expected_tag="2.18.0-arm64", expected_architecture="arm64"),
+            verify_release_summary(summary, expected_coverage="1/1", platform_id="arm64", expected_tag="1.0-arm64", expected_architecture="arm64"),
         )
 
     def test_budget_formula_and_52_family_artifact_guard(self) -> None:
