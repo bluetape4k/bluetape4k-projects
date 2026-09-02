@@ -15,7 +15,8 @@ Issue: #1100
 - English file missing Korean pair: 0
 - Korean file missing English pair: 0
 - Manual image asset count: 30
-- Guard command: `python3 scripts/docs-localization-inventory.py --check`
+- Guard command: 중앙 manual checkout과 immutable ref를 지정한
+  `python3 scripts/docs-localization-inventory.py --check`
 
 ## 결정
 
@@ -25,6 +26,8 @@ Kotlin/KTS KDoc을 한국어화하고, manual pair에는 basename parity guard�
 ## 재현
 
 ```bash
+export BLUETAPE4K_MANUAL_ROOT="/path/to/bluetape4k.github.io/docs/manual/bluetape4k-projects"
+export BLUETAPE4K_MANUAL_REF="$(git -C /path/to/bluetape4k.github.io rev-parse HEAD)"
 python3 scripts/docs-localization-inventory.py --check
 ```
 
@@ -32,6 +35,8 @@ Expected output:
 
 ```text
 Korean localization guardrail
+- central manual root: /path/to/bluetape4k.github.io/docs/manual/bluetape4k-projects
+- central manual ref: 4e3c00262adb12cd61e4e8a30b6488aa6a287acc
 - manual EN missing KO: 0
 - manual KO missing EN: 0
 - English-KDoc policy drift: 0

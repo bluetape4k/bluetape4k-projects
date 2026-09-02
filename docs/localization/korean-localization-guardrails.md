@@ -5,8 +5,8 @@ Issue: #1094
 ## 목적
 
 이 문서는 `#1093`에서 만든 inventory 기준을 검증 가능한 guardrail로 고정한다.
-후속 번역 PR은 이 기준을 사용해 README, 운영 지침, GitHub 공개 메타데이터,
-central manual의 `en`/`ko` bilingual pair를 잘못 번역 범위에 넣지 않아야 한다.
+후속 번역 PR은 이 기준을 사용해 README, 운영 지침, 공개 contributor metadata,
+central manual의 `en`/`ko` bilingual pair를 각각의 언어 계약에 맞게 다뤄야 한다.
 
 ## 검사 명령
 
@@ -41,8 +41,9 @@ Korean localization guardrail
 - `README*` 파일은 이번 Epic의 primary rewrite 대상이 아니다.
 - `AGENTS.md`, `CLAUDE.md`, `SKILL.md`, prompts, hooks, `.omx`, `.omc`,
   `.codex` 같은 LLM-facing 또는 generated operating surface는 영어 유지 대상이다.
-- `CHANGELOG.md`, `SECURITY.md`, GitHub issue/PR 본문, release notes,
-  pushed commit message는 공개 contributor metadata이므로 영어 유지 대상이다.
+- `CHANGELOG.md`, GitHub issue/PR 본문, release notes, pushed commit message는
+  공개 contributor metadata이므로 독자용 prose를 한국어로 작성한다.
+- `SECURITY.md`는 보안 신고 인터페이스의 영문 호환성을 유지한다.
 - central manual의 `en`과 `ko`는 이미 bilingual pair로 관리되므로
   rewrite 대상이 아니라 parity 검증 대상이다.
 
@@ -54,3 +55,5 @@ Korean localization guardrail
   benchmark number는 원문 그대로 보존한다.
 - public/internal KDoc과 의미 있는 internal/data-class constructor property 설명은
   한국어로 작성한다.
+- 공개 metadata의 code, command, API name, identifier, URL, version, exact error와
+  machine-required token은 원문을 보존한다.

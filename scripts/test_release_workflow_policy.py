@@ -616,6 +616,28 @@ def release_policy_errors(workflow: str) -> list[str]:
         errors.append("release publication must use the exact validated Nightly SHA")
     if "run_testcontainers_image_gate.py" in workflow:
         errors.append("release workflow must reuse Full Nightly image-gate evidence")
+    catalog_runs = workflow_step_runs(
+        workflow, "publish", "Resolve dependencies catalog ref"
+    )
+    catalog_script = (
+        "\n".join(catalog_runs[0][0][1])
+        if len(catalog_runs) == 1 and catalog_runs[0][0] is not None
+        else ""
+    )
+    catalog_contract = (
+        len(catalog_runs) == 1
+        and not catalog_runs[0][1]
+        and "REPOSITORY_CATALOG_REF" not in workflow
+        and "vars.BLUETAPE4K_DEPENDENCIES_CATALOG_REF" not in workflow
+        and 'SELECTED_CATALOG_REF="$INPUT_CATALOG_REF"' in catalog_script
+        and 'SELECTED_CATALOG_REF="$DEFAULT_CATALOG_REF"' in catalog_script
+        and '[[ ! "$SELECTED_CATALOG_REF" =~ ^([0-9a-f]{40}|[0-9a-f]{64})$ ]]'
+        in catalog_script
+    )
+    if not catalog_contract:
+        errors.append(
+            "release catalog ref must use an explicit input or checked-in immutable default"
+        )
     errors.extend(publication_validation_errors(workflow, "publish"))
     if not release_command_valid:
         errors.append("release publication must disable the configuration cache")
@@ -773,6 +795,18 @@ def runtime_policy_errors() -> list[str]:
 
 
 class ReleaseWorkflowPolicyTest(unittest.TestCase):
+
+    def test_release_catalog_ref_uses_only_input_or_checked_in_default(self) -> None:
+        workflow = (WORKFLOWS / "release.yml").read_text(encoding="utf-8")
+
+        self.assertNotIn("REPOSITORY_CATALOG_REF", workflow)
+        self.assertNotIn("vars.BLUETAPE4K_DEPENDENCIES_CATALOG_REF", workflow)
+        self.assertIn('SELECTED_CATALOG_REF="$INPUT_CATALOG_REF"', workflow)
+        self.assertIn('SELECTED_CATALOG_REF="$DEFAULT_CATALOG_REF"', workflow)
+        self.assertIn(
+            '[[ ! "$SELECTED_CATALOG_REF" =~ ^([0-9a-f]{40}|[0-9a-f]{64})$ ]]',
+            workflow,
+        )
 
     @staticmethod
     def _nightly_matrix_contract() -> dict:

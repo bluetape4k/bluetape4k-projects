@@ -14,6 +14,11 @@ DOCUMENTATION_TEST = (
     / "cache/cache-core/src/test/kotlin/io/bluetape4k/cache/nearcache/jcache"
     / "NearJCacheDocumentationTest.kt"
 )
+LOCALIZATION_DOCS = (
+    REPO_ROOT / "docs/localization/manual-parity-audit.md",
+    REPO_ROOT / "docs/localization/korean-docs-kdoc-pr-stack-audit.md",
+    REPO_ROOT / "docs/localization/korean-localization-guardrails.md",
+)
 
 
 class CentralManualInventoryTest(unittest.TestCase):
@@ -35,19 +40,21 @@ class CentralManualInventoryTest(unittest.TestCase):
         target.parent.mkdir(parents=True, exist_ok=True)
         target.write_text(f"# {locale}\n", encoding="utf-8")
 
-    def run_inventory(self) -> subprocess.CompletedProcess[str]:
+    def run_inventory(self, *, check: bool = True) -> subprocess.CompletedProcess[str]:
+        command = [
+            "python3",
+            str(INVENTORY),
+            "--root",
+            str(self.project),
+            "--manual-root",
+            str(self.manual),
+            "--manual-ref",
+            "a" * 40,
+        ]
+        if check:
+            command.append("--check")
         return subprocess.run(
-            [
-                "python3",
-                str(INVENTORY),
-                "--root",
-                str(self.project),
-                "--manual-root",
-                str(self.manual),
-                "--manual-ref",
-                "a" * 40,
-                "--check",
-            ],
+            command,
             check=False,
             text=True,
             capture_output=True,
@@ -101,8 +108,31 @@ class CentralManualInventoryTest(unittest.TestCase):
         self.assertNotEqual(0, result.returncode)
         self.assertIn("central manual root is not available", result.stderr)
 
+    def test_changelog_is_in_korean_rewrite_scope(self) -> None:
+        (self.project / "CHANGELOG.md").write_text("# 변경 기록\n", encoding="utf-8")
+        subprocess.run(
+            ["git", "add", "CHANGELOG.md"],
+            cwd=self.project,
+            check=True,
+            capture_output=True,
+        )
+
+        result = self.run_inventory(check=False)
+
+        self.assertEqual(0, result.returncode, result.stderr)
+        self.assertIn("`CHANGELOG.md`", result.stdout)
+        self.assertNotIn("CHANGELOG, SECURITY", result.stdout)
+
 
 class CentralManualCiPolicyTest(unittest.TestCase):
+    def test_tracked_inventory_call_sites_prepare_manual_root_and_ref(self) -> None:
+        for document in LOCALIZATION_DOCS:
+            with self.subTest(document=document.name):
+                source = document.read_text(encoding="utf-8")
+                self.assertIn("BLUETAPE4K_MANUAL_ROOT", source)
+                self.assertIn("BLUETAPE4K_MANUAL_REF", source)
+                self.assertIn("docs-localization-inventory.py --check", source)
+
     def test_documentation_test_fails_when_central_manual_is_absent(self) -> None:
         source = DOCUMENTATION_TEST.read_text(encoding="utf-8")
 

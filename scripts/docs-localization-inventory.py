@@ -28,7 +28,6 @@ OPERATING_NAMES = {
     "pull_request_template.md",
 }
 PUBLIC_ENGLISH_NAMES = {
-    "CHANGELOG.md",
     "SECURITY.md",
 }
 MANUAL_EN = Path("docs/manual/en")
@@ -256,7 +255,7 @@ def build_report(root: Path, manual_root: Path, manual_ref: str) -> str:
         "- In scope: Git-tracked non-README, single-language documentation and Kotlin/KTS KDoc surfaces.",
         "- Korean rewrite target: prose in in-scope docs, public/internal KDoc, and meaningful internal/data-class property contracts.",
         "- Preserve exactly: code identifiers, API names, commands, URLs, exact error text, external product names, issue/PR numbers, and measured values.",
-        "- Excluded from rewrite: README files, LLM-facing operating guidance, generated workflow state, CHANGELOG, SECURITY, GitHub metadata, release notes, and pushed commit text.",
+        "- Excluded from rewrite: README files, LLM-facing operating guidance, generated workflow state, and SECURITY.",
         "- Parity-only: central manual `en` and `ko` bilingual pairs.",
         "",
         "## Current Inventory",
