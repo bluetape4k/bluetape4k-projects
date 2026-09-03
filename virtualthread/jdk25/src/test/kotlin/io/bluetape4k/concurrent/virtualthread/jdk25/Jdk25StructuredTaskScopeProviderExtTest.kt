@@ -93,6 +93,84 @@ class Jdk25StructuredTaskScopeProviderExtTest {
     }
 
     @Test
+    fun `withAll join은 기존 owner interrupt를 즉시 전파해야 한다`() {
+        try {
+            assertFailsWith<InterruptedException> {
+                provider.withAll { scope ->
+                    scope.fork { Thread.sleep(5_000); 1 }
+                    Thread.currentThread().interrupt()
+                    scope.join()
+                }
+            }
+        } finally {
+            Thread.interrupted()
+        }
+    }
+
+    @Test
+    fun `withAll join은 외부 owner interrupt를 즉시 전파해야 한다`() {
+        val ownerThread = Thread.currentThread()
+        val interrupter = Executors.newSingleThreadScheduledExecutor()
+        try {
+            assertFailsWith<InterruptedException> {
+                provider.withAll { scope ->
+                    scope.fork { Thread.sleep(5_000); 1 }
+                    interrupter.schedule({ ownerThread.interrupt() }, 100, TimeUnit.MILLISECONDS)
+                    scope.join()
+                }
+            }
+        } finally {
+            interrupter.shutdownNow()
+            Thread.interrupted()
+        }
+    }
+
+    @Test
+    fun `withAll joinUntil은 기존 owner interrupt를 즉시 전파해야 한다`() {
+        try {
+            assertFailsWith<InterruptedException> {
+                provider.withAll { scope ->
+                    scope.fork { Thread.sleep(5_000); 1 }
+                    Thread.currentThread().interrupt()
+                    scope.joinUntil(Instant.now().plusSeconds(5))
+                }
+            }
+        } finally {
+            Thread.interrupted()
+        }
+    }
+
+    @Test
+    fun `withAll joinUntil은 외부 owner interrupt를 즉시 전파해야 한다`() {
+        val ownerThread = Thread.currentThread()
+        val interrupter = Executors.newSingleThreadScheduledExecutor()
+        try {
+            assertFailsWith<InterruptedException> {
+                provider.withAll { scope ->
+                    scope.fork { Thread.sleep(5_000); 1 }
+                    interrupter.schedule({ ownerThread.interrupt() }, 100, TimeUnit.MILLISECONDS)
+                    scope.joinUntil(Instant.now().plusSeconds(5))
+                }
+            }
+        } finally {
+            interrupter.shutdownNow()
+            Thread.interrupted()
+        }
+    }
+
+    @Test
+    fun `withAll joinUntil은 subtask 실패 원인을 유지해야 한다`() {
+        val failure = assertFailsWith<IllegalStateException> {
+            provider.withAll { scope ->
+                scope.fork<Int> { throw IllegalStateException("subtask failed") }
+                scope.joinUntil(Instant.now().plusSeconds(5)).throwIfFailed()
+            }
+        }
+
+        failure.message shouldBeEqualTo "subtask failed"
+    }
+
+    @Test
     fun `interruptJoinUntil timeout interrupt는 TimeoutException 으로 변환하고 interrupt 상태를 clear 해야 한다`() {
         try {
             assertFailsWith<TimeoutException> {
@@ -214,6 +292,89 @@ class Jdk25StructuredTaskScopeProviderExtTest {
                 scope.join().result { IllegalStateException("all failed: $it") }
             }
         }
+    }
+
+    @Test
+    fun `withAny result는 기존 owner interrupt를 mapper로 변환하지 않아야 한다`() {
+        var mapperCalled = false
+        try {
+            assertFailsWith<InterruptedException> {
+                provider.withAny<Int> { scope ->
+                    scope.fork { Thread.sleep(5_000); 1 }
+                    Thread.currentThread().interrupt()
+                    scope.join().result {
+                        mapperCalled = true
+                        IllegalStateException(it)
+                    }
+                }
+            }
+            mapperCalled.shouldBeFalse()
+        } finally {
+            Thread.interrupted()
+        }
+    }
+
+    @Test
+    fun `withAny result 직접 호출도 owner interrupt를 mapper로 변환하지 않아야 한다`() {
+        var mapperCalled = false
+        try {
+            assertFailsWith<InterruptedException> {
+                provider.withAny<Int> { scope ->
+                    scope.fork { Thread.sleep(5_000); 1 }
+                    Thread.currentThread().interrupt()
+                    scope.result {
+                        mapperCalled = true
+                        IllegalStateException(it)
+                    }
+                }
+            }
+            mapperCalled.shouldBeFalse()
+        } finally {
+            Thread.interrupted()
+        }
+    }
+
+    @Test
+    fun `withAny result는 외부 owner interrupt를 mapper로 변환하지 않아야 한다`() {
+        val ownerThread = Thread.currentThread()
+        val interrupter = Executors.newSingleThreadScheduledExecutor()
+        var mapperCalled = false
+        try {
+            assertFailsWith<InterruptedException> {
+                provider.withAny<Int> { scope ->
+                    scope.fork { Thread.sleep(5_000); 1 }
+                    interrupter.schedule({ ownerThread.interrupt() }, 100, TimeUnit.MILLISECONDS)
+                    scope.join().result {
+                        mapperCalled = true
+                        IllegalStateException(it)
+                    }
+                }
+            }
+            mapperCalled.shouldBeFalse()
+        } finally {
+            interrupter.shutdownNow()
+            Thread.interrupted()
+        }
+    }
+
+    @Test
+    fun `withAny subtask 실패만 mapper 입력으로 전달해야 한다`() {
+        var mappedFailure: Throwable? = null
+
+        val failure = assertFailsWith<IllegalStateException> {
+            provider.withAny<Int> { scope ->
+                scope.fork<Int> { throw IllegalArgumentException("subtask failed") }
+                scope.join().result {
+                    mappedFailure = it
+                    IllegalStateException("mapped", it)
+                }
+            }
+        }
+
+        val actualMappedFailure = mappedFailure.shouldNotBeNull()
+        actualMappedFailure.shouldBeInstanceOf<IllegalArgumentException>()
+        actualMappedFailure.message shouldBeEqualTo "subtask failed"
+        failure.cause shouldBeEqualTo actualMappedFailure
     }
 
     @Test
