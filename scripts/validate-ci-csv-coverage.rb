@@ -9,14 +9,14 @@ CSV_KOVER_TASK = ":bluetape4k-csv:koverXmlReport"
 VALIDATOR_COMMAND = ["ruby", "scripts/validate-ci-csv-coverage.rb"].freeze
 IO_OUTPUT = "${{ steps.filter.outputs.io }}"
 TEST_IO_CONDITION = "${{ needs.changes.outputs.io == 'true' || needs.changes.outputs.shared == 'true' || github.event_name == 'workflow_dispatch' }}"
-FORBIDDEN_GRADLE_OPTIONS = ["-x", "--exclude-task", "-m", "--dry-run"].freeze
+FORBIDDEN_GRADLE_OPTIONS = ["--exclude-task", "-m", "--dry-run"].freeze
 
 def fail_validation(message)
   warn message
   exit 1
 end
 
-def gradle_tokens(command, label)
+def gradle_tokens(command, label, allowed_excluded_tasks: [])
   normalized = command.gsub(/\\\r?\n/, " ").strip
   fail_validation("#{label} must use one simple Gradle invocation") if normalized.match?(/[\r\n#;&|<>$`]/)
 
@@ -28,6 +28,15 @@ def gradle_tokens(command, label)
       token.start_with?("-x=", "-x:", "--exclude-task=", "--dry-run=")
   end
   fail_validation("#{label} must execute its tasks; forbidden option #{forbidden}") if forbidden
+
+  tokens.each_index do |index|
+    next unless tokens[index] == "-x"
+
+    excluded_task = tokens[index + 1]
+    unless allowed_excluded_tasks.include?(excluded_task)
+      fail_validation("#{label} must execute its tasks; forbidden excluded task #{excluded_task || '(missing)'}")
+    end
+  end
   tokens
 rescue ArgumentError => error
   fail_validation("invalid #{label}: #{error.message}")
@@ -77,14 +86,17 @@ fail_validation("Test io modules must run unconditionally within test-io") if te
 fail_validation("Test io modules must fail the test-io job") if test_step.key?("continue-on-error")
 
 test_tokens = gradle_tokens(test_step.fetch("with").fetch("command"), "CSV test command")
-kover_tokens = gradle_tokens(kover_step.fetch("run"), "CSV Kover command")
+kover_tokens = gradle_tokens(kover_step.fetch("run"), "CSV Kover command", allowed_excluded_tasks: ["test"])
 fail_validation("Test io modules must include #{CSV_TEST_TASK}") unless test_tokens.include?(CSV_TEST_TASK)
 fail_validation("Generate Kover XML report must include #{CSV_KOVER_TASK}") unless kover_tokens.include?(CSV_KOVER_TASK)
 
 task_tokens = io_steps.flat_map do |step|
   commands = [step["run"], step.dig("with", "command")].compact
   commands.select { |command| [CSV_TEST_TASK, CSV_KOVER_TASK].any? { |task| command.include?(task) } }
-          .map { |command| gradle_tokens(command, "test-io CSV command") }
+          .map do |command|
+            allowed_excluded_tasks = command.include?(CSV_KOVER_TASK) ? ["test"] : []
+            gradle_tokens(command, "test-io CSV command", allowed_excluded_tasks: allowed_excluded_tasks)
+          end
 end.flatten
 require_once(task_tokens, CSV_TEST_TASK, "all test-io commands")
 require_once(task_tokens, CSV_KOVER_TASK, "all test-io commands")
