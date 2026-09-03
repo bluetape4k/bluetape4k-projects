@@ -59,6 +59,7 @@ class ConcurrentReducer<T> internal constructor(
     private val closed = atomic(false)
     private val pumpScheduled = atomic(false)
     private val admissionLock = Any()
+    private val activeJobs = mutableSetOf<Job<T>>()
 
     val queuedCount: Int get() = queue.size
     val activeCount: Int get() = maxConcurrency - limit.availablePermits()
@@ -121,7 +122,11 @@ class ConcurrentReducer<T> internal constructor(
         } else {
             pollNextJob { it.promise.isCancelled }
                 .also { job ->
-                    if (job == null) limit.release()
+                    if (job == null) {
+                        limit.release()
+                    } else {
+                        activeJobs += job
+                    }
                 }
         }
     }
@@ -150,51 +155,98 @@ class ConcurrentReducer<T> internal constructor(
 
     @Suppress("TooGenericExceptionCaught")
     private fun run(job: Job<T>) {
-        fun completeExceptionally(error: Throwable) {
-            limit.release()
-            job.promise.completeExceptionally(error)
+        if (!job.tryStart()) return
+
+        var invocationFailed = false
+        val future: CompletionStage<T>? = try {
+            job.task.invoke()
+        } catch (e: Throwable) {
+            invocationFailed = true
+            complete(job, error = e)
+            log.warn(e) { "task failed. job=$job" }
+            null
         }
 
-        val future: CompletionStage<T>?
-        try {
-            future = job.task.invoke()
+        if (!invocationFailed) {
             if (future == null) {
                 log.debug { "task result is null." }
-                completeExceptionally(NullPointerException("task result is null."))
-                return
-            }
-        } catch (e: Throwable) {
-            completeExceptionally(e)
-            log.warn(e) { "task failed. job=$job" }
-            return
-        }
-
-        future.whenComplete { result, error ->
-            limit.release()
-            if (error != null) {
-                job.promise.completeExceptionally(error)
+                complete(job, error = NullPointerException("task result is null."))
             } else {
-                job.promise.complete(result)
-            }
+                job.stage = future
+                if (job.isCancellationRequested) {
+                    cancelStage(job)
+                } else {
+                    future.whenComplete { result, error ->
+                        complete(job, result, error)
 
-            // whenComplete()는 현재 스레드에서 실행될 수 있으므로 coalesced pump를 executor에 위임한다.
-            if (!closed.value) schedulePump()
+                        // whenComplete()는 현재 스레드에서 실행될 수 있으므로 coalesced pump를 executor에 위임한다.
+                        if (!closed.value) schedulePump()
+                    }
+                }
+            }
+        }
+    }
+
+    private fun complete(job: Job<T>, result: T? = null, error: Throwable? = null) {
+        val completed = synchronized(admissionLock) {
+            if (!job.tryComplete()) {
+                false
+            } else {
+                activeJobs.remove(job)
+                limit.release()
+                true
+            }
+        }
+        if (!completed) return
+
+        if (error != null) {
+            job.promise.completeExceptionally(error)
+        } else {
+            job.promise.complete(result)
+        }
+    }
+
+    @Suppress("TooGenericExceptionCaught")
+    private fun cancelStage(job: Job<T>) {
+        val stage = job.stage ?: return
+        if (!job.tryCancelStage()) return
+
+        try {
+            stage.toCompletableFuture().cancel(false)
+        } catch (e: RuntimeException) {
+            log.warn(e) { "task stage cancellation failed." }
         }
     }
 
     /**
      * 내부 리소스를 정리합니다.
-     * 큐에 남아있는 작업은 취소되고, pump executor를 종료합니다.
+     * 큐에 남아있거나 실행 중인 작업은 취소되고, pump executor를 종료합니다.
      */
     override fun close() {
-        synchronized(admissionLock) {
+        val jobsToCancel = synchronized(admissionLock) {
             if (!closed.compareAndSet(false, true)) return
 
+            val queuedJobs = mutableListOf<Job<T>>()
             while (true) {
-                val job = queue.poll() ?: break
-                job.promise.cancel(false)
+                queuedJobs += queue.poll() ?: break
+            }
+
+            val activeJobs = activeJobs.toList()
+            val jobs = queuedJobs + activeJobs
+            jobs.forEach { job ->
+                if (job.tryCancel() && this@ConcurrentReducer.activeJobs.remove(job)) {
+                    limit.release()
+                }
             }
             pumpExecutor.shutdown()
+            jobs
+        }
+
+        jobsToCancel.forEach { job ->
+            if (job.isCancellationRequested) {
+                job.promise.cancel(false)
+                cancelStage(job)
+            }
         }
     }
 
@@ -203,8 +255,37 @@ class ConcurrentReducer<T> internal constructor(
         val promise: CompletableFuture<T>,
     ): Serializable {
         companion object {
+            private const val NEW = 0
+            private const val RUNNING = 1
+            private const val CANCELLED = 2
+            private const val COMPLETED = 3
             private const val serialVersionUID: Long = 1L
         }
+
+        private val state = atomic(NEW)
+        private val stageCancellationRequested = atomic(false)
+
+        @Volatile
+        var stage: CompletionStage<T>? = null
+
+        val isCancellationRequested: Boolean
+            get() = state.value == CANCELLED
+
+        fun tryStart(): Boolean = state.compareAndSet(NEW, RUNNING)
+
+        fun tryComplete(): Boolean = state.compareAndSet(RUNNING, COMPLETED)
+
+        fun tryCancelStage(): Boolean = stageCancellationRequested.compareAndSet(false, true)
+
+        fun tryCancel(): Boolean {
+            while (true) {
+                when (val current = state.value) {
+                    NEW, RUNNING -> if (state.compareAndSet(current, CANCELLED)) return true
+                    else -> return false
+                }
+            }
+        }
+
     }
 
     class CapacityReachedException: BluetapeException {
