@@ -129,7 +129,8 @@ class Jdk25StructuredTaskScopeProvider: StructuredTaskScopeProvider {
      * ## 동작/계약
      * - `Joiner.awaitAllSuccessfulOrThrow()`를 사용하여 subtask 실패 시 나머지를 즉시 취소합니다.
      * - join 후 [StructuredTaskScopeAll.throwIfFailed]로 첫 번째 실패 예외를 전파합니다.
-     * - [join]은 subtask 실패 예외를 내부에 저장하여 [throwIfFailed] 호출 시 재발생시킵니다.
+     * - [join]은 subtask의 `FailedException` 원인만 저장하여 [throwIfFailed] 호출 시 재발생시킵니다.
+     * - owner thread의 [InterruptedException]은 저장하지 않고 [join]에서 즉시 전파합니다.
      *
      * ```kotlin
      * val result = Jdk25StructuredTaskScopeProvider().withAll { scope ->
@@ -160,7 +161,8 @@ class Jdk25StructuredTaskScopeProvider: StructuredTaskScopeProvider {
      *
      * ## 동작/계약
      * - `StructuredTaskScope.open<T, T>(Joiner.anySuccessfulResultOrThrow(), ...)`를 사용합니다.
-     * - [StructuredTaskScopeAny.result]에서 join 실패를 `mapper` 예외로 변환합니다.
+     * - [StructuredTaskScopeAny.result]에서 subtask 실패를 `mapper` 예외로 변환합니다.
+     * - owner thread의 [InterruptedException]은 `mapper`에 전달하지 않고 즉시 전파합니다.
      *
      * ```kotlin
      * val result = Jdk25StructuredTaskScopeProvider().withAny<String> { scope ->
@@ -231,10 +233,12 @@ class Jdk25StructuredTaskScopeProvider: StructuredTaskScopeProvider {
         override fun join(): StructuredTaskScopeAll {
             try {
                 delegate.join()
-            } catch (e: Throwable) {
+            } catch (e: InterruptedException) {
+                throw e
+            } catch (e: StructuredTaskScope.FailedException) {
                 // awaitAllSuccessfulOrThrow()는 subtask 실패를 FailedException으로 래핑해서 throw.
                 // 원본 예외(cause)를 사용자에게 노출하기 위해 언래핑
-                joinException = if (e is StructuredTaskScope.FailedException) e.cause ?: e else e
+                joinException = e.cause ?: e
             }
             return this
         }
@@ -244,8 +248,10 @@ class Jdk25StructuredTaskScopeProvider: StructuredTaskScopeProvider {
                 interruptJoinUntil(deadline, "jdk25-scope-timeout") { delegate.join() }
             } catch (e: TimeoutException) {
                 throw e
-            } catch (e: Throwable) {
-                joinException = if (e is StructuredTaskScope.FailedException) e.cause ?: e else e
+            } catch (e: InterruptedException) {
+                throw e
+            } catch (e: StructuredTaskScope.FailedException) {
+                joinException = e.cause ?: e
             }
             return this
         }
@@ -283,29 +289,32 @@ class Jdk25StructuredTaskScopeProvider: StructuredTaskScopeProvider {
         }
 
         override fun join(): StructuredTaskScopeAny<T> {
-            joinedResult = runCatching { delegate.join() }
+            joinedResult = joinResult()
             return this
         }
 
         override fun joinUntil(deadline: Instant): StructuredTaskScopeAny<T> {
             interruptJoinUntil(deadline, "jdk25-any-scope-timeout") {
-                try {
-                    joinedResult = Result.success(delegate.join())
-                } catch (e: InterruptedException) {
-                    throw e
-                } catch (e: Exception) {
-                    joinedResult = Result.failure(e)
-                }
+                joinedResult = joinResult()
             }
             return this
         }
 
         override fun result(mapper: (Throwable) -> RuntimeException): T {
-            val result = joinedResult ?: runCatching { delegate.join() }
+            val result = joinedResult ?: joinResult()
             return result.getOrElse { throwable ->
                 throw mapper(throwable.cause ?: throwable)
             }
         }
+
+        private fun joinResult(): Result<T> =
+            try {
+                Result.success(delegate.join())
+            } catch (e: InterruptedException) {
+                throw e
+            } catch (e: StructuredTaskScope.FailedException) {
+                Result.failure(e)
+            }
 
         override fun close() {
             delegate.close()
