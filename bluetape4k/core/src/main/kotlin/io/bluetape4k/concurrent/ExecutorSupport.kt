@@ -6,6 +6,7 @@ import io.bluetape4k.support.requirePositiveNumber
 
 import java.util.concurrent.Callable
 import java.util.concurrent.CompletableFuture
+import java.util.concurrent.ExecutionException
 import java.util.concurrent.Executor
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
@@ -64,6 +65,9 @@ fun <T> withWorkStealingPool(
  * val future: CompletableFuture<List<Int>> = withWorkStealingPool(parallelism = 4, tasks = tasks)
  * val results = future.get()  // [0, 2, 4, 6]
  * ```
+ * [tasks]는 executor에서 비동기로 실행되며, 이 함수는 task 완료를 기다리지 않고
+ * 반환합니다.
+ * 반환된 future를 취소하면 실행 중인 task와 executor를 함께 중단합니다.
  *
  * @param parallelism Int 병렬 처리할 수
  * @param tasks WorkStealingPool 에서 실행할 [Callable]의 컬렉션
@@ -76,14 +80,31 @@ fun <T> withWorkStealingPool(
     val executor = Executors.newWorkStealingPool(parallelism)
 
     return try {
-        executor
-            .invokeAll(tasks.map { Callable { it.invoke() } })
-            .map { it.asCompletableFuture() }
-            .sequence(executor)
-            .whenComplete { result, error ->
-                log.debug { "WorkStealingPool is shutdown ... result=$result, error=$error" }
-                runCatching { executor.shutdown() }
+        val callables = tasks.map { Callable { it.invoke() } }
+        val future = CompletableFuture.supplyAsync({
+            executor.invokeAll(callables).map { task ->
+                try {
+                    task.get()
+                } catch (e: ExecutionException) {
+                    throw e.cause ?: e
+                } catch (e: InterruptedException) {
+                    Thread.currentThread().interrupt()
+                    throw e
+                }
             }
+        }, executor)
+
+        future.whenComplete { result, error ->
+            log.debug { "WorkStealingPool is shutdown ... result=$result, error=$error" }
+            runCatching {
+                if (future.isCancelled) {
+                    executor.shutdownNow()
+                } else {
+                    executor.shutdown()
+                }
+            }
+        }
+        future
     } catch (e: Exception) {
         executor.shutdown()
         throw e
