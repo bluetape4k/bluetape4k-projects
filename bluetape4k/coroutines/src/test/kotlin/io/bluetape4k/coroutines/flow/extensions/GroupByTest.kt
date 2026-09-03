@@ -13,6 +13,7 @@ import io.bluetape4k.logging.trace
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.cancelAndJoin
+import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.flatMapMerge
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
@@ -102,6 +103,36 @@ class GroupByTest: AbstractFlowTest() {
             .flatMapMerge { it }
             .take(2)
             .assertResult(1, 2)
+    }
+
+    @Test
+    fun `outer cancellation delivers one value to active flatMapMerge collector`() = runTest {
+        val innerStarted = CompletableDeferred<Unit>()
+        val result = CompletableDeferred<List<Int>>()
+        val collection = launch {
+            val values = flow {
+                emit(1)
+            }
+                .groupBy { it }
+                .take(1)
+                .flatMapMerge { group ->
+                    flow {
+                        innerStarted.complete(Unit)
+                        emitAll(group)
+                    }
+                }
+                .toList()
+            result.complete(values)
+        }
+
+        try {
+            withTimeout(100.milliseconds) { innerStarted.await() }
+            withTimeout(100.milliseconds) {
+                result.await() shouldBeEqualTo listOf(1)
+            }
+        } finally {
+            collection.cancelAndJoin()
+        }
     }
 
     @Test
