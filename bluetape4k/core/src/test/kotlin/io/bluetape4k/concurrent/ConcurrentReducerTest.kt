@@ -152,6 +152,52 @@ class ConcurrentReducerTest {
     }
 
     @Test
+    fun `grab 직후 caller 취소 경합에서도 active job과 permit이 누수되지 않는다`() {
+        repeat(64) {
+            val reducer = concurrentReducerOf<String>(1, 1)
+            val firstSource = CompletableFuture<String>()
+            reducer.add { firstSource }
+
+            val releaseTask = CountDownLatch(1)
+            val taskInvoked = AtomicBoolean(false)
+            val promise = reducer.add {
+                taskInvoked.set(true)
+                releaseTask.await()
+                completableFutureOf("done")
+            }
+            val ready = CountDownLatch(32)
+            val cancellers = List(32) {
+                Thread {
+                    ready.countDown()
+                    val deadline = System.nanoTime() + TimeUnit.SECONDS.toNanos(1)
+                    while (reducer.queuedCount != 0 || reducer.activeCount != 1) {
+                        if (System.nanoTime() >= deadline) return@Thread
+                        Thread.onSpinWait()
+                    }
+                    promise.cancel(false)
+                }.also { it.start() }
+            }
+
+            try {
+                ready.await(1, TimeUnit.SECONDS).shouldBeTrue()
+                firstSource.complete("first")
+                cancellers.forEach { it.join(1_000) }
+                await until { taskInvoked.get() || reducer.activeCount == 0 }
+                releaseTask.countDown()
+                await until { reducer.activeCount == 0 && reducer.queuedCount == 0 }
+                reducer.close()
+
+                reducer.activeCount shouldBeEqualTo 0
+                reducer.remainingActiveCapacity shouldBeEqualTo 1
+                reducer.queuedCount shouldBeEqualTo 0
+            } finally {
+                releaseTask.countDown()
+                reducer.close()
+            }
+        }
+    }
+
+    @Test
     fun `3개의 짧은 작업을 2개만 동시 실행으로 제한할 때`() {
         val reducer = concurrentReducerOf<String>(2, 10)
         val request1 = CompletableFuture<String>()

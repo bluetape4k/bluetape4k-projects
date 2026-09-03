@@ -100,10 +100,10 @@ class ConcurrentReducer<T> internal constructor(
 
         do {
             val job = grabJob()
-            if (job?.promise?.isCancelled == true) {
-                limit.release()
-            } else if (job != null) {
-                run(job)
+            if (job != null) {
+                if (!cancelJob(job, requirePromiseCancellation = true)) {
+                    run(job)
+                }
             }
         } while (job != null)
     }
@@ -206,6 +206,28 @@ class ConcurrentReducer<T> internal constructor(
         }
     }
 
+    private fun cancelJob(job: Job<T>, requirePromiseCancellation: Boolean): Boolean {
+        val cancelled = synchronized(admissionLock) {
+            cancelJobLocked(job, requirePromiseCancellation)
+        }
+        if (cancelled) {
+            job.promise.cancel(false)
+            cancelStage(job)
+        }
+        return cancelled
+    }
+
+    private fun cancelJobLocked(job: Job<T>, requirePromiseCancellation: Boolean): Boolean {
+        val canCancel = !requirePromiseCancellation || job.promise.isCancelled
+        val cancelled = canCancel && job.tryCancel()
+        if (cancelled) {
+            if (activeJobs.remove(job)) {
+                limit.release()
+            }
+        }
+        return cancelled
+    }
+
     @Suppress("TooGenericExceptionCaught")
     private fun cancelStage(job: Job<T>) {
         val stage = job.stage ?: return
@@ -233,20 +255,14 @@ class ConcurrentReducer<T> internal constructor(
 
             val activeJobs = activeJobs.toList()
             val jobs = queuedJobs + activeJobs
-            jobs.forEach { job ->
-                if (job.tryCancel() && this@ConcurrentReducer.activeJobs.remove(job)) {
-                    limit.release()
-                }
-            }
+            val cancelledJobs = jobs.filter { cancelJobLocked(it, requirePromiseCancellation = false) }
             pumpExecutor.shutdown()
-            jobs
+            cancelledJobs
         }
 
         jobsToCancel.forEach { job ->
-            if (job.isCancellationRequested) {
-                job.promise.cancel(false)
-                cancelStage(job)
-            }
+            job.promise.cancel(false)
+            cancelStage(job)
         }
     }
 
