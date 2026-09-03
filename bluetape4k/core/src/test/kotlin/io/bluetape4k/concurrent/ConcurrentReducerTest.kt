@@ -12,7 +12,9 @@ import org.awaitility.kotlin.until
 import org.junit.jupiter.api.Test
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.CompletionStage
+import java.util.concurrent.CountDownLatch
 import java.util.concurrent.RejectedExecutionException
+import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicInteger
 
@@ -40,13 +42,43 @@ class ConcurrentReducerTest {
     }
 
     @Test
+    fun `add는 task invocation 없이 호출자에게 즉시 promise를 반환한다`() {
+        val reducer = concurrentReducerOf<String>(1, 10)
+        val taskStarted = CountDownLatch(1)
+        val releaseTask = CountDownLatch(1)
+        val invocation = CompletableFuture.supplyAsync<CompletableFuture<String>> {
+            reducer.add {
+                taskStarted.countDown()
+                releaseTask.await()
+                completableFutureOf("done")
+            }
+        }
+        var promise: CompletableFuture<String>? = null
+
+        try {
+            taskStarted.await(1, TimeUnit.SECONDS).shouldBeTrue()
+            invocation.isDone.shouldBeTrue()
+
+            promise = invocation.get(1, TimeUnit.SECONDS)
+            promise?.isDone.shouldBeFalse()
+        } finally {
+            releaseTask.countDown()
+            promise = promise ?: invocation.get(1, TimeUnit.SECONDS)
+            promise?.get(1, TimeUnit.SECONDS)
+            reducer.close()
+        }
+    }
+
+    @Test
     fun `task return null`() {
         val reducer = concurrentReducerOf<String>(1, 10)
         val promise = reducer.add(job(null))
 
+        await until { promise.isDone }
         promise.isDone.shouldBeTrue()
         val exception = promise.getException()
         exception shouldBeInstanceOf NullPointerException::class
+        reducer.close()
     }
 
     @Test
@@ -54,8 +86,10 @@ class ConcurrentReducerTest {
         val reducer = concurrentReducerOf<String>(1, 10)
         val promise = reducer.add { throw IllegalStateException("Boom!") }
 
+        await until { promise.isDone }
         promise.isDone.shouldBeTrue()
         promise.getException() shouldBeInstanceOf IllegalStateException::class
+        reducer.close()
     }
 
     @Test
@@ -65,8 +99,10 @@ class ConcurrentReducerTest {
             failedCompletableFutureOf(IllegalStateException("Boom!"))
         }
 
+        await until { promise.isDone }
         promise.isDone.shouldBeTrue()
         promise.getException() shouldBeInstanceOf IllegalStateException::class
+        reducer.close()
     }
 
     @Test
@@ -128,6 +164,8 @@ class ConcurrentReducerTest {
 
         request3.complete("3")
 
+        await until { reducer.activeCount == 2 && reducer.queuedCount == 1 }
+
         // 1 and 2 are in progress, 3 is still blocked
         promise1.isDone.shouldBeFalse()
         promise2.isDone.shouldBeFalse()
@@ -172,6 +210,8 @@ class ConcurrentReducerTest {
             promises += reducer.add(job)
         }
 
+        await until { reducer.activeCount == maxConcurrency && reducer.queuedCount == queueSize - maxConcurrency }
+
         jobs.forEachIndexed { index, job ->
             if (index % 2 == 0) {
                 job.future.complete("success")
@@ -193,16 +233,28 @@ class ConcurrentReducerTest {
 
     @Test
     fun `큐 사이즈를 초과해 작업을 추가하면 CapacityReachedException이 발생한다`() {
-        val reducer = concurrentReducerOf<String>(10, 10)
-        repeat(20) {
-            reducer.add { CompletableFuture() }
+        val concurrency = 10
+        val queueSize = 10
+        val future = CompletableFuture<String>()
+        val reducer = concurrentReducerOf<String>(concurrency, queueSize)
+
+        repeat(concurrency) {
+            reducer.add { future }
         }
+        await until { reducer.activeCount == concurrency && reducer.queuedCount == 0 }
 
-        val promise = reducer.add { CompletableFuture() }
-        await until { promise.isDone }
+        repeat(queueSize) {
+            reducer.add { future }
+        }
+        await until { reducer.queuedCount == queueSize }
 
+        val promise = reducer.add { future }
         promise.isDone.shouldBeTrue()
         promise.getException() shouldBeInstanceOf ConcurrentReducer.CapacityReachedException::class
+
+        future.complete("")
+        await until { reducer.activeCount == 0 && reducer.queuedCount == 0 }
+        reducer.close()
     }
 
     @Test
@@ -212,14 +264,25 @@ class ConcurrentReducerTest {
         val future = CompletableFuture<String>()
         val reducer = concurrentReducerOf<String>(concurrency, queueSize)
 
-        repeat(20) {
+        repeat(concurrency) {
             reducer.add { future }
         }
 
+        await until { reducer.activeCount == concurrency && reducer.queuedCount == 0 }
+
+        repeat(queueSize) {
+            reducer.add { future }
+        }
+
+        await until { reducer.queuedCount == queueSize }
         reducer.activeCount shouldBeEqualTo concurrency
         reducer.queuedCount shouldBeEqualTo queueSize
         reducer.remainingActiveCapacity shouldBeEqualTo 0
         reducer.remainingQueueCapacity shouldBeEqualTo 0
+
+        val overflow = reducer.add { future }
+        overflow.isCompletedExceptionally.shouldBeTrue()
+        overflow.getException() shouldBeInstanceOf ConcurrentReducer.CapacityReachedException::class
 
         future.complete("")
 
@@ -229,6 +292,7 @@ class ConcurrentReducerTest {
         reducer.queuedCount shouldBeEqualTo 0
         reducer.remainingActiveCapacity shouldBeEqualTo concurrency
         reducer.remainingQueueCapacity shouldBeEqualTo queueSize
+        reducer.close()
     }
 
     @Test
@@ -249,6 +313,7 @@ class ConcurrentReducerTest {
             CompletableFuture()
         }
 
+        await until { reducer.activeCount == 1 && reducer.queuedCount == 2 }
         reducer.activeCount shouldBeEqualTo 1
         reducer.queuedCount shouldBeEqualTo 2
 
@@ -273,6 +338,30 @@ class ConcurrentReducerTest {
 
         promise.isCompletedExceptionally.shouldBeTrue()
         promise.getException() shouldBeInstanceOf RejectedExecutionException::class
+    }
+
+    @Test
+    fun `add와 close 동시 실행에서도 promise가 누수되지 않는다`() {
+        repeat(32) {
+            val reducer = concurrentReducerOf<String>(1, 1)
+            val start = CountDownLatch(1)
+            val addInvocation = CompletableFuture.supplyAsync<CompletableFuture<String>> {
+                start.await()
+                reducer.add { completableFutureOf("done") }
+            }
+            val closeInvocation = CompletableFuture.runAsync {
+                start.await()
+                reducer.close()
+            }
+
+            start.countDown()
+            val promise = addInvocation.get(1, TimeUnit.SECONDS)
+            closeInvocation.get(1, TimeUnit.SECONDS)
+
+            await until { promise.isDone }
+            promise.isDone.shouldBeTrue()
+            reducer.close()
+        }
     }
 
     @Test
