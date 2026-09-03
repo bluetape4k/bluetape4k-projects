@@ -10,13 +10,23 @@ import io.bluetape4k.coroutines.flow.exceptions.FlowOperationException
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.trace
+import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.awaitCancellation
+import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.flow.flatMapMerge
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.take
+import kotlinx.coroutines.flow.toList
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.test.advanceTimeBy
+import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.withTimeout
 import org.eclipse.collections.api.multimap.list.ListMultimap
 import org.junit.jupiter.api.Test
+import kotlin.time.Duration.Companion.milliseconds
 
 class GroupByTest: AbstractFlowTest() {
 
@@ -92,6 +102,30 @@ class GroupByTest: AbstractFlowTest() {
             .flatMapMerge { it }
             .take(2)
             .assertResult(1, 2)
+    }
+
+    @Test
+    fun `late collector after abandoned group completes`() = runTest {
+        val groupReady = CompletableDeferred<GroupedFlow<Int, Int>>()
+        val producer = launch {
+            flow {
+                emit(1)
+                awaitCancellation()
+            }
+                .groupBy { it }
+                .collect { groupReady.complete(it) }
+        }
+
+        try {
+            val group = groupReady.await()
+            advanceTimeBy(5_001)
+            runCurrent()
+
+            val values = withTimeout(100.milliseconds) { group.toList() }
+            values shouldBeEqualTo emptyList()
+        } finally {
+            producer.cancelAndJoin()
+        }
     }
 
     @Test

@@ -183,6 +183,8 @@ suspend fun <K: Any, V> Flow<GroupedFlow<K, V>>.toListMultiMap(
  * ## 동작/계약
  * - 새 키가 등장하면 새로운 [GroupedFlow]를 방출하고, 이후 같은 키 값은 해당 그룹으로 전달합니다.
  * - 그룹 Flow는 최대 한 번만 수집할 수 있습니다.
+ * - 그룹이 consumer 대기 시간 안에 수집되지 않으면 해당 그룹을 포기하며,
+ *   이후 late collector는 빈 Flow로 종료됩니다.
  * - 업스트림 오류는 [FlowOperationException]으로 감싸 전파됩니다.
  * - 다운스트림 취소 시 남은 그룹이 없으면 수집을 조기 종료합니다.
  *
@@ -342,13 +344,20 @@ private class FlowGroup<K: Any, V>(
                 consumerReady.await()
             }
         } catch (e: TimeoutCancellationException) {
-            // 그룹이 타임아웃 내에 수집되지 않음 — upstream에 전파하지 않고 해당 그룹만 포기
-            map.remove(this.key)
-            cancelled.value = true
+            // 그룹이 타임아웃 내에 수집되지 않음 — upstream에 전파하지 않고
+            // 해당 그룹만 종료
+            abandon()
             return
         }
         this.value = value
         this.hasValue.value = true
+        valueReady.resume()
+    }
+
+    private fun abandon() {
+        map.remove(this.key, this)
+        cancelled.value = true
+        done.value = true
         valueReady.resume()
     }
 
