@@ -329,6 +329,39 @@ class ConcurrentReducerTest {
     }
 
     @Test
+    fun `close는 실행 중인 stage를 취소하고 permit을 정확히 한 번 회수한다`() {
+        val reducer = concurrentReducerOf<String>(1, 1)
+        val source = CompletableFuture<String>()
+        val taskStarted = CountDownLatch(1)
+        val promise = reducer.add {
+            taskStarted.countDown()
+            source
+        }
+
+        try {
+            taskStarted.await(1, TimeUnit.SECONDS).shouldBeTrue()
+            await until { reducer.activeCount == 1 }
+
+            reducer.close()
+
+            promise.isCancelled.shouldBeTrue()
+            source.isCancelled.shouldBeTrue()
+            reducer.activeCount shouldBeEqualTo 0
+            reducer.remainingActiveCapacity shouldBeEqualTo 1
+            reducer.queuedCount shouldBeEqualTo 0
+
+            // close가 source callback과 경합해도 permit은 중복 회수되지 않아야 한다.
+            source.complete("late").shouldBeFalse()
+            reducer.close()
+            reducer.activeCount shouldBeEqualTo 0
+            reducer.remainingActiveCapacity shouldBeEqualTo 1
+        } finally {
+            source.cancel(false)
+            reducer.close()
+        }
+    }
+
+    @Test
     fun `close 이후 작업 추가는 실패한 CompletableFuture를 반환한다`() {
         val reducer = concurrentReducerOf<String>(1, 10)
 
