@@ -16,7 +16,6 @@ import java.util.concurrent.CompletionStage
 import java.util.concurrent.Executors
 import java.util.concurrent.RejectedExecutionException
 import java.util.concurrent.Semaphore
-import java.util.concurrent.TimeUnit
 
 /**
  * concurrentReducerOf 기능을 제공합니다.
@@ -58,6 +57,8 @@ class ConcurrentReducer<T> internal constructor(
     private val limit: Semaphore = Semaphore(maxConcurrency)
     private val pumpExecutor = Executors.newSingleThreadExecutor()
     private val closed = atomic(false)
+    private val pumpScheduled = atomic(false)
+    private val admissionLock = Any()
 
     val queuedCount: Int get() = queue.size
     val activeCount: Int get() = maxConcurrency - limit.availablePermits()
@@ -67,26 +68,35 @@ class ConcurrentReducer<T> internal constructor(
     /**
      * 비동기 작업을 추가합니다.
      * 큐가 꽉 찬 경우에는 [CapacityReachedException]이 발생합니다.
+     * task invocation과 queue polling은 전용 executor에서 수행하므로 이 함수는 enqueue 후 즉시 반환합니다.
      *
      * @param task 작업을 수행할 람다
      * @return 작업 결과를 받아볼 [CompletableFuture] 인스턴스
      */
     fun add(task: () -> CompletionStage<T>?): CompletableFuture<T> {
-        if (closed.value) {
-            return failedCompletableFutureOf(RejectedExecutionException("ConcurrentReducer is already closed."))
-        }
-
         val promise = CompletableFuture<T>()
         val job = Job(task, promise)
 
-        if (!queue.offer(job)) {
-            return failedCompletableFutureOf(CapacityReachedException("Queue size has reached capacity: $maxQueueSize"))
+        return synchronized(admissionLock) {
+            when {
+                closed.value ->
+                    failedCompletableFutureOf(RejectedExecutionException("ConcurrentReducer is already closed."))
+
+                !queue.offer(job) -> failedCompletableFutureOf(
+                    CapacityReachedException("Queue size has reached capacity: $maxQueueSize"),
+                )
+
+                else -> {
+                    schedulePump()
+                    promise
+                }
+            }
         }
-        pump()
-        return promise
     }
 
     private fun pump() {
+        if (closed.value) return
+
         do {
             val job = grabJob()
             if (job?.promise?.isCancelled == true) {
@@ -97,29 +107,48 @@ class ConcurrentReducer<T> internal constructor(
         } while (job != null)
     }
 
-    private fun pollWhile(
-        timeout: Long = 10,
-        unit: TimeUnit = TimeUnit.MILLISECONDS,
-        predicate: (Job<T>) -> Boolean,
-    ): Job<T>? {
+    private fun pollNextJob(predicate: (Job<T>) -> Boolean): Job<T>? {
         while (true) {
-            val job = queue.poll(timeout, unit) ?: return null
+            val job = queue.poll() ?: return null
             if (predicate(job)) continue
             return job
         }
     }
 
-    private fun grabJob(): Job<T>? {
-        if (!limit.tryAcquire()) return null
-
-        val job = pollWhile { it.promise.isCancelled }
-        if (job == null) {
-            limit.release()
-            return null
+    private fun grabJob(): Job<T>? = synchronized(admissionLock) {
+        if (closed.value || !limit.tryAcquire()) {
+            null
+        } else {
+            pollNextJob { it.promise.isCancelled }
+                .also { job ->
+                    if (job == null) limit.release()
+                }
         }
-        return job
     }
 
+    private fun schedulePump() {
+        if (!pumpScheduled.compareAndSet(false, true)) return
+
+        try {
+            pumpExecutor.execute {
+                try {
+                    pump()
+                } finally {
+                    pumpScheduled.value = false
+                    if (!closed.value && queue.isNotEmpty() && limit.availablePermits() > 0) {
+                        schedulePump()
+                    }
+                }
+            }
+        } catch (e: RejectedExecutionException) {
+            pumpScheduled.value = false
+            if (!closed.value) {
+                log.warn(e) { "pump executor rejected pump task." }
+            }
+        }
+    }
+
+    @Suppress("TooGenericExceptionCaught")
     private fun run(job: Job<T>) {
         fun completeExceptionally(error: Throwable) {
             limit.release()
@@ -148,18 +177,8 @@ class ConcurrentReducer<T> internal constructor(
                 job.promise.complete(result)
             }
 
-            // 새로운 runnable로 pump() 실행 위임
-            // (이유: CompletableFuture의 whenComplete()는 현재 스레드에서 실행됨)
-            // pump()가 현재 스레드에서 실행되면 deadlock 발생 가능성 있음
-            if (!closed.value) {
-                try {
-                    CompletableFuture.runAsync({ pump() }, pumpExecutor)
-                } catch (e: RejectedExecutionException) {
-                    if (!closed.value) {
-                        log.warn(e) { "pump executor rejected pump task." }
-                    }
-                }
-            }
+            // whenComplete()는 현재 스레드에서 실행될 수 있으므로 coalesced pump를 executor에 위임한다.
+            if (!closed.value) schedulePump()
         }
     }
 
@@ -168,13 +187,15 @@ class ConcurrentReducer<T> internal constructor(
      * 큐에 남아있는 작업은 취소되고, pump executor를 종료합니다.
      */
     override fun close() {
-        if (!closed.compareAndSet(false, true)) return
+        synchronized(admissionLock) {
+            if (!closed.compareAndSet(false, true)) return
 
-        while (true) {
-            val job = queue.poll() ?: break
-            job.promise.cancel(false)
+            while (true) {
+                val job = queue.poll() ?: break
+                job.promise.cancel(false)
+            }
+            pumpExecutor.shutdown()
         }
-        pumpExecutor.shutdown()
     }
 
     private data class Job<T>(
