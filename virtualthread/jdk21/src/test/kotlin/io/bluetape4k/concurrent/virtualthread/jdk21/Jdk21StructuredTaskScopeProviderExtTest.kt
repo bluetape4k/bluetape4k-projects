@@ -1,7 +1,6 @@
 package io.bluetape4k.concurrent.virtualthread.jdk21
 
-import io.bluetape4k.logging.coroutines.KLoggingChannel
-import io.bluetape4k.logging.debug
+import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeFalse
 import io.bluetape4k.assertions.shouldBeInstanceOf
@@ -9,12 +8,15 @@ import io.bluetape4k.assertions.shouldBeNull
 import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.assertions.shouldNotBeBlank
 import io.bluetape4k.assertions.shouldNotBeNull
+import io.bluetape4k.logging.coroutines.KLoggingChannel
+import io.bluetape4k.logging.debug
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.condition.EnabledForJreRange
 import org.junit.jupiter.api.condition.JRE
-import java.util.concurrent.StructuredTaskScope
+import org.junit.jupiter.api.condition.EnabledForJreRange
 import java.time.Instant
-import io.bluetape4k.assertions.assertFailsWith
+import java.util.concurrent.Executors
+import java.util.concurrent.StructuredTaskScope
+import java.util.concurrent.TimeUnit
 
 /**
  * [Jdk21StructuredTaskScopeProvider] 추가 커버리지 테스트입니다.
@@ -81,6 +83,39 @@ class Jdk21StructuredTaskScopeProviderExtTest {
     }
 
     @Test
+    fun `withAll join은 기존 owner interrupt를 즉시 전파해야 한다`() {
+        try {
+            assertFailsWith<InterruptedException> {
+                provider.withAll { scope ->
+                    scope.fork { Thread.sleep(5_000); 1 }
+                    Thread.currentThread().interrupt()
+                    scope.join()
+                }
+            }
+        } finally {
+            Thread.interrupted()
+        }
+    }
+
+    @Test
+    fun `withAll joinUntil은 외부 owner interrupt를 즉시 전파해야 한다`() {
+        val ownerThread = Thread.currentThread()
+        val interrupter = Executors.newSingleThreadScheduledExecutor()
+        try {
+            assertFailsWith<InterruptedException> {
+                provider.withAll { scope ->
+                    scope.fork { Thread.sleep(5_000); 1 }
+                    interrupter.schedule({ ownerThread.interrupt() }, 100, TimeUnit.MILLISECONDS)
+                    scope.joinUntil(Instant.now().plusSeconds(5))
+                }
+            }
+        } finally {
+            interrupter.shutdownNow()
+            Thread.interrupted()
+        }
+    }
+
+    @Test
     fun `subtask 성공 상태와 값을 확인해야 한다`() {
         var capturedSubtask: io.bluetape4k.concurrent.virtualthread.api.StructuredSubtask<Int>? = null
         provider.withAll { scope ->
@@ -125,6 +160,26 @@ class Jdk21StructuredTaskScopeProviderExtTest {
                 scope.fork<String> { throw RuntimeException("fail2") }
                 scope.join().result { IllegalStateException("all failed") }
             }
+        }
+    }
+
+    @Test
+    fun `withAny result는 owner interrupt를 mapper로 변환하지 않아야 한다`() {
+        var mapperCalled = false
+        try {
+            assertFailsWith<InterruptedException> {
+                provider.withAny<Int> { scope ->
+                    scope.fork { Thread.sleep(5_000); 1 }
+                    Thread.currentThread().interrupt()
+                    scope.join().result {
+                        mapperCalled = true
+                        IllegalStateException(it)
+                    }
+                }
+            }
+            mapperCalled.shouldBeFalse()
+        } finally {
+            Thread.interrupted()
         }
     }
 
