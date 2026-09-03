@@ -129,6 +129,36 @@ class GroupByTest: AbstractFlowTest() {
     }
 
     @Test
+    fun `outer cancellation closes emitted group without waiting for consumer`() = runTest {
+        val groupReady = CompletableDeferred<GroupedFlow<Int, Int>>()
+        val upstreamFinished = CompletableDeferred<Unit>()
+        val collection = launch {
+            flow {
+                try {
+                    emit(1)
+                    awaitCancellation()
+                } finally {
+                    upstreamFinished.complete(Unit)
+                }
+            }
+                .groupBy { it }
+                .take(1)
+                .collect { groupReady.complete(it) }
+        }
+
+        try {
+            val group = groupReady.await()
+            withTimeout(100.milliseconds) { upstreamFinished.await() }
+            withTimeout(100.milliseconds) {
+                group.toList() shouldBeEqualTo emptyList()
+            }
+            collection.join()
+        } finally {
+            collection.cancelAndJoin()
+        }
+    }
+
+    @Test
     fun `main errors no items`() = runTest {
         flowRangeOf(1, 10)
             .map { if (it < 5) error("oops") else it }
