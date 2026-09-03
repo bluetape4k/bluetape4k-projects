@@ -90,6 +90,13 @@ open class Resumable {
         continuationRef.getAndSet(READY)?.resumeWith(RESULT_SUCCESS)
     }
 
+    /**
+     * 이미 기록된 READY 신호를 대기 없이 소비합니다.
+     *
+     * 대기 없이 신호를 확인해야 하는 내부 handshake 경로에서만 사용합니다.
+     */
+    internal fun tryAcquireReady(): Boolean = continuationRef.compareAndSet(READY, null)
+
     private class ReadyContinuation: Continuation<Any> {
         override val context: CoroutineContext
             get() = EmptyCoroutineContext

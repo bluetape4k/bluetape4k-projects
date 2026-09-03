@@ -11,6 +11,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.FlowCollector
 import kotlinx.coroutines.flow.flatMapMerge
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.yield
 import kotlinx.coroutines.withTimeout
 import org.eclipse.collections.api.multimap.list.ListMultimap
 import org.eclipse.collections.api.multimap.list.MutableListMultimap
@@ -249,9 +250,16 @@ internal fun <T, K: Any, V> groupByInternal(
                         emit(group)
                     } catch (e: CancellationException) {
                         state.mainStopped.value = true
-                        if (map.isEmpty()) {
-                            throw e
+                        // flatMapMerge가 이미 받은 그룹의 collector를 시작할 기회를
+                        // 한 번 양보한 뒤, 준비된 경우에만 첫 값을 전달합니다.
+                        yield()
+                        if (!group.tryNext { valueSelector(it) }) {
+                            group.abandon()
+                            if (map.isEmpty()) {
+                                throw e
+                            }
                         }
+                        return@collect
                     }
                     group.next(valueSelector(it))
                 } else {
@@ -354,7 +362,16 @@ private class FlowGroup<K: Any, V>(
         valueReady.resume()
     }
 
-    private fun abandon() {
+    fun tryNext(valueProvider: () -> V): Boolean {
+        if (cancelled.value || !consumerReady.tryAcquireReady()) return false
+
+        this.value = valueProvider()
+        this.hasValue.value = true
+        valueReady.resume()
+        return true
+    }
+
+    fun abandon() {
         map.remove(this.key, this)
         cancelled.value = true
         done.value = true
