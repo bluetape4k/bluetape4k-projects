@@ -1,9 +1,10 @@
 package io.bluetape4k.javatimes
 
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeFalse
 import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.logging.KLogging
 import org.junit.jupiter.api.Test
 import java.time.DayOfWeek
 import java.time.Duration
@@ -168,6 +169,38 @@ class NumberExtensionsTest {
         // Period div Long
         val divided = Period.of(6, 9, 12) / 3L
         divided shouldBeEqualTo Period.of(2, 3, 4)
+    }
+
+    @Test
+    fun `Long Period 변환은 Int 범위를 벗어난 값을 거부한다`() {
+        val outOfIntRange = listOf(
+            Int.MIN_VALUE.toLong() - 1,
+            Int.MAX_VALUE.toLong() + 1,
+            Long.MIN_VALUE,
+            Long.MAX_VALUE,
+        )
+
+        outOfIntRange.forEach { value ->
+            assertFailsWith<IllegalArgumentException> { value.dayPeriod() }
+            assertFailsWith<IllegalArgumentException> { value.weekPeriod() }
+            assertFailsWith<IllegalArgumentException> { value.monthPeriod() }
+            assertFailsWith<IllegalArgumentException> { value.quarterPeriod() }
+            assertFailsWith<IllegalArgumentException> { value.yearPeriod() }
+        }
+    }
+
+    @Test
+    fun `Long Period 연산자는 범위와 0 divisor를 검증한다`() {
+        val period = Period.of(1, 2, 3)
+        val tooLarge = Int.MAX_VALUE.toLong() + 1
+
+        assertFailsWith<IllegalArgumentException> { Long.MAX_VALUE * period }
+        assertFailsWith<IllegalArgumentException> { period * Long.MIN_VALUE }
+        assertFailsWith<IllegalArgumentException> { period / tooLarge }
+        assertFailsWith<IllegalArgumentException> { period / 4_294_967_296L }
+        assertFailsWith<IllegalArgumentException> { period / 0L }
+
+        (Period.of(6, 9, 12) / -3L) shouldBeEqualTo Period.of(-2, -3, -4)
     }
 
     @Test

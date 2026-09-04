@@ -1,5 +1,6 @@
 package io.bluetape4k.javatimes
 
+import io.bluetape4k.support.toIntExact
 import java.time.Clock
 import java.time.DayOfWeek
 import java.time.Duration
@@ -492,47 +493,57 @@ fun Long.weeks(): Duration = (this * DaysPerWeek).days()
 /**
  * [Long] 값을 일 단위의 [Period]로 변환합니다.
  *
+ * `java.time.Period`가 [Int] 구성 요소를 사용하므로 [Long] 값은 [Int] 범위 안에서만 변환됩니다.
+ *
  * ```kotlin
  * val p = 10L.dayPeriod()  // Period.ofDays(10)
  * ```
  */
-fun Long.dayPeriod(): Period = Period.ofDays(this.toInt())
+fun Long.dayPeriod(): Period = Period.ofDays(toIntExact())
 
 /**
  * [Long] 값을 주 단위의 [Period]로 변환합니다.
+ *
+ * `java.time.Period`가 [Int] 구성 요소를 사용하므로 [Long] 값은 [Int] 범위 안에서만 변환됩니다.
  *
  * ```kotlin
  * val p = 3L.weekPeriod()  // Period.ofWeeks(3)
  * ```
  */
-fun Long.weekPeriod(): Period = Period.ofWeeks(this.toInt())
+fun Long.weekPeriod(): Period = Period.ofWeeks(toIntExact())
 
 /**
  * [Long] 값을 월 단위의 [Period]로 변환합니다.
+ *
+ * `java.time.Period`가 [Int] 구성 요소를 사용하므로 [Long] 값은 [Int] 범위 안에서만 변환됩니다.
  *
  * ```kotlin
  * val p = 6L.monthPeriod()  // Period.ofMonths(6)
  * ```
  */
-fun Long.monthPeriod(): Period = Period.ofMonths(this.toInt())
+fun Long.monthPeriod(): Period = Period.ofMonths(toIntExact())
 
 /**
  * [Long] 값을 분기 단위의 [Period]로 변환합니다.
+ *
+ * `java.time.Period`가 [Int] 구성 요소를 사용하므로 [Long] 값은 [Int] 범위 안에서만 변환됩니다.
  *
  * ```kotlin
  * val p = 2L.quarterPeriod()  // Period.ofMonths(6)
  * ```
  */
-fun Long.quarterPeriod(): Period = Period.ofMonths(this.toInt() * MonthsPerQuarter)
+fun Long.quarterPeriod(): Period = Period.ofMonths(toIntExact() * MonthsPerQuarter)
 
 /**
  * [Long] 값을 년 단위의 [Period]로 변환합니다.
+ *
+ * `java.time.Period`가 [Int] 구성 요소를 사용하므로 [Long] 값은 [Int] 범위 안에서만 변환됩니다.
  *
  * ```kotlin
  * val p = 1L.yearPeriod()  // Period.ofYears(1)
  * ```
  */
-fun Long.yearPeriod(): Period = Period.ofYears(this.toInt())
+fun Long.yearPeriod(): Period = Period.ofYears(toIntExact())
 
 /**
  * 밀리초를 나노초로 변환합니다.
@@ -565,11 +576,13 @@ operator fun Long.times(duration: Duration): Duration = duration.multipliedBy(th
 /**
  * [Long]과 [Period]를 곱합니다.
  *
+ * 곱셈 인자는 [Int] 범위 안에서만 허용됩니다.
+ *
  * ```kotlin
  * val p = 3L * Period.ofMonths(2)  // Period.ofMonths(6)
  * ```
  */
-operator fun Long.times(period: Period): Period = period.multipliedBy(this.toInt())
+operator fun Long.times(period: Period): Period = period.multipliedBy(toIntExact())
 
 /**
  * [Duration]에 정수를 곱합니다.
@@ -583,11 +596,13 @@ operator fun Duration.times(scalar: Long): Duration = multipliedBy(scalar)
 /**
  * [Period]에 정수를 곱합니다.
  *
+ * 곱셈 인자는 [Int] 범위 안에서만 허용됩니다.
+ *
  * ```kotlin
  * val p = Period.ofDays(3) * 2L  // Period.ofDays(6)
  * ```
  */
-operator fun Period.times(scalar: Long): Period = multipliedBy(scalar.toInt())
+operator fun Period.times(scalar: Long): Period = multipliedBy(scalar.toIntExact())
 
 /**
  * [Duration]을 정수로 나눕니다.
@@ -601,12 +616,17 @@ operator fun Duration.div(scalar: Long): Duration = dividedBy(scalar)
 /**
  * [Period]를 정수로 나눕니다.
  *
+ * divisor는 0이 아니어야 하며 [Int] 범위 안에서만 허용됩니다.
+ *
  * ```kotlin
  * val p = Period.of(2, 4, 6) / 2L  // Period.of(1, 2, 3)
  * ```
  */
-operator fun Period.div(scalar: Long): Period =
-    Period.of(years / scalar.toInt(), months / scalar.toInt(), days / scalar.toInt())
+operator fun Period.div(scalar: Long): Period {
+    require(scalar != 0L) { "scalar must not be zero" }
+    val intScalar = scalar.toIntExact()
+    return Period.of(years / intScalar, months / intScalar, days / intScalar)
+}
 
 /**
  * [Long] 값을 epoch 밀리초로 간주하여 [Instant]를 생성합니다.
