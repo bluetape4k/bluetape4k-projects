@@ -1,8 +1,13 @@
 package io.bluetape4k.collections
 
 import io.bluetape4k.support.requirePositiveNumber
+import java.util.Spliterator
+import java.util.Spliterators
+import java.util.function.IntConsumer
+import java.util.function.LongConsumer
 import java.util.stream.IntStream
 import java.util.stream.LongStream
+import java.util.stream.StreamSupport
 
 private fun calculatePartitionCount(size: Int, chunkSize: Int): Int =
     size / chunkSize + if (size % chunkSize > 0) 1 else 0
@@ -37,8 +42,22 @@ fun charProgressionOf(start: Char, endInclusive: Char, step: Int = 1): CharProgr
 fun intProgressionOf(start: Int, endInclusive: Int, step: Int = 1): IntProgression =
     IntProgression.fromClosedRange(start, endInclusive, step)
 
+private fun IntProgression.toStreamSpliterator(): Spliterator.OfInt {
+    val progressionIterator = iterator()
+    return object : Spliterators.AbstractIntSpliterator(Long.MAX_VALUE, Spliterator.ORDERED) {
+        override fun tryAdvance(action: IntConsumer): Boolean {
+            if (!progressionIterator.hasNext()) return false
+            action.accept(progressionIterator.nextInt())
+            return true
+        }
+    }
+}
+
 /**
  * [IntProgression]을 [IntStream]으로 변환합니다.
+ *
+ * 경계에서 다음 값이 표현 범위를 벗어나면 overflow 값을 방출하지 않고 progression의
+ * 마지막 요소에서 정상 종료합니다.
  *
  * ```
  * val ints = intProgressionOf(1, 4, 1)
@@ -46,12 +65,12 @@ fun intProgressionOf(start: Int, endInclusive: Int, step: Int = 1): IntProgressi
  * stream.count() shouldBeEqualTo 3
  * ```
  */
-fun IntProgression.asStream(): IntStream = when {
-    step == 1  -> IntStream.rangeClosed(first, last)
-    step == -1 -> IntStream.iterate(first, { it >= last }, { it - 1 })
-    step > 0   -> IntStream.iterate(first, { it <= last }, { it + step })
-    else       -> IntStream.iterate(first, { it >= last }, { it + step })
-}
+fun IntProgression.asStream(): IntStream =
+    if (step == 1) {
+        IntStream.rangeClosed(first, last)
+    } else {
+        StreamSupport.intStream(toStreamSpliterator(), false)
+    }
 
 /**
  * [IntProgression]의 요소를 chunked 하여 [Sequence]로 반환합니다.
@@ -131,9 +150,23 @@ fun IntProgression.partitioning(partitionCount: Int = 1): Sequence<IntProgressio
 fun longProgressionOf(start: Long, endInclusive: Long, step: Long = 1L): LongProgression =
     LongProgression.fromClosedRange(start, endInclusive, step)
 
+private fun LongProgression.toStreamSpliterator(): Spliterator.OfLong {
+    val progressionIterator = iterator()
+    return object : Spliterators.AbstractLongSpliterator(Long.MAX_VALUE, Spliterator.ORDERED) {
+        override fun tryAdvance(action: LongConsumer): Boolean {
+            if (!progressionIterator.hasNext()) return false
+            action.accept(progressionIterator.nextLong())
+            return true
+        }
+    }
+}
+
 
 /**
  * asStream 기능을 제공합니다.
+ *
+ * 경계에서 다음 값이 표현 범위를 벗어나면 overflow 값을 방출하지 않고 progression의
+ * 마지막 요소에서 정상 종료합니다.
  *
  * ## 동작/계약
  * - null 입력 허용 여부는 시그니처의 nullable 표기를 따릅니다.
@@ -145,12 +178,12 @@ fun longProgressionOf(start: Long, endInclusive: Long, step: Long = 1L): LongPro
  * // result == [1, 2, 3]
  * ```
  */
-fun LongProgression.asStream(): LongStream = when {
-    step == 1L  -> LongStream.rangeClosed(first, last)
-    step == -1L -> LongStream.iterate(first, { it >= last }, { it - 1L })
-    step > 0L   -> LongStream.iterate(first, { it <= last }, { it + step })
-    else        -> LongStream.iterate(first, { it >= last }, { it + step })
-}
+fun LongProgression.asStream(): LongStream =
+    if (step == 1L) {
+        LongStream.rangeClosed(first, last)
+    } else {
+        StreamSupport.longStream(toStreamSpliterator(), false)
+    }
 
 /**
  * [LongProgression]의 요소를 chunked 하여 [Sequence]로 반환합니다.

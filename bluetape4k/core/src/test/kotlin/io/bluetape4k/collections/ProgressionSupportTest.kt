@@ -32,6 +32,37 @@ class ProgressionSupportTest {
         }
 
         @Test
+        fun `as stream stops at positive Int boundary`() {
+            intProgressionOf(Int.MAX_VALUE - 1, Int.MAX_VALUE, 2)
+                .asStream()
+                .limit(2)
+                .toArray() shouldBeEqualTo intArrayOf(Int.MAX_VALUE - 1)
+        }
+
+        @Test
+        fun `as stream stops at Int MIN_VALUE with step minus one`() {
+            intProgressionOf(Int.MIN_VALUE, Int.MIN_VALUE, -1)
+                .asStream()
+                .limit(2)
+                .toArray() shouldBeEqualTo intArrayOf(Int.MIN_VALUE)
+        }
+
+        @Test
+        fun `as stream stops at negative Int boundary`() {
+            intProgressionOf(Int.MIN_VALUE + 2, Int.MIN_VALUE, -2)
+                .asStream()
+                .limit(3)
+                .toArray() shouldBeEqualTo intArrayOf(Int.MIN_VALUE + 2, Int.MIN_VALUE)
+        }
+
+        @Test
+        fun `as stream preserves normal negative Int progression`() {
+            intProgressionOf(3, 1, -1)
+                .asStream()
+                .toArray() shouldBeEqualTo intArrayOf(3, 2, 1)
+        }
+
+        @Test
         fun `chunked progression`() {
             val ints = intProgressionOf(1, 10, 1)
             ints.size() shouldBeEqualTo 10
@@ -103,6 +134,37 @@ class ProgressionSupportTest {
         fun `as stream`() {
             val longs = longProgressionOf(1, 10, 1)
             longs.asStream().count() shouldBeEqualTo 10
+        }
+
+        @Test
+        fun `as stream stops at positive Long boundary`() {
+            longProgressionOf(Long.MAX_VALUE - 1L, Long.MAX_VALUE, 2L)
+                .asStream()
+                .limit(2)
+                .toArray() shouldBeEqualTo longArrayOf(Long.MAX_VALUE - 1L)
+        }
+
+        @Test
+        fun `as stream stops at Long MIN_VALUE with step minus one`() {
+            longProgressionOf(Long.MIN_VALUE, Long.MIN_VALUE, -1L)
+                .asStream()
+                .limit(2)
+                .toArray() shouldBeEqualTo longArrayOf(Long.MIN_VALUE)
+        }
+
+        @Test
+        fun `as stream stops at negative Long boundary`() {
+            longProgressionOf(Long.MIN_VALUE + 2L, Long.MIN_VALUE, -2L)
+                .asStream()
+                .limit(3)
+                .toArray() shouldBeEqualTo longArrayOf(Long.MIN_VALUE + 2L, Long.MIN_VALUE)
+        }
+
+        @Test
+        fun `as stream preserves normal negative Long progression`() {
+            longProgressionOf(3L, 1L, -1L)
+                .asStream()
+                .toArray() shouldBeEqualTo longArrayOf(3L, 2L, 1L)
         }
 
         @Test
