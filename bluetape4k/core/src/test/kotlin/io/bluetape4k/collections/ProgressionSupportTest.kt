@@ -75,6 +75,24 @@ class ProgressionSupportTest {
         }
 
         @Test
+        fun `chunked preserves descending non-unit steps`() {
+            intProgressionOf(10, 1, -2).chunked(2).toList() shouldBeEqualTo listOf(
+                intProgressionOf(10, 8, -2),
+                intProgressionOf(6, 4, -2),
+                intProgressionOf(2, 2, -2),
+            )
+        }
+
+        @Test
+        fun `empty progression keeps chunked and partitioning contracts`() {
+            val empty = intProgressionOf(3, 1)
+
+            empty.chunked(2).toList() shouldBeEqualTo emptyList()
+            empty.partitioning(1).toList() shouldBeEqualTo listOf(empty)
+            empty.partitioning(2).toList() shouldBeEqualTo emptyList()
+        }
+
+        @Test
         fun `partitioning evenly`() {
             val ints = intProgressionOf(1, 10, 1)
             val partitioned = ints.partitioning(2).toList()
@@ -218,6 +236,24 @@ class ProgressionSupportTest {
             chunked.forEach {
                 log.debug { "group=$it" }
             }
+        }
+
+        @Test
+        fun `chunked preserves descending non-unit steps`() {
+            longProgressionOf(10, 1, -2).chunked(2).toList() shouldBeEqualTo listOf(
+                longProgressionOf(10, 8, -2),
+                longProgressionOf(6, 4, -2),
+                longProgressionOf(2, 2, -2),
+            )
+        }
+
+        @Test
+        fun `empty progression keeps chunked and partitioning contracts`() {
+            val empty = longProgressionOf(3, 1)
+
+            empty.chunked(2).toList() shouldBeEqualTo emptyList()
+            empty.partitioning(1).toList() shouldBeEqualTo listOf(empty)
+            empty.partitioning(2).toList() shouldBeEqualTo emptyList()
         }
 
         @Test
