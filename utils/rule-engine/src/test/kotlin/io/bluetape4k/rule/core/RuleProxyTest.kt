@@ -76,6 +76,39 @@ class RuleProxyTest {
         fun execute(facts: Facts) {}
     }
 
+    open class AnnotatedMethods(private val annotatedPriority: Int = 7) {
+        @PriorityAnnotation
+        fun priority(): Int = annotatedPriority
+
+        @ConditionAnnotation
+        fun matches(@FactAnnotation("score") score: Int): Boolean = score > 50
+
+        @ActionAnnotation
+        fun record(@FactAnnotation("events") events: MutableList<String>) {
+            events += "annotated"
+        }
+    }
+
+    @RuleAnnotation(name = "overloaded")
+    class OverloadedRule: AnnotatedMethods() {
+        fun priority(ignored: Int): Int = ignored
+
+        fun matches(facts: Facts): Boolean = facts.containsKey("wrong-overload")
+
+        fun record(facts: Facts) {
+            facts["wrong-overload"] = true
+        }
+    }
+
+    interface GenericCondition<T> {
+        fun matches(value: T): Boolean
+    }
+
+    @RuleAnnotation(name = "bridge")
+    class BridgeConditionRule: AnnotatedMethods(), GenericCondition<String> {
+        override fun matches(value: String): Boolean = value.isNotEmpty()
+    }
+
     @Test
     fun `어노테이션 기반 Rule을 asRule로 변환`() {
         val rule = AgeCheckRule().asRule()
@@ -148,5 +181,40 @@ class RuleProxyTest {
         val rule2 = AgeCheckRule().asRule()
         (rule1 == rule2).shouldBeTrue()
         (rule1.hashCode() == rule2.hashCode()).shouldBeTrue()
+    }
+
+    @Test
+    fun `Priority는 이름이 같은 overload가 있어도 annotated descriptor를 호출한다`() {
+        val rule = OverloadedRule().asRule()
+
+        rule.priority shouldBeEqualTo 7
+    }
+
+    @Test
+    fun `Condition은 이름이 같은 overload가 있어도 annotated descriptor를 호출한다`() {
+        val rule = OverloadedRule().asRule()
+
+        rule.evaluate(Facts.of("score" to 80)).shouldBeTrue()
+    }
+
+    @Test
+    fun `Action은 이름이 같은 overload가 있어도 annotated descriptor를 호출한다`() {
+        val rule = OverloadedRule().asRule()
+        val events = mutableListOf<String>()
+        val facts = Facts.of("events" to events)
+
+        rule.execute(facts)
+
+        events shouldBeEqualTo listOf("annotated")
+    }
+
+    @Test
+    fun `Condition은 compiler bridge가 있어도 annotated descriptor를 호출한다`() {
+        val bridge = BridgeConditionRule::class.java.methods.single { it.name == "matches" && it.isBridge }
+        bridge.parameterTypes.single() shouldBeEqualTo Any::class.java
+
+        val rule = BridgeConditionRule().asRule()
+
+        rule.evaluate(Facts.of("score" to 80)).shouldBeTrue()
     }
 }

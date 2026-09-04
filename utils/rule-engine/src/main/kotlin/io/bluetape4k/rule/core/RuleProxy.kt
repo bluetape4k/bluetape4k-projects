@@ -93,10 +93,9 @@ class RuleProxy(private val target: Any): InvocationHandler {
         log.debug { "Evaluate method ... method=${conditionMethod?.name}, facts=$facts" }
 
         return try {
-            val actualParameters = getActualParameters(conditionMethod!!, facts)
-            conditionMethod?.run {
-                getTargetMethod(this.name).invoke(target, *actualParameters.toTypedArray())
-            }
+            val method = checkNotNull(conditionMethod) { "Condition method is required." }
+            val actualParameters = getActualParameters(method, facts)
+            method.invoke(target, *actualParameters.toTypedArray())
         } catch (e: NoSuchFactException) {
             log.warn(e) {
                 "Rule '${targetClass.name}' has been evaluated to false " +
@@ -118,7 +117,7 @@ class RuleProxy(private val target: Any): InvocationHandler {
             actionMethodBeans.forEach { action ->
                 val actualParameters = getActualParameters(action.method, facts)
                 log.trace { "Invoke method '${action.method.name}' with parameter '$actualParameters'" }
-                getTargetMethod(action.method.name).invoke(target, *actualParameters.toTypedArray())
+                action.method.invoke(target, *actualParameters.toTypedArray())
             }
         }
         return null
@@ -175,10 +174,6 @@ class RuleProxy(private val target: Any): InvocationHandler {
         return if (priorityComparison != 0) priorityComparison else ruleName.compareTo(other.name)
     }
 
-    private fun getTargetMethod(methodName: String): Method {
-        return methods.find { it.name == methodName }!!
-    }
-
     private val ruleName: String by lazy {
         val annotation = ruleAnnotation
         if (annotation.name == DEFAULT_RULE_NAME) targetClass.simpleName
@@ -201,7 +196,7 @@ class RuleProxy(private val target: Any): InvocationHandler {
         methods
             .find { it.isAnnotationPresent(PriorityAnnotation::class.java) }
             ?.let { method ->
-                priority = getTargetMethod(method.name).invoke(target) as Int
+                priority = method.invoke(target) as Int
             }
 
         priority
