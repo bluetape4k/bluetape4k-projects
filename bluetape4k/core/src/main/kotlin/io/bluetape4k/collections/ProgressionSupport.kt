@@ -1,6 +1,7 @@
 package io.bluetape4k.collections
 
 import io.bluetape4k.support.requirePositiveNumber
+import java.math.BigInteger
 import java.util.Spliterator
 import java.util.Spliterators
 import java.util.function.IntConsumer
@@ -9,8 +10,48 @@ import java.util.stream.IntStream
 import java.util.stream.LongStream
 import java.util.stream.StreamSupport
 
-private fun calculatePartitionCount(size: Int, chunkSize: Int): Int =
-    size / chunkSize + if (size % chunkSize > 0) 1 else 0
+private val BIG_INTEGER_ONE = BigInteger.ONE
+private val BIG_INTEGER_INT_MAX = BigInteger.valueOf(Int.MAX_VALUE.toLong())
+
+private fun progressionElementCount(first: Long, last: Long, step: Long): BigInteger {
+    if ((step > 0 && first > last) || (step < 0 && first < last)) {
+        return BigInteger.ZERO
+    }
+
+    val distance = if (step > 0) {
+        BigInteger.valueOf(last).subtract(BigInteger.valueOf(first))
+    } else {
+        BigInteger.valueOf(first).subtract(BigInteger.valueOf(last))
+    }
+    return distance.divide(BigInteger.valueOf(step).abs()).add(BIG_INTEGER_ONE)
+}
+
+private fun calculatePartitionCount(size: BigInteger, chunkSize: Int): Int {
+    if (size.signum() == 0) return 0
+
+    val chunk = BigInteger.valueOf(chunkSize.toLong())
+    val partitionCount = size.add(chunk).subtract(BIG_INTEGER_ONE).divide(chunk)
+    require(partitionCount <= BIG_INTEGER_INT_MAX) {
+        "partition count exceeds Int.MAX_VALUE: $partitionCount"
+    }
+    return partitionCount.intValueExact()
+}
+
+private fun IntProgression.elementCount(): BigInteger =
+    progressionElementCount(first.toLong(), last.toLong(), step.toLong())
+
+private fun LongProgression.elementCount(): BigInteger =
+    progressionElementCount(first, last, step)
+
+private fun IntProgression.valueAt(index: BigInteger): Int =
+    BigInteger.valueOf(first.toLong())
+        .add(BigInteger.valueOf(step.toLong()).multiply(index))
+        .intValueExact()
+
+private fun LongProgression.valueAt(index: BigInteger): Long =
+    BigInteger.valueOf(first)
+        .add(BigInteger.valueOf(step).multiply(index))
+        .longValueExact()
 
 /**
  * 시작 문자([start]) ~ 종료 문자([endInclusive]) 에 해당하는 [CharProgression]을 빌드합니다.
@@ -84,9 +125,15 @@ fun IntProgression.asStream(): IntStream =
  *
  * @param chunk chunk size
  * @return chunk된 [IntProgression]의 [Sequence]
+ *
+ * progression 요소 수가 커서 계산된 partition 수가 Int 범위를 넘으면
+ * [IllegalArgumentException]을 던집니다.
  */
-fun IntProgression.chunked(chunk: Int): Sequence<IntProgression> =
-    partitioning(partitionCount = calculatePartitionCount(count(), chunk.also { it.requirePositiveNumber("chunk") }))
+fun IntProgression.chunked(chunk: Int): Sequence<IntProgression> {
+    chunk.requirePositiveNumber("chunk")
+    val partitionCount = calculatePartitionCount(elementCount(), chunk)
+    return if (partitionCount == 0) emptySequence() else partitioning(partitionCount)
+}
 
 /**
  * [IntProgression]을 partitioning 하여 [Sequence]로 반환합니다.
@@ -105,6 +152,10 @@ fun IntProgression.chunked(chunk: Int): Sequence<IntProgression> =
  *
  * @param partitionCount partition count
  * @return partitioned [IntProgression]의 [Sequence]
+ *
+ * 전체 요소 수와 각 경계는 확장 정밀도로 계산하므로 Int 표현 범위 전체를
+ * 포함하는 progression도 요소를 잃지 않습니다. `chunked`에서 계산된 partition
+ * 수가 Int 범위를 넘으면 [IllegalArgumentException]을 던집니다.
  */
 fun IntProgression.partitioning(partitionCount: Int = 1): Sequence<IntProgression> = sequence {
     partitionCount.requirePositiveNumber("partitionCount")
@@ -115,23 +166,28 @@ fun IntProgression.partitioning(partitionCount: Int = 1): Sequence<IntProgressio
         return@sequence
     }
 
-    val step = self.step
-    val count = if (step > 0) (self.last - self.first) / step + 1 else (self.first - self.last) / (-step) + 1
-    val reminder = count % partitionCount
-    val partitionSize = count / partitionCount + (if (reminder > 0) 1 else 0)
+    val count = self.elementCount()
+    if (count.signum() == 0) {
+        return@sequence
+    }
 
-    var start = self.first
-    repeat(partitionCount) {
-        if ((step > 0 && start > self.last) || (step < 0 && start < self.last)) {
+    val step = self.step
+    val partitionSize = count.add(BigInteger.valueOf(partitionCount.toLong()))
+        .subtract(BIG_INTEGER_ONE)
+        .divide(BigInteger.valueOf(partitionCount.toLong()))
+    repeat(partitionCount) { partitionIndex ->
+        val startIndex = partitionSize.multiply(BigInteger.valueOf(partitionIndex.toLong()))
+        if (startIndex >= count) {
             return@sequence
         }
-        val endInclusive = (start + (partitionSize - 1) * step).let { rawEnd ->
-            if (step > 0) rawEnd.coerceAtMost(self.last) else rawEnd.coerceAtLeast(self.last)
-        }
 
-        val partition = IntProgression.fromClosedRange(start, endInclusive, step)
+        val endIndex = startIndex.add(partitionSize).min(count).subtract(BIG_INTEGER_ONE)
+        val partition = IntProgression.fromClosedRange(
+            self.valueAt(startIndex),
+            self.valueAt(endIndex),
+            step,
+        )
         yield(partition)
-        start = endInclusive + step
     }
 }
 
@@ -196,10 +252,16 @@ fun LongProgression.asStream(): LongStream =
  * ```
  *
  * @param chunk chunk size
- * @return chunk된 [IntProgression]의 [Sequence]
+ * @return chunk된 [LongProgression]의 [Sequence]
+ *
+ * progression 요소 수가 커서 계산된 partition 수가 Int 범위를 넘으면
+ * [IllegalArgumentException]을 던집니다.
  */
-fun LongProgression.chunked(chunk: Int): Sequence<LongProgression> =
-    partitioning(partitionCount = calculatePartitionCount(count(), chunk.also { it.requirePositiveNumber("chunk") }))
+fun LongProgression.chunked(chunk: Int): Sequence<LongProgression> {
+    chunk.requirePositiveNumber("chunk")
+    val partitionCount = calculatePartitionCount(elementCount(), chunk)
+    return if (partitionCount == 0) emptySequence() else partitioning(partitionCount)
+}
 
 /**
  * [LongProgression]을 [partitionCount] 갯수로 분할합니다.
@@ -218,6 +280,10 @@ fun LongProgression.chunked(chunk: Int): Sequence<LongProgression> =
  *
  * @param partitionCount 분할 갯수 (기본: 1)
  * @return 분할된 [LongProgression]의 [Sequence]
+ *
+ * 전체 요소 수와 각 경계는 확장 정밀도로 계산하므로 Long 표현 범위 전체를
+ * 포함하는 progression도 요소를 잃지 않습니다. `chunked`에서 계산된 partition
+ * 수가 Int 범위를 넘으면 [IllegalArgumentException]을 던집니다.
  */
 fun LongProgression.partitioning(partitionCount: Int = 1): Sequence<LongProgression> = sequence {
     partitionCount.requirePositiveNumber("partitionCount")
@@ -228,22 +294,27 @@ fun LongProgression.partitioning(partitionCount: Int = 1): Sequence<LongProgress
         return@sequence
     }
 
-    val step = self.step
-    val count = (if (step > 0) (self.last - self.first) / step + 1 else (self.first - self.last) / (-step) + 1).toInt()
-    val reminder = count % partitionCount
-    val partitionSize = count / partitionCount + (if (reminder > 0) 1 else 0)
+    val count = self.elementCount()
+    if (count.signum() == 0) {
+        return@sequence
+    }
 
-    var start = self.first
-    repeat(partitionCount) {
-        if ((step > 0 && start > self.last) || (step < 0 && start < self.last)) {
+    val step = self.step
+    val partitionSize = count.add(BigInteger.valueOf(partitionCount.toLong()))
+        .subtract(BIG_INTEGER_ONE)
+        .divide(BigInteger.valueOf(partitionCount.toLong()))
+    repeat(partitionCount) { partitionIndex ->
+        val startIndex = partitionSize.multiply(BigInteger.valueOf(partitionIndex.toLong()))
+        if (startIndex >= count) {
             return@sequence
         }
-        val endInclusive = (start + (partitionSize - 1).toLong() * step).let { rawEnd ->
-            if (step > 0) rawEnd.coerceAtMost(self.last) else rawEnd.coerceAtLeast(self.last)
-        }
 
-        val partition = LongProgression.fromClosedRange(start, endInclusive, step)
+        val endIndex = startIndex.add(partitionSize).min(count).subtract(BIG_INTEGER_ONE)
+        val partition = LongProgression.fromClosedRange(
+            self.valueAt(startIndex),
+            self.valueAt(endIndex),
+            step,
+        )
         yield(partition)
-        start = endInclusive + step
     }
 }
