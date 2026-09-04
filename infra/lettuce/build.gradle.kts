@@ -153,6 +153,7 @@ tasks.register<Test>("multiKeyLeasePerformanceTest") {
     outputs.file(reportPath)
     outputs.upToDateWhen { false }
     outputs.cacheIf { false }
+    systemProperty("bluetape4k.multiKeyLeasePerformance.report", reportPath)
     doFirst {
         Files.deleteIfExists(Path.of(reportPath))
     }

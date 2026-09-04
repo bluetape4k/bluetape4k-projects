@@ -933,3 +933,27 @@ A Redis server (default:
 ```bash
 ./gradlew :bluetape4k-lettuce:test
 ```
+
+### Multi-key Lease Performance Characterization (Opt-in)
+
+The multi-key lease characterization is intentionally outside the default `test` task and CI required checks. Run it
+as a dedicated, serialized Testcontainers task when changing the lease Lua script or `maxKeys` behavior:
+
+```bash
+lockf -k -t 900 "$(git rev-parse --git-common-dir)/bluetape-testcontainers.lock" \
+  ./gradlew :bluetape4k-lettuce:multiKeyLeasePerformanceTest \
+    --no-configuration-cache
+```
+
+The task performs three independent measurement runs with 20 warm-up and 300 measured rounds per combination. The
+regression comparison uses the median of each run's p95 latency (`median-of-run-p95`) and keeps the normalized p95
+ratio limit at `4.0`; a single noisy run therefore remains visible without deciding the result by itself. The JSON
+report includes Redis/Java/Kotlin/Lettuce versions, version-lookup diagnostics, CPU and executor configuration,
+sample counts, probe error details, raw runs, aggregation policy, and any failure reason:
+
+```
+infra/lettuce/build/reports/multi-key-lease-performance/results.json
+```
+
+This opt-in task is the evidence-producing performance lane; it is not a release gate until a dedicated CI lane and
+required-check policy are explicitly configured.
