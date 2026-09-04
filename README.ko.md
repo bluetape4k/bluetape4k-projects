@@ -70,8 +70,15 @@ Kotlin 언어를 배우고, 사용하면서, Backend 개발에 자주 사용하�
 - **Kotlin**: 2.4 (기본 Language, API 및 JVM 25 target)
 - **Gradle**: 저장소에 포함된 Wrapper 기준 9.7.0
 - **Spring Boot**: 4.x 전용. 과거 계획서와 리뷰 문서에는 은퇴한 Spring Boot 3 모듈 언급이 남아 있을 수 있지만, 현재 사용자 대상 모듈과 예제는 Spring Boot 4.x를 기준으로 합니다.
-- **JetBrains Exposed**: 1.2.x (외부 `bluetape4k-exposed` artifact는 독립 레포에서 별도 릴리즈됨)
+- **JetBrains Exposed**: 중앙 `bt4k` catalog의 1.5.0 (독립적으로 릴리스하는 `bluetape4k-exposed` artifact 버전과는 별개)
 - **데이터베이스**: H2, PostgreSQL, MySQL
+
+Exposed 버전은 [settings.gradle.kts](settings.gradle.kts)에 고정한 중앙 catalog의 immutable ref에서 가져옵니다.
+[build.gradle.kts](build.gradle.kts)가 버전 없는 로컬 alias에 `bt4kVersion("exposed")`를 공급하므로 로컬 버전 override를 추가하지 않습니다.
+[Redisson 캐시 예제](examples/redisson-demo/src/test/kotlin/io/bluetape4k/examples/redisson/coroutines/cachestrategy/AbstractCacheExample.kt)는
+JDBC `batchInsert`를 사용합니다. 이것이 hashing API를 포함한 Exposed 1.5.0의 모든 기능을 Projects에서 래핑한다는 뜻은 아닙니다.
+catalog ref를 갱신할 때 CI의 SHA가 같은지, 두 README의 버전이 해당 catalog의 `versions.exposed`와 일치하는지 확인합니다.
+`./gradlew :bluetape4k-examples-redisson-demo:dependencyInsight --configuration testRuntimeClasspath --dependency org.jetbrains.exposed:exposed-core`로 실제 소비 버전도 검증합니다.
 
 <!-- issue-1335-java25-semver:start -->
 ### JVM 호환성과 2.0.0

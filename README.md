@@ -68,8 +68,15 @@ Feel free to open an Issue if you need something that isn't here yet.
 - **Kotlin**: 2.4 (Language, API, and JVM 25 target by default)
 - **Gradle**: 9.7.0 via the checked-in Wrapper
 - **Spring Boot**: 4.x only. Historical planning and review notes may mention retired Spring Boot 3 modules, but current-facing modules and examples target Spring Boot 4.x.
-- **JetBrains Exposed**: 1.2.x (external `bluetape4k-exposed` artifacts are released from the standalone repository)
+- **JetBrains Exposed**: 1.5.0 from the central `bt4k` catalog (distinct from the independently released `bluetape4k-exposed` artifacts)
 - **Databases**: H2, PostgreSQL, MySQL
+
+Exposed versions come from the immutable central catalog ref in [settings.gradle.kts](settings.gradle.kts).
+[build.gradle.kts](build.gradle.kts) supplies `bt4kVersion("exposed")` to versionless local aliases; do not add a local version override.
+The [Redisson cache example](examples/redisson-demo/src/test/kotlin/io/bluetape4k/examples/redisson/coroutines/cachestrategy/AbstractCacheExample.kt)
+uses JDBC `batchInsert`; this is not a claim that Projects wraps every Exposed 1.5.0 feature, including hashing APIs.
+When updating the catalog ref, check that CI pins the same SHA and that both README versions match its `versions.exposed` value.
+Verify the consumer with `./gradlew :bluetape4k-examples-redisson-demo:dependencyInsight --configuration testRuntimeClasspath --dependency org.jetbrains.exposed:exposed-core`.
 
 <!-- issue-1335-java25-semver:start -->
 ### JVM Compatibility and 2.0.0
