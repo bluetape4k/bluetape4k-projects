@@ -930,3 +930,27 @@ Bloom Filter와 Cuckoo Filter는 같은 이름을 다른 옵션으로 재초기�
 ```bash
 ./gradlew :bluetape4k-lettuce:test
 ```
+
+### Multi-key Lease 성능 특성화 (선택 실행)
+
+Multi-key lease 특성화 테스트는 기본 `test` task와 CI 필수 check에서 의도적으로 제외되어 있습니다. lease Lua
+스크립트나 `maxKeys` 동작을 변경할 때는 Testcontainers task를 전용으로, 동시에 하나만 실행하세요.
+
+```bash
+lockf -k -t 900 "$(git rev-parse --git-common-dir)/bluetape-testcontainers.lock" \
+  ./gradlew :bluetape4k-lettuce:multiKeyLeasePerformanceTest \
+    --no-configuration-cache
+```
+
+각 조합에서 독립적인 측정 3회를 수행하며, 매회 warm-up 20회와 측정 300회를 사용합니다. 회귀 비교는 각
+측정회의 p95 latency를 `median-of-run-p95` 방식으로 집계하고 normalized p95 비율 한도 `4.0`을 유지합니다.
+따라서 한 번의 잡음 섞인 측정만으로 결과가 결정되지 않으면서 원시 측정값은 보고서에 남습니다. JSON 보고서에는
+Redis/Java/Kotlin/Lettuce 버전과 version 조회 진단, CPU·executor 구성, 샘플 수, probe 오류 상세, 원시 측정회,
+집계 정책, 실패 원인이 포함됩니다.
+
+```
+infra/lettuce/build/reports/multi-key-lease-performance/results.json
+```
+
+이 선택 실행 task는 성능 증거를 수집하는 전용 lane입니다. 별도의 CI lane과 required-check 정책을 명시적으로
+구성하기 전까지는 release gate로 사용하지 않습니다.
