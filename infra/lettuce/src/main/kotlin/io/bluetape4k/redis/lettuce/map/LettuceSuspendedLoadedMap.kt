@@ -352,22 +352,23 @@ class LettuceSuspendedLoadedMap<K: Any, V: Any>(
         } catch (e: CancellationException) {
             throw e
         } catch (e: Exception) {
-            val retryCount = entries.first().third + 1
-            log.error(e) { "Write-behind flush 실패 (attempt $retryCount): ${batch.keys}" }
-            if (retryCount < MAX_DEAD_LETTER_RETRY) {
-                val dropped = mutableMapOf<K, V>()
-                entries.forEach { (k, v, _) ->
-                    val result = writeBehindChannel?.trySend(Triple(k, v, retryCount))
+            val attempts = entries.map { it.third + 1 }
+            log.error(e) { "Write-behind flush 실패 (attempts=$attempts): ${batch.keys}" }
+            val deadLetters = mutableMapOf<K, V>()
+            entries.forEach { (k, v, retryCount) ->
+                val nextRetryCount = retryCount + 1
+                if (nextRetryCount < MAX_DEAD_LETTER_RETRY) {
+                    val result = writeBehindChannel?.trySend(Triple(k, v, nextRetryCount))
                     if (result == null || result.isFailure) {
-                        log.warn { "Requeue failed for key=$k (attempt $retryCount): channel full or closed" }
-                        dropped[k] = v
+                        log.warn { "Requeue failed for key=$k (attempt $nextRetryCount): channel full or closed" }
+                        deadLetters[k] = v
                     }
+                } else {
+                    deadLetters[k] = v
                 }
-                if (dropped.isNotEmpty()) {
-                    writeToDeadLetter(dropped)
-                }
-            } else {
-                writeToDeadLetter(batch)
+            }
+            if (deadLetters.isNotEmpty()) {
+                writeToDeadLetter(deadLetters)
             }
         }
     }
