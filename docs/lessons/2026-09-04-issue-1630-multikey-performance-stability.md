@@ -60,19 +60,24 @@ checkout에서 같은 task를 세 번 실행했을 때도 concurrency 16 raw p95
   executor metadata, `probeErrorCount=0`, `probeFailure=null`, `redisVersionFailure=null`,
   measurement failure count, errors/timeouts와 두 concurrency의 ratio를 재확인했다. 각
   `MeasurementFailure`에는 `run` 식별자도 포함된다.
-- 직접 Gradle 9.7.0 binary로 선택적인 Lettuce performance/coordination Testcontainers
-  task를 제외한 repository `build`가 `678 actionable tasks`와 함께 통과했다.
+- `BLUETAPE4K_MANUAL_ROOT`를 중앙 checkout의
+  `docs/manual/bluetape4k-projects`로 지정한 뒤 직접 Gradle 9.7.0 repository
+  `build`가 `BUILD SUCCESSFUL in 28m 35s`와 `1062 actionable tasks`로 통과했다.
+- 같은 root로 `NearJCacheDocumentationTest` `6/6`과 `:bluetape4k-cache-lettuce:test`
+  `461/461`도 별도 재실행해 통과했다. `multiKeyLeasePerformanceTest`는 전체 build에서
+  `11/11`로 통과했다.
 - `:bluetape4k-lettuce:compileTestKotlin`은 27개 task 기준 통과했고 `git diff --check`도
-  통과했다. 최신 no-build-cache 전체 `build` 재실행은 변경과 무관한
-  `NearJCacheDocumentationTest` 3건이 `BLUETAPE4K_MANUAL_ROOT` 미설정으로 실패한 뒤
-  중단됐다. 전체 `:bluetape4k-lettuce:test`는 앞선 환경 SIGTERM으로 최종 결과가 없으며,
-  hosted CI는 아직 실행하지 않았다.
+  통과했다. hosted CI run `33901895924`도 exact head에서 성공했다.
 
 ## 놓친 점과 주의사항
 
 - 첫 번째 context-mode 실행은 worktree 인자를 보존하지 않아 원본 checkout의 오래된
   report를 읽게 했다. 보고서 output을 Gradle system property로 고정하고, 이후 명령에
   명시적인 `cd <worktree>`를 사용해 이 증거를 폐기하고 정확한 worktree에서 재실행했다.
+- `BLUETAPE4K_MANUAL_ROOT`를 `bluetape4k.github.io/docs/manual`까지만 지정하면
+  `NearJCacheDocumentationTest`가 `en/modules/...`를 찾지 못한다. GNO
+  `bluetape4k-github`의 Issue #1588과 merged PR #1593, 그리고 저장소 checklist를
+  대조해 실제 root가 `docs/manual/bluetape4k-projects`임을 확인하고 재실행했다.
 - 로컬 3회 baseline은 모두 통과했으므로 historical 실패를 동일 환경에서 재현하지
   못했다. 대신 issue의 exact assertion과 synthetic RED를 함께 보존했다.
 - 전용 성능 task와 report는 준비됐지만 dedicated CI lane 및 required-check 정책은
@@ -98,8 +103,8 @@ checkout에서 같은 task를 세 번 실행했을 때도 concurrency 16 raw p95
 - SPW-02: PASS — 맥락, 결정, 결과, 검증, 놓친 점, 향후 재발 방지 규칙을 포함한다.
 - SPW-03: PASS — 한국어 기술 문체를 사용하고 task, option, 식별자, URL, 수치와 exact
   error를 보존했다.
-- SPW-04: PASS — RED/GREEN 로그, exact worktree report, parsed JSON 값을 실행 결과와
-  대조했으며 hosted CI 미실행 범위를 명시했다.
+- SPW-04: PASS — RED/GREEN 로그, exact worktree report, parsed JSON, 중앙 manual root
+  계약과 hosted CI run `33901895924`를 실행 결과와 대조했다.
 - SPW-05: PASS — Markdown 구조, 명령, 링크와 report path를 재검토했다.
 
 ## 한국어 자연스러움 감사
