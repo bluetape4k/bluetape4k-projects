@@ -167,8 +167,8 @@ internal class LettuceMultiKeyLeasePerformanceTest {
                         val resultAt32 = aggregatedResults.single {
                             it.keyCount == 32 && it.concurrency == concurrency
                         }
-                        resultAt32.acquireP95MillisPerKey shouldBeLessOrEqualTo
-                            resultAt8.acquireP95MillisPerKey * NORMALIZED_P95_RATIO_LIMIT
+                        resultAt32.normalizedAcquireP95Millis shouldBeLessOrEqualTo
+                            resultAt8.normalizedAcquireP95Millis * NORMALIZED_P95_RATIO_LIMIT
                         resultAt32.acquireP95Millis shouldBeLessOrEqualTo
                             resultAt8.acquireP95Millis * NORMALIZED_P95_RATIO_LIMIT
                     }
@@ -380,7 +380,7 @@ internal class LettuceMultiKeyLeasePerformanceTest {
         concurrency = 1,
         acquireP50Millis = 0.8,
         acquireP95Millis = 1.2,
-        acquireP95MillisPerKey = 0.15,
+        normalizedAcquireP95Millis = 0.15,
         releaseP50Millis = 0.4,
         releaseP95Millis = 0.7,
         scenarioThroughputPerSecond = 1_000.0,
@@ -402,7 +402,7 @@ internal class LettuceMultiKeyLeasePerformanceTest {
                 keyCount = keyCount,
                 concurrency = concurrency,
                 acquireP95Millis = acquireP95Millis,
-                acquireP95MillisPerKey = acquireP95Millis / keyCount,
+                normalizedAcquireP95Millis = acquireP95Millis / keyCount,
             )
         },
     )
@@ -501,7 +501,7 @@ internal class LettuceMultiKeyLeasePerformanceTest {
             concurrency = concurrency,
             acquireP50Millis = acquireSamples.percentileMillis(50.0),
             acquireP95Millis = acquireSamples.percentileMillis(95.0),
-            acquireP95MillisPerKey = acquireSamples.percentileMillis(95.0) / keyCount,
+            normalizedAcquireP95Millis = acquireSamples.percentileMillis(95.0) / keyCount,
             releaseP50Millis = releaseSamples.percentileMillis(50.0),
             releaseP95Millis = releaseSamples.percentileMillis(95.0),
             scenarioThroughputPerSecond = operationCount * NANOS_PER_SECOND.toDouble() / elapsedNanos,
@@ -601,7 +601,7 @@ internal class LettuceMultiKeyLeasePerformanceTest {
                 concurrency = concurrency,
                 acquireP50Millis = samples.map { it.acquireP50Millis }.median(),
                 acquireP95Millis = samples.map { it.acquireP95Millis }.median(),
-                acquireP95MillisPerKey = samples.map { it.acquireP95MillisPerKey }.median(),
+            normalizedAcquireP95Millis = samples.map { it.normalizedAcquireP95Millis }.median(),
                 releaseP50Millis = samples.map { it.releaseP50Millis }.median(),
                 releaseP95Millis = samples.map { it.releaseP95Millis }.median(),
                 scenarioThroughputPerSecond = samples.map { it.scenarioThroughputPerSecond }.median(),
@@ -840,7 +840,7 @@ internal class LettuceMultiKeyLeasePerformanceTest {
         append("\"concurrency\":$concurrency,")
         append("\"acquireP50Millis\":${acquireP50Millis.jsonNumber()},")
         append("\"acquireP95Millis\":${acquireP95Millis.jsonNumber()},")
-        append("\"acquireP95MillisPerKey\":${acquireP95MillisPerKey.jsonNumber()},")
+        append("\"acquireP95MillisPerKey\":${normalizedAcquireP95Millis.jsonNumber()},")
         append("\"releaseP50Millis\":${releaseP50Millis.jsonNumber()},")
         append("\"releaseP95Millis\":${releaseP95Millis.jsonNumber()},")
         append("\"scenarioThroughputPerSecond\":${scenarioThroughputPerSecond.jsonNumber()},")
@@ -947,7 +947,7 @@ internal class LettuceMultiKeyLeasePerformanceTest {
         val concurrency: Int,
         val acquireP50Millis: Double,
         val acquireP95Millis: Double,
-        val acquireP95MillisPerKey: Double,
+        val normalizedAcquireP95Millis: Double,
         val releaseP50Millis: Double,
         val releaseP95Millis: Double,
         val scenarioThroughputPerSecond: Double,
