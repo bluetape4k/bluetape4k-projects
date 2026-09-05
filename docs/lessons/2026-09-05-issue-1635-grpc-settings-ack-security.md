@@ -68,7 +68,9 @@ TLS 상호운용 테스트 통과만으로 이 경계를 검증했다고 판단�
   최종 판정은 P0=0, P1=0, P2=0이며 수정 후 전체 75개를 다시 통과했다.
 - PR #1653의 첫 CI는 gRPC 75개 중 TLS 4개가 실패했다.
   `Coverage Report`와 `CI Status` 실패는 `Test / IO` 실패를 전파한 결과였다.
-  provider 수정 후 로컬 TLS 4개를 통과했으며 Linux 결과는 후속 CI에서 확인한다.
+  provider 수정 후 로컬 TLS 4개를 통과했고, 후속 CI run `33970108329`도
+  재시도 없이 첫 실행에서 gRPC 75개를 모두 통과했다.
+  `Test / IO`, `Coverage Report`, `CI Status`가 모두 성공했다.
 - Detekt 성공 종료. 기존 지적 28건은 별도이며 전체 정적 분석 무결함으로 표현하지 않는다.
 - 조사 에이전트는 응답 지연으로 중단한 뒤 공식 `TestUtils`·OkHttp `Platform` 소스 근거를 회수했다.
   주 세션이 같은 소스를 다시 확인했으며, 조사 결과를 독립 코드 리뷰로 계산하지 않는다.
