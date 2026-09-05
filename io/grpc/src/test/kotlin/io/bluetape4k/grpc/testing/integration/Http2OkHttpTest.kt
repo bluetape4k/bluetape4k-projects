@@ -15,14 +15,15 @@ import io.netty.handler.ssl.SslContextBuilder
 import io.netty.handler.ssl.SslProvider
 import io.netty.handler.ssl.SupportedCipherSuiteFilter
 import io.bluetape4k.assertions.shouldBeEqualTo
-import org.junit.jupiter.api.BeforeAll
-import org.junit.jupiter.api.Disabled
+import io.bluetape4k.assertions.shouldBeTrue
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.Timeout
 import java.io.IOException
 import java.net.InetSocketAddress
+import java.util.concurrent.TimeUnit
 import javax.net.ssl.SSLContext
 
-@Disabled("보안관련 설정 후에 테스트해야 합니다")
+@Timeout(30)
 class Http2OkHttpTest: AbstractInteropTest() {
 
     companion object: KLogging() {
@@ -63,7 +64,7 @@ class Http2OkHttpTest: AbstractInteropTest() {
         val builder = OkHttpChannelBuilder.forAddress("localhost", port)
             .maxInboundMessageSize(MAX_MESSAGE_SIZE)
             .tlsConnectionSpec(
-                arrayOf(TlsVersion.TLS_1_3.name, TlsVersion.TLS_1_2.name),
+                arrayOf(TlsVersion.TLS_1_3.javaName(), TlsVersion.TLS_1_2.javaName()),
                 SSLContext.getDefault().defaultSSLParameters.cipherSuites
             )
             .overrideAuthority(Util.authorityFromHostAndPort(TestUtils.TEST_SERVER_HOST, port))
@@ -81,11 +82,6 @@ class Http2OkHttpTest: AbstractInteropTest() {
         return builder
     }
 
-    @BeforeAll
-    fun loadConscrypt() {
-        TestUtils.installConscryptIfAvailable()
-    }
-
     @Test
     fun `received Data for finished stream`() {
         val responseParameters = Messages.ResponseParameters.newBuilder().setSize(1)
@@ -101,10 +97,10 @@ class Http2OkHttpTest: AbstractInteropTest() {
 
         val request = requestBuilder.build()
         requestStream.onNext(request)
-        recorder.firstValue().get()
+        recorder.firstValue().get(10, TimeUnit.SECONDS)
         requestStream.onError(Exception("failed"))
 
-        recorder.awaitCompletion()
+        recorder.awaitCompletion(10, TimeUnit.SECONDS).shouldBeTrue()
 
         blockingStub!!.emptyCall(EMPTY) shouldBeEqualTo EMPTY
     }

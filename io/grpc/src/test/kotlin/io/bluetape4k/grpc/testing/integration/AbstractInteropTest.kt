@@ -223,13 +223,11 @@ abstract class AbstractInteropTest {
                 payload = Messages.Payload.newBuilder().setBody(ByteString.copyFrom(ByteArray(REQUEST_SIZE))).build()
             }.build()
 
-        val goldenResponse = Messages.SimpleResponse.newBuilder()
-            .apply {
-                payload = Messages.Payload.newBuilder().setBody(ByteString.copyFrom(ByteArray(RESPONSE_SIZE))).build()
-            }.build()
-
         runSuspendIO {
-            stub.unaryCall(request) shouldBeEqualTo goldenResponse
+            // TestServiceImpl은 0으로 채운 body가 아닌 임의 데이터로 요청한 크기의 응답을 만든다.
+            val response = stub.unaryCall(request)
+            response.hasPayload().shouldBeTrue()
+            response.payload.body.size() shouldBeEqualTo RESPONSE_SIZE
         }
     }
 
