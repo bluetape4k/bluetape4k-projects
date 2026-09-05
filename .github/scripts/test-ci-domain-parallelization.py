@@ -5,9 +5,11 @@ from __future__ import annotations
 
 import fnmatch
 import re
+import subprocess
+import tempfile
+import textwrap
 import unittest
 from pathlib import Path
-
 
 ROOT = Path(__file__).resolve().parents[2]
 CI_WORKFLOW = ROOT / ".github/workflows/ci.yml"
@@ -91,6 +93,38 @@ class CiDomainParallelizationTest(unittest.TestCase):
     @classmethod
     def setUpClass(cls) -> None:
         cls.workflow = CI_WORKFLOW.read_text(encoding="utf-8")
+
+    def test_search_messaging_propagates_each_gradle_failure(self):
+        """각 모듈의 실패가 뒤따른 성공으로 가려지지 않아야 한다."""
+        block = job_block(self.workflow, "test-search-messaging")
+        command = re.search(r"          command: \|\n((?:            .*\n)+)", block)
+        self.assertIsNotNone(command)
+        script = textwrap.dedent(command.group(1))
+        for failed_module in ("elasticsearch", "nats", None):
+            with self.subTest(failed_module=failed_module), tempfile.TemporaryDirectory() as directory:
+                wrapper = Path(directory) / "gradlew"
+                wrapper.write_text(
+                    "#!/bin/bash\n"
+                    + (
+                        f'[[ "$*" != *":bluetape4k-{failed_module}:test"* ]]\n'
+                        if failed_module
+                        else "exit 0\n"
+                    ),
+                    encoding="utf-8",
+                )
+                wrapper.chmod(0o700)
+                result = subprocess.run(
+                    ["bash", "-c", script],
+                    cwd=directory,
+                    capture_output=True,
+                    text=True,
+                    timeout=5,
+                    check=False,
+                )
+                if failed_module:
+                    self.assertNotEqual(result.returncode, 0, f"{failed_module} failure was masked")
+                else:
+                    self.assertEqual(result.returncode, 0, result.stderr)
 
     def test_domain_jobs_run_after_gates_without_waiting_for_full_build(self):
         expected_needs = {"changes", "catalog-governance"}

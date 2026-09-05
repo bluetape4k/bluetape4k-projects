@@ -993,6 +993,7 @@ jobs:
           max_attempts: 3
           shell: bash
           command: |
+            set -euo pipefail
             ./gradlew :bluetape4k-elasticsearch:test --max-workers=1 --no-configuration-cache
             ./gradlew :bluetape4k-nats:test --max-workers=1 --no-configuration-cache
         env:
