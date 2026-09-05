@@ -16,7 +16,6 @@ import io.netty.handler.ssl.SslProvider
 import io.netty.handler.ssl.SupportedCipherSuiteFilter
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeTrue
-import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.Timeout
 import java.io.IOException
@@ -81,11 +80,6 @@ class Http2OkHttpTest: AbstractInteropTest() {
             throw RuntimeException(e)
         }
         return builder
-    }
-
-    @BeforeAll
-    fun loadConscrypt() {
-        TestUtils.installConscryptIfAvailable()
     }
 
     @Test

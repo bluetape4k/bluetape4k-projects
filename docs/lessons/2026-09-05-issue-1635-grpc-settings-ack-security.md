@@ -49,6 +49,15 @@ TLS 상호운용 테스트 통과만으로 이 경계를 검증했다고 판단�
    앞으로 소유권 테스트는 전달 경계마다 검증 대상 객체를 명시한다.
 6. TLS 회귀가 무한 대기로 바뀌지 않도록 클래스에 30초 제한을 두고,
    Future와 streaming 완료 대기에도 각각 10초 제한을 적용한다.
+7. 로컬 macOS ARM 통과만으로 Linux TLS fixture를 검증할 수 없다.
+   첫 CI에서 HTTP/2 보안 테스트 3개는 통과했지만 TLS 테스트 4개는 세 번 모두
+   `SSLHandshakeException: Unknown authType: GENERIC`으로 실패했다.
+   `TestUtils.installConscryptIfAvailable()`는 ARM에서는 설치를 건너뛰지만 Linux x86_64에서는
+   Conscrypt를 전역 등록한다. 이후 OkHttp `Platform`은 Conscrypt를 선택하고,
+   `newSslSocketFactoryForCa`는 JDK 기본 trust manager와 선택된 TLS provider를 조합한다.
+   CI stack의 `ConscryptEngineSocket`과 `X509TrustManagerImpl` 혼용이 이 경계와 일치했다.
+   이 저장소는 Java 25를 사용하므로 테스트의 Conscrypt 전역 설치를 제거하고
+   JDK TLS provider·trust manager 경로를 일관되게 사용한다.
 
 ## 검증
 
@@ -57,12 +66,16 @@ TLS 상호운용 테스트 통과만으로 이 경계를 검증했다고 판단�
 - gRPC 전체: 75개 통과, 실패·오류·비활성 0개.
 - 독립 구현 리뷰의 P2 buffer 검증 지적을 수정하고 재검토했다.
   최종 판정은 P0=0, P1=0, P2=0이며 수정 후 전체 75개를 다시 통과했다.
+- PR #1653의 첫 CI는 gRPC 75개 중 TLS 4개가 실패했다.
+  `Coverage Report`와 `CI Status` 실패는 `Test / IO` 실패를 전파한 결과였다.
+  provider 수정 후 로컬 TLS 4개를 통과했으며 Linux 결과는 후속 CI에서 확인한다.
 - Detekt 성공 종료. 기존 지적 28건은 별도이며 전체 정적 분석 무결함으로 표현하지 않는다.
-- 조사 에이전트는 응답 지연으로 중단 후 부분 결과를 회수했다. 주 세션의 upstream 직접 확인과
-  실제 테스트 실행이 구현 근거이며, 조사 결과를 독립 코드 리뷰로 계산하지 않는다.
+- 조사 에이전트는 응답 지연으로 중단한 뒤 공식 `TestUtils`·OkHttp `Platform` 소스 근거를 회수했다.
+  주 세션이 같은 소스를 다시 확인했으며, 조사 결과를 독립 코드 리뷰로 계산하지 않는다.
 
 ## 다음 변경 시 확인할 사항
 
 gRPC 버전 변경 시 package-private factory와 오류 프레임 계약을 재확인한다.
+TLS fixture가 provider를 전역 등록하면 지원 OS·아키텍처와 trust manager provider 조합을 CI에서 확인한다.
 통신 성공, HTTP/2 stream 거부, buffer 소유권, 실제 서버 종료를 서로 다른 증거로 다룬다.
 이 테스트는 작은 결정적 입력의 회귀 검증이지 운영 부하 한계나 모든 메모리 누수의 증명은 아니다.
