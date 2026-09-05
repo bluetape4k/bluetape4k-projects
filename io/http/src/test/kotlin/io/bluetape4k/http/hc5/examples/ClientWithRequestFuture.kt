@@ -8,13 +8,11 @@ import io.bluetape4k.http.hc5.protocol.httpClientContextOf
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.error
-import io.bluetape4k.assertions.fail
 import org.apache.hc.client5.http.classic.methods.HttpGet
 import org.apache.hc.core5.concurrent.FutureCallback
 import org.apache.hc.core5.http.HttpStatus
 import org.apache.hc.core5.http.io.HttpClientResponseHandler
 import org.junit.jupiter.api.Test
-import java.util.concurrent.CancellationException
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 
@@ -46,18 +44,8 @@ class ClientWithRequestFuture: AbstractHc5Test() {
             val wasItOk1 = futureTask1.get()
             log.debug { "It was ok? $wasItOk1" }
 
-            // 요청 취소
-            try {
-                val request2 = HttpGet("$httpbinBaseUrl/get")
-                val futureTask2 = requestExecService.execute(request2, httpClientContextOf(), handler)
-                futureTask2.cancel(true)
-                Thread.sleep(10)
-                val wasItOk2 = futureTask2.get()
-                log.debug { "It was ok? $wasItOk2" }
-                fail("여기까지 실행되면 안됩니다. 작업이 취소되어야 합니다.")
-            } catch (e: CancellationException) {
-                log.debug { "취소 후 예외가 발생하는 것이 정상 동작입니다." }
-            }
+            // 취소 예제는 ClientWithRequestFutureCancellationTest에서 실행 순서를 제어해 검증합니다.
+            // 빠른 GET 요청은 cancel() 전에 완료될 수 있으므로 취소 성공을 가정하지 않습니다.
 
             // 타임아웃이 있는 요청
             val request3 = HttpGet("$httpbinBaseUrl/get")
