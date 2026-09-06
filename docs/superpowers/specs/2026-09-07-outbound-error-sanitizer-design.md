@@ -43,10 +43,10 @@ fun sanitizeOutboundError(statusCode: Int, rawMessage: String?): String
 4. 다음 key를 case-insensitive하게 찾아 `key:[redacted]`로 치환한다.
    `Authorization`, `Cookie`, `Token`, `Secret`, `API-Key`와 `API_Key`,
    `API Key` 변형을 지원하며 `:`/`=` 구분자와 선택적인 `Bearer`를 허용한다.
-   key 표기의 원래 대소문자는 replacement에서 보존한다. key-value marker는
-   있지만 값이 비어 있거나 문법이 깨진 경우에는 전체 first line을 버리고
-   status-only를 반환해 fail-closed한다. 인식된 credential value는 공백 전까지
-   하나의 토큰으로 redaction한다.
+   key 표기의 원래 대소문자는 replacement에서 보존한다. 값은 공백 전까지의
+   token 또는 escaped quote를 지원하는 single/double quoted value로 인식한다.
+   key-value marker는 있지만 값이 비어 있거나 quote가 닫히지 않는 등 문법이
+   깨진 경우에는 전체 first line을 버리고 status-only를 반환해 fail-closed한다.
 5. prefix 길이를 제외한 남은 길이만큼 첫 줄을 자르되 UTF-16 surrogate pair를
    분할하지 않는 Kotlin `Char` 상한을 적용한다. 최종 결과는 240 UTF-16
    code units 이내이며 함수는 예외를 던지지 않는 순수 함수다.
@@ -85,9 +85,9 @@ Throwable을 받지 않으며 원본 예외를 만들거나 기록하지 않는�
 
 ## 실패 모드와 대응
 
-1. credential key의 대소문자·separator·Bearer 변형은 모두 동일한 replacement로
-   처리해 인식된 credential raw value가 남지 않게 한다. marker가 있으나
-   malformed인 경우 status-only로 내려 fail-closed한다.
+1. credential key의 대소문자·separator·Bearer·quoted/escaped 변형은 모두
+   동일한 replacement로 처리해 인식된 credential raw value가 남지 않게 한다.
+   marker가 있으나 malformed인 경우 status-only로 내려 fail-closed한다.
 2. multiline 예외의 두 번째 줄에 secret이 있어도 첫 줄만 반환하여 저장하지
    않는다.
 3. null/blank/malformed input은 예외 대신 status-only 또는 redacted first line을

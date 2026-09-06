@@ -25,11 +25,11 @@
 
 - [ ] **Step 1: exact output cases 작성**
 
-  `null/blank는 HTTP prefix만 반환`, `첫 줄과 양 끝 공백을 trim`, `Authorization/Cookie/Token/Secret/API-Key`의 대소문자·`:`·`=`·Bearer·space/hyphen/underscore 변형을 `[redacted]`로 바꿈`, `여러 credential을 모두 치환`, `multiline은 첫 줄만 남김`을 exact string으로 검증한다.
+  `null/blank는 HTTP prefix만 반환`, `첫 줄과 양 끝 공백을 trim`, `Authorization/Cookie/Token/Secret/API-Key`의 대소문자·`:`·`=`·Bearer·space/hyphen/underscore 변형을 `[redacted]`로 바꿈`, quoted/escaped value와 여러 credential을 모두 치환, `multiline은 첫 줄만 남김`을 exact string으로 검증한다.
 
 - [ ] **Step 2: boundary/security cases 작성**
 
-  `결과가 정확히 240 UTF-16 Char 이내이며 surrogate pair를 자르지 않음`, `Int status prefix가 항상 보존됨`, `Unicode 문자를 포함해 경계가 안전함`, `malformed marker/empty Bearer는 status-only fail-closed`, `입력 secret이 결과에 절대 포함되지 않음`을 검증한다.
+  다음 grammar table을 exact test로 고정한다. `service token unavailable`은 marker가 없어 원문 첫 줄을 보존하고, `token=secret, retrying`은 `token:[redacted], retrying`을 반환한다. `Authorization : secret`은 redaction하고, `Authorization:`, `Authorization: Bearer`, `Authorization: "unterminated`는 status-only로 fail-closed한다. JSON/quoted/escaped value와 duplicate credential도 모두 검증한다. 결과는 최대 240 UTF-16 Char이며 surrogate pair를 자르지 않고, `Int` status prefix는 항상 보존된다. 입력 secret이 결과에 절대 포함되지 않음도 검증한다.
 
 - [ ] **Step 3: RED 실행**
 
@@ -44,7 +44,7 @@
 
 - [ ] **Step 1: constants와 credential regex 작성**
 
-  `MAX_LENGTH = 240`, `credentialPattern = Regex("(?i)\\b(authorization|cookie|token|secret|api[-_ ]?key)\\b\\s*[:=]\\s*(?:Bearer\\s+)?[^\\s]+")`를 private immutable constant로 둔다. 별도의 marker regex로 key-value가 malformed/empty인지 검사해 해당 first line을 status-only로 버린다. replacement는 captured key의 표기를 유지하는 `"\$1:[redacted]"`를 사용한다.
+  `MAX_LENGTH = 240`, marker regex와 `credentialPattern = Regex("(?i)\\b(authorization|cookie|token|secret|api[-_ ]?key)\\b\\s*[:=]\\s*(?:Bearer\\s+)?(?:\"(?:\\\\.|[^\"\\\\])*\"|'(?:\\\\.|[^'\\\\])*'|[^\\s,;]+)")`를 private immutable constant로 둔다. marker/value match 개수와 시작 위치가 다르면 해당 first line을 status-only로 버린다. replacement는 captured key의 표기를 유지하는 `"\$1:[redacted]"`를 사용한다. comma/semicolon은 기존 consumer처럼 unquoted token의 경계로 보존한다.
 
 - [ ] **Step 2: 순수 함수 구현**
 
@@ -66,13 +66,27 @@
 
 - [ ] **Step 2: JAR/POM/module metadata 생성**
 
-  Run: `./gradlew :bluetape4k-http:jar :bluetape4k-http:generateMetadataFileForMavenJavaPublication :bluetape4k-http:generatePomFileForMavenJavaPublication`
+  Run: `./gradlew :bluetape4k-http:jar :bluetape4k-http:generateMetadataFileForBluetape4kPublication :bluetape4k-http:generatePomFileForBluetape4kPublication :bluetape4k-http:checkPomFileForBluetape4kPublication`
 
   Expected: public function appears in JAR and no Spring/Ktor dependency is introduced by the new file or provider POM.
 
-- [ ] **Step 3: security scan evidence**
+- [ ] **Step 3: bytecode/ABI guard**
 
-  Run: `git grep -n -E 'secret-token|Authorization.*\[redacted\]' -- io/http/src`; run `gitleaks detect --source . --redact --no-git --config .gitleaks.toml` when the gitleaks binary is available; run `./gradlew dependencyCheckAnalyze --no-daemon` and record its advisory result separately because the provider workflow marks Dependency Check `continue-on-error: true`.
+  Run:
+
+  ```bash
+  artifact_jar="$(find io/http/build/libs -maxdepth 1 -type f -name 'bluetape4k-http-*.jar' ! -name '*-sources.jar' | head -n 1)"
+  test -n "$artifact_jar"
+  jar tf "$artifact_jar" | rg 'OutboundErrorSanitizer'
+  if jdeps --multi-release 21 --recursive --ignore-missing-deps "$artifact_jar" | rg -q 'org.springframework|io.ktor'; then exit 1; fi
+  javap -classpath "$artifact_jar" -public io.bluetape4k.http.OutboundErrorSanitizerKt > build/outbound-sanitizer-public-api.txt
+  ```
+
+  Expected: function class/signature is present, no Spring/Ktor bytecode reference exists, and the signature snapshot shows `sanitizeOutboundError(int, java.lang.String)`.
+
+- [ ] **Step 4: security scan evidence**
+
+  Run: `git grep -n -E 'secret-token|Authorization.*\[redacted\]' -- io/http/src/main` (test fixtures are validated by runtime assertions); run `gitleaks detect --source . --redact --no-git --config .gitleaks.toml` when the gitleaks binary is available; run `./gradlew dependencyCheckAnalyze --no-daemon` and record its advisory result separately because the provider workflow marks Dependency Check `continue-on-error: true`.
 
   Expected: no hard-coded credential in production source; advisory scans are recorded as evidence and not silently treated as blocking pass when CI marks them `continue-on-error`.
 
@@ -94,7 +108,7 @@
 
 - [ ] **Step 1: verify current consumer call sites**
 
-  Before provider publication, only read/record Spring and Ktor call sites. Do not edit them in this branch. Confirm status/retry/transaction/cancellation remain outside the sanitizer and record that caller tests must log/persist the sanitized result rather than the original Throwable.
+  Before provider publication, only read/record Spring and Ktor call sites. Do not edit them in this branch. Confirm status/retry/transaction/cancellation remain outside the sanitizer and record that caller tests must log/persist the sanitized result rather than the original Throwable. The downstream #234 plan must add a log appender/capture test proving credential-bearing thrown exceptions are not passed to `log.warn(e)`, plus exact `lastError` assertions for 503/422/599 and successful retry clearing `lastError`.
 
 - [ ] **Step 2: record dependency hold**
 
@@ -116,7 +130,7 @@
 
 - [ ] **Step 3: rollback point**
 
-  If API behavior or publication metadata fails, revert the latest provider implementation/documentation commits and keep workshop #234 blocked until the spec/plan are re-reviewed.
+  If API behavior or publication metadata fails, record dirty worktree and exact HEAD, revert only the implementation/documentation commit SHA with `git revert <sha>`, and keep workshop #234 blocked. If a snapshot/catalog was already published, stop its consumption and restore the prior immutable artifact/catalog SHA; git revert alone cannot recall Maven metadata.
 
 ## 수용 기준 추적
 
