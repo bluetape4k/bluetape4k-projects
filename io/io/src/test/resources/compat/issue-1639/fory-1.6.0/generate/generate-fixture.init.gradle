@@ -1,0 +1,37 @@
+import org.gradle.api.tasks.SourceSetContainer
+
+gradle.afterProject { project, state ->
+    if (project.path != ":bluetape4k-io" || state.failure != null) {
+        return
+    }
+
+    project.tasks.register("generateIssue1639ForyFixture", Exec) {
+        group = "verification"
+        description = "Fory 1.6.0으로 issue #1639 compatibility fixture를 생성한다."
+        dependsOn("testClasses")
+
+        doFirst {
+            def taskProject = getProject()
+            def sourceSets = taskProject.extensions.getByType(SourceSetContainer)
+            def classpath = sourceSets.getByName("test").runtimeClasspath.asPath
+            def generator = taskProject.file(
+                "src/test/resources/compat/issue-1639/fory-1.6.0/generate/GenerateForyWireFixture.java"
+            )
+            def defaultOutput = taskProject.file(
+                "src/test/resources/compat/issue-1639/fory-1.6.0/fory-kotlin-metadata.bin"
+            )
+            def output = taskProject.providers.gradleProperty("issue1639FixtureOutput")
+                .map { taskProject.file(it) }
+                .getOrElse(defaultOutput)
+
+            output.parentFile.mkdirs()
+            commandLine(
+                new File(System.getProperty("java.home"), "bin/java"),
+                "--class-path",
+                classpath,
+                generator,
+                output,
+            )
+        }
+    }
+}

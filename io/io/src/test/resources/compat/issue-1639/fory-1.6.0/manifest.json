@@ -1,0 +1,49 @@
+{
+  "issue": 1639,
+  "generatedAt": "2026-09-06",
+  "serializer": {
+    "foryVersion": "1.6.0",
+    "foryKotlinVersion": "1.6.0",
+    "language": "JAVA",
+    "compatibleMode": "COMPATIBLE",
+    "referenceTracking": true,
+    "referenceCopy": true,
+    "codegen": true,
+    "stringCompressed": true,
+    "requireClassRegistration": false
+  },
+  "fixtureObject": {
+    "class": "io.bluetape4k.io.serializer.ForyWireCompatibilityPayload",
+    "factory": "io.bluetape4k.io.serializer.ForyWireCompatibilityFixtures.sample",
+    "fields": [
+      "id: Long",
+      "title: String = fory-wire",
+      "description: String? = null",
+      "tags: List<String> = [kotlin, metadata, redis]",
+      "owner: ForyWireOwnerId = owner-1639",
+      "metadata: ForyWireCompatibilityMetadata = {source=issue-1639,note=null}"
+    ]
+  },
+  "fixture": {
+    "path": "fory-kotlin-metadata.bin",
+    "size": 241,
+    "sha256": "4e672fb8d1b5cad5cd66537461ce714f4027b794a8be32e54d8337f6cddac819"
+  },
+  "generator": {
+    "path": "generate/GenerateForyWireFixture.java",
+    "initScript": "generate/generate-fixture.init.gradle",
+    "initScriptSha256": "7aa711df47acba41b03188a7cb66a307d6582c04ef7625bc7c4154ea72e90b27",
+    "sha256": "722d3ef0654b39babbf2d505022385c9ab1c006ea12487b957ad5f9afae4d84c",
+    "foryCoreJarSha256": "51425606bd061f8367ed7cf7c42968ff6e0e860e7567726c711883b2046b1506",
+    "foryKotlinJarSha256": "bea89ed797c1da8ca5d0d09620cf5b49151b12d828079135a3dbd7510f45b613",
+    "producerProjectsCommit": "f07eb62b27d670c2383933a927066fc92c8e14f8",
+    "producerProjectsTree": "3acf71b14db31d595bb8fc935891ca77e9c14577",
+    "catalogRef": "e4d0748f6204083e4f4080eab8719e9155cd527b",
+    "catalogUpgradeRef": "9698c9d66bea6fcba373143ee8fa5bfbd9812d4b",
+    "javaVersion": "Oracle GraalVM 25.0.4.1+1.1",
+    "gradleVersion": "9.7.0",
+    "kotlinVersion": "2.4.10",
+    "generationCommand": "BLUETAPE4K_DEPENDENCIES_CATALOG_REF=e4d0748f6204083e4f4080eab8719e9155cd527b ./gradlew :bluetape4k-io:generateIssue1639ForyFixture --init-script io/io/src/test/resources/compat/issue-1639/fory-1.6.0/generate/generate-fixture.init.gradle --no-daemon --no-configuration-cache",
+    "dependencyInsightCommand": "BLUETAPE4K_DEPENDENCIES_CATALOG_REF=e4d0748f6204083e4f4080eab8719e9155cd527b ./gradlew :bluetape4k-io:dependencyInsight --dependency org.apache.fory --configuration testRuntimeClasspath --no-daemon"
+  }
+}
