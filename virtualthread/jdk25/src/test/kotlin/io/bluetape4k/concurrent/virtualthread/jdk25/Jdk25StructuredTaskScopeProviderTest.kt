@@ -5,6 +5,7 @@ import io.bluetape4k.logging.debug
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeInstanceOf
 import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.concurrent.virtualthread.api.VirtualThreads
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.condition.EnabledForJreRange
 import org.junit.jupiter.api.condition.JRE
@@ -18,6 +19,11 @@ class Jdk25StructuredTaskScopeProviderTest {
     companion object: KLoggingChannel()
 
     private val provider = Jdk25StructuredTaskScopeProvider()
+
+    @Test
+    fun `ServiceLoader가 JDK 25 virtual thread runtime을 선택해야 한다`() {
+        VirtualThreads.runtimeName() shouldBeEqualTo "jdk25"
+    }
 
     @Test
     fun `withAll success`() {

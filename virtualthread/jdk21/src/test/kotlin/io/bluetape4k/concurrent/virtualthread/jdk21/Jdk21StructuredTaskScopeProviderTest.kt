@@ -4,6 +4,7 @@ import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeInstanceOf
 import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.concurrent.virtualthread.api.VirtualThreads
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import org.junit.jupiter.api.Test
@@ -18,6 +19,11 @@ class Jdk21StructuredTaskScopeProviderTest {
     companion object: KLoggingChannel()
 
     private val provider = Jdk21StructuredTaskScopeProvider()
+
+    @Test
+    fun `ServiceLoader가 JDK 21 virtual thread runtime을 선택해야 한다`() {
+        VirtualThreads.runtimeName() shouldBeEqualTo "jdk21"
+    }
 
     @Test
     fun `withAll success`() {

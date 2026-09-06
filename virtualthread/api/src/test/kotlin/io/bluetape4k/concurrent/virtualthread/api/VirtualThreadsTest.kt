@@ -7,6 +7,10 @@ import io.bluetape4k.assertions.shouldNotBeNull
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import org.junit.jupiter.api.Test
+import java.util.ServiceConfigurationError
+import java.util.concurrent.ExecutorService
+import java.util.concurrent.Executors
+import java.util.concurrent.ThreadFactory
 
 class VirtualThreadsTest {
 
@@ -61,5 +65,73 @@ class VirtualThreadsTest {
             val result = executor.submit<String> { "from-runtime" }.get()
             result shouldBeEqualTo "from-runtime"
         }
+    }
+
+    @Test
+    fun `provider discovery skips broken next entries`() {
+        val providers = VirtualThreads.discoverVirtualThreadRuntimes(
+            FailingNextThenRuntimeIterator(TestVirtualThreadRuntime("valid", priority = 10)),
+        )
+
+        providers.map { it.runtimeName } shouldBeEqualTo listOf("valid")
+    }
+
+    @Test
+    fun `provider discovery skips unsupported and failing runtime checks`() {
+        val providers = VirtualThreads.discoverVirtualThreadRuntimes(
+            listOf(
+                TestVirtualThreadRuntime("unsupported", priority = 100, supported = false),
+                TestVirtualThreadRuntime("broken-check", priority = 90, supportFailure = true),
+                TestVirtualThreadRuntime("lower", priority = 10),
+                TestVirtualThreadRuntime("higher", priority = 20),
+            ).iterator(),
+        )
+
+        providers.map { it.runtimeName } shouldBeEqualTo listOf("higher", "lower")
+    }
+
+    @Test
+    fun `provider discovery stops cleanly when hasNext fails`() {
+        val providers = VirtualThreads.discoverVirtualThreadRuntimes(FailingHasNextRuntimeIterator())
+
+        providers shouldBeEqualTo emptyList<VirtualThreadRuntime>()
+    }
+
+    private class FailingNextThenRuntimeIterator(
+        private val runtime: VirtualThreadRuntime,
+    ): Iterator<VirtualThreadRuntime> {
+        private var index = 0
+
+        override fun hasNext(): Boolean = index < 2
+
+        override fun next(): VirtualThreadRuntime =
+            when (index++) {
+                0 -> throw ServiceConfigurationError("broken runtime entry")
+                1 -> runtime
+                else -> throw NoSuchElementException()
+            }
+    }
+
+    private class FailingHasNextRuntimeIterator: Iterator<VirtualThreadRuntime> {
+        override fun hasNext(): Boolean = throw ServiceConfigurationError("broken runtime index")
+        override fun next(): VirtualThreadRuntime = throw NoSuchElementException()
+    }
+
+    private class TestVirtualThreadRuntime(
+        override val runtimeName: String,
+        override val priority: Int,
+        private val supported: Boolean = true,
+        private val supportFailure: Boolean = false,
+    ): VirtualThreadRuntime {
+        override fun isSupported(): Boolean {
+            check(!supportFailure) { "support check failed" }
+            return supported
+        }
+
+        override fun threadFactory(prefix: String): ThreadFactory =
+            Thread.ofPlatform().name(prefix, 0).factory()
+
+        override fun executorService(): ExecutorService =
+            Executors.newSingleThreadExecutor(threadFactory("test-"))
     }
 }
