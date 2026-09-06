@@ -204,12 +204,25 @@ import io.bluetape4k.tink.digest.matchesTinkDigest
 val hash = TinkDigesters.SHA256.digest("Hello, World!")
 val matches = TinkDigesters.SHA256.matches("Hello, World!", hash) // true
 
+// 저장 키나 token fingerprint용 UTF-8 lowercase hex
+val hex = TinkDigesters.SHA256.digestHex("public-event-id")
+val hexMatches = TinkDigesters.SHA256.matchesHex("public-event-id", hex) // true
+
 // 확장 함수
 val hash2 = "Hello, World!".tinkDigest(TinkDigesters.SHA256)
 "Hello, World!".matchesTinkDigest(hash2, TinkDigesters.SHA256) // true
 
 // 사용 가능 알고리즘: MD5, SHA1, SHA256, SHA384, SHA512
 ```
+
+기존 `digest(String)`과 `matches(String, String)`은 표준 Base64 계약을 유지합니다.
+`digestHex(String)`은 digest byte마다 두 자리 lowercase hex를 반환하므로 SHA-256은 항상
+64자입니다. `matchesHex`는 길이가 다르거나 `0-9a-f` 이외의 문자, uppercase가 포함된
+기대값을 예외 없이 `false`로 처리하고, 올바른 형식은 `MessageDigest.isEqual`로 비교합니다.
+형식 검사는 fail-fast이며 constant-time이 아니고, canonical digest byte 비교만
+`MessageDigest.isEqual`의 timing-safe 경계를 사용합니다.
+Raw token을 로그나 예외에 남기지 말고, password 저장에는 plain digest 대신 전용
+password hashing 알고리즘을 사용하세요.
 
 ### Encrypt — 통합 암호화 인터페이스
 

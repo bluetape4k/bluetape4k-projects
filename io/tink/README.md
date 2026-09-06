@@ -212,12 +212,25 @@ import io.bluetape4k.tink.digest.matchesTinkDigest
 val hash = TinkDigesters.SHA256.digest("Hello, World!")
 val matches = TinkDigesters.SHA256.matches("Hello, World!", hash) // true
 
+// UTF-8 lowercase hex for storage keys or token fingerprints
+val hex = TinkDigesters.SHA256.digestHex("public-event-id")
+val hexMatches = TinkDigesters.SHA256.matchesHex("public-event-id", hex) // true
+
 // Extension functions
 val hash2 = "Hello, World!".tinkDigest(TinkDigesters.SHA256)
 "Hello, World!".matchesTinkDigest(hash2, TinkDigesters.SHA256) // true
 
 // Available algorithms: MD5, SHA1, SHA256, SHA384, SHA512
 ```
+
+The existing `digest(String)` and `matches(String, String)` methods retain their
+standard Base64 contract. `digestHex(String)` emits two lowercase hex characters
+per digest byte, so SHA-256 is always 64 characters. `matchesHex` returns `false`
+without throwing for a wrong length, characters outside `0-9a-f`, or uppercase
+input. Format validation is fail-fast rather than constant-time; only canonical digest
+bytes enter the timing-safe `MessageDigest.isEqual` comparison. Never log raw tokens,
+and use a dedicated password-hashing algorithm rather than a plain digest for
+password storage.
 
 ### Encrypt — Unified Encryption Interface
 
