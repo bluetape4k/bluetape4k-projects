@@ -62,6 +62,37 @@ then migrate each consumer in its own PR. Until that finishes, retain the manual
 strict read loop. Roll back to the previous dependency plus that loop; the
 truncating preview APIs are not a strict-read fallback.
 
+## Persisted outbound HTTP error sanitization
+
+Use `sanitizeOutboundHttpError(statusCode, rawMessage)` before storing an external
+HTTP failure in a bounded database field or similar persistence boundary.
+
+The sanitizer returns at most 240 characters including the status prefix and
+inspects only that bounded source prefix. It drops later stack-trace lines and
+the remainder after `Authorization`, `Cookie`, `Token`, `Secret`, or `API-Key`
+style labels.
+
+```kotlin
+import io.bluetape4k.http.sanitizeOutboundHttpError
+
+val storedError = sanitizeOutboundHttpError(
+    statusCode = 503,
+    rawMessage = "Authorization: Bearer opaque-secret upstream unavailable",
+)
+// HTTP 503 Authorization:[redacted]
+```
+
+The result always starts with `HTTP <statusCode>` and is capped at 240 characters.
+A null or blank message produces only the status, and multiline input keeps only
+the first line. After the first `Authorization`, `Cookie`, `Token`, `Secret`, or
+`API-Key`-like label, the remainder of that line is removed fail-closed so malformed,
+quoted, or whitespace-containing credentials cannot leak. This is a persisted-error
+contract, not a header-logging redaction API.
+
+The caller still owns HTTP status classification, retry/permanent-failure policy,
+database persistence, logging, transactions, and coroutine cancellation. Do not
+re-log or rethrow the unsanitized message.
+
 ## Architecture
 
 ### Overall Architecture: Multi-Backend HTTP Client
