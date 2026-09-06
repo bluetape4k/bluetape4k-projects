@@ -69,7 +69,7 @@ migration은 필요 없다. Image migration은 remote `2.1.0-SNAPSHOT` provenanc
 - Create: `io/io/src/test/kotlin/io/bluetape4k/io/readme/AtomicFileReadmeKotlinContractTest.kt`
 - Create: `io/io/src/test/java/io/bluetape4k/io/readme/AtomicFileSupportJavaContractTest.java`
 
-- [ ] **Step 1: Kotlin 공개 계약 테스트 작성**
+- [x] **Step 1: Kotlin 공개 계약 테스트 작성**
 
 `AtomicFileSupportTest.kt`에 다음 완전한 test fixture를 작성한다.
 
@@ -275,7 +275,7 @@ class AtomicFileSupportTest {
 }
 ```
 
-- [ ] **Step 2: README Kotlin 예제를 외부 package에서 그대로 compile하고 실행**
+- [x] **Step 2: README Kotlin 예제를 외부 package에서 그대로 compile하고 실행**
 
 `AtomicFileReadmeKotlinContractTest.kt`는 README의 extension import, bounded copy와 coroutine
 helper를 같은 형태로 포함한다. 한도 초과가 target을 commit하지 않는지와 coroutine helper가
@@ -353,7 +353,7 @@ class AtomicFileReadmeKotlinContractTest {
 }
 ```
 
-- [ ] **Step 3: Java caller와 facade 계약 테스트 작성**
+- [x] **Step 3: Java caller와 facade 계약 테스트 작성**
 
 `AtomicFileSupportJavaContractTest.java`를 외부 package에 다음 내용으로 작성한다. README와
 같이 facade를 import하고 enclosing method가 checked `IOException`을 선언한다.
@@ -416,7 +416,7 @@ class AtomicFileSupportJavaContractTest {
 }
 ```
 
-- [ ] **Step 4: 신규 API 부재로 RED 확인**
+- [x] **Step 4: 신규 API 부재로 RED 확인**
 
 Run:
 
@@ -439,7 +439,7 @@ evidence에 기록하고 아직 commit하지 않는다.
 - Create: `io/io/src/main/kotlin/io/bluetape4k/io/AtomicFileSupport.kt`
 - Modify: `docs/superpowers/checklists/2026-09-06-issue-1645-type-a.md`
 
-- [ ] **Step 1: internal operations와 failure topology 테스트 작성**
+- [x] **Step 1: internal operations와 failure topology 테스트 작성**
 
 `AtomicFileFailurePolicyTest.kt`에 다음 fixture를 작성한다.
 
@@ -774,7 +774,7 @@ class AtomicFileFailurePolicyTest {
 }
 ```
 
-- [ ] **Step 2: compile 가능한 최소 skeleton으로 functional RED 확인**
+- [x] **Step 2: compile 가능한 최소 skeleton으로 functional RED 확인**
 
 `AtomicFileSupport.kt`에 facade와 seam만 만들고 writer는 의도적으로 실패시킨다.
 
@@ -836,7 +836,7 @@ Expected: source/test compilation은 성공하고 behavior tests가
 `UnsupportedOperationException: atomic file replacement is not implemented`로 실패한다.
 이 두 번째 RED를 기록한 뒤 skeleton을 최종 구현으로 교체한다.
 
-- [ ] **Step 3: stream-close-before-move와 failure-safe cleanup 최소 구현**
+- [x] **Step 3: stream-close-before-move와 failure-safe cleanup 최소 구현**
 
 `AtomicFileSupport.kt` 전체를 다음 구현으로 교체한다.
 
@@ -1018,7 +1018,7 @@ private fun Throwable.reaches(target: Throwable): Boolean {
 }
 ```
 
-- [ ] **Step 4: targeted GREEN 확인**
+- [x] **Step 4: targeted GREEN 확인**
 
 Run:
 
@@ -1034,7 +1034,7 @@ Run:
 Expected: 네 test class의 모든 test가 PASS하고 sibling temporary file이 남지 않는다.
 실패 시 test expectation을 약화하지 않고 production lifecycle을 수정한다.
 
-- [ ] **Step 5: RED/GREEN evidence와 A-06 진행 상태 기록**
+- [x] **Step 5: RED/GREEN evidence와 A-06 진행 상태 기록**
 
 `docs/superpowers/checklists/2026-09-06-issue-1645-type-a.md`에 첫 compile RED,
 functional RED, targeted GREEN의 명령·실패 원인·test count를 기록한다.
