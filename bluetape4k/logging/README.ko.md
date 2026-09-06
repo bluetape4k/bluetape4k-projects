@@ -27,7 +27,7 @@ Kotlin에서 SLF4J 로깅을 더 쉽고 효율적으로 사용하기 위한 라�
 - **Lambda 기반 Lazy Logging**: 로그 레벨이 활성화되지 않으면 메시지를 생성하지 않아 성능 향상
 - **클래스 기반 로깅**: `KLogging`을 사용한 간편한 클래스 로거 정의
 - **함수 레벨 로깅**: Package 함수에서도 쉽게 사용 가능
-- **MDC 지원**: Slf4j MDC를 Kotlin 스타일로 간편하게 사용
+- **MDC 지원**: Slf4j MDC를 Kotlin 스타일로 간편하게 사용하며, 재사용 worker를 위한 불변 MDC 복사본 제공
 - **Coroutines 지원**: Coroutines 환경에서 MDC 컨텍스트 전파
 - **KLoggingChannel**: Coroutines Channel 기반 비동기 로깅 (고성능)
 - **에러 강조**: warn/error 로그에 자동으로 🔥 이모지 추가
@@ -175,6 +175,34 @@ withLoggingContext("userId" to userId) {
     log.info { "User action logged" }
 }
 ```
+
+#### 재사용 worker에서 MDC 복사본 사용하기
+
+작업을 제출할 때 `captureMdcContext`를 호출하고 worker 경계에서
+`withMdcContext`를 사용합니다. MDC 복사본은 캡처 시점에 고정되며, 빈
+MDC 복사본은 task 실행 중 worker MDC를 비웁니다. 정상 종료와 예외 종료 모두
+worker가 실행 전에 가지고 있던 전체 map을 복원합니다.
+
+```kotlin
+import io.bluetape4k.logging.captureMdcContext
+import io.bluetape4k.logging.withMdcContext
+import org.slf4j.MDC
+
+MDC.put("requestId", requestId)
+val submittedContext = captureMdcContext()
+MDC.put("requestId", "a-later-value") // submittedContext에는 반영되지 않음
+
+executor.execute {
+    withMdcContext(submittedContext) {
+        log.info { "제출 시점의 request context가 활성화됨" }
+    }
+}
+```
+
+`withMdcContext`는 scope 동안 MDC 전체를 대체하고 `finally`에서 worker의
+이전 전체 map을 복원하므로 task가 추가한 key가 다음 task로 새지 않습니다.
+이는 기존 key별 병합과 빈 map no-op semantics를 유지하는
+`withLoggingContext`와 의도적으로 다른 동작입니다.
 
 ### 5. Coroutines에서 MDC 사용하기
 

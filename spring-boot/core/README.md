@@ -34,6 +34,12 @@ A unified module providing common features for Spring Boot 4.x applications.
 - Low-cardinality and high-cardinality Micrometer key value grouping through `SpringObservationKeyValues`
 - Prometheus and OpenTelemetry export remain application-owned Spring Boot Actuator configuration
 
+### MDC Task Decorator
+
+- `MdcTaskDecorator` propagates an immutable caller MDC snapshot across reusable Spring workers
+- Empty caller context clears worker MDC for the task; the worker's previous complete map is restored after success or failure
+- Executor creation, shutdown, and Spring bean lifecycle remain application-owned
+
 ### Test Utilities
 
 - Integration test support based on Spring Boot Test
@@ -128,6 +134,35 @@ val created = webClient.httpPost("/users", newUser)
     .bodyToMono(User::class.java)
     .awaitSingle()
 ```
+
+### MDC TaskDecorator
+
+Connect `MdcTaskDecorator` to an executor owned by the application. It captures
+the caller MDC when `decorate` is called, replaces the worker MDC while the task
+runs, and restores the worker's previous map in `finally`.
+
+```kotlin
+import io.bluetape4k.spring.task.MdcTaskDecorator
+import org.springframework.context.annotation.Bean
+import org.springframework.context.annotation.Configuration
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor
+
+@Configuration(proxyBeanMethods = false)
+class TaskExecutionConfiguration {
+    @Bean
+    fun applicationTaskExecutor(): ThreadPoolTaskExecutor =
+        ThreadPoolTaskExecutor().apply {
+            corePoolSize = 4
+            maxPoolSize = 8
+            setTaskDecorator(MdcTaskDecorator())
+            initialize()
+        }
+}
+```
+
+The decorator does not create or close the executor and does not register an
+automatic bean. An empty caller MDC hides stale worker values for the task, and
+task-local keys are removed when the worker's previous context is restored.
 
 ### WebFlux Controller (Coroutines)
 
@@ -240,6 +275,7 @@ class UserControllerTest(@Autowired val client: WebTestClient) {
 | Category                      | Scope         | Description                       |
 |-------------------------------|---------------|-----------------------------------|
 | `spring-boot-starter-webflux` | `compileOnly` | Required for WebFlux + Coroutines |
+| `bluetape4k-logging`           | `implementation` | MDC TaskDecorator support       |
 | `bluetape4k-coroutines`       | `compileOnly` | Coroutines support                |
 | `micrometer-observation`      | `compileOnly` | Observation helper support        |
 | `spring-boot-starter-web`     | `compileOnly` | Optional servlet support          |

@@ -1,6 +1,8 @@
 package io.bluetape4k.logging
 
 import org.slf4j.MDC
+import java.util.Collections
+import java.util.LinkedHashMap
 
 /**
  * 단일 키-값을 MDC에 적용한 범위 안에서 블록을 실행합니다.
@@ -106,5 +108,32 @@ inline fun <T> withLoggingContext(
         cleanupCallbacks.forEach { callback ->
             runCatching { callback() }
         }
+    }
+}
+
+private fun immutableMdcCopy(context: Map<String, String>): Map<String, String> =
+    Collections.unmodifiableMap(LinkedHashMap(context))
+
+/** 현재 thread의 MDC 전체를 caller와 분리된 읽기 전용 MDC map으로 복사합니다. */
+fun captureMdcContext(): Map<String, String> =
+    MDC.getCopyOfContextMap()?.let(::immutableMdcCopy) ?: emptyMap()
+
+private fun replaceMdcContext(context: Map<String, String>) {
+    if (context.isEmpty()) {
+        MDC.clear()
+    } else {
+        MDC.setContextMap(context)
+    }
+}
+
+/** 전체 MDC를 scope 동안 대체하고 정상·예외 모두 scope 진입 전 context를 복원합니다. */
+fun <T> withMdcContext(context: Map<String, String>, block: () -> T): T {
+    val previous = captureMdcContext()
+    val applied = immutableMdcCopy(context)
+    return try {
+        replaceMdcContext(applied)
+        block()
+    } finally {
+        replaceMdcContext(previous)
     }
 }

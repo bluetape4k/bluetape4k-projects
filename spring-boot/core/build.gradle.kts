@@ -24,6 +24,7 @@ dependencies {
     testImplementation("org.springframework.boot:spring-boot-starter-actuator")
 
     // Spring core
+    implementation(project(":bluetape4k-logging"))
     compileOnly(project(":bluetape4k-io"))
     compileOnly(project(":bluetape4k-jackson3"))
     compileOnly("org.springframework:spring-context-support")
