@@ -95,6 +95,14 @@
   repo-local override로 선택하고 소비자별 smoke와 독립 PR을 진행한다
   ([#1643](https://github.com/bluetape4k/bluetape4k-projects/issues/1643)).
 
+- `bluetape4k-io`에 UTF-16 code unit 상한을 읽는 동안 적용하는
+  `BoundedLineReader`를 추가했다. LF·CRLF·CR과 마지막 개행 없는 line을 지원하며,
+  상한을 넘은 line은 전체 할당 없이 `LineLimitExceededException`으로 거부한다.
+  wrapper가 제공받은 `Reader`를 닫지 않는 ownership 계약을 유지하고, Graph NDJSON
+  consumer 적용은 별도 작업으로 남긴다
+  ([#1642](https://github.com/bluetape4k/bluetape4k-projects/issues/1642),
+  [Graph #615](https://github.com/bluetape4k/bluetape4k-graph/issues/615)).
+
 - `bluetape4k-io`에 callback과 stream close가 성공한 뒤에만 sibling temporary file을
   atomic move하는 `Path.writeAtomically`를 추가했다. 지원하지 않는 atomic replacement는
   일반 move fallback을 사용하지 않으며, 기존 target 교체와 metadata는 filesystem
