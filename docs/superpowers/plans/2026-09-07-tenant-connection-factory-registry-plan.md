@@ -29,7 +29,7 @@
 
 - [ ] **Step 2: 다음 실패 테스트 작성**
 
-  `borrowed registry는 lookup/keys/asMap snapshot을 제공한다`, `unknown key는 configured keys를 포함한 NoSuchElementException을 던진다`, `routingMap은 mapped key 충돌을 거부한다`, `owned registry는 같은 resource alias를 한 번만 닫는다`, `borrowed registry는 close 후에도 resource를 닫지 않는다`, `close는 모든 오류를 시도하고 후속 오류를 suppressed로 보존한다`, `concurrent lookup은 A/B factory를 교차하지 않는다`, `동시 close는 cached operation으로 한 번만 실행된다`를 exact assertion으로 작성한다.
+  `borrowed registry는 lookup/keys/asMap snapshot을 제공한다`, `unknown key는 configured keys를 포함한 NoSuchElementException을 던진다`, `routingMap은 mapped key 충돌을 거부한다`, `owned registry는 같은 resource alias를 한 번만 닫는다`, `borrowed/owned alias 충돌은 생성 시 거부한다`, `borrowed registry는 close 후에도 resource를 닫지 않는다`, `close 후 lookup/map은 IllegalStateException을 던진다`, `close는 모든 오류를 시도하고 후속 오류를 suppressed로 보존한다`, `concurrent lookup은 A/B factory를 교차하지 않는다`, `동시 close는 cached operation으로 한 번만 실행된다`를 exact assertion으로 작성한다.
 
 - [ ] **Step 3: RED 실행**
 
@@ -44,15 +44,15 @@
 
 - [ ] **Step 1: ownership entry 구현**
 
-  `ConnectionFactoryOwnership`는 `BORROWED`와 `OWNED`만 가진다. `borrowed(factory)`는 no-op close action을 만들고, 기본 `owned(factory)`는 R2DBC `Closeable`을 우선 사용하고 Reactor `Disposable`을 fallback으로 사용하며 둘 다 아니면 `IllegalArgumentException`을 던진다. 두 번째 `owned(factory, closeAction)`는 caller가 비동기 종료 동작을 명시한다.
+  `ConnectionFactoryOwnership`는 `BORROWED`와 `OWNED`만 가진다. `borrowed(factory)`는 no-op close action을 만들고, 기본 `owned(factory)`는 R2DBC `Closeable`을 우선 사용하고 Reactor `Disposable`을 fallback으로 사용하며 둘 다 아니면 `IllegalArgumentException`을 던진다. 두 번째 `owned(factory, closeAction)`는 caller가 비동기 종료 동작을 명시한다. callback은 private/internal로 숨기고 registry만 호출한다.
 
 - [ ] **Step 2: immutable lookup 구현**
 
-  생성자에서 `entries.toMap()`으로 snapshot을 만들고 `keys`/`asMap()`은 읽기 전용 copy를 반환한다. `operator fun get`은 누락 key를 `NoSuchElementException`으로 fail-fast한다. `routingMap`은 mapper 결과 중복을 `IllegalArgumentException`으로 거부하고 insertion order를 보존한다.
+  생성 시 `LinkedHashMap`/unmodifiable wrapper로 snapshot을 만들고 `keys`/`asMap()`은 내부 변경이 외부에 노출되지 않는 읽기 전용 copy를 반환한다. close state가 설치되면 `get`, `asMap`, `routingMap`은 `IllegalStateException`으로 거부하고 `keys`만 유지한다. `operator fun get`은 열린 registry에서 누락 key를 `NoSuchElementException`으로 fail-fast한다. `routingMap`은 mapper 결과 중복을 `IllegalArgumentException`으로 거부하고 관찰된 snapshot iteration order를 보존한다.
 
 - [ ] **Step 3: lifecycle 구현**
 
-  owned entry를 resource identity로 deduplicate한다. `close()`는 `AtomicReference<Mono<Void>>`에 `cache()`된 operation을 한 번만 설치하고, 각 close action을 순차 실행하면서 오류를 수집한 뒤 첫 오류에 나머지를 suppressed로 붙인다. `dispose()`는 같은 operation을 subscribe하는 fire-and-forget adapter이며 `isDisposed()`는 close state를 반영한다.
+  owned entry를 resource identity로 deduplicate한다. 같은 identity의 alias는 ownership와 custom close-action identity가 같아야 하며, 혼합이면 생성 시 fail-fast한다. `close()`는 `AtomicReference<Mono<Void>>` compare-and-set으로 `cache()`된 operation을 한 번만 설치하고, 각 close action을 순차 실행하면서 synchronous throw와 `Mono.error`를 모두 수집한 뒤 첫 오류에 나머지를 suppressed로 붙인다. `dispose()`는 같은 operation을 subscribe하는 fire-and-forget adapter이며 `isDisposed()`는 close state를 반영한다.
 
 - [ ] **Step 4: companion convenience factory 구현**
 

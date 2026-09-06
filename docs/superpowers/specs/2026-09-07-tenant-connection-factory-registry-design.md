@@ -31,8 +31,9 @@ enum class ConnectionFactoryOwnership { BORROWED, OWNED }
 class R2dbcConnectionFactoryEntry private constructor(
     val connectionFactory: ConnectionFactory,
     val ownership: ConnectionFactoryOwnership,
-    val closeAction: () -> Mono<Void>,
+    private val closeAction: () -> Mono<Void>,
 ) {
+    internal fun closeResource(): Mono<Void>
     companion object {
         fun borrowed(connectionFactory: ConnectionFactory): R2dbcConnectionFactoryEntry
         fun owned(connectionFactory: ConnectionFactory): R2dbcConnectionFactoryEntry
@@ -86,8 +87,21 @@ class R2dbcConnectionFactoryRegistry<K : Any>(
   오류를 주 오류로 유지하고 후속 오류를 `Throwable.addSuppressed`로 붙인다.
 - `dispose()`는 Reactor의 fire-and-forget adapter다. 동일한 atomic close state를
   사용하므로 double-close가 없으며, 관찰 가능한 오류가 필요한 caller는
-  `close()`를 subscribe한다.
+  `close()`를 subscribe한다. `close()`의 `Mono` 생성과 atomic state 설치는
+  하나의 `AtomicReference` compare-and-set으로 묶고, `dispose()`도 같은 cached
+  signal을 subscribe한다. `dispose()`의 오류는 adapter의 error consumer에서
+  소비하며, 원인 보존이 필요하면 `close()` 결과를 사용한다.
 - borrowed entry는 `close()`와 `dispose()` 어느 쪽에서도 종료하지 않는다.
+- close state가 설치된 뒤에는 `get`, `asMap`, `routingMap`이
+  `IllegalStateException("ConnectionFactory registry is closed")`로 실패한다.
+  `keys`는 생성 당시 snapshot이므로 계속 읽을 수 있다.
+- 같은 resource identity가 alias된 entry는 ownership가 모두 같아야 한다.
+  borrowed/owned 혼합 또는 서로 다른 custom close action은 생성 시
+  `IllegalArgumentException`으로 거부한다. 기본 `owned(factory)`의 action은
+  factory identity를 action identity로 사용한다.
+- 입력 map은 생성 시 iteration 순서대로 별도 `LinkedHashMap`에 복사하고
+  unmodifiable wrapper를 사용한다. API는 입력이 `HashMap`일 때의 임의 순서를
+  insertion order라고 재해석하지 않고, 관찰된 snapshot 순서만 보장한다.
 - lifecycle API는 R2DBC/Project Reactor만 사용하며 Spring `DisposableBean`은
   consumer adapter에 남긴다.
 
@@ -113,8 +127,9 @@ class R2dbcConnectionFactoryRegistry<K : Any>(
    종료한다.
 4. 복수 pool close가 실패해도 나머지 close를 시도하고 첫 오류와 suppressed
    chain을 보존한다.
-5. concurrent lookup은 immutable snapshot만 읽고 close state와 분리하여
-   tenant A/B 결과가 교차되지 않는다.
+5. concurrent lookup은 immutable snapshot만 읽고 close state를 먼저 확인하여
+   종료 시작 이후 새 lookup을 거부한다. 종료 시작 전의 lookup은 A/B factory를
+   교차시키지 않는다.
 
 ## 호환성과 migration
 
