@@ -167,6 +167,25 @@ val prettyJson = mapper.prettyWriteAsString(user)
 val moduleNames = mapper.registeredModuleNames()
 ```
 
+### 3-1. Canonical JSON
+
+Use `CanonicalJson` when a request or event needs deterministic JSON bytes for a caller-owned signature or idempotency key.
+
+```kotlin
+import io.bluetape4k.jackson3.CanonicalJson
+import io.bluetape4k.jackson3.CanonicalJsonLimits
+import io.bluetape4k.jackson3.CanonicalJsonStringNormalization
+
+val canonical = CanonicalJson(
+    limits = CanonicalJsonLimits(maxOutputBytes = 64 * 1024),
+    stringNormalization = CanonicalJsonStringNormalization.NFC,
+)
+val bytes = canonical.canonicalBytes("""{"b":1.0,"a":"café"}""".toByteArray())
+// bytes.decodeToString() == """{"a":"café", "b":1}"""
+```
+
+The canonical parser is separate from `Jackson.defaultJsonMapper`. It rejects duplicate keys and trailing tokens, sorts object keys, preserves array order, normalizes finite numbers, and emits UTF-8 bytes. The historical `", "` separator is part of the output contract. String-value NFC normalization is opt-in and never changes field names. Configure body, depth, string/name/number, object-entry, array-element, and output limits explicitly for untrusted input. `maxBodyBytes` applies only to raw `ByteArray` input because a parsed `JsonNode` no longer retains its source size; all tree/output limits still apply to both entry points. Container limits are checked before object sorting or array traversal. This is the existing Workshop format, not RFC 8785/JCS. Digest and HMAC framing remain caller responsibilities.
+
 ### 4. Async JSON Parsing
 
 ```kotlin
