@@ -184,6 +184,8 @@ clears the worker MDC while the task runs, and the worker's complete previous
 map is restored after normal or exceptional completion.
 The API copies values without validation or redaction. Put only sanitized,
 non-secret identifiers in MDC; never put raw tokens, headers, or payloads there.
+Copying is proportional to the number of MDC entries, and queued tasks retain
+their copy until execution. Keep MDC to a small, low-cardinality identifier set.
 
 ```kotlin
 import io.bluetape4k.logging.captureMdcContext

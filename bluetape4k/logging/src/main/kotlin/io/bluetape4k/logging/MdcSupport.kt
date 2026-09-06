@@ -118,7 +118,8 @@ private fun immutableMdcCopy(context: Map<String, String>): Map<String, String> 
  * 현재 thread의 MDC 전체를 caller와 분리된 읽기 전용 MDC map으로 복사합니다.
  *
  * MDC에는 정제된 비밀이 아닌 식별자만 넣으세요. 이 함수는 raw token, header, payload를
- * 검증하거나 가리지 않고 그대로 복사합니다.
+ * 검증하거나 가리지 않고 그대로 복사합니다. 비용은 MDC 항목 수에 비례하므로
+ * context는 작은 low-cardinality 식별자 집합으로 유지하세요.
  */
 fun captureMdcContext(): Map<String, String> =
     MDC.getCopyOfContextMap()?.let(::immutableMdcCopy) ?: emptyMap()

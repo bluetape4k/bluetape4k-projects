@@ -184,6 +184,8 @@ MDC 복사본은 task 실행 중 worker MDC를 비웁니다. 정상 종료와 �
 worker가 실행 전에 가지고 있던 전체 map을 복원합니다.
 MDC 값은 이 API가 검증하거나 가리지 않으므로 정제된 비밀이 아닌 식별자만 사용하고,
 raw token, header, payload는 MDC에 넣지 마세요.
+복사 비용은 MDC 항목 수에 비례하고 queued task는 실행될 때까지 복사본을 보유하므로,
+MDC를 작은 low-cardinality 식별자 집합으로 유지하세요.
 
 ```kotlin
 import io.bluetape4k.logging.captureMdcContext
