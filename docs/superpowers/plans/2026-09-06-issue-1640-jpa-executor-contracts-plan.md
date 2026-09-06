@@ -12,6 +12,51 @@
 
 ## 기준과 실행 경계
 
+### 2026-09-06 승인 범위 추가
+
+사용자의 `추가해` 지시로 root `build.gradle.kts`의 Jakarta Persistence 관리만
+기존 중앙 catalog의 `v31`에서 `v32`로 정렬한다. 아래 최초 범위와 원본 명세의
+전역 변경 제외 조건에 대한 한정된 예외다. catalog 원본·ref·버전 상수·제품 API는 변경하지 않는다.
+
+- [x] 선행 증거: JPA fixture 8개가 `FindOption` 누락으로 실패했고 production runtime도 3.2.0 → 3.1.0으로 낮아졌다. [실행 기록](../../review/2026-09-06-issue-1640-execution-checkpoint.md)을 보존한다.
+- [ ] root alias 한 줄을 정렬하고 같은 fixture 8개를 재실행한다. 실패하면 원인을 진단하며 assertion을 약화하지 않는다.
+- [ ] compile/runtime/test compile/test runtime의 실제 Jakarta 버전과 기존 Hibernate 계열 override를 확인한다. 기존 3.2.0 override 제거는 이번 변경에 포함하지 않는다.
+- [ ] `examples/jpa-querydsl-demo`의 직접 v31 선언은 편집하지 않고 4개 classpath에서 실제 선택 버전을 확인한다. 3.1.0이 남으면 전역 정렬 검증은 실패이며 새로운 force로 숨기지 않는다.
+- [ ] 대표 발행 모듈 Hibernate Lettuce의 `generatePomFileForBluetape4kPublication` 결과에서 Jakarta Persistence dependencyManagement가 3.2.0인지 확인한다.
+- [ ] core → Hibernate Lettuce → demo 전체 테스트를 순차 실행하고 정적 검사를 수행한다.
+- [ ] 전역 영향 검증으로 전체 모듈 build를 테스트 제외 상태로 먼저 실행한다. 성공은 전체 테스트 통과와 구분한다. 필요한 후속 전체 테스트 또는 exact-head Full Nightly 증거가 없으면 전역 검증은 PENDING이다. workflow dispatch는 별도 승인 없이 실행하지 않는다.
+- [ ] 최종 리뷰·lesson·PR 조건은 기존 계획을 유지한다. 실패한 전역 검증은 로그와 모듈을 기록하며 무관한 제품 수정으로 범위를 넓히지 않는다.
+
+위험: 공통 dependencyManagement는 모든 하위 모듈과 발행 metadata에 영향을 준다.
+복구는 이 한 줄의 역방향 diff로 한정하며, 복구 시 JPA 실패가 재발함을 명시한다.
+테스트 전용 force 재도입은 production 불일치를 남기므로 채택하지 않는다.
+문서 검증은 승인 문구·실패 로그·현재 root 및 catalog와 대조하고, 한국어 기술 문체를 유지한다.
+
+전역 build는 다음 명령을 단독 실행한다. 종료코드는 별도 파일에 저장하고
+실패 시 그대로 반환한다. timeout process group 진단은 같은 로그에 보존한다.
+
+```bash
+python3 /tmp/issue-1640-bounded-run.py 1800 ./gradlew --no-daemon build -x test --no-parallel > /tmp/issue-1640-global-build.log 2>&1
+result=$?
+printf '%s\n' "$result" > /tmp/issue-1640-global-build.exit
+test "$result" -eq 0 || exit "$result"
+```
+
+전체 build 실패 시 최초 실패 task·오류·dependency graph·종료코드를 실행 기록에 남기고
+PR 진행을 중단한다. 관련 모듈의 추가 읽기 전용 진단만 수행한다.
+직접 v31 소비자는 다음 순차 명령으로 검증한다.
+
+```bash
+for configuration in compileClasspath runtimeClasspath testCompileClasspath testRuntimeClasspath; do
+  python3 /tmp/issue-1640-bounded-run.py 600 ./gradlew --no-daemon :bluetape4k-examples-jpa-querydsl-demo:dependencyInsight --configuration "$configuration" --dependency jakarta.persistence || exit $?
+done
+```
+
+대표 POM은 같은 실행기로
+`:bluetape4k-spring-boot-hibernate-lettuce:generatePomFileForBluetape4kPublication`을 실행하고
+`spring-boot/hibernate-lettuce/build/publications/Bluetape4k/pom-default.xml`을 확인한다.
+실제 task 또는 publication 이름이 다르면 task 목록에서 확인한 이름으로 기록한다.
+
 - 승인 명세: [설계](../specs/2026-09-06-issue-1640-jpa-executor-contracts-design.md), SHA256 `57d0df0f6d1c6c4a21b38b1e73f7ea53ccb0a673c4508d81697cdc6de2ba1825`.
 - 명세 커밋: `f8c87c4d58b62cf6142aff1275784a440045c8dc`; 사용자의 후속 `승인`으로 작성된 명세 확인 완료.
 - 작업 위치: `/Users/debop/.config/superpowers/worktrees/bluetape4k-projects/test-issue-1640-jpa-executor-contracts`.
@@ -26,6 +71,7 @@
 
 | 파일 | 작업 |
 |---|---|
+| `build.gradle.kts:791` | `dependency(rootBt4k.jakarta.persistence.v31.get().toString())`를 `dependency(rootBt4k.jakarta.persistence.v32.get().toString())`로 교체하고 diff가 이 한 줄인지 확인 |
 | `spring-boot/hibernate-lettuce/build.gradle.kts` | 구버전 강제 제거, core testImplementation 1개 추가 |
 | `spring-boot/hibernate-lettuce-demo/build.gradle.kts` | 같은 구버전 강제 제거 |
 | `spring-boot/hibernate-lettuce/src/test/kotlin/io/bluetape4k/spring/boot/autoconfigure/jpa/executor/JpaExecutorContractTest.kt` | 아래 전체 fixture와 3+2+3 parameterized 사례 |
@@ -414,6 +460,7 @@ git diff --check
 
 | 명세 | 구현·검증 작업 |
 |---|---|
+| 승인 범위 추가 | root v31 → v32 한 줄, 직접 v31 소비자 4개 classpath, 대표 POM, 전체 build 및 후속 전역 테스트 증거 |
 | AC-01 | 작업 1 version RED, 작업 3 실제 graph |
 | AC-02 | 작업 2 기본 executor와 실제 저장·조회 |
 | AC-03 | 작업 2 EMF 생성자 의존 caller 2개 |
