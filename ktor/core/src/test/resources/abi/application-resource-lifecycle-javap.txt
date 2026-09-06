@@ -1,0 +1,73 @@
+Compiled from "ApplicationResourceLifecycle.kt"
+public final class io.bluetape4k.ktor.core.ApplicationResourceClosePhase extends java.lang.Enum<io.bluetape4k.ktor.core.ApplicationResourceClosePhase> {
+  public static final io.bluetape4k.ktor.core.ApplicationResourceClosePhase EARLY;
+  public static final io.bluetape4k.ktor.core.ApplicationResourceClosePhase SHUTDOWN;
+  public static final io.bluetape4k.ktor.core.ApplicationResourceClosePhase LATE_REGISTRATION;
+  public static io.bluetape4k.ktor.core.ApplicationResourceClosePhase[] values();
+  public static io.bluetape4k.ktor.core.ApplicationResourceClosePhase valueOf(java.lang.String);
+  public static kotlin.enums.EnumEntries<io.bluetape4k.ktor.core.ApplicationResourceClosePhase> getEntries();
+}
+Compiled from "ApplicationResourceLifecycle.kt"
+public final class io.bluetape4k.ktor.core.ApplicationResourceRegistryState extends java.lang.Enum<io.bluetape4k.ktor.core.ApplicationResourceRegistryState> {
+  public static final io.bluetape4k.ktor.core.ApplicationResourceRegistryState OPEN;
+  public static final io.bluetape4k.ktor.core.ApplicationResourceRegistryState DRAINING;
+  public static final io.bluetape4k.ktor.core.ApplicationResourceRegistryState CLOSED;
+  public static io.bluetape4k.ktor.core.ApplicationResourceRegistryState[] values();
+  public static io.bluetape4k.ktor.core.ApplicationResourceRegistryState valueOf(java.lang.String);
+  public static kotlin.enums.EnumEntries<io.bluetape4k.ktor.core.ApplicationResourceRegistryState> getEntries();
+}
+Compiled from "ApplicationResourceLifecycle.kt"
+public final class io.bluetape4k.ktor.core.ApplicationResourceCloseFailure implements java.io.Serializable {
+  public static final io.bluetape4k.ktor.core.ApplicationResourceCloseFailure$Companion Companion;
+  public io.bluetape4k.ktor.core.ApplicationResourceCloseFailure(long, io.bluetape4k.ktor.core.ApplicationResourceClosePhase, boolean);
+  public final long getRegistrationId();
+  public final io.bluetape4k.ktor.core.ApplicationResourceClosePhase getPhase();
+  public final boolean getFatal();
+  public final long component1();
+  public final io.bluetape4k.ktor.core.ApplicationResourceClosePhase component2();
+  public final boolean component3();
+  public final io.bluetape4k.ktor.core.ApplicationResourceCloseFailure copy(long, io.bluetape4k.ktor.core.ApplicationResourceClosePhase, boolean);
+  public static io.bluetape4k.ktor.core.ApplicationResourceCloseFailure copy$default(io.bluetape4k.ktor.core.ApplicationResourceCloseFailure, long, io.bluetape4k.ktor.core.ApplicationResourceClosePhase, boolean, int, java.lang.Object);
+  public java.lang.String toString();
+  public int hashCode();
+  public boolean equals(java.lang.Object);
+}
+Compiled from "ApplicationResourceLifecycle.kt"
+public final class io.bluetape4k.ktor.core.ApplicationResourceRegistry implements java.lang.AutoCloseable {
+  public static final io.bluetape4k.ktor.core.ApplicationResourceRegistry$Companion Companion;
+  public io.bluetape4k.ktor.core.ApplicationResourceRegistry();
+  public final io.bluetape4k.ktor.core.ApplicationResourceCloseReport getCloseReport();
+  public final io.bluetape4k.ktor.core.ApplicationResourceRegistration register(java.lang.AutoCloseable);
+  public final io.bluetape4k.ktor.core.ApplicationResourceRegistration register(kotlin.jvm.functions.Function0<kotlin.Unit>);
+  public void close();
+}
+Compiled from "ApplicationResourceLifecycle.kt"
+public final class io.bluetape4k.ktor.core.ApplicationResourceRegistration implements java.lang.AutoCloseable {
+  public final long getId();
+  public void close();
+  public io.bluetape4k.ktor.core.ApplicationResourceRegistration(long, kotlin.jvm.functions.Function0, kotlin.jvm.internal.DefaultConstructorMarker);
+}
+Compiled from "ApplicationResourceLifecycle.kt"
+public final class io.bluetape4k.ktor.core.ApplicationResourceCloseReport implements java.io.Serializable {
+  public static final io.bluetape4k.ktor.core.ApplicationResourceCloseReport$Companion Companion;
+  public io.bluetape4k.ktor.core.ApplicationResourceCloseReport(io.bluetape4k.ktor.core.ApplicationResourceRegistryState, int, int, int, java.util.List<io.bluetape4k.ktor.core.ApplicationResourceCloseFailure>);
+  public final io.bluetape4k.ktor.core.ApplicationResourceRegistryState getState();
+  public final int getAttempted();
+  public final int getInFlight();
+  public final int getClosed();
+  public final java.util.List<io.bluetape4k.ktor.core.ApplicationResourceCloseFailure> getFailures();
+  public final io.bluetape4k.ktor.core.ApplicationResourceRegistryState component1();
+  public final int component2();
+  public final int component3();
+  public final int component4();
+  public final java.util.List<io.bluetape4k.ktor.core.ApplicationResourceCloseFailure> component5();
+  public final io.bluetape4k.ktor.core.ApplicationResourceCloseReport copy(io.bluetape4k.ktor.core.ApplicationResourceRegistryState, int, int, int, java.util.List<io.bluetape4k.ktor.core.ApplicationResourceCloseFailure>);
+  public static io.bluetape4k.ktor.core.ApplicationResourceCloseReport copy$default(io.bluetape4k.ktor.core.ApplicationResourceCloseReport, io.bluetape4k.ktor.core.ApplicationResourceRegistryState, int, int, int, java.util.List, int, java.lang.Object);
+  public java.lang.String toString();
+  public int hashCode();
+  public boolean equals(java.lang.Object);
+}
+Compiled from "ApplicationResourceLifecycle.kt"
+public final class io.bluetape4k.ktor.core.ApplicationResourceLifecycleKt {
+  public static final io.bluetape4k.ktor.core.ApplicationResourceRegistry installApplicationResourceLifecycle(io.ktor.server.application.Application);
+}
