@@ -227,7 +227,7 @@ backend ownership은 caller adapter에 남긴다.
                       val handle = registrar.subscribe(::onStopped)
                       subscription = handle
                       state = InstallState.READY
-                      null
+                      return registry
                   } catch (_: Throwable) {
                       state = InstallState.FAILED
                       sanitizedInstallationFailure()
@@ -290,6 +290,7 @@ backend ownership은 caller adapter에 남긴다.
           val install = executor.submit<ApplicationResourceRegistry> { holder.install() }
           registrar.handlerRegistered.await(5, TimeUnit.SECONDS).shouldBeTrue()
           val stop = executor.submit { registrar.raiseStopped() }
+          registrar.callbackStarted.await(5, TimeUnit.SECONDS).shouldBeTrue()
           registrar.allowHandleReturn.countDown()
           install.get(5, TimeUnit.SECONDS) shouldBeSameInstanceAs holder.registry
           stop.get(5, TimeUnit.SECONDS)
@@ -316,9 +317,11 @@ backend ownership은 caller adapter에 남긴다.
   ```
 
   `RecordingRegistrar`는 raw `subscribeCount`, callback, 반환 handle의 `disposeCount`를 각각
-  보유한다. `BlockingRecordingRegistrar`는 handler 저장 뒤 handle 반환 직전 latch에서 멈춰
-  callback/handle-publication race를 결정적으로 만든다. holder는 subscribe와 handle 저장을 같은
-  lock에서 수행하고 callback도 같은 lock에서 handle을 claim하므로 dispose owner는 하나다.
+  보유한다. `BlockingRecordingRegistrar`는 handler 저장 뒤 handle 반환 직전 latch에서 멈추고,
+  `raiseStopped()`가 handler 호출 직전에 `callbackStarted`를 count down한다. test는 callback 시작을
+  await한 뒤 handle 반환을 허용해 callback/handle-publication race를 결정적으로 만든다. holder는
+  subscribe와 handle 저장을 같은 lock에서 수행하고 callback도 같은 lock에서 handle을 claim하므로
+  dispose owner는 하나다.
   `FailingRegistrar`는 handle을 반환하지 않고 subscribe에서 throw하므로 orphan handle 수는 0이다.
   handle 반환 뒤 holder에는 fallible 설치 단계가 없으며, dispose failure는 callback test에서
   별도로 주입해 report 보존과 sanitized logging을 확인한다.
