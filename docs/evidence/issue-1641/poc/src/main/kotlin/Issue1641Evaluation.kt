@@ -125,6 +125,8 @@ private fun verifyIncrementalArray(fory: ForyJson) {
     }
     check(!decoder.finish())
     check(restored.map { it.id } == listOf(AccountId(7), AccountId(9)))
+    check(runCatching { decoder.decodeNext(ByteBuffer.wrap(byteArrayOf())) }.exceptionOrNull() is IllegalStateException)
+    check(runCatching { decoder.finish() }.exceptionOrNull() is IllegalStateException)
     println("ARRAY PASS records=${restored.size} chunks=${(bytes.size + 4) / 5}")
 }
 
@@ -141,7 +143,24 @@ private fun verifyFailureAndLimit(fory: ForyJson) {
     }.exceptionOrNull()
     check(failure is JsonStreamValueLimitException)
     check(runCatching { limited.decodeNext(ByteBuffer.wrap(byteArrayOf())) }.exceptionOrNull() is IllegalStateException)
-    println("FAILURE PASS malformed=terminal limit=${failure.maxValueBytes}")
+
+    val malformedArray = fory.newArrayStreamDecoder(type, 1_024)
+    malformedArray.decodeNext(ByteBuffer.wrap("[{\"id\":".toByteArray()))
+    check(runCatching { malformedArray.finish() }.isFailure)
+    check(runCatching { malformedArray.finish() }.exceptionOrNull() is IllegalStateException)
+
+    val limitedArray = fory.newArrayStreamDecoder(type, 16)
+    val arrayLimitFailure = runCatching {
+        limitedArray.decodeNext(ByteBuffer.wrap("[{\"name\":\"0123456789\"}]".toByteArray()))
+    }.exceptionOrNull()
+    check(arrayLimitFailure is JsonStreamValueLimitException)
+    check(
+        runCatching { limitedArray.decodeNext(ByteBuffer.wrap(byteArrayOf())) }.exceptionOrNull() is IllegalStateException,
+    )
+    println(
+        "FAILURE PASS ndjsonMalformed=terminal ndjsonLimit=${failure.maxValueBytes} " +
+            "arrayMalformed=terminal arrayLimit=${arrayLimitFailure.maxValueBytes} arraySuccess=terminal",
+    )
 }
 
 private fun compareRepresentations(fory: ForyJson) {
@@ -167,27 +186,22 @@ private fun compareRepresentations(fory: ForyJson) {
     check(jackson.readValue<FlatAccount>(jacksonJson).payload.contentEquals(flat.payload))
     check(JSON.parseObject(fastjson, FlatAccount::class.java).payload.contentEquals(flat.payload))
     val crossReads = linkedMapOf(
-        "Fory<-Jackson" to runCatching { fory.fromJson(jacksonJson, type).sameValueAs(flat) }.getOrDefault(false),
-        "Fory<-Fastjson2" to runCatching { fory.fromJson(fastjson, type).sameValueAs(flat) }.getOrDefault(false),
-        "Jackson<-Fory" to runCatching { jackson.readValue<FlatAccount>(foryJson).sameValueAs(flat) }.getOrDefault(false),
-        "Jackson<-Fastjson2" to runCatching { jackson.readValue<FlatAccount>(fastjson).sameValueAs(flat) }.getOrDefault(false),
-        "Fastjson2<-Fory" to runCatching {
+        "Fory<-Jackson" to observeCrossRead { fory.fromJson(jacksonJson, type).sameValueAs(flat) },
+        "Fory<-Fastjson2" to observeCrossRead { fory.fromJson(fastjson, type).sameValueAs(flat) },
+        "Jackson<-Fory" to observeCrossRead { jackson.readValue<FlatAccount>(foryJson).sameValueAs(flat) },
+        "Jackson<-Fastjson2" to observeCrossRead { jackson.readValue<FlatAccount>(fastjson).sameValueAs(flat) },
+        "Fastjson2<-Fory" to observeCrossRead {
             JSON.parseObject(foryJson, FlatAccount::class.java).sameValueAs(flat)
-        }.getOrDefault(false),
-        "Fastjson2<-Jackson" to runCatching {
+        },
+        "Fastjson2<-Jackson" to observeCrossRead {
             JSON.parseObject(jacksonJson, FlatAccount::class.java).sameValueAs(flat)
-        }.getOrDefault(false),
+        },
     )
-    check(
-        crossReads == linkedMapOf(
-            "Fory<-Jackson" to true,
-            "Fory<-Fastjson2" to false,
-            "Jackson<-Fory" to true,
-            "Jackson<-Fastjson2" to true,
-            "Fastjson2<-Fory" to false,
-            "Fastjson2<-Jackson" to false,
-        ),
-    )
+    check(crossReads.filterKeys { it in setOf("Fory<-Jackson", "Jackson<-Fory", "Jackson<-Fastjson2") }
+        .values.all { it.compatible })
+    check(crossReads["Fory<-Fastjson2"]?.failureType == "org.apache.fory.json.ForyJsonException")
+    check(crossReads["Fastjson2<-Fory"]?.failureType == "com.alibaba.fastjson2.JSONException")
+    check(crossReads["Fastjson2<-Jackson"]?.failureType == "com.alibaba.fastjson2.JSONException")
     println(
         "REPRESENTATION Fory=${foryJson.toByteArray().size} " +
             "Jackson=${jacksonJson.toByteArray().size} Fastjson2=${fastjson.toByteArray().size} " +
@@ -220,6 +234,19 @@ private data class BackendMeasurement(
     val allocatedBytesPerOperation: Long,
     val peakHeapDeltaBytes: Long,
 )
+
+private data class CrossReadObservation(
+    val compatible: Boolean,
+    val failureType: String? = null,
+)
+
+private fun observeCrossRead(read: () -> Boolean): CrossReadObservation =
+    try {
+        if (read()) CrossReadObservation(compatible = true)
+        else CrossReadObservation(compatible = false, failureType = "VALUE_MISMATCH")
+    } catch (failure: Exception) {
+        CrossReadObservation(compatible = false, failureType = failure::class.java.name)
+    }
 
 private fun measureBackend(name: String, iterations: Int, encode: () -> String): BackendMeasurement {
     val threadBean = ManagementFactory.getThreadMXBean() as? ThreadMXBean

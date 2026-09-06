@@ -41,6 +41,11 @@ generic type과 제한된 증분 decoder를 제공한다. 기능 목록만 보�
 특히 Fastjson2의 numeric byte array와 Fory/Jackson의 Base64가 만드는 cross-read
 비대칭을 크기 비교만으로 숨기지 않게 됐다.
 
+2차 리뷰는 cross-read 실패를 boolean으로 축약하면 예상 불호환과 뜻밖의 backend
+오류를 구분할 수 없고, array decoder의 terminal lifecycle도 빠졌음을 지적했다.
+실패 조합별 `ForyJsonException`/`JSONException` 유형과 array malformed/limit,
+성공·실패 뒤 재사용 금지를 assertion으로 고정했다.
+
 ## 검증
 
 - `./gradlew -p docs/evidence/issue-1641/poc run --no-daemon`
@@ -48,4 +53,4 @@ generic type과 제한된 증분 decoder를 제공한다. 기능 목록만 보�
   malformed/limit 항목 PASS
 - backend 표현/cross-read와 latency/allocation/peak heap 관찰 결과는
   `docs/superpowers/research/2026-09-06-issue-1641-fory-json-evaluation.md`에 기록
-- 독립 리뷰 최초 P0=0/P1=0/P2=4, 보완 후 재검토 대기
+- 독립 리뷰 최초 P0=0/P1=0/P2=4, 2차 P2=2, 두 차례 보완 후 최종 재검토 대기

@@ -56,9 +56,9 @@ JDK 25에서는 Fory가 사용하는 `java.lang.invoke` 경로를 위해 PoC의
 | generic root | PASS/제약 | `jsonTypeRef<List<Account>>()`는 복원, raw `List::class.java`는 `JsonObject` 반환 |
 | sealed hierarchy | PASS/명시 필요 | `@JsonSubTypes(property = "type")`로 폐쇄 subtype table 지정 |
 | NDJSON decoder | PASS | 1바이트 chunk로 UTF-8 code point 중간 분할, LF/CRLF, final newline 없음, 3건 복원 |
-| array decoder | PASS | 5바이트 chunk, 2건 복원 |
+| array decoder | PASS | 5바이트 chunk, 2건 복원, 성공 뒤 terminal 상태 |
 | malformed/truncated | PASS | `finish()` 실패 후 decoder가 terminal 상태 유지 |
-| `maxValueBytes` | PASS | 16바이트 제한에서 `JsonStreamValueLimitException` |
+| `maxValueBytes` | PASS | NDJSON/array 모두 16바이트 제한에서 `JsonStreamValueLimitException` |
 | `Long` | PASS | `writeLongAsString(true)`에서 `Long.MAX_VALUE`를 문자열로 출력 |
 | `ByteArray` | PASS | `AAECf/8=` Base64 문자열로 출력 |
 
@@ -89,19 +89,23 @@ reader가 writer의 JSON을 동일 `FlatAccount`로 복원하는 cross-read 결�
 | Jackson | PASS | PASS | PASS |
 | Fastjson2 | FAIL | FAIL | PASS |
 
+실패 조합은 단순 boolean으로 축약하지 않는다. Fory가 Fastjson2 numeric byte array를
+읽을 때는 `ForyJsonException`, Fastjson2가 Fory/Jackson Base64 byte string을 읽을
+때는 `JSONException`임을 PoC assertion으로 고정한다. 다른 예외 유형은 평가 실패다.
+
 ## latency·allocation·peak heap 관찰
 
 각 backend를 2,000회 warmup한 뒤 고정 `FlatAccount`를 20,000회 직렬화했다.
 JDK `ThreadMXBean`으로 현재 thread allocation을, heap memory pool의 peak를 reset한
 뒤 실행 전 사용량 대비 peak 증가량을 함께 관찰했다.
 
-| backend | latency | thread allocation | peak heap 증가 |
+| backend | 관찰 latency 범위 | thread allocation | peak heap 증가 |
 | --- | ---: | ---: | ---: |
-| Fory JSON | 279 ns/op | 112 B/op | 0 B |
-| Jackson | 701 ns/op | 584 B/op | 8,388,608 B |
-| Fastjson2 | 363 ns/op | 280 B/op | 0 B |
+| Fory JSON | 271–288 ns/op | 112 B/op | 0 B |
+| Jackson | 508–968 ns/op | 584 B/op | 8,388,608 B |
+| Fastjson2 | 348–606 ns/op | 280 B/op | 0 B |
 
-이 값은 로컬 GraalVM JDK 25의 단일 process에서 실행한 짧은 diagnostic이다.
+이 값은 로컬 GraalVM JDK 25에서 반복 실행한 짧은 diagnostic의 관찰 범위다.
 `ThreadMXBean` 값은 현재 thread allocation만 포함하고, peak heap 증가는 memory pool
 region 단위라서 0 B는 무할당이 아니라 기존 pool 범위 안에서 실행됐다는 뜻이다.
 JMH benchmark, allocation profiler, parser 비용, 실제 payload 분포를 대신하지 않으며
@@ -149,4 +153,6 @@ production 성능 순위를 주장하지 않는다.
 
 독립 exact-diff 검토에서 누락됐던 nullable collection element, 실제 default-field
 제거, UTF-8 중간 분할, backend cross-read와 allocation/peak heap 근거를 PoC에
-추가했다. 보완 후 동일 재현 명령이 전 항목과 `BUILD SUCCESSFUL`을 출력한다.
+추가했다. 2차 검토에서 cross-read 실패 예외 유형과 array decoder의 실패·성공 후
+terminal lifecycle을 더 고정했다. 보완 후 동일 재현 명령이 전 항목과
+`BUILD SUCCESSFUL`을 출력한다.
