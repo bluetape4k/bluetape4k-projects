@@ -240,7 +240,9 @@ reader.use {
 초과한 line은 범위를 벗어난 첫 code unit을 읽는 즉시 `LineLimitExceededException`을
 발생시키고 부분 line을 반환하지 않습니다. wrapper는 고정 read buffer를 사용하고
 제공받은 `Reader`를 닫지 않으므로 Reader 수명, timeout, blocking 동작과 JSON/NDJSON
-parsing은 호출자가 책임집니다.
+parsing은 호출자가 책임집니다. `maxLineChars`와 `bufferSize`는 read-ahead 경계이지
+프로세스 전체 heap 예산이 아니므로, 외부 설정값은 배포 메모리 예산에 맞는 안전한
+범위로 제한해야 합니다.
 
 ### 압축
 

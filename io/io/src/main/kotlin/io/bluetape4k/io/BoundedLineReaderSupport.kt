@@ -33,6 +33,8 @@ class LineLimitExceededException(
  *
  * 내부 buffer는 [bufferSize]로 고정하고, 현재 줄의 허용량을 넘는 bulk read를 요청하지
  * 않습니다. CR 뒤의 LF를 확인할 때만 다음 code unit 하나를 미리 읽을 수 있습니다.
+ * 이 read-ahead 경계가 프로세스 전체 heap 사용량을 제한하지는 않으므로, 외부 설정으로
+ * 두 상한을 받을 때는 호출자가 배포 환경의 메모리 예산 안에서 허용 범위를 제한해야 합니다.
  * 이 wrapper는 원본 [Reader]를 닫지 않으므로 성공·EOF·실패 후의 close는 호출자가
  * 소유합니다. 읽기는 blocking일 수 있으므로 timeout과 coroutine dispatcher도 호출자가
  * 구성해야 합니다.

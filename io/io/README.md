@@ -242,6 +242,8 @@ An over-limit line throws `LineLimitExceededException` as soon as its first
 out-of-range code unit is read; no partial line is returned. The wrapper uses a
 fixed read buffer and does not close the supplied `Reader`, so the caller owns
 the reader lifecycle, timeouts, blocking behavior, and any JSON/NDJSON parsing.
+These limits bound read-ahead, not total process heap, so externally configured
+values must be capped against the deployment's memory budget.
 
 ### Compression
 
