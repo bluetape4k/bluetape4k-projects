@@ -13,6 +13,7 @@ import io.lettuce.core.api.StatefulRedisConnection
 import io.lettuce.core.api.async.RedisAsyncCommands
 import io.lettuce.core.codec.StringCodec
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -21,14 +22,17 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.currentCoroutineContext
+import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.future.await
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.time.delay
 import kotlinx.coroutines.withContext
+import kotlinx.coroutines.withTimeout
 import kotlinx.coroutines.withTimeoutOrNull
 import java.io.Closeable
+import java.util.concurrent.atomic.AtomicReference
 
 /**
  * Lettuce(Redis) 기반 코루틴 네이티브 Read-through / Write-through / Write-behind Map.
@@ -107,6 +111,10 @@ class LettuceSuspendedLoadedMap<K: Any, V: Any>(
         writeBehindChannel?.let {
             ownedScope.launch { consumeWriteBehindChannel() }
         }
+
+    // 호출자 취소/timeout과 독립적으로 accepted entry 보존과 resource cleanup을 끝까지 수행한다.
+    private val shutdownScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+    private val shutdownAttempt = AtomicReference<CompletableDeferred<Result<Unit>>?>()
 
     private fun redisKey(key: K): String = "${config.keyPrefix}:${keySerializer(key)}"
 
@@ -344,18 +352,12 @@ class LettuceSuspendedLoadedMap<K: Any, V: Any>(
     private suspend fun writeToDeadLetter(batch: Map<K, V>) {
         // HSET (recovery values) first; LPUSH (monitoring keys) only on success.
         // Two commands use different codec connections so MULTI/EXEC is not possible.
-        try {
-            val deadLetterKey = "${config.keyPrefix}:dead-letter"
-            val deadLetterValuesKey = "${config.keyPrefix}:dead-letter:values"
-            val valueMap = batch.entries.associate { (k, v) -> keySerializer(k) to v }
-            asyncCommands.hset(deadLetterValuesKey, valueMap).await()
-            val serializedKeys = batch.keys.map { keySerializer(it) }
-            strAsyncCommands.lpush(deadLetterKey, *serializedKeys.toTypedArray()).await()
-        } catch (e: CancellationException) {
-            throw e
-        } catch (e: Exception) {
-            log.error(e) { "Dead letter 기록 실패" }
-        }
+        val deadLetterKey = "${config.keyPrefix}:dead-letter"
+        val deadLetterValuesKey = "${config.keyPrefix}:dead-letter:values"
+        val valueMap = batch.entries.associate { (k, v) -> keySerializer(k) to v }
+        asyncCommands.hset(deadLetterValuesKey, valueMap).await()
+        val serializedKeys = batch.keys.map { keySerializer(it) }
+        strAsyncCommands.lpush(deadLetterKey, *serializedKeys.toTypedArray()).await()
     }
 
     private suspend fun flushBatch(entries: List<Triple<K, V, Int>>) {
@@ -365,9 +367,7 @@ class LettuceSuspendedLoadedMap<K: Any, V: Any>(
         try {
             writer?.write(batch)
         } catch (e: CancellationException) {
-            withContext(NonCancellable) {
-                writeToDeadLetter(batch)
-            }
+            latestEntries.forEach(writeBehindRetryQueue::addLast)
             throw e
         } catch (e: Exception) {
             val attempts = latestEntries.map { it.third + 1 }
@@ -382,15 +382,29 @@ class LettuceSuspendedLoadedMap<K: Any, V: Any>(
                 }
             }
             if (deadLetters.isNotEmpty()) {
-                writeToDeadLetter(deadLetters)
+                try {
+                    writeToDeadLetter(deadLetters)
+                } catch (failure: CancellationException) {
+                    enqueueDeadLetterRetry(deadLetters)
+                    throw failure
+                } catch (failure: Exception) {
+                    enqueueDeadLetterRetry(deadLetters)
+                    log.error(failure) { "Dead letter 기록 실패; accepted entry를 retry queue에 보존합니다" }
+                }
             }
         }
     }
 
-    private suspend fun awaitWriteBehindDrain(shutdownMethod: String) {
+    private fun enqueueDeadLetterRetry(deadLetters: Map<K, V>) {
+        deadLetters.forEach { (key, value) ->
+            writeBehindRetryQueue.addLast(Triple(key, value, MAX_DEAD_LETTER_RETRY - 1))
+        }
+    }
+
+    private suspend fun awaitWriteBehindDrain(shutdownMethod: String, timeoutMillis: Long) {
         writeBehindChannel?.close()
         val drained = writeBehindJob?.let { job ->
-            withTimeoutOrNull(config.writeBehindShutdownTimeout.toMillis()) {
+            withTimeoutOrNull(timeoutMillis) {
                 job.join()
                 true
             }
@@ -403,23 +417,67 @@ class LettuceSuspendedLoadedMap<K: Any, V: Any>(
     private suspend fun cancelAndPersistPendingWriteBehind() {
         writeBehindJob?.cancelAndJoin()
 
-        val pendingEntries = buildList {
-            addAll(writeBehindRetryQueue)
-            writeBehindRetryQueue.clear()
-            val channel = writeBehindChannel
-            if (channel != null) {
-                while (true) {
-                    add(channel.tryReceive().getOrNull() ?: break)
-                }
+        val channel = writeBehindChannel
+        if (channel != null) {
+            while (true) {
+                writeBehindRetryQueue.addLast(channel.tryReceive().getOrNull() ?: break)
             }
         }
-        val latestPending = pendingEntries
+        val latestPending = writeBehindRetryQueue
             .associateBy { it.first }
             .values
             .associate { (key, value, _) -> key to value }
         if (latestPending.isNotEmpty()) {
             writeToDeadLetter(latestPending)
+            writeBehindRetryQueue.clear()
         }
+    }
+
+    private suspend fun shutdown(shutdownMethod: String) {
+        val timeoutMillis = config.writeBehindShutdownTimeout.toMillis().coerceAtLeast(1L)
+        while (true) {
+            val activeAttempt = shutdownAttempt.get()
+            if (activeAttempt != null) {
+                awaitShutdownAttempt(activeAttempt, timeoutMillis)
+                return
+            }
+
+            val newAttempt = CompletableDeferred<Result<Unit>>()
+            if (!shutdownAttempt.compareAndSet(null, newAttempt)) {
+                continue
+            }
+
+            shutdownScope.launch {
+                val result = runCatching {
+                    performShutdown(shutdownMethod, timeoutMillis)
+                }
+                newAttempt.complete(result)
+                if (result.isFailure) {
+                    // performShutdown이 완전히 끝난 뒤에만 retry를 허용해 shutdown 경합을 막는다.
+                    shutdownAttempt.compareAndSet(newAttempt, null)
+                }
+            }
+            awaitShutdownAttempt(newAttempt, timeoutMillis)
+            return
+        }
+    }
+
+    private suspend fun awaitShutdownAttempt(
+        attempt: CompletableDeferred<Result<Unit>>,
+        timeoutMillis: Long,
+    ) {
+        withTimeout(timeoutMillis) {
+            attempt.await().getOrThrow()
+        }
+    }
+
+    private suspend fun performShutdown(shutdownMethod: String, timeoutMillis: Long) {
+        val drainTimeout = (timeoutMillis / 2L).coerceAtLeast(1L)
+        awaitWriteBehindDrain(shutdownMethod, drainTimeout)
+        cancelAndPersistPendingWriteBehind()
+        ownedJob.cancel()
+        if (lazyStrConnection.isInitialized()) lazyStrConnection.value.close()
+        connection.close()
     }
 
     /**
@@ -432,23 +490,19 @@ class LettuceSuspendedLoadedMap<K: Any, V: Any>(
     override fun close() {
         try {
             runBlocking(Dispatchers.IO) {
-                try {
-                    awaitWriteBehindDrain("close()")
-                } finally {
-                    withContext(NonCancellable) {
-                        cancelAndPersistPendingWriteBehind()
-                    }
-                }
+                shutdown("close()")
             }
         } catch (e: InterruptedException) {
+            // runBlocking 진입 전 interrupt도 cleanup 시작을 막지 않도록 잠시 상태를 지운다.
+            Thread.interrupted()
+            val cleanupResult = runCatching {
+                runBlocking(Dispatchers.IO) {
+                    shutdown("close() interrupted")
+                }
+            }
             Thread.currentThread().interrupt()
-            log.warn(e) { "Write-behind job drain interrupted during close(); interrupt status restored" }
-        } catch (e: Exception) {
-            log.warn(e) { "Write-behind job drain timed out or failed during close()" }
-        } finally {
-            ownedJob.cancel()
-            if (lazyStrConnection.isInitialized()) lazyStrConnection.value.close()
-            connection.close()
+            log.warn(e) { "Write-behind job drain interrupted during close(); cleanup completed and interrupt status restored" }
+            cleanupResult.getOrThrow()
         }
     }
 
@@ -457,21 +511,14 @@ class LettuceSuspendedLoadedMap<K: Any, V: Any>(
      *
      * This is the coroutine-safe alternative to [close]. Call this from a coroutine
      * context to avoid thread blocking while waiting for the write-behind job to drain.
+     * 호출 대기 시간이 shutdown timeout을 넘으면 [kotlinx.coroutines.TimeoutCancellationException]을
+     * 던지지만, 이미 시작한 cleanup은 독립 scope에서 계속되며 후속 호출은 같은 결과를 기다립니다.
      */
     suspend fun suspendClose() {
-        try {
-            awaitWriteBehindDrain("suspendClose()")
-        } catch (e: CancellationException) {
-            throw e
-        } catch (e: Exception) {
-            log.warn(e) { "Write-behind job drain failed during suspendClose()" }
-        } finally {
-            withContext(NonCancellable) {
-                cancelAndPersistPendingWriteBehind()
-                ownedJob.cancel()
-                if (lazyStrConnection.isInitialized()) lazyStrConnection.value.close()
-                connection.close()
-            }
+        val callerContext = currentCoroutineContext()
+        withContext(NonCancellable + Dispatchers.IO) {
+            shutdown("suspendClose()")
         }
+        callerContext.ensureActive()
     }
 }

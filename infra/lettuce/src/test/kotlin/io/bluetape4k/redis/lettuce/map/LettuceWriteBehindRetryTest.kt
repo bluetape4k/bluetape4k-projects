@@ -1,5 +1,6 @@
 package io.bluetape4k.redis.lettuce.map
 
+import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeNull
 import io.bluetape4k.io.serializer.BinarySerializers
@@ -7,6 +8,11 @@ import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.redis.lettuce.AbstractLettuceTest
 import io.bluetape4k.redis.lettuce.codec.LettuceBinaryCodec
 import io.lettuce.core.codec.StringCodec
+import io.lettuce.core.api.StatefulRedisConnection
+import kotlinx.coroutines.NonCancellable
+import kotlinx.coroutines.TimeoutCancellationException
+import kotlinx.coroutines.async
+import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
@@ -14,14 +20,18 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.withContext
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.Test
 import java.time.Duration
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.Executors
 import java.util.concurrent.LinkedBlockingDeque
 import java.util.concurrent.atomic.AtomicInteger
+import kotlin.system.measureTimeMillis
 import kotlin.reflect.full.callSuspend
 import kotlin.reflect.full.declaredMemberFunctions
 import kotlin.reflect.jvm.isAccessible
@@ -320,14 +330,30 @@ internal class LettuceWriteBehindRetryTest: AbstractLettuceTest() {
             writeBehindDelay = Duration.ofMillis(1),
             writeBehindBatchSize = 2,
         )
+        val executor = Executors.newSingleThreadExecutor()
+        val consumerDispatcher = executor.asCoroutineDispatcher()
+        val blockerStarted = CountDownLatch(1)
+        val releaseConsumer = CountDownLatch(1)
+        executor.submit {
+            blockerStarted.countDown()
+            releaseConsumer.await()
+        }
+        blockerStarted.await()
+        val consumerScope = CoroutineScope(SupervisorJob() + consumerDispatcher)
 
-        suspendedMap = LettuceSuspendedLoadedMap(client = client, writer = writer, config = config)
+        suspendedMap = LettuceSuspendedLoadedMap(
+            client = client,
+            writer = writer,
+            config = config,
+            scope = consumerScope,
+        )
         try {
             suspendedMap.writeBehindChannel().apply {
                 trySend(Triple("same-key", "old-value", 0)).isSuccess shouldBeEqualTo true
                 trySend(Triple("same-key", "latest-retried-value", 0)).isSuccess shouldBeEqualTo true
             }
 
+            releaseConsumer.countDown()
             kotlinx.coroutines.withTimeout(5_000L) {
                 latestWritten.await()
             }
@@ -343,7 +369,10 @@ internal class LettuceWriteBehindRetryTest: AbstractLettuceTest() {
                     "latest-retried-value"
             }
         } finally {
+            releaseConsumer.countDown()
             suspendedMap.suspendClose()
+            consumerScope.cancel()
+            consumerDispatcher.close()
         }
     }
 
@@ -427,6 +456,118 @@ internal class LettuceWriteBehindRetryTest: AbstractLettuceTest() {
     }
 
     @Test
+    fun `dead-letter HSET 실패 시 accepted entry를 retry queue에 보존한다`() = runSuspendIO {
+        val writer = object: SuspendedMapWriter<String, String> {
+            override suspend fun write(map: Map<String, String>) = error("simulated write failure")
+
+            override suspend fun delete(keys: Collection<String>) = Unit
+        }
+        val cancelledScope = CoroutineScope(SupervisorJob() + Dispatchers.IO).also { it.cancel() }
+        val map = LettuceSuspendedLoadedMap(
+            client = client,
+            writer = writer,
+            config = LettuceCacheConfig.WRITE_BEHIND,
+            scope = cancelledScope,
+        )
+        map.valueConnection().close()
+
+        map.flushBatch(listOf(Triple("failed-key", "failed-value", 2)))
+
+        map.writeBehindRetryQueue().toList() shouldBeEqualTo
+            listOf(Triple("failed-key", "failed-value", 2))
+    }
+
+    @Test
+    fun `dead-letter LPUSH 실패 시 accepted entry를 retry queue에 보존한다`() = runSuspendIO {
+        val writer = object: SuspendedMapWriter<String, String> {
+            override suspend fun write(map: Map<String, String>) = error("simulated write failure")
+
+            override suspend fun delete(keys: Collection<String>) = Unit
+        }
+        val cancelledScope = CoroutineScope(SupervisorJob() + Dispatchers.IO).also { it.cancel() }
+        val map = LettuceSuspendedLoadedMap(
+            client = client,
+            writer = writer,
+            config = LettuceCacheConfig.WRITE_BEHIND,
+            scope = cancelledScope,
+        )
+        map.stringConnection().close()
+
+        map.flushBatch(listOf(Triple("failed-key", "failed-value", 2)))
+
+        map.writeBehindRetryQueue().toList() shouldBeEqualTo
+            listOf(Triple("failed-key", "failed-value", 2))
+        map.valueConnection().close()
+    }
+
+    @Test
+    fun `close와 suspendClose 동시 호출은 하나의 shutdown 결과를 공유한다`() = runSuspendIO {
+        val prefix = "shared-shutdown:${randomName()}"
+        val cancelledScope = CoroutineScope(SupervisorJob() + Dispatchers.IO).also { it.cancel() }
+        val config = LettuceCacheConfig.WRITE_BEHIND.copy(
+            keyPrefix = prefix,
+            writeBehindShutdownTimeout = Duration.ofSeconds(2),
+        )
+        val map = LettuceSuspendedLoadedMap<String, String>(
+            client = client,
+            config = config,
+            scope = cancelledScope,
+        )
+        map.writeBehindChannel()
+            .trySend(Triple("pending-key", "pending-value", 0))
+            .isSuccess shouldBeEqualTo true
+
+        val blockingClose = async(Dispatchers.IO) { map.close() }
+        val suspendingClose = async { map.suspendClose() }
+        blockingClose.await()
+        suspendingClose.await()
+
+        client.connect(StringCodec.UTF8).use { connection ->
+            connection.sync().lrange("$prefix:dead-letter", 0L, -1L) shouldBeEqualTo listOf("pending-key")
+        }
+    }
+
+    @Test
+    fun `non-cooperative writer에서도 shutdown timeout 상한을 지킨다`() = runSuspendIO {
+        val writerStarted = CompletableDeferred<Unit>()
+        val releaseWriter = CompletableDeferred<Unit>()
+        val writeCalls = AtomicInteger()
+        val writer = object: SuspendedMapWriter<String, String> {
+            override suspend fun write(map: Map<String, String>) {
+                writeCalls.incrementAndGet()
+                writerStarted.complete(Unit)
+                withContext(NonCancellable) {
+                    releaseWriter.await()
+                }
+            }
+
+            override suspend fun delete(keys: Collection<String>) = Unit
+        }
+        val config = LettuceCacheConfig.WRITE_BEHIND.copy(
+            keyPrefix = "bounded-shutdown:${randomName()}",
+            writeBehindShutdownTimeout = Duration.ofMillis(100),
+        )
+        val map = LettuceSuspendedLoadedMap(client = client, writer = writer, config = config)
+        map.set("in-flight", "value")
+        writerStarted.await()
+
+        val elapsedMillis = measureTimeMillis {
+            assertFailsWith<TimeoutCancellationException> {
+                map.suspendClose()
+            }
+        }
+
+        (elapsedMillis < 1_000L) shouldBeEqualTo true
+        assertFailsWith<TimeoutCancellationException> {
+            map.suspendClose()
+        }
+        writeCalls.get() shouldBeEqualTo 1
+        releaseWriter.complete(Unit)
+        map.suspendClose()
+        map.valueConnection().isOpen shouldBeEqualTo false
+    }
+
+    @Test
     fun `suspendClose timeout은 처리 중 entry와 channel 잔여분을 dead-letter에 보존한다`() = runSuspendIO {
         val prefix = "suspend-close-recovery:${randomName()}"
         val writerStarted = CompletableDeferred<Unit>()
@@ -442,7 +583,7 @@ internal class LettuceWriteBehindRetryTest: AbstractLettuceTest() {
             keyPrefix = prefix,
             writeBehindDelay = Duration.ofDays(1),
             writeBehindBatchSize = 1,
-            writeBehindShutdownTimeout = Duration.ofMillis(20),
+            writeBehindShutdownTimeout = Duration.ofMillis(500),
         )
         val map = LettuceSuspendedLoadedMap(client = client, writer = writer, config = config)
 
@@ -473,7 +614,7 @@ internal class LettuceWriteBehindRetryTest: AbstractLettuceTest() {
             keyPrefix = prefix,
             writeBehindDelay = Duration.ofDays(1),
             writeBehindBatchSize = 1,
-            writeBehindShutdownTimeout = Duration.ofMillis(20),
+            writeBehindShutdownTimeout = Duration.ofMillis(500),
         )
         val map = LettuceSuspendedLoadedMap(client = client, writer = writer, config = config)
 
@@ -518,5 +659,20 @@ internal class LettuceWriteBehindRetryTest: AbstractLettuceTest() {
         val method = this::class.declaredMemberFunctions.single { it.name == "flushBatch" }
         method.isAccessible = true
         method.callSuspend(this, entries)
+    }
+
+    @Suppress("UNCHECKED_CAST")
+    private fun LettuceSuspendedLoadedMap<String, String>.valueConnection():
+        StatefulRedisConnection<String, String> = javaClass.getDeclaredField("connection")
+            .apply { isAccessible = true }
+            .get(this) as StatefulRedisConnection<String, String>
+
+    @Suppress("UNCHECKED_CAST")
+    private fun LettuceSuspendedLoadedMap<String, String>.stringConnection():
+        StatefulRedisConnection<String, String> {
+        val connection = javaClass.getDeclaredField("lazyStrConnection")
+            .apply { isAccessible = true }
+            .get(this) as Lazy<StatefulRedisConnection<String, String>>
+        return connection.value
     }
 }
