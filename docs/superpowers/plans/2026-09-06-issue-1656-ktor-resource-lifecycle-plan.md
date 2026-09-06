@@ -76,9 +76,67 @@ backend ownership은 caller adapter에 남긴다.
   - 부분 실패 계속 진행 및 EARLY/SHUTDOWN/LATE report 누적
   - latch로 고정한 `DRAINING/inFlight` 읽기 결과와 counter invariant
   - fatal `Error` 뒤 나머지 cleanup과 sanitized marker
+  - `register { job.cancel() }` 뒤 독립 `Job.isCancelled == true`
   - 경합 반복에서 double close와 미종료 항목 없음
   - close action이 caller thread에서 실행됨
 - [ ] production 파일이 없는 상태에서 compile 실패가 새 API 부재 때문인지 확인한다.
+
+  핵심 test 코드는 다음 oracle을 그대로 사용한다.
+
+  ```kotlin
+  @Test
+  fun `report invariant remains valid while shutdown action is in flight`() {
+      val started = CountDownLatch(1)
+      val release = CountDownLatch(1)
+      val registry = ApplicationResourceRegistry()
+      registry.register {
+          started.countDown()
+          release.await(5, TimeUnit.SECONDS).shouldBeTrue()
+      }
+      val executor = Executors.newSingleThreadExecutor()
+      try {
+          val closeFuture = executor.submit { registry.close() }
+          started.await(5, TimeUnit.SECONDS).shouldBeTrue()
+          val report = registry.closeReport
+          report.state shouldBeEqualTo ApplicationResourceRegistryState.DRAINING
+          report.attempted shouldBeEqualTo
+              report.inFlight + report.closed + report.failures.size
+          release.countDown()
+          closeFuture.get(5, TimeUnit.SECONDS)
+      } finally {
+          release.countDown()
+          executor.shutdownNow()
+      }
+  }
+
+  @Test
+  fun `job cancellation can be adapted through a synchronous close action`() {
+      val job = Job()
+      val registry = ApplicationResourceRegistry()
+      registry.register { job.cancel() }
+      registry.close()
+      job.isCancelled.shouldBeTrue()
+  }
+  ```
+
+- [ ] failed implementation lane의 untracked production 파일은 `.codex/issue-1656-red-hold/`로
+  가역적으로 옮긴 뒤 RED를 재실행하고 반드시 원위치한다. test 파일은 그대로 두며 README와
+  committed spec/plan은 건드리지 않는다.
+
+  ```bash
+  mkdir -p .codex/issue-1656-red-hold
+  BT4K_HELD_SOURCE=.codex/issue-1656-red-hold/ApplicationResourceLifecycle.kt
+  BT4K_LIVE_SOURCE=ktor/core/src/main/kotlin/io/bluetape4k/ktor/core/ApplicationResourceLifecycle.kt
+  mv "$BT4K_LIVE_SOURCE" "$BT4K_HELD_SOURCE"
+  trap 'test ! -f "$BT4K_HELD_SOURCE" || mv "$BT4K_HELD_SOURCE" "$BT4K_LIVE_SOURCE"' EXIT INT TERM
+  ./gradlew :bluetape4k-ktor-core:test \
+    --tests 'io.bluetape4k.ktor.core.ApplicationResourceRegistryTest' \
+    --no-daemon --max-workers=1 --no-build-cache --no-configuration-cache --rerun-tasks
+  BT4K_RED_EXIT=$?
+  mv "$BT4K_HELD_SOURCE" "$BT4K_LIVE_SOURCE"
+  trap - EXIT INT TERM
+  test "$BT4K_RED_EXIT" -ne 0
+  ```
 
   ```bash
   ./gradlew :bluetape4k-ktor-core:test \
@@ -100,8 +158,6 @@ backend ownership은 caller adapter에 남긴다.
   marker로 모든 claim 처리 뒤 다시 던진다.
 - [ ] `Entry : AutoCloseable`과 `closeSafe`를 사용하되 failure 분류와 report 완료 전이는
   error handler 밖의 단일 lock transition에서 수행한다.
-- [ ] `Job()` fixture에 `register { job.cancel() }`을 등록해 `isCancelled`가 되는 독립 test를
-  포함한다.
 - [ ] 경합 test는 barrier/latch, 최대 8 worker, 5초 timeout, `shutdownNow()` cleanup을 사용한다.
 - [ ] Task 1 명령을 그대로 다시 실행해 GREEN을 만든다. 기대값이나 계약을 구현 편의로 약화하지
   않는다.
@@ -122,20 +178,84 @@ backend ownership은 caller adapter에 남긴다.
   resource 정보를 log로 흘리지 않게 한다.
 - [ ] 경합 시 attribute supplier가 여러 번 평가될 수 있어도 loser holder는 subscription을 만들지
   않고 winner holder만 하나의 callback을 설치함을 concurrency fixture로 검증한다.
+- [ ] production installer를 수정하기 전에 Ktor lifecycle/fake registrar test selector를 실행해
+  현재 구현의 duplicate-subscription/sticky-failure assertion이 실패하는 RED를 확인한다.
+
+  ```bash
+  ./gradlew :bluetape4k-ktor-core:test \
+    --tests 'io.bluetape4k.ktor.core.ApplicationResourceLifecycleTest' \
+    --no-daemon --max-workers=1 --no-build-cache --no-configuration-cache --rerun-tasks
+  ```
+
+  기대 RED: fake registrar의 `subscribeCount`가 1보다 크거나, 두 번째 install이 registrar를 다시
+  호출하거나, 원본 failure가 cause/message/suppressed에 남는 assertion이 실패한다. 기존
+  `testApplication` failure나 timeout은 RED로 인정하지 않는다.
 - [ ] 외부 package compile fixture를 추가하고 targeted Ktor integration tests를 GREEN으로 만든다.
 
   ```kotlin
-  private class ApplicationResourceLifecycleHolder {
+  internal fun interface ApplicationResourceSubscriptionRegistrar {
+      fun subscribe(onStopped: () -> Unit): DisposableHandle
+  }
+
+  internal class ApplicationResourceLifecycleHolder(
+      private val registrar: ApplicationResourceSubscriptionRegistrar,
+  ) {
       private val lock = ReentrantLock()
       private var state: InstallState = InstallState.NEW
       val registry = ApplicationResourceRegistry()
 
-      fun install(application: Application): ApplicationResourceRegistry = lock.withLock {
-          // Only the attribute winner reaches side-effectful subscribe; READY returns registry,
-          // FAILED throws a sanitized installation error, and a created handle is disposed on failure.
+      fun install(): ApplicationResourceRegistry = lock.withLock {
+          when (state) {
+              InstallState.READY -> registry
+              InstallState.FAILED -> throw sanitizedInstallationFailure()
+              InstallState.NEW -> try {
+                  subscription = registrar.subscribe(::onStopped)
+                  state = InstallState.READY
+                  registry
+              } catch (_: Throwable) {
+                  state = InstallState.FAILED
+                  registry.close()
+                  throw sanitizedInstallationFailure()
+              }
+          }
       }
   }
   ```
+
+  public installer의 `computeIfAbsent` block은 위 holder와 Ktor registrar 객체만 만들고
+  `subscribe`를 호출하지 않는다. block이 반환한 winner holder에만 `install()`을 호출한다.
+
+  fake registrar test seam의 exact oracle은 다음과 같다.
+
+  ```kotlin
+  @Test
+  fun `winner holder subscribes once and disposes once`() {
+      val registrar = RecordingRegistrar()
+      val holder = ApplicationResourceLifecycleHolder(registrar)
+      repeat(8) { holder.install() shouldBeSameInstanceAs holder.registry }
+      registrar.subscribeCount.get() shouldBeEqualTo 1
+      registrar.raiseStopped()
+      registrar.disposeCount.get() shouldBeEqualTo 1
+  }
+
+  @Test
+  fun `failed holder never retries and exposes only sanitized failure`() {
+      val registrar = FailingRegistrar(IllegalStateException("credential-secret"))
+      val holder = ApplicationResourceLifecycleHolder(registrar)
+      repeat(2) {
+          val failure = assertFailsWith<IllegalStateException> { holder.install() }
+          failure.message shouldBeEqualTo "Application resource lifecycle installation failed."
+          failure.cause shouldBeNull()
+          failure.suppressed.toList() shouldBeEmpty()
+      }
+      registrar.subscribeCount.get() shouldBeEqualTo 1
+  }
+  ```
+
+  `RecordingRegistrar`는 raw `subscribeCount`, callback, 반환 handle의 `disposeCount`를 각각
+  보유한다. `FailingRegistrar`는 handle을 반환하지 않고 subscribe에서 throw하므로 orphan
+  handle 수는 0이다. handle 반환 뒤 holder에는 fallible 설치 단계가 없으며, dispose failure는
+  callback test에서 별도로 주입해 report 보존과 sanitized logging을 확인한다.
 
   ```bash
   ./gradlew :bluetape4k-ktor-core:test \
@@ -204,11 +324,48 @@ backend ownership은 caller adapter에 남긴다.
 - [ ] CHANGELOG는 unreleased change convention이 없고 이 저장소가 PR 단위 CHANGELOG를 쓰지 않아
   N/A, diagram은 state transition이 spec 표로 충분해 N/A, AGENTS/workflow/catalog/module
   registration은 변경하지 않아 N/A임을 review evidence에 기록한다.
-- [ ] lesson 파일을 작성·검증해 README/KDoc과 함께 세 번째 Lore commit을 만든다.
-- [ ] Graph adoption은 `bluetape4k/bluetape4k-graph`에서 authority/중복 issue·PR/현재 metadata를
-  live 확인한 뒤 한국어 issue 생성, assignee/milestone/labels 적용, body read-back을 각각 수행한다.
-- [ ] Leader adoption은 `bluetape4k/bluetape4k-leader`에서 같은 순서로 별도 수행한다.
-- [ ] AWS adoption은 `bluetape4k/bluetape4k-aws`에서 같은 순서로 별도 수행한다.
+- [ ] lesson은 context, decision, failure/surprise, outcome, verification evidence, review miss,
+  future guard를 각각 별도 heading으로 작성한다.
+- [ ] lesson `SPW-01`: 대상은 향후 Ktor lifecycle 구현자, 목적은 attribute supplier의
+  side-effect 금지, source ledger는 Ktor 3.5.2 `AttributesJvm.kt`와 이 spec/plan으로 고정한다.
+- [ ] lesson `SPW-02`: 위 7개 필수 heading과 evidence-backed 결과를 모두 채운다.
+- [ ] lesson `SPW-03`: 한국어 naturalness checklist와 용어 감사를 통과한다.
+- [ ] lesson `SPW-04`: `computeIfAbsent` source line, holder protocol, concurrency/failure test와
+  commit SHA를 source-to-claim 표로 대조한다.
+- [ ] lesson `SPW-05`: rendered Markdown의 heading/table/code fence를 read-back하고 5/5 PASS를
+  workflow evidence에 기록한다.
+
+  ```bash
+  node /Users/debop/.codex/skills/bluetape-writer/scripts/audit-korean-terms.mjs --json \
+    docs/lessons/2026-09-06-issue-1656-ktor-attributes-side-effects.md
+  git diff --check
+  ```
+
+- [ ] lesson 파일을 README/KDoc과 함께 세 번째 Lore commit으로 만든다.
+
+### Graph adoption issue
+
+- [ ] 사용자 승인 spec이 `bluetape4k/bluetape4k-graph` issue 생성 authority를 포함하는지 기록한다.
+- [ ] live duplicate issue/PR과 assignee/milestone/labels를 조회한다.
+- [ ] 중복이 없을 때 한국어 issue를 생성한다.
+- [ ] 별도 명령으로 assignee/milestone/labels를 적용한다.
+- [ ] issue body와 metadata를 live read-back한다.
+
+### Leader adoption issue
+
+- [ ] 사용자 승인 spec이 `bluetape4k/bluetape4k-leader` issue 생성 authority를 포함하는지 기록한다.
+- [ ] live duplicate issue/PR과 assignee/milestone/labels를 조회한다.
+- [ ] 중복이 없을 때 한국어 issue를 생성한다.
+- [ ] 별도 명령으로 assignee/milestone/labels를 적용한다.
+- [ ] issue body와 metadata를 live read-back한다.
+
+### AWS adoption issue
+
+- [ ] 사용자 승인 spec이 `bluetape4k/bluetape4k-aws` issue 생성 authority를 포함하는지 기록한다.
+- [ ] live duplicate issue/PR과 assignee/milestone/labels를 조회한다.
+- [ ] 중복이 없을 때 한국어 issue를 생성한다.
+- [ ] 별도 명령으로 assignee/milestone/labels를 적용한다.
+- [ ] issue body와 metadata를 live read-back한다.
 - [ ] 세 adoption 이슈 URL을 #1656 PR 본문에 연결한다. 생성 authority나 target metadata가
   불명확하면 issue 생성만 `PENDING`으로 두고 projects 구현/PR과 섞어 추정하지 않는다.
 
@@ -221,7 +378,7 @@ backend ownership은 caller adapter에 남긴다.
   ./gradlew :bluetape4k-ktor-core:test --no-daemon --max-workers=1 --no-build-cache --no-configuration-cache --rerun-tasks
   ./gradlew :bluetape4k-ktor-core:check --no-daemon --max-workers=1 --no-build-cache --no-configuration-cache --rerun-tasks
   ./gradlew :bluetape4k-ktor-core:detekt --no-daemon --max-workers=1 --no-build-cache --no-configuration-cache --rerun-tasks
-  if rg -n 'CoroutineScope|Dispatchers|asyncRunWithTimeout|closeTimeout|CompletableFuture|ForkJoinPool|Executors|Executor|kotlin\.concurrent\.thread|runBlocking|Timer\(|Thread\(' \
+  if rg -n 'CoroutineScope|GlobalScope|Dispatchers|newSingleThreadContext|newFixedThreadPoolContext|asyncRunWithTimeout|closeTimeout|CompletableFuture|ForkJoinPool|Executors|Executor|kotlin\.concurrent\.thread|runBlocking|Timer\(|Thread\(|Thread\.ofVirtual|Thread\.startVirtualThread' \
     ktor/core/src/main/kotlin/io/bluetape4k/ktor/core/ApplicationResourceLifecycle.kt; then
     exit 1
   else
