@@ -347,6 +347,7 @@ class ApplicationResourceLifecycleTest {
             listOf("resource-secret", "message-secret", "CredentialSecretFailure").forEach { secret ->
                 surfaces.forEach { it.contains(secret).shouldBeFalse() }
             }
+            appender.events.size shouldBeEqualTo 1
         } finally {
             logger.detach(appender)
         }
@@ -381,6 +382,9 @@ class ApplicationResourceLifecycleTest {
             listOf("resource-secret", "message-secret", "CredentialSecretFailure").forEach { secret ->
                 surfaces.forEach { it.contains(secret).shouldBeFalse() }
             }
+            appender.events.any { event ->
+                event.throwableProxy?.message == "Application resource close failed"
+            }.shouldBeTrue()
             registry.closeReport.failures.single().fatal.shouldBeTrue()
         } finally {
             logger?.detach(appender)
@@ -404,6 +408,7 @@ class ApplicationResourceLifecycleTest {
         }
 
         remainingCloseCount.get() shouldBeEqualTo 1
+        appender.appendCount.get() shouldBeEqualTo 1
         registry.closeReport.closed shouldBeEqualTo 1
         registry.closeReport.failures.single().fatal.shouldBeFalse()
     }
@@ -541,7 +546,10 @@ class ApplicationResourceLifecycleTest {
     }
 
     private class ThrowingAppender : AppenderBase<ILoggingEvent>() {
+        val appendCount = AtomicInteger()
+
         override fun append(eventObject: ILoggingEvent) {
+            appendCount.incrementAndGet()
             throw AssertionError("logger-secret")
         }
     }

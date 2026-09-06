@@ -41,8 +41,8 @@ subscription을 한 번만 만든다. registry와 token의 종료가 경합해�
 `attempted == inFlight + closed + failures.size`가 유지된다.
 
 implementation holder는 JVM package-private이고 함수형 registrar를 위한 별도 class도
-생성되지 않는다. public registration token에는 Kotlin compiler의 synthetic bridge만 남으며,
-Java source가 호출할 수 있는 non-synthetic public constructor는 없다.
+생성되지 않는다. registration token은 public interface이고 실제 구현은 private이므로
+소비자에게 생성자나 factory 구현을 노출하지 않는다.
 
 ## 검증 근거
 
@@ -52,11 +52,11 @@ Java source가 호출할 수 있는 non-synthetic public constructor는 없다.
 | 종료가 정확히 한 번 실행됨 | token/registry barrier 경합과 중복 stop callback | 각 resource와 subscription dispose 1회 |
 | disposal timeout 뒤 drain 경계 | `shutdownTimeout = 1L`인 `testApplication` fixture | child 활성 상태를 관찰한 뒤 drain 완료 후 resource close |
 | 실패 정보 비노출 | registry/Ktor logger appender, fatal marker, secret resource fixture | message, cause, class, `toString()` sentinel 미검출 |
-| public ABI 제한 | `javap -public`, class modifier, 외부 package 소비 테스트 | holder `ACC_PUBLIC` 없음, non-synthetic public token constructor 없음 |
+| public ABI 제한 | `javap -public`, class modifier, 외부 package 소비 테스트 | holder `ACC_PUBLIC` 없음, token은 생성자 없는 interface |
 | publication 계약 유지 | POM/module metadata validator와 설정 diff | validator failures=0, 직접 dependency 12개, 설정 diff 0 |
 | 모듈 동작 | `:bluetape4k-ktor-core:check`, Kover, detekt | 39 tests, skipped/failures/errors 0 |
 
-구현 기준 commit은 `f41fea0f5`다. Ktor의 `AttributesJvm` 구현과 event subscription 반환
+구현 기준 commit은 `419798fff`다. Ktor의 `AttributesJvm` 구현과 event subscription 반환
 handle을 실제 소비 JAR source에서 확인했으며, 라이브러리 내부 구현을 public API 계약으로
 승격하지 않았다.
 

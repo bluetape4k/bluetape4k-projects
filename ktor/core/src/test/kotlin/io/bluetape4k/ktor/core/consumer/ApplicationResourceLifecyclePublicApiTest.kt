@@ -45,13 +45,12 @@ class ApplicationResourceLifecyclePublicApiTest {
     }
 
     @Test
-    fun `implementation seams and token constructors are not public API`() {
+    fun `implementation seams and token implementations are not public API`() {
         val holder = Class.forName("io.bluetape4k.ktor.core.ApplicationResourceLifecycleHolder")
         Modifier.isPublic(holder.modifiers) shouldBeEqualTo false
 
         val registration = Class.forName("io.bluetape4k.ktor.core.ApplicationResourceRegistration")
-        registration.declaredConstructors.none { constructor ->
-            Modifier.isPublic(constructor.modifiers) && !constructor.isSynthetic
-        } shouldBeEqualTo true
+        registration.isInterface shouldBeEqualTo true
+        registration.declaredConstructors.isEmpty() shouldBeEqualTo true
     }
 }

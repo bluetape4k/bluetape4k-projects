@@ -42,10 +42,9 @@ public final class io.bluetape4k.ktor.core.ApplicationResourceRegistry implement
   public void close();
 }
 Compiled from "ApplicationResourceLifecycle.kt"
-public final class io.bluetape4k.ktor.core.ApplicationResourceRegistration implements java.lang.AutoCloseable {
-  public final long getId();
-  public void close();
-  public io.bluetape4k.ktor.core.ApplicationResourceRegistration(long, kotlin.jvm.functions.Function0, kotlin.jvm.internal.DefaultConstructorMarker);
+public interface io.bluetape4k.ktor.core.ApplicationResourceRegistration extends java.lang.AutoCloseable {
+  public abstract long getId();
+  public abstract void close();
 }
 Compiled from "ApplicationResourceLifecycle.kt"
 public final class io.bluetape4k.ktor.core.ApplicationResourceCloseReport implements java.io.Serializable {
