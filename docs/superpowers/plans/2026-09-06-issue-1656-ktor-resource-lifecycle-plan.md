@@ -182,6 +182,7 @@ backend ownership은 caller adapter에 남긴다.
 
   internal class ApplicationResourceLifecycleHolder(
       private val registrar: ApplicationResourceSubscriptionRegistrar,
+      private val lock: ReentrantLock = ReentrantLock(),
   ) {
       val registry = ApplicationResourceRegistry()
 
@@ -284,13 +285,15 @@ backend ownership은 caller adapter에 남긴다.
   @Test
   fun `callback before handle publication disposes the published handle once`() {
       val registrar = BlockingRecordingRegistrar()
-      val holder = ApplicationResourceLifecycleHolder(registrar)
+      val observedLock = ObservedReentrantLock()
+      val holder = ApplicationResourceLifecycleHolder(registrar, observedLock)
       val executor = Executors.newFixedThreadPool(2)
       try {
           val install = executor.submit<ApplicationResourceRegistry> { holder.install() }
           registrar.handlerRegistered.await(5, TimeUnit.SECONDS).shouldBeTrue()
+          observedLock.observeNextContention()
           val stop = executor.submit { registrar.raiseStopped() }
-          registrar.callbackStarted.await(5, TimeUnit.SECONDS).shouldBeTrue()
+          observedLock.callbackContended.await(5, TimeUnit.SECONDS).shouldBeTrue()
           registrar.allowHandleReturn.countDown()
           install.get(5, TimeUnit.SECONDS) shouldBeSameInstanceAs holder.registry
           stop.get(5, TimeUnit.SECONDS)
@@ -317,11 +320,13 @@ backend ownership은 caller adapter에 남긴다.
   ```
 
   `RecordingRegistrar`는 raw `subscribeCount`, callback, 반환 handle의 `disposeCount`를 각각
-  보유한다. `BlockingRecordingRegistrar`는 handler 저장 뒤 handle 반환 직전 latch에서 멈추고,
-  `raiseStopped()`가 handler 호출 직전에 `callbackStarted`를 count down한다. test는 callback 시작을
-  await한 뒤 handle 반환을 허용해 callback/handle-publication race를 결정적으로 만든다. holder는
-  subscribe와 handle 저장을 같은 lock에서 수행하고 callback도 같은 lock에서 handle을 claim하므로
-  dispose owner는 하나다.
+  보유한다. `BlockingRecordingRegistrar`는 handler 저장 뒤 handle 반환 직전 latch에서 멈춘다.
+  `ObservedReentrantLock`은 handler가 공개된 뒤 armed 상태에서 callback thread의 `tryLock()`이
+  실패한 경우에만 `callbackContended`를 count down하고 실제 `lock()` 대기로 전환한다. test는 이
+  contention 증거를 await한 뒤 handle 반환을 허용해 callback-before-publication race를 결정적으로
+  만든다. holder는 subscribe와 handle 저장을 같은 lock에서 수행하고 callback도 같은 lock에서
+  handle을 claim하므로 dispose owner는 하나다. production은 기본 `ReentrantLock()`을 사용하고 이
+  internal constructor seam은 external public API/ABI에 노출하지 않는다.
   `FailingRegistrar`는 handle을 반환하지 않고 subscribe에서 throw하므로 orphan handle 수는 0이다.
   handle 반환 뒤 holder에는 fallible 설치 단계가 없으며, dispose failure는 callback test에서
   별도로 주입해 report 보존과 sanitized logging을 확인한다.

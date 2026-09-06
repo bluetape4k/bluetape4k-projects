@@ -196,7 +196,9 @@ fun Application.installApplicationResourceLifecycle(): ApplicationResourceRegist
    `Events.subscribe` 구현은 handler를 등록할 뿐 callback을 동기 호출하지 않으므로, 다른 thread에서 handler가 handle
    반환 전에 실행돼도 holder lock에서 대기한 뒤 publication된 handle을 정확히 한 번 claim한다.
    fake registrar test는 raw subscribe 횟수와 handle dispose 횟수를 callback/registry close
-   횟수와 별도로 관찰한다.
+   횟수와 별도로 관찰한다. callback-before-publication 검증에는 internal test-only lock seam을
+   주입해 callback thread의 `tryLock()` 실패를 직접 관찰하며, production은 기본
+   `ReentrantLock()`을 사용한다.
 3. subscribe가 throw하면 holder는 registry를 닫고 `FAILED`로 고정한다. 최초 호출과 이후 모든
    호출은 원본 message/cause/suppressed가 없는 동일 type/message의 sanitized installation
    exception을 던지며 재시도하지 않는다. Ktor registrar는 handle 반환 뒤 fallible 작업을 하지
@@ -325,9 +327,9 @@ adoption checklist가 이를 금지한다.
   통해 단일 registry와 단일 subscription만 생성함
 - fake registrar가 raw subscribe 1회와 callback 뒤 handle dispose 1회를 직접 보고하며,
   registry close 횟수와 별도로 assertion됨
-- fake registrar가 handler를 공개한 뒤 handle 반환 직전 latch에서 멈추고, 다른 thread의
-  callback 시작 latch를 관찰한 다음 handle 반환을 허용하는 경합에서도 publication 뒤 handle
-  dispose가 정확히 한 번 수행됨
+- fake registrar가 handler를 공개한 뒤 handle 반환 직전 latch에서 멈추고, test-only lock이
+  다른 thread callback의 `tryLock()` 실패를 관찰한 다음 handle 반환을 허용하는 경합에서도
+  publication 뒤 handle dispose가 정확히 한 번 수행됨
 - subscribe failure 뒤 raw subscribe가 1회에서 멈추고 최초/후속 호출이 같은 sanitized
   type/message와 빈 cause/suppressed를 반환하며 registry를 정상 반환하지 않음
 - handle dispose failure가 registry report를 되돌리거나 callback을 재설치하지 않고 원본
