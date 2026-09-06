@@ -44,7 +44,7 @@
 
 - [ ] **Step 1: constants와 credential regex 작성**
 
-  `MAX_LENGTH = 240`, marker regex와 `credentialPattern = Regex("(?i)\\b(authorization|cookie|token|secret|api[-_ ]?key)\\b\\s*[:=]\\s*(?:Bearer\\s+)?(?:\"(?:\\\\.|[^\"\\\\])*\"|'(?:\\\\.|[^'\\\\])*'|[^\\s,;]+)")`를 private immutable constant로 둔다. marker/value match 개수와 시작 위치가 다르면 해당 first line을 status-only로 버린다. replacement는 captured key의 표기를 유지하는 `"\$1:[redacted]"`를 사용한다. comma/semicolon은 기존 consumer처럼 unquoted token의 경계로 보존한다.
+  `MAX_LENGTH = 240`, marker regex와 `credentialPattern = Regex("(?i)\\b(authorization|cookie|token|secret|api[-_ ]?key)\\b\\s*[:=]\\s*(?:Bearer\\s+)?(?:\"(?:\\\\.|[^\"\\\\])*\"|'(?:\\\\.|[^'\\\\])*'|[^\\s,;\"']+)")`를 private immutable constant로 둔다. unquoted branch는 quote를 제외해 열린 quote를 삼키지 않으며, quote branch는 escape를 해석해 닫힌 quote만 허용한다. marker/value match 개수와 시작 위치가 다르면 해당 first line을 status-only로 버린다. replacement는 captured key의 표기를 유지하는 `"\$1:[redacted]"`를 사용한다. comma/semicolon은 기존 consumer처럼 unquoted token의 경계로 보존하고, quoted value 안에서는 값의 일부로 redaction한다.
 
 - [ ] **Step 2: 순수 함수 구현**
 
