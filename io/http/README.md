@@ -8,6 +8,60 @@ English | [한국어](./README.ko.md)
 
 It provides a consistent interface for Apache HttpComponents 5, OkHttp3, Vert.x HttpClient, and Ktor Client, with built-in support for Kotlin Coroutines and Virtual Threads.
 
+## Strictly bounded complete response bodies
+
+Use the bounded adapters when a complete body is required and an oversized body
+must fail instead of returning a prefix.
+
+```kotlin
+import io.bluetape4k.http.hc5.entity.readBodyBytes
+
+httpClient.execute(request).use { response ->
+    val body = response.entity.readBodyBytes(maxBytes = 64 * 1024)
+}
+```
+
+```kotlin
+import io.bluetape4k.http.jdk.readBodyBytes
+import java.io.InputStream
+import java.net.http.HttpResponse
+
+val response: HttpResponse<InputStream> =
+    jdkClient.send(request, HttpResponse.BodyHandlers.ofInputStream())
+val body = response.readBodyBytes(maxBytes = 64 * 1024)
+```
+
+The HC5 adapter closes the acquired entity stream, while the caller still closes
+the enclosing response. A null HC5 entity becomes an empty body; preserve null
+with `response.entity?.let { it.readBodyBytes(maxBytes = 64 * 1024) }`. The JDK
+adapter closes only `HttpResponse.body()` and does not close the client or its
+executor. Neither adapter interprets the status code.
+
+| Need | API |
+|---|---|
+| Complete JSON/schema body; reject overflow | `readBodyBytes` / `readBodyString` |
+| Diagnostic or preview prefix | existing HC5 `toByteArrayOrNull` / `toStringOrNull` |
+| Preserve a null HC5 entity | `entity?.let { ... }` |
+| General caller-owned stream | `inputStream.use { it.readAllBytes(maxBytes) }` |
+
+These calls, the one-byte EOF check, and `close()` are blocking and are not made
+cancellable by coroutine cancellation. Configure connect, response, and read
+timeouts, call them at a blocking-I/O boundary rather than on an event loop, and
+let a supervisor close the stream or enclosing response to abort stalled work.
+Transport-specific abort behavior is outside this helper.
+
+The limit applies to bytes exposed by the adapter. Apply a separate decoded-byte
+limit after decompression. Budget temporary heap as approximately
+`concurrent reads * (2 * maxBytes + segment overhead)`. The library emits no logs
+or metrics; applications may record low-cardinality endpoint/operation, max, and
+overflow/read/close categories, but must not record payloads or exception messages.
+
+Adoption sequence: publish library `2.1.0`, select it through the central catalog
+or an allowed repository-local override, run compile and targeted smoke tests, and
+then migrate each consumer in its own PR. Until that finishes, retain the manual
+strict read loop. Roll back to the previous dependency plus that loop; the
+truncating preview APIs are not a strict-read fallback.
+
 ## Architecture
 
 ### Overall Architecture: Multi-Backend HTTP Client

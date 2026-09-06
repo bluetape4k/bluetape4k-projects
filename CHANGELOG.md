@@ -81,6 +81,14 @@
 
 ### 추가
 
+- `InputStream`, Apache HC5 `HttpEntity`, JDK `HttpResponse<InputStream>`에 전체 본문을
+  strict byte 상한 안에서 읽는 additive API를 추가했다. 상한 초과는 부분 결과 없이
+  `ByteLimitExceededException`으로 실패하며 기존 truncation API는 그대로 유지한다.
+  raw stream은 호출자가 닫고 HTTP adapter는 획득한 body stream만 닫으므로 상위
+  response/client 수명은 호출자가 관리한다. `2.1.0` publish 뒤 중앙 catalog 또는 허용된
+  repo-local override로 선택하고 소비자별 smoke와 독립 PR을 진행한다
+  ([#1643](https://github.com/bluetape4k/bluetape4k-projects/issues/1643)).
+
 - NATS JetStream `ConsumerContext` pull consumer와 `JetStream` push
   subscription을 수집마다 생성·정리하는 cold `Flow<Message>` API를 추가했다.
   유한한 Flow 용량과 NATS pending limit을 검증하고, 취소 시 adapter 소유

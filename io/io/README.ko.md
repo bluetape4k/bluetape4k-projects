@@ -197,6 +197,27 @@ val restored = compressor.decompressOrNull(compressed) // 손상/null/empty 시 
 
 ## 사용 예제
 
+### 엄격한 상한을 적용한 `InputStream` 읽기
+
+전체 본문이 필요하고 상한 초과 시 부분 결과 없이 실패해야 한다면
+`readAllBytes(maxBytes)`를 사용합니다.
+
+```kotlin
+import io.bluetape4k.io.ByteLimitExceededException
+import io.bluetape4k.io.readAllBytes
+
+val bytes = inputStream.use {
+    it.readAllBytes(maxBytes = 64 * 1024)
+}
+```
+
+이 primitive는 stream을 닫지 않으므로 호출자가 소유권을 가지며, 예제는 `use`로 닫습니다.
+분기에는 `ByteLimitExceededException.maxBytes`만 사용하고 예외 message나 본문 payload를
+log에 남기지 마세요. 마지막 EOF 확인도 block될 수 있으므로 transport timeout을 설정하고,
+작업을 중단해야 할 때 supervisor가 stream을 닫을 수 있게 구성하세요. 일시적인 heap 사용량은
+대략 `동시 read 수 * (2 * maxBytes + segment overhead)`로 잡습니다. 이 상한은 전달된
+stream의 byte에만 적용되므로 이후 압축 해제에는 decoded byte 상한이 별도로 필요합니다.
+
 ### 압축
 
 ```kotlin

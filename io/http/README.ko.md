@@ -8,6 +8,58 @@
 
 Apache HttpComponents 5, OkHttp3, Vert.x HttpClient, Ktor Client 등을 일관된 방식으로 사용할 수 있으며, Kotlin Coroutines와 Virtual Threads를 기본 지원합니다.
 
+## 엄격한 상한을 적용한 전체 응답 본문
+
+전체 본문이 필요하고 상한 초과 시 prefix를 반환하지 않고 실패해야 한다면 bounded adapter를
+사용합니다.
+
+```kotlin
+import io.bluetape4k.http.hc5.entity.readBodyBytes
+
+httpClient.execute(request).use { response ->
+    val body = response.entity.readBodyBytes(maxBytes = 64 * 1024)
+}
+```
+
+```kotlin
+import io.bluetape4k.http.jdk.readBodyBytes
+import java.io.InputStream
+import java.net.http.HttpResponse
+
+val response: HttpResponse<InputStream> =
+    jdkClient.send(request, HttpResponse.BodyHandlers.ofInputStream())
+val body = response.readBodyBytes(maxBytes = 64 * 1024)
+```
+
+HC5 adapter는 획득한 entity stream을 닫지만, 상위 response는 호출자가 닫아야 합니다.
+null HC5 entity는 빈 본문이 되며, null을 보존하려면
+`response.entity?.let { it.readBodyBytes(maxBytes = 64 * 1024) }`를 사용합니다. JDK adapter는
+`HttpResponse.body()`만 닫고 client나 executor는 닫지 않습니다. 두 adapter 모두 status code를
+해석하지 않습니다.
+
+| 요구 사항 | API |
+|---|---|
+| 전체 JSON/schema 본문, 초과 시 거부 | `readBodyBytes` / `readBodyString` |
+| 진단 또는 preview prefix | 기존 HC5 `toByteArrayOrNull` / `toStringOrNull` |
+| null HC5 entity 보존 | `entity?.let { ... }` |
+| 호출자 소유 일반 stream | `inputStream.use { it.readAllBytes(maxBytes) }` |
+
+이 호출과 1-byte EOF 확인, `close()`는 blocking이며 coroutine 취소만으로 cancellable해지지
+않습니다. connect, response, read timeout을 설정하고 event loop가 아니라 blocking I/O 경계에서
+호출하세요. 작업이 멈추면 supervisor가 stream이나 상위 response를 닫아 중단할 수 있어야 합니다.
+transport별 abort 동작은 이 helper의 범위가 아닙니다.
+
+상한은 adapter가 노출한 byte에 적용됩니다. 압축 해제 뒤에는 decoded byte 상한을 별도로
+적용하세요. 일시적인 heap 사용량은 대략
+`동시 read 수 * (2 * maxBytes + segment overhead)`로 잡습니다. library는 log나 metric을
+기록하지 않습니다. application은 payload와 예외 message를 제외하고 endpoint/operation,
+max, overflow/read/close 분류만 low-cardinality로 집계할 수 있습니다.
+
+도입 순서는 library `2.1.0` publish, 중앙 catalog 또는 허용된 repo-local override로 버전 선택,
+compile 및 targeted smoke, 소비자별 독립 PR입니다. 전환이 끝날 때까지 기존 수동 strict read
+loop를 유지하세요. 회귀 시 이전 dependency와 수동 loop로 rollback하며, truncation preview
+API를 strict read의 대체재로 사용하지 않습니다.
+
 ## 아키텍처
 
 ### 전체 아키텍처: 다중 백엔드 HTTP 클라이언트
