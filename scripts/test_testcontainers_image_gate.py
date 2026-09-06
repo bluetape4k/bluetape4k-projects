@@ -10,6 +10,7 @@ from pathlib import Path
 from scripts.testcontainers_image_gate import (
     EXPECTED_FAMILY_COUNT,
     EXPECTED_RELEASE_FAMILY_COUNT,
+    NON_IMAGE_GATE_SERVERS,
     NON_RELEASE_RUNTIME_SERVERS,
     SelectionError,
     load_manifest,
@@ -29,6 +30,10 @@ class TestTestcontainersImageGate(unittest.TestCase):
     def test_manifest_covers_every_image_family_and_has_required_fields(self) -> None:
         self.assertEqual(EXPECTED_FAMILY_COUNT, len(self.entries))
         self.assertEqual([], validate_manifest(self.entries, self.root))
+
+    def test_deprecated_compatibility_facade_is_not_an_image_gate_family(self) -> None:
+        self.assertEqual({"Ignite2Server"}, set(NON_IMAGE_GATE_SERVERS))
+        self.assertNotIn("Ignite2Server", {entry["server"] for entry in self.entries})
 
     def test_disabled_families_are_support_inventory_not_release_runtime(self) -> None:
         disabled = set(NON_RELEASE_RUNTIME_SERVERS)

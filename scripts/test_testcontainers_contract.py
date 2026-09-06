@@ -144,7 +144,7 @@ class TestTestcontainersContract(unittest.TestCase):
 
         for path in (README_EN, README_KO):
             content = read(path)
-            self.assertNotIn("Ignite2Server", content, path.as_posix())
+            self.assertIn("Ignite2Server", content, path.as_posix())
             self.assertIn("Ignite3Server", content, path.as_posix())
 
     def test_ministack_disabled_inventory_matches_pinned_tag_and_known_errors(self) -> None:
