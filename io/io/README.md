@@ -196,6 +196,29 @@ This allows callers to distinguish "corrupt input" (returns `null`) from "empty 
 
 ## Usage Examples
 
+### Strictly bounded `InputStream` reads
+
+Use `readAllBytes(maxBytes)` when a complete body is required and exceeding the
+limit must fail without returning a partial result:
+
+```kotlin
+import io.bluetape4k.io.ByteLimitExceededException
+import io.bluetape4k.io.readAllBytes
+
+val bytes = inputStream.use {
+    it.readAllBytes(maxBytes = 64 * 1024)
+}
+```
+
+The primitive does not close the stream; the caller owns it, so the example uses
+`use`. Only `ByteLimitExceededException.maxBytes` is stable for branching. Do not
+log the exception message or body payload. The final EOF check can block, so set
+transport timeouts and let a supervisor close the stream when an operation must be
+aborted. Budget temporary heap as approximately
+`concurrent reads * (2 * maxBytes + segment overhead)`. A later decompression step
+needs a separate decoded-byte limit because this limit applies only to bytes read
+from the supplied stream.
+
 ### Compression
 
 ```kotlin
