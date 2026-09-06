@@ -29,7 +29,7 @@
 
 - [ ] **Step 2: boundary/security cases 작성**
 
-  다음 grammar table을 exact test로 고정한다. `service token unavailable`은 marker가 없어 원문 첫 줄을 보존하고, `token=secret, retrying`은 `token:[redacted], retrying`을 반환한다. `Authorization : secret`은 redaction하고, `Authorization:`, `Authorization: Bearer`, `Authorization: "unterminated`는 status-only로 fail-closed한다. JSON/quoted/escaped value와 duplicate credential도 모두 검증한다. 결과는 최대 240 UTF-16 Char이며 surrogate pair를 자르지 않고, `Int` status prefix는 항상 보존된다. 입력 secret이 결과에 절대 포함되지 않음도 검증한다.
+  다음 grammar table을 exact test로 고정한다. `service token unavailable`은 marker가 없어 원문 첫 줄을 보존하고, `token=secret, retrying`은 `token:[redacted], retrying`을 반환한다. `Authorization : secret`은 redaction하고, `Authorization:`, `Authorization: Bearer`, `token=""`, `token=''`, `token="unterminated`, `token=secret\\`, `token=secret\\,raw-secret`는 status-only로 fail-closed한다. JSON quoted key/value, quoted/escaped value와 duplicate credential도 모두 검증한다. 결과는 prefix separator를 포함해 최대 240 UTF-16 Char이며 surrogate pair를 자르지 않고, `Int` status prefix는 항상 보존된다. 입력 secret이 결과에 절대 포함되지 않음도 검증한다.
 
 - [ ] **Step 3: RED 실행**
 
@@ -44,11 +44,11 @@
 
 - [ ] **Step 1: constants와 credential regex 작성**
 
-  `MAX_LENGTH = 240`, marker regex와 `credentialPattern = Regex("(?i)\\b(authorization|cookie|token|secret|api[-_ ]?key)\\b\\s*[:=]\\s*(?:Bearer\\s+)?(?:\"(?:\\\\.|[^\"\\\\])*\"|'(?:\\\\.|[^'\\\\])*'|[^\\s,;\"']+)")`를 private immutable constant로 둔다. unquoted branch는 quote를 제외해 열린 quote를 삼키지 않으며, quote branch는 escape를 해석해 닫힌 quote만 허용한다. marker/value match 개수와 시작 위치가 다르면 해당 first line을 status-only로 버린다. replacement는 captured key의 표기를 유지하는 `"\$1:[redacted]"`를 사용한다. comma/semicolon은 기존 consumer처럼 unquoted token의 경계로 보존하고, quoted value 안에서는 값의 일부로 redaction한다.
+  `MAX_LENGTH = 240`과 key marker regex를 private immutable constant로 두고, marker마다 작은 수동 parser를 적용한다. parser는 JSON-like quoted key, `:`/`=`, optional `Bearer`, unquoted token, single/double quoted escaped value를 처리한다. unquoted branch는 quote와 backslash를 거부하므로 열린 quote, dangling escape, escaped comma/semicolon이 raw suffix를 남기지 않는다. `Bearer` 단독, empty quoted value, 닫히지 않은 quote는 malformed로 판정한다. marker 하나라도 malformed이거나 replacement range가 겹치면 first line 전체를 status-only로 버린다. replacement는 captured key의 표기를 유지하는 `key:[redacted]`를 사용하고, comma/semicolon은 unquoted token의 경계로 보존하며 quoted value 안에서는 값의 일부로 처리한다.
 
 - [ ] **Step 2: 순수 함수 구현**
 
-  `prefix = "HTTP $statusCode"`를 만들고 `rawMessage?.lineSequence()?.firstOrNull()?.trim()`을 redaction한 뒤 malformed marker이면 버린다. `MAX_LENGTH - prefix.length`를 `coerceAtLeast(0)`으로 계산하고, surrogate-safe helper로 body를 자른다. blank/empty는 prefix only, 모든 반환 경로는 prefix를 보존한다. 함수는 로그·예외·외부 상태를 만들지 않는다.
+  `prefix = "HTTP $statusCode"`를 만들고 `rawMessage?.lineSequence()?.firstOrNull()?.trim()`을 redaction한 뒤 malformed marker이면 버린다. `MAX_LENGTH - prefix.length - 1`을 `coerceAtLeast(0)`으로 계산해 separator까지 포함한 최종 길이를 보장하고, surrogate-safe helper로 body를 자른다. blank/empty는 prefix only, 모든 반환 경로는 prefix를 보존한다. 함수는 로그·예외·외부 상태를 만들지 않는다.
 
 - [ ] **Step 3: GREEN 실행**
 
@@ -62,23 +62,33 @@
 
   Run: `./gradlew :bluetape4k-http:compileKotlin :bluetape4k-http:compileTestKotlin :bluetape4k-http:detekt`
 
-  Expected: Kotlin compile/detekt PASS; sanitizer source imports only Kotlin/JDK APIs.
+  Expected: Kotlin compile/detekt PASS; sanitizer source imports only Kotlin/JDK APIs. Existing unrelated module findings are recorded separately.
 
 - [ ] **Step 2: JAR/POM/module metadata 생성**
 
   Run: `./gradlew :bluetape4k-http:jar :bluetape4k-http:generateMetadataFileForBluetape4kPublication :bluetape4k-http:generatePomFileForBluetape4kPublication :bluetape4k-http:checkPomFileForBluetape4kPublication`
 
-  Expected: public function appears in JAR and no Spring/Ktor dependency is introduced by the new file or provider POM.
+  Expected: public function appears in JAR and provider POM has no new Spring/Ktor dependency compared with the provider baseline.
 
 - [ ] **Step 3: bytecode/ABI guard**
 
   Run:
 
   ```bash
+  set -euo pipefail
   artifact_jar="$(find io/http/build/libs -maxdepth 1 -type f -name 'bluetape4k-http-*.jar' ! -name '*-sources.jar' | head -n 1)"
   test -n "$artifact_jar"
   jar tf "$artifact_jar" | rg 'OutboundErrorSanitizer'
-  if jdeps --multi-release 21 --recursive --ignore-missing-deps "$artifact_jar" | rg -q 'org.springframework|io.ktor'; then exit 1; fi
+  guard_dir="$(mktemp -d)"
+  guard_jar="$guard_dir/bluetape4k-http-sanitizer-guard.jar"
+  trap 'rm -rf "$guard_dir"' EXIT
+  test -f io/http/build/classes/kotlin/main/io/bluetape4k/http/OutboundErrorSanitizerKt.class
+  jar --create --file "$guard_jar" \
+    -C io/http/build/classes/kotlin/main io/bluetape4k/http/OutboundErrorSanitizerKt.class
+  jdeps_output="$guard_dir/jdeps.txt"
+  jdeps --multi-release 21 --recursive --ignore-missing-deps "$guard_jar" > "$jdeps_output"
+  if rg -n 'org.springframework|io.ktor' "$jdeps_output"; then exit 1; fi
+  mkdir -p build
   javap -classpath "$artifact_jar" -public io.bluetape4k.http.OutboundErrorSanitizerKt > build/outbound-sanitizer-public-api.txt
   ```
 

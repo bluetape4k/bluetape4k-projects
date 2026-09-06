@@ -40,18 +40,20 @@ fun sanitizeOutboundError(statusCode: Int, rawMessage: String?): String
 3. 원문의 첫 줄만 취하고 양 끝 공백을 제거한다. 개행 이후 내용은 결과에
    포함하지 않는다. 이 trim은 기존 두 consumer의 저장값에서 허용되는
    의도적인 정규화이며 exact test와 README에 고정한다.
-4. 다음 key를 case-insensitive하게 찾아 `key:[redacted]`로 치환한다.
-   `Authorization`, `Cookie`, `Token`, `Secret`, `API-Key`와 `API_Key`,
-   `API Key` 변형을 지원하며 `:`/`=` 구분자와 선택적인 `Bearer`를 허용한다.
-   key 표기의 원래 대소문자는 replacement에서 보존한다. 값은 comma/semicolon/
-   공백 전까지의 unquoted token 또는 escaped quote를 지원하는
-   single/double quoted value로 인식한다. unquoted parser는 quote를 값으로
-   허용하지 않으며, 열린 quote·dangling escape는 malformed로 처리한다.
+4. 다음 key marker를 case-insensitive하게 찾아 `key:[redacted]`로 치환한다.
+  `Authorization`, `Cookie`, `Token`, `Secret`, `API-Key`와 `API_Key`,
+  `API Key` 변형을 지원하며 `:`/`=` 구분자와 선택적인 `Bearer`를 허용한다.
+  JSON처럼 key를 quote로 감싼 형태도 인식하며 key 표기의 원래 대소문자는
+  replacement에서 보존한다. 값은 comma/semicolon/공백 전까지의 unquoted
+  token 또는 escaped quote를 지원하는 single/double quoted value로 인식한다.
+  unquoted parser는 quote와 backslash를 값으로 허용하지 않으며, `Bearer`가
+  단독으로 끝나거나 empty quoted value, 열린 quote, dangling/escaped delimiter는
+  malformed로 처리한다.
    key-value marker는 있지만 값이 비어 있거나 quote가 닫히지 않는 등 문법이
    깨진 경우에는 전체 first line을 버리고 status-only를 반환해 fail-closed한다.
-5. prefix 길이를 제외한 남은 길이만큼 첫 줄을 자르되 UTF-16 surrogate pair를
-   분할하지 않는 Kotlin `Char` 상한을 적용한다. 최종 결과는 240 UTF-16
-   code units 이내이며 함수는 예외를 던지지 않는 순수 함수다.
+5. prefix와 그 뒤 separator 한 칸을 제외한 남은 길이만큼 첫 줄을 자르되
+   UTF-16 surrogate pair를 분할하지 않는 Kotlin `Char` 상한을 적용한다. 최종
+   결과는 240 UTF-16 code units 이내이며 함수는 예외를 던지지 않는 순수 함수다.
 
 예:
 

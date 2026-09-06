@@ -532,6 +532,34 @@ Ktor CIO is no longer a one-thread exception, but the whole benchmark uses a sho
 | High-latency async bulk requests | **HC5 Async Coroutines** — `productionHttpAsyncClientOf()` |
 | Ktor-based apps / coroutine-first calls | Ktor CIO |
 
+## Outbound Error Sanitization
+
+`sanitizeOutboundError` is a framework-neutral pure function for storing or
+logging a bounded outbound failure summary. It always keeps the `HTTP <status>`
+prefix, uses only the trimmed first line, and returns the prefix alone for
+null, blank, or malformed credential markers. `Authorization`, `Cookie`,
+`Token`, `Secret`, and `API-Key`/`API_Key`/`API Key` markers are redacted to
+`[redacted]`, including `:`/`=` separators, optional `Bearer`, and quoted or
+escaped values. The final result is at most 240 UTF-16 code units and does not
+split a surrogate pair.
+
+```kotlin
+import io.bluetape4k.http.sanitizeOutboundError
+
+val summary = sanitizeOutboundError(
+    503,
+    "Authorization: Bearer secret-token temporary outage",
+)
+// HTTP 503 Authorization:[redacted] temporary outage
+
+val statusOnly = sanitizeOutboundError(422, "Authorization: Bearer")
+// HTTP 422
+```
+
+The caller owns retry, status classification, transaction, and cancellation
+behavior. Do not pass the original `Throwable` to logging or persistence; use
+the returned summary instead.
+
 ## Backend Comparison
 
 | Client | Protocol | Characteristics | Use case |
