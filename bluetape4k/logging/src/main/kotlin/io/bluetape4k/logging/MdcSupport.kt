@@ -132,7 +132,16 @@ private fun replaceMdcContext(context: Map<String, String>) {
     }
 }
 
-/** 전체 MDC를 scope 동안 대체하고 정상·예외 모두 scope 진입 전 context를 복원합니다. */
+/**
+ * 전체 MDC를 [context]로 대체한 범위에서 [block]을 실행합니다.
+ *
+ * 전달 map은 적용 전에 다시 복사합니다. 빈 map은 범위 안의 MDC를 clear하며, 정상 반환과
+ * 예외 모두 범위 진입 전 전체 MDC를 복원합니다. 빈 map을 no-op으로 처리하고 key별로
+ * 병합하는 [withLoggingContext]와는 다른 전체 대체 계약입니다.
+ *
+ * @param context 범위 안에서 사용할 전체 MDC map
+ * @param block MDC가 대체된 상태에서 실행할 코드
+ */
 fun <T> withMdcContext(context: Map<String, String>, block: () -> T): T {
     val previous = captureMdcContext()
     val applied = immutableMdcCopy(context)
