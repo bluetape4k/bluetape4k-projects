@@ -54,7 +54,7 @@ fun Path.writeAtomically(writer: (OutputStream) -> Unit): Long =
 
 private val SystemAtomicFileWriter = AtomicFileWriter(SystemAtomicFileOperations)
 
-// Throwable identity and suppression order are part of this writer's failure contract.
+// Throwable identity와 suppressed 순서는 이 writer가 보존해야 하는 실패 계약이다.
 @Suppress("TooGenericExceptionCaught")
 internal class AtomicFileWriter(
     private val operations: AtomicFileOperations,

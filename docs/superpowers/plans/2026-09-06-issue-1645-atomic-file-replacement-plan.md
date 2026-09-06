@@ -1373,13 +1373,13 @@ Targeted/full-suite test count, compile/Detekt 결과, `javap` descriptor, termi
 - Create: `docs/superpowers/reviews/2026-09-06-issue-1645-atomic-file-replacement-code-review.md`
 - Modify: `docs/superpowers/checklists/2026-09-06-issue-1645-type-a.md`
 
-- [ ] **Step 1: exact diff six-perspective code review 수행**
+- [x] **Step 1: exact diff six-perspective code review 수행**
 
 성능, 안정성, 보안, 운영, 개발자/API, 사용자/호출자 관점에 각각 exact local head와
 `origin/develop...HEAD` diff를 제공한다. 각 결과는 file:line, P0..P3, 검증 공백을
 분리한다. P0/P1은 source/test/docs를 수정하고 영향 관점을 다시 실행해 0으로 만든다.
 
-- [ ] **Step 2: main integration에서 acceptance를 대조**
+- [x] **Step 2: main integration에서 acceptance를 대조**
 
 다음을 한 표로 기록한다.
 
@@ -1396,7 +1396,7 @@ Targeted/full-suite test count, compile/Detekt 결과, `javap` descriptor, termi
 
 모든 행이 fresh evidence로 PASS이고 known P0/P1이 0일 때만 A-08을 완료한다.
 
-- [ ] **Step 3: 재사용 가능한 lesson 작성**
+- [x] **Step 3: 재사용 가능한 lesson 작성**
 
 `docs/lessons/2026-09-06-issue-1645-atomic-file-replacement.md`에 다음 주제를 근거와 함께
 기록한다.
@@ -1419,7 +1419,7 @@ Targeted/full-suite test count, compile/Detekt 결과, `javap` descriptor, termi
 ## 재사용 체크리스트
 ```
 
-- [ ] **Step 4: lesson 색인·검색 검증**
+- [x] **Step 4: lesson 색인·검색 검증**
 
 ```bash
 gno update
@@ -1430,7 +1430,7 @@ gno search "atomic file replacement provider cleanup" -c bluetape4k-docs
 Expected: 새 lesson이 대표 결과에 나타난다. GNO 실패는 lesson source를 무효화하지 않지만
 knowledge gate를 `PENDING`으로 두고 원인을 기록한다.
 
-- [ ] **Step 5: final artifact commit**
+- [x] **Step 5: final artifact commit**
 
 ```bash
 git add \
@@ -1490,7 +1490,7 @@ merge와 `2.1.0-SNAPSHOT` 발행은 이 PR 생성과 별도 승인 gate입니다
 ## DoD Status
 
 - [x] 설계·계획·TDD·module regression·ABI 검증 완료
-- [ ] six-perspective review에서 P0=0/P1=0
+- [x] six-perspective review에서 P0=0/P1=0
 - [ ] exact-head CI와 live review/thread 수렴
 - [ ] fresh merge 승인
 - [ ] 별도 `2.1.0-SNAPSHOT` 발행 승인과 provenance
