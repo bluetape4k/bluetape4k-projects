@@ -325,8 +325,9 @@ adoption checklist가 이를 금지한다.
   통해 단일 registry와 단일 subscription만 생성함
 - fake registrar가 raw subscribe 1회와 callback 뒤 handle dispose 1회를 직접 보고하며,
   registry close 횟수와 별도로 assertion됨
-- fake registrar가 handler를 공개한 뒤 handle 반환 직전 latch에서 멈추고 다른 thread가 callback을
-  시작하는 경합에서도 publication 뒤 handle dispose가 정확히 한 번 수행됨
+- fake registrar가 handler를 공개한 뒤 handle 반환 직전 latch에서 멈추고, 다른 thread의
+  callback 시작 latch를 관찰한 다음 handle 반환을 허용하는 경합에서도 publication 뒤 handle
+  dispose가 정확히 한 번 수행됨
 - subscribe failure 뒤 raw subscribe가 1회에서 멈추고 최초/후속 호출이 같은 sanitized
   type/message와 빈 cause/suppressed를 반환하며 registry를 정상 반환하지 않음
 - handle dispose failure가 registry report를 되돌리거나 callback을 재설치하지 않고 원본
