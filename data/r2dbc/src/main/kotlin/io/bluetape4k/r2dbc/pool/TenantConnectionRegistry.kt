@@ -2,13 +2,19 @@ package io.bluetape4k.r2dbc.pool
 
 import io.r2dbc.pool.ConnectionPool
 import io.r2dbc.spi.ConnectionFactory
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.NonCancellable
+import kotlinx.coroutines.currentCoroutineContext
+import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.withContext
 import java.util.Collections
 import java.util.IdentityHashMap
 import java.util.LinkedHashMap
 import java.util.LinkedHashSet
 import java.util.concurrent.atomic.AtomicBoolean
+import java.util.concurrent.locks.ReentrantLock
+import kotlin.concurrent.withLock
 
 /**
  * 정적으로 구성된 tenant key와 R2DBC connection factory를 연결하는 조회 계약입니다.
@@ -96,15 +102,19 @@ class TenantConnectionFactoryRegistry<K: Any>(
  * 중인 조회와 `close()`의 동시 실행은 지원하지 않으므로 lifecycle adapter가 둘을 직렬화해야
  * 합니다. 여러 thread가 `close()`를 호출하면 첫 종료가 끝날 때까지 직렬화되고 같은 실패 결과를
  * 관찰합니다.
+ *
+ * @param closeDispatcher [closeSuspending]에서 blocking pool dispose를 격리할 dispatcher
  */
 class TenantConnectionPoolRegistry<K: Any>(
     pools: Map<K, ConnectionPool>,
+    private val closeDispatcher: CoroutineDispatcher = Dispatchers.IO,
 ): TenantConnectionRegistry<K, ConnectionPool>, AutoCloseable {
 
     private val poolSnapshot = LinkedHashMap(pools)
     private val routes = RegistryRoutes(poolSnapshot)
     private val ownedPools = distinctByIdentity(poolSnapshot.values)
     private val closed = AtomicBoolean(false)
+    private val closeLock = ReentrantLock()
     private var closeFailure: Throwable? = null
 
     override val configuredKeys: Set<K>
@@ -128,14 +138,19 @@ class TenantConnectionPoolRegistry<K: Any>(
      * 호출해야 합니다. event-loop에서 직접 호출하지 말고 blocking lifecycle executor에서
      * 실행해야 합니다. 여기서 실패는 [Exception]을 뜻하며 [Error]는 즉시 전파합니다.
      */
-    @Suppress("TooGenericExceptionCaught")
-    @Synchronized
-    override fun close() {
-        closeFailure?.let { throw it }
+    override fun close() = closeLock.withLock {
+        throwFailure(closeFailure)
         if (!closed.compareAndSet(false, true)) {
-            return
+            return@withLock
         }
 
+        val failure = disposeOwnedPools()
+        closeFailure = failure
+        throwFailure(failure)
+    }
+
+    @Suppress("TooGenericExceptionCaught")
+    private fun disposeOwnedPools(): Throwable? {
         var firstFailure: Throwable? = null
         ownedPools.forEach { pool ->
             try {
@@ -152,23 +167,30 @@ class TenantConnectionPoolRegistry<K: Any>(
                 }
             }
         }
-
-        closeFailure = firstFailure
-        firstFailure?.let { throw it }
+        return firstFailure
     }
 
     /**
      * coroutine caller의 event-loop를 차단하지 않도록 [close]를 [Dispatchers.IO]에서 실행합니다.
-     * concurrent 종료, idempotency와 실패 전파 계약은 [close]와 같습니다.
+     * 이미 취소된 caller에서도 [NonCancellable] 경계에서 cleanup을 완료한 뒤 caller cancellation을
+     * 다시 전파합니다. concurrent 종료, idempotency와 실패 전파 계약은 [close]와 같습니다.
      */
     suspend fun closeSuspending() {
-        withContext(Dispatchers.IO) {
+        val callerContext = currentCoroutineContext()
+        withContext(NonCancellable + closeDispatcher) {
             close()
         }
+        callerContext.ensureActive()
     }
 
     private fun ensureOpen() {
         check(!closed.get()) { "Tenant connection pool registry is closed." }
+    }
+
+    private fun throwFailure(failure: Throwable?) {
+        if (failure != null) {
+            throw failure
+        }
     }
 
     private companion object {

@@ -188,8 +188,9 @@ pool 정리를 계속하며, 첫 실패를 다시 던지고 이후 실패는 sup
 연결합니다. `close()` 시작 후 조회는 `IllegalStateException`으로 실패하며, lifecycle
 adapter는 진행 중인 조회와 종료를 직렬화해야 합니다. `close()`는 동기 API이므로
 event-loop가 아닌 blocking lifecycle executor에서 실행하거나 coroutine에서는
-`closeSuspending()`을 사용하세요. concurrent `close()`는 첫 종료 완료까지 직렬화되며
-같은 실패를 관찰합니다. 동적
+`closeSuspending()`을 사용하세요. suspending 경로는 non-cancellable 경계에서 cleanup을
+마친 뒤 caller cancellation을 다시 전파합니다. concurrent `close()`는 JVM monitor 대신
+`ReentrantLock`으로 첫 종료 완료까지 직렬화되며 같은 실패를 관찰합니다. 동적
 `register`/`unregister`는 이 정적 registry API의 범위가 아닙니다. JVM `Error`는
 복구 가능한 종료 실패로 집계하지 않고 즉시 전파합니다. `close()` 전에 얻은 routing
 map도 종료 후에는 disposed pool을 가리킬 수 있으므로 함께 폐기해야 합니다.

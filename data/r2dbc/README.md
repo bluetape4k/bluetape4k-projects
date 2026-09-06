@@ -202,8 +202,10 @@ of this static registry API. Lookups after `close()` starts fail with
 `IllegalStateException`; lifecycle adapters must serialize in-flight lookups
 against shutdown. Because `close()` is synchronous, invoke it from a blocking
 lifecycle executor rather than an event loop, or use `closeSuspending()` from a
-coroutine. Concurrent `close()` calls serialize until the first close completes
-and observe the same failure. JVM `Error` values propagate immediately instead
+coroutine. The suspending path completes cleanup in a non-cancellable boundary,
+then propagates caller cancellation. Concurrent `close()` calls serialize with
+a `ReentrantLock` rather than a JVM monitor until the first close completes and
+observe the same failure. JVM `Error` values propagate immediately instead
 of entering the recoverable cleanup aggregation. Discard routing maps obtained
 before `close()` because they can still reference disposed pools.
 

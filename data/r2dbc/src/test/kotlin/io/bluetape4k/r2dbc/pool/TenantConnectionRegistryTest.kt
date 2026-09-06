@@ -10,6 +10,10 @@ import io.mockk.mockk
 import io.mockk.verify
 import io.r2dbc.pool.ConnectionPool
 import io.r2dbc.spi.ConnectionFactory
+import kotlinx.coroutines.CoroutineStart
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.currentCoroutineContext
+import kotlinx.coroutines.launch
 import org.junit.jupiter.api.Test
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.Executors
@@ -162,6 +166,21 @@ class TenantConnectionRegistryTest {
 
         registry.closeSuspending()
 
+        verify(exactly = 1) { pool.dispose() }
+    }
+
+    @Test
+    fun `closeSuspending은 취소된 caller에서도 pool cleanup을 완료하고 취소를 전파한다`() = runSuspendIO {
+        val pool = mockk<ConnectionPool>(relaxed = true)
+        val registry = TenantConnectionPoolRegistry(mapOf(TenantKey("tenant-a") to pool))
+
+        val caller = launch(start = CoroutineStart.UNDISPATCHED) {
+            currentCoroutineContext().cancel()
+            registry.closeSuspending()
+        }
+        caller.join()
+
+        caller.isCancelled shouldBeEqualTo true
         verify(exactly = 1) { pool.dispose() }
     }
 
