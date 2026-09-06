@@ -211,10 +211,10 @@ backend ownership은 caller adapter에 남긴다.
 
   internal class ApplicationResourceLifecycleHolder(
       private val registrar: ApplicationResourceSubscriptionRegistrar,
+      private val lock: ReentrantLock = ReentrantLock(),
   ) {
       private enum class InstallState { NEW, READY, FAILED, STOPPED }
 
-      private val lock = ReentrantLock()
       private var state: InstallState = InstallState.NEW
       private var subscription: DisposableHandle? = null
       internal val registry = ApplicationResourceRegistry()
@@ -316,6 +316,25 @@ backend ownership은 caller adapter에 남긴다.
           failure.suppressed.toList() shouldBeEmpty()
       }
       registrar.subscribeCount.get() shouldBeEqualTo 1
+  }
+
+  private class ObservedReentrantLock : ReentrantLock() {
+      val callbackContended = CountDownLatch(1)
+      private val observeContention = AtomicBoolean()
+
+      fun observeNextContention() {
+          check(observeContention.compareAndSet(false, true))
+      }
+
+      override fun lock() {
+          if (!observeContention.compareAndSet(true, false)) {
+              super.lock()
+              return
+          }
+          if (super.tryLock()) return
+          callbackContended.countDown()
+          super.lock()
+      }
   }
   ```
 
