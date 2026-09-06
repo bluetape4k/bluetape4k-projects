@@ -238,7 +238,10 @@ reader.use {
 `maxLineChars`는 UTF-16 code unit 수로 계산하므로 supplementary character 하나는
 두 unit으로 셉니다. LF, CRLF, CR은 line을 끝내며 상한에 포함하지 않습니다. 상한을
 초과한 line은 범위를 벗어난 첫 code unit을 읽는 즉시 `LineLimitExceededException`을
-발생시키고 부분 line을 반환하지 않습니다. wrapper는 고정 read buffer를 사용하고
+발생시키고 부분 line을 반환하지 않습니다. overflow 뒤 현재 줄 drain과 동일 wrapper의
+재사용은 보장하지 않으므로 해당 source 처리를 중단하고 Reader를 닫으세요.
+`maxLineChars`가 음수이거나 `bufferSize`가 0 이하이면 생성 시
+`IllegalArgumentException`이 발생합니다. wrapper는 고정 read buffer를 사용하고
 제공받은 `Reader`를 닫지 않으므로 Reader 수명, timeout, blocking 동작과 JSON/NDJSON
 parsing은 호출자가 책임집니다. `maxLineChars`와 `bufferSize`는 read-ahead 경계이지
 프로세스 전체 heap 예산이 아니므로, 외부 설정값은 배포 메모리 예산에 맞는 안전한

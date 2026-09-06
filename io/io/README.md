@@ -239,7 +239,10 @@ reader.use {
 `maxLineChars` counts UTF-16 code units, so a supplementary character counts as
 two units. LF, CRLF, and CR terminate a line and are not included in the limit.
 An over-limit line throws `LineLimitExceededException` as soon as its first
-out-of-range code unit is read; no partial line is returned. The wrapper uses a
+out-of-range code unit is read; no partial line is returned. Draining the current
+line and reusing the same wrapper after overflow are not supported; abort that
+source and close its reader. A negative `maxLineChars` or non-positive
+`bufferSize` throws `IllegalArgumentException` during construction. The wrapper uses a
 fixed read buffer and does not close the supplied `Reader`, so the caller owns
 the reader lifecycle, timeouts, blocking behavior, and any JSON/NDJSON parsing.
 These limits bound read-ahead, not total process heap, so externally configured

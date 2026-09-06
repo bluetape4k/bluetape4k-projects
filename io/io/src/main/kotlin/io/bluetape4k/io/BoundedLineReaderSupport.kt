@@ -52,6 +52,7 @@ class LineLimitExceededException(
  * @param reader 줄을 제공할 Reader
  * @param maxLineChars 허용할 최대 UTF-16 code unit 수
  * @param bufferSize 내부 char buffer 크기
+ * @throws IllegalArgumentException [maxLineChars]가 음수이거나 [bufferSize]가 0 이하인 경우
  */
 class BoundedLineReader(
     private val reader: Reader,
@@ -71,7 +72,9 @@ class BoundedLineReader(
      * 입력이 시작부터 EOF이면 `null`을 반환합니다. 빈 줄은 빈 문자열로 반환하고,
      * 마지막 줄에 종결자가 없어도 읽은 code unit을 반환한 뒤 다음 호출에서 `null`을
      * 반환합니다. 초과한 줄은 부분 문자열 없이 [LineLimitExceededException]으로
-     * 실패합니다. 이 함수는 원본 Reader를 닫지 않습니다.
+     * 실패합니다. overflow 뒤 현재 줄 drain이나 wrapper 재사용은 보장하지 않으므로
+     * 호출자는 해당 source 처리를 중단하고 원본 Reader를 닫아야 합니다. 이 함수는
+     * 원본 Reader를 직접 닫지 않습니다.
      *
      * @return 다음 줄 또는 입력이 끝난 경우 `null`
      * @throws LineLimitExceededException 줄이 [maxLineChars]를 초과한 경우
@@ -161,6 +164,7 @@ class BoundedLineReader(
  * @param maxLineChars 허용할 최대 UTF-16 code unit 수
  * @param bufferSize 내부 char buffer 크기
  * @return 길이 제한을 적용한 line reader
+ * @throws IllegalArgumentException [maxLineChars]가 음수이거나 [bufferSize]가 0 이하인 경우
  */
 fun Reader.boundedLineReader(
     maxLineChars: Int,
