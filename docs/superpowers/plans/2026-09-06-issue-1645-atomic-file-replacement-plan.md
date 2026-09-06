@@ -1444,7 +1444,7 @@ Commit intent: `provider별 파일 교체 위험이 다시 숨지 않도록 한�
 six-perspective `P0=0/P1=0`, 전체 module test, ABI와 미실행 Full Nightly/Image regression을
 정확히 기록한다.
 
-- [ ] **Step 6: PR 전 exact-head 검증과 승인된 PR 생성**
+- [x] **Step 6: PR 전 exact-head 검증과 승인된 PR 생성**
 
 ```bash
 git status --porcelain=v1
