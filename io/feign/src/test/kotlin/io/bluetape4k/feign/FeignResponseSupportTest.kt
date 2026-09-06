@@ -8,6 +8,9 @@ import io.bluetape4k.assertions.shouldBeFalse
 import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.logging.KLogging
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.NullSource
+import org.junit.jupiter.params.provider.ValueSource
 
 /**
  * [FeignResponseSupport]의 Content-Type 판별 및 본문 접근 확장 함수를 검증합니다.
@@ -124,6 +127,42 @@ class FeignResponseSupportTest: AbstractFeignTest() {
         val reader = response.bodyAsReader()
         val content = reader.readText()
         content shouldBeEqualTo expected
+    }
+
+    @ParameterizedTest
+    @NullSource
+    @ValueSource(strings = [
+        "text/plain",
+        "text/plain; charset=UTF-8",
+        "text/plain; charset=\"UTF-8\"",
+        "text/plain; charset=not-a-charset",
+        "text/plain; charset=invalid charset",
+    ])
+    fun `charset이 없거나 유효하지 않으면 UTF-8 본문을 보존한다`(contentType: String?) {
+        val expected = "한글 응답 café 😀"
+        feignResponse {
+            status(200)
+            request(dummyRequest)
+            headers(contentType?.let { mapOf("Content-Type" to listOf(it)) }.orEmpty())
+            body(expected.toByteArray(Charsets.UTF_8))
+        }.use { response ->
+            response.charset() shouldBeEqualTo Charsets.UTF_8
+            response.bodyAsReader().use { it.readText() } shouldBeEqualTo expected
+        }
+    }
+
+    @Test
+    fun `유효한 응답 charset은 UTF-8로 덮어쓰지 않는다`() {
+        val expected = "café déjà vu"
+        feignResponse {
+            status(200)
+            request(dummyRequest)
+            headers(mapOf("Content-Type" to listOf("text/plain; charset=ISO-8859-1")))
+            body(expected.toByteArray(Charsets.ISO_8859_1))
+        }.use { response ->
+            response.charset() shouldBeEqualTo Charsets.ISO_8859_1
+            response.bodyAsReader().use { it.readText() } shouldBeEqualTo expected
+        }
     }
 
     @Test
