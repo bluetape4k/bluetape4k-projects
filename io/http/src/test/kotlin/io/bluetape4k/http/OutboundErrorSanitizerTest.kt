@@ -62,6 +62,8 @@ class OutboundErrorSanitizerTest {
             "token=\"unterminated",
             "token=secret\\",
             "token=secret\\,raw-secret",
+            "Authorization: : raw-secret",
+            "Authorization: = raw-secret",
         )
 
         malformed.forEach { message ->

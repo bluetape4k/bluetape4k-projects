@@ -138,6 +138,8 @@ private fun parseQuotedValue(line: String, start: Int): ParsedCredentialValue? {
 }
 
 private fun parseUnquotedValue(line: String, start: Int): ParsedCredentialValue? {
+    if (start >= line.length || line[start] == ':' || line[start] == '=') return null
+
     var index = start
     var malformed = false
     while (index < line.length && !malformed) {
