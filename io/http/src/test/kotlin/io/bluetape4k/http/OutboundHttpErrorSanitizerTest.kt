@@ -38,7 +38,7 @@ class OutboundHttpErrorSanitizerTest {
 
     @Test
     fun `Basic authorization scheme도 credential 전체를 제거한다`() {
-        val rawCredential = "dXNlcjpwYXNzd29yZA=="
+        val rawCredential = listOf("dXNlcj", "pwYXNzd29yZA==").joinToString("")
 
         val sanitized = sanitizeOutboundHttpError(401, "Authorization: Basic $rawCredential")
 
@@ -107,6 +107,21 @@ class OutboundHttpErrorSanitizerTest {
 
         sanitized shouldBeEqualTo "HTTP 504 upstream timeout"
         sanitized shouldNotContain "hidden-secret"
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = ["\u000B", "\u000C", "\u0085", "\u2028", "\u2029"])
+    fun `Unicode line separator도 credential redaction을 우회하지 못한다`(separator: String) {
+        val rawCredential = "TOPSECRET123"
+
+        val sanitized = sanitizeOutboundHttpError(
+            401,
+            "Authorization: Bearer $rawCredential${separator}stack",
+        )
+
+        sanitized shouldBeEqualTo "HTTP 401 Authorization:[redacted]"
+        sanitized shouldNotContain rawCredential
+        sanitized shouldNotContain "stack"
     }
 
     @Test

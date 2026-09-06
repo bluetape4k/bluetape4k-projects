@@ -8,6 +8,8 @@ private const val REDACTED_OUTBOUND_HTTP_ERROR_VALUE: String = "[redacted]"
 private val credentialLikeOutboundErrorPattern =
     Regex("(?i)[\\\"']?\\b(authorization|cookie|token|secret|api[-_ ]?key)\\b[\\\"']?\\s*[:=]?\\s*.*$")
 
+private val outboundErrorLineSeparatorPattern = Regex("\\R")
+
 /**
  * outbound HTTP 오류를 DB 등에 저장할 수 있는 제한된 문자열로 정제합니다.
  *
@@ -35,8 +37,7 @@ fun sanitizeOutboundHttpError(
         .coerceAtLeast(0)
     val safeMessage = rawMessage
         ?.take(messageBudget)
-        ?.substringBefore('\n')
-        ?.substringBefore('\r')
+        ?.substringBeforeLineSeparator()
         ?.replace(credentialLikeOutboundErrorPattern, "$1:$REDACTED_OUTBOUND_HTTP_ERROR_VALUE")
         ?.takeIf { it.isNotBlank() }
 
@@ -44,3 +45,10 @@ fun sanitizeOutboundHttpError(
         .joinToString(" ")
         .take(OUTBOUND_HTTP_ERROR_MAX_LENGTH)
 }
+
+private fun String.substringBeforeLineSeparator(): String =
+    outboundErrorLineSeparatorPattern.find(this)
+        ?.range
+        ?.first
+        ?.let { endIndex -> substring(0, endIndex) }
+        ?: this
