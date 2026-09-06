@@ -15,6 +15,7 @@ ROOT = Path(__file__).resolve().parents[1]
 MANIFEST = ROOT / "scripts/testcontainers_image_gate_manifest.json"
 EXPECTED_FAMILY_COUNT = 51
 EXPECTED_RELEASE_FAMILY_COUNT = 47
+NON_IMAGE_GATE_SERVERS = frozenset({"Ignite2Server"})
 NON_RELEASE_RUNTIME_SERVERS = frozenset(
     {"ChromaDBServer", "OllamaServer", "RedpandaServer", "Ignite3Server"}
 )
@@ -255,7 +256,7 @@ def validate_manifest(entries: list[dict[str, Any]], root: Path = ROOT) -> list[
     names: set[str] = set()
     ids: set[str] = set()
     expected_readme = readme_tag_table(root / "testing/testcontainers/README.md")
-    expected_servers = set(source_servers)
+    expected_servers = set(source_servers) - NON_IMAGE_GATE_SERVERS
 
     for index, entry in enumerate(entries):
         prefix = f"families[{index}]"
