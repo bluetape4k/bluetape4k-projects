@@ -54,6 +54,14 @@ def aggregate_summaries(
     expected_by_id = {str(entry["id"]): entry for entry in manifest_entries}
     if len(expected_by_id) != len(manifest_entries):
         raise AggregationError("manifest contains duplicate family ids")
+    strict_family_ids = [
+        str(entry["id"]) for entry in manifest_entries if entry.get("platforms")
+    ]
+    if strict_family_ids:
+        raise AggregationError(
+            "strict platform families require explicit aggregate verification: "
+            + ", ".join(strict_family_ids)
+        )
 
     summaries = list(shard_summaries)
     if len(summaries) != expected_shard_count:

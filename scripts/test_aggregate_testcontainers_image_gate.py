@@ -119,6 +119,32 @@ class TestAggregateTestcontainersImageGate(unittest.TestCase):
         with self.assertRaisesRegex(AggregationError, "counter mismatch"):
             aggregate_summaries([summary], entries, expected_shard_count=1)
 
+    def test_aggregate_rejects_strict_platform_family_without_explicit_verifier(self) -> None:
+        entries = [
+            {
+                "id": "strict-family",
+                "releaseRequired": True,
+                "platforms": [
+                    {
+                        "id": "amd64",
+                        "os": "linux",
+                        "architecture": "amd64",
+                        "tag": "1.0",
+                        "runner": "ubuntu-24.04",
+                    }
+                ],
+            }
+        ]
+        with self.assertRaisesRegex(
+            AggregationError,
+            "strict platform families require explicit aggregate verification",
+        ):
+            aggregate_summaries(
+                [_summary(0, [_result("strict-family")], count=1)],
+                entries,
+                expected_shard_count=1,
+            )
+
 
 if __name__ == "__main__":
     unittest.main(verbosity=2)

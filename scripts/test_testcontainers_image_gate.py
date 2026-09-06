@@ -274,6 +274,12 @@ class TestTestcontainersImageGate(unittest.TestCase):
         self.assertIn("needs: [test-testcontainers, test-testcontainers-image-gate, plan]", workflow)
         self.assertIn("needs.test-testcontainers-image-gate.result == 'skipped'", workflow)
         self.assertIn("name: nightly-testcontainers-image-gate-${{ github.run_id }}-amd64", workflow)
+        for obsolete_argument in (
+            "--platform-id amd64",
+            "--expected-tag 2.18.0",
+            "--expected-architecture amd64",
+        ):
+            self.assertNotIn(obsolete_argument, workflow)
 
     def test_release_publish_reuses_full_nightly_gate_summary(self) -> None:
         workflow = (self.root / ".github/workflows/release.yml").read_text(encoding="utf-8")

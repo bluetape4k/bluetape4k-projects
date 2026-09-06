@@ -19,13 +19,6 @@ class Ignite2RemovalTest(unittest.TestCase):
         for relative in (".github/workflows/nightly-tests.yml", ".github/workflows/release.yml"):
             workflow = (ROOT / relative).read_text(encoding="utf-8")
             self.assertNotIn("ignite2", workflow.lower(), relative)
-        nightly = (ROOT / ".github/workflows/nightly-tests.yml").read_text(encoding="utf-8")
-        for obsolete_argument in (
-            "--platform-id amd64",
-            "--expected-tag 2.18.0",
-            "--expected-architecture amd64",
-        ):
-            self.assertNotIn(obsolete_argument, nightly)
 
     def test_build_contract_has_no_ignite2_runtime_dependency_or_jvm_options(self) -> None:
         root_build = (ROOT / "build.gradle.kts").read_text(encoding="utf-8")
