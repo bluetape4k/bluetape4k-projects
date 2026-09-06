@@ -19,6 +19,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.future.await
 import kotlinx.coroutines.isActive
@@ -26,7 +27,6 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.time.delay
 import kotlinx.coroutines.withContext
-import kotlinx.coroutines.withTimeout
 import kotlinx.coroutines.withTimeoutOrNull
 import java.io.Closeable
 
@@ -99,6 +99,9 @@ class LettuceSuspendedLoadedMap<K: Any, V: Any>(
         } else {
             null
         }
+
+    // Consumer coroutine만 접근한다. 이미 accepted된 실패 batch를 신규 channel entry보다 먼저 재시도한다.
+    private val writeBehindRetryQueue = ArrayDeque<Triple<K, V, Int>>()
 
     private val writeBehindJob =
         writeBehindChannel?.let {
@@ -314,12 +317,23 @@ class LettuceSuspendedLoadedMap<K: Any, V: Any>(
         val channel = writeBehindChannel ?: return
         while (currentCoroutineContext().isActive) {
             val batch = mutableListOf<Triple<K, V, Int>>()
-            // 첫 아이템은 blocking receive
-            val first = channel.receiveCatching().getOrNull() ?: break
+            // 실패한 accepted entry를 신규 channel entry보다 먼저 처리한다.
+            val isRetryBatch = writeBehindRetryQueue.isNotEmpty()
+            val first = if (isRetryBatch) {
+                writeBehindRetryQueue.removeFirst()
+            } else {
+                channel.receiveCatching().getOrNull()
+            }
+                ?: break
             batch.add(first)
-            // 나머지는 non-blocking tryReceive로 batch 수집
+            // retry와 신규 entry를 한 batch에 섞지 않아 실패 batch를 먼저 재시도한다.
             while (batch.size < config.writeBehindBatchSize) {
-                val next = channel.tryReceive().getOrNull() ?: break
+                val next = if (isRetryBatch) {
+                    writeBehindRetryQueue.removeFirstOrNull()
+                } else {
+                    channel.tryReceive().getOrNull()
+                }
+                    ?: break
                 batch.add(next)
             }
             flushBatch(batch)
@@ -346,23 +360,23 @@ class LettuceSuspendedLoadedMap<K: Any, V: Any>(
 
     private suspend fun flushBatch(entries: List<Triple<K, V, Int>>) {
         if (entries.isEmpty()) return
-        val batch = entries.associate { it.first to it.second }
+        val latestEntries = entries.associateBy { it.first }.values
+        val batch = latestEntries.associate { it.first to it.second }
         try {
             writer?.write(batch)
         } catch (e: CancellationException) {
+            withContext(NonCancellable) {
+                writeToDeadLetter(batch)
+            }
             throw e
         } catch (e: Exception) {
-            val attempts = entries.map { it.third + 1 }
+            val attempts = latestEntries.map { it.third + 1 }
             log.error(e) { "Write-behind flush 실패 (attempts=$attempts): ${batch.keys}" }
             val deadLetters = mutableMapOf<K, V>()
-            entries.forEach { (k, v, retryCount) ->
+            latestEntries.forEach { (k, v, retryCount) ->
                 val nextRetryCount = retryCount + 1
                 if (nextRetryCount < MAX_DEAD_LETTER_RETRY) {
-                    val result = writeBehindChannel?.trySend(Triple(k, v, nextRetryCount))
-                    if (result == null || result.isFailure) {
-                        log.warn { "Requeue failed for key=$k (attempt $nextRetryCount): channel full or closed" }
-                        deadLetters[k] = v
-                    }
+                    writeBehindRetryQueue.addLast(Triple(k, v, nextRetryCount))
                 } else {
                     deadLetters[k] = v
                 }
@@ -370,6 +384,41 @@ class LettuceSuspendedLoadedMap<K: Any, V: Any>(
             if (deadLetters.isNotEmpty()) {
                 writeToDeadLetter(deadLetters)
             }
+        }
+    }
+
+    private suspend fun awaitWriteBehindDrain(shutdownMethod: String) {
+        writeBehindChannel?.close()
+        val drained = writeBehindJob?.let { job ->
+            withTimeoutOrNull(config.writeBehindShutdownTimeout.toMillis()) {
+                job.join()
+                true
+            }
+        } ?: true
+        if (!drained) {
+            log.warn { "Write-behind job drain timed out during $shutdownMethod" }
+        }
+    }
+
+    private suspend fun cancelAndPersistPendingWriteBehind() {
+        writeBehindJob?.cancelAndJoin()
+
+        val pendingEntries = buildList {
+            addAll(writeBehindRetryQueue)
+            writeBehindRetryQueue.clear()
+            val channel = writeBehindChannel
+            if (channel != null) {
+                while (true) {
+                    add(channel.tryReceive().getOrNull() ?: break)
+                }
+            }
+        }
+        val latestPending = pendingEntries
+            .associateBy { it.first }
+            .values
+            .associate { (key, value, _) -> key to value }
+        if (latestPending.isNotEmpty()) {
+            writeToDeadLetter(latestPending)
         }
     }
 
@@ -381,15 +430,13 @@ class LettuceSuspendedLoadedMap<K: Any, V: Any>(
      * drain 대기 중 호출 스레드가 interrupt되면 interrupt 상태를 복원한 뒤 소유 리소스를 정리한다.
      */
     override fun close() {
-        // 1. 채널을 먼저 닫아 새 write 차단 (producer가 IllegalStateException을 던짐)
-        writeBehindChannel?.close()
-        // 2. writeBehindJob이 채널을 drain하고 자연스럽게 종료될 때까지 대기
-        //    취소 전에 join해야 남은 배치가 손실 없이 flush됨
         try {
-            writeBehindJob?.let { job ->
-                runBlocking(Dispatchers.IO) {
-                    withTimeout(config.writeBehindShutdownTimeout.toMillis()) {
-                        job.join()
+            runBlocking(Dispatchers.IO) {
+                try {
+                    awaitWriteBehindDrain("close()")
+                } finally {
+                    withContext(NonCancellable) {
+                        cancelAndPersistPendingWriteBehind()
                     }
                 }
             }
@@ -412,26 +459,15 @@ class LettuceSuspendedLoadedMap<K: Any, V: Any>(
      * context to avoid thread blocking while waiting for the write-behind job to drain.
      */
     suspend fun suspendClose() {
-        // 1. 채널을 먼저 닫아 새 write 차단
-        writeBehindChannel?.close()
-        // 2. write-behind job이 drain을 마칠 때까지 suspend로 대기.
-        //    호출자 취소는 전파하고, 내부 shutdown timeout만 graceful degradation으로 처리한다.
         try {
-            writeBehindJob?.let { job ->
-                val drained = withTimeoutOrNull(config.writeBehindShutdownTimeout.toMillis()) {
-                    job.join()
-                    true
-                } ?: false
-                if (!drained) {
-                    log.warn { "Write-behind job drain timed out during suspendClose()" }
-                }
-            }
+            awaitWriteBehindDrain("suspendClose()")
         } catch (e: CancellationException) {
             throw e
         } catch (e: Exception) {
             log.warn(e) { "Write-behind job drain failed during suspendClose()" }
         } finally {
             withContext(NonCancellable) {
+                cancelAndPersistPendingWriteBehind()
                 ownedJob.cancel()
                 if (lazyStrConnection.isInitialized()) lazyStrConnection.value.close()
                 connection.close()

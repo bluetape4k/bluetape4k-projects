@@ -157,8 +157,9 @@ class LettuceSuspendedLoadedMapTest: AbstractLettuceTest() {
     @Test
     fun `suspendClose - caller cancellation is propagated before internal shutdown timeout`() = runSuspendIO {
         val writerStarted = CompletableDeferred<Unit>()
+        val prefix = "suspend-close-cancel:${randomName()}"
         val config = LettuceCacheConfig.WRITE_BEHIND.copy(
-            keyPrefix = "suspend-close-cancel:${randomName()}",
+            keyPrefix = prefix,
             writeBehindDelay = Duration.ofSeconds(5),
             writeBehindBatchSize = 1,
             writeBehindShutdownTimeout = Duration.ofSeconds(2),
@@ -190,6 +191,9 @@ class LettuceSuspendedLoadedMapTest: AbstractLettuceTest() {
         }
 
         elapsedMillis shouldBeLessThan config.writeBehindShutdownTimeout.toMillis()
+        client.connect(StringCodec.UTF8).use { connection ->
+            connection.sync().lrange("$prefix:dead-letter", 0L, -1L).contains("key1").shouldBeTrue()
+        }
     }
 
     @Test
