@@ -161,6 +161,54 @@ the acquired/failed trial counts.
   `SELECT 1`; it adds one database round trip to every connection acquisition.
 - Treat benchmark numbers as local baselines, not universal limits. Re-run the DB-specific pool acquire benchmark against your driver/database shape when query latency, transaction duration, instance count, or DB connection limits change.
 
+### Tenant connection registries
+
+The tenant registries keep lookup and lifecycle ownership explicit:
+
+- `TenantConnectionFactoryRegistry<K>` is caller-owned. It snapshots a
+  `Map<K, ConnectionFactory>` and never closes its values, including values that
+  happen to be `ConnectionPool` instances.
+- `TenantConnectionPoolRegistry<K>` is registry-owned. It snapshots a
+  `Map<K, ConnectionPool>` and implements `AutoCloseable`; `close()` disposes
+  each distinct pool at most once.
+
+Both registries expose `configuredKeys`, `get(key)`, and `asRoutingMap()`.
+An unknown key fails fast with `NoSuchElementException`. Pass a key mapper to
+`asRoutingMap(keyMapper)` when the adapter uses a different key shape.
+
+```kotlin
+data class TenantKey(val id: String)
+
+val factories = TenantConnectionFactoryRegistry(
+    mapOf(TenantKey("tenant-a") to tenantAFactory, TenantKey("tenant-b") to tenantBFactory),
+)
+val routes: Map<String, ConnectionFactory> = factories.asRoutingMap { tenant -> tenant.id }
+
+val pools = TenantConnectionPoolRegistry(
+    mapOf("tenant-a" to tenantAPool, "tenant-b" to tenantBPool),
+)
+try {
+    val factory: ConnectionFactory = pools["tenant-a"]
+} finally {
+    pools.close()
+}
+```
+
+Pool creation, tenant parsing, request context, authentication, transactions,
+and framework lifecycle callbacks remain caller responsibilities. Pool cleanup
+continues after a failure: the first failure is rethrown and later failures are
+attached as suppressed exceptions. Dynamic `register`/`unregister` is not part
+of this static registry API. Lookups after `close()` starts fail with
+`IllegalStateException`; lifecycle adapters must serialize in-flight lookups
+against shutdown. Because `close()` is synchronous, invoke it from a blocking
+lifecycle executor rather than an event loop, or use `closeSuspending()` from a
+coroutine. The suspending path completes cleanup in a non-cancellable boundary,
+then propagates caller cancellation. Concurrent `close()` calls serialize with
+a `ReentrantLock` rather than a JVM monitor until the first close completes and
+observe the same failure. JVM `Error` values propagate immediately instead
+of entering the recoverable cleanup aggregation. Discard routing maps obtained
+before `close()` because they can still reference disposed pools.
+
 ### 2. Executing SQL with DatabaseClient
 
 ```kotlin
