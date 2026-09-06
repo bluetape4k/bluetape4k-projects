@@ -74,6 +74,47 @@ class TinkDigesterTest {
     }
 
     @Test
+    fun `문자열을 UTF-8 lowercase hex digest로 변환한다`() {
+        val hash = digester.digestHex("abc")
+
+        hash shouldBeEqualTo "ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad"
+        hash.length shouldBeEqualTo 64
+    }
+
+    @Test
+    fun `선행 0 바이트를 두 자리 hex로 보존한다`() {
+        digester.digestHex("286") shouldBeEqualTo
+            "00328ce57bbc14b33bd6695bc8eb32cdf2fb5f3a7d89ec14a42825e15d39df60"
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = ["", "한글 테스트", "special chars !@#\$%^&*()"])
+    fun `hex digest verifier 라운드트립`(data: String) {
+        val hash = digester.digestHex(data)
+
+        digester.matchesHex(data, hash).shouldBeTrue()
+        digester.matchesHex("다른 입력", hash).shouldBeFalse()
+    }
+
+    @ParameterizedTest
+    @ValueSource(
+        strings = [
+            "",
+            "not-hex",
+            "ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015a",
+            "BA7816BF8F01CFEA414140DE5DAE2223B00361A396177A9CB410FF61F20015AD",
+        ],
+    )
+    fun `잘못된 hex expected hash는 false를 반환한다`(expected: String) {
+        digester.matchesHex("abc", expected).shouldBeFalse()
+    }
+
+    @Test
+    fun `기존 문자열 digest는 Base64 계약을 유지한다`() {
+        digester.digest("abc") shouldBeEqualTo "ungWv48Bz+pBQUDeXa4iI7ADYaOWF3qctBD/YfIAFa0="
+    }
+
+    @Test
     fun `빈 입력 digest`() {
         val hash = digester.digest(ByteArray(0))
         hash shouldNotBeEqualTo ByteArray(0)
