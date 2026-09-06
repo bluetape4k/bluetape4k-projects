@@ -24,6 +24,7 @@ import java.util.concurrent.TimeUnit
  * - **Read-through**: 캐시 미스 시 [MapLoader]를 통해 DB에서 값을 로드하고 Redis에 캐싱한다.
  * - **Write-through**: [MapWriter]를 통해 DB에 즉시 쓰고 Redis도 갱신한다.
  * - **Write-behind**: [MapWriter]를 통해 DB에 비동기로 쓰고 Redis는 즉시 갱신한다.
+ *   같은 batch의 동일 키는 마지막 값을 사용하며, 실패한 batch도 원래 순서로 재시도한다.
  * - **NONE**: Redis만 사용하고 DB 쓰기를 하지 않는다.
  *
  * ```kotlin
@@ -314,7 +315,7 @@ class LettuceLoadedMap<K: Any, V: Any>(
                 val attempts = entries.map { it.third + 1 }
                 log.error(e) { "Write-behind flush 실패 (attempts=$attempts): ${batch.keys}" }
                 val failed = mutableListOf<Triple<K, V, Int>>()
-                entries.forEach { (k, v, retryCount) ->
+                entries.asReversed().forEach { (k, v, retryCount) ->
                     val nextRetryCount = retryCount + 1
                     if (nextRetryCount < MAX_DEAD_LETTER_RETRY) {
                         // 개선: offerFirst 반환값 확인 — 큐가 가득 찬 경우 재시도 항목이 유실될 수 있음.
@@ -336,7 +337,8 @@ class LettuceLoadedMap<K: Any, V: Any>(
                         //       HSET 실패 시 LPUSH를 건너뛰어 복구 불가 상태(모니터링 오탐)를 방지합니다.
                         val deadLetterKey = "${config.keyPrefix}:dead-letter"
                         val deadLetterValuesKey = "${config.keyPrefix}:dead-letter:values"
-                        val failedBatch = failed.associate { it.first to it.second }
+                        // entries를 역순으로 재삽입하면서 수집했으므로 dead-letter 병합은 원래 순서로 복원한다.
+                        val failedBatch = failed.asReversed().associate { it.first to it.second }
                         val valueMap = failedBatch.entries.associate { (k, v) -> keySerializer(k) to v }
                         // HSET 먼저: 실패 시 LPUSH 건너뜀 (복구 데이터 우선)
                         commands.hset(deadLetterValuesKey, valueMap)

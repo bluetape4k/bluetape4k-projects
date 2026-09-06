@@ -15,11 +15,118 @@ import kotlinx.coroutines.channels.Channel
 import org.junit.jupiter.api.Test
 import java.time.Duration
 import java.util.concurrent.LinkedBlockingDeque
+import java.util.concurrent.atomic.AtomicInteger
 import kotlin.reflect.full.callSuspend
 import kotlin.reflect.full.declaredMemberFunctions
 import kotlin.reflect.jvm.isAccessible
 
 internal class LettuceWriteBehindRetryTest: AbstractLettuceTest() {
+
+    @Test
+    fun `blocking write-behind는 실패 후에도 동일 키의 최신 값을 유지한다`() {
+        val writes = mutableListOf<Map<String, String>>()
+        val attempts = AtomicInteger()
+        val writer = object: MapWriter<String, String> {
+            override fun write(map: Map<String, String>) {
+                writes += map
+                if (attempts.getAndIncrement() == 0) {
+                    error("simulated write failure")
+                }
+            }
+
+            override fun delete(keys: Collection<String>) = Unit
+        }
+        val config = LettuceCacheConfig.WRITE_BEHIND.copy(
+            keyPrefix = "latest-write-wins:${randomName()}",
+            writeBehindDelay = Duration.ofDays(1),
+            writeBehindBatchSize = 2,
+        )
+
+        LettuceLoadedMap(client = client, writer = writer, config = config).use { map ->
+            map.writeBehindQueue().apply {
+                add(Triple("same-key", "old-value", 0))
+                add(Triple("same-key", "latest-value", 0))
+            }
+
+            map.flushWriteBehindQueue()
+            map.flushWriteBehindQueue()
+
+            writes shouldBeEqualTo listOf(
+                mapOf("same-key" to "latest-value"),
+                mapOf("same-key" to "latest-value"),
+            )
+        }
+    }
+
+    @Test
+    fun `blocking write-behind는 재시도 중 도착한 최신 값을 순서대로 처리한다`() {
+        val writes = mutableListOf<Map<String, String>>()
+        val attempts = AtomicInteger()
+        lateinit var loadedMap: LettuceLoadedMap<String, String>
+        val writer = object: MapWriter<String, String> {
+            override fun write(map: Map<String, String>) {
+                writes += map
+                if (attempts.getAndIncrement() == 0) {
+                    loadedMap.writeBehindQueue().add(Triple("same-key", "newest-value", 0))
+                    error("simulated write failure")
+                }
+            }
+
+            override fun delete(keys: Collection<String>) = Unit
+        }
+        val config = LettuceCacheConfig.WRITE_BEHIND.copy(
+            keyPrefix = "concurrent-latest-write-wins:${randomName()}",
+            writeBehindDelay = Duration.ofDays(1),
+            writeBehindBatchSize = 2,
+        )
+
+        loadedMap = LettuceLoadedMap(client = client, writer = writer, config = config)
+        loadedMap.use { map ->
+            map.writeBehindQueue().apply {
+                add(Triple("same-key", "old-value", 0))
+                add(Triple("same-key", "latest-retried-value", 0))
+            }
+
+            map.flushWriteBehindQueue()
+            map.flushWriteBehindQueue()
+            map.flushWriteBehindQueue()
+
+            writes shouldBeEqualTo listOf(
+                mapOf("same-key" to "latest-retried-value"),
+                mapOf("same-key" to "latest-retried-value"),
+                mapOf("same-key" to "newest-value"),
+            )
+        }
+    }
+
+    @Test
+    fun `blocking write-behind는 retry 소진 시 동일 키의 최신 값을 dead-letter에 보존한다`() {
+        val prefix = "latest-dead-letter:${randomName()}"
+        val writer = object: MapWriter<String, String> {
+            override fun write(map: Map<String, String>) = error("simulated write failure")
+
+            override fun delete(keys: Collection<String>) = Unit
+        }
+        val config = LettuceCacheConfig.WRITE_BEHIND.copy(
+            keyPrefix = prefix,
+            writeBehindDelay = Duration.ofDays(1),
+            writeBehindBatchSize = 2,
+        )
+
+        LettuceLoadedMap(client = client, writer = writer, config = config).use { map ->
+            map.writeBehindQueue().apply {
+                add(Triple("same-key", "old-value", 2))
+                add(Triple("same-key", "latest-value", 2))
+            }
+
+            map.flushWriteBehindQueue()
+
+            map.writeBehindQueue().toList() shouldBeEqualTo emptyList()
+            client.connect(LettuceBinaryCodec<String>(BinarySerializers.LZ4Fory)).use { connection ->
+                connection.sync().hget("$prefix:dead-letter:values", "same-key") shouldBeEqualTo "latest-value"
+            }
+        }
+    }
 
     @Test
     fun `blocking write-behind는 entry별 retry count를 보존한다`() {
