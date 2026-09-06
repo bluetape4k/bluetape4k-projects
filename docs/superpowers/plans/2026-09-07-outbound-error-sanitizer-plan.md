@@ -25,11 +25,11 @@
 
 - [ ] **Step 1: exact output cases 작성**
 
-  `null/blank는 HTTP prefix만 반환`, `첫 줄과 양 끝 공백만 보존`, `Authorization/Cookie/Token/Secret/API-Key`의 대소문자·`:`·`=`·Bearer·space/hyphen/underscore 변형을 `[redacted]`로 바꿈`, `여러 credential을 모두 치환`, `multiline은 첫 줄만 남김`을 exact string으로 검증한다.
+  `null/blank는 HTTP prefix만 반환`, `첫 줄과 양 끝 공백을 trim`, `Authorization/Cookie/Token/Secret/API-Key`의 대소문자·`:`·`=`·Bearer·space/hyphen/underscore 변형을 `[redacted]`로 바꿈`, `여러 credential을 모두 치환`, `multiline은 첫 줄만 남김`을 exact string으로 검증한다.
 
 - [ ] **Step 2: boundary/security cases 작성**
 
-  `결과가 정확히 240자에서 잘림`, `status prefix가 긴 값이어도 음수 take 오류가 없음`, `Unicode 문자를 포함해 240 Kotlin Char 이내`, `malformed/no-delimiter input은 예외 없이 반환`, `입력 secret이 결과에 절대 포함되지 않음`을 검증한다.
+  `결과가 정확히 240 UTF-16 Char 이내이며 surrogate pair를 자르지 않음`, `Int status prefix가 항상 보존됨`, `Unicode 문자를 포함해 경계가 안전함`, `malformed marker/empty Bearer는 status-only fail-closed`, `입력 secret이 결과에 절대 포함되지 않음`을 검증한다.
 
 - [ ] **Step 3: RED 실행**
 
@@ -44,11 +44,11 @@
 
 - [ ] **Step 1: constants와 credential regex 작성**
 
-  `MAX_LENGTH = 240`, `credentialPattern = Regex("(?i)\\b(authorization|cookie|token|secret|api[-_ ]?key)\\b\\s*[:=]\\s*(?:Bearer\\s+)?[^\\s,;]+")`를 private immutable constant로 둔다. replacement는 captured key의 표기를 유지하는 `"\$1:[redacted]"`를 사용한다.
+  `MAX_LENGTH = 240`, `credentialPattern = Regex("(?i)\\b(authorization|cookie|token|secret|api[-_ ]?key)\\b\\s*[:=]\\s*(?:Bearer\\s+)?[^\\s]+")`를 private immutable constant로 둔다. 별도의 marker regex로 key-value가 malformed/empty인지 검사해 해당 first line을 status-only로 버린다. replacement는 captured key의 표기를 유지하는 `"\$1:[redacted]"`를 사용한다.
 
 - [ ] **Step 2: 순수 함수 구현**
 
-  `prefix = "HTTP $statusCode"`를 만들고 `rawMessage?.lineSequence()?.firstOrNull()?.trim()`을 redaction한 뒤 `MAX_LENGTH - prefix.length`를 `coerceAtLeast(0)`으로 계산한다. blank/empty는 prefix only, 모든 반환 경로는 `.take(MAX_LENGTH)`로 마무리한다. 함수는 로그·예외·외부 상태를 만들지 않는다.
+  `prefix = "HTTP $statusCode"`를 만들고 `rawMessage?.lineSequence()?.firstOrNull()?.trim()`을 redaction한 뒤 malformed marker이면 버린다. `MAX_LENGTH - prefix.length`를 `coerceAtLeast(0)`으로 계산하고, surrogate-safe helper로 body를 자른다. blank/empty는 prefix only, 모든 반환 경로는 prefix를 보존한다. 함수는 로그·예외·외부 상태를 만들지 않는다.
 
 - [ ] **Step 3: GREEN 실행**
 
@@ -94,7 +94,7 @@
 
 - [ ] **Step 1: verify current consumer call sites**
 
-  Before provider publication, only read/record Spring and Ktor call sites. Do not edit them in this branch. Confirm status/retry/transaction/cancellation remain outside the sanitizer.
+  Before provider publication, only read/record Spring and Ktor call sites. Do not edit them in this branch. Confirm status/retry/transaction/cancellation remain outside the sanitizer and record that caller tests must log/persist the sanitized result rather than the original Throwable.
 
 - [ ] **Step 2: record dependency hold**
 
