@@ -1,17 +1,17 @@
 package io.bluetape4k.collections.eclipse.parallel
 
 import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldBeLessThan
 import io.bluetape4k.assertions.shouldContainSame
 import io.bluetape4k.collections.AbstractCollectionTest
 import io.bluetape4k.collections.eclipse.fastList
 import io.bluetape4k.collections.eclipse.stream.toFastList
 import io.bluetape4k.collections.eclipse.toFastList
 import io.bluetape4k.logging.KLogging
-import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.info
 import io.bluetape4k.utils.Runtimex
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.ValueSource
 import java.util.concurrent.ConcurrentLinkedQueue
 import kotlin.system.measureTimeMillis
 
@@ -44,22 +44,14 @@ class ParallelIterateSupportTest: AbstractCollectionTest() {
         odd.size shouldBeEqualTo xs.size / 2
     }
 
-    @Test
-    fun `병렬 방식으로 숫자 세기`() {
-        val xs = fastList(LIST_COUNT) { it }
+    @ParameterizedTest
+    @ValueSource(ints = [0, 1, 31, 32, 33, 1000])
+    fun `병렬 count는 빈 입력과 배치 경계에서도 정확한 개수를 반환한다`(size: Int) {
+        val values = fastList(size) { it }
 
-        val fastTime = measureTimeMillis {
-            val count = xs.parCount(LIST_COUNT) { Thread.sleep(1); it % 2 == 0 }
-            count shouldBeEqualTo xs.size / 2
-        }
-
-        val slowTime = measureTimeMillis {
-            val count = xs.count { Thread.sleep(1); it % 2 == 0 }
-            count shouldBeEqualTo xs.size / 2
-        }
-
-        log.debug { "Fast count took $fastTime ms, slow count took $slowTime ms" }
-        fastTime shouldBeLessThan slowTime
+        values.parCount(batchSize = 32) { it % 2 == 0 } shouldBeEqualTo (size + 1) / 2
+        values.parCount(batchSize = 32) { true } shouldBeEqualTo size
+        values.parCount(batchSize = 32) { false } shouldBeEqualTo 0
     }
 
     @Test
