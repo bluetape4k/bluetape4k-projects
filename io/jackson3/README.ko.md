@@ -183,7 +183,7 @@ val bytes = canonical.canonicalBytes("""{"b":1.0,"a":"café"}""".toByteArray())
 // bytes.decodeToString() == """{"a":"café", "b":1}"""
 ```
 
-canonical parser는 `Jackson.defaultJsonMapper`와 분리되어 있습니다. duplicate key와 trailing token을 거부하고, object key를 정렬하며, array 순서를 유지하고, 유한 숫자 표현을 정규화해 UTF-8 bytes로 출력합니다. 기존 `", "` separator도 출력 계약에 포함됩니다. 문자열 value NFC 정규화는 선택 사항이며 field name에는 적용하지 않습니다. 신뢰할 수 없는 입력에는 body, depth, string/name/number, object field 수, array 원소 수, output 제한을 명시적으로 설정하세요. `maxBodyBytes`는 source 크기를 보존하지 않는 `JsonNode`에는 적용할 수 없어 raw `ByteArray` 입력에만 적용하며, 나머지 tree/output 제한은 두 진입점 모두 적용합니다. container 제한은 object 정렬이나 array 순회 전에 검사합니다. 이 형식은 기존 Workshop 계약이며 RFC 8785/JCS 구현이 아닙니다. digest와 HMAC framing은 호출자의 책임입니다.
+canonical parser는 `Jackson.defaultJsonMapper`와 분리되어 있습니다. duplicate key와 trailing token을 거부하고, object key를 정렬하며, array 순서를 유지하고, 유한 숫자 표현을 정규화해 UTF-8 bytes로 출력합니다. 기존 `", "` separator와 Double parsing도 출력 계약에 포함됩니다. 문자열 value NFC 정규화는 선택 사항이며 field name에는 적용하지 않습니다. 신뢰할 수 없는 입력에는 body, node depth, string/name/number, object field 수, array 원소 수, output 제한을 명시적으로 설정하세요. 기존 Workshop처럼 root node는 depth 0이고 child마다 1씩 증가합니다. `maxBodyBytes`는 source 크기를 보존하지 않는 `JsonNode`에는 적용할 수 없어 raw `ByteArray` 입력에만 적용하며, 나머지 tree/output 제한은 두 진입점 모두 적용합니다. container 제한은 object 정렬이나 array 순회 전에 검사합니다. 이 형식은 기존 Workshop 계약이며 RFC 8785/JCS 구현이 아닙니다. digest/HMAC framing, envelope schema와 field allowlist, tenant/key scope, domain exception 변환, persistence 및 retry 정책은 호출자의 책임입니다.
 
 ### 4. 비동기 JSON 파싱
 

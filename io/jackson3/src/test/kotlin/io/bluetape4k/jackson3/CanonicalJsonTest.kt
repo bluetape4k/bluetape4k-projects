@@ -131,20 +131,26 @@ class CanonicalJsonTest {
     }
 
     @Test
-    fun `floating number는 BigDecimal precision을 보존한다`() {
+    fun `floating number는 기존 Workshop Double parsing bytes를 보존한다`() {
         val body = """{"value":0.123456789012345678901234567890}""".toByteArray()
 
         CanonicalJson().canonicalString(body) shouldBeEqualTo
-            """{"value":0.12345678901234567890123456789}"""
+            """{"value":0.12345678901234568}"""
     }
 
     @Test
-    fun `maxDepth 0은 root container를 허용하고 nested value를 거부한다`() {
-        val canonical = CanonicalJson(CanonicalJsonLimits(maxDepth = 0))
+    fun `maxDepth는 기존 Workshop처럼 root node를 0으로 센다`() {
+        val rootOnly = CanonicalJson(CanonicalJsonLimits(maxDepth = 0))
+        rootOnly.canonicalString("1".toByteArray()) shouldBeEqualTo "1"
+        rootOnly.canonicalString("{}".toByteArray()) shouldBeEqualTo "{}"
+        assertFailsWith<IllegalArgumentException> {
+            rootOnly.canonicalBytes("""{"value":1}""".toByteArray())
+        }
 
-        canonical.canonicalString("{}".toByteArray()) shouldBeEqualTo "{}"
-        assertFailsWith<Exception> {
-            canonical.canonicalBytes("""{"value":1}""".toByteArray())
+        val oneChildLevel = CanonicalJson(CanonicalJsonLimits(maxDepth = 1))
+        oneChildLevel.canonicalString("""{"value":{}}""".toByteArray()) shouldBeEqualTo """{"value":{}}"""
+        assertFailsWith<IllegalArgumentException> {
+            oneChildLevel.canonicalBytes("""{"value":{"nested":1}}""".toByteArray())
         }
     }
 
@@ -160,12 +166,13 @@ class CanonicalJsonTest {
 
     @Test
     fun `canonical JSON은 JsonNode 입력과 raw 입력에 동일한 UTF-8 bytes를 반환한다`() {
-        val body = """{"b":1.000,"a":"현장"}""".toByteArray()
+        val body = """{"b":0.123456789012345678901234567890,"a":"현장"}""".toByteArray()
         val canonicalJson = CanonicalJson()
         val node = Jackson.defaultJsonMapper.readTree(body)
 
         canonicalJson.canonicalBytes(body) shouldBeEqualTo canonicalJson.canonicalBytes(node)
-        canonicalJson.canonicalBytes(body).decodeToString() shouldBeEqualTo """{"a":"현장", "b":1}"""
+        canonicalJson.canonicalBytes(body).decodeToString() shouldBeEqualTo
+            """{"a":"현장", "b":0.12345678901234568}"""
     }
 
     @Test
@@ -194,4 +201,7 @@ class CanonicalJsonTest {
 
     private fun ByteArray.sha256Hex(): String =
         HexFormat.of().formatHex(MessageDigest.getInstance("SHA-256").digest(this))
+
+    private fun CanonicalJson.canonicalString(body: ByteArray): String =
+        canonicalBytes(body).decodeToString()
 }

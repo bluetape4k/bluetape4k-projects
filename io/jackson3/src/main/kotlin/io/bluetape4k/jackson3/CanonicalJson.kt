@@ -24,7 +24,7 @@ private const val CANONICAL_SEPARATOR = ", "
  * canonical 출력 상한을 우회하지 못합니다.
  *
  * @param maxBodyBytes raw JSON body에 허용하는 최대 UTF-8 byte 수
- * @param maxDepth root를 0으로 세는 최대 JSON 값 깊이
+ * @param maxDepth root node를 0으로 세고 child마다 1씩 증가하는 최대 깊이
  * @param maxStringLength JSON 문자열 value에 허용하는 최대 문자 수
  * @param maxNameLength object field name에 허용하는 최대 문자 수
  * @param maxNumberLength raw JSON 숫자 token에 허용하는 최대 문자 수
@@ -100,6 +100,8 @@ enum class CanonicalJsonStringNormalization {
  * separator와 숫자 정규화(`stripTrailingZeros().toPlainString()`)를 보존합니다.
  * 문자열 NFC는 [CanonicalJsonStringNormalization.NFC]를 명시한 경우에만 value에
  * 적용하고 field name에는 적용하지 않습니다.
+ * envelope schema와 field allowlist, tenant/key scope, domain exception 변환,
+ * persistence 및 retry 정책도 호출자가 소유합니다.
  *
  * parser는 [Jackson.defaultJsonMapper]와 별도로 생성되므로 canonical JSON의 strict
  * 설정이 애플리케이션의 공유 mapper를 변경하지 않습니다. raw [ByteArray] 입력은
@@ -139,7 +141,6 @@ class CanonicalJson(
         .enable(
             DeserializationFeature.FAIL_ON_READING_DUP_TREE_KEY,
             DeserializationFeature.FAIL_ON_TRAILING_TOKENS,
-            DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS,
         )
         .build()
 
@@ -168,16 +169,10 @@ class CanonicalJson(
      *
      * @throws IllegalArgumentException 제한을 초과했거나 지원하지 않는 tree 값인 경우
      */
-    fun canonicalBytes(node: JsonNode): ByteArray = canonicalString(node).toByteArray(UTF_8)
-
-    /** raw JSON body를 canonical JSON 문자열로 변환합니다. */
-    fun canonicalString(body: ByteArray): String = canonicalBytes(body).decodeToString()
-
-    /** [JsonNode]를 canonical JSON 문자열로 변환합니다. */
-    fun canonicalString(node: JsonNode): String {
+    fun canonicalBytes(node: JsonNode): ByteArray {
         val output = CanonicalOutput(limits.maxOutputBytes)
         appendNode(node, depth = 0, output)
-        return output.toString()
+        return output.toString().toByteArray(UTF_8)
     }
 
     private fun readTree(body: ByteArray): JsonNode {
@@ -189,7 +184,6 @@ class CanonicalJson(
         require(depth <= limits.maxDepth) {
             "JSON depth($depth)가 maxDepth(${limits.maxDepth})를 초과했습니다"
         }
-
         when {
             node.isObject -> appendObject(node, depth, output)
             node.isArray -> appendArray(node, depth, output)
