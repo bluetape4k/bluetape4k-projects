@@ -54,6 +54,8 @@ fun Path.writeAtomically(writer: (OutputStream) -> Unit): Long =
 
 private val SystemAtomicFileWriter = AtomicFileWriter(SystemAtomicFileOperations)
 
+// Throwable identity and suppression order are part of this writer's failure contract.
+@Suppress("TooGenericExceptionCaught")
 internal class AtomicFileWriter(
     private val operations: AtomicFileOperations,
 ) {
@@ -65,43 +67,28 @@ internal class AtomicFileWriter(
         val parent = requireNotNull(target.parent) { "Normalized target must have a parent" }
         operations.createDirectories(parent)
 
-        var staged: Path? = null
-        var committed = false
-        var primaryFailure: Throwable? = null
+        val staged = operations.createTempFile(parent, ".$fileName.", ".tmp")
         try {
-            staged = operations.createTempFile(parent, ".$fileName.", ".tmp")
-            val output = CountingOutputStream(operations.openOutput(staged))
-            val callbackFailure = try {
-                writer(output)
-                null
-            } catch (failure: Throwable) {
-                failure
-            }
-
-            close(output, callbackFailure)?.let { throw it }
-            val written = output.count
-            operations.move(
-                staged,
-                target,
-                StandardCopyOption.ATOMIC_MOVE,
-                StandardCopyOption.REPLACE_EXISTING,
-            )
-            committed = true
-            return written
+            return writeStaged(staged, target, writer)
         } catch (failure: Throwable) {
-            primaryFailure = failure
+            deleteTemporary(staged, failure)
             throw failure
-        } finally {
-            if (!committed) {
-                staged?.let { temporary ->
-                    try {
-                        operations.deleteIfExists(temporary)
-                    } catch (cleanupFailure: Throwable) {
-                        primaryFailure?.attachSuppressedSafely(cleanupFailure) ?: throw cleanupFailure
-                    }
-                }
-            }
         }
+    }
+
+    private fun writeStaged(staged: Path, target: Path, writer: (OutputStream) -> Unit): Long {
+        val output = CountingOutputStream(operations.openOutput(staged))
+        val callbackFailure = captureFailure { writer(output) }
+
+        close(output, callbackFailure)?.let { throw it }
+        val written = output.count
+        operations.move(
+            staged,
+            target,
+            StandardCopyOption.ATOMIC_MOVE,
+            StandardCopyOption.REPLACE_EXISTING,
+        )
+        return written
     }
 
     private fun close(output: OutputStream, callbackFailure: Throwable?): Throwable? {
@@ -112,6 +99,14 @@ internal class AtomicFileWriter(
             callbackFailure.attachSuppressedSafely(closeFailure)
         }
         return callbackFailure
+    }
+
+    private fun deleteTemporary(staged: Path, primaryFailure: Throwable) {
+        try {
+            operations.deleteIfExists(staged)
+        } catch (cleanupFailure: Throwable) {
+            primaryFailure.attachSuppressedSafely(cleanupFailure)
+        }
     }
 }
 
@@ -153,11 +148,21 @@ private class CountingOutputStream(delegate: OutputStream): FilterOutputStream(d
 }
 
 private fun Throwable.attachSuppressedSafely(secondary: Throwable) {
-    if (this === secondary) return
-    if (reaches(secondary) || secondary.reaches(this)) return
-    if (suppressed.any { it === secondary }) return
-    addSuppressed(secondary)
+    val canAttach = this !== secondary &&
+            !reaches(secondary) &&
+            !secondary.reaches(this) &&
+            suppressed.none { it === secondary }
+    if (canAttach) addSuppressed(secondary)
 }
+
+@Suppress("TooGenericExceptionCaught")
+private inline fun captureFailure(block: () -> Unit): Throwable? =
+    try {
+        block()
+        null
+    } catch (failure: Throwable) {
+        failure
+    }
 
 private fun Throwable.reaches(target: Throwable): Boolean {
     val visited = Collections.newSetFromMap(IdentityHashMap<Throwable, Boolean>())
