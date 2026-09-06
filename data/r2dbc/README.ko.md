@@ -148,6 +148,52 @@ contention benchmark는 `64` JMH threads에서 동시성보다 작은 `maxSize`�
 - 운영 드라이버가 로컬 검증을 지원한다면 `ValidationDepth.LOCAL`과 `validationQuery = null`을 우선하세요. 배포 환경에서 `SELECT 1`이 명시적으로 필요할 때는 benchmark의 `sql` mode를 사용하세요. SQL 검증은 커넥션 획득마다 DB 왕복을 추가합니다.
 - 위 수치는 로컬 기준선이지 보편적 한계값이 아닙니다. 쿼리 latency, 트랜잭션 시간, 인스턴스 수, DB 커넥션 한도가 바뀌면 DB별 pool acquire benchmark를 다시 실행하세요.
 
+### Tenant connection registry
+
+tenant registry는 조회 대상과 lifecycle ownership을 분리해 제공합니다.
+
+- `TenantConnectionFactoryRegistry<K>`는 caller-owned registry입니다.
+  `Map<K, ConnectionFactory>`의 생성 시점 복사본만 보관하고, 값이
+  `ConnectionPool`이어도 종료하지 않습니다.
+- `TenantConnectionPoolRegistry<K>`는 registry-owned registry입니다.
+  `Map<K, ConnectionPool>`을 보관하고 `AutoCloseable`을 구현합니다.
+  `close()`는 동일 pool instance를 최대 한 번만 `dispose`합니다.
+
+두 registry 모두 `configuredKeys`, `get(key)`, `asRoutingMap()`을 제공하며,
+구성되지 않은 key를 조회하면 `NoSuchElementException`으로 즉시 실패합니다.
+adapter의 key 형식이 다르면 `asRoutingMap(keyMapper)`에 key mapper를 전달할
+수 있습니다.
+
+```kotlin
+data class TenantKey(val id: String)
+
+val factories = TenantConnectionFactoryRegistry(
+    mapOf(TenantKey("tenant-a") to tenantAFactory, TenantKey("tenant-b") to tenantBFactory),
+)
+val routes: Map<String, ConnectionFactory> = factories.asRoutingMap { tenant -> tenant.id }
+
+val pools = TenantConnectionPoolRegistry(
+    mapOf("tenant-a" to tenantAPool, "tenant-b" to tenantBPool),
+)
+try {
+    val factory: ConnectionFactory = pools["tenant-a"]
+} finally {
+    pools.close()
+}
+```
+
+pool 생성, tenant parsing, request context, 인증·인가, transaction, framework
+lifecycle callback은 caller의 책임입니다. pool 하나의 종료가 실패해도 나머지
+pool 정리를 계속하며, 첫 실패를 다시 던지고 이후 실패는 suppressed exception으로
+연결합니다. `close()` 시작 후 조회는 `IllegalStateException`으로 실패하며, lifecycle
+adapter는 진행 중인 조회와 종료를 직렬화해야 합니다. `close()`는 동기 API이므로
+event-loop가 아닌 blocking lifecycle executor에서 실행하거나 coroutine에서는
+`closeSuspending()`을 사용하세요. concurrent `close()`는 첫 종료 완료까지 직렬화되며
+같은 실패를 관찰합니다. 동적
+`register`/`unregister`는 이 정적 registry API의 범위가 아닙니다. JVM `Error`는
+복구 가능한 종료 실패로 집계하지 않고 즉시 전파합니다. `close()` 전에 얻은 routing
+map도 종료 후에는 disposed pool을 가리킬 수 있으므로 함께 폐기해야 합니다.
+
 ### 2. DatabaseClient SQL 실행
 
 ```kotlin
