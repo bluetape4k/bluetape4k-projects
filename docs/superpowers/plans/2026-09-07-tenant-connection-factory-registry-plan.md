@@ -74,9 +74,26 @@
 
 - [ ] **Step 3: publication surface 확인**
 
-  Run: `./gradlew :bluetape4k-r2dbc:jar :bluetape4k-r2dbc:generateMetadataFileForMavenJavaPublication :bluetape4k-r2dbc:generatePomFileForMavenJavaPublication`
+  Run: `./gradlew :bluetape4k-r2dbc:jar :bluetape4k-r2dbc:generateMetadataFileForBluetape4kPublication :bluetape4k-r2dbc:generatePomFileForBluetape4kPublication :bluetape4k-r2dbc:checkPomFileForBluetape4kPublication`
 
-  Expected: JAR/POM/module metadata 생성 성공; `jar tf`와 POM dependency 목록에 workshop framework가 없음.
+  Expected: JAR/POM/module metadata 생성과 POM check 성공; `jar tf`와 POM dependency 목록에 workshop framework가 없음.
+
+- [ ] **Step 4: bytecode/dependency guard**
+
+  Run:
+
+  ```bash
+  artifact_jar="$(find data/r2dbc/build/libs -maxdepth 1 -type f -name 'bluetape4k-r2dbc-*.jar' ! -name '*-sources.jar' | head -n 1)"
+  test -n "$artifact_jar"
+  jar tf "$artifact_jar" | rg 'R2dbcConnectionFactoryRegistry|R2dbcConnectionFactoryEntry'
+  if jdeps --multi-release 21 --recursive --ignore-missing-deps "$artifact_jar" | rg -q 'org.springframework|io.ktor'; then exit 1; fi
+  ```
+
+  Expected: public classes are in the JAR and no Spring/Ktor bytecode reference exists. `Mono`/Reactor linkage is checked through the generated POM and the workshop compile gate, not by adding a framework dependency to this PR.
+
+- [ ] **Step 5: public signature snapshot**
+
+  Run: `javap -classpath "$artifact_jar" -public io.bluetape4k.r2dbc.pool.R2dbcConnectionFactoryRegistry io.bluetape4k.r2dbc.pool.R2dbcConnectionFactoryEntry > build/registry-public-api.txt` and inspect that the documented methods (`get`, `asMap`, `routingMap`, `close`, `dispose`, `isDisposed`) are present. If the repository ABI plugin becomes available, run its canonical task in addition; otherwise retain this exact signature output as the additive ABI evidence.
 
 ### Task 4: README locale parity 문서화
 
@@ -98,7 +115,7 @@
 
   Run: `./gradlew :bluetape4k-r2dbc:test :bluetape4k-r2dbc:koverVerify`
 
-  Expected: targeted 및 모듈 회귀 테스트 PASS. Docker-backed DB가 필요한 기존 테스트 실패 시 해당 환경/로그를 기록하고 registry 테스트 결과와 혼동하지 않는다.
+  Expected: targeted 및 모듈 회귀 테스트 PASS. Docker-backed DB가 필요한 기존 테스트가 실패하면 환경과 코드 원인을 분리 진단하고 재실행하며, 실패가 남아 있는 동안 provider 완료 상태를 `PENDING`으로 유지한다. registry 테스트만 성공한 상태로 전체 provider를 완료로 선언하지 않는다.
 
 - [ ] **Step 2: diff/ownership 확인**
 
@@ -108,7 +125,11 @@
 
 - [ ] **Step 3: rollback 지점**
 
-  provider contract가 publication/CI에서 실패하면 이 branch의 latest commit 전까지 revert하고 downstream migration을 시작하지 않는다. public API를 바꾸면 spec/plan과 테스트를 먼저 갱신하고 review gate를 다시 연다.
+  provider contract가 publication/CI에서 실패하면 dirty worktree와 현재 HEAD를 먼저 기록한 뒤, 정확한 implementation commit SHA만 `git revert <sha>`로 되돌린다. 이미 게시된 artifact는 git revert로 회수되지 않으므로 snapshot/catalog 소비를 중단하고 immutable 이전 version/SHA로 되돌린다. downstream migration은 차단하고 상태를 `PENDING`으로 남긴다. public API를 바꾸면 spec/plan과 테스트를 먼저 갱신하고 review gate를 다시 연다.
+
+- [ ] **Step 4: downstream security hold 기록**
+
+  provider PR에서는 consumer를 수정하지 않지만, 후속 #233 plan은 인증 tenant와 요청 tenant 불일치 및 미인증 요청이 `registry.get` 전에 401/403으로 끝나는 negative integration test를 포함해야 한다. 이 증거가 없으면 provider publication 이후에도 consumer gate를 열지 않는다.
 
 ## 수용 기준 추적
 

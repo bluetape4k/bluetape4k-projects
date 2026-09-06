@@ -138,6 +138,10 @@ class R2dbcConnectionFactoryRegistry<K : Any>(
 - workshop consumer는 `R2dbcConnectionFactoryRegistry.owned(pools)`를 만들고
   `registry[tenant]`, `registry.routingMap(Tenant::id)`, `registry.keys`를
   사용한다. Spring destroy adapter는 `registry.dispose()`만 호출한다.
+- consumer migration은 인증된 tenant claim과 요청 tenant가 일치하는지 먼저
+  검증한 뒤에만 registry lookup을 수행한다. 미인증·불일치 요청은 DB lookup
+  전에 401/403으로 종료되는 negative integration test를 각 WebFlux consumer에
+  추가한다. provider는 raw header parsing이나 authorization을 수행하지 않는다.
 - provider artifact가 publication/catalog에 반영되기 전에는 consumer migration
   PR을 만들지 않는다. 중앙 catalog의 기존 alias와 BOM version만 사용한다.
 
