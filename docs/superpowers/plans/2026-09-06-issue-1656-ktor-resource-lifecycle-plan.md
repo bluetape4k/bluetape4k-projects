@@ -58,7 +58,7 @@ backend ownership은 caller adapter에 남긴다.
 
 | 실패 모드 | 조기 신호 | 예방·검증 | stop condition |
 |---|---|---|---|
-| attribute loser가 subscription 생성 | 동시 installer 뒤 callback 횟수 > 1 | supplier는 side-effect-free holder만 생성, winner holder lock 초기화 | 정확히 하나를 증명하지 못하면 구현 중단 |
+| attribute loser가 subscription 생성 | fake registrar raw `subscribeCount > 1` | supplier는 side-effect-free holder만 생성, winner holder lock 초기화 | 정확히 하나를 증명하지 못하면 구현 중단 |
 | report 불변식이 close 중 깨짐 | `ApplicationResourceCloseReport` 생성 예외 | failure/inFlight/closed 완료 전이를 한 lock에서 수행, latch 관찰 | 모든 중간 읽기 invariant가 아니면 중단 |
 | secret이 log/marker로 유출 | sentinel이 appender/event/report에 나타남 | cause를 logger에 전달하지 않고 negative assertion | 한 surface라도 sentinel이면 중단 |
 | shutdown callback이 무기한 실행 | short-timeout fixture 종료 지연 | bounded action을 caller 계약으로 고정, registry는 timeout 미소유 | unbounded test/hang이면 adapter 계약 재검토 |
@@ -138,12 +138,6 @@ backend ownership은 caller adapter에 남긴다.
   test "$BT4K_RED_EXIT" -ne 0
   ```
 
-  ```bash
-  ./gradlew :bluetape4k-ktor-core:test \
-    --tests 'io.bluetape4k.ktor.core.ApplicationResourceRegistryTest' \
-    --no-daemon --max-workers=1 --no-build-cache --no-configuration-cache --rerun-tasks
-  ```
-
   기대 RED: `Unresolved reference 'ApplicationResourceRegistry'` 등 새 API 부재 compile 오류다.
   assertion mismatch, timeout, 기존 test failure면 RED로 인정하지 않고 fixture를 먼저 수정한다.
 
@@ -172,14 +166,31 @@ backend ownership은 caller adapter에 남긴다.
   adapter가 background job을 먼저 bounded drain해야 하는 제약을 검증한다.
 - [ ] `Attributes.computeIfAbsent` supplier에는 side effect 없는 holder만 만들고, attribute
   winner holder의 lock/state에서 direct monitoring subscription을 exactly-once 초기화한다.
-  설치 실패 시 생성한 handle을 dispose하고 holder를 failed 상태로 고정해 orphan
-  registry/subscription이나 닫힌 registry의 정상 반환을 막는다.
+  subscribe failure는 holder를 failed 상태로 고정해 재시도와 닫힌 registry의 정상 반환을
+  막는다. handle 반환 뒤에는 fallible installation stage를 두지 않는다.
 - [ ] event callback은 registry close 후 `finally`에서 subscription을 dispose하고, marker가
   resource 정보를 log로 흘리지 않게 한다.
 - [ ] 경합 시 attribute supplier가 여러 번 평가될 수 있어도 loser holder는 subscription을 만들지
   않고 winner holder만 하나의 callback을 설치함을 concurrency fixture로 검증한다.
-- [ ] production installer를 수정하기 전에 Ktor lifecycle/fake registrar test selector를 실행해
-  현재 구현의 duplicate-subscription/sticky-failure assertion이 실패하는 RED를 확인한다.
+- [ ] fake registrar tests를 먼저 추가하고 selector를 실행해 seam type 부재 compile RED-A를
+  확인한다. 그다음 아래 naive compile scaffold만 추가해 RED-B를 실행한다.
+
+  ```kotlin
+  internal fun interface ApplicationResourceSubscriptionRegistrar {
+      fun subscribe(onStopped: () -> Unit): DisposableHandle
+  }
+
+  internal class ApplicationResourceLifecycleHolder(
+      private val registrar: ApplicationResourceSubscriptionRegistrar,
+  ) {
+      val registry = ApplicationResourceRegistry()
+
+      fun install(): ApplicationResourceRegistry {
+          registrar.subscribe { registry.close() }
+          return registry
+      }
+  }
+  ```
 
   ```bash
   ./gradlew :bluetape4k-ktor-core:test \
@@ -187,9 +198,9 @@ backend ownership은 caller adapter에 남긴다.
     --no-daemon --max-workers=1 --no-build-cache --no-configuration-cache --rerun-tasks
   ```
 
-  기대 RED: fake registrar의 `subscribeCount`가 1보다 크거나, 두 번째 install이 registrar를 다시
-  호출하거나, 원본 failure가 cause/message/suppressed에 남는 assertion이 실패한다. 기존
-  `testApplication` failure나 timeout은 RED로 인정하지 않는다.
+  기대 RED-A: registrar/holder unresolved compile failure다. 기대 RED-B: 8개 worker 경합 뒤
+  `subscribeCount == 1`, sticky `FAILED`, sanitized failure, handle dispose exactly-once 중 하나
+  이상의 assertion이 실패한다. 기존 `testApplication` failure나 timeout은 RED로 인정하지 않는다.
 - [ ] 외부 package compile fixture를 추가하고 targeted Ktor integration tests를 GREEN으로 만든다.
 
   ```kotlin
@@ -200,23 +211,43 @@ backend ownership은 caller adapter에 남긴다.
   internal class ApplicationResourceLifecycleHolder(
       private val registrar: ApplicationResourceSubscriptionRegistrar,
   ) {
+      private enum class InstallState { NEW, READY, FAILED, STOPPED }
+
       private val lock = ReentrantLock()
       private var state: InstallState = InstallState.NEW
-      val registry = ApplicationResourceRegistry()
+      private var subscription: DisposableHandle? = null
+      internal val registry = ApplicationResourceRegistry()
 
-      fun install(): ApplicationResourceRegistry = lock.withLock {
-          when (state) {
-              InstallState.READY -> registry
-              InstallState.FAILED -> throw sanitizedInstallationFailure()
-              InstallState.NEW -> try {
-                  subscription = registrar.subscribe(::onStopped)
-                  state = InstallState.READY
-                  registry
-              } catch (_: Throwable) {
-                  state = InstallState.FAILED
-                  registry.close()
-                  throw sanitizedInstallationFailure()
+      internal fun install(): ApplicationResourceRegistry {
+          val failure = lock.withLock {
+              when (state) {
+                  InstallState.READY, InstallState.STOPPED -> return registry
+                  InstallState.FAILED -> sanitizedInstallationFailure()
+                  InstallState.NEW -> try {
+                      val handle = registrar.subscribe(::onStopped)
+                      subscription = handle
+                      state = InstallState.READY
+                      null
+                  } catch (_: Throwable) {
+                      state = InstallState.FAILED
+                      sanitizedInstallationFailure()
+                  }
               }
+          }
+          registry.close()
+          throw failure ?: error("Installation failure state is required.")
+      }
+
+      private fun onStopped() {
+          val handle = lock.withLock {
+              if (state != InstallState.READY) return
+              state = InstallState.STOPPED
+              subscription.also { subscription = null }
+          }
+          try {
+              registry.close()
+          } finally {
+              handle?.disposeWithoutCauseLogging()
           }
       }
   }
@@ -232,10 +263,42 @@ backend ownership은 caller adapter에 남긴다.
   fun `winner holder subscribes once and disposes once`() {
       val registrar = RecordingRegistrar()
       val holder = ApplicationResourceLifecycleHolder(registrar)
-      repeat(8) { holder.install() shouldBeSameInstanceAs holder.registry }
-      registrar.subscribeCount.get() shouldBeEqualTo 1
-      registrar.raiseStopped()
-      registrar.disposeCount.get() shouldBeEqualTo 1
+      val barrier = CyclicBarrier(8)
+      val executor = Executors.newFixedThreadPool(8)
+      try {
+          val futures = List(8) {
+              executor.submit {
+                  barrier.await(5, TimeUnit.SECONDS)
+                  holder.install()
+              }
+          }
+          futures.forEach { it.get(5, TimeUnit.SECONDS) shouldBeSameInstanceAs holder.registry }
+          registrar.subscribeCount.get() shouldBeEqualTo 1
+          registrar.raiseStopped()
+          registrar.disposeCount.get() shouldBeEqualTo 1
+      } finally {
+          executor.shutdownNow()
+      }
+  }
+
+  @Test
+  fun `callback before handle publication disposes the published handle once`() {
+      val registrar = BlockingRecordingRegistrar()
+      val holder = ApplicationResourceLifecycleHolder(registrar)
+      val executor = Executors.newFixedThreadPool(2)
+      try {
+          val install = executor.submit<ApplicationResourceRegistry> { holder.install() }
+          registrar.handlerRegistered.await(5, TimeUnit.SECONDS).shouldBeTrue()
+          val stop = executor.submit { registrar.raiseStopped() }
+          registrar.allowHandleReturn.countDown()
+          install.get(5, TimeUnit.SECONDS) shouldBeSameInstanceAs holder.registry
+          stop.get(5, TimeUnit.SECONDS)
+          registrar.subscribeCount.get() shouldBeEqualTo 1
+          registrar.disposeCount.get() shouldBeEqualTo 1
+      } finally {
+          registrar.allowHandleReturn.countDown()
+          executor.shutdownNow()
+      }
   }
 
   @Test
@@ -253,9 +316,12 @@ backend ownership은 caller adapter에 남긴다.
   ```
 
   `RecordingRegistrar`는 raw `subscribeCount`, callback, 반환 handle의 `disposeCount`를 각각
-  보유한다. `FailingRegistrar`는 handle을 반환하지 않고 subscribe에서 throw하므로 orphan
-  handle 수는 0이다. handle 반환 뒤 holder에는 fallible 설치 단계가 없으며, dispose failure는
-  callback test에서 별도로 주입해 report 보존과 sanitized logging을 확인한다.
+  보유한다. `BlockingRecordingRegistrar`는 handler 저장 뒤 handle 반환 직전 latch에서 멈춰
+  callback/handle-publication race를 결정적으로 만든다. holder는 subscribe와 handle 저장을 같은
+  lock에서 수행하고 callback도 같은 lock에서 handle을 claim하므로 dispose owner는 하나다.
+  `FailingRegistrar`는 handle을 반환하지 않고 subscribe에서 throw하므로 orphan handle 수는 0이다.
+  handle 반환 뒤 holder에는 fallible 설치 단계가 없으며, dispose failure는 callback test에서
+  별도로 주입해 report 보존과 sanitized logging을 확인한다.
 
   ```bash
   ./gradlew :bluetape4k-ktor-core:test \
