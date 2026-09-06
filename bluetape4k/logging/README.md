@@ -182,6 +182,8 @@ Use `captureMdcContext` when a task is submitted and `withMdcContext` at the
 worker boundary. The snapshot is copied at capture time, an empty snapshot
 clears the worker MDC while the task runs, and the worker's complete previous
 map is restored after normal or exceptional completion.
+The API copies values without validation or redaction. Put only sanitized,
+non-secret identifiers in MDC; never put raw tokens, headers, or payloads there.
 
 ```kotlin
 import io.bluetape4k.logging.captureMdcContext

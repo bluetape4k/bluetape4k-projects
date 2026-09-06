@@ -182,6 +182,8 @@ withLoggingContext("userId" to userId) {
 `withMdcContext`를 사용합니다. MDC 복사본은 캡처 시점에 고정되며, 빈
 MDC 복사본은 task 실행 중 worker MDC를 비웁니다. 정상 종료와 예외 종료 모두
 worker가 실행 전에 가지고 있던 전체 map을 복원합니다.
+MDC 값은 이 API가 검증하거나 가리지 않으므로 정제된 비밀이 아닌 식별자만 사용하고,
+raw token, header, payload는 MDC에 넣지 마세요.
 
 ```kotlin
 import io.bluetape4k.logging.captureMdcContext

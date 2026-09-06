@@ -114,7 +114,12 @@ inline fun <T> withLoggingContext(
 private fun immutableMdcCopy(context: Map<String, String>): Map<String, String> =
     Collections.unmodifiableMap(LinkedHashMap(context))
 
-/** 현재 thread의 MDC 전체를 caller와 분리된 읽기 전용 MDC map으로 복사합니다. */
+/**
+ * 현재 thread의 MDC 전체를 caller와 분리된 읽기 전용 MDC map으로 복사합니다.
+ *
+ * MDC에는 정제된 비밀이 아닌 식별자만 넣으세요. 이 함수는 raw token, header, payload를
+ * 검증하거나 가리지 않고 그대로 복사합니다.
+ */
 fun captureMdcContext(): Map<String, String> =
     MDC.getCopyOfContextMap()?.let(::immutableMdcCopy) ?: emptyMap()
 
