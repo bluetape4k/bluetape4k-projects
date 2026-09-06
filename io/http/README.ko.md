@@ -544,6 +544,33 @@ Ktor CIO만 1 thread로 낮춘 예외 행이 아니며, CIO 3.5가 pipelining �
 | 범용 고성능 동기 | **HC5 Classic VirtualThread** | `productionVirtualThreadHttpClientOf()` |
 | 고지연 비동기 대량 요청 | **HC5 Async Coroutines** | `productionHttpAsyncClientOf()` |
 
+## Outbound 오류 정제
+
+`sanitizeOutboundError`는 outbound 실패를 저장하거나 log에 남길 때 사용하는
+framework-neutral 순수 함수입니다. 항상 `HTTP <status>` prefix를 유지하고,
+양 끝을 정리한 첫 줄만 사용하며, null·blank·문법이 깨진 credential marker는
+prefix만 반환합니다. `Authorization`, `Cookie`, `Token`, `Secret`,
+`API-Key`/`API_Key`/`API Key` marker를 `:`/`=` 구분자, 선택적 `Bearer`,
+quoted/escaped value와 함께 인식해 `[redacted]`로 치환합니다. 최종 결과는
+최대 240 UTF-16 code units이며 surrogate pair를 분할하지 않습니다.
+
+```kotlin
+import io.bluetape4k.http.sanitizeOutboundError
+
+val summary = sanitizeOutboundError(
+    503,
+    "Authorization: Bearer secret-token temporary outage",
+)
+// HTTP 503 Authorization:[redacted] temporary outage
+
+val statusOnly = sanitizeOutboundError(422, "Authorization: Bearer")
+// HTTP 422
+```
+
+호출자가 retry, status 분류, transaction, cancellation 동작을 소유합니다.
+원본 `Throwable`을 log나 persistence에 전달하지 말고 반환된 summary를
+사용해야 합니다.
+
 ## Coroutines 지원
 
 모든 비동기 HTTP 클라이언트는 `executeSuspending` 확장 함수를 통해 Coroutines 환경에서 자연스럽게 사용할 수 있습니다.
