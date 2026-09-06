@@ -119,18 +119,18 @@ class BoundedHttpEntitySupportTest {
     }
 
     @Test
-    fun `known oversize accessor cancellation은 제어 흐름을 primary로 보존한다`() {
+    fun `known oversize accessor cancellation은 overflow primary에 suppressed로 보존한다`() {
         val cancellation = CancellationException("cancelled")
         val entity = mockk<HttpEntity>()
         every { entity.contentLength } returns 8L
         every { entity.content } throws cancellation
 
-        val actual = assertFailsWith<CancellationException> {
+        val actual = assertFailsWith<ByteLimitExceededException> {
             entity.readBodyBytes(maxBytes = 4)
         }
 
-        actual shouldBeSameInstanceAs cancellation
-        (actual.suppressed.single() as ByteLimitExceededException).maxBytes shouldBeEqualTo 4
+        actual.maxBytes shouldBeEqualTo 4
+        actual.suppressed.single() shouldBeSameInstanceAs cancellation
     }
 
     @Test
@@ -163,17 +163,17 @@ class BoundedHttpEntitySupportTest {
     }
 
     @Test
-    fun `close fatal error는 일반 read 실패보다 우선한다`() {
+    fun `close fatal error도 원래 read 실패에 suppressed로 보존한다`() {
         val readFailure = IOException("read failed")
         val fatal = LinkageError("fatal close")
         val stream = TrackingInputStream(byteArrayOf(1), readFailure = readFailure, closeFailure = fatal)
 
-        val actual = assertFailsWith<LinkageError> {
+        val actual = assertFailsWith<IOException> {
             entity(contentLength = -1L, stream = stream).readBodyBytes(maxBytes = 4)
         }
 
-        actual shouldBeSameInstanceAs fatal
-        actual.suppressed.single() shouldBeSameInstanceAs readFailure
+        actual shouldBeSameInstanceAs readFailure
+        actual.suppressed.single() shouldBeSameInstanceAs fatal
     }
 
     @Test

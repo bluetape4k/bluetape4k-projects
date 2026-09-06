@@ -3,7 +3,6 @@ package io.bluetape4k.http
 import io.bluetape4k.io.ByteLimitExceededException
 import io.bluetape4k.io.readAllBytes
 import java.io.InputStream
-import java.util.concurrent.CancellationException
 
 internal fun readOwnedBodyBytes(
     maxBytes: Int,
@@ -23,9 +22,7 @@ internal fun readOwnedBodyBytes(
                 primary = accessorFailure
                 throw accessorFailure
             }
-            val selected = selectPrimary(current, accessorFailure)
-            primary = selected
-            if (selected !== current) throw selected
+            current.addSuppressedIfDistinct(accessorFailure)
         }
 
         primary?.let { throw it }
@@ -45,25 +42,14 @@ internal fun readOwnedBodyBytes(
             } catch (closeFailure: Throwable) {
                 val current = primary
                 if (current == null) throw closeFailure
-                val selected = selectPrimary(current, closeFailure)
-                primary = selected
-                if (selected !== current) throw selected
+                current.addSuppressedIfDistinct(closeFailure)
             }
         }
     }
 }
 
-private fun selectPrimary(current: Throwable, next: Throwable): Throwable {
-    if (current === next) return current
-
-    val primary = when {
-        current is Error -> current
-        next is Error -> next
-        current is CancellationException -> current
-        next is CancellationException -> next
-        else -> current
+private fun Throwable.addSuppressedIfDistinct(secondary: Throwable) {
+    if (this !== secondary && suppressed.none { it === secondary }) {
+        addSuppressed(secondary)
     }
-    val secondary = if (primary === current) next else current
-    if (primary.suppressed.none { it === secondary }) primary.addSuppressed(secondary)
-    return primary
 }
