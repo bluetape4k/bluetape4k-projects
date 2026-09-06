@@ -5,11 +5,13 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldNotBeEmpty
+import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.Timeout
+import org.junit.jupiter.api.assertTimeoutPreemptively
 import java.io.Serializable
 import java.nio.ByteBuffer
 import java.security.MessageDigest
+import java.time.Duration
 
 /**
  * Fory `COMPATIBLE` 모드의 Kotlin metadata round-trip과 1.6.0 fixture 읽기를 고정한다.
@@ -45,21 +47,23 @@ class ForyWireCompatibilityTest {
     }
 
     @Test
-    @Timeout(2)
     fun `malformed 입력은 BinarySerializationException으로 bounded failure한다`() {
-        assertFailsWith<BinarySerializationException> {
-            BinarySerializers.Fory.deserialize<ForyWireCompatibilityPayload>(byteArrayOf(0x01, 0x02, 0x03))
+        assertTimeoutPreemptively(Duration.ofSeconds(2)) {
+            assertFailsWith<BinarySerializationException> {
+                BinarySerializers.Fory.deserialize<ForyWireCompatibilityPayload>(byteArrayOf(0x01, 0x02, 0x03))
+            }
         }
     }
 
     @Test
-    @Timeout(2)
     fun `truncated fixture는 ByteBuffer 경계 안에서 실패한다`() {
         val fixture = readFixture(readManifest())
         val truncated = fixture.copyOf(fixture.size / 2)
 
-        assertFailsWith<BinarySerializationException> {
-            BinarySerializers.Fory.deserializeFrom<ForyWireCompatibilityPayload>(ByteBuffer.wrap(truncated))
+        assertTimeoutPreemptively(Duration.ofSeconds(2)) {
+            assertFailsWith<BinarySerializationException> {
+                BinarySerializers.Fory.deserializeFrom<ForyWireCompatibilityPayload>(ByteBuffer.wrap(truncated))
+            }
         }
     }
 
@@ -83,6 +87,14 @@ class ForyWireCompatibilityTest {
     private companion object {
         const val FIXTURE_ROOT = "compat/issue-1639/fory-1.6.0"
         const val FORY_OLD_VERSION = "1.6.0"
+
+        @JvmStatic
+        @BeforeAll
+        fun warmUpForySerializer() {
+            val sample = ForyWireCompatibilityFixtures.sample()
+            val bytes = BinarySerializers.Fory.serialize(sample)
+            BinarySerializers.Fory.deserialize<ForyWireCompatibilityPayload>(bytes) shouldBeEqualTo sample
+        }
     }
 }
 
