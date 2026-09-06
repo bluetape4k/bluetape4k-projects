@@ -26,6 +26,8 @@ Fory/Fory Kotlin이 `1.6.0`에서 `1.7.1`로 올라간 뒤 Kotlin metadata와 Re
 - 전체 module 검증에서는 `bluetape4k-io` 1,302개와
   `bluetape4k-spring-boot-redis` 102개 테스트가 실패·오류·제외 없이 통과했다.
   두 module의 detekt를 변경 후 다시 실행해 `BUILD SUCCESSFUL`을 확인했다.
+- Fory Kotlin runtime을 직접 선언하는 `bluetape4k-spring-boot-hibernate-lettuce`도
+  전체 build와 detekt를 실행했고 38개 테스트가 실패·오류·제외 없이 통과했다.
 - 한국어 문서 3개 용어 감사 findings 0과 `git diff --check` 통과를 확인했다.
 - 올바른 Spring Boot Redis project path는
   `:bluetape4k-spring-boot-redis`이다. `:bluetape4k-redis`는 `infra/redis` 모듈이므로
