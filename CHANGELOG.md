@@ -89,6 +89,12 @@
   repo-local override로 선택하고 소비자별 smoke와 독립 PR을 진행한다
   ([#1643](https://github.com/bluetape4k/bluetape4k-projects/issues/1643)).
 
+- `bluetape4k-io`에 callback과 stream close가 성공한 뒤에만 sibling temporary file을
+  atomic move하는 `Path.writeAtomically`를 추가했다. 지원하지 않는 atomic replacement는
+  일반 move fallback을 사용하지 않으며, 기존 target 교체와 metadata는 filesystem
+  provider 계약을 따른다
+  ([#1645](https://github.com/bluetape4k/bluetape4k-projects/issues/1645)).
+
 - NATS JetStream `ConsumerContext` pull consumer와 `JetStream` push
   subscription을 수집마다 생성·정리하는 cold `Flow<Message>` API를 추가했다.
   유한한 Flow 용량과 NATS pending limit을 검증하고, 취소 시 adapter 소유

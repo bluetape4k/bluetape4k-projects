@@ -477,6 +477,99 @@ File("huge-file.txt").readLineSequence().forEach { line ->
 }
 ```
 
+`Path.writeAtomically` writes through a provider-owned sibling temporary file and attempts
+`ATOMIC_MOVE` only after the callback and stream close succeed. The callback borrows the
+`OutputStream`; it must not close or retain it. Existing-target replacement, temporary-file
+permissions, and file attributes follow the filesystem provider. The API does not guarantee
+`fsync`, process-crash, or power-loss durability. Unsupported atomic replacement fails without a
+non-atomic fallback.
+
+This is a blocking call. It creates missing parents, rejects an empty or root target with
+`IllegalArgumentException`, and returns the `Long` byte count accepted by its provider-owned
+stream. A parent created by the call remains if a later stage fails. Callback, close, and commit
+unchecked exceptions, `CancellationException`, and `Error` keep their identity; only cleanup
+failures are attached as suppressed exceptions.
+Coroutine callers own dispatcher selection and must check the context captured outside the
+callback before the callback returns; cancellation after commit does not roll the replacement back.
+
+Normalization is lexical; it does not provide a path sandbox or protect against symlink,
+hard-link, mount-swap, or TOCTOU attacks. Use an opaque basename and an access-restricted private
+parent for sensitive payloads. Do not use an attacker-controlled shared writable directory; use
+a secure directory-handle API when that threat model applies. Enforce byte and time limits in
+the caller, and redact full paths, basenames, and sensitive exception text when recording the
+provider plus primary and suppressed cleanup failures.
+
+A process crash can leave `.<basename>.*.tmp` files. The application operator owns cleanup:
+monitor file count and allocated bytes in the private parent, exclude active writers, wait for a
+configured retention interval, and then remove only matching stale entries. Never run an
+unbounded glob deletion while writers are active. Redact the basename and parent in telemetry.
+
+```kotlin
+import io.bluetape4k.io.writeAtomically
+import java.nio.file.Files
+import java.nio.file.Path
+
+val source = Path.of("input.bin")
+val destination = Path.of("output.bin")
+val maxPayloadBytes = 8L * 1024 * 1024
+val bytes = destination.writeAtomically { output ->
+    Files.newInputStream(source).use { input ->
+        val buffer = ByteArray(DEFAULT_BUFFER_SIZE)
+        var copied = 0L
+        while (true) {
+            val read = input.read(buffer)
+            if (read < 0) break
+            require(copied + read <= maxPayloadBytes) { "payload exceeds configured limit" }
+            output.write(buffer, 0, read)
+            copied += read
+        }
+    }
+}
+```
+
+```kotlin
+import io.bluetape4k.io.writeAtomically
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.currentCoroutineContext
+import kotlinx.coroutines.ensureActive
+import kotlinx.coroutines.withContext
+import java.nio.file.Files
+import java.nio.file.Path
+
+suspend fun copyAtomically(source: Path, destination: Path): Long {
+    val callerContext = currentCoroutineContext()
+    return withContext(Dispatchers.IO) {
+        destination.writeAtomically { output ->
+            Files.newInputStream(source).use { input -> input.copyTo(output) }
+            callerContext.ensureActive()
+        }
+    }
+}
+```
+
+Java calls the `AtomicFileSupport` facade with `Function1<OutputStream, Unit>`. The method declares
+checked `IOException`; because `Function1` does not declare it, wrap callback I/O failures in
+`UncheckedIOException` and return `Unit.INSTANCE`.
+
+```java
+import io.bluetape4k.io.AtomicFileSupport;
+import java.io.IOException;
+import java.io.UncheckedIOException;
+import java.nio.file.Path;
+import kotlin.Unit;
+
+static long write(Path destination, byte[] payload) throws IOException {
+    return AtomicFileSupport.writeAtomically(destination, output -> {
+        try {
+            output.write(payload);
+        } catch (IOException failure) {
+            throw new UncheckedIOException(failure);
+        }
+        return Unit.INSTANCE;
+    });
+}
+```
+
 ### Result-Pattern File Utilities
 
 ```kotlin
@@ -579,6 +672,7 @@ io.bluetape4k.io
 │   ├── BinarySerializers.kt
 │   └── [various implementations]
 ├── FileSupport.kt          # File utilities (async copy/move/read/write)
+├── AtomicFileSupport.kt    # Fail-closed atomic file replacement
 ├── FileSupportResult.kt    # Result-pattern file utilities (tryXXXX API)
 ├── FileCoroutineSupport.kt # Coroutine-based file I/O (readAllBytesSuspending, etc.)
 ├── PathSupport.kt          # Path utilities

@@ -475,6 +475,101 @@ File("huge-file.txt").readLineSequence().forEach { line ->
 }
 ```
 
+`Path.writeAtomically`는 provider가 소유하는 같은 parent의 임시 파일에 먼저 기록하고,
+callback과 stream close가 성공한 뒤에만 `ATOMIC_MOVE`를 시도합니다. callback은
+`OutputStream`을 빌려 쓰므로 직접 닫거나 보관하면 안 됩니다. 기존 target 교체,
+임시 파일 permission과 파일 attribute는 filesystem provider 계약을 따릅니다. 이 API는
+`fsync`와 process crash나 power loss 상황의 파일 durability를 보장하지 않습니다. atomic
+replacement가 지원되지 않으면 일반 move fallback을 사용하지 않고 실패합니다.
+
+이 함수는 blocking API입니다. 없는 parent를 생성하고, 빈 경로나 filesystem root를
+`IllegalArgumentException`으로 거부하며, provider가 소유한 stream에 기록한 byte 수를
+`Long`으로 반환합니다. 자동으로 생성한 parent는 이후 단계가 실패해도 rollback하지
+않습니다. callback, close, commit이 던진 unchecked exception,
+`CancellationException`, `Error`의 identity를 유지하고 cleanup 실패만 suppressed로
+연결합니다.
+Coroutine 호출자는 dispatcher를 직접 선택하고 callback 밖에서 캡처한 context의
+cancellation을 callback 반환 전에 검사해야 합니다. commit 뒤 cancellation은 이미
+끝난 교체를 되돌리지 않습니다.
+
+경로 정규화는 lexical 처리일 뿐 path sandbox, symlink, hard-link, mount 교체와 TOCTOU를
+방어하지 않습니다. 민감한 payload에는 opaque basename과 접근이 제한된 private parent를
+사용하세요. 공격자가 제어하는 공유 writable directory에는 사용하지 말고, 이런 방어가
+필요하면 secure directory handle 기반 API를 선택해야 합니다. 호출자가 byte/time 한도를
+집행하고, provider와 primary/suppressed cleanup 실패를 기록할 때 전체 경로, basename,
+예외 메시지의 민감한 값은 가려서 기록해야 합니다.
+
+process crash 뒤에는 `.<basename>.*.tmp` 파일이 남을 수 있습니다. 애플리케이션 운영자가
+private parent의 파일 수와 사용량을 감시하고, 활성 writer가 없음을 확인한 뒤 설정한
+보존 시간이 지난 항목만 정리해야 합니다. writer가 실행 중일 때 무제한 glob 삭제를
+실행하면 안 됩니다. telemetry에 기록할 때 basename과 parent는 가려야 합니다.
+
+```kotlin
+import io.bluetape4k.io.writeAtomically
+import java.nio.file.Files
+import java.nio.file.Path
+
+val source = Path.of("input.bin")
+val destination = Path.of("output.bin")
+val maxPayloadBytes = 8L * 1024 * 1024
+val bytes = destination.writeAtomically { output ->
+    Files.newInputStream(source).use { input ->
+        val buffer = ByteArray(DEFAULT_BUFFER_SIZE)
+        var copied = 0L
+        while (true) {
+            val read = input.read(buffer)
+            if (read < 0) break
+            require(copied + read <= maxPayloadBytes) { "payload exceeds configured limit" }
+            output.write(buffer, 0, read)
+            copied += read
+        }
+    }
+}
+```
+
+```kotlin
+import io.bluetape4k.io.writeAtomically
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.currentCoroutineContext
+import kotlinx.coroutines.ensureActive
+import kotlinx.coroutines.withContext
+import java.nio.file.Files
+import java.nio.file.Path
+
+suspend fun copyAtomically(source: Path, destination: Path): Long {
+    val callerContext = currentCoroutineContext()
+    return withContext(Dispatchers.IO) {
+        destination.writeAtomically { output ->
+            Files.newInputStream(source).use { input -> input.copyTo(output) }
+            callerContext.ensureActive()
+        }
+    }
+}
+```
+
+Java에서는 `Function1<OutputStream, Unit>` 형태로 `AtomicFileSupport` facade를 호출합니다.
+메서드는 checked `IOException`을 선언하지만 `Function1`은 이를 선언하지 않으므로,
+callback의 I/O 실패는 `UncheckedIOException`으로 감싸고 `Unit.INSTANCE`를 반환합니다.
+
+```java
+import io.bluetape4k.io.AtomicFileSupport;
+import java.io.IOException;
+import java.io.UncheckedIOException;
+import java.nio.file.Path;
+import kotlin.Unit;
+
+static long write(Path destination, byte[] payload) throws IOException {
+    return AtomicFileSupport.writeAtomically(destination, output -> {
+        try {
+            output.write(payload);
+        } catch (IOException failure) {
+            throw new UncheckedIOException(failure);
+        }
+        return Unit.INSTANCE;
+    });
+}
+```
+
 ### Result 패턴 파일 유틸리티
 
 ```kotlin
@@ -577,6 +672,7 @@ io.bluetape4k.io
 │   ├── BinarySerializers.kt
 │   └── [각종 구현체]
 ├── FileSupport.kt          # 파일 유틸리티 (비동기 복사/이동/읽기/쓰기)
+├── AtomicFileSupport.kt    # 실패 시 기존 파일을 보존하는 원자적 파일 교체
 ├── FileSupportResult.kt    # Result 패턴 파일 유틸리티 (tryXXXX API)
 ├── FileCoroutineSupport.kt # Coroutine 기반 파일 I/O (readAllBytesSuspending 등)
 ├── PathSupport.kt          # Path 유틸리티
