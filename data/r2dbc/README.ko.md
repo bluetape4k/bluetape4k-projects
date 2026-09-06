@@ -418,6 +418,41 @@ class UserRepositoryTest: AbstractR2dbcTest() {
 }
 ```
 
+## ConnectionFactory 레지스트리
+
+`R2dbcConnectionFactoryRegistry`는 tenant와 `ConnectionFactory`의 불변
+snapshot을 제공합니다. 등록되지 않은 key를 조회하면
+`NoSuchElementException`으로 즉시 실패하고, `routingMap`은 매핑 결과가
+중복될 때 실패합니다.
+
+```kotlin
+import io.bluetape4k.r2dbc.pool.R2dbcConnectionFactoryRegistry
+import io.r2dbc.spi.ConnectionFactory
+
+val borrowed = R2dbcConnectionFactoryRegistry.borrowed(
+    mapOf(
+        "primary" to primaryFactory,
+        "reporting" to reportingFactory,
+    ),
+)
+
+val primary: ConnectionFactory = borrowed["primary"]
+val routes: Map<String, ConnectionFactory> = borrowed.routingMap { it.lowercase() }
+
+// borrowed resource의 소유권은 caller에 있으며 registry는 종료하지 않습니다.
+borrowed.close().block()
+
+// registry가 resource를 종료해야 할 때만 owned entry를 사용합니다.
+val owned = R2dbcConnectionFactoryRegistry.owned(mapOf("primary" to pooledFactory))
+owned.close().block() // 비동기 종료 오류를 관찰합니다.
+owned.dispose() // lifecycle callback용 fire-and-forget adapter입니다.
+```
+
+custom 비동기 종료 동작이 필요한 factory는
+`R2dbcConnectionFactoryEntry.owned(factory, closeAction)`을 사용합니다.
+레지스트리는 factory identity가 같은 alias를 한 번만 종료합니다. `keys`는
+생성 시점 snapshot을 유지하고, close 이후에는 lookup과 map 접근을 거부합니다.
+
 ## 참고 자료
 
 - [R2DBC 공식 문서](https://r2dbc.io/)

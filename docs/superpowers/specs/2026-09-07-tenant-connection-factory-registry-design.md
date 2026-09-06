@@ -28,12 +28,10 @@ package io.bluetape4k.r2dbc.pool
 
 enum class ConnectionFactoryOwnership { BORROWED, OWNED }
 
-class R2dbcConnectionFactoryEntry private constructor(
-    val connectionFactory: ConnectionFactory,
-    val ownership: ConnectionFactoryOwnership,
-    private val closeAction: () -> Mono<Void>,
-) {
-    internal fun closeResource(): Mono<Void>
+sealed interface R2dbcConnectionFactoryEntry {
+    val connectionFactory: ConnectionFactory
+    val ownership: ConnectionFactoryOwnership
+
     companion object {
         fun borrowed(connectionFactory: ConnectionFactory): R2dbcConnectionFactoryEntry
         fun owned(connectionFactory: ConnectionFactory): R2dbcConnectionFactoryEntry
@@ -56,8 +54,8 @@ class R2dbcConnectionFactoryRegistry<K : Any>(
     override fun isDisposed(): Boolean
 
     companion object {
-        fun <K : Any> borrowed(entries: Map<K, out ConnectionFactory>): R2dbcConnectionFactoryRegistry<K>
-        fun <K : Any> owned(entries: Map<K, out ConnectionFactory>): R2dbcConnectionFactoryRegistry<K>
+        fun <K : Any> borrowed(entries: Map<K, ConnectionFactory>): R2dbcConnectionFactoryRegistry<K>
+        fun <K : Any> owned(entries: Map<K, ConnectionFactory>): R2dbcConnectionFactoryRegistry<K>
     }
 }
 ```
@@ -70,9 +68,8 @@ class R2dbcConnectionFactoryRegistry<K : Any>(
 
 ### 조회와 routing
 
-- `get(key)`는 등록되지 않은 key에
-  `NoSuchElementException("No ConnectionFactory configured for key '$key'")`를
-  던진다.
+- `get(key)`는 등록되지 않은 key에 configured key 목록을 포함한
+  `NoSuchElementException("No ConnectionFactory configured for key '$key'. Configured keys: [...]")`를 던진다.
 - `keys`는 입력 map의 insertion order를 유지하는 읽기 전용 집합이다.
 - `routingMap`은 key mapper가 만든 결과 key가 충돌하면 조용히 덮어쓰지 않고
   `IllegalArgumentException`으로 실패한다. tenant parsing이나 authorization은
@@ -87,10 +84,10 @@ class R2dbcConnectionFactoryRegistry<K : Any>(
   오류를 주 오류로 유지하고 후속 오류를 `Throwable.addSuppressed`로 붙인다.
 - `dispose()`는 Reactor의 fire-and-forget adapter다. 동일한 atomic close state를
   사용하므로 double-close가 없으며, 관찰 가능한 오류가 필요한 caller는
-  `close()`를 subscribe한다. `close()`의 `Mono` 생성과 atomic state 설치는
-  하나의 `AtomicReference` compare-and-set으로 묶고, `dispose()`도 같은 cached
-  signal을 subscribe한다. `dispose()`의 오류는 adapter의 error consumer에서
-  소비하며, 원인 보존이 필요하면 `close()` 결과를 사용한다.
+  `close()`를 subscribe한다. `close()`의 cached `Mono` 설치가 lifecycle state의
+  단일 source of truth이므로 state 확인과 signal 설치 사이에 lookup race가
+  생기지 않는다. `dispose()`도 같은 signal을 subscribe하고 오류를 logger에
+  기록하며, 원인과 suppressed chain은 cached `close()` 결과에 보존한다.
 - borrowed entry는 `close()`와 `dispose()` 어느 쪽에서도 종료하지 않는다.
 - close state가 설치된 뒤에는 `get`, `asMap`, `routingMap`이
   `IllegalStateException("ConnectionFactory registry is closed")`로 실패한다.
@@ -153,7 +150,8 @@ class R2dbcConnectionFactoryRegistry<K : Any>(
 - [ ] close/dispose idempotency, identity deduplication, concurrent close,
       suppressed failure가 테스트된다.
 - [ ] tenant A/B concurrent lookup가 서로의 factory를 반환하지 않는다.
-- [ ] provider JAR/POM/metadata에 Spring/Ktor 의존성이 유입되지 않는다.
+- [ ] 새 registry bytecode에 Spring/Ktor 참조가 없고, 생성된 POM에는
+      provider baseline 대비 새 framework dependency가 추가되지 않는다.
 - [ ] README 영문/국문에 동일한 API 계약과 예제가 추가된다.
 
 ## DoD

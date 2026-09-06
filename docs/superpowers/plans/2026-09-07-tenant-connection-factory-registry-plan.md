@@ -25,11 +25,11 @@
 
 - [ ] **Step 1: fake factory/resource fixture 작성**
 
-  `ConnectionFactory`의 `create()`는 `Mono.error(UnsupportedOperationException())`를 반환하고 `ConnectionFactoryMetadata`는 고정 이름을 반환한다. owned fixture는 R2DBC `Closeable`과 Reactor `Disposable`을 구현하고 close/dispose 호출 횟수와 지정 오류를 `AtomicInteger`/`AtomicReference`에 기록한다.
+  `ConnectionFactory`의 `create()`는 `Mono.error(UnsupportedOperationException())`를 반환하고 `ConnectionFactoryMetadata`는 고정 이름을 반환한다. owned fixture는 R2DBC `Closeable`과 Reactor `Disposable`을 구현하고 close/dispose 호출 횟수와 지정 오류를 `AtomicInteger`/`AtomicReference`에 기록한다. dispose-first 오류 경로가 후속 `close()`에서 같은 cached error와 suppressed chain을 보존하는지도 고정한다.
 
 - [ ] **Step 2: 다음 실패 테스트 작성**
 
-  `borrowed registry는 lookup/keys/asMap snapshot을 제공한다`, `unknown key는 configured keys를 포함한 NoSuchElementException을 던진다`, `routingMap은 mapped key 충돌을 거부한다`, `owned registry는 같은 resource alias를 한 번만 닫는다`, `borrowed/owned alias 충돌은 생성 시 거부한다`, `borrowed registry는 close 후에도 resource를 닫지 않는다`, `close 후 lookup/map은 IllegalStateException을 던진다`, `close는 모든 오류를 시도하고 후속 오류를 suppressed로 보존한다`, `concurrent lookup은 A/B factory를 교차하지 않는다`, `동시 close는 cached operation으로 한 번만 실행된다`를 exact assertion으로 작성한다.
+  `borrowed registry는 lookup/keys/asMap snapshot을 제공한다`, `unknown key는 configured keys를 포함한 NoSuchElementException을 던진다`, `routingMap은 mapped key 충돌을 거부한다`, `owned registry는 같은 resource alias를 한 번만 닫는다`, `borrowed/owned alias 충돌은 생성 시 거부한다`, `borrowed registry는 close 후에도 resource를 닫지 않는다`, `close 후 lookup/map은 IllegalStateException을 던진다`, `close는 모든 오류를 시도하고 후속 오류를 suppressed로 보존한다`, `dispose-first 오류도 후속 close 관찰성을 유지한다`, `concurrent lookup은 A/B factory를 교차하지 않는다`, `동시 close는 cached operation으로 한 번만 실행된다`를 exact assertion으로 작성한다.
 
 - [ ] **Step 3: RED 실행**
 
@@ -44,7 +44,7 @@
 
 - [ ] **Step 1: ownership entry 구현**
 
-  `ConnectionFactoryOwnership`는 `BORROWED`와 `OWNED`만 가진다. `borrowed(factory)`는 no-op close action을 만들고, 기본 `owned(factory)`는 R2DBC `Closeable`을 우선 사용하고 Reactor `Disposable`을 fallback으로 사용하며 둘 다 아니면 `IllegalArgumentException`을 던진다. 두 번째 `owned(factory, closeAction)`는 caller가 비동기 종료 동작을 명시한다. callback은 private/internal로 숨기고 registry만 호출한다.
+  `ConnectionFactoryOwnership`는 `BORROWED`와 `OWNED`만 가진다. `borrowed(factory)`는 no-op close action을 만들고, 기본 `owned(factory)`는 R2DBC `Closeable`을 우선 사용하고 Reactor `Disposable`을 fallback으로 사용하며 둘 다 아니면 `IllegalArgumentException`을 던진다. 두 번째 `owned(factory, closeAction)`는 caller가 비동기 종료 동작을 명시한다. public entry는 factory/ownership만 노출하고 lifecycle callback과 identity는 private implementation/helper에 둔다. `javap -public`에 callback backdoor가 생기지 않는지 검증한다.
 
 - [ ] **Step 2: immutable lookup 구현**
 
@@ -52,11 +52,11 @@
 
 - [ ] **Step 3: lifecycle 구현**
 
-  owned entry를 resource identity로 deduplicate한다. 같은 identity의 alias는 ownership와 custom close-action identity가 같아야 하며, 혼합이면 생성 시 fail-fast한다. `close()`는 `AtomicReference<Mono<Void>>` compare-and-set으로 `cache()`된 operation을 한 번만 설치하고, 각 close action을 순차 실행하면서 synchronous throw와 `Mono.error`를 모두 수집한 뒤 첫 오류에 나머지를 suppressed로 붙인다. `dispose()`는 같은 operation을 subscribe하는 fire-and-forget adapter이며 `isDisposed()`는 close state를 반영한다.
+  owned entry를 resource identity로 deduplicate한다. 같은 identity의 alias는 ownership와 custom close-action identity가 같아야 하며, 혼합이면 생성 시 fail-fast한다. `close()`는 `AtomicReference<Mono<Void>>` compare-and-set으로 `cache()`된 operation을 한 번만 설치하고, 그 reference를 lifecycle state의 단일 source of truth로 사용한다. 각 close action을 순차 실행하면서 synchronous throw와 `Mono.error`를 모두 수집한 뒤 첫 오류에 나머지를 suppressed로 붙인다. `dispose()`는 같은 operation을 subscribe하는 fire-and-forget adapter이고 오류를 logger에 기록하며, `isDisposed()`는 close signal 설치 여부를 반영한다.
 
 - [ ] **Step 4: companion convenience factory 구현**
 
-  `R2dbcConnectionFactoryRegistry.borrowed(entries: Map<K, out ConnectionFactory>)`와 `owned(entries: Map<K, out ConnectionFactory>)`가 entry map을 생성하도록 한다.
+  `R2dbcConnectionFactoryRegistry.borrowed(entries: Map<K, ConnectionFactory>)`와 `owned(entries: Map<K, ConnectionFactory>)`가 entry map을 생성하도록 한다. Kotlin `Map` 자체가 값 타입에 공변이므로 subtype factory map도 호출부에서 허용된다.
 
 ### Task 3: GREEN 및 동시성/ABI 경계 검증
 
@@ -70,30 +70,39 @@
 
   Run: `./gradlew :bluetape4k-r2dbc:compileKotlin :bluetape4k-r2dbc:compileTestKotlin :bluetape4k-r2dbc:detekt`
 
-  Expected: compile/detekt PASS, Spring/Ktor import 없음.
+  Expected: compile/detekt PASS, 새 registry source에 Spring/Ktor import 없음. 기존 module baseline의 unrelated detekt finding은 별도로 기록한다.
 
 - [ ] **Step 3: publication surface 확인**
 
   Run: `./gradlew :bluetape4k-r2dbc:jar :bluetape4k-r2dbc:generateMetadataFileForBluetape4kPublication :bluetape4k-r2dbc:generatePomFileForBluetape4kPublication :bluetape4k-r2dbc:checkPomFileForBluetape4kPublication`
 
-  Expected: JAR/POM/module metadata 생성과 POM check 성공; `jar tf`와 POM dependency 목록에 workshop framework가 없음.
+  Expected: JAR/POM/module metadata 생성과 POM check 성공; 생성된 POM은 provider baseline과 비교해 새 framework dependency를 추가하지 않는다.
 
 - [ ] **Step 4: bytecode/dependency guard**
 
   Run:
 
   ```bash
-  artifact_jar="$(find data/r2dbc/build/libs -maxdepth 1 -type f -name 'bluetape4k-r2dbc-*.jar' ! -name '*-sources.jar' | head -n 1)"
-  test -n "$artifact_jar"
-  jar tf "$artifact_jar" | rg 'R2dbcConnectionFactoryRegistry|R2dbcConnectionFactoryEntry'
-  if jdeps --multi-release 21 --recursive --ignore-missing-deps "$artifact_jar" | rg -q 'org.springframework|io.ktor'; then exit 1; fi
+  set -euo pipefail
+  guard_dir="$(mktemp -d)"
+  guard_jar="$guard_dir/bluetape4k-r2dbc-registry-guard.jar"
+  trap 'rm -rf "$guard_dir"' EXIT
+  test -f data/r2dbc/build/classes/kotlin/main/io/bluetape4k/r2dbc/pool/R2dbcConnectionFactoryRegistry.class
+  jar --create --file "$guard_jar" \
+    -C data/r2dbc/build/classes/kotlin/main io/bluetape4k/r2dbc/pool/R2dbcConnectionFactoryRegistry.class \
+    -C data/r2dbc/build/classes/kotlin/main io/bluetape4k/r2dbc/pool/R2dbcConnectionFactoryEntry.class \
+    -C data/r2dbc/build/classes/kotlin/main io/bluetape4k/r2dbc/pool/ConnectionFactoryOwnership.class
+  jar tf "$guard_jar" | rg 'R2dbcConnectionFactoryRegistry|R2dbcConnectionFactoryEntry'
+  jdeps_output="$guard_dir/jdeps.txt"
+  jdeps --multi-release 21 --recursive --ignore-missing-deps "$guard_jar" > "$jdeps_output"
+  if rg -n 'org.springframework|io.ktor' "$jdeps_output"; then exit 1; fi
   ```
 
   Expected: public classes are in the JAR and no Spring/Ktor bytecode reference exists. `Mono`/Reactor linkage is checked through the generated POM and the workshop compile gate, not by adding a framework dependency to this PR.
 
 - [ ] **Step 5: public signature snapshot**
 
-  Run: `javap -classpath "$artifact_jar" -public io.bluetape4k.r2dbc.pool.R2dbcConnectionFactoryRegistry io.bluetape4k.r2dbc.pool.R2dbcConnectionFactoryEntry > build/registry-public-api.txt` and inspect that the documented methods (`get`, `asMap`, `routingMap`, `close`, `dispose`, `isDisposed`) are present. If the repository ABI plugin becomes available, run its canonical task in addition; otherwise retain this exact signature output as the additive ABI evidence.
+  Run: `set -euo pipefail; artifact_jar="$(find data/r2dbc/build/libs -maxdepth 1 -type f -name 'bluetape4k-r2dbc-*.jar' ! -name '*-sources.jar' | head -n 1)"; test -n "$artifact_jar"; mkdir -p build; javap -classpath "$artifact_jar" -public io.bluetape4k.r2dbc.pool.R2dbcConnectionFactoryRegistry io.bluetape4k.r2dbc.pool.R2dbcConnectionFactoryEntry > build/registry-public-api.txt; if rg -n 'closeResource\\$|lifecycleIdentity\\$|synthetic' build/registry-public-api.txt; then exit 1; fi` and inspect that the documented methods (`get`, `asMap`, `routingMap`, `close`, `dispose`, `isDisposed`) are present. If the repository ABI plugin becomes available, run its canonical task in addition; otherwise retain this exact signature output as the additive ABI evidence.
 
 ### Task 4: README locale parity 문서화
 
@@ -139,12 +148,12 @@
 | borrowed/owned/custom lifecycle | Task 1, 2 |
 | idempotency/dedup/concurrent close/suppressed | Task 1, 2, 3 |
 | A/B concurrent isolation | Task 1, 3 |
-| no Spring/Ktor in artifact | Task 3 |
+| 새 registry bytecode에 Spring/Ktor 없음, baseline 대비 새 framework dependency 없음 | Task 3 |
 | README 영/국문 parity | Task 4 |
 
 ## 위험 예측
 
 - Reactor `Mono`를 public API로 노출하므로 `close()`가 cold/cached 동작인지 테스트에서 subscription까지 확인한다.
-- `Disposable.dispose()`는 오류를 동기 throw하지 않는 fire-and-forget adapter이므로 오류 관찰 계약은 `close()`에만 둔다.
+- `Disposable.dispose()`는 오류를 동기 throw하지 않는 fire-and-forget adapter이므로 logger에 기록하고, 상세 원인/suppressed chain 관찰 계약은 cached `close()`에 둔다.
 - `ConnectionFactory` alias가 identity dedup되지 않으면 pool double-close가 발생하므로 동일 인스턴스 fixture를 반드시 사용한다.
 - `Map.toMap()`이 caller 변경을 노출하지 않는지 원본 map mutate 후 snapshot을 확인한다.

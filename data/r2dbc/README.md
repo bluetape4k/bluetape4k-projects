@@ -430,6 +430,40 @@ class UserRepositoryTest: AbstractR2dbcTest() {
 }
 ```
 
+## ConnectionFactory Registry
+
+`R2dbcConnectionFactoryRegistry` provides an immutable tenant-to-
+`ConnectionFactory` snapshot. Lookup is fail-fast: an unknown key throws
+`NoSuchElementException`, and `routingMap` rejects duplicate mapped keys.
+
+```kotlin
+import io.bluetape4k.r2dbc.pool.R2dbcConnectionFactoryRegistry
+import io.r2dbc.spi.ConnectionFactory
+
+val borrowed = R2dbcConnectionFactoryRegistry.borrowed(
+    mapOf(
+        "primary" to primaryFactory,
+        "reporting" to reportingFactory,
+    ),
+)
+
+val primary: ConnectionFactory = borrowed["primary"]
+val routes: Map<String, ConnectionFactory> = borrowed.routingMap { it.lowercase() }
+
+// borrowed resources remain owned by the caller; this is a no-op for them.
+borrowed.close().block()
+
+// Use owned entries only when the registry must close the resources.
+val owned = R2dbcConnectionFactoryRegistry.owned(mapOf("primary" to pooledFactory))
+owned.close().block() // observe asynchronous close errors
+owned.dispose() // fire-and-forget adapter for lifecycle callbacks
+```
+
+Use `R2dbcConnectionFactoryEntry.owned(factory, closeAction)` when a factory
+has a custom asynchronous close operation. The registry deduplicates aliases
+by factory identity and closes each owned resource once. `keys` remains a
+creation-time snapshot, while lookup and map access are rejected after close.
+
 ## References
 
 - [R2DBC Official Documentation](https://r2dbc.io/)
