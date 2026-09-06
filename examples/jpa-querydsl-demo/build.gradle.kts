@@ -64,14 +64,14 @@ dependencies {
     testImplementation(project(":bluetape4k-junit5"))
 
     implementation(bt4k.jakarta.annotation.api)
-    implementation(bt4k.jakarta.persistence.v31)
+    implementation(bt4k.jakarta.persistence.v32)
     implementation(bt4k.hibernate.core)
 
     // QueryDsl
     implementation(bt4k.querydsl.jpa)
     kapt(variantOf(bt4k.querydsl.apt) { classifier("jakarta") })
     kaptTest(variantOf(bt4k.querydsl.apt) { classifier("jakarta") })
-    kapt(bt4k.jakarta.persistence.v31)
+    kapt(bt4k.jakarta.persistence.v32)
 
     // Vaidators
     implementation(bt4k.hibernate.validator)

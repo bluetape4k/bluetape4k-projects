@@ -788,7 +788,7 @@ subprojects {
             dependency(rootBt4k.jakarta.jms.api.get().toString())
             dependency(rootBt4k.jakarta.json.api.get().toString())
             dependency(rootBt4k.jakarta.json.asProvider().get().toString())
-            dependency(rootBt4k.jakarta.persistence.v31.get().toString())
+            dependency(rootBt4k.jakarta.persistence.v32.get().toString())
             dependency(rootBt4k.jakarta.servlet.api.get().toString())
             dependency(rootBt4k.jakarta.transaction.api.get().toString())
             dependency(rootBt4k.jakarta.validation.api.get().toString())

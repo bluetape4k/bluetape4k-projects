@@ -19,12 +19,12 @@
 전역 변경 제외 조건에 대한 한정된 예외다. catalog 원본·ref·버전 상수·제품 API는 변경하지 않는다.
 
 - [x] 선행 증거: JPA fixture 8개가 `FindOption` 누락으로 실패했고 production runtime도 3.2.0 → 3.1.0으로 낮아졌다. [실행 기록](../../review/2026-09-06-issue-1640-execution-checkpoint.md)을 보존한다.
-- [ ] root alias 한 줄을 정렬하고 같은 fixture 8개를 재실행한다. 실패하면 원인을 진단하며 assertion을 약화하지 않는다.
-- [ ] compile/runtime/test compile/test runtime의 실제 Jakarta 버전과 기존 Hibernate 계열 override를 확인한다. 기존 3.2.0 override 제거는 이번 변경에 포함하지 않는다.
-- [ ] `examples/jpa-querydsl-demo`의 직접 v31 선언은 편집하지 않고 4개 classpath에서 실제 선택 버전을 확인한다. 3.1.0이 남으면 전역 정렬 검증은 실패이며 새로운 force로 숨기지 않는다.
-- [ ] 대표 발행 모듈 Hibernate Lettuce의 `generatePomFileForBluetape4kPublication` 결과에서 Jakarta Persistence dependencyManagement가 3.2.0인지 확인한다.
-- [ ] core → Hibernate Lettuce → demo 전체 테스트를 순차 실행하고 정적 검사를 수행한다.
-- [ ] 전역 영향 검증으로 전체 모듈 build를 테스트 제외 상태로 먼저 실행한다. 성공은 전체 테스트 통과와 구분한다. 필요한 후속 전체 테스트 또는 exact-head Full Nightly 증거가 없으면 전역 검증은 PENDING이다. workflow dispatch는 별도 승인 없이 실행하지 않는다.
+- [x] root alias 한 줄을 정렬하고 같은 fixture 8개를 재실행했다. 8개 통과와 음성 대조 결과는 실행 기록에 있다.
+- [x] compile/runtime/test compile/test runtime의 실제 Jakarta 버전과 기존 Hibernate 계열 override를 확인했다. 기존 3.2.0 override는 유지했다.
+- [x] `examples/jpa-querydsl-demo`에서 직접 v31 선언에 따른 production 3.1.0 잔류를 확인했다. 아래 추가 승인에 따라 implementation·kapt를 v32로 정렬했고, 4개 classpath와 kapt에서 3.2.0 선택을 확인했다.
+- [x] 대표 발행 모듈 Hibernate Lettuce의 `generatePomFileForBluetape4kPublication` 결과에서 Jakarta Persistence dependencyManagement 3.2.0을 확인했다.
+- [x] core → Hibernate Lettuce → demo 전체 테스트 295개 통과와 정적 검사 결과를 기록했다. 기존 정적 지적은 실행 기록의 미해결 항목으로 유지한다.
+- [x] 전역 build와 후속 `test --no-build-cache --no-parallel`을 완료했다. 최종 테스트는 종료코드 0·20분 35초·631 tasks이며, 증분 실행과 기존 제외 사례의 한계는 실행 기록에 명시했다. exact-head Full Nightly나 발행 증거로 대체하지 않는다.
 - [ ] 최종 리뷰·lesson·PR 조건은 기존 계획을 유지한다. 실패한 전역 검증은 로그와 모듈을 기록하며 무관한 제품 수정으로 범위를 넓히지 않는다.
 
 위험: 공통 dependencyManagement는 모든 하위 모듈과 발행 metadata에 영향을 준다.
@@ -425,9 +425,13 @@ done
 - [ ] compile와 detekt를 순차 실행한다.
 
 ```bash
-python3 /tmp/issue-1640-bounded-run.py 1800 ./gradlew --no-daemon :bluetape4k-spring-boot-core:compileTestKotlin :bluetape4k-spring-boot-hibernate-lettuce:compileTestKotlin :bluetape4k-spring-boot-hibernate-lettuce-demo:compileTestKotlin :bluetape4k-spring-boot-core:detekt :bluetape4k-spring-boot-hibernate-lettuce:detekt :bluetape4k-spring-boot-hibernate-lettuce-demo:detekt || exit $?
+python3 /tmp/issue-1640-bounded-run.py 1800 ./gradlew --no-daemon :bluetape4k-spring-boot-core:compileTestKotlin :bluetape4k-spring-boot-hibernate-lettuce:compileTestKotlin :bluetape4k-spring-boot-hibernate-lettuce-demo:compileTestKotlin :bluetape4k-spring-boot-core:detekt :bluetape4k-spring-boot-hibernate-lettuce:detekt || exit $?
 git diff --check
 ```
+
+실행 중 demo의 detekt task가 없음을 확인해 명령을 정정했다.
+root의 명시적 demo 분석 제외 정책에 따른 N/A이며 demo compile/test는 계속 검증한다.
+Detekt는 ignoreFailures=true이므로 종료코드와 별개로 XML 지적을 판정한다.
 
 - [ ] lifecycle·리소스·blocking·시간 경계 관점으로 현재 diff를 검토한다. stress·benchmark는 제품 성능을 변경하지 않는 8개 고정 fixture이므로 추가하지 않는다.
 - [ ] 위 실행이 실패하면 로그와 XML을 먼저 분석한다. assertion 약화·테스트 제외·재시도만으로 통과시키지 않는다.
@@ -450,7 +454,7 @@ git diff --check
 
 - [ ] AC 대응표와 exact diff로 verifier 검토 및 6개 관점 pre-PR 리뷰를 수행한다. 독립 lane이 실행되지 않으면 실패 근거를 보존하고 inline fallback으로 정확히 표시한다.
 - [ ] 위 lesson 파일에 spec의 시간상한 누락, RED 구분, plan·TDD·code-review에서 실제로 발견한 수정과 재발 방지 검증을 통합한다.
-- [ ] 제품 API·문서화된 동작·모듈 등록을 변경하지 않으므로 README locale·CHANGELOG·AGENTS·BOM·Nightly 편집은 N/A다. CI는 기존 spring-boot job에 75분 timeout과 세 모듈 테스트가 있으므로 새 workflow를 추가하지 않는다. 검증 중 실제 변경이 발생하면 이 N/A 판정을 다시 확인한다.
+- [x] 추가 승인으로 root dependencyManagement와 발행 POM이 변경되어 CHANGELOG의 기존 N/A를 철회했다. Unreleased에 Jakarta Persistence 3.2.0 정렬과 소비자 override 안내를 추가했다. 새 제품 API·모듈·workflow는 없으므로 README locale·AGENTS·BOM·Nightly 편집은 N/A다. 기존 CI의 exact-head 실행 확인은 전달 단계에서 수행한다.
 - [ ] 조사 자료 wiki 보존·색인을 별도 해당 저장소 workflow에 따라 완료한다. 다른 작업의 dirty 변경을 포함하지 않는다.
 - [ ] 문서 용어 감사, 재독, diff 검사 후 lesson·최종 리뷰를 커밋한다.
 - [ ] live 이슈 metadata를 다시 읽고 승인된 repo/base/head로 PR을 생성한다. debop·milestone 2.1.0·test/dependencies를 반영하고 본문 마지막은 `## DoD Status`로 둔다.
@@ -470,5 +474,57 @@ git diff --check
 | AC-07 | 작업 4 진단·compile·detekt, 작업 5 exact-head 리뷰·CI |
 
 ## 계획 DoD
+
+### 구현 검증 후 작업 상태 정리
+
+아래 표는 최초 실행 체크박스의 현재 상태를 정리한다. 구현 중 추가 승인과
+실패·복구 이력은 실행 기록을 기준으로 대조했으며, 전달 단계는 완료로 간주하지 않는다.
+
+| 계획 작업 | 현재 상태와 근거 |
+|---|---|
+| 작업 1의 격리·실행기·graph·버전 RED/GREEN | 완료. 실행기 0·7·124, 기존 4.0.3 RED와 force 제거 후 GREEN을 기록했다. |
+| 작업 2의 의존성·fixture·진단·시간 제한·음성 대조 | 완료. 최종 8개 통과. IDE 대신 compileTestKotlin을 사용했고 이름·스레드·닫힘의 음성 대조를 복구했다. |
+| 작업 3의 force 제거·8개 graph·회귀 검증 | 완료. root·QueryDSL 후속 승인까지 포함해 실제 Jakarta 3.2.0을 확인했다. |
+| 작업 3의 중간 코드 커밋 | 후속 최종 검토·lesson 커밋 단계로 이월. 실패 상태에서 확정 커밋하지 않았으며 코드 손실은 없다. |
+| 작업 4의 controller·세 모듈·XML·정적 검사·위험 판정 | 완료. Spring Boot 295개, core 라이브러리 1,679개, 전역 증분 테스트 종료코드 0. 기존 정적 지적·제외·cache 경고는 실행 기록에 남겼다. |
+| 작업 4의 Docker 장애 대응·실패 진단 | 완료. manual 환경과 timing 실패를 구분해 수정했다. 건강한 VM 재시작이나 테스트 제외를 추가하지 않았다. |
+| 작업 5의 CHANGELOG 영향 재판정 | 완료. 발행 POM 변경에 맞춰 Unreleased 호환성 안내를 추가했다. |
+| 작업 5의 verifier·최종 리뷰·lesson·wiki·PR·CI | 후속 단계. 최종 리뷰 후 lesson·색인·승인된 PR 전달을 순서대로 수행한다. 병합은 별도 승인이다. |
+
+
+### 추가 승인: core 시간 비교 테스트 안정화
+
+사용자의 후속 `추가해`로 `ParallelIterateSupportTest.kt`의 실패한 count
+검사를 같은 작업 범위에 포함한다. 전역 실행에서 2386ms < 1246ms 비교가
+실패했고, 수정 없는 단독 실행은 통과했다. 속도 우위는 이 단위 테스트의
+성공 조건에서 제거하며 제품 구현·다른 성능 예제는 변경하지 않는다.
+
+1. 기존 시간 비교 실패를 RED 증거로 보존한다. sleep·시간 비교 대신
+   JUnit parameterized test로 크기 0·1·31·32·33·1000과 batchSize=32를
+   검증한다. 예상 DoD: 혼합·전체 일치·전체 불일치의 정확한 count.
+2. 잘못된 기대 count로 음성 대조를 실행해 실패를 확인하고 원복한다.
+   예상 DoD: 잘못된 결과 검출과 정상 클래스 18개 통과를 구분해 기록.
+3. core 전체 테스트·Detekt·diff 검사 후 중앙 manual 환경을 지정한
+   전역 테스트를 순차 재실행한다. 각 Gradle 실행은 기존 실행기로
+   600초 또는 1,800초 상한을 적용한다. 다른 모듈의 새 결함은
+   원인을 기록하고 무관한 제품 수정으로 범위를 넓히지 않는다.
+
+기존 JUnit·bluetape4k assertions·fastList를 재사용한다. 새 의존성이나
+스레드 harness는 추가하지 않는다. 이 검사는 결과 계약을 검증하며
+병렬 실행의 속도 우위나 실제 스레드 수를 증명한다고 주장하지 않는다.
+
+### 추가 승인: QueryDSL 예제 직접 선언 정렬
+
+사용자의 `승인`과 후속 `계속해`에 따라
+`examples/jpa-querydsl-demo/build.gradle.kts`의 implementation·kapt 두 선언을
+기존 catalog v31에서 v32로 정렬한다. 앞선 직접 소비자 변경 제외 조건은
+이 두 선언에 한해 해제한다. 다른 버전 강제 블록은 변경하지 않는다.
+
+1. 두 alias를 정렬한다. 예상 DoD: 신규 버전 상수나 의존성 없이 두 줄만 변경.
+2. production·test의 compile/runtime 및 kapt 의존성을 확인하고 예제 전체
+   테스트를 순차 실행한다. 예상 DoD: Jakarta Persistence 3.2.0 선택과
+   실제 테스트 수·실패·제외 수·종료코드 기록.
+3. 전역 build와 최종 리뷰 증거를 갱신한다. 전체 테스트·CI·병합은 별도
+   검증 및 승인 조건을 유지한다.
 
 계획 문서·리뷰의 SPW-01–05 및 KO-01–07 검증, 6개 관점 통합 P0/P1 해소 후 계획을 커밋한다. 구현 실행 기록과 결과는 위 작업 checkbox와 최종 리뷰에 남긴다. 현재 코드·테스트·CI 검증은 계획이며 실행 결과가 아니다.
