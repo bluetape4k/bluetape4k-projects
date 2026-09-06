@@ -821,6 +821,40 @@ class TestRunTestcontainersImageGate(unittest.TestCase):
             verify_release_summary(summary, expected_coverage="1/1", platform_id="arm64", expected_tag="1.0-arm64", expected_architecture="arm64"),
         )
 
+    def test_release_verifier_accepts_generic_summary_without_platform_contract(self) -> None:
+        summary = {
+            "schema_version": 2,
+            "coverage": "1/1",
+            "release_gate": True,
+            "status": "success",
+            "selected": 1,
+            "blocked": 0,
+            "product_failure": 0,
+            "infrastructure_failure": 0,
+            "release_required_selected": 1,
+            "release_required_success": 1,
+            "results": [
+                {
+                    "id": "generic-family",
+                    "release_required": True,
+                    "status": "success",
+                    "junit": {"tests": 1, "skipped": 0, "failures": 0, "errors": 0},
+                }
+            ],
+            "platforms": [],
+        }
+
+        self.assertEqual(
+            [],
+            verify_release_summary(
+                summary,
+                expected_coverage="1/1",
+                platform_id=None,
+                expected_tag=None,
+                expected_architecture=None,
+            ),
+        )
+
     def test_budget_formula_and_52_family_artifact_guard(self) -> None:
         self.assertEqual(
             318,

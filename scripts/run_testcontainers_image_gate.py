@@ -343,12 +343,12 @@ def verify_release_summary(
     summary: dict[str, Any],
     *,
     expected_coverage: str,
-    platform_id: str,
-    expected_tag: str,
-    expected_architecture: str,
+    platform_id: str | None,
+    expected_tag: str | None,
+    expected_architecture: str | None,
     report_dir: Path | None = None,
 ) -> list[str]:
-    """Return fail-closed Release verifier findings for one native platform gate."""
+    """Return fail-closed Release verifier findings, with an optional strict platform gate."""
 
     errors: list[str] = []
     if summary.get("schema_version") != 2:
@@ -380,6 +380,8 @@ def verify_release_summary(
             or junit.get("errors", 1) != 0
         ):
             errors.append(f"successful JUnit evidence is required: {result.get('id')}")
+    if platform_id is None:
+        return errors
     platform_results = [item for item in summary.get("platforms", []) if item.get("platform_id") == platform_id]
     if len(platform_results) != 1:
         errors.append(f"exactly one {platform_id} platform result is required")

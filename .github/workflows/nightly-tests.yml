@@ -1385,10 +1385,7 @@ jobs:
             --input-dir shard-artifacts \
             --output-dir build/reports/testcontainers-image-gate \
             --manifest scripts/testcontainers_image_gate_manifest.json \
-            --expected-shards 4 \
-            --platform-id amd64 \
-            --expected-tag 2.18.0 \
-            --expected-architecture amd64
+            --expected-shards 4
           aggregate_exit=$?
           set -e
           test "$SHARD_RESULT" = success

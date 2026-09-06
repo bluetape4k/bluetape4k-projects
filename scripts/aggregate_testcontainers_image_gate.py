@@ -54,6 +54,14 @@ def aggregate_summaries(
     expected_by_id = {str(entry["id"]): entry for entry in manifest_entries}
     if len(expected_by_id) != len(manifest_entries):
         raise AggregationError("manifest contains duplicate family ids")
+    strict_family_ids = [
+        str(entry["id"]) for entry in manifest_entries if entry.get("platforms")
+    ]
+    if strict_family_ids:
+        raise AggregationError(
+            "strict platform families require explicit aggregate verification: "
+            + ", ".join(strict_family_ids)
+        )
 
     summaries = list(shard_summaries)
     if len(summaries) != expected_shard_count:
@@ -283,9 +291,6 @@ def aggregate_reports(
     *,
     manifest_path: Path = MANIFEST,
     expected_shard_count: int,
-    platform_id: str,
-    expected_tag: str,
-    expected_architecture: str,
 ) -> dict[str, Any]:
     """Load shard artifacts, create canonical artifacts, and verify the release gate."""
 
@@ -364,9 +369,9 @@ def aggregate_reports(
     verification_errors = verify_release_summary(
         summary,
         expected_coverage=f"{expected_release_count}/{expected_release_count}",
-        platform_id=platform_id,
-        expected_tag=expected_tag,
-        expected_architecture=expected_architecture,
+        platform_id=None,
+        expected_tag=None,
+        expected_architecture=None,
         report_dir=output_dir,
     )
     if verification_errors:
@@ -417,9 +422,6 @@ def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
     parser.add_argument("--output-dir", type=Path, required=True)
     parser.add_argument("--manifest", type=Path, default=MANIFEST)
     parser.add_argument("--expected-shards", type=int, required=True)
-    parser.add_argument("--platform-id", default="amd64")
-    parser.add_argument("--expected-tag", default="2.18.0")
-    parser.add_argument("--expected-architecture", default="amd64")
     return parser.parse_args(argv)
 
 
@@ -431,9 +433,6 @@ def main(argv: Sequence[str] | None = None) -> int:
             args.output_dir,
             manifest_path=args.manifest,
             expected_shard_count=args.expected_shards,
-            platform_id=args.platform_id,
-            expected_tag=args.expected_tag,
-            expected_architecture=args.expected_architecture,
         )
     except (AggregationError, OSError, ValueError) as error:
         _write_blocked_summary(args.output_dir, [str(error)], args.manifest)
