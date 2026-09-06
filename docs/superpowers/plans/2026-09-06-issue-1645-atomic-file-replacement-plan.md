@@ -1039,7 +1039,7 @@ Expected: 네 test class의 모든 test가 PASS하고 sibling temporary file이 
 `docs/superpowers/checklists/2026-09-06-issue-1645-type-a.md`에 첫 compile RED,
 functional RED, targeted GREEN의 명령·실패 원인·test count를 기록한다.
 
-- [ ] **Step 6: 첫 구현 commit**
+- [x] **Step 6: 첫 구현 commit**
 
 ```bash
 git add \
@@ -1063,7 +1063,7 @@ provider 제약, non-atomic fallback 거부, RED/GREEN 결과와 아직 실행�
 - Modify: `io/io/README.ko.md:114-117,431-455,541-563`
 - Modify: `CHANGELOG.md:82-90`
 
-- [ ] **Step 1: README locale pair에 같은 구조의 계약과 예제 추가**
+- [x] **Step 1: README locale pair에 같은 구조의 계약과 예제 추가**
 
 영어 README의 File Utilities 설명과 예제에 다음 내용을 추가한다.
 
@@ -1263,7 +1263,7 @@ static long write(Path destination, byte[] payload) throws IOException {
 
 두 README의 모듈 구조에 `AtomicFileSupport.kt`를 같은 위치와 의미로 추가한다.
 
-- [ ] **Step 2: CHANGELOG 미출시 추가 항목 기록**
+- [x] **Step 2: CHANGELOG 미출시 추가 항목 기록**
 
 `CHANGELOG.md`의 첫 `### 추가` 아래에 다음 항목을 추가한다.
 
@@ -1275,7 +1275,7 @@ static long write(Path destination, byte[] payload) throws IOException {
   ([#1645](https://github.com/bluetape4k/bluetape4k-projects/issues/1645)).
 ```
 
-- [ ] **Step 3: README 예제와 Kotlin/Java facade 계약 확인**
+- [x] **Step 3: README 예제와 Kotlin/Java facade 계약 확인**
 
 Run:
 
@@ -1297,7 +1297,7 @@ public static final long writeAtomically(java.nio.file.Path, kotlin.jvm.function
 descriptor: (Ljava/nio/file/Path;Lkotlin/jvm/functions/Function1;)J
 ```
 
-- [ ] **Step 4: 문서·ABI commit**
+- [x] **Step 4: 문서·ABI commit**
 
 ```bash
 git add io/io/README.md io/io/README.ko.md CHANGELOG.md
