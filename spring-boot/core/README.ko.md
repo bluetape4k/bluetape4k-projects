@@ -34,6 +34,12 @@ Spring Boot 4.x 기반 공통 기능 통합 모듈입니다.
 - `SpringObservationKeyValues`를 통한 Micrometer low-cardinality/high-cardinality key value 그룹화
 - Prometheus와 OpenTelemetry export는 애플리케이션 소유의 Spring Boot Actuator 설정으로 유지
 
+### MDC TaskDecorator
+
+- 재사용 Spring worker에 caller의 불변 MDC 복사본을 전달하는 `MdcTaskDecorator`
+- caller context가 비어 있으면 task 실행 중 worker MDC를 비우고, 성공·실패 후 worker의 이전 전체 map 복원
+- executor 생성·종료와 Spring bean lifecycle은 애플리케이션이 소유
+
 ### 테스트 유틸리티
 
 - Spring Boot Test 기반 통합 테스트 지원
@@ -128,6 +134,35 @@ val created = webClient.httpPost("/users", newUser)
     .bodyToMono(User::class.java)
     .awaitSingle()
 ```
+
+### MDC TaskDecorator
+
+애플리케이션이 소유한 executor에 `MdcTaskDecorator`를 연결합니다. `decorate`
+호출 시점에 caller MDC를 캡처하고, task 실행 중 worker MDC를 대체한 뒤
+`finally`에서 worker의 이전 map을 복원합니다.
+
+```kotlin
+import io.bluetape4k.spring.task.MdcTaskDecorator
+import org.springframework.context.annotation.Bean
+import org.springframework.context.annotation.Configuration
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor
+
+@Configuration(proxyBeanMethods = false)
+class TaskExecutionConfiguration {
+    @Bean
+    fun applicationTaskExecutor(): ThreadPoolTaskExecutor =
+        ThreadPoolTaskExecutor().apply {
+            corePoolSize = 4
+            maxPoolSize = 8
+            setTaskDecorator(MdcTaskDecorator())
+            initialize()
+        }
+}
+```
+
+decorator는 executor를 생성하거나 닫지 않으며 자동 bean을 등록하지 않습니다.
+caller MDC가 비어 있으면 task 실행 중 stale worker 값을 숨기고, task가
+추가한 key는 이전 context를 복원할 때 제거됩니다.
 
 ### WebFlux 컨트롤러 (Coroutines)
 
@@ -240,6 +275,7 @@ class UserControllerTest(@Autowired val client: WebTestClient) {
 | 범주                          | 의존 방식     | 설명                      |
 |-------------------------------|---------------|---------------------------|
 | `spring-boot-starter-webflux` | `compileOnly` | WebFlux + Coroutines 필수 |
+| `bluetape4k-logging`           | `implementation` | MDC TaskDecorator 지원       |
 | `bluetape4k-coroutines`       | `compileOnly` | Coroutines 지원           |
 | `micrometer-observation`      | `compileOnly` | Observation 헬퍼 지원     |
 | `spring-boot-starter-web`     | `compileOnly` | 선택적 서블릿 지원        |

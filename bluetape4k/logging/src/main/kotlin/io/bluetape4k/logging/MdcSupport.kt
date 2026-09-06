@@ -1,6 +1,8 @@
 package io.bluetape4k.logging
 
 import org.slf4j.MDC
+import java.util.Collections
+import java.util.LinkedHashMap
 
 /**
  * 단일 키-값을 MDC에 적용한 범위 안에서 블록을 실행합니다.
@@ -106,5 +108,47 @@ inline fun <T> withLoggingContext(
         cleanupCallbacks.forEach { callback ->
             runCatching { callback() }
         }
+    }
+}
+
+private fun immutableMdcCopy(context: Map<String, String>): Map<String, String> =
+    Collections.unmodifiableMap(LinkedHashMap(context))
+
+/**
+ * 현재 thread의 MDC 전체를 caller와 분리된 읽기 전용 MDC map으로 복사합니다.
+ *
+ * MDC에는 정제된 비밀이 아닌 식별자만 넣으세요. 이 함수는 raw token, header, payload를
+ * 검증하거나 가리지 않고 그대로 복사합니다. 비용은 MDC 항목 수에 비례하므로
+ * context는 작은 low-cardinality 식별자 집합으로 유지하세요.
+ */
+fun captureMdcContext(): Map<String, String> =
+    MDC.getCopyOfContextMap()?.let(::immutableMdcCopy) ?: emptyMap()
+
+private fun replaceMdcContext(context: Map<String, String>) {
+    if (context.isEmpty()) {
+        MDC.clear()
+    } else {
+        MDC.setContextMap(context)
+    }
+}
+
+/**
+ * 전체 MDC를 [context]로 대체한 범위에서 [block]을 실행합니다.
+ *
+ * 전달 map은 적용 전에 다시 복사합니다. 빈 map은 범위 안의 MDC를 clear하며, 정상 반환과
+ * 예외 모두 범위 진입 전 전체 MDC를 복원합니다. 빈 map을 no-op으로 처리하고 key별로
+ * 병합하는 [withLoggingContext]와는 다른 전체 대체 계약입니다.
+ *
+ * @param context 범위 안에서 사용할 전체 MDC map
+ * @param block MDC가 대체된 상태에서 실행할 코드
+ */
+fun <T> withMdcContext(context: Map<String, String>, block: () -> T): T {
+    val previous = captureMdcContext()
+    val applied = immutableMdcCopy(context)
+    return try {
+        replaceMdcContext(applied)
+        block()
+    } finally {
+        replaceMdcContext(previous)
     }
 }

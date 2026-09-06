@@ -27,7 +27,7 @@ A library that makes SLF4J logging in Kotlin easier and more efficient.
 - **Lambda-based Lazy Logging**: Messages are not constructed unless the log level is enabled — improves performance
 - **Class-level Logging**: Simple static logger definition using `KLogging`
 - **Function-level Logging**: Works in top-level and package-level functions too
-- **MDC Support**: SLF4J MDC in idiomatic Kotlin style
+- **MDC Support**: SLF4J MDC in idiomatic Kotlin style, including immutable snapshots for reusable worker tasks
 - **Coroutines Support**: MDC context propagation in coroutine environments
 - **KLoggingChannel**: High-performance async logging backed by a Coroutines channel
 - **Error Highlighting**: Automatically prepends 🔥 emoji to warn/error log messages
@@ -175,6 +175,38 @@ withLoggingContext("userId" to userId) {
     log.info { "User action logged" }
 }
 ```
+
+#### MDC Snapshots for Reusable Worker Tasks
+
+Use `captureMdcContext` when a task is submitted and `withMdcContext` at the
+worker boundary. The snapshot is copied at capture time, an empty snapshot
+clears the worker MDC while the task runs, and the worker's complete previous
+map is restored after normal or exceptional completion.
+The API copies values without validation or redaction. Put only sanitized,
+non-secret identifiers in MDC; never put raw tokens, headers, or payloads there.
+Copying is proportional to the number of MDC entries, and queued tasks retain
+their copy until execution. Keep MDC to a small, low-cardinality identifier set.
+
+```kotlin
+import io.bluetape4k.logging.captureMdcContext
+import io.bluetape4k.logging.withMdcContext
+import org.slf4j.MDC
+
+MDC.put("requestId", requestId)
+val submittedContext = captureMdcContext()
+MDC.put("requestId", "a-later-value") // does not change submittedContext
+
+executor.execute {
+    withMdcContext(submittedContext) {
+        log.info { "The submitted request context is active" }
+    }
+}
+```
+
+`withMdcContext` replaces the complete MDC for its scope and restores the
+worker's previous map in `finally`; task-local keys therefore do not leak into
+the next task. This is intentionally different from `withLoggingContext`,
+which keeps its existing key-by-key merge and empty-map no-op semantics.
 
 ### 5. MDC in Coroutines
 

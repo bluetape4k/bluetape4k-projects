@@ -87,6 +87,14 @@
 
 ### 추가
 
+- `bluetape4k-logging`에 전체 MDC snapshot을 복사·교체·복원하는
+  `captureMdcContext`와 `withMdcContext`를 추가하고,
+  `bluetape4k-spring-boot-core`에 재사용 worker용 `MdcTaskDecorator`를 제공한다.
+  빈 caller context도 worker의 stale 값을 숨기며 정상·예외·중첩 실행 뒤 worker의
+  이전 전체 map을 복원한다. executor와 bean lifecycle은 애플리케이션이 소유하고,
+  Workshop 소비자 이전은 후속 #941에서 진행한다
+  ([#1644](https://github.com/bluetape4k/bluetape4k-projects/issues/1644)).
+
 - `InputStream`, Apache HC5 `HttpEntity`, JDK `HttpResponse<InputStream>`에 전체 본문을
   strict byte 상한 안에서 읽는 additive API를 추가했다. 상한 초과는 부분 결과 없이
   `ByteLimitExceededException`으로 실패하며 기존 truncation API는 그대로 유지한다.
