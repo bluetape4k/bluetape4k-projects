@@ -1312,7 +1312,7 @@ metadata/durability 비보장과 README locale parity 검증을 기록한다.
 **Files:**
 - Modify: `docs/superpowers/checklists/2026-09-06-issue-1645-type-a.md`
 
-- [ ] **Step 1: 새 계약 test를 clean 상태에서 재실행**
+- [x] **Step 1: 새 계약 test를 clean 상태에서 재실행**
 
 ```bash
 ./gradlew :bluetape4k-io:cleanTest :bluetape4k-io:test \
@@ -1325,7 +1325,7 @@ metadata/durability 비보장과 README locale parity 검증을 기록한다.
 
 Expected: 새 test 전체 PASS, failure/error/skip 0.
 
-- [ ] **Step 2: `bluetape4k-io` 전체 회귀 실행**
+- [x] **Step 2: `bluetape4k-io` 전체 회귀 실행**
 
 ```bash
 ./gradlew :bluetape4k-io:test \
@@ -1334,7 +1334,7 @@ Expected: 새 test 전체 PASS, failure/error/skip 0.
 
 Expected: baseline 1,265개와 신규 test를 포함한 전체 suite PASS, failure/error 0.
 
-- [ ] **Step 3: compile과 Detekt 실행**
+- [x] **Step 3: compile과 Detekt 실행**
 
 ```bash
 ./gradlew \
@@ -1348,7 +1348,7 @@ Expected: baseline 1,265개와 신규 test를 포함한 전체 suite PASS, failu
 Expected: 모든 task 성공. Detekt가 `ignoreFailures`를 사용하는 경우 report의 신규 파일
 finding도 직접 확인하고 exit code만으로 clean을 주장하지 않는다.
 
-- [ ] **Step 4: 문서와 diff 검사**
+- [x] **Step 4: 문서와 diff 검사**
 
 ```bash
 node /Users/debop/.codex/skills/bluetape-writer/scripts/audit-korean-terms.mjs \
@@ -1360,7 +1360,7 @@ git status --short
 
 Expected: terminology findings 0, whitespace error 0, 승인 범위 밖 경로 0.
 
-- [ ] **Step 5: checklist에 fresh evidence 기록**
+- [x] **Step 5: checklist에 fresh evidence 기록**
 
 Targeted/full-suite test count, compile/Detekt 결과, `javap` descriptor, terminology와 diff
 결과를 A-06/A-07, CG-06..CG-08, SPW evidence에 반영한다. Full Nightly와 Image regression은
@@ -1490,7 +1490,7 @@ merge와 `2.1.0-SNAPSHOT` 발행은 이 PR 생성과 별도 승인 gate입니다
 ## DoD Status
 
 - [x] 설계·계획·TDD·module regression·ABI 검증 완료
-- [x] six-perspective review에서 P0=0/P1=0
+- [ ] six-perspective review에서 P0=0/P1=0
 - [ ] exact-head CI와 live review/thread 수렴
 - [ ] fresh merge 승인
 - [ ] 별도 `2.1.0-SNAPSHOT` 발행 승인과 provenance
