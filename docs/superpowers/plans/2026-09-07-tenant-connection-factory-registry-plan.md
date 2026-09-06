@@ -29,7 +29,7 @@
 
 - [ ] **Step 2: 다음 실패 테스트 작성**
 
-  `borrowed registry는 lookup/keys/asMap snapshot을 제공한다`, `unknown key는 configured keys를 포함한 NoSuchElementException을 던진다`, `routingMap은 mapped key 충돌을 거부한다`, `owned registry는 같은 resource alias를 한 번만 닫는다`, `borrowed/owned alias 충돌은 생성 시 거부한다`, `borrowed registry는 close 후에도 resource를 닫지 않는다`, `close 후 lookup/map은 IllegalStateException을 던진다`, `close는 모든 오류를 시도하고 후속 오류를 suppressed로 보존한다`, `dispose-first 오류도 후속 close 관찰성을 유지한다`, `concurrent lookup은 A/B factory를 교차하지 않는다`, `동시 close는 cached operation으로 한 번만 실행된다`를 exact assertion으로 작성한다.
+  `borrowed registry는 lookup/keys/asMap snapshot을 제공한다`, `unknown key는 configured key 집합을 노출하지 않는 NoSuchElementException을 던진다`, `routingMap은 mapped key 충돌을 거부한다`, `owned registry는 같은 resource alias를 한 번만 닫는다`, `borrowed/owned alias 충돌은 생성 시 거부한다`, `borrowed registry는 close 후에도 resource를 닫지 않는다`, `close 후 lookup/map은 IllegalStateException을 던진다`, `close는 모든 오류를 시도하고 후속 오류를 suppressed로 보존한다`, `dispose-first 오류도 후속 close 관찰성을 유지한다`, `concurrent lookup은 A/B factory를 교차하지 않는다`, `동시 close는 cached operation으로 한 번만 실행된다`를 exact assertion으로 작성한다.
 
 - [ ] **Step 3: RED 실행**
 
@@ -52,7 +52,7 @@
 
 - [ ] **Step 3: lifecycle 구현**
 
-  owned entry를 resource identity로 deduplicate한다. 같은 identity의 alias는 ownership와 custom close-action identity가 같아야 하며, 혼합이면 생성 시 fail-fast한다. `close()`는 `AtomicReference<Mono<Void>>` compare-and-set으로 `cache()`된 operation을 한 번만 설치하고, 그 reference를 lifecycle state의 단일 source of truth로 사용한다. 각 close action을 순차 실행하면서 synchronous throw와 `Mono.error`를 모두 수집한 뒤 첫 오류에 나머지를 suppressed로 붙인다. `dispose()`는 같은 operation을 subscribe하는 fire-and-forget adapter이고 오류를 logger에 기록하며, `isDisposed()`는 close signal 설치 여부를 반영한다.
+  owned entry를 resource identity로 deduplicate한다. 같은 identity의 alias는 ownership와 custom close-action identity가 같아야 하며, 혼합이면 생성 시 fail-fast한다. `close()`는 `AtomicReference<Mono<Void>>` compare-and-set으로 `cache()`된 operation을 한 번만 설치하고, 그 reference를 lifecycle state의 단일 source of truth로 사용한다. 각 close action을 순차 실행하면서 synchronous throw와 `Mono.error`를 모두 수집한 뒤 첫 오류에 나머지를 suppressed로 붙이되 같은 Throwable identity는 self-suppression하지 않는다. `dispose()`는 같은 operation을 subscribe하는 fire-and-forget adapter이고 오류 타입만 logger에 기록하며, `isDisposed()`는 close signal 설치 여부를 반영한다.
 
 - [ ] **Step 4: companion convenience factory 구현**
 
@@ -154,6 +154,6 @@
 ## 위험 예측
 
 - Reactor `Mono`를 public API로 노출하므로 `close()`가 cold/cached 동작인지 테스트에서 subscription까지 확인한다.
-- `Disposable.dispose()`는 오류를 동기 throw하지 않는 fire-and-forget adapter이므로 logger에 기록하고, 상세 원인/suppressed chain 관찰 계약은 cached `close()`에 둔다.
+- `Disposable.dispose()`는 오류를 동기 throw하지 않는 fire-and-forget adapter이므로 안정적인 오류 타입만 logger에 기록하고, 상세 원인/suppressed chain 관찰 계약은 cached `close()`에 둔다.
 - `ConnectionFactory` alias가 identity dedup되지 않으면 pool double-close가 발생하므로 동일 인스턴스 fixture를 반드시 사용한다.
 - `Map.toMap()`이 caller 변경을 노출하지 않는지 원본 map mutate 후 snapshot을 확인한다.

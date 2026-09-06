@@ -434,7 +434,8 @@ class UserRepositoryTest: AbstractR2dbcTest() {
 
 `R2dbcConnectionFactoryRegistry` provides an immutable tenant-to-
 `ConnectionFactory` snapshot. Lookup is fail-fast: an unknown key throws
-`NoSuchElementException`, and `routingMap` rejects duplicate mapped keys.
+`NoSuchElementException` without exposing the configured key set, and
+`routingMap` rejects duplicate mapped keys.
 
 ```kotlin
 import io.bluetape4k.r2dbc.pool.R2dbcConnectionFactoryRegistry

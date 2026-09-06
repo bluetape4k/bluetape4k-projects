@@ -36,7 +36,7 @@ class R2dbcConnectionFactoryRegistryTest {
     }
 
     @Test
-    fun `unknown key는 configured keys와 함께 fail fast한다`() {
+    fun `unknown key는 configured key를 노출하지 않고 fail fast한다`() {
         val registry = R2dbcConnectionFactoryRegistry.borrowed(
             mapOf("primary" to FakeConnectionFactory("primary")),
         )
@@ -45,8 +45,7 @@ class R2dbcConnectionFactoryRegistryTest {
             registry["missing"]
         }
 
-        failure.message shouldBeEqualTo
-            "No ConnectionFactory configured for key 'missing'. Configured keys: [primary]"
+        failure.message shouldBeEqualTo "No ConnectionFactory configured for the requested key."
     }
 
     @Test
@@ -135,6 +134,26 @@ class R2dbcConnectionFactoryRegistryTest {
                 failure shouldBeSameInstanceAs first
                 failure.suppressed shouldHaveSize 1
                 failure.suppressed.first() shouldBeSameInstanceAs second
+            }
+            .verify()
+    }
+
+    @Test
+    fun `close가 같은 Throwable identity를 반복해도 self suppression으로 실패하지 않는다`() {
+        val shared = IllegalStateException("shared close failure")
+        val firstFactory = PlainConnectionFactory("first")
+        val secondFactory = PlainConnectionFactory("second")
+        val registry = R2dbcConnectionFactoryRegistry(
+            linkedMapOf(
+                "first" to R2dbcConnectionFactoryEntry.owned(firstFactory) { Mono.error(shared) },
+                "second" to R2dbcConnectionFactoryEntry.owned(secondFactory) { Mono.error(shared) },
+            ),
+        )
+
+        StepVerifier.create(registry.close())
+            .expectErrorSatisfies { failure ->
+                failure shouldBeSameInstanceAs shared
+                failure.suppressed shouldHaveSize 0
             }
             .verify()
     }

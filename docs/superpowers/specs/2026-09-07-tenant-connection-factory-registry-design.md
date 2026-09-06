@@ -68,8 +68,8 @@ class R2dbcConnectionFactoryRegistry<K : Any>(
 
 ### 조회와 routing
 
-- `get(key)`는 등록되지 않은 key에 configured key 목록을 포함한
-  `NoSuchElementException("No ConnectionFactory configured for key '$key'. Configured keys: [...]")`를 던진다.
+- `get(key)`는 등록되지 않은 key에 configured key 집합을 노출하지 않는
+  `NoSuchElementException("No ConnectionFactory configured for the requested key.")`를 던진다.
 - `keys`는 입력 map의 insertion order를 유지하는 읽기 전용 집합이다.
 - `routingMap`은 key mapper가 만든 결과 key가 충돌하면 조용히 덮어쓰지 않고
   `IllegalArgumentException`으로 실패한다. tenant parsing이나 authorization은
@@ -87,7 +87,9 @@ class R2dbcConnectionFactoryRegistry<K : Any>(
   `close()`를 subscribe한다. `close()`의 cached `Mono` 설치가 lifecycle state의
   단일 source of truth이므로 state 확인과 signal 설치 사이에 lookup race가
   생기지 않는다. `dispose()`도 같은 signal을 subscribe하고 오류를 logger에
-  기록하며, 원인과 suppressed chain은 cached `close()` 결과에 보존한다.
+  기록하되 오류 타입만 남기며, 원인과 suppressed chain은 cached `close()`
+  결과에 보존한다. 같은 Throwable identity가 반복되면 self-suppression을
+  시도하지 않는다.
 - borrowed entry는 `close()`와 `dispose()` 어느 쪽에서도 종료하지 않는다.
 - close state가 설치된 뒤에는 `get`, `asMap`, `routingMap`이
   `IllegalStateException("ConnectionFactory registry is closed")`로 실패한다.

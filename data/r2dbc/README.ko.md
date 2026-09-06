@@ -422,8 +422,8 @@ class UserRepositoryTest: AbstractR2dbcTest() {
 
 `R2dbcConnectionFactoryRegistry`는 tenant와 `ConnectionFactory`의 불변
 snapshot을 제공합니다. 등록되지 않은 key를 조회하면
-`NoSuchElementException`으로 즉시 실패하고, `routingMap`은 매핑 결과가
-중복될 때 실패합니다.
+`NoSuchElementException`으로 즉시 실패하지만 configured key 집합은
+노출하지 않습니다. `routingMap`은 매핑 결과가 중복될 때 실패합니다.
 
 ```kotlin
 import io.bluetape4k.r2dbc.pool.R2dbcConnectionFactoryRegistry

@@ -152,7 +152,7 @@ class R2dbcConnectionFactoryRegistry<K : Any>(
         checkOpen()
         return entries[key]?.connectionFactory
             ?: throw NoSuchElementException(
-                "No ConnectionFactory configured for key '$key'. Configured keys: $keySnapshot",
+                "No ConnectionFactory configured for the requested key.",
             )
     }
 
@@ -203,7 +203,10 @@ class R2dbcConnectionFactoryRegistry<K : Any>(
     /** 종료 signal을 구독하는 fire-and-forget lifecycle adapter입니다. */
     override fun dispose() {
         close().subscribe({}, { failure ->
-            log.warn(failure) { "R2DBC ConnectionFactory registry dispose failed" }
+            log.warn {
+                "R2DBC ConnectionFactory registry dispose failed: " +
+                    (failure::class.qualifiedName ?: "unknown failure")
+            }
         })
     }
 
@@ -230,7 +233,9 @@ class R2dbcConnectionFactoryRegistry<K : Any>(
                     if (primary == null) {
                         Mono.empty()
                     } else {
-                        failures.drop(1).forEach(primary::addSuppressed)
+                        failures.drop(1).forEach { failure ->
+                            if (failure !== primary) primary.addSuppressed(failure)
+                        }
                         Mono.error(primary)
                     }
                 },
