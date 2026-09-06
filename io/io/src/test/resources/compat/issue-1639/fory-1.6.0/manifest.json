@@ -1,0 +1,30 @@
+{
+  "issue": 1639,
+  "generatedAt": "2026-09-06",
+  "serializer": {
+    "foryVersion": "1.6.0",
+    "foryKotlinVersion": "1.6.0",
+    "language": "JAVA",
+    "compatibleMode": "COMPATIBLE",
+    "referenceTracking": true,
+    "referenceCopy": true,
+    "codegen": true,
+    "stringCompressed": true,
+    "requireClassRegistration": false
+  },
+  "fixtureObject": {
+    "class": "io.bluetape4k.io.serializer.ForyWireCompatibilityPayload",
+    "factory": "io.bluetape4k.io.serializer.ForyWireCompatibilityFixtures.sample"
+  },
+  "fixture": {
+    "path": "fory-kotlin-metadata.bin",
+    "size": 241,
+    "sha256": "4e672fb8d1b5cad5cd66537461ce714f4027b794a8be32e54d8337f6cddac819"
+  },
+  "generator": {
+    "path": "generate/GenerateForyWireFixture.java",
+    "sha256": "722d3ef0654b39babbf2d505022385c9ab1c006ea12487b957ad5f9afae4d84c",
+    "foryCoreJarSha256": "51425606bd061f8367ed7cf7c42968ff6e0e860e7567726c711883b2046b1506",
+    "foryKotlinJarSha256": "bea89ed797c1da8ca5d0d09620cf5b49151b12d828079135a3dbd7510f45b613"
+  }
+}
