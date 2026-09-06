@@ -14,7 +14,7 @@ value class AccountId(val value: Long)
 
 @JsonSubTypes(property = "type")
 sealed interface AccountEvent {
-    data class Created(val actor: String): AccountEvent
+    data class Created(val actor: String) : AccountEvent
 }
 
 data class Account(
@@ -90,6 +90,7 @@ private fun verifyIncrementalNdjson(fory: ForyJson) {
     if (decoder.finish()) restored += decoder.value()
 
     val expected = listOf(sample, sample.copy(id = AccountId(8), note = "끝"))
+    check(restored.size == expected.size)
     check(restored.zip(expected).all { (actual, item) -> actual.sameValueAs(item) })
     println("NDJSON PASS records=${restored.size} chunks=${(bytes.size + 2) / 3}")
 }
