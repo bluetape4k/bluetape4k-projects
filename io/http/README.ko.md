@@ -60,6 +60,34 @@ compile 및 targeted smoke, 소비자별 독립 PR입니다. 전환이 끝날 �
 loop를 유지하세요. 회귀 시 이전 dependency와 수동 loop로 rollback하며, truncation preview
 API를 strict read의 대체재로 사용하지 않습니다.
 
+## 저장용 outbound HTTP 오류 정제
+
+외부 HTTP 오류를 DB 같은 제한된 저장소에 남길 때는
+`sanitizeOutboundHttpError(statusCode, rawMessage)`를 사용합니다.
+
+정제기는 status prefix를 포함해 최대 240자만 반환하며, 원문도 이 출력 예산까지만
+검사합니다. 첫 줄 뒤의 stack trace와 `Authorization`, `Cookie`, `Token`, `Secret`,
+`API-Key` 계열 label 뒤의 나머지는 저장하지 않습니다.
+
+```kotlin
+import io.bluetape4k.http.sanitizeOutboundHttpError
+
+val storedError = sanitizeOutboundHttpError(
+    statusCode = 503,
+    rawMessage = "Authorization: Bearer opaque-secret upstream unavailable",
+)
+// HTTP 503 Authorization:[redacted]
+```
+
+결과는 항상 `HTTP <statusCode>`로 시작하고 전체 길이를 240자로 제한합니다. null 또는
+blank 메시지는 status만 반환하며, 여러 줄 입력은 첫 줄만 사용합니다. 첫 줄에서
+`Authorization`, `Cookie`, `Token`, `Secret`, `API-Key` 계열 label을 발견하면 malformed,
+quoted, 공백 포함 값에서도 credential이 남지 않도록 그 뒤의 내용을 fail-closed로
+제거합니다. 이는 header logging redaction API가 아니라 저장용 오류 문자열 계약입니다.
+
+HTTP status 분류, retry/permanent-failure 판단, DB 저장, logging, transaction과 coroutine
+cancellation은 호출자가 관리해야 합니다. 정제 전 원문을 로그나 예외에 다시 기록하지 마세요.
+
 ## 아키텍처
 
 ### 전체 아키텍처: 다중 백엔드 HTTP 클라이언트
