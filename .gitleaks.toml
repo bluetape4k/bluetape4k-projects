@@ -42,3 +42,12 @@ stopwords = [
     "bluetape4kGprPublishKey",
     "bluetape4kGprKey",
 ]
+
+[[rules]]
+id = "generic-api-key"
+
+    [[rules.allowlists]]
+    description = "Allow a historical Lettuce performance metric false positive"
+    condition = "AND"
+    commits = ["df56930b8dde59c02d38dc15d75d491c18604d70"]
+    paths = ['''^infra/lettuce/src/test/kotlin/io/bluetape4k/redis/lettuce/lease/LettuceMultiKeyLeasePerformanceTest\.kt$''']
