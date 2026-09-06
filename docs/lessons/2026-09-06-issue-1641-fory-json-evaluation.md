@@ -13,10 +13,10 @@ generic type과 제한된 증분 decoder를 제공한다. 기능 목록만 보�
 - sealed base는 명시적인 `@JsonSubTypes` schema가 필요했다.
 - 증분 decoder는 한 stream을 소유하며 실패 뒤 재사용할 수 없는 terminal
   lifecycle을 갖는다.
-- `ByteArray` 기본 표현은 1.7.1에서 Base64로 바뀌었고 1.7.0의 numeric-array
-  입력을 호환 방식으로 읽지 않는다.
-- 짧은 직렬화 측정은 유망했지만 allocation, parser, concurrency나 실제 payload를
-  포함하지 않았다.
+- Fory와 Jackson은 `ByteArray`를 Base64로 쓰지만 Fastjson2 JSON text는 signed
+  numeric array로 쓴다. cross-read도 비대칭이라 공통 wire 형식으로 볼 수 없다.
+- 짧은 직렬화 diagnostic에서 latency, current-thread allocation과 process heap pool
+  peak 증가량을 관찰했지만 parser, concurrency나 실제 payload는 포함하지 않았다.
 
 ## 결정
 
@@ -31,13 +31,21 @@ generic type과 제한된 증분 decoder를 제공한다. 기능 목록만 보�
 2. 공용 interface의 타입 토큰이 그 의미를 손실 없이 표현하는가.
 3. wire representation 변경을 versioning과 fixture로 고정했는가.
 4. streaming lifecycle과 caller ownership을 실제 consumer가 요구하는가.
-5. benchmark가 production 순위가 아니라 결정 범위에 맞는 항목을 측정했는가.
+5. latency, allocation, peak memory가 모두 관찰됐는지와 그 측정 한계를 분리했는가.
 
 기능 검증 PASS는 공용 API 적합성 PASS를 뜻하지 않는다.
+
+독립 리뷰는 최초 PoC가 nullable collection element와 실제 default-field 제거를
+증명하지 못하고, backend 표현 비교와 allocation/peak memory 관찰도 부족하다는 P2
+4건을 찾았다. 각 항목을 executable assertion과 제한된 JVM diagnostic으로 보강했다.
+특히 Fastjson2의 numeric byte array와 Fory/Jackson의 Base64가 만드는 cross-read
+비대칭을 크기 비교만으로 숨기지 않게 됐다.
 
 ## 검증
 
 - `./gradlew -p docs/evidence/issue-1641/poc run --no-daemon`
-- Kotlin model, NDJSON, array, malformed/limit 항목 PASS
-- 3회 제한 측정 결과와 표현 크기는
+- Kotlin model, nullable collection element, byte-split NDJSON, array,
+  malformed/limit 항목 PASS
+- backend 표현/cross-read와 latency/allocation/peak heap 관찰 결과는
   `docs/superpowers/research/2026-09-06-issue-1641-fory-json-evaluation.md`에 기록
+- 독립 리뷰 최초 P0=0/P1=0/P2=4, 보완 후 재검토 대기

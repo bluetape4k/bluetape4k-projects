@@ -1,6 +1,9 @@
 import com.alibaba.fastjson2.JSON
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
+import com.sun.management.ThreadMXBean
+import java.lang.management.ManagementFactory
+import java.lang.management.MemoryType
 import java.nio.ByteBuffer
 import kotlin.system.measureNanoTime
 import org.apache.fory.json.ForyJson
@@ -21,7 +24,7 @@ data class Account(
     val id: AccountId,
     val name: String = "anonymous",
     val note: String?,
-    val tags: List<String>,
+    val tags: List<String?>,
     val event: AccountEvent,
     val sequence: Long,
     val payload: ByteArray,
@@ -36,7 +39,7 @@ data class FlatAccount(
 private val sample = Account(
     id = AccountId(7),
     note = null,
-    tags = listOf("kotlin", "json"),
+    tags = listOf("kotlin", null, "json"),
     event = AccountEvent.Created("debop"),
     sequence = Long.MAX_VALUE,
     payload = byteArrayOf(0, 1, 2, 127, -1),
@@ -58,7 +61,13 @@ private fun verifyKotlinModel(fory: ForyJson) {
     val restored = fory.fromJson(json, type)
     check(restored.sameValueAs(sample))
     check("\"${Long.MAX_VALUE}\"" in json)
-    check(fory.fromJson(json.replace("\"name\":\"anonymous\",", ""), type).name == "anonymous")
+    check(restored.tags[1] == null)
+
+    val namedJson = fory.toJson(sample.copy(name = "explicit"), type)
+    val withoutName = namedJson.replace("\"name\":\"explicit\",", "")
+    check(withoutName != namedJson)
+    check("\"name\"" !in withoutName)
+    check(fory.fromJson(withoutName, type).name == "anonymous")
 
     val listType = jsonTypeRef<List<Account>>()
     val listJson = fory.toJson(listOf(sample), listType)
@@ -77,11 +86,13 @@ private fun verifyIncrementalNdjson(fory: ForyJson) {
     val type = jsonTypeRef<Account>()
     val first = fory.toJson(sample, type)
     val second = fory.toJson(sample.copy(id = AccountId(8), note = "끝"), type)
-    val bytes = "$first\r\n$second".toByteArray()
+    val third = fory.toJson(sample.copy(id = AccountId(9), note = "마지막"), type)
+    val bytes = "$first\n$second\r\n$third".toByteArray()
     val decoder = fory.newNdjsonStreamDecoder(type, 1_024)
     val restored = mutableListOf<Account>()
 
-    bytes.asList().chunked(3).forEach { chunk ->
+    check("끝".toByteArray().size == 3)
+    bytes.asList().chunked(1).forEach { chunk ->
         val buffer = ByteBuffer.wrap(chunk.toByteArray())
         while (buffer.hasRemaining()) {
             if (decoder.decodeNext(buffer)) restored += decoder.value()
@@ -89,10 +100,14 @@ private fun verifyIncrementalNdjson(fory: ForyJson) {
     }
     if (decoder.finish()) restored += decoder.value()
 
-    val expected = listOf(sample, sample.copy(id = AccountId(8), note = "끝"))
+    val expected = listOf(
+        sample,
+        sample.copy(id = AccountId(8), note = "끝"),
+        sample.copy(id = AccountId(9), note = "마지막"),
+    )
     check(restored.size == expected.size)
     check(restored.zip(expected).all { (actual, item) -> actual.sameValueAs(item) })
-    println("NDJSON PASS records=${restored.size} chunks=${(bytes.size + 2) / 3}")
+    println("NDJSON PASS records=${restored.size} chunks=${bytes.size} utf8ByteSplit=true separators=LF,CRLF")
 }
 
 private fun verifyIncrementalArray(fory: ForyJson) {
@@ -137,12 +152,46 @@ private fun compareRepresentations(fory: ForyJson) {
     val jacksonJson = jackson.writeValueAsString(flat)
     val fastjson = JSON.toJSONString(flat)
 
+    val foryTree = jackson.readTree(foryJson)
+    val jacksonTree = jackson.readTree(jacksonJson)
+    val fastjsonTree = jackson.readTree(fastjson)
+    check(foryTree.path("sequence").isTextual)
+    check(jacksonTree.path("sequence").isIntegralNumber)
+    check(fastjsonTree.path("sequence").isIntegralNumber)
+    check(foryTree.path("payload").asText() == "AAECf/8=")
+    check(jacksonTree.path("payload").asText() == "AAECf/8=")
+    check(fastjsonTree.path("payload").isArray)
+    check(fastjsonTree.path("payload").map { it.asInt() } == listOf(0, 1, 2, 127, -1))
+
     check(fory.fromJson(foryJson, type).payload.contentEquals(flat.payload))
     check(jackson.readValue<FlatAccount>(jacksonJson).payload.contentEquals(flat.payload))
     check(JSON.parseObject(fastjson, FlatAccount::class.java).payload.contentEquals(flat.payload))
+    val crossReads = linkedMapOf(
+        "Fory<-Jackson" to runCatching { fory.fromJson(jacksonJson, type).sameValueAs(flat) }.getOrDefault(false),
+        "Fory<-Fastjson2" to runCatching { fory.fromJson(fastjson, type).sameValueAs(flat) }.getOrDefault(false),
+        "Jackson<-Fory" to runCatching { jackson.readValue<FlatAccount>(foryJson).sameValueAs(flat) }.getOrDefault(false),
+        "Jackson<-Fastjson2" to runCatching { jackson.readValue<FlatAccount>(fastjson).sameValueAs(flat) }.getOrDefault(false),
+        "Fastjson2<-Fory" to runCatching {
+            JSON.parseObject(foryJson, FlatAccount::class.java).sameValueAs(flat)
+        }.getOrDefault(false),
+        "Fastjson2<-Jackson" to runCatching {
+            JSON.parseObject(jacksonJson, FlatAccount::class.java).sameValueAs(flat)
+        }.getOrDefault(false),
+    )
+    check(
+        crossReads == linkedMapOf(
+            "Fory<-Jackson" to true,
+            "Fory<-Fastjson2" to false,
+            "Jackson<-Fory" to true,
+            "Jackson<-Fastjson2" to true,
+            "Fastjson2<-Fory" to false,
+            "Fastjson2<-Jackson" to false,
+        ),
+    )
     println(
         "REPRESENTATION Fory=${foryJson.toByteArray().size} " +
-            "Jackson=${jacksonJson.toByteArray().size} Fastjson2=${fastjson.toByteArray().size}",
+            "Jackson=${jacksonJson.toByteArray().size} Fastjson2=${fastjson.toByteArray().size} " +
+            "crossRead=$crossReads Fory.json=$foryJson Jackson.json=$jacksonJson Fastjson2.json=$fastjson",
     )
 }
 
@@ -157,14 +206,60 @@ private fun benchmark(fory: ForyJson) {
     }
 
     val iterations = 20_000
-    val foryNanos = measureNanoTime { repeat(iterations) { fory.toJson(flat, type) } }
-    val jacksonNanos = measureNanoTime { repeat(iterations) { jackson.writeValueAsString(flat) } }
-    val fastjsonNanos = measureNanoTime { repeat(iterations) { JSON.toJSONString(flat) } }
-    println(
-        "BENCH iterations=$iterations Fory.nsOp=${foryNanos / iterations} " +
-            "Jackson.nsOp=${jacksonNanos / iterations} Fastjson2.nsOp=${fastjsonNanos / iterations}",
+    val results = listOf(
+        measureBackend("Fory", iterations) { fory.toJson(flat, type) },
+        measureBackend("Jackson", iterations) { jackson.writeValueAsString(flat) },
+        measureBackend("Fastjson2", iterations) { JSON.toJSONString(flat) },
+    )
+    println("BENCH iterations=$iterations ${results.joinToString(" ") { it.summary() }}")
+}
+
+private data class BackendMeasurement(
+    val name: String,
+    val nanosPerOperation: Long,
+    val allocatedBytesPerOperation: Long,
+    val peakHeapDeltaBytes: Long,
+)
+
+private fun measureBackend(name: String, iterations: Int, encode: () -> String): BackendMeasurement {
+    val threadBean = ManagementFactory.getThreadMXBean() as? ThreadMXBean
+        ?: error("Current JVM does not expose ThreadMXBean allocation counters")
+    check(threadBean.isThreadAllocatedMemorySupported)
+    if (!threadBean.isThreadAllocatedMemoryEnabled) {
+        threadBean.isThreadAllocatedMemoryEnabled = true
+    }
+    val heapPools = ManagementFactory.getMemoryPoolMXBeans()
+        .filter { it.isValid && it.type == MemoryType.HEAP }
+
+    System.gc()
+    heapPools.forEach { it.resetPeakUsage() }
+    val baselineHeap = heapPools.sumOf { it.usage.used }
+    val threadId = Thread.currentThread().threadId()
+    val allocatedBefore = threadBean.getThreadAllocatedBytes(threadId)
+    var checksum = 0
+    val nanos = measureNanoTime {
+        repeat(iterations) {
+            checksum = 31 * checksum + encode().length
+        }
+    }
+    val allocatedBytes = threadBean.getThreadAllocatedBytes(threadId) - allocatedBefore
+    val peakHeap = heapPools.sumOf { it.peakUsage.used }
+    check(checksum != 0)
+
+    return BackendMeasurement(
+        name = name,
+        nanosPerOperation = nanos / iterations,
+        allocatedBytesPerOperation = allocatedBytes / iterations,
+        peakHeapDeltaBytes = (peakHeap - baselineHeap).coerceAtLeast(0L),
     )
 }
+
+private fun BackendMeasurement.summary(): String =
+    "$name.nsOp=$nanosPerOperation $name.allocBOp=$allocatedBytesPerOperation " +
+        "$name.peakHeapDeltaB=$peakHeapDeltaBytes"
+
+private fun FlatAccount.sameValueAs(other: FlatAccount): Boolean =
+    name == other.name && sequence == other.sequence && payload.contentEquals(other.payload)
 
 private fun Account.sameValueAs(other: Account): Boolean =
     id == other.id &&

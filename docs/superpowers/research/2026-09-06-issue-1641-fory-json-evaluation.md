@@ -20,14 +20,14 @@ consumer가 생기면 별도 Type A 설계로 다시 평가한다.
 - Apache Fory `fory-json-kotlin:1.7.1`
 - Kotlin `2.4.10`, JDK `25`
 - Kotlin data class의 default/nullability/generic/value class/sealed hierarchy
-- UTF-8 chunk를 3바이트 또는 5바이트로 분할한 NDJSON/array decoder
+- UTF-8 chunk를 1바이트 또는 5바이트로 분할한 NDJSON/array decoder
 - final newline이 없는 NDJSON, CRLF, malformed/truncated input, `maxValueBytes`
 - `Long` 문자열 정책과 `ByteArray` Base64 표현
 - Jackson 2.22.2 및 Fastjson2 2.0.65와 동일한 flat model의 JSON text 직렬화 비교
 
 현재 `FastjsonSerializer.serialize`는 JSONB를 사용하므로 아래 JSON text
-측정은 `JsonSerializer.serialize` backend 순위가 아니다. allocation,
-deserialization, concurrency, 장시간 warmup도 측정하지 않았다.
+측정은 `JsonSerializer.serialize` backend 순위가 아니다. deserialization,
+concurrency, 장시간 warmup은 측정하지 않았다.
 
 ## 재현 방법
 
@@ -51,10 +51,11 @@ JDK 25에서는 Fory가 사용하는 `java.lang.invoke` 경로를 위해 PoC의
 | Kotlin data class | PASS | 생성자 기반 왕복 |
 | default parameter | PASS | JSON에서 `name`을 제거하면 `anonymous` 사용 |
 | nullability | PASS | nullable `note=null` 왕복 |
+| nullable collection element | PASS | `List<String?>`의 가운데 `null` 왕복 |
 | value class | PASS | `AccountId(Long)` 왕복 |
 | generic root | PASS/제약 | `jsonTypeRef<List<Account>>()`는 복원, raw `List::class.java`는 `JsonObject` 반환 |
 | sealed hierarchy | PASS/명시 필요 | `@JsonSubTypes(property = "type")`로 폐쇄 subtype table 지정 |
-| NDJSON decoder | PASS | 3바이트 chunk, CRLF, final newline 없음, 2건 복원 |
+| NDJSON decoder | PASS | 1바이트 chunk로 UTF-8 code point 중간 분할, LF/CRLF, final newline 없음, 3건 복원 |
 | array decoder | PASS | 5바이트 chunk, 2건 복원 |
 | malformed/truncated | PASS | `finish()` 실패 후 decoder가 terminal 상태 유지 |
 | `maxValueBytes` | PASS | 16바이트 제한에서 `JsonStreamValueLimitException` |
@@ -68,30 +69,43 @@ JDK 25에서는 Fory가 사용하는 `java.lang.invoke` 경로를 위해 PoC의
 - <https://fory.apache.org/blog/fory_1_7_1_release/>
 - Maven coordinate: `org.apache.fory:fory-json-kotlin:1.7.1`
 
-## 표현 크기와 짧은 측정
+## 표현·상호 읽기 정책
 
 동일한 `FlatAccount(name, Long.MAX_VALUE, ByteArray(5))`를 JSON text로
 직렬화했다.
 
-| backend | UTF-8 크기 |
-| --- | ---: |
-| Fory JSON | 70 bytes |
-| Jackson | 68 bytes |
-| Fastjson2 | 72 bytes |
+| backend | `Long` | `ByteArray` | UTF-8 크기 |
+| --- | --- | --- | ---: |
+| Fory JSON | 문자열 | Base64 문자열 | 70 bytes |
+| Jackson | JSON 정수 | Base64 문자열 | 68 bytes |
+| Fastjson2 | JSON 정수 | signed numeric array | 72 bytes |
 
-각 process에서 2,000회 warmup 뒤 20,000회 직렬화했다.
+reader가 writer의 JSON을 동일 `FlatAccount`로 복원하는 cross-read 결과는 다음과
+같다. 이 비대칭 때문에 세 backend의 wire text를 상호 호환 형식으로 간주하지 않는다.
 
-| 실행 | Fory | Jackson | Fastjson2 |
+| reader \ writer | Fory JSON | Jackson | Fastjson2 |
+| --- | --- | --- | --- |
+| Fory JSON | PASS | PASS | FAIL |
+| Jackson | PASS | PASS | PASS |
+| Fastjson2 | FAIL | FAIL | PASS |
+
+## latency·allocation·peak heap 관찰
+
+각 backend를 2,000회 warmup한 뒤 고정 `FlatAccount`를 20,000회 직렬화했다.
+JDK `ThreadMXBean`으로 현재 thread allocation을, heap memory pool의 peak를 reset한
+뒤 실행 전 사용량 대비 peak 증가량을 함께 관찰했다.
+
+| backend | latency | thread allocation | peak heap 증가 |
 | --- | ---: | ---: | ---: |
-| 1 | 281 ns/op | 725 ns/op | 332 ns/op |
-| 2 | 199 ns/op | 596 ns/op | 298 ns/op |
-| 3 | 286 ns/op | 663 ns/op | 351 ns/op |
-| 추적 fixture 재실행 | 237 ns/op | 1,418 ns/op | 332 ns/op |
+| Fory JSON | 279 ns/op | 112 B/op | 0 B |
+| Jackson | 701 ns/op | 584 B/op | 8,388,608 B |
+| Fastjson2 | 363 ns/op | 280 B/op | 0 B |
 
-이 값은 로컬 GraalVM JDK 25에서 실행한 짧은 `measureNanoTime` 결과다.
-JMH benchmark, allocation profile, parser 비용, 실제 payload 분포를 대신하지
-않으며 production 성능 순위를 주장하지 않는다. Jackson 수치의 실행 간 변동도
-이 측정이 채택 근거가 될 수 없음을 보여준다.
+이 값은 로컬 GraalVM JDK 25의 단일 process에서 실행한 짧은 diagnostic이다.
+`ThreadMXBean` 값은 현재 thread allocation만 포함하고, peak heap 증가는 memory pool
+region 단위라서 0 B는 무할당이 아니라 기존 pool 범위 안에서 실행됐다는 뜻이다.
+JMH benchmark, allocation profiler, parser 비용, 실제 payload 분포를 대신하지 않으며
+production 성능 순위를 주장하지 않는다.
 
 ## 도입 선택지
 
@@ -119,16 +133,20 @@ JMH benchmark, allocation profile, parser 비용, 실제 payload 분포를 대�
 - `jsonTypeRef<T>()`와 동등한 구조적 타입 계약을 노출할 API 설계
 - JSON text와 JSONB를 구분한 backend compatibility suite
 - 실제 NDJSON consumer의 ownership, cancellation, backpressure 요구사항
-- JMH 기반 serialize/deserialize/allocation 비교
+- JMH와 profiler 기반 serialize/deserialize/allocation/peak-memory 비교
 - 중앙 catalog alias, BOM, module 등록, README locale, CI/Nightly 범위
 
 ## DoD
 
-- [x] Kotlin 모델의 default/nullability/generic/value class/sealed 계약을 검증했다.
+- [x] Kotlin 모델의 default/nullability/nullable collection element/generic/value class/sealed 계약을 검증했다.
 - [x] NDJSON/array decoder의 chunk, CRLF, final record, malformed, limit,
   terminal lifecycle을 검증했다.
-- [x] `Long`과 `ByteArray` 표현 정책을 확인했다.
-- [x] 재현 가능한 독립 PoC와 제한된 측정 결과를 남겼다.
+- [x] `Long`과 `ByteArray` 표현 및 backend cross-read 정책을 확인했다.
+- [x] 재현 가능한 독립 PoC와 latency/allocation/peak heap의 제한된 측정 결과를 남겼다.
 - [x] 현재 `JsonSerializer`와의 계약 차이를 기록했다.
 - [x] 2.1.0 production 도입을 보류하고 재검토 게이트를 명시했다.
 - [ ] public module/API 도입 — 이번 이슈 범위에서 제외한다.
+
+독립 exact-diff 검토에서 누락됐던 nullable collection element, 실제 default-field
+제거, UTF-8 중간 분할, backend cross-read와 allocation/peak heap 근거를 PoC에
+추가했다. 보완 후 동일 재현 명령이 전 항목과 `BUILD SUCCESSFUL`을 출력한다.
