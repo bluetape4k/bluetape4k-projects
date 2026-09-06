@@ -101,21 +101,20 @@ public data class ApplicationResourceCloseReport(
  * close action은 token을 호출한 caller thread에서 동기적으로 실행되며, 이 API는
  * timeout·dispatcher·coroutine scope를 소유하지 않습니다.
  */
-public class ApplicationResourceRegistration private constructor(
-    public val id: Long,
-    private val closeAction: () -> Unit,
-): AutoCloseable {
-
-    internal object Factory {
-        internal fun create(
-            id: Long,
-            closeAction: () -> Unit,
-        ): ApplicationResourceRegistration = ApplicationResourceRegistration(id, closeAction)
-    }
+public interface ApplicationResourceRegistration : AutoCloseable {
+    /** registry lifetime 안에서만 의미가 있는 opaque ID입니다. */
+    public val id: Long
 
     /**
      * 이 token이 소유한 항목을 조기에 닫습니다. 이미 claim된 token이면 아무 작업도 하지 않습니다.
      */
+    override fun close()
+}
+
+private class DefaultApplicationResourceRegistration(
+    override val id: Long,
+    private val closeAction: () -> Unit,
+): ApplicationResourceRegistration {
     override fun close(): Unit = closeAction()
 }
 
@@ -234,7 +233,7 @@ public class ApplicationResourceRegistry : AutoCloseable {
             if (state == ApplicationResourceRegistryState.OPEN) {
                 entries += entry
                 RegistrationPlan(
-                    registration = ApplicationResourceRegistration.Factory.create(entry.id) {
+                    registration = DefaultApplicationResourceRegistration(entry.id) {
                         closeEntry(entry)
                     },
                     lateEntry = null
@@ -242,7 +241,7 @@ public class ApplicationResourceRegistry : AutoCloseable {
             } else {
                 claimLocked(entry)
                 RegistrationPlan(
-                    registration = ApplicationResourceRegistration.Factory.create(entry.id) {},
+                    registration = DefaultApplicationResourceRegistration(entry.id) {},
                     lateEntry = entry
                 )
             }
