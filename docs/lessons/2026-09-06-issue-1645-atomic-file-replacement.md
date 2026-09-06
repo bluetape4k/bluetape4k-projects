@@ -74,6 +74,19 @@ telemetry에는 target/provider와 primary/suppressed 종류를 남기되 전체
 7. metadata·durability 제외, trusted parent와 orphan 관측 책임을 문서화하는가?
 8. Kotlin/Java caller와 공개 JVM descriptor를 함께 검증하는가?
 
+## 결과와 검토에서 놓친 점
+
+provider API, failure seam, filesystem/caller test와 locale 문서를 한 계약으로 묶었다.
+초기 Detekt 실행은 `ignoreFailures` 때문에 성공 종료했지만 새 파일 finding 7건을 report에
+남겼다. exit code만 확인하지 않고 report를 직접 읽은 뒤 cleanup 흐름을 `finally` 밖으로
+옮기고 의도적인 `Throwable` 포착 범위를 표시했다. 이 수정 뒤 신규 finding은 0건이다.
+
+계획 당시 base도 PR 직전에 전진해 있었다. 초기 module 성공을 재사용하지 않고 current
+`origin/develop` 위로 rebase한 뒤 선행 bounded-input 변경을 포함한 전체 suite를 다시
+실행했다. native six-perspective reviewer는 usable verdict 없이 timeout돼 main-session
+exact-diff fallback으로 provenance를 분리했다. GNO collection은 main checkout을 가리켜
+worktree lesson을 아직 찾지 못하므로 merge 뒤 knowledge read-back이 필요하다.
+
 ## 검증
 
 - 신규 filesystem·실패 topology·Kotlin/Java caller 테스트 24개 통과
