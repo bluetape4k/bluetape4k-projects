@@ -219,6 +219,30 @@ aborted. Budget temporary heap as approximately
 needs a separate decoded-byte limit because this limit applies only to bytes read
 from the supplied stream.
 
+### Bounded line reads
+
+Use `boundedLineReader(maxLineChars)` when a line-oriented input must be rejected
+while it is being read instead of allocating an unbounded complete line first:
+
+```kotlin
+import io.bluetape4k.io.boundedLineReader
+
+reader.use {
+    val lines = it.boundedLineReader(maxLineChars = 64 * 1024)
+    while (true) {
+        val line = lines.readLine() ?: break
+        consume(line)
+    }
+}
+```
+
+`maxLineChars` counts UTF-16 code units, so a supplementary character counts as
+two units. LF, CRLF, and CR terminate a line and are not included in the limit.
+An over-limit line throws `LineLimitExceededException` as soon as its first
+out-of-range code unit is read; no partial line is returned. The wrapper uses a
+fixed read buffer and does not close the supplied `Reader`, so the caller owns
+the reader lifecycle, timeouts, blocking behavior, and any JSON/NDJSON parsing.
+
 ### Compression
 
 ```kotlin

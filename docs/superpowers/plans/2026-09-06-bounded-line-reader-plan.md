@@ -74,7 +74,7 @@
 - Read: `io/io/src/main/kotlin/io/bluetape4k/io/BoundedInputStreamSupport.kt`
 - Read: `io/io/src/test/kotlin/io/bluetape4k/io/BoundedInputStreamSupportTest.kt`
 
-- [ ] **Step 1: 기준 branch와 diff를 읽는다**
+- [x] **Step 1: 기준 branch와 diff를 읽는다**
 
   ```bash
   git status --short --branch
@@ -86,7 +86,7 @@
   Expected: `feat/issue-1642-bounded-line-reader`, clean worktree, HEAD equals
   the approved base or only the spec/plan commit, and no unrelated files.
 
-- [ ] **Step 2: 기존 bounded IO regression을 확인한다**
+- [x] **Step 2: 기존 bounded IO regression을 확인한다**
 
   ```bash
   ./gradlew :bluetape4k-io:test \
@@ -103,7 +103,7 @@
 
 - Create: `io/io/src/test/kotlin/io/bluetape4k/io/BoundedLineReaderSupportTest.kt`
 
-- [ ] **Step 1: public behavior tests를 작성한다**
+- [x] **Step 1: public behavior tests를 작성한다**
 
   Add JUnit 5 tests using `io.bluetape4k.assertions.assertFailsWith` and
   `shouldBeEqualTo`. The tests must cover the following concrete cases:
@@ -141,7 +141,7 @@
 
   Every over-limit assertion must prove the exception and stable property.
 
-- [ ] **Step 2: RED test를 실행한다**
+- [x] **Step 2: RED test를 실행한다**
 
   ```bash
   ./gradlew :bluetape4k-io:test \
@@ -153,13 +153,13 @@
   exception do not yet exist. Record the actual missing-symbol failure in the
   execution notes; do not interpret a test discovery failure as RED evidence.
 
-- [ ] **Step 3: boundary and lifecycle RED cases를 추가한다**
+- [x] **Step 3: boundary and lifecycle RED cases를 추가한다**
 
   Add tests for empty input (`null`), empty lines (`""`), `maxLineChars == 0`,
   invalid negative/zero parameters before any underlying read, bulk `read == 0`
   fallback, original IOException identity, and wrapper non-close behavior.
 
-- [ ] **Step 4: generated Reader read-count RED case를 추가한다**
+- [x] **Step 4: generated Reader read-count RED case를 추가한다**
 
   Use a generated Reader that emits `'x'` indefinitely and increments a count
   on every code unit returned. With `maxLineChars = 4` and `bufferSize = 3`,
@@ -173,7 +173,7 @@
 - Create: `io/io/src/main/kotlin/io/bluetape4k/io/BoundedLineReaderSupport.kt`
 - Test: `io/io/src/test/kotlin/io/bluetape4k/io/BoundedLineReaderSupportTest.kt`
 
-- [ ] **Step 1: validation and exception을 구현한다**
+- [x] **Step 1: validation and exception을 구현한다**
 
   ```kotlin
   @file:JvmName("BoundedLineReaderSupport")
@@ -270,7 +270,7 @@
   The implementation must not expose the Reader as a mutable property and must
   not implement `Closeable`.
 
-- [ ] **Step 2: fixed-buffer state machine을 구현한다**
+- [x] **Step 2: fixed-buffer state machine을 구현한다**
 
   Use the complete state machine from Step 1. Keep private `bufferIndex`,
   `bufferLimit`, and `pendingChar` state. Bulk reads request
@@ -279,7 +279,7 @@
   one `Reader.read()` call. Reuse buffered chars before reading the underlying
   Reader.
 
-- [ ] **Step 3: line terminator와 overflow를 구현한다**
+- [x] **Step 3: line terminator와 overflow를 구현한다**
 
   Process LF and CR before appending a code unit. For CR, consume a following LF
   from the existing buffer or perform exactly one single-character read; retain
@@ -287,14 +287,14 @@
   compare `lineLength == maxLineChars` and throw `LineLimitExceededException`
   before appending the over-limit code unit.
 
-- [ ] **Step 4: factory와 KDoc을 추가한다**
+- [x] **Step 4: factory와 KDoc을 추가한다**
 
   Add `Reader.boundedLineReader(maxLineChars, bufferSize)` and Korean KDoc for
   the exception, wrapper, `readLine`, and factory. The KDoc must state UTF-16
   code-unit counting, terminators, read-ahead, ownership, blocking, and a
   `reader.use` example.
 
-- [ ] **Step 5: GREEN targeted test를 실행한다**
+- [x] **Step 5: GREEN targeted test를 실행한다**
 
   ```bash
   ./gradlew :bluetape4k-io:test \
@@ -314,7 +314,7 @@
 - Modify: `io/io/README.ko.md`
 - Modify: `CHANGELOG.md`
 
-- [ ] **Step 1: English README example을 추가한다**
+- [x] **Step 1: English README example을 추가한다**
 
   Add a “Bounded line reads” subsection near the existing bounded byte example.
   Show `reader.use`, `boundedLineReader(maxLineChars = 64 * 1024)`, repeated
@@ -322,18 +322,18 @@
   terminators, rejects before full-line allocation, and leaves JSON parsing and
   reader close to the caller.
 
-- [ ] **Step 2: 한국어 README를 source-equivalent로 추가한다**
+- [x] **Step 2: 한국어 README를 source-equivalent로 추가한다**
 
   Add the same example and contract in Korean. Keep API names, commands, URLs,
   numbers, and code tokens exact. Preserve the existing English/한국어 switch.
 
-- [ ] **Step 3: CHANGELOG를 기록한다**
+- [x] **Step 3: CHANGELOG를 기록한다**
 
   Add a Korean `Unreleased/추가` entry linking #1642. Say that the provider API
   is available and Graph #615 is a later consumer migration; do not claim the
   consumer migration is complete.
 
-- [ ] **Step 4: documentation read-back을 수행한다**
+- [x] **Step 4: documentation read-back을 수행한다**
 
   Read both README sections and the changed KDoc against the design. Run the
   Korean term audit on `README.ko.md` after all technical tokens are frozen:
@@ -352,7 +352,7 @@
 
 - Inspect: all changed files and `git diff origin/develop...HEAD`
 
-- [ ] **Step 1: targeted class and module check을 실행한다**
+- [x] **Step 1: targeted class and module check을 실행한다**
 
   ```bash
   ./gradlew :bluetape4k-io:test \
@@ -367,7 +367,7 @@
   Expected: targeted tests, module build, and Detekt exit 0. Read Detekt output
   for new findings rather than relying only on exit code.
 
-- [ ] **Step 2: complete module test를 실행한다**
+- [x] **Step 2: complete module test를 실행한다**
 
   ```bash
   ./gradlew :bluetape4k-io:cleanTest :bluetape4k-io:test \
@@ -377,7 +377,7 @@
   Expected: the full `bluetape4k-io` test suite passes; record the actual JUnit
   count from the fresh XML/report.
 
-- [ ] **Step 3: diff and API surface를 검토한다**
+- [x] **Step 3: diff and API surface를 검토한다**
 
   ```bash
   git diff --check
@@ -421,14 +421,14 @@
 - Create/update: `docs/lessons/2026-09-06-bounded-line-reader.md`
 - Commit: all approved changed files only
 
-- [ ] **Step 1: lesson을 작성한다**
+- [x] **Step 1: lesson을 작성한다**
 
   Record context, the wrapper-vs-extension decision, UTF-16/read-ahead surprise,
   RED/GREEN evidence, test/build/detekt/diff results, review findings, and the
   future guard for provider/consumer separation. If no unexpected finding exists,
   state concrete evidence-backed `N/A` rather than filler.
 
-- [ ] **Step 2: lesson writer gate와 diff check를 완료한다**
+- [x] **Step 2: lesson writer gate와 diff check를 완료한다**
 
   Apply `SPW-01` through `SPW-05` and `KO-01` through `KO-07`, then run:
 

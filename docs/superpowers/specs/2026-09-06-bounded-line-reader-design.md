@@ -266,13 +266,13 @@ terminator 판정 read-ahead를 포함해도 buffer 외부에서 무제한으로
 
 ## 10. DoD와 검토 결과
 
-- [ ] `bluetape4k-workflow` 공통 gates와 Type A 단계가 PASS한다.
-- [ ] 공개 API/KDoc/README locale parity가 source와 일치한다.
-- [ ] targeted test, `:bluetape4k-io:build`, `:bluetape4k-io:detekt`,
+- [x] `bluetape4k-workflow` 공통 gates와 Type A 단계가 PASS한다.
+- [x] 공개 API/KDoc/README locale parity가 source와 일치한다.
+- [x] targeted test, `:bluetape4k-io:build`, `:bluetape4k-io:detekt`,
   `git diff --check`가 fresh evidence로 통과한다.
 - [ ] exact diff self-review에서 P0=0/P1=0이다.
 - [ ] Korean Lore commit에 이 spec, plan, 구현, test, README, lesson만 포함된다.
-- [ ] Graph #615 consumer 변경과 push/PR/merge는 이 worktree 밖 범위다.
+- [x] Graph #615 consumer 변경과 push/PR/merge는 이 worktree 밖 범위다.
 
 검토 시점의 spec writer gate: `SPW-01`~`SPW-05` PASS.
 한국어 naturalness gate: `KO-01`~`KO-07` PASS.
