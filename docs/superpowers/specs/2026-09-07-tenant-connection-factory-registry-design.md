@@ -55,8 +55,8 @@ class R2dbcConnectionFactoryRegistry<K : Any>(
     override fun isDisposed(): Boolean
 
     companion object {
-        fun <K : Any> borrowed(entries: Map<K, ConnectionFactory>): R2dbcConnectionFactoryRegistry<K>
-        fun <K : Any> owned(entries: Map<K, ConnectionFactory>): R2dbcConnectionFactoryRegistry<K>
+        fun <K : Any> borrowed(entries: Map<K, out ConnectionFactory>): R2dbcConnectionFactoryRegistry<K>
+        fun <K : Any> owned(entries: Map<K, out ConnectionFactory>): R2dbcConnectionFactoryRegistry<K>
     }
 }
 ```
