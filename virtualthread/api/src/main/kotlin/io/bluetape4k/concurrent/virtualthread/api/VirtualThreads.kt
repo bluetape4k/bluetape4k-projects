@@ -27,14 +27,28 @@ object VirtualThreads: KLogging() {
 
     private val providers: List<VirtualThreadRuntime> by lazy {
         val loader = ServiceLoader.load(VirtualThreadRuntime::class.java)
-        val iterator = loader.iterator()
+        discoverVirtualThreadRuntimes(loader.iterator())
+    }
+
+    internal fun discoverVirtualThreadRuntimes(
+        iterator: Iterator<VirtualThreadRuntime>,
+    ): List<VirtualThreadRuntime> {
         val discovered = mutableListOf<VirtualThreadRuntime>()
 
         while (true) {
-            val provider = runCatching {
-                if (!iterator.hasNext()) return@runCatching null
-                iterator.next()
+            val hasNext = runCatching {
+                iterator.hasNext()
+            }.onFailure { error ->
+                log.warn(error) { "Stopping VirtualThreadRuntime discovery after ServiceLoader.hasNext() failed." }
             }.getOrNull() ?: break
+            if (!hasNext) {
+                break
+            }
+            val provider = runCatching {
+                iterator.next()
+            }.onFailure { error ->
+                log.warn(error) { "Skipping failed VirtualThreadRuntime provider entry." }
+            }.getOrNull() ?: continue
 
             runCatching {
                 if (provider.isSupported()) {
@@ -46,7 +60,7 @@ object VirtualThreads: KLogging() {
             }
         }
 
-        discovered.sortedByDescending { it.priority }
+        return discovered.sortedByDescending { it.priority }
     }
 
     /**
