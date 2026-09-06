@@ -13,13 +13,16 @@ import io.lettuce.core.api.StatefulRedisConnection
 import io.lettuce.core.api.async.RedisAsyncCommands
 import io.lettuce.core.codec.StringCodec
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.currentCoroutineContext
+import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.future.await
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
@@ -29,6 +32,7 @@ import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeout
 import kotlinx.coroutines.withTimeoutOrNull
 import java.io.Closeable
+import java.util.concurrent.atomic.AtomicReference
 
 /**
  * Lettuce(Redis) 기반 코루틴 네이티브 Read-through / Write-through / Write-behind Map.
@@ -100,10 +104,17 @@ class LettuceSuspendedLoadedMap<K: Any, V: Any>(
             null
         }
 
+    // Consumer coroutine만 접근한다. 이미 accepted된 실패 batch를 신규 channel entry보다 먼저 재시도한다.
+    private val writeBehindRetryQueue = ArrayDeque<Triple<K, V, Int>>()
+
     private val writeBehindJob =
         writeBehindChannel?.let {
             ownedScope.launch { consumeWriteBehindChannel() }
         }
+
+    // 호출자 취소/timeout과 독립적으로 accepted entry 보존과 resource cleanup을 끝까지 수행한다.
+    private val shutdownScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+    private val shutdownAttempt = AtomicReference<CompletableDeferred<Result<Unit>>?>()
 
     private fun redisKey(key: K): String = "${config.keyPrefix}:${keySerializer(key)}"
 
@@ -314,12 +325,23 @@ class LettuceSuspendedLoadedMap<K: Any, V: Any>(
         val channel = writeBehindChannel ?: return
         while (currentCoroutineContext().isActive) {
             val batch = mutableListOf<Triple<K, V, Int>>()
-            // 첫 아이템은 blocking receive
-            val first = channel.receiveCatching().getOrNull() ?: break
+            // 실패한 accepted entry를 신규 channel entry보다 먼저 처리한다.
+            val isRetryBatch = writeBehindRetryQueue.isNotEmpty()
+            val first = if (isRetryBatch) {
+                writeBehindRetryQueue.removeFirst()
+            } else {
+                channel.receiveCatching().getOrNull()
+            }
+                ?: break
             batch.add(first)
-            // 나머지는 non-blocking tryReceive로 batch 수집
+            // retry와 신규 entry를 한 batch에 섞지 않아 실패 batch를 먼저 재시도한다.
             while (batch.size < config.writeBehindBatchSize) {
-                val next = channel.tryReceive().getOrNull() ?: break
+                val next = if (isRetryBatch) {
+                    writeBehindRetryQueue.removeFirstOrNull()
+                } else {
+                    channel.tryReceive().getOrNull()
+                }
+                    ?: break
                 batch.add(next)
             }
             flushBatch(batch)
@@ -330,47 +352,132 @@ class LettuceSuspendedLoadedMap<K: Any, V: Any>(
     private suspend fun writeToDeadLetter(batch: Map<K, V>) {
         // HSET (recovery values) first; LPUSH (monitoring keys) only on success.
         // Two commands use different codec connections so MULTI/EXEC is not possible.
-        try {
-            val deadLetterKey = "${config.keyPrefix}:dead-letter"
-            val deadLetterValuesKey = "${config.keyPrefix}:dead-letter:values"
-            val valueMap = batch.entries.associate { (k, v) -> keySerializer(k) to v }
-            asyncCommands.hset(deadLetterValuesKey, valueMap).await()
-            val serializedKeys = batch.keys.map { keySerializer(it) }
-            strAsyncCommands.lpush(deadLetterKey, *serializedKeys.toTypedArray()).await()
-        } catch (e: CancellationException) {
-            throw e
-        } catch (e: Exception) {
-            log.error(e) { "Dead letter 기록 실패" }
-        }
+        val deadLetterKey = "${config.keyPrefix}:dead-letter"
+        val deadLetterValuesKey = "${config.keyPrefix}:dead-letter:values"
+        val valueMap = batch.entries.associate { (k, v) -> keySerializer(k) to v }
+        asyncCommands.hset(deadLetterValuesKey, valueMap).await()
+        val serializedKeys = batch.keys.map { keySerializer(it) }
+        strAsyncCommands.lpush(deadLetterKey, *serializedKeys.toTypedArray()).await()
     }
 
     private suspend fun flushBatch(entries: List<Triple<K, V, Int>>) {
         if (entries.isEmpty()) return
-        val batch = entries.associate { it.first to it.second }
+        val latestEntries = entries.associateBy { it.first }.values
+        val batch = latestEntries.associate { it.first to it.second }
         try {
             writer?.write(batch)
         } catch (e: CancellationException) {
+            latestEntries.forEach(writeBehindRetryQueue::addLast)
             throw e
         } catch (e: Exception) {
-            val attempts = entries.map { it.third + 1 }
+            val attempts = latestEntries.map { it.third + 1 }
             log.error(e) { "Write-behind flush 실패 (attempts=$attempts): ${batch.keys}" }
             val deadLetters = mutableMapOf<K, V>()
-            entries.forEach { (k, v, retryCount) ->
+            latestEntries.forEach { (k, v, retryCount) ->
                 val nextRetryCount = retryCount + 1
                 if (nextRetryCount < MAX_DEAD_LETTER_RETRY) {
-                    val result = writeBehindChannel?.trySend(Triple(k, v, nextRetryCount))
-                    if (result == null || result.isFailure) {
-                        log.warn { "Requeue failed for key=$k (attempt $nextRetryCount): channel full or closed" }
-                        deadLetters[k] = v
-                    }
+                    writeBehindRetryQueue.addLast(Triple(k, v, nextRetryCount))
                 } else {
                     deadLetters[k] = v
                 }
             }
             if (deadLetters.isNotEmpty()) {
-                writeToDeadLetter(deadLetters)
+                try {
+                    writeToDeadLetter(deadLetters)
+                } catch (failure: CancellationException) {
+                    enqueueDeadLetterRetry(deadLetters)
+                    throw failure
+                } catch (failure: Exception) {
+                    enqueueDeadLetterRetry(deadLetters)
+                    log.error(failure) { "Dead letter 기록 실패; accepted entry를 retry queue에 보존합니다" }
+                }
             }
         }
+    }
+
+    private fun enqueueDeadLetterRetry(deadLetters: Map<K, V>) {
+        deadLetters.forEach { (key, value) ->
+            writeBehindRetryQueue.addLast(Triple(key, value, MAX_DEAD_LETTER_RETRY - 1))
+        }
+    }
+
+    private suspend fun awaitWriteBehindDrain(shutdownMethod: String, timeoutMillis: Long) {
+        writeBehindChannel?.close()
+        val drained = writeBehindJob?.let { job ->
+            withTimeoutOrNull(timeoutMillis) {
+                job.join()
+                true
+            }
+        } ?: true
+        if (!drained) {
+            log.warn { "Write-behind job drain timed out during $shutdownMethod" }
+        }
+    }
+
+    private suspend fun cancelAndPersistPendingWriteBehind() {
+        writeBehindJob?.cancelAndJoin()
+
+        val channel = writeBehindChannel
+        if (channel != null) {
+            while (true) {
+                writeBehindRetryQueue.addLast(channel.tryReceive().getOrNull() ?: break)
+            }
+        }
+        val latestPending = writeBehindRetryQueue
+            .associateBy { it.first }
+            .values
+            .associate { (key, value, _) -> key to value }
+        if (latestPending.isNotEmpty()) {
+            writeToDeadLetter(latestPending)
+            writeBehindRetryQueue.clear()
+        }
+    }
+
+    private suspend fun shutdown(shutdownMethod: String) {
+        val timeoutMillis = config.writeBehindShutdownTimeout.toMillis().coerceAtLeast(1L)
+        while (true) {
+            val activeAttempt = shutdownAttempt.get()
+            if (activeAttempt != null) {
+                awaitShutdownAttempt(activeAttempt, timeoutMillis)
+                return
+            }
+
+            val newAttempt = CompletableDeferred<Result<Unit>>()
+            if (!shutdownAttempt.compareAndSet(null, newAttempt)) {
+                continue
+            }
+
+            shutdownScope.launch {
+                val result = runCatching {
+                    performShutdown(shutdownMethod, timeoutMillis)
+                }
+                newAttempt.complete(result)
+                if (result.isFailure) {
+                    // performShutdown이 완전히 끝난 뒤에만 retry를 허용해 shutdown 경합을 막는다.
+                    shutdownAttempt.compareAndSet(newAttempt, null)
+                }
+            }
+            awaitShutdownAttempt(newAttempt, timeoutMillis)
+            return
+        }
+    }
+
+    private suspend fun awaitShutdownAttempt(
+        attempt: CompletableDeferred<Result<Unit>>,
+        timeoutMillis: Long,
+    ) {
+        withTimeout(timeoutMillis) {
+            attempt.await().getOrThrow()
+        }
+    }
+
+    private suspend fun performShutdown(shutdownMethod: String, timeoutMillis: Long) {
+        val drainTimeout = (timeoutMillis / 2L).coerceAtLeast(1L)
+        awaitWriteBehindDrain(shutdownMethod, drainTimeout)
+        cancelAndPersistPendingWriteBehind()
+        ownedJob.cancel()
+        if (lazyStrConnection.isInitialized()) lazyStrConnection.value.close()
+        connection.close()
     }
 
     /**
@@ -381,27 +488,21 @@ class LettuceSuspendedLoadedMap<K: Any, V: Any>(
      * drain 대기 중 호출 스레드가 interrupt되면 interrupt 상태를 복원한 뒤 소유 리소스를 정리한다.
      */
     override fun close() {
-        // 1. 채널을 먼저 닫아 새 write 차단 (producer가 IllegalStateException을 던짐)
-        writeBehindChannel?.close()
-        // 2. writeBehindJob이 채널을 drain하고 자연스럽게 종료될 때까지 대기
-        //    취소 전에 join해야 남은 배치가 손실 없이 flush됨
         try {
-            writeBehindJob?.let { job ->
-                runBlocking(Dispatchers.IO) {
-                    withTimeout(config.writeBehindShutdownTimeout.toMillis()) {
-                        job.join()
-                    }
-                }
+            runBlocking(Dispatchers.IO) {
+                shutdown("close()")
             }
         } catch (e: InterruptedException) {
+            // runBlocking 진입 전 interrupt도 cleanup 시작을 막지 않도록 잠시 상태를 지운다.
+            Thread.interrupted()
+            val cleanupResult = runCatching {
+                runBlocking(Dispatchers.IO) {
+                    shutdown("close() interrupted")
+                }
+            }
             Thread.currentThread().interrupt()
-            log.warn(e) { "Write-behind job drain interrupted during close(); interrupt status restored" }
-        } catch (e: Exception) {
-            log.warn(e) { "Write-behind job drain timed out or failed during close()" }
-        } finally {
-            ownedJob.cancel()
-            if (lazyStrConnection.isInitialized()) lazyStrConnection.value.close()
-            connection.close()
+            log.warn(e) { "Write-behind job drain interrupted during close(); cleanup completed and interrupt status restored" }
+            cleanupResult.getOrThrow()
         }
     }
 
@@ -410,32 +511,14 @@ class LettuceSuspendedLoadedMap<K: Any, V: Any>(
      *
      * This is the coroutine-safe alternative to [close]. Call this from a coroutine
      * context to avoid thread blocking while waiting for the write-behind job to drain.
+     * 호출 대기 시간이 shutdown timeout을 넘으면 [kotlinx.coroutines.TimeoutCancellationException]을
+     * 던지지만, 이미 시작한 cleanup은 독립 scope에서 계속되며 후속 호출은 같은 결과를 기다립니다.
      */
     suspend fun suspendClose() {
-        // 1. 채널을 먼저 닫아 새 write 차단
-        writeBehindChannel?.close()
-        // 2. write-behind job이 drain을 마칠 때까지 suspend로 대기.
-        //    호출자 취소는 전파하고, 내부 shutdown timeout만 graceful degradation으로 처리한다.
-        try {
-            writeBehindJob?.let { job ->
-                val drained = withTimeoutOrNull(config.writeBehindShutdownTimeout.toMillis()) {
-                    job.join()
-                    true
-                } ?: false
-                if (!drained) {
-                    log.warn { "Write-behind job drain timed out during suspendClose()" }
-                }
-            }
-        } catch (e: CancellationException) {
-            throw e
-        } catch (e: Exception) {
-            log.warn(e) { "Write-behind job drain failed during suspendClose()" }
-        } finally {
-            withContext(NonCancellable) {
-                ownedJob.cancel()
-                if (lazyStrConnection.isInitialized()) lazyStrConnection.value.close()
-                connection.close()
-            }
+        val callerContext = currentCoroutineContext()
+        withContext(NonCancellable + Dispatchers.IO) {
+            shutdown("suspendClose()")
         }
+        callerContext.ensureActive()
     }
 }
