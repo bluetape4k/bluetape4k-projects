@@ -189,25 +189,32 @@ fun Application.installApplicationResourceLifecycle(): ApplicationResourceRegist
 1. caller는 application module 초기화에서 installer를 명시적으로 호출한다.
 2. Ktor 3.5.2의 `Attributes.computeIfAbsent` supplier는 경합 시 여러 번 평가될 수 있으므로
    supplier에서는 side effect 없는 lifecycle holder만 만든다. attribute winner holder가
-   자체 lock/state에서 event subscription을 정확히 한 번 초기화한다. 설치 도중 실패하면
-   생성한 subscription을 dispose하고 holder를 failed 상태로 고정해 orphan
-   registry/subscription이나 닫힌 registry의 정상 반환을 허용하지 않는다.
-3. subscription은 `ApplicationStopped`에서 registry를 동기적으로 닫고 `finally`에서 자기
+   자체 lock과 `NEW -> READY` 또는 `NEW -> FAILED` 상태 전이에서 event subscription을 정확히
+   한 번 초기화한다. 내부 subscription registrar seam은 Kotlin `internal`로 제한하고 public
+   installer는 Ktor monitor registrar만 주입한다. fake registrar test는 raw subscribe 횟수와
+   handle dispose 횟수를 callback/registry close 횟수와 별도로 관찰한다.
+3. subscribe가 throw하면 holder는 registry를 닫고 `FAILED`로 고정한다. 최초 호출과 이후 모든
+   호출은 원본 message/cause/suppressed가 없는 동일 type/message의 sanitized installation
+   exception을 던지며 재시도하지 않는다. Ktor registrar는 handle 반환 뒤 fallible 작업을 하지
+   않으므로 installation rollback에 아직 획득한 handle이 남는 단계가 없다. 반환된 handle의
+   dispose는 `ApplicationStopped` callback에서 정확히 한 번 시도하고 dispose 실패도 원본
+   Throwable 없이 기록하며 registry close 결과를 되돌리지 않는다.
+4. subscription은 `ApplicationStopped`에서 registry를 동기적으로 닫고 `finally`에서 자기
    자신을 dispose한다. plugin uninstall 뒤에 발생하는 event를 쓰므로 custom plugin
    instance의 `AutoCloseable` 또는 uninstall 순서에 기대지 않는다.
-4. public API는 다른 lifecycle event를 선택하는 configuration을 제공하지 않는다.
-5. `ApplicationStopping`에서 suspend cleanup이 필요한 adapter는 순수 registry와 자체
+5. public API는 다른 lifecycle event를 선택하는 configuration을 제공하지 않는다.
+6. `ApplicationStopping`에서 suspend cleanup이 필요한 adapter는 순수 registry와 자체
    `MonitoringEvent` 동기 bridge를 사용한다. installer와 custom bridge를 같은 registry에
    중복 연결하지 않는다.
-6. application coroutine `Job`을 공통 registry가 직접 await하지 않는다. 독립 `Job`의
+7. application coroutine `Job`을 공통 registry가 직접 await하지 않는다. 독립 `Job`의
    취소만 필요하면 caller가 `register { job.cancel() }`을 사용한다.
-7. application stop 이후에도 외부 코드가 보유한 registry reference로 register할 수
+8. application stop 이후에도 외부 코드가 보유한 registry reference로 register할 수
    있으나, 해당 action은 즉시 실행된다.
-8. `ApplicationStopped` 전에 Ktor disposal timeout이 발생하면 application `Job`이 아직
+9. `ApplicationStopped` 전에 Ktor disposal timeout이 발생하면 application `Job`이 아직
    끝나지 않았을 수 있다. resource를 사용하는 background job은 adapter가
    `ApplicationStopping`에서 bounded drain하거나, cancellation을 무시한 job이 resource에
    접근하지 않는다는 조건을 보장해야 한다.
-9. 서로 다른 Ktor plugin의 event handler 실행 순서는 이 registry가 보장하지 않는다.
+10. 서로 다른 Ktor plugin의 event handler 실행 순서는 이 registry가 보장하지 않는다.
    의존 리소스는 하나의 composite action으로 묶거나 한 registry에 의존 순서대로 등록한다.
 
 사용 예는 다음과 같다.
@@ -312,6 +319,12 @@ adoption checklist가 이를 금지한다.
   원본 message/cause가 log에 없음을 검증함
 - installer 반복·동시 호출이 side-effect-free attribute supplier와 winner holder 초기화 경계를
   통해 단일 registry와 단일 subscription만 생성함
+- fake registrar가 raw subscribe 1회와 callback 뒤 handle dispose 1회를 직접 보고하며,
+  registry close 횟수와 별도로 assertion됨
+- subscribe failure 뒤 raw subscribe가 1회에서 멈추고 최초/후속 호출이 같은 sanitized
+  type/message와 빈 cause/suppressed를 반환하며 registry를 정상 반환하지 않음
+- handle dispose failure가 registry report를 되돌리거나 callback을 재설치하지 않고 원본
+  failure 정보를 log/marker에 노출하지 않음
 - `io.bluetape4k.ktor.core.consumer.ApplicationResourceLifecyclePublicApiTest`가 외부 package에서
   installer, registry, registration, report public API를 compile하고 기본 사용 예를 실행함
 
@@ -363,7 +376,7 @@ ruby -r rexml/document -e '
 ' ktor/core/build/publications/Bluetape4k/pom-default.xml
 git diff --exit-code origin/develop -- \
   ktor/core/build.gradle.kts gradle/libs.versions.toml settings.gradle.kts
-if rg -n 'CoroutineScope|Dispatchers|asyncRunWithTimeout|closeTimeout|CompletableFuture|ForkJoinPool|Executors|Executor|kotlin\.concurrent\.thread|runBlocking|Timer\(|Thread\(' \
+if rg -n 'CoroutineScope|GlobalScope|Dispatchers|newSingleThreadContext|newFixedThreadPoolContext|asyncRunWithTimeout|closeTimeout|CompletableFuture|ForkJoinPool|Executors|Executor|kotlin\.concurrent\.thread|runBlocking|Timer\(|Thread\(|Thread\.ofVirtual|Thread\.startVirtualThread' \
   ktor/core/src/main/kotlin/io/bluetape4k/ktor/core/ApplicationResourceLifecycle.kt; then
   exit 1
 else
