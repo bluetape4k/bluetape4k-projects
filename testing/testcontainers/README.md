@@ -28,7 +28,7 @@ A server wrapper and utility library for building integration tests quickly on t
 - **Embedded SQS**: `ElasticMqServer` runs an in-process SQS server — no Docker needed
 - **Mail testing**: `MailpitServer` provides SMTP + Web UI for email integration tests
 - **LLM support**: `ChromaDBServer` (vector DB, port 8000), `OllamaServer` (local LLM inference, port 11434)
-- **Distributed cache/grid**: `HazelcastServer` (5.x slim), `Ignite3Server` (auto cluster-init)
+- **Distributed cache/grid**: `HazelcastServer` (5.x slim), deprecated `Ignite2Server` compatibility facade, `Ignite3Server` (auto cluster-init)
 -
 
 **Observability**: `ZipkinServer` (distributed tracing, `openzipkin/zipkin-slim:2.23`), `GrafanaServer` (dashboards + datasource provisioning, `grafana/grafana:13.1.3`), `K3sServer` (lightweight Kubernetes cluster, `rancher/k3s`; requires `--privileged` Docker mode)
@@ -80,6 +80,7 @@ Every server implements
 | JaegerServer           | `jaeger`            | `host`, `port`, `url`, `frontend-port`, `zipkin-port`, `config-port`, `thrift-port`                                                                                  |
 | ElasticsearchOssServer | `elasticsearch-oss` | `host`, `port`, `url`                                                                                                                                                |
 | HazelcastServer        | `hazelcast`         | `host`, `port`, `url`                                                                                                                                                |
+| Ignite2Server          | `ignite2`           | `host`, `port`, `url`                                                                                                                                                |
 | Ignite3Server          | `ignite3`           | `host`, `port`, `url`, `rest-port`                                                                                                                                   |
 | ZipkinServer           | `zipkin`            | `host`, `port`, `url`                                                                                                                                                |
 | NginxServer            | `nginx`             | `host`, `port`, `url`                                                                                                                                                |
@@ -93,6 +94,32 @@ Every server implements
 The defaults below are pinned to the latest stable image tag verified on
 2026-08-10. Mutable `latest`, major-only, and rolling minor tags are avoided so
 that Testcontainers runs remain reproducible across local machines and CI.
+
+<!-- issue-1619-ignite2-compatibility:start -->
+### `Ignite2Server` compatibility facade
+
+`Ignite2Server` remains available in the 2.1.x minor line as a deprecated
+compatibility facade for the 2.0.0 public API. The facade will be removed at
+the 3.0.0 breaking boundary. New tests should use `Ignite3Server`; existing
+Ignite 2 consumers should migrate before 3.0.0.
+
+The canonical `apacheignite/ignite` image resolves lazily: `x86_64`/`amd64`
+uses `2.18.0`, while `aarch64`/`arm64` uses `2.18.0-arm64`. Custom images must
+provide an explicit immutable tag; tagless or `latest` calls fail fast.
+
+```kotlin
+@Suppress("DEPRECATION")
+Ignite2Server(image = "custom/ignite", tag = "2.18.0-custom").use { ignite2 ->
+    ignite2.start()
+    // Connect an Ignite 2 thin client to ignite2.url.
+}
+```
+
+The compatibility facade preserves the 2.0.0 constructor overloads,
+`DEFAULT_TAG`/`TAG`/`IMAGE`/`NAME`/`PORT` constants, `url`, and the `Launcher`
+singleton. See [`docs/release/2.0.0-ignite2-migration.md`](../../docs/release/2.0.0-ignite2-migration.md)
+for the image-selection contract.
+<!-- issue-1619-ignite2-compatibility:end -->
 
 | Group | Server | Image | Default tag |
 |---|---|---|---|
@@ -140,6 +167,7 @@ that Testcontainers runs remain reproducible across local machines and CI.
 | Storage | `ElasticsearchOssServer` | `docker.elastic.co/elasticsearch/elasticsearch-oss` | `7.10.2` |
 | Storage | `ElasticsearchServer` | `docker.elastic.co/elasticsearch/elasticsearch` | `9.5.0` |
 | Storage | `HazelcastServer` | `hazelcast/hazelcast` | `5.7.0-slim-jdk25` |
+| Storage | `Ignite2Server` | `apacheignite/ignite` | `2.18.0` (x86_64/amd64) or `2.18.0-arm64` (aarch64/arm64), deprecated facade |
 | Storage | `Ignite3Server` | `apacheignite/ignite` | `3.1.0` |
 | Storage | `InfluxDBServer` | `influxdb` | `2.9.1` |
 | Storage | `MinIOServer` | `minio/minio` | `RELEASE.2025-07-23T15-54-02Z` (compatibility fixture) |
@@ -498,6 +526,13 @@ val hazelcast = HazelcastServer.Launcher.hazelcast
 val client = HazelcastClient.newHazelcastClient(
     ClientConfig().apply { networkConfig.addAddress("${hazelcast.host}:${hazelcast.port}") }
 )
+
+// Apache Ignite 2.x — deprecated 2.0.0 compatibility facade, thin-client port 10800
+@Suppress("DEPRECATION")
+Ignite2Server().use { ignite2 ->
+    ignite2.start()
+    // Connect an Ignite 2 thin client to ignite2.url.
+}
 
 // Apache Ignite 3.x — auto cluster-init, thin client port 10800
 val ignite3 = Ignite3Server.Launcher.ignite3

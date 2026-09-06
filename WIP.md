@@ -9,9 +9,10 @@
 ## 현재 상태
 
 `2.0.0` artifact와 GitHub Release 배포를 완료했다. `develop`은 minor upgrade인
-`2.1.0` 개발선을 사용한다. Apache Ignite 2 runtime 지원 제거는 `2.0.0` 이후
-지원 종료 정책에 따른 후속 정리이며, 이번 개발선을 major version으로 올리는
-근거로 사용하지 않는다.
+`2.1.0` 개발선을 사용한다. Apache Ignite 2 runtime 의존성과 전용 검증 gate는
+정리하되, `2.0.0`에서 공개한 `Ignite2Server`는 deprecated 호환성 facade로 유지한다.
+public API 제거는 다음 breaking 경계인 `3.0.0`에서 수행하므로 이번 개발선을 major
+version으로 올리는 근거로 사용하지 않는다.
 
 ## 다음 개발선 규칙
 

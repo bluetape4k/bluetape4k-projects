@@ -19,11 +19,12 @@
 
 ### 제거
 
-- `2.1.0` 개발선부터 Apache Ignite 2 runtime 지원을 종료했다.
-  `Ignite2Server`, 전용 Testcontainers image family와 arm64 Nightly gate,
-  legacy thin-client 의존성과 Java 25 `--add-opens` 예외를 함께 제거했다.
-  이미 공개된 `2.0.0` artifact와 migration 문서는 변경하지 않는다
-  ([#1600](https://github.com/bluetape4k/bluetape4k-projects/issues/1600)).
+- `2.1.0` 개발선부터 Apache Ignite 2 runtime 의존성, 전용 Testcontainers image
+  family와 arm64 Nightly gate, legacy thin-client 의존성과 Java 25 `--add-opens`
+  예외를 제거했다. 다만 `2.0.0`에서 공개한 `Ignite2Server`는 deprecated 호환성
+  facade로 유지하며 public API 제거는 `3.0.0` breaking 경계에서 수행한다
+  ([#1600](https://github.com/bluetape4k/bluetape4k-projects/issues/1600),
+  [#1619](https://github.com/bluetape4k/bluetape4k-projects/issues/1619)).
 
 ## [2.0.0] — 2026-09-01
 

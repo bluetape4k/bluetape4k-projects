@@ -7,11 +7,17 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 
 
-class Ignite2RemovalTest(unittest.TestCase):
-    def test_runtime_source_and_test_are_removed(self) -> None:
+class Ignite2CompatibilityBoundaryTest(unittest.TestCase):
+    def test_deprecated_facade_and_compatibility_test_remain_until_3_0(self) -> None:
         storage = ROOT / "testing/testcontainers/src"
-        self.assertFalse((storage / "main/kotlin/io/bluetape4k/testcontainers/storage/Ignite2Server.kt").exists())
+        facade = storage / "main/kotlin/io/bluetape4k/testcontainers/storage/Ignite2Server.kt"
+        compatibility_test = storage / "test/kotlin/io/bluetape4k/testcontainers/storage/Ignite2ServerApiCompatibilityTest.kt"
+        self.assertTrue(facade.is_file())
+        self.assertTrue(compatibility_test.is_file())
         self.assertFalse((storage / "test/kotlin/io/bluetape4k/testcontainers/storage/Ignite2ServerTest.kt").exists())
+        source = facade.read_text(encoding="utf-8")
+        self.assertIn("@Deprecated", source)
+        self.assertIn("3.0.0", source)
 
     def test_image_manifest_and_workflows_have_no_ignite2_gate(self) -> None:
         manifest = json.loads((ROOT / "scripts/testcontainers_image_gate_manifest.json").read_text(encoding="utf-8"))
@@ -41,17 +47,21 @@ class Ignite2RemovalTest(unittest.TestCase):
         ):
             self.assertNotIn(f"{alias} =", catalog)
 
-    def test_current_docs_record_removal_and_keep_2_0_history(self) -> None:
-        for relative in (
-            "testing/testcontainers/README.md",
-            "testing/testcontainers/README.ko.md",
-            "cache/cache-core/README.ko.md",
-        ):
-            self.assertNotIn("Ignite2Server", (ROOT / relative).read_text(encoding="utf-8"), relative)
+    def test_current_docs_record_2_1_facade_and_3_0_removal_boundary(self) -> None:
+        for relative in ("testing/testcontainers/README.md", "testing/testcontainers/README.ko.md"):
+            current = (ROOT / relative).read_text(encoding="utf-8")
+            self.assertIn("Ignite2Server", current, relative)
+            self.assertIn("3.0.0", current, relative)
+        self.assertNotIn(
+            "Ignite2Server",
+            (ROOT / "cache/cache-core/README.ko.md").read_text(encoding="utf-8"),
+        )
         for relative in ("CHANGELOG.md", "WIP.md"):
             current = (ROOT / relative).read_text(encoding="utf-8")
             self.assertIn("Ignite 2", current, relative)
             self.assertIn("2.1.0", current, relative)
+            self.assertIn("Ignite2Server", current, relative)
+            self.assertIn("3.0.0", current, relative)
         history = ROOT / "docs/release/2.0.0-ignite2-migration.md"
         self.assertTrue(history.is_file())
         self.assertIn("Ignite2Server", history.read_text(encoding="utf-8"))

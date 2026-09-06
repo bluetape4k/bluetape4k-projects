@@ -24,7 +24,7 @@ Testcontainers `2.0.3` 기반 통합 테스트를 빠르게 구성하기 위한 
 - **Graph DB 서버 지원**: Neo4j, Memgraph, FalkorDB, PostgreSQL + Apache AGE
 - **Storage 서버 지원**: Redis/Redis Cluster, MongoDB, Cassandra, Elasticsearch/OSS/OpenSearch, MinIO, InfluxDB
 - `MinIOServer`는 명시적인 MinIO 호환성 테스트용으로 유지하며, 신규 AWS/S3 에뮬레이터 테스트는 `FlociServer` 또는 `MiniStackServer`를 사용하세요.
-- **분산 캐시/그리드**: `HazelcastServer` (5.x slim), `Ignite3Server` (클러스터 자동 초기화)
+- **분산 캐시/그리드**: `HazelcastServer` (5.x slim), deprecated `Ignite2Server` 호환성 facade, `Ignite3Server` (클러스터 자동 초기화)
 - **MQ 서버 지원**: Kafka, RabbitMQ, Pulsar, Nats, Redpanda
 - **Infra 서버 지원**: Consul, Vault, Prometheus, Jaeger, Zipkin, ZooKeeper, Toxiproxy, Keycloak
 - **분산 SQL 엔진**: Trino
@@ -85,6 +85,7 @@ Testcontainers `2.0.3` 기반 통합 테스트를 빠르게 구성하기 위한 
 | JaegerServer           | `jaeger`            | `host`, `port`, `url`, `frontend-port`, `zipkin-port`, `config-port`, `thrift-port`                                                                                  |
 | ElasticsearchOssServer | `elasticsearch-oss` | `host`, `port`, `url`                                                                                                                                                |
 | HazelcastServer        | `hazelcast`         | `host`, `port`, `url`                                                                                                                                                |
+| Ignite2Server          | `ignite2`           | `host`, `port`, `url`                                                                                                                                                |
 | Ignite3Server          | `ignite3`           | `host`, `port`, `url`, `rest-port`                                                                                                                                   |
 | ZipkinServer           | `zipkin`            | `host`, `port`, `url`                                                                                                                                                |
 | NginxServer            | `nginx`             | `host`, `port`, `url`                                                                                                                                                |
@@ -98,6 +99,33 @@ Testcontainers `2.0.3` 기반 통합 테스트를 빠르게 구성하기 위한 
 아래 기본값은 2026-08-10에 확인한 최신 안정 이미지 태그를 고정한 것입니다.
 재현 가능한 로컬·CI 실행을 위해 변경 가능한 `latest`, major-only, rolling minor
 태그는 사용하지 않습니다.
+
+<!-- issue-1619-ignite2-compatibility:start -->
+### `Ignite2Server` 호환성 facade
+
+`Ignite2Server`는 2.0.0 public API와의 호환성을 위해 2.1.x minor line에서
+deprecated facade로 유지됩니다. 이 facade는 3.0.0 breaking 경계에서 제거될
+예정입니다. 신규 테스트는 `Ignite3Server`를 사용하고, 기존 Ignite 2 사용처는
+3.0.0 전에 마이그레이션하세요.
+
+canonical `apacheignite/ignite` 이미지는 지연 해석됩니다.
+`x86_64`/`amd64`에서는 `2.18.0`, `aarch64`/`arm64`에서는 `2.18.0-arm64`를
+사용합니다. Custom image에는 명시적인 immutable tag가 필요하며 tag가 없거나
+`latest`인 호출은 fail-fast로 실패합니다.
+
+```kotlin
+@Suppress("DEPRECATION")
+Ignite2Server(image = "custom/ignite", tag = "2.18.0-custom").use { ignite2 ->
+    ignite2.start()
+    // Ignite 2 thin client를 ignite2.url에 연결합니다.
+}
+```
+
+호환성 facade는 2.0.0의 constructor overload, `DEFAULT_TAG`/`TAG`/`IMAGE`/`NAME`/`PORT`
+상수, `url`, `Launcher` singleton을 유지합니다. 이미지 선택 계약은
+[`docs/release/2.0.0-ignite2-migration.md`](../../docs/release/2.0.0-ignite2-migration.md)를
+참고하세요.
+<!-- issue-1619-ignite2-compatibility:end -->
 
 | 그룹 | 서버 | 이미지 | 기본 태그 |
 |---|---|---|---|
@@ -145,6 +173,7 @@ Testcontainers `2.0.3` 기반 통합 테스트를 빠르게 구성하기 위한 
 | Storage | `ElasticsearchOssServer` | `docker.elastic.co/elasticsearch/elasticsearch-oss` | `7.10.2` |
 | Storage | `ElasticsearchServer` | `docker.elastic.co/elasticsearch/elasticsearch` | `9.5.0` |
 | Storage | `HazelcastServer` | `hazelcast/hazelcast` | `5.7.0-slim-jdk25` |
+| Storage | `Ignite2Server` | `apacheignite/ignite` | `2.18.0` (x86_64/amd64) 또는 `2.18.0-arm64` (aarch64/arm64), deprecated facade |
 | Storage | `Ignite3Server` | `apacheignite/ignite` | `3.1.0` |
 | Storage | `InfluxDBServer` | `influxdb` | `2.9.1` |
 | Storage | `MinIOServer` | `minio/minio` | `RELEASE.2025-07-23T15-54-02Z` (호환성 fixture) |
@@ -460,6 +489,13 @@ val hazelcast = HazelcastServer.Launcher.hazelcast
 val client = HazelcastClient.newHazelcastClient(
     ClientConfig().apply { networkConfig.addAddress("${hazelcast.host}:${hazelcast.port}") }
 )
+
+// Apache Ignite 2.x — deprecated 2.0.0 호환성 facade, 씬 클라이언트 포트 10800
+@Suppress("DEPRECATION")
+Ignite2Server().use { ignite2 ->
+    ignite2.start()
+    // Ignite 2 thin client를 ignite2.url에 연결합니다.
+}
 
 // Apache Ignite 3.x — 클러스터 자동 초기화, 씬 클라이언트 포트 10800
 val ignite3 = Ignite3Server.Launcher.ignite3
