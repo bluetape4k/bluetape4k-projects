@@ -337,6 +337,37 @@ class LettuceJCacheTest {
     }
 
     @Test
+    fun `invoke serializes repeated read modify write on one cache instance`() {
+        val mapName = "invoke-shared-connection-" + UUID.randomUUID().toString().take(8)
+        val target = standaloneCache(mapName)
+        val totalInvocations = 12 * 20
+
+        try {
+            target.put("counter", 0)
+
+            MultithreadingTester()
+                .workers(12)
+                .rounds(20)
+                .add {
+                    target.invoke(
+                        "counter",
+                        EntryProcessor<String, Int, Int> { entry: MutableEntry<String, Int>, _: Array<out Any?> ->
+                            val updated = (entry.value ?: 0) + 1
+                            entry.setValue(updated)
+                            updated
+                        },
+                    )
+                }
+                .run()
+
+            target.get("counter") shouldBeEqualTo totalInvocations
+        } finally {
+            runCatching { target.clear() }
+            runCatching { target.close() }
+        }
+    }
+
+    @Test
     fun `invoke rejects stale commit after lease expiry and lock handoff`() {
         val mapName = "invoke-lease-expiry-" + UUID.randomUUID().toString().take(8)
         val first = standaloneCache(mapName, lockLeaseSeconds = 1)

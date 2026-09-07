@@ -1,11 +1,14 @@
 package io.bluetape4k.redis.lettuce.map
 
 import io.bluetape4k.logging.coroutines.KLoggingChannel
+import io.bluetape4k.junit5.concurrency.MultithreadingTester
 import io.bluetape4k.redis.lettuce.AbstractLettuceTest
 import io.bluetape4k.redis.lettuce.LettuceClients
 import io.bluetape4k.redis.lettuce.LettuceTestUtils
 import io.lettuce.core.HSetExArgs
+import io.lettuce.core.RedisFuture
 import io.lettuce.core.TransactionResult
+import io.lettuce.core.api.async.RedisAsyncCommands
 import io.lettuce.core.api.StatefulRedisConnection
 import io.lettuce.core.api.sync.RedisCommands
 import io.lettuce.core.codec.StringCodec
@@ -24,6 +27,13 @@ import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import java.time.Duration
+import java.util.UUID
+import java.util.concurrent.CompletableFuture
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.Executors
+import java.util.concurrent.TimeUnit
+import java.util.concurrent.TimeoutException
+import java.util.concurrent.atomic.AtomicInteger
 
 class LettuceMapTest: AbstractLettuceTest() {
 
@@ -238,6 +248,113 @@ class LettuceMapTest: AbstractLettuceTest() {
     }
 
     @Test
+    fun `transaction과 일반 sync async command는 shared connection에서 교차하지 않는다`() {
+        val nextOperation = AtomicInteger()
+        val committed = AtomicInteger()
+        map.put("counter", "0")
+
+        MultithreadingTester()
+            .workers(12)
+            .rounds(50)
+            .add {
+                when (nextOperation.getAndIncrement() % 3) {
+                    0 -> {
+                        val token = UUID.randomUUID().toString()
+                        map.withDistributedLock(token) {
+                            val updated = (map.get("counter")?.toInt() ?: 0) + 1
+                            map.putTtlIfLockOwned("counter", updated.toString(), ttl = null, token = token)
+                                .shouldBeTrue()
+                            committed.incrementAndGet()
+                        }
+                    }
+
+                    1 -> map.get("counter")
+                    else -> map.getAsync("counter").get()
+                }
+            }
+            .run()
+
+        map.get("counter")?.toInt() shouldBeEqualTo committed.get()
+    }
+
+    @Test
+    fun `sync 응답 대기는 event loop의 async dispatch를 막지 않는다`() {
+        val commands = mockk<RedisCommands<String, String>>()
+        val asyncCommands = mockk<RedisAsyncCommands<String, String>>()
+        val mockedConnection = mockk<StatefulRedisConnection<String, String>>()
+        val syncCommandStarted = CountDownLatch(1)
+        val releaseSyncCommand = CountDownLatch(1)
+        val eventLoopCallbackReturned = CountDownLatch(1)
+
+        every { mockedConnection.sync() } returns commands
+        every { mockedConnection.async() } returns asyncCommands
+        every { commands.hget("mock-map", "sync") } answers {
+            syncCommandStarted.countDown()
+            releaseSyncCommand.await(5, TimeUnit.SECONDS).shouldBeTrue()
+            "sync-value"
+        }
+        every { asyncCommands.hget("mock-map", "async") } answers {
+            completedRedisFuture("async-value")
+        }
+
+        val testedMap = LettuceMap(mockedConnection, "mock-map")
+        val executor = Executors.newFixedThreadPool(2)
+        val syncCall = executor.submit<String?> { testedMap.get("sync") }
+
+        try {
+            syncCommandStarted.await(1, TimeUnit.SECONDS).shouldBeTrue()
+            lateinit var asyncResult: CompletableFuture<String?>
+            executor.execute {
+                asyncResult = testedMap.getAsync("async")
+                eventLoopCallbackReturned.countDown()
+            }
+
+            eventLoopCallbackReturned.await(500, TimeUnit.MILLISECONDS).shouldBeTrue()
+            releaseSyncCommand.countDown()
+            asyncResult.get(1, TimeUnit.SECONDS) shouldBeEqualTo "async-value"
+        } finally {
+            releaseSyncCommand.countDown()
+            syncCall.get(1, TimeUnit.SECONDS) shouldBeEqualTo "sync-value"
+            executor.shutdownNow()
+        }
+    }
+
+    @Test
+    fun `gate에서 대기 중 취소된 async command는 dispatch하지 않는다`() {
+        val commands = mockk<RedisCommands<String, String>>()
+        val asyncCommands = mockk<RedisAsyncCommands<String, String>>(relaxed = true)
+        val mockedConnection = mockk<StatefulRedisConnection<String, String>>()
+        val syncCommandStarted = CountDownLatch(1)
+        val releaseSyncCommand = CountDownLatch(1)
+
+        every { mockedConnection.sync() } returns commands
+        every { mockedConnection.async() } returns asyncCommands
+        every { commands.hget("mock-map", "sync") } answers {
+            syncCommandStarted.countDown()
+            releaseSyncCommand.await(5, TimeUnit.SECONDS).shouldBeTrue()
+            "sync-value"
+        }
+
+        val testedMap = LettuceMap(mockedConnection, "mock-map")
+        val executor = Executors.newSingleThreadExecutor()
+        val syncCall = executor.submit<String?> { testedMap.get("sync") }
+
+        try {
+            syncCommandStarted.await(1, TimeUnit.SECONDS).shouldBeTrue()
+            testedMap.getAsync("cancelled").cancel(true).shouldBeTrue()
+            releaseSyncCommand.countDown()
+            syncCall.get(1, TimeUnit.SECONDS) shouldBeEqualTo "sync-value"
+
+            verify(timeout = 500, exactly = 0) {
+                asyncCommands.hget("mock-map", "cancelled")
+            }
+        } finally {
+            releaseSyncCommand.countDown()
+            executor.shutdownNow()
+        }
+    }
+
+    @Test
     fun `락 소유권 검증 트랜잭션은 Redis 명령 실패 후 discard`() {
         connection.sync().set(map.mapKey, "wrong-type")
 
@@ -418,5 +535,22 @@ class LettuceMapTest: AbstractLettuceTest() {
         map.putAllAsync(mapOf("f1" to "v1", "f2" to "v2")).get()
         map.clearAsync().get() shouldBeEqualTo 1L
         map.isEmptyAsync().get().shouldBeTrue()
+    }
+
+    private fun <T> completedRedisFuture(value: T): RedisFuture<T> =
+        TestRedisFuture<T>().apply { complete(value) }
+
+    private class TestRedisFuture<T>: CompletableFuture<T>(), RedisFuture<T> {
+
+        override fun getError(): String? =
+            if (isCompletedExceptionally) "completed exceptionally" else null
+
+        override fun await(timeout: Long, unit: TimeUnit): Boolean =
+            try {
+                get(timeout, unit)
+                true
+            } catch (_: TimeoutException) {
+                false
+            }
     }
 }

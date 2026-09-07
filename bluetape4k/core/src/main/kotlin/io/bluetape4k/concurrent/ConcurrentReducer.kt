@@ -70,6 +70,8 @@ class ConcurrentReducer<T> internal constructor(
      * 비동기 작업을 추가합니다.
      * 큐가 꽉 찬 경우에는 [CapacityReachedException]이 발생합니다.
      * task invocation과 queue polling은 전용 executor에서 수행하므로 이 함수는 enqueue 후 즉시 반환합니다.
+     * 반환 promise가 취소되면 source의 [CompletionStage.toCompletableFuture]에 취소를 요청합니다.
+     * source가 원본 취소를 지원하지 않으면 실제 terminal 상태까지 active permit을 유지합니다.
      *
      * @param task 작업을 수행할 람다
      * @return 작업 결과를 받아볼 [CompletableFuture] 인스턴스
@@ -88,6 +90,11 @@ class ConcurrentReducer<T> internal constructor(
                 )
 
                 else -> {
+                    promise.whenComplete { _, _ ->
+                        if (promise.isCancelled && cancelJob(job, requirePromiseCancellation = true) && !closed.value) {
+                            schedulePump()
+                        }
+                    }
                     schedulePump()
                     promise
                 }
@@ -173,15 +180,14 @@ class ConcurrentReducer<T> internal constructor(
                 complete(job, error = NullPointerException("task result is null."))
             } else {
                 job.stage = future
+                future.whenComplete { result, error ->
+                    complete(job, result, error)
+
+                    // whenComplete()는 현재 스레드에서 실행될 수 있으므로 coalesced pump를 executor에 위임한다.
+                    if (!closed.value) schedulePump()
+                }
                 if (job.isCancellationRequested) {
                     cancelStage(job)
-                } else {
-                    future.whenComplete { result, error ->
-                        complete(job, result, error)
-
-                        // whenComplete()는 현재 스레드에서 실행될 수 있으므로 coalesced pump를 executor에 위임한다.
-                        if (!closed.value) schedulePump()
-                    }
                 }
             }
         }
@@ -189,13 +195,11 @@ class ConcurrentReducer<T> internal constructor(
 
     private fun complete(job: Job<T>, result: T? = null, error: Throwable? = null) {
         val completed = synchronized(admissionLock) {
-            if (!job.tryComplete()) {
-                false
-            } else {
-                activeJobs.remove(job)
+            val completesPromise = job.tryComplete()
+            if (activeJobs.remove(job)) {
                 limit.release()
-                true
             }
+            completesPromise
         }
         if (!completed) return
 
@@ -217,15 +221,19 @@ class ConcurrentReducer<T> internal constructor(
         return cancelled
     }
 
-    private fun cancelJobLocked(job: Job<T>, requirePromiseCancellation: Boolean): Boolean {
+    private fun cancelJobLocked(
+        job: Job<T>,
+        requirePromiseCancellation: Boolean,
+        releaseRunningJob: Boolean = false,
+    ): Boolean {
         val canCancel = !requirePromiseCancellation || job.promise.isCancelled
-        val cancelled = canCancel && job.tryCancel()
-        if (cancelled) {
-            if (activeJobs.remove(job)) {
-                limit.release()
-            }
+        val cancelledFrom = if (canCancel) job.tryCancel() else null
+        val canRelease = cancelledFrom == CancellationPhase.BEFORE_START || releaseRunningJob
+        val released = canRelease && activeJobs.remove(job)
+        if (released) {
+            limit.release()
         }
-        return cancelled
+        return cancelledFrom != null || released
     }
 
     @Suppress("TooGenericExceptionCaught")
@@ -255,7 +263,9 @@ class ConcurrentReducer<T> internal constructor(
 
             val activeJobs = activeJobs.toList()
             val jobs = queuedJobs + activeJobs
-            val cancelledJobs = jobs.filter { cancelJobLocked(it, requirePromiseCancellation = false) }
+            val cancelledJobs = jobs.filter {
+                cancelJobLocked(it, requirePromiseCancellation = false, releaseRunningJob = true)
+            }
             pumpExecutor.shutdown()
             cancelledJobs
         }
@@ -293,15 +303,25 @@ class ConcurrentReducer<T> internal constructor(
 
         fun tryCancelStage(): Boolean = stageCancellationRequested.compareAndSet(false, true)
 
-        fun tryCancel(): Boolean {
+        fun tryCancel(): CancellationPhase? {
             while (true) {
-                when (val current = state.value) {
-                    NEW, RUNNING -> if (state.compareAndSet(current, CANCELLED)) return true
-                    else -> return false
+                val current = state.value
+                val phase = when (current) {
+                    NEW -> CancellationPhase.BEFORE_START
+                    RUNNING -> CancellationPhase.RUNNING
+                    else -> return null
+                }
+                if (state.compareAndSet(current, CANCELLED)) {
+                    return phase
                 }
             }
         }
 
+    }
+
+    private enum class CancellationPhase {
+        BEFORE_START,
+        RUNNING,
     }
 
     class CapacityReachedException: BluetapeException {

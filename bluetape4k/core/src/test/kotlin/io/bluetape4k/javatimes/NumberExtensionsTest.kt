@@ -91,6 +91,22 @@ class NumberExtensionsTest {
     }
 
     @Test
+    fun `quarterPeriod는 월 환산 결과가 Int 범위를 넘으면 거부한다`() {
+        val maxQuarter = Int.MAX_VALUE / 3
+        val minQuarter = Int.MIN_VALUE / 3
+
+        maxQuarter.quarterPeriod() shouldBeEqualTo Period.ofMonths(maxQuarter * 3)
+        minQuarter.quarterPeriod() shouldBeEqualTo Period.ofMonths(minQuarter * 3)
+        maxQuarter.toLong().quarterPeriod() shouldBeEqualTo Period.ofMonths(maxQuarter * 3)
+        minQuarter.toLong().quarterPeriod() shouldBeEqualTo Period.ofMonths(minQuarter * 3)
+
+        assertFailsWith<IllegalArgumentException> { (maxQuarter + 1).quarterPeriod() }
+        assertFailsWith<IllegalArgumentException> { (minQuarter - 1).quarterPeriod() }
+        assertFailsWith<IllegalArgumentException> { (maxQuarter.toLong() + 1).quarterPeriod() }
+        assertFailsWith<IllegalArgumentException> { (minQuarter.toLong() - 1).quarterPeriod() }
+    }
+
+    @Test
     fun `millisToNanos 변환`() {
         1.millisToNanos() shouldBeEqualTo 1_000_000
         10.millisToNanos() shouldBeEqualTo 10_000_000

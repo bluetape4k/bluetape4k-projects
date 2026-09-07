@@ -17,6 +17,39 @@
   제거하거나 `3.2.0`으로 정렬해야 한다
   ([#1640](https://github.com/bluetape4k/bluetape4k-projects/issues/1640)).
 
+### 버그 수정
+
+- `ConcurrentReducer`가 active promise의 caller cancellation을 source stage로
+  전달한다. source가 원본 취소를 지원하면 active slot을 즉시 회수하고, 취소를
+  지원하지 않으면 실제 terminal 상태까지 permit을 유지해 동시성 한도를 보존한다
+  ([#1684](https://github.com/bluetape4k/bluetape4k-projects/issues/1684)).
+- `Int.quarterPeriod()`와 `Long.quarterPeriod()`가 분기를 월로 환산한 결과의
+  `Int` 범위를 정확히 검사한다. 큰 양수·음수 입력이 반대 부호의 `Period`로
+  조용히 바뀌지 않는다
+  ([#1685](https://github.com/bluetape4k/bluetape4k-projects/issues/1685)).
+- `TenantConnectionPoolRegistry.closeSuspending()`이 caller cancellation을 주 예외로
+  유지하면서 pool cleanup 실패를 suppressed chain에 보존한다
+  ([#1686](https://github.com/bluetape4k/bluetape4k-projects/issues/1686)).
+- `LettuceMap`의 모든 command dispatch와 lock-owned transaction을 connection 단위로
+  직렬화해 같은 connection의 일반 sync/async 명령과 `WATCH/MULTI/EXEC`가 섞이면서
+  command output이 어긋나는 경합을 제거했다
+  ([#1687](https://github.com/bluetape4k/bluetape4k-projects/issues/1687)).
+
+### 마이그레이션
+
+- `ConcurrentReducer.add()`가 반환한 promise를 취소하면 해당 호출이 반환한 source
+  `CompletionStage.toCompletableFuture()`에 취소를 요청한다. 원본 stage가 bridge의
+  취소를 전파하지 않으면 source terminal 전까지 active permit이 유지된다. 여러 호출이
+  하나의 cancellable stage를 공유하는 사용자는 lifecycle을 분리해야 한다.
+- `quarterPeriod()`의 월 환산 결과가 `Int` 범위를 벗어나면 이제 잘못된 `Period` 대신
+  `IllegalArgumentException`을 던진다. wrap-around 결과에 의존한 코드는 입력 범위를
+  검증해야 한다.
+- `LettuceMap`의 lock-owned transaction과 같은 connection을 공유할 때는
+  `LettuceMap`/`LettuceSuspendMap`을 통해 명령을 보내야 한다. raw connection 명령이나
+  다른 wrapper의 동시 명령은 공용 gate를 우회하므로 지원하지 않는다. 사용자 정의 하위
+  클래스는 sync dispatch에 `withConnectionLock`, async dispatch에 `dispatchAsync`를 사용해야
+  한다. sync API는 Netty event-loop에서 호출하지 않아야 한다.
+
 ### 제거
 
 - `2.1.0` 개발선부터 Apache Ignite 2 runtime 의존성, 전용 Testcontainers image

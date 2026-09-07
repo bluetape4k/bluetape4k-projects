@@ -438,6 +438,19 @@ val p = suspendMap.get("p1")                       // suspend fun
 suspendMap.put("p2", Product(2L, "Gadget"))
 ```
 
+`LettuceMap`과 `LettuceSuspendMap`은 같은 connection을 공유할 때 command dispatch를
+공용 gate로 직렬화합니다. transaction이 진행 중일 때 async/suspend 호출은 Netty
+event-loop를 막지 않고 pending future로 대기합니다. sync API는 Redis 응답을 기다리므로
+Netty event-loop에서 호출하지 말고 async/suspend API를 사용해야 합니다.
+`putTtlIfLockOwned` 또는 `removeIfLockOwned`를 사용한다면 raw
+`connection.sync()`/`connection.async()`나 다른 wrapper의 명령을 동시에 보내지 않아야
+합니다. 사용자 정의 `LettuceMap` 하위 클래스는 sync dispatch에 `withConnectionLock`, async
+dispatch에 `dispatchAsync`를 사용하고, `LettuceSuspendMap` 하위 클래스도 protected
+`dispatchAsync`를 사용해야 합니다. `WATCH/MULTI/EXEC` 중 이 gate를 우회하는 사용법은
+지원하지 않습니다. `withDistributedLock` callback에서 시작한 async 작업은 callback이 반환되기
+전에 terminal 상태가 될 때까지 기다린 경우에만 임계 구간에 포함됩니다. callback에서 완료되지
+않은 async 작업을 남기는 fire-and-forget 사용은 지원하지 않습니다.
+
 > **String 기본값 이유**: Lettuce 기본 코덱은 `StringCodec.UTF8`입니다.
 > `LettuceMap<V>`처럼 단순 저장/조회(HGET/HSET)는 바이너리 코덱 사용이 가능하지만,
 > `LettuceAtomicLong`/`LettuceSemaphore`는 Redis의 `INCR`/`DECR` 명령이 10진수 문자열을 요구하므로
