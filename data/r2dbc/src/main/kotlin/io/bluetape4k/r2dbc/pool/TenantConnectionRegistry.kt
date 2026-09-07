@@ -2,6 +2,7 @@ package io.bluetape4k.r2dbc.pool
 
 import io.r2dbc.pool.ConnectionPool
 import io.r2dbc.spi.ConnectionFactory
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.NonCancellable
@@ -175,12 +176,31 @@ class TenantConnectionPoolRegistry<K: Any>(
      * 이미 취소된 caller에서도 [NonCancellable] 경계에서 cleanup을 완료한 뒤 caller cancellation을
      * 다시 전파합니다. concurrent 종료, idempotency와 실패 전파 계약은 [close]와 같습니다.
      */
+    @Suppress("TooGenericExceptionCaught")
     suspend fun closeSuspending() {
         val callerContext = currentCoroutineContext()
-        withContext(NonCancellable + closeDispatcher) {
-            close()
+        val closeFailure: Exception? = withContext(NonCancellable + closeDispatcher) {
+            try {
+                close()
+                null
+            } catch (failure: Error) {
+                throw failure
+            } catch (failure: Exception) {
+                failure
+            }
         }
-        callerContext.ensureActive()
+        try {
+            callerContext.ensureActive()
+        } catch (cancellation: CancellationException) {
+            if (closeFailure != null &&
+                closeFailure !== cancellation &&
+                cancellation.suppressed.none { it === closeFailure }
+            ) {
+                cancellation.addSuppressed(closeFailure)
+            }
+            throw cancellation
+        }
+        throwFailure(closeFailure)
     }
 
     private fun ensureOpen() {

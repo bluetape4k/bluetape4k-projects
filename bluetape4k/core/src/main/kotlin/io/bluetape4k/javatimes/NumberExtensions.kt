@@ -323,8 +323,10 @@ fun Int.monthPeriod(): Period = Period.ofMonths(this)
  * ```kotlin
  * val p = 2.quarterPeriod()  // Period.ofMonths(6)
  * ```
+ *
+ * @throws IllegalArgumentException 월 환산 결과가 [Int] 범위를 벗어나는 경우
  */
-fun Int.quarterPeriod(): Period = Period.ofMonths(this * MonthsPerQuarter)
+fun Int.quarterPeriod(): Period = Period.ofMonths(toLong().toQuarterMonths())
 
 /**
  * [Int] 값을 년 단위의 [Period]로 변환합니다.
@@ -526,13 +528,21 @@ fun Long.monthPeriod(): Period = Period.ofMonths(toIntExact())
 /**
  * [Long] 값을 분기 단위의 [Period]로 변환합니다.
  *
- * `java.time.Period`가 [Int] 구성 요소를 사용하므로 [Long] 값은 [Int] 범위 안에서만 변환됩니다.
+ * `java.time.Period`가 [Int] 구성 요소를 사용하므로 월로 환산한 결과가 [Int] 범위 안일 때만 변환됩니다.
  *
  * ```kotlin
  * val p = 2L.quarterPeriod()  // Period.ofMonths(6)
  * ```
+ *
+ * @throws IllegalArgumentException 월 환산 결과가 [Int] 범위를 벗어나는 경우
  */
-fun Long.quarterPeriod(): Period = Period.ofMonths(toIntExact() * MonthsPerQuarter)
+fun Long.quarterPeriod(): Period = Period.ofMonths(toQuarterMonths())
+
+private fun Long.toQuarterMonths(): Int = try {
+    Math.multiplyExact(this, MonthsPerQuarter.toLong()).toIntExact()
+} catch (e: ArithmeticException) {
+    throw IllegalArgumentException("Quarter value is out of Period month range. value=$this", e)
+}
 
 /**
  * [Long] 값을 년 단위의 [Period]로 변환합니다.

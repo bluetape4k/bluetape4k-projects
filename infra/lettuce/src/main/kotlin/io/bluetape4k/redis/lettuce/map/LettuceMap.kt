@@ -1,17 +1,22 @@
 package io.bluetape4k.redis.lettuce.map
 
+import io.bluetape4k.concurrent.virtualthread.VirtualThreadExecutor
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import io.bluetape4k.support.requireNotBlank
 import io.lettuce.core.HSetExArgs
+import io.lettuce.core.RedisFuture
 import io.lettuce.core.ScriptOutputType
 import io.lettuce.core.SetArgs
 import io.lettuce.core.api.StatefulRedisConnection
 import io.lettuce.core.api.async.RedisAsyncCommands
 import io.lettuce.core.api.sync.RedisCommands
 import java.time.Duration
+import java.util.WeakHashMap
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.locks.LockSupport
+import java.util.concurrent.locks.ReentrantLock
+import kotlin.concurrent.withLock
 
 /**
  * Lettuce Redis 클라이언트를 이용한 분산 Map(Distributed Map) 구현체입니다.
@@ -35,7 +40,9 @@ import java.util.concurrent.locks.LockSupport
  * ```
  *
  * @param V 값 타입
- * @param connection Lettuce StatefulRedisConnection (LettuceBinaryCodec<V> 기반)
+ * @param connection Lettuce StatefulRedisConnection (LettuceBinaryCodec<V> 기반). lock-owned transaction을
+ * 사용할 때 같은 connection의 명령은 이 클래스 또는 [LettuceSuspendMap]을 통해 dispatch해야 합니다.
+ * raw connection이나 다른 wrapper의 동시 명령은 공용 gate를 우회하므로 지원하지 않습니다.
  * @param mapKey Redis에 저장될 Hash 키
  */
 open class LettuceMap<V: Any>(
@@ -55,8 +62,18 @@ open class LettuceMap<V: Any>(
         mapKey.requireNotBlank("mapKey")
     }
 
+    private val connectionGate = LettuceConnectionGate.of(connection)
+
+    /** 하위 클래스는 sync command dispatch를 [withConnectionLock] 안에서 수행해야 합니다. */
     protected val syncCommands: RedisCommands<String, V> get() = connection.sync()
     private val asyncCommands: RedisAsyncCommands<String, V> get() = connection.async()
+
+    /** 같은 connection의 transaction-aware sync command와 직렬화합니다. */
+    protected fun <R> withConnectionLock(block: () -> R): R = connectionGate.call(block)
+
+    /** lock 경합 시 caller를 막지 않고 같은 connection의 async command를 직렬화합니다. */
+    protected fun <R> dispatchAsync(block: () -> RedisFuture<R>): CompletableFuture<R> =
+        connectionGate.dispatch(block)
 
     // =========================================================================
     // 동기 API
@@ -78,7 +95,7 @@ open class LettuceMap<V: Any>(
      * @return 필드 값 (존재하지 않으면 null)
      */
     fun get(field: String): V? =
-        syncCommands.hget(mapKey, field)
+        withConnectionLock { syncCommands.hget(mapKey, field) }
 
     /**
      * 필드에 값을 설정합니다.
@@ -96,7 +113,7 @@ open class LettuceMap<V: Any>(
      * @return 새 필드가 추가됐으면 true, 기존 필드가 업데이트됐으면 false
      */
     fun put(field: String, value: V): Boolean {
-        val result = syncCommands.hset(mapKey, field, value)
+        val result = withConnectionLock { syncCommands.hset(mapKey, field, value) }
         log.debug { "LettuceMap put: mapKey=$mapKey, field=$field, isNew=$result" }
         return result
     }
@@ -109,7 +126,7 @@ open class LettuceMap<V: Any>(
      * @return 설정 성공 여부 (이미 존재하면 false)
      */
     fun putIfAbsent(field: String, value: V): Boolean {
-        val result = syncCommands.hsetnx(mapKey, field, value)
+        val result = withConnectionLock { syncCommands.hsetnx(mapKey, field, value) }
         log.debug { "LettuceMap putIfAbsent: mapKey=$mapKey, field=$field, result=$result" }
         return result
     }
@@ -128,7 +145,7 @@ open class LettuceMap<V: Any>(
     fun putIfAbsentTtl(field: String, value: V, ttl: Duration?): Boolean {
         val added = putIfAbsent(field, value)
         if (added && ttl != null) {
-            syncCommands.expire(mapKey, ttl)
+            withConnectionLock { syncCommands.expire(mapKey, ttl) }
         }
         return added
     }
@@ -149,7 +166,7 @@ open class LettuceMap<V: Any>(
      * @return 삭제된 필드 수
      */
     fun remove(field: String): Long {
-        val count = syncCommands.hdel(mapKey, field)
+        val count = withConnectionLock { syncCommands.hdel(mapKey, field) }
         log.debug { "LettuceMap remove: mapKey=$mapKey, field=$field, count=$count" }
         return count
     }
@@ -161,7 +178,7 @@ open class LettuceMap<V: Any>(
      * @return 존재하면 true
      */
     fun containsKey(field: String): Boolean =
-        syncCommands.hexists(mapKey, field)
+        withConnectionLock { syncCommands.hexists(mapKey, field) }
 
     /**
      * Map의 필드 수(크기)를 반환합니다.
@@ -169,7 +186,7 @@ open class LettuceMap<V: Any>(
      * @return 필드 수
      */
     fun size(): Long =
-        syncCommands.hlen(mapKey)
+        withConnectionLock { syncCommands.hlen(mapKey) }
 
     /**
      * Map이 비어있는지 확인합니다.
@@ -184,7 +201,7 @@ open class LettuceMap<V: Any>(
      * @return 필드명 목록
      */
     fun keySet(): List<String> =
-        syncCommands.hkeys(mapKey)
+        withConnectionLock { syncCommands.hkeys(mapKey) }
 
     /**
      * 모든 값을 반환합니다.
@@ -192,7 +209,7 @@ open class LettuceMap<V: Any>(
      * @return 값 목록
      */
     fun values(): List<V> =
-        syncCommands.hvals(mapKey)
+        withConnectionLock { syncCommands.hvals(mapKey) }
 
     /**
      * 모든 필드-값 쌍을 반환합니다.
@@ -200,7 +217,7 @@ open class LettuceMap<V: Any>(
      * @return 필드-값 Map
      */
     fun entries(): Map<String, V> =
-        syncCommands.hgetall(mapKey)
+        withConnectionLock { syncCommands.hgetall(mapKey) }
 
     /**
      * 여러 필드-값 쌍을 한번에 설정합니다.
@@ -209,7 +226,7 @@ open class LettuceMap<V: Any>(
      */
     fun putAll(map: Map<String, V>) {
         if (map.isEmpty()) return
-        syncCommands.hset(mapKey, map)
+        withConnectionLock { syncCommands.hset(mapKey, map) }
         log.debug { "LettuceMap putAll: mapKey=$mapKey, count=${map.size}" }
     }
 
@@ -229,7 +246,7 @@ open class LettuceMap<V: Any>(
      */
     fun getAll(fields: Collection<String>): Map<String, V?> {
         if (fields.isEmpty()) return emptyMap()
-        val kvList = syncCommands.hmget(mapKey, *fields.toTypedArray())
+        val kvList = withConnectionLock { syncCommands.hmget(mapKey, *fields.toTypedArray()) }
         return kvList.associate { kv -> kv.key to (if (kv.hasValue()) kv.value else null) }
     }
 
@@ -239,7 +256,7 @@ open class LettuceMap<V: Any>(
      * @return 삭제된 키 수 (키가 존재했으면 1, 없었으면 0)
      */
     fun clear(): Long {
-        val count = syncCommands.del(mapKey)
+        val count = withConnectionLock { syncCommands.del(mapKey) }
         log.debug { "LettuceMap clear: mapKey=$mapKey" }
         return count
     }
@@ -251,7 +268,7 @@ open class LettuceMap<V: Any>(
      * hash 키 수명 계약을 사용하는 상위 캐시가 필요할 때 이 메서드를 함께 호출합니다.
      */
     fun refreshTtl(ttl: Duration?) {
-        if (ttl != null) syncCommands.expire(mapKey, ttl)
+        if (ttl != null) withConnectionLock { syncCommands.expire(mapKey, ttl) }
     }
 
     /**
@@ -261,6 +278,12 @@ open class LettuceMap<V: Any>(
      * 따라서 서로 다른 Lettuce 연결을 사용하는 호출도 같은 [mapKey] 범위에서
      * read-modify-write 구간을 직렬화할 수 있습니다. [leaseTime]은 호출자가 장애로
      * 중단된 경우를 위한 상한이므로, 블록 실행 시간보다 충분히 길게 설정해야 합니다.
+     * 같은 connection의 Redis transaction 상태는 connection 전체에 적용되므로, command dispatch와
+     * lock-owned transaction을 connection gate로 직렬화합니다. 사용자 [block] 실행 중에는 gate를
+     * 유지하지 않습니다. 동기 API는 Redis 응답을 기다리므로 Netty event-loop에서 호출하지 말고
+     * 비동기 API 또는 [LettuceSuspendMap]을 사용해야 합니다. [block]에서 시작한 비동기 작업을
+     * 분산 락의 임계 구간에 포함하려면 [block]이 반환되기 전에 해당 작업이 terminal 상태가 될 때까지
+     * 기다려야 합니다. 완료되지 않은 비동기 작업을 남기는 fire-and-forget 사용은 지원하지 않습니다.
      *
      * @param token 호출마다 새로 생성해야 하는 락 소유 토큰
      * @param leaseTime 락 자동 만료 시간 (기본 1분)
@@ -287,7 +310,7 @@ open class LettuceMap<V: Any>(
         val leaseMillis = leaseTime.toMillis()
         val lockArgs = SetArgs().nx().px(leaseMillis)
 
-        while (syncCommands.set(lockKey, token, lockArgs) == null) {
+        while (withConnectionLock { syncCommands.set(lockKey, token, lockArgs) } == null) {
             if (System.nanoTime() >= deadline) {
                 throw IllegalStateException("LettuceMap[$mapKey] 분산 락 획득 시간이 초과되었습니다.")
             }
@@ -341,16 +364,19 @@ open class LettuceMap<V: Any>(
         }
 
     @Suppress("TooGenericExceptionCaught")
-    private fun executeIfLockOwned(token: V, block: () -> Unit): Boolean {
+    private fun executeIfLockOwned(token: V, block: () -> Unit): Boolean = withConnectionLock {
         val lockKey = "$mapKey$LOCK_SUFFIX"
         var transactionStarted = false
         syncCommands.watch(lockKey)
-        return try {
-            if (!lockTokenMatches(syncCommands.get(lockKey), token)) return false
-            syncCommands.multi()
-            transactionStarted = true
-            block()
-            commitWatchedTransaction()
+        try {
+            if (!lockTokenMatches(syncCommands.get(lockKey), token)) {
+                false
+            } else {
+                syncCommands.multi()
+                transactionStarted = true
+                block()
+                commitWatchedTransaction()
+            }
         } catch (error: Exception) {
             if (transactionStarted) runCatching { syncCommands.discard() }
             throw error
@@ -375,12 +401,14 @@ open class LettuceMap<V: Any>(
         }
 
     private fun releaseDistributedLock(lockKey: String, token: V) {
-        val released = syncCommands.eval<Long>(
-            RELEASE_LOCK_SCRIPT,
-            ScriptOutputType.INTEGER,
-            arrayOf(lockKey),
-            token,
-        )
+        val released = withConnectionLock {
+            syncCommands.eval<Long>(
+                RELEASE_LOCK_SCRIPT,
+                ScriptOutputType.INTEGER,
+                arrayOf(lockKey),
+                token,
+            )
+        }
         check(released == 1L) {
             "LettuceMap[$mapKey] 분산 락 해제에 실패했습니다. 토큰이 만료되었거나 소유자가 아닙니다."
         }
@@ -394,9 +422,9 @@ open class LettuceMap<V: Any>(
      * @param ttl Hash key TTL 설정 (null이면 TTL 없음)
      * @return 저장 성공 여부
      */
-    fun putTtl(field: String, value: V, ttl: Duration?): Boolean {
+    fun putTtl(field: String, value: V, ttl: Duration?): Boolean = withConnectionLock {
         if (ttl == null) {
-            return put(field, value).also {
+            return@withConnectionLock put(field, value).also {
                 log.debug { "LettuceMap putTtl: mapKey=$mapKey, field=$field, ttl=null" }
             }
         }
@@ -413,7 +441,7 @@ open class LettuceMap<V: Any>(
             ok
         }
         log.debug { "LettuceMap putTtl: mapKey=$mapKey, field=$field, ttl=$ttl, hsetex=$supportsHSetEx" }
-        return added
+        added
     }
 
     /**
@@ -422,11 +450,11 @@ open class LettuceMap<V: Any>(
      * @param entries 설정할 필드-값 쌍
      * @param ttl Hash key TTL 설정 (null이면 TTL 없음)
      */
-    fun putAllTtl(entries: Map<String, V>, ttl: Duration?) {
-        if (entries.isEmpty()) return
+    fun putAllTtl(entries: Map<String, V>, ttl: Duration?): Unit = withConnectionLock {
+        if (entries.isEmpty()) return@withConnectionLock
         if (ttl == null) {
             putAll(entries)
-            return
+            return@withConnectionLock
         }
         // 개선: HSETEX 는 필드-레벨 TTL 이므로 별도 EXPIRE 를 호출하지 않는다.
         //       미지원 시에만 HSET + EXPIRE 로 키 전체 만료 설정.
@@ -450,7 +478,7 @@ open class LettuceMap<V: Any>(
      * @return 필드 값을 담은 CompletableFuture (없으면 null)
      */
     fun getAsync(field: String): CompletableFuture<V?> =
-        asyncCommands.hget(mapKey, field).toCompletableFuture()
+        dispatchAsync { asyncCommands.hget(mapKey, field) }
 
     /**
      * 필드에 값을 비동기로 설정합니다.
@@ -460,7 +488,7 @@ open class LettuceMap<V: Any>(
      * @return 새 필드 추가 여부를 담은 CompletableFuture
      */
     fun putAsync(field: String, value: V): CompletableFuture<Boolean> =
-        asyncCommands.hset(mapKey, field, value).toCompletableFuture()
+        dispatchAsync { asyncCommands.hset(mapKey, field, value) }
             .thenApply { result ->
                 log.debug { "LettuceMap putAsync: mapKey=$mapKey, field=$field, isNew=$result" }
                 result
@@ -474,7 +502,7 @@ open class LettuceMap<V: Any>(
      * @return 설정 성공 여부를 담은 CompletableFuture
      */
     fun putIfAbsentAsync(field: String, value: V): CompletableFuture<Boolean> =
-        asyncCommands.hsetnx(mapKey, field, value).toCompletableFuture()
+        dispatchAsync { asyncCommands.hsetnx(mapKey, field, value) }
 
     /**
      * 지정한 필드를 비동기로 삭제합니다.
@@ -483,7 +511,7 @@ open class LettuceMap<V: Any>(
      * @return 삭제된 필드 수를 담은 CompletableFuture
      */
     fun removeAsync(field: String): CompletableFuture<Long> =
-        asyncCommands.hdel(mapKey, field).toCompletableFuture()
+        dispatchAsync { asyncCommands.hdel(mapKey, field) }
 
     /**
      * 지정한 필드가 존재하는지 비동기로 확인합니다.
@@ -492,7 +520,7 @@ open class LettuceMap<V: Any>(
      * @return 존재 여부를 담은 CompletableFuture
      */
     fun containsKeyAsync(field: String): CompletableFuture<Boolean> =
-        asyncCommands.hexists(mapKey, field).toCompletableFuture()
+        dispatchAsync { asyncCommands.hexists(mapKey, field) }
 
     /**
      * Map의 필드 수를 비동기로 반환합니다.
@@ -500,7 +528,7 @@ open class LettuceMap<V: Any>(
      * @return 필드 수를 담은 CompletableFuture
      */
     fun sizeAsync(): CompletableFuture<Long> =
-        asyncCommands.hlen(mapKey).toCompletableFuture()
+        dispatchAsync { asyncCommands.hlen(mapKey) }
 
     /**
      * Map이 비어있는지 비동기로 확인합니다.
@@ -516,7 +544,7 @@ open class LettuceMap<V: Any>(
      * @return 필드명 목록을 담은 CompletableFuture
      */
     fun keySetAsync(): CompletableFuture<List<String>> =
-        asyncCommands.hkeys(mapKey).toCompletableFuture()
+        dispatchAsync { asyncCommands.hkeys(mapKey) }
 
     /**
      * 모든 값을 비동기로 반환합니다.
@@ -524,7 +552,7 @@ open class LettuceMap<V: Any>(
      * @return 값 목록을 담은 CompletableFuture
      */
     fun valuesAsync(): CompletableFuture<List<V>> =
-        asyncCommands.hvals(mapKey).toCompletableFuture()
+        dispatchAsync { asyncCommands.hvals(mapKey) }
 
     /**
      * 모든 필드-값 쌍을 비동기로 반환합니다.
@@ -532,7 +560,7 @@ open class LettuceMap<V: Any>(
      * @return 필드-값 Map을 담은 CompletableFuture
      */
     fun entriesAsync(): CompletableFuture<Map<String, V>> =
-        asyncCommands.hgetall(mapKey).toCompletableFuture()
+        dispatchAsync { asyncCommands.hgetall(mapKey) }
 
     /**
      * 여러 필드-값 쌍을 비동기로 설정합니다.
@@ -542,7 +570,7 @@ open class LettuceMap<V: Any>(
      */
     fun putAllAsync(map: Map<String, V>): CompletableFuture<Unit> {
         if (map.isEmpty()) return CompletableFuture.completedFuture(Unit)
-        return asyncCommands.hset(mapKey, map).toCompletableFuture()
+        return dispatchAsync { asyncCommands.hset(mapKey, map) }
             .thenApply {
                 log.debug { "LettuceMap putAllAsync: mapKey=$mapKey, count=${map.size}" }
             }
@@ -556,7 +584,7 @@ open class LettuceMap<V: Any>(
      */
     fun getAllAsync(fields: Collection<String>): CompletableFuture<Map<String, V?>> {
         if (fields.isEmpty()) return CompletableFuture.completedFuture(emptyMap())
-        return asyncCommands.hmget(mapKey, *fields.toTypedArray()).toCompletableFuture()
+        return dispatchAsync { asyncCommands.hmget(mapKey, *fields.toTypedArray()) }
             .thenApply { kvList ->
                 kvList.associate { kv -> kv.key to (if (kv.hasValue()) kv.value else null) }
             }
@@ -568,9 +596,65 @@ open class LettuceMap<V: Any>(
      * @return 삭제된 키 수를 담은 CompletableFuture
      */
     fun clearAsync(): CompletableFuture<Long> =
-        asyncCommands.del(mapKey).toCompletableFuture()
+        dispatchAsync { asyncCommands.del(mapKey) }
             .thenApply { count ->
                 log.debug { "LettuceMap clearAsync: mapKey=$mapKey" }
                 count
             }
+}
+
+/**
+ * 같은 Lettuce connection을 공유하는 map wrapper의 command dispatch를 직렬화합니다.
+ *
+ * sync 호출은 caller thread에서 lock을 기다리지만 async 호출은 경합 시 virtual thread로 대기 작업을
+ * 넘겨 Netty event-loop를 막지 않습니다. gate는 command dispatch만 보호하며 async 응답 대기 중에는
+ * lock을 유지하지 않습니다.
+ */
+internal class LettuceConnectionGate private constructor() {
+
+    private val lock = ReentrantLock(true)
+
+    fun <R> call(block: () -> R): R = lock.withLock(block)
+
+    @Suppress("TooGenericExceptionCaught")
+    fun <R> dispatch(block: () -> RedisFuture<R>): CompletableFuture<R> {
+        if (lock.tryLock()) {
+            return try {
+                block().toCompletableFuture()
+            } finally {
+                lock.unlock()
+            }
+        }
+
+        val promise = CompletableFuture<R>()
+        VirtualThreadExecutor.execute {
+            val source = try {
+                lock.withLock {
+                    if (promise.isCancelled) null else block().toCompletableFuture()
+                }
+            } catch (error: Throwable) {
+                promise.completeExceptionally(error)
+                null
+            }
+
+            if (source != null) {
+                promise.whenComplete { _, _ ->
+                    if (promise.isCancelled) source.cancel(true)
+                }
+                source.whenComplete { result, error ->
+                    if (error != null) promise.completeExceptionally(error)
+                    else promise.complete(result)
+                }
+            }
+        }
+        return promise
+    }
+
+    companion object {
+        private val gates = WeakHashMap<StatefulRedisConnection<*, *>, LettuceConnectionGate>()
+
+        @Synchronized
+        fun of(connection: StatefulRedisConnection<*, *>): LettuceConnectionGate =
+            gates.getOrPut(connection) { LettuceConnectionGate() }
+    }
 }

@@ -152,6 +152,70 @@ class ConcurrentReducerTest {
     }
 
     @Test
+    fun `active promise 취소는 source stage를 취소하고 다음 작업을 실행한다`() {
+        val reducer = concurrentReducerOf<String>(1, 1)
+        val source = CompletableFuture<String>()
+        try {
+            val promise = reducer.add { source }
+
+            await until { reducer.activeCount == 1 }
+            promise.cancel(false).shouldBeTrue()
+
+            await until { source.isCancelled && reducer.activeCount == 0 }
+            val next = reducer.add { completableFutureOf("next") }
+            await until { next.isDone }
+
+            next.get() shouldBeEqualTo "next"
+            reducer.remainingActiveCapacity shouldBeEqualTo 1
+        } finally {
+            reducer.close()
+        }
+    }
+
+    @Test
+    fun `취소 전파를 보장하지 않는 stage는 terminal 전까지 active slot을 유지한다`() {
+        val reducer = concurrentReducerOf<String>(1, 1)
+        val source = CompletableFuture<String>()
+        try {
+            val promise = reducer.add { source.minimalCompletionStage() }
+
+            await until { reducer.activeCount == 1 }
+            promise.cancel(false).shouldBeTrue()
+            val next = reducer.add { completableFutureOf("next") }
+
+            source.isCancelled.shouldBeFalse()
+            reducer.activeCount shouldBeEqualTo 1
+            next.isDone.shouldBeFalse()
+
+            source.complete("ignored")
+            await until { next.isDone }
+            next.get() shouldBeEqualTo "next"
+            reducer.remainingActiveCapacity shouldBeEqualTo 1
+        } finally {
+            reducer.close()
+        }
+    }
+
+    @Test
+    fun `취소 전파를 보장하지 않는 active stage도 close에서 permit을 정리한다`() {
+        val reducer = concurrentReducerOf<String>(1, 1)
+        val source = CompletableFuture<String>()
+        try {
+            val promise = reducer.add { source.minimalCompletionStage() }
+
+            await until { reducer.activeCount == 1 }
+            promise.cancel(false).shouldBeTrue()
+            reducer.close()
+
+            reducer.activeCount shouldBeEqualTo 0
+            reducer.remainingActiveCapacity shouldBeEqualTo 1
+            source.isCancelled.shouldBeFalse()
+        } finally {
+            reducer.close()
+        }
+    }
+
+    @Test
     fun `grab 직후 caller 취소 경합에서도 active job과 permit이 누수되지 않는다`() {
         repeat(64) {
             val reducer = concurrentReducerOf<String>(1, 1)

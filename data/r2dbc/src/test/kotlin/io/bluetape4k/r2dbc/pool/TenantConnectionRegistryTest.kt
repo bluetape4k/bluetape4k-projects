@@ -2,6 +2,7 @@ package io.bluetape4k.r2dbc.pool
 
 import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeInstanceOf
 import io.bluetape4k.assertions.shouldBeSameInstanceAs
 import io.bluetape4k.junit5.concurrency.MultithreadingTester
 import io.bluetape4k.junit5.coroutines.runSuspendIO
@@ -11,6 +12,7 @@ import io.mockk.verify
 import io.r2dbc.pool.ConnectionPool
 import io.r2dbc.spi.ConnectionFactory
 import kotlinx.coroutines.CoroutineStart
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.launch
@@ -18,6 +20,7 @@ import org.junit.jupiter.api.Test
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
+import java.util.concurrent.atomic.AtomicReference
 
 class TenantConnectionRegistryTest {
 
@@ -182,6 +185,71 @@ class TenantConnectionRegistryTest {
 
         caller.isCancelled shouldBeEqualTo true
         verify(exactly = 1) { pool.dispose() }
+    }
+
+    @Test
+    fun `closeSuspending은 취소를 primary로 유지하고 cleanup 실패를 보존한다`() = runSuspendIO {
+        val tenantA = mockk<ConnectionPool>(relaxed = true)
+        val tenantB = mockk<ConnectionPool>(relaxed = true)
+        val firstFailure = IllegalStateException("tenant-a close failed")
+        val secondFailure = IllegalArgumentException("tenant-b close failed")
+        every { tenantA.dispose() } throws firstFailure
+        every { tenantB.dispose() } throws secondFailure
+        val registry = TenantConnectionPoolRegistry(
+            mapOf(
+                TenantKey("tenant-a") to tenantA,
+                TenantKey("tenant-b") to tenantB,
+            ),
+        )
+        val observed = AtomicReference<Throwable>()
+        val expectedCancellation = CancellationException("caller cancelled")
+
+        val caller = launch(start = CoroutineStart.UNDISPATCHED) {
+            try {
+                currentCoroutineContext().cancel(expectedCancellation)
+                registry.closeSuspending()
+            } catch (failure: Throwable) {
+                observed.set(failure)
+            }
+        }
+        caller.join()
+
+        val cancellation = observed.get()
+        cancellation shouldBeInstanceOf CancellationException::class
+        cancellation shouldBeSameInstanceAs expectedCancellation
+        val cleanupFailure = cancellation.suppressed.single()
+        cleanupFailure shouldBeSameInstanceAs firstFailure
+        cleanupFailure.suppressed.single() shouldBeSameInstanceAs secondFailure
+        verify(exactly = 1) { tenantA.dispose() }
+        verify(exactly = 1) { tenantB.dispose() }
+    }
+
+    @Test
+    fun `closeSuspending은 정상 caller에서 cleanup 실패 identity와 집계를 유지한다`() = runSuspendIO {
+        val tenantA = mockk<ConnectionPool>(relaxed = true)
+        val tenantB = mockk<ConnectionPool>(relaxed = true)
+        val firstFailure = IllegalStateException("tenant-a close failed")
+        val secondFailure = IllegalArgumentException("tenant-b close failed")
+        every { tenantA.dispose() } throws firstFailure
+        every { tenantB.dispose() } throws secondFailure
+        val registry = TenantConnectionPoolRegistry(
+            mapOf(
+                TenantKey("tenant-a") to tenantA,
+                TenantKey("tenant-b") to tenantB,
+            ),
+        )
+
+        val failure = try {
+            registry.closeSuspending()
+            null
+        } catch (expected: Exception) {
+            expected
+        }
+
+        failure shouldBeSameInstanceAs firstFailure
+        failure?.suppressed?.single() shouldBeSameInstanceAs secondFailure
+        verify(exactly = 1) { tenantA.dispose() }
+        verify(exactly = 1) { tenantB.dispose() }
     }
 
     @Test

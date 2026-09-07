@@ -17,6 +17,8 @@ import io.bluetape4k.assertions.shouldHaveSize
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import java.util.UUID
+import java.util.concurrent.atomic.AtomicInteger
 
 class LettuceSuspendMapTest: AbstractLettuceTest() {
 
@@ -159,5 +161,30 @@ class LettuceSuspendMapTest: AbstractLettuceTest() {
         jobs.awaitAll()
 
         map.size() shouldBeEqualTo itemCount.toLong()
+    }
+
+    @Test
+    fun `sync transaction과 suspend command는 shared connection에서 교차하지 않는다`() = runSuspendIO {
+        val syncMap = LettuceMap<String>(connection, map.mapKey)
+        val committed = AtomicInteger()
+        syncMap.put("counter", "0")
+
+        List(300) { index ->
+            async {
+                if (index % 3 == 0) {
+                    val token = UUID.randomUUID().toString()
+                    syncMap.withDistributedLock(token) {
+                        val updated = (syncMap.get("counter")?.toInt() ?: 0) + 1
+                        syncMap.putTtlIfLockOwned("counter", updated.toString(), ttl = null, token = token)
+                            .shouldBeTrue()
+                        committed.incrementAndGet()
+                    }
+                } else {
+                    map.get("counter")
+                }
+            }
+        }.awaitAll()
+
+        map.get("counter")?.toInt() shouldBeEqualTo committed.get()
     }
 }

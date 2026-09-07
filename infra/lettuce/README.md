@@ -440,6 +440,21 @@ val p = suspendMap.get("p1")                       // suspend fun
 suspendMap.put("p2", Product(2L, "Gadget"))
 ```
 
+`LettuceMap` and `LettuceSuspendMap` coordinate command dispatch when they share
+the same connection through a shared gate. While a transaction is active,
+async/suspend calls wait as pending futures without blocking the Netty event
+loop. Sync APIs wait for Redis responses and must not be invoked from the Netty
+event loop; use the async or suspend APIs there. If `putTtlIfLockOwned` or
+`removeIfLockOwned` is used, do not concurrently dispatch commands through the
+raw `connection.sync()`/`connection.async()` facade or another wrapper. Custom
+`LettuceMap` subclasses must use `withConnectionLock` for sync dispatch and
+`dispatchAsync` for async dispatch; `LettuceSuspendMap` subclasses must also use
+their protected `dispatchAsync` helper. Bypassing this gate while
+`WATCH/MULTI/EXEC` is active is unsupported. Async work started inside a
+`withDistributedLock` callback belongs to the critical section only when the
+callback waits for it to reach a terminal state before returning; fire-and-forget
+async work from that callback is unsupported.
+
 > **Why String is the default**: Lettuce's default codec is `StringCodec.UTF8`.
 > While `LettuceMap<V>` supports binary codecs for simple HGET/HSET operations,
 > `LettuceAtomicLong` and `LettuceSemaphore` rely on Redis's `INCR`/
