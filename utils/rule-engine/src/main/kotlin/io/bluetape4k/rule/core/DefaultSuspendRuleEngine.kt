@@ -58,7 +58,7 @@ open class DefaultSuspendRuleEngine(
             } catch (e: CancellationException) {
                 throw e
             } catch (e: Exception) {
-                log.debug { "Suspend rule '$name' failed with exception: ${e.message}" }
+                log.debug { "Suspend rule '$name' failed. exceptionType=${e.javaClass.name}" }
                 if (config.skipOnFirstFailedRule) {
                     log.debug { "Remaining suspend rules skipped. (skipOnFirstFailedRule=true)" }
                     return
@@ -75,7 +75,7 @@ open class DefaultSuspendRuleEngine(
             } catch (e: CancellationException) {
                 throw e
             } catch (e: Exception) {
-                log.debug { "Suspend rule '${rule.name}' evaluate failed with exception: ${e.message}" }
+                log.debug { "Suspend rule '${rule.name}' evaluate failed. exceptionType=${e.javaClass.name}" }
                 false
             }
         }

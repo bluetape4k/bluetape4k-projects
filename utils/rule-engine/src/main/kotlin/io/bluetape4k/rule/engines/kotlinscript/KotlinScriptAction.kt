@@ -4,6 +4,7 @@ import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.error
 import io.bluetape4k.rule.api.Action
 import io.bluetape4k.rule.api.Facts
+import io.bluetape4k.rule.core.toRuleSourceLogContext
 import io.bluetape4k.rule.exception.RuleException
 import io.bluetape4k.support.requireNotBlank
 
@@ -33,8 +34,11 @@ class KotlinScriptAction private constructor(val script: String): Action {
         try {
             KotlinScriptEngine.evaluate(script, facts.asMap())
         } catch (e: Exception) {
-            log.error(e) { "Unable to execute kotlin script '$script' on facts=$facts" }
-            throw RuleException("Fail to execute kotlin script '$script' on facts=$facts", e)
+            log.error {
+                "Unable to execute Kotlin script. ${script.toRuleSourceLogContext()}, " +
+                        "exceptionType=${e.javaClass.name}, factCount=${facts.size}"
+            }
+            throw RuleException("Fail to execute Kotlin script", e)
         }
     }
 
