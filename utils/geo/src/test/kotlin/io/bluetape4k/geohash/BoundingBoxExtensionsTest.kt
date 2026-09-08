@@ -17,6 +17,56 @@ class BoundingBoxExtensionsTest {
     private val DELTA = 1.0e-9
 
     @Test
+    fun `직접 변경 후 직렬화해도 자오선 교차 상태와 UID를 유지한다`() {
+        val box = boundingBoxOf(-10.0, 10.0, -20.0, 20.0)
+        box.westLongitude = 170.0
+        box.eastLongitude = -170.0
+        val bytes = java.io.ByteArrayOutputStream().use { bytes ->
+            java.io.ObjectOutputStream(bytes).use { it.writeObject(box) }
+            bytes.toByteArray()
+        }
+        val restored = java.io.ObjectInputStream(java.io.ByteArrayInputStream(bytes)).use {
+            it.readObject() as BoundingBox
+        }
+        restored.isIntersection180Meridian.shouldBeTrue()
+        restored.contains(wgs84PointOf(0.0, 175.0)).shouldBeTrue()
+        java.io.ObjectStreamClass.lookup(BoundingBox::class.java).serialVersionUID shouldBeEqualTo -1275515777007294183L
+    }
+
+    @Test
+    fun `잘못된 직접 변경은 공간 연산 진입 시 거부한다`() {
+        val box = boundingBoxOf(-10.0, 10.0, -20.0, 20.0)
+        box.westLongitude = 181.0
+        assertFailsWith<IllegalArgumentException> { box.contains(wgs84PointOf(0.0, 0.0)) }
+    }
+
+    @Test
+    fun `직접 경도 변경 후 포함과 교차 판정이 새 좌표를 따른다`() {
+        val box = boundingBoxOf(-10.0, 10.0, -20.0, 20.0)
+        box.westLongitude = 170.0
+        box.eastLongitude = -170.0
+        box.isIntersection180Meridian.shouldBeTrue()
+        box.contains(wgs84PointOf(0.0, 175.0)).shouldBeTrue()
+        val fresh = boundingBoxOf(-10.0, 10.0, 170.0, -170.0)
+        val other = boundingBoxOf(-1.0, 1.0, 174.0, 176.0)
+        box.intersects(other) shouldBeEqualTo fresh.intersects(other)
+        other.intersects(box) shouldBeEqualTo other.intersects(fresh)
+        box.westLongitude = -20.0
+        box.eastLongitude = 20.0
+        box.isIntersection180Meridian.shouldBeFalse()
+        box.contains(wgs84PointOf(0.0, 0.0)).shouldBeTrue()
+    }
+
+    @Test
+    fun `직접 생성과 copy에서도 좌표 불변식을 검증한다`() {
+        assertFailsWith<IllegalArgumentException> { BoundingBox(91.0, 92.0, 0.0, 1.0) }
+        assertFailsWith<IllegalArgumentException> { BoundingBox(10.0, -10.0, 0.0, 1.0) }
+        val box = boundingBoxOf(-10.0, 10.0, -20.0, 20.0)
+        assertFailsWith<IllegalArgumentException> { box.copy(eastLongitude = 181.0) }
+        assertFailsWith<IllegalArgumentException> { box.copy(northLatitude = Double.NaN) }
+    }
+
+    @Test
     fun `boundingBoxOf from corners`() {
         val sw = WGS84Point(45.0, 120.0)
         val ne = WGS84Point(46.0, 121.0)
