@@ -42,6 +42,15 @@ dependencies {
 - JCache-based `NearJCache` / `SuspendNearJCache`
 - RESP3 `CLIENT TRACKING` invalidation support
 
+## Redis URI Logging
+
+The provider redacts Redis URI user information, query and semicolon options before logging. Host, port, path,
+and non-sensitive options remain available for diagnostics; credential values, including percent-encoded values,
+are replaced with `<redacted>`. Malformed or ambiguous URIs are logged as `<redacted-uri>`.
+
+This boundary covers URI logging in the Lettuce provider. It is separate from the JDBC/R2DBC URL policy tracked
+by [bluetape4k-leader#892](https://github.com/bluetape4k/bluetape4k-leader/issues/892).
+
 ## Near-Cache Capability
 
 Lettuce native and JCache near-cache variants are fully supported by the shared
