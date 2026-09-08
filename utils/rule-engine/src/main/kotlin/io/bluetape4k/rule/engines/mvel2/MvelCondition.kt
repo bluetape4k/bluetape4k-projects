@@ -4,6 +4,7 @@ import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.warn
 import io.bluetape4k.rule.api.Condition
 import io.bluetape4k.rule.api.Facts
+import io.bluetape4k.rule.core.toLogContext
 import org.mvel2.MVEL
 
 /**
@@ -30,7 +31,7 @@ class MvelCondition(val expression: String): Condition {
         return try {
             MVEL.executeExpression(compiledExpression, facts.asMap()) as Boolean
         } catch (e: Exception) {
-            log.warn(e) { "Fail to evaluate expression '$expression' with facts=$facts" }
+            log.warn(e) { "Fail to evaluate expression '$expression' with ${facts.toLogContext()}" }
             false
         }
     }

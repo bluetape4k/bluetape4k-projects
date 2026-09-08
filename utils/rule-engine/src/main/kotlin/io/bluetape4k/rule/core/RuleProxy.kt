@@ -65,7 +65,7 @@ class RuleProxy(private val target: Any): InvocationHandler {
     val targetClass: Class<*> = target.javaClass
 
     override fun invoke(proxy: Any?, method: Method?, args: Array<out Any>?): Any? {
-        log.debug { "Proxy invoke ... method=${method?.name}, args=${args?.joinToString()}" }
+        log.debug { "Proxy invoke ... method=${method?.name}" }
 
         return method?.let {
             when (it.name) {
@@ -90,16 +90,21 @@ class RuleProxy(private val target: Any): InvocationHandler {
         if (args == null) return false
 
         val facts = args[0] as Facts
-        log.debug { "Evaluate method ... method=${conditionMethod?.name}, facts=$facts" }
+        val startedAt = System.nanoTime()
 
         return try {
             val method = checkNotNull(conditionMethod) { "Condition method is required." }
             val actualParameters = getActualParameters(method, facts)
-            method.invoke(target, *actualParameters.toTypedArray())
+            val result = method.invoke(target, *actualParameters.toTypedArray()) as Boolean
+            log.debug {
+                "Evaluate rule '$ruleName' ... method=${method.name}, result=$result, " +
+                        "durationNanos=${System.nanoTime() - startedAt}, ${facts.toLogContext()}"
+            }
+            result
         } catch (e: NoSuchFactException) {
             log.warn(e) {
                 "Rule '${targetClass.name}' has been evaluated to false " +
-                        "due to a declared but missing fact '${e.missingFact}' in $facts"
+                        "due to a declared but missing fact '${e.missingFact}'"
             }
             false
         } catch (e: IllegalArgumentException) {
@@ -112,12 +117,20 @@ class RuleProxy(private val target: Any): InvocationHandler {
 
     private fun executeMethod(args: Array<out Any>?): Any? {
         val facts = args?.get(0) as? Facts
+        val startedAt = System.nanoTime()
 
         facts?.run {
             actionMethodBeans.forEach { action ->
                 val actualParameters = getActualParameters(action.method, facts)
-                log.trace { "Invoke method '${action.method.name}' with parameter '$actualParameters'" }
+                log.trace {
+                    "Invoke method '${action.method.name}' with parameterCount=${actualParameters.size}, " +
+                            facts.toLogContext()
+                }
                 action.method.invoke(target, *actualParameters.toTypedArray())
+            }
+            log.debug {
+                "Execute rule '$ruleName' ... actionCount=${actionMethodBeans.size}, " +
+                        "durationNanos=${System.nanoTime() - startedAt}, ${facts.toLogContext()}"
             }
         }
         return null
@@ -132,7 +145,7 @@ class RuleProxy(private val target: Any): InvocationHandler {
     }
 
     private fun getActualParameters(method: Method, facts: Facts): List<Any?> {
-        log.debug { "Retrieve actual parameters... method=${method.name}, facts=$facts" }
+        log.debug { "Retrieve actual parameters... method=${method.name}, ${facts.toLogContext()}" }
 
         val actualParameters = mutableListOf<Any?>()
 
@@ -143,7 +156,7 @@ class RuleProxy(private val target: Any): InvocationHandler {
                     val fact = facts.get<Any>(factName)
                     if (fact == null && !facts.containsKey(factName)) {
                         throw NoSuchFactException(
-                            "Fact named '$factName' not found in known facts=$facts",
+                            "Fact named '$factName' not found in known facts",
                             factName
                         )
                     }

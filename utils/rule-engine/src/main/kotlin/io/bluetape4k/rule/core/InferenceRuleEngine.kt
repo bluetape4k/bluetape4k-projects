@@ -74,13 +74,13 @@ class InferenceRuleEngine(
         var selectedRules: Set<Rule>
 
         do {
-            log.debug { "Select candidate rules based on the following facts=$facts" }
+            log.debug { "Select candidate rules based on the following ${facts.toLogContext()}" }
             selectedRules = selectCandidates(rules, facts)
 
             if (selectedRules.isNotEmpty()) {
                 delegate.doFire(RuleSet(selectedRules), facts)
             } else {
-                log.debug { "No candidate rules found for facts=$facts" }
+                log.debug { "No candidate rules found for ${facts.toLogContext()}" }
             }
         } while (selectedRules.isNotEmpty())
     }

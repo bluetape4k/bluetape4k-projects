@@ -8,6 +8,7 @@ import io.bluetape4k.rule.DEFAULT_RULE_PRIORITY
 import io.bluetape4k.rule.api.Condition
 import io.bluetape4k.rule.api.Facts
 import io.bluetape4k.rule.core.AbstractRule
+import io.bluetape4k.rule.core.toLogContext
 import io.bluetape4k.support.requireNotBlank
 import java.util.*
 
@@ -67,13 +68,13 @@ class MvelRule(
     }
 
     override fun evaluate(facts: Facts): Boolean {
-        log.debug { "Evaluate condition '$condition' with facts=$facts" }
+        log.debug { "Evaluate condition '$condition' with ${facts.toLogContext()}" }
         return condition.evaluate(facts)
     }
 
     override fun execute(facts: Facts) {
         actions.forEach { action ->
-            log.debug { "Execute action '$action' with facts=$facts" }
+            log.debug { "Execute action '$action' with ${facts.toLogContext()}" }
             action.execute(facts)
         }
     }

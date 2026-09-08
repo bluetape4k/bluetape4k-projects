@@ -4,6 +4,7 @@ import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.error
 import io.bluetape4k.rule.api.Action
 import io.bluetape4k.rule.api.Facts
+import io.bluetape4k.rule.core.toLogContext
 import io.bluetape4k.rule.exception.RuleException
 import io.bluetape4k.support.requireNotBlank
 import org.codehaus.janino.ScriptEvaluator
@@ -47,7 +48,7 @@ class JaninoAction(val script: String): Action {
                 facts[key] = value
             }
         } catch (e: Exception) {
-            log.error(e) { "Fail to execute Janino script '$script' on facts=$facts" }
+            log.error(e) { "Fail to execute Janino script '$script' on ${facts.toLogContext()}" }
             throw RuleException("Fail to execute Janino script", e)
         }
     }

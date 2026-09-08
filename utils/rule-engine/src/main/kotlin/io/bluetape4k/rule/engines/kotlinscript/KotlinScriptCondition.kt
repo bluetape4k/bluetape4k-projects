@@ -4,6 +4,7 @@ import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.warn
 import io.bluetape4k.rule.api.Condition
 import io.bluetape4k.rule.api.Facts
+import io.bluetape4k.rule.core.toLogContext
 
 /**
  * Kotlin Script를 이용한 [Condition] 구현체입니다.
@@ -28,7 +29,7 @@ class KotlinScriptCondition(val script: String): Condition {
         return try {
             KotlinScriptEngine.evaluate(script, facts.asMap()) as? Boolean ?: false
         } catch (e: Exception) {
-            log.warn(e) { "Unable to evaluate kotlin script '$script' on facts=$facts" }
+            log.warn(e) { "Unable to evaluate kotlin script '$script' on ${facts.toLogContext()}" }
             false
         }
     }

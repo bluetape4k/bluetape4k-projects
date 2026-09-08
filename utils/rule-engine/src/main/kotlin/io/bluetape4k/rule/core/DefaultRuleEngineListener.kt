@@ -29,11 +29,11 @@ class DefaultRuleEngineListener(
         if (!rules.iterator().hasNext()) {
             log.warn { "No rules registered! Nothing to apply." }
         } else {
-            log.debug { "config=$config, rules=$rules, facts=$facts, Ruleset evaluation started ..." }
+            log.debug { "config=$config, rules=$rules, ${facts.toLogContext()}, Ruleset evaluation started ..." }
         }
     }
 
     override fun afterExecute(rules: Iterable<Rule>, facts: Facts) {
-        log.debug { "RuleSet executed. rules=$rules, facts=$facts" }
+        log.debug { "RuleSet executed. rules=$rules, ${facts.toLogContext()}" }
     }
 }

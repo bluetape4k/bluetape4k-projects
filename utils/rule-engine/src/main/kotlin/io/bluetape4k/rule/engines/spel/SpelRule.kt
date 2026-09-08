@@ -8,6 +8,7 @@ import io.bluetape4k.rule.DEFAULT_RULE_PRIORITY
 import io.bluetape4k.rule.api.Condition
 import io.bluetape4k.rule.api.Facts
 import io.bluetape4k.rule.core.AbstractRule
+import io.bluetape4k.rule.core.toLogContext
 import io.bluetape4k.support.requireNotBlank
 import org.springframework.expression.BeanResolver
 import org.springframework.expression.ParserContext
@@ -95,7 +96,7 @@ class SpelRule private constructor(
 
     override fun execute(facts: Facts) {
         actions.forEach { action ->
-            log.debug { "Execute action '$action' with facts=$facts" }
+            log.debug { "Execute action '$action' with ${facts.toLogContext()}" }
             action.execute(facts)
         }
     }

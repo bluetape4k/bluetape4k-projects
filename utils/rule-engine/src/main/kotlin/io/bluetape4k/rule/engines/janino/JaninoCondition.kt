@@ -4,6 +4,7 @@ import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.warn
 import io.bluetape4k.rule.api.Condition
 import io.bluetape4k.rule.api.Facts
+import io.bluetape4k.rule.core.toLogContext
 import io.bluetape4k.support.requireNotBlank
 import org.codehaus.janino.ExpressionEvaluator
 
@@ -40,7 +41,7 @@ class JaninoCondition(val expression: String): Condition {
         return try {
             evaluator.evaluate(arrayOf<Any?>(facts.asMap())) as Boolean
         } catch (e: Exception) {
-            log.warn(e) { "Fail to evaluate Janino expression '$expression' with facts=$facts" }
+            log.warn(e) { "Fail to evaluate Janino expression '$expression' with ${facts.toLogContext()}" }
             false
         }
     }

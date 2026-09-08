@@ -4,6 +4,7 @@ import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.warn
 import io.bluetape4k.rule.api.Condition
 import io.bluetape4k.rule.api.Facts
+import io.bluetape4k.rule.core.toLogContext
 import io.bluetape4k.support.requireNotBlank
 import org.springframework.expression.BeanResolver
 import org.springframework.expression.Expression
@@ -53,7 +54,7 @@ class SpelCondition private constructor(
             beanResolver?.run { context.setBeanResolver(this) }
             compiledExpr.getValue(context, Boolean::class.java) ?: false
         } catch (e: Exception) {
-            log.warn(e) { "Fail to evaluate SpEL expression '$expression' with facts=$facts" }
+            log.warn(e) { "Fail to evaluate SpEL expression '$expression' with ${facts.toLogContext()}" }
             false
         }
     }
