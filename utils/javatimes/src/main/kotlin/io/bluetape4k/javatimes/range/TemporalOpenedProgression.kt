@@ -33,6 +33,7 @@ fun <T> temporalOpenedProgression(
 
 /**
  * [Temporal] 의 범위를 나타내지만, 마지막 요소를 제외한 Open 된 Range를 표현합니다. `( min <= x < max )` 와 같습니다.
+ * Equality는 시작 값, 제외할 종료 값, 단계로 결정하며, 빈 progression은 기존 progression 계약에 따라 서로 같습니다.
  *
  * ```kotlin
  * val start = LocalDateTime.of(2024, 1, 1, 0, 0)
@@ -51,6 +52,8 @@ open class TemporalOpenedProgression<T> protected constructor(
     step: TemporalAmount,
 ): TemporalClosedProgression<T>(start, endExclusive, step) where T: Temporal, T: Comparable<T> {
 
+    protected val exclusiveEnd: T = endExclusive
+
     companion object: KLogging() {
         @JvmStatic
         fun <T> fromOpendRange(
@@ -68,11 +71,18 @@ open class TemporalOpenedProgression<T> protected constructor(
         }
     }
 
+    /**
+     * 열린 종료 경계를 기준으로 비어 있는지 반환합니다.
+     *
+     * [last]는 부모 closed progression의 계산된 마지막 요소이므로 열린 경계를 표현하는 데 사용하지 않습니다.
+     */
+    override fun isEmpty(): Boolean = if (step.isPositive) first >= exclusiveEnd else first <= exclusiveEnd
+
     @Suppress("UNCHECKED_CAST")
     override fun sequence(): Sequence<T> = sequence seq@{
         fun canContinue(current: T): Boolean = when {
-            step.isPositive -> current < last
-            step.isNegative -> current > last
+            step.isPositive -> current < exclusiveEnd
+            step.isNegative -> current > exclusiveEnd
             else            -> false
         }
 
@@ -87,10 +97,10 @@ open class TemporalOpenedProgression<T> protected constructor(
     override fun equals(other: Any?): Boolean = when (other) {
         is TemporalOpenedProgression<*> ->
             (isEmpty() && other.isEmpty()) ||
-                    (first == other.first && last == other.last && step == other.step)
+                    (first == other.first && exclusiveEnd == other.exclusiveEnd && step == other.step)
 
         else                            -> false
     }
 
-    override fun hashCode(): Int = if (isEmpty()) -1 else hashOf(first, last, step)
+    override fun hashCode(): Int = if (isEmpty()) -1 else hashOf(first, exclusiveEnd, step)
 }
