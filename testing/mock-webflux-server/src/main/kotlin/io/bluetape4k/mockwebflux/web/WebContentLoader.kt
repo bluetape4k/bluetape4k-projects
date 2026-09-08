@@ -37,6 +37,6 @@ class WebContentLoader {
         require(name in ALLOWED_NAMES) { "Resource not allowed: $name" }
         val resource = ClassPathResource("web/html/$name.html")
         require(resource.exists()) { "HTML page not found: $name" }
-        return resource.inputStream.reader(Charsets.UTF_8).readText()
+        return resource.inputStream.reader(Charsets.UTF_8).use { it.readText() }
     }
 }
