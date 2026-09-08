@@ -12,17 +12,24 @@ import kotlin.math.absoluteValue
  * @return Min 값, Max 값의 Pair
  */
 fun Sequence<Double>.minMax(): Pair<Double, Double> {
-    var min = Double.MAX_VALUE
-    var max = Double.MIN_VALUE
+    var min = 0.0
+    var max = 0.0
+    var initialized = false
 
     this
         .filter { !it.isNaN() }
         .forEach { x ->
-            if (x < min) min = x
-            if (x > max) max = x
+            if (!initialized) {
+                min = x
+                max = x
+                initialized = true
+            } else {
+                if (x < min) min = x
+                if (x > max) max = x
+            }
         }
 
-    return min to max
+    return if (initialized) min to max else Double.MAX_VALUE to Double.MIN_VALUE
 }
 
 /**
@@ -57,18 +64,25 @@ fun DoubleArray.minMax(): Pair<Double, Double> = asSequence().minMax()
  * @return Min 값, Max 값의 Pair
  */
 fun Sequence<Double>.absMinMax(): Pair<Double, Double> {
-    var min = Double.MAX_VALUE
-    var max = Double.MIN_VALUE
+    var min = 0.0
+    var max = 0.0
+    var initialized = false
 
     this
         .filter { !it.isNaN() }
         .map { it.absoluteValue }
         .forEach { x ->
-            if (x < min) min = x
-            if (x > max) max = x
+            if (!initialized) {
+                min = x
+                max = x
+                initialized = true
+            } else {
+                if (x < min) min = x
+                if (x > max) max = x
+            }
         }
 
-    return min to max
+    return if (initialized) min to max else Double.MAX_VALUE to Double.MIN_VALUE
 }
 
 /**
