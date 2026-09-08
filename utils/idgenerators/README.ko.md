@@ -209,3 +209,7 @@ dependencies {
     implementation("io.github.bluetape4k:bluetape4k-idgenerators:${version}")
 }
 ```
+
+## 실패와 생명주기 계약
+
+Uuid.random()과 이전 RandomUuidGenerator의 기본 난수원은 SecureRandom입니다. 명시적으로 전달한 Random의 동일 시드에 따른 결정론적 동작은 유지합니다.
