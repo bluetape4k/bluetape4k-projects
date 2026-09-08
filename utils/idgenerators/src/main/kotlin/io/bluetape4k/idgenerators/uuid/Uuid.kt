@@ -4,6 +4,7 @@ import com.fasterxml.uuid.Generators
 import io.bluetape4k.codec.Url62
 import io.bluetape4k.idgenerators.IdGenerator
 import io.bluetape4k.support.requirePositiveNumber
+import java.security.SecureRandom
 import java.util.*
 
 /**
@@ -174,14 +175,14 @@ object Uuid {
     /**
      * 커스텀 [Random]을 사용하는 UUID v4 생성기를 반환합니다.
      *
-     * @param random 사용할 난수원. 기본값은 현재 시각 시드의 [Random]
+     * @param random 사용할 난수원. 기본값은 독립적인 [SecureRandom]
      *
      * ```kotlin
      * val gen = Uuid.random(SecureRandom())
      * val id: UUID = gen.nextId()
      * ```
      */
-    fun random(random: Random = Random(System.currentTimeMillis())): Generator = RandomGenerator(random)
+    fun random(random: Random = SecureRandom()): Generator = RandomGenerator(random)
 
     /**
      * 커스텀 [Random]을 사용하는 UUID v7 생성기를 반환합니다.
