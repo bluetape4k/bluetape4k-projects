@@ -3,6 +3,8 @@ package io.bluetape4k.cache.jcache
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.info
+import io.bluetape4k.redis.lettuce.redactUriCredentials
+import io.bluetape4k.redis.lettuce.toRedactedLogString
 import io.lettuce.core.RedisClient
 import io.lettuce.core.RedisURI
 import java.net.URI
@@ -44,7 +46,9 @@ class LettuceCachingProvider: CachingProvider {
         val cacheUri = uri ?: defaultUri
         val cacheClassLoader = classLoader ?: defaultClassLoader
 
-        log.debug { "Get LettuceCacheManager. uri=$cacheUri, classLoader=$cacheClassLoader" }
+        log.debug {
+            "Get LettuceCacheManager. uri=${cacheUri.toRedactedLogString()}, classLoader=$cacheClassLoader"
+        }
 
         // 동시 RedisClient 생성을 방지하기 위해 lock으로 조회 및 생성 로직 전체를 보호
         return lock.withLock {
@@ -57,7 +61,7 @@ class LettuceCachingProvider: CachingProvider {
                 cacheUri.toString()
             }
 
-            log.debug { "Create RedisClient. redisUri=$redisUri" }
+            log.debug { "Create RedisClient. redisUri=${redisUri.redactUriCredentials()}" }
             val redisClient = RedisClient.create(RedisURI.create(redisUri))
 
             val manager = LettuceCacheManager(
@@ -70,7 +74,7 @@ class LettuceCachingProvider: CachingProvider {
             )
 
             uri2manager[cacheUri] = manager
-            log.info { "Created LettuceCacheManager. uri=$cacheUri" }
+            log.info { "Created LettuceCacheManager. uri=${cacheUri.toRedactedLogString()}" }
             manager
         }
     }
@@ -103,7 +107,9 @@ class LettuceCachingProvider: CachingProvider {
     }
 
     override fun close(uri: URI, classLoader: ClassLoader) {
-        log.info { "Close LettuceCachingProvider. uri=$uri, classLoader=$classLoader" }
+        log.info {
+            "Close LettuceCachingProvider. uri=${uri.toRedactedLogString()}, classLoader=$classLoader"
+        }
         managers[classLoader]?.let { uri2manager ->
             uri2manager.remove(uri)?.let { manager ->
                 runCatching { manager.close() }
