@@ -131,3 +131,7 @@ dependencies {
     implementation("com.maxmind.geoip2:geoip2:5.0.2")
 }
 ```
+
+## Failure and lifecycle contract
+
+BoundingBox derives meridian crossing from its current coordinates. Construction and copy validate coordinate ranges. Public mutable properties remain compatible; spatial operations and serialization validate coordinates after direct mutation. Setter assignment itself is not atomic validation, and concurrent mutation is unsupported.

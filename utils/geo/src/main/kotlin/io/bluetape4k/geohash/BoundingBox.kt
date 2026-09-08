@@ -26,21 +26,14 @@ fun boundingBoxOf(
     northLatitude: Double,
     westLongitude: Double,
     eastLongitude: Double,
-): BoundingBox {
-    southLatitude.requireInRange(-90.0, 90.0, "southLatitude")
-    northLatitude.requireInRange(-90.0, 90.0, "northLatitude")
-    westLongitude.requireInRange(-180.0, 180.0, "westLongitude")
-    eastLongitude.requireInRange(-180.0, 180.0, "eastLongitude")
-
-    require(southLatitude <= northLatitude) {
-        "southLatitude[$southLatitude] must be less than or equal to northLatitude[$northLatitude]"
-    }
-
-    return BoundingBox(southLatitude, northLatitude, westLongitude, eastLongitude)
-}
+): BoundingBox = BoundingBox(southLatitude, northLatitude, westLongitude, eastLongitude)
 
 /**
- * 4개의 좌표를 가지고 있는 BoundingBox
+ * 4개의 좌표를 가지고 있는 BoundingBox입니다.
+ *
+ * 생성자와 `copy`는 좌표 범위를 검증합니다. 공개 setter는 호환성을 위해 유지하며,
+ * 직접 변경한 좌표는 포함·교차·확장 연산과 직렬화 시 검증합니다.
+ * 네 좌표를 동시에 변경하는 원자성이나 스레드 안전성은 보장하지 않습니다.
  *
  * @property southLatitude 남쪽 위도
  * @property northLatitude 북쪽 위도
@@ -54,11 +47,38 @@ data class BoundingBox(
     var eastLongitude: Double,
 ): Serializable {
 
-    companion object: KLogging()
+    companion object: KLogging() {
+        private const val serialVersionUID = -1275515777007294183L
+    }
+
+    init {
+        validateCoordinates()
+    }
+
+    private fun validateCoordinates() {
+        southLatitude.requireInRange(-90.0, 90.0, "southLatitude")
+        northLatitude.requireInRange(-90.0, 90.0, "northLatitude")
+        westLongitude.requireInRange(-180.0, 180.0, "westLongitude")
+        eastLongitude.requireInRange(-180.0, 180.0, "eastLongitude")
+        require(southLatitude <= northLatitude) {
+            "southLatitude[$southLatitude] must be less than or equal to northLatitude[$northLatitude]"
+        }
+    }
+
+    private fun writeObject(output: java.io.ObjectOutputStream) {
+        validateCoordinates()
+        intersects180Meridian = eastLongitude < westLongitude
+        output.defaultWriteObject()
+    }
 
     private var intersects180Meridian: Boolean = eastLongitude < westLongitude
 
-    val isIntersection180Meridian: Boolean get() = intersects180Meridian
+    /** 현재 경도로 자오선 교차 여부를 계산합니다. 직접 변경한 좌표도 조회 시 검증합니다. */
+    val isIntersection180Meridian: Boolean
+        get() {
+            validateCoordinates()
+            return eastLongitude < westLongitude
+        }
 
     /**
      * 북동쪽 꼭지점 좌표를 반환합니다.
@@ -113,6 +133,7 @@ data class BoundingBox(
      * @return 포함 여부
      */
     fun contains(point: WGS84Point): Boolean {
+        validateCoordinates()
         return containsLatitude(point.latitude) && containsLongitude(point.longitude)
     }
 
@@ -131,18 +152,20 @@ data class BoundingBox(
      * @return 포함 여부
      */
     fun intersects(other: BoundingBox): Boolean {
+        validateCoordinates()
+        other.validateCoordinates()
         // Check latitude first cause it's the same for all cases
         return if (other.southLatitude > northLatitude || other.northLatitude < southLatitude) {
             false
         } else {
             when {
-                !intersects180Meridian && !other.intersects180Meridian ->
+                !isIntersection180Meridian && !other.isIntersection180Meridian ->
                     !(other.eastLongitude < westLongitude || other.westLongitude > eastLongitude)
 
-                intersects180Meridian && !other.intersects180Meridian  ->
+                isIntersection180Meridian && !other.isIntersection180Meridian  ->
                     !(eastLongitude < other.westLongitude && westLongitude > other.eastLongitude)
 
-                !intersects180Meridian && other.intersects180Meridian  ->
+                !isIntersection180Meridian && other.isIntersection180Meridian  ->
                     !(westLongitude > other.eastLongitude && eastLongitude < other.westLongitude)
 
                 else                                                   -> true
@@ -179,6 +202,7 @@ data class BoundingBox(
      * @param point 포함할 좌표
      */
     fun expandToInclude(point: WGS84Point) {
+        validateCoordinates()
         // Expand Latitude
         if (point.latitude < southLatitude)
             southLatitude = point.latitude
@@ -215,6 +239,8 @@ data class BoundingBox(
      * @param other 포함할 BoundingBox
      */
     fun expandToInclude(other: BoundingBox) {
+        validateCoordinates()
+        other.validateCoordinates()
         // Expand Latitude
         if (other.southLatitude < southLatitude) {
             southLatitude = other.southLatitude
@@ -264,7 +290,7 @@ data class BoundingBox(
     }
 
     private fun containsLongitude(longitude: Double): Boolean {
-        return if (intersects180Meridian) {
+        return if (isIntersection180Meridian) {
             longitude >= westLongitude || longitude <= eastLongitude
         } else {
             longitude in westLongitude..eastLongitude
