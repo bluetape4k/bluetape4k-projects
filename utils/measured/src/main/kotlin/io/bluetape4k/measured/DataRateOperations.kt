@@ -45,7 +45,7 @@ operator fun Measure<DataRate>.times(other: Measure<Time>): Measure<BinarySize> 
 @JvmName("timeTimesDataRateToBinarySize")
 operator fun Measure<Time>.times(other: Measure<DataRate>): Measure<BinarySize> = other * this
 
-/** 데이터 크기를 시간으로 나눠 전송률을 계산합니다. */
+/** 데이터 크기를 지정한 시간으로 나눠 전송률을 계산합니다. */
 @JvmName("binarySizeDivTimeToDataRate")
-operator fun Measure<BinarySize>.div(other: Measure<Time>): Measure<DataRate> =
+fun Measure<BinarySize>.toDataRate(other: Measure<Time>): Measure<DataRate> =
     ((this `in` BinarySize.bytes) / (other `in` Time.seconds)) * DataRate.bytesPerSecond
