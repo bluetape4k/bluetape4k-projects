@@ -47,7 +47,7 @@ fun <T> temporalOpenedProgression(
  */
 open class TemporalOpenedProgression<T> protected constructor(
     start: T,
-    endExclusive: T,
+    private val endExclusive: T,
     step: TemporalAmount,
 ): TemporalClosedProgression<T>(start, endExclusive, step) where T: Temporal, T: Comparable<T> {
 
@@ -71,8 +71,8 @@ open class TemporalOpenedProgression<T> protected constructor(
     @Suppress("UNCHECKED_CAST")
     override fun sequence(): Sequence<T> = sequence seq@{
         fun canContinue(current: T): Boolean = when {
-            step.isPositive -> current < last
-            step.isNegative -> current > last
+            step.isPositive -> current < endExclusive
+            step.isNegative -> current > endExclusive
             else            -> false
         }
 
@@ -82,6 +82,12 @@ open class TemporalOpenedProgression<T> protected constructor(
             yield(current)
             current = current.plus(step) as T
         }
+    }
+
+    override fun isEmpty(): Boolean = when {
+        step.isPositive -> first >= endExclusive
+        step.isNegative -> first <= endExclusive
+        else            -> true
     }
 
     override fun equals(other: Any?): Boolean = when (other) {
