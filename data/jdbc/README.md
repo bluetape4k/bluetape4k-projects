@@ -562,3 +562,7 @@ class MyJdbcTest : AbstractJdbcTest() {
 ## License
 
 MIT License
+
+## Failure and lifecycle contract
+
+Password-provider failures are reported with a sanitized SQLException without the original provider exception chain. A null password retains the configured null-password message; driver connection errors retain their existing behavior.
