@@ -5,6 +5,7 @@ import dev.openfga.sdk.api.model.ReadRequestTupleKey
 import dev.openfga.sdk.api.model.TupleKey
 import dev.openfga.sdk.api.model.TupleKeyWithoutCondition
 import io.bluetape4k.support.requireNotBlank
+import java.io.Serializable
 
 /**
  * OpenFGA 관계 tuple의 필수 식별자입니다.
@@ -20,11 +21,15 @@ data class OpenFgaTuple(
     val user: String,
     val relation: String,
     val objectId: String,
-) {
+): Serializable {
     init {
         user.requireNotBlank("user")
         relation.requireNotBlank("relation")
         objectId.requireNotBlank("objectId")
+    }
+
+    private companion object {
+        private const val serialVersionUID: Long = 1L
     }
 }
 
