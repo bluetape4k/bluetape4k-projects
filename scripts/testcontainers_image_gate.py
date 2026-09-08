@@ -43,8 +43,10 @@ TAG_PATTERN = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$")
 ID_PATTERN = re.compile(r"^[a-z0-9][a-z0-9._-]{0,63}$")
 WORKLOAD_PATTERN = re.compile(r"^[A-Za-z_$][\w$]*(?:\.[A-Za-z_$][\w$]*)+\.[A-Za-z_$][\w$]*(?:\(\))?$")
 TEST_METHOD_DECLARATION_PATTERN = re.compile(
-    r"(?ms)^\s*@Test(?:\s*\([^)]*\))?\s*(?:\r?\n\s*)+"
-    r"fun\s+(`(?P<quoted>[^`]+)`|(?P<identifier>[A-Za-z_][A-Za-z0-9_]*))\s*\("
+    r"(?m)^[^\S\r\n]*@Test(?:[^\S\r\n]*\([^\r\n)]*\))?"
+    r"[^\S\r\n]*(?:\r?\n[^\S\r\n]*)+"
+    r"fun[^\S\r\n]+(`(?P<quoted>[^`\r\n]+)`|(?P<identifier>[A-Za-z_][A-Za-z0-9_]*))"
+    r"[^\S\r\n]*\("
 )
 TEST_SELECTOR_WILDCARDS = frozenset("*?[]{}")
 

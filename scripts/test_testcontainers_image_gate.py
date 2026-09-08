@@ -4,6 +4,8 @@
 from __future__ import annotations
 
 import re
+import subprocess
+import sys
 import unittest
 from pathlib import Path
 
@@ -30,6 +32,27 @@ class TestTestcontainersImageGate(unittest.TestCase):
     def test_manifest_covers_every_image_family_and_has_required_fields(self) -> None:
         self.assertEqual(EXPECTED_FAMILY_COUNT, len(self.entries))
         self.assertEqual([], validate_manifest(self.entries, self.root))
+
+    def test_method_declaration_pattern_rejects_pathological_newlines_promptly(self) -> None:
+        script = (
+            "from scripts.testcontainers_image_gate import "
+            "TEST_METHOD_DECLARATION_PATTERN as pattern; "
+            "assert pattern.search('@Test' + '\\n' * 28 + 'not_a_function') is None"
+        )
+
+        try:
+            result = subprocess.run(
+                [sys.executable, "-B", "-c", script],
+                cwd=self.root,
+                check=False,
+                capture_output=True,
+                text=True,
+                timeout=1,
+            )
+        except subprocess.TimeoutExpired:
+            self.fail("test method declaration matching exceeded the one-second bound")
+
+        self.assertEqual(0, result.returncode, result.stderr)
 
     def test_deprecated_compatibility_facade_is_not_an_image_gate_family(self) -> None:
         self.assertEqual({"Ignite2Server"}, set(NON_IMAGE_GATE_SERVERS))

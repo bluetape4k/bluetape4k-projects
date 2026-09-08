@@ -91,7 +91,7 @@ jobs:
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
-          ref: ${{ needs.resolve-version.outputs.target_sha }}
+          ref: ${{ github.workflow_sha }}
           fetch-depth: 0
 
       - name: Verify immutable release target
@@ -101,7 +101,6 @@ jobs:
           TARGET_SHA: ${{ needs.resolve-version.outputs.target_sha }}
         run: |
           set -euo pipefail
-          test "$(git rev-parse HEAD)" = "$TARGET_SHA"
           python3 scripts/ci/resolve_release_target.py verify \
             --version "$VERSION" \
             --expected-sha "$TARGET_SHA"
@@ -111,9 +110,9 @@ jobs:
         shell: bash
         env:
           GH_TOKEN: ${{ github.token }}
+          TARGET_SHA: ${{ needs.resolve-version.outputs.target_sha }}
         run: |
           set -euo pipefail
-          TARGET_SHA="$(git rev-parse HEAD)"
           run_pages="$RUNNER_TEMP/nightly-runs.json"
           run_json="$RUNNER_TEMP/nightly-run.json"
           jobs_json="$RUNNER_TEMP/nightly-jobs.json"
