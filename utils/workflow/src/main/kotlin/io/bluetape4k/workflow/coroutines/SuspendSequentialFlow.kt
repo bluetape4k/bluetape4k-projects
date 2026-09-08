@@ -8,7 +8,6 @@ import io.bluetape4k.workflow.api.SuspendWork
 import io.bluetape4k.workflow.api.SuspendWorkFlow
 import io.bluetape4k.workflow.api.WorkContext
 import io.bluetape4k.workflow.api.WorkReport
-import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.ensureActive
 
@@ -61,9 +60,8 @@ class SuspendSequentialFlow(
             val workName = (work as? NamedSuspendWork)?.name ?: work.javaClass.simpleName
             log.debug { "$flowName: '$workName' 실행 시작" }
 
-            val report = runCatching { work.execute(context) }
+            val report = suspendResult { work.execute(context) }
                 .getOrElse { e ->
-                    if (e is CancellationException) throw e
                     log.debug { "$flowName: '$workName' 예외 발생 - ${e.message}" }
                     WorkReport.Failure(context, e)
                 }
