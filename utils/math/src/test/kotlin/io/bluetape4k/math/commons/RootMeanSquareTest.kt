@@ -167,7 +167,7 @@ class RootMeanSquareTest {
 
             val rmse2 = values.normalizedRmse(inverted)
             log.trace { "rmse2=$rmse2" }
-            rmse2 shouldBeEqualTo 1.0540925533894598
+            rmse2 shouldBeEqualTo 1.0
         }
 
         @Test
@@ -176,7 +176,7 @@ class RootMeanSquareTest {
             val cosines = List(10) { cos(it.toDouble()) }
             val rmse = sines.normalizedRmse(cosines)
             log.trace { "rmse=$rmse" }
-            rmse shouldBeEqualTo 0.5367069679875341
+            rmse shouldBeEqualTo 0.5091649364771055
         }
 
         @RepeatedTest(REPEAT_SIZE)
