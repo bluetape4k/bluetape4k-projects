@@ -118,7 +118,11 @@ interface StructuredTaskScopeAll: AutoCloseable {
      */
     fun joinUntil(deadline: java.time.Instant): StructuredTaskScopeAll
 
-    /** 실패한 subtask가 있으면 [handler]를 호출한 뒤 예외를 전파합니다. */
+    /**
+     * 실패한 subtask가 있으면 [handler]를 한 번 호출한 뒤 원래 예외를 전파합니다.
+     * handler가 다른 예외를 던지면 원래 예외의 suppressed에 추가합니다.
+     * 원래 예외 자체를 다시 던진 경우에는 self-suppression을 하지 않습니다.
+     */
     fun throwIfFailed(handler: (e: Throwable) -> Unit = {}): StructuredTaskScopeAll
 
     /** scope 자원을 정리합니다. */

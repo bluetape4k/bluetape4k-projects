@@ -261,3 +261,7 @@ class VirtualThreadsTest {
 - [JEP 444: Virtual Threads (Java 21)](https://openjdk.org/jeps/444)
 - [JEP 462: Structured Concurrency (Second Preview, Java 21)](https://openjdk.org/jeps/462)
 - [Java ServiceLoader Documentation](https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/ServiceLoader.html)
+
+## 실패와 생명주기 계약
+
+throwIfFailed는 handler를 한 번 호출하고 원래 작업 실패를 전파합니다. handler의 별도 실패는 suppressed에 보존하며 원래 예외 자체를 다시 던진 경우 self-suppression을 추가하지 않습니다. JDK21과 JDK25에서 같은 계약 테스트를 실행합니다.

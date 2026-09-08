@@ -149,8 +149,7 @@ class Jdk21StructuredTaskScopeProvider: StructuredTaskScopeProvider {
 
         override fun throwIfFailed(handler: (e: Throwable) -> Unit): StructuredTaskScopeAll {
             delegate.throwIfFailed {
-                handler(it)
-                throw it
+                rethrowAfterHandler(it, handler)
             }
             return this
         }
@@ -262,4 +261,15 @@ class Jdk21StructuredTaskScopeProvider: StructuredTaskScopeProvider {
             delegate.close()
         }
     }
+}
+
+/** handler가 던진 Error나 취소 예외도 원래 작업 실패의 suppressed로 보존합니다. */
+@Suppress("TooGenericExceptionCaught")
+private fun rethrowAfterHandler(primary: Throwable, handler: (Throwable) -> Unit): Nothing {
+    try {
+        handler(primary)
+    } catch (handlerFailure: Throwable) {
+        if (handlerFailure !== primary) primary.addSuppressed(handlerFailure)
+    }
+    throw primary
 }

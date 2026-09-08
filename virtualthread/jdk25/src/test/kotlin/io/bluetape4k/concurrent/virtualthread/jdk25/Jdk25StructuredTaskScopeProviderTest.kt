@@ -11,14 +11,15 @@ import org.junit.jupiter.api.condition.EnabledForJreRange
 import org.junit.jupiter.api.condition.JRE
 import java.time.Instant
 import java.util.concurrent.TimeoutException
+import io.bluetape4k.concurrent.virtualthread.api.StructuredTaskScopeAllContractTest
 import io.bluetape4k.assertions.assertFailsWith
 
 @EnabledForJreRange(min = JRE.JAVA_25)
-class Jdk25StructuredTaskScopeProviderTest {
+class Jdk25StructuredTaskScopeProviderTest: StructuredTaskScopeAllContractTest() {
 
     companion object: KLoggingChannel()
 
-    private val provider = Jdk25StructuredTaskScopeProvider()
+    override val provider = Jdk25StructuredTaskScopeProvider()
 
     @Test
     fun `ServiceLoader가 JDK 25 virtual thread runtime을 선택해야 한다`() {

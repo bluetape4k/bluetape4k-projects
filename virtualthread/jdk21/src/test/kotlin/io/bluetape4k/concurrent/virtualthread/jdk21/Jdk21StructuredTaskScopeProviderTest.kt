@@ -1,5 +1,6 @@
 package io.bluetape4k.concurrent.virtualthread.jdk21
 
+import io.bluetape4k.concurrent.virtualthread.api.StructuredTaskScopeAllContractTest
 import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeInstanceOf
@@ -14,11 +15,11 @@ import java.time.Instant
 import java.util.concurrent.TimeoutException
 
 @EnabledForJreRange(min = JRE.JAVA_21)
-class Jdk21StructuredTaskScopeProviderTest {
+class Jdk21StructuredTaskScopeProviderTest: StructuredTaskScopeAllContractTest() {
 
     companion object: KLoggingChannel()
 
-    private val provider = Jdk21StructuredTaskScopeProvider()
+    override val provider = Jdk21StructuredTaskScopeProvider()
 
     @Test
     fun `ServiceLoader가 JDK 21 virtual thread runtime을 선택해야 한다`() {
