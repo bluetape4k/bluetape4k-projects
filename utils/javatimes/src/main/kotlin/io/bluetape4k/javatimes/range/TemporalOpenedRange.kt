@@ -57,11 +57,11 @@ class TemporalOpenedRange<T>(start: T, endExclusive: T):
 
     val start: T get() = first
 
-    val endExclusive: T get() = last
+    val endExclusive: T get() = exclusiveEnd
 
-    fun contains(value: T): Boolean = first <= value && value < endExclusive
+    fun contains(value: T): Boolean = first <= value && value < exclusiveEnd
 
-    override fun isEmpty(): Boolean = first >= last
+    override fun isEmpty(): Boolean = first >= exclusiveEnd
 
     override fun toString(): String = "$first until $last step $step"
 }
