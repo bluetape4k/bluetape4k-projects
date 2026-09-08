@@ -263,3 +263,7 @@ class VirtualThreadsTest {
 - [JEP 444: Virtual Threads (Java 21)](https://openjdk.org/jeps/444)
 - [JEP 462: Structured Concurrency (Second Preview, Java 21)](https://openjdk.org/jeps/462)
 - [Java ServiceLoader Documentation](https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/ServiceLoader.html)
+
+## Failure and lifecycle contract
+
+throwIfFailed invokes the handler once and rethrows the original task failure. A distinct handler failure is retained as a suppressed exception; rethrowing the original exception does not add self-suppression. JDK21 and JDK25 run the same contract tests.

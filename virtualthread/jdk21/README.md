@@ -259,3 +259,7 @@ dependencies {
 - [JEP 444: Virtual Threads](https://openjdk.org/jeps/444)
 - [JEP 462: Structured Concurrency (Second Preview)](https://openjdk.org/jeps/462)
 - [Java 21 Release Notes](https://www.oracle.com/java/technologies/javase/21-relnote-issues.html)
+
+## Failure and lifecycle contract
+
+throwIfFailed invokes the handler once and rethrows the original task failure. A distinct handler failure is retained as a suppressed exception; rethrowing the original exception does not add self-suppression. JDK21 and JDK25 run the same contract tests.

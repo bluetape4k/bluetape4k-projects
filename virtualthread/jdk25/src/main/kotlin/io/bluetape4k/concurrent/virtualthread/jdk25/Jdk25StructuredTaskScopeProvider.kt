@@ -261,8 +261,7 @@ class Jdk25StructuredTaskScopeProvider: StructuredTaskScopeProvider {
                 ?: subtasks.firstNotNullOfOrNull { it.exceptionOrNull() }
 
             if (firstFailure != null) {
-                runCatching { handler(firstFailure) }
-                throw firstFailure
+                rethrowAfterHandler(firstFailure, handler)
             }
             return this
         }
@@ -395,4 +394,15 @@ class Jdk25StructuredTaskScopeProvider: StructuredTaskScopeProvider {
             }
         }
     }
+}
+
+/** handler가 던진 Error나 취소 예외도 원래 작업 실패의 suppressed로 보존합니다. */
+@Suppress("TooGenericExceptionCaught")
+private fun rethrowAfterHandler(primary: Throwable, handler: (Throwable) -> Unit): Nothing {
+    try {
+        handler(primary)
+    } catch (handlerFailure: Throwable) {
+        if (handlerFailure !== primary) primary.addSuppressed(handlerFailure)
+    }
+    throw primary
 }
