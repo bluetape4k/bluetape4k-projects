@@ -11,6 +11,30 @@ class BoundingBoxTest {
 
     companion object: KLogging()
 
+    @Test
+    fun `생성과 copy는 범위를 벗어난 좌표를 거부한다`() {
+        listOf(-91.0, 91.0, Double.NaN, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY).forEach { invalid ->
+            assertFailsWith<IllegalArgumentException> { BoundingBox(invalid, 0.0, 90.0, 1.0) }
+            assertFailsWith<IllegalArgumentException> { BoundingBox(-90.0, 0.0, invalid, 1.0) }
+            assertFailsWith<IllegalArgumentException> { korea.copy(minLat = invalid) }
+            assertFailsWith<IllegalArgumentException> { korea.copy(maxLat = invalid) }
+        }
+        listOf(-181.0, 181.0, Double.NaN, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY).forEach { invalid ->
+            assertFailsWith<IllegalArgumentException> { BoundingBox(0.0, invalid, 1.0, 180.0) }
+            assertFailsWith<IllegalArgumentException> { BoundingBox(0.0, -180.0, 1.0, invalid) }
+            assertFailsWith<IllegalArgumentException> { korea.copy(minLon = invalid) }
+            assertFailsWith<IllegalArgumentException> { korea.copy(maxLon = invalid) }
+        }
+    }
+
+    @Test
+    fun `유효한 극점과 날짜 변경선 경계를 허용한다`() {
+        val world = BoundingBox(-90.0, -180.0, 90.0, 180.0)
+        world.center() shouldBeEqualTo GeoLocation(0.0, 0.0)
+        world.contains(GeoLocation(90.0, 180.0)).shouldBeTrue()
+        assertFailsWith<IllegalArgumentException> { BoundingBox(0.0, 170.0, 1.0, -170.0) }
+    }
+
     // 한반도 대략적인 BoundingBox
     val korea = BoundingBox(minLat = 33.0, minLon = 124.0, maxLat = 38.9, maxLon = 131.0)
 

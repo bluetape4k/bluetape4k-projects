@@ -1,7 +1,6 @@
 package io.bluetape4k.science.shapefile
 
 import io.bluetape4k.logging.KLogging
-import io.bluetape4k.science.coords.BoundingBox
 import org.locationtech.jts.geom.Geometry
 import java.io.Serializable
 
@@ -14,7 +13,7 @@ import java.io.Serializable
  *     fileLength = 1024,
  *     version = 1000,
  *     shapeType = 1,
- *     bbox = BoundingBox(minLat = 33.0, minLon = 124.0, maxLat = 38.9, maxLon = 131.0)
+ *     bbox = ShapeBounds(minX = 124.0, minY = 33.0, maxX = 131.0, maxY = 38.9)
  * )
  * println(header.fileCode)  // 9994
  * println(header.shapeType) // 1 (Point)
@@ -24,18 +23,18 @@ import java.io.Serializable
  * @param fileLength 파일 길이 (16비트 워드 단위)
  * @param version    버전 (보통 1000)
  * @param shapeType  도형 유형 코드
- * @param bbox       전체 데이터의 경계 사각형
+ * @param bbox       전체 데이터의 원본 좌표계 X/Y 경계
  */
 data class ShapeHeader(
     val fileCode: Int,
     val fileLength: Int,
     val version: Int,
     val shapeType: Int,
-    val bbox: BoundingBox,
+    val bbox: ShapeBounds,
 ): Serializable {
 
     companion object: KLogging() {
-        private const val serialVersionUID = 1L
+        private const val serialVersionUID = 2L
     }
 }
 
@@ -66,20 +65,20 @@ data class ShapeAttribute(
  *
  * @param recordNumber 레코드 번호 (0 기반)
  * @param shapeType    도형 유형 코드
- * @param bbox         이 레코드의 경계 사각형 (NULL 도형인 경우 null)
+ * @param bbox         이 레코드의 원본 좌표계 X/Y 경계 (NULL 도형인 경우 null)
  * @param geometry     JTS [Geometry] 객체
  * @param attributes   DBF 속성 값 맵 (필드명 → 값)
  */
 data class ShapeRecord(
     val recordNumber: Int,
     val shapeType: Int,
-    val bbox: BoundingBox?,
+    val bbox: ShapeBounds?,
     val geometry: Geometry,
     val attributes: Map<String, Any?> = emptyMap(),
 ): Serializable {
 
     companion object: KLogging() {
-        private const val serialVersionUID = 1L
+        private const val serialVersionUID = 2L
     }
 }
 

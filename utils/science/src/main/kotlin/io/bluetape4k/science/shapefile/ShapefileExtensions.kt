@@ -34,7 +34,7 @@ fun Shape.toGeoLocations(): List<GeoLocation> =
  * 주어진 [BoundingBox] 안에 포함되는 레코드만 필터링한 [Shape]를 반환합니다.
  *
  * 레코드의 도형 중심점(centroid)이 [bbox] 내에 있는 경우만 포함합니다.
- * bbox가 null인 레코드는 제외됩니다.
+ * 도형이 위경도 좌표를 사용할 때 적용합니다. 좌표 변환은 수행하지 않으며 빈 도형은 제외합니다.
  *
  * ```kotlin
  * val shape = loadShape(File("korea.shp"))
@@ -46,15 +46,25 @@ fun Shape.toGeoLocations(): List<GeoLocation> =
  * @param bbox 필터링할 경계 사각형
  * @return 필터링된 [Shape]
  */
-fun Shape.filterByBoundingBox(bbox: BoundingBox): Shape {
-    val filtered = records.filter { record ->
+fun Shape.filterByBoundingBox(bbox: BoundingBox): Shape =
+    filterByBoundingBox(ShapeBounds(minX = bbox.minLon, minY = bbox.minLat, maxX = bbox.maxLon, maxY = bbox.maxLat))
+
+/**
+ * 원본 좌표계의 [bbox] 안에 중심점이 있는 레코드를 반환합니다.
+ *
+ * [bbox]와 도형은 같은 좌표계를 사용해야 하며 좌표 변환은 수행하지 않습니다.
+ * 빈 도형은 제외합니다.
+ *
+ * ```kotlin
+ * val filtered = shape.filterByBoundingBox(shape.header.bbox)
+ * ```
+ */
+fun Shape.filterByBoundingBox(bbox: ShapeBounds): Shape = copy(
+    records = records.filter { record ->
         val centroid = record.geometry.centroid
-        val lat = centroid.y
-        val lon = centroid.x
-        lat in bbox.minLat..bbox.maxLat && lon in bbox.minLon..bbox.maxLon
+        !centroid.isEmpty && centroid.y in bbox.minY..bbox.maxY && centroid.x in bbox.minX..bbox.maxX
     }
-    return copy(records = filtered)
-}
+)
 
 /**
  * 레코드의 특정 속성 값으로 필터링한 [Shape]를 반환합니다.
@@ -93,30 +103,30 @@ fun Shape.distinctAttributeValues(attributeName: String): Set<Any?> =
     records.mapTo(LinkedHashSet()) { it.attributes[attributeName] }
 
 /**
- * 전체 레코드를 포괄하는 [BoundingBox]를 계산합니다.
+ * 전체 레코드를 포괄하는 [ShapeBounds]를 계산합니다.
  *
- * 레코드가 없으면 null을 반환합니다.
+ * 원본 좌표계를 유지하며 좌표 변환을 수행하지 않습니다. 유효한 경계를 가진 레코드가 없으면 null을 반환합니다.
  *
  * ```kotlin
  * val shape = loadShape(File("korea.shp"))
  * val bbox = shape.computeBoundingBox()
- * println(bbox?.minLat) // 예: 33.1 (제주도 남단)
- * println(bbox?.maxLat) // 예: 38.6 (최북단)
- * println(bbox?.minLon) // 예: 124.6
- * println(bbox?.maxLon) // 예: 131.9
+ * println(bbox?.minY) // 예: 33.1 (제주도 남단)
+ * println(bbox?.maxY) // 예: 38.6 (최북단)
+ * println(bbox?.minX) // 예: 124.6
+ * println(bbox?.maxX) // 예: 131.9
  * ```
  *
  * @return 전체 경계 사각형 또는 null
  */
-fun Shape.computeBoundingBox(): BoundingBox? {
+fun Shape.computeBoundingBox(): ShapeBounds? {
     val bboxes = records.mapNotNull { it.bbox }
     if (bboxes.isEmpty()) return null
     return bboxes.reduce { acc, b ->
-        BoundingBox(
-            minLat = minOf(acc.minLat, b.minLat),
-            minLon = minOf(acc.minLon, b.minLon),
-            maxLat = maxOf(acc.maxLat, b.maxLat),
-            maxLon = maxOf(acc.maxLon, b.maxLon),
+        ShapeBounds(
+            minY = minOf(acc.minY, b.minY),
+            minX = minOf(acc.minX, b.minX),
+            maxY = maxOf(acc.maxY, b.maxY),
+            maxX = maxOf(acc.maxX, b.maxX),
         )
     }
 }

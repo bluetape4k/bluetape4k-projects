@@ -8,17 +8,12 @@ import io.bluetape4k.science.exposed.model.SpatialLayerRecord
 import io.bluetape4k.science.exposed.schema.SpatialFeatureTable
 import io.bluetape4k.science.exposed.schema.SpatialLayerTable
 import io.bluetape4k.science.exposed.service.ShapefileImportService
-import io.bluetape4k.science.projection.transform
+import io.bluetape4k.science.shapefile.createWebMercatorPointShapefile
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeGreaterThan
 import io.bluetape4k.assertions.shouldBeLessThan
 import io.bluetape4k.assertions.shouldBeNull
 import io.bluetape4k.assertions.shouldNotBeNull
-import org.geotools.api.data.Transaction as GeoToolsTransaction
-import org.geotools.data.shapefile.ShapefileDataStore
-import org.geotools.data.shapefile.ShapefileDataStoreFactory
-import org.geotools.feature.simple.SimpleFeatureTypeBuilder
-import org.geotools.referencing.CRS
 import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.jdbc.selectAll
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
@@ -28,7 +23,6 @@ import org.locationtech.jts.geom.Coordinate
 import org.locationtech.jts.geom.GeometryFactory
 import org.locationtech.jts.geom.Point
 import java.io.File
-import java.io.Serializable
 import java.nio.file.Path
 import kotlin.math.abs
 
@@ -262,36 +256,6 @@ class SpatialFeatureRepositoryTest: AbstractPostgisTest() {
             features.forEach { featureRepo.deleteById(it.id) }
             layerRepo.deleteById(layer.id)
         }
-    }
-
-    private fun createWebMercatorPointShapefile(dir: Path, lon: Double, lat: Double): File {
-        val shpFile = dir.resolve("web-mercator-point.shp").toFile()
-        val sourceCrs = CRS.decode("EPSG:3857", true)
-        val (x, y) = transform("EPSG:4326", "EPSG:3857", lon, lat)
-
-        val typeBuilder = SimpleFeatureTypeBuilder().apply {
-            setName("web_mercator_points")
-            setCRS(sourceCrs)
-            add("the_geom", Point::class.java)
-            add("NAME", String::class.java)
-        }
-        val featureType = typeBuilder.buildFeatureType()
-        val params = mapOf<String, Serializable>("url" to shpFile.toURI().toURL())
-
-        val dataStore = ShapefileDataStoreFactory().createNewDataStore(params) as ShapefileDataStore
-        try {
-            dataStore.createSchema(featureType)
-            dataStore.forceSchemaCRS(sourceCrs)
-            dataStore.getFeatureWriterAppend(GeoToolsTransaction.AUTO_COMMIT).use { writer ->
-                val feature = writer.next()
-                feature.setAttribute("the_geom", point(x, y))
-                feature.setAttribute("NAME", "Seoul")
-                writer.write()
-            }
-        } finally {
-            dataStore.dispose()
-        }
-        return shpFile
     }
 
     private fun queryStoredPoint(layerId: Long): Triple<Int, Double, Double> {
