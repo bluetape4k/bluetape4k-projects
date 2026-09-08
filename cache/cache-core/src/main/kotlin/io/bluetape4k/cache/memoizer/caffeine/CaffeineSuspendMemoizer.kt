@@ -3,6 +3,7 @@ package io.bluetape4k.cache.memoizer.caffeine
 import com.github.benmanes.caffeine.cache.Cache
 import io.bluetape4k.cache.memoizer.SuspendMemoizer
 import io.bluetape4k.logging.coroutines.KLoggingChannel
+import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
@@ -42,6 +43,9 @@ fun <T: Any, R: Any> (suspend (T) -> R).withSuspendMemoizer(cache: Cache<T, R>):
  * 단순 getIfPresent + put 패턴은 동시 호출 시 동일 키에 대해 evaluator가 여러 번 실행될 수 있다.
  * `Caffeine.computeIfAbsent`는 suspend 람다를 지원하지 않으므로 per-key [Deferred] 패턴을 사용한다.
  *
+ * `clear`는 이전 계산의 저장 권한만 폐기하며, 진행 중인 호출은 계산 결과를 그대로 받습니다.
+ * 저장과 삭제는 같은 Mutex로 순서를 보장합니다.
+ *
  * ## 재귀 안전성
  * 전역 Mutex를 evaluator 실행 중에 보유하면 재귀 memoizer(factorial, fibonacci)에서 데드락이 발생한다.
  * Kotlin Mutex는 재진입(reentrant)을 지원하지 않기 때문이다.
@@ -63,6 +67,7 @@ class CaffeineSuspendMemoizer<T: Any, R: Any>(
     // Kotlin Mutex는 재진입을 지원하지 않아 재귀 evaluator에서 데드락이 발생하므로 이 방식을 택한다.
     private val inflightMap = ConcurrentHashMap<T, Deferred<R>>()
     private val clearMutex = Mutex()
+    private var generation = 0L
 
     override suspend fun invoke(input: T): R {
         // 1단계: 빠른 경로 — 이미 캐시된 결과는 lock/Deferred 없이 즉시 반환
@@ -73,15 +78,20 @@ class CaffeineSuspendMemoizer<T: Any, R: Any>(
         // evaluator는 Deferred 내부에서 실행되므로 lock을 보유하지 않아 재귀 호출이 안전하다.
         return coroutineScope {
             var createdByThisCall = false
-            val deferred = inflightMap.computeIfAbsent(input) {
-                createdByThisCall = true
-                async {
-                    evaluator(input)
+            var capturedGeneration = 0L
+            val deferred = clearMutex.withLock {
+                capturedGeneration = generation
+                inflightMap.computeIfAbsent(input) {
+                    createdByThisCall = true
+                    async(start = CoroutineStart.LAZY) { evaluator(input) }
                 }
             }
+            deferred.start()
             try {
                 val result = deferred.await()
-                cache.put(input, result)
+                clearMutex.withLock {
+                    if (capturedGeneration == generation) cache.put(input, result)
+                }
                 result
             } finally {
                 // 실패/취소된 Deferred를 제거해야 같은 키의 다음 호출이 새 계산으로 복구할 수 있다.
@@ -94,6 +104,7 @@ class CaffeineSuspendMemoizer<T: Any, R: Any>(
 
     override suspend fun clear() {
         clearMutex.withLock {
+            generation++
             inflightMap.clear()
             // cleanUp()은 만료된 항목만 제거하므로, 전체 초기화에는 invalidateAll()을 사용해야 한다.
             cache.invalidateAll()

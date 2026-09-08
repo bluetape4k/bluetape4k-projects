@@ -1,5 +1,6 @@
 package io.bluetape4k.cache.memoizer.caffeine
 
+import io.bluetape4k.cache.memoizer.verifySuspendMemoizerClear
 import com.github.benmanes.caffeine.cache.Cache
 import com.github.benmanes.caffeine.cache.Caffeine
 import io.bluetape4k.cache.caffeine.cache
@@ -47,6 +48,14 @@ class CaffeineSuspendMemoizerTest: AbstractSuspendMemoizerTest() {
      * clear()는 cleanUp()이 아닌 invalidateAll()을 호출해야 한다.
      * cleanUp()은 만료된 항목만 제거하므로 아직 살아있는 항목은 남아 있게 된다.
      */
+    @Test
+    fun `clear 이전 계산은 캐시를 다시 채우거나 새 값을 덮어쓰지 않는다`() = runSuspendDefault {
+        listOf(false, true).forEach { newFirst ->
+            val local = caffeine.cache<Int, Int>()
+            verifySuspendMemoizerClear(newFirst, { local.suspendMemoizer(it) }, { local.getIfPresent(1) })
+        }
+    }
+
     @Test
     fun `clear - 살아있는 캐시 항목도 모두 제거된다`() = runSuspendDefault {
         val localCache = caffeine.cache<String, Int>()

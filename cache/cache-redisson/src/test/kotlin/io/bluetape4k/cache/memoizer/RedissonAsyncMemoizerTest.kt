@@ -5,6 +5,7 @@ import io.bluetape4k.cache.RedisServers.redisson
 import io.bluetape4k.junit5.concurrency.MultithreadingTester
 import io.bluetape4k.junit5.concurrency.StructuredTaskScopeTester
 import io.bluetape4k.logging.coroutines.KLoggingChannel
+import io.bluetape4k.assertions.shouldBeNull
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeLessThan
 import org.awaitility.kotlin.await
@@ -45,6 +46,37 @@ class RedissonAsyncMemoizerTest: AbstractAsyncMemoizerTest() {
         override val cachedCalc: (Long) -> CompletableFuture<Long> = redisson
             .getMap<Long, Long>("asyncMemoizer:fibonacci", LongCodec())
             .asyncMemoizer { calc(it) }
+    }
+
+    @Test
+    fun `clear 이전 Future는 캐시를 다시 채우거나 새 값을 덮어쓰지 않는다`() {
+        listOf(false, true).forEach { newFirst ->
+            val local = redisson.getMap<Int, Int>(randomName(), IntegerCodec())
+            val started = CompletableFuture<Unit>()
+            val release = CompletableFuture<Int>()
+            val calls = AtomicInteger()
+            val memo = local.asyncMemoizer {
+                if (calls.incrementAndGet() == 1) {
+                    started.complete(Unit)
+                    release
+                } else CompletableFuture.completedFuture(20)
+            }
+            val old = memo(1)
+            try {
+                started.get(5, TimeUnit.SECONDS)
+                memo.clear()
+                local[1].shouldBeNull()
+                if (newFirst) memo(1).get(5, TimeUnit.SECONDS) shouldBeEqualTo 20
+                release.complete(10)
+                old.get(5, TimeUnit.SECONDS) shouldBeEqualTo 10
+                if (newFirst) local[1] shouldBeEqualTo 20 else local[1].shouldBeNull()
+                memo(1).get(5, TimeUnit.SECONDS) shouldBeEqualTo 20
+                calls.get() shouldBeEqualTo 2
+            } finally {
+                release.complete(10)
+                local.delete()
+            }
+        }
     }
 
     @Test

@@ -192,3 +192,7 @@ Resilient configuration extends the normal near-cache configuration with queue s
 ## Registered `CachingProvider` List
 
 When multiple JCache providers are present on the classpath, explicitly choose the Hazelcast provider when needed, especially in Spring or shared umbrella-module setups.
+
+## Failure and lifecycle contract
+
+The affected Caffeine suspend, Hazelcast suspend, and Redisson suspend/async memoizers order cache publication with clear. An evaluation started before clear can still return to its original caller, but cannot repopulate the cleared cache or overwrite a newer generation. This guarantee is local to the memoizer instance, not a distributed invalidation protocol.

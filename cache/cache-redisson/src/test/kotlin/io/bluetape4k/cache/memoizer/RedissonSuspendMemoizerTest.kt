@@ -1,5 +1,6 @@
 package io.bluetape4k.cache.memoizer
 
+import io.bluetape4k.cache.memoizer.verifySuspendMemoizerClear
 import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.cache.RedisServers.randomName
@@ -43,6 +44,22 @@ class RedissonSuspendMemoizerTest: AbstractSuspendMemoizerTest() {
         override val cachedCalc: suspend (Long) -> Long = redisson
             .getMap<Long, Long>("suspend:memoizer:fibonacci", LongCodec())
             .suspendMemoizer { calc(it) }
+    }
+
+    @Test
+    fun `clear 이전 계산은 캐시를 다시 채우거나 새 값을 덮어쓰지 않는다`() = runSuspendIO {
+        listOf(false, true).forEach { newFirst ->
+            val local = redisson.getMap<Int, Int>(randomName(), IntegerCodec())
+            try {
+                verifySuspendMemoizerClear(
+                    newFirst,
+                    { local.suspendMemoizer(it) },
+                    { local.getAsync(1).toCompletableFuture().get() },
+                )
+            } finally {
+                local.delete()
+            }
+        }
     }
 
     @Test

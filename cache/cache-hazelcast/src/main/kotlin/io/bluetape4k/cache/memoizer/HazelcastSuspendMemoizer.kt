@@ -3,6 +3,9 @@ package io.bluetape4k.cache.memoizer
 import com.hazelcast.map.IMap
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
@@ -69,12 +72,17 @@ class SuspendHazelcastMemoizer<K: Any, V: Any>(
     companion object: KLoggingChannel()
 
     private val inFlight = ConcurrentHashMap<K, Deferred<V>>()
+    // evaluator는 lock 밖에서 실행하고, 세대 변경과 캐시 저장/삭제만 직렬화합니다.
+    private val mutationMutex = Mutex()
+    private var generation = 0L
 
     override suspend fun invoke(key: K): V {
-        inFlight[key]?.let { return it.await() }
-
         val deferred = CompletableDeferred<V>()
-        val existing = inFlight.putIfAbsent(key, deferred)
+        var capturedGeneration = 0L
+        val existing = mutationMutex.withLock {
+            capturedGeneration = generation
+            inFlight.putIfAbsent(key, deferred)
+        }
         if (existing != null) return existing.await()
 
         try {
@@ -85,9 +93,16 @@ class SuspendHazelcastMemoizer<K: Any, V: Any>(
             }
 
             val evaluated = evaluator(key)
-            val winner = withContext(Dispatchers.IO) { imap.putIfAbsent(key, evaluated) } ?: evaluated
+            val winner = mutationMutex.withLock {
+                if (capturedGeneration == generation) {
+                    withContext(Dispatchers.IO) { imap.putIfAbsent(key, evaluated) } ?: evaluated
+                } else evaluated
+            }
             deferred.complete(winner)
             return winner
+        } catch (e: CancellationException) {
+            deferred.completeExceptionally(e)
+            throw e
         } catch (e: Throwable) {
             deferred.completeExceptionally(e)
             throw e
@@ -98,6 +113,10 @@ class SuspendHazelcastMemoizer<K: Any, V: Any>(
 
     override suspend fun clear() {
         log.debug { "모든 메모이제이션 값 삭제: map=${imap.name}" }
-        withContext(Dispatchers.IO) { imap.clear() }
+        mutationMutex.withLock {
+            generation++
+            inFlight.clear()
+            withContext(Dispatchers.IO) { imap.clear() }
+        }
     }
 }

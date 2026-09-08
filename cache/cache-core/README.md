@@ -328,3 +328,7 @@ val value = memo("recover")      // recomputes and returns 7
 ## `testFixtures` Usage Guide
 
 `cache-core` is also suitable for shared test helpers and fixtures in modules that need consistent cache contracts during tests. Reuse the abstractions from this module rather than duplicating provider-neutral helpers in each backend-specific module.
+
+## Failure and lifecycle contract
+
+The affected Caffeine suspend, Hazelcast suspend, and Redisson suspend/async memoizers order cache publication with clear. An evaluation started before clear can still return to its original caller, but cannot repopulate the cleared cache or overwrite a newer generation. This guarantee is local to the memoizer instance, not a distributed invalidation protocol.
