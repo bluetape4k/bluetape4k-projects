@@ -78,7 +78,11 @@ interface RuleReader<Source> {
         return try {
             createRuleDefinition(map)
         } catch (e: Exception) {
-            log.warn(e) { "Fail to convert map to RuleDefinition. map=$map" }
+            log.warn {
+                "Fail to convert map to RuleDefinition. " +
+                        "ruleName=${map["name"] ?: DEFAULT_RULE_NAME}, fieldCount=${map.size}, " +
+                        "exceptionType=${e.javaClass.name}"
+            }
             null
         }
     }

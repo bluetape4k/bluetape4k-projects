@@ -2,6 +2,7 @@ package io.bluetape4k.rule.engines.kotlinscript
 
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
+import io.bluetape4k.rule.core.toRuleSourceLogContext
 import io.bluetape4k.rule.exception.RuleException
 import kotlin.script.experimental.api.KotlinType
 import kotlin.script.experimental.api.ResultValue
@@ -41,7 +42,9 @@ object KotlinScriptEngine: KLogging() {
      * @return 스크립트 실행 결과
      */
     fun evaluate(script: String, bindings: Map<String, Any?> = emptyMap()): Any? {
-        log.debug { "Evaluate kotlin script: $script" }
+        log.debug {
+            "Evaluate Kotlin script. ${script.toRuleSourceLogContext()}, bindingCount=${bindings.size}"
+        }
 
         val compilationConfig = ScriptCompilationConfiguration {
             jvm {
@@ -60,12 +63,12 @@ object KotlinScriptEngine: KLogging() {
 
         val result = host.eval(script.toScriptSource(), compilationConfig, evaluationConfig)
         val evalResult = result.valueOrNull()
-            ?: throw RuleException("Fail to evaluate kotlin script: $script. reports=${result.reports.joinToString()}")
+            ?: throw RuleException("Fail to evaluate Kotlin script. reportCount=${result.reports.size}")
 
         return when (val rv = evalResult.returnValue) {
             is ResultValue.Value -> rv.value
             is ResultValue.Unit  -> Unit
-            is ResultValue.Error -> throw RuleException("Kotlin script error: ${rv.error.message}", rv.error)
+            is ResultValue.Error -> throw RuleException("Kotlin script evaluation error", rv.error)
             is ResultValue.NotEvaluated -> null
         }
     }

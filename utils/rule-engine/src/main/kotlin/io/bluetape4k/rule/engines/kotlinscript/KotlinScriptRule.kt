@@ -8,6 +8,7 @@ import io.bluetape4k.rule.DEFAULT_RULE_PRIORITY
 import io.bluetape4k.rule.api.Condition
 import io.bluetape4k.rule.api.Facts
 import io.bluetape4k.rule.core.AbstractRule
+import io.bluetape4k.rule.core.toRuleSourceLogContext
 import io.bluetape4k.support.requireNotBlank
 import java.util.*
 
@@ -37,7 +38,7 @@ class KotlinScriptRule(
      * Kotlin 스크립트 표현식으로 조건을 설정합니다.
      */
     fun whenever(conditionExpr: String) = apply {
-        log.debug { "Set rule condition. condition=$conditionExpr" }
+        log.debug { "Set rule condition. engine=KotlinScript, ${conditionExpr.toRuleSourceLogContext()}" }
         this.condition = KotlinScriptCondition(conditionExpr)
     }
 
@@ -45,7 +46,7 @@ class KotlinScriptRule(
      * [KotlinScriptCondition]으로 조건을 설정합니다.
      */
     fun whenever(condition: KotlinScriptCondition) = apply {
-        log.debug { "Set rule condition. condition=$condition" }
+        log.debug { "Set rule condition. engine=KotlinScript, ${condition.script.toRuleSourceLogContext()}" }
         this.condition = condition
     }
 
@@ -54,7 +55,7 @@ class KotlinScriptRule(
      */
     fun then(actionExpr: String) = apply {
         actionExpr.requireNotBlank("actionExpr")
-        log.debug { "Add rule action. action=$actionExpr" }
+        log.debug { "Add rule action. engine=KotlinScript, ${actionExpr.toRuleSourceLogContext()}" }
         actions.add(KotlinScriptAction(actionExpr))
     }
 
@@ -62,19 +63,19 @@ class KotlinScriptRule(
      * [KotlinScriptAction]을 추가합니다.
      */
     fun then(action: KotlinScriptAction) = apply {
-        log.debug { "Add rule action. action=$action" }
+        log.debug { "Add rule action. engine=KotlinScript, ${action.script.toRuleSourceLogContext()}" }
         actions.add(action)
     }
 
     override fun evaluate(facts: Facts): Boolean {
-        log.debug { "Evaluate condition '$condition' with facts=$facts" }
+        log.debug { "Evaluate rule. name='$name', engine=KotlinScript, factCount=${facts.size}" }
         return condition.evaluate(facts)
     }
 
     override fun execute(facts: Facts) {
-        log.debug { "Execute actions with facts=$facts" }
+        log.debug { "Execute actions. name='$name', engine=KotlinScript, factCount=${facts.size}" }
         actions.forEach { action ->
-            log.debug { "Execute action '$action' with facts=$facts" }
+            log.debug { "Execute action. name='$name', engine=KotlinScript, factCount=${facts.size}" }
             action.execute(facts)
         }
     }
