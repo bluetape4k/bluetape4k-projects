@@ -155,3 +155,7 @@ evaluator가 실패하거나 취소되면 in-flight 항목은 예외 완료 후 
 - native near-cache read/write/clear/stat 동작.
 - `MultithreadingTester`, `StructuredTaskScopeTester`, `SuspendedJobTester` 기반 memoizer thread, virtual-thread, coroutine 경합.
 - suspend memoizer evaluator 실패, 명시적 cancellation, 실제 `Job.cancel()` 복구.
+
+## 실패와 생명주기 계약
+
+Caffeine suspend, Hazelcast suspend, Redisson suspend/async memoizer는 캐시 저장과 clear의 순서를 보장합니다. clear 이전 계산은 원래 호출자에게 결과를 반환할 수 있지만 캐시를 다시 채우거나 새 세대 값을 덮어쓰지 않습니다. 이 보장은 같은 memoizer 인스턴스에 한정되며 분산 무효화 프로토콜은 아닙니다.

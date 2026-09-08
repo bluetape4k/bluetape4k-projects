@@ -157,3 +157,7 @@ Relevant test coverage includes:
 - Native near-cache read/write/clear/stat behavior.
 - Memoizer thread, virtual-thread, and coroutine contention using `MultithreadingTester`, `StructuredTaskScopeTester`, and `SuspendedJobTester`.
 - Suspend memoizer evaluator failure, explicit cancellation, and real `Job.cancel()` recovery.
+
+## Failure and lifecycle contract
+
+The affected Caffeine suspend, Hazelcast suspend, and Redisson suspend/async memoizers order cache publication with clear. An evaluation started before clear can still return to its original caller, but cannot repopulate the cleared cache or overwrite a newer generation. This guarantee is local to the memoizer instance, not a distributed invalidation protocol.

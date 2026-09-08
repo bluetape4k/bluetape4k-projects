@@ -1,5 +1,6 @@
 package io.bluetape4k.cache.memoizer
 
+import io.bluetape4k.cache.memoizer.verifySuspendMemoizerClear
 import com.hazelcast.map.IMap
 import io.bluetape4k.cache.HazelcastServers.hazelcastClient
 import io.bluetape4k.junit5.coroutines.runSuspendIO
@@ -39,6 +40,22 @@ class HazelcastSuspendMemoizerTest: AbstractSuspendMemoizerTest() {
     override val fibonacci = object: SuspendFibonacciProvider {
         override val cachedCalc: suspend (Long) -> Long = newMap<Long, Long>("fibonacci")
             .suspendMemoizer { calc(it) }
+    }
+
+    @Test
+    fun `clear 이전 계산은 캐시를 다시 채우거나 새 값을 덮어쓰지 않는다`() = runSuspendIO {
+        listOf(false, true).forEach { newFirst ->
+            val local = newMap<Int, Int>()
+            try {
+                verifySuspendMemoizerClear(
+                    newFirst,
+                    { local.suspendMemoizer(it) },
+                    { local.getAsync(1).toCompletableFuture().get() },
+                )
+            } finally {
+                local.destroy()
+            }
+        }
     }
 
     @Test

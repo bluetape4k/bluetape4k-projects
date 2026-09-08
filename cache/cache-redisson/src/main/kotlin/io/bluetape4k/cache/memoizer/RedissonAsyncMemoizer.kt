@@ -7,6 +7,11 @@ import org.redisson.api.RMap
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.CompletionStage
 import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.CompletionException
+import java.util.concurrent.atomic.AtomicLong
+import java.util.concurrent.atomic.AtomicReference
+import java.util.concurrent.locks.ReentrantLock
+import kotlin.concurrent.withLock
 
 /**
  * [RMap]을 사용하는 비동기 메모이저 확장 함수입니다.
@@ -65,6 +70,9 @@ class RedissonAsyncMemoizer<T: Any, R: Any>(
     companion object: KLoggingChannel()
 
     private val inFlight = ConcurrentHashMap<T, CompletableFuture<R>>()
+    private val registrationLock = ReentrantLock()
+    private val generation = AtomicLong()
+    private val mutationTail = AtomicReference(CompletableFuture.completedFuture(Unit))
 
     /**
      * 주어진 [key]에 대한 비동기 결과를 반환한다.
@@ -79,7 +87,11 @@ class RedissonAsyncMemoizer<T: Any, R: Any>(
     override fun invoke(key: T): CompletableFuture<R> {
         // 1. in-flight 확인 또는 신규 등록
         val promise = CompletableFuture<R>()
-        val existing = inFlight.putIfAbsent(key, promise)
+        var capturedGeneration = 0L
+        val existing = registrationLock.withLock {
+            capturedGeneration = generation.get()
+            inFlight.putIfAbsent(key, promise)
+        }
         if (existing != null) return existing
 
         // 2. Redis에서 캐시 조회 후, miss 시 evaluator 실행 (Virtual Thread-safe)
@@ -101,8 +113,11 @@ class RedissonAsyncMemoizer<T: Any, R: Any>(
                                         inFlight.remove(key, promise)
                                         promise.completeExceptionally(evalError)
                                     } else {
-                                        map.putIfAbsentAsync(key, value)
-                                            .whenComplete { _, putError ->
+                                        enqueueMutation {
+                                            if (capturedGeneration == generation.get()) {
+                                                map.putIfAbsentAsync(key, value)
+                                            } else CompletableFuture.completedFuture(null)
+                                        }.whenComplete { _, putError ->
                                                 if (putError != null) {
                                                     log.warn(putError) {
                                                         "Failed to cache value: map=${map.name}, key=$key"
@@ -133,7 +148,29 @@ class RedissonAsyncMemoizer<T: Any, R: Any>(
      */
     override fun clear() {
         log.debug { "모든 메모이제이션 값 삭제: map=${map.name}" }
-        inFlight.clear()
-        map.clear()
+        try {
+            enqueueMutation {
+                registrationLock.withLock {
+                    generation.incrementAndGet()
+                    inFlight.clear()
+                }
+                map.clearAsync()
+            }.join()
+        } catch (e: CompletionException) {
+            throw e.cause ?: e
+        }
+    }
+
+    /** callback을 기다리며 스레드 lock을 보유하지 않고 서버 쓰기/삭제 완료 순서를 보장합니다. */
+    private fun enqueueMutation(action: () -> CompletionStage<*>): CompletableFuture<Unit> {
+        val completion = CompletableFuture<Unit>()
+        val previous = mutationTail.getAndSet(completion)
+        previous.handle { _, _ -> Unit }
+            .thenCompose { action().toCompletableFuture().thenApply { Unit } }
+            .whenComplete { _, error ->
+                if (error == null) completion.complete(Unit)
+                else completion.completeExceptionally(error)
+            }
+        return completion
     }
 }
