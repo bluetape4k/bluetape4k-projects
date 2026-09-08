@@ -13,8 +13,8 @@ from typing import Any
 
 ROOT = Path(__file__).resolve().parents[1]
 MANIFEST = ROOT / "scripts/testcontainers_image_gate_manifest.json"
-EXPECTED_FAMILY_COUNT = 51
-EXPECTED_RELEASE_FAMILY_COUNT = 47
+EXPECTED_FAMILY_COUNT = 53
+EXPECTED_RELEASE_FAMILY_COUNT = 49
 NON_IMAGE_GATE_SERVERS = frozenset({"Ignite2Server"})
 NON_RELEASE_RUNTIME_SERVERS = frozenset(
     {"ChromaDBServer", "OllamaServer", "RedpandaServer", "Ignite3Server"}

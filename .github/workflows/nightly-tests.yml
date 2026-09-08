@@ -119,6 +119,7 @@ jobs:
                       "io.bluetape4k.testcontainers.storage.ElasticsearchOssServerTest",
                       "io.bluetape4k.testcontainers.storage.ElasticsearchServerTest",
                       "io.bluetape4k.testcontainers.storage.OpenSearchServerTest",
+                      "io.bluetape4k.testcontainers.storage.QdrantServerTest",
                   ]),
                   "timeout_minutes": 25,
                   "max_attempts": 2,

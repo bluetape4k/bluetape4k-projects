@@ -15,15 +15,12 @@ import io.bluetape4k.assertions.shouldBeFalse
 import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldHaveSize
-import io.bluetape4k.utils.ShutdownQueue
+import io.bluetape4k.junit5.coroutines.runSuspendIO
+import io.bluetape4k.testcontainers.infra.OpenFgaServer
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.future.await
-import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.Tag
 import org.junit.jupiter.api.Test
-import org.testcontainers.containers.GenericContainer
-import org.testcontainers.containers.wait.strategy.Wait
-import java.time.Duration
 import java.util.UUID
 
 /**
@@ -33,8 +30,8 @@ import java.util.UUID
 class OpenFgaIntegrationTest {
 
     @Test
-    fun `real server supports model tuple check and paginated read`() = runTest {
-        val api = OpenFgaApi(Configuration().apiUrl(server.baseUrl))
+    fun `real server supports model tuple check and paginated read`() = runSuspendIO {
+        val api = OpenFgaApi(Configuration().apiUrl(server.url))
         (api is AutoCloseable).shouldBeFalse()
 
         var storeId: String? = null
@@ -108,19 +105,6 @@ class OpenFgaIntegrationTest {
         ).await().data.getAuthorizationModelId()
 
     private companion object {
-        val server by lazy {
-            GenericContainer("openfga/openfga:v1.8.2")
-                .withCommand("run")
-                .withExposedPorts(8080)
-                .waitingFor(Wait.forHttp("/healthz").forPort(8080).forStatusCode(200))
-                .withStartupTimeout(Duration.ofMinutes(2))
-                .apply {
-                    start()
-                    ShutdownQueue.register(this)
-                }
-        }
-
-        val GenericContainer<*>.baseUrl: String
-            get() = "http://$host:${getMappedPort(8080)}"
+        val server by lazy { OpenFgaServer.Launcher.openFga }
     }
 }

@@ -204,6 +204,8 @@ class PropertyExportingServerContractTest {
         val expectedImplementors = listOf(
             "io.bluetape4k.testcontainers.database.PostgreSQLServer",
             "io.bluetape4k.testcontainers.storage.RedisServer",
+            "io.bluetape4k.testcontainers.infra.OpenFgaServer",
+            "io.bluetape4k.testcontainers.storage.QdrantServer",
             "io.bluetape4k.testcontainers.mq.KafkaServer",
             "io.bluetape4k.testcontainers.aws.LocalStackServer",
             "io.bluetape4k.testcontainers.storage.MongoDBServer",

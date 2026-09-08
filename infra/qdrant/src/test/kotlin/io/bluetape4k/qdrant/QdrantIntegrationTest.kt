@@ -1,6 +1,10 @@
 package io.bluetape4k.qdrant
 
-import io.bluetape4k.utils.ShutdownQueue
+import io.bluetape4k.assertions.assertFailsWith
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.junit5.coroutines.runSuspendIO
+import io.bluetape4k.testcontainers.storage.QdrantServer
+import io.grpc.StatusRuntimeException
 import io.qdrant.client.ConditionFactory.matchKeyword
 import io.qdrant.client.PointIdFactory.id
 import io.qdrant.client.QdrantClient
@@ -21,15 +25,8 @@ import io.qdrant.client.grpc.Points.ScrollPoints
 import io.qdrant.client.grpc.Points.UpsertPoints
 import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.toList
-import kotlinx.coroutines.test.runTest
-import io.bluetape4k.assertions.shouldBeEqualTo
 import org.junit.jupiter.api.Tag
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.Assertions.assertInstanceOf
-import io.grpc.StatusRuntimeException
-import org.testcontainers.containers.GenericContainer
-import org.testcontainers.containers.wait.strategy.Wait
-import java.time.Duration
 import java.util.UUID
 import java.util.concurrent.TimeUnit
 
@@ -38,19 +35,13 @@ class QdrantIntegrationTest {
 
     companion object {
         // 서버 endpoint만 공유하며 SDK 클라이언트와 collection은 테스트에서 소유합니다.
-        private val server by lazy {
-            GenericContainer("qdrant/qdrant:v1.19.0")
-                .withExposedPorts(6333, 6334)
-                .waitingFor(Wait.forHttp("/readyz").forPort(6333))
-                .withStartupTimeout(Duration.ofMinutes(2))
-                .apply { start(); ShutdownQueue.register(this) }
-        }
+        private val server by lazy { QdrantServer.Launcher.qdrant }
     }
 
     @Test
-    fun `real server supports filtered query paginated scroll and deletion`() = runTest {
+    fun `real server supports filtered query paginated scroll and deletion`() = runSuspendIO {
         val name = "coroutines_${UUID.randomUUID().toString().replace("-", "")}"
-        val grpcClient = QdrantGrpcClient.newBuilder(server.host, server.getMappedPort(6334), false).build()
+        val grpcClient = QdrantGrpcClient.newBuilder(server.host, server.grpcPort, false).build()
         QdrantClient(grpcClient).use { client ->
             val vectorParams = VectorParams.newBuilder().setSize(3).setDistance(Distance.Cosine).build()
             client.createCollectionAsync(name, vectorParams)
@@ -78,9 +69,9 @@ class QdrantIntegrationTest {
     }
 
     @Test
-    fun `UUID IDs named vectors and dimension errors preserve SDK semantics`() = runTest {
+    fun `UUID IDs named vectors and dimension errors preserve SDK semantics`() = runSuspendIO {
         val name = "named_${UUID.randomUUID().toString().replace("-", "")}"
-        val grpcClient = QdrantGrpcClient.newBuilder(server.host, server.getMappedPort(6334), false).build()
+        val grpcClient = QdrantGrpcClient.newBuilder(server.host, server.grpcPort, false).build()
         QdrantClient(grpcClient).use { client ->
             val params = VectorParams.newBuilder().setSize(3).setDistance(Distance.Cosine).build()
             client.createCollectionAsync(name, mapOf("embedding" to params)).get(30, TimeUnit.SECONDS)
@@ -93,10 +84,9 @@ class QdrantIntegrationTest {
                 val query = QueryPoints.newBuilder().setCollectionName(name).setUsing("embedding")
                     .setQuery(nearest(1f, 0f, 0f)).setLimit(1).build()
                 client.querySuspending(query).single().id.uuid shouldBeEqualTo uuid.toString()
-                val failure = runCatching {
+                assertFailsWith<StatusRuntimeException> {
                     client.querySuspending(query.toBuilder().setQuery(nearest(1f, 0f)).build())
-                }.exceptionOrNull()
-                assertInstanceOf(StatusRuntimeException::class.java, failure)
+                }
             } finally {
                 client.deleteCollectionAsync(name).get(30, TimeUnit.SECONDS)
             }

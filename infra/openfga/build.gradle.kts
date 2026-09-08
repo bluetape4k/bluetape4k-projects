@@ -8,6 +8,7 @@ dependencies {
     testImplementation(project(":bluetape4k-assertions"))
     testImplementation(libs.kotlinx.coroutines.test)
     testImplementation(project(":bluetape4k-testcontainers"))
+    testImplementation(libs.testcontainers.openfga)
     testImplementation(bt4k.mockk)
 }
 

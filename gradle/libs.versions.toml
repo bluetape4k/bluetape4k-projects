@@ -530,6 +530,8 @@ random-beans = { module = "io.github.benas:random-beans" }
 # JMH
 
 # Testcontainers
+testcontainers-openfga = { module = "org.testcontainers:testcontainers-openfga" }
+testcontainers-qdrant = { module = "org.testcontainers:testcontainers-qdrant" }
 testcontainers-bom = { module = "org.testcontainers:testcontainers-bom" }
 testcontainers = { module = "org.testcontainers:testcontainers" }
 testcontainers-junit-jupiter = { module = "org.testcontainers:testcontainers-junit-jupiter" }

@@ -873,6 +873,42 @@
         "docker_events"
       ],
       "releaseRequired": true
+    },
+    {
+      "id": "openfga",
+      "server": "OpenFgaServer",
+      "source": "testing/testcontainers/src/main/kotlin/io/bluetape4k/testcontainers/infra/OpenFgaServer.kt",
+      "testSource": "testing/testcontainers/src/test/kotlin/io/bluetape4k/testcontainers/infra/OpenFgaServerTest.kt",
+      "image": "openfga/openfga",
+      "tag": "v1.8.2",
+      "testPattern": "io.bluetape4k.testcontainers.infra.OpenFgaServerTest",
+      "testSelector": "io.bluetape4k.testcontainers.infra.OpenFgaServerTest.서버에서 대표 작업을 수행하고 종료한다",
+      "readiness": "testcontainers_wait_strategy_and_workload_readiness",
+      "workload": "io.bluetape4k.testcontainers.infra.OpenFgaServerTest:representative_test",
+      "diagnostics": [
+        "docker_inspect",
+        "docker_logs",
+        "docker_events"
+      ],
+      "releaseRequired": true
+    },
+    {
+      "id": "qdrant",
+      "server": "QdrantServer",
+      "source": "testing/testcontainers/src/main/kotlin/io/bluetape4k/testcontainers/storage/QdrantServer.kt",
+      "testSource": "testing/testcontainers/src/test/kotlin/io/bluetape4k/testcontainers/storage/QdrantServerTest.kt",
+      "image": "qdrant/qdrant",
+      "tag": "v1.19.0",
+      "testPattern": "io.bluetape4k.testcontainers.storage.QdrantServerTest",
+      "testSelector": "io.bluetape4k.testcontainers.storage.QdrantServerTest.서버에서 대표 작업을 수행하고 종료한다",
+      "readiness": "testcontainers_wait_strategy_and_workload_readiness",
+      "workload": "io.bluetape4k.testcontainers.storage.QdrantServerTest:representative_test",
+      "diagnostics": [
+        "docker_inspect",
+        "docker_logs",
+        "docker_events"
+      ],
+      "releaseRequired": true
     }
   ]
 }
