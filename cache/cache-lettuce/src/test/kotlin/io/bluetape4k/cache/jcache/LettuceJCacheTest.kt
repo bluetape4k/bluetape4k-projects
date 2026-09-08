@@ -1,23 +1,27 @@
 package io.bluetape4k.cache.jcache
 
 import io.bluetape4k.cache.RedisServers
+import io.bluetape4k.io.serializer.BinarySerializer
 import io.bluetape4k.junit5.concurrency.MultithreadingTester
 import io.bluetape4k.logging.KLogging
-import io.bluetape4k.redis.lettuce.codec.LettuceBinaryCodecs
-import io.bluetape4k.redis.lettuce.map.LettuceMap
-import io.lettuce.core.codec.StringCodec
+import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeFalse
+import io.bluetape4k.assertions.shouldBeInstanceOf
 import io.bluetape4k.assertions.shouldBeNull
 import io.bluetape4k.assertions.shouldBeTrue
-import io.bluetape4k.assertions.shouldBeInstanceOf
 import io.bluetape4k.assertions.shouldNotBeNull
+import io.mockk.every
+import io.mockk.mockk
+import io.bluetape4k.redis.lettuce.codec.LettuceBinaryCodecs
+import io.bluetape4k.redis.lettuce.codec.LettuceBinaryCodec
+import io.bluetape4k.redis.lettuce.map.LettuceMap
+import io.lettuce.core.codec.StringCodec
 import org.awaitility.kotlin.await
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
-import io.bluetape4k.assertions.assertFailsWith
 import java.net.URI
 import java.util.*
 import java.util.concurrent.CopyOnWriteArrayList
@@ -68,6 +72,27 @@ class LettuceJCacheTest {
     @Test
     fun `get returns null for missing key`() {
         cache.get("nonexistent").shouldBeNull()
+    }
+
+    @Test
+    fun `null serializer result is reported as CacheException without payload`() {
+        val map = mockk<LettuceMap<ByteArray>>()
+        every { map.mapKey } returns "null-deserialize-cache"
+        every { map.get("key") } returns byteArrayOf(0x5a)
+        val serializer = object: BinarySerializer {
+            override fun serialize(graph: Any?): ByteArray = byteArrayOf(0x01)
+
+            override fun <T: Any> deserialize(bytes: ByteArray?): T? = null
+        }
+        val brokenCache = LettuceJCache<String, String>(
+            map = map,
+            codec = LettuceBinaryCodec<Any>(serializer),
+            cacheManager = manager as LettuceCacheManager,
+            configuration = lettuceCacheConfigOf(),
+        )
+
+        val exception = assertFailsWith<CacheException> { brokenCache.get("key") }
+        exception.message shouldBeEqualTo "LettuceCache[null-deserialize-cache] 값 역직렬화 결과가 null입니다."
     }
 
     @Test

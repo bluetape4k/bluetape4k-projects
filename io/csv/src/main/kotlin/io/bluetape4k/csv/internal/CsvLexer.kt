@@ -150,7 +150,7 @@ internal class CsvLexer(
 
     override fun next(): ArrayRecord {
         if (!hasNext()) throw NoSuchElementException("더 이상 읽을 레코드가 없습니다")
-        val record = nextRecord!!
+        val record = nextRecord ?: throw NoSuchElementException("더 이상 읽을 레코드가 없습니다")
         nextRecord = null
         return record
     }

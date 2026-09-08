@@ -65,8 +65,9 @@ internal class TsvLexer(
         if (skipHeaders) {
             val firstRow = parseRow()
             if (firstRow != null && firstRow.isNotEmpty()) {
-                headers = firstRow.map { it ?: "" }.toTypedArray()
-                headerIndex = HeaderIndex.of(headers!!)
+                val parsedHeaders = firstRow.map { it ?: "" }.toTypedArray()
+                headers = parsedHeaders
+                headerIndex = HeaderIndex.of(parsedHeaders)
             }
         }
     }
@@ -87,7 +88,7 @@ internal class TsvLexer(
      */
     override fun next(): ArrayRecord {
         if (!hasNext()) throw NoSuchElementException("더 이상 레코드가 없습니다")
-        val record = nextRecord!!
+        val record = nextRecord ?: throw NoSuchElementException("더 이상 읽을 레코드가 없습니다")
         nextRecord = null
         return record
     }

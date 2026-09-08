@@ -379,7 +379,11 @@ class Jdk25StructuredTaskScopeProvider: StructuredTaskScopeProvider {
                 StructuredTaskScope.Subtask.State.SUCCESS ->
                     Result.success(subtask.get())
                 StructuredTaskScope.Subtask.State.FAILED  ->
-                    Result.failure(subtask.exceptionOrNull()!!)
+                    Result.failure(
+                        checkNotNull(subtask.exceptionOrNull()) {
+                            "FAILED subtask did not expose an exception"
+                        }
+                    )
                 else ->
                     // UNAVAILABLE: 취소되거나 join 이전 상태 — 결과를 가져오면 IllegalStateException 발생
                     Result.failure(java.util.concurrent.CancellationException("Subtask was cancelled or unavailable"))
