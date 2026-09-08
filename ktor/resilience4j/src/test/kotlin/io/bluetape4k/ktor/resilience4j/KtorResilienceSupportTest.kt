@@ -29,6 +29,10 @@ import io.ktor.server.response.respondText
 import io.ktor.server.routing.routing
 import io.ktor.server.testing.testApplication
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.TimeoutCancellationException
+import kotlinx.coroutines.withTimeout
+import kotlinx.coroutines.test.runTest
+import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.delay
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
@@ -250,6 +254,38 @@ class KtorResilienceSupportTest {
 
         circuitBreaker.metrics.numberOfFailedCalls shouldBeEqualTo 0
         circuitBreaker.state shouldBeEqualTo CircuitBreaker.State.CLOSED
+    }
+
+    @Test
+    fun `상위 timeout을 정책 실패로 변환하지 않는다`() = runTest(timeout = 30.seconds) {
+        val limiter = TimeLimiter.of(
+            "outer", TimeLimiterConfig.custom().timeoutDuration(Duration.ofSeconds(5)).build()
+        )
+        val events = AtomicInteger()
+        limiter.eventPublisher.onTimeout { events.incrementAndGet() }
+        limiter.eventPublisher.onError { events.incrementAndGet() }
+        assertFailsWith<TimeoutCancellationException> {
+            withTimeout(30) {
+                withKtorResilience(KtorResiliencePolicies(timeLimiter = limiter)) { delay(1_000) }
+            }
+        }
+        events.get() shouldBeEqualTo 0
+    }
+
+    @Test
+    fun `핸들러 내부 timeout을 정책 실패로 변환하지 않는다`() = runTest(timeout = 30.seconds) {
+        val limiter = TimeLimiter.of(
+            "nested", TimeLimiterConfig.custom().timeoutDuration(Duration.ofSeconds(5)).build()
+        )
+        val events = AtomicInteger()
+        limiter.eventPublisher.onTimeout { events.incrementAndGet() }
+        limiter.eventPublisher.onError { events.incrementAndGet() }
+        assertFailsWith<TimeoutCancellationException> {
+            withKtorResilience(KtorResiliencePolicies(timeLimiter = limiter)) {
+                withTimeout(30) { delay(1_000) }
+            }
+        }
+        events.get() shouldBeEqualTo 0
     }
 
     private fun io.ktor.server.application.Application.installResilienceTestStatusPages() {

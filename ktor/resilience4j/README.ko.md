@@ -80,3 +80,7 @@ fun Application.module() {
 - 애플리케이션 설정 바인딩을 제공하지 않습니다.
 - 인증, 로깅, tracing, OpenAPI 통합을 포함하지 않습니다.
 - client 전용 facade를 제공하지 않습니다.
+
+## 실패와 생명주기 계약
+
+TimeLimiter가 소유한 timeout만 정책 timeout으로 변환합니다. 상위 요청과 내부 작업의 timeout은 정책 실패 이벤트 없이 취소로 전파합니다.
