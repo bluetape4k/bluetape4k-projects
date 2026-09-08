@@ -3,6 +3,7 @@ package io.bluetape4k.cache.nearcache
 import io.bluetape4k.support.requireGt
 import io.bluetape4k.support.requireNotBlank
 import io.bluetape4k.support.requirePositiveNumber
+import java.io.Serializable
 import java.time.Duration
 
 /**
@@ -33,7 +34,11 @@ data class HazelcastNearCacheConfig(
     val frontExpireAfterWrite: Duration = Duration.ofMinutes(30),
     val frontExpireAfterAccess: Duration? = null,
     val recordStats: Boolean = false,
-) {
+) : Serializable {
+    companion object {
+        private const val serialVersionUID: Long = 1L
+    }
+
     init {
         cacheName.requireNotBlank("cacheName")
         maxLocalSize.requirePositiveNumber("maxLocalSize")
