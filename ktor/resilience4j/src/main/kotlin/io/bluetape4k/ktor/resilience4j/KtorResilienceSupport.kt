@@ -12,8 +12,7 @@ import io.ktor.server.routing.get
 import io.ktor.server.routing.post
 import io.ktor.server.routing.route
 import kotlinx.coroutines.CancellationException
-import kotlinx.coroutines.TimeoutCancellationException
-import kotlinx.coroutines.withTimeout
+import kotlinx.coroutines.withTimeoutOrNull
 
 /**
  * Executes [block] through caller-owned Resilience4j policies.
@@ -133,20 +132,17 @@ internal suspend fun <T: Any> withCircuitBreakerPreservingCancellation(
     }
 }
 
+/** 정책이 소유한 timeout만 변환하며 상위 및 핸들러 내부의 취소는 그대로 전파합니다. */
 internal suspend fun <T: Any> withTimeLimiterPreservingStatusMapping(
     timeLimiter: TimeLimiter,
     block: suspend () -> T,
 ): T {
     return try {
-        val result = withTimeout(timeLimiter.timeLimiterConfig.timeoutDuration.toMillis()) {
+        val result = withTimeoutOrNull(timeLimiter.timeLimiterConfig.timeoutDuration.toMillis()) {
             block()
-        }
+        } ?: throw TimeLimiter.createdTimeoutExceptionWithName(timeLimiter.name, null)
         timeLimiter.onSuccess()
         result
-    } catch (e: TimeoutCancellationException) {
-        val timeout = TimeLimiter.createdTimeoutExceptionWithName(timeLimiter.name, e)
-        timeLimiter.onError(timeout)
-        throw timeout
     } catch (e: CancellationException) {
         throw e
     } catch (e: Throwable) {

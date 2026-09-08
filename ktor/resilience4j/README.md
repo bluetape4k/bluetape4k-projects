@@ -77,3 +77,7 @@ Messages are generic and safe for clients. Policy names remain in the caller-own
 - No application configuration binding.
 - No authentication, logging, tracing, or OpenAPI integration.
 - No client-specific facade.
+
+## Failure and lifecycle contract
+
+Only the TimeLimiter's own timeout becomes a policy timeout. Parent and nested coroutine timeouts propagate as cancellation without policy failure events.
