@@ -79,6 +79,10 @@ dependencies {
 
     testImplementation(libs.netty.all)
 
+    compileOnly(libs.testcontainers.openfga)
+    compileOnly(libs.testcontainers.qdrant)
+    testImplementation(bt4k.qdrant.client)
+
     api(libs.testcontainers)
     api(libs.testcontainers.junit.jupiter)
 

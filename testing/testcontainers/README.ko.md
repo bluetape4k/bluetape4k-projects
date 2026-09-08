@@ -43,6 +43,45 @@ Testcontainers `2.0.3` 기반 통합 테스트를 빠르게 구성하기 위한 
 - **PostgreSQL 확장 자동 활성화**: `PostgisServer`(postgis), `PgvectorServer`(vector)
 - **`withExtensions()` API**: 추가 PostgreSQL 확장을 선언적으로 활성화
 
+## OpenFGA·Qdrant 공용 서버
+
+공식 Testcontainers 모듈은 선택 의존성이므로 사용하는 서버에 맞게 함께 선언합니다.
+
+```kotlin
+dependencies {
+    testImplementation(project(":bluetape4k-testcontainers"))
+    testImplementation(libs.testcontainers.openfga)
+    testImplementation(libs.testcontainers.qdrant)
+}
+```
+
+```kotlin
+import io.bluetape4k.testcontainers.infra.OpenFgaServer
+import io.bluetape4k.testcontainers.storage.QdrantServer
+
+OpenFgaServer().use { server ->
+    server.start()
+    val apiUrl = server.url
+    val grpcPort = server.grpcPort
+} // 명시적 인스턴스는 호출자가 종료합니다.
+
+val shared = QdrantServer.Launcher.qdrant
+val httpUrl = shared.url
+val grpcHost = shared.host
+val grpcPort = shared.grpcPort
+// 공유 Launcher는 ShutdownQueue가 종료하므로 use/close를 호출하지 않습니다.
+```
+
+`port`와 `url`은 HTTP 연결 정보이며, gRPC 클라이언트에는 `host`와 `grpcPort`를 사용합니다.
+시작 전 endpoint 조회는 실패합니다. 기본값은 임의 mapped 포트와 `reuse=false`이며,
+`useDefaultPort=true`는 HTTP·gRPC 표준 포트를 바인딩합니다. Launcher는 JVM 안에서만 같은 인스턴스를 재사용합니다.
+OpenFGA는 `/healthz`의 SERVING 응답, Qdrant는 `/readyz`로 준비 상태를 확인하고 시작 제한은 2분입니다.
+OpenFGA playground 포트는 노출하지 않습니다.
+
+각 테스트는 고유 store/collection을 만들고 `finally`에서 정리해야 합니다.
+`start()`가 export한 JVM 속성은 `stop()`에서 자동 복원되지 않으므로 필요한 테스트는 이전 값을 보존·복원합니다.
+인증 없는 테스트 전용 설정입니다. Docker의 host binding 정책을 따르며 임의 포트도 loopback 전용을 의미하지 않으므로 신뢰할 수 있는 Docker 호스트에서 사용합니다.
+
 ## 시스템 프로퍼티 Export (PropertyExportingServer)
 
 모든 서버 클래스는 `PropertyExportingServer` 인터페이스를 구현하여, `start()` 시 연결 정보를 시스템 프로퍼티로 자동 등록합니다.
@@ -81,6 +120,8 @@ Testcontainers `2.0.3` 기반 통합 테스트를 빠르게 구성하기 위한 
 | PrometheusServer       | `prometheus`        | `host`, `port`, `url`, `server-port`, `pushgateway-port`, `graphite-exporter-port`                                                                                   |
 | GrafanaServer          | `grafana`           | `host`, `port`, `url`                                                                                                                                                |
 | K3sServer              | `k3s`               | `host`, `port`, `url`                                                                                                                                                |
+| OpenFgaServer | `openfga` | `host`, `port`, `url`, `http-port`, `grpc-port` |
+| QdrantServer | `qdrant` | `host`, `port`, `url`, `http-port`, `grpc-port` |
 | ConsulServer           | `consul`            | `host`, `port`, `url`, `dns-port`, `http-port`, `rpc-port`                                                                                                           |
 | JaegerServer           | `jaeger`            | `host`, `port`, `url`, `frontend-port`, `zipkin-port`, `config-port`, `thrift-port`                                                                                  |
 | ElasticsearchOssServer | `elasticsearch-oss` | `host`, `port`, `url`                                                                                                                                                |
@@ -150,6 +191,7 @@ Ignite2Server(image = "custom/ignite", tag = "2.18.0-custom").use { ignite2 ->
 | HTTP | `BluetapeWebfluxServer` | `bluetape4k/mock-webflux-server` | `2.1.0` |
 | HTTP | `NginxServer` | `nginx` | `1.30.4-alpine` |
 | HTTP | `WireMockServer` | `wiremock/wiremock` | `3.13.2` |
+| Infrastructure | `OpenFgaServer` | `openfga/openfga` | `v1.8.2` |
 | Infrastructure | `ConsulServer` | `hashicorp/consul` | `1.22.7` |
 | Infrastructure | `EtcdServer` | `gcr.io/etcd-development/etcd` | `v3.6.14` |
 | Infrastructure | `GrafanaServer` | `grafana/grafana` | `13.1.3` |
@@ -176,6 +218,7 @@ Ignite2Server(image = "custom/ignite", tag = "2.18.0-custom").use { ignite2 ->
 | Storage | `Ignite2Server` | `apacheignite/ignite` | `2.18.0` (x86_64/amd64) 또는 `2.18.0-arm64` (aarch64/arm64), deprecated facade |
 | Storage | `Ignite3Server` | `apacheignite/ignite` | `3.1.0` |
 | Storage | `InfluxDBServer` | `influxdb` | `2.9.1` |
+| Storage | `QdrantServer` | `qdrant/qdrant` | `v1.19.0` |
 | Storage | `MinIOServer` | `minio/minio` | `RELEASE.2025-07-23T15-54-02Z` (호환성 fixture) |
 | Storage | `MongoDBServer` | `mongo` | `8.0.28` |
 | Storage | `OpenSearchServer` | `opensearchproject/opensearch` | `3.8.0` |
@@ -193,7 +236,7 @@ Ignite2Server(image = "custom/ignite", tag = "2.18.0-custom").use { ignite2 ->
 
 ## 이미지 family startup·workload gate
 
-52개 Docker 기반 서버 family는
+53개 Docker 기반 서버 family는
 [`scripts/testcontainers_image_gate_manifest.json`](../../scripts/testcontainers_image_gate_manifest.json)에 선언합니다.
 manifest는 고정 image/tag와 Kotlin wrapper, 대표 테스트 클래스, readiness 계약,
 workload 증거, 진단 명령을 연결합니다. 클래스에 의도적으로 비활성화한 메서드가
@@ -205,8 +248,8 @@ skipped 테스트가 유효한 실행을 가리지 않도록 해당 메서드만
 경로로 한정합니다. 선택된 family는 `max-parallel: 1`로 순차 실행하고
 `success`, `product_failure`,
 `infrastructure_failure`, `blocked`로 분류하며 `summary.json`, `summary.md`,
-family별 JSON을 남깁니다. 안정 버전 배포는 release-required family 48개
-전체(`47/47`), `release_gate=true`, 모든 실패 분류 0을 요구합니다. 나머지
+family별 JSON을 남깁니다. 안정 버전 배포는 release-required family 49개
+전체(`49/49`), `release_gate=true`, 모든 실패 분류 0을 요구합니다. 나머지
 4개 family는 support inventory로 별도 보고합니다. Docker Hub 인증과 mirror
 설정은 환경변수 또는
 CI secret으로만 전달하며, 증거에는 credential을 기록하지 않습니다.

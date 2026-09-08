@@ -66,7 +66,7 @@ class TestTestcontainersImageGate(unittest.TestCase):
         self.assertEqual(EXPECTED_RELEASE_FAMILY_COUNT, len(release_required))
         self.assertEqual(disabled, {entry["server"] for entry in self.entries if not entry["releaseRequired"]})
 
-    def test_method_selectors_exclude_intentionally_disabled_tests(self) -> None:
+    def test_method_selectors_choose_representative_workloads(self) -> None:
         selectors = {
             entry["server"]: entry["testSelector"]
             for entry in self.entries
@@ -76,6 +76,8 @@ class TestTestcontainersImageGate(unittest.TestCase):
             {
                 "LocalStackServer": "io.bluetape4k.testcontainers.aws.LocalStackServerTest.run S3 Service",
                 "RedisClusterServer": "io.bluetape4k.testcontainers.storage.RedisClusterServerTest.create redis cluster server",
+                "OpenFgaServer": "io.bluetape4k.testcontainers.infra.OpenFgaServerTest.서버에서 대표 작업을 수행하고 종료한다",
+                "QdrantServer": "io.bluetape4k.testcontainers.storage.QdrantServerTest.서버에서 대표 작업을 수행하고 종료한다",
             },
             selectors,
         )
@@ -111,7 +113,7 @@ class TestTestcontainersImageGate(unittest.TestCase):
             for index in range(4)
         ]
         shard_ids = [[entry["id"] for entry in shard] for shard in shards]
-        self.assertEqual([13, 13, 13, 12], [len(ids) for ids in shard_ids])
+        self.assertEqual([14, 13, 13, 13], [len(ids) for ids in shard_ids])
         self.assertCountEqual(
             [entry["id"] for entry in self.entries],
             [family_id for ids in shard_ids for family_id in ids],

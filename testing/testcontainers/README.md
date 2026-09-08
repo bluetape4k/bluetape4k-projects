@@ -39,6 +39,45 @@ A server wrapper and utility library for building integration tests quickly on t
 - Automatic export of connection details as system properties at `start()` time
 - Simplified Spring Boot wiring through `${testcontainers...}` placeholders
 
+## Shared OpenFGA and Qdrant Servers
+
+The official Testcontainers modules are optional dependencies. Declare the modules for the servers you use.
+
+```kotlin
+dependencies {
+    testImplementation(project(":bluetape4k-testcontainers"))
+    testImplementation(libs.testcontainers.openfga)
+    testImplementation(libs.testcontainers.qdrant)
+}
+```
+
+```kotlin
+import io.bluetape4k.testcontainers.infra.OpenFgaServer
+import io.bluetape4k.testcontainers.storage.QdrantServer
+
+OpenFgaServer().use { server ->
+    server.start()
+    val apiUrl = server.url
+    val grpcPort = server.grpcPort
+} // The caller closes an explicit instance.
+
+val shared = QdrantServer.Launcher.qdrant
+val httpUrl = shared.url
+val grpcHost = shared.host
+val grpcPort = shared.grpcPort
+// ShutdownQueue owns the shared Launcher; do not call use/close on it.
+```
+
+`port` and `url` describe HTTP access. Use `host` and `grpcPort` for a gRPC client.
+Endpoint access before startup fails. Defaults are random mapped ports and `reuse=false`;
+`useDefaultPort=true` binds the standard HTTP and gRPC ports. Launcher reuses one instance within the JVM.
+Readiness uses OpenFGA's `/healthz` SERVING response and Qdrant's `/readyz`, with a two-minute startup timeout.
+The OpenFGA playground port is not exposed.
+
+Create unique stores/collections per test and remove them in `finally`.
+JVM properties exported by `start()` are not automatically restored by `stop()`; preserve and restore prior values when needed.
+These defaults are unauthenticated and intended for tests on a trusted Docker host. Docker controls host bindings; random ports do not imply loopback-only access.
+
 ## System Property Export (`PropertyExportingServer`)
 
 Every server implements
@@ -76,6 +115,8 @@ Every server implements
 | PrometheusServer       | `prometheus`        | `host`, `port`, `url`, `server-port`, `pushgateway-port`, `graphite-exporter-port`                                                                                   |
 | GrafanaServer          | `grafana`           | `host`, `port`, `url`                                                                                                                                                |
 | K3sServer              | `k3s`               | `host`, `port`, `url`                                                                                                                                                |
+| OpenFgaServer | `openfga` | `host`, `port`, `url`, `http-port`, `grpc-port` |
+| QdrantServer | `qdrant` | `host`, `port`, `url`, `http-port`, `grpc-port` |
 | ConsulServer           | `consul`            | `host`, `port`, `url`, `dns-port`, `http-port`, `rpc-port`                                                                                                           |
 | JaegerServer           | `jaeger`            | `host`, `port`, `url`, `frontend-port`, `zipkin-port`, `config-port`, `thrift-port`                                                                                  |
 | ElasticsearchOssServer | `elasticsearch-oss` | `host`, `port`, `url`                                                                                                                                                |
@@ -144,6 +185,7 @@ for the image-selection contract.
 | HTTP | `BluetapeWebfluxServer` | `bluetape4k/mock-webflux-server` | `2.1.0` |
 | HTTP | `NginxServer` | `nginx` | `1.30.4-alpine` |
 | HTTP | `WireMockServer` | `wiremock/wiremock` | `3.13.2` |
+| Infrastructure | `OpenFgaServer` | `openfga/openfga` | `v1.8.2` |
 | Infrastructure | `ConsulServer` | `hashicorp/consul` | `1.22.7` |
 | Infrastructure | `EtcdServer` | `gcr.io/etcd-development/etcd` | `v3.6.14` |
 | Infrastructure | `GrafanaServer` | `grafana/grafana` | `13.1.3` |
@@ -170,6 +212,7 @@ for the image-selection contract.
 | Storage | `Ignite2Server` | `apacheignite/ignite` | `2.18.0` (x86_64/amd64) or `2.18.0-arm64` (aarch64/arm64), deprecated facade |
 | Storage | `Ignite3Server` | `apacheignite/ignite` | `3.1.0` |
 | Storage | `InfluxDBServer` | `influxdb` | `2.9.1` |
+| Storage | `QdrantServer` | `qdrant/qdrant` | `v1.19.0` |
 | Storage | `MinIOServer` | `minio/minio` | `RELEASE.2025-07-23T15-54-02Z` (compatibility fixture) |
 | Storage | `MongoDBServer` | `mongo` | `8.0.28` |
 | Storage | `OpenSearchServer` | `opensearchproject/opensearch` | `3.8.0` |
@@ -188,7 +231,7 @@ should use `FlociServer` or `MiniStackServer`.
 
 ## Image Family Startup and Workload Gate
 
-The 52 Docker-backed server families are declared in
+The 53 Docker-backed server families are declared in
 [`scripts/testcontainers_image_gate_manifest.json`](../../scripts/testcontainers_image_gate_manifest.json).
 The manifest links each pinned image/tag to its Kotlin wrapper, representative
 test class, readiness contract, workload evidence, and diagnostic commands. A
@@ -202,7 +245,7 @@ gate is intentionally reserved for the full Nightly/release path. The runner
 executes the selected families sequentially (`max-parallel: 1`),
 records `success`, `product_failure`, `infrastructure_failure`, or `blocked`,
 and writes `summary.json`, `summary.md`, and one JSON file per family. Stable
-publication requires all 48 release-required families (`47/47`),
+publication requires all 49 release-required families (`49/49`),
 `release_gate=true`, and zero failure-classification counts; the remaining four
 families are support inventory and are reported separately. Docker Hub
 authentication and mirror settings are supplied through

@@ -7,6 +7,7 @@ dependencies {
     testImplementation(project(":bluetape4k-assertions"))
     testImplementation(libs.kotlinx.coroutines.test)
     testImplementation(project(":bluetape4k-testcontainers"))
+    testImplementation(libs.testcontainers.qdrant)
 }
 
 tasks.withType<Test>().configureEach {
