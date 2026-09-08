@@ -65,12 +65,6 @@ fun <T: GenericServer> T.writeToSystemProperties(
     properties.forEach { (key, value) -> System.setProperty(key, value) }
 
     log.info {
-        buildString {
-            appendLine()
-            appendLine("Start $name Server:")
-            properties.forEach { (key, value) ->
-                appendLine("\t$key=$value")
-            }
-        }
+        "Start $name Server: ${properties.toPropertyLogSummary()}"
     }
 }

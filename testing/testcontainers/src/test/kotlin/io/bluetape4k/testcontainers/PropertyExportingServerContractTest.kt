@@ -10,6 +10,9 @@ import io.bluetape4k.assertions.shouldNotBeNull
 import io.bluetape4k.testcontainers.http.BluetapeHttpServer
 import io.bluetape4k.testcontainers.http.BluetapeWebfluxServer
 import org.junit.jupiter.api.Test
+import java.io.ByteArrayOutputStream
+import java.io.PrintStream
+import java.nio.charset.StandardCharsets.UTF_8
 
 /**
  * [PropertyExportingServer] 계약 테스트.
@@ -173,6 +176,32 @@ class PropertyExportingServerContractTest {
             System.clearProperty("$SERVER_PREFIX.$namespace.host")
             System.clearProperty("$SERVER_PREFIX.$namespace.port")
         }
+    }
+
+    @Test
+    fun `writeToSystemProperties 는 프로퍼티 값을 표준 출력에 기록하지 않는다`() {
+        val namespace = "redaction-contract-test"
+        val canary = "REVIEW_CANARY_NOT_A_SECRET"
+        val server = MockServer(
+            propertyNamespace = namespace,
+            keys = setOf("password", "host"),
+            props = mapOf("password" to canary, "host" to "localhost"),
+        )
+        val originalOut = System.out
+        val captured = ByteArrayOutputStream()
+
+        try {
+            System.setOut(PrintStream(captured, true, UTF_8.name()))
+            server.writeToSystemProperties()
+        } finally {
+            System.setOut(originalOut)
+            System.clearProperty("$SERVER_PREFIX.$namespace.password")
+            System.clearProperty("$SERVER_PREFIX.$namespace.host")
+        }
+
+        val output = captured.toString(UTF_8)
+        output.contains(canary).shouldBeFalse()
+        output.contains("keys=[host, password]").shouldBeTrue()
     }
 
     /**
