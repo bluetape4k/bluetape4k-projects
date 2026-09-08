@@ -26,7 +26,9 @@ import kotlin.reflect.KClass
  * Creates a Retrofit-compatible OkHttp `Call.Factory` backed by a Vert.x [HttpClient].
  *
  * ## Contract
- * - Wraps [client] without taking ownership beyond [VertxCallFactory.close].
+ * - Borrows [client] without taking ownership; [VertxCallFactory.close] does not close it.
+ * - The default shared client is managed by `closeDefaultVertxHttpClient` in the HTTP module.
+ * - A caller-provided client remains the caller's responsibility to close.
  * - Uses [callTimeout] for blocking `execute()` waits, Vert.x request timeout, and the advertised Okio timeout.
  * - A blocking timeout or interruption resets the underlying Vert.x request when one exists.
  *
@@ -101,16 +103,24 @@ class VertxCallFactory private constructor(
     }
 
     /**
-     * 내부 Vert.x HTTP 클라이언트를 종료합니다.
+     * 이 factory가 빌린 Vert.x HTTP 클라이언트를 종료하지 않고 factory를 종료합니다.
+     * 공유 기본 클라이언트는 HTTP 모듈의 `closeDefaultVertxHttpClient`로 종료하고,
+     * 주입한 클라이언트는 해당 클라이언트의 소유자가 종료해야 합니다.
      *
      * ```kotlin
-     * val factory = vertxCallFactoryOf()
+     * val callerOwnedClient = vertx.createHttpClient()
+     * val factory = VertxCallFactory(callerOwnedClient)
      * factory.close()
-     * // 내부 Vert.x HttpClient 종료됨
+     * // factory만 종료되고 callerOwnedClient는 계속 사용 가능
+     * callerOwnedClient.close()
+     *
+     * val defaultFactory = vertxCallFactoryOf()
+     * defaultFactory.close()
+     * closeDefaultVertxHttpClient() // 공유 기본 클라이언트 종료
      * ```
      */
     override fun close() {
-        client.close()
+        // The HttpClient is borrowed from the caller or the HTTP module's shared default.
     }
 
     private inner class VertxCall(
