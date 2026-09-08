@@ -29,10 +29,11 @@ import kotlinx.coroutines.withTimeout
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.launch
 import io.grpc.Status
+import io.grpc.StatusRuntimeException
+import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeSameInstanceAs
 import io.bluetape4k.assertions.shouldBeTrue
-import org.junit.jupiter.api.Assertions.assertSame
-import org.junit.jupiter.api.Assertions.assertInstanceOf
 import org.junit.jupiter.api.Test
 import java.time.Duration
 
@@ -79,10 +80,9 @@ class QdrantCoroutinesTest {
         val client = mockk<QdrantClient>()
         every { client.scrollAsync(any<ScrollPoints>(), any<Duration>()) } returns
             Futures.immediateFuture(ScrollResponse.newBuilder().setNextPageOffset(id(2)).build())
-        val error = runCatching {
+        assertFailsWith<IllegalStateException> {
             client.scrollAsFlow(ScrollPoints.newBuilder().setLimit(2).build()).toList()
-        }.exceptionOrNull()
-        assertInstanceOf(IllegalStateException::class.java, error)
+        }
         verify(exactly = 2) { client.scrollAsync(any<ScrollPoints>(), any<Duration>()) }
     }
 
@@ -105,10 +105,9 @@ class QdrantCoroutinesTest {
         val client = mockk<QdrantClient>()
         val template = UpsertPoints.newBuilder().setCollectionName("vectors").build()
         val point = PointStruct.newBuilder().setId(id(1)).build()
-        val error = runCatching {
+        assertFailsWith<IllegalArgumentException> {
             client.upsertBatches(listOf(point).asFlow(), template, maxBatchBytes = 1).toList()
-        }.exceptionOrNull()
-        assertInstanceOf(IllegalArgumentException::class.java, error)
+        }
         verify(exactly = 0) { client.upsertAsync(any<UpsertPoints>(), any<Duration>()) }
     }
 
@@ -117,13 +116,14 @@ class QdrantCoroutinesTest {
         val client = mockk<QdrantClient>()
         val failure = Status.DEADLINE_EXCEEDED.asRuntimeException()
         every { client.queryAsync(any<QueryPoints>(), any<Duration>()) } returns Futures.immediateFailedFuture(failure)
-        assertSame(failure, runCatching { client.querySuspending(QueryPoints.getDefaultInstance()) }.exceptionOrNull())
+        assertFailsWith<StatusRuntimeException> {
+            client.querySuspending(QueryPoints.getDefaultInstance())
+        } shouldBeSameInstanceAs failure
         val pending = SettableFuture.create<List<ScoredPoint>>()
         every { client.queryAsync(any<QueryPoints>(), any<Duration>()) } returns pending
-        val error = runCatching {
+        assertFailsWith<kotlinx.coroutines.TimeoutCancellationException> {
             withTimeout(10) { client.querySuspending(QueryPoints.getDefaultInstance()) }
-        }.exceptionOrNull()
-        assertInstanceOf(kotlinx.coroutines.TimeoutCancellationException::class.java, error)
+        }
         (pending.isCancelled).shouldBeTrue()
     }
 
@@ -138,8 +138,9 @@ class QdrantCoroutinesTest {
         }
         val request = ScrollPoints.newBuilder().setCollectionName("vectors").setLimit(5)
             .setFilter(io.qdrant.client.grpc.Common.Filter.newBuilder()).build()
-        assertInstanceOf(IllegalStateException::class.java,
-            runCatching { client.scrollAsFlow(request, timeout, maxPages = 3).toList() }.exceptionOrNull())
+        assertFailsWith<IllegalStateException> {
+            client.scrollAsFlow(request, timeout, maxPages = 3).toList()
+        }
         (requests.size) shouldBeEqualTo 3
         (requests.all {
             it.collectionName == request.collectionName && it.limit == 5 && it.filter == request.filter
@@ -155,17 +156,17 @@ class QdrantCoroutinesTest {
         val template = UpsertPoints.newBuilder().setCollectionName("vectors").build()
         val points = (1L..3L).map { PointStruct.newBuilder().setId(id(it)).build() }
         val results = mutableListOf<UpdateResult>()
-        val batchFailure = runCatching {
+        val batchFailure = assertFailsWith<IllegalStateException> {
             client.upsertBatches(points.asFlow(), template, maxBatchItems = 1).collect { results.add(it) }
-        }.exceptionOrNull()
-        assertInstanceOf(IllegalStateException::class.java, batchFailure)
-        (batchFailure?.message) shouldBeEqualTo failure.message
+        }
+        (batchFailure.message) shouldBeEqualTo failure.message
         (results.size) shouldBeEqualTo 1
         verify(exactly = 2) { client.upsertAsync(any<UpsertPoints>(), any<Duration>()) }
         val brokenInput = flow { emit(points.first()); throw failure }
-        val inputFailure = runCatching { client.upsertBatches(brokenInput, template).toList() }.exceptionOrNull()
-        assertInstanceOf(IllegalStateException::class.java, inputFailure)
-        (inputFailure?.message) shouldBeEqualTo failure.message
+        val inputFailure = assertFailsWith<IllegalStateException> {
+            client.upsertBatches(brokenInput, template).toList()
+        }
+        (inputFailure.message) shouldBeEqualTo failure.message
         verify(exactly = 2) { client.upsertAsync(any<UpsertPoints>(), any<Duration>()) }
     }
 
@@ -224,7 +225,7 @@ class QdrantCoroutinesTest {
             { client.scrollAsFlow(ScrollPoints.newBuilder().setLimit(1).build(), maxPages = 0) },
         )
         invalidCalls.forEach { call ->
-            assertInstanceOf(IllegalArgumentException::class.java, runCatching(call).exceptionOrNull())
+            assertFailsWith<IllegalArgumentException> { call() }
         }
         verify { client wasNot Called }
     }

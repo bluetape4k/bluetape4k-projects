@@ -5,6 +5,8 @@ import com.google.common.util.concurrent.MoreExecutors
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.warn
 import io.bluetape4k.support.requireInRange
+import io.bluetape4k.support.requireEquals
+import io.bluetape4k.support.requireLe
 import io.bluetape4k.support.requirePositiveNumber
 import io.qdrant.client.QdrantClient
 import io.qdrant.client.grpc.Points.DeletePoints
@@ -95,13 +97,13 @@ fun QdrantClient.upsertBatches(
 ): Flow<UpdateResult> {
     maxBatchItems.requirePositiveNumber("maxBatchItems")
     maxBatchBytes.requirePositiveNumber("maxBatchBytes")
-    require(request.pointsCount == 0) { "request must not contain points" }
-    require(request.serializedSize <= maxBatchBytes) { "request exceeds maxBatchBytes" }
+    request.pointsCount.requireEquals(0, "request.pointsCount")
+    request.serializedSize.requireLe(maxBatchBytes, "request.serializedSize")
     return flow {
         var batch = request.toBuilder()
         points.collect { point ->
             val single = request.toBuilder().addPoints(point).build()
-            require(single.serializedSize <= maxBatchBytes) { "point exceeds maxBatchBytes" }
+            single.serializedSize.requireLe(maxBatchBytes, "point.serializedSize")
             val candidate = batch.clone().addPoints(point).build()
             if (batch.pointsCount > 0 && candidate.serializedSize > maxBatchBytes) {
                 emit(upsertSuspending(batch.build(), timeout))
