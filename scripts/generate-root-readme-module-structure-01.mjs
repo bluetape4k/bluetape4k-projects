@@ -61,12 +61,6 @@ function esc(value) {
         .replaceAll('"', "&quot;");
 }
 
-function markerDefs() {
-    return Object.entries(palette)
-        .map(([name, [, , dark]]) => `<marker id="arrow-${name}" markerWidth="6" markerHeight="6" refX="5.4" refY="3" orient="auto" markerUnits="userSpaceOnUse"><path d="M .7 .7 L 5.4 3 L .7 5.3 Z" fill="${dark}"/></marker>`)
-        .join("\n");
-}
-
 function icon(x, y, color, kind) {
     const glyphs = {
         folder: `<path d="M12 18h10l3 4h11v15H12z"/><path d="M12 22h24"/>`,
@@ -120,12 +114,6 @@ function rootCard({id, x, y, w, h, color, kind = "folder", title, subtitle, item
 
 function band(x, y, w, h, title, detail) {
     return `<g><rect class="band" x="${x}" y="${y}" width="${w}" height="${h}" rx="8"/><text class="bandTitle" x="${x + 26}" y="${y + 38}">${esc(title)}</text><text class="bandDetail" x="${x + 26}" y="${y + 64}">${esc(detail)}</text></g>`;
-}
-
-function route(from, to, points, color) {
-    const [, , dark] = palette[color];
-    const d = points.map((point, index) => `${index === 0 ? "M" : "L"}${point[0]} ${point[1]}`).join(" ");
-    return `<path class="route" data-from="${esc(from)}" data-to="${esc(to)}" d="${d}" stroke="${dark}" marker-end="url(#arrow-${color})"/>`;
 }
 
 const width = 3000;
@@ -281,14 +269,12 @@ const body = [
 const svg = `<svg data-intent="Recreate the root README Module Structure diagram as a Gradle include-root map, distinct from the overview diagram." data-evidence="${esc(evidence.join("; "))}; module directories counted from build.gradle.kts files" data-source-read="${esc(evidence.join("; "))}" xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" role="img" aria-label="Repository Module Structure">
 <defs>
   <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="6" stdDeviation="5" flood-color="#0F172A" flood-opacity="0.10"/></filter>
-  ${markerDefs()}
   <style>
     svg{font-family:"Architects Daughter","Comic Mono","Comic Sans MS",ui-sans-serif,system-ui,sans-serif}
     .canvas{fill:#F8FAFC}.frame{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.5;filter:url(#shadow)}
     .title{font-family:"Architects Daughter";font-size:46px;fill:#0F172A}.subtitle{font-family:"Comic Mono";font-size:16px;fill:#475569}
     .band{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.5}.bandTitle{font-family:"Architects Daughter";font-size:26px;fill:#0F172A}.bandDetail{font-family:"Comic Mono";font-size:14px;fill:#64748B}
     .card{filter:url(#shadow);stroke-width:1.8}.cardTitle{font-family:"Architects Daughter";font-size:27px;fill:#0F172A}.badge{font-family:"Comic Mono";font-size:15px;fill:#475569}.subtitle2{font-family:"Comic Mono";font-size:14px;fill:#64748B}.moduleLine{font-family:"Comic Mono";font-size:14px;fill:#334155}
-    .route{fill:none;stroke-width:3;stroke-linecap:round;stroke-linejoin:round}
   </style>
 </defs>
 ${body.join("\n")}

@@ -45,7 +45,7 @@ repo-test-summary -- ./gradlew :module:test
 | `bluetape4k/` | `core`, `coroutines`, `logging`, `bom` |
 | `io/` | I/O, compression, serialization, HTTP clients, Jackson 2/3, Okio, Tink, Vert.x, gRPC, Protobuf |
 | `data/` | Cassandra, Hibernate, MongoDB, JDBC, R2DBC; Exposed lives in `bluetape4k-exposed` |
-| `infra/` | Redis/Lettuce/Redisson, Kafka 3/4, Elasticsearch, NATS, Pulsar, Bucket4j, Micrometer, OpenTelemetry, Resilience4j |
+| `infra/` | Redis/Lettuce/Redisson, Kafka 3/4, Elasticsearch, NATS, Pulsar, OpenFGA, Qdrant, Temporal, Bucket4j, Micrometer, OpenTelemetry, Resilience4j |
 | `cache/` | Cache umbrella/core/backend modules and Hibernate Lettuce cache bridge |
 | `ktor/` | Ktor server foundation modules: core, observability, and testing helpers |
 | `spring-boot/` | Spring Boot 4.x modules and demos; no `spring-boot3/*` line remains |

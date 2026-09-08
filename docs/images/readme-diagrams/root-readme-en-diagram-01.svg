@@ -1,21 +1,12 @@
 <svg data-intent="Recreate the root README Module Structure diagram as a Gradle include-root map, distinct from the overview diagram." data-evidence="README.md; settings.gradle.kts; module directories counted from build.gradle.kts files" data-source-read="README.md; settings.gradle.kts" xmlns="http://www.w3.org/2000/svg" width="3000" height="1400" viewBox="0 0 3000 1400" role="img" aria-label="Repository Module Structure">
 <defs>
   <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="6" stdDeviation="5" flood-color="#0F172A" flood-opacity="0.10"/></filter>
-  <marker id="arrow-blue" markerWidth="6" markerHeight="6" refX="5.4" refY="3" orient="auto" markerUnits="userSpaceOnUse"><path d="M .7 .7 L 5.4 3 L .7 5.3 Z" fill="#1D4ED8"/></marker>
-<marker id="arrow-green" markerWidth="6" markerHeight="6" refX="5.4" refY="3" orient="auto" markerUnits="userSpaceOnUse"><path d="M .7 .7 L 5.4 3 L .7 5.3 Z" fill="#15803D"/></marker>
-<marker id="arrow-teal" markerWidth="6" markerHeight="6" refX="5.4" refY="3" orient="auto" markerUnits="userSpaceOnUse"><path d="M .7 .7 L 5.4 3 L .7 5.3 Z" fill="#0F766E"/></marker>
-<marker id="arrow-amber" markerWidth="6" markerHeight="6" refX="5.4" refY="3" orient="auto" markerUnits="userSpaceOnUse"><path d="M .7 .7 L 5.4 3 L .7 5.3 Z" fill="#C2410C"/></marker>
-<marker id="arrow-pink" markerWidth="6" markerHeight="6" refX="5.4" refY="3" orient="auto" markerUnits="userSpaceOnUse"><path d="M .7 .7 L 5.4 3 L .7 5.3 Z" fill="#BE185D"/></marker>
-<marker id="arrow-purple" markerWidth="6" markerHeight="6" refX="5.4" refY="3" orient="auto" markerUnits="userSpaceOnUse"><path d="M .7 .7 L 5.4 3 L .7 5.3 Z" fill="#7E22CE"/></marker>
-<marker id="arrow-olive" markerWidth="6" markerHeight="6" refX="5.4" refY="3" orient="auto" markerUnits="userSpaceOnUse"><path d="M .7 .7 L 5.4 3 L .7 5.3 Z" fill="#4D7C0F"/></marker>
-<marker id="arrow-gray" markerWidth="6" markerHeight="6" refX="5.4" refY="3" orient="auto" markerUnits="userSpaceOnUse"><path d="M .7 .7 L 5.4 3 L .7 5.3 Z" fill="#475569"/></marker>
   <style>
     svg{font-family:"Architects Daughter","Comic Mono","Comic Sans MS",ui-sans-serif,system-ui,sans-serif}
     .canvas{fill:#F8FAFC}.frame{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.5;filter:url(#shadow)}
     .title{font-family:"Architects Daughter";font-size:46px;fill:#0F172A}.subtitle{font-family:"Comic Mono";font-size:16px;fill:#475569}
     .band{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.5}.bandTitle{font-family:"Architects Daughter";font-size:26px;fill:#0F172A}.bandDetail{font-family:"Comic Mono";font-size:14px;fill:#64748B}
     .card{filter:url(#shadow);stroke-width:1.8}.cardTitle{font-family:"Architects Daughter";font-size:27px;fill:#0F172A}.badge{font-family:"Comic Mono";font-size:15px;fill:#475569}.subtitle2{font-family:"Comic Mono";font-size:14px;fill:#64748B}.moduleLine{font-family:"Comic Mono";font-size:14px;fill:#334155}
-    .route{fill:none;stroke-width:3;stroke-linecap:round;stroke-linejoin:round}
   </style>
 </defs>
 <rect class="canvas" width="3000" height="1400"/>
@@ -29,9 +20,10 @@
   <rect class="card" x="125" y="240" width="600" height="190" rx="8" fill="#EFF6FF" stroke="#2563EB"/>
   <g class="icon" transform="translate(145,260)"><rect width="46" height="46" rx="10" fill="#2563EB" stroke="#2563EB"/><g fill="none" stroke="#FFFFFF" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M24 36V14M17 21l7-7 7 7"/><path d="M14 36h20"/></g></g>
   <text class="cardTitle" x="207" y="282">bluetape4k/</text>
-  <text class="badge" x="701" y="282" text-anchor="end">5</text>
+  <text class="badge" x="701" y="282" text-anchor="end">7</text>
   <text class="subtitle2" x="207" y="308">foundation + BOM</text>
-  <text class="moduleLine" x="153" y="346">annotations, bom, core, coroutines, logging</text>
+  <text class="moduleLine" x="153" y="346">annotations, bom, core, coroutines, logging, tenant</text>
+<text class="moduleLine" x="153" y="370">tenant-reactor</text>
 </g>
 <g id="io" class="rootCard">
   <rect class="card" x="780" y="240" width="760" height="190" rx="8" fill="#F0FDFA" stroke="#0D9488"/>
@@ -63,10 +55,10 @@
   <rect class="card" x="125" y="625" width="760" height="175" rx="8" fill="#F7FEE7" stroke="#65A30D"/>
   <g class="icon" transform="translate(145,645)"><rect width="46" height="46" rx="10" fill="#65A30D" stroke="#65A30D"/><g fill="none" stroke="#FFFFFF" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M12 18h10l3 4h11v15H12z"/><path d="M12 22h24"/></g></g>
   <text class="cardTitle" x="207" y="667">infra/</text>
-  <text class="badge" x="861" y="667" text-anchor="end">13</text>
+  <text class="badge" x="861" y="667" text-anchor="end">16</text>
   <text class="subtitle2" x="207" y="693">messaging, Redis, telemetry</text>
   <text class="moduleLine" x="153" y="731">bucket4j, elasticsearch, kafka, kafka-logback, kafka4, lettuce, micrometer, nats</text>
-<text class="moduleLine" x="153" y="755">opentelemetry, +4 more</text>
+<text class="moduleLine" x="153" y="755">openfga, +7 more</text>
 </g>
 <g id="spring" class="rootCard">
   <rect class="card" x="940" y="625" width="600" height="175" rx="8" fill="#F0FDF4" stroke="#16A34A"/>
@@ -81,18 +73,19 @@
   <rect class="card" x="1595" y="625" width="520" height="175" rx="8" fill="#EFF6FF" stroke="#2563EB"/>
   <g class="icon" transform="translate(1615,645)"><rect width="46" height="46" rx="10" fill="#2563EB" stroke="#2563EB"/><g fill="none" stroke="#FFFFFF" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><rect x="13" y="13" width="22" height="22" rx="4"/><path d="M18 20h12M18 27h8"/></g></g>
   <text class="cardTitle" x="1677" y="667">ktor/</text>
-  <text class="badge" x="2091" y="667" text-anchor="end">5</text>
+  <text class="badge" x="2091" y="667" text-anchor="end">6</text>
   <text class="subtitle2" x="1677" y="693">Ktor 3 server helpers</text>
-  <text class="moduleLine" x="1623" y="731">core, observability, openapi, resilience4j, testing</text>
+  <text class="moduleLine" x="1623" y="731">core, observability, openapi, resilience4j, tenant</text>
+<text class="moduleLine" x="1623" y="755">testing</text>
 </g>
 <g id="testing" class="rootCard">
   <rect class="card" x="2170" y="625" width="620" height="175" rx="8" fill="#FFF7ED" stroke="#EA580C"/>
   <g class="icon" transform="translate(2190,645)"><rect width="46" height="46" rx="10" fill="#EA580C" stroke="#EA580C"/><g fill="none" stroke="#FFFFFF" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M14 29c3-11 13-16 23-11-1 5-5 8-11 8h-6"/><path d="M14 29c-2 5 1 9 6 9h11"/><circle cx="19" cy="33" r="1.5"/><circle cx="29" cy="33" r="1.5"/></g></g>
   <text class="cardTitle" x="2252" y="667">testing/</text>
-  <text class="badge" x="2766" y="667" text-anchor="end">5</text>
+  <text class="badge" x="2766" y="667" text-anchor="end">6</text>
   <text class="subtitle2" x="2252" y="693">test support</text>
   <text class="moduleLine" x="2198" y="731">assertions, junit5, mock-web-server, mock-webflux-server</text>
-<text class="moduleLine" x="2198" y="755">testcontainers</text>
+<text class="moduleLine" x="2198" y="755">testcontainers, testcontainers-spring</text>
 </g>
 <g id="utils" class="rootCard">
   <rect class="card" x="245" y="825" width="860" height="180" rx="8" fill="#FFF7ED" stroke="#EA580C"/>

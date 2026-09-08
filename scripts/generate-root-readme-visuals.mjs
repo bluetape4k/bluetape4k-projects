@@ -29,11 +29,13 @@ const totalModules = Object.values(moduleCounts).reduce((sum, value) => sum + va
 ensureDir(diagramDir);
 ensureDir(chartDir);
 
-execFileSync(process.execPath, [join(ROOT, "scripts/generate-root-readme-overview-01.mjs")], { stdio: "inherit" });
-writeVisual("root-readme-en-diagram-01", architectureSvg());
+if (!process.argv.includes("--chart-only")) {
+  execFileSync(process.execPath, [join(ROOT, "scripts/generate-root-readme-overview-01.mjs")], { stdio: "inherit" });
+  execFileSync(process.execPath, [join(ROOT, "scripts/generate-root-readme-module-structure-01.mjs")], { stdio: "inherit" });
+}
 writeChart("root-readme-module-chart-01", moduleChartSvg());
 
-console.log(`root-readme-visuals: modules=${totalModules} diagrams=2 charts=1 renderer=cairosvg`);
+console.log(`root-readme-visuals: modules=${totalModules} diagrams=${process.argv.includes("--chart-only") ? 0 : 2} charts=1 renderer=cairosvg`);
 
 function countModules(group) {
   const base = join(ROOT, group);
@@ -146,7 +148,7 @@ function moduleChartSvg() {
     lines.push(`<rect x="400" y="${bar.y}" width="${barWidth.toFixed(1)}" height="34" rx="8" fill="${paletteFor(bar.id)[0]}" stroke="${paletteFor(bar.id)[1]}" stroke-width="1.5"/>`);
     lines.push(`<text class="chartValue" x="${400 + barWidth + 16}" y="${bar.y + 23}">${bar.value}</text>`);
   }
-  lines.push(`<text class="chartFoot" x="88" y="875">Chart style preserved: warm canvas, horizontal bars, explicit counts, SVG+PNG pair.</text>`);
+  lines.push(`<text class="chartFoot" x="88" y="875">Module counts include library, testing, and example Gradle projects.</text>`);
   lines.push(`</svg>`);
   return lines.join("\n");
 }
