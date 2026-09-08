@@ -17,6 +17,38 @@ class BoundingBoxExtensionsTest {
     private val DELTA = 1.0e-9
 
     @Test
+    fun `상자가 남북으로 넓어지면 두 위도와 기존 경도를 모두 유지한다`() {
+        val box = boundingBoxOf(10.0, 20.0, -20.0, 20.0)
+        val other = boundingBoxOf(0.0, 30.0, -10.0, 10.0)
+
+        box.expandToInclude(other)
+
+        box.southLatitude shouldBeEqualTo 0.0
+        box.northLatitude shouldBeEqualTo 30.0
+        box.westLongitude shouldBeEqualTo -20.0
+        box.eastLongitude shouldBeEqualTo 20.0
+        box.contains(wgs84PointOf(0.0, -10.0)).shouldBeTrue()
+        box.contains(wgs84PointOf(30.0, 10.0)).shouldBeTrue()
+        box.isIntersection180Meridian.shouldBeFalse()
+    }
+
+    @Test
+    fun `날짜변경선을 가로지르는 상자도 남북 동시 확장을 반영한다`() {
+        val box = boundingBoxOf(10.0, 20.0, 170.0, -170.0)
+        val other = boundingBoxOf(0.0, 30.0, 175.0, -175.0)
+
+        box.expandToInclude(other)
+
+        box.southLatitude shouldBeEqualTo 0.0
+        box.northLatitude shouldBeEqualTo 30.0
+        box.westLongitude shouldBeEqualTo 170.0
+        box.eastLongitude shouldBeEqualTo -170.0
+        box.contains(wgs84PointOf(0.0, 175.0)).shouldBeTrue()
+        box.contains(wgs84PointOf(30.0, -175.0)).shouldBeTrue()
+        box.isIntersection180Meridian.shouldBeTrue()
+    }
+
+    @Test
     fun `직접 변경 후 직렬화해도 자오선 교차 상태와 UID를 유지한다`() {
         val box = boundingBoxOf(-10.0, 10.0, -20.0, 20.0)
         box.westLongitude = 170.0

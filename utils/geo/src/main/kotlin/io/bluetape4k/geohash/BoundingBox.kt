@@ -244,7 +244,8 @@ data class BoundingBox(
         // Expand Latitude
         if (other.southLatitude < southLatitude) {
             southLatitude = other.southLatitude
-        } else if (other.northLatitude > northLatitude) {
+        }
+        if (other.northLatitude > northLatitude) {
             northLatitude = other.northLatitude
         }
 
