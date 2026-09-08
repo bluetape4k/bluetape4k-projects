@@ -177,12 +177,28 @@ class ResolveReleaseTargetCliTest(unittest.TestCase):
 
 
 class ReleaseWorkflowPolicyTest(unittest.TestCase):
+    def test_nightly_verification_uses_trusted_workflow_revision(self) -> None:
+        workflow = WORKFLOW.read_text(encoding="utf-8")
+        verify_block = workflow.split("  verify-full-nightly:\n", 1)[1].split(
+            "\n  publish:\n", 1
+        )[0]
+
+        self.assertIn("ref: ${{ github.workflow_sha }}", verify_block)
+        self.assertNotIn(
+            "ref: ${{ needs.resolve-version.outputs.target_sha }}",
+            verify_block,
+        )
+        self.assertIn(
+            "TARGET_SHA: ${{ needs.resolve-version.outputs.target_sha }}",
+            verify_block,
+        )
+
     def test_release_jobs_checkout_and_verify_one_immutable_target(self) -> None:
         workflow = WORKFLOW.read_text(encoding="utf-8")
 
         self.assertIn("target_sha: ${{ steps.resolve.outputs.target_sha }}", workflow)
         self.assertEqual(
-            2,
+            1,
             workflow.count("ref: ${{ needs.resolve-version.outputs.target_sha }}"),
         )
         self.assertNotIn("needs.resolve-version.outputs.ref", workflow)

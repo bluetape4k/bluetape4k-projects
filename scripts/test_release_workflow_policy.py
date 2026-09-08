@@ -577,10 +577,7 @@ def release_policy_errors(workflow: str) -> list[str]:
         "verify-full-nightly",
     }:
         errors.append("publish must depend on exact-head Full Nightly")
-    exact_head_jobs = (
-        "verify-full-nightly",
-        "publish",
-    )
+    exact_head_jobs = ("verify-full-nightly", "publish")
     exact_head_contract = True
     for job_id in exact_head_jobs:
         records = workflow_step_records(workflow, job_id)
@@ -596,17 +593,32 @@ def release_policy_errors(workflow: str) -> list[str]:
             if len(verify_steps) == 1 and verify_steps[0][3] is not None
             else ""
         )
-        if not (
+        expected_checkout_ref = (
+            "${{ github.workflow_sha }}"
+            if job_id == "verify-full-nightly"
+            else "${{ needs.resolve-version.outputs.target_sha }}"
+        )
+        checkout_contract = (
             len(checkout_steps) == 1
             and not checkout_steps[0][4]
             and workflow_step_field_values(checkout_steps[0][2], "ref")
-            == ["${{ needs.resolve-version.outputs.target_sha }}"]
+            == [expected_checkout_ref]
             and workflow_step_field_values(checkout_steps[0][2], "fetch-depth") == ["0"]
+        )
+        if job_id == "verify-full-nightly" and not checkout_contract:
+            errors.append("release verification must execute trusted workflow source")
+        head_checkout_contract = (
+            'test "$(git rev-parse HEAD)" = "$TARGET_SHA"' not in verify_script
+            if job_id == "verify-full-nightly"
+            else 'test "$(git rev-parse HEAD)" = "$TARGET_SHA"' in verify_script
+        )
+        if not (
+            checkout_contract
             and len(verify_steps) == 1
             and not verify_steps[0][4]
             and workflow_step_field_values(verify_steps[0][2], "TARGET_SHA")
             == ["${{ needs.resolve-version.outputs.target_sha }}"]
-            and 'test "$(git rev-parse HEAD)" = "$TARGET_SHA"' in verify_script
+            and head_checkout_contract
             and "scripts/ci/resolve_release_target.py verify" in verify_script
             and '--expected-sha "$TARGET_SHA"' in verify_script
         ):
@@ -1336,6 +1348,24 @@ class ReleaseWorkflowPolicyTest(unittest.TestCase):
 
         self.assertIn("Publish RELEASE to Maven Central Portal", workflow)
         self.assertEqual([], release_policy_errors(workflow))
+
+    def test_release_workflow_rejects_untrusted_nightly_verification_checkout(self) -> None:
+        workflow = (WORKFLOWS / "release.yml").read_text(encoding="utf-8")
+        verify_block = workflow_job_block(workflow, "verify-full-nightly")
+        mutated = workflow.replace(
+            verify_block,
+            verify_block.replace(
+                "ref: ${{ github.workflow_sha }}",
+                "ref: ${{ needs.resolve-version.outputs.target_sha }}",
+                1,
+            ),
+            1,
+        )
+
+        self.assertIn(
+            "release verification must execute trusted workflow source",
+            release_policy_errors(mutated),
+        )
 
     def test_release_workflow_blocks_publish_without_exact_head_nightly(self) -> None:
         workflow = (WORKFLOWS / "release.yml").read_text(encoding="utf-8")
