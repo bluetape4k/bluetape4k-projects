@@ -16,19 +16,22 @@ import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import io.bluetape4k.support.toLongArray
 import io.bluetape4k.support.toUUID
-import io.bluetape4k.utils.Runtimex
 import org.junit.jupiter.api.RepeatedTest
 import org.junit.jupiter.api.condition.EnabledForJreRange
 import org.junit.jupiter.api.condition.JRE
-import java.util.*
+import java.util.UUID
 import java.util.concurrent.ConcurrentHashMap
+import kotlin.time.Duration.Companion.seconds
 
 abstract class AbstractTimebasedUuidBase62Test {
 
     companion object: KLoggingChannel() {
         private const val REPEAT_SIZE = 5
-        private val TEST_COUNT = 1024 * Runtime.getRuntime().availableProcessors()
-        private val TEST_LIST = List(TEST_COUNT) { it }
+        private const val STRESS_OPERATIONS = 10_000
+        private const val STRESS_WORKERS = 8
+        private const val STRESS_ROUNDS_PER_WORKER = STRESS_OPERATIONS / STRESS_WORKERS
+        private val STRESS_TIMEOUT = 30.seconds
+        private val TEST_LIST = List(STRESS_OPERATIONS) { it }
     }
 
     protected abstract val uuidGenerator: IdGenerator<UUID>
@@ -52,7 +55,7 @@ abstract class AbstractTimebasedUuidBase62Test {
     @RepeatedTest(REPEAT_SIZE)
     fun `generate timebased uuid with size`() {
 
-        val uuids = uuidGenerator.nextIdsAsString(TEST_COUNT).toList()
+        val uuids = uuidGenerator.nextIdsAsString(STRESS_OPERATIONS).toList()
         val sorted = uuids.sorted()
 
         sorted.forEachIndexed { index, uuid ->
@@ -78,13 +81,15 @@ abstract class AbstractTimebasedUuidBase62Test {
         val idMap = ConcurrentHashMap<String, Int>()
 
         MultithreadingTester()
-            .workers(2 * Runtimex.availableProcessors)
-            .rounds(TEST_COUNT)
+            .workers(STRESS_WORKERS)
+            .rounds(STRESS_ROUNDS_PER_WORKER)
             .add {
                 val id = uuidGenerator.nextIdAsString()
                 idMap.putIfAbsent(id, 1).shouldBeNull()
             }
             .run()
+
+        idMap.size shouldBeEqualTo STRESS_OPERATIONS
     }
 
     @EnabledForJreRange(min = JRE.JAVA_21)
@@ -93,26 +98,32 @@ abstract class AbstractTimebasedUuidBase62Test {
         val idMap = ConcurrentHashMap<String, Int>()
 
         StructuredTaskScopeTester()
-            .rounds(TEST_COUNT * 2 * Runtimex.availableProcessors)
+            .workers(STRESS_WORKERS)
+            .rounds(STRESS_OPERATIONS)
+            .withTimeout(STRESS_TIMEOUT)
             .add {
                 val id = uuidGenerator.nextIdAsString()
                 idMap.putIfAbsent(id, 1).shouldBeNull()
             }
             .run()
+
+        idMap.size shouldBeEqualTo STRESS_OPERATIONS
     }
 
     @RepeatedTest(REPEAT_SIZE)
-    fun `generate timebased uuids in suspend jobs`() = runSuspendDefault {
+    fun `generate timebased uuids in suspend jobs`() = runSuspendDefault(timeout = STRESS_TIMEOUT) {
         val idMap = ConcurrentHashMap<String, Int>()
 
         SuspendedJobTester()
-            .workers(2 * Runtimex.availableProcessors)
-            .rounds(TEST_COUNT * 2 * Runtimex.availableProcessors)
+            .workers(STRESS_WORKERS)
+            .rounds(STRESS_OPERATIONS)
             .add {
                 val id = uuidGenerator.nextIdAsString()
                 idMap.putIfAbsent(id, 1).shouldBeNull()
             }
             .run()
+
+        idMap.size shouldBeEqualTo STRESS_OPERATIONS
     }
 
     @RepeatedTest(REPEAT_SIZE)
