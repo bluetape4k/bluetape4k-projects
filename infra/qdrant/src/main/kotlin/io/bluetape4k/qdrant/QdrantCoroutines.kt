@@ -1,5 +1,6 @@
 package io.bluetape4k.qdrant
 
+import com.google.protobuf.CodedOutputStream
 import com.google.common.util.concurrent.ListenableFuture
 import com.google.common.util.concurrent.MoreExecutors
 import io.bluetape4k.logging.coroutines.KLoggingChannel
@@ -99,18 +100,28 @@ fun QdrantClient.upsertBatches(
     require(request.serializedSize <= maxBatchBytes) { "request exceeds maxBatchBytes" }
     return flow {
         var batch = request.toBuilder()
+        val requestSerializedSize = request.serializedSize.toLong()
+        var batchSerializedSize = requestSerializedSize
         points.collect { point ->
-            val single = request.toBuilder().addPoints(point).build()
-            require(single.serializedSize <= maxBatchBytes) { "point exceeds maxBatchBytes" }
-            val candidate = batch.clone().addPoints(point).build()
-            if (batch.pointsCount > 0 && candidate.serializedSize > maxBatchBytes) {
+            // points는 protobuf field 1이며 반복 message마다 tag와 length prefix가 추가됩니다.
+            val pointSerializedSize = CodedOutputStream.computeMessageSize(
+                UpsertPoints.POINTS_FIELD_NUMBER,
+                point,
+            ).toLong()
+            require(requestSerializedSize + pointSerializedSize <= maxBatchBytes) {
+                "point exceeds maxBatchBytes"
+            }
+            if (batch.pointsCount > 0 && batchSerializedSize + pointSerializedSize > maxBatchBytes) {
                 emit(upsertSuspending(batch.build(), timeout))
                 batch = request.toBuilder()
+                batchSerializedSize = requestSerializedSize
             }
             batch.addPoints(point)
+            batchSerializedSize += pointSerializedSize
             if (batch.pointsCount == maxBatchItems) {
                 emit(upsertSuspending(batch.build(), timeout))
                 batch = request.toBuilder()
+                batchSerializedSize = requestSerializedSize
             }
         }
         if (batch.pointsCount > 0) emit(upsertSuspending(batch.build(), timeout))
