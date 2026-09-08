@@ -1,7 +1,6 @@
 package io.bluetape4k.science.shapefile
 
 import io.bluetape4k.logging.KLogging
-import io.bluetape4k.science.coords.BoundingBox
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeFalse
 import io.bluetape4k.assertions.shouldBeNull
@@ -17,7 +16,7 @@ class ShapeModelsTest {
 
     private val geometryFactory = GeometryFactory()
 
-    private val koreaBbox = BoundingBox(minLat = 33.0, minLon = 124.0, maxLat = 38.9, maxLon = 131.0)
+    private val koreaBbox = ShapeBounds(minX = 124.0, minY = 33.0, maxX = 131.0, maxY = 38.9)
 
     private val sampleHeader = ShapeHeader(
         fileCode = 9994,

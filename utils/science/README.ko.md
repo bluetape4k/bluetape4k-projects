@@ -66,6 +66,7 @@ io.bluetape4k.science/
 │   └── Projections.kt              — wgs84ToUtm(), utmToWgs84(), transform()
 │
 ├── shapefile/                       — Shapefile I/O (GeoTools)
+│   ├── ShapeBounds.kt              — 원본 좌표계의 X/Y 경계
 │   ├── ShapeModels.kt              — Shape, ShapeRecord, ShapeHeader (GeoTools 미노출 공개 API)
 │   ├── ShapefileReader.kt          — 동기 읽기
 │   └── ShapefileExtensions.kt      — loadShape(), loadShapeAsync()
@@ -449,7 +450,7 @@ typed `NetCdfException` 하위 타입으로 보고합니다.
 | 클래스 / 함수 | 설명 |
 |--------------|------|
 | `GeoLocation(lat, lon)` | WGS84 좌표; `.distanceTo()` — Haversine 거리 (미터) |
-| `BoundingBox(minLat, maxLat, minLon, maxLon)` | 사각형 경계; `.contains()`, `.intersects()` |
+| `BoundingBox(minLat, minLon, maxLat, maxLon)` | 사각형 경계; `.contains()`, `.intersects()` |
 | `DMS.parse(str)` / `DM.parse(str)` | 도분초 / 도분 문자열 파싱 |
 | `UtmZone(zone, hemisphere)` | UTM Zone 데이터 클래스 |
 | `utmZoneOf(lat, lon)` | WGS84 좌표로 UTM Zone 자동 판정 |
@@ -730,3 +731,32 @@ fun `Shapefile PostGIS 임포트`() {
 | `bluetape4k-exposed-postgresql` | PostGIS 컬럼 타입 |
 | `bluetape4k-exposed-jdbc` | Exposed JDBC 저장소 기반 클래스 |
 | `bluetape4k-testing-testcontainers` | Testcontainers 헬퍼 |
+
+## 실패와 생명주기 계약
+
+BoundingBox는 생성자와 copy에서 위도 [-90, 90], 경도 [-180, 180] 범위를 검증합니다. 최소/최대 순서를 유지해야 하며 날짜 변경선 교차를 경도 역순 범위로 표현하지 않습니다.
+
+
+### Shapefile 경계 타입 이행
+
+`ShapeHeader.bbox`, `ShapeRecord.bbox`, `Shape.computeBoundingBox()`는 이제
+`ShapeBounds(minX, minY, maxX, maxY)`를 사용합니다. 각 축은 유한한 값과 최소/최대
+순서만 검증하므로 EPSG:3857 같은 미터 단위 투영좌표를 보존합니다. `loadShape`와
+`loadShapeAsync`는 CRS를 추론하거나 좌표를 변환하지 않습니다.
+
+기존 `minLon`/`maxLon` 접근은 `minX`/`maxX`로, `minLat`/`maxLat`는 `minY`/`maxY`로
+변경해야 합니다. 생성자 인수는 이름을 지정해 축 순서를 확인하세요. 반환 타입과 모델 생성자
+시그니처가 바뀌므로 호출자 소스 수정과 재컴파일이 필요합니다. `ShapeHeader`와 `ShapeRecord`의
+이전 Java 직렬화 데이터도 호환되지 않습니다(`serialVersionUID = 2L`). 저장한 객체는
+원본 Shapefile에서 다시 읽어 생성하세요.
+
+```kotlin
+val shape = loadShape(file)
+val bounds: ShapeBounds? = shape.computeBoundingBox()
+val filtered = shape.filterByBoundingBox(shape.header.bbox)
+```
+
+`filterByBoundingBox(ShapeBounds)`는 도형과 같은 좌표계의 경계를 받습니다.
+기존 `filterByBoundingBox(BoundingBox)`는 위경도 도형에 사용하며 자동 변환하지 않습니다.
+DB 임포트는 기존 CRS 변환을 수행한 뒤 WGS84 경계를 검증합니다. `BoundingBox`는
+`geo` 모듈의 경계 타입과 달리 날짜 변경선을 가로지르는 역순 경도를 허용하지 않습니다.

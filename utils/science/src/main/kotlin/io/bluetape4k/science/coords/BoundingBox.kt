@@ -1,6 +1,7 @@
 package io.bluetape4k.science.coords
 
 import io.bluetape4k.logging.KLogging
+import io.bluetape4k.support.requireInRange
 import org.locationtech.jts.geom.Envelope
 import java.io.Serializable
 
@@ -12,6 +13,9 @@ import java.io.Serializable
  * println(korea.width)  // 7.0
  * println(korea.height) // 5.9
  * ```
+ *
+ * 생성자와 `copy`는 위도 -90..90, 경도 -180..180 범위와 최소/최대 순서를 검증합니다.
+ * 날짜 변경선을 가로지르는 경도 역순 범위는 허용하지 않습니다.
  *
  * @param minLat 최소 위도 (남쪽 경계)
  * @param minLon 최소 경도 (서쪽 경계)
@@ -26,6 +30,10 @@ data class BoundingBox(
 ): Comparable<BoundingBox>, Serializable {
 
     init {
+        minLat.requireInRange(-90.0, 90.0, "minLat")
+        maxLat.requireInRange(-90.0, 90.0, "maxLat")
+        minLon.requireInRange(-180.0, 180.0, "minLon")
+        maxLon.requireInRange(-180.0, 180.0, "maxLon")
         require(minLat <= maxLat) { "minLat($minLat)는 maxLat($maxLat)보다 작거나 같아야 합니다." }
         require(minLon <= maxLon) { "minLon($minLon)는 maxLon($maxLon)보다 작거나 같아야 합니다." }
     }

@@ -66,6 +66,7 @@ io.bluetape4k.science/
 │   └── Projections.kt              — wgs84ToUtm(), utmToWgs84(), transform()
 │
 ├── shapefile/                       — Shapefile I/O (GeoTools)
+│   ├── ShapeBounds.kt              — X/Y bounds in the source coordinate system
 │   ├── ShapeModels.kt              — Shape, ShapeRecord, ShapeHeader (GeoTools-free public API)
 │   ├── ShapefileReader.kt          — Synchronous reader
 │   └── ShapefileExtensions.kt      — loadShape(), loadShapeAsync()
@@ -452,7 +453,7 @@ and counted by `netcdf.import.nan.skipped`.
 | Class / Function | Description |
 |------------------|-------------|
 | `GeoLocation(lat, lon)` | WGS84 coordinate; `.distanceTo()` for Haversine distance |
-| `BoundingBox(minLat, maxLat, minLon, maxLon)` | Rectangular boundary; `.contains()`, `.intersects()` |
+| `BoundingBox(minLat, minLon, maxLat, maxLon)` | Rectangular boundary; `.contains()`, `.intersects()` |
 | `DMS.parse(str)` / `DM.parse(str)` | Parse degree-minute-second / degree-minute strings |
 | `UtmZone(zone, hemisphere)` | UTM zone data class |
 | `utmZoneOf(lat, lon)` | Auto-detect UTM zone from WGS84 coordinates |
@@ -734,3 +735,33 @@ fun `import shapefile into PostGIS`() {
 | `bluetape4k-exposed-postgresql` | PostGIS column types |
 | `bluetape4k-exposed-jdbc` | Exposed JDBC repository base |
 | `bluetape4k-testing-testcontainers` | Testcontainers helpers |
+
+## Failure and lifecycle contract
+
+BoundingBox validates latitude in [-90, 90] and longitude in [-180, 180] during construction and copy. Minimum/maximum ordering is required; longitude intervals crossing the date line are not represented by reversed bounds.
+
+
+### Migrating Shapefile bounds
+
+`ShapeHeader.bbox`, `ShapeRecord.bbox`, and `Shape.computeBoundingBox()` now use
+`ShapeBounds(minX, minY, maxX, maxY)`. Each axis validates finite values and minimum/maximum
+ordering only, preserving projected coordinates in meters such as EPSG:3857. Neither
+`loadShape` nor `loadShapeAsync` infers a CRS or transforms coordinates.
+
+Replace `minLon`/`maxLon` access with `minX`/`maxX`, and `minLat`/`maxLat` with `minY`/`maxY`.
+Use named constructor arguments to verify axis order. Changed return types and model constructor
+signatures require caller source migration and recompilation. Previous Java serialized
+`ShapeHeader` and `ShapeRecord` objects are incompatible (`serialVersionUID = 2L`);
+recreate stored objects from the original Shapefile.
+
+```kotlin
+val shape = loadShape(file)
+val bounds: ShapeBounds? = shape.computeBoundingBox()
+val filtered = shape.filterByBoundingBox(shape.header.bbox)
+```
+
+`filterByBoundingBox(ShapeBounds)` requires bounds in the same coordinate system as the geometry.
+The existing `filterByBoundingBox(BoundingBox)` overload is for geographic coordinates and does
+not transform them. Database import keeps its existing CRS transformation, then validates WGS84
+bounds. Unlike the `geo` module bounds type, `BoundingBox` does not accept reversed longitude
+bounds crossing the date line.

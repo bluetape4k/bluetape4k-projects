@@ -3,7 +3,6 @@ package io.bluetape4k.science.shapefile
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.trace
-import io.bluetape4k.science.coords.BoundingBox
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.geotools.data.shapefile.dbf.DbaseFileReader
@@ -25,7 +24,8 @@ object ShapefileReaderSupport: KLogging()
  * 주어진 .shp 파일을 읽어 [Shape] 객체로 반환합니다.
  *
  * GeoTools [ShapefileReader]와 [DbaseFileReader]를 사용하여 도형 및 속성 정보를 읽습니다.
- * 공개 API에 GeoTools 타입을 노출하지 않습니다.
+ * 공개 API에 GeoTools 타입을 노출하지 않습니다. 경계와 도형은 원본 좌표계로 반환하며
+ * [ShapeBounds]는 투영좌표를 위경도로 변환하지 않습니다.
  *
  * ```kotlin
  * val shape = loadShape(File("korea_regions.shp"))
@@ -108,17 +108,17 @@ suspend fun loadShapeAsync(file: File, charset: Charset = Charsets.UTF_8): Shape
 private data class RawRecord(
     val number: Int,
     val shapeType: Int,
-    val bbox: BoundingBox?,
+    val bbox: ShapeBounds?,
     val geometry: Geometry,
 )
 
 private fun loadShapeHeader(reader: ShapefileReader): ShapeHeader {
     val h = reader.header
-    val bbox = BoundingBox(
-        minLat = h.minY(),
-        minLon = h.minX(),
-        maxLat = h.maxY(),
-        maxLon = h.maxX(),
+    val bbox = ShapeBounds(
+        minY = h.minY(),
+        minX = h.minX(),
+        maxY = h.maxY(),
+        maxX = h.maxX(),
     )
     return ShapeHeader(
         fileCode = 9994,
@@ -138,11 +138,11 @@ private fun loadRawRecords(reader: ShapefileReader): List<RawRecord> {
         val bbox = if (rec.minX.isFinite() && rec.minY.isFinite() &&
             rec.maxX.isFinite() && rec.maxY.isFinite()
         ) {
-            BoundingBox(
-                minLat = rec.minY,
-                minLon = rec.minX,
-                maxLat = rec.maxY,
-                maxLon = rec.maxX,
+            ShapeBounds(
+                minY = rec.minY,
+                minX = rec.minX,
+                maxY = rec.maxY,
+                maxX = rec.maxX,
             )
         } else null
         result.add(RawRecord(rec.number, rec.type.id, bbox, geom))
