@@ -255,6 +255,9 @@ jobs:
             search-messaging:
               - 'infra/elasticsearch/**'
               - 'infra/nats/**'
+              - 'infra/openfga/**'
+              - 'infra/qdrant/**'
+              - 'infra/temporal/**'
             kafka-infra:
               - 'infra/kafka/**'
               - 'infra/kafka4/**'
@@ -996,6 +999,9 @@ jobs:
             set -euo pipefail
             ./gradlew :bluetape4k-elasticsearch:test --max-workers=1 --no-configuration-cache
             ./gradlew :bluetape4k-nats:test --max-workers=1 --no-configuration-cache
+            ./gradlew :bluetape4k-openfga:test -PexcludeIntegrationTests=true --max-workers=1 --no-configuration-cache
+            ./gradlew :bluetape4k-qdrant:test -PexcludeIntegrationTests=true --max-workers=1 --no-configuration-cache
+            ./gradlew :bluetape4k-temporal:test -PexcludeIntegrationTests=true --max-workers=1 --no-configuration-cache
         env:
           GRADLE_OPTS: "-Dorg.gradle.daemon=false"
 
@@ -1004,6 +1010,9 @@ jobs:
         run: |
           ./gradlew :bluetape4k-elasticsearch:koverXmlReport -x test --max-workers=1 --no-configuration-cache
           ./gradlew :bluetape4k-nats:koverXmlReport -x test --max-workers=1 --no-configuration-cache
+          ./gradlew :bluetape4k-openfga:koverXmlReport -x test --max-workers=1 --no-configuration-cache
+          ./gradlew :bluetape4k-qdrant:koverXmlReport -x test --max-workers=1 --no-configuration-cache
+          ./gradlew :bluetape4k-temporal:koverXmlReport -x test --max-workers=1 --no-configuration-cache
 
       - name: Upload test results
         if: always()
@@ -1369,6 +1378,9 @@ jobs:
             printf '%s\n' \
               'infra/elasticsearch' \
               'infra/nats' \
+              'infra/openfga' \
+              'infra/qdrant' \
+              'infra/temporal' \
               >> coverage-artifacts/expected-modules.manifest
           fi
           if grep -q '^test-spring-boot=success$' coverage-artifacts/expected-jobs.manifest; then

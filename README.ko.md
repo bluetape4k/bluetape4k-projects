@@ -171,6 +171,9 @@ Bluetape4k는 기능별로 분리된 멀티 모듈 Gradle 프로젝트입니다.
 - **[kafka-logback](./infra/kafka-logback/README.ko.md)**: Logback Kafka Appender (구 `x-obsoleted/logback-kafka` 에서 승격)
 - **[micrometer](./infra/micrometer/README.ko.md)**: 메트릭
 - **[nats](./infra/nats/README.ko.md)**: NATS Java client DSL 및 Coroutines 지원
+- **[openfga](./infra/openfga/README.ko.md)**: OpenFGA 인가의 suspend 호출과 tuple 페이지 Flow
+- **[qdrant](./infra/qdrant/README.ko.md)**: Qdrant 벡터 조회, 페이지 Flow, 크기를 제한한 배치 저장
+- **[temporal](./infra/temporal/README.ko.md)**: Temporal 클라이언트 코루틴 확장과 명시적 Worker 종료
 - **[opentelemetry](./infra/opentelemetry/README.ko.md)**: 분산 추적
 - **[pulsar](./infra/pulsar/README.ko.md)**: Apache Pulsar client 확장, Coroutines 및 schema helper 지원
 - **[resilience4j](./infra/resilience4j/README.ko.md)**: Resilience4j + Coroutines, Coroutines Cache

@@ -906,9 +906,15 @@ jobs:
               test_tasks: >-
                   :bluetape4k-elasticsearch:test
                   :bluetape4k-nats:test
+                  :bluetape4k-openfga:test
+                  :bluetape4k-qdrant:test
+                  :bluetape4k-temporal:test
               kover_tasks: >-
                   :bluetape4k-elasticsearch:koverXmlReport
                   :bluetape4k-nats:koverXmlReport
+                  :bluetape4k-openfga:koverXmlReport
+                  :bluetape4k-qdrant:koverXmlReport
+                  :bluetape4k-temporal:koverXmlReport
               needs_mock_server: false
     steps:
       - uses: actions/checkout@v7
@@ -936,8 +942,11 @@ jobs:
           max_attempts: 3
           shell: bash
           command: |
+            set -euo pipefail
             read -ra tasks <<< "$TEST_TASKS"
-            ./gradlew "${tasks[@]}" --max-workers=2 --no-configuration-cache
+            for task in "${tasks[@]}"; do
+              ./gradlew "$task" --max-workers=1 --no-configuration-cache
+            done
         env:
           GRADLE_OPTS: "-Dorg.gradle.daemon=false"
           TEST_TASKS: ${{ matrix.test_tasks }}
@@ -1534,6 +1543,9 @@ jobs:
               'cache/cache-hazelcast' \
               'infra/elasticsearch' \
               'infra/nats' \
+              'infra/openfga' \
+              'infra/qdrant' \
+              'infra/temporal' \
               > coverage-artifacts/expected-modules.manifest
           fi
           if grep -q '=success$' coverage-artifacts/expected-jobs.manifest; then

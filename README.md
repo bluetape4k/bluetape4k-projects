@@ -167,6 +167,9 @@ Each service follows a **3-tier API** pattern: `sync` → `async (CompletableFut
 - **[kafka-logback](./infra/kafka-logback/README.md)**: Logback Kafka Appender (promoted from `x-obsoleted/logback-kafka`)
 - **[micrometer](./infra/micrometer/README.md)**: Metrics
 - **[nats](./infra/nats/README.md)**: NATS Java client DSLs and Coroutines support
+- **[openfga](./infra/openfga/README.md)**: OpenFGA authorization with suspending calls and paginated tuple flows
+- **[qdrant](./infra/qdrant/README.md)**: Qdrant vector queries, paginated flows, and bounded batch upserts
+- **[temporal](./infra/temporal/README.md)**: Temporal client coroutine extensions and explicit worker shutdown
 - **[opentelemetry](./infra/opentelemetry/README.md)**: Distributed tracing
 - **[pulsar](./infra/pulsar/README.md)**: Apache Pulsar client extensions with Coroutines and schema helpers
 - **[resilience4j](./infra/resilience4j/README.md)**: Resilience4j + Coroutines, Coroutines-native cache

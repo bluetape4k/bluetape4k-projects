@@ -6,7 +6,7 @@
     .title { fill: #0f172a; font-size: 32px; font-weight: 800; letter-spacing: 0; }
     .subtitle { fill: #475569; font-size: 17px; font-weight: 500; }
     .layer { fill: #ffffff; stroke: #cbd5e1; stroke-width: 1.4; }
-    .layerTitle { fill: #334155; font-size: 14px; font-weight: 800; letter-spacing: .2px; text-transform: uppercase; paint-order: stroke; stroke: #ffffff; stroke-width: 7px; stroke-linejoin: round; }
+    .layerTitle { fill: #334155; font-size: 14px; font-weight: 800; letter-spacing: .2px; text-transform: uppercase; }
     .card { stroke-width: 1.7; filter: url(#cardShadow); }
     .cardTitle { fill: #0f172a; font-size: 16px; font-weight: 800; }
     .cardDetail { fill: #475569; font-size: 12px; font-weight: 600; }
@@ -14,7 +14,7 @@
     .iconStroke { fill: none; stroke: #ffffff; stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; }
     .iconFill { fill: #ffffff; }
     .route { fill: none; stroke-width: 2.6; stroke-linecap: round; stroke-linejoin: round; marker-end: url(#arrow); }
-    .routeLabel { fill: #1e293b; font-size: 11px; font-weight: 700; text-anchor: middle; paint-order: stroke; stroke: #ffffff; stroke-width: 6px; stroke-linejoin: round; }
+    .routeLabel { fill: #1e293b; font-size: 11px; font-weight: 700; text-anchor: middle; }
     .legend { fill: #ffffff; stroke: #cbd5e1; stroke-width: 1.4; filter: url(#cardShadow); }
     .legendText { fill: #334155; font-size: 12px; font-weight: 700; }
     .footer, .chartFoot { fill: #64748b; font-size: 13px; font-weight: 600; }
@@ -28,14 +28,14 @@
     <filter id="cardShadow" x="-8%" y="-12%" width="116%" height="130%">
       <feDropShadow dx="0" dy="6" stdDeviation="5" flood-color="#0f172a" flood-opacity="0.10"/>
     </filter>
-    <marker id="arrow" markerWidth="14" markerHeight="14" refX="10" refY="4" orient="auto" viewBox="0 0 12 8" markerUnits="userSpaceOnUse" data-role="primary" data-tip-direction="positive-x">
-      <path d="M0,0 L12,4 L0,8 Z" fill="#475569" stroke-dasharray="none"/>
+    <marker id="arrow" markerWidth="12" markerHeight="8" refX="10" refY="4" orient="auto">
+      <path d="M0,0 L12,4 L0,8 Z" fill="#475569"/>
     </marker>
   </defs>
 <rect width="1500" height="940" fill="#fffaf0"/>
 <rect x="52" y="50" width="1396" height="840" rx="18" fill="#fffdf8" stroke="#d9b97c" stroke-width="2"/>
 <text class="chartTitle" x="88" y="100">Module Composition Chart</text>
-<text class="chartSub" x="88" y="132">88 Gradle modules grouped by repository responsibility</text>
+<text class="chartSub" x="88" y="132">96 Gradle modules grouped by repository responsibility</text>
 <line x1="400" y1="160" x2="400" y2="830" stroke="#dcc6a0" stroke-width="1"/>
 <line x1="400" y1="830" x2="1330" y2="830" stroke="#dcc6a0" stroke-width="1"/>
 <line x1="400" y1="826" x2="400" y2="836" stroke="#9f8b68"/>
@@ -55,8 +55,8 @@
 <line x1="1300" y1="826" x2="1300" y2="836" stroke="#9f8b68"/>
 <text class="chartTick" x="1300" y="858" text-anchor="middle">35</text>
 <text class="chartLabel" x="370" y="190" text-anchor="end">Foundation</text>
-<rect x="400" y="170" width="128.6" height="34" rx="8" fill="#f9fafb" stroke="#6b7280" stroke-width="1.5"/>
-<text class="chartValue" x="544.5714285714286" y="193">5</text>
+<rect x="400" y="170" width="180.0" height="34" rx="8" fill="#f9fafb" stroke="#6b7280" stroke-width="1.5"/>
+<text class="chartValue" x="596" y="193">7</text>
 <text class="chartLabel" x="370" y="250" text-anchor="end">I/O and Codecs</text>
 <rect x="400" y="230" width="411.4" height="34" rx="8" fill="#f9fafb" stroke="#6b7280" stroke-width="1.5"/>
 <text class="chartValue" x="827.4285714285713" y="253">16</text>
@@ -64,20 +64,20 @@
 <rect x="400" y="290" width="154.3" height="34" rx="8" fill="#f9fafb" stroke="#6b7280" stroke-width="1.5"/>
 <text class="chartValue" x="570.2857142857142" y="313">6</text>
 <text class="chartLabel" x="370" y="370" text-anchor="end">Infrastructure</text>
-<rect x="400" y="350" width="334.3" height="34" rx="8" fill="#f9fafb" stroke="#6b7280" stroke-width="1.5"/>
-<text class="chartValue" x="750.2857142857142" y="373">13</text>
+<rect x="400" y="350" width="437.1" height="34" rx="8" fill="#f9fafb" stroke="#6b7280" stroke-width="1.5"/>
+<text class="chartValue" x="853.1428571428571" y="373">17</text>
 <text class="chartLabel" x="370" y="430" text-anchor="end">Caching</text>
 <rect x="400" y="410" width="128.6" height="34" rx="8" fill="#f9fafb" stroke="#6b7280" stroke-width="1.5"/>
 <text class="chartValue" x="544.5714285714286" y="433">5</text>
 <text class="chartLabel" x="370" y="490" text-anchor="end">Ktor Stack</text>
-<rect x="400" y="470" width="128.6" height="34" rx="8" fill="#f9fafb" stroke="#6b7280" stroke-width="1.5"/>
-<text class="chartValue" x="544.5714285714286" y="493">5</text>
+<rect x="400" y="470" width="154.3" height="34" rx="8" fill="#f9fafb" stroke="#6b7280" stroke-width="1.5"/>
+<text class="chartValue" x="570.2857142857142" y="493">6</text>
 <text class="chartLabel" x="370" y="550" text-anchor="end">Spring Boot 4</text>
 <rect x="400" y="530" width="205.7" height="34" rx="8" fill="#f9fafb" stroke="#6b7280" stroke-width="1.5"/>
 <text class="chartValue" x="621.7142857142857" y="553">8</text>
 <text class="chartLabel" x="370" y="610" text-anchor="end">Testing</text>
-<rect x="400" y="590" width="128.6" height="34" rx="8" fill="#f9fafb" stroke="#6b7280" stroke-width="1.5"/>
-<text class="chartValue" x="544.5714285714286" y="613">5</text>
+<rect x="400" y="590" width="154.3" height="34" rx="8" fill="#f9fafb" stroke="#6b7280" stroke-width="1.5"/>
+<text class="chartValue" x="570.2857142857142" y="613">6</text>
 <text class="chartLabel" x="370" y="670" text-anchor="end">Utilities</text>
 <rect x="400" y="650" width="334.3" height="34" rx="8" fill="#f9fafb" stroke="#6b7280" stroke-width="1.5"/>
 <text class="chartValue" x="750.2857142857142" y="673">13</text>
@@ -87,5 +87,5 @@
 <text class="chartLabel" x="370" y="790" text-anchor="end">Examples</text>
 <rect x="400" y="770" width="231.4" height="34" rx="8" fill="#f9fafb" stroke="#6b7280" stroke-width="1.5"/>
 <text class="chartValue" x="647.4285714285714" y="793">9</text>
-<text class="chartFoot" x="88" y="875">Chart style preserved: warm canvas, horizontal bars, explicit counts, SVG+PNG pair.</text>
+<text class="chartFoot" x="88" y="875">Module counts include library, testing, and example Gradle projects.</text>
 </svg>

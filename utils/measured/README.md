@@ -24,6 +24,9 @@ English | [한국어](./README.ko.md)
 - Digital size: `BinarySize`
 - Frequency: `Frequency`
 - Energy / Power: `Energy`, `Power`
+- Electrical quantities: `Current`, `Charge`, `Voltage`, `Resistance`
+- Data transfer rate: `DataRate`, `DataRateFormat`
+- Mechanics: `Force`, `Torque`
 - Motion-unit utilities: `MotionUnits`, `Velocity`, `Acceleration`
 - Graphics length: `GraphicsLength`
 - Pressure: `Pressure`
@@ -42,6 +45,26 @@ val distance = speed * duration
 println(distance `as` meters) // 50.0 m
 println(distance.toHuman())    // 50.0 m
 ```
+
+Electrical quantities and mechanical measurements retain their semantic types:
+
+```kotlin
+val voltage = 2.kiloWatts() / 500.milliAmps()
+val force = 1.kilograms() * 9.8.metersPerSecondSquared()
+val torque = force.torqueAt(2.meters())
+val rate = 10.megabytesPerSecond()
+
+println(voltage.toHuman()) // 4.0 kV
+println(torque.toHuman())  // 19.6 N·m
+println(rate.toHuman())    // 10.0 MB/s
+println(rate.toHuman(DataRateFormat.DECIMAL_BITS)) // 80.0 Mbit/s
+```
+
+`DataRate.toHuman()` uses decimal bytes by default. Use
+`DataRateFormat.DECIMAL_BITS` or `DataRateFormat.BINARY_BYTES` when the display
+policy must be explicit. A force becomes torque only through `torqueAt`, which
+requires a perpendicular moment arm; a generic force/length product remains a
+composite unit.
 
 ## Test
 

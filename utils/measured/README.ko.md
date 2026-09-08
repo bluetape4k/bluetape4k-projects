@@ -23,6 +23,9 @@
 - 디지털 크기: `BinarySize`
 - 주파수: `Frequency`
 - 에너지/전력: `Energy`, `Power`
+- 전기 물리량: `Current`, `Charge`, `Voltage`, `Resistance`
+- 데이터 전송률: `DataRate`, `DataRateFormat`
+- 역학: `Force`, `Torque`
 - 운동량 단위 유틸: `MotionUnits`, `Velocity`, `Acceleration`
 - 그래픽 길이: `GraphicsLength`
 - 압력: `Pressure`
@@ -41,6 +44,25 @@ val distance = speed * duration
 println(distance `as` meters) // 50.0 m
 println(distance.toHuman())    // 50.0 m
 ```
+
+전기 물리량과 역학 측정값은 서로 다른 의미 타입으로 유지됩니다.
+
+```kotlin
+val voltage = 2.kiloWatts() / 500.milliAmps()
+val force = 1.kilograms() * 9.8.metersPerSecondSquared()
+val torque = force.torqueAt(2.meters())
+val rate = 10.megabytesPerSecond()
+
+println(voltage.toHuman()) // 4.0 kV
+println(torque.toHuman())  // 19.6 N·m
+println(rate.toHuman())    // 10.0 MB/s
+println(rate.toHuman(DataRateFormat.DECIMAL_BITS)) // 80.0 Mbit/s
+```
+
+`DataRate.toHuman()`은 기본으로 10진 바이트 단위를 사용합니다. 표시 정책을
+명시해야 한다면 `DataRateFormat.DECIMAL_BITS` 또는
+`DataRateFormat.BINARY_BYTES`를 전달합니다. 힘은 수직 모멘트암을 요구하는
+`torqueAt`을 통해서만 토크가 되며, 일반 힘/길이 곱은 복합 단위로 유지됩니다.
 
 ## 테스트
 
