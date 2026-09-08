@@ -510,3 +510,7 @@ custom 비동기 종료 동작이 필요한 factory는
 ## 라이선스
 
 MIT License
+
+## 실패와 생명주기 계약
+
+PostgreSQL JSON 변환 실패 로그는 원문 payload와 예외 상세를 제외합니다. 호출자에게 전달하는 ConversionFailedException은 source와 원래 Jackson cause를 유지하므로 민감한 입력이 포함된 예외를 그대로 로깅하지 않아야 합니다.

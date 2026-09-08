@@ -523,3 +523,7 @@ creation-time snapshot, while lookup and map access are rejected after close.
 ## License
 
 MIT License
+
+## Failure and lifecycle contract
+
+PostgreSQL JSON conversion failure logs omit raw payloads and throwable details. ConversionFailedException still retains the source and original Jackson cause for the caller; applications must avoid logging that exception with sensitive input.

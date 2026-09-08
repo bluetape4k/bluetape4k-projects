@@ -11,11 +11,12 @@ import tools.jackson.core.JacksonException
 import tools.jackson.databind.ObjectMapper
 
 /**
- * Converts a `Map<String, Any?>` value into a PostgreSQL [Json] value.
+ * `Map<String, Any?>`를 PostgreSQL [Json]으로 변환합니다.
  *
- * Serialization errors are reported as [ConversionFailedException] with the original Jackson cause.
+ * 직렬화 실패는 원래 Jackson 원인을 포함한 [ConversionFailedException]으로 전달합니다.
+ * 운영 로그에는 payload나 예외 원문을 기록하지 않습니다.
  *
- * @property mapper Jackson object mapper used for serialization.
+ * @property mapper 직렬화에 사용할 Jackson mapper.
  */
 @WritingConverter
 class MapToJsonConverter(
@@ -28,14 +29,14 @@ class MapToJsonConverter(
     }
 
     /**
-     * Converts [source] into PostgreSQL [Json].
+     * [source]를 PostgreSQL [Json]으로 변환합니다.
      *
-     * @throws ConversionFailedException when Jackson cannot serialize [source].
+     * @throws ConversionFailedException Jackson이 [source]를 직렬화할 수 없는 경우.
      */
     override fun convert(source: Map<String, Any?>): Json = try {
         Json.of(mapper.writeValueAsString(source))
     } catch (e: JacksonException) {
-        log.error(e) { "Fail to serialize map to Json. source=$source" }
+        log.error { "PostgreSQL JSON 직렬화 실패" }
         throw ConversionFailedException(sourceType, targetType, source, e)
     }
 }
