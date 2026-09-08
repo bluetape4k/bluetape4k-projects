@@ -12,11 +12,12 @@ import tools.jackson.databind.ObjectMapper
 import tools.jackson.module.kotlin.readValue
 
 /**
- * Converts a PostgreSQL [Json] value into a `Map<String, Any?>`.
+ * PostgreSQL [Json]을 `Map<String, Any?>`로 변환합니다.
  *
- * Invalid JSON is reported as a [ConversionFailedException] with the original Jackson cause.
+ * 잘못된 JSON은 원래 Jackson 원인을 포함한 [ConversionFailedException]으로 전달합니다.
+ * 운영 로그에는 payload나 예외 원문을 기록하지 않습니다.
  *
- * @property mapper Jackson object mapper used for deserialization.
+ * @property mapper 역직렬화에 사용할 Jackson mapper.
  */
 @ReadingConverter
 class JsonToMapConverter(private val mapper: ObjectMapper): Converter<Json, Map<String, Any?>> {
@@ -30,7 +31,7 @@ class JsonToMapConverter(private val mapper: ObjectMapper): Converter<Json, Map<
         return try {
             mapper.readValue(source.asString())
         } catch (e: JacksonException) {
-            log.error(e) { "Fail to parse Json: $source" }
+            log.error { "PostgreSQL JSON 역직렬화 실패" }
             throw ConversionFailedException(sourceType, targetType, source, e)
         }
     }
