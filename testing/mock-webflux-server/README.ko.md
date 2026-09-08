@@ -164,3 +164,7 @@ dependencies {
 - [Testcontainers](https://www.testcontainers.org/)
 - [Kotlin Coroutines](https://kotlinlang.org/docs/coroutines-overview.html)
 - [Jib — Java 앱 컨테이너화](https://github.com/GoogleContainerTools/jib)
+
+## 실패와 생명주기 계약
+
+HTML 로더는 정상 읽기와 읽기 실패 모두에서 입력 Reader를 닫습니다. 페이지 allowlist와 모듈별 캐시 이름은 유지합니다.

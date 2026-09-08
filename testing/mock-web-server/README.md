@@ -153,3 +153,7 @@ Mirrors [jsonplaceholder.typicode.com](https://jsonplaceholder.typicode.com). Al
 - [jsonplaceholder.typicode.com](https://jsonplaceholder.typicode.com)
 - [Testcontainers](https://www.testcontainers.org/)
 - [Jib — Containerize Java apps](https://github.com/GoogleContainerTools/jib)
+
+## Failure and lifecycle contract
+
+The HTML loader closes its input reader after success and after read failure. The page allowlist and module-specific cache name remain in effect.
