@@ -145,8 +145,9 @@ AWS migration after the helper is released:
     - Config validation failures throw `IllegalArgumentException`.
     - Optional driver class loading uses `Class.forName(driverClassName)` in the constructor. `ClassNotFoundException` may propagate directly or be wrapped in `IllegalArgumentException` with the driver class name and cause, but the message must not include URL, properties, or credentials.
     - Null password throws `SQLException(config.nullPasswordMessage)`.
-    - Provider failure is wrapped as a secret-free `SQLException` with cause, so
-      `DataSource.getConnection()` consistently exposes connection acquisition failure as `SQLException`.
+    - #1695 보안 계약 수정: provider 실패는 고정 메시지의 `SQLException`으로 변환한다.
+      원본 message, cause, suppressed, SQLState, errorCode는 비밀값을 포함할 수 있으므로 전달하지 않는다.
+      `DataSource.getConnection()`은 연결 획득 실패를 일관되게 `SQLException`으로 노출한다.
     - `DriverManager.getConnection(...)` `SQLException` is propagated unchanged.
     - Rejected caller credentials throw the stable `SQLException` message above.
     - `unwrap` failure throws `SQLException("Not a wrapper for <fqcn>.")`.

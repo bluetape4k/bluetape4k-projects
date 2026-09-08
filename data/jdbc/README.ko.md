@@ -565,3 +565,7 @@ class MyJdbcTest : AbstractJdbcTest() {
 ## 라이선스
 
 MIT License
+
+## 실패와 생명주기 계약
+
+password provider 실패는 원문 예외 체인을 제외한 안전한 SQLException으로 전달합니다. null password는 설정한 메시지를 유지하며 JDBC driver 연결 오류의 동작은 유지합니다.

@@ -44,8 +44,8 @@ Test cases:
 - Wrapper methods: `isWrapperFor`, successful `unwrap`, and failed `unwrap`
   with stable `SQLException("Not a wrapper for <fqcn>.")`.
 - Secret-free `toString()`: provider is not called and output excludes full URL query strings, URL userinfo, `password`, `token`, and `sslpassword` sentinel values.
-- Provider failure: provider exception is wrapped in a secret-free `SQLException`
-  with the cause preserved.
+- #1695 보안 계약 수정: provider 실패는 고정 메시지의 `SQLException`으로 변환하고 원본 cause와 suppressed를 제거한다.
+  원본 SQLException도 같은 경계를 적용하며 출력된 전체 stack trace에 비밀값이 없는지 검사한다.
 - Driver class load failure: failure includes the class name but not URL, properties, or credentials.
 - DriverManager global methods: log writer and login timeout delegate to process-wide `DriverManager`; save and restore original state.
 
@@ -69,7 +69,7 @@ Implementation rules:
 - Load optional `driverClassName` in the constructor.
 - Build a fresh per-call `Properties` object and write base properties first, then `user`, then `password`.
 - Reject caller-supplied credentials before invoking the provider.
-- Wrap provider failures as secret-free `SQLException` with cause.
+- #1695: provider 실패를 원본 cause와 suppressed가 없는 고정 메시지의 `SQLException`으로 변환한다.
 - Propagate `DriverManager.getConnection` `SQLException` unchanged.
 - Delegate log writer/login timeout to `DriverManager`.
 - Implement wrapper methods only for the helper instance.

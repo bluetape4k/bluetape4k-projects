@@ -158,15 +158,15 @@ class RefreshingJdbcPasswordDataSource(
     override fun toString(): String =
         "RefreshingJdbcPasswordDataSource(url=$urlSummary, username=<redacted>)"
 
-    private fun currentPassword(): String =
-        try {
+    private fun currentPassword(): String {
+        val password = try {
             passwordProvider.currentPassword()
-                ?: throw SQLException(nullPasswordMessage)
-        } catch (e: SQLException) {
-            throw e
-        } catch (e: Exception) {
-            throw SQLException("JDBC password provider failed.", e)
+        } catch (_: Exception) {
+            // provider 예외의 메시지, cause, suppressed에는 비밀값이 포함될 수 있습니다.
+            throw SQLException("JDBC password provider failed.")
         }
+        return password ?: throw SQLException(nullPasswordMessage)
+    }
 
     private companion object {
         private const val REJECT_CALLER_CREDENTIALS_MESSAGE =

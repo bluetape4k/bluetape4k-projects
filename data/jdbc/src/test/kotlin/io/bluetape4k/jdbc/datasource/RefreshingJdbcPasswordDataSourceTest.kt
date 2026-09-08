@@ -243,8 +243,22 @@ class RefreshingJdbcPasswordDataSourceTest {
             dataSource.connection
         }
 
-        ex.cause shouldBeEqualTo failure
+        ex.stackTraceToString() shouldNotContain "provider-secret"
         ex.message shouldNotContain "provider-secret"
+    }
+
+    @Test
+    fun `provider SQLException의 원인과 suppressed에 포함된 비밀값을 제거한다`() {
+        val failure = SQLException("provider-secret", IllegalStateException("cause-secret"))
+        failure.addSuppressed(IllegalArgumentException("suppressed-secret"))
+        val dataSource = dataSourceFor("jdbc:bluetape4k-refresh-test:provider-sql-failure") { throw failure }
+
+        val ex = assertFailsWith<SQLException> { dataSource.connection }
+
+        ex.message shouldBeEqualTo "JDBC password provider failed."
+        ex.stackTraceToString() shouldNotContain "provider-secret"
+        ex.stackTraceToString() shouldNotContain "cause-secret"
+        ex.stackTraceToString() shouldNotContain "suppressed-secret"
     }
 
     @Test
