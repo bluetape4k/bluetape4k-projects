@@ -81,7 +81,7 @@ class RedisLockCleanupContractTest {
 
         val thrown = assertFailsWith<IllegalStateException> { store.rotate() }
 
-        thrown.message!! shouldContain "ownership"
+        thrown.message.orEmpty() shouldContain "ownership"
     }
 
     @Test
@@ -135,6 +135,6 @@ class RedisLockCleanupContractTest {
 
         val thrown = assertFailsWith<IllegalStateException> { store.rotate() }
 
-        thrown.message!! shouldContain "ownership"
+        thrown.message.orEmpty() shouldContain "ownership"
     }
 }
