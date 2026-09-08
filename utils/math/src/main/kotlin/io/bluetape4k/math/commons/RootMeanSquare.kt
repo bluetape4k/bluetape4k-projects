@@ -102,15 +102,50 @@ fun DoubleArray.rmse(actual: DoubleArray): Double = asSequence().rmse(actual.asS
  * val actual = sequenceOf(1.0, 2.0, 10.0)
  * val result = predicted.normalizedRmse(actual)   // RMSE / (max - min)
  * ```
+ *
+ * 입력 계약은 다음과 같습니다.
+ * - 길이가 다른 입력은 [IllegalArgumentException]을 발생시킵니다.
+ * - 빈 입력은 `0.0`을 반환합니다.
+ * - expected와 actual에는 각각 하나 이상의 `NaN`이 아닌 값이 있어야 하며, 모두 `NaN`이면
+ *   [IllegalArgumentException]을 발생시킵니다.
+ * - 일부 값만 `NaN`이면 해당 오차를 필터링하지 않고 `NaN`을 반환합니다.
+ * - actual의 범위가 0이고 오차가 0이 아니면 IEEE-754 규칙에 따라 `+Infinity`를 반환합니다.
  */
 fun <N: Number> Sequence<N>.normalizedRmse(actual: Sequence<N>): Double {
-    return when (val rmse = rmse(actual)) {
-        0.0  -> 0.0
-        else -> {
-            val (min, max) = actual.map { it.toDouble() }.minMax()
-            rmse / (max - min)
-        }
+    var sumOfSquaredErrors = 0.0
+    var count = 0L
+    var expectedHasNonNaN = false
+    var actualHasNonNaN = false
+    val actualValues = ArrayList<Double>()
+
+    val expectedIterator = iterator()
+    val actualIterator = actual.iterator()
+
+    while (expectedIterator.hasNext()) {
+        require(actualIterator.hasNext()) { "두 컬렉션의 항목 수가 같아야 합니다." }
+
+        val expectedValue = expectedIterator.next().toDouble()
+        val actualValue = actualIterator.next().toDouble()
+
+        expectedHasNonNaN = expectedHasNonNaN || !expectedValue.isNaN()
+        actualHasNonNaN = actualHasNonNaN || !actualValue.isNaN()
+        actualValues += actualValue
+        sumOfSquaredErrors += (expectedValue - actualValue).square()
+        count++
     }
+
+    require(!actualIterator.hasNext()) { "두 컬렉션의 항목 수가 같아야 합니다." }
+    if (count == 0L) return 0.0
+
+    require(expectedHasNonNaN && actualHasNonNaN) {
+        "normalizedRmse 입력에는 NaN이 아닌 expected와 actual 값이 각각 하나 이상 있어야 합니다."
+    }
+
+    val rmse = sqrt(sumOfSquaredErrors / count.toDouble())
+    if (rmse == 0.0) return 0.0
+
+    val (min, max) = actualValues.asSequence().minMax()
+    return rmse / (max - min)
 }
 
 /**
