@@ -251,6 +251,9 @@ class AggregateKoverCoverageTest(unittest.TestCase):
             "cache/cache-hazelcast",
             "infra/elasticsearch",
             "infra/nats",
+            "infra/openfga",
+            "infra/qdrant",
+            "infra/temporal",
         }
         self.assertSetEqual(actual_modules, expected_modules)
         self.assertIn("expected_module_args+=(--expected-module \"$module\")", workflow)

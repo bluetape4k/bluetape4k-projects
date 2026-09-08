@@ -15,6 +15,7 @@ projects #1712–#1717에서 전기·전송률·힘·토크 단위와 OpenFGA·Q
 - Temporal 테스트 환경에서 callback으로 Future를 기다리는 경로는 blocking get의 자동 시간 진행에 의존할 수 없다. `environment.sleep`으로 workflow timer를 명시적으로 진행한다.
 - 코루틴 스택 복원은 예외 객체를 복제할 수 있다. 타입·메시지·원인 의미를 검사하며 무조건 객체 동일성으로 오류 전파를 판단하지 않는다.
 - 중앙 카탈로그 aliases와 BOM constraints는 별개다. 양쪽을 변경하고 생성 POM의 실제 버전과 새 모듈 aliases를 확인해야 한다.
+- PR 전달에서 settings의 catalog ref만 갱신하면 CI 환경변수가 이전 SHA를 덮어쓴다. settings와 CI checkout ref를 함께 확인한다. 신규 모듈을 Nightly manifest에 추가할 때는 `.github/scripts/test-aggregate-kover-coverage.py`의 기대 목록도 갱신하고 전체 계약 테스트를 실행한다. 첫 원격 CI에서 두 누락이 드러났으며, 모듈 단위 테스트 통과로 CI 등록 검증을 대신할 수 없다.
 
 ## 재발 방지와 검증
 
