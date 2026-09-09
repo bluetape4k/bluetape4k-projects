@@ -170,6 +170,7 @@ jobs:
       testcontainers-spring: ${{ steps.filter.outputs.testcontainers-spring }}
       ktor: ${{ steps.filter.outputs.ktor }}
       key-utils: ${{ steps.filter.outputs.key-utils }}
+      measured: ${{ steps.filter.outputs.measured }}
       science: ${{ steps.filter.outputs.science }}
       infra: ${{ steps.filter.outputs.infra }}
       search-messaging: ${{ steps.filter.outputs.search-messaging }}
@@ -245,6 +246,8 @@ jobs:
             key-utils:
               - 'utils/idgenerators/**'
               - 'cache/cache-core/**'
+            measured:
+              - 'utils/measured/**'
             science:
               - 'utils/science/**'
             infra:
@@ -824,7 +827,63 @@ jobs:
           if-no-files-found: error
           retention-days: 30
 
-  # ── 6-b. Science 모듈 테스트 (정규 회귀; slow-netcdf는 Nightly 전용) ─────
+  # ── 6-b. Measured 모듈 테스트 (정규 회귀) ───────────────────────────────
+  test-measured:
+    name: Test / Measured
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    needs: [changes, catalog-governance]
+    if: ${{ needs.changes.outputs.measured == 'true' || needs.changes.outputs.shared == 'true' || github.event_name == 'workflow_dispatch' }}
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-java@v6.0.0
+        with:
+          java-version: ${{ env.JAVA_VERSION }}
+          distribution: ${{ env.JAVA_DISTRIBUTION }}
+
+      - uses: gradle/actions/setup-gradle@v6.3.0
+        with:
+          gradle-version: wrapper
+          cache-read-only: true
+
+      - name: Test Measured module
+        uses: nick-fields/retry@v4
+        with:
+          timeout_minutes: 60
+          max_attempts: 3
+          shell: bash
+          command: ./gradlew :bluetape4k-measured:test --no-configuration-cache
+        env:
+          GRADLE_OPTS: "-Dorg.gradle.daemon=false"
+
+      - name: Run Measured detekt
+        run: ./gradlew :bluetape4k-measured:detekt --no-configuration-cache
+        env:
+          GRADLE_OPTS: "-Dorg.gradle.daemon=false"
+
+      - name: Generate Kover XML report
+        if: always()
+        run: ./gradlew :bluetape4k-measured:koverXmlReport -x test --no-configuration-cache
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: test-results-measured
+          path: '**/build/test-results/test/*.xml'
+          retention-days: 30
+
+      - name: Upload coverage report
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: coverage-measured
+          path: '**/build/reports/kover/'
+          if-no-files-found: error
+          retention-days: 30
+
+  # ── 6-c. Science 모듈 테스트 (정규 회귀; slow-netcdf는 Nightly 전용) ─────
   test-science:
     name: Test / Science
     runs-on: ubuntu-latest
@@ -1330,8 +1389,8 @@ jobs:
           retention-days: 30
 
   # ── 나머지 모듈 → Nightly에서 실행 ─────────────────────────────────
-  # science 정규 회귀는 위 PR job에서 실행하고, slow-netcdf를 포함한 utils 전체,
-  # misc, testcontainers는 nightly-tests.yml (매일 03:00 KST)에서 실행한다.
+  # science와 measured 정규 회귀는 위 PR job에서 실행하고, slow-netcdf를 포함한
+  # 나머지 utils 전체, misc, testcontainers는 nightly-tests.yml (매일 03:00 KST)에서 실행한다.
   # Spring Boot는 위 PR matrix와 nightly-tests.yml full scope에서 실행한다.
   # exposed 모듈은 bluetape4k-exposed 독립 레포로 분리됨 (#334)
 
@@ -1340,7 +1399,7 @@ jobs:
     name: Coverage Report
     runs-on: ubuntu-latest
     timeout-minutes: 10
-    needs: [test-core, test-io, test-io-http, test-testcontainers-spring, test-ktor, test-key-utils, test-science, test-infra, test-search-messaging, test-kafka-infra, test-telemetry-infra, test-data, test-spring-boot]
+    needs: [test-core, test-io, test-io-http, test-testcontainers-spring, test-ktor, test-key-utils, test-measured, test-science, test-infra, test-search-messaging, test-kafka-infra, test-telemetry-infra, test-data, test-spring-boot]
     if: always()
     steps:
       - uses: actions/checkout@v7
@@ -1355,6 +1414,7 @@ jobs:
             test-testcontainers-spring=${{ needs.test-testcontainers-spring.result }}
             test-ktor=${{ needs.test-ktor.result }}
             test-key-utils=${{ needs.test-key-utils.result }}
+            test-measured=${{ needs.test-measured.result }}
             test-science=${{ needs.test-science.result }}
             test-infra=${{ needs.test-infra.result }}
             test-search-messaging=${{ needs.test-search-messaging.result }}
@@ -1373,6 +1433,11 @@ jobs:
               'infra/redisson' \
               'cache/cache-redisson' \
               > coverage-artifacts/expected-modules.manifest
+          fi
+          if grep -q '^test-measured=success$' coverage-artifacts/expected-jobs.manifest; then
+            printf '%s\n' \
+              'utils/measured' \
+              >> coverage-artifacts/expected-modules.manifest
           fi
           if grep -q '^test-search-messaging=success$' coverage-artifacts/expected-jobs.manifest; then
             printf '%s\n' \
@@ -1440,7 +1505,7 @@ jobs:
     name: CI Status
     runs-on: ubuntu-latest
     timeout-minutes: 10
-    needs: [release-policy, manual-contract, jvm-release-contract, codeql-policy, catalog-governance, gitleaks, validate-wrapper, changes, build, test-core, test-io, test-testcontainers-spring, test-ktor, test-key-utils, test-science, test-infra, test-search-messaging, test-kafka-infra, test-telemetry-infra, test-data, test-spring-boot, coverage-report]
+    needs: [release-policy, manual-contract, jvm-release-contract, codeql-policy, catalog-governance, gitleaks, validate-wrapper, changes, build, test-core, test-io, test-testcontainers-spring, test-ktor, test-key-utils, test-measured, test-science, test-infra, test-search-messaging, test-kafka-infra, test-telemetry-infra, test-data, test-spring-boot, coverage-report]
     if: always()
     steps:
       - name: Check all jobs
@@ -1450,6 +1515,8 @@ jobs:
           SPRING_BOOT_RESULT: ${{ needs.test-spring-boot.result }}
           SCIENCE_CHANGED: ${{ needs.changes.outputs.science }}
           SCIENCE_RESULT: ${{ needs.test-science.result }}
+          MEASURED_CHANGED: ${{ needs.changes.outputs.measured }}
+          MEASURED_RESULT: ${{ needs.test-measured.result }}
         run: |
           echo "Job results: $RESULTS"
           if echo "$RESULTS" | grep -qE "failure|cancelled"; then
@@ -1462,6 +1529,10 @@ jobs:
           fi
           if [[ "$SCIENCE_CHANGED" == "true" && "$SCIENCE_RESULT" == "skipped" ]]; then
             echo "Science changes were detected but the Science test job was skipped"
+            exit 1
+          fi
+          if [[ "$MEASURED_CHANGED" == "true" && "$MEASURED_RESULT" == "skipped" ]]; then
+            echo "Measured changes were detected but the Measured test job was skipped"
             exit 1
           fi
           echo "CI passed (skipped jobs treated as success)"
