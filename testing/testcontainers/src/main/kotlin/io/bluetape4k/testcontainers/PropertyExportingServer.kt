@@ -1,5 +1,14 @@
 package io.bluetape4k.testcontainers
 
+import io.bluetape4k.logging.KotlinLogging
+import io.bluetape4k.logging.info
+
+private val propertyExportLog by lazy { KotlinLogging.logger {} }
+
+/** 로그에 프로퍼티 값 대신 안전하게 사용할 키 요약을 생성합니다. */
+internal fun Map<String, *>.toPropertyLogSummary(): String =
+    "keys=${keys.sorted()}, count=$size"
+
 /**
  * 시스템 프로퍼티 export 계약을 정의하는 인터페이스.
  *
@@ -96,9 +105,12 @@ interface PropertyExportingServer {
      */
     fun writeToSystemProperties() {
         val prefix = "$SERVER_PREFIX.$propertyNamespace"
-        properties().forEach { (key, value) ->
+        val props = properties()
+        props.forEach { (key, value) ->
             System.setProperty("$prefix.$key", value)
-            println("$prefix.$key=$value")
+        }
+        propertyExportLog.info {
+            "Exported server properties: namespace=$propertyNamespace, ${props.toPropertyLogSummary()}"
         }
     }
 }
