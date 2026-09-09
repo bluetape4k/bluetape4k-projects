@@ -26,6 +26,10 @@ data class SnowflakeId(
     val sequence: Int,
 ): Serializable {
 
+    companion object {
+        private const val serialVersionUID: Long = -4955654157101446216L
+    }
+
     /**
      * Snowflake Id 값 (Long 형)
      *
