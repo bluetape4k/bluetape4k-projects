@@ -2,6 +2,7 @@ package io.bluetape4k.testcontainers.http
 
 import io.bluetape4k.logging.KLogging
 import okhttp3.OkHttpClient
+import java.io.InputStream
 import java.security.KeyStore
 import java.security.cert.CertificateFactory
 import java.security.cert.X509Certificate
@@ -36,8 +37,13 @@ object BluetapeSslContext: KLogging() {
         val caStream = BluetapeSslContext::class.java.getResourceAsStream(CA_CERT_RESOURCE)
             ?: error("$CA_CERT_RESOURCE 를 classpath에서 찾을 수 없습니다")
 
+        return createTrustManagerFrom(caStream)
+    }
+
+    /** 제공된 CA 입력 스트림을 사용한 뒤 닫아 trust manager를 생성한다. */
+    internal fun createTrustManagerFrom(caStream: InputStream): X509TrustManager {
         val cf = CertificateFactory.getInstance("X.509")
-        val caCert = cf.generateCertificate(caStream) as X509Certificate
+        val caCert = caStream.use { cf.generateCertificate(it) as X509Certificate }
 
         val keyStore = KeyStore.getInstance(KeyStore.getDefaultType()).also {
             it.load(null, null)
