@@ -32,13 +32,13 @@ class DataRateTest {
         val transferred = 10.megabytesPerSecond() * 2.seconds()
 
         (transferred `in` BinarySize.megaBytes).shouldBeNear(20.0, 1e-10)
-        val rate = transferred / 2.seconds()
+        val rate = transferred.toDataRate(2.seconds())
         (rate `in` DataRate.megaBytesPerSecond).shouldBeNear(10.0, 1e-10)
     }
 
     @Test
     fun `바이트 크기와 시간으로 전송률을 계산한다`() {
-        val rate = 1.megabytes10() / 500.milliseconds()
+        val rate = 1.megabytes10().toDataRate(500.milliseconds())
 
         (rate `in` DataRate.megaBytesPerSecond).shouldBeNear(2.0, 1e-10)
         (rate `in` DataRate.bytesPerSecond).shouldBeNear(2_000_000.0, 1e-5)

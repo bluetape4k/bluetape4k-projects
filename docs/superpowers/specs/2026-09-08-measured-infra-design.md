@@ -28,7 +28,9 @@ SDK 연동은 범용 저장소/워크플로/권한 인터페이스와 공식 타
 - Current(A, mA, kA), Charge(C, mC, μC), Voltage(V, mV, kV), Resistance(Ω, mΩ, kΩ, MΩ)를 추가한다.
 - 전류×시간, 전하÷시간, 전력÷전류, 전압÷전류는 각각 C, A, V, Ω로 환원한다. 계산 전에 s·A·W로 정규화한다. 역연산은 동일 기준 단위를 사용한다.
 - DataRate 기준은 B/s다. SI bit·byte 및 IEC byte 단위를 제공한다. 기본 toHuman은 decimal byte를 선택하고, 별도 명시적 포맷 API로 SI bit/IEC byte를 선택한다. 숫자 생성 단위가 달라도 기본 정책은 동일하다.
-- DataRate×Time은 byte, BinarySize÷Time은 B/s로 환원한다. 시간은 반드시 초로 환산한다.
+- DataRate×Time은 byte로 환원한다. 기존 `BinarySize / Time` 제네릭 연산자의
+  `UnitsRatio<BinarySize, Time>` 반환형을 보존하며 전송률 환원은 명명된
+  `toDataRate(duration)` API를 사용한다. 시간은 반드시 초로 환산한다.
 - Force(N, mN, kN, MN)는 kg×m/s²로 정규화한다. Torque(N·m, kN·m)는 별도 의미 타입이다.
 - 토크는 `torqueAt(perpendicularArm)`처럼 수직 모멘트암을 명시하는 API로 계산한다. 일반 Force×Length를 Torque로 덮어쓰지 않는다.
 - 기존 Measure의 nullable·비유한 값·0·음수 계약과 기존 연산을 변경하지 않는다. 각 의미 연산에 고유한 JVM 이름을 부여한다.

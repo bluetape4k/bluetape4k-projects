@@ -62,9 +62,12 @@ println(rate.toHuman(DataRateFormat.DECIMAL_BITS)) // 80.0 Mbit/s
 
 `DataRate.toHuman()` uses decimal bytes by default. Use
 `DataRateFormat.DECIMAL_BITS` or `DataRateFormat.BINARY_BYTES` when the display
-policy must be explicit. A force becomes torque only through `torqueAt`, which
-requires a perpendicular moment arm; a generic force/length product remains a
-composite unit.
+policy must be explicit. Multiply a rate by a duration to calculate a
+`BinarySize`. To calculate a `DataRate` from an existing `BinarySize` and
+duration, use `binarySize.toDataRate(duration)`; the generic `/` operator keeps
+its `UnitsRatio<BinarySize, Time>` return type. A force becomes torque only
+through `torqueAt`, which requires a perpendicular moment arm; a generic
+force/length product remains a composite unit.
 
 ## Test
 
