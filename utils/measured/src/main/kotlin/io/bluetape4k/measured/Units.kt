@@ -247,6 +247,7 @@ class Measure<T: Units>(
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is Measure<*>) return false
+        if (units.javaClass != other.units.javaClass) return false
 
         @Suppress("UNCHECKED_CAST")
         other as Measure<T>
@@ -255,7 +256,11 @@ class Measure<T: Units>(
         return (this `in` resultUnit) == (other `in` resultUnit)
     }
 
-    override fun hashCode(): Int = (amount * units.ratio).hashCode()
+    override fun hashCode(): Int {
+        var result = units.javaClass.hashCode()
+        result = 31 * result + (amount * units.ratio).hashCode()
+        return result
+    }
 
     override fun toString(): String = "$amount${units.measureSuffix()}"
 }
