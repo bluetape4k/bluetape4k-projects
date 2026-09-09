@@ -2,11 +2,15 @@ package io.bluetape4k.testcontainers
 
 import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeFalse
 import io.bluetape4k.assertions.shouldBeNull
 import io.mockk.every
 import io.mockk.mockk
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
+import java.io.ByteArrayOutputStream
+import java.io.PrintStream
+import java.nio.charset.StandardCharsets.UTF_8
 
 class GenericServerSupportTest {
 
@@ -63,5 +67,29 @@ class GenericServerSupportTest {
         assertFailsWith<IllegalArgumentException> {
             server.writeToSystemProperties(" ")
         }
+    }
+
+    @Test
+    fun `writeToSystemProperties 로그는 extra 프로퍼티 값을 노출하지 않는다`() {
+        val canary = "REVIEW_GENERIC_PASSWORD_CANARY"
+        val server = mockk<GenericServer>(relaxed = true) {
+            every { host } returns "127.0.0.1"
+            every { port } returns 6379
+            every { url } returns "127.0.0.1:6379"
+        }
+        val originalOut = System.out
+        val captured = ByteArrayOutputStream()
+
+        try {
+            System.setOut(PrintStream(captured, true, UTF_8.name()))
+            server.writeToSystemProperties("redaction", mapOf("password" to canary))
+        } finally {
+            System.setOut(originalOut)
+            listOf("host", "port", "url", "password").forEach {
+                System.clearProperty("$SERVER_PREFIX.redaction.$it")
+            }
+        }
+
+        captured.toString(UTF_8).contains(canary).shouldBeFalse()
     }
 }

@@ -1,5 +1,7 @@
 package io.bluetape4k.ranges
 
+import java.io.Serializable
+
 /**
  * 시작값은 포함, 끝 값은 미포함하는 범위를 나타냅니다. (`startInclusive <= x < endExclusive`)
  *
@@ -46,7 +48,11 @@ interface ClosedOpenRange<T: Comparable<T>>: Range<T> {
 data class DefaultClosedOpenRange<T: Comparable<T>>(
     override val startInclusive: T,
     override val endExclusive: T,
-): ClosedOpenRange<T> {
+): ClosedOpenRange<T>, Serializable {
+
+    companion object {
+        private const val serialVersionUID: Long = 1L
+    }
 
     override fun toString(): String = "[$startInclusive..$endExclusive)"
 }

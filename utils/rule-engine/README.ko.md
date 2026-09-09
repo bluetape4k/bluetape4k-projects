@@ -51,6 +51,13 @@ Kotlin 기반의 경량 Rule Engine 라이브러리입니다. Easy Rules 패턴�
 - **Composite Rule**: `ActivationRuleGroup`, `ConditionalRuleGroup`, `UnitRuleGroup`으로 복합 Rule 조합
 - **Forward Chaining**: `InferenceRuleEngine`으로 조건 만족 시 반복 실행
 
+## 로깅과 민감 정보
+
+Rule 정의 표현식과 Action 스크립트에는 자격증명 등 민감한 값이 포함될 수 있습니다. 기본 Rule Engine 로거는
+engine, Rule 이름, fact 개수, source 길이만 기록하며 source payload와 예외 상세 정보는 로그 메시지에서
+제외합니다. 새로운 Rule Engine 로그를 추가할 때도 공용 `toRuleSourceLogContext()` helper를 사용해 이 경계를
+유지하세요.
+
 ## 사용 예시
 
 ### DSL 기반 Rule

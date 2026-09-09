@@ -10,6 +10,7 @@ import org.springframework.http.server.reactive.ReactorHttpHandlerAdapter
 import org.springframework.stereotype.Component
 import reactor.netty.DisposableServer
 import reactor.netty.http.server.HttpServer
+import java.io.InputStream
 import java.security.KeyStore
 import javax.net.ssl.KeyManagerFactory
 
@@ -59,8 +60,7 @@ class HttpsServerLifecycle(
         val p12Stream = HttpsServerLifecycle::class.java.getResourceAsStream("/certs/localhost.p12")
             ?: error("certs/localhost.p12 를 classpath에서 찾을 수 없습니다")
 
-        val keyStore = KeyStore.getInstance("PKCS12")
-        keyStore.load(p12Stream, keyStorePassword.toCharArray())
+        val keyStore = loadHttpsKeyStore(p12Stream, keyStorePassword)
 
         val kmf = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm())
         kmf.init(keyStore, keyStorePassword.toCharArray())
@@ -68,3 +68,9 @@ class HttpsServerLifecycle(
         return SslContextBuilder.forServer(kmf).build()
     }
 }
+
+/** 소유한 PKCS12 입력 스트림을 로드한 뒤 항상 닫습니다. */
+internal fun loadHttpsKeyStore(input: InputStream, password: String): KeyStore =
+    KeyStore.getInstance("PKCS12").also { keyStore ->
+        input.use { keyStore.load(it, password.toCharArray()) }
+    }

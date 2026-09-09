@@ -2,6 +2,7 @@ package io.bluetape4k.io.compressor
 
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
+import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeGreaterThan
 import io.bluetape4k.assertions.shouldBeTrue
@@ -9,6 +10,7 @@ import io.bluetape4k.assertions.shouldNotBeNull
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
 import java.io.File
+import java.nio.file.Files
 import java.util.zip.ZipFile
 
 class ZipBuilderTest {
@@ -80,6 +82,18 @@ class ZipBuilderTest {
             entry.shouldNotBeNull()
             val extracted = zip.getInputStream(entry).readBytes().toString(Charsets.UTF_8)
             extracted shouldBeEqualTo "파일 기반 ZIP 테스트"
+        }
+    }
+
+    @Test
+    fun `파일 기반 ZIP 읽기 실패는 빈 성공 결과로 바꾸지 않는다`() {
+        val zipFile = File(tempDir, "missing.zip")
+        val builder = ZipBuilder.of(zipFile)
+            .add("content").path("content.txt").save()
+        Files.delete(zipFile.toPath())
+
+        assertFailsWith<java.io.FileNotFoundException> {
+            builder.toBytes()
         }
     }
 

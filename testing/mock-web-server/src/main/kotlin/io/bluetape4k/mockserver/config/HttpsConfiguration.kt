@@ -12,6 +12,8 @@ import org.springframework.boot.web.server.WebServerFactoryCustomizer
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import java.io.File
+import java.io.InputStream
+import java.io.OutputStream
 
 /**
  * Tomcat에 HTTPS 추가 커넥터를 등록하는 설정.
@@ -49,7 +51,7 @@ class HttpsConfiguration {
             ?: error("certs/localhost.p12 를 classpath에서 찾을 수 없습니다")
 
         val tmpFile = File.createTempFile("bluetape4k-https-", ".p12").also { it.deleteOnExit() }
-        tmpFile.outputStream().use { out -> p12Stream.copyTo(out) }
+        tmpFile.outputStream().use { out -> copyHttpsKeyStore(p12Stream, out) }
 
         val connector = Connector("org.apache.coyote.http11.Http11NioProtocol")
         connector.scheme = "https"
@@ -70,4 +72,9 @@ class HttpsConfiguration {
 
         return connector
     }
+}
+
+/** 소유한 PKCS12 입력 스트림을 복사한 뒤 항상 닫습니다. */
+internal fun copyHttpsKeyStore(input: InputStream, output: OutputStream) {
+    input.use { it.copyTo(output) }
 }

@@ -17,6 +17,8 @@ import io.qdrant.client.grpc.Points.RetrievedPoint
 import io.qdrant.client.grpc.Points.UpsertPoints
 import io.qdrant.client.grpc.Points.UpdateResult
 import io.qdrant.client.grpc.Points.PointStruct
+import io.qdrant.client.VectorFactory.vector
+import io.qdrant.client.VectorsFactory.vectors
 import kotlinx.coroutines.async
 import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.flow.asFlow
@@ -28,12 +30,15 @@ import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.withTimeout
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import io.grpc.Status
 import io.grpc.StatusRuntimeException
 import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeSameInstanceAs
 import io.bluetape4k.assertions.shouldBeTrue
+import org.junit.jupiter.api.Assertions.assertTimeoutPreemptively
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import java.time.Duration
 
@@ -244,5 +249,67 @@ class QdrantCoroutinesTest {
         result.await().size shouldBeEqualTo 1
         verify(exactly = 1) { client.upsertAsync(any<UpsertPoints>(), any<Duration>()) }
         verify(exactly = 0) { client.close() }
+    }
+
+    @Test
+    fun `large batches complete within a bounded construction time`() {
+        val client = mockk<QdrantClient>()
+        every { client.upsertAsync(any<UpsertPoints>(), any<Duration>()) } returns
+            Futures.immediateFuture(UpdateResult.getDefaultInstance())
+        val template = UpsertPoints.newBuilder().setCollectionName("vectors").build()
+        val points = (1L..50_000L).map { number ->
+            PointStruct.newBuilder().setId(id(number)).setVectors(
+                vectors(1f, 2f, 3f, 4f, 5f, 6f, 7f, 8f)
+            ).build()
+        }
+
+        assertTimeoutPreemptively(Duration.ofSeconds(10)) {
+            val result = runBlocking {
+                client.upsertBatches(points.asFlow(), template, maxBatchItems = points.size).toList()
+            }
+            result.size shouldBeEqualTo 1
+        }
+    }
+
+    @Test
+    fun `varint length boundaries keep the exact serialized byte limit`() = runTest {
+        val template = UpsertPoints.newBuilder().setCollectionName("vectors").setWait(true).build()
+        val vectorData = FloatArray(32) { it.toFloat() }
+        val points = listOf(127L, 128L).map { number ->
+            PointStruct.newBuilder().setId(id(number)).setVectors(vectors(*vectorData)).build()
+        }
+        (points[0].serializedSize < points[1].serializedSize).shouldBeTrue()
+        assertTrue(points.all { it.serializedSize >= 128 })
+
+        val exactLimit = template.toBuilder().addAllPoints(points).build().serializedSize
+        val requestsAtExactLimit = mutableListOf<UpsertPoints>()
+        val exactClient = mockk<QdrantClient>()
+        every { exactClient.upsertAsync(capture(requestsAtExactLimit), any<Duration>()) } returns
+            Futures.immediateFuture(UpdateResult.getDefaultInstance())
+
+        exactClient.upsertBatches(
+            points.asFlow(),
+            template,
+            maxBatchItems = points.size,
+            maxBatchBytes = exactLimit,
+        ).toList()
+
+        (requestsAtExactLimit.map { it.pointsCount }) shouldBeEqualTo listOf(2)
+        (requestsAtExactLimit.single().serializedSize) shouldBeEqualTo exactLimit
+
+        val requestsBelowLimit = mutableListOf<UpsertPoints>()
+        val belowLimitClient = mockk<QdrantClient>()
+        every { belowLimitClient.upsertAsync(capture(requestsBelowLimit), any<Duration>()) } returns
+            Futures.immediateFuture(UpdateResult.getDefaultInstance())
+
+        belowLimitClient.upsertBatches(
+            points.asFlow(),
+            template,
+            maxBatchItems = points.size,
+            maxBatchBytes = exactLimit - 1,
+        ).toList()
+
+        (requestsBelowLimit.map { it.pointsCount }) shouldBeEqualTo listOf(1, 1)
+        (requestsBelowLimit.all { it.serializedSize <= exactLimit - 1 }).shouldBeTrue()
     }
 }

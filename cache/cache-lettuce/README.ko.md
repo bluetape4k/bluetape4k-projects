@@ -87,6 +87,15 @@ Caffeine(로컬) + Redis(분산) 2단계 캐시로, RESP3 CLIENT TRACKING을 통
 | `CaffeineLocalCache<K, V>`              | Caffeine 기반 LocalCache 구현                          |
 | `TrackingInvalidationListener<V>`       | RESP3 CLIENT TRACKING push 리스너                     |
 
+## Redis URI 로깅
+
+Provider는 Redis URI의 user information, query와 semicolon option을 로그에 남기기 전에 redaction합니다. 진단에
+필요한 host, port, path와 민감하지 않은 option은 유지하고 percent encoded 값을 포함한 자격증명 값은
+`<redacted>`로 치환합니다. URI가 malformed이거나 구조가 모호하면 `<redacted-uri>`로 기록합니다.
+
+이 경계는 Lettuce Provider의 URI 로깅에 적용됩니다. JDBC/R2DBC URL 정책을 다루는
+[bluetape4k-leader#892](https://github.com/bluetape4k/bluetape4k-leader/issues/892)와는 별도입니다.
+
 ### Near-Cache Capability
 
 Lettuce native/JCache NearCache는 공통 conformance suite에서 supported로 검증됩니다.

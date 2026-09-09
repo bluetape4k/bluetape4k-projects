@@ -6,10 +6,12 @@ import java.sql.SQLException
 /**
  * JDBC transaction 안에서 [block]을 실행합니다.
  *
- * connection의 `autoCommit`, isolation level, read-only flag는 복구됩니다
- * independently to their original values. Any [Throwable] from the block or
- * commit path triggers rollback and is rethrown unchanged. Rollback or restore
- * failures are attached as suppressed exceptions to the primary failure.
+ * connection의 `autoCommit`, isolation level, read-only flag는 원래 값으로
+ * 각각 복구됩니다. 블록 또는 commit 경로의 [Throwable]은 rollback을 실행한
+ * 뒤 변경 없이 다시 던집니다. rollback 또는 복구 실패는 원래 예외에 suppressed
+ * 예외로 추가됩니다. rollback이 실패하면 끝나지 않은 transaction이 암묵적으로
+ * commit되지 않도록 `autoCommit`을 비활성 상태로 두며, 호출자가 connection을
+ * 폐기해야 합니다.
  *
  * If the block and commit succeed but state restoration fails, the restore
  * failure is thrown instead of returning a successful result.
@@ -36,6 +38,7 @@ inline fun <T> Connection.withTransaction(
     val originalIsolationLevel = this.transactionIsolation
     val originalReadOnly = this.isReadOnly
     var primaryFailure: Throwable? = null
+    var rollbackSucceeded = true
 
     return try {
         this.autoCommit = false
@@ -49,16 +52,23 @@ inline fun <T> Connection.withTransaction(
         try {
             this.rollback()
         } catch (rollbackEx: Throwable) {
+            rollbackSucceeded = false
             e.addSuppressed(rollbackEx)
         }
         throw e
     } finally {
+        // A driver may commit when transaction state is changed after a failed
+        // rollback. Leave the connection untouched and let the caller discard it.
         val restoreFailure =
-            restoreTransactionState(
-                originalAutoCommit = originalAutoCommit,
-                originalIsolationLevel = originalIsolationLevel,
-                originalReadOnly = originalReadOnly,
-            )
+            if (rollbackSucceeded) {
+                restoreTransactionState(
+                    originalAutoCommit = originalAutoCommit,
+                    originalIsolationLevel = originalIsolationLevel,
+                    originalReadOnly = originalReadOnly,
+                )
+            } else {
+                null
+            }
 
         if (restoreFailure != null) {
             primaryFailure?.addSuppressed(restoreFailure) ?: throw restoreFailure

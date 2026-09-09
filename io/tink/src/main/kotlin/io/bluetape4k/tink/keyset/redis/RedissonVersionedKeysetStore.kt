@@ -118,14 +118,12 @@ class RedissonVersionedKeysetStore(
 
     private fun <T> withLock(action: () -> T): T {
         check(lock.tryLock(5, TimeUnit.SECONDS)) { "Failed to acquire lock for keyring=$keyringName" }
-        return try {
-            action()
-        } finally {
-            runCatching {
-                if (lock.isHeldByCurrentThread) {
-                    lock.unlock()
-                }
-            }
-        }
+        return withObservedCleanup(
+            action = { action() },
+            cleanup = {
+                check(lock.isHeldByCurrentThread) { "Lock ownership was lost for keyring=$keyringName" }
+                lock.unlock()
+            },
+        )
     }
 }

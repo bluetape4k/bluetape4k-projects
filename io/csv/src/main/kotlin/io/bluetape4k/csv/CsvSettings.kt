@@ -1,6 +1,9 @@
 package io.bluetape4k.csv
 
 import io.bluetape4k.logging.KLogging
+import io.bluetape4k.support.requireEquals
+import io.bluetape4k.support.requireNotEmpty
+import io.bluetape4k.support.requirePositiveNumber
 import java.io.Serializable
 
 /**
@@ -89,22 +92,14 @@ data class CsvSettings(
         require(delimiter != quote) {
             "delimiter($delimiter)와 quote($quote)는 달라야 합니다"
         }
-        require(quoteEscape == quote) {
+        quoteEscape.requireEquals(quote) {
             "V1은 RFC 4180 doubled-quote 이스케이프만 지원합니다. " +
                     "quoteEscape는 quote와 동일해야 합니다. " +
                     "임의 이스케이프 문자는 V2 이후 지원 예정입니다"
         }
-        require(maxCharsPerColumn > 0) {
-            "maxCharsPerColumn($maxCharsPerColumn)은 양수여야 합니다"
-        }
-        require(maxColumns > 0) {
-            "maxColumns($maxColumns)은 양수여야 합니다"
-        }
-        require(bufferSize > 0) {
-            "bufferSize($bufferSize)은 양수여야 합니다"
-        }
-        require(lineSeparator.isNotEmpty()) {
-            "lineSeparator는 비어 있을 수 없습니다"
-        }
+        maxCharsPerColumn.requirePositiveNumber { "maxCharsPerColumn($maxCharsPerColumn)은 양수여야 합니다" }
+        maxColumns.requirePositiveNumber { "maxColumns($maxColumns)은 양수여야 합니다" }
+        bufferSize.requirePositiveNumber { "bufferSize($bufferSize)은 양수여야 합니다" }
+        lineSeparator.requireNotEmpty { "lineSeparator는 비어 있을 수 없습니다" }
     }
 }

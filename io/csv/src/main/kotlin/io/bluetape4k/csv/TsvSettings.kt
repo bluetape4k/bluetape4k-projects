@@ -1,6 +1,8 @@
 package io.bluetape4k.csv
 
 import io.bluetape4k.logging.KLogging
+import io.bluetape4k.support.requireNotEmpty
+import io.bluetape4k.support.requirePositiveNumber
 import java.io.Serializable
 
 /**
@@ -64,17 +66,9 @@ data class TsvSettings(
     }
 
     init {
-        require(maxCharsPerColumn > 0) {
-            "maxCharsPerColumn은 양수여야 합니다"
-        }
-        require(maxColumns > 0) {
-            "maxColumns은 양수여야 합니다"
-        }
-        require(bufferSize > 0) {
-            "bufferSize은 양수여야 합니다"
-        }
-        require(lineSeparator.isNotEmpty()) {
-            "lineSeparator는 비어 있을 수 없습니다"
-        }
+        maxCharsPerColumn.requirePositiveNumber { "maxCharsPerColumn은 양수여야 합니다" }
+        maxColumns.requirePositiveNumber { "maxColumns은 양수여야 합니다" }
+        bufferSize.requirePositiveNumber { "bufferSize은 양수여야 합니다" }
+        lineSeparator.requireNotEmpty { "lineSeparator는 비어 있을 수 없습니다" }
     }
 }

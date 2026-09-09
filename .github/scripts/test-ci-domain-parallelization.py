@@ -48,6 +48,7 @@ DOMAIN_JOBS = (
     "test-testcontainers-spring",
     "test-ktor",
     "test-key-utils",
+    "test-measured",
     "test-science",
     "test-infra",
     "test-search-messaging",
@@ -228,6 +229,87 @@ class CiDomainParallelizationTest(unittest.TestCase):
             status,
         )
 
+    def assert_measured_route(self, workflow: str) -> None:
+        changes = job_block(workflow, "changes")
+        self.assertIn(
+            "measured: ${{ steps.filter.outputs.measured }}",
+            changes,
+        )
+        measured_filter = path_filter_block(workflow, "measured")
+        self.assertIn("'utils/measured/**'", measured_filter)
+        fixture = (
+            "utils/measured/src/test/kotlin/"
+            "io/bluetape4k/measured/LengthTest.kt"
+        )
+        filter_patterns = re.findall(r"^              - '([^']+)'$", measured_filter, re.MULTILINE)
+        self.assertTrue(any(fnmatch.fnmatchcase(fixture, pattern) for pattern in filter_patterns))
+
+        measured_job = job_block(workflow, "test-measured")
+        self.assertIn(
+            "needs.changes.outputs.measured == 'true'",
+            measured_job,
+        )
+        self.assertIn(":bluetape4k-measured:test", measured_job)
+        self.assertIn(":bluetape4k-measured:detekt", measured_job)
+        self.assertIn(":bluetape4k-measured:koverXmlReport", measured_job)
+
+        coverage = job_block(workflow, "coverage-report")
+        self.assertIn("test-measured=${{ needs.test-measured.result }}", coverage)
+        self.assertIn(
+            "if grep -q '^test-measured=success$' coverage-artifacts/expected-jobs.manifest",
+            coverage,
+        )
+        self.assertIn("'utils/measured'", coverage)
+
+        status = job_block(workflow, "ci-status")
+        self.assertIn(
+            "MEASURED_CHANGED: ${{ needs.changes.outputs.measured }}",
+            status,
+        )
+        self.assertIn(
+            "MEASURED_RESULT: ${{ needs.test-measured.result }}",
+            status,
+        )
+        self.assertIn(
+            '[[ "$MEASURED_CHANGED" == "true" && "$MEASURED_RESULT" == "skipped" ]]',
+            status,
+        )
+
+    def test_measured_fixture_routes_to_regular_ci_and_coverage(self):
+        self.assert_measured_route(self.workflow)
+
+    def test_measured_route_contract_rejects_output_filter_and_job_mutations(self):
+        mutations = {
+            "missing output": self.workflow.replace(
+                "      measured: ${{ steps.filter.outputs.measured }}\n",
+                "",
+                1,
+            ),
+            "missing path filter": self.workflow.replace(
+                "              - 'utils/measured/**'\n",
+                "",
+                1,
+            ),
+            "missing test job": self.workflow.replace(
+                "  test-measured:\n",
+                "  test-measured-removed:\n",
+                1,
+            ),
+            "missing coverage manifest": self.workflow.replace(
+                "            test-measured=${{ needs.test-measured.result }}\n",
+                "",
+                1,
+            ),
+            "missing skipped guard": self.workflow.replace(
+                '          if [[ "$MEASURED_CHANGED" == "true" && "$MEASURED_RESULT" == "skipped" ]]; then\n',
+                "",
+                1,
+            ),
+        }
+        for mutation_name, mutated_workflow in mutations.items():
+            with self.subTest(mutation=mutation_name), self.assertRaises(AssertionError):
+                self.assert_measured_route(mutated_workflow)
+
     def test_science_fixture_routes_to_regular_ci_and_slow_netcdf_stays_nightly(self):
         self.assert_science_route(self.workflow)
         nightly = NIGHTLY_WORKFLOW.read_text(encoding="utf-8")
@@ -254,9 +336,8 @@ class CiDomainParallelizationTest(unittest.TestCase):
             ),
         }
         for mutation_name, mutated_workflow in mutations.items():
-            with self.subTest(mutation=mutation_name):
-                with self.assertRaises(AssertionError):
-                    self.assert_science_route(mutated_workflow)
+            with self.subTest(mutation=mutation_name), self.assertRaises(AssertionError):
+                self.assert_science_route(mutated_workflow)
 
     def test_spring_boot_skip_is_not_accepted_when_changes_are_detected(self):
         status = job_block(self.workflow, "ci-status")

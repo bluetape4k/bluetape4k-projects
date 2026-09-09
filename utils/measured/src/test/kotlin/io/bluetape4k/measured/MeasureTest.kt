@@ -73,6 +73,15 @@ class MeasureTest {
     }
 
     @Test
+    fun `서로 다른 물리 차원의 측정값은 equals와 hash set에서 구분한다`() {
+        val length = 1.meters()
+        val time = 1.milliseconds()
+
+        (length == time).shouldBeFalse()
+        setOf<Any>(length, time).size shouldBeEqualTo 2
+    }
+
+    @Test
     fun `unaryMinus가 부호를 반전한다`() {
         val unit = CoreUnit("u")
         val positive = 5.0 * unit

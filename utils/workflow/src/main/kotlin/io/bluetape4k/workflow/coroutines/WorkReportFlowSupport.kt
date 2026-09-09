@@ -4,7 +4,6 @@ import io.bluetape4k.logging.KLogging
 import io.bluetape4k.workflow.api.SuspendWork
 import io.bluetape4k.workflow.api.WorkContext
 import io.bluetape4k.workflow.api.WorkReport
-import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 
@@ -35,9 +34,8 @@ fun workReportFlow(
     context: WorkContext,
 ): Flow<WorkReport> = flow {
     for (work in works) {
-        val report = runCatching { work.execute(context) }
+        val report = suspendResult { work.execute(context) }
             .getOrElse { e ->
-                if (e is CancellationException) throw e
                 WorkReport.Failure(context, e)
             }
         emit(report)
@@ -57,9 +55,8 @@ fun workReportFlow(
  * @return 실행 결과 [WorkReport]를 emit하는 [Flow]
  */
 fun SuspendWork.executeAsFlow(context: WorkContext): Flow<WorkReport> = flow {
-    val report = runCatching { execute(context) }
+    val report = suspendResult { execute(context) }
         .getOrElse { e ->
-            if (e is CancellationException) throw e
             WorkReport.Failure(context, e)
         }
     emit(report)

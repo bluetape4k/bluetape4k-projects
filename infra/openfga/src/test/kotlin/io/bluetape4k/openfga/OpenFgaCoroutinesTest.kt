@@ -38,9 +38,31 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.Test
 import java.time.Duration
+import java.io.ByteArrayInputStream
+import java.io.ByteArrayOutputStream
+import java.io.ObjectInputStream
+import java.io.ObjectOutputStream
 import java.util.concurrent.CompletableFuture
 
 class OpenFgaCoroutinesTest {
+
+    @Test
+    fun `공개 요청 값 객체는 직렬화 roundtrip을 지원한다`() {
+        val values = listOf(
+            OpenFgaScope("store", "model"),
+            openFgaTuple("user:anne", "reader", "document:budget"),
+        )
+
+        values.forEach { value ->
+            val bytes = ByteArrayOutputStream().use { output ->
+                ObjectOutputStream(output).use { stream -> stream.writeObject(value) }
+                output.toByteArray()
+            }
+
+            val restored = ObjectInputStream(ByteArrayInputStream(bytes)).use { stream -> stream.readObject() }
+            restored shouldBeEqualTo value
+        }
+    }
 
     @Test
     fun `scope와 tuple builder는 공백 입력을 거부한다`() {

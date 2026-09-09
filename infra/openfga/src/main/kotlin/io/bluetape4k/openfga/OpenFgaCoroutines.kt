@@ -56,7 +56,7 @@ suspend fun OpenFgaApi.batchCheckSuspending(
     request: BatchCheckRequest,
     configurationOverride: ConfigurationOverride = ConfigurationOverride(),
 ): ApiResponse<BatchCheckResponse> = openFgaCall("batchCheck") {
-    (request.getChecks()?.size ?: 0).requireInRange(
+    request.getChecks().size.requireInRange(
         1,
         FgaConstants.CLIENT_MAX_BATCH_SIZE,
         "checks.size",

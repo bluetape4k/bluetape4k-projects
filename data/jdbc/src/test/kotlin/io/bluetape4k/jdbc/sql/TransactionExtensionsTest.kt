@@ -12,6 +12,7 @@ import java.lang.reflect.InvocationHandler
 import java.lang.reflect.Method
 import java.lang.reflect.Proxy
 import java.sql.Connection
+import java.sql.DriverManager
 import java.sql.ResultSet
 import java.sql.SQLException
 
@@ -160,6 +161,52 @@ class TransactionExtensionsTest: AbstractJdbcSqlTest() {
             }
 
         thrown shouldBeEqualTo restoreFailure
+    }
+
+    @Test
+    fun `withTransaction does not commit when rollback fails`() {
+        val marker = "rollback-failure-${System.nanoTime()}"
+        val url = "jdbc:h2:mem:rollback-failure-${System.nanoTime()};DB_CLOSE_DELAY=-1"
+        DriverManager.getConnection(url).use { realConnection ->
+            realConnection.createStatement().use { statement ->
+                statement.executeUpdate("CREATE TABLE records (payload VARCHAR(255))")
+            }
+            val failingConnection =
+                Proxy.newProxyInstance(
+                    Connection::class.java.classLoader,
+                    arrayOf(Connection::class.java),
+                ) { _, method, args ->
+                    if (method.name == "rollback") {
+                        throw SQLException("injected rollback failure")
+                    }
+                    try {
+                        method.invoke(realConnection, *(args ?: emptyArray()))
+                    } catch (error: java.lang.reflect.InvocationTargetException) {
+                        throw error.targetException
+                    }
+                } as Connection
+
+            assertFailsWith<IllegalStateException> {
+                failingConnection.withTransaction { connection ->
+                    connection.executeUpdate(
+                        "INSERT INTO records (payload) VALUES ('$marker')",
+                    )
+                    error("work failed")
+                }
+            }
+            realConnection.autoCommit.shouldBeFalse()
+
+            val committedRows =
+                DriverManager.getConnection(url).use { observer ->
+                    observer.createStatement()
+                        .executeQuery("SELECT COUNT(*) FROM records WHERE payload = '$marker'")
+                        .use { resultSet ->
+                            resultSet.next()
+                            resultSet.getInt(1)
+                        }
+                }
+            committedRows shouldBeEqualTo 0
+        }
     }
 
     @Test

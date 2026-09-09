@@ -2,6 +2,7 @@ package io.bluetape4k.resilience4j.cache
 
 import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.codec.Base58
 import io.bluetape4k.concurrent.futureOf
 import io.bluetape4k.concurrent.onSuccess
 import io.bluetape4k.junit5.coroutines.runSuspendTest
@@ -90,6 +91,21 @@ class CacheExtensionsTest {
             callCount.get() shouldBeEqualTo 2L
             it shouldBeEqualTo "Hi Sunghyouk!"
         }.join()
+    }
+
+    @Test
+    fun `decorate completion stage executes the loader and caches its result`() {
+        val jcache = CaffeineJCacheProvider.getJCache<String, String>("completion-stage-${Base58.randomString(8)}")
+        val cache = Cache.of(jcache)
+        val callCount = AtomicInteger(0)
+        val cachedLoader = cache.decorateCompletionStage { key: String ->
+            callCount.incrementAndGet()
+            CompletableFuture.completedFuture("value-$key")
+        }
+
+        cachedLoader("key").toCompletableFuture().join() shouldBeEqualTo "value-key"
+        cachedLoader("key").toCompletableFuture().join() shouldBeEqualTo "value-key"
+        callCount.get() shouldBeEqualTo 1
     }
 
     @Test

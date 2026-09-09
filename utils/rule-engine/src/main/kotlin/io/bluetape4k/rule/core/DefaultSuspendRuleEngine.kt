@@ -24,7 +24,7 @@ open class DefaultSuspendRuleEngine(
     companion object: KLogging()
 
     override suspend fun fire(rules: Iterable<SuspendRule>, facts: Facts) {
-        log.debug { "Fire suspend rules, facts=$facts" }
+        log.debug { "Fire suspend rules, ${facts.toLogContext()}" }
 
         for (rule in rules) {
             val name = rule.name
@@ -38,12 +38,22 @@ open class DefaultSuspendRuleEngine(
                 return
             }
 
-            log.debug { "Evaluate suspend rule. rule=$name, facts=$facts" }
+            val startedAt = System.nanoTime()
+            log.debug { "Evaluate suspend rule. rule=$name, ${facts.toLogContext()}" }
 
             try {
-                if (rule.evaluate(facts)) {
+                val evaluationResult = rule.evaluate(facts)
+                log.debug {
+                    "Suspend rule '$name' evaluated. result=$evaluationResult, " +
+                            "durationNanos=${System.nanoTime() - startedAt}, ${facts.toLogContext()}"
+                }
+
+                if (evaluationResult) {
                     rule.execute(facts)
-                    log.debug { "Suspend rule '$name' executed successfully." }
+                    log.debug {
+                        "Suspend rule '$name' executed successfully. " +
+                                "durationNanos=${System.nanoTime() - startedAt}, ${facts.toLogContext()}"
+                    }
 
                     if (config.skipOnFirstAppliedRule) {
                         log.debug { "Remaining suspend rules skipped. (skipOnFirstAppliedRule=true)" }
@@ -58,7 +68,10 @@ open class DefaultSuspendRuleEngine(
             } catch (e: CancellationException) {
                 throw e
             } catch (e: Exception) {
-                log.debug { "Suspend rule '$name' failed with exception: ${e.message}" }
+                log.debug {
+                    "Suspend rule '$name' failed. exceptionType=${e.javaClass.name}, " +
+                            "durationNanos=${System.nanoTime() - startedAt}, ${facts.toLogContext()}"
+                }
                 if (config.skipOnFirstFailedRule) {
                     log.debug { "Remaining suspend rules skipped. (skipOnFirstFailedRule=true)" }
                     return
@@ -68,14 +81,23 @@ open class DefaultSuspendRuleEngine(
     }
 
     override suspend fun check(rules: Iterable<SuspendRule>, facts: Facts): Map<SuspendRule, Boolean> {
-        log.debug { "Checking suspend rules ..." }
+        log.debug { "Checking suspend rules ... ${facts.toLogContext()}" }
         return rules.associateWith { rule ->
+            val startedAt = System.nanoTime()
             try {
-                rule.evaluate(facts)
+                val result = rule.evaluate(facts)
+                log.debug {
+                    "Suspend rule '${rule.name}' checked. result=$result, " +
+                            "durationNanos=${System.nanoTime() - startedAt}, ${facts.toLogContext()}"
+                }
+                result
             } catch (e: CancellationException) {
                 throw e
             } catch (e: Exception) {
-                log.debug { "Suspend rule '${rule.name}' evaluate failed with exception: ${e.message}" }
+                log.debug {
+                    "Suspend rule '${rule.name}' check failed. exceptionType=${e.javaClass.name}, " +
+                            "durationNanos=${System.nanoTime() - startedAt}, ${facts.toLogContext()}"
+                }
                 false
             }
         }

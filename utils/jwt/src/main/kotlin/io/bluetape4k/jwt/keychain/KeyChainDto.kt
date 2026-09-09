@@ -30,6 +30,10 @@ data class KeyChainDto(
     val createdAt: Long,
     val expiredTtl: Long,
 ): Serializable {
+    companion object {
+        private const val serialVersionUID: Long = -1267149397241058308L
+    }
+
     var publicKey: ByteArray? = null
     var privateKey: ByteArray? = null
 }

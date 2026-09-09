@@ -1,12 +1,17 @@
 package io.bluetape4k.r2dbc.support
 
+import ch.qos.logback.classic.Level
 import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeSameInstanceAs
+import io.bluetape4k.assertions.shouldContain
+import io.bluetape4k.assertions.shouldNotContain
+import io.bluetape4k.junit5.output.InMemoryLogbackAppender
 import io.mockk.confirmVerified
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
 import org.junit.jupiter.api.Test
+import org.slf4j.LoggerFactory
 import org.springframework.r2dbc.core.DatabaseClient
 
 class DatabaseClientSupportTest {
@@ -85,5 +90,36 @@ class DatabaseClientSupportTest {
 
         spec.bindNullable<String>("username", "john") shouldBeSameInstanceAs spec
         spec.bindNullable<String>(0, null) shouldBeSameInstanceAs spec
+    }
+
+    @Test
+    fun `bind map logs omit values while preserving binding metadata`() {
+        val loggerName = "io.bluetape4k.r2dbc.support.DatabaseClientSupport"
+        val logger = LoggerFactory.getLogger(loggerName) as ch.qos.logback.classic.Logger
+        val previousLevel = logger.level
+        val spec = mockk<DatabaseClient.GenericExecuteSpec>()
+        val namedSecret = "named-binding-secret"
+        val indexedSecret = "indexed-binding-secret"
+
+        every { spec.bind("password", any()) } returns spec
+        every { spec.bind(0, any()) } returns spec
+
+        InMemoryLogbackAppender(loggerName).use { appender ->
+            try {
+                logger.level = Level.TRACE
+                spec.bindMap(mapOf("password" to namedSecret))
+                spec.bindIndexedMap(mapOf(0 to indexedSecret))
+
+                val messages = appender.messages.joinToString("\n")
+                messages shouldContain "name=password"
+                messages shouldContain "index=0"
+                messages shouldNotContain namedSecret
+                messages shouldNotContain indexedSecret
+            } finally {
+                logger.level = previousLevel
+            }
+        }
+        verify(exactly = 1) { spec.bind("password", any()) }
+        verify(exactly = 1) { spec.bind(0, any()) }
     }
 }

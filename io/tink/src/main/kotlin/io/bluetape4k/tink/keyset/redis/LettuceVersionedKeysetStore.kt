@@ -138,13 +138,13 @@ class LettuceVersionedKeysetStore(
         val token = UUID.randomUUID().toString()
         val acquired = acquireLock(token)
         check(acquired) { "Failed to acquire lock for keyring=$keyringName" }
-        return try {
-            action(token)
-        } finally {
-            runCatching {
-                releaseLockIfOwned(commands, lockKey, token)
-            }
-        }
+        return withObservedCleanup(
+            action = { action(token) },
+            cleanup = {
+                val released = releaseLockIfOwned(commands, lockKey, token)
+                check(released) { "Lock ownership was lost for keyring=$keyringName" }
+            },
+        )
     }
 
     private fun acquireLock(token: String): Boolean {

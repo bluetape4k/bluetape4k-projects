@@ -42,7 +42,8 @@ suspend fun <K, V> Producer<K, V>.suspendSend(record: ProducerRecord<K, V>): Rec
     suspendCancellableCoroutine { cont ->
         val future = send(record) { metadata, exception ->
             if (exception != null) cont.resumeWithException(exception)
-            else cont.resume(metadata!!)
+            else metadata?.let(cont::resume)
+                ?: cont.resumeWithException(IllegalStateException("Kafka callback returned no metadata"))
         }
         cont.invokeOnCancellation { future.cancel(true) }
     }

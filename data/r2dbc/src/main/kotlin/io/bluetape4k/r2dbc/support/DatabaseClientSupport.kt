@@ -14,6 +14,8 @@ private val log by lazy { KotlinLogging.logger {} }
  * Raw null values are rejected because they do not carry R2DBC type
  * information. Use [typedNullParameter] or an explicit `Parameter` value when
  * binding nullable map entries.
+ * Trace logging records only the parameter name and runtime value type; the
+ * bound value is never included.
  *
  * ```kotlin
  * val sql = "SELECT * FROM users WHERE username = :username AND active = :active"
@@ -40,7 +42,9 @@ private val log by lazy { KotlinLogging.logger {} }
  */
 fun DatabaseClient.GenericExecuteSpec.bindMap(parameters: Map<String, Any?>): DatabaseClient.GenericExecuteSpec =
     parameters.entries.fold(this) { spec, entry ->
-        log.trace { "bind map. name=${entry.key}, value=${entry.value}" }
+        log.trace {
+            "bind map. name=${entry.key}, valueType=${entry.value?.javaClass?.name ?: "null"}"
+        }
         when (val value = entry.value) {
             null -> throw rawNullBindingException(entry.key)
             else -> spec.bind(entry.key, value.toParameter())
@@ -55,6 +59,8 @@ fun DatabaseClient.GenericExecuteSpec.bindMap(parameters: Map<String, Any?>): Da
  * Raw null values are rejected because they do not carry R2DBC type
  * information. Use [typedNullParameter] or an explicit `Parameter` value when
  * binding nullable map entries.
+ * Trace logging records only the parameter index and runtime value type; the
+ * bound value is never included.
  *
  * ```kotlin
  * val sql = "SELECT * FROM users WHERE username = ? AND active = ?"
@@ -83,7 +89,9 @@ fun DatabaseClient.GenericExecuteSpec.bindMap(parameters: Map<String, Any?>): Da
 fun DatabaseClient.GenericExecuteSpec.bindIndexedMap(parameters: Map<Int, Any?>): DatabaseClient.GenericExecuteSpec =
     parameters.entries.fold(this) { spec, entry ->
         val index = entry.key.requireZeroOrPositiveNumber("index")
-        log.trace { "bind indexed map. index=$index, value=${entry.value}" }
+        log.trace {
+            "bind indexed map. index=$index, valueType=${entry.value?.javaClass?.name ?: "null"}"
+        }
         when (val value = entry.value) {
             null -> throw rawNullBindingException("index $index")
             else -> spec.bind(index, value.toParameter())

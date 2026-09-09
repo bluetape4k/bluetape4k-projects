@@ -13,6 +13,14 @@ class MinMaxTest {
         sequenceOf(-2.0, -1.0, 2.0, 4.0, Double.NaN, Double.POSITIVE_INFINITY, Double.NEGATIVE_INFINITY)
 
     @Test
+    fun `get max value when all values are non-positive`() {
+        sequenceOf(-3.0, -2.0, -1.0).minMax() shouldBeEqualTo (-3.0 to -1.0)
+        sequenceOf(0.0).minMax() shouldBeEqualTo (0.0 to 0.0)
+        sequenceOf(-3.0, -2.0, -1.0).absMinMax() shouldBeEqualTo (1.0 to 3.0)
+        sequenceOf(0.0).absMinMax() shouldBeEqualTo (0.0 to 0.0)
+    }
+
+    @Test
     fun `get min max value of sequence`() {
         val (min, max) = values.minMax()
         min shouldBeEqualTo -2.0

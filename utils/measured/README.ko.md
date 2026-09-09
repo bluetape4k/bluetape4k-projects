@@ -63,6 +63,9 @@ println(rate.toHuman(DataRateFormat.DECIMAL_BITS)) // 80.0 Mbit/s
 명시해야 한다면 `DataRateFormat.DECIMAL_BITS` 또는
 `DataRateFormat.BINARY_BYTES`를 전달합니다. 힘은 수직 모멘트암을 요구하는
 `torqueAt`을 통해서만 토크가 되며, 일반 힘/길이 곱은 복합 단위로 유지됩니다.
+전송률에 시간을 곱하면 `BinarySize`를 계산하고, 데이터 크기에서 전송률을
+계산할 때는 `binarySize.toDataRate(duration)`을 사용합니다. 제네릭 `/` 연산자는
+기존 `UnitsRatio<BinarySize, Time>` 반환형을 유지합니다.
 
 ## 테스트
 

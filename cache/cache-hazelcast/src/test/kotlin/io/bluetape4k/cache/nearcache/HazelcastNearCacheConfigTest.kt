@@ -1,9 +1,14 @@
 package io.bluetape4k.cache.nearcache
 
+import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
 import org.junit.jupiter.api.Test
+import java.io.ByteArrayInputStream
+import java.io.ByteArrayOutputStream
+import java.io.ObjectInputStream
+import java.io.ObjectOutputStream
+import java.io.ObjectStreamClass
 import java.time.Duration
-import io.bluetape4k.assertions.assertFailsWith
 
 class HazelcastNearCacheConfigTest {
 
@@ -38,4 +43,26 @@ class HazelcastNearCacheConfigTest {
             HazelcastNearCacheConfig(frontExpireAfterAccess = Duration.ZERO)
         }
     }
+
+    @Test
+    fun `설정은 Java serialization round trip과 명시 UID를 유지한다`() {
+        val config = HazelcastNearCacheConfig(
+            cacheName = "users",
+            maxLocalSize = 500,
+            frontExpireAfterWrite = Duration.ofMinutes(5),
+            frontExpireAfterAccess = Duration.ofMinutes(1),
+            recordStats = true,
+        )
+
+        deserialize<HazelcastNearCacheConfig>(serialize(config)) shouldBeEqualTo config
+        ObjectStreamClass.lookup(HazelcastNearCacheConfig::class.java).serialVersionUID shouldBeEqualTo 1L
+    }
+
+    private fun serialize(value: Any): ByteArray = ByteArrayOutputStream().use { bytes ->
+        ObjectOutputStream(bytes).use { output -> output.writeObject(value) }
+        bytes.toByteArray()
+    }
+
+    private inline fun <reified T> deserialize(bytes: ByteArray): T =
+        ObjectInputStream(ByteArrayInputStream(bytes)).use { input -> input.readObject() as T }
 }

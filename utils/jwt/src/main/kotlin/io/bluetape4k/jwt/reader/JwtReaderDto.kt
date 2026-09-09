@@ -37,6 +37,10 @@ data class JwtReaderDto(
     val digest: ByteArray? = null,
     val tokenString: String? = null,
 ): Serializable {
+    companion object {
+        private const val serialVersionUID: Long = 6285801536022841892L
+    }
+
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is JwtReaderDto) return false

@@ -1,8 +1,10 @@
 package io.bluetape4k.probabilistic.bloomfilter
 
 import io.bluetape4k.support.requireGt
+import io.bluetape4k.support.requireLe
 import io.bluetape4k.support.requireLt
 import io.bluetape4k.support.requirePositiveNumber
+import java.io.Serializable
 import kotlin.math.ceil
 import kotlin.math.ln
 import kotlin.math.max
@@ -24,7 +26,11 @@ private val LN_2_SQUARED = LN_2 * LN_2
 data class BloomFilterConfig(
     val expectedInsertions: Long = DEFAULT_EXPECTED_INSERTIONS,
     val falsePositiveProbability: Double = DEFAULT_FALSE_POSITIVE_PROBABILITY,
-) {
+) : Serializable {
+
+    companion object {
+        private const val serialVersionUID: Long = 1L
+    }
 
     /** 계산된 bitset 크기입니다. */
     val bitSize: Long
@@ -38,9 +44,7 @@ data class BloomFilterConfig(
         falsePositiveProbability.requireLt(1.0, "falsePositiveProbability")
 
         val calculatedBitSize = optimalBitSize(expectedInsertions, falsePositiveProbability)
-        require(calculatedBitSize <= MAX_SUPPORTED_BIT_SIZE) {
-            "bitSize must be less than or equal to $MAX_SUPPORTED_BIT_SIZE"
-        }
+        calculatedBitSize.requireLe(MAX_SUPPORTED_BIT_SIZE, "bitSize")
 
         bitSize = calculatedBitSize
         hashFunctionCount = optimalHashFunctionCount(expectedInsertions, calculatedBitSize)

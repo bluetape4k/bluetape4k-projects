@@ -1,5 +1,7 @@
 package io.bluetape4k.ranges
 
+import java.io.Serializable
+
 /**
  * 하한, 상한 모두 포함하는 Range ( `startInclusive <= x <= endInclusive` )
  *
@@ -60,7 +62,13 @@ interface ClosedClosedRange<T: Comparable<T>>: Range<T>, ClosedRange<T> {
 data class DefaultClosedClosedRange<T: Comparable<T>>(
     override val startInclusive: T,
     override val endInclusive: T,
-): ClosedClosedRange<T>, ClosedRange<T> by startInclusive..endInclusive {
+): ClosedClosedRange<T>, Serializable {
+
+    companion object {
+        private const val serialVersionUID: Long = 1L
+    }
+
+    override val start: T get() = startInclusive
 
     override fun contains(value: T): Boolean =
         value in startInclusive..endInclusive
