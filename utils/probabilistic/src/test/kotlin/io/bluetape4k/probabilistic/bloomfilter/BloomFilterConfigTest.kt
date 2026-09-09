@@ -1,9 +1,15 @@
 package io.bluetape4k.probabilistic.bloomfilter
 
+import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeGreaterThan
+import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeInRange
 import org.junit.jupiter.api.Test
-import io.bluetape4k.assertions.assertFailsWith
+import java.io.ByteArrayInputStream
+import java.io.ByteArrayOutputStream
+import java.io.ObjectInputStream
+import java.io.ObjectOutputStream
+import java.io.ObjectStreamClass
 
 class BloomFilterConfigTest {
 
@@ -39,4 +45,20 @@ class BloomFilterConfigTest {
         config.hashFunctionCount shouldBeGreaterThan 0
         config.hashFunctionCount shouldBeInRange 1..20
     }
+
+    @Test
+    fun `설정은 Java serialization round trip과 명시 UID를 유지한다`() {
+        val config = BloomFilterConfig(expectedInsertions = 10_000L, falsePositiveProbability = 0.01)
+
+        deserialize<BloomFilterConfig>(serialize(config)) shouldBeEqualTo config
+        ObjectStreamClass.lookup(BloomFilterConfig::class.java).serialVersionUID shouldBeEqualTo 1L
+    }
+
+    private fun serialize(value: Any): ByteArray = ByteArrayOutputStream().use { bytes ->
+        ObjectOutputStream(bytes).use { it.writeObject(value) }
+        bytes.toByteArray()
+    }
+
+    private inline fun <reified T> deserialize(bytes: ByteArray): T =
+        ObjectInputStream(ByteArrayInputStream(bytes)).use { it.readObject() as T }
 }
