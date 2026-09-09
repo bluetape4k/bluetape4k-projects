@@ -76,6 +76,16 @@ class ChannelSupportTest {
         distinct.toList() shouldBeEqualTo emptyList()
     }
 
+    @Test
+    fun `distinct until changed by equal operator preserves nullable first value`() = runTest {
+        val channel = produce<String?> {
+            send(null)
+            send("a")
+        }
+
+        channel.distinctUntilChanged { a, b -> a == b }.toList() shouldBeEqualTo listOf(null, "a")
+    }
+
     @RepeatedTest(REPEAT_SIZE)
     fun `recude received element`() = runTest {
         val channel = produce {

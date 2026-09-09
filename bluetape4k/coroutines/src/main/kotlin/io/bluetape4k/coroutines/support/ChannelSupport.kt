@@ -73,11 +73,12 @@ suspend inline fun <E> ReceiveChannel<E>.distinctUntilChanged(
     val self = this@distinctUntilChanged
     produce(context, Channel.BUFFERED) {
         val producer = this
-        val first = self.receiveCatching().getOrNull() ?: run {
+        val firstResult = self.receiveCatching()
+        if (firstResult.isClosed) {
             producer.close()
             return@produce
         }
-        var prev: E = first
+        var prev: E = firstResult.getOrThrow()
         producer.send(prev)
 
         self.consumeEach { received ->
