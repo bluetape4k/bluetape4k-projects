@@ -6,6 +6,7 @@ import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.error
 import io.bluetape4k.rule.api.Action
 import io.bluetape4k.rule.api.Facts
+import io.bluetape4k.rule.core.toRuleSourceLogContext
 import io.bluetape4k.rule.exception.RuleException
 import io.bluetape4k.support.requireNotBlank
 import org.codehaus.groovy.control.CompilerConfiguration
@@ -54,7 +55,10 @@ class GroovyAction(val script: String): Action {
                 facts[key as String] = converted
             }
         } catch (e: Exception) {
-            log.error(e) { "Fail to execute Groovy script '$script' on facts=$facts" }
+            log.error {
+                "Fail to execute Groovy script. ${script.toRuleSourceLogContext()}, " +
+                        "exceptionType=${e.javaClass.name}, factCount=${facts.size}"
+            }
             throw RuleException("Fail to execute Groovy script", e)
         }
     }

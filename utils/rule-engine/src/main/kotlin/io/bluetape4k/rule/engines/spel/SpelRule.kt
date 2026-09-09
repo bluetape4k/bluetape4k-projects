@@ -8,6 +8,7 @@ import io.bluetape4k.rule.DEFAULT_RULE_PRIORITY
 import io.bluetape4k.rule.api.Condition
 import io.bluetape4k.rule.api.Facts
 import io.bluetape4k.rule.core.AbstractRule
+import io.bluetape4k.rule.core.toRuleSourceLogContext
 import io.bluetape4k.support.requireNotBlank
 import org.springframework.expression.BeanResolver
 import org.springframework.expression.ParserContext
@@ -55,7 +56,7 @@ class SpelRule private constructor(
         parserContext: ParserContext? = null,
         beanResolver: BeanResolver? = null,
     ) = apply {
-        log.debug { "Set rule condition. expression=$expression" }
+        log.debug { "Set rule condition. engine=SpEL, ${expression.toRuleSourceLogContext()}" }
         this.condition = SpelCondition(expression, parserContext, beanResolver)
     }
 
@@ -63,7 +64,7 @@ class SpelRule private constructor(
      * [SpelCondition]으로 조건을 설정합니다.
      */
     fun whenever(condition: SpelCondition) = apply {
-        log.debug { "Set rule condition. condition=$condition" }
+        log.debug { "Set rule condition. engine=SpEL, ${condition.expression.toRuleSourceLogContext()}" }
         this.condition = condition
     }
 
@@ -77,7 +78,7 @@ class SpelRule private constructor(
         beanResolver: BeanResolver? = null,
     ) = apply {
         expression.requireNotBlank("expression")
-        log.debug { "Add rule action. expression=$expression" }
+        log.debug { "Add rule action. engine=SpEL, ${expression.toRuleSourceLogContext()}" }
         actions.add(SpelAction(expression, parserContext, beanResolver))
     }
 
@@ -85,7 +86,7 @@ class SpelRule private constructor(
      * [SpelAction]을 추가합니다.
      */
     fun then(action: SpelAction) = apply {
-        log.debug { "Add rule action. action=$action" }
+        log.debug { "Add rule action. engine=SpEL, ${action.expression.toRuleSourceLogContext()}" }
         actions.add(action)
     }
 
@@ -95,7 +96,7 @@ class SpelRule private constructor(
 
     override fun execute(facts: Facts) {
         actions.forEach { action ->
-            log.debug { "Execute action '$action' with facts=$facts" }
+            log.debug { "Execute action. name='$name', engine=SpEL, factCount=${facts.size}" }
             action.execute(facts)
         }
     }

@@ -4,6 +4,7 @@ import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.error
 import io.bluetape4k.rule.api.Action
 import io.bluetape4k.rule.api.Facts
+import io.bluetape4k.rule.core.toRuleSourceLogContext
 import io.bluetape4k.rule.exception.RuleException
 import io.bluetape4k.support.requireNotBlank
 import org.mvel2.MVEL
@@ -35,7 +36,10 @@ class MvelAction(val expression: String): Action {
         try {
             MVEL.executeExpression(compiledExpression, facts.asMap())
         } catch (e: Exception) {
-            log.error(e) { "Fail to execute expression '$expression' on facts=$facts" }
+            log.error {
+                "Fail to execute MVEL expression. ${expression.toRuleSourceLogContext()}, " +
+                        "exceptionType=${e.javaClass.name}, factCount=${facts.size}"
+            }
             throw RuleException("Fail to execute MVEL expression", e)
         }
     }

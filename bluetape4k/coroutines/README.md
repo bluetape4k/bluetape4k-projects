@@ -178,6 +178,33 @@ tracked in [follow-up issue #1300](https://github.com/bluetape4k/bluetape4k-proj
 the current contracts, caller evidence, and re-open conditions are recorded in
 the [Flow operator policy matrix](../../docs/flow-operator-policy-matrix.md).
 
+#### Last-N selection and exclusion
+
+`takeLast(count)` retains the last `count` values and emits them in source order
+only after normal completion. `dropLast(count)` is the Kotlin-named counterpart
+of RxJava/Reactor `skipLast`: it streams the prefix with a `count`-element delay.
+Use these for a bounded recent-event summary or removing a known trailer.
+
+```kotlin
+import io.bluetape4k.coroutines.flow.extensions.takeLast
+import io.bluetape4k.coroutines.flow.extensions.dropLast
+import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.toList
+
+suspend fun suffixExample() {
+    check(flowOf(1, 2, 3, 4).takeLast(2).toList() == listOf(3, 4))
+    check(flowOf(1, 2, 3, 4).dropLast(2).toList() == listOf(1, 2))
+}
+```
+
+Both accept nullable values, reject negative counts immediately, and keep at
+most `count` elements per collection without preallocating that many slots.
+Errors and cancellation propagate without flushing the pending suffix.
+`takeLast(0)` still collects upstream and observes its completion or failure;
+`dropLast(0)` returns the original Flow. An infinite source never emits through
+`takeLast`. These sequential operators preserve suspension-based backpressure
+and introduce no Reactive Streams demand or overflow policy.
+
 ### Subjects
 
 Subject implementations are hot `Flow` bridges for producer/collector coordination.

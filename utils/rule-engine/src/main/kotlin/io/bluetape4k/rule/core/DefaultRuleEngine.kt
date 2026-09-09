@@ -151,7 +151,7 @@ open class DefaultRuleEngine(
                 } catch (e: CancellationException) {
                     throw e
                 } catch (e: Exception) {
-                    log.debug { "Rule '$name' evaluation failed with exception: ${e.message}" }
+                    log.debug { "Rule '$name' evaluation failed. exceptionType=${e.javaClass.name}" }
                     onAfterEvaluate(rule, facts, false)
                     if (config.skipOnFirstFailedRule) {
                         log.debug { "나머지 Rule들은 무시됩니다. (skipOnFirstFailedRule=true)" }
@@ -212,7 +212,7 @@ open class DefaultRuleEngine(
                 } catch (e: CancellationException) {
                     throw e
                 } catch (e: Exception) {
-                    log.debug { "Rule '${rule.name}' evaluation failed with exception: ${e.message}" }
+                    log.debug { "Rule '${rule.name}' evaluation failed. exceptionType=${e.javaClass.name}" }
                     false
                 }
             }

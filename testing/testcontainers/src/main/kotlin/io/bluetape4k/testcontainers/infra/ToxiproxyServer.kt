@@ -5,9 +5,11 @@ import io.bluetape4k.support.requireNotBlank
 import io.bluetape4k.testcontainers.GenericServer
 import io.bluetape4k.testcontainers.PropertyExportingServer
 import io.bluetape4k.testcontainers.exposeCustomPorts
+import io.bluetape4k.testcontainers.runCleanupWithin
 import io.bluetape4k.utils.ShutdownQueue
 import org.testcontainers.toxiproxy.ToxiproxyContainer
 import org.testcontainers.utility.DockerImageName
+import kotlin.time.Duration.Companion.seconds
 
 /**
  * [Toxiproxy](https://github.com/Shopify/toxiproxy)를 Testcontainers를 이용하여 실행하는 카오스 테스트 서버입니다.
@@ -45,6 +47,9 @@ class ToxiproxyServer private constructor(
 ): ToxiproxyContainer(imageName), GenericServer, PropertyExportingServer {
 
     companion object: KLogging() {
+        /** Toxiproxy 컨테이너 정리에 허용하는 최대 시간입니다. */
+        private val CLEANUP_TIMEOUT = 30.seconds
+
         /** Toxiproxy 컨테이너 기본 이미지 이름입니다. */
         const val IMAGE = "ghcr.io/shopify/toxiproxy"
 
@@ -151,6 +156,16 @@ class ToxiproxyServer private constructor(
     override fun start() {
         super.start()
         writeToSystemProperties()
+    }
+
+    /**
+     * Docker API가 응답하지 않아도 컨테이너 종료가 무기한 대기하지 않도록 합니다.
+     *
+     * 제한시간이 만료되면 종료 작업을 interrupt하고 [java.util.concurrent.TimeoutException]을
+     * 호출자에게 전달합니다. 따라서 테스트 실패가 정리 단계에서 가려지지 않습니다.
+     */
+    override fun stop() {
+        runCleanupWithin(CLEANUP_TIMEOUT) { super.stop() }
     }
 
     /**

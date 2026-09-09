@@ -8,6 +8,7 @@ import io.bluetape4k.rule.DEFAULT_RULE_PRIORITY
 import io.bluetape4k.rule.api.Condition
 import io.bluetape4k.rule.api.Facts
 import io.bluetape4k.rule.core.AbstractRule
+import io.bluetape4k.rule.core.toRuleSourceLogContext
 import io.bluetape4k.support.requireNotBlank
 import java.util.*
 
@@ -41,7 +42,7 @@ class GroovyRule(
      */
     fun whenever(conditionExpr: String) = apply {
         conditionExpr.requireNotBlank("conditionExpr")
-        log.debug { "Set rule condition. condition=$conditionExpr" }
+        log.debug { "Set rule condition. engine=Groovy, ${conditionExpr.toRuleSourceLogContext()}" }
         this.condition = GroovyCondition(conditionExpr)
     }
 
@@ -49,7 +50,7 @@ class GroovyRule(
      * [GroovyCondition]으로 조건을 설정합니다.
      */
     fun whenever(condition: GroovyCondition) = apply {
-        log.debug { "Set rule condition. condition=$condition" }
+        log.debug { "Set rule condition. engine=Groovy, ${condition.expression.toRuleSourceLogContext()}" }
         this.condition = condition
     }
 
@@ -58,7 +59,7 @@ class GroovyRule(
      */
     fun then(script: String) = apply {
         script.requireNotBlank("script")
-        log.debug { "Add rule action. script=$script" }
+        log.debug { "Add rule action. engine=Groovy, ${script.toRuleSourceLogContext()}" }
         actions.add(GroovyAction(script))
     }
 
@@ -66,18 +67,18 @@ class GroovyRule(
      * [GroovyAction]을 추가합니다.
      */
     fun then(action: GroovyAction) = apply {
-        log.debug { "Add rule action. action=$action" }
+        log.debug { "Add rule action. engine=Groovy, ${action.script.toRuleSourceLogContext()}" }
         actions.add(action)
     }
 
     override fun evaluate(facts: Facts): Boolean {
-        log.debug { "Evaluate condition '$condition' with facts=$facts" }
+        log.debug { "Evaluate rule. name='$name', engine=Groovy, factCount=${facts.size}" }
         return condition.evaluate(facts)
     }
 
     override fun execute(facts: Facts) {
         actions.forEach { action ->
-            log.debug { "Execute action '$action' with facts=$facts" }
+            log.debug { "Execute action. name='$name', engine=Groovy, factCount=${facts.size}" }
             action.execute(facts)
         }
     }

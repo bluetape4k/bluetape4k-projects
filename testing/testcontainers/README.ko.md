@@ -511,6 +511,8 @@ client.use {
 - `ToxiproxyServer`는 프록시 컨테이너입니다. Control API 포트 (`8474`)와 프록시 포트 범위 (`8666~8697`)를 노출합니다.
 - `ToxiproxyClient`는 Control API에 붙어서 프록시를 만들고 toxic을 추가/삭제하는 관리용 클라이언트입니다.
 - `DOWNSTREAM latency`는 Upstream 응답이 클라이언트로 돌아오는 구간을 늦춥니다.
+- `ToxiproxyServer`의 `stop()`은 Docker API 정리를 취소 가능한 30초 deadline 안에서 수행하며, deadline을 넘기면 `TimeoutException`을 호출자에게 전달합니다.
+- Docker 기반 테스트는 공유 daemon의 정리 순서를 보장하기 위해 모듈 안에서 순차 실행합니다. Colima에서는 `TESTCONTAINERS_DOCKER_SOCKET_OVERRIDE=/var/run/docker.sock`를 사용하고, timeout이 발생하면 Docker/Testcontainers 진단을 함께 수집하세요.
 
 ### LLM (ChromaDB + Ollama)
 

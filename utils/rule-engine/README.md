@@ -51,6 +51,13 @@ A `Rule` has a **condition** (predicate on `Facts`) and an **action** (mutates `
 - **Composite rules**: combine multiple rules with `ActivationRuleGroup`, `ConditionalRuleGroup`, and `UnitRuleGroup`
 - **Forward chaining**: repeatedly execute while conditions are satisfied through `InferenceRuleEngine`
 
+## Logging and Sensitive Data
+
+Rule definition expressions and action scripts can contain credentials or other sensitive values. The built-in
+rule-engine logger therefore records only the engine, rule name, fact count, and source length; source payloads and
+exception details are omitted from log messages. Keep this boundary when adding new rule-engine log statements by
+using the shared `toRuleSourceLogContext()` helper.
+
 ## Usage Examples
 
 ### DSL-Based Rule

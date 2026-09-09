@@ -69,6 +69,20 @@ stats.sum            // Sum: 55.0
 stats.percentile(50) // Median (50th percentile)
 ```
 
+### Normalized RMSE
+
+`normalizedRmse` computes RMSE divided by the range of the actual values.
+Matching empty inputs return `0.0`; inputs with different lengths or with only
+`NaN` values on either side throw `IllegalArgumentException`. A partial `NaN`
+is preserved in the error calculation and returns `NaN`. When the actual range
+is zero and the nonzero RMSE is finite, the result is `+Infinity`.
+
+```kotlin
+val predicted = sequenceOf(0.0, 1.0)
+val actual = sequenceOf(0.0, 2.0)
+val normalized = predicted.normalizedRmse(actual) // sqrt(0.5) / 2.0
+```
+
 ### Aggregation
 
 ```kotlin
