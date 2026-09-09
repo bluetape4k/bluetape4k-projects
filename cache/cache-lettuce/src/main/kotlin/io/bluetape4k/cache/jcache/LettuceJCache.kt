@@ -114,7 +114,12 @@ class LettuceJCache<K: Any, V: Any>(
     }
 
     @Suppress("UNCHECKED_CAST")
-    private fun decodeValue(bytes: ByteArray): V = codec.serializer.deserialize(bytes)!!
+    private fun decodeValue(bytes: ByteArray): V {
+        val decoded = codec.serializer.deserialize<V>(bytes)
+        return decoded ?: throw CacheException(
+            "LettuceCache[$cacheName] 값 역직렬화 결과가 null입니다."
+        )
+    }
 
     override fun getName(): String = cacheName
 
