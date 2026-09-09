@@ -4,32 +4,32 @@ import kotlin.math.sqrt
 
 
 /**
- * 제곱 평균 (root-mean-square) - 표준편차와 같은 값이다.
+ * 제곱 평균 (root-mean-square)을 계산합니다.
  * 참고: http://en.wikipedia.org/wiki/Root_mean_square
  *
  * ```kotlin
  * val result = sequenceOf(1.0, 2.0, 3.0).rms()
- * // sqrt((1+4+9) / 2) ≈ 2.449
+ * // sqrt((1 + 4 + 9) / 3) ≈ 2.160
  * ```
  */
 fun <N: Number> Sequence<N>.rms(): Double {
-    var rms = 0.0
-    var n = 0L
+    var sumOfSquares = 0.0
+    var count = 0L
 
-    forEach { x ->
-        rms += x.toDouble() * 2.0
-        n++
+    forEach { value ->
+        sumOfSquares += value.toDouble().square()
+        count++
     }
-    return if (n == 0L) 0.0 else sqrt(rms / (n - 1))
+    return if (count == 0L) 0.0 else sqrt(sumOfSquares / count)
 }
 
 /**
- * 제곱 평균 (root-mean-square) - 표준편차와 같은 값이다.
+ * 제곱 평균 (root-mean-square)을 계산합니다.
  * 참고: http://en.wikipedia.org/wiki/Root_mean_square
  *
  * ```kotlin
  * val result = listOf(1.0, 2.0, 3.0).rms()
- * // sqrt((1+4+9) / 2) ≈ 2.449
+ * // sqrt((1 + 4 + 9) / 3) ≈ 2.160
  * ```
  */
 fun <N: Number> Iterable<N>.rms(): Double = asSequence().map { it.toDouble() }.rms()
@@ -45,7 +45,7 @@ fun <N: Number> Iterable<N>.rms(): Double = asSequence().map { it.toDouble() }.r
 fun DoubleArray.rms(): Double = asSequence().rms()
 
 /**
- * 제곱 평균(root-mean-square) error (RMSE) : 예측치와 실제값과의 오차를 제곱 평균으로 계산합니다.
+ * 제곱 평균(root-mean-square) error (RMSE)를 계산합니다.
  * 참고 : http://en.wikipedia.org/wiki/Root_mean_square_error
  *
  * ```kotlin
@@ -55,19 +55,22 @@ fun DoubleArray.rms(): Double = asSequence().rms()
  * ```
  */
 fun <N: Number> Sequence<N>.rmse(actual: Sequence<N>): Double {
-    require(this.count() == actual.count()) { "두 컬렉션의 항목 수가 같아야 합니다." }
-
-    var rmse = 0.0
-    var n = 0L
+    var sumOfSquaredErrors = 0.0
+    var count = 0L
 
     val expecter = this.iterator()
     val actualer = actual.iterator()
 
-    while (expecter.hasNext() && actualer.hasNext()) {
-        rmse += (expecter.next().toDouble() - actualer.next().toDouble()).square()
-        n++
+    while (expecter.hasNext()) {
+        require(actualer.hasNext()) { "두 컬렉션의 항목 수가 같아야 합니다." }
+
+        val error = expecter.next().toDouble() - actualer.next().toDouble()
+        sumOfSquaredErrors += error.square()
+        count++
     }
-    return if (n == 0L) 0.0 else sqrt(rmse / (n - 1))
+
+    require(!actualer.hasNext()) { "두 컬렉션의 항목 수가 같아야 합니다." }
+    return if (count == 0L) 0.0 else sqrt(sumOfSquaredErrors / count)
 }
 
 /**
