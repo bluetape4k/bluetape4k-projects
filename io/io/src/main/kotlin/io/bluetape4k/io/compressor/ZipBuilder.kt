@@ -1,7 +1,5 @@
 package io.bluetape4k.io.compressor
 
-import io.bluetape4k.logging.KLogging
-import io.bluetape4k.logging.warn
 import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.FileOutputStream
@@ -28,7 +26,7 @@ import java.util.zip.ZipOutputStream
  */
 class ZipBuilder @JvmOverloads constructor(val targetZipFile: File? = null) {
 
-    companion object: KLogging() {
+    companion object {
         /**
          * 파일 기반 [ZipBuilder]를 생성합니다.
          */
@@ -71,8 +69,7 @@ class ZipBuilder @JvmOverloads constructor(val targetZipFile: File? = null) {
      * @return 대상 ZIP 파일. 인메모리 모드에서는 null 을 반환합니다.
      */
     fun toZipFile(): File? {
-        runCatching { zos.close() }
-            .onFailure { log.warn(it) { "ZipOutputStream 닫기 실패" } }
+        zos.close()
         return targetZipFile
     }
 
@@ -82,17 +79,10 @@ class ZipBuilder @JvmOverloads constructor(val targetZipFile: File? = null) {
      * @return ZIP 데이터의 바이트 배열
      */
     fun toBytes(): ByteArray {
-        runCatching { zos.close() }
-            .onFailure { log.warn(it) { "ZipOutputStream 닫기 실패" } }
-
-        return try {
-            targetZipFile?.readBytes()
-                ?: targetBos?.toByteArray()
-                ?: byteArrayOf()
-        } catch (e: Throwable) {
-            log.warn(e) { "ZIP 바이트 배열 변환 실패" }
-            byteArrayOf()
-        }
+        zos.close()
+        return targetZipFile?.readBytes()
+            ?: targetBos?.toByteArray()
+            ?: byteArrayOf()
     }
 
     /**
