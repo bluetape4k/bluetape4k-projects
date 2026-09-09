@@ -1,6 +1,7 @@
 package io.bluetape4k.openfga
 
 import io.bluetape4k.support.requireNotBlank
+import java.io.Serializable
 
 /**
  * OpenFGA 요청에 사용할 불변 store 및 authorization model 범위입니다.
@@ -14,7 +15,7 @@ import io.bluetape4k.support.requireNotBlank
 data class OpenFgaScope(
     val storeId: String,
     val authorizationModelId: String? = null,
-) {
+): Serializable {
     init {
         storeId.requireNotBlank("storeId")
         authorizationModelId?.requireNotBlank("authorizationModelId")
@@ -28,4 +29,8 @@ data class OpenFgaScope(
      */
     internal fun requireAuthorizationModelId(): String =
         authorizationModelId.requireNotBlank("authorizationModelId")
+
+    private companion object {
+        private const val serialVersionUID: Long = 1L
+    }
 }

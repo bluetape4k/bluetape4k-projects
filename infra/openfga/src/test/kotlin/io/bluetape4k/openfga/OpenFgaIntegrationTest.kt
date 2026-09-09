@@ -21,7 +21,7 @@ import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.future.await
 import org.junit.jupiter.api.Tag
 import org.junit.jupiter.api.Test
-import java.util.UUID
+import io.bluetape4k.codec.Base58
 
 /**
  * SDK와 무관하게 endpoint만 공유하는 OpenFGA 서버 fixture입니다.
@@ -37,7 +37,7 @@ class OpenFgaIntegrationTest {
         var storeId: String? = null
         try {
             val createdStoreId = api.createStore(
-                CreateStoreRequest().name("bluetape4k-${UUID.randomUUID()}"),
+                CreateStoreRequest().name("bluetape4k-${Base58.randomString(12)}"),
             ).await().data.getId()
             storeId = createdStoreId
 
