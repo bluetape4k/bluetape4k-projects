@@ -2,6 +2,7 @@ package io.bluetape4k.qdrant
 
 import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.codec.Base58
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.testcontainers.storage.QdrantServer
 import io.grpc.StatusRuntimeException
@@ -40,7 +41,7 @@ class QdrantIntegrationTest {
 
     @Test
     fun `real server supports filtered query paginated scroll and deletion`() = runSuspendIO {
-        val name = "coroutines_${UUID.randomUUID().toString().replace("-", "")}"
+        val name = "coroutines_${Base58.randomString(16)}"
         val grpcClient = QdrantGrpcClient.newBuilder(server.host, server.grpcPort, false).build()
         QdrantClient(grpcClient).use { client ->
             val vectorParams = VectorParams.newBuilder().setSize(3).setDistance(Distance.Cosine).build()
@@ -70,7 +71,7 @@ class QdrantIntegrationTest {
 
     @Test
     fun `UUID IDs named vectors and dimension errors preserve SDK semantics`() = runSuspendIO {
-        val name = "named_${UUID.randomUUID().toString().replace("-", "")}"
+        val name = "named_${Base58.randomString(16)}"
         val grpcClient = QdrantGrpcClient.newBuilder(server.host, server.grpcPort, false).build()
         QdrantClient(grpcClient).use { client ->
             val params = VectorParams.newBuilder().setSize(3).setDistance(Distance.Cosine).build()
