@@ -129,7 +129,7 @@ open class DefaultRuleEngine(
     }
 
     internal open fun doFire(rules: RuleSet, facts: Facts) {
-        log.debug { "Fire rules=$rules, facts=$facts" }
+        log.debug { "Fire rules=$rules, ${facts.toLogContext()}" }
 
         for (rule in rules) {
             val name = rule.name
@@ -144,14 +144,23 @@ open class DefaultRuleEngine(
             }
 
             if (shouldBeEvaluated(rule, facts)) {
-                log.debug { "Evaluate rule. rule=$rule, facts=$facts" }
+                val startedAt = System.nanoTime()
+                log.debug { "Evaluate rule. rule=${rule.name}, ${facts.toLogContext()}" }
 
                 val evaluationResult = try {
-                    rule.evaluate(facts)
+                    val result = rule.evaluate(facts)
+                    log.debug {
+                        "Rule '${rule.name}' evaluated. result=$result, " +
+                                "durationNanos=${System.nanoTime() - startedAt}, ${facts.toLogContext()}"
+                    }
+                    result
                 } catch (e: CancellationException) {
                     throw e
                 } catch (e: Exception) {
-                    log.debug { "Rule '$name' evaluation failed. exceptionType=${e.javaClass.name}" }
+                    log.debug {
+                        "Rule '$name' evaluation failed. exceptionType=${e.javaClass.name}, " +
+                                "durationNanos=${System.nanoTime() - startedAt}, ${facts.toLogContext()}"
+                    }
                     onAfterEvaluate(rule, facts, false)
                     if (config.skipOnFirstFailedRule) {
                         log.debug { "나머지 Rule들은 무시됩니다. (skipOnFirstFailedRule=true)" }
@@ -212,7 +221,10 @@ open class DefaultRuleEngine(
                 } catch (e: CancellationException) {
                     throw e
                 } catch (e: Exception) {
-                    log.debug { "Rule '${rule.name}' evaluation failed. exceptionType=${e.javaClass.name}" }
+                    log.debug {
+                        "Rule '${rule.name}' evaluation failed. exceptionType=${e.javaClass.name}, " +
+                                facts.toLogContext()
+                    }
                     false
                 }
             }

@@ -36,7 +36,7 @@ class DefaultRuleListener: RuleListener {
     }
 
     override fun beforeExecute(rule: Rule, facts: Facts) {
-        log.debug { "Before execute ... rule=${rule.name}, facts=$facts" }
+        log.debug { "Before execute ... rule=${rule.name}, ${facts.toLogContext()}" }
     }
 
     override fun afterExecute(rule: Rule, facts: Facts, exception: Throwable?) {
