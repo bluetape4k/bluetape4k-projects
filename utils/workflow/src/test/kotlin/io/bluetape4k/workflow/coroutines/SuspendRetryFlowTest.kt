@@ -1,5 +1,6 @@
 package io.bluetape4k.workflow.coroutines
 
+import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeInstanceOf
 import io.bluetape4k.assertions.shouldBeTrue
@@ -140,5 +141,17 @@ class SuspendRetryFlowTest: AbstractWorkflowTest() {
 
         flow.execute(context).isSuccess.shouldBeTrue()
         counter.get() shouldBeEqualTo 3
+    }
+
+    @Test
+    fun `Error는 Failure로 변환하지 않고 전파한다`() = runTest {
+        val error = assertFailsWith<AssertionError> {
+            SuspendRetryFlow(
+                work = SuspendWork("fatal-work") { throw AssertionError("치명적 오류") },
+                retryPolicy = RetryPolicy(maxAttempts = 3, delay = 0.milliseconds),
+            ).execute(context)
+        }
+
+        error.message shouldBeEqualTo "치명적 오류"
     }
 }

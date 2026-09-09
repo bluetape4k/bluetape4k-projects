@@ -105,9 +105,8 @@ class SuspendParallelFlow(
                 val workName = (work as? NamedSuspendWork)?.name ?: work.javaClass.simpleName
                 launch {
                     log.debug { "$flowName: '$workName' 병렬 실행 시작 (ANY)" }
-                    val report = runCatching { work.execute(context) }
+                    val report = suspendResult { work.execute(context) }
                         .getOrElse { e ->
-                            if (e is CancellationException) throw e
                             log.debug { "$flowName: '$workName' 예외 발생 - ${e.message}" }
                             WorkReport.Failure(context, e)
                         }
