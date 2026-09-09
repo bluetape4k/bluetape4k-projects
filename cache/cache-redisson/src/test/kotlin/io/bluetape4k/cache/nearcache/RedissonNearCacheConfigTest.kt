@@ -1,11 +1,16 @@
 package io.bluetape4k.cache.nearcache
 
+import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeInstanceOf
 import org.junit.jupiter.api.Test
 import org.redisson.api.options.LocalCachedMapOptions
+import java.io.ByteArrayInputStream
+import java.io.ByteArrayOutputStream
+import java.io.ObjectInputStream
+import java.io.ObjectOutputStream
+import java.io.ObjectStreamClass
 import java.time.Duration
-import io.bluetape4k.assertions.assertFailsWith
 
 class RedissonNearCacheConfigTest {
 
@@ -93,4 +98,28 @@ class RedissonNearCacheConfigTest {
             redissonNearCacheConfig { maxLocalSize = -1 }
         }
     }
+
+    @Test
+    fun `설정은 Java serialization round trip과 명시 UID를 유지한다`() {
+        val config = RedissonNearCacheConfig(
+            cacheName = "products",
+            maxLocalSize = 500,
+            timeToLive = Duration.ofMinutes(30),
+            maxIdle = Duration.ofMinutes(5),
+            syncStrategy = LocalCachedMapOptions.SyncStrategy.UPDATE,
+            reconnectionStrategy = LocalCachedMapOptions.ReconnectionStrategy.LOAD,
+            evictionPolicy = LocalCachedMapOptions.EvictionPolicy.LFU,
+        )
+
+        deserialize<RedissonNearCacheConfig>(serialize(config)) shouldBeEqualTo config
+        ObjectStreamClass.lookup(RedissonNearCacheConfig::class.java).serialVersionUID shouldBeEqualTo 1L
+    }
+
+    private fun serialize(value: Any): ByteArray = ByteArrayOutputStream().use { bytes ->
+        ObjectOutputStream(bytes).use { output -> output.writeObject(value) }
+        bytes.toByteArray()
+    }
+
+    private inline fun <reified T> deserialize(bytes: ByteArray): T =
+        ObjectInputStream(ByteArrayInputStream(bytes)).use { input -> input.readObject() as T }
 }

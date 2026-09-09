@@ -4,6 +4,7 @@ import io.bluetape4k.support.requireGt
 import io.bluetape4k.support.requireNotBlank
 import io.bluetape4k.support.requirePositiveNumber
 import org.redisson.api.options.LocalCachedMapOptions
+import java.io.Serializable
 import java.time.Duration
 
 /**
@@ -38,7 +39,11 @@ data class RedissonNearCacheConfig(
     val syncStrategy: LocalCachedMapOptions.SyncStrategy = LocalCachedMapOptions.SyncStrategy.INVALIDATE,
     val reconnectionStrategy: LocalCachedMapOptions.ReconnectionStrategy = LocalCachedMapOptions.ReconnectionStrategy.CLEAR,
     val evictionPolicy: LocalCachedMapOptions.EvictionPolicy = LocalCachedMapOptions.EvictionPolicy.LRU,
-) {
+) : Serializable {
+    companion object {
+        private const val serialVersionUID: Long = 1L
+    }
+
     init {
         cacheName.requireNotBlank("cacheName")
         maxLocalSize.requirePositiveNumber("maxLocalSize")
