@@ -1,6 +1,7 @@
 package io.bluetape4k.resilience4j.cache
 
 import io.github.resilience4j.cache.Cache
+import io.bluetape4k.support.requireNotNull
 import java.util.*
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.CompletionStage
@@ -23,7 +24,8 @@ import java.util.concurrent.CompletionStage
 inline fun <K, V> Cache<K, V>.decorateFunction(
     crossinline func: (K) -> V,
 ): (K) -> V = { key: K ->
-    this.computeIfAbsent(key!!) { func(key) }
+    val validKey = key.requireNotNull("key")
+    this.computeIfAbsent(validKey) { func(validKey) }
 }
 
 /**
@@ -56,7 +58,8 @@ fun <K, V> ((K) -> CompletionStage<V>).cache(cache: Cache<K, V>): (K) -> Complet
 inline fun <K, V> Cache<K, V>.decorateFunction1(
     crossinline func: (K) -> V,
 ): (K) -> V = { key: K ->
-    this.computeIfAbsent(key!!) { func(key) }
+    val validKey = key.requireNotNull("key")
+    this.computeIfAbsent(validKey) { func(validKey) }
 }
 
 /**
@@ -71,11 +74,13 @@ inline fun <K, V> Cache<K, V>.decorateFunction1(
  * @param cache 캐시 객체
  * @return 캐시된 값을 반환하는 함수
  */
-@Suppress("UNCHECKED_CAST")
 fun <K, V> Cache<K, V>.decorateCompletionStage(
     func: (K) -> CompletionStage<V>,
-): (K) -> CompletionStage<V> = { key: K ->
-    decorateCompletableFutureFunction { func(key).toCompletableFuture() } as CompletionStage<V>
+): (K) -> CompletionStage<V> {
+    val decorated = decorateCompletableFutureFunction { key: K ->
+        func(key).toCompletableFuture()
+    }
+    return { key -> decorated(key) }
 }
 
 /**
@@ -93,17 +98,18 @@ inline fun <K, V> Cache<K, V>.decorateCompletableFutureFunction(
     crossinline func: (K) -> CompletableFuture<V>,
 ): (K) -> CompletableFuture<V> = { key: K ->
 
+    val validKey = key.requireNotNull("key")
     val promise = CompletableFuture<V>()
-    val cachedValue = Optional.ofNullable(computeIfAbsent(key!!) { null })
+    val cachedValue = Optional.ofNullable(computeIfAbsent(validKey) { null })
 
     cachedValue.ifPresentOrElse({ promise.complete(it) }) {
-        func(key)
+        func(validKey)
             .whenComplete { result, error ->
                 if (error != null) {
                     promise.completeExceptionally(error.cause ?: error)
                 } else {
                     if (result != null) {
-                        this.computeIfAbsent(key) { result }
+                        this.computeIfAbsent(validKey) { result }
                     }
                     promise.complete(result)
                 }
