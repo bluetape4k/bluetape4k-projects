@@ -43,7 +43,7 @@ class DefaultRuleListener: RuleListener {
         if (exception == null) {
             log.debug { "Rule '${rule.name}' performed successfully." }
         } else {
-            log.warn(exception) { "Rule '${rule.name}' performed with exception." }
+            log.warn { "Rule '${rule.name}' performed with exception. exceptionType=${exception.javaClass.name}" }
         }
     }
 }

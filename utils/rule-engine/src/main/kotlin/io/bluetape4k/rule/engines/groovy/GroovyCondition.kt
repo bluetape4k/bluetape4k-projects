@@ -5,7 +5,7 @@ import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.warn
 import io.bluetape4k.rule.api.Condition
 import io.bluetape4k.rule.api.Facts
-import io.bluetape4k.rule.core.toLogContext
+import io.bluetape4k.rule.core.toRuleSourceLogContext
 import io.bluetape4k.support.requireNotBlank
 import org.codehaus.groovy.control.CompilerConfiguration
 
@@ -45,7 +45,10 @@ class GroovyCondition(val expression: String): Condition {
             parsedScript.binding = binding
             parsedScript.run() as Boolean
         } catch (e: Exception) {
-            log.warn(e) { "Fail to evaluate Groovy expression '$expression' with ${facts.toLogContext()}" }
+            log.warn {
+                "Fail to evaluate Groovy expression. ${expression.toRuleSourceLogContext()}, " +
+                        "exceptionType=${e.javaClass.name}, factCount=${facts.size}"
+            }
             false
         }
     }

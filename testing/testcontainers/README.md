@@ -503,6 +503,12 @@ client.use {
 
 ![Toxiproxy (Chaos Testing) diagram](../../docs/images/readme-diagrams/testing-testcontainers-sequence-02.png)
 
+- `ToxiproxyServer` is the proxy container. It exposes the control API port (`8474`) and proxy port range (`8666~8697`).
+- `ToxiproxyClient` connects to the control API to create proxies and add/remove toxics.
+- `DOWNSTREAM` latency delays the upstream response on its way back to the client.
+- `ToxiproxyServer.stop()` performs Docker API cleanup with a cancellable 30-second deadline and propagates `TimeoutException` when the deadline is exceeded.
+- Docker-backed tests run sequentially within the module so shared-daemon cleanup order is deterministic. With Colima, use `TESTCONTAINERS_DOCKER_SOCKET_OVERRIDE=/var/run/docker.sock` and collect Docker/Testcontainers diagnostics when a timeout occurs.
+
 ### AWS Emulators
 
 `AwsEmulatorServer` is the common interface for local AWS emulators.

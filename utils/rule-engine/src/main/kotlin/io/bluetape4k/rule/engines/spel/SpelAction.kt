@@ -4,7 +4,7 @@ import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.error
 import io.bluetape4k.rule.api.Action
 import io.bluetape4k.rule.api.Facts
-import io.bluetape4k.rule.core.toLogContext
+import io.bluetape4k.rule.core.toRuleSourceLogContext
 import io.bluetape4k.rule.exception.RuleException
 import io.bluetape4k.support.requireNotBlank
 import org.springframework.expression.BeanResolver
@@ -56,7 +56,10 @@ class SpelAction private constructor(
             beanResolver?.run { context.setBeanResolver(this) }
             compiledExpr.getValue(context)
         } catch (e: Exception) {
-            log.error(e) { "Fail to execute SpEL expression '$expression' on ${facts.toLogContext()}" }
+            log.error {
+                "Fail to execute SpEL expression. ${expression.toRuleSourceLogContext()}, " +
+                        "exceptionType=${e.javaClass.name}, factCount=${facts.size}"
+            }
             throw RuleException("Fail to execute SpEL expression", e)
         }
     }

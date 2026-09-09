@@ -69,6 +69,20 @@ stats.sum            // 합계: 55.0
 stats.percentile(50) // 중앙값 (50th percentile)
 ```
 
+### 정규화된 RMSE
+
+`normalizedRmse`는 RMSE를 actual 값의 범위로 나눕니다. 길이가 같은 빈 입력은
+`0.0`을 반환하며, 입력 길이가 다르거나 양쪽 중 하나가 `NaN`만 포함하면
+`IllegalArgumentException`을 발생시킵니다. 일부 값만 `NaN`이면 오차 계산에서
+필터링하지 않고 `NaN`을 반환합니다. actual의 범위가 0이고 0이 아닌 유한한
+RMSE가 있으면 결과는 `+Infinity`입니다.
+
+```kotlin
+val predicted = sequenceOf(0.0, 1.0)
+val actual = sequenceOf(0.0, 2.0)
+val normalized = predicted.normalizedRmse(actual) // sqrt(0.5) / 2.0
+```
+
 ### 집계 (Aggregation)
 
 ```kotlin
