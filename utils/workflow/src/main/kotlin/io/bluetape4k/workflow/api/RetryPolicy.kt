@@ -1,5 +1,7 @@
 package io.bluetape4k.workflow.api
 
+import io.bluetape4k.support.requireGe
+import java.io.Serializable
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.minutes
@@ -31,16 +33,18 @@ data class RetryPolicy(
     val delay: Duration = Duration.ZERO,
     val backoffMultiplier: Double = 1.0,
     val maxDelay: Duration = 1.minutes,
-) {
+) : Serializable {
     /** 편의 프로퍼티: 재시도 횟수 (= maxAttempts - 1) */
     val maxRetries: Int get() = maxAttempts - 1
 
     init {
-        require(maxAttempts >= 1) { "maxAttempts는 1 이상이어야 합니다. maxAttempts=$maxAttempts" }
-        require(backoffMultiplier >= 1.0) { "backoffMultiplier는 1.0 이상이어야 합니다. backoffMultiplier=$backoffMultiplier" }
+        maxAttempts.requireGe(1, "maxAttempts")
+        backoffMultiplier.requireGe(1.0, "backoffMultiplier")
     }
 
     companion object {
+        private const val serialVersionUID: Long = 1L
+
         /** 재시도 없음 (최초 실행 1회만) */
         val NONE = RetryPolicy()
 
