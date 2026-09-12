@@ -10,6 +10,7 @@ import io.bluetape4k.gradle.resolveCentralPublishingConfig
 import io.bluetape4k.gradle.resolvePublishingSigningConfig
 import io.bluetape4k.gradle.shouldSerializeTestcontainersTests
 import dev.detekt.gradle.Detekt
+import dev.detekt.gradle.plugin.getSupportedKotlinVersion
 import dev.detekt.gradle.report.ReportMergeTask
 import nmcp.NmcpAggregationExtension
 import nmcp.NmcpExtension
@@ -281,6 +282,20 @@ subprojects {
 
         tasks.withType<JavaCompile>().configureEach {
             options.release.set(javaCompatibilityVersion)
+        }
+    }
+
+    // Detekt 내장 컴파일러는 자신이 빌드된 Kotlin 버전을 사용해야 한다.
+    // dependency-management 플러그인이 프로젝트 구성 전체를 정렬하므로,
+    // 전용 Detekt 구성만 중앙 정렬에서 분리한다.
+    pluginManager.withPlugin("dev.detekt") {
+        configurations.matching { it.name == "detekt" }.configureEach {
+            resolutionStrategy.eachDependency {
+                if (requested.group == "org.jetbrains.kotlin") {
+                    useVersion(getSupportedKotlinVersion())
+                    because("Detekt must run with the Kotlin compiler version it was built against")
+                }
+            }
         }
     }
 
