@@ -20,7 +20,7 @@ pluginManagement {
 
 val bluetape4kDependenciesCatalogRef = providers.gradleProperty("bluetape4kDependenciesCatalogRef")
     .orElse(providers.environmentVariable("BLUETAPE4K_DEPENDENCIES_CATALOG_REF"))
-        .orElse("c3a81c52ced1c9dcca40cc4b58dc8c2a32e6bac9")
+        .orElse("0765227c19024a86732b23a4911da7a80521a814")
     .get()
 require(bluetape4kDependenciesCatalogRef.matches(Regex("[0-9a-f]{40}|[0-9a-f]{64}"))) {
     "bluetape4k-dependencies catalog ref must be an immutable Git commit SHA: " +
