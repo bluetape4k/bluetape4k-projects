@@ -162,7 +162,7 @@ class TempFolderClassTest {
                 }
                 .run()
 
-            count.get() shouldBeEqualTo 80
+            count.get() shouldBeEqualTo 4 * 20
         }
     }
 
@@ -189,7 +189,6 @@ class TempFolderClassTest {
             val count = AtomicInteger()
 
             SuspendedJobTester()
-                .workers(4)
                 .rounds(40)
                 .add {
                     val index = count.incrementAndGet()

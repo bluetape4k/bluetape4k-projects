@@ -40,7 +40,7 @@ val BIGDECIMAL_EPSILON: BigDecimal = BigDecimal("1E-9")
  * @param expected 비교 기준 값
  * @return receiver (체이닝 지원)
  */
-infix fun <T : Comparable<T>> T.shouldBeGreaterThan(expected: T): T {
+infix fun <T: Comparable<T>> T.shouldBeGreaterThan(expected: T): T {
     if (this <= expected) {
         Failures.failComparison(
             Messages.expectedToBe("be greater than", expected, this),
@@ -58,7 +58,7 @@ infix fun <T : Comparable<T>> T.shouldBeGreaterThan(expected: T): T {
  * @param expected 비교 기준 값
  * @return receiver (체이닝 지원)
  */
-infix fun <T : Comparable<T>> T.shouldBeGreaterOrEqualTo(expected: T): T {
+infix fun <T: Comparable<T>> T.shouldBeGreaterOrEqualTo(expected: T): T {
     if (this < expected) {
         Failures.failComparison(
             Messages.expectedToBe("be greater than or equal to", expected, this),
@@ -76,7 +76,7 @@ infix fun <T : Comparable<T>> T.shouldBeGreaterOrEqualTo(expected: T): T {
  * @param expected 비교 기준 값
  * @return receiver (체이닝 지원)
  */
-infix fun <T : Comparable<T>> T.shouldBeLessThan(expected: T): T {
+infix fun <T: Comparable<T>> T.shouldBeLessThan(expected: T): T {
     if (this >= expected) {
         Failures.failComparison(
             Messages.expectedToBe("be less than", expected, this),
@@ -94,7 +94,7 @@ infix fun <T : Comparable<T>> T.shouldBeLessThan(expected: T): T {
  * @param expected 비교 기준 값
  * @return receiver (체이닝 지원)
  */
-infix fun <T : Comparable<T>> T.shouldBeLessOrEqualTo(expected: T): T {
+infix fun <T: Comparable<T>> T.shouldBeLessOrEqualTo(expected: T): T {
     if (this > expected) {
         Failures.failComparison(
             Messages.expectedToBe("be less than or equal to", expected, this),
@@ -112,7 +112,7 @@ infix fun <T : Comparable<T>> T.shouldBeLessOrEqualTo(expected: T): T {
  * @param expected 비교 기준 값
  * @return receiver (체이닝 지원)
  */
-infix fun <T : Comparable<T>> T.shouldNotBeGreaterThan(expected: T): T {
+infix fun <T: Comparable<T>> T.shouldNotBeGreaterThan(expected: T): T {
     if (this > expected) {
         Failures.failComparison(
             Messages.expectedNotToBe("be greater than", expected, this),
@@ -130,7 +130,7 @@ infix fun <T : Comparable<T>> T.shouldNotBeGreaterThan(expected: T): T {
  * @param expected 비교 기준 값
  * @return receiver (체이닝 지원)
  */
-infix fun <T : Comparable<T>> T.shouldNotBeGreaterOrEqualTo(expected: T): T {
+infix fun <T: Comparable<T>> T.shouldNotBeGreaterOrEqualTo(expected: T): T {
     if (this >= expected) {
         Failures.failComparison(
             Messages.expectedNotToBe("be greater than or equal to", expected, this),
@@ -148,7 +148,7 @@ infix fun <T : Comparable<T>> T.shouldNotBeGreaterOrEqualTo(expected: T): T {
  * @param expected 비교 기준 값
  * @return receiver (체이닝 지원)
  */
-infix fun <T : Comparable<T>> T.shouldNotBeLessThan(expected: T): T {
+infix fun <T: Comparable<T>> T.shouldNotBeLessThan(expected: T): T {
     if (this < expected) {
         Failures.failComparison(
             Messages.expectedNotToBe("be less than", expected, this),
@@ -166,7 +166,7 @@ infix fun <T : Comparable<T>> T.shouldNotBeLessThan(expected: T): T {
  * @param expected 비교 기준 값
  * @return receiver (체이닝 지원)
  */
-infix fun <T : Comparable<T>> T.shouldNotBeLessOrEqualTo(expected: T): T {
+infix fun <T: Comparable<T>> T.shouldNotBeLessOrEqualTo(expected: T): T {
     if (this <= expected) {
         Failures.failComparison(
             Messages.expectedNotToBe("be less than or equal to", expected, this),
@@ -325,7 +325,7 @@ fun Int.shouldBeNegative(): Int {
  * @receiver 검증할 Int 값
  * @return receiver (체이닝 지원)
  */
-fun Int.shouldBeZero(): Int {
+fun Int.shouldBeZero(): Int = apply {
     if (this != 0) {
         Failures.failComparison(
             Messages.expectedToBe("be", 0, this),
@@ -333,7 +333,6 @@ fun Int.shouldBeZero(): Int {
             this
         )
     }
-    return this
 }
 
 // ── 부호 검증 (Long) ─────────────────────────────────────────────────────────
@@ -378,7 +377,7 @@ fun Long.shouldBeNegative(): Long {
  * @receiver 검증할 Long 값
  * @return receiver (체이닝 지원)
  */
-fun Long.shouldBeZero(): Long {
+fun Long.shouldBeZero(): Long = apply {
     if (this != 0L) {
         Failures.failComparison(
             Messages.expectedToBe("be", 0L, this),
@@ -386,7 +385,6 @@ fun Long.shouldBeZero(): Long {
             this
         )
     }
-    return this
 }
 
 // ── 부호 검증 (Float) ────────────────────────────────────────────────────────
@@ -510,7 +508,7 @@ fun Double.shouldBeZero(): Double {
  * @param range 검증할 범위 (닫힌 범위)
  * @return receiver (체이닝 지원)
  */
-infix fun <T : Comparable<T>> T.shouldBeInRange(range: ClosedRange<T>): T {
+infix fun <T: Comparable<T>> T.shouldBeInRange(range: ClosedRange<T>): T {
     if (this !in range) {
         Failures.fail("Expected <$this> to be in range $range, but was not.")
     }
@@ -529,7 +527,7 @@ infix fun <T : Comparable<T>> T.shouldBeInRange(range: ClosedRange<T>): T {
  * @param range 검증할 범위 (닫힌 범위)
  * @return receiver (체이닝 지원)
  */
-infix fun <T : Comparable<T>> T.shouldNotBeInRange(range: ClosedRange<T>): T {
+infix fun <T: Comparable<T>> T.shouldNotBeInRange(range: ClosedRange<T>): T {
     if (this in range) {
         Failures.fail("Expected <$this> to not be in range $range, but was.")
     }
@@ -697,7 +695,7 @@ infix fun ULong.shouldNotBeInRange(range: ULongRange): ULong {
  * @param range 검증할 범위 (닫힌 범위)
  * @return receiver (체이닝 지원)
  */
-infix fun <T : Comparable<T>> T.shouldBeIn(range: ClosedRange<T>): T {
+infix fun <T: Comparable<T>> T.shouldBeIn(range: ClosedRange<T>): T {
     if (this !in range) {
         Failures.fail("Expected <$this> to be in range $range, but was not.")
     }
@@ -713,7 +711,7 @@ infix fun <T : Comparable<T>> T.shouldBeIn(range: ClosedRange<T>): T {
  * @param range 검증할 범위 (닫힌 범위)
  * @return receiver (체이닝 지원)
  */
-infix fun <T : Comparable<T>> T.shouldNotBeIn(range: ClosedRange<T>): T {
+infix fun <T: Comparable<T>> T.shouldNotBeIn(range: ClosedRange<T>): T {
     if (this in range) {
         Failures.fail("Expected <$this> to not be in range $range, but was.")
     }
@@ -727,7 +725,7 @@ infix fun <T : Comparable<T>> T.shouldNotBeIn(range: ClosedRange<T>): T {
  * @param range 검증할 범위 (열린 끝 범위)
  * @return receiver (체이닝 지원)
  */
-infix fun <T : Comparable<T>> T.shouldBeIn(range: OpenEndRange<T>): T {
+infix fun <T: Comparable<T>> T.shouldBeIn(range: OpenEndRange<T>): T {
     if (this !in range) {
         Failures.fail("Expected <$this> to be in range $range, but was not.")
     }
@@ -741,7 +739,7 @@ infix fun <T : Comparable<T>> T.shouldBeIn(range: OpenEndRange<T>): T {
  * @param range 검증할 범위 (열린 끝 범위)
  * @return receiver (체이닝 지원)
  */
-infix fun <T : Comparable<T>> T.shouldNotBeIn(range: OpenEndRange<T>): T {
+infix fun <T: Comparable<T>> T.shouldNotBeIn(range: OpenEndRange<T>): T {
     if (this in range) {
         Failures.fail("Expected <$this> to not be in range $range, but was.")
     }

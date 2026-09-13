@@ -159,7 +159,7 @@ class MultithreadingTester: WorkerStressTester<MultithreadingTester> {
      * ```
      */
     fun add(testBlock: Runnable) = apply {
-        runnables.add({ testBlock.run() })
+        runnables.add { testBlock.run() }
     }
 
     /**

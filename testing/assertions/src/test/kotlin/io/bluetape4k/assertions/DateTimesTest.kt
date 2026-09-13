@@ -1,6 +1,5 @@
 package io.bluetape4k.assertions
 
-import io.bluetape4k.assertions.assertFailsWith
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.opentest4j.AssertionFailedError
@@ -11,7 +10,7 @@ import java.time.LocalTime
 import java.time.OffsetDateTime
 import java.time.ZoneOffset
 import java.time.ZonedDateTime
-import java.util.Date
+import java.util.*
 
 class DateTimesTest {
 

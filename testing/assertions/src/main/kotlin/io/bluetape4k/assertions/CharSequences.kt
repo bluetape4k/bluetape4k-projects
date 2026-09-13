@@ -154,7 +154,7 @@ infix fun CharSequence?.shouldContainIgnoringCase(substring: CharSequence): Char
  * @return receiver (체이닝 지원)
  */
 fun CharSequence?.shouldBeEmpty(): CharSequence? {
-    if (this != null && this.isNotEmpty()) {
+    if (!this.isNullOrEmpty()) {
         Failures.failComparison(
             Messages.expectedToBe("be empty", "", this),
             "",
@@ -173,7 +173,7 @@ fun CharSequence?.shouldBeEmpty(): CharSequence? {
  * @return non-null receiver (체이닝 지원)
  */
 fun CharSequence?.shouldNotBeEmpty(): CharSequence {
-    if (this == null || this.isEmpty()) {
+    if (this.isNullOrEmpty()) {
         Failures.fail("Expected CharSequence to not be empty, but was ${Messages.stringify(this)}.")
     }
     return this
@@ -188,7 +188,7 @@ fun CharSequence?.shouldNotBeEmpty(): CharSequence {
  * @return receiver (체이닝 지원)
  */
 fun CharSequence?.shouldBeBlank(): CharSequence? {
-    if (this != null && this.isNotBlank()) {
+    if (!this.isNullOrBlank()) {
         Failures.failComparison(
             Messages.expectedToBe("be blank", "<blank>", this),
             "<blank>",
@@ -207,7 +207,7 @@ fun CharSequence?.shouldBeBlank(): CharSequence? {
  * @return non-null receiver (체이닝 지원)
  */
 fun CharSequence?.shouldNotBeBlank(): CharSequence {
-    if (this == null || this.isBlank()) {
+    if (this.isNullOrBlank()) {
         Failures.fail("Expected CharSequence to not be blank, but was ${Messages.stringify(this)}.")
     }
     return this
@@ -499,11 +499,11 @@ infix fun CharSequence.shouldNotContainRegex(pattern: String): CharSequence =
  * @param message 실패 시 출력할 메시지 (optional)
  */
 fun assertEqualsIgnoringCase(expected: Any, actual: Any, message: String? = null) {
-    val equal = when {
-        actual is CharSequence && expected is CharSequence ->
+    val equal = when (actual) {
+        is CharSequence if expected is CharSequence ->
             actual.toString().equals(expected.toString(), ignoreCase = true)
-        actual is Char && expected is Char -> actual.equals(expected, ignoreCase = true)
-        else -> false
+        is Char if expected is Char                 -> actual.equals(expected, ignoreCase = true)
+        else                                        -> false
     }
     if (!equal) {
         val prefix = if (message != null) "$message\n" else ""
@@ -519,11 +519,11 @@ fun assertEqualsIgnoringCase(expected: Any, actual: Any, message: String? = null
  * @param message 실패 시 출력할 메시지 (optional)
  */
 fun assertNotEqualsIgnoringCase(expected: Any, actual: Any, message: String? = null) {
-    val equal = when {
-        actual is CharSequence && expected is CharSequence ->
+    val equal = when (actual) {
+        is CharSequence if expected is CharSequence ->
             actual.toString().equals(expected.toString(), ignoreCase = true)
-        actual is Char && expected is Char -> actual.equals(expected, ignoreCase = true)
-        else -> false
+        is Char if expected is Char                 -> actual.equals(expected, ignoreCase = true)
+        else                                        -> false
     }
     if (equal) {
         val prefix = if (message != null) "$message\n" else ""
