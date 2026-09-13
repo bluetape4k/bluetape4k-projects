@@ -1,12 +1,12 @@
 package io.bluetape4k.junit5.faker
 
-import io.bluetape4k.logging.KLogging
-import io.bluetape4k.logging.trace
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeGreaterOrEqualTo
 import io.bluetape4k.assertions.shouldBeGreaterThan
 import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.assertions.shouldNotBeEmpty
+import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.debug
 import org.junit.jupiter.api.RepeatedTest
 import org.junit.jupiter.api.TestInstance
 
@@ -24,13 +24,13 @@ class FakeValueExtensionPropertyTest {
         @FakeValue(provider = FakeValueProvider.Name.FirstName) firstName: String,
         @FakeValue(provider = FakeValueProvider.Name.LastName) lastName: String,
     ) {
+        log.debug { "fullName=$fullName" }
+        log.debug { "firstName=$firstName" }
+        log.debug { "lastName=$lastName" }
+
         fullName.shouldNotBeEmpty()
         firstName.shouldNotBeEmpty()
         lastName.shouldNotBeEmpty()
-
-        log.trace { "fullName=$fullName" }
-        log.trace { "firstName=$firstName" }
-        log.trace { "lastName=$lastName" }
     }
 
     @RepeatedTest(REPEAT_SIZE)
@@ -40,10 +40,11 @@ class FakeValueExtensionPropertyTest {
         @FakeValue(provider = "random.nextLong") longValue: Long,
         @FakeValue(provider = "random.nextDouble") doubleValue: Double,
     ) {
+        log.debug { "int value = $intValue" }
+        log.debug { "long value = $longValue" }
+        log.debug { "double value = $doubleValue" }
+
         nonZero shouldBeGreaterThan 0
-        log.trace { "int value = $intValue" }
-        log.trace { "long value = $longValue" }
-        log.trace { "double value = $doubleValue" }
     }
 
     @RepeatedTest(REPEAT_SIZE)
@@ -51,12 +52,12 @@ class FakeValueExtensionPropertyTest {
         @FakeValue(provider = "finance.creditCard") creditCard: String,
         @FakeValue(provider = "finance.bic") bic: String,
     ) {
+        log.debug { "creditCard=$creditCard" }
+        log.debug { "bic=$bic" }
+
         creditCard.shouldNotBeEmpty()
         creditCard.length shouldBeGreaterOrEqualTo 8
         bic.shouldNotBeEmpty()
-
-        log.trace { "creditCard=$creditCard" }
-        log.trace { "bic=$bic" }
     }
 
     @RepeatedTest(REPEAT_SIZE)

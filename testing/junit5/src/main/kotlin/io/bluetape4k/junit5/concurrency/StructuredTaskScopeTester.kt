@@ -1,10 +1,10 @@
 package io.bluetape4k.junit5.concurrency
 
 import io.bluetape4k.concurrent.virtualthread.api.StructuredTaskScopes
-import io.bluetape4k.junit5.tester.WorkerStressTester
 import io.bluetape4k.junit5.tester.StressTester.Companion.DEFAULT_ROUNDS_PER_WORKER
 import io.bluetape4k.junit5.tester.StressTester.Companion.MAX_ROUNDS_PER_WORKER
 import io.bluetape4k.junit5.tester.StressTester.Companion.MIN_ROUNDS_PER_WORKER
+import io.bluetape4k.junit5.tester.WorkerStressTester
 import io.bluetape4k.junit5.tester.WorkerStressTester.Companion.MAX_WORKER_SIZE
 import io.bluetape4k.junit5.tester.WorkerStressTester.Companion.MIN_WORKER_SIZE
 import io.bluetape4k.logging.KLogging

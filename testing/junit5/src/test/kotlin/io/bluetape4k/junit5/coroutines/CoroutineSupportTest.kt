@@ -1,20 +1,22 @@
 package io.bluetape4k.junit5.coroutines
 
+import io.bluetape4k.assertions.assertFailsWith
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.assertions.shouldContain
+import io.bluetape4k.assertions.shouldNotBeEmpty
 import io.bluetape4k.logging.KLogging
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
-import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldBeTrue
-import io.bluetape4k.assertions.shouldContain
 import org.junit.jupiter.api.Test
-import io.bluetape4k.assertions.assertFailsWith
 import kotlin.time.Duration.Companion.milliseconds
 
 /**
  * [runSuspendTest], [runSuspendIO], [runSuspendDefault], [runSuspendVT] 함수 검증 테스트
  */
 class CoroutineSupportTest {
+
     companion object: KLogging()
 
     @Test
@@ -37,7 +39,7 @@ class CoroutineSupportTest {
         runSuspendTest(Dispatchers.IO) {
             threadNames += Thread.currentThread().name
         }
-        threadNames.isNotEmpty().shouldBeTrue()
+        threadNames.shouldNotBeEmpty()
     }
 
     @Test
@@ -46,7 +48,7 @@ class CoroutineSupportTest {
         runSuspendIO {
             threadName.append(Thread.currentThread().name)
         }
-        threadName.toString().shouldContain("DefaultDispatcher-worker")
+        threadName.toString() shouldContain "DefaultDispatcher-worker"
     }
 
     @Test
@@ -55,7 +57,7 @@ class CoroutineSupportTest {
         runSuspendDefault {
             threadName.append(Thread.currentThread().name)
         }
-        threadName.toString().shouldContain("DefaultDispatcher-worker")
+        threadName.toString() shouldContain "DefaultDispatcher-worker"
     }
 
     @Test

@@ -1,11 +1,11 @@
 package io.bluetape4k.junit5.tempfolder
 
-import io.bluetape4k.logging.KLogging
-import io.bluetape4k.logging.trace
 import io.bluetape4k.assertions.shouldBeEmpty
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.assertions.shouldNotContain
+import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.debug
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.RepeatedTest
 import org.junit.jupiter.api.Test
@@ -53,7 +53,7 @@ class TempFolderExtensionParameterTest {
     @ExtendWith(TempFolderExtension::class)
     fun `반복 수행되는 메소드에 대해 매번 temporary file이 생성됩니다`(tempFolder: TempFolder) {
         val file = tempFolder.createFile("foo.txt")
-        log.trace { "임시파일=${file.absolutePath}" }
+        log.debug { "임시파일=${file.absolutePath}" }
         file.exists().shouldBeTrue()
 
         tempFileNames shouldNotContain file.absolutePath
@@ -64,7 +64,7 @@ class TempFolderExtensionParameterTest {
     @TempFolderTest
     fun `반복 수행되는 메소드에 대해 매번 temporary folder가 생성됩니다`(tempFolder: TempFolder) {
         val dir = tempFolder.createDirectory("bar")
-        log.trace { "임시폴더=${dir.absolutePath}" }
+        log.debug { "임시폴더=${dir.absolutePath}" }
         dir.exists().shouldBeTrue()
 
         tempDirNames shouldNotContain dir.absolutePath

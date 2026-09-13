@@ -109,7 +109,7 @@ internal fun minimumWaitTimeoutException(elapsedNanos: Long, minimumWait: Durati
 @Suppress("TooGenericExceptionCaught")
 internal fun evaluateFailFastCondition(failFastCondition: FailFastCondition?) {
     when (failFastCondition) {
-        null -> return
+        null                                           -> return
         is FailFastCondition.CallableFailFastCondition -> {
             if (failFastCondition.failFastCondition.call() == true) {
                 throw TerminalFailureException(failFastCondition.failFastFailureReason)
@@ -124,7 +124,9 @@ internal fun evaluateFailFastCondition(failFastCondition: FailFastCondition?) {
             }
         }
 
-        else -> unsupportedFailFastCondition(failFastCondition)
+        else                                           -> unsupportedFailFastCondition(
+            failFastCondition
+        )
     }
 }
 
@@ -138,7 +140,7 @@ private object PollTimedOut
 private class PollTimedOutException(
     val timeout: Duration,
     val lastThrowable: Throwable?,
-) : RuntimeException()
+): RuntimeException()
 
 private tailrec fun Throwable?.unwrapConditionTimeout(): Throwable? = when (this) {
     is ConditionTimeoutException -> cause.unwrapConditionTimeout()

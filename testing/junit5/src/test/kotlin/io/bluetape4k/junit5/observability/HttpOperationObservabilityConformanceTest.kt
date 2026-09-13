@@ -5,6 +5,7 @@ import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldContain
 import io.bluetape4k.assertions.shouldNotContain
 import io.bluetape4k.junit5.output.InMemoryLogbackAppender
+import io.bluetape4k.logging.KLogging
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
 
@@ -243,7 +244,8 @@ class HttpOperationObservabilityConformanceTest {
             sensitiveValues = sensitiveValues(),
         )
 
-    private companion object {
+    private companion object: KLogging() {
+        
         fun Map<String, String>.withStatusCode(statusCode: Int?): Map<String, String> =
             if (statusCode == null) {
                 this - "http.response.status_code"
