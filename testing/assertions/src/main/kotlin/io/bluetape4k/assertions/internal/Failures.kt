@@ -36,7 +36,7 @@ internal object Failures {
         throw AssertionFailedError(message, cause)
 
     /**
-     * 여러 실패를 한 번에 보고한다. [assertSoftly] 내부에서 사용.
+     * 여러 실패를 한 번에 보고한다. [io.bluetape4k.assertions.assertSoftly] 내부에서 사용.
      */
     internal fun failMultiple(heading: String, failures: List<Throwable>): Nothing =
         throw MultipleFailuresError(heading, failures)

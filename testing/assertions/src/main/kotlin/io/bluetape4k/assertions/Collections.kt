@@ -41,6 +41,27 @@ infix fun <T> Iterable<T>?.shouldContain(expected: T): Iterable<T> {
 }
 
 /**
+ * 문자열 컬렉션이 대소문자를 무시하고 [expected] 문자열을 포함하지 않는지 검증한다.
+ *
+ * 예:
+ * ```kotlin
+ * listOf("GET", "POST") shouldNotContainIgnoringCase "not-exists"
+ * ```
+ *
+ * @receiver 검증할 문자열 컬렉션 (nullable 허용)
+ * @param expected 대소문자 무시하고 포함해야 하는 문자열
+ * @return non-null receiver (체이닝 지원)
+ */
+infix fun Iterable<String>?.shouldNotContainIgnoringCase(expected: String): Iterable<String>? {
+    if (this != null && this.all { !it.equals(expected, ignoreCase = true) }) {
+        Failures.fail(
+            "Expected ${Messages.stringify(this)} not to contain (ignoring case) ${Messages.stringify(expected)}, but it did."
+        )
+    }
+    return this
+}
+
+/**
  * 컬렉션이 [expected] 원소를 포함하지 않는지 검증한다.
  *
  * @receiver 검증할 컬렉션 (nullable 허용)
@@ -68,7 +89,7 @@ infix fun <T> Iterable<T>?.shouldContainAll(expected: Iterable<T>): Iterable<T> 
     if (missing.isNotEmpty()) {
         Failures.fail(
             "Expected ${Messages.stringify(this)} to contain all of ${Messages.stringify(expected)}, " +
-                "but was missing: ${Messages.stringify(missing)}."
+                    "but was missing: ${Messages.stringify(missing)}."
         )
     }
     return this ?: emptyList()
@@ -95,7 +116,7 @@ infix fun <T> Iterable<T>?.shouldContainAny(expected: Iterable<T>): Iterable<T> 
     if (this == null || expected.none { this.contains(it) }) {
         Failures.fail(
             "Expected ${Messages.stringify(this)} to contain at least one of ${Messages.stringify(expected)}, " +
-                "but contained none."
+                    "but contained none."
         )
     }
     return this
@@ -124,7 +145,7 @@ infix fun <T> Iterable<T>?.shouldContainNone(expected: Iterable<T>): Iterable<T>
         if (found.isNotEmpty()) {
             Failures.fail(
                 "Expected ${Messages.stringify(this)} to contain none of ${Messages.stringify(expected)}, " +
-                    "but contained: ${Messages.stringify(found)}."
+                        "but contained: ${Messages.stringify(found)}."
             )
         }
     }
@@ -267,7 +288,7 @@ infix fun <T> Iterable<T>?.shouldMatchAllWith(predicate: (T) -> Boolean): Iterab
     if (failing.isNotEmpty()) {
         Failures.fail(
             "Expected all elements of ${Messages.stringify(this)} to match the predicate, " +
-                "but these failed: ${Messages.stringify(failing)}."
+                    "but these failed: ${Messages.stringify(failing)}."
         )
     }
     return this ?: emptyList()

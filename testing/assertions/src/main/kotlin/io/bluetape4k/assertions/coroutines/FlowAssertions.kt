@@ -99,7 +99,7 @@ suspend fun <T> Flow<T>.assertResultSet(values: Iterable<T>) {
  * @param values 기대하는 값들 (순서 중요)
  * @throws org.opentest4j.AssertionFailedError 예상과 다른 경우
  */
-suspend inline fun <T, reified E : Throwable> Flow<T>.assertFailure(vararg values: T) {
+suspend inline fun <T, reified E: Throwable> Flow<T>.assertFailure(vararg values: T) {
     val collected = mutableListOf<T>()
     var caught: Throwable? = null
     try {
@@ -125,7 +125,7 @@ suspend inline fun <T, reified E : Throwable> Flow<T>.assertFailure(vararg value
     if (caught !is E) {
         Failures.fail(
             "Expected Flow to throw ${E::class.simpleName}, " +
-                "but threw ${caught::class.simpleName}: ${caught.message}"
+                    "but threw ${caught::class.simpleName}: ${caught.message}"
         )
     }
 }
@@ -138,7 +138,7 @@ suspend inline fun <T, reified E : Throwable> Flow<T>.assertFailure(vararg value
  * @receiver 검증할 Flow
  * @throws org.opentest4j.AssertionFailedError 예상과 다른 경우
  */
-suspend inline fun <reified E : Throwable> Flow<*>.assertError() {
+suspend inline fun <reified E: Throwable> Flow<*>.assertError() {
     var caught: Throwable? = null
     try {
         collect { }
@@ -154,7 +154,7 @@ suspend inline fun <reified E : Throwable> Flow<*>.assertError() {
     if (caught !is E) {
         Failures.fail(
             "Expected Flow to throw ${E::class.simpleName}, " +
-                "but threw ${caught::class.simpleName}: ${caught.message}"
+                    "but threw ${caught::class.simpleName}: ${caught.message}"
         )
     }
 }

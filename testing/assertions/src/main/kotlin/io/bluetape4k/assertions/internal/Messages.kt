@@ -42,23 +42,23 @@ internal object Messages {
      */
     @PublishedApi
     internal fun stringify(value: Any?): String = when (value) {
-        null -> "<null>"
-        is String -> "\"$value\""
+        null            -> "<null>"
+        is String       -> "\"$value\""
         is CharSequence -> "\"$value\""
-        is Throwable -> "${value::class.simpleName}: ${value.message}"
+        is Throwable    -> "${value::class.simpleName}: ${value.message}"
         is Collection<*> -> value.joinToString(prefix = "[", postfix = "]") { stringify(it) }
-        is Map<*, *> -> value.entries.joinToString(prefix = "{", postfix = "}") {
+        is Map<*, *>    -> value.entries.joinToString(prefix = "{", postfix = "}") {
             "${stringify(it.key)}=${stringify(it.value)}"
         }
-        is Array<*> -> value.joinToString(prefix = "[", postfix = "]") { stringify(it) }
-        is IntArray -> value.joinToString(prefix = "[", postfix = "]")
-        is LongArray -> value.joinToString(prefix = "[", postfix = "]")
-        is DoubleArray -> value.joinToString(prefix = "[", postfix = "]")
-        is FloatArray -> value.joinToString(prefix = "[", postfix = "]")
-        is ByteArray -> value.joinToString(prefix = "[", postfix = "]")
-        is ShortArray -> value.joinToString(prefix = "[", postfix = "]")
-        is CharArray -> value.joinToString(prefix = "[", postfix = "]")
+        is Array<*>     -> value.joinToString(prefix = "[", postfix = "]") { stringify(it) }
+        is IntArray     -> value.joinToString(prefix = "[", postfix = "]")
+        is LongArray    -> value.joinToString(prefix = "[", postfix = "]")
+        is DoubleArray  -> value.joinToString(prefix = "[", postfix = "]")
+        is FloatArray   -> value.joinToString(prefix = "[", postfix = "]")
+        is ByteArray    -> value.joinToString(prefix = "[", postfix = "]")
+        is ShortArray   -> value.joinToString(prefix = "[", postfix = "]")
+        is CharArray    -> value.joinToString(prefix = "[", postfix = "]")
         is BooleanArray -> value.joinToString(prefix = "[", postfix = "]")
-        else -> "<$value>"
+        else            -> "<$value>"
     }
 }

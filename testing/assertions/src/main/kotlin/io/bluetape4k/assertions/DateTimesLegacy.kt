@@ -2,7 +2,7 @@ package io.bluetape4k.assertions
 
 import io.bluetape4k.assertions.internal.Failures
 import io.bluetape4k.assertions.internal.Messages
-import java.util.Date
+import java.util.*
 
 // ── java.util.Date ────────────────────────────────────────────────────────────
 

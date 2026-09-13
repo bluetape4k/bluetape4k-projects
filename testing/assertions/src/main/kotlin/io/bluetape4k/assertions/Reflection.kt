@@ -18,14 +18,14 @@ import kotlin.reflect.KClass
  * @return [T]로 캐스팅된 receiver (체이닝 지원)
  */
 @OptIn(ExperimentalContracts::class)
-inline fun <reified T : Any> Any?.shouldBeInstanceOf(): T {
+inline fun <reified T: Any> Any?.shouldBeInstanceOf(): T {
     contract {
         returns() implies (this@shouldBeInstanceOf is T)
     }
     if (this !is T) {
         Failures.fail(
             "Expected ${Messages.stringify(this)} to be an instance of ${T::class.qualifiedName}, " +
-                "but was ${if (this == null) "<null>" else this::class.qualifiedName}."
+                    "but was ${if (this == null) "<null>" else this::class.qualifiedName}."
         )
     }
     return this
@@ -39,11 +39,11 @@ inline fun <reified T : Any> Any?.shouldBeInstanceOf(): T {
  * @receiver 검증할 값 (nullable 허용)
  * @return receiver (체이닝 지원)
  */
-inline fun <reified T : Any> Any?.shouldNotBeInstanceOf(): Any? {
+inline fun <reified T: Any> Any?.shouldNotBeInstanceOf(): Any? {
     if (this is T) {
         Failures.fail(
             "Expected ${Messages.stringify(this)} not to be an instance of ${T::class.qualifiedName}, " +
-                "but it was."
+                    "but it was."
         )
     }
     return this
@@ -58,11 +58,11 @@ inline fun <reified T : Any> Any?.shouldNotBeInstanceOf(): Any? {
  * @param klass 기대하는 타입
  * @return receiver (체이닝 지원)
  */
-infix fun Any?.shouldBeInstanceOf(klass: KClass<*>): Any? {
+infix fun Any?.shouldBeInstanceOf(klass: KClass<*>): Any {
     if (this == null || !klass.isInstance(this)) {
         Failures.fail(
             "Expected ${Messages.stringify(this)} to be an instance of ${klass.qualifiedName}, " +
-                "but was ${if (this == null) "<null>" else this::class.qualifiedName}."
+                    "but was ${if (this == null) "<null>" else this::class.qualifiedName}."
         )
     }
     return this
@@ -81,7 +81,7 @@ infix fun Any?.shouldNotBeInstanceOf(klass: KClass<*>): Any? {
     if (this != null && klass.isInstance(this)) {
         Failures.fail(
             "Expected ${Messages.stringify(this)} not to be an instance of ${klass.qualifiedName}, " +
-                "but it was."
+                    "but it was."
         )
     }
     return this

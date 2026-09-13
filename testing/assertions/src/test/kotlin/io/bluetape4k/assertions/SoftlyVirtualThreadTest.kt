@@ -1,10 +1,10 @@
 package io.bluetape4k.assertions
 
+import org.junit.jupiter.api.Test
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.Executors
 import java.util.concurrent.Future
 import java.util.concurrent.TimeUnit
-import org.junit.jupiter.api.Test
 
 class SoftlyVirtualThreadTest {
 
