@@ -1,7 +1,5 @@
 package io.bluetape4k.measured
 
-import io.bluetape4k.measured.Area.Companion.meters2
-
 /**
  * 면적 단위를 나타냅니다.
  *

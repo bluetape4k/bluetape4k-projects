@@ -56,7 +56,7 @@ private fun Units.baseHumanCandidates(): List<Units>? = when (this) {
         Pressure.psi,
     )
 
-    else         -> null
+    else -> null
 }
 
 /** 새로 추가된 단위 계열의 사람이 읽기 쉬운 후보 단위를 반환합니다. */
