@@ -31,7 +31,7 @@ class JaninoAction(val script: String): Action {
         script.requireNotBlank("script")
     }
 
-    private val evaluator by lazy(LazyThreadSafetyMode.SYNCHRONIZED) {
+    private val evaluator by lazy {
         ScriptEvaluator().apply {
             setParameters(arrayOf("facts"), arrayOf(MutableMap::class.java))
             cook(script)
@@ -48,9 +48,8 @@ class JaninoAction(val script: String): Action {
                 facts[key] = value
             }
         } catch (e: Exception) {
-            log.error {
-                "Fail to execute Janino script. ${script.toRuleSourceLogContext()}, " +
-                        "exceptionType=${e.javaClass.name}, factCount=${facts.size}"
+            log.error(e) {
+                "Fail to execute Janino script. ${script.toRuleSourceLogContext()}, factCount=${facts.size}"
             }
             throw RuleException("Fail to execute Janino script", e)
         }

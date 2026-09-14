@@ -1,15 +1,16 @@
 package io.bluetape4k.rule.core
 
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeFalse
+import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.assertions.shouldContain
+import io.bluetape4k.assertions.shouldNotBeEqualTo
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.rule.api.Facts
 import io.bluetape4k.rule.api.SuspendAction
 import io.bluetape4k.rule.api.SuspendCondition
 import io.bluetape4k.rule.api.suspendRuleSetOf
-import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldBeFalse
-import io.bluetape4k.assertions.shouldBeTrue
-import io.bluetape4k.assertions.shouldNotBeNull
 import org.junit.jupiter.api.Test
 
 class DefaultSuspendRuleTest {
@@ -71,23 +72,24 @@ class DefaultSuspendRuleTest {
         val rule1 = DefaultSuspendRule(name = "sameName")
         val rule2 = DefaultSuspendRule(name = "sameName")
         val rule3 = DefaultSuspendRule(name = "different")
-        (rule1 == rule2).shouldBeTrue()
-        (rule1 == rule3).shouldBeFalse()
+        rule1 shouldBeEqualTo rule2
+        rule1 shouldNotBeEqualTo rule3
     }
 
     @Test
     fun `hashCode based on name`() {
         val rule1 = DefaultSuspendRule(name = "sameName")
         val rule2 = DefaultSuspendRule(name = "sameName")
-        (rule1.hashCode() == rule2.hashCode()).shouldBeTrue()
+        rule1 shouldBeEqualTo rule2
+        rule1.hashCode() shouldBeEqualTo rule2.hashCode()
     }
 
     @Test
     fun `toString contains name and priority`() {
         val rule = DefaultSuspendRule(name = "myRule", priority = 5)
         val str = rule.toString()
-        str.contains("myRule").shouldBeTrue()
-        str.contains("5").shouldBeTrue()
+        str shouldContain "myRule"
+        str shouldContain "5"
     }
 
     @Test
@@ -105,7 +107,7 @@ class DefaultSuspendRuleTest {
         val facts = Facts.of("score" to 80)
         rule.evaluate(facts).shouldBeTrue()
         rule.execute(facts)
-        facts.get<Boolean>("passed").shouldNotBeNull().shouldBeTrue()
+        facts.get<Boolean>("passed").shouldBeTrue()
     }
 
     @Test

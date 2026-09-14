@@ -1,15 +1,15 @@
 package io.bluetape4k.rule.engines.mvel2
 
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.rule.api.Facts
 import io.bluetape4k.rule.api.RuleDefinition
-import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldBeTrue
 import org.junit.jupiter.api.Test
 
 class MvelSupportTest {
 
-    companion object : KLogging()
+    companion object: KLogging()
 
     @Test
     fun `mvelConditionOf 팩토리 함수로 MvelCondition 생성`() {

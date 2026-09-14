@@ -4,6 +4,7 @@ configurations {
 
 dependencies {
     api(project(":bluetape4k-core"))
+    compileOnly(project(":bluetape4k-jackson3"))
     testImplementation(project(":bluetape4k-junit5"))
 
     // Coroutines
@@ -31,8 +32,8 @@ dependencies {
     compileOnly(libs.kotlin.scripting.jvm.host)
 
     // Rule Reader
-    compileOnly(libs.jackson.dataformat.yaml)
-    compileOnly(libs.jackson.module.kotlin)
+    compileOnly(libs.jackson3.dataformat.yaml)
+    compileOnly(libs.jackson3.module.kotlin)
     compileOnly(bt4k.typesafe.config)
 
     // Test
@@ -42,7 +43,4 @@ dependencies {
     testImplementation(bt4k.groovy)
     testImplementation(libs.kotlin.scripting.jvm.host)
     testImplementation("org.springframework:spring-context")
-    testImplementation(libs.jackson.dataformat.yaml)
-    testImplementation(libs.jackson.module.kotlin)
-    testImplementation(bt4k.typesafe.config)
 }

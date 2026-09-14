@@ -8,7 +8,7 @@ import io.bluetape4k.rule.api.Facts
 import io.bluetape4k.rule.api.SuspendAction
 import io.bluetape4k.rule.api.SuspendCondition
 import io.bluetape4k.rule.api.SuspendRule
-import java.util.*
+import io.bluetape4k.support.hashOf
 
 /**
  * [SuspendCondition]과 [SuspendAction] 목록을 가지는 SuspendRule 구현체입니다.
@@ -56,7 +56,7 @@ open class DefaultSuspendRule(
         return name == other.name
     }
 
-    override fun hashCode(): Int = Objects.hash(name)
+    override fun hashCode(): Int = hashOf(name)
 
     override fun toString(): String = "SuspendRule(name='$name', priority=$priority, description='$description')"
 }

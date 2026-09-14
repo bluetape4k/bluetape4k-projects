@@ -1,19 +1,18 @@
 package io.bluetape4k.rule.api
 
-import io.bluetape4k.logging.KLogging
-import io.bluetape4k.rule.api.ruleSetOf
-import io.bluetape4k.rule.core.DefaultRule
-import io.bluetape4k.rule.core.DefaultRuleEngine
-import io.bluetape4k.rule.api.Action
+import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeFalse
 import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.assertions.shouldHaveSize
+import io.bluetape4k.logging.KLogging
+import io.bluetape4k.rule.core.DefaultRule
+import io.bluetape4k.rule.core.DefaultRuleEngine
 import org.junit.jupiter.api.Test
-import io.bluetape4k.assertions.assertFailsWith
 
 class RuleEngineConfigTest {
 
-    companion object : KLogging()
+    companion object: KLogging()
 
     @Test
     fun `기본 RuleEngineConfig 설정값 확인`() {
@@ -49,8 +48,8 @@ class RuleEngineConfigTest {
     fun `RuleEngineConfig equals and hashCode`() {
         val c1 = RuleEngineConfig(skipOnFirstAppliedRule = true)
         val c2 = RuleEngineConfig(skipOnFirstAppliedRule = true)
-        (c1 == c2).shouldBeTrue()
-        (c1.hashCode() == c2.hashCode()).shouldBeTrue()
+        c1 shouldBeEqualTo c2
+        c1.hashCode() shouldBeEqualTo c2.hashCode()
     }
 
     @Test
@@ -74,7 +73,7 @@ class RuleEngineConfigTest {
 
         engine.fire(ruleSetOf(rule1, rule2), Facts.empty())
         // With skipOnFirstAppliedRule=true, only rule1 should execute
-        executionCount.size shouldBeEqualTo 1
+        executionCount shouldHaveSize 1
         executionCount[0] shouldBeEqualTo "rule1"
     }
 }
