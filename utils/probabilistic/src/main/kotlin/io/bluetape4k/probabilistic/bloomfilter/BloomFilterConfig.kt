@@ -26,7 +26,7 @@ private val LN_2_SQUARED = LN_2 * LN_2
 data class BloomFilterConfig(
     val expectedInsertions: Long = DEFAULT_EXPECTED_INSERTIONS,
     val falsePositiveProbability: Double = DEFAULT_FALSE_POSITIVE_PROBABILITY,
-) : Serializable {
+): Serializable {
 
     companion object {
         private const val serialVersionUID: Long = 1L

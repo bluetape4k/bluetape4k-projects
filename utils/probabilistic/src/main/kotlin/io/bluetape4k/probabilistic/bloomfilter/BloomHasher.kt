@@ -82,13 +82,13 @@ internal object BloomHashSupport {
 
     private fun ByteArray.longAt(offset: Int): Long =
         ((this[offset].toLong() and 0xFFL) shl 56) or
-            ((this[offset + 1].toLong() and 0xFFL) shl 48) or
-            ((this[offset + 2].toLong() and 0xFFL) shl 40) or
-            ((this[offset + 3].toLong() and 0xFFL) shl 32) or
-            ((this[offset + 4].toLong() and 0xFFL) shl 24) or
-            ((this[offset + 5].toLong() and 0xFFL) shl 16) or
-            ((this[offset + 6].toLong() and 0xFFL) shl 8) or
-            (this[offset + 7].toLong() and 0xFFL)
+                ((this[offset + 1].toLong() and 0xFFL) shl 48) or
+                ((this[offset + 2].toLong() and 0xFFL) shl 40) or
+                ((this[offset + 3].toLong() and 0xFFL) shl 32) or
+                ((this[offset + 4].toLong() and 0xFFL) shl 24) or
+                ((this[offset + 5].toLong() and 0xFFL) shl 16) or
+                ((this[offset + 6].toLong() and 0xFFL) shl 8) or
+                (this[offset + 7].toLong() and 0xFFL)
 
     private fun Long.floorMod(modulus: Long): Long {
         val result = this % modulus
