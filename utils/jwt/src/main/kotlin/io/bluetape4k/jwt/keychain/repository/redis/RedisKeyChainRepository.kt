@@ -12,6 +12,7 @@ import io.bluetape4k.jwt.keychain.toKeyChain
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.warn
+import io.bluetape4k.support.checkNull
 import io.bluetape4k.support.requireNotBlank
 import org.redisson.api.RDeque
 import org.redisson.api.RLock
@@ -138,8 +139,8 @@ internal fun <T> withRedisRotationLock(lock: RLock, action: () -> T): T {
         "Failed to acquire Redis keychain rotation lock."
     }
 
-    var actionResult: Result<T>? = null
-    var releaseFailure: Throwable? = null
+    var actionResult: Result<T>?
+    var releaseFailure: Throwable?
     try {
         actionResult = runCatching(action)
     } finally {
@@ -151,13 +152,13 @@ internal fun <T> withRedisRotationLock(lock: RLock, action: () -> T): T {
         }.exceptionOrNull()
     }
 
-    val result = checkNotNull(actionResult)
-    val primaryFailure = result.exceptionOrNull()
+
+    val primaryFailure = actionResult.exceptionOrNull()
     if (primaryFailure != null) {
         releaseFailure?.let(primaryFailure::addSuppressed)
         throw primaryFailure
     }
 
-    releaseFailure?.let { throw it }
-    return result.getOrThrow()
+    releaseFailure.checkNull("releaseFailure") // ?.let { throw it }
+    return actionResult.getOrThrow()
 }

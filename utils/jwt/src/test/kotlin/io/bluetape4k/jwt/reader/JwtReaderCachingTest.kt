@@ -3,6 +3,7 @@ package io.bluetape4k.jwt.reader
 import io.bluetape4k.LibraryName
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldNotBeEqualTo
+import io.bluetape4k.assertions.shouldNotBeNull
 import io.bluetape4k.cache.jcache.JCaching
 import io.bluetape4k.cache.jcache.RedissonJCaching
 import io.bluetape4k.cache.nearcache.jcache.NearJCache
@@ -73,7 +74,7 @@ class JwtReaderCachingTest: AbstractJwtTest() {
     @RepeatedTest(REPEAT_SIZE)
     fun `caching reader at near cache`() {
         frontCache1.put(jwt, reader.toDto())
-        val actual = frontCache1.get(jwt)!!.toJwtReader()
+        val actual = frontCache1.get(jwt).shouldNotBeNull().toJwtReader()
 
         assertSameReader(reader, actual)
     }
@@ -88,8 +89,8 @@ class JwtReaderCachingTest: AbstractJwtTest() {
         frontCache1.put(hashKey1, reader.toDto())
         frontCache1.put(hashKey2, reader2.toDto())
 
-        val actual = frontCache1.get(hashKey1)!!.toJwtReader()
-        val actual2 = frontCache1.get(hashKey2)!!.toJwtReader()
+        val actual = frontCache1.get(hashKey1).shouldNotBeNull().toJwtReader()
+        val actual2 = frontCache1.get(hashKey2).shouldNotBeNull().toJwtReader()
 
         assertSameReader(reader, actual)
         assertSameReader(reader2, actual2)
@@ -98,11 +99,11 @@ class JwtReaderCachingTest: AbstractJwtTest() {
     @RepeatedTest(REPEAT_SIZE)
     fun `caching reader with remote cache`() {
         backCache.put(jwt, reader.toDto())
-        val actual = backCache.get(jwt)!!.toJwtReader()
+        val actual = backCache.get(jwt).shouldNotBeNull().toJwtReader()
         assertSameReader(reader, actual)
 
         frontCache1.put(jwt, actual.toDto())
-        val actual2 = frontCache1.get(jwt)!!.toJwtReader()
+        val actual2 = frontCache1.get(jwt).shouldNotBeNull().toJwtReader()
         assertSameReader(actual, actual2)
     }
 
@@ -116,8 +117,8 @@ class JwtReaderCachingTest: AbstractJwtTest() {
         backCache.put(hashKey1, reader.toDto())
         backCache.put(hashKey2, reader2.toDto())
 
-        val actual = backCache.get(hashKey1)!!.toJwtReader()
-        val actual2 = backCache.get(hashKey2)!!.toJwtReader()
+        val actual = backCache.get(hashKey1).shouldNotBeNull().toJwtReader()
+        val actual2 = backCache.get(hashKey2).shouldNotBeNull().toJwtReader()
 
         assertSameReader(reader, actual)
         assertSameReader(reader2, actual2)
@@ -136,12 +137,12 @@ class JwtReaderCachingTest: AbstractJwtTest() {
             // Cache 1 에서 저장
             nearJCache1.put(jwt, reader.toDto())
             nearJCache1.lastBackCacheWriteCompletion.toCompletableFuture().join()
-            assertSameReader(reader, nearJCache1.get(jwt)!!.toJwtReader())
+            assertSameReader(reader, nearJCache1.get(jwt).shouldNotBeNull().toJwtReader())
 
             await atMost 10.seconds until { nearJCache2.containsKey(jwt) }
 
             // Cache 2 에서 조회
-            val actual = nearJCache2.get(jwt)!!.toJwtReader()
+            val actual = nearJCache2.get(jwt).shouldNotBeNull().toJwtReader()
 
             assertSameReader(reader, actual)
         } finally {

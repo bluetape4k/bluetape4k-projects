@@ -3,6 +3,7 @@ package io.bluetape4k.jwt.provider
 import io.bluetape4k.LibraryName
 import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldHaveSize
 import io.bluetape4k.codec.encodeBase62
 import io.bluetape4k.junit5.concurrency.MultithreadingTester
 import io.bluetape4k.jwt.AbstractJwtTest
@@ -47,7 +48,7 @@ class FixedJwtProviderTest: AbstractJwtTest() {
         reader.claim<String>("author") shouldBeEqualTo "debop"
     }
 
-    @RepeatedTest(REPEAT_SIZE)
+    @Test
     fun `compose jwt in concurrency`() {
         val customData = randomString(1024)
         val now = Date()
@@ -72,11 +73,12 @@ class FixedJwtProviderTest: AbstractJwtTest() {
 
         Thread.sleep(10L)
 
-        jwts.size shouldBeEqualTo 16 * 32
+        jwts shouldHaveSize 16 * 32
+
         val uniqueJwts = jwts.distinct()
         uniqueJwts.forEach { jwt ->
             log.trace { "jwt=$jwt" }
         }
-        uniqueJwts.size shouldBeEqualTo 1
+        uniqueJwts shouldHaveSize 1
     }
 }

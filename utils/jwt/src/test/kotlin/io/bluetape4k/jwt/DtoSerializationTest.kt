@@ -1,14 +1,12 @@
 package io.bluetape4k.jwt
 
 import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldNotBeNull
+import io.bluetape4k.io.lookup
+import io.bluetape4k.io.serializer.BinarySerializers
 import io.bluetape4k.jwt.keychain.KeyChainDto
 import io.bluetape4k.jwt.reader.JwtReaderDto
 import org.junit.jupiter.api.Test
-import java.io.ByteArrayInputStream
-import java.io.ByteArrayOutputStream
-import java.io.ObjectInputStream
-import java.io.ObjectOutputStream
-import java.io.ObjectStreamClass
 
 class DtoSerializationTest {
 
@@ -24,7 +22,7 @@ class DtoSerializationTest {
         deserialize<JwtReaderDto>(serialize(dto)) shouldBeEqualTo dto
         JwtReaderDto::class.java.getDeclaredField("serialVersionUID").apply { isAccessible = true }
             .getLong(null) shouldBeEqualTo 6285801536022841892L
-        ObjectStreamClass.lookup(JwtReaderDto::class.java).serialVersionUID shouldBeEqualTo 6285801536022841892L
+        JwtReaderDto::class.lookup().serialVersionUID shouldBeEqualTo 6285801536022841892L
     }
 
     @Test
@@ -49,14 +47,12 @@ class DtoSerializationTest {
         }
         KeyChainDto::class.java.getDeclaredField("serialVersionUID").apply { isAccessible = true }
             .getLong(null) shouldBeEqualTo -1267149397241058308L
-        ObjectStreamClass.lookup(KeyChainDto::class.java).serialVersionUID shouldBeEqualTo -1267149397241058308L
+        KeyChainDto::class.lookup().serialVersionUID shouldBeEqualTo -1267149397241058308L
     }
 
-    private fun serialize(value: Any): ByteArray = ByteArrayOutputStream().use { bytes ->
-        ObjectOutputStream(bytes).use { it.writeObject(value) }
-        bytes.toByteArray()
-    }
+    private fun serialize(value: Any): ByteArray =
+        BinarySerializers.FastFory.serialize(value)
 
-    private inline fun <reified T> deserialize(bytes: ByteArray): T =
-        ObjectInputStream(ByteArrayInputStream(bytes)).use { it.readObject() as T }
+    private inline fun <reified T: Any> deserialize(bytes: ByteArray): T =
+        BinarySerializers.FastFory.deserialize<T>(bytes).shouldNotBeNull()
 }
