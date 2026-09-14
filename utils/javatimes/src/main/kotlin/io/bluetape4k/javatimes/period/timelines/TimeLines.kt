@@ -20,9 +20,7 @@ import io.bluetape4k.logging.KLogging
  */
 object TimeLines: KLogging() {
 
-    fun combinePeriods(
-        moments: ITimeLineMomentCollection,
-    ): ITimePeriodCollection {
+    fun combinePeriods(moments: ITimeLineMomentCollection): ITimePeriodCollection {
         if (moments.isEmpty()) {
             return TimePeriodCollection.EMPTY
         }
@@ -55,9 +53,7 @@ object TimeLines: KLogging() {
         return result
     }
 
-    fun intersectPeriods(
-        moments: ITimeLineMomentCollection,
-    ): ITimePeriodCollection {
+    fun intersectPeriods(moments: ITimeLineMomentCollection): ITimePeriodCollection {
         if (moments.isEmpty()) {
             return TimePeriodCollection.EMPTY
         }

@@ -2,9 +2,10 @@ package io.bluetape4k.javatimes.period
 
 import io.bluetape4k.SortDirection
 import io.bluetape4k.assertions.assertFailsWith
+import io.bluetape4k.assertions.shouldBeEmpty
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeFalse
-import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.assertions.shouldBeNull
 import io.bluetape4k.assertions.shouldHaveSize
 import io.bluetape4k.javatimes.MaxPeriodTime
 import io.bluetape4k.javatimes.MinPeriodTime
@@ -22,8 +23,7 @@ class TimePeriodChainTest: AbstractPeriodTest() {
         val chain = TimePeriodChain()
         chain.start shouldBeEqualTo MinPeriodTime
         chain.end shouldBeEqualTo MaxPeriodTime
-        chain.size shouldBeEqualTo 0
-        chain.isEmpty().shouldBeTrue()
+        chain.shouldBeEmpty()
     }
 
     @Test
@@ -32,7 +32,7 @@ class TimePeriodChainTest: AbstractPeriodTest() {
         val block = TimeBlock(now, now + Duration.ofHours(2))
         chain.add(block)
 
-        chain.size shouldBeEqualTo 1
+        chain shouldHaveSize 1
         chain.start shouldBeEqualTo now
         chain.end shouldBeEqualTo now.plusHours(2)
     }
@@ -43,7 +43,7 @@ class TimePeriodChainTest: AbstractPeriodTest() {
         chain.add(TimeBlock(now, now + Duration.ofHours(2)))
         chain.add(TimeBlock(now.plusHours(2), now.plusHours(5)))
 
-        chain.size shouldBeEqualTo 2
+        chain shouldHaveSize 2
         chain.start shouldBeEqualTo now
         chain.end shouldBeEqualTo now.plusHours(5)
     }
@@ -56,7 +56,7 @@ class TimePeriodChainTest: AbstractPeriodTest() {
         )
         val chain = TimePeriodChain(periods)
 
-        chain.size shouldBeEqualTo 2
+        chain shouldHaveSize 2
         chain.start shouldBeEqualTo now
     }
 
@@ -66,7 +66,7 @@ class TimePeriodChainTest: AbstractPeriodTest() {
         val b2 = TimeBlock(now + 1.hours(), now + 3.hours())
         val chain = TimePeriodChain(b1, b2)
 
-        chain.size shouldBeEqualTo 2
+        chain shouldHaveSize 2
         chain.start shouldBeEqualTo now
         chain.end shouldBeEqualTo now + 3.hours()
     }
@@ -74,7 +74,7 @@ class TimePeriodChainTest: AbstractPeriodTest() {
     @Test
     fun `headOrNull returns null for empty chain`() {
         val chain = TimePeriodChain()
-        chain.headOrNull() shouldBeEqualTo null
+        chain.headOrNull().shouldBeNull()
     }
 
     @Test
@@ -87,7 +87,7 @@ class TimePeriodChainTest: AbstractPeriodTest() {
     @Test
     fun `lastOrNull returns null for empty chain`() {
         val chain = TimePeriodChain()
-        chain.lastOrNull() shouldBeEqualTo null
+        chain.lastOrNull().shouldBeNull()
     }
 
     @Test

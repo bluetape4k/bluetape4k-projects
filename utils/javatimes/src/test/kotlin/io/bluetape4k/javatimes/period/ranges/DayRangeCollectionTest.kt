@@ -1,5 +1,7 @@
 package io.bluetape4k.javatimes.period.ranges
 
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.javatimes.HoursPerDay
 import io.bluetape4k.javatimes.MinNegativeDuration
 import io.bluetape4k.javatimes.days
@@ -8,8 +10,6 @@ import io.bluetape4k.javatimes.nowZonedDateTime
 import io.bluetape4k.javatimes.period.AbstractPeriodTest
 import io.bluetape4k.javatimes.startOfDay
 import io.bluetape4k.javatimes.todayZonedDateTime
-import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.logging.KLogging
 import org.junit.jupiter.api.Test
 

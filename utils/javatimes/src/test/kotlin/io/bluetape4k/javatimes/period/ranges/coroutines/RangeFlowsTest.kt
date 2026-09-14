@@ -1,5 +1,6 @@
 package io.bluetape4k.javatimes.period.ranges.coroutines
 
+import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.javatimes.period.ITimeCalendar
 import io.bluetape4k.javatimes.period.TimeCalendar
 import io.bluetape4k.javatimes.period.TimeCalendarConfig
@@ -13,7 +14,6 @@ import io.bluetape4k.javatimes.zonedDateTimeOf
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.test.runTest
-import io.bluetape4k.assertions.shouldBeEqualTo
 import org.junit.jupiter.api.Test
 import java.time.DayOfWeek
 

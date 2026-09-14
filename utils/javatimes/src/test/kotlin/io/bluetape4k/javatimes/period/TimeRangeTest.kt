@@ -1,18 +1,18 @@
 package io.bluetape4k.javatimes.period
 
+import io.bluetape4k.assertions.assertFailsWith
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeFalse
+import io.bluetape4k.assertions.shouldBeGreaterThan
+import io.bluetape4k.assertions.shouldBeLessThan
+import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.javatimes.MaxPeriodTime
 import io.bluetape4k.javatimes.MinPeriodTime
 import io.bluetape4k.javatimes.hours
 import io.bluetape4k.javatimes.minutes
 import io.bluetape4k.javatimes.nowZonedDateTime
 import io.bluetape4k.logging.KLogging
-import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldBeFalse
-import io.bluetape4k.assertions.shouldBeGreaterThan
-import io.bluetape4k.assertions.shouldBeLessThan
-import io.bluetape4k.assertions.shouldBeTrue
 import org.junit.jupiter.api.Test
-import io.bluetape4k.assertions.assertFailsWith
 import java.time.Duration
 
 /**
@@ -341,7 +341,7 @@ class TimeRangeTest {
         val range1 = TimeRange(start, end)
         val range2 = TimeRange(start, end)
 
-        range1.compareTo(range2) shouldBeEqualTo 0
+        range1 shouldBeEqualTo range2
     }
 
     @Test

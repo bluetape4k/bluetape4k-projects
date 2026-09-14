@@ -1,15 +1,17 @@
 package io.bluetape4k.javatimes.period
 
-import io.bluetape4k.javatimes.nowZonedDateTime
-import io.bluetape4k.logging.KLogging
-import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeEmpty
 import io.bluetape4k.assertions.shouldBeFalse
 import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.assertions.shouldHaveSize
+import io.bluetape4k.assertions.shouldNotBeEmpty
+import io.bluetape4k.javatimes.nowZonedDateTime
+import io.bluetape4k.logging.KLogging
 import org.junit.jupiter.api.Test
 
 class TimePeriodCollectionTest {
 
-    companion object : KLogging()
+    companion object: KLogging()
 
     private fun makeRange(offsetDays: Long, durationDays: Long): TimeRange {
         val now = nowZonedDateTime()
@@ -18,14 +20,14 @@ class TimePeriodCollectionTest {
 
     @Test
     fun `EMPTY is an empty collection`() {
-        TimePeriodCollection.EMPTY.periods.isEmpty().shouldBeTrue()
+        TimePeriodCollection.EMPTY.periods.shouldBeEmpty()
     }
 
     @Test
     fun `invoke with single element`() {
         val r = makeRange(0, 3)
         val collection = TimePeriodCollection(r)
-        collection.periods.size shouldBeEqualTo 1
+        collection.periods shouldHaveSize 1
     }
 
     @Test
@@ -33,14 +35,14 @@ class TimePeriodCollectionTest {
         val r1 = makeRange(0, 3)
         val r2 = makeRange(1, 5)
         val collection = TimePeriodCollection(r1, r2)
-        collection.periods.size shouldBeEqualTo 2
+        collection.periods shouldHaveSize 2
     }
 
     @Test
     fun `ofAll creates collection from list`() {
         val periods = listOf(makeRange(0, 2), makeRange(3, 2), makeRange(6, 2))
         val collection = TimePeriodCollection.ofAll(periods)
-        collection.periods.size shouldBeEqualTo 3
+        collection.periods shouldHaveSize 3
     }
 
     @Test
@@ -104,7 +106,7 @@ class TimePeriodCollectionTest {
         val small = TimeRange(now.plusDays(2), now.plusDays(4))
         val collection = TimePeriodCollection(big)
         val result = collection.insidePeriods(small)
-        result.size shouldBeEqualTo 1
+        result shouldHaveSize 1
     }
 
     @Test
@@ -115,7 +117,7 @@ class TimePeriodCollectionTest {
         val target = TimeRange(now.plusDays(3), now.plusDays(12))
         val collection = TimePeriodCollection(r1, r2)
         val result = collection.overlapPeriods(target)
-        result.size shouldBeEqualTo 2
+        result shouldHaveSize 2
     }
 
     @Test
@@ -126,6 +128,6 @@ class TimePeriodCollectionTest {
         val collection = TimePeriodCollection(r1, r2)
         val target = TimeRange(now, now.plusDays(5))
         val result = collection.relationPeriods(target, PeriodRelation.Before, PeriodRelation.After)
-        result.isNotEmpty().shouldBeTrue()
+        result.shouldNotBeEmpty()
     }
 }

@@ -1,5 +1,6 @@
 package io.bluetape4k.javatimes.period.ranges
 
+import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.javatimes.MonthsPerYear
 import io.bluetape4k.javatimes.days
 import io.bluetape4k.javatimes.lengthOfMonth
@@ -16,7 +17,6 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
-import io.bluetape4k.assertions.shouldBeEqualTo
 import org.junit.jupiter.api.Test
 
 

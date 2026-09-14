@@ -1,20 +1,21 @@
 package io.bluetape4k.javatimes.period
 
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.assertions.shouldNotBeEqualTo
 import io.bluetape4k.javatimes.DefaultEndOffset
 import io.bluetape4k.javatimes.DefaultStartOffset
 import io.bluetape4k.javatimes.EmptyDuration
 import io.bluetape4k.javatimes.FirstDayOfWeek
 import io.bluetape4k.logging.KLogging
-import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldBeTrue
 import org.junit.jupiter.api.Test
 import java.time.DayOfWeek
 import java.time.Duration
-import java.util.Locale
+import java.util.*
 
 class TimeCalendarConfigTest {
 
-    companion object : KLogging()
+    companion object: KLogging()
 
     @Test
     fun `Default config has zero startOffset`() {
@@ -76,13 +77,14 @@ class TimeCalendarConfigTest {
     fun `EmptyOffset differs from Default`() {
         val default = TimeCalendarConfig.Default
         val empty = TimeCalendarConfig.EmptyOffset
-        (default == empty).let { it.not().shouldBeTrue() }
+        default shouldNotBeEqualTo empty
     }
 
     @Test
     fun `data class copy creates new instance with modified field`() {
         val original = TimeCalendarConfig.Default
         val copy = original.copy(firstDayOfWeek = DayOfWeek.SUNDAY)
+
         copy.firstDayOfWeek shouldBeEqualTo DayOfWeek.SUNDAY
         copy.startOffset shouldBeEqualTo original.startOffset
     }

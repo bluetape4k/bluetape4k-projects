@@ -14,6 +14,7 @@ import io.bluetape4k.utils.Local
  * ```
  */
 open class PeriodContext: AbstractValueObject() {
+
     companion object {
         @JvmField
         val TIME_CALENDAR_KEY: String = PeriodContext::class.java.name + ".current"
@@ -29,5 +30,8 @@ open class PeriodContext: AbstractValueObject() {
 
     override fun equalProperties(other: Any): Boolean = other is PeriodContext
 
+    override fun equals(other: Any?): Boolean = other is PeriodContext && super.equals(other)
+
     override fun hashCode(): Int = hashOf(PeriodContext::class.java)
+
 }

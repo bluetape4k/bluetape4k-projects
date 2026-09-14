@@ -1,5 +1,9 @@
 package io.bluetape4k.javatimes.period.timelines
 
+import io.bluetape4k.assertions.shouldBeEmpty
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.assertions.shouldHaveSize
 import io.bluetape4k.javatimes.days
 import io.bluetape4k.javatimes.hours
 import io.bluetape4k.javatimes.isWeekend
@@ -15,10 +19,6 @@ import io.bluetape4k.javatimes.period.ranges.DayRangeCollection
 import io.bluetape4k.javatimes.period.ranges.MonthRange
 import io.bluetape4k.javatimes.period.samples.SchoolDay
 import io.bluetape4k.javatimes.zonedDateTimeOf
-import io.bluetape4k.assertions.shouldBeEmpty
-import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldBeTrue
-import io.bluetape4k.assertions.shouldHaveSize
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.trace
 import kotlinx.coroutines.test.runTest
