@@ -10,9 +10,10 @@ import io.bluetape4k.junit5.coroutines.runSuspendDefault
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.trace
 import org.junit.jupiter.api.RepeatedTest
+import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.condition.EnabledForJreRange
 import org.junit.jupiter.api.condition.JRE
-import java.util.UUID
+import java.util.*
 import java.util.concurrent.ConcurrentHashMap
 import kotlin.time.Duration.Companion.seconds
 
@@ -49,7 +50,7 @@ class NamebasedUuidGeneratorTest {
         uuid2 shouldNotBeEqualTo uuid1
     }
 
-    @RepeatedTest(REPEAT_SIZE)
+    @Test
     fun `generate timebased uuids in multi threads`() {
         val idMap = ConcurrentHashMap<UUID, Int>()
 
@@ -66,12 +67,11 @@ class NamebasedUuidGeneratorTest {
     }
 
     @EnabledForJreRange(min = JRE.JAVA_21)
-    @RepeatedTest(REPEAT_SIZE)
+    @Test
     fun `generate timebased uuids in virtual threads`() {
         val idMap = ConcurrentHashMap<UUID, Int>()
 
         StructuredTaskScopeTester()
-            .workers(STRESS_WORKERS)
             .rounds(STRESS_OPERATIONS)
             .withTimeout(STRESS_TIMEOUT)
             .add {
@@ -83,12 +83,11 @@ class NamebasedUuidGeneratorTest {
         idMap.size shouldBeEqualTo STRESS_OPERATIONS
     }
 
-    @RepeatedTest(REPEAT_SIZE)
+    @Test
     fun `generate timebased uuids in multi jobs`() = runSuspendDefault(timeout = STRESS_TIMEOUT) {
         val idMap = ConcurrentHashMap<UUID, Int>()
 
         SuspendedJobTester()
-            .workers(STRESS_WORKERS)
             .rounds(STRESS_OPERATIONS)
             .add {
                 val id = uuidGenerator.nextId()

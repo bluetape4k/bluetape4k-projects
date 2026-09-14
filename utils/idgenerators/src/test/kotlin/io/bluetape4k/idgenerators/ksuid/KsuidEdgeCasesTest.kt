@@ -2,10 +2,14 @@ package io.bluetape4k.idgenerators.ksuid
 
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.codec.encodeHexString
+import io.bluetape4k.logging.KLogging
 import org.junit.jupiter.api.Test
 import kotlin.random.Random
 
 class KsuidEdgeCasesTest {
+
+    companion object: KLogging()
+
     @Test
     fun `decode should pad when base62 shorter than expected`() {
         val raw = Random.nextBytes(Ksuid.Seconds.TOTAL_BYTES - 1)
