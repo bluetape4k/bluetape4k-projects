@@ -1,7 +1,5 @@
 package io.bluetape4k.geocode
 
-import io.bluetape4k.geocode.Geocode.Companion.DefaultMathContext
-import io.bluetape4k.geocode.Geocode.Companion.parse
 import io.bluetape4k.support.requireNotBlank
 import java.io.Serializable
 import java.math.BigDecimal
@@ -30,6 +28,9 @@ data class Geocode(
 ): Serializable {
 
     companion object {
+
+        private const val serialVersionUID: Long = 1L
+
         const val DEFAULT_SCALE: Int = 3
 
         @JvmField
@@ -42,11 +43,18 @@ data class Geocode(
          * ## 동작/계약
          * - [DefaultMathContext]를 사용해 BigDecimal로 변환합니다.
          */
-        operator fun invoke(latitude: Double, longitude: Double): Geocode =
-            Geocode(
+        operator fun invoke(latitude: Double, longitude: Double): Geocode {
+            require(latitude.isFinite() && longitude.isFinite()) { "latitude and longitude must be finite" }
+
+            return Geocode(
                 latitude = latitude.toBigDecimal(DefaultMathContext),
                 longitude = longitude.toBigDecimal(DefaultMathContext)
             )
+        }
+
+        operator fun invoke(latitude: BigDecimal, longitude: BigDecimal): Geocode {
+            return Geocode(latitude, longitude)
+        }
 
         @JvmStatic
                 /**
@@ -67,10 +75,7 @@ data class Geocode(
             require(splits.size == 2) {
                 "Geocode must be 'lat${delimiter}lon' format: '$geocode'"
             }
-            return Geocode(
-                latitude = splits[0].toBigDecimal(DefaultMathContext),
-                longitude = splits[1].toBigDecimal(DefaultMathContext)
-            )
+            return Geocode(splits[0].toBigDecimal(), splits[1].toBigDecimal())
         }
     }
 

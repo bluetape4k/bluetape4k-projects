@@ -2,6 +2,7 @@ package io.bluetape4k.geocode
 
 import io.bluetape4k.AbstractValueObject
 import io.bluetape4k.ToStringBuilder
+import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.geocode.bing.BingAddress
 import io.bluetape4k.geocode.google.GoogleAddress
 import io.bluetape4k.jackson3.Jackson
@@ -11,7 +12,6 @@ import io.bluetape4k.junit5.random.RandomValue
 import io.bluetape4k.junit5.random.RandomizedTest
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.support.hashOf
-import io.bluetape4k.assertions.shouldBeEqualTo
 import org.junit.jupiter.api.RepeatedTest
 import tools.jackson.module.kotlin.readValue
 import java.util.*
@@ -56,6 +56,7 @@ class JsonSerializationTest {
 
     // 이 방식보다 GoogleGeocodeResponse, BingGeocodeResponse 등의 sub class 를 만드는 것이 더 안정적임
     // Spring에서 Generic Type을 인식하지 못하는 경우가 있음
+    @Suppress("EqualsOrHashCode")
     class GeocodeResponse<T: Address>(
         val address: T?,
         val geocode: Geocode,

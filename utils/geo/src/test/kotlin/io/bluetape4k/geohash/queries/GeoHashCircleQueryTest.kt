@@ -1,12 +1,12 @@
 package io.bluetape4k.geohash.queries
 
+import io.bluetape4k.assertions.assertFailsWith
+import io.bluetape4k.assertions.shouldBeFalse
+import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.geohash.WGS84Point
 import io.bluetape4k.geohash.wgs84PointOf
 import io.bluetape4k.logging.KLogging
-import io.bluetape4k.assertions.shouldBeFalse
-import io.bluetape4k.assertions.shouldBeTrue
 import org.junit.jupiter.api.Test
-import io.bluetape4k.assertions.assertFailsWith
 
 class GeoHashCircleQueryTest {
 

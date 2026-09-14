@@ -1,6 +1,5 @@
 package io.bluetape4k.geocode.bing
 
-import io.bluetape4k.geocode.bing.BingMapModel.toBingAddress
 import java.io.Serializable
 
 /**
