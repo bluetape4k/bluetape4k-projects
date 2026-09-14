@@ -475,6 +475,7 @@ inline fun <T: Any, K: Any> Iterable<T>.sumBy(
 
 /** Pair 시퀀스를 키 기준으로 그룹핑하여 합계를 계산합니다. */
 fun <K: Any, N: Number> Sequence<Pair<K, N>>.sumBy(): Map<K, Double> = sumBy({ it.first }, { it.second })
+
 /** Pair 컬렉션을 키 기준으로 그룹핑하여 합계를 계산합니다. */
 fun <K: Any, N: Number> Iterable<Pair<K, N>>.sumBy(): Map<K, Double> = asSequence().sumBy()
 
@@ -504,6 +505,7 @@ inline fun <T: Any, K: Any> Iterable<T>.averageBy(
 
 /** Pair 시퀀스를 키 기준으로 그룹핑하여 평균을 계산합니다. */
 fun <K: Any, N: Number> Sequence<Pair<K, N>>.averageBy(): Map<K, Double> = averageBy({ it.first }, { it.second })
+
 /** Pair 컬렉션을 키 기준으로 그룹핑하여 평균을 계산합니다. */
 fun <K: Any, N: Number> Iterable<Pair<K, N>>.averageBy(): Map<K, Double> = asSequence().averageBy()
 
@@ -534,6 +536,7 @@ inline fun <T: Any, K: Any> Iterable<T>.varianceBy(
 
 /** Pair 시퀀스를 키 기준으로 그룹핑하여 분산을 계산합니다. */
 fun <K: Any, N: Number> Sequence<Pair<K, N>>.varianceBy(): Map<K, Double> = varianceBy({ it.first }, { it.second })
+
 /** Pair 컬렉션을 키 기준으로 그룹핑하여 분산을 계산합니다. */
 fun <K: Any, N: Number> Iterable<Pair<K, N>>.varianceBy(): Map<K, Double> = asSequence().varianceBy()
 
@@ -563,6 +566,7 @@ inline fun <T: Any, K: Any> Iterable<T>.stdevBy(
 
 /** Pair 시퀀스를 키 기준으로 그룹핑하여 표준편차를 계산합니다. */
 fun <K: Any, N: Number> Sequence<Pair<K, N>>.stdevBy(): Map<K, Double> = stdevBy({ it.first }, { it.second })
+
 /** Pair 컬렉션을 키 기준으로 그룹핑하여 표준편차를 계산합니다. */
 fun <K: Any, N: Number> Iterable<Pair<K, N>>.stdevBy(): Map<K, Double> = asSequence().stdevBy()
 

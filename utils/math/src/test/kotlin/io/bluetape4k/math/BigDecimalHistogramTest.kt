@@ -22,7 +22,8 @@ class BigDecimalHistogramTest {
             valueVector,
             valueVector.map { it + 100.0.toBigDecimal() },
             valueVector.map { it + 200.0.toBigDecimal() }
-        ).flatMap { it }
+        )
+            .flatMap { it }
             .zip(groups.repeat())
 
         log.debug { "bins=$bins" }
@@ -36,15 +37,15 @@ class BigDecimalHistogramTest {
         histogram.bins.size shouldBeEqualTo 3
 
         // range의 어떤 값이던 상관없다 (BinModel.get operator를 보라)
-        val firstRange = histogram[5.0.toBigDecimal()].shouldNotBeNull().range
+        val firstRange = histogram[5.0.toBigDecimal()]?.range.shouldNotBeNull()
         firstRange.first shouldBeEqualTo 0.0.toBigDecimal()
         firstRange.last shouldBeEqualTo 100.0.toBigDecimal()
 
-        val secondRange = histogram[105.0.toBigDecimal()].shouldNotBeNull().range
+        val secondRange = histogram[105.0.toBigDecimal()]?.range.shouldNotBeNull()
         secondRange.first shouldBeEqualTo 100.0.toBigDecimal()
         secondRange.last shouldBeEqualTo 200.0.toBigDecimal()
 
-        val thirdRange = histogram[205.0.toBigDecimal()].shouldNotBeNull().range
+        val thirdRange = histogram[205.0.toBigDecimal()]?.range.shouldNotBeNull()
         thirdRange.first shouldBeEqualTo 200.0.toBigDecimal()
         thirdRange.last shouldBeEqualTo 300.0.toBigDecimal()
     }

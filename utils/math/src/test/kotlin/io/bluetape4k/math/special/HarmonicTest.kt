@@ -12,16 +12,18 @@ import kotlin.math.PI
  */
 class HarmonicTest {
 
-    companion object: KLogging()
+    companion object: KLogging() {
+        private const val EPSILON = 1e-10
+    }
 
     // ----- generalHarmonic -----
 
     @Test
     fun `generalHarmonic m이 1이면 일반 조화수와 같다`() {
         // H(n, 1) = 1 + 1/2 + 1/3 + ... + 1/n
-        generalHarmonic(1, 1.0).shouldBeNear(1.0, 1e-10)
-        generalHarmonic(2, 1.0).shouldBeNear(1.5, 1e-10)
-        generalHarmonic(4, 1.0).shouldBeNear(1.0 + 0.5 + 1.0 / 3 + 0.25, 1e-10)
+        generalHarmonic(1, 1.0).shouldBeNear(1.0, EPSILON)
+        generalHarmonic(2, 1.0).shouldBeNear(1.5, EPSILON)
+        generalHarmonic(4, 1.0).shouldBeNear(1.0 + 0.5 + 1.0 / 3 + 0.25, EPSILON)
     }
 
     @Test
@@ -35,14 +37,14 @@ class HarmonicTest {
 
     @Test
     fun `logit 0_5 에서 0 을 반환한다`() {
-        logit(0.5).shouldBeNear(0.0, 1e-10)
+        logit(0.5).shouldBeNear(0.0, EPSILON)
     }
 
     @Test
     fun `logit 값이 올바르다`() {
         // logit(p) = ln(p/(1-p))
-        logit(0.75).shouldBeNear(Math.log(3.0), 1e-10)
-        logit(0.25).shouldBeNear(-Math.log(3.0), 1e-10)
+        logit(0.75).shouldBeNear(Math.log(3.0), EPSILON)
+        logit(0.25).shouldBeNear(-Math.log(3.0), EPSILON)
     }
 
     @Test
@@ -63,22 +65,22 @@ class HarmonicTest {
 
     @Test
     fun `logistic 0 에서 0_5 를 반환한다`() {
-        logistic(0.0).shouldBeNear(0.5, 1e-10)
+        logistic(0.0).shouldBeNear(0.5, EPSILON)
     }
 
     @Test
     fun `logistic 큰 양수에서 1 에 수렴한다`() {
-        logistic(100.0).shouldBeNear(1.0, 1e-10)
+        logistic(100.0).shouldBeNear(1.0, EPSILON)
     }
 
     @Test
     fun `logistic 큰 음수에서 0 에 수렴한다`() {
-        logistic(-100.0).shouldBeNear(0.0, 1e-10)
+        logistic(-100.0).shouldBeNear(0.0, EPSILON)
     }
 
     @Test
     fun `logistic 과 logit 은 서로 역함수이다`() {
         val p = 0.7
-        logistic(logit(p)).shouldBeNear(p, 1e-10)
+        logistic(logit(p)).shouldBeNear(p, EPSILON)
     }
 }

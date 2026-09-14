@@ -14,21 +14,23 @@ import org.junit.jupiter.api.Test
 
 class MatrixSupportTest {
 
-    companion object: KLogging()
+    companion object: KLogging() {
+        private const val EPSILON = 1e-10
+    }
 
     @Test
     fun `diagonalMatrixOf로 대각행렬을 생성할 수 있다`() {
         val m = diagonalMatrixOf(3)
-        m.rowDimension.shouldBeEqualTo(3)
-        m.columnDimension.shouldBeEqualTo(3)
+        m.rowDimension shouldBeEqualTo 3
+        m.columnDimension shouldBeEqualTo 3
     }
 
     @Test
     fun `원소 배열로 대각행렬을 생성할 수 있다`() {
         val m = diagonalMatrixOf(doubleArrayOf(1.0, 2.0, 3.0))
-        m.getEntry(0, 0).shouldBeNear(1.0, 1e-10)
-        m.getEntry(1, 1).shouldBeNear(2.0, 1e-10)
-        m.getEntry(2, 2).shouldBeNear(3.0, 1e-10)
+        m.getEntry(0, 0).shouldBeNear(1.0, EPSILON)
+        m.getEntry(1, 1).shouldBeNear(2.0, EPSILON)
+        m.getEntry(2, 2).shouldBeNear(3.0, EPSILON)
     }
 
     @Test
@@ -37,53 +39,53 @@ class MatrixSupportTest {
             doubleArrayOf(1.0, 2.0),
             doubleArrayOf(3.0, 4.0)
         ).createRealMatrix()
-        m.getEntry(0, 0).shouldBeNear(1.0, 1e-10)
-        m.getEntry(1, 1).shouldBeNear(4.0, 1e-10)
+        m.getEntry(0, 0).shouldBeNear(1.0, EPSILON)
+        m.getEntry(1, 1).shouldBeNear(4.0, EPSILON)
     }
 
     @Test
     fun `realMatrixOf로 RealMatrix를 생성할 수 있다`() {
         val m = realMatrixOf(2, 3)
-        m.rowDimension.shouldBeEqualTo(2)
-        m.columnDimension.shouldBeEqualTo(3)
+        m.rowDimension shouldBeEqualTo 2
+        m.columnDimension shouldBeEqualTo 3
     }
 
     @Test
     fun `realIdentityMatrixOf로 단위행렬을 생성할 수 있다`() {
         val I = realIdentityMatrixOf(3)
-        I.getEntry(0, 0).shouldBeNear(1.0, 1e-10)
-        I.getEntry(1, 1).shouldBeNear(1.0, 1e-10)
-        I.getEntry(2, 2).shouldBeNear(1.0, 1e-10)
-        I.getEntry(0, 1).shouldBeNear(0.0, 1e-10)
+        I.getEntry(0, 0).shouldBeNear(1.0, EPSILON)
+        I.getEntry(1, 1).shouldBeNear(1.0, EPSILON)
+        I.getEntry(2, 2).shouldBeNear(1.0, EPSILON)
+        I.getEntry(0, 1).shouldBeNear(0.0, EPSILON)
     }
 
     @Test
     fun `realDiagonalMatrixOf로 실수 대각행렬을 생성할 수 있다`() {
         val m = realDiagonalMatrixOf(doubleArrayOf(5.0, 6.0, 7.0))
-        m.getEntry(0, 0).shouldBeNear(5.0, 1e-10)
-        m.getEntry(1, 1).shouldBeNear(6.0, 1e-10)
-        m.getEntry(2, 2).shouldBeNear(7.0, 1e-10)
+        m.getEntry(0, 0).shouldBeNear(5.0, EPSILON)
+        m.getEntry(1, 1).shouldBeNear(6.0, EPSILON)
+        m.getEntry(2, 2).shouldBeNear(7.0, EPSILON)
     }
 
     @Test
     fun `realVectorOf로 실수 벡터를 생성할 수 있다`() {
         val v = realVectorOf(doubleArrayOf(1.0, 2.0, 3.0))
         v.getDimension().shouldBeEqualTo(3)
-        v.getEntry(0).shouldBeNear(1.0, 1e-10)
+        v.getEntry(0).shouldBeNear(1.0, EPSILON)
     }
 
     @Test
     fun `rowRealMatrixOf로 행 행렬을 생성할 수 있다`() {
         val m = rowRealMatrixOf(doubleArrayOf(1.0, 2.0, 3.0))
-        m.rowDimension.shouldBeEqualTo(1)
-        m.columnDimension.shouldBeEqualTo(3)
+        m.rowDimension shouldBeEqualTo 1
+        m.columnDimension shouldBeEqualTo 3
     }
 
     @Test
     fun `columnRealMatrixOf로 열 행렬을 생성할 수 있다`() {
         val m = columnRealMatrixOf(doubleArrayOf(1.0, 2.0, 3.0))
-        m.rowDimension.shouldBeEqualTo(3)
-        m.columnDimension.shouldBeEqualTo(1)
+        m.rowDimension shouldBeEqualTo 3
+        m.columnDimension shouldBeEqualTo 1
     }
 
     @Test
@@ -96,8 +98,8 @@ class MatrixSupportTest {
     fun `단위행렬의 역행렬은 자기 자신이다`() {
         val I = realIdentityMatrixOf(3)
         val inv = I.inverse()
-        inv.getEntry(0, 0).shouldBeNear(1.0, 1e-10)
-        inv.getEntry(1, 1).shouldBeNear(1.0, 1e-10)
+        inv.getEntry(0, 0).shouldBeNear(1.0, EPSILON)
+        inv.getEntry(1, 1).shouldBeNear(1.0, EPSILON)
     }
 
     @Test
@@ -106,8 +108,8 @@ class MatrixSupportTest {
             arrayOf(doubleArrayOf(2.0, 0.0), doubleArrayOf(0.0, 2.0))
         )
         val inv = m.inverse()
-        inv.getEntry(0, 0).shouldBeNear(0.5, 1e-10)
-        inv.getEntry(1, 1).shouldBeNear(0.5, 1e-10)
+        inv.getEntry(0, 0).shouldBeNear(0.5, EPSILON)
+        inv.getEntry(1, 1).shouldBeNear(0.5, EPSILON)
     }
 
     @Test
@@ -173,8 +175,8 @@ class MatrixSupportTest {
         val b = realVectorOf(doubleArrayOf(1.0, 4.0))
         L.solveLowerTriangularSystem(b)
         // L·[1,2]=[1,4] : x0=1, x1=4-2*1=2
-        b.getEntry(0).shouldBeNear(1.0, 1e-10)
-        b.getEntry(1).shouldBeNear(2.0, 1e-10)
+        b.getEntry(0).shouldBeNear(1.0, EPSILON)
+        b.getEntry(1).shouldBeNear(2.0, EPSILON)
     }
 
     @Test
@@ -185,41 +187,41 @@ class MatrixSupportTest {
         val b = realVectorOf(doubleArrayOf(5.0, 3.0))
         U.solveUpperTriangularSystem(b)
         // x1=3, x0=(5-1*3)/2=1
-        b.getEntry(0).shouldBeNear(1.0, 1e-10)
-        b.getEntry(1).shouldBeNear(3.0, 1e-10)
+        b.getEntry(0).shouldBeNear(1.0, EPSILON)
+        b.getEntry(1).shouldBeNear(3.0, EPSILON)
     }
 
     @Test
     fun `blockInverse는 단위행렬의 역행렬로 단위행렬을 반환한다`() {
         val I4 = realIdentityMatrixOf(4)
         val inv = I4.blockInverse(2)
-        inv.getEntry(0, 0).shouldBeNear(1.0, 1e-10)
-        inv.getEntry(1, 1).shouldBeNear(1.0, 1e-10)
-        inv.getEntry(2, 2).shouldBeNear(1.0, 1e-10)
-        inv.getEntry(3, 3).shouldBeNear(1.0, 1e-10)
-        inv.getEntry(0, 1).shouldBeNear(0.0, 1e-10)
+        inv.getEntry(0, 0) shouldBeEqualTo 1.0
+        inv.getEntry(1, 1) shouldBeEqualTo 1.0
+        inv.getEntry(2, 2).shouldBeNear(1.0, EPSILON)
+        inv.getEntry(3, 3).shouldBeNear(1.0, EPSILON)
+        inv.getEntry(0, 1).shouldBeNear(0.0, EPSILON)
     }
 
     @Test
     fun `fieldVectorOf로 Fraction 벡터를 생성할 수 있다`() {
         val fv = fieldVectorOf(arrayOf(Fraction(1), Fraction(2), Fraction(3)))
-        fv.dimension.shouldBeEqualTo(3)
-        fv.getEntry(0).shouldBeEqualTo(Fraction(1))
-        fv.getEntry(2).shouldBeEqualTo(Fraction(3))
+        fv.dimension shouldBeEqualTo 3
+        fv.getEntry(0) shouldBeEqualTo Fraction(1)
+        fv.getEntry(2) shouldBeEqualTo Fraction(3)
     }
 
     @Test
     fun `rowFieldMatrixOf로 Fraction 행 행렬을 생성할 수 있다`() {
         val m = rowFieldMatrixOf(arrayOf(Fraction(1), Fraction(2), Fraction(3)))
-        m.rowDimension.shouldBeEqualTo(1)
-        m.columnDimension.shouldBeEqualTo(3)
+        m.rowDimension shouldBeEqualTo 1
+        m.columnDimension shouldBeEqualTo 3
     }
 
     @Test
     fun `columnFieldMatrixOf로 Fraction 열 행렬을 생성할 수 있다`() {
         val m = columnFieldMatrixOf(arrayOf(Fraction(4), Fraction(5)))
-        m.rowDimension.shouldBeEqualTo(2)
-        m.columnDimension.shouldBeEqualTo(1)
+        m.rowDimension shouldBeEqualTo 2
+        m.columnDimension shouldBeEqualTo 1
     }
 
     @Test
@@ -231,8 +233,8 @@ class MatrixSupportTest {
         fm.setEntry(1, 0, Fraction(3))
         fm.setEntry(1, 1, Fraction(4))
         val rm = fm.toRealMatrix()
-        rm.getEntry(0, 0).shouldBeNear(1.0, 1e-10)
-        rm.getEntry(1, 1).shouldBeNear(4.0, 1e-10)
+        rm.getEntry(0, 0).shouldBeNear(1.0, EPSILON)
+        rm.getEntry(1, 1).shouldBeNear(4.0, EPSILON)
     }
 
     @Test
@@ -242,8 +244,8 @@ class MatrixSupportTest {
         fm.setEntry(0, 0, BigFraction(5))
         fm.setEntry(1, 1, BigFraction(6))
         val rm = fm.toRealMatrix()
-        rm.getEntry(0, 0).shouldBeNear(5.0, 1e-10)
-        rm.getEntry(1, 1).shouldBeNear(6.0, 1e-10)
+        rm.getEntry(0, 0).shouldBeNear(5.0, EPSILON)
+        rm.getEntry(1, 1).shouldBeNear(6.0, EPSILON)
     }
 
     @Test
@@ -252,9 +254,9 @@ class MatrixSupportTest {
         val bytes = original.toByteArray()
         val restored = bytes.toRealVector()
 
-        restored.dimension.shouldBeEqualTo(original.dimension)
+        restored.dimension shouldBeEqualTo original.dimension
         for (i in 0 until original.dimension) {
-            restored.getEntry(i).shouldBeNear(original.getEntry(i), 1e-10)
+            restored.getEntry(i).shouldBeNear(original.getEntry(i), EPSILON)
         }
     }
 
@@ -270,11 +272,11 @@ class MatrixSupportTest {
         val bytes = original.toByteArray()
         val restored = bytes.toRealMatrix()
 
-        restored.rowDimension.shouldBeEqualTo(original.rowDimension)
-        restored.columnDimension.shouldBeEqualTo(original.columnDimension)
+        restored.rowDimension shouldBeEqualTo original.rowDimension
+        restored.columnDimension shouldBeEqualTo original.columnDimension
         for (i in 0 until original.rowDimension) {
             for (j in 0 until original.columnDimension) {
-                restored.getEntry(i, j).shouldBeNear(original.getEntry(i, j), 1e-10)
+                restored.getEntry(i, j).shouldBeNear(original.getEntry(i, j), EPSILON)
             }
         }
     }
@@ -284,7 +286,7 @@ class MatrixSupportTest {
         val original = realVectorOf(DoubleArray(0))
         val bytes = original.toByteArray()
         val restored = bytes.toRealVector()
-        restored.dimension.shouldBeEqualTo(0)
+        restored.dimension shouldBeEqualTo 0
     }
 
     @Test
@@ -292,8 +294,8 @@ class MatrixSupportTest {
         val original = Array2DRowRealMatrix(arrayOf(doubleArrayOf(42.0)))
         val bytes = original.toByteArray()
         val restored = bytes.toRealMatrix()
-        restored.rowDimension.shouldBeEqualTo(1)
-        restored.columnDimension.shouldBeEqualTo(1)
-        restored.getEntry(0, 0).shouldBeNear(42.0, 1e-10)
+        restored.rowDimension shouldBeEqualTo 1
+        restored.columnDimension shouldBeEqualTo 1
+        restored.getEntry(0, 0).shouldBeNear(42.0, EPSILON)
     }
 }

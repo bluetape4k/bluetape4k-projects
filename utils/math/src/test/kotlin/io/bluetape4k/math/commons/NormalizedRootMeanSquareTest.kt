@@ -2,11 +2,18 @@ package io.bluetape4k.math.commons
 
 import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeGreaterThan
 import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.logging.KLogging
 import org.junit.jupiter.api.Test
 import kotlin.math.sqrt
 
 class NormalizedRootMeanSquareTest {
+
+    companion object: KLogging() {
+        private const val NAN_INPUT_MESSAGE =
+            "normalizedRmse 입력에는 NaN이 아닌 expected와 actual 값이 각각 하나 이상 있어야 합니다."
+    }
 
     @Test
     fun `normalized rmse calculates a finite result for regular values`() {
@@ -69,11 +76,6 @@ class NormalizedRootMeanSquareTest {
         val result = sequenceOf(4.0, 4.0).normalizedRmse(sequenceOf(5.0, 5.0))
 
         result.isInfinite().shouldBeTrue()
-        (result > 0.0).shouldBeTrue()
-    }
-
-    companion object {
-        private const val NAN_INPUT_MESSAGE =
-            "normalizedRmse 입력에는 NaN이 아닌 expected와 actual 값이 각각 하나 이상 있어야 합니다."
+        result shouldBeGreaterThan 0.0
     }
 }

@@ -1,6 +1,7 @@
 package io.bluetape4k.math
 
 import io.bluetape4k.assertions.assertFailsWith
+import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeFalse
 import io.bluetape4k.assertions.shouldBeIn
 import io.bluetape4k.assertions.shouldBeTrue
@@ -96,7 +97,8 @@ class RandomSupportTest {
     fun `randomDistinct는 중복 없는 결과를 반환`() {
         val list = listOf(1, 2, 3, 4, 5, 6, 7, 8, 9, 10)
         val result = list.randomDistinct(5)
-        (result.size == result.distinct().size).shouldBeTrue()
+
+        result.size shouldBeEqualTo result.distinct().size
         result.all { it in list }.shouldBeTrue()
     }
 
