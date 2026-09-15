@@ -6,6 +6,7 @@ import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.channelFlow
@@ -105,7 +106,7 @@ internal fun <T: Any, R: Any> Flow<T>.concatMapEagerInternal(
 
         var innerQueue: ConcatMapEagerInnerQueue<R>? = null
         while (true) {
-            coroutineContext.ensureActive()
+            currentCoroutineContext().ensureActive()
             if (innerQueue == null) {
                 val done = state.innerDone.value
                 innerQueue = innerQueues.poll()
@@ -183,7 +184,7 @@ private fun <T: Any, R: Any> Flow<T>.concatMapEagerBoundedInternal(
 
         var current: BoundedConcatMapEagerInnerQueue<R>? = null
         while (true) {
-            coroutineContext.ensureActive()
+            currentCoroutineContext().ensureActive()
             if (current == null) {
                 val done = state.innerDone.value
                 current = innerQueues.poll()

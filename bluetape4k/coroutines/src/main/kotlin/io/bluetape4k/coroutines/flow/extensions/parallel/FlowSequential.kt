@@ -4,6 +4,7 @@ import io.bluetape4k.logging.coroutines.KLoggingChannel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.SendChannel
 import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.AbstractFlow
 import kotlinx.coroutines.flow.FlowCollector
@@ -60,7 +61,7 @@ internal class FlowSequential<T>(private val source: ParallelFlow<T>): AbstractF
                     }
 
                     if (receivedValuePresent) {
-                        coroutineContext.ensureActive()
+                        currentCoroutineContext().ensureActive()
                         @Suppress("UNCHECKED_CAST")
                         collector.emit(receivedValue as T)
                     } else if (closedChannel != null) {

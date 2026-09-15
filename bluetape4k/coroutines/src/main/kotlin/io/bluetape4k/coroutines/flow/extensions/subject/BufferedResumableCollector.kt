@@ -206,7 +206,7 @@ class BufferedResumableCollector<T> private constructor(
 
             if (ne && currentState.terminal !== Terminal.Open && currentState.activeAdmissions == 0) {
                 when (val terminal = currentState.terminal) {
-                    Terminal.Open -> kotlin.error("Open state cannot terminate drain")
+                    Terminal.Open     -> kotlin.error("Open state cannot terminate drain")
                     Terminal.Complete -> break
                     is Terminal.Error -> terminal.cause?.let { throw it } ?: break
                     is Terminal.Cancelled -> throw terminal.cause
@@ -346,7 +346,7 @@ class BufferedResumableCollector<T> private constructor(
         Terminal.Open -> kotlin.error("Open collector cannot reject a producer")
         Terminal.Complete,
         is Terminal.Error,
-        -> IllegalStateException("BufferedResumableCollector is already terminated.")
+                      -> IllegalStateException("BufferedResumableCollector is already terminated.")
         is Terminal.Cancelled -> terminal.cause.asProducerCancellation()
     }
 
@@ -366,7 +366,7 @@ class BufferedResumableCollector<T> private constructor(
             val updated = when (current.offerPhase) {
                 OfferPhase.Idle,
                 OfferPhase.Preparing,
-                -> current.copy(terminal = terminal)
+                    -> current.copy(terminal = terminal)
                 OfferPhase.Committed -> current.copy(pendingTerminal = terminal)
             }
             if (state.compareAndSet(current, updated)) {

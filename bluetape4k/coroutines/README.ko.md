@@ -142,8 +142,7 @@ suspend fun flowExample() {
 
 #### Rx/Reactor 스타일 대응 (선택한 계약)
 
-표준 Flow 연산자가 이미 제공하는 기능은 중복 wrapper를 만들지 않고,
-호출자에게 필요한 경계·취소 계약만 추가합니다.
+표준 Flow 연산자가 이미 제공하는 기능은 중복 wrapper를 만들지 않고, 호출자에게 필요한 경계·취소 계약만 추가합니다.
 
 ```kotlin
 import io.bluetape4k.coroutines.flow.extensions.bufferTimeout
@@ -167,23 +166,13 @@ suspend fun parityExample(source: kotlinx.coroutines.flow.Flow<Int>) {
 }
 ```
 
-정상 완료 시 비어 있지 않은 마지막 batch/window를 한 번 방출하며, upstream
-실패 시 진행 중인 부분 값은 버립니다. `windowTimeout`은 반복 수집 가능한
-cold snapshot을 방출하고, `timeoutOrFallback`은 upstream cleanup 완료 후에만
-fallback을 한 번 수집합니다. `CancellationException`은 계속 취소로
-전달되며, bounded `concatMapEager`는 source 순서를 유지하면서
+정상 완료 시 비어 있지 않은 마지막 batch/window를 한 번 방출하며, upstream 실패 시 진행 중인 부분 값은 버립니다. `windowTimeout`은 반복 수집 가능한 cold snapshot을 방출하고, `timeoutOrFallback`은 upstream cleanup 완료 후에만 fallback을 한 번 수집합니다. `CancellationException`은 계속 취소로 전달되며, bounded `concatMapEager`는 source 순서를 유지하면서
 `bufferCapacity`에서 inner producer를 suspend합니다. `switchMap`, `buffer`,
-`conflate`, `combine`, `zip`, `retryWhen`은 표준 Flow 연산자를 사용합니다.
-delay-error와 명시적 overflow 정책은 [후속 이슈 #1300](https://github.com/bluetape4k/bluetape4k-projects/issues/1300)에서
-다루며, 현재 계약·호출자 근거·재개 조건은 [Flow 연산자 정책 매트릭스](../../docs/flow-operator-policy-matrix.md)에
-기록합니다.
+`conflate`, `combine`, `zip`, `retryWhen`은 표준 Flow 연산자를 사용합니다. delay-error와 명시적 overflow 정책은 [후속 이슈 #1300](https://github.com/bluetape4k/bluetape4k-projects/issues/1300)에서 다루며, 현재 계약·호출자 근거·재개 조건은 [Flow 연산자 정책 매트릭스](../../docs/flow-operator-policy-matrix.md)에 기록합니다.
 
 #### 마지막 N개 선택과 제외
 
-`takeLast(count)`는 마지막 `count`개를 보관하고 정상 완료 뒤 원래 순서로
-방출합니다. `dropLast(count)`는 RxJava/Reactor `skipLast`에 대응하는 Kotlin식
-이름이며, `count`개만큼 지연해서 앞부분을 순차 방출합니다.
-최근 이벤트 요약을 제한된 메모리로 만들거나 개수가 정해진 후행 데이터를 제외할 때 사용합니다.
+`takeLast(count)`는 마지막 `count`개를 보관하고 정상 완료 뒤 원래 순서로 방출합니다. `dropLast(count)`는 RxJava/Reactor `skipLast`에 대응하는 Kotlin식 이름이며, `count`개만큼 지연해서 앞부분을 순차 방출합니다. 최근 이벤트 요약을 제한된 메모리로 만들거나 개수가 정해진 후행 데이터를 제외할 때 사용합니다.
 
 ```kotlin
 import io.bluetape4k.coroutines.flow.extensions.takeLast
@@ -197,13 +186,9 @@ suspend fun suffixExample() {
 }
 ```
 
-두 연산자는 null을 지원하고 음수 count를 호출 즉시 거부합니다. 수집마다
-최대 `count`개를 보관하며 해당 크기의 배열을 미리 할당하지 않습니다.
-실패와 취소는 보관 중인 마지막 요소를 방출하지 않고 그대로 전파합니다.
+두 연산자는 null을 지원하고 음수 count를 호출 즉시 거부합니다. 수집마다 최대 `count`개를 보관하며 해당 크기의 배열을 미리 할당하지 않습니다. 실패와 취소는 보관 중인 마지막 요소를 방출하지 않고 그대로 전파합니다.
 `takeLast(0)`도 upstream을 수집하여 완료와 오류를 관찰하며,
-`dropLast(0)`은 원본 Flow를 반환합니다. 무한 upstream에서 `takeLast`는
-방출하지 않습니다. 순차 처리와 suspension 기반 backpressure를 유지하며
-Reactive Streams demand나 overflow 정책을 추가하지 않습니다.
+`dropLast(0)`은 원본 Flow를 반환합니다. 무한 upstream에서 `takeLast`는 방출하지 않습니다. 순차 처리와 suspension 기반 backpressure를 유지하며 Reactive Streams demand나 overflow 정책을 추가하지 않습니다.
 
 ### Subject
 
