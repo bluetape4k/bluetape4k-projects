@@ -7,15 +7,15 @@ import io.temporal.client.WorkflowStub
 import io.temporal.client.getResultAsync
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.future.await
 import kotlinx.coroutines.withContext
 import java.util.concurrent.CompletableFuture
-import kotlin.coroutines.coroutineContext
 import kotlin.reflect.javaType
 import kotlin.reflect.typeOf
 
-private object TemporalLog : KLoggingChannel()
+private object TemporalLog: KLoggingChannel()
 
 /**
  * [WorkflowStub]의 동기 start 호출을 IO dispatcher에서 실행합니다.
@@ -68,7 +68,7 @@ suspend inline fun <reified T> WorkflowStub.querySuspending(
  * @return workflow 결과
  */
 suspend inline fun <reified T> WorkflowStub.awaitResult(): T {
-    coroutineContext.ensureActive()
+    currentCoroutineContext().ensureActive()
     return awaitTemporalResult(getResultAsync<T>())
 }
 
