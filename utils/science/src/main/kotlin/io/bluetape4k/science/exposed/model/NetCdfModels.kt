@@ -108,7 +108,12 @@ data class NetCdfFileRecord(
  * - [COMPLETED] : 정상 완료 — 재호출 시 즉시 no-op
  * - [FAILED] : 예외 발생으로 중단 — 재호출 시 lastSliceIdx + 1 부터 재시작
  */
-enum class NetCdfImportStatus { PENDING, IN_PROGRESS, COMPLETED, FAILED }
+enum class NetCdfImportStatus {
+    PENDING,
+    IN_PROGRESS,
+    COMPLETED,
+    FAILED
+}
 
 /**
  * NetCDF 변수 단위 import 진행 상태 레코드입니다.

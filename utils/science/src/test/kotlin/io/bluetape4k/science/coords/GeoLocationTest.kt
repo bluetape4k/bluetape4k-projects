@@ -1,11 +1,11 @@
 package io.bluetape4k.science.coords
 
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeInRange
 import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.logging.KLogging
 import org.junit.jupiter.api.Test
-import io.bluetape4k.assertions.assertFailsWith
 
 class GeoLocationTest {
 
@@ -54,14 +54,22 @@ class GeoLocationTest {
 
     @Test
     fun `위도 범위 초과 시 예외가 발생한다`() {
-        assertFailsWith<IllegalArgumentException> { GeoLocation(91.0, 0.0) }
-        assertFailsWith<IllegalArgumentException> { GeoLocation(-91.0, 0.0) }
+        assertFailsWith<IllegalArgumentException> {
+            GeoLocation(91.0, 0.0)
+        }
+        assertFailsWith<IllegalArgumentException> {
+            GeoLocation(-91.0, 0.0)
+        }
     }
 
     @Test
     fun `경도 범위 초과 시 예외가 발생한다`() {
-        assertFailsWith<IllegalArgumentException> { GeoLocation(0.0, 181.0) }
-        assertFailsWith<IllegalArgumentException> { GeoLocation(0.0, -181.0) }
+        assertFailsWith<IllegalArgumentException> {
+            GeoLocation(0.0, 181.0)
+        }
+        assertFailsWith<IllegalArgumentException> {
+            GeoLocation(0.0, -181.0)
+        }
     }
 
     @Test

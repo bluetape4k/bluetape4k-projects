@@ -1,7 +1,7 @@
 package io.bluetape4k.science.exposed.service.internal
 
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import io.bluetape4k.science.exposed.NetCdfException
+import tools.jackson.module.kotlin.jacksonObjectMapper
 import java.nio.charset.StandardCharsets
 import java.text.Normalizer
 
@@ -34,8 +34,8 @@ private fun validateAuxiliaryKey(key: String) {
     val normalized = Normalizer.normalize(key, Normalizer.Form.NFC)
     val keyBytes = key.toByteArray(StandardCharsets.UTF_8).size.toLong()
     val invalid = key.isEmpty() || keyBytes > MAX_VARIABLE_NAME_BYTES || normalized != key ||
-        key.startsWith("__bluetape4k_") ||
-        key.any(Char::isISOControl) || containsUnpairedSurrogate(key)
+            key.startsWith("__bluetape4k_") ||
+            key.any(Char::isISOControl) || containsUnpairedSurrogate(key)
     if (invalid) {
         throw NetCdfException.ResourceLimitExceeded(
             resource = "auxiliary-key",
@@ -55,7 +55,7 @@ private fun containsUnpairedSurrogate(value: String): Boolean {
                 index += 2
             }
             Character.isLowSurrogate(character) -> return true
-            else -> index++
+            else                                -> index++
         }
     }
     return false

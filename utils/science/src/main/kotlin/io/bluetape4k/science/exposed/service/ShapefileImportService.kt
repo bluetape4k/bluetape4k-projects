@@ -7,8 +7,8 @@ import io.bluetape4k.science.exposed.model.SpatialLayerRecord
 import io.bluetape4k.science.exposed.repository.SpatialFeatureRepository
 import io.bluetape4k.science.exposed.repository.SpatialLayerRepository
 import io.bluetape4k.science.exposed.schema.SpatialFeatureTable
-import io.bluetape4k.science.shapefile.ShapeRecord
 import io.bluetape4k.science.shapefile.ShapeBounds
+import io.bluetape4k.science.shapefile.ShapeRecord
 import io.bluetape4k.science.shapefile.loadShape
 import net.postgis.jdbc.PGgeometry
 import org.geotools.api.referencing.crs.CoordinateReferenceSystem

@@ -1,13 +1,16 @@
 package io.bluetape4k.science.exposed.repository
 
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeGreaterThan
+import io.bluetape4k.assertions.shouldBeLessThan
+import io.bluetape4k.assertions.shouldBeNull
+import io.bluetape4k.assertions.shouldContain
+import io.bluetape4k.assertions.shouldNotBeNull
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import io.bluetape4k.science.exposed.AbstractPostgisTest
 import io.bluetape4k.science.exposed.schema.PoiTable
 import net.postgis.jdbc.geometry.Point
-import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldBeGreaterThan
-import io.bluetape4k.assertions.shouldNotBeNull
 import org.jetbrains.exposed.v1.core.ResultRow
 import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.jdbc.deleteWhere
@@ -121,8 +124,8 @@ class PoiRepositoryTest: AbstractPostgisTest() {
             all.size shouldBeEqualTo pois.size
 
             val names = all.map { it.name }
-            names.contains("서울시청") shouldBeEqualTo true
-            names.contains("인천공항") shouldBeEqualTo true
+            names shouldContain "서울시청"
+            names shouldContain "인천공항"
 
             log.debug { "저장된 POI 목록: $names" }
 
@@ -155,8 +158,8 @@ class PoiRepositoryTest: AbstractPostgisTest() {
             val lngDiff = abs(retrievedPoint.x - dokdo.x)
             val latDiff = abs(retrievedPoint.y - dokdo.y)
 
-            (lngDiff < 0.001) shouldBeEqualTo true
-            (latDiff < 0.001) shouldBeEqualTo true
+            lngDiff shouldBeLessThan 0.001
+            latDiff shouldBeLessThan 0.001
 
             log.debug { "독도 좌표 검증 — 저장: (${dokdo.x}, ${dokdo.y}), 조회: (${retrievedPoint.x}, ${retrievedPoint.y})" }
 
@@ -181,7 +184,7 @@ class PoiRepositoryTest: AbstractPostgisTest() {
                 .toPoi()
 
             found.name shouldBeEqualTo "미분류 장소"
-            found.category shouldBeEqualTo null
+            found.category.shouldBeNull()
 
             log.debug { "nullable category POI 저장 확인: $found" }
 

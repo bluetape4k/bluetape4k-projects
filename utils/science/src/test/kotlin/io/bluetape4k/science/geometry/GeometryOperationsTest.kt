@@ -1,8 +1,12 @@
 package io.bluetape4k.science.geometry
 
-import io.bluetape4k.logging.KLogging
 import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeFalse
+import io.bluetape4k.assertions.shouldBeLessThan
+import io.bluetape4k.assertions.shouldBeNull
+import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.assertions.shouldNotBeNull
+import io.bluetape4k.logging.KLogging
 import org.junit.jupiter.api.Test
 import org.locationtech.jts.geom.Coordinate
 import org.locationtech.jts.geom.Point
@@ -10,7 +14,9 @@ import kotlin.math.abs
 
 class GeometryOperationsTest {
 
-    companion object: KLogging()
+    companion object: KLogging() {
+        private const val EPSILON = 1e-9
+    }
 
     private fun point(x: Double, y: Double): Point =
         DEFAULT_GEOMETRY_FACTORY.createPoint(Coordinate(x, y))
@@ -46,9 +52,10 @@ class GeometryOperationsTest {
         val p3 = point(0.0, 2.0)
         val p4 = point(2.0, 0.0)
         val intersect = getIntersectPoint(p1, p2, p3, p4)
+
         intersect.shouldNotBeNull()
-        (abs(intersect.x - 1.0) < 1e-9).let { require(it) { "x 오차: ${intersect.x}" } }
-        (abs(intersect.y - 1.0) < 1e-9).let { require(it) { "y 오차: ${intersect.y}" } }
+        abs(intersect.x - 1.0) shouldBeLessThan EPSILON
+        abs(intersect.y - 1.0) shouldBeLessThan EPSILON
     }
 
     @Test
@@ -57,33 +64,34 @@ class GeometryOperationsTest {
         val p2 = point(1.0, 0.0)
         val p3 = point(0.0, 1.0)
         val p4 = point(1.0, 1.0)
+
         val intersect = getIntersectPoint(p1, p2, p3, p4)
-        require(intersect == null) { "평행선은 교차점이 없어야 합니다" }
+        intersect.shouldBeNull()
     }
 
     @Test
     fun `isValidLatitude - 유효한 범위`() {
-        require(37.5665.isValidLatitude())
-        require((-90.0).isValidLatitude())
-        require(90.0.isValidLatitude())
+        37.5665.isValidLatitude().shouldBeTrue()
+        (-90.0).isValidLatitude().shouldBeTrue()
+        90.0.isValidLatitude().shouldBeTrue()
     }
 
     @Test
     fun `isValidLatitude - 유효하지 않은 범위`() {
-        require(!91.0.isValidLatitude())
-        require(!(-91.0).isValidLatitude())
+        91.0.isValidLatitude().shouldBeFalse()
+        (-91.0).isValidLatitude().shouldBeFalse()
     }
 
     @Test
     fun `isValidLongitude - 유효한 범위`() {
-        require(126.9780.isValidLongitude())
-        require((-180.0).isValidLongitude())
-        require(180.0.isValidLongitude())
+        126.9780.isValidLongitude().shouldBeTrue()
+        (-180.0).isValidLongitude().shouldBeTrue()
+        180.0.isValidLongitude().shouldBeTrue()
     }
 
     @Test
     fun `isValidLongitude - 유효하지 않은 범위`() {
-        require(!181.0.isValidLongitude())
-        require(!(-181.0).isValidLongitude())
+        181.0.isValidLongitude().shouldBeFalse()
+        (-181.0).isValidLongitude().shouldBeFalse()
     }
 }

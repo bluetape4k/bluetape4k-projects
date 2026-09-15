@@ -25,7 +25,6 @@ import io.micrometer.core.instrument.MeterRegistry
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry
 import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.jdbc.deleteAll
-import org.jetbrains.exposed.v1.jdbc.deleteWhere
 import org.jetbrains.exposed.v1.jdbc.selectAll
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import org.junit.jupiter.api.AfterEach
@@ -34,7 +33,7 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Tag
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
-import java.io.IOException
+import java.lang.Double
 import java.lang.reflect.Modifier
 import java.lang.reflect.Proxy
 import java.nio.file.Files
@@ -47,7 +46,19 @@ import java.util.concurrent.TimeUnit
 import java.util.concurrent.TimeoutException
 import java.util.concurrent.atomic.AtomicInteger
 import java.util.concurrent.atomic.AtomicReference
+import kotlin.IllegalArgumentException
+import kotlin.Long
+import kotlin.String
+import kotlin.Throwable
+import kotlin.Unit
+import kotlin.arrayOf
+import kotlin.check
+import kotlin.checkNotNull
+import kotlin.error
 import kotlin.io.path.absolutePathString
+import kotlin.let
+import kotlin.to
+import kotlin.use
 
 /**
  * [NetCdfCatalogService] 전체 동작 검증.
@@ -95,7 +106,7 @@ class NetCdfCatalogServiceTest: AbstractPostgisTest() {
         record.shouldNotBeNull()
         record.filename shouldBeEqualTo "rank2.nc"
         record.dimensions["lat"] shouldBeEqualTo NetCdfSampleWriter.DEFAULT_LAT_N
-        record.variables.any { it.name == "temperature" } shouldBeEqualTo true
+        record.variables.any { it.name == "temperature" }.shouldBeTrue()
     }
 
     @Test
@@ -185,7 +196,7 @@ class NetCdfCatalogServiceTest: AbstractPostgisTest() {
             rows.size to rows.all { it[NetCdfGridValueTable.location] == null }
         }
         count shouldBeEqualTo NetCdfSampleWriter.DEFAULT_TIME_N
-        anyNullLoc shouldBeEqualTo true
+        anyNullLoc.shouldBeTrue()
 
         val progress = transaction { progressRepo.findByFileAndVariable(fileId, "temperature") }
         progress.shouldNotBeNull()
@@ -215,7 +226,7 @@ class NetCdfCatalogServiceTest: AbstractPostgisTest() {
             NetCdfGridValueTable.selectAll().where { NetCdfGridValueTable.fileId eq fileId }.count()
         }
         val expected = NetCdfSampleWriter.DEFAULT_TIME_N * NetCdfSampleWriter.DEFAULT_LAT_N *
-            NetCdfSampleWriter.DEFAULT_LON_N
+                NetCdfSampleWriter.DEFAULT_LON_N
         count shouldBeEqualTo expected.toLong()
     }
 
@@ -229,7 +240,7 @@ class NetCdfCatalogServiceTest: AbstractPostgisTest() {
             NetCdfGridValueTable.selectAll().where { NetCdfGridValueTable.fileId eq fileId }.count()
         }
         val expected = NetCdfSampleWriter.DEFAULT_TIME_N * NetCdfSampleWriter.DEFAULT_LEVEL_N *
-            NetCdfSampleWriter.DEFAULT_LAT_N * NetCdfSampleWriter.DEFAULT_LON_N
+                NetCdfSampleWriter.DEFAULT_LAT_N * NetCdfSampleWriter.DEFAULT_LON_N
         count shouldBeEqualTo expected.toLong()
     }
 
@@ -264,7 +275,9 @@ class NetCdfCatalogServiceTest: AbstractPostgisTest() {
 
     @Test
     fun `12 - blank variable name throws IAE`() {
-        assertFailsWith<IllegalArgumentException> { service.importGridValues(1L, " ") }
+        assertFailsWith<IllegalArgumentException> {
+            service.importGridValues(1L, " ")
+        }
     }
 
     // -------------------------------------------------------------------------
@@ -279,7 +292,9 @@ class NetCdfCatalogServiceTest: AbstractPostgisTest() {
         val fileId = service.registerFile(path.absolutePathString())
         service.importGridValues(fileId, "temperature")
         val count = transaction(db) {
-            NetCdfGridValueTable.selectAll().where { NetCdfGridValueTable.fileId eq fileId }.count()
+            NetCdfGridValueTable.selectAll()
+                .where { NetCdfGridValueTable.fileId eq fileId }
+                .count()
         }
         count shouldBeGreaterThan 0L
     }
@@ -306,7 +321,7 @@ class NetCdfCatalogServiceTest: AbstractPostgisTest() {
         // PostGIS ST_X = lon, ST_Y = lat (R4)
         val (anyLonOk, anyLatOk) = transaction(db) {
             val sql = "SELECT MAX(ST_X(location)), MIN(ST_X(location)), MAX(ST_Y(location)), MIN(ST_Y(location)) " +
-                "FROM netcdf_grid_values WHERE file_id=?"
+                    "FROM netcdf_grid_values WHERE file_id=?"
             val conn = connection.connection as java.sql.Connection
             conn.prepareStatement(sql).use { ps ->
                 ps.setLong(1, fileId)
@@ -318,12 +333,12 @@ class NetCdfCatalogServiceTest: AbstractPostgisTest() {
                     val latMin = rs.getDouble(4)
                     log.debug { "POINT bounds — lon=[$lonMin..$lonMax] lat=[$latMin..$latMax]" }
                     (lonMin <= -180.0 && lonMax >= 90.0) to
-                        (latMin <= 0.0 && latMax >= 89.0)
+                            (latMin <= 0.0 && latMax >= 89.0)
                 }
             }
         }
-        anyLonOk shouldBeEqualTo true
-        anyLatOk shouldBeEqualTo true
+        anyLonOk.shouldBeTrue()
+        anyLatOk.shouldBeTrue()
     }
 
     // -------------------------------------------------------------------------
@@ -336,7 +351,10 @@ class NetCdfCatalogServiceTest: AbstractPostgisTest() {
         val fileId = service.registerFile(path.absolutePathString())
         service.importGridValues(fileId, "temperature")
         val count = transaction(db) {
-            NetCdfGridValueTable.selectAll().where { NetCdfGridValueTable.fileId eq fileId }.count()
+            NetCdfGridValueTable
+                .selectAll()
+                .where { NetCdfGridValueTable.fileId eq fileId }
+                .count()
         }
         count shouldBeGreaterThan 0L
     }
@@ -347,7 +365,10 @@ class NetCdfCatalogServiceTest: AbstractPostgisTest() {
         val fileId = service.registerFile(path.absolutePathString())
         service.importGridValues(fileId, "temperature")
         val count = transaction(db) {
-            NetCdfGridValueTable.selectAll().where { NetCdfGridValueTable.fileId eq fileId }.count()
+            NetCdfGridValueTable
+                .selectAll()
+                .where { NetCdfGridValueTable.fileId eq fileId }
+                .count()
         }
         count shouldBeGreaterThan 0L
     }
@@ -358,7 +379,10 @@ class NetCdfCatalogServiceTest: AbstractPostgisTest() {
         val fileId = service.registerFile(path.absolutePathString())
         service.importGridValues(fileId, "temperature")
         val count = transaction(db) {
-            NetCdfGridValueTable.selectAll().where { NetCdfGridValueTable.fileId eq fileId }.count()
+            NetCdfGridValueTable
+                .selectAll()
+                .where { NetCdfGridValueTable.fileId eq fileId }
+                .count()
         }
         count shouldBeGreaterThan 0L
     }
@@ -386,13 +410,16 @@ class NetCdfCatalogServiceTest: AbstractPostgisTest() {
         // 첫 호출 — 정상 완료
         service.importGridValues(fileId, "temperature")
         val firstCount = transaction(db) {
-            NetCdfGridValueTable.selectAll().where { NetCdfGridValueTable.fileId eq fileId }.count()
+            NetCdfGridValueTable
+                .selectAll()
+                .where { NetCdfGridValueTable.fileId eq fileId }
+                .count()
         }
 
         // 강제로 progress 를 FAILED + lastSliceIdx=0 으로 변경 후 재호출
         transaction(db) {
             val sql = "UPDATE netcdf_import_progress SET status='FAILED', lease_expires_at=NULL, " +
-                "last_slice_idx=0 WHERE file_id=? AND variable_name='temperature'"
+                    "last_slice_idx=0 WHERE file_id=? AND variable_name='temperature'"
             val conn = connection.connection as java.sql.Connection
             conn.prepareStatement(sql).use { ps ->
                 ps.setLong(1, fileId)
@@ -402,7 +429,10 @@ class NetCdfCatalogServiceTest: AbstractPostgisTest() {
         // 재실행 — 슬라이스 0 중복 insert 방지 (upsert), 슬라이스 1 만 새로 처리
         service.importGridValues(fileId, "temperature")
         val secondCount = transaction(db) {
-            NetCdfGridValueTable.selectAll().where { NetCdfGridValueTable.fileId eq fileId }.count()
+            NetCdfGridValueTable
+                .selectAll()
+                .where { NetCdfGridValueTable.fileId eq fileId }
+                .count()
         }
         // 중복 insert 방지로 row 수 동일
         secondCount shouldBeEqualTo firstCount
@@ -428,13 +458,19 @@ class NetCdfCatalogServiceTest: AbstractPostgisTest() {
         val fileId = service.registerFile(path.absolutePathString())
         service.importGridValues(fileId, "temperature")
         val firstCount = transaction(db) {
-            NetCdfGridValueTable.selectAll().where { NetCdfGridValueTable.fileId eq fileId }.count()
+            NetCdfGridValueTable
+                .selectAll()
+                .where { NetCdfGridValueTable.fileId eq fileId }
+                .count()
         }
 
         // 두 번째 호출 — COMPLETED 상태이므로 즉시 no-op
         service.importGridValues(fileId, "temperature")
         val secondCount = transaction(db) {
-            NetCdfGridValueTable.selectAll().where { NetCdfGridValueTable.fileId eq fileId }.count()
+            NetCdfGridValueTable
+                .selectAll()
+                .where { NetCdfGridValueTable.fileId eq fileId }
+                .count()
         }
         secondCount shouldBeEqualTo firstCount
     }
@@ -450,9 +486,11 @@ class NetCdfCatalogServiceTest: AbstractPostgisTest() {
             NetCdfImportProgressRepository::class.java,
             MeterRegistry::class.java,
         ).shouldNotBeNull()
+
         NetCdfCatalogService::class.java.constructors
             .filterNot { it.isSynthetic }
             .map { it.parameterCount } shouldBeEqualTo listOf(3)
+
         NetCdfCatalogService::class.java.declaredConstructors
             .single { !it.isSynthetic && it.parameterCount == 4 }
             .let { constructor ->
@@ -566,6 +604,7 @@ class NetCdfCatalogServiceTest: AbstractPostgisTest() {
     fun `import checkpoint runs once for spatial preflight and never for rank one`(@TempDir dir: Path) {
         val checkpointCalls = AtomicInteger()
         val checkpointService = newCatalogWithCheckpoint { checkpointCalls.incrementAndGet() }
+
         val rankOne = NetCdfSampleWriter.writeSample(dir.resolve("checkpoint-rank1.nc"), rank = 1)
         val rankOneFileId = checkpointService.registerFile(rankOne.absolutePathString())
         checkpointService.importGridValues(rankOneFileId, "temperature")
@@ -597,11 +636,17 @@ class NetCdfCatalogServiceTest: AbstractPostgisTest() {
         val path = NetCdfSampleWriter.writeSample(dir.resolve("exp.nc"), rank = 2)
         val fileId = service.registerFile(path.absolutePathString())
 
-        transaction(db) { progressRepo.acquireLease(fileId, "temperature") }
+        transaction(db) {
+            progressRepo.acquireLease(fileId, "temperature")
+        }
+
         // raw SQL 로 lease 강제 만료 (Codex Plan v2.1 Medium#1 — Thread.sleep 금지)
         forceExpireLease(fileId, "temperature")
+
         // 만료된 lease 재획득 가능
-        val reacquired = transaction(db) { progressRepo.acquireLease(fileId, "temperature") }
+        val reacquired = transaction(db) {
+            progressRepo.acquireLease(fileId, "temperature")
+        }
         reacquired.shouldNotBeNull()
     }
 
@@ -609,9 +654,15 @@ class NetCdfCatalogServiceTest: AbstractPostgisTest() {
     fun `23a - stale lease owner cannot renew after expired lease is reacquired`(@TempDir dir: Path) {
         val path = NetCdfSampleWriter.writeSample(dir.resolve("stale-renew.nc"), rank = 2)
         val fileId = service.registerFile(path.absolutePathString())
-        val staleProgress = transaction(db) { progressRepo.acquireLease(fileId, "temperature") }
+
+        val staleProgress = transaction(db) {
+            progressRepo.acquireLease(fileId, "temperature")
+        }
         forceExpireLease(fileId, "temperature")
-        val currentProgress = transaction(db) { progressRepo.acquireLease(fileId, "temperature") }
+
+        val currentProgress = transaction(db) {
+            progressRepo.acquireLease(fileId, "temperature")
+        }
 
         assertFailsWith<NetCdfException.ImportLeaseLost> {
             transaction(db) {
@@ -623,7 +674,9 @@ class NetCdfCatalogServiceTest: AbstractPostgisTest() {
             }
         }
 
-        val progress = transaction(db) { progressRepo.findByFileAndVariable(fileId, "temperature") }
+        val progress = transaction(db) {
+            progressRepo.findByFileAndVariable(fileId, "temperature")
+        }
         progress.shouldNotBeNull()
         progress.status shouldBeEqualTo NetCdfImportStatus.IN_PROGRESS
         progress.lastSliceIdx.shouldBeNull()
@@ -634,9 +687,15 @@ class NetCdfCatalogServiceTest: AbstractPostgisTest() {
     fun `23b - stale lease owner cannot complete after expired lease is reacquired`(@TempDir dir: Path) {
         val path = NetCdfSampleWriter.writeSample(dir.resolve("stale-complete.nc"), rank = 2)
         val fileId = service.registerFile(path.absolutePathString())
-        val staleProgress = transaction(db) { progressRepo.acquireLease(fileId, "temperature") }
+
+        val staleProgress = transaction(db) {
+            progressRepo.acquireLease(fileId, "temperature")
+        }
         forceExpireLease(fileId, "temperature")
-        val currentProgress = transaction(db) { progressRepo.acquireLease(fileId, "temperature") }
+
+        val currentProgress = transaction(db) {
+            progressRepo.acquireLease(fileId, "temperature")
+        }
 
         assertFailsWith<NetCdfException.ImportLeaseLost> {
             transaction(db) {
@@ -647,7 +706,9 @@ class NetCdfCatalogServiceTest: AbstractPostgisTest() {
             }
         }
 
-        val progress = transaction(db) { progressRepo.findByFileAndVariable(fileId, "temperature") }
+        val progress = transaction(db) {
+            progressRepo.findByFileAndVariable(fileId, "temperature")
+        }
         progress.shouldNotBeNull()
         progress.status shouldBeEqualTo NetCdfImportStatus.IN_PROGRESS
         progress.completedAt.shouldBeNull()
@@ -658,9 +719,15 @@ class NetCdfCatalogServiceTest: AbstractPostgisTest() {
     fun `23c - stale lease owner cannot fail after expired lease is reacquired`(@TempDir dir: Path) {
         val path = NetCdfSampleWriter.writeSample(dir.resolve("stale-fail.nc"), rank = 2)
         val fileId = service.registerFile(path.absolutePathString())
-        val staleProgress = transaction(db) { progressRepo.acquireLease(fileId, "temperature") }
+
+        val staleProgress = transaction(db) {
+            progressRepo.acquireLease(fileId, "temperature")
+        }
         forceExpireLease(fileId, "temperature")
-        val currentProgress = transaction(db) { progressRepo.acquireLease(fileId, "temperature") }
+
+        val currentProgress = transaction(db) {
+            progressRepo.acquireLease(fileId, "temperature")
+        }
 
         assertFailsWith<NetCdfException.ImportLeaseLost> {
             transaction(db) {
@@ -672,7 +739,9 @@ class NetCdfCatalogServiceTest: AbstractPostgisTest() {
             }
         }
 
-        val progress = transaction(db) { progressRepo.findByFileAndVariable(fileId, "temperature") }
+        val progress = transaction(db) {
+            progressRepo.findByFileAndVariable(fileId, "temperature")
+        }
         progress.shouldNotBeNull()
         progress.status shouldBeEqualTo NetCdfImportStatus.IN_PROGRESS
         progress.errorMessage.shouldBeNull()
@@ -705,6 +774,7 @@ class NetCdfCatalogServiceTest: AbstractPostgisTest() {
     fun `registerFile rejects unreadable POSIX file`(@TempDir dir: Path) {
         val path = NetCdfSampleWriter.writeSample(dir.resolve("unreadable.nc"), rank = 2)
         val originalPermissions = Files.getPosixFilePermissions(path)
+
         try {
             Files.setPosixFilePermissions(path, setOf(PosixFilePermission.OWNER_WRITE))
             assumeFalse(Files.isReadable(path), "POSIX unreadable-file test requires a non-root user")
@@ -720,9 +790,13 @@ class NetCdfCatalogServiceTest: AbstractPostgisTest() {
     fun `24 - importGridValues commits per slice independently`(@TempDir dir: Path) {
         // rank3 정상 import 후 progress.lastSliceIdx 가 timeN-1 인지 확인
         val path = NetCdfSampleWriter.writeSample(dir.resolve("tx.nc"), rank = 3)
+
         val fileId = service.registerFile(path.absolutePathString())
         service.importGridValues(fileId, "temperature")
-        val progress = transaction(db) { progressRepo.findByFileAndVariable(fileId, "temperature") }
+
+        val progress = transaction(db) {
+            progressRepo.findByFileAndVariable(fileId, "temperature")
+        }
         progress.shouldNotBeNull()
         progress.lastSliceIdx shouldBeEqualTo (NetCdfSampleWriter.DEFAULT_TIME_N - 1).toLong()
     }
@@ -730,10 +804,15 @@ class NetCdfCatalogServiceTest: AbstractPostgisTest() {
     @Test
     fun `25 - importGridValues handles fixed lat axis values`(@TempDir dir: Path) {
         val path = NetCdfSampleWriter.writeSample(dir.resolve("irr.nc"), rank = 2)
+
         val fileId = service.registerFile(path.absolutePathString())
         service.importGridValues(fileId, "temperature")
+
         val count = transaction(db) {
-            NetCdfGridValueTable.selectAll().where { NetCdfGridValueTable.fileId eq fileId }.count()
+            NetCdfGridValueTable
+                .selectAll()
+                .where { NetCdfGridValueTable.fileId eq fileId }
+                .count()
         }
         count shouldBeGreaterThan 0L
     }
@@ -746,8 +825,12 @@ class NetCdfCatalogServiceTest: AbstractPostgisTest() {
         )
         val fileId3 = service.registerFile(path3.absolutePathString())
         service.importGridValues(fileId3, "temperature")
+
         val c3 = transaction(db) {
-            NetCdfGridValueTable.selectAll().where { NetCdfGridValueTable.fileId eq fileId3 }.count()
+            NetCdfGridValueTable
+                .selectAll()
+                .where { NetCdfGridValueTable.fileId eq fileId3 }
+                .count()
         }
         c3 shouldBeGreaterThan 0L
 
@@ -757,8 +840,12 @@ class NetCdfCatalogServiceTest: AbstractPostgisTest() {
         )
         val fileId4 = service.registerFile(path4.absolutePathString())
         service.importGridValues(fileId4, "temperature")
+
         val c4 = transaction(db) {
-            NetCdfGridValueTable.selectAll().where { NetCdfGridValueTable.fileId eq fileId4 }.count()
+            NetCdfGridValueTable
+                .selectAll()
+                .where { NetCdfGridValueTable.fileId eq fileId4 }
+                .count()
         }
         c4 shouldBeGreaterThan 0L
     }
@@ -767,10 +854,13 @@ class NetCdfCatalogServiceTest: AbstractPostgisTest() {
     fun `27 - CoordinateReprojector caches per call (no double calc)`(@TempDir dir: Path) {
         // 같은 파일을 두 번 register + import — 두 번 모두 정상 동작
         val path = NetCdfSampleWriter.writeSample(dir.resolve("cache.nc"), rank = 2, sourceCrs = "EPSG:3857")
+
         val id1 = service.registerFile(path.absolutePathString())
         service.importGridValues(id1, "temperature")
+
         val id2 = service.registerFile(path.absolutePathString())
         service.importGridValues(id2, "temperature")
+
         val total = transaction(db) {
             NetCdfGridValueTable.selectAll().count()
         }
@@ -782,14 +872,18 @@ class NetCdfCatalogServiceTest: AbstractPostgisTest() {
         // 1D (location NULL → uk_nulloc) + 2D (location NOT NULL → uk_full) 양쪽 검증
         val path1 = NetCdfSampleWriter.writeSample(dir.resolve("d1.nc"), rank = 1)
         val id1 = service.registerFile(path1.absolutePathString())
+
         service.importGridValues(id1, "temperature")
         val first1 = transaction(db) {
-            NetCdfGridValueTable.selectAll().where { NetCdfGridValueTable.fileId eq id1 }.count()
+            NetCdfGridValueTable
+                .selectAll().where { NetCdfGridValueTable.fileId eq id1 }
+                .count()
         }
+
         // progress 강제 FAILED 후 재호출 — 중복 방지
         transaction(db) {
             val sql = "UPDATE netcdf_import_progress SET status='FAILED', lease_expires_at=NULL, " +
-                "last_slice_idx=NULL WHERE file_id=? AND variable_name='temperature'"
+                    "last_slice_idx=NULL WHERE file_id=? AND variable_name='temperature'"
             val conn = connection.connection as java.sql.Connection
             conn.prepareStatement(sql).use { ps ->
                 ps.setLong(1, id1)
@@ -797,20 +891,28 @@ class NetCdfCatalogServiceTest: AbstractPostgisTest() {
             }
         }
         service.importGridValues(id1, "temperature")
+
         val second1 = transaction(db) {
-            NetCdfGridValueTable.selectAll().where { NetCdfGridValueTable.fileId eq id1 }.count()
+            NetCdfGridValueTable
+                .selectAll()
+                .where { NetCdfGridValueTable.fileId eq id1 }
+                .count()
         }
         second1 shouldBeEqualTo first1
 
         val path2 = NetCdfSampleWriter.writeSample(dir.resolve("d2.nc"), rank = 2)
         val id2 = service.registerFile(path2.absolutePathString())
         service.importGridValues(id2, "temperature")
+
         val first2 = transaction(db) {
-            NetCdfGridValueTable.selectAll().where { NetCdfGridValueTable.fileId eq id2 }.count()
+            NetCdfGridValueTable
+                .selectAll()
+                .where { NetCdfGridValueTable.fileId eq id2 }
+                .count()
         }
         transaction(db) {
             val sql = "UPDATE netcdf_import_progress SET status='FAILED', lease_expires_at=NULL, " +
-                "last_slice_idx=NULL WHERE file_id=? AND variable_name='temperature'"
+                    "last_slice_idx=NULL WHERE file_id=? AND variable_name='temperature'"
             val conn = connection.connection as java.sql.Connection
             conn.prepareStatement(sql).use { ps ->
                 ps.setLong(1, id2)
@@ -819,7 +921,10 @@ class NetCdfCatalogServiceTest: AbstractPostgisTest() {
         }
         service.importGridValues(id2, "temperature")
         val second2 = transaction(db) {
-            NetCdfGridValueTable.selectAll().where { NetCdfGridValueTable.fileId eq id2 }.count()
+            NetCdfGridValueTable
+                .selectAll()
+                .where { NetCdfGridValueTable.fileId eq id2 }
+                .count()
         }
         second2 shouldBeEqualTo first2
     }
@@ -839,8 +944,10 @@ class NetCdfCatalogServiceTest: AbstractPostgisTest() {
 
         val fileId = service.registerFile(target.absolutePathString())
         fileId shouldBeGreaterThan 0L
+
         val record = transaction(db) { fileRepo.findById(fileId) }
         record.shouldNotBeNull()
+
         log.info { "CF-1.x sample registered — vars=${record.variables.size} dims=${record.dimensions.keys}" }
     }
 
@@ -856,7 +963,9 @@ class NetCdfCatalogServiceTest: AbstractPostgisTest() {
         val fileId = service.registerFile(path.absolutePathString())
         // 정상 rank=4 — 예외 없이 통과
         service.importGridValues(fileId, "temperature")
-        val progress = transaction(db) { progressRepo.findByFileAndVariable(fileId, "temperature") }
+        val progress = transaction(db) {
+            progressRepo.findByFileAndVariable(fileId, "temperature")
+        }
         progress.shouldNotBeNull()
     }
 
@@ -881,8 +990,7 @@ class NetCdfCatalogServiceTest: AbstractPostgisTest() {
                 .mapNotNull { it[NetCdfGridValueTable.attrs] }
         }
         attrs.shouldNotBeEmpty()
-        attrs.all { "altitude" in it && "time" !in it && "lat" !in it && "lon" !in it }
-            .shouldBeTrue()
+        attrs.all { "altitude" in it && "time" !in it && "lat" !in it && "lon" !in it }.shouldBeTrue()
     }
 
     @Test
@@ -935,7 +1043,7 @@ class NetCdfCatalogServiceTest: AbstractPostgisTest() {
     private fun readSpatialTuples(fileId: Long): List<NetCdfSampleWriter.SpatialTuple> = transaction(db) {
         val expected = NetCdfSampleWriter.CURVILINEAR_TUPLES
         val sql = "SELECT time_idx, level_idx, ST_X(location), ST_Y(location), value " +
-            "FROM netcdf_grid_values WHERE file_id=? AND location IS NOT NULL"
+                "FROM netcdf_grid_values WHERE file_id=? AND location IS NOT NULL"
         val conn = connection.connection as java.sql.Connection
         conn.prepareStatement(sql).use { ps ->
             ps.setLong(1, fileId)
@@ -947,17 +1055,11 @@ class NetCdfCatalogServiceTest: AbstractPostgisTest() {
                         val longitude = rs.getDouble(3)
                         val latitude = rs.getDouble(4)
                         val fixtureTuple = expected.singleOrNull {
-                            java.lang.Double.doubleToLongBits(it.longitude) ==
-                                java.lang.Double.doubleToLongBits(longitude) &&
-                                java.lang.Double.doubleToLongBits(it.latitude) ==
-                                java.lang.Double.doubleToLongBits(latitude)
-                        } ?: error(
-                            "Unexpected spatial tuple: time=$timeIdx level=$levelIdx " +
-                                "lon=$longitude lat=$latitude",
-                        )
-                        add(
-                            fixtureTuple.copy(timeIdx = timeIdx, levelIdx = levelIdx, value = rs.getDouble(5)),
-                        )
+                            Double.doubleToLongBits(it.longitude) == Double.doubleToLongBits(longitude) &&
+                                    Double.doubleToLongBits(it.latitude) == Double.doubleToLongBits(latitude)
+                        }
+                            ?: error("Unexpected spatial tuple: time=$timeIdx level=$levelIdx lon=$longitude lat=$latitude")
+                        add(fixtureTuple.copy(timeIdx = timeIdx, levelIdx = levelIdx, value = rs.getDouble(5)))
                     }
                 }.sortedWith(compareBy({ it.timeIdx }, { it.levelIdx }, { it.row }, { it.column }))
             }
@@ -967,7 +1069,7 @@ class NetCdfCatalogServiceTest: AbstractPostgisTest() {
     private fun forceExpireLease(fileId: Long, variableName: String) {
         transaction(db) {
             val sql = "UPDATE netcdf_import_progress SET lease_expires_at = now() - interval '10 min' " +
-                "WHERE file_id = ? AND variable_name = ?"
+                    "WHERE file_id = ? AND variable_name = ?"
             val conn = connection.connection as java.sql.Connection
             conn.prepareStatement(sql).use { ps ->
                 ps.setLong(1, fileId)
@@ -992,7 +1094,7 @@ class NetCdfCatalogServiceTest: AbstractPostgisTest() {
             null
         }
         return constructor.newInstance(fileRepo, progressRepo, meterRegistry, checkpointProxy)
-            as NetCdfCatalogService
+                as NetCdfCatalogService
     }
 
     private fun assertCancelledImportState(
