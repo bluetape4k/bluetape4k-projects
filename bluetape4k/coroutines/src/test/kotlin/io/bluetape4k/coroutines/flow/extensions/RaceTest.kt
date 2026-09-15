@@ -25,13 +25,18 @@ class RaceTest: AbstractFlowTest() {
 
     @Test
     fun `race zero`() = runTest {
-        emptyList<Flow<Int>>().race().test { awaitComplete() }
-        race(emptyFlow<Int>(), emptyFlow()).test { awaitComplete() }
+        emptyList<Flow<Int>>()
+            .race()
+            .test { awaitComplete() }
+
+        race(emptyFlow<Int>(), emptyFlow())
+            .test { awaitComplete() }
     }
 
     @Test
     fun `race single flow`() = runTest {
-        flowOf(1, 2, 3).raceWith(emptyFlow())
+        flowOf(1, 2, 3)
+            .raceWith(emptyFlow())
             .assertResult(1, 2, 3)
     }
 
@@ -78,17 +83,20 @@ class RaceTest: AbstractFlowTest() {
         val flow1 = flow<Int> { delay(100.milliseconds); }.log(1)
         val flow2 = flow { delay(200.milliseconds); emit(1) }.log(2)
 
-        race(flow1, flow2).test {
-            awaitItem() shouldBeEqualTo 1
-            awaitComplete()
-        }
+        race(flow1, flow2)
+            .test {
+                awaitItem() shouldBeEqualTo 1
+                awaitComplete()
+            }
 
         val flow3 = flow { delay(200.milliseconds); emit(1) }.log(1)
         val flow4 = flow<Int> { delay(100.milliseconds) }.log(2)
-        race(flow3, flow4).test {
-            awaitItem() shouldBeEqualTo 1
-            awaitComplete()
-        }
+
+        race(flow3, flow4)
+            .test {
+                awaitItem() shouldBeEqualTo 1
+                awaitComplete()
+            }
     }
 
     @Test

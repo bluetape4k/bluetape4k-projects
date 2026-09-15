@@ -21,9 +21,7 @@ class FlowFromSuspendTest: AbstractFlowTest() {
         }
 
         flow.assertResult(count)
-
         flow.assertResult(++count)
-
         flow.assertResult(++count)
     }
 

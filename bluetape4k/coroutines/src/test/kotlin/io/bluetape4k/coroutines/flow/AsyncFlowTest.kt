@@ -21,6 +21,7 @@ import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.RepeatedTest
 import org.junit.jupiter.api.Test
+import java.util.concurrent.ConcurrentLinkedQueue
 import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicInteger
 import kotlin.random.Random
@@ -104,7 +105,7 @@ class AsyncFlowTest {
 
     private suspend inline fun runAsyncFlow(dispatcher: CoroutineDispatcher) {
         // 중복된 요소가 없어야 합니다
-        val results = mutableListOf<Int>()
+        val results = ConcurrentLinkedQueue<Int>()
 
         expectedItems
             .asFlow()
@@ -122,7 +123,7 @@ class AsyncFlowTest {
             }
 
         // 정렬된 값 그대로 Collect 되어야 합니다.
-        results shouldBeEqualTo expectedItems
+        results.toList() shouldBeEqualTo expectedItems
     }
 
     @Test
@@ -147,7 +148,7 @@ class AsyncFlowTest {
             expectedItems
                 .asFlow().log("Fail")
                 .async { it }
-                .collect(capacity = -3) { }
+                .collect(capacity = -3) 
         }
     }
 
@@ -157,12 +158,12 @@ class AsyncFlowTest {
             .take(32)
             .asFlow().log("#1")
             .async { it }
-            .collect(capacity = Channel.CONFLATED) { }
+            .collect(capacity = Channel.CONFLATED)
 
         expectedItems
             .take(32)
             .asFlow().log("#2")
             .async { it }
-            .collect(capacity = Channel.BUFFERED) { }
+            .collect(capacity = Channel.BUFFERED)
     }
 }

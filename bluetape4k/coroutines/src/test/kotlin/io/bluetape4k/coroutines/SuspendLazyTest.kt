@@ -9,6 +9,7 @@ import io.bluetape4k.junit5.coroutines.SuspendedJobTester
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.junit5.coroutines.withSingleThread
 import io.bluetape4k.logging.coroutines.KLoggingChannel
+import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.trace
 import io.bluetape4k.utils.Runtimex
 import kotlinx.coroutines.async
@@ -151,7 +152,7 @@ class SuspendLazyTest {
             // suspendBlockingLazyIO의 Dispatchers.IO initializer thread를 구분한다.
             initializerThread.set(Thread.currentThread())
             Thread.sleep(Random.nextLong(1000))
-            log.trace { "Calculate lazy value in blocking mode with IO dispatchers" }
+            log.debug { "Calculate lazy value in blocking mode with IO dispatchers" }
             callCounter.incrementAndGet()
             TEST_NUMBER
         }
@@ -165,6 +166,7 @@ class SuspendLazyTest {
                 lazyValue() shouldBeEqualTo TEST_NUMBER
             }
             .run()
+
         callCounter.get() shouldBeEqualTo 1
         val initializedOn = initializerThread.get().shouldNotBeNull()
         callerThreads.any { it === initializedOn }.shouldBeFalse()

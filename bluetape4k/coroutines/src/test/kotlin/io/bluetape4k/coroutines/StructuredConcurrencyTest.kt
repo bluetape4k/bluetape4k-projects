@@ -7,12 +7,14 @@ import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.assertions.shouldContainAll
 import io.bluetape4k.assertions.shouldHaveSize
 import io.bluetape4k.assertions.shouldNotBeNull
+import io.bluetape4k.concurrent.virtualthread.api.StructuredSubtask
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.supervisorScope
 import org.junit.jupiter.api.Test
+import java.util.concurrent.ConcurrentLinkedQueue
 import java.util.concurrent.TimeoutException
 import java.util.concurrent.atomic.AtomicInteger
 
@@ -59,7 +61,7 @@ class StructuredConcurrencyTest {
     fun `taskScope - 하나 실패 시 다른 subtask 중단`() = runSuspendIO {
         val counter = AtomicInteger(0)
         assertFailsWith<RuntimeException> {
-            taskScope<Unit> {
+            taskScope {
                 fork { throw RuntimeException("빠른 실패") }
                 fork {
                     // 의도적인 blocking 경계: taskScope가 withVirtualDispatcher와
@@ -86,10 +88,11 @@ class StructuredConcurrencyTest {
 
     @Test
     fun `taskScope - getOrNull은 실패 subtask에 null 반환`() = runSuspendIO {
-        val captured = mutableListOf<io.bluetape4k.concurrent.virtualthread.api.StructuredSubtask<Int>>()
+        val captured = ConcurrentLinkedQueue<StructuredSubtask<Int>>()
+
         assertFailsWith<RuntimeException> {
             taskScope<Int> {
-                captured += fork<Int> { throw RuntimeException("실패") }
+                captured += fork { throw RuntimeException("실패") }
                 fork { 42 }
                 join().throwIfFailed()
                 0
@@ -114,7 +117,7 @@ class StructuredConcurrencyTest {
 
     @Test
     fun `firstSuccessTaskScope - 첫 번째 성공 결과 반환`() = runSuspendIO {
-        val winner = firstSuccessTaskScope<String> {
+        val winner = firstSuccessTaskScope {
             fork { "slow" }
             fork { "fast" }
             join().result { IllegalStateException("모두 실패: ${it.message}") }
@@ -146,7 +149,7 @@ class StructuredConcurrencyTest {
 
     @Test
     fun `firstSuccessTaskScope - 여러 소스에서 가장 빠른 결과 선택`() = runSuspendIO {
-        val result = firstSuccessTaskScope<String> {
+        val result = firstSuccessTaskScope {
             fork {
                 // 실제 blocking 지연으로 first-success winner 경쟁을 검증한다. blocking task의
                 // 실행 경계는 firstSuccessTaskScope의 withVirtualDispatcher가 소유한다.
@@ -166,7 +169,7 @@ class StructuredConcurrencyTest {
 
     @Test
     fun `supervisedTaskScope - 부분 실패 허용`() = runSuspendIO {
-        val results = supervisedTaskScope<Int, List<Result<Int>>> {
+        val results = supervisedTaskScope {
             fork { 1 }
             fork { throw RuntimeException("subtask 2 실패") }
             fork { 3 }
@@ -180,7 +183,7 @@ class StructuredConcurrencyTest {
 
     @Test
     fun `supervisedTaskScope - successfulResults 반환`() = runSuspendIO {
-        val successes = supervisedTaskScope<Int, List<Int>> {
+        val successes = supervisedTaskScope {
             fork { 10 }
             fork { throw RuntimeException("실패") }
             fork { 30 }
@@ -192,7 +195,7 @@ class StructuredConcurrencyTest {
 
     @Test
     fun `supervisedTaskScope - failedExceptions 반환`() = runSuspendIO {
-        val failures = supervisedTaskScope<Int, List<Throwable>> {
+        val failures = supervisedTaskScope {
             fork { 1 }
             fork { throw RuntimeException("오류 A") }
             fork { throw IllegalArgumentException("오류 B") }
@@ -206,7 +209,7 @@ class StructuredConcurrencyTest {
 
     @Test
     fun `supervisedTaskScope - 모든 subtask 성공 시 results 모두 success`() = runSuspendIO {
-        val results = supervisedTaskScope<Int, List<Result<Int>>> {
+        val results = supervisedTaskScope {
             fork { 1 }
             fork { 2 }
             fork { 3 }
@@ -298,7 +301,7 @@ class StructuredConcurrencyTest {
 
     @Test
     fun `asyncSupervisedTaskScope - Deferred로 supervised 실행`() = runSuspendIO {
-        val deferred = asyncSupervisedTaskScope<Int, List<Result<Int>>> {
+        val deferred = asyncSupervisedTaskScope {
             fork { 1 }
             fork { throw RuntimeException("실패") }
             fork { 3 }
@@ -312,7 +315,7 @@ class StructuredConcurrencyTest {
 
     @Test
     fun `asyncSupervisedTaskScope - successfulResults만 반환`() = runSuspendIO {
-        val deferred = asyncSupervisedTaskScope<String, List<String>> {
+        val deferred = asyncSupervisedTaskScope {
             fork { "A" }
             fork { throw RuntimeException("실패") }
             fork { "C" }
@@ -358,7 +361,7 @@ class StructuredConcurrencyTest {
 
     @Test
     fun `supervisedTaskScope - 부분 결과로 집계 가능`() = runSuspendIO {
-        val successCount = supervisedTaskScope<Int, Int> {
+        val successCount = supervisedTaskScope {
             repeat(10) { i ->
                 fork { if (i % 2 == 0) i else throw RuntimeException("홀수 실패 $i") }
             }
@@ -372,7 +375,7 @@ class StructuredConcurrencyTest {
     fun `taskScope joinUntil - 데드라인 초과 시 TimeoutException`() = runSuspendIO {
         val deadline = java.time.Instant.now().plusMillis(50)
         assertFailsWith<TimeoutException> {
-            taskScope<Unit> {
+            taskScope {
                 // StructuredTaskScope.close()는 forked thread 완료까지 대기하므로
                 // sleep을 deadline보다 크되 최소화 (200ms > 50ms deadline)한다.
                 // forked task의 blocking 경계는 taskScope가 생성한 virtual thread가 담당한다.
@@ -412,7 +415,7 @@ class StructuredConcurrencyTest {
     @Test
     fun `supervisedTaskScope - results 순서 확인`() = runSuspendIO {
         val counter = AtomicInteger(0)
-        val results = supervisedTaskScope<Int, List<Result<Int>>> {
+        val results = supervisedTaskScope {
             repeat(5) { fork { counter.incrementAndGet() } }
             join()
             results()

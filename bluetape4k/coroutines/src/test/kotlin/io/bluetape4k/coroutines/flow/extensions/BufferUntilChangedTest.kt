@@ -3,7 +3,7 @@ package io.bluetape4k.coroutines.flow.extensions
 import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.assertions.shouldHaveSize
 import io.bluetape4k.logging.coroutines.KLoggingChannel
-import io.bluetape4k.logging.trace
+import io.bluetape4k.logging.debug
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.map
@@ -29,13 +29,14 @@ class BufferUntilChangedTest: AbstractFlowTest() {
 
         orders shouldHaveSize orderCount
         orders.all { it.items.size == itemCount }.shouldBeTrue()
+
         orders.forEach { order ->
-            log.trace { "order=${order.prettyString()}" }
+            log.debug { "order=${order.prettyString()}" }
         }
     }
 
     private fun getOrderRows(orderCount: Int = 4, itemCount: Int = 5): Flow<OrderRow> {
-        log.trace { "order=$orderCount, item=$itemCount" }
+        log.debug { "order=$orderCount, item=$itemCount" }
 
         return List(orderCount) { oid ->
             List(itemCount) { itemId ->

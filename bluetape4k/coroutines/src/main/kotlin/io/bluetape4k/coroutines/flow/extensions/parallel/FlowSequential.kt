@@ -44,7 +44,7 @@ internal class FlowSequential<T>(private val source: ParallelFlow<T>): AbstractF
                     var receivedValuePresent = false
                     var closedChannel: Channel<T>? = null
 
-                    select<Unit> {
+                    select {
                         for (ch in activeChannels) {
                             ch.onReceiveCatching { result ->
                                 if (result.isClosed) {

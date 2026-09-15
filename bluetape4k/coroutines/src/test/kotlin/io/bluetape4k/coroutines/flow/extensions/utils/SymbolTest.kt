@@ -1,6 +1,7 @@
 package io.bluetape4k.coroutines.flow.extensions.utils
 
 import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeNull
 import org.junit.jupiter.api.Test
 
 class SymbolTest {
@@ -16,7 +17,7 @@ class SymbolTest {
         val symbol = Symbol("NULL")
 
         val value: String? = symbol.unbox(symbol)
-        value shouldBeEqualTo null
+        value.shouldBeNull()
     }
 
     @Test

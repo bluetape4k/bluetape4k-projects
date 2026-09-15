@@ -6,7 +6,7 @@ import io.bluetape4k.junit5.concurrency.MultithreadingTester
 import io.bluetape4k.junit5.coroutines.SuspendedJobTester
 import io.bluetape4k.junit5.coroutines.runSuspendDefault
 import io.bluetape4k.logging.coroutines.KLoggingChannel
-import io.bluetape4k.logging.trace
+import io.bluetape4k.logging.debug
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -41,12 +41,12 @@ class FutureSupportTest {
                     // MultithreadingTester가 제공하는 worker에서 실제 blocking FutureTask를
                     // 실행해 Future.get 계약을 검증한다. runTest 가상 시간은 이 경계를 우회한다.
                     Thread.sleep(Random.nextLong(10))
-                    log.trace { "counter=${counter.get()}" }
+                    log.debug { "counter=${counter.get()}" }
                     counter.incrementAndGet()
                 }
                 task.run()
                 val result = task.get()
-                log.trace { "result=$result" }
+                log.debug { "result=$result" }
             }
             .run()
 
@@ -63,11 +63,11 @@ class FutureSupportTest {
             .add {
                 val task = future(Dispatchers.Default, start = CoroutineStart.DEFAULT) {
                     delay(Random.nextLong(10).milliseconds)
-                    log.trace { "counter=${counter.get()}" }
+                    log.debug { "counter=${counter.get()}" }
                     counter.incrementAndGet()
                 }
                 val result = task.await()
-                log.trace { "result=$result" }
+                log.debug { "result=$result" }
             }
             .run()
 

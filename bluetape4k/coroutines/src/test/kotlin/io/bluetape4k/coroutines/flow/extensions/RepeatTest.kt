@@ -63,7 +63,7 @@ class RepeatTest: AbstractFlowTest() {
             runCurrent()
 
             repeat(100) {
-                advanceTimeBy(10)
+                advanceTimeBy(10.milliseconds)
                 runCurrent()
                 destination.isEmpty().shouldBeTrue()
             }

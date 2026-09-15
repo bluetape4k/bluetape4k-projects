@@ -1,7 +1,9 @@
 package io.bluetape4k.coroutines.flow.extensions.subject
 
+import io.bluetape4k.assertions.shouldBeEmpty
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeInstanceOf
+import io.bluetape4k.assertions.shouldBeNull
 import io.bluetape4k.assertions.shouldBeSameInstanceAs
 import io.bluetape4k.coroutines.support.log
 import io.bluetape4k.junit5.coroutines.SuspendedJobTester
@@ -117,6 +119,7 @@ class BufferedResumableCollectorTest {
                 }
                 bc.complete()
             }.log("job")
+
             yield()
 
             val collector = FlowCollector<Int> { counter.incrementAndGet() }
@@ -212,6 +215,7 @@ class BufferedResumableCollectorTest {
 
             received shouldBeEqualTo listOf(1)
             producerError.shouldBeInstanceOf<IllegalStateException>()
+
             runCatching { bc.next(3) }.exceptionOrNull().shouldBeInstanceOf<IllegalStateException>()
         }
 
@@ -238,7 +242,8 @@ class BufferedResumableCollectorTest {
             producerResult.await().exceptionOrNull().shouldBeInstanceOf<IllegalStateException>()
             val received = mutableListOf<Int>()
             bc.drain(FlowCollector { received += it })
-            received shouldBeEqualTo emptyList()
+
+            received.shouldBeEmpty()
         }
 
     @Test
@@ -282,7 +287,7 @@ class BufferedResumableCollectorTest {
 
             val producerResult = runCatching { bc.next(1) }
 
-            producerResult.exceptionOrNull() shouldBeEqualTo null
+            producerResult.exceptionOrNull().shouldBeNull()
             val received = mutableListOf<Int>()
             val drainResult = runCatching { bc.drain(FlowCollector { received += it }) }
             received shouldBeEqualTo listOf(1)
@@ -377,7 +382,7 @@ class BufferedResumableCollectorTest {
             }
 
             nullErrorValues shouldBeEqualTo listOf(2)
-            nullErrorResult.exceptionOrNull() shouldBeEqualTo null
+            nullErrorResult.exceptionOrNull().shouldBeNull()
         }
 
     @Test
@@ -487,6 +492,7 @@ class BufferedResumableCollectorTest {
             }
 
             drainResult.exceptionOrNull() shouldBeSameInstanceAs expectedError
+
             val producerError = producerResult.await().exceptionOrNull()
                 .shouldBeInstanceOf<CancellationException>()
             producerError.cause shouldBeSameInstanceAs expectedError
