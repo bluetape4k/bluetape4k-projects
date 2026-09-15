@@ -1,10 +1,10 @@
 package io.bluetape4k.utils
 
-import io.bluetape4k.junit5.concurrency.MultithreadingTester
-import io.bluetape4k.logging.KLogging
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeNull
 import io.bluetape4k.assertions.shouldNotBeNull
+import io.bluetape4k.junit5.concurrency.MultithreadingTester
+import io.bluetape4k.logging.KLogging
 import org.junit.jupiter.api.Test
 import kotlin.concurrent.thread
 

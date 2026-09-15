@@ -6,6 +6,7 @@ import io.bluetape4k.assertions.shouldBeFalse
 import io.bluetape4k.assertions.shouldBeNull
 import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.assertions.shouldNotBeNull
+import io.bluetape4k.logging.KLogging
 import org.junit.jupiter.api.Test
 import java.math.BigDecimal
 import java.sql.Timestamp
@@ -18,6 +19,8 @@ import java.time.ZoneOffset
 import java.util.*
 
 class MapSupportTest {
+    companion object: KLogging()
+    
     @Test
     fun `boolean 값을 조회한다`() {
         val map = mapOf("active" to true, "inactive" to false, "nullable" to null)

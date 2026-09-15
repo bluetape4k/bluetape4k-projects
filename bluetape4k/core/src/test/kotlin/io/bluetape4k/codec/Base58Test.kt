@@ -1,5 +1,8 @@
 package io.bluetape4k.codec
 
+import io.bluetape4k.assertions.assertFailsWith
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldHaveSize
 import io.bluetape4k.junit5.concurrency.MultithreadingTester
 import io.bluetape4k.junit5.concurrency.StructuredTaskScopeTester
 import io.bluetape4k.junit5.coroutines.SuspendedJobTester
@@ -10,13 +13,11 @@ import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import io.bluetape4k.utils.Runtimex
 import net.datafaker.Faker
-import io.bluetape4k.assertions.shouldBeEqualTo
 import org.junit.jupiter.api.RepeatedTest
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.condition.EnabledForJreRange
 import org.junit.jupiter.api.condition.JRE
 import java.util.*
-import io.bluetape4k.assertions.assertFailsWith
 
 @RandomizedTest
 class Base58Test {
@@ -31,7 +32,7 @@ class Base58Test {
     fun `Base58 랜덤 문자열을 생성하면 고유한 문자열을 생성한다`() {
         val size = 1000
         val strs = List(size) { Base58.randomString(12) }
-        strs.distinct().size shouldBeEqualTo size
+        strs.distinct() shouldHaveSize size
     }
 
     @RepeatedTest(REPEAT_SIZE)

@@ -33,6 +33,7 @@ A foundational utility library for Kotlin backend development. It provides the c
 -
 
 **Concurrent**: Concurrency utilities. `ConcurrentReducer.close()` cancels queued tasks and rejects new tasks after closure.
+
 - **Utils**: Wildcard pattern matching, XXHasher high-speed hashing
 - **Functional**: Functional programming support
 - **Java Time DSL**: Extension functions for `java.time` (Duration/Period DSL, Temporal utilities, Quarter support)

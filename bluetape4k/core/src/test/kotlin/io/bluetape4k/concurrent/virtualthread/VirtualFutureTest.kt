@@ -89,9 +89,11 @@ class VirtualFutureTest {
 
         try {
             started.await(1, TimeUnit.SECONDS).shouldBeTrue()
+
             assertFailsWith<ExecutionException> {
                 result.await()
-            }.cause shouldBeInstanceOf TimeoutException::class
+            }.cause.shouldBeInstanceOf<TimeoutException>()
+            
             interrupted.await(1, TimeUnit.SECONDS).shouldBeTrue()
         } finally {
             release.countDown()
@@ -117,7 +119,7 @@ class VirtualFutureTest {
 
         // 1초씩 대기하는 1000 개의 작업을 Virtual Thread를 이용하면, 2초내에 모든 작업이 완료됩니다.
         StructuredTaskScopeTester()
-            .rounds(1)
+            .rounds(4)
             .add {
                 Thread.sleep(100)
                 taskCount.incrementAndGet()
@@ -130,6 +132,6 @@ class VirtualFutureTest {
             }
             .run()
 
-        taskCount.get() shouldBeEqualTo 2
+        taskCount.get() shouldBeEqualTo 2 * 4
     }
 }

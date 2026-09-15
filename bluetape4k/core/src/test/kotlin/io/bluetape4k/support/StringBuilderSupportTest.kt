@@ -1,9 +1,12 @@
 package io.bluetape4k.support
 
 import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.logging.KLogging
 import org.junit.jupiter.api.Test
 
 class StringBuilderSupportTest {
+
+    companion object: KLogging()
 
     @Test
     fun `append iterable items`() {

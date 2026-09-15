@@ -1,5 +1,8 @@
 package io.bluetape4k.codec
 
+import io.bluetape4k.assertions.shouldBeEmpty
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldContainSame
 import io.bluetape4k.junit5.concurrency.MultithreadingTester
 import io.bluetape4k.junit5.concurrency.StructuredTaskScopeTester
 import io.bluetape4k.junit5.coroutines.SuspendedJobTester
@@ -10,9 +13,6 @@ import io.bluetape4k.logging.KLogging
 import io.bluetape4k.support.toUtf8Bytes
 import io.bluetape4k.support.toUtf8String
 import io.bluetape4k.utils.Runtimex
-import io.bluetape4k.assertions.shouldBeEmpty
-import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldContainSame
 import org.junit.jupiter.api.RepeatedTest
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.condition.EnabledForJreRange
@@ -57,7 +57,7 @@ abstract class AbstractStringEncoderTest {
         val encoded = encoder.encode(bytes)
         val decoded = encoder.decode(encoded)
 
-        decoded shouldContainSame bytes
+        decoded shouldBeEqualTo bytes
     }
 
     @Test
@@ -69,7 +69,7 @@ abstract class AbstractStringEncoderTest {
             .rounds(4)
             .add {
                 val converted = encoder.decode(encoder.encode(bytes))
-                converted shouldContainSame bytes
+                converted shouldBeEqualTo bytes
             }
             .run()
     }
@@ -83,7 +83,7 @@ abstract class AbstractStringEncoderTest {
             .rounds(8 * Runtimex.availableProcessors)
             .add {
                 val converted = encoder.decode(encoder.encode(bytes))
-                converted shouldContainSame bytes
+                converted shouldBeEqualTo bytes
             }
             .run()
     }
@@ -97,7 +97,7 @@ abstract class AbstractStringEncoderTest {
             .rounds(8 * Runtimex.availableProcessors)
             .add {
                 val converted = encoder.decode(encoder.encode(bytes))
-                converted shouldContainSame bytes
+                converted shouldBeEqualTo bytes
             }
             .run()
     }

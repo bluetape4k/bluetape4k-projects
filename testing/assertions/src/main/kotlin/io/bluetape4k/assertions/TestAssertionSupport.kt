@@ -1,8 +1,6 @@
 @file:Suppress("NOTHING_TO_INLINE")
 
-package io.bluetape4k.support
-
-import io.bluetape4k.assertions.assertFailsWith
+package io.bluetape4k.assertions
 
 /** [block]이 [IllegalArgumentException]을 던지는지 확인합니다. */
 inline fun shouldFailRequire(noinline block: () -> Unit): IllegalArgumentException =
