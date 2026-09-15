@@ -2,8 +2,7 @@
 
 [English](./README.md) | [한국어](./README.ko.md)
 
-Reactor subscriber `Context`에 `TenantId`를 immutable하게 전달하는 JDK 25 adapter입니다.
-default tenant, global hook, automatic context propagation을 설치하지 않습니다.
+Reactor subscriber `Context`에 `TenantId`를 immutable하게 전달하는 JDK 25 adapter입니다. default tenant, global hook, automatic context propagation을 설치하지 않습니다.
 
 ## 의존성과 SNAPSHOT repository
 
@@ -37,15 +36,10 @@ val result = Mono.deferContextual { context ->
 ```
 
 signal마다 `Context.put`을 호출하지 않습니다. `Hooks`, automatic propagation, coroutine
-`ReactorContext` bridge는 설치하지 않습니다. cancellation 뒤 값은 subscriber lifecycle과 함께
-사라지며 외부 `Context`로 복사되지 않습니다. missing context는 공통
+`ReactorContext` bridge는 설치하지 않습니다. cancellation 뒤 값은 subscriber lifecycle과 함께 사라지며 외부 `Context`로 복사되지 않습니다. missing context는 공통
 `MissingTenantContextException`으로 실패하고 fallback은 없습니다.
 
-raw header/token은 application 인증·권한 확인 뒤 canonical enum/domain 값으로 매핑합니다.
-raw tenant 값은 log, exception, MDC, metric tag에 기록하지 않습니다. synthetic fixture만 값을
-출력할 수 있습니다. optional `tenant_context_binding_failures_total{carrier,stage}`는 enum label과
-기존 correlation/trace ID만 사용하며 5분 내 한 건도 wiring alert입니다. workshop maintainer와
-SNAPSHOT train release coordinator가 확인 owner입니다.
+raw header/token은 application 인증·권한 확인 뒤 canonical enum/domain 값으로 매핑합니다. raw tenant 값은 log, exception, MDC, metric tag에 기록하지 않습니다. synthetic fixture만 값을 출력할 수 있습니다. optional `tenant_context_binding_failures_total{carrier,stage}`는 enum label과 기존 correlation/trace ID만 사용하며 5분 내 한 건도 wiring alert입니다. workshop maintainer와 SNAPSHOT train release coordinator가 확인 owner입니다.
 
 ## 비지원 경계
 
