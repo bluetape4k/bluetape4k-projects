@@ -2,12 +2,10 @@ package io.bluetape4k.workflow.api
 
 import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldNotBeNull
+import io.bluetape4k.io.lookup
+import io.bluetape4k.io.serializer.BinarySerializers
 import org.junit.jupiter.api.Test
-import java.io.ByteArrayInputStream
-import java.io.ByteArrayOutputStream
-import java.io.ObjectInputStream
-import java.io.ObjectOutputStream
-import java.io.ObjectStreamClass
 import kotlin.time.Duration.Companion.milliseconds
 
 class RetryPolicySerializationTest {
@@ -22,22 +20,26 @@ class RetryPolicySerializationTest {
         )
 
         deserialize<RetryPolicy>(serialize(policy)) shouldBeEqualTo policy
+
         RetryPolicy::class.java.getDeclaredField("serialVersionUID").apply { isAccessible = true }
             .getLong(null) shouldBeEqualTo 1L
-        ObjectStreamClass.lookup(RetryPolicy::class.java).serialVersionUID shouldBeEqualTo 1L
+        RetryPolicy::class.lookup().serialVersionUID shouldBeEqualTo 1L
     }
 
     @Test
     fun `maxAttempts와 backoffMultiplier는 공용 경계 검증을 사용한다`() {
-        assertFailsWith<IllegalArgumentException> { RetryPolicy(maxAttempts = 0) }
-        assertFailsWith<IllegalArgumentException> { RetryPolicy(backoffMultiplier = 0.5) }
+        assertFailsWith<IllegalArgumentException> {
+            RetryPolicy(maxAttempts = 0)
+        }
+
+        assertFailsWith<IllegalArgumentException> {
+            RetryPolicy(backoffMultiplier = 0.5)
+        }
     }
 
-    private fun serialize(value: Any): ByteArray = ByteArrayOutputStream().use { bytes ->
-        ObjectOutputStream(bytes).use { it.writeObject(value) }
-        bytes.toByteArray()
-    }
+    private fun serialize(value: Any): ByteArray =
+        BinarySerializers.FastFory.serialize(value)
 
-    private inline fun <reified T> deserialize(bytes: ByteArray): T =
-        ObjectInputStream(ByteArrayInputStream(bytes)).use { it.readObject() as T }
+    private inline fun <reified T: Any> deserialize(bytes: ByteArray): T =
+        BinarySerializers.FastFory.deserialize<T>(bytes).shouldNotBeNull()
 }

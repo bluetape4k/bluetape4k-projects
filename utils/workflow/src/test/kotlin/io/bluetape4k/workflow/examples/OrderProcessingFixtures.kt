@@ -11,7 +11,7 @@ import kotlin.time.Duration.Companion.milliseconds
 // ──────────────────────────────────────────────────────────────────────────
 
 internal fun fixSyncValidateOrder(): Work = Work("order-validate") { ctx ->
-    val amount = ctx.get<Long>("order.amount") ?: 0L
+    val amount = ctx["order.amount"] ?: 0L
     val userId = ctx.get<String>("order.userId")
     if (amount <= 0L || userId.isNullOrBlank()) {
         return@Work WorkReport.aborted(ctx, "주문 정보가 유효하지 않습니다 (userId=$userId, amount=$amount)")
@@ -81,7 +81,7 @@ internal fun fixSyncCancelOrder(): Work = Work("order-cancel") { ctx ->
 // ──────────────────────────────────────────────────────────────────────────
 
 internal fun fixSuspendValidateOrder(): SuspendWork = SuspendWork("order-validate") { ctx ->
-    val amount = ctx.get<Long>("order.amount") ?: 0L
+    val amount = ctx["order.amount"] ?: 0L
     val userId = ctx.get<String>("order.userId")
     if (amount <= 0L || userId.isNullOrBlank()) {
         return@SuspendWork WorkReport.aborted(ctx, "주문 정보가 유효하지 않습니다 (userId=$userId, amount=$amount)")
