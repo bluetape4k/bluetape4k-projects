@@ -785,7 +785,7 @@ import kotlin.coroutines.coroutineContext
         val failedReports = mutableListOf<WorkReport>()
 
         for (work in works) {
-            coroutineContext.ensureActive()
+            currentCoroutineContext().issureActive()
             val workName = (work as? NamedSuspendWork)?.name ?: work::class.simpleName ?: "anonymous"
             log.debug { "Executing suspend work: $workName" }
             lastReport = work.execute(context)
@@ -940,7 +940,7 @@ import kotlin.time.Duration
         log.debug { "Suspend repeat iteration 1 completed with status: ${report.status}" }
 
         while (repeatPredicate(report) && iteration < maxIterations) {
-            coroutineContext.ensureActive()
+            currentCoroutineContext().issureActive()
             if (repeatDelay > Duration.ZERO) delay(repeatDelay)
             report = work.execute(context)
             iteration++
