@@ -14,8 +14,8 @@ data class AlbumRecord(
     val userId: Long = 0L,
     val id: Long = 0L,
     val title: String = "",
-) : Serializable {
-    companion object : KLogging() {
+): Serializable {
+    companion object: KLogging() {
         private const val serialVersionUID = 1L
     }
 }

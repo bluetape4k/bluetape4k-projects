@@ -26,7 +26,7 @@ import org.springframework.web.bind.annotation.RestController
 @RestController
 @RequestMapping("/jsonplaceholder/photos")
 class PhotosController(private val service: JsonplaceholderService) {
-    companion object : KLogging()
+    companion object: KLogging()
 
     /**
      * 사진 목록을 반환한다. `albumId`가 지정되면 해당 앨범의 사진만 반환한다.

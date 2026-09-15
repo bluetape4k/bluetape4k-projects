@@ -13,7 +13,7 @@ import org.springframework.stereotype.Service
  */
 @Service
 class WebContentLoader {
-    companion object : KLogging() {
+    companion object: KLogging() {
         /** 허용된 HTML 페이지 이름 목록. 이 목록에 없는 이름은 로드를 거부한다 (Path Traversal 방지). */
         internal val ALLOWED_NAMES = setOf("home", "naver", "google", "login", "article")
     }

@@ -1,11 +1,11 @@
 package io.bluetape4k.mockserver.jsonplaceholder
 
-import io.bluetape4k.logging.KLogging
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeFalse
 import io.bluetape4k.assertions.shouldBeNull
 import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.assertions.shouldNotBeNull
+import io.bluetape4k.logging.KLogging
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 
@@ -16,7 +16,7 @@ import org.junit.jupiter.api.Test
  */
 class InMemoryRepositoryTest {
 
-    companion object : KLogging()
+    companion object: KLogging()
 
     data class Item(val id: Long = 0L, val name: String = "")
 

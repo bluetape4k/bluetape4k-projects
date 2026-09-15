@@ -11,8 +11,9 @@ class HttpsKeyStoreLoadingContractTest {
 
     @Test
     fun `키 저장소 입력 스트림은 로드 후 닫힌다`() {
-        val bytes = requireNotNull(HttpsKeyStoreLoadingContractTest::class.java.getResourceAsStream("/certs/localhost.p12"))
-            .use { it.readBytes() }
+        val bytes =
+            requireNotNull(HttpsKeyStoreLoadingContractTest::class.java.getResourceAsStream("/certs/localhost.p12"))
+                .use { it.readBytes() }
         val input = TrackingInputStream(bytes)
 
         loadHttpsKeyStore(input, "changeit")

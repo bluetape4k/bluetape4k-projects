@@ -24,7 +24,7 @@ class HttpbinStreamController(
     private val jsonMapper: JsonMapper,
     private val imageLoaderService: ImageLoaderService,
 ) {
-    companion object : KLogging() {
+    companion object: KLogging() {
         private val ALLOWED_IMAGE_FORMATS = setOf("png", "jpeg", "webp", "svg")
     }
 

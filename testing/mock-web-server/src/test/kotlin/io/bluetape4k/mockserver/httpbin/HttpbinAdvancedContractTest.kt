@@ -1,12 +1,12 @@
 package io.bluetape4k.mockserver.httpbin
 
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.assertions.shouldNotBeNull
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.info
 import io.bluetape4k.mockserver.MockServerApplication
 import jakarta.servlet.http.Cookie
-import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldBeTrue
-import io.bluetape4k.assertions.shouldNotBeNull
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -27,7 +27,7 @@ import java.util.*
 @SpringBootTest(classes = [MockServerApplication::class])
 class HttpbinAdvancedContractTest {
 
-    companion object : KLogging()
+    companion object: KLogging()
 
     @Autowired
     private lateinit var ctx: WebApplicationContext
@@ -306,7 +306,7 @@ class HttpbinAdvancedContractTest {
 
     /** E19: /httpbin/delay/{sec} → 요청 시간만큼 대기 후 200 */
     @Test
-    fun `delay_endpoint_waits_requested_seconds`() {
+    fun `delay endpoint waits requested seconds`() {
         val start = System.currentTimeMillis()
         mockMvc.perform(get("/httpbin/delay/1"))
             .andExpect(status().isOk)
@@ -316,7 +316,7 @@ class HttpbinAdvancedContractTest {
 
     /** E20: /httpbin/redirect/{n} → 302 리다이렉트 체인 */
     @Test
-    fun `redirect_endpoint_returns_302_chain`() {
+    fun `redirect endpoint returns 302 chain`() {
         mockMvc.perform(get("/httpbin/redirect/3"))
             .andExpect(status().isFound)
             .andExpect(header().string("Location", "/httpbin/redirect/2"))
@@ -324,7 +324,7 @@ class HttpbinAdvancedContractTest {
 
     /** E21: /httpbin/cookies → 요청 쿠키 리스트 반환 */
     @Test
-    fun `cookies_endpoint_lists_cookies`() {
+    fun `cookies endpoint lists cookies`() {
         mockMvc.perform(
             get("/httpbin/cookies")
                 .cookie(Cookie("session", "abc"))
@@ -335,7 +335,7 @@ class HttpbinAdvancedContractTest {
 
     /** E22: /httpbin/cookies/set → 쿠키 저장 후 /httpbin/cookies로 리다이렉트 */
     @Test
-    fun `cookies_set_stores_cookie`() {
+    fun `cookies set stores cookie`() {
         mockMvc.perform(get("/httpbin/cookies/set").param("token", "xyz"))
             .andExpect(status().isFound)
             .andExpect(header().string("Location", "/httpbin/cookies"))
@@ -343,7 +343,7 @@ class HttpbinAdvancedContractTest {
 
     /** E23: /httpbin/cookies/delete → 쿠키 제거 후 /httpbin/cookies로 리다이렉트 */
     @Test
-    fun `cookies_delete_removes_cookie`() {
+    fun `cookies delete removes cookie`() {
         mockMvc.perform(get("/httpbin/cookies/delete").param("token", ""))
             .andExpect(status().isFound)
             .andExpect(header().string("Location", "/httpbin/cookies"))
@@ -351,21 +351,21 @@ class HttpbinAdvancedContractTest {
 
     /** E24: /httpbin/basic-auth/{u}/{p} → Authorization 미제공 시 401 */
     @Test
-    fun `basic_auth_returns_401_on_missing_credentials`() {
+    fun `basic auth returns 401 on missing credentials`() {
         mockMvc.perform(get("/httpbin/basic-auth/user/pass"))
             .andExpect(status().isUnauthorized)
     }
 
     /** E25: /httpbin/bearer → Bearer 토큰 미제공 시 401 */
     @Test
-    fun `bearer_returns_401_without_bearer`() {
+    fun `bearer returns 401 without bearer`() {
         mockMvc.perform(get("/httpbin/bearer"))
             .andExpect(status().isUnauthorized)
     }
 
     /** E26: /httpbin/cache → If-Modified-Since 헤더 있으면 304 */
     @Test
-    fun `cache_returns_304_when_if_modified_since_set`() {
+    fun `cache returns 304 when if modified since set`() {
         mockMvc.perform(
             get("/httpbin/cache")
                 .header("If-Modified-Since", "Wed, 01 Jan 2025 00:00:00 GMT")
@@ -375,7 +375,7 @@ class HttpbinAdvancedContractTest {
 
     /** E27: /httpbin/cache/{seconds} → Cache-Control max-age 설정 */
     @Test
-    fun `cache_value_sets_cache_control_max_age`() {
+    fun `cache value sets cache control max age`() {
         mockMvc.perform(get("/httpbin/cache/600"))
             .andExpect(status().isOk)
             .andExpect(header().string("Cache-Control", "public, max-age=600"))
@@ -383,7 +383,7 @@ class HttpbinAdvancedContractTest {
 
     /** E28: /httpbin/etag/{etag} → If-None-Match 일치 시 304 */
     @Test
-    fun `etag_returns_304_on_if_none_match`() {
+    fun `etag returns 304 on if none match`() {
         mockMvc.perform(
             get("/httpbin/etag/contract-etag")
                 .header("If-None-Match", "\"contract-etag\"")

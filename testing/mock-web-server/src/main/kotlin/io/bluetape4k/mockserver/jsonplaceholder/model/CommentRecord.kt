@@ -18,8 +18,8 @@ data class CommentRecord(
     val name: String = "",
     val email: String = "",
     val body: String = "",
-) : Serializable {
-    companion object : KLogging() {
+): Serializable {
+    companion object: KLogging() {
         private const val serialVersionUID = 1L
     }
 }
