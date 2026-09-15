@@ -8,11 +8,11 @@ import io.bluetape4k.assertions.shouldBeNull
 import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.assertions.shouldNotBeBlank
 import io.bluetape4k.assertions.shouldNotBeNull
+import io.bluetape4k.concurrent.virtualthread.api.StructuredSubtask
 import io.bluetape4k.logging.coroutines.KLoggingChannel
-import io.bluetape4k.logging.debug
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.condition.EnabledOnJre
 import org.junit.jupiter.api.condition.JRE
-import org.junit.jupiter.api.condition.EnabledForJreRange
 import java.time.Instant
 import java.util.concurrent.Executors
 import java.util.concurrent.StructuredTaskScope
@@ -26,7 +26,7 @@ import java.util.concurrent.TimeUnit
  * - withAll name 파라미터 검증
  * - withAny all-failure 검증
  */
-@EnabledForJreRange(min = JRE.JAVA_21)
+@EnabledOnJre(JRE.JAVA_21)
 class Jdk21StructuredTaskScopeProviderExtTest {
 
     companion object: KLoggingChannel()
@@ -42,7 +42,7 @@ class Jdk21StructuredTaskScopeProviderExtTest {
     @Test
     fun `priority 가 21 이어야 한다`() {
         provider.priority shouldBeEqualTo Jdk21StructuredTaskScopeProvider.PRIORITY
-        provider.priority shouldBeEqualTo 21
+        provider.priority shouldBeEqualTo Jdk21StructuredTaskScopeProvider.JAVA_VERSION
     }
 
     @Test
@@ -117,7 +117,7 @@ class Jdk21StructuredTaskScopeProviderExtTest {
 
     @Test
     fun `subtask 성공 상태와 값을 확인해야 한다`() {
-        var capturedSubtask: io.bluetape4k.concurrent.virtualthread.api.StructuredSubtask<Int>? = null
+        var capturedSubtask: StructuredSubtask<Int>? = null
         provider.withAll { scope ->
             capturedSubtask = scope.fork { 77 }
             scope.join().throwIfFailed()
@@ -131,7 +131,7 @@ class Jdk21StructuredTaskScopeProviderExtTest {
 
     @Test
     fun `subtask 실패 상태에서 exceptionOrNull 이 예외를 반환해야 한다`() {
-        var capturedSubtask: io.bluetape4k.concurrent.virtualthread.api.StructuredSubtask<Int>? = null
+        var capturedSubtask: StructuredSubtask<Int>? = null
         assertFailsWith<RuntimeException> {
             provider.withAll { scope ->
                 capturedSubtask = scope.fork<Int> { throw RuntimeException("fail") }
@@ -185,7 +185,7 @@ class Jdk21StructuredTaskScopeProviderExtTest {
 
     @Test
     fun `withAny subtask 성공 상태를 확인해야 한다`() {
-        var capturedSubtask: io.bluetape4k.concurrent.virtualthread.api.StructuredSubtask<String>? = null
+        var capturedSubtask: StructuredSubtask<String>? = null
         provider.withAny<String> { scope ->
             capturedSubtask = scope.fork { "winner" }
             scope.join().result { IllegalStateException(it) }

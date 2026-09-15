@@ -1,20 +1,20 @@
 package io.bluetape4k.concurrent.virtualthread.jdk21
 
-import io.bluetape4k.concurrent.virtualthread.api.StructuredTaskScopeAllContractTest
 import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeInstanceOf
 import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.concurrent.virtualthread.api.StructuredTaskScopeAllContractTest
 import io.bluetape4k.concurrent.virtualthread.api.VirtualThreads
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.condition.EnabledForJreRange
+import org.junit.jupiter.api.condition.EnabledOnJre
 import org.junit.jupiter.api.condition.JRE
 import java.time.Instant
 import java.util.concurrent.TimeoutException
 
-@EnabledForJreRange(min = JRE.JAVA_21)
+@EnabledOnJre(JRE.JAVA_21)
 class Jdk21StructuredTaskScopeProviderTest: StructuredTaskScopeAllContractTest() {
 
     companion object: KLoggingChannel()
@@ -57,7 +57,7 @@ class Jdk21StructuredTaskScopeProviderTest: StructuredTaskScopeAllContractTest()
 
     @Test
     fun `withSupervised 일부 성공 일부 실패 시 결과를 분리해야 한다`() {
-        val (successes, failures) = provider.withSupervised<Int, Pair<List<Int>, List<Throwable>>> { scope ->
+        val (successes, failures) = provider.withSupervised { scope ->
             scope.fork { 1 }
             scope.fork { throw RuntimeException("fail") }
             scope.fork { 3 }
@@ -71,7 +71,7 @@ class Jdk21StructuredTaskScopeProviderTest: StructuredTaskScopeAllContractTest()
 
     @Test
     fun `withSupervised 모두 성공 시 successfulResults 에 전부 포함되어야 한다`() {
-        val (successes, failures) = provider.withSupervised<Int, Pair<List<Int>, List<Throwable>>> { scope ->
+        val (successes, failures) = provider.withSupervised { scope ->
             scope.fork { 10 }
             scope.fork { 20 }
             scope.join()
@@ -93,7 +93,7 @@ class Jdk21StructuredTaskScopeProviderTest: StructuredTaskScopeAllContractTest()
 
     @Test
     fun `withSupervised results 일부 성공 일부 실패 시 Result 리스트를 반환해야 한다`() {
-        val allResults = provider.withSupervised<Int, List<Result<Int>>> { scope ->
+        val allResults = provider.withSupervised { scope ->
             scope.fork { 1 }
             scope.fork { throw RuntimeException("fail") }
             scope.fork { 3 }
@@ -107,7 +107,7 @@ class Jdk21StructuredTaskScopeProviderTest: StructuredTaskScopeAllContractTest()
 
     @Test
     fun `withSupervised results nullable T null 성공도 Result success 로 포함되어야 한다`() {
-        val allResults = provider.withSupervised<Int?, List<Result<Int?>>> { scope ->
+        val allResults = provider.withSupervised { scope ->
             scope.fork { 1 }
             scope.fork { null }
             scope.fork { 3 }

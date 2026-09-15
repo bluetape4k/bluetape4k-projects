@@ -219,6 +219,7 @@ class Jdk25StructuredTaskScopeProvider: StructuredTaskScopeProvider {
         private val delegate: StructuredTaskScope<Any?, Void>,
     ): StructuredTaskScopeAll {
         private val subtasks = CopyOnWriteArrayList<Jdk25Subtask<*>>()
+
         // awaitAllSuccessfulOrThrow()는 subtask 실패 시 join()에서 예외를 직접 던진다.
         // 기존 API 패턴(join().throwIfFailed()) 유지를 위해 예외를 저장했다가 throwIfFailed에서 재발생
         private var joinException: Throwable? = null
@@ -354,7 +355,7 @@ class Jdk25StructuredTaskScopeProvider: StructuredTaskScopeProvider {
 
     private class Jdk25SupervisedScope<T>(
         private val delegate: StructuredTaskScope<T, Void>,
-    ) : StructuredTaskScopeSupervised<T> {
+    ): StructuredTaskScopeSupervised<T> {
         private val subtasks = CopyOnWriteArrayList<Jdk25Subtask<T>>()
 
         override fun fork(task: () -> T): StructuredSubtask<T> {
