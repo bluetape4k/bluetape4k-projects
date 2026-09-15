@@ -1,6 +1,7 @@
 package io.bluetape4k.states.core
 
 import io.bluetape4k.assertions.assertFailsWith
+import io.bluetape4k.assertions.shouldBeEmpty
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeFalse
 import io.bluetape4k.assertions.shouldBeTrue
@@ -101,6 +102,6 @@ class NestedStateMachineDslTest {
 
         machine.isInFinalState().shouldBeTrue()
         machine.canTransition(Event.Cancel).shouldBeFalse()
-        machine.allowedEvents() shouldBeEqualTo emptySet()
+        machine.allowedEvents().shouldBeEmpty()
     }
 }

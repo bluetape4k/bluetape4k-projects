@@ -2,9 +2,7 @@
 
 English | [한국어](./README.ko.md)
 
-A Kotlin DSL-based finite state machine (FSM) library for JVM backend and library code. It supports synchronous,
-coroutine-based, and optional reactive event/effect state machines, along with guard conditions, nested state-family
-transitions, and `StateFlow`-based state observation.
+A Kotlin DSL-based finite state machine (FSM) library for JVM backend and library code. It supports synchronous, coroutine-based, and optional reactive event/effect state machines, along with guard conditions, nested state-family transitions, and `StateFlow`-based state observation.
 
 ## Architecture
 
@@ -23,8 +21,8 @@ Each transition can have an optional **guard condition** that must pass before t
 ![States Class Structure diagram](../../docs/images/readme-diagrams/utils-states-diagram-02.png)
 
 > `StateMachine` and `SuspendStateMachineInterface` are independent from each other. To avoid a signature clash between
-`suspend fun transition()` and `fun transition()`, only read-only properties are shared through the common
-`BaseStateMachine`.
+> `suspend fun transition()` and `fun transition()`, only read-only properties are shared through the common
+> `BaseStateMachine`.
 
 ### DSL Builder Structure
 
@@ -35,21 +33,20 @@ Each transition can have an optional **guard condition** that must pass before t
 - **Type-safe DSL**: concise FSM definitions with `stateMachine {}` and `suspendStateMachine {}`
 - **Synchronous FSM**: thread-safe state transitions based on `AtomicReference` CAS
 - **Coroutine FSM**: suspend transitions and state observation based on `Mutex` + `StateFlow`
-- **Reactive runtime**: optional event queue, one-time effects, and lifecycle side effects through `reactiveStateMachine {}`
+- **Reactive
+  runtime**: optional event queue, one-time effects, and lifecycle side effects through `reactiveStateMachine {}`
 - **Nested state-family transitions**: register shared transitions for sealed state families with `state<ParentState>()`
 - **Guard conditions**: validate conditions before transitions
-- **Final state consistency**: once a final state is reached, `canTransition()` returns `false` and `allowedEvents()` returns an empty set
+- **Final state
+  consistency**: once a final state is reached, `canTransition()` returns `false` and `allowedEvents()` returns an empty set
 - **clinic-appointment pattern**: adopts a map-based transition model plus suspend callback pattern
 
 ## Module Positioning
 
-Use `bluetape4k-states` when you need a small Kotlin/JVM FSM for backend workflows, domain services, or libraries where
-explicit `TransitionResult` values, guards, final-state checks, and deterministic tests matter.
+Use `bluetape4k-states` when you need a small Kotlin/JVM FSM for backend workflows, domain services, or libraries where explicit `TransitionResult` values, guards, final-state checks, and deterministic tests matter.
 
-Use a UI/presentation-layer state machine when the primary concern is ViewModel or Compose state, multiplatform UI
-targets, and UI lifecycle integration. The [`joost-klitsie/StateMachine`](https://github.com/joost-klitsie/StateMachine)
-project is a useful design reference for event/effect and nested-state ideas, but it is not a dependency of this module.
-The comparison work is tracked through #436, #437, and #438.
+Use a UI/presentation-layer state machine when the primary concern is ViewModel or Compose state, multiplatform UI targets, and UI lifecycle integration. The [`joost-klitsie/StateMachine`](https://github.com/joost-klitsie/StateMachine)
+project is a useful design reference for event/effect and nested-state ideas, but it is not a dependency of this module. The comparison work is tracked through #436, #437, and #438.
 
 ## Example State Diagrams
 
@@ -157,8 +154,7 @@ val fsm = stateMachine<OrderState, OrderEvent> {
 
 ### Reactive Event/Effect Runtime
 
-Use `reactiveStateMachine {}` when callers need queued events, one-time effects, and lifecycle-managed state side
-effects. The core sync/suspend FSM APIs remain smaller and more explicit.
+Use `reactiveStateMachine {}` when callers need queued events, one-time effects, and lifecycle-managed state side effects. The core sync/suspend FSM APIs remain smaller and more explicit.
 
 ```kotlin
 val machine = reactiveStateMachine<OrderState, OrderEvent, OrderEffect>(scope) {

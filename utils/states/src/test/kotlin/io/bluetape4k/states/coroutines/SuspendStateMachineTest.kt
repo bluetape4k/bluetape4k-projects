@@ -24,7 +24,7 @@ class SuspendStateMachineTest {
     }
 
     sealed class E {
-        data object Start: E();
+        data object Start: E()
         data object Finish: E()
     }
 
