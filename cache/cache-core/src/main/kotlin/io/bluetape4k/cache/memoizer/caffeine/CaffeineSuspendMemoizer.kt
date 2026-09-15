@@ -66,7 +66,7 @@ class CaffeineSuspendMemoizer<T: Any, R: Any>(
     // per-key Deferred 맵: 같은 키에 대해 첫 번째 호출이 Deferred를 생성하고 이후 호출들이 await한다.
     // Kotlin Mutex는 재진입을 지원하지 않아 재귀 evaluator에서 데드락이 발생하므로 이 방식을 택한다.
     private val inflightMap = ConcurrentHashMap<T, Deferred<R>>()
-    private val clearMutex = Mutex()
+    private val mutex = Mutex()
     private var generation = 0L
 
     override suspend fun invoke(input: T): R {
@@ -79,19 +79,17 @@ class CaffeineSuspendMemoizer<T: Any, R: Any>(
         return coroutineScope {
             var createdByThisCall = false
             var capturedGeneration = 0L
-            val deferred = clearMutex.withLock {
+            val deferred = run {
                 capturedGeneration = generation
                 inflightMap.computeIfAbsent(input) {
                     createdByThisCall = true
                     async(start = CoroutineStart.LAZY) { evaluator(input) }
                 }
             }
-            deferred.start()
+
             try {
                 val result = deferred.await()
-                clearMutex.withLock {
-                    if (capturedGeneration == generation) cache.put(input, result)
-                }
+                if (capturedGeneration == generation) cache.put(input, result)
                 result
             } finally {
                 // 실패/취소된 Deferred를 제거해야 같은 키의 다음 호출이 새 계산으로 복구할 수 있다.
@@ -103,7 +101,7 @@ class CaffeineSuspendMemoizer<T: Any, R: Any>(
     }
 
     override suspend fun clear() {
-        clearMutex.withLock {
+        mutex.withLock {
             generation++
             inflightMap.clear()
             // cleanUp()은 만료된 항목만 제거하므로, 전체 초기화에는 invalidateAll()을 사용해야 한다.

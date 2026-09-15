@@ -72,12 +72,7 @@ class EhCacheMemoizer<T: Any, R: Any>(
     private val lock = ReentrantLock()
 
     override fun invoke(key: T): R =
-        cache.get(key)
-            ?: run {
-                val result = evaluator(key)
-                cache.put(key, result)
-                result
-            }
+        cache.get(key) ?: evaluator(key).apply { cache.put(key, this) }
 
     override fun clear() {
         lock.withLock {

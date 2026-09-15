@@ -3,6 +3,7 @@ package io.bluetape4k.cache.memoizer
 import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeFalse
+import io.bluetape4k.concurrent.completableFutureOf
 import io.bluetape4k.junit5.coroutines.runSuspendDefault
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.async
@@ -69,7 +70,7 @@ class SingleFlightTest {
         val failed = singleFlight.runAsync("same") {
             evalCount.incrementAndGet()
             @Suppress("UNCHECKED_CAST")
-            CompletableFuture.completedFuture(null) as CompletableFuture<Int>
+            completableFutureOf(null) as CompletableFuture<Int>
         }
 
         assertFailsWith<ExecutionException> {
@@ -78,7 +79,7 @@ class SingleFlightTest {
 
         singleFlight.runAsync("same") {
             evalCount.incrementAndGet()
-            CompletableFuture.completedFuture(7)
+            completableFutureOf(7)
         }.get(2, TimeUnit.SECONDS) shouldBeEqualTo 7
 
         evalCount.get() shouldBeEqualTo 2

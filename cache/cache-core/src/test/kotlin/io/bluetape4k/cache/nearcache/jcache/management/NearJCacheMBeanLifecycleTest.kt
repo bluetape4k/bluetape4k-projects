@@ -1,12 +1,16 @@
 package io.bluetape4k.cache.nearcache.jcache.management
 
 import io.bluetape4k.assertions.assertFailsWith
+import io.bluetape4k.assertions.shouldBe
+import io.bluetape4k.assertions.shouldBeEmpty
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeFalse
+import io.bluetape4k.assertions.shouldBeInstanceOf
 import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.cache.jcache.JCache
 import io.bluetape4k.cache.nearcache.jcache.NearJCache
 import io.bluetape4k.cache.nearcache.jcache.NearJCacheConfig
+import io.bluetape4k.logging.KLogging
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
@@ -31,6 +35,8 @@ import javax.management.MBeanServerFactory
 import javax.management.ObjectName
 
 class NearJCacheMBeanLifecycleTest {
+
+    companion object: KLogging()
 
     @Test
     fun `cache close는 등록한 MBean과 front만 정리한다`() {
@@ -61,7 +67,7 @@ class NearJCacheMBeanLifecycleTest {
             fixture.cache.registerMBeans(server, "manager", "cache")
         }
 
-        server.queryNames(ObjectName("io.bluetape4k.cache:*"), null).isEmpty().shouldBeTrue()
+        server.queryNames(ObjectName("io.bluetape4k.cache:*"), null).shouldBeEmpty()
     }
 
     @Test
@@ -86,7 +92,9 @@ class NearJCacheMBeanLifecycleTest {
             it.getKeyProperty("type") == "NearJCacheConfiguration"
         }
 
-        assertFailsWith<NearJCacheMBeanRegistrationException> { fixture.cache.close() }
+        assertFailsWith<NearJCacheMBeanRegistrationException> {
+            fixture.cache.close()
+        }
         registration.state shouldBeEqualTo NearJCacheMBeanRegistrationState.RECOVERY_REQUIRED
         registration.activeObjectNames shouldBeEqualTo setOf(statisticsName)
 
@@ -113,13 +121,17 @@ class NearJCacheMBeanLifecycleTest {
         every { fixture.back.registerCacheEntryListener(any()) } returns Unit
         every { fixture.back.deregisterCacheEntryListener(any()) } throws listenerFailure
         every { fixture.front.close() } throws frontFailure
+
         fixture.cache.registerBackCacheListener()
         fixture.cache.registerMBeans(server, "manager", "cache")
 
-        val failure = assertFailsWith<NearJCacheMBeanRegistrationException> { fixture.cache.close() }
+        val failure = assertFailsWith<NearJCacheMBeanRegistrationException> {
+            fixture.cache.close()
+        }
 
         failure.cause shouldBeEqualTo jmxFailure
         failure.suppressed.toList() shouldBeEqualTo listOf(listenerFailure, frontFailure)
+
         verify(exactly = 1) { fixture.back.deregisterCacheEntryListener(any()) }
         verify(exactly = 1) { fixture.front.close() }
     }
@@ -138,6 +150,7 @@ class NearJCacheMBeanLifecycleTest {
         }
         val fixture = fixture(management = true, statistics = false)
         val executor = Executors.newFixedThreadPool(2)
+
         try {
             withBlockingTimeout(Duration.ofSeconds(5)) {
                 val registrationFuture = executor.submit<NearJCacheMBeanRegistration> {
@@ -152,7 +165,7 @@ class NearJCacheMBeanLifecycleTest {
                 val registration = registrationFuture.get(2, TimeUnit.SECONDS)
                 closeFuture.get(2, TimeUnit.SECONDS)
                 registration.state shouldBeEqualTo NearJCacheMBeanRegistrationState.CLOSED
-                registration.activeObjectNames.isEmpty().shouldBeTrue()
+                registration.activeObjectNames.shouldBeEmpty()
             }
         } finally {
             releaseRegister.countDown()
@@ -178,6 +191,7 @@ class NearJCacheMBeanLifecycleTest {
         val registration = fixture.cache.registerMBeans(server, "manager", "cache")
         val frontClosed = CountDownLatch(1)
         every { fixture.front.close() } answers { frontClosed.countDown() }
+
         val executor = Executors.newFixedThreadPool(2)
         try {
             withBlockingTimeout(Duration.ofSeconds(5)) {
@@ -219,6 +233,7 @@ class NearJCacheMBeanLifecycleTest {
         }
         val fixture = fixture(management = true, statistics = false)
         val registration = fixture.cache.registerMBeans(server, "manager", "cache")
+
         val executor = Executors.newFixedThreadPool(2)
         try {
             withBlockingTimeout(Duration.ofSeconds(5)) {
@@ -239,7 +254,7 @@ class NearJCacheMBeanLifecycleTest {
                     second.get(2, TimeUnit.SECONDS)
                 }.cause
 
-                (firstFailure === secondFailure).shouldBeTrue()
+                firstFailure shouldBe secondFailure
                 unregisterCalls.get() shouldBeEqualTo 1
                 registration.state shouldBeEqualTo NearJCacheMBeanRegistrationState.RECOVERY_REQUIRED
             }
@@ -266,7 +281,7 @@ class NearJCacheMBeanLifecycleTest {
 
         val registration = fixture.cache.registerMBeans(server, "manager", "cache")
 
-        (callbackFailure.get() is IllegalStateException).shouldBeTrue()
+        callbackFailure.get().shouldBeInstanceOf<IllegalStateException>()
         fixture.front.isClosed.shouldBeFalse()
         registration.close()
     }
@@ -278,6 +293,7 @@ class NearJCacheMBeanLifecycleTest {
         val delegate = MBeanServerFactory.newMBeanServer()
         lateinit var fixture: Fixture
         lateinit var server: MBeanServer
+
         server = proxyServer(delegate) { methodName, arguments, invokeDelegate ->
             if (methodName == "registerMBean" && callbackOnce.compareAndSet(true, false)) {
                 callbackFailure.set(
@@ -292,7 +308,7 @@ class NearJCacheMBeanLifecycleTest {
 
         val registration = fixture.cache.registerMBeans(server, "manager", "cache")
 
-        (callbackFailure.get() is IllegalStateException).shouldBeTrue()
+        callbackFailure.get().shouldBeInstanceOf<IllegalStateException>()
         registration.state shouldBeEqualTo NearJCacheMBeanRegistrationState.REGISTERED
         registration.close()
     }
@@ -310,7 +326,9 @@ class NearJCacheMBeanLifecycleTest {
                 methodName == "unregisterMBean" && failRollbackOnce.compareAndSet(true, false) ->
                     throw IllegalArgumentException("rollback failed")
 
-                else -> invokeDelegate(arguments)
+                else -> invokeDelegate(
+                    arguments
+                )
             }
         }
         val fixture = fixture(management = true, statistics = true)
@@ -322,7 +340,8 @@ class NearJCacheMBeanLifecycleTest {
         fixture.cache.close()
 
         recovery.state shouldBeEqualTo NearJCacheMBeanRegistrationState.CLOSED
-        recovery.activeObjectNames.isEmpty().shouldBeTrue()
+        recovery.activeObjectNames.shouldBeEmpty()
+        
         verify(exactly = 1) { fixture.front.close() }
     }
 

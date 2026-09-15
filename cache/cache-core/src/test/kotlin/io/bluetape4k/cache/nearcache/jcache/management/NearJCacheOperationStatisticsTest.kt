@@ -1,7 +1,11 @@
 package io.bluetape4k.cache.nearcache.jcache.management
 
 import io.bluetape4k.assertions.assertFailsWith
+import io.bluetape4k.assertions.shouldBeEmpty
 import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeFalse
+import io.bluetape4k.assertions.shouldBeGreaterThan
+import io.bluetape4k.assertions.shouldBeNull
 import io.bluetape4k.assertions.shouldBeSameInstanceAs
 import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.cache.jcache.JCache
@@ -9,6 +13,7 @@ import io.bluetape4k.cache.nearcache.jcache.BackCacheWriteCompletion
 import io.bluetape4k.cache.nearcache.jcache.NearJCache
 import io.bluetape4k.cache.nearcache.jcache.NearJCacheClearAuthority
 import io.bluetape4k.cache.nearcache.jcache.NearJCacheConfig
+import io.bluetape4k.logging.KLogging
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
@@ -23,6 +28,8 @@ import javax.cache.configuration.Configuration
 import javax.cache.configuration.MutableConfiguration
 
 class NearJCacheOperationStatisticsTest {
+
+    companion object: KLogging()
 
     @Test
     fun `front hit는 logical hit 하나와 front hit 하나를 기록한다`() {
@@ -97,7 +104,7 @@ class NearJCacheOperationStatisticsTest {
         val time = CountingTimeSource()
         val fixture = statisticsEnabledFixture(time)
 
-        fixture.cache.getAll(emptySet()) shouldBeEqualTo emptyMap()
+        fixture.cache.getAll(emptySet()).shouldBeEmpty()
 
         fixture.statistics.cacheGets shouldBeEqualTo 0L
         fixture.cache.statisticsRecorder.current().totalGetTimeNanos shouldBeEqualTo 0L
@@ -142,6 +149,7 @@ class NearJCacheOperationStatisticsTest {
 
         thrown shouldBeSameInstanceAs failure
         verify(exactly = 0) { fixture.front.putAll(any()) }
+
         fixture.statistics.cacheGets shouldBeEqualTo 0L
         fixture.statistics.cacheHits shouldBeEqualTo 0L
         fixture.statistics.cacheMisses shouldBeEqualTo 0L
@@ -155,6 +163,7 @@ class NearJCacheOperationStatisticsTest {
     fun `getAll back CancellationException은 identity를 보존하고 front와 통계를 변경하지 않는다`() {
         val fixture = statisticsEnabledFixture()
         val keys = setOf("back", "missing")
+
         val failure = CancellationException("caller cancelled")
         every { fixture.front.getAll(keys) } returns emptyMap()
         every { fixture.back.getAll(keys) } throws failure
@@ -163,6 +172,7 @@ class NearJCacheOperationStatisticsTest {
 
         thrown shouldBeSameInstanceAs failure
         verify(exactly = 0) { fixture.front.putAll(any()) }
+
         fixture.statistics.cacheGets shouldBeEqualTo 0L
         fixture.statistics.cacheHits shouldBeEqualTo 0L
         fixture.statistics.cacheMisses shouldBeEqualTo 0L
@@ -199,7 +209,7 @@ class NearJCacheOperationStatisticsTest {
         every { fixture.back.putIfAbsent("key", "value") } returnsMany listOf(true, false)
 
         fixture.cache.putIfAbsent("key", "value").shouldBeTrue()
-        fixture.cache.putIfAbsent("key", "value") shouldBeEqualTo false
+        fixture.cache.putIfAbsent("key", "value").shouldBeFalse()
 
         fixture.statistics.cachePuts shouldBeEqualTo 1L
     }
@@ -211,9 +221,9 @@ class NearJCacheOperationStatisticsTest {
         every { fixture.back.replace("key", "old", "new") } returnsMany listOf(true, false)
 
         fixture.cache.replace("key", "value").shouldBeTrue()
-        fixture.cache.replace("key", "value") shouldBeEqualTo false
+        fixture.cache.replace("key", "value").shouldBeFalse()
         fixture.cache.replace("key", "old", "new").shouldBeTrue()
-        fixture.cache.replace("key", "old", "new") shouldBeEqualTo false
+        fixture.cache.replace("key", "old", "new").shouldBeFalse()
 
         fixture.statistics.cachePuts shouldBeEqualTo 2L
     }
@@ -225,9 +235,9 @@ class NearJCacheOperationStatisticsTest {
         every { fixture.back.remove("key", "old") } returnsMany listOf(true, false)
 
         fixture.cache.remove("key").shouldBeTrue()
-        fixture.cache.remove("key") shouldBeEqualTo false
+        fixture.cache.remove("key").shouldBeFalse()
         fixture.cache.remove("key", "old").shouldBeTrue()
-        fixture.cache.remove("key", "old") shouldBeEqualTo false
+        fixture.cache.remove("key", "old").shouldBeFalse()
 
         fixture.statistics.cacheRemovals shouldBeEqualTo 2L
     }
@@ -255,7 +265,8 @@ class NearJCacheOperationStatisticsTest {
 
         val miss = statisticsEnabledFixture()
         every { miss.back.getAndReplace("key", "new") } returns null
-        miss.cache.getAndReplace("key", "new") shouldBeEqualTo null
+
+        miss.cache.getAndReplace("key", "new").shouldBeNull()
         miss.statistics.cacheMisses shouldBeEqualTo 1L
         miss.statistics.cachePuts shouldBeEqualTo 0L
     }
@@ -264,13 +275,15 @@ class NearJCacheOperationStatisticsTest {
     fun `getAndRemove는 이전 값이 있을 때만 removal을 기록한다`() {
         val hit = statisticsEnabledFixture()
         every { hit.back.getAndRemove("key") } returns "old"
+
         hit.cache.getAndRemove("key") shouldBeEqualTo "old"
         hit.statistics.cacheHits shouldBeEqualTo 1L
         hit.statistics.cacheRemovals shouldBeEqualTo 1L
 
         val miss = statisticsEnabledFixture()
         every { miss.back.getAndRemove("key") } returns null
-        miss.cache.getAndRemove("key") shouldBeEqualTo null
+
+        miss.cache.getAndRemove("key").shouldBeNull()
         miss.statistics.cacheMisses shouldBeEqualTo 1L
         miss.statistics.cacheRemovals shouldBeEqualTo 0L
     }
@@ -293,7 +306,9 @@ class NearJCacheOperationStatisticsTest {
         val fixture = statisticsEnabledFixture()
         every { fixture.back.put("key", "value") } throws IllegalStateException("back unavailable")
 
-        assertFailsWith<IllegalStateException> { fixture.cache.put("key", "value") }
+        assertFailsWith<IllegalStateException> {
+            fixture.cache.put("key", "value")
+        }
 
         fixture.statistics.cachePuts shouldBeEqualTo 0L
         fixture.cache.statisticsRecorder.current().totalPutTimeNanos shouldBeEqualTo 0L
@@ -321,6 +336,7 @@ class NearJCacheOperationStatisticsTest {
 
         fixture.statistics.cachePuts shouldBeEqualTo 0L
         fixture.cache.statisticsRecorder.current().cacheGets shouldBeEqualTo 0L
+
         verify(exactly = 0) { fixture.front.clear() }
         verify(exactly = 0) { fixture.back.clear() }
     }
@@ -338,7 +354,8 @@ class NearJCacheOperationStatisticsTest {
 
             val write = observed.get(5, TimeUnit.SECONDS)
             write.operation shouldBeEqualTo "put"
-            (write.operationId > 0L).shouldBeTrue()
+            write.operationId shouldBeGreaterThan 0L
+            
             assertFailsWith<ExecutionException> {
                 write.completion.toCompletableFuture().get(5, TimeUnit.SECONDS)
             }

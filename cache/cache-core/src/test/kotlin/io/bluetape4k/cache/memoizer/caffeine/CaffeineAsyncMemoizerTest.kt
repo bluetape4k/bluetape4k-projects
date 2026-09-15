@@ -2,14 +2,14 @@ package io.bluetape4k.cache.memoizer.caffeine
 
 import com.github.benmanes.caffeine.cache.Cache
 import com.github.benmanes.caffeine.cache.Caffeine
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeNull
 import io.bluetape4k.cache.caffeine.cache
 import io.bluetape4k.cache.caffeine.caffeine
 import io.bluetape4k.cache.memoizer.AbstractAsyncMemoizerTest
 import io.bluetape4k.cache.memoizer.AsyncFactorialProvider
 import io.bluetape4k.cache.memoizer.AsyncFibonacciProvider
 import io.bluetape4k.logging.coroutines.KLoggingChannel
-import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldBeNull
 import org.junit.jupiter.api.Test
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.CountDownLatch

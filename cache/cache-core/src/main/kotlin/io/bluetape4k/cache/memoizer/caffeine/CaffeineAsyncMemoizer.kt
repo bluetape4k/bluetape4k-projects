@@ -6,6 +6,8 @@ import io.bluetape4k.logging.coroutines.KLoggingChannel
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.atomic.AtomicLong
+import java.util.concurrent.locks.ReentrantLock
+import kotlin.concurrent.withLock
 
 /**
  * 이 Caffeine [Cache]를 backend로 사용하는 [CaffeineAsyncMemoizer]를 생성합니다.
@@ -69,6 +71,7 @@ class CaffeineAsyncMemoizer<T: Any, R: Any>(
 
     private val inFlight = ConcurrentHashMap<T, CompletableFuture<R>>()
     private val generation = AtomicLong(0)
+    private val lock = ReentrantLock()
 
     override fun invoke(input: T): CompletableFuture<R> {
         cache.getIfPresent(input)?.let { return CompletableFuture.completedFuture(it) }
@@ -107,8 +110,10 @@ class CaffeineAsyncMemoizer<T: Any, R: Any>(
     }
 
     override fun clear() {
-        generation.incrementAndGet()
-        inFlight.clear()
-        cache.invalidateAll()
+        lock.withLock {
+            generation.incrementAndGet()
+            inFlight.clear()
+            cache.invalidateAll()
+        }
     }
 }

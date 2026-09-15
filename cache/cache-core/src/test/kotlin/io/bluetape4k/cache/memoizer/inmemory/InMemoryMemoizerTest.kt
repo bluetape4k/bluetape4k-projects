@@ -1,9 +1,9 @@
 package io.bluetape4k.cache.memoizer.inmemory
 
+import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.cache.memoizer.AbstractMemoizerTest
 import io.bluetape4k.cache.memoizer.FactorialProvider
 import io.bluetape4k.cache.memoizer.FibonacciProvider
-import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.trace
 import org.junit.jupiter.api.Test

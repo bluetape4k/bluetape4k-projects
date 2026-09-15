@@ -1,6 +1,7 @@
 package io.bluetape4k.cache.nearcache
 
 import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeNear
 import io.bluetape4k.logging.KLogging
 import org.junit.jupiter.api.Test
 
@@ -41,9 +42,7 @@ class NearCacheStatisticsTest {
         )
         // (10+1) / (10+1+1) = 11/12
         val expected = 11.0 / 12.0
-        assert(kotlin.math.abs(stats.hitRate - expected) < 1e-9) {
-            "Expected $expected but was ${stats.hitRate}"
-        }
+        stats.hitRate.shouldBeNear(expected, 1e-9)
     }
 
     @Test

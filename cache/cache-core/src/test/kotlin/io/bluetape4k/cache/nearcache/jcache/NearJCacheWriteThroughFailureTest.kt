@@ -2,15 +2,20 @@ package io.bluetape4k.cache.nearcache.jcache
 
 import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeInstanceOf
+import io.bluetape4k.assertions.shouldBeLessThan
 import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.assertions.shouldHaveSize
+import io.bluetape4k.assertions.shouldNotBeNull
 import io.bluetape4k.cache.jcache.JCache
 import io.bluetape4k.junit5.concurrency.MultithreadingTester
+import io.bluetape4k.logging.KLogging
 import io.mockk.every
 import io.mockk.mockk
 import org.junit.jupiter.api.Test
 import java.util.concurrent.ConcurrentHashMap
-import java.util.concurrent.CountDownLatch
 import java.util.concurrent.CopyOnWriteArrayList
+import java.util.concurrent.CountDownLatch
 import java.util.concurrent.ExecutionException
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.TimeoutException
@@ -19,6 +24,8 @@ import javax.cache.Cache
 import javax.cache.CacheException
 
 class NearJCacheWriteThroughFailureTest {
+
+    companion object: KLogging()
 
     private val failure = IllegalStateException("back cache is unavailable")
 
@@ -198,16 +205,13 @@ class NearJCacheWriteThroughFailureTest {
             }
             val elapsedMillis = TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - startedAt)
 
-            check(elapsedMillis < 1_000L) { "synchronous write-through exceeded bounded timeout: ${elapsedMillis}ms" }
-            check(error.cause is TimeoutException) {
-                "Expected timeout cause but got ${error.cause}"
-            }
+            elapsedMillis shouldBeLessThan 1_000L
+            error.cause.shouldBeInstanceOf<TimeoutException>()
+
             val completionError = assertFailsWith<ExecutionException> {
                 nearCache.lastBackCacheWriteCompletion.get(1, TimeUnit.SECONDS)
             }
-            check(completionError.cause is CacheException) {
-                "Expected completion CacheException but got ${completionError.cause}"
-            }
+            completionError.cause.shouldBeInstanceOf<CacheException>()
         } finally {
             release.countDown()
         }
@@ -280,7 +284,7 @@ class NearJCacheWriteThroughFailureTest {
         val error = assertFailsWith<ExecutionException> {
             nearCache.lastBackCacheWriteCompletion.get(2, TimeUnit.SECONDS)
         }
-        check(error.cause is AssertionError) { "Expected Error cause but got ${error.cause}" }
+        error.cause.shouldBeInstanceOf<AssertionError>()
         attempts.get() shouldBeEqualTo 1
     }
 
@@ -317,12 +321,11 @@ class NearJCacheWriteThroughFailureTest {
                 throw failure
             }
         }
-        val nearCache =
-            NearJCache(
-                frontCache = frontCache,
-                backCache = backCache,
-                config = NearJCacheConfig(isSynchronous = false, syncRemoteRetryCount = 0),
-            )
+        val nearCache = NearJCache(
+            frontCache = frontCache,
+            backCache = backCache,
+            config = NearJCacheConfig(isSynchronous = false, syncRemoteRetryCount = 0),
+        )
         val completions = CopyOnWriteArrayList<BackCacheWriteCompletion>()
         val completed = CountDownLatch(2)
         val registration = nearCache.addBackCacheWriteListener {
@@ -334,9 +337,10 @@ class NearJCacheWriteThroughFailureTest {
             nearCache.put("failed", "value")
             nearCache.put("succeeded", "value")
 
-            check(completed.await(2, TimeUnit.SECONDS)) { "write-through completions were not observed" }
+            completed.await(2, TimeUnit.SECONDS).shouldBeTrue()
             completions.size shouldBeEqualTo 2
-            completions.map { it.operationId }.toSet().size shouldBeEqualTo 2
+            completions.map { it.operationId }.toSet() shouldHaveSize 2
+
             completions.single { it.completion.toCompletableFuture().isCompletedExceptionally }
                 .completion.toCompletableFuture().join()
         } catch (e: java.util.concurrent.CompletionException) {
@@ -358,12 +362,12 @@ class NearJCacheWriteThroughFailureTest {
         every { backCache.put(any(), any()) } answers {
             if (firstArg<String>().contains("-failed-")) throw failure
         }
-        val nearCache =
-            NearJCache(
-                frontCache = frontCache,
-                backCache = backCache,
-                config = NearJCacheConfig(isSynchronous = false, syncRemoteRetryCount = 0),
-            )
+
+        val nearCache = NearJCache(
+            frontCache = frontCache,
+            backCache = backCache,
+            config = NearJCacheConfig(isSynchronous = false, syncRemoteRetryCount = 0),
+        )
         val registration = nearCache.addBackCacheWriteListener {
             observed[it.operationId] = it
             completed.countDown()
@@ -385,12 +389,11 @@ class NearJCacheWriteThroughFailureTest {
             snapshots.size shouldBeEqualTo expectedWrites
             observed.size shouldBeEqualTo expectedWrites
             snapshots.forEach { snapshot ->
-                val completion = observed[snapshot.operationId]
-                checkNotNull(completion) { "snapshot operation was not observed: ${snapshot.operationId}" }
+                val completion = observed[snapshot.operationId].shouldNotBeNull()
                 snapshot.operation shouldBeEqualTo "put"
                 snapshot.operation shouldBeEqualTo completion.operation
                 snapshot.completion.toCompletableFuture().isCompletedExceptionally shouldBeEqualTo
-                    completion.completion.toCompletableFuture().isCompletedExceptionally
+                        completion.completion.toCompletableFuture().isCompletedExceptionally
             }
         } finally {
             registration.close()
@@ -406,12 +409,11 @@ class NearJCacheWriteThroughFailureTest {
             release.await()
             throw failure
         }
-        val nearCache =
-            NearJCache(
-                frontCache = frontCache,
-                backCache = backCache,
-                config = NearJCacheConfig(isSynchronous = false, syncRemoteRetryCount = 0),
-            )
+        val nearCache = NearJCache(
+            frontCache = frontCache,
+            backCache = backCache,
+            config = NearJCacheConfig(isSynchronous = false, syncRemoteRetryCount = 0),
+        )
 
         try {
             nearCache.put("key", "value")
@@ -426,6 +428,7 @@ class NearJCacheWriteThroughFailureTest {
             nearCache.lastBackCacheWrite.completion.toCompletableFuture().get(2, TimeUnit.SECONDS)
         }
         error.cause?.message shouldBeEqualTo failure.message
+
         val legacyError = assertFailsWith<ExecutionException> {
             nearCache.lastBackCacheWriteCompletion.get(2, TimeUnit.SECONDS)
         }
@@ -443,12 +446,11 @@ class NearJCacheWriteThroughFailureTest {
             release.await()
         }
 
-        val nearCache =
-            NearJCache(
-                frontCache = frontCache,
-                backCache = backCache,
-                config = NearJCacheConfig(isSynchronous = false, syncRemoteTimeout = 1L, syncRemoteRetryCount = 2),
-            )
+        val nearCache = NearJCache(
+            frontCache = frontCache,
+            backCache = backCache,
+            config = NearJCacheConfig(isSynchronous = false, syncRemoteTimeout = 1L, syncRemoteRetryCount = 2),
+        )
 
         try {
             nearCache.put("key", "value")
@@ -456,9 +458,7 @@ class NearJCacheWriteThroughFailureTest {
             val error = assertFailsWith<ExecutionException> {
                 nearCache.lastBackCacheWriteCompletion.get(2, TimeUnit.SECONDS)
             }
-            check(error.cause is TimeoutException) {
-                "Expected timeout failure but got ${error.cause}"
-            }
+            error.cause.shouldBeInstanceOf<TimeoutException>()
             attempts.get() shouldBeEqualTo 1
         } finally {
             release.countDown()
