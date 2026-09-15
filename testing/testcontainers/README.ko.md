@@ -37,6 +37,7 @@ Testcontainers `2.0.3` 기반 통합 테스트를 빠르게 구성하기 위한 
 -
 
 **관측성**: `ZipkinServer` — 분산 추적 (`openzipkin/zipkin-slim:2.23`), `GrafanaServer` — 대시보드 + 데이터소스 프로비저닝 (`grafana/grafana:13.1.3`), `K3sServer` — 경량 Kubernetes 클러스터 (`rancher/k3s`; `--privileged` Docker 모드 필요)
+
 - **고정 포트 매핑 옵션**: `useDefaultPort=true` 설정 시 기본 포트로 바인딩
 - **시스템 프로퍼티 자동 등록**: 컨테이너 시작 시 연결 정보 자동 등록
 - **Spring Boot 설정 단순화**: `${testcontainers...}` placeholder로 연결 정보 주입
@@ -72,15 +73,11 @@ val grpcPort = shared.grpcPort
 // 공유 Launcher는 ShutdownQueue가 종료하므로 use/close를 호출하지 않습니다.
 ```
 
-`port`와 `url`은 HTTP 연결 정보이며, gRPC 클라이언트에는 `host`와 `grpcPort`를 사용합니다.
-시작 전 endpoint 조회는 실패합니다. 기본값은 임의 mapped 포트와 `reuse=false`이며,
-`useDefaultPort=true`는 HTTP·gRPC 표준 포트를 바인딩합니다. Launcher는 JVM 안에서만 같은 인스턴스를 재사용합니다.
-OpenFGA는 `/healthz`의 SERVING 응답, Qdrant는 `/readyz`로 준비 상태를 확인하고 시작 제한은 2분입니다.
-OpenFGA playground 포트는 노출하지 않습니다.
+`port`와 `url`은 HTTP 연결 정보이며, gRPC 클라이언트에는 `host`와 `grpcPort`를 사용합니다. 시작 전 endpoint 조회는 실패합니다. 기본값은 임의 mapped 포트와 `reuse=false`이며,
+`useDefaultPort=true`는 HTTP·gRPC 표준 포트를 바인딩합니다. Launcher는 JVM 안에서만 같은 인스턴스를 재사용합니다. OpenFGA는 `/healthz`의 SERVING 응답, Qdrant는 `/readyz`로 준비 상태를 확인하고 시작 제한은 2분입니다. OpenFGA playground 포트는 노출하지 않습니다.
 
 각 테스트는 고유 store/collection을 만들고 `finally`에서 정리해야 합니다.
-`start()`가 export한 JVM 속성은 `stop()`에서 자동 복원되지 않으므로 필요한 테스트는 이전 값을 보존·복원합니다.
-인증 없는 테스트 전용 설정입니다. Docker의 host binding 정책을 따르며 임의 포트도 loopback 전용을 의미하지 않으므로 신뢰할 수 있는 Docker 호스트에서 사용합니다.
+`start()`가 export한 JVM 속성은 `stop()`에서 자동 복원되지 않으므로 필요한 테스트는 이전 값을 보존·복원합니다. 인증 없는 테스트 전용 설정입니다. Docker의 host binding 정책을 따르며 임의 포트도 loopback 전용을 의미하지 않으므로 신뢰할 수 있는 Docker 호스트에서 사용합니다.
 
 ## 시스템 프로퍼티 Export (PropertyExportingServer)
 
@@ -120,8 +117,8 @@ OpenFGA playground 포트는 노출하지 않습니다.
 | PrometheusServer       | `prometheus`        | `host`, `port`, `url`, `server-port`, `pushgateway-port`, `graphite-exporter-port`                                                                                   |
 | GrafanaServer          | `grafana`           | `host`, `port`, `url`                                                                                                                                                |
 | K3sServer              | `k3s`               | `host`, `port`, `url`                                                                                                                                                |
-| OpenFgaServer | `openfga` | `host`, `port`, `url`, `http-port`, `grpc-port` |
-| QdrantServer | `qdrant` | `host`, `port`, `url`, `http-port`, `grpc-port` |
+| OpenFgaServer          | `openfga`           | `host`, `port`, `url`, `http-port`, `grpc-port`                                                                                                                      |
+| QdrantServer           | `qdrant`            | `host`, `port`, `url`, `http-port`, `grpc-port`                                                                                                                      |
 | ConsulServer           | `consul`            | `host`, `port`, `url`, `dns-port`, `http-port`, `rpc-port`                                                                                                           |
 | JaegerServer           | `jaeger`            | `host`, `port`, `url`, `frontend-port`, `zipkin-port`, `config-port`, `thrift-port`                                                                                  |
 | ElasticsearchOssServer | `elasticsearch-oss` | `host`, `port`, `url`                                                                                                                                                |
@@ -137,21 +134,16 @@ OpenFGA playground 포트는 노출하지 않습니다.
 
 ## 기본 Docker 이미지 태그
 
-아래 기본값은 2026-08-10에 확인한 최신 안정 이미지 태그를 고정한 것입니다.
-재현 가능한 로컬·CI 실행을 위해 변경 가능한 `latest`, major-only, rolling minor
-태그는 사용하지 않습니다.
+아래 기본값은 2026-08-10에 확인한 최신 안정 이미지 태그를 고정한 것입니다. 재현 가능한 로컬·CI 실행을 위해 변경 가능한 `latest`, major-only, rolling minor 태그는 사용하지 않습니다.
 
 <!-- issue-1619-ignite2-compatibility:start -->
+
 ### `Ignite2Server` 호환성 facade
 
-`Ignite2Server`는 2.0.0 public API와의 호환성을 위해 2.1.x minor line에서
-deprecated facade로 유지됩니다. 이 facade는 3.0.0 breaking 경계에서 제거될
-예정입니다. 신규 테스트는 `Ignite3Server`를 사용하고, 기존 Ignite 2 사용처는
-3.0.0 전에 마이그레이션하세요.
+`Ignite2Server`는 2.0.0 public API와의 호환성을 위해 2.1.x minor line에서 deprecated facade로 유지됩니다. 이 facade는 3.0.0 breaking 경계에서 제거될 예정입니다. 신규 테스트는 `Ignite3Server`를 사용하고, 기존 Ignite 2 사용처는 3.0.0 전에 마이그레이션하세요.
 
 canonical `apacheignite/ignite` 이미지는 지연 해석됩니다.
-`x86_64`/`amd64`에서는 `2.18.0`, `aarch64`/`arm64`에서는 `2.18.0-arm64`를
-사용합니다. Custom image에는 명시적인 immutable tag가 필요하며 tag가 없거나
+`x86_64`/`amd64`에서는 `2.18.0`, `aarch64`/`arm64`에서는 `2.18.0-arm64`를 사용합니다. Custom image에는 명시적인 immutable tag가 필요하며 tag가 없거나
 `latest`인 호출은 fail-fast로 실패합니다.
 
 ```kotlin
@@ -164,70 +156,68 @@ Ignite2Server(image = "custom/ignite", tag = "2.18.0-custom").use { ignite2 ->
 
 호환성 facade는 2.0.0의 constructor overload, `DEFAULT_TAG`/`TAG`/`IMAGE`/`NAME`/`PORT`
 상수, `url`, `Launcher` singleton을 유지합니다. 이미지 선택 계약은
-[`docs/release/2.0.0-ignite2-migration.md`](../../docs/release/2.0.0-ignite2-migration.md)를
-참고하세요.
+[`docs/release/2.0.0-ignite2-migration.md`](../../docs/release/2.0.0-ignite2-migration.md)를 참고하세요.
 <!-- issue-1619-ignite2-compatibility:end -->
 
-| 그룹 | 서버 | 이미지 | 기본 태그 |
-|---|---|---|---|
-| AWS | `DynamoDbLocalServer` | `amazon/dynamodb-local` | `3.3.1` |
-| AWS | `FlociServer` | `floci/floci` | `1.6.0` |
-| AWS | `LocalStackServer` | `localstack/localstack` | `4` (deprecated wrapper) |
-| AWS | `MiniStackServer` | `ministackorg/ministack` | `1.4.14` |
-| Database | `ClickHouseServer` | `clickhouse/clickhouse-server` | `26.7.3.19` |
-| Database | `CockroachServer` | `cockroachdb/cockroach` | `v25.4.14` |
-| Database | `MariaDBServer` | `mariadb` | `12.3.2` |
-| Database | `MySQL5Server` | `biarms/mysql` | `5` |
-| Database | `MySQL8Server` | `mysql` | `8.4.11` |
-| Database | `PgvectorServer` | `pgvector/pgvector` | `0.8.6-pg16` |
-| Database | `PostgisServer` | `postgis/postgis` | `16-3.5` |
-| Database | `PostgreSQLServer` | `postgres` | `18.4-alpine` |
-| Database | `TrinoServer` | `trinodb/trino` | `483` |
-| Graph DB | `FalkorDBServer` | `falkordb/falkordb` | `v4.20.2` |
-| Graph DB | `MemgraphServer` | `memgraph/memgraph` | `3.12.0` |
-| Graph DB | `Neo4jServer` | `neo4j` | `5.26.29` |
-| Graph DB | `PostgreSQLAgeServer` | `apache/age` | `release_PG18_1.7.0` |
-| HTTP | `BluetapeHttpServer` | `bluetape4k/mock-web-server` | `2.1.0` |
-| HTTP | `BluetapeWebfluxServer` | `bluetape4k/mock-webflux-server` | `2.1.0` |
-| HTTP | `NginxServer` | `nginx` | `1.30.4-alpine` |
-| HTTP | `WireMockServer` | `wiremock/wiremock` | `3.13.2` |
-| Infrastructure | `OpenFgaServer` | `openfga/openfga` | `v1.8.2` |
-| Infrastructure | `ConsulServer` | `hashicorp/consul` | `1.22.7` |
-| Infrastructure | `EtcdServer` | `gcr.io/etcd-development/etcd` | `v3.6.14` |
-| Infrastructure | `GrafanaServer` | `grafana/grafana` | `13.1.3` |
-| Infrastructure | `JaegerServer` | `jaegertracing/all-in-one` | `1.76.0` |
-| Infrastructure | `K3sServer` | `rancher/k3s` | `v1.36.3-k3s1` |
-| Infrastructure | `KeycloakServer` | `quay.io/keycloak/keycloak` | `26.7.1` |
-| Infrastructure | `PrometheusServer` | `prom/prometheus` | `v3.13.2` |
-| Infrastructure | `ToxiproxyServer` | `ghcr.io/shopify/toxiproxy` | `2.9.0` |
-| Infrastructure | `VaultServer` | `hashicorp/vault` | `1.20.4` |
-| Infrastructure | `ZipkinServer` | `openzipkin/zipkin-slim` | `2.23` |
-| Infrastructure | `ZooKeeperServer` | `zookeeper` | `3.9.5` |
-| LLM | `ChromaDBServer` | `chromadb/chroma` | `0.5.23` |
-| LLM | `OllamaServer` | `ollama/ollama` | `0.32.6` |
-| Mail | `MailpitServer` | `axllent/mailpit` | `v1.30.7` |
-| Messaging | `KafkaServer` | `confluentinc/cp-kafka` | `7.5.16` |
-| Messaging | `NatsServer` | `nats` | `2.14.4` |
-| Messaging | `PulsarServer` | `apachepulsar/pulsar` | `3.3.9` (Java 17+ 제약) |
-| Messaging | `RabbitMQServer` | `rabbitmq` | `3.13` (4.x wrapper 실패) |
-| Messaging | `RedpandaServer` | `docker.redpanda.com/redpandadata/redpanda` | `v26.2.1` |
-| Storage | `CassandraServer` | `cassandra` | `5.0.8` |
-| Storage | `ElasticsearchOssServer` | `docker.elastic.co/elasticsearch/elasticsearch-oss` | `7.10.2` |
-| Storage | `ElasticsearchServer` | `docker.elastic.co/elasticsearch/elasticsearch` | `9.5.0` |
-| Storage | `HazelcastServer` | `hazelcast/hazelcast` | `5.7.0-slim-jdk25` |
-| Storage | `Ignite2Server` | `apacheignite/ignite` | `2.18.0` (x86_64/amd64) 또는 `2.18.0-arm64` (aarch64/arm64), deprecated facade |
-| Storage | `Ignite3Server` | `apacheignite/ignite` | `3.1.0` |
-| Storage | `InfluxDBServer` | `influxdb` | `2.9.1` |
-| Storage | `QdrantServer` | `qdrant/qdrant` | `v1.19.0` |
-| Storage | `MinIOServer` | `minio/minio` | `RELEASE.2025-07-23T15-54-02Z` (호환성 fixture) |
-| Storage | `MongoDBServer` | `mongo` | `8.0.28` |
-| Storage | `OpenSearchServer` | `opensearchproject/opensearch` | `3.8.0` |
-| Storage | `RedisClusterServer` | `tommy351/redis-cluster` | `6.2` (호환성 fixture) |
-| Storage | `RedisServer` | `redis` | `8.8.1` |
+| 그룹           | 서버                     | 이미지                                              | 기본 태그                                                                      |
+|----------------|--------------------------|-----------------------------------------------------|--------------------------------------------------------------------------------|
+| AWS            | `DynamoDbLocalServer`    | `amazon/dynamodb-local`                             | `3.3.1`                                                                        |
+| AWS            | `FlociServer`            | `floci/floci`                                       | `1.6.0`                                                                        |
+| AWS            | `LocalStackServer`       | `localstack/localstack`                             | `4` (deprecated wrapper)                                                       |
+| AWS            | `MiniStackServer`        | `ministackorg/ministack`                            | `1.4.14`                                                                       |
+| Database       | `ClickHouseServer`       | `clickhouse/clickhouse-server`                      | `26.7.3.19`                                                                    |
+| Database       | `CockroachServer`        | `cockroachdb/cockroach`                             | `v25.4.14`                                                                     |
+| Database       | `MariaDBServer`          | `mariadb`                                           | `12.3.2`                                                                       |
+| Database       | `MySQL5Server`           | `biarms/mysql`                                      | `5`                                                                            |
+| Database       | `MySQL8Server`           | `mysql`                                             | `8.4.11`                                                                       |
+| Database       | `PgvectorServer`         | `pgvector/pgvector`                                 | `0.8.6-pg16`                                                                   |
+| Database       | `PostgisServer`          | `postgis/postgis`                                   | `16-3.5`                                                                       |
+| Database       | `PostgreSQLServer`       | `postgres`                                          | `18.4-alpine`                                                                  |
+| Database       | `TrinoServer`            | `trinodb/trino`                                     | `483`                                                                          |
+| Graph DB       | `FalkorDBServer`         | `falkordb/falkordb`                                 | `v4.20.2`                                                                      |
+| Graph DB       | `MemgraphServer`         | `memgraph/memgraph`                                 | `3.12.0`                                                                       |
+| Graph DB       | `Neo4jServer`            | `neo4j`                                             | `5.26.29`                                                                      |
+| Graph DB       | `PostgreSQLAgeServer`    | `apache/age`                                        | `release_PG18_1.7.0`                                                           |
+| HTTP           | `BluetapeHttpServer`     | `bluetape4k/mock-web-server`                        | `2.1.0`                                                                        |
+| HTTP           | `BluetapeWebfluxServer`  | `bluetape4k/mock-webflux-server`                    | `2.1.0`                                                                        |
+| HTTP           | `NginxServer`            | `nginx`                                             | `1.30.4-alpine`                                                                |
+| HTTP           | `WireMockServer`         | `wiremock/wiremock`                                 | `3.13.2`                                                                       |
+| Infrastructure | `OpenFgaServer`          | `openfga/openfga`                                   | `v1.8.2`                                                                       |
+| Infrastructure | `ConsulServer`           | `hashicorp/consul`                                  | `1.22.7`                                                                       |
+| Infrastructure | `EtcdServer`             | `gcr.io/etcd-development/etcd`                      | `v3.6.14`                                                                      |
+| Infrastructure | `GrafanaServer`          | `grafana/grafana`                                   | `13.1.3`                                                                       |
+| Infrastructure | `JaegerServer`           | `jaegertracing/all-in-one`                          | `1.76.0`                                                                       |
+| Infrastructure | `K3sServer`              | `rancher/k3s`                                       | `v1.36.3-k3s1`                                                                 |
+| Infrastructure | `KeycloakServer`         | `quay.io/keycloak/keycloak`                         | `26.7.1`                                                                       |
+| Infrastructure | `PrometheusServer`       | `prom/prometheus`                                   | `v3.13.2`                                                                      |
+| Infrastructure | `ToxiproxyServer`        | `ghcr.io/shopify/toxiproxy`                         | `2.9.0`                                                                        |
+| Infrastructure | `VaultServer`            | `hashicorp/vault`                                   | `1.20.4`                                                                       |
+| Infrastructure | `ZipkinServer`           | `openzipkin/zipkin-slim`                            | `2.23`                                                                         |
+| Infrastructure | `ZooKeeperServer`        | `zookeeper`                                         | `3.9.5`                                                                        |
+| LLM            | `ChromaDBServer`         | `chromadb/chroma`                                   | `0.5.23`                                                                       |
+| LLM            | `OllamaServer`           | `ollama/ollama`                                     | `0.32.6`                                                                       |
+| Mail           | `MailpitServer`          | `axllent/mailpit`                                   | `v1.30.7`                                                                      |
+| Messaging      | `KafkaServer`            | `confluentinc/cp-kafka`                             | `7.5.16`                                                                       |
+| Messaging      | `NatsServer`             | `nats`                                              | `2.14.4`                                                                       |
+| Messaging      | `PulsarServer`           | `apachepulsar/pulsar`                               | `3.3.9` (Java 17+ 제약)                                                        |
+| Messaging      | `RabbitMQServer`         | `rabbitmq`                                          | `3.13` (4.x wrapper 실패)                                                      |
+| Messaging      | `RedpandaServer`         | `docker.redpanda.com/redpandadata/redpanda`         | `v26.2.1`                                                                      |
+| Storage        | `CassandraServer`        | `cassandra`                                         | `5.0.8`                                                                        |
+| Storage        | `ElasticsearchOssServer` | `docker.elastic.co/elasticsearch/elasticsearch-oss` | `7.10.2`                                                                       |
+| Storage        | `ElasticsearchServer`    | `docker.elastic.co/elasticsearch/elasticsearch`     | `9.5.0`                                                                        |
+| Storage        | `HazelcastServer`        | `hazelcast/hazelcast`                               | `5.7.0-slim-jdk25`                                                             |
+| Storage        | `Ignite2Server`          | `apacheignite/ignite`                               | `2.18.0` (x86_64/amd64) 또는 `2.18.0-arm64` (aarch64/arm64), deprecated facade |
+| Storage        | `Ignite3Server`          | `apacheignite/ignite`                               | `3.1.0`                                                                        |
+| Storage        | `InfluxDBServer`         | `influxdb`                                          | `2.9.1`                                                                        |
+| Storage        | `QdrantServer`           | `qdrant/qdrant`                                     | `v1.19.0`                                                                      |
+| Storage        | `MinIOServer`            | `minio/minio`                                       | `RELEASE.2025-07-23T15-54-02Z` (호환성 fixture)                                |
+| Storage        | `MongoDBServer`          | `mongo`                                             | `8.0.28`                                                                       |
+| Storage        | `OpenSearchServer`       | `opensearchproject/opensearch`                      | `3.8.0`                                                                        |
+| Storage        | `RedisClusterServer`     | `tommy351/redis-cluster`                            | `6.2` (호환성 fixture)                                                         |
+| Storage        | `RedisServer`            | `redis`                                             | `8.8.1`                                                                        |
 
 예외는 의도적으로 유지합니다. `MySQL5Server`는 ARM을 지원하는
-`biarms/mysql:5` 별칭을 사용하고, `ElasticsearchOssServer`는 legacy OSS 이미지에
-고정합니다. `ChromaDBServer`는 개발 버전이 아닌 마지막 안정 태그를 사용하며,
+`biarms/mysql:5` 별칭을 사용하고, `ElasticsearchOssServer`는 legacy OSS 이미지에 고정합니다. `ChromaDBServer`는 개발 버전이 아닌 마지막 안정 태그를 사용하며,
 `ZipkinServer`는 최신 이미지에서 현재 계약이 실패하므로 `2.23`을 유지합니다.
 `PulsarServer`와 `RabbitMQServer`는 wrapper와 호환되는 major 버전을 유지하고,
 `MinIOServer`와 `RedisClusterServer`는 명시적 호환성 fixture로 남깁니다.
@@ -237,22 +227,11 @@ Ignite2Server(image = "custom/ignite", tag = "2.18.0-custom").use { ignite2 ->
 ## 이미지 family startup·workload gate
 
 53개 Docker 기반 서버 family는
-[`scripts/testcontainers_image_gate_manifest.json`](../../scripts/testcontainers_image_gate_manifest.json)에 선언합니다.
-manifest는 고정 image/tag와 Kotlin wrapper, 대표 테스트 클래스, readiness 계약,
-workload 증거, 진단 명령을 연결합니다. 클래스에 의도적으로 비활성화한 메서드가
-있으면 `testSelector`로 실행할 대표 메서드를 명시할 수 있으며, gate는 무관한
-skipped 테스트가 유효한 실행을 가리지 않도록 해당 메서드만 실행합니다.
+[`scripts/testcontainers_image_gate_manifest.json`](../../scripts/testcontainers_image_gate_manifest.json)에 선언합니다. manifest는 고정 image/tag와 Kotlin wrapper, 대표 테스트 클래스, readiness 계약, workload 증거, 진단 명령을 연결합니다. 클래스에 의도적으로 비활성화한 메서드가 있으면 `testSelector`로 실행할 대표 메서드를 명시할 수 있으며, gate는 무관한 skipped 테스트가 유효한 실행을 가리지 않도록 해당 메서드만 실행합니다.
 
-동일한 실행기를 전체 Nightly와 안정 버전 배포 workflow에서 사용합니다. PR은
-저비용 JVM·모듈 검증을 유지하고 Docker 기반 family gate는 전체 Nightly/배포
-경로로 한정합니다. 선택된 family는 `max-parallel: 1`로 순차 실행하고
+동일한 실행기를 전체 Nightly와 안정 버전 배포 workflow에서 사용합니다. PR은 저비용 JVM·모듈 검증을 유지하고 Docker 기반 family gate는 전체 Nightly/배포 경로로 한정합니다. 선택된 family는 `max-parallel: 1`로 순차 실행하고
 `success`, `product_failure`,
-`infrastructure_failure`, `blocked`로 분류하며 `summary.json`, `summary.md`,
-family별 JSON을 남깁니다. 안정 버전 배포는 release-required family 49개
-전체(`49/49`), `release_gate=true`, 모든 실패 분류 0을 요구합니다. 나머지
-4개 family는 support inventory로 별도 보고합니다. Docker Hub 인증과 mirror
-설정은 환경변수 또는
-CI secret으로만 전달하며, 증거에는 credential을 기록하지 않습니다.
+`infrastructure_failure`, `blocked`로 분류하며 `summary.json`, `summary.md`, family별 JSON을 남깁니다. 안정 버전 배포는 release-required family 49개 전체 (`49/49`), `release_gate=true`, 모든 실패 분류 0을 요구합니다. 나머지 4개 family는 support inventory로 별도 보고합니다. Docker Hub 인증과 mirror 설정은 환경변수 또는 CI secret으로만 전달하며, 증거에는 credential을 기록하지 않습니다.
 
 <!-- TESTCONTAINERS_IMAGE_GATE_COMMAND_START -->
 특정 변경을 조사할 때 저장소 루트에서 대상 family gate를 실행합니다.
@@ -277,11 +256,10 @@ python3 scripts/run_testcontainers_image_gate.py \
   --max-attempts 2 \
   --timeout-minutes 30
 ```
+
 <!-- TESTCONTAINERS_IMAGE_GATE_COMMAND_END -->
 
-family 실패 시 JSON artifact와 제한된 Docker/K3s 진단을 먼저 확인한 뒤 재시도합니다.
-registry rate limit, daemon 장애, readiness timeout은 인프라 증거로 남기며 gate를
-건너뛰거나 배포를 진행하는 근거로 사용하지 않습니다.
+family 실패 시 JSON artifact와 제한된 Docker/K3s 진단을 먼저 확인한 뒤 재시도합니다. registry rate limit, daemon 장애, readiness timeout은 인프라 증거로 남기며 gate를 건너뛰거나 배포를 진행하는 근거로 사용하지 않습니다.
 
 ## 사용 예
 
@@ -361,10 +339,10 @@ verify(getRequestedFor(urlEqualTo("/hello")))
 val server = BluetapeHttpServer.Launcher.bluetapeHttpServer
 
 // 미리 구성된 URL 헬퍼
-val baseUrl             = server.url                // http://host:<port>
-val httpbinUrl          = server.httpbinUrl         // http://host:<port>/httpbin
-val jsonplaceholderUrl  = server.jsonplaceholderUrl // http://host:<port>/jsonplaceholder
-val webUrl              = server.webUrl             // http://host:<port>/web
+val baseUrl = server.url                // http://host:<port>
+val httpbinUrl = server.httpbinUrl         // http://host:<port>/httpbin
+val jsonplaceholderUrl = server.jsonplaceholderUrl // http://host:<port>/jsonplaceholder
+val webUrl = server.webUrl             // http://host:<port>/web
 ```
 
 #### 자동 등록 시스템 프로퍼티
@@ -384,10 +362,10 @@ val webUrl              = server.webUrl             // http://host:<port>/web
 
 ```yaml
 mock:
-  server:
-    url: ${testcontainers.bluetape-http.url}
-    httpbin-url: ${testcontainers.bluetape-http.httpbin-url}
-    jsonplaceholder-url: ${testcontainers.bluetape-http.jsonplaceholder-url}
+    server:
+        url: ${testcontainers.bluetape-http.url}
+        httpbin-url: ${testcontainers.bluetape-http.httpbin-url}
+        jsonplaceholder-url: ${testcontainers.bluetape-http.jsonplaceholder-url}
 ```
 
 #### 수동 인스턴스 (싱글턴 미사용)
@@ -409,10 +387,10 @@ val server = BluetapeHttpServer(useDefaultPort = true).apply { start() }
 val server = BluetapeWebfluxServer.Launcher.bluetapeWebfluxServer
 
 // 미리 구성된 URL 헬퍼
-val baseUrl             = server.url                // http://host:<port>
-val httpbinUrl          = server.httpbinUrl         // http://host:<port>/httpbin
-val jsonplaceholderUrl  = server.jsonplaceholderUrl // http://host:<port>/jsonplaceholder
-val webUrl              = server.webUrl             // http://host:<port>/web
+val baseUrl = server.url                // http://host:<port>
+val httpbinUrl = server.httpbinUrl         // http://host:<port>/httpbin
+val jsonplaceholderUrl = server.jsonplaceholderUrl // http://host:<port>/jsonplaceholder
+val webUrl = server.webUrl             // http://host:<port>/web
 ```
 
 #### 자동 등록 시스템 프로퍼티
@@ -434,10 +412,10 @@ val webUrl              = server.webUrl             // http://host:<port>/web
 
 ```yaml
 mock:
-  webflux:
-    url: ${testcontainers.bluetape-webflux.url}
-    httpbin-url: ${testcontainers.bluetape-webflux.httpbin-url}
-    jsonplaceholder-url: ${testcontainers.bluetape-webflux.jsonplaceholder-url}
+    webflux:
+        url: ${testcontainers.bluetape-webflux.url}
+        httpbin-url: ${testcontainers.bluetape-webflux.httpbin-url}
+        jsonplaceholder-url: ${testcontainers.bluetape-webflux.jsonplaceholder-url}
 ```
 
 #### 수동 인스턴스 (싱글턴 미사용)
@@ -645,19 +623,19 @@ class MyRepositoryTest {
 
 ```yaml
 spring:
-  datasource:
-    driver-class-name: ${testcontainers.mysql.driver-class-name}
-    url: ${testcontainers.mysql.jdbc-url}
-    username: ${testcontainers.mysql.username}
-    password: ${testcontainers.mysql.password}
+    datasource:
+        driver-class-name: ${testcontainers.mysql.driver-class-name}
+        url: ${testcontainers.mysql.jdbc-url}
+        username: ${testcontainers.mysql.username}
+        password: ${testcontainers.mysql.password}
 
-  data:
-    redis:
-      host: ${testcontainers.redis.host}
-      port: ${testcontainers.redis.port}
+    data:
+        redis:
+            host: ${testcontainers.redis.host}
+            port: ${testcontainers.redis.port}
 
-  kafka:
-    bootstrap-servers: ${testcontainers.kafka.bootstrap-servers}
+    kafka:
+        bootstrap-servers: ${testcontainers.kafka.bootstrap-servers}
 ```
 
 직접 Testcontainers 를 사용할 때 필요한 `@DynamicPropertySource` 등록 코드를, 이 모듈에서는 시스템 프로퍼티 자동 등록으로 단순화할 수 있습니다.

@@ -81,7 +81,7 @@ class Ignite2Server private constructor(
         private fun defaultTagForArchitecture(architecture: String?): String = when (architecture?.lowercase()) {
             "x86_64", "amd64" -> TAG
             "aarch64", "arm64" -> "$TAG-arm64"
-            else -> error("Unsupported Ignite2 default image architecture: $architecture")
+            else              -> error("Unsupported Ignite2 default image architecture: $architecture")
         }
 
         /** 시스템 프로퍼티 등록 시 사용하는 서버 이름 */

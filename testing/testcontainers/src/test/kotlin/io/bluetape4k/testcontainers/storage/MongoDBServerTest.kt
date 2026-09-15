@@ -5,17 +5,17 @@ import com.mongodb.ReadPreference
 import com.mongodb.TransactionOptions
 import com.mongodb.WriteConcern
 import com.mongodb.client.MongoClients
-import io.bluetape4k.logging.KLogging
-import io.bluetape4k.testcontainers.AbstractContainerTest
+import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.assertions.shouldContain
 import io.bluetape4k.assertions.shouldNotBeNull
 import io.bluetape4k.assertions.shouldNotBeNullOrBlank
+import io.bluetape4k.logging.KLogging
+import io.bluetape4k.testcontainers.AbstractContainerTest
 import org.bson.Document
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
-import io.bluetape4k.assertions.assertFailsWith
 
 class MongoDBServerTest: AbstractContainerTest() {
 

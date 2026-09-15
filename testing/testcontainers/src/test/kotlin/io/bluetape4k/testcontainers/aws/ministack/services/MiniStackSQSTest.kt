@@ -1,14 +1,14 @@
 package io.bluetape4k.testcontainers.aws.ministack.services
 
+import io.bluetape4k.assertions.shouldBeGreaterOrEqualTo
+import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.assertions.shouldHaveSize
+import io.bluetape4k.assertions.shouldNotBeBlank
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import io.bluetape4k.testcontainers.aws.getCredentialProvider
 import io.bluetape4k.testcontainers.aws.ministack.AbstractMiniStackServiceTest
 import io.bluetape4k.utils.ShutdownQueue
-import io.bluetape4k.assertions.shouldBeGreaterOrEqualTo
-import io.bluetape4k.assertions.shouldBeTrue
-import io.bluetape4k.assertions.shouldHaveSize
-import io.bluetape4k.assertions.shouldNotBeBlank
 import org.junit.jupiter.api.MethodOrderer
 import org.junit.jupiter.api.Order
 import org.junit.jupiter.api.Test

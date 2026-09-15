@@ -1,14 +1,13 @@
 package io.bluetape4k.testcontainers.http
 
-import io.bluetape4k.logging.KLogging
-import io.bluetape4k.logging.info
-import io.bluetape4k.utils.ShutdownQueue
-import okhttp3.OkHttpClient
-import okhttp3.Request
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldContain
 import io.bluetape4k.assertions.shouldNotBeEmpty
 import io.bluetape4k.assertions.shouldNotBeNull
+import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.info
+import okhttp3.OkHttpClient
+import okhttp3.Request
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.Assumptions.assumeTrue
 import org.junit.jupiter.api.BeforeAll
@@ -24,7 +23,7 @@ import org.testcontainers.DockerClientFactory
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class BluetapeHttpServerTest {
 
-    companion object : KLogging() {
+    companion object: KLogging() {
 
         private val httpClient by lazy { OkHttpClient() }
 
@@ -43,14 +42,14 @@ class BluetapeHttpServerTest {
             "Docker is not available — skipping BluetapeHttpServerTest"
         )
 
-        server = BluetapeHttpServer().apply {start() }
+        server = BluetapeHttpServer().apply { start() }
         // lazy 초기화 트리거 (Docker 가용성 확인 후 시작)
         log.info { "BluetapeHttpServer url=${server.url}" }
     }
 
     @AfterAll
     fun afterAll() {
-        if(this::server.isInitialized && server.isRunning) {
+        if (this::server.isInitialized && server.isRunning) {
             server.close()
         }
     }

@@ -1,11 +1,11 @@
 package io.bluetape4k.testcontainers.mail
 
-import io.bluetape4k.logging.KLogging
-import io.bluetape4k.testcontainers.AbstractContainerTest
+import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.assertions.shouldNotBeBlank
+import io.bluetape4k.logging.KLogging
+import io.bluetape4k.testcontainers.AbstractContainerTest
 import org.junit.jupiter.api.Test
-import io.bluetape4k.assertions.assertFailsWith
 
 /**
  * [MailpitServer] 테스트

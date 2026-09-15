@@ -1,5 +1,8 @@
 package io.bluetape4k.testcontainers.aws.floci.services
 
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.assertions.shouldNotBeEmpty
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import io.bluetape4k.support.toUtf8Bytes
@@ -7,9 +10,6 @@ import io.bluetape4k.support.toUtf8String
 import io.bluetape4k.testcontainers.aws.floci.AbstractFlociServiceTest
 import io.bluetape4k.testcontainers.aws.getCredentialProvider
 import io.bluetape4k.utils.ShutdownQueue
-import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldBeTrue
-import io.bluetape4k.assertions.shouldNotBeEmpty
 import org.junit.jupiter.api.MethodOrderer
 import org.junit.jupiter.api.Order
 import org.junit.jupiter.api.Test
@@ -30,9 +30,9 @@ import software.amazon.awssdk.services.s3.model.PutObjectRequest
  * Floci는 virtual-hosted-style URL을 지원하지 않으므로 path-style access를 사용합니다.
  */
 @TestMethodOrder(MethodOrderer.OrderAnnotation::class)
-class FlociS3Test : AbstractFlociServiceTest() {
+class FlociS3Test: AbstractFlociServiceTest() {
 
-    companion object : KLogging() {
+    companion object: KLogging() {
         private val BUCKET_NAME = "foo-${System.currentTimeMillis()}"
         private const val KEY_NAME = "bar"
         private const val CONTENT = "baz"
