@@ -10,9 +10,7 @@ The Java 21-compatible API types live under
 `io.bluetape4k.concurrent.virtualthread.api`. Core utilities remain under
 `io.bluetape4k.concurrent.virtualthread`, so the published `core` and
 `virtualthread-api` artifacts no longer share a package. Consumers importing
-`VirtualThreads`, `StructuredTaskScopes`, `TaskContext`, or the scope contracts
-must update their imports and recompile. The JDK runtime providers register
-against the matching `.api` ServiceLoader contracts.
+`VirtualThreads`, `StructuredTaskScopes`, `TaskContext`, or the scope contracts must update their imports and recompile. The JDK runtime providers register against the matching `.api` ServiceLoader contracts.
 
 ## Overview
 
