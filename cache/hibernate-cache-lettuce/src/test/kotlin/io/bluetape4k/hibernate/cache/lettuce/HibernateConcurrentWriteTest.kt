@@ -2,12 +2,15 @@ package io.bluetape4k.hibernate.cache.lettuce
 
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeGreaterThan
+import io.bluetape4k.assertions.shouldNotBeEmpty
 import io.bluetape4k.assertions.shouldNotBeNull
 import io.bluetape4k.hibernate.cache.lettuce.model.Person
+import io.bluetape4k.hibernate.createQueryAs
+import io.bluetape4k.hibernate.findAs
 import io.bluetape4k.junit5.concurrency.MultithreadingTester
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import java.util.*
+import java.util.concurrent.ConcurrentLinkedQueue
 import java.util.concurrent.atomic.AtomicInteger
 
 /**
@@ -23,7 +26,7 @@ class HibernateConcurrentWriteTest: AbstractHibernateNearCacheTest() {
     @Test
     fun `다수 쓰레드가 동시에 서로 다른 엔티티를 persist해도 캐시가 누적된다`() {
         val count = AtomicInteger(0)
-        val persistedIds = Collections.synchronizedList(mutableListOf<Long>())
+        val persistedIds = ConcurrentLinkedQueue<Long>()
 
         MultithreadingTester()
             .workers(8)
@@ -39,17 +42,18 @@ class HibernateConcurrentWriteTest: AbstractHibernateNearCacheTest() {
                         }
                     s.persist(p)
                     s.transaction.commit()
-                    persistedIds += p.id!!
+                    persistedIds += p.id.shouldNotBeNull()
                 }
             }.run()
 
         // NONSTRICT_READ_WRITE: cache is populated on load, not on insert.
         // Read each entity in a new session to warm the 2nd-level cache.
         sessionFactory.statistics.clear()
+
         persistedIds.forEach { id ->
             sessionFactory.openSession().use { s ->
                 s.beginTransaction()
-                s.find(Person::class.java, id)
+                s.findAs<Person>(id).shouldNotBeNull()
                 s.transaction.commit()
             }
         }
@@ -63,21 +67,20 @@ class HibernateConcurrentWriteTest: AbstractHibernateNearCacheTest() {
             (1..5).map {
                 sessionFactory.openSession().use { s ->
                     s.beginTransaction()
-                    val p =
-                        Person().apply {
-                            name = "RW$it"
-                            age = 20 + it
-                        }
+                    val p = Person().apply {
+                        name = "RW$it"
+                        age = 20 + it
+                    }
                     s.persist(p)
                     s.transaction.commit()
-                    p.id!!
+                    p.id.shouldNotBeNull()
                 }
             }
 
         ids.forEach { id ->
             sessionFactory.openSession().use { s ->
                 s.beginTransaction()
-                s.find(Person::class.java, id)
+                s.findAs<Person>(id).shouldNotBeNull()
                 s.transaction.commit()
             }
         }
@@ -94,14 +97,14 @@ class HibernateConcurrentWriteTest: AbstractHibernateNearCacheTest() {
                 if (isWrite) {
                     sessionFactory.openSession().use { s ->
                         s.beginTransaction()
-                        val p = s.find(Person::class.java, id)
-                        p?.age = (20..60).random()
+                        val p = s.findAs<Person>(id).shouldNotBeNull()
+                        p.age = (20..60).random()
                         s.transaction.commit()
                     }
                 } else {
                     sessionFactory.openSession().use { s ->
                         s.beginTransaction()
-                        s.find(Person::class.java, id).shouldNotBeNull()
+                        s.findAs<Person>(id).shouldNotBeNull()
                         s.transaction.commit()
                     }
                 }
@@ -128,19 +131,19 @@ class HibernateConcurrentWriteTest: AbstractHibernateNearCacheTest() {
         val hql = "select p from Person p where p.age > :age order by p.id"
         sessionFactory.statistics.clear()
 
-        val resultCounts = Collections.synchronizedList(mutableListOf<Int>())
+        val resultCounts = ConcurrentLinkedQueue<Int>()
         MultithreadingTester()
             .workers(6)
             .rounds(5)
             .add {
                 sessionFactory.openSession().use { s ->
                     s.beginTransaction()
-                    val results =
-                        s
-                            .createSelectionQuery(hql, Person::class.java)
-                            .setParameter("age", 20)
-                            .setCacheable(true)
-                            .list()
+                    val results = s
+                        .createQueryAs<Person>(hql)
+                        .setParameter("age", 20)
+                        .setCacheable(true)
+                        .list()
+                    results.shouldNotBeEmpty()
                     resultCounts += results.size
                     s.transaction.commit()
                 }

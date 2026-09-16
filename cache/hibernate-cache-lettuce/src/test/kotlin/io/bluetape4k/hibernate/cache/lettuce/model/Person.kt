@@ -1,5 +1,6 @@
 package io.bluetape4k.hibernate.cache.lettuce.model
 
+import io.bluetape4k.support.hashOf
 import jakarta.persistence.Cacheable
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
@@ -26,6 +27,14 @@ class Person: Serializable {
 
     @Column
     var age: Int = 0
+
+    override fun equals(other: Any?): Boolean =
+        other is Person &&
+                id == other.id &&
+                name == other.name &&
+                age == other.age
+
+    override fun hashCode(): Int = id?.hashCode() ?: hashOf(name, age)
 
     override fun toString(): String = "Person(id=$id, name=$name, age=$age)"
 }

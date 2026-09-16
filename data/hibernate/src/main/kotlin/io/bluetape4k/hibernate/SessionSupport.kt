@@ -6,6 +6,7 @@ import io.bluetape4k.logging.warn
 import io.bluetape4k.support.requireNotBlank
 import io.bluetape4k.support.requireNotEmpty
 import io.bluetape4k.support.requirePositiveNumber
+import org.hibernate.KeyType
 import org.hibernate.Session
 import org.hibernate.query.Query
 import org.slf4j.Logger
@@ -69,7 +70,8 @@ fun <T> Session.withBatchSize(batchSize: Int, block: Session.() -> T): T {
  * // user == null 또는 User 인스턴스
  * ```
  */
-inline fun <reified T: Any> Session.findAs(id: Serializable): T? = find(T::class.java, id)
+inline fun <reified T: Any> Session.findAs(id: Serializable, vararg keyTypes: KeyType): T? =
+    find(T::class.java, id, *keyTypes)
 
 /**
  * id에 해당하는 엔티티 참조(proxy)를 조회합니다.

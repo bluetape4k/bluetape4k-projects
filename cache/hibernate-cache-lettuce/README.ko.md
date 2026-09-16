@@ -42,7 +42,7 @@ cache 폴더 재편으로 소스 위치는 `cache/hibernate-cache-lettuce/`가 �
 
 ### Cache Key 요구 사항
 
-캐시 key에 사용하는 모든 Hibernate 식별자(entity ID, natural ID, composite key 구성 요소)는 지원되는 scalar/array 값이거나 전체 object graph가 `java.io.Serializable`이어야 합니다. Canonicalization은 fail-closed로 동작하므로, 지원되지 않는 값과 직렬화할 수 없는 nested member를 포함한 `Serializable` 값은 조회 시 cache miss, 저장 시 무시, keyed eviction 시 예외 전파로 처리됩니다. `toString()`이나 `hashCode()`를 fallback으로 사용하지 않습니다.
+캐시 key에 사용하는 모든 Hibernate 식별자 (entity ID, natural ID, composite key 구성 요소)는 지원되는 scalar/array 값이거나 전체 object graph가 `java.io.Serializable`이어야 합니다. Canonicalization은 fail-closed로 동작하므로, 지원되지 않는 값과 직렬화할 수 없는 nested member를 포함한 `Serializable` 값은 조회 시 cache miss, 저장 시 무시, keyed eviction 시 예외 전파로 처리됩니다. `toString()`이나 `hashCode()`를 fallback으로 사용하지 않습니다.
 
 text fallback을 사용하던 이전 버전이 만든 기존 entry는 이 변경 후 다시 주소화할 수 없습니다. 해당 legacy entry를 제거해야 한다면 rollout 중 영향받는 region을 한 번 evict하세요. 직렬화 가능한 key는 기존 `hck2` digest 표현을 유지하므로 전체 cache migration은 필요하지 않습니다.
 
@@ -127,9 +127,7 @@ spring:
 지원 codec 값은 `jdk`, `kryo`, `fory`, `fastfory`, `gzip*`, `lz4*`, `snappy*`,
 `zstd*` 계열이며, 오타나 미지원 codec 이름은 기본값으로 대체하지 않고 즉시 예외로 실패합니다.
 
-FastFory 코덱은 `SCHEMA_CONSISTENT` 모드를 사용하며 기존 Fory 캐시 데이터와 wire format이
-대칭 호환되지 않습니다. 모드를 바꾸기 전에 해당 region의 entry를 eviction 또는 migration할 수 있는
-경우에만 사용하세요.
+FastFory 코덱은 `SCHEMA_CONSISTENT` 모드를 사용하며 기존 Fory 캐시 데이터와 wire format이 대칭 호환되지 않습니다. 모드를 바꾸기 전에 해당 region의 entry를 eviction 또는 migration할 수 있는 경우에만 사용하세요.
 
 ## Entity 설정
 
@@ -175,22 +173,22 @@ val products: MutableList<Product> = mutableListOf()
 
 ## 지원 코덱
 
-| 코덱 이름  | 설명                           | 압축 |
-|------------|--------------------------------|------|
-| `lz4fory`  | LZ4 + Apache Fory **(기본값)** | LZ4  |
-| `lz4fastfory` | LZ4 + Apache FastFory       | LZ4  |
-| `fory`     | Apache Fory                    | -    |
-| `fastfory` | Apache FastFory                | -    |
-| `gzipfory` | GZip + Apache Fory             | GZip |
-| `gzipfastfory` | GZip + Apache FastFory     | GZip |
-| `snappyfory` | Snappy + Apache Fory         | Snappy |
-| `snappyfastfory` | Snappy + Apache FastFory | Snappy |
-| `zstdfory` | Zstd + Apache Fory             | Zstd |
-| `zstdfastfory` | Zstd + Apache FastFory     | Zstd |
-| `kryo`     | Kryo                           | -    |
-| `lz4kryo`  | LZ4 + Kryo                     | LZ4  |
-| `jdk`      | Java 직렬화                    | -    |
-| `lz4jdk`   | LZ4 + Java 직렬화              | LZ4  |
+| 코덱 이름        | 설명                           | 압축   |
+|------------------|--------------------------------|--------|
+| `lz4fory`        | LZ4 + Apache Fory **(기본값)** | LZ4    |
+| `lz4fastfory`    | LZ4 + Apache FastFory          | LZ4    |
+| `fory`           | Apache Fory                    | -      |
+| `fastfory`       | Apache FastFory                | -      |
+| `gzipfory`       | GZip + Apache Fory             | GZip   |
+| `gzipfastfory`   | GZip + Apache FastFory         | GZip   |
+| `snappyfory`     | Snappy + Apache Fory           | Snappy |
+| `snappyfastfory` | Snappy + Apache FastFory       | Snappy |
+| `zstdfory`       | Zstd + Apache Fory             | Zstd   |
+| `zstdfastfory`   | Zstd + Apache FastFory         | Zstd   |
+| `kryo`           | Kryo                           | -      |
+| `lz4kryo`        | LZ4 + Kryo                     | LZ4    |
+| `jdk`            | Java 직렬화                    | -      |
+| `lz4jdk`         | LZ4 + Java 직렬화              | LZ4    |
 
 ## TTL 단위
 
