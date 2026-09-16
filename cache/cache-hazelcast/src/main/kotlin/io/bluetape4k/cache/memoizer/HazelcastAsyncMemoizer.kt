@@ -3,8 +3,10 @@ package io.bluetape4k.cache.memoizer
 import com.hazelcast.map.IMap
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
+import okio.withLock
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.locks.ReentrantLock
 
 /**
  * [IMap]을 사용하는 비동기 메모이저 확장 함수입니다.
@@ -58,6 +60,7 @@ class AsyncHazelcastMemoizer<K: Any, V: Any>(
     companion object: KLogging()
 
     private val inFlight = ConcurrentHashMap<K, CompletableFuture<V>>()
+    private val lock = ReentrantLock()
 
     override fun invoke(key: K): CompletableFuture<V> {
         // 1. in-flight 확인 또는 신규 등록 (Virtual Thread-safe)
@@ -91,7 +94,9 @@ class AsyncHazelcastMemoizer<K: Any, V: Any>(
 
     override fun clear() {
         log.debug { "모든 메모이제이션 값 삭제: map=${imap.name}" }
-        inFlight.clear()
-        imap.clear()
+        lock.withLock {
+            inFlight.clear()
+            imap.clear()
+        }
     }
 }
