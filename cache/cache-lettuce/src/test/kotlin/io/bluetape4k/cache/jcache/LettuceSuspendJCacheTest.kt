@@ -1,22 +1,19 @@
 package io.bluetape4k.cache.jcache
 
 import io.bluetape4k.cache.RedisServers.redisClient
-import io.bluetape4k.codec.encodeBase62
+import io.bluetape4k.codec.Base58
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.redis.lettuce.codec.LettuceBinaryCodecs
-import io.lettuce.core.ExperimentalLettuceCoroutinesApi
-import java.util.*
 
-@OptIn(ExperimentalLettuceCoroutinesApi::class)
 class LettuceSuspendJCacheTest: AbstractSuspendJCacheTest() {
 
     companion object: KLoggingChannel()
 
     private val manager by lazy {
-        LettuceSuspendCacheManager(redisClient, null, LettuceBinaryCodecs.lz4Fory())
+        LettuceSuspendCacheManager(redisClient, null, LettuceBinaryCodecs.default())
     }
 
     override val suspendJCache: SuspendJCache<String, Any> =
-        manager.getOrCreate("lettuce-suspend-cache-" + UUID.randomUUID().encodeBase62())
+        manager.getOrCreate("lettuce-suspend-cache-" + Base58.randomString(8))
 
 }

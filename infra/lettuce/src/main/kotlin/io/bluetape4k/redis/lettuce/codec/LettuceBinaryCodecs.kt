@@ -38,7 +38,7 @@ object LettuceBinaryCodecs {
      * val codec = LettuceBinaryCodecs.default<MyData>()
      * ```
      */
-    fun <V: Any> default(): LettuceBinaryCodec<V> = lz4Fory()
+    fun <V: Any> default(): LettuceBinaryCodec<V> = lz4FastFory()
 
     /**
      * Jdk Serializer를 사용하는 [LettuceBinaryCodec]를 생성합니다.

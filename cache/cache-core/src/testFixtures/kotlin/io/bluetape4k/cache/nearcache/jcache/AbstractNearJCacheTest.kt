@@ -33,7 +33,7 @@ abstract class AbstractNearJCacheTest {
         protected val awaitTimeout = 5.seconds
 
         @JvmStatic
-        fun randomKey(): String = Uuid.V7.nextIdAsString() + Base58.randomString(6)
+        fun randomKey(): String = Uuid.V7.nextIdAsString() + Base58.randomString(8)
 
         @JvmStatic
         protected fun randomValue(): String = Fakers.randomString(1024, 8192, true)

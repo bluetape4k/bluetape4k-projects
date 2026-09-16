@@ -1,12 +1,14 @@
 package io.bluetape4k.cache.jcache
 
-import io.bluetape4k.cache.RedisServers.redisClient
-import io.bluetape4k.codec.encodeBase62
-import io.bluetape4k.junit5.coroutines.runSuspendIO
-import io.bluetape4k.redis.lettuce.codec.LettuceBinaryCodecs
 import io.bluetape4k.assertions.assertFailsWith
+import io.bluetape4k.assertions.shouldBe
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeNull
+import io.bluetape4k.cache.RedisServers.redisClient
+import io.bluetape4k.codec.Base58
+import io.bluetape4k.junit5.coroutines.runSuspendIO
+import io.bluetape4k.logging.coroutines.KLoggingChannel
+import io.bluetape4k.redis.lettuce.codec.LettuceBinaryCodecs
 import io.mockk.clearMocks
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -14,10 +16,11 @@ import io.mockk.every
 import io.mockk.mockk
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import java.util.*
 import javax.cache.CacheException
 
 class LettuceSuspendJCacheManagerTest {
+
+    companion object: KLoggingChannel()
 
     private val registeredCache = mockk<LettuceSuspendJCache<Any>>(relaxed = true)
 
@@ -28,8 +31,8 @@ class LettuceSuspendJCacheManagerTest {
 
     @Test
     fun `closeCache removes registry entry but keeps redis data`() = runSuspendIO {
-        val manager = LettuceSuspendCacheManager(redisClient, defaultCodec = LettuceBinaryCodecs.lz4Fory())
-        val cacheName = "lettuce-suspend-manager-" + UUID.randomUUID().encodeBase62()
+        val manager = LettuceSuspendCacheManager(redisClient, defaultCodec = LettuceBinaryCodecs.default())
+        val cacheName = "lettuce-suspend-manager-" + Base58.randomString(8)
         val cache = manager.getOrCreate<String>(cacheName)
 
         try {
@@ -50,7 +53,7 @@ class LettuceSuspendJCacheManagerTest {
     fun `destroyCache propagates clear failure and keeps cache registered`() = runSuspendIO {
         val cacheName = "suspend-clear-failure-cache"
         val cause = IllegalStateException("redis clear failed")
-        val manager = LettuceSuspendCacheManager(redisClient, defaultCodec = LettuceBinaryCodecs.lz4Fory())
+        val manager = LettuceSuspendCacheManager(redisClient, defaultCodec = LettuceBinaryCodecs.default())
         every { registeredCache.name } returns cacheName
         coEvery { registeredCache.clear() } throws cause
         registerCache(manager, cacheName, registeredCache)
@@ -60,7 +63,7 @@ class LettuceSuspendJCacheManagerTest {
                 manager.destroyCache(cacheName)
             }
 
-            thrown.cause shouldBeEqualTo cause
+            thrown.cause shouldBe cause
             manager.getCache<Any>(cacheName) shouldBeEqualTo registeredCache
             coVerify(exactly = 0) { registeredCache.close() }
         } finally {
@@ -72,7 +75,7 @@ class LettuceSuspendJCacheManagerTest {
     fun `destroyCache propagates close failure after clear and removes cache`() = runSuspendIO {
         val cacheName = "suspend-close-failure-cache"
         val cause = IllegalStateException("resource close failed")
-        val manager = LettuceSuspendCacheManager(redisClient, defaultCodec = LettuceBinaryCodecs.lz4Fory())
+        val manager = LettuceSuspendCacheManager(redisClient, defaultCodec = LettuceBinaryCodecs.default())
         every { registeredCache.name } returns cacheName
         coEvery { registeredCache.clear() } returns Unit
         coEvery { registeredCache.close() } throws cause
@@ -83,7 +86,7 @@ class LettuceSuspendJCacheManagerTest {
                 manager.destroyCache(cacheName)
             }
 
-            thrown.cause shouldBeEqualTo cause
+            thrown.cause shouldBe cause
             manager.getCache<Any>(cacheName).shouldBeNull()
             coVerify { registeredCache.clear() }
             coVerify { registeredCache.close() }
@@ -94,8 +97,8 @@ class LettuceSuspendJCacheManagerTest {
 
     @Test
     fun `destroyCache deletes redis data before same-name recreation`() = runSuspendIO {
-        val cacheName = "suspend-recreate-after-destroy-" + UUID.randomUUID().encodeBase62()
-        val manager = LettuceSuspendCacheManager(redisClient, defaultCodec = LettuceBinaryCodecs.lz4Fory())
+        val cacheName = "suspend-recreate-after-destroy-" + Base58.randomString(8)
+        val manager = LettuceSuspendCacheManager(redisClient, defaultCodec = LettuceBinaryCodecs.default())
 
         try {
             val cache = manager.getOrCreate<String>(cacheName)
@@ -113,14 +116,14 @@ class LettuceSuspendJCacheManagerTest {
 
     @Test
     fun `manager close releases wrappers but keeps redis data`() = runSuspendIO {
-        val cacheName = "lettuce-suspend-manager-close-" + UUID.randomUUID().encodeBase62()
-        val manager = LettuceSuspendCacheManager(redisClient, defaultCodec = LettuceBinaryCodecs.lz4Fory())
+        val cacheName = "lettuce-suspend-manager-close-" + Base58.randomString(8)
+        val manager = LettuceSuspendCacheManager(redisClient, defaultCodec = LettuceBinaryCodecs.default())
         val cache = manager.getOrCreate<String>(cacheName)
 
         cache.put("key", "value")
         manager.close()
 
-        val reopenedManager = LettuceSuspendCacheManager(redisClient, defaultCodec = LettuceBinaryCodecs.lz4Fory())
+        val reopenedManager = LettuceSuspendCacheManager(redisClient, defaultCodec = LettuceBinaryCodecs.default())
         try {
             // close()는 JCache 계약상 Redis hash 데이터를 삭제하지 않는다. 새 wrapper로 다시 읽을 수 있어야 한다.
             val reopened = reopenedManager.getOrCreate<String>(cacheName)
@@ -133,7 +136,7 @@ class LettuceSuspendJCacheManagerTest {
 
     @Test
     fun `closed manager rejects further operations`() {
-        val manager = LettuceSuspendCacheManager(redisClient, defaultCodec = LettuceBinaryCodecs.lz4Fory())
+        val manager = LettuceSuspendCacheManager(redisClient, defaultCodec = LettuceBinaryCodecs.default())
         runSuspendIO { manager.close() }
 
         assertFailsWith<IllegalStateException> {
@@ -151,9 +154,9 @@ class LettuceSuspendJCacheManagerTest {
     fun `매니저 기본 codec이 캐시에 적용되는지 확인`() = runSuspendIO {
         val manager = LettuceSuspendCacheManager(
             redisClient = redisClient,
-            defaultCodec = LettuceBinaryCodecs.lz4Fory(),
+            defaultCodec = LettuceBinaryCodecs.default(),
         )
-        val cacheName = "codec-test-cache-" + UUID.randomUUID().encodeBase62()
+        val cacheName = "codec-test-cache-" + Base58.randomString(8)
 
         try {
             val cache = manager.getOrCreate<String>(cacheName)
@@ -171,7 +174,7 @@ class LettuceSuspendJCacheManagerTest {
             redisClient = redisClient,
             defaultTtlSeconds = 60L,
         )
-        val cacheName = "ttl-test-cache-" + UUID.randomUUID().encodeBase62()
+        val cacheName = "ttl-test-cache-" + Base58.randomString(8)
 
         try {
             val cache = manager.getOrCreate<String>(cacheName)
