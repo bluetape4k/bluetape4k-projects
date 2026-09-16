@@ -28,7 +28,7 @@ import javax.cache.configuration.MutableConfiguration
 /**
  * Hazelcast 기반 캐시 인스턴스를 생성하는 팩토리 오브젝트입니다.
  *
- * [JCache], [SuspendJCache], [HazelcastNearCache], [HazelcastSuspendNearCache]를 편리하게 생성할 수 있습니다.
+ * [JCache], [io.bluetape4k.cache.jcache.SuspendJCache], [HazelcastNearCache], [HazelcastSuspendNearCache]를 편리하게 생성할 수 있습니다.
  *
  * ```kotlin
  * val cache = HazelcastCaches.jcache<String, String>("my-cache")
@@ -72,7 +72,7 @@ object HazelcastCaches: KLogging() {
     // ─────────────────────────────────────────────
 
     /**
-     * 이름으로 Hazelcast [SuspendJCache]를 생성하거나 재사용합니다.
+     * 이름으로 Hazelcast [io.bluetape4k.cache.jcache.SuspendJCache]를 생성하거나 재사용합니다.
      *
      * ```kotlin
      * val cache = HazelcastCaches.suspendJCache<String, String>(hazelcastInstance, "users")
@@ -93,7 +93,7 @@ object HazelcastCaches: KLogging() {
     ): HazelcastSuspendJCache<K, V> = HazelcastSuspendJCache(hazelcastInstance, cacheName)
 
     /**
-     * 이름과 설정으로 Hazelcast [SuspendJCache]를 생성하거나 재사용합니다.
+     * 이름과 설정으로 Hazelcast [io.bluetape4k.cache.jcache.SuspendJCache]를 생성하거나 재사용합니다.
      *
      * ```kotlin
      * val config = MutableConfiguration<String, String>().apply { setTypes(String::class.java, String::class.java) }

@@ -18,6 +18,9 @@ dependencies {
     testImplementation(libs.kotlinx.coroutines.test)
     testImplementation(libs.awaitility.kotlin)
 
+    testImplementation(project(":bluetape4k-io"))
+    testImplementation(bt4k.fory.kotlin)
+
     testImplementation(testFixtures(project(":bluetape4k-cache-core")))
     testImplementation(project(":bluetape4k-junit5"))
     testImplementation(project(":bluetape4k-testcontainers"))

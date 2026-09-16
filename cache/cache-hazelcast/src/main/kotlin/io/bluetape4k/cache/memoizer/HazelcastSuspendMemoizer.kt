@@ -3,13 +3,13 @@ package io.bluetape4k.cache.memoizer
 import com.hazelcast.map.IMap
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
-import kotlinx.coroutines.sync.Mutex
-import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.future.await
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import java.util.concurrent.ConcurrentHashMap
 
@@ -72,6 +72,7 @@ class SuspendHazelcastMemoizer<K: Any, V: Any>(
     companion object: KLoggingChannel()
 
     private val inFlight = ConcurrentHashMap<K, Deferred<V>>()
+
     // evaluator는 lock 밖에서 실행하고, 세대 변경과 캐시 저장/삭제만 직렬화합니다.
     private val mutationMutex = Mutex()
     private var generation = 0L

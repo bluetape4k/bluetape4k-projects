@@ -73,7 +73,7 @@ class HazelcastMemoizer<K: Any, V: Any>(
         if (existing != null) return existing.join()
 
         try {
-            val cached = imap.get(key)
+            val cached = imap[key]
             if (cached != null) {
                 promise.complete(cached)
                 return cached

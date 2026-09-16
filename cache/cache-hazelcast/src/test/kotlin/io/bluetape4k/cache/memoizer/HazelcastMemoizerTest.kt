@@ -1,10 +1,10 @@
 package io.bluetape4k.cache.memoizer
 
 import com.hazelcast.map.IMap
+import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.cache.HazelcastServers.hazelcastClient
 import io.bluetape4k.junit5.concurrency.MultithreadingTester
 import io.bluetape4k.logging.KLogging
-import io.bluetape4k.assertions.shouldBeEqualTo
 import org.junit.jupiter.api.Test
 import org.testcontainers.utility.Base58
 import java.util.concurrent.atomic.AtomicInteger
