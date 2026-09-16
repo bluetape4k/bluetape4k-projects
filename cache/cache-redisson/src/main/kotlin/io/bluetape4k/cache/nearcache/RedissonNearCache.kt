@@ -1,7 +1,7 @@
 package io.bluetape4k.cache.nearcache
 
 import io.bluetape4k.logging.KLogging
-import io.bluetape4k.logging.debug
+import io.bluetape4k.logging.info
 import io.bluetape4k.redis.redisson.codec.RedissonCodecs
 import kotlinx.atomicfu.atomic
 import org.redisson.api.RLocalCachedMap
@@ -28,8 +28,9 @@ import org.redisson.client.codec.Codec
 class RedissonNearCache<V: Any>(
     private val redisson: RedissonClient,
     private val config: RedissonNearCacheConfig = RedissonNearCacheConfig(),
-    private val codec: Codec = RedissonCodecs.LZ4Fory,
+    private val codec: Codec = RedissonCodecs.Default,
 ): NearCacheOperations<V> {
+
     companion object: KLogging()
 
     override val cacheName: String get() = config.cacheName
@@ -40,10 +41,9 @@ class RedissonNearCache<V: Any>(
     private val backHitCount = atomic(0L)
     private val backMissCount = atomic(0L)
 
-    private val localCachedMap: RLocalCachedMap<String, V> =
-        redisson.getLocalCachedMap(
-            buildLocalCachedMapOptions(config, codec)
-        )
+    private val localCachedMap: RLocalCachedMap<String, V> = redisson.getLocalCachedMap(
+        buildLocalCachedMapOptions(config, codec)
+    )
 
     /**
      * [key]에 해당하는 값을 조회합니다.
@@ -67,15 +67,13 @@ class RedissonNearCache<V: Any>(
     /**
      * [key]가 캐시에 존재하는지 확인합니다.
      */
-    override fun containsKey(key: String): Boolean = localCachedMap.containsKey(key)
+    override fun containsKey(key: String): Boolean =
+        localCachedMap.containsKey(key)
 
     /**
      * [key]-[value] 쌍을 저장합니다.
      */
-    override fun put(
-        key: String,
-        value: V,
-    ) {
+    override fun put(key: String, value: V) {
         localCachedMap[key] = value
     }
 
@@ -91,31 +89,24 @@ class RedissonNearCache<V: Any>(
      *
      * @return 기존에 존재하던 값. 저장에 성공하면 null.
      */
-    override fun putIfAbsent(
-        key: String,
-        value: V,
-    ): V? = localCachedMap.putIfAbsent(key, value)
+    override fun putIfAbsent(key: String, value: V): V? =
+        localCachedMap.putIfAbsent(key, value)
 
     /**
      * [key]의 값을 [value]로 교체합니다.
      *
      * @return 키가 존재하여 교체에 성공하면 true.
      */
-    override fun replace(
-        key: String,
-        value: V,
-    ): Boolean = localCachedMap.replace(key, value) != null
+    override fun replace(key: String, value: V): Boolean =
+        localCachedMap.replace(key, value) != null
 
     /**
      * [key]의 값이 [oldValue]와 일치할 때만 [newValue]로 교체합니다.
      *
      * @return 교체에 성공하면 true.
      */
-    override fun replace(
-        key: String,
-        oldValue: V,
-        newValue: V,
-    ): Boolean = localCachedMap.replace(key, oldValue, newValue)
+    override fun replace(key: String, oldValue: V, newValue: V): Boolean =
+        localCachedMap.replace(key, oldValue, newValue)
 
     /**
      * [key]를 삭제합니다.
@@ -137,17 +128,16 @@ class RedissonNearCache<V: Any>(
      *
      * @return 삭제된 값. 키가 없으면 null.
      */
-    override fun getAndRemove(key: String): V? = localCachedMap.remove(key)
+    override fun getAndRemove(key: String): V? =
+        localCachedMap.remove(key)
 
     /**
      * [key]의 현재 값을 반환하고 [value]로 교체합니다.
      *
      * @return 교체 전 값. 키가 없으면 null.
      */
-    override fun getAndReplace(
-        key: String,
-        value: V,
-    ): V? = localCachedMap.replace(key, value)
+    override fun getAndReplace(key: String, value: V): V? =
+        localCachedMap.replace(key, value)
 
     /**
      * 로컬 캐시만 비웁니다. Redis 캐시는 유지됩니다.
@@ -166,12 +156,14 @@ class RedissonNearCache<V: Any>(
     /**
      * 로컬 캐시 엔트리 수를 반환합니다.
      */
-    override fun localCacheSize(): Long = localCachedMap.cachedKeySet().size.toLong()
+    override fun localCacheSize(): Long =
+        localCachedMap.cachedKeySet().size.toLong()
 
     /**
      * Redis 캐시 엔트리 수를 반환합니다.
      */
-    override fun backCacheSize(): Long = localCachedMap.size.toLong()
+    override fun backCacheSize(): Long =
+        localCachedMap.size.toLong()
 
     /**
      * 캐시 통계 스냅샷을 반환합니다.
@@ -180,15 +172,14 @@ class RedissonNearCache<V: Any>(
      * `backHitCount`/`backMissCount`는 로컬+Redis 통합 조회 결과를 기준으로 카운트됩니다.
      * Redisson이 별도의 로컬/백엔드 통계를 노출하지 않으므로 `localHits`/`localMisses`는 0으로 보고됩니다.
      */
-    override fun stats(): NearCacheStatistics =
-        DefaultNearCacheStatistics(
-            localHits = 0L,
-            localMisses = 0L,
-            localSize = localCacheSize(),
-            localEvictions = 0L,
-            backHits = backHitCount.value,
-            backMisses = backMissCount.value
-        )
+    override fun stats(): NearCacheStatistics = DefaultNearCacheStatistics(
+        localHits = 0L,
+        localMisses = 0L,
+        localSize = localCacheSize(),
+        localEvictions = 0L,
+        backHits = backHitCount.value,
+        backMisses = backMissCount.value
+    )
 
     /**
      * 리소스를 정리합니다.
@@ -196,7 +187,7 @@ class RedissonNearCache<V: Any>(
     override fun close() {
         if (closed.compareAndSet(expect = false, update = true)) {
             runCatching { localCachedMap.destroy() }
-            log.debug { "RedissonNearCache [${config.cacheName}] closed" }
+            log.info { "RedissonNearCache [${config.cacheName}] closed" }
         }
     }
 }
@@ -206,7 +197,7 @@ class RedissonNearCache<V: Any>(
  */
 internal fun <K, V> buildLocalCachedMapOptions(
     config: RedissonNearCacheConfig,
-    codec: Codec = RedissonCodecs.LZ4Fory,
+    codec: Codec = RedissonCodecs.Default,
 ): LocalCachedMapOptions<K, V> {
     val opts = LocalCachedMapOptions
         .name<K, V>(config.cacheName)
@@ -215,6 +206,7 @@ internal fun <K, V> buildLocalCachedMapOptions(
         .evictionPolicy(config.evictionPolicy)
         .syncStrategy(config.syncStrategy)
         .reconnectionStrategy(config.reconnectionStrategy)
+
     config.timeToLive?.let { opts.timeToLive(it) }
     config.maxIdle?.let { opts.maxIdle(it) }
     return opts
@@ -239,5 +231,5 @@ internal fun <K, V> buildLocalCachedMapOptions(
 fun <V: Any> redissonNearCacheOf(
     redisson: RedissonClient,
     config: RedissonNearCacheConfig = RedissonNearCacheConfig(),
-    codec: Codec = RedissonCodecs.LZ4Fory,
+    codec: Codec = RedissonCodecs.Default,
 ): NearCacheOperations<V> = RedissonNearCache(redisson, config, codec)

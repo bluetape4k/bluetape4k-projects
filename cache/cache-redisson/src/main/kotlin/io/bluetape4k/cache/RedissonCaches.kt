@@ -37,6 +37,7 @@ import javax.cache.configuration.MutableConfiguration
  */
 @Suppress("TooManyFunctions")
 object RedissonCaches: KLogging() {
+
     // ─────────────────────────────────────────────
     // JCache
     // ─────────────────────────────────────────────
@@ -61,11 +62,11 @@ object RedissonCaches: KLogging() {
     inline fun <reified K: Any, reified V: Any> jcache(
         redisson: RedissonClient,
         cacheName: String,
-        configuration: Configuration<K, V> =
-            MutableConfiguration<K, V>().apply {
-                setTypes(K::class.java, V::class.java)
-            },
-    ): JCache<K, V> = RedissonJCaching.getOrCreate(cacheName, redisson, configuration)
+        configuration: Configuration<K, V> = MutableConfiguration<K, V>().apply {
+            setTypes(K::class.java, V::class.java)
+        },
+    ): JCache<K, V> =
+        RedissonJCaching.getOrCreate(cacheName, redisson, configuration)
 
     /**
      * Redisson [Config]로 [JCache]를 생성하거나 재사용합니다.
@@ -92,7 +93,8 @@ object RedissonCaches: KLogging() {
             MutableConfiguration<K, V>().apply {
                 setTypes(K::class.java, V::class.java)
             },
-    ): JCache<K, V> = RedissonJCaching.getOrCreate(cacheName, redissonConfig, configuration)
+    ): JCache<K, V> =
+        RedissonJCaching.getOrCreate(cacheName, redissonConfig, configuration)
 
     // ─────────────────────────────────────────────
     // SuspendCache
@@ -119,7 +121,8 @@ object RedissonCaches: KLogging() {
         redisson: RedissonClient,
         cacheName: String,
         configuration: Configuration<K, V> = MutableConfiguration(),
-    ): RedissonSuspendJCache<K, V> = RedissonSuspendJCache(cacheName, redisson, configuration)
+    ): RedissonSuspendJCache<K, V> =
+        RedissonSuspendJCache(cacheName, redisson, configuration)
 
     /**
      * Redisson [Config]로 [RedissonSuspendJCache]를 생성하거나 재사용합니다.
@@ -141,7 +144,8 @@ object RedissonCaches: KLogging() {
     inline fun <reified K: Any, reified V: Any> suspendJCache(
         cacheName: String,
         redissonConfig: Config,
-    ): RedissonSuspendJCache<K, V> = RedissonSuspendJCache(cacheName, redissonConfig)
+    ): RedissonSuspendJCache<K, V> =
+        RedissonSuspendJCache(cacheName, redissonConfig)
 
     // ─────────────────────────────────────────────
     // NearCache (JCache 백엔드, 레거시)
@@ -167,7 +171,11 @@ object RedissonCaches: KLogging() {
     fun <K: Any, V: Any> nearJCache(
         backCache: JCache<K, V>,
         nearJCacheConfig: NearJCacheConfig<K, V> = NearJCacheConfig(),
-    ): NearJCache<K, V> = nearJCache(backCache, nearJCacheConfig, NearJCacheClearAuthority.DENY)
+    ): NearJCache<K, V> = nearJCache(
+        backCache,
+        nearJCacheConfig,
+        NearJCacheClearAuthority.DENY
+    )
 
     /**
      * [NearJCacheClearAuthority]를 명시하는 기존 back-cache 기반 factory입니다.
@@ -235,7 +243,7 @@ object RedissonCaches: KLogging() {
             },
         nearJCacheConfig: NearJCacheConfig<K, V> = NearJCacheConfig(),
     ): NearJCache<K, V> {
-        val backCache = RedissonJCaching.getOrCreate(backCacheName, redisson, backCacheConfiguration)
+        val backCache: JCache<K, V> = RedissonJCaching.getOrCreate(backCacheName, redisson, backCacheConfiguration)
         return NearJCache(nearJCacheConfig, backCache, clearAuthority)
     }
 
@@ -264,7 +272,8 @@ object RedissonCaches: KLogging() {
     fun <K: Any, V: Any> suspendNearJCache(
         frontSuspendJCache: SuspendJCache<K, V>,
         backSuspendJCache: SuspendJCache<K, V>,
-    ): SuspendNearJCache<K, V> = SuspendNearJCache(frontSuspendJCache, backSuspendJCache)
+    ): SuspendNearJCache<K, V> =
+        SuspendNearJCache(frontSuspendJCache, backSuspendJCache)
 
     /**
      * RedissonClient로 백엔드 캐시를 생성하고 [SuspendNearJCache]를 반환합니다.
@@ -322,7 +331,7 @@ object RedissonCaches: KLogging() {
     fun <V: Any> nearCache(
         redisson: RedissonClient,
         config: RedissonNearCacheConfig = RedissonNearCacheConfig(),
-        codec: Codec = RedissonCodecs.LZ4Fory,
+        codec: Codec = RedissonCodecs.Default,
     ): NearCacheOperations<V> = RedissonNearCache(redisson, config, codec)
 
     /**
@@ -344,6 +353,6 @@ object RedissonCaches: KLogging() {
     fun <V: Any> suspendNearCache(
         redisson: RedissonClient,
         config: RedissonNearCacheConfig = RedissonNearCacheConfig(),
-        codec: Codec = RedissonCodecs.LZ4Fory,
+        codec: Codec = RedissonCodecs.Default,
     ): SuspendNearCacheOperations<V> = RedissonSuspendNearCache(redisson, config, codec)
 }

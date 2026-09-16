@@ -1,16 +1,21 @@
 package io.bluetape4k.cache.memoizer
 
+import io.bluetape4k.assertions.assertFailsWith
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeLessThan
+import io.bluetape4k.assertions.shouldBeNull
+import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.cache.RedisServers.randomName
 import io.bluetape4k.cache.RedisServers.redisson
+import io.bluetape4k.concurrent.completableFutureOf
+import io.bluetape4k.concurrent.failedCompletableFutureOf
 import io.bluetape4k.junit5.concurrency.MultithreadingTester
 import io.bluetape4k.junit5.concurrency.StructuredTaskScopeTester
 import io.bluetape4k.logging.coroutines.KLoggingChannel
-import io.bluetape4k.assertions.shouldBeNull
-import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldBeLessThan
+import org.awaitility.kotlin.atMost
 import org.awaitility.kotlin.await
+import org.awaitility.kotlin.until
 import org.junit.jupiter.api.Test
-import io.bluetape4k.assertions.assertFailsWith
 import org.redisson.api.RMap
 import org.redisson.client.codec.IntegerCodec
 import org.redisson.client.codec.LongCodec
@@ -19,7 +24,6 @@ import java.util.concurrent.ExecutionException
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicInteger
 import kotlin.time.Duration.Companion.seconds
-import kotlin.time.toJavaDuration
 
 class RedissonAsyncMemoizerTest: AbstractAsyncMemoizerTest() {
 
@@ -55,6 +59,7 @@ class RedissonAsyncMemoizerTest: AbstractAsyncMemoizerTest() {
             val started = CompletableFuture<Unit>()
             val release = CompletableFuture<Int>()
             val calls = AtomicInteger()
+
             val memo = local.asyncMemoizer {
                 if (calls.incrementAndGet() == 1) {
                     started.complete(Unit)
@@ -66,10 +71,13 @@ class RedissonAsyncMemoizerTest: AbstractAsyncMemoizerTest() {
                 started.get(5, TimeUnit.SECONDS)
                 memo.clear()
                 local[1].shouldBeNull()
+
                 if (newFirst) memo(1).get(5, TimeUnit.SECONDS) shouldBeEqualTo 20
                 release.complete(10)
+
                 old.get(5, TimeUnit.SECONDS) shouldBeEqualTo 10
                 if (newFirst) local[1] shouldBeEqualTo 20 else local[1].shouldBeNull()
+
                 memo(1).get(5, TimeUnit.SECONDS) shouldBeEqualTo 20
                 calls.get() shouldBeEqualTo 2
             } finally {
@@ -83,6 +91,7 @@ class RedissonAsyncMemoizerTest: AbstractAsyncMemoizerTest() {
     fun `async memoizer should evaluate once for same key in concurrent calls`() {
         val map = redisson.getMap<Int, Int>(randomName(), IntegerCodec()).apply { clear() }
         val evaluateCount = AtomicInteger(0)
+
         val memoizer = map.asyncMemoizer { key ->
             CompletableFuture.supplyAsync {
                 evaluateCount.incrementAndGet()
@@ -93,7 +102,9 @@ class RedissonAsyncMemoizerTest: AbstractAsyncMemoizerTest() {
 
         try {
             val futures = List(16) { memoizer(7) }
-            futures.forEach { it.get(2, TimeUnit.SECONDS) shouldBeEqualTo 49 }
+            futures.forEach {
+                it.get(2, TimeUnit.SECONDS) shouldBeEqualTo 49
+            }
             evaluateCount.get() shouldBeEqualTo 1
         } finally {
             map.delete()
@@ -107,9 +118,10 @@ class RedissonAsyncMemoizerTest: AbstractAsyncMemoizerTest() {
             put(9, 81)
         }
         val evaluateCount = AtomicInteger(0)
+
         val memoizer = map.asyncMemoizer { key ->
             evaluateCount.incrementAndGet()
-            CompletableFuture.completedFuture(key * key)
+            completableFutureOf(key * key)
         }
 
         try {
@@ -124,10 +136,11 @@ class RedissonAsyncMemoizerTest: AbstractAsyncMemoizerTest() {
     fun `failed evaluation is removed from in-flight and next call re-evaluates`() {
         val map = redisson.getMap<Int, Int>(randomName(), IntegerCodec()).apply { clear() }
         val evaluateCount = AtomicInteger(0)
+
         val memoizer = map.asyncMemoizer { key ->
             when (evaluateCount.incrementAndGet()) {
-                1 -> CompletableFuture.failedFuture(IllegalStateException("boom"))
-                else -> CompletableFuture.completedFuture(key * key)
+                1    -> failedCompletableFutureOf<Int>(IllegalStateException("boom"))
+                else -> completableFutureOf(key * key)
             }
         }
 
@@ -149,6 +162,7 @@ class RedissonAsyncMemoizerTest: AbstractAsyncMemoizerTest() {
         val evaluateCount = AtomicInteger(0)
         val firstEvaluation = CompletableFuture<Int>()
         val secondEvaluation = CompletableFuture<Int>()
+
         val memoizer = map.asyncMemoizer { _ ->
             when (evaluateCount.incrementAndGet()) {
                 1 -> firstEvaluation
@@ -159,9 +173,10 @@ class RedissonAsyncMemoizerTest: AbstractAsyncMemoizerTest() {
         try {
             val first = memoizer(3)
             memoizer.clear()
+
             val second = memoizer(3)
 
-            await.atMost(2.seconds.toJavaDuration()).until { evaluateCount.get() == 2 }
+            await atMost 2.seconds until { evaluateCount.get() == 2 }
 
             firstEvaluation.complete(9)
             secondEvaluation.complete(9)
@@ -181,6 +196,7 @@ class RedissonAsyncMemoizerTest: AbstractAsyncMemoizerTest() {
     fun `multithreading - memoizer should not evaluate duplicately under concurrent access`() {
         val map = redisson.getMap<Int, Int>(randomName(), IntegerCodec()).apply { clear() }
         val evaluateCount = AtomicInteger(0)
+
         val memoizer = map.asyncMemoizer { key ->
             CompletableFuture.supplyAsync {
                 evaluateCount.incrementAndGet()
@@ -194,7 +210,7 @@ class RedissonAsyncMemoizerTest: AbstractAsyncMemoizerTest() {
                 .workers(16)
                 .rounds(4)
                 .add {
-                    memoizer(7).get(5, TimeUnit.SECONDS) shouldBeEqualTo 49
+                    memoizer(7).get(5, TimeUnit.SECONDS) shouldBeEqualTo 7 * 7
                 }
                 .run()
 
@@ -215,6 +231,7 @@ class RedissonAsyncMemoizerTest: AbstractAsyncMemoizerTest() {
     fun `concurrent invokes with sequential rounds should not leak inFlight entries`() {
         val map = redisson.getMap<Int, Int>(randomName(), IntegerCodec()).apply { clear() }
         val evaluateCount = AtomicInteger(0)
+
         val memoizer = map.asyncMemoizer { key ->
             CompletableFuture.supplyAsync {
                 evaluateCount.incrementAndGet()
@@ -225,8 +242,10 @@ class RedissonAsyncMemoizerTest: AbstractAsyncMemoizerTest() {
 
         try {
             repeat(5) {
-                val futures = List(8) { memoizer(11) }
-                futures.forEach { it.get(2, TimeUnit.SECONDS) shouldBeEqualTo 121 }
+                val futures = List(8) {
+                    memoizer(11)
+                }
+                futures.all { it.get(2, TimeUnit.SECONDS) == 11 * 11 }.shouldBeTrue()
             }
             // 실제 평가는 최초 라운드에서만, 이후 라운드는 Redis 캐시에서 반환
             evaluateCount.get() shouldBeEqualTo 1
@@ -243,6 +262,7 @@ class RedissonAsyncMemoizerTest: AbstractAsyncMemoizerTest() {
     fun `structured task scope - memoizer should not evaluate duplicately under concurrent access`() {
         val map = redisson.getMap<Int, Int>(randomName(), IntegerCodec()).apply { clear() }
         val evaluateCount = AtomicInteger(0)
+
         val memoizer = map.asyncMemoizer { key ->
             CompletableFuture.supplyAsync {
                 evaluateCount.incrementAndGet()
@@ -255,7 +275,7 @@ class RedissonAsyncMemoizerTest: AbstractAsyncMemoizerTest() {
             StructuredTaskScopeTester()
                 .rounds(32)
                 .add {
-                    memoizer(7).get(5, TimeUnit.SECONDS) shouldBeEqualTo 49
+                    memoizer(7).get(5, TimeUnit.SECONDS) shouldBeEqualTo 7 * 7
                 }
                 .run()
 

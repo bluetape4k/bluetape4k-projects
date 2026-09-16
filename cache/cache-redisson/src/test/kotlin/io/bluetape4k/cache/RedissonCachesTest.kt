@@ -1,5 +1,6 @@
 package io.bluetape4k.cache
 
+import io.bluetape4k.assertions.shouldBeInstanceOf
 import io.bluetape4k.cache.jcache.JCache
 import io.bluetape4k.cache.jcache.RedissonSuspendJCache
 import io.bluetape4k.cache.nearcache.NearCacheOperations
@@ -10,7 +11,6 @@ import io.bluetape4k.cache.nearcache.jcache.NearJCache
 import io.bluetape4k.cache.nearcache.jcache.SuspendNearJCache
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.KLogging
-import io.bluetape4k.assertions.shouldBeInstanceOf
 import org.junit.jupiter.api.Test
 import org.redisson.config.Config
 
@@ -19,6 +19,7 @@ import org.redisson.config.Config
  * 각 팩토리 메서드가 올바른 타입의 인스턴스를 반환하는지 검증합니다.
  */
 class RedissonCachesTest {
+
     companion object: KLogging() {
         private val redisson get() = RedisServers.redisson
     }
@@ -27,21 +28,21 @@ class RedissonCachesTest {
     fun `jcache 팩토리는 JCache 인스턴스를 반환한다`() {
         val name = RedisServers.randomName()
         val cache = RedissonCaches.jcache<String, String>(redisson, name)
-        try {
-            cache shouldBeInstanceOf JCache::class
-        } finally {
-            cache.close()
+
+        cache.use { cache ->
+            cache.shouldBeInstanceOf<JCache<String, String>>() 
         }
     }
 
     @Test
-    fun `suspendJCache 팩토리는 RedissonSuspendJCache 인스턴스를 반환한다`() {
+    fun `suspendJCache 팩토리는 RedissonSuspendJCache 인스턴스를 반환한다`() = runSuspendIO {
         val name = RedisServers.randomName()
         val cache = RedissonCaches.suspendJCache<String, String>(redisson, name)
+
         try {
-            cache shouldBeInstanceOf RedissonSuspendJCache::class
+            cache.shouldBeInstanceOf<RedissonSuspendJCache<String, String>>()
         } finally {
-            runSuspendIO { cache.close() }
+            cache.close()
         }
     }
 
@@ -52,11 +53,10 @@ class RedissonCachesTest {
             useSingleServer().setAddress(RedisServers.redisServer.url)
         }
         val cache = RedissonCaches.jcache<String, String>(name, config)
-        try {
-            cache shouldBeInstanceOf JCache::class
+
+        cache.use { cache ->
+            cache.shouldBeInstanceOf<JCache<String, String>>() 
             cache.put("config-key", "config-value")
-        } finally {
-            cache.close()
         }
     }
 
@@ -68,7 +68,7 @@ class RedissonCachesTest {
         }
         val cache = RedissonCaches.suspendJCache<String, String>(name, config)
         try {
-            cache shouldBeInstanceOf RedissonSuspendJCache::class
+            cache.shouldBeInstanceOf<RedissonSuspendJCache<String, String>>()
             cache.put("config-key", "config-value")
         } finally {
             cache.close()
@@ -79,21 +79,19 @@ class RedissonCachesTest {
     fun `nearJCache 팩토리는 NearJCache 인스턴스를 반환한다`() {
         val name = RedisServers.randomName()
         val cache = RedissonCaches.nearJCache<String, String>(name, redisson)
-        try {
-            cache shouldBeInstanceOf NearJCache::class
-        } finally {
-            cache.close()
+        cache.use { cache ->
+            cache.shouldBeInstanceOf<NearJCache<String, String>>() 
         }
     }
 
     @Test
-    fun `suspendNearJCache 팩토리는 SuspendNearJCache 인스턴스를 반환한다`() {
+    fun `suspendNearJCache 팩토리는 SuspendNearJCache 인스턴스를 반환한다`() = runSuspendIO {
         val name = RedisServers.randomName()
         val cache = RedissonCaches.suspendNearJCache<String, String>(name, redisson)
         try {
-            cache shouldBeInstanceOf SuspendNearJCache::class
+            cache.shouldBeInstanceOf<SuspendNearJCache<String, String>>()
         } finally {
-            runSuspendIO { cache.close() }
+            cache.close()
         }
     }
 
@@ -101,21 +99,21 @@ class RedissonCachesTest {
     fun `nearCache 팩토리는 RedissonNearCache 인스턴스를 반환한다`() {
         val cache = RedissonCaches.nearCache<String>(redisson)
         try {
-            cache shouldBeInstanceOf NearCacheOperations::class
-            cache shouldBeInstanceOf RedissonNearCache::class
+            cache.shouldBeInstanceOf<NearCacheOperations<String>>()
+            cache.shouldBeInstanceOf<RedissonNearCache<String>>() 
         } finally {
             cache.close()
         }
     }
 
     @Test
-    fun `suspendNearCache 팩토리는 RedissonSuspendNearCache 인스턴스를 반환한다`() {
+    fun `suspendNearCache 팩토리는 RedissonSuspendNearCache 인스턴스를 반환한다`() = runSuspendIO {
         val cache = RedissonCaches.suspendNearCache<String>(redisson)
         try {
-            cache shouldBeInstanceOf SuspendNearCacheOperations::class
-            cache shouldBeInstanceOf RedissonSuspendNearCache::class
+            cache.shouldBeInstanceOf<SuspendNearCacheOperations<String>>()
+            cache.shouldBeInstanceOf<RedissonSuspendNearCache<String>>()
         } finally {
-            runSuspendIO { cache.close() }
+            cache.close()
         }
     }
 }
