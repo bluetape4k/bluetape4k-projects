@@ -1,7 +1,7 @@
 package io.bluetape4k.hibernate.mapping.localized
 
-import io.bluetape4k.hibernate.AbstractHibernateTest
 import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.hibernate.AbstractHibernateTest
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.repository.findByIdOrNull

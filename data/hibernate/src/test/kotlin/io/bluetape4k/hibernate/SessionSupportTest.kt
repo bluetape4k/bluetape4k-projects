@@ -1,14 +1,17 @@
 package io.bluetape4k.hibernate
 
-import io.bluetape4k.hibernate.mapping.naturalid.NaturalIdBook
-import io.bluetape4k.hibernate.mapping.simple.SimpleEntity
+import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEmpty
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldNotBeNull
+import io.bluetape4k.hibernate.mapping.naturalid.NaturalIdBook
+import io.bluetape4k.hibernate.mapping.simple.SimpleEntity
+import io.bluetape4k.logging.KLogging
 import org.junit.jupiter.api.Test
-import io.bluetape4k.assertions.assertFailsWith
 
 class SessionSupportTest: AbstractHibernateTest() {
+
+    companion object: KLogging()
 
     @Test
     fun `withBatchSize 는 이전 설정을 복원한다`() {
@@ -30,39 +33,36 @@ class SessionSupportTest: AbstractHibernateTest() {
 
         val session = em.currentSession()
 
-        val loaded = session.findAs<SimpleEntity>(entity.id!!)
-        loaded.shouldNotBeNull()
+        val loaded = session.findAs<SimpleEntity>(entity.id!!).shouldNotBeNull()
         loaded.name shouldBeEqualTo entity.name
 
         val reference = session.getReferenceAs<SimpleEntity>(entity.id!!)
         reference.id shouldBeEqualTo entity.id
 
-        val count = session.createQueryAs<Long>(
-            "select count(e) from simple_entity e where e.name = :name"
-        )
+        val count = session
+            .createQueryAs<Long>("select count(e) from simple_entity e where e.name = :name")
             .setParameter("name", entity.name)
             .singleResult
-        count.toLong() shouldBeEqualTo 1L
+            .shouldNotBeNull()
+        count shouldBeEqualTo 1L
 
-        val loadedName = session.createNativeQueryAs<String>(
-            "select name from simple_entity where id = :id"
-        )
+        val loadedName = session
+            .createNativeQueryAs<String>("select name from simple_entity where id = :id")
             .setParameter("id", entity.id)
             .singleResult
+            .shouldNotBeNull()
         loadedName shouldBeEqualTo entity.name
 
-        val names = session.createNativeQueryAs<String>(
-            "select name from simple_entity where name like :prefix"
-        )
+        val names = session
+            .createNativeQueryAs<String>("select name from simple_entity where name like :prefix")
             .setParameter("prefix", "session-%")
             .resultList
-        names.shouldNotBeNull()
+            .shouldNotBeNull()
         names.size shouldBeEqualTo 1
 
         // 잘못된 쿼리는 빈 결과를 반환
-        val empty = session.createQueryAs<Long>(
-            "select e.id from simple_entity e where e.name = :name"
-        )
+        val empty = session
+            .createQueryAs<Long>("select e.id from simple_entity e where e.name = :name")
             .setParameter("name", "not-exist")
             .resultList
         empty.shouldBeEmpty()
@@ -78,9 +78,7 @@ class SessionSupportTest: AbstractHibernateTest() {
         flushAndClear()
 
         val session = em.currentSession()
-        val loaded = session.findBySimpleNaturalId<NaturalIdBook>(book.isbn)
-
-        loaded.shouldNotBeNull()
+        val loaded = session.findBySimpleNaturalId<NaturalIdBook>(book.isbn).shouldNotBeNull()
         loaded.title shouldBeEqualTo "Session NaturalId"
     }
 

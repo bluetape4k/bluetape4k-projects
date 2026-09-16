@@ -34,13 +34,10 @@ dependencies {
 }
 ```
 
-Built-in converter runtime dependencies are part of the `bluetape4k-hibernate` artifact contract.
-Consumers do not need separate `compileOnly` declarations for the documented Tink, Jackson3, Kryo,
-Apache Fory, LZ4, Snappy, Zstd, or Commons Compress converter paths. If a slim deployment excludes
-transitive runtime dependencies, keep the converter engine used by your entity mappings on the runtime
-classpath.
+Built-in converter runtime dependencies are part of the `bluetape4k-hibernate` artifact contract. Consumers do not need separate `compileOnly` declarations for the documented Tink, Jackson3, Kryo, Apache Fory, LZ4, Snappy, Zstd, or Commons Compress converter paths. If a slim deployment excludes transitive runtime dependencies, keep the converter engine used by your entity mappings on the runtime classpath.
 
-> **Retired Spring Boot 3 integration note**: Historical tests combining Hibernate 7.x with Spring Boot 3.x remain disabled because Spring Boot 3's `SpringBeanContainer` implements the Hibernate 5 API. Current bluetape4k Spring modules target Spring Boot 4 / Spring Framework 7 for Hibernate 7.x compatibility. See `DisabledWithHibernate7AndSpringBoot3` in the test suite for the archived guard.
+> **Retired Spring Boot 3 integration
+note**: Historical tests combining Hibernate 7.x with Spring Boot 3.x remain disabled because Spring Boot 3's `SpringBeanContainer` implements the Hibernate 5 API. Current bluetape4k Spring modules target Spring Boot 4 / Spring Framework 7 for Hibernate 7.x compatibility. See `DisabledWithHibernate7AndSpringBoot3` in the test suite for the archived guard.
 
 ## Spring Boot 4 Migration
 
@@ -72,6 +69,7 @@ class UserRepositoryTest {
 ```
 
 Key methods:
+
 - `persist(entity)` — save to persistence context
 - `persistAndFlush(entity)` — save + flush to DB
 - `persistFlushFind(entity)` — save + flush + detach + reload from DB (bypasses L1 cache, uses `Hibernate.getClass()` to resolve proxy types)
@@ -355,19 +353,17 @@ val users = queryFactory
 #### QueryDSL Code Generation Compatibility
 
 This module keeps Java APT as the supported QueryDSL generation path. The
-`querydsl-kotlin-codegen` candidate is intentionally disabled until a clean
-matrix passes; the local candidate run failed before fixture isolation with
+`querydsl-kotlin-codegen` candidate is intentionally disabled until a clean matrix passes; the local candidate run failed before fixture isolation with
 `AnnotationProcessingError` caused by `NullPointerException` in
 `ExtensionsKt.asTypeName(Extensions.kt:48)` and
-`KotlinEntitySerializer.introClassHeader(KotlinEntitySerializer.kt:109)`.
-See [QueryDSL issue #3454](https://github.com/querydsl/querydsl/issues/3454).
+`KotlinEntitySerializer.introClassHeader(KotlinEntitySerializer.kt:109)`. See [QueryDSL issue #3454](https://github.com/querydsl/querydsl/issues/3454).
 
-| Fixture | Java APT | Kotlin codegen candidate | Evidence |
-| --- | --- | --- | --- |
-| DTO (`ExampleDto`) | Supported and tested | Not evaluated; candidate fails globally | `SimpleQuerydslExamples` constructor and `@QueryProjection` tests |
-| General entities (`AddressEntity`, `JoinUser`) | Supported and tested | Not evaluated; candidate fails globally | `QuerydslCodegenCompatibilityTest` generated-source checks |
-| Tree entity (`ExampleEntity`, `TreeNode`) | Supported and tested | Not evaluated; candidate fails globally | `QExampleEntity`/`QTreeNode` generation and self-reference query |
-| Association/join (`JoinUser.addresses`) | Supported and tested at runtime | Not evaluated; candidate fails globally | `QJoinUser` + `QAddressEntity` repository-path query |
+| Fixture                                        | Java APT                        | Kotlin codegen candidate                | Evidence                                                          |
+|------------------------------------------------|---------------------------------|-----------------------------------------|-------------------------------------------------------------------|
+| DTO (`ExampleDto`)                             | Supported and tested            | Not evaluated; candidate fails globally | `SimpleQuerydslExamples` constructor and `@QueryProjection` tests |
+| General entities (`AddressEntity`, `JoinUser`) | Supported and tested            | Not evaluated; candidate fails globally | `QuerydslCodegenCompatibilityTest` generated-source checks        |
+| Tree entity (`ExampleEntity`, `TreeNode`)      | Supported and tested            | Not evaluated; candidate fails globally | `QExampleEntity`/`QTreeNode` generation and self-reference query  |
+| Association/join (`JoinUser.addresses`)        | Supported and tested at runtime | Not evaluated; candidate fails globally | `QJoinUser` + `QAddressEntity` repository-path query              |
 
 The clean local measurements on 2026-08-26 were:
 
@@ -397,8 +393,7 @@ kapt {
 ```
 
 Generated sources are written to `build/generated/source/kapt/main` and
-`build/generated/source/kapt/test`. A repository-path query can use the
-generated types directly:
+`build/generated/source/kapt/test`. A repository-path query can use the generated types directly:
 
 ```kotlin
 val user = QJoinUser.joinUser
@@ -458,10 +453,7 @@ AES encryption converters based on [Google Tink](https://github.com/google/tink)
 - `AESStringConverter`: AES-256-GCM (non-deterministic; ciphertext differs each time)
 - `DeterministicAESStringConverter`: AES-256-SIV (deterministic; same plaintext → same ciphertext, supports WHERE clause lookups)
 
-Encrypted entity fields require externally persisted Tink key material. The built-in converters fail fast for
-non-null values until `EncryptedStringConverterKeysets` has been configured during application bootstrap. Do not use
-process-local generated keysets for persisted columns: ciphertext written with one generated keyset cannot be read
-after restart or by another application instance.
+Encrypted entity fields require externally persisted Tink key material. The built-in converters fail fast for non-null values until `EncryptedStringConverterKeysets` has been configured during application bootstrap. Do not use process-local generated keysets for persisted columns: ciphertext written with one generated keyset cannot be read after restart or by another application instance.
 
 ```kotlin
 import io.bluetape4k.hibernate.converters.AESStringConverter

@@ -48,15 +48,6 @@ inline fun simpleStatementOf(
     return SimpleStatement.builder(query).apply(builder).build()
 }
 
-@Deprecated(
-    message = "Use simpleStatementOf(query, builder) for consistent naming.",
-    replaceWith = ReplaceWith("simpleStatementOf(query, builder)")
-)
-inline fun simpleStatement(
-    query: String,
-    builder: SimpleStatementBuilder.() -> Unit,
-): SimpleStatement = simpleStatementOf(query, builder)
-
 /**
  * CQL 문자열만으로 [SimpleStatement]를 생성합니다.
  *
@@ -130,15 +121,6 @@ inline fun boundStatementOf(
 ): BoundStatement {
     return BoundStatementBuilder(boundStatement).apply(builder).build()
 }
-
-@Deprecated(
-    message = "Use boundStatementOf(boundStatement, builder) for consistent naming.",
-    replaceWith = ReplaceWith("boundStatementOf(boundStatement, builder)")
-)
-inline fun boundStatement(
-    boundStatement: BoundStatement,
-    builder: BoundStatementBuilder.() -> Unit,
-): BoundStatement = boundStatementOf(boundStatement, builder)
 
 /**
  * 지정한 [BatchType]의 빈 [BatchStatement]를 생성합니다.
@@ -230,21 +212,3 @@ inline fun batchStatementOf(
 ): BatchStatement {
     return BatchStatementBuilder(template).apply(builder).build()
 }
-
-@Deprecated(
-    message = "Use batchStatementOf(batchType, builder) for consistent naming.",
-    replaceWith = ReplaceWith("batchStatementOf(batchType, builder)")
-)
-inline fun batchStatement(
-    batchType: BatchType,
-    builder: BatchStatementBuilder.() -> Unit,
-): BatchStatement = batchStatementOf(batchType, builder)
-
-@Deprecated(
-    message = "Use batchStatementOf(template, builder) for consistent naming.",
-    replaceWith = ReplaceWith("batchStatementOf(template, builder)")
-)
-inline fun batchStatement(
-    template: BatchStatement,
-    builder: BatchStatementBuilder.() -> Unit,
-): BatchStatement = batchStatementOf(template, builder)

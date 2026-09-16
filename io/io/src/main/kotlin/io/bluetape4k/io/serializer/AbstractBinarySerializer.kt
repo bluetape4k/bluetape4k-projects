@@ -80,7 +80,6 @@ abstract class AbstractBinarySerializer: BinarySerializer {
         return try {
             doDeserialize(source)
         } catch (e: Throwable) {
-            log.error(e) { "Fail to deserialize. throw BinarySerializationException." }
             throw BinarySerializationException("Fail to deserialize. bytesSize=${source.size}", e)
         }
     }

@@ -4,6 +4,7 @@ import com.datastax.oss.driver.api.core.CqlIdentifier
 import com.datastax.oss.driver.api.core.data.SettableById
 import com.datastax.oss.driver.api.core.data.SettableByIndex
 import com.datastax.oss.driver.api.core.data.SettableByName
+import io.bluetape4k.logging.KLogging
 import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.mockk
@@ -12,6 +13,8 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 
 class SettableSupportTest {
+
+    companion object: KLogging()
 
     interface TestSettableById: SettableById<TestSettableById>
     interface TestSettableByIndex: SettableByIndex<TestSettableByIndex>

@@ -1,6 +1,9 @@
 package io.bluetape4k.hibernate.mapping.associations.onetomany.set
 
 import io.bluetape4k.ToStringBuilder
+import io.bluetape4k.assertions.shouldBeEmpty
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeFalse
 import io.bluetape4k.hibernate.AbstractHibernateTest
 import io.bluetape4k.hibernate.model.IntJpaEntity
 import jakarta.persistence.Access
@@ -16,9 +19,6 @@ import jakarta.persistence.FetchType
 import jakarta.persistence.JoinColumn
 import jakarta.persistence.ManyToOne
 import jakarta.persistence.OneToMany
-import io.bluetape4k.assertions.shouldBeEmpty
-import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldBeFalse
 import org.hibernate.annotations.Parent
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired

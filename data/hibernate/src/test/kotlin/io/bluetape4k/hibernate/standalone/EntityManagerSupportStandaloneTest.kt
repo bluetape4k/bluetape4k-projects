@@ -1,5 +1,12 @@
 package io.bluetape4k.hibernate.standalone
 
+import io.bluetape4k.assertions.assertNotFails
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeFalse
+import io.bluetape4k.assertions.shouldBeNull
+import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.assertions.shouldHaveSize
+import io.bluetape4k.assertions.shouldNotBeNull
 import io.bluetape4k.hibernate.asSessionImpl
 import io.bluetape4k.hibernate.countAll
 import io.bluetape4k.hibernate.createQueryAs
@@ -18,18 +25,13 @@ import io.bluetape4k.hibernate.newQuery
 import io.bluetape4k.hibernate.save
 import io.bluetape4k.hibernate.sessionFactory
 import io.bluetape4k.hibernate.setPaging
-import jakarta.persistence.TypedQuery
-import io.bluetape4k.assertions.assertNotFails
-import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldBeFalse
-import io.bluetape4k.assertions.shouldBeNull
-import io.bluetape4k.assertions.shouldBeTrue
-import io.bluetape4k.assertions.shouldHaveSize
-import io.bluetape4k.assertions.shouldNotBeNull
+import io.bluetape4k.logging.KLogging
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 
-class EntityManagerSupportStandaloneTest : AbstractStandaloneHibernateTest() {
+class EntityManagerSupportStandaloneTest: AbstractStandaloneHibernateTest() {
+
+    companion object: KLogging()
 
     override fun entityClasses() = listOf(StandaloneEntity::class.java)
 
@@ -265,7 +267,7 @@ class EntityManagerSupportStandaloneTest : AbstractStandaloneHibernateTest() {
         inTransaction { save(entity) }
 
         inTransaction {
-            val loaded = findAs<StandaloneEntity>(entity.id.shouldNotBeNull()).shouldNotBeNull()
+            val loaded = findAs<StandaloneEntity>(entity.id!!).shouldNotBeNull()
             isLoaded(loaded, "name").shouldBeTrue()
             isLoaded(null, "name").shouldBeFalse()
         }
@@ -277,7 +279,7 @@ class EntityManagerSupportStandaloneTest : AbstractStandaloneHibernateTest() {
         inTransaction { save(entity) }
 
         inTransaction {
-            val ref = getReference<StandaloneEntity>(entity.id.shouldNotBeNull())
+            val ref = getReference<StandaloneEntity>(entity.id!!)
             ref.shouldNotBeNull()
         }
     }
@@ -304,8 +306,10 @@ class EntityManagerSupportStandaloneTest : AbstractStandaloneHibernateTest() {
         }
 
         readOnly {
-            val query = createQueryAs<StandaloneEntity>("SELECT e FROM StandaloneEntity e")
-                .setPaging(firstResult = 0, maxResults = 2)
+            val query =
+                createQueryAs<StandaloneEntity>("SELECT e FROM StandaloneEntity e")
+                    .setPaging(firstResult = 0, maxResults = 2)
+
             val results = query.resultList
             results shouldHaveSize 2
         }

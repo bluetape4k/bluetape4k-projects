@@ -35,8 +35,7 @@ class StatelessEntity(
     override fun hashCode(): Int = id?.hashCode() ?: name.hashCode()
 
     override fun buildStringHelper(): ToStringBuilder =
-        super
-            .buildStringHelper()
+        super.buildStringHelper()
             .add("name", name)
             .add("firstname", firstname)
             .add("lastname", lastname)
@@ -63,8 +62,7 @@ class StatelessMaster(
     override fun hashCode(): Int = id?.hashCode() ?: name.hashCode()
 
     override fun buildStringHelper(): ToStringBuilder =
-        super
-            .buildStringHelper()
+        super.buildStringHelper()
             .add("name", name)
 }
 
@@ -87,7 +85,6 @@ class StatelessDetail(
     override fun hashCode(): Int = id?.hashCode() ?: name.hashCode()
 
     override fun buildStringHelper(): ToStringBuilder =
-        super
-            .buildStringHelper()
+        super.buildStringHelper()
             .add("name", name)
 }

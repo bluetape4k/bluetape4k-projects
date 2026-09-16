@@ -10,6 +10,7 @@ import com.datastax.oss.driver.api.core.type.reflect.GenericType
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeNull
 import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.assertions.shouldContentEqual
 import io.bluetape4k.assertions.shouldNotBeEmpty
 import io.bluetape4k.assertions.shouldNotBeNull
 import io.bluetape4k.cassandra.AbstractCassandraTest
@@ -19,6 +20,7 @@ import io.bluetape4k.cassandra.data.getValue
 import io.bluetape4k.cassandra.data.setValue
 import io.bluetape4k.io.getBytes
 import io.bluetape4k.logging.coroutines.KLoggingChannel
+import io.bluetape4k.logging.debug
 import org.junit.jupiter.api.Test
 import java.net.InetAddress
 import java.time.ZonedDateTime
@@ -114,6 +116,7 @@ class CustomCodecExamples: AbstractCassandraTest() {
     private fun retrieveData(session: CqlSession) {
         val query = """SELECT pk, contents, uploaded, tags, week_day, ip FROM videos WHERE pk = ?"""
         val stmt = SimpleStatement.newInstance(query, 1)
+        log.debug { "Executing query: ${stmt.query}" }
 
         val row = session.execute(stmt).one()
         row.shouldNotBeNull()
@@ -141,10 +144,10 @@ class CustomCodecExamples: AbstractCassandraTest() {
 
         // Retrieve value with built-in codecs
         row.getInt("pk") shouldBeEqualTo 1
-        row.getByteBuffer("contents")!!.getBytes() shouldBeEqualTo byteArrayOf(1, 2, 3, 4)
-        row.getTupleValue("uploaded")!!.formattedContents.shouldNotBeEmpty()
-        row.getList<String>("tags")!! shouldBeEqualTo listOf("comedy", "US")
-        row.getString("week_day")!! shouldBeEqualTo WeekDay.SATURDAY.toString()
+        row.getByteBuffer("contents")?.getBytes() shouldContentEqual byteArrayOf(1, 2, 3, 4)
+        row.getTupleValue("uploaded")?.formattedContents.shouldNotBeEmpty()
+        row.getList<String>("tags") shouldBeEqualTo listOf("comedy", "US")
+        row.getString("week_day") shouldBeEqualTo WeekDay.SATURDAY.toString()
         row.getInetAddress("ip").shouldBeNull()
     }
 }

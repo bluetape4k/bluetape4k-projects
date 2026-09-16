@@ -14,7 +14,7 @@ import io.bluetape4k.assertions.internal.Messages
  * @param prefix 기대하는 접두사
  * @return non-null receiver (체이닝 지원)
  */
-infix fun CharSequence?.shouldStartWith(prefix: CharSequence): CharSequence {
+infix fun <T: CharSequence> T?.shouldStartWith(prefix: CharSequence): T {
     if (this == null || !this.startsWith(prefix)) {
         Failures.failComparison(
             Messages.expectedToBe("start with", prefix, this),
@@ -32,7 +32,7 @@ infix fun CharSequence?.shouldStartWith(prefix: CharSequence): CharSequence {
  * @param prefix 기대하지 않는 접두사
  * @return receiver (체이닝 지원)
  */
-infix fun CharSequence?.shouldNotStartWith(prefix: CharSequence): CharSequence? {
+infix fun <T: CharSequence> T?.shouldNotStartWith(prefix: CharSequence): T? {
     if (this != null && this.startsWith(prefix)) {
         Failures.failComparison(
             Messages.expectedNotToBe("start with", prefix, this),
@@ -54,7 +54,7 @@ infix fun CharSequence?.shouldNotStartWith(prefix: CharSequence): CharSequence? 
  * @param suffix 기대하는 접미사
  * @return non-null receiver (체이닝 지원)
  */
-infix fun CharSequence?.shouldEndWith(suffix: CharSequence): CharSequence {
+infix fun <T: CharSequence> T?.shouldEndWith(suffix: CharSequence): T {
     if (this == null || !this.endsWith(suffix)) {
         Failures.failComparison(
             Messages.expectedToBe("end with", suffix, this),
@@ -72,7 +72,7 @@ infix fun CharSequence?.shouldEndWith(suffix: CharSequence): CharSequence {
  * @param suffix 기대하지 않는 접미사
  * @return receiver (체이닝 지원)
  */
-infix fun CharSequence?.shouldNotEndWith(suffix: CharSequence): CharSequence? {
+infix fun <T: CharSequence> T?.shouldNotEndWith(suffix: CharSequence): T? {
     if (this != null && this.endsWith(suffix)) {
         Failures.failComparison(
             Messages.expectedNotToBe("end with", suffix, this),
@@ -94,7 +94,7 @@ infix fun CharSequence?.shouldNotEndWith(suffix: CharSequence): CharSequence? {
  * @param substring 기대하는 부분 문자열
  * @return non-null receiver (체이닝 지원)
  */
-infix fun CharSequence?.shouldContain(substring: CharSequence): CharSequence {
+infix fun <T: CharSequence> T?.shouldContain(substring: CharSequence): T {
     if (this == null || !this.contains(substring)) {
         Failures.failComparison(
             Messages.expectedToBe("contain", substring, this),
@@ -112,7 +112,7 @@ infix fun CharSequence?.shouldContain(substring: CharSequence): CharSequence {
  * @param substring 기대하지 않는 부분 문자열
  * @return receiver (체이닝 지원)
  */
-infix fun CharSequence?.shouldNotContain(substring: CharSequence): CharSequence? {
+infix fun <T: CharSequence> T?.shouldNotContain(substring: CharSequence): T? {
     if (this != null && this.contains(substring)) {
         Failures.failComparison(
             Messages.expectedNotToBe("contain", substring, this),
@@ -134,7 +134,7 @@ infix fun CharSequence?.shouldNotContain(substring: CharSequence): CharSequence?
  * @param substring 기대하는 부분 문자열 (대소문자 무시)
  * @return non-null receiver (체이닝 지원)
  */
-infix fun CharSequence?.shouldContainIgnoringCase(substring: CharSequence): CharSequence {
+infix fun <T: CharSequence> T?.shouldContainIgnoringCase(substring: CharSequence): T {
     if (this == null || !this.toString().lowercase().contains(substring.toString().lowercase())) {
         Failures.failComparison(
             Messages.expectedToBe("contain (ignoring case)", substring, this),
@@ -153,7 +153,7 @@ infix fun CharSequence?.shouldContainIgnoringCase(substring: CharSequence): Char
  * @receiver 검증할 CharSequence (nullable 허용)
  * @return receiver (체이닝 지원)
  */
-fun CharSequence?.shouldBeEmpty(): CharSequence? {
+fun <T: CharSequence> T?.shouldBeEmpty(): T? {
     if (!this.isNullOrEmpty()) {
         Failures.failComparison(
             Messages.expectedToBe("be empty", "", this),
@@ -172,7 +172,7 @@ fun CharSequence?.shouldBeEmpty(): CharSequence? {
  * @receiver 검증할 CharSequence (nullable 허용)
  * @return non-null receiver (체이닝 지원)
  */
-fun CharSequence?.shouldNotBeEmpty(): CharSequence {
+fun <T: CharSequence> T?.shouldNotBeEmpty(): T {
     if (this.isNullOrEmpty()) {
         Failures.fail("Expected CharSequence to not be empty, but was ${Messages.stringify(this)}.")
     }
@@ -187,7 +187,7 @@ fun CharSequence?.shouldNotBeEmpty(): CharSequence {
  * @receiver 검증할 CharSequence (nullable 허용)
  * @return receiver (체이닝 지원)
  */
-fun CharSequence?.shouldBeBlank(): CharSequence? {
+fun <T: CharSequence> T?.shouldBeBlank(): T? {
     if (!this.isNullOrBlank()) {
         Failures.failComparison(
             Messages.expectedToBe("be blank", "<blank>", this),
@@ -206,7 +206,7 @@ fun CharSequence?.shouldBeBlank(): CharSequence? {
  * @receiver 검증할 CharSequence (nullable 허용)
  * @return non-null receiver (체이닝 지원)
  */
-fun CharSequence?.shouldNotBeBlank(): CharSequence {
+fun <T: CharSequence> T?.shouldNotBeBlank(): T {
     if (this.isNullOrBlank()) {
         Failures.fail("Expected CharSequence to not be blank, but was ${Messages.stringify(this)}.")
     }
@@ -220,7 +220,7 @@ fun CharSequence?.shouldNotBeBlank(): CharSequence {
  *
  * @receiver 검증할 CharSequence (nullable 허용)
  */
-fun CharSequence?.shouldBeNullOrEmpty() {
+fun <T: CharSequence> T?.shouldBeNullOrEmpty(): T? = apply {
     if (!this.isNullOrEmpty()) {
         Failures.failComparison(
             Messages.expectedToBe("be null or empty", "<null or empty>", this),
@@ -236,7 +236,7 @@ fun CharSequence?.shouldBeNullOrEmpty() {
  * @receiver 검증할 CharSequence (nullable 허용)
  * @return non-null receiver (체이닝 지원)
  */
-fun CharSequence?.shouldNotBeNullOrEmpty(): CharSequence {
+fun <T: CharSequence> T?.shouldNotBeNullOrEmpty(): T {
     val s = this
     if (s.isNullOrEmpty()) {
         Failures.fail("Expected CharSequence to not be null or empty, but was ${Messages.stringify(s)}.")
@@ -251,7 +251,7 @@ fun CharSequence?.shouldNotBeNullOrEmpty(): CharSequence {
  *
  * @receiver 검증할 CharSequence (nullable 허용)
  */
-fun CharSequence?.shouldBeNullOrBlank() {
+fun <T: CharSequence> T?.shouldBeNullOrBlank(): T? = apply {
     if (!this.isNullOrBlank()) {
         Failures.failComparison(
             Messages.expectedToBe("be null or blank", "<null or blank>", this),
@@ -267,7 +267,7 @@ fun CharSequence?.shouldBeNullOrBlank() {
  * @receiver 검증할 CharSequence (nullable 허용)
  * @return non-null receiver (체이닝 지원)
  */
-fun CharSequence?.shouldNotBeNullOrBlank(): CharSequence {
+fun <T: CharSequence> T?.shouldNotBeNullOrBlank(): T {
     if (this.isNullOrBlank()) {
         Failures.fail("Expected CharSequence to not be null or blank, but was ${Messages.stringify(this)}.")
     }
@@ -288,7 +288,7 @@ fun CharSequence?.shouldNotBeNullOrBlank(): CharSequence {
  * @param regex 전체 매치에 사용할 정규식
  * @return non-null receiver (체이닝 지원)
  */
-infix fun CharSequence?.shouldMatch(regex: Regex): CharSequence {
+infix fun <T: CharSequence> T?.shouldMatch(regex: Regex): T {
     if (this == null || !regex.matches(this)) {
         Failures.failComparison(
             Messages.expectedToBe("match regex", regex.pattern, this),
@@ -311,7 +311,7 @@ infix fun CharSequence?.shouldMatch(regex: Regex): CharSequence {
  * @param pattern 전체 매치에 사용할 정규식 패턴 문자열
  * @return non-null receiver (체이닝 지원)
  */
-infix fun CharSequence?.shouldMatch(pattern: String): CharSequence =
+infix fun <T: CharSequence> T?.shouldMatch(pattern: String): T =
     this shouldMatch Regex(pattern)
 
 /**
@@ -321,7 +321,7 @@ infix fun CharSequence?.shouldMatch(pattern: String): CharSequence =
  * @param regex 전체 매치에 사용할 정규식
  * @return receiver (체이닝 지원)
  */
-infix fun CharSequence?.shouldNotMatch(regex: Regex): CharSequence? {
+infix fun <T: CharSequence> T?.shouldNotMatch(regex: Regex): T? {
     if (this != null && regex.matches(this)) {
         Failures.failComparison(
             Messages.expectedNotToBe("match regex", regex.pattern, this),
@@ -343,7 +343,7 @@ infix fun CharSequence?.shouldNotMatch(regex: Regex): CharSequence? {
  * @param substrings 모두 포함되어야 하는 부분 문자열 목록
  * @return non-null receiver (체이닝 지원)
  */
-fun CharSequence?.shouldContainAll(vararg substrings: CharSequence): CharSequence {
+fun <T: CharSequence> T?.shouldContainAll(vararg substrings: CharSequence): T {
     if (this == null) {
         Failures.fail("Expected CharSequence to contain all substrings, but was <null>.")
     }
@@ -373,7 +373,7 @@ fun CharSequence?.shouldContainAll(vararg substrings: CharSequence): CharSequenc
  * @param substrings 모두 포함되어야 하는 부분 문자열 목록
  * @return non-null receiver (체이닝 지원)
  */
-infix fun CharSequence?.shouldContainAll(substrings: Iterable<CharSequence>): CharSequence {
+infix fun <T: CharSequence> T?.shouldContainAll(substrings: Iterable<CharSequence>): T {
     val list = substrings.toList()
     return this.shouldContainAll(*list.toTypedArray())
 }
@@ -385,7 +385,7 @@ infix fun CharSequence?.shouldContainAll(substrings: Iterable<CharSequence>): Ch
  * @param substrings 포함되지 않아야 하는 부분 문자열 목록
  * @return receiver (체이닝 지원)
  */
-fun CharSequence?.shouldContainNone(vararg substrings: CharSequence): CharSequence? {
+fun <T: CharSequence> T?.shouldContainNone(vararg substrings: CharSequence): T? {
     if (this != null) {
         val found = substrings.filter { this.contains(it) }
         if (found.isNotEmpty()) {
@@ -416,7 +416,7 @@ fun CharSequence?.shouldContainNone(vararg substrings: CharSequence): CharSequen
  * @param expected 기대하는 문자열 (대소문자 무시)
  * @return non-null receiver (체이닝 지원)
  */
-infix fun CharSequence?.shouldBeEqualToIgnoringCase(expected: String): CharSequence {
+infix fun <T: CharSequence> T?.shouldBeEqualToIgnoringCase(expected: String): T {
     if (this == null || !this.toString().equals(expected, ignoreCase = true)) {
         Failures.failComparison(
             Messages.expectedToBe("be equal to (ignoring case)", expected, this),
@@ -439,7 +439,7 @@ infix fun CharSequence?.shouldBeEqualToIgnoringCase(expected: String): CharSeque
  * @param regex 부분 매치에 사용할 정규식
  * @return receiver (체이닝 지원)
  */
-infix fun CharSequence.shouldContainRegex(regex: Regex): CharSequence {
+infix fun <T: CharSequence> T.shouldContainRegex(regex: Regex): T = apply {
     if (!regex.containsMatchIn(this)) {
         Failures.failComparison(
             Messages.expectedToBe("contain regex", regex.pattern, this),
@@ -447,7 +447,6 @@ infix fun CharSequence.shouldContainRegex(regex: Regex): CharSequence {
             this
         )
     }
-    return this
 }
 
 /**
@@ -457,7 +456,7 @@ infix fun CharSequence.shouldContainRegex(regex: Regex): CharSequence {
  * @param regex 부분 매치에 사용할 정규식
  * @return receiver (체이닝 지원)
  */
-infix fun CharSequence.shouldNotContainRegex(regex: Regex): CharSequence {
+infix fun <T: CharSequence> T.shouldNotContainRegex(regex: Regex): T = apply {
     if (regex.containsMatchIn(this)) {
         Failures.failComparison(
             Messages.expectedNotToBe("contain regex", regex.pattern, this),
@@ -465,7 +464,6 @@ infix fun CharSequence.shouldNotContainRegex(regex: Regex): CharSequence {
             this
         )
     }
-    return this
 }
 
 /**
@@ -478,7 +476,7 @@ infix fun CharSequence.shouldNotContainRegex(regex: Regex): CharSequence {
  * @param pattern 부분 매치에 사용할 정규식 패턴 문자열
  * @return receiver (체이닝 지원)
  */
-infix fun CharSequence.shouldContainRegex(pattern: String): CharSequence =
+infix fun <T: CharSequence> T.shouldContainRegex(pattern: String): T =
     this shouldContainRegex Regex(pattern)
 
 /**
@@ -488,7 +486,7 @@ infix fun CharSequence.shouldContainRegex(pattern: String): CharSequence =
  * @param pattern 부분 매치에 사용할 정규식 패턴 문자열
  * @return receiver (체이닝 지원)
  */
-infix fun CharSequence.shouldNotContainRegex(pattern: String): CharSequence =
+infix fun <T: CharSequence> T.shouldNotContainRegex(pattern: String): T =
     this shouldNotContainRegex Regex(pattern)
 
 /**

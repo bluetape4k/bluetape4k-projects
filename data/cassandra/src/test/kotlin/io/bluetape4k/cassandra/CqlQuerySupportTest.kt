@@ -3,9 +3,12 @@ package io.bluetape4k.cassandra
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeFalse
 import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.logging.KLogging
 import org.junit.jupiter.api.Test
 
 class CqlQuerySupportTest {
+
+    companion object: KLogging()
 
     @Test
     fun `quote and unquote 는 역변환이 가능하다`() {

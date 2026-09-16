@@ -6,9 +6,12 @@ import com.datastax.oss.driver.api.core.type.UserDefinedType
 import io.bluetape4k.assertions.shouldBeFalse
 import io.bluetape4k.assertions.shouldBeInstanceOf
 import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import org.junit.jupiter.api.Test
 
 class DataTypeSupportTest {
+
+    companion object: KLoggingChannel()
 
     @Test
     fun `isCollectionType 는 collection 타입만 true 이다`() {
@@ -39,8 +42,8 @@ class DataTypeSupportTest {
         val listType = DataTypes.listOf(udt)
 
         val frozenList = listType.potentiallyFreeze()
-
         frozenList.shouldBeInstanceOf<ListType>()
+
         val elementType = frozenList.elementType
         elementType.shouldBeInstanceOf<UserDefinedType>()
         elementType.isFrozen.shouldBeTrue()

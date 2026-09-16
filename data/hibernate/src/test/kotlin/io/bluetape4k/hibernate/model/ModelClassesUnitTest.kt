@@ -5,9 +5,12 @@ import io.bluetape4k.assertions.shouldBeFalse
 import io.bluetape4k.assertions.shouldBeNull
 import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.assertions.shouldNotBeNull
+import io.bluetape4k.logging.KLogging
 import org.junit.jupiter.api.Test
 
 class ModelClassesUnitTest {
+
+    companion object: KLogging()
 
     // TreeNodePosition - data class
     @Test
@@ -131,39 +134,40 @@ class ModelClassesUnitTest {
 
 // Concrete implementations for testing
 
-private class ConcreteTreeNode(val name: String) : LongJpaTreeEntity<ConcreteTreeNode>() {
+private class ConcreteTreeNode(val name: String): LongJpaTreeEntity<ConcreteTreeNode>() {
     override fun equalProperties(other: Any) = other is ConcreteTreeNode && name == other.name
     override fun hashCode(): Int = name.hashCode()
 }
 
-private class ConcreteLocalizedEntity : JpaLocalizedEntity<ConcreteLocalizedEntity.Value> {
-    data class Value(val text: String = "default") : JpaLocalizedEntity.LocalizedValue
+private class ConcreteLocalizedEntity: JpaLocalizedEntity<ConcreteLocalizedEntity.Value> {
+    data class Value(val text: String = "default"): JpaLocalizedEntity.LocalizedValue
+
     override val localeMap: MutableMap<java.util.Locale, Value> = mutableMapOf()
     override val isPersisted: Boolean = false
     override fun createDefaultLocalizedValue() = Value()
 }
 
-private class ConcreteUuidEntity(val name: String) : UuidJpaEntity() {
+private class ConcreteUuidEntity(val name: String): UuidJpaEntity() {
     override fun equalProperties(other: Any) = other is ConcreteUuidEntity && name == other.name
     override fun hashCode(): Int = name.hashCode()
 }
 
-private class ConcretePersistenceObject : AbstractPersistenceObject() {
+private class ConcretePersistenceObject: AbstractPersistenceObject() {
     override fun equalProperties(other: Any) = other is ConcretePersistenceObject
     override fun hashCode(): Int = 42
 }
 
-private class ConcreteIntEntity(val name: String) : IntJpaEntity() {
+private class ConcreteIntEntity(val name: String): IntJpaEntity() {
     override fun equalProperties(other: Any) = other is ConcreteIntEntity && name == other.name
     override fun hashCode(): Int = name.hashCode()
 }
 
-private class ConcreteIntTreeNode(val name: String) : IntJpaTreeEntity<ConcreteIntTreeNode>() {
+private class ConcreteIntTreeNode(val name: String): IntJpaTreeEntity<ConcreteIntTreeNode>() {
     override fun equalProperties(other: Any) = other is ConcreteIntTreeNode && name == other.name
     override fun hashCode(): Int = name.hashCode()
 }
 
-private class DirectTreeNode(val name: String) : AbstractJpaTreeEntity<DirectTreeNode, Long>() {
+private class DirectTreeNode(val name: String): AbstractJpaTreeEntity<DirectTreeNode, Long>() {
     override var id: Long? = null
     override fun equalProperties(other: Any) = other is DirectTreeNode && name == other.name
     override fun hashCode(): Int = name.hashCode()

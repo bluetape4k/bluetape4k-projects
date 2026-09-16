@@ -1,14 +1,14 @@
 package io.bluetape4k.hibernate.converter
 
-import io.bluetape4k.hibernate.converters.AESStringConverter
-import io.bluetape4k.hibernate.converters.DeterministicAESStringConverter
-import io.bluetape4k.hibernate.converters.EncryptedStringConverterKeysets
-import io.bluetape4k.logging.KLogging
 import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeNull
 import io.bluetape4k.assertions.shouldNotBeEqualTo
 import io.bluetape4k.assertions.shouldNotBeNull
+import io.bluetape4k.hibernate.converters.AESStringConverter
+import io.bluetape4k.hibernate.converters.DeterministicAESStringConverter
+import io.bluetape4k.hibernate.converters.EncryptedStringConverterKeysets
+import io.bluetape4k.logging.KLogging
 import io.bluetape4k.tink.aeadKeysetHandle
 import io.bluetape4k.tink.daeadKeysetHandle
 import io.bluetape4k.tink.keyset.toJsonKeyset
@@ -59,8 +59,7 @@ class EncryptedStringConverterTest {
     fun `AESStringConverter는 문자열을 암호화하고 복호화한다`() {
         val plainText = "Hello, Bluetape4k!"
 
-        val encrypted = aesConverter.convertToDatabaseColumn(plainText)
-        encrypted.shouldNotBeNull()
+        val encrypted = aesConverter.convertToDatabaseColumn(plainText).shouldNotBeNull()
         encrypted shouldNotBeEqualTo plainText
 
         val decrypted = aesConverter.convertToEntityAttribute(encrypted)
@@ -77,11 +76,9 @@ class EncryptedStringConverterTest {
     fun `AESStringConverter는 동일 평문에 대해 매번 다른 암호문을 생성한다`() {
         val plainText = "same input"
 
-        val encrypted1 = aesConverter.convertToDatabaseColumn(plainText)
-        val encrypted2 = aesConverter.convertToDatabaseColumn(plainText)
+        val encrypted1 = aesConverter.convertToDatabaseColumn(plainText).shouldNotBeNull()
+        val encrypted2 = aesConverter.convertToDatabaseColumn(plainText).shouldNotBeNull()
 
-        encrypted1.shouldNotBeNull()
-        encrypted2.shouldNotBeNull()
         // AES-GCM은 비결정적이므로 같은 평문이라도 암호문이 다르다
         encrypted1 shouldNotBeEqualTo encrypted2
     }
@@ -90,10 +87,9 @@ class EncryptedStringConverterTest {
     fun `AESStringConverter는 빈 문자열도 암호화하고 복호화한다`() {
         val plainText = ""
 
-        val encrypted = aesConverter.convertToDatabaseColumn(plainText)
-        encrypted.shouldNotBeNull()
+        val encrypted = aesConverter.convertToDatabaseColumn(plainText).shouldNotBeNull()
+        val decrypted = aesConverter.convertToEntityAttribute(encrypted).shouldNotBeNull()
 
-        val decrypted = aesConverter.convertToEntityAttribute(encrypted)
         decrypted shouldBeEqualTo plainText
     }
 
@@ -101,11 +97,10 @@ class EncryptedStringConverterTest {
     fun `DeterministicAESStringConverter는 문자열을 암호화하고 복호화한다`() {
         val plainText = "Secret Password 123!"
 
-        val encrypted = deterministicConverter.convertToDatabaseColumn(plainText)
-        encrypted.shouldNotBeNull()
+        val encrypted = deterministicConverter.convertToDatabaseColumn(plainText).shouldNotBeNull()
         encrypted shouldNotBeEqualTo plainText
 
-        val decrypted = deterministicConverter.convertToEntityAttribute(encrypted)
+        val decrypted = deterministicConverter.convertToEntityAttribute(encrypted).shouldNotBeNull()
         decrypted shouldBeEqualTo plainText
     }
 
@@ -119,11 +114,9 @@ class EncryptedStringConverterTest {
     fun `DeterministicAESStringConverter는 동일 평문에 대해 항상 같은 암호문을 생성한다`() {
         val plainText = "deterministic input"
 
-        val encrypted1 = deterministicConverter.convertToDatabaseColumn(plainText)
-        val encrypted2 = deterministicConverter.convertToDatabaseColumn(plainText)
+        val encrypted1 = deterministicConverter.convertToDatabaseColumn(plainText).shouldNotBeNull()
+        val encrypted2 = deterministicConverter.convertToDatabaseColumn(plainText).shouldNotBeNull()
 
-        encrypted1.shouldNotBeNull()
-        encrypted2.shouldNotBeNull()
         // AES-SIV는 결정적이므로 같은 평문이면 항상 같은 암호문을 생성한다
         encrypted1 shouldBeEqualTo encrypted2
     }
@@ -133,11 +126,9 @@ class EncryptedStringConverterTest {
         val plainText1 = "password-1"
         val plainText2 = "password-2"
 
-        val encrypted1 = deterministicConverter.convertToDatabaseColumn(plainText1)
-        val encrypted2 = deterministicConverter.convertToDatabaseColumn(plainText2)
+        val encrypted1 = deterministicConverter.convertToDatabaseColumn(plainText1).shouldNotBeNull()
+        val encrypted2 = deterministicConverter.convertToDatabaseColumn(plainText2).shouldNotBeNull()
 
-        encrypted1.shouldNotBeNull()
-        encrypted2.shouldNotBeNull()
         encrypted1 shouldNotBeEqualTo encrypted2
     }
 
@@ -145,10 +136,9 @@ class EncryptedStringConverterTest {
     fun `DeterministicAESStringConverter는 한국어를 포함한 문자열을 처리한다`() {
         val plainText = "특수!@#$%^&*()문자열 테스트"
 
-        val encrypted = deterministicConverter.convertToDatabaseColumn(plainText)
-        encrypted.shouldNotBeNull()
+        val encrypted = deterministicConverter.convertToDatabaseColumn(plainText).shouldNotBeNull()
+        val decrypted = deterministicConverter.convertToEntityAttribute(encrypted).shouldNotBeNull()
 
-        val decrypted = deterministicConverter.convertToEntityAttribute(encrypted)
         decrypted shouldBeEqualTo plainText
     }
 
@@ -156,7 +146,8 @@ class EncryptedStringConverterTest {
     fun `AESStringConverter는 저장된 key material 로 converter instance 사이에서 복호화한다`() {
         val keysetJson = aeadKeysetHandle().toJsonKeyset()
         EncryptedStringConverterKeysets.configureAesKeyset(keysetJson)
-        val encrypted = AESStringConverter().convertToDatabaseColumn("restart-safe secret")
+
+        val encrypted = AESStringConverter().convertToDatabaseColumn("restart-safe secret").shouldNotBeNull()
 
         EncryptedStringConverterKeysets.resetForTesting()
         EncryptedStringConverterKeysets.configureAesKeyset(keysetJson)
@@ -181,7 +172,9 @@ class EncryptedStringConverterTest {
     fun `DeterministicAESStringConverter는 저장된 key material 로 converter instance 사이에서 복호화한다`() {
         val keysetJson = daeadKeysetHandle().toJsonKeyset()
         EncryptedStringConverterKeysets.configureDeterministicKeyset(keysetJson)
-        val encrypted = DeterministicAESStringConverter().convertToDatabaseColumn("lookup-safe secret")
+
+        val encrypted = DeterministicAESStringConverter()
+            .convertToDatabaseColumn("lookup-safe secret").shouldNotBeNull()
 
         EncryptedStringConverterKeysets.resetForTesting()
         EncryptedStringConverterKeysets.configureDeterministicKeyset(keysetJson)
@@ -192,7 +185,9 @@ class EncryptedStringConverterTest {
     @Test
     fun `DeterministicAESStringConverter는 다른 key material 로 저장된 암호문을 복호화하지 못한다`() {
         EncryptedStringConverterKeysets.configureDeterministicKeyset(daeadKeysetHandle().toJsonKeyset())
-        val encrypted = DeterministicAESStringConverter().convertToDatabaseColumn("lookup-unsafe secret")
+
+        val encrypted = DeterministicAESStringConverter()
+            .convertToDatabaseColumn("lookup-unsafe secret").shouldNotBeNull()
 
         EncryptedStringConverterKeysets.resetForTesting()
         EncryptedStringConverterKeysets.configureDeterministicKeyset(daeadKeysetHandle().toJsonKeyset())
