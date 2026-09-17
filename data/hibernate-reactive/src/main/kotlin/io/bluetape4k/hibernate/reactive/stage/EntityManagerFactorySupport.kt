@@ -18,6 +18,5 @@ import org.hibernate.reactive.stage.Stage
  * // session != null
  * ```
  */
-fun EntityManagerFactory.asStageSessionFactory(): Stage.SessionFactory {
-    return unwrap(Stage.SessionFactory::class.java)
-}
+fun EntityManagerFactory.asStageSessionFactory(): Stage.SessionFactory =
+    unwrap(Stage.SessionFactory::class.java)

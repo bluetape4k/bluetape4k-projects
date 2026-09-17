@@ -42,16 +42,13 @@ class StageSessionSupportTest: AbstractStageTest() {
 
     companion object: KLoggingChannel()
 
-    private val author1 = Author(faker.name().name())
-    private val book1 = Book(
-        faker.numerify("#-#####-###-#"),
-        faker.book().title(),
-        LocalDate.of(2004, Month.APRIL, 1)
-    )
+    private val author1 = newAuthor()
+    private val book1 = newBook(LocalDate.of(2004, Month.APRIL, 1))
 
     @BeforeAll
     fun beforeAll() {
         author1.addBook(book1)
+
         runSuspendIO {
             sf.withTransactionSuspending { session ->
                 session.persist(author1).await()
@@ -68,7 +65,6 @@ class StageSessionSupportTest: AbstractStageTest() {
         val book = sf.withSessionSuspending { session ->
             session.findAs<Book>(book1.id, LockMode.NONE).await()
         }
-        book.shouldNotBeNull()
         book.id shouldBeEqualTo book1.id
         book.title shouldBeEqualTo book1.title
     }
@@ -182,7 +178,6 @@ class StageSessionSupportTest: AbstractStageTest() {
     fun `statelessSession 에서 getEntityGraphAs 로 NamedEntityGraph 를 조회한다`() = runSuspendIO {
         sf.withStatelessSessionSuspending { session ->
             val graph = session.getEntityGraphAs<Book>("Book.withAuthor")
-            graph.shouldNotBeNull()
             graph.attributeNodes.shouldNotBeEmpty()
         }
     }
@@ -194,7 +189,6 @@ class StageSessionSupportTest: AbstractStageTest() {
     fun `statelessSession 에서 createEntityGraphAs 로 이름 있는 EntityGraph 를 생성한다`() = runSuspendIO {
         sf.withStatelessSessionSuspending { session ->
             val graph = session.createEntityGraphAs<Book>("Book.withAuthor")
-            graph.shouldNotBeNull()
             graph.attributeNodes.shouldNotBeEmpty()
         }
     }

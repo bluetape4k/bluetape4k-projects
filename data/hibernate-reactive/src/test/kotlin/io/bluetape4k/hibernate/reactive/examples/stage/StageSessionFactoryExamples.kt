@@ -34,23 +34,12 @@ class StageSessionFactoryExamples: AbstractStageTest() {
 
     companion object: KLoggingChannel()
 
-    private val author1 = Author(faker.name().name())
-    private val author2 = Author(faker.name().name())
-    private val book1 = Book(
-        faker.numerify("#-#####-###-#"),
-        faker.book().title(),
-        LocalDate.of(1994, Month.JANUARY, 1)
-    )
-    private val book2 = Book(
-        faker.numerify("#-#####-###-#"),
-        faker.book().title(),
-        LocalDate.of(1999, Month.MAY, 1)
-    )
-    private val book3 = Book(
-        faker.numerify("#-#####-###-#"),
-        faker.book().title(),
-        LocalDate.of(1992, Month.JUNE, 1)
-    )
+    private val author1 = newAuthor()
+    private val author2 = newAuthor()
+
+    private val book1 = newBook(LocalDate.of(1994, Month.JANUARY, 1))
+    private val book2 = newBook(LocalDate.of(1999, Month.MAY, 1))
+    private val book3 = newBook(LocalDate.of(1992, Month.JUNE, 1))
 
     @BeforeAll
     fun beforeAll() {
@@ -67,10 +56,12 @@ class StageSessionFactoryExamples: AbstractStageTest() {
 
     @Test
     fun `stage session example`() = runSuspendIO {
-        sf.withSessionSuspending { session -> // NOTE: many-to-one 을 lazy로 fetch 하기 위해서 EntityGraph나 @FetchProfile 을 사용해야 합니다.
-            val book = session.enableFetchProfile("withAuthor").findAs<Book>(book2.id).await()
+        sf.withSessionSuspending { session ->
+            // HINT: many-to-one 을 lazy로 fetch 하기 위해서 EntityGraph나 @FetchProfile 을 사용해야 합니다.
+            val book = session.enableFetchProfile("withAuthor")
+                .findAs<Book>(book2.id)
+                .await()
 
-            book.shouldNotBeNull()
             book.author.shouldNotBeNull()
         }
 
@@ -85,9 +76,10 @@ class StageSessionFactoryExamples: AbstractStageTest() {
         sf.withSessionSuspending { session ->
             val author = session.findAs<Author>(author2.id).await()
             val books = session.fetch(author.books).await()
+
             log.debug { "${author.name} wrote ${books.size} books." }
             books.forEach { book ->
-                log.debug { "book title:${book.title}" }
+                log.debug { "book:$book" }
             }
         }
     }
@@ -99,7 +91,7 @@ class StageSessionFactoryExamples: AbstractStageTest() {
             session.createSelectionQueryAs<Long>("select count(a) from Author a")
                 .singleResult
                 .await()
-                .toLong()
+                .shouldNotBeNull()
         }
 
         count shouldBeEqualTo 2L
@@ -112,7 +104,7 @@ class StageSessionFactoryExamples: AbstractStageTest() {
             session.createSelectionQueryAs<Book>(sql).resultList.await()
         }
         books.forEach {
-            println("book=$it, author=${it.author}")
+            log.debug { "book=$it, author=${it.author}" }
         }
         books shouldHaveSize 3
     }
@@ -134,7 +126,7 @@ class StageSessionFactoryExamples: AbstractStageTest() {
             query.resultList.await()
         }
         books.forEach {
-            println("book=$it, author=${it.author}")
+            log.debug { "book=$it, author=${it.author}" }
         }
         books shouldHaveSize 3
     }
@@ -157,7 +149,7 @@ class StageSessionFactoryExamples: AbstractStageTest() {
             query.resultList.await()
         }
         books.forEach {
-            println("book=$it, author=${it.author}")
+            log.debug { "book=$it, author=${it.author}" }
         }
         books shouldHaveSize 1
     }
@@ -174,16 +166,15 @@ class StageSessionFactoryExamples: AbstractStageTest() {
             session.createQuery(criteria).resultList.await()
         }
 
-        // NOTE: author 만 로딩했으므로, books 에 접근하면 lazy initialization 예외가 발생합니다.
+        // HINT: author 만 로딩했으므로, books 에 접근하면 lazy initialization 예외가 발생합니다.
         assertFailsWith<LazyInitializationException> {
             authors.forEach {
                 it.books.forEach { book ->
-                    println("book=$book")
+                    log.debug { "book=$book" }
                 }
             }
         }
     }
-
 
     @Test
     fun `find author and book by book isbn`() = runSuspendIO {
@@ -203,12 +194,7 @@ class StageSessionFactoryExamples: AbstractStageTest() {
             session.createQuery(criteria).setPlan(graph).resultList.await()
         }
 
-        authors.forEach { a ->
-            println(a)
-            a.books.forEach { b ->
-                println("\t$b")
-            }
-        }
+        authors.forEach { a -> a.logging() }
         authors shouldHaveSize 1
         authors.forEach {
             it.books shouldHaveSize 2
@@ -232,12 +218,7 @@ class StageSessionFactoryExamples: AbstractStageTest() {
                 }
             }
         }
-        authors.forEach { a ->
-            println(a)
-            a.books.forEach { b ->
-                println("\t$b")
-            }
-        }
+        authors.forEach { a -> a.logging() }
         authors shouldHaveSize 1
         authors.forEach {
             it.books shouldHaveSize 2

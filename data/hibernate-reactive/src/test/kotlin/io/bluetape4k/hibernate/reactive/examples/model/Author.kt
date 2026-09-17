@@ -20,7 +20,7 @@ import jakarta.persistence.Table
 @Access(AccessType.FIELD)
 class Author private constructor(
     @Column(nullable = false)
-    val name: String,
+    var name: String,
 ): AbstractValueObject() {
 
     companion object {
@@ -54,9 +54,7 @@ class Author private constructor(
         other is Author && name == other.name
 
     override fun equals(other: Any?): Boolean = other != null && super.equals(other)
-
     override fun hashCode(): Int = if (id != 0L) id.hashCode() else name.hashCode()
-
     override fun buildStringHelper(): ToStringBuilder {
         return super.buildStringHelper()
             .add("id", id)

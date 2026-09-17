@@ -1,9 +1,9 @@
 package io.bluetape4k.hibernate.reactive.examples.model;
 
-import java.time.LocalDate;
-
 import jakarta.persistence.metamodel.SingularAttribute;
 import jakarta.persistence.metamodel.StaticMetamodel;
+
+import java.time.LocalDate;
 
 @StaticMetamodel(Book.class)
 public abstract class Book_ {

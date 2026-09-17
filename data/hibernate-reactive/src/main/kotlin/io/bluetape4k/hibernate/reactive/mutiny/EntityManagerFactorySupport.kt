@@ -18,6 +18,5 @@ import org.hibernate.reactive.mutiny.Mutiny
  * // session != null
  * ```
  */
-fun EntityManagerFactory.asMutinySessionFactory(): Mutiny.SessionFactory {
-    return unwrap(Mutiny.SessionFactory::class.java)
-}
+fun EntityManagerFactory.asMutinySessionFactory(): Mutiny.SessionFactory =
+    unwrap(Mutiny.SessionFactory::class.java)
