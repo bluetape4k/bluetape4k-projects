@@ -1,6 +1,7 @@
 package io.bluetape4k.r2dbc
 
 import io.bluetape4k.assertions.shouldBeSameInstanceAs
+import io.bluetape4k.logging.KLogging
 import io.mockk.every
 import io.mockk.mockk
 import io.r2dbc.spi.ConnectionFactory
@@ -10,6 +11,8 @@ import org.springframework.data.r2dbc.core.R2dbcEntityTemplate
 import org.springframework.r2dbc.core.DatabaseClient
 
 class R2dbcClientTest {
+
+    companion object: KLogging()
 
     @Test
     fun `connectionFactory는 DatabaseClient의 factory를 그대로 노출한다`() {

@@ -9,10 +9,7 @@ import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.withContext
-import java.util.Collections
-import java.util.IdentityHashMap
-import java.util.LinkedHashMap
-import java.util.LinkedHashSet
+import java.util.*
 import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.locks.ReentrantLock
 import kotlin.concurrent.withLock
@@ -139,15 +136,17 @@ class TenantConnectionPoolRegistry<K: Any>(
      * 호출해야 합니다. event-loop에서 직접 호출하지 말고 blocking lifecycle executor에서
      * 실행해야 합니다. 여기서 실패는 [Exception]을 뜻하며 [Error]는 즉시 전파합니다.
      */
-    override fun close() = closeLock.withLock {
-        throwFailure(closeFailure)
-        if (!closed.compareAndSet(false, true)) {
-            return@withLock
-        }
+    override fun close() {
+        closeLock.withLock {
+            throwFailure(closeFailure)
+            if (!closed.compareAndSet(false, true)) {
+                return@withLock
+            }
 
-        val failure = disposeOwnedPools()
-        closeFailure = failure
-        throwFailure(failure)
+            val failure = disposeOwnedPools()
+            closeFailure = failure
+            throwFailure(failure)
+        }
     }
 
     @Suppress("TooGenericExceptionCaught")

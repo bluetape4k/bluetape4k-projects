@@ -5,41 +5,50 @@ import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeSameInstanceAs
 import io.bluetape4k.assertions.shouldHaveSize
 import io.bluetape4k.junit5.concurrency.MultithreadingTester
-import io.r2dbc.spi.Closeable as R2dbcCloseable
+import io.bluetape4k.junit5.coroutines.runSuspendIO
+import io.bluetape4k.logging.coroutines.KLoggingChannel
+import io.bluetape4k.logging.debug
 import io.r2dbc.spi.Connection
 import io.r2dbc.spi.ConnectionFactory
 import io.r2dbc.spi.ConnectionFactoryMetadata
+import kotlinx.coroutines.reactor.awaitSingleOrNull
 import org.junit.jupiter.api.Test
 import org.reactivestreams.Publisher
 import reactor.core.Disposable
 import reactor.core.publisher.Mono
 import reactor.test.StepVerifier
 import java.util.concurrent.atomic.AtomicInteger
+import io.r2dbc.spi.Closeable as R2dbcCloseable
 
 class R2dbcConnectionFactoryRegistryTest {
 
+    companion object: KLoggingChannel()
+
     @Test
-    fun `borrowed registry는 lookup과 immutable snapshot을 제공한다`() {
+    fun `borrowed registry는 lookup과 immutable snapshot을 제공한다`() = runSuspendIO {
         val factory = FakeConnectionFactory("primary")
         val source = linkedMapOf("primary" to factory)
         val registry = R2dbcConnectionFactoryRegistry.borrowed(source)
 
         source["late"] = FakeConnectionFactory("late")
 
+        log.debug { "registry=$registry" }
+
         registry.keys shouldBeEqualTo setOf("primary")
         registry["primary"] shouldBeSameInstanceAs factory
         registry.asMap()["primary"] shouldBeSameInstanceAs factory
         registry.routingMap(String::uppercase)["PRIMARY"] shouldBeSameInstanceAs factory
 
-        registry.close().block()
+        registry.close().awaitSingleOrNull()
         factory.closeCalls.get() shouldBeEqualTo 0
     }
 
     @Test
     fun `unknown key는 configured key를 노출하지 않고 fail fast한다`() {
-        val registry = R2dbcConnectionFactoryRegistry.borrowed(
-            mapOf("primary" to FakeConnectionFactory("primary")),
-        )
+        val registry = R2dbcConnectionFactoryRegistry
+            .borrowed(
+                mapOf("primary" to FakeConnectionFactory("primary")),
+            )
 
         val failure = assertFailsWith<NoSuchElementException> {
             registry["missing"]
@@ -93,11 +102,11 @@ class R2dbcConnectionFactoryRegistryTest {
     }
 
     @Test
-    fun `close 이후 lookup과 map access를 거부한다`() {
+    fun `close 이후 lookup과 map access를 거부한다`() = runSuspendIO {
         val registry = R2dbcConnectionFactoryRegistry.borrowed(
             mapOf("primary" to FakeConnectionFactory("primary")),
         )
-        registry.close().block()
+        registry.close().awaitSingleOrNull()
 
         assertFailsWith<IllegalStateException> { registry["primary"] }
         assertFailsWith<IllegalStateException> { registry.asMap() }
@@ -196,17 +205,17 @@ class R2dbcConnectionFactoryRegistryTest {
 
     private open class PlainConnectionFactory(
         private val name: String,
-    ) : ConnectionFactory {
+    ): ConnectionFactory {
         override fun create(): Publisher<out Connection> = Mono.error(UnsupportedOperationException(name))
 
-        override fun getMetadata(): ConnectionFactoryMetadata = object : ConnectionFactoryMetadata {
+        override fun getMetadata(): ConnectionFactoryMetadata = object: ConnectionFactoryMetadata {
             override fun getName(): String = name
         }
     }
 
     private class FakeConnectionFactory(
         name: String,
-    ) : PlainConnectionFactory(name), R2dbcCloseable, Disposable {
+    ): PlainConnectionFactory(name), R2dbcCloseable, Disposable {
         val closeCalls = AtomicInteger()
         private val disposed = AtomicInteger()
 

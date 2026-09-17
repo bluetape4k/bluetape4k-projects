@@ -1,12 +1,12 @@
 package io.bluetape4k.r2dbc.connection.init
 
+import io.bluetape4k.assertions.shouldBeInstanceOf
+import io.bluetape4k.assertions.shouldNotBeNull
 import io.bluetape4k.logging.KLogging
 import io.r2dbc.spi.ConnectionFactories
+import io.r2dbc.spi.ConnectionFactory
 import io.r2dbc.spi.ConnectionFactoryOptions
 import io.r2dbc.spi.Option
-import io.bluetape4k.assertions.shouldBeInstanceOf
-import io.bluetape4k.assertions.shouldHaveSize
-import io.bluetape4k.assertions.shouldNotBeNull
 import org.junit.jupiter.api.Test
 import org.springframework.core.io.ClassPathResource
 import org.springframework.r2dbc.connection.init.CompositeDatabasePopulator
@@ -19,7 +19,7 @@ class ConnectionInitTest {
 
     companion object: KLogging()
 
-    private fun h2Factory() = ConnectionFactories.get(
+    private fun h2Factory(): ConnectionFactory = ConnectionFactories.get(
         ConnectionFactoryOptions.builder()
             .option(ConnectionFactoryOptions.DRIVER, "h2")
             .option(ConnectionFactoryOptions.PROTOCOL, "mem")

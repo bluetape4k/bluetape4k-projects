@@ -2,17 +2,14 @@ package io.bluetape4k.r2dbc.pool
 
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.warn
-import io.r2dbc.spi.Closeable as R2dbcCloseable
 import io.r2dbc.spi.ConnectionFactory
 import reactor.core.Disposable
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
-import java.util.Collections
-import java.util.IdentityHashMap
-import java.util.LinkedHashMap
-import java.util.LinkedHashSet
+import java.util.*
 import java.util.concurrent.CopyOnWriteArrayList
 import java.util.concurrent.atomic.AtomicReference
+import io.r2dbc.spi.Closeable as R2dbcCloseable
 
 /** registry가 각 [ConnectionFactory]를 종료할 책임을 가지는지 나타냅니다. */
 enum class ConnectionFactoryOwnership {
@@ -54,11 +51,11 @@ sealed interface R2dbcConnectionFactoryEntry {
                     }
                 }
 
-                else ->
+                else          ->
                     throw IllegalArgumentException(
                         "An owned ConnectionFactory must implement " +
-                            "io.r2dbc.spi.Closeable or reactor.core.Disposable. " +
-                            "Use owned(connectionFactory, closeAction) for a custom lifecycle.",
+                                "io.r2dbc.spi.Closeable or reactor.core.Disposable. " +
+                                "Use owned(connectionFactory, closeAction) for a custom lifecycle.",
                     )
             }
             return OwnedEntry(connectionFactory, closeAction, connectionFactory)
@@ -79,7 +76,7 @@ private val borrowedLifecycleIdentity = Any()
 
 private class BorrowedEntry(
     override val connectionFactory: ConnectionFactory,
-) : R2dbcConnectionFactoryEntry {
+): R2dbcConnectionFactoryEntry {
     override val ownership: ConnectionFactoryOwnership = ConnectionFactoryOwnership.BORROWED
 }
 
@@ -87,7 +84,7 @@ private class OwnedEntry(
     override val connectionFactory: ConnectionFactory,
     val closeAction: () -> Mono<Void>,
     val lifecycleIdentity: Any,
-) : R2dbcConnectionFactoryEntry {
+): R2dbcConnectionFactoryEntry {
     override val ownership: ConnectionFactoryOwnership = ConnectionFactoryOwnership.OWNED
 }
 
@@ -112,9 +109,9 @@ private fun R2dbcConnectionFactoryEntry.closeResource(): Mono<Void> =
  * 명시해야 하며, 등록된 factory의 identity가 중복되면 ownership와 lifecycle
  * action이 일치해야 합니다.
  */
-class R2dbcConnectionFactoryRegistry<K : Any>(
+class R2dbcConnectionFactoryRegistry<K: Any>(
     entries: Map<K, R2dbcConnectionFactoryEntry>,
-) : R2dbcCloseable, Disposable {
+): R2dbcCloseable, Disposable {
 
     private val entries: Map<K, R2dbcConnectionFactoryEntry>
     private val factories: Map<K, ConnectionFactory>
@@ -168,7 +165,7 @@ class R2dbcConnectionFactoryRegistry<K : Any>(
      * mapper 결과가 중복되면 한 factory가 조용히 덮어써지지 않도록
      * [IllegalArgumentException]으로 실패합니다.
      */
-    fun <R : Any> routingMap(keyMapper: (K) -> R): Map<R, ConnectionFactory> {
+    fun <R: Any> routingMap(keyMapper: (K) -> R): Map<R, ConnectionFactory> {
         checkOpen()
         val mapped = LinkedHashMap<R, ConnectionFactory>(entries.size)
         entries.forEach { (key, entry) ->
@@ -205,7 +202,7 @@ class R2dbcConnectionFactoryRegistry<K : Any>(
         close().subscribe({}, { failure ->
             log.warn {
                 "R2DBC ConnectionFactory registry dispose failed: " +
-                    (failure::class.qualifiedName ?: "unknown failure")
+                        (failure::class.qualifiedName ?: "unknown failure")
             }
         })
     }
@@ -265,9 +262,9 @@ class R2dbcConnectionFactoryRegistry<K : Any>(
             .filter { seen.add(it.connectionFactory) }
     }
 
-    companion object : KLogging() {
+    companion object: KLogging() {
         /** 모든 factory를 borrowed entry로 감싸는 registry를 만듭니다. */
-        fun <K : Any> borrowed(
+        fun <K: Any> borrowed(
             entries: Map<K, ConnectionFactory>,
         ): R2dbcConnectionFactoryRegistry<K> {
             val wrapped = entries.mapValues { (_, factory) -> R2dbcConnectionFactoryEntry.borrowed(factory) }
@@ -275,7 +272,7 @@ class R2dbcConnectionFactoryRegistry<K : Any>(
         }
 
         /** 모든 factory를 owned entry로 감싸는 registry를 만듭니다. */
-        fun <K : Any> owned(
+        fun <K: Any> owned(
             entries: Map<K, ConnectionFactory>,
         ): R2dbcConnectionFactoryRegistry<K> {
             val wrapped = entries.mapValues { (_, factory) -> R2dbcConnectionFactoryEntry.owned(factory) }
