@@ -1,21 +1,22 @@
 package io.bluetape4k.jdbc.hikari
 
-import io.bluetape4k.codec.Base58
-import io.bluetape4k.logging.KLogging
-import io.bluetape4k.logging.debug
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeFalse
 import io.bluetape4k.assertions.shouldBeInstanceOf
 import io.bluetape4k.assertions.shouldNotBeNull
+import io.bluetape4k.codec.Base58
+import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.debug
 import org.junit.jupiter.api.Test
 import javax.sql.DataSource
 
-private fun h2JdbcUrl(dbName: String = "hikari_test_${Base58.randomString(8)}") =
-    "jdbc:h2:mem:$dbName;DB_CLOSE_DELAY=-1"
 
 class HikariSupportTest {
 
-    companion object : KLogging()
+    companion object: KLogging()
+
+    private fun h2JdbcUrl(dbName: String = "hikari_test_${Base58.randomString(8)}") =
+        "jdbc:h2:mem:$dbName;DB_CLOSE_DELAY=-1"
 
     @Test
     fun `hikariConfigOf - DSL 람다로 HikariConfig 생성`() {

@@ -6,7 +6,7 @@ import java.io.Serializable
 import java.sql.Connection
 import java.sql.DriverManager
 import java.sql.SQLException
-import java.util.Properties
+import java.util.*
 import java.util.logging.Logger
 import javax.sql.DataSource
 
@@ -145,7 +145,7 @@ class RefreshingJdbcPasswordDataSource(
     override fun getParentLogger(): Logger =
         Logger.getGlobal()
 
-    override fun <T: Any?> unwrap(iface: Class<T>): T {
+    override fun <T> unwrap(iface: Class<T>): T {
         if (iface.isInstance(this)) {
             return iface.cast(this)
         }

@@ -7,6 +7,8 @@ import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.assertions.shouldNotBeEmpty
 import io.bluetape4k.assertions.shouldNotBeNull
 import io.bluetape4k.jdbc.model.Actor
+import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.debug
 import org.junit.jupiter.api.Test
 
 /**
@@ -15,40 +17,43 @@ import org.junit.jupiter.api.Test
  * DataSource 트랜잭션 및 파라미터 바인딩 관련 확장 함수들의 테스트를 제공합니다.
  */
 class DataSourceTransactionExtensionsTest: AbstractJdbcSqlTest() {
+
+    companion object: KLogging()
+
     // ─── withTransaction ──────────────────────────────────────────────────────
 
     @Test
     fun `DataSource withTransaction - 트랜잭션 실행`() {
-        val result =
-            dataSource.withTransaction { conn ->
-                conn.createStatement().use { stmt ->
-                    stmt.executeUpdate("INSERT INTO Actors (firstname, lastname) VALUES ('DS', 'Transaction')")
-                }
-                42
+        val result = dataSource.withTransaction { conn ->
+            conn.createStatement().use { stmt ->
+                stmt.executeUpdate("INSERT INTO Actors (firstname, lastname) VALUES ('DS', 'Transaction')")
             }
+            42
+        }
 
         result shouldBeEqualTo 42
 
         // 커밋 확인
-        val actor =
-            dataSource.runQuery(
-                "SELECT * FROM Actors WHERE firstname = 'DS' AND lastname = 'Transaction'"
-            ) { rs ->
-                if (rs.next()) {
-                    Actor(
-                        id = rs.getInt("id"),
-                        firstname = rs.getString("firstname"),
-                        lastname = rs.getString("lastname")
-                    )
-                } else {
-                    null
-                }
+        val actor = dataSource.runQuery(
+            "SELECT * FROM Actors WHERE firstname = 'DS' AND lastname = 'Transaction'"
+        ) { rs ->
+            if (rs.next()) {
+                Actor(
+                    id = rs.getInt("id"),
+                    firstname = rs.getString("firstname"),
+                    lastname = rs.getString("lastname")
+                )
+            } else {
+                null
             }
+        }
+        log.debug { "actor=$actor" }
         actor.shouldNotBeNull()
     }
 
     @Test
     fun `DataSource withTransaction - 롤백 확인`() {
+
         assertFailsWith<RuntimeException> {
             dataSource.withTransaction { conn ->
                 conn.createStatement().use { stmt ->
@@ -59,13 +64,12 @@ class DataSourceTransactionExtensionsTest: AbstractJdbcSqlTest() {
         }
 
         // 롤백 확인
-        val count =
-            dataSource.runQuery(
-                "SELECT COUNT(*) FROM Actors WHERE firstname = 'DS' AND lastname = 'Rollback'"
-            ) { rs ->
-                rs.next()
-                rs.getInt(1)
-            }
+        val count = dataSource.runQuery(
+            "SELECT COUNT(*) FROM Actors WHERE firstname = 'DS' AND lastname = 'Rollback'"
+        ) { rs ->
+            rs.next()
+            rs.getInt(1)
+        }
         count shouldBeEqualTo 0
     }
 
@@ -73,19 +77,21 @@ class DataSourceTransactionExtensionsTest: AbstractJdbcSqlTest() {
 
     @Test
     fun `DataSource withReadOnlyTransaction - 읽기 전용 트랜잭션으로 조회`() {
-        val actors =
-            dataSource.withReadOnlyTransaction { conn ->
-                conn.runQuery("SELECT * FROM Actors ORDER BY id") { rs ->
-                    rs.toList { row ->
-                        Actor(
-                            id = row.getInt("id"),
-                            firstname = row.getString("firstname"),
-                            lastname = row.getString("lastname")
-                        )
-                    }
+        val actors = dataSource.withReadOnlyTransaction { conn ->
+            conn.runQuery("SELECT * FROM Actors ORDER BY id") { rs ->
+                rs.toList { row ->
+                    Actor(
+                        id = row.getInt("id"),
+                        firstname = row.getString("firstname"),
+                        lastname = row.getString("lastname")
+                    )
                 }
             }
+        }
 
+        actors.forEach { actor ->
+            log.debug { "actor=$actor" }
+        }
         actors.shouldNotBeEmpty()
         actors.first().firstname shouldBeEqualTo "Sunghyouk"
     }
@@ -296,7 +302,7 @@ class DataSourceTransactionExtensionsTest: AbstractJdbcSqlTest() {
             ) { rs ->
                 rs.next()
                 rs.getInt(1)
-        }
+            }
         count shouldBeEqualTo 0
     }
 

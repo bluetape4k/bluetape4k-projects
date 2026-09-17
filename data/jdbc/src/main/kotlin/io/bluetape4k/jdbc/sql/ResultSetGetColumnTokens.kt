@@ -17,7 +17,6 @@ import java.sql.SQLXML
 import java.sql.Time
 import java.sql.Timestamp
 
-
 /**
  * [ResultSet]으로부터 Column 값을 각 수형에 맞게 가져오는 클래스입니다.
  *
