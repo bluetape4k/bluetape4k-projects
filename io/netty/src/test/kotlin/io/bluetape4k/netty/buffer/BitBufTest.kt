@@ -1,18 +1,22 @@
 package io.bluetape4k.netty.buffer
 
-import io.bluetape4k.netty.AbstractNettyTest
-import io.bluetape4k.netty.util.use
-import io.netty.buffer.ByteBufAllocator
+import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeFalse
 import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.logging.KLogging
+import io.bluetape4k.netty.AbstractNettyTest
+import io.bluetape4k.netty.util.use
+import io.netty.buffer.ByteBufAllocator
 import org.junit.jupiter.api.Test
-import io.bluetape4k.assertions.assertFailsWith
 
 /**
  * [BitBuf] 및 [BitBufImpl]의 기능을 검증하는 테스트 클래스입니다.
  */
 class BitBufTest: AbstractNettyTest() {
+
+    companion object: KLogging()
+
     private fun newBitBuf(bytes: Int = 16): BitBuf = ByteBufAllocator.DEFAULT.buffer(bytes).toBitBuf()
 
     @Test
