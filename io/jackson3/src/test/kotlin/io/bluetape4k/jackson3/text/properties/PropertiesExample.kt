@@ -2,7 +2,9 @@ package io.bluetape4k.jackson3.text.properties
 
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeInstanceOf
+import io.bluetape4k.assertions.shouldNotBeEmpty
 import io.bluetape4k.assertions.shouldNotBeNull
+import io.bluetape4k.codec.encodeBase64String
 import io.bluetape4k.jackson3.text.AbstractJacksonTextTest
 import io.bluetape4k.jackson3.text.Box
 import io.bluetape4k.jackson3.text.Container
@@ -13,6 +15,7 @@ import io.bluetape4k.jackson3.text.Point
 import io.bluetape4k.jackson3.text.Points
 import io.bluetape4k.jackson3.text.Rectangle
 import io.bluetape4k.jackson3.text.getNode
+import io.bluetape4k.jackson3.writeAsString
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import org.junit.jupiter.api.Nested
@@ -78,6 +81,7 @@ class PropertiesExample: AbstractJacksonTextTest() {
 
     @Nested
     inner class Serialization {
+
         @Test
         fun `simple employee serialization`() {
             val input = FiveMinuteUser(
@@ -87,24 +91,17 @@ class PropertiesExample: AbstractJacksonTextTest() {
                 Gender.MALE,
                 byteArrayOf(1, 2, 3, 4)
             )
-            val output = propsMapper.writeValueAsString(input)
+            val output = propsMapper.writeAsString(input)
+            output.shouldNotBeEmpty()
             log.debug { "output=\n$output\n----------" }
-
-            val expected = """
-            |firstName=${input.firstName}
-            |lastName=${input.lastName}
-            |verified=false
-            |gender=MALE
-            |userImage=AQIDBA==
-            |
-            """.trimMargin()
-
-            output shouldBeEqualTo expected
 
             val props = propsMapper.writeValueAsProperties(input)
             props.size shouldBeEqualTo 5
+            props["firstName"] shouldBeEqualTo input.firstName
+            props["lastName"] shouldBeEqualTo input.lastName
             props["verified"] shouldBeEqualTo "false"
             props["gender"] shouldBeEqualTo "MALE"
+            props["userImage"] shouldBeEqualTo input.userImage.encodeBase64String()
         }
 
         @Test
@@ -121,7 +118,7 @@ class PropertiesExample: AbstractJacksonTextTest() {
             val expected = FiveMinuteUser("Bob", "Palmer", true, Gender.FEMALE, byteArrayOf(1, 2, 3, 4))
 
             val actual = propsMapper.readValue<FiveMinuteUser>(input)
-            actual.shouldNotBeNull() shouldBeEqualTo expected
+            actual shouldBeEqualTo expected
         }
 
         @Test
