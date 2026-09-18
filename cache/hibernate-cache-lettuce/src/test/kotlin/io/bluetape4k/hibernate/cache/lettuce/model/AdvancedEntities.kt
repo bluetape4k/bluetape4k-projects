@@ -43,8 +43,7 @@ class CompositePerson: Serializable {
     override fun equals(other: Any?): Boolean =
         other is CompositePerson && id == other.id && name == other.name
 
-    override fun hashCode(): Int =
-        id?.hashCode() ?: hashOf(name)
+    override fun hashCode(): Int = id.hashCode()
 
     override fun toString(): String =
         "CompositePerson(id=$id, name='$name')"

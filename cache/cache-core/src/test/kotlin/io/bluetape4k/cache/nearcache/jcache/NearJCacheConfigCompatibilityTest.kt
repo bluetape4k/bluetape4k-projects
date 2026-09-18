@@ -494,6 +494,7 @@ class NearJCacheConfigCompatibilityTest {
 
     private fun deserializeAsCurrent(bytes: ByteArray): NearJCacheConfig<String, String> =
         MappingObjectInputStream(ByteArrayInputStream(bytes)).use { input ->
+            @Suppress("UNCHECKED_CAST")
             input.readObject() as NearJCacheConfig<String, String>
         }
 
