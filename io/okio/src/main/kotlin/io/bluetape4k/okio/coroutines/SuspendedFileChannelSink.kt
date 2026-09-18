@@ -106,7 +106,7 @@ class SuspendedFileChannelSink(
         runInterruptible(Dispatchers.IO) {
             // Closing file descriptors may block on underlying OS resources.
             if (channel.isOpen) {
-                log.debug { "Closing AsynchronousFileChannel[$channel]" }
+                log.debug { "Close AsynchronousFileChannel[$channel]" }
                 channel.close()
             }
         }

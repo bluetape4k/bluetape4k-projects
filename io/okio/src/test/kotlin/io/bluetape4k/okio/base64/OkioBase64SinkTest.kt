@@ -1,8 +1,9 @@
 package io.bluetape4k.okio.base64
 
+import io.bluetape4k.assertions.shouldBe
+import io.bluetape4k.assertions.shouldNotBe
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.okio.byteStringOf
-import io.bluetape4k.assertions.shouldBeTrue
 import okio.Buffer
 import okio.Sink
 import org.junit.jupiter.api.Test
@@ -22,7 +23,7 @@ class OkioBase64SinkTest: AbstractBaseNSinkTest() {
         val delegate = Buffer()
         val wrapped = delegate.asBase64Sink()
 
-        ((wrapped as Any) !== (delegate as Any)).shouldBeTrue()
-        (wrapped.asBase64Sink() === wrapped).shouldBeTrue()
+        wrapped shouldNotBe delegate
+        wrapped.asBase64Sink() shouldBe wrapped
     }
 }
