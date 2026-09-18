@@ -18,10 +18,10 @@ import io.nats.client.Message
 import io.nats.client.PushSubscribeOptions
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
-import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.flow.toList
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.withTimeout
 import org.junit.jupiter.api.Test
@@ -166,7 +166,7 @@ class NatsConsumerFlowTest {
     }
 
     @Test
-    fun `invalid flow and push limits fail before handle creation`() {
+    fun `invalid flow and push limits fail before handle creation`() = runTest {
         val jetStream = mockk<JetStream>(relaxed = true)
         val context = mockk<ConsumerContext>(relaxed = true)
         val oversizedPush = pushSubscriptionOptions {
@@ -180,22 +180,22 @@ class NatsConsumerFlowTest {
         val invalidPull = ConsumeOptions.builder().batchBytes(1).build()
 
         assertFailsWith<IllegalArgumentException> {
-            jetStream.consumeAsFlow("events", capacity = 0)
+            jetStream.consumeAsFlow("events", capacity = 0).collect()
         }
         assertFailsWith<IllegalArgumentException> {
-            context.consumeAsFlow(capacity = 1_025)
+            context.consumeAsFlow(capacity = 1_025).collect()
         }
         assertFailsWith<IllegalArgumentException> {
-            context.consumeAsFlow(capacity = 1, receiveTimeout = 99.milliseconds)
+            context.consumeAsFlow(capacity = 1, receiveTimeout = 99.milliseconds).collect()
         }
         assertFailsWith<IllegalArgumentException> {
-            jetStream.consumeAsFlow("events", oversizedPush)
+            jetStream.consumeAsFlow("events", oversizedPush).collect()
         }
         assertFailsWith<IllegalArgumentException> {
-            jetStream.consumeAsFlow("events", oversizedBytesPush)
+            jetStream.consumeAsFlow("events", oversizedBytesPush).collect()
         }
         assertFailsWith<IllegalArgumentException> {
-            context.consumeAsFlow(invalidPull)
+            context.consumeAsFlow(invalidPull).collect()
         }
 
         jetStream.consumeAsFlow(
@@ -237,7 +237,6 @@ class NatsConsumerFlowTest {
         failure.message shouldBeEqualTo receiveFailure.message
         verify(exactly = 1) { subscription.unsubscribe() }
         receiveFailure.suppressed.map { it.message } shouldBeEqualTo listOf(cleanupFailure.message)
-        Unit
     }
 
     @Test
@@ -327,7 +326,7 @@ class NatsConsumerFlowTest {
         }
         every { jetStream.subscribe("events", options) } throws subscribeFailure
 
-        val failure = assertFailsWith<IllegalStateException> {
+        assertFailsWith<IllegalStateException> {
             jetStream.consumeAsFlow("events", options).toList()
         }
 

@@ -363,7 +363,7 @@ class ApplicationResourceLifecycleTest {
         try {
             testApplication {
                 application {
-                    logger = environment.log as Logger
+                    logger = environment.log as? Logger
                     previousLevel = logger?.level
                     logger?.level = Level.DEBUG
                     logger?.attach(appender)
