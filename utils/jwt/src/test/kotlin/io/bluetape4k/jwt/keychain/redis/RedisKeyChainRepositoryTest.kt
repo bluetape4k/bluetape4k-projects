@@ -75,7 +75,7 @@ class RedisKeyChainRepositoryTest: AbstractKeyChainRepositoryTest() {
         every { lock.isHeldByCurrentThread } returns false
 
         val failure = assertFailsWith<IllegalStateException> {
-            withRedisRotationLock(lock) { Unit }
+            withRedisRotationLock(lock) { }
         }
 
         failure.message shouldContain "ownership was lost"

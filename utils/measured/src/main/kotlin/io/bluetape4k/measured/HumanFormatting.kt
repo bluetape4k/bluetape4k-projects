@@ -78,6 +78,7 @@ private fun Units.extendedHumanCandidates(): List<Units>? = when (this) {
 }
 
 /** 측정값의 기본 사람이 읽기 쉬운 표현을 계산합니다. */
+@Suppress("UNCHECKED_CAST")
 internal fun <T: Units> formatMeasureHuman(measure: Measure<T>): String {
     val candidates = measure.units.baseHumanCandidates() ?: measure.units.extendedHumanCandidates()
     if (candidates != null) {

@@ -524,7 +524,7 @@ class ContextPropagationConformanceTest {
                 cancel = { throw cancelFailure },
                 shutdown = { throw shutdownFailure },
             ) {
-                Unit
+
             }
         }
 

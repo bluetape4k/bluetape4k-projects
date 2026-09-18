@@ -42,7 +42,7 @@ internal object BenchmarkServerLifecycle {
             if (primaryFailure == null) {
                 primaryFailure = failure
             } else if (primaryFailure !== failure) {
-                primaryFailure?.addSuppressed(failure)
+                primaryFailure.addSuppressed(failure)
             }
         }
 
