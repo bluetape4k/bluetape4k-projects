@@ -6,7 +6,7 @@ import io.bluetape4k.http.hc5.AbstractHc5Test
 import io.bluetape4k.http.hc5.async.methods.toProducer
 import io.bluetape4k.http.hc5.http.defaultRetryStrategy
 import io.bluetape4k.http.hc5.http.productionRequestConfigOf
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import org.apache.hc.client5.http.async.methods.SimpleRequestBuilder
 import org.apache.hc.client5.http.async.methods.SimpleResponseConsumer
@@ -15,9 +15,9 @@ import org.apache.hc.core5.util.Timeout
 import org.junit.jupiter.api.Test
 import java.util.concurrent.TimeUnit
 
-class ProductionHttpAsyncClientTest : AbstractHc5Test() {
+class ProductionHttpAsyncClientTest: AbstractHc5Test() {
 
-    companion object : KLogging()
+    companion object: KLoggingChannel()
 
     @Test
     fun `productionHttpAsyncClientOf creates client with defaults`() {

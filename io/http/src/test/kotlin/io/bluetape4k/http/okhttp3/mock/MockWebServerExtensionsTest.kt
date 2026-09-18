@@ -1,6 +1,7 @@
 package io.bluetape4k.http.okhttp3.mock
 
 import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeGreaterOrEqualTo
 import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.assertions.shouldNotBeBlank
 import io.bluetape4k.assertions.shouldNotBeNull
@@ -36,12 +37,10 @@ class MockWebServerExtensionsTest {
     }
 
     private fun executeGet(): okhttp3.Response {
-        val request =
-            Request
-                .Builder()
-                .url(server.baseUrl)
-                .get()
-                .build()
+        val request = Request.Builder()
+            .url(server.baseUrl)
+            .get()
+            .build()
         return client.newCall(request).execute()
     }
 
@@ -59,7 +58,7 @@ class MockWebServerExtensionsTest {
 
         executeGet().use { response ->
             response.isSuccessful.shouldBeTrue()
-            response.body.shouldNotBeNull().string() shouldBeEqualTo "hello world"
+            response.body.string() shouldBeEqualTo "hello world"
         }
     }
 
@@ -71,7 +70,7 @@ class MockWebServerExtensionsTest {
             response.isSuccessful.shouldBeTrue()
             response.header("X-Custom-Header") shouldBeEqualTo "custom-value"
             response.header("X-Another") shouldBeEqualTo "another-value"
-            response.body.shouldNotBeNull().string() shouldBeEqualTo "ok"
+            response.body.string() shouldBeEqualTo "ok"
         }
     }
 
@@ -82,19 +81,20 @@ class MockWebServerExtensionsTest {
         executeGet().use { response ->
             response.isSuccessful.shouldBeTrue()
             response.header("X-Map-Header") shouldBeEqualTo "map-value"
-            response.body.shouldNotBeNull().string() shouldBeEqualTo "ok"
+            response.body.string() shouldBeEqualTo "ok"
         }
     }
 
     @Test
     fun `enqueueBodyWithDelay - 지연 응답을 반환한다`() {
         val delay = Duration.ofMillis(50)
-        server.enqueueBodyWithDelay("delayed")
+        server.enqueueBodyWithDelay("delayed", delay)
 
         val start = System.currentTimeMillis()
         executeGet().use { response ->
             response.isSuccessful.shouldBeTrue()
-            response.body.shouldNotBeNull().string() shouldBeEqualTo "delayed"
+            response.body.string() shouldBeEqualTo "delayed"
+            System.currentTimeMillis() - start shouldBeGreaterOrEqualTo delay.toMillis()
         }
     }
 
@@ -105,7 +105,7 @@ class MockWebServerExtensionsTest {
         executeGet().use { response ->
             response.isSuccessful.shouldBeTrue()
             response.header("X-Delay") shouldBeEqualTo "true"
-            response.body.shouldNotBeNull().string() shouldBeEqualTo "delayed-map"
+            response.body.string() shouldBeEqualTo "delayed-map"
         }
     }
 
@@ -115,7 +115,7 @@ class MockWebServerExtensionsTest {
 
         executeGet().use { response ->
             response.isSuccessful.shouldBeTrue()
-            response.body.shouldNotBeNull().string() shouldBeEqualTo "headers-delayed"
+            response.body.string() shouldBeEqualTo "headers-delayed"
         }
     }
 
@@ -126,7 +126,7 @@ class MockWebServerExtensionsTest {
         executeGet().use { response ->
             response.isSuccessful.shouldBeTrue()
             response.header("X-Headers-Delay") shouldBeEqualTo "true"
-            response.body.shouldNotBeNull().string() shouldBeEqualTo "headers-map"
+            response.body.string() shouldBeEqualTo "headers-map"
         }
     }
 
@@ -177,7 +177,7 @@ class MockWebServerExtensionsTest {
         executeGet().use { response ->
             response.code shouldBeEqualTo 201
             response.header("X-Created") shouldBeEqualTo "true"
-            response.body.shouldNotBeNull().string() shouldBeEqualTo "dsl body"
+            response.body.string() shouldBeEqualTo "dsl body"
         }
     }
 

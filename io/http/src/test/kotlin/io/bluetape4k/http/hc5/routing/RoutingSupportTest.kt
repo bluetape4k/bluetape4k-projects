@@ -1,8 +1,8 @@
 package io.bluetape4k.http.hc5.routing
 
-import io.bluetape4k.logging.KLogging
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldNotBeNull
+import io.bluetape4k.logging.KLogging
 import org.apache.hc.client5.http.impl.DefaultSchemePortResolver
 import org.apache.hc.core5.http.HttpHost
 import org.apache.hc.core5.http.message.BasicHttpRequest
@@ -17,8 +17,9 @@ class RoutingSupportTest {
         val request = BasicHttpRequest("GET", "https://example.com/api/v1")
         val host = request.determineHost()
         host.shouldNotBeNull()
-        host.hostName shouldBeEqualTo "example.com"
         host.schemeName shouldBeEqualTo "https"
+        host.hostName shouldBeEqualTo "example.com"
+        host.toURI() shouldBeEqualTo "https://example.com"
     }
 
     @Test
@@ -26,8 +27,9 @@ class RoutingSupportTest {
         val request = BasicHttpRequest("GET", "http://api.example.com/data")
         val host = request.determineHost()
         host.shouldNotBeNull()
-        host.hostName shouldBeEqualTo "api.example.com"
         host.schemeName shouldBeEqualTo "http"
+        host.hostName shouldBeEqualTo "api.example.com"
+        host.toURI() shouldBeEqualTo "http://api.example.com"
     }
 
     @Test
@@ -36,6 +38,8 @@ class RoutingSupportTest {
         val normalized = host.normalize()
         normalized.shouldNotBeNull()
         normalized.schemeName shouldBeEqualTo "http"
+        normalized.hostName shouldBeEqualTo "example.com"
+        normalized.toURI() shouldBeEqualTo "http://example.com:80"
     }
 
     @Test
@@ -44,6 +48,8 @@ class RoutingSupportTest {
         val normalized = host.normalize()
         normalized.shouldNotBeNull()
         normalized.schemeName shouldBeEqualTo "https"
+        normalized.hostName shouldBeEqualTo "example.com"
+        normalized.toURI() shouldBeEqualTo "https://example.com:443"
     }
 
     @Test
@@ -51,6 +57,8 @@ class RoutingSupportTest {
         val host = HttpHost("https", "example.com", 8443)
         val normalized = host.normalize(DefaultSchemePortResolver.INSTANCE)
         normalized.shouldNotBeNull()
+        normalized.schemeName shouldBeEqualTo "https"
         normalized.hostName shouldBeEqualTo "example.com"
+        normalized.toURI() shouldBeEqualTo "https://example.com:8443"
     }
 }

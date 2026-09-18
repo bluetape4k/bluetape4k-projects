@@ -10,8 +10,7 @@ It provides a consistent interface for Apache HttpComponents 5, OkHttp3, Vert.x 
 
 ## Strictly bounded complete response bodies
 
-Use the bounded adapters when a complete body is required and an oversized body
-must fail instead of returning a prefix.
+Use the bounded adapters when a complete body is required and an oversized body must fail instead of returning a prefix.
 
 ```kotlin
 import io.bluetape4k.http.hc5.entity.readBodyBytes
@@ -31,45 +30,27 @@ val response: HttpResponse<InputStream> =
 val body = response.readBodyBytes(maxBytes = 64 * 1024)
 ```
 
-The HC5 adapter closes the acquired entity stream, while the caller still closes
-the enclosing response. A null HC5 entity becomes an empty body; preserve null
-with `response.entity?.let { it.readBodyBytes(maxBytes = 64 * 1024) }`. The JDK
-adapter closes only `HttpResponse.body()` and does not close the client or its
-executor. Neither adapter interprets the status code.
+The HC5 adapter closes the acquired entity stream, while the caller still closes the enclosing response. A null HC5 entity becomes an empty body; preserve null with `response.entity?.let { it.readBodyBytes(maxBytes = 64 * 1024) }`. The JDK adapter closes only `HttpResponse.body()` and does not close the client or its executor. Neither adapter interprets the status code.
 
-| Need | API |
-|---|---|
-| Complete JSON/schema body; reject overflow | `readBodyBytes` / `readBodyString` |
-| Diagnostic or preview prefix | existing HC5 `toByteArrayOrNull` / `toStringOrNull` |
-| Preserve a null HC5 entity | `entity?.let { ... }` |
-| General caller-owned stream | `inputStream.use { it.readAllBytes(maxBytes) }` |
+| Need                                       | API                                                 |
+|--------------------------------------------|-----------------------------------------------------|
+| Complete JSON/schema body; reject overflow | `readBodyBytes` / `readBodyString`                  |
+| Diagnostic or preview prefix               | existing HC5 `toByteArrayOrNull` / `toStringOrNull` |
+| Preserve a null HC5 entity                 | `entity?.let { ... }`                               |
+| General caller-owned stream                | `inputStream.use { it.readAllBytes(maxBytes) }`     |
 
-These calls, the one-byte EOF check, and `close()` are blocking and are not made
-cancellable by coroutine cancellation. Configure connect, response, and read
-timeouts, call them at a blocking-I/O boundary rather than on an event loop, and
-let a supervisor close the stream or enclosing response to abort stalled work.
-Transport-specific abort behavior is outside this helper.
+These calls, the one-byte EOF check, and `close()` are blocking and are not made cancellable by coroutine cancellation. Configure connect, response, and read timeouts, call them at a blocking-I/O boundary rather than on an event loop, and let a supervisor close the stream or enclosing response to abort stalled work. Transport-specific abort behavior is outside this helper.
 
-The limit applies to bytes exposed by the adapter. Apply a separate decoded-byte
-limit after decompression. Budget temporary heap as approximately
-`concurrent reads * (2 * maxBytes + segment overhead)`. The library emits no logs
-or metrics; applications may record low-cardinality endpoint/operation, max, and
-overflow/read/close categories, but must not record payloads or exception messages.
+The limit applies to bytes exposed by the adapter. Apply a separate decoded-byte limit after decompression. Budget temporary heap as approximately
+`concurrent reads * (2 * maxBytes + segment overhead)`. The library emits no logs or metrics; applications may record low-cardinality endpoint/operation, max, and overflow/read/close categories, but must not record payloads or exception messages.
 
-Adoption sequence: publish library `2.1.0`, select it through the central catalog
-or an allowed repository-local override, run compile and targeted smoke tests, and
-then migrate each consumer in its own PR. Until that finishes, retain the manual
-strict read loop. Roll back to the previous dependency plus that loop; the
-truncating preview APIs are not a strict-read fallback.
+Adoption sequence: publish library `2.1.0`, select it through the central catalog or an allowed repository-local override, run compile and targeted smoke tests, and then migrate each consumer in its own PR. Until that finishes, retain the manual strict read loop. Roll back to the previous dependency plus that loop; the truncating preview APIs are not a strict-read fallback.
 
 ## Persisted outbound HTTP error sanitization
 
-Use `sanitizeOutboundHttpError(statusCode, rawMessage)` before storing an external
-HTTP failure in a bounded database field or similar persistence boundary.
+Use `sanitizeOutboundHttpError(statusCode, rawMessage)` before storing an external HTTP failure in a bounded database field or similar persistence boundary.
 
-The sanitizer returns at most 240 characters including the status prefix and
-inspects only that bounded source prefix. It drops later stack-trace lines and
-the remainder after `Authorization`, `Cookie`, `Token`, `Secret`, or `API-Key`
+The sanitizer returns at most 240 characters including the status prefix and inspects only that bounded source prefix. It drops later stack-trace lines and the remainder after `Authorization`, `Cookie`, `Token`, `Secret`, or `API-Key`
 style labels.
 
 ```kotlin
@@ -82,16 +63,10 @@ val storedError = sanitizeOutboundHttpError(
 // HTTP 503 Authorization:[redacted]
 ```
 
-The result always starts with `HTTP <statusCode>` and is capped at 240 characters.
-A null or blank message produces only the status, and multiline input keeps only
-the first line. After the first `Authorization`, `Cookie`, `Token`, `Secret`, or
-`API-Key`-like label, the remainder of that line is removed fail-closed so malformed,
-quoted, or whitespace-containing credentials cannot leak. This is a persisted-error
-contract, not a header-logging redaction API.
+The result always starts with `HTTP <statusCode>` and is capped at 240 characters. A null or blank message produces only the status, and multiline input keeps only the first line. After the first `Authorization`, `Cookie`, `Token`, `Secret`, or
+`API-Key`-like label, the remainder of that line is removed fail-closed so malformed, quoted, or whitespace-containing credentials cannot leak. This is a persisted-error contract, not a header-logging redaction API.
 
-The caller still owns HTTP status classification, retry/permanent-failure policy,
-database persistence, logging, transactions, and coroutine cancellation. Do not
-re-log or rethrow the unsanitized message.
+The caller still owns HTTP status classification, retry/permanent-failure policy, database persistence, logging, transactions, and coroutine cancellation. Do not re-log or rethrow the unsanitized message.
 
 ## Architecture
 
@@ -172,9 +147,7 @@ client.use {
 
 **Production-tuned HttpClient:**
 
-One-call factory that applies all recommended defaults: pooled connections, eviction of
-expired/idle connections, keep-alive fallback for servers that omit the `Keep-Alive` header,
-retry on transient failures, and conservative request timeouts.
+One-call factory that applies all recommended defaults: pooled connections, eviction of expired/idle connections, keep-alive fallback for servers that omit the `Keep-Alive` header, retry on transient failures, and conservative request timeouts.
 
 ```kotlin
 import io.bluetape4k.http.hc5.classic.*
@@ -194,16 +167,16 @@ val client = productionHttpClientOf(
 val client = productionVirtualThreadHttpClientOf()
 ```
 
-| Parameter | Default | Description |
-|-----------|---------|-------------|
-| `maxConnTotal` | 200 | Total pooled connections |
-| `maxConnPerRoute` | 100 | Pooled connections per route |
-| `connectionRequestTimeout` | 5 s | Wait for connection from pool |
-| `connectTimeout` | 10 s | TCP connect handshake |
-| `responseTimeout` | 30 s | First response byte deadline |
-| `maxIdleTime` | 60 s | Idle connection eviction threshold |
-| keep-alive fallback | 60 s | Used when server omits `Keep-Alive` |
-| `maxRetries` | 3 | Retry count on transient failures |
+| Parameter                  | Default | Description                         |
+|----------------------------|---------|-------------------------------------|
+| `maxConnTotal`             | 200     | Total pooled connections            |
+| `maxConnPerRoute`          | 100     | Pooled connections per route        |
+| `connectionRequestTimeout` | 5 s     | Wait for connection from pool       |
+| `connectTimeout`           | 10 s    | TCP connect handshake               |
+| `responseTimeout`          | 30 s    | First response byte deadline        |
+| `maxIdleTime`              | 60 s    | Idle connection eviction threshold  |
+| keep-alive fallback        | 60 s    | Used when server omits `Keep-Alive` |
+| `maxRetries`               | 3       | Retry count on transient failures   |
 
 **Async production-tuned client:**
 
@@ -248,16 +221,16 @@ Square's OkHttp3 client made convenient with a Kotlin DSL.
 
 **DSL Builder Functions (`OkHttp3Support.kt`):**
 
-| Function | Description |
-|----------|-------------|
-| `okhttp3Client(connectionPool, dispatcher, block)` | Create an `OkHttpClient` with optional pool/dispatcher |
-| `okHttp3ConnectionPool(maxIdleConnections, keepAliveDuration)` | Create a `ConnectionPool` |
-| `okhttp3DispatcherWithVirtualThread(maxRequests, maxRequestsPerHost)` | Create a `Dispatcher` backed by Virtual Threads |
-| `okhttp3DispatcherOf(executor, maxRequests, maxRequestsPerHost)` | Create a `Dispatcher` with a custom `ExecutorService` |
-| `okhttp3ClientBuilderOf(connectionPool, dispatcher, block)` | Get a pre-configured `OkHttpClient.Builder` |
-| `okhttp3RequestOf(url, block)` | Create an `okhttp3.Request` |
-| `okhttp3CacheControl(block)` | Create a `CacheControl` via DSL |
-| `okhttp3CacheControlOf(maxAge, maxStale, minFresh)` | Create a `CacheControl` with duration parameters |
+| Function                                                              | Description                                            |
+|-----------------------------------------------------------------------|--------------------------------------------------------|
+| `okhttp3Client(connectionPool, dispatcher, block)`                    | Create an `OkHttpClient` with optional pool/dispatcher |
+| `okHttp3ConnectionPool(maxIdleConnections, keepAliveDuration)`        | Create a `ConnectionPool`                              |
+| `okhttp3DispatcherWithVirtualThread(maxRequests, maxRequestsPerHost)` | Create a `Dispatcher` backed by Virtual Threads        |
+| `okhttp3DispatcherOf(executor, maxRequests, maxRequestsPerHost)`      | Create a `Dispatcher` with a custom `ExecutorService`  |
+| `okhttp3ClientBuilderOf(connectionPool, dispatcher, block)`           | Get a pre-configured `OkHttpClient.Builder`            |
+| `okhttp3RequestOf(url, block)`                                        | Create an `okhttp3.Request`                            |
+| `okhttp3CacheControl(block)`                                          | Create a `CacheControl` via DSL                        |
+| `okhttp3CacheControlOf(maxAge, maxStale, minFresh)`                   | Create a `CacheControl` with duration parameters       |
 
 ```kotlin
 import io.bluetape4k.http.okhttp3.*
@@ -317,8 +290,7 @@ val options = httpClientOptionsOf(
 val vertxClient = vertxHttpClientOf(vertx, options)
 ```
 
-The `defaultVertxHttpClient` uses the managed default Vert.x instance from `bluetape4k-vertx`. Close the managed client
-before closing the default Vert.x instance during application shutdown or test cleanup.
+The `defaultVertxHttpClient` uses the managed default Vert.x instance from `bluetape4k-vertx`. Close the managed client before closing the default Vert.x instance during application shutdown or test cleanup.
 
 ```kotlin
 import io.bluetape4k.http.vertx.closeDefaultVertxHttpClient
@@ -363,36 +335,37 @@ val response: HealthResponse = client.get("https://example.com/health").body()
 
 ![HTTP Client Primary Recommendations diagram](../../docs/images/readme-diagrams/io-http-diagram-04.png)
 
-**Apache HttpComponents 5 (HC5) is the primary recommended production HTTP client** in `bluetape4k-http`. It provides the deepest feature set: production-tuned factories, in-memory RFC 7234 caching, virtual-thread support, and coroutine integration.
+**Apache HttpComponents 5 (HC5) is the primary recommended production HTTP
+client** in `bluetape4k-http`. It provides the deepest feature set: production-tuned factories, in-memory RFC 7234 caching, virtual-thread support, and coroutine integration.
 
-| Scenario | Recommended client | Factory |
-|----------|--------------------|---------|
-| Sync backend calls (high-throughput) | HC5 Classic + VirtualThread | `productionVirtualThreadHttpClientOf()` |
-| Async backend calls (coroutine-first) | HC5 Async + Coroutines | `productionHttpAsyncClientOf()` |
-| Repeated cacheable GETs (max throughput) | HC5 CachingHttpClient (in-memory) | `memoryCachingHttpClientOf()` |
-| Cache persistence across restarts | OkHttp3 + DiskLruCache | `okhttp3ClientWithCache()` |
-| Ktor-based applications | Ktor CIO | — |
-| Vert.x-based applications | Vert.x WebClient | — |
-| Zero-dependency JVM services | JDK HttpClient | — |
+| Scenario                                 | Recommended client                | Factory                                 |
+|------------------------------------------|-----------------------------------|-----------------------------------------|
+| Sync backend calls (high-throughput)     | HC5 Classic + VirtualThread       | `productionVirtualThreadHttpClientOf()` |
+| Async backend calls (coroutine-first)    | HC5 Async + Coroutines            | `productionHttpAsyncClientOf()`         |
+| Repeated cacheable GETs (max throughput) | HC5 CachingHttpClient (in-memory) | `memoryCachingHttpClientOf()`           |
+| Cache persistence across restarts        | OkHttp3 + DiskLruCache            | `okhttp3ClientWithCache()`              |
+| Ktor-based applications                  | Ktor CIO                          | —                                       |
+| Vert.x-based applications                | Vert.x WebClient                  | —                                       |
+| Zero-dependency JVM services             | JDK HttpClient                    | —                                       |
 
-All non-HC5 backends are **fully supported** as first-class options for their target ecosystems. No existing code or API is deprecated.
+All non-HC5 backends are **fully
+supported** as first-class options for their target ecosystems. No existing code or API is deprecated.
 
 ## HTTP Client Comparison
 
-| Client            | Role             | Protocol         | Characteristics                     | Use Case                     |
-|-------------------|------------------|------------------|-------------------------------------|------------------------------|
-| HC5 Classic       | **Primary**      | HTTP/1.1         | Production-tuned, retry, keep-alive | Sync backend calls           |
-| HC5 Async         | **Primary**      | HTTP/1.1, HTTP/2 | Async, Coroutines integration       | High-performance async       |
-| HC5 CachingClient | **Primary**      | HTTP/1.1         | RFC 7234 in-memory cache (813K ops/s) | Cacheable GET-heavy workloads |
-| OkHttp3           | Compatibility    | HTTP/1.1, HTTP/2 | Disk cache, interceptors, Android   | Cache persistence, Android   |
-| JDK HttpClient    | Compatibility    | HTTP/1.1, HTTP/2 | No extra dependency                 | Zero-dependency services     |
-| Vert.x HttpClient | Ecosystem        | HTTP/1.1, HTTP/2 | Event loop-based                    | Vert.x ecosystem             |
-| Ktor CIO          | Ecosystem        | HTTP/1.x         | Suspend-native, Ktor plugins        | Ktor-based apps              |
+| Client            | Role          | Protocol         | Characteristics                       | Use Case                      |
+|-------------------|---------------|------------------|---------------------------------------|-------------------------------|
+| HC5 Classic       | **Primary**   | HTTP/1.1         | Production-tuned, retry, keep-alive   | Sync backend calls            |
+| HC5 Async         | **Primary**   | HTTP/1.1, HTTP/2 | Async, Coroutines integration         | High-performance async        |
+| HC5 CachingClient | **Primary**   | HTTP/1.1         | RFC 7234 in-memory cache (813K ops/s) | Cacheable GET-heavy workloads |
+| OkHttp3           | Compatibility | HTTP/1.1, HTTP/2 | Disk cache, interceptors, Android     | Cache persistence, Android    |
+| JDK HttpClient    | Compatibility | HTTP/1.1, HTTP/2 | No extra dependency                   | Zero-dependency services      |
+| Vert.x HttpClient | Ecosystem     | HTTP/1.1, HTTP/2 | Event loop-based                      | Vert.x ecosystem              |
+| Ktor CIO          | Ecosystem     | HTTP/1.x         | Suspend-native, Ktor plugins          | Ktor-based apps               |
 
 ## Performance Benchmark
 
-Three JMH (Java Microbenchmark Harness) benchmarks compare client throughput.
-All benchmarks target a separate Docker container server, isolating the server JVM from the client JVM.
+Three JMH (Java Microbenchmark Harness) benchmarks compare client throughput. All benchmarks target a separate Docker container server, isolating the server JVM from the client JVM.
 
 ```bash
 # Run all benchmarks
@@ -408,14 +381,13 @@ All benchmarks target a separate Docker container server, isolating the server J
 
 ![Profiling mode comparison](../../docs/images/readme-diagrams/io-http-diagram-06.png)
 
-Add `-PbenchmarkProfile=<profiler>` to enable profiling during the benchmark run.
-Output files are written to `build/benchmark-profiling/`.
+Add `-PbenchmarkProfile=<profiler>` to enable profiling during the benchmark run. Output files are written to `build/benchmark-profiling/`.
 
-| Property value | Mechanism | Output | What it measures |
-|---|---|---|---|
-| `gc` | JVM GC logging (`-Xlog:gc*`) | `gc.log` | GC pause time, allocation events, safepoints |
-| `jfr` | Java Flight Recorder (`-XX:StartFlightRecording`) | `benchmark.jfr` | CPU flame graph, GC events, lock contention, allocations |
-| `async` | async-profiler agent (requires `-PasyncProfilerLib=`) | `async-cpu.html` | CPU flame graph (low-overhead sampling) |
+| Property value | Mechanism                                             | Output           | What it measures                                         |
+|----------------|-------------------------------------------------------|------------------|----------------------------------------------------------|
+| `gc`           | JVM GC logging (`-Xlog:gc*`)                          | `gc.log`         | GC pause time, allocation events, safepoints             |
+| `jfr`          | Java Flight Recorder (`-XX:StartFlightRecording`)     | `benchmark.jfr`  | CPU flame graph, GC events, lock contention, allocations |
+| `async`        | async-profiler agent (requires `-PasyncProfilerLib=`) | `async-cpu.html` | CPU flame graph (low-overhead sampling)                  |
 
 ```bash
 # GC logging for all benchmarks
@@ -450,20 +422,20 @@ Output files are written to `build/benchmark-profiling/`.
 
 Lightweight `/ping` responses to measure pure connection throughput.
 
-| Client | Mode | Notes |
-|--------|------|-------|
-| OkHttp3 Sync | sync | Platform thread |
-| OkHttp3 VirtualThread | sync | Virtual Thread Dispatcher |
-| OkHttp3 Coroutines | async | `Call.executeAsync()` (official okhttp-coroutines) |
-| Java HttpClient Sync | sync | JDK built-in |
-| Java HttpClient VirtualThread | sync | Virtual Thread executor |
-| Java HttpClient H2 Sync | sync | HTTP/2 |
-| HC5 Classic | sync | Apache HttpComponents 5 |
-| HC5 Classic VirtualThread | sync | VT-based connection manager |
-| HC5 Classic Coroutines | coroutine | `Dispatchers.IO` |
-| HC5 Async Coroutines | async | `executeSuspending()` |
-| Vert.x WebClient Coroutines | async | Event loop |
-| Ktor CIO Coroutines | coroutine | CIO 3.5 opens dedicated HTTP/1 requests when pipelining is disabled |
+| Client                        | Mode      | Notes                                                               |
+|-------------------------------|-----------|---------------------------------------------------------------------|
+| OkHttp3 Sync                  | sync      | Platform thread                                                     |
+| OkHttp3 VirtualThread         | sync      | Virtual Thread Dispatcher                                           |
+| OkHttp3 Coroutines            | async     | `Call.executeAsync()` (official okhttp-coroutines)                  |
+| Java HttpClient Sync          | sync      | JDK built-in                                                        |
+| Java HttpClient VirtualThread | sync      | Virtual Thread executor                                             |
+| Java HttpClient H2 Sync       | sync      | HTTP/2                                                              |
+| HC5 Classic                   | sync      | Apache HttpComponents 5                                             |
+| HC5 Classic VirtualThread     | sync      | VT-based connection manager                                         |
+| HC5 Classic Coroutines        | coroutine | `Dispatchers.IO`                                                    |
+| HC5 Async Coroutines          | async     | `executeSuspending()`                                               |
+| Vert.x WebClient Coroutines   | async     | Event loop                                                          |
+| Ktor CIO Coroutines           | coroutine | CIO 3.5 opens dedicated HTTP/1 requests when pipelining is disabled |
 
 > **Note**: With no simulated latency all modes produce similar throughput.
 > Differences arise mainly from connection pool configuration and thread model.
@@ -477,54 +449,53 @@ Async / coroutine modes can exceed this ceiling without blocking threads.
 
 ### 2026-05-21 HTTP client benchmark snapshot
 
-Environment: local Colima Docker, `bluetape4k/mock-webflux-server:latest`, Docker server 29.2.1, JMH via `:bluetape4k-http:testBenchmark`.
-See [the benchmark report](../../docs/benchmarks/2026-05-21-io-http-client-benchmark.md) for commands, rejected approaches, and raw evidence notes.
+Environment: local Colima Docker, `bluetape4k/mock-webflux-server:latest`, Docker server 29.2.1, JMH via `:bluetape4k-http:testBenchmark`. See [the benchmark report](../../docs/benchmarks/2026-05-21-io-http-client-benchmark.md) for commands, rejected approaches, and raw evidence notes.
 
-The snapshot uses the same JMH thread count for every row in each benchmark.
-Ktor CIO is no longer a one-thread exception, but the whole benchmark uses a short equal-thread window because CIO 3.5 opens dedicated HTTP/1 connections unless its pipeline path is enabled.
+The snapshot uses the same JMH thread count for every row in each benchmark. Ktor CIO is no longer a one-thread exception, but the whole benchmark uses a short equal-thread window because CIO 3.5 opens dedicated HTTP/1 connections unless its pipeline path is enabled.
 
 #### Base throughput snapshot
 
-| Benchmark row | ops/s |
-|---------------|------:|
-| `HttpClientBenchmark.javaHttpSync` | 7,276.492 |
-| `HttpClientBenchmark.hc5ClassicVirtualThread` | 7,246.690 |
-| `HttpClientBenchmark.okhttp3VirtualThread` | 6,955.796 |
-| `HttpClientBenchmark.javaHttpVirtualThread` | 6,562.497 |
-| `HttpClientBenchmark.hc5Classic` | 6,490.422 |
-| `HttpClientBenchmark.javaHttpH2VirtualThread` | 6,275.262 |
-| `HttpClientBenchmark.hc5ClassicCoroutines` | 6,230.735 |
+| Benchmark row                                  |     ops/s |
+|------------------------------------------------|----------:|
+| `HttpClientBenchmark.javaHttpSync`             | 7,276.492 |
+| `HttpClientBenchmark.hc5ClassicVirtualThread`  | 7,246.690 |
+| `HttpClientBenchmark.okhttp3VirtualThread`     | 6,955.796 |
+| `HttpClientBenchmark.javaHttpVirtualThread`    | 6,562.497 |
+| `HttpClientBenchmark.hc5Classic`               | 6,490.422 |
+| `HttpClientBenchmark.javaHttpH2VirtualThread`  | 6,275.262 |
+| `HttpClientBenchmark.hc5ClassicCoroutines`     | 6,230.735 |
 | `HttpClientBenchmark.vertxWebClientCoroutines` | 6,043.906 |
-| `HttpClientBenchmark.javaHttpH2Sync` | 6,027.618 |
-| `HttpClientBenchmark.okhttp3Sync` | 5,771.310 |
-| `HttpClientBenchmark.okhttp3Coroutines` | 5,752.350 |
-| `HttpClientBenchmark.hc5AsyncCoroutines` | 5,520.183 |
-| `HttpClientBenchmark.javaHttpH2Coroutines` | 5,481.592 |
-| `HttpClientBenchmark.javaHttpCoroutines` | 4,739.894 |
-| `HttpClientBenchmark.ktorCioCoroutines` | 2,052.281 |
+| `HttpClientBenchmark.javaHttpH2Sync`           | 6,027.618 |
+| `HttpClientBenchmark.okhttp3Sync`              | 5,771.310 |
+| `HttpClientBenchmark.okhttp3Coroutines`        | 5,752.350 |
+| `HttpClientBenchmark.hc5AsyncCoroutines`       | 5,520.183 |
+| `HttpClientBenchmark.javaHttpH2Coroutines`     | 5,481.592 |
+| `HttpClientBenchmark.javaHttpCoroutines`       | 4,739.894 |
+| `HttpClientBenchmark.ktorCioCoroutines`        | 2,052.281 |
 
 ![HTTP client base throughput chart](../../docs/images/readme-diagrams/io-http-chart-01.png)
 
 #### High-latency snapshot
 
-| Benchmark row | ops/s |
-|---------------|------:|
-| `HttpClientLatencyBenchmark.okhttp3VirtualThread` | 1,902.171 |
-| `HttpClientLatencyBenchmark.hc5ClassicVirtualThread` | 1,888.018 |
-| `HttpClientLatencyBenchmark.javaHttpVirtualThread` | 1,883.634 |
-| `HttpClientLatencyBenchmark.hc5Classic` | 1,880.023 |
-| `HttpClientLatencyBenchmark.okhttp3Sync` | 1,870.124 |
-| `HttpClientLatencyBenchmark.javaHttpSync` | 1,865.997 |
-| `HttpClientLatencyBenchmark.javaHttpCoroutines` | 1,863.948 |
-| `HttpClientLatencyBenchmark.hc5AsyncCoroutines` | 1,860.655 |
+| Benchmark row                                         |     ops/s |
+|-------------------------------------------------------|----------:|
+| `HttpClientLatencyBenchmark.okhttp3VirtualThread`     | 1,902.171 |
+| `HttpClientLatencyBenchmark.hc5ClassicVirtualThread`  | 1,888.018 |
+| `HttpClientLatencyBenchmark.javaHttpVirtualThread`    | 1,883.634 |
+| `HttpClientLatencyBenchmark.hc5Classic`               | 1,880.023 |
+| `HttpClientLatencyBenchmark.okhttp3Sync`              | 1,870.124 |
+| `HttpClientLatencyBenchmark.javaHttpSync`             | 1,865.997 |
+| `HttpClientLatencyBenchmark.javaHttpCoroutines`       | 1,863.948 |
+| `HttpClientLatencyBenchmark.hc5AsyncCoroutines`       | 1,860.655 |
 | `HttpClientLatencyBenchmark.vertxWebClientCoroutines` | 1,859.003 |
-| `HttpClientLatencyBenchmark.okhttp3Coroutines` | 1,856.895 |
-| `HttpClientLatencyBenchmark.ktorCioCoroutines` | 1,515.026 |
-| `HttpClientLatencyBenchmark.hc5ClassicCoroutines` | 1,216.306 |
+| `HttpClientLatencyBenchmark.okhttp3Coroutines`        | 1,856.895 |
+| `HttpClientLatencyBenchmark.ktorCioCoroutines`        | 1,515.026 |
+| `HttpClientLatencyBenchmark.hc5ClassicCoroutines`     | 1,216.306 |
 
 ![HTTP client high-latency benchmark chart](../../docs/images/readme-diagrams/io-http-chart-02.png)
 
 **Notes**:
+
 - The previous Vert.x result mainly measured the Vert.x 5 default HTTP/1 pool cap. The benchmark now configures `PoolOptions` to match peer clients.
 - Ktor CIO's default path remains slower on `/ping` because it uses dedicated HTTP/1 connections. Forcing CIO pipelining produced EOFs or hangs against the mock fixtures, so the comparable run keeps default CIO behavior and shortens the window for every row.
 - Base `/ping` measurements have high variance on this local Docker setup. Treat the high-latency table as the stronger comparison signal.
@@ -535,44 +506,42 @@ Ktor CIO is no longer a one-thread exception, but the whole benchmark uses a sho
 
 **Theoretical baseline (no cache)**: 8 threads × (1000 ms / 10 ms) = **800 ops/s**
 
-| Client | Cache | ops/s | vs baseline |
-|--------|-------|------:|-------------|
-| HC5 Classic + InMemoryCache | In-memory (Heap) | **813,906** | ×1,233 |
-| OkHttp3 + DiskLruCache | Disk (OS page cache) | **35,359** | ×53 |
-| HC5 Classic (no cache) | — | 682 | ×1 |
-| HC5 Classic VirtualThread (no cache) | — | 668 | — |
-| OkHttp3 (no cache) | — | 661 | — |
+| Client                               | Cache                |       ops/s | vs baseline |
+|--------------------------------------|----------------------|------------:|-------------|
+| HC5 Classic + InMemoryCache          | In-memory (Heap)     | **813,906** | ×1,233      |
+| OkHttp3 + DiskLruCache               | Disk (OS page cache) |  **35,359** | ×53         |
+| HC5 Classic (no cache)               | —                    |         682 | ×1          |
+| HC5 Classic VirtualThread (no cache) | —                    |         668 | —           |
+| OkHttp3 (no cache)                   | —                    |         661 | —           |
 
 ![HTTP Cache Benchmark Throughput chart](../../docs/images/readme-charts/io-http-cache-throughput-chart-01.png)
 
 **Key Insights**:
+
 - **Cache effect**: Eliminating a 10 ms network RTT alone achieves 35K–813K ops/s
 - **HC5 MemCache vs OkHttp DiskCache (23× gap)**:
-  - HC5: `ConcurrentHashMap` direct lookup → ~1–10 μs/op
-  - OkHttp: `DiskLruCache` `synchronized` + journal write + per-hit gzip decompression → ~200–230 μs/op
-  - The 1 KB cache file fits in a single 4 KB OS page, so after warmup reads are purely from page cache (RAM), not real disk I/O — but the filesystem call overhead remains
-- **OkHttp DiskCache at 35K ops/s is correct**: test-verified with `networkResponse == null` and `cacheResponse != null` on every cache hit
+    - HC5: `ConcurrentHashMap` direct lookup → ~1–10 μs/op
+    - OkHttp: `DiskLruCache` `synchronized` + journal write + per-hit gzip decompression → ~200–230 μs/op
+    - The 1 KB cache file fits in a single 4 KB OS page, so after warmup reads are purely from page cache (RAM), not real disk I/O — but the filesystem call overhead remains
+- **OkHttp DiskCache at 35K ops/s is
+  correct**: test-verified with `networkResponse == null` and `cacheResponse != null` on every cache hit
 
 **Recommended client by use case** (see [Primary Recommendations](#primary-recommendations) for the full table):
 
-| Scenario | Recommendation |
-|----------|----------------|
-| Repeated GET + maximum cache throughput | **HC5 CachingHttpClient (MemCache)** — `memoryCachingHttpClientOf()` |
-| Cache persistence across restarts | OkHttp3 + DiskLruCache — `okhttp3ClientWithCache()` |
-| General high-throughput (sync) | **HC5 Classic VirtualThread** — `productionVirtualThreadHttpClientOf()` |
-| High-latency async bulk requests | **HC5 Async Coroutines** — `productionHttpAsyncClientOf()` |
-| Ktor-based apps / coroutine-first calls | Ktor CIO |
+| Scenario                                | Recommendation                                                          |
+|-----------------------------------------|-------------------------------------------------------------------------|
+| Repeated GET + maximum cache throughput | **HC5 CachingHttpClient (MemCache)** — `memoryCachingHttpClientOf()`    |
+| Cache persistence across restarts       | OkHttp3 + DiskLruCache — `okhttp3ClientWithCache()`                     |
+| General high-throughput (sync)          | **HC5 Classic VirtualThread** — `productionVirtualThreadHttpClientOf()` |
+| High-latency async bulk requests        | **HC5 Async Coroutines** — `productionHttpAsyncClientOf()`              |
+| Ktor-based apps / coroutine-first calls | Ktor CIO                                                                |
 
 ## Outbound Error Sanitization
 
-`sanitizeOutboundError` is a framework-neutral pure function for storing or
-logging a bounded outbound failure summary. It always keeps the `HTTP <status>`
-prefix, uses only the trimmed first line, and returns the prefix alone for
-null, blank, or malformed credential markers. `Authorization`, `Cookie`,
+`sanitizeOutboundError` is a framework-neutral pure function for storing or logging a bounded outbound failure summary. It always keeps the `HTTP <status>`
+prefix, uses only the trimmed first line, and returns the prefix alone for null, blank, or malformed credential markers. `Authorization`, `Cookie`,
 `Token`, `Secret`, and `API-Key`/`API_Key`/`API Key` markers are redacted to
-`[redacted]`, including `:`/`=` separators, optional `Bearer`, and quoted or
-escaped values. The final result is at most 240 UTF-16 code units and does not
-split a surrogate pair.
+`[redacted]`, including `:`/`=` separators, optional `Bearer`, and quoted or escaped values. The final result is at most 240 UTF-16 code units and does not split a surrogate pair.
 
 ```kotlin
 import io.bluetape4k.http.sanitizeOutboundError
@@ -587,20 +556,18 @@ val statusOnly = sanitizeOutboundError(422, "Authorization: Bearer")
 // HTTP 422
 ```
 
-The caller owns retry, status classification, transaction, and cancellation
-behavior. Do not pass the original `Throwable` to logging or persistence; use
-the returned summary instead.
+The caller owns retry, status classification, transaction, and cancellation behavior. Do not pass the original `Throwable` to logging or persistence; use the returned summary instead.
 
 ## Backend Comparison
 
-| Client | Protocol | Characteristics | Use case |
-|--------|----------|-----------------|----------|
-| HC5 Async | HTTP/1.x, HTTP/2 | Full-featured, caching, SSL, Virtual Thread | Enterprise backend, high-throughput |
-| HC5 Classic | HTTP/1.x, HTTP/2 | Synchronous, VirtualThread support | Legacy code, blocking I/O |
-| OkHttp3 | HTTP/1.x, HTTP/2 | Interceptors, DiskLruCache, MockWebServer | General-purpose, Android-compatible |
-| JDK | HTTP/1.x, HTTP/2 | Standard library, no extra dependency | Minimal footprint, Java-native |
-| Vert.x | HTTP/1.x, HTTP/2 | Event-loop, reactive, ALPN | Vert.x-based applications |
-| Ktor CIO | HTTP/1.x | Suspend-native, Ktor plugin ecosystem, lightweight | Ktor-based apps/libraries and coroutine-first calls |
+| Client      | Protocol         | Characteristics                                    | Use case                                            |
+|-------------|------------------|----------------------------------------------------|-----------------------------------------------------|
+| HC5 Async   | HTTP/1.x, HTTP/2 | Full-featured, caching, SSL, Virtual Thread        | Enterprise backend, high-throughput                 |
+| HC5 Classic | HTTP/1.x, HTTP/2 | Synchronous, VirtualThread support                 | Legacy code, blocking I/O                           |
+| OkHttp3     | HTTP/1.x, HTTP/2 | Interceptors, DiskLruCache, MockWebServer          | General-purpose, Android-compatible                 |
+| JDK         | HTTP/1.x, HTTP/2 | Standard library, no extra dependency              | Minimal footprint, Java-native                      |
+| Vert.x      | HTTP/1.x, HTTP/2 | Event-loop, reactive, ALPN                         | Vert.x-based applications                           |
+| Ktor CIO    | HTTP/1.x         | Suspend-native, Ktor plugin ecosystem, lightweight | Ktor-based apps/libraries and coroutine-first calls |
 
 > **Note**: Ktor CIO does not support HTTP/2. For HTTP/2 use cases, prefer HC5 Async, JDK, or OkHttp3.
 
@@ -685,20 +652,20 @@ Line coverage: **72%** (target: ≥ 70%)
 
 Covered packages:
 
-| Package | Coverage | Tests |
-|---------|----------|-------|
-| `hc5/async` | ✅ | `AsyncHttpClientTest`, `AsyncHttpClientCoroutinesTest`, `MinimalHttpAsyncClientTest` |
-| `hc5/async/methods` | ✅ | `SimpleHttpRequestTest`, `SimpleHttpResponseTest`, `AsyncMethodsTest` |
-| `hc5/cache` | ✅ | `CachingHttpClientBuilderTest`, `CachingHttpAsyncClientBuilderTest` |
-| `hc5/classic` | ✅ | `ClassicHttpClientTest`, `MinimalAndVirtualThreadHttpClientTest` |
-| `hc5/fluent` | ✅ | `RequestTest` |
-| `hc5/http` | ✅ | `ContextBuilderTest`, `CookieSpecSupportTest`, `PoolingHttpClientConnectionManagerBuilderTest`, `BasicRequestProducerTest` |
-| `hc5/protocol` | ✅ | `HttpClientContextTest` |
-| `hc5/routing` | ✅ | `RoutingSupportTest` |
-| `hc5/ssl` | ✅ | `SslSupportTest` |
-| `jdk` | ✅ | `JdkHttpClientSupportTest`, `JdkHttpClientCoroutinesTest` |
-| `okhttp3` | ✅ | Multiple tests |
-| `ktor` | ✅ | `KtorHttpClientSupportTest` |
+| Package             | Coverage | Tests                                                                                                                      |
+|---------------------|----------|----------------------------------------------------------------------------------------------------------------------------|
+| `hc5/async`         | ✅       | `AsyncHttpClientTest`, `AsyncHttpClientCoroutinesTest`, `MinimalHttpAsyncClientTest`                                       |
+| `hc5/async/methods` | ✅       | `SimpleHttpRequestTest`, `SimpleHttpResponseTest`, `AsyncMethodsTest`                                                      |
+| `hc5/cache`         | ✅       | `CachingHttpClientBuilderTest`, `CachingHttpAsyncClientBuilderTest`                                                        |
+| `hc5/classic`       | ✅       | `ClassicHttpClientTest`, `MinimalAndVirtualThreadHttpClientTest`                                                           |
+| `hc5/fluent`        | ✅       | `RequestTest`                                                                                                              |
+| `hc5/http`          | ✅       | `ContextBuilderTest`, `CookieSpecSupportTest`, `PoolingHttpClientConnectionManagerBuilderTest`, `BasicRequestProducerTest` |
+| `hc5/protocol`      | ✅       | `HttpClientContextTest`                                                                                                    |
+| `hc5/routing`       | ✅       | `RoutingSupportTest`                                                                                                       |
+| `hc5/ssl`           | ✅       | `SslSupportTest`                                                                                                           |
+| `jdk`               | ✅       | `JdkHttpClientSupportTest`, `JdkHttpClientCoroutinesTest`                                                                  |
+| `okhttp3`           | ✅       | Multiple tests                                                                                                             |
+| `ktor`              | ✅       | `KtorHttpClientSupportTest`                                                                                                |
 
 ## References
 

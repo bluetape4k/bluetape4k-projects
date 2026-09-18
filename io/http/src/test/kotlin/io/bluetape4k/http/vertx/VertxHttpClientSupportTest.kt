@@ -3,6 +3,7 @@ package io.bluetape4k.http.vertx
 import io.bluetape4k.assertions.shouldBeSameInstanceAs
 import io.bluetape4k.assertions.shouldNotBeSameInstanceAs
 import io.bluetape4k.http.AbstractHttpTest
+import io.bluetape4k.logging.KLogging
 import io.bluetape4k.vertx.asCompletableFuture
 import io.bluetape4k.vertx.closeDefaultVertx
 import io.mockk.clearMocks
@@ -18,6 +19,8 @@ import org.junit.jupiter.api.Test
 import java.util.concurrent.TimeUnit
 
 class VertxHttpClientSupportTest: AbstractHttpTest() {
+
+    companion object: KLogging()
 
     private val vertx = mockk<Vertx>()
     private val client = mockk<HttpClientAgent>()

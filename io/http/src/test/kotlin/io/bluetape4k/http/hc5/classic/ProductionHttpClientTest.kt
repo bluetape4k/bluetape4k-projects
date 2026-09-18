@@ -12,9 +12,9 @@ import org.apache.hc.client5.http.classic.methods.HttpGet
 import org.apache.hc.core5.util.TimeValue
 import org.junit.jupiter.api.Test
 
-class ProductionHttpClientTest : AbstractHc5Test() {
+class ProductionHttpClientTest: AbstractHc5Test() {
 
-    companion object : KLogging()
+    companion object: KLogging()
 
     @Test
     fun `productionHttpClientOf creates client with defaults`() {

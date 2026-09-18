@@ -19,7 +19,7 @@ class OutboundHttpErrorSanitizerTest {
     fun `credential 변형을 모두 redacted marker로 치환한다`() {
         val rawMessage =
             "Authorization : Bearer auth-secret, Cookie=cookie-secret; " +
-                "Token = token-secret, Secret: secret-value, API-Key = api-key-value"
+                    "Token = token-secret, Secret: secret-value, API-Key = api-key-value"
 
         val sanitized = sanitizeOutboundHttpError(502, rawMessage)
 
@@ -33,7 +33,7 @@ class OutboundHttpErrorSanitizerTest {
         val rawMessage = "authorization=Bearer lower-secret, API_key: underscore-secret, api key=space-secret"
 
         sanitizeOutboundHttpError(401, rawMessage) shouldBeEqualTo
-            "HTTP 401 authorization:[redacted]"
+                "HTTP 401 authorization:[redacted]"
     }
 
     @Test
@@ -135,7 +135,7 @@ class OutboundHttpErrorSanitizerTest {
     @Test
     fun `malformed credential 입력도 예외 없이 정제한다`() {
         sanitizeOutboundHttpError(500, "Authorization:= malformed-secret") shouldBeEqualTo
-            "HTTP 500 Authorization:[redacted]"
+                "HTTP 500 Authorization:[redacted]"
     }
 
     @Test

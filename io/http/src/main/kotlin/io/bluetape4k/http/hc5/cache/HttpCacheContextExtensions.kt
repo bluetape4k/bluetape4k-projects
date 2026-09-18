@@ -1,9 +1,9 @@
 package io.bluetape4k.http.hc5.cache
 
-import org.slf4j.Logger
 import io.bluetape4k.logging.debug
 import org.apache.hc.client5.http.cache.CacheResponseStatus
 import org.apache.hc.client5.http.cache.HttpCacheContext
+import org.slf4j.Logger
 
 /**
  * Returns `true` when the response was served directly from the cache without network contact.

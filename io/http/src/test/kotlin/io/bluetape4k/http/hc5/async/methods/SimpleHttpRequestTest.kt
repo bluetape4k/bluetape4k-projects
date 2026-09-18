@@ -1,8 +1,8 @@
 package io.bluetape4k.http.hc5.async.methods
 
-import io.bluetape4k.logging.KLogging
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldNotBeNull
+import io.bluetape4k.logging.KLogging
 import org.apache.hc.core5.http.ContentType
 import org.apache.hc.core5.http.HttpHost
 import org.apache.hc.core5.http.Method
@@ -19,7 +19,6 @@ class SimpleHttpRequestTest {
             setHttpHost(HttpHost("localhost", 8080))
             setPath("/api/v1")
         }
-        request.shouldNotBeNull()
         request.method shouldBeEqualTo "GET"
     }
 
@@ -29,7 +28,6 @@ class SimpleHttpRequestTest {
             setHttpHost(HttpHost("localhost", 8080))
             setPath("/api/v1")
         }
-        request.shouldNotBeNull()
         request.method shouldBeEqualTo "POST"
     }
 
@@ -37,7 +35,6 @@ class SimpleHttpRequestTest {
     fun `simpleHttpRequestOf method string host path 로 요청 생성`() {
         val host = HttpHost("localhost", 8080)
         val request = simpleHttpRequestOf("GET", host, "/api/v1")
-        request.shouldNotBeNull()
         request.method shouldBeEqualTo "GET"
         request.path shouldBeEqualTo "/api/v1"
     }
@@ -46,7 +43,6 @@ class SimpleHttpRequestTest {
     fun `simpleHttpRequestOf Method enum host path 로 요청 생성`() {
         val host = HttpHost("localhost", 8080)
         val request = simpleHttpRequestOf(Method.GET, host, "/api/v1")
-        request.shouldNotBeNull()
         request.method shouldBeEqualTo "GET"
     }
 
@@ -56,8 +52,8 @@ class SimpleHttpRequestTest {
         val request = simpleHttpRequestOf("POST", host, "/api/v1") {
             setBody("Hello", ContentType.TEXT_PLAIN)
         }
-        request.shouldNotBeNull()
         request.method shouldBeEqualTo "POST"
+        request.body.bodyText shouldBeEqualTo "Hello"
     }
 
     @Test
@@ -65,7 +61,8 @@ class SimpleHttpRequestTest {
         val host = HttpHost("localhost", 8080)
         val headers = listOf(BasicHeader("X-Custom", "value"))
         val request = simpleHttpRequestOf("GET", host, "/api/v1", headers = headers)
-        request.shouldNotBeNull()
+        request.method shouldBeEqualTo "GET"
+        request.path shouldBeEqualTo "/api/v1"
     }
 
     @Test
