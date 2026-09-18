@@ -227,20 +227,20 @@ def scaling_demonstrated(per_payload: dict[str, tuple[dict, dict]]) -> bool:
         raise ValueError("small, medium, and large matched pairs are required")
     saved = {
         payload: finite(baseline["score"], f"{payload} baseline allocation")
-        - finite(candidate["score"], f"{payload} candidate allocation")
+                 - finite(candidate["score"], f"{payload} candidate allocation")
         for payload, (baseline, candidate) in per_payload.items()
     }
     return (
-        saved["small"] < saved["medium"] < saved["large"]
-        and saved["medium"] / PAYLOAD_BYTES["medium"] >= 0.50
-        and saved["large"] / PAYLOAD_BYTES["large"] >= 0.50
+            saved["small"] < saved["medium"] < saved["large"]
+            and saved["medium"] / PAYLOAD_BYTES["medium"] >= 0.50
+            and saved["large"] / PAYLOAD_BYTES["large"] >= 0.50
     )
 
 
 def split_benchmark(record: dict) -> str:
     name = record.get("benchmark")
     if not isinstance(name, str) or not name.startswith(
-        "io.bluetape4k.io.benchmark.CallerOwnedByteBufferCompressorBenchmark."
+            "io.bluetape4k.io.benchmark.CallerOwnedByteBufferCompressorBenchmark."
     ):
         raise ValueError(f"unexpected benchmark: {name}")
     method = name.rsplit(".", 1)[-1]
@@ -250,12 +250,12 @@ def split_benchmark(record: dict) -> str:
 
 
 def validate_jmh(
-    records: object,
-    *,
-    require_matrix: bool,
-    allow_unstable_error: bool = False,
-    expected_profile: str | None = None,
-    expected_authority: dict | None = None,
+        records: object,
+        *,
+        require_matrix: bool,
+        allow_unstable_error: bool = False,
+        expected_profile: str | None = None,
+        expected_authority: dict | None = None,
 ) -> dict[tuple[str, str, str, str], dict]:
     if not isinstance(records, list) or not records:
         raise ValueError("jmh.json must contain a non-empty array")
@@ -513,11 +513,14 @@ def run_id() -> str:
 def write_summary(path: pathlib.Path, indexed: dict) -> None:
     with path.open("x", encoding="utf-8", newline="") as output:
         writer = csv.writer(output)
-        writer.writerow(["codec", "payload", "storage", "method", "throughput_ops_s", "throughput_error", "allocation_b_op", "allocation_error"])
+        writer.writerow(
+            ["codec", "payload", "storage", "method", "throughput_ops_s", "throughput_error", "allocation_b_op",
+             "allocation_error"])
         for key, record in sorted(indexed.items()):
             primary = record["primaryMetric"]
             allocation = record["secondaryMetrics"]["gc.alloc.rate.norm"]
-            writer.writerow([*key, primary["score"], primary["scoreError"], allocation["score"], allocation["scoreError"]])
+            writer.writerow(
+                [*key, primary["score"], primary["scoreError"], allocation["score"], allocation["scoreError"]])
 
 
 def create_staging(final_root: pathlib.Path, identifier: str) -> pathlib.Path:
@@ -577,7 +580,8 @@ def publish(staging: pathlib.Path, final_root: pathlib.Path, identifier: str) ->
     return final
 
 
-def execute_jmh(args: argparse.Namespace, profile: str, receipt: dict, receipt_path: pathlib.Path | None) -> pathlib.Path:
+def execute_jmh(args: argparse.Namespace, profile: str, receipt: dict,
+                receipt_path: pathlib.Path | None) -> pathlib.Path:
     root = repo_root()
     canonical = profile == "canonical"
     jar = validate_receipt(receipt, root, canonical=canonical)
@@ -602,7 +606,8 @@ def execute_jmh(args: argparse.Namespace, profile: str, receipt: dict, receipt_p
         if not re.fullmatch(r"(?:compressorName|payloadSize|storagePath)=[A-Za-z0-9,]+", parameter):
             raise ValueError(f"invalid JMH parameter: {parameter}")
         parameter_args.extend(["-p", parameter])
-    jmh_args = [include, *parameter_args, *PROFILE_ARGS[profile], "-rff", str(result_path), "-jvmArgsAppend", " ".join(JVM_ARGS)]
+    jmh_args = [include, *parameter_args, *PROFILE_ARGS[profile], "-rff", str(result_path), "-jvmArgsAppend",
+                " ".join(JVM_ARGS)]
     argv = ["java", "-jar", str(jar), *jmh_args]
     completed = subprocess.run(argv, cwd=root, shell=False, capture_output=True)
     log = completed.stdout + completed.stderr
@@ -658,7 +663,8 @@ def execute_jmh(args: argparse.Namespace, profile: str, receipt: dict, receipt_p
     }
     atomic_json(staging / "metadata.json", metadata)
     write_summary(staging / "summary.csv", indexed)
-    atomic_json(staging / "validation.json", {"schemaVersion": SCHEMA_VERSION, "status": "PASS", "records": len(indexed)})
+    atomic_json(staging / "validation.json",
+                {"schemaVersion": SCHEMA_VERSION, "status": "PASS", "records": len(indexed)})
     if canonical:
         final = publish(staging, output_root, identifier)
         receipt["runs"].append(identifier)
@@ -674,17 +680,18 @@ def validate_regular_tree(path: pathlib.Path) -> None:
         raise ValueError(f"run must be a real directory: {path}")
     names = {child.name for child in path.iterdir()}
     if names != REQUIRED_RUN_FILES:
-        raise ValueError(f"run file set mismatch: missing={REQUIRED_RUN_FILES - names}, extra={names - REQUIRED_RUN_FILES}")
+        raise ValueError(
+            f"run file set mismatch: missing={REQUIRED_RUN_FILES - names}, extra={names - REQUIRED_RUN_FILES}")
     for child in path.iterdir():
         if child.is_symlink() or not child.is_file():
             raise ValueError(f"run artifact must be a regular file: {child}")
 
 
 def validate_run_directory(
-    path: pathlib.Path,
-    *,
-    require_matrix: bool,
-    expected_run_id: str | None = None,
+        path: pathlib.Path,
+        *,
+        require_matrix: bool,
+        expected_run_id: str | None = None,
 ) -> tuple[dict, dict]:
     validate_regular_tree(path)
     metadata = json.loads((path / "metadata.json").read_text(encoding="utf-8"))
@@ -717,11 +724,11 @@ def validate_run_directory(
     if environment.get("jvmArgs") != JVM_ARGS:
         raise ValueError("JVM arguments mismatch")
     if (
-        environment.get("javaVersion") != metadata.get("jdk")
-        or environment.get("vmName") != metadata.get("jvm")
-        or environment.get("vmVersion") != metadata.get("vmVersion")
-        or environment.get("jvmExecutable") != metadata.get("jvmExecutable")
-        or environment.get("actualJvmArgs") != metadata.get("actualJvmArgs")
+            environment.get("javaVersion") != metadata.get("jdk")
+            or environment.get("vmName") != metadata.get("jvm")
+            or environment.get("vmVersion") != metadata.get("vmVersion")
+            or environment.get("jvmExecutable") != metadata.get("jvmExecutable")
+            or environment.get("actualJvmArgs") != metadata.get("actualJvmArgs")
     ):
         raise ValueError("Java environment identity mismatch")
     recorded_argv = argv.get("argv")
@@ -743,7 +750,8 @@ def validate_run_directory(
         raise ValueError("recorded JVM arguments mismatch")
     if require_matrix:
         profile_start = next(
-            (index for index in range(len(recorded_argv)) if recorded_argv[index:index + len(PROFILE_ARGS["canonical"])] == PROFILE_ARGS["canonical"]),
+            (index for index in range(len(recorded_argv)) if
+             recorded_argv[index:index + len(PROFILE_ARGS["canonical"])] == PROFILE_ARGS["canonical"]),
             None,
         )
         if profile_start is None:
@@ -809,7 +817,8 @@ def comparison_rows(run_paths: list[pathlib.Path]) -> list[dict]:
                 scaling = is_eligible and all(scaling_demonstrated(payloads) for payloads in per_run_payloads)
                 if not is_eligible:
                     verdict = "ineligible"
-                elif any(all(run[payload_index] for run in throughput_by_run) for payload_index in range(len(PAYLOAD_BYTES))):
+                elif any(all(run[payload_index] for run in throughput_by_run) for payload_index in
+                         range(len(PAYLOAD_BYTES))):
                     verdict = "design-review-required"
                 elif all(allocation_passes) and scaling:
                     verdict = "accepted"
@@ -817,17 +826,20 @@ def comparison_rows(run_paths: list[pathlib.Path]) -> list[dict]:
                     verdict = "not-demonstrated"
                 for payload, payload_bytes in PAYLOAD_BYTES.items():
                     row = {"codec": codec, "operation": operation, "storage": storage, "payload": payload,
-                           "payload_bytes": payload_bytes, "verdict": verdict, "scaling_demonstrated": str(scaling).lower()}
+                           "payload_bytes": payload_bytes, "verdict": verdict,
+                           "scaling_demonstrated": str(scaling).lower()}
                     for index, (_, indexed) in enumerate(runs, start=1):
                         baseline = indexed[(codec, payload, storage, baseline_method)]
                         candidate = indexed[(codec, payload, storage, candidate_method)]
                         base_t, base_a = metrics(baseline)
                         cand_t, cand_a = metrics(candidate)
-                        saved = finite(base_a["score"], "baseline allocation") - finite(cand_a["score"], "candidate allocation")
+                        saved = finite(base_a["score"], "baseline allocation") - finite(cand_a["score"],
+                                                                                        "candidate allocation")
                         row.update({
                             f"run{index}_baseline_b_op": base_a["score"], f"run{index}_candidate_b_op": cand_a["score"],
                             f"run{index}_saved_b_op": saved, f"run{index}_saved_ratio": saved / payload_bytes,
-                            f"run{index}_baseline_ops_s": base_t["score"], f"run{index}_candidate_ops_s": cand_t["score"],
+                            f"run{index}_baseline_ops_s": base_t["score"],
+                            f"run{index}_candidate_ops_s": cand_t["score"],
                         })
                     rows.append(row)
     return rows
@@ -866,7 +878,8 @@ def validate_delivery(args: argparse.Namespace) -> None:
     subprocess.run(["git", "merge-base", "--is-ancestor", evidence_head, delivery_head], cwd=root, check=True)
     changed = command("git", "diff", "--name-only", f"{evidence_head}..{delivery_head}", cwd=root).splitlines()
     for path in changed:
-        if not any(path == allowed or (allowed.endswith("/") and path.startswith(allowed)) for allowed in DELIVERY_ALLOWLIST):
+        if not any(path == allowed or (allowed.endswith("/") and path.startswith(allowed)) for allowed in
+                   DELIVERY_ALLOWLIST):
             raise ValueError(f"delivery changed non-allowlisted path: {path}")
     jars = list((root / "io/io/build/benchmarks/test/jars").glob("*-JMH.jar"))
     if len(jars) != 1:
@@ -879,8 +892,8 @@ def validate_delivery(args: argparse.Namespace) -> None:
     current_runtime = environment_authority(root)
     recorded_metadata = json.loads((paths[0] / "metadata.json").read_text())
     for current_key, recorded_key in (
-        ("jdk", "jdk"), ("vmName", "jvm"), ("vmVersion", "vmVersion"),
-        ("jvmExecutable", "jvmExecutable"), ("os", "os"), ("cpu", "cpu"),
+            ("jdk", "jdk"), ("vmName", "jvm"), ("vmVersion", "vmVersion"),
+            ("jvmExecutable", "jvmExecutable"), ("os", "os"), ("cpu", "cpu"),
     ):
         if current_runtime[current_key] != recorded_metadata[recorded_key]:
             raise ValueError(f"delivery runtime identity mismatch: {current_key}")
@@ -925,7 +938,8 @@ def direct_smoke_receipt(jar: pathlib.Path) -> dict:
         "schemaVersion": SCHEMA_VERSION, "commit": head, "tree": tree, "jar": str(canonical_jar),
         "jarSha256": sha256(canonical_jar), "rawJar": str(raw_jar), "rawJarSha256": sha256(raw_jar),
         "jmhVersion": jmh_version(canonical_jar), "dependencies": dep_text,
-        "dependenciesSha256": hashlib.sha256(dep_text.encode()).hexdigest(), "sourceInspection": source_inspection(root),
+        "dependenciesSha256": hashlib.sha256(dep_text.encode()).hexdigest(),
+        "sourceInspection": source_inspection(root),
         "environmentAuthority": environment_authority(root), "runs": [], "outputRoot": "",
     }
 

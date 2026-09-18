@@ -2,7 +2,7 @@ package io.bluetape4k.io
 
 import io.bluetape4k.concurrent.asCompletableFuture
 import io.bluetape4k.concurrent.virtualthread.VirtualThreadExecutor
-import io.bluetape4k.logging.KotlinLogging
+import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.error
 import io.bluetape4k.logging.trace
 import io.bluetape4k.support.LINE_SEPARATOR
@@ -30,7 +30,9 @@ import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 import kotlin.text.Charsets.UTF_8
 
-private val log by lazy { KotlinLogging.logger {} }
+private object FileSupportLogger: KLogging()
+
+private val log = FileSupportLogger.log
 
 const val EXTENSION_SEPARATOR = '.'
 const val UNIX_SEPARATOR = '/'
@@ -326,23 +328,26 @@ fun Path.readAllBytesAsync(
          */
         fun readNext(position: Long) {
             channel.read(buffer, position).asCompletableFuture()
-                .whenCompleteAsync({ read, error ->
-                    if (error != null) {
-                        channel.closeSafe()
-                        promise.completeExceptionally(error)
-                        return@whenCompleteAsync
-                    }
-                    if (read == null || read <= 0) {
-                        try {
-                            buffer.flip()
-                            promise.complete(buffer.getBytes())
-                        } finally {
+                .whenCompleteAsync(
+                    { read, error ->
+                        if (error != null) {
                             channel.closeSafe()
+                            promise.completeExceptionally(error)
+                            return@whenCompleteAsync
                         }
-                        return@whenCompleteAsync
-                    }
-                    readNext(position + read)
-                }, executor)
+                        if (read == null || read <= 0) {
+                            try {
+                                buffer.flip()
+                                promise.complete(buffer.getBytes())
+                            } finally {
+                                channel.closeSafe()
+                            }
+                            return@whenCompleteAsync
+                        }
+                        readNext(position + read)
+                    },
+                    executor
+                )
         }
 
         if (buffer.capacity() == 0) {

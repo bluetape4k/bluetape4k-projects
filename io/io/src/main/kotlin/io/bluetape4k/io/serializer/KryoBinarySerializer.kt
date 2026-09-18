@@ -5,6 +5,7 @@ import com.esotericsoftware.kryo.io.Input
 import com.esotericsoftware.kryo.io.Output
 import com.esotericsoftware.kryo.util.Pool
 import io.bluetape4k.logging.KLogging
+import io.bluetape4k.support.requirePositiveNumber
 import java.io.IOException
 import java.io.OutputStream
 import java.nio.ByteBuffer
@@ -150,7 +151,7 @@ class KryoBinarySerializer(
     }
 
     init {
-        require(bufferSize > 0) { "bufferSize must be greater than 0." }
+        bufferSize.requirePositiveNumber("bufferSize")
     }
 
     /**

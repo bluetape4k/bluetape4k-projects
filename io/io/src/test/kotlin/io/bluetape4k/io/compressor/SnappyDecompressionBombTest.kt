@@ -1,9 +1,9 @@
 package io.bluetape4k.io.compressor
 
-import io.bluetape4k.logging.KLogging
-import io.bluetape4k.assertions.shouldNotBeEmpty
-import org.junit.jupiter.api.Test
 import io.bluetape4k.assertions.assertFailsWith
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.logging.KLogging
+import org.junit.jupiter.api.Test
 import org.xerial.snappy.Snappy
 
 /**
@@ -23,7 +23,8 @@ class SnappyDecompressionBombTest {
         val original = "Hello, Snappy! 압축 테스트".toByteArray()
         val compressed = compressor.compress(original)
         val restored = compressor.decompress(compressed)
-        restored.shouldNotBeEmpty()
+
+        restored shouldBeEqualTo original
     }
 
     @Test
@@ -47,7 +48,7 @@ class SnappyDecompressionBombTest {
         assert(uncompressedSize <= 256 * 1024 * 1024) { "테스트 데이터 크기가 한도 초과" }
 
         val result = compressor.decompress(compressed)
-        result.shouldNotBeEmpty()
+        result shouldBeEqualTo data
     }
 
     /**

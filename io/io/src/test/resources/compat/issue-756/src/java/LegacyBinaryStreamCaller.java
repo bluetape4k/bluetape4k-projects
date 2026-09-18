@@ -1,6 +1,7 @@
 package io.bluetape4k.io.serializer.compat.issue756.java;
 
 import io.bluetape4k.io.serializer.BinarySerializer;
+
 import java.io.ByteArrayOutputStream;
 import java.io.OutputStream;
 import java.lang.reflect.Method;
@@ -13,12 +14,12 @@ public final class LegacyBinaryStreamCaller {
     public static void main(String[] args) throws Exception {
         BinarySerializer serializer = new LegacyBinaryImplementation();
         require("binary".equals(new String(serializer.serialize("binary"), StandardCharsets.UTF_8)),
-            "legacy binary call changed");
+                "legacy binary call changed");
 
         Method method = BinarySerializer.class.getMethod(
-            "serializeBinaryToStream",
-            Object.class,
-            OutputStream.class
+                "serializeBinaryToStream",
+                Object.class,
+                OutputStream.class
         );
         require(method.isDefault(), "binary stream method is not a default");
 

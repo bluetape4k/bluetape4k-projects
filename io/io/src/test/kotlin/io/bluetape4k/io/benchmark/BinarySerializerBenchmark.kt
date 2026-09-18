@@ -3,6 +3,8 @@ package io.bluetape4k.io.benchmark
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
+import io.bluetape4k.assertions.shouldHaveSize
+import io.bluetape4k.assertions.shouldNotBeEmpty
 import io.bluetape4k.io.serializer.BinarySerializers
 import io.bluetape4k.io.serializer.JdkBinarySerializer
 import io.bluetape4k.junit5.faker.Fakers
@@ -14,8 +16,6 @@ import kotlinx.benchmark.Scope
 import kotlinx.benchmark.Setup
 import kotlinx.benchmark.State
 import kotlinx.benchmark.Warmup
-import io.bluetape4k.assertions.shouldHaveSize
-import io.bluetape4k.assertions.shouldNotBeEmpty
 import java.io.Serializable
 import java.math.BigDecimal
 import java.time.LocalDate

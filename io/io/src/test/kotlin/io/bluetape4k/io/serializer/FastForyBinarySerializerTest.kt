@@ -1,10 +1,9 @@
 package io.bluetape4k.io.serializer
 
-import io.bluetape4k.junit5.faker.Fakers
-import io.bluetape4k.logging.KLogging
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldNotBeEmpty
-import io.bluetape4k.assertions.shouldNotBeNull
+import io.bluetape4k.junit5.faker.Fakers
+import io.bluetape4k.logging.KLogging
 import org.junit.jupiter.api.RepeatedTest
 import org.junit.jupiter.api.Test
 
@@ -18,7 +17,7 @@ import org.junit.jupiter.api.Test
  * - SCHEMA_CONSISTENT 모드: 기본 COMPATIBLE 포맷과 **호환되지 않음**
  * - 고정 스키마 DTO, 휘발성 캐시 환경(Redis·메시지큐)에 적합
  */
-class ForyFastBinarySerializerTest {
+class FastForyBinarySerializerTest {
 
     companion object: KLogging() {
         private val faker = Fakers.faker
@@ -50,7 +49,7 @@ class ForyFastBinarySerializerTest {
         bytes.shouldNotBeEmpty()
 
         val actual = serializer.deserialize<CacheableDto>(bytes)
-        actual.shouldNotBeNull() shouldBeEqualTo expected
+        actual shouldBeEqualTo expected
     }
 
     @RepeatedTest(REPEAT_SIZE)
@@ -66,7 +65,7 @@ class ForyFastBinarySerializerTest {
         bytes.shouldNotBeEmpty()
 
         val actual = serializer.deserialize<CacheableDto>(bytes)
-        actual.shouldNotBeNull() shouldBeEqualTo expected
+        actual shouldBeEqualTo expected
     }
 
     @RepeatedTest(REPEAT_SIZE)
@@ -84,7 +83,7 @@ class ForyFastBinarySerializerTest {
         bytes.shouldNotBeEmpty()
 
         val actual = serializer.deserialize<List<CacheableDto>>(bytes)
-        actual.shouldNotBeNull() shouldBeEqualTo expected
+        actual shouldBeEqualTo expected
     }
 
     @RepeatedTest(REPEAT_SIZE)
@@ -95,7 +94,7 @@ class ForyFastBinarySerializerTest {
         bytes.shouldNotBeEmpty()
 
         val actual = serializer.deserialize<String>(bytes)
-        actual.shouldNotBeNull() shouldBeEqualTo expected
+        actual shouldBeEqualTo expected
     }
 
     @Test
@@ -108,6 +107,6 @@ class ForyFastBinarySerializerTest {
         val bytes = serializer1.serialize(expected)
         val actual = serializer2.deserialize<CacheableDto>(bytes)
 
-        actual.shouldNotBeNull() shouldBeEqualTo expected
+        actual shouldBeEqualTo expected
     }
 }

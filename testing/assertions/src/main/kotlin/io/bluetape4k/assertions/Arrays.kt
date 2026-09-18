@@ -931,72 +931,72 @@ private fun booleanArrayContentEquals(a: BooleanArray?, b: BooleanArray?): Boole
 //
 
 /** 배열 내용 동등성 검증 (`contentDeepEquals` 사용). */
-infix fun <T> Array<out T>.shouldBeEqualTo(expected: Array<out T>): Array<out T> {
-    if (!this.contentDeepEquals(expected)) {
+infix fun <T> Array<out T>?.shouldBeEqualTo(expected: Array<out T>): Array<out T>? {
+    if (this != null && !this.contentDeepEquals(expected)) {
         Failures.failComparison(Messages.expectedToBe("equal to", expected, this), expected, this)
     }
     return this
 }
 
 /** 배열 내용 동등성 검증 (`contentEquals` 사용). */
-infix fun IntArray.shouldBeEqualTo(expected: IntArray): IntArray {
-    if (!this.contentEquals(expected)) {
+infix fun IntArray?.shouldBeEqualTo(expected: IntArray): IntArray? {
+    if (this != null && !this.contentEquals(expected)) {
         Failures.failComparison(Messages.expectedToBe("equal to", expected, this), expected, this)
     }
     return this
 }
 
 /** 배열 내용 동등성 검증 (`contentEquals` 사용). */
-infix fun LongArray.shouldBeEqualTo(expected: LongArray): LongArray {
-    if (!this.contentEquals(expected)) {
+infix fun LongArray?.shouldBeEqualTo(expected: LongArray): LongArray? {
+    if (this != null && !this.contentEquals(expected)) {
         Failures.failComparison(Messages.expectedToBe("equal to", expected, this), expected, this)
     }
     return this
 }
 
 /** 배열 내용 동등성 검증 (`contentEquals` 사용). */
-infix fun DoubleArray.shouldBeEqualTo(expected: DoubleArray): DoubleArray {
-    if (!this.contentEquals(expected)) {
+infix fun DoubleArray?.shouldBeEqualTo(expected: DoubleArray): DoubleArray? {
+    if (this != null && !this.contentEquals(expected)) {
         Failures.failComparison(Messages.expectedToBe("equal to", expected, this), expected, this)
     }
     return this
 }
 
 /** 배열 내용 동등성 검증 (`contentEquals` 사용). */
-infix fun FloatArray.shouldBeEqualTo(expected: FloatArray): FloatArray {
-    if (!this.contentEquals(expected)) {
+infix fun FloatArray?.shouldBeEqualTo(expected: FloatArray): FloatArray? {
+    if (this != null && !this.contentEquals(expected)) {
         Failures.failComparison(Messages.expectedToBe("equal to", expected, this), expected, this)
     }
     return this
 }
 
 /** 배열 내용 동등성 검증 (`contentEquals` 사용). */
-infix fun ByteArray.shouldBeEqualTo(expected: ByteArray): ByteArray {
-    if (!this.contentEquals(expected)) {
+infix fun ByteArray?.shouldBeEqualTo(expected: ByteArray): ByteArray? {
+    if (this != null && !this.contentEquals(expected)) {
         Failures.failComparison(Messages.expectedToBe("equal to", expected, this), expected, this)
     }
     return this
 }
 
 /** 배열 내용 동등성 검증 (`contentEquals` 사용). */
-infix fun CharArray.shouldBeEqualTo(expected: CharArray): CharArray {
-    if (!this.contentEquals(expected)) {
+infix fun CharArray?.shouldBeEqualTo(expected: CharArray): CharArray? {
+    if (this != null && !this.contentEquals(expected)) {
         Failures.failComparison(Messages.expectedToBe("equal to", expected, this), expected, this)
     }
     return this
 }
 
 /** 배열 내용 동등성 검증 (`contentEquals` 사용). */
-infix fun ShortArray.shouldBeEqualTo(expected: ShortArray): ShortArray {
-    if (!this.contentEquals(expected)) {
+infix fun ShortArray?.shouldBeEqualTo(expected: ShortArray): ShortArray? {
+    if (this != null && !this.contentEquals(expected)) {
         Failures.failComparison(Messages.expectedToBe("equal to", expected, this), expected, this)
     }
     return this
 }
 
 /** 배열 내용 동등성 검증 (`contentEquals` 사용). */
-infix fun BooleanArray.shouldBeEqualTo(expected: BooleanArray): BooleanArray {
-    if (!this.contentEquals(expected)) {
+infix fun BooleanArray?.shouldBeEqualTo(expected: BooleanArray): BooleanArray? {
+    if (this != null && !this.contentEquals(expected)) {
         Failures.failComparison(Messages.expectedToBe("equal to", expected, this), expected, this)
     }
     return this

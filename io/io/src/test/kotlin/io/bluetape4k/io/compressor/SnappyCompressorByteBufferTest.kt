@@ -5,6 +5,7 @@ import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeSameInstanceAs
 import io.bluetape4k.assertions.shouldContentEqual
 import io.bluetape4k.junit5.concurrency.MultithreadingTester
+import io.bluetape4k.logging.KLogging
 import org.junit.jupiter.api.Test
 import org.xerial.snappy.Snappy
 import java.nio.BufferOverflowException
@@ -14,6 +15,9 @@ import java.util.concurrent.CancellationException
 import java.util.concurrent.atomic.AtomicInteger
 
 class SnappyCompressorByteBufferTest {
+
+    companion object: KLogging()
+    
     private val compressor = SnappyCompressor()
 
     @Test
@@ -101,6 +105,7 @@ class SnappyCompressorByteBufferTest {
             ByteBuffer.allocateDirect(0),
             ByteBuffer.allocateDirect(1),
         ) shouldBeEqualTo 0
+
         assertFailsWith<ReadOnlyBufferException> {
             compressor.compress(
                 CompressorByteBufferTestSupport.direct(byteArrayOf(1)),

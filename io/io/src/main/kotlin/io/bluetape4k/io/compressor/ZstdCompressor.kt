@@ -200,7 +200,10 @@ class ZstdCompressor private constructor(
                 compressOptimized(source, target, direct = false)
             source.isDirect && target.isDirect && hasNativeCompressionCapacity(source, target) ->
                 compressOptimized(source, target, direct = true)
-            else -> super.compress(source, target)
+            else                                                                               -> super.compress(
+                source,
+                target
+            )
         }
 
     private fun hasNativeCompressionCapacity(source: ByteBuffer, target: ByteBuffer): Boolean {
@@ -219,7 +222,7 @@ class ZstdCompressor private constructor(
         when {
             source.hasArray() && target.hasArray() -> decompressOptimized(source, target, direct = false)
             source.isDirect && target.isDirect -> decompressOptimized(source, target, direct = true)
-            else -> super.decompress(source, target)
+            else                               -> super.decompress(source, target)
         }
 
     private fun compressOptimized(source: ByteBuffer, target: ByteBuffer, direct: Boolean): Int =

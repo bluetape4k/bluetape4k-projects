@@ -6,6 +6,7 @@ import java.nio.ByteOrder
 import java.util.concurrent.atomic.AtomicInteger
 
 internal object CompressorByteBufferTestSupport {
+
     const val FILL: Byte = 0x5A
 
     val payload: ByteArray = "caller-owned compressor payload".repeat(32).encodeToByteArray()

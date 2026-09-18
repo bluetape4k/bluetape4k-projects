@@ -1,20 +1,20 @@
 package io.bluetape4k.io.compressor
 
-import io.bluetape4k.logging.KLogging
-import io.bluetape4k.logging.debug
-import io.bluetape4k.support.emptyByteArray
+import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeLessOrEqualTo
 import io.bluetape4k.assertions.shouldBeLessThan
-import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.assertions.shouldBeNull
 import io.bluetape4k.assertions.shouldNotBeEmpty
+import io.bluetape4k.junit5.concurrency.MultithreadingTester
+import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.debug
+import io.bluetape4k.support.emptyByteArray
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
-import io.bluetape4k.junit5.concurrency.MultithreadingTester
 import java.util.stream.Stream
-import io.bluetape4k.assertions.assertFailsWith
 
 /**
  * [Compressor] 구현체들에 대한 edge case 테스트입니다.
@@ -24,7 +24,7 @@ import io.bluetape4k.assertions.assertFailsWith
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class CompressorEdgeCaseTest {
 
-    companion object : KLogging() {
+    companion object: KLogging() {
         private const val THREAD_COUNT = 8
         private const val LARGE_INPUT_SIZE = 1024 * 1024  // 1 MB
 
@@ -82,7 +82,7 @@ class CompressorEdgeCaseTest {
                     "compressed=${compressed.size}, plain=${input.size}"
         }
         // 반복 패턴이므로 압축 효과가 있어야 함 (10% 미만 크기)
-        (compressionRatio < 1.0).shouldBeTrue()
+        compressionRatio shouldBeLessThan 1.0
     }
 
     @ParameterizedTest(name = "대용량(1MB) 입력 압축/해제: {0}")
@@ -146,7 +146,7 @@ class CompressorEdgeCaseTest {
             .add {
                 val compressed = compressor.compress(input)
                 val decompressed = compressor.decompress(compressed)
-                (decompressed contentEquals input).shouldBeTrue()
+                decompressed shouldBeEqualTo input
             }
             .run()
     }
@@ -170,7 +170,7 @@ class CompressorEdgeCaseTest {
         }
 
         // decompressOrNull 은 예외를 삼키고 null 반환
-        compressor.decompressOrNull(corrupted) shouldBeEqualTo null
+        compressor.decompressOrNull(corrupted).shouldBeNull()
     }
 
     @Test

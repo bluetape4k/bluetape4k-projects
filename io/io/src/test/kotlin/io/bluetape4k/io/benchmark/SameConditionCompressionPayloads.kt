@@ -4,7 +4,7 @@ import io.bluetape4k.io.compressor.Compressor
 import io.bluetape4k.io.compressor.Compressors
 import java.io.ByteArrayOutputStream
 import java.nio.charset.StandardCharsets
-import java.util.SplittableRandom
+import java.util.*
 
 enum class SameConditionPayloadKind {
     Json,
@@ -61,7 +61,11 @@ object SameConditionCompressionPayloads {
                 out.append(',')
             }
             out.append(
-                """{"id":$index,"tenant":"tenant-${index % 17}","service":"orders","region":"ap-northeast-${index % 3}","status":"${status(index)}","amount":${1000 + index % 7919},"tags":["blue","tape","compressor"],"message":"same condition json payload record $index"}"""
+                """{"id":$index,"tenant":"tenant-${index % 17}","service":"orders","region":"ap-northeast-${index % 3}","status":"${
+                    status(
+                        index
+                    )
+                }","amount":${1000 + index % 7919},"tags":["blue","tape","compressor"],"message":"same condition json payload record $index"}"""
             )
             index++
         }
