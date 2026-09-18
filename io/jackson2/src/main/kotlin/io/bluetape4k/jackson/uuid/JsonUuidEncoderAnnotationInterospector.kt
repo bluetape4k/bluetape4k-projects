@@ -66,10 +66,3 @@ class JsonUuidEncoderAnnotationIntrospector: JacksonAnnotationIntrospector() {
         }
     }
 }
-
-/** "Interospector" 오타를 수정한 [JsonUuidEncoderAnnotationIntrospector]의 하위 호환 별칭입니다. */
-@Deprecated(
-    "오타가 수정된 JsonUuidEncoderAnnotationIntrospector 를 사용하세요.",
-    ReplaceWith("JsonUuidEncoderAnnotationIntrospector")
-)
-typealias JsonUuidEncoderAnnotationInterospector = JsonUuidEncoderAnnotationIntrospector

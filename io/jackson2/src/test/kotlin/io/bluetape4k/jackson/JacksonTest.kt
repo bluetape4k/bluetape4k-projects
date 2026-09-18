@@ -159,24 +159,16 @@ class JacksonTest {
         }
     }
 
-    @Suppress("DEPRECATION")
     @Test
-    fun `legacy typedJsonMapper는 명시적 migration failure로 차단한다`() {
-        val exception = assertFailsWith<UnsupportedOperationException> {
-            Jackson.typedJsonMapper
-        }
-
-        exception.message shouldContain "createTypedJsonMapper"
+    fun `typedJsonMapper 를 생성한다`() {
+        val mapper = Jackson.createTypedJsonMapper("io.bluetape4k")
+        mapper.shouldNotBeNull()
     }
 
-    @Suppress("DEPRECATION")
     @Test
-    fun `legacy prettyTypedJsonWriter는 명시적 migration failure로 차단한다`() {
-        val exception = assertFailsWith<UnsupportedOperationException> {
-            Jackson.prettyTypedJsonWriter
-        }
-
-        exception.message shouldContain "createTypedJsonMapper"
+    fun `typed JsonMapper 로부터 WriterWithDefaultPrettyPrinter 생성`() {
+        val writer = Jackson.createTypedJsonMapper("io.bluetape4k").writerWithDefaultPrettyPrinter()
+        writer.shouldNotBeNull()
     }
 
     @Test
