@@ -4,7 +4,7 @@ import com.google.common.base.Stopwatch
 import com.google.common.base.Ticker
 import com.google.protobuf.util.Durations
 import io.bluetape4k.collections.eclipse.multi.listMultimapOf
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.channelFlow
@@ -16,7 +16,7 @@ class RouteGuideService(
     val ticker: Ticker = Ticker.systemTicker(),
 ): RouteGuideGrpcKt.RouteGuideCoroutineImplBase() {
 
-    companion object: KLogging()
+    companion object: KLoggingChannel()
 
     private val routeNotes = listMultimapOf<Point, RouteNote>()
 
@@ -59,12 +59,11 @@ class RouteGuideService(
     }
 
     override fun routeChat(requests: Flow<RouteNote>): Flow<RouteNote> = channelFlow {
-        requests
-            .collect { note ->
-                routeNotes[note.location].forEach {
-                    send(it)
-                }
-                routeNotes.put(note.location, note)
+        requests.collect { note ->
+            routeNotes[note.location].forEach {
+                send(it)
             }
+            routeNotes.put(note.location, note)
+        }
     }
 }

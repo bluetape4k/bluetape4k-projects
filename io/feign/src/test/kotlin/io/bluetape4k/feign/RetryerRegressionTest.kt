@@ -6,6 +6,8 @@ import feign.RequestLine
 import feign.hc5.ApacheHttp5Client
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.http.okhttp3.mock.baseUrl
+import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.debug
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
 import okhttp3.mockwebserver.SocketPolicy
@@ -14,6 +16,8 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 
 class RetryerRegressionTest {
+
+    companion object: KLogging()
 
     private interface RetryApi {
         @RequestLine("GET /retry/{id}")
@@ -29,22 +33,26 @@ class RetryerRegressionTest {
         api = feignBuilder {
             client(ApacheHttp5Client())
             retryer(DefaultRetryer(0, 0, 2))
-        }.client(server.baseUrl)
+        }
+            .client(server.baseUrl)
     }
 
     @AfterEach
     fun afterEach() {
         runCatching { server.shutdown() }
+            .onFailure { log.debug(it) { "Fail to shutdown server" } }
     }
 
     @Test
     fun `feign retryer retries disconnected request and succeeds on next response`() {
+        // Request 가 연결 해제 되므로, maxAttempts (2) 만큼 시도한다.
         server.enqueue(MockResponse().setSocketPolicy(SocketPolicy.DISCONNECT_AT_START))
         server.enqueue(MockResponse().setBody("ok"))
 
         val result = api.get(1)
 
         result shouldBeEqualTo "ok"
+        // retryer maxAttempts = 2 
         server.requestCount shouldBeEqualTo 2
     }
 }

@@ -1,7 +1,11 @@
 package io.bluetape4k.grpc.stub
 
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeNull
+import io.bluetape4k.assertions.shouldNotBeEqualTo
 import io.bluetape4k.grpc.testing.integration.Messages
 import io.bluetape4k.grpc.testing.integration.TestServiceGrpc
+import io.bluetape4k.logging.KLogging
 import io.grpc.Channel
 import io.grpc.Deadline
 import io.grpc.MethodDescriptor
@@ -10,14 +14,13 @@ import io.mockk.clearMocks
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
-import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldBeNull
-import io.bluetape4k.assertions.shouldNotBeEqualTo
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import java.util.concurrent.TimeUnit
 
 class StubConfigTest {
+
+    companion object: KLogging()
 
     private val channel = mockk<Channel>()
     private val responseObserver = mockk<StreamObserver<Messages.SimpleResponse>>()
@@ -64,6 +67,7 @@ class StubConfigTest {
         val stub2 = stub.withDeadlineAfter(2, TimeUnit.NANOSECONDS)
         val options2 = stub2.callOptions
         options2 shouldNotBeEqualTo options1
+
         stub2.unaryCall(request, responseObserver)
         verify { channel.newCall(eq(TestServiceGrpc.getUnaryCallMethod()), eq(options2)) }
     }

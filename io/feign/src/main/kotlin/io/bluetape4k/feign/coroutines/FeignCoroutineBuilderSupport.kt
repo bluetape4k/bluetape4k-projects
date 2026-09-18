@@ -13,7 +13,6 @@ import feign.kotlin.CoroutineFeign
 import io.bluetape4k.concurrent.virtualthread.VirtualThreadExecutor
 import io.bluetape4k.feign.defaultRequestOptions
 
-
 /**
  * 코루틴용 Feign builder를 생성하고 초기화 블록을 적용합니다.
  *

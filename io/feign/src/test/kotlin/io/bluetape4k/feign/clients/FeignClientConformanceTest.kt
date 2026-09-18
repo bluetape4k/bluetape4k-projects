@@ -14,6 +14,8 @@ import io.bluetape4k.assertions.shouldNotBeNull
 import io.bluetape4k.feign.AbstractFeignTest
 import io.bluetape4k.feign.bodyAsReader
 import io.bluetape4k.feign.feignRequestOf
+import io.bluetape4k.io.toUtf8String
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.support.closeSafe
 import io.bluetape4k.support.toUtf8String
 import okhttp3.mockwebserver.MockResponse
@@ -39,6 +41,8 @@ import java.util.concurrent.TimeUnit
  * 다른 adapter를 추가할 때는 정확한 wire header 기대값을 먼저 검토해야 합니다.
  */
 abstract class FeignSyncClientConformanceTest: AbstractFeignTest() {
+
+    companion object: KLoggingChannel()
 
     private lateinit var server: MockWebServer
     private lateinit var client: Client
@@ -92,7 +96,9 @@ abstract class FeignSyncClientConformanceTest: AbstractFeignTest() {
             client.execute(
                 feignRequestOf(server.url("/").toString(), method, body = body),
                 defaultOptions()
-            ).use { it.status() shouldBeEqualTo 200 }
+            ).use {
+                it.status() shouldBeEqualTo 200
+            }
 
             val recorded = server.takeRequest(2, TimeUnit.SECONDS).shouldNotBeNull()
             recorded.method shouldBeEqualTo method.name
@@ -118,7 +124,9 @@ abstract class FeignSyncClientConformanceTest: AbstractFeignTest() {
                 body = bytes
             ),
             defaultOptions()
-        ).use { it.status() shouldBeEqualTo 200 }
+        ).use {
+            it.status() shouldBeEqualTo 200
+        }
 
         val recorded = server.takeRequest(2, TimeUnit.SECONDS).shouldNotBeNull()
         recorded.headers.values("Content-Length") shouldBeEqualTo listOf(bytes.size.toString())
@@ -141,7 +149,9 @@ abstract class FeignSyncClientConformanceTest: AbstractFeignTest() {
             client.execute(
                 feignRequestOf(server.url("/").toString(), headers = resolved.headers()),
                 defaultOptions()
-            ).use { it.status() shouldBeEqualTo 200 }
+            ).use {
+                it.status() shouldBeEqualTo 200
+            }
             val recorded = server.takeRequest(2, TimeUnit.SECONDS).shouldNotBeNull()
             recorded.getHeader("X-Custom") shouldBeEqualTo "safeX-Injected: evil"
             recorded.getHeader("X-Injected").shouldBeNull()
@@ -173,11 +183,12 @@ abstract class FeignSyncClientConformanceTest: AbstractFeignTest() {
         }
         // 동기 HC5의 IOException과 Vert.x future의 원인 예외를 구분하며 timeout은 허용하지 않습니다.
         val transportError = if (error is ExecutionException) error.cause else error
-        (transportError is IOException || transportError is IllegalArgumentException)
-            .shouldBeTrue()
+        (transportError is IOException || transportError is IllegalArgumentException).shouldBeTrue()
+
         generateSequence(error as Throwable) { it.cause }
             .none { it is java.net.SocketTimeoutException || it is java.util.concurrent.TimeoutException }
             .shouldBeTrue()
+
         val messages = generateSequence(error as Throwable) { it.cause }
             .mapNotNull { it.message }
             .joinToString(" ")
@@ -222,7 +233,7 @@ abstract class FeignAsyncClientConformanceTest<C: Any>: AbstractFeignTest() {
 
         executeAsync(defaultOptions()).get(2, TimeUnit.SECONDS).use { response ->
             response.status() shouldBeEqualTo 200
-            response.body().asInputStream().readBytes().toUtf8String() shouldBeEqualTo "delayed"
+            response.body().asInputStream().toUtf8String() shouldBeEqualTo "delayed"
         }
     }
 

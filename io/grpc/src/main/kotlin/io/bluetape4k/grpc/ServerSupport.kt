@@ -21,7 +21,9 @@ inline fun grpcServerBuilder(
     port: Int,
     builder: ServerBuilder<*>.() -> Unit,
 ): ServerBuilder<*> =
-    ServerBuilder.forPort(port.requireInRange(1, 65535, "port")).apply(builder)
+    ServerBuilder
+        .forPort(port.requireInRange(1, 65535, "port"))
+        .apply(builder)
 
 /**
  * [ServerBuilder] 설정을 적용해 즉시 [Server]를 빌드합니다.

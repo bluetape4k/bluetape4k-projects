@@ -48,7 +48,8 @@ inline fun managedChannel(
 inline fun managedChannel(
     target: String,
     builder: ManagedChannelBuilder<*>.() -> Unit,
-): ManagedChannel = ManagedChannelBuilder
-    .forTarget(target.requireNotBlank("target"))
-    .apply(builder)
-    .build()
+): ManagedChannel =
+    ManagedChannelBuilder
+        .forTarget(target.requireNotBlank("target"))
+        .apply(builder)
+        .build()
