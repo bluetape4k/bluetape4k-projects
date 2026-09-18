@@ -1,11 +1,11 @@
 package io.bluetape4k.json
 
-import io.bluetape4k.logging.KLogging
 import io.bluetape4k.assertions.shouldBeEmpty
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeNull
 import io.bluetape4k.assertions.shouldNotBeEmpty
 import io.bluetape4k.assertions.shouldNotBeNull
+import io.bluetape4k.logging.KLogging
 import org.junit.jupiter.api.Test
 import java.nio.ByteBuffer
 
@@ -16,6 +16,7 @@ import java.nio.ByteBuffer
  * 이 테스트에서는 인터페이스가 제공하는 기본 메서드의 null/빈값 처리 계약을 검증합니다.
  */
 class JsonSerializerTest {
+
     companion object: KLogging()
 
     /**

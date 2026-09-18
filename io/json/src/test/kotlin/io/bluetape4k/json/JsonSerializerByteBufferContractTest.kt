@@ -1,8 +1,8 @@
 package io.bluetape4k.json
 
 import io.bluetape4k.assertions.assertFailsWith
-import io.bluetape4k.assertions.fail
 import io.bluetape4k.assertions.expectThat
+import io.bluetape4k.assertions.fail
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeSameInstanceAs
 import io.bluetape4k.assertions.shouldContentEqual
@@ -347,7 +347,7 @@ private fun verifyJsonBufferConcurrency(
                     .toList()
             fail(
                 "JSON buffer executor did not terminate; " +
-                    "unfinished=${unfinished.sorted().take(JSON_MAX_DIAGNOSTICS)}, threads=$threads",
+                        "unfinished=${unfinished.sorted().take(JSON_MAX_DIAGNOSTICS)}, threads=$threads",
             )
         }
     }
