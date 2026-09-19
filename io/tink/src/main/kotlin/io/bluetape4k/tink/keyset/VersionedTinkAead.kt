@@ -1,10 +1,13 @@
 package io.bluetape4k.tink.keyset
 
+import io.bluetape4k.codec.decodeBase64ByteArray
+import io.bluetape4k.codec.encodeBase64String
 import io.bluetape4k.logging.KLogging
+import io.bluetape4k.support.toUtf8Bytes
+import io.bluetape4k.support.toUtf8String
 import io.bluetape4k.tink.EMPTY_BYTES
 import io.bluetape4k.tink.aead.TinkAead
 import java.time.Duration
-import java.util.*
 
 /**
  * versioned keyset 저장소를 사용하는 AEAD 암호화 래퍼입니다.
@@ -37,8 +40,8 @@ class VersionedTinkAead(
     }
 
     fun encrypt(plaintext: String, associatedData: ByteArray = EMPTY_BYTES): String =
-        Base64.getEncoder().encodeToString(encrypt(plaintext.toByteArray(Charsets.UTF_8), associatedData))
+        encrypt(plaintext.toUtf8Bytes(), associatedData).encodeBase64String()
 
     fun decrypt(payload: String, associatedData: ByteArray = EMPTY_BYTES): String =
-        decrypt(Base64.getDecoder().decode(payload), associatedData).toString(Charsets.UTF_8)
+        decrypt(payload.decodeBase64ByteArray(), associatedData).toUtf8String()
 }

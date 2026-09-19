@@ -1,6 +1,9 @@
 package io.bluetape4k.tink.digest
 
+import io.bluetape4k.codec.decodeBase64ByteArray
+import io.bluetape4k.codec.encodeBase64String
 import io.bluetape4k.logging.KLogging
+import io.bluetape4k.support.toUtf8Bytes
 import java.security.MessageDigest
 import java.util.*
 
@@ -42,8 +45,8 @@ class TinkDigester(
      * @return Base64 인코딩된 해시 문자열
      */
     fun digest(data: String): String {
-        val hashBytes = digest(data.toByteArray(Charsets.UTF_8))
-        return Base64.getEncoder().encodeToString(hashBytes)
+        val hashBytes = digest(data.toUtf8Bytes())
+        return hashBytes.encodeBase64String()
     }
 
     /**
@@ -56,7 +59,8 @@ class TinkDigester(
      * @return lowercase hex로 인코딩한 해시 문자열
      */
     fun digestHex(data: String): String =
-        HexFormat.of().formatHex(digest(data.toByteArray(Charsets.UTF_8)))
+        HexFormat.of().formatHex(digest(data.toUtf8Bytes()))
+
 
     /**
      * 바이트 배열의 해시가 기대값과 일치하는지 constant-time으로 비교합니다.
@@ -85,11 +89,11 @@ class TinkDigester(
         data: String,
         expected: String,
     ): Boolean {
-        val dataHashBytes = digest(data.toByteArray(Charsets.UTF_8))
+        val dataHashBytes = digest(data.toUtf8Bytes())
         // Boolean verifier API는 malformed expected digest도 불일치로 취급한다.
         // 호출자가 단순 검증 경로에서 Base64 예외를 별도 처리하지 않아도 된다.
         val expectedBytes = runCatching {
-            Base64.getDecoder().decode(expected)
+            expected.decodeBase64ByteArray()
         }.getOrElse {
             return false
         }
@@ -112,7 +116,7 @@ class TinkDigester(
         data: String,
         expected: String,
     ): Boolean {
-        val dataHashBytes = digest(data.toByteArray(Charsets.UTF_8))
+        val dataHashBytes = digest(data.toUtf8Bytes())
         if (expected.length != dataHashBytes.size * 2 || expected.any { it !in '0'..'9' && it !in 'a'..'f' }) {
             return false
         }

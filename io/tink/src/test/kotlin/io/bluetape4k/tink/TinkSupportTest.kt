@@ -1,15 +1,18 @@
 package io.bluetape4k.tink
 
+import io.bluetape4k.assertions.assertFailsWith
+import io.bluetape4k.assertions.shouldBeFalse
+import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.logging.KLogging
 import io.bluetape4k.tink.aead.TinkAead
 import io.bluetape4k.tink.daead.TinkDeterministicAead
 import io.bluetape4k.tink.mac.TinkMac
-import io.bluetape4k.assertions.shouldBeFalse
-import io.bluetape4k.assertions.shouldBeTrue
 import org.junit.jupiter.api.Test
-import io.bluetape4k.assertions.assertFailsWith
 import java.security.GeneralSecurityException
 
 class TinkSupportTest {
+
+    companion object: KLogging()
 
     @Test
     fun `registerTink can be called repeatedly without error`() {

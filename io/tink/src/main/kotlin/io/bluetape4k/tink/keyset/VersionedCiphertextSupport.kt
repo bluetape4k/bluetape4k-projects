@@ -11,6 +11,7 @@ internal fun packVersionedCiphertext(version: Long, ciphertext: ByteArray): Byte
 
 internal fun unpackVersionedCiphertext(payload: ByteArray): Pair<Long, ByteArray> {
     require(payload.size > Long.SIZE_BYTES) { "payload must contain version prefix and ciphertext" }
+
     val buffer = ByteBuffer.wrap(payload)
     val version = buffer.long
     val ciphertext = ByteArray(buffer.remaining())

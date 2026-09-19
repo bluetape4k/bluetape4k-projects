@@ -5,6 +5,7 @@ import com.google.crypto.tink.Mac
 import com.google.crypto.tink.RegistryConfiguration
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.warn
+import io.bluetape4k.support.toUtf8Bytes
 import io.bluetape4k.tink.macKeysetHandle
 
 /**
@@ -44,7 +45,7 @@ class TinkMac(keysetHandle: KeysetHandle = macKeysetHandle()) {
      * @param data MAC을 계산할 문자열 (UTF-8 인코딩)
      * @return 계산된 MAC 태그 바이트 배열
      */
-    fun computeMac(data: String): ByteArray = computeMac(data.toByteArray(Charsets.UTF_8))
+    fun computeMac(data: String): ByteArray = computeMac(data.toUtf8Bytes())
 
     /**
      * 바이트 배열에 대한 MAC 태그를 검증합니다.
@@ -69,5 +70,5 @@ class TinkMac(keysetHandle: KeysetHandle = macKeysetHandle()) {
      * @return 검증 성공 시 `true`, 실패 시 `false`
      */
     fun verifyMac(tag: ByteArray, data: String): Boolean =
-        verifyMac(tag, data.toByteArray(Charsets.UTF_8))
+        verifyMac(tag, data.toUtf8Bytes())
 }

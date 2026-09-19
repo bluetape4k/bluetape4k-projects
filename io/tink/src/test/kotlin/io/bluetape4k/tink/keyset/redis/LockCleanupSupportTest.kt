@@ -3,9 +3,13 @@ package io.bluetape4k.tink.keyset.redis
 import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeSameInstanceAs
+import io.bluetape4k.logging.KLogging
+import io.bluetape4k.tink.AbstractTinkTest
 import org.junit.jupiter.api.Test
 
-class LockCleanupSupportTest {
+class LockCleanupSupportTest: AbstractTinkTest() {
+
+    companion object: KLogging()
 
     @Test
     fun `작업 성공 후 lock cleanup 실패는 호출자에게 전달된다`() {
