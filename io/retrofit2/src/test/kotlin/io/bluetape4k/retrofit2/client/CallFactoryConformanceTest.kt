@@ -1,5 +1,6 @@
 package io.bluetape4k.retrofit2.client
 
+import io.bluetape4k.apache.containsIgnoreCase
 import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeFalse
@@ -115,8 +116,7 @@ abstract class CallFactoryConformanceTest: AbstractClientTest() {
         }
 
         val errorMessage = error.message.shouldNotBeNull()
-        (errorMessage.contains("timeout", ignoreCase = true) ||
-                errorMessage.contains("timed out", ignoreCase = true)).shouldBeTrue()
+        (errorMessage.containsIgnoreCase("timeout") || errorMessage.containsIgnoreCase("timed out")).shouldBeTrue()
         call.isCanceled().shouldBeTrue()
     }
 
@@ -208,6 +208,7 @@ abstract class CallFactoryConformanceTest: AbstractClientTest() {
 
         val eventCount = AtomicInteger()
         val original = callFactory.newCall(request())
+
         original.addEventListener(object: EventListener() {
             override fun callStart(call: Call) {
                 eventCount.incrementAndGet()
@@ -215,7 +216,6 @@ abstract class CallFactoryConformanceTest: AbstractClientTest() {
         })
 
         original.clone().execute().close()
-
         eventCount.get() shouldBeEqualTo 0
     }
 
