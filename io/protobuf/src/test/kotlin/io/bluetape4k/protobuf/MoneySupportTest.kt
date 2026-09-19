@@ -11,13 +11,12 @@ class MoneySupportTest {
 
     @Test
     fun `toJavaMoney - ProtoMoney를 JavaMoney로 변환한다`() {
-        val protoMoney =
-            ProtoMoney
-                .newBuilder()
-                .setCurrencyCode("USD")
-                .setUnits(12L)
-                .setNanos(340_000_000)
-                .build()
+        val protoMoney = ProtoMoney
+            .newBuilder()
+            .setCurrencyCode("USD")
+            .setUnits(12L)
+            .setNanos(340_000_000)
+            .build()
 
         val javaMoney = protoMoney.toJavaMoney()
 
@@ -38,13 +37,12 @@ class MoneySupportTest {
 
     @Test
     fun `왕복 변환 - ProtoMoney → JavaMoney → ProtoMoney`() {
-        val original =
-            ProtoMoney
-                .newBuilder()
-                .setCurrencyCode("KRW")
-                .setUnits(1000L)
-                .setNanos(0)
-                .build()
+        val original = ProtoMoney
+            .newBuilder()
+            .setCurrencyCode("KRW")
+            .setUnits(1000L)
+            .setNanos(0)
+            .build()
 
         val restored = original.toJavaMoney().toProtoMoney()
 

@@ -6,7 +6,9 @@ import io.bluetape4k.junit5.faker.Fakers
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.redis.redisson.redissonClientOf
 import io.bluetape4k.testcontainers.storage.RedisServer
+import net.datafaker.Faker
 import org.redisson.api.RedissonClient
+import java.util.*
 
 abstract class AbstractRedissonTest {
 
@@ -24,7 +26,7 @@ abstract class AbstractRedissonTest {
         }
 
         @JvmStatic
-        val faker = Fakers.faker
+        val faker = Faker(Locale.getDefault())
 
         @JvmStatic
         protected fun randomName(): String =

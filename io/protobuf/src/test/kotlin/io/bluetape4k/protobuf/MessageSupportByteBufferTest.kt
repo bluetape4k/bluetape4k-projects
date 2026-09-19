@@ -100,7 +100,9 @@ class MessageSupportByteBufferTest {
         val undersizedState = undersized.state()
         val undersizedContent = undersized.array().copyOf()
 
-        assertFailsWith<BufferOverflowException> { packMessageTo(message, undersized) }
+        assertFailsWith<BufferOverflowException> {
+            packMessageTo(message, undersized)
+        }
         undersized.assertState(undersizedState)
         undersized.array() shouldContentEqual undersizedContent
     }
@@ -132,7 +134,9 @@ class MessageSupportByteBufferTest {
         }
         val state = source.state()
 
-        assertFailsWith<Exception> { unpackMessage<TestMessage>(source) }
+        assertFailsWith<Exception> {
+            unpackMessage<TestMessage>(source)
+        }
         source.assertState(state)
     }
 

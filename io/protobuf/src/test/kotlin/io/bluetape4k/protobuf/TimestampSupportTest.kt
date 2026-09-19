@@ -1,9 +1,10 @@
 package io.bluetape4k.protobuf
 
-import io.bluetape4k.logging.KLogging
 import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeLessThan
 import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.assertions.shouldNotBeNull
+import io.bluetape4k.logging.KLogging
 import org.junit.jupiter.api.Test
 import java.time.Instant
 import java.util.*
@@ -112,7 +113,7 @@ class TimestampSupportTest {
     fun `compareTo - 이전 Timestamp는 음수를 반환한다`() {
         val earlier = protoTimestampOfSeconds(1L)
         val later = protoTimestampOfSeconds(2L)
-        (earlier.compareTo(later) < 0).shouldBeTrue()
+        earlier.compareTo(later) shouldBeLessThan 0
     }
 
     @Test
