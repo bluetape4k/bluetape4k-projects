@@ -98,7 +98,7 @@ class RedissonProtobufCodec private constructor(
          * Use this profile only for internal Redis stores whose historical bytes may contain fallback-encoded payloads.
          */
         fun trustedInternal(
-            fallbackCodec: Codec = RedissonCodecs.Kryo5,
+            fallbackCodec: Codec = RedissonCodecs.FastFory,
             allowedClassPrefixes: Set<String> = ProtobufSerializer.DEFAULT_ALLOWED_PREFIXES,
         ): RedissonProtobufCodec =
             RedissonProtobufCodec(fallbackCodec, allowedClassPrefixes, null)
