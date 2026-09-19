@@ -6,7 +6,7 @@ import io.bluetape4k.assertions.shouldNotBeBlank
 import io.bluetape4k.assertions.shouldNotBeNull
 import io.bluetape4k.http.AbstractHttpTest
 import io.bluetape4k.junit5.coroutines.runSuspendIO
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.ktor.client.call.body
 import io.ktor.client.engine.mock.MockEngine
 import io.ktor.client.engine.mock.respond
@@ -25,7 +25,7 @@ import kotlinx.serialization.Serializable as KotlinSerializable
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class KtorHttpClientSupportTest: AbstractHttpTest() {
 
-    companion object: KLogging()
+    companion object: KLoggingChannel()
 
     @Test
     fun `ktorCioHttpClientOf creates CIO-backed client`() {

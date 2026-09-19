@@ -4,10 +4,7 @@ package io.bluetape4k.cache.nearcache.jcache.management
 
 import io.bluetape4k.cache.nearcache.jcache.NearJCache
 import java.io.Serializable
-import java.util.Collections
-import java.util.LinkedHashMap
-import java.util.LinkedHashSet
-import java.util.UUID
+import java.util.*
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.locks.ReentrantLock
 import javax.management.ImmutableDescriptor
@@ -275,7 +272,7 @@ private class DefaultNearJCacheMBeanRegistration(
 
                 NearJCacheMBeanRegistrationState.REGISTERED,
                 NearJCacheMBeanRegistrationState.RECOVERY_REQUIRED,
-                -> {
+                                                        -> {
                     val completion = CompletableFuture<NearJCacheMBeanRegistrationException?>()
                     activeCloseAttempt = completion
                     currentState = NearJCacheMBeanRegistrationState.CLOSING

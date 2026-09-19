@@ -1,6 +1,7 @@
 package io.bluetape4k.coroutines
 
 import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.joinAll
@@ -11,6 +12,8 @@ import java.util.concurrent.atomic.AtomicInteger
 import kotlin.time.Duration.Companion.milliseconds
 
 class SilentSupervisorTest {
+
+    companion object: KLoggingChannel()
 
     @Test
     fun `SilentSupervisor는 한 자식의 실패가 다른 자식을 취소하지 않는다`() = runTest {

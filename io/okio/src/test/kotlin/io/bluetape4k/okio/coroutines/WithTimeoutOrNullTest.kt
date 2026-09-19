@@ -2,9 +2,10 @@ package io.bluetape4k.okio.coroutines
 
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeNull
+import io.bluetape4k.junit5.coroutines.runSuspendIO
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.okio.AbstractOkioTest
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.test.runTest
 import okio.Timeout
 import org.junit.jupiter.api.Test
 import java.util.concurrent.TimeUnit
@@ -12,8 +13,10 @@ import kotlin.time.Duration.Companion.milliseconds
 
 class WithTimeoutOrNullTest: AbstractOkioTest() {
 
+    companion object: KLoggingChannel()
+
     @Test
-    fun `Timeout NONE이면 블록 결과를 그대로 반환한다`() = runTest {
+    fun `Timeout NONE이면 블록 결과를 그대로 반환한다`() = runSuspendIO {
         val result = withTimeoutOrNull(Timeout.NONE) {
             "ok"
         }
@@ -22,7 +25,7 @@ class WithTimeoutOrNullTest: AbstractOkioTest() {
     }
 
     @Test
-    fun `timeout이 경과하면 null을 반환한다`() = runTest {
+    fun `timeout이 경과하면 null을 반환한다`() = runSuspendIO {
         val timeout = Timeout().timeout(10, TimeUnit.MILLISECONDS)
 
         val result = withTimeoutOrNull(timeout) {
@@ -34,7 +37,7 @@ class WithTimeoutOrNullTest: AbstractOkioTest() {
     }
 
     @Test
-    fun `deadline이 timeout보다 짧으면 deadline 기준으로 null을 반환한다`() = runTest {
+    fun `deadline이 timeout보다 짧으면 deadline 기준으로 null을 반환한다`() = runSuspendIO {
         val timeout = Timeout()
             .timeout(5, TimeUnit.SECONDS)
             .deadline(10, TimeUnit.MILLISECONDS)
@@ -48,7 +51,7 @@ class WithTimeoutOrNullTest: AbstractOkioTest() {
     }
 
     @Test
-    fun `서브 밀리초 timeout 에서도 즉시 완료 블록은 성공한다`() = runTest {
+    fun `서브 밀리초 timeout 에서도 즉시 완료 블록은 성공한다`() = runSuspendIO {
         val timeout = Timeout().timeout(1, TimeUnit.NANOSECONDS)
 
         val result = withTimeoutOrNull(timeout) {

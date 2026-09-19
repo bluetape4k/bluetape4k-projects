@@ -20,7 +20,9 @@ class FlatMapDropTest: AbstractFlowTest() {
         flowRangeOf(1, 10)
             .onEach { delay(100.milliseconds) }.log("src")
             .flatMapDrop {
-                flowRangeOf(it * 100, 5).onEach { delay(20.milliseconds) }.log("flatMapDrop")
+                flowRangeOf(it * 100, 5)
+                    .onEach { delay(20.milliseconds) }
+                    .log("flatMapDrop")
             }
             .assertResult(
                 100, 101, 102, 103, 104,
@@ -40,7 +42,8 @@ class FlatMapDropTest: AbstractFlowTest() {
             .flatMapDrop {
                 item.set(it)
                 flowRangeOf(it * 100, 5)
-                    .onEach { delay(30.milliseconds) }.log("flatMapDrop")
+                    .onEach { delay(30.milliseconds) }
+                    .log("flatMapDrop")
             }
             .take(7).log("take")
             .assertResult(

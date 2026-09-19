@@ -7,11 +7,13 @@ import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeFalse
 import io.bluetape4k.assertions.shouldBeNull
 import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.assertions.shouldHaveSize
 import io.bluetape4k.assertions.shouldNotBeNull
+import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.coroutines.KLoggingChannel
+import io.bluetape4k.logging.debug
 import io.bluetape4k.mongodb.bson.documentOf
 import kotlinx.coroutines.flow.toList
-import kotlinx.coroutines.test.runTest
 import org.bson.Document
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
@@ -29,8 +31,9 @@ class MongoCollectionExtensionsTest: AbstractMongoTest() {
     }
 
     @BeforeEach
-    fun setUp() = runTest {
+    fun setUp() = runSuspendIO {
         collection.drop()
+
         // 테스트 데이터 삽입
         collection.insertMany(
             listOf(
@@ -44,37 +47,38 @@ class MongoCollectionExtensionsTest: AbstractMongoTest() {
     }
 
     @AfterEach
-    fun tearDown() = runTest {
+    fun tearDown() = runSuspendIO {
         collection.drop()
     }
 
     @Test
-    fun `findFirst 필터 조건에 맞는 첫 문서 반환`() = runTest(timeout = 30.seconds) {
+    fun `findFirst 필터 조건에 맞는 첫 문서 반환`() = runSuspendIO(timeout = 30.seconds) {
         val doc = collection.findFirst(Filters.eq("name", "Alice"))
+        log.debug { "doc=$doc" }
         doc.shouldNotBeNull()
         doc.getString("name") shouldBeEqualTo "Alice"
     }
 
     @Test
-    fun `findFirst 조건에 맞는 문서가 없으면 null 반환`() = runTest(timeout = 30.seconds) {
+    fun `findFirst 조건에 맞는 문서가 없으면 null 반환`() = runSuspendIO(timeout = 30.seconds) {
         val doc = collection.findFirst(Filters.eq("name", "Unknown"))
         doc.shouldBeNull()
     }
 
     @Test
-    fun `exists 존재하는 문서에 true 반환`() = runTest(timeout = 30.seconds) {
+    fun `exists 존재하는 문서에 true 반환`() = runSuspendIO(timeout = 30.seconds) {
         val result = collection.exists(Filters.eq("name", "Bob"))
         result.shouldBeTrue()
     }
 
     @Test
-    fun `exists 존재하지 않는 문서에 false 반환`() = runTest(timeout = 30.seconds) {
+    fun `exists 존재하지 않는 문서에 false 반환`() = runSuspendIO(timeout = 30.seconds) {
         val result = collection.exists(Filters.eq("name", "Unknown"))
         result.shouldBeFalse()
     }
 
     @Test
-    fun `upsert 존재하지 않는 문서 삽입`() = runTest(timeout = 30.seconds) {
+    fun `upsert 존재하지 않는 문서 삽입`() = runSuspendIO(timeout = 30.seconds) {
         val result = collection.upsert(
             filter = Filters.eq("name", "Frank"),
             update = Updates.combine(
@@ -86,11 +90,12 @@ class MongoCollectionExtensionsTest: AbstractMongoTest() {
         result.upsertedId.shouldNotBeNull()
 
         val doc = collection.findFirst(Filters.eq("name", "Frank"))
+        log.debug { "doc=$doc" }
         doc.shouldNotBeNull()
     }
 
     @Test
-    fun `upsert 존재하는 문서 업데이트`() = runTest(timeout = 30.seconds) {
+    fun `upsert 존재하는 문서 업데이트`() = runSuspendIO(timeout = 30.seconds) {
         val result = collection.upsert(
             filter = Filters.eq("name", "Alice"),
             update = Updates.set("age", 26)
@@ -98,64 +103,77 @@ class MongoCollectionExtensionsTest: AbstractMongoTest() {
         result.matchedCount shouldBeEqualTo 1L
 
         val doc = collection.findFirst(Filters.eq("name", "Alice"))
+        log.debug { "doc=$doc" }
         doc.shouldNotBeNull()
         doc.getInteger("age") shouldBeEqualTo 26
     }
 
     @Test
-    fun `findAsFlow 전체 문서 반환`() = runTest(timeout = 30.seconds) {
+    fun `findAsFlow 전체 문서 반환`() = runSuspendIO(timeout = 30.seconds) {
         val docs = collection.findAsFlow().toList()
-        docs.size shouldBeEqualTo 5
+
+        docs.forEach { log.debug { "doc=$it" } }
+        docs shouldHaveSize 5
     }
 
     @Test
-    fun `findAsFlow 필터 적용`() = runTest(timeout = 30.seconds) {
+    fun `findAsFlow 필터 적용`() = runSuspendIO(timeout = 30.seconds) {
         val docs = collection.findAsFlow(
             filter = Filters.eq("city", "Seoul")
         ).toList()
-        docs.size shouldBeEqualTo 3
+
+        docs.forEach { log.debug { "doc=$it" } }
+        docs shouldHaveSize 3
     }
 
     @Test
-    fun `findAsFlow skip과 limit 적용`() = runTest(timeout = 30.seconds) {
+    fun `findAsFlow skip과 limit 적용`() = runSuspendIO(timeout = 30.seconds) {
         val docs = collection.findAsFlow(
             skip = 2,
             limit = 2
         ).toList()
-        docs.size shouldBeEqualTo 2
+
+        docs.forEach { log.debug { "doc=$it" } }
+        docs shouldHaveSize 2
     }
 
     @Test
-    fun `findAsFlow sort 적용`() = runTest(timeout = 30.seconds) {
+    fun `findAsFlow sort 적용`() = runSuspendIO(timeout = 30.seconds) {
         val docs = collection.findAsFlow(
             sort = Sorts.ascending("age")
         ).toList()
-        docs.size shouldBeEqualTo 5
+
+        docs.forEach { log.debug { "doc=$it" } }
+
+        docs shouldHaveSize 5
         docs.first().getInteger("age") shouldBeEqualTo 22
         docs.last().getInteger("age") shouldBeEqualTo 35
     }
 
     @Test
-    fun `findFirstOrNull 조건에 맞는 문서 반환`() = runTest(timeout = 30.seconds) {
+    fun `findFirstOrNull 조건에 맞는 문서 반환`() = runSuspendIO(timeout = 30.seconds) {
         val doc = collection.findFirstOrNull(Filters.eq("name", "Charlie"))
         doc.shouldNotBeNull()
         doc.getString("name") shouldBeEqualTo "Charlie"
     }
 
     @Test
-    fun `findFirstOrNull 조건에 맞는 문서 없으면 null 반환`() = runTest(timeout = 30.seconds) {
+    fun `findFirstOrNull 조건에 맞는 문서 없으면 null 반환`() = runSuspendIO(timeout = 30.seconds) {
         val doc = collection.findFirstOrNull(Filters.eq("name", "NotExist"))
         doc.shouldBeNull()
     }
 
     @Test
-    fun `findAsFlow 필터와 sort 함께 적용`() = runTest(timeout = 30.seconds) {
+    fun `findAsFlow 필터와 sort 함께 적용`() = runSuspendIO(timeout = 30.seconds) {
         val docs = collection.findAsFlow(
             filter = Filters.eq("city", "Seoul"),
             sort = Sorts.descending("age")
         ).toList()
+
+        docs.forEach { log.debug { "doc=$it" } }
+        
         // Seoul: Alice(25), Charlie(35), Eve(22) — 내림차순: Charlie(35), Alice(25), Eve(22)
-        docs.size shouldBeEqualTo 3
+        docs shouldHaveSize 3
         docs.first().getInteger("age") shouldBeEqualTo 35
         docs.last().getInteger("age") shouldBeEqualTo 22
     }

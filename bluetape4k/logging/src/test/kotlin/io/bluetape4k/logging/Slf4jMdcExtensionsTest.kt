@@ -13,6 +13,7 @@ import org.slf4j.MDC
  * ```
  */
 class Slf4jMdcExtensionsTest {
+
     companion object: KLogging()
 
     @Test

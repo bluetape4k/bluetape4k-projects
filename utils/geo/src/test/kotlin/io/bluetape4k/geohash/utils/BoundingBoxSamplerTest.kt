@@ -1,11 +1,11 @@
 package io.bluetape4k.geohash.utils
 
-import io.bluetape4k.geohash.BoundingBox
-import io.bluetape4k.geohash.GeoHash
-import io.bluetape4k.logging.KLogging
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.assertions.shouldHaveSize
+import io.bluetape4k.geohash.BoundingBox
+import io.bluetape4k.geohash.GeoHash
+import io.bluetape4k.logging.KLogging
 import org.junit.jupiter.api.Test
 
 class BoundingBoxSamplerTest {

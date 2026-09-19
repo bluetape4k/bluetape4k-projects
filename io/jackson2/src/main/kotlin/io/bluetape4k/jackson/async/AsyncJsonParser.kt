@@ -283,7 +283,8 @@ class AsyncJsonParser(
             }
         }
 
-        else                         -> error("Unknown json token $token")
+        else                         ->
+            error("Unknown json token $token")
     }
 
     private fun buildScalarNode(token: JsonToken): ValueNode = when (token) {

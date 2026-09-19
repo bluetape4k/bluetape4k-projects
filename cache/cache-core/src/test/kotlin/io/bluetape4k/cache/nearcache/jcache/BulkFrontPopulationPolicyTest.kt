@@ -2,6 +2,7 @@ package io.bluetape4k.cache.nearcache.jcache
 
 import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.logging.KLogging
 import org.junit.jupiter.api.Test
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
@@ -11,6 +12,8 @@ import java.io.ObjectOutputStream
 import java.io.ObjectStreamClass
 
 class BulkFrontPopulationPolicyTest {
+
+    companion object: KLogging()
 
     @Test
     fun `PopulateIfAtMost는 양수 상한만 허용한다`() {
@@ -47,11 +50,16 @@ class BulkFrontPopulationPolicyTest {
         }
     }
 
-    private fun serialize(value: Any): ByteArray = ByteArrayOutputStream().use { bytes ->
-        ObjectOutputStream(bytes).use { output -> output.writeObject(value) }
-        bytes.toByteArray()
-    }
+    private fun serialize(value: Any): ByteArray =
+        ByteArrayOutputStream().use { bytes ->
+            ObjectOutputStream(bytes).use { output ->
+                output.writeObject(value)
+                bytes.toByteArray()
+            }
+        }
 
     private inline fun <reified T> deserialize(bytes: ByteArray): T =
-        ObjectInputStream(ByteArrayInputStream(bytes)).use { input -> input.readObject() as T }
+        ObjectInputStream(ByteArrayInputStream(bytes)).use { input ->
+            input.readObject() as T
+        }
 }

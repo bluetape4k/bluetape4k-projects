@@ -4,8 +4,8 @@ package io.bluetape4k.hibernate.converters
 
 import io.bluetape4k.codec.decodeBase64ByteArray
 import io.bluetape4k.codec.encodeBase64String
-import io.bluetape4k.io.serializer.BinarySerializer
 import io.bluetape4k.io.serializer.BinarySerializationException
+import io.bluetape4k.io.serializer.BinarySerializer
 import io.bluetape4k.io.serializer.BinarySerializers
 import io.bluetape4k.io.serializer.JdkBinarySerializer
 import jakarta.persistence.AttributeConverter

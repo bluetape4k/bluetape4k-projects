@@ -23,7 +23,7 @@ import org.bson.conversions.Bson
  * @param builder [MutableList]에 스테이지를 추가하는 람다
  * @return 구성된 파이프라인 스테이지 목록
  */
-fun pipeline(builder: MutableList<Bson>.() -> Unit): List<Bson> =
+inline fun pipeline(builder: MutableList<Bson>.() -> Unit): List<Bson> =
     mutableListOf<Bson>().apply(builder)
 
 /**

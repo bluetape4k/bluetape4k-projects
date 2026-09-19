@@ -29,5 +29,5 @@ abstract class IntJpaTreeEntity<T>: AbstractJpaTreeEntity<T, Int>() where T: Jpa
     override var parent: T? = null
 
     @OneToMany(mappedBy = "parent", cascade = [CascadeType.ALL], fetch = FetchType.LAZY)
-    override val children: MutableSet<T> = mutableSetOf()
+    override var children: MutableSet<T> = mutableSetOf()
 }

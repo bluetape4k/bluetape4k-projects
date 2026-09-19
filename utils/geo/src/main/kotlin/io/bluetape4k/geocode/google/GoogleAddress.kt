@@ -31,6 +31,10 @@ class GoogleAddress(
     val formattedAddress: String? = null,
 ): Address(country, city) {
 
+    companion object {
+        private const val serialVersionUID = 1L
+    }
+
     override fun buildStringHelper(): ToStringBuilder {
         return super.buildStringHelper()
             .add("placeId", placeId)

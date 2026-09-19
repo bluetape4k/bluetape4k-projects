@@ -13,7 +13,7 @@ import org.testcontainers.containers.GenericContainer
 import org.testcontainers.containers.wait.strategy.HttpWaitStrategy
 import org.testcontainers.utility.DockerImageName
 import java.time.Duration
-import java.util.Base64
+import java.util.*
 
 /**
  * integration test를 위해 Docker에서 [Grafana](https://grafana.com/) server를 실행합니다.

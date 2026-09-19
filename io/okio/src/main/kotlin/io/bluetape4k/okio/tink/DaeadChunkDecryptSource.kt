@@ -179,9 +179,8 @@ class DaeadChunkDecryptSource(
         while (buffer.size < byteCount) {
             val bytesRead = super.read(buffer, byteCount - buffer.size)
             when {
-                bytesRead < 0L -> {
+                bytesRead < 0L ->
                     throw EOFException("Truncated DAEAD chunk. expected=$byteCount actual=${buffer.size}")
-                }
 
                 bytesRead == 0L -> {
                     noProgressCount++

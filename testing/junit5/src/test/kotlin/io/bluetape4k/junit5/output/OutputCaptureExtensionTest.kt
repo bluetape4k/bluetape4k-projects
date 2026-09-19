@@ -1,8 +1,8 @@
 package io.bluetape4k.junit5.output
 
-import io.bluetape4k.logging.KLogging
 import io.bluetape4k.assertions.shouldContain
 import io.bluetape4k.assertions.shouldNotContain
+import io.bluetape4k.logging.KLogging
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.MethodOrderer

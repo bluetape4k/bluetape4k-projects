@@ -3,6 +3,7 @@ package io.bluetape4k.csv.internal
 import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.csv.CsvSettings
+import io.bluetape4k.logging.KLogging
 import io.bluetape4k.utils.Resourcex
 import okio.buffer
 import okio.source
@@ -10,6 +11,8 @@ import org.junit.jupiter.api.Test
 import kotlin.text.Charsets.UTF_8
 
 class OkioCsvLexerTest {
+
+    companion object: KLogging()
 
     @Test
     fun `Okio lexer matches Reader lexer for RFC4180 records`() {

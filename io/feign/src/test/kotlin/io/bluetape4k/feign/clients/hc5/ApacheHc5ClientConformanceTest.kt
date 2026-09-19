@@ -5,26 +5,29 @@ import feign.Client
 import feign.Request
 import feign.hc5.ApacheHttp5Client
 import feign.hc5.AsyncApacheHttp5Client
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeNull
 import io.bluetape4k.feign.clients.FeignAsyncClientConformanceTest
 import io.bluetape4k.feign.clients.FeignSyncClientConformanceTest
+import io.bluetape4k.feign.feignRequestOf
 import io.bluetape4k.http.hc5.async.httpAsyncClientOf
 import io.bluetape4k.http.hc5.classic.httpClientOf
-import io.bluetape4k.assertions.shouldBeNull
-import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.feign.feignRequestOf
+import io.bluetape4k.logging.KLogging
 import io.bluetape4k.support.closeSafe
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
 import okhttp3.mockwebserver.SocketPolicy
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient
+import org.apache.hc.client5.http.protocol.HttpClientContext
+import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.ValueSource
-import org.junit.jupiter.api.AfterEach
-import org.apache.hc.client5.http.impl.classic.CloseableHttpClient
-import java.util.concurrent.TimeUnit
-import org.apache.hc.client5.http.protocol.HttpClientContext
 import java.util.*
+import java.util.concurrent.TimeUnit
 
 class ApacheHc5ClientConformanceTest: FeignSyncClientConformanceTest() {
+
+    companion object: KLogging()
 
     private lateinit var transport: CloseableHttpClient
 
@@ -47,10 +50,17 @@ class ApacheHc5ClientConformanceTest: FeignSyncClientConformanceTest() {
                     .setHeader("Content-Length", length)
                     .setSocketPolicy(SocketPolicy.DISCONNECT_AT_END)
             )
+
             httpClientOf().use { transport ->
                 val response = ApacheHttp5Client(transport).execute(
                     feignRequestOf(server.url("/").toString()),
-                    Request.Options(1, TimeUnit.SECONDS, 2, TimeUnit.SECONDS, true)
+                    Request.Options(
+                        1,
+                        TimeUnit.SECONDS,
+                        2,
+                        TimeUnit.SECONDS,
+                        true
+                    )
                 )
                 try {
                     response.status() shouldBeEqualTo 200
@@ -65,6 +75,8 @@ class ApacheHc5ClientConformanceTest: FeignSyncClientConformanceTest() {
 }
 
 class ApacheHc5AsyncClientConformanceTest: FeignAsyncClientConformanceTest<HttpClientContext>() {
+
+    companion object: KLogging()
 
     override fun newAsyncClient(): AsyncClient<HttpClientContext> =
         AsyncApacheHttp5Client(httpAsyncClientOf())

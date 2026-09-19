@@ -1,12 +1,12 @@
 package io.bluetape4k.javatimes
 
-import io.bluetape4k.logging.KLogging
-import io.bluetape4k.logging.debug
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeFalse
 import io.bluetape4k.assertions.shouldBeGreaterThan
 import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.assertions.shouldNotBeNull
+import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.debug
 import org.junit.jupiter.api.Test
 import java.time.DayOfWeek
 import java.time.LocalDate
@@ -91,7 +91,15 @@ class ZonedDateTimeSupportTest {
     @Test
     fun `day 시간 속성 확인`() {
         zonedDateTimeOf(2021, 1, 1, 12, 30, 45).secondsOfDay shouldBeEqualTo (12 * 3600 + 30 * 60 + 45)
-        zonedDateTimeOf(2021, 1, 1, 12, 30, 45, nanoOfSecond = 123_000_000).millisOfDay shouldBeEqualTo (12 * 3600 + 30 * 60 + 45) * 1000 + 123
+        zonedDateTimeOf(
+            2021,
+            1,
+            1,
+            12,
+            30,
+            45,
+            nanoOfSecond = 123_000_000
+        ).millisOfDay shouldBeEqualTo (12 * 3600 + 30 * 60 + 45) * 1000 + 123
         zonedDateTimeOf(2021, 1, 1, 1, 0, 0).nanoOfDay shouldBeEqualTo 3600_000_000_000L
     }
 

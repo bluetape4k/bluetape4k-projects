@@ -1,6 +1,5 @@
 package io.bluetape4k.math.commons
 
-import io.bluetape4k.collections.toDoubleArray
 import org.apache.commons.math3.stat.ranking.NaNStrategy
 import org.apache.commons.math3.stat.ranking.NaturalRanking
 import org.apache.commons.math3.stat.ranking.TiesStrategy

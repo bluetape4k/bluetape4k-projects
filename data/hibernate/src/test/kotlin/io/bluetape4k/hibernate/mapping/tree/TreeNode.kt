@@ -1,7 +1,6 @@
 package io.bluetape4k.hibernate.mapping.tree
 
 import io.bluetape4k.ToStringBuilder
-import io.bluetape4k.hibernate.model.AbstractJpaTreeEntity
 import io.bluetape4k.hibernate.model.LongJpaTreeEntity
 import io.bluetape4k.support.requireNotBlank
 import jakarta.persistence.Entity

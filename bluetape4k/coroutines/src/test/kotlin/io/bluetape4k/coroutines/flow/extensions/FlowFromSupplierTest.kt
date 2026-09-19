@@ -2,18 +2,19 @@ package io.bluetape4k.coroutines.flow.extensions
 
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.Test
 
 class FlowFromSupplierTest {
 
+    companion object: KLoggingChannel()
+
     @Test
     fun `supplier failure propagates`() = runTest {
         val flow = flowFromSupplier { error("boom") }
-
         val result = runCatching { flow.toList() }
-
         result.isFailure.shouldBeTrue()
         result.exceptionOrNull()?.message shouldBeEqualTo "boom"
     }
@@ -21,7 +22,6 @@ class FlowFromSupplierTest {
     @Test
     fun `supplier value is emitted once`() = runTest {
         val flow = flowFromSupplier { 42 }
-
         flow.toList() shouldBeEqualTo listOf(42)
     }
 }

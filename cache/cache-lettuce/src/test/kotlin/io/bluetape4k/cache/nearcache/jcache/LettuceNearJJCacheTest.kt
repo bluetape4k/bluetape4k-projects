@@ -1,9 +1,9 @@
 package io.bluetape4k.cache.nearcache.jcache
 
+import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.cache.LettuceCaches
 import io.bluetape4k.cache.RedisServers
 import io.bluetape4k.cache.jcache.JCache
-import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.cache.nearcache.jcache.NearJCacheClearAuthority.EXCLUSIVE_BACK_CACHE
 import io.bluetape4k.logging.KLogging
 import org.junit.jupiter.api.Test
@@ -30,7 +30,9 @@ class LettuceNearJJCacheTest: AbstractNearJCacheTest() {
         }
 
         try {
-            assertFailsWith<SecurityException> { nearCache.clear() }
+            assertFailsWith<SecurityException> {
+                nearCache.clear()
+            }
         } finally {
             nearCache.close()
         }

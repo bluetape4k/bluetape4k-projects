@@ -2,8 +2,7 @@
 
 [English](./README.md) | [한국어](./README.ko.md)
 
-JDK 25 adapter for immutable `TenantId` propagation in Reactor subscriber `Context`. It installs no
-default tenant, global hook, or automatic context propagation.
+JDK 25 adapter for immutable `TenantId` propagation in Reactor subscriber `Context`. It installs no default tenant, global hook, or automatic context propagation.
 
 ## Dependency and snapshot repository
 
@@ -24,8 +23,7 @@ dependencies {
 
 ## Usage and lifecycle
 
-Bind once at the subscription boundary and read explicitly from `deferContextual`. `withTenant` returns
-a derived immutable `Context` and does not mutate its input.
+Bind once at the subscription boundary and read explicitly from `deferContextual`. `withTenant` returns a derived immutable `Context` and does not mutate its input.
 
 ```kotlin
 val result = Mono.deferContextual { context ->
@@ -35,16 +33,9 @@ val result = Mono.deferContextual { context ->
 }
 ```
 
-Do not call `Context.put` per signal. This adapter installs no Reactor `Hooks`, automatic propagation,
-or coroutine `ReactorContext` bridge. Cancellation ends the subscriber-local lifecycle without copying
-the tenant into an outer context. Missing context throws the common `MissingTenantContextException`;
-there is no fallback.
+Do not call `Context.put` per signal. This adapter installs no Reactor `Hooks`, automatic propagation, or coroutine `ReactorContext` bridge. Cancellation ends the subscriber-local lifecycle without copying the tenant into an outer context. Missing context throws the common `MissingTenantContextException`; there is no fallback.
 
-Authenticate raw headers/tokens and map them to a canonical application enum/domain value first. Never
-put raw tenant data in logs, exceptions, MDC, or metric tags; only synthetic fixtures may print values.
-An optional `tenant_context_binding_failures_total{carrier,stage}` metric uses enum-only labels and
-existing correlation/trace IDs. Any occurrence in five minutes is a wiring alert owned by the workshop
-maintainer and the SNAPSHOT-train release coordinator.
+Authenticate raw headers/tokens and map them to a canonical application enum/domain value first. Never put raw tenant data in logs, exceptions, MDC, or metric tags; only synthetic fixtures may print values. An optional `tenant_context_binding_failures_total{carrier,stage}` metric uses enum-only labels and existing correlation/trace IDs. Any occurrence in five minutes is a wiring alert owned by the workshop maintainer and the SNAPSHOT-train release coordinator.
 
 ## Unsupported boundaries
 

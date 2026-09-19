@@ -58,6 +58,7 @@ class DaeadChunkEncryptSinkTest: AbstractTinkEncryptTest() {
         }
 
         val framed = encrypted.clone()
+
         while (framed.size > 0L) {
             framed.readByte()
             val ciphertextLength = framed.readLong()

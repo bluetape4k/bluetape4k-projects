@@ -45,10 +45,12 @@ class ObjectAsByteArrayConverterTest {
             LZ4JdkObjectAsByteArrayConverter(),
             SnappyJdkObjectAsByteArrayConverter(),
             ZstdJdkObjectAsByteArrayConverter(),
+
             KryoObjectAsByteArrayConverter(),
             LZ4KryoObjectAsByteArrayConverter(),
             SnappyKryoObjectAsByteArrayConverter(),
             ZstdKryoObjectAsByteArrayConverter(),
+
             ForyObjectAsByteArrayConverter(),
             LZ4ForyObjectAsByteArrayConverter(),
             SnappyForyObjectAsByteArrayConverter(),
@@ -99,10 +101,9 @@ class ObjectAsByteArrayConverterTest {
     fun `객체를 직렬화하고 역직렬화한다`(converter: AttributeConverter<Any?, ByteArray?>) {
         val original = SampleData("test", 42, listOf("tag1", "tag2"))
 
-        val serialized = converter.convertToDatabaseColumn(original)
-        serialized.shouldNotBeNull()
+        val serialized = converter.convertToDatabaseColumn(original).shouldNotBeNull()
+        val deserialized = converter.convertToEntityAttribute(serialized).shouldNotBeNull()
 
-        val deserialized = converter.convertToEntityAttribute(serialized)
         deserialized shouldBeEqualTo original
     }
 
@@ -119,10 +120,9 @@ class ObjectAsByteArrayConverterTest {
         val inner = SampleData("inner", 10)
         val outer = SampleData("outer", 20, listOf(inner.name))
 
-        val serialized = converter.convertToDatabaseColumn(outer)
-        serialized.shouldNotBeNull()
-
-        val deserialized = converter.convertToEntityAttribute(serialized)
+        val serialized = converter.convertToDatabaseColumn(outer).shouldNotBeNull()
+        val deserialized = converter.convertToEntityAttribute(serialized).shouldNotBeNull()
+        
         deserialized shouldBeEqualTo outer
     }
 
@@ -131,10 +131,9 @@ class ObjectAsByteArrayConverterTest {
     fun `빈 컬렉션을 가진 객체를 직렬화하고 역직렬화한다`(converter: AttributeConverter<Any?, ByteArray?>) {
         val obj = SampleData("empty-tags", 0, emptyList())
 
-        val serialized = converter.convertToDatabaseColumn(obj)
-        serialized.shouldNotBeNull()
-
-        val deserialized = converter.convertToEntityAttribute(serialized)
+        val serialized = converter.convertToDatabaseColumn(obj).shouldNotBeNull()
+        val deserialized = converter.convertToEntityAttribute(serialized).shouldNotBeNull()
+        
         deserialized shouldBeEqualTo obj
     }
 
@@ -143,10 +142,9 @@ class ObjectAsByteArrayConverterTest {
     fun `한국어 문자열을 포함한 객체를 직렬화하고 역직렬화한다`(converter: AttributeConverter<Any?, ByteArray?>) {
         val obj = SampleData("한국어이름", 99, listOf("태그1", "태그2"))
 
-        val serialized = converter.convertToDatabaseColumn(obj)
-        serialized.shouldNotBeNull()
-
-        val deserialized = converter.convertToEntityAttribute(serialized)
+        val serialized = converter.convertToDatabaseColumn(obj).shouldNotBeNull()
+        val deserialized = converter.convertToEntityAttribute(serialized).shouldNotBeNull()
+        
         deserialized shouldBeEqualTo obj
     }
 
@@ -163,7 +161,10 @@ class ObjectAsByteArrayConverterTest {
     fun `typed byte array converter rejects unexpected deserialized type`() {
         val unsafeConverter = JdkObjectAsByteArrayConverter()
         val typedConverter = TypedSampleAsByteArrayConverter()
-        val payload = unsafeConverter.convertToDatabaseColumn(UnexpectedData("unexpected"))
+
+        val payload = unsafeConverter
+            .convertToDatabaseColumn(UnexpectedData("unexpected"))
+            .shouldNotBeNull()
 
         assertFailsWith<BinarySerializationException> {
             typedConverter.convertToEntityAttribute(payload)
@@ -174,7 +175,9 @@ class ObjectAsByteArrayConverterTest {
     fun `secure Kryo typed byte array converter rejects disallowed payload`() {
         val unsafeConverter = KryoObjectAsByteArrayConverter()
         val typedConverter = SecureKryoSampleAsByteArrayConverter()
-        val payload = unsafeConverter.convertToDatabaseColumn(UnexpectedData("unexpected"))
+        val payload = unsafeConverter
+            .convertToDatabaseColumn(UnexpectedData("unexpected"))
+            .shouldNotBeNull()
 
         assertFailsWith<BinarySerializationException> {
             typedConverter.convertToEntityAttribute(payload)
@@ -185,7 +188,9 @@ class ObjectAsByteArrayConverterTest {
     fun `secure Fory typed byte array converter rejects disallowed payload`() {
         val unsafeConverter = ForyObjectAsByteArrayConverter()
         val typedConverter = SecureForySampleAsByteArrayConverter()
-        val payload = unsafeConverter.convertToDatabaseColumn(UnexpectedData("unexpected"))
+        val payload = unsafeConverter
+            .convertToDatabaseColumn(UnexpectedData("unexpected"))
+            .shouldNotBeNull()
 
         assertFailsWith<BinarySerializationException> {
             typedConverter.convertToEntityAttribute(payload)

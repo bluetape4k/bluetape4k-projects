@@ -11,7 +11,7 @@ internal fun interface TileBatchWriter {
 }
 
 /** PostGIS geometry와 JSONB를 typed placeholder로 기록하는 JDBC 구현입니다. */
-internal class JdbcTileBatchWriter : TileBatchWriter {
+internal class JdbcTileBatchWriter: TileBatchWriter {
 
     override fun write(connection: Connection, rows: List<TileRow>): BatchWriteResult {
         if (rows.isEmpty()) return BatchWriteResult(0, 0)
@@ -116,12 +116,14 @@ internal class JdbcTileBatchWriter : TileBatchWriter {
              AND n.variable_name = i.variable_name
              AND n.time_idx = i.time_idx
              AND n.level_idx = i.level_idx
-             AND ${if (spatial) {
-            "i.longitude IS NOT NULL AND n.location IS NOT NULL " +
-                "AND ST_X(n.location) = i.longitude AND ST_Y(n.location) = i.latitude"
-        } else {
-            "i.longitude IS NULL AND n.location IS NULL"
-        }}
+             AND ${
+            if (spatial) {
+                "i.longitude IS NOT NULL AND n.location IS NOT NULL " +
+                        "AND ST_X(n.location) = i.longitude AND ST_Y(n.location) = i.latitude"
+            } else {
+                "i.longitude IS NULL AND n.location IS NULL"
+            }
+        }
             ORDER BY i.ordinal
         """.trimIndent()
         connection.prepareStatement(sql).use { statement ->

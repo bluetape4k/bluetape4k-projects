@@ -2,7 +2,6 @@ package io.bluetape4k.junit5.faker
 
 import com.fasterxml.uuid.Generators
 import com.fasterxml.uuid.NoArgGenerator
-import io.bluetape4k.junit5.faker.Fakers.faker
 import io.bluetape4k.logging.KLogging
 import net.datafaker.Faker
 import net.datafaker.service.RandomService

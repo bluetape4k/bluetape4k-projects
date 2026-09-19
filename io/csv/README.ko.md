@@ -210,7 +210,7 @@ val reader = csvReader {
 }
 reader.read(inputStream, skipHeaders = true).collect { row ->
     val name = row.getString("name")
-    val age  = row.getInt("age")
+    val age = row.getInt("age")
 }
 
 // TSV (delimiter는 항상 '\t'로 강제)
@@ -247,7 +247,7 @@ import io.bluetape4k.csv.v2.toCsvRow
 // V1 Record → V2 CsvRow (public)
 val csvRow: CsvRow = record.toCsvRow()
 val name = csvRow.getString("name")
-val age  = csvRow.getInt("age", default = 0)
+val age = csvRow.getInt("age", default = 0)
 ```
 
 ## 모듈 구조

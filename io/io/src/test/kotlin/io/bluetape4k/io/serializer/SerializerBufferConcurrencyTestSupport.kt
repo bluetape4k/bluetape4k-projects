@@ -57,8 +57,8 @@ internal fun verifySerializerBufferConcurrency(
                     .toList()
             fail<Unit>(
                 "Serializer buffer executor did not terminate; " +
-                    "unfinished=${unfinished.sorted().take(MAX_DIAGNOSTICS)}, " +
-                    "threads=$threadNames",
+                        "unfinished=${unfinished.sorted().take(MAX_DIAGNOSTICS)}, " +
+                        "threads=$threadNames",
             )
         }
     }

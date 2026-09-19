@@ -1,18 +1,20 @@
 package io.bluetape4k.hibernate.querydsl.simple
 
+import com.querydsl.core.Tuple
 import com.querydsl.core.types.Projections
 import com.querydsl.jpa.HQLTemplates
 import com.querydsl.jpa.impl.JPAQuery
 import com.querydsl.jpa.impl.JPAQueryFactory
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldHaveSize
+import io.bluetape4k.assertions.shouldNotBeNull
 import io.bluetape4k.hibernate.AbstractHibernateTest
+import io.bluetape4k.hibernate.querydsl.core.getAs
 import io.bluetape4k.hibernate.querydsl.core.inValues
 import io.bluetape4k.hibernate.querydsl.core.stringExpressionOf
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.trace
-import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldHaveSize
-import io.bluetape4k.assertions.shouldNotBeEmpty
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 
@@ -27,7 +29,8 @@ class SimpleQuerydslExamples: AbstractHibernateTest() {
         parent1.children.add(child1)
         val parent2 = ExampleEntity("example-2")
 
-        listOf(parent1, parent2).forEach { tem.persist(it) }
+        tem.persist(parent1)
+        tem.persist(parent2)
         flushAndClear()
     }
 
@@ -45,11 +48,11 @@ class SimpleQuerydslExamples: AbstractHibernateTest() {
         log.debug { "query=$query" }
 
         val results = query.fetch()
-        results.shouldNotBeEmpty()
         results shouldHaveSize 1
-        val tuple = results.first()
-        tuple.get(0, String::class.java) shouldBeEqualTo "example-1"
-        tuple.get(1, String::class.java) shouldBeEqualTo "child-1"
+
+        val tuple: Tuple = results.first().shouldNotBeNull()
+        tuple.getAs<String>(0) shouldBeEqualTo "example-1"
+        tuple.getAs<String>(1) shouldBeEqualTo "child-1"
     }
 
     @Test
@@ -66,11 +69,11 @@ class SimpleQuerydslExamples: AbstractHibernateTest() {
         log.debug { "query=$query" }
 
         val results = query.fetch()
-        results.shouldNotBeEmpty()
         results shouldHaveSize 1
+
         val tuple = results.first()
-        tuple.get(0, String::class.java) shouldBeEqualTo "example-1"
-        tuple.get(1, String::class.java) shouldBeEqualTo "child-1"
+        tuple.getAs<String>(0) shouldBeEqualTo "example-1"
+        tuple.getAs<String>(1) shouldBeEqualTo "child-1"
     }
 
     @Test

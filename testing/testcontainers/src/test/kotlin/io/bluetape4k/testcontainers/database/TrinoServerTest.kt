@@ -1,16 +1,16 @@
 package io.bluetape4k.testcontainers.database
 
+import io.bluetape4k.assertions.assertFailsWith
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import io.bluetape4k.testcontainers.AbstractContainerTest
-import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldBeTrue
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
 import java.sql.DriverManager
-import io.bluetape4k.assertions.assertFailsWith
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class TrinoServerTest: AbstractContainerTest() {
@@ -27,7 +27,7 @@ class TrinoServerTest: AbstractContainerTest() {
 
     @AfterAll
     fun afterAll() {
-        if(this::trinoServer.isInitialized && trinoServer.isRunning) {
+        if (this::trinoServer.isInitialized && trinoServer.isRunning) {
             trinoServer.close()
         }
     }

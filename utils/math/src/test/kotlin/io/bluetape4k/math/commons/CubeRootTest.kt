@@ -11,6 +11,7 @@ class CubeRootTest {
 
     companion object: KLogging() {
         private const val REPEAT_SIZE = 10
+        private const val EPSILON = 1e-5
     }
 
     @Test
@@ -31,7 +32,7 @@ class CubeRootTest {
     fun `cube root for random double values`() {
         repeat(REPEAT_SIZE * 100) {
             val value = Random.nextDouble(-100.0, 100.0)
-            cubeRoot(value.pow(3.0)).approximateEqual(value, 1e-5).shouldBeTrue()
+            cubeRoot(value.pow(3.0)).approximateEqual(value, EPSILON).shouldBeTrue()
         }
     }
 }

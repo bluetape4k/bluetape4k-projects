@@ -67,7 +67,7 @@ class InputStreamSource(
             val length = byteCount.coerceAtMost(Int.MAX_VALUE.toLong()).toInt()
 
             cursor.expandBuffer(length)
-            val read = input.read(cursor.data, cursor.start, length)
+            val read = input.read(cursor.data!!, cursor.start, length)
             log.debug { "InputStream의 ${cursor.start} 위치로부터 $read bytes 를 읽었습니다." }
 
             return if (read > 0) {

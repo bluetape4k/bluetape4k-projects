@@ -1,15 +1,18 @@
 package io.bluetape4k.hibernate.listeners
 
-import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.logging.KLogging
 import org.junit.jupiter.api.Test
 
 class HibernateEntityListenerTest {
+
+    companion object: KLogging()
 
     private val listener = HibernateEntityListener()
 
     @Test
     fun `requiresPostCommitHandling는 true를 반환한다`() {
-        listener.requiresPostCommitHandling(null) shouldBeEqualTo true
+        listener.requiresPostCommitHandling(null).shouldBeTrue()
     }
 
     @Test

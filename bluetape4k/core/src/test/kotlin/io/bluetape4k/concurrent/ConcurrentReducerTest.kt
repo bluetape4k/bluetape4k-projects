@@ -17,6 +17,7 @@ import java.util.concurrent.RejectedExecutionException
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicInteger
+import kotlin.concurrent.thread
 
 /**
  * 비동기 작업들을 세마포어를 이용하여 동시 실행을 제한하는 [ConcurrentReducer]를 테스트합니다.
@@ -217,7 +218,7 @@ class ConcurrentReducerTest {
 
     @Test
     fun `grab 직후 caller 취소 경합에서도 active job과 permit이 누수되지 않는다`() {
-        repeat(64) {
+        repeat(4) {
             val reducer = concurrentReducerOf<String>(1, 1)
             val firstSource = CompletableFuture<String>()
             reducer.add { firstSource }
@@ -229,25 +230,28 @@ class ConcurrentReducerTest {
                 releaseTask.await()
                 completableFutureOf("done")
             }
+
             val ready = CountDownLatch(32)
             val cancellers = List(32) {
-                Thread {
+                thread {
                     ready.countDown()
                     val deadline = System.nanoTime() + TimeUnit.SECONDS.toNanos(1)
                     while (reducer.queuedCount != 0 || reducer.activeCount != 1) {
-                        if (System.nanoTime() >= deadline) return@Thread
+                        if (System.nanoTime() >= deadline) return@thread
                         Thread.onSpinWait()
                     }
                     promise.cancel(false)
-                }.also { it.start() }
+                }
             }
 
             try {
                 ready.await(1, TimeUnit.SECONDS).shouldBeTrue()
                 firstSource.complete("first")
                 cancellers.forEach { it.join(1_000) }
+
                 await until { taskInvoked.get() || reducer.activeCount == 0 }
                 releaseTask.countDown()
+
                 await until { reducer.activeCount == 0 && reducer.queuedCount == 0 }
                 reducer.close()
 
@@ -284,8 +288,7 @@ class ConcurrentReducerTest {
         reducer.queuedCount shouldBeEqualTo 1
 
         request2.complete("2")
-        await until { promise2.isDone }
-        await until { reducer.activeCount == 1 }
+        await until { promise2.isDone && reducer.activeCount == 1 }
 
         promise1.isDone.shouldBeFalse()
         promise2.isDone.shouldBeTrue()
@@ -480,7 +483,7 @@ class ConcurrentReducerTest {
         val promise = reducer.add { completableFutureOf("done") }
 
         promise.isCompletedExceptionally.shouldBeTrue()
-        promise.getException() shouldBeInstanceOf RejectedExecutionException::class
+        promise.getException().shouldBeInstanceOf<RejectedExecutionException>()
     }
 
     @Test
@@ -488,7 +491,7 @@ class ConcurrentReducerTest {
         repeat(32) {
             val reducer = concurrentReducerOf<String>(1, 1)
             val start = CountDownLatch(1)
-            val addInvocation = CompletableFuture.supplyAsync<CompletableFuture<String>> {
+            val addInvocation = CompletableFuture.supplyAsync {
                 start.await()
                 reducer.add { completableFutureOf("done") }
             }

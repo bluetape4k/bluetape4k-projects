@@ -78,7 +78,7 @@ class ChannelSupportTest {
 
     @Test
     fun `distinct until changed by equal operator preserves nullable first value`() = runTest {
-        val channel = produce<String?> {
+        val channel = produce {
             send(null)
             send("a")
         }

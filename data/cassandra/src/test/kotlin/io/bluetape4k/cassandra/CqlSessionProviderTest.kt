@@ -5,6 +5,7 @@ import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldNotBeEqualTo
 import io.bluetape4k.logging.coroutines.KLoggingChannel
+import io.bluetape4k.logging.debug
 import io.bluetape4k.support.closeSafe
 import org.junit.jupiter.api.Test
 import java.net.InetSocketAddress
@@ -77,8 +78,9 @@ class CqlSessionProviderTest: AbstractCassandraTest() {
             withApplicationName("provider-test-bootstrap")
         }
 
-        session.keyspace.orElseThrow().asInternal() shouldBeEqualTo sessionIdentity.keyspace
+        log.debug { "keyspace=${session.keyspace}" }
 
+        session.keyspace.orElseThrow().asInternal() shouldBeEqualTo sessionIdentity.keyspace
         session.closeSafe()
     }
 
@@ -125,6 +127,7 @@ class CqlSessionProviderTest: AbstractCassandraTest() {
             bootstrapBuilder = { withApplicationName("provider-identity-bootstrap") },
             sessionBuilder = { withApplicationName("provider-identity-session") }
         )
+        log.debug { "keyspace=${session.keyspace}" }
 
         session.keyspace.orElseThrow().asInternal() shouldBeEqualTo identity.keyspace
         session.closeSafe()
@@ -146,6 +149,7 @@ class CqlSessionProviderTest: AbstractCassandraTest() {
             bootstrapBuilder = { withApplicationName("provider-split-bootstrap") },
             sessionBuilder = { withApplicationName("provider-split-session") }
         )
+        log.debug { "keyspace=${session.keyspace}" }
 
         session.keyspace.orElseThrow().asInternal() shouldBeEqualTo keyspace
         session.closeSafe()
@@ -168,10 +172,9 @@ class CqlSessionProviderTest: AbstractCassandraTest() {
     }
 
     @Test
-    @Suppress("DEPRECATION")
     fun `legacy identity factory delegates to normalized context`() {
-        val identity = CqlSessionIdentity.of("identity_factory", listOf(" b ", "a", ""))
-
+        val identity = cqlSessionIdentityOf("identity_factory", listOf(" b ", "a", ""))
+        log.debug { "identity=${identity}" }
         identity.keyspace shouldBeEqualTo "identity_factory"
         identity.context shouldBeEqualTo "a|b"
     }

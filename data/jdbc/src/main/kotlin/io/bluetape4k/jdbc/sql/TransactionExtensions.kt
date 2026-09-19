@@ -255,7 +255,7 @@ inline fun <T> Connection.withReadOnly(block: (Connection) -> T): T {
  * ```
  *
  * @param T 결과 타입
- * @param holdability 커서 홀더빌리티 설정값 ([ResultSet.HOLD_CURSORS_OVER_COMMIT] 또는 [ResultSet.CLOSE_CURSORS_AT_COMMIT])
+ * @param holdability 커서 홀더빌리티 설정값 ([java.sql.ResultSet.HOLD_CURSORS_OVER_COMMIT] 또는 [java.sql.ResultSet.CLOSE_CURSORS_AT_COMMIT])
  * @param block 실행할 코드 블록
  * @return 블록의 실행 결과
  */

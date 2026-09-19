@@ -1,14 +1,14 @@
 package io.bluetape4k.testcontainers.aws.floci.services
 
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeGreaterOrEqualTo
+import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.assertions.shouldNotBeNull
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import io.bluetape4k.testcontainers.aws.floci.AbstractFlociServiceTest
 import io.bluetape4k.testcontainers.aws.getCredentialProvider
 import io.bluetape4k.utils.ShutdownQueue
-import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldBeGreaterOrEqualTo
-import io.bluetape4k.assertions.shouldBeTrue
-import io.bluetape4k.assertions.shouldNotBeNull
 import org.awaitility.kotlin.atMost
 import org.awaitility.kotlin.await
 import org.awaitility.kotlin.until
@@ -30,9 +30,9 @@ import java.time.Duration
  * LocalStack 기반 [io.bluetape4k.testcontainers.aws.localstack.services.KinesisTest]에 대응합니다.
  */
 @TestMethodOrder(MethodOrderer.OrderAnnotation::class)
-class FlociKinesisTest : AbstractFlociServiceTest() {
+class FlociKinesisTest: AbstractFlociServiceTest() {
 
-    companion object : KLogging() {
+    companion object: KLogging() {
         private val STREAM_NAME = "test-stream-${System.currentTimeMillis()}"
     }
 

@@ -1,5 +1,8 @@
 package io.bluetape4k.rule.core
 
+import io.bluetape4k.assertions.assertFailsWith
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldNotBeNull
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.rule.annotation.Action
 import io.bluetape4k.rule.annotation.Condition
@@ -8,10 +11,7 @@ import io.bluetape4k.rule.annotation.Priority
 import io.bluetape4k.rule.annotation.Rule
 import io.bluetape4k.rule.api.Facts
 import io.bluetape4k.rule.exception.InvalidRuleDefinitionException
-import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldNotBeNull
 import org.junit.jupiter.api.Test
-import io.bluetape4k.assertions.assertFailsWith
 
 class RuleDefinitionValidatorTest {
 
@@ -25,7 +25,8 @@ class RuleDefinitionValidatorTest {
         fun check(): Boolean = true
 
         @Action
-        fun doAction() {}
+        fun doAction() {
+        }
     }
 
     @Rule(name = "factParamRule")
@@ -45,7 +46,8 @@ class RuleDefinitionValidatorTest {
         fun check(@Fact("score") score: Int): Boolean = score >= 60
 
         @Action
-        fun execute(@Fact("result") result: String?) {}
+        fun execute(@Fact("result") result: String?) {
+        }
     }
 
     @Rule(name = "priorityRule")
@@ -54,7 +56,8 @@ class RuleDefinitionValidatorTest {
         fun check(): Boolean = true
 
         @Action
-        fun doAction() {}
+        fun doAction() {
+        }
 
         @Priority
         fun myPriority(): Int = 10
@@ -65,13 +68,15 @@ class RuleDefinitionValidatorTest {
         fun check(): Boolean = true
 
         @Action
-        fun doAction() {}
+        fun doAction() {
+        }
     }
 
     @Rule(name = "noConditionRule")
     class NoConditionRule {
         @Action
-        fun doAction() {}
+        fun doAction() {
+        }
     }
 
     @Rule(name = "noActionRule")
@@ -89,7 +94,8 @@ class RuleDefinitionValidatorTest {
         fun check2(): Boolean = false
 
         @Action
-        fun doAction() {}
+        fun doAction() {
+        }
     }
 
     @Rule(name = "invalidPriorityRule")
@@ -98,7 +104,8 @@ class RuleDefinitionValidatorTest {
         fun check(): Boolean = true
 
         @Action
-        fun doAction() {}
+        fun doAction() {
+        }
 
         @Priority
         fun priority(extra: Int): Int = 0 // invalid: has params
@@ -159,4 +166,3 @@ class RuleDefinitionValidatorTest {
         annotation.name shouldBeEqualTo "validRule"
     }
 }
-

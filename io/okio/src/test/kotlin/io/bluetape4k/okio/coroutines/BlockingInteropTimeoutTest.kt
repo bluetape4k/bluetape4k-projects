@@ -7,7 +7,6 @@ import io.bluetape4k.okio.AbstractOkioTest
 import kotlinx.coroutines.async
 import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.supervisorScope
 import kotlinx.coroutines.withTimeout
 import okio.Buffer
 import okio.Sink
@@ -81,15 +80,15 @@ class BlockingInteropTimeoutTest: AbstractOkioTest() {
             override fun timeout(): Timeout = Timeout.NONE
         }.asSuspended()
 
-        supervisorScope {
-            val job = async {
+        val job = async {
+            assertFailsWith<InterruptedIOException> {
                 suspended.read(Buffer(), 1L)
             }
+        }
 
-            started.await(1, TimeUnit.SECONDS).shouldBeTrue()
-            withTimeout(1.seconds) {
-                job.cancelAndJoin()
-            }
+        started.await(1, TimeUnit.SECONDS).shouldBeTrue()
+        withTimeout(1.seconds) {
+            job.cancelAndJoin()
         }
 
         interrupted.get().shouldBeTrue()
@@ -115,15 +114,16 @@ class BlockingInteropTimeoutTest: AbstractOkioTest() {
             override fun timeout(): Timeout = Timeout.NONE
         }.asSuspended()
 
-        supervisorScope {
-            val job = async {
+
+        val job = async {
+            assertFailsWith<InterruptedIOException> {
                 suspended.write(Buffer().writeUtf8("cancel"), 6L)
             }
+        }
 
-            started.await(1, TimeUnit.SECONDS).shouldBeTrue()
-            withTimeout(1.seconds) {
-                job.cancelAndJoin()
-            }
+        started.await(1, TimeUnit.SECONDS).shouldBeTrue()
+        withTimeout(1.seconds) {
+            job.cancelAndJoin()
         }
 
         interrupted.get().shouldBeTrue()

@@ -1,6 +1,10 @@
 package io.bluetape4k.cache.jcache
 
-import io.bluetape4k.codec.encodeBase62
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeFalse
+import io.bluetape4k.assertions.shouldBeNull
+import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.codec.Base58
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.junit5.faker.Fakers
 import io.bluetape4k.logging.coroutines.KLoggingChannel
@@ -8,11 +12,6 @@ import kotlinx.coroutines.flow.count
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.toSet
-import kotlinx.coroutines.runBlocking
-import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldBeFalse
-import io.bluetape4k.assertions.shouldBeNull
-import io.bluetape4k.assertions.shouldBeTrue
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -27,13 +26,17 @@ abstract class AbstractSuspendJCacheTest {
         protected val faker = Fakers.faker
 
         @JvmStatic
+        protected fun randomKey(): String =
+            "hazelcast-cache-" + Base58.randomString(8)
+
+        @JvmStatic
         protected fun randomString(): String =
             Fakers.randomString(1024, 2048)
     }
 
     protected abstract val suspendJCache: SuspendJCache<String, Any>
 
-    open fun getKey() = Fakers.randomUuid().encodeBase62()
+    open fun getKey() = randomKey()
     open fun getValue() = randomString()
 
     @BeforeEach
@@ -43,7 +46,7 @@ abstract class AbstractSuspendJCacheTest {
 
     @AfterAll
     fun afterAll() {
-        runBlocking { suspendJCache.close() }
+        runSuspendIO { suspendJCache.close() }
     }
 
     @Test
@@ -112,7 +115,13 @@ abstract class AbstractSuspendJCacheTest {
                 suspendJCache.put(key, value)
             }
         }
-        val keysToLoad = setOf(entries.first().key, entries[42].key, entries[51].key, entries.last().key)
+        val keysToLoad = setOf(
+            entries.first().key,
+            entries[42].key,
+            entries[51].key,
+            entries.last().key
+        )
+
         val loaded = suspendJCache.getAll(keysToLoad)
         loaded.map { it.key }.toSet() shouldBeEqualTo keysToLoad
     }

@@ -1,5 +1,9 @@
 package io.bluetape4k.science.projection
 
+import io.bluetape4k.assertions.shouldBe
+import io.bluetape4k.assertions.shouldBeInRange
+import io.bluetape4k.assertions.shouldBeLessThan
+import io.bluetape4k.assertions.shouldNotBe
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.science.coords.GeoLocation
 import io.bluetape4k.science.coords.UtmZone
@@ -9,7 +13,7 @@ import kotlin.math.abs
 class ProjectionsTest {
 
     companion object: KLogging() {
-        const val EPSILON = 1e-4
+        private const val EPSILON = 1e-4
         val SEOUL = GeoLocation(37.5665, 126.9780)
         val NEW_YORK = GeoLocation(40.7128, -74.0060)
 
@@ -22,8 +26,8 @@ class ProjectionsTest {
     fun `서울 WGS84를 UTM으로 변환한다`() {
         val (easting, northing) = wgs84ToUtm(SEOUL)
         // 서울 UTM Zone 52S 기준 easting은 약 313,000~320,000m, northing은 약 4,160,000m 근방
-        require(easting > 300_000.0 && easting < 400_000.0) { "easting 범위 오류: $easting" }
-        require(northing > 4_000_000.0 && northing < 4_300_000.0) { "northing 범위 오류: $northing" }
+        easting shouldBeInRange 300_000.0..400_000.0
+        northing shouldBeInRange 4_000_000.0..4_300_000.0
     }
 
     @Test
@@ -32,12 +36,8 @@ class ProjectionsTest {
         val (easting, northing) = wgs84ToUtm(SEOUL)
         val restored = utmToWgs84(easting, northing, zone)
 
-        require(abs(restored.latitude - SEOUL.latitude) < EPSILON) {
-            "위도 오차: ${abs(restored.latitude - SEOUL.latitude)}"
-        }
-        require(abs(restored.longitude - SEOUL.longitude) < EPSILON) {
-            "경도 오차: ${abs(restored.longitude - SEOUL.longitude)}"
-        }
+        abs(restored.latitude - SEOUL.latitude) shouldBeLessThan EPSILON
+        abs(restored.longitude - SEOUL.longitude) shouldBeLessThan EPSILON
     }
 
     @Test
@@ -46,20 +46,17 @@ class ProjectionsTest {
         val (easting, northing) = wgs84ToUtm(NEW_YORK)
         val restored = utmToWgs84(easting, northing, zone)
 
-        require(abs(restored.latitude - NEW_YORK.latitude) < EPSILON) {
-            "위도 오차: ${abs(restored.latitude - NEW_YORK.latitude)}"
-        }
-        require(abs(restored.longitude - NEW_YORK.longitude) < EPSILON) {
-            "경도 오차: ${abs(restored.longitude - NEW_YORK.longitude)}"
-        }
+        abs(restored.latitude - NEW_YORK.latitude) shouldBeLessThan EPSILON
+        abs(restored.longitude - NEW_YORK.longitude) shouldBeLessThan EPSILON
     }
 
     @Test
     fun `transform으로 WGS84에서 UTM Zone 52N으로 변환한다`() {
         // EPSG:32652 = UTM Zone 52N (WGS84)
         val (x, y) = transform("EPSG:4326", "EPSG:32652", SEOUL.longitude, SEOUL.latitude)
-        require(x > 300_000.0 && x < 400_000.0) { "x(easting) 범위 오류: $x" }
-        require(y > 4_000_000.0 && y < 4_300_000.0) { "y(northing) 범위 오류: $y" }
+
+        x shouldBeInRange 300_000.0..400_000.0
+        y shouldBeInRange 4_000_000.0..4_300_000.0
     }
 
     @Test
@@ -69,16 +66,12 @@ class ProjectionsTest {
         val (easting, northing) = wgs84ToUtm(SYDNEY)
 
         // 남반구 UTM northing은 10,000,000m 기준 음수 방향: 약 6,250,000m 근방
-        require(easting > 300_000.0 && easting < 400_000.0) { "easting 범위 오류: $easting" }
-        require(northing > 6_000_000.0 && northing < 6_500_000.0) { "northing 범위 오류 (남반구): $northing" }
+        easting shouldBeInRange 300_000.0..400_000.0
+        northing shouldBeInRange 6_000_000.0..6_500_000.0
 
         val restored = utmToWgs84(easting, northing, zone)
-        require(abs(restored.latitude - SYDNEY.latitude) < EPSILON) {
-            "위도 오차: ${abs(restored.latitude - SYDNEY.latitude)}"
-        }
-        require(abs(restored.longitude - SYDNEY.longitude) < EPSILON) {
-            "경도 오차: ${abs(restored.longitude - SYDNEY.longitude)}"
-        }
+        abs(restored.latitude - SYDNEY.latitude) shouldBeLessThan EPSILON
+        abs(restored.longitude - SYDNEY.longitude) shouldBeLessThan EPSILON
     }
 
     @Test
@@ -87,19 +80,15 @@ class ProjectionsTest {
         val (easting, northing) = wgs84ToUtm(SAO_PAULO)
         val restored = utmToWgs84(easting, northing, zone)
 
-        require(abs(restored.latitude - SAO_PAULO.latitude) < EPSILON) {
-            "위도 오차: ${abs(restored.latitude - SAO_PAULO.latitude)}"
-        }
-        require(abs(restored.longitude - SAO_PAULO.longitude) < EPSILON) {
-            "경도 오차: ${abs(restored.longitude - SAO_PAULO.longitude)}"
-        }
+        abs(restored.latitude - SAO_PAULO.latitude) shouldBeLessThan EPSILON
+        abs(restored.longitude - SAO_PAULO.longitude) shouldBeLessThan EPSILON
     }
 
     @Test
     fun `CrsRegistry 캐시가 동일 EPSG 코드에 대해 같은 객체를 반환한다`() {
         val crs1 = CrsRegistry.getCrs("EPSG:4326")
         val crs2 = CrsRegistry.getCrs("EPSG:4326")
-        require(crs1 === crs2) { "캐시에서 같은 인스턴스를 반환해야 합니다" }
+        crs1 shouldBe crs2
     }
 
     @Test
@@ -107,7 +96,7 @@ class ProjectionsTest {
         val proj4 = "+proj=utm +zone=52 +datum=WGS84 +units=m +no_defs"
         val crs1 = CrsRegistry.getCrsFromProj4(proj4)
         val crs2 = CrsRegistry.getCrsFromProj4(proj4)
-        require(crs1 === crs2) { "캐시에서 같은 인스턴스를 반환해야 합니다" }
+        crs1 shouldBe crs2
     }
 
     @Test
@@ -115,8 +104,9 @@ class ProjectionsTest {
         val epsg = "EPSG:4326"
         val before = CrsRegistry.getCrs(epsg)
         CrsRegistry.clearCache()
+
         val after = CrsRegistry.getCrs(epsg)
         // clearCache 후에는 새 인스턴스가 생성되어야 함
-        require(before !== after) { "clearCache 후 새 인스턴스를 반환해야 합니다" }
+        before shouldNotBe after
     }
 }

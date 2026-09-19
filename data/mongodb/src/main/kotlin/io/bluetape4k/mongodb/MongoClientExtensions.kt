@@ -3,15 +3,14 @@ package io.bluetape4k.mongodb
 import com.mongodb.TransactionOptions
 import com.mongodb.kotlin.client.coroutine.ClientSession
 import com.mongodb.kotlin.client.coroutine.MongoClient
-import io.bluetape4k.logging.KotlinLogging
+import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.error
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.withContext
-import org.slf4j.Logger
 
-private val log: Logger by lazy { KotlinLogging.logger { } }
+private object MongoClientLogger: KLogging()
 
 // ====================================================
 // MongoClient 코루틴 확장 함수
@@ -50,16 +49,12 @@ suspend fun MongoClient.listDatabaseNamesAsList(): List<String> =
  * @param block 세션을 인자로 받는 suspend 블록
  * @return 블록의 반환값
  */
-suspend fun <T> MongoClient.withClientSession(
+suspend inline fun <T> MongoClient.withClientSession(
     block: suspend (ClientSession) -> T,
-): T {
-    val session = startSession()
-    return try {
+): T =
+    startSession().use { session ->
         block(session)
-    } finally {
-        session.close()
     }
-}
 
 /**
  * 트랜잭션 내에서 [block]을 실행합니다.
@@ -83,7 +78,7 @@ suspend fun <T> MongoClient.withClientSession(
  * @param block 세션을 인자로 받는 suspend 트랜잭션 블록
  * @return 블록의 반환값
  */
-suspend fun <T> MongoClient.inTransaction(
+suspend inline fun <T> MongoClient.inTransaction(
     transactionOptions: TransactionOptions? = null,
     block: suspend (ClientSession) -> T,
 ): T = withClientSession { session ->
@@ -113,19 +108,19 @@ suspend fun <T> MongoClient.inTransaction(
     }
 }
 
-private suspend fun ClientSession.abortTransactionSafely(owner: Throwable, message: String) {
+suspend inline fun ClientSession.abortTransactionSafely(owner: Throwable, message: String) {
     try {
         withContext(NonCancellable) {
             abortTransaction()
         }
     } catch (abortEx: CancellationException) {
         owner.addSuppressed(abortEx)
-        log.error(abortEx) { message }
+        MongoClientLogger.log.error(abortEx) { message }
         if (owner !is CancellationException) {
             throw abortEx
         }
     } catch (abortEx: Exception) {
         owner.addSuppressed(abortEx)
-        log.error(abortEx) { message }
+        MongoClientLogger.log.error(abortEx) { message }
     }
 }

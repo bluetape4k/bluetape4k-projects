@@ -1,13 +1,13 @@
 package io.bluetape4k.bucket4j.ratelimit.distributed
 
+import io.bluetape4k.assertions.assertFailsWith
+import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.bucket4j.TestRedisServer
 import io.bluetape4k.bucket4j.distributed.AsyncBucketProxyProvider
 import io.bluetape4k.bucket4j.distributed.redis.lettuceBasedProxyManagerOf
 import io.bluetape4k.bucket4j.ratelimit.AbstractSuspendRateLimiterTest
 import io.bluetape4k.bucket4j.ratelimit.RateLimitStatus
 import io.bluetape4k.bucket4j.ratelimit.SuspendRateLimiter
-import io.bluetape4k.assertions.assertFailsWith
-import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.github.bucket4j.ConsumptionProbe
 import io.github.bucket4j.distributed.AsyncBucketProxy
@@ -35,7 +35,7 @@ class LettuceSuspendRateLimiterTest: AbstractSuspendRateLimiterTest() {
 
     companion object: KLoggingChannel()
 
-    val bucketProvider: AsyncBucketProxyProvider by lazy {
+    private val bucketProvider: AsyncBucketProxyProvider by lazy {
         val redisClient = TestRedisServer.lettuceClient()
         val redissonProxyManager = lettuceBasedProxyManagerOf(redisClient) {
             ClientSideConfig.getDefault()

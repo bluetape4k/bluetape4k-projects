@@ -1,18 +1,19 @@
 package io.bluetape4k.cache.nearcache
 
+import io.bluetape4k.assertions.assertFailsWith
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeNull
+import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.junit5.coroutines.runSuspendIO
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.mockk.clearMocks
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
-import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldBeNull
+import kotlinx.coroutines.CancellationException
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import io.bluetape4k.assertions.assertFailsWith
-import kotlinx.coroutines.CancellationException
 import java.time.Duration
 
 /**
@@ -22,7 +23,8 @@ import java.time.Duration
  * suspend 환경에서의 retry 및 failure strategy를 검증합니다.
  */
 class ResilientSuspendNearCacheDecoratorTest {
-    companion object: KLogging()
+
+    companion object: KLoggingChannel()
 
     private val delegate = mockk<SuspendNearCacheOperations<String>>(relaxed = true)
 
@@ -43,15 +45,14 @@ class ResilientSuspendNearCacheDecoratorTest {
             "value1"
         }
 
-        val cache =
-            ResilientSuspendNearCacheDecorator(
-                delegate,
-                NearCacheResilienceConfig(
-                    retryMaxAttempts = 3,
-                    retryWaitDuration = Duration.ofMillis(50),
-                    getFailureStrategy = GetFailureStrategy.PROPAGATE_EXCEPTION
-                )
+        val cache = ResilientSuspendNearCacheDecorator(
+            delegate,
+            NearCacheResilienceConfig(
+                retryMaxAttempts = 3,
+                retryWaitDuration = Duration.ofMillis(50),
+                getFailureStrategy = GetFailureStrategy.PROPAGATE_EXCEPTION
             )
+        )
 
         cache.get("key1") shouldBeEqualTo "value1"
         coVerify(exactly = 3) { delegate.get("key1") }
@@ -61,15 +62,14 @@ class ResilientSuspendNearCacheDecoratorTest {
     fun `get - RETURN_FRONT_OR_NULL 전략 시 null 반환`() = runSuspendIO {
         coEvery { delegate.get("key1") } throws RuntimeException("failure")
 
-        val cache =
-            ResilientSuspendNearCacheDecorator(
-                delegate,
-                NearCacheResilienceConfig(
-                    retryMaxAttempts = 1,
-                    retryWaitDuration = Duration.ofMillis(10),
-                    getFailureStrategy = GetFailureStrategy.RETURN_FRONT_OR_NULL
-                )
+        val cache = ResilientSuspendNearCacheDecorator(
+            delegate,
+            NearCacheResilienceConfig(
+                retryMaxAttempts = 1,
+                retryWaitDuration = Duration.ofMillis(10),
+                getFailureStrategy = GetFailureStrategy.RETURN_FRONT_OR_NULL
             )
+        )
 
         cache.get("key1").shouldBeNull()
     }
@@ -78,15 +78,14 @@ class ResilientSuspendNearCacheDecoratorTest {
     fun `get - PROPAGATE_EXCEPTION 전략 시 예외 전파`() {
         coEvery { delegate.get("key1") } throws RuntimeException("failure")
 
-        val cache =
-            ResilientSuspendNearCacheDecorator(
-                delegate,
-                NearCacheResilienceConfig(
-                    retryMaxAttempts = 1,
-                    retryWaitDuration = Duration.ofMillis(10),
-                    getFailureStrategy = GetFailureStrategy.PROPAGATE_EXCEPTION
-                )
+        val cache = ResilientSuspendNearCacheDecorator(
+            delegate,
+            NearCacheResilienceConfig(
+                retryMaxAttempts = 1,
+                retryWaitDuration = Duration.ofMillis(10),
+                getFailureStrategy = GetFailureStrategy.PROPAGATE_EXCEPTION
             )
+        )
 
         assertFailsWith<RuntimeException> {
             runSuspendIO { cache.get("key1") }
@@ -101,17 +100,18 @@ class ResilientSuspendNearCacheDecoratorTest {
             if (callCount < 2) throw RuntimeException("transient failure")
         }
 
-        val cache =
-            ResilientSuspendNearCacheDecorator(
-                delegate,
-                NearCacheResilienceConfig(
-                    retryMaxAttempts = 3,
-                    retryWaitDuration = Duration.ofMillis(50)
-                )
+        val cache = ResilientSuspendNearCacheDecorator(
+            delegate,
+            NearCacheResilienceConfig(
+                retryMaxAttempts = 3,
+                retryWaitDuration = Duration.ofMillis(50)
             )
+        )
 
         cache.put("key1", "value1")
-        coVerify(exactly = 2) { delegate.put("key1", "value1") }
+        coVerify(exactly = 2) {
+            delegate.put("key1", "value1")
+        }
     }
 
     @Test
@@ -152,10 +152,10 @@ class ResilientSuspendNearCacheDecoratorTest {
         var propagated = false
         try {
             cache.get("key1")
-        } catch (e: kotlinx.coroutines.CancellationException) {
+        } catch (e: CancellationException) {
             propagated = true
         }
-        propagated shouldBeEqualTo true
+        propagated.shouldBeTrue()
     }
 
     /**
@@ -177,10 +177,10 @@ class ResilientSuspendNearCacheDecoratorTest {
         var propagated = false
         try {
             cache.getAll(setOf("k1", "k2"))
-        } catch (e: kotlinx.coroutines.CancellationException) {
+        } catch (e: CancellationException) {
             propagated = true
         }
-        propagated shouldBeEqualTo true
+        propagated.shouldBeTrue()
     }
 
     /**

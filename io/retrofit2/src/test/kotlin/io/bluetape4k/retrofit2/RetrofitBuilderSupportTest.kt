@@ -1,7 +1,9 @@
 package io.bluetape4k.retrofit2
 
+import io.bluetape4k.assertions.shouldBe
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeFalse
+import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.assertions.shouldNotBeNull
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.retrofit2.clients.hc5.hc5CallFactoryOf
@@ -94,7 +96,7 @@ class RetrofitBuilderSupportTest {
         val first = defaultScalarsConverterFactory
         val second = defaultScalarsConverterFactory
 
-        (first === second) shouldBeEqualTo true
+        first shouldBe second
     }
 
     @Test
@@ -102,7 +104,7 @@ class RetrofitBuilderSupportTest {
         val first = defaultJsonConverterFactory
         val second = defaultJsonConverterFactory
 
-        (first === second) shouldBeEqualTo true
+        first shouldBe second
     }
 
     @Test
@@ -122,17 +124,20 @@ class RetrofitBuilderSupportTest {
     fun `isPresentRetrofitAdapterRxJava2 returns boolean without throwing`() {
         val result = runCatching { isPresentRetrofitAdapterRxJava2() }
         result.isFailure.shouldBeFalse()
+        result.isSuccess.shouldBeTrue()
     }
 
     @Test
     fun `isPresentRetrofitAdapterRxJava3 returns boolean without throwing`() {
         val result = runCatching { isPresentRetrofitAdapterRxJava3() }
         result.isFailure.shouldBeFalse()
+        result.isSuccess.shouldBeTrue()
     }
 
     @Test
     fun `isPresentRetrofitAdapterReactor returns boolean without throwing`() {
         val result = runCatching { isPresentRetrofitAdapterReactor() }
         result.isFailure.shouldBeFalse()
+        result.isSuccess.shouldBeTrue()
     }
 }

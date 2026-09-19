@@ -4,16 +4,16 @@ import com.fasterxml.jackson.databind.SerializationFeature
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize
 import com.fasterxml.jackson.databind.annotation.JsonSerialize
 import com.fasterxml.jackson.module.kotlin.jacksonTypeRef
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldContainAll
+import io.bluetape4k.assertions.shouldHaveSize
+import io.bluetape4k.assertions.shouldNotBeNull
 import io.bluetape4k.jackson.Jackson
 import io.bluetape4k.jackson.readValueOrNull
 import io.bluetape4k.jackson.writeAsString
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.trace
-import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldContainAll
-import io.bluetape4k.assertions.shouldHaveSize
-import io.bluetape4k.assertions.shouldNotBeNull
 import org.junit.jupiter.api.Test
 import java.io.Serializable
 
@@ -189,10 +189,6 @@ class KotlinFeatures {
         val json = mapper.writeValueAsString(company)
         log.trace { "json=$json" }
         json shouldBeEqualTo expectedJson
-
-        // NOTE: Iterator를 읽어드릴 수는 없네 ...
-        //        val actual = mapper.readValue<Company>(json)
-        //        actual shouldBeEqualTo company
     }
 
     @JvmInline

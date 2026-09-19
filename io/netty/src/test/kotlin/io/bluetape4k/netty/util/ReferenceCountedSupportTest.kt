@@ -1,15 +1,19 @@
 package io.bluetape4k.netty.util
 
-import io.bluetape4k.netty.AbstractNettyTest
-import io.netty.buffer.ByteBufAllocator
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeFalse
+import io.bluetape4k.logging.KLogging
+import io.bluetape4k.netty.AbstractNettyTest
+import io.netty.buffer.ByteBufAllocator
 import org.junit.jupiter.api.Test
 
 /**
  * [ReferenceCountedSupport]의 기능을 검증하는 테스트 클래스입니다.
  */
 class ReferenceCountedSupportTest: AbstractNettyTest() {
+
+    companion object: KLogging()
+
     @Test
     fun `use 블록 실행 후 ByteBuf가 릴리즈된다`() {
         val buf = ByteBufAllocator.DEFAULT.buffer(16)

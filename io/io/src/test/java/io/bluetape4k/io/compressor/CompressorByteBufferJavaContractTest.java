@@ -1,11 +1,12 @@
 package io.bluetape4k.io.compressor;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import org.junit.jupiter.api.Test;
 
 import java.nio.BufferOverflowException;
 import java.nio.ByteBuffer;
-import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class CompressorByteBufferJavaContractTest {
     private final Compressor compressor = new ReversingFallbackCompressor();
@@ -20,7 +21,7 @@ class CompressorByteBufferJavaContractTest {
 
     @Test
     void overflowPreservesCallerPositions() {
-        ByteBuffer source = ByteBuffer.wrap(new byte[] {1, 2, 3, 4});
+        ByteBuffer source = ByteBuffer.wrap(new byte[]{1, 2, 3, 4});
         ByteBuffer target = ByteBuffer.allocate(1);
 
         assertThrows(BufferOverflowException.class, () -> compressor.compress(source, target));

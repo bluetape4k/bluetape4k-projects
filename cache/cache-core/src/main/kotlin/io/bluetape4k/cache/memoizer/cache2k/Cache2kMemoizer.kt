@@ -29,7 +29,8 @@ fun <T: Any, R: Any> Cache<T, R>.memoizer(
  * // result == 5
  * ```
  */
-fun <T: Any, R: Any> ((T) -> R).withMemoizer(cache: Cache<T, R>): Memoizer<T, R> = Cache2kMemoizer(cache, this)
+fun <T: Any, R: Any> ((T) -> R).withMemoizer(cache: Cache<T, R>): Memoizer<T, R> =
+    Cache2kMemoizer(cache, this)
 
 /**
  * Cache2k Cache를 이용하여 메소드의 실행 결과를 기억하여, 재 실행 시에 빠르게 응답할 수 있도록 합니다.

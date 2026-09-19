@@ -6,14 +6,18 @@ import com.alibaba.fastjson2.JSONReader
 import com.alibaba.fastjson2.JSONWriter
 import com.alibaba.fastjson2.reader.ObjectReader
 import io.bluetape4k.assertions.assertFailsWith
-import io.bluetape4k.assertions.shouldBeInstanceOf
+import io.bluetape4k.assertions.shouldBe
 import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeInstanceOf
 import io.bluetape4k.assertions.shouldBeNull
-import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.assertions.shouldContentEqual
+import io.bluetape4k.codec.Base58
 import io.bluetape4k.fastjson2.model.User
 import io.bluetape4k.json.JsonSerializationException
 import io.bluetape4k.json.JsonSerializer
 import io.bluetape4k.json.deserialize
+import io.bluetape4k.logging.KLogging
+import org.junit.jupiter.api.RepeatedTest
 import org.junit.jupiter.api.Test
 import java.lang.reflect.Type
 import java.nio.BufferOverflowException
@@ -21,34 +25,49 @@ import java.nio.ByteBuffer
 import java.nio.ByteOrder
 import java.nio.ReadOnlyBufferException
 
-class FastjsonSerializerByteBufferTest {
+class FastjsonSerializerByteBufferTest: AbstractFastjson2Test() {
 
-    @Test
+    companion object: KLogging()
+
+    @RepeatedTest(REPEAT_SIZE)
     fun `concrete ByteBuffer overload preserves parameterized collection types`() {
         val serializer = FastjsonSerializer()
-        val users = listOf(User(1, "alpha"), User(2, "beta"))
+        val users = listOf(
+            User(1, Base58.randomString(16)),
+            User(2, Base58.randomString(16))
+        )
         val usersByName = users.associateBy { it.name }
 
-        serializer.deserialize<List<User>>(ByteBuffer.wrap(serializer.serialize(users))) shouldBeEqualTo users
-        serializer.deserialize<Map<String, User>>(ByteBuffer.wrap(serializer.serialize(usersByName))) shouldBeEqualTo usersByName
+        serializer.deserialize<List<User>>(
+            ByteBuffer.wrap(serializer.serialize(users))
+        ) shouldBeEqualTo users
+
+        serializer.deserialize<Map<String, User>>(
+            ByteBuffer.wrap(serializer.serialize(usersByName))
+        ) shouldBeEqualTo usersByName
     }
 
-    @Test
+    @RepeatedTest(REPEAT_SIZE)
     fun `old and new JSONB paths cross read`() {
         val serializer = FastjsonSerializer()
-        val expected = User(7, "cross-read")
+        val expected = User(7, Base58.randomString(16))
         val target = ByteBuffer.allocate(256)
 
         val written = serializer.serializeTo(expected, target)
         val newWire = target.writtenBytes(0, written)
+
         serializer.deserialize(newWire, User::class.java) shouldBeEqualTo expected
-        serializer.deserializeFrom(ByteBuffer.wrap(serializer.serialize(expected)), User::class.java) shouldBeEqualTo expected
+        serializer.deserializeFrom(
+            ByteBuffer.wrap(serializer.serialize(expected)),
+            User::class.java
+        ) shouldBeEqualTo expected
     }
 
-    @Test
+    @RepeatedTest(REPEAT_SIZE)
     fun `heap direct sliced and read-only sources preserve caller state`() {
         val serializer = FastjsonSerializer()
-        val expected = User(8, "stateful")
+        val expected = User(8, Base58.randomString(8))
+
         val wire = serializer.serialize(expected)
 
         sourceVariants(wire).forEach { source ->
@@ -66,11 +85,13 @@ class FastjsonSerializerByteBufferTest {
         }
     }
 
-    @Test
+    @RepeatedTest(REPEAT_SIZE)
     fun `bounded compatibility output commits exact JSONB range`() {
         val serializer = FastjsonSerializer()
-        val expected = User(9, "bounded")
+        val expected = User(9, Base58.randomString(8))
+
         val wire = serializer.serialize(expected)
+
         val target = ByteBuffer.allocate(wire.size + 6).order(ByteOrder.LITTLE_ENDIAN)
         target.position(3)
         target.limit(3 + wire.size)
@@ -79,7 +100,7 @@ class FastjsonSerializerByteBufferTest {
         target.position() shouldBeEqualTo 3 + wire.size
         target.limit() shouldBeEqualTo 3 + wire.size
         target.order() shouldBeEqualTo ByteOrder.LITTLE_ENDIAN
-        target.writtenBytes(3, wire.size).contentEquals(wire).shouldBeTrue()
+        target.writtenBytes(3, wire.size) shouldContentEqual wire
     }
 
     @Test
@@ -96,10 +117,10 @@ class FastjsonSerializerByteBufferTest {
         target.position() shouldBeEqualTo 4
     }
 
-    @Test
+    @RepeatedTest(REPEAT_SIZE)
     fun `overflow rolls back and target is reusable`() {
         val serializer = FastjsonSerializer()
-        val expected = User(10, "retry")
+        val expected = User(10, Base58.randomString(8))
         val wire = serializer.serialize(expected)
         val target = ByteBuffer.allocate(wire.size + 2)
         target.position(2)
@@ -130,7 +151,10 @@ class FastjsonSerializerByteBufferTest {
         serializer.deserializeFrom(ByteBuffer.allocate(0), User::class.java).shouldBeNull()
 
         val expected = User(11, "reused")
-        serializer.deserializeFrom(ByteBuffer.wrap(serializer.serialize(expected)), User::class.java) shouldBeEqualTo expected
+        serializer.deserializeFrom(
+            ByteBuffer.wrap(serializer.serialize(expected)),
+            User::class.java
+        ) shouldBeEqualTo expected
     }
 
     @Test
@@ -144,7 +168,7 @@ class FastjsonSerializerByteBufferTest {
             serializer.serializeTo(FatalGraph(fatal), target)
         }
 
-        (thrown === fatal).shouldBeTrue()
+        thrown shouldBe fatal
         target.position() shouldBeEqualTo 5
     }
 
@@ -161,12 +185,12 @@ class FastjsonSerializerByteBufferTest {
             val classTokenFailure = assertFailsWith<SerializerFatalError> {
                 serializer.deserializeFrom(ByteBuffer.wrap(payload), FatalReadGraph::class.java)
             }
-            (classTokenFailure === fatal).shouldBeTrue()
+            classTokenFailure shouldBe fatal
 
             val reifiedFailure = assertFailsWith<SerializerFatalError> {
                 serializer.deserialize<FatalReadGraph>(ByteBuffer.wrap(payload))
             }
-            (reifiedFailure === fatal).shouldBeTrue()
+            reifiedFailure shouldBe fatal
         } finally {
             if (previous == null) {
                 provider.unregisterObjectReader(FatalReadGraph::class.java)
@@ -190,12 +214,12 @@ class FastjsonSerializerByteBufferTest {
             val classTokenFailure = assertFailsWith<JsonSerializationException> {
                 serializer.deserializeFrom(ByteBuffer.wrap(payload), SuppressedFailureReadGraph::class.java)
             }
-            (classTokenFailure.cause === primary).shouldBeTrue()
+            classTokenFailure.cause shouldBe primary
 
             val reifiedFailure = assertFailsWith<JsonSerializationException> {
                 serializer.deserialize<SuppressedFailureReadGraph>(ByteBuffer.wrap(payload))
             }
-            (reifiedFailure.cause === primary).shouldBeTrue()
+            reifiedFailure.cause shouldBe primary
         } finally {
             if (previous == null) {
                 provider.unregisterObjectReader(SuppressedFailureReadGraph::class.java)
@@ -220,11 +244,11 @@ class FastjsonSerializerByteBufferTest {
         target.position() shouldBeEqualTo 4
     }
 
-    @Test
+    @RepeatedTest(REPEAT_SIZE)
     fun `interface receiver stays raw and invalid class is wrapped`() {
         val concrete = FastjsonSerializer()
         val serializer: JsonSerializer = concrete
-        val users = listOf(User(1, "raw"))
+        val users = listOf(User(1, Base58.randomString(8)))
 
         val restored: Any? = serializer.deserialize<List<User>>(ByteBuffer.wrap(concrete.serialize(users)))
         (restored as List<*>).first().shouldBeInstanceOf<Map<*, *>>()
@@ -234,10 +258,10 @@ class FastjsonSerializerByteBufferTest {
         }
     }
 
-    @Test
+    @RepeatedTest(REPEAT_SIZE)
     fun `type metadata stays data without AutoType`() {
         val serializer = FastjsonSerializer()
-        val metadata = mapOf("@type" to "java.lang.ProcessBuilder", "value" to "blocked")
+        val metadata = mapOf("@type" to "java.lang.ProcessBuilder", "value" to Base58.randomString(8))
         val restored = serializer.deserializeFrom(ByteBuffer.wrap(serializer.serialize(metadata)), Any::class.java)
 
         restored.shouldBeInstanceOf<Map<*, *>>()["@type"] shouldBeEqualTo "java.lang.ProcessBuilder"
@@ -256,6 +280,7 @@ class FastjsonSerializerByteBufferTest {
         listOf(heap, direct).forEach { source ->
             serializer.deserializeFrom(source, Any::class.java)
                 .shouldBeInstanceOf<Map<*, *>>()["value"] shouldBeEqualTo "blocked"
+
             serializer.deserialize<Any>(source)
                 .shouldBeInstanceOf<Map<*, *>>()["value"] shouldBeEqualTo "blocked"
         }

@@ -38,12 +38,12 @@ internal fun rawNullBindingException(name: String): IllegalArgumentException =
  * Existing [Parameter] instances are returned as-is; other values are wrapped
  * with [Parameters. in].
  */
-@PublishedApi
-internal fun Any.toParameter(): Parameter =
-    when (this) {
-        is Parameter -> this
-        else -> Parameters.`in`(this)
-    }
+//@PublishedApi
+//internal fun Any.toParameter(): Parameter =
+//    when (this) {
+//        is Parameter -> this
+//        else         -> Parameters.`in`(this)
+//    }
 
 /**
  * Converts a nullable value to an R2DBC [Parameter].
@@ -61,6 +61,16 @@ internal fun <V: Any> Any?.toParameter(type: Class<V>): Parameter =
         is Parameter -> this
         else -> Parameters.`in`(this)
     }
+
+/**
+ * Converts the receiver to an R2DBC [Parameter].
+ *
+ * Existing [Parameter] instances are returned as-is; other values are wrapped
+ * with [Parameters. in].
+ */
+@PublishedApi
+internal inline fun <reified V: Any> V?.toParameter(): Parameter = toParameter(V::class.java)
+
 
 /**
  * Converts [Class] to an R2DBC [Parameter] that carries a typed NULL value.

@@ -21,6 +21,12 @@ configurations.all {
 }
 
 dependencies {
+    // Hibernate
+    api(bt4k.hibernate.core)
+
+    testImplementation(project(":bluetape4k-hibernate"))
+    testImplementation(bt4k.glassfish.expressly)
+
     // 기존 near cache 모듈 재사용
     api(project(":bluetape4k-cache-lettuce"))
 
@@ -37,9 +43,6 @@ dependencies {
 
     // bluetape4k-redis: LettuceBinaryCodec
     api(project(":bluetape4k-lettuce"))
-
-    // Hibernate
-    api(bt4k.hibernate.core)
 
     // Test
     testImplementation(project(":bluetape4k-junit5"))

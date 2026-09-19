@@ -1,10 +1,10 @@
 package io.bluetape4k.testcontainers.database
 
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.logging.KLogging
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
-import io.bluetape4k.assertions.assertFailsWith
 
 class MySQL5ServerTest: AbstractJdbcServerTest() {
 

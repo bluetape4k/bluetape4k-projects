@@ -142,7 +142,9 @@ class FastjsonSerializer: JsonSerializer {
      * Caller position, limit, mark, and byte order remain unchanged.
      */
     override fun <T: Any> deserializeFrom(source: ByteBuffer, clazz: Class<T>): T? {
-        if (!source.hasRemaining()) return null
+        if (!source.hasRemaining()) {
+            return null
+        }
         return try {
             if (source.hasArray()) {
                 JSONB.parseObject(
@@ -257,7 +259,9 @@ class FastjsonSerializer: JsonSerializer {
      * Parses the remaining JSONB range while retaining reified parameterized type information.
      */
     inline fun <reified T: Any> deserialize(source: ByteBuffer): T? {
-        if (!source.hasRemaining()) return null
+        if (!source.hasRemaining()) {
+            return null
+        }
         return try {
             val clazz = T::class.java
             if (source.hasArray()) {

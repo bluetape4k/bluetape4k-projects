@@ -2,10 +2,13 @@ package io.bluetape4k.io.serializer
 
 import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.logging.KLogging
 import org.junit.jupiter.api.Test
 import java.nio.ByteBuffer
 
 class BinarySerializerSupportTest {
+
+    companion object: KLogging()
 
     private val serializer: BinarySerializer = JdkBinarySerializer()
 

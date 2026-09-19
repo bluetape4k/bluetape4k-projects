@@ -10,7 +10,7 @@ import io.bluetape4k.feign.clients.AbstractClientTest
 import io.bluetape4k.feign.defaultRequestOptions
 import io.bluetape4k.feign.feignBuilder
 import io.bluetape4k.feign.feignRequestOf
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.vertx.core.Vertx
 import org.junit.jupiter.api.Assumptions
 import org.junit.jupiter.api.Test
@@ -20,7 +20,7 @@ import java.util.concurrent.atomic.AtomicReference
 
 class VertxClientTest: AbstractClientTest() {
 
-    companion object: KLogging()
+    companion object: KLoggingChannel()
 
     override fun newBuilder(): Feign.Builder {
         return feignBuilder {

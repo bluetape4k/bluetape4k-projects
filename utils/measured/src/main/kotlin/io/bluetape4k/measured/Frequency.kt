@@ -1,7 +1,5 @@
 package io.bluetape4k.measured
 
-import io.bluetape4k.measured.Frequency.Companion.hertz
-
 
 /**
  * 주파수 단위를 나타냅니다.

@@ -1,10 +1,10 @@
 package io.bluetape4k.jackson3
 
 import io.bluetape4k.assertions.assertFailsWith
+import io.bluetape4k.assertions.shouldBe
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeInstanceOf
 import io.bluetape4k.assertions.shouldBeNull
-import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.assertions.shouldContain
 import io.bluetape4k.json.JsonSerializationException
 import io.bluetape4k.json.JsonSerializer
@@ -101,7 +101,7 @@ class JacksonSerializerByteBufferTest {
         target.position() shouldBeEqualTo 3 + wire.size
         target.limit() shouldBeEqualTo 3 + wire.size
         target.order() shouldBeEqualTo ByteOrder.LITTLE_ENDIAN
-        target.writtenBytes(3, wire.size).contentEquals(wire).shouldBeTrue()
+        target.writtenBytes(3, wire.size) shouldBeEqualTo wire
     }
 
     @Test
@@ -176,7 +176,7 @@ class JacksonSerializerByteBufferTest {
             serializer.serializeTo(FatalGraph(fatal), target)
         }
 
-        (thrown === fatal).shouldBeTrue()
+        thrown shouldBe fatal
         target.position() shouldBeEqualTo 5
     }
 
@@ -193,12 +193,12 @@ class JacksonSerializerByteBufferTest {
                     FatalReadGraph::class.java,
                 )
             }
-            (classTokenFailure === fatal).shouldBeTrue()
+            classTokenFailure shouldBe fatal
 
             val reifiedFailure = assertFailsWith<SerializerFatalError> {
                 serializer.deserialize<FatalReadGraph>(ByteBuffer.wrap("""{"value":"boom"}""".toByteArray()))
             }
-            (reifiedFailure === fatal).shouldBeTrue()
+            reifiedFailure shouldBe fatal
         } finally {
             fatalReadFailure = null
         }

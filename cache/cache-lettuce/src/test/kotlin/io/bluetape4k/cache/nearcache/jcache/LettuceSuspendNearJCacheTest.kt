@@ -21,11 +21,11 @@ class LettuceSuspendNearJCacheTest: AbstractSuspendNearJCacheTest() {
     companion object: KLoggingChannel()
 
     private val manager by lazy {
-        LettuceSuspendCacheManager(RedisServers.redisClient, null, LettuceBinaryCodecs.lz4Fory())
+        LettuceSuspendCacheManager(RedisServers.redisClient, null, LettuceBinaryCodecs.default())
     }
 
     override val backSuspendJCache: SuspendJCache<String, Any> =
-        manager.getOrCreate("lettuce-jcache-suspend-back-" + Base58.randomString(12))
+        manager.getOrCreate("lettuce-jcache-suspend-back-" + Base58.randomString(8))
 
     override fun createFrontSuspendCache(expireAfterAccess: Duration): SuspendJCache<String, Any> =
         CaffeineSuspendJCache {

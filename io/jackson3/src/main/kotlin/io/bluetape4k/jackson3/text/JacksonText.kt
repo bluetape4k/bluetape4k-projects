@@ -1,22 +1,10 @@
 package io.bluetape4k.jackson3.text
 
 import io.bluetape4k.jackson3.Jackson
-import io.bluetape4k.jackson3.text.JacksonText.Csv.defaultFactory
-import io.bluetape4k.jackson3.text.JacksonText.Csv.defaultMapper
-import io.bluetape4k.jackson3.text.JacksonText.Csv.defaultSerializer
-import io.bluetape4k.jackson3.text.JacksonText.Props.defaultFactory
-import io.bluetape4k.jackson3.text.JacksonText.Props.defaultMapper
-import io.bluetape4k.jackson3.text.JacksonText.Props.defaultSerializer
-import io.bluetape4k.jackson3.text.JacksonText.Toml.defaultFactory
-import io.bluetape4k.jackson3.text.JacksonText.Toml.defaultMapper
-import io.bluetape4k.jackson3.text.JacksonText.Toml.defaultSerializer
-import io.bluetape4k.jackson3.text.JacksonText.Yaml.defaultFactory
-import io.bluetape4k.jackson3.text.JacksonText.Yaml.defaultMapper
-import io.bluetape4k.jackson3.text.JacksonText.Yaml.defaultSerializer
 import io.bluetape4k.logging.KLogging
 import tools.jackson.core.JsonParser
-import tools.jackson.databind.DeserializationFeature
 import tools.jackson.databind.DeserializationContext
+import tools.jackson.databind.DeserializationFeature
 import tools.jackson.databind.SerializationFeature
 import tools.jackson.databind.cfg.CoercionAction
 import tools.jackson.databind.cfg.CoercionInputShape
@@ -254,10 +242,12 @@ object JacksonText: KLogging() {
                 override fun deserialize(p: JsonParser, ctxt: DeserializationContext?): Float? =
                     p.propsValueAsStringOrNull()?.toFloat()
             })
-            addDeserializer(Double::class.javaObjectType, object: StdDeserializer<Double>(Double::class.javaObjectType) {
-                override fun deserialize(p: JsonParser, ctxt: DeserializationContext?): Double? =
-                    p.propsValueAsStringOrNull()?.toDouble()
-            })
+            addDeserializer(
+                Double::class.javaObjectType,
+                object: StdDeserializer<Double>(Double::class.javaObjectType) {
+                    override fun deserialize(p: JsonParser, ctxt: DeserializationContext?): Double? =
+                        p.propsValueAsStringOrNull()?.toDouble()
+                })
             addDeserializer(BigInteger::class.java, object: StdDeserializer<BigInteger>(BigInteger::class.java) {
                 override fun deserialize(p: JsonParser, ctxt: DeserializationContext?): BigInteger? =
                     p.propsValueAsStringOrNull()?.toBigInteger()

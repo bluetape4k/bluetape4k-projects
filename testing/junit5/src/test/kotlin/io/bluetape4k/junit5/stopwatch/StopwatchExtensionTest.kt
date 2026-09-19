@@ -1,9 +1,9 @@
 package io.bluetape4k.junit5.stopwatch
 
-import io.bluetape4k.junit5.output.InMemoryLogbackAppender
-import io.bluetape4k.logging.KLogging
 import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.assertions.shouldNotBeEmpty
+import io.bluetape4k.junit5.output.InMemoryLogbackAppender
+import io.bluetape4k.logging.KLogging
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test

@@ -3,6 +3,7 @@ package io.grpc.netty
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeFalse
 import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.logging.KLogging
 import io.grpc.Attributes
 import io.grpc.MetricRecorder
 import io.grpc.Status
@@ -30,6 +31,9 @@ import org.junit.jupiter.api.Test
  * package-private 접근은 테스트에만 한정하며 gRPC 버전 변경 시 factory 계약을 재확인한다.
  */
 class NettyServerStreamLimitTest {
+
+    companion object: KLogging()
+
     private val transportListener = mockk<ServerTransportListener>(relaxed = true)
     private val streamListener = mockk<ServerStreamListener>(relaxed = true)
     private val metricRecorder = mockk<MetricRecorder>(relaxed = true)
@@ -52,7 +56,9 @@ class NettyServerStreamLimitTest {
             fixture.headers(5)
             fixture.handler.connection().numActiveStreams() shouldBeEqualTo 1
             fixture.resetFrames() shouldBeEqualTo listOf(5 to 7L)
-            verify(exactly = 1) { transportListener.streamCreated(any(), any(), any()) }
+            verify(exactly = 1) {
+                transportListener.streamCreated(any(), any(), any())
+            }
             fixture.server.isActive.shouldBeTrue()
             fixture.forceClose()
             fixture.handler.connection().numActiveStreams() shouldBeEqualTo 0
@@ -65,13 +71,17 @@ class NettyServerStreamLimitTest {
     fun `stream을 취소하면 ACK 전에도 다음 요청이 제한 슬롯을 재사용한다`() {
         Fixture().use { fixture ->
             fixture.headers(3)
-            fixture.writer.writeRstStream(fixture.client.pipeline().firstContext(), 3, 8,
-                fixture.client.newPromise())
+            fixture.writer.writeRstStream(
+                fixture.client.pipeline().firstContext(), 3, 8,
+                fixture.client.newPromise()
+            )
             fixture.transfer()
             fixture.handler.connection().numActiveStreams() shouldBeEqualTo 0
             fixture.headers(5)
             fixture.handler.connection().numActiveStreams() shouldBeEqualTo 1
-            verify(exactly = 2) { transportListener.streamCreated(any(), any(), any()) }
+            verify(exactly = 2) {
+                transportListener.streamCreated(any(), any(), any())
+            }
             fixture.forceClose()
             fixture.assertReleased()
         }
@@ -83,8 +93,10 @@ class NettyServerStreamLimitTest {
             fixture.headers(3)
             // 길이 10인 메시지의 첫 byte만 보내 deframer가 미완성 데이터를 보유하게 한다.
             val partial = Unpooled.buffer().writeByte(0).writeInt(10).writeByte(1)
-            fixture.writer.writeData(fixture.client.pipeline().firstContext(), 3, partial, 0, false,
-                fixture.client.newPromise())
+            fixture.writer.writeData(
+                fixture.client.pipeline().firstContext(), 3, partial, 0, false,
+                fixture.client.newPromise()
+            )
             val dataInputs = fixture.transfer()
             fixture.handler.connection().numActiveStreams() shouldBeEqualTo 1
             // 이번 DATA 전달분 중 서버가 실제 보유한 복사본을 종료 전후 동일 객체로 검사한다.
@@ -94,7 +106,9 @@ class NettyServerStreamLimitTest {
             fixture.server.isActive.shouldBeFalse()
             retainedData.refCnt() shouldBeEqualTo 0
             fixture.assertReleased()
-            verify(exactly = 1) { streamListener.closed(any()) }
+            verify(exactly = 1) {
+                streamListener.closed(any())
+            }
         }
     }
 
@@ -124,8 +138,10 @@ class NettyServerStreamLimitTest {
             val headers = DefaultHttp2Headers().method("POST").scheme("http")
                 .path("/test.Service/stream").authority("localhost")
                 .add("content-type", "application/grpc").add("te", "trailers")
-            writer.writeHeaders(client.pipeline().firstContext(), streamId, headers, 0, false,
-                client.newPromise())
+            writer.writeHeaders(
+                client.pipeline().firstContext(), streamId, headers, 0, false,
+                client.newPromise()
+            )
             transfer()
         }
 

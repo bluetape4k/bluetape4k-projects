@@ -1,6 +1,3 @@
-import org.gradle.api.tasks.Sync
-import org.gradle.api.tasks.JavaExec
-
 configurations {
     testImplementation.get().extendsFrom(compileOnly.get(), runtimeOnly.get())
 }
@@ -16,7 +13,8 @@ dependencies {
 val measuredCompatSourceDir = layout.buildDirectory.dir("compat/issue-1724/source")
 val measuredCompatCompileDir = layout.buildDirectory.dir("compat/issue-1724/compiled")
 val measuredCompatFixtureDir = layout.buildDirectory.dir("compat/issue-1724/fixture")
-val measuredCompatBaseSource = layout.projectDirectory.file("src/test/resources/compat/issue-1724/DataRateOperations.kt")
+val measuredCompatBaseSource =
+    layout.projectDirectory.file("src/test/resources/compat/issue-1724/DataRateOperations.kt")
 val measuredCompatDataRateSource = measuredCompatSourceDir.map {
     it.file("DataRateOperations.kt")
 }

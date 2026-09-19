@@ -1,15 +1,15 @@
 package io.bluetape4k.cache.nearcache
 
-import io.bluetape4k.junit5.coroutines.SuspendedJobTester
-import io.bluetape4k.junit5.coroutines.runSuspendIO
-import io.bluetape4k.junit5.faker.Fakers
-import io.bluetape4k.logging.KLogging
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeFalse
 import io.bluetape4k.assertions.shouldBeNull
 import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.assertions.shouldContainSame
 import io.bluetape4k.assertions.shouldNotBeNull
+import io.bluetape4k.junit5.coroutines.SuspendedJobTester
+import io.bluetape4k.junit5.coroutines.runSuspendIO
+import io.bluetape4k.junit5.faker.Fakers
+import io.bluetape4k.logging.KLogging
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.RepeatedTest
 import org.junit.jupiter.api.Test

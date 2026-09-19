@@ -1,14 +1,14 @@
 package io.bluetape4k.netty.buffer
 
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeFalse
+import io.bluetape4k.assertions.shouldBeLessThan
+import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.assertions.shouldNotBeEmpty
 import io.bluetape4k.netty.AbstractNettyTest
 import io.bluetape4k.netty.util.use
 import io.netty.buffer.ByteBufAllocator
 import io.netty.buffer.Unpooled
-import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldBeFalse
-import io.bluetape4k.assertions.shouldBeTrue
-import io.bluetape4k.assertions.shouldNotBeEmpty
-import io.bluetape4k.assertions.shouldNotBeNull
 import org.junit.jupiter.api.Test
 import java.nio.CharBuffer
 
@@ -75,7 +75,7 @@ class ByteBufUtilSupportTest: AbstractNettyTest() {
         val result = a.compare(b)
         a.release()
         b.release()
-        (result < 0).shouldBeTrue()
+        result shouldBeLessThan 0
     }
 
     @Test
@@ -103,7 +103,6 @@ class ByteBufUtilSupportTest: AbstractNettyTest() {
     fun `prettyHexDump은 가독성 있는 hex dump 문자열을 반환한다`() {
         Unpooled.wrappedBuffer(byteArrayOf(0x41, 0x42, 0x43)).use { buf ->
             val dump = buf.prettyHexDump()
-            dump.shouldNotBeNull()
             dump.shouldNotBeEmpty()
         }
     }

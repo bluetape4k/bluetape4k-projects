@@ -1,12 +1,14 @@
 package io.bluetape4k.io.compressor
 
-import io.bluetape4k.logging.KLogging
-import io.bluetape4k.logging.debug
-import io.bluetape4k.support.closeSafe
+import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeFalse
 import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.assertions.shouldNotBeNull
 import io.bluetape4k.junit5.concurrency.MultithreadingTester
+import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.debug
+import io.bluetape4k.support.closeSafe
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
 import java.io.File
@@ -17,7 +19,6 @@ import java.nio.file.StandardCopyOption
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicBoolean
-import io.bluetape4k.assertions.assertFailsWith
 
 class ZipFileSupportTest {
 
@@ -37,7 +38,7 @@ class ZipFileSupportTest {
 
         val restored = ungzip(gzipFile)
         restored.exists().shouldBeTrue()
-        restored.readText(Charsets.UTF_8) shouldBeEqualTo "gzip 라운드트립 테스트 데이터"
+        restored.readText() shouldBeEqualTo "gzip 라운드트립 테스트 데이터"
     }
 
     @Test
@@ -87,7 +88,7 @@ class ZipFileSupportTest {
 
         val extracted = File(destDir, "hello.txt")
         extracted.exists().shouldBeTrue()
-        extracted.readText(Charsets.UTF_8) shouldBeEqualTo "zip 라운드트립 테스트"
+        extracted.readText() shouldBeEqualTo "zip 라운드트립 테스트"
     }
 
     @Test
@@ -135,8 +136,8 @@ class ZipFileSupportTest {
         unzip(zipFile, destDir, "*.txt")
 
         File(destDir, "readme.txt").exists().shouldBeTrue()
-        File(destDir, "app.log").exists() shouldBeEqualTo false
-        File(destDir, "data.csv").exists() shouldBeEqualTo false
+        File(destDir, "app.log").exists().shouldBeFalse()
+        File(destDir, "data.csv").exists().shouldBeFalse()
     }
 
     @Test
@@ -173,7 +174,7 @@ class ZipFileSupportTest {
             unzip(zipFile, destDir)
         }
 
-        File(tempDir, "safe-output-sibling/evil.txt").exists() shouldBeEqualTo false
+        File(tempDir, "safe-output-sibling/evil.txt").exists().shouldBeFalse()
     }
 
     @Test
@@ -193,7 +194,7 @@ class ZipFileSupportTest {
             unzip(zipFile, destDir)
         }
 
-        File(outsideDir, "evil.txt").exists() shouldBeEqualTo false
+        File(outsideDir, "evil.txt").exists().shouldBeFalse()
     }
 
     @Test
@@ -241,7 +242,7 @@ class ZipFileSupportTest {
             unzip(zipFile, destDir)
         }
 
-        File(outsideDir, "extracted/evil.txt").exists() shouldBeEqualTo false
+        File(outsideDir, "extracted/evil.txt").exists().shouldBeFalse()
     }
 
     @Test

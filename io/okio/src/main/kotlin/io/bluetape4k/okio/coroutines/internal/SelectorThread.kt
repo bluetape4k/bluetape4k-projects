@@ -1,6 +1,6 @@
 package io.bluetape4k.okio.coroutines.internal
 
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.error
 import kotlinx.coroutines.CancellableContinuation
 import kotlinx.coroutines.suspendCancellableCoroutine
@@ -30,7 +30,7 @@ internal val selector: SelectorThread by lazy {
  */
 internal class SelectorThread: Thread("okio selector") {
 
-    companion object: KLogging()
+    companion object: KLoggingChannel()
 
     init {
         isDaemon = true

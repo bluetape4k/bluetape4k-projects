@@ -5,13 +5,13 @@ import io.bluetape4k.support.requireGe
 import io.temporal.worker.WorkerFactory
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.withContext
 import java.util.concurrent.TimeUnit
-import kotlin.coroutines.coroutineContext
 import kotlin.time.Duration
 
-private object WorkerFactoryTemporalLog : KLoggingChannel()
+private object WorkerFactoryTemporalLog: KLoggingChannel()
 
 /**
  * [WorkerFactory]를 제한된 시간 안에 graceful shutdown합니다.
@@ -35,7 +35,7 @@ suspend fun WorkerFactory.shutdownSuspending(timeout: Duration, force: Boolean =
                 shutdown()
             }
             awaitTermination(validTimeout.inWholeMilliseconds, TimeUnit.MILLISECONDS)
-            coroutineContext.ensureActive()
+            currentCoroutineContext().ensureActive()
 
             if (!isTerminated && force) {
                 shutdownNow()

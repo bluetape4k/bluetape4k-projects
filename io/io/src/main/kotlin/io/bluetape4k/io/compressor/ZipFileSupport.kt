@@ -334,7 +334,7 @@ fun unzip(zipFile: File, destDir: File, vararg patterns: String) {
                     declaredUncompressedSize += entry.size
                     require(declaredUncompressedSize <= ZIP_MAX_UNCOMPRESSED_SIZE) {
                         "ZIP 비압축 총 크기가 허용 한도를 초과했습니다: " +
-                            "$declaredUncompressedSize > $ZIP_MAX_UNCOMPRESSED_SIZE bytes"
+                                "$declaredUncompressedSize > $ZIP_MAX_UNCOMPRESSED_SIZE bytes"
                     }
                 }
 
@@ -404,7 +404,7 @@ private fun extractZipEntry(
             0L
         }
 
-        else -> {
+        else     -> {
             val target = resolveZipTarget(canonicalDestDir, entryName)
             val parent = target.parent ?: canonicalDestDir
             createZipDirectories(canonicalDestDir, parent)
@@ -626,7 +626,7 @@ private fun InputStream.copyToLimited(output: OutputStream, remainingLimit: Long
         copied += read
         require(copied <= remainingLimit) {
             "ZIP 실제 비압축 총 크기가 허용 한도를 초과했습니다: " +
-                "${ZIP_MAX_UNCOMPRESSED_SIZE - remainingLimit + copied} > $ZIP_MAX_UNCOMPRESSED_SIZE bytes"
+                    "${ZIP_MAX_UNCOMPRESSED_SIZE - remainingLimit + copied} > $ZIP_MAX_UNCOMPRESSED_SIZE bytes"
         }
         output.write(buffer, 0, read)
     }

@@ -40,6 +40,7 @@ class TrackingInvalidationListener<V: Any>(
     private val connection: StatefulRedisConnection<String, V>,
     private val cacheName: String,
 ): AutoCloseable {
+
     companion object: KLogging() {
         private val trackingEnabled = TrackingArgs.Builder.enabled().noloop()
         private val trackingDisabled = TrackingArgs.Builder.enabled(false)

@@ -105,11 +105,11 @@ suspend fun fetchMultiple(api: HttpbinApi) = coroutineScope {
 
 OkHttp3 외에 다양한 HTTP 클라이언트를 `Call.Factory`로 사용할 수 있습니다.
 
-| CallFactory       | 기반 라이브러리                | 특성                  |
-|-------------------|-------------------------|---------------------|
-| OkHttpClient (기본) | OkHttp3                 | 경량, HTTP/2, 범용      |
-| Hc5CallFactory    | Apache HttpComponents 5 | 풍부한 설정, 엔터프라이즈 환경   |
-| VertxCallFactory  | Vert.x                  | 이벤트 루프 기반, 고성능      |
+| CallFactory         | 기반 라이브러리         | 특성                           |
+|---------------------|-------------------------|--------------------------------|
+| OkHttpClient (기본) | OkHttp3                 | 경량, HTTP/2, 범용             |
+| Hc5CallFactory      | Apache HttpComponents 5 | 풍부한 설정, 엔터프라이즈 환경 |
+| VertxCallFactory    | Vert.x                  | 이벤트 루프 기반, 고성능       |
 
 전송 계층 계약:
 

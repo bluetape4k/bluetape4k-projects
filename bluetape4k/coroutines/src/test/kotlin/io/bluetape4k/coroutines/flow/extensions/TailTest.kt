@@ -1,7 +1,10 @@
 package io.bluetape4k.coroutines.flow.extensions
 
 import io.bluetape4k.assertions.assertFailsWith
+import io.bluetape4k.assertions.shouldBeEmpty
 import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitCancellation
@@ -20,21 +23,27 @@ import org.junit.jupiter.api.Test
 
 class TailTest {
 
+    companion object: KLoggingChannel()
+
     @Test
     fun `suffix operators match collection results including nullable and oversized counts`() = runTest {
         val values = listOf(null, 1, 2, null, 3)
         for (count in listOf(0, 1, 2, 5, 8, Int.MAX_VALUE)) {
             values.asFlow().takeLast(count).toList() shouldBeEqualTo values.takeLast(count)
             values.asFlow().dropLast(count).toList() shouldBeEqualTo values.dropLast(count)
-            emptyFlow<Int>().takeLast(count).toList() shouldBeEqualTo emptyList()
-            emptyFlow<Int>().dropLast(count).toList() shouldBeEqualTo emptyList()
+            emptyFlow<Int>().takeLast(count).toList().shouldBeEmpty()
+            emptyFlow<Int>().dropLast(count).toList().shouldBeEmpty()
         }
     }
 
     @Test
     fun `negative counts fail before collection`() {
-        assertFailsWith<IllegalArgumentException> { emptyFlow<Int>().takeLast(-1) }
-        assertFailsWith<IllegalArgumentException> { emptyFlow<Int>().dropLast(-1) }
+        assertFailsWith<IllegalArgumentException> {
+            emptyFlow<Int>().takeLast(-1)
+        }
+        assertFailsWith<IllegalArgumentException> {
+            emptyFlow<Int>().dropLast(-1)
+        }
     }
 
     @Test
@@ -43,8 +52,10 @@ class TailTest {
         flow {
             collected = true
             emit(1)
-        }.takeLast(0).toList() shouldBeEqualTo emptyList()
-        collected shouldBeEqualTo true
+        }.takeLast(0).toList().shouldBeEmpty()
+
+        collected.shouldBeTrue()
+
         val failure = IllegalStateException("upstream")
         assertFailsWith<IllegalStateException> {
             flow<Int> { throw failure }.takeLast(0).collect()
@@ -65,9 +76,11 @@ class TailTest {
             }.takeLast(1).collect { values.add(it) }
         }
         ready.await()
-        values shouldBeEqualTo emptyList()
+        values.shouldBeEmpty()
+
         finish.complete(Unit)
         job.join()
+
         values shouldBeEqualTo listOf(2)
     }
 
@@ -81,10 +94,14 @@ class TailTest {
             } finally {
                 cleaned = true
             }
-        }.dropLast(2).take(3).toList()
+        }
+            .dropLast(2)
+            .take(3)
+            .toList()
+
         result shouldBeEqualTo listOf(1, 2, 3)
         produced shouldBeEqualTo 5
-        cleaned shouldBeEqualTo true
+        cleaned.shouldBeTrue()
     }
 
     @Test
@@ -92,10 +109,12 @@ class TailTest {
         val failure = IllegalStateException("upstream")
         val source = flow { emit(1); emit(2); emit(3); throw failure }
         val tail = mutableListOf<Int>()
+
         assertFailsWith<IllegalStateException> {
             source.takeLast(2).collect { tail.add(it) }
         } shouldBeEqualTo failure
-        tail shouldBeEqualTo emptyList()
+        tail.shouldBeEmpty()
+
         val prefix = mutableListOf<Int>()
         assertFailsWith<IllegalStateException> {
             source.dropLast(2).collect { prefix.add(it) }
@@ -123,9 +142,9 @@ class TailTest {
             }
             ready.await()
             job.cancelAndJoin()
-            cleaned shouldBeEqualTo true
-            job.isCancelled shouldBeEqualTo true
-            values shouldBeEqualTo emptyList()
+            cleaned.shouldBeTrue()
+            job.isCancelled.shouldBeTrue()
+            values.shouldBeEmpty()
         }
     }
 
@@ -135,7 +154,11 @@ class TailTest {
         for (operator in listOf<(Flow<Int>) -> Flow<Int>>({ it.takeLast(2) }, { it.dropLast(2) })) {
             var received = 0
             assertFailsWith<IllegalArgumentException> {
-                operator(flowOf(1, 2, 3, 4)).collect { received++; throw failure }
+                operator(flowOf(1, 2, 3, 4))
+                    .collect {
+                        received++
+                        throw failure
+                    }
             } shouldBeEqualTo failure
             received shouldBeEqualTo 1
         }
@@ -158,7 +181,10 @@ class TailTest {
         first.await() shouldBeEqualTo listOf(10)
         second.await() shouldBeEqualTo listOf(20)
         tail.toList() shouldBeEqualTo listOf(30)
+
         val prefix = flowOf(1, 2, 3).dropLast(1)
-        repeat(2) { prefix.toList() shouldBeEqualTo listOf(1, 2) }
+        repeat(2) {
+            prefix.toList() shouldBeEqualTo listOf(1, 2)
+        }
     }
 }

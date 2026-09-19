@@ -2,7 +2,9 @@ package io.bluetape4k.http.okhttp3
 
 import com.github.tomakehurst.wiremock.client.WireMock
 import io.bluetape4k.assertions.shouldBeGreaterThan
-import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.assertions.shouldBeNull
+import io.bluetape4k.assertions.shouldNotBeNull
+import io.bluetape4k.codec.Base58
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.info
 import io.bluetape4k.testcontainers.http.WireMockServer
@@ -68,7 +70,13 @@ class OkHttpDiskCacheVerificationTest {
         }
         dataUrl = "${wireMock.url}/cached-data"
 
-        cacheDir = File(System.getProperty("java.io.tmpdir"), "okhttp-verify-${System.nanoTime()}").apply { mkdirs() }
+        cacheDir = File(
+            System.getProperty("java.io.tmpdir"),
+            "okhttp-verify-${Base58.randomString(8)}"
+        ).apply {
+            mkdirs()
+        }
+
         client = OkHttpClient.Builder()
             .connectionPool(ConnectionPool(10, 5L, TimeUnit.MINUTES))
             .dispatcher(Dispatcher().apply { maxRequests = 50; maxRequestsPerHost = 50 })
@@ -112,8 +120,8 @@ class OkHttpDiskCacheVerificationTest {
         repeat(19) {
             client.newCall(request).execute().use { r ->
                 r.body.bytes()
-                (r.networkResponse == null).shouldBeTrue()   // 캐시 히트 = 네트워크 없음
-                (r.cacheResponse != null).shouldBeTrue()     // 캐시 응답 존재
+                r.networkResponse.shouldBeNull()     // 캐시 히트 = 네트워크 없음
+                r.cacheResponse.shouldNotBeNull()    // 캐시 응답 존재
             }
         }
 
@@ -140,7 +148,7 @@ class OkHttpDiskCacheVerificationTest {
         log.info { "캐시 히트: ${"%.0f".format(cacheOpsPerSec)} ops/s (단일 스레드)" }
 
         // 단일 스레드에서도 no-cache(100 ops/s @ 10ms) 대비 훨씬 빠름
-        (cacheOpsPerSec > 1000.0).shouldBeTrue()
+        cacheOpsPerSec shouldBeGreaterThan 1000.0
     }
 }
 

@@ -1,26 +1,26 @@
 package io.bluetape4k.cache.memoizer
 
-import io.bluetape4k.cache.memoizer.verifySuspendMemoizerClear
 import com.hazelcast.map.IMap
+import io.bluetape4k.assertions.assertFailsWith
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.cache.HazelcastServers.hazelcastClient
 import io.bluetape4k.junit5.coroutines.runSuspendIO
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withTimeoutOrNull
-import io.bluetape4k.assertions.shouldBeEqualTo
 import org.junit.jupiter.api.Test
 import org.testcontainers.utility.Base58
 import java.util.concurrent.atomic.AtomicInteger
 import kotlin.system.measureTimeMillis
-import io.bluetape4k.assertions.assertFailsWith
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
 
 class HazelcastSuspendMemoizerTest: AbstractSuspendMemoizerTest() {
 
-    companion object: KLogging() {
+    companion object: KLoggingChannel() {
         private fun <K: Any, V: Any> newMap(name: String = Base58.randomString(8)): IMap<K, V> =
             hazelcastClient.getMap<K, V>("suspend:memoizer:$name").apply { clear() }
     }
@@ -94,6 +94,7 @@ class HazelcastSuspendMemoizerTest: AbstractSuspendMemoizerTest() {
     fun `suspend memoizer should evaluate once for same key in concurrent calls`() = runSuspendIO {
         val map: IMap<Int, Int> = newMap()
         val evaluateCount = AtomicInteger(0)
+
         val memoizer = map.suspendMemoizer { key ->
             evaluateCount.incrementAndGet()
             delay(100.milliseconds)
@@ -102,7 +103,7 @@ class HazelcastSuspendMemoizerTest: AbstractSuspendMemoizerTest() {
 
         try {
             val results = List(16) { async { memoizer(7) } }.awaitAll()
-            results.forEach { it shouldBeEqualTo 49 }
+            results.all { it == 49 }.shouldBeTrue()
             evaluateCount.get() shouldBeEqualTo 1
         } finally {
             map.destroy()
@@ -115,6 +116,7 @@ class HazelcastSuspendMemoizerTest: AbstractSuspendMemoizerTest() {
         val map: IMap<Int, Int> = newMap()
         map.put(9, 81)
         val evaluateCount = AtomicInteger(0)
+
         val memoizer = map.suspendMemoizer { key ->
             evaluateCount.incrementAndGet()
             key * key
@@ -134,6 +136,7 @@ class HazelcastSuspendMemoizerTest: AbstractSuspendMemoizerTest() {
         // 다음 호출이 evaluator를 다시 실행할 수 있어야 한다.
         val map: IMap<Int, Int> = newMap()
         val evaluateCount = AtomicInteger(0)
+
         val memoizer = map.suspendMemoizer { key ->
             when (evaluateCount.incrementAndGet()) {
                 1 -> error("boom")

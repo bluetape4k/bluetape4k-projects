@@ -1,15 +1,19 @@
 package io.bluetape4k.io.serializer
 
 import io.bluetape4k.assertions.assertFailsWith
+import io.bluetape4k.assertions.shouldBeEmpty
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeSameInstanceAs
 import io.bluetape4k.io.compressor.Compressors
+import io.bluetape4k.logging.KLogging
 import org.junit.jupiter.api.Test
 import java.io.ByteArrayOutputStream
 import java.io.OutputStream
 import java.util.concurrent.CancellationException
 
 class CompressableBinarySerializerOutputStreamTest {
+
+    companion object: KLogging()
 
     @Test
     fun `stream serialization preserves compressed wire ahead of wrapped direct stream`() {
@@ -48,7 +52,7 @@ class CompressableBinarySerializerOutputStreamTest {
         }
 
         actual shouldBeSameInstanceAs failure
-        target.toByteArray() shouldBeEqualTo byteArrayOf()
+        target.toByteArray().shouldBeEmpty()
         target.flushCount shouldBeEqualTo 0
         target.closeCount shouldBeEqualTo 0
     }

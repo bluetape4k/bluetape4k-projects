@@ -1,8 +1,8 @@
 package io.bluetape4k.cache.nearcache.jcache
 
 import io.bluetape4k.assertions.assertFailsWith
-import io.bluetape4k.assertions.shouldBeFalse
 import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeFalse
 import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.cache.jcache.JCache
 import io.bluetape4k.cache.jcache.JCaching
@@ -12,9 +12,9 @@ import io.mockk.mockk
 import io.mockk.verify
 import io.mockk.verifyOrder
 import org.junit.jupiter.api.Test
+import java.util.*
 import java.util.concurrent.CancellationException
 import java.util.concurrent.ConcurrentLinkedQueue
-import java.util.UUID
 import javax.cache.configuration.MutableConfiguration
 
 class NearJCacheConditionalMutationContractTest {
@@ -142,6 +142,7 @@ class NearJCacheConditionalMutationContractTest {
         }
 
         error shouldBeEqualTo failure
+
         verify(exactly = 0) { frontCache.put(any(), any()) }
         verify(exactly = 0) { frontCache.remove(any()) }
     }
@@ -163,6 +164,7 @@ class NearJCacheConditionalMutationContractTest {
         }
 
         error shouldBeEqualTo cancellation
+
         verify(exactly = 0) { frontCache.put(any(), any()) }
         verify(exactly = 0) { frontCache.remove(any()) }
     }
@@ -186,6 +188,7 @@ class NearJCacheConditionalMutationContractTest {
         }
 
         error shouldBeEqualTo frontFailure
+
         verify(exactly = 1) { frontCache.remove("key") }
     }
 
@@ -211,10 +214,12 @@ class NearJCacheConditionalMutationContractTest {
             MultithreadingTester()
                 .workers(8)
                 .rounds(4)
-                .add { outcomes.add(nearCache.putIfAbsent("key", "value")) }
+                .add {
+                    outcomes.add(nearCache.putIfAbsent("key", "value"))
+                }
                 .run()
 
-            outcomes.count { it }.shouldBeEqualTo(1)
+            outcomes.count { it } shouldBeEqualTo 1
             backCache.get("key") shouldBeEqualTo "value"
             nearCache.get("key") shouldBeEqualTo "value"
             frontCache.get("key") shouldBeEqualTo "value"

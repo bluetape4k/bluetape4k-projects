@@ -1,18 +1,22 @@
 package io.bluetape4k.retrofit2
 
 import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeInstanceOf
 import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.assertions.shouldContain
 import io.bluetape4k.assertions.shouldNotBeNull
 import io.bluetape4k.http.okhttp3.mock.baseUrl
 import io.bluetape4k.junit5.coroutines.assertResourceCancelledOnCoroutineCancellation
 import io.bluetape4k.junit5.coroutines.runCatchingNonCancellation
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.debug
 import io.bluetape4k.retrofit2.services.TestService
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.runTest
+import net.datafaker.Faker
 import okhttp3.Protocol
 import okhttp3.Request
 import okhttp3.ResponseBody
@@ -29,8 +33,10 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import retrofit2.Call
 import retrofit2.Callback
+import retrofit2.HttpException
 import retrofit2.Response
 import retrofit2.converter.scalars.ScalarsConverterFactory
+import java.util.*
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicReference
 
@@ -39,7 +45,9 @@ import java.util.concurrent.atomic.AtomicReference
  */
 class SuspendRetrofitCallSupportTest {
 
-    companion object: KLogging()
+    companion object: KLogging() {
+        val faker = Faker(Locale.getDefault())
+    }
 
     private lateinit var server: MockWebServer
     private lateinit var api: TestService.TestInterface
@@ -57,22 +65,24 @@ class SuspendRetrofitCallSupportTest {
 
     @Test
     fun `suspendExecute returns successful response body`() = runSuspendIO {
-        server.enqueue(MockResponse().setBody("hello"))
+        val bodyStr = faker.lorem().paragraph()
+        server.enqueue(MockResponse().setBody(bodyStr))
 
         val response = api.get().suspendExecute()
 
         response.isSuccessful.shouldBeTrue()
-        response.body() shouldBeEqualTo "hello"
+        response.body() shouldBeEqualTo bodyStr
     }
 
     @Test
     fun `suspendExecute with 200 ok returns body`() = runSuspendIO {
-        server.enqueue(MockResponse().setResponseCode(200).setBody("success"))
+        val bodyStr = faker.lorem().paragraph()
+        server.enqueue(MockResponse().setResponseCode(200).setBody(bodyStr))
 
         val response = api.get().suspendExecute()
 
         response.code() shouldBeEqualTo 200
-        response.body().shouldNotBeNull()
+        response.body() shouldBeEqualTo bodyStr
     }
 
     @Test
@@ -107,9 +117,10 @@ class SuspendRetrofitCallSupportTest {
 
     @Test
     fun `suspendExecute cancels underlying call when coroutine is cancelled`() = runSuspendIO {
+        val bodyStr = faker.lorem().paragraph()
         server.enqueue(
             MockResponse()
-                .setBody("late")
+                .setBody(bodyStr)
                 .setBodyDelay(5, TimeUnit.SECONDS)
         )
 
@@ -122,7 +133,8 @@ class SuspendRetrofitCallSupportTest {
             resourceCancelled = { call.isCanceled },
         ) {
             call = api.get()
-            call.suspendExecute()
+            val response = call.suspendExecute()
+            response.body() shouldBeEqualTo bodyStr
         }
     }
 
@@ -134,18 +146,31 @@ class SuspendRetrofitCallSupportTest {
 
         val job = launch {
             runCatching {
-                call.suspendExecute { cancelCause.set(it) }
+                call.suspendExecute { ex ->
+                    cancelCause.set(ex)
+                }
             }
         }
 
+        val bodyStr = faker.lorem().paragraph()
         call.awaitEnqueued()
+
         job.cancel("cancel before response")
-        call.callback.onResponse(call, successResponse("hello", body))
+        call.callback.onResponse(call, successResponse(bodyStr, body))
         job.join()
 
+        log.debug { "call cancelled=${call.isCanceled}, executed=${call.isExecuted}" }
+
+        call.isExecuted.shouldBeTrue()
         call.isCanceled.shouldBeTrue()
+
+        log.debug { "body contentLength=${body.contentLength()}" }
+        body.contentLength() shouldBeEqualTo 0
         body.closed.shouldBeTrue()
-        cancelCause.get().shouldNotBeNull()
+
+        log.debug { "cancelCause=${cancelCause}" }
+        cancelCause.get().shouldBeInstanceOf<HttpException>()
+        cancelCause.get()?.message shouldContain "HTTP 200 OK"
     }
 
     @Test
@@ -165,24 +190,33 @@ class SuspendRetrofitCallSupportTest {
         call.callback.onResponse(call, Response.error(500, body))
         job.join()
 
+        log.debug { "call cancelled=${call.isCanceled}, executed=${call.isExecuted}" }
+
+        call.isExecuted.shouldBeTrue()
         call.isCanceled.shouldBeTrue()
+
+
+        log.debug { "body contentLength=${body.contentLength()}" }
+        body.contentLength() shouldBeEqualTo 0
         body.closed.shouldBeTrue()
-        cancelCause.get().shouldNotBeNull()
+
+        log.debug { "cancelCause=${cancelCause}" }
+        cancelCause.get().shouldBeInstanceOf<HttpException>()
+        cancelCause.get()?.message shouldContain "HTTP 500 Response.error()"
     }
 
     private fun successResponse(
         body: String,
         rawBody: ResponseBody,
     ): Response<String> {
-        val raw =
-            okhttp3.Response
-                .Builder()
-                .request(Request.Builder().url("https://example.test/").build())
-                .protocol(Protocol.HTTP_1_1)
-                .code(200)
-                .message("OK")
-                .body(rawBody)
-                .build()
+        val raw = okhttp3.Response
+            .Builder()
+            .request(Request.Builder().url("https://example.test/").build())
+            .protocol(Protocol.HTTP_1_1)
+            .code(200)
+            .message("OK")
+            .body(rawBody)
+            .build()
 
         return Response.success(body, raw)
     }

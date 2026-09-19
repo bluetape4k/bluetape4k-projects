@@ -18,13 +18,21 @@ class HeaderIndex private constructor(
          * @param headers 헤더명 배열
          * @return 생성된 HeaderIndex 인스턴스
          */
-        fun of(headers: Array<String>): HeaderIndex {
+        operator fun invoke(headers: Array<String>): HeaderIndex {
             val map = LinkedHashMap<String, Int>(headers.size * 2)
             headers.forEachIndexed { i, name ->
                 map.putIfAbsent(name, i)
             }
             return HeaderIndex(map)
         }
+
+        /**
+         * headers 배열로 HeaderIndex를 생성한다. 중복 키는 first-wins.
+         *
+         * @param headers 헤더명 배열
+         * @return 생성된 HeaderIndex 인스턴스
+         */
+        fun of(headers: Array<String>): HeaderIndex = invoke(headers)
     }
 
     /**

@@ -5,19 +5,20 @@ package io.bluetape4k.junit5.http.idempotency
 import java.time.Duration
 
 internal typealias ConformanceScenario = Pair<
-    String,
-    suspend (
-        BoundedWaitHttpIdempotencyAdapter,
-        BoundedWaitHttpIdempotencyConformanceConfig,
-    ) -> Unit,
->
+        String,
+        suspend (
+            BoundedWaitHttpIdempotencyAdapter,
+            BoundedWaitHttpIdempotencyConformanceConfig,
+        ) -> Unit,
+        >
 
 internal val ConformanceScenario.name: String get() = first
 
 internal val ConformanceScenario.run: suspend (
     BoundedWaitHttpIdempotencyAdapter,
     BoundedWaitHttpIdempotencyConformanceConfig,
-) -> Unit get() = second
+) -> Unit
+    get() = second
 
 internal fun request(
     authenticationProfile: String = "tenant-a-principal",

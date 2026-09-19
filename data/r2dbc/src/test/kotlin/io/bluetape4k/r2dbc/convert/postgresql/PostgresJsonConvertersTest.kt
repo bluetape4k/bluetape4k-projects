@@ -3,23 +3,27 @@ package io.bluetape4k.r2dbc.convert.postgresql
 import ch.qos.logback.classic.Logger
 import ch.qos.logback.classic.spi.ILoggingEvent
 import ch.qos.logback.core.read.ListAppender
-import org.slf4j.LoggerFactory
-import io.bluetape4k.assertions.shouldNotContain
-import io.bluetape4k.assertions.shouldBeNull
-import io.bluetape4k.assertions.shouldHaveSize
 import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeInstanceOf
+import io.bluetape4k.assertions.shouldBeNull
+import io.bluetape4k.assertions.shouldHaveSize
+import io.bluetape4k.assertions.shouldNotContain
 import io.bluetape4k.jackson3.Jackson
+import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.debug
 import io.mockk.every
 import io.mockk.mockk
 import io.r2dbc.postgresql.codec.Json
 import org.junit.jupiter.api.Test
+import org.slf4j.LoggerFactory
 import org.springframework.core.convert.ConversionFailedException
 import tools.jackson.core.JacksonException
 import tools.jackson.databind.ObjectMapper
 
 class PostgresJsonConvertersTest {
+
+    companion object: KLogging()
 
     @Test
     fun `변환 실패 로그는 payload와 예외 원문의 비밀값을 포함하지 않는다`() {
@@ -27,6 +31,7 @@ class PostgresJsonConvertersTest {
             val logger = LoggerFactory.getLogger(type) as Logger
             val appender = ListAppender<ILoggingEvent>().apply { start() }
             logger.addAppender(appender)
+
             try {
                 assertFailsWith<ConversionFailedException> {
                     if (type == JsonToMapConverter::class.java) {
@@ -43,6 +48,7 @@ class PostgresJsonConvertersTest {
                 }
                 appender.list shouldHaveSize 1
                 appender.list.forEach {
+                    log.debug { "formatted message:${it.formattedMessage}" }
                     it.formattedMessage shouldNotContain "payload-secret"
                     it.formattedMessage shouldNotContain "cause-secret"
                     it.throwableProxy.shouldBeNull()

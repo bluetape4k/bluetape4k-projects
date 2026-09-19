@@ -3,12 +3,12 @@ package io.bluetape4k.http.okhttp3.examples
 import com.alibaba.fastjson2.toJSONByteArray
 import com.alibaba.fastjson2.toJSONString
 import io.bluetape4k.assertions.assertFailsWith
+import io.bluetape4k.assertions.fail
 import io.bluetape4k.assertions.shouldBeInstanceOf
 import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.assertions.shouldNotBeEmpty
 import io.bluetape4k.assertions.shouldNotBeEqualTo
 import io.bluetape4k.assertions.shouldNotBeNull
-import io.bluetape4k.assertions.fail
 import io.bluetape4k.concurrent.onFailure
 import io.bluetape4k.concurrent.onSuccess
 import io.bluetape4k.http.AbstractHttpTest
@@ -276,7 +276,7 @@ class Recipes: AbstractHttpTest() {
         assertFailsWith<CompletionException> {
             client.executeAsync(request)
                 .onSuccess { fail("Timeout 에러가 나야합니다.") }
-                .onFailure { error -> error.cause shouldBeInstanceOf SocketTimeoutException::class }
+                .onFailure { error -> error.cause.shouldBeInstanceOf<SocketTimeoutException>() }
                 .join()
         }
     }

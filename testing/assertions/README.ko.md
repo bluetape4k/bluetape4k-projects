@@ -2,8 +2,7 @@
 
 [English](README.md)
 
-JUnit 5 기반의 bluetape4k assertion DSL입니다. 공개 DSL에 필요한 JUnit Jupiter API와 Kotlin coroutines만 api scope로 노출하고,
-Turbine 연동은 `compileOnly`로 유지합니다.
+JUnit 5 기반의 bluetape4k assertion DSL입니다. 공개 DSL에 필요한 JUnit Jupiter API와 Kotlin coroutines만 api scope로 노출하고, Turbine 연동은 `compileOnly`로 유지합니다.
 
 ## 아키텍처
 
@@ -54,33 +53,33 @@ class MyTest {
         // 기본
         "hello" shouldBeEqualTo "hello"
         "hello" shouldNotBeEqualTo "world"
-        
+
         // shouldNotBeNull 후 스마트 캐스트
         val name: String? = "John"
         name.shouldNotBeNull().length shouldBeGreaterThan 0
-        
+
         // 컬렉션
         listOf(1, 2, 3) shouldContainAll listOf(1, 2)
         listOf(1, 2, 3) shouldNotContainAny listOf(4, 5)
         listOf("GET", "POST") shouldContainIgnoringCase "post"
-        
+
         // 문자열
         "hello".shouldStartWith("he")
         "hello".shouldEndWith("lo")
-        
+
         // 숫자 비교
         5 shouldBeLessThan 10
         5 shouldBeGreaterOrEqualTo 5
         5 shouldBeInRange 1..10
         UInt.MAX_VALUE shouldBeInRange Int.MAX_VALUE.toUInt()..UInt.MAX_VALUE
         5.0.shouldBeNear(5.1, tolerance = 0.2)
-        
+
         // 예외
         invoking { error("boom") }.shouldThrow(IllegalStateException::class)
-        
+
         // 리플렉션
         listOf(1, 2, 3).shouldBeInstanceOf<List<*>>()
-        
+
         // 날짜시간
         val now = LocalDateTime.now()
         now.shouldBeAfter(now.minusSeconds(1))
@@ -93,7 +92,7 @@ class MyTest {
         flowOf(1, 2, 3).assertResult(1, 2, 3)
         emptyFlow<Int>().assertEmpty()
     }
-    
+
     @Test
     fun `softly 검증`() {
         assertSoftly {
@@ -103,7 +102,7 @@ class MyTest {
         }
         // 모든 검증 수집, 실패 시 MultipleFailuresError 발생
     }
-    
+
 }
 ```
 
@@ -111,77 +110,77 @@ class MyTest {
 
 ### 기본 검증
 
-| 함수 | 설명 |
-|------|------|
-| `shouldBe(expected)` | 참조 동일성 (===) |
-| `shouldNotBe(expected)` | 참조 다름 (!==) |
-| `shouldBeEqualTo(expected)` | 값 동등성 (==) |
-| `shouldNotBeEqualTo(expected)` | 값 다름 (!=) |
-| `shouldBeNull()` | null 확인 |
-| `shouldNotBeNull()` | null 아님 확인 (스마트 캐스트) |
+| 함수                           | 설명                           |
+|--------------------------------|--------------------------------|
+| `shouldBe(expected)`           | 참조 동일성 (===)              |
+| `shouldNotBe(expected)`        | 참조 다름 (!==)                |
+| `shouldBeEqualTo(expected)`    | 값 동등성 (==)                 |
+| `shouldNotBeEqualTo(expected)` | 값 다름 (!=)                   |
+| `shouldBeNull()`               | null 확인                      |
+| `shouldNotBeNull()`            | null 아님 확인 (스마트 캐스트) |
 
 ### 숫자 비교
 
-| 함수 | 설명 |
-|------|------|
-| `shouldBeLessThan(bound)` | < |
-| `shouldBeLessOrEqualTo(bound)` | <= |
-| `shouldBeGreaterThan(bound)` | > |
-| `shouldBeGreaterOrEqualTo(bound)` | >= |
-| `shouldBePositive()` | > 0 |
-| `shouldBeNegative()` | < 0 |
-| `shouldBeInRange(range)` | 닫힌 범위 포함 확인 |
-| `shouldNotBeInRange(range)` | 닫힌 범위 미포함 확인 |
-| `UInt/ULong shouldBeInRange range` | unsigned 범위 포함 확인 |
-| `UInt/ULong shouldNotBeInRange range` | unsigned 범위 미포함 확인 |
-| `shouldBeNear(expected, tolerance)` | 부동소수점 근사 동등 |
-| `BigDecimal shouldBeEqualTo expected` | scale 무관 동등 (`compareTo`) |
+| 함수                                     | 설명                            |
+|------------------------------------------|---------------------------------|
+| `shouldBeLessThan(bound)`                | <                               |
+| `shouldBeLessOrEqualTo(bound)`           | <=                              |
+| `shouldBeGreaterThan(bound)`             | >                               |
+| `shouldBeGreaterOrEqualTo(bound)`        | >=                              |
+| `shouldBePositive()`                     | > 0                             |
+| `shouldBeNegative()`                     | < 0                             |
+| `shouldBeInRange(range)`                 | 닫힌 범위 포함 확인             |
+| `shouldNotBeInRange(range)`              | 닫힌 범위 미포함 확인           |
+| `UInt/ULong shouldBeInRange range`       | unsigned 범위 포함 확인         |
+| `UInt/ULong shouldNotBeInRange range`    | unsigned 범위 미포함 확인       |
+| `shouldBeNear(expected, tolerance)`      | 부동소수점 근사 동등            |
+| `BigDecimal shouldBeEqualTo expected`    | scale 무관 동등 (`compareTo`)   |
 | `BigDecimal shouldNotBeEqualTo expected` | scale 무관 비동등 (`compareTo`) |
 
 ### 컬렉션 & 배열
 
-| 함수 | 설명 |
-|------|------|
-| `shouldBeEmpty()` | 빈 컬렉션 |
-| `shouldNotBeEmpty()` | 비어있지 않음 |
-| `shouldContainAll(elements)` | 모든 요소 포함 (⊇) |
-| `shouldNotContainAny(elements)` | 어떤 요소도 미포함 (∩ = ∅) |
-| `shouldContainIgnoringCase(element)` | 문자열 컬렉션에서 대소문자 무시 요소 포함 |
-| `shouldHaveSize(size)` | 크기 확인 |
-| `shouldContain(element)` | 요소 포함 |
-| `IntArray shouldBeEqualTo expected` | primitive 배열 내용 동등 (`contentEquals`) |
-| `ByteArray shouldBeEqualTo expected` | primitive 배열 내용 동등 (`contentEquals`) |
-| `Array<T> shouldBeEqualTo expected` | 객체 배열 deep 내용 동등 (`contentDeepEquals`) |
+| 함수                                 | 설명                                           |
+|--------------------------------------|------------------------------------------------|
+| `shouldBeEmpty()`                    | 빈 컬렉션                                      |
+| `shouldNotBeEmpty()`                 | 비어있지 않음                                  |
+| `shouldContainAll(elements)`         | 모든 요소 포함 (⊇)                             |
+| `shouldNotContainAny(elements)`      | 어떤 요소도 미포함 (∩ = ∅)                     |
+| `shouldContainIgnoringCase(element)` | 문자열 컬렉션에서 대소문자 무시 요소 포함      |
+| `shouldHaveSize(size)`               | 크기 확인                                      |
+| `shouldContain(element)`             | 요소 포함                                      |
+| `IntArray shouldBeEqualTo expected`  | primitive 배열 내용 동등 (`contentEquals`)     |
+| `ByteArray shouldBeEqualTo expected` | primitive 배열 내용 동등 (`contentEquals`)     |
+| `Array<T> shouldBeEqualTo expected`  | 객체 배열 deep 내용 동등 (`contentDeepEquals`) |
 
 ### 예외
 
-| 함수 | 설명 |
-|------|------|
-| `invoking { }.shouldThrow(E::class)` | 동기 블록이 E 예외 발생 |
-| `invoking { }.shouldNotThrow()` | 동기 블록이 예외 미발생 |
-| `coInvoking { }.shouldThrow(E::class)` | 비동기 블록이 E 예외 발생 |
-| `.withMessage(msg)` | 정확한 메시지 일치 (체이닝) |
-| `.withMessageContaining(substring)` | 메시지 부분 포함 (체이닝) |
+| 함수                                   | 설명                        |
+|----------------------------------------|-----------------------------|
+| `invoking { }.shouldThrow(E::class)`   | 동기 블록이 E 예외 발생     |
+| `invoking { }.shouldNotThrow()`        | 동기 블록이 예외 미발생     |
+| `coInvoking { }.shouldThrow(E::class)` | 비동기 블록이 E 예외 발생   |
+| `.withMessage(msg)`                    | 정확한 메시지 일치 (체이닝) |
+| `.withMessageContaining(substring)`    | 메시지 부분 포함 (체이닝)   |
 
 ### 리플렉션
 
-| 함수 | 설명 |
-|------|------|
-| `shouldBeInstanceOf<T>()` | 인스턴스 확인 (스마트 캐스트) |
-| `shouldNotBeInstanceOf<T>()` | 인스턴스 아님 확인 |
+| 함수                         | 설명                          |
+|------------------------------|-------------------------------|
+| `shouldBeInstanceOf<T>()`    | 인스턴스 확인 (스마트 캐스트) |
+| `shouldNotBeInstanceOf<T>()` | 인스턴스 아님 확인            |
 
 ## 마이그레이션 참고
 
 패키지는 `io.bluetape4k.assertions`를 유지하지만, 동등성 의미는 의도적으로 분리했습니다.
 
-| 기존 기대 동작 | 이 모듈에서 사용할 함수 | 주의사항 |
-|--------|----------------------|---------|
-| `shouldBe`로 값 동등성 확인 | `shouldBeEqualTo` | 구조적 동등성(`==`) 확인 |
-| `shouldBe` (ref ===) | `shouldBe` | 동일한 동작 |
-| `shouldNotBeNull()` | `shouldNotBeNull()` | + 스마트 캐스트 지원 |
-| `shouldThrow(E::class)` | `invoking { }.shouldThrow(E::class)` | 명시적 블록 래퍼 |
-| `shouldHaveMessage()` | `.withMessage()` | InvokingBlock에서 체이닝 |
-| `coInvoking { }` | `coInvoking { }` | 완전한 coroutine 지원 |
+| 기존 기대 동작              | 이 모듈에서 사용할 함수              | 주의사항                 |
+|-----------------------------|--------------------------------------|--------------------------|
+| `shouldBe`로 값 동등성 확인 | `shouldBeEqualTo`                    | 구조적 동등성(`==`) 확인 |
+| `shouldBe` (ref ===)        | `shouldBe`                           | 동일한 동작              |
+| `shouldNotBeNull()`         | `shouldNotBeNull()`                  | + 스마트 캐스트 지원     |
+| `shouldThrow(E::class)`     | `invoking { }.shouldThrow(E::class)` | 명시적 블록 래퍼         |
+| `shouldHaveMessage()`       | `.withMessage()`                     | InvokingBlock에서 체이닝 |
+| `coInvoking { }`            | `coInvoking { }`                     | 완전한 coroutine 지원    |
 
 ### 중요한 의미 변화
 

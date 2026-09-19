@@ -1,11 +1,12 @@
 package io.bluetape4k.concurrent.virtualthread.jdk25
 
-import io.bluetape4k.concurrent.virtualthread.api.TaskContext
-import io.bluetape4k.logging.KLogging
-import io.bluetape4k.logging.debug
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeNull
 import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.assertions.shouldHaveSize
+import io.bluetape4k.concurrent.virtualthread.api.TaskContext
+import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.debug
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.condition.EnabledForJreRange
 import org.junit.jupiter.api.condition.JRE
@@ -17,7 +18,7 @@ import java.util.concurrent.CopyOnWriteArrayList
 @EnabledForJreRange(min = JRE.JAVA_25)
 class Jdk25TaskContextTest {
 
-    companion object : KLogging()
+    companion object: KLogging()
 
     private val provider = Jdk25StructuredTaskScopeProvider()
 
@@ -29,7 +30,7 @@ class Jdk25TaskContextTest {
         val results = TaskContext.bind(requestId, "req-jdk25")
             .and(tenantId, "tenant-25")
             .call {
-                provider.withSupervised<String, List<String>> { scope ->
+                provider.withSupervised { scope ->
                     repeat(3) { i ->
                         scope.fork {
                             val rid = TaskContext.get(requestId)
@@ -43,7 +44,7 @@ class Jdk25TaskContextTest {
                 }
             }
 
-        results.size shouldBeEqualTo 3
+        results shouldHaveSize 3
         results.all { it == "req-jdk25:tenant-25" }.shouldBeTrue()
     }
 
@@ -65,7 +66,7 @@ class Jdk25TaskContextTest {
             }
         }
 
-        collected.size shouldBeEqualTo 4
+        collected shouldHaveSize 4
         collected.all { it == "trace-jdk25" }.shouldBeTrue()
     }
 
@@ -74,7 +75,7 @@ class Jdk25TaskContextTest {
         val requestId = TaskContext.newKey<String>()
 
         val results = TaskContext.run(requestId, "req-result") {
-            provider.withSupervised<String, List<Result<String>>> { scope ->
+            provider.withSupervised { scope ->
                 scope.fork { TaskContext.get(requestId) ?: "NOT_FOUND" }
                 scope.fork { TaskContext.get(requestId) ?: "NOT_FOUND" }
                 scope.fork { throw RuntimeException("intentional failure") }
@@ -83,7 +84,7 @@ class Jdk25TaskContextTest {
             }
         }
 
-        results.size shouldBeEqualTo 3
+        results shouldHaveSize 3
         results.count { it.isSuccess } shouldBeEqualTo 2
         results.count { it.isFailure } shouldBeEqualTo 1
         results.filter { it.isSuccess }.all { it.getOrThrow() == "req-result" }.shouldBeTrue()

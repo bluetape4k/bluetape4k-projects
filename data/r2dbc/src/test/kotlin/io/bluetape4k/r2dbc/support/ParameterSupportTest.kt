@@ -1,11 +1,12 @@
 package io.bluetape4k.r2dbc.support
 
-import io.r2dbc.spi.Parameter
-import io.r2dbc.spi.Parameters
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeInstanceOf
 import io.bluetape4k.assertions.shouldBeNull
-import io.bluetape4k.assertions.shouldNotBeNull
+import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.debug
+import io.r2dbc.spi.Parameter
+import io.r2dbc.spi.Parameters
 import org.junit.jupiter.api.Test
 
 /**
@@ -13,9 +14,11 @@ import org.junit.jupiter.api.Test
  *
  * - null 값은 typed-null [Parameter]로 변환됨
  * - 이미 [Parameter] 타입이면 그대로 반환됨
- * - 일반 값은 [Parameters.in]으로 래핑됨
+ * - 일반 값은 [Parameters. in]으로 래핑됨
  */
 class ParameterSupportTest {
+
+    companion object: KLogging()
 
     /**
      * 일반 값은 Parameters.in으로 래핑된 Parameter를 반환해야 합니다.
@@ -24,7 +27,8 @@ class ParameterSupportTest {
     fun `toParameter - 일반 값을 Parameter 로 변환한다`() {
         val param = "hello".toParameter()
 
-        param.shouldNotBeNull()
+        log.debug { "param: $param" }
+
         param.shouldBeInstanceOf<Parameter>()
         param.value shouldBeEqualTo "hello"
     }
@@ -38,6 +42,7 @@ class ParameterSupportTest {
         val original = Parameters.`in`("world")
         val param = original.toParameter()
 
+        log.debug { "param: $param" }
         param shouldBeEqualTo original
     }
 
@@ -50,7 +55,7 @@ class ParameterSupportTest {
     fun `toParameter(type) - null 값을 typed null Parameter 로 변환한다`() {
         val param = null.toParameter(String::class.java)
 
-        param.shouldNotBeNull()
+        log.debug { "param: $param" }
         param.shouldBeInstanceOf<Parameter>()
         param.value.shouldBeNull()
     }
@@ -62,7 +67,19 @@ class ParameterSupportTest {
     fun `toParameter(type) - 값이 있을 때 Parameters_in 으로 래핑한다`() {
         val param = 42.toParameter(Int::class.java)
 
-        param.shouldNotBeNull()
+        log.debug { "param: $param" }
+        param.shouldBeInstanceOf<Parameter>()
+        param.value shouldBeEqualTo 42
+    }
+
+    /**
+     * null이 아닌 값에 타입을 지정하면 값이 래핑된 Parameter가 반환되어야 합니다.
+     */
+    @Test
+    fun `toParameter inline - 값이 있을 때 Parameters_in 으로 래핑한다`() {
+        val param = 42.toParameter<Int>()
+
+        log.debug { "param: $param" }
         param.shouldBeInstanceOf<Parameter>()
         param.value shouldBeEqualTo 42
     }
@@ -75,7 +92,7 @@ class ParameterSupportTest {
     fun `Class toParameter - null Parameter 를 반환한다`() {
         val param = Long::class.java.toParameter()
 
-        param.shouldNotBeNull()
+        log.debug { "param: $param" }
         param.shouldBeInstanceOf<Parameter>()
         param.value.shouldBeNull()
     }

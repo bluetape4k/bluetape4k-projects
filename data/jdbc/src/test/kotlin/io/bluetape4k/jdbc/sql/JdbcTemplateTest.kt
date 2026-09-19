@@ -21,6 +21,7 @@ import java.sql.Types
 class JdbcTemplateTest: AbstractJdbcSqlTest() {
 
     companion object: KLogging() {
+
         const val SELECT1: String = "$SELECT WHERE id = 1"
         const val SELECT_ID_PYTHON = "$SELECT_ID WHERE description = 'python'"
         const val SELECT_GREATER_THAN = "$SELECT WHERE id > ?"

@@ -19,7 +19,7 @@ class DoubleSupportTest {
     @Test
     fun `Float isFinite는 유한 값만 true를 반환한다`() {
         0.0F.isFinite.shouldBeTrue()
-        1234.5678F.isFinite.shouldBeTrue()
+        1234.567F.isFinite.shouldBeTrue()
 
         Float.NaN.isFinite.shouldBeFalse()
         Float.POSITIVE_INFINITY.isFinite.shouldBeFalse()

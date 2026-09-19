@@ -1,14 +1,13 @@
 package io.bluetape4k.hibernate.stateless
 
+import io.bluetape4k.assertions.shouldNotBeEmpty
+import io.bluetape4k.assertions.shouldNotBeNull
 import io.bluetape4k.hibernate.AbstractHibernateTest
 import io.bluetape4k.junit5.faker.Fakers
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
-import io.bluetape4k.logging.trace
 import io.bluetape4k.support.asInt
 import io.bluetape4k.support.asString
-import io.bluetape4k.assertions.shouldNotBeEmpty
-import io.bluetape4k.assertions.shouldNotBeNull
 import org.junit.jupiter.api.MethodOrderer
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Order
@@ -68,7 +67,7 @@ class StatelessSessionTest: AbstractHibernateTest() {
                 }
                 flush()
             }
-            log.trace { "Session save: $elapsed  msec" }
+            log.debug { "Session save: $elapsed  msec" }
         }
 
         @RepeatedTest(REPEAT_SIZE)
@@ -80,7 +79,7 @@ class StatelessSessionTest: AbstractHibernateTest() {
                 }
                 tem.flush()
             }
-            log.trace { "Session save: $elapsed msec" }
+            log.debug { "Session save: $elapsed msec" }
         }
     }
 
@@ -96,7 +95,7 @@ class StatelessSessionTest: AbstractHibernateTest() {
                     }
                 }
             }
-            log.trace { "Stateless save: $elapsed  msec" }
+            log.debug { "Stateless save: $elapsed  msec" }
         }
 
         @RepeatedTest(REPEAT_SIZE)
@@ -112,7 +111,7 @@ class StatelessSessionTest: AbstractHibernateTest() {
                     }
                 }
             }
-            log.trace { "Stateless save: $elapsed msec" }
+            log.debug { "Stateless save: $elapsed msec" }
         }
     }
 
@@ -153,6 +152,9 @@ class StatelessSessionTest: AbstractHibernateTest() {
                 .list()
         }
         masters2.shouldNotBeNull().shouldNotBeEmpty()
+        masters2.forEach { master ->
+            log.debug { "master=$master" }
+        }
     }
 
     private fun createMaster(name: String, detailCount: Int = 10): StatelessMaster {

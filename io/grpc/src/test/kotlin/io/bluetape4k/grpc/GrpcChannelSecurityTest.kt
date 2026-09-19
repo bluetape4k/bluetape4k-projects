@@ -1,15 +1,20 @@
 package io.bluetape4k.grpc
 
 import io.bluetape4k.assertions.assertFailsWith
+import io.bluetape4k.assertions.shouldNotBeNull
+import io.bluetape4k.logging.KLogging
+import io.bluetape4k.support.closeSafe
+import io.grpc.ManagedChannelBuilder
 import io.mockk.clearMocks
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
-import io.grpc.ManagedChannelBuilder
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 
 class GrpcChannelSecurityTest {
+
+    companion object: KLogging()
 
     private val builder = mockk<ManagedChannelBuilder<*>>(relaxed = true)
 
@@ -67,7 +72,7 @@ class GrpcChannelSecurityTest {
     @Test
     fun `abstract client host port constructor allows local plaintext opt-in`() {
         val client = TestClient("localhost", 50051, GrpcChannelSecurity.LOCAL_PLAINTEXT)
-
-        client.close()
+        client.shouldNotBeNull()
+        client.closeSafe()
     }
 }

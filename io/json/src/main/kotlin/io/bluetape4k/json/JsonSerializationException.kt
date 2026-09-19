@@ -16,9 +16,7 @@ import java.io.Serializable
  * // ex.message == "deserialize failed"
  * ```
  */
-open class JsonSerializationException:
-    RuntimeException,
-    Serializable {
+open class JsonSerializationException: RuntimeException {
     companion object {
         private const val serialVersionUID: Long = 1L
     }

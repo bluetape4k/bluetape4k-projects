@@ -1,5 +1,6 @@
 package io.bluetape4k.hibernate.spring.stateless
 
+import io.bluetape4k.hibernate.spring.StatelessSessionFactoryBean
 import org.hibernate.SessionFactory
 import org.springframework.boot.test.context.TestConfiguration
 import org.springframework.context.annotation.Bean

@@ -1,7 +1,7 @@
 package io.bluetape4k.grpc
 
 import io.grpc.ManagedChannelBuilder
-import java.util.Locale
+import java.util.*
 
 /**
  * Security profile for gRPC client channels created by bluetape4k helpers.
@@ -26,7 +26,7 @@ internal fun ManagedChannelBuilder<*>.applyGrpcChannelSecurity(
 ): ManagedChannelBuilder<*> = apply {
     when (security) {
         GrpcChannelSecurity.TRANSPORT_SECURITY -> useTransportSecurity()
-        GrpcChannelSecurity.LOCAL_PLAINTEXT   -> {
+        GrpcChannelSecurity.LOCAL_PLAINTEXT -> {
             require(host.isLocalPlaintextHost()) {
                 "LOCAL_PLAINTEXT is allowed only for loopback hosts. Use a ManagedChannel for custom test targets."
             }

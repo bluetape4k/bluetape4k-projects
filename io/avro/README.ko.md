@@ -6,7 +6,7 @@
 
 Apache Avro 직렬화/역직렬화를 위한 고수준 API를 제공하는 모듈입니다.
 
-다양한 압축 코덱(Zstandard, Snappy, Deflate 등)을 지원하며, Base64 문자열 변환, 리스트 직렬화, 스키마 진화(Schema Evolution)를 포함한 완전한 Avro 직렬화 솔루션을 제공합니다.
+다양한 압축 코덱 (Zstandard, Snappy, Deflate 등)을 지원하며, Base64 문자열 변환, 리스트 직렬화, 스키마 진화 (Schema Evolution)를 포함한 완전한 Avro 직렬화 솔루션을 제공합니다.
 
 ## 아키텍처 다이어그램
 
@@ -42,10 +42,10 @@ val deserialized = serializer.deserialize(schema, bytes)
 
 ### AvroSpecificRecordSerializer
 
-- Avro 스키마(.avdl, .avsc)로부터 코드 생성된 `SpecificRecord` 기반 직렬화
+- Avro 스키마 (.avdl, .avsc)로부터 코드 생성된 `SpecificRecord` 기반 직렬화
 - 컴파일 타임 타입 안전성 보장
 - 단일 객체 및 리스트 직렬화/역직렬화 지원
-- 스키마 진화(Schema Evolution) 지원
+- 스키마 진화 (Schema Evolution) 지원
 
 ```kotlin
 val serializer = DefaultAvroSpecificRecordSerializer()
@@ -80,17 +80,17 @@ val deserialized = serializer.deserialize<Employee>(bytes)
 
 미리 정의된 `CodecFactory` 상수를 제공하여 간편하게 압축 방식을 선택할 수 있습니다:
 
-| 상수                      | 알고리즘                 | 특성                        |
-|-------------------------|----------------------|---------------------------|
-| `DEFAULT_CODEC_FACTORY` | Deflate (Avro 기본 레벨) | Avro 기본값과 동일한 범용 압축       |
-| `ZSTD_CODEC_FACTORY`    | Zstandard (기본 레벨)    | Zstd 균형형 압축               |
-| `FAST_CODEC_FACTORY`    | Zstandard (레벨 -1)    | LZ4/Snappy 수준의 빠른 속도      |
-| `ARCHIVE_CODEC_FACTORY` | Zstandard (레벨 9)     | 최대 압축률, 장기 보관용            |
-| `NULL_CODEC_FACTORY`    | 없음                   | 압축 없이 최대 속도               |
-| `DEFLATE_CODEC_FACTORY` | Deflate (레벨 6)       | 표준 압축, 높은 호환성             |
-| `SNAPPY_CODEC_FACTORY`  | Snappy               | 빠른 압축/복원, Hadoop/Kafka 호환 |
-| `BZIP2_CODEC_FACTORY`   | BZip2                | 높은 압축률, 느린 처리             |
-| `XZ_CODEC_FACTORY`      | XZ (레벨 6)            | 아카이브 지향 압축                |
+| 상수                    | 알고리즘                 | 특성                              |
+|-------------------------|--------------------------|-----------------------------------|
+| `DEFAULT_CODEC_FACTORY` | Deflate (Avro 기본 레벨) | Avro 기본값과 동일한 범용 압축    |
+| `ZSTD_CODEC_FACTORY`    | Zstandard (기본 레벨)    | Zstd 균형형 압축                  |
+| `FAST_CODEC_FACTORY`    | Zstandard (레벨 -1)      | LZ4/Snappy 수준의 빠른 속도       |
+| `ARCHIVE_CODEC_FACTORY` | Zstandard (레벨 9)       | 최대 압축률, 장기 보관용          |
+| `NULL_CODEC_FACTORY`    | 없음                     | 압축 없이 최대 속도               |
+| `DEFLATE_CODEC_FACTORY` | Deflate (레벨 6)         | 표준 압축, 높은 호환성            |
+| `SNAPPY_CODEC_FACTORY`  | Snappy                   | 빠른 압축/복원, Hadoop/Kafka 호환 |
+| `BZIP2_CODEC_FACTORY`   | BZip2                    | 높은 압축률, 느린 처리            |
+| `XZ_CODEC_FACTORY`      | XZ (레벨 6)              | 아카이브 지향 압축                |
 
 문자열 기반으로 코덱을 생성할 수도 있습니다:
 
@@ -149,9 +149,9 @@ dependencies {
 
 [이슈 #1039 보고서](../../docs/benchmarks/2026-07-18-bytebuffer-serializer-allocation.md)는 기본 reflect serializer만 측정했습니다. concrete 직렬화/역직렬화 최적화 비교는 inconclusive이며 interface 기본 호환 경로는 사용 편의성 전용입니다. Generic, specific, list serializer는 측정하지 않았고 할당 주장이 없습니다.
 
-| Reflect 경로 | 상태 |
-|---|---|
-| concrete 출력/입력 | 최적화, inconclusive |
+| Reflect 경로        | 상태                            |
+|---------------------|---------------------------------|
+| concrete 출력/입력  | 최적화, inconclusive            |
 | interface 기본 구현 | 호환 fallback, 사용 편의성 전용 |
 
 Kotlin과 Java는 같은 `serializeTo`/`deserializeFrom` 계약을 호출합니다. 호출자는 남은 용량이 충분한 writable target을 소유합니다. 출력은 성공할 때만 `limit`을 넓히지 않고 `position`을 이동하며 overflow/read-only 실패는 rollback합니다. 입력은 duplicate로 읽어 source `position`/`limit`을 보존합니다.

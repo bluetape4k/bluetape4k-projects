@@ -10,8 +10,8 @@ import io.bluetape4k.utils.ShutdownQueue
 import org.awaitility.kotlin.atMost
 import org.awaitility.kotlin.await
 import org.awaitility.kotlin.until
-import org.testcontainers.containers.GenericContainer
 import org.junit.jupiter.api.Test
+import org.testcontainers.containers.GenericContainer
 import software.amazon.awssdk.core.sync.RequestBody
 import software.amazon.awssdk.regions.Region
 import software.amazon.awssdk.services.s3.S3Client

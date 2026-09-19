@@ -1,9 +1,9 @@
 package io.bluetape4k.utils
 
-import io.bluetape4k.logging.KLogging
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeNull
 import io.bluetape4k.assertions.shouldNotBeNull
+import io.bluetape4k.logging.KLogging
 import org.junit.jupiter.api.Test
 import java.lang.reflect.Constructor
 import java.util.*
@@ -17,7 +17,7 @@ class KotlinDelegatesTest {
     @Test
     fun `immutable class 생성하기`() {
 
-        val fooCtor: Constructor<Foo> = Foo::class.java.findPrimaryConstructor()!!
+        val fooCtor: Constructor<Foo> = Foo::class.java.findPrimaryConstructor().shouldNotBeNull()
         val foo: Foo = fooCtor.instantiateClass("a", 3)!!
 
         foo.param1 shouldBeEqualTo "a"
@@ -26,7 +26,7 @@ class KotlinDelegatesTest {
 
     @Test
     fun `named parameter를 생성자로 가지는 immutable class 생성`() {
-        val barCtor: Constructor<Bar> = Bar::class.java.findPrimaryConstructor()!!
+        val barCtor: Constructor<Bar> = Bar::class.java.findPrimaryConstructor().shouldNotBeNull()
         val bar: Bar = barCtor.instantiateClass("a", 8)!!
 
         bar.param1 shouldBeEqualTo "a"
@@ -41,7 +41,7 @@ class KotlinDelegatesTest {
 
     @Test
     fun `Optional parameter를 생성자로 가지는 immutable class 생성`() {
-        val bazCtor: Constructor<Baz> = Baz::class.java.findPrimaryConstructor()!!
+        val bazCtor: Constructor<Baz> = Baz::class.java.findPrimaryConstructor().shouldNotBeNull()
         val baz: Baz? = bazCtor.instantiateClass()
 
         baz.shouldNotBeNull()

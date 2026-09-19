@@ -5,6 +5,7 @@ import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeSameInstanceAs
 import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.io.ByteLimitExceededException
+import io.bluetape4k.logging.KLogging
 import org.junit.jupiter.api.Test
 import java.io.IOException
 import java.io.InputStream
@@ -13,14 +14,17 @@ import java.net.http.HttpClient
 import java.net.http.HttpHeaders
 import java.net.http.HttpRequest
 import java.net.http.HttpResponse
-import java.util.Optional
+import java.util.*
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.ExecutionException
+import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit.SECONDS
 import javax.net.ssl.SSLSession
 
 class BoundedHttpResponseSupportTest {
+
+    companion object: KLogging()
 
     @Test
     fun `Content-Length 단일 non-negative 값만 known length로 사용한다`() {
@@ -82,7 +86,9 @@ class BoundedHttpResponseSupportTest {
             headerValues = mapOf("Content-Length" to listOf("3")),
         )
 
-        assertFailsWith<ByteLimitExceededException> { response.readBodyBytes(maxBytes = 4) }
+        assertFailsWith<ByteLimitExceededException> {
+            response.readBodyBytes(maxBytes = 4)
+        }
         stream.consumedBytes shouldBeEqualTo 5
         stream.closeCalls shouldBeEqualTo 1
     }
@@ -291,7 +297,7 @@ class BoundedHttpResponseSupportTest {
         response.readBodyBytes(maxBytes = 64 * 1024) shouldBeEqualTo "body".toByteArray()
     }
 
-    private inline fun <T> withVirtualExecutor(block: (java.util.concurrent.ExecutorService) -> T): T {
+    private inline fun <T> withVirtualExecutor(block: (ExecutorService) -> T): T {
         val executor = Executors.newVirtualThreadPerTaskExecutor()
         try {
             return block(executor)

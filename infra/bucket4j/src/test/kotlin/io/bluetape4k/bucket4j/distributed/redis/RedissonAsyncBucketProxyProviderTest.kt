@@ -1,5 +1,7 @@
 package io.bluetape4k.bucket4j.distributed.redis
 
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.bucket4j.TestRedisServer
 import io.bluetape4k.bucket4j.bucketConfiguration
 import io.bluetape4k.bucket4j.distributed.AbstractAsyncBucketProxyProviderTest
@@ -12,8 +14,6 @@ import io.github.bucket4j.distributed.proxy.ClientSideConfig
 import io.github.bucket4j.distributed.proxy.ExecutionStrategy
 import kotlinx.coroutines.future.await
 import kotlinx.coroutines.test.runTest
-import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldBeTrue
 import org.junit.jupiter.api.Test
 import java.time.Duration
 import java.util.concurrent.Executors
@@ -60,7 +60,7 @@ class RedissonAsyncBucketProxyProviderTest: AbstractAsyncBucketProxyProviderTest
         val provider = AsyncBucketProxyProvider(
             proxyManager.asAsync(),
             initial,
-            "bluetape4k:rate-limit:replace:${Base58.randomString(6)}:",
+            "bluetape4k:rate-limit:replace:",
         )
         val bucket = provider.resolveBucket("user-${Base58.randomString(6)}")
 

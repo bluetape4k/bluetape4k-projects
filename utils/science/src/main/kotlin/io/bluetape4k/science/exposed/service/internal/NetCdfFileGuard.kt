@@ -38,7 +38,7 @@ internal object NetCdfFileGuard {
     }
 
     /** open 전후 stat을 비교하는 generic helper입니다. */
-    fun <T : AutoCloseable> openVerified(
+    fun <T: AutoCloseable> openVerified(
         fileId: Long,
         filePath: String,
         expectedFingerprint: String?,
@@ -92,7 +92,10 @@ internal object NetCdfFileGuard {
         try {
             val uri = URI(filePath)
             if (uri.scheme != null) {
-                throw NetCdfException.FileOpen(filePath, IllegalArgumentException("remote or URI paths are not allowed"))
+                throw NetCdfException.FileOpen(
+                    filePath,
+                    IllegalArgumentException("remote or URI paths are not allowed")
+                )
             }
         } catch (e: NetCdfException) {
             throw e

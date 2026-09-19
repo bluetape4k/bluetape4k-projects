@@ -1,7 +1,8 @@
 package io.bluetape4k.http.hc5.http
 
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.assertions.shouldNotBeNull
+import io.bluetape4k.logging.KLogging
 import org.apache.hc.core5.http.Method
 import org.apache.hc.core5.http.message.BasicHttpRequest
 import org.apache.hc.core5.http.nio.support.BasicRequestProducer
@@ -19,6 +20,7 @@ class BasicRequestProducerTest {
         val request = BasicHttpRequest("GET", testUri)
         val producer = request.toProducer()
         producer.shouldNotBeNull()
+        producer.isRepeatable.shouldBeTrue()
     }
 
     @Test
@@ -26,18 +28,21 @@ class BasicRequestProducerTest {
         val request = BasicHttpRequest("GET", testUri)
         val producer = basicRequestProducerOf(request)
         producer.shouldNotBeNull()
+        producer.isRepeatable.shouldBeTrue()
     }
 
     @Test
     fun `basicRequestProducerOf Method URI 로 생성`() {
         val producer: BasicRequestProducer = basicRequestProducerOf(Method.GET, testUri)
         producer.shouldNotBeNull()
+        producer.isRepeatable.shouldBeTrue()
     }
 
     @Test
     fun `basicRequestProducerOf methodName URI 로 생성`() {
         val producer: BasicRequestProducer = basicRequestProducerOf("POST", testUri)
         producer.shouldNotBeNull()
+        producer.isRepeatable.shouldBeTrue()
     }
 
     @Test
@@ -45,5 +50,6 @@ class BasicRequestProducerTest {
         val request = BasicHttpRequest(Method.GET.name, testUri)
         val producer = basicRequestProducerOf(request, dataProducer = null)
         producer.shouldNotBeNull()
+        producer.isRepeatable.shouldBeTrue()
     }
 }

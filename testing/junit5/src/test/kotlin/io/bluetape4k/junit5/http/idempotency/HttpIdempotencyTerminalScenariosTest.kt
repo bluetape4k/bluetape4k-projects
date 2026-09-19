@@ -25,6 +25,7 @@ class HttpIdempotencyTerminalScenariosTest {
     fun `terminal failure diagnostics redact scope key and body across suppressed cleanup`() = runSuspendIO {
         val limits = config()
         val delegate = InMemoryBoundedWaitHttpIdempotencyAdapter(limits)
+
         val adapter = object: BoundedWaitHttpIdempotencyAdapter by delegate {
             override suspend fun resetScenario() {
                 delegate.resetScenario()

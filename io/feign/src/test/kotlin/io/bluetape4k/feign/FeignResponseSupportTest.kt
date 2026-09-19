@@ -5,7 +5,9 @@ import feign.Request.HttpMethod
 import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeFalse
+import io.bluetape4k.assertions.shouldBeInstanceOf
 import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.assertions.shouldContain
 import io.bluetape4k.logging.KLogging
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
@@ -16,6 +18,7 @@ import org.junit.jupiter.params.provider.ValueSource
  * [FeignResponseSupport]의 Content-Type 판별 및 본문 접근 확장 함수를 검증합니다.
  */
 class FeignResponseSupportTest: AbstractFeignTest() {
+
     companion object: KLogging()
 
     /** 테스트에서 공통으로 사용하는 더미 GET 요청 객체입니다. */
@@ -25,159 +28,162 @@ class FeignResponseSupportTest: AbstractFeignTest() {
 
     @Test
     fun `isJsonBody returns true for application-json content type`() {
-        val response =
-            feignResponse {
-                status(200)
-                reason("OK")
-                request(dummyRequest)
-                headers(mapOf("content-type" to listOf("application/json")))
-                body("{}", Charsets.UTF_8)
-            }
+        val response = feignResponse {
+            status(200)
+            reason("OK")
+            request(dummyRequest)
+            headers(mapOf("content-type" to listOf("application/json")))
+            body("{}", Charsets.UTF_8)
+        }
         response.isJsonBody().shouldBeTrue()
     }
 
     @Test
     fun `isJsonBody returns true for json subtype`() {
-        val response =
-            feignResponse {
-                status(200)
-                reason("OK")
-                request(dummyRequest)
-                headers(mapOf("content-type" to listOf("application/vnd.api+json")))
-                body("{}", Charsets.UTF_8)
-            }
+        val response = feignResponse {
+            status(200)
+            reason("OK")
+            request(dummyRequest)
+            headers(mapOf("content-type" to listOf("application/vnd.api+json")))
+            body("{}", Charsets.UTF_8)
+        }
         response.isJsonBody().shouldBeTrue()
     }
 
     @Test
     fun `isJsonBody returns false for text-plain content type`() {
-        val response =
-            feignResponse {
-                status(200)
-                reason("OK")
-                request(dummyRequest)
-                headers(mapOf("content-type" to listOf("text/plain")))
-                body("hello", Charsets.UTF_8)
-            }
+        val response = feignResponse {
+            status(200)
+            reason("OK")
+            request(dummyRequest)
+            headers(mapOf("content-type" to listOf("text/plain")))
+            body("hello", Charsets.UTF_8)
+        }
         response.isJsonBody().shouldBeFalse()
+        response.isTextBody().shouldBeTrue()
+        response.bodyAsReader().readText() shouldContain "hello"
     }
 
     @Test
     fun `isJsonBody returns false when content-type header is absent`() {
-        val response =
-            feignResponse {
-                status(200)
-                reason("OK")
-                request(dummyRequest)
-                headers(emptyMap())
-                body("hello", Charsets.UTF_8)
-            }
+        val response = feignResponse {
+            status(200)
+            reason("OK")
+            request(dummyRequest)
+            headers(emptyMap())
+            body("hello", Charsets.UTF_8)
+        }
         response.isJsonBody().shouldBeFalse()
+        response.bodyAsReader().readText() shouldContain "hello"
     }
 
     @Test
     fun `isTextBody returns true for text-plain content type`() {
-        val response =
-            feignResponse {
-                status(200)
-                reason("OK")
-                request(dummyRequest)
-                headers(mapOf("content-type" to listOf("text/plain; charset=UTF-8")))
-                body("hello", Charsets.UTF_8)
-            }
+        val response = feignResponse {
+            status(200)
+            reason("OK")
+            request(dummyRequest)
+            headers(mapOf("content-type" to listOf("text/plain; charset=UTF-8")))
+            body("hello", Charsets.UTF_8)
+        }
         response.isTextBody().shouldBeTrue()
+        response.bodyAsReader().readText() shouldContain "hello"
     }
 
     @Test
     fun `isTextBody returns false for application-json content type`() {
-        val response =
-            feignResponse {
-                status(200)
-                reason("OK")
-                request(dummyRequest)
-                headers(mapOf("content-type" to listOf("application/json")))
-                body("{}", Charsets.UTF_8)
-            }
+        val response = feignResponse {
+            status(200)
+            reason("OK")
+            request(dummyRequest)
+            headers(mapOf("content-type" to listOf("application/json")))
+            body("{}", Charsets.UTF_8)
+        }
         response.isTextBody().shouldBeFalse()
+        response.isJsonBody().shouldBeTrue()
     }
 
     @Test
     fun `isTextBody returns false when content-type header is absent`() {
-        val response =
-            feignResponse {
-                status(200)
-                reason("OK")
-                request(dummyRequest)
-                headers(emptyMap())
-            }
+        val response = feignResponse {
+            status(200)
+            reason("OK")
+            request(dummyRequest)
+            headers(emptyMap())
+        }
         response.isTextBody().shouldBeFalse()
+        response.isJsonBody().shouldBeFalse()
     }
 
     @Test
     fun `bodyAsReader reads response body content`() {
         val expected = "hello world"
-        val response =
-            feignResponse {
-                status(200)
-                reason("OK")
-                request(dummyRequest)
-                headers(mapOf("content-type" to listOf("text/plain")))
-                body(expected, Charsets.UTF_8)
-            }
-        val reader = response.bodyAsReader()
-        val content = reader.readText()
+        val response = feignResponse {
+            status(200)
+            reason("OK")
+            request(dummyRequest)
+            headers(mapOf("content-type" to listOf("text/plain")))
+            body(expected, Charsets.UTF_8)
+        }
+
+        response.isTextBody().shouldBeTrue()
+        response.isJsonBody().shouldBeFalse()
+        val content = response.bodyAsReader().readText()
         content shouldBeEqualTo expected
     }
 
     @ParameterizedTest
     @NullSource
-    @ValueSource(strings = [
-        "text/plain",
-        "text/plain; charset=UTF-8",
-        "text/plain; charset=\"UTF-8\"",
-        "text/plain; charset=not-a-charset",
-        "text/plain; charset=invalid charset",
-    ])
+    @ValueSource(
+        strings = [
+            "text/plain",
+            "text/plain; charset=UTF-8",
+            "text/plain; charset=\"UTF-8\"",
+            "text/plain; charset=not-a-charset",
+            "text/plain; charset=invalid charset",
+        ]
+    )
     fun `charset이 없거나 유효하지 않으면 UTF-8 본문을 보존한다`(contentType: String?) {
         val expected = "한글 응답 café 😀"
-        feignResponse {
+        val response = feignResponse {
             status(200)
             request(dummyRequest)
             headers(contentType?.let { mapOf("Content-Type" to listOf(it)) }.orEmpty())
             body(expected.toByteArray(Charsets.UTF_8))
-        }.use { response ->
-            response.charset() shouldBeEqualTo Charsets.UTF_8
-            response.bodyAsReader().use { it.readText() } shouldBeEqualTo expected
         }
+
+        response.charset() shouldBeEqualTo Charsets.UTF_8
+        response.bodyAsReader().readText() shouldBeEqualTo expected
     }
 
     @Test
     fun `유효한 응답 charset은 UTF-8로 덮어쓰지 않는다`() {
         val expected = "café déjà vu"
-        feignResponse {
+        val response = feignResponse {
             status(200)
             request(dummyRequest)
             headers(mapOf("Content-Type" to listOf("text/plain; charset=ISO-8859-1")))
             body(expected.toByteArray(Charsets.ISO_8859_1))
-        }.use { response ->
-            response.charset() shouldBeEqualTo Charsets.ISO_8859_1
-            response.bodyAsReader().use { it.readText() } shouldBeEqualTo expected
         }
+        response.isTextBody().shouldBeTrue()
+        response.isJsonBody().shouldBeFalse()
+        response.charset() shouldBeEqualTo Charsets.ISO_8859_1
+        response.bodyAsReader().readText() shouldBeEqualTo expected
     }
 
     @Test
     fun `bodyAsReader 는 body 가 없으면 예외를 던진다`() {
-        val response =
-            feignResponse {
-                status(204)
-                reason("No Content")
-                request(dummyRequest)
-                headers(emptyMap())
-            }
+        val response = feignResponse {
+            status(204)
+            reason("No Content")
+            request(dummyRequest)
+            headers(emptyMap())
+        }
 
         val ex = assertFailsWith<IllegalStateException> {
-            response.bodyAsReader()
+            response.bodyAsReader().readText()
         }
+        ex.shouldBeInstanceOf<IllegalStateException>()
         ex.message shouldBeEqualTo "Response body is null."
     }
 }

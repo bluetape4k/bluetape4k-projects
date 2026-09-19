@@ -46,6 +46,7 @@ class PlainTextJsonExamples: AbstractCassandraTest() {
             insertQuery,
             """{ "id": 1, "name": "Mouse", "specs": { "color": "silver" } }"""
         )
+        log.debug { "stmt query: ${stmt.query}" }
         session.execute(stmt).wasApplied().shouldBeTrue()
 
         val ps = session.prepare("INSERT INTO querybuilder_json JSON :payload")
@@ -53,6 +54,7 @@ class PlainTextJsonExamples: AbstractCassandraTest() {
             "payload",
             """{ "id": 2, "name": "Keyboard", "specs": { "layout": "qwerty" } }"""
         )
+        log.debug { "bs query: ${bs.preparedStatement.query}" }
         session.execute(bs).wasApplied().shouldBeTrue()
 
         val query = """
@@ -61,21 +63,22 @@ class PlainTextJsonExamples: AbstractCassandraTest() {
             """.trimIndent()
 
         val stmt2 = SimpleStatement.newInstance(query, 3, "Screen", """{ "size": "24-inch" }""")
+        log.debug { "stmt2 query: ${stmt2.query}" }
         session.execute(stmt2).wasApplied().shouldBeTrue()
     }
 
     private fun selectWithCoreApi(session: CqlSession) {
         val query1 = "SELECT JSON * FROM querybuilder_json WHERE id=?"
         val stmt1 = SimpleStatement.newInstance(query1, 1)
-        val row1 = session.execute(stmt1).one()
-        row1.shouldNotBeNull()
+        log.debug { "stmt1 query: ${stmt1.query}" }
+        val row1 = session.execute(stmt1).one().shouldNotBeNull()
         row1.getString("[json]")!!.shouldNotBeEmpty()
         log.debug { "Entry #1 as JSON: ${row1.getString("[json]")}" }
 
         val query2 = "SELECT id, toJson(specs) as json_specs FROM querybuilder_json WHERE id=?"
         val stmt2 = SimpleStatement.newInstance(query2, 2)
-        val row2 = session.execute(stmt2).one()
-        row2.shouldNotBeNull()
+        log.debug { "stmt2 query: ${stmt2.query}" }
+        val row2 = session.execute(stmt2).one().shouldNotBeNull()
         row2.getInt("id") shouldBeEqualTo 2
         row2.getString("json_specs") shouldBeEqualTo """{"layout": "qwerty"}"""
         log.debug { "Entry #2's specs as JSON: ${row2.getString("json_specs")}" }
@@ -93,9 +96,11 @@ class PlainTextJsonExamples: AbstractCassandraTest() {
         val stmt = insertInto("querybuilder_json")
             .json("""{ "id": 1, "name": "Mouse", "specs": { "color": "silver" } }""")
             .build()
+        log.debug { "stmt query: ${stmt.query}" }
         session.execute(stmt).wasApplied().shouldBeTrue()
 
         val stmt2 = insertInto("querybuilder_json").json("payload".bindMarker()).build()
+        log.debug { "stmt2 query: ${stmt2.query}" }
         val ps = session.prepare(stmt2)
         val bs = ps.bind().setString(
             "payload",
@@ -108,7 +113,7 @@ class PlainTextJsonExamples: AbstractCassandraTest() {
             .value("name", "Screen".literal())
             .value("specs", functionTerm("fromJson", """{"layout": "qwerty"}""".literal()))
             .build()
-
+        log.debug { "stmt3 query: ${stmt3.query}" }
         session.execute(stmt3).wasApplied().shouldBeTrue()
     }
 
@@ -120,8 +125,10 @@ class PlainTextJsonExamples: AbstractCassandraTest() {
             .whereColumn("id")
             .isEqualTo(1.literal())
             .build()
-        val row1 = session.execute(stmt1).one()!!
-        println("Entry #1 as JSON: ${row1.getString("[json]")}")
+        log.debug { "stmt1 query: ${stmt1.query}" }
+        val row1 = session.execute(stmt1).one().shouldNotBeNull()
+
+        log.debug { "Entry #1 as JSON: ${row1.getString("[json]")}" }
 
         // 특정 컬럼만 JSON 으로 읽기
         val stmt2 = selectFrom("querybuilder_json")
@@ -129,7 +136,8 @@ class PlainTextJsonExamples: AbstractCassandraTest() {
             .function("toJson", Selector.column("specs")).`as`("json_specs")
             .whereColumn("id").isEqualTo(2.literal())
             .build()
-        val row2 = session.execute(stmt2).one()!!
+        log.debug { "stmt2 query: ${stmt2.query}" }
+        val row2 = session.execute(stmt2).one().shouldNotBeNull()
 
         row2.getInt("id") shouldBeEqualTo 2
         row2.getString("json_specs") shouldBeEqualTo """{"layout": "qwerty"}"""

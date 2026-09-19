@@ -32,6 +32,7 @@ class NearJCacheCompoundOperationContractTest {
         val frontCache = mockk<JCache<String, String>>(relaxed = true)
         val backCache = mockk<JCache<String, String>>(relaxed = true)
         every { backCache.getAndPut("key", "new") } returns "old"
+
         val nearCache = NearJCache(
             frontCache = frontCache,
             backCache = backCache,
@@ -49,6 +50,7 @@ class NearJCacheCompoundOperationContractTest {
         val frontCache = mockk<JCache<String, String>>(relaxed = true)
         val backCache = mockk<JCache<String, String>>(relaxed = true)
         every { backCache.getAndRemove("key") } returns "old"
+
         val nearCache = NearJCache(
             frontCache = frontCache,
             backCache = backCache,
@@ -66,6 +68,7 @@ class NearJCacheCompoundOperationContractTest {
         val frontCache = mockk<JCache<String, String>>(relaxed = true)
         val backCache = mockk<JCache<String, String>>(relaxed = true)
         every { backCache.getAndReplace("key", "new") } returns "old"
+
         val nearCache = NearJCache(
             frontCache = frontCache,
             backCache = backCache,
@@ -84,6 +87,7 @@ class NearJCacheCompoundOperationContractTest {
         val backCache = mockk<JCache<String, String>>(relaxed = true)
         val failure = IllegalStateException("back failure")
         every { backCache.getAndPut("key", "new") } throws failure
+
         val nearCache = NearJCache(
             frontCache = frontCache,
             backCache = backCache,
@@ -101,6 +105,7 @@ class NearJCacheCompoundOperationContractTest {
         val backCache = mockk<JCache<String, String>>(relaxed = true)
         val listenerConfiguration = slot<CacheEntryListenerConfiguration<String, String>>()
         val event = mockk<CacheEntryEvent<String, String>>(relaxed = true)
+
         every { event.key } returns "key"
         every { event.value } returns "new"
         every { backCache.registerCacheEntryListener(capture(listenerConfiguration)) } just runs
@@ -129,6 +134,7 @@ class NearJCacheCompoundOperationContractTest {
         val replaceStarted = CountDownLatch(1)
         val releaseReplace = CountDownLatch(1)
         val removeStarted = CountDownLatch(1)
+
         every { backCache.getAndReplace("key", "new") } answers {
             replaceStarted.countDown()
             releaseReplace.await(2, TimeUnit.SECONDS).shouldBeTrue()
@@ -138,6 +144,7 @@ class NearJCacheCompoundOperationContractTest {
             removeStarted.countDown()
             "new"
         }
+
         val nearCache = NearJCache(
             frontCache = frontCache,
             backCache = backCache,
@@ -199,6 +206,7 @@ class NearJCacheCompoundOperationContractTest {
     fun `suspend getAndRemove는 front miss에서도 back 원자 연산 결과를 반환하고 front를 제거한다`() = runSuspendIO {
         val frontCache = mockk<SuspendJCache<String, String>>(relaxed = true)
         val backCache = mockk<SuspendJCache<String, String>>(relaxed = true)
+
         coEvery { backCache.getAndRemove("key") } returns "old"
         val nearCache = SuspendNearJCache.withoutListener(frontCache, backCache)
 

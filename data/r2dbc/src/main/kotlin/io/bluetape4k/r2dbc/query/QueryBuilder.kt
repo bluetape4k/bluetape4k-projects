@@ -234,7 +234,7 @@ class QueryBuilder {
         offset?.run { sb.appendLine().append("offset ").append(offset) }
 
         return Query(sb, params).apply {
-            log.debug { "query. $this" }
+            log.debug { "query: $this" }
         }
     }
 
@@ -254,7 +254,7 @@ class QueryBuilder {
             appendConditions(sb, filters, true)
         }
         return Query(sb, params).apply {
-            log.debug { "count query. $this" }
+            log.debug { "count query: $this" }
         }
     }
 

@@ -3,12 +3,14 @@ package io.bluetape4k.avro.impl
 import ch.qos.logback.classic.Level
 import ch.qos.logback.classic.Logger
 import io.bluetape4k.assertions.assertFailsWith
+import io.bluetape4k.assertions.shouldBe
 import io.bluetape4k.assertions.shouldBeEmpty
 import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeGreaterThan
 import io.bluetape4k.assertions.shouldBeNull
-import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.avro.TestMessageProvider
 import io.bluetape4k.avro.message.examples.Employee
+import io.bluetape4k.logging.KLogging
 import io.mockk.every
 import io.mockk.spyk
 import io.mockk.verify
@@ -26,6 +28,8 @@ import java.nio.ReadOnlyBufferException
 import java.util.concurrent.atomic.AtomicBoolean
 
 class DefaultAvroSerializerByteBufferTest {
+
+    companion object: KLogging()
 
     @Test
     fun `reflect ByteBuffer paths bypass ByteArray siblings and preserve caller state`() {
@@ -82,6 +86,7 @@ class DefaultAvroSerializerByteBufferTest {
         val source = ByteBuffer.wrap(legacyWire).order(ByteOrder.LITTLE_ENDIAN)
         source.mark()
         serializer.deserializeFrom(mismatched, source).shouldBeNull()
+
         source.position() shouldBeEqualTo 0
         source.limit() shouldBeEqualTo legacyWire.size
         source.order() shouldBeEqualTo ByteOrder.LITTLE_ENDIAN
@@ -100,6 +105,7 @@ class DefaultAvroSerializerByteBufferTest {
 
         val singleTarget = boundedTarget(singleWire.size, direct = true)
         val singleWritten = serializer.serializeTo(employee, singleTarget)
+
         serializer.deserializeFrom(
             ByteBuffer.wrap(singleTarget.writtenBytes(2, singleWritten)),
             Employee::class.java,
@@ -107,6 +113,7 @@ class DefaultAvroSerializerByteBufferTest {
 
         val listTarget = boundedTarget(listWire.size, direct = false)
         val listWritten = serializer.serializeListTo(employees, listTarget)
+
         serializer.deserializeListFrom(
             ByteBuffer.wrap(listTarget.writtenBytes(2, listWritten)),
             Employee::class.java,
@@ -142,11 +149,11 @@ class DefaultAvroSerializerByteBufferTest {
     fun `backend buffer overflow keeps the established handled failure policy`() {
         val record = spyk(TestMessageProvider.createEmployee())
         every { record.get(any<Int>()) } throws BufferOverflowException()
+
         val serializer = DefaultAvroGenericRecordSerializer()
         val target = ByteBuffer.allocate(4096).apply { position(7) }
 
         serializer.serializeTo(Employee.getClassSchema(), record, target) shouldBeEqualTo 0
-
         target.position() shouldBeEqualTo 7
     }
 
@@ -183,6 +190,7 @@ class DefaultAvroSerializerByteBufferTest {
         serializer.serializeListTo<Employee>(null, target) shouldBeEqualTo 0
         serializer.serializeListTo(emptyList<Employee>(), target) shouldBeEqualTo 0
         target.position() shouldBeEqualTo 3
+
         serializer.deserializeListFrom(ByteBuffer.allocate(0), Employee::class.java).shouldBeEmpty()
         serializer.deserializeListFrom(
             ByteBuffer.wrap(byteArrayOf(0x00, 0x01, 0x02)),
@@ -196,6 +204,7 @@ class DefaultAvroSerializerByteBufferTest {
     @Test
     fun `ByteBuffer paths preserve configured Avro codecs`() {
         val employee = TestMessageProvider.createEmployee()
+
         codecFactories().forEach { codecFactory ->
             val baseline = DefaultAvroSpecificRecordSerializer(codecFactory)
             val legacyWire = baseline.serialize(employee)!!
@@ -207,6 +216,7 @@ class DefaultAvroSerializerByteBufferTest {
 
             baseline.deserialize(optimizedWire, Employee::class.java) shouldBeEqualTo employee
             serializer.deserializeFrom(ByteBuffer.wrap(legacyWire), Employee::class.java) shouldBeEqualTo employee
+
             verify(exactly = 0) { serializer.serialize(any<Employee>()) }
             verify(exactly = 0) { serializer.deserialize(any<ByteArray>(), Employee::class.java) }
         }
@@ -247,7 +257,8 @@ class DefaultAvroSerializerByteBufferTest {
         target.position() shouldBeEqualTo 3
 
         val written = serializer.serializeTo(employee, target)
-        (written > 0).shouldBeTrue()
+        written shouldBeGreaterThan 0
+
         DefaultAvroSpecificRecordSerializer().deserialize(
             target.writtenBytes(3, written),
             Employee::class.java,
@@ -264,7 +275,7 @@ class DefaultAvroSerializerByteBufferTest {
             DefaultAvroSpecificRecordSerializer(codec).serializeTo(TestMessageProvider.createEmployee(), target)
         }
 
-        (thrown === fatal).shouldBeTrue()
+        thrown shouldBe fatal
         target.position() shouldBeEqualTo 5
     }
 

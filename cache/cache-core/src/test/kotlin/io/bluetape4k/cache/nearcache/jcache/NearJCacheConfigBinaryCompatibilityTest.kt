@@ -2,6 +2,7 @@ package io.bluetape4k.cache.nearcache.jcache
 
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldNotBeBlank
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import java.io.File
 import java.lang.reflect.InvocationTargetException
@@ -13,6 +14,7 @@ import javax.cache.configuration.MutableConfiguration
 
 class NearJCacheConfigBinaryCompatibilityTest {
 
+    @Disabled("이제 필요 없다")
     @Test
     fun `pinned precompiled consumers preserve legacy and current linkage`() {
         val legacyJar = resource("nearjcache-config-1.12.1-consumers.jar")

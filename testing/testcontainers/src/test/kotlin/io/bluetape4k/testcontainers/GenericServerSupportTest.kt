@@ -2,8 +2,8 @@ package io.bluetape4k.testcontainers
 
 import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldBeFalse
 import io.bluetape4k.assertions.shouldBeNull
+import io.bluetape4k.assertions.shouldNotContain
 import io.mockk.every
 import io.mockk.mockk
 import org.junit.jupiter.api.AfterEach
@@ -90,6 +90,6 @@ class GenericServerSupportTest {
             }
         }
 
-        captured.toString(UTF_8).contains(canary).shouldBeFalse()
+        captured.toString(UTF_8) shouldNotContain canary
     }
 }

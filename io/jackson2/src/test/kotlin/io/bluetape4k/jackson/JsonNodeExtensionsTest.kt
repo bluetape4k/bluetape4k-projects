@@ -15,6 +15,7 @@ import java.math.BigInteger
  * [JsonNodeExtensions] 확장 함수에 대한 테스트입니다.
  */
 class JsonNodeExtensionsTest {
+
     companion object: KLogging()
 
     private val factory = JsonNodeFactory.instance
@@ -34,7 +35,7 @@ class JsonNodeExtensionsTest {
         val arr = factory.arrayNode()
         val child = arr.createNode(null)
         child.isObject.shouldBeTrue()
-        (arr.size() == 1).shouldBeTrue()
+        arr.size() shouldBeEqualTo 1
     }
 
     @Test
@@ -59,7 +60,7 @@ class JsonNodeExtensionsTest {
         val arr = factory.arrayNode()
         val inner = arr.createArray(null)
         inner.isArray.shouldBeTrue()
-        (arr.size() == 1).shouldBeTrue()
+        arr.size() shouldBeEqualTo 1
     }
 
     // ─── addValue ──────────────────────────────────────────────────────────

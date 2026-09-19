@@ -1,10 +1,10 @@
 package io.bluetape4k.tink.mac
 
-import io.bluetape4k.logging.KLogging
-import io.bluetape4k.tink.macKeysetHandle
 import io.bluetape4k.assertions.shouldBeFalse
 import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.assertions.shouldNotBeEqualTo
+import io.bluetape4k.logging.KLogging
+import io.bluetape4k.tink.macKeysetHandle
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.ValueSource

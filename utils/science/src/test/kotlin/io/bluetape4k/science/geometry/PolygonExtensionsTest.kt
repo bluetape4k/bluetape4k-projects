@@ -1,9 +1,10 @@
 package io.bluetape4k.science.geometry
 
-import io.bluetape4k.logging.KLogging
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeInstanceOf
+import io.bluetape4k.assertions.shouldBeLessThan
 import io.bluetape4k.assertions.shouldNotBeNull
+import io.bluetape4k.logging.KLogging
 import org.junit.jupiter.api.Test
 import org.locationtech.jts.geom.Coordinate
 import org.locationtech.jts.geom.GeometryFactory
@@ -11,7 +12,9 @@ import kotlin.math.abs
 
 class PolygonExtensionsTest {
 
-    companion object: KLogging()
+    companion object: KLogging() {
+        private const val EPSILON = 1e-9
+    }
 
     private val geometryFactory = GeometryFactory()
 
@@ -47,16 +50,16 @@ class PolygonExtensionsTest {
         val polygon = makeSquare(0.0, 0.0, 4.0, 4.0)
         val c = polygon.centroid()
         c.shouldNotBeNull()
-        (abs(c.x - 2.0) < 1e-9).let { require(it) { "x 중심 오차: ${c.x}" } }
-        (abs(c.y - 2.0) < 1e-9).let { require(it) { "y 중심 오차: ${c.y}" } }
+        abs(c.x - 2.0) shouldBeLessThan EPSILON
+        abs(c.y - 2.0) shouldBeLessThan EPSILON
     }
 
     @Test
     fun `centroid - 이동한 사각형의 중심이 올바르다`() {
         val polygon = makeSquare(10.0, 20.0, 14.0, 24.0)
         val c = polygon.centroid()
-        (abs(c.x - 12.0) < 1e-9).let { require(it) { "x 중심 오차: ${c.x}" } }
-        (abs(c.y - 22.0) < 1e-9).let { require(it) { "y 중심 오차: ${c.y}" } }
+        abs(c.x - 12.0) shouldBeLessThan EPSILON
+        abs(c.y - 22.0) shouldBeLessThan EPSILON
     }
 
     @Test
@@ -79,6 +82,7 @@ class PolygonExtensionsTest {
     fun `toBoundingBox - 원점 사각형에서 BoundingBox를 생성한다`() {
         val polygon = makeSquare(0.0, 0.0, 10.0, 10.0)
         val bbox = polygon.toBoundingBox()
+
         bbox.minLon shouldBeEqualTo 0.0
         bbox.maxLon shouldBeEqualTo 10.0
         bbox.minLat shouldBeEqualTo 0.0
@@ -89,15 +93,18 @@ class PolygonExtensionsTest {
     fun `toBoundingBox - width와 height가 올바르다`() {
         val polygon = makeSquare(124.0, 33.0, 131.0, 38.9)
         val bbox = polygon.toBoundingBox()
-        (abs(bbox.width - 7.0) < 1e-9).let { require(it) { "width 오차: ${bbox.width}" } }
-        (abs(bbox.height - 5.9) < 1e-9).let { require(it) { "height 오차: ${bbox.height}" } }
+
+        abs(bbox.width - 7.0) shouldBeLessThan EPSILON
+        abs(bbox.height - 5.9) shouldBeLessThan EPSILON
     }
 
     @Test
     fun `centroid가 JTS Point 타입을 반환한다`() {
         val polygon = makeSquare(0.0, 0.0, 4.0, 4.0)
         val c = polygon.centroid()
+
         c.shouldNotBeNull()
+
         // JTS Point 타입임을 확인
         c.shouldBeInstanceOf<org.locationtech.jts.geom.Point>()
     }

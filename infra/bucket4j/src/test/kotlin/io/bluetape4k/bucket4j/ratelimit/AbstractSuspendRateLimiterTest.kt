@@ -1,13 +1,14 @@
 package io.bluetape4k.bucket4j.ratelimit
 
+import io.bluetape4k.assertions.assertFailsWith
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.bucket4j.MAX_TOKENS_PER_REQUEST
 import io.bluetape4k.bucket4j.bucketConfiguration
 import io.bluetape4k.codec.Base58
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import kotlinx.coroutines.test.runTest
-import io.bluetape4k.assertions.shouldBeEqualTo
 import org.junit.jupiter.api.Test
 import java.time.Duration
-import io.bluetape4k.assertions.assertFailsWith
 
 abstract class AbstractSuspendRateLimiterTest {
 
@@ -26,7 +27,7 @@ abstract class AbstractSuspendRateLimiterTest {
         }
     }
 
-    abstract val rateLimiter: SuspendRateLimiter<String>
+    protected abstract val rateLimiter: SuspendRateLimiter<String>
 
     protected fun randomKey(): String = "suspend-bucket-" + Base58.randomString(6)
 

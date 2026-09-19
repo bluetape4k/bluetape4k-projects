@@ -1,12 +1,12 @@
 package io.bluetape4k.testcontainers
 
-import io.bluetape4k.logging.KLogging
 import io.bluetape4k.assertions.invoking
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeFalse
 import io.bluetape4k.assertions.shouldBeNull
 import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.assertions.shouldNotBeNull
+import io.bluetape4k.logging.KLogging
 import io.bluetape4k.testcontainers.http.BluetapeHttpServer
 import io.bluetape4k.testcontainers.http.BluetapeWebfluxServer
 import org.junit.jupiter.api.Test

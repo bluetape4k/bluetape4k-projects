@@ -2,12 +2,12 @@ package io.bluetape4k.cassandra
 
 import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.logging.coroutines.KLoggingChannel
+import io.bluetape4k.logging.KLogging
 import org.junit.jupiter.api.Test
 
 class CqlIdentifierSupportTest {
 
-    companion object: KLoggingChannel()
+    companion object: KLogging()
 
     @Test
     fun `string to CqlIdentifier`() {
@@ -25,7 +25,14 @@ class CqlIdentifierSupportTest {
 
     @Test
     fun `blank string to CqlIdentifier 는 허용하지 않는다`() {
-        assertFailsWith<IllegalArgumentException> { "".toCqlIdentifier() }
-        assertFailsWith<IllegalArgumentException> { " ".toCqlIdentifier() }
+        assertFailsWith<IllegalArgumentException> {
+            "".toCqlIdentifier()
+        }
+        assertFailsWith<IllegalArgumentException> {
+            " ".toCqlIdentifier()
+        }
+        assertFailsWith<IllegalArgumentException> {
+            "\t".toCqlIdentifier()
+        }
     }
 }

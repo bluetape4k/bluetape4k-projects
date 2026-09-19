@@ -6,6 +6,7 @@ import io.bluetape4k.workflow.api.SuspendWork
 import io.bluetape4k.workflow.api.SuspendWorkFlow
 import io.bluetape4k.workflow.api.WorkContext
 import io.bluetape4k.workflow.api.WorkReport
+
 /**
  * 조건에 따라 분기 실행하는 코루틴 워크플로입니다.
  *

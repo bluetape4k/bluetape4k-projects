@@ -2,19 +2,20 @@ package io.bluetape4k.fastjson2.extensions
 
 import com.alibaba.fastjson2.JSONArray
 import com.alibaba.fastjson2.parseArray
-import io.bluetape4k.fastjson2.AbstractFastjson2Test
-import io.bluetape4k.fastjson2.model.User
-import io.bluetape4k.fastjson2.model.newUser
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEmpty
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldHaveSize
 import io.bluetape4k.assertions.shouldNotBeNull
+import io.bluetape4k.fastjson2.AbstractFastjson2Test
+import io.bluetape4k.fastjson2.model.User
+import io.bluetape4k.fastjson2.model.newUser
+import io.bluetape4k.logging.KLogging
 import org.junit.jupiter.api.RepeatedTest
 import org.junit.jupiter.api.Test
-import io.bluetape4k.assertions.assertFailsWith
 
 class JSONArrayExtensionsTest: AbstractFastjson2Test() {
+
     companion object: KLogging()
 
     @RepeatedTest(REPEAT_SIZE)

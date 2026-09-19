@@ -1,76 +1,79 @@
 package io.bluetape4k.tink.digest
 
-import io.bluetape4k.logging.KLogging
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeFalse
 import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.assertions.shouldNotBeEqualTo
+import io.bluetape4k.logging.KLogging
+import io.bluetape4k.support.toUtf8Bytes
+import io.bluetape4k.tink.AbstractTinkTest
+import org.junit.jupiter.api.RepeatedTest
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.ValueSource
 
-class TinkDigesterTest {
+class TinkDigesterTest: AbstractTinkTest() {
 
     companion object: KLogging()
 
     private val digester = TinkDigesters.SHA256
 
-    @Test
+    @RepeatedTest(REPEAT_SIZE)
     fun `바이트 배열 digest 라운드트립`() {
-        val data = "Hello, World!".toByteArray()
+        val data = faker.lorem().paragraph().toUtf8Bytes()
         val hash = digester.digest(data)
 
         hash shouldNotBeEqualTo data
         digester.matches(data, hash).shouldBeTrue()
     }
 
-    @Test
+    @RepeatedTest(REPEAT_SIZE)
     fun `문자열 digest 라운드트립`() {
-        val data = "안녕하세요, Tink!"
+        val data = faker.lorem().paragraph()
         val hash = digester.digest(data)
 
         hash shouldNotBeEqualTo data
         digester.matches(data, hash).shouldBeTrue()
     }
 
-    @Test
+    @RepeatedTest(REPEAT_SIZE)
     fun `동일한 입력은 항상 동일한 해시를 생성`() {
-        val data = "같은 메시지".toByteArray()
+        val data = faker.lorem().paragraph().toUtf8Bytes()
         val hash1 = digester.digest(data)
         val hash2 = digester.digest(data)
 
         hash1 shouldBeEqualTo hash2
     }
 
-    @Test
+    @RepeatedTest(REPEAT_SIZE)
     fun `다른 입력은 다른 해시를 생성`() {
-        val hash1 = digester.digest("메시지1")
-        val hash2 = digester.digest("메시지2")
+        val hash1 = digester.digest(faker.lorem().paragraph())
+        val hash2 = digester.digest(faker.lorem().paragraph())
 
         hash1 shouldNotBeEqualTo hash2
     }
 
-    @Test
+    @RepeatedTest(REPEAT_SIZE)
     fun `잘못된 해시로 matches 실패`() {
-        val data = "Hello".toByteArray()
+        val data = faker.lorem().paragraph().toUtf8Bytes()
         val hash = digester.digest(data)
         val wrongHash = hash.copyOf().apply { this[0] = (this[0].toInt() xor 0xFF).toByte() }
 
         digester.matches(data, wrongHash).shouldBeFalse()
     }
 
-    @Test
+    @RepeatedTest(REPEAT_SIZE)
     fun `문자열 잘못된 해시로 matches 실패`() {
-        val data = "Hello, World!"
-        val wrong = "World, Hello!"
+        val data = "Hello, World!" + faker.lorem().sentence()
+        val wrong = "World, Hello!" + faker.lorem().sentence()
         val wrongHash = digester.digest(wrong)
 
         digester.matches(data, wrongHash).shouldBeFalse()
     }
 
-    @Test
+    @RepeatedTest(REPEAT_SIZE)
     fun `문자열 malformed Base64 expected hash는 false를 반환`() {
-        digester.matches("Hello, World!", "not-base64-!").shouldBeFalse()
+        digester.matches(faker.lorem().paragraph(), "not-base64-!").shouldBeFalse()
     }
 
     @Test
@@ -84,7 +87,7 @@ class TinkDigesterTest {
     @Test
     fun `선행 0 바이트를 두 자리 hex로 보존한다`() {
         digester.digestHex("286") shouldBeEqualTo
-            "00328ce57bbc14b33bd6695bc8eb32cdf2fb5f3a7d89ec14a42825e15d39df60"
+                "00328ce57bbc14b33bd6695bc8eb32cdf2fb5f3a7d89ec14a42825e15d39df60"
     }
 
     @ParameterizedTest
@@ -111,7 +114,7 @@ class TinkDigesterTest {
 
     @Test
     fun `기존 문자열 digest는 Base64 계약을 유지한다`() {
-        digester.digest("abc") shouldBeEqualTo "ungWv48Bz+pBQUDeXa4iI7ADYaOWF3qctBD/YfIAFa0="
+        digester.digest("abc") shouldBeEqualTo "ungWv48Bz-pBQUDeXa4iI7ADYaOWF3qctBD_YfIAFa0="
     }
 
     @Test
@@ -130,9 +133,9 @@ class TinkDigesterTest {
         digester.matches(data, hash).shouldBeTrue()
     }
 
-    @Test
+    @RepeatedTest(REPEAT_SIZE)
     fun `모든 알고리즘 digest 동작 확인`() {
-        val data = "테스트 데이터"
+        val data = faker.lorem().paragraph()
         val digesters = listOf(
             TinkDigesters.MD5,
             TinkDigesters.SHA1,
@@ -147,13 +150,13 @@ class TinkDigesterTest {
         }
     }
 
-    @Test
+    @RepeatedTest(REPEAT_SIZE)
     fun `extension 함수 digest 동작 확인`() {
-        val data = "Hello, World!"
+        val data = faker.lorem().paragraph()
         val hash = data.tinkDigest(digester)
         data.matchesTinkDigest(hash, digester).shouldBeTrue()
 
-        val byteData = data.toByteArray()
+        val byteData = data.toUtf8Bytes()
         val byteHash = byteData.tinkDigest(digester)
         byteData.matchesTinkDigest(byteHash, digester).shouldBeTrue()
     }

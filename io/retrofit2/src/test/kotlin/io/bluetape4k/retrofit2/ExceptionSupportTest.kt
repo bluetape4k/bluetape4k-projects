@@ -26,7 +26,7 @@ class ExceptionSupportTest {
         val cause = IllegalStateException("boom")
         val result = cause.toIOException()
 
-        result shouldBeInstanceOf IOException::class
+        result.shouldBeInstanceOf<IOException>()
         result.cause shouldBeEqualTo cause
         result.message shouldBeEqualTo "boom"
     }
@@ -39,7 +39,7 @@ class ExceptionSupportTest {
         }
         val result = cause.toIOException()
 
-        result shouldBeInstanceOf IOException::class
+        result.shouldBeInstanceOf<IOException>()
         result.message shouldBeEqualTo "custom-toString"
         result.cause shouldBeEqualTo cause
     }
@@ -49,8 +49,8 @@ class ExceptionSupportTest {
         val cause = NullPointerException("null ref")
         val result = cause.toIOException()
 
-        result shouldBeInstanceOf IOException::class
+        result.shouldBeInstanceOf<IOException>()
         result.cause.shouldNotBeNull()
-        result.cause shouldBeInstanceOf NullPointerException::class
+        result.cause.shouldBeInstanceOf<NullPointerException>()
     }
 }

@@ -2,6 +2,8 @@ package io.bluetape4k.cache.nearcache.jcache
 
 import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeFalse
+import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.cache.jcache.JCache
 import io.bluetape4k.cache.nearcache.jcache.management.NearJCacheManagementMXBean
 import io.mockk.every
@@ -30,9 +32,10 @@ class NearJCacheClearAuthorityContractTest {
         ).forEach { (operation, invoke) ->
             val error = assertFailsWith<SecurityException> { invoke() }
 
-            error.message.orEmpty().contains(operation).shouldBeEqualTo(true)
-            error.message.orEmpty().contains("DENY").shouldBeEqualTo(true)
-            error.message.orEmpty().contains(cacheName).shouldBeEqualTo(false)
+            error.message.orEmpty().contains(operation).shouldBeTrue()
+            error.message.orEmpty().contains("DENY").shouldBeTrue()
+            error.message.orEmpty().contains(cacheName).shouldBeFalse()
+            
             verify(exactly = 0) { frontCache.clear() }
             verify(exactly = 0) { frontCache.removeAll() }
             verify(exactly = 0) { backCache.clear() }
@@ -48,7 +51,9 @@ class NearJCacheClearAuthorityContractTest {
             backCache = backCache,
         )
 
-        assertFailsWith<SecurityException> { nearCache.clear() }
+        assertFailsWith<SecurityException> {
+            nearCache.clear()
+        }
 
         verify(exactly = 0) { backCache.clear() }
     }
@@ -58,6 +63,7 @@ class NearJCacheClearAuthorityContractTest {
         val frontCache = mockk<JCache<String, String>>(relaxed = true)
         val backCache = mockk<JCache<String, String>>(relaxed = true)
         every { backCache.iterator() } returns mutableListOf<Cache.Entry<String, String>>().iterator()
+
         val nearCache = NearJCache(
             frontCache = frontCache,
             backCache = backCache,

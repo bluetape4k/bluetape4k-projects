@@ -2,16 +2,17 @@ package io.bluetape4k.io.serializer
 
 import io.bluetape4k.AbstractValueObject
 import io.bluetape4k.ToStringBuilder
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldNotBeEmpty
+import io.bluetape4k.assertions.shouldNotBeNull
 import io.bluetape4k.junit5.faker.Fakers
 import io.bluetape4k.junit5.random.RandomValue
 import io.bluetape4k.junit5.random.RandomizedTest
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
-import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldNotBeEmpty
-import io.bluetape4k.assertions.shouldNotBeNull
 import org.junit.jupiter.api.RepeatedTest
 import java.io.Serializable
+import java.math.BigDecimal
 import java.util.*
 
 @RandomizedTest
@@ -34,7 +35,7 @@ abstract class AbstractBinarySerializerTest {
         val biography: String,
         val zip: String,
         val address: String,
-        val amount: Double? = null,  // NOTE: Fury 가 BigDecimal, BigInteger를 지원하지 않음
+        val amount: BigDecimal? = null,  
     ): Serializable
 
     @RepeatedTest(REPEAT_SIZE)
@@ -43,7 +44,7 @@ abstract class AbstractBinarySerializerTest {
         bytes.shouldNotBeEmpty()
 
         val actual = serializer.deserialize<Long>(bytes)
-        actual.shouldNotBeNull() shouldBeEqualTo expected
+        actual shouldBeEqualTo expected
     }
 
     @RepeatedTest(REPEAT_SIZE)
@@ -54,7 +55,7 @@ abstract class AbstractBinarySerializerTest {
         bytes.shouldNotBeEmpty()
 
         val actual = serializer.deserialize<LongArray>(bytes)
-        actual.shouldNotBeNull() shouldBeEqualTo expected
+        actual shouldBeEqualTo expected
     }
 
     @RepeatedTest(REPEAT_SIZE)
@@ -63,7 +64,7 @@ abstract class AbstractBinarySerializerTest {
         bytes.shouldNotBeEmpty()
 
         val actual = serializer.deserialize<SimpleData>(bytes)
-        actual.shouldNotBeNull() shouldBeEqualTo expected
+        actual shouldBeEqualTo expected
     }
 
     @RepeatedTest(REPEAT_SIZE)
@@ -74,7 +75,7 @@ abstract class AbstractBinarySerializerTest {
         bytes.shouldNotBeEmpty()
 
         val actual = serializer.deserialize<List<SimpleData>>(bytes)
-        actual.shouldNotBeNull() shouldBeEqualTo expected
+        actual shouldBeEqualTo expected
     }
 
 
@@ -93,6 +94,7 @@ abstract class AbstractBinarySerializerTest {
                     email == other.email &&
                     age == other.age
 
+        override fun equals(other: Any?): Boolean = other != null && super.equals(other)
         override fun hashCode(): Int = Objects.hash(name, email, age)
 
         override fun buildStringHelper(): ToStringBuilder =
@@ -114,6 +116,7 @@ abstract class AbstractBinarySerializerTest {
                     email == other.email &&
                     age == other.age
 
+        override fun equals(other: Any?): Boolean = other != null && super.equals(other)
         override fun hashCode(): Int = Objects.hash(name, email, age, ssn)
 
         override fun buildStringHelper(): ToStringBuilder =

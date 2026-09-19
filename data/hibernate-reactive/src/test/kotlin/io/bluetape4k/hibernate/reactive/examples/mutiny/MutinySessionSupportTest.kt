@@ -2,6 +2,7 @@ package io.bluetape4k.hibernate.reactive.examples.mutiny
 
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeGreaterOrEqualTo
+import io.bluetape4k.assertions.shouldHaveSize
 import io.bluetape4k.assertions.shouldNotBeEmpty
 import io.bluetape4k.assertions.shouldNotBeNull
 import io.bluetape4k.hibernate.reactive.examples.model.Author
@@ -42,12 +43,8 @@ class MutinySessionSupportTest: AbstractMutinyTest() {
 
     companion object: KLoggingChannel()
 
-    private val author1 = Author(faker.name().name())
-    private val book1 = Book(
-        faker.numerify("#-#####-###-#"),
-        faker.book().title(),
-        LocalDate.of(2003, Month.MARCH, 1)
-    )
+    private val author1 = newAuthor()
+    private val book1 = newBook(LocalDate.of(2003, Month.MARCH, 1))
 
     @BeforeAll
     fun beforeAll() = runSuspendIO {
@@ -66,7 +63,6 @@ class MutinySessionSupportTest: AbstractMutinyTest() {
         val book = sf.withSessionSuspending { session ->
             session.findAs<Book>(book1.id, LockMode.NONE).awaitSuspending()
         }
-        book.shouldNotBeNull()
         book.id shouldBeEqualTo book1.id
         book.title shouldBeEqualTo book1.title
     }
@@ -79,7 +75,6 @@ class MutinySessionSupportTest: AbstractMutinyTest() {
     fun `getReferenceAs 로 엔티티 프록시 참조를 가져온다`() = runSuspendIO {
         sf.withSessionSuspending { session ->
             val ref = session.getReferenceAs<Book>(book1.id)
-            ref.shouldNotBeNull()
             ref.id shouldBeEqualTo book1.id
         }
     }
@@ -105,7 +100,7 @@ class MutinySessionSupportTest: AbstractMutinyTest() {
         val count = sf.withSessionSuspending { session ->
             session.createNativeQueryAs<Long>("SELECT COUNT(*) FROM books")
                 .singleResult
-                .awaitSuspending()
+                .awaitSuspending().shouldNotBeNull()
         }
         count shouldBeGreaterOrEqualTo 1L
     }
@@ -118,7 +113,6 @@ class MutinySessionSupportTest: AbstractMutinyTest() {
         val author = sf.withStatelessSessionSuspending { session ->
             session.getAs<Author>(author1.id, LockMode.NONE).awaitSuspending()
         }
-        author.shouldNotBeNull()
         author.id shouldBeEqualTo author1.id
         author.name shouldBeEqualTo author1.name
     }
@@ -132,6 +126,7 @@ class MutinySessionSupportTest: AbstractMutinyTest() {
             session.createNativeQueryAs<Long>("SELECT COUNT(*) FROM authors")
                 .singleResult
                 .awaitSuspending()
+                .shouldNotBeNull()
         }
         count shouldBeGreaterOrEqualTo 1L
     }
@@ -143,7 +138,6 @@ class MutinySessionSupportTest: AbstractMutinyTest() {
     fun `session 에서 createEntityGraphAs 로 이름 있는 EntityGraph 를 생성한다`() = runSuspendIO {
         sf.withSessionSuspending { session ->
             val graph = session.createEntityGraphAs<Book>("Book.withAuthor")
-            graph.shouldNotBeNull()
             graph.attributeNodes.shouldNotBeEmpty()
         }
     }
@@ -155,7 +149,6 @@ class MutinySessionSupportTest: AbstractMutinyTest() {
     fun `session 에서 getEntityGraphAs 로 NamedEntityGraph 를 조회한다`() = runSuspendIO {
         sf.withSessionSuspending { session ->
             val graph = session.getEntityGraphAs<Book>("Book.withAuthor")
-            graph.shouldNotBeNull()
             graph.attributeNodes.shouldNotBeEmpty()
         }
     }
@@ -168,7 +161,6 @@ class MutinySessionSupportTest: AbstractMutinyTest() {
         val book = sf.withSessionSuspending { session ->
             session.findAs<Book>("Book.withAuthor", book1.id).awaitSuspending()
         }
-        book.shouldNotBeNull()
         book.id shouldBeEqualTo book1.id
     }
 
@@ -182,7 +174,7 @@ class MutinySessionSupportTest: AbstractMutinyTest() {
                 .resultList
                 .awaitSuspending()
         }
-        books.size shouldBeGreaterOrEqualTo 1
+        books shouldHaveSize 1
     }
 
     /**
@@ -193,7 +185,6 @@ class MutinySessionSupportTest: AbstractMutinyTest() {
         val book = sf.withStatelessSessionSuspending { session ->
             session.getAs<Book>("Book.withAuthor", book1.id).awaitSuspending()
         }
-        book.shouldNotBeNull()
         book.id shouldBeEqualTo book1.id
     }
 
@@ -204,7 +195,6 @@ class MutinySessionSupportTest: AbstractMutinyTest() {
     fun `statelessSession 에서 getEntityGraphAs 로 NamedEntityGraph 를 조회한다`() = runSuspendIO {
         sf.withStatelessSessionSuspending { session ->
             val graph = session.getEntityGraphAs<Book>("Book.withAuthor")
-            graph.shouldNotBeNull()
             graph.attributeNodes.shouldNotBeEmpty()
         }
     }
@@ -216,7 +206,6 @@ class MutinySessionSupportTest: AbstractMutinyTest() {
     fun `statelessSession 에서 createEntityGraphAs 로 이름 있는 EntityGraph 를 생성한다`() = runSuspendIO {
         sf.withStatelessSessionSuspending { session ->
             val graph = session.createEntityGraphAs<Book>("Book.withAuthor")
-            graph.shouldNotBeNull()
             graph.attributeNodes.shouldNotBeEmpty()
         }
     }
@@ -231,6 +220,6 @@ class MutinySessionSupportTest: AbstractMutinyTest() {
                 .resultList
                 .awaitSuspending()
         }
-        books.size shouldBeGreaterOrEqualTo 1
+        books shouldHaveSize 1
     }
 }

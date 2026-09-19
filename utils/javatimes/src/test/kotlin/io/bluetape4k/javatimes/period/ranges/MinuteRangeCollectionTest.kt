@@ -1,12 +1,12 @@
 package io.bluetape4k.javatimes.period.ranges
 
+import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.javatimes.minutes
 import io.bluetape4k.javatimes.nowZonedDateTime
 import io.bluetape4k.javatimes.period.AbstractPeriodTest
 import io.bluetape4k.javatimes.period.TimeCalendar
 import io.bluetape4k.javatimes.startOfMinute
 import io.bluetape4k.logging.KLogging
-import io.bluetape4k.assertions.shouldBeEqualTo
 import org.junit.jupiter.api.Test
 
 class MinuteRangeCollectionTest: AbstractPeriodTest() {

@@ -2,10 +2,12 @@ package io.bluetape4k.cache.memoizer.ehcache
 
 import io.bluetape4k.cache.memoizer.AsyncMemoizer
 import io.bluetape4k.logging.coroutines.KLoggingChannel
+import okio.withLock
 import org.ehcache.Cache
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.atomic.AtomicLong
+import java.util.concurrent.locks.ReentrantLock
 
 /**
  * Ehcache를 이용하는 [EhCacheAsyncMemoizer]를 생성합니다.
@@ -82,6 +84,7 @@ class EhCacheAsyncMemoizer<T: Any, R: Any>(
 
     private val inFlight = ConcurrentHashMap<T, CompletableFuture<R>>()
     private val generation = AtomicLong(0)
+    private val lock = ReentrantLock()
 
     override fun invoke(key: T): CompletableFuture<R> {
         cache.get(key)?.let { return CompletableFuture.completedFuture(it) }
@@ -120,8 +123,10 @@ class EhCacheAsyncMemoizer<T: Any, R: Any>(
     }
 
     override fun clear() {
-        generation.incrementAndGet()
-        inFlight.clear()
-        cache.clear()
+        lock.withLock {
+            generation.incrementAndGet()
+            inFlight.clear()
+            cache.clear()
+        }
     }
 }

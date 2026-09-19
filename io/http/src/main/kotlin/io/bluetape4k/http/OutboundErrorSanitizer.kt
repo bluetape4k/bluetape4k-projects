@@ -171,13 +171,13 @@ private fun String.takeUtf16Safe(maxLength: Int): String {
     val result = when {
         maxLength <= 0 || isEmpty() -> ""
         length <= maxLength -> this
-        else -> {
+        else                -> {
             var end = maxLength
-            if (end > 0 && end < length) {
-                val previous = this[end - 1]
-                val next = this[end]
-                if (previous.isHighSurrogate() && next.isLowSurrogate()) end--
-            }
+            // if (end > 0 && end < length) {
+            val previous = this[end - 1]
+            val next = this[end]
+            if (previous.isHighSurrogate() && next.isLowSurrogate()) end--
+            //}
             substring(0, end)
         }
     }

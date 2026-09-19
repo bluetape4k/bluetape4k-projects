@@ -1,13 +1,14 @@
 package io.bluetape4k.cache.memoizer
 
+import io.bluetape4k.concurrent.completableFutureOf
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.warn
 import org.redisson.api.RMap
 import java.util.concurrent.CompletableFuture
+import java.util.concurrent.CompletionException
 import java.util.concurrent.CompletionStage
 import java.util.concurrent.ConcurrentHashMap
-import java.util.concurrent.CompletionException
 import java.util.concurrent.atomic.AtomicLong
 import java.util.concurrent.atomic.AtomicReference
 import java.util.concurrent.locks.ReentrantLock
@@ -72,7 +73,7 @@ class RedissonAsyncMemoizer<T: Any, R: Any>(
     private val inFlight = ConcurrentHashMap<T, CompletableFuture<R>>()
     private val registrationLock = ReentrantLock()
     private val generation = AtomicLong()
-    private val mutationTail = AtomicReference(CompletableFuture.completedFuture(Unit))
+    private val mutationTail = AtomicReference(completableFutureOf(Unit))
 
     /**
      * 주어진 [key]에 대한 비동기 결과를 반환한다.
@@ -105,35 +106,34 @@ class RedissonAsyncMemoizer<T: Any, R: Any>(
                     inFlight.remove(key, promise)
                     promise.complete(cached)
                 } else {
-                    runCatching { evaluator(key).toCompletableFuture() }
-                        .fold(
-                            onSuccess = { future ->
-                                future.whenComplete { value, evalError ->
-                                    if (evalError != null) {
+                    runCatching {
+                        evaluator(key).toCompletableFuture()
+                    }.fold(
+                        onSuccess = { future ->
+                            future.whenComplete { value, evalError ->
+                                if (evalError != null) {
+                                    inFlight.remove(key, promise)
+                                    promise.completeExceptionally(evalError)
+                                } else {
+                                    enqueueMutation {
+                                        if (capturedGeneration == generation.get()) {
+                                            map.putIfAbsentAsync(key, value)
+                                        } else completableFutureOf(null)
+                                    }.whenComplete { _, putError ->
+                                        if (putError != null) {
+                                            log.warn(putError) { "Failed to cache value: map=${map.name}, key=$key" }
+                                        }
                                         inFlight.remove(key, promise)
-                                        promise.completeExceptionally(evalError)
-                                    } else {
-                                        enqueueMutation {
-                                            if (capturedGeneration == generation.get()) {
-                                                map.putIfAbsentAsync(key, value)
-                                            } else CompletableFuture.completedFuture(null)
-                                        }.whenComplete { _, putError ->
-                                                if (putError != null) {
-                                                    log.warn(putError) {
-                                                        "Failed to cache value: map=${map.name}, key=$key"
-                                                    }
-                                                }
-                                                inFlight.remove(key, promise)
-                                                promise.complete(value)
-                                            }
+                                        promise.complete(value)
                                     }
                                 }
-                            },
-                            onFailure = { evalError ->
-                                inFlight.remove(key, promise)
-                                promise.completeExceptionally(evalError)
                             }
-                        )
+                        },
+                        onFailure = { evalError ->
+                            inFlight.remove(key, promise)
+                            promise.completeExceptionally(evalError)
+                        }
+                    )
                 }
             }
 
@@ -162,15 +162,19 @@ class RedissonAsyncMemoizer<T: Any, R: Any>(
     }
 
     /** callback을 기다리며 스레드 lock을 보유하지 않고 서버 쓰기/삭제 완료 순서를 보장합니다. */
-    private fun enqueueMutation(action: () -> CompletionStage<*>): CompletableFuture<Unit> {
+    private inline fun enqueueMutation(
+        crossinline action: () -> CompletionStage<*>
+    ): CompletableFuture<Unit> {
         val completion = CompletableFuture<Unit>()
         val previous = mutationTail.getAndSet(completion)
-        previous.handle { _, _ -> Unit }
-            .thenCompose { action().toCompletableFuture().thenApply { Unit } }
+
+        previous.handle { _, _ -> }
+            .thenCompose { action().toCompletableFuture().thenApply { } }
             .whenComplete { _, error ->
                 if (error == null) completion.complete(Unit)
                 else completion.completeExceptionally(error)
             }
+
         return completion
     }
 }

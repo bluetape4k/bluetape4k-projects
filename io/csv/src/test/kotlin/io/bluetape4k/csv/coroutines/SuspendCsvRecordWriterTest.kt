@@ -1,6 +1,7 @@
 package io.bluetape4k.csv.coroutines
 
 import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.assertions.shouldContain
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.coroutines.KLoggingChannel
@@ -141,7 +142,7 @@ class SuspendCsvRecordWriterTest {
             withTimeout(2.seconds) {
                 job.cancelAndJoin()
             }
-            interrupted.get() shouldBeEqualTo true
+            interrupted.get().shouldBeTrue()
         }
     }
 

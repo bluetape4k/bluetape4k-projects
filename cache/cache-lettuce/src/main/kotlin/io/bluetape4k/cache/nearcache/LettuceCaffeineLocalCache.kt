@@ -16,8 +16,9 @@ import com.github.benmanes.caffeine.cache.stats.CacheStats
  * cache.close()
  * ```
  */
-class LettuceCaffeineLocalCache<K: Any, V: Any>(private val config: LettuceNearCacheConfig<K, V>):
-    LettuceLocalCache<K, V> {
+class LettuceCaffeineLocalCache<K: Any, V: Any>(
+    private val config: LettuceNearCacheConfig<K, V>
+): LettuceLocalCache<K, V> {
 
     private val cache: Cache<K, V> = Caffeine.newBuilder()
         .maximumSize(config.maxLocalSize)

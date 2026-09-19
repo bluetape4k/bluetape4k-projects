@@ -103,7 +103,6 @@ class WorkerFactoryCoroutinesTest {
         every { factory.awaitTermination(100, TimeUnit.MILLISECONDS) } answers {
             waitEntered.countDown()
             releaseWait.await()
-            Unit
         }
         every { factory.isTerminated } returns false
         every { factory.shutdownNow() } just runs

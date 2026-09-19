@@ -2,6 +2,8 @@ package io.bluetape4k.retrofit2
 
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.testcontainers.http.BluetapeHttpServer
+import net.datafaker.Faker
+import java.util.*
 
 abstract class AbstractRetrofitTest {
 
@@ -11,6 +13,8 @@ abstract class AbstractRetrofitTest {
 
         @JvmStatic
         protected val httpbinBaseUrl: String by lazy { httpbinServer.httpbinUrl }
+
+        val faker = Faker(Locale.getDefault())
     }
 
     // Retrofit2는 baseUrl이 반드시 '/'로 끝나야 한다.

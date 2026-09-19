@@ -36,7 +36,7 @@ object BinarySerializers {
      * 기본 [BinarySerializer]. [Kryo]를 사용합니다.
      *
      * > **보안 변경**: 이전 버전에서는 [Jdk]를 기본값으로 사용했으나, JDK 역직렬화 RCE 위험으로 인해
-     * > [Kryo]로 변경되었습니다. JDK 직렬화가 필요한 경우 [Jdk]를 직접 사용하세요.
+     * > [FastFory]로 변경되었습니다. JDK 직렬화가 필요한 경우 [Jdk]를 직접 사용하세요.
      *
      * 예제:
      * ```kotlin
@@ -44,7 +44,7 @@ object BinarySerializers {
      * val restored = BinarySerializers.Default.deserialize<MyClass>(bytes)
      * ```
      */
-    val Default: BinarySerializer by lazy { Kryo }
+    val Default: BinarySerializer by lazy { FastFory }
 
     /**
      * JDK 표준 직렬화를 사용하는 [BinarySerializer].

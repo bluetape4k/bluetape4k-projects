@@ -4,14 +4,14 @@ import com.fasterxml.jackson.annotation.JsonSubTypes
 import com.fasterxml.jackson.annotation.JsonTypeInfo
 import com.fasterxml.jackson.annotation.JsonTypeName
 import com.fasterxml.jackson.module.kotlin.readValue
-import io.bluetape4k.jackson.text.AbstractJacksonTextTest
-import io.bluetape4k.jackson.text.JacksonText
-import io.bluetape4k.logging.KLogging
-import io.bluetape4k.logging.debug
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.assertions.shouldContainAll
 import io.bluetape4k.assertions.shouldNotBeNull
+import io.bluetape4k.jackson.text.AbstractJacksonTextTest
+import io.bluetape4k.jackson.text.JacksonText
+import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.debug
 import org.junit.jupiter.api.Test
 import java.io.Serializable
 
@@ -74,6 +74,7 @@ class ParseArrayDataSourcePropertiesTest: AbstractJacksonTextTest() {
         // Object 를 properties 나 yaml 포맷의 문자열로 생성할 수도 있습니다.
         val props = propsMapper.writeValueAsProperties(root)
         log.debug { "Yaml to Properties=$props" }
+        props.shouldNotBeNull()
     }
 
     @Test

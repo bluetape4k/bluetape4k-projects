@@ -1,6 +1,6 @@
 package io.bluetape4k.probabilistic.bloomfilter
 
-import java.util.Arrays
+import java.util.*
 
 /**
  * JDK/Kotlin만 사용해 구현한 인메모리 Bloom Filter입니다.
@@ -71,11 +71,11 @@ open class InMemoryBloomFilter<T: Any>(
 
     internal fun isCompatible(other: InMemoryBloomFilter<*>): Boolean =
         expectedInsertions == other.expectedInsertions &&
-            falsePositiveProbability == other.falsePositiveProbability &&
-            bitSize == other.bitSize &&
-            hashFunctionCount == other.hashFunctionCount &&
-            hasher == other.hasher &&
-            words.size == other.words.size
+                falsePositiveProbability == other.falsePositiveProbability &&
+                bitSize == other.bitSize &&
+                hashFunctionCount == other.hashFunctionCount &&
+                hasher == other.hasher &&
+                words.size == other.words.size
 
     private fun indexes(element: T): LongArray =
         BloomHashSupport.indexes(hasher.bytes(element), hashFunctionCount, bitSize)

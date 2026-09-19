@@ -1,13 +1,12 @@
 package io.bluetape4k.rule.core
 
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeFalse
+import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.rule.api.Facts
 import io.bluetape4k.rule.api.ruleSetOf
 import kotlinx.coroutines.test.runTest
-import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldBeFalse
-import io.bluetape4k.assertions.shouldBeTrue
-import io.bluetape4k.assertions.shouldNotBeNull
 import org.junit.jupiter.api.Test
 
 class RuleDslTest {
@@ -30,7 +29,7 @@ class RuleDslTest {
         val facts = Facts.of("amount" to 1500)
         discountRule.evaluate(facts).shouldBeTrue()
         discountRule.execute(facts)
-        facts.get<Boolean>("discount").shouldNotBeNull().shouldBeTrue()
+        facts.get<Boolean>("discount").shouldBeTrue()
     }
 
     @Test
@@ -59,7 +58,7 @@ class RuleDslTest {
         val facts = Facts.of("value" to 10)
         asyncRule.evaluate(facts).shouldBeTrue()
         asyncRule.execute(facts)
-        facts.get<Boolean>("processed").shouldNotBeNull().shouldBeTrue()
+        facts.get<Boolean>("processed").shouldBeTrue()
     }
 
     @Test
@@ -91,7 +90,8 @@ class RuleDslTest {
         }
 
         val facts = Facts.empty()
-        engine.fire(ruleSetOf(rule1, rule2), facts); facts.get<String>("winner") shouldBeEqualTo "rule1"
+        engine.fire(ruleSetOf(rule1, rule2), facts)
+        facts.get<String>("winner") shouldBeEqualTo "rule1"
     }
 
     @Test
@@ -105,7 +105,7 @@ class RuleDslTest {
 
         val facts = Facts.empty()
         multiRule.execute(facts)
-        facts.get<Boolean>("step1").shouldNotBeNull().shouldBeTrue()
-        facts.get<Boolean>("step2").shouldNotBeNull().shouldBeTrue()
+        facts.get<Boolean>("step1").shouldBeTrue()
+        facts.get<Boolean>("step2").shouldBeTrue()
     }
 }

@@ -1,8 +1,8 @@
 package io.bluetape4k.support
 
-import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeNull
+import io.bluetape4k.assertions.shouldFailRequire
 import io.bluetape4k.logging.KLogging
 import org.junit.jupiter.api.Test
 
@@ -65,10 +65,10 @@ class ObjectSupportTest {
 
     @Test
     fun `빈 컬렉션의 median은 예외를 던진다`() {
-        assertFailsWith<IllegalArgumentException> {
+        shouldFailRequire {
             emptyList<Int>().median()
         }
-        assertFailsWith<IllegalArgumentException> {
+        shouldFailRequire {
             emptyList<Int>().median(Comparator.naturalOrder())
         }
     }

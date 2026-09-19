@@ -1,8 +1,8 @@
 package io.bluetape4k.mockwebflux.config
 
-import io.bluetape4k.assertions.shouldBeGreaterThan
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeFalse
+import io.bluetape4k.assertions.shouldBeGreaterThan
 import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.assertions.shouldNotBeEqualTo
 import io.bluetape4k.mockwebflux.AbstractMockWebfluxServerTest
@@ -13,7 +13,7 @@ import org.springframework.http.server.reactive.HttpHandler
 /**
  * 테스트 HTTPS lifecycle의 포트 격리 계약을 검증한다.
  */
-class HttpsServerLifecycleContractTest : AbstractMockWebfluxServerTest() {
+class HttpsServerLifecycleContractTest: AbstractMockWebfluxServerTest() {
 
     @Autowired
     private lateinit var lifecycle: HttpsServerLifecycle

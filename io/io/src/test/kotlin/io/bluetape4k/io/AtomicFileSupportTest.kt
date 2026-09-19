@@ -1,8 +1,10 @@
 package io.bluetape4k.io
 
+import io.bluetape4k.assertions.shouldBeFalse
+import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.logging.KLogging
 import org.junit.jupiter.api.Assertions.assertArrayEquals
 import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertSame
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
@@ -10,14 +12,16 @@ import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.io.TempDir
 import java.nio.file.Files
 import java.nio.file.Path
-import java.util.concurrent.CountDownLatch
 import java.util.concurrent.ConcurrentLinkedQueue
+import java.util.concurrent.CountDownLatch
 import java.util.concurrent.CyclicBarrier
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicBoolean
 
 class AtomicFileSupportTest {
+
+    companion object: KLogging()
 
     @TempDir
     lateinit var tempDir: Path
@@ -82,8 +86,8 @@ class AtomicFileSupportTest {
             target.writeAtomically { throw IllegalArgumentException("reject") }
         }
 
-        assertTrue(Files.isDirectory(target.parent))
-        assertFalse(Files.exists(target))
+        Files.isDirectory(target.parent).shouldBeTrue()
+        Files.exists(target).shouldBeFalse()
         assertNoSiblingTemps(target)
     }
 
@@ -93,6 +97,7 @@ class AtomicFileSupportTest {
         val release = CountDownLatch(1)
         val executor = Executors.newFixedThreadPool(2)
         val targets = listOf(tempDir.resolve("a.bin"), tempDir.resolve("b.bin"))
+
         val futures = targets.mapIndexed { index, target ->
             executor.submit<Long> {
                 target.writeAtomically { output ->
@@ -110,7 +115,7 @@ class AtomicFileSupportTest {
         } finally {
             release.countDown()
             executor.shutdownNow()
-            assertTrue(executor.awaitTermination(5, TimeUnit.SECONDS))
+            executor.awaitTermination(5, TimeUnit.SECONDS).shouldBeTrue()
         }
 
         targets.forEach(::assertNoSiblingTemps)
@@ -135,11 +140,11 @@ class AtomicFileSupportTest {
             futures.forEach { it.get(5, TimeUnit.SECONDS) }
         } finally {
             executor.shutdownNow()
-            assertTrue(executor.awaitTermination(5, TimeUnit.SECONDS))
+            executor.awaitTermination(5, TimeUnit.SECONDS).shouldBeTrue()
         }
 
         val actual = Files.readAllBytes(target)
-        assertTrue(payloads.any(actual::contentEquals))
+        payloads.any(actual::contentEquals).shouldBeTrue()
         assertNoSiblingTemps(target)
     }
 
@@ -180,20 +185,20 @@ class AtomicFileSupportTest {
         } finally {
             reading.set(false)
             executor.shutdownNow()
-            assertTrue(executor.awaitTermination(5, TimeUnit.SECONDS))
+            executor.awaitTermination(5, TimeUnit.SECONDS).shouldBeTrue()
         }
 
-        assertTrue(payloads.any(Files.readAllBytes(target)::contentEquals))
+        payloads.any(Files.readAllBytes(target)::contentEquals).shouldBeTrue()
         assertNoSiblingTemps(target)
     }
 
     private fun assertNoSiblingTemps(target: Path) {
         val prefix = ".${target.fileName}."
         Files.list(target.parent).use { siblings ->
-            assertFalse(siblings.anyMatch { path ->
+            siblings.anyMatch { path ->
                 val name = path.fileName.toString()
                 name.startsWith(prefix) && name.endsWith(".tmp")
-            })
+            }.shouldBeFalse()
         }
     }
 }

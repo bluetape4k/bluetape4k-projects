@@ -1,15 +1,14 @@
 package io.bluetape4k.io
 
-import io.bluetape4k.logging.KLogging
 import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.logging.KLogging
 import org.junit.jupiter.api.RepeatedTest
 import org.junit.jupiter.api.Test
 import java.nio.ByteBuffer
 
 class ByteBufferStreamTest: AbstractIOTest() {
 
-    companion object: KLogging() {
-    }
+    companion object: KLogging()
 
     @RepeatedTest(REPEAT_SIZE)
     fun `use ByteBufferInputStream`() {

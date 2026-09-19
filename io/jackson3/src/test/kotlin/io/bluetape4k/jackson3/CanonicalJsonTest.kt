@@ -7,7 +7,7 @@ import org.junit.jupiter.api.Test
 import tools.jackson.databind.node.JsonNodeFactory
 import java.math.BigDecimal
 import java.security.MessageDigest
-import java.util.HexFormat
+import java.util.*
 
 class CanonicalJsonTest {
 
@@ -16,7 +16,7 @@ class CanonicalJsonTest {
         val body = """{"z":[1,2,3],"a":{"value":1.00e+2,"zero":-0.0},"text":"e\u0301","escaped":"quote\""}"""
 
         CanonicalJson().canonicalString(body.toByteArray()) shouldBeEqualTo
-            """{"a":{"value":100, "zero":0}, "escaped":"quote\"", "text":"é", "z":[1, 2, 3]}"""
+                """{"a":{"value":100, "zero":0}, "escaped":"quote\"", "text":"é", "z":[1, 2, 3]}"""
     }
 
     @Test
@@ -135,7 +135,7 @@ class CanonicalJsonTest {
         val body = """{"value":0.123456789012345678901234567890}""".toByteArray()
 
         CanonicalJson().canonicalString(body) shouldBeEqualTo
-            """{"value":0.12345678901234568}"""
+                """{"value":0.12345678901234568}"""
     }
 
     @Test
@@ -172,7 +172,7 @@ class CanonicalJsonTest {
 
         canonicalJson.canonicalBytes(body) shouldBeEqualTo canonicalJson.canonicalBytes(node)
         canonicalJson.canonicalBytes(body).decodeToString() shouldBeEqualTo
-            """{"a":"현장", "b":0.12345678901234568}"""
+                """{"a":"현장", "b":0.12345678901234568}"""
     }
 
     @Test
@@ -180,23 +180,23 @@ class CanonicalJsonTest {
         val commonBody = """{"b":1.00,"a":[true,null,"e\u0301"],"z":-0.0}""".toByteArray()
         val fieldServiceBytes = CanonicalJson().canonicalBytes(commonBody)
         fieldServiceBytes.decodeToString() shouldBeEqualTo
-            """{"a":[true, null, "é"], "b":1, "z":0}"""
+                """{"a":[true, null, "é"], "b":1, "z":0}"""
         fieldServiceBytes.sha256Hex() shouldBeEqualTo
-            "a79fd84206152d61159dbea8876798156529edf969397498e874b3d57756f5b2"
+                "a79fd84206152d61159dbea8876798156529edf969397498e874b3d57756f5b2"
 
         val warehouseBytes = CanonicalJson(
             stringNormalization = CanonicalJsonStringNormalization.NFC,
         ).canonicalBytes(commonBody)
         warehouseBytes.decodeToString() shouldBeEqualTo
-            """{"a":[true, null, "é"], "b":1, "z":0}"""
+                """{"a":[true, null, "é"], "b":1, "z":0}"""
         warehouseBytes.sha256Hex() shouldBeEqualTo
-            "e309eacc795d011e0c919e93906394dee9f7a412106a8c74f3a47d0b3293ca8b"
+                "e309eacc795d011e0c919e93906394dee9f7a412106a8c74f3a47d0b3293ca8b"
 
         val shiftCoverageBytes = CanonicalJson()
             .canonicalBytes("""{ "event" : "availability.changed" }""".toByteArray())
         shiftCoverageBytes.decodeToString() shouldBeEqualTo """{"event":"availability.changed"}"""
         shiftCoverageBytes.sha256Hex() shouldBeEqualTo
-            "d7632712981f06afc7c03b6a190a15c81c445e02e2dbc9595796ad4960f1f82f"
+                "d7632712981f06afc7c03b6a190a15c81c445e02e2dbc9595796ad4960f1f82f"
     }
 
     private fun ByteArray.sha256Hex(): String =

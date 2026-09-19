@@ -223,7 +223,7 @@ class Jdk21StructuredTaskScopeProvider: StructuredTaskScopeProvider {
     private class Jdk21SupervisedTaskScope<T>(
         name: String?,
         factory: ThreadFactory,
-    ) : StructuredTaskScope<T>(name, factory) {
+    ): StructuredTaskScope<T>(name, factory) {
         private val _results = CopyOnWriteArrayList<Result<T>>()
 
         override fun handleComplete(subtask: StructuredTaskScope.Subtask<out T>) {
@@ -239,7 +239,7 @@ class Jdk21StructuredTaskScopeProvider: StructuredTaskScopeProvider {
 
     private class Jdk21SupervisedScope<T>(
         private val delegate: Jdk21SupervisedTaskScope<T>,
-    ) : StructuredTaskScopeSupervised<T> {
+    ): StructuredTaskScopeSupervised<T> {
         override fun fork(task: () -> T): StructuredSubtask<T> {
             log.trace { "Add supervised sub task..." }
             return Jdk21Subtask(delegate.fork(Callable { task() }))

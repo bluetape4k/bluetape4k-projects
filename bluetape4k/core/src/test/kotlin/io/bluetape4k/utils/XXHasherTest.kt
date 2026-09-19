@@ -1,12 +1,14 @@
 package io.bluetape4k.utils
 
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldHaveSize
+import io.bluetape4k.assertions.shouldNotBeEqualTo
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
-import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldNotBeEqualTo
 import org.junit.jupiter.api.RepeatedTest
 import org.junit.jupiter.api.Test
 import java.util.concurrent.ConcurrentHashMap
+import kotlin.concurrent.thread
 
 class XXHasherTest {
 
@@ -60,27 +62,29 @@ class XXHasherTest {
                 hashSet.add(hash)
             }
         }
-        hashSet.size shouldBeEqualTo 10000
+        hashSet shouldHaveSize 100 * 100
     }
 
     @RepeatedTest(3)
     fun `concurrent hash computation should be thread-safe`() {
+        val times = 1000
+        val multiplier = 10000
         val results = ConcurrentHashMap<Int, Int>()
-        val threads = (1..10).map { threadId ->
-            Thread {
-                repeat(1000) { i ->
+
+        val threads = List(10) { threadId ->
+            thread {
+                repeat(times) { i ->
                     val hash = XXHasher.hash(threadId, i)
-                    results[threadId * 10000 + i] = hash
+                    results[threadId * multiplier + i] = hash
                 }
             }
         }
-        threads.forEach { it.start() }
         threads.forEach { it.join() }
 
         // 각 (threadId, i) 쌍에 대해 해시값 재계산하여 일치 확인
         results.forEach { (key, expectedHash) ->
-            val threadId = key / 10000
-            val i = key % 10000
+            val threadId = key / multiplier
+            val i = key % multiplier
             XXHasher.hash(threadId, i) shouldBeEqualTo expectedHash
         }
     }

@@ -1,7 +1,5 @@
 package io.bluetape4k.measured
 
-import io.bluetape4k.measured.Mass.Companion.grams
-
 
 /**
  * 질량 단위를 나타냅니다.

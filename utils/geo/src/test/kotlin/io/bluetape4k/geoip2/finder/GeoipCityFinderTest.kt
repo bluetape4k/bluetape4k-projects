@@ -1,5 +1,8 @@
 package io.bluetape4k.geoip2.finder
 
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeNull
+import io.bluetape4k.assertions.shouldNotBeNull
 import io.bluetape4k.concurrent.AtomicIntRoundrobin
 import io.bluetape4k.geoip2.AbstractGeoipTest
 import io.bluetape4k.junit5.concurrency.MultithreadingTester
@@ -11,9 +14,6 @@ import io.bluetape4k.logging.debug
 import io.bluetape4k.utils.Runtimex
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldBeNull
-import io.bluetape4k.assertions.shouldNotBeNull
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.condition.EnabledForJreRange
 import org.junit.jupiter.api.condition.JRE
@@ -69,7 +69,7 @@ class GeoipCityFinderTest: AbstractGeoipTest() {
 
         expected.forEach { (ip, address) ->
             log.debug { "ip=$ip, address=$address" }
-            resultMap[ip]!! shouldBeEqualTo address!!.country
+            resultMap[ip] shouldBeEqualTo address?.country
         }
     }
 
@@ -95,7 +95,7 @@ class GeoipCityFinderTest: AbstractGeoipTest() {
 
         expected.forEach { (ip, address) ->
             log.debug { "ip=$ip, address=$address" }
-            resultMap[ip]!! shouldBeEqualTo address!!.country
+            resultMap[ip] shouldBeEqualTo address?.country
         }
     }
 
@@ -123,7 +123,7 @@ class GeoipCityFinderTest: AbstractGeoipTest() {
 
         expected.forEach { (ip, address) ->
             log.debug { "ip=$ip, address=$address" }
-            resultMap[ip]!! shouldBeEqualTo address!!.country
+            resultMap[ip] shouldBeEqualTo address?.country
         }
     }
 }

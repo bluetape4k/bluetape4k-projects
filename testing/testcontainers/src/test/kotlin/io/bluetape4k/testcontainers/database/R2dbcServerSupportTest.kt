@@ -1,9 +1,9 @@
 package io.bluetape4k.testcontainers.database
 
-import io.bluetape4k.logging.KLogging
-import io.r2dbc.spi.ConnectionFactoryOptions
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldNotBeNull
+import io.bluetape4k.logging.KLogging
+import io.r2dbc.spi.ConnectionFactoryOptions
 import org.junit.jupiter.api.Test
 
 class R2dbcServerSupportTest: AbstractJdbcServerTest() {

@@ -1,12 +1,12 @@
 package io.bluetape4k.cache.nearcache
 
-import io.bluetape4k.cache.AbstractHazelcastTest
-import io.bluetape4k.logging.KLogging
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeFalse
 import io.bluetape4k.assertions.shouldBeNull
 import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.assertions.shouldNotBeNull
+import io.bluetape4k.cache.AbstractHazelcastTest
+import io.bluetape4k.logging.KLogging
 import org.junit.jupiter.api.BeforeEach
 
 /**
@@ -40,6 +40,7 @@ abstract class AbstractHazelcastNearCacheTest: AbstractHazelcastTest() {
     ) {
         put("key1", "value1")
         get("key1").shouldNotBeNull()
+
         remove("key1")
         get("key1").shouldBeNull()
     }
@@ -52,6 +53,7 @@ abstract class AbstractHazelcastNearCacheTest: AbstractHazelcastTest() {
         put("keyX", "valX")
         containsKey("keyX").shouldBeTrue()
         containsKey("nonexistent").shouldBeFalse()
+
         remove("keyX")
         containsKey("keyX").shouldBeFalse()
     }
@@ -62,6 +64,7 @@ abstract class AbstractHazelcastNearCacheTest: AbstractHazelcastTest() {
     ) {
         putIfAbsent("key", "first").shouldBeNull()
         get("key") shouldBeEqualTo "first"
+
         putIfAbsent("key", "second") shouldBeEqualTo "first"
         get("key") shouldBeEqualTo "first"
     }
@@ -72,6 +75,7 @@ abstract class AbstractHazelcastNearCacheTest: AbstractHazelcastTest() {
     ) {
         val data = mapOf("a" to "1", "b" to "2", "c" to "3")
         putAll(data)
+
         val result = getAll(setOf("a", "b", "c", "x"))
         result["a"] shouldBeEqualTo "1"
         result["b"] shouldBeEqualTo "2"

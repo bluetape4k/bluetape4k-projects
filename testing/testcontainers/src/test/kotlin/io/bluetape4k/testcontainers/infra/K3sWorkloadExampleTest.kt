@@ -15,7 +15,7 @@ import io.fabric8.kubernetes.client.KubernetesClient
 import org.junit.jupiter.api.Tag
 import org.junit.jupiter.api.Test
 import java.nio.charset.StandardCharsets.UTF_8
-import java.util.Base64
+import java.util.*
 
 @Tag("k8s")
 class K3sWorkloadExampleTest: AbstractContainerTest() {

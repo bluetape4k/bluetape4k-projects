@@ -45,6 +45,7 @@ class DocumentExtensionsTest {
 
         doc.getString("name") shouldBeEqualTo "Charlie"
         doc.getInteger("age") shouldBeEqualTo 25
+
         @Suppress("UNCHECKED_CAST")
         val tags = doc.get("tags") as? List<String>
         tags.shouldNotBeNull()
@@ -67,14 +68,12 @@ class DocumentExtensionsTest {
     @Test
     fun `getAs 키가 없으면 null 반환`() {
         val doc = documentOf("name" to "Eve")
-
         doc.getAs<String>("missing").shouldBeNull()
     }
 
     @Test
     fun `getAs 타입이 맞지 않으면 null 반환`() {
         val doc = documentOf("age" to 30)
-
         doc.getAs<String>("age").shouldBeNull()
     }
 }

@@ -1,10 +1,11 @@
 package io.bluetape4k.hibernate.converter
 
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeNull
+import io.bluetape4k.assertions.shouldNotBeNull
 import io.bluetape4k.hibernate.AbstractHibernateTest
 import io.bluetape4k.jackson3.Jackson
 import io.bluetape4k.logging.KLogging
-import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldBeNull
 import org.junit.jupiter.api.Test
 import tools.jackson.databind.JsonNode
 import tools.jackson.module.kotlin.treeToValue
@@ -14,7 +15,10 @@ class JsonStringConverterTest: AbstractHibernateTest() {
     companion object: KLogging()
 
     private fun newOption(): Purchase.Option {
-        return Purchase.Option(faker.credentials().username(), faker.random().hex(128))
+        return Purchase.Option(
+            faker.credentials().username(),
+            faker.random().hex(128)
+        )
     }
 
     @Test
@@ -24,7 +28,6 @@ class JsonStringConverterTest: AbstractHibernateTest() {
         }
 
         val loaded = tem.persistFlushFind(purchase)
-
         loaded.option shouldBeEqualTo purchase.option
     }
 
@@ -43,7 +46,7 @@ class JsonStringConverterTest: AbstractHibernateTest() {
         val mapper = Jackson.defaultJsonMapper
         val option = newOption()
 
-        val jsonNode = mapper.valueToTree<JsonNode>(option)
+        val jsonNode = mapper.valueToTree<JsonNode>(option).shouldNotBeNull()
         val convertedOption = mapper.treeToValue<Purchase.Option>(jsonNode)
         convertedOption shouldBeEqualTo option
     }

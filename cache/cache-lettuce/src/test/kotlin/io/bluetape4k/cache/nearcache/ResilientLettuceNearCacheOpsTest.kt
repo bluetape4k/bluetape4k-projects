@@ -1,5 +1,6 @@
 package io.bluetape4k.cache.nearcache
 
+import io.bluetape4k.codec.Base58
 import io.bluetape4k.junit5.faker.Fakers
 
 /**
@@ -8,14 +9,13 @@ import io.bluetape4k.junit5.faker.Fakers
  * [AbstractResilientNearCacheOperationsTest]를 상속하여 CRUD + 동시성 + Resilience를 모두 검증합니다.
  */
 class ResilientLettuceNearCacheOpsTest: AbstractResilientNearCacheOperationsTest<String>() {
-    private val cacheName get() = "resilient-lettuce-test-${Fakers.randomString(6, 8)}"
+    private val cacheName get() = "resilient-lettuce-test-${Base58.randomString(8)}"
 
-    override fun createBaseCache(): NearCacheOperations<String> =
-        LettuceNearCache(
-            redisClient = AbstractLettuceNearCacheTest.resp3Client,
-            config = LettuceNearCacheConfig(cacheName = cacheName),
-        )
+    override fun createBaseCache(): NearCacheOperations<String> = LettuceNearCache(
+        redisClient = AbstractLettuceNearCacheTest.resp3Client,
+        config = LettuceNearCacheConfig(cacheName = cacheName),
+    )
 
     override fun sampleValue(): String = Fakers.randomString(8, 32)
-    override fun anotherValue(): String = Fakers.randomString(8, 32)
+    override fun anotherValue(): String = Fakers.randomString(16, 64)
 }

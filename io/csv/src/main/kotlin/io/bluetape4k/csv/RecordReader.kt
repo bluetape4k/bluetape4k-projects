@@ -1,5 +1,7 @@
 package io.bluetape4k.csv
 
+import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.debug
 import java.io.Closeable
 import java.io.InputStream
 import java.nio.charset.Charset
@@ -20,6 +22,8 @@ import java.nio.charset.Charset
  * ```
  */
 interface RecordReader: Closeable {
+
+    companion object: KLogging()
 
     /**
      * 입력 스트림을 읽어 [Record]를 원하는 타입으로 변환합니다.
@@ -51,6 +55,6 @@ interface RecordReader: Closeable {
      * Reader 리소스를 닫습니다. 기본 구현은 no-op.
      */
     override fun close() {
-        // NOOP
+        log.debug { "Close RecordReader" }
     }
 }

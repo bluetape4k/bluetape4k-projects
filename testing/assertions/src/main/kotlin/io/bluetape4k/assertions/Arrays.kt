@@ -69,7 +69,7 @@ infix fun IntArray?.shouldHaveSize(size: Int): IntArray {
  * @receiver 검증할 IntArray (nullable)
  * @return receiver (체이닝 지원)
  */
-fun IntArray?.shouldBeEmpty(): IntArray? {
+fun IntArray?.shouldBeEmpty(): IntArray {
     if (this == null || this.isNotEmpty()) {
         Failures.failComparison(
             Messages.expectedToBe("be empty", emptyArray<Int>(), this),
@@ -145,7 +145,7 @@ infix fun LongArray?.shouldHaveSize(size: Int): LongArray {
 /**
  * 배열이 비어있는지 검증한다.
  */
-fun LongArray?.shouldBeEmpty(): LongArray? {
+fun LongArray?.shouldBeEmpty(): LongArray {
     if (this == null || this.isNotEmpty()) {
         Failures.failComparison(
             Messages.expectedToBe("be empty", emptyArray<Long>(), this),
@@ -218,7 +218,7 @@ infix fun DoubleArray?.shouldHaveSize(size: Int): DoubleArray {
 /**
  * 배열이 비어있는지 검증한다.
  */
-fun DoubleArray?.shouldBeEmpty(): DoubleArray? {
+fun DoubleArray?.shouldBeEmpty(): DoubleArray {
     if (this == null || this.isNotEmpty()) {
         Failures.failComparison(
             Messages.expectedToBe("be empty", emptyArray<Double>(), this),
@@ -291,7 +291,7 @@ infix fun FloatArray?.shouldHaveSize(size: Int): FloatArray {
 /**
  * 배열이 비어있는지 검증한다.
  */
-fun FloatArray?.shouldBeEmpty(): FloatArray? {
+fun FloatArray?.shouldBeEmpty(): FloatArray {
     if (this == null || this.isNotEmpty()) {
         Failures.failComparison(
             Messages.expectedToBe("be empty", emptyArray<Float>(), this),
@@ -364,7 +364,7 @@ infix fun ByteArray?.shouldHaveSize(size: Int): ByteArray {
 /**
  * 배열이 비어있는지 검증한다.
  */
-fun ByteArray?.shouldBeEmpty(): ByteArray? {
+fun ByteArray?.shouldBeEmpty(): ByteArray {
     if (this == null || this.isNotEmpty()) {
         Failures.failComparison(
             Messages.expectedToBe("be empty", emptyArray<Byte>(), this),
@@ -437,7 +437,7 @@ infix fun ShortArray?.shouldHaveSize(size: Int): ShortArray {
 /**
  * 배열이 비어있는지 검증한다.
  */
-fun ShortArray?.shouldBeEmpty(): ShortArray? {
+fun ShortArray?.shouldBeEmpty(): ShortArray {
     if (this == null || this.isNotEmpty()) {
         Failures.failComparison(
             Messages.expectedToBe("be empty", emptyArray<Short>(), this),
@@ -510,7 +510,7 @@ infix fun CharArray?.shouldHaveSize(size: Int): CharArray {
 /**
  * 배열이 비어있는지 검증한다.
  */
-fun CharArray?.shouldBeEmpty(): CharArray? {
+fun CharArray?.shouldBeEmpty(): CharArray {
     if (this == null || this.isNotEmpty()) {
         Failures.failComparison(
             Messages.expectedToBe("be empty", emptyArray<Char>(), this),
@@ -583,7 +583,7 @@ infix fun BooleanArray?.shouldHaveSize(size: Int): BooleanArray {
 /**
  * 배열이 비어있는지 검증한다.
  */
-fun BooleanArray?.shouldBeEmpty(): BooleanArray? {
+fun BooleanArray?.shouldBeEmpty(): BooleanArray {
     if (this == null || this.isNotEmpty()) {
         Failures.failComparison(
             Messages.expectedToBe("be empty", emptyArray<Boolean>(), this),
@@ -748,7 +748,7 @@ infix fun <T> Array<T>?.shouldHaveSize(size: Int): Array<T> {
 
 /** Array<T>가 비어있는지 검증한다. */
 fun <T> Array<T>?.shouldBeEmpty(): Array<T>? {
-    if (this != null && this.isNotEmpty()) {
+    if (!this.isNullOrEmpty()) {
         Failures.fail("Expected array to be empty, but had ${this.size} elements.")
     }
     return this
@@ -756,7 +756,7 @@ fun <T> Array<T>?.shouldBeEmpty(): Array<T>? {
 
 /** Array<T>가 비어있지 않은지 검증한다. */
 fun <T> Array<T>?.shouldNotBeEmpty(): Array<T> {
-    if (this == null || this.isEmpty()) {
+    if (this.isNullOrEmpty()) {
         Failures.fail("Expected array to not be empty, but was ${Messages.stringify(this)}.")
     }
     return this
@@ -840,10 +840,10 @@ infix fun CharArray?.shouldContainSame(expected: CharArray?): CharArray {
  */
 infix fun <T> Array<T>?.shouldContentEqual(expected: Array<T>?): Array<T>? {
     val equal = when {
-        this === expected -> true
+        this === expected          -> true
         this == null || expected == null -> false
         this.size != expected.size -> false
-        else -> this.contentEquals(expected)
+        else                       -> this.contentEquals(expected)
     }
     if (!equal) {
         Failures.failComparison(
@@ -862,13 +862,13 @@ infix fun <T> Array<T>?.shouldContentEqual(expected: Array<T>?): Array<T>? {
 private fun intArrayContentEquals(a: IntArray?, b: IntArray?): Boolean = when {
     a === b -> true
     a == null || b == null -> false
-    else -> a.contentEquals(b)
+    else    -> a.contentEquals(b)
 }
 
 private fun longArrayContentEquals(a: LongArray?, b: LongArray?): Boolean = when {
     a === b -> true
     a == null || b == null -> false
-    else -> a.contentEquals(b)
+    else    -> a.contentEquals(b)
 }
 
 /**
@@ -878,10 +878,10 @@ private fun longArrayContentEquals(a: LongArray?, b: LongArray?): Boolean = when
  * - -0.0 != 0.0 → 구분
  */
 private fun doubleArrayContentEquals(a: DoubleArray?, b: DoubleArray?): Boolean = when {
-    a === b -> true
+    a === b          -> true
     a == null || b == null -> false
     a.size != b.size -> false
-    else -> a.indices.all { i ->
+    else             -> a.indices.all { i ->
         java.lang.Double.doubleToRawLongBits(a[i]) == java.lang.Double.doubleToRawLongBits(b[i])
     }
 }
@@ -893,10 +893,10 @@ private fun doubleArrayContentEquals(a: DoubleArray?, b: DoubleArray?): Boolean 
  * - -0.0f != 0.0f → 구분
  */
 private fun floatArrayContentEquals(a: FloatArray?, b: FloatArray?): Boolean = when {
-    a === b -> true
+    a === b          -> true
     a == null || b == null -> false
     a.size != b.size -> false
-    else -> a.indices.all { i ->
+    else             -> a.indices.all { i ->
         java.lang.Float.floatToRawIntBits(a[i]) == java.lang.Float.floatToRawIntBits(b[i])
     }
 }
@@ -904,25 +904,25 @@ private fun floatArrayContentEquals(a: FloatArray?, b: FloatArray?): Boolean = w
 private fun byteArrayContentEquals(a: ByteArray?, b: ByteArray?): Boolean = when {
     a === b -> true
     a == null || b == null -> false
-    else -> a.contentEquals(b)
+    else    -> a.contentEquals(b)
 }
 
 private fun shortArrayContentEquals(a: ShortArray?, b: ShortArray?): Boolean = when {
     a === b -> true
     a == null || b == null -> false
-    else -> a.contentEquals(b)
+    else    -> a.contentEquals(b)
 }
 
 private fun charArrayContentEquals(a: CharArray?, b: CharArray?): Boolean = when {
     a === b -> true
     a == null || b == null -> false
-    else -> a.contentEquals(b)
+    else    -> a.contentEquals(b)
 }
 
 private fun booleanArrayContentEquals(a: BooleanArray?, b: BooleanArray?): Boolean = when {
     a === b -> true
     a == null || b == null -> false
-    else -> a.contentEquals(b)
+    else    -> a.contentEquals(b)
 }
 
 //
@@ -931,72 +931,72 @@ private fun booleanArrayContentEquals(a: BooleanArray?, b: BooleanArray?): Boole
 //
 
 /** 배열 내용 동등성 검증 (`contentDeepEquals` 사용). */
-infix fun <T> Array<out T>.shouldBeEqualTo(expected: Array<out T>): Array<out T> {
-    if (!this.contentDeepEquals(expected)) {
+infix fun <T> Array<out T>?.shouldBeEqualTo(expected: Array<out T>): Array<out T>? {
+    if (this != null && !this.contentDeepEquals(expected)) {
         Failures.failComparison(Messages.expectedToBe("equal to", expected, this), expected, this)
     }
     return this
 }
 
 /** 배열 내용 동등성 검증 (`contentEquals` 사용). */
-infix fun IntArray.shouldBeEqualTo(expected: IntArray): IntArray {
-    if (!this.contentEquals(expected)) {
+infix fun IntArray?.shouldBeEqualTo(expected: IntArray): IntArray? {
+    if (this != null && !this.contentEquals(expected)) {
         Failures.failComparison(Messages.expectedToBe("equal to", expected, this), expected, this)
     }
     return this
 }
 
 /** 배열 내용 동등성 검증 (`contentEquals` 사용). */
-infix fun LongArray.shouldBeEqualTo(expected: LongArray): LongArray {
-    if (!this.contentEquals(expected)) {
+infix fun LongArray?.shouldBeEqualTo(expected: LongArray): LongArray? {
+    if (this != null && !this.contentEquals(expected)) {
         Failures.failComparison(Messages.expectedToBe("equal to", expected, this), expected, this)
     }
     return this
 }
 
 /** 배열 내용 동등성 검증 (`contentEquals` 사용). */
-infix fun DoubleArray.shouldBeEqualTo(expected: DoubleArray): DoubleArray {
-    if (!this.contentEquals(expected)) {
+infix fun DoubleArray?.shouldBeEqualTo(expected: DoubleArray): DoubleArray? {
+    if (this != null && !this.contentEquals(expected)) {
         Failures.failComparison(Messages.expectedToBe("equal to", expected, this), expected, this)
     }
     return this
 }
 
 /** 배열 내용 동등성 검증 (`contentEquals` 사용). */
-infix fun FloatArray.shouldBeEqualTo(expected: FloatArray): FloatArray {
-    if (!this.contentEquals(expected)) {
+infix fun FloatArray?.shouldBeEqualTo(expected: FloatArray): FloatArray? {
+    if (this != null && !this.contentEquals(expected)) {
         Failures.failComparison(Messages.expectedToBe("equal to", expected, this), expected, this)
     }
     return this
 }
 
 /** 배열 내용 동등성 검증 (`contentEquals` 사용). */
-infix fun ByteArray.shouldBeEqualTo(expected: ByteArray): ByteArray {
-    if (!this.contentEquals(expected)) {
+infix fun ByteArray?.shouldBeEqualTo(expected: ByteArray): ByteArray? {
+    if (this != null && !this.contentEquals(expected)) {
         Failures.failComparison(Messages.expectedToBe("equal to", expected, this), expected, this)
     }
     return this
 }
 
 /** 배열 내용 동등성 검증 (`contentEquals` 사용). */
-infix fun CharArray.shouldBeEqualTo(expected: CharArray): CharArray {
-    if (!this.contentEquals(expected)) {
+infix fun CharArray?.shouldBeEqualTo(expected: CharArray): CharArray? {
+    if (this != null && !this.contentEquals(expected)) {
         Failures.failComparison(Messages.expectedToBe("equal to", expected, this), expected, this)
     }
     return this
 }
 
 /** 배열 내용 동등성 검증 (`contentEquals` 사용). */
-infix fun ShortArray.shouldBeEqualTo(expected: ShortArray): ShortArray {
-    if (!this.contentEquals(expected)) {
+infix fun ShortArray?.shouldBeEqualTo(expected: ShortArray): ShortArray? {
+    if (this != null && !this.contentEquals(expected)) {
         Failures.failComparison(Messages.expectedToBe("equal to", expected, this), expected, this)
     }
     return this
 }
 
 /** 배열 내용 동등성 검증 (`contentEquals` 사용). */
-infix fun BooleanArray.shouldBeEqualTo(expected: BooleanArray): BooleanArray {
-    if (!this.contentEquals(expected)) {
+infix fun BooleanArray?.shouldBeEqualTo(expected: BooleanArray): BooleanArray? {
+    if (this != null && !this.contentEquals(expected)) {
         Failures.failComparison(Messages.expectedToBe("equal to", expected, this), expected, this)
     }
     return this

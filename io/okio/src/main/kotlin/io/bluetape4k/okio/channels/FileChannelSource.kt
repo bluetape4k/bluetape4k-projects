@@ -2,6 +2,7 @@ package io.bluetape4k.okio.channels
 
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
+import io.bluetape4k.logging.warn
 import io.bluetape4k.support.requireZeroOrPositiveNumber
 import okio.Buffer
 import okio.Source
@@ -23,7 +24,8 @@ import java.nio.channels.FileChannel
  * // text == "hello"
  * ```
  */
-fun FileChannel.asSource(timeout: Timeout = Timeout.NONE) = FileChannelSource(this, timeout)
+fun FileChannel.asSource(timeout: Timeout = Timeout.NONE): FileChannelSource =
+    FileChannelSource(this, timeout)
 
 /**
  * [FileChannel]을 Okio [Source]로 감싼 구현체입니다.
@@ -89,6 +91,8 @@ class FileChannelSource(
      * Okio 채널 I/O 리소스를 정리하고 닫습니다.
      */
     override fun close() {
-        runCatching { channel.close() }.onFailure { log.debug(it) { "파일 채널 닫기 실패: $channel" } }
+        runCatching { channel.close() }
+            .onSuccess { log.debug { "$channel closed." } }
+            .onFailure { log.warn(it) { "채널 닫기 실패: $channel" } }
     }
 }

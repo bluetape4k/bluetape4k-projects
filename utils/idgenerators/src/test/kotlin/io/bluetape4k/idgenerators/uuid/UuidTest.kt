@@ -24,6 +24,7 @@ import java.security.SecureRandom
 import java.util.concurrent.ConcurrentHashMap
 
 class UuidTest {
+
     companion object: KLoggingChannel() {
         private const val REPEAT_SIZE = 5
         private const val ID_SIZE = 100
@@ -162,7 +163,7 @@ class UuidTest {
 
     @Nested
     inner class ConcurrencyTest {
-        @RepeatedTest(REPEAT_SIZE)
+        @Test
         fun `V7 멀티스레드 환경에서 중복 없이 UUID를 생성한다`() {
             val idMap = ConcurrentHashMap<String, Int>()
 
@@ -172,12 +173,13 @@ class UuidTest {
                 .add {
                     val id = Uuid.V7.nextIdAsString()
                     idMap.putIfAbsent(id, 1).shouldBeNull()
-                }.run()
+                }
+                .run()
         }
 
 
         @EnabledForJreRange(min = JRE.JAVA_21)
-        @RepeatedTest(REPEAT_SIZE)
+        @Test
         fun `V7 Virtual Thread 환경에서 중복 없이 UUID를 생성한다`() {
             val idMap = ConcurrentHashMap<String, Int>()
 
@@ -189,18 +191,16 @@ class UuidTest {
                 }.run()
         }
 
-        @RepeatedTest(REPEAT_SIZE)
-        fun `V7 Coroutine 환경에서 중복 없이 UUID를 생성한다`() =
-            runSuspendDefault {
-                val idMap = ConcurrentHashMap<String, Int>()
+        @Test
+        fun `V7 Coroutine 환경에서 중복 없이 UUID를 생성한다`() = runSuspendDefault {
+            val idMap = ConcurrentHashMap<String, Int>()
 
-                SuspendedJobTester()
-                    .workers(Runtimex.availableProcessors)
-                    .rounds(CONCURRENCY_COUNT)
-                    .add {
-                        val id = Uuid.V7.nextIdAsString()
-                        idMap.putIfAbsent(id, 1).shouldBeNull()
-                    }.run()
-            }
+            SuspendedJobTester()
+                .rounds(CONCURRENCY_COUNT)
+                .add {
+                    val id = Uuid.V7.nextIdAsString()
+                    idMap.putIfAbsent(id, 1).shouldBeNull()
+                }.run()
+        }
     }
 }

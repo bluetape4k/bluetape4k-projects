@@ -1,19 +1,19 @@
 package io.bluetape4k.fastjson2.extensions
 
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeNull
+import io.bluetape4k.assertions.shouldNotBeEmpty
 import io.bluetape4k.fastjson2.AbstractFastjson2Test
 import io.bluetape4k.fastjson2.model.User
 import io.bluetape4k.fastjson2.model.newUser
 import io.bluetape4k.io.toInputStream
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.support.emptyByteArray
-import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldBeNull
-import io.bluetape4k.assertions.shouldNotBeEmpty
-import io.bluetape4k.assertions.shouldNotBeNull
 import org.junit.jupiter.api.RepeatedTest
 import org.junit.jupiter.api.Test
 
 class JSONBExtensionsTest: AbstractFastjson2Test() {
+
     companion object: KLogging()
 
     @RepeatedTest(REPEAT_SIZE)
@@ -23,7 +23,7 @@ class JSONBExtensionsTest: AbstractFastjson2Test() {
         val bytes = user.toJsonBytes()
         val parsed = bytes.readBytesOrNull<User>()
 
-        parsed.shouldNotBeNull() shouldBeEqualTo user
+        parsed shouldBeEqualTo user
     }
 
     @RepeatedTest(REPEAT_SIZE)
@@ -33,7 +33,7 @@ class JSONBExtensionsTest: AbstractFastjson2Test() {
         val bytes = users.toJsonBytes()
         val parsed = bytes.readBytesOrNull<List<User>>()
 
-        parsed.shouldNotBeNull() shouldBeEqualTo users
+        parsed shouldBeEqualTo users
     }
 
     @RepeatedTest(REPEAT_SIZE)
@@ -42,7 +42,7 @@ class JSONBExtensionsTest: AbstractFastjson2Test() {
 
         users.toJsonBytes().toInputStream().use { inputStream ->
             val parsed = inputStream.readBytesOrNull<List<User>>()
-            parsed.shouldNotBeNull() shouldBeEqualTo users
+            parsed shouldBeEqualTo users
         }
     }
 
@@ -81,6 +81,6 @@ class JSONBExtensionsTest: AbstractFastjson2Test() {
         bytes.shouldNotBeEmpty()
 
         val restored = bytes.readBytesOrNull<User>()
-        restored.shouldNotBeNull() shouldBeEqualTo user
+        restored shouldBeEqualTo user
     }
 }

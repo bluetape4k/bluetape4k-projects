@@ -1,21 +1,21 @@
 package io.bluetape4k.io
 
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeGreaterThan
+import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.assertions.shouldNotBeEqualTo
+import io.bluetape4k.assertions.shouldNotBeNull
 import io.bluetape4k.codec.encodeBase62
+import io.bluetape4k.junit5.concurrency.MultithreadingTester
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.junit5.faker.Fakers
 import io.bluetape4k.junit5.random.RandomValue
 import io.bluetape4k.junit5.random.RandomizedTest
 import io.bluetape4k.junit5.tempfolder.TempFolder
 import io.bluetape4k.junit5.tempfolder.TempFolderTest
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import kotlinx.coroutines.future.await
-import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldBeGreaterThan
-import io.bluetape4k.assertions.shouldBeTrue
-import io.bluetape4k.assertions.shouldNotBeEqualTo
-import io.bluetape4k.assertions.shouldNotBeNull
-import io.bluetape4k.junit5.concurrency.MultithreadingTester
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.RepeatedTest
 import org.junit.jupiter.api.Test
@@ -25,7 +25,7 @@ import java.util.concurrent.ConcurrentLinkedQueue
 @TempFolderTest
 class FileSupportTest: AbstractIOTest() {
 
-    companion object: KLogging()
+    companion object: KLoggingChannel()
 
     private lateinit var tempFolder: TempFolder
 
@@ -150,7 +150,9 @@ class FileSupportTest: AbstractIOTest() {
             paths.toSet().size shouldBeEqualTo paths.size  // all paths unique
             paths.all { java.io.File(it).isDirectory }.shouldBeTrue()
         } finally {
-            created.forEach { java.io.File(it).deleteRecursively() }
+            created.forEach {
+                java.io.File(it).deleteRecursively().shouldBeTrue()
+            }
         }
     }
 }

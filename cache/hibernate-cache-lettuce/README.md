@@ -129,9 +129,7 @@ spring:
 Supported codec values include the `jdk`, `kryo`, `fory`, `fastfory`, `gzip*`, `lz4*`, `snappy*`, and
 `zstd*` families. Typos or unsupported codec names cause an immediate exception rather than silently falling back to a default.
 
-FastFory codecs use `SCHEMA_CONSISTENT` mode and are not a symmetric wire-compatible
-replacement for existing Fory cache data. Use them only for regions where entries can be
-evicted or migrated before switching modes.
+FastFory codecs use `SCHEMA_CONSISTENT` mode and are not a symmetric wire-compatible replacement for existing Fory cache data. Use them only for regions where entries can be evicted or migrated before switching modes.
 
 ## Entity Configuration
 
@@ -178,22 +176,22 @@ val products: MutableList<Product> = mutableListOf()
 
 ## Supported Codecs
 
-| Codec Name | Description                     | Compression |
-|------------|---------------------------------|-------------|
-| `lz4fory`  | LZ4 + Apache Fory **(default)** | LZ4         |
-| `lz4fastfory` | LZ4 + Apache FastFory        | LZ4         |
-| `fory`     | Apache Fory                     | -           |
-| `fastfory` | Apache FastFory                 | -           |
-| `gzipfory` | GZip + Apache Fory              | GZip        |
-| `gzipfastfory` | GZip + Apache FastFory      | GZip        |
-| `snappyfory` | Snappy + Apache Fory          | Snappy      |
-| `snappyfastfory` | Snappy + Apache FastFory  | Snappy      |
-| `zstdfory` | Zstd + Apache Fory              | Zstd        |
-| `zstdfastfory` | Zstd + Apache FastFory      | Zstd        |
-| `kryo`     | Kryo                            | -           |
-| `lz4kryo`  | LZ4 + Kryo                      | LZ4         |
-| `jdk`      | Java serialization              | -           |
-| `lz4jdk`   | LZ4 + Java serialization        | LZ4         |
+| Codec Name       | Description                     | Compression |
+|------------------|---------------------------------|-------------|
+| `lz4fory`        | LZ4 + Apache Fory **(default)** | LZ4         |
+| `lz4fastfory`    | LZ4 + Apache FastFory           | LZ4         |
+| `fory`           | Apache Fory                     | -           |
+| `fastfory`       | Apache FastFory                 | -           |
+| `gzipfory`       | GZip + Apache Fory              | GZip        |
+| `gzipfastfory`   | GZip + Apache FastFory          | GZip        |
+| `snappyfory`     | Snappy + Apache Fory            | Snappy      |
+| `snappyfastfory` | Snappy + Apache FastFory        | Snappy      |
+| `zstdfory`       | Zstd + Apache Fory              | Zstd        |
+| `zstdfastfory`   | Zstd + Apache FastFory          | Zstd        |
+| `kryo`           | Kryo                            | -           |
+| `lz4kryo`        | LZ4 + Kryo                      | LZ4         |
+| `jdk`            | Java serialization              | -           |
+| `lz4jdk`         | LZ4 + Java serialization        | LZ4         |
 
 ## TTL Units
 

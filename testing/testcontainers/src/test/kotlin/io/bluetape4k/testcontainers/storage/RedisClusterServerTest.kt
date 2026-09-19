@@ -1,15 +1,15 @@
 package io.bluetape4k.testcontainers.storage
 
 import io.bluetape4k.LibraryName
+import io.bluetape4k.assertions.assertFailsWith
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.info
 import io.bluetape4k.testcontainers.AbstractContainerTest
-import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldBeTrue
 import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.redisson.api.redisnode.RedisNodes
-import io.bluetape4k.assertions.assertFailsWith
 
 class RedisClusterServerTest: AbstractContainerTest() {
 

@@ -31,7 +31,7 @@ class OkHttp3CacheSupportTest: AbstractHttpTest() {
     @Test
     fun `Cache metrics 초기 상태`(@TempDir tempDir: File) {
         val client = okhttp3ClientWithCache(cacheDir = tempDir)
-        val cache = client.cache!!
+        val cache = client.cache.shouldNotBeNull()
         val metrics = cache.metrics()
 
         metrics.requestCount.shouldBeZero()
@@ -43,7 +43,7 @@ class OkHttp3CacheSupportTest: AbstractHttpTest() {
     @Test
     fun `Cache metrics GET 요청 후 업데이트`(@TempDir tempDir: File) {
         val client = okhttp3ClientWithCache(cacheDir = tempDir)
-        val cache = client.cache!!
+        val cache = client.cache.shouldNotBeNull()
 
         val request = Request.Builder().url("$httpbinBaseUrl/get").build()
         client.newCall(request).execute().use { /* consume body */ }
@@ -55,7 +55,7 @@ class OkHttp3CacheSupportTest: AbstractHttpTest() {
     @Test
     fun `Cache logMetrics label 없이 호출 가능`(@TempDir tempDir: File) {
         val client = okhttp3ClientWithCache(cacheDir = tempDir)
-        client.cache!!.logMetrics(log)
+        client.cache.shouldNotBeNull().logMetrics(log)
     }
 
     @Test

@@ -1,15 +1,16 @@
 package io.bluetape4k.javatimes.range
 
-import io.bluetape4k.logging.KLogging
 import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldBeGreaterThan
-import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.assertions.shouldBeLessThan
+import io.bluetape4k.assertions.shouldHaveSize
+import io.bluetape4k.assertions.shouldNotBeEmpty
+import io.bluetape4k.logging.KLogging
 import org.junit.jupiter.api.Test
 import java.time.LocalDateTime
 
 class TemporalClosedRangeSupportTest {
 
-    companion object : KLogging()
+    companion object: KLogging()
 
     private val start: LocalDateTime = LocalDateTime.of(2024, 1, 1, 0, 0, 0)
     private val end: LocalDateTime = LocalDateTime.of(2024, 12, 31, 0, 0, 0)
@@ -34,8 +35,8 @@ class TemporalClosedRangeSupportTest {
         val e = LocalDateTime.of(2024, 1, 1, 0, 0)
         val range = s..e
         val windows = range.windowedYears(2, 1).toList()
-        windows.isNotEmpty().shouldBeTrue()
-        windows[0].size shouldBeEqualTo 2
+        windows.shouldNotBeEmpty()
+        windows[0] shouldHaveSize 2
     }
 
     @Test
@@ -44,7 +45,7 @@ class TemporalClosedRangeSupportTest {
         val e = LocalDateTime.of(2024, 6, 1, 0, 0)
         val range = s..e
         val windows = range.windowedMonths(2, 1).toList()
-        windows.isNotEmpty().shouldBeTrue()
+        windows.shouldNotBeEmpty()
     }
 
     @Test
@@ -53,8 +54,8 @@ class TemporalClosedRangeSupportTest {
         val e = LocalDateTime.of(2024, 1, 10, 0, 0)
         val range = s..e
         val windows = range.windowedDays(3, 1).toList()
-        windows.isNotEmpty().shouldBeTrue()
-        windows[0].size shouldBeEqualTo 3
+        windows.shouldNotBeEmpty()
+        windows[0] shouldHaveSize 3
     }
 
     @Test
@@ -63,7 +64,7 @@ class TemporalClosedRangeSupportTest {
         val e = LocalDateTime.of(2024, 1, 1, 5, 0)
         val range = s..e
         val windows = range.windowedHours(3, 1).toList()
-        windows.isNotEmpty().shouldBeTrue()
+        windows.shouldNotBeEmpty()
     }
 
     @Test
@@ -72,7 +73,7 @@ class TemporalClosedRangeSupportTest {
         val e = LocalDateTime.of(2024, 1, 1, 0, 30)
         val range = s..e
         val windows = range.windowedMinutes(5, 1).toList()
-        windows.isNotEmpty().shouldBeTrue()
+        windows.shouldNotBeEmpty()
     }
 
     @Test
@@ -81,7 +82,7 @@ class TemporalClosedRangeSupportTest {
         val e = LocalDateTime.of(2024, 1, 1, 0, 0, 10)
         val range = s..e
         val windows = range.windowedSeconds(3, 1).toList()
-        windows.isNotEmpty().shouldBeTrue()
+        windows.shouldNotBeEmpty()
     }
 
     @Test
@@ -90,8 +91,8 @@ class TemporalClosedRangeSupportTest {
         val e = LocalDateTime.of(2024, 1, 1, 0, 0)
         val range = s..e
         val chunks = range.chunkedYears(2).toList()
-        chunks.isNotEmpty().shouldBeTrue()
-        chunks[0].size shouldBeEqualTo 2
+        chunks.shouldNotBeEmpty()
+        chunks[0] shouldHaveSize 2
     }
 
     @Test
@@ -100,7 +101,7 @@ class TemporalClosedRangeSupportTest {
         val e = LocalDateTime.of(2024, 6, 1, 0, 0)
         val range = s..e
         val chunks = range.chunkedMonths(2).toList()
-        chunks.isNotEmpty().shouldBeTrue()
+        chunks.shouldNotBeEmpty()
     }
 
     @Test
@@ -109,7 +110,7 @@ class TemporalClosedRangeSupportTest {
         val e = LocalDateTime.of(2024, 1, 10, 0, 0)
         val range = s..e
         val chunks = range.chunkedDays(3).toList()
-        chunks.isNotEmpty().shouldBeTrue()
+        chunks.shouldNotBeEmpty()
     }
 
     @Test
@@ -118,7 +119,7 @@ class TemporalClosedRangeSupportTest {
         val e = LocalDateTime.of(2024, 1, 1, 6, 0)
         val range = s..e
         val chunks = range.chunkedHours(2).toList()
-        chunks.isNotEmpty().shouldBeTrue()
+        chunks.shouldNotBeEmpty()
     }
 
     @Test
@@ -127,7 +128,7 @@ class TemporalClosedRangeSupportTest {
         val e = LocalDateTime.of(2024, 1, 1, 0, 30)
         val range = s..e
         val chunks = range.chunkedMinutes(5).toList()
-        chunks.isNotEmpty().shouldBeTrue()
+        chunks.shouldNotBeEmpty()
     }
 
     @Test
@@ -136,7 +137,7 @@ class TemporalClosedRangeSupportTest {
         val e = LocalDateTime.of(2024, 1, 1, 0, 0, 15)
         val range = s..e
         val chunks = range.chunkedSeconds(3).toList()
-        chunks.isNotEmpty().shouldBeTrue()
+        chunks.shouldNotBeEmpty()
     }
 
     @Test
@@ -145,8 +146,8 @@ class TemporalClosedRangeSupportTest {
         val e = LocalDateTime.of(2023, 1, 1, 0, 0)
         val range = s..e
         val pairs = range.zipWithNextYear().toList()
-        pairs.isNotEmpty().shouldBeTrue()
-        (pairs[0].first < pairs[0].second).shouldBeTrue()
+        pairs.shouldNotBeEmpty()
+        pairs[0].first shouldBeLessThan pairs[0].second
     }
 
     @Test
@@ -155,7 +156,7 @@ class TemporalClosedRangeSupportTest {
         val e = LocalDateTime.of(2024, 4, 1, 0, 0)
         val range = s..e
         val pairs = range.zipWithNextMonth().toList()
-        pairs.isNotEmpty().shouldBeTrue()
+        pairs.shouldNotBeEmpty()
     }
 
     @Test
@@ -164,8 +165,8 @@ class TemporalClosedRangeSupportTest {
         val e = LocalDateTime.of(2024, 1, 5, 0, 0)
         val range = s..e
         val pairs = range.zipWithNextDay().toList()
-        pairs.size shouldBeGreaterThan 0
-        (pairs[0].first < pairs[0].second).shouldBeTrue()
+        pairs.shouldNotBeEmpty()
+        pairs[0].first shouldBeLessThan pairs[0].second
     }
 
     @Test
@@ -174,7 +175,7 @@ class TemporalClosedRangeSupportTest {
         val e = LocalDateTime.of(2024, 1, 1, 4, 0)
         val range = s..e
         val pairs = range.zipWithNextHour().toList()
-        pairs.isNotEmpty().shouldBeTrue()
+        pairs.shouldNotBeEmpty()
     }
 
     @Test
@@ -183,7 +184,7 @@ class TemporalClosedRangeSupportTest {
         val e = LocalDateTime.of(2024, 1, 1, 0, 4)
         val range = s..e
         val pairs = range.zipWithNextMinute().toList()
-        pairs.isNotEmpty().shouldBeTrue()
+        pairs.shouldNotBeEmpty()
     }
 
     @Test
@@ -192,6 +193,6 @@ class TemporalClosedRangeSupportTest {
         val e = LocalDateTime.of(2024, 1, 1, 0, 0, 4)
         val range = s..e
         val pairs = range.zipWithNextSecond().toList()
-        pairs.isNotEmpty().shouldBeTrue()
+        pairs.shouldNotBeEmpty()
     }
 }

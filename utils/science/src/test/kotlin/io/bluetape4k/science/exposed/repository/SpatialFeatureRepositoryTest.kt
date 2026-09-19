@@ -1,5 +1,10 @@
 package io.bluetape4k.science.exposed.repository
 
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeGreaterThan
+import io.bluetape4k.assertions.shouldBeLessThan
+import io.bluetape4k.assertions.shouldBeNull
+import io.bluetape4k.assertions.shouldNotBeNull
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import io.bluetape4k.science.exposed.AbstractPostgisTest
@@ -9,11 +14,6 @@ import io.bluetape4k.science.exposed.schema.SpatialFeatureTable
 import io.bluetape4k.science.exposed.schema.SpatialLayerTable
 import io.bluetape4k.science.exposed.service.ShapefileImportService
 import io.bluetape4k.science.shapefile.createWebMercatorPointShapefile
-import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldBeGreaterThan
-import io.bluetape4k.assertions.shouldBeLessThan
-import io.bluetape4k.assertions.shouldBeNull
-import io.bluetape4k.assertions.shouldNotBeNull
 import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.jdbc.selectAll
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
@@ -35,6 +35,8 @@ import kotlin.math.abs
 class SpatialFeatureRepositoryTest: AbstractPostgisTest() {
 
     companion object: KLogging() {
+        private const val EPSILON = 1e-5
+        
         private const val SRID = 4326
         private val geometryFactory = GeometryFactory()
 
@@ -245,12 +247,12 @@ class SpatialFeatureRepositoryTest: AbstractPostgisTest() {
 
             val (srid, lon, lat) = queryStoredPoint(layer.id)
             srid shouldBeEqualTo SRID
-            abs(lon - expectedLon) shouldBeLessThan 1e-5
-            abs(lat - expectedLat) shouldBeLessThan 1e-5
-            abs((layer.bboxMinX ?: Double.NaN) - expectedLon) shouldBeLessThan 1e-5
-            abs((layer.bboxMinY ?: Double.NaN) - expectedLat) shouldBeLessThan 1e-5
-            abs((layer.bboxMaxX ?: Double.NaN) - expectedLon) shouldBeLessThan 1e-5
-            abs((layer.bboxMaxY ?: Double.NaN) - expectedLat) shouldBeLessThan 1e-5
+            abs(lon - expectedLon) shouldBeLessThan EPSILON
+            abs(lat - expectedLat) shouldBeLessThan EPSILON
+            abs((layer.bboxMinX ?: Double.NaN) - expectedLon) shouldBeLessThan EPSILON
+            abs((layer.bboxMinY ?: Double.NaN) - expectedLat) shouldBeLessThan EPSILON
+            abs((layer.bboxMaxX ?: Double.NaN) - expectedLon) shouldBeLessThan EPSILON
+            abs((layer.bboxMaxY ?: Double.NaN) - expectedLat) shouldBeLessThan EPSILON
 
             val features = featureRepo.findAll { SpatialFeatureTable.layerId eq layer.id }
             features.forEach { featureRepo.deleteById(it.id) }
@@ -261,7 +263,7 @@ class SpatialFeatureRepositoryTest: AbstractPostgisTest() {
     private fun queryStoredPoint(layerId: Long): Triple<Int, Double, Double> {
         val sql = "SELECT ST_SRID(geom), ST_X(geom), ST_Y(geom) FROM spatial_features WHERE layer_id=?"
         val conn = org.jetbrains.exposed.v1.jdbc.transactions.TransactionManager.current().connection.connection
-            as java.sql.Connection
+                as java.sql.Connection
         return conn.prepareStatement(sql).use { ps ->
             ps.setLong(1, layerId)
             ps.executeQuery().use { rs ->

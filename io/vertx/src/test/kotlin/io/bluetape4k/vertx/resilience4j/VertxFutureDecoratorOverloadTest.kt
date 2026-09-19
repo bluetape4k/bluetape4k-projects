@@ -23,13 +23,15 @@ class VertxFutureDecoratorOverloadTest: AbstractVertxFutureTest() {
         bulkhead.executeVertxFuture { Future.succeededFuture("bulk-execute") }
             .result() shouldBeEqualTo "bulk-execute"
         bulkhead.decorateVertxFuture { Future.succeededFuture("bulk-decorate") }
-            .invoke().result() shouldBeEqualTo "bulk-decorate"
+            .invoke()
+            .result() shouldBeEqualTo "bulk-decorate"
 
         val rateLimiter = RateLimiter.ofDefaults("rate-limiter-overload")
         rateLimiter.executeVertxFuture { Future.succeededFuture("rate-execute") }
             .result() shouldBeEqualTo "rate-execute"
         rateLimiter.decorateVertxFuture { Future.succeededFuture("rate-decorate") }
-            .invoke().result() shouldBeEqualTo "rate-decorate"
+            .invoke()
+            .result() shouldBeEqualTo "rate-decorate"
     }
 
     @Test
@@ -40,11 +42,14 @@ class VertxFutureDecoratorOverloadTest: AbstractVertxFutureTest() {
         val timeLimiter = TimeLimiter.ofDefaults("time-limiter-overload")
 
         val executed = timeLimiter.executeVertxFuture { Future.succeededFuture("time-execute") }
-            .asCompletableFuture().get(5, TimeUnit.SECONDS)
+            .asCompletableFuture()
+            .get(5, TimeUnit.SECONDS)
         executed shouldBeEqualTo "time-execute"
 
         val decorated = timeLimiter.decorateVertxFuture { Future.succeededFuture("time-decorate") }
-            .invoke().asCompletableFuture().get(5, TimeUnit.SECONDS)
+            .invoke()
+            .asCompletableFuture()
+            .get(5, TimeUnit.SECONDS)
         decorated shouldBeEqualTo "time-decorate"
     }
 }

@@ -1,7 +1,7 @@
 package io.bluetape4k.cache.nearcache
 
-import io.bluetape4k.logging.KLogging
-import io.bluetape4k.logging.debug
+import io.bluetape4k.logging.coroutines.KLoggingChannel
+import io.bluetape4k.logging.info
 import io.bluetape4k.logging.warn
 import io.bluetape4k.redis.redisson.codec.RedissonCodecs
 import kotlinx.atomicfu.atomic
@@ -30,9 +30,10 @@ import org.redisson.client.codec.Codec
 class RedissonSuspendNearCache<V: Any>(
     private val redisson: RedissonClient,
     private val config: RedissonNearCacheConfig = RedissonNearCacheConfig(),
-    private val codec: Codec = RedissonCodecs.LZ4Fory,
+    private val codec: Codec = RedissonCodecs.Default,
 ): SuspendNearCacheOperations<V> {
-    companion object: KLogging()
+
+    companion object: KLoggingChannel()
 
     override val cacheName: String get() = config.cacheName
 
@@ -72,10 +73,7 @@ class RedissonSuspendNearCache<V: Any>(
     /**
      * [key]-[value] 쌍을 저장합니다.
      */
-    override suspend fun put(
-        key: String,
-        value: V,
-    ) {
+    override suspend fun put(key: String, value: V) {
         localCachedMap.putAsync(key, value).await()
     }
 
@@ -91,31 +89,24 @@ class RedissonSuspendNearCache<V: Any>(
      *
      * @return 기존에 존재하던 값. 저장에 성공하면 null.
      */
-    override suspend fun putIfAbsent(
-        key: String,
-        value: V,
-    ): V? = localCachedMap.putIfAbsentAsync(key, value).await()
+    override suspend fun putIfAbsent(key: String, value: V): V? =
+        localCachedMap.putIfAbsentAsync(key, value).await()
 
     /**
      * [key]의 값을 [value]로 교체합니다.
      *
      * @return 키가 존재하여 교체에 성공하면 true.
      */
-    override suspend fun replace(
-        key: String,
-        value: V,
-    ): Boolean = localCachedMap.replaceAsync(key, value).await() != null
+    override suspend fun replace(key: String, value: V): Boolean =
+        localCachedMap.replaceAsync(key, value).await() != null
 
     /**
      * [key]의 값이 [oldValue]와 일치할 때만 [newValue]로 교체합니다.
      *
      * @return 교체에 성공하면 true.
      */
-    override suspend fun replace(
-        key: String,
-        oldValue: V,
-        newValue: V,
-    ): Boolean = localCachedMap.replaceAsync(key, oldValue, newValue).await()
+    override suspend fun replace(key: String, oldValue: V, newValue: V): Boolean =
+        localCachedMap.replaceAsync(key, oldValue, newValue).await()
 
     /**
      * [key]를 삭제합니다.
@@ -128,8 +119,9 @@ class RedissonSuspendNearCache<V: Any>(
      * 여러 [keys]를 일괄 삭제합니다. 값 반환이 불필요하므로 `fastRemoveAsync` 로 단일 라운드트립 처리합니다.
      */
     override suspend fun removeAll(keys: Set<String>) {
-        if (keys.isEmpty()) return
-        localCachedMap.fastRemoveAsync(*keys.toTypedArray()).await()
+        if (keys.isNotEmpty()) {
+            localCachedMap.fastRemoveAsync(*keys.toTypedArray()).await()
+        }
     }
 
     /**
@@ -137,17 +129,16 @@ class RedissonSuspendNearCache<V: Any>(
      *
      * @return 삭제된 값. 키가 없으면 null.
      */
-    override suspend fun getAndRemove(key: String): V? = localCachedMap.removeAsync(key).await()
+    override suspend fun getAndRemove(key: String): V? =
+        localCachedMap.removeAsync(key).await()
 
     /**
      * [key]의 현재 값을 반환하고 [value]로 교체합니다.
      *
      * @return 교체 전 값. 키가 없으면 null.
      */
-    override suspend fun getAndReplace(
-        key: String,
-        value: V,
-    ): V? = localCachedMap.replaceAsync(key, value).await()
+    override suspend fun getAndReplace(key: String, value: V): V? =
+        localCachedMap.replaceAsync(key, value).await()
 
     /**
      * 로컬 캐시만 비웁니다. Redis 캐시는 유지됩니다.
@@ -168,12 +159,14 @@ class RedissonSuspendNearCache<V: Any>(
      * 로컬 캐시 엔트리 수를 반환합니다.
      * 로컬 메모리 접근이므로 suspend가 아닙니다.
      */
-    override fun localCacheSize(): Long = localCachedMap.cachedKeySet().size.toLong()
+    override fun localCacheSize(): Long =
+        localCachedMap.cachedKeySet().size.toLong()
 
     /**
      * Redis 캐시 엔트리 수를 반환합니다.
      */
-    override suspend fun backCacheSize(): Long = localCachedMap.sizeAsync().await().toLong()
+    override suspend fun backCacheSize(): Long =
+        localCachedMap.sizeAsync().await().toLong()
 
     /**
      * 캐시 통계 스냅샷을 반환합니다.
@@ -183,15 +176,14 @@ class RedissonSuspendNearCache<V: Any>(
      * `backHitCount`/`backMissCount`는 로컬+Redis 통합 조회 결과를 기준으로 카운트됩니다.
      * Redisson이 별도의 로컬/백엔드 통계를 노출하지 않으므로 `localHits`/`localMisses`는 0으로 보고됩니다.
      */
-    override fun stats(): NearCacheStatistics =
-        DefaultNearCacheStatistics(
-            localHits = 0L,
-            localMisses = 0L,
-            localSize = localCacheSize(),
-            localEvictions = 0L,
-            backHits = backHitCount.value,
-            backMisses = backMissCount.value
-        )
+    override fun stats(): NearCacheStatistics = DefaultNearCacheStatistics(
+        localHits = 0L,
+        localMisses = 0L,
+        localSize = localCacheSize(),
+        localEvictions = 0L,
+        backHits = backHitCount.value,
+        backMisses = backMissCount.value
+    )
 
     /**
      * 리소스를 정리합니다.
@@ -206,7 +198,7 @@ class RedissonSuspendNearCache<V: Any>(
             } catch (e: Exception) {
                 log.warn(e) { "RedissonSuspendNearCache close failed. cacheName=${config.cacheName}" }
             }
-            log.debug { "RedissonSuspendNearCache [${config.cacheName}] closed" }
+            log.info { "RedissonSuspendNearCache [${config.cacheName}] closed" }
         }
     }
 }
@@ -230,5 +222,6 @@ class RedissonSuspendNearCache<V: Any>(
 fun <V: Any> redissonSuspendNearCacheOf(
     redisson: RedissonClient,
     config: RedissonNearCacheConfig = RedissonNearCacheConfig(),
-    codec: Codec = RedissonCodecs.LZ4Fory,
-): SuspendNearCacheOperations<V> = RedissonSuspendNearCache(redisson, config, codec)
+    codec: Codec = RedissonCodecs.Default,
+): SuspendNearCacheOperations<V> =
+    RedissonSuspendNearCache(redisson, config, codec)

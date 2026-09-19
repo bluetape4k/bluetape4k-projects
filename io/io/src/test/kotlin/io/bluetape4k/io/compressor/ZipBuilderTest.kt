@@ -1,12 +1,13 @@
 package io.bluetape4k.io.compressor
 
-import io.bluetape4k.logging.KLogging
-import io.bluetape4k.logging.debug
 import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeGreaterThan
 import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.assertions.shouldNotBeNull
+import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.debug
+import io.bluetape4k.support.toUtf8String
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
 import java.io.File
@@ -38,7 +39,7 @@ class ZipBuilderTest {
         ZipFile(zipFile).use { zip ->
             val entry = zip.getEntry("hello.txt")
             entry.shouldNotBeNull()
-            val extracted = zip.getInputStream(entry).readBytes().toString(Charsets.UTF_8)
+            val extracted = zip.getInputStream(entry).readBytes().toUtf8String()
             extracted shouldBeEqualTo content
         }
     }
@@ -80,7 +81,7 @@ class ZipBuilderTest {
         ZipFile(result).use { zip ->
             val entry = zip.getEntry("source.txt")
             entry.shouldNotBeNull()
-            val extracted = zip.getInputStream(entry).readBytes().toString(Charsets.UTF_8)
+            val extracted = zip.getInputStream(entry).readBytes().toUtf8String()
             extracted shouldBeEqualTo "파일 기반 ZIP 테스트"
         }
     }
@@ -111,7 +112,7 @@ class ZipBuilderTest {
             zip.getEntry("first.txt").shouldNotBeNull()
             zip.getEntry("second.txt").shouldNotBeNull()
 
-            val first = zip.getInputStream(zip.getEntry("first.txt")).readBytes().toString(Charsets.UTF_8)
+            val first = zip.getInputStream(zip.getEntry("first.txt")).readBytes().toUtf8String()
             first shouldBeEqualTo "first content"
         }
     }

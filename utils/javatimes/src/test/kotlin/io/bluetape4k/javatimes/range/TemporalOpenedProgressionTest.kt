@@ -1,8 +1,13 @@
 package io.bluetape4k.javatimes.range
 
+import io.bluetape4k.assertions.shouldBeEmpty
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeFalse
 import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.assertions.shouldContain
+import io.bluetape4k.assertions.shouldHaveSize
+import io.bluetape4k.assertions.shouldNotBeEqualTo
+import io.bluetape4k.assertions.shouldNotContain
 import org.junit.jupiter.api.Test
 import java.time.Duration
 import java.time.Instant
@@ -33,9 +38,7 @@ class TemporalOpenedProgressionTest {
     @Test
     fun `equal start and exclusive end create an empty progression`() {
         val progression = TemporalOpenedProgression.fromOpendRange(start, start, Duration.ofDays(1))
-
-        progression.isEmpty().shouldBeTrue()
-        progression.toList() shouldBeEqualTo emptyList<LocalDateTime>()
+        progression.shouldBeEmpty()
     }
 
     @Test
@@ -54,8 +57,8 @@ class TemporalOpenedProgressionTest {
         )
 
         first.last shouldBeEqualTo second.last
-        (first == second).shouldBeFalse()
-        (first.hashCode() == second.hashCode()).shouldBeFalse()
+        first shouldNotBeEqualTo second
+        first.hashCode() shouldNotBeEqualTo second.hashCode()
     }
 
     @Test
@@ -66,7 +69,7 @@ class TemporalOpenedProgressionTest {
 
         first shouldBeEqualTo second
         first.hashCode() shouldBeEqualTo second.hashCode()
-        setOf(first, second).size shouldBeEqualTo 1
+        setOf(first, second) shouldHaveSize 1
     }
 
     @Test
@@ -83,7 +86,7 @@ class TemporalOpenedProgressionTest {
             reverseStart,
             reverseStart.minusDays(2)
         )
-        progression.contains(endExclusive).shouldBeFalse()
+        progression shouldNotContain endExclusive
     }
 
     @Test
@@ -122,7 +125,7 @@ class TemporalOpenedProgressionTest {
         val range = TemporalOpenedRange.fromOpenedRange(rangeStart, endExclusive)
 
         range.endExclusive shouldBeEqualTo endExclusive
-        range.contains(rangeStart.plusMillis(1)).shouldBeTrue()
-        range.contains(endExclusive).shouldBeFalse()
+        range shouldContain rangeStart.plusMillis(1)
+        range shouldNotContain endExclusive
     }
 }

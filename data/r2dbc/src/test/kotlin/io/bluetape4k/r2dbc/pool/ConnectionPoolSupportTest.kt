@@ -1,6 +1,14 @@
 package io.bluetape4k.r2dbc.pool
 
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.assertions.assertFailsWith
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeFalse
+import io.bluetape4k.assertions.shouldBeInstanceOf
+import io.bluetape4k.assertions.shouldBeNull
+import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.assertions.shouldNotBeNull
+import io.bluetape4k.junit5.coroutines.runSuspendIO
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import io.r2dbc.pool.ConnectionPool
 import io.r2dbc.pool.ConnectionPoolConfiguration
@@ -10,21 +18,17 @@ import io.r2dbc.spi.Option
 import io.r2dbc.spi.ValidationDepth
 import kotlinx.coroutines.reactive.awaitFirstOrNull
 import kotlinx.coroutines.reactor.awaitSingle
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.reactor.awaitSingleOrNull
+import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.withTimeout
-import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldBeFalse
-import io.bluetape4k.assertions.shouldBeInstanceOf
-import io.bluetape4k.assertions.shouldBeNull
-import io.bluetape4k.assertions.shouldNotBeNull
 import org.junit.jupiter.api.Test
 import reactor.core.publisher.Mono
 import java.time.Duration
-import io.bluetape4k.assertions.assertFailsWith
+import kotlin.time.Duration.Companion.seconds
 
 class ConnectionPoolSupportTest {
 
-    companion object : KLogging()
+    companion object: KLoggingChannel()
 
     private fun h2ConnectionFactoryOptions(): ConnectionFactoryOptions =
         ConnectionFactoryOptions.builder()
@@ -84,6 +88,7 @@ class ConnectionPoolSupportTest {
             poolName = "r2dbc-main"
             registerJmx = true
         }
+        log.debug { "config: $config" }
 
         config.maxSize shouldBeEqualTo 50
         config.initialSize shouldBeEqualTo 5
@@ -102,6 +107,8 @@ class ConnectionPoolSupportTest {
     @Test
     fun `고처리량 프리셋은 워밍업과 빠른 검증 설정을 제공한다`() {
         val config = R2dbcPoolConfig.highThroughput(maxSize = 64, poolName = "exposed-r2dbc")
+
+        log.debug { "config: $config" }
 
         config.maxSize shouldBeEqualTo 64
         config.initialSize shouldBeEqualTo minOf(64, R2dbcPoolConfig.HIGH_THROUGHPUT_WARMUP_SIZE)
@@ -138,29 +145,33 @@ class ConnectionPoolSupportTest {
             registerJmx = true,
         )
 
-        val configuration = poolConfig.toConnectionPoolConfiguration(h2ConnectionFactory())
+        val config = poolConfig.toConnectionPoolConfiguration(h2ConnectionFactory())
 
-        configuration.readConfigValue<Int>("getMaxSize") shouldBeEqualTo 16
-        configuration.readConfigValue<Int>("getInitialSize") shouldBeEqualTo 4
-        configuration.readConfigValue<Int>("getMinIdle") shouldBeEqualTo 4
-        configuration.readConfigValue<Int>("getAcquireRetry") shouldBeEqualTo 1
-        configuration.readConfigValue<Duration>("getMaxValidationTime") shouldBeEqualTo Duration.ofSeconds(1)
-        configuration.readConfigValue<ValidationDepth>("getValidationDepth") shouldBeEqualTo ValidationDepth.REMOTE
-        configuration.readConfigValue<String>("getValidationQuery") shouldBeEqualTo "SELECT 1"
-        configuration.readConfigValue<String>("getName") shouldBeEqualTo "r2dbc-orders"
-        configuration.readConfigValue<Boolean>("isRegisterJmx") shouldBeEqualTo true
+        log.debug { "config: $config" }
+
+        config.readConfigValue<Int>("getMaxSize") shouldBeEqualTo 16
+        config.readConfigValue<Int>("getInitialSize") shouldBeEqualTo 4
+        config.readConfigValue<Int>("getMinIdle") shouldBeEqualTo 4
+        config.readConfigValue<Int>("getAcquireRetry") shouldBeEqualTo 1
+        config.readConfigValue<Duration>("getMaxValidationTime") shouldBeEqualTo Duration.ofSeconds(1)
+        config.readConfigValue<ValidationDepth>("getValidationDepth") shouldBeEqualTo ValidationDepth.REMOTE
+        config.readConfigValue<String>("getValidationQuery") shouldBeEqualTo "SELECT 1"
+        config.readConfigValue<String>("getName") shouldBeEqualTo "r2dbc-orders"
+        config.readConfigValue<Boolean>("isRegisterJmx").shouldBeTrue()
     }
 
     @Test
-    fun `initialSize 0 허용 - 커넥션 지연 생성`() {
+    fun `initialSize 0 허용 - 커넥션 지연 생성`() = runTest {
         val config = R2dbcPoolConfig(initialSize = 0, minIdle = 0)
+
+        log.debug { "config: $config" }
 
         config.initialSize shouldBeEqualTo 0
         config.minIdle shouldBeEqualTo 0
 
         val pool = connectionPoolOf(h2ConnectionFactoryOptions(), config)
         pool.shouldNotBeNull()
-        pool.close()
+        pool.close().awaitSingleOrNull()
     }
 
     @Test
@@ -197,45 +208,43 @@ class ConnectionPoolSupportTest {
     }
 
     @Test
-    fun `ConnectionFactoryOptions 로 ConnectionPool 생성 - 기본 설정`() {
+    fun `ConnectionFactoryOptions 로 ConnectionPool 생성 - 기본 설정`() = runTest {
         val options = h2ConnectionFactoryOptions()
         val pool = connectionPoolOf(options)
 
         pool.shouldNotBeNull()
         pool.shouldBeInstanceOf<ConnectionPool>()
 
-        pool.close()
+        pool.close().awaitSingleOrNull()
     }
 
     @Test
-    fun `ConnectionPool 에서 코루틴 bridge 로 커넥션 획득 후 반납`() {
-        runBlocking {
-            val options = connectionFactoryOptionsOf("r2dbc:h2:mem:///pool_acquire_test;DB_CLOSE_DELAY=-1")
-            val pool = connectionPoolOf(
-                options,
-                R2dbcPoolConfig(
-                    maxSize = 8,
-                    initialSize = 0,
-                    minIdle = 0,
-                    maxValidationTime = Duration.ofSeconds(1),
-                    validationQuery = "SELECT 1",
-                )
+    fun `ConnectionPool 에서 코루틴 bridge 로 커넥션 획득 후 반납`() = runSuspendIO {
+        val options = connectionFactoryOptionsOf("r2dbc:h2:mem:///pool_acquire_test;DB_CLOSE_DELAY=-1")
+        val pool = connectionPoolOf(
+            options,
+            R2dbcPoolConfig(
+                maxSize = 8,
+                initialSize = 0,
+                minIdle = 0,
+                maxValidationTime = Duration.ofSeconds(1),
+                validationQuery = "SELECT 1",
             )
-
-            try {
-                withTimeout(3_000) {
-                    val connection = pool.create().awaitSingle()
-                    connection.metadata.databaseProductName shouldBeEqualTo "H2"
-                    connection.close().awaitFirstOrNull()
-                }
-            } finally {
-                pool.close()
+        )
+        log.debug { "pool: $pool" }
+        try {
+            withTimeout(3.seconds) {
+                val connection = pool.create().awaitSingle()
+                connection.metadata.databaseProductName shouldBeEqualTo "H2"
+                connection.close().awaitFirstOrNull()
             }
+        } finally {
+            pool.close().awaitSingleOrNull()
         }
     }
 
     @Test
-    fun `maxPendingAcquire 제한은 풀 포화 시 추가 획득을 빠르게 거부한다`() {
+    fun `maxPendingAcquire 제한은 풀 포화 시 추가 획득을 빠르게 거부한다`() = runSuspendIO {
         val options = connectionFactoryOptionsOf("r2dbc:h2:mem:///pool_pending_test;DB_CLOSE_DELAY=-1")
         val pool = connectionPoolOf(
             options,
@@ -252,6 +261,7 @@ class ConnectionPoolSupportTest {
 
         pool.warmup().block(Duration.ofSeconds(3))
         val first = Mono.from(pool.create()).block(Duration.ofSeconds(3))
+
         try {
             val failure = runCatching {
                 Mono.from(pool.create()).block(Duration.ofSeconds(3))
@@ -261,12 +271,12 @@ class ConnectionPoolSupportTest {
         } finally {
             first.shouldNotBeNull()
             Mono.from(first.close()).block(Duration.ofSeconds(3))
-            pool.close()
+            pool.close().awaitSingleOrNull()
         }
     }
 
     @Test
-    fun `ConnectionFactoryOptions 와 R2dbcPoolConfig 로 ConnectionPool 생성`() {
+    fun `ConnectionFactoryOptions 와 R2dbcPoolConfig 로 ConnectionPool 생성`() = runSuspendIO {
         val options = h2ConnectionFactoryOptions()
         val poolConfig = R2dbcPoolConfig(
             maxSize = 20,
@@ -278,11 +288,11 @@ class ConnectionPoolSupportTest {
         pool.shouldNotBeNull()
         pool.shouldBeInstanceOf<ConnectionPool>()
 
-        pool.close()
+        pool.close().awaitSingleOrNull()
     }
 
     @Test
-    fun `ConnectionFactoryOptions 와 DSL 람다로 ConnectionPool 생성`() {
+    fun `ConnectionFactoryOptions 와 DSL 람다로 ConnectionPool 생성`() = runSuspendIO {
         val options = h2ConnectionFactoryOptions()
         val pool = connectionPoolOf(options) {
             maxSize = 30
@@ -298,11 +308,11 @@ class ConnectionPoolSupportTest {
         log.debug { "ConnectionPool 생성 완료. isDisposed=${pool.isDisposed}" }
         pool.isDisposed.shouldBeFalse()
 
-        pool.close()
+        pool.close().awaitSingleOrNull()
     }
 
     @Test
-    fun `toConnectionPool 확장 함수로 ConnectionPool 생성`() {
+    fun `toConnectionPool 확장 함수로 ConnectionPool 생성`() = runSuspendIO {
         val options = h2ConnectionFactoryOptions()
         val pool = options.toConnectionPool {
             maxSize = 25
@@ -312,7 +322,7 @@ class ConnectionPoolSupportTest {
         pool.shouldNotBeNull()
         pool.shouldBeInstanceOf<ConnectionPool>()
 
-        pool.close()
+        pool.close().awaitSingleOrNull()
     }
 
     @Test
@@ -328,13 +338,13 @@ class ConnectionPoolSupportTest {
     }
 
     @Test
-    fun `acquireRetry 0 허용 - 재시도 없음`() {
+    fun `acquireRetry 0 허용 - 재시도 없음`() = runSuspendIO {
         val config = R2dbcPoolConfig(acquireRetry = 0)
         config.acquireRetry shouldBeEqualTo 0
 
         val options = h2ConnectionFactoryOptions()
         val pool = connectionPoolOf(options, config)
         pool.shouldNotBeNull()
-        pool.close()
+        pool.close().awaitSingleOrNull()
     }
 }

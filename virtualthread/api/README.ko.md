@@ -7,12 +7,8 @@ Virtual Thread 기능을 JDK 버전에 독립적으로 사용할 수 있도록 �
 ### 패키지 소유권
 
 Java 21 호환 API 타입은
-`io.bluetape4k.concurrent.virtualthread.api` 패키지에 배치합니다. Core
-유틸리티는 `io.bluetape4k.concurrent.virtualthread`에 남겨 published
-`core`와 `virtualthread-api` artifact가 같은 패키지를 공유하지 않도록
-했습니다. `VirtualThreads`, `StructuredTaskScopes`, `TaskContext` 또는
-scope 계약을 import하는 소비자는 import를 갱신하고 재컴파일해야 합니다.
-JDK runtime provider는 동일한 `.api` ServiceLoader 계약에 등록됩니다.
+`io.bluetape4k.concurrent.virtualthread.api` 패키지에 배치합니다. Core 유틸리티는 `io.bluetape4k.concurrent.virtualthread`에 남겨 published
+`core`와 `virtualthread-api` artifact가 같은 패키지를 공유하지 않도록 했습니다. `VirtualThreads`, `StructuredTaskScopes`, `TaskContext` 또는 scope 계약을 import하는 소비자는 import를 갱신하고 재컴파일해야 합니다. JDK runtime provider는 동일한 `.api` ServiceLoader 계약에 등록됩니다.
 
 ## 개요
 

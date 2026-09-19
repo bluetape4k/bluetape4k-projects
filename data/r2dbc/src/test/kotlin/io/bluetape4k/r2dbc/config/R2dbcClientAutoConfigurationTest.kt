@@ -1,9 +1,10 @@
 package io.bluetape4k.r2dbc.config
 
 import io.bluetape4k.assertions.shouldBeEmpty
-import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeNull
 import io.bluetape4k.assertions.shouldBeSameInstanceAs
 import io.bluetape4k.assertions.shouldHaveSize
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.r2dbc.R2dbcClient
 import io.r2dbc.spi.ConnectionFactories
 import org.junit.jupiter.api.Test
@@ -15,10 +16,11 @@ import org.springframework.boot.test.context.runner.ApplicationContextRunner
 import org.springframework.data.r2dbc.convert.MappingR2dbcConverter
 import org.springframework.data.r2dbc.core.R2dbcEntityTemplate
 import org.springframework.r2dbc.core.DatabaseClient
-import java.util.function.Supplier
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class R2dbcClientAutoConfigurationTest {
+
+    companion object: KLoggingChannel()
 
     private val entityTemplate = R2dbcEntityTemplate(
         ConnectionFactories.get("r2dbc:h2:mem:///r2dbc_auto_config_${System.nanoTime()}")
@@ -34,15 +36,15 @@ class R2dbcClientAutoConfigurationTest {
         )
 
     private val r2dbcClientRunner = autoConfigurationRunner
-        .withBean(R2dbcEntityTemplate::class.java, Supplier { entityTemplate })
-        .withBean(MappingR2dbcConverter::class.java, Supplier { mappingR2dbcConverter })
-        .withBean(DatabaseClient::class.java, Supplier { databaseClient })
+        .withBean(R2dbcEntityTemplate::class.java, { entityTemplate })
+        .withBean(MappingR2dbcConverter::class.java, { mappingR2dbcConverter })
+        .withBean(DatabaseClient::class.java, { databaseClient })
 
     @Test
     fun `registers R2dbcClient when required Spring R2DBC infrastructure beans exist`() {
         r2dbcClientRunner.run { context ->
-            context.getStartupFailure() shouldBeEqualTo null
-            context.getBeansOfType<R2dbcClient>().shouldHaveSize(1)
+            context.startupFailure.shouldBeNull()
+            context.getBeansOfType<R2dbcClient>() shouldHaveSize 1
         }
     }
 
@@ -51,12 +53,12 @@ class R2dbcClientAutoConfigurationTest {
         val customClient = R2dbcClient(databaseClient, entityTemplate, mappingR2dbcConverter)
 
         r2dbcClientRunner
-            .withBean(R2dbcClient::class.java, Supplier { customClient })
+            .withBean(R2dbcClient::class.java, { customClient })
             .run { context ->
-                context.getStartupFailure() shouldBeEqualTo null
+                context.startupFailure.shouldBeNull()
                 val clients = context.getBeansOfType<R2dbcClient>()
 
-                clients.shouldHaveSize(1)
+                clients shouldHaveSize 1
                 clients.values.single() shouldBeSameInstanceAs customClient
             }
     }
@@ -71,7 +73,7 @@ class R2dbcClientAutoConfigurationTest {
                 )
             )
             .run { context ->
-                context.getStartupFailure() shouldBeEqualTo null
+                context.startupFailure.shouldBeNull()
                 context.beanFactory.getBeanNamesForType(R2dbcClient::class.java).asList().shouldBeEmpty()
             }
     }

@@ -12,7 +12,7 @@ class NearJCacheManagementMXBean private constructor(
     private val snapshot: NearJCacheConfigurationSnapshot,
 ): NearJCacheConfigurationMXBean {
 
-    constructor(cache: NearJCache<*, *>) : this(cache.configurationSnapshot)
+    constructor(cache: NearJCache<*, *>): this(cache.configurationSnapshot)
 
     companion object {
         @JvmSynthetic

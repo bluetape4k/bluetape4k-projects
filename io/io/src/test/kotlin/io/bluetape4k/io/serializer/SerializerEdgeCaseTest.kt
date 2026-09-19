@@ -1,12 +1,19 @@
 package io.bluetape4k.io.serializer
 
-import io.bluetape4k.logging.KLogging
-import io.bluetape4k.logging.debug
+import io.bluetape4k.assertions.assertFailsWith
+import io.bluetape4k.assertions.shouldBeEmpty
 import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeInstanceOf
 import io.bluetape4k.assertions.shouldBeNull
 import io.bluetape4k.assertions.shouldNotBeEmpty
 import io.bluetape4k.assertions.shouldNotBeNull
-import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.junit5.concurrency.MultithreadingTester
+import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.debug
+import org.apache.fory.Fory
+import org.apache.fory.builder.Generated
+import org.apache.fory.config.CompatibleMode
+import org.apache.fory.config.Language
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
 import org.junit.jupiter.params.ParameterizedTest
@@ -15,13 +22,7 @@ import java.io.Serializable
 import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime
-import io.bluetape4k.junit5.concurrency.MultithreadingTester
-import org.apache.fory.Fory
-import org.apache.fory.builder.Generated
-import org.apache.fory.config.CompatibleMode
-import org.apache.fory.config.Language
 import java.util.stream.Stream
-import io.bluetape4k.assertions.assertFailsWith
 
 /**
  * [BinarySerializer] 구현체들의 edge case 테스트입니다.
@@ -31,7 +32,7 @@ import io.bluetape4k.assertions.assertFailsWith
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class SerializerEdgeCaseTest {
 
-    companion object : KLogging() {
+    companion object: KLogging() {
         private const val THREAD_COUNT = 8
 
         @JvmStatic
@@ -53,32 +54,32 @@ class SerializerEdgeCaseTest {
         val name: String,
         val children: List<ChildData>,
         val metadata: Map<String, String>,
-    ) : Serializable
+    ): Serializable
 
     data class ChildData(
         val value: Int,
         val label: String?,
-    ) : Serializable
+    ): Serializable
 
     data class WithNullableFields(
         val id: Long,
         val optionalName: String? = null,
         val optionalValue: Int? = null,
-    ) : Serializable
+    ): Serializable
 
     data class WithJavaTimes(
         val instant: Instant,
         val localDate: LocalDate,
         val localDateTime: LocalDateTime,
-    ) : Serializable
+    ): Serializable
 
-    data class ConcurrentItem(val id: Int, val name: String) : Serializable
+    data class ConcurrentItem(val id: Int, val name: String): Serializable
 
     @ParameterizedTest(name = "null 직렬화는 emptyByteArray 를 반환한다: {0}")
     @MethodSource("allSerializers")
     fun `null 직렬화는 emptyByteArray 를 반환한다`(serializer: BinarySerializer) {
         val bytes = serializer.serialize(null)
-        bytes shouldBeEqualTo byteArrayOf()
+        bytes.shouldBeEmpty()
     }
 
     @ParameterizedTest(name = "null/empty 역직렬화는 null 을 반환한다: {0}")
@@ -96,7 +97,7 @@ class SerializerEdgeCaseTest {
         bytes.shouldNotBeEmpty()
 
         val result = serializer.deserialize<String>(bytes)
-        result.shouldNotBeNull() shouldBeEqualTo input
+        result shouldBeEqualTo input
     }
 
     @ParameterizedTest(name = "중첩 데이터 클래스 직렬화/역직렬화: {0}")
@@ -117,7 +118,7 @@ class SerializerEdgeCaseTest {
         bytes.shouldNotBeEmpty()
 
         val result = serializer.deserialize<NestedData>(bytes)
-        result.shouldNotBeNull() shouldBeEqualTo input
+        result shouldBeEqualTo input
     }
 
     @ParameterizedTest(name = "nullable 필드를 가진 데이터 클래스 직렬화/역직렬화: {0}")
@@ -130,7 +131,7 @@ class SerializerEdgeCaseTest {
             val bytes = serializer.serialize(input)
             bytes.shouldNotBeEmpty()
             val result = serializer.deserialize<WithNullableFields>(bytes)
-            result.shouldNotBeNull() shouldBeEqualTo input
+            result shouldBeEqualTo input
         }
     }
 
@@ -147,7 +148,7 @@ class SerializerEdgeCaseTest {
         bytes.shouldNotBeEmpty()
 
         val result = serializer.deserialize<WithJavaTimes>(bytes)
-        result.shouldNotBeNull() shouldBeEqualTo input
+        result shouldBeEqualTo input
     }
 
     @ParameterizedTest(name = "빈 컬렉션 직렬화/역직렬화: {0}")
@@ -165,8 +166,8 @@ class SerializerEdgeCaseTest {
         val resultList = serializer.deserialize<List<String>>(listBytes)
         val resultMap = serializer.deserialize<Map<String, Int>>(mapBytes)
 
-        resultList.shouldNotBeNull() shouldBeEqualTo emptyList
-        resultMap.shouldNotBeNull() shouldBeEqualTo emptyMap
+        resultList shouldBeEqualTo emptyList
+        resultMap shouldBeEqualTo emptyMap
     }
 
     @ParameterizedTest(name = "대용량 컬렉션 직렬화/역직렬화: {0}")
@@ -177,7 +178,7 @@ class SerializerEdgeCaseTest {
         bytes.shouldNotBeEmpty()
 
         val result = serializer.deserialize<List<String>>(bytes)
-        result.shouldNotBeNull() shouldBeEqualTo input
+        result shouldBeEqualTo input
 
         log.debug { "${serializer.javaClass.simpleName} 10k items: ${bytes.size} bytes" }
     }
@@ -222,16 +223,17 @@ class SerializerEdgeCaseTest {
 
         serializer.serialize(ConcurrentItem(0, "thread-0"))
 
-        val actualSerializer = fory.execute { it.getSerializer(ConcurrentItem::class.java) }
-        Generated.GeneratedSerializer::class.java
-            .isAssignableFrom(actualSerializer.javaClass)
-            .shouldBeTrue()
+        val actualSerializer = fory.execute {
+            it.getSerializer(ConcurrentItem::class.java)
+        }
+
+        actualSerializer.shouldBeInstanceOf<Generated.GeneratedSerializer>()
     }
 
     @Test
     fun `KryoBinarySerializer 보안 모드는 미등록 클래스 직렬화 시 예외를 던진다`() {
-        data class Registered(val value: String) : Serializable
-        data class Unregistered(val value: String) : Serializable
+        data class Registered(val value: String): Serializable
+        data class Unregistered(val value: String): Serializable
 
         val secureSerializer = KryoBinarySerializer.secure(Registered::class.java)
 
@@ -285,7 +287,7 @@ class SerializerEdgeCaseTest {
     fun `KryoProvider 멀티스레드 환경에서 안전하게 동작한다`() {
         MultithreadingTester()
             .workers(THREAD_COUNT)
-            .rounds(1)
+            .rounds(2)
             .add {
                 val kryo = KryoProvider.obtainKryo()
                 try {

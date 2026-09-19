@@ -52,15 +52,15 @@ private fun defaultPollDelay(pollInterval: PollInterval): Duration =
         Duration.ZERO
     }
 
-private inline fun <reified T : Any> Any.readRequiredField(vararg names: String): T {
+private inline fun <reified T: Any> Any.readRequiredField(vararg names: String): T {
     val value = readRawField(names)
     return value as? T ?: throw IllegalStateException(
         "Awaitility ConditionFactory field ${names.joinToString("/")} has incompatible type " +
-            (value?.javaClass?.name ?: "null"),
+                (value?.javaClass?.name ?: "null"),
     )
 }
 
-private inline fun <reified T : Any> Any.readNullableField(vararg names: String): T? {
+private inline fun <reified T: Any> Any.readNullableField(vararg names: String): T? {
     val value = readRawField(names) ?: return null
     return value as? T ?: throw IllegalStateException(
         "Awaitility ConditionFactory field ${names.joinToString("/")} has incompatible type ${value.javaClass.name}",

@@ -4,6 +4,7 @@ import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldNotContain
 import io.bluetape4k.junit5.output.InMemoryLogbackAppender
+import io.bluetape4k.logging.KLogging
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.asContextElement
 import kotlinx.coroutines.async
@@ -15,6 +16,13 @@ import org.junit.jupiter.api.TestInstance
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class ContextPropagationConformanceTest {
+
+    private companion object: KLogging() {
+        const val PARENT_MARKER = "synthetic-parent"
+        const val REQUEST_A_MARKER = "synthetic-request-a"
+        const val REQUEST_B_MARKER = "synthetic-request-b"
+        const val CANARY = "secret-parent\r\nforged-log"
+    }
 
     @Test
     fun `matching propagation snapshots satisfy the conformance contract without emitting logs`() {
@@ -656,11 +664,4 @@ class ContextPropagationConformanceTest {
         ContextProbeLocation.entries.map { location ->
             ContextCleanupExpectation(location, null)
         }
-
-    private companion object {
-        const val PARENT_MARKER = "synthetic-parent"
-        const val REQUEST_A_MARKER = "synthetic-request-a"
-        const val REQUEST_B_MARKER = "synthetic-request-b"
-        const val CANARY = "secret-parent\r\nforged-log"
-    }
 }

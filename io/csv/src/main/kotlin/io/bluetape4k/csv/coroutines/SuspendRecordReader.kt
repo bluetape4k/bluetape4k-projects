@@ -45,5 +45,6 @@ interface SuspendRecordReader: Closeable {
         input: InputStream,
         encoding: Charset = Charsets.UTF_8,
         skipHeaders: Boolean = true,
-    ): Flow<Record> = read(input, encoding, skipHeaders) { it }
+    ): Flow<Record> =
+        read(input, encoding, skipHeaders) { it }
 }

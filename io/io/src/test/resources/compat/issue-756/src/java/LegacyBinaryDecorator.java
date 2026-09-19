@@ -2,6 +2,7 @@ package io.bluetape4k.io.serializer.compat.issue756.java;
 
 import io.bluetape4k.io.serializer.BinarySerializer;
 import io.bluetape4k.io.serializer.BinarySerializerDecorator;
+
 import java.nio.charset.StandardCharsets;
 
 public final class LegacyBinaryDecorator extends BinarySerializerDecorator {

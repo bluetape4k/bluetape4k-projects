@@ -23,7 +23,7 @@ class ErrorsTest: AbstractFlowTest() {
         flow {
             emit(42)
             throw testException
-            emit(43)
+            // emit(43)
         }
             .catchAndReturn(-1)             // 예외 발생 시, -1 로 대체
             .test {
@@ -86,7 +86,7 @@ class ErrorsTest: AbstractFlowTest() {
         val flow = flow {
             emit(1)
             throw testException
-            emit(2)
+            // emit(2)
         }
             .catchAndResume { flowOf(count, count + 1).also { count++ } }
 

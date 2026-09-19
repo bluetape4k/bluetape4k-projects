@@ -30,18 +30,6 @@ data class CqlSessionIdentity(
 
     companion object {
         private const val serialVersionUID = 1L
-
-        /**
-         * 정규화된 context 조각으로 결정적 identity를 만듭니다.
-         */
-        @Deprecated(
-            message = "Use the Kotlin package function cqlSessionIdentityOf().",
-            replaceWith = ReplaceWith("cqlSessionIdentityOf(keyspace, contextParts)")
-        )
-        fun of(
-            keyspace: String,
-            contextParts: Iterable<String>,
-        ): CqlSessionIdentity = cqlSessionIdentityOf(keyspace, contextParts)
     }
 }
 

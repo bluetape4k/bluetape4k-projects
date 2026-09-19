@@ -12,7 +12,7 @@ import kotlinx.coroutines.yield
 import java.math.BigDecimal
 import java.security.MessageDigest
 import java.time.Duration
-import java.util.HexFormat
+import java.util.*
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.atomic.AtomicInteger
 import java.util.concurrent.atomic.AtomicLong
@@ -55,7 +55,7 @@ internal class InMemoryBoundedWaitHttpIdempotencyAdapter(
         val scope = serverResolvedScope(request)
         val fingerprint = fingerprint(request)
         return when (val action = mutex.withLock { decideExchange(scope, fingerprint) }) {
-            is ExchangeAction.Owner -> awaitOwnerCompletion(action)
+            is ExchangeAction.Owner  -> awaitOwnerCompletion(action)
             is ExchangeAction.Waiter -> awaitWaiterCompletion(action)
             is ExchangeAction.Immediate -> action.response
         }
@@ -367,9 +367,9 @@ internal class InMemoryBoundedWaitHttpIdempotencyAdapter(
     private fun authenticateAndAuthorize(request: HttpIdempotencyRequest): HttpIdempotencyResponse? =
         when (request.authenticationProfile) {
             "tenant-a-principal", "tenant-b-principal" -> null
-            "unauthenticated" -> unauthenticatedResponse()
+            "unauthenticated"    -> unauthenticatedResponse()
             "tenant-a-read-only" -> unauthorizedResponse()
-            else -> unauthorizedResponse()
+            else                 -> unauthorizedResponse()
         }
 
     private fun validateIngress(request: HttpIdempotencyRequest): HttpIdempotencyResponse? {
@@ -541,12 +541,12 @@ internal class InMemoryBoundedWaitHttpIdempotencyAdapter(
         private fun parseValue(): String {
             skipWhitespace()
             return when (peek()) {
-                '{' -> parseObject()
-                '[' -> parseArray()
-                '"' -> quote(parseString())
-                't' -> parseLiteral("true")
-                'f' -> parseLiteral("false")
-                'n' -> parseLiteral("null")
+                '{'  -> parseObject()
+                '['  -> parseArray()
+                '"'  -> quote(parseString())
+                't'  -> parseLiteral("true")
+                'f'  -> parseLiteral("false")
+                'n'  -> parseLiteral("null")
                 '-', in '0'..'9' -> parseNumber()
                 else -> invalidJson()
             }
@@ -610,12 +610,12 @@ internal class InMemoryBoundedWaitHttpIdempotencyAdapter(
             if (index >= source.length) invalidJson()
             return when (val escaped = source[index++]) {
                 '"', '\\', '/' -> escaped.toString()
-                'b' -> "\b"
-                'f' -> "\u000c"
-                'n' -> "\n"
-                'r' -> "\r"
-                't' -> "\t"
-                'u' -> parseUnicodeEscape()
+                'b'  -> "\b"
+                'f'  -> "\u000c"
+                'n'  -> "\n"
+                'r'  -> "\r"
+                't'  -> "\t"
+                'u'  -> parseUnicodeEscape()
                 else -> invalidJson()
             }
         }
@@ -643,7 +643,7 @@ internal class InMemoryBoundedWaitHttpIdempotencyAdapter(
             val start = index
             consume('-')
             when (peek()) {
-                '0' -> {
+                '0'  -> {
                     index++
                     if (peek() in '0'..'9') invalidJson()
                 }
@@ -678,7 +678,7 @@ internal class InMemoryBoundedWaitHttpIdempotencyAdapter(
             append('"')
             value.forEach { character ->
                 when (character) {
-                    '"' -> append("\\\"")
+                    '"'  -> append("\\\"")
                     '\\' -> append("\\\\")
                     '\b' -> append("\\b")
                     '\u000c' -> append("\\f")

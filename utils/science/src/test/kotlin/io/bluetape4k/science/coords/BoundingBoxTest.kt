@@ -1,11 +1,11 @@
 package io.bluetape4k.science.coords
 
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeFalse
 import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.logging.KLogging
 import org.junit.jupiter.api.Test
-import io.bluetape4k.assertions.assertFailsWith
 
 class BoundingBoxTest {
 
@@ -32,7 +32,10 @@ class BoundingBoxTest {
         val world = BoundingBox(-90.0, -180.0, 90.0, 180.0)
         world.center() shouldBeEqualTo GeoLocation(0.0, 0.0)
         world.contains(GeoLocation(90.0, 180.0)).shouldBeTrue()
-        assertFailsWith<IllegalArgumentException> { BoundingBox(0.0, 170.0, 1.0, -170.0) }
+
+        assertFailsWith<IllegalArgumentException> {
+            BoundingBox(0.0, 170.0, 1.0, -170.0)
+        }
     }
 
     // 한반도 대략적인 BoundingBox
@@ -74,6 +77,7 @@ class BoundingBoxTest {
     fun `union이 두 BoundingBox를 모두 포함한다`() {
         val bbox1 = BoundingBox(minLat = 0.0, minLon = 0.0, maxLat = 10.0, maxLon = 10.0)
         val bbox2 = BoundingBox(minLat = 5.0, minLon = 5.0, maxLat = 20.0, maxLon = 20.0)
+
         val union = bbox1.union(bbox2)
         union.minLat shouldBeEqualTo 0.0
         union.minLon shouldBeEqualTo 0.0
@@ -84,6 +88,7 @@ class BoundingBoxTest {
     @Test
     fun `center가 BoundingBox의 중심 좌표를 반환한다`() {
         val bbox = BoundingBox(minLat = 0.0, minLon = 0.0, maxLat = 10.0, maxLon = 20.0)
+
         val center = bbox.center()
         center.latitude shouldBeEqualTo 5.0
         center.longitude shouldBeEqualTo 10.0
@@ -119,14 +124,22 @@ class BoundingBoxTest {
     @Test
     fun `cellBoundingBox size가 0이하이면 예외를 발생시킨다`() {
         val zone = UtmZone(52, 'S')
-        assertFailsWith<IllegalArgumentException> { zone.cellBoundingBox(size = 0.0, row = 0, col = 0) }
-        assertFailsWith<IllegalArgumentException> { zone.cellBoundingBox(size = -1.0, row = 0, col = 0) }
+        assertFailsWith<IllegalArgumentException> {
+            zone.cellBoundingBox(size = 0.0, row = 0, col = 0)
+        }
+        assertFailsWith<IllegalArgumentException> {
+            zone.cellBoundingBox(size = -1.0, row = 0, col = 0)
+        }
     }
 
     @Test
     fun `cellBoundingBox row나 col이 음수이면 예외를 발생시킨다`() {
         val zone = UtmZone(52, 'S')
-        assertFailsWith<IllegalArgumentException> { zone.cellBoundingBox(size = 1.0, row = -1, col = 0) }
-        assertFailsWith<IllegalArgumentException> { zone.cellBoundingBox(size = 1.0, row = 0, col = -1) }
+        assertFailsWith<IllegalArgumentException> {
+            zone.cellBoundingBox(size = 1.0, row = -1, col = 0)
+        }
+        assertFailsWith<IllegalArgumentException> {
+            zone.cellBoundingBox(size = 1.0, row = 0, col = -1)
+        }
     }
 }

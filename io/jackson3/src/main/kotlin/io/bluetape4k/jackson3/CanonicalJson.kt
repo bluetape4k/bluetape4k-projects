@@ -186,11 +186,11 @@ class CanonicalJson(
         }
         when {
             node.isObject -> appendObject(node, depth, output)
-            node.isArray -> appendArray(node, depth, output)
+            node.isArray  -> appendArray(node, depth, output)
             node.isString -> appendString(node.stringValue(), output)
             node.isNumber -> appendNumber(node, output)
             node.isBoolean || node.isNull -> output.append(node.toString())
-            else -> throw IllegalArgumentException("지원하지 않는 JSON 값입니다: ${node.nodeType}")
+            else          -> throw IllegalArgumentException("지원하지 않는 JSON 값입니다: ${node.nodeType}")
         }
     }
 
@@ -268,7 +268,7 @@ class CanonicalJson(
         return when {
             scale <= 0L -> signLength + precision + -scale
             precision > scale -> signLength + precision + 1L
-            else -> signLength + scale + 2L
+            else        -> signLength + scale + 2L
         }
     }
 

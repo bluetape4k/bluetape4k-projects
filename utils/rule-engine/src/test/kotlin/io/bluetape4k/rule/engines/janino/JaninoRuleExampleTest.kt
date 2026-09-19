@@ -1,15 +1,14 @@
 package io.bluetape4k.rule.engines.janino
 
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeFalse
+import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.rule.api.Facts
 import io.bluetape4k.rule.api.ruleSetOf
 import io.bluetape4k.rule.core.DefaultRuleEngine
 import io.bluetape4k.rule.support.ActivationRuleGroup
 import io.bluetape4k.rule.support.UnitRuleGroup
-import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldBeFalse
-import io.bluetape4k.assertions.shouldBeTrue
-import io.bluetape4k.assertions.shouldNotBeNull
 import org.junit.jupiter.api.Test
 
 /**
@@ -64,7 +63,6 @@ class JaninoRuleExampleTest {
         action.execute(facts)
 
         val discount = facts.get<Double>("discountAmount")
-        discount.shouldNotBeNull()
         discount shouldBeEqualTo 7500.0
     }
 
@@ -118,7 +116,8 @@ class JaninoRuleExampleTest {
         )
 
         val facts = Facts.of("name" to "Alice", "role" to "Manager")
-        action.execute(facts); facts.get<String>("greeting") shouldBeEqualTo "Hello, Manager Alice!"
+        action.execute(facts)
+        facts.get<String>("greeting") shouldBeEqualTo "Hello, Manager Alice!"
     }
 
     @Test
@@ -233,23 +232,48 @@ class JaninoRuleExampleTest {
             )
 
         // 룰 3: 무료 배송 (50000원 이상)
-        val freeShipping = jRule("freeShipping", 3, "((Integer)facts.get(\"amount\")).intValue() >= 50000", "facts.put(\"freeShipping\", Boolean.TRUE);")
+        val freeShipping = jRule(
+            "freeShipping",
+            3,
+            "((Integer)facts.get(\"amount\")).intValue() >= 50000",
+            "facts.put(\"freeShipping\", Boolean.TRUE);"
+        )
 
         val engine = DefaultRuleEngine()
         val facts = Facts.of("amount" to 60000, "memberType" to "VIP")
         engine.fire(ruleSetOf(basicDiscount, vipDiscount, freeShipping), facts)
 
-        facts.get<Number>("discountRate")!!.toDouble() shouldBeEqualTo 10.0
-        facts.get<Number>("discountAmount")!!.toDouble() shouldBeEqualTo 6000.0
-        facts.get<Boolean>("freeShipping")!!.shouldBeTrue()
+        facts.get<Number>("discountRate")?.toDouble() shouldBeEqualTo 10.0
+        facts.get<Number>("discountAmount")?.toDouble() shouldBeEqualTo 6000.0
+        facts.get<Boolean>("freeShipping")?.shouldBeTrue()
     }
 
     @Test
     fun `회원 등급 분류 - ActivationRuleGroup으로 첫 매칭만 실행`() {
-        val platinum = jRule("platinum", 1, "((Integer)facts.get(\"totalPurchase\")).intValue() >= 1000000", "facts.put(\"tier\", \"PLATINUM\");")
-        val gold = jRule("gold", 2, "((Integer)facts.get(\"totalPurchase\")).intValue() >= 500000", "facts.put(\"tier\", \"GOLD\");")
-        val silver = jRule("silver", 3, "((Integer)facts.get(\"totalPurchase\")).intValue() >= 100000", "facts.put(\"tier\", \"SILVER\");")
-        val bronze = jRule("bronze", 4, "((Integer)facts.get(\"totalPurchase\")).intValue() >= 0", "facts.put(\"tier\", \"BRONZE\");")
+        val platinum = jRule(
+            "platinum",
+            1,
+            "((Integer)facts.get(\"totalPurchase\")).intValue() >= 1000000",
+            "facts.put(\"tier\", \"PLATINUM\");"
+        )
+        val gold = jRule(
+            "gold",
+            2,
+            "((Integer)facts.get(\"totalPurchase\")).intValue() >= 500000",
+            "facts.put(\"tier\", \"GOLD\");"
+        )
+        val silver = jRule(
+            "silver",
+            3,
+            "((Integer)facts.get(\"totalPurchase\")).intValue() >= 100000",
+            "facts.put(\"tier\", \"SILVER\");"
+        )
+        val bronze = jRule(
+            "bronze",
+            4,
+            "((Integer)facts.get(\"totalPurchase\")).intValue() >= 0",
+            "facts.put(\"tier\", \"BRONZE\");"
+        )
 
         val group = ActivationRuleGroup("tierClassification")
         group.addRule(platinum)
@@ -261,17 +285,29 @@ class JaninoRuleExampleTest {
 
         // 750,000원 → GOLD
         val facts1 = Facts.of("totalPurchase" to 750000)
-        engine.fire(ruleSetOf(group), facts1); facts1.get<String>("tier") shouldBeEqualTo "GOLD"
+        engine.fire(ruleSetOf(group), facts1)
+        facts1.get<String>("tier") shouldBeEqualTo "GOLD"
 
         // 50,000원 → BRONZE
         val facts2 = Facts.of("totalPurchase" to 50000)
-        engine.fire(ruleSetOf(group), facts2); facts2.get<String>("tier") shouldBeEqualTo "BRONZE"
+        engine.fire(ruleSetOf(group), facts2)
+        facts2.get<String>("tier") shouldBeEqualTo "BRONZE"
     }
 
     @Test
     fun `나이 및 지역 확인 - UnitRuleGroup으로 모든 조건 충족 시 실행`() {
-        val ageCheck = jRule("ageCheck", 1, "((Integer)facts.get(\"age\")).intValue() >= 18", "facts.put(\"ageVerified\", Boolean.TRUE);")
-        val regionCheck = jRule("regionCheck", 2, "\"KR\".equals(facts.get(\"region\"))", "facts.put(\"regionVerified\", Boolean.TRUE);")
+        val ageCheck = jRule(
+            "ageCheck",
+            1,
+            "((Integer)facts.get(\"age\")).intValue() >= 18",
+            "facts.put(\"ageVerified\", Boolean.TRUE);"
+        )
+        val regionCheck = jRule(
+            "regionCheck",
+            2,
+            "\"KR\".equals(facts.get(\"region\"))",
+            "facts.put(\"regionVerified\", Boolean.TRUE);"
+        )
 
         val group = UnitRuleGroup("verification")
         group.addRule(ageCheck)
@@ -282,12 +318,13 @@ class JaninoRuleExampleTest {
         // 모든 조건 충족
         val facts1 = Facts.of("age" to 25, "region" to "KR")
         engine.fire(ruleSetOf(group), facts1)
-        facts1.get<Boolean>("ageVerified")!!.shouldBeTrue()
-        facts1.get<Boolean>("regionVerified")!!.shouldBeTrue()
+        facts1.get<Boolean>("ageVerified").shouldBeTrue()
+        facts1.get<Boolean>("regionVerified").shouldBeTrue()
 
         // 나이 미충족 → 아무것도 실행 안 됨
         val facts2 = Facts.of("age" to 15, "region" to "KR")
-        engine.fire(ruleSetOf(group), facts2); facts2.containsKey("ageVerified").shouldBeFalse()
+        engine.fire(ruleSetOf(group), facts2)
+        facts2.containsKey("ageVerified").shouldBeFalse()
     }
 
     @Test
@@ -314,11 +351,13 @@ class JaninoRuleExampleTest {
 
         // 일반 배송: weight=2.5kg, distance=200km
         val facts1 = Facts.of("weight" to 2.5, "distance" to 200, "express" to false)
-        engine.fire(ruleSetOf(shippingRule), facts1); facts1.get<Double>("shippingCost") shouldBeEqualTo 10250.0  // 250 + 10000 + 0
+        engine.fire(ruleSetOf(shippingRule), facts1);
+        facts1.get<Double>("shippingCost") shouldBeEqualTo 10250.0  // 250 + 10000 + 0
 
         // 특급 배송
         val facts2 = Facts.of("weight" to 1.0, "distance" to 100, "express" to true)
-        engine.fire(ruleSetOf(shippingRule), facts2); facts2.get<Double>("shippingCost") shouldBeEqualTo 8100.0  // 100 + 5000 + 3000
+        engine.fire(ruleSetOf(shippingRule), facts2)
+        facts2.get<Double>("shippingCost") shouldBeEqualTo 8100.0  // 100 + 5000 + 3000
     }
 
     @Test
@@ -334,8 +373,8 @@ class JaninoRuleExampleTest {
 
         val result = engine.check(ruleSetOf(adultRule, premiumRule), facts)
 
-        result[adultRule]!!.shouldBeTrue()
-        result[premiumRule]!!.shouldBeFalse()
+        result[adultRule].shouldBeTrue()
+        result[premiumRule].shouldBeFalse()
     }
 
     // =========================================================================
@@ -380,6 +419,7 @@ class JaninoRuleExampleTest {
 
         // 1000만원, 연 5%, 3년 복리
         val facts = Facts.of("principal" to 10000000, "annualRate" to 5, "years" to 3)
-        action.execute(facts); facts.get<Double>("finalAmount") shouldBeEqualTo 11576250.0
+        action.execute(facts)
+        facts.get<Double>("finalAmount") shouldBeEqualTo 11576250.0
     }
 }

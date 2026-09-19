@@ -1,7 +1,7 @@
 package io.bluetape4k.http.okhttp3
 
 import okhttp3.Headers
-import java.util.Locale
+import java.util.*
 
 /** Redacted marker used for sensitive HTTP header values in diagnostic logs. */
 const val REDACTED_HTTP_HEADER_VALUE: String = "<redacted>"

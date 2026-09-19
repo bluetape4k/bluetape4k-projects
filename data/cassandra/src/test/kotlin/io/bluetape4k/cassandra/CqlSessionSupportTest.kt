@@ -3,6 +3,7 @@ package io.bluetape4k.cassandra
 import io.bluetape4k.assertions.shouldBeFalse
 import io.bluetape4k.assertions.shouldNotBeNull
 import io.bluetape4k.logging.coroutines.KLoggingChannel
+import io.bluetape4k.logging.debug
 import io.bluetape4k.support.closeSafe
 import org.junit.jupiter.api.Test
 import java.net.InetSocketAddress
@@ -20,6 +21,8 @@ class CqlSessionSupportTest: AbstractCassandraTest() {
             addContactPoint(InetSocketAddress(cassandra4.host, cassandra4.port))
             withLocalDatacenter(CqlSessionProvider.DEFAULT_LOCAL_DATACENTER)
         }
+        log.debug { "cqlSession=${cqlSession.name}" }
+        
         try {
             cqlSession.shouldNotBeNull()
             cqlSession.isClosed.shouldBeFalse()
@@ -35,6 +38,8 @@ class CqlSessionSupportTest: AbstractCassandraTest() {
             localDatacenter = CqlSessionProvider.DEFAULT_LOCAL_DATACENTER,
             keyspaceName = DEFAULT_KEYSPACE,
         )
+        log.debug { "cqlSession=${cqlSession.name}" }
+        
         try {
             cqlSession.shouldNotBeNull()
             cqlSession.isClosed.shouldBeFalse()

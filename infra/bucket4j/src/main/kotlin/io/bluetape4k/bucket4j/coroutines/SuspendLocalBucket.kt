@@ -4,7 +4,6 @@ import io.bluetape4k.bucket4j.bucketConfiguration
 import io.bluetape4k.bucket4j.internal.Slf4jBucketListener
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
-import io.bluetape4k.logging.trace
 import io.bluetape4k.logging.warn
 import io.github.bucket4j.BucketConfiguration
 import io.github.bucket4j.BucketExceptions
@@ -122,11 +121,12 @@ class SuspendLocalBucket private constructor(
         val nanosToDelay: Long = reserveAndCalculateTimeToSleepImpl(tokensToConsume, maxWaitTimeNanos)
 
         if (nanosToDelay == INFINITY_DURATION) {
-            log.debug { "rejected. nanosToDelay is INFINITY_DURATION" }
+            log.warn { "rejected. nanosToDelay is INFINITY_DURATION" }
             listener.onRejected(tokensToConsume)
             return false
         }
 
+        log.debug { "nanosToDelay=$nanosToDelay" }
         listener.onConsumed(tokensToConsume)
         suspendIfNeeded(nanosToDelay)
 
@@ -154,6 +154,7 @@ class SuspendLocalBucket private constructor(
             throw BucketExceptions.reservationOverflow()
         }
 
+        log.debug { "nanosToDelay=$nanosToDelay" }
         listener.onConsumed(tokensToConsume)
         suspendIfNeeded(nanosToDelay)
     }
@@ -166,7 +167,7 @@ class SuspendLocalBucket private constructor(
         if (nanosToDelay <= 0L) return
 
         listener.onDelayed(nanosToDelay)
-        log.trace { "nanos to delay=$nanosToDelay" }
+        log.debug { "nanos to delay=$nanosToDelay" }
         try {
             delay(nanosToDelay.nanoseconds)
             listener.onParked(nanosToDelay)

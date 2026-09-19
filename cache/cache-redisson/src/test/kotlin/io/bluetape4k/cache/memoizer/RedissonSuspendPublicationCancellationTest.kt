@@ -1,6 +1,7 @@
 package io.bluetape4k.cache.memoizer
 
 import io.bluetape4k.assertions.shouldBeFalse
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
@@ -9,15 +10,17 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
-import kotlin.time.Duration.Companion.seconds
 import org.junit.jupiter.api.Test
 import org.redisson.api.RMap
 import org.redisson.misc.CompletableFutureWrapper
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.atomic.AtomicBoolean
+import kotlin.time.Duration.Companion.seconds
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class RedissonSuspendPublicationCancellationTest {
+
+    companion object: KLoggingChannel()
 
     @Test
     fun `저장 중 취소는 서버 완료를 기다리되 호출자에게 값을 반환하지 않는다`() = runTest(timeout = 30.seconds) {
@@ -28,21 +31,25 @@ class RedissonSuspendPublicationCancellationTest {
         every { map.putIfAbsentAsync(1, 10) } returns CompletableFutureWrapper(put)
         every { map.clearAsync() } returns CompletableFutureWrapper(CompletableFuture.completedFuture(null))
         val returned = AtomicBoolean()
+
         val memo = RedissonSuspendMemoizer(map) { 10 }
         val caller = launch {
             memo(1)
             returned.set(true)
         }
+
         try {
             runCurrent()
             verify(exactly = 1) { map.putIfAbsentAsync(1, 10) }
             caller.cancel()
             val clear = async { memo.clear() }
+
             runCurrent()
             verify(exactly = 0) { map.clearAsync() }
             put.complete(null)
             caller.join()
             clear.await()
+
             returned.get().shouldBeFalse()
             verify(exactly = 1) { map.clearAsync() }
         } finally {
@@ -57,21 +64,24 @@ class RedissonSuspendPublicationCancellationTest {
         every { map.name } returns "clear-cancellation-test"
         every { map.clearAsync() } returns CompletableFutureWrapper(deletion)
         val returned = AtomicBoolean()
+
         val memo = RedissonSuspendMemoizer(map) { 10 }
         val caller = launch {
             memo.clear()
             returned.set(true)
         }
+
         try {
             runCurrent()
             verify(exactly = 1) { map.clearAsync() }
+
             caller.cancel()
             deletion.complete(true)
             caller.join()
+
             returned.get().shouldBeFalse()
         } finally {
             deletion.complete(true)
         }
     }
-
 }

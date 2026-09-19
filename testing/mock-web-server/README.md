@@ -3,13 +3,13 @@
 [한국어](./README.ko.md) | English
 
 A self-contained Spring Boot 4 + Virtual Threads HTTP mock server that replaces external HTTP dependencies in integration tests. It simulates
-**httpbin.org**, **jsonplaceholder.typicode.com**, and a simple web-content endpoint in one Docker image
-(`bluetape4k/mock-web-server`).
+**httpbin.org**,
+**jsonplaceholder.typicode.com**, and a simple web-content endpoint in one Docker image (`bluetape4k/mock-web-server`).
 
 ## Architecture
 
-`bluetape4k-mock-web-server` is a Spring Boot 4 MVC application that runs on port **80** (HTTP) / **8443** (HTTPS). It uses Virtual Threads
-(`spring.threads.virtual.enabled=true`) for high-concurrency handling without blocking OS threads. All fixture data is stored in-memory (loaded from classpath JSON files) and managed by
+`bluetape4k-mock-web-server` is a Spring Boot 4 MVC application that runs on port **80** (HTTP) /
+**8443** (HTTPS). It uses Virtual Threads (`spring.threads.virtual.enabled=true`) for high-concurrency handling without blocking OS threads. All fixture data is stored in-memory (loaded from classpath JSON files) and managed by
 `JsonplaceholderService` through a generic `InMemoryRepository<T>`. Static HTML content is served via
 `WebContentLoader` with Caffeine caching.
 
@@ -37,8 +37,8 @@ A self-contained Spring Boot 4 + Virtual Threads HTTP mock server that replaces 
 
 ## Features
 
-- **Spring Boot 4 + Virtual Threads**: High-concurrency request handling with JDK 21+ Virtual Threads
-  (`spring.threads.virtual.enabled=true`)
+- **Spring Boot 4 + Virtual
+  Threads**: High-concurrency request handling with JDK 21+ Virtual Threads (`spring.threads.virtual.enabled=true`)
 - **Port 80 (HTTP) / 8443 (HTTPS)**: Standard container ports for deterministic test configuration
 - **httpbin simulation**: Full HTTP inspection API at
   `/httpbin/**` — echoes requests, returns headers/IP/UUID, streams, delays, and images

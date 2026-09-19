@@ -70,7 +70,7 @@ class TimeoutSupportTest: AbstractCoreTest() {
                 Thread.sleep(1000)
                 executed = true
             }.get()
-        }.cause shouldBeInstanceOf TimeoutException::class
+        }.cause.shouldBeInstanceOf<TimeoutException>()
 
         executed.shouldBeFalse()
     }

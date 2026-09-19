@@ -8,7 +8,9 @@ import org.junit.jupiter.api.Test
 
 class RealMatrixSupportTest {
 
-    companion object: KLogging()
+    companion object: KLogging() {
+        private const val EPSILON = 1e-10
+    }
 
     private fun matrixOf(vararg rows: DoubleArray) = Array2DRowRealMatrix(rows)
 
@@ -18,10 +20,10 @@ class RealMatrixSupportTest {
         val b = matrixOf(doubleArrayOf(5.0, 6.0), doubleArrayOf(7.0, 8.0))
         val result = a + b
 
-        result.getEntry(0, 0).shouldBeNear(6.0, 1e-10)
-        result.getEntry(0, 1).shouldBeNear(8.0, 1e-10)
-        result.getEntry(1, 0).shouldBeNear(10.0, 1e-10)
-        result.getEntry(1, 1).shouldBeNear(12.0, 1e-10)
+        result.getEntry(0, 0).shouldBeNear(6.0, EPSILON)
+        result.getEntry(0, 1).shouldBeNear(8.0, EPSILON)
+        result.getEntry(1, 0).shouldBeNear(10.0, EPSILON)
+        result.getEntry(1, 1).shouldBeNear(12.0, EPSILON)
     }
 
     @Test
@@ -29,8 +31,8 @@ class RealMatrixSupportTest {
         val a = matrixOf(doubleArrayOf(1.0, 2.0), doubleArrayOf(3.0, 4.0))
         val result = a + 10.0
 
-        result.getEntry(0, 0).shouldBeNear(11.0, 1e-10)
-        result.getEntry(1, 1).shouldBeNear(14.0, 1e-10)
+        result.getEntry(0, 0).shouldBeNear(11.0, EPSILON)
+        result.getEntry(1, 1).shouldBeNear(14.0, EPSILON)
     }
 
     @Test
@@ -39,10 +41,10 @@ class RealMatrixSupportTest {
         val b = matrixOf(doubleArrayOf(1.0, 2.0), doubleArrayOf(3.0, 4.0))
         val result = a - b
 
-        result.getEntry(0, 0).shouldBeNear(4.0, 1e-10)
-        result.getEntry(0, 1).shouldBeNear(4.0, 1e-10)
-        result.getEntry(1, 0).shouldBeNear(4.0, 1e-10)
-        result.getEntry(1, 1).shouldBeNear(4.0, 1e-10)
+        result.getEntry(0, 0).shouldBeNear(4.0, EPSILON)
+        result.getEntry(0, 1).shouldBeNear(4.0, EPSILON)
+        result.getEntry(1, 0).shouldBeNear(4.0, EPSILON)
+        result.getEntry(1, 1).shouldBeNear(4.0, EPSILON)
     }
 
     @Test
@@ -50,8 +52,8 @@ class RealMatrixSupportTest {
         val a = matrixOf(doubleArrayOf(5.0, 6.0), doubleArrayOf(7.0, 8.0))
         val result = a - 2.0
 
-        result.getEntry(0, 0).shouldBeNear(3.0, 1e-10)
-        result.getEntry(1, 1).shouldBeNear(6.0, 1e-10)
+        result.getEntry(0, 0).shouldBeNear(3.0, EPSILON)
+        result.getEntry(1, 1).shouldBeNear(6.0, EPSILON)
     }
 
     @Test
@@ -62,10 +64,10 @@ class RealMatrixSupportTest {
         val b = matrixOf(doubleArrayOf(5.0, 6.0), doubleArrayOf(7.0, 8.0))
         val result = a * b
 
-        result.getEntry(0, 0).shouldBeNear(19.0, 1e-10)
-        result.getEntry(0, 1).shouldBeNear(22.0, 1e-10)
-        result.getEntry(1, 0).shouldBeNear(43.0, 1e-10)
-        result.getEntry(1, 1).shouldBeNear(50.0, 1e-10)
+        result.getEntry(0, 0).shouldBeNear(19.0, EPSILON)
+        result.getEntry(0, 1).shouldBeNear(22.0, EPSILON)
+        result.getEntry(1, 0).shouldBeNear(43.0, EPSILON)
+        result.getEntry(1, 1).shouldBeNear(50.0, EPSILON)
     }
 
     @Test
@@ -74,8 +76,8 @@ class RealMatrixSupportTest {
         // times(scalar: N): AnyMatrix → RealMatrix 로 캐스트
         val result = (a * 2.0) as RealMatrix
 
-        result.getEntry(0, 0).shouldBeNear(2.0, 1e-10)
-        result.getEntry(1, 1).shouldBeNear(8.0, 1e-10)
+        result.getEntry(0, 0).shouldBeNear(2.0, EPSILON)
+        result.getEntry(1, 1).shouldBeNear(8.0, EPSILON)
     }
 
     @Test
@@ -84,10 +86,10 @@ class RealMatrixSupportTest {
         // div(scalar: N): AnyMatrix → RealMatrix 로 캐스트
         val result = (a / 2.0) as RealMatrix
 
-        result.getEntry(0, 0).shouldBeNear(1.0, 1e-10)
-        result.getEntry(0, 1).shouldBeNear(2.0, 1e-10)
-        result.getEntry(1, 0).shouldBeNear(3.0, 1e-10)
-        result.getEntry(1, 1).shouldBeNear(4.0, 1e-10)
+        result.getEntry(0, 0).shouldBeNear(1.0, EPSILON)
+        result.getEntry(0, 1).shouldBeNear(2.0, EPSILON)
+        result.getEntry(1, 0).shouldBeNear(3.0, EPSILON)
+        result.getEntry(1, 1).shouldBeNear(4.0, EPSILON)
     }
 
     @Test
@@ -99,7 +101,7 @@ class RealMatrixSupportTest {
         val result: RealMatrix = a.div(b)
 
         // I / 2I = 0.5*I
-        result.getEntry(0, 0).shouldBeNear(0.5, 1e-10)
-        result.getEntry(1, 1).shouldBeNear(0.5, 1e-10)
+        result.getEntry(0, 0).shouldBeNear(0.5, EPSILON)
+        result.getEntry(1, 1).shouldBeNear(0.5, EPSILON)
     }
 }

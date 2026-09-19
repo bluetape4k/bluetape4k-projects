@@ -3,10 +3,13 @@ package io.bluetape4k.hibernate.converters
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeNull
 import io.bluetape4k.assertions.shouldNotBeNull
+import io.bluetape4k.logging.KLogging
 import org.junit.jupiter.api.Test
 import java.time.Duration
 
 class DurationAsTimestampConverterTest {
+
+    companion object: KLogging()
 
     private val converter = DurationAsTimestampConverter()
 
@@ -23,16 +26,15 @@ class DurationAsTimestampConverterTest {
     @Test
     fun `Duration을 Timestamp로 변환한다`() {
         val duration = Duration.ofMillis(12345L)
-        val timestamp = converter.convertToDatabaseColumn(duration)
-        timestamp.shouldNotBeNull()
+        val timestamp = converter.convertToDatabaseColumn(duration).shouldNotBeNull()
         timestamp.time shouldBeEqualTo 12345L
     }
 
     @Test
     fun `Timestamp를 Duration으로 역변환한다`() {
         val duration = Duration.ofSeconds(60)
-        val timestamp = converter.convertToDatabaseColumn(duration)!!
-        val restored = converter.convertToEntityAttribute(timestamp)
+        val timestamp = converter.convertToDatabaseColumn(duration).shouldNotBeNull()
+        val restored = converter.convertToEntityAttribute(timestamp).shouldNotBeNull()
         restored shouldBeEqualTo duration
     }
 
@@ -46,8 +48,8 @@ class DurationAsTimestampConverterTest {
             Duration.ofDays(1),
         )
         durations.forEach { original ->
-            val timestamp = converter.convertToDatabaseColumn(original)!!
-            val restored = converter.convertToEntityAttribute(timestamp)
+            val timestamp = converter.convertToDatabaseColumn(original).shouldNotBeNull()
+            val restored = converter.convertToEntityAttribute(timestamp).shouldNotBeNull()
             restored shouldBeEqualTo original
         }
     }
@@ -55,8 +57,8 @@ class DurationAsTimestampConverterTest {
     @Test
     fun `음수 Duration도 변환한다`() {
         val duration = Duration.ofMillis(-5000L)
-        val timestamp = converter.convertToDatabaseColumn(duration)!!
-        val restored = converter.convertToEntityAttribute(timestamp)
+        val timestamp = converter.convertToDatabaseColumn(duration).shouldNotBeNull()
+        val restored = converter.convertToEntityAttribute(timestamp).shouldNotBeNull()
         restored shouldBeEqualTo duration
     }
 }

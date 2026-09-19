@@ -1,24 +1,24 @@
 package io.bluetape4k.bucket4j.coroutines
 
+import io.bluetape4k.assertions.assertFailsWith
+import io.bluetape4k.assertions.shouldBeFalse
+import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.bucket4j.AbstractBucket4jTest
 import io.bluetape4k.bucket4j.addBandwidth
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.github.bucket4j.BandwidthBuilder
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.async
 import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
-import io.bluetape4k.assertions.shouldBeFalse
-import io.bluetape4k.assertions.shouldBeTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import java.time.Duration
 import java.util.concurrent.atomic.AtomicBoolean
-import io.bluetape4k.assertions.assertFailsWith
 import kotlin.time.Duration.Companion.seconds
 
 class SuspendedLocalBucketTest: AbstractBucket4jTest() {
@@ -32,7 +32,7 @@ class SuspendedLocalBucketTest: AbstractBucket4jTest() {
         bucket = SuspendLocalBucket {
             addBandwidth {
                 BandwidthBuilder.builder()
-                    .capacity(5)                                              // 5개의 토큰을 보유
+                    .capacity(5)                                          // 5개의 토큰을 보유
                     .refillIntervally(1, Duration.ofSeconds(1)) // 1초에 1개의 토큰을 보충
                     .build()
             }
@@ -60,7 +60,7 @@ class SuspendedLocalBucketTest: AbstractBucket4jTest() {
         fun `필요한 토큰 보충 시간 동안 지연되어야 한다`() = runTest {
             val done = AtomicBoolean(false)
 
-            // 9개의 토큰을 소비하려고 한다 (기본 5개에 1촟당 1개씩 보충)
+            // 9개의 토큰을 소비하려고 한다 (기본 5개에 1초당 1개씩 보충)
             val job = launch {
                 bucket.consume(9L)
                 done.compareAndSet(false, true)
@@ -68,7 +68,7 @@ class SuspendedLocalBucketTest: AbstractBucket4jTest() {
 
             // 4개의 토큰이 더 필요하므로, 4초가 지연되어야 한다
             done.get().shouldBeFalse()
-            advanceTimeBy(3.seconds)            // 3초 밖에 지나지 않았으므로 아니다
+            advanceTimeBy(3.seconds)            // 3초 밖에 지나지 않았으므로 필요량이 보충되지 않았다.
             done.get().shouldBeFalse()
 
             advanceTimeBy(1.seconds)            // 토탈 4초가 지났으므로 4개의 토큰이 모두 보충되었다

@@ -2,6 +2,8 @@ package io.bluetape4k.csv
 
 import io.bluetape4k.csv.internal.CsvLineWriter
 import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.debug
+import io.bluetape4k.logging.warn
 import java.io.Writer
 
 /**
@@ -88,5 +90,7 @@ class CsvRecordWriter(
      */
     override fun close() {
         runCatching { lineWriter.close() }
+            .onSuccess { log.debug { "CsvRecordWriter is closed." } }
+            .onFailure { log.warn(it) { "Failed to close CSVRecordWriter." } }
     }
 }

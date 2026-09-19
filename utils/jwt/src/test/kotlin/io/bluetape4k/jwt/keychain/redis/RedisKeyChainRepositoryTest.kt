@@ -1,12 +1,11 @@
 package io.bluetape4k.jwt.keychain.redis
 
+import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldBeFalse
 import io.bluetape4k.assertions.shouldBeNull
 import io.bluetape4k.assertions.shouldBeSameInstanceAs
 import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.assertions.shouldContain
-import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.jwt.keychain.AbstractKeyChainRepositoryTest
 import io.bluetape4k.jwt.keychain.KeyChain
 import io.bluetape4k.jwt.keychain.KeyChainDto
@@ -15,10 +14,12 @@ import io.bluetape4k.jwt.keychain.repository.redis.REDIS_ROTATION_LOCK_WAIT_SECO
 import io.bluetape4k.jwt.keychain.repository.redis.RedisKeyChainRepository
 import io.bluetape4k.jwt.keychain.repository.redis.withRedisRotationLock
 import io.bluetape4k.testcontainers.storage.RedisServer
+import io.mockk.clearMocks
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
 import org.awaitility.kotlin.await
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.redisson.Redisson
 import org.redisson.api.RDeque
@@ -40,11 +41,19 @@ class RedisKeyChainRepositoryTest: AbstractKeyChainRepositoryTest() {
         RedisKeyChainRepository(redisson)
     }
 
+    private val lock = mockk<RLock>(relaxed = true)
+
+    @BeforeEach
+    override fun beforeEach() {
+        super.beforeEach()
+        clearMocks(lock)
+    }
+
     @Test
     fun `rotation uses watchdog-backed lock acquisition`() {
         val queue = mockk<RDeque<KeyChainDto>>(relaxed = true)
-        val lock = mockk<RLock>(relaxed = true)
         val redisson = mockk<RedissonClient>(relaxed = true)
+
         every { redisson.getDeque<KeyChainDto>(any<String>()) } returns queue
         every { redisson.getLock(any<String>()) } returns lock
         every { lock.tryLock(REDIS_ROTATION_LOCK_WAIT_SECONDS, TimeUnit.SECONDS) } returns true
@@ -62,12 +71,11 @@ class RedisKeyChainRepositoryTest: AbstractKeyChainRepositoryTest() {
 
     @Test
     fun `rotation reports ownership loss before commit`() {
-        val lock = mockk<RLock>()
         every { lock.tryLock(REDIS_ROTATION_LOCK_WAIT_SECONDS, TimeUnit.SECONDS) } returns true
         every { lock.isHeldByCurrentThread } returns false
 
         val failure = assertFailsWith<IllegalStateException> {
-            withRedisRotationLock(lock) { Unit }
+            withRedisRotationLock(lock) { }
         }
 
         failure.message shouldContain "ownership was lost"

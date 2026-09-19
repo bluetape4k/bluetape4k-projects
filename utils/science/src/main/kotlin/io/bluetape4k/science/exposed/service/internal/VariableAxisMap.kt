@@ -97,7 +97,7 @@ internal data class VariableAxisMap(
                         token,
                         "ambiguous-coordinate",
                     )
-                    else -> dataset.findVariable(token)
+                    else             -> dataset.findVariable(token)
                 } ?: throw NetCdfException.UnsupportedCoordinateAxis(
                     variable.fullName,
                     token,
@@ -149,6 +149,7 @@ internal data class VariableAxisMap(
                         "unsupported-coordinate",
                     )
             }
+
             fun applicableRoles(binding: AxisBinding): List<AxisRole> {
                 val axis = binding.axis
                 val name = binding.shortName.lowercase()
@@ -208,7 +209,7 @@ internal data class VariableAxisMap(
                     tokenCandidate.size == 1 -> tokenCandidate.single()
                     tokenCandidate.size > 1 -> throw ambiguous(variable, role, tokenCandidate)
                     roleCandidates.size == 1 -> roleCandidates.single()
-                    else -> {
+                    else                    -> {
                         val named = roleCandidates.filter { it.shortName.lowercase() in role.fallbacks }
                         when (named.size) {
                             1 -> named.single()
@@ -248,7 +249,7 @@ internal data class VariableAxisMap(
             val auxiliaries = tokenBindings.asSequence()
                 .filter { candidate ->
                     candidate.name != lat?.name && candidate.name != lon?.name &&
-                        candidate.name != time?.name && candidate.name != level?.name
+                            candidate.name != time?.name && candidate.name != level?.name
                 }
                 .distinctBy { it.name }
                 .onEach { candidate ->
@@ -283,16 +284,16 @@ internal data class VariableAxisMap(
             val rowDim = when {
                 lat?.isTwoDimensional == true -> lat.dimensionIndices.first()
                 lat != null -> lat.dimensionIndices.single()
-                else -> null
+                else        -> null
             }
             val columnDim = when {
                 lon?.isTwoDimensional == true -> lon.dimensionIndices.last()
                 lon != null -> lon.dimensionIndices.single()
-                else -> null
+                else        -> null
             }
             log.debug {
                 "axis map built — variable=${variable.fullName} time=${time?.name} level=${level?.name} " +
-                    "lat=${lat?.name} lon=${lon?.name} auxiliary=${auxiliaries.map { it.name }}"
+                        "lat=${lat?.name} lon=${lon?.name} auxiliary=${auxiliaries.map { it.name }}"
             }
             return VariableAxisMap(time, level, lat, lon, auxiliaries, rowDim, columnDim)
         }

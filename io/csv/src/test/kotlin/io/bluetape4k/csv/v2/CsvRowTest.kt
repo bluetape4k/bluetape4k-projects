@@ -66,13 +66,13 @@ class CsvRowTest {
     }
 
     @Test
-    fun `size`() {
+    fun `size - record size`() {
         val r = row("a", "b", "c")
         r.size shouldBeEqualTo 3
     }
 
     @Test
-    fun `rowNumber`() {
+    fun `rowNumber - record row number`() {
         val r = row("x", rowNumber = 7L)
         r.rowNumber shouldBeEqualTo 7L
     }
@@ -93,10 +93,10 @@ class CsvRowTest {
     }
 
     @Test
-    fun `getBigDecimalOrNull`() {
+    fun `getBigDecimalOrNull - get BigDecimal or Null`() {
         val r = row("123456789.99")
         r.getBigDecimalOrNull(0).shouldNotBeNull()
-        r.getBigDecimalOrNull(0)!!.toPlainString() shouldBeEqualTo "123456789.99"
+        r.getBigDecimalOrNull(0)?.toPlainString() shouldBeEqualTo "123456789.99"
     }
 
     @Test

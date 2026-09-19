@@ -1,20 +1,21 @@
 package io.bluetape4k.javatimes.range.coroutines
 
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldHaveSize
+import io.bluetape4k.assertions.shouldNotBeEmpty
 import io.bluetape4k.javatimes.range.TemporalOpenedRange
 import io.bluetape4k.javatimes.range.temporalOpenedProgression
 import io.bluetape4k.javatimes.startOfHour
 import io.bluetape4k.logging.KLogging
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.test.runTest
-import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldNotBeEmpty
 import org.junit.jupiter.api.Test
 import java.time.Duration
 import java.time.LocalDateTime
 
 class TemporalOpenedRangeCoroutinesTest {
 
-    companion object : KLogging()
+    companion object: KLogging()
 
     private val now: LocalDateTime = LocalDateTime.of(2024, 1, 15, 10, 0, 0)
 
@@ -28,7 +29,7 @@ class TemporalOpenedRangeCoroutinesTest {
 
         val items = progression.asFlow().toList()
 
-        items.size shouldBeEqualTo 3   // day 0, 1, 2 (end 제외)
+        items shouldHaveSize 3   // day 0, 1, 2 (end 제외)
         items.first() shouldBeEqualTo start
         items.last() shouldBeEqualTo start.plusDays(2)
     }
@@ -147,7 +148,7 @@ class TemporalOpenedRangeCoroutinesTest {
 
         val pairs = range.zipWithNextFlowHours().toList()
 
-        pairs.size shouldBeEqualTo 3  // (h0,h1), (h1,h2), (h2,h3)
+        pairs shouldHaveSize 3  // (h0,h1), (h1,h2), (h2,h3)
         pairs.forEach { (first, second) ->
             second shouldBeEqualTo first.plusHours(1)
         }
@@ -161,7 +162,7 @@ class TemporalOpenedRangeCoroutinesTest {
 
         val pairs = range.zipWithNextFlowDays().toList()
 
-        pairs.size shouldBeEqualTo 3   // (d0,d1), (d1,d2), (d2,d3)
+        pairs shouldHaveSize 3   // (d0,d1), (d1,d2), (d2,d3)
         pairs.forEach { (first, second) ->
             second shouldBeEqualTo first.plusDays(1)
         }
@@ -175,7 +176,7 @@ class TemporalOpenedRangeCoroutinesTest {
 
         val pairs = range.zipWithNextFlowMinutes().toList()
 
-        pairs.size shouldBeEqualTo 3
+        pairs shouldHaveSize 3
         pairs.forEach { (first, second) ->
             second shouldBeEqualTo first.plusMinutes(1)
         }
@@ -189,7 +190,7 @@ class TemporalOpenedRangeCoroutinesTest {
 
         val pairs = range.zipWithNextFlowSeconds().toList()
 
-        pairs.size shouldBeEqualTo 3
+        pairs shouldHaveSize 3
         pairs.forEach { (first, second) ->
             second shouldBeEqualTo first.plusSeconds(1)
         }

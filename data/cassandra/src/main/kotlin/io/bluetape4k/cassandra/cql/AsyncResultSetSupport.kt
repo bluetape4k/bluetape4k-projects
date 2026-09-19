@@ -4,7 +4,7 @@ import com.datastax.oss.driver.api.core.cql.AsyncResultSet
 import com.datastax.oss.driver.api.core.cql.Row
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.channelFlow
 import kotlinx.coroutines.future.await
 
 /**
@@ -35,11 +35,11 @@ fun AsyncResultSet.asFlow(): Flow<Row> = asFlow { it }
  * // ids.all { it > 0L } == true
  * ```
  */
-inline fun <T> AsyncResultSet.asFlow(crossinline mapper: suspend (row: Row) -> T): Flow<T> = flow {
+inline fun <T> AsyncResultSet.asFlow(crossinline mapper: suspend (row: Row) -> T): Flow<T> = channelFlow {
     var page = this@asFlow
     while (true) {
         for (row in page.currentPage()) {
-            emit(mapper(row))
+            send(mapper(row))
         }
         if (!page.hasMorePages()) break
         // CancellationException은 코루틴 취소 신호이므로 반드시 재전파해야 flow가 정상 취소됨

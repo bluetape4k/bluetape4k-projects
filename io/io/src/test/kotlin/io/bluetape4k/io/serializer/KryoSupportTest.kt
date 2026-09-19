@@ -4,6 +4,7 @@ import com.esotericsoftware.kryo.io.Input
 import com.esotericsoftware.kryo.io.Output
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeNull
+import io.bluetape4k.assertions.shouldNotBeEmpty
 import io.bluetape4k.assertions.shouldNotBeNull
 import io.bluetape4k.logging.KLogging
 import kotlinx.coroutines.test.runTest
@@ -16,7 +17,7 @@ import java.util.concurrent.TimeUnit
 
 class KryoSupportTest {
 
-    companion object : KLogging()
+    companion object: KLogging()
 
     // ── withKryo ──────────────────────────────────────────────────────────────
 
@@ -51,7 +52,7 @@ class KryoSupportTest {
             writeClassAndObject(output, 42L)
             output.toBytes()
         }
-        result.shouldNotBeNull()
+        result.shouldNotBeEmpty()
     }
 
     // ── withKryoOutput ────────────────────────────────────────────────────────
@@ -71,7 +72,7 @@ class KryoSupportTest {
             withKryo { writeObject(output, "output-test-2") }
             output.toBytes()
         }
-        bytes2.shouldNotBeNull()
+        bytes.shouldNotBeEmpty()
     }
 
     @Test
@@ -88,7 +89,7 @@ class KryoSupportTest {
             withKryo { writeObject(output, "after-error") }
             output.toBytes()
         }
-        bytes.shouldNotBeNull()
+        bytes.shouldNotBeEmpty()
     }
 
     // ── withKryoInput ─────────────────────────────────────────────────────────
@@ -170,7 +171,7 @@ class KryoSupportTest {
             output.toBytes()
         }
         val bytes = future.get(5, TimeUnit.SECONDS)
-        bytes.shouldNotBeNull()
+        bytes.shouldNotBeEmpty()
     }
 
     @Test
@@ -202,7 +203,9 @@ class KryoSupportTest {
         // Wait for user-func's finally to complete (framework's releaseKryo follows immediately after)
         funcCompleted.await(5, TimeUnit.SECONDS)
 
-        assertThrows<CancellationException> { future.get() }
+        assertThrows<CancellationException> {
+            future.get()
+        }
 
         // Kryo must have been released — subsequent calls still work
         repeat(5) { i ->
@@ -212,7 +215,7 @@ class KryoSupportTest {
                 output.toBytes()
             }
             val bytes = next.get(5, TimeUnit.SECONDS)
-            bytes.shouldNotBeNull()
+            bytes.shouldNotBeEmpty()
         }
     }
 
@@ -247,6 +250,6 @@ class KryoSupportTest {
             writeClassAndObject(output, "after-suspend-error")
             output.toBytes()
         }
-        result.shouldNotBeNull()
+        result.shouldNotBeEmpty()
     }
 }

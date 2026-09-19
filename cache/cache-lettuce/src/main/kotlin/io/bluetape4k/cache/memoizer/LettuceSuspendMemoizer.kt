@@ -5,6 +5,8 @@ import io.bluetape4k.logging.debug
 import io.bluetape4k.redis.lettuce.map.LettuceSuspendMap
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import java.util.concurrent.ConcurrentHashMap
 
 /**
@@ -50,12 +52,13 @@ class LettuceSuspendMemoizer<K: Any, V: Any>(
     companion object: KLoggingChannel()
 
     private val inFlight = ConcurrentHashMap<K, CompletableDeferred<V>>()
+    private val mutex = Mutex()
 
     override suspend fun invoke(key: K): V {
         inFlight[key]?.let { return it.await() }
 
         val deferred = CompletableDeferred<V>()
-        val existing = inFlight.putIfAbsent(key, deferred)
+        val existing = mutex.withLock { inFlight.putIfAbsent(key, deferred) }
         if (existing != null) return existing.await()
 
         try {
@@ -67,7 +70,9 @@ class LettuceSuspendMemoizer<K: Any, V: Any>(
 
             val evaluated = evaluator(key)
             val isNew = map.putIfAbsent(key.toString(), evaluated)
-            val winner = if (isNew) evaluated else (map.get(key.toString()) ?: evaluated)
+            val winner = mutex.withLock {
+                if (isNew) evaluated else (map.get(key.toString()) ?: evaluated)
+            }
             deferred.complete(winner)
             return winner
         } catch (e: CancellationException) {
@@ -84,6 +89,9 @@ class LettuceSuspendMemoizer<K: Any, V: Any>(
 
     override suspend fun clear() {
         log.debug { "모든 메모이제이션 값 삭제: mapKey=${map.mapKey}" }
-        map.clear()
+        mutex.withLock {
+            inFlight.clear()
+            map.clear()
+        }
     }
 }

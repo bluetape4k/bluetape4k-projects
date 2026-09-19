@@ -1,10 +1,11 @@
 package io.bluetape4k.cache.nearcache.jcache
 
 import io.bluetape4k.assertions.assertFailsWith
+import io.bluetape4k.assertions.shouldBe
 import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.cache.jcache.SuspendJCache
 import io.bluetape4k.junit5.coroutines.runSuspendIO
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.coVerifyOrder
@@ -16,6 +17,8 @@ import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.Test
 
 class SuspendNearJCacheBackFirstContractTest {
+
+    companion object: KLoggingChannel()
 
     private val failure = IllegalStateException("back cache is unavailable")
 
@@ -40,9 +43,12 @@ class SuspendNearJCacheBackFirstContractTest {
         val frontCache = mockk<SuspendJCache<String, String>>(relaxed = true)
         val backCache = mockk<SuspendJCache<String, String>>(relaxed = true)
         coEvery { backCache.put("key", "value") } throws failure
+
         val nearCache = SuspendNearJCache.withoutListener(frontCache, backCache)
 
-        assertFailsWith<IllegalStateException> { nearCache.put("key", "value") }
+        assertFailsWith<IllegalStateException> {
+            nearCache.put("key", "value")
+        }
 
         coVerify(exactly = 0) { frontCache.put("key", "value") }
     }
@@ -53,6 +59,7 @@ class SuspendNearJCacheBackFirstContractTest {
         val frontCache = mockk<SuspendJCache<String, String>>(relaxed = true)
         val backCache = mockk<SuspendJCache<String, String>>(relaxed = true)
         coEvery { backCache.putAll(entries) } throws failure
+
         val nearCache = SuspendNearJCache.withoutListener(frontCache, backCache)
 
         assertFailsWith<IllegalStateException> { nearCache.putAll(entries) }
@@ -65,9 +72,12 @@ class SuspendNearJCacheBackFirstContractTest {
         val frontCache = mockk<SuspendJCache<String, String>>(relaxed = true)
         val backCache = mockk<SuspendJCache<String, String>>(relaxed = true)
         coEvery { backCache.putIfAbsent("key", "value") } throws failure
+
         val nearCache = SuspendNearJCache.withoutListener(frontCache, backCache)
 
-        assertFailsWith<IllegalStateException> { nearCache.putIfAbsent("key", "value") }
+        assertFailsWith<IllegalStateException> {
+            nearCache.putIfAbsent("key", "value")
+        }
 
         coVerify(exactly = 0) { frontCache.putIfAbsent("key", "value") }
     }
@@ -89,9 +99,12 @@ class SuspendNearJCacheBackFirstContractTest {
         val frontCache = mockk<SuspendJCache<String, String>>(relaxed = true)
         val backCache = mockk<SuspendJCache<String, String>>(relaxed = true)
         coEvery { backCache.remove("key", "old") } throws failure
+
         val nearCache = SuspendNearJCache.withoutListener(frontCache, backCache)
 
-        assertFailsWith<IllegalStateException> { nearCache.remove("key", "old") }
+        assertFailsWith<IllegalStateException> {
+            nearCache.remove("key", "old")
+        }
 
         coVerify(exactly = 0) { frontCache.remove("key", "old") }
     }
@@ -101,9 +114,12 @@ class SuspendNearJCacheBackFirstContractTest {
         val frontCache = mockk<SuspendJCache<String, String>>(relaxed = true)
         val backCache = mockk<SuspendJCache<String, String>>(relaxed = true)
         coEvery { backCache.replace("key", "value") } throws failure
+
         val nearCache = SuspendNearJCache.withoutListener(frontCache, backCache)
 
-        assertFailsWith<IllegalStateException> { nearCache.replace("key", "value") }
+        assertFailsWith<IllegalStateException> {
+            nearCache.replace("key", "value")
+        }
 
         coVerify(exactly = 0) { frontCache.replace("key", "value") }
     }
@@ -113,9 +129,12 @@ class SuspendNearJCacheBackFirstContractTest {
         val frontCache = mockk<SuspendJCache<String, String>>(relaxed = true)
         val backCache = mockk<SuspendJCache<String, String>>(relaxed = true)
         coEvery { backCache.replace("key", "old", "value") } throws failure
+
         val nearCache = SuspendNearJCache.withoutListener(frontCache, backCache)
 
-        assertFailsWith<IllegalStateException> { nearCache.replace("key", "old", "value") }
+        assertFailsWith<IllegalStateException> {
+            nearCache.replace("key", "old", "value")
+        }
 
         coVerify(exactly = 0) { frontCache.replace("key", "old", "value") }
     }
@@ -126,9 +145,12 @@ class SuspendNearJCacheBackFirstContractTest {
         val backCache = mockk<SuspendJCache<String, String>>(relaxed = true)
         val cancellation = CancellationException("back cache cancelled")
         coEvery { backCache.put("key", "value") } throws cancellation
+
         val nearCache = SuspendNearJCache.withoutListener(frontCache, backCache)
 
-        val error = assertFailsWith<CancellationException> { nearCache.put("key", "value") }
+        val error = assertFailsWith<CancellationException> {
+            nearCache.put("key", "value")
+        }
 
         error.message shouldBeEqualTo cancellation.message
         coVerify(exactly = 0) { frontCache.put("key", "value") }
@@ -141,9 +163,12 @@ class SuspendNearJCacheBackFirstContractTest {
         val frontFailure = IllegalStateException("front cache is unavailable")
         coEvery { backCache.put("key", "value") } just runs
         coEvery { frontCache.put("key", "value") } throws frontFailure
+
         val nearCache = SuspendNearJCache.withoutListener(frontCache, backCache)
 
-        val error = assertFailsWith<IllegalStateException> { nearCache.put("key", "value") }
+        val error = assertFailsWith<IllegalStateException> {
+            nearCache.put("key", "value")
+        }
 
         error.message shouldBeEqualTo frontFailure.message
         coVerify(exactly = 1) { frontCache.remove("key") }
@@ -156,9 +181,12 @@ class SuspendNearJCacheBackFirstContractTest {
         val cancellation = CancellationException("front cache cancelled")
         coEvery { backCache.put("key", "value") } just runs
         coEvery { frontCache.put("key", "value") } throws cancellation
+
         val nearCache = SuspendNearJCache.withoutListener(frontCache, backCache)
 
-        val error = assertFailsWith<CancellationException> { nearCache.put("key", "value") }
+        val error = assertFailsWith<CancellationException> {
+            nearCache.put("key", "value")
+        }
 
         error.message shouldBeEqualTo cancellation.message
         coVerify(exactly = 1) { frontCache.remove("key") }
@@ -171,11 +199,14 @@ class SuspendNearJCacheBackFirstContractTest {
         val backCache = mockk<SuspendJCache<String, String>>(relaxed = true)
         coEvery { frontCache.clear() } just runs
         coEvery { backCache.clear() } throws cancellation
+
         val nearCache = SuspendNearJCache.withoutListener(frontCache, backCache)
 
-        val thrown = assertFailsWith<CancellationException> { nearCache.clearAll() }
+        val thrown = assertFailsWith<CancellationException> {
+            nearCache.clearAll()
+        }
 
-        (thrown === cancellation).shouldBeTrue()
+        thrown shouldBe cancellation
         coVerify { frontCache.clear() }
         coVerify { backCache.clear() }
     }
@@ -186,11 +217,14 @@ class SuspendNearJCacheBackFirstContractTest {
         val frontCache = mockk<SuspendJCache<String, String>>(relaxed = true)
         val backCache = mockk<SuspendJCache<String, String>>(relaxed = true)
         coEvery { frontCache.close() } throws cancellation
+
         val nearCache = SuspendNearJCache.withoutListener(frontCache, backCache)
 
-        val thrown = assertFailsWith<CancellationException> { nearCache.close() }
+        val thrown = assertFailsWith<CancellationException> {
+            nearCache.close()
+        }
 
-        (thrown === cancellation).shouldBeTrue()
+        thrown shouldBe cancellation
         coVerify { frontCache.close() }
     }
 }

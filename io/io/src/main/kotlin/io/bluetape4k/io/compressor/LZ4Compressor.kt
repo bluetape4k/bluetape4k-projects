@@ -161,10 +161,7 @@ class LZ4Compressor private constructor(
                 throw failure
             }
             if (payloadWritten !in 1..payloadCapacity) {
-                throw IllegalStateException(
-                    "LZ4 payload write count out of range: " +
-                            "written=$payloadWritten, capacity=$payloadCapacity"
-                )
+                error("LZ4 payload write count out of range: written=$payloadWritten, capacity=$payloadCapacity")
             }
             Math.addExact(MAGIC_NUMBER_SIZE, payloadWritten)
         }

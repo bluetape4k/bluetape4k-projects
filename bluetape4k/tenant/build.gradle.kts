@@ -1,5 +1,3 @@
-import org.gradle.api.tasks.testing.Test
-
 configurations {
     testImplementation.get().extendsFrom(compileOnly.get(), runtimeOnly.get())
 }

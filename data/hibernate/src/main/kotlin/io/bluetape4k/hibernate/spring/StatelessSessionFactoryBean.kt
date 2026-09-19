@@ -1,9 +1,10 @@
-package io.bluetape4k.hibernate.spring.stateless
+package io.bluetape4k.hibernate.spring
 
 import io.bluetape4k.hibernate.asSessionImpl
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.info
+import org.aopalliance.intercept.MethodInterceptor
 import org.aopalliance.intercept.MethodInvocation
 import org.hibernate.SessionFactory
 import org.hibernate.StatelessSession
@@ -48,7 +49,7 @@ class StatelessSessionFactoryBean(
         return StatelessSession::class.java
     }
 
-    class StatelessSessionInterceptor(private val sf: SessionFactory): org.aopalliance.intercept.MethodInterceptor {
+    class StatelessSessionInterceptor(private val sf: SessionFactory): MethodInterceptor {
 
         private val resourceKey = StatelessSessionResourceKey(sf)
 
@@ -123,12 +124,10 @@ class StatelessSessionFactoryBean(
         }
 
         override fun beforeCompletion() {
-            try {
+            stateless.use { stateless ->
                 if (TransactionSynchronizationManager.getResource(resourceKey) === stateless) {
                     TransactionSynchronizationManager.unbindResource(resourceKey)
                 }
-            } finally {
-                stateless.close()
             }
         }
     }

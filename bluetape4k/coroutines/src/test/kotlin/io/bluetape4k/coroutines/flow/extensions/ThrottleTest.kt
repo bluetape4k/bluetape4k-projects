@@ -21,6 +21,7 @@ import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
+import kotlin.coroutines.cancellation.CancellationException
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
 
@@ -373,15 +374,16 @@ class ThrottleTest: AbstractFlowTest() {
                 .onEach { delay(200.milliseconds) }.log("source")
                 .throttleLeading {
                     if (count++ % 2 == 0) {
-                        throw kotlinx.coroutines.CancellationException("$it")
+                        throw CancellationException("$it")
                     } else {
                         500.milliseconds
                     }
-                }.log("leading")
+                }
+                .log("leading")
                 .materialize()
                 .test {
                     awaitItem() shouldBeEqualTo FlowEvent.Value(1)
-                    awaitItem().errorOrThrow() shouldBeInstanceOf kotlinx.coroutines.CancellationException::class
+                    awaitItem().errorOrThrow().shouldBeInstanceOf<CancellationException>()
                     awaitComplete()
                 }
         }
@@ -390,12 +392,13 @@ class ThrottleTest: AbstractFlowTest() {
         fun `throttle preserves upstream cancellation`() = runTest {
             flow {
                 emit(1)
-                throw kotlinx.coroutines.CancellationException("source cancelled")
-            }.log("source")
+                throw CancellationException("source cancelled")
+            }
+                .log("source")
                 .throttleLeading(500.milliseconds).log("leading")
                 .test {
                     awaitItem() shouldBeEqualTo 1
-                    awaitError() shouldBeInstanceOf kotlinx.coroutines.CancellationException::class
+                    awaitError().shouldBeInstanceOf<CancellationException>()
                 }
         }
     }
@@ -415,7 +418,8 @@ class ThrottleTest: AbstractFlowTest() {
                 delay(400.milliseconds)      // 800
                 emit(3)
                 delay(100.milliseconds)      // 900
-            }.log("source")
+            }
+                .log("source")
                 .throttleTrailing(500).log("trailing")
                 .assertResult(2, 3)
         }
@@ -434,7 +438,8 @@ class ThrottleTest: AbstractFlowTest() {
                 emit(3)
                 delay(450.milliseconds)          // 1250
                 emit(4)
-            }.log("source")
+            }
+                .log("source")
                 .throttleTrailing(500).log("trailing")
                 .assertResult(2, 4)
         }
@@ -453,7 +458,8 @@ class ThrottleTest: AbstractFlowTest() {
                 emit(3)
                 delay(550.milliseconds)          // 1350
                 emit(4)
-            }.log("source")
+            }
+                .log("source")
                 .throttleTrailing(500).log("trailing")
                 .assertResult(2, 3, 4)
         }
@@ -543,10 +549,11 @@ class ThrottleTest: AbstractFlowTest() {
             flow {
                 emit(1)
                 throw RuntimeException("Boom!")
-            }.log("source")
+            }
+                .log("source")
                 .throttleTrailing(100).log("trailing")
                 .test {
-                    awaitError()
+                    awaitError().shouldBeInstanceOf<RuntimeException>()
                 }
 
             // 1-----2----X
@@ -557,12 +564,13 @@ class ThrottleTest: AbstractFlowTest() {
                 emit(2)
                 delay(200.milliseconds)
                 throw RuntimeException("Boom!")
-            }.log("source")
+            }
+                .log("source")
                 .throttleTrailing(100).log("trailing")
                 .test {
                     awaitItem() shouldBeEqualTo 1
                     awaitItem() shouldBeEqualTo 2
-                    awaitError()
+                    awaitError().shouldBeInstanceOf<RuntimeException>()
                 }
 
             // 1-2-X
@@ -573,10 +581,11 @@ class ThrottleTest: AbstractFlowTest() {
                 emit(2)
                 delay(100.milliseconds)
                 throw RuntimeException("Boom!")
-            }.log("source")
+            }
+                .log("source")
                 .throttleTrailing(400).log("trailing")
                 .test {
-                    awaitError()
+                    awaitError().shouldBeInstanceOf<RuntimeException>()
                 }
         }
 
@@ -596,7 +605,8 @@ class ThrottleTest: AbstractFlowTest() {
                 emit(2)
                 delay(400.milliseconds)
                 emit(3)
-            }.log("source")
+            }
+                .log("source")
                 .throttleTrailing {
                     when (it) {
                         1    -> 400.milliseconds
@@ -606,7 +616,7 @@ class ThrottleTest: AbstractFlowTest() {
                 }.log("trailing")
                 .test {
                     awaitItem() shouldBeEqualTo 2
-                    awaitError().message shouldBeEqualTo "first"
+                    awaitError().shouldBeInstanceOf<RuntimeException>().message shouldBeEqualTo "first"
                 }
 
             // 1-2----3------4
@@ -619,7 +629,8 @@ class ThrottleTest: AbstractFlowTest() {
                 emit(3)
                 delay(600.milliseconds)
                 emit(4)
-            }.log("source")
+            }
+                .log("source")
                 .throttleTrailing {
                     when (it) {
                         1    -> 400.milliseconds
@@ -629,7 +640,7 @@ class ThrottleTest: AbstractFlowTest() {
                 }.log("trailing")
                 .test {
                     awaitItem() shouldBeEqualTo 2
-                    awaitError().message shouldBeEqualTo "first"
+                    awaitError().shouldBeInstanceOf<RuntimeException>().message shouldBeEqualTo "first"
                 }
         }
 
@@ -658,14 +669,14 @@ class ThrottleTest: AbstractFlowTest() {
                 .onEach { delay(200.milliseconds) }.log("source")
                 .throttleTrailing {
                     if (count++ % 2 == 0) {
-                        throw kotlinx.coroutines.CancellationException("$it")
+                        throw CancellationException("$it")
                     } else {
                         500.milliseconds
                     }
                 }.log("trailing")
                 .test {
                     awaitItem() shouldBeEqualTo 3
-                    awaitError() shouldBeInstanceOf kotlinx.coroutines.CancellationException::class
+                    awaitError().shouldBeInstanceOf<CancellationException>()
                 }
         }
     }

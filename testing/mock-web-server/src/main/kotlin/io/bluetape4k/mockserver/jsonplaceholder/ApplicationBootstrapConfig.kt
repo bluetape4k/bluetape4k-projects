@@ -14,7 +14,7 @@ import org.springframework.context.annotation.Configuration
  */
 @Configuration
 class ApplicationBootstrapConfig {
-    companion object : KLogging()
+    companion object: KLogging()
 
     /**
      * 애플리케이션 기동 후 jsonplaceholder fixture 데이터를 자동으로 로드한다.

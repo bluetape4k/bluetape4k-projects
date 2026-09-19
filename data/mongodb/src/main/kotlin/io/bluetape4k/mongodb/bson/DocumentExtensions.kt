@@ -32,7 +32,7 @@ fun documentOf(vararg pairs: Pair<String, Any?>): Document {
  * @param builder [Document] 초기화 람다
  * @return 생성된 [Document]
  */
-fun documentOf(builder: Document.() -> Unit): Document =
+inline fun documentOf(builder: Document.() -> Unit): Document =
     Document().apply(builder)
 
 /**

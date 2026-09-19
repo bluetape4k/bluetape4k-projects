@@ -3,20 +3,24 @@ package io.bluetape4k.grpc
 import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeFalse
+import io.bluetape4k.assertions.shouldBeGreaterThan
 import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.grpc.examples.helloworld.GreeterService
 import io.bluetape4k.grpc.inprocess.AbstractGrpcInprocessServer
+import io.bluetape4k.logging.KLogging
 import io.grpc.Server
 import io.grpc.ServerBuilder
 import io.grpc.inprocess.InProcessServerBuilder
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
 import java.io.IOException
-import java.util.UUID
+import java.util.*
 import java.util.concurrent.TimeUnit
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class GrpcServerTest: AbstractGrpcTest() {
+
+    companion object: KLogging()
 
     @Test
     fun `port server starts stops and lets a replacement reuse the bound port`() {
@@ -29,7 +33,7 @@ class GrpcServerTest: AbstractGrpcTest() {
             server.isShutdown.shouldBeFalse()
             server.serviceDefinitions.size shouldBeEqualTo 1
             boundPort = server.port
-            (boundPort > 0).shouldBeTrue()
+            boundPort shouldBeGreaterThan 0
         } finally {
             server.stop()
         }

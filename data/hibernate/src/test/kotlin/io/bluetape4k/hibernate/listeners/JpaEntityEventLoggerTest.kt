@@ -5,7 +5,9 @@ import org.junit.jupiter.api.Test
 class JpaEntityEventLoggerTest {
 
     private val logger = JpaEntityEventLogger()
-    private val entity = object {}
+    private val entity = object {
+        override fun toString(): String = "Entity"
+    }
 
     @Test
     fun `onPostLoad는 엔티티를 로그에 기록한다`() {

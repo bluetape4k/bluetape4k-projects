@@ -1,12 +1,19 @@
 package io.bluetape4k.grpc.testing.integration
 
 import com.google.protobuf.ByteString
+import io.bluetape4k.assertions.assertFailsWith
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeFalse
+import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.assertions.shouldContain
+import io.bluetape4k.assertions.shouldNotBeNull
 import io.bluetape4k.junit5.coroutines.runSuspendTest
 import io.bluetape4k.junit5.faker.Fakers
 import io.bluetape4k.junit5.output.OutputCapture
 import io.bluetape4k.junit5.output.OutputCapturer
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
+import io.bluetape4k.support.closeSafe
 import io.bluetape4k.support.toUtf8Bytes
 import io.grpc.ServerBuilder
 import io.grpc.StatusException
@@ -14,15 +21,9 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.buffer
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
-import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldBeFalse
-import io.bluetape4k.assertions.shouldBeTrue
-import io.bluetape4k.assertions.shouldContain
-import io.bluetape4k.assertions.shouldNotBeNull
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
-import io.bluetape4k.assertions.assertFailsWith
 import kotlin.time.Duration.Companion.milliseconds
 
 @OutputCapture
@@ -47,8 +48,8 @@ class TestServiceTest {
 
     @AfterAll
     fun cleanup() {
-        client.close()
-        server.close()
+        client.closeSafe()
+        server.closeSafe()
     }
 
     @Test

@@ -1,5 +1,8 @@
 package io.bluetape4k.geocode.bing
 
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldNotBeEmpty
+import io.bluetape4k.assertions.shouldNotBeNull
 import io.bluetape4k.geocode.AbstractGeocodeTest
 import io.bluetape4k.geocode.Geocode
 import io.bluetape4k.geocode.bing.BingMapModel.toBingAddress
@@ -8,14 +11,11 @@ import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import io.bluetape4k.utils.Resourcex
-import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldNotBeEmpty
-import io.bluetape4k.assertions.shouldNotBeNull
 import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
-import tools.jackson.module.kotlin.readValue
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
+import tools.jackson.module.kotlin.readValue
 
 @Disabled("Bing API Key를 갱신해야 합니다.")
 class BingMapServiceTest: AbstractGeocodeTest() {

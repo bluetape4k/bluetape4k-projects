@@ -73,6 +73,8 @@ open class TimeCalendar(
                 firstDayOfWeek == other.firstDayOfWeek
     }
 
+    override fun equals(other: Any?): Boolean = other is ITimeCalendar && super.equals(other)
+
     override fun hashCode(): Int = hashOf(startOffset, endOffset, firstDayOfWeek)
 
     override fun buildStringHelper(): ToStringBuilder =

@@ -1,12 +1,19 @@
 package io.bluetape4k.hibernate.cache.lettuce
 
-import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeEmpty
 import io.bluetape4k.assertions.shouldBeGreaterThan
+import io.bluetape4k.assertions.shouldHaveSize
+import io.bluetape4k.assertions.shouldNotBeNull
 import io.bluetape4k.hibernate.cache.lettuce.model.Person
+import io.bluetape4k.hibernate.createQueryAs
+import io.bluetape4k.hibernate.findAs
+import io.bluetape4k.logging.KLogging
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 
 class HibernateQueryCacheTest: AbstractHibernateNearCacheTest() {
+
+    companion object: KLogging()
 
     @BeforeEach
     fun clearCacheAndData() {
@@ -32,14 +39,11 @@ class HibernateQueryCacheTest: AbstractHibernateNearCacheTest() {
 
         sessionFactory.openSession().use { session ->
             session.beginTransaction()
-            session.createSelectionQuery(
-                "select p from Person p where p.age >= :age order by p.id",
-                Person::class.java,
-            )
+            session
+                .createQueryAs<Person>("select p from Person p where p.age >= :age order by p.id")
                 .setParameter("age", 30)
                 .setCacheable(true)
-                .list()
-                .size shouldBeEqualTo 2
+                .list() shouldHaveSize 2
             session.transaction.commit()
         }
 
@@ -48,14 +52,11 @@ class HibernateQueryCacheTest: AbstractHibernateNearCacheTest() {
 
         sessionFactory.openSession().use { session ->
             session.beginTransaction()
-            session.createSelectionQuery(
-                "select p from Person p where p.age >= :age order by p.id",
-                Person::class.java,
-            )
+            session
+                .createQueryAs<Person>("select p from Person p where p.age >= :age order by p.id")
                 .setParameter("age", 30)
                 .setCacheable(true)
-                .list()
-                .size shouldBeEqualTo 2
+                .list() shouldHaveSize 2
             session.transaction.commit()
         }
 
@@ -69,38 +70,30 @@ class HibernateQueryCacheTest: AbstractHibernateNearCacheTest() {
             val person = Person().apply { name = "Charlie"; age = 30 }
             session.persist(person)
             session.transaction.commit()
-            person.id!!
+            person.id.shouldNotBeNull()
         }
 
         sessionFactory.openSession().use { session ->
             session.beginTransaction()
-            session.createSelectionQuery(
-                "select p from Person p where p.age >= :age",
-                Person::class.java,
-            )
+            session.createQueryAs<Person>("select p from Person p where p.age >= :age")
                 .setParameter("age", 20)
                 .setCacheable(true)
-                .list()
-                .size shouldBeEqualTo 1
+                .list() shouldHaveSize 1
             session.transaction.commit()
         }
 
         sessionFactory.openSession().use { session ->
             session.beginTransaction()
-            session.createSelectionQuery(
-                "select p from Person p where p.age >= :age",
-                Person::class.java,
-            )
+            session.createQueryAs<Person>("select p from Person p where p.age >= :age")
                 .setParameter("age", 20)
                 .setCacheable(true)
-                .list()
-                .size shouldBeEqualTo 1
+                .list() shouldHaveSize 1
             session.transaction.commit()
         }
 
         sessionFactory.openSession().use { session ->
             session.beginTransaction()
-            val person = session.find(Person::class.java, personId)!!
+            val person = session.findAs<Person>(personId).shouldNotBeNull()
             person.age = 10
             session.transaction.commit()
         }
@@ -109,14 +102,11 @@ class HibernateQueryCacheTest: AbstractHibernateNearCacheTest() {
 
         sessionFactory.openSession().use { session ->
             session.beginTransaction()
-            session.createSelectionQuery(
-                "select p from Person p where p.age >= :age",
-                Person::class.java,
-            )
+            session
+                .createQueryAs<Person>("select p from Person p where p.age >= :age")
                 .setParameter("age", 20)
                 .setCacheable(true)
-                .list()
-                .size shouldBeEqualTo 0
+                .list().shouldBeEmpty()
             session.transaction.commit()
         }
 

@@ -18,16 +18,14 @@ class AsyncCqlSessionSupportTest: AbstractCassandraTest() {
     }
 
     @BeforeEach
-    fun setup() {
-        runSuspendIO {
-            if (initialized.compareAndSet(expect = false, update = true)) {
-                session.executeSuspending("DROP TABLE IF EXISTS user")
-                session.executeSuspending("CREATE TABLE IF NOT EXISTS user (id text PRIMARY KEY, username text);")
-            }
-
-            session.executeSuspending("TRUNCATE user")
-            session.executeSuspending("INSERT INTO user (id, username) VALUES ('WHITE', 'Walter')")
+    fun setup() = runSuspendIO {
+        if (initialized.compareAndSet(expect = false, update = true)) {
+            session.executeSuspending("DROP TABLE IF EXISTS user")
+            session.executeSuspending("CREATE TABLE IF NOT EXISTS user (id text PRIMARY KEY, username text);")
         }
+
+        session.executeSuspending("TRUNCATE user")
+        session.executeSuspending("INSERT INTO user (id, username) VALUES ('WHITE', 'Walter')")
     }
 
     @Test
@@ -70,16 +68,16 @@ class AsyncCqlSessionSupportTest: AbstractCassandraTest() {
         val namedQuery = "SELECT * FROM user WHERE id = :id"
         val statement = SimpleStatement.newInstance("SELECT * FROM user")
 
-        session.suspendExecute(positionalQuery, "WHITE").one().shouldNotBeNull()
-        session.suspendExecute(namedQuery, mapOf("id" to "WHITE")).one().shouldNotBeNull()
-        session.suspendExecute(statement).one().shouldNotBeNull()
+        session.executeSuspending(positionalQuery, "WHITE").one().shouldNotBeNull()
+        session.executeSuspending(namedQuery, mapOf("id" to "WHITE")).one().shouldNotBeNull()
+        session.executeSuspending(statement).one().shouldNotBeNull()
 
         session.execute(positionalQuery, "WHITE").one().shouldNotBeNull()
         session.execute(namedQuery, mapOf("id" to "WHITE")).one().shouldNotBeNull()
         session.execute(statement).one().shouldNotBeNull()
 
-        session.suspendPrepare("SELECT * FROM user")
-        session.suspendPrepare(statement)
+        session.prepareSuspending("SELECT * FROM user")
+        session.prepareSuspending(statement)
         session.prepare("SELECT * FROM user")
         session.prepare(statement)
         session.prepareSuspending(statement)

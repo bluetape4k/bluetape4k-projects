@@ -11,11 +11,13 @@ import io.bluetape4k.assertions.shouldBeFalse
 import io.bluetape4k.assertions.shouldBeSameInstanceAs
 import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.assertions.shouldContain
-import io.bluetape4k.assertions.shouldNotBeNull
+import io.bluetape4k.assertions.shouldNotBeEmpty
 import io.bluetape4k.assertions.shouldNotBeSameInstanceAs
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.coroutines.KLoggingChannel
+import io.bluetape4k.logging.debug
 import io.bluetape4k.mongodb.bson.documentOf
+import io.bluetape4k.support.closeSafe
 import io.mockk.clearMocks
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -39,8 +41,8 @@ class MongoClientSupportTest: AbstractMongoTest() {
 
     companion object: KLoggingChannel()
 
-    private val mockClient = mockk<MongoClient>()
-    private val mockSession = mockk<ClientSession>()
+    private val mockClient = mockk<MongoClient>(relaxed = true)
+    private val mockSession = mockk<ClientSession>(relaxed = true)
 
     @BeforeEach
     fun clearMock() {
@@ -62,7 +64,9 @@ class MongoClientSupportTest: AbstractMongoTest() {
             applyConnectionString(ConnectionString(mongoServer.url))
         }.use { client ->
             val dbNames = client.listDatabaseNames().toList()
-            dbNames.shouldNotBeNull()
+
+            log.debug { "dbNames=${dbNames.joinToString()}" }
+            dbNames.shouldNotBeEmpty()
         }
     }
 
@@ -70,7 +74,9 @@ class MongoClientSupportTest: AbstractMongoTest() {
     fun `mongoClientOf 편의 함수로 MongoClient 생성`() = runTest(timeout = 30.seconds) {
         mongoClientOf(mongoServer.url).use { client ->
             val dbNames = client.listDatabaseNames().toList()
-            dbNames.shouldNotBeNull()
+
+            log.debug { "dbNames=${dbNames.joinToString()}" }
+            dbNames.shouldNotBeEmpty()
         }
     }
 
@@ -104,13 +110,15 @@ class MongoClientSupportTest: AbstractMongoTest() {
     @Test
     fun `listDatabaseNamesAsList 데이터베이스 이름 목록 반환`() = runTest(timeout = 30.seconds) {
         val names = client.listDatabaseNamesAsList()
-        names.shouldNotBeNull()
+        log.debug { "names=${names.joinToString()}" }
+        names.shouldNotBeEmpty()
     }
 
     @Test
     fun `withClientSession 세션 블록 실행 후 세션 자동 종료`() = runTest(timeout = 30.seconds) {
         val collectionName = "session_test"
         val collection = database.getCollectionOf<org.bson.Document>(collectionName)
+
         try {
             val insertedName = client.withClientSession { session ->
                 collection.insertOne(session, documentOf("name" to "session_user"))
@@ -136,7 +144,7 @@ class MongoClientSupportTest: AbstractMongoTest() {
             exceptionCaught = true
         }
         // 예외가 재전파되어야 합니다
-        exceptionCaught shouldBeEqualTo true
+        exceptionCaught.shouldBeTrue()
     }
 
     @Test
@@ -163,6 +171,7 @@ class MongoClientSupportTest: AbstractMongoTest() {
         thrown.message shouldBeEqualTo cancellation.message
         abortCompleted.get().shouldBeTrue()
         cancellation.suppressed.asList().shouldBeEmpty()
+
         coVerify(exactly = 1) { mockSession.abortTransaction() }
         verify(exactly = 1) { mockSession.close() }
     }
@@ -196,6 +205,7 @@ class MongoClientSupportTest: AbstractMongoTest() {
     @Test
     fun `MongoClientProvider getOrCreate 빌더 적용 동일 설정에 동일 인스턴스 반환`() {
         val url = mongoServer.url
+
         val c1 = MongoClientProvider.getOrCreate(url) {
             applicationName("bt4k-provider-cache")
         }
@@ -209,6 +219,7 @@ class MongoClientSupportTest: AbstractMongoTest() {
     @Test
     fun `MongoClientProvider getOrCreate 빌더 적용 동일 URL 다른 설정에 다른 인스턴스 반환`() {
         val url = mongoServer.url
+
         val c1 = MongoClientProvider.getOrCreate(url) {
             applicationName("bt4k-provider-cache-first")
         }
@@ -220,8 +231,9 @@ class MongoClientSupportTest: AbstractMongoTest() {
     }
 
     @Test
-    fun `MongoClientProvider close removes provider managed cached client`() {
+    fun `MongoClientProvider close removes provider managed cached client`() = runSuspendIO {
         val url = mongoServer.url
+
         val client1 = MongoClientProvider.getOrCreate(url) {
             applicationName("bt4k-provider-close")
         }
@@ -229,6 +241,7 @@ class MongoClientSupportTest: AbstractMongoTest() {
         MongoClientProvider.close(url) {
             applicationName("bt4k-provider-close")
         }.shouldBeTrue()
+
         MongoClientProvider.close(url) {
             applicationName("bt4k-provider-close")
         }.shouldBeFalse()
@@ -237,7 +250,9 @@ class MongoClientSupportTest: AbstractMongoTest() {
             applicationName("bt4k-provider-close")
         }
 
-        client1 shouldNotBeSameInstanceAs client2
+        client2 shouldNotBeSameInstanceAs client1
+        client2.listDatabaseNames().toList().shouldNotBeEmpty()
+        client2.closeSafe()
     }
 
     @Test
@@ -245,13 +260,15 @@ class MongoClientSupportTest: AbstractMongoTest() {
         // 컬렉션을 생성하면 해당 DB도 목록에 나타납니다
         val dbName = "db_list_test"
         val tempClient = mongoClientOf(mongoServer.url)
+
         try {
             tempClient.getDatabase(dbName).createCollection("tmp_col")
             val names = tempClient.listDatabaseNamesAsList()
+            log.debug { "db names: ${names.joinToString()}" }
             names shouldContain dbName
         } finally {
             tempClient.getDatabase(dbName).drop()
-            tempClient.close()
+            tempClient.closeSafe()
         }
     }
 }

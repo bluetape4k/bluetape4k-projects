@@ -1,10 +1,10 @@
 package io.bluetape4k.cache.memoizer.inmemory
 
+import io.bluetape4k.assertions.assertFailsWith
+import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.cache.memoizer.AbstractAsyncMemoizerTest
 import io.bluetape4k.cache.memoizer.AsyncFactorialProvider
 import io.bluetape4k.cache.memoizer.AsyncFibonacciProvider
-import io.bluetape4k.assertions.assertFailsWith
-import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.trace
 import org.junit.jupiter.api.Test

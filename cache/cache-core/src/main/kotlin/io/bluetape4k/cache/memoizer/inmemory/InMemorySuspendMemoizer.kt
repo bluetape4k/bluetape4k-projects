@@ -4,6 +4,8 @@ import io.bluetape4k.cache.memoizer.SingleFlight
 import io.bluetape4k.cache.memoizer.SuspendMemoizer
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.trace
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import java.util.concurrent.ConcurrentHashMap
 
 /**
@@ -46,17 +48,14 @@ class InMemorySuspendMemoizer<in T: Any, out R: Any>(
 
     private val resultCache = ConcurrentHashMap<T, R>()
     private val singleFlight = SingleFlight<@UnsafeVariance T, @UnsafeVariance R>()
+    private val mutex = Mutex()
 
     override suspend fun invoke(input: T): R {
         val cache = resultCache
         val flights = singleFlight
 
-        cache[input]?.let { return it }
-
-        return flights.runSuspend(input) { token ->
-            cache[input]?.let { cached ->
-                cached
-            } ?: run {
+        return cache[input] ?: flights.runSuspend(input) { token ->
+            cache[input] ?: run {
                 log.trace { "Cache miss for key: $input, evaluating..." }
                 evaluator(input).also { result ->
                     if (flights.isCurrent(token)) {
@@ -68,8 +67,10 @@ class InMemorySuspendMemoizer<in T: Any, out R: Any>(
     }
 
     override suspend fun clear() {
-        singleFlight.clear()
-        resultCache.clear()
+        mutex.withLock {
+            singleFlight.clear()
+            resultCache.clear()
+        }
         log.trace { "Cleared in-memory cache." }
     }
 }

@@ -20,8 +20,8 @@ class JdbcDriversTest {
     }
 
     @Test
-    fun `isMySQL - MariaDB 드라이버 클래스명이면 true 반환`() {
-        JdbcDrivers.isMySQL(JdbcDrivers.DRIVER_CLASS_MARIADB).shouldBeTrue()
+    fun `isMySQL - MariaDB 드라이버 클래스명이면 false 반환`() {
+        JdbcDrivers.isMySQL(JdbcDrivers.DRIVER_CLASS_MARIADB).shouldBeFalse()
     }
 
     @Test
@@ -37,6 +37,33 @@ class JdbcDriversTest {
     @Test
     fun `isMySQL - H2 드라이버 클래스명이면 false 반환`() {
         JdbcDrivers.isMySQL(JdbcDrivers.DRIVER_CLASS_H2).shouldBeFalse()
+    }
+
+    // ─── isMySQLFamily ─────────────────────────────────────────────────────────────
+
+    @Test
+    fun `isMySQLFamily - MySQL 드라이버 클래스명이면 true 반환`() {
+        JdbcDrivers.isMySQLFamily(JdbcDrivers.DRIVER_CLASS_MYSQL).shouldBeTrue()
+    }
+
+    @Test
+    fun `isMySQLFamily - MariaDB 드라이버 클래스명이면 true 반환`() {
+        JdbcDrivers.isMySQLFamily(JdbcDrivers.DRIVER_CLASS_MARIADB).shouldBeTrue()
+    }
+
+    @Test
+    fun `isMySQLFamily - PostgreSQL 드라이버 클래스명이면 false 반환`() {
+        JdbcDrivers.isMySQLFamily(JdbcDrivers.DRIVER_CLASS_POSTGRESQL).shouldBeFalse()
+    }
+
+    @Test
+    fun `isMySQLFamily - null 이면 false 반환`() {
+        JdbcDrivers.isMySQLFamily(null).shouldBeFalse()
+    }
+
+    @Test
+    fun `isMySQLFamily - H2 드라이버 클래스명이면 false 반환`() {
+        JdbcDrivers.isMySQLFamily(JdbcDrivers.DRIVER_CLASS_H2).shouldBeFalse()
     }
 
     // ─── isPostgreSQL ─────────────────────────────────────────────────────────

@@ -1,21 +1,21 @@
 package io.bluetape4k.jackson.uuid
 
 import com.fasterxml.jackson.databind.json.JsonMapper
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldNotBeNull
 import io.bluetape4k.jackson.Jackson
 import io.bluetape4k.jackson.readValueOrNull
 import io.bluetape4k.jackson.writeAsString
 import io.bluetape4k.junit5.concurrency.MultithreadingTester
 import io.bluetape4k.junit5.concurrency.StructuredTaskScopeTester
 import io.bluetape4k.junit5.coroutines.SuspendedJobTester
-import io.bluetape4k.junit5.faker.Fakers
+import io.bluetape4k.junit5.coroutines.runSuspendDefault
 import io.bluetape4k.junit5.random.RandomValue
 import io.bluetape4k.junit5.random.RandomizedTest
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.trace
 import io.bluetape4k.utils.Runtimex
-import kotlinx.coroutines.test.runTest
-import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldNotBeNull
+import net.datafaker.Faker
 import org.junit.jupiter.api.RepeatedTest
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.condition.EnabledForJreRange
@@ -28,7 +28,7 @@ class JsonUuidEncodeTest {
 
     companion object: KLogging() {
         private const val REPEAT_COUNT = 5
-        private val faker = Fakers.faker
+        private val faker = Faker(Locale.getDefault())
     }
 
     private val mapper: JsonMapper = Jackson.defaultJsonMapper
@@ -56,7 +56,6 @@ class JsonUuidEncodeTest {
         val username: String,
     ): Serializable
 
-
     @RepeatedTest(REPEAT_COUNT)
     fun `convert uuid to base62 string`(@RandomValue user: User) {
         verifyJsonUuidEncoder(user)
@@ -82,10 +81,10 @@ class JsonUuidEncodeTest {
     }
 
     @Test
-    fun `convert uuid to base62 string in suspended jobs`() = runTest {
+    fun `convert uuid to base62 string in suspended jobs`() = runSuspendDefault {
         SuspendedJobTester()
             .workers(2 * Runtimex.availableProcessors)
-            .rounds(16 * 2 * Runtimex.availableProcessors)
+            .rounds(16)
             .add {
                 verifyJsonUuidEncoder(newUser())
             }

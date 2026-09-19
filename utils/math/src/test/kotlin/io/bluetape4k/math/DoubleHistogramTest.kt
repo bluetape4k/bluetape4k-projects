@@ -41,9 +41,9 @@ class DoubleHistogramTest {
         histogram.bins.size shouldBeEqualTo 3
 
         // range의 어떤 값이던 상관없다 (BinModel.get operator를 보라)
-        histogram[5.0]!!.range shouldBeEqualTo (0.0..100.0).toClosedClosedRange()
-        histogram[105.0]!!.range shouldBeEqualTo (100.0..200.0).toClosedClosedRange()
-        histogram[205.0]!!.range shouldBeEqualTo (200.0..300.0).toClosedClosedRange()
+        histogram[5.0]?.range shouldBeEqualTo (0.0..100.0).toClosedClosedRange()
+        histogram[105.0]?.range shouldBeEqualTo (100.0..200.0).toClosedClosedRange()
+        histogram[205.0]?.range shouldBeEqualTo (200.0..300.0).toClosedClosedRange()
     }
 
     @Test

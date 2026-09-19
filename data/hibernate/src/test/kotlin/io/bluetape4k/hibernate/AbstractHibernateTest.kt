@@ -65,6 +65,7 @@ import org.springframework.transaction.annotation.Transactional
 )
 @Transactional
 abstract class AbstractHibernateTest {
+
     companion object: KLogging() {
         @JvmStatic
         val faker: Faker = Fakers.faker

@@ -1,11 +1,13 @@
 package io.bluetape4k.cache.nearcache
 
 import com.github.benmanes.caffeine.cache.stats.CacheStats
-import io.bluetape4k.logging.KLogging
-import io.lettuce.core.codec.StringCodec
+import io.bluetape4k.assertions.shouldBeEmpty
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeFalse
 import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.codec.Base58
+import io.bluetape4k.logging.KLogging
+import io.lettuce.core.codec.StringCodec
 import org.junit.jupiter.api.Test
 import java.nio.ByteBuffer
 
@@ -71,9 +73,8 @@ class TrackingInvalidationListenerPayloadTest: AbstractLettuceNearCacheTest() {
         listener: TrackingInvalidationListener<*>,
         content: List<Any?>,
     ) {
-        val method =
-            TrackingInvalidationListener::class.java
-                .getDeclaredMethod("handleInvalidation", List::class.java)
+        val method = TrackingInvalidationListener::class.java
+            .getDeclaredMethod("handleInvalidation", List::class.java)
         method.isAccessible = true
         method.invoke(listener, content)
     }
@@ -84,7 +85,7 @@ class TrackingInvalidationListenerPayloadTest: AbstractLettuceNearCacheTest() {
 
     @Test
     fun `invalidation payload가 mixed type이어도 cacheName prefix 키만 무효화한다`() {
-        val cacheName = "mixed-cache"
+        val cacheName = "mixed-cache" + Base58.randomString(8)
         val localCache = RecordingLocalCache()
         val listener = createListener(cacheName, localCache)
 
@@ -115,7 +116,7 @@ class TrackingInvalidationListenerPayloadTest: AbstractLettuceNearCacheTest() {
         callHandleInvalidation(listener, content)
 
         localCache.clearCalled.shouldBeTrue()
-        localCache.invalidatedKeys.isEmpty().shouldBeTrue()
+        localCache.invalidatedKeys.shouldBeEmpty()
     }
 
     @Test
@@ -133,13 +134,13 @@ class TrackingInvalidationListenerPayloadTest: AbstractLettuceNearCacheTest() {
 
         callHandleInvalidation(listener, content)
 
-        localCache.invalidatedKeys.isEmpty().shouldBeTrue()
+        localCache.invalidatedKeys.shouldBeEmpty()
         localCache.clearCalled.shouldBeFalse()
     }
 
     @Test
     fun `invalidation payload가 ByteArray면 정상 디코딩 후 무효화한다`() {
-        val cacheName = "bytearray-cache"
+        val cacheName = "bytearray-cache" + Base58.randomString(8)
         val localCache = RecordingLocalCache()
         val listener = createListener(cacheName, localCache)
 
@@ -157,7 +158,7 @@ class TrackingInvalidationListenerPayloadTest: AbstractLettuceNearCacheTest() {
 
     @Test
     fun `invalidation payload가 단일 ByteBuffer면 해당 key만 무효화한다`() {
-        val cacheName = "single-cache"
+        val cacheName = "single-cache" + Base58.randomString(8)
         val localCache = RecordingLocalCache()
         val listener = createListener(cacheName, localCache)
 

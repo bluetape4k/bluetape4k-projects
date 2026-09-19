@@ -5,6 +5,8 @@ import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeSameInstanceAs
 import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.io.ByteLimitExceededException
+import io.bluetape4k.logging.KLogging
+import io.mockk.clearMocks
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
@@ -12,17 +14,27 @@ import org.apache.hc.core5.http.ContentType
 import org.apache.hc.core5.http.HttpEntity
 import org.apache.hc.core5.http.io.entity.StringEntity
 import org.apache.hc.core5.http.message.BasicClassicHttpResponse
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import java.io.IOException
 import java.io.InputStream
 import java.net.SocketTimeoutException
-import java.util.concurrent.CountDownLatch
 import java.util.concurrent.CancellationException
+import java.util.concurrent.CountDownLatch
 import java.util.concurrent.ExecutionException
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit.SECONDS
 
 class BoundedHttpEntitySupportTest {
+
+    companion object: KLogging()
+
+    val entity = mockk<HttpEntity>(relaxed = true)
+
+    @BeforeEach
+    fun beforeEach() {
+        clearMocks(entity)
+    }
 
     @Test
     fun `null entity는 empty로 정규화한다`() {
@@ -94,7 +106,6 @@ class BoundedHttpEntitySupportTest {
 
     @Test
     fun `음수 상한은 metadata와 content accessor 전에 거부한다`() {
-        val entity = mockk<HttpEntity>()
         val nullable: HttpEntity? = null
 
         assertFailsWith<IllegalArgumentException> { entity.readBodyBytes(maxBytes = -1) }
@@ -107,7 +118,7 @@ class BoundedHttpEntitySupportTest {
     @Test
     fun `known oversize는 accessor 실패를 suppressed로 보존한다`() {
         val accessorFailure = IOException("content accessor failed")
-        val entity = mockk<HttpEntity>()
+
         every { entity.contentLength } returns 8L
         every { entity.content } throws accessorFailure
 
@@ -121,7 +132,7 @@ class BoundedHttpEntitySupportTest {
     @Test
     fun `known oversize accessor cancellation은 overflow primary에 suppressed로 보존한다`() {
         val cancellation = CancellationException("cancelled")
-        val entity = mockk<HttpEntity>()
+
         every { entity.contentLength } returns 8L
         every { entity.content } throws cancellation
 
@@ -218,7 +229,7 @@ class BoundedHttpEntitySupportTest {
         val entered = CountDownLatch(1)
         val release = CountDownLatch(1)
         val timeout = SocketTimeoutException("accessor timeout")
-        val entity = mockk<HttpEntity>()
+
         every { entity.contentLength } returns 8L
         every { entity.content } answers {
             entered.countDown()
@@ -273,8 +284,9 @@ class BoundedHttpEntitySupportTest {
 
     @Test
     fun `기존 API는 strict failure가 아니라 prefix truncation을 유지한다`() {
-        StringEntity("12345", ContentType.TEXT_PLAIN).toByteArrayOrNull(maxResultLength = 4)!!
-            .toString(Charsets.UTF_8) shouldBeEqualTo "1234"
+        StringEntity("12345", ContentType.TEXT_PLAIN)
+            .toByteArrayOrNull(maxResultLength = 4)?.toString(Charsets.UTF_8) shouldBeEqualTo "1234"
+
         StringEntity("12345", ContentType.TEXT_PLAIN)
             .toStringOrNull(maxResultLength = 4) shouldBeEqualTo "1234"
     }

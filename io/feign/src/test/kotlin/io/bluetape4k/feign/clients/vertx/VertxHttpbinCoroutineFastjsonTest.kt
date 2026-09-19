@@ -7,8 +7,11 @@ import io.bluetape4k.feign.clients.AbstractHttpbinCoroutineTest
 import io.bluetape4k.feign.codec.FeignFastjsonDecoder
 import io.bluetape4k.feign.codec.FeignFastjsonEncoder
 import io.bluetape4k.feign.coroutines.coroutineFeignBuilder
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 
 class VertxHttpbinCoroutineFastjsonTest: AbstractHttpbinCoroutineTest() {
+
+    companion object: KLoggingChannel()
 
     override fun newBuilder(): CoroutineFeign.CoroutineBuilder<*> {
         return coroutineFeignBuilder {

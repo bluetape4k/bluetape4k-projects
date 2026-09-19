@@ -1,10 +1,10 @@
 package io.bluetape4k.netty.util
 
-import io.bluetape4k.netty.AbstractNettyTest
 import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.assertions.shouldContain
+import io.bluetape4k.assertions.shouldNotBeEmpty
 import io.bluetape4k.assertions.shouldNotBeNull
+import io.bluetape4k.netty.AbstractNettyTest
 import org.junit.jupiter.api.Test
 
 /**
@@ -16,7 +16,7 @@ class ThrowableUtilSupportTest: AbstractNettyTest() {
         val ex = RuntimeException("테스트 예외 메시지")
         val result = ex.stackTraceToString()
         result.shouldNotBeNull()
-        (result.isNotEmpty()).shouldBeTrue()
+        result.shouldNotBeEmpty()
         result shouldContain "테스트 예외 메시지"
         result shouldContain "RuntimeException"
     }

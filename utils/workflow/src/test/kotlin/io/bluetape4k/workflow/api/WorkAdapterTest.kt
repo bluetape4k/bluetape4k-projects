@@ -21,7 +21,7 @@ class WorkAdapterTest: AbstractWorkflowTest() {
 
     @Test
     fun `Work SAM 변환`() {
-        val w: Work = Work { ctx -> WorkReport.success(ctx) }
+        val w = Work { ctx -> WorkReport.success(ctx) }
         val report = w.execute(context)
         report.isSuccess.shouldBeTrue()
         report.context shouldBeEqualTo context
@@ -29,7 +29,7 @@ class WorkAdapterTest: AbstractWorkflowTest() {
 
     @Test
     fun `SuspendWork SAM 변환`() {
-        val sw: SuspendWork = SuspendWork { ctx -> WorkReport.success(ctx) }
+        val sw = SuspendWork { ctx -> WorkReport.success(ctx) }
         val report = runBlocking { sw.execute(context) }
         report.isSuccess.shouldBeTrue()
         report.context shouldBeEqualTo context
@@ -126,7 +126,9 @@ class WorkAdapterTest: AbstractWorkflowTest() {
 
     @Test
     fun `NamedWork 이름 확인`() {
-        val work = Work("my-named-work") { ctx -> WorkReport.success(ctx) }
+        val work = Work("my-named-work") { ctx ->
+            WorkReport.success(ctx)
+        }
 
         work.shouldBeInstanceOf<NamedWork>()
         work.name shouldBeEqualTo "my-named-work"
@@ -134,7 +136,9 @@ class WorkAdapterTest: AbstractWorkflowTest() {
 
     @Test
     fun `NamedWork toString 형식 확인`() {
-        val work = NamedWork("test-work", Work { ctx -> WorkReport.success(ctx) })
+        val work = NamedWork("test-work") { ctx ->
+            WorkReport.success(ctx)
+        }
         work.toString() shouldBeEqualTo "NamedWork(test-work)"
     }
 
@@ -162,7 +166,7 @@ class WorkAdapterTest: AbstractWorkflowTest() {
 
     @Test
     fun `NamedSuspendWork toString 형식 확인`() {
-        val sw = NamedSuspendWork("test-suspend", SuspendWork { ctx -> WorkReport.success(ctx) })
+        val sw = NamedSuspendWork("test-suspend") { ctx -> WorkReport.success(ctx) }
         sw.toString() shouldBeEqualTo "NamedSuspendWork(test-suspend)"
     }
 

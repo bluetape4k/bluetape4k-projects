@@ -26,6 +26,7 @@ import kotlin.text.Charsets.UTF_8
  * - 왕복 정확성 (쓰기 후 다시 읽어 값 일치 검증)
  */
 class CsvEdgeCaseTest {
+
     companion object: KLogging()
 
     @TempDir
@@ -36,21 +37,30 @@ class CsvEdgeCaseTest {
     @Test
     fun `빈 입력 스트림에서 CSV 레코드를 읽으면 빈 시퀀스를 반환한다`() {
         val emptyInput = ByteArrayInputStream(ByteArray(0))
-        val records = CsvRecordReader().read(emptyInput, UTF_8, skipHeaders = false).toList()
+
+        val records = CsvRecordReader()
+            .read(emptyInput, UTF_8, skipHeaders = false)
+            .toList()
         records.shouldBeEmpty()
     }
 
     @Test
     fun `빈 입력 스트림에서 TSV 레코드를 읽으면 빈 시퀀스를 반환한다`() {
         val emptyInput = ByteArrayInputStream(ByteArray(0))
-        val records = TsvRecordReader().read(emptyInput, UTF_8, skipHeaders = false).toList()
+
+        val records = TsvRecordReader()
+            .read(emptyInput, UTF_8, skipHeaders = false)
+            .toList()
         records.shouldBeEmpty()
     }
 
     @Test
     fun `빈 CSV 문자열에서 skipHeader=true 로 읽으면 빈 시퀀스를 반환한다`() {
         val emptyInput = ByteArrayInputStream(ByteArray(0))
-        val records = CsvRecordReader().read(emptyInput, UTF_8, skipHeaders = true).toList()
+
+        val records = CsvRecordReader()
+            .read(emptyInput, UTF_8, skipHeaders = true)
+            .toList()
         records.shouldBeEmpty()
     }
 
@@ -62,7 +72,9 @@ class CsvEdgeCaseTest {
     fun `헤더 행만 있는 CSV 에서 skipHeader=true 로 읽으면 빈 시퀀스를 반환한다`() {
         val csv = "name,age,city\n"
         val input = ByteArrayInputStream(csv.toByteArray(UTF_8))
-        val records = CsvRecordReader().read(input, UTF_8, skipHeaders = true).toList()
+        val records = CsvRecordReader()
+            .read(input, UTF_8, skipHeaders = true)
+            .toList()
         records.shouldBeEmpty()
     }
 
@@ -70,7 +82,10 @@ class CsvEdgeCaseTest {
     fun `헤더 행만 있는 TSV 에서 skipHeader=true 로 읽으면 빈 시퀀스를 반환한다`() {
         val tsv = "name\tage\tcity\n"
         val input = ByteArrayInputStream(tsv.toByteArray(UTF_8))
-        val records = TsvRecordReader().read(input, UTF_8, skipHeaders = true).toList()
+
+        val records = TsvRecordReader()
+            .read(input, UTF_8, skipHeaders = true)
+            .toList()
         records.shouldBeEmpty()
     }
 
@@ -78,7 +93,12 @@ class CsvEdgeCaseTest {
     fun `헤더 행만 있는 CSV 에서 skipHeader=false 로 읽으면 헤더 행이 레코드로 반환된다`() {
         val csv = "name,age,city\n"
         val input = ByteArrayInputStream(csv.toByteArray(UTF_8))
-        val records = CsvRecordReader().read(input, UTF_8, skipHeaders = false).toList()
+
+        val records = CsvRecordReader()
+            .read(input, UTF_8, skipHeaders = false)
+            .toList()
+        log.debug { "records=$records" }
+
         records shouldHaveSize 1
         records[0].values[0] shouldBeEqualTo "name"
         records[0].values[1] shouldBeEqualTo "age"
@@ -93,7 +113,12 @@ class CsvEdgeCaseTest {
     fun `skipHeader=false 이면 헤더 행도 레코드로 포함된다`() {
         val csv = "name,age\nAlice,20\nBob,30\n"
         val input = ByteArrayInputStream(csv.toByteArray(UTF_8))
-        val records = CsvRecordReader().read(input, UTF_8, skipHeaders = false).toList()
+
+        val records = CsvRecordReader()
+            .read(input, UTF_8, skipHeaders = false)
+            .toList()
+        log.debug { "records=$records" }
+
         // 헤더 포함 3행
         records shouldHaveSize 3
         records[0].values[0] shouldBeEqualTo "name"
@@ -105,7 +130,12 @@ class CsvEdgeCaseTest {
     fun `skipHeader=true 이면 헤더 행은 제외된다`() {
         val csv = "name,age\nAlice,20\nBob,30\n"
         val input = ByteArrayInputStream(csv.toByteArray(UTF_8))
-        val records = CsvRecordReader().read(input, UTF_8, skipHeaders = true).toList()
+
+        val records = CsvRecordReader()
+            .read(input, UTF_8, skipHeaders = true)
+            .toList()
+        log.debug { "records=$records" }
+
         // 데이터 행만 2행
         records shouldHaveSize 2
         records[0].values[0] shouldBeEqualTo "Alice"
@@ -121,11 +151,10 @@ class CsvEdgeCaseTest {
         val csvFile = File(tempDir, "comma_in_field.csv")
         csvFile.writeCsvRecords(
             headers = listOf("name", "description"),
-            rows =
-                listOf(
-                    listOf("Alice", "Hello, World"),
-                    listOf("Bob", "foo,bar,baz")
-                )
+            rows = listOf(
+                listOf("Alice", "Hello, World"),
+                listOf("Bob", "foo,bar,baz")
+            )
         )
 
         val records = csvFile.readAsCsvRecords(skipHeader = true).toList()
@@ -143,11 +172,10 @@ class CsvEdgeCaseTest {
         val csvFile = File(tempDir, "quote_in_field.csv")
         csvFile.writeCsvRecords(
             headers = listOf("name", "quote"),
-            rows =
-                listOf(
-                    listOf("Alice", """He said "Hello""""),
-                    listOf("Bob", """She said "Goodbye"""")
-                )
+            rows = listOf(
+                listOf("Alice", """He said "Hello""""),
+                listOf("Bob", """She said "Goodbye"""")
+            )
         )
 
         val records = csvFile.readAsCsvRecords(skipHeader = true).toList()
@@ -168,6 +196,7 @@ class CsvEdgeCaseTest {
             }
             val captured = sw.buffer.toString()
             log.debug { "captured=$captured" }
+
             // TSV 포맷에서 탭은 이스케이프됨 — 출력에 \t 이스케이프 시퀀스가 포함되어야 함
             captured shouldContain "key"
         }
@@ -178,10 +207,7 @@ class CsvEdgeCaseTest {
         val csvFile = File(tempDir, "newline_in_field.csv")
         csvFile.writeCsvRecords(
             headers = listOf("name", "notes"),
-            rows =
-                listOf(
-                    listOf("Alice", "line1\nline2")
-                )
+            rows = listOf(listOf("Alice", "line1\nline2"))
         )
 
         val records = csvFile.readAsCsvRecords(skipHeader = true).toList()
@@ -197,12 +223,11 @@ class CsvEdgeCaseTest {
         val csvFile = File(tempDir, "unicode.csv")
         csvFile.writeCsvRecords(
             headers = listOf("name", "greeting"),
-            rows =
-                listOf(
-                    listOf("홍길동", "안녕하세요"),
-                    listOf("田中", "こんにちは"),
-                    listOf("Müller", "Grüß Gott")
-                )
+            rows = listOf(
+                listOf("홍길동", "안녕하세요"),
+                listOf("田中", "こんにちは"),
+                listOf("Müller", "Grüß Gott")
+            )
         )
 
         val records = csvFile.readAsCsvRecords(skipHeader = true).toList()
@@ -212,7 +237,9 @@ class CsvEdgeCaseTest {
         records[0].getValue(0, "") shouldBeEqualTo "홍길동"
         records[0].getValue(1, "") shouldBeEqualTo "안녕하세요"
         records[1].getValue(0, "") shouldBeEqualTo "田中"
+        records[1].getValue(1, "") shouldBeEqualTo "こんにちは"
         records[2].getValue(0, "") shouldBeEqualTo "Müller"
+        records[2].getValue(1, "") shouldBeEqualTo "Grüß Gott"
     }
 
     // endregion
@@ -269,12 +296,11 @@ class CsvEdgeCaseTest {
     @Test
     fun `CSV 파일에 쓰고 다시 읽으면 정확한 값이 반환된다`() {
         val csvFile = File(tempDir, "roundtrip_exact.csv")
-        val originalRows =
-            listOf(
-                listOf("Alice", "20", "Seoul"),
-                listOf("Bob", "30", "Busan"),
-                listOf("Charlie", "25", "Daegu")
-            )
+        val originalRows = listOf(
+            listOf("Alice", "20", "Seoul"),
+            listOf("Bob", "30", "Busan"),
+            listOf("Charlie", "25", "Daegu")
+        )
 
         csvFile.writeCsvRecords(
             headers = listOf("name", "age", "city"),
@@ -319,21 +345,19 @@ class CsvEdgeCaseTest {
 
     @Test
     fun `StringWriter 를 사용한 CSV 쓰기와 읽기 왕복 테스트`() {
-        val rows =
-            listOf(
-                listOf("item1", "100", "true"),
-                listOf("item2", "200", "false")
-            )
+        val rows = listOf(
+            listOf("item1", "100", "true"),
+            listOf("item2", "200", "false")
+        )
 
-        val csvString =
-            StringWriter()
-                .also { sw ->
-                    CsvRecordWriter(sw).use { writer ->
-                        writer.writeHeaders("name", "value", "active")
-                        rows.forEach { writer.writeRow(it) }
-                    }
-                }.buffer
-                .toString()
+        val csvString = StringWriter()
+            .also { sw ->
+                CsvRecordWriter(sw).use { writer ->
+                    writer.writeHeaders("name", "value", "active")
+                    rows.forEach { writer.writeRow(it) }
+                }
+            }.buffer
+            .toString()
 
         log.debug { "csvString=\n$csvString" }
 
@@ -354,12 +378,11 @@ class CsvEdgeCaseTest {
         val csvFile = File(tempDir, "single_col.csv")
         csvFile.writeCsvRecords(
             headers = listOf("id"),
-            rows =
-                listOf(
-                    listOf("1"),
-                    listOf("2"),
-                    listOf("3")
-                )
+            rows = listOf(
+                listOf("1"),
+                listOf("2"),
+                listOf("3")
+            )
         )
 
         val records = csvFile.readAsCsvRecords(skipHeader = true).toList()
@@ -380,6 +403,7 @@ class CsvEdgeCaseTest {
 
             val input = ByteArrayInputStream(output.toByteArray(UTF_8))
             val records = CsvRecordReader().read(input, UTF_8, skipHeaders = true).toList()
+
             records shouldHaveSize 1
             records[0].getValue(0, "") shouldBeEqualTo "Alice"
             // 빈 문자열은 "" 인용 출력 → 읽으면 빈 문자열(null 아님)로 복원됨
@@ -414,25 +438,23 @@ class CsvEdgeCaseTest {
 
     @Test
     fun `writeHeaders 리스트 방식과 가변인자 방식이 동일한 결과를 낸다`() {
-        val output1 =
-            StringWriter()
-                .also { sw ->
-                    CsvRecordWriter(sw).use { writer ->
-                        writer.writeHeaders(listOf("a", "b", "c"))
-                        writer.writeRow(listOf("1", "2", "3"))
-                    }
-                }.buffer
-                .toString()
+        val output1 = StringWriter()
+            .also { sw ->
+                CsvRecordWriter(sw).use { writer ->
+                    writer.writeHeaders(listOf("a", "b", "c"))
+                    writer.writeRow(listOf("1", "2", "3"))
+                }
+            }.buffer
+            .toString()
 
-        val output2 =
-            StringWriter()
-                .also { sw ->
-                    CsvRecordWriter(sw).use { writer ->
-                        writer.writeHeaders("a", "b", "c")
-                        writer.writeRow(listOf("1", "2", "3"))
-                    }
-                }.buffer
-                .toString()
+        val output2 = StringWriter()
+            .also { sw ->
+                CsvRecordWriter(sw).use { writer ->
+                    writer.writeHeaders("a", "b", "c")
+                    writer.writeRow(listOf("1", "2", "3"))
+                }
+            }.buffer
+            .toString()
 
         output1 shouldBeEqualTo output2
     }

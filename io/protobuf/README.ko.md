@@ -36,15 +36,14 @@ Google Protocol Buffers 메시지 처리를 위한 Kotlin 확장 라이브러리
 
 신뢰 프로필: `AllowListedTypes`.
 
-`ProtobufSerializer`는 역직렬화 전에 각 `Any` 메시지의 `typeUrl`을 허용 목록과 대조합니다.
-허용 목록에 없는 접두사를 가진 클래스는 `SecurityException`을 발생시킵니다 (`BinarySerializationException`으로 래핑).
+`ProtobufSerializer`는 역직렬화 전에 각 `Any` 메시지의 `typeUrl`을 허용 목록과 대조합니다. 허용 목록에 없는 접두사를 가진 클래스는 `SecurityException`을 발생시킵니다 (`BinarySerializationException`으로 래핑).
 
 **기본 허용 접두사** (`DEFAULT_ALLOWED_PREFIXES`):
 
-| 접두사 | 설명 |
-|---|---|
-| `io.bluetape4k.` | 모든 bluetape4k 도메인 메시지 |
-| `com.google.protobuf.` | 표준 Protobuf 잘 알려진 타입 |
+| 접두사                 | 설명                          |
+|------------------------|-------------------------------|
+| `io.bluetape4k.`       | 모든 bluetape4k 도메인 메시지 |
+| `com.google.protobuf.` | 표준 Protobuf 잘 알려진 타입  |
 
 **커스텀 허용 목록 예시:**
 
@@ -60,16 +59,11 @@ val expandedSerializer = ProtobufSerializer(
 )
 ```
 
-`ProtobufSerializer()`의 기본 동작은 strict입니다. Protobuf `Message`만 처리하며 비 Protobuf 값이나
-바이트는 거부합니다. `ProtobufSerializer(fallback = nonNullSerializer)`와
-`ProtobufSerializer.trustedInternalProtobuf(...)`는 모든 producer와 저장 payload를 신뢰할 수 있는 저장소에만
-사용하는 호환 fallback입니다. 신뢰할 수 없는 payload에는 두 profile을 사용하지 마세요. fallback은 terminal
-allowlist 위반이나 `Message`가 아닌 타입으로 확인된 경우를 우회하지 않습니다.
+`ProtobufSerializer()`의 기본 동작은 strict입니다. Protobuf `Message`만 처리하며 비 Protobuf 값이나 바이트는 거부합니다. `ProtobufSerializer(fallback = nonNullSerializer)`와
+`ProtobufSerializer.trustedInternalProtobuf(...)`는 모든 producer와 저장 payload를 신뢰할 수 있는 저장소에만 사용하는 호환 fallback입니다. 신뢰할 수 없는 payload에는 두 profile을 사용하지 마세요. fallback은 terminal allowlist 위반이나 `Message`가 아닌 타입으로 확인된 경우를 우회하지 않습니다.
 
-`RedissonProtobufCodec()`과 `RedissonProtobufCodec(allowedClassPrefixes)`도 strict입니다. 기본값으로 Kryo5나
-다른 fallback codec을 사용하지 않습니다. `RedissonProtobufCodec(fallbackCodec)`과
-`RedissonProtobufCodec.trustedInternal(...)`는 신뢰 저장소 전용 fallback opt-in입니다. 완전히 신뢰하는 레거시
-환경에서 Protobuf class 전체 허용이 임시로 필요할 때만 migration escape hatch를 명시적으로 설정하세요:
+`RedissonProtobufCodec()`과 `RedissonProtobufCodec(allowedClassPrefixes)`도 strict입니다. 기본값으로 Kryo5나 다른 fallback codec을 사용하지 않습니다. `RedissonProtobufCodec(fallbackCodec)`과
+`RedissonProtobufCodec.trustedInternal(...)`는 신뢰 저장소 전용 fallback opt-in입니다. 완전히 신뢰하는 레거시 환경에서 Protobuf class 전체 허용이 임시로 필요할 때만 migration escape hatch를 명시적으로 설정하세요:
 
 ```kotlin
 val codec = RedissonProtobufCodec(
@@ -77,16 +71,11 @@ val codec = RedissonProtobufCodec(
 )
 ```
 
-신뢰하는 Redisson fallback decoder는 임시 input을 동기적으로 모두 소비하고 독립된 객체만 반환해야 합니다.
-input을 retain하거나 다른 thread로 전달하거나 파생 `ByteBuf` view를 반환하는 방식은 지원하지 않습니다. Decode
-결과가 해당 bytes를 계속 보존해야 한다면 독립적인 소유권을 갖는 `ByteBuf.copy()`를 반환하세요.
+신뢰하는 Redisson fallback decoder는 임시 input을 동기적으로 모두 소비하고 독립된 객체만 반환해야 합니다. input을 retain하거나 다른 thread로 전달하거나 파생 `ByteBuf` view를 반환하는 방식은 지원하지 않습니다. Decode 결과가 해당 bytes를 계속 보존해야 한다면 독립적인 소유권을 갖는 `ByteBuf.copy()`를 반환하세요.
 
-Decode 시 정확히 하나의 NIO buffer를 노출하는 contiguous input(`nioBufferCount() == 1`)만 lower-copy 경로를
-사용합니다. Composite input은 copied compatibility 경로에 남고 trusted fallback decode도 별도로 복사한 input으로
-격리됩니다. 이는 zero-copy를 보장한다는 의미가 아닙니다.
+Decode 시 정확히 하나의 NIO buffer를 노출하는 contiguous input (`nioBufferCount() == 1`)만 lower-copy 경로를 사용합니다. Composite input은 copied compatibility 경로에 남고 trusted fallback decode도 별도로 복사한 input으로 격리됩니다. 이는 zero-copy를 보장한다는 의미가 아닙니다.
 
-`ALLOW_ALL_CLASSES_UNSAFE`는 Protobuf class allowlist만 변경합니다. fallback codec을 활성화하지 않으므로 이
-생성자에서는 비 Protobuf 값이 계속 거부됩니다.
+`ALLOW_ALL_CLASSES_UNSAFE`는 Protobuf class allowlist만 변경합니다. fallback codec을 활성화하지 않으므로 이 생성자에서는 비 Protobuf 값이 계속 거부됩니다.
 
 프로덕션에서는 좁은 커스텀 허용 목록을 권장합니다:
 
@@ -98,9 +87,7 @@ val codec = RedissonProtobufCodec(
 
 ### Lettuce caller-owned ByteBuf encode
 
-`LettuceProtobufCodecs.protobuf()`는 strict 기본 allowlist를 유지하면서 압축하지 않은 Protobuf message를
-Lettuce가 소유한 `ByteBuf`에 기록합니다. `trustedInternalProtobuf()`도 같은 target 경로를 사용하지만 신뢰
-Kryo fallback을 유지하므로 shared/untrusted boundary에서는 사용하면 안 됩니다.
+`LettuceProtobufCodecs.protobuf()`는 strict 기본 allowlist를 유지하면서 압축하지 않은 Protobuf message를 Lettuce가 소유한 `ByteBuf`에 기록합니다. `trustedInternalProtobuf()`도 같은 target 경로를 사용하지만 신뢰 Kryo fallback을 유지하므로 shared/untrusted boundary에서는 사용하면 안 됩니다.
 
 ```kotlin
 val strictCodec = LettuceProtobufCodecs.protobuf<MyBluetapeMessage>()
@@ -116,10 +103,8 @@ val customCodec = LettuceBinaryCodec<MyMessage>(
 ```
 
 압축 factory와 단일 인자의 `ByteBuffer` encode/decode API는 바뀌지 않습니다. Target write는 성공 뒤에만
-`writerIndex`를 commit합니다. 실패하면 capacity 증가나 시도한 bytes가 남을 수 있으므로 caller가 해당 range를
-clear/reinitialize하거나 buffer를 폐기해야 합니다. Heap/direct allocation 감소 실측은
-[issue #757 report](../../docs/benchmarks/2026-07-18-protobuf-buffer-allocation.md)에 있으며 zero-copy나 throughput
-보장은 아닙니다. Java caller는 `LettuceProtobufCodecs.INSTANCE.protobuf()`를 사용합니다.
+`writerIndex`를 commit합니다. 실패하면 capacity 증가나 시도한 bytes가 남을 수 있으므로 caller가 해당 range를 clear/reinitialize하거나 buffer를 폐기해야 합니다. Heap/direct allocation 감소 실측은
+[issue #757 report](../../docs/benchmarks/2026-07-18-protobuf-buffer-allocation.md)에 있으며 zero-copy나 throughput 보장은 아닙니다. Java caller는 `LettuceProtobufCodecs.INSTANCE.protobuf()`를 사용합니다.
 
 ## 사용 예시
 
@@ -185,8 +170,7 @@ val source = target.duplicate().apply {
 val decoded = unpackMessage<MyMessage>(source)
 ```
 
-caller-owned 경로는 호출 간 재사용하는 넉넉한 크기의 buffer를 위한 API입니다. 테스트나 내부 크기 검증에서는
-별도 public size API를 추가하지 않고 정확한 capacity를 계산할 수 있습니다:
+caller-owned 경로는 호출 간 재사용하는 넉넉한 크기의 buffer를 위한 API입니다. 테스트나 내부 크기 검증에서는 별도 public size API를 추가하지 않고 정확한 capacity를 계산할 수 있습니다:
 
 ```kotlin
 val packed = com.google.protobuf.Any.pack(myMessage)
@@ -194,9 +178,7 @@ val exactTarget = ByteBuffer.allocate(packed.serializedSize)
 packMessageTo(myMessage, exactTarget)
 ```
 
-운영 코드에서는 의도적으로 더 큰 재사용 buffer를 유지하는 편이 좋습니다. 정확한 크기를 구하려면 실제 쓰기
-전에 packed `Any`를 먼저 만들어야 하므로 기대한 allocation 이점 일부가 사라집니다. 기존 `ByteArray` 호출자는
-마이그레이션할 필요가 없습니다.
+운영 코드에서는 의도적으로 더 큰 재사용 buffer를 유지하는 편이 좋습니다. 정확한 크기를 구하려면 실제 쓰기 전에 packed `Any`를 먼저 만들어야 하므로 기대한 allocation 이점 일부가 사라집니다. 기존 `ByteArray` 호출자는 마이그레이션할 필요가 없습니다.
 
 ### 6. ProtobufSerializer (BinarySerializer 구현)
 
@@ -218,13 +200,9 @@ val decoded = serializer.deserializeFrom<MyMessage>(source)
 ```
 
 `serializeTo`는 caller-owned encode 최적화를 유지합니다. `deserializeFrom`은 의도적으로 상속된
-`BinarySerializer` compatibility 경로를 사용합니다. bounded remaining bytes만 복사한 뒤 decode하며 heap, direct,
-sliced, read-only buffer의 source position, limit, mark, byte order를 보존합니다.
+`BinarySerializer` compatibility 경로를 사용합니다. bounded remaining bytes만 복사한 뒤 decode하며 heap, direct, sliced, read-only buffer의 source position, limit, mark, byte order를 보존합니다.
 
-target의 소유권은 caller에게 있습니다. preflight `BufferOverflowException`은 target을 변경하지 않지만 쓰기가
-시작된 뒤 실패하면 `position`만 복원되며 기존 바이트는 이미 덮어쓰였을 수 있습니다. 재사용하기 전에
-caller-owned prefix 전체를 다시 초기화하거나 buffer를 폐기하세요. 여기서 `HEADER_SIZE`는 caller가 정한 prefix
-경계입니다:
+target의 소유권은 caller에게 있습니다. preflight `BufferOverflowException`은 target을 변경하지 않지만 쓰기가 시작된 뒤 실패하면 `position`만 복원되며 기존 바이트는 이미 덮어쓰였을 수 있습니다. 재사용하기 전에 caller-owned prefix 전체를 다시 초기화하거나 buffer를 폐기하세요. 여기서 `HEADER_SIZE`는 caller가 정한 prefix 경계입니다:
 
 ```kotlin
 try {
@@ -245,15 +223,15 @@ try {
 
 ## 주요 파일/클래스 목록
 
-| 파일                                  | 설명                                                              |
-|-------------------------------------|-----------------------------------------------------------------|
+| 파일                                | 설명                                                                    |
+|-------------------------------------|-------------------------------------------------------------------------|
 | `TypeAlias.kt`                      | Protobuf 메시지 타입 별칭 (`ProtoMessage`, `ProtoAny`, `ProtoMoney` 등) |
-| `TimestampSupport.kt`               | `Instant`/`Date` ↔ `Timestamp` 변환, RFC3339 파싱                   |
-| `DurationSupport.kt`                | Java `Duration` ↔ Protobuf `Duration` 변환, 연산자                   |
-| `DateTimeSupport.kt`                | `LocalDate`/`LocalTime`/`LocalDateTime` ↔ Protobuf 날짜/시간 변환     |
-| `MoneySupport.kt`                   | JavaMoney ↔ Protobuf `Money` 변환                                 |
-| `MessageSupport.kt`                 | `Any` 기반 메시지 pack/unpack 유틸리티                                   |
-| `serializers/ProtobufSerializer.kt` | `BinarySerializer` 구현체 (Protobuf + fallback 직렬화)                |
+| `TimestampSupport.kt`               | `Instant`/`Date` ↔ `Timestamp` 변환, RFC3339 파싱                       |
+| `DurationSupport.kt`                | Java `Duration` ↔ Protobuf `Duration` 변환, 연산자                      |
+| `DateTimeSupport.kt`                | `LocalDate`/`LocalTime`/`LocalDateTime` ↔ Protobuf 날짜/시간 변환       |
+| `MoneySupport.kt`                   | JavaMoney ↔ Protobuf `Money` 변환                                       |
+| `MessageSupport.kt`                 | `Any` 기반 메시지 pack/unpack 유틸리티                                  |
+| `serializers/ProtobufSerializer.kt` | `BinarySerializer` 구현체 (Protobuf + fallback 직렬화)                  |
 
 ## 의존성 추가
 

@@ -1,6 +1,7 @@
 package io.bluetape4k.r2dbc.support
 
 import io.bluetape4k.logging.KotlinLogging
+import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.trace
 import io.bluetape4k.support.requireZeroOrPositiveNumber
 import org.springframework.r2dbc.core.DatabaseClient
@@ -42,9 +43,8 @@ private val log by lazy { KotlinLogging.logger {} }
  */
 fun DatabaseClient.GenericExecuteSpec.bindMap(parameters: Map<String, Any?>): DatabaseClient.GenericExecuteSpec =
     parameters.entries.fold(this) { spec, entry ->
-        log.trace {
-            "bind map. name=${entry.key}, valueType=${entry.value?.javaClass?.name ?: "null"}"
-        }
+        log.debug { "bind map. name=${entry.key}, valueType=${entry.value?.javaClass?.name ?: "null"}" }
+        
         when (val value = entry.value) {
             null -> throw rawNullBindingException(entry.key)
             else -> spec.bind(entry.key, value.toParameter())
@@ -89,9 +89,8 @@ fun DatabaseClient.GenericExecuteSpec.bindMap(parameters: Map<String, Any?>): Da
 fun DatabaseClient.GenericExecuteSpec.bindIndexedMap(parameters: Map<Int, Any?>): DatabaseClient.GenericExecuteSpec =
     parameters.entries.fold(this) { spec, entry ->
         val index = entry.key.requireZeroOrPositiveNumber("index")
-        log.trace {
-            "bind indexed map. index=$index, valueType=${entry.value?.javaClass?.name ?: "null"}"
-        }
+        log.trace { "bind indexed map. index=$index, valueType=${entry.value?.javaClass?.name ?: "null"}" }
+        
         when (val value = entry.value) {
             null -> throw rawNullBindingException("index $index")
             else -> spec.bind(index, value.toParameter())
@@ -156,7 +155,10 @@ inline fun <reified V: Any> DatabaseClient.GenericExecuteSpec.bindNullable(
     index: Int,
     value: V? = null,
 ) = apply {
-    bind(index.requireZeroOrPositiveNumber("index"), value.toParameter(V::class.java))
+    bind(
+        index.requireZeroOrPositiveNumber("index"),
+        value.toParameter<V>()
+    )
 }
 
 /**
@@ -179,5 +181,8 @@ inline fun <reified V: Any> DatabaseClient.GenericExecuteSpec.bindNullable(
     name: String,
     value: V? = null,
 ) = apply {
-    bind(name, value.toParameter(V::class.java))
+    bind(
+        name,
+        value.toParameter<V>()
+    )
 }

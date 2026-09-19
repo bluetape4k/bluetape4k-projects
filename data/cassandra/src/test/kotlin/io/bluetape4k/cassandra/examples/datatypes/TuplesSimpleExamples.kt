@@ -7,6 +7,7 @@ import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.assertions.shouldNotBeNull
 import io.bluetape4k.cassandra.AbstractCassandraTest
 import io.bluetape4k.logging.coroutines.KLoggingChannel
+import io.bluetape4k.logging.debug
 import org.junit.jupiter.api.Test
 
 class TuplesSimpleExamples: AbstractCassandraTest() {
@@ -53,14 +54,14 @@ class TuplesSimpleExamples: AbstractCassandraTest() {
     private fun retreiveData(session: CqlSession) {
         for (k in 1..2) {
             val stmt = SimpleStatement.newInstance("SELECT c FROM examples.tuples WHERE k=?", k)
+            log.debug { "Executing query: ${stmt.query}" }
 
-            val row = session.execute(stmt).one()
-            row.shouldNotBeNull()
+            val row = session.execute(stmt).one().shouldNotBeNull()
 
             val coordinatesValue = row.getTupleValue("c")
             coordinatesValue.shouldNotBeNull()
 
-            println("Found coordinate: (${coordinatesValue.getInt(0)}, ${coordinatesValue.getInt(1)})")
+            log.debug { "Found coordinate: (${coordinatesValue.getInt(0)}, ${coordinatesValue.getInt(1)}" }
         }
     }
 }

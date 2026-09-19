@@ -1,28 +1,28 @@
 package io.bluetape4k.javatimes.period.timelines
 
 import io.bluetape4k.assertions.assertFailsWith
+import io.bluetape4k.assertions.shouldBeEmpty
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeFalse
+import io.bluetape4k.assertions.shouldBeNull
+import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.assertions.shouldHaveSize
+import io.bluetape4k.assertions.shouldNotBeNull
+import io.bluetape4k.javatimes.MaxPeriodTime
+import io.bluetape4k.javatimes.MinPeriodTime
+import io.bluetape4k.javatimes.days
 import io.bluetape4k.javatimes.period.AbstractPeriodTest
 import io.bluetape4k.javatimes.period.ITimePeriod
 import io.bluetape4k.javatimes.period.TimeBlock
 import io.bluetape4k.javatimes.period.TimePeriod
 import io.bluetape4k.javatimes.period.TimeRange
-import io.bluetape4k.javatimes.MaxPeriodTime
-import io.bluetape4k.javatimes.MinPeriodTime
-import io.bluetape4k.javatimes.days
 import io.bluetape4k.javatimes.zonedDateTimeOf
 import io.bluetape4k.logging.KLogging
-import io.bluetape4k.assertions.shouldBeFalse
-import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldBeNull
-import io.bluetape4k.assertions.shouldBeTrue
-import io.bluetape4k.assertions.shouldHaveSize
-import io.bluetape4k.assertions.shouldNotBeNull
 import org.junit.jupiter.api.Test
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.io.ObjectInputStream
 import java.io.ObjectOutputStream
-import java.util.Comparator
 
 class TimeLineMomentCollectionTest: AbstractPeriodTest() {
 
@@ -34,7 +34,7 @@ class TimeLineMomentCollectionTest: AbstractPeriodTest() {
     @Test
     fun `empty collection has size zero`() {
         val collection = TimeLineMomentCollection()
-        collection.size shouldBeEqualTo 0
+        collection.shouldBeEmpty()
     }
 
     @Test
@@ -93,7 +93,7 @@ class TimeLineMomentCollectionTest: AbstractPeriodTest() {
         collection.remove(period)
 
         // After removal, moments with no periods should be removed
-        collection.size shouldBeEqualTo 0
+        collection.shouldBeEmpty()
     }
 
     @Test
@@ -181,7 +181,9 @@ class TimeLineMomentCollectionTest: AbstractPeriodTest() {
             RawMutationCase("clear") { it.clear() },
             RawMutationCase("iterator remove") { list -> list.iterator().apply { next(); remove() } },
             RawMutationCase("listIterator add") { list -> list.listIterator().add(TimeLineMoment(end.plusDays(1))) },
-            RawMutationCase("listIterator set") { list -> list.listIterator().apply { next(); set(TimeLineMoment(end.plusDays(1))) } },
+            RawMutationCase("listIterator set") { list ->
+                list.listIterator().apply { next(); set(TimeLineMoment(end.plusDays(1))) }
+            },
             RawMutationCase("listIterator remove") { list -> list.listIterator().apply { next(); remove() } },
             RawMutationCase("subList clear") { it.subList(0, 1).clear() },
             RawMutationCase("subList add") { it.subList(0, 1).add(TimeLineMoment(end.plusDays(1))) },
@@ -328,6 +330,7 @@ class TimeLineMomentCollectionTest: AbstractPeriodTest() {
         assertFailsWith<UnsupportedOperationException> { exposedMoment.periods.add(TimeRange(start, end.plusDays(1))) }
         assertFailsWith<UnsupportedOperationException> { exposedMoment.periods.add(exposedPeriod) }
         assertFailsWith<UnsupportedOperationException> { exposedMoment.periods.remove(exposedPeriod) }
+
         var nestedCallbackInvoked = false
         assertFailsWith<UnsupportedOperationException> {
             exposedMoment.periods.removeIf {
@@ -359,8 +362,12 @@ class TimeLineMomentCollectionTest: AbstractPeriodTest() {
             NestedMutationCase("retainAll") { it.retainAll(listOf(it.first())) },
             NestedMutationCase("clear") { it.clear() },
             NestedMutationCase("iterator remove") { list -> list.iterator().apply { next(); remove() } },
-            NestedMutationCase("listIterator add") { list -> list.listIterator().add(TimeRange(start, end.plusDays(1))) },
-            NestedMutationCase("listIterator set") { list -> list.listIterator().apply { next(); set(TimeRange(start, end.plusDays(1))) } },
+            NestedMutationCase("listIterator add") { list ->
+                list.listIterator().add(TimeRange(start, end.plusDays(1)))
+            },
+            NestedMutationCase("listIterator set") { list ->
+                list.listIterator().apply { next(); set(TimeRange(start, end.plusDays(1))) }
+            },
             NestedMutationCase("listIterator remove") { list -> list.listIterator().apply { next(); remove() } },
             NestedMutationCase("subList clear") { it.subList(0, 1).clear() },
             NestedMutationCase("subList add") { it.subList(0, 1).add(TimeRange(start, end.plusDays(1))) },
@@ -377,7 +384,9 @@ class TimeLineMomentCollectionTest: AbstractPeriodTest() {
             val before = collection.snapshot()
 
             try {
-                assertFailsWith<UnsupportedOperationException> { mutation.mutate(periods) }
+                assertFailsWith<UnsupportedOperationException> {
+                    mutation.mutate(periods)
+                }
             } catch (failure: AssertionError) {
                 throw AssertionError("${mutation.name} must be rejected.", failure)
             }
@@ -416,10 +425,11 @@ class TimeLineMomentCollectionTest: AbstractPeriodTest() {
         }
 
         restored.snapshot() shouldBeEqualTo original.snapshot()
-        assertFailsWith<UnsupportedOperationException> { restored.clear() }
+        assertFailsWith<UnsupportedOperationException> {
+            restored.clear()
+        }
         restored.add(TimeRange(end.plusDays(2), end.plusDays(3)))
-        restored.map { it.moment } shouldBeEqualTo
-            listOf(start, end, end.plusDays(2), end.plusDays(3))
+        restored.map { it.moment } shouldBeEqualTo listOf(start, end, end.plusDays(2), end.plusDays(3))
     }
 
     @Test
@@ -436,9 +446,11 @@ class TimeLineMomentCollectionTest: AbstractPeriodTest() {
         combined shouldHaveSize 1
         combined.first().start shouldBeEqualTo start
         combined.first().end shouldBeEqualTo end.plusDays(3)
+
         intersections shouldHaveSize 1
         intersections.first().start shouldBeEqualTo end.minusDays(2)
         intersections.first().end shouldBeEqualTo end
+
         gaps shouldHaveSize 2
         gaps.first().start shouldBeEqualTo start.minusDays(1)
         gaps.last().end shouldBeEqualTo end.plusDays(4)
@@ -455,7 +467,7 @@ class TimeLineMomentCollectionTest: AbstractPeriodTest() {
         collection.addThroughProtected(end, next)
 
         collection.map { it.moment } shouldBeEqualTo
-            listOf(start, end, end.plusDays(3))
+                listOf(start, end, end.plusDays(3))
 
         collection.removeThroughProtected(start, period)
 

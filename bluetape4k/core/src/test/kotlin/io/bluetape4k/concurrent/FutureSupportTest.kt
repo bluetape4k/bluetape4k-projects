@@ -93,7 +93,7 @@ class FutureSupportTest {
     fun `cancel returns true when wrapped Future cancellation races with watcher cancellation`() {
         val watcherStarted = CountDownLatch(1)
         val wrapperCompletionObserved = CountDownLatch(1)
-        val future = object : Future<String> {
+        val future = object: Future<String> {
             private val cancelled = AtomicBoolean(false)
             private val getterThread = AtomicReference<Thread>()
 

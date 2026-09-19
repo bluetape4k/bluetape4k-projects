@@ -9,14 +9,14 @@ import io.bluetape4k.feign.services.HttpbinAnythingResponse
 import io.bluetape4k.feign.services.Post
 import io.bluetape4k.jackson3.Jackson
 import io.bluetape4k.junit5.random.RandomizedTest
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.trace
 import tools.jackson.databind.json.JsonMapper
 
 @RandomizedTest
 abstract class AbstractHttpbinTest: AbstractFeignTest() {
 
-    companion object: KLogging() {
+    companion object: KLoggingChannel() {
 
         const val REPEAT_SIZE = 3
 

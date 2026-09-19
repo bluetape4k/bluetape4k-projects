@@ -28,10 +28,12 @@ A server wrapper and utility library for building integration tests quickly on t
 - **Embedded SQS**: `ElasticMqServer` runs an in-process SQS server — no Docker needed
 - **Mail testing**: `MailpitServer` provides SMTP + Web UI for email integration tests
 - **LLM support**: `ChromaDBServer` (vector DB, port 8000), `OllamaServer` (local LLM inference, port 11434)
-- **Distributed cache/grid**: `HazelcastServer` (5.x slim), deprecated `Ignite2Server` compatibility facade, `Ignite3Server` (auto cluster-init)
+- **Distributed
+  cache/grid**: `HazelcastServer` (5.x slim), deprecated `Ignite2Server` compatibility facade, `Ignite3Server` (auto cluster-init)
 -
 
 **Observability**: `ZipkinServer` (distributed tracing, `openzipkin/zipkin-slim:2.23`), `GrafanaServer` (dashboards + datasource provisioning, `grafana/grafana:13.1.3`), `K3sServer` (lightweight Kubernetes cluster, `rancher/k3s`; requires `--privileged` Docker mode)
+
 - Shared `GenericServer` / `GenericContainer` utilities
 - Automatic PostgreSQL extension activation for PostGIS and pgvector
 - Declarative activation of extra PostgreSQL extensions through `withExtensions()`
@@ -68,15 +70,10 @@ val grpcPort = shared.grpcPort
 // ShutdownQueue owns the shared Launcher; do not call use/close on it.
 ```
 
-`port` and `url` describe HTTP access. Use `host` and `grpcPort` for a gRPC client.
-Endpoint access before startup fails. Defaults are random mapped ports and `reuse=false`;
-`useDefaultPort=true` binds the standard HTTP and gRPC ports. Launcher reuses one instance within the JVM.
-Readiness uses OpenFGA's `/healthz` SERVING response and Qdrant's `/readyz`, with a two-minute startup timeout.
-The OpenFGA playground port is not exposed.
+`port` and `url` describe HTTP access. Use `host` and `grpcPort` for a gRPC client. Endpoint access before startup fails. Defaults are random mapped ports and `reuse=false`;
+`useDefaultPort=true` binds the standard HTTP and gRPC ports. Launcher reuses one instance within the JVM. Readiness uses OpenFGA's `/healthz` SERVING response and Qdrant's `/readyz`, with a two-minute startup timeout. The OpenFGA playground port is not exposed.
 
-Create unique stores/collections per test and remove them in `finally`.
-JVM properties exported by `start()` are not automatically restored by `stop()`; preserve and restore prior values when needed.
-These defaults are unauthenticated and intended for tests on a trusted Docker host. Docker controls host bindings; random ports do not imply loopback-only access.
+Create unique stores/collections per test and remove them in `finally`. JVM properties exported by `start()` are not automatically restored by `stop()`; preserve and restore prior values when needed. These defaults are unauthenticated and intended for tests on a trusted Docker host. Docker controls host bindings; random ports do not imply loopback-only access.
 
 ## System Property Export (`PropertyExportingServer`)
 
@@ -115,8 +112,8 @@ Every server implements
 | PrometheusServer       | `prometheus`        | `host`, `port`, `url`, `server-port`, `pushgateway-port`, `graphite-exporter-port`                                                                                   |
 | GrafanaServer          | `grafana`           | `host`, `port`, `url`                                                                                                                                                |
 | K3sServer              | `k3s`               | `host`, `port`, `url`                                                                                                                                                |
-| OpenFgaServer | `openfga` | `host`, `port`, `url`, `http-port`, `grpc-port` |
-| QdrantServer | `qdrant` | `host`, `port`, `url`, `http-port`, `grpc-port` |
+| OpenFgaServer          | `openfga`           | `host`, `port`, `url`, `http-port`, `grpc-port`                                                                                                                      |
+| QdrantServer           | `qdrant`            | `host`, `port`, `url`, `http-port`, `grpc-port`                                                                                                                      |
 | ConsulServer           | `consul`            | `host`, `port`, `url`, `dns-port`, `http-port`, `rpc-port`                                                                                                           |
 | JaegerServer           | `jaeger`            | `host`, `port`, `url`, `frontend-port`, `zipkin-port`, `config-port`, `thrift-port`                                                                                  |
 | ElasticsearchOssServer | `elasticsearch-oss` | `host`, `port`, `url`                                                                                                                                                |
@@ -132,21 +129,16 @@ Every server implements
 
 ## Default Docker Image Tags
 
-The defaults below are pinned to the latest stable image tag verified on
-2026-08-10. Mutable `latest`, major-only, and rolling minor tags are avoided so
-that Testcontainers runs remain reproducible across local machines and CI.
+The defaults below are pinned to the latest stable image tag verified on 2026-08-10. Mutable `latest`, major-only, and rolling minor tags are avoided so that Testcontainers runs remain reproducible across local machines and CI.
 
 <!-- issue-1619-ignite2-compatibility:start -->
+
 ### `Ignite2Server` compatibility facade
 
-`Ignite2Server` remains available in the 2.1.x minor line as a deprecated
-compatibility facade for the 2.0.0 public API. The facade will be removed at
-the 3.0.0 breaking boundary. New tests should use `Ignite3Server`; existing
-Ignite 2 consumers should migrate before 3.0.0.
+`Ignite2Server` remains available in the 2.1.x minor line as a deprecated compatibility facade for the 2.0.0 public API. The facade will be removed at the 3.0.0 breaking boundary. New tests should use `Ignite3Server`; existing Ignite 2 consumers should migrate before 3.0.0.
 
 The canonical `apacheignite/ignite` image resolves lazily: `x86_64`/`amd64`
-uses `2.18.0`, while `aarch64`/`arm64` uses `2.18.0-arm64`. Custom images must
-provide an explicit immutable tag; tagless or `latest` calls fail fast.
+uses `2.18.0`, while `aarch64`/`arm64` uses `2.18.0-arm64`. Custom images must provide an explicit immutable tag; tagless or `latest` calls fail fast.
 
 ```kotlin
 @Suppress("DEPRECATION")
@@ -162,98 +154,81 @@ singleton. See [`docs/release/2.0.0-ignite2-migration.md`](../../docs/release/2.
 for the image-selection contract.
 <!-- issue-1619-ignite2-compatibility:end -->
 
-| Group | Server | Image | Default tag |
-|---|---|---|---|
-| AWS | `DynamoDbLocalServer` | `amazon/dynamodb-local` | `3.3.1` |
-| AWS | `FlociServer` | `floci/floci` | `1.6.0` |
-| AWS | `LocalStackServer` | `localstack/localstack` | `4` (deprecated wrapper) |
-| AWS | `MiniStackServer` | `ministackorg/ministack` | `1.4.14` |
-| Database | `ClickHouseServer` | `clickhouse/clickhouse-server` | `26.7.3.19` |
-| Database | `CockroachServer` | `cockroachdb/cockroach` | `v25.4.14` |
-| Database | `MariaDBServer` | `mariadb` | `12.3.2` |
-| Database | `MySQL5Server` | `biarms/mysql` | `5` |
-| Database | `MySQL8Server` | `mysql` | `8.4.11` |
-| Database | `PgvectorServer` | `pgvector/pgvector` | `0.8.6-pg16` |
-| Database | `PostgisServer` | `postgis/postgis` | `16-3.5` |
-| Database | `PostgreSQLServer` | `postgres` | `18.4-alpine` |
-| Database | `TrinoServer` | `trinodb/trino` | `483` |
-| Graph DB | `FalkorDBServer` | `falkordb/falkordb` | `v4.20.2` |
-| Graph DB | `MemgraphServer` | `memgraph/memgraph` | `3.12.0` |
-| Graph DB | `Neo4jServer` | `neo4j` | `5.26.29` |
-| Graph DB | `PostgreSQLAgeServer` | `apache/age` | `release_PG18_1.7.0` |
-| HTTP | `BluetapeHttpServer` | `bluetape4k/mock-web-server` | `2.1.0` |
-| HTTP | `BluetapeWebfluxServer` | `bluetape4k/mock-webflux-server` | `2.1.0` |
-| HTTP | `NginxServer` | `nginx` | `1.30.4-alpine` |
-| HTTP | `WireMockServer` | `wiremock/wiremock` | `3.13.2` |
-| Infrastructure | `OpenFgaServer` | `openfga/openfga` | `v1.8.2` |
-| Infrastructure | `ConsulServer` | `hashicorp/consul` | `1.22.7` |
-| Infrastructure | `EtcdServer` | `gcr.io/etcd-development/etcd` | `v3.6.14` |
-| Infrastructure | `GrafanaServer` | `grafana/grafana` | `13.1.3` |
-| Infrastructure | `JaegerServer` | `jaegertracing/all-in-one` | `1.76.0` |
-| Infrastructure | `K3sServer` | `rancher/k3s` | `v1.36.3-k3s1` |
-| Infrastructure | `KeycloakServer` | `quay.io/keycloak/keycloak` | `26.7.1` |
-| Infrastructure | `PrometheusServer` | `prom/prometheus` | `v3.13.2` |
-| Infrastructure | `ToxiproxyServer` | `ghcr.io/shopify/toxiproxy` | `2.9.0` |
-| Infrastructure | `VaultServer` | `hashicorp/vault` | `1.20.4` |
-| Infrastructure | `ZipkinServer` | `openzipkin/zipkin-slim` | `2.23` |
-| Infrastructure | `ZooKeeperServer` | `zookeeper` | `3.9.5` |
-| LLM | `ChromaDBServer` | `chromadb/chroma` | `0.5.23` |
-| LLM | `OllamaServer` | `ollama/ollama` | `0.32.6` |
-| Mail | `MailpitServer` | `axllent/mailpit` | `v1.30.7` |
-| Messaging | `KafkaServer` | `confluentinc/cp-kafka` | `7.5.16` |
-| Messaging | `NatsServer` | `nats` | `2.14.4` |
-| Messaging | `PulsarServer` | `apachepulsar/pulsar` | `3.3.9` (Java 17+ constraint) |
-| Messaging | `RabbitMQServer` | `rabbitmq` | `3.13` (4.x wrapper failure) |
-| Messaging | `RedpandaServer` | `docker.redpanda.com/redpandadata/redpanda` | `v26.2.1` |
-| Storage | `CassandraServer` | `cassandra` | `5.0.8` |
-| Storage | `ElasticsearchOssServer` | `docker.elastic.co/elasticsearch/elasticsearch-oss` | `7.10.2` |
-| Storage | `ElasticsearchServer` | `docker.elastic.co/elasticsearch/elasticsearch` | `9.5.0` |
-| Storage | `HazelcastServer` | `hazelcast/hazelcast` | `5.7.0-slim-jdk25` |
-| Storage | `Ignite2Server` | `apacheignite/ignite` | `2.18.0` (x86_64/amd64) or `2.18.0-arm64` (aarch64/arm64), deprecated facade |
-| Storage | `Ignite3Server` | `apacheignite/ignite` | `3.1.0` |
-| Storage | `InfluxDBServer` | `influxdb` | `2.9.1` |
-| Storage | `QdrantServer` | `qdrant/qdrant` | `v1.19.0` |
-| Storage | `MinIOServer` | `minio/minio` | `RELEASE.2025-07-23T15-54-02Z` (compatibility fixture) |
-| Storage | `MongoDBServer` | `mongo` | `8.0.28` |
-| Storage | `OpenSearchServer` | `opensearchproject/opensearch` | `3.8.0` |
-| Storage | `RedisClusterServer` | `tommy351/redis-cluster` | `6.2` (compatibility fixture) |
-| Storage | `RedisServer` | `redis` | `8.8.1` |
+| Group          | Server                   | Image                                               | Default tag                                                                  |
+|----------------|--------------------------|-----------------------------------------------------|------------------------------------------------------------------------------|
+| AWS            | `DynamoDbLocalServer`    | `amazon/dynamodb-local`                             | `3.3.1`                                                                      |
+| AWS            | `FlociServer`            | `floci/floci`                                       | `1.6.0`                                                                      |
+| AWS            | `LocalStackServer`       | `localstack/localstack`                             | `4` (deprecated wrapper)                                                     |
+| AWS            | `MiniStackServer`        | `ministackorg/ministack`                            | `1.4.14`                                                                     |
+| Database       | `ClickHouseServer`       | `clickhouse/clickhouse-server`                      | `26.7.3.19`                                                                  |
+| Database       | `CockroachServer`        | `cockroachdb/cockroach`                             | `v25.4.14`                                                                   |
+| Database       | `MariaDBServer`          | `mariadb`                                           | `12.3.2`                                                                     |
+| Database       | `MySQL5Server`           | `biarms/mysql`                                      | `5`                                                                          |
+| Database       | `MySQL8Server`           | `mysql`                                             | `8.4.11`                                                                     |
+| Database       | `PgvectorServer`         | `pgvector/pgvector`                                 | `0.8.6-pg16`                                                                 |
+| Database       | `PostgisServer`          | `postgis/postgis`                                   | `16-3.5`                                                                     |
+| Database       | `PostgreSQLServer`       | `postgres`                                          | `18.4-alpine`                                                                |
+| Database       | `TrinoServer`            | `trinodb/trino`                                     | `483`                                                                        |
+| Graph DB       | `FalkorDBServer`         | `falkordb/falkordb`                                 | `v4.20.2`                                                                    |
+| Graph DB       | `MemgraphServer`         | `memgraph/memgraph`                                 | `3.12.0`                                                                     |
+| Graph DB       | `Neo4jServer`            | `neo4j`                                             | `5.26.29`                                                                    |
+| Graph DB       | `PostgreSQLAgeServer`    | `apache/age`                                        | `release_PG18_1.7.0`                                                         |
+| HTTP           | `BluetapeHttpServer`     | `bluetape4k/mock-web-server`                        | `2.1.0`                                                                      |
+| HTTP           | `BluetapeWebfluxServer`  | `bluetape4k/mock-webflux-server`                    | `2.1.0`                                                                      |
+| HTTP           | `NginxServer`            | `nginx`                                             | `1.30.4-alpine`                                                              |
+| HTTP           | `WireMockServer`         | `wiremock/wiremock`                                 | `3.13.2`                                                                     |
+| Infrastructure | `OpenFgaServer`          | `openfga/openfga`                                   | `v1.8.2`                                                                     |
+| Infrastructure | `ConsulServer`           | `hashicorp/consul`                                  | `1.22.7`                                                                     |
+| Infrastructure | `EtcdServer`             | `gcr.io/etcd-development/etcd`                      | `v3.6.14`                                                                    |
+| Infrastructure | `GrafanaServer`          | `grafana/grafana`                                   | `13.1.3`                                                                     |
+| Infrastructure | `JaegerServer`           | `jaegertracing/all-in-one`                          | `1.76.0`                                                                     |
+| Infrastructure | `K3sServer`              | `rancher/k3s`                                       | `v1.36.3-k3s1`                                                               |
+| Infrastructure | `KeycloakServer`         | `quay.io/keycloak/keycloak`                         | `26.7.1`                                                                     |
+| Infrastructure | `PrometheusServer`       | `prom/prometheus`                                   | `v3.13.2`                                                                    |
+| Infrastructure | `ToxiproxyServer`        | `ghcr.io/shopify/toxiproxy`                         | `2.9.0`                                                                      |
+| Infrastructure | `VaultServer`            | `hashicorp/vault`                                   | `1.20.4`                                                                     |
+| Infrastructure | `ZipkinServer`           | `openzipkin/zipkin-slim`                            | `2.23`                                                                       |
+| Infrastructure | `ZooKeeperServer`        | `zookeeper`                                         | `3.9.5`                                                                      |
+| LLM            | `ChromaDBServer`         | `chromadb/chroma`                                   | `0.5.23`                                                                     |
+| LLM            | `OllamaServer`           | `ollama/ollama`                                     | `0.32.6`                                                                     |
+| Mail           | `MailpitServer`          | `axllent/mailpit`                                   | `v1.30.7`                                                                    |
+| Messaging      | `KafkaServer`            | `confluentinc/cp-kafka`                             | `7.5.16`                                                                     |
+| Messaging      | `NatsServer`             | `nats`                                              | `2.14.4`                                                                     |
+| Messaging      | `PulsarServer`           | `apachepulsar/pulsar`                               | `3.3.9` (Java 17+ constraint)                                                |
+| Messaging      | `RabbitMQServer`         | `rabbitmq`                                          | `3.13` (4.x wrapper failure)                                                 |
+| Messaging      | `RedpandaServer`         | `docker.redpanda.com/redpandadata/redpanda`         | `v26.2.1`                                                                    |
+| Storage        | `CassandraServer`        | `cassandra`                                         | `5.0.8`                                                                      |
+| Storage        | `ElasticsearchOssServer` | `docker.elastic.co/elasticsearch/elasticsearch-oss` | `7.10.2`                                                                     |
+| Storage        | `ElasticsearchServer`    | `docker.elastic.co/elasticsearch/elasticsearch`     | `9.5.0`                                                                      |
+| Storage        | `HazelcastServer`        | `hazelcast/hazelcast`                               | `5.7.0-slim-jdk25`                                                           |
+| Storage        | `Ignite2Server`          | `apacheignite/ignite`                               | `2.18.0` (x86_64/amd64) or `2.18.0-arm64` (aarch64/arm64), deprecated facade |
+| Storage        | `Ignite3Server`          | `apacheignite/ignite`                               | `3.1.0`                                                                      |
+| Storage        | `InfluxDBServer`         | `influxdb`                                          | `2.9.1`                                                                      |
+| Storage        | `QdrantServer`           | `qdrant/qdrant`                                     | `v1.19.0`                                                                    |
+| Storage        | `MinIOServer`            | `minio/minio`                                       | `RELEASE.2025-07-23T15-54-02Z` (compatibility fixture)                       |
+| Storage        | `MongoDBServer`          | `mongo`                                             | `8.0.28`                                                                     |
+| Storage        | `OpenSearchServer`       | `opensearchproject/opensearch`                      | `3.8.0`                                                                      |
+| Storage        | `RedisClusterServer`     | `tommy351/redis-cluster`                            | `6.2` (compatibility fixture)                                                |
+| Storage        | `RedisServer`            | `redis`                                             | `8.8.1`                                                                      |
 
 Compatibility exceptions are intentional: `MySQL5Server` keeps the ARM-capable
 `biarms/mysql:5` alias, `ElasticsearchOssServer` remains on the legacy OSS image,
 `ChromaDBServer` remains on its last stable non-development tag, `ZipkinServer`
 stays on `2.23` because newer images fail its current contract, `PulsarServer`
 and `RabbitMQServer` remain on the newest wrapper-compatible major versions,
-`MinIOServer` and `RedisClusterServer` remain explicit compatibility fixtures,
-and `PostgreSQLAgeServer` stays on the latest stable PG18 image rather than the
-`1.8.0-rc0` release candidate. `LocalStackServer` is deprecated; new AWS tests
-should use `FlociServer` or `MiniStackServer`.
+`MinIOServer` and `RedisClusterServer` remain explicit compatibility fixtures, and `PostgreSQLAgeServer` stays on the latest stable PG18 image rather than the
+`1.8.0-rc0` release candidate. `LocalStackServer` is deprecated; new AWS tests should use `FlociServer` or `MiniStackServer`.
 
 ## Image Family Startup and Workload Gate
 
 The 53 Docker-backed server families are declared in
-[`scripts/testcontainers_image_gate_manifest.json`](../../scripts/testcontainers_image_gate_manifest.json).
-The manifest links each pinned image/tag to its Kotlin wrapper, representative
-test class, readiness contract, workload evidence, and diagnostic commands. A
-family may provide `testSelector` when the class contains an intentionally
-disabled method; the gate then runs the explicit representative method so a
-valid execution is not reported with an unrelated skipped test.
+[`scripts/testcontainers_image_gate_manifest.json`](../../scripts/testcontainers_image_gate_manifest.json). The manifest links each pinned image/tag to its Kotlin wrapper, representative test class, readiness contract, workload evidence, and diagnostic commands. A family may provide `testSelector` when the class contains an intentionally disabled method; the gate then runs the explicit representative method so a valid execution is not reported with an unrelated skipped test.
 
-The same runner is used by the full Nightly and stable release workflows. Pull
-requests keep their low-cost JVM and module checks; the Docker-backed family
-gate is intentionally reserved for the full Nightly/release path. The runner
-executes the selected families sequentially (`max-parallel: 1`),
-records `success`, `product_failure`, `infrastructure_failure`, or `blocked`,
-and writes `summary.json`, `summary.md`, and one JSON file per family. Stable
-publication requires all 49 release-required families (`49/49`),
-`release_gate=true`, and zero failure-classification counts; the remaining four
-families are support inventory and are reported separately. Docker Hub
-authentication and mirror settings are supplied through
-environment variables or CI secrets; credentials are redacted from evidence.
+The same runner is used by the full Nightly and stable release workflows. Pull requests keep their low-cost JVM and module checks; the Docker-backed family gate is intentionally reserved for the full Nightly/release path. The runner executes the selected families sequentially (`max-parallel: 1`), records `success`, `product_failure`, `infrastructure_failure`, or `blocked`, and writes `summary.json`, `summary.md`, and one JSON file per family. Stable publication requires all 49 release-required families (`49/49`),
+`release_gate=true`, and zero failure-classification counts; the remaining four families are support inventory and are reported separately. Docker Hub authentication and mirror settings are supplied through environment variables or CI secrets; credentials are redacted from evidence.
 
 <!-- TESTCONTAINERS_IMAGE_GATE_COMMAND_START -->
-Run a targeted local family gate from the repository root when investigating a
-specific change:
+Run a targeted local family gate from the repository root when investigating a specific change:
 
 ```bash
 python3 scripts/run_testcontainers_image_gate.py \
@@ -275,12 +250,10 @@ python3 scripts/run_testcontainers_image_gate.py \
   --max-attempts 2 \
   --timeout-minutes 30
 ```
+
 <!-- TESTCONTAINERS_IMAGE_GATE_COMMAND_END -->
 
-When a family fails, inspect its JSON artifact and the bounded Docker/K3s
-diagnostics before retrying. Registry rate limits, daemon failures, and
-readiness timeouts remain infrastructure evidence; they are not a reason to
-skip the gate or publish a release.
+When a family fails, inspect its JSON artifact and the bounded Docker/K3s diagnostics before retrying. Registry rate limits, daemon failures, and readiness timeouts remain infrastructure evidence; they are not a reason to skip the gate or publish a release.
 
 ## Usage Examples
 

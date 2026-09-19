@@ -6,7 +6,7 @@ import io.bluetape4k.rule.DEFAULT_RULE_NAME
 import io.bluetape4k.rule.DEFAULT_RULE_PRIORITY
 import io.bluetape4k.rule.api.Facts
 import io.bluetape4k.rule.api.Rule
-import java.util.*
+import io.bluetape4k.support.hashOf
 
 /**
  * [Rule]의 최상위 추상화 클래스입니다.
@@ -51,7 +51,7 @@ abstract class AbstractRule(
         return name == other.name
     }
 
-    override fun hashCode(): Int = Objects.hash(name)
+    override fun hashCode(): Int = hashOf(name)
 
     override fun toString(): String = "Rule(name='$name', priority=$priority, description='$description')"
 }

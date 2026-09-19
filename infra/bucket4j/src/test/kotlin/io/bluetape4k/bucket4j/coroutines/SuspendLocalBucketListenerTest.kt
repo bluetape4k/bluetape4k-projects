@@ -1,7 +1,10 @@
 package io.bluetape4k.bucket4j.coroutines
 
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeGreaterThan
 import io.bluetape4k.bucket4j.AbstractBucket4jTest
 import io.bluetape4k.bucket4j.addBandwidth
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.github.bucket4j.BandwidthBuilder
 import io.github.bucket4j.BucketListener
 import kotlinx.atomicfu.atomic
@@ -10,13 +13,13 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
-import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldBeGreaterThan
 import org.junit.jupiter.api.Test
 import java.time.Duration
 import kotlin.time.Duration.Companion.seconds
 
 class SuspendLocalBucketListenerTest: AbstractBucket4jTest() {
+
+    companion object: KLoggingChannel()
 
     @Test
     fun `대기 후 consume 성공 시 delayed 와 parked 이벤트가 발생한다`() = runTest {
@@ -30,7 +33,9 @@ class SuspendLocalBucketListenerTest: AbstractBucket4jTest() {
             }
         }
 
-        val job = launch { bucket.consume(2) } // 최소 1초 대기
+        val job = launch {
+            bucket.consume(2)  // 최소 1초 대기
+        }
         runCurrent()
 
         listener.delayedNanos.value.shouldBeGreaterThan(0L)
@@ -40,12 +45,13 @@ class SuspendLocalBucketListenerTest: AbstractBucket4jTest() {
         runCurrent()
         job.cancelAndJoin()
 
-        listener.parkedNanos.value.shouldBeGreaterThan(0L)
+        listener.parkedNanos.value shouldBeGreaterThan 0L
     }
 
     @Test
     fun `대기 중 취소되면 interrupted 이벤트가 발생한다`() = runTest {
         val listener = RecordingBucketListener()
+
         val bucket = SuspendLocalBucket(listener = listener) {
             addBandwidth {
                 BandwidthBuilder.builder()
@@ -55,7 +61,9 @@ class SuspendLocalBucketListenerTest: AbstractBucket4jTest() {
             }
         }
 
-        val job = launch { bucket.consume(2) }
+        val job = launch {
+            bucket.consume(2)
+        }
         runCurrent()
         job.cancelAndJoin()
 

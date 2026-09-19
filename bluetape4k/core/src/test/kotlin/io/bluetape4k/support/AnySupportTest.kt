@@ -3,6 +3,9 @@ package io.bluetape4k.support
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeFalse
 import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.assertions.shouldContain
+import io.bluetape4k.assertions.shouldNotBeBlank
+import io.bluetape4k.assertions.shouldNotBeEqualTo
 import io.bluetape4k.logging.KLogging
 import org.junit.jupiter.api.Test
 import java.util.*
@@ -30,10 +33,11 @@ class AnySupportTest {
 
     @Test
     fun `두 값 비교하기`() {
-        (null == null).shouldBeTrue()
-        (null == "").shouldBeFalse()
-        ("" == "").shouldBeTrue()
-        ("a" == "a").shouldBeTrue()
+        null shouldBeEqualTo null
+        "" shouldNotBeEqualTo null
+        "" shouldBeEqualTo ""
+        "a" shouldBeEqualTo "a"
+        "a" shouldNotBeEqualTo "b"
     }
 
     @Test
@@ -132,8 +136,8 @@ class AnySupportTest {
     @Test
     fun `identityToString 과 identityHexString 테스트`() {
         val obj = Any()
-        obj.identityHexString().isNotBlank().shouldBeTrue()
-        obj.identityToString().contains(obj.identityHexString()).shouldBeTrue()
+        obj.identityHexString().shouldNotBeBlank()
+        obj.identityToString() shouldContain obj.identityHexString()
 
         val x: Any? = null
         x.identityToString() shouldBeEqualTo ""

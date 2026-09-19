@@ -29,7 +29,7 @@ class JaninoCondition(val expression: String): Condition {
         expression.requireNotBlank("expression")
     }
 
-    private val evaluator by lazy(LazyThreadSafetyMode.SYNCHRONIZED) {
+    private val evaluator by lazy {
         ExpressionEvaluator().apply {
             setExpressionType(Boolean::class.javaPrimitiveType)
             setParameters(arrayOf("facts"), arrayOf(Map::class.java))
@@ -41,9 +41,8 @@ class JaninoCondition(val expression: String): Condition {
         return try {
             evaluator.evaluate(arrayOf<Any?>(facts.asMap())) as Boolean
         } catch (e: Exception) {
-            log.warn {
-                "Fail to evaluate Janino expression. ${expression.toRuleSourceLogContext()}, " +
-                        "exceptionType=${e.javaClass.name}, factCount=${facts.size}"
+            log.warn(e) {
+                "Fail to evaluate Janino expression. ${expression.toRuleSourceLogContext()}, factCount=${facts.size}"
             }
             false
         }
