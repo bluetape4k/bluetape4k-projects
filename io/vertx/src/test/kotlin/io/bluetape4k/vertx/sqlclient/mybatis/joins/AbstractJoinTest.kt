@@ -1,5 +1,8 @@
 package io.bluetape4k.vertx.sqlclient.mybatis.joins
 
+import io.bluetape4k.assertions.assertFailsWith
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldHaveSize
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
@@ -28,15 +31,12 @@ import io.vertx.junit5.VertxTestContext
 import io.vertx.sqlclient.Row
 import io.vertx.sqlclient.RowSet
 import io.vertx.sqlclient.SqlConnection
-import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldHaveSize
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.mybatis.dynamic.sql.exception.InvalidSqlException
 import org.mybatis.dynamic.sql.util.kotlin.elements.invoke
 import org.mybatis.dynamic.sql.util.kotlin.elements.max
 import org.mybatis.dynamic.sql.util.kotlin.model.select
-import io.bluetape4k.assertions.assertFailsWith
 
 abstract class AbstractJoinTest: AbstractVertxSqlClientTest() {
 

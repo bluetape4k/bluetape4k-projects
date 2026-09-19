@@ -29,33 +29,40 @@ class VertxDecoratorsOverloadTest: AbstractVertxFutureTest() {
             .withRateLimiter(RateLimiter.ofDefaults("builder-rate"))
             .withTimeLimiter(TimeLimiter.ofDefaults("builder-time"))
             .invoke().asCompletableFuture().get(5, TimeUnit.SECONDS)
+
         decorated shouldBeEqualTo "decorated"
 
         val exceptionHandler: (Throwable?) -> String = { "exception" }
         VertxDecorators.ofSupplier<String> { Future.failedFuture(IllegalStateException("boom")) }
             .withFallback(exceptionHandler)
-            .invoke().result() shouldBeEqualTo "exception"
+            .invoke()
+            .result() shouldBeEqualTo "exception"
 
         val resultAndErrorHandler: (String?, Throwable?) -> String = { result, error ->
             result ?: error?.message ?: "missing"
         }
         VertxDecorators.ofSupplier<String> { Future.failedFuture(IllegalStateException("both")) }
             .withFallback(resultAndErrorHandler)
-            .invoke().result() shouldBeEqualTo "both"
+            .invoke()
+            .result() shouldBeEqualTo "both"
 
         val resultPredicate: (String) -> Boolean = { it == "original" }
         val resultHandler: (String) -> String = { "predicate" }
+
         VertxDecorators.ofSupplier { Future.succeededFuture("original") }
             .withFallback(resultPredicate, resultHandler)
-            .invoke().result() shouldBeEqualTo "predicate"
+            .invoke()
+            .result() shouldBeEqualTo "predicate"
 
         VertxDecorators.ofSupplier<String> { Future.failedFuture(IllegalStateException("single")) }
             .withFallback(IllegalStateException::class.java, exceptionHandler)
-            .invoke().result() shouldBeEqualTo "exception"
+            .invoke()
+            .result() shouldBeEqualTo "exception"
 
         val exceptionTypes: Iterable<Class<out Throwable>> = listOf(IllegalStateException::class.java)
         VertxDecorators.ofSupplier<String> { Future.failedFuture(IllegalStateException("iterable")) }
             .withFallback(exceptionTypes, exceptionHandler)
-            .invoke().result() shouldBeEqualTo "exception"
+            .invoke()
+            .result() shouldBeEqualTo "exception"
     }
 }

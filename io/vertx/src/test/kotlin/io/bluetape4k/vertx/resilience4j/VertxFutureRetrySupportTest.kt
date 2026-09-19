@@ -86,6 +86,7 @@ class VertxFutureRetrySupportTest: AbstractVertxFutureTest() {
                     }
                 }
             }.applyEventPublisher()
+
             val metrics = retry.metrics
 
             val future = retry.executeVertxFuture(scheduler) { service.returnHelloWorld() }

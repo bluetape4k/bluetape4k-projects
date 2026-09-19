@@ -1,7 +1,9 @@
 package io.bluetape4k.vertx.web
 
 import io.bluetape4k.junit5.coroutines.runSuspendIO
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.vertx.AbstractVertxTest
+import io.mockk.clearMocks
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
@@ -14,10 +16,21 @@ import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withTimeout
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
 
 class VertxRouteExtensionsTest: AbstractVertxTest() {
+
+    companion object: KLoggingChannel()
+
+    private val ctx = mockk<RoutingContext>(relaxed = true)
+
+    @BeforeEach
+    fun beforeEach() {
+        clearMocks(ctx)
+    }
 
     @Test
     fun `suspendHandler propagates cancellation without failing routing context`(
@@ -27,14 +40,10 @@ class VertxRouteExtensionsTest: AbstractVertxTest() {
         val handlerCompleted = CompletableDeferred<Unit>()
         val handler = captureHandler { route ->
             route.suspendHandler {
-                try {
-                    throw CancellationException("route cancelled")
-                } finally {
-                    handlerCompleted.complete(Unit)
-                }
+                handlerCompleted.complete(Unit)
+                throw CancellationException("route cancelled")
             }
         }
-        val ctx = mockRoutingContext()
 
         executeHandler(vertx, handler, ctx, handlerCompleted)
 
@@ -51,14 +60,10 @@ class VertxRouteExtensionsTest: AbstractVertxTest() {
         val failure = IllegalStateException("boom")
         val handler = captureHandler { route ->
             route.suspendHandler {
-                try {
-                    throw failure
-                } finally {
-                    handlerCompleted.complete(Unit)
-                }
+                handlerCompleted.complete(Unit)
+                throw failure
             }
         }
-        val ctx = mockRoutingContext()
 
         executeHandler(vertx, handler, ctx, handlerCompleted)
 
@@ -74,14 +79,10 @@ class VertxRouteExtensionsTest: AbstractVertxTest() {
         val handlerCompleted = CompletableDeferred<Unit>()
         val handler = captureFailureHandler { route ->
             route.suspendFailureHandler {
-                try {
-                    throw CancellationException("failure route cancelled")
-                } finally {
-                    handlerCompleted.complete(Unit)
-                }
+                handlerCompleted.complete(Unit)
+                throw CancellationException("failure route cancelled")
             }
         }
-        val ctx = mockRoutingContext()
 
         executeHandler(vertx, handler, ctx, handlerCompleted)
 
@@ -98,14 +99,10 @@ class VertxRouteExtensionsTest: AbstractVertxTest() {
         val failure = IllegalArgumentException("failure boom")
         val handler = captureFailureHandler { route ->
             route.suspendFailureHandler {
-                try {
-                    throw failure
-                } finally {
-                    handlerCompleted.complete(Unit)
-                }
+                handlerCompleted.complete(Unit)
+                throw failure
             }
         }
-        val ctx = mockRoutingContext()
 
         executeHandler(vertx, handler, ctx, handlerCompleted)
 
@@ -145,9 +142,6 @@ class VertxRouteExtensionsTest: AbstractVertxTest() {
         withTimeout(3.seconds) {
             handlerCompleted.await()
         }
-        delay(100)
+        delay(100.milliseconds)
     }
-
-    private fun mockRoutingContext(): RoutingContext =
-        mockk(relaxed = true)
 }

@@ -6,7 +6,7 @@ dependencies {
     api(project(":bluetape4k-io"))
     api(project(":bluetape4k-netty"))
     api(project(":bluetape4k-coroutines"))
-    api(project(":bluetape4k-jdbc"))
+    compileOnly(project(":bluetape4k-jdbc"))
     testImplementation(project(":bluetape4k-junit5"))
     testImplementation(project(":bluetape4k-testcontainers"))
 
