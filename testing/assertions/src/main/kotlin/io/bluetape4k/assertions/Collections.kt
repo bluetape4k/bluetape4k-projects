@@ -53,7 +53,7 @@ infix fun <T> Iterable<T>?.shouldContain(expected: T): Iterable<T> {
  * @return non-null receiver (체이닝 지원)
  */
 infix fun Iterable<String>?.shouldNotContainIgnoringCase(expected: String): Iterable<String>? {
-    if (this != null && this.all { !it.equals(expected, ignoreCase = true) }) {
+    if (this != null && this.any { it.equals(expected, ignoreCase = true) }) {
         Failures.fail(
             "Expected ${Messages.stringify(this)} not to contain (ignoring case) ${Messages.stringify(expected)}, but it did."
         )
