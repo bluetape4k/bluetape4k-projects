@@ -1,6 +1,7 @@
 package io.bluetape4k.bucket4j.local
 
 import com.github.benmanes.caffeine.cache.LoadingCache
+import io.bluetape4k.bucket4j.DEFAULT_KEY_PREFIX
 import io.bluetape4k.bucket4j.validateBucketKeySize
 import io.bluetape4k.cache.caffeine.caffeine
 import io.bluetape4k.cache.caffeine.loadingCache
@@ -8,7 +9,6 @@ import io.bluetape4k.concurrent.virtualthread.VirtualThreadExecutor
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import io.bluetape4k.support.requireNotBlank
-import io.github.bucket4j.Bucket
 import io.github.bucket4j.BucketConfiguration
 import io.github.bucket4j.local.LocalBucket
 import java.time.Duration
@@ -30,7 +30,6 @@ abstract class AbstractLocalBucketProvider<T: LocalBucket>(
     protected val keyPrefix: String = DEFAULT_KEY_PREFIX,
 ) {
     companion object: KLogging() {
-        const val DEFAULT_KEY_PREFIX = "bluetape4k.rate-limit.key."
 
         /** Maximum number of local bucket cache entries. */
         const val DEFAULT_CACHE_MAX_SIZE = 100_000L
@@ -85,7 +84,7 @@ abstract class AbstractLocalBucketProvider<T: LocalBucket>(
      */
     open fun resolveBucket(key: String): T {
         key.requireNotBlank("key")
-        log.debug { "Loading local bucket. key=$key" }
+        log.debug { "Loading local bucket. key=${getBucketKey(key)}" }
         val bucketKey = validateBucketKeySize(getBucketKey(key))
 
         return cache

@@ -1,5 +1,6 @@
 package io.bluetape4k.bucket4j.local
 
+import io.bluetape4k.bucket4j.DEFAULT_KEY_PREFIX
 import io.bluetape4k.bucket4j.coroutines.SuspendLocalBucket
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
@@ -46,7 +47,7 @@ open class LocalSuspendBucketProvider(
      * 기본 수학/시간 설정은 `INTEGER_64_BITS`, `SYSTEM_MILLISECONDS` 입니다.
      */
     override fun createBucket(): SuspendLocalBucket {
-        log.debug { "Create SuspendLocalBucket ..." }
+        log.debug { "Create SuspendLocalBucket. keyPrefix: $keyPrefix" }
 
         return SuspendLocalBucket(
             bucketConfiguration,

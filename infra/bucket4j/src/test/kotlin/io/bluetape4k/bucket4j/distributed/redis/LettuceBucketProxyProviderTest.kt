@@ -1,5 +1,7 @@
 package io.bluetape4k.bucket4j.distributed.redis
 
+import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.assertions.shouldNotContain
 import io.bluetape4k.bucket4j.TestRedisServer
 import io.bluetape4k.bucket4j.distributed.AbstractBucketProxyProviderTest
 import io.bluetape4k.bucket4j.distributed.BucketProxyProvider
@@ -8,8 +10,6 @@ import io.bluetape4k.logging.KLogging
 import io.github.bucket4j.distributed.ExpirationAfterWriteStrategy
 import io.github.bucket4j.distributed.proxy.ClientSideConfig
 import io.github.bucket4j.distributed.proxy.ExecutionStrategy
-import io.bluetape4k.assertions.shouldBeTrue
-import io.bluetape4k.assertions.shouldNotContain
 import org.junit.jupiter.api.Test
 import java.util.concurrent.Executors
 import kotlin.time.Duration.Companion.seconds
@@ -40,7 +40,7 @@ class LettuceBucketProxyProviderTest: AbstractBucketProxyProviderTest() {
         val redisClient = TestRedisServer.lettuceClient()
         val connection = redisClient.connect()
         val sync = connection.sync()
-        val prefix = "bluetape4k:rate-limit:test:${Base58.randomString(6)}:"
+        val prefix = "bluetape4k:rate-limit:test:"
         val key = "user-${Base58.randomString(6)}"
 
         try {
