@@ -29,6 +29,7 @@ import java.io.Serializable
 import java.nio.ByteBuffer
 import java.time.Instant
 
+@Suppress("DEPRECATION")
 class RedissonProtobufCodecTest: AbstractRedissonTest() {
 
     companion object: KLogging() {

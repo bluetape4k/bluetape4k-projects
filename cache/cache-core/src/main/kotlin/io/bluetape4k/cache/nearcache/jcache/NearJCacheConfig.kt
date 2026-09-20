@@ -126,7 +126,7 @@ data class NearJCacheConfig<K: Any, V: Any>(
     )
 
     @Deprecated("Binary compatibility bridge", level = DeprecationLevel.HIDDEN)
-    @Suppress("INVISIBLE_REFERENCE", "INVISIBLE_MEMBER", "UNUSED_PARAMETER")
+    @Suppress("INVISIBLE_MEMBER", "UNUSED_PARAMETER")
     constructor(
         cacheManagerFactory: Factory<CacheManager>?,
         cacheName: String?,

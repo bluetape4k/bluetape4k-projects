@@ -75,6 +75,8 @@ class RedisCacheInvalidationStrategy<ID: Any>(
     override fun invalidateByPattern(pattern: String) {
         pattern.requireNotBlank("pattern")
         val keys = cache.keySet(pattern)
+
+        @Suppress("TYPE_PARAMETER_AS_REIFIED_DEPRECATION_WARNING")
         cache.fastRemove(*keys.toTypedArray())
     }
 }

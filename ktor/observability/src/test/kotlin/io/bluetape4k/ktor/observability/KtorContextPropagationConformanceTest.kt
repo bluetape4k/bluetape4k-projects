@@ -555,7 +555,7 @@ private suspend fun io.ktor.server.routing.RoutingContext.runIsolationRoute(
         ownFinally = when (alias) {
             ContextRequestAlias.REQUEST_A -> harness.finallyA
             ContextRequestAlias.REQUEST_B -> harness.finallyB
-            else                          -> error("Unexpected isolation alias")
+            // else                          -> error("Unexpected isolation alias")
         }
         harness.observations(alias) += Span.current().validTraceIdOrNull()
         harness.ledger.record(alias, KtorConformanceEvent.READY)
