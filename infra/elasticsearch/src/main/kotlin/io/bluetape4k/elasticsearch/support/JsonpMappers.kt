@@ -38,8 +38,8 @@ fun jacksonJsonpMapper(): JsonpMapper {
     } catch (e: ClassNotFoundException) {
         throw IllegalStateException(
             "Jackson 2.x (co.elastic.clients.json.jackson.JacksonJsonpMapper) 를 찾을 수 없습니다. " +
-                "build.gradle.kts 에 다음을 추가하세요: " +
-                "implementation(\"com.fasterxml.jackson.core:jackson-databind\")",
+                    "build.gradle.kts 에 다음을 추가하세요: " +
+                    "implementation(\"com.fasterxml.jackson.core:jackson-databind\")",
             e
         )
     }
@@ -96,8 +96,8 @@ fun jackson3JsonpMapper(): JsonpMapper {
     } catch (e: ClassNotFoundException) {
         throw IllegalStateException(
             "Jackson 3.x (co.elastic.clients.json.jackson.Jackson3JsonpMapper) 를 찾을 수 없습니다. " +
-                "build.gradle.kts 에 다음을 추가하세요: " +
-                "implementation(\"tools.jackson.core:jackson-databind\")",
+                    "build.gradle.kts 에 다음을 추가하세요: " +
+                    "implementation(\"tools.jackson.core:jackson-databind\")",
             e
         )
     }

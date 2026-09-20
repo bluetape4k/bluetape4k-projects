@@ -13,15 +13,14 @@ import co.elastic.clients.elasticsearch.core.SearchRequest
 import co.elastic.clients.elasticsearch.core.SearchResponse
 import co.elastic.clients.elasticsearch.core.UpdateRequest
 import co.elastic.clients.elasticsearch.core.UpdateResponse
-import co.elastic.clients.elasticsearch.core.ExistsRequest as CoreExistsRequest
 import co.elastic.clients.elasticsearch.indices.CreateIndexRequest
 import co.elastic.clients.elasticsearch.indices.CreateIndexResponse
 import co.elastic.clients.elasticsearch.indices.DeleteIndexRequest
 import co.elastic.clients.elasticsearch.indices.DeleteIndexResponse
-import co.elastic.clients.elasticsearch.indices.ExistsRequest as IndicesExistsRequest
 import io.bluetape4k.support.requireNotBlank
 import kotlinx.coroutines.future.await
-import kotlin.reflect.KClass
+import co.elastic.clients.elasticsearch.core.ExistsRequest as CoreExistsRequest
+import co.elastic.clients.elasticsearch.indices.ExistsRequest as IndicesExistsRequest
 
 // ---------------------------------------------------------------------------
 // Document API — suspend 확장함수
@@ -51,7 +50,7 @@ import kotlin.reflect.KClass
  * @param block `IndexRequest.Builder<TDocument>` 설정 람다
  * @return [IndexResponse]
  */
-suspend inline fun <reified TDocument : Any> ElasticsearchAsyncClient.indexSuspending(
+suspend inline fun <reified TDocument: Any> ElasticsearchAsyncClient.indexSuspending(
     block: IndexRequest.Builder<TDocument>.() -> Unit,
 ): IndexResponse {
     val request = IndexRequest.Builder<TDocument>().apply(block).build()
@@ -65,10 +64,9 @@ suspend inline fun <reified TDocument : Any> ElasticsearchAsyncClient.indexSuspe
  *
  * ## 사용 예시
  * ```kotlin
- * val response = asyncClient.getSuspending(
+ * val response = asyncClient.getSuspending<MyDoc>(
  *     index = "my-index",
  *     id = "1",
- *     clazz = MyDoc::class,
  * )
  * val doc: MyDoc? = response.source()
  * ```
@@ -76,18 +74,17 @@ suspend inline fun <reified TDocument : Any> ElasticsearchAsyncClient.indexSuspe
  * @param T 문서 타입
  * @param index 인덱스 이름
  * @param id 문서 ID
- * @param clazz 문서 타입의 [KClass]
  * @return [GetResponse] of [T]
  */
-suspend fun <T : Any> ElasticsearchAsyncClient.getSuspending(
+suspend inline fun <reified T: Any> ElasticsearchAsyncClient.getSuspending(
     index: String,
     id: String,
-    clazz: KClass<T>,
 ): GetResponse<T> {
     index.requireNotBlank("index")
     id.requireNotBlank("id")
+
     val request = GetRequest.of { it.index(index).id(id) }
-    return this.get(request, clazz.java).await()
+    return this.get(request, T::class.java).await()
 }
 
 /**
@@ -107,7 +104,7 @@ suspend fun <T : Any> ElasticsearchAsyncClient.getSuspending(
  * @param block `DeleteRequest.Builder` 설정 람다
  * @return [DeleteResponse]
  */
-suspend fun ElasticsearchAsyncClient.deleteSuspending(
+suspend inline fun ElasticsearchAsyncClient.deleteSuspending(
     block: DeleteRequest.Builder.() -> Unit,
 ): DeleteResponse {
     val request = DeleteRequest.Builder().apply(block).build()
@@ -139,8 +136,7 @@ suspend fun ElasticsearchAsyncClient.deleteSuspending(
  * @return `UpdateResponse<TDocument>`
  */
 @Suppress("UNCHECKED_CAST")
-suspend inline fun <reified TDocument : Any, reified TPartialDocument : Any>
-        ElasticsearchAsyncClient.updateSuspending(
+suspend inline fun <reified TDocument: Any, reified TPartialDocument: Any> ElasticsearchAsyncClient.updateSuspending(
     block: UpdateRequest.Builder<TDocument, TPartialDocument>.() -> Unit,
 ): UpdateResponse<TDocument> {
     val request = UpdateRequest.Builder<TDocument, TPartialDocument>().apply(block).build()
@@ -164,7 +160,7 @@ suspend inline fun <reified TDocument : Any, reified TPartialDocument : Any>
  * @param block `ExistsRequest.Builder` 설정 람다 (core)
  * @return `true` 이면 문서 존재, `false` 이면 없음
  */
-suspend fun ElasticsearchAsyncClient.existsSuspending(
+suspend inline fun ElasticsearchAsyncClient.existsSuspending(
     block: CoreExistsRequest.Builder.() -> Unit,
 ): Boolean {
     val request = CoreExistsRequest.Builder().apply(block).build()
@@ -182,9 +178,7 @@ suspend fun ElasticsearchAsyncClient.existsSuspending(
  *
  * ## 사용 예시
  * ```kotlin
- * val response = asyncClient.searchSuspending(
- *     clazz = MyDoc::class,
- * ) {
+ * val response = asyncClient.searchSuspending<MyDoc> {
  *     index("my-index")
  *     query { q -> q.matchAll { it } }
  *     size(10)
@@ -194,15 +188,13 @@ suspend fun ElasticsearchAsyncClient.existsSuspending(
  *
  * @param T 히트 문서 타입
  * @param block `SearchRequest.Builder` 설정 람다
- * @param clazz 문서 타입의 [KClass]
  * @return [SearchResponse] of [T]
  */
-suspend fun <T : Any> ElasticsearchAsyncClient.searchSuspending(
-    clazz: KClass<T>,
+suspend inline fun <reified T: Any> ElasticsearchAsyncClient.searchSuspending(
     block: SearchRequest.Builder.() -> Unit,
 ): SearchResponse<T> {
     val request = SearchRequest.Builder().apply(block).build()
-    return this.search(request, clazz.java).await()
+    return this.search(request, T::class.java).await()
 }
 
 /**
@@ -222,7 +214,7 @@ suspend fun <T : Any> ElasticsearchAsyncClient.searchSuspending(
  * @param block `CountRequest.Builder` 설정 람다
  * @return [CountResponse]
  */
-suspend fun ElasticsearchAsyncClient.countSuspending(
+suspend inline fun ElasticsearchAsyncClient.countSuspending(
     block: CountRequest.Builder.() -> Unit,
 ): CountResponse {
     val request = CountRequest.Builder().apply(block).build()
@@ -250,7 +242,7 @@ suspend fun ElasticsearchAsyncClient.countSuspending(
  * @param block `CreateIndexRequest.Builder` 설정 람다
  * @return [CreateIndexResponse]
  */
-suspend fun ElasticsearchAsyncClient.createIndexSuspending(
+suspend inline fun ElasticsearchAsyncClient.createIndexSuspending(
     block: CreateIndexRequest.Builder.() -> Unit,
 ): CreateIndexResponse {
     val request = CreateIndexRequest.Builder().apply(block).build()
@@ -273,7 +265,7 @@ suspend fun ElasticsearchAsyncClient.createIndexSuspending(
  * @param block `DeleteIndexRequest.Builder` 설정 람다
  * @return [DeleteIndexResponse]
  */
-suspend fun ElasticsearchAsyncClient.deleteIndexSuspending(
+suspend inline fun ElasticsearchAsyncClient.deleteIndexSuspending(
     block: DeleteIndexRequest.Builder.() -> Unit,
 ): DeleteIndexResponse {
     val request = DeleteIndexRequest.Builder().apply(block).build()
@@ -296,7 +288,7 @@ suspend fun ElasticsearchAsyncClient.deleteIndexSuspending(
  * @param block `IndicesExistsRequest.Builder` 설정 람다
  * @return `true` 이면 인덱스 존재, `false` 이면 없음
  */
-suspend fun ElasticsearchAsyncClient.indexExistsSuspending(
+suspend inline fun ElasticsearchAsyncClient.indexExistsSuspending(
     block: IndicesExistsRequest.Builder.() -> Unit,
 ): Boolean {
     val request = IndicesExistsRequest.Builder().apply(block).build()

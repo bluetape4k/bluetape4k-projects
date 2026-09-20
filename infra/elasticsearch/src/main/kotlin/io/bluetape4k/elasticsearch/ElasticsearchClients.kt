@@ -5,17 +5,18 @@ import co.elastic.clients.elasticsearch.ElasticsearchClient
 import co.elastic.clients.json.JsonpMapper
 import co.elastic.clients.transport.ElasticsearchTransport
 import co.elastic.clients.transport.ElasticsearchTransportConfig
-import co.elastic.clients.transport.rest5_client.Rest5ClientTransport
 import co.elastic.clients.transport.rest5_client.Rest5ClientOptions
+import co.elastic.clients.transport.rest5_client.Rest5ClientTransport
 import co.elastic.clients.transport.rest5_client.low_level.Rest5Client
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.support.requireNotBlank
 import io.bluetape4k.support.requirePositiveNumber
+import io.bluetape4k.support.safeLet
 import org.apache.hc.client5.http.config.ConnectionConfig
 import org.apache.hc.core5.http.Header
 import org.apache.hc.core5.http.message.BasicHeader
 import org.apache.hc.core5.util.Timeout
-import java.util.Base64
+import java.util.*
 import javax.net.ssl.SSLContext
 
 /**
@@ -47,7 +48,7 @@ import javax.net.ssl.SSLContext
  * ## Virtual Thread 안전성
  * `synchronized` / `@Synchronized` 를 사용하지 않으며, 필요한 경우 `ReentrantLock` 을 사용합니다.
  */
-object ElasticsearchClients : KLogging() {
+object ElasticsearchClients: KLogging() {
 
     /** Testcontainers 및 JVM cold-start 환경에서 연결 handshake를 허용하는 시간입니다. */
     private const val DEFAULT_CONNECT_TIMEOUT_MILLIS: Long = 10_000L
@@ -234,20 +235,12 @@ object ElasticsearchClients : KLogging() {
         val config = ElasticsearchTransportConfig.Builder()
             .host("$scheme://$host:$port")
             .apply {
-                if (username != null && password != null) {
+                safeLet(username, password) { username, password ->
                     usernameAndPassword(username, password)
                 }
             }
-            .apply {
-                if (sslContext != null) {
-                    sslContext(sslContext)
-                }
-            }
-            .apply {
-                if (mapper != null) {
-                    jsonMapper(mapper)
-                }
-            }
+            .apply { sslContext?.let { sslContext(it) } }
+            .apply { mapper?.let { jsonMapper(it) } }
             .build()
 
         return Rest5ClientTransport(
@@ -255,7 +248,7 @@ object ElasticsearchClients : KLogging() {
                 .apply {
                     val username = config.username()
                     val password = config.password()
-                    if (username != null && password != null) {
+                    safeLet(username, password) { username, password ->
                         val credentials = Base64.getEncoder()
                             .encodeToString("$username:$password".toByteArray(Charsets.UTF_8))
                         setDefaultHeaders(

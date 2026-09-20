@@ -2,7 +2,6 @@ package io.bluetape4k.elasticsearch.coroutines
 
 import co.elastic.clients.elasticsearch.core.BulkRequest
 import co.elastic.clients.elasticsearch.core.bulk.BulkOperation
-import co.elastic.clients.util.ObjectBuilder
 import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeFalse
@@ -14,19 +13,18 @@ import io.bluetape4k.elasticsearch.AbstractElasticsearchTest
 import io.bluetape4k.elasticsearch.ElasticsearchTestFixtures.createTestIndex
 import io.bluetape4k.elasticsearch.ElasticsearchTestFixtures.deleteTestIndex
 import io.bluetape4k.elasticsearch.ElasticsearchTestFixtures.randomIndexName
+import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.coroutines.KLoggingChannel
+import io.bluetape4k.logging.debug
 import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.future.await
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.withTimeoutOrNull
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import kotlin.time.Duration.Companion.milliseconds
-import kotlin.time.Duration.Companion.seconds
-import java.util.function.Function
 
 /**
  * [BulkIngester] Coroutines 확장함수 테스트.
@@ -74,7 +72,7 @@ class BulkIngesterCoroutinesTest: AbstractElasticsearchTest() {
     }
 
     @Test
-    fun `addSuspend 로 1000건 문서를 인덱싱한다`() = runTest(timeout = 60.seconds) {
+    fun `addSuspend 로 1000건 문서를 인덱싱한다`() = runSuspendIO {
         val docCount = 1000
 
         val ingester = bulkIngesterOf<Void>(
@@ -96,16 +94,18 @@ class BulkIngesterCoroutinesTest: AbstractElasticsearchTest() {
         }
 
         // BulkIngester.close() 이후 refresh 하여 검색 가능 상태로 전환
-        asyncClient.indices().refresh { it.index(indexName) }.await()
+        val refreshRes = asyncClient.indices().refresh { it.index(indexName) }.await()
+        log.debug { "refreshRes=$refreshRes" }
 
         val countResponse = asyncClient.countSuspending {
             index(indexName)
         }
+        log.debug { "countResponse: $countResponse" }
         countResponse.count() shouldBeGreaterOrEqualTo docCount.toLong()
     }
 
     @Test
-    fun `builder lambda addSuspend 로 문서를 인덱싱한다`() = runTest(timeout = 60.seconds) {
+    fun `builder lambda addSuspend 로 문서를 인덱싱한다`() = runSuspendIO {
         val ingester = bulkIngesterOf<Void>(
             client = asyncClient,
             maxOperations = 1,
@@ -113,7 +113,7 @@ class BulkIngesterCoroutinesTest: AbstractElasticsearchTest() {
 
         ingester.use {
             it.addSuspend(
-                Function<BulkOperation.Builder, ObjectBuilder<BulkOperation>> { operation ->
+                { operation ->
                     operation.index<Map<String, Any?>> { index ->
                         index.index(indexName)
                             .id("builder-doc")
@@ -123,13 +123,16 @@ class BulkIngesterCoroutinesTest: AbstractElasticsearchTest() {
             )
         }
 
-        asyncClient.indices().refresh { it.index(indexName) }.await()
+        val refreshRes = asyncClient.indices().refresh { it.index(indexName) }.await()
+        log.debug { "refreshResp=$refreshRes" }
+
         val countResponse = asyncClient.countSuspending { index(indexName) }
+        log.debug { "countResponse=$countResponse" }
         countResponse.count() shouldBeGreaterOrEqualTo 1L
     }
 
     @Test
-    fun `bulkProgressListener 를 통해 After 이벤트를 수신한다`() = runTest(timeout = 60.seconds) {
+    fun `bulkProgressListener 를 통해 After 이벤트를 수신한다`() = runSuspendIO {
         val handle = bulkProgressListener<Void>()
         val (listener, events) = handle
 
@@ -155,6 +158,7 @@ class BulkIngesterCoroutinesTest: AbstractElasticsearchTest() {
                             .document(mapOf("title" to "Event Document $i"))
                     }
                 }
+                log.debug { "bulk operation $operation to add ingester" }
                 it.addSuspend(operation)
             }
         }
@@ -166,7 +170,7 @@ class BulkIngesterCoroutinesTest: AbstractElasticsearchTest() {
     }
 
     @Test
-    fun `bulkProgressListener drops overflowed events from bounded buffer`() = runTest {
+    fun `bulkProgressListener drops overflowed events from bounded buffer`() = runSuspendIO {
         val handle = bulkProgressListener<Void>(bufferCapacity = 1)
         val (listener, events) = handle
 
@@ -177,8 +181,8 @@ class BulkIngesterCoroutinesTest: AbstractElasticsearchTest() {
             listener.beforeBulk(2L, request, emptyList<Void>())
 
             val event = events.first()
-            event shouldBeInstanceOf BulkProgressEvent.Before::class
-            (event as BulkProgressEvent.Before<Void>).executionId shouldBeEqualTo 1L
+            event.shouldBeInstanceOf<BulkProgressEvent.Before<Void>>()
+            event.executionId shouldBeEqualTo 1L
 
             withTimeoutOrNull(100.milliseconds) {
                 events.first()
@@ -189,7 +193,7 @@ class BulkIngesterCoroutinesTest: AbstractElasticsearchTest() {
     }
 
     @Test
-    fun `bulkProgressListener emits Error events`() = runTest {
+    fun `bulkProgressListener emits Error events`() = runSuspendIO {
         val handle = bulkProgressListener<Void>()
         val (listener, events) = handle
         val failure = IllegalStateException("bulk failed")
@@ -219,7 +223,7 @@ class BulkIngesterCoroutinesTest: AbstractElasticsearchTest() {
             request.operations(
                 listOf(
                     BulkOperation.of { operation ->
-                        operation.index<Map<String, String>> { index ->
+                        operation.index { index ->
                             index.index("bulk-progress-test")
                                 .id(id)
                                 .document(mapOf("id" to id))

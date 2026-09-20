@@ -5,20 +5,21 @@ import io.bluetape4k.assertions.shouldBeFalse
 import io.bluetape4k.assertions.shouldBeGreaterOrEqualTo
 import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.assertions.shouldNotBeNull
+import io.bluetape4k.assertions.shouldStartWith
 import io.bluetape4k.elasticsearch.AbstractElasticsearchTest
 import io.bluetape4k.elasticsearch.ElasticsearchTestFixtures
 import io.bluetape4k.elasticsearch.ElasticsearchTestFixtures.createTestIndex
 import io.bluetape4k.elasticsearch.ElasticsearchTestFixtures.deleteTestIndex
+import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.debug
 import kotlinx.coroutines.future.await
-import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import kotlin.time.Duration.Companion.seconds
 
 /**
- * [ElasticsearchCoroutines] suspend 확장함수에 대한 CRUD 통합 테스트.
+ * ElasticsearchCoroutines.kt suspend 확장함수에 대한 CRUD 통합 테스트.
  *
  * Testcontainers 를 통해 실제 Elasticsearch 클러스터와 통신하며
  * 인덱스 생성/존재 확인/삭제, 문서 CRUD, 문서 존재 확인, 검색 시나리오를 검증합니다.
@@ -50,13 +51,13 @@ class ElasticsearchCoroutinesTest: AbstractElasticsearchTest() {
     private lateinit var indexName: String
 
     @BeforeEach
-    fun setUp() = runTest(timeout = 60.seconds) {
+    fun setUp() = runSuspendIO {
         indexName = ElasticsearchTestFixtures.randomIndexName("crud-test")
         asyncClient.createTestIndex(indexName).await()
     }
 
     @AfterEach
-    fun tearDown() = runTest(timeout = 60.seconds) {
+    fun tearDown() = runSuspendIO {
         runCatching { asyncClient.deleteTestIndex(indexName).await() }
     }
 
@@ -65,20 +66,23 @@ class ElasticsearchCoroutinesTest: AbstractElasticsearchTest() {
     // -------------------------------------------------------------------------
 
     @Test
-    fun `인덱스 생성 후 존재 확인 그리고 삭제가 순서대로 동작한다`() = runTest(timeout = 60.seconds) {
+    fun `인덱스 생성 후 존재 확인 그리고 삭제가 순서대로 동작한다`() = runSuspendIO {
         val tmpIndex = ElasticsearchTestFixtures.randomIndexName("lifecycle-test")
 
         // 생성
-        val createResponse = asyncClient.createIndexSuspending { index(tmpIndex) }
-        createResponse.acknowledged().shouldBeTrue()
+        val createRes = asyncClient.createIndexSuspending { index(tmpIndex) }
+        log.debug { "create response: $createRes" }
+        createRes.acknowledged().shouldBeTrue()
+        createRes.index() shouldStartWith "lifecycle-test"
 
         // 존재 확인 — 생성 후 존재해야 함
         val existsAfterCreate = asyncClient.indexExistsSuspending { index(listOf(tmpIndex)) }
         existsAfterCreate.shouldBeTrue()
 
         // 삭제
-        val deleteResponse = asyncClient.deleteIndexSuspending { index(listOf(tmpIndex)) }
-        deleteResponse.acknowledged().shouldBeTrue()
+        val deleteRes = asyncClient.deleteIndexSuspending { index(listOf(tmpIndex)) }
+        log.debug { "delete response: $deleteRes" }
+        deleteRes.acknowledged().shouldBeTrue()
 
         // 존재 확인 — 삭제 후 없어야 함
         val existsAfterDelete = asyncClient.indexExistsSuspending { index(listOf(tmpIndex)) }
@@ -90,7 +94,7 @@ class ElasticsearchCoroutinesTest: AbstractElasticsearchTest() {
     // -------------------------------------------------------------------------
 
     @Test
-    fun `문서 색인 후 조회하면 동일한 내용을 반환한다`() = runTest(timeout = 60.seconds) {
+    fun `문서 색인 후 조회하면 동일한 내용을 반환한다`() = runSuspendIO {
         val docId = "doc-1"
         val doc = TestDocument(
             title = "Elasticsearch 소개",
@@ -100,25 +104,27 @@ class ElasticsearchCoroutinesTest: AbstractElasticsearchTest() {
         )
 
         // 색인
-        val indexResponse = asyncClient.indexSuspending<TestDocument> {
+        val indexRes = asyncClient.indexSuspending<TestDocument> {
             index(indexName)
             id(docId)
             document(doc)
         }
-        indexResponse.shouldNotBeNull()
+        log.debug { "indexRes: $indexRes" }
+        indexRes.shards().successful() shouldBeEqualTo 1
 
         // 인덱스 refresh — 검색 가능 상태로
-        asyncClient.indices().refresh { it.index(listOf(indexName)) }.await()
+        val refreshRes = asyncClient.indices().refresh { it.index(listOf(indexName)) }.await()
+        log.debug { "refreshRes: $refreshRes" }
+        refreshRes.shards()?.successful() shouldBeEqualTo 1
 
         // 조회
-        val getResponse = asyncClient.getSuspending(
+        val getRes = asyncClient.getSuspending<TestDocument>(
             index = indexName,
             id = docId,
-            clazz = TestDocument::class,
         )
-        getResponse.found().shouldBeTrue()
-        val retrieved = getResponse.source()
-        retrieved.shouldNotBeNull()
+        log.debug { "getRes: $getRes" }
+        getRes.found().shouldBeTrue()
+        val retrieved = getRes.source().shouldNotBeNull()
         retrieved.title shouldBeEqualTo doc.title
         retrieved.content shouldBeEqualTo doc.content
         retrieved.tags shouldBeEqualTo doc.tags
@@ -126,7 +132,7 @@ class ElasticsearchCoroutinesTest: AbstractElasticsearchTest() {
     }
 
     @Test
-    fun `문서 색인 후 업데이트하면 변경된 내용이 반영된다`() = runTest(timeout = 60.seconds) {
+    fun `문서 색인 후 업데이트하면 변경된 내용이 반영된다`() = runSuspendIO {
         val docId = "doc-update"
         val original = TestDocument(title = "원본 제목", content = "원본 내용", score = 1.0)
 
@@ -139,55 +145,64 @@ class ElasticsearchCoroutinesTest: AbstractElasticsearchTest() {
 
         // 업데이트
         val updatedScore = 9.9
-        val updateResponse = asyncClient.updateSuspending<TestDocument, TestDocumentPartial> {
+        val updateRes = asyncClient.updateSuspending<TestDocument, TestDocumentPartial> {
             index(indexName)
             id(docId)
             doc(TestDocumentPartial(score = updatedScore))
         }
-        updateResponse.shouldNotBeNull()
+        log.debug { "updateRes: $updateRes" }
+        updateRes.shouldNotBeNull()
 
         // 변경 내용 검증
-        asyncClient.indices().refresh { it.index(listOf(indexName)) }.await()
+        val refreshRes = asyncClient.indices().refresh { it.index(listOf(indexName)) }.await()
+        log.debug { "refreshRes: $refreshRes" }
+        refreshRes.shards()?.failed() shouldBeEqualTo 0
+        refreshRes.shards()?.successful() shouldBeEqualTo 1
 
-        val getResponse = asyncClient.getSuspending(
+        val getRes = asyncClient.getSuspending<TestDocument>(
             index = indexName,
             id = docId,
-            clazz = TestDocument::class,
         )
-        getResponse.found().shouldBeTrue()
-        val updated = getResponse.source()
-        updated.shouldNotBeNull()
+        log.debug { "getRes: $getRes" }
+        getRes.found().shouldBeTrue()
+        getRes.index() shouldStartWith "crud-test"
+
+        val updated = getRes.source().shouldNotBeNull()
         updated.title shouldBeEqualTo original.title      // 변경하지 않은 필드
         updated.score shouldBeEqualTo updatedScore               // 변경한 필드
     }
 
     @Test
-    fun `문서 색인 후 삭제하면 조회되지 않는다`() = runTest(timeout = 60.seconds) {
+    fun `문서 색인 후 삭제하면 조회되지 않는다`() = runSuspendIO {
         val docId = "doc-delete"
         val doc = TestDocument(title = "삭제 대상", content = "삭제될 내용")
 
         // 색인
-        asyncClient.indexSuspending<TestDocument> {
+        val indexRes = asyncClient.indexSuspending<TestDocument> {
             index(indexName)
             id(docId)
             document(doc)
         }
+        log.debug { "indexRes: $indexRes" }
+
 
         // 삭제
-        val deleteResponse = asyncClient.deleteSuspending {
+        val deleteRes = asyncClient.deleteSuspending {
             index(indexName)
             id(docId)
         }
-        deleteResponse.shouldNotBeNull()
+        log.debug { "deleteRes: $deleteRes" }
+        deleteRes.shouldNotBeNull()
 
         // 삭제 후 조회
-        asyncClient.indices().refresh { it.index(listOf(indexName)) }.await()
+        val refreshRes = asyncClient.indices().refresh { it.index(listOf(indexName)) }.await()
+        log.debug { "refreshRes: $refreshRes" }
 
-        val getResponse = asyncClient.getSuspending(
+        val getResponse = asyncClient.getSuspending<TestDocument>(
             index = indexName,
             id = docId,
-            clazz = TestDocument::class,
         )
+        log.debug { "getResponse: $getResponse" }
         getResponse.found().shouldBeFalse()
     }
 
@@ -196,14 +211,17 @@ class ElasticsearchCoroutinesTest: AbstractElasticsearchTest() {
     // -------------------------------------------------------------------------
 
     @Test
-    fun `색인된 문서는 exists 가 true 를 반환한다`() = runTest(timeout = 60.seconds) {
+    fun `색인된 문서는 exists 가 true 를 반환한다`() = runSuspendIO {
         val docId = "exists-doc"
-        asyncClient.indexSuspending<TestDocument> {
+        val indexRes = asyncClient.indexSuspending<TestDocument> {
             index(indexName)
             id(docId)
             document(TestDocument(title = "존재 확인", content = "테스트"))
         }
-        asyncClient.indices().refresh { it.index(listOf(indexName)) }.await()
+        log.debug { "indexRes: $indexRes" }
+
+        val refreshRes = asyncClient.indices().refresh { it.index(listOf(indexName)) }.await()
+        log.debug { "refreshRes: $refreshRes" }
 
         val exists = asyncClient.existsSuspending {
             index(indexName)
@@ -213,7 +231,7 @@ class ElasticsearchCoroutinesTest: AbstractElasticsearchTest() {
     }
 
     @Test
-    fun `없는 문서는 exists 가 false 를 반환한다`() = runTest(timeout = 60.seconds) {
+    fun `없는 문서는 exists 가 false 를 반환한다`() = runSuspendIO {
         val exists = asyncClient.existsSuspending {
             index(indexName)
             id("non-existent-id")
@@ -226,7 +244,7 @@ class ElasticsearchCoroutinesTest: AbstractElasticsearchTest() {
     // -------------------------------------------------------------------------
 
     @Test
-    fun `match_all 쿼리로 색인된 전체 문서를 조회한다`() = runTest(timeout = 60.seconds) {
+    fun `match_all 쿼리로 색인된 전체 문서를 조회한다`() = runSuspendIO {
         val docs = listOf(
             TestDocument(title = "문서 A", content = "내용 A", tags = listOf("alpha")),
             TestDocument(title = "문서 B", content = "내용 B", tags = listOf("beta")),
@@ -234,40 +252,51 @@ class ElasticsearchCoroutinesTest: AbstractElasticsearchTest() {
         )
 
         docs.forEachIndexed { idx, doc ->
-            asyncClient.indexSuspending<TestDocument> {
+            val indexRes = asyncClient.indexSuspending<TestDocument> {
                 index(indexName)
                 id("doc-$idx")
                 document(doc)
             }
+            log.debug { "indexRes: $indexRes" }
         }
-        asyncClient.indices().refresh { it.index(listOf(indexName)) }.await()
 
-        val searchResponse = asyncClient.searchSuspending(clazz = TestDocument::class) {
+        val refreshRes = asyncClient.indices().refresh { it.index(listOf(indexName)) }.await()
+        log.debug { "refreshRes: $refreshRes" }
+
+        val searchRes = asyncClient.searchSuspending<TestDocument> {
             index(listOf(indexName))
             query { q -> q.matchAll { it } }
             size(10)
         }
+        log.debug { "searchRes: $searchRes" }
+        searchRes.timedOut().shouldBeFalse()
+        searchRes.hits().maxScore() shouldBeEqualTo 1.0
 
-        val totalHits = searchResponse.hits().total()?.value() ?: 0L
-        totalHits shouldBeGreaterOrEqualTo docs.size.toLong()
+        searchRes.hits().total()?.value().shouldNotBeNull() shouldBeGreaterOrEqualTo docs.size.toLong()
     }
 
     @Test
-    fun `term 쿼리로 특정 태그를 가진 문서를 조회한다`() = runTest(timeout = 60.seconds) {
+    fun `term 쿼리로 특정 태그를 가진 문서를 조회한다`() = runSuspendIO {
         val targetTag = "kotlin"
-        asyncClient.indexSuspending<TestDocument> {
+
+        val indexRes1 = asyncClient.indexSuspending<TestDocument> {
             index(indexName)
             id("kotlin-doc")
             document(TestDocument(title = "Kotlin 문서", content = "코틀린 관련", tags = listOf(targetTag)))
         }
-        asyncClient.indexSuspending<TestDocument> {
+        log.debug { "indexRes1: $indexRes1" }
+
+        val indexRes2 = asyncClient.indexSuspending<TestDocument> {
             index(indexName)
             id("java-doc")
             document(TestDocument(title = "Java 문서", content = "자바 관련", tags = listOf("java")))
         }
-        asyncClient.indices().refresh { it.index(listOf(indexName)) }.await()
+        log.debug { "indexRes2: $indexRes2" }
 
-        val searchResponse = asyncClient.searchSuspending(clazz = TestDocument::class) {
+        val refreshRes = asyncClient.indices().refresh { it.index(listOf(indexName)) }.await()
+        log.debug { "refreshRes: $refreshRes" }
+
+        val searchRes = asyncClient.searchSuspending<TestDocument> {
             index(listOf(indexName))
             query { q ->
                 q.term { t ->
@@ -276,10 +305,10 @@ class ElasticsearchCoroutinesTest: AbstractElasticsearchTest() {
             }
             size(10)
         }
+        log.debug { "searchRes: $searchRes" }
 
-        val hits = searchResponse.hits().hits()
+        val hits = searchRes.hits().hits()
         hits.size shouldBeGreaterOrEqualTo 1
-
         val foundTitles = hits.mapNotNull { it.source()?.title }
         foundTitles.any { it.contains("Kotlin") }.shouldBeTrue()
     }
