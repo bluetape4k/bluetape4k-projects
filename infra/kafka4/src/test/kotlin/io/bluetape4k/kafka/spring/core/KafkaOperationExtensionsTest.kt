@@ -3,7 +3,8 @@ package io.bluetape4k.kafka.spring.core
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeNull
 import io.bluetape4k.assertions.shouldNotBeNull
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
+import io.mockk.clearMocks
 import io.mockk.confirmVerified
 import io.mockk.every
 import io.mockk.mockk
@@ -22,17 +23,15 @@ import org.springframework.kafka.core.KafkaOperations
  */
 class KafkaOperationExtensionsTest {
 
-    companion object : KLogging()
+    companion object: KLoggingChannel()
 
-    private lateinit var kafkaOps: KafkaOperations<String, String>
-    private lateinit var metricName: MetricName
-    private lateinit var metric: Metric
+    private val kafkaOps: KafkaOperations<String, String> = mockk(relaxed = true)
+    private val metricName: MetricName = mockk<MetricName>(relaxed = true)
+    private val metric: Metric = mockk<Metric>(relaxed = true)
 
     @BeforeEach
     fun setup() {
-        kafkaOps = mockk(relaxed = true)
-        metricName = mockk()
-        metric = mockk()
+        clearMocks(kafkaOps, metricName, metric)
 
         every { metricName.name() } returns "record-send-total"
         every { kafkaOps.metrics() } returns mapOf(metricName to metric)

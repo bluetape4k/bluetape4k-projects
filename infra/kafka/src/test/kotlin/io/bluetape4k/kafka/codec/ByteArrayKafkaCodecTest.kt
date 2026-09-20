@@ -1,10 +1,9 @@
 package io.bluetape4k.kafka.codec
 
-import io.bluetape4k.kafka.AbstractKafkaTest
-import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeNull
-import io.bluetape4k.assertions.shouldNotBeNull
+import io.bluetape4k.kafka.AbstractKafkaTest
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import org.junit.jupiter.api.Test
 import java.util.*
 
@@ -20,8 +19,6 @@ class ByteArrayKafkaCodecTest: AbstractKafkaTest() {
     fun `바이트 배열 직렬화는 동일한 배열을 반환`() {
         val original = "Hello, Kafka!".toByteArray()
         val bytes = codec.serialize(TEST_TOPIC_NAME, original)
-
-        bytes.shouldNotBeNull()
         bytes shouldBeEqualTo original
     }
 
@@ -29,8 +26,6 @@ class ByteArrayKafkaCodecTest: AbstractKafkaTest() {
     fun `바이트 배열 역직렬화는 동일한 배열을 반환`() {
         val original = "Test data".toByteArray()
         val deserialized = codec.deserialize(TEST_TOPIC_NAME, original)
-
-        deserialized.shouldNotBeNull()
         deserialized shouldBeEqualTo original
     }
 
@@ -38,8 +33,6 @@ class ByteArrayKafkaCodecTest: AbstractKafkaTest() {
     fun `빈 바이트 배열 직렬화`() {
         val emptyArray = ByteArray(0)
         val bytes = codec.serialize(TEST_TOPIC_NAME, emptyArray)
-
-        bytes.shouldNotBeNull()
         bytes shouldBeEqualTo emptyArray
     }
 
@@ -47,8 +40,6 @@ class ByteArrayKafkaCodecTest: AbstractKafkaTest() {
     fun `빈 바이트 배열 역직렬화`() {
         val emptyArray = ByteArray(0)
         val deserialized = codec.deserialize(TEST_TOPIC_NAME, emptyArray)
-
-        deserialized.shouldNotBeNull()
         deserialized shouldBeEqualTo emptyArray
     }
 
@@ -56,8 +47,6 @@ class ByteArrayKafkaCodecTest: AbstractKafkaTest() {
     fun `큰 바이트 배열 직렬화`() {
         val largeArray = randomString().toByteArray()
         val bytes = codec.serialize(TEST_TOPIC_NAME, largeArray)
-
-        bytes.shouldNotBeNull()
         bytes shouldBeEqualTo largeArray
     }
 
@@ -72,8 +61,6 @@ class ByteArrayKafkaCodecTest: AbstractKafkaTest() {
         val binaryData = ByteArray(256) { it.toByte() }
         val bytes = codec.serialize(TEST_TOPIC_NAME, binaryData)
         val deserialized = codec.deserialize(TEST_TOPIC_NAME, bytes)
-
-        deserialized.shouldNotBeNull()
         deserialized shouldBeEqualTo binaryData
     }
 
@@ -85,8 +72,6 @@ class ByteArrayKafkaCodecTest: AbstractKafkaTest() {
 
         val bytes = codec.serialize(TEST_TOPIC_NAME, randomData)
         val deserialized = codec.deserialize(TEST_TOPIC_NAME, bytes)
-
-        deserialized.shouldNotBeNull()
         deserialized shouldBeEqualTo randomData
     }
 
@@ -97,8 +82,6 @@ class ByteArrayKafkaCodecTest: AbstractKafkaTest() {
 
         val serialized = codec.serialize(TEST_TOPIC_NAME, original)
         val deserialized = codec.deserialize(TEST_TOPIC_NAME, serialized)
-
-        deserialized.shouldNotBeNull()
         deserialized shouldBeEqualTo original
     }
 }

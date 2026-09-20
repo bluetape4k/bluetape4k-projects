@@ -24,7 +24,7 @@ import software.amazon.awssdk.services.sns.SnsClient
 class FlociSNSTest: AbstractFlociServiceTest() {
 
     companion object: KLogging() {
-        private val TOPIC_NAME = "test-topic-${System.currentTimeMillis()}"
+        private val TOPIC_NAME = "test-topic-${Base58.randomString(8)}"
     }
 
     private val snsClient: SnsClient by lazy {

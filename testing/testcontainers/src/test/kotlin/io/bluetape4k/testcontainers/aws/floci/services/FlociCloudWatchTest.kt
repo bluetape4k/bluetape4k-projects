@@ -31,8 +31,8 @@ import java.time.Instant
 class FlociCloudWatchTest: AbstractFlociServiceTest() {
 
     companion object: KLogging() {
-        private val NAMESPACE = "Bluetape4k/Test-${System.currentTimeMillis()}"
-        private val LOG_GROUP_NAME = "/bluetape4k/test-${System.currentTimeMillis()}"
+        private val NAMESPACE = "Bluetape4k/Test-${Base58.randomString(8)}"
+        private val LOG_GROUP_NAME = "/bluetape4k/test-${Base58.randomString(8)}"
         private const val LOG_STREAM_NAME = "app-stream"
     }
 

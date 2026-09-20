@@ -1,17 +1,18 @@
 package io.bluetape4k.redis.lettuce.benchmark
 
+import io.bluetape4k.codec.Base58
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.redis.lettuce.AbstractLettuceTest
 import io.bluetape4k.redis.lettuce.LettuceClients
 import io.bluetape4k.redis.lettuce.withPipeline
-import io.bluetape4k.redis.lettuce.awaitAll as redisAwaitAll
 import kotlinx.coroutines.async
-import kotlinx.coroutines.awaitAll as coAwaitAll
 import kotlinx.coroutines.future.await
 import org.junit.jupiter.api.Tag
 import org.junit.jupiter.api.Test
 import java.io.File
+import io.bluetape4k.redis.lettuce.awaitAll as redisAwaitAll
+import kotlinx.coroutines.awaitAll as coAwaitAll
 
 /**
  * Lettuce async throughput 벤치마크.
@@ -38,7 +39,7 @@ class LettuceThroughputBenchmark : AbstractLettuceTest() {
 
     @Test
     fun measureAsyncThroughput() = runSuspendIO {
-        val keyPrefix = "bench:async:${System.currentTimeMillis()}:"
+        val keyPrefix = "bench:async:${Base58.randomString(8)}:"
         val value = "v".repeat(VALUE_SIZE)
 
         // Warmup

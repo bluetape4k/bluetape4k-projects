@@ -1,7 +1,8 @@
 package org.springframework.kafka.core
 
-import io.bluetape4k.kafka.codec.AbstractKafkaCodec
+import io.bluetape4k.assertions.shouldNotBeNull
 import io.bluetape4k.kafka.codec.JacksonKafkaCodec
+import io.bluetape4k.kafka.codec.KafkaCodec
 import io.bluetape4k.kafka.codec.StringKafkaCodec
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
@@ -10,7 +11,6 @@ import io.bluetape4k.testcontainers.mq.Spring
 import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.future.await
 import kotlinx.coroutines.test.runTest
-import io.bluetape4k.assertions.shouldNotBeNull
 import org.awaitility.kotlin.await
 import org.awaitility.kotlin.until
 import org.junit.jupiter.api.Test
@@ -44,7 +44,7 @@ class CustomKafkaExamples {
         // Class-reference config uses the default constructor (allowedTypePackages=emptySet),
         // which rejects all types from the Kafka type header (security feature added in 1.8.0).
         private fun valueCodec() = JacksonKafkaCodec(
-            allowedTypePackages = AbstractKafkaCodec.ALLOW_ALL_TYPES_UNSAFE
+            allowedTypePackages = KafkaCodec.ALLOW_ALL_TYPES_UNSAFE
         )
 
         @Bean

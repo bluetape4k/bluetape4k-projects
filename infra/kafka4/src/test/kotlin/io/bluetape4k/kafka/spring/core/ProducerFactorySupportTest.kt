@@ -20,7 +20,7 @@ import org.springframework.kafka.core.ProducerFactoryUtils
  */
 class ProducerFactorySupportTest {
 
-    companion object : KLogging()
+    companion object: KLogging()
 
     @BeforeEach
     fun setup() {

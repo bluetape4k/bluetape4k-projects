@@ -24,7 +24,7 @@ import java.net.URI
 class SNSTest: AbstractLocalStackServiceTest() {
 
     companion object: KLogging() {
-        private val TOPIC_NAME = "test-topic-${System.currentTimeMillis()}"
+        private val TOPIC_NAME = "test-topic-${Base58.randomString(8)}"
     }
 
     private val snsServer: LocalStackServer by lazy {

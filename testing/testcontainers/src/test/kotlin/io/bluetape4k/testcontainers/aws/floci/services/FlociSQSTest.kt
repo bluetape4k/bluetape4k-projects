@@ -25,7 +25,7 @@ import software.amazon.awssdk.services.sqs.model.SendMessageBatchRequestEntry
 class FlociSQSTest: AbstractFlociServiceTest() {
 
     companion object: KLogging() {
-        private val QUEUE_NAME = "test-queue-${System.currentTimeMillis()}"
+        private val QUEUE_NAME = "test-queue-${Base58.randomString(8)}"
     }
 
     private val sqsClient: SqsClient by lazy {

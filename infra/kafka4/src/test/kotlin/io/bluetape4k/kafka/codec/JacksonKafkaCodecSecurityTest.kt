@@ -5,11 +5,17 @@ import ch.qos.logback.classic.Logger
 import ch.qos.logback.classic.spi.ILoggingEvent
 import ch.qos.logback.core.read.ListAppender
 import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeInstanceOf
 import io.bluetape4k.assertions.shouldBeNull
+import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.assertions.shouldContain
 import io.bluetape4k.assertions.shouldNotBeNull
 import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.debug
+import io.bluetape4k.support.toUtf8Bytes
 import org.apache.kafka.common.header.internals.RecordHeaders
 import org.junit.jupiter.api.Test
+import java.io.Serializable
 
 /**
  * [JacksonKafkaCodec] type allowlist 강제를 검증하는 security test입니다.
@@ -23,14 +29,14 @@ class JacksonKafkaCodecSecurityTest {
 
     companion object: KLogging()
 
-    private data class TrustedDto(val value: String)
+    private data class TrustedDto(val value: String): Serializable
 
     @Test
     fun `untrusted header class is rejected when allowedTypePackages is empty`() {
         val codec = JacksonKafkaCodec() // default: allowedTypePackages = emptySet()
 
         val writingCodec = JacksonKafkaCodec(
-            allowedTypePackages = AbstractKafkaCodec.ALLOW_ALL_TYPES_UNSAFE
+            allowedTypePackages = KafkaCodec.ALLOW_ALL_TYPES_UNSAFE
         )
         val headers = RecordHeaders()
         val dto = TrustedDto("hello")
@@ -53,15 +59,17 @@ class JacksonKafkaCodecSecurityTest {
         val bytes = codec.serialize("topic", headers, dto)
         bytes.shouldNotBeNull()
 
-        val result = codec.deserialize("topic", headers, bytes) as TrustedDto
+        val result = codec.deserialize("topic", headers, bytes) as? TrustedDto
+        log.debug { "result: $result" }
         result.shouldNotBeNull()
+        result.shouldBeInstanceOf<TrustedDto>()
         result.value shouldBeEqualTo "world"
     }
 
     @Test
     fun `ALLOW_ALL_TYPES_UNSAFE opt-in restores legacy behavior`() {
         val codec = JacksonKafkaCodec(
-            allowedTypePackages = AbstractKafkaCodec.ALLOW_ALL_TYPES_UNSAFE
+            allowedTypePackages = KafkaCodec.ALLOW_ALL_TYPES_UNSAFE
         )
 
         val headers = RecordHeaders()
@@ -69,15 +77,17 @@ class JacksonKafkaCodecSecurityTest {
         val bytes = codec.serialize("topic", headers, dto)
         bytes.shouldNotBeNull()
 
-        val result = codec.deserialize("topic", headers, bytes) as TrustedDto
+        val result = codec.deserialize("topic", headers, bytes) as? TrustedDto
+        log.debug { "result: $result" }
         result.shouldNotBeNull()
+        result.shouldBeInstanceOf<TrustedDto>()
         result.value shouldBeEqualTo "unsafe-but-intentional"
     }
 
     @Test
     fun `class outside allowedTypePackages is rejected`() {
         val writingCodec = JacksonKafkaCodec(
-            allowedTypePackages = AbstractKafkaCodec.ALLOW_ALL_TYPES_UNSAFE
+            allowedTypePackages = KafkaCodec.ALLOW_ALL_TYPES_UNSAFE
         )
         val readingCodec = JacksonKafkaCodec(
             allowedTypePackages = setOf("com.example.trusted")
@@ -98,10 +108,7 @@ class JacksonKafkaCodecSecurityTest {
         val maliciousType = "evil.Type\r\n\t\u0000\u0001\u2028\u2029" + "X".repeat(512) + "TYPE-TAIL"
         val maliciousAllowlist = "trusted\r\n\t\u0002\u2028\u2029" + "Y".repeat(128) + "ALLOWLIST-TAIL"
         val codec = JacksonKafkaCodec(allowedTypePackages = setOf(maliciousAllowlist))
-        val headers = RecordHeaders().add(
-            AbstractKafkaCodec.VALUE_TYPE_KEY,
-            maliciousType.toByteArray(Charsets.UTF_8),
-        )
+        val headers = RecordHeaders().add(KafkaCodec.VALUE_TYPE_KEY, maliciousType.toUtf8Bytes())
         val logger = AbstractKafkaCodec.log as Logger
         val appender = ListAppender<ILoggingEvent>().apply { start() }
         logger.addAppender(appender)
@@ -110,23 +117,24 @@ class JacksonKafkaCodecSecurityTest {
 
             val events = appender.list
             events.size shouldBeEqualTo 2
-            events.all { it.level == Level.WARN } shouldBeEqualTo true
-            events.all { it.throwableProxy == null } shouldBeEqualTo true
+            events.all { it.level == Level.WARN }.shouldBeTrue()
+            events.all { it.throwableProxy == null }.shouldBeTrue()
             events.all { event ->
                 val message = event.formattedMessage
                 message.length <= 1600 &&
-                    message.none(Char::isISOControl) &&
-                    !message.contains('\u2028') &&
-                    !message.contains('\u2029') &&
-                    !message.contains(maliciousType) &&
-                    !message.contains("TYPE-TAIL") &&
-                    !message.contains(maliciousAllowlist) &&
-                    !message.contains("ALLOWLIST-TAIL")
-            } shouldBeEqualTo true
+                        message.none(Char::isISOControl) &&
+                        !message.contains('\u2028') &&
+                        !message.contains('\u2029') &&
+                        !message.contains(maliciousType) &&
+                        !message.contains("TYPE-TAIL") &&
+                        !message.contains(maliciousAllowlist) &&
+                        !message.contains("ALLOWLIST-TAIL")
+            }.shouldBeTrue()
+
             val securityMessage = events.single { it.formattedMessage.contains("[SECURITY]") }.formattedMessage
-            securityMessage.contains("rejectedTypeLength=${maliciousType.length}") shouldBeEqualTo true
-            securityMessage.contains("allowedPackageCount=1") shouldBeEqualTo true
-            events.any { it.formattedMessage.contains("poison pill skipped") } shouldBeEqualTo true
+            securityMessage shouldContain "rejectedTypeLength=${maliciousType.length}"
+            securityMessage shouldContain "allowedPackageCount=1"
+            events.any { it.formattedMessage.contains("poison pill skipped") }.shouldBeTrue()
         } finally {
             logger.detachAppender(appender)
             appender.stop()

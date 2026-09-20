@@ -1,9 +1,10 @@
 package io.bluetape4k.kafka.codec
 
-import io.bluetape4k.kafka.AbstractKafkaTest
-import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeNull
+import io.bluetape4k.kafka.AbstractKafkaTest
+import io.bluetape4k.logging.coroutines.KLoggingChannel
+import org.junit.jupiter.api.RepeatedTest
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.ValueSource
@@ -12,7 +13,9 @@ import org.junit.jupiter.params.provider.ValueSource
  * [StringKafkaCodec]에 대한 테스트 클래스입니다.
  */
 class StringKafkaCodecTest: AbstractKafkaTest() {
-    companion object: KLoggingChannel()
+    companion object: KLoggingChannel() {
+        private const val REPEAT_SIZE = 5
+    }
 
     private val codec = StringKafkaCodec()
 
@@ -56,7 +59,7 @@ class StringKafkaCodecTest: AbstractKafkaTest() {
         result.shouldBeNull()
     }
 
-    @Test
+    @RepeatedTest(REPEAT_SIZE)
     fun `긴 문자열 직렬화 및 역직렬화`() {
         val longString = randomString()
         val bytes = codec.serialize(TEST_TOPIC_NAME, longString)
@@ -100,7 +103,7 @@ class StringKafkaCodecTest: AbstractKafkaTest() {
         deserialized shouldBeEqualTo utf8String
     }
 
-    @Test
+    @RepeatedTest(REPEAT_SIZE)
     fun `deserializer 인코딩 설정이 올바르게 적용되는지 검증`() {
         val codec = StringKafkaCodec()
         val configs =
@@ -110,14 +113,14 @@ class StringKafkaCodecTest: AbstractKafkaTest() {
             )
         codec.configure(configs, false)
 
-        val original = "Hello, Kafka!"
+        val original = faker.lorem().paragraph()
         val bytes = codec.serialize(TEST_TOPIC_NAME, original)
         val deserialized = codec.deserialize(TEST_TOPIC_NAME, bytes)
 
         deserialized shouldBeEqualTo original
     }
 
-    @Test
+    @RepeatedTest(REPEAT_SIZE)
     fun `key용 deserializer 인코딩 설정이 올바르게 적용되는지 검증`() {
         val codec = StringKafkaCodec()
         val configs =
@@ -127,14 +130,14 @@ class StringKafkaCodecTest: AbstractKafkaTest() {
             )
         codec.configure(configs, true)
 
-        val original = "Key Value"
+        val original = faker.lorem().paragraph()
         val bytes = codec.serialize(TEST_TOPIC_NAME, original)
         val deserialized = codec.deserialize(TEST_TOPIC_NAME, bytes)
 
         deserialized shouldBeEqualTo original
     }
 
-    @Test
+    @RepeatedTest(REPEAT_SIZE)
     fun `value용 deserializer 인코딩 설정이 올바르게 적용되는지 검증`() {
         val codec = StringKafkaCodec()
         val configs =
@@ -144,14 +147,14 @@ class StringKafkaCodecTest: AbstractKafkaTest() {
             )
         codec.configure(configs, false)
 
-        val original = "Value Data"
+        val original = faker.lorem().paragraph()
         val bytes = codec.serialize(TEST_TOPIC_NAME, original)
         val deserialized = codec.deserialize(TEST_TOPIC_NAME, bytes)
 
         deserialized shouldBeEqualTo original
     }
 
-    @Test
+    @RepeatedTest(REPEAT_SIZE)
     fun `잘못된 인코딩 이름은 기본 인코딩으로 폴백`() {
         val codec = StringKafkaCodec()
         val configs =
@@ -161,7 +164,7 @@ class StringKafkaCodecTest: AbstractKafkaTest() {
             )
         codec.configure(configs, false)
 
-        val original = "Fallback Test"
+        val original = faker.lorem().paragraph()
         val bytes = codec.serialize(TEST_TOPIC_NAME, original)
         val deserialized = codec.deserialize(TEST_TOPIC_NAME, bytes)
 

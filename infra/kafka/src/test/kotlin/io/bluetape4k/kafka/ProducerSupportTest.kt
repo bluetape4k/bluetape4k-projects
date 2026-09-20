@@ -4,6 +4,7 @@ import io.bluetape4k.assertions.shouldBeGreaterOrEqualTo
 import io.bluetape4k.assertions.shouldBeNull
 import io.bluetape4k.assertions.shouldNotBeNull
 import io.bluetape4k.logging.coroutines.KLoggingChannel
+import io.bluetape4k.logging.debug
 import io.bluetape4k.support.asDouble
 import io.bluetape4k.testcontainers.mq.KafkaServer
 import org.apache.kafka.clients.producer.ProducerRecord
@@ -34,16 +35,15 @@ class ProducerSupportTest: AbstractKafkaTest() {
 
     @RepeatedTest(REPEAT_SIZE)
     fun `producerOf로 Producer 생성`() {
-        val customProducer =
-            producerOf<String, String>(
-                mapOf(
-                    "bootstrap.servers" to KafkaServer.Launcher.kafka.bootstrapServers,
-                    "key.serializer" to org.apache.kafka.common.serialization.StringSerializer::class.java,
-                    "value.serializer" to org.apache.kafka.common.serialization.StringSerializer::class.java,
-                    "acks" to "all",
-                    "retries" to 3,
-                ),
-            )
+        val customProducer = producerOf<String, String>(
+            mapOf(
+                "bootstrap.servers" to KafkaServer.Launcher.kafka.bootstrapServers,
+                "key.serializer" to org.apache.kafka.common.serialization.StringSerializer::class.java,
+                "value.serializer" to org.apache.kafka.common.serialization.StringSerializer::class.java,
+                "acks" to "all",
+                "retries" to 3,
+            ),
+        )
 
         customProducer.shouldNotBeNull()
         customProducer.close()
@@ -53,7 +53,8 @@ class ProducerSupportTest: AbstractKafkaTest() {
     fun `Producer 메트릭 값 조회`() {
         // 메시지 전송
         val record = ProducerRecord(TEST_TOPIC_NAME, "test-key", "test-value")
-        producer.send(record).get()
+        val result = producer.send(record).get()
+        log.debug { "result: $result" }
 
         // 메트릭 조회
         val sendTotal = producer.getMetricValueOrNull("record-send-total").asDouble()
@@ -66,6 +67,7 @@ class ProducerSupportTest: AbstractKafkaTest() {
     @Test
     fun `getMetricValueOrNull로 메트릭 조회`() {
         val sendTotal = producer.getMetricValueOrNull("record-send-total")
+        log.debug { "sendTotal: $sendTotal" }
         sendTotal.shouldNotBeNull()
     }
 
@@ -82,7 +84,9 @@ class ProducerSupportTest: AbstractKafkaTest() {
         // 여러 메시지 전송
         repeat(5) { i ->
             val record = ProducerRecord(TEST_TOPIC_NAME, "key-$i", "value-$i")
-            producer.send(record).get()
+            val metadata = producer.send(record).get()
+            log.debug { "metadata: $metadata" }
+            metadata.shouldNotBeNull()
         }
 
         val finalSendTotal = producer.getMetricValueOrNull("record-send-total").asDouble()
@@ -108,5 +112,4 @@ class ProducerSupportTest: AbstractKafkaTest() {
         customProducer.shouldNotBeNull()
         customProducer.close()
     }
-
 }

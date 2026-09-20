@@ -1,11 +1,12 @@
 package io.bluetape4k.kafka
 
-import io.bluetape4k.logging.coroutines.KLoggingChannel
-import io.bluetape4k.support.asDouble
-import io.bluetape4k.testcontainers.mq.KafkaServer
 import io.bluetape4k.assertions.shouldBeGreaterOrEqualTo
 import io.bluetape4k.assertions.shouldBeNull
 import io.bluetape4k.assertions.shouldNotBeNull
+import io.bluetape4k.logging.coroutines.KLoggingChannel
+import io.bluetape4k.logging.debug
+import io.bluetape4k.support.asDouble
+import io.bluetape4k.testcontainers.mq.KafkaServer
 import org.apache.kafka.clients.producer.ProducerRecord
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
@@ -64,6 +65,7 @@ class ProducerSupportTest: AbstractKafkaTest() {
     @Test
     fun `getMetricValueOrNull로 메트릭 조회`() {
         val sendTotal = producer.getMetricValueOrNull("record-send-total")
+        log.debug { "send total=$sendTotal" }
         sendTotal.shouldNotBeNull()
     }
 
@@ -91,6 +93,7 @@ class ProducerSupportTest: AbstractKafkaTest() {
     fun `Producer는 정상적으로 종료`() {
         val testProducer = KafkaServer.Launcher.createStringProducer()
         testProducer.shouldNotBeNull()
+        testProducer.flush()
         testProducer.close()
     }
 }

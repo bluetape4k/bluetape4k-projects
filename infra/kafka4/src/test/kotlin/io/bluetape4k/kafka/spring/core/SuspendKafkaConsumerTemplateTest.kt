@@ -29,6 +29,7 @@ import reactor.core.publisher.Mono
 import reactor.kafka.receiver.KafkaReceiver
 import reactor.kafka.receiver.ReceiverOptions
 import java.util.*
+import java.util.concurrent.ConcurrentSkipListSet
 import java.util.function.Function
 import java.util.regex.Pattern
 
@@ -36,8 +37,9 @@ import java.util.regex.Pattern
  * [SuspendKafkaConsumerTemplate]에 대한 테스트 클래스입니다.
  */
 class SuspendKafkaConsumerTemplateTest: AbstractKafkaTest() {
+
     companion object: KLoggingChannel() {
-        private val CONSUMER_GROUP = "$TEST_TOPIC_NAME-consumer-template-group"
+        private const val CONSUMER_GROUP = "$TEST_TOPIC_NAME-consumer-template-group"
     }
 
     private val receiver = mockk<KafkaReceiver<String, String>>()
@@ -54,17 +56,17 @@ class SuspendKafkaConsumerTemplateTest: AbstractKafkaTest() {
 
     @Test
     fun `ConsumerTemplate 생성`() {
-        val receiverOptions =
-            ReceiverOptions
-                .create<String, String>(
-                    mapOf(
-                        "bootstrap.servers" to KafkaServer.Launcher.kafka.bootstrapServers,
-                        "group.id" to CONSUMER_GROUP,
-                        "key.deserializer" to org.apache.kafka.common.serialization.StringDeserializer::class.java,
-                        "value.deserializer" to org.apache.kafka.common.serialization.StringDeserializer::class.java,
-                        "auto.offset.reset" to "earliest",
-                    ),
-                ).subscription(listOf(TEST_TOPIC_NAME))
+        val receiverOptions = ReceiverOptions
+            .create<String, String>(
+                mapOf(
+                    "bootstrap.servers" to KafkaServer.Launcher.kafka.bootstrapServers,
+                    "group.id" to CONSUMER_GROUP,
+                    "key.deserializer" to org.apache.kafka.common.serialization.StringDeserializer::class.java,
+                    "value.deserializer" to org.apache.kafka.common.serialization.StringDeserializer::class.java,
+                    "auto.offset.reset" to "earliest",
+                ),
+            )
+            .subscription(listOf(TEST_TOPIC_NAME))
 
         val template = SuspendKafkaConsumerTemplate(receiverOptions)
         template.shouldNotBeNull()
@@ -72,7 +74,7 @@ class SuspendKafkaConsumerTemplateTest: AbstractKafkaTest() {
 
     @Test
     fun `구독과 구독 해제를 관리한다`() = runTest {
-        val subscription = linkedSetOf<String>()
+        val subscription = ConcurrentSkipListSet<String>()
 
         every { consumer.subscribe(any<List<String>>()) } answers {
             subscription.clear()
@@ -192,7 +194,7 @@ class SuspendKafkaConsumerTemplateTest: AbstractKafkaTest() {
         template.close()
         launchedJob.cancelAndJoin()
 
-        (template.coroutineContext[Job]?.isCancelled ?: false).shouldBeTrue()
+        template.coroutineContext[Job]?.isCancelled.shouldBeTrue()
         verify(exactly = 1) { (closableReceiver as AutoCloseable).close() }
     }
 

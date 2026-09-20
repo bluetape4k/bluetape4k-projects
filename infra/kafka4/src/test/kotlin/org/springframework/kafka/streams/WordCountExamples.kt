@@ -1,13 +1,13 @@
 package org.springframework.kafka.streams
 
+import io.bluetape4k.assertions.shouldContainSame
+import io.bluetape4k.assertions.shouldNotBeNull
 import io.bluetape4k.kafka.streams.kstream.consumedOf
 import io.bluetape4k.kafka.streams.kstream.groupedOf
 import io.bluetape4k.kafka.streams.kstream.materializedOf
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.support.uninitialized
-import io.bluetape4k.assertions.shouldContainSame
-import io.bluetape4k.assertions.shouldNotBeNull
 import org.apache.kafka.common.serialization.LongDeserializer
 import org.apache.kafka.common.serialization.Serdes
 import org.apache.kafka.common.serialization.StringDeserializer

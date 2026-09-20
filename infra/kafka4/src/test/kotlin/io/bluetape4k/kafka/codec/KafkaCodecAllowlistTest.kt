@@ -1,10 +1,10 @@
 package io.bluetape4k.kafka.codec
 
+import io.bluetape4k.assertions.shouldBeNull
+import io.bluetape4k.assertions.shouldNotBeNull
 import io.bluetape4k.jackson3.Jackson
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.support.emptyByteArray
-import io.bluetape4k.assertions.shouldBeNull
-import io.bluetape4k.assertions.shouldNotBeNull
 import org.apache.kafka.common.header.Headers
 import org.apache.kafka.common.header.internals.RecordHeaders
 import org.junit.jupiter.api.Test
@@ -91,8 +91,8 @@ class KafkaCodecAllowlistTest {
 
         // 헤더의 VALUE_TYPE_KEY 값을 허용 패키지와 유사한 악의적 패키지명으로 덮어씀
         val spoofedClass = "io.bluetape4k.kafka.codecEvil.MaliciousClass"
-        headers.remove(AbstractKafkaCodec.VALUE_TYPE_KEY)
-        headers.add(AbstractKafkaCodec.VALUE_TYPE_KEY, spoofedClass.toByteArray(Charsets.UTF_8))
+        headers.remove(KafkaCodec.VALUE_TYPE_KEY)
+        headers.add(KafkaCodec.VALUE_TYPE_KEY, spoofedClass.toByteArray(Charsets.UTF_8))
 
         // startsWith("io.bluetape4k.kafka.codec") = true이지만 패키지 경계(".") 없어서 차단돼야 함
         val result = restrictedCodec.deserialize(topic, headers, """{"content":"spoof test"}""".toByteArray())

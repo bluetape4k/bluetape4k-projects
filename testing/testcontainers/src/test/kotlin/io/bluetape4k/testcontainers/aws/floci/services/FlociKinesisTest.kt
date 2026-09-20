@@ -33,7 +33,7 @@ import java.time.Duration
 class FlociKinesisTest: AbstractFlociServiceTest() {
 
     companion object: KLogging() {
-        private val STREAM_NAME = "test-stream-${System.currentTimeMillis()}"
+        private val STREAM_NAME = "test-stream-${Base58.randomString(8)}"
     }
 
     private val kinesisClient: KinesisClient by lazy {

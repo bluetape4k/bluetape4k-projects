@@ -24,7 +24,7 @@ import software.amazon.awssdk.services.sqs.model.SendMessageBatchRequestEntry
 class MiniStackSQSTest: AbstractMiniStackServiceTest() {
 
     companion object: KLogging() {
-        private val QUEUE_NAME = "ministack-test-queue-${System.currentTimeMillis()}"
+        private val QUEUE_NAME = "ministack-test-queue-${Base58.randomString(8)}"
     }
 
     private val sqsClient: SqsClient by lazy {

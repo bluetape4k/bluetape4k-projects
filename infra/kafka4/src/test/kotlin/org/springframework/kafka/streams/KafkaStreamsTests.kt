@@ -1,5 +1,8 @@
 package org.springframework.kafka.streams
 
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.assertions.shouldNotBeNull
 import io.bluetape4k.codec.Base58
 import io.bluetape4k.kafka.spring.test.utils.getPropertyValue
 import io.bluetape4k.logging.coroutines.KLoggingChannel
@@ -7,9 +10,6 @@ import io.bluetape4k.logging.trace
 import io.bluetape4k.support.toUtf8Bytes
 import io.bluetape4k.support.uninitialized
 import io.mockk.mockk
-import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldBeTrue
-import io.bluetape4k.assertions.shouldNotBeNull
 import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.apache.kafka.common.serialization.Serdes
 import org.apache.kafka.streams.KafkaStreams

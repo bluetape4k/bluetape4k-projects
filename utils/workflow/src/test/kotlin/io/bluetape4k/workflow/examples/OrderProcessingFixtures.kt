@@ -1,5 +1,6 @@
 package io.bluetape4k.workflow.examples
 
+import io.bluetape4k.codec.Base58
 import io.bluetape4k.workflow.api.SuspendWork
 import io.bluetape4k.workflow.api.Work
 import io.bluetape4k.workflow.api.WorkReport
@@ -47,7 +48,7 @@ internal fun fixSyncRequestPayment(
         if (attempt < successOnAttempt) {
             return@Work WorkReport.failure(ctx, RuntimeException("PG 서버 일시 오류 (시도 #$attempt)"))
         }
-        ctx["pg.txId"] = if (txIdPrefix == "TX") "TX-${System.currentTimeMillis()}" else "$txIdPrefix-$attempt"
+        ctx["pg.txId"] = if (txIdPrefix == "TX") "TX-${Base58.randomString(8)}" else "$txIdPrefix-$attempt"
         ctx["pg.approved"] = false
         WorkReport.success(ctx)
     }
@@ -117,7 +118,7 @@ internal fun fixSuspendRequestPayment(
         if (attempt < successOnAttempt) {
             return@SuspendWork WorkReport.failure(ctx, RuntimeException("PG 서버 일시 오류 (시도 #$attempt)"))
         }
-        ctx["pg.txId"] = if (txIdPrefix == "TX") "TX-${System.currentTimeMillis()}" else "$txIdPrefix-$attempt"
+        ctx["pg.txId"] = if (txIdPrefix == "TX") "TX-${Base58.randomString(8)}" else "$txIdPrefix-$attempt"
         ctx["pg.approved"] = false
         WorkReport.success(ctx)
     }

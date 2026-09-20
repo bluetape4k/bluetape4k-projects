@@ -1,5 +1,11 @@
 package org.springframework.kafka.core
 
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.assertions.shouldContainSame
+import io.bluetape4k.assertions.shouldHaveSize
+import io.bluetape4k.assertions.shouldNotBeEmpty
+import io.bluetape4k.assertions.shouldNotBeNull
 import io.bluetape4k.concurrent.onFailure
 import io.bluetape4k.concurrent.onSuccess
 import io.bluetape4k.kafka.spring.test.utils.consumerProps
@@ -11,12 +17,6 @@ import io.bluetape4k.spring.messaging.support.message
 import io.bluetape4k.support.toUtf8String
 import io.bluetape4k.support.uninitialized
 import io.mockk.mockk
-import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldBeTrue
-import io.bluetape4k.assertions.shouldContainSame
-import io.bluetape4k.assertions.shouldHaveSize
-import io.bluetape4k.assertions.shouldNotBeEmpty
-import io.bluetape4k.assertions.shouldNotBeNull
 import org.apache.kafka.clients.consumer.Consumer
 import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.apache.kafka.clients.producer.Producer

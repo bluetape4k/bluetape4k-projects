@@ -1,6 +1,12 @@
 package org.springframework.kafka.annotation
 
 import com.fasterxml.jackson.annotation.JsonCreator
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeGreaterThan
+import io.bluetape4k.assertions.shouldBeInstanceOf
+import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.assertions.shouldNotBeEmpty
+import io.bluetape4k.assertions.shouldNotBeNull
 import io.bluetape4k.jackson3.Jackson
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.coroutines.KLoggingChannel
@@ -10,12 +16,6 @@ import io.bluetape4k.logging.warn
 import io.bluetape4k.spring.messaging.support.message
 import io.bluetape4k.spring.messaging.support.messageOf
 import io.bluetape4k.support.uninitialized
-import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldBeGreaterThan
-import io.bluetape4k.assertions.shouldBeInstanceOf
-import io.bluetape4k.assertions.shouldBeTrue
-import io.bluetape4k.assertions.shouldNotBeEmpty
-import io.bluetape4k.assertions.shouldNotBeNull
 import org.apache.kafka.clients.consumer.ConsumerConfig
 import org.apache.kafka.common.serialization.ByteArraySerializer
 import org.apache.kafka.common.serialization.BytesDeserializer
@@ -56,7 +56,11 @@ import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 
 @SpringBootTest
-@EmbeddedKafka(partitions = 1, topics = ["blc1", "blc2", "blc3", "blc4", "blc5", "blc6", "blc6-dlt"], adminTimeout = 120)
+@EmbeddedKafka(
+    partitions = 1,
+    topics = ["blc1", "blc2", "blc3", "blc4", "blc5", "blc6", "blc6-dlt"],
+    adminTimeout = 120
+)
 @TestMethodOrder(MethodOrderer.MethodName::class)
 class BatchListenerConversionTests {
 

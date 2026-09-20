@@ -32,7 +32,7 @@ import software.amazon.awssdk.services.s3.model.PutObjectRequest
 class MiniStackS3Test: AbstractMiniStackServiceTest() {
 
     companion object: KLogging() {
-        private val BUCKET_NAME = "ministack-test-bucket-${System.currentTimeMillis()}"
+        private val BUCKET_NAME = "ministack-test-bucket-${Base58.randomString(8)}"
         private const val KEY_NAME = "test-object"
         private const val CONTENT = "hello-ministack-s3"
     }

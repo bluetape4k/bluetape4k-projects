@@ -5,6 +5,7 @@ import io.bluetape4k.assertions.shouldBeGreaterThan
 import io.bluetape4k.assertions.shouldBeLessThan
 import io.bluetape4k.assertions.shouldBeNull
 import io.bluetape4k.assertions.shouldNotBeNull
+import io.bluetape4k.codec.Base58
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import io.bluetape4k.science.exposed.AbstractPostgisTest
@@ -64,7 +65,7 @@ class SpatialFeatureRepositoryTest: AbstractPostgisTest() {
     fun `레이어 저장 및 ID 조회`() {
         transaction(db) {
             val record = SpatialLayerRecord(
-                name = "test-layer-${System.currentTimeMillis()}",
+                name = "test-layer-${Base58.randomString(8)}",
                 description = "테스트 레이어",
                 srid = SRID,
                 geometryType = "POINT",
@@ -94,7 +95,7 @@ class SpatialFeatureRepositoryTest: AbstractPostgisTest() {
 
     @Test
     fun `레이어 이름으로 조회`() {
-        val uniqueName = "named-layer-${System.currentTimeMillis()}"
+        val uniqueName = "named-layer-${Base58.randomString(8)}"
 
         transaction(db) {
             val record = SpatialLayerRecord(
@@ -120,7 +121,7 @@ class SpatialFeatureRepositoryTest: AbstractPostgisTest() {
     fun `피처 저장 및 조회`() {
         transaction(db) {
             val layerRecord = SpatialLayerRecord(
-                name = "feature-layer-${System.currentTimeMillis()}",
+                name = "feature-layer-${Base58.randomString(8)}",
                 srid = SRID,
                 geometryType = "POINT",
             )
@@ -159,7 +160,7 @@ class SpatialFeatureRepositoryTest: AbstractPostgisTest() {
     fun `레이어별 피처 목록 조회`() {
         transaction(db) {
             val layerRecord = SpatialLayerRecord(
-                name = "multi-feature-layer-${System.currentTimeMillis()}",
+                name = "multi-feature-layer-${Base58.randomString(8)}",
                 srid = SRID,
                 geometryType = "POINT",
             )
@@ -206,7 +207,7 @@ class SpatialFeatureRepositoryTest: AbstractPostgisTest() {
         }
 
         val importService = ShapefileImportService(layerRepo, featureRepo)
-        val layerName = "harbors-import-${System.currentTimeMillis()}"
+        val layerName = "harbors-import-${Base58.randomString(8)}"
 
         // Virtual Thread 트랜잭션으로 실행 — suspend 불필요
         val count = importService.importShapefile(shpFile, layerName)
@@ -235,7 +236,7 @@ class SpatialFeatureRepositoryTest: AbstractPostgisTest() {
         val expectedLat = 37.5665
         val shpFile = createWebMercatorPointShapefile(dir, expectedLon, expectedLat)
         val importService = ShapefileImportService(layerRepo, featureRepo)
-        val layerName = "web-mercator-import-${System.currentTimeMillis()}"
+        val layerName = "web-mercator-import-${Base58.randomString(8)}"
 
         val count = importService.importShapefile(shpFile, layerName)
         count shouldBeEqualTo 1

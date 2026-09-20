@@ -2,9 +2,11 @@ package io.bluetape4k.kafka.spring.core
 
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldNotBeNull
+import io.bluetape4k.codec.Base58
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.kafka.AbstractKafkaTest
 import io.bluetape4k.logging.coroutines.KLoggingChannel
+import io.bluetape4k.logging.debug
 import io.bluetape4k.testcontainers.mq.KafkaServer
 import io.bluetape4k.testcontainers.mq.Spring
 import kotlinx.coroutines.flow.flow
@@ -46,10 +48,11 @@ class KafkaOperationExtensionsIntegrationTest: AbstractKafkaTest() {
 
     @RepeatedTest(REPEAT_SIZE)
     fun `suspendSend ProducerRecord 로 메시지 발송`() = runSuspendIO {
-        val record = ProducerRecord<String, String>(TOPIC, "key-1", "value-${System.currentTimeMillis()}")
+        val record = ProducerRecord(TOPIC, "key-1", "value-${Base58.randomString(8)}")
 
         val result = kafkaTemplate.suspendSend(record)
 
+        log.debug { "send result:$result" }
         result.shouldNotBeNull()
         result.recordMetadata.topic() shouldBeEqualTo TOPIC
     }
@@ -58,12 +61,13 @@ class KafkaOperationExtensionsIntegrationTest: AbstractKafkaTest() {
     fun `sendFlowAsParallel - Flow 의 모든 레코드를 병렬 발송하고 마지막 결과 반환`() = runSuspendIO {
         val records = flow {
             repeat(3) { i ->
-                emit(ProducerRecord<String, String>(TOPIC, "flow-key-$i", "flow-value-$i"))
+                emit(ProducerRecord(TOPIC, "flow-key-$i", "flow-value-$i"))
             }
         }
 
         val result = kafkaTemplate.sendFlowAsParallel(records)
 
+        log.debug { "send result:$result" }
         result.shouldNotBeNull()
         result.recordMetadata.topic() shouldBeEqualTo TOPIC
     }
@@ -72,7 +76,7 @@ class KafkaOperationExtensionsIntegrationTest: AbstractKafkaTest() {
     fun `sendAndForget - Flow 의 모든 레코드를 발송하고 결과 무시`() = runSuspendIO {
         val records = flow {
             repeat(3) { i ->
-                emit(ProducerRecord<String, String>(TOPIC, "forget-key-$i", "forget-value-$i"))
+                emit(ProducerRecord(TOPIC, "forget-key-$i", "forget-value-$i"))
             }
         }
 
@@ -84,11 +88,10 @@ class KafkaOperationExtensionsIntegrationTest: AbstractKafkaTest() {
     fun `sendAndForget needFlush true - 발송 후 flush 호출`() = runSuspendIO {
         val records = flow {
             repeat(2) { i ->
-                emit(ProducerRecord<String, String>(TOPIC, "flush-key-$i", "flush-value-$i"))
+                emit(ProducerRecord(TOPIC, "flush-key-$i", "flush-value-$i"))
             }
         }
 
         kafkaTemplate.sendAndForget(records, needFlush = true)
     }
-
 }

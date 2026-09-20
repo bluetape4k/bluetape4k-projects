@@ -61,7 +61,7 @@ class FlociKMSTest: AbstractFlociServiceTest() {
     private val granteePrincipal = "arn:aws:iam::000000000000:user/test-grantee"
     private lateinit var grantId: String
 
-    private val aliasName = "alias/ExampleName-${System.currentTimeMillis()}"
+    private val aliasName = "alias/ExampleName-${Base58.randomString(8)}"
 
     @Test
     @Order(1)

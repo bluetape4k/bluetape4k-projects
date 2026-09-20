@@ -1,5 +1,8 @@
 package org.springframework.kafka.streams
 
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.assertions.shouldNotBeNull
 import io.bluetape4k.codec.Base58
 import io.bluetape4k.kafka.spring.test.utils.getPropertyValue
 import io.bluetape4k.logging.coroutines.KLoggingChannel
@@ -7,9 +10,6 @@ import io.bluetape4k.logging.trace
 import io.bluetape4k.support.toUtf8Bytes
 import io.bluetape4k.support.uninitialized
 import io.mockk.mockk
-import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldBeTrue
-import io.bluetape4k.assertions.shouldNotBeNull
 import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.apache.kafka.common.serialization.Serdes
 import org.apache.kafka.streams.KafkaStreams
@@ -57,12 +57,14 @@ import org.springframework.kafka.test.EmbeddedKafkaBroker
 import org.springframework.kafka.test.context.EmbeddedKafka
 import org.springframework.kafka.test.utils.KafkaTestUtils
 import org.springframework.test.context.TestPropertySource
+import java.io.Serializable
 import java.time.Duration
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicBoolean
 
+@Suppress("SpringJavaInjectionPointsAutowiringInspection")
 @SpringBootTest
 @TestPropertySource(properties = ["streaming.topic.two=streamingTopic2"])
 @EmbeddedKafka(
@@ -141,7 +143,7 @@ class KafkaStreamsTests {
 
         stateLatch.await(10, TimeUnit.SECONDS).shouldBeTrue()
 
-        val kafkaStreams = this.streamsBuilderFactoryBean.kafkaStreams!!
+        val kafkaStreams = this.streamsBuilderFactoryBean.kafkaStreams.shouldNotBeNull()
         val threads = kafkaStreams.getPropertyValue<List<StreamThread>>("threads")
         threads[0].uncaughtExceptionHandler.shouldNotBeNull()
 
@@ -263,5 +265,5 @@ class KafkaStreamsTests {
         }
     }
 
-    data class Foo(var name: String)
+    data class Foo(var name: String): Serializable
 }

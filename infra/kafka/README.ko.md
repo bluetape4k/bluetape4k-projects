@@ -173,36 +173,31 @@ val compressed = lz4ForyCodec.serialize("test-topic", largeObject)
 
 사용 가능한 Codecs:
 
-| Codec                   | 설명                   |
-|-------------------------|----------------------|
-| `KafkaCodecs.String`    | UTF-8 문자열 직렬화        |
-| `KafkaCodecs.ByteArray` | 바이트 배열 직접 전달         |
-| `KafkaCodecs.Jackson`   | JSON 직렬화             |
-| `KafkaCodecs.Kryo`      | Kryo 바이너리 직렬화        |
-| `KafkaCodecs.Fory`      | 신뢰된 입력용 Fory 바이너리 직렬화 |
-| `KafkaCodecs.Lz4Kryo`   | LZ4 압축 + Kryo 직렬화    |
-| `KafkaCodecs.Lz4Fory`   | 신뢰된 입력용 LZ4 압축 + Fory 직렬화 |
-| `KafkaCodecs.SnappyKryo` | Snappy 압축 + Kryo 직렬화 |
+| Codec                    | 설명                                    |
+|--------------------------|-----------------------------------------|
+| `KafkaCodecs.String`     | UTF-8 문자열 직렬화                     |
+| `KafkaCodecs.ByteArray`  | 바이트 배열 직접 전달                   |
+| `KafkaCodecs.Jackson`    | JSON 직렬화                             |
+| `KafkaCodecs.Kryo`       | Kryo 바이너리 직렬화                    |
+| `KafkaCodecs.Fory`       | 신뢰된 입력용 Fory 바이너리 직렬화      |
+| `KafkaCodecs.Lz4Kryo`    | LZ4 압축 + Kryo 직렬화                  |
+| `KafkaCodecs.Lz4Fory`    | 신뢰된 입력용 LZ4 압축 + Fory 직렬화    |
+| `KafkaCodecs.SnappyKryo` | Snappy 압축 + Kryo 직렬화               |
 | `KafkaCodecs.SnappyFory` | 신뢰된 입력용 Snappy 압축 + Fory 직렬화 |
-| `KafkaCodecs.ZstdKryo`  | Zstd 압축 + Kryo 직렬화   |
-| `KafkaCodecs.ZstdFory`  | 신뢰된 입력용 Zstd 압축 + Fory 직렬화 |
+| `KafkaCodecs.ZstdKryo`   | Zstd 압축 + Kryo 직렬화                 |
+| `KafkaCodecs.ZstdFory`   | 신뢰된 입력용 Zstd 압축 + Fory 직렬화   |
 
 #### 보안: Fory 신뢰 경계
 
 Fory 기반 Kafka codec은 `@BluetapeDelicateApi`로 표시됩니다. 이 codec들은 기본
-`ForyBinarySerializer`를 사용하며, 기본 Fory 설정은 역직렬화 시 등록되지 않은 클래스도
-허용합니다. 완전히 신뢰할 수 있는 토픽과 브로커에서만 opt-in 하세요. 공유 토픽이나
-외부 입력에는 `ForyBinarySerializer.secureFory(...)`로 명시적 클래스 등록을 강제한
-커스텀 codec을 사용하세요.
+`ForyBinarySerializer`를 사용하며, 기본 Fory 설정은 역직렬화 시 등록되지 않은 클래스도 허용합니다. 완전히 신뢰할 수 있는 토픽과 브로커에서만 opt-in 하세요. 공유 토픽이나 외부 입력에는 `ForyBinarySerializer.secureFory(...)`로 명시적 클래스 등록을 강제한 커스텀 codec을 사용하세요.
 
 `BinaryKafkaCodec`을 직접 상속하면서 `BinarySerializers.Fory`, `LZ4Fory`,
-`SnappyFory`, `ZstdFory`를 주입하는 경우에도 같은 신뢰 경계가 적용됩니다. 이 하위
-serializer들은 Kafka 전용 opt-in marker를 직접 제공하지 않습니다.
+`SnappyFory`, `ZstdFory`를 주입하는 경우에도 같은 신뢰 경계가 적용됩니다. 이 하위 serializer들은 Kafka 전용 opt-in marker를 직접 제공하지 않습니다.
 
 #### 성능: 타입 헤더 쓰기 비활성화
 
-`AbstractKafkaCodec` 은 기본적으로 매 레코드 헤더에 value 타입의 Java FQN 을 기록합니다.
-컨슈머가 타입을 정적으로 이미 알고 있다면 비활성화할 수 있습니다:
+`AbstractKafkaCodec` 은 기본적으로 매 레코드 헤더에 value 타입의 Java FQN 을 기록합니다. 컨슈머가 타입을 정적으로 이미 알고 있다면 비활성화할 수 있습니다:
 
 ```kotlin
 // Fory/Kryo 기반 코덱은 value-type 헤더가 필요하지 않습니다
@@ -217,19 +212,17 @@ class NoHeaderForyCodec : ForyKafkaCodec() {
 > `LinkedHashMap`으로 역직렬화되어 타입 손상이 발생합니다.
 > 헤더를 비활성화하려면 `ForyKafkaCodec` 또는 `KryoKafkaCodec`을 사용하세요.
 
-| `writeValueTypeHeader` | 동작 |
-|------------------------|------|
-| `true` (기본값) | 매 레코드에 FQN 헤더 기록 — 다형성 역직렬화 지원 |
-| `false` | 헤더 생략 — 대역폭 오버헤드 없음. 컨슈머가 타입을 정적으로 알고 있을 때 사용. |
+| `writeValueTypeHeader` | 동작                                                                          |
+|------------------------|-------------------------------------------------------------------------------|
+| `true` (기본값)        | 매 레코드에 FQN 헤더 기록 — 다형성 역직렬화 지원                              |
+| `false`                | 헤더 생략 — 대역폭 오버헤드 없음. 컨슈머가 타입을 정적으로 알고 있을 때 사용. |
 
 #### 보안: 클래스 로딩 허용 목록
 
 신뢰 프로필: 기본값은 `AllowListedTypes`입니다. `UnsafeLegacyCompatibility`는
 `AbstractKafkaCodec.ALLOW_ALL_TYPES_UNSAFE`를 통해서만 사용하세요.
 
-`AbstractKafkaCodec` 은 Kafka 헤더 `bluetape4k.kafka.codec.value.type` 에서
-역직렬화 대상 클래스를 로드합니다. 공격자가 이 헤더를 조작하면 임의 클래스 로딩(RCE)이
-가능합니다.
+`AbstractKafkaCodec` 은 Kafka 헤더 `bluetape4k.kafka.codec.value.type` 에서 역직렬화 대상 클래스를 로드합니다. 공격자가 이 헤더를 조작하면 임의 클래스 로딩 (RCE)이 가능합니다.
 
 `allowedTypePackages` 를 오버라이드하여 로드 가능한 패키지를 제한하세요:
 
@@ -242,11 +235,11 @@ class SecureJacksonCodec : JacksonKafkaCodec() {
 }
 ```
 
-| `allowedTypePackages` 값 | 동작 |
-|--------------------------|------|
-| `emptySet()` (기본값) | **모든 클래스 차단** — 타입 헤더에서 클래스를 로드하지 않음. 신뢰할 수 없거나 공유된 토픽에 대한 안전한 기본값. |
-| 비어 있지 않은 집합 | 나열된 패키지 접두사와 일치하는 FQN 클래스만 허용; 그 외 poison-pill `null` 반환. |
-| `AbstractKafkaCodec.ALLOW_ALL_TYPES_UNSAFE` | 모든 검사 우회 — 1.8.0 이전의 허용-전체 동작 복원. 완전히 신뢰할 수 있는 내부 환경에서만 사용. |
+| `allowedTypePackages` 값                    | 동작                                                                                                            |
+|---------------------------------------------|-----------------------------------------------------------------------------------------------------------------|
+| `emptySet()` (기본값)                       | **모든 클래스 차단** — 타입 헤더에서 클래스를 로드하지 않음. 신뢰할 수 없거나 공유된 토픽에 대한 안전한 기본값. |
+| 비어 있지 않은 집합                         | 나열된 패키지 접두사와 일치하는 FQN 클래스만 허용; 그 외 poison-pill `null` 반환.                               |
+| `AbstractKafkaCodec.ALLOW_ALL_TYPES_UNSAFE` | 모든 검사 우회 — 1.8.0 이전의 허용-전체 동작 복원. 완전히 신뢰할 수 있는 내부 환경에서만 사용.                  |
 
 레거시 마이그레이션 예시:
 
@@ -484,14 +477,13 @@ io.bluetape4k.kafka
 
 `org.lz4:lz4-java` 는 2025년 12월에 아카이브되었으며, 두 개의 미해결 CVE 가 있습니다:
 
-- **CVE-2025-12183** (CVSS 8.8) — 범위 초과 읽기(OOB read)
+- **CVE-2025-12183** (CVSS 8.8) — 범위 초과 읽기 (OOB read)
 - **CVE-2025-66566** (CVSS 8.2) — 미초기화 버퍼 정보 유출
 
-본 모듈은 유지보수가 활발한 포크 **`at.yawk.lz4:lz4-java:1.11.0`** 으로 마이그레이션했습니다.
-패키지 네임스페이스 `net.jpountz.lz4.*` 가 동일하므로 **바이너리 호환** — 소스 코드 변경 불필요.
+본 모듈은 유지보수가 활발한 포크 **`at.yawk.lz4:lz4-java:1.11.0`** 으로 마이그레이션했습니다. 패키지 네임스페이스 `net.jpountz.lz4.*` 가 동일하므로 **바이너리
+호환** — 소스 코드 변경 불필요.
 
-Kafka 계열 라이브러리 (`kafka-clients`, `spring-kafka`, `reactor-kafka`, `kafka-streams`) 가
-여전히 `org.lz4:lz4-java` 를 추이적 의존성으로 선언하므로, 다음과 같이 제거합니다:
+Kafka 계열 라이브러리 (`kafka-clients`, `spring-kafka`, `reactor-kafka`, `kafka-streams`) 가 여전히 `org.lz4:lz4-java` 를 추이적 의존성으로 선언하므로, 다음과 같이 제거합니다:
 
 ```kotlin
 configurations.all {
@@ -501,8 +493,7 @@ configurations.all {
 
 ### 다운스트림 사용자
 
-`bluetape4k-kafka` 를 거치지 않고 `kafka-clients` 등을 직접 의존하는 경우,
-exclude 블록과 함께 대체 아티팩트를 명시적으로 선언해야 합니다:
+`bluetape4k-kafka` 를 거치지 않고 `kafka-clients` 등을 직접 의존하는 경우, exclude 블록과 함께 대체 아티팩트를 명시적으로 선언해야 합니다:
 
 ```kotlin
 configurations.all {
@@ -515,8 +506,7 @@ dependencies {
 }
 ```
 
-`bluetape4k-kafka` 를 사용하는 경우 `at.yawk.lz4:lz4-java:1.11.0` 이 `api` 의존성으로
-자동 제공되므로 별도 선언이 불필요합니다.
+`bluetape4k-kafka` 를 사용하는 경우 `at.yawk.lz4:lz4-java:1.11.0` 이 `api` 의존성으로 자동 제공되므로 별도 선언이 불필요합니다.
 
 ## 참고 자료
 

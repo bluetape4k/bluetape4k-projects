@@ -41,7 +41,7 @@ import software.amazon.awssdk.services.dynamodb.model.ScanRequest
 class FlociDynamoDBTest: AbstractFlociServiceTest() {
 
     companion object: KLogging() {
-        private val TABLE_NAME = "test-table-${System.currentTimeMillis()}"
+        private val TABLE_NAME = "test-table-${Base58.randomString(8)}"
     }
 
     private val client: DynamoDbClient by lazy {

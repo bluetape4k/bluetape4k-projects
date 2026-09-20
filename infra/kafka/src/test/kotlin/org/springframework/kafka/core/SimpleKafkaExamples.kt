@@ -1,5 +1,9 @@
 package org.springframework.kafka.core
 
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeGreaterThan
+import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.assertions.shouldNotBeNull
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import io.bluetape4k.support.uninitialized
@@ -8,11 +12,8 @@ import io.bluetape4k.testcontainers.mq.Spring
 import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.future.await
 import kotlinx.coroutines.test.runTest
-import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldBeGreaterThan
-import io.bluetape4k.assertions.shouldBeTrue
-import io.bluetape4k.assertions.shouldNotBeNull
 import org.apache.kafka.clients.consumer.ConsumerRecord
+import org.awaitility.kotlin.atMost
 import org.awaitility.kotlin.await
 import org.awaitility.kotlin.until
 import org.junit.jupiter.api.BeforeEach
@@ -30,6 +31,7 @@ import org.springframework.kafka.support.Acknowledgment
 import org.springframework.kafka.support.KafkaHeaders
 import org.springframework.messaging.handler.annotation.Header
 import org.springframework.messaging.handler.annotation.Payload
+import kotlin.time.Duration.Companion.seconds
 
 @SpringBootTest
 class SimpleKafkaExamples {
@@ -115,7 +117,7 @@ class SimpleKafkaExamples {
         result2.recordMetadata.partition() shouldBeEqualTo result1.recordMetadata.partition()
         result2.recordMetadata.offset() shouldBeGreaterThan result1.recordMetadata.offset()
 
-        await until { consumed >= 2 * 3 }
+        await atMost 5.seconds until { consumed >= 2 * 3 }
         log.debug { "all consumer has been consumed." }
     }
 

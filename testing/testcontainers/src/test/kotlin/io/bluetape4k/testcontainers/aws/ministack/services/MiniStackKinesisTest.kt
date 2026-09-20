@@ -31,7 +31,7 @@ import java.time.Duration
 class MiniStackKinesisTest: AbstractMiniStackServiceTest() {
 
     companion object: KLogging() {
-        private val STREAM_NAME = "ministack-test-stream-${System.currentTimeMillis()}"
+        private val STREAM_NAME = "ministack-test-stream-${Base58.randomString(8)}"
     }
 
     private val kinesisClient: KinesisClient by lazy {

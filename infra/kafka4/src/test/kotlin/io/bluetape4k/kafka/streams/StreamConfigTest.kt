@@ -1,8 +1,10 @@
 package io.bluetape4k.kafka.streams
 
 import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.assertions.shouldNotBeEmpty
 import io.bluetape4k.assertions.shouldNotBeNull
 import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.debug
 import org.junit.jupiter.api.Test
 
 class StreamConfigTest {
@@ -28,6 +30,9 @@ class StreamConfigTest {
     @Test
     fun `streamsConfigDef는 비어있지 않다`() {
         val keys = streamsConfigDef.configKeys()
-        keys.isNotEmpty().shouldBeTrue()
+        keys.forEach {
+            log.debug { "ConfigDef config key=${it.key}, defaultValue=${it.value.defaultValue}" }
+        }
+        keys.shouldNotBeEmpty()
     }
 }

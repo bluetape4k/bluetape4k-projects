@@ -43,7 +43,7 @@ class CoreReplyRequestPatterns: AbstractNatsTest() {
 
                     // Do some work with that message...
                     val requestId = extractRequestIdFromSubject(msg)
-                    log.debug { "${System.currentTimeMillis()}: Worker $id responding to request $requestId" }
+                    log.debug { "${Base58.randomString(8)}: Worker $id responding to request $requestId" }
 
                     // ... then publish to the replyTo, just like regular reply-request
                     nc.publish(msg.replyTo, "worker-$id worked on $requestId")
@@ -67,7 +67,7 @@ class CoreReplyRequestPatterns: AbstractNatsTest() {
             init {
                 val dispatcher = nc.createDispatcher { msg ->
                     log.debug {
-                        "${System.currentTimeMillis()}: Originator received `${msg.data.toUtf8String()}` " +
+                        "${Base58.randomString(8)}: Originator received `${msg.data.toUtf8String()}` " +
                                 "in response to ${extractRequestIdFromSubject(msg)}"
                     }
                     latch.countDown()
@@ -142,7 +142,7 @@ class CoreReplyRequestPatterns: AbstractNatsTest() {
                     if (msg != null) {
                         // Do some work with that message...
                         val requestId = extractRequestIdFromSubject(msg)
-                        log.debug { "${System.currentTimeMillis()}: Worker $id responding to request $requestId" }
+                        log.debug { "${Base58.randomString(8)}: Worker $id responding to request $requestId" }
 
                         // ... then publish to the replyTo, just like regular reply-request
                         nc.publish(msg.replyTo, "worker-$id worked on $requestId")
@@ -175,7 +175,7 @@ class CoreReplyRequestPatterns: AbstractNatsTest() {
                     // For this example, we stop the loop by waiting once for the latch to count down or 2 seconds
                     try {
                         val msg = nc.request(subject, "this is the task data", timeout = 2.seconds)!!
-                        log.debug { "${System.currentTimeMillis()}: Originator received `${msg.data.toUtf8String()}` in response" }
+                        log.debug { "${Base58.randomString(8)}: Originator received `${msg.data.toUtf8String()}` in response" }
                     } catch (e: InterruptedException) {
                         e.printStackTrace()
                     }
@@ -237,7 +237,7 @@ class CoreReplyRequestPatterns: AbstractNatsTest() {
                         // Do some work with that message...
                         val taskType = extractTaskTypeFromSubject(msg)
                         val requestId = extractRequestIdFromSubject(msg)
-                        log.debug { "${System.currentTimeMillis()}: Worker $id responding to request $requestId for $taskType" }
+                        log.debug { "${Base58.randomString(8)}: Worker $id responding to request $requestId for $taskType" }
 
                         // ... then publish to the replyTo, just like regular reply-request
                         nc.publish(msg.replyTo, "worker-$id worked on $requestId for $taskType")
@@ -262,7 +262,7 @@ class CoreReplyRequestPatterns: AbstractNatsTest() {
             init {
                 val dispatcher = nc.createDispatcher { msg ->
                     log.debug {
-                        "${System.currentTimeMillis()}: Originator received `${msg.data.toUtf8String()}` " +
+                        "${Base58.randomString(8)}: Originator received `${msg.data.toUtf8String()}` " +
                                 "in response to ${extractRequestIdFromSubject(msg)}"
                     }
                     latch.countDown()
@@ -319,7 +319,7 @@ class CoreReplyRequestPatterns: AbstractNatsTest() {
                     // For this example, we stop the loop by waiting once for the latch to count down or 2 seconds
                     try {
                         val msg = nc.request(subject, "this is the task data", timeout = 2.seconds)!!
-                        log.debug { "${System.currentTimeMillis()}: Originator received `${msg.data.toUtf8String()}` in response" }
+                        log.debug { "${Base58.randomString(8)}: Originator received `${msg.data.toUtf8String()}` in response" }
                     } catch (e: InterruptedException) {
                         e.printStackTrace()
                     }

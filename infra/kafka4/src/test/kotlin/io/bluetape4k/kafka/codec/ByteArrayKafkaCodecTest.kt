@@ -1,11 +1,11 @@
 package io.bluetape4k.kafka.codec
 
-import io.bluetape4k.kafka.AbstractKafkaTest
-import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeNull
 import io.bluetape4k.assertions.shouldBeSameInstanceAs
 import io.bluetape4k.assertions.shouldNotBeNull
+import io.bluetape4k.kafka.AbstractKafkaTest
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import org.junit.jupiter.api.Test
 import java.util.*
 

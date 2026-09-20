@@ -54,7 +54,7 @@ class MiniStackKMSTest: AbstractMiniStackServiceTest() {
     private lateinit var encryptedData: SdkBytes
     private val granteePrincipal = "arn:aws:iam::000000000000:user/test-grantee"
     private lateinit var grantId: String
-    private val aliasName = "alias/MiniStackExampleName-${System.currentTimeMillis()}"
+    private val aliasName = "alias/MiniStackExampleName-${Base58.randomString(8)}"
 
     @Test
     @Order(1)

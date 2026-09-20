@@ -36,7 +36,7 @@ import software.amazon.awssdk.services.dynamodb.model.ScanRequest
 class MiniStackDynamoDBTest: AbstractMiniStackServiceTest() {
 
     companion object: KLogging() {
-        private val TABLE_NAME = "ministack-test-table-${System.currentTimeMillis()}"
+        private val TABLE_NAME = "ministack-test-table-${Base58.randomString(8)}"
     }
 
     private val client by lazy {

@@ -1,6 +1,7 @@
 package io.bluetape4k.kafka.codec
 
 import io.bluetape4k.LibraryName
+import io.bluetape4k.kafka.codec.KafkaCodec.Companion.VALUE_TYPE_KEY
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.warn
 import io.bluetape4k.support.classIsPresent
@@ -72,10 +73,32 @@ private fun String.toBoundedLogField(maxLength: Int): String {
  *
  * @param T 메시지 Value 의 수형
  */
-interface KafkaCodec<T>:
-    Serializer<T>,
-    Deserializer<T>,
-    Closeable {
+interface KafkaCodec<T>: Serializer<T>,
+                         Deserializer<T>,
+                         Closeable {
+
+    companion object: KLogging() {
+        const val VALUE_TYPE_KEY = "$LibraryName.kafka.codec.value.type"
+
+        /**
+         * Sentinel value for [allowedTypePackages] that bypasses all package checks.
+         *
+         * 모든 Kafka producer가 완전히 신뢰되는 internal deployment에서만 사용합니다
+         * controlled. Assigning this constant re-enables the pre-1.8.0 allow-all behavior.
+         *
+         * ```kotlin
+         * class LegacyJacksonCodec : JacksonKafkaCodec() {
+         *     override val allowedTypePackages = AbstractKafkaCodec.ALLOW_ALL_TYPES_UNSAFE
+         * }
+         * ```
+         */
+        @JvmStatic
+        val ALLOW_ALL_TYPES_UNSAFE: Set<String> = setOf("*")
+
+        @JvmStatic
+        fun defaultCodec(): KafkaCodec<Any?> = JacksonKafkaCodec()
+    }
+
     override fun configure(
         configs: MutableMap<String, *>?,
         isKey: Boolean,
@@ -145,27 +168,7 @@ interface BufferAwareKafkaCodec<T>: KafkaCodec<T> {
  * 보안이 필요한 환경에서는 반드시 [allowedTypePackages]에 허용된 패키지를 지정하십시오.
  */
 abstract class AbstractKafkaCodec<T>: KafkaCodec<T> {
-    companion object: KLogging() {
-        const val VALUE_TYPE_KEY = "$LibraryName.kafka.codec.value.type"
-
-        /**
-         * Sentinel value for [allowedTypePackages] that bypasses all package checks.
-         *
-         * 모든 Kafka producer가 완전히 신뢰되는 internal deployment에서만 사용합니다
-         * controlled. Assigning this constant re-enables the pre-1.8.0 allow-all behavior.
-         *
-         * ```kotlin
-         * class LegacyJacksonCodec : JacksonKafkaCodec() {
-         *     override val allowedTypePackages = AbstractKafkaCodec.ALLOW_ALL_TYPES_UNSAFE
-         * }
-         * ```
-         */
-        @JvmField
-        val ALLOW_ALL_TYPES_UNSAFE: Set<String> = setOf("*")
-
-        @JvmStatic
-        fun defaultCodec(): KafkaCodec<Any?> = JacksonKafkaCodec()
-    }
+    companion object: KLogging()
 
     /**
      * Package prefix allowlist for types loaded from the [VALUE_TYPE_KEY] header.
@@ -285,7 +288,7 @@ abstract class AbstractKafkaCodec<T>: KafkaCodec<T> {
             val boundedFailureType = boundedPoisonLogFailureType(e.javaClass.name)
             log.warn {
                 "Fail to deserialize data. topic=$boundedTopic, headerKeys=$boundedHeaderKeys, " +
-                    "dataSize=$dataSize, failureType=$boundedFailureType. Returning null (poison pill skipped)."
+                        "dataSize=$dataSize, failureType=$boundedFailureType. Returning null (poison pill skipped)."
             }
             null
         }
@@ -310,13 +313,13 @@ abstract class AbstractKafkaCodec<T>: KafkaCodec<T> {
                 // The header and allowlist may both contain untrusted or sensitive text; log fixed metadata only.
                 log.warn {
                     "[SECURITY] Rejected Kafka type header. rejectedTypeLength=${clazzName.length}, " +
-                        "allowedPackageCount=${allowedTypePackages.size}. " +
-                        "If intentional, add the package to allowedTypePackages or use ALLOW_ALL_TYPES_UNSAFE (unsafe)."
+                            "allowedPackageCount=${allowedTypePackages.size}. " +
+                            "If intentional, add the package to allowedTypePackages or use ALLOW_ALL_TYPES_UNSAFE (unsafe)."
                 }
                 throw IllegalArgumentException(
                     "Class '$clazzName' is not in allowedTypePackages=$allowedTypePackages. " +
-                    "Add the package to allowedTypePackages, or set allowedTypePackages = AbstractKafkaCodec.ALLOW_ALL_TYPES_UNSAFE " +
-                    "to allow all types (unsafe)."
+                            "Add the package to allowedTypePackages, or set allowedTypePackages = AbstractKafkaCodec.ALLOW_ALL_TYPES_UNSAFE " +
+                            "to allow all types (unsafe)."
                 )
             }
         }

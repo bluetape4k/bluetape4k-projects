@@ -3,9 +3,11 @@ package io.bluetape4k.kafka.spring.listener
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldNotBeNull
 import io.bluetape4k.logging.KLogging
+import io.mockk.clearMocks
 import io.mockk.every
 import io.mockk.mockk
 import org.apache.kafka.clients.consumer.ConsumerRecord
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.kafka.listener.AcknowledgingMessageListener
 import org.springframework.kafka.listener.ContainerProperties
@@ -19,7 +21,14 @@ import org.springframework.kafka.support.Acknowledgment
  */
 class ListenerUtilsTest {
 
-    companion object : KLogging()
+    companion object: KLogging()
+
+    private val container = mockk<MessageListenerContainer>(relaxed = true)
+
+    @BeforeEach
+    fun beforeEach() {
+        clearMocks(container)
+    }
 
     @Test
     fun `MessageListener SAM 구현체 전달 시 ListenerType SIMPLE 반환`() {
@@ -36,7 +45,8 @@ class ListenerUtilsTest {
     @Test
     fun `AcknowledgingMessageListener 구현체 전달 시 ListenerType ACKNOWLEDGING 반환`() {
         // Arrange
-        val listener = AcknowledgingMessageListener<String, String> { _: ConsumerRecord<String, String>, _: Acknowledgment? -> /* no-op */ }
+        val listener =
+            AcknowledgingMessageListener { _: ConsumerRecord<String, String>, _: Acknowledgment? -> /* no-op */ }
 
         // Act
         val listenerType = listenerTypeOf(listener)
@@ -48,7 +58,6 @@ class ListenerUtilsTest {
     @Test
     fun `stoppableSleep - 컨테이너가 중지 상태이면 예외 없이 완료`() {
         // Arrange
-        val container = mockk<MessageListenerContainer>(relaxed = true)
         every { container.isRunning } returns false
 
         // Act & Assert - 예외가 발생하지 않아야 함
@@ -64,7 +73,6 @@ class ListenerUtilsTest {
         val containerProps = ContainerProperties("test-topic")
         // offsetAndMetadataProvider 기본값이 null이므로 별도 설정 불필요
 
-        val container = mockk<MessageListenerContainer>(relaxed = true)
         every { container.containerProperties } returns containerProps
 
         // Act

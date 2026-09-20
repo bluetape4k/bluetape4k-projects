@@ -22,7 +22,7 @@ import software.amazon.awssdk.services.sns.SnsClient
 class MiniStackSNSTest: AbstractMiniStackServiceTest() {
 
     companion object: KLogging() {
-        private val TOPIC_NAME = "ministack-test-topic-${System.currentTimeMillis()}"
+        private val TOPIC_NAME = "ministack-test-topic-${Base58.randomString(8)}"
     }
 
     private val snsClient: SnsClient by lazy {

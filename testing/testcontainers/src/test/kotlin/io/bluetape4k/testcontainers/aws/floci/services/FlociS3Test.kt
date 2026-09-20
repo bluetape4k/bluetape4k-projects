@@ -33,7 +33,7 @@ import software.amazon.awssdk.services.s3.model.PutObjectRequest
 class FlociS3Test: AbstractFlociServiceTest() {
 
     companion object: KLogging() {
-        private val BUCKET_NAME = "foo-${System.currentTimeMillis()}"
+        private val BUCKET_NAME = "foo-${Base58.randomString(8)}"
         private const val KEY_NAME = "bar"
         private const val CONTENT = "baz"
     }

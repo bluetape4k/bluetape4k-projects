@@ -1,12 +1,14 @@
 package org.springframework.kafka.annotation
 
-import io.bluetape4k.jackson.Jackson
-import io.bluetape4k.kafka.spring.test.utils.consumerProps
-import io.bluetape4k.logging.coroutines.KLoggingChannel
-import io.bluetape4k.support.uninitialized
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeInstanceOf
 import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.jackson.Jackson
+import io.bluetape4k.kafka.spring.test.utils.consumerProps
+import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
+import io.bluetape4k.logging.debug
+import io.bluetape4k.support.uninitialized
 import org.apache.kafka.clients.consumer.ConsumerConfig
 import org.apache.kafka.clients.producer.ProducerConfig
 import org.apache.kafka.common.serialization.StringSerializer
@@ -59,6 +61,7 @@ class BatchListenerConversion2Tests {
         listener.receivedFoos shouldBeEqualTo 2
     }
 
+    @Suppress("SpringJavaInjectionPointsAutowiringInspection")
     @Configuration
     @EnableKafka
     class Config {
@@ -118,6 +121,8 @@ class BatchListenerConversion2Tests {
     }
 
     class Listener {
+        companion object: KLogging()
+
         internal val latch1 = CountDownLatch(3)
 
         @Volatile
@@ -129,6 +134,7 @@ class BatchListenerConversion2Tests {
         @KafkaListener(id = "deser", topics = ["blc.2.1"])
         fun listen1(foos: List<Foo>) {
             foos.forEach { f ->
+                log.debug { "received foo=$f" }
                 if (f.bar == null) {
                     this.badFoo = f
                 } else {

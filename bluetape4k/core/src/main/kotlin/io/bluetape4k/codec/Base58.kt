@@ -28,7 +28,7 @@ object Base58: KLogging() {
             this[ch.code] = i
         }
     }
-    private val RANDOM: SecureRandom by lazy { SecureRandom.getInstanceStrong() }
+    private val RANDOM: SecureRandom = SecureRandom.getInstanceStrong()
 
     /**
      * [length] 크기를 가진 랜덤 문자열을 만듭니다.

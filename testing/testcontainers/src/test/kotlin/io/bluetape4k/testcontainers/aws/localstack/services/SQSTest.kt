@@ -23,7 +23,7 @@ import java.net.URI
 class SQSTest: AbstractLocalStackServiceTest() {
 
     companion object: KLogging() {
-        private val QUEUE_NAME = "test-queue-${System.currentTimeMillis()}"
+        private val QUEUE_NAME = "test-queue-${Base58.randomString(8)}"
     }
 
     private val sqsServer: LocalStackServer by lazy {
