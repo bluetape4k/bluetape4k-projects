@@ -1,9 +1,8 @@
 package io.bluetape4k.redis.lettuce.codec
 
+import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.redis.lettuce.AbstractLettuceTest
-import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldContainSame
 import org.junit.jupiter.api.Test
 
 class LettuceIntCodecTest: AbstractLettuceTest() {
@@ -15,7 +14,7 @@ class LettuceIntCodecTest: AbstractLettuceTest() {
     @Test
     fun `encodeValue 와 decodeValue 가 round-trip 을 보장한다`() {
         val values = listOf(0, 1, -1, 42, Int.MIN_VALUE, Int.MAX_VALUE, 100, -100)
-        for (value in values) {
+        values.forEach { value ->
             val encoded = codec.encodeValue(value)
             val decoded = codec.decodeValue(encoded)
             decoded shouldBeEqualTo value
@@ -25,7 +24,7 @@ class LettuceIntCodecTest: AbstractLettuceTest() {
     @Test
     fun `encodeKey 와 decodeKey 가 round-trip 을 보장한다`() {
         val keys = listOf("key", "my-key", "ns:key:1", randomName())
-        for (key in keys) {
+        keys.forEach { key ->
             val encoded = codec.encodeKey(key)
             val decoded = codec.decodeKey(encoded)
             decoded shouldBeEqualTo key
@@ -79,7 +78,7 @@ class LettuceIntCodecTest: AbstractLettuceTest() {
             )
 
             commands.hset(key, originMap)
-            commands.hgetall(key) shouldContainSame originMap
+            commands.hgetall(key) shouldBeEqualTo originMap
 
             commands.del(key)
         }
@@ -90,12 +89,13 @@ class LettuceIntCodecTest: AbstractLettuceTest() {
         client.connect(codec).use { connection ->
             val commands = connection.sync()
 
-            listOf(Int.MIN_VALUE, Int.MAX_VALUE, 0, -1, 1).forEach { value ->
-                val key = randomName()
-                commands.set(key, value)
-                commands.get(key) shouldBeEqualTo value
-                commands.del(key)
-            }
+            listOf(Int.MIN_VALUE, Int.MAX_VALUE, 0, -1, 1)
+                .forEach { value ->
+                    val key = randomName()
+                    commands.set(key, value)
+                    commands.get(key) shouldBeEqualTo value
+                    commands.del(key)
+                }
         }
     }
 }

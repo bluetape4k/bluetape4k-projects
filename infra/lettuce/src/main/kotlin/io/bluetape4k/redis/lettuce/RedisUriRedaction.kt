@@ -95,6 +95,7 @@ private fun redactParameter(parameter: String): String {
     val equalsIndex = parameter.indexOf('=')
     val rawName = if (equalsIndex < 0) parameter else parameter.substring(0, equalsIndex)
     val decodedName = URLDecoder.decode(rawName, StandardCharsets.UTF_8)
+
     if (!SENSITIVE_PARAMETER.matches(decodedName)) return parameter
 
     return if (equalsIndex < 0) {

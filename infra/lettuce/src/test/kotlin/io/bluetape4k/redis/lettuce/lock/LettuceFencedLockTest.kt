@@ -1,9 +1,14 @@
 package io.bluetape4k.redis.lettuce.lock
 
 import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeFalse
 import io.bluetape4k.assertions.shouldBeGreaterThan
 import io.bluetape4k.assertions.shouldBeInstanceOf
+import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.codec.Base58
 import io.bluetape4k.junit5.coroutines.runSuspendIO
+import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.redis.lettuce.LettuceTestUtils
 import io.bluetape4k.redis.lettuce.lock.internal.deriveFencedLockKeys
 import io.bluetape4k.testcontainers.storage.RedisClusterServer
@@ -21,10 +26,19 @@ import java.util.concurrent.Executors
 
 internal class LettuceFencedLockTest {
 
+    private companion object: KLogging() {
+        val OWNER = LockOwnerId.from("fenced-owner")
+        val OTHER_OWNER = LockOwnerId.from("fenced-other-owner")
+        val REQUEST_1 = LockRequestId.from("fenced-request-1")
+        val REQUEST_2 = LockRequestId.from("fenced-request-2")
+        val REQUEST_3 = LockRequestId.from("fenced-request-3")
+        val LEASE: LeasePolicy = LeasePolicy.Fixed(Duration.ofSeconds(3))
+    }
+
     @Test
     fun `fresh generation increments token while replay and reentry keep it stable`() {
         LettuceTestUtils.client.connect(StringCodec.UTF8).use { connection ->
-            val fixture = FencedFixture(connection, "fenced-token-${System.nanoTime()}", epoch = 11)
+            val fixture = FencedFixture(connection, "fenced-token-${Base58.randomString(8)}", epoch = 11)
             fixture.use { lock ->
                 lock.bootstrapFencing() shouldBeEqualTo FencedBootstrapResult.Initialized
                 lock.bootstrapFencing() shouldBeEqualTo FencedBootstrapResult.AlreadyInitialized
@@ -52,7 +66,7 @@ internal class LettuceFencedLockTest {
     @Test
     fun `malformed counter and exhausted exact range fail closed`() {
         LettuceTestUtils.client.connect(StringCodec.UTF8).use { connection ->
-            val malformed = FencedFixture(connection, "fenced-malformed-${System.nanoTime()}", epoch = 3)
+            val malformed = FencedFixture(connection, "fenced-malformed-${Base58.randomString(8)}", epoch = 3)
             malformed.use { lock ->
                 lock.bootstrapFencing() shouldBeEqualTo FencedBootstrapResult.Initialized
                 connection.sync().set(malformed.keys.counter, "not-a-number")
@@ -61,7 +75,7 @@ internal class LettuceFencedLockTest {
                     .failure.kind shouldBeEqualTo LockIntegrityFailureKind.COUNTER_REGRESSION
             }
 
-            val exhausted = FencedFixture(connection, "fenced-exhausted-${System.nanoTime()}", epoch = 3)
+            val exhausted = FencedFixture(connection, "fenced-exhausted-${Base58.randomString(8)}", epoch = 3)
             exhausted.use { lock ->
                 lock.bootstrapFencing() shouldBeEqualTo FencedBootstrapResult.Initialized
                 connection.sync().set(exhausted.keys.counter, MAX_LUA_EXACT_INTEGER.toString())
@@ -73,22 +87,26 @@ internal class LettuceFencedLockTest {
     @Test
     fun `epoch authority is isolated and downstream acceptance is strict greater`() {
         LettuceTestUtils.client.connect(StringCodec.UTF8).use { connection ->
-            val name = "fenced-epoch-${System.nanoTime()}"
+            val name = "fenced-epoch-${Base58.randomString(8)}"
             val firstEpoch = FencedFixture(connection, name, epoch = 20)
             val nextEpoch = FencedFixture(connection, name, epoch = 21)
+
             firstEpoch.use { first ->
                 nextEpoch.use { next ->
                     first.bootstrapFencing() shouldBeEqualTo FencedBootstrapResult.Initialized
                     next.bootstrapFencing() shouldBeEqualTo FencedBootstrapResult.Initialized
+
                     val firstHandle = first.tryAcquire(OWNER, REQUEST_1, LEASE)
                         .shouldBeInstanceOf<LockAcquireResult.Acquired<FencedLockHandle>>().handle
+
                     first.release(firstHandle) shouldBeEqualTo LockMutationResult.Released(0)
+
                     val nextHandle = next.tryAcquire(OTHER_OWNER, REQUEST_2, LEASE)
                         .shouldBeInstanceOf<LockAcquireResult.Acquired<FencedLockHandle>>().handle
 
-                    acceptsAfter(firstHandle, nextHandle) shouldBeEqualTo true
-                    acceptsAfter(nextHandle, nextHandle) shouldBeEqualTo false
-                    acceptsAfter(nextHandle, firstHandle) shouldBeEqualTo false
+                    acceptsAfter(firstHandle, nextHandle).shouldBeTrue()
+                    acceptsAfter(nextHandle, nextHandle).shouldBeFalse()
+                    acceptsAfter(nextHandle, firstHandle).shouldBeFalse()
                 }
             }
         }
@@ -97,19 +115,22 @@ internal class LettuceFencedLockTest {
     @Test
     fun `future and suspend surfaces preserve fenced handles`() = runSuspendIO {
         LettuceTestUtils.client.connect(StringCodec.UTF8).use { connection ->
-            val name = "fenced-parity-${System.nanoTime()}"
+            val name = "fenced-parity-${Base58.randomString(8)}"
             val config = FencedLockConfig(epoch = 31)
             val blocking = LettuceFencedLock.create(connection, name, config)
             val suspending = LettuceSuspendFencedLock.create(connection, name, config)
             val keys = deriveFencedLockKeys(name, config, connection.codec)
+
             try {
                 blocking.bootstrapFencingAsync().await() shouldBeEqualTo FencedBootstrapResult.Initialized
                 val futureHandle = blocking.tryAcquireAsync(OWNER, REQUEST_1, LEASE).await()
                     .shouldBeInstanceOf<LockAcquireResult.Acquired<FencedLockHandle>>().handle
+
                 futureHandle.lock.kind shouldBeEqualTo LockKind.FENCED
                 blocking.releaseAsync(futureHandle).await() shouldBeEqualTo LockMutationResult.Released(0)
 
                 suspending.bootstrapFencing() shouldBeEqualTo FencedBootstrapResult.AlreadyInitialized
+
                 val suspendHandle = suspending.tryAcquire(OTHER_OWNER, REQUEST_2, LEASE)
                     .shouldBeInstanceOf<LockAcquireResult.Acquired<FencedLockHandle>>().handle
                 suspendHandle.fencingToken shouldBeGreaterThan futureHandle.fencingToken
@@ -125,7 +146,7 @@ internal class LettuceFencedLockTest {
     @Test
     fun `future and suspend lifecycle operations preserve fenced terminal states`() = runSuspendIO {
         LettuceTestUtils.client.connect(StringCodec.UTF8).use { connection ->
-            val name = "fenced-lifecycle-${System.nanoTime()}"
+            val name = "fenced-lifecycle-${Base58.randomString(8)}"
             val config = FencedLockConfig(epoch = 32)
             val blocking = LettuceFencedLock.create(connection, name, config)
             val suspending = LettuceSuspendFencedLock.create(connection, name, config)
@@ -144,18 +165,24 @@ internal class LettuceFencedLockTest {
                 blocking.releaseAsync(futureHandle).await() shouldBeEqualTo LockMutationResult.Released(0)
                 blocking.inspectAsync(futureHandle).await() shouldBeEqualTo LockInspectResult.Released
                 blocking.renewAsync(futureHandle, Duration.ofSeconds(1)).await() shouldBeEqualTo
-                    LockMutationResult.AlreadyReleased
+                        LockMutationResult.AlreadyReleased
 
                 suspending.bootstrapFencing() shouldBeEqualTo FencedBootstrapResult.AlreadyInitialized
-                val suspendHandle = suspending.tryAcquire(OTHER_OWNER, REQUEST_2, LEASE)
-                    .shouldBeInstanceOf<LockAcquireResult.Acquired<FencedLockHandle>>()
-                    .handle
+                val suspendHandle = suspending
+                    .tryAcquire(
+                        OTHER_OWNER,
+                        REQUEST_2,
+                        LEASE
+                    ).shouldBeInstanceOf<LockAcquireResult.Acquired<FencedLockHandle>>().handle
                 suspending.inspect(suspendHandle)
                     .shouldBeInstanceOf<LockInspectResult.Owned<FencedLockHandle>>()
+
                 suspending.reconcile(OTHER_OWNER, REQUEST_2)
                     .shouldBeInstanceOf<LockReconcileResult.Owned<FencedLockHandle>>()
+
                 suspending.renew(suspendHandle, Duration.ofSeconds(1))
                     .shouldBeInstanceOf<LockMutationResult.Renewed<FencedLockHandle>>()
+
                 suspending.release(suspendHandle) shouldBeEqualTo LockMutationResult.Released(0)
             } finally {
                 blocking.close()
@@ -168,11 +195,12 @@ internal class LettuceFencedLockTest {
     @Test
     fun `future cancellation stops the bounded wait without acquiring later`() {
         LettuceTestUtils.client.connect(StringCodec.UTF8).use { connection ->
-            val fixture = FencedFixture(connection, "fenced-cancel-${System.nanoTime()}", epoch = 41)
+            val fixture = FencedFixture(connection, "fenced-cancel-${Base58.randomString(8)}", epoch = 41)
             fixture.use { lock ->
                 lock.bootstrapFencing() shouldBeEqualTo FencedBootstrapResult.Initialized
                 val holder = lock.tryAcquire(OWNER, REQUEST_1, LEASE)
                     .shouldBeInstanceOf<LockAcquireResult.Acquired<FencedLockHandle>>().handle
+
                 val pending = lock.acquireAsync(
                     OTHER_OWNER,
                     REQUEST_2,
@@ -180,10 +208,16 @@ internal class LettuceFencedLockTest {
                     LEASE,
                 )
 
-                pending.cancel(false) shouldBeEqualTo true
+                pending.cancel(false).shouldBeTrue()
+
                 lock.release(holder) shouldBeEqualTo LockMutationResult.Released(0)
-                val explicit = lock.tryAcquire(OTHER_OWNER, REQUEST_2, LEASE)
-                    .shouldBeInstanceOf<LockAcquireResult.Acquired<FencedLockHandle>>().handle
+
+                val explicit = lock.tryAcquire(
+                    OTHER_OWNER,
+                    REQUEST_2,
+                    LEASE
+                ).shouldBeInstanceOf<LockAcquireResult.Acquired<FencedLockHandle>>().handle
+                
                 explicit.fencingToken shouldBeGreaterThan holder.fencingToken
             }
         }
@@ -192,15 +226,20 @@ internal class LettuceFencedLockTest {
     @Test
     fun `suspend cancellation stops retry registration and preserves reconciliation identity`() = runSuspendIO {
         LettuceTestUtils.client.connect(StringCodec.UTF8).use { connection ->
-            val name = "fenced-suspend-cancel-${System.nanoTime()}"
+            val name = "fenced-suspend-cancel-${Base58.randomString(8)}"
             val config = FencedLockConfig(epoch = 42)
             val blocking = LettuceFencedLock.create(connection, name, config)
             val suspending = LettuceSuspendFencedLock.create(connection, name, config)
             val keys = deriveFencedLockKeys(name, config, connection.codec)
             try {
                 blocking.bootstrapFencing() shouldBeEqualTo FencedBootstrapResult.Initialized
-                val holder = blocking.tryAcquire(OWNER, REQUEST_1, LEASE)
-                    .shouldBeInstanceOf<LockAcquireResult.Acquired<FencedLockHandle>>().handle
+
+                val holder = blocking.tryAcquire(
+                    OWNER,
+                    REQUEST_1,
+                    LEASE
+                ).shouldBeInstanceOf<LockAcquireResult.Acquired<FencedLockHandle>>().handle
+
                 val pending = async {
                     suspending.acquire(
                         OTHER_OWNER,
@@ -213,9 +252,12 @@ internal class LettuceFencedLockTest {
 
                 pending.cancelAndJoin()
                 suspending.reconcile(OTHER_OWNER, REQUEST_2) shouldBeEqualTo LockReconcileResult.NotFound
+
                 blocking.release(holder) shouldBeEqualTo LockMutationResult.Released(0)
-                val explicit = suspending.tryAcquire(OTHER_OWNER, REQUEST_2, LEASE)
+                val explicit = suspending
+                    .tryAcquire(OTHER_OWNER, REQUEST_2, LEASE)
                     .shouldBeInstanceOf<LockAcquireResult.Acquired<FencedLockHandle>>().handle
+
                 explicit.fencingToken shouldBeGreaterThan holder.fencingToken
             } finally {
                 blocking.close()
@@ -227,18 +269,18 @@ internal class LettuceFencedLockTest {
 
     private fun acceptsAfter(previous: FencedLockHandle, incoming: FencedLockHandle): Boolean =
         incoming.epoch > previous.epoch ||
-            incoming.epoch == previous.epoch && incoming.fencingToken > previous.fencingToken
+                incoming.epoch == previous.epoch && incoming.fencingToken > previous.fencingToken
 
     private class FencedFixture(
         private val connection: StatefulRedisConnection<String, String>,
         name: String,
         epoch: Long,
-    ) : AutoCloseable {
+    ): AutoCloseable {
         private val config = FencedLockConfig(epoch = epoch)
         val keys = deriveFencedLockKeys(name, config, connection.codec)
         private val delegate = LettuceFencedLock.create(connection, name, config)
 
-        fun use(block: (LettuceFencedLock) -> Unit) {
+        inline fun use(block: (LettuceFencedLock) -> Unit) {
             try {
                 block(delegate)
             } finally {
@@ -251,18 +293,15 @@ internal class LettuceFencedLockTest {
             connection.sync().del(*keys.all)
         }
     }
-
-    private companion object {
-        val OWNER = LockOwnerId.from("fenced-owner")
-        val OTHER_OWNER = LockOwnerId.from("fenced-other-owner")
-        val REQUEST_1 = LockRequestId.from("fenced-request-1")
-        val REQUEST_2 = LockRequestId.from("fenced-request-2")
-        val REQUEST_3 = LockRequestId.from("fenced-request-3")
-        val LEASE: LeasePolicy = LeasePolicy.Fixed(Duration.ofSeconds(3))
-    }
 }
 
 internal class ClusterLettuceFencedLockTest {
+
+    private companion object: KLoggingChannel() {
+        val CLUSTER_OWNER = LockOwnerId.from("fenced-cluster-owner")
+        val CLUSTER_REQUEST = LockRequestId.from("fenced-cluster-request")
+        val CLUSTER_LEASE: LeasePolicy = LeasePolicy.Fixed(Duration.ofSeconds(3))
+    }
 
     @Test
     @Timeout(30)
@@ -275,15 +314,25 @@ internal class ClusterLettuceFencedLockTest {
                 try {
                     LettuceFencedLock.create(connection, names[0], configs[0]).use { blocking ->
                         blocking.bootstrapFencing() shouldBeEqualTo FencedBootstrapResult.Initialized
-                        val handle = blocking.tryAcquire(CLUSTER_OWNER, CLUSTER_REQUEST, CLUSTER_LEASE)
-                            .shouldBeInstanceOf<LockAcquireResult.Acquired<FencedLockHandle>>().handle
+
+                        val handle = blocking
+                            .tryAcquire(
+                                CLUSTER_OWNER,
+                                CLUSTER_REQUEST,
+                                CLUSTER_LEASE
+                            ).shouldBeInstanceOf<LockAcquireResult.Acquired<FencedLockHandle>>().handle
+                        
                         handle.lock.kind shouldBeEqualTo LockKind.FENCED
                         blocking.release(handle) shouldBeEqualTo LockMutationResult.Released(0)
                     }
                     LettuceSuspendFencedLock.create(connection, names[1], configs[1]).use { suspending ->
                         suspending.bootstrapFencing() shouldBeEqualTo FencedBootstrapResult.Initialized
-                        val handle = suspending.tryAcquire(CLUSTER_OWNER, CLUSTER_REQUEST, CLUSTER_LEASE)
-                            .shouldBeInstanceOf<LockAcquireResult.Acquired<FencedLockHandle>>().handle
+                        val handle = suspending.tryAcquire(
+                            CLUSTER_OWNER,
+                            CLUSTER_REQUEST,
+                            CLUSTER_LEASE
+                        ).shouldBeInstanceOf<LockAcquireResult.Acquired<FencedLockHandle>>().handle
+
                         handle.lock.kind shouldBeEqualTo LockKind.FENCED
                         suspending.release(handle) shouldBeEqualTo LockMutationResult.Released(0)
                     }
@@ -294,12 +343,6 @@ internal class ClusterLettuceFencedLockTest {
                 }
             }
         }
-    }
-
-    private companion object {
-        val CLUSTER_OWNER = LockOwnerId.from("fenced-cluster-owner")
-        val CLUSTER_REQUEST = LockRequestId.from("fenced-cluster-request")
-        val CLUSTER_LEASE: LeasePolicy = LeasePolicy.Fixed(Duration.ofSeconds(3))
     }
 }
 

@@ -2,6 +2,7 @@ package io.bluetape4k.redis.lettuce.map
 
 import io.bluetape4k.io.serializer.BinarySerializers
 import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.error
 import io.bluetape4k.logging.warn
 import io.bluetape4k.redis.lettuce.codec.LettuceBinaryCodec
@@ -139,10 +140,7 @@ class LettuceLoadedMap<K: Any, V: Any>(
      * @param key 저장할 키
      * @param value 저장할 값
      */
-    operator fun set(
-        key: K,
-        value: V,
-    ) {
+    operator fun set(key: K, value: V) {
         when (config.writeMode) {
             WriteMode.NONE          -> {
                 commands.set(redisKey(key), value, SetArgs().ex(ttlSeconds))
@@ -350,6 +348,7 @@ class LettuceLoadedMap<K: Any, V: Any>(
     }
 
     override fun close() {
+        log.debug { "closing LettuceLoadedMap" }
         scheduler?.let { sched ->
             sched.shutdown()
             val deadline = System.currentTimeMillis() + config.writeBehindShutdownTimeout.toMillis()
@@ -363,5 +362,6 @@ class LettuceLoadedMap<K: Any, V: Any>(
         }
         if (lazyStrConnection.isInitialized()) strConnection.close()
         connection.close()
+        log.debug { "closed LettuceLoadedMap" }
     }
 }

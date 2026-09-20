@@ -1,5 +1,8 @@
 package io.bluetape4k.redis.lettuce.filter
 
+import io.bluetape4k.support.requireInRange
+import io.bluetape4k.support.requirePositiveNumber
+
 /**
  * Cuckoo Filter 구성 옵션입니다.
  *
@@ -28,8 +31,8 @@ data class CuckooFilterOptions(
     }
 
     init {
-        require(capacity > 0) { "capacity must be positive" }
-        require(bucketSize in 1..8) { "bucketSize must be in [1, 8]" }
-        require(maxIterations > 0) { "maxIterations must be positive" }
+        capacity.requirePositiveNumber("capacity")
+        bucketSize.requireInRange(1, 8, "bucketSize")
+        maxIterations.requirePositiveNumber("maxIterations")
     }
 }

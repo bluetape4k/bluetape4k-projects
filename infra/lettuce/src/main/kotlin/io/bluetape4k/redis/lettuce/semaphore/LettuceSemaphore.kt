@@ -1,5 +1,7 @@
 package io.bluetape4k.redis.lettuce.semaphore
 
+import io.bluetape4k.concurrent.completableFutureOf
+import io.bluetape4k.concurrent.failedCompletableFutureOf
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import io.bluetape4k.redis.lettuce.script.RedisScriptRunner
@@ -10,7 +12,7 @@ import io.lettuce.core.api.StatefulRedisConnection
 import io.lettuce.core.api.async.RedisAsyncCommands
 import io.lettuce.core.api.sync.RedisCommands
 import java.time.Duration
-import java.util.UUID
+import java.util.*
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.locks.LockSupport
@@ -91,11 +93,15 @@ class LettuceSemaphore(
      *
      * @return 잔여 허가 수 (초기화 안 된 경우 0)
      */
-    fun availablePermits(): Int =
-        RedisScriptRunner.run<Long>(
-            syncCommands, LettuceSemaphoreScripts.AVAILABLE_SCRIPT, ScriptOutputType.INTEGER,
-            semaphoreKeys(), nowMillis().toString(), totalPermits.toString()
-        ).toInt()
+    fun availablePermits(): Int = RedisScriptRunner
+        .run<Long>(
+            syncCommands,
+            LettuceSemaphoreScripts.AVAILABLE_SCRIPT,
+            ScriptOutputType.INTEGER,
+            semaphoreKeys(),
+            nowMillis().toString(), totalPermits.toString()
+        )
+        .toInt()
 
     // =========================================================================
     // 동기 API
@@ -120,13 +126,10 @@ class LettuceSemaphore(
         val now = nowMillis()
 
         val result = RedisScriptRunner.run<Long>(
-            syncCommands, LettuceSemaphoreScripts.ACQUIRE_SCRIPT, ScriptOutputType.INTEGER,
+            syncCommands, LettuceSemaphoreScripts.ACQUIRE_SCRIPT,
+            ScriptOutputType.INTEGER,
             semaphoreKeys(),
-            now.toString(),
-            totalPermits.toString(),
-            permits.toString(),
-            token,
-            (now + leaseMillis).toString(),
+            now.toString(), totalPermits.toString(), permits.toString(), token, (now + leaseMillis).toString(),
         )
         val acquired = result >= 0
         if (acquired) {
@@ -163,7 +166,7 @@ class LettuceSemaphore(
             // LockSupport.parkNanos: Thread.sleep 과 달리 Virtual Thread carrier thread 를 핀닝하지 않음
             LockSupport.parkNanos(RETRY_DELAY_NANOS)
         }
-        throw IllegalStateException("세마포어 획득 시간 초과: semaphoreKey=$semaphoreKey, permits=${permits}")
+        error("세마포어 획득 시간 초과: semaphoreKey=$semaphoreKey, permits=${permits}")
     }
 
     /**
@@ -245,7 +248,7 @@ class LettuceSemaphore(
                     val delayed = CompletableFuture.delayedExecutor(RETRY_DELAY_MS, TimeUnit.MILLISECONDS)
                     CompletableFuture.runAsync({}, delayed).thenCompose { attempt() }
                 } else {
-                    CompletableFuture.failedFuture(
+                    failedCompletableFutureOf<Unit>(
                         IllegalStateException("세마포어 획득 시간 초과 (async): semaphoreKey=$semaphoreKey")
                     )
                 }
@@ -264,34 +267,36 @@ class LettuceSemaphore(
         permits.requirePositiveNumber("permits")
 
         val releases = localPermits.select(permits)
-        var future = CompletableFuture.completedFuture(Unit)
+        var future = completableFutureOf(Unit)
         releases.forEach { release ->
-            future = future.thenCompose {
-                RedisScriptRunner.runAsync<Long>(
-                    asyncCommands, LettuceSemaphoreScripts.RELEASE_SCRIPT, ScriptOutputType.INTEGER,
-                    semaphoreKeys(),
-                    nowMillis().toString(),
-                    totalPermits.toString(),
-                    release.permits.toString(),
-                    release.token,
-                ).thenApply { remaining ->
-                    handleReleaseResult(release, remaining)
-                    log.debug { "Semaphore releaseAsync: key=$semaphoreKey, permits=${release.permits}, remaining=$remaining" }
+            future = future
+                .thenCompose {
+                    RedisScriptRunner
+                        .runAsync<Long>(
+                            asyncCommands,
+                            LettuceSemaphoreScripts.RELEASE_SCRIPT,
+                            ScriptOutputType.INTEGER,
+                            semaphoreKeys(),
+                            nowMillis().toString(), totalPermits.toString(), release.permits.toString(), release.token,
+                        )
+                        .thenApply { remaining ->
+                            handleReleaseResult(release, remaining)
+                            log.debug { "Semaphore releaseAsync: key=$semaphoreKey, permits=${release.permits}, remaining=$remaining" }
+                        }
                 }
-            }
         }
         return future
     }
 
     private fun releaseOwnedPermitsSync(release: PermitRelease): Long {
-        val remaining = RedisScriptRunner.run<Long>(
-            syncCommands, LettuceSemaphoreScripts.RELEASE_SCRIPT, ScriptOutputType.INTEGER,
-            semaphoreKeys(),
-            nowMillis().toString(),
-            totalPermits.toString(),
-            release.permits.toString(),
-            release.token,
-        )
+        val remaining = RedisScriptRunner
+            .run<Long>(
+                syncCommands,
+                LettuceSemaphoreScripts.RELEASE_SCRIPT,
+                ScriptOutputType.INTEGER,
+                semaphoreKeys(),
+                nowMillis().toString(), totalPermits.toString(), release.permits.toString(), release.token,
+            )
         handleReleaseResult(release, remaining)
         return remaining
     }
@@ -303,7 +308,9 @@ class LettuceSemaphore(
                 localPermits.markLost(release)
                 error("Semaphore permits are no longer owned or already expired: semaphoreKey=$semaphoreKey")
             }
-            else -> error("Semaphore release exceeds owned permits: semaphoreKey=$semaphoreKey")
+            else            -> {
+                error("Semaphore release exceeds owned permits: semaphoreKey=$semaphoreKey")
+            }
         }
     }
 

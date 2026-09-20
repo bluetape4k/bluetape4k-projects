@@ -7,6 +7,7 @@ import io.bluetape4k.assertions.shouldBeInstanceOf
 import io.bluetape4k.assertions.shouldBeLessOrEqualTo
 import io.bluetape4k.assertions.shouldBePositive
 import io.bluetape4k.junit5.coroutines.runSuspendIO
+import io.bluetape4k.logging.KLogging
 import io.bluetape4k.redis.lettuce.AbstractLettuceTest
 import io.bluetape4k.redis.lettuce.LettuceTestUtils
 import io.lettuce.core.api.StatefulRedisConnection
@@ -18,6 +19,8 @@ import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import java.time.Duration
+import kotlin.time.Duration.Companion.milliseconds
+import kotlin.time.Duration.Companion.seconds
 
 internal interface FencingLeaseAdapter {
     suspend fun bootstrap(): FencingBootstrapResult
@@ -27,7 +30,12 @@ internal interface FencingLeaseAdapter {
     suspend fun release(ownerId: FencingOwnerId, token: FencingToken): FencingReleaseResult
 }
 
-internal abstract class FencingLeaseContract : AbstractLettuceTest() {
+internal abstract class FencingLeaseContract: AbstractLettuceTest() {
+
+    private companion object: KLogging() {
+        val DEFAULT_LEASE: Duration = Duration.ofSeconds(5)
+        val LONGER_LEASE: Duration = Duration.ofSeconds(30)
+    }
 
     private lateinit var config: LettuceFencingLeaseConfig
     private lateinit var keys: FencingLeaseKeys
@@ -47,7 +55,7 @@ internal abstract class FencingLeaseContract : AbstractLettuceTest() {
     fun setUpContract() {
         connection = LettuceTestUtils.client.connect(StringCodec.UTF8)
         commands = connection.sync()
-        config = LettuceFencingLeaseConfig("contract", "lease-${randomName().substringAfter(':')}", 11)
+        config = LettuceFencingLeaseConfig("contract", "lease-${randomName().substringAfterLast(':')}", 11)
         keys = deriveFencingLeaseKeys(config, StringCodec.UTF8)
         commands.del(keys.lease, keys.counter)
         adapter = createAdapter(connection, config)
@@ -100,10 +108,10 @@ internal abstract class FencingLeaseContract : AbstractLettuceTest() {
         adapter.inspect(contender).shouldBeInstanceOf<FencingInspectResult.Contended>()
         adapter.renew(contender, token, LONGER_LEASE) shouldBeEqualTo FencingRenewResult.OwnershipMismatch
         adapter.renew(owner, FencingToken(token.epoch, token.sequence + 1), LONGER_LEASE) shouldBeEqualTo
-            FencingRenewResult.OwnershipMismatch
+                FencingRenewResult.OwnershipMismatch
         adapter.release(contender, token) shouldBeEqualTo FencingReleaseResult.OwnershipMismatch
         adapter.release(owner, FencingToken(token.epoch, token.sequence + 1)) shouldBeEqualTo
-            FencingReleaseResult.OwnershipMismatch
+                FencingReleaseResult.OwnershipMismatch
 
         adapter.inspect(owner).shouldBeInstanceOf<FencingInspectResult.Owned>().token shouldBeEqualTo token
         adapter.renew(owner, token, LONGER_LEASE) shouldBeEqualTo FencingRenewResult.Renewed
@@ -119,9 +127,9 @@ internal abstract class FencingLeaseContract : AbstractLettuceTest() {
         val first = adapter.acquire(owner, Duration.ofMillis(100))
             .shouldBeInstanceOf<FencingAcquireResult.Acquired>().token
 
-        withTimeout(Duration.ofSeconds(5).toMillis()) {
+        withTimeout(5.seconds) {
             while (adapter.inspect(owner) != FencingInspectResult.Lost) {
-                delay(20)
+                delay(20.milliseconds)
             }
         }
         val second = adapter.acquire(contender, DEFAULT_LEASE)
@@ -156,8 +164,5 @@ internal abstract class FencingLeaseContract : AbstractLettuceTest() {
         commands.exists(keys.lease) shouldBeEqualTo 0L
     }
 
-    private companion object {
-        val DEFAULT_LEASE: Duration = Duration.ofSeconds(5)
-        val LONGER_LEASE: Duration = Duration.ofSeconds(30)
-    }
+
 }

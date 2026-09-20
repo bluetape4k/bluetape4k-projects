@@ -2,12 +2,12 @@ package io.bluetape4k.redis.lettuce.lease
 
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeGreaterOrEqualTo
-import io.bluetape4k.assertions.shouldBeInstanceOf
 import io.bluetape4k.assertions.shouldBeLessThan
 import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.assertions.shouldContain
 import io.bluetape4k.assertions.shouldContentEqual
 import io.bluetape4k.junit5.coroutines.runSuspendIO
+import io.bluetape4k.logging.KLogging
 import io.bluetape4k.redis.lettuce.LettuceTestUtils
 import io.bluetape4k.resilience4j.SuspendDecorators
 import io.github.resilience4j.bulkhead.Bulkhead
@@ -35,10 +35,12 @@ internal class FencingLeaseDocumentationTest {
         markerOrder(korean) shouldContentEqual REQUIRED_MARKERS
         headingLevels(english) shouldContentEqual REQUIRED_HEADING_LEVELS
         headingLevels(korean) shouldContentEqual REQUIRED_HEADING_LEVELS
+
         REQUIRED_POLICY_FRAGMENTS.forEach { fragment ->
             english shouldContain fragment
             korean shouldContain fragment
         }
+
         REQUIRED_SECTION_CONTRACTS.forEach { (marker, orderedTerms) ->
             assertOrderedTerms(section(english, marker), orderedTerms)
             assertOrderedTerms(section(korean, marker), orderedTerms)
@@ -46,8 +48,10 @@ internal class FencingLeaseDocumentationTest {
 
         val resilienceSource = codeBlock(section(english, "resilience"), "kotlin")
         resilienceSource shouldBeEqualTo codeBlock(section(korean, "resilience"), "kotlin")
+
         val sqlSource = codeBlock(section(english, "downstream-guard"), "sql")
         sqlSource shouldBeEqualTo codeBlock(section(korean, "downstream-guard"), "sql")
+
         val diagnosticSource = codeBlock(section(english, "diagnostics"), "lua")
         diagnosticSource shouldBeEqualTo codeBlock(section(korean, "diagnostics"), "lua")
         diagnosticSource shouldBeEqualTo LettuceFencingLeaseRecoveryTest.FENCING_DIAGNOSTIC_LUA
@@ -138,9 +142,10 @@ internal class FencingLeaseDocumentationTest {
         argument(prefix, "[0-9]+(?:\\.[0-9]+)?F").removeSuffix("F").toFloat()
 
     private fun String.argument(prefix: String, valuePattern: String): String =
-        requireNotNull(Regex("${Regex.escape(prefix)}($valuePattern)").find(this)) {
-            "Missing documented resilience call: $prefix"
-        }.groupValues[1]
+        requireNotNull(
+            Regex("${Regex.escape(prefix)}($valuePattern)").find(this)
+        ) { "Missing documented resilience call: $prefix" }
+            .groupValues[1]
 
     private fun assertDownstreamGuardExample(sqlSource: String) {
         sqlSource shouldContain "NOT NULL DEFAULT 0"
@@ -156,9 +161,9 @@ internal class FencingLeaseDocumentationTest {
 
     private fun assertDiagnosticExample(diagnosticSource: String) {
         diagnosticSource.indexOf("redis.call('STRLEN', KEYS[2])") shouldBeLessThan
-            diagnosticSource.indexOf("redis.call('GET', KEYS[2])")
+                diagnosticSource.indexOf("redis.call('GET', KEYS[2])")
         LettuceTestUtils.client.connect(StringCodec.UTF8).use { connection ->
-            val tag = LettuceTestUtils.randomName().substringAfter(':')
+            val tag = LettuceTestUtils.randomName().substringAfterLast(':')
             val config = LettuceFencingLeaseConfig("documentation", tag, 81)
             val keys = deriveFencingLeaseKeys(config, StringCodec.UTF8)
             val commands = connection.sync()
@@ -188,13 +193,17 @@ internal class FencingLeaseDocumentationTest {
         }
     }
 
-    private fun markerOrder(readme: String): List<String> = MARKER_PATTERN.findAll(readme)
-        .map { it.groupValues[1] }
-        .toList()
+    private fun markerOrder(readme: String): List<String> =
+        MARKER_PATTERN
+            .findAll(readme)
+            .map { it.groupValues[1] }
+            .toList()
 
-    private fun headingLevels(readme: String): List<Int> = MARKER_WITH_HEADING_PATTERN.findAll(readme)
-        .map { it.groupValues[2].length }
-        .toList()
+    private fun headingLevels(readme: String): List<Int> =
+        MARKER_WITH_HEADING_PATTERN
+            .findAll(readme)
+            .map { it.groupValues[2].length }
+            .toList()
 
     private fun section(readme: String, marker: String): String {
         val start = readme.indexOf("<!-- fencing-lease:$marker -->").shouldBeGreaterOrEqualTo(0)
@@ -221,7 +230,8 @@ internal class FencingLeaseDocumentationTest {
     private fun assertKDocImmediatelyBefore(source: String, declarationIndex: Int) {
         val prefix = source.substring(0, declarationIndex).trimEnd()
         prefix.endsWith("*/").shouldBeTrue()
-        val kdocStart = prefix.lastIndexOf("/**").shouldBeGreaterOrEqualTo(0)
+
+        val kdocStart = prefix.lastIndexOf("/**") shouldBeGreaterOrEqualTo 0
         prefix.lastIndexOf("/*") shouldBeEqualTo kdocStart
     }
 
@@ -230,9 +240,12 @@ internal class FencingLeaseDocumentationTest {
         val closingParenthesis = matchingParenthesis(source, openingParenthesis)
         val declarationHeader = source.substring(openingParenthesis + 1, closingParenthesis)
         val kdoc = kdocImmediatelyBefore(source, declarationIndex)
-        PROPERTY_PATTERN.findAll(declarationHeader).forEach { property ->
-            kdoc shouldContain "@property ${property.groupValues[1]}"
-        }
+
+        PROPERTY_PATTERN
+            .findAll(declarationHeader)
+            .forEach { property ->
+                kdoc shouldContain "@property ${property.groupValues[1]}"
+            }
     }
 
     private fun matchingParenthesis(source: String, openingIndex: Int): Int {
@@ -252,7 +265,7 @@ internal class FencingLeaseDocumentationTest {
 
     private fun kdocImmediatelyBefore(source: String, declarationIndex: Int): String {
         val prefix = source.substring(0, declarationIndex).trimEnd()
-        val start = prefix.lastIndexOf("/**").shouldBeGreaterOrEqualTo(0)
+        val start = prefix.lastIndexOf("/**") shouldBeGreaterOrEqualTo 0
         return prefix.substring(start)
     }
 
@@ -301,7 +314,7 @@ internal class FencingLeaseDocumentationTest {
         SUSPENDING("src/main/kotlin/io/bluetape4k/redis/lettuce/lease/LettuceSuspendFencingLease.kt"),
     }
 
-    private companion object {
+    private companion object: KLogging() {
         val REQUIRED_MARKERS = listOf(
             "basic",
             "downstream-guard",
@@ -375,9 +388,9 @@ internal class FencingLeaseDocumentationTest {
         )
         val PUBLIC_DECLARATION_PATTERN = Regex(
             """(?m)^[ \t]*(?!(?:private|internal|protected)\b)""" +
-                """(?:public\s+)?(?:(?:data\s+)?(?:class|object)\s+\w+|enum\s+class\s+\w+|""" +
-                """sealed\s+interface\s+\w+|companion\s+object|constructor\s*\(|""" +
-                """(?:override\s+)?(?:suspend\s+)?fun\s+\w+\s*\()""",
+                    """(?:public\s+)?(?:(?:data\s+)?(?:class|object)\s+\w+|enum\s+class\s+\w+|""" +
+                    """sealed\s+interface\s+\w+|companion\s+object|constructor\s*\(|""" +
+                    """(?:override\s+)?(?:suspend\s+)?fun\s+\w+\s*\()""",
         )
         val PROPERTY_PATTERN = Regex("""\bval\s+(\w+)\s*:""")
         val ACQUIRED = FencingAcquireResult.Acquired(FencingToken(1, 1))

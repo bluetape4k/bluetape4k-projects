@@ -2,7 +2,10 @@ package io.bluetape4k.redis.lettuce.lock.internal
 
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeInstanceOf
+import io.bluetape4k.assertions.shouldNotBeNull
+import io.bluetape4k.concurrent.completableFutureOf
 import io.bluetape4k.junit5.coroutines.runSuspendIO
+import io.bluetape4k.logging.KLogging
 import io.bluetape4k.redis.lettuce.coordination.internal.CoordinationRuntime
 import io.bluetape4k.redis.lettuce.lock.FencedBootstrapResult
 import io.bluetape4k.redis.lettuce.lock.FencedLockConfig
@@ -50,7 +53,9 @@ internal class FencedLockClientFailureCoverageTest {
             client.bootstrapFencingAsync().await()
                 .shouldBeInstanceOf<FencedBootstrapResult.BackendFailure>().failure,
             client.bootstrapFencingSuspending().shouldBeInstanceOf<FencedBootstrapResult.BackendFailure>().failure,
-        ).forEach { expectBackend(it, LockRecoveryAction.INSPECT_HANDLE) }
+        ).forEach {
+            expectBackend(it, LockRecoveryAction.INSPECT_HANDLE)
+        }
     }
 
     private suspend fun verifyConnectionAcquire(client: FencedLockClient) {
@@ -69,36 +74,38 @@ internal class FencedLockClientFailureCoverageTest {
     private suspend fun verifyConnectionOperations(client: FencedLockClient) {
         listOf(
             client.inspect(HANDLE).shouldBeInstanceOf<LockInspectResult.BackendFailure>().failure to
-                LockRecoveryAction.INSPECT_HANDLE,
+                    LockRecoveryAction.INSPECT_HANDLE,
             client.inspectAsync(HANDLE).await().shouldBeInstanceOf<LockInspectResult.BackendFailure>().failure to
-                LockRecoveryAction.INSPECT_HANDLE,
+                    LockRecoveryAction.INSPECT_HANDLE,
             client.inspectSuspending(HANDLE).shouldBeInstanceOf<LockInspectResult.BackendFailure>().failure to
-                LockRecoveryAction.INSPECT_HANDLE,
+                    LockRecoveryAction.INSPECT_HANDLE,
             client.reconcile(OWNER, REQUEST).shouldBeInstanceOf<LockReconcileResult.BackendFailure>().failure to
-                LockRecoveryAction.RECONCILE_REQUEST,
+                    LockRecoveryAction.RECONCILE_REQUEST,
             client.reconcileAsync(OWNER, REQUEST).await()
                 .shouldBeInstanceOf<LockReconcileResult.BackendFailure>().failure to
-                LockRecoveryAction.RECONCILE_REQUEST,
+                    LockRecoveryAction.RECONCILE_REQUEST,
             client.reconcileSuspending(OWNER, REQUEST)
                 .shouldBeInstanceOf<LockReconcileResult.BackendFailure>().failure to
-                LockRecoveryAction.RECONCILE_REQUEST,
+                    LockRecoveryAction.RECONCILE_REQUEST,
             client.renew(HANDLE, EXTENSION).shouldBeInstanceOf<LockMutationResult.BackendFailure>().failure to
-                LockRecoveryAction.RETRY_SAME_HANDLE,
+                    LockRecoveryAction.RETRY_SAME_HANDLE,
             client.renewAsync(HANDLE, EXTENSION).await()
                 .shouldBeInstanceOf<LockMutationResult.BackendFailure>().failure to
-                LockRecoveryAction.RETRY_SAME_HANDLE,
+                    LockRecoveryAction.RETRY_SAME_HANDLE,
             client.renewSuspending(HANDLE, EXTENSION)
                 .shouldBeInstanceOf<LockMutationResult.BackendFailure>().failure to
-                LockRecoveryAction.RETRY_SAME_HANDLE,
+                    LockRecoveryAction.RETRY_SAME_HANDLE,
             client.release(HANDLE).shouldBeInstanceOf<LockMutationResult.BackendFailure>().failure to
-                LockRecoveryAction.RETRY_SAME_HANDLE,
+                    LockRecoveryAction.RETRY_SAME_HANDLE,
             client.releaseAsync(HANDLE).await()
                 .shouldBeInstanceOf<LockMutationResult.BackendFailure>().failure to
-                LockRecoveryAction.RETRY_SAME_HANDLE,
+                    LockRecoveryAction.RETRY_SAME_HANDLE,
             client.releaseSuspending(HANDLE)
                 .shouldBeInstanceOf<LockMutationResult.BackendFailure>().failure to
-                LockRecoveryAction.RETRY_SAME_HANDLE,
-        ).forEach { (failure, action) -> expectBackend(failure, action) }
+                    LockRecoveryAction.RETRY_SAME_HANDLE,
+        ).forEach { (failure, action) ->
+            expectBackend(failure, action)
+        }
     }
 
     @Test
@@ -133,7 +140,9 @@ internal class FencedLockClientFailureCoverageTest {
                     .shouldBeInstanceOf<LockAcquireResult.IntegrityFailure>().failure,
                 client.acquireSuspending(OWNER, REQUEST, WAIT, LEASE)
                     .shouldBeInstanceOf<LockAcquireResult.IntegrityFailure>().failure,
-            ).forEach { expectIntegrity(it, LockIntegrityFailureKind.MALFORMED_REPLY) }
+            ).forEach {
+                expectIntegrity(it, LockIntegrityFailureKind.MALFORMED_REPLY)
+            }
 
             listOf(
                 client.inspect(HANDLE).shouldBeInstanceOf<LockInspectResult.IntegrityFailure>().failure,
@@ -154,7 +163,9 @@ internal class FencedLockClientFailureCoverageTest {
                     .shouldBeInstanceOf<LockMutationResult.IntegrityFailure>().failure,
                 client.releaseSuspending(HANDLE)
                     .shouldBeInstanceOf<LockMutationResult.IntegrityFailure>().failure,
-            ).forEach { expectIntegrity(it, LockIntegrityFailureKind.MALFORMED_REPLY) }
+            ).forEach {
+                expectIntegrity(it, LockIntegrityFailureKind.MALFORMED_REPLY)
+            }
         } finally {
             client.close()
         }
@@ -191,20 +202,25 @@ internal class FencedLockClientFailureCoverageTest {
     private fun verifyTerminalAcquire(executor: MutableResponseExecutor, client: FencedLockClient) {
         executor.response = listOf("REPLAY", "1", "2", "1000", "F:1000", CONFIG.epoch.toString(), "2")
         client.tryAcquire(OWNER, REQUEST, LEASE).shouldBeInstanceOf<LockAcquireResult.Reentered<FencedLockHandle>>()
+
         executor.response = listOf("CONTENDED", "20")
         client.tryAcquire(OWNER, REQUEST, LEASE).shouldBeEqualTo(LockAcquireResult.Contended(20))
+
         executor.response = listOf("CAPACITY")
         client.tryAcquire(OWNER, REQUEST, LEASE) shouldBeEqualTo LockAcquireResult.CapacityExceeded
+
         executor.response = listOf("COUNTER_REGRESSION")
         expectIntegrity(
             client.tryAcquire(OWNER, REQUEST, LEASE).shouldBeInstanceOf<LockAcquireResult.IntegrityFailure>().failure,
             LockIntegrityFailureKind.COUNTER_REGRESSION,
         )
+
         executor.response = listOf("INTEGRITY")
         expectIntegrity(
             client.tryAcquire(OWNER, REQUEST, LEASE).shouldBeInstanceOf<LockAcquireResult.IntegrityFailure>().failure,
             LockIntegrityFailureKind.INVALID_STATE,
         )
+
         executor.response = listOf("ACQUIRED", "0", "1", "1000", "F:1000", CONFIG.epoch.toString(), "2")
         expectIntegrity(
             client.tryAcquire(OWNER, REQUEST, LEASE).shouldBeInstanceOf<LockAcquireResult.IntegrityFailure>().failure,
@@ -222,11 +238,13 @@ internal class FencedLockClientFailureCoverageTest {
             executor.response = listOf(tag)
             client.inspect(HANDLE) shouldBeEqualTo expected
         }
+
         executor.response = listOf("COUNTER_REGRESSION")
         expectIntegrity(
             client.inspect(HANDLE).shouldBeInstanceOf<LockInspectResult.IntegrityFailure>().failure,
             LockIntegrityFailureKind.COUNTER_REGRESSION,
         )
+
         executor.response = listOf("INTEGRITY")
         expectIntegrity(
             client.inspect(HANDLE).shouldBeInstanceOf<LockInspectResult.IntegrityFailure>().failure,
@@ -237,13 +255,16 @@ internal class FencedLockClientFailureCoverageTest {
     private fun verifyTerminalReconcile(executor: MutableResponseExecutor, client: FencedLockClient) {
         executor.response = listOf("RELEASED")
         client.reconcile(OWNER, REQUEST) shouldBeEqualTo LockReconcileResult.Released
+
         executor.response = listOf("NOT_FOUND")
         client.reconcile(OWNER, REQUEST) shouldBeEqualTo LockReconcileResult.NotFound
+
         executor.response = listOf("COUNTER_REGRESSION")
         expectIntegrity(
             client.reconcile(OWNER, REQUEST).shouldBeInstanceOf<LockReconcileResult.IntegrityFailure>().failure,
             LockIntegrityFailureKind.COUNTER_REGRESSION,
         )
+
         executor.response = listOf("INTEGRITY")
         expectIntegrity(
             client.reconcile(OWNER, REQUEST).shouldBeInstanceOf<LockReconcileResult.IntegrityFailure>().failure,
@@ -257,6 +278,7 @@ internal class FencedLockClientFailureCoverageTest {
             client.renew(HANDLE, EXTENSION) shouldBeEqualTo expected
             client.release(HANDLE) shouldBeEqualTo expected
         }
+
         executor.response = listOf("COUNTER_REGRESSION")
         expectIntegrity(
             client.renew(HANDLE, EXTENSION).shouldBeInstanceOf<LockMutationResult.IntegrityFailure>().failure,
@@ -266,6 +288,7 @@ internal class FencedLockClientFailureCoverageTest {
             client.release(HANDLE).shouldBeInstanceOf<LockMutationResult.IntegrityFailure>().failure,
             LockIntegrityFailureKind.COUNTER_REGRESSION,
         )
+
         executor.response = listOf("INTEGRITY")
         expectIntegrity(
             client.renew(HANDLE, EXTENSION).shouldBeInstanceOf<LockMutationResult.IntegrityFailure>().failure,
@@ -325,7 +348,7 @@ internal class FencedLockClientFailureCoverageTest {
             args: List<String>,
         ): CompletableFuture<List<String>> =
             failure?.let(CompletableFuture<List<String>>::failedFuture)
-                ?: CompletableFuture.completedFuture(requireNotNull(response))
+                ?: completableFutureOf(response.shouldNotBeNull())
 
         override suspend fun runSuspending(
             operation: FencedLockOperation,
@@ -347,7 +370,7 @@ internal class FencedLockClientFailureCoverageTest {
             operation: FencedLockOperation,
             keys: FencedLockKeys,
             args: List<String>,
-        ): CompletableFuture<List<String>> = CompletableFuture.completedFuture(response)
+        ): CompletableFuture<List<String>> = completableFutureOf(response)
 
         override suspend fun runSuspending(
             operation: FencedLockOperation,
@@ -364,7 +387,7 @@ internal class FencedLockClientFailureCoverageTest {
             "LOST" to LockMutationResult.OwnershipLost,
         )
 
-    private companion object {
+    private companion object: KLogging() {
         val CONFIG = FencedLockConfig(epoch = 81)
         val KEYS = FencedLockKeys(
             state = "state",

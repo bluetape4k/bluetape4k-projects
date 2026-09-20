@@ -4,6 +4,7 @@ import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeFalse
 import io.bluetape4k.assertions.shouldBeGreaterThan
 import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.logging.KLogging
 import io.bluetape4k.redis.lettuce.LettuceTestUtils
 import io.lettuce.core.ScriptOutputType
 import io.lettuce.core.api.sync.RedisCommands
@@ -54,8 +55,10 @@ internal class LettuceFencingLeaseRecoveryTest {
 
         results.count { it } shouldBeEqualTo 1
         authority.currentEpoch shouldBeEqualTo 12
+
         val localConfig = LocalConfigEpochSource(12)
         val redisCounter = RedisCounterEpochSource(12)
+
         localConfig.observedEpoch shouldBeEqualTo 12
         redisCounter.observedEpoch shouldBeEqualTo 12
         localConfig.allocateNextEpoch().shouldBeFalse()
@@ -106,7 +109,7 @@ internal class LettuceFencingLeaseRecoveryTest {
     @Test
     fun `bootstrap readiness requires exact durable counter invariants and tuple guard`() {
         LettuceTestUtils.client.connect(StringCodec.UTF8).use { connection ->
-            val tag = LettuceTestUtils.randomName().substringAfter(':')
+            val tag = LettuceTestUtils.randomName().substringAfterLast(':')
             val config = LettuceFencingLeaseConfig("recovery", tag, 41)
             val keys = deriveFencingLeaseKeys(config, StringCodec.UTF8)
             val commands = connection.sync()
@@ -118,11 +121,14 @@ internal class LettuceFencingLeaseRecoveryTest {
 
                 commands.pexpire(keys.counter, 10_000)
                 isReady(commands, keys, downstreamTupleGuardEnabled = true).shouldBeFalse()
+
                 commands.persist(keys.counter)
                 commands.set(keys.counter, "01")
                 isReady(commands, keys, downstreamTupleGuardEnabled = true).shouldBeFalse()
+
                 commands.set(keys.counter, "1\u0661")
                 isReady(commands, keys, downstreamTupleGuardEnabled = true).shouldBeFalse()
+
                 commands.set(keys.counter, "9223372036854775808")
                 isReady(commands, keys, downstreamTupleGuardEnabled = true).shouldBeFalse()
             } finally {
@@ -134,7 +140,7 @@ internal class LettuceFencingLeaseRecoveryTest {
     @Test
     fun `read only diagnostic classifies bounded states and repair preserves the counter`() {
         LettuceTestUtils.client.connect(StringCodec.UTF8).use { connection ->
-            val tag = LettuceTestUtils.randomName().substringAfter(':')
+            val tag = LettuceTestUtils.randomName().substringAfterLast(':')
             val config = LettuceFencingLeaseConfig("diagnostic", tag, 51)
             val keys = deriveFencingLeaseKeys(config, StringCodec.UTF8)
             val commands = connection.sync()
@@ -163,26 +169,31 @@ internal class LettuceFencingLeaseRecoveryTest {
                 commands.hset(keys.lease, "sequence", "5")
                 diagnostic(commands, keys, config.epoch) shouldBeEqualTo listOf("COUNTER_BEHIND_LEASE", "0")
                 repairLeaseOnly(commands, keys, config.epoch, FULL_REPAIR_ELIGIBILITY).shouldBeFalse()
+
                 commands.hset(keys.lease, "sequence", "9223372036854775808")
                 diagnostic(commands, keys, config.epoch) shouldBeEqualTo listOf("LEASE_MALFORMED", "0")
                 repairLeaseOnly(commands, keys, config.epoch, FULL_REPAIR_ELIGIBILITY).shouldBeFalse()
+
                 commands.hset(keys.lease, "sequence", "4")
                 commands.set(keys.counter, "9223372036854775808")
                 diagnostic(commands, keys, config.epoch) shouldBeEqualTo listOf("COUNTER_INVALID", "0")
                 repairLeaseOnly(commands, keys, config.epoch, FULL_REPAIR_ELIGIBILITY).shouldBeFalse()
-                commands.set(keys.counter, "4")
 
+                commands.set(keys.counter, "4")
                 commands.hset(keys.lease, "epoch", "50")
                 diagnostic(commands, keys, config.epoch) shouldBeEqualTo listOf("LEASE_MALFORMED", "0")
                 repairLeaseOnly(commands, keys, config.epoch, FULL_REPAIR_ELIGIBILITY).shouldBeFalse()
+
                 commands.hset(keys.lease, "epoch", "51")
                 commands.hset(keys.lease, "owner", "x".repeat(257))
                 diagnostic(commands, keys, config.epoch) shouldBeEqualTo listOf("LEASE_MALFORMED", "0")
                 repairLeaseOnly(commands, keys, config.epoch, FULL_REPAIR_ELIGIBILITY).shouldBeFalse()
+
                 commands.hset(keys.lease, "owner", "owner")
                 commands.pexpire(keys.lease, 30_000)
                 diagnostic(commands, keys, config.epoch) shouldBeEqualTo listOf("ACTIVE", "0")
                 repairLeaseOnly(commands, keys, config.epoch, FULL_REPAIR_ELIGIBILITY).shouldBeFalse()
+
                 commands.persist(keys.lease)
                 diagnostic(commands, keys, config.epoch) shouldBeEqualTo listOf("LEASE_NO_TTL", "1")
 
@@ -194,6 +205,7 @@ internal class LettuceFencingLeaseRecoveryTest {
                 val counterBefore = commands.get(keys.counter)
                 val counterTtlBefore = commands.pttl(keys.counter)
                 repairLeaseOnly(commands, keys, config.epoch, repairCases().last()).shouldBeTrue()
+
                 commands.exists(keys.lease) shouldBeEqualTo 0L
                 commands.get(keys.counter) shouldBeEqualTo counterBefore
                 commands.pttl(keys.counter) shouldBeEqualTo counterTtlBefore
@@ -367,8 +379,9 @@ internal class LettuceFencingLeaseRecoveryTest {
             get() = incidentPaused && downstreamDrained && counterValidAndPersistent && leaseConfirmedAnomalous
     }
 
-    companion object {
+    companion object: KLogging() {
         private val FULL_REPAIR_ELIGIBILITY = RepairEligibility(true, true, true, true)
+
         val FENCING_DIAGNOSTIC_LUA: String =
             """
             local counter_type = redis.call('TYPE', KEYS[2])['ok']

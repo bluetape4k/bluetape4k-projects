@@ -2,11 +2,13 @@ package io.bluetape4k.redis.lettuce.coordination.internal
 
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.warn
+import io.bluetape4k.support.requireGe
+import io.bluetape4k.support.requireInRange
+import io.bluetape4k.support.requirePositiveNumber
 import java.lang.ref.WeakReference
-import java.util.PriorityQueue
+import java.util.*
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.ScheduledThreadPoolExecutor
-import java.util.concurrent.ThreadFactory
 import java.util.concurrent.ThreadLocalRandom
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicLong
@@ -24,8 +26,8 @@ internal data class CoordinationRuntimeLimits(
     val backlogCadence: Duration = 25.milliseconds,
 ) {
     init {
-        require(maxRegistrations > 0) { "maxRegistrations must be positive" }
-        require(maxWatchdogsPerTick > 0) { "maxWatchdogsPerTick must be positive" }
+        maxRegistrations.requirePositiveNumber("maxRegistrations")
+        maxWatchdogsPerTick.requirePositiveNumber("maxWatchdogsPerTick")
         require(backlogCadence.isPositive() && backlogCadence.isFinite()) {
             "backlogCadence must be positive and finite"
         }
@@ -81,7 +83,7 @@ internal class CoordinationRuntime(
     private val taskSequence = AtomicLong()
     private val objects = LinkedHashMap<Long, ObjectState>()
     private val tasks = LinkedHashMap<Long, TaskState>()
-    private val dueQueue = PriorityQueue<TaskState>(compareBy<TaskState> { it.dueAtNanos }.thenBy { it.id })
+    private val dueQueue = PriorityQueue(compareBy<TaskState> { it.dueAtNanos }.thenBy { it.id })
     private var scheduledDrain: CoordinationScheduledHandle? = null
     private var scheduledDrainAtNanos: Long? = null
     private var closed = false
@@ -187,7 +189,11 @@ internal class CoordinationRuntime(
                 scheduleDrainLocked(nextDelay, now)
             }
             objects.values.map { it.observer }.distinct().forEach { objectObserver ->
-                observations += PendingObservation(objectObserver, CoordinationObservationName.DUE_BACKLOG, backlog.toDouble())
+                observations += PendingObservation(
+                    objectObserver,
+                    CoordinationObservationName.DUE_BACKLOG,
+                    backlog.toDouble()
+                )
             }
             CoordinationDrainResult(dispatches.size, backlog, nextDelay)
         }
@@ -318,6 +324,7 @@ internal class CoordinationRuntime(
         var objectCount: Double? = null
         var closeActions: List<() -> Unit> = emptyList()
         var objectObserver: CoordinationObserver? = null
+
         lock.withLock {
             val objectState = objects.remove(objectId) ?: return
             objectObserver = objectState.observer
@@ -459,12 +466,9 @@ internal class CoordinationRuntime(
     }
 
     private fun validateWatchdogCapacity(ttlNanos: Long, renewalNanos: Long) {
-        require(ttlNanos >= MIN_WATCHDOG_TTL.inWholeNanoseconds) {
-            "watchdog ttl must be at least $MIN_WATCHDOG_TTL"
-        }
-        require(renewalNanos > 0L && renewalNanos <= ttlNanos / 3L) {
-            "watchdog renewal interval must be positive and at most one third of ttl"
-        }
+        ttlNanos.requireGe(MIN_WATCHDOG_TTL.inWholeNanoseconds, "ttlNanos")
+        renewalNanos.requireInRange(1L, ttlNanos / 3L, "renewalNanos")
+
         val prospectiveWatchdogs = tasks.values.count { it.kind == TaskKind.WATCHDOG } + 1
         val drainBatches = ceil(prospectiveWatchdogs.toDouble() / limits.maxWatchdogsPerTick).toLong()
         val requiredDrainNanos = saturatingMultiply(
@@ -478,6 +482,7 @@ internal class CoordinationRuntime(
             .map { it.ttlNanos - it.renewalIntervalNanos - REQUIRED_REDIS_MARGIN.inWholeNanoseconds }
             .plus(newCompletionMargin)
             .min()
+
         if (requiredDrainNanos > minimumCompletionMargin) {
             throw CoordinationCapacityException("watchdog service capacity would be exceeded")
         }
@@ -489,7 +494,7 @@ internal class CoordinationRuntime(
         val minimum = (renewalInterval * MIN_WATCHDOG_DELAY_FACTOR).inWholeNanoseconds
         require(
             delay.isFinite() &&
-                delay.inWholeNanoseconds in minimum..renewalIntervalNanos
+                    delay.inWholeNanoseconds in minimum..renewalIntervalNanos
         ) {
             "watchdog delay must be finite and between 90% and 100% of the renewal interval"
         }
@@ -770,14 +775,11 @@ private data class RuntimeRegistryEntry(
 )
 
 private class ExecutorCoordinationScheduler: CoordinationScheduler {
-    private val executor = ScheduledThreadPoolExecutor(
-        1,
-        ThreadFactory { task ->
-            Thread(task, "bluetape4k-coordination-runtime").apply {
-                isDaemon = true
-            }
-        },
-    ).apply {
+    private val executor = ScheduledThreadPoolExecutor(1) { task ->
+        Thread(task, "bluetape4k-coordination-runtime").apply {
+            isDaemon = true
+        }
+    }.apply {
         removeOnCancelPolicy = true
     }
 

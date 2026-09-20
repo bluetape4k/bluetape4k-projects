@@ -1,12 +1,14 @@
 package io.bluetape4k.redis.lettuce.codec
 
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeNull
+import io.bluetape4k.assertions.shouldContain
+import io.bluetape4k.assertions.shouldNotBeNull
 import io.bluetape4k.junit5.faker.Fakers
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.redis.lettuce.AbstractLettuceTest
+import io.bluetape4k.support.toUtf8Bytes
 import io.lettuce.core.codec.RedisCodec
-import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldNotBeNull
-import io.bluetape4k.assertions.shouldBeNull
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
@@ -98,7 +100,7 @@ class LettuceJsonCodecTest: AbstractLettuceTest() {
     fun `estimateSize returns byte length for String key`() {
         val codec = LettuceJsonCodecs.jackson3<CustomData>()
         val key = "hello"
-        codec.estimateSize(key) shouldBeEqualTo key.toByteArray(Charsets.UTF_8).size
+        codec.estimateSize(key) shouldBeEqualTo key.toUtf8Bytes().size
     }
 
     @Test
@@ -111,8 +113,8 @@ class LettuceJsonCodecTest: AbstractLettuceTest() {
     fun `toString contains serializer and valueType names`() {
         val codec = LettuceJsonCodecs.jackson3<CustomData>()
         val str = codec.toString()
-        str.contains("JacksonSerializer") shouldBeEqualTo true
-        str.contains("CustomData") shouldBeEqualTo true
+        str shouldContain "JacksonSerializer"
+        str shouldContain "CustomData"
     }
 
     @Test

@@ -2,6 +2,7 @@ package io.bluetape4k.redis.lettuce.hll
 
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
+import io.bluetape4k.support.closeSafe
 import io.lettuce.core.api.StatefulRedisConnection
 import io.lettuce.core.api.sync.RedisCommands
 
@@ -88,5 +89,7 @@ class LettuceHyperLogLog<V: Any>(
         log.debug { "HyperLogLog merge: sources=${sourceKeys.toList()} -> dest=$destName" }
     }
 
-    override fun close() = connection.close()
+    override fun close() {
+        connection.closeSafe()
+    }
 }

@@ -1,11 +1,12 @@
 package io.bluetape4k.redis.lettuce
 
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.assertions.shouldHaveSize
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.redis.lettuce.LettuceTestUtils.asyncCommands
 import kotlinx.coroutines.future.await
-import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldHaveSize
 import org.junit.jupiter.api.RepeatedTest
 
 class AsyncCommandsTest: AbstractLettuceTest() {
@@ -24,6 +25,7 @@ class AsyncCommandsTest: AbstractLettuceTest() {
         }
         val list = futures.awaitAll()
         list shouldHaveSize ITEM_SIZE
+        list.all { it }.shouldBeTrue()
 
         asyncCommands.hlen(keyName).await().toInt() shouldBeEqualTo ITEM_SIZE
         asyncCommands.del(keyName).await() shouldBeEqualTo 1L
@@ -39,6 +41,7 @@ class AsyncCommandsTest: AbstractLettuceTest() {
 
         val list = futures.get()
         list shouldHaveSize ITEM_SIZE
+        list.all { it }.shouldBeTrue()
 
         asyncCommands.hlen(keyName).get().toInt() shouldBeEqualTo ITEM_SIZE
         asyncCommands.del(keyName).get() shouldBeEqualTo 1L

@@ -21,9 +21,9 @@ import kotlinx.coroutines.awaitAll as coAwaitAll
  * 결과는 `.omc/self-improve-lettuce/state/benchmark_last.json`에 기록됩니다.
  */
 @Tag("benchmark")
-class LettuceThroughputBenchmark : AbstractLettuceTest() {
+class LettuceThroughputBenchmark: AbstractLettuceTest() {
 
-    companion object : KLogging() {
+    companion object: KLogging() {
         private const val OPS_COUNT = 5_000
         private const val VALUE_SIZE = 64
 
@@ -43,16 +43,19 @@ class LettuceThroughputBenchmark : AbstractLettuceTest() {
         val value = "v".repeat(VALUE_SIZE)
 
         // Warmup
-        repeat(200) { i -> asyncCommands.set("${keyPrefix}warm:$i", value).await() }
+        repeat(100) { i ->
+            asyncCommands.set("${keyPrefix}warm:$i", value).await()
+        }
 
         val start = System.currentTimeMillis()
 
         // MERGED PIPELINE: single flush covers all SET+GET commands
-        val (setFutures, getFutures) = connection.withPipeline { cmd ->
-            val sets = (0 until OPS_COUNT).map { i -> cmd.set("$keyPrefix$i", value) }
-            val gets = (0 until OPS_COUNT).map { i -> cmd.get("$keyPrefix$i") }
-            sets to gets
-        }
+        val (setFutures, getFutures) = connection
+            .withPipeline { cmd ->
+                val sets = List(OPS_COUNT) { i -> cmd.set("$keyPrefix$i", value) }
+                val gets = List(OPS_COUNT) { i -> cmd.get("$keyPrefix$i") }
+                sets to gets
+            }
         // Bulk await via CompletableFuture.allOf (single continuation vs 20K coroutine spawns)
         setFutures.redisAwaitAll()
         getFutures.redisAwaitAll()
@@ -61,10 +64,11 @@ class LettuceThroughputBenchmark : AbstractLettuceTest() {
         val opsPerSec = if (elapsedMs > 0) (OPS_COUNT * 2 * 1000L / elapsedMs) else 0L
 
         // Cleanup
-        (0 until OPS_COUNT).map { i ->
+        List(OPS_COUNT) { i ->
             async { asyncCommands.del("$keyPrefix$i").await() }
         }.coAwaitAll()
-        repeat(200) { i -> asyncCommands.del("${keyPrefix}warm:$i").await() }
+
+        repeat(100) { i -> asyncCommands.del("${keyPrefix}warm:$i").await() }
 
         val result = mapOf(
             "throughput_ops_per_sec" to opsPerSec,

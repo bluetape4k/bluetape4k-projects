@@ -570,3 +570,20 @@ fun <V> CompletableFuture<V>.joinOrNull(duration: Duration): V? {
         null
     }
 }
+
+fun <V> CompletableFuture<V>.get(duration: Duration): V =
+    get(duration.inWholeNanoseconds, TimeUnit.NANOSECONDS)
+
+fun <V> CompletableFuture<V>.get(duration: Duration, defaultValue: V): V =
+    try {
+        get(duration)
+    } catch (e: TimeoutException) {
+        defaultValue
+    }
+
+fun <V> CompletableFuture<V>.getOrNull(duration: Duration): V? =
+    try {
+        get(duration)
+    } catch (e: TimeoutException) {
+        null
+    }

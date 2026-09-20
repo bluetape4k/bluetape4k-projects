@@ -2,11 +2,11 @@ package io.bluetape4k.redis.lettuce.codec
 
 import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldNotBeNull
 import io.bluetape4k.io.serializer.BinarySerializationException
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import org.junit.jupiter.api.Test
+import java.io.Serializable
 
 /**
  * [LettuceBinaryCodecs.fastFory]와 [LettuceBinaryCodecs.fory] 간의 와이어 포맷 호환성 검증 테스트.
@@ -30,7 +30,7 @@ class FastForyCompatibilityTest {
         val id: Int,
         val name: String,
         val value: Double,
-    ): java.io.Serializable {
+    ): Serializable {
         private companion object {
             private const val serialVersionUID: Long = 1L
         }
@@ -48,7 +48,15 @@ class FastForyCompatibilityTest {
         val encoded = fastForyCodec.encodeValue(testData)
         val decoded = fastForyCodec.decodeValue(encoded)
         log.debug { "decoded=$decoded" }
-        decoded.shouldNotBeNull() shouldBeEqualTo testData
+        decoded shouldBeEqualTo testData
+    }
+
+    @Test
+    fun `fory codec roundtrip 성공`() {
+        val encoded = foryCodec.encodeValue(testData)
+        val decoded = foryCodec.decodeValue(encoded)
+        log.debug { "decoded=$decoded" }
+        decoded shouldBeEqualTo testData
     }
 
     /**

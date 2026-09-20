@@ -1,11 +1,11 @@
 package io.bluetape4k.redis.lettuce.codec
 
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldContainSame
 import io.bluetape4k.junit5.faker.Fakers
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.redis.lettuce.AbstractLettuceTest
 import io.lettuce.core.codec.RedisCodec
-import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldContainSame
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
 import kotlin.random.Random
@@ -16,34 +16,34 @@ class LettuceBinaryCodecTest: AbstractLettuceTest() {
 
     private fun getRedisCodecs(): List<LettuceBinaryCodec<out Any>> = listOf(
         LettuceBinaryCodecs.jdk(),
+        LettuceBinaryCodecs.fastFory(),
         LettuceBinaryCodecs.fory(),
         LettuceBinaryCodecs.kryo(),
 
         LettuceBinaryCodecs.gzipJdk(),
+        LettuceBinaryCodecs.gzipFastFory(),
         LettuceBinaryCodecs.gzipFory(),
         LettuceBinaryCodecs.gzipKryo(),
 
         LettuceBinaryCodecs.deflateJdk(),
+        LettuceBinaryCodecs.deflateFastFory(),
         LettuceBinaryCodecs.deflateFory(),
         LettuceBinaryCodecs.deflateKryo(),
 
         LettuceBinaryCodecs.lz4Jdk(),
+        LettuceBinaryCodecs.lz4FastFory(),
         LettuceBinaryCodecs.lz4Fory(),
         LettuceBinaryCodecs.lz4Kryo(),
 
         LettuceBinaryCodecs.snappyJdk(),
+        LettuceBinaryCodecs.snappyFastFory(),
         LettuceBinaryCodecs.snappyFory(),
         LettuceBinaryCodecs.snappyKryo(),
 
         LettuceBinaryCodecs.zstdJdk(),
+        LettuceBinaryCodecs.zstdFastFory(),
         LettuceBinaryCodecs.zstdFory(),
         LettuceBinaryCodecs.zstdKryo(),
-
-        LettuceBinaryCodecs.fastFory(),
-        LettuceBinaryCodecs.lz4FastFory(),
-        LettuceBinaryCodecs.zstdFastFory(),
-        LettuceBinaryCodecs.snappyFastFory(),
-        LettuceBinaryCodecs.gzipFastFory(),
     )
 
     @ParameterizedTest(name = "codec={0}")

@@ -2,6 +2,7 @@ package io.bluetape4k.redis.lettuce.semaphore
 
 import io.bluetape4k.redis.lettuce.script.RedisScript
 import java.time.Duration
+import java.util.concurrent.ConcurrentLinkedQueue
 import java.util.concurrent.locks.ReentrantLock
 import kotlin.concurrent.withLock
 
@@ -113,7 +114,7 @@ return current
 }
 
 internal class LocalSemaphorePermits {
-    private val leases = mutableListOf<Lease>()
+    private val leases = ConcurrentLinkedQueue<Lease>()
     private val lock = ReentrantLock()
 
     fun record(token: String, permits: Int): Unit = lock.withLock {

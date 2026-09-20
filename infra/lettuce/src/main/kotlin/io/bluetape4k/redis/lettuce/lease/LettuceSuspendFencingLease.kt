@@ -75,6 +75,7 @@ class LettuceSuspendFencingLease private constructor(
     ): FencingRenewResult {
         requireFencingTokenEpoch(config, token)
         val leaseTimeMillis = leaseTime.validatedFencingLeaseTimeMillis()
+
         return classified(FencingLeaseOperation.RENEW, FencingRenewResult::BackendFailure) {
             decodeFencingRenew(
                 executor.runSuspending(

@@ -3,12 +3,14 @@ package io.bluetape4k.redis.lettuce.lock
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeGreaterThan
 import io.bluetape4k.assertions.shouldBeInstanceOf
+import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.assertions.shouldBeZero
+import io.bluetape4k.logging.KLogging
 import io.bluetape4k.redis.lettuce.AbstractLettuceTest
 import io.bluetape4k.redis.lettuce.LettuceTestUtils
-import io.bluetape4k.redis.lettuce.lock.internal.DistributedLockKeys
 import io.bluetape4k.redis.lettuce.lock.internal.DISTRIBUTED_LOCK_SCRIPT
 import io.bluetape4k.redis.lettuce.lock.internal.DefaultLockCommandExecutor
+import io.bluetape4k.redis.lettuce.lock.internal.DistributedLockKeys
 import io.bluetape4k.redis.lettuce.lock.internal.DistributedLockOperation
 import io.bluetape4k.redis.lettuce.lock.internal.deriveDistributedLockKeys
 import io.lettuce.core.RedisNoScriptException
@@ -27,7 +29,11 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import java.time.Duration
 
-internal class DistributedLockScriptTest : AbstractLettuceTest() {
+internal class DistributedLockScriptTest: AbstractLettuceTest() {
+
+    private companion object: KLogging() {
+        const val MAX_EXACT_GENERATION = "9007199254740991"
+    }
 
     private lateinit var connection: StatefulRedisConnection<String, String>
     private lateinit var commands: RedisCommands<String, String>
@@ -41,7 +47,7 @@ internal class DistributedLockScriptTest : AbstractLettuceTest() {
     fun setUp() {
         connection = LettuceTestUtils.client.connect(StringCodec.UTF8)
         commands = connection.sync()
-        val name = "script-${randomName().substringAfter(':')}"
+        val name = "script-${randomName().substringAfterLast(':')}"
         keys = deriveDistributedLockKeys(name, LockConfig(), StringCodec.UTF8)
         deleteKeys()
         lock = LettuceDistributedLock.create(connection, name)
@@ -67,9 +73,14 @@ internal class DistributedLockScriptTest : AbstractLettuceTest() {
 
         commands.exists(keys.state, keys.holds).shouldBeZero()
         commands.get(keys.generation) shouldBeEqualTo first.generation.value.toString()
-        val second = lock.tryAcquire(owner, LockRequestId.from("second-request"), lease)
+
+        val second = lock.tryAcquire(
+            owner,
+            LockRequestId.from("second-request"), lease
+        )
             .shouldBeInstanceOf<LockAcquireResult.Acquired<LockHandle>>()
             .handle
+
         second.generation shouldBeGreaterThan first.generation
     }
 
@@ -77,11 +88,13 @@ internal class DistributedLockScriptTest : AbstractLettuceTest() {
     fun `malformed active state fails closed without mutation`() {
         commands.set(keys.generation, "1")
         commands.set(keys.state, "wrong-type")
+
         val before = commands.dump(keys.state)
 
         lock.tryAcquire(owner, LockRequestId.from("malformed-request"), lease)
             .shouldBeInstanceOf<LockAcquireResult.IntegrityFailure>()
-        commands.dump(keys.state).contentEquals(before) shouldBeEqualTo true
+
+        commands.dump(keys.state).contentEquals(before).shouldBeTrue()
         commands.get(keys.generation) shouldBeEqualTo "1"
     }
 
@@ -101,7 +114,7 @@ internal class DistributedLockScriptTest : AbstractLettuceTest() {
         commands.set(keys.generation, MAX_EXACT_GENERATION)
 
         lock.tryAcquire(owner, LockRequestId.from("exhausted-request"), lease) shouldBeEqualTo
-            LockAcquireResult.CapacityExceeded
+                LockAcquireResult.CapacityExceeded
         commands.exists(keys.state, keys.holds).shouldBeZero()
         commands.get(keys.generation) shouldBeEqualTo MAX_EXACT_GENERATION
     }
@@ -179,9 +192,5 @@ internal class DistributedLockScriptTest : AbstractLettuceTest() {
 
     private fun deleteKeys() {
         commands.del(keys.state, keys.generation, keys.holds, keys.terminal)
-    }
-
-    private companion object {
-        const val MAX_EXACT_GENERATION = "9007199254740991"
     }
 }

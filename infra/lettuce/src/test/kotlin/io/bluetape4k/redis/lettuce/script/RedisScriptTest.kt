@@ -12,7 +12,6 @@ import io.bluetape4k.redis.lettuce.AbstractLettuceTest
 import io.bluetape4k.redis.lettuce.LettuceClients
 import io.bluetape4k.redis.lettuce.LettuceTestUtils
 import io.bluetape4k.testcontainers.storage.RedisServer
-import io.lettuce.core.ExperimentalLettuceCoroutinesApi
 import io.lettuce.core.RedisFuture
 import io.lettuce.core.RedisNoScriptException
 import io.lettuce.core.ScriptOutputType
@@ -38,11 +37,12 @@ import java.util.concurrent.ExecutionException
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.TimeoutException
 
-@OptIn(ExperimentalLettuceCoroutinesApi::class)
-class RedisScriptTest : AbstractLettuceTest() {
+class RedisScriptTest: AbstractLettuceTest() {
 
-    companion object : KLogging() {
-        private val connection by lazy { LettuceClients.connect(LettuceTestUtils.client, StringCodec.UTF8) }
+    companion object: KLogging() {
+        private val connection by lazy {
+            LettuceClients.connect(LettuceTestUtils.client, StringCodec.UTF8)
+        }
     }
 
     private val setAndReturnScript = RedisScript(
@@ -597,7 +597,7 @@ class RedisScriptTest : AbstractLettuceTest() {
     private fun <T> failedRedisFuture(error: Throwable): RedisFuture<T> =
         TestRedisFuture<T>().apply { completeExceptionally(error) }
 
-    private class TestRedisFuture<T> : CompletableFuture<T>(), RedisFuture<T> {
+    private class TestRedisFuture<T>: CompletableFuture<T>(), RedisFuture<T> {
         override fun getError(): String? = if (isCompletedExceptionally) "completed exceptionally" else null
 
         override fun await(timeout: Long, unit: TimeUnit): Boolean = try {

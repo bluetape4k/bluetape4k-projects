@@ -16,7 +16,8 @@ import kotlin.time.toKotlinDuration
  */
 internal class SynchronizerAsyncPoller(
     private val registration: CoordinationRuntime.CoordinationObjectRegistration,
-) : AutoCloseable {
+): AutoCloseable {
+
     private val pending = ConcurrentHashMap<CompletableFuture<*>, () -> Unit>()
 
     init {
@@ -46,6 +47,7 @@ internal class SynchronizerAsyncPoller(
         }
 
         lateinit var retry: () -> Unit
+
         fun schedule(delay: Duration) {
             if (result.isDone) return
             try {
@@ -58,6 +60,7 @@ internal class SynchronizerAsyncPoller(
                 result.complete(closedResult)
             }
         }
+
         retry = {
             scheduled.getAndSet(null)?.close()
             if (registration.isClosed) {
@@ -75,11 +78,11 @@ internal class SynchronizerAsyncPoller(
                     future.whenComplete { value, error ->
                         inFlight.compareAndSet(future, null)
                         when {
-                            result.isDone -> Unit
-                            error != null -> result.completeExceptionally(error)
+                            result.isDone       -> Unit
+                            error != null       -> result.completeExceptionally(error)
                             !shouldRetry(value) -> result.complete(value)
                             System.nanoTime() >= deadlineNanos -> result.complete(timedOutResult)
-                            else -> schedule(interval)
+                            else                -> schedule(interval)
                         }
                     }
                 }

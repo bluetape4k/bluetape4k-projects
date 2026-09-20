@@ -1,8 +1,8 @@
 package io.bluetape4k.redis.lettuce.lease
 
 import io.bluetape4k.assertions.assertFailsWith
-import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeSameInstanceAs
+import io.bluetape4k.logging.KLogging
 import io.bluetape4k.redis.lettuce.LettuceClients
 import io.bluetape4k.redis.lettuce.LettuceTestUtils
 import io.lettuce.core.RedisFuture
@@ -25,7 +25,9 @@ import java.util.concurrent.CompletionException
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.TimeoutException
 
-internal class LettuceMultiKeyLeaseTest : MultiKeyLeaseContract() {
+internal class LettuceMultiKeyLeaseTest: MultiKeyLeaseContract() {
+
+    companion object: KLogging()
 
     private val connection by lazy { LettuceClients.connect(LettuceTestUtils.client, StringCodec.UTF8) }
     override val commands: RedisCommands<String, String> by lazy { connection.sync() }
@@ -140,29 +142,34 @@ internal class LettuceMultiKeyLeaseTest : MultiKeyLeaseContract() {
         }
     }
 
-    private fun syncAdapter(target: LettuceMultiKeyLease): MultiKeyLeaseAdapter = object : MultiKeyLeaseAdapter {
+    private fun syncAdapter(target: LettuceMultiKeyLease): MultiKeyLeaseAdapter = object: MultiKeyLeaseAdapter {
         override val name: String = "sync"
         override suspend fun acquire(keys: Collection<String>, ownerToken: String, leaseTime: Duration) =
             target.acquire(keys, ownerToken, leaseTime)
+
         override suspend fun inspect(keys: Collection<String>, ownerToken: String) = target.inspect(keys, ownerToken)
         override suspend fun renew(keys: Collection<String>, ownerToken: String, leaseTime: Duration) =
             target.renew(keys, ownerToken, leaseTime)
+
         override suspend fun release(keys: Collection<String>, ownerToken: String) = target.release(keys, ownerToken)
     }
 
-    private fun asyncAdapter(target: LettuceMultiKeyLease): MultiKeyLeaseAdapter = object : MultiKeyLeaseAdapter {
+    private fun asyncAdapter(target: LettuceMultiKeyLease): MultiKeyLeaseAdapter = object: MultiKeyLeaseAdapter {
         override val name: String = "future"
         override suspend fun acquire(keys: Collection<String>, ownerToken: String, leaseTime: Duration) =
             target.acquireAsync(keys, ownerToken, leaseTime).joinUnwrapped()
+
         override suspend fun inspect(keys: Collection<String>, ownerToken: String) =
             target.inspectAsync(keys, ownerToken).joinUnwrapped()
+
         override suspend fun renew(keys: Collection<String>, ownerToken: String, leaseTime: Duration) =
             target.renewAsync(keys, ownerToken, leaseTime).joinUnwrapped()
+
         override suspend fun release(keys: Collection<String>, ownerToken: String) =
             target.releaseAsync(keys, ownerToken).joinUnwrapped()
     }
 
-    private fun <T> java.util.concurrent.CompletableFuture<T>.joinUnwrapped(): T = try {
+    private fun <T> CompletableFuture<T>.joinUnwrapped(): T = try {
         join()
     } catch (failure: CompletionException) {
         throw failure.cause ?: failure

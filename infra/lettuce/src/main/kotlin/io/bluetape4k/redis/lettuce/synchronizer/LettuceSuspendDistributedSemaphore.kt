@@ -1,5 +1,6 @@
 package io.bluetape4k.redis.lettuce.synchronizer
 
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.redis.lettuce.synchronizer.internal.SemaphoreClient
 import io.lettuce.core.api.StatefulRedisConnection
 import io.lettuce.core.cluster.api.StatefulRedisClusterConnection
@@ -15,48 +16,81 @@ class LettuceSuspendDistributedSemaphore internal constructor(
     /** Initializes capacity once without resetting an existing semaphore. */
     suspend fun trySetPermits(permits: Int): SemaphoreInitializationResult =
         client.trySetPermitsAsync(permits).await()
+
     /** Returns the Redis-authoritative available permit count. */
     suspend fun availablePermits(): Int = client.availablePermitsAsync().await()
+
     /** Attempts one request-idempotent acquisition without waiting. */
-    suspend fun tryAcquire(ownerId: SemaphoreOwnerId, requestId: SemaphoreRequestId, permits: Int = 1) =
+    suspend fun tryAcquire(
+        ownerId: SemaphoreOwnerId,
+        requestId: SemaphoreRequestId,
+        permits: Int = 1
+    ): PermitAcquireResult<PermitHandle>? =
         client.tryAcquireAsync(ownerId, requestId, permits).await()
+
     /** Waits cancellably for at most [waitTime] while trying to acquire [permits]. */
     suspend fun acquire(
         ownerId: SemaphoreOwnerId,
         requestId: SemaphoreRequestId,
         permits: Int,
         waitTime: Duration,
-    ) = client.acquireSuspending(ownerId, requestId, permits, waitTime)
+    ): PermitAcquireResult<PermitHandle> =
+        client.acquireSuspending(ownerId, requestId, permits, waitTime)
+
     /** Inspects a handle against Redis-authoritative ownership state. */
     suspend fun inspect(handle: PermitHandle): PermitInspectResult<PermitHandle> {
         currentCoroutineContext().ensureActive()
         return client.inspectAsync(handle).await()
     }
+
     /** Reconciles an ambiguous acquisition using its original identity. */
-    suspend fun reconcile(ownerId: SemaphoreOwnerId, requestId: SemaphoreRequestId) =
+    suspend fun reconcile(
+        ownerId: SemaphoreOwnerId,
+        requestId: SemaphoreRequestId
+    ): PermitReconcileResult<PermitHandle>? =
         client.reconcileAsync(ownerId, requestId).await()
+
     /** Releases exactly the permits represented by [handle]. */
     suspend fun release(handle: PermitHandle): PermitMutationResult<PermitHandle> {
         currentCoroutineContext().ensureActive()
         return client.releaseAsync(handle).await()
     }
-    /** Closes this client view and terminates pending waits. */
-    override fun close() = client.close()
 
-    companion object {
-        @JvmStatic fun create(connection: StatefulRedisConnection<String, String>, name: String) =
+    /** Closes this client view and terminates pending waits. */
+    override fun close() {
+        client.close()
+    }
+
+    companion object: KLoggingChannel() {
+
+        @JvmStatic
+        fun create(
+            connection: StatefulRedisConnection<String, String>,
+            name: String
+        ): LettuceSuspendDistributedSemaphore =
             create(connection, name, SemaphoreConfig())
-        @JvmStatic fun create(
+
+        @JvmStatic
+        fun create(
             connection: StatefulRedisConnection<String, String>,
             name: String,
             config: SemaphoreConfig,
-        ) = LettuceSuspendDistributedSemaphore(SemaphoreClient.create(connection, name, config))
-        @JvmStatic fun create(connection: StatefulRedisClusterConnection<String, String>, name: String) =
+        ): LettuceSuspendDistributedSemaphore =
+            LettuceSuspendDistributedSemaphore(SemaphoreClient.create(connection, name, config))
+
+        @JvmStatic
+        fun create(
+            connection: StatefulRedisClusterConnection<String, String>,
+            name: String
+        ): LettuceSuspendDistributedSemaphore =
             create(connection, name, SemaphoreConfig())
-        @JvmStatic fun create(
+
+        @JvmStatic
+        fun create(
             connection: StatefulRedisClusterConnection<String, String>,
             name: String,
             config: SemaphoreConfig,
-        ) = LettuceSuspendDistributedSemaphore(SemaphoreClient.create(connection, name, config))
+        ): LettuceSuspendDistributedSemaphore =
+            LettuceSuspendDistributedSemaphore(SemaphoreClient.create(connection, name, config))
     }
 }

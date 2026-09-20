@@ -4,6 +4,9 @@ import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeFalse
 import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.concurrent.completableFutureOf
+import io.bluetape4k.logging.coroutines.KLoggingChannel
+import io.bluetape4k.logging.debug
 import io.bluetape4k.redis.lettuce.coordination.internal.CoordinationRuntime
 import io.bluetape4k.redis.lettuce.coordination.internal.CoordinationRuntimeLimits
 import io.bluetape4k.redis.lettuce.coordination.internal.CoordinationScheduledHandle
@@ -24,10 +27,12 @@ import java.time.Duration
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.CopyOnWriteArrayList
 import java.util.concurrent.atomic.AtomicInteger
-import kotlin.time.Duration as KotlinDuration
 import kotlin.time.Duration.Companion.seconds
+import kotlin.time.Duration as KotlinDuration
 
 class LockLifecycleTest {
+
+    companion object: KLoggingChannel()
 
     @Test
     fun `close rejects new work after validation and completes pending waits`() = runTest {
@@ -61,15 +66,34 @@ class LockLifecycleTest {
 
         pendingFuture.get() shouldBeEqualTo LockAcquireResult.Closed
         pendingCoroutine.await() shouldBeEqualTo LockAcquireResult.Closed
-        blocking.tryAcquire(owner, LockRequestId.from("closed-blocking"), lease) shouldBeEqualTo
-            LockAcquireResult.Closed
-        blocking.tryAcquireAsync(owner, LockRequestId.from("closed-async"), lease).get() shouldBeEqualTo
-            LockAcquireResult.Closed
-        suspending.tryAcquire(owner, LockRequestId.from("closed-suspend"), lease) shouldBeEqualTo
-            LockAcquireResult.Closed
+
+        blocking.tryAcquire(
+            owner,
+            LockRequestId.from("closed-blocking"),
+            lease
+        ) shouldBeEqualTo LockAcquireResult.Closed
+
+        blocking.tryAcquireAsync(
+            owner,
+            LockRequestId.from("closed-async"),
+            lease
+        ).get() shouldBeEqualTo LockAcquireResult.Closed
+
+        suspending.tryAcquire(
+            owner,
+            LockRequestId.from("closed-suspend"),
+            lease
+        ) shouldBeEqualTo LockAcquireResult.Closed
+
         assertFailsWith<IllegalArgumentException> {
-            blocking.acquire(owner, LockRequestId.from("invalid-after-close"), Duration.ZERO, lease)
+            blocking.acquire(
+                owner,
+                LockRequestId.from("invalid-after-close"),
+                Duration.ZERO,
+                lease
+            )
         }
+        log.debug { "harness=$harness" }
         harness.runtime.activeTasks shouldBeEqualTo 0
         harness.runtime.activeWatchdogs shouldBeEqualTo 0
     }
@@ -85,6 +109,7 @@ class LockLifecycleTest {
         second.registerTask(1.seconds) {}
         first.close()
 
+        log.debug { "runtime=$runtime" }
         runtime.isClosed.shouldBeFalse()
         runtime.activeObjects shouldBeEqualTo 1
         runtime.activeTasks shouldBeEqualTo 1
@@ -106,6 +131,7 @@ class LockLifecycleTest {
         val dispatched = NonCancellableFuture<List<String>>()
         harness.executor.asyncAcquire = { dispatched }
         val lock = LettuceDistributedLock(harness.client)
+
         val pending = lock.acquireAsync(
             LockOwnerId.from("connection-owner"),
             LockRequestId.from("connection-request"),
@@ -130,12 +156,14 @@ class LockLifecycleTest {
         )
         asyncHarness.registration.registerTask(1.seconds) {}
         val asyncLock = LettuceDistributedLock(asyncHarness.client)
+
         asyncLock.acquireAsync(
             LockOwnerId.from("capacity-owner"),
             LockRequestId.from("capacity-async"),
             Duration.ofSeconds(1),
             LeasePolicy.Fixed(Duration.ofSeconds(3)),
         ).get() shouldBeEqualTo LockAcquireResult.CapacityExceeded
+
         asyncLock.close()
 
         val suspendHarness = TestLockHarness(
@@ -144,12 +172,14 @@ class LockLifecycleTest {
         suspendHarness.executor.acquireContended = true
         suspendHarness.registration.registerTask(1.seconds) {}
         val suspendLock = LettuceSuspendDistributedLock(suspendHarness.client)
+
         suspendLock.acquire(
             LockOwnerId.from("capacity-owner"),
             LockRequestId.from("capacity-suspend"),
             Duration.ofSeconds(1),
             LeasePolicy.Fixed(Duration.ofSeconds(3)),
         ) shouldBeEqualTo LockAcquireResult.CapacityExceeded
+
         suspendLock.close()
     }
 }
@@ -206,10 +236,10 @@ internal class TestLockCommandExecutor: LockCommandExecutor {
         calls += operation
         return when (operation) {
             DistributedLockOperation.ACQUIRE ->
-                asyncAcquire?.invoke(args) ?: CompletableFuture.completedFuture(response(operation, args))
-            DistributedLockOperation.RENEW ->
-                asyncRenew?.invoke(args) ?: CompletableFuture.completedFuture(response(operation, args))
-            else -> CompletableFuture.completedFuture(response(operation, args))
+                asyncAcquire?.invoke(args) ?: completableFutureOf(response(operation, args))
+            DistributedLockOperation.RENEW   ->
+                asyncRenew?.invoke(args) ?: completableFutureOf(response(operation, args))
+            else                             -> completableFutureOf(response(operation, args))
         }
     }
 
@@ -227,7 +257,7 @@ internal class TestLockCommandExecutor: LockCommandExecutor {
                     asyncAcquire?.invoke(args)?.await() ?: response(operation, args)
                 DistributedLockOperation.RENEW ->
                     asyncRenew?.invoke(args)?.await() ?: response(operation, args)
-                else -> response(operation, args)
+                else                           -> response(operation, args)
             }
         }
     }
@@ -254,7 +284,7 @@ internal class TestLockCommandExecutor: LockCommandExecutor {
                 val policy = leasePolicies[args[0] to args[1]] ?: "F:3000"
                 listOf("OWNED", "1", "1", "3000", policy)
             }
-            DistributedLockOperation.RENEW -> listOf("RENEWED", args.last())
+            DistributedLockOperation.RENEW   -> listOf("RENEWED", args.last())
             DistributedLockOperation.RELEASE -> listOf("RELEASED", releaseRemainingHoldCount.toString())
         }
 }

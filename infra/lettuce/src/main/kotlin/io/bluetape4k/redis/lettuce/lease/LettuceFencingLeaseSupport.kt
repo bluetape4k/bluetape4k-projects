@@ -15,9 +15,7 @@ import io.lettuce.core.cluster.SlotHash
 import io.lettuce.core.codec.RedisCodec
 import java.security.MessageDigest
 import java.time.Duration
-import java.util.Collections
-import java.util.HexFormat
-import java.util.IdentityHashMap
+import java.util.*
 import java.util.concurrent.CancellationException
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.CompletionException
@@ -65,7 +63,8 @@ internal class DefaultFencingScriptExecutor(
         operation: FencingLeaseOperation,
         keys: FencingLeaseKeys,
         args: List<String>,
-    ): List<String> = runFencingScript(syncCommands, operation.script, keys, *args.toTypedArray())
+    ): List<String> =
+        runFencingScript(syncCommands, operation.script, keys, *args.toTypedArray())
 
     override fun runAsync(
         operation: FencingLeaseOperation,
@@ -78,7 +77,8 @@ internal class DefaultFencingScriptExecutor(
         operation: FencingLeaseOperation,
         keys: FencingLeaseKeys,
         args: List<String>,
-    ): List<String> = runFencingScriptSuspending(asyncCommands, operation.script, keys, *args.toTypedArray())
+    ): List<String> =
+        runFencingScriptSuspending(asyncCommands, operation.script, keys, *args.toTypedArray())
 }
 
 internal class FencingLeaseProtocolException: IllegalStateException(
@@ -99,7 +99,7 @@ internal object FencingLeaseSupportLogger: KLogging() {
         val domain = domainFingerprint ?: "unavailable"
         log.warn {
             "Fencing lease backend failure operation=$operation kind=${failure.kind} " +
-                "exception=$exceptionClassName domain=$domain"
+                    "exception=$exceptionClassName domain=$domain"
         }
     }
 }
@@ -119,7 +119,7 @@ internal fun deriveFencingLeaseKeys(
 
 internal fun requireCanonicalFencingDecimal(value: String): String {
     val canonical = value == "0" ||
-        value.firstOrNull() in '1'..'9' && value.all { character -> character in '0'..'9' }
+            value.firstOrNull() in '1'..'9' && value.all { character -> character in '0'..'9' }
     require(canonical) { "Invalid decimal value." }
     require(value.length <= MAX_LONG_DECIMAL.length) { "Decimal value is out of range." }
     require(compareCanonicalFencingDecimalsWithoutValidation(value, MAX_LONG_DECIMAL) <= 0) {
@@ -200,7 +200,7 @@ internal fun Throwable.unwrapFencingCompletionCause(): Throwable {
         val next = when (current) {
             is CompletionException,
             is ExecutionException,
-            -> current.cause
+                -> current.cause
             else -> null
         }
         if (next == null || next === current) {
@@ -224,9 +224,9 @@ internal fun classifyFencingBackendFailure(
         is RedisConnectionException -> FencingBackendFailureKind.CONNECTION
         is RedisCommandTimeoutException,
         is TimeoutException,
-        -> FencingBackendFailureKind.TIMEOUT
+                          -> FencingBackendFailureKind.TIMEOUT
         is RedisException -> FencingBackendFailureKind.COMMAND
-        else -> throw cause
+        else              -> throw cause
     }
     return FencingLeaseBackendFailure(kind).also { failure ->
         FencingLeaseSupportLogger.backendFailure(
@@ -253,7 +253,7 @@ internal fun decodeFencingBootstrap(frame: List<String>): FencingBootstrapResult
     return when (decoded.status) {
         "INITIALIZED" -> FencingBootstrapResult.Initialized
         "ALREADY_INITIALIZED" -> FencingBootstrapResult.AlreadyInitialized
-        else -> malformedFencingReply()
+        else          -> malformedFencingReply()
     }
 }
 
@@ -263,18 +263,18 @@ internal fun decodeFencingAcquire(frame: List<String>): FencingAcquireResult {
         return FencingAcquireResult.IntegrityFailure(failure)
     }
     return when (decoded.status) {
-        "ACQUIRED" -> {
+        "ACQUIRED"           -> {
             decoded.requireTtlSentinel()
             FencingAcquireResult.Acquired(decoded.token())
         }
-        "ALREADY_OWNED" -> FencingAcquireResult.AlreadyOwned(decoded.token(), decoded.ttl())
-        "CONTENDED" -> {
+        "ALREADY_OWNED"      -> FencingAcquireResult.AlreadyOwned(decoded.token(), decoded.ttl())
+        "CONTENDED"          -> {
             decoded.requireUnusedToken()
             FencingAcquireResult.Contended(decoded.ttl())
         }
         "COUNTER_UNAVAILABLE" -> decoded.withUnusedValues { FencingAcquireResult.CounterUnavailable }
         "SEQUENCE_EXHAUSTED" -> decoded.withUnusedValues { FencingAcquireResult.SequenceExhausted }
-        else -> malformedFencingReply()
+        else                 -> malformedFencingReply()
     }
 }
 
@@ -285,12 +285,12 @@ internal fun decodeFencingInspect(frame: List<String>): FencingInspectResult {
     }
     return when (decoded.status) {
         "OWNED" -> FencingInspectResult.Owned(decoded.token(), decoded.ttl())
-        "LOST" -> decoded.withUnusedValues { FencingInspectResult.Lost }
+        "LOST"  -> decoded.withUnusedValues { FencingInspectResult.Lost }
         "CONTENDED" -> {
             decoded.requireUnusedToken()
             FencingInspectResult.Contended(decoded.ttl())
         }
-        else -> malformedFencingReply()
+        else    -> malformedFencingReply()
     }
 }
 
@@ -302,9 +302,9 @@ internal fun decodeFencingRenew(frame: List<String>): FencingRenewResult {
     decoded.requireUnusedValues()
     return when (decoded.status) {
         "RENEWED" -> FencingRenewResult.Renewed
-        "LOST" -> FencingRenewResult.Lost
+        "LOST"    -> FencingRenewResult.Lost
         "OWNERSHIP_MISMATCH" -> FencingRenewResult.OwnershipMismatch
-        else -> malformedFencingReply()
+        else      -> malformedFencingReply()
     }
 }
 
@@ -316,9 +316,9 @@ internal fun decodeFencingRelease(frame: List<String>): FencingReleaseResult {
     decoded.requireUnusedValues()
     return when (decoded.status) {
         "RELEASED" -> FencingReleaseResult.Released
-        "LOST" -> FencingReleaseResult.Lost
+        "LOST"     -> FencingReleaseResult.Lost
         "OWNERSHIP_MISMATCH" -> FencingReleaseResult.OwnershipMismatch
-        else -> malformedFencingReply()
+        else       -> malformedFencingReply()
     }
 }
 
@@ -410,7 +410,7 @@ private val FencingLeaseOperation.script: RedisScript
         FencingLeaseOperation.BOOTSTRAP -> FencingLeaseScripts.BOOTSTRAP
         FencingLeaseOperation.ACQUIRE -> FencingLeaseScripts.ACQUIRE
         FencingLeaseOperation.INSPECT -> FencingLeaseScripts.INSPECT
-        FencingLeaseOperation.RENEW -> FencingLeaseScripts.RENEW
+        FencingLeaseOperation.RENEW   -> FencingLeaseScripts.RENEW
         FencingLeaseOperation.RELEASE -> FencingLeaseScripts.RELEASE
     }
 
@@ -480,7 +480,7 @@ internal fun <R> CompletableFuture<List<String>>.decodeCancellable(
             } catch (failure: Throwable) {
                 mapped.completeExceptionally(failure)
             }
-            else -> try {
+            else          -> try {
                 mapped.complete(decode(frame))
             } catch (failure: Throwable) {
                 mapped.completeExceptionally(failure)
@@ -516,7 +516,7 @@ private data class DecodedFencingFrame(
             "MALFORMED_LEASE" -> FencingIntegrityFailureKind.MALFORMED_LEASE
             "INVALID_COUNTER" -> FencingIntegrityFailureKind.INVALID_COUNTER
             "COUNTER_BEHIND_LEASE" -> FencingIntegrityFailureKind.COUNTER_BEHIND_LEASE
-            else -> malformedFencingReply()
+            else              -> malformedFencingReply()
         }
         return FencingLeaseIntegrityFailure(kind)
     }
@@ -576,128 +576,128 @@ private val MAX_LONG_DECIMAL = Long.MAX_VALUE.toString()
 internal object FencingLeaseScripts {
     val BOOTSTRAP = RedisScript(
         COMMON_FENCING_PREFLIGHT +
-            """
+                """
 
-            local lease = readLease(ARGV[1])
-            if lease.failure then
-              return integrityFailure(lease.failure)
-            end
-            if lease.present then
-              return {'ALREADY_INITIALIZED', '0', '0', '-1'}
-            end
-
-            local counter = readCounter()
-            if counter.failure then
-              return integrityFailure(counter.failure)
-            end
-            if counter.present then
-              return {'ALREADY_INITIALIZED', '0', '0', '-1'}
-            end
-
-            redis.call('SET', counterKey, '0')
-            return {'INITIALIZED', '0', '0', '-1'}
-            """.trimIndent(),
+                local lease = readLease(ARGV[1])
+                if lease.failure then
+                  return integrityFailure(lease.failure)
+                end
+                if lease.present then
+                  return {'ALREADY_INITIALIZED', '0', '0', '-1'}
+                end
+    
+                local counter = readCounter()
+                if counter.failure then
+                  return integrityFailure(counter.failure)
+                end
+                if counter.present then
+                  return {'ALREADY_INITIALIZED', '0', '0', '-1'}
+                end
+    
+                redis.call('SET', counterKey, '0')
+                return {'INITIALIZED', '0', '0', '-1'}
+                """.trimIndent(),
     )
 
     val ACQUIRE = RedisScript(
         COMMON_FENCING_PREFLIGHT +
-            """
+                """
 
-            if not isValidLeaseTime(ARGV[3]) then
-              return {'INVALID_ARGUMENT', '0', '0', '-1'}
-            end
-            local lease = readLease(ARGV[2])
-            if lease.failure then
-              return integrityFailure(lease.failure)
-            end
-            if lease.present then
-              if lease.owner == ARGV[1] then
-                return {'ALREADY_OWNED', lease.epoch, lease.sequence, formatInteger(lease.ttl)}
-              end
-              return {'CONTENDED', '0', '0', formatInteger(lease.ttl)}
-            end
-
-            local counter = readCounter()
-            if counter.failure then
-              return integrityFailure(counter.failure)
-            end
-            if not counter.present then
-              return {'COUNTER_UNAVAILABLE', '0', '0', '-1'}
-            end
-            if counter.text == MAX_LONG_DECIMAL then
-              return {'SEQUENCE_EXHAUSTED', '0', '0', '-1'}
-            end
-
-            local nextSequence = redis.call('INCR', counterKey)
-            local nextSequenceText = redis.call('GET', counterKey)
-            redis.call('HSET', leaseKey,
-              'owner', ARGV[1],
-              'epoch', ARGV[2],
-              'sequence', nextSequenceText)
-            redis.call('PEXPIRE', leaseKey, ARGV[3])
-            return {'ACQUIRED', ARGV[2], nextSequenceText, '-1'}
-            """.trimIndent(),
+                if not isValidLeaseTime(ARGV[3]) then
+                  return {'INVALID_ARGUMENT', '0', '0', '-1'}
+                end
+                local lease = readLease(ARGV[2])
+                if lease.failure then
+                  return integrityFailure(lease.failure)
+                end
+                if lease.present then
+                  if lease.owner == ARGV[1] then
+                    return {'ALREADY_OWNED', lease.epoch, lease.sequence, formatInteger(lease.ttl)}
+                  end
+                  return {'CONTENDED', '0', '0', formatInteger(lease.ttl)}
+                end
+    
+                local counter = readCounter()
+                if counter.failure then
+                  return integrityFailure(counter.failure)
+                end
+                if not counter.present then
+                  return {'COUNTER_UNAVAILABLE', '0', '0', '-1'}
+                end
+                if counter.text == MAX_LONG_DECIMAL then
+                  return {'SEQUENCE_EXHAUSTED', '0', '0', '-1'}
+                end
+    
+                local nextSequence = redis.call('INCR', counterKey)
+                local nextSequenceText = redis.call('GET', counterKey)
+                redis.call('HSET', leaseKey,
+                  'owner', ARGV[1],
+                  'epoch', ARGV[2],
+                  'sequence', nextSequenceText)
+                redis.call('PEXPIRE', leaseKey, ARGV[3])
+                return {'ACQUIRED', ARGV[2], nextSequenceText, '-1'}
+                """.trimIndent(),
     )
 
     val INSPECT = RedisScript(
         COMMON_FENCING_PREFLIGHT +
-            """
-
-            local lease = readLease(ARGV[2])
-            if lease.failure then
-              return integrityFailure(lease.failure)
-            end
-            if not lease.present then
-              return {'LOST', '0', '0', '-1'}
-            end
-            if lease.owner == ARGV[1] then
-              return {'OWNED', lease.epoch, lease.sequence, formatInteger(lease.ttl)}
-            end
-            return {'CONTENDED', '0', '0', formatInteger(lease.ttl)}
-            """.trimIndent(),
+                """
+    
+                local lease = readLease(ARGV[2])
+                if lease.failure then
+                  return integrityFailure(lease.failure)
+                end
+                if not lease.present then
+                  return {'LOST', '0', '0', '-1'}
+                end
+                if lease.owner == ARGV[1] then
+                  return {'OWNED', lease.epoch, lease.sequence, formatInteger(lease.ttl)}
+                end
+                return {'CONTENDED', '0', '0', formatInteger(lease.ttl)}
+                """.trimIndent(),
     )
 
     val RENEW = RedisScript(
         COMMON_FENCING_PREFLIGHT +
-            """
-
-            if not isValidLeaseTime(ARGV[4]) then
-              return {'INVALID_ARGUMENT', '0', '0', '-1'}
-            end
-            local lease = readLease(ARGV[2])
-            if lease.failure then
-              return integrityFailure(lease.failure)
-            end
-            if not lease.present then
-              return {'LOST', '0', '0', '-1'}
-            end
-            if lease.owner ~= ARGV[1] or lease.epoch ~= ARGV[2] or lease.sequence ~= ARGV[3] then
-              return {'OWNERSHIP_MISMATCH', '0', '0', '-1'}
-            end
-
-            redis.call('PEXPIRE', leaseKey, ARGV[4])
-            return {'RENEWED', '0', '0', '-1'}
-            """.trimIndent(),
+                """
+    
+                if not isValidLeaseTime(ARGV[4]) then
+                  return {'INVALID_ARGUMENT', '0', '0', '-1'}
+                end
+                local lease = readLease(ARGV[2])
+                if lease.failure then
+                  return integrityFailure(lease.failure)
+                end
+                if not lease.present then
+                  return {'LOST', '0', '0', '-1'}
+                end
+                if lease.owner ~= ARGV[1] or lease.epoch ~= ARGV[2] or lease.sequence ~= ARGV[3] then
+                  return {'OWNERSHIP_MISMATCH', '0', '0', '-1'}
+                end
+    
+                redis.call('PEXPIRE', leaseKey, ARGV[4])
+                return {'RENEWED', '0', '0', '-1'}
+                """.trimIndent(),
     )
 
     val RELEASE = RedisScript(
         COMMON_FENCING_PREFLIGHT +
-            """
-
-            local lease = readLease(ARGV[2])
-            if lease.failure then
-              return integrityFailure(lease.failure)
-            end
-            if not lease.present then
-              return {'LOST', '0', '0', '-1'}
-            end
-            if lease.owner ~= ARGV[1] or lease.epoch ~= ARGV[2] or lease.sequence ~= ARGV[3] then
-              return {'OWNERSHIP_MISMATCH', '0', '0', '-1'}
-            end
-
-            redis.call('DEL', leaseKey)
-            return {'RELEASED', '0', '0', '-1'}
-            """.trimIndent(),
+                """
+    
+                local lease = readLease(ARGV[2])
+                if lease.failure then
+                  return integrityFailure(lease.failure)
+                end
+                if not lease.present then
+                  return {'LOST', '0', '0', '-1'}
+                end
+                if lease.owner ~= ARGV[1] or lease.epoch ~= ARGV[2] or lease.sequence ~= ARGV[3] then
+                  return {'OWNERSHIP_MISMATCH', '0', '0', '-1'}
+                end
+    
+                redis.call('DEL', leaseKey)
+                return {'RELEASED', '0', '0', '-1'}
+                """.trimIndent(),
     )
 }
 

@@ -38,8 +38,7 @@ import io.lettuce.core.api.sync.RedisScriptingCommands
 import io.lettuce.core.cluster.api.StatefulRedisClusterConnection
 import java.io.Serializable
 import java.time.Duration
-import java.util.Collections
-import java.util.IdentityHashMap
+import java.util.*
 import java.util.concurrent.CancellationException
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.CompletionException
@@ -180,12 +179,14 @@ internal class DistributedLockClient(
             integrity = { LockAcquireResult.IntegrityFailure(it) },
             recoveryAction = LockRecoveryAction.RECONCILE_REQUEST,
         ) {
-            registerWatchdog(decodeAcquire(
-                executor.runSuspending(DistributedLockOperation.ACQUIRE, keys, args),
-                keys,
-                ownerId,
-                requestId,
-            ))
+            registerWatchdog(
+                decodeAcquire(
+                    executor.runSuspending(DistributedLockOperation.ACQUIRE, keys, args),
+                    keys,
+                    ownerId,
+                    requestId,
+                )
+            )
         }
     }
 
@@ -281,12 +282,14 @@ internal class DistributedLockClient(
             integrity = { LockReconcileResult.IntegrityFailure(it) },
             recoveryAction = LockRecoveryAction.RECONCILE_REQUEST,
         ) {
-            registerWatchdog(decodeReconcile(
-                executor.run(DistributedLockOperation.RECONCILE, keys, args),
-                keys,
-                ownerId,
-                requestId,
-            ))
+            registerWatchdog(
+                decodeReconcile(
+                    executor.run(DistributedLockOperation.RECONCILE, keys, args),
+                    keys,
+                    ownerId,
+                    requestId,
+                )
+            )
         }
     }
 
@@ -316,12 +319,14 @@ internal class DistributedLockClient(
             integrity = { LockReconcileResult.IntegrityFailure(it) },
             recoveryAction = LockRecoveryAction.RECONCILE_REQUEST,
         ) {
-            registerWatchdog(decodeReconcile(
-                executor.runSuspending(DistributedLockOperation.RECONCILE, keys, args),
-                keys,
-                ownerId,
-                requestId,
-            ))
+            registerWatchdog(
+                decodeReconcile(
+                    executor.runSuspending(DistributedLockOperation.RECONCILE, keys, args),
+                    keys,
+                    ownerId,
+                    requestId,
+                )
+            )
         }
     }
 
@@ -443,7 +448,7 @@ internal class DistributedLockClient(
         val handle = when (result) {
             is LockAcquireResult.Acquired -> result.handle
             is LockAcquireResult.Reentered -> result.handle
-            else -> return result
+            else                          -> return result
         }
         return if (ensureWatchdog(handle)) {
             result
@@ -544,7 +549,7 @@ internal class DistributedLockClient(
             LockMutationResult.Expired,
             LockMutationResult.OwnershipLost,
             LockMutationResult.StaleGeneration,
-            -> {
+                -> {
                 recordOwnershipLoss(handle.leasePolicy)
                 removeWatchdog(handle)
             }
@@ -560,11 +565,11 @@ internal class DistributedLockClient(
         when (result) {
             is LockMutationResult.Released,
             LockMutationResult.AlreadyReleased,
-            -> removeWatchdog(handle)
+                -> removeWatchdog(handle)
             LockMutationResult.Expired,
             LockMutationResult.OwnershipLost,
             LockMutationResult.StaleGeneration,
-            -> {
+                -> {
                 recordOwnershipLoss(handle.leasePolicy)
                 removeWatchdog(handle)
             }
@@ -721,7 +726,11 @@ internal fun <H: Serializable> acquireBackendResult(
     when (failure.kind) {
         LockBackendFailureKind.CONNECTION,
         LockBackendFailureKind.TIMEOUT,
-        -> LockAcquireResult.Ambiguous(ownerId, requestId, LockRecoveryAction.RECONCILE_REQUEST)
+            -> LockAcquireResult.Ambiguous(
+            ownerId,
+            requestId,
+            LockRecoveryAction.RECONCILE_REQUEST
+        )
         LockBackendFailureKind.COMMAND -> LockAcquireResult.BackendFailure(failure)
     }
 
@@ -730,7 +739,7 @@ private fun DistributedLockOperation.toLockOperation(): LockOperation =
         DistributedLockOperation.ACQUIRE -> LockOperation.ACQUIRE
         DistributedLockOperation.INSPECT -> LockOperation.INSPECT
         DistributedLockOperation.RECONCILE -> LockOperation.RECONCILE
-        DistributedLockOperation.RENEW -> LockOperation.RENEW
+        DistributedLockOperation.RENEW   -> LockOperation.RENEW
         DistributedLockOperation.RELEASE -> LockOperation.RELEASE
     }
 
@@ -827,9 +836,9 @@ private fun classifyLockBackendFailure(
         is RedisConnectionException -> LockBackendFailureKind.CONNECTION
         is RedisCommandTimeoutException,
         is TimeoutException,
-        -> LockBackendFailureKind.TIMEOUT
+                          -> LockBackendFailureKind.TIMEOUT
         is RedisException -> LockBackendFailureKind.COMMAND
-        else -> throw cause
+        else              -> throw cause
     }
     return LockBackendFailure(kind, recoveryAction)
 }
@@ -843,7 +852,7 @@ private fun Throwable.unwrapCompletionCause(): Throwable {
         val next = when (current) {
             is CompletionException,
             is ExecutionException,
-            -> current.cause
+                -> current.cause
             else -> null
         } ?: return current
         if (next === current) return current
@@ -857,7 +866,7 @@ private fun LockAcquireResult<LockHandle>?.acquiredHandleOrNull(): LockHandle? =
     when (this) {
         is LockAcquireResult.Acquired -> handle
         is LockAcquireResult.Reentered -> handle
-        else -> null
+        else                          -> null
     }
 
 private const val MAX_COMPLETION_DEPTH = 8

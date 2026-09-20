@@ -90,6 +90,11 @@ object LettuceBinaryCodecs {
     /**
      * Fory Serializer와 Deflate Compressor를 사용하는 [LettuceBinaryCodec]를 생성합니다.
      */
+    fun <V: Any> deflateFastFory(): LettuceBinaryCodec<V> = codec(BinarySerializers.DeflateFastFory)
+
+    /**
+     * FastFory Serializer와 Deflate Compressor를 사용하는 [LettuceBinaryCodec]를 생성합니다.
+     */
     fun <V: Any> deflateFory(): LettuceBinaryCodec<V> = codec(BinarySerializers.DeflateFory)
 
     /**

@@ -1,23 +1,22 @@
 package io.bluetape4k.redis.lettuce.semaphore
 
+import io.bluetape4k.assertions.assertFailsWith
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeFalse
+import io.bluetape4k.assertions.shouldBeGreaterOrEqualTo
+import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.junit5.concurrency.MultithreadingTester
 import io.bluetape4k.junit5.concurrency.StructuredTaskScopeTester
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.redis.lettuce.AbstractLettuceTest
 import io.bluetape4k.redis.lettuce.LettuceClients
 import io.bluetape4k.redis.lettuce.LettuceTestUtils
-import io.lettuce.core.ExperimentalLettuceCoroutinesApi
-import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldBeFalse
-import io.bluetape4k.assertions.shouldBeGreaterOrEqualTo
-import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.utils.Runtimex
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import io.bluetape4k.assertions.assertFailsWith
 import java.time.Duration
 import java.util.concurrent.atomic.AtomicInteger
 
-@OptIn(ExperimentalLettuceCoroutinesApi::class)
 class LettuceSemaphoreTest: AbstractLettuceTest() {
 
     companion object: KLogging() {
@@ -104,6 +103,7 @@ class LettuceSemaphoreTest: AbstractLettuceTest() {
         Thread.sleep(50)
 
         expiringSemaphore.availablePermits() shouldBeEqualTo TOTAL_PERMITS
+
         assertFailsWith<IllegalStateException> {
             expiringSemaphore.release(TOTAL_PERMITS)
         }
@@ -120,6 +120,7 @@ class LettuceSemaphoreTest: AbstractLettuceTest() {
     @Test
     fun `acquire - 시간 초과 시 예외 발생`() {
         repeat(TOTAL_PERMITS) { semaphore.tryAcquire() }
+
         assertFailsWith<IllegalStateException> {
             semaphore.acquire(1, waitTime = Duration.ofMillis(200))
         }
@@ -131,8 +132,8 @@ class LettuceSemaphoreTest: AbstractLettuceTest() {
         val concurrent = AtomicInteger(0)
 
         MultithreadingTester()
-            .workers(10)
-            .rounds(1)
+            .workers(2 * Runtimex.availableProcessors)
+            .rounds(2)
             .add {
                 val s = LettuceSemaphore(connection, semaphore.semaphoreKey, TOTAL_PERMITS)
                 if (s.tryAcquire()) {
@@ -186,8 +187,8 @@ class LettuceSemaphoreTest: AbstractLettuceTest() {
         val acquired = AtomicInteger(0)
 
         MultithreadingTester()
-            .workers(8)
-            .rounds(5)
+            .workers(2 * Runtimex.availableProcessors)
+            .rounds(3)
             .add {
                 val s = LettuceSemaphore(connection, semaphore.semaphoreKey, TOTAL_PERMITS)
                 if (s.tryAcquire()) {
@@ -207,7 +208,7 @@ class LettuceSemaphoreTest: AbstractLettuceTest() {
         val maxConcurrent = AtomicInteger(0)
 
         MultithreadingTester()
-            .workers(10)
+            .workers(2 * Runtimex.availableProcessors)
             .rounds(3)
             .add {
                 val s = LettuceSemaphore(connection, semaphore.semaphoreKey, TOTAL_PERMITS)
@@ -233,7 +234,7 @@ class LettuceSemaphoreTest: AbstractLettuceTest() {
         val acquired = AtomicInteger(0)
 
         StructuredTaskScopeTester()
-            .rounds(10)
+            .rounds(3 * 2 * Runtimex.availableProcessors)
             .add {
                 val s = LettuceSemaphore(connection, semaphore.semaphoreKey, TOTAL_PERMITS)
                 if (s.tryAcquire()) {
@@ -253,7 +254,7 @@ class LettuceSemaphoreTest: AbstractLettuceTest() {
         val maxConcurrent = AtomicInteger(0)
 
         StructuredTaskScopeTester()
-            .rounds(12)
+            .rounds(3 * 2 * Runtimex.availableProcessors)
             .add {
                 val s = LettuceSemaphore(connection, semaphore.semaphoreKey, TOTAL_PERMITS)
                 if (s.tryAcquire()) {

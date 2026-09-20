@@ -1,5 +1,7 @@
 package io.bluetape4k.redis.lettuce.filter
 
+import io.bluetape4k.support.requirePositiveNumber
+
 /**
  * Bloom Filter 구성 옵션입니다.
  *
@@ -25,7 +27,7 @@ data class BloomFilterOptions(
     }
 
     init {
-        require(expectedInsertions > 0) { "expectedInsertions must be positive" }
+        expectedInsertions.requirePositiveNumber("expectedInsertions")
         require(falseProbability > 0.0 && falseProbability < 1.0) {
             "falseProbability must be in (0, 1) exclusive — p=0 and p=1 are mathematically invalid for ln(p)"
         }

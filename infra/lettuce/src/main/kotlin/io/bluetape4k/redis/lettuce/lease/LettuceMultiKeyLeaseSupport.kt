@@ -317,128 +317,128 @@ private fun invalidVector(): Nothing = throw IllegalStateException("Malformed mu
 
 private val ACQUIRE_SCRIPT = RedisScript(
     """
-    local token = ARGV[1]
-    local ttl = tonumber(ARGV[2])
-    if not ttl or ttl <= 0 then error('invalid lease ttl') end
-
-    local requested = #KEYS
-    local owned, missing, mismatched, invalidTtl, minimumPttl = 0, 0, 0, 0, -1
-    for _, key in ipairs(KEYS) do
-      local value = redis.call('GET', key)
-      if not value then
-        missing = missing + 1
-      elseif value == token then
-        owned = owned + 1
-        local pttl = redis.call('PTTL', key)
-        if pttl < 0 then
-          invalidTtl = invalidTtl + 1
-        elseif minimumPttl < 0 or pttl < minimumPttl then
-          minimumPttl = pttl
-        end
-      else
-        mismatched = mismatched + 1
-      end
-    end
-
-    if invalidTtl > 0 then return {90, requested, owned, missing, mismatched, invalidTtl, -1} end
-    if mismatched > 0 then return {13, requested, owned, missing, mismatched, 0, -1} end
-    if owned == requested then return {11, requested, owned, missing, mismatched, 0, minimumPttl} end
-    if owned > 0 then return {12, requested, owned, missing, mismatched, 0, -1} end
-
-    for _, key in ipairs(KEYS) do
-      redis.call('SET', key, token, 'PX', ttl)
-    end
-    return {10, requested, owned, missing, mismatched, 0, -1}
-    """.trimIndent(),
+            local token = ARGV[1]
+            local ttl = tonumber(ARGV[2])
+            if not ttl or ttl <= 0 then error('invalid lease ttl') end
+        
+            local requested = #KEYS
+            local owned, missing, mismatched, invalidTtl, minimumPttl = 0, 0, 0, 0, -1
+            for _, key in ipairs(KEYS) do
+              local value = redis.call('GET', key)
+              if not value then
+                missing = missing + 1
+              elseif value == token then
+                owned = owned + 1
+                local pttl = redis.call('PTTL', key)
+                if pttl < 0 then
+                  invalidTtl = invalidTtl + 1
+                elseif minimumPttl < 0 or pttl < minimumPttl then
+                  minimumPttl = pttl
+                end
+              else
+                mismatched = mismatched + 1
+              end
+            end
+        
+            if invalidTtl > 0 then return {90, requested, owned, missing, mismatched, invalidTtl, -1} end
+            if mismatched > 0 then return {13, requested, owned, missing, mismatched, 0, -1} end
+            if owned == requested then return {11, requested, owned, missing, mismatched, 0, minimumPttl} end
+            if owned > 0 then return {12, requested, owned, missing, mismatched, 0, -1} end
+        
+            for _, key in ipairs(KEYS) do
+              redis.call('SET', key, token, 'PX', ttl)
+            end
+            return {10, requested, owned, missing, mismatched, 0, -1}
+            """.trimIndent(),
 )
 
 private val INSPECT_SCRIPT = RedisScript(
     """
-    local token = ARGV[1]
-    local requested = #KEYS
-    local owned, missing, mismatched, invalidTtl, minimumPttl = 0, 0, 0, 0, -1
-    for _, key in ipairs(KEYS) do
-      local value = redis.call('GET', key)
-      if not value then
-        missing = missing + 1
-      elseif value == token then
-        owned = owned + 1
-        local pttl = redis.call('PTTL', key)
-        if pttl < 0 then
-          invalidTtl = invalidTtl + 1
-        elseif minimumPttl < 0 or pttl < minimumPttl then
-          minimumPttl = pttl
-        end
-      else
-        mismatched = mismatched + 1
-      end
-    end
-
-    if invalidTtl > 0 then return {90, requested, owned, missing, mismatched, invalidTtl, -1} end
-    if mismatched > 0 then return {23, requested, owned, missing, mismatched, 0, -1} end
-    if owned == requested then return {20, requested, owned, missing, mismatched, 0, minimumPttl} end
-    if owned > 0 then return {22, requested, owned, missing, mismatched, 0, -1} end
-    return {21, requested, owned, missing, mismatched, 0, -1}
-    """.trimIndent(),
+            local token = ARGV[1]
+            local requested = #KEYS
+            local owned, missing, mismatched, invalidTtl, minimumPttl = 0, 0, 0, 0, -1
+            for _, key in ipairs(KEYS) do
+              local value = redis.call('GET', key)
+              if not value then
+                missing = missing + 1
+              elseif value == token then
+                owned = owned + 1
+                local pttl = redis.call('PTTL', key)
+                if pttl < 0 then
+                  invalidTtl = invalidTtl + 1
+                elseif minimumPttl < 0 or pttl < minimumPttl then
+                  minimumPttl = pttl
+                end
+              else
+                mismatched = mismatched + 1
+              end
+            end
+        
+            if invalidTtl > 0 then return {90, requested, owned, missing, mismatched, invalidTtl, -1} end
+            if mismatched > 0 then return {23, requested, owned, missing, mismatched, 0, -1} end
+            if owned == requested then return {20, requested, owned, missing, mismatched, 0, minimumPttl} end
+            if owned > 0 then return {22, requested, owned, missing, mismatched, 0, -1} end
+            return {21, requested, owned, missing, mismatched, 0, -1}
+            """.trimIndent(),
 )
 
 private val RENEW_SCRIPT = RedisScript(
     """
-    local token = ARGV[1]
-    local ttl = tonumber(ARGV[2])
-    if not ttl or ttl <= 0 then error('invalid lease ttl') end
-
-    local requested = #KEYS
-    local owned, missing, mismatched, invalidTtl = 0, 0, 0, 0
-    local ownedKeys = {}
-    for _, key in ipairs(KEYS) do
-      local value = redis.call('GET', key)
-      if not value then
-        missing = missing + 1
-      elseif value == token then
-        owned = owned + 1
-        ownedKeys[#ownedKeys + 1] = key
-        if redis.call('PTTL', key) < 0 then invalidTtl = invalidTtl + 1 end
-      else
-        mismatched = mismatched + 1
-      end
-    end
-
-    if invalidTtl > 0 then return {90, requested, owned, missing, mismatched, invalidTtl, -1} end
-    for _, key in ipairs(ownedKeys) do redis.call('PEXPIRE', key, ttl) end
-
-    if mismatched > 0 then return {43, requested, owned, missing, mismatched, 0, -1} end
-    if owned == requested then return {40, requested, owned, missing, mismatched, 0, -1} end
-    if owned > 0 then return {41, requested, owned, missing, mismatched, 0, -1} end
-    return {42, requested, owned, missing, mismatched, 0, -1}
-    """.trimIndent(),
+            local token = ARGV[1]
+            local ttl = tonumber(ARGV[2])
+            if not ttl or ttl <= 0 then error('invalid lease ttl') end
+        
+            local requested = #KEYS
+            local owned, missing, mismatched, invalidTtl = 0, 0, 0, 0
+            local ownedKeys = {}
+            for _, key in ipairs(KEYS) do
+              local value = redis.call('GET', key)
+              if not value then
+                missing = missing + 1
+              elseif value == token then
+                owned = owned + 1
+                ownedKeys[#ownedKeys + 1] = key
+                if redis.call('PTTL', key) < 0 then invalidTtl = invalidTtl + 1 end
+              else
+                mismatched = mismatched + 1
+              end
+            end
+        
+            if invalidTtl > 0 then return {90, requested, owned, missing, mismatched, invalidTtl, -1} end
+            for _, key in ipairs(ownedKeys) do redis.call('PEXPIRE', key, ttl) end
+        
+            if mismatched > 0 then return {43, requested, owned, missing, mismatched, 0, -1} end
+            if owned == requested then return {40, requested, owned, missing, mismatched, 0, -1} end
+            if owned > 0 then return {41, requested, owned, missing, mismatched, 0, -1} end
+            return {42, requested, owned, missing, mismatched, 0, -1}
+            """.trimIndent(),
 )
 
 private val RELEASE_SCRIPT = RedisScript(
     """
-    local token = ARGV[1]
-    local requested = #KEYS
-    local owned, missing, mismatched = 0, 0, 0
-    local ownedKeys = {}
-    for _, key in ipairs(KEYS) do
-      local value = redis.call('GET', key)
-      if not value then
-        missing = missing + 1
-      elseif value == token then
-        owned = owned + 1
-        ownedKeys[#ownedKeys + 1] = key
-      else
-        mismatched = mismatched + 1
-      end
-    end
-
-    for _, key in ipairs(ownedKeys) do redis.call('DEL', key) end
-
-    if mismatched > 0 then return {53, requested, owned, missing, mismatched, 0, -1} end
-    if owned == requested then return {50, requested, owned, missing, mismatched, 0, -1} end
-    if owned > 0 then return {51, requested, owned, missing, mismatched, 0, -1} end
-    return {52, requested, owned, missing, mismatched, 0, -1}
-    """.trimIndent(),
+            local token = ARGV[1]
+            local requested = #KEYS
+            local owned, missing, mismatched = 0, 0, 0
+            local ownedKeys = {}
+            for _, key in ipairs(KEYS) do
+              local value = redis.call('GET', key)
+              if not value then
+                missing = missing + 1
+              elseif value == token then
+                owned = owned + 1
+                ownedKeys[#ownedKeys + 1] = key
+              else
+                mismatched = mismatched + 1
+              end
+            end
+        
+            for _, key in ipairs(ownedKeys) do redis.call('DEL', key) end
+        
+            if mismatched > 0 then return {53, requested, owned, missing, mismatched, 0, -1} end
+            if owned == requested then return {50, requested, owned, missing, mismatched, 0, -1} end
+            if owned > 0 then return {51, requested, owned, missing, mismatched, 0, -1} end
+            return {52, requested, owned, missing, mismatched, 0, -1}
+            """.trimIndent(),
 )
 
 private const val VECTOR_SIZE = 7

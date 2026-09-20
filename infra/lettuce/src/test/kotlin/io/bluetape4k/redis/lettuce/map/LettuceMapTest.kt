@@ -1,17 +1,5 @@
 package io.bluetape4k.redis.lettuce.map
 
-import io.bluetape4k.logging.coroutines.KLoggingChannel
-import io.bluetape4k.junit5.concurrency.MultithreadingTester
-import io.bluetape4k.redis.lettuce.AbstractLettuceTest
-import io.bluetape4k.redis.lettuce.LettuceClients
-import io.bluetape4k.redis.lettuce.LettuceTestUtils
-import io.lettuce.core.HSetExArgs
-import io.lettuce.core.RedisFuture
-import io.lettuce.core.TransactionResult
-import io.lettuce.core.api.async.RedisAsyncCommands
-import io.lettuce.core.api.StatefulRedisConnection
-import io.lettuce.core.api.sync.RedisCommands
-import io.lettuce.core.codec.StringCodec
 import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeFalse
@@ -20,6 +8,18 @@ import io.bluetape4k.assertions.shouldBeNull
 import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.assertions.shouldContainAll
 import io.bluetape4k.assertions.shouldHaveSize
+import io.bluetape4k.junit5.concurrency.MultithreadingTester
+import io.bluetape4k.logging.coroutines.KLoggingChannel
+import io.bluetape4k.redis.lettuce.AbstractLettuceTest
+import io.bluetape4k.redis.lettuce.LettuceClients
+import io.bluetape4k.redis.lettuce.LettuceTestUtils
+import io.lettuce.core.HSetExArgs
+import io.lettuce.core.RedisFuture
+import io.lettuce.core.TransactionResult
+import io.lettuce.core.api.StatefulRedisConnection
+import io.lettuce.core.api.async.RedisAsyncCommands
+import io.lettuce.core.api.sync.RedisCommands
+import io.lettuce.core.codec.StringCodec
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
@@ -27,7 +27,7 @@ import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import java.time.Duration
-import java.util.UUID
+import java.util.*
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.Executors
@@ -38,7 +38,9 @@ import java.util.concurrent.atomic.AtomicInteger
 class LettuceMapTest: AbstractLettuceTest() {
 
     companion object: KLoggingChannel() {
-        private val connection by lazy { LettuceClients.connect(LettuceTestUtils.client, StringCodec.UTF8) }
+        private val connection by lazy {
+            LettuceClients.connect(LettuceTestUtils.client, StringCodec.UTF8)
+        }
     }
 
     private lateinit var map: LettuceMap<String>
@@ -118,7 +120,7 @@ class LettuceMapTest: AbstractLettuceTest() {
         map.values() shouldContainAll listOf("v1", "v2", "v3")
 
         val entries = map.entries()
-        entries.shouldHaveSize(3)
+        entries shouldHaveSize 3
         entries["f1"] shouldBeEqualTo "v1"
         entries["f2"] shouldBeEqualTo "v2"
         entries["f3"] shouldBeEqualTo "v3"
@@ -141,7 +143,7 @@ class LettuceMapTest: AbstractLettuceTest() {
         map.put("f2", "v2")
 
         val result = map.getAll(listOf("f1", "f2", "nonexistent"))
-        result.shouldHaveSize(3)
+        result shouldHaveSize 3
         result["f1"] shouldBeEqualTo "v1"
         result["f2"] shouldBeEqualTo "v2"
         result["nonexistent"].shouldBeNull()
@@ -240,6 +242,7 @@ class LettuceMapTest: AbstractLettuceTest() {
                 ttl = Duration.ofSeconds(30),
                 token = "owner",
             ).shouldBeTrue()
+
             connection.sync().ttl(map.mapKey) shouldBeGreaterThan 0L
             map.removeIfLockOwned("field", "owner").shouldBeTrue()
         }
@@ -486,7 +489,7 @@ class LettuceMapTest: AbstractLettuceTest() {
     }
 
     @Test
-    fun `putIfAbsentAsync`() {
+    fun `putIfAbsentAsync - putIfAbsent asynchronous`() {
         map.putIfAbsentAsync("field1", "first").get().shouldBeTrue()
         map.putIfAbsentAsync("field1", "second").get().shouldBeFalse()
         map.getAsync("field1").get() shouldBeEqualTo "first"
@@ -523,7 +526,7 @@ class LettuceMapTest: AbstractLettuceTest() {
     }
 
     @Test
-    fun `getAllAsync`() {
+    fun `getAllAsync - getAll asynchronous`() {
         map.putAsync("f1", "v1").get()
         val result = map.getAllAsync(listOf("f1", "missing")).get()
         result["f1"] shouldBeEqualTo "v1"
@@ -531,7 +534,7 @@ class LettuceMapTest: AbstractLettuceTest() {
     }
 
     @Test
-    fun `clearAsync`() {
+    fun `clearAsync - clear asynchronous`() {
         map.putAllAsync(mapOf("f1" to "v1", "f2" to "v2")).get()
         map.clearAsync().get() shouldBeEqualTo 1L
         map.isEmptyAsync().get().shouldBeTrue()
@@ -541,7 +544,6 @@ class LettuceMapTest: AbstractLettuceTest() {
         TestRedisFuture<T>().apply { complete(value) }
 
     private class TestRedisFuture<T>: CompletableFuture<T>(), RedisFuture<T> {
-
         override fun getError(): String? =
             if (isCompletedExceptionally) "completed exceptionally" else null
 

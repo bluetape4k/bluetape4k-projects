@@ -55,9 +55,9 @@ class LettuceHarnessTest(unittest.TestCase):
     def test_rejects_missing_duplicate_unexpected_and_bad_unit(self):
         records = self.records()
         for changed in (
-            records[:-1],
-            records + [records[0]],
-            [{**records[0], "benchmark": validator.BENCHMARK_CLASS + ".unexpected"}] + records[1:],
+                records[:-1],
+                records + [records[0]],
+                [{**records[0], "benchmark": validator.BENCHMARK_CLASS + ".unexpected"}] + records[1:],
         ):
             with self.assertRaises(validator.ValidationError):
                 validator.validate_records(changed)

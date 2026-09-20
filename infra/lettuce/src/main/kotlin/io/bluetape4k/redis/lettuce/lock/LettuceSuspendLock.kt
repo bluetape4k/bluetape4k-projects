@@ -12,7 +12,7 @@ import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.future.await
 import java.time.Duration
-import java.util.UUID
+import java.util.*
 import kotlin.time.Duration.Companion.milliseconds
 
 /**
@@ -145,9 +145,7 @@ class LettuceSuspendLock(
                 return
             }
             if (System.currentTimeMillis() >= deadline) {
-                throw IllegalStateException(
-                    "Lock 획득 시간 초과 (suspend): lockKey=$lockKey, maxWaitTime=$maxWaitTime"
-                )
+                error("Lock 획득 시간 초과 (suspend): lockKey=$lockKey, maxWaitTime=$maxWaitTime")
             }
             delay(RETRY_DELAY_MS.milliseconds)
         }
@@ -178,7 +176,7 @@ class LettuceSuspendLock(
         )
 
         if (released == 0L) {
-            throw IllegalStateException("Lock 해제 실패 (토큰 불일치 또는 만료, suspend): lockKey=$lockKey")
+            error("Lock 해제 실패 (토큰 불일치 또는 만료, suspend): lockKey=$lockKey")
         }
         tokenRef.compareAndSet(token, null)
         log.debug { "Lock 해제 성공 (suspend): lockKey=$lockKey" }

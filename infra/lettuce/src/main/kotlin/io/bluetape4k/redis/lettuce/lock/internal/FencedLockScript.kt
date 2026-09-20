@@ -2,10 +2,10 @@ package io.bluetape4k.redis.lettuce.lock.internal
 
 import io.bluetape4k.redis.lettuce.coordination.internal.CoordinationCapacityException
 import io.bluetape4k.redis.lettuce.coordination.internal.CoordinationFailureClassification
+import io.bluetape4k.redis.lettuce.coordination.internal.CoordinationProtocol
 import io.bluetape4k.redis.lettuce.coordination.internal.CoordinationProtocolException
 import io.bluetape4k.redis.lettuce.coordination.internal.CoordinationRenewalOutcome
 import io.bluetape4k.redis.lettuce.coordination.internal.CoordinationRuntime
-import io.bluetape4k.redis.lettuce.coordination.internal.CoordinationProtocol
 import io.bluetape4k.redis.lettuce.lock.FencedBootstrapResult
 import io.bluetape4k.redis.lettuce.lock.FencedLockConfig
 import io.bluetape4k.redis.lettuce.lock.FencedLockHandle
@@ -16,11 +16,11 @@ import io.bluetape4k.redis.lettuce.lock.LockBackendFailureKind
 import io.bluetape4k.redis.lettuce.lock.LockCounterName
 import io.bluetape4k.redis.lettuce.lock.LockDimensions
 import io.bluetape4k.redis.lettuce.lock.LockEvent
+import io.bluetape4k.redis.lettuce.lock.LockGeneration
 import io.bluetape4k.redis.lettuce.lock.LockHandle
 import io.bluetape4k.redis.lettuce.lock.LockInspectResult
 import io.bluetape4k.redis.lettuce.lock.LockIntegrityFailure
 import io.bluetape4k.redis.lettuce.lock.LockIntegrityFailureKind
-import io.bluetape4k.redis.lettuce.lock.LockGeneration
 import io.bluetape4k.redis.lettuce.lock.LockKind
 import io.bluetape4k.redis.lettuce.lock.LockLeasePolicyKind
 import io.bluetape4k.redis.lettuce.lock.LockMutationResult
@@ -42,14 +42,13 @@ import io.lettuce.core.ScriptOutputType
 import io.lettuce.core.api.StatefulRedisConnection
 import io.lettuce.core.api.async.RedisScriptingAsyncCommands
 import io.lettuce.core.api.sync.RedisScriptingCommands
-import io.lettuce.core.cluster.api.StatefulRedisClusterConnection
 import io.lettuce.core.cluster.SlotHash
+import io.lettuce.core.cluster.api.StatefulRedisClusterConnection
 import io.lettuce.core.codec.RedisCodec
 import java.nio.ByteBuffer
 import java.security.MessageDigest
 import java.time.Duration
-import java.util.Collections
-import java.util.IdentityHashMap
+import java.util.*
 import java.util.concurrent.CancellationException
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.CompletionException
@@ -445,11 +444,11 @@ private fun decodeFencedBootstrap(raw: Any?): FencedBootstrapResult {
         ),
     )
     return when (frame.tag) {
-        "INITIALIZED" -> FencedBootstrapResult.Initialized
+        "INITIALIZED"        -> FencedBootstrapResult.Initialized
         "ALREADY_INITIALIZED" -> FencedBootstrapResult.AlreadyInitialized
         "COUNTER_REGRESSION" -> FencedBootstrapResult.IntegrityFailure(FENCED_COUNTER_REGRESSION)
-        "INTEGRITY" -> FencedBootstrapResult.IntegrityFailure(FENCED_INVALID_STATE)
-        else -> fencedMalformedReply()
+        "INTEGRITY"          -> FencedBootstrapResult.IntegrityFailure(FENCED_INVALID_STATE)
+        else                 -> fencedMalformedReply()
     }
 }
 
@@ -486,11 +485,11 @@ private fun decodeFencedAcquire(
                 LockAcquireResult.Acquired(handle)
             }
         }
-        "CONTENDED" -> LockAcquireResult.Contended(frame.nonNegativeLong(0))
-        "CAPACITY" -> LockAcquireResult.CapacityExceeded
+        "CONTENDED"          -> LockAcquireResult.Contended(frame.nonNegativeLong(0))
+        "CAPACITY"           -> LockAcquireResult.CapacityExceeded
         "COUNTER_REGRESSION" -> LockAcquireResult.IntegrityFailure(FENCED_COUNTER_REGRESSION)
-        "INTEGRITY" -> LockAcquireResult.IntegrityFailure(FENCED_INVALID_STATE)
-        else -> fencedMalformedReply()
+        "INTEGRITY"          -> LockAcquireResult.IntegrityFailure(FENCED_INVALID_STATE)
+        else                 -> fencedMalformedReply()
     }
 }
 
@@ -512,7 +511,7 @@ private fun decodeFencedInspect(
         ),
     )
     return when (frame.tag) {
-        "OWNED" -> {
+        "OWNED"     -> {
             val generation = LockGeneration(frame.fencedPositiveLong(0))
             val holdCount = frame.fencedPositiveInt(1)
             val ttl = frame.nonNegativeLong(2)
@@ -525,13 +524,13 @@ private fun decodeFencedInspect(
                 ttl,
             )
         }
-        "RELEASED" -> LockInspectResult.Released
-        "EXPIRED" -> LockInspectResult.Expired
-        "STALE" -> LockInspectResult.StaleGeneration
-        "LOST" -> LockInspectResult.OwnershipLost
+        "RELEASED"  -> LockInspectResult.Released
+        "EXPIRED"   -> LockInspectResult.Expired
+        "STALE"     -> LockInspectResult.StaleGeneration
+        "LOST"      -> LockInspectResult.OwnershipLost
         "COUNTER_REGRESSION" -> LockInspectResult.IntegrityFailure(FENCED_COUNTER_REGRESSION)
         "INTEGRITY" -> LockInspectResult.IntegrityFailure(FENCED_INVALID_STATE)
-        else -> fencedMalformedReply()
+        else        -> fencedMalformedReply()
     }
 }
 
@@ -552,7 +551,7 @@ private fun decodeFencedReconcile(
         ),
     )
     return when (frame.tag) {
-        "OWNED" -> {
+        "OWNED"     -> {
             val generation = LockGeneration(frame.fencedPositiveLong(0))
             val holdCount = frame.fencedPositiveInt(1)
             val ttl = frame.nonNegativeLong(2)
@@ -565,11 +564,11 @@ private fun decodeFencedReconcile(
                 ttl,
             )
         }
-        "RELEASED" -> LockReconcileResult.Released
+        "RELEASED"  -> LockReconcileResult.Released
         "NOT_FOUND" -> LockReconcileResult.NotFound
         "COUNTER_REGRESSION" -> LockReconcileResult.IntegrityFailure(FENCED_COUNTER_REGRESSION)
         "INTEGRITY" -> LockReconcileResult.IntegrityFailure(FENCED_INVALID_STATE)
-        else -> fencedMalformedReply()
+        else        -> fencedMalformedReply()
     }
 }
 
@@ -590,14 +589,14 @@ private fun decodeFencedRenew(
         ),
     )
     return when (frame.tag) {
-        "RENEWED" -> LockMutationResult.Renewed(handle, frame.nonNegativeLong(0))
+        "RENEWED"          -> LockMutationResult.Renewed(handle, frame.nonNegativeLong(0))
         "ALREADY_RELEASED" -> LockMutationResult.AlreadyReleased
-        "EXPIRED" -> LockMutationResult.Expired
-        "STALE" -> LockMutationResult.StaleGeneration
-        "LOST" -> LockMutationResult.OwnershipLost
+        "EXPIRED"          -> LockMutationResult.Expired
+        "STALE"            -> LockMutationResult.StaleGeneration
+        "LOST"             -> LockMutationResult.OwnershipLost
         "COUNTER_REGRESSION" -> LockMutationResult.IntegrityFailure(FENCED_COUNTER_REGRESSION)
-        "INTEGRITY" -> LockMutationResult.IntegrityFailure(FENCED_INVALID_STATE)
-        else -> fencedMalformedReply()
+        "INTEGRITY"        -> LockMutationResult.IntegrityFailure(FENCED_INVALID_STATE)
+        else               -> fencedMalformedReply()
     }
 }
 
@@ -615,14 +614,14 @@ private fun decodeFencedRelease(raw: Any?): LockMutationResult<FencedLockHandle>
         ),
     )
     return when (frame.tag) {
-        "RELEASED" -> LockMutationResult.Released(frame.fencedNonNegativeInt(0))
+        "RELEASED"         -> LockMutationResult.Released(frame.fencedNonNegativeInt(0))
         "ALREADY_RELEASED" -> LockMutationResult.AlreadyReleased
-        "EXPIRED" -> LockMutationResult.Expired
-        "STALE" -> LockMutationResult.StaleGeneration
-        "LOST" -> LockMutationResult.OwnershipLost
+        "EXPIRED"          -> LockMutationResult.Expired
+        "STALE"            -> LockMutationResult.StaleGeneration
+        "LOST"             -> LockMutationResult.OwnershipLost
         "COUNTER_REGRESSION" -> LockMutationResult.IntegrityFailure(FENCED_COUNTER_REGRESSION)
-        "INTEGRITY" -> LockMutationResult.IntegrityFailure(FENCED_INVALID_STATE)
-        else -> fencedMalformedReply()
+        "INTEGRITY"        -> LockMutationResult.IntegrityFailure(FENCED_INVALID_STATE)
+        else               -> fencedMalformedReply()
     }
 }
 
@@ -693,7 +692,7 @@ private fun LockAcquireResult<FencedLockHandle>.toBaseAcquire(
             acquired.set(handle)
             LockAcquireResult.Reentered(handle.lock, holdCount)
         }
-        else -> @Suppress("UNCHECKED_CAST") (this as LockAcquireResult<LockHandle>)
+        else                          -> @Suppress("UNCHECKED_CAST") (this as LockAcquireResult<LockHandle>)
     }
 
 private fun LockAcquireResult<LockHandle>.toFencedAcquire(
@@ -704,14 +703,14 @@ private fun LockAcquireResult<LockHandle>.toFencedAcquire(
             LockAcquireResult.Acquired(requireNotNull(acquired) { "Missing fenced acquisition handle." })
         is LockAcquireResult.Reentered ->
             LockAcquireResult.Reentered(requireNotNull(acquired) { "Missing fenced reentry handle." }, holdCount)
-        else -> @Suppress("UNCHECKED_CAST") (this as LockAcquireResult<FencedLockHandle>)
+        else                          -> @Suppress("UNCHECKED_CAST") (this as LockAcquireResult<FencedLockHandle>)
     }
 
 private fun LockAcquireResult<FencedLockHandle>?.acquiredHandleOrNull(): FencedLockHandle? =
     when (this) {
         is LockAcquireResult.Acquired -> handle
         is LockAcquireResult.Reentered -> handle
-        else -> null
+        else                          -> null
     }
 
 internal interface FencedLockCommandExecutor {
@@ -879,12 +878,14 @@ internal class FencedLockClient(
             integrity = { LockAcquireResult.IntegrityFailure(it) },
             recoveryAction = LockRecoveryAction.RECONCILE_REQUEST,
         ) {
-            registerWatchdog(decodeFencedAcquire(
-                executor.runSuspending(FencedLockOperation.ACQUIRE, keys, args),
-                keys,
-                ownerId,
-                requestId,
-            ))
+            registerWatchdog(
+                decodeFencedAcquire(
+                    executor.runSuspending(FencedLockOperation.ACQUIRE, keys, args),
+                    keys,
+                    ownerId,
+                    requestId,
+                )
+            )
         }
     }
 
@@ -1034,12 +1035,14 @@ internal class FencedLockClient(
             integrity = { LockReconcileResult.IntegrityFailure(it) },
             recoveryAction = LockRecoveryAction.RECONCILE_REQUEST,
         ) {
-            registerWatchdog(decodeFencedReconcile(
-                executor.run(FencedLockOperation.RECONCILE, keys, args),
-                keys,
-                ownerId,
-                requestId,
-            ))
+            registerWatchdog(
+                decodeFencedReconcile(
+                    executor.run(FencedLockOperation.RECONCILE, keys, args),
+                    keys,
+                    ownerId,
+                    requestId,
+                )
+            )
         }
     }
 
@@ -1069,12 +1072,14 @@ internal class FencedLockClient(
             integrity = { LockReconcileResult.IntegrityFailure(it) },
             recoveryAction = LockRecoveryAction.RECONCILE_REQUEST,
         ) {
-            registerWatchdog(decodeFencedReconcile(
-                executor.runSuspending(FencedLockOperation.RECONCILE, keys, args),
-                keys,
-                ownerId,
-                requestId,
-            ))
+            registerWatchdog(
+                decodeFencedReconcile(
+                    executor.runSuspending(FencedLockOperation.RECONCILE, keys, args),
+                    keys,
+                    ownerId,
+                    requestId,
+                )
+            )
         }
     }
 
@@ -1196,7 +1201,7 @@ internal class FencedLockClient(
         val handle = when (result) {
             is LockAcquireResult.Acquired -> result.handle
             is LockAcquireResult.Reentered -> result.handle
-            else -> return result
+            else                          -> return result
         }
         return if (ensureWatchdog(handle)) {
             result
@@ -1297,7 +1302,7 @@ internal class FencedLockClient(
             LockMutationResult.Expired,
             LockMutationResult.OwnershipLost,
             LockMutationResult.StaleGeneration,
-            -> {
+                -> {
                 recordOwnershipLoss(handle.leasePolicy)
                 removeWatchdog(handle)
             }
@@ -1313,11 +1318,11 @@ internal class FencedLockClient(
         when (result) {
             is LockMutationResult.Released,
             LockMutationResult.AlreadyReleased,
-            -> removeWatchdog(handle)
+                -> removeWatchdog(handle)
             LockMutationResult.Expired,
             LockMutationResult.OwnershipLost,
             LockMutationResult.StaleGeneration,
-            -> {
+                -> {
                 recordOwnershipLoss(handle.leasePolicy)
                 removeWatchdog(handle)
             }
@@ -1461,10 +1466,10 @@ private fun FencedLockOperation.toLockOperation(): LockOperation =
     when (this) {
         FencedLockOperation.BOOTSTRAP,
         FencedLockOperation.INSPECT,
-        -> LockOperation.INSPECT
+                                    -> LockOperation.INSPECT
         FencedLockOperation.ACQUIRE -> LockOperation.ACQUIRE
         FencedLockOperation.RECONCILE -> LockOperation.RECONCILE
-        FencedLockOperation.RENEW -> LockOperation.RENEW
+        FencedLockOperation.RENEW   -> LockOperation.RENEW
         FencedLockOperation.RELEASE -> LockOperation.RELEASE
     }
 
@@ -1561,9 +1566,9 @@ private fun classifyLockBackendFailure(
         is RedisConnectionException -> LockBackendFailureKind.CONNECTION
         is RedisCommandTimeoutException,
         is TimeoutException,
-        -> LockBackendFailureKind.TIMEOUT
+                          -> LockBackendFailureKind.TIMEOUT
         is RedisException -> LockBackendFailureKind.COMMAND
-        else -> throw cause
+        else              -> throw cause
     }
     return LockBackendFailure(kind, recoveryAction)
 }
@@ -1577,7 +1582,7 @@ private fun Throwable.unwrapCompletionCause(): Throwable {
         val next = when (current) {
             is CompletionException,
             is ExecutionException,
-            -> current.cause
+                -> current.cause
             else -> null
         } ?: return current
         if (next === current) return current

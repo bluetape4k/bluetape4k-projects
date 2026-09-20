@@ -5,6 +5,7 @@ import io.bluetape4k.assertions.shouldBeGreaterThan
 import io.bluetape4k.assertions.shouldBeInstanceOf
 import io.bluetape4k.assertions.shouldBeNull
 import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.logging.KLogging
 import io.bluetape4k.testcontainers.storage.RedisServer
 import io.lettuce.core.RedisClient
 import io.lettuce.core.api.StatefulRedisConnection
@@ -32,6 +33,21 @@ import java.util.concurrent.atomic.AtomicLong
 /** Exercises explicit higher-epoch recovery after a stale replica promotion and known-old RDB restore. */
 @Tag("fencing-topology")
 internal class LettuceFencingLeaseTopologyRecoveryTest {
+
+    private companion object: KLogging() {
+        const val PRIMARY_ALIAS: String = "fencing-primary"
+        const val REPLICA_ALIAS: String = "fencing-replica"
+        const val RESTORE_ALIAS: String = "fencing-restore"
+        const val TOXIPROXY_ALIAS: String = "fencing-toxiproxy"
+        const val PROXY_PORT: Int = 8666
+        const val PROXY_NAME: String = "fencing-replication"
+        const val TOXIPROXY_CONTROL_PORT: Int = 8474
+        const val TOXIPROXY_IMAGE: String = "ghcr.io/shopify/toxiproxy:2.9.0"
+        const val RESOURCE_ID: String = "guarded-resource"
+        val READY_REPLICATION_BASELINE = ReplicationBaseline("1", "0", "up", "0", true)
+        val LEASE_TIME: Duration = Duration.ofMinutes(1)
+        val CANONICAL_POSITIVE: Regex = Regex("[1-9][0-9]*")
+    }
 
     @Test
     @Timeout(value = 180, unit = TimeUnit.SECONDS)
@@ -73,7 +89,7 @@ internal class LettuceFencingLeaseTopologyRecoveryTest {
                                                     val oldLease = LettuceFencingLease(primaryConnection, oldConfig)
 
                                                     oldLease.bootstrap() shouldBeEqualTo
-                                                        FencingBootstrapResult.Initialized
+                                                            FencingBootstrapResult.Initialized
                                                     awaitReplicaBaseline(primaryCommands, replicaCommands, keys.counter)
                                                     primaryCommands.save() shouldBeEqualTo "OK"
                                                     primary.copyFileFromContainer("/data/dump.rdb", snapshot.toString())
@@ -166,7 +182,7 @@ internal class LettuceFencingLeaseTopologyRecoveryTest {
             trace.count { it == TopologyEvent.EXTERNAL_INCIDENT_SIGNAL } shouldBeEqualTo 2
             trace.count { it == TopologyEvent.RESUME } shouldBeEqualTo 2
             trace.indexOf(TopologyEvent.EXTERNAL_INCIDENT_SIGNAL) shouldBeGreaterThan
-                trace.indexOf(TopologyEvent.OLD_ACQUIRE)
+                    trace.indexOf(TopologyEvent.OLD_ACQUIRE)
             gate.isOpen.shouldBeTrue()
         } finally {
             Files.deleteIfExists(snapshot)
@@ -225,13 +241,13 @@ internal class LettuceFencingLeaseTopologyRecoveryTest {
 
     private fun isReady(commands: RedisCommands<String, String>, keys: FencingLeaseKeys): Boolean =
         commands.type(keys.counter) == "string" &&
-            commands.pttl(keys.counter) == -1L &&
-            commands.get(keys.counter)?.let { it == "0" || CANONICAL_POSITIVE.matches(it) } == true
+                commands.pttl(keys.counter) == -1L &&
+                commands.get(keys.counter)?.let { it == "0" || CANONICAL_POSITIVE.matches(it) } == true
 
     private fun parseInfo(info: String): Map<String, String> =
         info.lineSequence()
             .filter { ':' in it && !it.startsWith('#') }
-            .associate { line -> line.substringBefore(':') to line.substringAfter(':').trim() }
+            .associate { line -> line.substringBefore(':') to line.substringAfterLast(':').trim() }
 
     private fun createReplicationProxy(toxiproxy: OwnedToxiproxy): ReplicationProxy =
         ReplicationProxy(toxiproxy.controlUrl)
@@ -317,7 +333,7 @@ internal class LettuceFencingLeaseTopologyRecoveryTest {
         init {
             val configuration =
                 """{"name":"$PROXY_NAME","listen":"0.0.0.0:$PROXY_PORT",""" +
-                    """"upstream":"$PRIMARY_ALIAS:${RedisServer.PORT}"}"""
+                        """"upstream":"$PRIMARY_ALIAS:${RedisServer.PORT}"}"""
             request(
                 "POST",
                 "/proxies",
@@ -390,20 +406,5 @@ internal class LettuceFencingLeaseTopologyRecoveryTest {
         ROLLOUT,
         CONFIRM_OLD_ABSENCE,
         RESUME,
-    }
-
-    private companion object {
-        const val PRIMARY_ALIAS: String = "fencing-primary"
-        const val REPLICA_ALIAS: String = "fencing-replica"
-        const val RESTORE_ALIAS: String = "fencing-restore"
-        const val TOXIPROXY_ALIAS: String = "fencing-toxiproxy"
-        const val PROXY_PORT: Int = 8666
-        const val PROXY_NAME: String = "fencing-replication"
-        const val TOXIPROXY_CONTROL_PORT: Int = 8474
-        const val TOXIPROXY_IMAGE: String = "ghcr.io/shopify/toxiproxy:2.9.0"
-        const val RESOURCE_ID: String = "guarded-resource"
-        val READY_REPLICATION_BASELINE = ReplicationBaseline("1", "0", "up", "0", true)
-        val LEASE_TIME: Duration = Duration.ofMinutes(1)
-        val CANONICAL_POSITIVE: Regex = Regex("[1-9][0-9]*")
     }
 }

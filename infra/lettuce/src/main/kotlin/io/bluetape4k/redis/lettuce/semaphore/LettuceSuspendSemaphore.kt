@@ -11,7 +11,7 @@ import io.lettuce.core.api.async.RedisAsyncCommands
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.future.await
 import java.time.Duration
-import java.util.UUID
+import java.util.*
 import kotlin.time.Duration.Companion.milliseconds
 
 /**
@@ -113,13 +113,11 @@ class LettuceSuspendSemaphore(
         val now = nowMillis()
 
         val result = RedisScriptRunner.runSuspending<Long>(
-            asyncCommands, LettuceSemaphoreScripts.ACQUIRE_SCRIPT, ScriptOutputType.INTEGER,
+            asyncCommands,
+            LettuceSemaphoreScripts.ACQUIRE_SCRIPT,
+            ScriptOutputType.INTEGER,
             semaphoreKeys(),
-            now.toString(),
-            totalPermits.toString(),
-            permits.toString(),
-            token,
-            (now + leaseMillis).toString(),
+            now.toString(), totalPermits.toString(), permits.toString(), token, (now + leaseMillis).toString(),
         )
         val acquired = result >= 0
         if (acquired) {
@@ -155,7 +153,7 @@ class LettuceSuspendSemaphore(
             if (tryAcquire(permits)) return
             delay(RETRY_DELAY_MS.milliseconds)
         }
-        throw IllegalStateException("세마포어 획득 시간 초과 (suspend): semaphoreKey=$semaphoreKey, permits=$permits")
+        error("세마포어 획득 시간 초과 (suspend): semaphoreKey=$semaphoreKey, permits=$permits")
     }
 
     /**
@@ -179,14 +177,14 @@ class LettuceSuspendSemaphore(
 
         val releases = localPermits.select(permits)
         releases.forEach { release ->
-            val remaining = RedisScriptRunner.runSuspending<Long>(
-                asyncCommands, LettuceSemaphoreScripts.RELEASE_SCRIPT, ScriptOutputType.INTEGER,
-                semaphoreKeys(),
-                nowMillis().toString(),
-                totalPermits.toString(),
-                release.permits.toString(),
-                release.token,
-            )
+            val remaining = RedisScriptRunner
+                .runSuspending<Long>(
+                    asyncCommands,
+                    LettuceSemaphoreScripts.RELEASE_SCRIPT,
+                    ScriptOutputType.INTEGER,
+                    semaphoreKeys(),
+                    nowMillis().toString(), totalPermits.toString(), release.permits.toString(), release.token,
+                )
             handleReleaseResult(release, remaining)
             log.debug { "Semaphore release: key=$semaphoreKey, permits=${release.permits}, remaining=$remaining" }
         }
@@ -199,7 +197,9 @@ class LettuceSuspendSemaphore(
                 localPermits.markLost(release)
                 error("Semaphore permits are no longer owned or already expired: semaphoreKey=$semaphoreKey")
             }
-            else -> error("Semaphore release exceeds owned permits: semaphoreKey=$semaphoreKey")
+            else            -> {
+                error("Semaphore release exceeds owned permits: semaphoreKey=$semaphoreKey")
+            }
         }
     }
 

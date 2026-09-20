@@ -1,19 +1,28 @@
 package io.bluetape4k.redis.lettuce.lock
 
 import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeFalse
 import io.bluetape4k.assertions.shouldBeInstanceOf
+import io.bluetape4k.codec.Base58
 import io.bluetape4k.junit5.concurrency.MultithreadingTester
+import io.bluetape4k.logging.KLogging
 import io.bluetape4k.redis.lettuce.LettuceTestUtils
 import io.bluetape4k.redis.lettuce.lock.internal.SpinLockRetryPolicy
 import io.lettuce.core.codec.StringCodec
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.Timeout
+import java.io.Serializable
 import java.time.Duration
 import java.util.concurrent.ConcurrentLinkedQueue
 import java.util.concurrent.CyclicBarrier
 import java.util.concurrent.TimeUnit
 
 internal class LockConcurrencyTest {
+
+    private companion object: KLogging() {
+        const val CALLERS = 8
+        val LEASE: LeasePolicy = LeasePolicy.Fixed(Duration.ofSeconds(5))
+    }
 
     @Test
     @Timeout(30)
@@ -73,7 +82,7 @@ internal class LockConcurrencyTest {
             LettuceFairLock.create(
                 connection,
                 "fair-concurrency",
-                FairLockConfig(LockConfig(hashTag = "fair-concurrency-${System.nanoTime()}")),
+                FairLockConfig(LockConfig(hashTag = "fair-concurrency-${Base58.randomString(8)}")),
             ).use { lock ->
                 val holder = lock.tryAcquire(owner(0), request(0), LEASE)
                     .shouldBeInstanceOf<LockAcquireResult.Acquired<LockHandle>>()
@@ -97,7 +106,7 @@ internal class LockConcurrencyTest {
                 val firstHandle = firstWaiter.get(2, TimeUnit.SECONDS)
                     .shouldBeInstanceOf<LockAcquireResult.Acquired<LockHandle>>()
                     .handle
-                secondWaiter.isDone shouldBeEqualTo false
+                secondWaiter.isDone.shouldBeFalse()
                 lock.release(firstHandle) shouldBeEqualTo LockMutationResult.Released(0)
                 val secondHandle = secondWaiter.get(2, TimeUnit.SECONDS)
                     .shouldBeInstanceOf<LockAcquireResult.Acquired<LockHandle>>()
@@ -114,7 +123,7 @@ internal class LockConcurrencyTest {
             LettuceReadWriteLock.create(
                 connection,
                 "read-write-concurrency",
-                ReadWriteLockConfig(LockConfig(hashTag = "read-write-concurrency-${System.nanoTime()}")),
+                ReadWriteLockConfig(LockConfig(hashTag = "read-write-concurrency-${Base58.randomString(8)}")),
             ).use { lock ->
                 val activeReader = lock.readLock().tryAcquire(owner(0), request(0), LEASE)
                     .shouldBeInstanceOf<LockAcquireResult.Acquired<ReadLockHandle>>()
@@ -138,7 +147,7 @@ internal class LockConcurrencyTest {
                 val writerHandle = writer.get(2, TimeUnit.SECONDS)
                     .shouldBeInstanceOf<LockAcquireResult.Acquired<WriteLockHandle>>()
                     .handle
-                lateReader.isDone shouldBeEqualTo false
+                lateReader.isDone.shouldBeFalse()
                 lock.writeLock().release(writerHandle) shouldBeEqualTo LockMutationResult.Released(0)
                 val readerHandle = lateReader.get(2, TimeUnit.SECONDS)
                     .shouldBeInstanceOf<LockAcquireResult.Acquired<ReadLockHandle>>()
@@ -169,7 +178,7 @@ internal class LockConcurrencyTest {
                 connection,
                 "fenced-concurrency",
                 FencedLockConfig(
-                    lock = LockConfig(hashTag = "fenced-concurrency-${System.nanoTime()}"),
+                    lock = LockConfig(hashTag = "fenced-concurrency-${Base58.randomString(8)}"),
                     epoch = 1,
                 ),
             )
@@ -191,7 +200,7 @@ internal class LockConcurrencyTest {
         }
     }
 
-    private fun <H: java.io.Serializable> verifyOneWinner(
+    private fun <H: Serializable> verifyOneWinner(
         attempt: (Int) -> LockAcquireResult<H>,
     ): LockAcquireResult<H> {
         val barrier = CyclicBarrier(CALLERS)
@@ -203,6 +212,7 @@ internal class LockConcurrencyTest {
             }
             task
         }
+
         MultithreadingTester()
             .workers(CALLERS)
             .rounds(1)
@@ -225,10 +235,5 @@ internal class LockConcurrencyTest {
             Thread.sleep(5)
         }
         reconcile().shouldBeInstanceOf<LockReconcileResult.Queued>()
-    }
-
-    private companion object {
-        const val CALLERS = 8
-        val LEASE: LeasePolicy = LeasePolicy.Fixed(Duration.ofSeconds(5))
     }
 }

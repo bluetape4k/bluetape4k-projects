@@ -16,7 +16,7 @@ import java.util.concurrent.ScheduledExecutorService
  */
 class LettuceSuspendDistributedLock internal constructor(
     private val client: DistributedLockClient,
-) : AutoCloseable {
+): AutoCloseable {
 
     /** Attempts one immediate request-bound acquisition. */
     suspend fun tryAcquire(

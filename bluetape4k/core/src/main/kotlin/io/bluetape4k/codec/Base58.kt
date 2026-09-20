@@ -21,7 +21,7 @@ object Base58: KLogging() {
 
     private const val ASCII_TABLE_SIZE = 128
 
-    private val ALPHABET: CharArray = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz".toCharArray()
+    val ALPHABET: CharArray = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz".toCharArray()
     private val ENCODED_ZERO: Char = ALPHABET[0]
     private val INDEXES: IntArray = IntArray(ASCII_TABLE_SIZE) { -1 }.apply {
         ALPHABET.forEachIndexed { i, ch ->

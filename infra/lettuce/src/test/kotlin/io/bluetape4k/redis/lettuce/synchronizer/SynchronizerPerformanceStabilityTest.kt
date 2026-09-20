@@ -1,30 +1,39 @@
 package io.bluetape4k.redis.lettuce.synchronizer
 
 import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.concurrent.get
+import io.bluetape4k.junit5.coroutines.runSuspendIO
+import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.debug
 import io.bluetape4k.redis.lettuce.AbstractLettuceTest
 import io.bluetape4k.redis.lettuce.LettuceTestUtils
 import io.bluetape4k.redis.lettuce.synchronizer.internal.deriveSemaphoreKeys
-import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.lettuce.core.codec.StringCodec
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.Timeout
+import java.time.Duration
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
-import java.time.Duration
+import kotlin.time.Duration.Companion.seconds
 
 class SynchronizerPerformanceStabilityTest: AbstractLettuceTest() {
+
+    companion object: KLogging()
 
     @Test
     @Timeout(30)
     fun `one hundred contenders respect capacity across repeated object lifecycles`() {
         val connection = LettuceTestUtils.client.connect(StringCodec.UTF8)
-        val executor = Executors.newFixedThreadPool(16)
+        val executor = Executors.newFixedThreadPool(2 * Runtime.getRuntime().availableProcessors())
+
         try {
             repeat(5) { lifecycle ->
-                val name = "semaphore-load-$lifecycle-${randomName().substringAfter(':')}"
+                val name = "semaphore-load-$lifecycle-${randomName().substringAfterLast(':')}"
                 val keys = deriveSemaphoreKeys(name, SemaphoreConfig(), StringCodec.UTF8)
                 connection.sync().del(*keys.all.toTypedArray())
+
                 LettuceDistributedSemaphore.create(connection, name).use { semaphore ->
                     semaphore.trySetPermits(10)
                     val results = (1..100).map { contender ->
@@ -38,8 +47,12 @@ class SynchronizerPerformanceStabilityTest: AbstractLettuceTest() {
                             executor,
                         )
                     }.map(CompletableFuture<PermitAcquireResult<PermitHandle>>::join)
-                    val handles = results.filterIsInstance<PermitAcquireResult.Acquired<PermitHandle>>()
+
+                    val handles = results
+                        .filterIsInstance<PermitAcquireResult.Acquired<PermitHandle>>()
                         .map { it.handle }
+
+                    handles.forEach { log.debug { "handle=$it" } }
                     handles.size shouldBeEqualTo 10
                     semaphore.availablePermits() shouldBeEqualTo 0
                     handles.forEach(semaphore::release)
@@ -58,13 +71,15 @@ class SynchronizerPerformanceStabilityTest: AbstractLettuceTest() {
     @Timeout(30)
     fun `one hundred async waiters are connection runtime owned and close promptly`() {
         val connection = LettuceTestUtils.client.connect(StringCodec.UTF8)
-        val name = "semaphore-async-${randomName().substringAfter(':')}"
+        val name = "semaphore-async-${randomName().substringAfterLast(':')}"
         val keys = deriveSemaphoreKeys(name, SemaphoreConfig(), StringCodec.UTF8)
         connection.sync().del(*keys.all.toTypedArray())
         val semaphore = LettuceDistributedSemaphore.create(connection, name)
+
         try {
             semaphore.trySetPermits(1)
             semaphore.tryAcquire(SemaphoreOwnerId.from("holder"), SemaphoreRequestId.from("holder"))
+
             val waiters = (1..100).map {
                 semaphore.acquireAsync(
                     SemaphoreOwnerId.from("owner-$it"),
@@ -74,8 +89,8 @@ class SynchronizerPerformanceStabilityTest: AbstractLettuceTest() {
                 )
             }
             semaphore.close()
-            CompletableFuture.allOf(*waiters.toTypedArray()).get(5, TimeUnit.SECONDS)
-            waiters.forEach { it.join() shouldBeEqualTo PermitAcquireResult.Closed }
+            CompletableFuture.allOf(*waiters.toTypedArray()).get(5.seconds)
+            waiters.all { it.join() == PermitAcquireResult.Closed }.shouldBeTrue()
         } finally {
             semaphore.close()
             connection.sync().del(*keys.all.toTypedArray())
@@ -88,13 +103,19 @@ class SynchronizerPerformanceStabilityTest: AbstractLettuceTest() {
     fun `sub millisecond suspend polling remains bounded`() = runSuspendIO {
         val config = SemaphoreConfig(pollInterval = Duration.ofNanos(1))
         val connection = LettuceTestUtils.client.connect(StringCodec.UTF8)
-        val name = "semaphore-submillis-${randomName().substringAfter(':')}"
+        val name = "semaphore-submillis-${randomName().substringAfterLast(':')}"
         val keys = deriveSemaphoreKeys(name, config, StringCodec.UTF8)
         connection.sync().del(*keys.all.toTypedArray())
         val semaphore = LettuceSuspendDistributedSemaphore.create(connection, name, config)
+
         try {
             semaphore.trySetPermits(1)
-            semaphore.tryAcquire(SemaphoreOwnerId.from("holder"), SemaphoreRequestId.from("holder"))
+            semaphore.tryAcquire(
+                SemaphoreOwnerId.from("holder"),
+                SemaphoreRequestId.from("holder")
+            ).apply {
+                log.debug { "handle=$this" }
+            }
             semaphore.acquire(
                 SemaphoreOwnerId.from("waiter"),
                 SemaphoreRequestId.from("waiter"),

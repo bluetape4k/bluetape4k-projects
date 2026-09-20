@@ -2,15 +2,17 @@ package io.bluetape4k.redis.lettuce.codec
 
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeSameInstanceAs
-import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.io.serializer.BinarySerializer
 import io.bluetape4k.io.serializer.JdkBinarySerializer
+import io.bluetape4k.logging.KLogging
 import io.netty.buffer.ByteBuf
 import io.netty.buffer.Unpooled
 import org.junit.jupiter.api.Test
 import java.io.Serializable
 
 class LettuceBinaryCodecTargetTest {
+
+    companion object: KLogging()
 
     private data class SampleValue(val id: Int): Serializable
 
@@ -71,7 +73,7 @@ class LettuceBinaryCodecTargetTest {
 
             val actual = ByteArray(prefix.size + wire.size)
             target.getBytes(0, actual)
-            actual.contentEquals(prefix + wire).shouldBeTrue()
+            actual shouldBeEqualTo prefix + wire
             target.writerIndex() shouldBeEqualTo actual.size
         } finally {
             target.release()

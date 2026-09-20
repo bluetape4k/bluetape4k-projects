@@ -4,6 +4,7 @@ import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeGreaterOrEqualTo
 import io.bluetape4k.assertions.shouldBeLessOrEqualTo
 import io.bluetape4k.assertions.shouldBeLessThan
+import io.bluetape4k.assertions.shouldBeNull
 import io.bluetape4k.assertions.shouldBeSameInstanceAs
 import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.assertions.shouldBeZero
@@ -12,6 +13,8 @@ import io.bluetape4k.assertions.shouldHaveSize
 import io.bluetape4k.assertions.shouldNotBeEmpty
 import io.bluetape4k.codec.Base58
 import io.bluetape4k.junit5.coroutines.runSuspendIO
+import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.debug
 import io.bluetape4k.redis.lettuce.LettuceClients
 import io.bluetape4k.redis.lettuce.LettuceConst
 import io.bluetape4k.testcontainers.storage.RedisServer
@@ -20,7 +23,9 @@ import io.lettuce.core.RedisCommandTimeoutException
 import io.lettuce.core.RedisException
 import io.lettuce.core.api.StatefulRedisConnection
 import io.lettuce.core.codec.StringCodec
-import org.awaitility.Awaitility.await
+import org.awaitility.kotlin.atMost
+import org.awaitility.kotlin.await
+import org.awaitility.kotlin.until
 import org.junit.jupiter.api.Tag
 import org.junit.jupiter.api.Test
 import java.nio.file.Files
@@ -28,8 +33,7 @@ import java.nio.file.Path
 import java.nio.file.StandardCopyOption
 import java.time.Duration
 import java.time.Instant
-import java.util.Collections
-import java.util.Locale
+import java.util.*
 import java.util.concurrent.CancellationException
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.CyclicBarrier
@@ -44,6 +48,7 @@ import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicInteger
 import java.util.concurrent.atomic.AtomicReference
 import kotlin.math.ceil
+import kotlin.time.Duration.Companion.seconds
 
 /**
  * 기본 test task 밖에서 Redis-side multi-key lease 비용을 특성화합니다.
@@ -168,9 +173,9 @@ internal class LettuceMultiKeyLeasePerformanceTest {
                             it.keyCount == 32 && it.concurrency == concurrency
                         }
                         resultAt32.normalizedAcquireP95Millis shouldBeLessOrEqualTo
-                            resultAt8.normalizedAcquireP95Millis * NORMALIZED_P95_RATIO_LIMIT
+                                resultAt8.normalizedAcquireP95Millis * NORMALIZED_P95_RATIO_LIMIT
                         resultAt32.acquireP95Millis shouldBeLessOrEqualTo
-                            resultAt8.acquireP95Millis * NORMALIZED_P95_RATIO_LIMIT
+                                resultAt8.acquireP95Millis * NORMALIZED_P95_RATIO_LIMIT
                     }
                     aggregatedResults.forEach { result ->
                         result.errors.shouldBeZero()
@@ -331,11 +336,11 @@ internal class LettuceMultiKeyLeasePerformanceTest {
         val probeFailure = AtomicReference<Throwable?>()
         val probeErrors = AtomicInteger()
 
-        probeFailureAfterTermination(probeFailure, probeErrors) shouldBeEqualTo null
+        probeFailureAfterTermination(probeFailure, probeErrors).shouldBeNull()
         val lateFailure = IllegalStateException("late probe failure")
         probeFailure.set(lateFailure)
 
-        probeFailureAfterTermination(probeFailure, probeErrors).shouldBeSameInstanceAs(lateFailure)
+        probeFailureAfterTermination(probeFailure, probeErrors) shouldBeSameInstanceAs lateFailure
     }
 
     @Test
@@ -353,6 +358,7 @@ internal class LettuceMultiKeyLeasePerformanceTest {
         val previousReportPath = System.getProperty(REPORT_PATH_PROPERTY)
         val temporaryReportPath = Files.createTempFile("multi-key-lease-primary-failure-", ".json")
         System.setProperty(REPORT_PATH_PROPERTY, temporaryReportPath.toString())
+
         try {
             writeReport(
                 results = emptyList(),
@@ -362,6 +368,7 @@ internal class LettuceMultiKeyLeasePerformanceTest {
             )
             val json = Files.readString(temporaryReportPath)
 
+            log.debug { "json=$json" }
             json shouldContain "\"status\": \"failed\""
             json shouldContain "IllegalStateException"
             json shouldContain "primary\\u0000\\b\\f\\u001f"
@@ -435,6 +442,7 @@ internal class LettuceMultiKeyLeasePerformanceTest {
         var acquiredCount = 0
         var conflictedCount = 0
         val startedAt = System.nanoTime()
+
         repeat(MEASURED_ROUNDS) { round ->
             val errorsBeforeRound = errors.get()
             val timeoutsBeforeRound = timeouts.get()
@@ -479,14 +487,15 @@ internal class LettuceMultiKeyLeasePerformanceTest {
         }
         val elapsedNanos = System.nanoTime() - startedAt
 
-        await()
-            .atMost(Duration.ofSeconds(5))
-            .until { executor.activeCount == 0 }
+        await atMost 5.seconds until { executor.activeCount == 0 }
+
         commands.exists(*keys.toTypedArray()).shouldBeZero()
         val completionsAtWorkloadEnd = probeCompletions.get()
-        await()
-            .atMost(COMMAND_TIMEOUT)
-            .until { probeCompletions.get() > completionsAtWorkloadEnd }
+
+        await atMost COMMAND_TIMEOUT until {
+            probeCompletions.get() > completionsAtWorkloadEnd
+        }
+
         val combinationProbeSamples = synchronized(probeSamples) {
             probeSamples.drop(probeStart)
         }
@@ -521,7 +530,7 @@ internal class LettuceMultiKeyLeasePerformanceTest {
         val version = connection.sync().info("server")
             .lineSequence()
             .firstOrNull { it.startsWith("redis_version:") }
-            ?.substringAfter(':')
+            ?.substringAfterLast(':')
             ?.trim()
             ?.takeIf(String::isNotEmpty)
         if (version == null) {
@@ -540,7 +549,7 @@ internal class LettuceMultiKeyLeasePerformanceTest {
         val mergedFailure = when {
             current.failure == null -> observed.failure
             observed.failure == null -> current.failure
-            else -> current.failure.also { it.addSuppressed(observed.failure) }
+            else                    -> current.failure.also { it.addSuppressed(observed.failure) }
         }
         return if (observed.version == "unknown") {
             current.copy(failure = mergedFailure)
@@ -601,7 +610,7 @@ internal class LettuceMultiKeyLeasePerformanceTest {
                 concurrency = concurrency,
                 acquireP50Millis = samples.map { it.acquireP50Millis }.median(),
                 acquireP95Millis = samples.map { it.acquireP95Millis }.median(),
-            normalizedAcquireP95Millis = samples.map { it.normalizedAcquireP95Millis }.median(),
+                normalizedAcquireP95Millis = samples.map { it.normalizedAcquireP95Millis }.median(),
                 releaseP50Millis = samples.map { it.releaseP50Millis }.median(),
                 releaseP95Millis = samples.map { it.releaseP95Millis }.median(),
                 scenarioThroughputPerSecond = samples.map { it.scenarioThroughputPerSecond }.median(),
@@ -750,8 +759,10 @@ internal class LettuceMultiKeyLeasePerformanceTest {
             appendLine("  \"javaVersion\": ${System.getProperty("java.version").jsonString()},")
             appendLine("  \"kotlinVersion\": ${KotlinVersion.CURRENT.toString().jsonString()},")
             appendLine(
-                "  \"lettuceVersion\": ${(RedisClient::class.java.`package`.implementationVersion
-                    ?: "unknown").jsonString()},",
+                "  \"lettuceVersion\": ${
+                    (RedisClient::class.java.`package`.implementationVersion
+                        ?: "unknown").jsonString()
+                },",
             )
             appendLine("  \"cpuCount\": ${Runtime.getRuntime().availableProcessors()},")
             appendLine("  \"executorType\": ${executorType.jsonString()},")
@@ -767,7 +778,7 @@ internal class LettuceMultiKeyLeasePerformanceTest {
             appendLine("  \"normalizedP95RatioLimit\": ${NORMALIZED_P95_RATIO_LIMIT.jsonNumber()},")
             appendLine(
                 "  \"metricDirection\": { \"latency\": \"lower is better\", " +
-                    "\"throughput\": \"higher is better\" },",
+                        "\"throughput\": \"higher is better\" },",
             )
             appendLine("  \"results\": [")
             results.forEachIndexed { index, result ->
@@ -887,7 +898,7 @@ internal class LettuceMultiKeyLeasePerformanceTest {
         for (character in this@jsonString) {
             when (character) {
                 '\\' -> append("\\\\")
-                '"' -> append("\\\"")
+                '"'  -> append("\\\"")
                 '\n' -> append("\\n")
                 '\r' -> append("\\r")
                 '\t' -> append("\\t")
@@ -940,7 +951,7 @@ internal class LettuceMultiKeyLeasePerformanceTest {
         val failure: Throwable?,
     )
 
-    private class PerformanceFailure(message: String) : RuntimeException(message)
+    private class PerformanceFailure(message: String): RuntimeException(message)
 
     private data class PerformanceResult(
         val keyCount: Int,
@@ -962,7 +973,7 @@ internal class LettuceMultiKeyLeasePerformanceTest {
         val errors: Int,
     )
 
-    private companion object {
+    private companion object: KLogging() {
         val CONCURRENCY_LEVELS: List<Int> = listOf(1, 16)
         val COMBINATIONS: List<Pair<Int, Int>> = listOf(1 to 1, 32 to 16, 8 to 1, 1 to 16, 32 to 1, 8 to 16)
         val LEASE_TIME: Duration = Duration.ofSeconds(10)

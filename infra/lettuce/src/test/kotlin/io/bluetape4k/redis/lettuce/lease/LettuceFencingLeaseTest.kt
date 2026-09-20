@@ -5,7 +5,8 @@ import io.lettuce.core.cluster.api.StatefulRedisClusterConnection
 import kotlinx.coroutines.future.await
 import java.time.Duration
 
-internal class LettuceFencingLeaseTest : FencingLeaseContract() {
+internal class LettuceFencingLeaseTest: FencingLeaseContract() {
+    
     override fun createAdapter(
         connection: StatefulRedisConnection<String, String>,
         config: LettuceFencingLeaseConfig,
@@ -15,19 +16,22 @@ internal class LettuceFencingLeaseTest : FencingLeaseContract() {
             override suspend fun bootstrap(): FencingBootstrapResult = lease.bootstrap()
             override suspend fun acquire(ownerId: FencingOwnerId, leaseTime: Duration): FencingAcquireResult =
                 lease.acquire(ownerId, leaseTime)
+
             override suspend fun inspect(ownerId: FencingOwnerId): FencingInspectResult = lease.inspect(ownerId)
             override suspend fun renew(
                 ownerId: FencingOwnerId,
                 token: FencingToken,
                 leaseTime: Duration,
             ): FencingRenewResult = lease.renew(ownerId, token, leaseTime)
+
             override suspend fun release(ownerId: FencingOwnerId, token: FencingToken): FencingReleaseResult =
                 lease.release(ownerId, token)
         }
     }
 }
 
-internal class LettuceFencingLeaseFutureTest : FencingLeaseContract() {
+internal class LettuceFencingLeaseFutureTest: FencingLeaseContract() {
+    
     override fun createAdapter(
         connection: StatefulRedisConnection<String, String>,
         config: LettuceFencingLeaseConfig,
@@ -37,12 +41,16 @@ internal class LettuceFencingLeaseFutureTest : FencingLeaseContract() {
             override suspend fun bootstrap(): FencingBootstrapResult = lease.bootstrapAsync().await()
             override suspend fun acquire(ownerId: FencingOwnerId, leaseTime: Duration): FencingAcquireResult =
                 lease.acquireAsync(ownerId, leaseTime).await()
-            override suspend fun inspect(ownerId: FencingOwnerId): FencingInspectResult = lease.inspectAsync(ownerId).await()
+
+            override suspend fun inspect(ownerId: FencingOwnerId): FencingInspectResult =
+                lease.inspectAsync(ownerId).await()
+
             override suspend fun renew(
                 ownerId: FencingOwnerId,
                 token: FencingToken,
                 leaseTime: Duration,
             ): FencingRenewResult = lease.renewAsync(ownerId, token, leaseTime).await()
+
             override suspend fun release(ownerId: FencingOwnerId, token: FencingToken): FencingReleaseResult =
                 lease.releaseAsync(ownerId, token).await()
         }

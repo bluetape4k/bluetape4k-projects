@@ -154,9 +154,9 @@ internal fun decodeAcquire(
             }
         }
         "CONTENDED" -> LockAcquireResult.Contended(frame.nonNegativeLong(0))
-        "CAPACITY" -> LockAcquireResult.CapacityExceeded
+        "CAPACITY"  -> LockAcquireResult.CapacityExceeded
         "INTEGRITY" -> LockAcquireResult.IntegrityFailure(INVALID_STATE)
-        else -> malformedReply()
+        else        -> malformedReply()
     }
 }
 
@@ -177,7 +177,7 @@ internal fun decodeInspect(
         ),
     )
     return when (frame.tag) {
-        "OWNED" -> {
+        "OWNED"    -> {
             val generation = LockGeneration(frame.positiveLong(0))
             val holdCount = frame.positiveInt(1)
             val ttl = frame.nonNegativeLong(2)
@@ -189,11 +189,11 @@ internal fun decodeInspect(
             )
         }
         "RELEASED" -> LockInspectResult.Released
-        "EXPIRED" -> LockInspectResult.Expired
-        "STALE" -> LockInspectResult.StaleGeneration
-        "LOST" -> LockInspectResult.OwnershipLost
+        "EXPIRED"  -> LockInspectResult.Expired
+        "STALE"    -> LockInspectResult.StaleGeneration
+        "LOST"     -> LockInspectResult.OwnershipLost
         "INTEGRITY" -> LockInspectResult.IntegrityFailure(INVALID_STATE)
-        else -> malformedReply()
+        else       -> malformedReply()
     }
 }
 
@@ -213,7 +213,7 @@ internal fun decodeReconcile(
         ),
     )
     return when (frame.tag) {
-        "OWNED" -> {
+        "OWNED"    -> {
             val generation = LockGeneration(frame.positiveLong(0))
             val holdCount = frame.positiveInt(1)
             val ttl = frame.nonNegativeLong(2)
@@ -227,7 +227,7 @@ internal fun decodeReconcile(
         "RELEASED" -> LockReconcileResult.Released
         "NOT_FOUND" -> LockReconcileResult.NotFound
         "INTEGRITY" -> LockReconcileResult.IntegrityFailure(INVALID_STATE)
-        else -> malformedReply()
+        else       -> malformedReply()
     }
 }
 
@@ -247,13 +247,13 @@ internal fun decodeRenew(
         ),
     )
     return when (frame.tag) {
-        "RENEWED" -> LockMutationResult.Renewed(handle, frame.nonNegativeLong(0))
+        "RENEWED"   -> LockMutationResult.Renewed(handle, frame.nonNegativeLong(0))
         "ALREADY_RELEASED" -> LockMutationResult.AlreadyReleased
-        "EXPIRED" -> LockMutationResult.Expired
-        "STALE" -> LockMutationResult.StaleGeneration
-        "LOST" -> LockMutationResult.OwnershipLost
+        "EXPIRED"   -> LockMutationResult.Expired
+        "STALE"     -> LockMutationResult.StaleGeneration
+        "LOST"      -> LockMutationResult.OwnershipLost
         "INTEGRITY" -> LockMutationResult.IntegrityFailure(INVALID_STATE)
-        else -> malformedReply()
+        else        -> malformedReply()
     }
 }
 
@@ -270,13 +270,13 @@ internal fun decodeRelease(raw: Any?): LockMutationResult<LockHandle> {
         ),
     )
     return when (frame.tag) {
-        "RELEASED" -> LockMutationResult.Released(frame.nonNegativeInt(0))
+        "RELEASED"  -> LockMutationResult.Released(frame.nonNegativeInt(0))
         "ALREADY_RELEASED" -> LockMutationResult.AlreadyReleased
-        "EXPIRED" -> LockMutationResult.Expired
-        "STALE" -> LockMutationResult.StaleGeneration
-        "LOST" -> LockMutationResult.OwnershipLost
+        "EXPIRED"   -> LockMutationResult.Expired
+        "STALE"     -> LockMutationResult.StaleGeneration
+        "LOST"      -> LockMutationResult.OwnershipLost
         "INTEGRITY" -> LockMutationResult.IntegrityFailure(INVALID_STATE)
-        else -> malformedReply()
+        else        -> malformedReply()
     }
 }
 

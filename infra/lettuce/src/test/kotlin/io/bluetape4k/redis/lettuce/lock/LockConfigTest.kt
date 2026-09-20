@@ -2,6 +2,7 @@ package io.bluetape4k.redis.lettuce.lock
 
 import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.logging.KLogging
 import org.junit.jupiter.api.Test
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
@@ -13,6 +14,10 @@ import java.io.Serializable
 import java.time.Duration
 
 class LockConfigTest {
+
+    private companion object: KLogging() {
+        const val MAX_LUA_EXACT_INTEGER = 9_007_199_254_740_991L
+    }
 
     @Test
     fun `default namespace and bounded namespace segments are accepted`() {
@@ -132,8 +137,4 @@ class LockConfigTest {
             ObjectOutputStream(bytes).use { it.writeObject(original) }
             ObjectInputStream(ByteArrayInputStream(bytes.toByteArray())).use { it.readObject() }
         }
-
-    private companion object {
-        const val MAX_LUA_EXACT_INTEGER = 9_007_199_254_740_991L
-    }
 }

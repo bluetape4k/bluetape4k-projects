@@ -1,9 +1,14 @@
 package io.bluetape4k.redis.lettuce.lock
 
 import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeFalse
 import io.bluetape4k.assertions.shouldBeGreaterOrEqualTo
 import io.bluetape4k.assertions.shouldBeInstanceOf
 import io.bluetape4k.assertions.shouldBeLessOrEqualTo
+import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.concurrent.completableFutureOf
+import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.debug
 import io.bluetape4k.redis.lettuce.coordination.internal.CoordinationRenewalOutcome
 import io.bluetape4k.redis.lettuce.coordination.internal.CoordinationRuntime
 import io.bluetape4k.redis.lettuce.coordination.internal.CoordinationRuntimeLimits
@@ -18,6 +23,8 @@ import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
 
 class LockWatchdogTest {
+
+    companion object: KLogging()
 
     @Test
     fun `fixed lease does not register and watchdog replay registers once until release`() {
@@ -40,12 +47,22 @@ class LockWatchdogTest {
             renewalInterval = Duration.ofSeconds(1),
             maxLifetime = Duration.ofMinutes(1),
         )
-        val first = watchdog.tryAcquire(owner, request, policy)
-            .shouldBeInstanceOf<LockAcquireResult.Acquired<LockHandle>>()
+        val first = watchdog.tryAcquire(
+            owner,
+            request,
+            policy
+        ).shouldBeInstanceOf<LockAcquireResult.Acquired<LockHandle>>()
+        log.debug { "first=$first" }
 
         watchdogHarness.runtime.activeWatchdogs shouldBeEqualTo 1
-        watchdog.tryAcquire(owner, request, policy)
-            .shouldBeInstanceOf<LockAcquireResult.Acquired<LockHandle>>()
+
+        val second = watchdog.tryAcquire(
+            owner,
+            request,
+            policy
+        ).shouldBeInstanceOf<LockAcquireResult.Acquired<LockHandle>>()
+        log.debug { "second=$second" }
+
         watchdogHarness.runtime.activeWatchdogs shouldBeEqualTo 1
 
         watchdog.release(first.handle) shouldBeEqualTo LockMutationResult.Released(0)
@@ -63,12 +80,20 @@ class LockWatchdogTest {
             renewalInterval = Duration.ofSeconds(1),
             maxLifetime = Duration.ofMinutes(1),
         )
-        val outer = lock.tryAcquire(owner, LockRequestId.from("outer-watchdog"), policy)
-            .shouldBeInstanceOf<LockAcquireResult.Acquired<LockHandle>>()
-            .handle
-        val inner = lock.tryAcquire(owner, LockRequestId.from("inner-watchdog"), policy)
-            .shouldBeInstanceOf<LockAcquireResult.Acquired<LockHandle>>()
-            .handle
+        val outer = lock.tryAcquire(
+            owner,
+            LockRequestId.from("outer-watchdog"),
+            policy
+        ).shouldBeInstanceOf<LockAcquireResult.Acquired<LockHandle>>().handle
+        log.debug { "outer=$outer" }
+
+        val inner = lock.tryAcquire(
+            owner,
+            LockRequestId.from("inner-watchdog"),
+            policy
+        ).shouldBeInstanceOf<LockAcquireResult.Acquired<LockHandle>>().handle
+        log.debug { "inner=$inner" }
+
         harness.runtime.activeWatchdogs shouldBeEqualTo 2
 
         harness.executor.releaseRemainingHoldCount = 1
@@ -101,18 +126,25 @@ class LockWatchdogTest {
             maxLifetime = Duration.ofMinutes(1),
         )
 
-        lock.tryAcquire(owner, request, policy) shouldBeEqualTo LockAcquireResult.Ambiguous(
+        lock.tryAcquire(
+            owner,
+            request,
+            policy
+        ) shouldBeEqualTo LockAcquireResult.Ambiguous(
             owner,
             request,
             LockRecoveryAction.RECONCILE_REQUEST,
         )
         lock.reconcile(owner, request) shouldBeEqualTo
-            LockReconcileResult.Ambiguous(LockRecoveryAction.RECONCILE_REQUEST)
+                LockReconcileResult.Ambiguous(LockRecoveryAction.RECONCILE_REQUEST)
         harness.runtime.activeWatchdogs shouldBeEqualTo 0
 
         occupied.close()
+
         val reconciled = lock.reconcile(owner, request)
             .shouldBeInstanceOf<LockReconcileResult.Owned<LockHandle>>()
+        log.debug { "reconciled=$reconciled" }
+        
         reconciled.handle.requestId shouldBeEqualTo request
         harness.runtime.activeWatchdogs shouldBeEqualTo 1
         lock.release(reconciled.handle) shouldBeEqualTo LockMutationResult.Released(0)
@@ -137,11 +169,12 @@ class LockWatchdogTest {
             maxLifetime = 2_500.milliseconds,
         ) {
             renewals.incrementAndGet()
-            CompletableFuture.completedFuture(CoordinationRenewalOutcome.RENEWED)
+            completableFutureOf(CoordinationRenewalOutcome.RENEWED)
         }
 
         scheduler.scheduledDelays.first() shouldBeGreaterOrEqualTo 900.milliseconds
         scheduler.scheduledDelays.first() shouldBeLessOrEqualTo 1.seconds
+
         ticker.advance(900.milliseconds)
         runtime.drainDue()
         ticker.advance(900.milliseconds)
@@ -164,6 +197,7 @@ class LockWatchdogTest {
                 error("observation sink failure")
             },
         )
+
         harness.executor.asyncRenew = {
             CompletableFuture.failedFuture(RedisConnectionException("renew unavailable"))
         }
@@ -183,14 +217,16 @@ class LockWatchdogTest {
 
         harness.runtime.activeWatchdogs shouldBeEqualTo 0
         harness.runtime.snapshot().missed shouldBeEqualTo 0L
+
         observations.filterIsInstance<LockObservation.Counter>()
             .any { it.name == LockCounterName.OWNERSHIP_LOSS_TOTAL }
-            .shouldBeEqualTo(true)
+            .shouldBeTrue()
         observations.filterIsInstance<LockObservation.Event>()
             .any { it.event.outcome == LockOutcome.OWNERSHIP_LOST }
-            .shouldBeEqualTo(true)
+            .shouldBeTrue()
+
         lock.close()
-        harness.scheduler.isShutdown.shouldBeEqualTo(false)
+        harness.scheduler.isShutdown.shouldBeFalse()
     }
 
     @Test
@@ -209,11 +245,13 @@ class LockWatchdogTest {
                 generation = generation.toLong() + 1L,
                 maxLifetime = 1.seconds * 10,
             ) {
-                CompletableFuture.completedFuture(CoordinationRenewalOutcome.RENEWED)
+                completableFutureOf(CoordinationRenewalOutcome.RENEWED)
             }
         }
 
         ticker.advance(1.seconds)
+
+        log.debug { "runtime=$runtime" }
         runtime.drainDue().dispatched shouldBeEqualTo 256
         runtime.snapshot().late shouldBeEqualTo 0L
         runtime.snapshot().missed shouldBeEqualTo 0L

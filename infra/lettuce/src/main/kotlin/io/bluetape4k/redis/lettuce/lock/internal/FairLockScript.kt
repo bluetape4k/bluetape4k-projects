@@ -43,8 +43,7 @@ import java.nio.ByteBuffer
 import java.nio.charset.StandardCharsets
 import java.security.MessageDigest
 import java.time.Duration
-import java.util.Collections
-import java.util.IdentityHashMap
+import java.util.*
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.CompletionException
 import java.util.concurrent.ExecutionException
@@ -474,6 +473,7 @@ private interface FairLockCommandExecutor {
         keys: FairLockKeys,
         args: List<String>,
     ): CompletableFuture<List<String>>
+
     suspend fun runSuspending(operation: FairLockOperation, keys: FairLockKeys, args: List<String>): List<String>
 }
 
@@ -562,7 +562,14 @@ internal class FairLockClient private constructor(
             integrity = { LockAcquireResult.IntegrityFailure(it) },
             action = LockRecoveryAction.RECONCILE_REQUEST,
         ) {
-            materializeAttempt(decodeAttempt(executor.run(FairLockOperation.ACQUIRE, keys, args), keys, ownerId, requestId))
+            materializeAttempt(
+                decodeAttempt(
+                    executor.run(FairLockOperation.ACQUIRE, keys, args),
+                    keys,
+                    ownerId,
+                    requestId
+                )
+            )
         }
     }
 
@@ -875,19 +882,19 @@ internal class FairLockClient private constructor(
         val handle = when (value) {
             is LockAcquireResult.Acquired -> value.handle
             is LockAcquireResult.Reentered -> value.handle
-            else -> return value
+            else                          -> return value
         }
         if (handle.leasePolicy is LeasePolicy.Fixed) return value
         return when (val reconciled = distributed.reconcile(handle.ownerId, handle.requestId)) {
-            is LockReconcileResult.Owned ->
+            is LockReconcileResult.Owned          ->
                 when (value) {
                     is LockAcquireResult.Acquired -> LockAcquireResult.Acquired(handle)
                     is LockAcquireResult.Reentered -> LockAcquireResult.Reentered(handle, value.holdCount)
                 }
-            LockReconcileResult.Closed -> LockAcquireResult.Closed
+            LockReconcileResult.Closed            -> LockAcquireResult.Closed
             is LockReconcileResult.BackendFailure -> LockAcquireResult.BackendFailure(reconciled.failure)
             is LockReconcileResult.IntegrityFailure -> LockAcquireResult.IntegrityFailure(reconciled.failure)
-            else -> LockAcquireResult.Ambiguous(
+            else                                  -> LockAcquireResult.Ambiguous(
                 handle.ownerId,
                 handle.requestId,
                 LockRecoveryAction.RECONCILE_REQUEST,
@@ -901,16 +908,16 @@ internal class FairLockClient private constructor(
         val handle = when (value) {
             is LockAcquireResult.Acquired -> value.handle
             is LockAcquireResult.Reentered -> value.handle
-            else -> return CompletableFuture.completedFuture(value)
+            else                          -> return CompletableFuture.completedFuture(value)
         }
         if (handle.leasePolicy is LeasePolicy.Fixed) return CompletableFuture.completedFuture(value)
         return distributed.reconcileAsync(handle.ownerId, handle.requestId).thenApply { reconciled ->
             when (reconciled) {
-                is LockReconcileResult.Owned -> value
-                LockReconcileResult.Closed -> LockAcquireResult.Closed
+                is LockReconcileResult.Owned          -> value
+                LockReconcileResult.Closed            -> LockAcquireResult.Closed
                 is LockReconcileResult.BackendFailure -> LockAcquireResult.BackendFailure(reconciled.failure)
                 is LockReconcileResult.IntegrityFailure -> LockAcquireResult.IntegrityFailure(reconciled.failure)
-                else -> LockAcquireResult.Ambiguous(
+                else                                  -> LockAcquireResult.Ambiguous(
                     handle.ownerId,
                     handle.requestId,
                     LockRecoveryAction.RECONCILE_REQUEST,
@@ -954,8 +961,8 @@ internal class FairLockClient private constructor(
         when (result) {
             LockReconcileResult.Removed,
             LockReconcileResult.NotFound,
-            -> LockAcquireResult.TimedOut
-            LockReconcileResult.Closed -> LockAcquireResult.Closed
+                                                  -> LockAcquireResult.TimedOut
+            LockReconcileResult.Closed            -> LockAcquireResult.Closed
             is LockReconcileResult.BackendFailure ->
                 LockAcquireResult.Ambiguous(
                     ownerId,
@@ -968,7 +975,7 @@ internal class FairLockClient private constructor(
             is LockReconcileResult.Owned,
             LockReconcileResult.Released,
             is LockReconcileResult.Ambiguous,
-            -> LockAcquireResult.CleanupPending
+                                                  -> LockAcquireResult.CleanupPending
         }
 
     internal fun removeWaiter(
@@ -1155,7 +1162,7 @@ private fun decodeAttempt(
                 }
             FairAttempt.Result(result)
         }
-        "QUEUED" -> FairAttempt.Queued(
+        "QUEUED"          -> FairAttempt.Queued(
             FairWaiterState(
                 FairWaiterStatus.QUEUED,
                 frame.fairPositiveLong(0),
@@ -1164,11 +1171,11 @@ private fun decodeAttempt(
             FairWaiterIdentity(frame.fairPositiveLong(0), frame.nonNegativeLong(1)),
             frame.nonNegativeLong(3),
         )
-        "CONTENDED" -> FairAttempt.Result(LockAcquireResult.Contended(frame.nonNegativeLong(0)))
+        "CONTENDED"       -> FairAttempt.Result(LockAcquireResult.Contended(frame.nonNegativeLong(0)))
         "CLEANUP_PENDING" -> FairAttempt.Result(LockAcquireResult.CleanupPending)
-        "CAPACITY" -> FairAttempt.Result(LockAcquireResult.CapacityExceeded)
-        "INTEGRITY" -> FairAttempt.Result(LockAcquireResult.IntegrityFailure(FAIR_INVALID_STATE))
-        else -> fairMalformedReply()
+        "CAPACITY"        -> FairAttempt.Result(LockAcquireResult.CapacityExceeded)
+        "INTEGRITY"       -> FairAttempt.Result(LockAcquireResult.IntegrityFailure(FAIR_INVALID_STATE))
+        else              -> fairMalformedReply()
     }
 }
 
@@ -1191,7 +1198,7 @@ private fun decodeFairReconcile(
         ),
     )
     return when (frame.tag) {
-        "OWNED" -> {
+        "OWNED"    -> {
             val generation = LockGeneration(frame.fairPositiveLong(0))
             val holdCount = frame.fairPositiveInt(1)
             val ttl = frame.nonNegativeLong(2)
@@ -1202,15 +1209,15 @@ private fun decodeFairReconcile(
                 ttl,
             )
         }
-        "QUEUED" -> LockReconcileResult.Queued(
+        "QUEUED"   -> LockReconcileResult.Queued(
             FairWaiterState(FairWaiterStatus.QUEUED, frame.fairPositiveLong(0), frame.nonNegativeLong(2)),
         )
-        "REMOVED" -> LockReconcileResult.Removed
+        "REMOVED"  -> LockReconcileResult.Removed
         "RELEASED" -> LockReconcileResult.Released
         "NOT_FOUND" -> LockReconcileResult.NotFound
-        "STALE" -> LockReconcileResult.StaleGeneration
+        "STALE"    -> LockReconcileResult.StaleGeneration
         "INTEGRITY" -> LockReconcileResult.IntegrityFailure(FAIR_INVALID_STATE)
-        else -> fairMalformedReply()
+        else       -> fairMalformedReply()
     }
 }
 
@@ -1222,9 +1229,9 @@ private fun decodeRemove(raw: Any?): LockReconcileResult<LockHandle> {
     return when (frame.tag) {
         "REMOVED" -> LockReconcileResult.Removed
         "NOT_FOUND" -> LockReconcileResult.NotFound
-        "STALE" -> LockReconcileResult.StaleGeneration
+        "STALE"   -> LockReconcileResult.StaleGeneration
         "INTEGRITY" -> LockReconcileResult.IntegrityFailure(FAIR_INVALID_STATE)
-        else -> fairMalformedReply()
+        else      -> fairMalformedReply()
     }
 }
 
@@ -1232,7 +1239,7 @@ internal fun fairWaiterMember(ownerId: LockOwnerId, requestId: LockRequestId): S
     val owner = ownerId.value
     val request = requestId.value
     return "${owner.toByteArray(StandardCharsets.UTF_8).size}:$owner" +
-        "${request.toByteArray(StandardCharsets.UTF_8).size}:$request"
+            "${request.toByteArray(StandardCharsets.UTF_8).size}:$request"
 }
 
 private fun LockHandle.toDistributed(): LockHandle {
@@ -1264,7 +1271,7 @@ private fun FairLockOperation.toLockOperation(): LockOperation =
     when (this) {
         FairLockOperation.ACQUIRE -> LockOperation.ACQUIRE
         FairLockOperation.RECONCILE -> LockOperation.RECONCILE
-        FairLockOperation.REMOVE -> LockOperation.CLEANUP
+        FairLockOperation.REMOVE  -> LockOperation.CLEANUP
     }
 
 private inline fun <R> fairClassified(
@@ -1345,8 +1352,8 @@ private fun fairBackendFailure(error: Throwable, action: LockRecoveryAction): Lo
     val kind = when (cause) {
         is RedisConnectionException -> LockBackendFailureKind.CONNECTION
         is RedisCommandTimeoutException, is TimeoutException -> LockBackendFailureKind.TIMEOUT
-        is RedisException -> LockBackendFailureKind.COMMAND
-        else -> throw cause
+        is RedisException           -> LockBackendFailureKind.COMMAND
+        else                        -> throw cause
     }
     return LockBackendFailure(kind, action)
 }

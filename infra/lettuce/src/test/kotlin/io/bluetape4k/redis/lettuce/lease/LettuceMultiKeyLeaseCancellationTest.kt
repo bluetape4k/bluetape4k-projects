@@ -3,6 +3,7 @@ package io.bluetape4k.redis.lettuce.lease
 import io.bluetape4k.assertions.fail
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.logging.KLogging
 import io.bluetape4k.redis.lettuce.LettuceClients
 import io.bluetape4k.redis.lettuce.LettuceTestUtils
 import io.lettuce.core.RedisClient
@@ -17,13 +18,17 @@ import java.util.concurrent.TimeUnit
 
 internal class LettuceMultiKeyLeaseCancellationTest {
 
+    private companion object: KLogging() {
+        const val SERVER_PAUSE_MILLIS = 500L
+    }
+
     @Test
     fun `future cancellation after dispatch permits full ownership or full absence but never partial state`() {
         val resources = DefaultClientResources.create()
         val redis = LettuceTestUtils.redis
         val client = RedisClient.create(resources, LettuceClients.getRedisURI(redis.host, redis.port))
         val dispatched = CountDownLatch(1)
-        val listener = object : CommandListener {
+        val listener = object: CommandListener {
             override fun commandStarted(event: CommandStartedEvent) {
                 if (event.command.type == CommandType.EVALSHA || event.command.type == CommandType.EVAL) {
                     dispatched.countDown()
@@ -39,7 +44,7 @@ internal class LettuceMultiKeyLeaseCancellationTest {
                 try {
                     val observerLease = LettuceMultiKeyLease(observerConnection)
                     observerLease.acquire(keys, token, Duration.ofSeconds(5)) shouldBeEqualTo
-                        MultiKeyAcquireResult.Acquired
+                            MultiKeyAcquireResult.Acquired
                     observerLease.release(keys, token) shouldBeEqualTo MultiKeyReleaseResult.Released
 
                     client.addListener(listener)
@@ -57,7 +62,7 @@ internal class LettuceMultiKeyLeaseCancellationTest {
                         when (val settled = observerLease.inspect(keys, token)) {
                             is MultiKeyInspectResult.Owned,
                             MultiKeyInspectResult.Lost,
-                            -> Unit
+                                                                -> Unit
 
                             is MultiKeyInspectResult.PartialOwnership ->
                                 fail("Cancellation exposed partial ownership: ${settled.counts}")
@@ -77,7 +82,4 @@ internal class LettuceMultiKeyLeaseCancellationTest {
         }
     }
 
-    private companion object {
-        const val SERVER_PAUSE_MILLIS = 500L
-    }
 }
