@@ -12,7 +12,7 @@ import io.bluetape4k.kafka.logback.utils.hashBytes
  * - 컨텍스트의 `CONTEXT_NAME_KEY` 속성을 해시한 키를 사용합니다.
  * - context name 미설정 시 최초 1회 오류 로그 후 null 키를 반환합니다.
  */
-class ContextNameKafkaKeyProvider: io.bluetape4k.kafka.logback.keyprovider.AbstractKafkaKeyProvider<ILoggingEvent>() {
+class ContextNameKafkaKeyProvider: AbstractKafkaKeyProvider<ILoggingEvent>() {
 
     private var contextNameHash: ByteArray? = null
 

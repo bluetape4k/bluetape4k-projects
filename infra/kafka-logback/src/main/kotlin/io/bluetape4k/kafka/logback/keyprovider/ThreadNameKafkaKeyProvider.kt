@@ -10,7 +10,7 @@ import io.bluetape4k.kafka.logback.utils.hashBytes
  * - 이벤트의 [ILoggingEvent.threadName]을 해시해 키를 생성합니다.
  * - 동일 스레드 이름은 동일 키를 생성합니다.
  */
-class ThreadNameKafkaKeyProvider: io.bluetape4k.kafka.logback.keyprovider.AbstractKafkaKeyProvider<ILoggingEvent>() {
+class ThreadNameKafkaKeyProvider: AbstractKafkaKeyProvider<ILoggingEvent>() {
 
     override fun get(e: ILoggingEvent): ByteArray? {
         return e.threadName.hashBytes()

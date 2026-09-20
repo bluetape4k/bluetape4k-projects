@@ -12,8 +12,8 @@ import io.bluetape4k.assertions.shouldBeEmpty
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeFalse
 import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.assertions.shouldNotBeEmpty
 import io.bluetape4k.junit5.coroutines.runSuspendIO
-import io.bluetape4k.junit5.faker.Fakers
 import io.bluetape4k.kafka.logback.exporter.DefaultKafkaExporter
 import io.bluetape4k.kafka.logback.keyprovider.NullKafkaKeyProvider
 import io.bluetape4k.logging.coroutines.KLoggingChannel
@@ -27,6 +27,7 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import java.nio.charset.Charset
 import java.time.Duration
+import java.util.concurrent.ConcurrentLinkedQueue
 
 class KafkaAppenderIT: AbstractKafkaIntegrationTest() {
 
@@ -37,7 +38,7 @@ class KafkaAppenderIT: AbstractKafkaIntegrationTest() {
 
     private val errorCollector = mutableListOf<Throwable>()
 
-    private lateinit var kafkaAppender: io.bluetape4k.kafka.logback.KafkaAppender<ILoggingEvent>
+    private lateinit var kafkaAppender: KafkaAppender<ILoggingEvent>
     private lateinit var loggerContext: LoggerContext
 
     private val fallbackAppender: Appender<ILoggingEvent> by lazy {
@@ -48,7 +49,7 @@ class KafkaAppenderIT: AbstractKafkaIntegrationTest() {
         }
     }
 
-    private val fallbackLoggingEvents = mutableListOf<ILoggingEvent>()
+    private val fallbackLoggingEvents = ConcurrentLinkedQueue<ILoggingEvent>()
 
     @BeforeEach
     fun setup() {
@@ -99,7 +100,6 @@ class KafkaAppenderIT: AbstractKafkaIntegrationTest() {
     @Test
     fun `logging to kafka by KafkaAppender`() = runSuspendIO {
         val messageCount = 512
-        val messageSize = 256
 
         val logger = loggerContext.getLogger("ROOT")
 
@@ -111,7 +111,7 @@ class KafkaAppenderIT: AbstractKafkaIntegrationTest() {
             kafkaAppender.isStarted.shouldBeTrue()
 
             repeat(messageCount) {
-                val message = getMessage(it, messageSize)
+                val message = getMessage(it)
                 val loggingEvent = LoggingEvent("a.b.c.d", logger, Level.INFO, message, null, null)
                 kafkaAppender.doAppend(loggingEvent)
             }
@@ -137,7 +137,11 @@ class KafkaAppenderIT: AbstractKafkaIntegrationTest() {
             records.forEach { record ->
                 val message = record.value()?.toUtf8String().orEmpty()
                 val index = message.substringBefore(';').toInt()
+
+                // Logger 에 이중으로 출력되는 것을 방지하기 위해
                 println("received: index=$index, message=$message")
+                message.shouldNotBeEmpty()
+
                 readMessagess++
             }
             records = consumer.poll(Duration.ofSeconds(1))
@@ -147,8 +151,8 @@ class KafkaAppenderIT: AbstractKafkaIntegrationTest() {
         fallbackLoggingEvents.shouldBeEmpty()
     }
 
-    private fun getMessage(index: Int, messageSize: Int): String = buildString {
+    private fun getMessage(index: Int): String = buildString {
         append("$index;")
-        append(Fakers.fixedString(messageSize))
+        append(faker.lorem().paragraph())
     }
 }
