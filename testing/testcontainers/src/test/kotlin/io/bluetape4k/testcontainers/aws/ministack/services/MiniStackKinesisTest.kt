@@ -4,6 +4,7 @@ import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeGreaterOrEqualTo
 import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.assertions.shouldNotBeNull
+import io.bluetape4k.codec.Base58
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import io.bluetape4k.testcontainers.aws.getCredentialProvider
@@ -31,7 +32,7 @@ import java.time.Duration
 class MiniStackKinesisTest: AbstractMiniStackServiceTest() {
 
     companion object: KLogging() {
-        private val STREAM_NAME = "ministack-test-stream-${Base58.randomString(8)}"
+        private val STREAM_NAME = "ministack-test-stream-${Base58.randomString(8).lowercase()}"
     }
 
     private val kinesisClient: KinesisClient by lazy {

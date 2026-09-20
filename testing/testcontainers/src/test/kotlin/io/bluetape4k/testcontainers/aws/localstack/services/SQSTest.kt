@@ -3,6 +3,7 @@
 package io.bluetape4k.testcontainers.aws.localstack.services
 
 import io.bluetape4k.assertions.shouldHaveSize
+import io.bluetape4k.codec.Base58
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import io.bluetape4k.testcontainers.aws.LocalStackServer

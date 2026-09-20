@@ -4,6 +4,7 @@ import io.bluetape4k.assertions.shouldBeGreaterOrEqualTo
 import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.assertions.shouldHaveSize
 import io.bluetape4k.assertions.shouldNotBeBlank
+import io.bluetape4k.codec.Base58
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import io.bluetape4k.testcontainers.aws.getCredentialProvider
@@ -24,7 +25,7 @@ import software.amazon.awssdk.services.sqs.model.SendMessageBatchRequestEntry
 class MiniStackSQSTest: AbstractMiniStackServiceTest() {
 
     companion object: KLogging() {
-        private val QUEUE_NAME = "ministack-test-queue-${Base58.randomString(8)}"
+        private val QUEUE_NAME = "ministack-test-queue-${Base58.randomString(8).lowercase()}"
     }
 
     private val sqsClient: SqsClient by lazy {
