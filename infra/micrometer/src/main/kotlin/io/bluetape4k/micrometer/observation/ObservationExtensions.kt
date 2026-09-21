@@ -22,12 +22,11 @@ import io.micrometer.observation.ObservationRegistry
  */
 inline fun <T> Observation.tryObserve(
     crossinline block: () -> T,
-): Result<T> =
-    runCatching {
-        withObservationContext { _: Observation.Context ->
-            block()
-        }
+): Result<T> = runCatching {
+    withObservationContext { _: Observation.Context ->
+        block()
     }
+}
 
 /**
  * [name]을 가진 Observation을 생성하고, [block]을 실행합니다.

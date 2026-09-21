@@ -1,4 +1,4 @@
-package io.bluetape4k.micrometer.instrument
+package io.bluetape4k.micrometer
 
 import io.bluetape4k.junit5.faker.Fakers
 import io.bluetape4k.logging.KLogging

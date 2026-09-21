@@ -60,12 +60,11 @@ internal suspend inline fun <T> Timer.recordSuspendInternal(block: suspend () ->
  * @param timer 측정할 Timer 인스턴스
  * @return 타이머가 적용된 Flow
  */
-fun <T> Flow<T>.withTimer(timer: Timer): Flow<T> =
-    flow {
-        val start = System.nanoTime()
-        try {
-            emitAll(this@withTimer)
-        } finally {
-            timer.record(System.nanoTime() - start, TimeUnit.NANOSECONDS)
-        }
+fun <T> Flow<T>.withTimer(timer: Timer): Flow<T> = flow {
+    val start = System.nanoTime()
+    try {
+        emitAll(this@withTimer)
+    } finally {
+        timer.record(System.nanoTime() - start, TimeUnit.NANOSECONDS)
     }
+}

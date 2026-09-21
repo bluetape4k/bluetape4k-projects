@@ -1,14 +1,18 @@
 package io.bluetape4k.micrometer.observation
 
+import io.bluetape4k.assertions.assertFailsWith
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.logging.KLogging
 import io.micrometer.observation.Observation
 import io.micrometer.observation.ObservationHandler
 import io.micrometer.observation.ObservationRegistry
-import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldBeTrue
 import org.junit.jupiter.api.Test
-import io.bluetape4k.assertions.assertFailsWith
 
-class ObservationExtensionsTest {
+class ObservationExtensionsTest: AbstractObservationTest() {
+
+    companion object: KLogging()
+
     private fun registry(handler: ObservationHandler<Observation.Context>): ObservationRegistry =
         ObservationRegistry.create().apply {
             observationConfig().observationHandler(handler)
@@ -38,10 +42,7 @@ class ObservationExtensionsTest {
     fun `withObservation should start and stop observation`() {
         val handler = RecordingObservationHandler()
         val registry = registry(handler)
-        val result =
-            withObservation("record", registry) {
-                "ok"
-            }
+        val result = withObservation("record", registry) { "ok" }
 
         result shouldBeEqualTo "ok"
         handler.started shouldBeEqualTo 1
@@ -83,10 +84,9 @@ class ObservationExtensionsTest {
         val registry = registry(handler)
         val observation = Observation.createNotStarted("try.fail", registry)
 
-        val result =
-            observation.tryObserve<String> {
-                throw IllegalStateException("boom")
-            }
+        val result = observation.tryObserve<String> {
+            throw IllegalStateException("boom")
+        }
 
         result.isFailure.shouldBeTrue()
         handler.errors shouldBeEqualTo 1
@@ -99,11 +99,10 @@ class ObservationExtensionsTest {
         val registry = registry(handler)
         val observation = Observation.createNotStarted("ctx.test", registry)
 
-        val result =
-            observation.withObservationContext { ctx ->
-                ctx.put("key", "value")
-                "done"
-            }
+        val result = observation.withObservationContext { ctx ->
+            ctx.put("key", "value")
+            "done"
+        }
 
         result shouldBeEqualTo "done"
         handler.started shouldBeEqualTo 1

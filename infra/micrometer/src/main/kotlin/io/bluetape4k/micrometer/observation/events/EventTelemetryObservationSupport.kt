@@ -11,7 +11,7 @@ import java.io.Serializable
 /**
  * Shared Observation names and key names for application event telemetry.
  *
- * ## Behaviour / Contract
+ * ## Behavior / Contract
  * - Publish operations use [PUBLISH_OBSERVATION_NAME].
  * - Consume operations use [CONSUME_OBSERVATION_NAME].
  * - Low-cardinality keys are bounded and safe for metrics.
@@ -63,7 +63,7 @@ enum class EventTelemetryOutcome {
 /**
  * Messaging or application-event destination metadata.
  *
- * ## Behaviour / Contract
+ * ## Behavior / Contract
  * - [messagingSystem] is a bounded system name such as `spring`, `kafka`, `nats`, or `pulsar`.
  * - [name] is a stable destination name such as a topic, stream, or application event channel.
  */
@@ -98,7 +98,7 @@ data class EventDestination private constructor(
 /**
  * Correlation metadata for event telemetry.
  *
- * ## Behaviour / Contract
+ * ## Behavior / Contract
  * - [present] is recorded as low-cardinality `correlation.present`.
  * - [sanitizedId] is recorded as high-cardinality `correlation.id` only when [includeSanitizedId] is true.
  * - Raw correlation headers or payload values must not be passed directly.
@@ -156,7 +156,7 @@ data class EventCorrelation private constructor(
 /**
  * Optional high-cardinality event identifiers.
  *
- * ## Behaviour / Contract
+ * ## Behavior / Contract
  * These values are never created from payload bodies by this module. Callers must pass
  * already-sanitized identifiers and opt in deliberately because these keys can create
  * high-cardinality series.
@@ -200,7 +200,7 @@ data class EventHighCardinality private constructor(
 /**
  * Event telemetry description applied to publish and consume Observation wrappers.
  *
- * ## Behaviour / Contract
+ * ## Behavior / Contract
  * - [eventType] should be a bounded application type, not a raw class name containing tenant/user data.
  * - [batchMessageCount] is recorded only when known and positive.
  * - [highCardinality] and [correlation] identifiers are explicit opt-ins.
@@ -242,7 +242,7 @@ data class EventTelemetry private constructor(
 /**
  * Sanitizes an event correlation identifier for optional high-cardinality telemetry.
  *
- * ## Behaviour / Contract
+ * ## Behavior / Contract
  * - Keeps ASCII letters, digits, `_`, `-`, and `.` only.
  * - Trims and caps the result to [maxLength].
  * - Returns `null` for blank or fully stripped values.

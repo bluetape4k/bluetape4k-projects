@@ -1,11 +1,11 @@
 package io.bluetape4k.micrometer.observation
 
-import io.bluetape4k.logging.KLogging
-import io.bluetape4k.logging.debug
-import io.micrometer.observation.tck.ObservationRegistryAssert
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.assertions.shouldNotBeNull
+import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.debug
+import io.micrometer.observation.tck.ObservationRegistryAssert
 import org.junit.jupiter.api.Test
 
 class ObservationRegistrySupportTest: AbstractObservationTest() {
@@ -23,12 +23,11 @@ class ObservationRegistrySupportTest: AbstractObservationTest() {
     fun `observationRegistryOf - 커스텀 핸들러 등록`() {
         var handlerCalled = false
 
-        val registry =
-            observationRegistryOf { ctx ->
-                handlerCalled = true
-                log.debug { "Handler called with context: $ctx" }
-                true
-            }
+        val registry = observationRegistryOf { ctx ->
+            handlerCalled = true
+            log.debug { "Handler called with context: $ctx" }
+            true
+        }
 
         val observation = registry.start("test")
         observation.observe { }
@@ -40,11 +39,10 @@ class ObservationRegistrySupportTest: AbstractObservationTest() {
     fun `simpleObservationRegistryOf - 간단한 핸들러 등록`() {
         var handlerCalled = false
 
-        val registry =
-            simpleObservationRegistryOf { ctx ->
-                handlerCalled = true
-                log.debug { "Handler called: $ctx" }
-            }
+        val registry = simpleObservationRegistryOf { ctx ->
+            handlerCalled = true
+            log.debug { "Handler called: $ctx" }
+        }
 
         val observation = registry.start("test")
         observation.observe { }
@@ -62,11 +60,10 @@ class ObservationRegistrySupportTest: AbstractObservationTest() {
 
     @Test
     fun `start - 컨텍스트 이름 지정`() {
-        val observation =
-            observationRegistry.start(
-                "test.name",
-                "Test Contextual Name",
-            )
+        val observation = observationRegistry.start(
+            "test.name",
+            "Test Contextual Name",
+        )
 
         observation.context.name shouldBeEqualTo "test.name"
     }
@@ -86,11 +83,10 @@ class ObservationRegistrySupportTest: AbstractObservationTest() {
 
     @Test
     fun `createNotStarted - 컨텍스트 이름 지정`() {
-        val observation =
-            observationRegistry.createNotStarted(
-                "test.name",
-                "Custom Contextual Name",
-            )
+        val observation = observationRegistry.createNotStarted(
+            "test.name",
+            "Custom Contextual Name",
+        )
 
         observation.context.name shouldBeEqualTo "test.name"
     }
