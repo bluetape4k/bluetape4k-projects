@@ -10,4 +10,5 @@ import io.nats.client.api.KeyValuePurgeOptions
  */
 inline fun keyValuePurgeOptions(
     builder: KeyValuePurgeOptions.Builder.() -> Unit,
-): KeyValuePurgeOptions = KeyValuePurgeOptions.builder().apply(builder).build()
+): KeyValuePurgeOptions =
+    KeyValuePurgeOptions.builder().apply(builder).build()

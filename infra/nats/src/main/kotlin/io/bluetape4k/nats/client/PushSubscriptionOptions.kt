@@ -11,7 +11,8 @@ import io.nats.client.PushSubscribeOptions
  */
 inline fun pushSubscriptionOptions(
     builder: PushSubscribeOptions.Builder.() -> Unit,
-): PushSubscribeOptions = PushSubscribeOptions.builder().apply(builder).build()
+): PushSubscribeOptions =
+    PushSubscribeOptions.builder().apply(builder).build()
 
 /**
  * 스트림 이름으로 [PushSubscribeOptions]를 생성합니다.
@@ -32,10 +33,7 @@ fun pushSubscriptionOf(stream: String): PushSubscribeOptions {
  * @param durable durable consumer 이름
  * @return [PushSubscribeOptions] 인스턴스
  */
-fun pushSubscriptionOf(
-    stream: String,
-    durable: String,
-): PushSubscribeOptions {
+fun pushSubscriptionOf(stream: String, durable: String): PushSubscribeOptions {
     stream.requireNotBlank("stream")
     durable.requireNotBlank("durable")
 

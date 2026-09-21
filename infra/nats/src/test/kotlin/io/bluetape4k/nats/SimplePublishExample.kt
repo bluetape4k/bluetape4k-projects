@@ -1,17 +1,18 @@
 package io.bluetape4k.nats
 
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeNull
+import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.concurrent.await
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import io.bluetape4k.nats.client.flush
 import io.bluetape4k.nats.client.publish
 import io.bluetape4k.support.toUtf8String
 import io.nats.client.Message
-import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldBeNull
-import io.bluetape4k.assertions.shouldBeTrue
 import org.junit.jupiter.api.Test
 import java.util.concurrent.CountDownLatch
-import java.util.concurrent.TimeUnit
+import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
 
 class SimplePublishExample: AbstractNatsTest() {
@@ -24,7 +25,7 @@ class SimplePublishExample: AbstractNatsTest() {
             val subscription = conn.subscribe(TEST_SUBJECT)
             subscription.isActive.shouldBeTrue()
 
-            val sendBody = "Hello world"
+            val sendBody = "Hello world " + faker.lorem().sentence()
             conn.publish(TEST_SUBJECT, sendBody)
             conn.flush(5.seconds)
 
@@ -55,7 +56,7 @@ class SimplePublishExample: AbstractNatsTest() {
             conn.flush(1.seconds)
 
             subscription.isActive.shouldBeTrue()
-            latch.await(1000, TimeUnit.MILLISECONDS).shouldBeTrue()
+            latch.await(1000.milliseconds).shouldBeTrue()
         }
     }
 }

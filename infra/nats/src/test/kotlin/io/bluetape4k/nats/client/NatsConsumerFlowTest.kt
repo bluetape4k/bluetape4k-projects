@@ -2,7 +2,12 @@ package io.bluetape4k.nats.client
 
 import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeLessOrEqualTo
 import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.debug
+import io.bluetape4k.nats.AbstractNatsTest
+import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.just
 import io.mockk.mockk
@@ -24,6 +29,7 @@ import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.withTimeout
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import java.time.Duration
 import java.util.concurrent.CancellationException
@@ -32,14 +38,24 @@ import java.util.concurrent.TimeUnit
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
 
-class NatsConsumerFlowTest {
+class NatsConsumerFlowTest: AbstractNatsTest() {
+
+    companion object: KLogging()
+
+    private val context = mockk<ConsumerContext>(relaxed = true)
+    private val consumer = mockk<IterableConsumer>(relaxed = true)
+    private val jetStream = mockk<JetStream>(relaxed = true)
+    private val subscription = mockk<JetStreamSubscription>(relaxed = true)
+    private val first = mockk<Message>()
+    private val second = mockk<Message>()
+
+    @BeforeEach
+    fun beforeEach() {
+        clearAllMocks()
+    }
 
     @Test
     fun `pull flow is cold preserves order closes consumer and does not ack`() = runTest {
-        val context = mockk<ConsumerContext>()
-        val consumer = mockk<IterableConsumer>()
-        val first = mockk<Message>()
-        val second = mockk<Message>()
         every { context.iterate(any<ConsumeOptions>()) } returns consumer
         every { consumer.nextMessage(any<Duration>()) } returnsMany listOf(first, second)
         every { consumer.close() } just runs
@@ -58,8 +74,6 @@ class NatsConsumerFlowTest {
 
     @Test
     fun `pull flow normalizes batch size to capacity plus receiver`() = runTest {
-        val context = mockk<ConsumerContext>()
-        val consumer = mockk<IterableConsumer>()
         val options = ConsumeOptions.builder().batchSize(500).build()
         val capturedOptions = slot<ConsumeOptions>()
         every { context.iterate(capture(capturedOptions)) } returns consumer
@@ -75,10 +89,6 @@ class NatsConsumerFlowTest {
 
     @Test
     fun `push flow is cold preserves order unsubscribes and does not ack`() = runTest {
-        val jetStream = mockk<JetStream>()
-        val subscription = mockk<JetStreamSubscription>()
-        val first = mockk<Message>()
-        val second = mockk<Message>()
         val options = pushSubscriptionOptions {
             pendingMessageLimit(8)
             pendingByteLimit(1024)
@@ -104,8 +114,6 @@ class NatsConsumerFlowTest {
 
     @Test
     fun `same flow instance rejects concurrent collectors before creating a handle`() = runBlocking {
-        val context = mockk<ConsumerContext>()
-        val consumer = mockk<IterableConsumer>()
         val receiveStarted = CountDownLatch(1)
         val receiveBarrier = CountDownLatch(1)
         val receiveInterrupted = CountDownLatch(1)
@@ -143,8 +151,6 @@ class NatsConsumerFlowTest {
 
     @Test
     fun `push drop delta fails flow and reports dropped count`() = runTest {
-        val jetStream = mockk<JetStream>()
-        val subscription = mockk<JetStreamSubscription>()
         val options = pushSubscriptionOptions {
             pendingMessageLimit(8)
             pendingByteLimit(1024)
@@ -165,10 +171,9 @@ class NatsConsumerFlowTest {
         verify(exactly = 1) { subscription.unsubscribe() }
     }
 
+    @Suppress("UnusedFlow")
     @Test
     fun `invalid flow and push limits fail before handle creation`() = runTest {
-        val jetStream = mockk<JetStream>(relaxed = true)
-        val context = mockk<ConsumerContext>(relaxed = true)
         val oversizedPush = pushSubscriptionOptions {
             pendingMessageLimit(65_537)
             pendingByteLimit(1024)
@@ -215,8 +220,6 @@ class NatsConsumerFlowTest {
 
     @Test
     fun `ordinary receive failure stays primary and cleanup failure is suppressed`() = runTest {
-        val jetStream = mockk<JetStream>()
-        val subscription = mockk<JetStreamSubscription>()
         val options = pushSubscriptionOptions {
             pendingMessageLimit(8)
             pendingByteLimit(1024)
@@ -241,8 +244,6 @@ class NatsConsumerFlowTest {
 
     @Test
     fun `pending limit readback failure preserves its cause`() = runTest {
-        val jetStream = mockk<JetStream>()
-        val subscription = mockk<JetStreamSubscription>()
         val options = pushSubscriptionOptions {
             pendingMessageLimit(8)
             pendingByteLimit(1024)
@@ -264,8 +265,6 @@ class NatsConsumerFlowTest {
 
     @Test
     fun `null receives continue while active and stop when handle finishes`() = runTest {
-        val context = mockk<ConsumerContext>()
-        val consumer = mockk<IterableConsumer>()
         val message = mockk<Message>()
         every { context.iterate(any<ConsumeOptions>()) } returns consumer
         every { consumer.nextMessage(any<Duration>()) } returnsMany listOf(null, message, null)
@@ -281,8 +280,8 @@ class NatsConsumerFlowTest {
 
     @Test
     fun `default push limits are finite and bounded`() {
-        (defaultNatsFlowPushOptions.pendingMessageLimit <= 1_024L).shouldBeTrue()
-        (defaultNatsFlowPushOptions.pendingByteLimit <= 16L * 1024 * 1024).shouldBeTrue()
+        defaultNatsFlowPushOptions.pendingMessageLimit shouldBeLessOrEqualTo 1_024L
+        defaultNatsFlowPushOptions.pendingByteLimit shouldBeLessOrEqualTo 16L * 1024 * 1024
     }
 
     @Test
@@ -294,8 +293,6 @@ class NatsConsumerFlowTest {
 
     @Test
     fun `pending limit mismatch preserves a diagnostic cause`() = runTest {
-        val jetStream = mockk<JetStream>()
-        val subscription = mockk<JetStreamSubscription>()
         val options = pushSubscriptionOptions {
             pendingMessageLimit(8)
             pendingByteLimit(1024)
@@ -317,8 +314,6 @@ class NatsConsumerFlowTest {
 
     @Test
     fun `push subscribe failure does not attempt cleanup`() = runTest {
-        val jetStream = mockk<JetStream>()
-        val subscription = mockk<JetStreamSubscription>()
         val subscribeFailure = IllegalStateException("subscribe failed")
         val options = pushSubscriptionOptions {
             pendingMessageLimit(8)
@@ -343,14 +338,13 @@ class NatsConsumerFlowTest {
         val failure = assertFailsWith<IllegalStateException> {
             context.consumeAsFlow().toList()
         }
+        log.debug(failure) { "iterate failure" }
 
         verify(exactly = 0) { consumer.close() }
     }
 
     @Test
     fun `final pending readback cancellation is not wrapped`() = runTest {
-        val jetStream = mockk<JetStream>()
-        val subscription = mockk<JetStreamSubscription>()
         val cancellation = CancellationException("readback cancelled")
         val options = pushSubscriptionOptions {
             pendingMessageLimit(8)
@@ -378,8 +372,6 @@ class NatsConsumerFlowTest {
 
     @Test
     fun `push cleanup error preserves Error`() = runTest {
-        val jetStream = mockk<JetStream>()
-        val subscription = mockk<JetStreamSubscription>()
         val options = pushSubscriptionOptions {
             pendingMessageLimit(8)
             pendingByteLimit(1024)
@@ -402,8 +394,6 @@ class NatsConsumerFlowTest {
 
     @Test
     fun `pull cleanup error preserves Error`() = runTest {
-        val context = mockk<ConsumerContext>()
-        val consumer = mockk<IterableConsumer>()
         every { context.iterate(any<ConsumeOptions>()) } returns consumer
         every { consumer.nextMessage(any<Duration>()) } returns null
         every { consumer.isStopped } returns true
@@ -420,8 +410,6 @@ class NatsConsumerFlowTest {
 
     @Test
     fun `final pending readback Error is preserved`() = runTest {
-        val jetStream = mockk<JetStream>()
-        val subscription = mockk<JetStreamSubscription>()
         val options = pushSubscriptionOptions {
             pendingMessageLimit(8)
             pendingByteLimit(1024)

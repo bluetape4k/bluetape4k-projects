@@ -2,7 +2,6 @@ package io.bluetape4k.nats.client
 
 import io.bluetape4k.support.requireGe
 import io.bluetape4k.support.requireNotBlank
-import io.bluetape4k.support.requireNotEmpty
 import io.bluetape4k.support.toUtf8Bytes
 import io.nats.client.Connection
 import io.nats.client.Message
@@ -46,6 +45,7 @@ fun Connection.publish(
 ) {
     subject.requireNotBlank("subject")
     replyTo.requireNotBlank("replyTo")
+
     publish(subject, replyTo, headers, body.toUtf8Bytes())
 }
 
@@ -65,6 +65,7 @@ fun Connection.request(
     timeout: Duration? = null,
 ): Message? {
     subject.requireNotBlank("subject")
+
     return request(subject, headers, body?.toUtf8Bytes(), timeout?.toJavaDuration())
 }
 
@@ -75,10 +76,8 @@ fun Connection.request(
  * @param timeout 요청 타임아웃 (null이면 기본값)
  * @return 응답 [Message] 또는 null
  */
-fun Connection.request(
-    message: Message,
-    timeout: Duration? = null,
-): Message? = request(message, timeout?.toJavaDuration())
+fun Connection.request(message: Message, timeout: Duration? = null): Message? =
+    request(message, timeout?.toJavaDuration())
 
 /**
  * 문자열 payload로 비동기 request를 전송합니다.
@@ -111,11 +110,10 @@ fun Connection.requestAsync(
  * @param timeout 요청 타임아웃 (null이면 기본값)
  * @return 응답 [Message]를 담은 [CompletableFuture]
  */
-fun Connection.requestAsync(
-    message: Message,
-    timeout: Duration? = null,
-): CompletableFuture<Message> =
-    if (timeout == null) request(message) else requestWithTimeout(message, timeout.toJavaDuration())
+fun Connection.requestAsync(message: Message, timeout: Duration? = null): CompletableFuture<Message> {
+    return if (timeout == null) request(message)
+    else requestWithTimeout(message, timeout.toJavaDuration())
+}
 
 /**
  * [Message] 객체로 request를 suspend 함수로 전송합니다.
@@ -124,16 +122,10 @@ fun Connection.requestAsync(
  * @param timeout 요청 타임아웃 (null이면 기본값)
  * @return 응답 [Message]
  */
-suspend fun Connection.requestSuspending(
-    message: Message,
-    timeout: Duration? = null,
-): Message {
+suspend fun Connection.requestSuspending(message: Message, timeout: Duration? = null): Message {
     // timeout 이 없으면 일반 request 경로를 사용하여 Java API에 null timeout 을 전달하지 않는다.
-    return if (timeout == null) {
-        request(message).await()
-    } else {
-        requestWithTimeout(message, timeout.toJavaDuration()).await()
-    }
+    return if (timeout == null) request(message).await()
+    else requestWithTimeout(message, timeout.toJavaDuration()).await()
 }
 
 /**
@@ -150,6 +142,7 @@ suspend fun Connection.requestSuspending(
     headers: Headers? = null,
 ): Message {
     subject.requireNotBlank("subject")
+
     return request(subject, headers, body).await()
 }
 
@@ -169,12 +162,10 @@ suspend fun Connection.requestWithTimeoutSuspending(
     timeout: Duration? = null,
 ): Message {
     subject.requireNotBlank("subject")
+
     // timeout 이 null 이면 즉시 request 경로로 위임한다.
-    return if (timeout == null) {
-        request(subject, headers, body).await()
-    } else {
-        requestWithTimeout(subject, headers, body, timeout.toJavaDuration()).await()
-    }
+    return if (timeout == null) request(subject, headers, body).await()
+    else requestWithTimeout(subject, headers, body, timeout.toJavaDuration()).await()
 }
 
 /**
@@ -185,6 +176,7 @@ suspend fun Connection.requestWithTimeoutSuspending(
  */
 suspend fun Connection.drainSuspending(timeout: kotlin.time.Duration): Boolean {
     timeout.requireGe(kotlin.time.Duration.ZERO, "timeout")
+
     return drain(timeout.toJavaDuration()).await()
 }
 
@@ -211,6 +203,7 @@ fun Connection.createStream(
     vararg subjects: String,
 ): StreamInfo {
     streamName.requireNotBlank("streamName")
+
     return jetStreamManagement().createStream(streamName, storageType, *subjects)
 }
 
@@ -224,7 +217,8 @@ fun Connection.createStream(
 fun Connection.createOrReplaceStream(
     streamName: String,
     subject: String,
-): StreamInfo = createOrReplaceStream(streamName, subjects = arrayOf(subject))
+): StreamInfo =
+    createOrReplaceStream(streamName, subjects = arrayOf(subject))
 
 /**
  * 기존 스트림을 제거한 뒤 새 설정으로 다시 생성합니다.
@@ -240,6 +234,7 @@ fun Connection.createOrReplaceStream(
     vararg subjects: String,
 ): StreamInfo {
     streamName.requireNotBlank("streamName")
+
     return jetStreamManagement().createOrReplaceStream(streamName, storageType, *subjects)
 }
 
@@ -257,5 +252,6 @@ fun Connection.createStreamOrUpdateSubjects(
     vararg subjects: String,
 ): StreamInfo {
     streamName.requireNotBlank("streamName")
+
     return jetStreamManagement().createStreamOrUpdateSubjects(streamName, storageType, *subjects)
 }

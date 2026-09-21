@@ -1,6 +1,10 @@
 package io.bluetape4k.nats.client
 
 import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeFalse
+import io.bluetape4k.junit5.coroutines.runSuspendIO
+import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.debug
 import io.bluetape4k.nats.AbstractNatsTest
 import io.bluetape4k.nats.client.api.consumerConfiguration
 import io.bluetape4k.support.toUtf8String
@@ -9,19 +13,20 @@ import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.supervisorScope
+import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.withTimeout
 import kotlinx.coroutines.withTimeoutOrNull
-import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.Test
 import java.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
 
-class NatsConsumerFlowIntegrationTest : AbstractNatsTest() {
+class NatsConsumerFlowIntegrationTest: AbstractNatsTest() {
+
+    companion object: KLogging()
 
     @Test
     fun `pull flow preserves order and caller acknowledges messages`() = runTest(timeout = 30.seconds) {
@@ -58,7 +63,7 @@ class NatsConsumerFlowIntegrationTest : AbstractNatsTest() {
     }
 
     @Test
-    fun `push flow preserves order and caller acknowledges messages`() = runTest(timeout = 30.seconds) {
+    fun `push flow preserves order and caller acknowledges messages`() = runSuspendIO {
         val stream = "consumer-flow-push"
         val subject = "consumer-flow.push"
         val received = mutableListOf<String>()
@@ -66,6 +71,7 @@ class NatsConsumerFlowIntegrationTest : AbstractNatsTest() {
         getConnection().use { connection ->
             connection.createOrReplaceStream(stream, subject)
             val jetStream = connection.jetStream()
+
             repeat(3) { index ->
                 jetStream.publish(subject, "push-$index")
             }
@@ -79,6 +85,7 @@ class NatsConsumerFlowIntegrationTest : AbstractNatsTest() {
                 .consumeAsFlow(subject, pushOptions, capacity = 2)
                 .take(3)
                 .collect { message ->
+                    log.debug { "collect message: $message" }
                     received += message.data.toUtf8String()
                     message.ack()
                 }
@@ -88,7 +95,7 @@ class NatsConsumerFlowIntegrationTest : AbstractNatsTest() {
     }
 
     @Test
-    fun `push flow reports actual pending queue drops`() = runBlocking {
+    fun `push flow reports actual pending queue drops`() = runSuspendIO {
         val stream = "consumer-flow-push-drop"
         val subject = "consumer-flow.push-drop"
 
@@ -101,25 +108,29 @@ class NatsConsumerFlowIntegrationTest : AbstractNatsTest() {
                 pendingByteLimit(64L * 1024)
             }
             supervisorScope {
-                val firstDelivered = CompletableDeferred<Unit>()
+                val firstDelivered = CompletableDeferred<Boolean>()
+
                 val flow = jetStream.consumeAsFlow(
                     subject,
                     pushOptions,
                     capacity = 1,
                     receiveTimeout = 500.milliseconds,
                 )
-                val collector = async(Dispatchers.Default) {
+
+                val collector = async(Dispatchers.IO) {
                     flow.collect {
-                        if (firstDelivered.complete(Unit)) {
+                        if (!firstDelivered.isCompleted && firstDelivered.complete(true)) {
                             delay(1.seconds)
                         }
+                        it.ack()
                     }
                 }
 
                 jetStream.publish(subject, "seed")
-                withTimeout(5.seconds) {
+                withTimeout(3.seconds) {
                     firstDelivered.await()
                 }
+
                 repeat(500) { index ->
                     jetStream.publish(subject, "drop-$index")
                 }
@@ -242,7 +253,10 @@ class NatsConsumerFlowIntegrationTest : AbstractNatsTest() {
                 }
                 true
             } ?: false
+
+            redelivered.shouldBeFalse()
             check(!redelivered) { "term() 처리 후 message가 재전달되었습니다." }
+
         }
     }
 }

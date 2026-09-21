@@ -16,6 +16,7 @@ import kotlin.time.toJavaDuration
  */
 fun Consumer.drain(timeoutMillis: Long): CompletableFuture<Boolean> {
     timeoutMillis.requireZeroOrPositiveNumber("timeoutMillis")
+
     return drain(Duration.ofMillis(timeoutMillis))
 }
 
@@ -27,23 +28,27 @@ fun Consumer.drain(timeoutMillis: Long): CompletableFuture<Boolean> {
  */
 fun Consumer.drain(timeout: kotlin.time.Duration): CompletableFuture<Boolean> {
     timeout.requireGe(kotlin.time.Duration.ZERO, "timeout")
+
     return drain(timeout.toJavaDuration())
 }
 
 /**
  * 밀리초 단위 타임아웃으로 Consumer drain을 suspend 함수로 실행합니다.
  */
-suspend fun Consumer.drainSuspending(timeoutMillis: Long): Boolean = drain(timeoutMillis).await()
+suspend fun Consumer.drainSuspending(timeoutMillis: Long): Boolean =
+    drain(timeoutMillis).await()
 
 /**
  * Kotlin [Duration] 기반으로 Consumer drain을 suspend 함수로 실행합니다.
  */
-suspend fun Consumer.drainSuspending(timeout: kotlin.time.Duration): Boolean = drain(timeout).await()
+suspend fun Consumer.drainSuspending(timeout: kotlin.time.Duration): Boolean =
+    drain(timeout).await()
 
 /**
  * Java [Duration][java.time.Duration] 기반으로 Consumer drain을 suspend 함수로 실행합니다.
  */
 suspend fun Consumer.drainSuspending(timeout: java.time.Duration): Boolean {
     timeout.requireGe(java.time.Duration.ZERO, "timeout")
+
     return drain(timeout).await()
 }

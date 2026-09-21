@@ -36,7 +36,7 @@ abstract class AbstractNatsTest {
             server(nats.url)
             connectionListener { conn, event ->
                 conn.servers.forEach { server ->
-                    log.debug { "server: ${server}, event=${event.name}" }
+                    log.debug { "server=${server}, event=${event.name}" }
                 }
             }
             errorListener(ErrorListenerLoggerImpl())

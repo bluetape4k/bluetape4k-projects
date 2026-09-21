@@ -1,11 +1,11 @@
 package io.bluetape4k.nats.client.examples
 
+import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import io.bluetape4k.nats.AbstractNatsTest
 import io.bluetape4k.nats.client.publish
 import io.bluetape4k.support.toUtf8String
-import io.bluetape4k.assertions.shouldBeTrue
 import org.junit.jupiter.api.Test
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit

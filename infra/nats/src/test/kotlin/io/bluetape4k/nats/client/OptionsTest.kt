@@ -1,13 +1,16 @@
 package io.bluetape4k.nats.client
 
-import io.nats.client.Options
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldNotBeNull
+import io.bluetape4k.logging.KLogging
+import io.bluetape4k.nats.AbstractNatsTest
+import io.nats.client.Options
 import org.junit.jupiter.api.Test
-import java.util.Properties
-import kotlin.time.Duration.Companion.seconds
+import java.util.*
 
-class OptionsTest {
+class OptionsTest: AbstractNatsTest() {
+
+    companion object: KLogging()
 
     @Test
     fun `natsOptions with builder creates Options instance`() {
