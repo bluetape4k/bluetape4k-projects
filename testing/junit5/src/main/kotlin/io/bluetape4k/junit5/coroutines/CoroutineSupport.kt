@@ -37,10 +37,10 @@ val DEFAULT_SUSPEND_TEST_TIMEOUT: Duration = 180.seconds
  * @param timeout 테스트 최대 허용 시간 (기본값: [DEFAULT_SUSPEND_TEST_TIMEOUT])
  * @param testBody 실행할 suspend 테스트 본문
  */
-inline fun runSuspendTest(
+fun runSuspendTest(
     context: CoroutineContext = EmptyCoroutineContext,
     timeout: Duration = DEFAULT_SUSPEND_TEST_TIMEOUT,
-    crossinline testBody: suspend CoroutineScope.() -> Unit,
+    testBody: suspend CoroutineScope.() -> Unit,
 ) {
     runBlocking(context) {
         withTimeout(timeout) { testBody(this) }
@@ -64,9 +64,9 @@ inline fun runSuspendTest(
  * @param timeout 테스트 최대 허용 시간 (기본값: [DEFAULT_SUSPEND_TEST_TIMEOUT])
  * @param testBody 실행할 suspend 테스트 본문
  */
-inline fun runSuspendIO(
+fun runSuspendIO(
     timeout: Duration = DEFAULT_SUSPEND_TEST_TIMEOUT,
-    crossinline testBody: suspend CoroutineScope.() -> Unit,
+    testBody: suspend CoroutineScope.() -> Unit,
 ) {
     runSuspendTest(Dispatchers.IO, timeout, testBody)
 }
@@ -87,9 +87,9 @@ inline fun runSuspendIO(
  * @param timeout 테스트 최대 허용 시간 (기본값: [DEFAULT_SUSPEND_TEST_TIMEOUT])
  * @param testBody 실행할 suspend 테스트 본문
  */
-inline fun runSuspendDefault(
+fun runSuspendDefault(
     timeout: Duration = DEFAULT_SUSPEND_TEST_TIMEOUT,
-    crossinline testBody: suspend CoroutineScope.() -> Unit,
+    testBody: suspend CoroutineScope.() -> Unit,
 ) {
     runSuspendTest(Dispatchers.Default, timeout, testBody)
 }
@@ -126,9 +126,9 @@ internal val Dispatchers.VT: ExecutorCoroutineDispatcher by lazy {
  * @param timeout 테스트 최대 허용 시간 (기본값: [DEFAULT_SUSPEND_TEST_TIMEOUT])
  * @param testBody 실행할 suspend 테스트 본문
  */
-inline fun runSuspendVT(
+fun runSuspendVT(
     timeout: Duration = DEFAULT_SUSPEND_TEST_TIMEOUT,
-    crossinline testBody: suspend CoroutineScope.() -> Unit,
+    testBody: suspend CoroutineScope.() -> Unit,
 ) {
     runSuspendTest(Dispatchers.VT, timeout, testBody)
 }
@@ -138,7 +138,9 @@ inline fun runSuspendVT(
  *
  * backing executor는 [block]이 정상 반환하거나 예외를 던진 뒤 종료됩니다.
  */
-suspend inline fun withSingleThread(crossinline block: suspend (dispatcher: CoroutineDispatcher) -> Unit) {
+suspend fun withSingleThread(
+    block: suspend (dispatcher: CoroutineDispatcher) -> Unit
+) {
     val executor = Executors.newSingleThreadExecutor()
     try {
         block(executor.asCoroutineDispatcher())
@@ -155,9 +157,9 @@ suspend inline fun withSingleThread(crossinline block: suspend (dispatcher: Coro
  *
  * backing executor들은 [block]이 정상 반환하거나 예외를 던진 뒤 종료됩니다.
  */
-suspend inline fun withParallels(
+suspend fun withParallels(
     parallelism: Int = Runtime.getRuntime().availableProcessors(),
-    crossinline block: suspend (dispatchers: List<CoroutineDispatcher>) -> Unit,
+    block: suspend (dispatchers: List<CoroutineDispatcher>) -> Unit,
 ) {
     require(parallelism > 0) { "parallelism must be positive: $parallelism" }
 
