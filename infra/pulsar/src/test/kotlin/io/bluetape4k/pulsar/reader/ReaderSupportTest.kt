@@ -1,5 +1,8 @@
 package io.bluetape4k.pulsar.reader
 
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldNotBeNull
+import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.pulsar.AbstractPulsarTest
 import io.bluetape4k.pulsar.assertCleanupWaitsAfterCancellation
@@ -9,8 +12,6 @@ import io.mockk.mockk
 import io.mockk.verify
 import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.test.runTest
-import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldNotBeNull
 import org.apache.pulsar.client.api.MessageId
 import org.apache.pulsar.client.api.PulsarClient
 import org.apache.pulsar.client.api.Reader
@@ -22,48 +23,43 @@ import java.util.concurrent.CompletableFuture
 import kotlin.time.Duration.Companion.seconds
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-class ReaderSupportTest : AbstractPulsarTest() {
+class ReaderSupportTest: AbstractPulsarTest() {
 
-    companion object : KLogging()
+    companion object: KLogging()
 
     @Test
-    fun `reader DSL - Schema와 setup으로 Reader 생성`() = runTest(timeout = 30.seconds) {
+    fun `reader DSL - Schema와 setup으로 Reader 생성`() = runSuspendIO(30.seconds) {
         val client = newClient()
         val topic = newTopic()
-        try {
+        client.use { client ->
             val reader = client.reader(Schema.STRING) {
                 topic(topic)
                 startMessageId(MessageId.earliest)
             }
             reader.shouldNotBeNull()
             reader.close()
-        } finally {
-            client.close()
         }
     }
 
     @Test
-    fun `withReader - 블록 실행 후 자동 close`() = runTest(timeout = 30.seconds) {
-        val client = newClient()
+    fun `withReader - 블록 실행 후 자동 close`() = runSuspendIO(30.seconds) {
         val topic = newTopic()
+        newClient().use { client ->
+            // 메시지 발행 후 Reader로 earliest부터 읽기
 
-        // 메시지 발행 후 Reader로 earliest부터 읽기
-        val producer = client.newProducer(Schema.STRING).topic(topic).create()
-        try {
-            producer.sendSuspend("withReader test")
-        } finally {
-            producer.close()
-        }
+            val producer = client.newProducer(Schema.STRING).topic(topic).create()
+            producer.use { producer ->
+                producer.sendSuspend("withReader test")
+            }
 
-        client.withReader(Schema.STRING, {
-            topic(topic)
-            startMessageId(MessageId.earliest)
-        }) {
-            shouldNotBeNull()
-            val msg = readNextSuspend()
-            msg.value shouldBeEqualTo "withReader test"
+            client.withReader(Schema.STRING, {
+                topic(topic)
+                startMessageId(MessageId.earliest)
+            }) {
+                val msg = readNextSuspend()
+                msg.value shouldBeEqualTo "withReader test"
+            }
         }
-        client.close()
     }
 
     @Test
@@ -88,27 +84,25 @@ class ReaderSupportTest : AbstractPulsarTest() {
     }
 
     @Test
-    fun `withReader - earliest부터 모든 메시지 읽기`() = runTest(timeout = 30.seconds) {
-        val client = newClient()
-        val topic = newTopic()
-        val messageCount = 3
+    fun `withReader - earliest부터 모든 메시지 읽기`() = runSuspendIO(30.seconds) {
+        newClient().use { client ->
+            val topic = newTopic()
+            val messageCount = 3
 
-        val producer = client.newProducer(Schema.STRING).topic(topic).create()
-        try {
-            repeat(messageCount) { i -> producer.sendSuspend("r-msg-$i") }
-        } finally {
-            producer.close()
-        }
+            val producer = client.newProducer(Schema.STRING).topic(topic).create()
+            producer.use {
+                repeat(messageCount) { i -> producer.sendSuspend("r-msg-$i") }
+            }
 
-        client.withReader(Schema.STRING, {
-            topic(topic)
-            startMessageId(MessageId.earliest)
-        }) {
-            repeat(messageCount) { i ->
-                val msg = readNextSuspend()
-                msg.value shouldBeEqualTo "r-msg-$i"
+            client.withReader(Schema.STRING, {
+                topic(topic)
+                startMessageId(MessageId.earliest)
+            }) {
+                repeat(messageCount) { i ->
+                    val msg = readNextSuspend()
+                    msg.value shouldBeEqualTo "r-msg-$i"
+                }
             }
         }
-        client.close()
     }
 }

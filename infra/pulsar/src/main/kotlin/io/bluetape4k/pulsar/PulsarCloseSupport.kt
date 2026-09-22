@@ -1,8 +1,8 @@
 package io.bluetape4k.pulsar
 
-import io.bluetape4k.coroutines.support.awaitSuspending
 import io.bluetape4k.logging.warn
 import kotlinx.coroutines.NonCancellable
+import kotlinx.coroutines.future.await
 import kotlinx.coroutines.withContext
 import java.util.concurrent.CompletableFuture
 import kotlin.coroutines.cancellation.CancellationException
@@ -14,7 +14,7 @@ internal suspend fun closeAsyncNonCancellable(
 ) {
     withContext(NonCancellable) {
         try {
-            closeAsync().awaitSuspending()
+            closeAsync().await()
         } catch (e: CancellationException) {
             throw e
         } catch (e: Exception) {

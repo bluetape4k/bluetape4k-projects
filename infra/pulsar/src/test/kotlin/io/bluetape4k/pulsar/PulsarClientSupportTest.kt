@@ -2,7 +2,8 @@ package io.bluetape4k.pulsar
 
 import io.bluetape4k.assertions.shouldNotBeNull
 import io.bluetape4k.junit5.coroutines.runSuspendIO
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
+import io.bluetape4k.logging.debug
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.mockkStatic
@@ -19,9 +20,9 @@ import java.util.concurrent.CompletableFuture
 import kotlin.time.Duration.Companion.seconds
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-class PulsarClientSupportTest : AbstractPulsarTest() {
+class PulsarClientSupportTest: AbstractPulsarTest() {
 
-    companion object : KLogging()
+    companion object: KLoggingChannel()
 
     @Test
     fun `pulsarClient - serviceUrl로 클라이언트 생성`() {
@@ -39,7 +40,7 @@ class PulsarClientSupportTest : AbstractPulsarTest() {
     }
 
     @Test
-    fun `withPulsarClient - 블록 실행 후 자동 close`() = runSuspendIO(timeout = 120.seconds) {
+    fun `withPulsarClient - 블록 실행 후 자동 close`() = runSuspendIO(120.seconds) {
         var clientRef: org.apache.pulsar.client.api.PulsarClient? = null
         withPulsarClient(pulsar.url) {
             clientRef = this
@@ -51,8 +52,10 @@ class PulsarClientSupportTest : AbstractPulsarTest() {
     }
 
     @Test
-    fun `withPulsarClient - setup-only 오버로드`() = runSuspendIO(timeout = 120.seconds) {
+    fun `withPulsarClient - setup-only 오버로드`() = runSuspendIO(120.seconds) {
         val url = pulsar.url
+        log.debug { "pulsar url=$url" }
+        
         withPulsarClient({ serviceUrl(url) }) {
             shouldNotBeNull()
             // 생성된 클라이언트로 간단한 동작 검증

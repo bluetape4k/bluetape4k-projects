@@ -24,7 +24,8 @@ import org.apache.pulsar.client.api.Schema
 fun <T> PulsarClient.consumer(
     schema: Schema<T>,
     setup: ConsumerBuilder<T>.() -> Unit = {},
-): Consumer<T> = newConsumer(schema).apply(setup).subscribe()
+): Consumer<T> =
+    newConsumer(schema).apply(setup).subscribe()
 
 /**
  * Consumer 생명주기를 블록 스코프로 자동 관리합니다.
@@ -54,6 +55,8 @@ suspend inline fun <T, R> PulsarClient.withConsumer(
     try {
         return block(consumer)
     } finally {
-        closeAsyncNonCancellable("Consumer") { consumer.closeAsync() }
+        closeAsyncNonCancellable("Consumer") {
+            consumer.closeAsync()
+        }
     }
 }

@@ -1,9 +1,9 @@
 package io.bluetape4k.pulsar
 
+import io.bluetape4k.codec.Base58
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.testcontainers.mq.PulsarServer
 import org.apache.pulsar.client.api.PulsarClient
-import java.util.UUID
 
 abstract class AbstractPulsarTest {
 
@@ -15,9 +15,9 @@ abstract class AbstractPulsarTest {
         fun newClient(): PulsarClient = PulsarServer.Launcher.PulsarClient(pulsar.url)
 
         @JvmStatic
-        fun newTopic(): String = "test-topic-${UUID.randomUUID()}"
+        fun newTopic(): String = "test-topic-${Base58.randomString(6)}"
 
         @JvmStatic
-        fun newSubscription(): String = "test-sub-${UUID.randomUUID()}"
+        fun newSubscription(): String = "test-sub-${Base58.randomString(6)}"
     }
 }

@@ -22,10 +22,11 @@ import org.apache.pulsar.client.api.Schema
  * @param setup [ReaderBuilder] 설정 블록
  * @return 생성된 [Reader] 인스턴스
  */
-fun <T> PulsarClient.reader(
+inline fun <T> PulsarClient.reader(
     schema: Schema<T>,
     setup: ReaderBuilder<T>.() -> Unit = {},
-): Reader<T> = newReader(schema).apply(setup).create()
+): Reader<T> =
+    newReader(schema).apply(setup).create()
 
 /**
  * Reader 생명주기를 블록 스코프로 자동 관리합니다.
