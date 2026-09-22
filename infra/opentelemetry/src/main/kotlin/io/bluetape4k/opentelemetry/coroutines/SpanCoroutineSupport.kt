@@ -60,7 +60,12 @@ suspend inline fun <T> Span.useSuspending(
     waitDuration: Duration,
     coroutineContext: CoroutineContext = EmptyCoroutineContext,
     crossinline block: suspend (Span) -> T,
-): T = useSuspending(waitDuration.toMillis().coerceAtLeast(0L), coroutineContext, block)
+): T =
+    useSuspending(
+        waitDuration.toMillis().coerceAtLeast(0L),
+        coroutineContext,
+        block
+    )
 
 /**
  * 새로운 [Span]을 생성해 Coroutines 환경에서 실행합니다.
@@ -77,9 +82,10 @@ suspend inline fun <T> Span.useSuspending(
 suspend inline fun <T> SpanBuilder.useSpanSuspending(
     coroutineContext: CoroutineContext = EmptyCoroutineContext,
     crossinline block: suspend (Span) -> T,
-): T = startSpan().useSuspending(coroutineContext = coroutineContext) { span ->
-    block(span)
-}
+): T =
+    startSpan().useSuspending(coroutineContext = coroutineContext) { span ->
+        block(span)
+    }
 
 /**
  * `waitTimeout` 기반 overload 입니다.
@@ -90,9 +96,10 @@ suspend inline fun <T> SpanBuilder.useSpanSuspending(
     waitTimeout: Long? = null,
     coroutineContext: CoroutineContext = EmptyCoroutineContext,
     crossinline block: suspend (Span) -> T,
-): T = startSpan().useSuspending(waitTimeout, coroutineContext) { span ->
-    block(span)
-}
+): T =
+    startSpan().useSuspending(waitTimeout, coroutineContext) { span ->
+        block(span)
+    }
 
 /**
  * [Duration] 기반 overload 입니다.
@@ -103,11 +110,12 @@ suspend inline fun <T> SpanBuilder.useSpanSuspending(
     waitDuration: Duration,
     coroutineContext: CoroutineContext = EmptyCoroutineContext,
     crossinline block: suspend (Span) -> T,
-): T = useSpanSuspending(
-    waitDuration.toMillis().coerceAtLeast(0L),
-    coroutineContext,
-    block,
-)
+): T =
+    useSpanSuspending(
+        waitDuration.toMillis().coerceAtLeast(0L),
+        coroutineContext,
+        block,
+    )
 
 /**
  * suspend 코루틴 환경에서 새로운 [Span]을 생성하고 [block]을 실행한 뒤 Span을 자동으로 종료합니다.
@@ -135,14 +143,16 @@ suspend inline fun <T> SpanBuilder.useSpanSuspending(
  * @param block Span을 인자로 받는 suspend 실행 블록
  * @return [block]의 실행 결과
  */
-public suspend fun <T> Tracer.withSpan(
+suspend fun <T> Tracer.withSpan(
     spanName: String,
     configure: SpanBuilder.() -> Unit = {},
     coroutineContext: CoroutineContext = EmptyCoroutineContext,
     block: suspend (Span) -> T,
 ): T {
     spanName.requireNotBlank("spanName")
-    return spanBuilder(spanName).apply(configure).useSpanSuspending(coroutineContext, block)
+    return spanBuilder(spanName)
+        .apply(configure)
+        .useSpanSuspending(coroutineContext, block)
 }
 
 /**
@@ -160,8 +170,7 @@ suspend inline fun <T> withSpanContext(
     waitTimeout: Long? = null,
     crossinline block: suspend (Span) -> T,
 ): T {
-    // javaagent + coroutine 환경에서 Context.current().with(span) 가
-    // AgentContextWrapper 에 의해 무시되는 경우가 있어 storeInContext 사용
+    // HINT: javaagent + coroutine 환경에서 Context.current().with(span) 가 AgentContextWrapper 에 의해 무시되는 경우가 있어 storeInContext 사용
     return try {
         val otelContext: Context = span.storeInContext(Context.current())
         withContext(coroutineContext.getOrCurrent() + otelContext.asContextElement()) {

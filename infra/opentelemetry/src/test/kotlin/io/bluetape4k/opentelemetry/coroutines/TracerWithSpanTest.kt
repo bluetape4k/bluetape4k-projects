@@ -3,12 +3,15 @@ package io.bluetape4k.opentelemetry.coroutines
 import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeFalse
+import io.bluetape4k.assertions.shouldBeInstanceOf
+import io.bluetape4k.assertions.shouldBeNull
 import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.assertions.shouldHaveSize
 import io.bluetape4k.assertions.shouldNotBeNull
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.opentelemetry.AbstractOtelTest
+import io.bluetape4k.opentelemetry.common.stringAttributeKeyOf
 import io.bluetape4k.opentelemetry.trace.sdkTracerProvider
 import io.bluetape4k.opentelemetry.trace.simpleSpanProcessorOf
 import io.bluetape4k.opentelemetry.trace.withSpan
@@ -91,12 +94,11 @@ class TracerWithSpanTest: AbstractOtelTest() {
     fun `suspend withSpan should set ERROR and rethrow on exception`() = runSuspendIO {
         val failure = IllegalStateException("boom")
 
-        val ex = kotlin.runCatching {
+        val ex = runCatching {
             tracer.withSpan("err-span") { throw failure }
         }.exceptionOrNull()
 
-        ex.shouldNotBeNull()
-        (ex is IllegalStateException).shouldBeTrue()
+        ex.shouldBeInstanceOf<IllegalStateException>()
 
         flush()
 
@@ -108,12 +110,13 @@ class TracerWithSpanTest: AbstractOtelTest() {
 
     @Test
     fun `suspend withSpan should NOT record ERROR on CancellationException`() = runSuspendIO {
-        val ex = kotlin.runCatching {
-            tracer.withSpan("cancel-span") { throw CancellationException("cancelled") }
+        val ex = runCatching {
+            tracer.withSpan("cancel-span") {
+                throw CancellationException("cancelled")
+            }
         }.exceptionOrNull()
 
-        ex.shouldNotBeNull()
-        (ex is CancellationException).shouldBeTrue()
+        ex.shouldBeInstanceOf<CancellationException>()
 
         flush()
 
@@ -127,19 +130,23 @@ class TracerWithSpanTest: AbstractOtelTest() {
     fun `suspend withSpan configure lambda should apply attributes`() = runSuspendIO {
         tracer.withSpan("attr-span", configure = {
             setAttribute(AttributeKey.stringKey("env"), "test")
-        }) { }
+        }) {
+            // no op.
+        }
         flush()
 
         val finished = spanExporter.finishedSpanItems
         finished shouldHaveSize 1
-        finished[0].attributes[AttributeKey.stringKey("env")] shouldBeEqualTo "test"
+        finished[0].attributes[stringAttributeKeyOf("env")] shouldBeEqualTo "test"
     }
 
     @Test
     fun `suspend withSpan with blank spanName should throw IllegalArgumentException`() {
         assertFailsWith<IllegalArgumentException> {
             runSuspendIO {
-                tracer.withSpan("  ") { }
+                tracer.withSpan("  ") {
+                    // no op.
+                }
             }
         }
     }
@@ -160,13 +167,13 @@ class TracerWithSpanTest: AbstractOtelTest() {
 
     @Test
     fun `blocking withSpan with null message should use unspecified error fallback`() = runSuspendIO {
-        val ex = kotlin.runCatching {
+        val ex = runCatching {
             tracer.withSpan("block-null-msg") {
                 throw RuntimeException(null as String?)
             }
         }.exceptionOrNull()
 
-        ex.shouldNotBeNull()
+        ex.shouldBeInstanceOf<RuntimeException>()
 
         flush()
 
@@ -180,21 +187,20 @@ class TracerWithSpanTest: AbstractOtelTest() {
 
     @Test
     fun `blocking withSpan should NOT record ERROR on CancellationException`() = runSuspendIO {
-        val ex = kotlin.runCatching {
+        val ex = runCatching {
             tracer.withSpan("block-cancel") {
                 throw CancellationException("cancelled")
             }
         }.exceptionOrNull()
 
-        ex.shouldNotBeNull()
-        (ex is CancellationException).shouldBeTrue()
+        ex.shouldBeInstanceOf<CancellationException>()
 
         flush()
 
         val finished = spanExporter.finishedSpanItems
         finished shouldHaveSize 1
         finished[0].status.statusCode shouldBeEqualTo StatusCode.UNSET
-        finished[0].events.any { it.name == "exception" }.shouldBeFalse()
+        finished[0].events.find { it.name == "exception" }.shouldBeNull()
     }
 
     @Test

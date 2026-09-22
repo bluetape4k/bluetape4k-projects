@@ -12,8 +12,7 @@
 - **Flow 트레이싱**: `Flow.traced()` / `Flow.tracedCollect()` — 1 collect = 1 Span
 - **Span 관리**: 자동 리소스 관리를 위한 `use` 패턴
 - **DSL 제공**: Attributes, TracerProvider, MeterProvider 설정을 위한 DSL
-- **레거시 WebFlux 트레이싱 헬퍼**: `createTracingWebFilter()`는 이전
-  Spring WebFlux API를 대상으로 하며, 마이그레이션 참고용으로만 유지합니다.
+- **레거시 WebFlux 트레이싱 헬퍼**: `createTracingWebFilter()`는 이전 Spring WebFlux API를 대상으로 하며, 마이그레이션 참고용으로만 유지합니다.
 - **Spring Boot Starter 지원**: 자동 설정 OpenTelemetry SDK
 
 ## 아키텍처 다이어그램
@@ -38,7 +37,7 @@
 
 ```kotlin
 dependencies {
-  implementation("io.github.bluetape4k:bluetape4k-opentelemetry:${bluetape4kVersion}")
+    implementation("io.github.bluetape4k:bluetape4k-opentelemetry:${bluetape4kVersion}")
 }
 ```
 
@@ -53,15 +52,15 @@ import io.opentelemetry.sdk.metrics.SdkMeterProvider
 
 // OpenTelemetry SDK 생성
 val openTelemetry = openTelemetrySdk {
-  setTracerProvider(tracerProvider)
-  setMeterProvider(meterProvider)
-  setPropagators(ContextPropagators.create(W3CTraceContextPropagator.getInstance()))
+    setTracerProvider(tracerProvider)
+    setMeterProvider(meterProvider)
+    setPropagators(ContextPropagators.create(W3CTraceContextPropagator.getInstance()))
 }
 
 // 글로벌 OpenTelemetry로 등록
 val globalOtel = openTelemetrySdkGlobal {
-  setTracerProvider(tracerProvider)
-  setMeterProvider(meterProvider)
+    setTracerProvider(tracerProvider)
+    setMeterProvider(meterProvider)
 }
 
 // 글로벌 인스턴스 접근
@@ -77,36 +76,36 @@ import java.time.Duration
 
 // Tracer 생성
 val tracer = openTelemetry.tracer("my-service") {
-  setInstrumentationVersion("1.0.0")
+    setInstrumentationVersion("1.0.0")
 }
 
 // Span 수동 생성 및 관리
 val span = tracer.startSpan("my-operation") {
-  setSpanKind(SpanKind.INTERNAL)
-  setAttribute("custom.attribute", "value")
+    setSpanKind(SpanKind.INTERNAL)
+    setAttribute("custom.attribute", "value")
 }
 
 // use 패턴으로 자동 관리 (try-finally 자동 처리)
 span.use { currentSpan ->
-  // Span 컨텍스트 내에서 작업 수행
-  currentSpan.addEvent("Processing started")
-  doWork()
+    // Span 컨텍스트 내에서 작업 수행
+    currentSpan.addEvent("Processing started")
+    doWork()
 }  // Span이 자동으로 종료됨
 
 // SpanBuilder에서 직접 생성
 tracer.spanBuilder("my-operation").useSpan { span ->
-  doWork()
+    doWork()
 }
 
 // helper가 관리하는 실패는 기본적으로 redacted telemetry로 기록합니다.
 // 원본 예외는 그대로 다시 던집니다.
 tracer.spanBuilder("failing-operation").useSpan { span ->
-  runCatching { doWork() }
-    .onFailure {
-      // 명시적 opt-in: 이 OpenTelemetry 원시 호출은 예외 메시지를 export할 수 있습니다.
-      span.recordException(it)
-      throw it
-    }
+    runCatching { doWork() }
+        .onFailure {
+            // 명시적 opt-in: 이 OpenTelemetry 원시 호출은 예외 메시지를 export할 수 있습니다.
+            span.recordException(it)
+            throw it
+        }
 }
 
 // 하위 호환용 인자이며, 현재 구현은 span 종료 시각을 인위적으로 미루지 않음
@@ -121,44 +120,43 @@ import io.bluetape4k.opentelemetry.coroutines.*
 import kotlinx.coroutines.delay
 
 suspend fun coroutineExample() {
-  val tracer = openTelemetry.getTracer("my-service")
+    val tracer = openTelemetry.getTracer("my-service")
 
-  // 코루틴에서 Span 사용
-  tracer.spanBuilder("async-operation").useSpanSuspending { span ->
-    span.addEvent("Before delay")
-    delay(1000)
-    span.addEvent("After delay")
-  }  // Span이 자동으로 종료됨
+    // 코루틴에서 Span 사용
+    tracer.spanBuilder("async-operation").useSpanSuspending { span ->
+        span.addEvent("Before delay")
+        delay(1000)
+        span.addEvent("After delay")
+    }  // Span이 자동으로 종료됨
 
-  // 기존 Span을 코루틴 컨텍스트에서 사용
-  val span = tracer.spanBuilder("parent").startSpan()
-  span.useSuspending { currentSpan ->
-    withContext(Dispatchers.IO) {
-      // Span 컨텍스트가 전파됨
-      doAsyncWork()
+    // 기존 Span을 코루틴 컨텍스트에서 사용
+    val span = tracer.spanBuilder("parent").startSpan()
+    span.useSuspending { currentSpan ->
+        withContext(Dispatchers.IO) {
+            // Span 컨텍스트가 전파됨
+            doAsyncWork()
+        }
     }
-  }
 }
 
 // 명시적 Span Context 전파
 suspend fun withExplicitContext() {
-  val span = tracer.spanBuilder("operation").startSpan()
-  withSpanContext(span) { currentSpan ->
-    // Span Context가 설정된 상태에서 실행
-    doWork()
-  }
+    val span = tracer.spanBuilder("operation").startSpan()
+    withSpanContext(span) { currentSpan ->
+        // Span Context가 설정된 상태에서 실행
+        doWork()
+    }
 }
 
 // suspend 작업 주위에 Span을 생성하고 범위를 지정할 때 useSpanSuspending 사용
 tracer.spanBuilder("recommended").useSpanSuspending(Dispatchers.IO) { span ->
-  doAsyncWork()
+    doAsyncWork()
 }
 ```
 
-### 3-A. Tracer.withSpan() — 단일 호출 DSL
+### 3-A. Tracer.withSpan () — 단일 호출 DSL
 
-`Tracer.withSpan()`은 블록을 단일 Span으로 감싸 시작·상태 설정·종료를 자동으로 처리합니다.
-suspend/blocking 두 가지 변형을 제공합니다.
+`Tracer.withSpan()`은 블록을 단일 Span으로 감싸 시작·상태 설정·종료를 자동으로 처리합니다. suspend/blocking 두 가지 변형을 제공합니다.
 
 ```kotlin
 import io.bluetape4k.opentelemetry.trace.withSpan
@@ -166,21 +164,21 @@ import io.bluetape4k.opentelemetry.coroutines.withSpan
 
 // suspend 변형 (코루틴 내부)
 val result: String = tracer.withSpan("my-op") { span ->
-  span.setAttribute(AttributeKey.stringKey("key"), "value")
-  "done"
+    span.setAttribute(AttributeKey.stringKey("key"), "value")
+    "done"
 }
 
 // 시작 전 attribute 설정
 tracer.withSpan("my-op", configure = {
-  setAttribute(AttributeKey.stringKey("env"), "prod")
-  setSpanKind(SpanKind.SERVER)
+    setAttribute(AttributeKey.stringKey("env"), "prod")
+    setSpanKind(SpanKind.SERVER)
 }) { span ->
-  doWork()
+    doWork()
 }
 
 // 중첩 호출 → parent-child 트레이스 생성
 tracer.withSpan("parent") {
-  tracer.withSpan("child") { doWork() }
+    tracer.withSpan("child") { doWork() }
 }
 
 // CancellationException → StatusCode.UNSET (ERROR 미기록)
@@ -188,6 +186,7 @@ tracer.withSpan("parent") {
 ```
 
 **Span 생명주기 계약:**
+
 - 정상 완료 → `StatusCode.OK`, Span 종료
 - `CancellationException` → `StatusCode.UNSET`, Span 종료, 예외 재던짐
 - 그 외 `Throwable` → `StatusCode.ERROR` + redacted `exception` event, Span 종료, 예외 재던짐
@@ -224,13 +223,14 @@ flowOf(42).tracedCollect(tracer, "collect-span") { item ->
 ```
 
 **계약:**
+
 - 정상 완료 → `StatusCode.OK`
 - `CancellationException` (timeout, `take()`, 취소) → `StatusCode.UNSET`
 - 그 외 예외 → `StatusCode.ERROR` + redacted `exception` event, 예외 재던짐
 - 원본 예외 메시지는 기본 export하지 않으며, 명시적 `recordException` 호출만 opt-in입니다.
 - `traced()` vs `tracedCollect()` 선택 기준:
-  - `traced()` — 새 Flow 반환. OTel Context는 **producer** 코루틴에만 활성화
-  - `tracedCollect()` — 터미널 연산자. OTel Context는 **producer + consumer(action)** 코루틴 양쪽에 활성화
+    - `traced()` — 새 Flow 반환. OTel Context는 **producer** 코루틴에만 활성화
+    - `tracedCollect()` — 터미널 연산자. OTel Context는 **producer + consumer (action)** 코루틴 양쪽에 활성화
 
 ### 4. Attributes 관리
 
@@ -244,11 +244,11 @@ val tagsKey = "tags".toStringArrayAttributeKey()
 
 // Attributes 빌더
 val attributes = attributes {
-  put("service.name", "my-service")
-  put("service.version", "1.0.0")
-  put("request.count", 100L)
-  put("is.active", true)
-  put("tags", listOf("tag1", "tag2"))
+    put("service.name", "my-service")
+    put("service.version", "1.0.0")
+    put("request.count", 100L)
+    put("is.active", true)
+    put("tags", listOf("tag1", "tag2"))
 }
 
 // 간편한 Attributes 생성
@@ -257,9 +257,9 @@ val attrs2 = attributesOf(userIdKey, "user123", countKey, 10L)
 
 // Map에서 Attributes 변환
 val map = mapOf(
-  "key1" to "value1",
-  "count" to 42L,
-  "enabled" to true
+    "key1" to "value1",
+    "count" to 42L,
+    "enabled" to true
 )
 val fromMap = map.toAttributes()
 ```
@@ -277,8 +277,8 @@ val rootContext = rootOtelContext()
 
 // Context 내에서 작업 실행
 val result = currentContext.withCurrent {
-  // Context가 설정된 상태에서 실행
-  doWork()
+    // Context가 설정된 상태에서 실행
+    doWork()
 }
 
 // Context에서 Span 가져오기
@@ -297,14 +297,14 @@ import io.opentelemetry.exporter.logging.LoggingSpanExporter
 
 // SdkTracerProvider 생성
 val tracerProvider = sdkTracerProvider {
-  addSpanProcessor(simpleSpanProcessorOf(LoggingSpanExporter.create()))
-  setResource(Resource.create(Attributes.of(ServiceAttributes.SERVICE_NAME, "my-service")))
+    addSpanProcessor(simpleSpanProcessorOf(LoggingSpanExporter.create()))
+    setResource(Resource.create(Attributes.of(ServiceAttributes.SERVICE_NAME, "my-service")))
 }
 
 // SpanProcessor 생성
 val simpleProcessor = simpleSpanProcessorOf(LoggingSpanExporter.create())
 val batchProcessor = batchSpanProcessorOf(LoggingSpanExporter.create()) {
-  setScheduleDelay(java.time.Duration.ofMillis(250))
+    setScheduleDelay(java.time.Duration.ofMillis(250))
 }
 ```
 
@@ -317,18 +317,18 @@ import io.opentelemetry.sdk.testing.exporter.InMemoryMetricReader
 
 // Meter 생성
 val meter = openTelemetry.meter("my-service") {
-  setInstrumentationVersion("1.0.0")
+    setInstrumentationVersion("1.0.0")
 }
 
 // SdkMeterProvider 생성
 val meterProvider = sdkMeterProvider {
-  registerMetricReader(InMemoryMetricReader.create())
+    registerMetricReader(InMemoryMetricReader.create())
 }
 
 // MetricReader/Exporter
 val inMemoryReader = inMemoryMetricReaderOf()
 val loggingReader = periodicMetricReader(loggingMetricExporterOf()) {
-  setInterval(java.time.Duration.ofSeconds(5))
+    setInterval(java.time.Duration.ofSeconds(5))
 }
 ```
 
@@ -344,8 +344,8 @@ val loggingExporter = loggingSpanExporterOf()
 
 // 여러 Exporter 조합
 val compositeExporter = spanExporterOf(
-  LoggingSpanExporter.create(),
-  OtlpGrpcSpanExporter.builder().build()
+    LoggingSpanExporter.create(),
+    OtlpGrpcSpanExporter.builder().build()
 )
 ```
 
@@ -369,15 +369,18 @@ class TracingConfig(private val openTelemetry: OpenTelemetry) {
 ```
 
 **운영 주의사항:**
+
 - `createTracingWebFilter()`는 `ApplicationContext`당 1회만 호출하세요. 내부적으로 Reactor `Hooks.onEachOperator`를 전역 등록합니다. 중복 호출 시 훅이 중첩되어 예측 불가능한 동작이 발생합니다.
 - 테스트에서는 `@AfterAll`에서 `Hooks.resetOnEachOperator()`를 호출하여 훅 누수를 방지하세요.
-- `Authorization` 등 민감 헤더는 기본적으로 캡처되지 않습니다. 특정 헤더를 허용하려면 환경변수 `OTEL_INSTRUMENTATION_HTTP_CAPTURE_HEADERS_SERVER_REQUEST`를 설정하세요. **PII를 포함하는 헤더는 절대 추가하지 마세요.**
+- `Authorization` 등 민감 헤더는 기본적으로 캡처되지 않습니다. 특정 헤더를 허용하려면 환경변수 `OTEL_INSTRUMENTATION_HTTP_CAPTURE_HEADERS_SERVER_REQUEST`를 설정하세요.
+  **PII를 포함하는 헤더는 절대 추가하지 마세요.**
 
 ## 테스트 전략
 
 ### CI 테스트 설정 참고 사항
 
-GitHub Actions 같은 Linux CI 환경에서는 Reactor Netty가 **io_uring** 네이티브 트랜스포트를 사용합니다. Spring 애플리케이션 컨텍스트를 공유하는 여러 테스트 메서드가 순차적으로 실행될 때, io_uring 이벤트 루프 재초기화 과정에서 레이스 컨디션이 발생할 수 있습니다:
+GitHub Actions 같은 Linux CI 환경에서는 Reactor Netty가
+**io_uring** 네이티브 트랜스포트를 사용합니다. Spring 애플리케이션 컨텍스트를 공유하는 여러 테스트 메서드가 순차적으로 실행될 때, io_uring 이벤트 루프 재초기화 과정에서 레이스 컨디션이 발생할 수 있습니다:
 
 ```
 io.netty.channel.ChannelException: eventfd_write(...) failed: Bad file descriptor
@@ -406,40 +409,40 @@ import io.opentelemetry.sdk.trace.export.InMemorySpanExporter
 import io.opentelemetry.sdk.trace.export.SimpleSpanProcessor
 
 class MyServiceTest {
-  private val spanExporter = InMemorySpanExporter.create()
-  private val tracerProvider = sdkTracerProvider {
-    addSpanProcessor(SimpleSpanProcessor.create(spanExporter))
-  }
-  private val tracer = tracerProvider.get("test")
+    private val spanExporter = InMemorySpanExporter.create()
+    private val tracerProvider = sdkTracerProvider {
+        addSpanProcessor(SimpleSpanProcessor.create(spanExporter))
+    }
+    private val tracer = tracerProvider.get("test")
 
-  @AfterEach
-  fun tearDown() {
-    spanExporter.reset()
-  }
+    @AfterEach
+    fun tearDown() {
+        spanExporter.reset()
+    }
 
-  @Test
-  fun `span이 올바르게 생성되는지 확인`() {
-    // given
-    val service = MyService(tracer)
+    @Test
+    fun `span이 올바르게 생성되는지 확인`() {
+        // given
+        val service = MyService(tracer)
 
-    // when
-    service.doWork()
+        // when
+        service.doWork()
 
-    // then
-    val spans = spanExporter.finishedSpanItems
-    spans shouldHaveSize 1
-    spans.first().name shouldBe "do-work"
-  }
+        // then
+        val spans = spanExporter.finishedSpanItems
+        spans shouldHaveSize 1
+        spans.first().name shouldBe "do-work"
+    }
 }
 ```
 
 ### 테스트 환경별 권장 설정
 
-| 환경     | Agent | Exporter               | 검증 수준                  |
-|--------|-------|------------------------|------------------------|
-| 운영/통합  | ON    | GlobalOpenTelemetry 사용 | 트레이스 연결 확인             |
-| 단위 테스트 | OFF   | InMemorySpanExporter   | 상세 검증 (parentSpanId 등) |
-| 통합 테스트 | ON    | Logging/OTLP           | 트레이스 생성 확인             |
+| 환경        | Agent | Exporter                 | 검증 수준                   |
+|-------------|-------|--------------------------|-----------------------------|
+| 운영/통합   | ON    | GlobalOpenTelemetry 사용 | 트레이스 연결 확인          |
+| 단위 테스트 | OFF   | InMemorySpanExporter     | 상세 검증 (parentSpanId 등) |
+| 통합 테스트 | ON    | Logging/OTLP             | 트레이스 생성 확인          |
 
 ## OpenTelemetry Java Agent
 
@@ -461,9 +464,9 @@ Gradle Task로 Agent 다운로드:
 
 ```kotlin
 tasks.register<de.undercouch.gradle.tasks.download.Download>("downloadAgent") {
-  src("https://github.com/open-telemetry/.../opentelemetry-javaagent.jar")
-  dest("${project.layout.buildDirectory.asFile.get()}/opentelemetry-javaagent.jar")
-  onlyIfModified(true)
+    src("https://github.com/open-telemetry/.../opentelemetry-javaagent.jar")
+    dest("${project.layout.buildDirectory.asFile.get()}/opentelemetry-javaagent.jar")
+    onlyIfModified(true)
 }
 ```
 

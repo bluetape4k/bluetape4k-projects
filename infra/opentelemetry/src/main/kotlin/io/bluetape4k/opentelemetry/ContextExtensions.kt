@@ -2,6 +2,7 @@ package io.bluetape4k.opentelemetry
 
 import io.opentelemetry.api.trace.Span
 import io.opentelemetry.context.Context
+import io.opentelemetry.context.Scope
 
 /**
  * 현 [io.opentelemetry.context.Scope]에 연관된 [Context]를 반환합니다.
@@ -44,8 +45,8 @@ fun rootOtelContext(): Context = Context.root()
  * @param action 실행할 코드 블록입니다.
  * @return [action]의 실행 결과입니다.
  */
-inline fun <T> Context.withCurrent(action: () -> T): T {
-    return makeCurrent().use { action() }
+inline fun <T> Context.withCurrent(action: (scope: Scope) -> T): T {
+    return makeCurrent().use { scope -> action(scope) }
 }
 
 /**
