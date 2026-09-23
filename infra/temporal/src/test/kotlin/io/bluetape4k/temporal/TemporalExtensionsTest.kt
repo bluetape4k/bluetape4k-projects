@@ -3,28 +3,36 @@ package io.bluetape4k.temporal
 import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeTrue
-import io.temporal.api.common.v1.WorkflowExecution
-import io.temporal.client.WorkflowStub
+import io.bluetape4k.concurrent.completableFutureOf
+import io.bluetape4k.junit5.awaitility.untilSuspending
+import io.bluetape4k.junit5.coroutines.runSuspendIO
+import io.mockk.clearMocks
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
+import io.temporal.api.common.v1.WorkflowExecution
+import io.temporal.client.WorkflowStub
 import kotlinx.coroutines.TimeoutCancellationException
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.withTimeout
+import org.awaitility.kotlin.atMost
+import org.awaitility.kotlin.await
+import org.awaitility.kotlin.withPollInterval
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.atomic.AtomicBoolean
+import kotlin.time.Duration.Companion.milliseconds
+import kotlin.time.Duration.Companion.seconds
 
 class TemporalExtensionsTest {
 
-    private lateinit var workflowStub: WorkflowStub
+    private val workflowStub: WorkflowStub = mockk(relaxed = true)
 
     @BeforeEach
     fun setUp() {
-        workflowStub = mockk()
+        clearMocks(workflowStub)
     }
 
     @Test
@@ -33,6 +41,7 @@ class TemporalExtensionsTest {
             .setWorkflowId("order-1")
             .setRunId("run-1")
             .build()
+
         every { workflowStub.start("order-1") } returns execution
         every { workflowStub.signal("approve", "order-1") } returns Unit
         every {
@@ -60,15 +69,16 @@ class TemporalExtensionsTest {
     fun `await result returns a reified result`() = runTest {
         every {
             workflowStub.getResultAsync(String::class.java, String::class.java)
-        } returns CompletableFuture.completedFuture("completed")
+        } returns completableFutureOf("completed")
 
         workflowStub.awaitResult<String>() shouldBeEqualTo "completed"
     }
 
     @Test
-    fun `local cancellation cancels only the pending result future`() = runTest {
+    fun `local cancellation cancels only the pending result future`() = runSuspendIO {
         val pending = CompletableFuture<String>()
         val requestStarted = AtomicBoolean()
+
         every {
             workflowStub.getResultAsync(String::class.java, String::class.java)
         } answers {
@@ -76,11 +86,12 @@ class TemporalExtensionsTest {
             pending
         }
 
-        val job = launch { workflowStub.awaitResult<String>() }
-        withTimeout(1_000) {
-            while (!requestStarted.get()) {
-                delay(1)
-            }
+        val job = launch {
+            workflowStub.awaitResult<String>()
+        }
+
+        await atMost 1.seconds withPollInterval 10.milliseconds untilSuspending {
+            requestStarted.get()
         }
 
         job.cancel()
@@ -99,10 +110,13 @@ class TemporalExtensionsTest {
         } returns pending
 
         assertFailsWith<TimeoutCancellationException> {
-            withTimeout(1) { workflowStub.awaitResult<String>() }
+            withTimeout(1.milliseconds) {
+                workflowStub.awaitResult<String>()
+            }
         }
 
         pending.isCancelled.shouldBeTrue()
+
         verify(exactly = 0) { workflowStub.cancel() }
         verify(exactly = 0) { workflowStub.cancel(any<String>()) }
     }

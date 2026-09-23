@@ -5,4 +5,4 @@ import java.util.concurrent.TimeUnit
 import kotlin.time.Duration
 
 fun CountDownLatch.await(duration: Duration): Boolean =
-    await(duration.inWholeMilliseconds, TimeUnit.MILLISECONDS)
+    await(duration.inWholeNanoseconds, TimeUnit.NANOSECONDS)

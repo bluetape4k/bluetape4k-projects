@@ -1,6 +1,8 @@
 package io.bluetape4k.temporal
 
 import io.bluetape4k.logging.coroutines.KLoggingChannel
+import io.bluetape4k.logging.debug
+import io.bluetape4k.logging.warn
 import io.bluetape4k.support.requireGe
 import io.temporal.worker.WorkerFactory
 import kotlinx.coroutines.CancellationException
@@ -11,7 +13,7 @@ import kotlinx.coroutines.withContext
 import java.util.concurrent.TimeUnit
 import kotlin.time.Duration
 
-private object WorkerFactoryTemporalLog: KLoggingChannel()
+private object WorkerFactoryLog: KLoggingChannel()
 
 /**
  * [WorkerFactory]를 제한된 시간 안에 graceful shutdown합니다.
@@ -26,9 +28,13 @@ private object WorkerFactoryTemporalLog: KLoggingChannel()
  * @return 호출 시점의 worker factory 종료 여부
  */
 @Suppress("TooGenericExceptionCaught") // SDK 예외 원문은 로그에 남기지 않고 호출자에게 그대로 전달합니다.
-suspend fun WorkerFactory.shutdownSuspending(timeout: Duration, force: Boolean = false): Boolean {
+suspend fun WorkerFactory.shutdownSuspending(
+    timeout: Duration,
+    force: Boolean = false
+): Boolean {
     require(timeout.isFinite()) { "timeout must be finite." }
     val validTimeout = timeout.requireGe(Duration.ZERO, "timeout")
+
     return withContext(Dispatchers.IO) {
         try {
             if (!isShutdown) {
@@ -42,15 +48,14 @@ suspend fun WorkerFactory.shutdownSuspending(timeout: Duration, force: Boolean =
             }
 
             isTerminated.also { terminated ->
-                WorkerFactoryTemporalLog.log.debug(
-                    "Temporal worker factory shutdown status={}",
-                    if (terminated) "terminated" else "pending",
-                )
+                WorkerFactoryLog.log.debug {
+                    "Temporal worker factory shutdown status=${if (terminated) "terminated" else "pending"}"
+                }
             }
         } catch (e: CancellationException) {
             throw e
         } catch (e: Exception) {
-            WorkerFactoryTemporalLog.log.warn("Temporal worker factory shutdown status=failure")
+            WorkerFactoryLog.log.warn(e) { "Temporal worker factory shutdown status=failure" }
             throw e
         }
     }
