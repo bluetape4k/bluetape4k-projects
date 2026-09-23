@@ -2,6 +2,7 @@ package io.bluetape4k.ktor.core
 
 import io.bluetape4k.support.requireNotBlank
 import kotlinx.serialization.json.Json
+import java.io.Serializable
 
 /**
  * Explicit opt-in configuration for [installBluetape4kKtorCore].
@@ -11,14 +12,14 @@ import kotlinx.serialization.json.Json
  * - Applications can disable each installed Ktor feature independently.
  * - Health and readiness paths must be absolute Ktor route paths.
  */
-class Bluetape4kKtorCoreConfig(
+data class Bluetape4kKtorCoreConfig(
     val json: Json = Bluetape4kKtorJson.defaultJson(),
     val installContentNegotiation: Boolean = true,
     val installStatusPages: Boolean = true,
     val installHealthRoutes: Boolean = true,
     val healthPath: String = DEFAULT_HEALTH_PATH,
     val readinessPath: String = DEFAULT_READINESS_PATH,
-) {
+): Serializable {
 
     init {
         healthPath.requireAbsoluteKtorPath("healthPath")

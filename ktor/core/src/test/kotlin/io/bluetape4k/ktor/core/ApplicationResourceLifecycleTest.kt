@@ -5,10 +5,15 @@ import ch.qos.logback.classic.Logger
 import ch.qos.logback.classic.spi.ILoggingEvent
 import ch.qos.logback.core.AppenderBase
 import io.bluetape4k.assertions.assertFailsWith
+import io.bluetape4k.assertions.shouldBeEmpty
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeFalse
+import io.bluetape4k.assertions.shouldBeNull
 import io.bluetape4k.assertions.shouldBeSameInstanceAs
 import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.assertions.shouldHaveSize
+import io.bluetape4k.assertions.shouldNotContain
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.ktor.server.application.Application
 import io.ktor.server.testing.testApplication
 import kotlinx.coroutines.CoroutineStart
@@ -30,6 +35,8 @@ import java.util.concurrent.atomic.AtomicInteger
 import java.util.concurrent.locks.ReentrantLock
 
 class ApplicationResourceLifecycleTest {
+
+    companion object: KLoggingChannel()
 
     @Test
     fun `installer is idempotent and closes resources at ApplicationStopped`() {
@@ -145,8 +152,8 @@ class ApplicationResourceLifecycleTest {
         registry.closeReport.state shouldBeEqualTo ApplicationResourceRegistryState.CLOSED
         registry.closeReport.failures.single().fatal.shouldBeTrue()
         registry.closeReport.toString() shouldBeEqualTo
-            "ApplicationResourceCloseReport(state=CLOSED, attempted=2, inFlight=0, closed=1, " +
-            "failures=[ApplicationResourceCloseFailure(registrationId=2, phase=SHUTDOWN, fatal=true)])"
+                "ApplicationResourceCloseReport(state=CLOSED, attempted=2, inFlight=0, closed=1, " +
+                "failures=[ApplicationResourceCloseFailure(registrationId=2, phase=SHUTDOWN, fatal=true)])"
     }
 
     @Test
@@ -236,7 +243,7 @@ class ApplicationResourceLifecycleTest {
 
         marker.message.orEmpty().contains("credential-secret").shouldBeFalse()
         registry.closeReport.failures.single().phase shouldBeEqualTo
-            ApplicationResourceClosePhase.LATE_REGISTRATION
+                ApplicationResourceClosePhase.LATE_REGISTRATION
     }
 
     @Test
@@ -296,10 +303,12 @@ class ApplicationResourceLifecycleTest {
         val holder = PrivateLifecycleHolder(registrar::subscribe)
 
         repeat(2) {
-            val failure = assertFailsWith<IllegalStateException> { holder.install() }
+            val failure = assertFailsWith<IllegalStateException> {
+                holder.install()
+            }
             failure.message shouldBeEqualTo "Application resource lifecycle installation failed."
-            failure.cause shouldBeEqualTo null
-            failure.suppressed.toList() shouldBeEqualTo emptyList()
+            failure.cause.shouldBeNull()
+            failure.suppressed.shouldBeEmpty()
         }
         registrar.subscribeCount.get() shouldBeEqualTo 1
         holder.registry.closeReport.state shouldBeEqualTo ApplicationResourceRegistryState.CLOSED
@@ -345,9 +354,9 @@ class ApplicationResourceLifecycleTest {
                 addAll(appender.events.map { it.throwableProxy?.message.orEmpty() })
             }
             listOf("resource-secret", "message-secret", "CredentialSecretFailure").forEach { secret ->
-                surfaces.forEach { it.contains(secret).shouldBeFalse() }
+                surfaces.forEach { it shouldNotContain secret }
             }
-            appender.events.size shouldBeEqualTo 1
+            appender.events shouldHaveSize 1
         } finally {
             logger.detach(appender)
         }
@@ -380,7 +389,7 @@ class ApplicationResourceLifecycleTest {
                 addAll(appender.events.map { it.throwableProxy?.message.orEmpty() })
             }
             listOf("resource-secret", "message-secret", "CredentialSecretFailure").forEach { secret ->
-                surfaces.forEach { it.contains(secret).shouldBeFalse() }
+                surfaces.forEach { it shouldNotContain secret }
             }
             appender.events.any { event ->
                 event.throwableProxy?.message == "Application resource close failed"
@@ -469,7 +478,7 @@ class ApplicationResourceLifecycleTest {
     private class RecordingHandle(
         private val disposeCount: AtomicInteger,
         private val disposeFailure: Throwable? = null,
-    ) : DisposableHandle {
+    ): DisposableHandle {
         override fun dispose() {
             disposeCount.incrementAndGet()
             disposeFailure?.let { throw it }
@@ -507,7 +516,7 @@ class ApplicationResourceLifecycleTest {
         }
     }
 
-    private class ObservedReentrantLock : java.util.concurrent.locks.ReentrantLock() {
+    private class ObservedReentrantLock: java.util.concurrent.locks.ReentrantLock() {
         val callbackContended = CountDownLatch(1)
         private val observeContention = java.util.concurrent.atomic.AtomicBoolean()
 
@@ -529,15 +538,15 @@ class ApplicationResourceLifecycleTest {
     private class SecretResource(
         private val name: String,
         private val closeAction: () -> Unit,
-    ) : AutoCloseable {
+    ): AutoCloseable {
         override fun close(): Unit = closeAction()
 
         override fun toString(): String = name
     }
 
-    private class CredentialSecretFailure(message: String) : AssertionError(message)
+    private class CredentialSecretFailure(message: String): AssertionError(message)
 
-    private class CapturingAppender : AppenderBase<ILoggingEvent>() {
+    private class CapturingAppender: AppenderBase<ILoggingEvent>() {
         val events = CopyOnWriteArrayList<ILoggingEvent>()
 
         override fun append(eventObject: ILoggingEvent) {
@@ -545,7 +554,7 @@ class ApplicationResourceLifecycleTest {
         }
     }
 
-    private class ThrowingAppender : AppenderBase<ILoggingEvent>() {
+    private class ThrowingAppender: AppenderBase<ILoggingEvent>() {
         val appendCount = AtomicInteger()
 
         override fun append(eventObject: ILoggingEvent) {
