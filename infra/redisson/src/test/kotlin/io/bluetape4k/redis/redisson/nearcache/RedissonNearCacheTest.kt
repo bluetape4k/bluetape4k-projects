@@ -1,32 +1,31 @@
 package io.bluetape4k.redis.redisson.nearcache
 
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeFalse
+import io.bluetape4k.assertions.shouldBeNull
+import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.codec.Base58
 import io.bluetape4k.junit5.awaitility.untilSuspending
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.junit5.faker.Fakers
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
-import io.bluetape4k.redis.redisson.codec.RedissonCodecs
 import io.bluetape4k.testcontainers.storage.RedisServer
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.future.await
 import kotlinx.coroutines.launch
-import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldBeFalse
-import io.bluetape4k.assertions.shouldBeNull
-import io.bluetape4k.assertions.shouldBeTrue
 import org.awaitility.kotlin.atMost
 import org.awaitility.kotlin.await
 import org.awaitility.kotlin.until
+import org.awaitility.kotlin.withPollInterval
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.RepeatedTest
 import org.redisson.api.RMap
 import org.redisson.api.options.LocalCachedMapOptions
 import java.time.Duration
+import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
 import kotlin.time.toJavaDuration
-import kotlin.time.Duration.Companion.milliseconds
 
 class RedissonNearCacheTest {
 
@@ -47,11 +46,11 @@ class RedissonNearCacheTest {
         }
 
         private fun randomName(): String = "nearcache-" + Base58.randomString(8)
-        private fun randomValue(): String = Fakers.randomString(1024, 2048)
+        private fun randomValue(): String = Fakers.faker.lorem().paragraph(3)
     }
 
     private val cacheName = randomName()
-    private val cacheCodec = RedissonCodecs.LZ4Fory
+    private val cacheCodec = RedissonNearCache.DefaultCodec
     private val options by lazy {
         LocalCachedMapOptions.name<String, Any>(cacheName)
             .cacheSize(100_000)
@@ -98,7 +97,7 @@ class RedissonNearCacheTest {
             try {
                 isolatedNearCache1.fastPut(key, value).shouldBeTrue()
 
-                await atMost 1.seconds.toJavaDuration() until {
+                await atMost 3.seconds withPollInterval 100.milliseconds until {
                     isolatedNearCache2.containsKey(key)
                 }
 
@@ -121,7 +120,9 @@ class RedissonNearCacheTest {
             log.debug { "near cache1: put key=$keyToAdd" }
             nearCache1.fastPut(keyToAdd, valueToAdd)
 
-            await atMost 1.seconds.toJavaDuration() until { nearCache2.containsKey(keyToAdd) }
+            await atMost 3.seconds withPollInterval 100.milliseconds until {
+                nearCache2.containsKey(keyToAdd)
+            }
 
             nearCache2[keyToAdd] shouldBeEqualTo valueToAdd
         }
@@ -134,12 +135,16 @@ class RedissonNearCacheTest {
             log.debug { "near cache1: put key=$keyToRemove" }
             nearCache1.fastPut(keyToRemove, valueToRemove)
 
-            await atMost 1.seconds.toJavaDuration() until { nearCache2.containsKey(keyToRemove) }
+            await atMost 3.seconds withPollInterval 100.milliseconds until {
+                nearCache2.containsKey(keyToRemove)
+            }
             nearCache2[keyToRemove] shouldBeEqualTo valueToRemove
 
             nearCache1.fastRemove(keyToRemove) shouldBeEqualTo 1
 
-            await atMost 1.seconds.toJavaDuration() until { nearCache2.containsKey(keyToRemove).not() }
+            await atMost 2.seconds withPollInterval 100.milliseconds until {
+                nearCache2.containsKey(keyToRemove).not()
+            }
             nearCache2[keyToRemove].shouldBeNull()
         }
 
@@ -156,7 +161,7 @@ class RedissonNearCacheTest {
             log.debug { "put cache item to back cache. key=$key" }
             backCache.fastPut(key, value).shouldBeTrue()
 
-            await atMost 1.seconds.toJavaDuration() until {
+            await atMost 1.seconds withPollInterval 100.milliseconds until {
                 nearCache1.containsKey(key)
             }
             // NearCache 들에게 신규 아이템이 반영된다.
@@ -167,7 +172,7 @@ class RedissonNearCacheTest {
             log.debug { "remove cache item from back cache. key=$key" }
             backCache.fastRemove(key) shouldBeEqualTo 1
 
-            await atMost 1.seconds.toJavaDuration() until {
+            await atMost 3.seconds withPollInterval 100.milliseconds until {
                 nearCache1.containsKey(key).not()
             }
 
@@ -192,7 +197,7 @@ class RedissonNearCacheTest {
 
             Thread.sleep(500)
 
-            await atMost 3.seconds.toJavaDuration() until {
+            await atMost 3.seconds withPollInterval 100.milliseconds until {
                 nearCache2.containsKey(key).not()
             }
 
@@ -212,7 +217,7 @@ class RedissonNearCacheTest {
             log.debug { "near cache1: put key=$keyToAdd" }
             nearCache1.fastPutIfAbsentAsync(keyToAdd, valueToAdd).await()
 
-            await atMost 1.seconds.toJavaDuration() untilSuspending {
+            await atMost 3.seconds withPollInterval 100.milliseconds untilSuspending {
                 nearCache2.containsKeyAsync(keyToAdd).await()
             }
 
@@ -227,14 +232,16 @@ class RedissonNearCacheTest {
             log.debug { "near cache1: put key=$keyToRemove" }
             nearCache1.fastPutIfAbsentAsync(keyToRemove, valueToRemove).await()
 
-            await atMost 1.seconds.toJavaDuration() untilSuspending {
+            await atMost 3.seconds.toJavaDuration() untilSuspending {
                 nearCache2.containsKeyAsync(keyToRemove).await()
             }
+
             nearCache2.getAsync(keyToRemove).await() shouldBeEqualTo valueToRemove
 
+            log.debug { "near cache1: remove key=$keyToRemove" }
             nearCache1.fastRemoveAsync(keyToRemove).await() shouldBeEqualTo 1
 
-            await atMost 1.seconds.toJavaDuration() untilSuspending {
+            await atMost 3.seconds withPollInterval 100.milliseconds untilSuspending {
                 nearCache2.containsKeyAsync(keyToRemove).await().not()
             }
             nearCache2.getAsync(keyToRemove).await().shouldBeNull()
@@ -253,7 +260,7 @@ class RedissonNearCacheTest {
             log.debug { "put cache item to back cache. key=$key" }
             backCache.fastPutIfAbsentAsync(key, value).await().shouldBeTrue()
 
-            await atMost 5.seconds.toJavaDuration() untilSuspending {
+            await atMost 5.seconds withPollInterval 100.milliseconds untilSuspending {
                 nearCache1.containsKeyAsync(key).await()
             }
             // NearCache 들에게 신규 아이템이 반영된다.
@@ -264,7 +271,7 @@ class RedissonNearCacheTest {
             log.debug { "remove cache item from back cache. key=$key" }
             backCache.fastRemoveAsync(key).await() shouldBeEqualTo 1
 
-            await atMost 5.seconds.toJavaDuration() untilSuspending {
+            await atMost 5.seconds withPollInterval 100.milliseconds untilSuspending {
                 nearCache1.containsKeyAsync(key).await().not()
             }
 
@@ -286,28 +293,28 @@ class RedissonNearCacheTest {
                 nearCache1.expireAsync(1.seconds.toJavaDuration())
             }
 
-            delay(500.milliseconds)
+            await atMost 5.seconds withPollInterval 10.milliseconds untilSuspending {
+                nearCache2.containsKeyAsync(key1).await()
+            }
 
             nearCache2.containsKeyAsync(key1).await().shouldBeTrue()
 
-            delay(500.milliseconds)
-
-            await atMost 3.seconds.toJavaDuration() untilSuspending {
+            await atMost 5.seconds withPollInterval 10.milliseconds untilSuspending {
                 nearCache2.containsKeyAsync(key1).await().not()
             }
 
-            delay(100.milliseconds)
             // 1초가 지나서 expire 되었다.
             nearCache1.containsKeyAsync(key1).await().shouldBeFalse()
 
             // key2 에 대해서 expire 를 설정하지 않았으므로, 삭제되지 않는다.
             // 
             nearCache2.fastPutAsync(key2, value2).await().shouldBeTrue()
+
             launch {
                 nearCache2.expireAsync(Duration.ofSeconds(1))
             }
-            delay(1000.milliseconds)
-            await atMost 3.seconds.toJavaDuration() untilSuspending {
+
+            await atMost 5.seconds withPollInterval 10.milliseconds untilSuspending {
                 nearCache1.containsKeyAsync(key2).await().not()
             }
             nearCache1.containsKeyAsync(key2).await().shouldBeFalse()

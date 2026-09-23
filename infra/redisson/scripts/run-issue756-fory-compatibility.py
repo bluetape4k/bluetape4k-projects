@@ -16,7 +16,6 @@ import urllib.request
 from datetime import datetime, timezone
 from pathlib import Path
 
-
 REPOSITORY_ROOT = Path(__file__).resolve().parents[3]
 REPOSITORY_URL = "https://repo.maven.apache.org/maven2"
 TARGET_VERSION = "1.12.0"
@@ -432,11 +431,11 @@ def compile_harness(current_classpath: list[Path]) -> Path:
 
 
 def java_fixture(
-    harness: Path,
-    classpath: list[Path],
-    action: str,
-    codec: str,
-    fixture: Path,
+        harness: Path,
+        classpath: list[Path],
+        action: str,
+        codec: str,
+        fixture: Path,
 ) -> str:
     return run_checked(
         [
@@ -482,10 +481,10 @@ def git_input_state() -> dict:
 
 
 def execute_matrix(
-    output_root: Path,
-    current: list[Path],
-    old: list[Path],
-    harness: Path,
+        output_root: Path,
+        current: list[Path],
+        old: list[Path],
+        harness: Path,
 ) -> list[dict]:
     classpaths = {"new": current, "old": old}
     results = []

@@ -13,7 +13,6 @@ from datetime import datetime, timezone
 from pathlib import Path
 from urllib.parse import urlparse
 
-
 SCRIPT_ROOT = Path(__file__).resolve().parent
 COMPATIBILITY_SCRIPT = SCRIPT_ROOT / "run-issue756-fory-compatibility.py"
 

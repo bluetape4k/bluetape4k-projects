@@ -1,19 +1,19 @@
 package io.bluetape4k.redis.redisson.cache
 
+import io.bluetape4k.assertions.assertFailsWith
+import io.bluetape4k.assertions.shouldBe
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeGreaterOrEqualTo
+import io.bluetape4k.assertions.shouldNotBeNull
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.redis.redisson.RedissonTestUtils.randomName
 import io.bluetape4k.redis.redisson.RedissonTestUtils.redissonClient
 import io.bluetape4k.redis.redisson.codec.RedissonCodecs
 import io.bluetape4k.redis.redisson.options.codec
 import io.bluetape4k.redis.redisson.options.name
-import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldBeGreaterOrEqualTo
-import io.bluetape4k.assertions.shouldBeTrue
-import io.bluetape4k.assertions.shouldNotBeNull
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import org.redisson.api.options.LocalCachedMapOptions
-import io.bluetape4k.assertions.assertFailsWith
 
 @DisplayName("localCachedMap / LocalCachedMapOptions extensions")
 class LocalCacheMapSupportTest {
@@ -70,8 +70,8 @@ class LocalCacheMapSupportTest {
         val opts = LocalCachedMapOptions.name<String, String>("my-cache").codec(codec)
 
         opts.codec.shouldNotBeNull()
-        (opts.codec === codec).shouldBeTrue()
-    }
+        opts.codec shouldBe codec
+    }   
 
     @Test
     fun `LocalCachedMapOptions codec extension - codec 미지정 시 null 반환`() {

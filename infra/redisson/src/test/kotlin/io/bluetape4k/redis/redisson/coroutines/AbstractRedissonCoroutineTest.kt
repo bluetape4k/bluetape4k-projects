@@ -14,11 +14,10 @@ abstract class AbstractRedissonCoroutineTest: AbstractRedissonTest() {
 
     protected val scope = CoroutineScope(CoroutineName("redisson") + Dispatchers.IO)
 
-    protected val exceptionHandler =
-        CoroutineExceptionHandler { _, exception ->
-            log.error(exception) {
-                "CoroutineExceptionHandler get $exception with suppressed ${exception.suppressed.contentToString()} "
-            }
-            throw RuntimeException("Fail to execute in coroutine", exception)
+    protected val exceptionHandler = CoroutineExceptionHandler { _, exception ->
+        log.error(exception) {
+            "CoroutineExceptionHandler get $exception with suppressed ${exception.suppressed.contentToString()} "
         }
+        throw RuntimeException("Fail to execute in coroutine", exception)
+    }
 }

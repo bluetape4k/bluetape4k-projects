@@ -13,7 +13,6 @@ import zipfile
 from datetime import datetime, timezone
 from pathlib import Path
 
-
 HERE = Path(__file__).resolve().parent
 ROOT = HERE.parents[2]
 OUTPUT = ROOT / "docs/benchmarks/raw/issue-756-fory-followup/feasibility"

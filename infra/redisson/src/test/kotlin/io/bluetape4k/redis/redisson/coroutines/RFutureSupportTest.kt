@@ -3,6 +3,8 @@ package io.bluetape4k.redis.redisson.coroutines
 import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.assertions.shouldHaveSize
+import io.bluetape4k.assertions.shouldNotBeNull
 import io.bluetape4k.coroutines.support.awaitSuspending
 import io.bluetape4k.junit5.coroutines.SuspendedJobTester
 import io.bluetape4k.junit5.coroutines.runSuspendIO
@@ -137,9 +139,9 @@ class RFutureSupportTest: AbstractRedissonCoroutineTest() {
             }
         }
         val lists: List<Int> = defers.awaitAll()
-        lists.size shouldBeEqualTo ITEM_COUNT
+        lists shouldHaveSize ITEM_COUNT
 
-        map.deleteAsync().awaitSuspending()
+        map.deleteAsync().awaitSuspending().shouldBeTrue()
     }
 
     @RepeatedTest(REPEAT_SIZE)
@@ -153,23 +155,24 @@ class RFutureSupportTest: AbstractRedissonCoroutineTest() {
         // RFuture 의 Collection인 경우 awaitAll 로 모두 호출할 수 있습니다.
         val lists: List<Int> = futures.awaitAll()
 
-        lists.size shouldBeEqualTo ITEM_COUNT
-        map.deleteAsync().awaitSuspending()
+        lists shouldHaveSize ITEM_COUNT
+        map.deleteAsync().awaitSuspending().shouldBeTrue()
     }
 
     @RepeatedTest(REPEAT_SIZE)
     fun `putAll async and get by sequence`() = runSuspendIO {
         val map = redisson.getMap<Int, Int>(randomName())
 
-        val items = (0 until ITEM_COUNT).associateWith { it }
+        val items = List(ITEM_COUNT) { it }.associateWith { it + 5 }
 
         // 당연하게도 아무리 비동기라도 round-trip이 많은 것보다 RBatch 가 낫다. 또는 `putAllAsync` 를 이용하는 게 낫다
         map.putAllAsync(items).awaitSuspending()
 
-        val lists = map.getAllAsync(items.keys).awaitSuspending()
+        val lists = map.getAllAsync(items.keys).awaitSuspending().shouldNotBeNull()
         lists shouldBeEqualTo items
         lists.size shouldBeEqualTo ITEM_COUNT
-        map.deleteAsync().awaitSuspending()
+
+        map.deleteAsync().awaitSuspending().shouldBeTrue()
     }
 
     private fun <T> completedRFuture(value: T): RFuture<T> =

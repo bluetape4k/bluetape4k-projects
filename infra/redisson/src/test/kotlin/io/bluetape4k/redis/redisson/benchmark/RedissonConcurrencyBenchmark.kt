@@ -1,5 +1,6 @@
 package io.bluetape4k.redis.redisson.benchmark
 
+import io.bluetape4k.assertions.shouldBeGreaterThan
 import io.bluetape4k.codec.Base58
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
@@ -9,13 +10,12 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.runBlocking
-import io.bluetape4k.assertions.shouldBeGreaterThan
-import org.redisson.client.codec.StringCodec
 import org.junit.jupiter.api.MethodOrderer
 import org.junit.jupiter.api.Order
 import org.junit.jupiter.api.Tag
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestMethodOrder
+import org.redisson.client.codec.StringCodec
 import java.io.File
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicLong
@@ -54,7 +54,7 @@ class RedissonConcurrencyBenchmark {
 
     @Test
     @Order(1)
-    fun `warmup`() {
+    fun `warm up`() {
         // Round 7 H12: 단일 put 반복 warmup → 실제 벤치마크와 동일한 concurrent 워크로드 3회 실행
         repeat(WARMUP_PASSES) { pass ->
             val map = redisson.getMap<String, String>("$KEY_PREFIX:warmup:$pass:${Base58.randomString(4)}")
@@ -86,7 +86,7 @@ class RedissonConcurrencyBenchmark {
 
     @Test
     @Order(2)
-    fun measureConcurrentThroughput() {
+    fun `measure concurrent throughput`() {
         val passScores = mutableListOf<Long>()
         var lastTotalOps = 0L
         var lastErrorOps = 0L
@@ -101,7 +101,7 @@ class RedissonConcurrencyBenchmark {
 
             val elapsedMs = measureTimeMillis {
                 runBlocking(Dispatchers.IO) {
-                    (1..CONCURRENCY).map { coroutineId ->
+                    List(CONCURRENCY) { coroutineId ->
                         async {
                             try {
                                 val batch = redisson.createBatch()
@@ -142,7 +142,9 @@ class RedissonConcurrencyBenchmark {
         val variance = passScores.map { (it - mean) * (it - mean) }.average()
         val stddev = kotlin.math.sqrt(variance)
 
-        log.info { "동시 처리 벤치마크 [median]: passes=$passScores, median=$median, mean=${mean.toLong()}, stddev=${stddev.toLong()}" }
+        log.info {
+            "동시 처리 벤치마크 [median]: passes=$passScores, median=$median, mean=${mean.toLong()}, stddev=${stddev.toLong()}"
+        }
 
         median shouldBeGreaterThan 0L
 
@@ -160,7 +162,7 @@ class RedissonConcurrencyBenchmark {
 
     @Test
     @Order(3)
-    fun measureLeaderElectionThroughput() {
+    fun `measure leader election throughput`() {
         val successCount = AtomicLong(0)
         val failCount = AtomicLong(0)
         val lockKey = "$KEY_PREFIX:leader:${Base58.randomString(6)}"
@@ -189,7 +191,9 @@ class RedissonConcurrencyBenchmark {
         }
 
         val leaderOpsPerSec = if (elapsedMs > 0) successCount.get() * 1000L / elapsedMs else 0L
-        log.info { "LeaderElection 벤치마크: success=${successCount.get()}, fail=${failCount.get()}, elapsed=${elapsedMs}ms, ops/sec=$leaderOpsPerSec" }
+        log.info {
+            "LeaderElection 벤치마크: success=${successCount.get()}, fail=${failCount.get()}, elapsed=${elapsedMs}ms, ops/sec=$leaderOpsPerSec"
+        }
 
         appendLeaderResults(
             leaderOpsPerSec = leaderOpsPerSec,
@@ -245,10 +249,10 @@ class RedissonConcurrencyBenchmark {
         runCatching {
             val existing = outputFile.readText().trimEnd().trimEnd('}')
             val updated = existing +
-                ",\n  \"leader_ops_per_sec\": $leaderOpsPerSec" +
-                ",\n  \"leader_success_count\": $leaderSuccessCount" +
-                ",\n  \"leader_fail_count\": $leaderFailCount" +
-                ",\n  \"leader_elapsed_ms\": $leaderElapsedMs\n}"
+                    ",\n  \"leader_ops_per_sec\": $leaderOpsPerSec" +
+                    ",\n  \"leader_success_count\": $leaderSuccessCount" +
+                    ",\n  \"leader_fail_count\": $leaderFailCount" +
+                    ",\n  \"leader_elapsed_ms\": $leaderElapsedMs\n}"
             outputFile.writeText(updated)
         }
     }

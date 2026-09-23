@@ -1,5 +1,7 @@
 package io.bluetape4k.redis.redisson.cache
 
+import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.debug
 import io.bluetape4k.support.requireNotBlank
 import org.redisson.api.RMap
 
@@ -64,17 +66,23 @@ interface CacheInvalidationStrategy<ID: Any> {
 class RedisCacheInvalidationStrategy<ID: Any>(
     private val cache: RMap<ID, *>,
 ): CacheInvalidationStrategy<ID> {
+
+    companion object: KLogging()
+
     override fun invalidate(vararg ids: ID) {
+        log.debug { "invalidating cache for ${ids.joinToString(",")}" }
         cache.fastRemove(*ids)
     }
 
     override fun invalidateAll() {
+        log.debug { "invalidating cache for all caches" }
         cache.clear()
     }
 
     override fun invalidateByPattern(pattern: String) {
         pattern.requireNotBlank("pattern")
         val keys = cache.keySet(pattern)
+        log.debug { "invalidating cache for pattern $pattern" }
 
         @Suppress("TYPE_PARAMETER_AS_REIFIED_DEPRECATION_WARNING")
         cache.fastRemove(*keys.toTypedArray())

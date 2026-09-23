@@ -1,11 +1,14 @@
 package io.bluetape4k.redis.redisson.coroutines
 
 import io.bluetape4k.assertions.assertFailsWith
+import io.bluetape4k.assertions.shouldBeEmpty
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeFalse
 import io.bluetape4k.assertions.shouldBeInstanceOf
 import io.bluetape4k.assertions.shouldBeSameInstanceAs
 import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.logging.coroutines.KLoggingChannel
+import io.mockk.clearMocks
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
@@ -17,6 +20,7 @@ import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.redisson.api.RFuture
 import org.redisson.api.RTransaction
@@ -24,13 +28,25 @@ import org.redisson.api.RedissonClient
 import org.redisson.misc.CompletableFutureWrapper
 import java.util.concurrent.CompletableFuture
 
-class RedissonClientCoroutineContractTest {
+class RedissonClientCoroutineContractTest: AbstractRedissonCoroutineTest() {
+
+    companion object: KLoggingChannel()
+
+    private val client = mockk<RedissonClient>()
+    private val transaction = mockk<RTransaction>()
+
+    @BeforeEach
+    fun beforeEach() {
+        clearMocks(client, transaction)
+    }
 
     @Test
     fun `action 실패가 주 예외이고 rollback 실패는 suppressed로 보존한다`() = runTest {
         val (client, transaction) = transactionFixture()
+
         val actionFailure = IllegalStateException("action failed")
         val rollbackFailure = IllegalArgumentException("rollback failed")
+
         every { transaction.rollbackAsync() } returns failedFuture(rollbackFailure)
 
         val thrown = assertFailsWith<IllegalStateException> {
@@ -43,6 +59,7 @@ class RedissonClientCoroutineContractTest {
         thrown.suppressed.single()
             .shouldBeInstanceOf<IllegalArgumentException>()
             .message shouldBeEqualTo rollbackFailure.message
+
         verify(exactly = 0) { transaction.commitAsync() }
         verify(exactly = 1) { transaction.rollbackAsync() }
     }
@@ -53,6 +70,7 @@ class RedissonClientCoroutineContractTest {
         val callerCancellation = CancellationException("caller cancelled")
         val rollback = CompletableFuture<Void>()
         val observed = CompletableDeferred<Throwable>()
+
         every { transaction.rollbackAsync() } returns CompletableFutureWrapper(rollback)
 
         val job = launch {
@@ -74,6 +92,7 @@ class RedissonClientCoroutineContractTest {
 
         observed.await() shouldBeSameInstanceAs callerCancellation
         job.isCancelled.shouldBeTrue()
+
         verify(exactly = 1) { transaction.rollbackAsync() }
     }
 
@@ -89,7 +108,8 @@ class RedissonClientCoroutineContractTest {
         }
 
         thrown shouldBeSameInstanceAs commitFailure
-        thrown.suppressed.isEmpty().shouldBeTrue()
+        thrown.suppressed.shouldBeEmpty()
+
         verify(exactly = 1) { transaction.commitAsync() }
         verify(exactly = 1) { transaction.rollbackAsync() }
     }
@@ -98,6 +118,7 @@ class RedissonClientCoroutineContractTest {
     fun `rollback이 완료되지 않으면 제한 시간 후 주 예외에 timeout을 suppress한다`() = runTest {
         val (client, transaction) = transactionFixture()
         val actionFailure = IllegalStateException("action failed")
+
         every { transaction.rollbackAsync() } returns CompletableFutureWrapper(CompletableFuture<Void>())
 
         val thrown = assertFailsWith<IllegalStateException> {
@@ -107,12 +128,10 @@ class RedissonClientCoroutineContractTest {
         }
 
         thrown shouldBeSameInstanceAs actionFailure
-        (thrown.suppressed.single() is TimeoutCancellationException).shouldBeTrue()
+        thrown.suppressed.single().shouldBeInstanceOf<TimeoutCancellationException>()
     }
 
     private fun transactionFixture(): Pair<RedissonClient, RTransaction> {
-        val client = mockk<RedissonClient>()
-        val transaction = mockk<RTransaction>()
         every { client.createTransaction(any()) } returns transaction
         return client to transaction
     }
