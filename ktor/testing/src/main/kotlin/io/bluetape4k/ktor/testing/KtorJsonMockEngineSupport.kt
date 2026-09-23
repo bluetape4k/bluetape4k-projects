@@ -8,7 +8,6 @@ import io.ktor.http.Headers
 import io.ktor.http.HeadersBuilder
 import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
-import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 
 /**

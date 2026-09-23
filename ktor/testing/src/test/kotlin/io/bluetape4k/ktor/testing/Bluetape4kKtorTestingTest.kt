@@ -1,11 +1,11 @@
 package io.bluetape4k.ktor.testing
 
 import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.request.get
 import io.ktor.http.HttpStatusCode
-import io.ktor.server.application.call
 import io.ktor.server.response.respond
 import io.ktor.server.routing.get
 import io.ktor.server.testing.testApplication
@@ -16,6 +16,8 @@ import java.io.Serializable as JavaSerializable
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class Bluetape4kKtorTestingTest {
+
+    companion object: KLoggingChannel()
 
     @Test
     fun `core setup helper installs json status pages and routes`() = testApplication {
