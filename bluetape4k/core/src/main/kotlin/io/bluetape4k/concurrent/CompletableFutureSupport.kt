@@ -524,11 +524,7 @@ val <V> CompletableFuture<V>.isSuccess: Boolean
  * @throws [java.util.concurrent.TimeoutException] 제한된 시간 내에 결과값을 얻지 못한 경우
  */
 fun <V> CompletableFuture<V>.join(duration: Duration): V {
-    return try {
-        get(duration.inWholeNanoseconds, TimeUnit.NANOSECONDS)
-    } catch (e: Throwable) {
-        throw e.cause ?: e
-    }
+    return get(duration.inWholeNanoseconds, TimeUnit.NANOSECONDS)
 }
 
 /**

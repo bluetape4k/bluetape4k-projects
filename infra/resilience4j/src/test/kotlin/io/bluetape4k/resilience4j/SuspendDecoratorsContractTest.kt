@@ -2,6 +2,7 @@ package io.bluetape4k.resilience4j
 
 import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeFalse
 import io.bluetape4k.resilience4j.retry.withRetry
 import io.github.resilience4j.retry.Retry
 import io.github.resilience4j.retry.RetryConfig
@@ -33,7 +34,7 @@ class SuspendDecoratorsContractTest {
             decorated.invoke()
         } shouldBeEqualTo cancellation
 
-        fallbackCalled.get() shouldBeEqualTo false
+        fallbackCalled.get().shouldBeFalse()
     }
 
     @Test
@@ -52,7 +53,7 @@ class SuspendDecoratorsContractTest {
             decorated.invoke()
         } shouldBeEqualTo cancellation
 
-        fallbackCalled.get() shouldBeEqualTo false
+        fallbackCalled.get().shouldBeFalse()
     }
 
     @Test
@@ -71,7 +72,7 @@ class SuspendDecoratorsContractTest {
             decorated.invoke()
         } shouldBeEqualTo cancellation
 
-        fallbackCalled.get() shouldBeEqualTo false
+        fallbackCalled.get().shouldBeFalse()
     }
 
     @Test

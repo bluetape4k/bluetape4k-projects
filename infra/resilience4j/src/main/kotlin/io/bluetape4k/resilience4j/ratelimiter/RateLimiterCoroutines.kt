@@ -87,8 +87,8 @@ suspend fun <T, U, R> withRateLimiter(
  * @param func suspend 함수
  * @return suspend 함수 실행 결과
  */
-inline fun <T, R> RateLimiter.decorateSuspendFunction1(
-    crossinline func: suspend (T) -> R,
+fun <T, R> RateLimiter.decorateSuspendFunction1(
+    func: suspend (T) -> R,
 ): suspend (T) -> R = { input ->
     decorateSuspendFunction { func(input) }.invoke()
 }

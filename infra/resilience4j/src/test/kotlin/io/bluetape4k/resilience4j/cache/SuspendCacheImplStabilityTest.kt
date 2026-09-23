@@ -4,20 +4,26 @@ import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeLessThan
 import io.bluetape4k.assertions.shouldBeTrue
-import io.bluetape4k.junit5.coroutines.runSuspendTest
+import io.bluetape4k.codec.Base58
+import io.bluetape4k.junit5.awaitility.untilSuspending
+import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.coroutines.KLoggingChannel
+import io.mockk.clearMocks
 import io.mockk.every
 import io.mockk.mockk
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
+import org.awaitility.kotlin.atMost
+import org.awaitility.kotlin.await
+import org.awaitility.kotlin.withPollInterval
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.atomic.AtomicInteger
 import kotlin.time.Duration.Companion.milliseconds
+import kotlin.time.Duration.Companion.seconds
 import kotlin.coroutines.cancellation.CancellationException as KotlinCancellationException
 
 /**
@@ -32,12 +38,15 @@ class SuspendCacheImplStabilityTest {
     companion object: KLoggingChannel()
 
     private lateinit var cache: SuspendCache<String, String>
+    private val jcache = mockk<javax.cache.Cache<String, String>>()
 
     @BeforeEach
     fun setup() {
-        val jcache = CaffeineJCacheProvider.getJCache<String, String>("stability-test-${System.nanoTime()}")
-        jcache.clear()
-        cache = SuspendCache.of(jcache)
+        clearMocks(jcache)
+
+        val testJCache = CaffeineJCacheProvider.getJCache<String, String>("stability-test-${Base58.randomString(8)}")
+        testJCache.clear()
+        cache = SuspendCache.of(testJCache)
     }
 
     /**
@@ -49,7 +58,7 @@ class SuspendCacheImplStabilityTest {
      * 취소된 코루틴이 계속 실행되어 코루틴 구조적 동시성이 깨진다.
      */
     @Test
-    fun `loader에서 CancellationException이 발생하면 computeIfAbsent가 재throw한다`() = runSuspendTest {
+    fun `loader에서 CancellationException이 발생하면 computeIfAbsent가 재throw한다`() = runSuspendIO {
         assertFailsWith<KotlinCancellationException> {
             cache.computeIfAbsent("key-cancel") {
                 throw KotlinCancellationException("test cancellation")
@@ -58,14 +67,15 @@ class SuspendCacheImplStabilityTest {
     }
 
     @Test
-    fun `JCache get cancellation is rethrown without cache error event`() = runSuspendTest {
+    fun `JCache get cancellation is rethrown without cache error event`() = runSuspendIO {
         val cancellation = KotlinCancellationException("jcache get cancelled")
-        val jcache = mockk<javax.cache.Cache<String, String>>()
+
         every { jcache.name } returns "cancel-on-get"
         every { jcache.containsKey("key-cancel-get") } throws cancellation
 
         val suspendCache = SuspendCache.of(jcache)
         val errorEvents = AtomicInteger(0)
+
         suspendCache.eventPublisher.onError {
             errorEvents.incrementAndGet()
         }
@@ -81,15 +91,16 @@ class SuspendCacheImplStabilityTest {
     }
 
     @Test
-    fun `JCache put cancellation is rethrown without cache error event`() = runSuspendTest {
+    fun `JCache put cancellation is rethrown without cache error event`() = runSuspendIO {
         val cancellation = KotlinCancellationException("jcache put cancelled")
-        val jcache = mockk<javax.cache.Cache<String, String>>()
+
         every { jcache.name } returns "cancel-on-put"
         every { jcache.containsKey("key-cancel-put") } returns false
         every { jcache.put("key-cancel-put", "value") } throws cancellation
 
         val suspendCache = SuspendCache.of(jcache)
         val errorEvents = AtomicInteger(0)
+
         suspendCache.eventPublisher.onError {
             errorEvents.incrementAndGet()
         }
@@ -112,7 +123,7 @@ class SuspendCacheImplStabilityTest {
      * CancellationException이 발생한다. computeIfAbsent가 이 예외를 억제하지 않아야 한다.
      */
     @Test
-    fun `코루틴 취소 시 computeIfAbsent의 loader에서 CancellationException이 전파된다`() = runSuspendTest {
+    fun `코루틴 취소 시 computeIfAbsent의 loader에서 CancellationException이 전파된다`() = runSuspendIO {
         val loaderStarted = AtomicInteger(0)
         var caughtCancellation = false
 
@@ -130,8 +141,8 @@ class SuspendCacheImplStabilityTest {
         }
 
         // loader가 시작될 때까지 대기
-        while (loaderStarted.get() == 0) {
-            delay(1.milliseconds)
+        await atMost 5.seconds withPollInterval 50.milliseconds untilSuspending {
+            loaderStarted.get() > 0
         }
 
         // 코루틴 취소
@@ -157,21 +168,19 @@ class SuspendCacheImplStabilityTest {
      * (이상적으로는 0, 하지만 GC 타이밍 등으로 일부 남을 수 있으므로 50% 미만을 기준으로 한다).
      */
     @Test
-    fun `서로 다른 키 대량 처리 후 내부 keyLocks 맵이 정리된다`() = runSuspendTest {
+    fun `서로 다른 키 대량 처리 후 내부 keyLocks 맵이 정리된다`() = runSuspendIO {
         val keyCount = 500
-        val keys = (1..keyCount).map { "leak-key-$it" }
+        val keys = List(keyCount) { "leak-key-$it" }
 
         // 모든 키에 대해 순차적으로 computeIfAbsent를 완료합니다.
-        withContext(Dispatchers.Default) {
-            keys.map { key ->
-                async {
-                    cache.computeIfAbsent(key) {
-                        delay(1.milliseconds)
-                        "value-for-$key"
-                    }
+        keys.map { key ->
+            async {
+                cache.computeIfAbsent(key) {
+                    delay(1.milliseconds)
+                    "value-for-$key"
                 }
-            }.awaitAll()
-        }
+            }
+        }.awaitAll()
 
         // 내부 keyLocks 맵 크기를 리플렉션으로 확인합니다.
         val keyLocksField = cache.javaClass.getDeclaredField("keyLocks")
@@ -179,7 +188,7 @@ class SuspendCacheImplStabilityTest {
 
         // SuspendCacheImpl 인스턴스를 가져와야 합니다 (인터페이스 참조이므로)
         val impl = cache
-        val keyLocksMap = keyLocksField.get(impl) as java.util.concurrent.ConcurrentHashMap<*, *>
+        val keyLocksMap = keyLocksField.get(impl) as ConcurrentHashMap<*, *>
 
         // 모든 작업 완료 후 Mutex가 정리되어 keyLocks 크기가 키 수(500)보다 훨씬 작아야 합니다.
         // releaseMutex 로직에 의해 lock이 해제된 Mutex는 즉시 제거되므로 대부분 0에 가깝습니다.
@@ -202,21 +211,19 @@ class SuspendCacheImplStabilityTest {
      * - 수정 후: rawGetWithHit이 hit를 기록하므로 hit 카운트 >= 1 (정상)
      */
     @Test
-    fun `double-check 경로에서 hit 메트릭이 기록된다`() = runSuspendTest {
+    fun `double-check 경로에서 hit 메트릭이 기록된다`() = runSuspendIO {
         val concurrency = 10
         val key = "dc-hit-key"
 
         // 50ms delay로 10개 코루틴이 모두 fast-path miss를 기록하도록 강제합니다.
-        withContext(Dispatchers.Default) {
-            (1..concurrency).map {
-                async {
-                    cache.computeIfAbsent(key) {
-                        delay(50.milliseconds)
-                        "dc-value"
-                    }
+        List(concurrency) {
+            async {
+                cache.computeIfAbsent(key) {
+                    delay(50.milliseconds)
+                    "dc-value"
                 }
-            }.awaitAll()
-        }
+            }
+        }.awaitAll()
 
         val totalHits = cache.metrics.getNumberOfCacheHits()
         val totalMisses = cache.metrics.getNumberOfCacheMisses()

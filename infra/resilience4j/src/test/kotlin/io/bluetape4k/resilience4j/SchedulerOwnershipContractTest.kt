@@ -4,6 +4,7 @@ import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeFalse
 import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.codec.Base58
 import io.bluetape4k.resilience4j.retry.completableFuture
 import io.bluetape4k.resilience4j.retry.completableFutureFunction
 import io.bluetape4k.resilience4j.retry.completionStage
@@ -233,8 +234,8 @@ class SchedulerOwnershipContractTest {
                     block(schedulers)
                 } finally {
                     schedulers.forEach { scheduler ->
-                        scheduler.isShutdown.shouldBeTrue()
                         scheduler.awaitTermination(1, TimeUnit.SECONDS).shouldBeTrue()
+                        scheduler.isShutdown.shouldBeTrue()
                     }
                 }
             },
@@ -242,7 +243,7 @@ class SchedulerOwnershipContractTest {
     }
 
     private fun retry(): Retry = Retry.of(
-        "scheduler-${System.nanoTime()}",
+        "scheduler-${Base58.randomString(8)}",
         RetryConfig.custom<Any?>()
             .maxAttempts(2)
             .waitDuration(Duration.ofMillis(10))
@@ -250,7 +251,7 @@ class SchedulerOwnershipContractTest {
     )
 
     private fun timeLimiter(): TimeLimiter = TimeLimiter.of(
-        "scheduler-${System.nanoTime()}",
+        "scheduler-${Base58.randomString(8)}",
         TimeLimiterConfig.custom()
             .timeoutDuration(Duration.ofMillis(50))
             .build()

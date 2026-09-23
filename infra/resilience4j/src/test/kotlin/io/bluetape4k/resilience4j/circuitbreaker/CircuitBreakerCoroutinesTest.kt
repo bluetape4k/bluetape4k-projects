@@ -3,7 +3,7 @@ package io.bluetape4k.resilience4j.circuitbreaker
 import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeTrue
-import io.bluetape4k.junit5.coroutines.runSuspendTest
+import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.info
 import io.bluetape4k.resilience4j.SuspendHelloWorldService
@@ -14,7 +14,7 @@ import io.github.resilience4j.kotlin.circuitbreaker.decorateSuspendFunction
 import io.github.resilience4j.kotlin.circuitbreaker.executeSuspendFunction
 import org.junit.jupiter.api.Test
 
-class CircuitBreakerCoroutines {
+class CircuitBreakerCoroutinesTest {
 
     companion object: KLoggingChannel()
 
@@ -36,7 +36,7 @@ class CircuitBreakerCoroutines {
     }
 
     @Test
-    fun `execute successful function`() = runSuspendTest {
+    fun `execute successful function`() = runSuspendIO {
         val circuitBreaker = CircuitBreaker.ofDefaults("test")
         val metrics = circuitBreaker.metrics
         metrics.numberOfBufferedCalls shouldBeEqualTo 0
@@ -62,14 +62,16 @@ class CircuitBreakerCoroutines {
         val supplier = breaker.checkedSupplier {
             "This can be any method which returns: `Hello"
         }
-        val result = runCatching { supplier() }.map { "$it world`" }.recover { _ -> "Failed" }
+        val result = runCatching { supplier() }
+            .map { "$it world`" }
+            .recover { _ -> "Failed" }
 
         result.isSuccess.shouldBeTrue()
         result.getOrNull() shouldBeEqualTo "This can be any method which returns: `Hello world`"
     }
 
     @Test
-    fun `circuit 이 열렸을 경우는 실행되지 않는다`() = runSuspendTest {
+    fun `circuit 이 열렸을 경우는 실행되지 않는다`() = runSuspendIO {
         val circuitBreaker = CircuitBreaker.ofDefaults("test")
         circuitBreaker.transitionToOpenState()
         val metrics = circuitBreaker.metrics
@@ -92,7 +94,7 @@ class CircuitBreakerCoroutines {
     }
 
     @Test
-    fun `decorate suspend function and return with success`() = runSuspendTest {
+    fun `decorate suspend function and return with success`() = runSuspendIO {
         val circuitBreaker = CircuitBreaker.ofDefaults("test")
         val metrics = circuitBreaker.metrics
         metrics.numberOfBufferedCalls shouldBeEqualTo 0
@@ -112,7 +114,7 @@ class CircuitBreakerCoroutines {
     }
 
     @Test
-    fun `decorate suspend function and return an exception`() = runSuspendTest {
+    fun `decorate suspend function and return an exception`() = runSuspendIO {
         val circuitBreaker = CircuitBreaker.ofDefaults("test")
         val metrics = circuitBreaker.metrics
         metrics.numberOfBufferedCalls shouldBeEqualTo 0
@@ -134,7 +136,7 @@ class CircuitBreakerCoroutines {
     }
 
     @Test
-    fun `decorate suspend function with parameter and return with success`() = runSuspendTest {
+    fun `decorate suspend function with parameter and return with success`() = runSuspendIO {
         val circuitBreaker = CircuitBreaker.ofDefaults("test")
         val metrics = circuitBreaker.metrics
         metrics.numberOfBufferedCalls shouldBeEqualTo 0
@@ -155,7 +157,7 @@ class CircuitBreakerCoroutines {
     }
 
     @Test
-    fun `decorate suspend function with parameter and return an exception`() = runSuspendTest {
+    fun `decorate suspend function with parameter and return an exception`() = runSuspendIO {
         val circuitBreaker = CircuitBreaker.ofDefaults("test")
         val metrics = circuitBreaker.metrics
         metrics.numberOfBufferedCalls shouldBeEqualTo 0

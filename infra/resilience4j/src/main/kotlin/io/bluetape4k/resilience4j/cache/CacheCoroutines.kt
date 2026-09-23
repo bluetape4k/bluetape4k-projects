@@ -34,8 +34,9 @@ internal object CacheCoroutineLocks {
      * [release] to prevent unbounded memory growth.
      */
     fun mutexFor(cache: Cache<*, *>, key: Any): Mutex = lock.withLock {
-        val entry = locksByCache.getOrPut(cache) { HashMap() }
-            .getOrPut(key) { MutexEntry(Mutex()) }
+        val entry = locksByCache
+            .computeIfAbsent(cache) { HashMap() }
+            .computeIfAbsent(key) { MutexEntry(Mutex()) }
         entry.refCount++
         entry.mutex
     }

@@ -2,7 +2,7 @@ package io.bluetape4k.resilience4j.timelimiter
 
 import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.junit5.coroutines.runSuspendTest
+import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.resilience4j.SuspendHelloWorldService
 import io.github.resilience4j.kotlin.timelimiter.decorateSuspendFunction
@@ -18,7 +18,7 @@ class TimeLimiterCoroutinesTest {
     companion object: KLoggingChannel()
 
     @Test
-    fun `suspend 함수를 실행합니다`() = runSuspendTest {
+    fun `suspend 함수를 실행합니다`() = runSuspendIO {
         val timelimiter = TimeLimiter.ofDefaults()
         val helloWorldService = SuspendHelloWorldService()
 
@@ -31,7 +31,7 @@ class TimeLimiterCoroutinesTest {
     }
 
     @Test
-    fun `예외가 발생하는 메소드도 실행합니다`() = runSuspendTest {
+    fun `예외가 발생하는 메소드도 실행합니다`() = runSuspendIO {
         val timelimiter = TimeLimiter.ofDefaults()
         val helloWorldService = SuspendHelloWorldService()
 
@@ -44,7 +44,7 @@ class TimeLimiterCoroutinesTest {
     }
 
     @Test
-    fun `time out 된 작업은 cancel 합니다`() = runSuspendTest {
+    fun `time out 된 작업은 cancel 합니다`() = runSuspendIO {
         val config = TimeLimiterConfig.custom()
             .timeoutDuration(Duration.ofMillis(10))
             .build()
@@ -62,7 +62,7 @@ class TimeLimiterCoroutinesTest {
     }
 
     @Test
-    fun `timelimiter로 decorate 하기`() = runSuspendTest {
+    fun `timelimiter로 decorate 하기`() = runSuspendIO {
         val timelimiter = TimeLimiter.ofDefaults()
         val helloWorldService = SuspendHelloWorldService()
 

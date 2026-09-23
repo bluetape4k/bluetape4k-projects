@@ -2,7 +2,8 @@ package io.bluetape4k.resilience4j.circuitbreaker
 
 import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.junit5.coroutines.runSuspendTest
+import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.github.resilience4j.circuitbreaker.CallNotPermittedException
 import io.github.resilience4j.circuitbreaker.CircuitBreaker
@@ -15,7 +16,7 @@ class CircuitBreakerExtensionsTest {
     companion object: KLoggingChannel()
 
     @Test
-    fun `withCircuitBreaker - 성공하는 함수가 정상 실행된다`() = runSuspendTest {
+    fun `withCircuitBreaker - 성공하는 함수가 정상 실행된다`() = runSuspendIO {
         val cb = CircuitBreaker.ofDefaults("test")
         val result = withCircuitBreaker(cb) { "hello" }
 
@@ -24,7 +25,7 @@ class CircuitBreakerExtensionsTest {
     }
 
     @Test
-    fun `withCircuitBreaker - 1개 파라미터 함수에 적용한다`() = runSuspendTest {
+    fun `withCircuitBreaker - 1개 파라미터 함수에 적용한다`() = runSuspendIO {
         val cb = CircuitBreaker.ofDefaults("test")
         val result = withCircuitBreaker(cb, 21) { input -> input * 2 }
 
@@ -33,7 +34,7 @@ class CircuitBreakerExtensionsTest {
     }
 
     @Test
-    fun `withCircuitBreaker - 2개 파라미터 함수에 적용한다`() = runSuspendTest {
+    fun `withCircuitBreaker - 2개 파라미터 함수에 적용한다`() = runSuspendIO {
         val cb = CircuitBreaker.ofDefaults("test")
         val result = withCircuitBreaker(cb, 20, 22) { a, b -> a + b }
 
@@ -42,7 +43,7 @@ class CircuitBreakerExtensionsTest {
     }
 
     @Test
-    fun `withCircuitBreaker - OPEN 상태이면 CallNotPermittedException이 발생한다`() = runSuspendTest {
+    fun `withCircuitBreaker - OPEN 상태이면 CallNotPermittedException이 발생한다`() = runSuspendIO {
         val cb = CircuitBreaker.ofDefaults("test")
         cb.transitionToOpenState()
 
@@ -54,7 +55,7 @@ class CircuitBreakerExtensionsTest {
     }
 
     @Test
-    fun `withCircuitBreaker - 예외 발생 시 실패로 기록된다`() = runSuspendTest {
+    fun `withCircuitBreaker - 예외 발생 시 실패로 기록된다`() = runSuspendIO {
         val cb = CircuitBreaker.ofDefaults("test")
 
         assertFailsWith<IOException> {
@@ -65,7 +66,7 @@ class CircuitBreakerExtensionsTest {
     }
 
     @Test
-    fun `decorateSuspendFunction1 - 정상 실행된다`() = runSuspendTest {
+    fun `decorateSuspendFunction1 - 정상 실행된다`() = runSuspendIO {
         val cb = CircuitBreaker.ofDefaults("test")
         val decorated = cb.decorateSuspendFunction1 { input: Int -> input * 2 }
 
@@ -74,7 +75,7 @@ class CircuitBreakerExtensionsTest {
     }
 
     @Test
-    fun `decorateSuspendBiFunction - 정상 실행된다`() = runSuspendTest {
+    fun `decorateSuspendBiFunction - 정상 실행된다`() = runSuspendIO {
         val cb = CircuitBreaker.ofDefaults("test")
         val decorated = cb.decorateSuspendBiFunction { a: Int, b: Int -> a + b }
 
@@ -83,7 +84,7 @@ class CircuitBreakerExtensionsTest {
     }
 
     @Test
-    fun `decorateSuspendFunction1 - OPEN 상태이면 CallNotPermittedException이 발생한다`() = runSuspendTest {
+    fun `decorateSuspendFunction1 - OPEN 상태이면 CallNotPermittedException이 발생한다`() = runSuspendIO {
         val cb = CircuitBreaker.ofDefaults("test")
         cb.transitionToOpenState()
 
@@ -99,7 +100,7 @@ class CircuitBreakerExtensionsTest {
         val cb = CircuitBreaker.ofDefaults("test-runnable")
         var executed = false
         cb.runnable { executed = true }.invoke()
-        executed shouldBeEqualTo true
+        executed.shouldBeTrue()
         cb.metrics.numberOfSuccessfulCalls shouldBeEqualTo 1
     }
 
@@ -108,7 +109,7 @@ class CircuitBreakerExtensionsTest {
         val cb = CircuitBreaker.ofDefaults("test-checked-runnable")
         var executed = false
         cb.checkedRunnable { executed = true }.run()
-        executed shouldBeEqualTo true
+        executed.shouldBeTrue()
     }
 
     @Test

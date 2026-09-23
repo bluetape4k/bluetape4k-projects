@@ -6,7 +6,8 @@ import io.bluetape4k.assertions.shouldBeInstanceOf
 import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.concurrent.failedCompletableFutureOf
 import io.bluetape4k.concurrent.futureOf
-import io.bluetape4k.logging.coroutines.KLoggingChannel
+import io.bluetape4k.concurrent.get
+import io.bluetape4k.logging.KLogging
 import io.bluetape4k.resilience4j.AsyncHelloWorldService
 import io.bluetape4k.resilience4j.HelloWorldException
 import io.github.resilience4j.decorators.Decorators
@@ -20,10 +21,11 @@ import io.mockk.verify
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import java.util.concurrent.Executors
+import kotlin.time.Duration.Companion.seconds
 
 class RetryCompletionStageTest {
 
-    companion object: KLoggingChannel()
+    companion object: KLogging()
 
     private val helloWorldService: AsyncHelloWorldService = mockk(relaxUnitFun = true)
     private val scheduler = Executors.newScheduledThreadPool(8) // Executors.newSingleThreadScheduledExecutor()
@@ -44,7 +46,7 @@ class RetryCompletionStageTest {
             .withRetry(retry, scheduler)
             .get()
 
-        val result = supplier.toCompletableFuture().get()
+        val result = supplier.toCompletableFuture().get(1.seconds)
 
         result shouldBeEqualTo "Hello world"
         verify(exactly = 1) { helloWorldService.returnHelloWorld() }
@@ -62,7 +64,8 @@ class RetryCompletionStageTest {
             .withRetry(retry, scheduler)
             .get()
 
-        supplier.toCompletableFuture().get()
+        supplier.toCompletableFuture().get(1.seconds)
+
         verify(exactly = 1) { helloWorldService.sayHelloWorld() }
         confirmVerified(helloWorldService)
     }
@@ -83,7 +86,7 @@ class RetryCompletionStageTest {
             .withRetry(retry, scheduler)
             .get()
 
-        val result = supplier.toCompletableFuture().get()
+        val result = supplier.toCompletableFuture().get(1.seconds)
 
         result shouldBeEqualTo "Hello world"
         verify(exactly = 1) { helloWorldService.returnHelloWorld() }
@@ -125,7 +128,7 @@ class RetryCompletionStageTest {
             helloWorldService.returnHelloWorld()
         }
 
-        val result = supplier.get().toCompletableFuture().get()
+        val result = supplier.get().toCompletableFuture().get(1.seconds)
 
         result shouldBeEqualTo "Hello world"
         verify(exactly = 2) { helloWorldService.returnHelloWorld() }
@@ -148,7 +151,6 @@ class RetryCompletionStageTest {
     }
 
     private fun retryWithAttemptsWithException(noOfAttempts: Int) {
-
         val failedFuture = failedCompletableFutureOf<String>(HelloWorldException())
 
         every { helloWorldService.returnHelloWorld() } returns failedFuture
@@ -163,9 +165,10 @@ class RetryCompletionStageTest {
             .withRetry(retry, scheduler)
 
         val result = runCatching { supplier.get().toCompletableFuture().get() }
+
         verify(exactly = noOfAttempts) { helloWorldService.returnHelloWorld() }
         result.isFailure.shouldBeTrue()
-        result.exceptionOrNull()?.cause shouldBeInstanceOf HelloWorldException::class
+        result.exceptionOrNull()?.cause.shouldBeInstanceOf<HelloWorldException>()
     }
 
     private fun retryWithAttemptsAndRetryOnResult(noOfAttempts: Int, retryResponse: String) {
@@ -181,7 +184,7 @@ class RetryCompletionStageTest {
             .ofCompletionStage { helloWorldService.returnHelloWorld() }
             .withRetry(retry, scheduler)
 
-        val result = runCatching { supplier.get().toCompletableFuture().get() }
+        val result = runCatching { supplier.get().toCompletableFuture().get(1.seconds) }
 
         verify(exactly = noOfAttempts) { helloWorldService.returnHelloWorld() }
         result.isSuccess.shouldBeTrue()

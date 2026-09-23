@@ -20,7 +20,7 @@ class CacheExamples {
     private val jcache: javax.cache.Cache<String, String> by lazy {
         JCaching.Caffeine.getOrCreate("jcache-" + UUID.randomUUID().encodeBase62())
     }
-    private val cache: Cache<String, String> = Cache.of(jcache)
+    private val resilienceCache: Cache<String, String> = Cache.of(jcache)
 
     @BeforeEach
     fun setup() {
@@ -29,8 +29,8 @@ class CacheExamples {
 
     @Test
     fun `setup resilience4j cache with caffein jcache`() {
-        cache.eventPublisher.onEvent { log.debug { "onEvent=$it" } }
-        cache.eventPublisher.onError { log.warn(it.throwable) { "OnError. FlowEvent=${it}" } }
+        resilienceCache.eventPublisher.onEvent { log.debug { "onEvent=$it" } }
+        resilienceCache.eventPublisher.onError { log.warn(it.throwable) { "OnError. FlowEvent=${it}" } }
 
         val called = AtomicInteger(0)
 
@@ -41,14 +41,15 @@ class CacheExamples {
 
         val cachedFunction = Decorators
             .ofSupplier(function)
-            .withCache(cache)
+            .withCache(resilienceCache)
             .decorate()
 
         cachedFunction.apply("cacheKey") shouldBeEqualTo "Do something"
         cachedFunction.apply("cacheKey") shouldBeEqualTo "Do something"
 
         called.get() shouldBeEqualTo 1
-        cache.metrics.numberOfCacheHits shouldBeEqualTo 1
-        cache.metrics.numberOfCacheMisses shouldBeEqualTo 1
+
+        resilienceCache.metrics.numberOfCacheHits shouldBeEqualTo 1
+        resilienceCache.metrics.numberOfCacheMisses shouldBeEqualTo 1
     }
 }

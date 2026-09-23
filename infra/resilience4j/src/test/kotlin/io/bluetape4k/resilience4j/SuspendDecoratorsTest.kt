@@ -3,7 +3,6 @@ package io.bluetape4k.resilience4j
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeInstanceOf
 import io.bluetape4k.assertions.shouldBeTrue
-import io.bluetape4k.junit5.coroutines.runSuspendTest
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.error
 import io.bluetape4k.logging.info
@@ -17,7 +16,7 @@ import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.confirmVerified
 import io.mockk.mockk
-import org.junit.jupiter.api.AfterEach
+import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
@@ -73,19 +72,16 @@ class SuspendDecoratorsTest {
         clearMocks(service)
     }
 
-    @AfterEach
-    fun cleanup() {
-        clearMocks(service)
-    }
+//    @AfterEach
+//    fun cleanup() {
+//        clearMocks(service)
+//    }
 
     @Nested
     inner class CoDecoratorsForRunnableTest {
 
         @Test
-        fun `성공하는 runnable에 대한 retry decoration 하기`() = runSuspendTest {
-            // relaxUnitFun = true 를 지정하면 이 작업은 필요없다
-            // coEvery { service.run() } returns Unit
-
+        fun `성공하는 runnable에 대한 retry decoration 하기`() = runTest {
             val result = runCatching {
                 SuspendDecorators.ofRunnable { service.run() }
                     .withRetry(retry)
@@ -98,10 +94,7 @@ class SuspendDecoratorsTest {
         }
 
         @Test
-        fun `성공하는 runnable에 대해 retry 와 circuit breaker를 decoration 하기`() = runSuspendTest {
-            // relaxUnitFun = true 를 지정하면 이 작업은 필요없다
-            coEvery { service.run() } returns Unit
-
+        fun `성공하는 runnable에 대해 retry 와 circuit breaker를 decoration 하기`() = runTest {
             val decorated = SuspendDecorators.ofRunnable { service.run() }
                 .withCircuitBreaker(circuitBreaker)
                 .withRetry(retry)
@@ -116,7 +109,7 @@ class SuspendDecoratorsTest {
         }
 
         @Test
-        fun `예외를 발생하는 runnable에 대한 retry decoration하기`() = runSuspendTest {
+        fun `예외를 발생하는 runnable에 대한 retry decoration하기`() = runTest {
             coEvery { service.run() } throws IOException("BAM!")
 
             val decorated = SuspendDecorators
@@ -127,14 +120,14 @@ class SuspendDecoratorsTest {
             val result = runCatching { decorated() }
 
             result.isFailure.shouldBeTrue()
-            result.exceptionOrNull() shouldBeInstanceOf IOException::class
+            result.exceptionOrNull().shouldBeInstanceOf<IOException>()
 
             coVerify(exactly = retry.retryConfig.maxAttempts) { service.run() }
             confirmVerified(service)
         }
 
         @Test
-        fun `예외를 발생하는 runnable에 대한 retry와 circuit breaker를 decoration하기`() = runSuspendTest {
+        fun `예외를 발생하는 runnable에 대한 retry와 circuit breaker를 decoration하기`() = runTest {
             coEvery { service.run() } throws IOException("BAM!")
 
             val decorated = SuspendDecorators
@@ -146,7 +139,8 @@ class SuspendDecoratorsTest {
             val result = runCatching { decorated() }
 
             result.isFailure.shouldBeTrue()
-            result.exceptionOrNull() shouldBeInstanceOf IOException::class
+            result.exceptionOrNull().shouldBeInstanceOf<IOException>()
+
             coVerify(exactly = retry.retryConfig.maxAttempts) { service.run() }
             confirmVerified(service)
         }
@@ -158,7 +152,7 @@ class SuspendDecoratorsTest {
         val expected = "Hello world!"
 
         @Test
-        fun `성공하는 supplier 대한 retry decoration 하기`() = runSuspendTest {
+        fun `성공하는 supplier 대한 retry decoration 하기`() = runTest {
             coEvery { service.supply() } coAnswers { expected }
 
             val decorated = SuspendDecorators
@@ -170,12 +164,13 @@ class SuspendDecoratorsTest {
 
             result.isSuccess.shouldBeTrue()
             result.getOrNull() shouldBeEqualTo expected
+
             coVerify(exactly = 1) { service.supply() }
             confirmVerified(service)
         }
 
         @Test
-        fun `성공하는 supplier 대해 retry 와 circuit breaker를 decoration 하기`() = runSuspendTest {
+        fun `성공하는 supplier 대해 retry 와 circuit breaker를 decoration 하기`() = runTest {
             coEvery { service.supply() } coAnswers { expected }
 
             val decorated = SuspendDecorators
@@ -188,12 +183,13 @@ class SuspendDecoratorsTest {
 
             result.isSuccess.shouldBeTrue()
             result.getOrNull() shouldBeEqualTo expected
+
             coVerify(exactly = 1) { service.supply() }
             confirmVerified(service)
         }
 
         @Test
-        fun `성공하는 supplier 대해 fallback decoration 하기`() = runSuspendTest {
+        fun `성공하는 supplier 대해 fallback decoration 하기`() = runTest {
             coEvery { service.supply() } coAnswers { expected }
 
             val decorated = SuspendDecorators
@@ -206,12 +202,13 @@ class SuspendDecoratorsTest {
 
             result.isSuccess.shouldBeTrue()
             result.getOrNull() shouldBeEqualTo "fallback"
+
             coVerify(exactly = 1) { service.supply() }
             confirmVerified(service)
         }
 
         @Test
-        fun `예외를 발생하는 supplier 대한 retry decoration하기`() = runSuspendTest {
+        fun `예외를 발생하는 supplier 대한 retry decoration하기`() = runTest {
             coEvery { service.supply() } throws IOException("BAM!")
 
             val decorated = SuspendDecorators
@@ -222,13 +219,14 @@ class SuspendDecoratorsTest {
             val result = runCatching { decorated() }
 
             result.isFailure.shouldBeTrue()
-            result.exceptionOrNull() shouldBeInstanceOf IOException::class
+            result.exceptionOrNull().shouldBeInstanceOf<IOException>()
+
             coVerify(exactly = retry.retryConfig.maxAttempts) { service.supply() }
             confirmVerified(service)
         }
 
         @Test
-        fun `예외를 발생하는 supplier 대한 retry와 circuit breaker를 decoration하기`() = runSuspendTest {
+        fun `예외를 발생하는 supplier 대한 retry와 circuit breaker를 decoration하기`() = runTest {
             coEvery { service.supply() } throws IOException("BAM!")
 
             val decorated = SuspendDecorators
@@ -240,7 +238,7 @@ class SuspendDecoratorsTest {
             val result = runCatching { decorated() }
 
             result.isFailure.shouldBeTrue()
-            result.exceptionOrNull() shouldBeInstanceOf IOException::class
+            result.exceptionOrNull().shouldBeInstanceOf<IOException>()
             coVerify(exactly = retry.retryConfig.maxAttempts) { service.supply() }
             confirmVerified(service)
         }
@@ -252,9 +250,7 @@ class SuspendDecoratorsTest {
         val input = "Hello world!"
 
         @Test
-        fun `성공하는 consumer 대한 retry decoration 하기`() = runSuspendTest {
-            coEvery { service.consume(input) } returns Unit
-
+        fun `성공하는 consumer 대한 retry decoration 하기`() = runTest {
             val decorated = SuspendDecorators
                 .ofRunnable { service.consume(input) }
                 .withRetry(retry)
@@ -263,14 +259,13 @@ class SuspendDecoratorsTest {
             val result = runCatching { decorated() }
 
             result.isSuccess.shouldBeTrue()
+
             coVerify(exactly = 1) { service.consume(input) }
             confirmVerified(service)
         }
 
         @Test
-        fun `성공하는 consumer 대해 retry 와 circuit breaker를 decoration 하기`() = runSuspendTest {
-            coEvery { service.consume(input) } returns Unit
-
+        fun `성공하는 consumer 대해 retry 와 circuit breaker를 decoration 하기`() = runTest {
             val decorated = SuspendDecorators
                 .ofRunnable { service.consume(input) }
                 .withRetry(retry)
@@ -280,12 +275,13 @@ class SuspendDecoratorsTest {
             val result = runCatching { decorated() }
 
             result.isSuccess.shouldBeTrue()
+
             coVerify(exactly = 1) { service.consume(input) }
             confirmVerified(service)
         }
 
         @Test
-        fun `예외를 발생하는 consumer 대한 retry decoration하기`() = runSuspendTest {
+        fun `예외를 발생하는 consumer 대한 retry decoration하기`() = runTest {
             coEvery { service.consume(input) } throws IOException("BAM!")
 
             val decorated = SuspendDecorators
@@ -296,13 +292,14 @@ class SuspendDecoratorsTest {
             val result = runCatching { decorated() }
 
             result.isFailure.shouldBeTrue()
-            result.exceptionOrNull() shouldBeInstanceOf IOException::class
+            result.exceptionOrNull().shouldBeInstanceOf<IOException>()
+
             coVerify(exactly = retry.retryConfig.maxAttempts) { service.consume(input) }
             confirmVerified(service)
         }
 
         @Test
-        fun `예외를 발생하는 consumer 대한 retry와 circuit breaker를 decoration하기`() = runSuspendTest {
+        fun `예외를 발생하는 consumer 대한 retry와 circuit breaker를 decoration하기`() = runTest {
             coEvery { service.consume(input) } throws IOException("BAM!")
 
             val decorated = SuspendDecorators
@@ -314,7 +311,7 @@ class SuspendDecoratorsTest {
             val result = runCatching { decorated() }
 
             result.isFailure.shouldBeTrue()
-            result.exceptionOrNull() shouldBeInstanceOf IOException::class
+            result.exceptionOrNull().shouldBeInstanceOf<IOException>()
             coVerify(exactly = retry.retryConfig.maxAttempts) { service.consume(input) }
             confirmVerified(service)
         }
@@ -327,7 +324,7 @@ class SuspendDecoratorsTest {
         val output: LocalDateTime = LocalDateTime.now()
 
         @Test
-        fun `성공하는 function 대한 retry decoration 하기`() = runSuspendTest {
+        fun `성공하는 function 대한 retry decoration 하기`() = runTest {
             coEvery { service.execute(input) } returns output
 
             val decorated = SuspendDecorators
@@ -339,12 +336,13 @@ class SuspendDecoratorsTest {
 
             result.isSuccess.shouldBeTrue()
             result.getOrNull() shouldBeEqualTo output
+
             coVerify(exactly = 1) { service.execute(input) }
             confirmVerified(service)
         }
 
         @Test
-        fun `성공하는 function 대해 retry 와 circuit breaker를 decoration 하기`() = runSuspendTest {
+        fun `성공하는 function 대해 retry 와 circuit breaker를 decoration 하기`() = runTest {
             coEvery { service.execute(input) } returns output
 
             val decorated = SuspendDecorators
@@ -357,12 +355,13 @@ class SuspendDecoratorsTest {
 
             result.isSuccess.shouldBeTrue()
             result.getOrNull() shouldBeEqualTo output
+
             coVerify(exactly = 1) { service.execute(input) }
             confirmVerified(service)
         }
 
         @Test
-        fun `예외를 발생하는 function 대한 retry decoration하기`() = runSuspendTest {
+        fun `예외를 발생하는 function 대한 retry decoration하기`() = runTest {
             coEvery { service.execute(input) } throws IOException("BAM!")
 
             val decorated = SuspendDecorators
@@ -373,13 +372,14 @@ class SuspendDecoratorsTest {
             val result = runCatching { decorated(input) }
 
             result.isFailure.shouldBeTrue()
-            result.exceptionOrNull() shouldBeInstanceOf IOException::class
+            result.exceptionOrNull().shouldBeInstanceOf<IOException>()
+            
             coVerify(exactly = retry.retryConfig.maxAttempts) { service.execute(input) }
             confirmVerified(service)
         }
 
         @Test
-        fun `예외를 발생하는 function 대한 retry와 circuit breaker를 decoration하기`() = runSuspendTest {
+        fun `예외를 발생하는 function 대한 retry와 circuit breaker를 decoration하기`() = runTest {
             coEvery { service.execute(input) } throws IOException("BAM!")
 
             val decorated = SuspendDecorators
@@ -391,13 +391,14 @@ class SuspendDecoratorsTest {
             val result = runCatching { decorated(input) }
 
             result.isFailure.shouldBeTrue()
-            result.exceptionOrNull() shouldBeInstanceOf IOException::class
+            result.exceptionOrNull().shouldBeInstanceOf<IOException>()
+            
             coVerify(exactly = retry.retryConfig.maxAttempts) { service.execute(input) }
             confirmVerified(service)
         }
 
         @Test
-        fun `성공하는 function 에 대해 CoroutinesCache decorate하기`() = runSuspendTest {
+        fun `성공하는 function 에 대해 CoroutinesCache decorate하기`() = runTest {
             coEvery { service.execute(input) } returns output
 
             val jcache = Cache2kJCacheProvider.getJCache<String, LocalDateTime>("CoDecorators")
@@ -437,7 +438,7 @@ class SuspendDecoratorsTest {
         val output = 44
 
         @Test
-        fun `성공하는 bi-function 대한 retry decoration 하기`() = runSuspendTest {
+        fun `성공하는 bi-function 대한 retry decoration 하기`() = runTest {
             coEvery { service.bifunction(input1, input2) } returns output
 
             val decorated = SuspendDecorators
@@ -449,12 +450,13 @@ class SuspendDecoratorsTest {
 
             result.isSuccess.shouldBeTrue()
             result.getOrNull() shouldBeEqualTo output
+
             coVerify(exactly = 1) { service.bifunction(input1, input2) }
             confirmVerified(service)
         }
 
         @Test
-        fun `성공하는 bi-function 대해 retry 와 circuit breaker를 decoration 하기`() = runSuspendTest {
+        fun `성공하는 bi-function 대해 retry 와 circuit breaker를 decoration 하기`() = runTest {
             coEvery { service.bifunction(input1, input2) } returns output
 
             val decorated = SuspendDecorators
@@ -467,12 +469,13 @@ class SuspendDecoratorsTest {
 
             result.isSuccess.shouldBeTrue()
             result.getOrNull() shouldBeEqualTo output
+
             coVerify(exactly = 1) { service.bifunction(input1, input2) }
             confirmVerified(service)
         }
 
         @Test
-        fun `예외를 발생하는 bi-function 대한 retry decoration하기`() = runSuspendTest {
+        fun `예외를 발생하는 bi-function 대한 retry decoration하기`() = runTest {
             coEvery { service.bifunction(input1, input2) } throws IOException("BAM!")
 
             val decorated = SuspendDecorators
@@ -483,13 +486,14 @@ class SuspendDecoratorsTest {
             val result = runCatching { decorated(input1, input2) }
 
             result.isFailure.shouldBeTrue()
-            result.exceptionOrNull() shouldBeInstanceOf IOException::class
+            result.exceptionOrNull().shouldBeInstanceOf<IOException>()
+            
             coVerify(exactly = retry.retryConfig.maxAttempts) { service.bifunction(input1, input2) }
             confirmVerified(service)
         }
 
         @Test
-        fun `예외를 발생하는 bi-function 대한 retry와 circuit breaker를 decoration하기`() = runSuspendTest {
+        fun `예외를 발생하는 bi-function 대한 retry와 circuit breaker를 decoration하기`() = runTest {
             coEvery { service.bifunction(input1, input2) } throws IOException("BAM!")
 
             val decorated = SuspendDecorators
@@ -501,7 +505,8 @@ class SuspendDecoratorsTest {
             val result = runCatching { decorated(input1, input2) }
 
             result.isFailure.shouldBeTrue()
-            result.exceptionOrNull() shouldBeInstanceOf IOException::class
+            result.exceptionOrNull().shouldBeInstanceOf<IOException>()
+            
             coVerify(exactly = retry.retryConfig.maxAttempts) { service.bifunction(input1, input2) }
             confirmVerified(service)
         }

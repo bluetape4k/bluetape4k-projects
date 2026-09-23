@@ -44,10 +44,10 @@ suspend fun <R> withTimeLimiter(
  * @param func 실행할 블록
  * @return 실행 결과
  */
-suspend inline fun <T, R> withTimeLimiter(
+suspend fun <T, R> withTimeLimiter(
     timeLimiter: TimeLimiter,
     param: T,
-    crossinline func: suspend (T) -> R,
+    func: suspend (T) -> R,
 ): R {
     return timeLimiter.decorateSuspendFunction1(func).invoke(param)
 }
@@ -70,11 +70,11 @@ suspend inline fun <T, R> withTimeLimiter(
  * @param bifunc 실행할 블록
  * @return 실행 결과
  */
-suspend inline fun <T, U, R> withTimeLimiter(
+suspend fun <T, U, R> withTimeLimiter(
     timeLimiter: TimeLimiter,
     param1: T,
     param2: U,
-    crossinline bifunc: suspend (T, U) -> R,
+    bifunc: suspend (T, U) -> R,
 ): R {
     return timeLimiter.decorateSuspendBiFunction(bifunc).invoke(param1, param2)
 }
@@ -95,8 +95,8 @@ suspend inline fun <T, U, R> withTimeLimiter(
  * @param func 실행할 블록
  * @return 데코레이터
  */
-inline fun <T, R> TimeLimiter.decorateSuspendFunction1(
-    crossinline func: suspend (T) -> R,
+fun <T, R> TimeLimiter.decorateSuspendFunction1(
+    func: suspend (T) -> R,
 ): suspend (T) -> R = { input: T ->
     decorateSuspendFunction { func(input) }.invoke()
 }
@@ -117,8 +117,8 @@ inline fun <T, R> TimeLimiter.decorateSuspendFunction1(
  * @param bifunc 실행할 블록
  * @return 데코레이터
  */
-inline fun <T, U, R> TimeLimiter.decorateSuspendBiFunction(
-    crossinline bifunc: suspend (T, U) -> R,
+fun <T, U, R> TimeLimiter.decorateSuspendBiFunction(
+    bifunc: suspend (T, U) -> R,
 ): suspend (T, U) -> R = { t: T, u: U ->
     decorateSuspendFunction { bifunc(t, u) }.invoke()
 }

@@ -2,13 +2,12 @@ package io.bluetape4k.resilience4j.cache
 
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeLessOrEqualTo
-import io.bluetape4k.junit5.coroutines.runSuspendTest
+import io.bluetape4k.codec.Base58
+import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.coroutines.KLoggingChannel
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.withContext
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import java.util.concurrent.atomic.AtomicInteger
@@ -28,30 +27,28 @@ class SuspendCacheImplConcurrentTest {
 
     @BeforeEach
     fun setup() {
-        val jcache = CaffeineJCacheProvider.getJCache<String, String>("concurrent-test-${System.nanoTime()}")
+        val jcache = CaffeineJCacheProvider.getJCache<String, String>("concurrent-test-${Base58.randomString(8)}")
         jcache.clear()
         cache = SuspendCache.of(jcache)
     }
 
     @Test
-    fun `동일 키에 대한 동시 요청은 loader를 정확히 한 번만 실행한다`() = runSuspendTest {
+    fun `동일 키에 대한 동시 요청은 loader를 정확히 한 번만 실행한다`() = runSuspendIO {
         val loaderCallCount = AtomicInteger(0)
         val concurrency = 20
         val key = "same-key"
 
         // 20개 코루틴이 동시에 동일 키로 cache miss를 유발합니다.
         // Mutex가 없으면 모든 코루틴이 loader()를 호출해 최대 20번까지 실행됩니다.
-        val results = withContext(Dispatchers.Default) {
-            (1..concurrency).map {
-                async {
-                    cache.computeIfAbsent(key) {
-                        loaderCallCount.incrementAndGet()
-                        delay(10.milliseconds) // 동시성 경합을 유발할 지연
-                        "loaded-value"
-                    }
+        val results = List(concurrency) {
+            async {
+                cache.computeIfAbsent(key) {
+                    loaderCallCount.incrementAndGet()
+                    delay(10.milliseconds) // 동시성 경합을 유발할 지연
+                    "loaded-value"
                 }
-            }.awaitAll()
-        }
+            }
+        }.awaitAll()
 
         // 모든 코루틴이 동일한 값을 받아야 합니다.
         results.distinct().size shouldBeEqualTo 1
@@ -63,31 +60,31 @@ class SuspendCacheImplConcurrentTest {
     }
 
     @Test
-    fun `서로 다른 키에 대한 동시 요청은 각 키별로 loader를 한 번씩 실행한다`() = runSuspendTest {
+    fun `서로 다른 키에 대한 동시 요청은 각 키별로 loader를 한 번씩 실행한다`() = runSuspendIO {
         val loaderCallCount = AtomicInteger(0)
         val keys = (1..10).map { "key-$it" }
 
         // 각 키에 대해 2개의 동시 요청을 보냅니다.
-        val results = withContext(Dispatchers.Default) {
-            keys.flatMap { key ->
+        val results = keys
+            .flatMap { key ->
                 listOf(
                     async {
                         cache.computeIfAbsent(key) {
                             loaderCallCount.incrementAndGet()
-                            delay(5.milliseconds)
+                            delay(10.milliseconds)
                             "value-for-$key"
                         }
                     },
                     async {
                         cache.computeIfAbsent(key) {
                             loaderCallCount.incrementAndGet()
-                            delay(5.milliseconds)
+                            delay(10.milliseconds)
                             "value-for-$key"
                         }
                     }
                 )
-            }.awaitAll()
-        }
+            }
+            .awaitAll()
 
         // 각 키당 loader()는 최대 한 번만 실행되어야 합니다.
         loaderCallCount.get() shouldBeLessOrEqualTo keys.size
@@ -100,7 +97,7 @@ class SuspendCacheImplConcurrentTest {
     }
 
     @Test
-    fun `캐시에 이미 값이 있을 때 동시 요청은 loader를 실행하지 않는다`() = runSuspendTest {
+    fun `캐시에 이미 값이 있을 때 동시 요청은 loader를 실행하지 않는다`() = runSuspendIO {
         val loaderCallCount = AtomicInteger(0)
         val key = "pre-cached-key"
 
@@ -113,16 +110,14 @@ class SuspendCacheImplConcurrentTest {
         loaderCallCount.get() shouldBeEqualTo 1
 
         // 이미 캐시된 키에 대한 동시 요청은 loader를 호출하지 않아야 합니다.
-        withContext(Dispatchers.Default) {
-            (1..10).map {
-                async {
-                    cache.computeIfAbsent(key) {
-                        loaderCallCount.incrementAndGet()
-                        "should-not-load"
-                    }
+        List(10) {
+            async {
+                cache.computeIfAbsent(key) {
+                    loaderCallCount.incrementAndGet()
+                    "should-not-load"
                 }
-            }.awaitAll()
-        }
+            }
+        }.awaitAll()
 
         // loader()는 최초 1번 이후 추가 호출이 없어야 합니다.
         loaderCallCount.get() shouldBeEqualTo 1

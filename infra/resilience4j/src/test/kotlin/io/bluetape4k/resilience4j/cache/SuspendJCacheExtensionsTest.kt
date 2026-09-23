@@ -3,7 +3,8 @@ package io.bluetape4k.resilience4j.cache
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeFalse
 import io.bluetape4k.assertions.shouldBeTrue
-import io.bluetape4k.junit5.coroutines.runSuspendTest
+import io.bluetape4k.codec.Base58
+import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import org.junit.jupiter.api.Test
 
@@ -18,7 +19,7 @@ class SuspendJCacheExtensionsTest {
     }
 
     @Test
-    fun `withSuspendCache - 캐시 미스 시 loader를 실행하고 값을 캐시한다`() = runSuspendTest {
+    fun `withSuspendCache - 캐시 미스 시 loader를 실행하고 값을 캐시한다`() = runSuspendIO {
         val cache = newSuspendCache()
         var loadCount = 0
 
@@ -33,7 +34,7 @@ class SuspendJCacheExtensionsTest {
     }
 
     @Test
-    fun `withSuspendCache - 캐시 히트 시 loader를 실행하지 않는다`() = runSuspendTest {
+    fun `withSuspendCache - 캐시 히트 시 loader를 실행하지 않는다`() = runSuspendIO {
         val cache = newSuspendCache()
         var loadCount = 0
 
@@ -54,7 +55,7 @@ class SuspendJCacheExtensionsTest {
     }
 
     @Test
-    fun `withSuspendCache - 서로 다른 키는 독립적으로 캐시된다`() = runSuspendTest {
+    fun `withSuspendCache - 서로 다른 키는 독립적으로 캐시된다`() = runSuspendIO {
         val cache = newSuspendCache()
         var loadCount = 0
 
@@ -69,25 +70,25 @@ class SuspendJCacheExtensionsTest {
     }
 
     @Test
-    fun `decorateSuspendSupplier - supplier가 캐시 함수로 변환된다`() = runSuspendTest {
+    fun `decorateSuspendSupplier - supplier가 캐시 함수로 변환된다`() = runSuspendIO {
         val cache = newSuspendCache()
         var loadCount = 0
+        val cacheValue = Base58.randomString(8)
 
         val cachedFn = cache.decorateSuspendSupplier {
             loadCount++
-            "global-value"
+            cacheValue
         }
 
-        val r1 = cachedFn("key1")
-        val r2 = cachedFn("key1")
+        repeat(10) {
+            cachedFn("key1") shouldBeEqualTo cacheValue
+        }
 
-        r1 shouldBeEqualTo "global-value"
-        r2 shouldBeEqualTo "global-value"
         loadCount shouldBeEqualTo 1
     }
 
     @Test
-    fun `decorateSuspendFunction - key 기반 loader가 캐시 함수로 변환된다`() = runSuspendTest {
+    fun `decorateSuspendFunction - key 기반 loader가 캐시 함수로 변환된다`() = runSuspendIO {
         val cache = newSuspendCache()
         var loadCount = 0
 
@@ -96,18 +97,15 @@ class SuspendJCacheExtensionsTest {
             "value-for-$key"
         }
 
-        val r1 = cachedFn("k1")
-        val r2 = cachedFn("k2")
-        val r3 = cachedFn("k1")
+        cachedFn("k1") shouldBeEqualTo "value-for-k1"
+        cachedFn("k2") shouldBeEqualTo "value-for-k2"
+        cachedFn("k1") shouldBeEqualTo "value-for-k1"
 
-        r1 shouldBeEqualTo "value-for-k1"
-        r2 shouldBeEqualTo "value-for-k2"
-        r3 shouldBeEqualTo "value-for-k1"
         loadCount shouldBeEqualTo 2
     }
 
     @Test
-    fun `executeSuspendFunction - 캐시 미스 시 loader를 실행한다`() = runSuspendTest {
+    fun `executeSuspendFunction - 캐시 미스 시 loader를 실행한다`() = runSuspendIO {
         val cache = newSuspendCache()
         var loadCount = 0
 
@@ -121,7 +119,7 @@ class SuspendJCacheExtensionsTest {
     }
 
     @Test
-    fun `executeSuspendFunction - 캐시 히트 시 loader를 건너뛴다`() = runSuspendTest {
+    fun `executeSuspendFunction - 캐시 히트 시 loader를 건너뛴다`() = runSuspendIO {
         val cache = newSuspendCache()
         var loadCount = 0
 
@@ -133,7 +131,7 @@ class SuspendJCacheExtensionsTest {
     }
 
     @Test
-    fun `SuspendCache metrics - 캐시 히트와 미스 수를 추적한다`() = runSuspendTest {
+    fun `SuspendCache metrics - 캐시 히트와 미스 수를 추적한다`() = runSuspendIO {
         val cache = newSuspendCache()
 
         withSuspendCache(cache, "k1") { "v1" }  // miss
@@ -147,7 +145,7 @@ class SuspendJCacheExtensionsTest {
     }
 
     @Test
-    fun `SuspendCache containsKey - 존재하는 키에 대해 true를 반환한다`() = runSuspendTest {
+    fun `SuspendCache containsKey - 존재하는 키에 대해 true를 반환한다`() = runSuspendIO {
         val cache = newSuspendCache()
 
         cache.containsKey("nonexistent").shouldBeFalse()
