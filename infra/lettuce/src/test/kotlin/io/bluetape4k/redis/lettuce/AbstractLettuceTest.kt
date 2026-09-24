@@ -10,7 +10,7 @@ abstract class AbstractLettuceTest {
     companion object: KLogging() {
 
         @JvmStatic
-        val faker = Fakers.faker
+        val faker = Fakers.defaultFaker
 
         @JvmStatic
         protected fun randomName(): String = "${LibraryName}:lettuce:${Base58.randomString(8)}"

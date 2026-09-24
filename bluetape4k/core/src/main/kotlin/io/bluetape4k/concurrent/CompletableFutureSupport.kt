@@ -524,7 +524,7 @@ val <V> CompletableFuture<V>.isSuccess: Boolean
  * @throws [java.util.concurrent.TimeoutException] 제한된 시간 내에 결과값을 얻지 못한 경우
  */
 fun <V> CompletableFuture<V>.join(duration: Duration): V {
-    return get(duration.inWholeNanoseconds, TimeUnit.NANOSECONDS)
+    return get(duration)
 }
 
 /**
@@ -540,13 +540,8 @@ fun <V> CompletableFuture<V>.join(duration: Duration): V {
  * @return V 결과값
  * @throws [java.util.concurrent.TimeoutException] 제한된 시간 내에 결과값을 얻지 못한 경우
  */
-fun <V> CompletableFuture<V>.join(duration: Duration, defaultValue: V): V {
-    return try {
-        join(duration) ?: defaultValue
-    } catch (e: TimeoutException) {
-        defaultValue
-    }
-}
+fun <V> CompletableFuture<V>.join(duration: Duration, defaultValue: V): V =
+    get(duration, defaultValue)
 
 /**
  * 제한된 사간안에 [CompletableFuture]의 결과값을 반환하거나, null을 반환합니다.
@@ -559,13 +554,7 @@ fun <V> CompletableFuture<V>.join(duration: Duration, defaultValue: V): V {
  * @param duration 최대 대기 시간
  * @return V? 결과값 또는 null
  */
-fun <V> CompletableFuture<V>.joinOrNull(duration: Duration): V? {
-    return try {
-        get(duration.inWholeNanoseconds, TimeUnit.NANOSECONDS)
-    } catch (e: TimeoutException) {
-        null
-    }
-}
+fun <V> CompletableFuture<V>.joinOrNull(duration: Duration): V? = getOrNull(duration)
 
 fun <V> CompletableFuture<V>.get(duration: Duration): V =
     get(duration.inWholeNanoseconds, TimeUnit.NANOSECONDS)

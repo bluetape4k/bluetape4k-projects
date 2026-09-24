@@ -25,7 +25,9 @@ import java.util.*
 object Fakers: KLogging() {
 
     /** 공유 DataFaker 인스턴스입니다. */
-    val faker: Faker = Faker(Locale.getDefault())
+    val faker: Faker by lazy { Faker() }
+
+    val defaultFaker by lazy { Faker(Locale.getDefault()) }
 
     /** 공유 난수 서비스입니다. */
     val random: RandomService by lazy { faker.random() }
