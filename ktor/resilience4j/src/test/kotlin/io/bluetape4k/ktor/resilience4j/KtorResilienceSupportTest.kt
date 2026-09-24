@@ -2,13 +2,13 @@ package io.bluetape4k.ktor.resilience4j
 
 import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldNotBeNull
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.ktor.core.ApiErrorResponse
 import io.bluetape4k.ktor.core.Bluetape4kKtorCoreConfig
 import io.bluetape4k.ktor.core.Bluetape4kKtorJson
 import io.bluetape4k.ktor.core.bluetape4kErrorResponses
 import io.bluetape4k.ktor.core.installBluetape4kKtorCore
+import io.bluetape4k.logging.KLogging
 import io.github.resilience4j.circuitbreaker.CircuitBreaker
 import io.github.resilience4j.circuitbreaker.CircuitBreakerConfig
 import io.github.resilience4j.ratelimiter.RateLimiter
@@ -23,6 +23,7 @@ import io.ktor.client.request.put
 import io.ktor.client.statement.bodyAsText
 import io.ktor.http.HttpMethod
 import io.ktor.http.HttpStatusCode
+import io.ktor.server.application.Application
 import io.ktor.server.application.install
 import io.ktor.server.plugins.statuspages.StatusPages
 import io.ktor.server.response.respondText
@@ -30,18 +31,21 @@ import io.ktor.server.routing.routing
 import io.ktor.server.testing.testApplication
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.TimeoutCancellationException
-import kotlinx.coroutines.withTimeout
-import kotlinx.coroutines.test.runTest
-import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.withTimeout
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
 import java.time.Duration
 import java.util.concurrent.atomic.AtomicInteger
 import java.util.concurrent.atomic.AtomicReference
+import kotlin.time.Duration.Companion.milliseconds
+import kotlin.time.Duration.Companion.seconds
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class KtorResilienceSupportTest {
+
+    companion object: KLogging()
 
     private val json = Bluetape4kKtorJson.defaultJson()
 
@@ -174,7 +178,7 @@ class KtorResilienceSupportTest {
             installResilienceTestStatusPages()
             routing {
                 resilientGet("/timeout", KtorResiliencePolicies(timeLimiter = timeLimiter)) {
-                    delay(100)
+                    delay(100.milliseconds)
                     call.respondText("late-secret")
                 }
             }
@@ -212,7 +216,7 @@ class KtorResilienceSupportTest {
 
         thrown.message shouldBeEqualTo "ordinary failure"
         errorEvents.get() shouldBeEqualTo 1
-        recordedFailure.get().shouldNotBeNull().message shouldBeEqualTo "ordinary failure"
+        recordedFailure.get().message shouldBeEqualTo "ordinary failure"
     }
 
     @Test
@@ -265,8 +269,10 @@ class KtorResilienceSupportTest {
         limiter.eventPublisher.onTimeout { events.incrementAndGet() }
         limiter.eventPublisher.onError { events.incrementAndGet() }
         assertFailsWith<TimeoutCancellationException> {
-            withTimeout(30) {
-                withKtorResilience(KtorResiliencePolicies(timeLimiter = limiter)) { delay(1_000) }
+            withTimeout(30.milliseconds) {
+                withKtorResilience(KtorResiliencePolicies(timeLimiter = limiter)) {
+                    delay(1.seconds)
+                }
             }
         }
         events.get() shouldBeEqualTo 0
@@ -282,13 +288,15 @@ class KtorResilienceSupportTest {
         limiter.eventPublisher.onError { events.incrementAndGet() }
         assertFailsWith<TimeoutCancellationException> {
             withKtorResilience(KtorResiliencePolicies(timeLimiter = limiter)) {
-                withTimeout(30) { delay(1_000) }
+                withTimeout(30.milliseconds) {
+                    delay(1.seconds)
+                }
             }
         }
         events.get() shouldBeEqualTo 0
     }
 
-    private fun io.ktor.server.application.Application.installResilienceTestStatusPages() {
+    private fun Application.installResilienceTestStatusPages() {
         installBluetape4kKtorCore(
             Bluetape4kKtorCoreConfig(
                 installStatusPages = false,

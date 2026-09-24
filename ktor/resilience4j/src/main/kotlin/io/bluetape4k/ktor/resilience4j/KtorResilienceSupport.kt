@@ -1,7 +1,6 @@
 package io.bluetape4k.ktor.resilience4j
 
 import io.bluetape4k.resilience4j.ratelimiter.withRateLimiter
-import io.bluetape4k.resilience4j.retry.withRetry as withSuspendRetry
 import io.github.resilience4j.circuitbreaker.CallNotPermittedException
 import io.github.resilience4j.circuitbreaker.CircuitBreaker
 import io.github.resilience4j.timelimiter.TimeLimiter
@@ -13,6 +12,8 @@ import io.ktor.server.routing.post
 import io.ktor.server.routing.route
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.withTimeoutOrNull
+import kotlin.time.toKotlinDuration
+import io.bluetape4k.resilience4j.retry.withRetry as withSuspendRetry
 
 /**
  * Executes [block] through caller-owned Resilience4j policies.
@@ -138,7 +139,7 @@ internal suspend fun <T: Any> withTimeLimiterPreservingStatusMapping(
     block: suspend () -> T,
 ): T {
     return try {
-        val result = withTimeoutOrNull(timeLimiter.timeLimiterConfig.timeoutDuration.toMillis()) {
+        val result = withTimeoutOrNull(timeLimiter.timeLimiterConfig.timeoutDuration.toKotlinDuration()) {
             block()
         } ?: throw TimeLimiter.createdTimeoutExceptionWithName(timeLimiter.name, null)
         timeLimiter.onSuccess()
