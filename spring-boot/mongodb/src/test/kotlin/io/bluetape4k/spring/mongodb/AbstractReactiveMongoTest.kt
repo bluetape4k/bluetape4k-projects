@@ -29,6 +29,7 @@ import org.springframework.test.context.DynamicPropertySource
  * ```
  */
 abstract class AbstractReactiveMongoTest {
+
     companion object: KLoggingChannel() {
         /** 지연 초기화되는 MongoDB 테스트 서버입니다. */
         val mongoServer: MongoDBServer by lazy { MongoDBServer.Launcher.mongoDB }

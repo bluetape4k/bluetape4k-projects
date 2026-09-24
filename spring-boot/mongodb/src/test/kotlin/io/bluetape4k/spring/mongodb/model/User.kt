@@ -3,6 +3,7 @@ package io.bluetape4k.spring.mongodb.model
 import org.springframework.data.annotation.Id
 import org.springframework.data.mongodb.core.index.Indexed
 import org.springframework.data.mongodb.core.mapping.Document
+import java.io.Serializable
 
 /**
  * Spring Data MongoDB 통합 테스트에 사용하는 사용자 도메인 모델입니다.
@@ -23,4 +24,4 @@ data class User(
     val age: Int,
     /** 거주 도시 */
     val city: String,
-)
+): Serializable
