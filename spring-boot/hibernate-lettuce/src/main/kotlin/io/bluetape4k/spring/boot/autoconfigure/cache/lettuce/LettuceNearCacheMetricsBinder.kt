@@ -39,9 +39,8 @@ class LettuceNearCacheMetricsBinder(
     override fun afterSingletonsInstantiated() {
         runCatching {
             val sessionFactory = entityManagerFactory.unwrap(SessionFactoryImplementor::class.java)
-            val regionFactory =
-                sessionFactory.serviceRegistry
-                    .getService(RegionFactory::class.java) ?: return
+            val regionFactory = sessionFactory.serviceRegistry
+                .getService(RegionFactory::class.java) ?: return
 
             if (regionFactory !is LettuceNearCacheRegionFactory) {
                 log.debug { "RegionFactory is not LettuceNearCacheRegionFactory, skipping metrics" }
