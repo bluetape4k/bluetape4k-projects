@@ -1,12 +1,12 @@
 package io.bluetape4k.examples.cache.lettuce
 
-import io.bluetape4k.examples.cache.lettuce.domain.Product
-import io.bluetape4k.examples.cache.lettuce.repository.ProductRepository
-import io.bluetape4k.testcontainers.storage.RedisServer
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldHaveSize
 import io.bluetape4k.assertions.shouldNotBeBlank
 import io.bluetape4k.assertions.shouldNotBeNull
+import io.bluetape4k.examples.cache.lettuce.domain.Product
+import io.bluetape4k.examples.cache.lettuce.repository.ProductRepository
+import io.bluetape4k.testcontainers.storage.RedisServer
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
