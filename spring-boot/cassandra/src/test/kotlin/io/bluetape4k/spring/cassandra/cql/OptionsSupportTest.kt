@@ -3,17 +3,20 @@ package io.bluetape4k.spring.cassandra.cql
 import com.datastax.oss.driver.api.querybuilder.QueryBuilder
 import com.datastax.oss.driver.api.querybuilder.update.Update
 import io.bluetape4k.assertions.assertFailsWith
+import io.bluetape4k.assertions.shouldBe
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeFalse
 import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.assertions.shouldNotBeNull
+import io.bluetape4k.assertions.shouldNotContain
+import io.bluetape4k.logging.KLogging
 import io.mockk.mockk
 import org.junit.jupiter.api.Test
 import java.time.Duration
 
 class OptionsSupportTest {
 
-    companion object {
+    companion object: KLogging() {
         private const val KEYSPACE = "ks"
         private const val TABLE = "tbl"
         private const val TIMESTAMP = 1700000000000L
@@ -30,7 +33,6 @@ class OptionsSupportTest {
         val error = assertFailsWith<IllegalArgumentException> {
             writeOptions { ttl(Duration.ofSeconds(-1)) }
         }
-
         error.message shouldBeEqualTo "TTL must be greater than equal to zero"
     }
 
@@ -50,7 +52,6 @@ class OptionsSupportTest {
             .query
 
         val actual = insert.addWriteOptions(options).build().query
-
         actual shouldBeEqualTo expected
     }
 
@@ -88,7 +89,7 @@ class OptionsSupportTest {
 
         val cql = insert.addWriteOptions(writeOptions { }).build().query
 
-        cql.contains("USING TTL").shouldBeFalse()
+        cql shouldNotContain "USING TTL"
     }
 
     @Test
@@ -198,7 +199,7 @@ class OptionsSupportTest {
             .query
 
         actual shouldBeEqualTo expected
-        actual.contains("USING TTL").shouldBeFalse()
+        actual shouldNotContain "USING TTL"
     }
 
     @Test
@@ -257,6 +258,6 @@ class OptionsSupportTest {
         val options = writeOptions { timestamp(TIMESTAMP) }
 
         val result = update.addWriteOptions(options)
-        (result === update).shouldBeTrue()
+        result shouldBe update
     }
 }

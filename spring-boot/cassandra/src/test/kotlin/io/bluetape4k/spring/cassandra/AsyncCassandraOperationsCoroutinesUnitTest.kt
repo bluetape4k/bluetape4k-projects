@@ -29,7 +29,10 @@ class AsyncCassandraOperationsCoroutinesUnitTest {
 
     companion object: KLoggingChannel()
 
-    data class TestEntity(val id: String = "id-1", val name: String = "Test"): Serializable
+    data class TestEntity(
+        val id: String = "id-1",
+        val name: String = "Test"
+    ): Serializable
 
     private val testEntity = TestEntity()
     private val testSlice: Slice<TestEntity> = SliceImpl(listOf(testEntity))
@@ -191,7 +194,7 @@ class AsyncCassandraOperationsCoroutinesUnitTest {
     fun `sliceSuspending returns empty when null`() = runSuspendIO {
         val result = emptyOps.sliceSuspending<TestEntity>(testStatement)
         result.shouldNotBeNull()
-        result.content.isEmpty() shouldBeEqualTo true
+        result.content.isEmpty().shouldBeTrue()
     }
 
     @Test
@@ -203,7 +206,7 @@ class AsyncCassandraOperationsCoroutinesUnitTest {
     @Test
     fun `sliceSuspending with Query returns empty when null`() = runSuspendIO {
         val result = emptyOps.sliceSuspending<TestEntity>(Query.empty())
-        result.content.isEmpty() shouldBeEqualTo true
+        result.content.isEmpty().shouldBeTrue()
     }
 
     @Test
@@ -231,7 +234,7 @@ class AsyncCassandraOperationsCoroutinesUnitTest {
     }
 
     @Test
-    fun `selectOneByIdSuspending`() = runSuspendIO {
+    fun `selectOneByIdSuspending entity`() = runSuspendIO {
         val result = mockOps.selectOneByIdSuspending<TestEntity>("id-1")
         result shouldBeEqualTo testEntity
     }
@@ -263,7 +266,7 @@ class AsyncCassandraOperationsCoroutinesUnitTest {
     @Test
     fun `updateSuspending with Query and Update`() = runSuspendIO {
         val result = mockOps.updateSuspending<TestEntity>(Query.empty(), Update.empty())
-        result shouldBeEqualTo true
+        result.shouldBeTrue()
     }
 
     @Test
@@ -275,7 +278,7 @@ class AsyncCassandraOperationsCoroutinesUnitTest {
     @Test
     fun `deleteSuspending with Query`() = runSuspendIO {
         val result = mockOps.deleteSuspending<TestEntity>(Query.empty())
-        result shouldBeEqualTo true
+        result.shouldBeTrue()
     }
 
     @Test
@@ -285,13 +288,13 @@ class AsyncCassandraOperationsCoroutinesUnitTest {
     }
 
     @Test
-    fun `deleteByIdSuspending`() = runSuspendIO {
+    fun `deleteByIdSuspending by id`() = runSuspendIO {
         val result = mockOps.deleteByIdSuspending<TestEntity>("id-1")
         result.shouldBeTrue()
     }
 
     @Test
-    fun `truncateSuspending`() = runSuspendIO {
+    fun `truncateSuspending - no exception`() = runSuspendIO {
         mockOps.truncateSuspending<TestEntity>()
         // no exception = success
     }

@@ -5,6 +5,7 @@ import com.datastax.oss.driver.api.core.cql.SimpleStatement
 import com.datastax.oss.driver.api.core.cql.Statement
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.assertions.shouldNotBeEmpty
 import io.bluetape4k.assertions.shouldNotBeNull
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.coroutines.KLoggingChannel
@@ -23,6 +24,7 @@ import org.springframework.data.cassandra.core.cql.RowMapper
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 
+@Suppress("ReactiveStreamsUnusedPublisher")
 class ReactiveCqlOperationsSupportUnitTest {
 
     companion object: KLoggingChannel()
@@ -38,13 +40,19 @@ class ReactiveCqlOperationsSupportUnitTest {
         every { ops.execute(any<String>()) } returns Mono.just(true)
         every { ops.execute(any<Statement<*>>()) } returns Mono.just(true)
         every { ops.execute(any<ReactivePreparedStatementCreator>()) } returns Mono.just(true)
-        every { ops.queryForObject(any<String>(), any<RowMapper<String>>(), *anyVararg()) } answers {
+        every {
+            ops.queryForObject(any<String>(), any<RowMapper<String>>(), *anyVararg())
+        } answers {
             Mono.just("result")
         }
-        every { ops.queryForObject(any<String>(), any<Class<*>>(), *anyVararg()) } answers {
+        every {
+            ops.queryForObject(any<String>(), any<Class<*>>(), *anyVararg())
+        } answers {
             Mono.just("result") as Mono<Any>
         }
-        every { ops.queryForObject(any<Statement<*>>(), any<Class<*>>()) } answers {
+        every {
+            ops.queryForObject(any<Statement<*>>(), any<Class<*>>())
+        } answers {
             Mono.just("result") as Mono<Any>
         }
         every { ops.queryForMap(any<String>(), *anyVararg()) } returns Mono.just(testMap)
@@ -53,7 +61,9 @@ class ReactiveCqlOperationsSupportUnitTest {
         every { ops.queryForResultSet(any<Statement<*>>()) } returns Mono.just(mockResultSet)
         every { ops.queryForRows(any<Statement<*>>()) } returns Flux.just(mockRow)
         every { ops.queryForRows(any<String>(), *anyVararg()) } returns Flux.just(mockRow)
-        every { ops.query(any<Statement<*>>(), any<RowMapper<String>>()) } answers {
+        every {
+            ops.query(any<Statement<*>>(), any<RowMapper<String>>())
+        } answers {
             Flux.just("mapped")
         }
     }
@@ -61,7 +71,7 @@ class ReactiveCqlOperationsSupportUnitTest {
     @Test
     fun `executeSuspending with CQL string`() = runSuspendIO {
         val result = mockOps.executeSuspending("TRUNCATE users")
-        result shouldBeEqualTo true
+        result.shouldBeTrue()
     }
 
     @Test
@@ -74,7 +84,7 @@ class ReactiveCqlOperationsSupportUnitTest {
     fun `coExecute with PreparedStatementCreator`() = runSuspendIO {
         val psc = mockk<ReactivePreparedStatementCreator>()
         val result = mockOps.coExecute(psc)
-        result shouldBeEqualTo true
+        result.shouldBeTrue()
     }
 
     // Relaxed mock returns a Flux proxy that doesn't implement Publisher correctly for generic T.
@@ -82,7 +92,7 @@ class ReactiveCqlOperationsSupportUnitTest {
     // Verifying the Flow is non-null is sufficient for coverage of the function body.
     @Test
     fun `executeSuspending with ReactiveSessionCallback action`() = runSuspendIO {
-        val flow = mockOps.executeSuspending<String> { _: ReactiveSession ->
+        val flow = mockOps.executeSuspending { _: ReactiveSession ->
             flowOf("result1", "result2")
         }
         flow.shouldNotBeNull()
@@ -122,7 +132,9 @@ class ReactiveCqlOperationsSupportUnitTest {
         val localOps = mockk<ReactiveCqlOperations>()
         val cql = "SELECT * FROM users WHERE id = ? AND firstname = ?"
 
-        every { localOps.queryForMap(cql, "user-1", "Debop") } returns Mono.just(testMap)
+        every {
+            localOps.queryForMap(cql, "user-1", "Debop")
+        } returns Mono.just(testMap)
 
         val result = localOps.queryForMapSuspending(cql, "user-1", "Debop")
 
@@ -162,27 +174,36 @@ class ReactiveCqlOperationsSupportUnitTest {
 
     @Test
     fun `executeForFlow with Flow of CQL strings`() = runSuspendIO {
-        val localOps = mockk<ReactiveCqlOperations>().also { ops ->
-            every { ops.execute(any<org.reactivestreams.Publisher<String>>()) } answers {
-                Flux.just(true)
+        val localOps = mockk<ReactiveCqlOperations>()
+            .also { ops ->
+                every {
+                    ops.execute(any<org.reactivestreams.Publisher<String>>())
+                } answers {
+                    Flux.just(true)
+                }
             }
-        }
+
         val cqlFlow = flowOf("TRUNCATE users")
         val results = localOps.executeForFlow(cqlFlow).toList()
-        results.shouldNotBeNull()
+        results.shouldNotBeEmpty()
+        results.all { it }.shouldBeTrue()
     }
 
     @Test
     fun `queryForFlow with Statement and RowMapper`() = runSuspendIO {
-        val results = mockOps.queryForFlow<String>(testStatement) { row, _ ->
-            "mapped"
-        }.toList()
-        results.shouldNotBeNull()
+        val results = mockOps
+            .queryForFlow(testStatement) { row, _ ->
+                "mapped"
+            }
+            .toList()
+        results.shouldNotBeEmpty()
     }
 
     @Test
     fun `queryForMapFlow with CQL`() = runSuspendIO {
-        val flow = mockOps.queryForMapFlow("SELECT * FROM users")
+        val flow = mockOps
+            .queryForMapFlow("SELECT * FROM users")
+
         flow.shouldNotBeNull()
     }
 
@@ -194,7 +215,7 @@ class ReactiveCqlOperationsSupportUnitTest {
 
     @Test
     fun `queryForFlow with Statement and ReactiveResultSetExtractor`() = runSuspendIO {
-        val flow = mockOps.queryForFlow<String>(testStatement) { _: ReactiveResultSet ->
+        val flow = mockOps.queryForFlow(testStatement) { _: ReactiveResultSet ->
             flowOf("extracted")
         }
         flow.shouldNotBeNull()
@@ -203,7 +224,7 @@ class ReactiveCqlOperationsSupportUnitTest {
     @Test
     fun `queryForFlow with PreparedStatementCreator and ReactiveResultSetExtractor`() = runSuspendIO {
         val psc = mockk<ReactivePreparedStatementCreator>()
-        val flow = mockOps.queryForFlow<String>(psc) { _: ReactiveResultSet ->
+        val flow = mockOps.queryForFlow(psc) { _: ReactiveResultSet ->
             flowOf("extracted")
         }
         flow.shouldNotBeNull()
@@ -211,7 +232,7 @@ class ReactiveCqlOperationsSupportUnitTest {
 
     @Test
     fun `queryForFlow with CQL PSB null and ReactiveResultSetExtractor`() = runSuspendIO {
-        val flow = mockOps.queryForFlow<String>(
+        val flow = mockOps.queryForFlow(
             "SELECT * FROM users",
             null as PreparedStatementBinder?
         ) { _: ReactiveResultSet ->
@@ -224,7 +245,7 @@ class ReactiveCqlOperationsSupportUnitTest {
     fun `queryForFlow with PSC PSB and ReactiveResultSetExtractor`() = runSuspendIO {
         val psc = mockk<ReactivePreparedStatementCreator>()
         val psb = mockk<PreparedStatementBinder>()
-        val flow = mockOps.queryForFlow<String>(psc, psb) { _: ReactiveResultSet ->
+        val flow = mockOps.queryForFlow(psc, psb) { _: ReactiveResultSet ->
             flowOf("extracted")
         }
         flow.shouldNotBeNull()
@@ -233,7 +254,7 @@ class ReactiveCqlOperationsSupportUnitTest {
     @Test
     fun `queryForFlow with PreparedStatementCreator and RowMapper`() = runSuspendIO {
         val psc = mockk<ReactivePreparedStatementCreator>()
-        val flow = mockOps.queryForFlow<String>(psc) { _: Row, _: Int ->
+        val flow = mockOps.queryForFlow(psc) { _: Row, _: Int ->
             "mapped"
         }
         flow.shouldNotBeNull()
@@ -243,7 +264,7 @@ class ReactiveCqlOperationsSupportUnitTest {
     fun `queryForFlow with PSC PSB and RowMapper`() = runSuspendIO {
         val psc = mockk<ReactivePreparedStatementCreator>()
         val psb = mockk<PreparedStatementBinder>()
-        val flow = mockOps.queryForFlow<String>(psc, psb) { _: Row, _: Int ->
+        val flow = mockOps.queryForFlow(psc, psb) { _: Row, _: Int ->
             "mapped"
         }
         flow.shouldNotBeNull()
@@ -252,7 +273,7 @@ class ReactiveCqlOperationsSupportUnitTest {
     @Test
     fun `executeForFlow with PSC and action`() = runSuspendIO {
         val psc = mockk<ReactivePreparedStatementCreator>()
-        val flow = mockOps.executeForFlow<Int>(psc) { _, _ ->
+        val flow = mockOps.executeForFlow(psc) { _, _ ->
             flowOf(42)
         }
         flow.shouldNotBeNull()
@@ -260,7 +281,7 @@ class ReactiveCqlOperationsSupportUnitTest {
 
     @Test
     fun `executeForFlow with CQL and action`() = runSuspendIO {
-        val flow = mockOps.executeForFlow<Int>("SELECT * FROM users") { _, _ ->
+        val flow = mockOps.executeForFlow("SELECT * FROM users") { _, _ ->
             flowOf(42)
         }
         flow.shouldNotBeNull()

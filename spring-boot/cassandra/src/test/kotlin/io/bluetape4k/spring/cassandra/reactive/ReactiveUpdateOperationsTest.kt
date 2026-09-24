@@ -1,6 +1,9 @@
 package io.bluetape4k.spring.cassandra.reactive
 
 import com.datastax.oss.driver.api.core.uuid.Uuids
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.assertions.shouldNotBeEqualTo
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.spring.cassandra.AbstractCassandraCoroutineTest
@@ -12,9 +15,6 @@ import io.bluetape4k.spring.cassandra.truncateSuspending
 import io.bluetape4k.spring.cassandra.updateSuspending
 import kotlinx.coroutines.reactor.awaitSingle
 import kotlinx.coroutines.runBlocking
-import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldBeTrue
-import io.bluetape4k.assertions.shouldNotBeEqualTo
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -77,7 +77,6 @@ class ReactiveUpdateOperationsTest(
         }
     }
 
-
     @Test
     fun `update all matching`() = runSuspendIO {
         val writeResult = reactiveOps.update<Person>()
@@ -109,5 +108,6 @@ class ReactiveUpdateOperationsTest(
         loaded.firstName shouldBeEqualTo "Han"
     }
 
-    private fun queryHan(): Query = query(where("id").eq(han.id))
+    private fun queryHan(): Query =
+        query(where("id").eq(han.id))
 }

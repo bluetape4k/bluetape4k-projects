@@ -205,4 +205,5 @@ fun Delete.addWriteOptions(writeOptions: WriteOptions): Delete {
  * // result == options.isPositiveTtl
  * ```
  */
-val WriteOptions.isPositiveTtl: Boolean get() = ttl?.let { !it.isNegative } == true
+val WriteOptions.isPositiveTtl: Boolean
+    get() = ttl?.let { !it.isNegative } == true

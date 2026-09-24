@@ -35,7 +35,7 @@ fun AsyncResultSet.asFlow(): Flow<Row> = asFlow { it }
  * // ids.all { it > 0L } == true
  * ```
  */
-inline fun <T> AsyncResultSet.asFlow(crossinline mapper: suspend (row: Row) -> T): Flow<T> = channelFlow {
+fun <T> AsyncResultSet.asFlow(mapper: suspend (row: Row) -> T): Flow<T> = channelFlow {
     var page = this@asFlow
     while (true) {
         for (row in page.currentPage()) {

@@ -1,7 +1,15 @@
 package io.bluetape4k.spring.cassandra.reactive
 
+import io.bluetape4k.assertions.assertFailsWith
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeFalse
+import io.bluetape4k.assertions.shouldBeInRange
+import io.bluetape4k.assertions.shouldBeNull
+import io.bluetape4k.assertions.shouldNotBeEmpty
+import io.bluetape4k.assertions.shouldNotBeEqualTo
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.coroutines.KLoggingChannel
+import io.bluetape4k.logging.debug
 import io.bluetape4k.spring.cassandra.AbstractCassandraCoroutineTest
 import io.bluetape4k.spring.cassandra.cql.insertOptions
 import io.bluetape4k.spring.cassandra.cql.queryForResultSetSuspending
@@ -22,12 +30,6 @@ import kotlinx.coroutines.reactive.asFlow
 import kotlinx.coroutines.reactor.awaitSingle
 import kotlinx.coroutines.reactor.awaitSingleOrNull
 import kotlinx.coroutines.runBlocking
-import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldBeFalse
-import io.bluetape4k.assertions.shouldBeInRange
-import io.bluetape4k.assertions.shouldBeNull
-import io.bluetape4k.assertions.shouldNotBeEmpty
-import io.bluetape4k.assertions.shouldNotBeEqualTo
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -39,7 +41,6 @@ import org.springframework.data.cassandra.core.cql.WriteOptions
 import org.springframework.data.cassandra.core.selectOneById
 import org.springframework.data.cassandra.repository.config.EnableReactiveCassandraRepositories
 import java.util.concurrent.TimeUnit
-import io.bluetape4k.assertions.assertFailsWith
 
 @SpringBootTest(classes = [ReactiveDomainTestConfiguration::class])
 @EnableReactiveCassandraRepositories
@@ -126,7 +127,7 @@ class ReactiveCassandraBatchTemplateTest(
             .awaitSingle()
 
         writeResult.wasApplied().shouldBeFalse()
-        writeResult.executionInfo.isNotEmpty()
+        writeResult.executionInfo.shouldNotBeEmpty()
         writeResult.rows.shouldNotBeEmpty()
 
         val loadedDebop = reactiveOps.selectOneById<Group>(group1.id).awaitSingle()
@@ -223,7 +224,10 @@ class ReactiveCassandraBatchTemplateTest(
         flatGroup1.email = faker.internet().emailAddress()
         flatGroup2.email = faker.internet().emailAddress()
 
-        reactiveOps.batchOps().updateFlow(flowOf(flatGroup1, flatGroup2)).execute().awaitSingle()
+        reactiveOps.batchOps()
+            .updateFlow(flowOf(flatGroup1, flatGroup2))
+            .execute()
+            .awaitSingle()
 
         val loaded = reactiveOps.selectOneById<FlatGroup>(flatGroup1).awaitSingle()
         loaded.email shouldBeEqualTo flatGroup1.email
@@ -270,7 +274,7 @@ class ReactiveCassandraBatchTemplateTest(
             }
             .collect { row ->
                 val loadedTimestamp = row.getLong(0)
-                println("timestamp= $loadedTimestamp")
+                log.debug { "timestamp= $loadedTimestamp" }
                 loadedTimestamp shouldBeEqualTo timestamp
             }
     }

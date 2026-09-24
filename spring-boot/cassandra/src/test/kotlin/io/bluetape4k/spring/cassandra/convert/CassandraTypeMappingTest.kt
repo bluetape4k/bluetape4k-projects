@@ -7,6 +7,7 @@ import com.datastax.oss.driver.api.core.type.TupleType
 import com.datastax.oss.driver.api.core.uuid.Uuids
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldNotBeNull
+import io.bluetape4k.spring.cassandra.AbstractCassandraTest
 import io.bluetape4k.spring.cassandra.convert.model.CounterEntity
 import io.bluetape4k.spring.cassandra.convert.model.TimeEntity
 import io.bluetape4k.spring.cassandra.domain.model.AllPossibleTypes
@@ -33,7 +34,7 @@ import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
 import java.time.ZoneId
-import java.util.Date
+import java.util.*
 
 @Suppress("PLATFORM_CLASS_MAPPED_TO_KOTLIN")
 @SpringBootTest(classes = [ConvertTestConfiguration::class])
@@ -41,7 +42,7 @@ import java.util.Date
 @TestMethodOrder(MethodOrderer.OrderAnnotation::class)
 class CassandraTypeMappingTest(
     @param:Autowired private val operations: CassandraOperations,
-): io.bluetape4k.spring.cassandra.AbstractCassandraTest() {
+): AbstractCassandraTest() {
 
     private val cleanupActions = mutableListOf<() -> Unit>()
 

@@ -2,9 +2,11 @@ package io.bluetape4k.spring.cassandra
 
 import com.datastax.oss.driver.api.core.CqlSession
 import com.datastax.oss.driver.api.core.Version
+import com.datastax.oss.driver.api.core.uuid.Uuids
 import io.bluetape4k.junit5.faker.Fakers
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
+import io.bluetape4k.spring.cassandra.domain.model.User
 import io.bluetape4k.support.requireNotBlank
 import io.bluetape4k.testcontainers.storage.CassandraServer
 import io.bluetape4k.testcontainers.storage.getCassandraReleaseVersion
@@ -55,4 +57,10 @@ abstract class AbstractCassandraTest {
     protected fun getCassandraVersion(session: CqlSession): Version? {
         return session.getCassandraReleaseVersion()
     }
+
+    protected fun newUser(): User = User(
+        Uuids.timeBased().toString(),
+        faker.name().firstName(),
+        faker.name().lastName()
+    )
 }
