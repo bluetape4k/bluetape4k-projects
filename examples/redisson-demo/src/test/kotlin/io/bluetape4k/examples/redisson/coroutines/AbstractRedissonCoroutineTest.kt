@@ -7,13 +7,12 @@ import io.bluetape4k.junit5.faker.Fakers
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.error
 import io.bluetape4k.redis.redisson.codec.RedissonCodecs
-import io.bluetape4k.support.classIsPresent
 import io.bluetape4k.testcontainers.storage.RedisServer
 import io.bluetape4k.utils.ShutdownQueue
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.future.await
@@ -22,9 +21,7 @@ import org.redisson.Redisson
 import org.redisson.api.RFuture
 import org.redisson.api.RedissonClient
 import org.redisson.config.Config
-import org.testcontainers.utility.DockerImageName
 import java.time.Duration
-import java.util.concurrent.TimeUnit
 import kotlin.time.Duration.Companion.seconds
 
 abstract class AbstractRedissonCoroutineTest {
@@ -33,32 +30,33 @@ abstract class AbstractRedissonCoroutineTest {
 
         @JvmStatic
         val redis: RedisServer by lazy {
-            RedisServer(
-                DockerImageName.parse(
-                    "redis@sha256:4e070415a5713188624f93815e62d6c6a1fcbb416d2e0b578ab3db627db3a93a"
-                )
-            ).apply {
-                start()
-                ShutdownQueue.register(this)
-
-                if (classIsPresent("org.redisson.Redisson")) {
-                    val warmupClient = Redisson.create(
-                        RedisServer.Launcher.RedissonLib.getRedissonConfig(url)
-                    )
-                    try {
-                        RedisServer.Launcher.RedissonLib.warmupPubSubChannel(warmupClient)
-                    } finally {
-                        warmupClient.shutdown(0, 5, TimeUnit.SECONDS)
-                    }
-                }
-            }
+            RedisServer.Launcher.redis
+//            RedisServer(
+//                DockerImageName.parse(
+//                    "redis@sha256:4e070415a5713188624f93815e62d6c6a1fcbb416d2e0b578ab3db627db3a93a"
+//                )
+//            ).apply {
+//                start()
+//                ShutdownQueue.register(this)
+//
+//                if (classIsPresent("org.redisson.Redisson")) {
+//                    val warmupClient = Redisson.create(
+//                        RedisServer.Launcher.RedissonLib.getRedissonConfig(url)
+//                    )
+//                    try {
+//                        RedisServer.Launcher.RedissonLib.warmupPubSubChannel(warmupClient)
+//                    } finally {
+//                        warmupClient.shutdown(0, 5, TimeUnit.SECONDS)
+//                    }
+//                }
+//            }
         }
 
         @JvmStatic
         val redissonClient by lazy { newRedisson() }
 
         @JvmStatic
-        val defaultCodec = RedissonCodecs.ZstdFory
+        val defaultCodec = RedissonCodecs.ZstdFastFory
 
         @JvmStatic
         protected val faker = Fakers.faker
@@ -88,7 +86,7 @@ abstract class AbstractRedissonCoroutineTest {
                 executor = VirtualThreadExecutor
                 threads = 256
                 nettyThreads = 128
-                codec = RedissonCodecs.LZ4ForyComposite
+                codec = RedissonCodecs.LZ4FastForyComposite
                 setTcpNoDelay(true)
                 setTcpUserTimeout(5000)
             }

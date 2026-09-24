@@ -1,19 +1,21 @@
 package io.bluetape4k.examples.redisson.coroutines.cachestrategy
 
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeLessOrEqualTo
+import io.bluetape4k.assertions.shouldBeNull
+import io.bluetape4k.assertions.shouldHaveSize
+import io.bluetape4k.assertions.shouldNotBeNull
+import io.bluetape4k.codec.Base58
 import io.bluetape4k.examples.redisson.coroutines.cachestrategy.ActorSchema.ActorRecord
 import io.bluetape4k.examples.redisson.coroutines.cachestrategy.ActorSchema.ActorTable
 import io.bluetape4k.idgenerators.snowflake.Snowflakers
+import io.bluetape4k.javatimes.seconds
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.trace
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.future.await
-import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldBeLessOrEqualTo
-import io.bluetape4k.assertions.shouldBeNull
-import io.bluetape4k.assertions.shouldHaveSize
-import io.bluetape4k.assertions.shouldNotBeNull
 import org.jetbrains.exposed.v1.jdbc.batchInsert
 import org.jetbrains.exposed.v1.jdbc.deleteAll
 import org.jetbrains.exposed.v1.jdbc.select
@@ -54,8 +56,8 @@ class CacheReadThroughExample: AbstractCacheExample() {
             val writeIds = Snowflakers.Global.nextIds(ACTOR_SIZE).toList()
             ActorTable.batchInsert(writeIds, shouldReturnGeneratedValues = false) { id ->
                 this[ActorTable.id] = id
-                this[ActorTable.firstname] = faker.name().firstName()
-                this[ActorTable.lastname] = faker.name().lastName()
+                this[ActorTable.firstname] = faker.name().firstName() + "-" + Base58.randomString(4)
+                this[ActorTable.lastname] = faker.name().lastName() + "-" + Base58.randomString(4)
             }
         }
     }
@@ -92,10 +94,10 @@ class CacheReadThroughExample: AbstractCacheExample() {
                 .loader(actorRecordLoader)
                 .retryAttempts(REDIS_COMMAND_RETRY_ATTEMPTS)
                 .retryDelay { attempt ->
-                    log.trace { "Retry attempt=$attempt" }
+                    log.debug { "Retry attempt=$attempt" }
                     redisCommandRetryDelay(attempt)
                 }
-                .timeToLive(Duration.ofSeconds(10))   // 로컬 캐시의 TTL
+                .timeToLive(10.seconds())   // 로컬 캐시의 TTL
                 .timeout(REDIS_COMMAND_TIMEOUT)
                 .codec(defaultCodec)
 

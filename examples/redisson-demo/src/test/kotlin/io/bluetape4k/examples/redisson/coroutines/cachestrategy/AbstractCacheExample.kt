@@ -1,5 +1,6 @@
 package io.bluetape4k.examples.redisson.coroutines.cachestrategy
 
+import io.bluetape4k.codec.Base58
 import io.bluetape4k.examples.redisson.coroutines.AbstractRedissonCoroutineTest
 import io.bluetape4k.examples.redisson.coroutines.cachestrategy.ActorSchema.ActorRecord
 import io.bluetape4k.examples.redisson.coroutines.cachestrategy.ActorSchema.ActorTable
@@ -10,11 +11,11 @@ import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.error
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.async
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.ChannelResult
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.future.asCompletableFuture
 import kotlinx.coroutines.launch
 import org.jetbrains.exposed.v1.core.ResultRow
@@ -61,8 +62,8 @@ abstract class AbstractCacheExample: AbstractRedissonCoroutineTest() {
     protected fun newActorRecord(id: Long): ActorRecord {
         return ActorRecord(
             id = id,
-            firstname = faker.name().firstName(),
-            lastname = faker.name().lastName(),
+            firstname = faker.name().firstName() + "-" + Base58.randomString(4),
+            lastname = faker.name().lastName() + "-" + Base58.randomString(4),
         ).also {
             it.description = faker.lorem().sentence(1024, 128)
         }
@@ -171,9 +172,9 @@ abstract class AbstractCacheExample: AbstractRedissonCoroutineTest() {
     protected val actorRecordWriter: MapWriter<Long, ActorRecord> = object: MapWriter<Long, ActorRecord>, KLogging() {
         override fun write(map: Map<Long, ActorRecord?>) {
             log.debug { "Writing actors ... count=${map.size}, ids=${map.keys}" }
-            val entryToInsert = map.values.mapNotNull { it }
+            val actorsToInsert = map.values.mapNotNull { it }
             transaction {
-                ActorTable.batchInsert(entryToInsert, shouldReturnGeneratedValues = false) { actor ->
+                ActorTable.batchInsert(actorsToInsert, shouldReturnGeneratedValues = false) { actor ->
                     this[ActorTable.id] = actor.id
                     this[ActorTable.firstname] = actor.firstname
                     this[ActorTable.lastname] = actor.lastname
@@ -183,6 +184,7 @@ abstract class AbstractCacheExample: AbstractRedissonCoroutineTest() {
         }
 
         override fun delete(keys: Collection<Long>) {
+            if (keys.isEmpty()) return
             log.debug { "Deleteing actors ... ids=$keys" }
             transaction {
                 ActorTable.deleteWhere { ActorTable.id inList keys }
@@ -194,7 +196,7 @@ abstract class AbstractCacheExample: AbstractRedissonCoroutineTest() {
      * [MapWriterAsync]를 구현하여 DB에 데이터를 저장한다.
      */
     protected val actorRecordWriterAsync: MapWriterAsync<Long, ActorRecord> =
-        object: MapWriterAsync<Long, ActorRecord>, KLogging() {
+        object: MapWriterAsync<Long, ActorRecord>, KLoggingChannel() {
             val scope = CoroutineScope(Dispatchers.IO)
 
             override fun write(map: Map<Long, ActorRecord?>): CompletionStage<Void> {
@@ -227,9 +229,10 @@ abstract class AbstractCacheExample: AbstractRedissonCoroutineTest() {
             }
         }
 
-    protected fun getActorCountFromDB(): Long = transaction {
-        ActorTable.selectAll().count()
-    }
+    protected fun getActorCountFromDB(): Long =
+        transaction {
+            ActorTable.selectAll().count()
+        }
 
     protected suspend fun getActorCountFromDBSuspended(): Long = newSuspendedTransaction(Dispatchers.IO) {
         ActorTable.selectAll().count()
