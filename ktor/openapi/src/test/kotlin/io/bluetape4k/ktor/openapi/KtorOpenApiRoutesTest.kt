@@ -2,8 +2,10 @@ package io.bluetape4k.ktor.openapi
 
 import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldContain
 import io.bluetape4k.ktor.core.Bluetape4kKtorCoreConfig
 import io.bluetape4k.ktor.core.installBluetape4kKtorCore
+import io.bluetape4k.logging.KLogging
 import io.ktor.client.request.get
 import io.ktor.client.statement.bodyAsText
 import io.ktor.http.HttpStatusCode
@@ -22,6 +24,8 @@ import org.junit.jupiter.api.TestInstance
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class KtorOpenApiRoutesTest {
 
+    companion object: KLogging()
+
     @Test
     fun `openapi endpoint serves static application specification`() = testApplication {
         application {
@@ -37,9 +41,9 @@ class KtorOpenApiRoutesTest {
         val body = response.bodyAsText()
 
         response.status shouldBeEqualTo HttpStatusCode.OK
-        body.contains("Bluetape4k Ktor OpenAPI Test") shouldBeEqualTo true
-        body.contains("/healthz") shouldBeEqualTo true
-        body.contains("/widgets/{id}") shouldBeEqualTo true
+        body shouldContain "Bluetape4k Ktor OpenAPI Test"
+        body shouldContain "/healthz"
+        body shouldContain "/widgets/{id}"
     }
 
     @Test
@@ -55,7 +59,7 @@ class KtorOpenApiRoutesTest {
         val body = response.bodyAsText()
 
         response.status shouldBeEqualTo HttpStatusCode.OK
-        body.contains("swagger") shouldBeEqualTo true
+        body shouldContain "swagger"
     }
 
     @Test
@@ -71,8 +75,8 @@ class KtorOpenApiRoutesTest {
         val body = response.bodyAsText()
 
         response.status shouldBeEqualTo HttpStatusCode.OK
-        body.contains("Bluetape4k Ktor OpenAPI Test") shouldBeEqualTo true
-        body.contains("/healthz") shouldBeEqualTo true
+        body shouldContain "Bluetape4k Ktor OpenAPI Test"
+        body shouldContain "/healthz"
     }
 
     @Test
@@ -94,8 +98,8 @@ class KtorOpenApiRoutesTest {
         val body = response.bodyAsText()
 
         response.status shouldBeEqualTo HttpStatusCode.OK
-        body.contains("Runtime Owned OpenAPI Test") shouldBeEqualTo true
-        body.contains("/runtime") shouldBeEqualTo true
+        body shouldContain "Runtime Owned OpenAPI Test"
+        body shouldContain "/runtime"
     }
 
     @Test
@@ -116,8 +120,8 @@ class KtorOpenApiRoutesTest {
         val body = response.bodyAsText()
 
         response.status shouldBeEqualTo HttpStatusCode.OK
-        body.contains("Runtime Owned OpenAPI Test") shouldBeEqualTo true
-        body.contains("/runtime") shouldBeEqualTo true
+        body shouldContain "Runtime Owned OpenAPI Test"
+        body shouldContain "/runtime"
     }
 
     @Test

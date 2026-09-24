@@ -30,6 +30,7 @@ fun Route.bluetape4kOpenApi(
 ): Route {
     path.requireNotBlank("path")
     val checkedSwaggerFile = swaggerFile.requireNotBlank("swaggerFile")
+
     return openAPI(path = path) {
         configure()
         if (source.isDefaultDocumentSource()) {
@@ -62,6 +63,7 @@ fun Route.bluetape4kSwaggerUi(
 ): Route {
     path.requireNotBlank("path")
     val checkedSwaggerFile = swaggerFile.requireNotBlank("swaggerFile")
+
     return swaggerUI(path = path) {
         configure()
         if (source.isDefaultDocumentSource()) {
