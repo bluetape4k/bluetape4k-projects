@@ -731,13 +731,15 @@ private class KtorFakeIdempotencyApplication(
         if (bytes.size > maxBytes) return BoundedBodyRead.TooLarge
 
         return try {
-            BoundedBodyRead.Value(
-                Charsets.UTF_8.newDecoder()
-                    .onMalformedInput(CodingErrorAction.REPORT)
-                    .onUnmappableCharacter(CodingErrorAction.REPORT)
-                    .decode(ByteBuffer.wrap(bytes))
-                    .toString(),
-            )
+            withContext(NonCancellable) {
+                BoundedBodyRead.Value(
+                    Charsets.UTF_8.newDecoder()
+                        .onMalformedInput(CodingErrorAction.REPORT)
+                        .onUnmappableCharacter(CodingErrorAction.REPORT)
+                        .decode(ByteBuffer.wrap(bytes))
+                        .toString(),
+                )
+            }
         } catch (_: CharacterCodingException) {
             BoundedBodyRead.Malformed
         }
