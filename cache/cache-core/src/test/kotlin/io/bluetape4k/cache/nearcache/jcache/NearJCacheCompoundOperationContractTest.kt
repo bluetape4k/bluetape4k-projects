@@ -6,6 +6,8 @@ import io.bluetape4k.assertions.shouldBeFalse
 import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.cache.jcache.JCache
 import io.bluetape4k.cache.jcache.SuspendJCache
+import io.bluetape4k.concurrent.await
+import io.bluetape4k.concurrent.join
 import io.bluetape4k.concurrent.virtualthread.virtualThread
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.mockk.coEvery
@@ -24,6 +26,8 @@ import java.util.concurrent.atomic.AtomicReference
 import javax.cache.configuration.CacheEntryListenerConfiguration
 import javax.cache.event.CacheEntryCreatedListener
 import javax.cache.event.CacheEntryEvent
+import kotlin.time.Duration.Companion.milliseconds
+import kotlin.time.Duration.Companion.seconds
 
 class NearJCacheCompoundOperationContractTest {
 
@@ -160,13 +164,13 @@ class NearJCacheCompoundOperationContractTest {
         }
 
         replaceThread.start()
-        replaceStarted.await(2, TimeUnit.SECONDS).shouldBeTrue()
+        replaceStarted.await(2.seconds).shouldBeTrue()
         removeThread.start()
-        removeStarted.await(200, TimeUnit.MILLISECONDS).shouldBeFalse()
+        removeStarted.await(200.milliseconds).shouldBeFalse()
 
         releaseReplace.countDown()
-        replaceThread.join(2_000)
-        removeThread.join(2_000)
+        replaceThread.join(2.seconds)
+        removeThread.join(2.seconds)
 
         replaceResult.get() shouldBeEqualTo "old"
         removeResult.get() shouldBeEqualTo "new"

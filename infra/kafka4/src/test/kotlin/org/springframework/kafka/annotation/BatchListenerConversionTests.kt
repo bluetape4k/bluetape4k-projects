@@ -7,6 +7,7 @@ import io.bluetape4k.assertions.shouldBeInstanceOf
 import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.assertions.shouldNotBeEmpty
 import io.bluetape4k.assertions.shouldNotBeNull
+import io.bluetape4k.concurrent.await
 import io.bluetape4k.jackson3.Jackson
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.coroutines.KLoggingChannel
@@ -53,8 +54,9 @@ import org.springframework.messaging.handler.annotation.SendTo
 import org.springframework.util.backoff.FixedBackOff
 import java.io.Serializable
 import java.util.concurrent.CountDownLatch
-import java.util.concurrent.TimeUnit
+import kotlin.time.Duration.Companion.seconds
 
+@Suppress("SpringJavaInjectionPointsAutowiringInspection")
 @SpringBootTest
 @EmbeddedKafka(
     partitions = 1,
@@ -97,8 +99,8 @@ class BatchListenerConversionTests {
     private fun doTest(listener: Listener, topic: String) {
         template.send(messageOf(Foo("bar"), mapOf(KafkaHeaders.TOPIC to topic)))
 
-        listener.latch1.await(AWAIT_TIME_SECONDS, TimeUnit.SECONDS).shouldBeTrue()
-        listener.latch2.await(AWAIT_TIME_SECONDS, TimeUnit.SECONDS).shouldBeTrue()
+        listener.latch1.await(AWAIT_TIME_SECONDS.seconds).shouldBeTrue()
+        listener.latch2.await(AWAIT_TIME_SECONDS.seconds).shouldBeTrue()
         listener.received!!.shouldNotBeEmpty()
         listener.received!![0] shouldBeInstanceOf Foo::class
         listener.received!![0].bar shouldBeEqualTo "bar"
@@ -112,7 +114,7 @@ class BatchListenerConversionTests {
         template.send(messageOf(Foo("bar"), mapOf(KafkaHeaders.TOPIC to topic)))
         val listener = this.config.listener3()
 
-        listener.latch1.await(AWAIT_TIME_SECONDS, TimeUnit.SECONDS).shouldBeTrue()
+        listener.latch1.await(AWAIT_TIME_SECONDS.seconds).shouldBeTrue()
         listener.received!!.size shouldBeGreaterThan 0
     }
 
@@ -122,7 +124,7 @@ class BatchListenerConversionTests {
         val topic = "blc4"
         template.send(messageOf(Foo("bar"), mapOf(KafkaHeaders.TOPIC to topic)))
 
-        listener.latch1.await(AWAIT_TIME_SECONDS, TimeUnit.SECONDS).shouldBeTrue()
+        listener.latch1.await(AWAIT_TIME_SECONDS.seconds).shouldBeTrue()
         val received = listener.received!!
         received.size shouldBeGreaterThan 0
         received[0] shouldBeInstanceOf Foo::class
@@ -141,7 +143,7 @@ class BatchListenerConversionTests {
         template.send("blc6", 0, 0, """{ "bar": "qux" }""")
 
         val listener5 = this.config.listener5()
-        listener5.latch1.await(AWAIT_TIME_SECONDS, TimeUnit.SECONDS).shouldBeTrue()
+        listener5.latch1.await(AWAIT_TIME_SECONDS.seconds).shouldBeTrue()
         listener5.received shouldBeEqualTo listOf(Foo("baz"), Foo("qux"))
     }
 
@@ -152,8 +154,8 @@ class BatchListenerConversionTests {
         template.send("blc6", 0, 0, """{ "bar": "qux" }""")
 
         val listener5 = this.config.listener5()
-        listener5.latch1.await(AWAIT_TIME_SECONDS, TimeUnit.SECONDS).shouldBeTrue()
-        listener5.latch2.await(AWAIT_TIME_SECONDS, TimeUnit.SECONDS).shouldBeTrue()
+        listener5.latch1.await(AWAIT_TIME_SECONDS.seconds).shouldBeTrue()
+        listener5.latch2.await(AWAIT_TIME_SECONDS.seconds).shouldBeTrue()
         listener5.dlt shouldBeEqualTo "JUNK"
     }
 

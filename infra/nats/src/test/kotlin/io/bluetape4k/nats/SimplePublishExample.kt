@@ -12,7 +12,6 @@ import io.bluetape4k.support.toUtf8String
 import io.nats.client.Message
 import org.junit.jupiter.api.Test
 import java.util.concurrent.CountDownLatch
-import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
 
 class SimplePublishExample: AbstractNatsTest() {
@@ -56,7 +55,7 @@ class SimplePublishExample: AbstractNatsTest() {
             conn.flush(1.seconds)
 
             subscription.isActive.shouldBeTrue()
-            latch.await(1000.milliseconds).shouldBeTrue()
+            latch.await(1.seconds).shouldBeTrue()
         }
     }
 }

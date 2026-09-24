@@ -8,6 +8,8 @@ import io.bluetape4k.assertions.shouldBeNull
 import io.bluetape4k.assertions.shouldBeSameInstanceAs
 import io.bluetape4k.assertions.shouldContentEqual
 import io.bluetape4k.avro.message.examples.Employee
+import io.bluetape4k.concurrent.await
+import io.bluetape4k.concurrent.awaitTermination
 import io.bluetape4k.logging.KLogging
 import org.apache.avro.Schema
 import org.apache.avro.generic.GenericData
@@ -23,8 +25,8 @@ import java.util.concurrent.ConcurrentLinkedQueue
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.CyclicBarrier
 import java.util.concurrent.Executors
-import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicInteger
+import kotlin.time.Duration.Companion.seconds
 
 private const val AVRO_WORKERS = 8
 private const val AVRO_REPETITIONS = 50
@@ -548,7 +550,7 @@ private fun verifyAvroBufferConcurrency(
             unfinished += worker
             executor.submit {
                 try {
-                    startBarrier.await(AVRO_START_TIMEOUT_SECONDS, TimeUnit.SECONDS)
+                    startBarrier.await(AVRO_START_TIMEOUT_SECONDS.seconds)
                     repeat(AVRO_REPETITIONS) { repetition -> operation(worker, repetition) }
                 } catch (failure: Throwable) {
                     failures += "worker=$worker ${failure::class.java.simpleName}: ${failure.message}"
@@ -559,8 +561,8 @@ private fun verifyAvroBufferConcurrency(
             }
         }
 
-        startBarrier.await(AVRO_START_TIMEOUT_SECONDS, TimeUnit.SECONDS)
-        if (!completion.await(AVRO_COMPLETION_TIMEOUT_SECONDS, TimeUnit.SECONDS)) {
+        startBarrier.await(AVRO_START_TIMEOUT_SECONDS.seconds)
+        if (!completion.await(AVRO_COMPLETION_TIMEOUT_SECONDS.seconds)) {
             fail("Avro buffer workers timed out; unfinished=${unfinished.sorted().take(AVRO_MAX_DIAGNOSTICS)}")
         }
         if (failures.isNotEmpty()) {
@@ -568,7 +570,7 @@ private fun verifyAvroBufferConcurrency(
         }
     } finally {
         executor.shutdownNow()
-        if (!executor.awaitTermination(AVRO_SHUTDOWN_TIMEOUT_SECONDS, TimeUnit.SECONDS)) {
+        if (!executor.awaitTermination(AVRO_SHUTDOWN_TIMEOUT_SECONDS.seconds)) {
             val threads =
                 Thread.getAllStackTraces().keys.asSequence()
                     .filter { it.name.startsWith("avro-buffer-") }

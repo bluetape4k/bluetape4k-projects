@@ -2,8 +2,10 @@ package io.bluetape4k.okio.coroutines
 
 import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.concurrent.await
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.okio.AbstractOkioTest
+import io.bluetape4k.okio.toTimeout
 import kotlinx.coroutines.async
 import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.delay
@@ -15,7 +17,6 @@ import okio.Timeout
 import org.junit.jupiter.api.Test
 import java.io.InterruptedIOException
 import java.util.concurrent.CountDownLatch
-import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
@@ -32,7 +33,7 @@ class BlockingInteropTimeoutTest: AbstractOkioTest() {
 
             override suspend fun close() {}
 
-            override fun timeout(): Timeout = Timeout().timeout(1, TimeUnit.MILLISECONDS)
+            override fun timeout(): Timeout = 1.milliseconds.toTimeout()
         }
 
         val source = suspended.asBlocking()
@@ -51,7 +52,7 @@ class BlockingInteropTimeoutTest: AbstractOkioTest() {
             override suspend fun flush() {}
             override suspend fun close() {}
 
-            override fun timeout(): Timeout = Timeout().timeout(1, TimeUnit.MILLISECONDS)
+            override fun timeout(): Timeout = 1.milliseconds.toTimeout()
         }
 
         val sink = suspended.asBlocking()
@@ -86,7 +87,7 @@ class BlockingInteropTimeoutTest: AbstractOkioTest() {
             }
         }
 
-        started.await(1, TimeUnit.SECONDS).shouldBeTrue()
+        started.await(1.seconds).shouldBeTrue()
         withTimeout(1.seconds) {
             job.cancelAndJoin()
         }
@@ -121,7 +122,7 @@ class BlockingInteropTimeoutTest: AbstractOkioTest() {
             }
         }
 
-        started.await(1, TimeUnit.SECONDS).shouldBeTrue()
+        started.await(1.seconds).shouldBeTrue()
         withTimeout(1.seconds) {
             job.cancelAndJoin()
         }

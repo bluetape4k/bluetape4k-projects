@@ -10,6 +10,8 @@ import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.assertions.shouldNotBeNull
 import io.bluetape4k.cache.RedisServers
 import io.bluetape4k.codec.Base58
+import io.bluetape4k.concurrent.await
+import io.bluetape4k.concurrent.get
 import io.bluetape4k.io.serializer.BinarySerializer
 import io.bluetape4k.junit5.concurrency.MultithreadingTester
 import io.bluetape4k.logging.KLogging
@@ -22,6 +24,7 @@ import io.mockk.mockk
 import org.awaitility.kotlin.atMost
 import org.awaitility.kotlin.await
 import org.awaitility.kotlin.until
+import org.awaitility.kotlin.untilAsserted
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -31,7 +34,6 @@ import java.util.*
 import java.util.concurrent.CopyOnWriteArrayList
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.Executors
-import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicInteger
 import javax.cache.CacheException
 import javax.cache.configuration.MutableCacheEntryListenerConfiguration
@@ -153,7 +155,7 @@ class LettuceJCacheTest {
             ttlCache.putIfAbsent("key1", "value1").shouldBeTrue()
             ttlCache.get("key1") shouldBeEqualTo "value1"
 
-            await.atMost(3, TimeUnit.SECONDS).untilAsserted {
+            await atMost 3.seconds untilAsserted {
                 RedisServers.redisClient.connect(StringCodec.UTF8).use { connection ->
                     (connection.sync().ttl(ttlCache.name) > 0L).shouldBeTrue()
                 }
@@ -418,7 +420,7 @@ class LettuceJCacheTest {
                         key = "counter",
                         entryProcessor = { entry: MutableEntry<String, Int>, _: Array<out Any?> ->
                             processorEntered.countDown()
-                            check(releaseProcessor.await(5, TimeUnit.SECONDS))
+                            check(releaseProcessor.await(5.seconds))
                             entry.value = 1
                         }
                     )
@@ -428,7 +430,7 @@ class LettuceJCacheTest {
                 }
             }
 
-            check(processorEntered.await(5, TimeUnit.SECONDS))
+            check(processorEntered.await(5.seconds))
             await atMost 5.seconds until {
                 RedisServers.redisClient.connect(StringCodec.UTF8).use { connection ->
                     connection.sync().exists(lockKey) == 0L
@@ -444,7 +446,7 @@ class LettuceJCacheTest {
             ) shouldBeEqualTo 2
 
             releaseProcessor.countDown()
-            firstInvocation.get(5, TimeUnit.SECONDS).shouldBeInstanceOf<IllegalStateException>()
+            firstInvocation.get(5.seconds).shouldBeInstanceOf<IllegalStateException>()
             first.get("counter") shouldBeEqualTo 2
         } finally {
             releaseProcessor.countDown()
@@ -473,7 +475,7 @@ class LettuceJCacheTest {
                         key = "counter",
                         entryProcessor = { entry: MutableEntry<String, Int>, _: Array<out Any?> ->
                             processorEntered.countDown()
-                            check(releaseProcessor.await(5, TimeUnit.SECONDS))
+                            check(releaseProcessor.await(5.seconds))
                             entry.remove()
                         }
                     )
@@ -483,7 +485,7 @@ class LettuceJCacheTest {
                 }
             }
 
-            check(processorEntered.await(5, TimeUnit.SECONDS))
+            check(processorEntered.await(5.seconds))
             await atMost 5.seconds until {
                 RedisServers.redisClient.connect(StringCodec.UTF8).use { connection ->
                     connection.sync().exists(lockKey) == 0L
@@ -499,7 +501,7 @@ class LettuceJCacheTest {
             ) shouldBeEqualTo 2
 
             releaseProcessor.countDown()
-            firstInvocation.get(5, TimeUnit.SECONDS).shouldBeInstanceOf<IllegalStateException>()
+            firstInvocation.get(5.seconds).shouldBeInstanceOf<IllegalStateException>()
             first.get("counter") shouldBeEqualTo 2
         } finally {
             releaseProcessor.countDown()

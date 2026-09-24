@@ -1,5 +1,7 @@
 package io.bluetape4k.http.hc5.fluent
 
+import io.bluetape4k.concurrent.awaitTermination
+import io.bluetape4k.concurrent.get
 import io.bluetape4k.concurrent.virtualthread.VirtualThreadExecutor
 import io.bluetape4k.coroutines.support.awaitSuspending
 import io.bluetape4k.http.hc5.AbstractHc5Test
@@ -23,8 +25,8 @@ import java.util.*
 import java.util.concurrent.ExecutionException
 import java.util.concurrent.Executors
 import java.util.concurrent.Future
-import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicInteger
+import kotlin.time.Duration.Companion.seconds
 
 /** HttpClient Fluent API로 여러 요청을 비동기로 실행하는 예제입니다. */
 class FluentAsyncExample: AbstractHc5Test() {
@@ -73,7 +75,7 @@ class FluentAsyncExample: AbstractHc5Test() {
             while (queue.isNotEmpty()) {
                 val future = queue.remove()
                 try {
-                    future.get(1, TimeUnit.SECONDS)
+                    future.get(1.seconds)
                 } catch (ex: ExecutionException) {
                     // 무시
                 }
@@ -82,7 +84,7 @@ class FluentAsyncExample: AbstractHc5Test() {
         } finally {
             runCatching {
                 executor.shutdown()
-                executor.awaitTermination(1, TimeUnit.SECONDS)
+                executor.awaitTermination(1.seconds)
             }
         }
     }
@@ -109,7 +111,7 @@ class FluentAsyncExample: AbstractHc5Test() {
         } finally {
             runCatching {
                 executor.shutdown()
-                executor.awaitTermination(1, TimeUnit.SECONDS)
+                executor.awaitTermination(1.seconds)
             }
         }
     }

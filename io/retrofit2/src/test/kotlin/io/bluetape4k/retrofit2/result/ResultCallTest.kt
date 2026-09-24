@@ -6,6 +6,7 @@ import io.bluetape4k.assertions.shouldBeFalse
 import io.bluetape4k.assertions.shouldBeInstanceOf
 import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.assertions.shouldNotBeNull
+import io.bluetape4k.concurrent.get
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.retrofit2.AbstractRetrofitTest
@@ -32,7 +33,7 @@ import retrofit2.Response
 import retrofit2.http.GET
 import retrofit2.http.Path
 import java.util.concurrent.CompletableFuture
-import java.util.concurrent.TimeUnit
+import kotlin.time.Duration.Companion.seconds
 
 class ResultCallTest: AbstractRetrofitTest() {
 
@@ -191,7 +192,7 @@ class ResultCallTest: AbstractRetrofitTest() {
 
         delegate.callback.onResponse(delegate, Response.error(500, errorBody))
 
-        val result = completed.get(1, TimeUnit.SECONDS).body().shouldNotBeNull()
+        val result = completed.get(1.seconds).body().shouldNotBeNull()
         result.isFailure.shouldBeTrue()
         val ex = result.exceptionOrNull().shouldNotBeNull()
         ex.shouldBeInstanceOf<HttpException>()

@@ -7,13 +7,15 @@ import io.bluetape4k.assertions.shouldNotBeNull
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import io.bluetape4k.nats.AbstractNatsTest
+import io.bluetape4k.nats.client.drainSuspending
+import io.bluetape4k.nats.client.flush
 import io.bluetape4k.nats.client.natsOptions
+import io.bluetape4k.nats.client.nextMessage
 import io.bluetape4k.nats.client.publish
 import io.bluetape4k.support.toUtf8String
 import io.nats.client.Connection
 import io.nats.client.NUID
 import io.nats.client.Nats
-import kotlinx.coroutines.future.await
 import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.Test
 import java.time.Duration
@@ -22,6 +24,7 @@ import java.time.ZoneId
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 import java.util.concurrent.CountDownLatch
+import kotlin.time.Duration.Companion.seconds
 
 class FunctionalExamples: AbstractNatsTest() {
 
@@ -160,7 +163,7 @@ class FunctionalExamples: AbstractNatsTest() {
         latch.await()
 
         // Drain the connection, which will close it
-        val drained = nc.drain(Duration.ofSeconds(10)).await()
+        val drained = nc.drainSuspending(10.seconds)
         drained.shouldBeTrue()
     }
 
@@ -178,7 +181,7 @@ class FunctionalExamples: AbstractNatsTest() {
             latch.await()
 
             // Drain the connection, which will close it
-            val drained = nc.drain(Duration.ofSeconds(10)).await()
+            val drained = nc.drainSuspending(10.seconds)
             drained.shouldBeTrue()
         }
     }
@@ -187,7 +190,7 @@ class FunctionalExamples: AbstractNatsTest() {
     fun `flush publish queue`() {
         getConnection().use { nc ->
             nc.publish("updates", "All is Well")
-            nc.flush(Duration.ofSeconds(1))
+            nc.flush(1.seconds)
         }
     }
 
@@ -246,7 +249,7 @@ class FunctionalExamples: AbstractNatsTest() {
 
             nc.publish("time", uniqueReplyTo, "my message")
 
-            val msg = reply.nextMessage(Duration.ofSeconds(1))
+            val msg = reply.nextMessage(1.seconds)
 
             log.debug { "msg=${msg?.data?.toUtf8String()}" }
             msg.shouldNotBeNull()
@@ -324,7 +327,7 @@ class FunctionalExamples: AbstractNatsTest() {
                 nc.publish("updates", "message $it.")
             }
             repeat(10) {
-                val msg = subscription.nextMessage(Duration.ZERO)
+                val msg = subscription.nextMessage(Duration.ZERO).shouldNotBeNull()
                 log.debug { "Received: ${msg.data.toUtf8String()}" }
             }
         }

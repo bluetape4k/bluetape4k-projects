@@ -1,5 +1,6 @@
 package io.bluetape4k.redis.lettuce.map
 
+import io.bluetape4k.concurrent.awaitTermination
 import io.bluetape4k.io.serializer.BinarySerializers
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
@@ -18,6 +19,7 @@ import java.util.concurrent.Executors
 import java.util.concurrent.LinkedBlockingDeque
 import java.util.concurrent.ScheduledExecutorService
 import java.util.concurrent.TimeUnit
+import kotlin.time.Duration.Companion.seconds
 
 /**
  * Lettuce(Redis) 기반 Read-through / Write-through / Write-behind Map.
@@ -358,7 +360,7 @@ class LettuceLoadedMap<K: Any, V: Any>(
             if (writeBehindQueue?.isNotEmpty() == true) {
                 log.warn { "Write-behind shutdown 타임아웃: ${writeBehindQueue.size}개 항목 유실" }
             }
-            sched.awaitTermination(1, TimeUnit.SECONDS)
+            sched.awaitTermination(1.seconds)
         }
         if (lazyStrConnection.isInitialized()) strConnection.close()
         connection.close()

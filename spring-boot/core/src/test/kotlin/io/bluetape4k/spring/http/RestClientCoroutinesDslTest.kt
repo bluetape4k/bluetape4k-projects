@@ -2,8 +2,11 @@ package io.bluetape4k.spring.http
 
 import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.assertions.shouldContain
 import io.bluetape4k.assertions.shouldNotBeNull
+import io.bluetape4k.concurrent.await
+import io.bluetape4k.javatimes.seconds
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.KLogging
 import kotlinx.coroutines.cancelAndJoin
@@ -29,7 +32,6 @@ import java.io.IOException
 import java.io.OutputStream
 import java.net.URI
 import java.util.concurrent.CountDownLatch
-import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicReference
 import kotlin.time.Duration.Companion.seconds
@@ -186,7 +188,7 @@ class RestClientCoroutinesDslTest {
                 }
             }
 
-            executeStarted.await(1, TimeUnit.SECONDS) shouldBeEqualTo true
+            executeStarted.await(1.seconds).shouldBeTrue()
             withTimeout(2.seconds) {
                 job.cancelAndJoin()
             }
@@ -262,7 +264,7 @@ class RestClientCoroutinesDslTest {
                 override fun executeInternal(headers: HttpHeaders): ClientHttpResponse {
                     executeStarted.countDown()
                     return try {
-                        Thread.sleep(TimeUnit.SECONDS.toMillis(30))
+                        Thread.sleep(30.seconds())
                         StringClientHttpResponse("too-late")
                     } catch (e: InterruptedException) {
                         interrupted.set(true)

@@ -1,5 +1,6 @@
 package io.bluetape4k.http.hc5.examples
 
+import io.bluetape4k.concurrent.get
 import io.bluetape4k.http.hc5.AbstractHc5Test
 import io.bluetape4k.http.hc5.classic.httpClientConnectionManager
 import io.bluetape4k.http.hc5.classic.httpClientOf
@@ -14,7 +15,7 @@ import org.apache.hc.core5.http.HttpStatus
 import org.apache.hc.core5.http.io.HttpClientResponseHandler
 import org.junit.jupiter.api.Test
 import java.util.concurrent.Executors
-import java.util.concurrent.TimeUnit
+import kotlin.time.Duration.Companion.seconds
 
 class ClientWithRequestFuture: AbstractHc5Test() {
 
@@ -50,7 +51,7 @@ class ClientWithRequestFuture: AbstractHc5Test() {
             // 타임아웃이 있는 요청
             val request3 = HttpGet("$httpbinBaseUrl/get")
             val futureTask3 = requestExecService.execute(request3, httpClientContextOf(), handler)
-            val wasItOk3 = futureTask3.get(10, TimeUnit.SECONDS)
+            val wasItOk3 = futureTask3.get(10.seconds)
             log.debug { "It was ok? $wasItOk3" }
 
             val callback = object: FutureCallback<Boolean> {
@@ -73,7 +74,7 @@ class ClientWithRequestFuture: AbstractHc5Test() {
             // HttpContext는 선택 사항이므로 null 대신 기본 컨텍스트를 사용합니다.
             // 콜백은 완료/실패/취소 시 호출됩니다.
             val futureTask4 = requestExecService.execute(request4, httpClientContextOf(), handler, callback)
-            val wasItOk4 = futureTask4.get(10, TimeUnit.SECONDS)
+            val wasItOk4 = futureTask4.get(10.seconds)
             log.debug { "It was ok? $wasItOk4" }
         }
     }

@@ -4,6 +4,7 @@ import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeNull
 import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.concurrent.await
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.lettuce.core.RedisClient
@@ -25,6 +26,7 @@ import java.util.concurrent.TimeUnit
 import java.util.concurrent.TimeoutException
 import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.concurrent.thread
+import kotlin.time.Duration.Companion.seconds
 
 /**
  * MockK-based unit tests for [LettuceSuspendedLoadedMap] failure paths.
@@ -222,7 +224,7 @@ class LettuceSuspendedLoadedMapMockTest {
             }
         }
 
-        completed.await(5, TimeUnit.SECONDS).shouldBeTrue()
+        completed.await(5.seconds).shouldBeTrue()
         interruptedStatusRestored.get().shouldBeTrue()
         verify(exactly = 1) { connection.close() }
     }

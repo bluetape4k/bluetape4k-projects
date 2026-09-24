@@ -4,6 +4,7 @@ import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeFalse
 import io.bluetape4k.concurrent.completableFutureOf
+import io.bluetape4k.concurrent.get
 import io.bluetape4k.junit5.coroutines.runSuspendDefault
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.async
@@ -14,8 +15,8 @@ import java.util.concurrent.CompletableFuture
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.ExecutionException
 import java.util.concurrent.Executors
-import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicInteger
+import kotlin.time.Duration.Companion.seconds
 
 class SingleFlightTest {
 
@@ -53,8 +54,8 @@ class SingleFlightTest {
 
             evalProceed.countDown()
 
-            first.get(10, TimeUnit.SECONDS) shouldBeEqualTo 42
-            second.get(10, TimeUnit.SECONDS) shouldBeEqualTo 42
+            first.get(10.seconds) shouldBeEqualTo 42
+            second.get(10.seconds) shouldBeEqualTo 42
             evalCount.get() shouldBeEqualTo 1
         } finally {
             evalProceed.countDown()
@@ -74,13 +75,13 @@ class SingleFlightTest {
         }
 
         assertFailsWith<ExecutionException> {
-            failed.get(2, TimeUnit.SECONDS)
+            failed.get(2.seconds)
         }
 
         singleFlight.runAsync("same") {
             evalCount.incrementAndGet()
             completableFutureOf(7)
-        }.get(2, TimeUnit.SECONDS) shouldBeEqualTo 7
+        }.get(2.seconds) shouldBeEqualTo 7
 
         evalCount.get() shouldBeEqualTo 2
     }
@@ -100,7 +101,7 @@ class SingleFlightTest {
         singleFlight.isCurrent(token).shouldBeFalse()
 
         evaluatorFuture.complete(9)
-        result.get(2, TimeUnit.SECONDS) shouldBeEqualTo 9
+        result.get(2.seconds) shouldBeEqualTo 9
     }
 
     @Test

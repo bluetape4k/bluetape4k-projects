@@ -3,6 +3,7 @@ package io.bluetape4k.examples.ktor.observability
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.assertions.shouldHaveSize
+import io.bluetape4k.ktor.observability.join
 import io.bluetape4k.ktor.testing.decodeJsonBody
 import io.bluetape4k.ktor.testing.shouldHaveStatus
 import io.ktor.client.request.get
@@ -22,7 +23,7 @@ import io.opentelemetry.sdk.trace.SdkTracerProvider
 import io.opentelemetry.sdk.trace.export.SimpleSpanProcessor
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
-import java.util.concurrent.TimeUnit
+import kotlin.time.Duration.Companion.seconds
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class ObservabilityKtorApplicationTest {
@@ -97,7 +98,7 @@ class ObservabilityKtorApplicationTest {
             .build()
 
         fun flush() {
-            tracerProvider.forceFlush().join(1, TimeUnit.SECONDS)
+            tracerProvider.forceFlush().join(1.seconds)
         }
 
         override fun close() {

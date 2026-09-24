@@ -4,6 +4,8 @@ import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.assertions.shouldNotBeNull
 import io.bluetape4k.codec.Base58
+import io.bluetape4k.concurrent.await
+import io.bluetape4k.concurrent.get
 import io.bluetape4k.kafka.spring.test.utils.getPropertyValue
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.trace
@@ -61,8 +63,8 @@ import java.io.Serializable
 import java.time.Duration
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.CountDownLatch
-import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicBoolean
+import kotlin.time.Duration.Companion.seconds
 
 @Suppress("SpringJavaInjectionPointsAutowiringInspection")
 @SpringBootTest
@@ -117,12 +119,12 @@ class KafkaStreamsTests {
             if (newState == KafkaStreams.State.RUNNING) runningLatch.countDown()
         }
         val exceptionHandler = mockk<StreamsUncaughtExceptionHandler>(relaxUnitFun = true)
-        this.streamsBuilderFactoryBean.setStreamsUncaughtExceptionHandler(exceptionHandler)
 
+        this.streamsBuilderFactoryBean.setStreamsUncaughtExceptionHandler(exceptionHandler)
         this.streamsBuilderFactoryBean.start()
 
         // Streams 가 RUNNING 이 될 때까지 대기 — 메시지 전송 전에 파이프라인 준비 완료 보장
-        runningLatch.await(60, TimeUnit.SECONDS).shouldBeTrue()
+        runningLatch.await(60.seconds).shouldBeTrue()
 
         val payload1 = "foo" + Base58.randomString(32)
         val payload2 = "foo" + Base58.randomString(32)
@@ -131,7 +133,7 @@ class KafkaStreamsTests {
         this.kafkaTemplate.sendDefault(0, payload2)
         this.kafkaTemplate.flush()
 
-        val result = resultFuture.get(60, TimeUnit.SECONDS)
+        val result = resultFuture.get(60.seconds)
 
         result.shouldNotBeNull()
 
@@ -141,7 +143,7 @@ class KafkaStreamsTests {
         result.headers().lastHeader("foo").value() shouldBeEqualTo "bar".toUtf8Bytes()
         result.headers().lastHeader("spel").shouldNotBeNull()
 
-        stateLatch.await(10, TimeUnit.SECONDS).shouldBeTrue()
+        stateLatch.await(10.seconds).shouldBeTrue()
 
         val kafkaStreams = this.streamsBuilderFactoryBean.kafkaStreams.shouldNotBeNull()
         val threads = kafkaStreams.getPropertyValue<List<StreamThread>>("threads")

@@ -6,6 +6,7 @@ import io.bluetape4k.assertions.shouldBeInstanceOf
 import io.bluetape4k.assertions.shouldBeSameInstanceAs
 import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.assertions.shouldNotBeInstanceOf
+import io.bluetape4k.concurrent.get
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.KLogging
 import io.lettuce.core.RedisCommandTimeoutException
@@ -28,6 +29,7 @@ import java.util.concurrent.CompletableFuture
 import java.util.concurrent.ExecutionException
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.TimeoutException
+import kotlin.time.Duration.Companion.seconds
 
 internal class LettuceFencingLeaseFailureTest {
 
@@ -102,7 +104,7 @@ internal class LettuceFencingLeaseFailureTest {
         val error = AssertionError("error sentinel")
 
         assertFailsWith<ExecutionException> {
-            futureLease(error).bootstrapAsync().get(1, TimeUnit.SECONDS)
+            futureLease(error).bootstrapAsync().get(1.seconds)
         }.cause shouldBeSameInstanceAs error
     }
 

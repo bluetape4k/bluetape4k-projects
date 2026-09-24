@@ -4,12 +4,12 @@ import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeNull
 import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.concurrent.awaitTermination
 import io.bluetape4k.tenant.MissingTenantContextException
 import io.bluetape4k.tenant.TenantId
 import io.ktor.client.request.get
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.ApplicationCall
-import io.ktor.server.application.call
 import io.ktor.server.response.respondText
 import io.ktor.server.routing.get
 import io.ktor.server.routing.routing
@@ -34,6 +34,7 @@ import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicReference
+import kotlin.time.Duration.Companion.seconds
 
 class KtorTenantContextTest {
 
@@ -210,7 +211,7 @@ class KtorTenantContextTest {
 
     private fun shutdown(executor: ExecutorService) {
         executor.shutdownNow()
-        executor.awaitTermination(5, TimeUnit.SECONDS).shouldBeTrue()
+        executor.awaitTermination(5.seconds).shouldBeTrue()
     }
 
     private data class CallRetentionProbe(

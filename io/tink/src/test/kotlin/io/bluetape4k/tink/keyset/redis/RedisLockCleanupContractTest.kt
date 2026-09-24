@@ -4,6 +4,7 @@ import com.google.crypto.tink.aead.AesGcmKeyManager
 import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeSameInstanceAs
 import io.bluetape4k.assertions.shouldContain
+import io.bluetape4k.concurrent.tryLock
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.tink.AbstractTinkTest
 import io.lettuce.core.ScriptOutputType
@@ -20,7 +21,7 @@ import org.redisson.api.RBucket
 import org.redisson.api.RLock
 import org.redisson.api.RMap
 import org.redisson.api.RedissonClient
-import java.util.concurrent.TimeUnit
+import kotlin.time.Duration.Companion.seconds
 import io.bluetape4k.tink.registerTink as registerTinkSupport
 
 class RedisLockCleanupContractTest: AbstractTinkTest() {
@@ -107,7 +108,7 @@ class RedisLockCleanupContractTest: AbstractTinkTest() {
         every { redisson.getMap<String, String>(any<String>()) } returnsMany listOf(keysetsMap, createdAtMap)
         every { redisson.getLock(any<String>()) } returns lock
         every { activeVersionBucket.get() } returns null
-        every { lock.tryLock(5, TimeUnit.SECONDS) } returns true
+        every { lock.tryLock(5.seconds) } returns true
         every { lock.isHeldByCurrentThread } returns true
         every { lock.unlock() } throws cleanupFailure
 
@@ -130,7 +131,7 @@ class RedisLockCleanupContractTest: AbstractTinkTest() {
         every { redisson.getMap<String, String>(any<String>()) } returnsMany listOf(keysetsMap, createdAtMap)
         every { redisson.getLock(any<String>()) } returns lock
         every { activeVersionBucket.get() } returns null
-        every { lock.tryLock(5, TimeUnit.SECONDS) } returns true
+        every { lock.tryLock(5.seconds) } returns true
         every { lock.isHeldByCurrentThread } returns false
 
         val store = RedissonVersionedKeysetStore(

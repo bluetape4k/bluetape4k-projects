@@ -1,6 +1,7 @@
 package io.bluetape4k.jwt.keychain.repository.redis
 
 import io.bluetape4k.LibraryName
+import io.bluetape4k.concurrent.tryLock
 import io.bluetape4k.jwt.keychain.KeyChain
 import io.bluetape4k.jwt.keychain.KeyChainDto
 import io.bluetape4k.jwt.keychain.repository.AbstractKeyChainRepository
@@ -12,12 +13,13 @@ import io.bluetape4k.jwt.keychain.toKeyChain
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.warn
+import io.bluetape4k.support.checkBeTrue
 import io.bluetape4k.support.checkNull
 import io.bluetape4k.support.requireNotBlank
 import org.redisson.api.RDeque
 import org.redisson.api.RLock
 import org.redisson.api.RedissonClient
-import java.util.concurrent.TimeUnit
+import kotlin.time.Duration.Companion.seconds
 
 /**
  * JWT 토큰 발급에 사용된 [KeyChain]을 Redis에 저장하여, 분산환경에서 [KeyChain]을 공유하고, rotate 시에 전파되도록 합니다.
@@ -135,7 +137,7 @@ internal const val REDIS_ROTATION_LOCK_WAIT_SECONDS = 5L
  * 해제 오류를 suppressed exception으로 보존해 원래 오류를 주 오류로 유지합니다.
  */
 internal fun <T> withRedisRotationLock(lock: RLock, action: () -> T): T {
-    check(lock.tryLock(REDIS_ROTATION_LOCK_WAIT_SECONDS, TimeUnit.SECONDS)) {
+    check(lock.tryLock(REDIS_ROTATION_LOCK_WAIT_SECONDS.seconds)) {
         "Failed to acquire Redis keychain rotation lock."
     }
 
@@ -145,13 +147,10 @@ internal fun <T> withRedisRotationLock(lock: RLock, action: () -> T): T {
         actionResult = runCatching(action)
     } finally {
         releaseFailure = runCatching {
-            check(lock.isHeldByCurrentThread) {
-                "Redis keychain rotation lock ownership was lost before commit."
-            }
+            lock.isHeldByCurrentThread.checkBeTrue { "Redis keychain rotation lock ownership was lost before commit." }
             lock.unlock()
         }.exceptionOrNull()
     }
-
 
     val primaryFailure = actionResult.exceptionOrNull()
     if (primaryFailure != null) {

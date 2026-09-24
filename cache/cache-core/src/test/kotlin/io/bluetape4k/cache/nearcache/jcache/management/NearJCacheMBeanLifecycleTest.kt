@@ -10,6 +10,8 @@ import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.cache.jcache.JCache
 import io.bluetape4k.cache.nearcache.jcache.NearJCache
 import io.bluetape4k.cache.nearcache.jcache.NearJCacheConfig
+import io.bluetape4k.concurrent.await
+import io.bluetape4k.concurrent.get
 import io.bluetape4k.logging.KLogging
 import io.mockk.every
 import io.mockk.mockk
@@ -22,7 +24,6 @@ import java.util.concurrent.CopyOnWriteArrayList
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.ExecutionException
 import java.util.concurrent.Executors
-import java.util.concurrent.TimeUnit
 import java.util.concurrent.TimeoutException
 import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicInteger
@@ -33,6 +34,9 @@ import javax.cache.configuration.MutableConfiguration
 import javax.management.MBeanServer
 import javax.management.MBeanServerFactory
 import javax.management.ObjectName
+import kotlin.time.Duration.Companion.milliseconds
+import kotlin.time.Duration.Companion.seconds
+import kotlin.time.toKotlinDuration
 
 class NearJCacheMBeanLifecycleTest {
 
@@ -144,7 +148,7 @@ class NearJCacheMBeanLifecycleTest {
         val server = proxyServer(delegate) { methodName, arguments, invokeDelegate ->
             if (methodName == "registerMBean") {
                 enteredRegister.countDown()
-                releaseRegister.await(5, TimeUnit.SECONDS).shouldBeTrue()
+                releaseRegister.await(5.seconds).shouldBeTrue()
             }
             invokeDelegate(arguments)
         }
@@ -156,14 +160,14 @@ class NearJCacheMBeanLifecycleTest {
                 val registrationFuture = executor.submit<NearJCacheMBeanRegistration> {
                     fixture.cache.registerMBeans(server, "manager", "cache")
                 }
-                enteredRegister.await(2, TimeUnit.SECONDS).shouldBeTrue()
+                enteredRegister.await(2.seconds).shouldBeTrue()
                 val closeFuture = executor.submit { fixture.cache.close() }
 
                 closeFuture.isDone.shouldBeFalse()
                 releaseRegister.countDown()
 
-                val registration = registrationFuture.get(2, TimeUnit.SECONDS)
-                closeFuture.get(2, TimeUnit.SECONDS)
+                val registration = registrationFuture.get(2.seconds)
+                closeFuture.get(2.seconds)
                 registration.state shouldBeEqualTo NearJCacheMBeanRegistrationState.CLOSED
                 registration.activeObjectNames.shouldBeEmpty()
             }
@@ -183,7 +187,7 @@ class NearJCacheMBeanLifecycleTest {
             if (methodName == "unregisterMBean") {
                 unregisterCalls.incrementAndGet()
                 enteredUnregister.countDown()
-                releaseUnregister.await(5, TimeUnit.SECONDS).shouldBeTrue()
+                releaseUnregister.await(5.seconds).shouldBeTrue()
             }
             invokeDelegate(arguments)
         }
@@ -196,18 +200,18 @@ class NearJCacheMBeanLifecycleTest {
         try {
             withBlockingTimeout(Duration.ofSeconds(5)) {
                 val handleClose = executor.submit { registration.close() }
-                enteredUnregister.await(2, TimeUnit.SECONDS).shouldBeTrue()
+                enteredUnregister.await(2.seconds).shouldBeTrue()
                 val cacheClose = executor.submit { fixture.cache.close() }
 
                 cacheClose.isDone.shouldBeFalse()
-                frontClosed.await(100, TimeUnit.MILLISECONDS).shouldBeFalse()
+                frontClosed.await(100.milliseconds).shouldBeFalse()
                 releaseUnregister.countDown()
 
-                handleClose.get(2, TimeUnit.SECONDS)
-                cacheClose.get(2, TimeUnit.SECONDS)
+                handleClose.get(2.seconds)
+                cacheClose.get(2.seconds)
                 unregisterCalls.get() shouldBeEqualTo 1
                 registration.state shouldBeEqualTo NearJCacheMBeanRegistrationState.CLOSED
-                frontClosed.await(2, TimeUnit.SECONDS).shouldBeTrue()
+                frontClosed.await(2.seconds).shouldBeTrue()
             }
         } finally {
             releaseUnregister.countDown()
@@ -226,7 +230,7 @@ class NearJCacheMBeanLifecycleTest {
             if (methodName == "unregisterMBean") {
                 unregisterCalls.incrementAndGet()
                 enteredUnregister.countDown()
-                releaseUnregister.await(5, TimeUnit.SECONDS).shouldBeTrue()
+                releaseUnregister.await(5.seconds).shouldBeTrue()
                 if (failOnce.compareAndSet(true, false)) throw IllegalStateException("unregister failed")
             }
             invokeDelegate(arguments)
@@ -238,20 +242,20 @@ class NearJCacheMBeanLifecycleTest {
         try {
             withBlockingTimeout(Duration.ofSeconds(5)) {
                 val first = executor.submit { registration.close() }
-                enteredUnregister.await(2, TimeUnit.SECONDS).shouldBeTrue()
+                enteredUnregister.await(2.seconds).shouldBeTrue()
                 val secondStarted = CountDownLatch(1)
                 val second = executor.submit {
                     secondStarted.countDown()
                     registration.close()
                 }
-                secondStarted.await(2, TimeUnit.SECONDS).shouldBeTrue()
+                secondStarted.await(2.seconds).shouldBeTrue()
                 releaseUnregister.countDown()
 
                 val firstFailure = assertFailsWith<ExecutionException> {
-                    first.get(2, TimeUnit.SECONDS)
+                    first.get(2.seconds)
                 }.cause
                 val secondFailure = assertFailsWith<ExecutionException> {
-                    second.get(2, TimeUnit.SECONDS)
+                    second.get(2.seconds)
                 }.cause
 
                 firstFailure shouldBe secondFailure
@@ -400,7 +404,7 @@ class NearJCacheMBeanLifecycleTest {
         val watchdog = Executors.newSingleThreadExecutor()
         val task = watchdog.submit<T> { block() }
         return try {
-            task.get(timeout.toMillis(), TimeUnit.MILLISECONDS)
+            task.get(timeout.toKotlinDuration())
         } catch (e: ExecutionException) {
             throw (e.cause ?: e)
         } catch (e: TimeoutException) {

@@ -2,7 +2,6 @@ package io.bluetape4k.concurrent
 
 import java.util.concurrent.Future
 import java.util.concurrent.TimeUnit
-import kotlin.time.Duration
 
-fun <T> Future<T>.get(timeout: Duration): T =
+fun <V> Future<V>.get(timeout: kotlin.time.Duration): V =
     get(timeout.inWholeNanoseconds, TimeUnit.NANOSECONDS)

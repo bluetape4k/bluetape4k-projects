@@ -4,6 +4,8 @@ import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeFalse
 import io.bluetape4k.assertions.shouldBeGreaterThan
 import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.concurrent.awaitTermination
+import io.bluetape4k.concurrent.get
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.redis.lettuce.LettuceTestUtils
 import io.lettuce.core.ScriptOutputType
@@ -13,8 +15,8 @@ import org.junit.jupiter.api.Test
 import java.util.concurrent.ConcurrentLinkedQueue
 import java.util.concurrent.CyclicBarrier
 import java.util.concurrent.Executors
-import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicLong
+import kotlin.time.Duration.Companion.seconds
 
 /** Demonstrates durable epoch cutover and downstream tuple rejection outside the Redis primitive. */
 internal class LettuceFencingLeaseRecoveryTest {
@@ -47,10 +49,10 @@ internal class LettuceFencingLeaseRecoveryTest {
                     results += authority.compareAndSet(11, 12)
                 }
             }
-            futures.forEach { it.get(5, TimeUnit.SECONDS) }
+            futures.forEach { it.get(5.seconds) }
         } finally {
             executor.shutdownNow()
-            executor.awaitTermination(5, TimeUnit.SECONDS).shouldBeTrue()
+            executor.awaitTermination(5.seconds).shouldBeTrue()
         }
 
         results.count { it } shouldBeEqualTo 1

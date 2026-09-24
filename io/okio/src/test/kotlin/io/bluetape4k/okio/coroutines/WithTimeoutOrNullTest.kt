@@ -5,11 +5,14 @@ import io.bluetape4k.assertions.shouldBeNull
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.okio.AbstractOkioTest
+import io.bluetape4k.okio.deadline
+import io.bluetape4k.okio.timeout
 import kotlinx.coroutines.delay
 import okio.Timeout
 import org.junit.jupiter.api.Test
 import java.util.concurrent.TimeUnit
 import kotlin.time.Duration.Companion.milliseconds
+import kotlin.time.Duration.Companion.seconds
 
 class WithTimeoutOrNullTest: AbstractOkioTest() {
 
@@ -39,8 +42,8 @@ class WithTimeoutOrNullTest: AbstractOkioTest() {
     @Test
     fun `deadline이 timeout보다 짧으면 deadline 기준으로 null을 반환한다`() = runSuspendIO {
         val timeout = Timeout()
-            .timeout(5, TimeUnit.SECONDS)
-            .deadline(10, TimeUnit.MILLISECONDS)
+            .timeout(5.seconds)
+            .deadline(10.milliseconds)
 
         val result = withTimeoutOrNull(timeout) {
             delay(100.milliseconds)

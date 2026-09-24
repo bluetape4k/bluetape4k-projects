@@ -4,6 +4,7 @@ import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeFalse
 import io.bluetape4k.assertions.shouldBeInstanceOf
 import io.bluetape4k.codec.Base58
+import io.bluetape4k.concurrent.get
 import io.bluetape4k.junit5.concurrency.MultithreadingTester
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.redis.lettuce.LettuceTestUtils
@@ -15,7 +16,7 @@ import java.io.Serializable
 import java.time.Duration
 import java.util.concurrent.ConcurrentLinkedQueue
 import java.util.concurrent.CyclicBarrier
-import java.util.concurrent.TimeUnit
+import kotlin.time.Duration.Companion.seconds
 
 internal class LockConcurrencyTest {
 
@@ -103,12 +104,12 @@ internal class LockConcurrencyTest {
                 awaitQueued { lock.reconcile(owner(2), request(2)) }
 
                 lock.release(holder) shouldBeEqualTo LockMutationResult.Released(0)
-                val firstHandle = firstWaiter.get(2, TimeUnit.SECONDS)
+                val firstHandle = firstWaiter.get(2.seconds)
                     .shouldBeInstanceOf<LockAcquireResult.Acquired<LockHandle>>()
                     .handle
                 secondWaiter.isDone.shouldBeFalse()
                 lock.release(firstHandle) shouldBeEqualTo LockMutationResult.Released(0)
-                val secondHandle = secondWaiter.get(2, TimeUnit.SECONDS)
+                val secondHandle = secondWaiter.get(2.seconds)
                     .shouldBeInstanceOf<LockAcquireResult.Acquired<LockHandle>>()
                     .handle
                 lock.release(secondHandle) shouldBeEqualTo LockMutationResult.Released(0)
@@ -144,12 +145,12 @@ internal class LockConcurrencyTest {
                 awaitQueued { lock.readLock().reconcile(owner(2), request(2)) }
 
                 lock.readLock().release(activeReader) shouldBeEqualTo LockMutationResult.Released(0)
-                val writerHandle = writer.get(2, TimeUnit.SECONDS)
+                val writerHandle = writer.get(2.seconds)
                     .shouldBeInstanceOf<LockAcquireResult.Acquired<WriteLockHandle>>()
                     .handle
                 lateReader.isDone.shouldBeFalse()
                 lock.writeLock().release(writerHandle) shouldBeEqualTo LockMutationResult.Released(0)
-                val readerHandle = lateReader.get(2, TimeUnit.SECONDS)
+                val readerHandle = lateReader.get(2.seconds)
                     .shouldBeInstanceOf<LockAcquireResult.Acquired<ReadLockHandle>>()
                     .handle
                 lock.readLock().release(readerHandle) shouldBeEqualTo LockMutationResult.Released(0)

@@ -4,6 +4,7 @@ import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeFalse
 import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.cache.jcache.JCache
+import io.bluetape4k.concurrent.await
 import io.bluetape4k.concurrent.virtualthread.virtualThread
 import io.bluetape4k.logging.KLogging
 import io.mockk.every
@@ -15,7 +16,6 @@ import io.mockk.verify
 import org.junit.jupiter.api.Test
 import java.util.concurrent.CopyOnWriteArrayList
 import java.util.concurrent.CountDownLatch
-import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicInteger
 import java.util.concurrent.atomic.AtomicReference
 import javax.cache.configuration.CacheEntryListenerConfiguration
@@ -24,6 +24,8 @@ import javax.cache.event.CacheEntryEvent
 import javax.cache.event.CacheEntryRemovedListener
 import javax.cache.event.CacheEntryUpdatedListener
 import javax.cache.event.EventType
+import kotlin.time.Duration.Companion.milliseconds
+import kotlin.time.Duration.Companion.seconds
 
 class NearJCacheWriteThroughReentrancyTest {
 
@@ -153,7 +155,7 @@ class NearJCacheWriteThroughReentrancyTest {
         val releaseBlocker = CountDownLatch(1)
         every { frontCache.put("blocker", "value") } answers {
             blockerStarted.countDown()
-            releaseBlocker.await(2, TimeUnit.SECONDS)
+            releaseBlocker.await(2.seconds)
         }
 
         val nearCache = NearJCache(
@@ -166,7 +168,7 @@ class NearJCacheWriteThroughReentrancyTest {
                 as CacheEntryCreatedListener<String, String>
         every { backCache.put("key", "value") } answers {
             backWriteStarted.countDown()
-            releaseBackWrite.await(2, TimeUnit.SECONDS)
+            releaseBackWrite.await(2.seconds)
             callbackStarted.countDown()
             listener.onCreated(listOf(event))
             callbackReturned.countDown()
@@ -174,23 +176,23 @@ class NearJCacheWriteThroughReentrancyTest {
 
         try {
             nearCache.put("key", "value")
-            backWriteStarted.await(2, TimeUnit.SECONDS).shouldBeTrue()
+            backWriteStarted.await(2.seconds).shouldBeTrue()
 
             val blocker = virtualThread(start = false, name = "near-jcache-async-gate-blocker") {
                 nearCache.put("blocker", "value")
             }
             blocker.start()
-            blockerStarted.await(2, TimeUnit.SECONDS).shouldBeTrue()
+            blockerStarted.await(2.seconds).shouldBeTrue()
 
             releaseBackWrite.countDown()
-            callbackStarted.await(2, TimeUnit.SECONDS).shouldBeTrue()
-            check(!callbackReturned.await(100, TimeUnit.MILLISECONDS)) {
+            callbackStarted.await(2.seconds).shouldBeTrue()
+            check(!callbackReturned.await(100.milliseconds)) {
                 "async self-event bypassed mutationGate ordering"
             }
             verify(exactly = 0) { frontCache.putAll(mapOf("key" to "value")) }
 
             releaseBlocker.countDown()
-            callbackReturned.await(2, TimeUnit.SECONDS).shouldBeTrue()
+            callbackReturned.await(2.seconds).shouldBeTrue()
             blocker.join(2_000)
             verify(exactly = 1) { frontCache.putAll(mapOf("key" to "value")) }
         } finally {
@@ -217,7 +219,7 @@ class NearJCacheWriteThroughReentrancyTest {
                 var released = false
                 while (!released) {
                     try {
-                        released = releaseFirst.await(10, TimeUnit.MILLISECONDS)
+                        released = releaseFirst.await(10.milliseconds)
                     } catch (_: InterruptedException) {
                         // Ignore interruption to model a provider that completes after the caller timeout.
                     }
@@ -232,17 +234,17 @@ class NearJCacheWriteThroughReentrancyTest {
         )
         try {
             runCatching { nearCache.put("key", "first") }.isFailure.shouldBeTrue()
-            firstStarted.await(1, TimeUnit.SECONDS).shouldBeTrue()
+            firstStarted.await(1.seconds).shouldBeTrue()
 
             val secondWorker = virtualThread(start = false, name = "near-jcache-late-completion-follow-up") {
                 nearCache.put("key", "second")
                 secondFinished.countDown()
             }
             secondWorker.start()
-            secondFinished.await(100, TimeUnit.MILLISECONDS).shouldBeFalse()
+            secondFinished.await(100.milliseconds).shouldBeFalse()
 
             releaseFirst.countDown()
-            secondFinished.await(2, TimeUnit.SECONDS).shouldBeTrue()
+            secondFinished.await(2.seconds).shouldBeTrue()
             values.toList() shouldBeEqualTo listOf("first", "second")
         } finally {
             releaseFirst.countDown()
@@ -299,7 +301,7 @@ class NearJCacheWriteThroughReentrancyTest {
         }
         try {
             worker.start()
-            finished.await(2, TimeUnit.SECONDS).shouldBeTrue()
+            finished.await(2.seconds).shouldBeTrue()
             failure.get()?.let { throw AssertionError("synchronous $operation failed", it) }
             assertFrontReconciled(frontCache)
         } finally {
@@ -327,7 +329,7 @@ class NearJCacheWriteThroughReentrancyTest {
             }
         }
         listenerThread.start()
-        check(finished.await(2, TimeUnit.SECONDS)) {
+        check(finished.await(2.seconds)) {
             "synchronous listener callback did not complete on its separate thread"
         }
         failure.get()?.let { throw AssertionError("synchronous listener callback failed", it) }

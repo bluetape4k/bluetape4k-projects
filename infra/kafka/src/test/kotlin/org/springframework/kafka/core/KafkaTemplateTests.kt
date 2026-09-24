@@ -6,6 +6,7 @@ import io.bluetape4k.assertions.shouldContainSame
 import io.bluetape4k.assertions.shouldHaveSize
 import io.bluetape4k.assertions.shouldNotBeEmpty
 import io.bluetape4k.assertions.shouldNotBeNull
+import io.bluetape4k.concurrent.await
 import io.bluetape4k.concurrent.onFailure
 import io.bluetape4k.concurrent.onSuccess
 import io.bluetape4k.kafka.spring.test.utils.consumerProps
@@ -45,9 +46,9 @@ import org.springframework.kafka.test.utils.KafkaTestUtils
 import org.springframework.messaging.Message
 import java.util.*
 import java.util.concurrent.CountDownLatch
-import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicInteger
 import java.util.concurrent.atomic.AtomicReference
+import kotlin.time.Duration.Companion.seconds
 
 @EmbeddedKafka(kraft = true, topics = [INT_KEY_TOPIC, STRING_KEY_TOPIC])
 class KafkaTemplateTests {
@@ -319,7 +320,7 @@ class KafkaTemplateTests {
         template.sendDefault("foo")
         template.flush()
 
-        latch.await(10, TimeUnit.SECONDS).shouldBeTrue()
+        latch.await(10.seconds).shouldBeTrue()
         records[0].value() shouldBeEqualTo "foo"
         records[1].value() shouldBeEqualTo "foo"
         meta[0].topic() shouldBeEqualTo INT_KEY_TOPIC
@@ -349,7 +350,7 @@ class KafkaTemplateTests {
 
         template.sendDefault("foo")
         template.flush()
-        latch.await(10, TimeUnit.SECONDS).shouldBeTrue()
+        latch.await(10.seconds).shouldBeTrue()
 
         // Drain the topic
         consumer.getSingleRecord(INT_KEY_TOPIC)
@@ -377,7 +378,7 @@ class KafkaTemplateTests {
             }
 
         consumer.getSingleRecord(INT_KEY_TOPIC).value() shouldBeEqualTo "foo"
-        latch.await(5, TimeUnit.SECONDS).shouldBeTrue()
+        latch.await(5.seconds).shouldBeTrue()
         pf.destroy()
     }
 }

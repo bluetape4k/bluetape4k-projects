@@ -2,6 +2,7 @@ package io.bluetape4k.http.hc5.async
 
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldNotBeNull
+import io.bluetape4k.concurrent.get
 import io.bluetape4k.http.hc5.AbstractHc5Test
 import io.bluetape4k.http.hc5.async.methods.toProducer
 import io.bluetape4k.logging.KLogging
@@ -10,7 +11,7 @@ import org.apache.hc.client5.http.async.methods.SimpleRequestBuilder
 import org.apache.hc.client5.http.async.methods.SimpleResponseConsumer
 import org.apache.hc.client5.http.protocol.HttpClientContext
 import org.junit.jupiter.api.Test
-import java.util.concurrent.TimeUnit
+import kotlin.time.Duration.Companion.seconds
 
 class AsyncHttpClientTest: AbstractHc5Test() {
 
@@ -40,7 +41,7 @@ class AsyncHttpClientTest: AbstractHc5Test() {
                 HttpClientContext.create(),
                 null
             )
-            val response = future.get(10, TimeUnit.SECONDS)
+            val response = future.get(10.seconds)
             log.debug { "GET $httpbinBaseUrl/get status=${response.code}" }
             response.code shouldBeEqualTo 200
         }

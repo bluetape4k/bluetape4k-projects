@@ -8,6 +8,8 @@ import io.bluetape4k.assertions.shouldBeNull
 import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.assertions.shouldNotBeEmpty
 import io.bluetape4k.assertions.shouldNotBeNull
+import io.bluetape4k.concurrent.await
+import io.bluetape4k.concurrent.awaitTermination
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.info
@@ -57,6 +59,7 @@ import kotlin.checkNotNull
 import kotlin.error
 import kotlin.io.path.absolutePathString
 import kotlin.let
+import kotlin.time.Duration.Companion.seconds
 import kotlin.to
 import kotlin.use
 
@@ -512,21 +515,21 @@ class NetCdfCatalogServiceTest: AbstractPostgisTest() {
         val future = executor.submit {
             workerThread.set(Thread.currentThread())
             entered.countDown()
-            check(releaseAdmission.await(5, TimeUnit.SECONDS)) {
+            check(releaseAdmission.await(5.seconds)) {
                 "pre-admission timeout test did not release the worker"
             }
             service.importGridValues(fileId, "temperature")
         }
 
         try {
-            entered.await(5, TimeUnit.SECONDS).shouldBeTrue()
+            entered.await(5.seconds).shouldBeTrue()
             assertFailsWith<TimeoutException> {
                 future.get(20, TimeUnit.MILLISECONDS)
             }
 
             future.cancel(true).shouldBeTrue()
             executor.shutdownNow()
-            executor.awaitTermination(5, TimeUnit.SECONDS).shouldBeTrue()
+            executor.awaitTermination(5.seconds).shouldBeTrue()
 
             service.findImportProgress(fileId, "temperature").shouldBeNull()
             service.importGridValues(fileId, "temperature")
@@ -537,7 +540,7 @@ class NetCdfCatalogServiceTest: AbstractPostgisTest() {
             releaseAdmission.countDown()
             future.cancel(true)
             executor.shutdownNow()
-            executor.awaitTermination(5, TimeUnit.SECONDS).shouldBeTrue()
+            executor.awaitTermination(5.seconds).shouldBeTrue()
             workerThread.get()?.isAlive.shouldBeFalse()
         }
     }
@@ -555,7 +558,7 @@ class NetCdfCatalogServiceTest: AbstractPostgisTest() {
             workerThread.set(Thread.currentThread())
             checkpointCalls.incrementAndGet()
             leaseTouched.countDown()
-            check(releaseCheckpoint.await(5, TimeUnit.SECONDS)) {
+            check(releaseCheckpoint.await(5.seconds)) {
                 "post-lease cancellation test did not release the worker"
             }
         }
@@ -572,14 +575,15 @@ class NetCdfCatalogServiceTest: AbstractPostgisTest() {
         }
 
         try {
-            leaseTouched.await(5, TimeUnit.SECONDS).shouldBeTrue()
+            leaseTouched.await(5.seconds).shouldBeTrue()
+
             val committedBeforeCancel = transaction(db) {
                 progressRepo.findByFileAndVariable(fileId, "temperature")
             }.shouldNotBeNull()
 
             future.cancel(true).shouldBeTrue()
             executor.shutdownNow()
-            executor.awaitTermination(5, TimeUnit.SECONDS).shouldBeTrue()
+            executor.awaitTermination(5.seconds).shouldBeTrue()
 
             assertCancelledImportState(fileId, committedBeforeCancel, workerFailure, checkpointCalls)
 
@@ -595,7 +599,7 @@ class NetCdfCatalogServiceTest: AbstractPostgisTest() {
             releaseCheckpoint.countDown()
             future.cancel(true)
             executor.shutdownNow()
-            executor.awaitTermination(5, TimeUnit.SECONDS).shouldBeTrue()
+            executor.awaitTermination(5.seconds).shouldBeTrue()
             workerThread.get()?.isAlive.shouldBeFalse()
         }
     }

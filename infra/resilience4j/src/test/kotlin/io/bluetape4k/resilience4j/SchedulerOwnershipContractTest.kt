@@ -5,6 +5,8 @@ import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeFalse
 import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.codec.Base58
+import io.bluetape4k.concurrent.awaitTermination
+import io.bluetape4k.concurrent.get
 import io.bluetape4k.resilience4j.retry.completableFuture
 import io.bluetape4k.resilience4j.retry.completableFutureFunction
 import io.bluetape4k.resilience4j.retry.completionStage
@@ -23,7 +25,7 @@ import java.util.concurrent.ExecutionException
 import java.util.concurrent.Executors
 import java.util.concurrent.ScheduledExecutorService
 import java.util.concurrent.ScheduledThreadPoolExecutor
-import java.util.concurrent.TimeUnit
+import kotlin.time.Duration.Companion.seconds
 
 class SchedulerOwnershipContractTest {
 
@@ -53,7 +55,7 @@ class SchedulerOwnershipContractTest {
             }
 
             assertFailsWith<ExecutionException> {
-                function(1).get(1, TimeUnit.SECONDS)
+                function(1).get(1.seconds)
             }
             scheduler.isShutdown.shouldBeFalse()
         } finally {
@@ -70,7 +72,7 @@ class SchedulerOwnershipContractTest {
             }
 
             assertFailsWith<ExecutionException> {
-                function(1).get(1, TimeUnit.SECONDS)
+                function(1).get(1.seconds)
             }
             scheduler.isShutdown.shouldBeFalse()
         } finally {
@@ -178,7 +180,9 @@ class SchedulerOwnershipContractTest {
             val timedOut = timeLimiter().completableFuture { _: Int ->
                 CompletableFuture<Int>()
             }
-            assertFailsWith<ExecutionException> { timedOut(1).get(1, TimeUnit.SECONDS) }
+            assertFailsWith<ExecutionException> {
+                timedOut(1).get(1.seconds)
+            }
 
             schedulers.size shouldBeEqualTo 2
         }
@@ -195,7 +199,9 @@ class SchedulerOwnershipContractTest {
             val failed = retry().completableFuture<Int, Int> {
                 CompletableFuture.failedFuture(IOException("failure"))
             }
-            assertFailsWith<ExecutionException> { failed(1).get(1, TimeUnit.SECONDS) }
+            assertFailsWith<ExecutionException> {
+                failed(1).get(1.seconds)
+            }
 
             schedulers.size shouldBeEqualTo 2
         }
@@ -234,7 +240,7 @@ class SchedulerOwnershipContractTest {
                     block(schedulers)
                 } finally {
                     schedulers.forEach { scheduler ->
-                        scheduler.awaitTermination(1, TimeUnit.SECONDS).shouldBeTrue()
+                        scheduler.awaitTermination(1.seconds).shouldBeTrue()
                         scheduler.isShutdown.shouldBeTrue()
                     }
                 }

@@ -1,13 +1,15 @@
 package io.bluetape4k.io.serializer
 
+import io.bluetape4k.concurrent.await
+import io.bluetape4k.concurrent.awaitTermination
 import org.junit.jupiter.api.Assertions.fail
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.ConcurrentLinkedQueue
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.CyclicBarrier
 import java.util.concurrent.Executors
-import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicInteger
+import kotlin.time.Duration.Companion.seconds
 
 internal fun verifySerializerBufferConcurrency(
     operation: (worker: Int, repetition: Int) -> Unit,
@@ -26,7 +28,7 @@ internal fun verifySerializerBufferConcurrency(
             unfinished += worker
             executor.submit {
                 try {
-                    startBarrier.await(START_TIMEOUT_SECONDS, TimeUnit.SECONDS)
+                    startBarrier.await(START_TIMEOUT_SECONDS.seconds)
                     repeat(REPETITIONS) { repetition ->
                         operation(worker, repetition)
                     }
@@ -39,8 +41,8 @@ internal fun verifySerializerBufferConcurrency(
             }
         }
 
-        startBarrier.await(START_TIMEOUT_SECONDS, TimeUnit.SECONDS)
-        if (!completion.await(COMPLETION_TIMEOUT_SECONDS, TimeUnit.SECONDS)) {
+        startBarrier.await(START_TIMEOUT_SECONDS.seconds)
+        if (!completion.await(COMPLETION_TIMEOUT_SECONDS.seconds)) {
             fail<Unit>("Serializer buffer workers timed out; unfinished=${unfinished.sorted().take(MAX_DIAGNOSTICS)}")
         }
         if (failures.isNotEmpty()) {
@@ -48,7 +50,7 @@ internal fun verifySerializerBufferConcurrency(
         }
     } finally {
         executor.shutdownNow()
-        if (!executor.awaitTermination(SHUTDOWN_TIMEOUT_SECONDS, TimeUnit.SECONDS)) {
+        if (!executor.awaitTermination(SHUTDOWN_TIMEOUT_SECONDS.seconds)) {
             val threadNames =
                 Thread.getAllStackTraces().keys.asSequence()
                     .filter { it.name.startsWith("serializer-buffer-") }

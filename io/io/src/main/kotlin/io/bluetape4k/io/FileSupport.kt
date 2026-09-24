@@ -1,6 +1,7 @@
 package io.bluetape4k.io
 
 import io.bluetape4k.concurrent.asCompletableFuture
+import io.bluetape4k.concurrent.awaitTermination
 import io.bluetape4k.concurrent.virtualthread.VirtualThreadExecutor
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.error
@@ -27,8 +28,8 @@ import java.nio.file.StandardOpenOption
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
-import java.util.concurrent.TimeUnit
 import kotlin.text.Charsets.UTF_8
+import kotlin.time.Duration.Companion.seconds
 
 private object FileSupportLogger: KLogging()
 
@@ -43,7 +44,7 @@ internal val defaultFileExecutor: ExecutorService by lazy {
         Runtimex.addShutdownHook {
             runCatching {
                 executor.shutdown()
-                executor.awaitTermination(1, TimeUnit.SECONDS)
+                executor.awaitTermination(1.seconds)
             }
         }
     }

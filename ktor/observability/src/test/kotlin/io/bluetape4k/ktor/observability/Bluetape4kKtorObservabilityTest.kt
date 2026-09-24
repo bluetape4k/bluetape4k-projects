@@ -42,8 +42,8 @@ import io.opentelemetry.sdk.trace.SdkTracerProvider
 import io.opentelemetry.sdk.trace.export.SimpleSpanProcessor
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
-import java.util.concurrent.TimeUnit
 import kotlin.coroutines.cancellation.CancellationException
+import kotlin.time.Duration.Companion.seconds
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class Bluetape4kKtorObservabilityTest {
@@ -457,7 +457,7 @@ class Bluetape4kKtorObservabilityTest {
             .build()
 
         fun flush() {
-            tracerProvider.forceFlush().join(1, TimeUnit.SECONDS)
+            tracerProvider.forceFlush().join(1.seconds)
         }
 
         override fun close() {

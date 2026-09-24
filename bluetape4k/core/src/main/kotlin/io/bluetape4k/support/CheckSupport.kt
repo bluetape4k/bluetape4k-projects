@@ -751,3 +751,19 @@ inline fun Double.checkFinite(parameterName: String, noinline lazyMessage: (() -
         lazyMessage?.invoke() ?: "$parameterName must be finite."
     }
 }
+
+fun Boolean.checkBeTrue(parameterName: String): Boolean = apply {
+    check(this) { "$parameterName must be true." }
+}
+
+fun Boolean.checkBeTrue(lazyMessage: () -> Any): Boolean = apply {
+    check(this) { lazyMessage.invoke() }
+}
+
+fun Boolean.checkBeFalse(parameterName: String): Boolean = apply {
+    check(!this) { "$parameterName must be false." }
+}
+
+fun Boolean.checkBeFalse(lazyMessage: () -> Any): Boolean = apply {
+    check(!this) { lazyMessage.invoke() }
+}

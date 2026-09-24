@@ -4,9 +4,11 @@ import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.assertions.shouldNotBeNull
 import io.bluetape4k.codec.Base58
+import io.bluetape4k.concurrent.await
+import io.bluetape4k.concurrent.get
 import io.bluetape4k.kafka.spring.test.utils.getPropertyValue
 import io.bluetape4k.logging.coroutines.KLoggingChannel
-import io.bluetape4k.logging.trace
+import io.bluetape4k.logging.debug
 import io.bluetape4k.support.toUtf8Bytes
 import io.bluetape4k.support.uninitialized
 import io.mockk.mockk
@@ -60,9 +62,10 @@ import org.springframework.test.context.TestPropertySource
 import java.time.Duration
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.CountDownLatch
-import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicBoolean
+import kotlin.time.Duration.Companion.seconds
 
+@Suppress("SpringJavaInjectionPointsAutowiringInspection")
 @SpringBootTest
 @TestPropertySource(properties = ["streaming.topic.two=streamingTopic2"])
 @EmbeddedKafka(
@@ -124,7 +127,7 @@ class KafkaStreamsTests {
         this.kafkaTemplate.sendDefault(0, payload2)
         this.kafkaTemplate.flush()
 
-        val result = resultFuture.get(600, TimeUnit.SECONDS)
+        val result = resultFuture.get(600.seconds)
 
         result.shouldNotBeNull()
 
@@ -134,9 +137,9 @@ class KafkaStreamsTests {
         result.headers().lastHeader("foo").value() shouldBeEqualTo "bar".toUtf8Bytes()
         result.headers().lastHeader("spel").shouldNotBeNull()
 
-        stateLatch.await(10, TimeUnit.SECONDS).shouldBeTrue()
+        stateLatch.await(10.seconds).shouldBeTrue()
 
-        val kafkaStreams = this.streamsBuilderFactoryBean.kafkaStreams!!
+        val kafkaStreams = this.streamsBuilderFactoryBean.kafkaStreams.shouldNotBeNull()
         val threads = kafkaStreams.getPropertyValue<List<StreamThread>>("threads")
         threads[0].uncaughtExceptionHandler.shouldNotBeNull()
 
@@ -193,7 +196,7 @@ class KafkaStreamsTests {
         fun customizer(): StreamsBuilderFactoryBeanConfigurer {
             return StreamsBuilderFactoryBeanConfigurer { fb: StreamsBuilderFactoryBean ->
                 fb.setStateListener { newState: KafkaStreams.State?, oldState: KafkaStreams.State? ->
-                    log.trace { "newState=$newState, oldState=$oldState" }
+                    log.debug { "newState=$newState, oldState=$oldState" }
                     stateChangeCalled().set(true)
                 }
             }

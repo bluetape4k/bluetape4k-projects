@@ -4,6 +4,9 @@ import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeSameInstanceAs
 import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.concurrent.await
+import io.bluetape4k.concurrent.awaitTermination
+import io.bluetape4k.concurrent.get
 import io.bluetape4k.io.ByteLimitExceededException
 import io.bluetape4k.logging.KLogging
 import io.mockk.clearMocks
@@ -23,7 +26,7 @@ import java.util.concurrent.CancellationException
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.ExecutionException
 import java.util.concurrent.Executors
-import java.util.concurrent.TimeUnit.SECONDS
+import kotlin.time.Duration.Companion.seconds
 
 class BoundedHttpEntitySupportTest {
 
@@ -240,9 +243,9 @@ class BoundedHttpEntitySupportTest {
         withVirtualExecutor { executor ->
             val future = executor.submit<ByteArray> { entity.readBodyBytes(maxBytes = 4) }
             try {
-                entered.await(5, SECONDS).shouldBeTrue()
+                entered.await(5.seconds).shouldBeTrue()
                 release.countDown()
-                val wrapper = assertFailsWith<ExecutionException> { future.get(5, SECONDS) }
+                val wrapper = assertFailsWith<ExecutionException> { future.get(5.seconds) }
                 val failure = wrapper.cause as ByteLimitExceededException
                 failure.suppressed.single() shouldBeSameInstanceAs timeout
             } finally {
@@ -269,10 +272,10 @@ class BoundedHttpEntitySupportTest {
                 entity(contentLength = 8L, stream = stream).readBodyBytes(maxBytes = 4)
             }
             try {
-                entered.await(5, SECONDS).shouldBeTrue()
+                entered.await(5.seconds).shouldBeTrue()
                 stream.consumedBytes shouldBeEqualTo 0
                 release.countDown()
-                val wrapper = assertFailsWith<ExecutionException> { future.get(5, SECONDS) }
+                val wrapper = assertFailsWith<ExecutionException> { future.get(5.seconds) }
                 (wrapper.cause as ByteLimitExceededException).maxBytes shouldBeEqualTo 4
                 stream.closeCalls shouldBeEqualTo 1
             } finally {
@@ -319,7 +322,7 @@ class BoundedHttpEntitySupportTest {
             return block(executor)
         } finally {
             executor.shutdownNow()
-            executor.awaitTermination(5, SECONDS).shouldBeTrue()
+            executor.awaitTermination(5.seconds).shouldBeTrue()
         }
     }
 

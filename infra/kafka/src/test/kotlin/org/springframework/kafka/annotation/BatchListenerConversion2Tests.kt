@@ -3,6 +3,7 @@ package org.springframework.kafka.annotation
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeInstanceOf
 import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.concurrent.await
 import io.bluetape4k.jackson.Jackson
 import io.bluetape4k.kafka.spring.test.utils.consumerProps
 import io.bluetape4k.logging.KLogging
@@ -31,7 +32,7 @@ import org.springframework.kafka.test.EmbeddedKafkaBroker
 import org.springframework.kafka.test.context.EmbeddedKafka
 import org.springframework.kafka.test.utils.KafkaTestUtils
 import java.util.concurrent.CountDownLatch
-import java.util.concurrent.TimeUnit
+import kotlin.time.Duration.Companion.seconds
 
 @SpringBootTest
 @EmbeddedKafka(kraft = true, topics = ["blc.2.1"], partitions = 1)
@@ -56,7 +57,7 @@ class BatchListenerConversion2Tests {
         template.send(topic, "JUNK")
         template.send(topic, """{ "bar": "qux" }""")
 
-        listener.latch1.await(10, TimeUnit.SECONDS).shouldBeTrue()
+        listener.latch1.await(10.seconds).shouldBeTrue()
         listener.badFoo shouldBeInstanceOf BadFoo::class
         listener.receivedFoos shouldBeEqualTo 2
     }

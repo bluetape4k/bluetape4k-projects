@@ -296,9 +296,7 @@ class BatchListenerConversionTests {
 
         @KafkaListener(topics = ["blc3"], groupId = "blc3")
         fun listen3(foos: List<Foo>) {
-            foos.forEach {
-                log.debug { "listen3 received foo: $it" }
-            }
+            foos.forEach { log.debug { "listen3 received foo: $it" } }
             if (this.received == null) {
                 this.received = foos
             }
@@ -316,9 +314,7 @@ class BatchListenerConversionTests {
         @KafkaListener(topics = ["blc4"], groupId = "blc4")
         @SendTo
         fun listen4(foos: List<Foo>): Collection<Message<*>> {
-            foos.forEach {
-                log.debug { "listen4 received foo: $it" }
-            }
+            foos.forEach { log.debug { "listen4 received foo: $it" } }
             if (this.received == null) {
                 this.received = foos
             }
@@ -333,9 +329,7 @@ class BatchListenerConversionTests {
 
         @KafkaListener(topics = ["blc5"], groupId = "blc5")
         fun listen4_2(foos: List<Foo>) {
-            foos.forEach {
-                log.debug { "listen4_2 received foo: $it" }
-            }
+            foos.forEach { log.debug { "listen4_2 received foo: $it" } }
             this.replies = foos
             this.latch1.countDown()
         }
@@ -358,9 +352,7 @@ class BatchListenerConversionTests {
             foos: List<Foo?>,
             @Header(KafkaHeaders.CONVERSION_FAILURES) conversionFailures: List<ConversionException?>,
         ) {
-            foos.forEach {
-                log.debug { "listen5 received foo: $it" }
-            }
+            foos.forEach { log.debug { "listen5 received foo: $it" } }
             this.latch1.countDown()
             foos.forEachIndexed { i, foo ->
                 if (foo == null && conversionFailures[i] != null) {

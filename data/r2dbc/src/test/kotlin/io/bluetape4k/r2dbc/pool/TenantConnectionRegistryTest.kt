@@ -7,6 +7,8 @@ import io.bluetape4k.assertions.shouldBeInstanceOf
 import io.bluetape4k.assertions.shouldBeSameInstanceAs
 import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.assertions.shouldContain
+import io.bluetape4k.concurrent.await
+import io.bluetape4k.concurrent.get
 import io.bluetape4k.junit5.concurrency.MultithreadingTester
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.KLogging
@@ -26,8 +28,8 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.Executors
-import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicReference
+import kotlin.time.Duration.Companion.seconds
 
 class TenantConnectionRegistryTest {
 
@@ -145,17 +147,17 @@ class TenantConnectionRegistryTest {
 
         try {
             val firstClose = executor.submit(registry::close)
-            disposeStarted.await(5, TimeUnit.SECONDS).shouldBeTrue()
+            disposeStarted.await(5.seconds).shouldBeTrue()
             val concurrentClose = executor.submit {
                 concurrentCloseStarted.countDown()
                 registry.close()
             }
 
-            concurrentCloseStarted.await(5, TimeUnit.SECONDS).shouldBeTrue()
+            concurrentCloseStarted.await(5.seconds).shouldBeTrue()
             concurrentClose.isDone.shouldBeFalse()
             allowDispose.countDown()
-            firstClose.get(5, TimeUnit.SECONDS)
-            concurrentClose.get(5, TimeUnit.SECONDS)
+            firstClose.get(5.seconds)
+            concurrentClose.get(5.seconds)
         } finally {
             allowDispose.countDown()
             executor.shutdownNow()

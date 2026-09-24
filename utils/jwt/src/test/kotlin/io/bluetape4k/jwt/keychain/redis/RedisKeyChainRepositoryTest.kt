@@ -6,6 +6,9 @@ import io.bluetape4k.assertions.shouldBeNull
 import io.bluetape4k.assertions.shouldBeSameInstanceAs
 import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.assertions.shouldContain
+import io.bluetape4k.concurrent.await
+import io.bluetape4k.concurrent.get
+import io.bluetape4k.concurrent.tryLock
 import io.bluetape4k.jwt.keychain.AbstractKeyChainRepositoryTest
 import io.bluetape4k.jwt.keychain.KeyChain
 import io.bluetape4k.jwt.keychain.KeyChainDto
@@ -19,17 +22,19 @@ import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
 import org.awaitility.kotlin.await
+import org.awaitility.kotlin.during
+import org.awaitility.kotlin.until
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.redisson.Redisson
 import org.redisson.api.RDeque
 import org.redisson.api.RLock
 import org.redisson.api.RedissonClient
-import java.time.Duration
 import java.util.*
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.Executors
-import java.util.concurrent.TimeUnit
+import kotlin.time.Duration.Companion.milliseconds
+import kotlin.time.Duration.Companion.seconds
 
 class RedisKeyChainRepositoryTest: AbstractKeyChainRepositoryTest() {
 
@@ -56,14 +61,14 @@ class RedisKeyChainRepositoryTest: AbstractKeyChainRepositoryTest() {
 
         every { redisson.getDeque<KeyChainDto>(any<String>()) } returns queue
         every { redisson.getLock(any<String>()) } returns lock
-        every { lock.tryLock(REDIS_ROTATION_LOCK_WAIT_SECONDS, TimeUnit.SECONDS) } returns true
+        every { lock.tryLock(REDIS_ROTATION_LOCK_WAIT_SECONDS.seconds) } returns true
         every { lock.isHeldByCurrentThread } returns true
 
         val repository = RedisKeyChainRepository(redisson)
         try {
             repository.forcedRotate(KeyChain()).shouldBeTrue()
 
-            verify(exactly = 1) { lock.tryLock(REDIS_ROTATION_LOCK_WAIT_SECONDS, TimeUnit.SECONDS) }
+            verify(exactly = 1) { lock.tryLock(REDIS_ROTATION_LOCK_WAIT_SECONDS.seconds) }
         } finally {
             repository.close()
         }
@@ -71,7 +76,7 @@ class RedisKeyChainRepositoryTest: AbstractKeyChainRepositoryTest() {
 
     @Test
     fun `rotation reports ownership loss before commit`() {
-        every { lock.tryLock(REDIS_ROTATION_LOCK_WAIT_SECONDS, TimeUnit.SECONDS) } returns true
+        every { lock.tryLock(REDIS_ROTATION_LOCK_WAIT_SECONDS.seconds) } returns true
         every { lock.isHeldByCurrentThread } returns false
 
         val failure = assertFailsWith<IllegalStateException> {
@@ -86,7 +91,7 @@ class RedisKeyChainRepositoryTest: AbstractKeyChainRepositoryTest() {
         val lock = mockk<RLock>()
         val primaryFailure = IllegalStateException("commit failed")
         val unlockFailure = IllegalStateException("unlock failed")
-        every { lock.tryLock(REDIS_ROTATION_LOCK_WAIT_SECONDS, TimeUnit.SECONDS) } returns true
+        every { lock.tryLock(REDIS_ROTATION_LOCK_WAIT_SECONDS.seconds) } returns true
         every { lock.isHeldByCurrentThread } returns true
         every { lock.unlock() } throws unlockFailure
 
@@ -113,24 +118,24 @@ class RedisKeyChainRepositoryTest: AbstractKeyChainRepositoryTest() {
             val result = executor.submit<Boolean> {
                 withRedisRotationLock(ownerLock) {
                     started.countDown()
-                    releaseCommit.await(5, TimeUnit.SECONDS).shouldBeTrue()
+                    releaseCommit.await(5.seconds).shouldBeTrue()
                     true
                 }
             }
 
-            started.await(5, TimeUnit.SECONDS).shouldBeTrue()
+            started.await(5.seconds).shouldBeTrue()
             // watchdog timeout(900ms)을 넘는 동안 contender가 lock을 얻지 못해야 갱신이 증명됩니다.
-            await.during(Duration.ofMillis(1_200)).until {
-                val acquired = contenderLock.tryLock(100, TimeUnit.MILLISECONDS)
+            await during 1_200.milliseconds until {
+                val acquired = contenderLock.tryLock(100.milliseconds)
                 if (acquired) {
                     contenderLock.unlock()
                 }
                 !acquired
             }
             releaseCommit.countDown()
-            result.get(5, TimeUnit.SECONDS).shouldBeTrue()
+            result.get(5.seconds).shouldBeTrue()
 
-            contenderLock.tryLock(1, TimeUnit.SECONDS).shouldBeTrue()
+            contenderLock.tryLock(1.seconds).shouldBeTrue()
         } finally {
             if (contenderLock.isHeldByCurrentThread) {
                 contenderLock.unlock()
@@ -210,8 +215,8 @@ class RedisKeyChainRepositoryTest: AbstractKeyChainRepositoryTest() {
             }
 
             start.countDown()
-            val firstRotated = firstFuture.get(10, TimeUnit.SECONDS)
-            val secondRotated = secondFuture.get(10, TimeUnit.SECONDS)
+            val firstRotated = firstFuture.get(10.seconds)
+            val secondRotated = secondFuture.get(10.seconds)
             listOf(firstRotated, secondRotated).count { it }.shouldBeEqualTo(1)
 
             val winner = if (firstRotated) firstCandidate else secondCandidate
@@ -238,5 +243,4 @@ class RedisKeyChainRepositoryTest: AbstractKeyChainRepositoryTest() {
                 setLockWatchdogTimeout(900)
             },
         )
-
 }

@@ -6,6 +6,8 @@ import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeNull
 import io.bluetape4k.assertions.shouldNotBeEmpty
 import io.bluetape4k.assertions.shouldNotBeNull
+import io.bluetape4k.concurrent.await
+import io.bluetape4k.concurrent.get
 import io.bluetape4k.logging.KLogging
 import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.Test
@@ -13,7 +15,7 @@ import org.junit.jupiter.api.assertThrows
 import java.util.concurrent.CancellationException
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.ExecutionException
-import java.util.concurrent.TimeUnit
+import kotlin.time.Duration.Companion.seconds
 
 class KryoSupportTest {
 
@@ -140,7 +142,7 @@ class KryoSupportTest {
             output.toBytes()
         }
 
-        val bytes = checkNotNull(future.get(5, TimeUnit.SECONDS)) { "withKryoAsync returned null" }
+        val bytes = checkNotNull(future.get(5.seconds)) { "withKryoAsync returned null" }
 
         val text = withKryo {
             val input = Input(bytes)
@@ -152,7 +154,7 @@ class KryoSupportTest {
     @Test
     fun `withKryoAsync - null 반환도 허용된다`() {
         val future = withKryoAsync<String> { null }
-        val result = future.get(5, TimeUnit.SECONDS)
+        val result = future.get(5.seconds)
         result.shouldBeNull()
     }
 
@@ -161,7 +163,7 @@ class KryoSupportTest {
         // Trigger exception path many times
         repeat(20) {
             val future = withKryoAsync<String> { throw RuntimeException("async error $it") }
-            assertThrows<ExecutionException> { future.get(5, TimeUnit.SECONDS) }
+            assertThrows<ExecutionException> { future.get(5.seconds) }
         }
 
         // Pool must not be exhausted — new call still works
@@ -170,7 +172,7 @@ class KryoSupportTest {
             writeClassAndObject(output, "after-async-error")
             output.toBytes()
         }
-        val bytes = future.get(5, TimeUnit.SECONDS)
+        val bytes = future.get(5.seconds)
         bytes.shouldNotBeEmpty()
     }
 
@@ -183,7 +185,7 @@ class KryoSupportTest {
         val future = withKryoAsync {
             taskStarted.countDown()
             try {
-                releaseTask.await(10, TimeUnit.SECONDS)
+                releaseTask.await(10.seconds)
                 "should-not-complete"
             } finally {
                 // Framework's releaseKryo() runs immediately after this
@@ -192,7 +194,7 @@ class KryoSupportTest {
         }
 
         // Wait until supplier has started and obtained Kryo
-        taskStarted.await(5, TimeUnit.SECONDS)
+        taskStarted.await(5.seconds)
 
         // Cancel with interrupt — the finally block inside supplyAsync still runs
         future.cancel(true)
@@ -201,7 +203,7 @@ class KryoSupportTest {
         releaseTask.countDown()
 
         // Wait for user-func's finally to complete (framework's releaseKryo follows immediately after)
-        funcCompleted.await(5, TimeUnit.SECONDS)
+        funcCompleted.await(5.seconds)
 
         assertThrows<CancellationException> {
             future.get()
@@ -214,7 +216,7 @@ class KryoSupportTest {
                 writeClassAndObject(output, "post-cancel-$i")
                 output.toBytes()
             }
-            val bytes = next.get(5, TimeUnit.SECONDS)
+            val bytes = next.get(5.seconds)
             bytes.shouldNotBeEmpty()
         }
     }

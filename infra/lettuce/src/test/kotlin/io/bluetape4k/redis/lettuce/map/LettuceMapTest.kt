@@ -8,6 +8,8 @@ import io.bluetape4k.assertions.shouldBeNull
 import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.assertions.shouldContainAll
 import io.bluetape4k.assertions.shouldHaveSize
+import io.bluetape4k.concurrent.await
+import io.bluetape4k.concurrent.get
 import io.bluetape4k.junit5.concurrency.MultithreadingTester
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.redis.lettuce.AbstractLettuceTest
@@ -34,6 +36,8 @@ import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.TimeoutException
 import java.util.concurrent.atomic.AtomicInteger
+import kotlin.time.Duration.Companion.milliseconds
+import kotlin.time.Duration.Companion.seconds
 
 class LettuceMapTest: AbstractLettuceTest() {
 
@@ -293,7 +297,7 @@ class LettuceMapTest: AbstractLettuceTest() {
         every { mockedConnection.async() } returns asyncCommands
         every { commands.hget("mock-map", "sync") } answers {
             syncCommandStarted.countDown()
-            releaseSyncCommand.await(5, TimeUnit.SECONDS).shouldBeTrue()
+            releaseSyncCommand.await(5.seconds).shouldBeTrue()
             "sync-value"
         }
         every { asyncCommands.hget("mock-map", "async") } answers {
@@ -305,19 +309,19 @@ class LettuceMapTest: AbstractLettuceTest() {
         val syncCall = executor.submit<String?> { testedMap.get("sync") }
 
         try {
-            syncCommandStarted.await(1, TimeUnit.SECONDS).shouldBeTrue()
+            syncCommandStarted.await(1.seconds).shouldBeTrue()
             lateinit var asyncResult: CompletableFuture<String?>
             executor.execute {
                 asyncResult = testedMap.getAsync("async")
                 eventLoopCallbackReturned.countDown()
             }
 
-            eventLoopCallbackReturned.await(500, TimeUnit.MILLISECONDS).shouldBeTrue()
+            eventLoopCallbackReturned.await(500.milliseconds).shouldBeTrue()
             releaseSyncCommand.countDown()
-            asyncResult.get(1, TimeUnit.SECONDS) shouldBeEqualTo "async-value"
+            asyncResult.get(1.seconds) shouldBeEqualTo "async-value"
         } finally {
             releaseSyncCommand.countDown()
-            syncCall.get(1, TimeUnit.SECONDS) shouldBeEqualTo "sync-value"
+            syncCall.get(1.seconds) shouldBeEqualTo "sync-value"
             executor.shutdownNow()
         }
     }
@@ -334,7 +338,7 @@ class LettuceMapTest: AbstractLettuceTest() {
         every { mockedConnection.async() } returns asyncCommands
         every { commands.hget("mock-map", "sync") } answers {
             syncCommandStarted.countDown()
-            releaseSyncCommand.await(5, TimeUnit.SECONDS).shouldBeTrue()
+            releaseSyncCommand.await(5.seconds).shouldBeTrue()
             "sync-value"
         }
 
@@ -343,10 +347,10 @@ class LettuceMapTest: AbstractLettuceTest() {
         val syncCall = executor.submit<String?> { testedMap.get("sync") }
 
         try {
-            syncCommandStarted.await(1, TimeUnit.SECONDS).shouldBeTrue()
+            syncCommandStarted.await(1.seconds).shouldBeTrue()
             testedMap.getAsync("cancelled").cancel(true).shouldBeTrue()
             releaseSyncCommand.countDown()
-            syncCall.get(1, TimeUnit.SECONDS) shouldBeEqualTo "sync-value"
+            syncCall.get(1.seconds) shouldBeEqualTo "sync-value"
 
             verify(timeout = 500, exactly = 0) {
                 asyncCommands.hget("mock-map", "cancelled")

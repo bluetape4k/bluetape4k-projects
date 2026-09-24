@@ -5,6 +5,8 @@ import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeInstanceOf
 import io.bluetape4k.assertions.shouldBeNullOrEmpty
 import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.concurrent.awaitTermination
+import io.bluetape4k.concurrent.get
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -15,6 +17,7 @@ import java.util.concurrent.ExecutionException
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
+import kotlin.time.Duration.Companion.seconds
 
 @Timeout(value = 30, unit = TimeUnit.SECONDS, threadMode = Timeout.ThreadMode.SAME_THREAD)
 class MdcTaskDecoratorTest {
@@ -32,7 +35,7 @@ class MdcTaskDecoratorTest {
     fun tearDown() {
         MDC.clear()
         executor.shutdownNow()
-        executor.awaitTermination(5, TimeUnit.SECONDS).shouldBeTrue()
+        executor.awaitTermination(5.seconds).shouldBeTrue()
     }
 
     @Test
@@ -81,7 +84,7 @@ class MdcTaskDecoratorTest {
             error("boom")
         })
         val failure = assertFailsWith<ExecutionException> {
-            executor.submit(decorated).get(5, TimeUnit.SECONDS)
+            executor.submit(decorated).get(5.seconds)
         }
 
         failure.cause shouldBeInstanceOf IllegalStateException::class
@@ -136,10 +139,13 @@ class MdcTaskDecoratorTest {
     }
 
     private fun workerContext(): Map<String, String> =
-        executor.submit(Callable { MDC.getCopyOfContextMap().orEmpty() })
-            .get(5, TimeUnit.SECONDS)
+        executor
+            .submit(Callable { MDC.getCopyOfContextMap().orEmpty() })
+            .get(5.seconds)
 
     private fun runOnWorker(task: Runnable) {
-        executor.submit(task).get(5, TimeUnit.SECONDS)
+        executor
+            .submit(task)
+            .get(5.seconds)
     }
 }

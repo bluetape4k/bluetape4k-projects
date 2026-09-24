@@ -5,6 +5,7 @@ import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeFalse
 import io.bluetape4k.assertions.shouldBeInstanceOf
 import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.concurrent.get
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
@@ -21,7 +22,6 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import java.time.Duration
 import java.util.concurrent.CompletableFuture
-import java.util.concurrent.TimeUnit
 import kotlin.time.Duration.Companion.seconds
 
 internal class ReadWriteLockScriptTest: AbstractLettuceTest() {
@@ -85,7 +85,7 @@ internal class ReadWriteLockScriptTest: AbstractLettuceTest() {
 
         lock.readLock().release(activeReader) shouldBeEqualTo LockMutationResult.Released(0)
 
-        val firstWriterHandle = firstWriter.get(2, TimeUnit.SECONDS)
+        val firstWriterHandle = firstWriter.get(2.seconds)
             .shouldBeInstanceOf<LockAcquireResult.Acquired<WriteLockHandle>>()
             .handle
         log.debug { "firstWriterHandle=$firstWriterHandle" }
@@ -97,7 +97,7 @@ internal class ReadWriteLockScriptTest: AbstractLettuceTest() {
 
         lock.writeLock().release(firstWriterHandle) shouldBeEqualTo LockMutationResult.Released(0)
 
-        val lateReaderHandle = lateReader.get(2, TimeUnit.SECONDS)
+        val lateReaderHandle = lateReader.get(2.seconds)
             .shouldBeInstanceOf<LockAcquireResult.Acquired<ReadLockHandle>>()
             .handle
         log.debug { "lateReaderHandle=$lateReaderHandle" }
@@ -106,7 +106,7 @@ internal class ReadWriteLockScriptTest: AbstractLettuceTest() {
 
         lock.readLock().release(lateReaderHandle) shouldBeEqualTo LockMutationResult.Released(0)
 
-        val secondWriterHandle = secondWriter.get(2, TimeUnit.SECONDS)
+        val secondWriterHandle = secondWriter.get(2.seconds)
             .shouldBeInstanceOf<LockAcquireResult.Acquired<WriteLockHandle>>()
             .handle
         log.debug { "secondWriterHandle=$secondWriterHandle" }
@@ -126,11 +126,11 @@ internal class ReadWriteLockScriptTest: AbstractLettuceTest() {
         awaitQueued(lock.readLock(), "late-reader", "late-read")
 
         lock.writeLock().release(activeWriter) shouldBeEqualTo LockMutationResult.Released(0)
-        val first = firstReader.get(2, TimeUnit.SECONDS)
+        val first = firstReader.get(2.seconds)
             .shouldBeInstanceOf<LockAcquireResult.Acquired<ReadLockHandle>>()
             .handle
         log.debug { "first=$first" }
-        val second = secondReader.get(2, TimeUnit.SECONDS)
+        val second = secondReader.get(2.seconds)
             .shouldBeInstanceOf<LockAcquireResult.Acquired<ReadLockHandle>>()
             .handle
         log.debug { "second=$second" }
@@ -141,13 +141,13 @@ internal class ReadWriteLockScriptTest: AbstractLettuceTest() {
         lock.readLock().release(first) shouldBeEqualTo LockMutationResult.Released(0)
         lock.readLock().release(second) shouldBeEqualTo LockMutationResult.Released(0)
 
-        val writer = nextWriter.get(2, TimeUnit.SECONDS)
+        val writer = nextWriter.get(2.seconds)
             .shouldBeInstanceOf<LockAcquireResult.Acquired<WriteLockHandle>>()
             .handle
         log.debug { "writer=$writer" }
 
         lock.writeLock().release(writer) shouldBeEqualTo LockMutationResult.Released(0)
-        val late = lateReader.get(2, TimeUnit.SECONDS)
+        val late = lateReader.get(2.seconds)
             .shouldBeInstanceOf<LockAcquireResult.Acquired<ReadLockHandle>>()
             .handle
         log.debug { "late=$late" }
@@ -200,7 +200,7 @@ internal class ReadWriteLockScriptTest: AbstractLettuceTest() {
             .shouldBeInstanceOf<LockAcquireResult.Contended>()
         lock.readLock().release(reader) shouldBeEqualTo LockMutationResult.Released(0)
 
-        val writerHandle = writer.get(2, TimeUnit.SECONDS)
+        val writerHandle = writer.get(2.seconds)
             .shouldBeInstanceOf<LockAcquireResult.Acquired<WriteLockHandle>>()
             .handle
         lock.writeLock().release(writerHandle) shouldBeEqualTo LockMutationResult.Released(0)
@@ -332,7 +332,7 @@ internal class ReadWriteLockScriptTest: AbstractLettuceTest() {
                 request("async-timeout"),
                 Duration.ofMillis(35),
                 lease,
-            ).get(2, TimeUnit.SECONDS) shouldBeEqualTo LockAcquireResult.TimedOut
+            ).get(2.seconds) shouldBeEqualTo LockAcquireResult.TimedOut
 
             val suspendLock = LettuceSuspendReadWriteLock.create(
                 connection,
@@ -368,31 +368,31 @@ internal class ReadWriteLockScriptTest: AbstractLettuceTest() {
     @Test
     fun `async and suspend views preserve read write lifecycle parity`() = runSuspendIO {
         val asyncReader = lock.readLock().tryAcquireAsync(owner("async-reader"), request("async-read"), lease)
-            .get(2, TimeUnit.SECONDS)
+            .get(2.seconds)
             .shouldBeInstanceOf<LockAcquireResult.Acquired<ReadLockHandle>>()
             .handle
-        lock.readLock().inspectAsync(asyncReader).get(2, TimeUnit.SECONDS)
+        lock.readLock().inspectAsync(asyncReader).get(2.seconds)
             .shouldBeInstanceOf<LockInspectResult.Owned<ReadLockHandle>>()
         lock.readLock().reconcileAsync(owner("async-reader"), request("async-read"))
-            .get(2, TimeUnit.SECONDS)
+            .get(2.seconds)
             .shouldBeInstanceOf<LockReconcileResult.Owned<ReadLockHandle>>()
-        lock.readLock().renewAsync(asyncReader, Duration.ofSeconds(1)).get(2, TimeUnit.SECONDS)
+        lock.readLock().renewAsync(asyncReader, Duration.ofSeconds(1)).get(2.seconds)
             .shouldBeInstanceOf<LockMutationResult.Renewed<ReadLockHandle>>()
-        lock.readLock().releaseAsync(asyncReader).get(2, TimeUnit.SECONDS) shouldBeEqualTo
+        lock.readLock().releaseAsync(asyncReader).get(2.seconds) shouldBeEqualTo
                 LockMutationResult.Released(0)
 
         val asyncWriter = lock.writeLock().tryAcquireAsync(owner("async-writer"), request("async-write"), lease)
-            .get(2, TimeUnit.SECONDS)
+            .get(2.seconds)
             .shouldBeInstanceOf<LockAcquireResult.Acquired<WriteLockHandle>>()
             .handle
-        lock.writeLock().inspectAsync(asyncWriter).get(2, TimeUnit.SECONDS)
+        lock.writeLock().inspectAsync(asyncWriter).get(2.seconds)
             .shouldBeInstanceOf<LockInspectResult.Owned<WriteLockHandle>>()
         lock.writeLock().reconcileAsync(owner("async-writer"), request("async-write"))
-            .get(2, TimeUnit.SECONDS)
+            .get(2.seconds)
             .shouldBeInstanceOf<LockReconcileResult.Owned<WriteLockHandle>>()
-        lock.writeLock().renewAsync(asyncWriter, Duration.ofSeconds(1)).get(2, TimeUnit.SECONDS)
+        lock.writeLock().renewAsync(asyncWriter, Duration.ofSeconds(1)).get(2.seconds)
             .shouldBeInstanceOf<LockMutationResult.Renewed<WriteLockHandle>>()
-        lock.writeLock().releaseAsync(asyncWriter).get(2, TimeUnit.SECONDS) shouldBeEqualTo
+        lock.writeLock().releaseAsync(asyncWriter).get(2.seconds) shouldBeEqualTo
                 LockMutationResult.Released(0)
 
         val suspendName = "read-write-suspend-${randomName().substringAfterLast(':')}"

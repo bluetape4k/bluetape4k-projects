@@ -452,7 +452,7 @@ abstract class AbstractInteropTest {
         require(method.isNotBlank()) { "Method must not be null or blank" }
 
         // Tracer based stats
-        val tracer = clientStreamTracers.poll()!!
+        val tracer = clientStreamTracers.poll().shouldNotBeNull()
         tracer.outboundHeaders.shouldBeTrue()
 
         // assertClientStatsTrace() is called right after application receives status,

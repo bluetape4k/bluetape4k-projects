@@ -2,6 +2,7 @@ package io.bluetape4k.http.hc5.cache
 
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldNotBeNull
+import io.bluetape4k.concurrent.get
 import io.bluetape4k.http.hc5.AbstractHc5Test
 import io.bluetape4k.http.hc5.async.methods.toProducer
 import io.bluetape4k.logging.KLogging
@@ -13,7 +14,7 @@ import org.apache.hc.client5.http.protocol.HttpClientContext
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
 import java.io.File
-import java.util.concurrent.TimeUnit
+import kotlin.time.Duration.Companion.seconds
 
 class CachingHttpAsyncClientBuilderTest: AbstractHc5Test() {
 
@@ -51,7 +52,7 @@ class CachingHttpAsyncClientBuilderTest: AbstractHc5Test() {
                 HttpClientContext.create(),
                 null
             )
-            val response = future.get(10, TimeUnit.SECONDS)
+            val response = future.get(10.seconds)
             log.debug { "Async Caching GET status=${response.code}" }
             response.code shouldBeEqualTo 200
         }
@@ -68,7 +69,7 @@ class CachingHttpAsyncClientBuilderTest: AbstractHc5Test() {
                 HttpClientContext.create(),
                 null
             )
-            val response = future.get(10, TimeUnit.SECONDS)
+            val response = future.get(10.seconds)
             log.debug { "File Async Caching GET status=${response.code}" }
             response.code shouldBeEqualTo 200
         }

@@ -1,5 +1,6 @@
 package io.bluetape4k.grpc.inprocess
 
+import io.bluetape4k.grpc.awaitTermination
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.warn
@@ -10,7 +11,7 @@ import io.grpc.inprocess.InProcessChannelBuilder
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.asExecutor
 import java.io.Closeable
-import java.util.concurrent.TimeUnit
+import kotlin.time.Duration.Companion.seconds
 
 /**
  * in-process gRPC 채널을 사용하는 테스트용 클라이언트 베이스 클래스입니다.
@@ -61,7 +62,7 @@ abstract class AbstractGrpcInprocessClient(
             log.debug { "Close client's grpc channel... channel=$channel" }
             runCatching {
                 channel.shutdown()
-                if (!channel.awaitTermination(5, TimeUnit.SECONDS)) {
+                if (!channel.awaitTermination(5.seconds)) {
                     log.warn { "InProcess channel did not terminate in time, forcing shutdownNow. channel=$channel" }
                     channel.shutdownNow()
                 }

@@ -6,6 +6,7 @@ import io.bluetape4k.assertions.shouldContainSame
 import io.bluetape4k.assertions.shouldHaveSize
 import io.bluetape4k.assertions.shouldNotBeEmpty
 import io.bluetape4k.assertions.shouldNotBeNull
+import io.bluetape4k.concurrent.await
 import io.bluetape4k.concurrent.onFailure
 import io.bluetape4k.concurrent.onSuccess
 import io.bluetape4k.kafka.spring.test.utils.consumerProps
@@ -45,9 +46,9 @@ import org.springframework.kafka.test.utils.KafkaTestUtils
 import org.springframework.messaging.Message
 import java.util.*
 import java.util.concurrent.CountDownLatch
-import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicInteger
 import java.util.concurrent.atomic.AtomicReference
+import kotlin.time.Duration.Companion.seconds
 
 @EmbeddedKafka(topics = [INT_KEY_TOPIC, STRING_KEY_TOPIC], adminTimeout = 120)
 class KafkaTemplateTests {
@@ -288,7 +289,9 @@ class KafkaTemplateTests {
     fun `with producer listener`() {
         val senderProps = embeddedKafka.producerProps()
         val pf = DefaultKafkaProducerFactory<Int, String>(senderProps)
-        val template = KafkaTemplate(pf).apply { setDefaultTopic(INT_KEY_TOPIC) }
+        val template = KafkaTemplate(pf).apply {
+            setDefaultTopic(INT_KEY_TOPIC)
+        }
         val latch = CountDownLatch(2)
         val records = mutableListOf<ProducerRecord<Int, String>>()
         val meta = mutableListOf<RecordMetadata>()
@@ -317,7 +320,7 @@ class KafkaTemplateTests {
         template.sendDefault("foo")
         template.flush()
 
-        latch.await(10, TimeUnit.SECONDS).shouldBeTrue()
+        latch.await(10.seconds).shouldBeTrue()
         records[0].value() shouldBeEqualTo "foo"
         records[1].value() shouldBeEqualTo "foo"
         meta[0].topic() shouldBeEqualTo INT_KEY_TOPIC
@@ -337,7 +340,10 @@ class KafkaTemplateTests {
     fun `with producer record listener`() {
         val senderProps = embeddedKafka.producerProps()
         val pf = DefaultKafkaProducerFactory<Int, String>(senderProps)
-        val template = KafkaTemplate(pf).apply { setDefaultTopic(INT_KEY_TOPIC) }
+        val template = KafkaTemplate(pf).apply {
+            setDefaultTopic(INT_KEY_TOPIC)
+        }
+        
         val latch = CountDownLatch(1)
         template.setProducerListener(object: ProducerListener<Int, String> {
             override fun onSuccess(producerRecord: ProducerRecord<Int, String>, recordMetadata: RecordMetadata) {
@@ -347,7 +353,7 @@ class KafkaTemplateTests {
 
         template.sendDefault("foo")
         template.flush()
-        latch.await(10, TimeUnit.SECONDS).shouldBeTrue()
+        latch.await(10.seconds).shouldBeTrue()
 
         // Drain the topic
         consumer.getSingleRecord(INT_KEY_TOPIC)
@@ -375,7 +381,7 @@ class KafkaTemplateTests {
             }
 
         consumer.getSingleRecord(INT_KEY_TOPIC).value() shouldBeEqualTo "foo"
-        latch.await(5, TimeUnit.SECONDS).shouldBeTrue()
+        latch.await(5.seconds).shouldBeTrue()
         pf.destroy()
     }
 }

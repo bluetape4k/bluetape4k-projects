@@ -181,5 +181,6 @@ dependencies {
     // JDBC 와 같이 사용
     testImplementation(project(":bluetape4k-jdbc"))
 
+    consumerRuntimeTestImplementation(project(":bluetape4k-tink"))
     consumerRuntimeTestImplementation(project(":bluetape4k-junit5"))
 }

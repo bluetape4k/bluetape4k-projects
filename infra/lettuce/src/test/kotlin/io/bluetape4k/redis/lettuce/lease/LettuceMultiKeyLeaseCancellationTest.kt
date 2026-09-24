@@ -3,6 +3,8 @@ package io.bluetape4k.redis.lettuce.lease
 import io.bluetape4k.assertions.fail
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.concurrent.await
+import io.bluetape4k.concurrent.get
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.redis.lettuce.LettuceClients
 import io.bluetape4k.redis.lettuce.LettuceTestUtils
@@ -14,7 +16,7 @@ import io.lettuce.core.resource.DefaultClientResources
 import org.junit.jupiter.api.Test
 import java.time.Duration
 import java.util.concurrent.CountDownLatch
-import java.util.concurrent.TimeUnit
+import kotlin.time.Duration.Companion.seconds
 
 internal class LettuceMultiKeyLeaseCancellationTest {
 
@@ -53,11 +55,11 @@ internal class LettuceMultiKeyLeaseCancellationTest {
                         val cancelledWait = LettuceMultiKeyLease(commandConnection)
                             .acquireAsync(keys, token, Duration.ofSeconds(5))
 
-                        dispatched.await(5, TimeUnit.SECONDS).shouldBeTrue()
+                        dispatched.await(5.seconds).shouldBeTrue()
                         cancelledWait.cancel(true).shouldBeTrue()
 
                         val commandFence = commandConnection.async().ping()
-                        commandFence.get(5, TimeUnit.SECONDS) shouldBeEqualTo "PONG"
+                        commandFence.get(5.seconds) shouldBeEqualTo "PONG"
 
                         when (val settled = observerLease.inspect(keys, token)) {
                             is MultiKeyInspectResult.Owned,

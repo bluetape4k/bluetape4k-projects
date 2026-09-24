@@ -1,18 +1,19 @@
 package io.bluetape4k.examples.virtualthreads.part2
 
+import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.concurrent.FutureUtils
 import io.bluetape4k.concurrent.asCompletableFuture
+import io.bluetape4k.concurrent.tryAcquire
 import io.bluetape4k.examples.virtualthreads.AbstractVirtualThreadTest
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.trace
-import io.bluetape4k.assertions.shouldBeEqualTo
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import java.util.concurrent.ConcurrentLinkedQueue
 import java.util.concurrent.Executors
 import java.util.concurrent.Semaphore
-import java.util.concurrent.TimeUnit
 import java.util.concurrent.TimeoutException
+import kotlin.time.Duration.Companion.seconds
 
 /**
  * ### Rule 4
@@ -39,7 +40,7 @@ class Rule4UseSemaphoreInsteadOfFixedThreadPool: AbstractVirtualThreadTest() {
         private val taskSize = 100
 
         fun useSemaphoreToLimitConcurrency(): String {
-            if (semaphore.tryAcquire(10, TimeUnit.SECONDS)) {
+            if (semaphore.tryAcquire(10.seconds)) {
                 try {
                     val result = sharedResource()
                     return result

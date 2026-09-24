@@ -37,3 +37,12 @@ fun java.time.Duration.toTimeout(): okio.Timeout =
  */
 fun java.time.Duration.toDeadline(): okio.Timeout =
     okio.Timeout().deadline(this.toNanos(), TimeUnit.NANOSECONDS)
+
+fun okio.Timeout.deadline(timeout: kotlin.time.Duration): okio.Timeout =
+    deadline(timeout.inWholeNanoseconds, TimeUnit.NANOSECONDS)
+
+fun kotlin.time.Duration.toTimeout(): okio.Timeout =
+    okio.Timeout().timeout(this.inWholeNanoseconds, TimeUnit.NANOSECONDS)
+
+fun okio.Timeout.timeout(timeout: kotlin.time.Duration): okio.Timeout =
+    timeout(timeout.inWholeNanoseconds, TimeUnit.NANOSECONDS)

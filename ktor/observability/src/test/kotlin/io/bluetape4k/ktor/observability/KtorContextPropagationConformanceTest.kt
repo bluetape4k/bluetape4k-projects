@@ -433,7 +433,7 @@ private class TestTracing(
         val remaining = harness.deadline.remaining()
         check(
             tracerProvider.shutdown()
-                .join(remaining.inWholeNanoseconds, TimeUnit.NANOSECONDS)
+                .join(remaining)
                 .isSuccess,
         ) {
             "Test tracer provider shutdown failed"

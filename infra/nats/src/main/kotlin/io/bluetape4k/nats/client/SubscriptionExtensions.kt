@@ -15,6 +15,5 @@ import kotlin.time.toJavaDuration
  */
 fun Subscription.nextMessage(timeout: kotlin.time.Duration): Message? {
     timeout.requireGe(kotlin.time.Duration.ZERO, "timeout")
-
     return nextMessage(timeout.toJavaDuration())
 }

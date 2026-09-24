@@ -3,6 +3,7 @@ package io.bluetape4k.okio
 import io.bluetape4k.assertions.fail
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.concurrent.awaitTermination
 import io.bluetape4k.junit5.concurrency.TestingExecutors
 import io.bluetape4k.junit5.system.assumeNotWindows
 import io.bluetape4k.logging.KLogging
@@ -16,6 +17,8 @@ import java.io.InterruptedIOException
 import java.time.Duration
 import java.util.concurrent.ScheduledExecutorService
 import java.util.concurrent.TimeUnit
+import kotlin.time.Duration.Companion.milliseconds
+import kotlin.time.Duration.Companion.seconds
 
 class WaitUntilNotifiedTest: AbstractOkioTest() {
 
@@ -36,7 +39,7 @@ class WaitUntilNotifiedTest: AbstractOkioTest() {
     fun afterEach() {
         runCatching {
             executor.shutdown()
-            executor.awaitTermination(1, TimeUnit.SECONDS)
+            executor.awaitTermination(1.seconds)
         }
     }
 
@@ -44,7 +47,7 @@ class WaitUntilNotifiedTest: AbstractOkioTest() {
     @MethodSource("factories")
     fun `notified with timeout`(factory: TimeoutFactory) = synchronized(this) {
         val timeout = factory.newTimeout()
-        timeout.timeout(500, TimeUnit.MILLISECONDS)
+        timeout.timeout(500.milliseconds)
         val start = now()
         executor.schedule(
             {
@@ -65,7 +68,7 @@ class WaitUntilNotifiedTest: AbstractOkioTest() {
     fun `wait until notified`(factory: TimeoutFactory) = synchronized(this) {
         assumeNotWindows()
         val timeout = factory.newTimeout()
-        timeout.timeout(100, TimeUnit.MILLISECONDS)
+        timeout.timeout(100.milliseconds)
         val start = now()
 
         try {
@@ -83,7 +86,7 @@ class WaitUntilNotifiedTest: AbstractOkioTest() {
     fun `deadline only`(factory: TimeoutFactory) = synchronized(this) {
         assumeNotWindows()
         val timeout = factory.newTimeout()
-        timeout.deadline(100, TimeUnit.MILLISECONDS)
+        timeout.deadline(100.milliseconds)
         val start = now()
 
         try {
@@ -101,8 +104,8 @@ class WaitUntilNotifiedTest: AbstractOkioTest() {
     fun `deadline before timeout`(factory: TimeoutFactory) = synchronized(this) {
         assumeNotWindows()
         val timeout = factory.newTimeout()
-        timeout.timeout(5000, TimeUnit.SECONDS)
-        timeout.deadline(100, TimeUnit.MILLISECONDS)
+        timeout.timeout(5000.seconds)
+        timeout.deadline(100.milliseconds)
         val start = now()
 
         try {
@@ -176,7 +179,7 @@ class WaitUntilNotifiedTest: AbstractOkioTest() {
     fun `cancel before wait does nothing`(factory: TimeoutFactory) = synchronized(this) {
         assumeNotWindows()
         val timeout = factory.newTimeout()
-        timeout.timeout(100, TimeUnit.MILLISECONDS)
+        timeout.timeout(100.milliseconds)
         timeout.cancel()  // 모든 걸 취소한다
         val start = now()
 
@@ -195,7 +198,7 @@ class WaitUntilNotifiedTest: AbstractOkioTest() {
     @Synchronized
     fun `canceled timeout does not throw when not notified on time`(factory: TimeoutFactory) {
         val timeout = factory.newTimeout()
-        timeout.timeout(100, TimeUnit.MILLISECONDS)
+        timeout.timeout(100.milliseconds)
         timeout.cancelLater(50)   // 취소를 수행하면 timeout 이 발생해도 예외가 발생하지 않는다 (cancel 이 먼저 수행되었기 때문)
 
         val start = now()
@@ -208,7 +211,7 @@ class WaitUntilNotifiedTest: AbstractOkioTest() {
     @Synchronized
     fun `multiple cancels are idempotent`(factory: TimeoutFactory) {
         val timeout = factory.newTimeout()
-        timeout.timeout(100, TimeUnit.MILLISECONDS)
+        timeout.timeout(100.milliseconds)
 
         timeout.cancelLater(25)
         timeout.cancelLater(50)   // 취소를 수행하면 timeout 이 발생해도 예외가 발생하지 않는다 (cancel 이 먼저 수행되었기 때문)

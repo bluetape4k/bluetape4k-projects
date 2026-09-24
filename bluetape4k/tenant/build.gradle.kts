@@ -3,6 +3,7 @@ configurations {
 }
 
 dependencies {
+    testImplementation(project(":bluetape4k-core"))
     testImplementation(project(":bluetape4k-junit5"))
 }
 

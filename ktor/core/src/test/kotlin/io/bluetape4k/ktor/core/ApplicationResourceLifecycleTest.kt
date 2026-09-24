@@ -13,6 +13,8 @@ import io.bluetape4k.assertions.shouldBeSameInstanceAs
 import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.assertions.shouldHaveSize
 import io.bluetape4k.assertions.shouldNotContain
+import io.bluetape4k.concurrent.await
+import io.bluetape4k.concurrent.get
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.ktor.server.application.Application
 import io.ktor.server.testing.testApplication
@@ -29,10 +31,10 @@ import java.time.Duration
 import java.util.concurrent.CopyOnWriteArrayList
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.Executors
-import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicInteger
 import java.util.concurrent.locks.ReentrantLock
+import kotlin.time.Duration.Companion.seconds
 
 class ApplicationResourceLifecycleTest {
 
@@ -107,7 +109,7 @@ class ApplicationResourceLifecycleTest {
                             } finally {
                                 withContext(NonCancellable) {
                                     childCancellationStarted.countDown()
-                                    allowChildFinish.await(5, TimeUnit.SECONDS).shouldBeTrue()
+                                    allowChildFinish.await(5.seconds).shouldBeTrue()
                                     resourceInUse.set(false)
                                     childDrained.countDown()
                                 }
@@ -117,9 +119,9 @@ class ApplicationResourceLifecycleTest {
                         registry = installApplicationResourceLifecycle()
                         registry.register {
                             activeWhenCloseStarted.set(resourceInUse.get())
-                            childCancellationStarted.await(5, TimeUnit.SECONDS).shouldBeTrue()
+                            childCancellationStarted.await(5.seconds).shouldBeTrue()
                             allowChildFinish.countDown()
-                            childDrained.await(5, TimeUnit.SECONDS).shouldBeTrue()
+                            childDrained.await(5.seconds).shouldBeTrue()
                             overlapAfterDrain.set(resourceInUse.get())
                         }
                     }
@@ -189,14 +191,14 @@ class ApplicationResourceLifecycleTest {
                     application = this
                     val futures = List(8) {
                         executor.submit<ApplicationResourceRegistry> {
-                            start.await(5, TimeUnit.SECONDS)
+                            start.await(5.seconds)
                             application.installApplicationResourceLifecycle()
                         }
                     }
                     start.countDown()
                     futures.forEach { future ->
                         synchronized(listLock) {
-                            registries += future.get(5, TimeUnit.SECONDS)
+                            registries += future.get(5.seconds)
                         }
                     }
                 }
@@ -255,11 +257,11 @@ class ApplicationResourceLifecycleTest {
         try {
             val futures = List(8) {
                 executor.submit<ApplicationResourceRegistry> {
-                    barrier.await(5, TimeUnit.SECONDS)
+                    barrier.await(5.seconds)
                     holder.install()
                 }
             }
-            futures.forEach { it.get(5, TimeUnit.SECONDS) shouldBeSameInstanceAs holder.registry }
+            futures.forEach { it.get(5.seconds) shouldBeSameInstanceAs holder.registry }
             registrar.subscribeCount.get() shouldBeEqualTo 1
 
             registrar.raiseStopped()
@@ -280,15 +282,15 @@ class ApplicationResourceLifecycleTest {
         val executor = Executors.newFixedThreadPool(2)
         try {
             val install = executor.submit<ApplicationResourceRegistry> { holder.install() }
-            registrar.handlerRegistered.await(5, TimeUnit.SECONDS).shouldBeTrue()
+            registrar.handlerRegistered.await(5.seconds).shouldBeTrue()
             observedLock.observeNextContention()
             val stop = executor.submit { registrar.raiseStopped() }
 
-            observedLock.callbackContended.await(5, TimeUnit.SECONDS).shouldBeTrue()
+            observedLock.callbackContended.await(5.seconds).shouldBeTrue()
             registrar.allowHandleReturn.countDown()
 
-            install.get(5, TimeUnit.SECONDS) shouldBeSameInstanceAs holder.registry
-            stop.get(5, TimeUnit.SECONDS)
+            install.get(5.seconds) shouldBeSameInstanceAs holder.registry
+            stop.get(5.seconds)
             registrar.subscribeCount.get() shouldBeEqualTo 1
             registrar.disposeCount.get() shouldBeEqualTo 1
         } finally {
@@ -455,7 +457,7 @@ class ApplicationResourceLifecycleTest {
             subscribeCount.incrementAndGet()
             callback = onStopped
             handlerRegistered.countDown()
-            allowHandleReturn.await(5, TimeUnit.SECONDS).shouldBeTrue()
+            allowHandleReturn.await(5.seconds).shouldBeTrue()
             return RecordingHandle(disposeCount)
         }
 

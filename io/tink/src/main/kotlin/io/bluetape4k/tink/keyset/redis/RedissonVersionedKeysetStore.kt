@@ -2,6 +2,7 @@ package io.bluetape4k.tink.keyset.redis
 
 import com.google.crypto.tink.KeyTemplate
 import com.google.crypto.tink.KeysetHandle
+import io.bluetape4k.concurrent.tryLock
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import io.bluetape4k.support.requireNotBlank
@@ -14,7 +15,7 @@ import org.redisson.api.RedissonClient
 import java.time.Clock
 import java.time.Duration
 import java.time.Instant
-import java.util.concurrent.TimeUnit
+import kotlin.time.Duration.Companion.seconds
 
 /**
  * `RedissonClient`를 직접 사용한 Redis 기반 versioned Tink keyset 저장소입니다.
@@ -123,7 +124,8 @@ class RedissonVersionedKeysetStore(
     }
 
     private inline fun <T> withLock(action: () -> T): T {
-        check(lock.tryLock(5, TimeUnit.SECONDS)) { "Failed to acquire lock for keyring=$keyringName" }
+        check(lock.tryLock(5.seconds)) { "Failed to acquire lock for keyring=$keyringName" }
+        
         return withObservedCleanup(
             action = { action() },
             cleanup = {

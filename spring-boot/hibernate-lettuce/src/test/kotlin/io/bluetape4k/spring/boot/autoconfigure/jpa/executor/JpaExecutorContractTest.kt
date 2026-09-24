@@ -11,6 +11,7 @@ import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.assertions.shouldHaveSize
 import io.bluetape4k.assertions.shouldNotBeNull
 import io.bluetape4k.codec.Base58
+import io.bluetape4k.concurrent.get
 import io.bluetape4k.spring.virtualthread.VirtualThreadAutoConfiguration
 import jakarta.persistence.Entity
 import jakarta.persistence.EntityManagerFactory
@@ -39,6 +40,7 @@ import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor
 import java.util.concurrent.Callable
 import java.util.concurrent.TimeUnit
+import kotlin.time.Duration.Companion.seconds
 
 @Execution(ExecutionMode.SAME_THREAD)
 @Timeout(value = 60, threadMode = Timeout.ThreadMode.SAME_THREAD)
@@ -180,7 +182,7 @@ class JpaExecutorContractTest {
     private fun verifyExecution(executor: AsyncTaskExecutor, expectedVirtual: Boolean) {
         val future = executor.submit(Callable { Thread.currentThread().isVirtual })
         try {
-            future.get(5, TimeUnit.SECONDS) shouldBeEqualTo expectedVirtual
+            future.get(5.seconds) shouldBeEqualTo expectedVirtual
         } finally {
             if (!future.isDone) future.cancel(true)
         }

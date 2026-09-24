@@ -2,6 +2,7 @@ package io.bluetape4k.grpc.interceptor
 
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldNotBeNull
+import io.bluetape4k.grpc.awaitTermination
 import io.bluetape4k.grpc.examples.helloworld.GreeterGrpcKt
 import io.bluetape4k.grpc.examples.helloworld.GreeterService
 import io.bluetape4k.grpc.examples.helloworld.HelloRequest
@@ -14,7 +15,7 @@ import io.grpc.inprocess.InProcessServerBuilder
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import java.util.concurrent.TimeUnit
+import kotlin.time.Duration.Companion.seconds
 
 /**
  * [echoRequestHeadersInterceptor], [echoRequestMetadataInHeaders], [echoRequestMetadataInTrailers] 인터셉터 테스트
@@ -39,7 +40,7 @@ class ServerInterceptorSupportTest {
     fun cleanup() {
         if (::channel.isInitialized && !channel.isShutdown) {
             channel.shutdown()
-            channel.awaitTermination(3, TimeUnit.SECONDS)
+            channel.awaitTermination(3.seconds)
         }
     }
 

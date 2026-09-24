@@ -1,5 +1,6 @@
 package io.bluetape4k.nats.client.examples.jetstream
 
+import io.bluetape4k.concurrent.poll
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import io.bluetape4k.nats.AbstractNatsTest
@@ -14,7 +15,7 @@ import java.util.concurrent.CompletableFuture
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.ExecutionException
 import java.util.concurrent.LinkedBlockingQueue
-import java.util.concurrent.TimeUnit
+import kotlin.time.Duration.Companion.milliseconds
 
 class NatsJsPubAsync2: AbstractNatsTest() {
 
@@ -105,7 +106,7 @@ class NatsJsPubAsync2: AbstractNatsTest() {
             // consumer 에서 받기에 실패한 record 는 다시 보낸다.
             while (ackLatch.count > 0) {
                 runCatching {
-                    redo.poll(10, TimeUnit.MILLISECONDS)?.let { record ->
+                    redo.poll(10.milliseconds)?.let { record ->
                         log.debug { "RE publishing message ${record.msg.data.toUtf8String()}" }
                         val future = js.publishAsync(record.msg)
                         queue.add(record.copy(future = future))

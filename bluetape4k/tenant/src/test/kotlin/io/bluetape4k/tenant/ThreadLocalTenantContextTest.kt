@@ -3,12 +3,14 @@ package io.bluetape4k.tenant
 import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeNull
+import io.bluetape4k.concurrent.await
 import io.bluetape4k.junit5.concurrency.MultithreadingTester
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.Timeout
 import java.util.concurrent.CyclicBarrier
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicInteger
+import kotlin.time.Duration.Companion.seconds
 
 class ThreadLocalTenantContextTest {
 
@@ -96,7 +98,7 @@ class ThreadLocalTenantContextTest {
                 val tenantId = TenantId("clinic-${tenantSequence.getAndIncrement() % TENANTS}")
 
                 context.withTenant(tenantId) {
-                    barrier.await(5, TimeUnit.SECONDS)
+                    barrier.await(5.seconds)
                     context.requireCurrent() shouldBeEqualTo tenantId
                 }
 

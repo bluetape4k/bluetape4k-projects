@@ -12,6 +12,9 @@ import io.bluetape4k.assertions.shouldContain
 import io.bluetape4k.assertions.shouldHaveSize
 import io.bluetape4k.assertions.shouldNotBeEmpty
 import io.bluetape4k.codec.Base58
+import io.bluetape4k.concurrent.await
+import io.bluetape4k.concurrent.awaitTermination
+import io.bluetape4k.concurrent.get
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
@@ -48,6 +51,7 @@ import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicInteger
 import java.util.concurrent.atomic.AtomicReference
 import kotlin.math.ceil
+import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
 
 /**
@@ -201,13 +205,13 @@ internal class LettuceMultiKeyLeasePerformanceTest {
                 }
                 attemptCleanup {
                     probeExecutor.shutdownNow()
-                    probeExecutor.awaitTermination(10, TimeUnit.SECONDS).shouldBeTrue()
+                    probeExecutor.awaitTermination(10.seconds).shouldBeTrue()
                 }
                 attemptCleanup {
                     workloadExecutor.shutdown()
-                    if (!workloadExecutor.awaitTermination(10, TimeUnit.SECONDS)) {
+                    if (!workloadExecutor.awaitTermination(10.seconds)) {
                         workloadExecutor.shutdownNow()
-                        workloadExecutor.awaitTermination(10, TimeUnit.SECONDS).shouldBeTrue()
+                        workloadExecutor.awaitTermination(10.seconds).shouldBeTrue()
                     }
                 }
                 attemptCleanup { probeConnection?.close() }
@@ -326,7 +330,7 @@ internal class LettuceMultiKeyLeasePerformanceTest {
 
     @Test
     fun `round worker termination timeout becomes a fatal failure`() {
-        val failure = awaitWorkerTermination(CountDownLatch(1), Duration.ofMillis(1))
+        val failure = awaitWorkerTermination(CountDownLatch(1), 1.milliseconds)
 
         failure?.message!! shouldContain "round workers did not terminate"
     }
@@ -560,12 +564,12 @@ internal class LettuceMultiKeyLeasePerformanceTest {
 
     private fun awaitWorkerTermination(
         completion: CountDownLatch,
-        timeout: Duration = WORKER_TERMINATION_TIMEOUT,
+        timeout: kotlin.time.Duration = WORKER_TERMINATION_TIMEOUT,
     ): Throwable? = try {
-        if (completion.await(timeout.toNanos(), TimeUnit.NANOSECONDS)) {
+        if (completion.await(timeout)) {
             null
         } else {
-            PerformanceFailure("round workers did not terminate within ${timeout.toMillis()} ms")
+            PerformanceFailure("round workers did not terminate within ${timeout.inWholeMilliseconds} ms")
         }
     } catch (failure: InterruptedException) {
         Thread.currentThread().interrupt()
@@ -667,7 +671,7 @@ internal class LettuceMultiKeyLeasePerformanceTest {
         try {
             val attempts = futures.map { future ->
                 try {
-                    future.get(ROUND_TIMEOUT_SECONDS, TimeUnit.SECONDS)
+                    future.get(ROUND_TIMEOUT_SECONDS.seconds)
                 } catch (failure: TimeoutException) {
                     timeouts.incrementAndGet()
                     errors.incrementAndGet()
@@ -989,7 +993,7 @@ internal class LettuceMultiKeyLeasePerformanceTest {
         const val MIN_PROBE_SAMPLES: Int = 10
         const val PROBE_COVERAGE_DIVISOR: Long = 2L
         const val ROUND_TIMEOUT_SECONDS: Long = 30L
-        val WORKER_TERMINATION_TIMEOUT: Duration = Duration.ofSeconds(5)
+        val WORKER_TERMINATION_TIMEOUT: kotlin.time.Duration = 5.seconds
         const val NANOS_PER_MILLISECOND: Long = 1_000_000L
         const val NANOS_PER_SECOND: Long = 1_000_000_000L
         const val PROBE_INTERVAL_NANOS: Long = PROBE_INTERVAL_MILLIS * NANOS_PER_MILLISECOND

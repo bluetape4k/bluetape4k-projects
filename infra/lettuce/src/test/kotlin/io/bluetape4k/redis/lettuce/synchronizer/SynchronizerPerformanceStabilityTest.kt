@@ -2,6 +2,7 @@ package io.bluetape4k.redis.lettuce.synchronizer
 
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.concurrent.awaitTermination
 import io.bluetape4k.concurrent.get
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.KLogging
@@ -15,7 +16,6 @@ import org.junit.jupiter.api.Timeout
 import java.time.Duration
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.Executors
-import java.util.concurrent.TimeUnit
 import kotlin.time.Duration.Companion.seconds
 
 class SynchronizerPerformanceStabilityTest: AbstractLettuceTest() {
@@ -62,7 +62,7 @@ class SynchronizerPerformanceStabilityTest: AbstractLettuceTest() {
             }
         } finally {
             executor.shutdownNow()
-            executor.awaitTermination(5, TimeUnit.SECONDS)
+            executor.awaitTermination(5.seconds)
             connection.close()
         }
     }

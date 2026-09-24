@@ -3,6 +3,7 @@ package io.bluetape4k.concurrent
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.TimeoutException
+import java.util.concurrent.locks.Lock
 import kotlin.time.Duration
 
 
@@ -49,9 +50,12 @@ inline fun <T> withLatch(count: Int = 1, timeout: Duration, crossinline operatio
     val latch = CountDownLatch(count)
     val result = futureOf { operation(latch) }
 
-    return if (latch.await(timeout.inWholeMilliseconds, TimeUnit.MILLISECONDS)) result.get()
+    return if (latch.await(timeout)) result.get()
     else {
         result.cancel(true)
         throw TimeoutException("operation is timeout")
     }
 }
+
+fun Lock.tryLock(timeout: kotlin.time.Duration): Boolean =
+    tryLock(timeout.inWholeNanoseconds, TimeUnit.NANOSECONDS)

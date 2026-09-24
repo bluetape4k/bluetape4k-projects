@@ -4,6 +4,9 @@ import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeSameInstanceAs
 import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.concurrent.await
+import io.bluetape4k.concurrent.awaitTermination
+import io.bluetape4k.concurrent.get
 import io.bluetape4k.io.ByteLimitExceededException
 import io.bluetape4k.logging.KLogging
 import org.junit.jupiter.api.Test
@@ -19,8 +22,8 @@ import java.util.concurrent.CountDownLatch
 import java.util.concurrent.ExecutionException
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
-import java.util.concurrent.TimeUnit.SECONDS
 import javax.net.ssl.SSLSession
+import kotlin.time.Duration.Companion.seconds
 
 class BoundedHttpResponseSupportTest {
 
@@ -218,9 +221,9 @@ class BoundedHttpResponseSupportTest {
         withVirtualExecutor { executor ->
             val future = executor.submit<ByteArray> { response.readBodyBytes(maxBytes = 4) }
             try {
-                entered.await(5, SECONDS).shouldBeTrue()
+                entered.await(5.seconds).shouldBeTrue()
                 release.countDown()
-                val wrapper = assertFailsWith<ExecutionException> { future.get(5, SECONDS) }
+                val wrapper = assertFailsWith<ExecutionException> { future.get(5.seconds) }
                 val failure = wrapper.cause as ByteLimitExceededException
                 failure.suppressed.single() shouldBeSameInstanceAs timeout
             } finally {
@@ -249,10 +252,10 @@ class BoundedHttpResponseSupportTest {
         withVirtualExecutor { executor ->
             val future = executor.submit<ByteArray> { response.readBodyBytes(maxBytes = 4) }
             try {
-                entered.await(5, SECONDS).shouldBeTrue()
+                entered.await(5.seconds).shouldBeTrue()
                 stream.consumedBytes shouldBeEqualTo 0
                 release.countDown()
-                val wrapper = assertFailsWith<ExecutionException> { future.get(5, SECONDS) }
+                val wrapper = assertFailsWith<ExecutionException> { future.get(5.seconds) }
                 (wrapper.cause as ByteLimitExceededException).maxBytes shouldBeEqualTo 4
                 stream.closeCalls shouldBeEqualTo 1
             } finally {
@@ -278,9 +281,9 @@ class BoundedHttpResponseSupportTest {
         withVirtualExecutor { executor ->
             val future = executor.submit<ByteArray> { response.readBodyBytes(maxBytes = 4) }
             try {
-                enteredReadAhead.await(5, SECONDS).shouldBeTrue()
+                enteredReadAhead.await(5.seconds).shouldBeTrue()
                 stream.close()
-                val wrapper = assertFailsWith<ExecutionException> { future.get(5, SECONDS) }
+                val wrapper = assertFailsWith<ExecutionException> { future.get(5.seconds) }
                 wrapper.cause shouldBeSameInstanceAs readFailure
                 stream.closeCalls shouldBeEqualTo 2
             } finally {
@@ -303,7 +306,7 @@ class BoundedHttpResponseSupportTest {
             return block(executor)
         } finally {
             executor.shutdownNow()
-            executor.awaitTermination(5, SECONDS).shouldBeTrue()
+            executor.awaitTermination(5.seconds).shouldBeTrue()
         }
     }
 

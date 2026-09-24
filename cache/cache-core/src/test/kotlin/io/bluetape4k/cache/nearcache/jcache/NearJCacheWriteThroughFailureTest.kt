@@ -8,6 +8,8 @@ import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.assertions.shouldHaveSize
 import io.bluetape4k.assertions.shouldNotBeNull
 import io.bluetape4k.cache.jcache.JCache
+import io.bluetape4k.concurrent.await
+import io.bluetape4k.concurrent.get
 import io.bluetape4k.junit5.concurrency.MultithreadingTester
 import io.bluetape4k.logging.KLogging
 import io.mockk.every
@@ -22,6 +24,7 @@ import java.util.concurrent.TimeoutException
 import java.util.concurrent.atomic.AtomicInteger
 import javax.cache.Cache
 import javax.cache.CacheException
+import kotlin.time.Duration.Companion.seconds
 
 class NearJCacheWriteThroughFailureTest {
 
@@ -209,7 +212,7 @@ class NearJCacheWriteThroughFailureTest {
             error.cause.shouldBeInstanceOf<TimeoutException>()
 
             val completionError = assertFailsWith<ExecutionException> {
-                nearCache.lastBackCacheWriteCompletion.get(1, TimeUnit.SECONDS)
+                nearCache.lastBackCacheWriteCompletion.get(1.seconds)
             }
             completionError.cause.shouldBeInstanceOf<CacheException>()
         } finally {
@@ -233,7 +236,7 @@ class NearJCacheWriteThroughFailureTest {
         nearCache.put("key", "value")
 
         val error = assertFailsWith<ExecutionException> {
-            nearCache.lastBackCacheWriteCompletion.get(2, TimeUnit.SECONDS)
+            nearCache.lastBackCacheWriteCompletion.get(2.seconds)
         }
         error.cause?.message shouldBeEqualTo failure.message
     }
@@ -258,7 +261,7 @@ class NearJCacheWriteThroughFailureTest {
 
         nearCache.put("key", "value")
 
-        nearCache.lastBackCacheWriteCompletion.get(2, TimeUnit.SECONDS)
+        nearCache.lastBackCacheWriteCompletion.get(2.seconds)
         attempts.get() shouldBeEqualTo 2
     }
 
@@ -282,7 +285,7 @@ class NearJCacheWriteThroughFailureTest {
         nearCache.put("key", "value")
 
         val error = assertFailsWith<ExecutionException> {
-            nearCache.lastBackCacheWriteCompletion.get(2, TimeUnit.SECONDS)
+            nearCache.lastBackCacheWriteCompletion.get(2.seconds)
         }
         error.cause.shouldBeInstanceOf<AssertionError>()
         attempts.get() shouldBeEqualTo 1
@@ -307,7 +310,7 @@ class NearJCacheWriteThroughFailureTest {
         nearCache.put("key", "value")
 
         assertFailsWith<ExecutionException> {
-            nearCache.lastBackCacheWriteCompletion.get(2, TimeUnit.SECONDS)
+            nearCache.lastBackCacheWriteCompletion.get(2.seconds)
         }
         attempts.get() shouldBeEqualTo 4
     }
@@ -337,7 +340,7 @@ class NearJCacheWriteThroughFailureTest {
             nearCache.put("failed", "value")
             nearCache.put("succeeded", "value")
 
-            completed.await(2, TimeUnit.SECONDS).shouldBeTrue()
+            completed.await(2.seconds).shouldBeTrue()
             completions.size shouldBeEqualTo 2
             completions.map { it.operationId }.toSet() shouldHaveSize 2
 
@@ -385,7 +388,7 @@ class NearJCacheWriteThroughFailureTest {
                 }
                 .run()
 
-            completed.await(5, TimeUnit.SECONDS).shouldBeTrue()
+            completed.await(5.seconds).shouldBeTrue()
             snapshots.size shouldBeEqualTo expectedWrites
             observed.size shouldBeEqualTo expectedWrites
             snapshots.forEach { snapshot ->
@@ -425,12 +428,12 @@ class NearJCacheWriteThroughFailureTest {
         }
 
         val error = assertFailsWith<ExecutionException> {
-            nearCache.lastBackCacheWrite.completion.toCompletableFuture().get(2, TimeUnit.SECONDS)
+            nearCache.lastBackCacheWrite.completion.toCompletableFuture().get(2.seconds)
         }
         error.cause?.message shouldBeEqualTo failure.message
 
         val legacyError = assertFailsWith<ExecutionException> {
-            nearCache.lastBackCacheWriteCompletion.get(2, TimeUnit.SECONDS)
+            nearCache.lastBackCacheWriteCompletion.get(2.seconds)
         }
         legacyError.cause?.message shouldBeEqualTo failure.message
     }
@@ -456,7 +459,7 @@ class NearJCacheWriteThroughFailureTest {
             nearCache.put("key", "value")
 
             val error = assertFailsWith<ExecutionException> {
-                nearCache.lastBackCacheWriteCompletion.get(2, TimeUnit.SECONDS)
+                nearCache.lastBackCacheWriteCompletion.get(2.seconds)
             }
             error.cause.shouldBeInstanceOf<TimeoutException>()
             attempts.get() shouldBeEqualTo 1

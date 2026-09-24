@@ -16,7 +16,7 @@ dependencies {
 
     compileOnly(libs.micrometer.registry.prometheus)
     compileOnly(libs.opentelemetry.ktor)
-    testImplementation(libs.opentelemetry.sdk)
+    compileOnly(libs.opentelemetry.sdk)
     testImplementation(libs.opentelemetry.sdk.testing)
     testImplementation(libs.opentelemetry.sdk.trace)
 

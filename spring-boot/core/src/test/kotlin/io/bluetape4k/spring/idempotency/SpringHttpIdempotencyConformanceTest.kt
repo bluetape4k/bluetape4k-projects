@@ -8,6 +8,8 @@ import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeFalse
 import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.concurrent.await
+import io.bluetape4k.concurrent.awaitTermination
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.junit5.http.idempotency.BoundedWaitHttpIdempotencyAdapter
 import io.bluetape4k.junit5.http.idempotency.BoundedWaitHttpIdempotencyConformanceConfig
@@ -15,6 +17,7 @@ import io.bluetape4k.junit5.http.idempotency.HttpIdempotencyQuiescence
 import io.bluetape4k.junit5.http.idempotency.HttpIdempotencyRequest
 import io.bluetape4k.junit5.http.idempotency.HttpIdempotencyResponse
 import io.bluetape4k.junit5.http.idempotency.assertBoundedWaitHttpIdempotencyConformance
+import io.bluetape4k.logging.KLogging
 import jakarta.servlet.FilterChain
 import jakarta.servlet.ReadListener
 import jakarta.servlet.ServletException
@@ -60,13 +63,16 @@ import java.util.concurrent.CompletableFuture
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.ExecutionException
 import java.util.concurrent.Executors
-import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicInteger
 import java.util.concurrent.atomic.AtomicLong
 import java.util.concurrent.locks.ReentrantLock
 import kotlin.concurrent.withLock
+import kotlin.time.Duration.Companion.seconds
+import kotlin.time.toKotlinDuration
 
 class SpringHttpIdempotencyConformanceTest {
+
+    companion object: KLogging()
 
     @Test
     fun `Spring MockMvc satisfies bounded wait HTTP idempotency conformance`() = runSuspendIO {
@@ -131,7 +137,7 @@ class SpringHttpIdempotencyConformanceTest {
         val adapter = SpringBoundedWaitHttpIdempotencyAdapter(mockMvc, application, dispatcher, config)
         try {
             assertFailsWith<TimeoutCancellationException> {
-                withTimeout(config.scenarioTimeout.toMillis()) {
+                withTimeout(config.scenarioTimeout.toKotlinDuration()) {
                     adapter.exchange(
                         HttpIdempotencyRequest(
                             authenticationProfile = "tenant-a-principal",
@@ -143,7 +149,7 @@ class SpringHttpIdempotencyConformanceTest {
                     )
                 }
             }
-            entered.await(1, TimeUnit.SECONDS).shouldBeTrue()
+            entered.await(1.seconds).shouldBeTrue()
             interrupted.get() shouldBeEqualTo 1
             adapter.resetScenario()
             adapter.quiescence() shouldBeEqualTo HttpIdempotencyQuiescence(0, 0, 0)
@@ -151,7 +157,7 @@ class SpringHttpIdempotencyConformanceTest {
             dispatcher.close()
         }
 
-        executor.awaitTermination(2, TimeUnit.SECONDS).shouldBeTrue()
+        executor.awaitTermination(2.seconds).shouldBeTrue()
         Thread.getAllStackTraces().keys
             .any { thread -> thread.isAlive && thread.name.startsWith(threadPrefix) }
             .shouldBeFalse()

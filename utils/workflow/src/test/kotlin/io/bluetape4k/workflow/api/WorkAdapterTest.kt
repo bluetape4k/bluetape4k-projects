@@ -4,6 +4,7 @@ import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeInstanceOf
 import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.concurrent.await
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import kotlinx.coroutines.async
 import kotlinx.coroutines.cancelAndJoin
@@ -12,7 +13,6 @@ import kotlinx.coroutines.supervisorScope
 import kotlinx.coroutines.withTimeout
 import org.junit.jupiter.api.Test
 import java.util.concurrent.CountDownLatch
-import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
@@ -84,7 +84,7 @@ class WorkAdapterTest: AbstractWorkflowTest() {
                 suspendWork.execute(context)
             }
 
-            started.await(1, TimeUnit.SECONDS).shouldBeTrue()
+            started.await(1.seconds).shouldBeTrue()
             withTimeout(1.seconds) {
                 job.cancelAndJoin()
             }

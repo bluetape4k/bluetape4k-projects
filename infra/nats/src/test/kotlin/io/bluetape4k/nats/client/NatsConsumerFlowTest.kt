@@ -4,6 +4,7 @@ import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeLessOrEqualTo
 import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.concurrent.await
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import io.bluetape4k.nats.AbstractNatsTest
@@ -34,7 +35,6 @@ import org.junit.jupiter.api.Test
 import java.time.Duration
 import java.util.concurrent.CancellationException
 import java.util.concurrent.CountDownLatch
-import java.util.concurrent.TimeUnit
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
 
@@ -121,7 +121,7 @@ class NatsConsumerFlowTest: AbstractNatsTest() {
         every { consumer.nextMessage(any<Duration>()) } answers {
             receiveStarted.countDown()
             try {
-                check(receiveBarrier.await(5, TimeUnit.SECONDS)) {
+                check(receiveBarrier.await(5.seconds)) {
                     "receive was not interrupted before the bounded barrier expired"
                 }
             } catch (_: InterruptedException) {
@@ -134,7 +134,7 @@ class NatsConsumerFlowTest: AbstractNatsTest() {
 
         val flow = context.consumeAsFlow(capacity = 1)
         val first = async(Dispatchers.Default) { flow.collect() }
-        check(receiveStarted.await(5, TimeUnit.SECONDS))
+        check(receiveStarted.await(5.seconds))
 
         assertFailsWith<IllegalStateException> {
             flow.take(1).toList()
@@ -144,7 +144,7 @@ class NatsConsumerFlowTest: AbstractNatsTest() {
         withTimeout(5.seconds) {
             first.join()
         }
-        check(receiveInterrupted.await(1, TimeUnit.SECONDS))
+        check(receiveInterrupted.await(1.seconds))
         verify(exactly = 1) { context.iterate(any<ConsumeOptions>()) }
         verify(exactly = 1) { consumer.close() }
     }

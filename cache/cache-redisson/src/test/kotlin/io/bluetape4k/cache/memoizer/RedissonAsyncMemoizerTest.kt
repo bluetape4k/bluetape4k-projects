@@ -9,6 +9,7 @@ import io.bluetape4k.cache.RedisServers.randomName
 import io.bluetape4k.cache.RedisServers.redisson
 import io.bluetape4k.concurrent.completableFutureOf
 import io.bluetape4k.concurrent.failedCompletableFutureOf
+import io.bluetape4k.concurrent.get
 import io.bluetape4k.junit5.concurrency.MultithreadingTester
 import io.bluetape4k.junit5.concurrency.StructuredTaskScopeTester
 import io.bluetape4k.logging.coroutines.KLoggingChannel
@@ -21,7 +22,6 @@ import org.redisson.client.codec.IntegerCodec
 import org.redisson.client.codec.LongCodec
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.ExecutionException
-import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicInteger
 import kotlin.time.Duration.Companion.seconds
 
@@ -68,17 +68,17 @@ class RedissonAsyncMemoizerTest: AbstractAsyncMemoizerTest() {
             }
             val old = memo(1)
             try {
-                started.get(5, TimeUnit.SECONDS)
+                started.get(5.seconds)
                 memo.clear()
                 local[1].shouldBeNull()
 
-                if (newFirst) memo(1).get(5, TimeUnit.SECONDS) shouldBeEqualTo 20
+                if (newFirst) memo(1).get(5.seconds) shouldBeEqualTo 20
                 release.complete(10)
 
-                old.get(5, TimeUnit.SECONDS) shouldBeEqualTo 10
+                old.get(5.seconds) shouldBeEqualTo 10
                 if (newFirst) local[1] shouldBeEqualTo 20 else local[1].shouldBeNull()
 
-                memo(1).get(5, TimeUnit.SECONDS) shouldBeEqualTo 20
+                memo(1).get(5.seconds) shouldBeEqualTo 20
                 calls.get() shouldBeEqualTo 2
             } finally {
                 release.complete(10)
@@ -103,7 +103,7 @@ class RedissonAsyncMemoizerTest: AbstractAsyncMemoizerTest() {
         try {
             val futures = List(16) { memoizer(7) }
             futures.forEach {
-                it.get(2, TimeUnit.SECONDS) shouldBeEqualTo 49
+                it.get(2.seconds) shouldBeEqualTo 49
             }
             evaluateCount.get() shouldBeEqualTo 1
         } finally {
@@ -125,7 +125,7 @@ class RedissonAsyncMemoizerTest: AbstractAsyncMemoizerTest() {
         }
 
         try {
-            memoizer(9).get(2, TimeUnit.SECONDS) shouldBeEqualTo 81
+            memoizer(9).get(2.seconds) shouldBeEqualTo 81
             evaluateCount.get() shouldBeEqualTo 0
         } finally {
             map.delete()
@@ -146,10 +146,10 @@ class RedissonAsyncMemoizerTest: AbstractAsyncMemoizerTest() {
 
         try {
             assertFailsWith<ExecutionException> {
-                memoizer(5).get(2, TimeUnit.SECONDS)
+                memoizer(5).get(2.seconds)
             }
 
-            memoizer(5).get(2, TimeUnit.SECONDS) shouldBeEqualTo 25
+            memoizer(5).get(2.seconds) shouldBeEqualTo 25
             evaluateCount.get() shouldBeEqualTo 2
         } finally {
             map.delete()
@@ -181,8 +181,8 @@ class RedissonAsyncMemoizerTest: AbstractAsyncMemoizerTest() {
             firstEvaluation.complete(9)
             secondEvaluation.complete(9)
 
-            first.get(2, TimeUnit.SECONDS) shouldBeEqualTo 9
-            second.get(2, TimeUnit.SECONDS) shouldBeEqualTo 9
+            first.get(2.seconds) shouldBeEqualTo 9
+            second.get(2.seconds) shouldBeEqualTo 9
         } finally {
             map.delete()
         }
@@ -210,7 +210,7 @@ class RedissonAsyncMemoizerTest: AbstractAsyncMemoizerTest() {
                 .workers(16)
                 .rounds(4)
                 .add {
-                    memoizer(7).get(5, TimeUnit.SECONDS) shouldBeEqualTo 7 * 7
+                    memoizer(7).get(5.seconds) shouldBeEqualTo 7 * 7
                 }
                 .run()
 
@@ -245,7 +245,7 @@ class RedissonAsyncMemoizerTest: AbstractAsyncMemoizerTest() {
                 val futures = List(8) {
                     memoizer(11)
                 }
-                futures.all { it.get(2, TimeUnit.SECONDS) == 11 * 11 }.shouldBeTrue()
+                futures.all { it.get(2.seconds) == 11 * 11 }.shouldBeTrue()
             }
             // 실제 평가는 최초 라운드에서만, 이후 라운드는 Redis 캐시에서 반환
             evaluateCount.get() shouldBeEqualTo 1
@@ -275,7 +275,7 @@ class RedissonAsyncMemoizerTest: AbstractAsyncMemoizerTest() {
             StructuredTaskScopeTester()
                 .rounds(32)
                 .add {
-                    memoizer(7).get(5, TimeUnit.SECONDS) shouldBeEqualTo 7 * 7
+                    memoizer(7).get(5.seconds) shouldBeEqualTo 7 * 7
                 }
                 .run()
 

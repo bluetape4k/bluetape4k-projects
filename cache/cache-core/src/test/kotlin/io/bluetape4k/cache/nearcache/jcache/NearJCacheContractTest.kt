@@ -15,6 +15,7 @@ import io.bluetape4k.assertions.shouldNotContain
 import io.bluetape4k.cache.jcache.JCache
 import io.bluetape4k.cache.jcache.JCacheEntryEventListener
 import io.bluetape4k.cache.jcache.JCaching
+import io.bluetape4k.concurrent.await
 import io.bluetape4k.concurrent.virtualthread.virtualThread
 import io.bluetape4k.logging.KLogging
 import io.mockk.every
@@ -26,17 +27,17 @@ import org.junit.jupiter.api.Test
 import java.util.*
 import java.util.concurrent.CancellationException
 import java.util.concurrent.CountDownLatch
-import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicInteger
 import javax.cache.Cache
 import javax.cache.CacheManager
 import javax.cache.configuration.CacheEntryListenerConfiguration
 import javax.cache.configuration.Configuration
-import javax.cache.configuration.Factory
 import javax.cache.configuration.MutableConfiguration
 import javax.cache.event.CacheEntryCreatedListener
 import javax.cache.event.CacheEntryEvent
 import javax.cache.event.CacheEntryUpdatedListener
+import kotlin.time.Duration.Companion.milliseconds
+import kotlin.time.Duration.Companion.seconds
 
 class NearJCacheContractTest {
 
@@ -261,7 +262,7 @@ class NearJCacheContractTest {
         every { frontCache.close() } throws cleanupFailure
 
         val nearConfig = NearJCacheConfig<String, String>(
-            cacheManagerFactory = Factory { frontCacheManager },
+            cacheManagerFactory = { frontCacheManager },
             cacheName = cacheName,
             isSynchronous = true,
         )
@@ -577,7 +578,7 @@ class NearJCacheContractTest {
         every { frontCache.get("key") } returns null
         every { backCache.get("key") } answers {
             readStarted.countDown()
-            releaseRead.await(2, TimeUnit.SECONDS)
+            releaseRead.await(2.seconds)
             "stale"
         }
 
@@ -588,7 +589,7 @@ class NearJCacheContractTest {
         }
 
         reader.start()
-        readStarted.await(2, TimeUnit.SECONDS).shouldBeTrue()
+        readStarted.await(2.seconds).shouldBeTrue()
         nearCache.put("key", "fresh")
         releaseRead.countDown()
         reader.join(2_000)
@@ -610,7 +611,7 @@ class NearJCacheContractTest {
         every { frontCache.getAll(setOf("key")) } returns mutableMapOf()
         every { backCache.getAll(setOf("key")) } answers {
             readStarted.countDown()
-            releaseRead.await(2, TimeUnit.SECONDS)
+            releaseRead.await(2.seconds)
             mutableMapOf("key" to "stale")
         }
 
@@ -629,7 +630,7 @@ class NearJCacheContractTest {
 
         try {
             reader.start()
-            readStarted.await(2, TimeUnit.SECONDS).shouldBeTrue()
+            readStarted.await(2.seconds).shouldBeTrue()
             nearCache.put("key", "fresh")
         } finally {
             releaseRead.countDown()
@@ -651,7 +652,7 @@ class NearJCacheContractTest {
         every { frontCache.get("key") } returns null
         every { backCache.get("key") } answers {
             readStarted.countDown()
-            releaseRead.await(2, TimeUnit.SECONDS)
+            releaseRead.await(2.seconds)
             "stale"
         }
         val nearCache = newNearCache(frontCache, backCache)
@@ -661,7 +662,7 @@ class NearJCacheContractTest {
         }
 
         reader.start()
-        readStarted.await(2, TimeUnit.SECONDS).shouldBeTrue()
+        readStarted.await(2.seconds).shouldBeTrue()
         nearCache.clear()
         releaseRead.countDown()
         reader.join(2_000)
@@ -680,7 +681,7 @@ class NearJCacheContractTest {
         every { frontCache.get("key") } returns null
         every { backCache.get("key") } answers {
             readStarted.countDown()
-            releaseRead.await(2, TimeUnit.SECONDS)
+            releaseRead.await(2.seconds)
             "stale"
         }
         every { backCache.registerCacheEntryListener(capture(listenerConfiguration)) } returns Unit
@@ -697,7 +698,7 @@ class NearJCacheContractTest {
         }
 
         reader.start()
-        readStarted.await(2, TimeUnit.SECONDS).shouldBeTrue()
+        readStarted.await(2.seconds).shouldBeTrue()
         listener.onUpdated(listOf(event))
         releaseRead.countDown()
         reader.join(2_000)
@@ -715,7 +716,7 @@ class NearJCacheContractTest {
         val releaseWrite = CountDownLatch(1)
         every { backCache.put("key", "value") } answers {
             writeStarted.countDown()
-            releaseWrite.await(2, TimeUnit.SECONDS)
+            releaseWrite.await(2.seconds)
         }
         val nearCache =
             NearJCache(
@@ -725,7 +726,7 @@ class NearJCacheContractTest {
                 clearAuthority = NearJCacheClearAuthority.EXCLUSIVE_BACK_CACHE,
             )
         nearCache.put("key", "value")
-        writeStarted.await(2, TimeUnit.SECONDS).shouldBeTrue()
+        writeStarted.await(2.seconds).shouldBeTrue()
 
         val clearFinished = CountDownLatch(1)
         val clearer = virtualThread(start = false, name = "near-jcache-clear-barrier") {
@@ -733,10 +734,10 @@ class NearJCacheContractTest {
             clearFinished.countDown()
         }
         clearer.start()
-        clearFinished.await(100, TimeUnit.MILLISECONDS).shouldBeFalse()
+        clearFinished.await(100.milliseconds).shouldBeFalse()
 
         releaseWrite.countDown()
-        clearFinished.await(2, TimeUnit.SECONDS).shouldBeTrue()
+        clearFinished.await(2.seconds).shouldBeTrue()
         verify(exactly = 1) { backCache.clear() }
     }
 

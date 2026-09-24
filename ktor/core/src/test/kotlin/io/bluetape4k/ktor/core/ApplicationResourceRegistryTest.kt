@@ -17,7 +17,6 @@ import java.time.Duration
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.CyclicBarrier
 import java.util.concurrent.Executors
-import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicInteger
 import kotlin.time.Duration.Companion.seconds
 
@@ -206,7 +205,7 @@ class ApplicationResourceRegistryTest {
 
         registry.register {
             started.countDown()
-            release.await(5, TimeUnit.SECONDS).shouldBeTrue()
+            release.await(5.seconds).shouldBeTrue()
         }
         val executor = Executors.newSingleThreadExecutor()
 
@@ -222,7 +221,7 @@ class ApplicationResourceRegistryTest {
             report.failures.shouldBeEmpty()
 
             release.countDown()
-            closeFuture.get(5, TimeUnit.SECONDS)
+            closeFuture.get(5.seconds)
         } finally {
             release.countDown()
             executor.shutdownNow()
@@ -302,7 +301,7 @@ class ApplicationResourceRegistryTest {
             try {
                 val futures = registrations.map { registration ->
                     executor.submit {
-                        barrier.await(5, TimeUnit.SECONDS)
+                        barrier.await(5.seconds)
                         registration.close()
                     }
                 }
@@ -310,8 +309,8 @@ class ApplicationResourceRegistryTest {
                     barrier.await(5.seconds)
                     registry.close()
                 }
-                futures.forEach { it.get(5, TimeUnit.SECONDS) }
-                closeFuture.get(5, TimeUnit.SECONDS)
+                futures.forEach { it.get(5.seconds) }
+                closeFuture.get(5.seconds)
             } finally {
                 executor.shutdownNow()
             }
@@ -329,13 +328,13 @@ class ApplicationResourceRegistryTest {
         val registry = ApplicationResourceRegistry()
         val resource = AutoCloseable {
             closeStarted.countDown()
-            allowClose.await(5, TimeUnit.SECONDS).shouldBeTrue()
+            allowClose.await(5.seconds).shouldBeTrue()
         }
         registry.register(resource)
         val executor = Executors.newSingleThreadExecutor()
         try {
             val closeFuture = executor.submit { registry.close() }
-            closeStarted.await(5, TimeUnit.SECONDS).shouldBeTrue()
+            closeStarted.await(5.seconds).shouldBeTrue()
 
             registry.closeReport.state shouldBeEqualTo ApplicationResourceRegistryState.DRAINING
 
@@ -343,7 +342,7 @@ class ApplicationResourceRegistryTest {
                 registry.register(resource)
             }
             allowClose.countDown()
-            closeFuture.get(5, TimeUnit.SECONDS)
+            closeFuture.get(5.seconds)
             assertFailsWith<IllegalArgumentException> {
                 registry.register(resource)
             }

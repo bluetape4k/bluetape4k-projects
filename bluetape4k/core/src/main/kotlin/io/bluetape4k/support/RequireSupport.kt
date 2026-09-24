@@ -739,3 +739,19 @@ inline fun Float.requireFinite(parameterName: String, noinline lazyMessage: (() 
 inline fun Double.requireFinite(parameterName: String, noinline lazyMessage: (() -> Any)? = null): Double = apply {
     require(isFinite()) { lazyMessage?.invoke() ?: "$parameterName must be finite." }
 }
+
+fun Boolean.requireBeTrue(parameterName: String): Boolean = apply {
+    require(this) { "$parameterName must be true." }
+}
+
+fun Boolean.requireBeTrue(lazyMessage: () -> Any): Boolean = apply {
+    require(this) { lazyMessage.invoke() }
+}
+
+fun Boolean.requireBeFalse(parameterName: String): Boolean = apply {
+    require(!this) { "$parameterName must be false." }
+}
+
+fun Boolean.requireBeFalse(lazyMessage: () -> Any): Boolean = apply {
+    require(!this) { lazyMessage.invoke() }
+}

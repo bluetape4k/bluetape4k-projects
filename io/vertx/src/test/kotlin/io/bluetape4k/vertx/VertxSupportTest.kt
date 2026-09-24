@@ -5,6 +5,7 @@ import io.bluetape4k.assertions.shouldBeSameInstanceAs
 import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.assertions.shouldNotBeNull
 import io.bluetape4k.assertions.shouldNotBeSameInstanceAs
+import io.bluetape4k.concurrent.get
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.vertx.tests.withSuspendTestContext
@@ -16,7 +17,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
-import java.util.concurrent.TimeUnit
+import kotlin.time.Duration.Companion.seconds
 
 class VertxSupportTest: AbstractVertxTest() {
 
@@ -24,7 +25,7 @@ class VertxSupportTest: AbstractVertxTest() {
 
     @AfterEach
     fun closeManagedDefaultVertx() {
-        closeDefaultVertx().asCompletableFuture().get(5, TimeUnit.SECONDS)
+        closeDefaultVertx().asCompletableFuture().get(5.seconds)
     }
 
     @Test
@@ -46,7 +47,7 @@ class VertxSupportTest: AbstractVertxTest() {
     fun `closeDefaultVertx closes managed fallback and allows recreation`() {
         val first = currentVertx()
 
-        closeDefaultVertx().asCompletableFuture().get(5, TimeUnit.SECONDS)
+        closeDefaultVertx().asCompletableFuture().get(5.seconds)
 
         val second = currentVertx()
         second shouldNotBeSameInstanceAs first

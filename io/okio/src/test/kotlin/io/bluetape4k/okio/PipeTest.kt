@@ -4,6 +4,7 @@ import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.fail
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.concurrent.awaitTermination
 import io.bluetape4k.junit5.concurrency.TestingExecutors
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.junit5.system.assumeNotWindows
@@ -28,6 +29,7 @@ import java.util.concurrent.ScheduledExecutorService
 import java.util.concurrent.TimeUnit
 import kotlin.random.Random
 import kotlin.time.Duration.Companion.milliseconds
+import kotlin.time.Duration.Companion.seconds
 
 class PipeTest: AbstractOkioTest() {
 
@@ -44,7 +46,7 @@ class PipeTest: AbstractOkioTest() {
     fun afterEach() {
         runCatching {
             executor.shutdown()
-            executor.awaitTermination(1, TimeUnit.SECONDS)
+            executor.awaitTermination(1.seconds)
         }
     }
 

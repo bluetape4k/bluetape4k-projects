@@ -9,13 +9,15 @@ import io.bluetape4k.cache.caffeine.caffeine
 import io.bluetape4k.cache.memoizer.AbstractAsyncMemoizerTest
 import io.bluetape4k.cache.memoizer.AsyncFactorialProvider
 import io.bluetape4k.cache.memoizer.AsyncFibonacciProvider
+import io.bluetape4k.concurrent.await
+import io.bluetape4k.concurrent.get
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import org.junit.jupiter.api.Test
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.ForkJoinPool
-import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicInteger
+import kotlin.time.Duration.Companion.seconds
 
 class CaffeineAsyncMemoizerTest: AbstractAsyncMemoizerTest() {
 
@@ -81,19 +83,19 @@ class CaffeineAsyncMemoizerTest: AbstractAsyncMemoizerTest() {
         val memo = localCache.asyncMemoizer { key: String ->
             CompletableFuture.supplyAsync {
                 evalStarted.countDown()
-                evalProceed.await(2, TimeUnit.SECONDS)
+                evalProceed.await(2.seconds)
                 key.length
             }
         }
 
         val future = memo("hello")
-        evalStarted.await(2, TimeUnit.SECONDS)   // wait for evaluator to start
+        evalStarted.await(2.seconds)   // wait for evaluator to start
 
         memo.clear()                              // invalidate while in-flight
         evalProceed.countDown()                   // let evaluator finish
 
         // Caller still receives the computed value
-        future.get(2, TimeUnit.SECONDS) shouldBeEqualTo 5
+        future.get(2.seconds) shouldBeEqualTo 5
         // Stale result must NOT be written back into the cleared cache
         localCache.getIfPresent("hello").shouldBeNull()
     }

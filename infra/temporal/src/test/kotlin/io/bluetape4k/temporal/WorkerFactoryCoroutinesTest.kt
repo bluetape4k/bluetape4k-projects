@@ -52,13 +52,13 @@ class WorkerFactoryCoroutinesTest {
     fun `timeout without force keeps graceful shutdown pending`() = runTest {
         every { factory.isShutdown } returns false
         every { factory.shutdown() } just runs
-        every { factory.awaitTermination(100, TimeUnit.MILLISECONDS) } just runs
+        every { factory.awaitTermination(100.milliseconds) } just runs
         every { factory.isTerminated } returns false
 
         factory.shutdownSuspending(100.milliseconds).shouldBeFalse()
 
         verify(exactly = 1) { factory.shutdown() }
-        verify(exactly = 1) { factory.awaitTermination(100, TimeUnit.MILLISECONDS) }
+        verify(exactly = 1) { factory.awaitTermination(100.milliseconds) }
         verify(exactly = 0) { factory.shutdownNow() }
     }
 
@@ -66,28 +66,28 @@ class WorkerFactoryCoroutinesTest {
     fun `timeout with force requests shutdownNow without a second wait`() = runTest {
         every { factory.isShutdown } returns false
         every { factory.shutdown() } just runs
-        every { factory.awaitTermination(100, TimeUnit.MILLISECONDS) } just runs
+        every { factory.awaitTermination(100.milliseconds) } just runs
         every { factory.isTerminated } returns false
         every { factory.shutdownNow() } just runs
 
         factory.shutdownSuspending(100.milliseconds, force = true).shouldBeFalse()
 
         verify(exactly = 1) { factory.shutdown() }
-        verify(exactly = 1) { factory.awaitTermination(100, TimeUnit.MILLISECONDS) }
+        verify(exactly = 1) { factory.awaitTermination(100.milliseconds) }
         verify(exactly = 1) { factory.shutdownNow() }
     }
 
     @Test
     fun `repeated shutdown is idempotent when factory is already shut down`() = runTest {
         every { factory.isShutdown } returns true
-        every { factory.awaitTermination(100, TimeUnit.MILLISECONDS) } just runs
+        every { factory.awaitTermination(100.milliseconds) } just runs
         every { factory.isTerminated } returns true
 
         factory.shutdownSuspending(100.milliseconds).shouldBeTrue()
         factory.shutdownSuspending(100.milliseconds).shouldBeTrue()
 
         verify(exactly = 0) { factory.shutdown() }
-        verify(exactly = 2) { factory.awaitTermination(100, TimeUnit.MILLISECONDS) }
+        verify(exactly = 2) { factory.awaitTermination(100.milliseconds) }
         verify(exactly = 0) { factory.shutdownNow() }
     }
 
@@ -107,7 +107,7 @@ class WorkerFactoryCoroutinesTest {
         val releaseWait = CountDownLatch(1)
         every { factory.isShutdown } returns false
         every { factory.shutdown() } just runs
-        every { factory.awaitTermination(100, TimeUnit.MILLISECONDS) } answers {
+        every { factory.awaitTermination(100.milliseconds) } answers {
             waitEntered.countDown()
             releaseWait.await()
         }

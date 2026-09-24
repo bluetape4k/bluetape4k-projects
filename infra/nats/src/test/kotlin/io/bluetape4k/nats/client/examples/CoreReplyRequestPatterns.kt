@@ -1,6 +1,8 @@
 package io.bluetape4k.nats.client.examples
 
 import io.bluetape4k.codec.Base58
+import io.bluetape4k.concurrent.await
+import io.bluetape4k.concurrent.join
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import io.bluetape4k.nats.AbstractNatsTest
@@ -13,7 +15,6 @@ import io.nats.client.impl.Headers
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import java.util.concurrent.CountDownLatch
-import java.util.concurrent.TimeUnit
 import kotlin.concurrent.thread
 import kotlin.random.Random
 import kotlin.time.Duration.Companion.seconds
@@ -92,7 +93,7 @@ class CoreReplyRequestPatterns: AbstractNatsTest() {
 
                     // For this example, we stop the loop by waiting once for the latch to count down or 2 seconds
                     try {
-                        latch.await(2, TimeUnit.SECONDS)
+                        latch.await(2.seconds)
                     } catch (e: InterruptedException) {
                         e.printStackTrace()
                     }
@@ -112,7 +113,7 @@ class CoreReplyRequestPatterns: AbstractNatsTest() {
                 // Start the originator and let it run
                 val thread = thread(start = true) { Originator(nc).run() }
 
-                thread.join(2000)
+                thread.join(2.seconds)
             }
         }
     }
@@ -195,7 +196,7 @@ class CoreReplyRequestPatterns: AbstractNatsTest() {
                 // Start the originator and let it run
                 val thread = thread(start = true) { Originator(nc).run() }
 
-                thread.join(2000)
+                thread.join(2.seconds)
             }
         }
     }
@@ -287,7 +288,7 @@ class CoreReplyRequestPatterns: AbstractNatsTest() {
 
                     // For this example, we stop the loop by waiting once for the latch to count down or 2 seconds
                     try {
-                        latch.await(2, TimeUnit.SECONDS)
+                        latch.await(2.seconds)
                     } catch (e: InterruptedException) {
                         e.printStackTrace()
                     }
@@ -345,8 +346,8 @@ class CoreReplyRequestPatterns: AbstractNatsTest() {
 
                 val threadB = thread(start = true) { OriginatorB(nc).run() }
 
-                threadA.join(2000)
-                threadB.join(2000)
+                threadA.join(2.seconds)
+                threadB.join(2.seconds)
             }
         }
     }

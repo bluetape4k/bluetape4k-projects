@@ -8,6 +8,7 @@ import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.cache.jcache.JCaching
 import io.bluetape4k.cache.jcache.jcacheConfiguration
 import io.bluetape4k.codec.Base58
+import io.bluetape4k.concurrent.await
 import io.bluetape4k.concurrent.virtualthread.virtualThread
 import io.bluetape4k.junit5.concurrency.MultithreadingTester
 import io.bluetape4k.logging.KLogging
@@ -25,11 +26,11 @@ import java.time.Duration
 import java.util.concurrent.CompletionException
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.CountDownLatch
-import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicInteger
 import java.util.concurrent.atomic.AtomicReference
 import javax.cache.Cache
 import javax.cache.expiry.EternalExpiryPolicy
+import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
 
 /**
@@ -105,7 +106,7 @@ class ResilientNearJCacheTest {
 
         every { blockingBackCache.put(any(), any()) } answers {
             putStarted.countDown()
-            releasePut.await(5, TimeUnit.SECONDS).shouldBeTrue()
+            releasePut.await(5.seconds).shouldBeTrue()
         }
         every { blockingBackCache.get("third") } returns null
 
@@ -120,7 +121,7 @@ class ResilientNearJCacheTest {
 
         try {
             smallQueueCache.put("first", "1")
-            putStarted.await(5, TimeUnit.SECONDS).shouldBeTrue()
+            putStarted.await(5.seconds).shouldBeTrue()
             smallQueueCache.put("second", "2")
 
             assertFailsWith<IllegalStateException> {
@@ -163,7 +164,7 @@ class ResilientNearJCacheTest {
         val staleBackCache = mockk<Cache<String, String>>(relaxed = true)
         every { staleBackCache.get("shared") } answers {
             readStarted.countDown()
-            releaseRead.await(5, TimeUnit.SECONDS).shouldBeTrue()
+            releaseRead.await(5.seconds).shouldBeTrue()
             "stale"
         }
 
@@ -180,7 +181,7 @@ class ResilientNearJCacheTest {
             val reader = virtualThread(name = "near-cache-stale-read") {
                 readResult.set(staleReadCache.get("shared"))
             }
-            readStarted.await(5, TimeUnit.SECONDS).shouldBeTrue()
+            readStarted.await(5.seconds).shouldBeTrue()
             staleReadCache.put("shared", "latest")
             releaseRead.countDown()
             reader.join(5_000)
@@ -200,7 +201,7 @@ class ResilientNearJCacheTest {
         val staleBackCache = mockk<Cache<String, String>>(relaxed = true)
         every { staleBackCache.get("shared") } answers {
             readStarted.countDown()
-            releaseRead.await(5, TimeUnit.SECONDS).shouldBeTrue()
+            releaseRead.await(5.seconds).shouldBeTrue()
             "stale"
         }
         every { staleBackCache.containsKey("shared") } returns true
@@ -219,7 +220,7 @@ class ResilientNearJCacheTest {
             val reader = virtualThread(name = "near-cache-stale-replace-read") {
                 readResult.set(staleReadCache.get("shared"))
             }
-            readStarted.await(5, TimeUnit.SECONDS).shouldBeTrue()
+            readStarted.await(5.seconds).shouldBeTrue()
             staleReadCache.replace("shared", "latest").shouldBeTrue()
             releaseRead.countDown()
             reader.join(5_000)
@@ -253,7 +254,7 @@ class ResilientNearJCacheTest {
         val mutableBackCache = mockk<Cache<String, String>>(relaxed = true)
         every { mutableBackCache.put("block", "value") } answers {
             firstPutStarted.countDown()
-            releaseFirstPut.await(5, TimeUnit.SECONDS).shouldBeTrue()
+            releaseFirstPut.await(5.seconds).shouldBeTrue()
         }
         every { mutableBackCache.putAll(capture(capturedEntries)) } answers { }
         every { mutableBackCache.put("next", "value") } answers { nextPutStored.countDown() }
@@ -268,14 +269,14 @@ class ResilientNearJCacheTest {
 
         try {
             mutableEntriesCache.put("block", "value")
-            firstPutStarted.await(5, TimeUnit.SECONDS).shouldBeTrue()
+            firstPutStarted.await(5.seconds).shouldBeTrue()
             val entries = mutableMapOf("initial" to "value")
             mutableEntriesCache.putAll(entries)
             entries["late"] = "value"
             releaseFirstPut.countDown()
 
             mutableEntriesCache.put("next", "value")
-            nextPutStored.await(5, TimeUnit.SECONDS).shouldBeTrue()
+            nextPutStored.await(5.seconds).shouldBeTrue()
             capturedEntries.captured shouldBeEqualTo mapOf("initial" to "value")
         } finally {
             releaseFirstPut.countDown()
@@ -292,7 +293,7 @@ class ResilientNearJCacheTest {
         val mutableBackCache = mockk<Cache<String, String>>(relaxed = true)
         every { mutableBackCache.put("block", "value") } answers {
             firstPutStarted.countDown()
-            releaseFirstPut.await(5, TimeUnit.SECONDS).shouldBeTrue()
+            releaseFirstPut.await(5.seconds).shouldBeTrue()
         }
         every { mutableBackCache.put("marker", "done") } answers { drainCompleted.countDown() }
         every { mutableBackCache.remove(any()) } answers {
@@ -310,14 +311,14 @@ class ResilientNearJCacheTest {
 
         try {
             mutableKeysCache.put("block", "value")
-            firstPutStarted.await(5, TimeUnit.SECONDS).shouldBeTrue()
+            firstPutStarted.await(5.seconds).shouldBeTrue()
             val keys = mutableSetOf("initial")
             mutableKeysCache.removeAll(keys)
             keys.add("late")
             releaseFirstPut.countDown()
 
             mutableKeysCache.put("marker", "done")
-            drainCompleted.await(5, TimeUnit.SECONDS).shouldBeTrue()
+            drainCompleted.await(5.seconds).shouldBeTrue()
             removedKeys shouldBeEqualTo setOf("initial")
         } finally {
             releaseFirstPut.countDown()
@@ -370,7 +371,7 @@ class ResilientNearJCacheTest {
 
             concurrentCache.put("shared", "final")
             concurrentCache.put("marker", "done")
-            drainCompleted.await(5, TimeUnit.SECONDS).shouldBeTrue()
+            drainCompleted.await(5.seconds).shouldBeTrue()
             concurrentCache.get("shared") shouldBeEqualTo "final"
             backValue.get() shouldBeEqualTo "final"
         } finally {
@@ -485,7 +486,7 @@ class ResilientNearJCacheTest {
         every { orderedBackCache.get("key") } returns "old"
         every { orderedBackCache.remove("key") } answers {
             removeStarted.countDown()
-            releaseRemove.await(5, TimeUnit.SECONDS).shouldBeTrue()
+            releaseRemove.await(5.seconds).shouldBeTrue()
             true
         }
         every { orderedBackCache.put("key", "new") } answers { putApplied.countDown() }
@@ -495,12 +496,12 @@ class ResilientNearJCacheTest {
         try {
             orderedCache.get("key") shouldBeEqualTo "old"
             orderedCache.remove("key")
-            removeStarted.await(5, TimeUnit.SECONDS).shouldBeTrue()
+            removeStarted.await(5.seconds).shouldBeTrue()
 
             orderedCache.putIfAbsent("key", "new").shouldBeNull()
             orderedCache.get("key") shouldBeEqualTo "new"
             releaseRemove.countDown()
-            putApplied.await(5, TimeUnit.SECONDS).shouldBeTrue()
+            putApplied.await(5.seconds).shouldBeTrue()
             orderedCache.get("key") shouldBeEqualTo "new"
         } finally {
             releaseRemove.countDown()
@@ -516,7 +517,7 @@ class ResilientNearJCacheTest {
         val orderedBackCache = mockk<Cache<String, String>>(relaxed = true)
         every { orderedBackCache.clear() } answers {
             clearStarted.countDown()
-            releaseClear.await(5, TimeUnit.SECONDS).shouldBeTrue()
+            releaseClear.await(5.seconds).shouldBeTrue()
         }
         every { orderedBackCache.put("key", "new") } answers { putApplied.countDown() }
 
@@ -524,13 +525,13 @@ class ResilientNearJCacheTest {
 
         try {
             orderedCache.clearAll()
-            clearStarted.await(5, TimeUnit.SECONDS).shouldBeTrue()
+            clearStarted.await(5.seconds).shouldBeTrue()
 
             orderedCache.putIfAbsent("key", "new").shouldBeNull()
             orderedCache.get("key").shouldBeNull()
             releaseClear.countDown()
 
-            putApplied.await(5, TimeUnit.SECONDS).shouldBeTrue()
+            putApplied.await(5.seconds).shouldBeTrue()
             await atMost 5.seconds until { orderedCache.get("key") == "new" }
         } finally {
             releaseClear.countDown()
@@ -547,7 +548,7 @@ class ResilientNearJCacheTest {
         val orderedBackCache = mockk<Cache<String, String>>(relaxed = true)
         every { orderedBackCache.put("key", "old") } answers {
             oldPutStarted.countDown()
-            releaseOldPut.await(5, TimeUnit.SECONDS).shouldBeTrue()
+            releaseOldPut.await(5.seconds).shouldBeTrue()
         }
         every { orderedBackCache.clear() } answers { clearApplied.countDown() }
         every { orderedBackCache.put("key", "new") } answers { newPutApplied.countDown() }
@@ -556,13 +557,13 @@ class ResilientNearJCacheTest {
 
         try {
             orderedCache.put("key", "old")
-            oldPutStarted.await(5, TimeUnit.SECONDS).shouldBeTrue()
+            oldPutStarted.await(5.seconds).shouldBeTrue()
             orderedCache.clearAll()
 
             orderedCache.putIfAbsent("key", "new").shouldBeNull()
             releaseOldPut.countDown()
-            clearApplied.await(5, TimeUnit.SECONDS).shouldBeTrue()
-            newPutApplied.await(5, TimeUnit.SECONDS).shouldBeTrue()
+            clearApplied.await(5.seconds).shouldBeTrue()
+            newPutApplied.await(5.seconds).shouldBeTrue()
             await atMost 5.seconds until { orderedCache.get("key") == "new" }
         } finally {
             releaseOldPut.countDown()
@@ -683,7 +684,7 @@ class ResilientNearJCacheTest {
             writeStarted.countDown()
             while (true) {
                 try {
-                    if (releaseWrite.await(10, TimeUnit.MILLISECONDS)) break
+                    if (releaseWrite.await(10.milliseconds)) break
                 } catch (_: InterruptedException) {
                     // close() interrupts the consumer; keep the backend operation pending
                     // to exercise the timeout path.
@@ -703,7 +704,7 @@ class ResilientNearJCacheTest {
 
         try {
             val completion = timeoutCache.put("blocked", "value")
-            writeStarted.await(5, TimeUnit.SECONDS).shouldBeTrue()
+            writeStarted.await(5.seconds).shouldBeTrue()
 
             timeoutCache.close()
 
@@ -712,7 +713,7 @@ class ResilientNearJCacheTest {
             }
         } finally {
             releaseWrite.countDown()
-            writeFinished.await(5, TimeUnit.SECONDS).shouldBeTrue()
+            writeFinished.await(5.seconds).shouldBeTrue()
             timeoutCache.close()
         }
     }

@@ -3,6 +3,7 @@ package io.bluetape4k.grpc
 import io.bluetape4k.support.requireInRange
 import io.grpc.Server
 import io.grpc.ServerBuilder
+import java.util.concurrent.TimeUnit
 
 /**
  * 포트 기반 [ServerBuilder]를 생성하고 초기화 블록을 적용합니다.
@@ -43,3 +44,7 @@ inline fun grpcServer(
     builder: ServerBuilder<*>.() -> Unit,
 ): Server =
     grpcServerBuilder(port, builder).build()
+
+
+fun Server.awaitTermination(timeout: kotlin.time.Duration): Boolean =
+    awaitTermination(timeout.inWholeNanoseconds, TimeUnit.NANOSECONDS)

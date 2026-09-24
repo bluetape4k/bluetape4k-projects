@@ -23,10 +23,12 @@ dependencies {
     }
     testImplementation("org.springframework.boot:spring-boot-starter-actuator")
 
-    // Spring core
-    implementation(project(":bluetape4k-logging"))
+    // Bluetape4k 
+    api(project(":bluetape4k-core"))
     compileOnly(project(":bluetape4k-io"))
     compileOnly(project(":bluetape4k-jackson3"))
+
+    // Spring
     compileOnly("org.springframework:spring-context-support")
     compileOnly("org.springframework:spring-messaging")
     compileOnly("org.springframework:spring-web")

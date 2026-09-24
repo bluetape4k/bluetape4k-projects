@@ -4,9 +4,10 @@ import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.coroutines.assertResult
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeSameInstanceAs
-import io.bluetape4k.assertions.shouldHaveSize
 import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.assertions.shouldHaveSize
 import io.bluetape4k.codec.Base58
+import io.bluetape4k.concurrent.await
 import io.bluetape4k.coroutines.flow.extensions.log
 import io.bluetape4k.junit5.awaitility.untilSuspending
 import io.bluetape4k.junit5.coroutines.runSuspendIO
@@ -16,38 +17,38 @@ import io.bluetape4k.testcontainers.mq.KafkaServer
 import io.bluetape4k.utils.ShutdownQueue
 import io.mockk.every
 import io.mockk.mockk
-import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.async
+import kotlinx.coroutines.channels.BufferOverflow
+import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.buffer
+import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onCompletion
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.toList
-import kotlinx.coroutines.test.runTest
-import kotlinx.coroutines.withTimeout
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runInterruptible
-import kotlinx.coroutines.withContext
-import kotlinx.coroutines.channels.BufferOverflow
-import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.supervisorScope
 import kotlinx.coroutines.sync.Semaphore
+import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.withContext
+import kotlinx.coroutines.withTimeout
 import org.apache.kafka.clients.producer.Callback
 import org.apache.kafka.clients.producer.Producer
 import org.apache.kafka.clients.producer.ProducerRecord
@@ -68,11 +69,11 @@ import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.ConcurrentLinkedQueue
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.Future
-import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicInteger
 import java.util.concurrent.atomic.AtomicReference
 import kotlin.time.Duration.Companion.microseconds
+import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
 
 class CallbackFlowExamples {
@@ -147,6 +148,7 @@ class CallbackFlowExamples {
 
         return callbackFlow {
             var producer: Producer<String, String>? = null
+
             class DownstreamCancellation(val cause: CancellationException)
 
             val terminalState = AtomicReference<Any?>(null)
@@ -158,7 +160,7 @@ class CallbackFlowExamples {
             fun terminalCause(): Throwable? = when (val terminal = terminalState.get()) {
                 is DownstreamCancellation -> terminal.cause
                 is Throwable -> terminal
-                else -> null
+                else         -> null
             }
 
             class SendState {
@@ -224,13 +226,13 @@ class CallbackFlowExamples {
                         beforeRegister?.invoke()
                         if (terminalCause() != null || isDownstreamCancelled()) {
                             cancelState(state)
-                            ensureActive()
+                            currentCoroutineContext().ensureActive()
                             return@collect
                         }
                         inFlight += state
                         if (terminalCause() != null || isDownstreamCancelled()) {
                             cancelState(state)
-                            ensureActive()
+                            currentCoroutineContext().ensureActive()
                             return@collect
                         }
                         try {
@@ -248,7 +250,7 @@ class CallbackFlowExamples {
                             failOnce(cause.unwrapRecoveredCoroutineCause())
                             throw cause
                         }
-                        ensureActive()
+                        currentCoroutineContext().ensureActive()
                     }
                 } catch (cause: CancellationException) {
                     if (!isDownstreamCancelled()) failOnce(cause.unwrapRecoveredCoroutineCause())
@@ -263,7 +265,7 @@ class CallbackFlowExamples {
                             var cleanupCancellation: CancellationException? = null
                             try {
                                 withTimeout(30.seconds) {
-                                    while (inFlight.isNotEmpty()) delay(10)
+                                    while (inFlight.isNotEmpty()) delay(10.milliseconds)
                                     runInterruptible { activeProducer.flush() }
                                 }
                             } catch (cause: TimeoutCancellationException) {
@@ -457,9 +459,9 @@ class CallbackFlowExamples {
 
         withTimeout(5.seconds) { producer.sendStarted.await() }
         val callback = async(Dispatchers.IO) { producer.fireCallback() }
-        callbackStarted.await(5, TimeUnit.SECONDS).shouldBeTrue()
+        callbackStarted.await(5.seconds).shouldBeTrue()
         task.cancel()
-        await.atMost(Duration.ofSeconds(5)) untilSuspending { producer.closeCount.get() > 0 }
+        await atMost 5.seconds untilSuspending { producer.closeCount.get() > 0 }
         callbackGate.countDown()
         callback.await()
 
@@ -499,12 +501,12 @@ class CallbackFlowExamples {
                 producerFactory = { producer.producer },
                 beforeRegister = {
                     registrationStarted.countDown()
-                    releaseRegistration.await(5, TimeUnit.SECONDS)
+                    releaseRegistration.await(5.seconds)
                 },
             ).toList()
         }
 
-        registrationStarted.await(5, TimeUnit.SECONDS).shouldBeTrue()
+        registrationStarted.await(5.seconds).shouldBeTrue()
         task.cancel()
         releaseRegistration.countDown()
 
@@ -686,18 +688,19 @@ class CallbackFlowExamples {
     }
 
     @Test
-    fun `callback drain timeout cancels pending sends and preserves timeout cause`() = runSuspendIO(timeout = 40.seconds) {
-        val producer = TrackingProducer(holdCallbacks = true)
+    fun `callback drain timeout cancels pending sends and preserves timeout cause`() =
+        runSuspendIO(timeout = 40.seconds) {
+            val producer = TrackingProducer(holdCallbacks = true)
 
-        val error = assertFailsWith<TimeoutCancellationException> {
-            producerResults(flowOf(record("timeout")), { producer.producer }).toList()
+            val error = assertFailsWith<TimeoutCancellationException> {
+                producerResults(flowOf(record("timeout")), { producer.producer }).toList()
+            }
+
+            error::class shouldBeEqualTo TimeoutCancellationException::class
+            producer.closeCount.get() shouldBeEqualTo 1
+            producer.pendingSend.isCancelled shouldBeEqualTo true
+            producer.cancelledPendingSends() shouldBeEqualTo 1
         }
-
-        error::class shouldBeEqualTo TimeoutCancellationException::class
-        producer.closeCount.get() shouldBeEqualTo 1
-        producer.pendingSend.isCancelled shouldBeEqualTo true
-        producer.cancelledPendingSends() shouldBeEqualTo 1
-    }
 
     @Test
     fun `failure diagnostics export a bounded pre-cleanup broker log`(@TempDir tempDir: Path) {
@@ -725,65 +728,66 @@ class CallbackFlowExamples {
     }
 
     @Test
-    fun `real Kafka producer callbacks become metadata flow`(@TempDir tempDir: Path) = runSuspendIO(timeout = 120.seconds) {
-        val topic = "epic-1422-callback-${Base58.randomString(8)}"
-        val records = (0 until 8).map { index ->
-            ProducerRecord(topic, "key-$index", "value-$index")
-        }
+    fun `real Kafka producer callbacks become metadata flow`(@TempDir tempDir: Path) =
+        runSuspendIO(timeout = 120.seconds) {
+            val topic = "epic-1422-callback-${Base58.randomString(8)}"
+            val records = (0 until 8).map { index ->
+                ProducerRecord(topic, "key-$index", "value-$index")
+            }
 
-        val broker = KafkaServer(DockerImageName.parse(KAFKA_IMAGE_REF))
-        try {
-            broker.start()
-            ShutdownQueue.register(broker)
-            val consumer = KafkaServer.Launcher.createStringConsumer(broker)
+            val broker = KafkaServer(DockerImageName.parse(KAFKA_IMAGE_REF))
             try {
-                consumer.subscribe(listOf(topic))
-                val metadata = producerResults(
-                    records = records.asFlow(),
-                    producerFactory = { KafkaServer.Launcher.createStringProducer(broker) },
-                ).toList()
+                broker.start()
+                ShutdownQueue.register(broker)
+                val consumer = KafkaServer.Launcher.createStringConsumer(broker)
+                try {
+                    consumer.subscribe(listOf(topic))
+                    val metadata = producerResults(
+                        records = records.asFlow(),
+                        producerFactory = { KafkaServer.Launcher.createStringProducer(broker) },
+                    ).toList()
 
-                metadata shouldHaveSize records.size
-                val polled = withTimeout(10.seconds) {
-                    buildList {
-                        while (size < records.size) {
-                            addAll(consumer.poll(Duration.ofMillis(250)).toList())
+                    metadata shouldHaveSize records.size
+                    val polled = withTimeout(10.seconds) {
+                        buildList {
+                            while (size < records.size) {
+                                addAll(consumer.poll(Duration.ofMillis(250)).toList())
+                            }
+                        }
+                    }
+                    polled shouldHaveSize records.size
+
+                    val diagnosticsDirectory = configuredDiagnosticsDirectory() ?: tempDir
+                    writeKafkaFailureDiagnostics(broker, diagnosticsDirectory)
+                    val containerId = broker.containerId
+                    val receipt = Files.readString(diagnosticsDirectory.resolve("$containerId.metadata"))
+                    receipt.contains("id=$containerId").shouldBeTrue()
+                    receipt.contains("image=${broker.dockerImageName}").shouldBeTrue()
+                    receipt.contains("image_id=${broker.containerInfo.imageId}").shouldBeTrue()
+                    receipt.contains("created=${broker.containerInfo.created}").shouldBeTrue()
+                    Files.size(diagnosticsDirectory.resolve("$containerId.log"))
+                        .let { it in 1..MAX_RAW_LOG_BYTES }.shouldBeTrue()
+                } finally {
+                    withContext(NonCancellable + Dispatchers.IO) {
+                        withTimeout(5.seconds) {
+                            runInterruptible { consumer.close(Duration.ofSeconds(5)) }
                         }
                     }
                 }
-                polled shouldHaveSize records.size
-
-                val diagnosticsDirectory = configuredDiagnosticsDirectory() ?: tempDir
-                writeKafkaFailureDiagnostics(broker, diagnosticsDirectory)
-                val containerId = broker.containerId
-                val receipt = Files.readString(diagnosticsDirectory.resolve("$containerId.metadata"))
-                receipt.contains("id=$containerId").shouldBeTrue()
-                receipt.contains("image=${broker.dockerImageName}").shouldBeTrue()
-                receipt.contains("image_id=${broker.containerInfo.imageId}").shouldBeTrue()
-                receipt.contains("created=${broker.containerInfo.created}").shouldBeTrue()
-                Files.size(diagnosticsDirectory.resolve("$containerId.log"))
-                    .let { it in 1..MAX_RAW_LOG_BYTES }.shouldBeTrue()
-            } finally {
-                withContext(NonCancellable + Dispatchers.IO) {
-                    withTimeout(5.seconds) {
-                        runInterruptible { consumer.close(Duration.ofSeconds(5)) }
+            } catch (failure: Throwable) {
+                try {
+                    val outputDirectory = configuredDiagnosticsDirectory()
+                    if (outputDirectory != null && broker.isRunning) {
+                        withContext(NonCancellable) {
+                            writeKafkaFailureDiagnostics(broker, outputDirectory)
+                        }
                     }
+                } catch (diagnosticFailure: Exception) {
+                    failure.addSuppressed(diagnosticFailure)
                 }
+                throw failure
             }
-        } catch (failure: Throwable) {
-            try {
-                val outputDirectory = configuredDiagnosticsDirectory()
-                if (outputDirectory != null && broker.isRunning) {
-                    withContext(NonCancellable) {
-                        writeKafkaFailureDiagnostics(broker, outputDirectory)
-                    }
-                }
-            } catch (diagnosticFailure: Exception) {
-                failure.addSuppressed(diagnosticFailure)
-            }
-            throw failure
         }
-    }
 
     private fun configuredDiagnosticsDirectory(): Path? =
         System.getProperty(DIAGNOSTICS_DIRECTORY_PROPERTY)
@@ -925,7 +929,9 @@ class CallbackFlowExamples {
         val twoSendsStarted = CompletableDeferred<Unit>()
         val allSendsStarted = CompletableDeferred<Unit>()
         val sendCount = AtomicInteger()
+
         data class Pending(val callback: Callback, val future: CompletableFuture<RecordMetadata>)
+
         val pendingCallbacks = ConcurrentLinkedQueue<Pending>()
         val pendingSends = ConcurrentLinkedQueue<CompletableFuture<RecordMetadata>>()
         val pendingSend: CompletableFuture<RecordMetadata>
@@ -934,7 +940,9 @@ class CallbackFlowExamples {
         private val metadata = mockk<RecordMetadata>(relaxed = true)
 
         init {
-            every { producer.send(any<ProducerRecord<String, String>>(), any()) } answers {
+            every {
+                producer.send(any<ProducerRecord<String, String>>(), any())
+            } answers {
                 if (sendError != null) throw sendError
                 val callback = secondArg<Callback>()
                 val index = sendCount.incrementAndGet()
@@ -980,7 +988,7 @@ class CallbackFlowExamples {
             pendingCallbacks.poll()?.let { pending ->
                 callbackCount.incrementAndGet()
                 callbackStarted?.countDown()
-                callbackGate?.await(5, TimeUnit.SECONDS)
+                callbackGate?.await(5.seconds)
                 pending.callback.onCompletion(metadata, callbackError)
                 pending.future.complete(metadata)
             }

@@ -2,6 +2,7 @@ package io.bluetape4k.grpc.testing.integration
 
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.concurrent.get
 import io.bluetape4k.logging.KLogging
 import io.grpc.ManagedChannel
 import io.grpc.ServerBuilder
@@ -22,6 +23,7 @@ import java.io.IOException
 import java.net.InetSocketAddress
 import java.util.concurrent.TimeUnit
 import javax.net.ssl.SSLContext
+import kotlin.time.Duration.Companion.seconds
 
 @Timeout(30)
 class Http2OkHttpTest: AbstractInteropTest() {
@@ -99,7 +101,7 @@ class Http2OkHttpTest: AbstractInteropTest() {
 
         val request = requestBuilder.build()
         requestStream?.onNext(request)
-        recorder.firstValue().get(10, TimeUnit.SECONDS)
+        recorder.firstValue().get(10.seconds)
         requestStream?.onError(Exception("failed"))
 
         recorder.awaitCompletion(10, TimeUnit.SECONDS).shouldBeTrue()

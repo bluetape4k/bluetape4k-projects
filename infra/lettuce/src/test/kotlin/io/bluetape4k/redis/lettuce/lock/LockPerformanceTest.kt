@@ -10,6 +10,7 @@ import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.assertions.shouldBeZero
 import io.bluetape4k.assertions.shouldNotBeNull
 import io.bluetape4k.codec.Base58
+import io.bluetape4k.concurrent.awaitTermination
 import io.bluetape4k.concurrent.completableFutureOf
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.KLogging
@@ -138,13 +139,13 @@ internal class LockPerformanceTest {
 
                 cleanup {
                     probeExecutor.shutdownNow()
-                    probeExecutor.awaitTermination(CLEANUP_TIMEOUT_SECONDS, TimeUnit.SECONDS).shouldBeTrue()
+                    probeExecutor.awaitTermination(CLEANUP_TIMEOUT_SECONDS.seconds).shouldBeTrue()
                 }
                 cleanup {
                     workloadExecutor.shutdown()
-                    if (!workloadExecutor.awaitTermination(CLEANUP_TIMEOUT_SECONDS, TimeUnit.SECONDS)) {
+                    if (!workloadExecutor.awaitTermination(CLEANUP_TIMEOUT_SECONDS.seconds)) {
                         workloadExecutor.shutdownNow()
-                        workloadExecutor.awaitTermination(CLEANUP_TIMEOUT_SECONDS, TimeUnit.SECONDS).shouldBeTrue()
+                        workloadExecutor.awaitTermination(CLEANUP_TIMEOUT_SECONDS.seconds).shouldBeTrue()
                     }
                 }
                 val remainingEntries = connections.firstOrNull()
@@ -559,7 +560,7 @@ internal class LockPerformanceTest {
         return locks.mapIndexed { worker, lock ->
             executor.submit<List<Long>> {
                 val count = base + if (worker < remainder) 1 else 0
-                val samples = if (collectSamples) ArrayList<Long>(count) else emptyList<Long>()
+                val samples = if (collectSamples) ArrayList<Long>(count) else emptyList()
                 repeat(count) { index ->
                     val startedAt = System.nanoTime()
                     val result = try {

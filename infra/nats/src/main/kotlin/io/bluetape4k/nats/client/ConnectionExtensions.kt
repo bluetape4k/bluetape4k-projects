@@ -168,6 +168,18 @@ suspend fun Connection.requestWithTimeoutSuspending(
     else requestWithTimeout(subject, headers, body, timeout.toJavaDuration()).await()
 }
 
+
+/**
+ * Kotlin [Duration] 기반으로 Connection drain을 suspend 함수로 실행합니다.
+ *
+ * @param timeout drain 타임아웃 (0 이상)
+ * @return drain 성공 여부
+ */
+fun Connection.drain(timeout: kotlin.time.Duration): CompletableFuture<Boolean> {
+    timeout.requireGe(kotlin.time.Duration.ZERO, "timeout")
+    return drain(timeout.toJavaDuration())
+}
+
 /**
  * Kotlin [Duration] 기반으로 Connection drain을 suspend 함수로 실행합니다.
  *
@@ -176,7 +188,6 @@ suspend fun Connection.requestWithTimeoutSuspending(
  */
 suspend fun Connection.drainSuspending(timeout: kotlin.time.Duration): Boolean {
     timeout.requireGe(kotlin.time.Duration.ZERO, "timeout")
-
     return drain(timeout.toJavaDuration()).await()
 }
 
@@ -185,7 +196,7 @@ suspend fun Connection.drainSuspending(timeout: kotlin.time.Duration): Boolean {
  *
  * @param timeout flush 타임아웃
  */
-fun Connection.flush(timeout: Duration) {
+fun Connection.flush(timeout: kotlin.time.Duration) {
     flush(timeout.toJavaDuration())
 }
 

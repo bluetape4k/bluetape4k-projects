@@ -11,6 +11,7 @@ import io.bluetape4k.assertions.shouldBeNull
 import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.assertions.shouldContain
 import io.bluetape4k.assertions.shouldNotBeNull
+import io.bluetape4k.concurrent.get
 import io.bluetape4k.feign.AbstractFeignTest
 import io.bluetape4k.feign.bodyAsReader
 import io.bluetape4k.feign.feignRequestOf
@@ -32,6 +33,7 @@ import java.util.*
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.ExecutionException
 import java.util.concurrent.TimeUnit
+import kotlin.time.Duration.Companion.seconds
 
 /**
  * 현재 지원하는 HC5와 Vert.x 동기 adapter의 전송 통합 계약을 검증합니다.
@@ -231,7 +233,7 @@ abstract class FeignAsyncClientConformanceTest<C: Any>: AbstractFeignTest() {
                 .setBodyDelay(100, TimeUnit.MILLISECONDS)
         )
 
-        executeAsync(defaultOptions()).get(2, TimeUnit.SECONDS).use { response ->
+        executeAsync(defaultOptions()).get(2.seconds).use { response ->
             response.status() shouldBeEqualTo 200
             response.body().asInputStream().toUtf8String() shouldBeEqualTo "delayed"
         }
@@ -242,7 +244,7 @@ abstract class FeignAsyncClientConformanceTest<C: Any>: AbstractFeignTest() {
         server.enqueue(MockResponse().setSocketPolicy(SocketPolicy.NO_RESPONSE))
 
         val error = assertFailsWith<ExecutionException> {
-            executeAsync(timeoutOptions()).get(2, TimeUnit.SECONDS)
+            executeAsync(timeoutOptions()).get(2.seconds)
         }
         error.cause.shouldNotBeNull()
     }

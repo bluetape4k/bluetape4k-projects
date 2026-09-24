@@ -4,6 +4,7 @@ import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeInstanceOf
 import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.concurrent.await
 import io.bluetape4k.junit5.concurrency.StructuredTaskScopeTester
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
@@ -13,7 +14,6 @@ import org.junit.jupiter.api.condition.EnabledForJreRange
 import org.junit.jupiter.api.condition.JRE
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.ExecutionException
-import java.util.concurrent.TimeUnit
 import java.util.concurrent.TimeoutException
 import java.util.concurrent.atomic.AtomicInteger
 import kotlin.time.Duration.Companion.milliseconds
@@ -88,13 +88,13 @@ class VirtualFutureTest {
         )
 
         try {
-            started.await(1, TimeUnit.SECONDS).shouldBeTrue()
+            started.await(1.seconds).shouldBeTrue()
 
             assertFailsWith<ExecutionException> {
                 result.await()
             }.cause.shouldBeInstanceOf<TimeoutException>()
-            
-            interrupted.await(1, TimeUnit.SECONDS).shouldBeTrue()
+
+            interrupted.await(1.seconds).shouldBeTrue()
         } finally {
             release.countDown()
         }

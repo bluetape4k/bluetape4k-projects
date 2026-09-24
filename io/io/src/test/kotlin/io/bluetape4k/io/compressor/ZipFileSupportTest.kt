@@ -5,6 +5,7 @@ import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeFalse
 import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.assertions.shouldNotBeNull
+import io.bluetape4k.concurrent.await
 import io.bluetape4k.junit5.concurrency.MultithreadingTester
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
@@ -17,8 +18,8 @@ import java.nio.file.Files
 import java.nio.file.LinkOption
 import java.nio.file.StandardCopyOption
 import java.util.concurrent.CountDownLatch
-import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicBoolean
+import kotlin.time.Duration.Companion.seconds
 
 class ZipFileSupportTest {
 
@@ -267,7 +268,7 @@ class ZipFileSupportTest {
             .rounds(1)
             .add {
                 ready.countDown()
-                ready.await(5, TimeUnit.SECONDS).shouldBeTrue()
+                ready.await(5.seconds).shouldBeTrue()
                 try {
                     unzip(zipFile, destDir)
                 } catch (_: IOException) {
@@ -278,7 +279,7 @@ class ZipFileSupportTest {
             }
             .add {
                 ready.countDown()
-                ready.await(5, TimeUnit.SECONDS).shouldBeTrue()
+                ready.await(5.seconds).shouldBeTrue()
                 while (!stop.get()) {
                     try {
                         val nested = File(destDir, "nested").toPath()

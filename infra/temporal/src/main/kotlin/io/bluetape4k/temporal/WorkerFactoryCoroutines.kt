@@ -10,7 +10,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.withContext
-import java.util.concurrent.TimeUnit
 import kotlin.time.Duration
 
 private object WorkerFactoryLog: KLoggingChannel()
@@ -40,7 +39,7 @@ suspend fun WorkerFactory.shutdownSuspending(
             if (!isShutdown) {
                 shutdown()
             }
-            awaitTermination(validTimeout.inWholeMilliseconds, TimeUnit.MILLISECONDS)
+            awaitTermination(validTimeout)
             currentCoroutineContext().ensureActive()
 
             if (!isTerminated && force) {

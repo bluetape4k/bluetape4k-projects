@@ -9,6 +9,7 @@ import okhttp3.Request
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
 import java.io.File
+import java.util.concurrent.TimeUnit
 
 class OkHttp3CacheSupportTest: AbstractHttpTest() {
 
@@ -67,7 +68,7 @@ class OkHttp3CacheSupportTest: AbstractHttpTest() {
     @Test
     fun `okhttp3ClientWithCache builder 블록 적용`(@TempDir tempDir: File) {
         val client = okhttp3ClientWithCache(cacheDir = tempDir) {
-            connectTimeout(5, java.util.concurrent.TimeUnit.SECONDS)
+            connectTimeout(5, TimeUnit.SECONDS)
         }
         client.shouldNotBeNull()
         client.cache.shouldNotBeNull()

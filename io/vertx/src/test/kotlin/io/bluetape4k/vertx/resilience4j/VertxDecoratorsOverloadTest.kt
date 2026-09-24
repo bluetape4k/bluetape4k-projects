@@ -1,6 +1,7 @@
 package io.bluetape4k.vertx.resilience4j
 
 import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.concurrent.get
 import io.bluetape4k.vertx.asCompletableFuture
 import io.bluetape4k.vertx.tests.withTestContext
 import io.github.resilience4j.bulkhead.Bulkhead
@@ -11,7 +12,7 @@ import io.vertx.core.Future
 import io.vertx.core.Vertx
 import io.vertx.junit5.VertxTestContext
 import org.junit.jupiter.api.Test
-import java.util.concurrent.TimeUnit
+import kotlin.time.Duration.Companion.seconds
 
 class VertxDecoratorsOverloadTest: AbstractVertxFutureTest() {
 
@@ -28,7 +29,7 @@ class VertxDecoratorsOverloadTest: AbstractVertxFutureTest() {
             .withCircuitBreaker(CircuitBreaker.ofDefaults("builder-circuit"))
             .withRateLimiter(RateLimiter.ofDefaults("builder-rate"))
             .withTimeLimiter(TimeLimiter.ofDefaults("builder-time"))
-            .invoke().asCompletableFuture().get(5, TimeUnit.SECONDS)
+            .invoke().asCompletableFuture().get(5.seconds)
 
         decorated shouldBeEqualTo "decorated"
 

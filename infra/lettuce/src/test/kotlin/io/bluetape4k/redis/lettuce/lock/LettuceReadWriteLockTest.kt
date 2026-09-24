@@ -4,6 +4,7 @@ import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeInstanceOf
 import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.codec.Base58
+import io.bluetape4k.concurrent.get
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.redis.lettuce.LettuceTestUtils
@@ -17,7 +18,7 @@ import org.awaitility.Awaitility.await
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.Timeout
 import java.time.Duration
-import java.util.concurrent.TimeUnit
+import kotlin.time.Duration.Companion.seconds
 
 internal class LettuceReadWriteLockTest {
 
@@ -241,7 +242,7 @@ internal class LettuceReadWriteLockTest {
 
             lock.close()
 
-            pending.get(1, TimeUnit.SECONDS) shouldBeEqualTo LockAcquireResult.Closed
+            pending.get(1.seconds) shouldBeEqualTo LockAcquireResult.Closed
         }
     }
 }

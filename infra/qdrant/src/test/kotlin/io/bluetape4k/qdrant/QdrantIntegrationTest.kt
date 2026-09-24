@@ -5,6 +5,7 @@ import io.bluetape4k.assertions.shouldBeEmpty
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldHaveSize
 import io.bluetape4k.codec.Base58
+import io.bluetape4k.concurrent.get
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.qdrant.client.grpc.deletePointsOf
@@ -32,7 +33,7 @@ import kotlinx.coroutines.flow.toList
 import org.junit.jupiter.api.Tag
 import org.junit.jupiter.api.Test
 import java.util.*
-import java.util.concurrent.TimeUnit
+import kotlin.time.Duration.Companion.seconds
 
 @Tag("integration")
 class QdrantIntegrationTest {
@@ -50,7 +51,7 @@ class QdrantIntegrationTest {
 
         QdrantClient(grpcClient).use { client ->
             val vectorParams = vectorParams { size = 3; distance = Distance.Cosine }
-            client.createCollectionAsync(name, vectorParams).get(30, TimeUnit.SECONDS)
+            client.createCollectionAsync(name, vectorParams).get(30.seconds)
 
             try {
                 val template = upsertPointsOf(name)
@@ -90,7 +91,7 @@ class QdrantIntegrationTest {
                     })
                 client.scrollAsFlow(scroll).toList().map { it.id.num }.shouldBeEmpty()
             } finally {
-                client.deleteCollectionAsync(name).get(30, TimeUnit.SECONDS)
+                client.deleteCollectionAsync(name).get(30.seconds)
             }
         }
     }
@@ -107,7 +108,7 @@ class QdrantIntegrationTest {
                     name,
                     mapOf("embedding" to params)
                 )
-                .get(30, TimeUnit.SECONDS)
+                .get(30.seconds)
 
             try {
                 val uuid = UUID.randomUUID()
@@ -132,7 +133,7 @@ class QdrantIntegrationTest {
                     client.querySuspending(query.toBuilder().setQuery(nearest(1f, 0f)).build())
                 }
             } finally {
-                client.deleteCollectionAsync(name).get(30, TimeUnit.SECONDS)
+                client.deleteCollectionAsync(name).get(30.seconds)
             }
         }
     }

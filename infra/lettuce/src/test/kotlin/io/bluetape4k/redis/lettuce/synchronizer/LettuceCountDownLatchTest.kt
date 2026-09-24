@@ -22,7 +22,6 @@ import org.awaitility.kotlin.until
 import org.junit.jupiter.api.Test
 import java.time.Duration
 import java.util.concurrent.CancellationException
-import java.util.concurrent.TimeUnit
 import kotlin.time.Duration.Companion.seconds
 
 class LettuceCountDownLatchTest: AbstractLettuceTest() {
@@ -71,7 +70,7 @@ class LettuceCountDownLatchTest: AbstractLettuceTest() {
 
             val stale = LatchGeneration(active.generation.value + 1)
             latch.getCount(stale) shouldBeEqualTo LatchCountResult.StaleGeneration
-            latch.getCountAsync(stale).get(5, TimeUnit.SECONDS) shouldBeEqualTo LatchCountResult.StaleGeneration
+            latch.getCountAsync(stale).get(5.seconds) shouldBeEqualTo LatchCountResult.StaleGeneration
             latch.await(stale, LatchRequestId.from("stale-await"), Duration.ofMillis(20)) shouldBeEqualTo
                     LatchAwaitResult.StaleGeneration
             latch.awaitAsync(
@@ -200,7 +199,7 @@ class LettuceCountDownLatchTest: AbstractLettuceTest() {
             first.cancel(false)
 
             assertFailsWith<CancellationException> {
-                first.get(2, TimeUnit.SECONDS)
+                first.get(2.seconds)
             }
             first.isDone.shouldBeTrue()
             latch.delete(generation, LatchRequestId.from("delete")) shouldBeEqualTo LatchMutationResult.Deleted
@@ -298,7 +297,7 @@ class LettuceCountDownLatchTest: AbstractLettuceTest() {
                 .shouldBeInstanceOf<LatchSetCountResult.Created>().generation
             log.debug { "future-generation: $futureGeneration" }
 
-            future.getCountAsync(futureGeneration).get(5, TimeUnit.SECONDS)
+            future.getCountAsync(futureGeneration).get(5.seconds)
                 .shouldBeInstanceOf<LatchCountResult.Active>().count shouldBeEqualTo 2
 
             val awaited = future.awaitAsync(

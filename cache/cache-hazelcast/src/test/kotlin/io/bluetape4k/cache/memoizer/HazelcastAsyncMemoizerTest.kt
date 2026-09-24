@@ -4,13 +4,14 @@ import com.hazelcast.map.IMap
 import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.cache.HazelcastServers.hazelcastClient
+import io.bluetape4k.concurrent.get
 import io.bluetape4k.logging.KLogging
 import org.junit.jupiter.api.Test
 import org.testcontainers.utility.Base58
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.ExecutionException
-import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicInteger
+import kotlin.time.Duration.Companion.seconds
 
 class HazelcastAsyncMemoizerTest: AbstractAsyncMemoizerTest() {
 
@@ -48,7 +49,7 @@ class HazelcastAsyncMemoizerTest: AbstractAsyncMemoizerTest() {
 
         try {
             val futures = List(16) { memoizer(7) }
-            futures.forEach { it.get(2, TimeUnit.SECONDS) shouldBeEqualTo 49 }
+            futures.forEach { it.get(2.seconds) shouldBeEqualTo 49 }
             evaluateCount.get() shouldBeEqualTo 1
         } finally {
             map.destroy()
@@ -66,7 +67,7 @@ class HazelcastAsyncMemoizerTest: AbstractAsyncMemoizerTest() {
         }
 
         try {
-            memoizer(9).get(2, TimeUnit.SECONDS) shouldBeEqualTo 81
+            memoizer(9).get(2.seconds) shouldBeEqualTo 81
             evaluateCount.get() shouldBeEqualTo 0
         } finally {
             map.destroy()
@@ -86,9 +87,9 @@ class HazelcastAsyncMemoizerTest: AbstractAsyncMemoizerTest() {
 
         try {
             assertFailsWith<ExecutionException> {
-                memoizer(5).get(2, TimeUnit.SECONDS)
+                memoizer(5).get(2.seconds)
             }
-            memoizer(5).get(2, TimeUnit.SECONDS) shouldBeEqualTo 25
+            memoizer(5).get(2.seconds) shouldBeEqualTo 25
             evaluateCount.get() shouldBeEqualTo 2
         } finally {
             map.destroy()

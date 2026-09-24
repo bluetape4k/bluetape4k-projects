@@ -8,6 +8,8 @@ import com.datastax.oss.driver.api.querybuilder.QueryBuilder.insertInto
 import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.cassandra.AbstractCassandraTest
 import io.bluetape4k.cassandra.querybuilder.bindMarker
+import io.bluetape4k.concurrent.await
+import io.bluetape4k.concurrent.awaitTermination
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
@@ -23,9 +25,9 @@ import java.util.concurrent.CompletionStage
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.Executors
 import java.util.concurrent.Semaphore
-import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicInteger
 import kotlin.system.measureTimeMillis
+import kotlin.time.Duration.Companion.seconds
 
 class LimitConcurrencyExamples: AbstractCassandraTest() {
 
@@ -92,12 +94,12 @@ class LimitConcurrencyExamples: AbstractCassandraTest() {
                 }
             }
 
-            requestLatch.await(10, TimeUnit.SECONDS)
+            requestLatch.await(10.seconds)
 
             log.debug { "Finish executing ${insertsCounter.get()} queries with a concurrency level of $CONCURRENCY_LEVEL" }
         } finally {
             executor.shutdown()
-            executor.awaitTermination(3, TimeUnit.SECONDS)
+            executor.awaitTermination(3.seconds)
         }
     }
 

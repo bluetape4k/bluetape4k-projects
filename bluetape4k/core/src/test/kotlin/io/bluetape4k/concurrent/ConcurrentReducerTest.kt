@@ -18,6 +18,7 @@ import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicInteger
 import kotlin.concurrent.thread
+import kotlin.time.Duration.Companion.seconds
 
 /**
  * 비동기 작업들을 세마포어를 이용하여 동시 실행을 제한하는 [ConcurrentReducer]를 테스트합니다.
@@ -47,7 +48,7 @@ class ConcurrentReducerTest {
         val reducer = concurrentReducerOf<String>(1, 10)
         val taskStarted = CountDownLatch(1)
         val releaseTask = CountDownLatch(1)
-        val invocation = CompletableFuture.supplyAsync<CompletableFuture<String>> {
+        val invocation = CompletableFuture.supplyAsync {
             reducer.add {
                 taskStarted.countDown()
                 releaseTask.await()
@@ -57,15 +58,15 @@ class ConcurrentReducerTest {
         var promise: CompletableFuture<String>? = null
 
         try {
-            taskStarted.await(1, TimeUnit.SECONDS).shouldBeTrue()
+            taskStarted.await(1.seconds).shouldBeTrue()
             invocation.isDone.shouldBeTrue()
 
-            promise = invocation.get(1, TimeUnit.SECONDS)
+            promise = invocation.get(1.seconds)
             promise?.isDone.shouldBeFalse()
         } finally {
             releaseTask.countDown()
-            promise = promise ?: invocation.get(1, TimeUnit.SECONDS)
-            promise?.get(1, TimeUnit.SECONDS)
+            promise = promise ?: invocation.get(1.seconds)
+            promise?.get(1.seconds)
             reducer.close()
         }
     }
@@ -245,7 +246,7 @@ class ConcurrentReducerTest {
             }
 
             try {
-                ready.await(1, TimeUnit.SECONDS).shouldBeTrue()
+                ready.await(1.seconds).shouldBeTrue()
                 firstSource.complete("first")
                 cancellers.forEach { it.join(1_000) }
 
@@ -452,7 +453,7 @@ class ConcurrentReducerTest {
         }
 
         try {
-            taskStarted.await(1, TimeUnit.SECONDS).shouldBeTrue()
+            taskStarted.await(1.seconds).shouldBeTrue()
             await until { reducer.activeCount == 1 }
 
             reducer.close()
@@ -501,8 +502,8 @@ class ConcurrentReducerTest {
             }
 
             start.countDown()
-            val promise = addInvocation.get(1, TimeUnit.SECONDS)
-            closeInvocation.get(1, TimeUnit.SECONDS)
+            val promise = addInvocation.get(1.seconds)
+            closeInvocation.get(1.seconds)
 
             await until { promise.isDone }
             promise.isDone.shouldBeTrue()
