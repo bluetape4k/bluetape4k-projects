@@ -1,5 +1,9 @@
 package io.bluetape4k.spring.r2dbc.coroutines.blog.test.controller
 
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeGreaterOrEqualTo
+import io.bluetape4k.assertions.shouldNotBeEmpty
+import io.bluetape4k.assertions.shouldNotBeNull
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import io.bluetape4k.spring.r2dbc.coroutines.blog.domain.Post
@@ -12,92 +16,82 @@ import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.reactive.asFlow
 import kotlinx.coroutines.reactive.awaitSingle
 import kotlinx.coroutines.test.runTest
-import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldBeGreaterOrEqualTo
-import io.bluetape4k.assertions.shouldNotBeEmpty
-import io.bluetape4k.assertions.shouldNotBeNull
 import org.junit.jupiter.api.Test
 import org.springframework.test.web.reactive.server.expectBody
 import org.springframework.test.web.reactive.server.returnResult
 
 class PostControllerTest: AbstractR2dbcBlogApplicationTest() {
+
     companion object: KLoggingChannel()
 
     @Test
-    fun `find all posts`() =
-        runTest {
-            val posts =
-                client
-                    .httpGet("/posts")
-                    .returnResult<Post>()
-                    .responseBody
-                    .asFlow()
-                    .onEach { post -> log.debug { "post=$post" } }
-                    .toList()
+    fun `find all posts`() = runTest {
+        val posts = client
+            .httpGet("/posts")
+            .returnResult<Post>()
+            .responseBody
+            .asFlow()
+            .onEach { post -> log.debug { "post=$post" } }
+            .toList()
 
-            posts.shouldNotBeEmpty()
-        }
-
-    @Test
-    fun `find one post by id`() =
-        runTest {
-            val post =
-                client
-                    .httpGet("/posts/1")
-                    .returnResult<Post>()
-                    .responseBody
-                    .awaitSingle()
-
-            log.debug { "Posts[1]=$post" }
-            post.id shouldBeEqualTo 1
-        }
+        posts.forEach { log.debug { "post=$it" } }
+        posts.shouldNotBeEmpty()
+    }
 
     @Test
-    fun `find one post by non-existing id`() =
-        runTest {
-            client
-                .get()
-                .uri("/posts/9999")
-                .exchange()
-                .expectStatus()
-                .isNotFound
-                .expectBody<String>()
-                .consumeWith { result ->
-                    log.debug { "result=$result" }
-                }
-        }
+    fun `find one post by id`() = runTest {
+        val post = client
+            .httpGet("/posts/1")
+            .returnResult<Post>()
+            .responseBody
+            .awaitSingle()
+
+        log.debug { "Posts[1]=$post" }
+        post.id shouldBeEqualTo 1
+    }
 
     @Test
-    fun `save new post`() =
-        runTest {
-            val newPost = createPost()
-
-            val savedPost =
-                client
-                    .httpPost("/posts", newPost)
-                    .returnResult<Post>()
-                    .responseBody
-                    .awaitSingle()
-
-            savedPost.id.shouldNotBeNull()
-            savedPost shouldBeEqualTo newPost.copy(id = savedPost.id)
-        }
+    fun `find one post by non-existing id`() = runTest {
+        client
+            .get()
+            .uri("/posts/9999")
+            .exchange()
+            .expectStatus()
+            .isNotFound
+            .expectBody<String>()
+            .consumeWith { result ->
+                log.debug { "posts[9999]=$result" }
+            }
+    }
 
     @Test
-    fun `count of comments by post id`() =
-        runTest {
-            val commentCount1 = async { countOfCommentByPostId(1L) }
-            val commentCount2 = async { countOfCommentByPostId(2L) }
+    fun `save new post`() = runTest {
+        val newPost = createPost()
 
-            commentCount1.await() shouldBeGreaterOrEqualTo 0
-            commentCount2.await() shouldBeGreaterOrEqualTo 0
-        }
+        val savedPost = client
+            .httpPost("/posts", newPost)
+            .returnResult<Post>()
+            .responseBody
+            .awaitSingle()
+
+        log.debug { "saved post=$savedPost" }
+        savedPost.id.shouldNotBeNull()
+        savedPost shouldBeEqualTo newPost.copy(id = savedPost.id)
+    }
 
     @Test
-    fun `count of comments by non-existing post id`() =
-        runTest {
-            countOfCommentByPostId(9999L) shouldBeEqualTo 0L
-        }
+    fun `count of comments by post id`() = runTest {
+        val commentCount1 = async { countOfCommentByPostId(1L) }
+        val commentCount2 = async { countOfCommentByPostId(2L) }
+
+        commentCount1.await() shouldBeGreaterOrEqualTo 0
+        commentCount2.await() shouldBeGreaterOrEqualTo 0
+    }
+
+    @Test
+    fun `count of comments by non-existing post id`() = runTest {
+        countOfCommentByPostId(9999L) shouldBeEqualTo 0L
+    }
 
     private suspend fun countOfCommentByPostId(postId: Long): Long =
         client
