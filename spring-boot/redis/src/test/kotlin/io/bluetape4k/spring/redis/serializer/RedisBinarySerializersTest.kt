@@ -1,8 +1,10 @@
 package io.bluetape4k.spring.redis.serializer
 
 import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.assertions.shouldBeInstanceOf
+import io.bluetape4k.assertions.shouldBeNull
 import io.bluetape4k.assertions.shouldNotBeNull
+import io.bluetape4k.logging.KLogging
 import io.bluetape4k.support.emptyByteArray
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
@@ -12,7 +14,7 @@ import java.util.stream.Stream
 
 class RedisBinarySerializersTest: AbstractRedisSerializerTest() {
 
-    companion object {
+    companion object: KLogging() {
 
         @JvmStatic
         @Suppress("DEPRECATION")
@@ -51,7 +53,7 @@ class RedisBinarySerializersTest: AbstractRedisSerializerTest() {
     @ParameterizedTest(name = "[{1}] 직렬화 왕복 검증")
     @MethodSource("binarySerializers")
     fun `BinarySerializer 직렬화 왕복 검증`(serializer: RedisBinarySerializer, name: String) {
-        val sample = newSample()
+        val sample = newTestData()
         val bytes = serializer.serialize(sample)
         bytes.shouldNotBeNull()
         serializer.deserialize(bytes) shouldBeEqualTo sample
@@ -66,18 +68,19 @@ class RedisBinarySerializersTest: AbstractRedisSerializerTest() {
     @ParameterizedTest(name = "[{1}] null 역직렬화 → null 반환")
     @MethodSource("binarySerializers")
     fun `BinarySerializer null 역직렬화는 null을 반환한다`(serializer: RedisBinarySerializer, name: String) {
-        serializer.deserialize(null) shouldBeEqualTo null
+        serializer.deserialize(null).shouldBeNull()
     }
 
     @ParameterizedTest(name = "[{1}] 압축 왕복 검증")
     @MethodSource("compressSerializers")
     fun `CompressSerializer 압축 왕복 검증`(serializer: RedisCompressSerializer, name: String) {
-        val bytes = newSampleBytes()
+        val bytes = newTestDataBytes()
         val compressed = serializer.serialize(bytes)
         compressed.shouldNotBeNull()
+
         val restored = serializer.deserialize(compressed)
         restored.shouldNotBeNull()
-        restored.contentEquals(bytes).shouldBeTrue()
+        restored shouldBeEqualTo bytes
     }
 
     @ParameterizedTest(name = "[{1}] null 직렬화 → emptyByteArray 반환")
@@ -88,11 +91,15 @@ class RedisBinarySerializersTest: AbstractRedisSerializerTest() {
 
     @Test
     fun `모든 BinarySerializer 싱글턴이 non-null이다`() {
-        binarySerializers().forEach { args -> (args.get()[0] as RedisBinarySerializer).shouldNotBeNull() }
+        binarySerializers().forEach { args ->
+            args.get()[0].shouldBeInstanceOf<RedisBinarySerializer>()
+        }
     }
 
     @Test
     fun `모든 CompressSerializer 싱글턴이 non-null이다`() {
-        compressSerializers().forEach { args -> (args.get()[0] as RedisCompressSerializer).shouldNotBeNull() }
+        compressSerializers().forEach { args ->
+            args.get()[0].shouldBeInstanceOf<RedisCompressSerializer>()
+        }
     }
 }

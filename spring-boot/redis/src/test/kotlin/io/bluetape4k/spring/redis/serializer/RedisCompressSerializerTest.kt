@@ -2,10 +2,10 @@ package io.bluetape4k.spring.redis.serializer
 
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeNull
-import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.assertions.shouldNotBeNull
 import io.bluetape4k.io.compressor.Compressor
 import io.bluetape4k.io.compressor.Compressors
+import io.bluetape4k.logging.KLogging
 import io.bluetape4k.support.emptyByteArray
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.Arguments
@@ -14,7 +14,7 @@ import java.util.stream.Stream
 
 class RedisCompressSerializerTest: AbstractRedisSerializerTest() {
 
-    companion object {
+    companion object: KLogging() {
 
         @JvmStatic
         fun compressors(): Stream<Arguments> = Stream.of(
@@ -43,13 +43,13 @@ class RedisCompressSerializerTest: AbstractRedisSerializerTest() {
     @MethodSource("compressors")
     fun `압축 후 복원한다`(compressor: Compressor, name: String) {
         val serializer = RedisCompressSerializer(compressor)
-        val bytes = newSampleBytes()
+        val bytes = newTestDataBytes()
 
         val compressed = serializer.serialize(bytes)
         compressed.shouldNotBeNull()
 
         val restored = serializer.deserialize(compressed)
         restored.shouldNotBeNull()
-        restored.contentEquals(bytes).shouldBeTrue()
+        restored shouldBeEqualTo bytes
     }
 }
