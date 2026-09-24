@@ -112,7 +112,8 @@ inline fun <reified T: Any> RestClient.httpPost(
         .apply {
             contentType?.let { contentType(it) }
             accept?.let { accept(it) }
-        }.body(publisher)
+        }
+        .body(publisher)
         .retrieve()
 
 /**
@@ -143,7 +144,8 @@ inline fun <reified T: Any> RestClient.httpPost(
         .apply {
             contentType?.let { contentType(it) }
             accept?.let { accept(it) }
-        }.body(flow)
+        }
+        .body(flow)
         .retrieve()
 
 /**
@@ -205,7 +207,8 @@ inline fun <reified T: Any> RestClient.httpPut(
         .apply {
             contentType?.let { contentType(it) }
             accept?.let { accept(it) }
-        }.body(publisher)
+        }
+        .body(publisher)
         .retrieve()
 
 /**
@@ -236,7 +239,8 @@ inline fun <reified T: Any> RestClient.httpPut(
         .apply {
             contentType?.let { contentType(it) }
             accept?.let { accept(it) }
-        }.body(flow)
+        }
+        .body(flow)
         .retrieve()
 
 /**

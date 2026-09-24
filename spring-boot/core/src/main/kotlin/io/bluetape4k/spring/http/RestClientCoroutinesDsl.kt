@@ -4,6 +4,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runInterruptible
 import org.springframework.http.MediaType
 import org.springframework.web.client.RestClient
+import org.springframework.web.client.body
 
 /**
  * Performs a suspend GET request with [RestClient] and deserializes a non-null response body.
@@ -27,8 +28,9 @@ suspend inline fun <reified T: Any> RestClient.suspendGet(
 ): T =
     runInterruptible(Dispatchers.IO) {
         val spec = get().uri(uri)
-        if (accept != null) spec.accept(accept)
-        requireRestClientBody(spec.retrieve().body(T::class.java), "GET", uri)
+        accept?.let { spec.accept(it) }
+
+        requireRestClientBody(spec.retrieve().body<T>(), "GET", uri)
     }
 
 /**
@@ -57,10 +59,11 @@ suspend inline fun <reified T: Any> RestClient.suspendPost(
 ): T =
     runInterruptible(Dispatchers.IO) {
         val spec = post().uri(uri)
-        if (contentType != null) spec.contentType(contentType)
-        if (accept != null) spec.accept(accept)
-        if (body != null) spec.body(body)
-        requireRestClientBody(spec.retrieve().body(T::class.java), "POST", uri)
+        contentType?.let { spec.contentType(it) }
+        accept?.let { spec.accept(it) }
+        body?.let { spec.body(it) }
+
+        requireRestClientBody(spec.retrieve().body<T>(), "POST", uri)
     }
 
 /**
@@ -89,10 +92,11 @@ suspend inline fun <reified T: Any> RestClient.suspendPut(
 ): T =
     runInterruptible(Dispatchers.IO) {
         val spec = put().uri(uri)
-        if (contentType != null) spec.contentType(contentType)
-        if (accept != null) spec.accept(accept)
-        if (body != null) spec.body(body)
-        requireRestClientBody(spec.retrieve().body(T::class.java), "PUT", uri)
+        contentType?.let { spec.contentType(it) }
+        accept?.let { spec.accept(it) }
+        body?.let { spec.body(it) }
+
+        requireRestClientBody(spec.retrieve().body<T>(), "PUT", uri)
     }
 
 /**
@@ -121,10 +125,11 @@ suspend inline fun <reified T: Any> RestClient.suspendPatch(
 ): T =
     runInterruptible(Dispatchers.IO) {
         val spec = patch().uri(uri)
-        if (contentType != null) spec.contentType(contentType)
-        if (accept != null) spec.accept(accept)
-        if (body != null) spec.body(body)
-        requireRestClientBody(spec.retrieve().body(T::class.java), "PATCH", uri)
+        contentType?.let { spec.contentType(it) }
+        accept?.let { spec.accept(it) }
+        body?.let { spec.body(it) }
+
+        requireRestClientBody(spec.retrieve().body<T>(), "PATCH", uri)
     }
 
 /**
@@ -144,8 +149,8 @@ suspend inline fun <reified T: Any> RestClient.suspendGetOrNull(
 ): T? =
     runInterruptible(Dispatchers.IO) {
         val spec = get().uri(uri)
-        if (accept != null) spec.accept(accept)
-        spec.retrieve().body(T::class.java)
+        accept?.let { spec.accept(it) }
+        spec.retrieve().body<T>()
     }
 
 /**
@@ -169,10 +174,10 @@ suspend inline fun <reified T: Any> RestClient.suspendPostOrNull(
 ): T? =
     runInterruptible(Dispatchers.IO) {
         val spec = post().uri(uri)
-        if (contentType != null) spec.contentType(contentType)
-        if (accept != null) spec.accept(accept)
-        if (body != null) spec.body(body)
-        spec.retrieve().body(T::class.java)
+        contentType?.let { spec.contentType(it) }
+        accept?.let { spec.accept(it) }
+        body?.let { spec.body(it) }
+        spec.retrieve().body<T>()
     }
 
 /**
@@ -196,10 +201,10 @@ suspend inline fun <reified T: Any> RestClient.suspendPutOrNull(
 ): T? =
     runInterruptible(Dispatchers.IO) {
         val spec = put().uri(uri)
-        if (contentType != null) spec.contentType(contentType)
-        if (accept != null) spec.accept(accept)
-        if (body != null) spec.body(body)
-        spec.retrieve().body(T::class.java)
+        contentType?.let { spec.contentType(it) }
+        accept?.let { spec.accept(it) }
+        body?.let { spec.body(it) }
+        spec.retrieve().body<T>()
     }
 
 /**
@@ -223,10 +228,10 @@ suspend inline fun <reified T: Any> RestClient.suspendPatchOrNull(
 ): T? =
     runInterruptible(Dispatchers.IO) {
         val spec = patch().uri(uri)
-        if (contentType != null) spec.contentType(contentType)
-        if (accept != null) spec.accept(accept)
-        if (body != null) spec.body(body)
-        spec.retrieve().body(T::class.java)
+        contentType?.let { spec.contentType(it) }
+        accept?.let { spec.accept(it) }
+        body?.let { spec.body(it) }
+        spec.retrieve().body<T>()
     }
 
 /**
@@ -245,7 +250,7 @@ suspend fun RestClient.suspendDelete(
 ): Unit =
     runInterruptible(Dispatchers.IO) {
         val spec = delete().uri(uri)
-        if (accept != null) spec.accept(accept)
+        accept?.let { spec.accept(it) }
         spec.retrieve().toBodilessEntity()
     }
 

@@ -1,5 +1,6 @@
 package io.bluetape4k.spring.rest.exceptions
 
+import io.bluetape4k.ToStringBuilder
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.ResponseStatus
 
@@ -56,6 +57,13 @@ abstract class ApiException: RuntimeException {
      * ```
      */
     constructor(cause: Throwable?): super(cause)
+
+    override fun toString(): String {
+        return ToStringBuilder(this)
+            .add("status", httpStatus)
+            .add("message", message)
+            .toString()
+    }
 }
 
 /**

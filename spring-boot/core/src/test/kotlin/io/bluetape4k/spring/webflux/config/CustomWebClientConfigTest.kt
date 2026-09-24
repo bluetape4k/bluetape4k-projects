@@ -1,5 +1,6 @@
 package io.bluetape4k.spring.webflux.config
 
+import io.bluetape4k.assertions.shouldNotBeEmpty
 import io.bluetape4k.assertions.shouldNotBeNull
 import io.bluetape4k.junit5.coroutines.SuspendedJobTester
 import io.bluetape4k.junit5.coroutines.runSuspendIO
@@ -23,6 +24,7 @@ import org.springframework.web.reactive.function.client.awaitBody
  */
 @SpringBootTest(classes = [CustomWebClientConfig::class])
 class CustomWebClientConfigTest {
+
     companion object: KLoggingChannel() {
         private val httpbin by lazy { BluetapeHttpServer.Launcher.bluetapeHttpServer }
         private val httpbinUrl by lazy { httpbin.httpbinUrl }
@@ -41,58 +43,59 @@ class CustomWebClientConfigTest {
     }
 
     @Test
-    fun `get by custom webclient`() =
-        runSuspendIO {
-            val response =
+    fun `get by custom webclient`() = runSuspendIO {
+        val response = webClient
+            .httpGet("$httpbinUrl/get")
+            .awaitBody<String>()
+            .shouldNotBeEmpty()
+
+        // 로그 Thread name에 `web-client-thread-`가 있으면 custom thread pool을 사용한 것
+        log.debug { "response=$response" }
+    }
+
+    @Test
+    fun `async get by custom webclient`() = runSuspendIO {
+        val task = List(2 * Runtimex.availableProcessors) {
+            async {
                 webClient
                     .httpGet("$httpbinUrl/get")
                     .awaitBody<String>()
-
-            // 로그 Thread name에 `web-client-thread-`가 있으면 custom thread pool을 사용한 것
-            log.debug { "response=$response" }
+                    .shouldNotBeEmpty()
+            }
         }
+        val responses = task.awaitAll()
+        responses.forEach { log.debug { "response=$it" } }
+    }
 
     @Test
-    fun `async get by custom webclient`() =
-        runSuspendIO {
-            val task =
-                List(2 * Runtimex.availableProcessors) {
-                    async {
-                        webClient
-                            .httpGet("$httpbinUrl/get")
-                            .awaitBody<String>()
-                    }
-                }
-            task.awaitAll()
-        }
+    fun `async get by custom webclient in multiple suspended jobs`() = runSuspendIO {
+        SuspendedJobTester()
+            .workers(2 * Runtimex.availableProcessors)
+            .rounds(2 * Runtimex.availableProcessors)
+            .add {
+                val body = webClient
+                    .httpGet("$httpbinUrl/get")
+                    .awaitBody<String>()
+                    .shouldNotBeEmpty()
 
-    @Test
-    fun `async get by custom webclient in multiple suspended jobs`() =
-        runSuspendIO {
-            SuspendedJobTester()
-                .workers(Runtimex.availableProcessors)
-                .rounds(Runtimex.availableProcessors)
-                .add {
-                    val body =
-                        webClient
-                            .httpGet("$httpbinUrl/get")
-                            .awaitBody<String>()
+                log.debug { "httpbin get=${body.length}" }
+            }
+            .add {
+                val body = webClient
+                    .httpGet("$httpbinUrl/anything")
+                    .awaitBody<String>()
+                    .shouldNotBeEmpty()
 
-                    log.debug { "httpbin get=${body.length}" }
-                }.add {
-                    val body =
-                        webClient
-                            .httpGet("$httpbinUrl/anything")
-                            .awaitBody<String>()
+                log.debug { "httpbin anything=${body.length}" }
+            }
+            .add {
+                val body = webClient
+                    .httpGet("$httpbinUrl/headers")
+                    .awaitBody<String>()
+                    .shouldNotBeEmpty()
 
-                    log.debug { "httpbin anything=${body.length}" }
-                }.add {
-                    val body =
-                        webClient
-                            .httpGet("$httpbinUrl/headers")
-                            .awaitBody<String>()
-
-                    log.debug { "httpbin headers=${body.length}" }
-                }.run()
-        }
+                log.debug { "httpbin headers=${body.length}" }
+            }
+            .run()
+    }
 }

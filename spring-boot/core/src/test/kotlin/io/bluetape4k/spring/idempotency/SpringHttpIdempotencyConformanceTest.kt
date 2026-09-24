@@ -17,7 +17,8 @@ import io.bluetape4k.junit5.http.idempotency.HttpIdempotencyQuiescence
 import io.bluetape4k.junit5.http.idempotency.HttpIdempotencyRequest
 import io.bluetape4k.junit5.http.idempotency.HttpIdempotencyResponse
 import io.bluetape4k.junit5.http.idempotency.assertBoundedWaitHttpIdempotencyConformance
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
+import io.bluetape4k.support.toUtf8Bytes
 import jakarta.servlet.FilterChain
 import jakarta.servlet.ReadListener
 import jakarta.servlet.ServletException
@@ -72,7 +73,7 @@ import kotlin.time.toKotlinDuration
 
 class SpringHttpIdempotencyConformanceTest {
 
-    companion object: KLogging()
+    companion object: KLoggingChannel()
 
     @Test
     fun `Spring MockMvc satisfies bounded wait HTTP idempotency conformance`() = runSuspendIO {
@@ -104,7 +105,7 @@ class SpringHttpIdempotencyConformanceTest {
         }
 
         val declaredReads = AtomicInteger()
-        val declared = CountingMockRequest("x".repeat(maximum + 1).toByteArray(), declaredReads, maximum + 1L)
+        val declared = CountingMockRequest("x".repeat(maximum + 1).toUtf8Bytes(), declaredReads, maximum + 1L)
         val declaredResponse = MockHttpServletResponse()
         filter.doFilter(declared, declaredResponse, MockFilterChain(terminalServlet))
         declaredResponse.status shouldBeEqualTo 413
@@ -112,7 +113,7 @@ class SpringHttpIdempotencyConformanceTest {
         controllerInvocations.get() shouldBeEqualTo 0
 
         val streamingReads = AtomicInteger()
-        val streaming = CountingMockRequest("x".repeat(maximum + 1).toByteArray(), streamingReads, -1L)
+        val streaming = CountingMockRequest("x".repeat(maximum + 1).toUtf8Bytes(), streamingReads, -1L)
         val streamingResponse = MockHttpServletResponse()
         filter.doFilter(streaming, streamingResponse, MockFilterChain(terminalServlet))
         streamingResponse.status shouldBeEqualTo 413
@@ -135,6 +136,7 @@ class SpringHttpIdempotencyConformanceTest {
         val config = conformanceConfig().copy(scenarioTimeout = Duration.ofSeconds(1))
         val application = SpringFakeIdempotencyApplication(config)
         val adapter = SpringBoundedWaitHttpIdempotencyAdapter(mockMvc, application, dispatcher, config)
+
         try {
             assertFailsWith<TimeoutCancellationException> {
                 withTimeout(config.scenarioTimeout.toKotlinDuration()) {
@@ -397,9 +399,9 @@ private class SpringFakeIdempotencyApplication(
             virtualNow = virtualNow.plus(duration)
             records.values.flatMap { record ->
                 if (record.state != RecordState.InFlight) return@flatMap emptyList()
-                record.waiters.values.filter { waiter -> virtualNow >= waiter.deadline }.also { expired ->
-                    expired.forEach { waiter -> removeWaiter(record, waiter.id) }
-                }
+                record.waiters.values
+                    .filter { waiter -> virtualNow >= waiter.deadline }
+                    .onEach { waiter -> removeWaiter(record, waiter.id) }
             }
         }
         timedOut.forEach { waiter -> waiter.completion.complete(timeoutResponse()) }
@@ -448,8 +450,8 @@ private class SpringFakeIdempotencyApplication(
     }
 
     private fun decideExchange(scope: String, fingerprint: String): Action {
-        val existing = records[scope]
-        if (existing == null) return createOwner(scope, fingerprint)
+        val existing = records[scope] ?: return createOwner(scope, fingerprint)
+
         if (existing.state == RecordState.Terminal && virtualNow >= checkNotNull(existing.expiresAt)) {
             records.remove(scope)
             ownerSignals.remove(scope)
@@ -543,14 +545,14 @@ private class SpringFakeIdempotencyApplication(
     private fun validateIngress(request: HttpIdempotencyRequest): HttpIdempotencyResponse? {
         if (request.idempotencyKeys.size != 1) return idempotencyResponse(400, "invalid_idempotency_request")
         val key = request.idempotencyKeys.single()
-        if (key.toByteArray().size > config.maxIdempotencyKeyBytes || key.isEmpty() ||
+        if (key.toUtf8Bytes().size > config.maxIdempotencyKeyBytes || key.isEmpty() ||
             key.any { character -> character.code !in 0x21..0x7e } || canonicalPayloadOrNull(request.requestBody) == null
         ) return idempotencyResponse(400, "invalid_idempotency_request")
         return null
     }
 
     private fun replayableOutcomeOrNull(outcome: HttpIdempotencyResponse): HttpIdempotencyResponse? {
-        if (outcome.body.toByteArray().size > config.maxReplayBodyBytes) return null
+        if (outcome.body.toUtf8Bytes().size > config.maxReplayBodyBytes) return null
         val connectionNominated = outcome.headers["connection"].orEmpty()
             .flatMap { value -> value.split(',') }
             .map { name -> name.trim().lowercase() }
@@ -564,10 +566,10 @@ private class SpringFakeIdempotencyApplication(
         var aggregate = 0L
         headers.forEach { (name, values) ->
             if (values.size > config.maxReplayValuesPerHeader) return null
-            aggregate += name.toByteArray().size
+            aggregate += name.toUtf8Bytes().size
             if (aggregate > config.maxReplayHeaderBytes) return null
             values.forEach { value ->
-                val bytes = value.toByteArray().size
+                val bytes = value.toUtf8Bytes().size
                 if (bytes > config.maxReplayHeaderValueBytes) return null
                 aggregate += bytes
                 if (aggregate > config.maxReplayHeaderBytes) return null
@@ -803,7 +805,8 @@ private fun canonicalJson(node: JsonNode): String = when {
         .joinToString(prefix = "{", postfix = "}") { (name, value) ->
             "${JSON_MAPPER.writeValueAsString(name)}:$value"
         }
-    node.isArray  -> node.elements().asSequence().map(::canonicalJson).joinToString(prefix = "[", postfix = "]")
+    node.isArray  -> node.elements().asSequence()
+        .joinToString(prefix = "[", postfix = "]", transform = ::canonicalJson)
     node.isTextual -> JSON_MAPPER.writeValueAsString(requireValidUtf8(node.textValue()))
     node.isNumber -> node.decimalValue().stripTrailingZeros().toCanonicalNumber()
     node.isBoolean -> node.booleanValue().toString()
@@ -821,7 +824,7 @@ private fun requireValidUtf8(value: String): String = value.also {
 private fun BigDecimal.toCanonicalNumber(): String = if (scale() < 0) setScale(0).toPlainString() else toPlainString()
 
 private fun digest(value: String): String = HexFormat.of().formatHex(
-    MessageDigest.getInstance("SHA-256").digest(value.toByteArray()),
+    MessageDigest.getInstance("SHA-256").digest(value.toUtf8Bytes()),
 )
 
 private fun isReplayHeaderDenied(name: String): Boolean =

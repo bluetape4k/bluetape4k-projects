@@ -160,9 +160,7 @@ class TaskExecutionConfiguration {
 }
 ```
 
-decorator는 executor를 생성하거나 닫지 않으며 자동 bean을 등록하지 않습니다.
-caller MDC가 비어 있으면 task 실행 중 stale worker 값을 숨기고, task가
-추가한 key는 이전 context를 복원할 때 제거됩니다.
+decorator는 executor를 생성하거나 닫지 않으며 자동 bean을 등록하지 않습니다. caller MDC가 비어 있으면 task 실행 중 stale worker 값을 숨기고, task가 추가한 key는 이전 context를 복원할 때 제거됩니다.
 
 ### WebFlux 컨트롤러 (Coroutines)
 
@@ -272,14 +270,14 @@ class UserControllerTest(@Autowired val client: WebTestClient) {
 
 ## 주요 의존성 구조
 
-| 범주                          | 의존 방식     | 설명                      |
-|-------------------------------|---------------|---------------------------|
-| `spring-boot-starter-webflux` | `compileOnly` | WebFlux + Coroutines 필수 |
-| `bluetape4k-logging`           | `implementation` | MDC TaskDecorator 지원       |
-| `bluetape4k-coroutines`       | `compileOnly` | Coroutines 지원           |
-| `micrometer-observation`      | `compileOnly` | Observation 헬퍼 지원     |
-| `spring-boot-starter-web`     | `compileOnly` | 선택적 서블릿 지원        |
-| `resilience4j-*`              | `compileOnly` | 선택적 Resilience4j       |
+| 범주                          | 의존 방식        | 설명                      |
+|-------------------------------|------------------|---------------------------|
+| `spring-boot-starter-webflux` | `compileOnly`    | WebFlux + Coroutines 필수 |
+| `bluetape4k-logging`          | `implementation` | MDC TaskDecorator 지원    |
+| `bluetape4k-coroutines`       | `compileOnly`    | Coroutines 지원           |
+| `micrometer-observation`      | `compileOnly`    | Observation 헬퍼 지원     |
+| `spring-boot-starter-web`     | `compileOnly`    | 선택적 서블릿 지원        |
+| `resilience4j-*`              | `compileOnly`    | 선택적 Resilience4j       |
 
 ## 빌드 및 테스트
 

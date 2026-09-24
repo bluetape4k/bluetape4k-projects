@@ -47,7 +47,8 @@ fun <T: Number> String.parseNumber(
  * // converted == 123.0
  * ```
  */
-inline fun <reified T: Number> Number.toTargetClass(): T = NumberUtils.convertNumberToTargetClass(this, T::class.java)
+inline fun <reified T: Number> Number.toTargetClass(): T =
+    NumberUtils.convertNumberToTargetClass(this, T::class.java)
 
 /**
  * 숫자를 reified 대상 숫자 타입으로 변환합니다.
@@ -61,4 +62,5 @@ inline fun <reified T: Number> Number.toTargetClass(): T = NumberUtils.convertNu
  * // converted == 123L
  * ```
  */
-inline fun <reified T: Number> Number.convertAs(): T = NumberUtils.convertNumberToTargetClass(this, T::class.java)
+inline fun <reified T: Number> Number.convertAs(): T =
+    NumberUtils.convertNumberToTargetClass(this, T::class.java)

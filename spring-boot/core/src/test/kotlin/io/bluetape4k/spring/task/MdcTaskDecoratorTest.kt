@@ -7,6 +7,8 @@ import io.bluetape4k.assertions.shouldBeNullOrEmpty
 import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.concurrent.awaitTermination
 import io.bluetape4k.concurrent.get
+import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.debug
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -21,6 +23,8 @@ import kotlin.time.Duration.Companion.seconds
 
 @Timeout(value = 30, unit = TimeUnit.SECONDS, threadMode = Timeout.ThreadMode.SAME_THREAD)
 class MdcTaskDecoratorTest {
+
+    companion object: KLogging()
 
     private lateinit var executor: ExecutorService
     private val decorator = MdcTaskDecorator()
@@ -43,19 +47,21 @@ class MdcTaskDecoratorTest {
         seedWorkerContext(mapOf("worker" to "seed"))
 
         MDC.setContextMap(mapOf("request" to "one"))
-        val first = decorator.decorate(Runnable {
+        val first = decorator.decorate {
             MDC.getCopyOfContextMap() shouldBeEqualTo mapOf("request" to "one")
             MDC.put("taskOnly", "first")
-        })
+        }
         runOnWorker(first)
+        log.debug { "workerContext=${workerContext()}" }
         workerContext() shouldBeEqualTo mapOf("worker" to "seed")
 
         MDC.setContextMap(mapOf("request" to "two", "tenant" to "blue"))
-        val second = decorator.decorate(Runnable {
+        val second = decorator.decorate {
             MDC.getCopyOfContextMap() shouldBeEqualTo mapOf("request" to "two", "tenant" to "blue")
             MDC.get("taskOnly").shouldBeNullOrEmpty()
-        })
+        }
         runOnWorker(second)
+        log.debug { "workerContext=${workerContext()}" }
         workerContext() shouldBeEqualTo mapOf("worker" to "seed")
     }
 
@@ -70,6 +76,7 @@ class MdcTaskDecoratorTest {
         })
         runOnWorker(decorated)
 
+        log.debug { "workerContext=${workerContext()}" }
         workerContext() shouldBeEqualTo mapOf("worker" to "seed", "stale" to "value")
     }
 
@@ -87,8 +94,10 @@ class MdcTaskDecoratorTest {
             executor.submit(decorated).get(5.seconds)
         }
 
-        failure.cause shouldBeInstanceOf IllegalStateException::class
+        failure.cause.shouldBeInstanceOf<IllegalStateException>()
         failure.cause?.message shouldBeEqualTo "boom"
+
+        log.debug { "workerContext=${workerContext()}" }
         workerContext() shouldBeEqualTo mapOf("worker" to "seed", "stale" to "value")
     }
 
@@ -97,7 +106,7 @@ class MdcTaskDecoratorTest {
         seedWorkerContext(mapOf("worker" to "seed"))
         MDC.setContextMap(mapOf("request" to "outer"))
 
-        val decorated = decorator.decorate(Runnable {
+        val decorated = decorator.decorate {
             MDC.getCopyOfContextMap() shouldBeEqualTo mapOf("request" to "outer")
             MDC.put("outerOnly", "value")
 
@@ -114,9 +123,10 @@ class MdcTaskDecoratorTest {
                 "request" to "outer",
                 "outerOnly" to "value",
             )
-        })
+        }
         runOnWorker(decorated)
 
+        log.debug { "workerContext=${workerContext()}" }
         workerContext() shouldBeEqualTo mapOf("worker" to "seed")
     }
 
@@ -131,11 +141,12 @@ class MdcTaskDecoratorTest {
         MDC.setContextMap(mapOf("request" to "after", "late" to "value"))
         runOnWorker(decorated)
 
+        log.debug { "workerContext=${workerContext()}" }
         workerContext() shouldBeEqualTo mapOf("worker" to "seed")
     }
 
     private fun seedWorkerContext(context: Map<String, String>) {
-        runOnWorker(Runnable { MDC.setContextMap(context) })
+        runOnWorker { MDC.setContextMap(context) }
     }
 
     private fun workerContext(): Map<String, String> =

@@ -4,6 +4,7 @@ import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeNull
 import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.assertions.shouldContain
+import io.bluetape4k.assertions.shouldNotBeEmpty
 import io.bluetape4k.assertions.shouldNotBeNull
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.coroutines.KLoggingChannel
@@ -18,6 +19,7 @@ import org.springframework.web.reactive.function.client.awaitBodyOrNull
 import kotlin.test.Test
 
 class WebClientExtensionsTest: AbstractSpringTest() {
+
     companion object: KLoggingChannel() {
         private val client: WebClient by lazy {
             WebClient
@@ -30,192 +32,177 @@ class WebClientExtensionsTest: AbstractSpringTest() {
     @Nested
     inner class Get {
         @Test
-        fun `httGet httpbin`() =
-            runSuspendIO {
-                val response =
-                    client
-                        .httpGet("/get")
-                        .awaitBody<String>()
+        fun `httGet httpbin`() = runSuspendIO {
+            val response = client
+                .httpGet("/get")
+                .awaitBody<String>()
+                .shouldNotBeEmpty()
 
-                log.debug { "response=$response" }
-                response shouldContain "$baseUrl/get"
-            }
-
-        @Test
-        fun `httGet httpbin anything`() =
-            runSuspendIO {
-                val response =
-                    client
-                        .httpGet("/anything")
-                        .awaitBody<String>()
-
-                log.debug { "response=$response" }
-                response shouldContain "$baseUrl/anything"
-            }
+            log.debug { "response=$response" }
+            response shouldContain "$baseUrl/get"
+        }
 
         @Test
-        fun `httGet httpbin not found`() =
-            runSuspendIO {
-                assertFailsWith<WebClientResponseException.NotFound> {
-                    val response =
-                        client
-                            .httpGet("/not-existing")
-                            .awaitBodyOrNull<String>()
+        fun `httGet httpbin anything`() = runSuspendIO {
+            val response = client
+                .httpGet("/anything")
+                .awaitBody<String>()
+                .shouldNotBeEmpty()
 
-                    log.debug { "response=$response" }
-                }
+            log.debug { "response=$response" }
+            response shouldContain "$baseUrl/anything"
+        }
+
+        @Test
+        fun `httGet httpbin not found`() = runSuspendIO {
+            assertFailsWith<WebClientResponseException.NotFound> {
+                val response = client
+                    .httpGet("/not-existing")
+                    .awaitBodyOrNull<String>()
+                    .shouldBeNull()
+
+                log.debug { "response=$response" }
             }
+        }
     }
 
     @Nested
     inner class Post {
         @Test
-        fun `httpPost httpbin`() =
-            runSuspendIO {
-                val response =
-                    client
-                        .httpPost("/post")
-                        .awaitBody<String>()
+        fun `httpPost httpbin`() = runSuspendIO {
+            val response = client
+                .httpPost("/post")
+                .awaitBody<String>()
+                .shouldNotBeEmpty()
 
-                log.debug { "response=$response" }
-                response shouldContain "$baseUrl/post"
-            }
-
-        @Test
-        fun `httpPost httpbin with body`() =
-            runSuspendIO {
-                val response =
-                    client
-                        .httpPost("/post", "Hello, World!")
-                        .awaitBody<String>()
-
-                log.debug { "response=$response" }
-                response shouldContain "$baseUrl/post"
-                response shouldContain "Hello, World!"
-            }
+            log.debug { "response=$response" }
+            response shouldContain "$baseUrl/post"
+        }
 
         @Test
-        fun `httpPost httpbin with flow`() =
-            runSuspendIO {
-                val response =
-                    client
-                        .httpPost("/post", flowOf("Hello", ", ", "World!"))
-                        .awaitBody<String>()
+        fun `httpPost httpbin with body`() = runSuspendIO {
+            val response = client
+                .httpPost("/post", "Hello, World!")
+                .awaitBody<String>()
+                .shouldNotBeEmpty()
 
-                log.debug { "response=$response" }
-                response shouldContain "$baseUrl/post"
-                response shouldContain "Hello, World!"
-            }
+            log.debug { "response=$response" }
+            response shouldContain "$baseUrl/post"
+            response shouldContain "Hello, World!"
+        }
+
+        @Test
+        fun `httpPost httpbin with flow`() = runSuspendIO {
+            val response = client
+                .httpPost("/post", flowOf("Hello", ", ", "World!"))
+                .awaitBody<String>()
+                .shouldNotBeEmpty()
+
+            log.debug { "response=$response" }
+            response shouldContain "$baseUrl/post"
+            response shouldContain "Hello, World!"
+        }
     }
 
     @Nested
     inner class Patch {
         @Test
-        fun `httpPatch httpbin`() =
-            runSuspendIO {
-                val response =
-                    client
-                        .httpPatch("/patch")
-                        .awaitBody<String>()
+        fun `httpPatch httpbin`() = runSuspendIO {
+            val response = client
+                .httpPatch("/patch")
+                .awaitBody<String>()
+                .shouldNotBeEmpty()
 
-                log.debug { "response=$response" }
-                response shouldContain "$baseUrl/patch"
-            }
+            log.debug { "response=$response" }
+            response shouldContain "$baseUrl/patch"
+        }
 
         @Test
-        fun `httpPatch httpbin with body`() =
-            runSuspendIO {
-                val response =
-                    client
-                        .httpPatch("/patch", "Hello, World!")
-                        .awaitBody<String>()
+        fun `httpPatch httpbin with body`() = runSuspendIO {
+            val response = client
+                .httpPatch("/patch", "Hello, World!")
+                .awaitBody<String>()
+                .shouldNotBeEmpty()
 
-                log.debug { "response=$response" }
-                response shouldContain "$baseUrl/patch"
-                response shouldContain "Hello, World!"
-            }
+            log.debug { "response=$response" }
+            response shouldContain "$baseUrl/patch"
+            response shouldContain "Hello, World!"
+        }
     }
 
     @Nested
     inner class Put {
         @Test
-        fun `httpPut httpbin`() =
-            runSuspendIO {
-                val response =
-                    client
-                        .httpPut("/put")
-                        .awaitBody<String>()
+        fun `httpPut httpbin`() = runSuspendIO {
+            val response = client
+                .httpPut("/put")
+                .awaitBody<String>()
+                .shouldNotBeEmpty()
 
-                log.debug { "response=$response" }
-                response shouldContain "$baseUrl/put"
-            }
-
-        @Test
-        fun `httpPut httpbin with body`() =
-            runSuspendIO {
-                val response =
-                    client
-                        .httpPut("/put", "Hello, World!")
-                        .awaitBody<String>()
-
-                log.debug { "response=$response" }
-                response shouldContain "$baseUrl/put"
-                response shouldContain "Hello, World!"
-            }
+            log.debug { "response=$response" }
+            response shouldContain "$baseUrl/put"
+        }
 
         @Test
-        fun `httpPut httpbin with flow`() =
-            runSuspendIO {
-                val response =
-                    client
-                        .httpPut("/put", flowOf("Hello", ", ", "World!"))
-                        .awaitBody<String>()
+        fun `httpPut httpbin with body`() = runSuspendIO {
+            val response = client
+                .httpPut("/put", "Hello, World!")
+                .awaitBody<String>()
+                .shouldNotBeEmpty()
 
-                log.debug { "response=$response" }
-                response shouldContain "$baseUrl/put"
-                response shouldContain "Hello, World!"
-            }
+            log.debug { "response=$response" }
+            response shouldContain "$baseUrl/put"
+            response shouldContain "Hello, World!"
+        }
+
+        @Test
+        fun `httpPut httpbin with flow`() = runSuspendIO {
+            val response = client
+                .httpPut("/put", flowOf("Hello", ", ", "World!"))
+                .awaitBody<String>()
+                .shouldNotBeEmpty()
+
+            log.debug { "response=$response" }
+            response shouldContain "$baseUrl/put"
+            response shouldContain "Hello, World!"
+        }
     }
 
     @Nested
     inner class Delete {
         @Test
-        fun `httpDelete httpbin`() =
-            runSuspendIO {
-                val response =
-                    client
-                        .httpDelete("/delete")
-                        .awaitBodyOrNull<String>()
+        fun `httpDelete httpbin`() = runSuspendIO {
+            val response = client
+                .httpDelete("/delete")
+                .awaitBodyOrNull<String>()
+                .shouldNotBeEmpty()
 
-                log.debug { "response=$response" }
-                response.shouldNotBeNull() shouldContain "$baseUrl/delete"
-            }
+            log.debug { "response=$response" }
+            response.shouldNotBeNull() shouldContain "$baseUrl/delete"
+        }
     }
 
     @Nested
     inner class Head {
         @Test
-        fun `httpHead httpbin`() =
-            runSuspendIO {
-                val response =
-                    client
-                        .httpHead("/get")
-                        .awaitBodilessEntity()
+        fun `httpHead httpbin`() = runSuspendIO {
+            val response = client
+                .httpHead("/get")
+                .awaitBodilessEntity()
 
-                log.debug { "response=$response" }
-                response.statusCode.is2xxSuccessful.shouldBeTrue()
-            }
+            log.debug { "response=$response" }
+            response.statusCode.is2xxSuccessful.shouldBeTrue()
+        }
     }
 
     @Nested
     inner class Options {
         @Test
-        fun `httpOptions httpbin`() =
-            runSuspendIO {
-                client
-                    .httpOptions("/anything")
-                    .awaitBodyOrNull<String>()
-                    .shouldBeNull()
-            }
+        fun `httpOptions httpbin`() = runSuspendIO {
+            client
+                .httpOptions("/anything")
+                .awaitBodyOrNull<String>()
+                .shouldBeNull()
+        }
     }
 }

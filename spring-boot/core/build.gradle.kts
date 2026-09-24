@@ -15,8 +15,7 @@ dependencies {
     // Spring Boot Starters
     compileOnly("org.springframework.boot:spring-boot-starter-webflux")
     compileOnly("org.springframework.boot:spring-boot-starter-web")
-    compileOnly("org.springframework.boot:spring-boot-starter-test")
-    testImplementation("org.springframework.boot:spring-boot-starter-test") {
+    compileOnly("org.springframework.boot:spring-boot-starter-test") {
         exclude(group = "junit", module = "junit")
         exclude(group = "org.junit.vintage", module = "junit-vintage-engine")
         exclude(group = "org.mockito", module = "mockito-core")
@@ -26,7 +25,6 @@ dependencies {
     // Bluetape4k 
     api(project(":bluetape4k-core"))
     compileOnly(project(":bluetape4k-io"))
-    compileOnly(project(":bluetape4k-jackson3"))
 
     // Spring
     compileOnly("org.springframework:spring-context-support")
@@ -71,8 +69,6 @@ dependencies {
     compileOnly(libs.micrometer.core)
     compileOnly(libs.micrometer.observation)
     compileOnly(bt4k.micrometer.context.propagation)
-    testImplementation(libs.micrometer.core)
-    testImplementation(libs.micrometer.observation)
     testImplementation(libs.micrometer.observation.test)
     testImplementation(libs.micrometer.registry.prometheus)
 
@@ -89,7 +85,7 @@ dependencies {
     compileOnly(libs.reactor.kotlin.extensions)
     testImplementation(libs.reactor.test)
 
-    compileOnly(project(":bluetape4k-junit5"))
+    testImplementation(project(":bluetape4k-junit5"))
     testImplementation(project(":bluetape4k-testcontainers"))
     testImplementation(libs.testcontainers)
 }

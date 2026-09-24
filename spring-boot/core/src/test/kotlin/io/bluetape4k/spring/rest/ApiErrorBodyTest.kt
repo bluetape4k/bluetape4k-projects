@@ -1,22 +1,28 @@
 package io.bluetape4k.spring.rest
 
-import com.fasterxml.jackson.databind.ObjectMapper
 import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldBeFalse
 import io.bluetape4k.assertions.shouldBeNull
 import io.bluetape4k.assertions.shouldNotBeNull
+import io.bluetape4k.assertions.shouldNotContain
+import io.bluetape4k.jackson3.Jackson
+import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.debug
 import io.bluetape4k.spring.AbstractSpringTest
 import org.junit.jupiter.api.Test
 import org.springframework.http.HttpStatus
 
 class ApiErrorBodyTest: AbstractSpringTest() {
 
+    companion object: KLogging()
+
     // classpath의 Jackson 모듈을 자동 등록하는 ObjectMapper (JavaTimeModule 포함)
-    private val objectMapper = ObjectMapper().findAndRegisterModules()
+    private val objectMapper = Jackson.defaultJsonMapper
 
     @Test
     fun `ApiErrorBody 기본 생성`() {
         val body = ApiErrorBody(message = "invalid input")
+
+        log.debug { "body: $body" }
         body.message shouldBeEqualTo "invalid input"
         body.errorCode.shouldBeNull()
         body.timestamp.shouldNotBeNull()
@@ -25,15 +31,18 @@ class ApiErrorBodyTest: AbstractSpringTest() {
     @Test
     fun `ApiErrorBody errorCode 설정`() {
         val body = ApiErrorBody(errorCode = "ERR-001", message = "error")
+
+        log.debug { "body: $body" }
         body.errorCode shouldBeEqualTo "ERR-001"
     }
 
     @Test
     fun `apiErrorResponseEntityOf 기본 상태 코드`() {
         val response = apiErrorResponseEntityOf(message = "error")
+
+        log.debug { "response=$response" }
         response.statusCode.value() shouldBeEqualTo HttpStatus.INTERNAL_SERVER_ERROR.value()
-        response.body.shouldNotBeNull()
-        response.body!!.message shouldBeEqualTo "error"
+        response.body?.message shouldBeEqualTo "error"
     }
 
     @Test
@@ -43,9 +52,10 @@ class ApiErrorBodyTest: AbstractSpringTest() {
             message = "not found",
             errorCode = "NOT_FOUND"
         )
+        log.debug { "response=$response" }
         response.statusCode.value() shouldBeEqualTo 404
-        response.body!!.errorCode shouldBeEqualTo "NOT_FOUND"
-        response.body!!.message shouldBeEqualTo "not found"
+        response.body?.errorCode shouldBeEqualTo "NOT_FOUND"
+        response.body?.message shouldBeEqualTo "not found"
     }
 
     @Test
@@ -54,8 +64,8 @@ class ApiErrorBodyTest: AbstractSpringTest() {
             statusCode = 500,
             message = "server error",
         )
-        response.body.shouldNotBeNull()
-        response.body!!.message shouldBeEqualTo "server error"
+        log.debug { "response=$response" }
+        response.body?.message shouldBeEqualTo "server error"
     }
 
     @Test
@@ -63,8 +73,9 @@ class ApiErrorBodyTest: AbstractSpringTest() {
         val body = ApiErrorBody(errorCode = "ERR-001", message = "error occurred")
         val json = objectMapper.writeValueAsString(body)
 
-        json.contains("stackTraces").shouldBeFalse()
-        json.contains("stackTrace").shouldBeFalse()
+        log.debug { "json=$json" }
+        json shouldNotContain "stackTraces"
+        json shouldNotContain "stackTrace"
     }
 
     @Test
@@ -78,7 +89,8 @@ class ApiErrorBodyTest: AbstractSpringTest() {
         body.shouldNotBeNull()
 
         val json = objectMapper.writeValueAsString(body)
-        json.contains("stackTraces").shouldBeFalse()
-        json.contains("stackTrace").shouldBeFalse()
+        log.debug { "json=$json" }
+        json shouldNotContain "stackTraces"
+        json shouldNotContain "stackTrace"
     }
 }

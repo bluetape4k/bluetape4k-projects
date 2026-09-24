@@ -137,9 +137,7 @@ val created = webClient.httpPost("/users", newUser)
 
 ### MDC TaskDecorator
 
-Connect `MdcTaskDecorator` to an executor owned by the application. It captures
-the caller MDC when `decorate` is called, replaces the worker MDC while the task
-runs, and restores the worker's previous map in `finally`.
+Connect `MdcTaskDecorator` to an executor owned by the application. It captures the caller MDC when `decorate` is called, replaces the worker MDC while the task runs, and restores the worker's previous map in `finally`.
 
 ```kotlin
 import io.bluetape4k.spring.task.MdcTaskDecorator
@@ -160,9 +158,7 @@ class TaskExecutionConfiguration {
 }
 ```
 
-The decorator does not create or close the executor and does not register an
-automatic bean. An empty caller MDC hides stale worker values for the task, and
-task-local keys are removed when the worker's previous context is restored.
+The decorator does not create or close the executor and does not register an automatic bean. An empty caller MDC hides stale worker values for the task, and task-local keys are removed when the worker's previous context is restored.
 
 ### WebFlux Controller (Coroutines)
 
@@ -272,14 +268,14 @@ class UserControllerTest(@Autowired val client: WebTestClient) {
 
 ## Key Dependency Structure
 
-| Category                      | Scope         | Description                       |
-|-------------------------------|---------------|-----------------------------------|
-| `spring-boot-starter-webflux` | `compileOnly` | Required for WebFlux + Coroutines |
-| `bluetape4k-logging`           | `implementation` | MDC TaskDecorator support       |
-| `bluetape4k-coroutines`       | `compileOnly` | Coroutines support                |
-| `micrometer-observation`      | `compileOnly` | Observation helper support        |
-| `spring-boot-starter-web`     | `compileOnly` | Optional servlet support          |
-| `resilience4j-*`              | `compileOnly` | Optional Resilience4j             |
+| Category                      | Scope            | Description                       |
+|-------------------------------|------------------|-----------------------------------|
+| `spring-boot-starter-webflux` | `compileOnly`    | Required for WebFlux + Coroutines |
+| `bluetape4k-logging`          | `implementation` | MDC TaskDecorator support         |
+| `bluetape4k-coroutines`       | `compileOnly`    | Coroutines support                |
+| `micrometer-observation`      | `compileOnly`    | Observation helper support        |
+| `spring-boot-starter-web`     | `compileOnly`    | Optional servlet support          |
+| `resilience4j-*`              | `compileOnly`    | Optional Resilience4j             |
 
 ## Build and Test
 
