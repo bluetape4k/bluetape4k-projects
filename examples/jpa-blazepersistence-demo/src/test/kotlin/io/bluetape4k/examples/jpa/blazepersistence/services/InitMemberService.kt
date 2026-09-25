@@ -22,7 +22,7 @@ class InitMemberService {
 
     @Transactional
     fun init() {
-        log.debug { "Add sample team and member entities ..." }
+        log.debug { "Add sample 2 team and 100 member entities ..." }
 
         val teamA = Team("teamA")
         val teamB = Team("teamB")
