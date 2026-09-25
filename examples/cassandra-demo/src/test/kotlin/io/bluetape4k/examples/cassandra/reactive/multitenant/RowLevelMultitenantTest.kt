@@ -1,10 +1,12 @@
 package io.bluetape4k.examples.cassandra.reactive.multitenant
 
 import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldContainSame
 import io.bluetape4k.examples.cassandra.AbstractCassandraCoroutineTest
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.junit5.coroutines.runSuspendTest
 import io.bluetape4k.logging.coroutines.KLoggingChannel
+import io.bluetape4k.logging.debug
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.reactive.asFlow
 import kotlinx.coroutines.reactor.awaitSingleOrNull
@@ -32,7 +34,7 @@ class RowLevelMultitenantTest(
         repository.deleteAll().awaitSingleOrNull()
 
         val saved = repository.saveAll(employees).asFlow().toList()
-        saved.size shouldBeEqualTo employees.size
+        saved shouldContainSame employees
     }
 
     @Test
@@ -44,6 +46,9 @@ class RowLevelMultitenantTest(
             .asFlow()
             .toList()
 
+        loaded.forEach {
+            log.debug { "loaded=$it" }
+        }
         loaded.size shouldBeEqualTo 2
         loaded.first().tenantId shouldBeEqualTo "breaking-bad"
     }

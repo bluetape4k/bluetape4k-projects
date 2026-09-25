@@ -2,6 +2,7 @@ package io.bluetape4k.examples.cassandra
 
 import com.datastax.oss.driver.api.core.CqlSession
 import com.datastax.oss.driver.api.core.Version
+import io.bluetape4k.examples.cassandra.basic.BasicUser
 import io.bluetape4k.junit5.faker.Fakers
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
@@ -9,7 +10,9 @@ import io.bluetape4k.support.requireNotBlank
 import io.bluetape4k.testcontainers.storage.CassandraServer
 import io.bluetape4k.testcontainers.storage.getCassandraReleaseVersion
 import org.springframework.beans.factory.annotation.Autowired
+
 import java.util.concurrent.ConcurrentHashMap
+import kotlin.random.Random
 
 abstract class AbstractCassandraTest {
 
@@ -61,4 +64,11 @@ abstract class AbstractCassandraTest {
     protected fun getCassandraVersion(session: CqlSession): Version? {
         return session.getCassandraReleaseVersion()
     }
+
+    protected fun newBasicUser(id: Long = Random.nextLong(10_000, 100_000)) = BasicUser(
+        id = id,
+        username = faker.credentials().username(),
+        firstname = faker.name().firstName(),
+        lastname = faker.name().lastName()
+    )
 }

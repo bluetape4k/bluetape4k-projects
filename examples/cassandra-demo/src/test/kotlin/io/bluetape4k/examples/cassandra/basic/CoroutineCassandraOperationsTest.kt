@@ -7,6 +7,7 @@ import com.datastax.oss.driver.api.querybuilder.QueryBuilder.insertInto
 import com.datastax.oss.driver.api.querybuilder.QueryBuilder.selectFrom
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldContain
+import io.bluetape4k.assertions.shouldContainAll
 import io.bluetape4k.assertions.shouldHaveSize
 import io.bluetape4k.assertions.shouldNotBeNull
 import io.bluetape4k.cassandra.querybuilder.literal
@@ -75,19 +76,14 @@ class CoroutineCassandraOperationsTest(
         val updated = user.copy(firstname = faker.name().firstName())
         operations.updateSuspending(updated)
 
-        val loaded = operations.selectOneByIdSuspending<BasicUser>(user.id)!!
+        val loaded = operations.selectOneByIdSuspending<BasicUser>(user.id).shouldNotBeNull()
         loaded shouldBeEqualTo updated
     }
 
     @Test
     fun `insert in coroutines`() = runSuspendIO {
         val users = List(100) {
-            BasicUser(
-                it.toLong(),
-                "uname-$it",
-                "firstname-$it",
-                "lastname-$it"
-            )
+            newBasicUser(it.toLong())
         }
 
         val tasks = users.map {
@@ -96,6 +92,8 @@ class CoroutineCassandraOperationsTest(
             }
         }
         tasks.awaitAll()
+        val loaded = operations.selectSuspending<BasicUser>(selectFrom(USER_TABLE).all().asCql())
+        loaded shouldContainAll users
     }
 
     @Test
@@ -118,12 +116,4 @@ class CoroutineCassandraOperationsTest(
         map["fname"] shouldBeEqualTo user.firstname
         map["lname"] shouldBeEqualTo user.lastname
     }
-
-    private fun newBasicUser(id: Long = 42L): BasicUser =
-        BasicUser(
-            42L,
-            faker.credentials().username(),
-            faker.name().firstName(),
-            faker.name().lastName()
-        )
 }

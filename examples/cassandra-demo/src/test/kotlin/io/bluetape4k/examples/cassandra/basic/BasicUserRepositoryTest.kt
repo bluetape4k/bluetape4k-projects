@@ -30,15 +30,6 @@ class BasicUserRepositoryTest(
 
     companion object: KLoggingChannel()
 
-    private fun newBasicUser(): BasicUser {
-        return BasicUser(
-            faker.random().nextLong(10000, 100000),
-            faker.credentials().username(),
-            faker.name().firstName(),
-            faker.name().lastName()
-        )
-    }
-
     @BeforeEach
     fun beforeEach() = runSuspendTest {
         repository.deleteAll()

@@ -71,8 +71,7 @@ interface CoroutinePersonRepository : CoroutineCrudRepository<Person, String> {
 }
 ```
 
-`Flow<T>` repository queries are regular functions. Use `suspend fun` for
-single-result coroutine queries such as nullable `Person?` lookups.
+`Flow<T>` repository queries are regular functions. Use `suspend fun` for single-result coroutine queries such as nullable `Person?` lookups.
 
 ## Running the Examples
 

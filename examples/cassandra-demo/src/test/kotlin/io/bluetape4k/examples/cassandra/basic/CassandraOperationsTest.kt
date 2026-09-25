@@ -54,7 +54,7 @@ class CassandraOperationsTest(
 
         operations.cqlOperations.execute(insert.asCql())
 
-        val user = operations.selectOneById<BasicUser>(42L)!!
+        val user = operations.selectOneById<BasicUser>(42L).shouldNotBeNull()
         user.username shouldBeEqualTo "heisenberg"
 
         val users = operations.select<BasicUser>(selectFrom(USER_TABLE).all().asCql())
@@ -63,21 +63,21 @@ class CassandraOperationsTest(
 
     @Test
     fun `insert and update`() {
-        val user = BasicUser(42L, faker.credentials().username(), faker.name().firstName(), faker.name().lastName())
+        val user = newBasicUser()
 
         operations.insert(user)
 
         val updated = user.copy(firstname = faker.name().firstName())
         operations.update(updated)
 
-        val loaded = operations.selectOneById<BasicUser>(user.id)!!
+        val loaded = operations.selectOneById<BasicUser>(user.id).shouldNotBeNull()
         loaded shouldBeEqualTo updated
         loaded.firstname shouldBeEqualTo updated.firstname
     }
 
     @Test
     fun `insert asynchronously`() = runSuspendIO {
-        val user = BasicUser(42L, faker.credentials().username(), faker.name().firstName(), faker.name().lastName())
+        val user = newBasicUser()
 
         val asyncTemplate = AsyncCassandraTemplate(session)
 
@@ -89,7 +89,7 @@ class CassandraOperationsTest(
 
     @Test
     fun `select projections`() {
-        val user = BasicUser(42L, faker.credentials().username(), faker.name().firstName(), faker.name().lastName())
+        val user = newBasicUser()
         operations.insert(user)
 
         val id = operations.selectOne<Long>(selectFrom(USER_TABLE).column("user_id").asCql())

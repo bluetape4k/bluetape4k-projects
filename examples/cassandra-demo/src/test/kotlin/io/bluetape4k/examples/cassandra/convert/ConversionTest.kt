@@ -31,12 +31,11 @@ class ConversionTest(
     private fun newContact(): Contact =
         Contact(faker.name().firstName(), faker.name().lastName())
 
-    private fun newAddressbook(): Addressbook =
-        Addressbook(
-            id = "private",
-            me = Contact(faker.name().firstName(), faker.name().lastName()),
-            friends = mutableListOf(newContact(), newContact())
-        )
+    private fun newAddressbook(): Addressbook = Addressbook(
+        id = "private",
+        me = Contact(faker.name().firstName(), faker.name().lastName()),
+        friends = mutableListOf(newContact(), newContact())
+    )
 
     @BeforeEach
     fun setup() = runSuspendTest {
@@ -60,8 +59,8 @@ class ConversionTest(
         val row = operations.selectOneSuspending<Row>(selectFrom("addressbook").all().build())
 
         row.getString("id") shouldBeEqualTo "private"
-        row.getString("me")!! shouldContain """"firstname":"Debop""""
-        row.getList<String>("friends")!!.size shouldBeEqualTo 2
+        row.getString("me") shouldContain """"firstname":"Debop""""
+        row.getList<String>("friends")?.size shouldBeEqualTo 2
     }
 
     @Test

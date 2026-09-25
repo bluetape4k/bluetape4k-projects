@@ -1,10 +1,13 @@
 package io.bluetape4k.examples.cassandra.reactive.people
 
 import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldHaveSize
+import io.bluetape4k.assertions.shouldNotBeNull
 import io.bluetape4k.examples.cassandra.AbstractCassandraCoroutineTest
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.junit5.coroutines.runSuspendTest
 import io.bluetape4k.logging.coroutines.KLoggingChannel
+import io.bluetape4k.logging.debug
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collect
@@ -52,14 +55,16 @@ class CoroutinePersonRepositoryTest(
             .flowOn(Dispatchers.IO)
             .last()
 
-
-        repository.count().also { println("after two user inserted=$it") } shouldBeEqualTo 6L
+        log.debug { "after two user inserted. all user count=${repository.count()}" }
+        repository.count() shouldBeEqualTo 6L
     }
 
     @Test
     fun `find by lastname`() = runSuspendIO {
         val simpsons = repository.findByLastname("Simpson").toList()
-        simpsons.size shouldBeEqualTo 3
+
+        simpsons.forEach { log.debug { "simpson=$it" } }
+        simpsons shouldHaveSize 3
     }
 
     @Test
@@ -67,20 +72,26 @@ class CoroutinePersonRepositoryTest(
         val simpsons = repository
             .findByLastname(mono { delay(10.milliseconds); "Simpson" })
             .toList()
-        simpsons.size shouldBeEqualTo 3
+
+        simpsons.forEach { log.debug { "simpson=$it" } }
+        simpsons shouldHaveSize 3
     }
 
     @Test
     fun `find by firstname and lastname`() = runSuspendIO {
         val debop = Person("Debop", "Bae", 53)
-        val loaded = repository.findByFirstnameAndLastname("Debop", "Bae")!!
+        val loaded = repository.findByFirstnameAndLastname("Debop", "Bae").shouldNotBeNull()
+
+        log.debug { "loaded=$loaded" }
         loaded shouldBeEqualTo debop
     }
 
     @Test
     fun `find by mono firstname and lastname`() = runSuspendIO {
         val debop = Person("Debop", "Bae", 53)
-        val loaded = repository.findByFirstnameAndLastname(mono { "Debop" }, "Bae")!!
+        val loaded = repository.findByFirstnameAndLastname(mono { "Debop" }, "Bae").shouldNotBeNull()
+
+        log.debug { "loaded=$loaded" }
         loaded shouldBeEqualTo debop
     }
 }

@@ -29,14 +29,15 @@ class StreamNullableTest(
     fun `provide find one with nullable`() {
         val homer = repository.save(newPerson("1"))
 
-        repository.findById("1").shouldNotBeNull()
+        repository.findById(homer.id).shouldNotBeNull()
+        // 존재하지 않는다.
         repository.findById(homer.id + 1).shouldBeNull()
     }
 
     @Test
     fun `invoke default function`() {
         val homer = repository.save(newPerson("2"))
-        val loaded = repository.findByPerson(homer)
+        val loaded = repository.findByPerson(homer).shouldNotBeNull()
 
         loaded shouldBeEqualTo homer
     }

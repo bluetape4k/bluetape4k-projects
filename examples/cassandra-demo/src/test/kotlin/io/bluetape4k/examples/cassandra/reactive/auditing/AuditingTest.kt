@@ -7,6 +7,7 @@ import io.bluetape4k.assertions.shouldBeNull
 import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.assertions.shouldNotBeNull
 import io.bluetape4k.examples.cassandra.AbstractCassandraCoroutineTest
+import io.bluetape4k.examples.cassandra.reactive.auditing.AuditingTestConfiguration.Companion.CURRENT_USER
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.junit5.coroutines.runSuspendTest
 import io.bluetape4k.logging.coroutines.KLoggingChannel
@@ -26,7 +27,9 @@ class AuditingTest(
     @param:Autowired private val customRepo: CustomAuditingRepository,
 ): AbstractCassandraCoroutineTest("auditing") {
 
-    companion object: KLoggingChannel()
+    companion object: KLoggingChannel() {
+
+    }
 
     @BeforeEach
     fun setup() = runSuspendTest {
@@ -44,25 +47,25 @@ class AuditingTest(
         val actual = repository.save(order)
         log.debug { "Actual createdAt=${actual.createdAt}, lastModifiedAt=${actual.lastModifiedAt}" }
 
-        actual.createdBy shouldBeEqualTo "the-current-user"
+        actual.createdBy shouldBeEqualTo CURRENT_USER
         actual.createdAt.shouldNotBeNull().shouldBeInRange(instantRange)
 
-        actual.lastModifiedBy shouldBeEqualTo "the-current-user"
+        actual.lastModifiedBy shouldBeEqualTo CURRENT_USER
         actual.lastModifiedAt.shouldNotBeNull().shouldBeInRange(instantRange)
 
         delay(100.milliseconds)
 
-        val loaded = repository.findById("4711")!!
+        val loaded = repository.findById("4711").shouldNotBeNull()
         log.debug { "loaded createdAt=${loaded.createdAt}, lastModifiedAt=${loaded.lastModifiedAt}" }
         loaded.isNew.shouldBeFalse()
 
         val ssaved = repository.save(loaded)
         log.debug { "Actual createdAt=${actual.createdAt}, lastModifiedAt=${actual.lastModifiedAt}" }
 
-        ssaved.createdBy shouldBeEqualTo "the-current-user"
+        ssaved.createdBy shouldBeEqualTo CURRENT_USER
         ssaved.createdAt.shouldNotBeNull() shouldBeEqualTo loaded.createdAt
 
-        ssaved.lastModifiedBy shouldBeEqualTo "the-current-user"
+        ssaved.lastModifiedBy shouldBeEqualTo CURRENT_USER
         ssaved.lastModifiedAt.shouldNotBeNull().shouldBeInRange(instantRange)
     }
 
@@ -76,10 +79,10 @@ class AuditingTest(
         customRepo.save(order).let { actual ->
             log.debug { "Actual createdAt=${actual.createdAt}, lastModifiedAt=${actual.modifiedAt}" }
 
-            actual.createdBy shouldBeEqualTo "the-current-user"
+            actual.createdBy shouldBeEqualTo CURRENT_USER
             actual.createdAt.shouldNotBeNull().shouldBeInRange(instantRange)
 
-            actual.modifiedBy shouldBeEqualTo "the-current-user"
+            actual.modifiedBy shouldBeEqualTo CURRENT_USER
             actual.modifiedAt.shouldNotBeNull().shouldBeInRange(instantRange)
         }
 
@@ -92,10 +95,10 @@ class AuditingTest(
         customRepo.save(loaded).let { actual ->
             log.debug { "Actual createdAt=${actual.createdAt}, lastModifiedAt=${actual.modifiedAt}" }
 
-            actual.createdBy shouldBeEqualTo "the-current-user"
+            actual.createdBy shouldBeEqualTo CURRENT_USER
             actual.createdAt.shouldNotBeNull() shouldBeEqualTo loaded.createdAt
 
-            actual.modifiedBy shouldBeEqualTo "the-current-user"
+            actual.modifiedBy shouldBeEqualTo CURRENT_USER
             actual.modifiedAt.shouldNotBeNull().shouldBeInRange(instantRange)
         }
     }

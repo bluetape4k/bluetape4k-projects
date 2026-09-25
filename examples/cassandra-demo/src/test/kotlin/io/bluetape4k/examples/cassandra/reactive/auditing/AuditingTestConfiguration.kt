@@ -1,6 +1,7 @@
 package io.bluetape4k.examples.cassandra.reactive.auditing
 
 import io.bluetape4k.examples.cassandra.AbstractReactiveCassandraTestConfiguration
+import io.bluetape4k.logging.KLogging
 import org.springframework.boot.persistence.autoconfigure.EntityScan
 import org.springframework.context.annotation.Bean
 import org.springframework.data.cassandra.config.EnableReactiveCassandraAuditing
@@ -13,8 +14,12 @@ import reactor.core.publisher.Mono
 @EnableReactiveCassandraAuditing
 class AuditingTestConfiguration: AbstractReactiveCassandraTestConfiguration() {
 
+    companion object: KLogging() {
+        const val CURRENT_USER = "the-current-user"
+    }
+
     @Bean
     fun reactiveAuditorAware(): ReactiveAuditorAware<String> =
-        ReactiveAuditorAware { Mono.just("the-current-user") }
+        ReactiveAuditorAware { Mono.just(CURRENT_USER) }
 
 }

@@ -1,5 +1,6 @@
 package io.bluetape4k.examples.cassandra
 
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import org.junit.jupiter.api.Test
 import java.nio.file.Files
 import java.nio.file.Path
@@ -8,6 +9,20 @@ import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
 class ReadmeCoroutineRepositoryContractTest {
+
+    private companion object: KLoggingChannel() {
+        val forbiddenFragments = listOf(
+            "CoroutineCrudRepository<Person, UUID>",
+            "suspend fun findByLastName(lastName: String): Flow<Person>",
+            "findByLastName",
+        )
+
+        val requiredFragments = listOf(
+            "CoroutineCrudRepository<Person, String>",
+            "fun findByLastname(lastname: String): Flow<Person>",
+            "suspend fun findByFirstnameAndLastname(firstname: String, lastname: String): Person?",
+        )
+    }
 
     @Test
     fun `README coroutine repository example matches tested Flow and suspend signatures`() {
@@ -44,19 +59,5 @@ class ReadmeCoroutineRepositoryContractTest {
             }
             .firstOrNull(Files::isRegularFile)
             ?: error("Cannot find $filename from $cwd")
-    }
-
-    private companion object {
-        val forbiddenFragments = listOf(
-            "CoroutineCrudRepository<Person, UUID>",
-            "suspend fun findByLastName(lastName: String): Flow<Person>",
-            "findByLastName",
-        )
-
-        val requiredFragments = listOf(
-            "CoroutineCrudRepository<Person, String>",
-            "fun findByLastname(lastname: String): Flow<Person>",
-            "suspend fun findByFirstnameAndLastname(firstname: String, lastname: String): Person?",
-        )
     }
 }

@@ -40,8 +40,9 @@ class UserDefinedTypeTest: AbstractCassandraTest() {
 
         operations.insert(person)
 
-        val loaded = operations
-            .selectOne<Person>("SELECT * FROM $PERSON_TABLE_NAME WHERE id=${person.id}")
+        val loaded = operations.selectOne<Person>(
+            "SELECT * FROM $PERSON_TABLE_NAME WHERE id=${person.id}"
+        )
 
         loaded.shouldNotBeNull()
         loaded.current shouldBeEqualTo person.current
@@ -63,8 +64,9 @@ class UserDefinedTypeTest: AbstractCassandraTest() {
         }
         operations.insert(person)
 
-        val loaded = operations
-            .selectOne<Person>("SELECT * FROM $PERSON_TABLE_NAME WHERE id=${person.id}")
+        val loaded = operations.selectOne<Person>(
+            "SELECT * FROM $PERSON_TABLE_NAME WHERE id=${person.id}"
+        )
 
         loaded.shouldNotBeNull()
         loaded.alternative?.getString("zip") shouldBeEqualTo person.alternative?.getString("zip")

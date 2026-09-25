@@ -1,5 +1,6 @@
 package io.bluetape4k.examples.cassandra.streamnullable
 
+import io.bluetape4k.assertions.shouldBe
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldNotBeNull
 import io.bluetape4k.examples.cassandra.AbstractCassandraTest
@@ -26,10 +27,10 @@ class JavaTimesTest(
     @Test
     fun `find customer by jsr310 types`() {
         val order = Order("42", LocalDate.now(), ZoneId.systemDefault())
-        repository.save(order)
+        val saved = repository.save(order)
+        saved shouldBe order
 
-        val loaded = repository.findOrderByOrderDateAndZoneId(order.orderDate, order.zoneId)
-        loaded.shouldNotBeNull()
+        val loaded = repository.findOrderByOrderDateAndZoneId(order.orderDate, order.zoneId).shouldNotBeNull()
         loaded shouldBeEqualTo order
     }
 }

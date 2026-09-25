@@ -2,6 +2,8 @@ package io.bluetape4k.examples.cassandra.projection
 
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeInstanceOf
+import io.bluetape4k.assertions.shouldContainSame
+import io.bluetape4k.assertions.shouldHaveSize
 import io.bluetape4k.assertions.shouldNotBeNull
 import io.bluetape4k.examples.cassandra.AbstractCassandraCoroutineTest
 import io.bluetape4k.logging.KLogging
@@ -33,9 +35,9 @@ class ProjectionTest(
     fun `projects entity into interface`() {
         val result = repository.findAllProjectedBy()
 
-        result.size shouldBeEqualTo 2
+        result shouldHaveSize 2
         result.first().firstname shouldBeEqualTo "Carter"
-        result.map { it.firstname } shouldBeEqualTo listOf(carter.firstname, dave.firstname)
+        result.map { it.firstname } shouldContainSame listOf(carter.firstname, dave.firstname)
     }
 
     @Test
@@ -54,7 +56,7 @@ class ProjectionTest(
         result.firstname shouldBeEqualTo dave.firstname + ' ' + dave.lastname
 
         // NOTE: Projection 대상을 이렇게 찾을 수 있다
-        (result as TargetAware).target shouldBeInstanceOf Customer::class
+        result.shouldBeInstanceOf<TargetAware>().target.shouldBeInstanceOf<Customer>()
     }
 
     @Test
@@ -63,6 +65,6 @@ class ProjectionTest(
 
         result.shouldNotBeNull()
         result.firstname shouldBeEqualTo dave.firstname
-        (result as TargetAware).target shouldBeInstanceOf Customer::class
+        result.shouldBeInstanceOf<TargetAware>().target.shouldBeInstanceOf<Customer>()
     }
 }

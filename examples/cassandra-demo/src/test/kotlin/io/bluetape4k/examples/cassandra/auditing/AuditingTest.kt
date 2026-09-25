@@ -58,6 +58,6 @@ class AuditingTest(
         }
         modified.createdAt.shouldNotBeNull() shouldBeInRange range
         modified.lastModifiedAt.shouldNotBeNull() shouldBeInRange range
-        modified.lastModifiedAt.shouldNotBeNull() shouldBeAfter modified.createdAt!!
+        modified.lastModifiedAt.shouldNotBeNull() shouldBeAfter modified.createdAt.shouldNotBeNull()
     }
 }

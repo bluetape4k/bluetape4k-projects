@@ -1,11 +1,13 @@
 package io.bluetape4k.examples.cassandra.event
 
 import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldHaveSize
 import io.bluetape4k.examples.cassandra.AbstractCassandraCoroutineTest
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.coroutines.KLoggingChannel
+import io.bluetape4k.logging.debug
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.toList
+import kotlinx.coroutines.flow.count
 import kotlinx.coroutines.reactive.asFlow
 import kotlinx.coroutines.withContext
 import org.junit.jupiter.api.BeforeEach
@@ -37,7 +39,11 @@ class FlowEventTest(
         insertEntities()
 
         val userStream = operations.stream<User>(Query.empty())
-        userStream.forEach { println(it) }
+        val users = userStream.toList()
+        users.forEach {
+            log.debug { "user=$it" }
+        }
+        users shouldHaveSize 3
     }
 
     @Test
@@ -45,8 +51,8 @@ class FlowEventTest(
         insertEntities()
 
         val users = operations.select<User>(Query.empty())
-        users.size shouldBeEqualTo 3
-        users.forEach { println(it) }
+        users shouldHaveSize 3
+        users.forEach { log.debug { "user=$it" } }
     }
 
     @Test
@@ -55,8 +61,9 @@ class FlowEventTest(
             insertEntities()
         }
 
-        val userFlow = reactiveOperations.select<User>(Query.empty()).asFlow().toList()
-        userFlow.size shouldBeEqualTo 3
+        val userFlow = reactiveOperations.select<User>(Query.empty()).asFlow()
+        userFlow.count() shouldBeEqualTo 3
+        userFlow.collect { log.debug { "userFlow=$it" } }
     }
 
     private fun insertEntities() {

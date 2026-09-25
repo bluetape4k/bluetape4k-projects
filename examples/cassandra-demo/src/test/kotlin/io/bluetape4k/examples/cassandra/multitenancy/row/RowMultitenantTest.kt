@@ -2,12 +2,15 @@ package io.bluetape4k.examples.cassandra.multitenancy.row
 
 import io.bluetape4k.assertions.shouldBeEmpty
 import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldContain
+import io.bluetape4k.assertions.shouldContainAll
 import io.bluetape4k.examples.cassandra.AbstractCassandraCoroutineTest
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.junit5.coroutines.runSuspendTest
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.asContextElement
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.launch
@@ -15,6 +18,7 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
+import kotlin.time.Duration.Companion.milliseconds
 
 @SpringBootTest(classes = [RowMultitenantTestConfiguration::class])
 class RowMultitenantTest(
@@ -36,7 +40,7 @@ class RowMultitenantTest(
         repository.deleteAll()
 
         val saved = repository.saveAll(employees.asFlow()).toList()
-        saved.size shouldBeEqualTo employees.size
+        saved shouldContainAll employees
     }
 
     @Test
@@ -50,7 +54,8 @@ class RowMultitenantTest(
                 val loaded = repository.findAllByName("Steve").toList()
 
                 loaded.size shouldBeEqualTo 1
-                loaded.first() shouldBeEqualTo Employee("apple", "Steve")
+                loaded shouldContain Employee("apple", "Steve")
+                delay(10.milliseconds)
             }
         }
 
@@ -60,6 +65,12 @@ class RowMultitenantTest(
             repeat(REPEAT_TIMES) {
                 val loaded = repository.findAllByName("Steve").toList()
                 loaded.shouldBeEmpty()
+                delay(10.milliseconds)
+            }
+            repeat(REPEAT_TIMES) {
+                val loaded = repository.findAllByName("Jeff").toList()
+                loaded.first() shouldBeEqualTo Employee("amazon", "Jeff")
+                delay(10.milliseconds)
             }
         }
 
