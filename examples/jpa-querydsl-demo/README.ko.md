@@ -10,8 +10,8 @@ JPA와 Querydsl을 사용한 데이터베이스 쿼리 패턴을 학습하는 �
 
 ### Querydsl 기본 (examples/)
 
-| 예제 파일                 | 설명                |
-|-----------------------|-------------------|
+| 예제 파일             | 설명                    |
+|-----------------------|-------------------------|
 | `QuerydslExamples.kt` | Querydsl 기본 쿼리 패턴 |
 
 ### 주요 쿼리 패턴
@@ -105,28 +105,28 @@ val members = queryFactory
 
 ### Entity (domain/model/)
 
-| 엔티티      | 설명                       |
-|----------|--------------------------|
+| 엔티티   | 설명                          |
+|----------|-------------------------------|
 | `Member` | 회원 엔티티 (name, age, team) |
-| `Team`   | 팀 엔티티 (name, members)    |
+| `Team`   | 팀 엔티티 (name, members)     |
 
 ### DTO (domain/dto/)
 
-| DTO                     | 설명          |
-|-------------------------|-------------|
-| `MemberDto`             | 회원 DTO      |
-| `TeamDto`               | 팀 DTO       |
+| DTO                     | 설명             |
+|-------------------------|------------------|
+| `MemberDto`             | 회원 DTO         |
+| `TeamDto`               | 팀 DTO           |
 | `MemberTeamDto`         | 회원+팀 조인 DTO |
-| `MemberSearchCondition` | 검색 조건       |
+| `MemberSearchCondition` | 검색 조건        |
 
 ### Repository (domain/repository/)
 
-| Repository               | 설명           |
-|--------------------------|--------------|
-| `MemberRepository`       | 회원 리포지토리     |
-| `TeamRepository`         | 팀 리포지토리      |
+| Repository               | 설명                   |
+|--------------------------|------------------------|
+| `MemberRepository`       | 회원 리포지토리        |
+| `TeamRepository`         | 팀 리포지토리          |
 | `MemberRepositoryCustom` | 커스텀 쿼리 인터페이스 |
-| `MemberRepositoryImpl`   | Querydsl 구현체 |
+| `MemberRepositoryImpl`   | Querydsl 구현체        |
 
 ## 실행 방법
 
