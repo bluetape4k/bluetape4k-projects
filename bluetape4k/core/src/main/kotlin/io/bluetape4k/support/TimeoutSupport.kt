@@ -1,10 +1,9 @@
 package io.bluetape4k.support
 
 import io.bluetape4k.concurrent.get
-import io.bluetape4k.concurrent.virtualthread.VirtualThreadExecutor
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.ExecutionException
-import java.util.concurrent.ExecutorService
+import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.TimeoutException
 import kotlin.time.Duration
@@ -38,14 +37,14 @@ import kotlin.time.Duration.Companion.milliseconds
  */
 fun <T> asyncRunWithTimeout(
     timeoutMillis: Long,
-    executor: ExecutorService = VirtualThreadExecutor, //Executors.newVirtualThreadPerTaskExecutor(),
     action: () -> T,
 ): CompletableFuture<T> {
+    val executor = Executors.newVirtualThreadPerTaskExecutor()
     return CompletableFuture
         .supplyAsync({ action() }, executor)
         .orTimeout(timeoutMillis.coerceAtLeast(10L), TimeUnit.MILLISECONDS)
         .whenComplete { _, _ ->
-            // executor.shutdown()
+            executor.shutdown()
         }
 }
 
