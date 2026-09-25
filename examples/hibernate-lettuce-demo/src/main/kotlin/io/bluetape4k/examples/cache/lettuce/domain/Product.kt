@@ -9,6 +9,7 @@ import jakarta.persistence.Id
 import jakarta.persistence.Table
 import org.hibernate.annotations.Cache
 import org.hibernate.annotations.CacheConcurrencyStrategy
+import java.io.Serializable
 
 /**
  * Hibernate 2nd Level Cache 예제 엔티티.
@@ -33,4 +34,8 @@ data class Product(
 
     @Column(nullable = false)
     val price: Double = 0.0,
-)
+): Serializable {
+    companion object {
+        private const val serialVersionUID = 1L
+    }
+}

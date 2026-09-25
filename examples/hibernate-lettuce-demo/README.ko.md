@@ -12,8 +12,7 @@ Spring Boot 4 + Hibernate 7 **2nd Level Cache (2LC)** with **Lettuce Near Cache*
 
 ## 런타임 흐름
 
-Product CRUD 요청은 Spring Data JPA와 Hibernate 2LC를 통과합니다. 캐시 관리 엔드포인트는 L1 Caffeine near-cache만
-조회하거나 비우며, Redis L2는 의도적으로 건드리지 않습니다.
+Product CRUD 요청은 Spring Data JPA와 Hibernate 2LC를 통과합니다. 캐시 관리 엔드포인트는 L1 Caffeine near-cache만 조회하거나 비우며, Redis L2는 의도적으로 건드리지 않습니다.
 
 ![Hibernate Lettuce Demo Runtime Flow diagram](../../docs/images/readme-diagrams/spring-boot-hibernate-lettuce-demo-diagram-02.png)
 
@@ -50,13 +49,13 @@ data class Product(
 
 ### 상품 API (`/api/products`)
 
-| 메서드      | 경로                   | 설명        | 캐시 동작          |
-|----------|----------------------|-----------|----------------|
-| `GET`    | `/api/products`      | 전체 상품 조회  | 캐시 적용 안 함      |
-| `GET`    | `/api/products/{id}` | ID로 상품 조회 | L1/L2 Hit/Miss |
-| `POST`   | `/api/products`      | 상품 생성     | L1 + L2에 저장    |
-| `PUT`    | `/api/products/{id}` | 상품 수정     | L1 + L2 갱신     |
-| `DELETE` | `/api/products/{id}` | 상품 삭제     | L1 + L2 제거     |
+| 메서드   | 경로                 | 설명           | 캐시 동작       |
+|----------|----------------------|----------------|-----------------|
+| `GET`    | `/api/products`      | 전체 상품 조회 | 캐시 적용 안 함 |
+| `GET`    | `/api/products/{id}` | ID로 상품 조회 | L1/L2 Hit/Miss  |
+| `POST`   | `/api/products`      | 상품 생성      | L1 + L2에 저장  |
+| `PUT`    | `/api/products/{id}` | 상품 수정      | L1 + L2 갱신    |
+| `DELETE` | `/api/products/{id}` | 상품 삭제      | L1 + L2 제거    |
 
 #### 예시: 상품 조회 (캐시 활용)
 
@@ -127,10 +126,10 @@ curl -X DELETE http://localhost:8080/api/products/1
 
 ### 캐시 관리 API (`/api/cache`)
 
-| 메서드      | 경로                          | 설명              | 동작                        |
-|----------|-----------------------------|-----------------|---------------------------|
-| `GET`    | `/api/cache/stats`          | 리전별 캐시 통계       | L1 크기, hit/miss 수 조회      |
-| `DELETE` | `/api/cache/evict`          | 전체 리전 L1 캐시 비우기 | L1만 제거 (L2는 유지)           |
+| 메서드   | 경로                        | 설명                     | 동작                              |
+|----------|-----------------------------|--------------------------|-----------------------------------|
+| `GET`    | `/api/cache/stats`          | 리전별 캐시 통계         | L1 크기, hit/miss 수 조회         |
+| `DELETE` | `/api/cache/evict`          | 전체 리전 L1 캐시 비우기 | L1만 제거 (L2는 유지)             |
 | `DELETE` | `/api/cache/evict/{region}` | 특정 리전 L1 캐시 비우기 | 해당 region L1만 제거 (L2는 유지) |
 
 #### 예시: 캐시 통계 조회
@@ -167,7 +166,7 @@ curl -X DELETE http://localhost:8080/api/cache/evict
 # 응답 (204 No Content)
 ```
 
-> **주의**: 이 엔드포인트들은 L1(Caffeine)만 비웁니다. Redis L2는 영향받지 않습니다.
+> **주의**: 이 엔드포인트들은 L1 (Caffeine)만 비웁니다. Redis L2는 영향받지 않습니다.
 
 ### Actuator 엔드포인트
 

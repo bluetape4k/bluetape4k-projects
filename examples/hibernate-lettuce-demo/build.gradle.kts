@@ -4,6 +4,12 @@ plugins {
     kotlin("plugin.allopen")
 }
 
+allOpen {
+    annotation("jakarta.persistence.Entity")
+    annotation("jakarta.persistence.MappedSuperclass")
+    annotation("jakarta.persistence.Embeddable")
+}
+
 configurations {
     testImplementation.get().extendsFrom(compileOnly.get(), runtimeOnly.get())
 }
@@ -19,17 +25,15 @@ dependencies {
     implementation(libs.micrometer.core)
     runtimeOnly(bt4k.h2.v2)
 
+    // Bluetape4k
+    implementation(project(":bluetape4k-hibernate"))
+
     // Jackson 3
+    implementation(project(":bluetape4k-jackson3"))
     implementation(libs.jackson3.module.kotlin)
     implementation(libs.jackson3.module.blackbird)
 
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation(project(":bluetape4k-junit5"))
     testImplementation(project(":bluetape4k-testcontainers"))
-}
-
-allOpen {
-    annotation("jakarta.persistence.Entity")
-    annotation("jakarta.persistence.MappedSuperclass")
-    annotation("jakarta.persistence.Embeddable")
 }

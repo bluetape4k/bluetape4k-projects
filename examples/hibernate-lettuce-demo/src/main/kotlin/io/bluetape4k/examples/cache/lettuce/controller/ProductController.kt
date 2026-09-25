@@ -23,7 +23,7 @@ class ProductController(private val productRepository: ProductRepository) {
     fun getAllProducts(): List<Product> = productRepository.findAll()
 
     @GetMapping("/{id}")
-    fun getProduct(@PathVariable id: Long): ResponseEntity<Product> =
+    fun getProduct(@PathVariable id: Long): ResponseEntity<Product>? =
         productRepository.findById(id)
             .map { ResponseEntity.ok(it) }
             .orElse(ResponseEntity.notFound().build())

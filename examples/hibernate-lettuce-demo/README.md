@@ -13,8 +13,7 @@ An example of enabling Hibernate 2nd Level Cache with zero additional code using
 
 ## Runtime Flow
 
-Product CRUD requests go through Spring Data JPA and Hibernate 2LC. Cache management endpoints inspect or clear only
-the L1 Caffeine near-cache; Redis L2 is intentionally left untouched.
+Product CRUD requests go through Spring Data JPA and Hibernate 2LC. Cache management endpoints inspect or clear only the L1 Caffeine near-cache; Redis L2 is intentionally left untouched.
 
 ![Hibernate Lettuce Demo Runtime Flow diagram](../../docs/images/readme-diagrams/spring-boot-hibernate-lettuce-demo-diagram-02.png)
 

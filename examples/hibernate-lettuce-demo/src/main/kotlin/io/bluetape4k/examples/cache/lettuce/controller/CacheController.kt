@@ -50,6 +50,7 @@ class CacheController(private val entityManagerFactory: EntityManagerFactory) {
             ?: return ResponseEntity.internalServerError().body("RegionFactory not available")
         val cache = factory.getCaches()[region]
             ?: return ResponseEntity.notFound().build()
+
         cache.clearLocal()
         val safeRegion = HtmlUtils.htmlEscape(region)
         return ResponseEntity.ok("Evicted local cache (L1 only) for region: $safeRegion")
@@ -59,6 +60,7 @@ class CacheController(private val entityManagerFactory: EntityManagerFactory) {
     fun evictAll(): ResponseEntity<String> {
         val factory = getRegionFactory()
             ?: return ResponseEntity.internalServerError().body("RegionFactory not available")
+
         factory.getCaches().values.forEach { it.clearLocal() }
         return ResponseEntity.ok("Evicted all local caches (L1 only, ${factory.getCaches().size} regions)")
     }
