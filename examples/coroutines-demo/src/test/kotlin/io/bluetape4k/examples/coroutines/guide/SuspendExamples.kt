@@ -1,5 +1,7 @@
 package io.bluetape4k.examples.coroutines.guide
 
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeNull
 import io.bluetape4k.concurrent.onFailure
 import io.bluetape4k.concurrent.onSuccess
 import io.bluetape4k.junit5.coroutines.runSuspendTest
@@ -7,8 +9,6 @@ import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.trace
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withTimeoutOrNull
-import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldBeNull
 import org.junit.jupiter.api.Test
 import java.util.concurrent.CompletableFuture
 import kotlin.coroutines.resumeWithException
@@ -35,21 +35,19 @@ class SuspendExamples {
          * @param delayMillis
          * @return
          */
-        suspend fun executeWithDelay(delayMillis: Long): Int {
-            return suspendCancellableCoroutine { cont ->
-                executeAsync(delayMillis)
-                    .onSuccess { result ->
-                        log.trace { "Completed result=$result" }
-                        cont.resume(result) { cancellation, _, _ ->
-                            log.trace { "Cancel suspend" }
-                            cont.cancel(cancellation)
-                        }
+        suspend fun executeWithDelay(delayMillis: Long): Int = suspendCancellableCoroutine { cont ->
+            executeAsync(delayMillis)
+                .onSuccess { result ->
+                    log.trace { "Completed result=$result" }
+                    cont.resume(result) { cancellation, _, _ ->
+                        log.trace { "Cancel suspend" }
+                        cont.cancel(cancellation)
                     }
-                    .onFailure { error ->
-                        log.trace { "cause error!!!" }
-                        cont.resumeWithException(error)
-                    }
-            }
+                }
+                .onFailure { error ->
+                    log.trace { "cause error!!!" }
+                    cont.resumeWithException(error)
+                }
         }
 
         suspend fun executeWithDelay(delay: Duration): Int =

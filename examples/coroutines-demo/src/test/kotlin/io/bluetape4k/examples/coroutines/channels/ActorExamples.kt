@@ -1,18 +1,20 @@
 package io.bluetape4k.examples.coroutines.channels
 
+import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.coroutines.support.log
 import io.bluetape4k.examples.coroutines.massiveRun
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
+import io.bluetape4k.logging.warn
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.SendChannel
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.runTest
-import io.bluetape4k.assertions.shouldBeEqualTo
 import org.junit.jupiter.api.Test
+import java.util.concurrent.atomic.AtomicInteger
+import kotlin.coroutines.cancellation.CancellationException
 
 /**
  * Actor 패턴을 [Channel]로 구현하는 예제입니다.
@@ -34,21 +36,29 @@ class ActorExamples {
     data class GetCounter(val response: CompletableDeferred<Int>): CounterMsg()
 
     private fun CoroutineScope.counterActor(): Channel<CounterMsg> {
-        val channel = Channel<CounterMsg>()
-        launch {
-            var counter = 0
-            for (msg in channel) {
-                when (msg) {
-                    is IntCounter -> counter++
-                    is GetCounter -> msg.response.complete(counter)
+        return Channel<CounterMsg>().also { channel ->
+            launch {
+                val counter = AtomicInteger(0)
+                for (msg in channel) {
+                    when (msg) {
+                        is IntCounter -> counter.incrementAndGet()
+                        is GetCounter -> msg.response.complete(counter.get())
+                    }
+                }
+            }.log("👋receive job")
+
+            channel.invokeOnClose { err ->
+                if (err != null) {
+                    if (err is CancellationException) {
+                        log.debug { "🔥channel canceled." }
+                    } else {
+                        log.warn(err) { "🔥 channel closed with exception." }
+                    }
+                } else {
+                    log.debug { "✅ channel close." }
                 }
             }
-        }.log("👋receive job")
-
-        channel.invokeOnClose {
-            log.debug(it) { "✅ channel close." }
         }
-        return channel
     }
 
     @Test
@@ -56,13 +66,15 @@ class ActorExamples {
         val counter: SendChannel<CounterMsg> = counterActor()
         val times = 100
 
-        massiveRun(Dispatchers.IO, times) {
+        massiveRun(times = times) {
             counter.send(IntCounter)
         }
 
         val response = CompletableDeferred<Int>()
         counter.send(GetCounter(response))
+
         val result = response.await()
+
         log.debug { "result=$result" }
         response.getCompleted() shouldBeEqualTo times * times
 

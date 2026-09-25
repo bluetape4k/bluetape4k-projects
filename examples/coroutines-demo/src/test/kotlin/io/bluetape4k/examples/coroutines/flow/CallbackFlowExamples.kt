@@ -3,16 +3,21 @@ package io.bluetape4k.examples.coroutines.flow
 import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.coroutines.assertResult
 import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeIn
+import io.bluetape4k.assertions.shouldBeInstanceOf
 import io.bluetape4k.assertions.shouldBeSameInstanceAs
 import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.assertions.shouldContain
 import io.bluetape4k.assertions.shouldHaveSize
 import io.bluetape4k.codec.Base58
 import io.bluetape4k.concurrent.await
 import io.bluetape4k.coroutines.flow.extensions.log
+import io.bluetape4k.coroutines.support.log
 import io.bluetape4k.junit5.awaitility.untilSuspending
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
+import io.bluetape4k.support.toUtf8Bytes
 import io.bluetape4k.testcontainers.mq.KafkaServer
 import io.bluetape4k.utils.ShutdownQueue
 import io.mockk.every
@@ -81,8 +86,7 @@ class CallbackFlowExamples {
     companion object: KLoggingChannel() {
         private const val DIAGNOSTICS_DIRECTORY_PROPERTY = "bluetape4k.testcontainers.diagnostics.dir"
         private const val MAX_RAW_LOG_BYTES = 2_000_000
-        private const val KAFKA_IMAGE_REF =
-            "confluentinc/cp-kafka@sha256:a5040785528b0bce3b146febe9fcacdcf2b9b5acb450307f75170ef0e60ec130"
+        private val KAFKA_IMAGE_REF = DockerImageName.parse(KafkaServer.IMAGE + ":" + KafkaServer.TAG).toString()
     }
 
     /**
@@ -264,8 +268,8 @@ class CallbackFlowExamples {
                             var cleanupFailure: Throwable? = null
                             var cleanupCancellation: CancellationException? = null
                             try {
-                                withTimeout(30.seconds) {
-                                    while (inFlight.isNotEmpty()) delay(10.milliseconds)
+                                withTimeout(10.seconds) {
+                                    while (inFlight.isNotEmpty()) delay(100.milliseconds)
                                     runInterruptible { activeProducer.flush() }
                                 }
                             } catch (cause: TimeoutCancellationException) {
@@ -316,7 +320,8 @@ class CallbackFlowExamples {
                         }
                     }
                 }
-            }
+            }.log("upstreamJob")
+
             upstreamJobRef.set(upstreamJob)
             upstreamJob.start()
             awaitClose {
@@ -328,7 +333,8 @@ class CallbackFlowExamples {
                 cancelInFlight()
                 upstreamJob.cancel(cancellation)
             }
-        }.buffer(channelCapacity, onBufferOverflow = BufferOverflow.SUSPEND)
+        }
+            .buffer(channelCapacity, onBufferOverflow = BufferOverflow.SUSPEND)
             .catch { cause ->
                 throw cause.unwrapRecoveredCoroutineCause()
             }
@@ -372,7 +378,11 @@ class CallbackFlowExamples {
             val collection = async {
                 var received = 0
                 producerResults(
-                    records = flowOf(record("one"), record("two"), record("three")),
+                    records = flowOf(
+                        record("one"),
+                        record("two"),
+                        record("three")
+                    ),
                     producerFactory = { producer.producer },
                     channelCapacity = 1,
                     maxInFlight = 2,
@@ -432,13 +442,15 @@ class CallbackFlowExamples {
         val cancellation = assertFailsWith<CancellationException> { task.await() }
 
         producer.closeCount.get() shouldBeEqualTo 1
-        producer.pendingSend.isCancelled shouldBeEqualTo true
+        producer.pendingSend.isCancelled.shouldBeTrue()
         producer.cancelledPendingSends() shouldBeEqualTo 1
+
         producer.fireLateCallback()
         producer.callbackCount.get() shouldBeEqualTo 0
         producer.lateCallbackCount.get() shouldBeEqualTo 1
+
         val afterLate = assertFailsWith<CancellationException> { task.await() }
-        afterLate::class shouldBeEqualTo cancellation::class
+        afterLate shouldBeInstanceOf cancellation::class
         afterLate.message shouldBeEqualTo cancellation.message
     }
 
@@ -461,11 +473,17 @@ class CallbackFlowExamples {
         val callback = async(Dispatchers.IO) { producer.fireCallback() }
         callbackStarted.await(5.seconds).shouldBeTrue()
         task.cancel()
-        await atMost 5.seconds untilSuspending { producer.closeCount.get() > 0 }
+
+        await atMost 5.seconds untilSuspending {
+            producer.closeCount.get() > 0
+        }
+
         callbackGate.countDown()
         callback.await()
 
-        assertFailsWith<CancellationException> { task.await() }
+        assertFailsWith<CancellationException> {
+            task.await()
+        }
         producer.closeCount.get() shouldBeEqualTo 1
         producer.callbackCount.get() shouldBeEqualTo 1
     }
@@ -479,13 +497,14 @@ class CallbackFlowExamples {
                 producerFactory = { producer.producer },
                 maxInFlight = 2,
             ).toList()
-        }
+        }.log("task")
 
         withTimeout(5.seconds) { producer.twoSendsStarted.await() }
         task.cancel()
-        await.atMost(Duration.ofSeconds(5)) untilSuspending { producer.cancelledPendingSends() >= 2 }
-        assertFailsWith<CancellationException> { task.await() }
 
+        await atMost 5.seconds untilSuspending { producer.cancelledPendingSends() >= 2 }
+
+        assertFailsWith<CancellationException> { task.await() }
         producer.closeCount.get() shouldBeEqualTo 1
         producer.cancelledPendingSends() shouldBeEqualTo 2
     }
@@ -504,14 +523,20 @@ class CallbackFlowExamples {
                     releaseRegistration.await(5.seconds)
                 },
             ).toList()
-        }
+        }.log("task")
 
         registrationStarted.await(5.seconds).shouldBeTrue()
         task.cancel()
         releaseRegistration.countDown()
 
-        assertFailsWith<CancellationException> { task.await() }
-        await.atMost(Duration.ofSeconds(5)) untilSuspending { producer.closeCount.get() > 0 }
+        assertFailsWith<CancellationException> {
+            task.await()
+        }
+
+        await atMost 5.seconds untilSuspending {
+            producer.closeCount.get() > 0
+        }
+
         producer.closeCount.get() shouldBeEqualTo 1
         producer.sendCount.get() shouldBeEqualTo producer.cancelledPendingSends()
         producer.pendingSends.all { it.isCancelled }.shouldBeTrue()
@@ -528,10 +553,12 @@ class CallbackFlowExamples {
 
         withTimeout(5.seconds) { producer.sendStarted.await() }
         task.cancel(cancellation)
+
         val observed = assertFailsWith<CancellationException> { task.await() }
 
         producer.closeCount.get() shouldBeEqualTo 1
         observed.message shouldBeEqualTo cancellation.message
+
         val cancellationCleanup = sequenceOf(observed, observed.cause)
             .filterNotNull()
             .flatMap { it.suppressed.asSequence() }
@@ -550,10 +577,11 @@ class CallbackFlowExamples {
                     producer.producer
                 },
             ).toList()
-        }
+        }.log("task")
 
         withTimeout(5.seconds) { factoryStarted.await() }
         task.cancel()
+
         assertFailsWith<CancellationException> { task.await() }
 
         producer.closeCount.get() shouldBeEqualTo 1
@@ -563,15 +591,19 @@ class CallbackFlowExamples {
     fun `factory and synchronous send failures are terminal causes`() = runSuspendIO {
         val factoryFailure = IllegalArgumentException("factory failure")
         val factoryError = assertFailsWith<IllegalArgumentException> {
-            producerResults(flowOf(record("factory")), { throw factoryFailure }).toList()
+            producerResults(
+                flowOf(record("factory")), { throw factoryFailure }
+            ).toList()
         }
         factoryError.assertIdentityOrDirectCause(factoryFailure)
 
         val sendFailure = IllegalStateException("send failure")
         val sendProducer = TrackingProducer(sendError = sendFailure)
+
         val sendError = assertFailsWith<IllegalStateException> {
             producerResults(flowOf(record("send")), { sendProducer.producer }).toList()
         }
+
         sendError.assertIdentityOrDirectCause(sendFailure)
         sendProducer.closeCount.get() shouldBeEqualTo 1
     }
@@ -581,7 +613,11 @@ class CallbackFlowExamples {
         val producer = TrackingProducer(callbackWithoutMetadata = true)
 
         val error = assertFailsWith<IllegalStateException> {
-            producerResults(flowOf(record("malformed-callback")), { producer.producer }).toList()
+            producerResults(
+                flowOf(
+                    record("malformed-callback")
+                ), { producer.producer }
+            ).toList()
         }
 
         error.message shouldBeEqualTo "Kafka callback returned neither metadata nor failure"
@@ -609,7 +645,9 @@ class CallbackFlowExamples {
     fun `normal completion drains callbacks flushes and closes once`() = runSuspendIO {
         val producer = TrackingProducer()
 
-        producerResults(flowOf(record("normal")), { producer.producer }).toList()
+        producerResults(
+            flowOf(record("normal")), { producer.producer }
+        ).toList()
 
         producer.flushCount.get() shouldBeEqualTo 1
         producer.closeCount.get() shouldBeEqualTo 1
@@ -624,9 +662,10 @@ class CallbackFlowExamples {
                 flowOf(record("sync"), record("async")),
                 { producer.producer },
             ).toList()
-        }
+        }.log("collection")
 
         withTimeout(5.seconds) { producer.twoSendsStarted.await() }
+
         producer.fireCallback()
         collection.await()
 
@@ -641,7 +680,9 @@ class CallbackFlowExamples {
         val producer = TrackingProducer(flushError = flushFailure)
 
         val error = assertFailsWith<IllegalStateException> {
-            producerResults(flowOf(record("flush-failure")), { producer.producer }).toList()
+            producerResults(
+                flowOf(record("flush-failure")), { producer.producer }
+            ).toList()
         }
 
         error.assertIdentityOrDirectCause(flushFailure)
@@ -678,6 +719,7 @@ class CallbackFlowExamples {
                 channelCapacity = 0,
             ).toList()
         }
+
         assertFailsWith<IllegalArgumentException> {
             producerResults(
                 flowOf(record("invalid-in-flight")),
@@ -688,19 +730,20 @@ class CallbackFlowExamples {
     }
 
     @Test
-    fun `callback drain timeout cancels pending sends and preserves timeout cause`() =
-        runSuspendIO(timeout = 40.seconds) {
-            val producer = TrackingProducer(holdCallbacks = true)
+    fun `callback drain timeout cancels pending sends and preserves timeout cause`() = runSuspendIO(20.seconds) {
+        val producer = TrackingProducer(holdCallbacks = true)
 
-            val error = assertFailsWith<TimeoutCancellationException> {
-                producerResults(flowOf(record("timeout")), { producer.producer }).toList()
-            }
-
-            error::class shouldBeEqualTo TimeoutCancellationException::class
-            producer.closeCount.get() shouldBeEqualTo 1
-            producer.pendingSend.isCancelled shouldBeEqualTo true
-            producer.cancelledPendingSends() shouldBeEqualTo 1
+        val error = assertFailsWith<TimeoutCancellationException> {
+            producerResults(
+                flowOf(record("timeout")), { producer.producer }
+            ).toList()
         }
+
+        error.shouldBeInstanceOf<TimeoutCancellationException>()
+        producer.closeCount.get() shouldBeEqualTo 1
+        producer.pendingSend.isCancelled.shouldBeTrue()
+        producer.cancelledPendingSends() shouldBeEqualTo 1
+    }
 
     @Test
     fun `failure diagnostics export a bounded pre-cleanup broker log`(@TempDir tempDir: Path) {
@@ -708,7 +751,7 @@ class CallbackFlowExamples {
 
         writeKafkaFailureDiagnostics(
             containerId = containerId,
-            logs = "x".repeat(2_100_000).toByteArray(),
+            logs = "x".repeat(2_100_000).toUtf8Bytes(),
             outputDirectory = tempDir,
             name = "callback-flow-kafka",
             image = KAFKA_IMAGE_REF,
@@ -718,76 +761,82 @@ class CallbackFlowExamples {
 
         val rawLog = tempDir.resolve("$containerId.log")
         val metadata = tempDir.resolve("$containerId.metadata")
+
         Files.exists(rawLog).shouldBeTrue()
         Files.size(rawLog) shouldBeEqualTo 2_000_000L
         Files.readString(metadata).let { receipt ->
-            receipt.contains("id=$containerId").shouldBeTrue()
-            receipt.contains("image_id=sha256:${"b".repeat(64)}").shouldBeTrue()
-            receipt.contains("created=2026-08-30T00:00:00Z").shouldBeTrue()
+            log.debug { "receipt=$receipt" }
+            receipt shouldContain "id=$containerId"
+            receipt shouldContain "image_id=sha256:${"b".repeat(64)}"
+            receipt shouldContain "created=2026-08-30T00:00:00Z"
         }
     }
 
     @Test
-    fun `real Kafka producer callbacks become metadata flow`(@TempDir tempDir: Path) =
-        runSuspendIO(timeout = 120.seconds) {
-            val topic = "epic-1422-callback-${Base58.randomString(8)}"
-            val records = (0 until 8).map { index ->
-                ProducerRecord(topic, "key-$index", "value-$index")
-            }
-
-            val broker = KafkaServer(DockerImageName.parse(KAFKA_IMAGE_REF))
-            try {
-                broker.start()
-                ShutdownQueue.register(broker)
-                val consumer = KafkaServer.Launcher.createStringConsumer(broker)
-                try {
-                    consumer.subscribe(listOf(topic))
-                    val metadata = producerResults(
-                        records = records.asFlow(),
-                        producerFactory = { KafkaServer.Launcher.createStringProducer(broker) },
-                    ).toList()
-
-                    metadata shouldHaveSize records.size
-                    val polled = withTimeout(10.seconds) {
-                        buildList {
-                            while (size < records.size) {
-                                addAll(consumer.poll(Duration.ofMillis(250)).toList())
-                            }
-                        }
-                    }
-                    polled shouldHaveSize records.size
-
-                    val diagnosticsDirectory = configuredDiagnosticsDirectory() ?: tempDir
-                    writeKafkaFailureDiagnostics(broker, diagnosticsDirectory)
-                    val containerId = broker.containerId
-                    val receipt = Files.readString(diagnosticsDirectory.resolve("$containerId.metadata"))
-                    receipt.contains("id=$containerId").shouldBeTrue()
-                    receipt.contains("image=${broker.dockerImageName}").shouldBeTrue()
-                    receipt.contains("image_id=${broker.containerInfo.imageId}").shouldBeTrue()
-                    receipt.contains("created=${broker.containerInfo.created}").shouldBeTrue()
-                    Files.size(diagnosticsDirectory.resolve("$containerId.log"))
-                        .let { it in 1..MAX_RAW_LOG_BYTES }.shouldBeTrue()
-                } finally {
-                    withContext(NonCancellable + Dispatchers.IO) {
-                        withTimeout(5.seconds) {
-                            runInterruptible { consumer.close(Duration.ofSeconds(5)) }
-                        }
-                    }
-                }
-            } catch (failure: Throwable) {
-                try {
-                    val outputDirectory = configuredDiagnosticsDirectory()
-                    if (outputDirectory != null && broker.isRunning) {
-                        withContext(NonCancellable) {
-                            writeKafkaFailureDiagnostics(broker, outputDirectory)
-                        }
-                    }
-                } catch (diagnosticFailure: Exception) {
-                    failure.addSuppressed(diagnosticFailure)
-                }
-                throw failure
-            }
+    fun `real Kafka producer callbacks become metadata flow`(@TempDir tempDir: Path) = runSuspendIO {
+        val topic = "epic-1422-callback-${Base58.randomString(8)}"
+        val records = (0 until 8).map { index ->
+            ProducerRecord(topic, "key-$index", "value-$index")
         }
+
+        val broker: KafkaServer = KafkaServer(DockerImageName.parse(KAFKA_IMAGE_REF))
+            .apply(ShutdownQueue::register)
+
+        try {
+            broker.start()
+            ShutdownQueue.register(broker)
+            val consumer = KafkaServer.Launcher.createStringConsumer(broker)
+            try {
+                consumer.subscribe(listOf(topic))
+                val metadata = producerResults(
+                    records = records.asFlow(),
+                    producerFactory = { KafkaServer.Launcher.createStringProducer(broker) },
+                ).toList()
+
+                metadata shouldHaveSize records.size
+
+                val polled = withTimeout(10.seconds) {
+                    buildList {
+                        while (size < records.size) {
+                            addAll(consumer.poll(Duration.ofMillis(250)).toList())
+                        }
+                    }
+                }
+                polled shouldHaveSize records.size
+
+                val diagnosticsDirectory = configuredDiagnosticsDirectory() ?: tempDir
+                writeKafkaFailureDiagnostics(broker, diagnosticsDirectory)
+
+                val containerId = broker.containerId
+                val receipt = Files.readString(diagnosticsDirectory.resolve("$containerId.metadata"))
+
+                receipt shouldContain "id=$containerId"
+                receipt shouldContain "image=${broker.dockerImageName}"
+                receipt shouldContain "image_id=${broker.containerInfo.imageId}"
+                receipt shouldContain "created=${broker.containerInfo.created}"
+
+                Files.size(diagnosticsDirectory.resolve("$containerId.log")).shouldBeIn(1..MAX_RAW_LOG_BYTES.toLong())
+            } finally {
+                withContext(NonCancellable + Dispatchers.IO) {
+                    withTimeout(5.seconds) {
+                        runInterruptible { consumer.close(Duration.ofSeconds(5)) }
+                    }
+                }
+            }
+        } catch (failure: Throwable) {
+            try {
+                val outputDirectory = configuredDiagnosticsDirectory()
+                if (outputDirectory != null && broker.isRunning) {
+                    withContext(NonCancellable) {
+                        writeKafkaFailureDiagnostics(broker, outputDirectory)
+                    }
+                }
+            } catch (diagnosticFailure: Exception) {
+                failure.addSuppressed(diagnosticFailure)
+            }
+            throw failure
+        }
+    }
 
     private fun configuredDiagnosticsDirectory(): Path? =
         System.getProperty(DIAGNOSTICS_DIRECTORY_PROPERTY)
@@ -894,12 +943,14 @@ class CallbackFlowExamples {
         val key = "key"
         val headerName = "x-epic-1422"
         val headerValue = "example"
+
         require(topic.length <= 128)
         require(key.length <= 128)
-        require(value.toByteArray(Charsets.UTF_8).size <= 1024)
-        require(headerName.toByteArray(Charsets.UTF_8).size <= 256)
-        require(headerValue.toByteArray(Charsets.UTF_8).size <= 256)
-        val headers = RecordHeaders().add(headerName, headerValue.toByteArray(Charsets.UTF_8))
+        require(value.toUtf8Bytes().size <= 1024)
+        require(headerName.toUtf8Bytes().size <= 256)
+        require(headerValue.toUtf8Bytes().size <= 256)
+
+        val headers = RecordHeaders().add(headerName, headerValue.toUtf8Bytes())
         return ProducerRecord(topic, null, null, key, value, headers)
     }
 
@@ -1001,11 +1052,10 @@ class CallbackFlowExamples {
     fun `get messages by callback flow`() = runTest {
         val api = FakeProductApi()
 
-        val messages = flowOf(
-            Message(1, "Message 1"),
-            Message(2, "Message 2"),
-            Message(3, "Message 3"),
-        ).log("M")
+        val messages = List(3) {
+            val i = it + 1
+            Message(i.toLong(), "Message $i")
+        }.asFlow().log("M")
 
         val results = flowFrom(api, messages).log("results")
 

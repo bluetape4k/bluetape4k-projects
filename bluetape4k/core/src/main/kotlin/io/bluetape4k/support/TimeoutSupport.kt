@@ -1,12 +1,14 @@
 package io.bluetape4k.support
 
+import io.bluetape4k.concurrent.get
+import io.bluetape4k.concurrent.virtualthread.VirtualThreadExecutor
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.ExecutionException
 import java.util.concurrent.ExecutorService
-import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.TimeoutException
 import kotlin.time.Duration
+import kotlin.time.Duration.Companion.milliseconds
 
 /**
  * 제한시간을 두고 [action]을 비동기로 실행합니다. 제한시간이 지나면 Exception을 가지는 [CompletableFuture]를 반환합니다.
@@ -34,16 +36,16 @@ import kotlin.time.Duration
  * @param action 비동기로 실행할 코드 블럭
  * @return [action]의 실행 결과를 담은 [CompletableFuture], 제한시간이 초과되면 [java.util.concurrent.TimeoutException]을 담은 [CompletableFuture]를 반환합니다.
  */
-inline fun <T> asyncRunWithTimeout(
+fun <T> asyncRunWithTimeout(
     timeoutMillis: Long,
-    executor: ExecutorService = Executors.newVirtualThreadPerTaskExecutor(),
-    crossinline action: () -> T,
+    executor: ExecutorService = VirtualThreadExecutor, //Executors.newVirtualThreadPerTaskExecutor(),
+    action: () -> T,
 ): CompletableFuture<T> {
     return CompletableFuture
         .supplyAsync({ action() }, executor)
         .orTimeout(timeoutMillis.coerceAtLeast(10L), TimeUnit.MILLISECONDS)
         .whenComplete { _, _ ->
-            executor.shutdown()
+            // executor.shutdown()
         }
 }
 
@@ -73,7 +75,7 @@ inline fun <T> asyncRunWithTimeout(
  * @param action 비동기로 실행할 코드 블럭
  * @return [action]의 실행 결과를 담은 [CompletableFuture], 제한시간이 초과되면 [java.util.concurrent.TimeoutException]을 담은 [CompletableFuture]를 반환합니다.
  */
-inline fun <T> asyncRunWithTimeout(timeout: Duration, crossinline action: () -> T): CompletableFuture<T> =
+fun <T> asyncRunWithTimeout(timeout: Duration, action: () -> T): CompletableFuture<T> =
     asyncRunWithTimeout(timeout.inWholeMilliseconds, action = action)
 
 /**
@@ -101,9 +103,9 @@ inline fun <T> asyncRunWithTimeout(timeout: Duration, crossinline action: () -> 
  * @param action 실행할 block
  * @return [action]의 실행 결과, [timeoutMillis] 시간 내에 종료되지 않으면 null
  */
-inline fun <T: Any> withTimeoutOrNull(timeoutMillis: Long, crossinline action: () -> T): T? {
+fun <T: Any> withTimeoutOrNull(timeoutMillis: Long, action: () -> T): T? {
     return try {
-        asyncRunWithTimeout(timeoutMillis, action = action).get()
+        asyncRunWithTimeout(timeoutMillis, action = action).get(timeoutMillis.milliseconds)
     } catch (e: ExecutionException) {
         val cause = e.cause
         if (cause is TimeoutException) null else throw e
@@ -137,5 +139,20 @@ inline fun <T: Any> withTimeoutOrNull(timeoutMillis: Long, crossinline action: (
  * @param action 실행할 block
  * @return [action]의 실행 결과, [timeout] 시간 내에 종료되지 않으면 null
  */
-inline fun <T: Any> withTimeoutOrNull(timeout: Duration, crossinline action: () -> T): T? =
+fun <T: Any> withTimeoutOrNull(timeout: Duration, action: () -> T): T? =
     withTimeoutOrNull(timeout.inWholeMilliseconds, action)
+
+fun <T: Any> retryWithTimeoutOrNull(
+    maxRetries: Int,
+    timeout: Duration,
+    action: () -> T,
+): T? {
+    maxRetries.requirePositiveNumber("maxRetries")
+
+    repeat(maxRetries) { attempt ->
+        val result = withTimeoutOrNull(timeout, action)
+        if (result != null) return result
+        // log.debug { "시도 ${attempt + 1}/$maxRetries 타임아웃" }
+    }
+    return null
+}

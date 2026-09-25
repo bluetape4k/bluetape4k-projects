@@ -1,11 +1,11 @@
 package io.bluetape4k.examples.coroutines.guide
 
+import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.coroutines.flow.extensions.log
 import io.bluetape4k.coroutines.support.log
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
-import io.bluetape4k.logging.trace
 import kotlinx.coroutines.ExecutorCoroutineDispatcher
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.BufferOverflow
@@ -19,7 +19,6 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.newFixedThreadPoolContext
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.yield
-import io.bluetape4k.assertions.shouldBeEqualTo
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -38,7 +37,6 @@ class ChannelAsFlowExamples {
 
         suspend fun postEvent(event: Event) {
             _events.send(event)
-            log.trace { "[source] Send event. $event" }
         }
 
         fun close() {
@@ -75,10 +73,10 @@ class ChannelAsFlowExamples {
             launch(consumerDispatcher) {
                 yield()
                 eventBus.events
-                    .log("consumer")
+                    .log("consumer flow")
                     .onEach { totalConsumed.incrementAndGet() }
                     .collect()
-            }.log("consumer-$it")
+            }.log("consumerJob-$it")
         }
 
         val jobs = mutableListOf<Job>()
@@ -88,7 +86,7 @@ class ChannelAsFlowExamples {
                     totalProduced.incrementAndGet()
                     eventBus.postEvent(Event.Created)
                 }
-            }.log("producer1-$it")
+            }.log("producer1 job-$it")
         }
 
         jobs += List(jobSize) {
@@ -97,7 +95,7 @@ class ChannelAsFlowExamples {
                     totalProduced.incrementAndGet()
                     eventBus.postEvent(Event.Deleted)
                 }
-            }.log("producer2-$it")
+            }.log("producer2 job-$it")
         }
 
         jobs.joinAll()

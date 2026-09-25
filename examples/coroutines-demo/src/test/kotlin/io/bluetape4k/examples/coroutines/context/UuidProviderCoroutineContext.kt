@@ -22,7 +22,7 @@ abstract class UuidProviderCoroutineContext: CoroutineContext.Element {
  * Timebased uuid 를 제공하는 [UuidProviderCoroutineContext] 구현체입니다.
  */
 class TimebasedUuidProviderCoroutineContext: UuidProviderCoroutineContext() {
-    override fun nextUuid(): String = Uuid.V7.nextId().toString()
+    override fun nextUuid(): String = Uuid.V7.nextIdAsString()
 }
 
 /**

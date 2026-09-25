@@ -1,7 +1,9 @@
 package io.bluetape4k.examples.coroutines.guide
 
+import io.bluetape4k.assertions.shouldBeGreaterThan
 import io.bluetape4k.coroutines.flow.extensions.log
 import io.bluetape4k.coroutines.support.log
+import io.bluetape4k.junit5.awaitility.untilSuspending
 import io.bluetape4k.junit5.faker.Fakers
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.coroutines.KLoggingChannel
@@ -22,10 +24,8 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.newFixedThreadPoolContext
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.yield
-import io.bluetape4k.assertions.shouldBeGreaterThan
 import org.awaitility.kotlin.atMost
 import org.awaitility.kotlin.await
-import org.awaitility.kotlin.until
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -109,7 +109,8 @@ class SharedFlowExamples {
         }
         yield()
 
-        await atMost 5.seconds until { totalConsumed.get() > 0L }
+        await atMost 5.seconds untilSuspending { totalConsumed.get() > 0L }
+
         delay(10.milliseconds)
         producers.forEach { it.cancelAndJoin() }
 

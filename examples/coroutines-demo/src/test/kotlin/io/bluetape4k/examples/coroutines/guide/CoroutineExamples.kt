@@ -3,8 +3,8 @@ package io.bluetape4k.examples.coroutines.guide
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.yield
 import org.junit.jupiter.api.Disabled
@@ -26,15 +26,15 @@ class CoroutineExamples {
         // coroutineScope 내부의 비동기 함수는 모두 완료되도록 대기한다 
         coroutineScope {
             List(ITEM_SIZE) {
-                launch(Dispatchers.IO) {
-                    advanceTimeBy(DELAY_TIME.milliseconds)
+                launch(Dispatchers.Default) {
+                    delay(DELAY_TIME.milliseconds)
                 }
             }
             yield()
 
             List(ITEM_SIZE) {
                 launch(Dispatchers.IO) {
-                    advanceTimeBy(DELAY_TIME.milliseconds)
+                    delay(DELAY_TIME.milliseconds)
                 }
             }
         }

@@ -1,11 +1,14 @@
 package io.bluetape4k.examples.coroutines.cancellation
 
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeGreaterOrEqualTo
+import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.coroutines.support.log
 import io.bluetape4k.coroutines.support.suspendLogging
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
-import io.bluetape4k.logging.error
 import io.bluetape4k.logging.info
+import io.bluetape4k.logging.warn
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.delay
@@ -14,9 +17,6 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.withContext
-import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldBeGreaterOrEqualTo
-import io.bluetape4k.assertions.shouldBeTrue
 import org.junit.jupiter.api.Test
 import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicInteger
@@ -66,8 +66,7 @@ class CancellationExamples {
                     log.debug { "Printing $it" }
                 }
             } catch (e: CancellationException) {
-                log.error(e) { "Job이 취소되었습니다" }
-                throw e
+                log.warn { "Job이 취소되었습니다" }
             }
         }.log("job")
 
@@ -86,6 +85,8 @@ class CancellationExamples {
                 // 이 작업은 수행되지 않습니다.
                 counter.incrementAndGet()
                 log.debug { "Coroutine finished" }
+            } catch (e: CancellationException) {
+                log.warn { "Job이 취소되었습니다" }
             } finally {
                 log.debug { "Finally" }
                 // 취소 시에도 무조건 작업을 수행하도록 합니다.

@@ -1,8 +1,10 @@
 package io.bluetape4k.examples.coroutines.flow
 
 import app.cash.turbine.test
-import io.bluetape4k.coroutines.flow.extensions.log
 import io.bluetape4k.assertions.coroutines.assertResult
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.coroutines.flow.extensions.log
+import io.bluetape4k.coroutines.support.log
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import kotlinx.coroutines.coroutineScope
@@ -15,7 +17,6 @@ import kotlinx.coroutines.flow.last
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.runTest
-import io.bluetape4k.assertions.shouldBeEqualTo
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.fail
 import java.util.concurrent.atomic.AtomicInteger
@@ -31,7 +32,7 @@ class FlowBuilderExamples {
         var collected = 0
         flow.collect {
             collected = it
-            log.debug { "element=$it" }
+            log.debug { "collect element=$it" }
         }
         collected shouldBeEqualTo flow.last()
     }
@@ -48,8 +49,7 @@ class FlowBuilderExamples {
     @Test
     fun `convert list to flow - asFlow`() = runTest {
         var count = 0
-        listOf(1, 2, 3, 4, 5).asFlow()
-            .log("array")
+        listOf(1, 2, 3, 4, 5).asFlow().log("array")
             .collect { count++ }
 
         count shouldBeEqualTo 5
@@ -92,6 +92,7 @@ class FlowBuilderExamples {
 
         val counter1 = AtomicInteger(0)
         val counter2 = AtomicInteger(0)
+
         // flow 를 여러 subscriber 가 중복해서 받아갈 수 있다
         coroutineScope {
             launch {
@@ -99,7 +100,8 @@ class FlowBuilderExamples {
                     .collect {
                         counter1.incrementAndGet()
                     }
-            }
+            }.log("job1")
+
             launch {
                 // delay 를 줘도 flow 는 cold stream 이므로, buffer 에 쌓여있는 값들은 모두 처리됩니다.
                 advanceTimeBy(15.milliseconds)
@@ -107,7 +109,8 @@ class FlowBuilderExamples {
                     .collect {
                         counter2.incrementAndGet()
                     }
-            }
+            }.log("job2")
+            
             // https://github.com/cashapp/turbine/
             // turbine 을 이용하여 assertions 를 수행할 수 있습니다.
             // flow 는 cold stream 이므로 반복적으로 collect 할 수 있습니다.
@@ -119,7 +122,8 @@ class FlowBuilderExamples {
                         awaitItem() shouldBeEqualTo 2
                         awaitComplete()
                     }
-            }
+            }.log("job3")
+
             launch {
                 nums.log("job4")
                     .test {
@@ -128,7 +132,7 @@ class FlowBuilderExamples {
                         awaitItem() shouldBeEqualTo 2
                         awaitComplete()
                     }
-            }
+            }.log("job4")
         }
         counter1.get() shouldBeEqualTo 3
         counter2.get() shouldBeEqualTo 3

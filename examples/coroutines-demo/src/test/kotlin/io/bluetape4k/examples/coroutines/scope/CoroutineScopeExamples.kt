@@ -1,5 +1,7 @@
 package io.bluetape4k.examples.coroutines.scope
 
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeNull
 import io.bluetape4k.coroutines.support.log
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
@@ -12,8 +14,6 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.runTest
-import io.bluetape4k.assertions.shouldBeNull
-import io.bluetape4k.assertions.shouldContainSame
 import org.junit.jupiter.api.Test
 import kotlin.time.Duration.Companion.milliseconds
 
@@ -63,7 +63,7 @@ class CoroutineScopeExamples {
         details.shouldBeNull()
 
         log.info { "Tweets: ${tweets.await()}" } // [Tweet(text=Hello, world)]
-        tweets.await() shouldContainSame listOf(Tweet("Hello, world"))
+        tweets.await() shouldBeEqualTo listOf(Tweet("Hello, world"))
     }
 
     /**
@@ -98,6 +98,6 @@ class CoroutineScopeExamples {
         // Task 1만 실행되고, Task 2는 Cancel 됩니다.
         advanceTimeBy(150.milliseconds)
         job.cancel()
-        taskStatus shouldContainSame mapOf("Task 1" to true, "Task 2" to false)
+        taskStatus shouldBeEqualTo mapOf("Task 1" to true, "Task 2" to false)
     }
 }

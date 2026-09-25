@@ -29,10 +29,13 @@ internal val log by lazy { KotlinLogging.logger(LibraryName) }
  */
 fun <T: Job> T.log(tag: Any): T = apply {
     invokeOnCompletion(onCancelling = true, invokeImmediately = false) {
-        if (it is CancellationException) {
-            log.debug { "[$tag] 🔥" }
+        if (it == null) {
+            log.debug { "[$tag] ✅ Job이 완료되었습니다." }
         } else {
-            log.debug(it) { "[$tag] ✅" }
+            when (it) {
+                is CancellationException -> log.debug { "[$tag] 🔥작업 취소" }
+                else                     -> log.debug(it) { "[$tag] 🔥예외가 발생했습니다." }
+            }
         }
     }
 }
