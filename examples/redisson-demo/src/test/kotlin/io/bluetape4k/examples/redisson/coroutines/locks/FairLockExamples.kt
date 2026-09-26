@@ -1,5 +1,9 @@
 package io.bluetape4k.examples.redisson.coroutines.locks
 
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.coroutines.support.awaitUntil
+import io.bluetape4k.coroutines.support.log
 import io.bluetape4k.examples.redisson.coroutines.AbstractRedissonCoroutineTest
 import io.bluetape4k.junit5.concurrency.MultithreadingTester
 import io.bluetape4k.junit5.concurrency.StructuredTaskScopeTester
@@ -12,11 +16,8 @@ import io.bluetape4k.redis.redisson.coroutines.getLockId
 import io.bluetape4k.utils.Runtimex
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.future.await
 import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
-import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldBeTrue
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.condition.EnabledForJreRange
 import org.junit.jupiter.api.condition.JRE
@@ -51,13 +52,13 @@ class FairLockExamples: AbstractRedissonCoroutineTest() {
                 // 나머지 요청은 최대 5초간 대기하다가 요청 중단된다
                 val lockId = redisson.getLockId(lock.name)
                 log.trace { "lockId=$lockId" }
-                val locked = lock.tryLockAsync(5, 10, TimeUnit.SECONDS, lockId).await()
+                val locked = lock.tryLockAsync(5, 10, TimeUnit.SECONDS, lockId).awaitUntil()
                 if (locked) {
                     lockCounter.incrementAndGet()
                 }
                 delay(10.milliseconds)
-                lock.unlockAsync(lockId).await()
-            }
+                lock.unlockAsync(lockId).awaitUntil()
+            }.log("Job #$it")
         }
         jobs.joinAll()
         lockCounter.get() shouldBeEqualTo size
@@ -131,7 +132,7 @@ class FairLockExamples: AbstractRedissonCoroutineTest() {
                 val index = lockIndex.incrementAndGet()
 
                 log.debug { "FairLock[$index] 획득 시도 ..." }
-                val locked = lock.tryLockAsync(5, 10, TimeUnit.SECONDS, lockId).await()
+                val locked = lock.tryLockAsync(5, 10, TimeUnit.SECONDS, lockId).awaitUntil()
                 if (locked) {
                     log.debug { "FairLock[$index] 획득 성공 ..." }
                     lockCounter.incrementAndGet()
@@ -139,7 +140,7 @@ class FairLockExamples: AbstractRedissonCoroutineTest() {
                 }
                 // Thread.sleep(10)
                 log.debug { "FairLock[$index] 해제 ..." }
-                lock.unlockAsync(lockId).await()
+                lock.unlockAsync(lockId).awaitUntil()
             }
             .run()
 
@@ -175,7 +176,7 @@ class FairLockExamples: AbstractRedissonCoroutineTest() {
                 delay(30L.milliseconds)
                 requestFlushed[index].complete(Unit)
 
-                lockFuture.await().shouldBeTrue()
+                lockFuture.awaitUntil().shouldBeTrue()
 
                 try {
                     val order = counter.incrementAndGet()
@@ -184,9 +185,9 @@ class FairLockExamples: AbstractRedissonCoroutineTest() {
                     delay(100.milliseconds)
                 } finally {
                     log.debug { "코루틴 $index: FairLock 해제" }
-                    fairLock.unlockAsync(lockId).await()
+                    fairLock.unlockAsync(lockId).awaitUntil()
                 }
-            }
+            }.log("Job #it")
         }
 
         jobs.joinAll()

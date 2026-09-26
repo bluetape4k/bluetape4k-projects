@@ -1,5 +1,10 @@
 package io.bluetape4k.examples.redisson.coroutines.cachestrategy
 
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeNull
+import io.bluetape4k.assertions.shouldNotBeNull
+import io.bluetape4k.coroutines.support.awaitAllUntil
+import io.bluetape4k.coroutines.support.awaitUntil
 import io.bluetape4k.examples.redisson.coroutines.cachestrategy.ActorSchema.ActorRecord
 import io.bluetape4k.examples.redisson.coroutines.cachestrategy.ActorSchema.ActorTable
 import io.bluetape4k.idgenerators.snowflake.Snowflakers
@@ -7,14 +12,10 @@ import io.bluetape4k.junit5.awaitility.untilSuspending
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.trace
-import io.bluetape4k.redis.redisson.coroutines.awaitAll
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.future.await
-import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldBeNull
-import io.bluetape4k.assertions.shouldNotBeNull
+import org.awaitility.kotlin.atMost
 import org.awaitility.kotlin.await
 import org.awaitility.kotlin.until
+import org.awaitility.kotlin.withPollInterval
 import org.jetbrains.exposed.v1.core.inList
 import org.jetbrains.exposed.v1.jdbc.deleteAll
 import org.jetbrains.exposed.v1.jdbc.selectAll
@@ -30,6 +31,7 @@ import org.redisson.api.options.MapCacheOptions
 import java.time.Duration
 import java.util.concurrent.TimeUnit
 import kotlin.time.Duration.Companion.milliseconds
+import kotlin.time.Duration.Companion.seconds
 
 @Suppress("DEPRECATION")
 class CacheWriteBehindExample: AbstractCacheExample() {
@@ -76,7 +78,9 @@ class CacheWriteBehindExample: AbstractCacheExample() {
                     cache[id] = newActorRecord(id)
                 }
 
-                await until { getActorCountFromDB() >= ACTOR_SIZE }
+                await atMost 5.seconds withPollInterval 100.milliseconds until {
+                    getActorCountFromDB() >= ACTOR_SIZE
+                }
 
                 // DB에 삽입된 데이터를 확인한다. (options.loader() 가 없으므로, 캐시에는 저장되지 않는다)
                 val dbActorCount = transaction {
@@ -124,7 +128,9 @@ class CacheWriteBehindExample: AbstractCacheExample() {
                     cache[id].shouldNotBeNull()
                 }
 
-                await until { getActorCountFromDB() >= ACTOR_SIZE }
+                await atMost 5.seconds withPollInterval 100.milliseconds until {
+                    getActorCountFromDB() >= ACTOR_SIZE
+                }
 
                 // DB에 삽입된 데이터를 확인한다. (options.loader() 가 있으므로, 캐시에서 삭제되지 않는다)
                 val dbActorCount = transaction {
@@ -135,7 +141,7 @@ class CacheWriteBehindExample: AbstractCacheExample() {
                 // 캐시의 데이터를 모두 삭제한다 -> DB의 데이터도 삭제된다 !!!
                 cache.fastRemove(*writeIds.toTypedArray())
 
-                await until {
+                await atMost 5.seconds withPollInterval 100.milliseconds until {
                     val dbActorCount2 = transaction {
                         ActorTable.selectAll().where { ActorTable.id inList writeIds }.count()
                     }
@@ -177,9 +183,11 @@ class CacheWriteBehindExample: AbstractCacheExample() {
                     .map { id ->
                         cache.fastPutAsync(id, newActorRecord(id), 1, TimeUnit.SECONDS)
                     }
-                    .awaitAll()
+                    .awaitAllUntil()
 
-                await untilSuspending { getActorCountFromDBSuspended() >= ACTOR_SIZE }
+                await atMost 5.seconds withPollInterval 100.milliseconds untilSuspending {
+                    getActorCountFromDBSuspended() >= ACTOR_SIZE
+                }
 
                 // DB에 삽입된 데이터를 확인한다. (options.loader() 가 없으므로, 캐시에는 저장되지 않는다)
                 val dbActorCount = newSuspendedTransaction {
@@ -188,8 +196,7 @@ class CacheWriteBehindExample: AbstractCacheExample() {
                 dbActorCount shouldBeEqualTo ACTOR_SIZE.toLong()
 
                 // 캐시만 Expired 되기를 기다렸다가 다시 로드한다.
-                await untilSuspending {
-                    delay(100.milliseconds)
+                await atMost 5.seconds withPollInterval 100.milliseconds untilSuspending {
                     cache.size < ACTOR_SIZE
                 }
 
@@ -200,7 +207,7 @@ class CacheWriteBehindExample: AbstractCacheExample() {
 
             } finally {
                 // 캐시를 삭제한다.
-                cache.deleteAsync().await()
+                cache.deleteAsync().awaitUntil()
             }
         }
 
@@ -222,7 +229,6 @@ class CacheWriteBehindExample: AbstractCacheExample() {
                 .timeToLive(Duration.ofSeconds(1))   // 로컬 캐시의 TTL
                 .codec(defaultCodec)
 
-
             // 캐시를 생성한다.
             val cache: RLocalCachedMap<Long, ActorRecord?> = redisson.getLocalCachedMap(options)
 
@@ -233,13 +239,15 @@ class CacheWriteBehindExample: AbstractCacheExample() {
 
                 writeIds.map { id ->
                     cache.fastPutAsync(id, newActorRecord(id))
-                }.awaitAll()
+                }.awaitAllUntil()
 
                 writeIds.forEach { id ->
                     cache[id].shouldNotBeNull()
                 }
 
-                await untilSuspending { getActorCountFromDBSuspended() >= ACTOR_SIZE }
+                await atMost 5.seconds withPollInterval 100.milliseconds untilSuspending {
+                    getActorCountFromDBSuspended() >= ACTOR_SIZE
+                }
 
                 // DB에 삽입된 데이터를 확인한다. (options.loader() 가 있으므로, 캐시에서 삭제되지 않는다)
                 val dbActorCount = transaction {
@@ -248,10 +256,9 @@ class CacheWriteBehindExample: AbstractCacheExample() {
                 dbActorCount shouldBeEqualTo ACTOR_SIZE.toLong()
 
                 // 캐시의 데이터를 모두 삭제한다 -> DB의 데이터도 삭제된다 !!!
-                cache.fastRemoveAsync(*writeIds.toTypedArray()).await()
+                cache.fastRemoveAsync(*writeIds.toTypedArray()).awaitUntil()
 
-                await untilSuspending {
-                    delay(100.milliseconds)
+                await atMost 5.seconds withPollInterval 100.milliseconds untilSuspending {
                     newSuspendedTransaction {
                         ActorTable.selectAll().where { ActorTable.id inList writeIds }.count()
                     } == 0L

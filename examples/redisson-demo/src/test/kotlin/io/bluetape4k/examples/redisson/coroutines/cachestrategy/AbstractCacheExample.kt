@@ -1,6 +1,7 @@
 package io.bluetape4k.examples.redisson.coroutines.cachestrategy
 
 import io.bluetape4k.codec.Base58
+import io.bluetape4k.coroutines.flow.extensions.log
 import io.bluetape4k.examples.redisson.coroutines.AbstractRedissonCoroutineTest
 import io.bluetape4k.examples.redisson.coroutines.cachestrategy.ActorSchema.ActorRecord
 import io.bluetape4k.examples.redisson.coroutines.cachestrategy.ActorSchema.ActorTable
@@ -41,7 +42,7 @@ private fun Query.fetchBatchedResultFlow(batchSize: Int = 100): Flow<Iterable<Re
     for (batch in fetchBatchedResults(batchSize)) {
         emit(batch)
     }
-}
+}.log("fetchBatchedResults")
 
 @Suppress("DEPRECATION")
 @SpringBootTest(

@@ -14,7 +14,6 @@ import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.trace
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.future.await
 import org.jetbrains.exposed.v1.jdbc.batchInsert
 import org.jetbrains.exposed.v1.jdbc.deleteAll
@@ -31,12 +30,14 @@ import org.redisson.api.options.LocalCachedMapOptions
 import org.redisson.api.options.MapCacheOptions
 import java.time.Duration
 import kotlin.system.measureTimeMillis
-import kotlin.time.Duration.Companion.milliseconds
 
 class CacheReadThroughExample: AbstractCacheExample() {
 
     companion object: KLogging() {
         const val ACTOR_SIZE = 500
+
+        // HINT: parallelism 을 2 이상은 redisson connection 이 불안할 때가 있다.
+        const val PARALLELISM = 4
         private const val REDIS_COMMAND_RETRY_ATTEMPTS = 6
         private val REDIS_COMMAND_TIMEOUT: Duration = Duration.ofSeconds(30)
 
@@ -127,8 +128,7 @@ class CacheReadThroughExample: AbstractCacheExample() {
 
             // DB에 있는 모든 Actor를 한번에 로드하여 캐시에 저장한다
             val readTimeFromDB = measureTimeMillis {
-                // NOTE: parallelism 을 2 이상은 redisson connection 이 불안하다.
-                cache.loadAll(true, 1)
+                cache.loadAll(true, PARALLELISM)
                 actorIds.forEach { id ->
                     cache[id].shouldNotBeNull()
                 }
@@ -139,8 +139,7 @@ class CacheReadThroughExample: AbstractCacheExample() {
 
             // DB에 있는 모든 Actor를 한번에 로드하여 캐시에 저장한다. 이미 캐시에 있는 것은 교체한다
             cache.fastRemove(*actorIds.toTypedArray())
-            // NOTE: parallelism 을 2 이상은 redisson connection 이 불안하다.
-            cache.loadAll(true, 1)
+            cache.loadAll(true, PARALLELISM)
 
             // 캐시에서 4명의 Actor를 요청하면, DB에서 로딩되지 않는다.
             val readTimeFromCache = measureTimeMillis {
@@ -216,25 +215,22 @@ class CacheReadThroughExample: AbstractCacheExample() {
             cache[actorIds.first()] shouldBeEqualTo ActorRecord(actorIds.first(), "Sunghyouk", "Bae")
             cache.keys shouldHaveSize 1
 
-            // 나머지 4명의 Actor는 캐시로 로딩한다
+            // DB에 있는 모든 Actor를 한번에 로드하여 캐시에 저장한다
             val readTimeFromDB = measureTimeMillis {
-                actorIds.drop(1).forEach { id ->
+                cache.loadAll(true, PARALLELISM)
+                actorIds.forEach { id ->
                     cache[id].shouldNotBeNull()
                 }
             }
 
-            // DB에 존재하지 않는 ID에 접근하면 NULL 이 리턴된다.
+            // DB에 없는 것은 null 로 리턴된다.
             cache[0].shouldBeNull()
 
             // DB에 있는 모든 Actor를 한번에 로드하여 캐시에 저장한다. 이미 캐시에 있는 것은 교체한다
-            cache.fastRemoveAsync(*actorIds.toTypedArray()).await()
+            cache.fastRemove(*actorIds.toTypedArray())
+            cache.loadAll(true, PARALLELISM)
 
-            // NOTE: parallelism 을 2 이상은 redisson connection 이 불안하다.
-            cache.loadAll(true, 1)
-
-            delay(100.milliseconds)
-
-            // 캐시에 이미 로딩된 데이터를 요청한다.
+            // 캐시에서 4명의 Actor를 요청하면, DB에서 로딩되지 않는다.
             val readTimeFromCache = measureTimeMillis {
                 actorIds.drop(1).forEach { id ->
                     cache[id].shouldNotBeNull()

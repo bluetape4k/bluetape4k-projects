@@ -5,6 +5,8 @@ import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeFalse
 import io.bluetape4k.assertions.shouldBeInstanceOf
 import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.coroutines.support.awaitUntil
+import io.bluetape4k.coroutines.support.log
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineStart
@@ -20,9 +22,9 @@ import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
 
 /**
- * [AbstractRedissonCoroutineTest.awaitRedis]의 취소 및 timeout 경계를 합성 future로 검증합니다.
+ * `AwaitUntil` 의 취소 및 timeout 경계를 합성 future로 검증합니다.
  */
-class AwaitRedisTest : AbstractRedissonCoroutineTest() {
+class AwaitUntilTest: AbstractRedissonCoroutineTest() {
 
     private val subject = TestSubject()
 
@@ -75,7 +77,7 @@ class AwaitRedisTest : AbstractRedissonCoroutineTest() {
                 observed.complete(cause)
                 throw cause
             }
-        }
+        }.log("Undispatched Job")
 
         pending.cancel(cancellation)
         pending.join()
@@ -87,12 +89,12 @@ class AwaitRedisTest : AbstractRedissonCoroutineTest() {
         future.isCancelled.shouldBeTrue()
     }
 
-    private class TestSubject : AbstractRedissonCoroutineTest() {
+    private class TestSubject: AbstractRedissonCoroutineTest() {
         suspend fun <T> await(future: RFuture<T>, timeout: Duration = 5.seconds): T =
-            awaitRedis(future, timeout)
+            future.awaitUntil(timeout)
     }
 
-    private class RecordingRFuture<T> : CompletableFutureWrapper<T>(CompletableFuture<T>()) {
+    private class RecordingRFuture<T>: CompletableFutureWrapper<T>(CompletableFuture<T>()) {
         var cancelCalls: Int = 0
             private set
 

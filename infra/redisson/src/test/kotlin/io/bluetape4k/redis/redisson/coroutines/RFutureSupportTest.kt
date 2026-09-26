@@ -5,7 +5,9 @@ import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.assertions.shouldHaveSize
 import io.bluetape4k.assertions.shouldNotBeNull
+import io.bluetape4k.coroutines.support.awaitAllUntil
 import io.bluetape4k.coroutines.support.awaitSuspending
+import io.bluetape4k.coroutines.support.awaitUntil
 import io.bluetape4k.junit5.coroutines.SuspendedJobTester
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.coroutines.KLoggingChannel
@@ -15,7 +17,6 @@ import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
-import kotlinx.coroutines.future.await
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeout
 import kotlinx.coroutines.yield
@@ -93,7 +94,7 @@ class RFutureSupportTest: AbstractRedissonCoroutineTest() {
             listOf(
                 completedRFuture("first"),
                 completedRFuture("second"),
-            ).awaitAll()
+            ).awaitAllUntil(3.seconds)
         }
 
         results shouldBeEqualTo listOf("first", "second")
@@ -107,7 +108,7 @@ class RFutureSupportTest: AbstractRedissonCoroutineTest() {
         val futures: List<RFuture<Int>> = List(ITEM_COUNT) {
             map.putAsync(it, it)
         }
-        val lists = futures.sequence().await()
+        val lists = futures.sequence().awaitUntil(3.seconds)
 
         lists.size shouldBeEqualTo ITEM_COUNT
         map.delete()
@@ -135,7 +136,7 @@ class RFutureSupportTest: AbstractRedissonCoroutineTest() {
         // 당연하게도 아무리 비동기라도 round-trip이 많은 것보다 RBatch 가 낫다. 또는 `putAllAsync` 를 이용하는 게 낫다
         val defers = List(ITEM_COUNT) {
             async(Dispatchers.IO) {
-                map.putAsync(it, it).awaitSuspending()
+                map.putAsync(it, it).awaitUntil(3.seconds)
             }
         }
         val lists: List<Int> = defers.awaitAll()
@@ -153,10 +154,10 @@ class RFutureSupportTest: AbstractRedissonCoroutineTest() {
             map.putAsync(it, it)
         }
         // RFuture 의 Collection인 경우 awaitAll 로 모두 호출할 수 있습니다.
-        val lists: List<Int> = futures.awaitAll()
+        val lists: List<Int> = futures.awaitAllUntil(5.seconds)
 
         lists shouldHaveSize ITEM_COUNT
-        map.deleteAsync().awaitSuspending().shouldBeTrue()
+        map.deleteAsync().awaitUntil().shouldBeTrue()
     }
 
     @RepeatedTest(REPEAT_SIZE)
@@ -168,7 +169,7 @@ class RFutureSupportTest: AbstractRedissonCoroutineTest() {
         // 당연하게도 아무리 비동기라도 round-trip이 많은 것보다 RBatch 가 낫다. 또는 `putAllAsync` 를 이용하는 게 낫다
         map.putAllAsync(items).awaitSuspending()
 
-        val lists = map.getAllAsync(items.keys).awaitSuspending().shouldNotBeNull()
+        val lists = map.getAllAsync(items.keys).awaitUntil().shouldNotBeNull()
         lists shouldBeEqualTo items
         lists.size shouldBeEqualTo ITEM_COUNT
 

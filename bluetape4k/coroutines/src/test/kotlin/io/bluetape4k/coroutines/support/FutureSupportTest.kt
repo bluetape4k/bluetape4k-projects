@@ -10,7 +10,6 @@ import io.bluetape4k.logging.debug
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.future.await
 import kotlinx.coroutines.future.future
 import kotlinx.coroutines.launch
 import org.junit.jupiter.api.Test
@@ -61,12 +60,12 @@ class FutureSupportTest {
             .workers(16)
             .rounds(16 * ITEM_COUNT / 4)
             .add {
-                val task = future(Dispatchers.Default, start = CoroutineStart.DEFAULT) {
+                val task = this@runSuspendDefault.future(Dispatchers.Default, start = CoroutineStart.DEFAULT) {
                     delay(Random.nextLong(10).milliseconds)
                     log.debug { "counter=${counter.get()}" }
                     counter.incrementAndGet()
                 }
-                val result = task.await()
+                val result = task.awaitUntil()
                 log.debug { "result=$result" }
             }
             .run()
@@ -80,7 +79,11 @@ class FutureSupportTest {
         cancelled.cancel(true)
 
         assertFailsWith<CancellationException> {
-            cancelled.await()
+            cancelled.awaitSuspending()
+        }
+
+        assertFailsWith<CancellationException> {
+            cancelled.awaitUntil()
         }
     }
 
@@ -91,7 +94,7 @@ class FutureSupportTest {
         val task = FutureTask { "never" }
 
         val job = launch(Dispatchers.IO) {
-            task.awaitSuspending<String>()
+            task.awaitUntil<String>()
         }
 
         // Give the wrapper's virtual thread time to start and block on task.get().
