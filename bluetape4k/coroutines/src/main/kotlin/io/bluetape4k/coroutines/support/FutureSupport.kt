@@ -5,6 +5,7 @@ import io.bluetape4k.concurrent.sequence
 import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.future.await
 import kotlinx.coroutines.withTimeout
+import kotlinx.coroutines.withTimeoutOrNull
 import java.util.concurrent.CancellationException
 import java.util.concurrent.CompletionStage
 import java.util.concurrent.Future
@@ -87,3 +88,40 @@ suspend fun <T> Future<T>.awaitUntil(timeout: kotlin.time.Duration = 5.seconds):
  */
 suspend fun <T> Iterable<Future<T>>.awaitAllUntil(timeout: kotlin.time.Duration = 5.seconds): List<T> =
     map { it.asCompletableFuture() }.sequence().awaitUntil(timeout)
+
+/**
+ * Future 비동기 호출을 bounded coroutine suspension으로 소비한다.
+ *
+ * ### Note
+ * `runTest` 는 가상의 시간을 사용하므로, withTimeout 이 제대로 동작하지 않는다.
+ *
+ * Timeout 또는 호출자 취소가 발생하면 아직 완료되지 않은 Future에
+ * client-side [java.util.concurrent.Future.cancel]을 best-effort로 시도해
+ * 테스트 종료 뒤의 pending wait를 줄인다.
+ * 원격 실행 취소까지 보장하는 helper는 아니며, 원래의 cancellation 원인은 그대로 다시 던진다.
+ */
+suspend fun <T: Any> Future<T>.awaitUntilOrNull(timeout: kotlin.time.Duration = 5.seconds): T? {
+    return try {
+        withTimeoutOrNull(timeout) { this@awaitUntilOrNull.awaitSuspending() }
+    } catch (cause: TimeoutCancellationException) {
+        cancel(false)
+        throw cause
+    } catch (cause: kotlinx.coroutines.CancellationException) {
+        cancel(false)
+        throw cause
+    }
+}
+
+/**
+ * Future 비동기 호출을 bounded coroutine suspension으로 소비한다.
+ *
+ * ### Note
+ * `runTest` 는 가상의 시간을 사용하므로, withTimeout 이 제대로 동작하지 않는다.
+ *
+ * Timeout 또는 호출자 취소가 발생하면 아직 완료되지 않은 Future에
+ * client-side [java.util.concurrent.Future.cancel]을 best-effort로 시도해
+ * 테스트 종료 뒤의 pending wait를 줄인다.
+ * 원격 실행 취소까지 보장하는 helper는 아니며, 원래의 cancellation 원인은 그대로 다시 던진다.
+ */
+suspend fun <T: Any> Iterable<Future<T>>.awaitAllUntilOrNull(timeout: kotlin.time.Duration = 5.seconds): List<T>? =
+    map { it.asCompletableFuture() }.sequence().awaitUntilOrNull(timeout)
