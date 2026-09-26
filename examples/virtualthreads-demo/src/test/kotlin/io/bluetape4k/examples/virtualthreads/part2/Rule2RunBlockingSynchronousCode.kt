@@ -1,5 +1,7 @@
 package io.bluetape4k.examples.virtualthreads.part2
 
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeInRange
 import io.bluetape4k.concurrent.virtualthread.VT
 import io.bluetape4k.concurrent.virtualthread.virtualFuture
 import io.bluetape4k.examples.virtualthreads.AbstractVirtualThreadTest
@@ -8,8 +10,6 @@ import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
-import io.bluetape4k.assertions.shouldBeInRange
-import io.bluetape4k.assertions.shouldBeEqualTo
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.fail
 import java.util.concurrent.CompletableFuture
@@ -41,8 +41,12 @@ class Rule2RunBlockingSynchronousCode: AbstractVirtualThreadTest() {
 
         CompletableFuture
             .supplyAsync { readPriceInEur() }
-            .thenCombine(CompletableFuture.supplyAsync { readExchangeRateEurToUsd() }) { price, rate -> price * rate }
-            .thenCompose { amount -> CompletableFuture.supplyAsync { amount * (1 + readTax(amount)) } }
+            .thenCombine(CompletableFuture.supplyAsync { readExchangeRateEurToUsd() }) { price, rate ->
+                price * rate
+            }
+            .thenCompose { amount ->
+                CompletableFuture.supplyAsync { amount * (1 + readTax(amount)) }
+            }
             .whenComplete { grossAmountInUsd, error ->
                 if (error == null) {
                     grossAmountInUsd.toInt() shouldBeEqualTo 108

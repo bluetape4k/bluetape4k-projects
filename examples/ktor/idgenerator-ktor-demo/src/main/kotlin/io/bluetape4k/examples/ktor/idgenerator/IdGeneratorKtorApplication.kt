@@ -12,7 +12,6 @@ import io.bluetape4k.ktor.core.requiredPathParameter
 import io.bluetape4k.ktor.observability.installBluetape4kKtorObservability
 import io.ktor.server.application.Application
 import io.ktor.server.application.ApplicationCall
-import io.ktor.server.application.call
 import io.ktor.server.cio.CIO
 import io.ktor.server.engine.embeddedServer
 import io.ktor.server.response.respond

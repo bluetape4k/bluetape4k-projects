@@ -1,7 +1,7 @@
 package io.bluetape4k.examples.ktor.observability
 
 import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.assertions.shouldContain
 import io.bluetape4k.assertions.shouldHaveSize
 import io.bluetape4k.ktor.observability.join
 import io.bluetape4k.ktor.testing.decodeJsonBody
@@ -62,9 +62,9 @@ class ObservabilityKtorApplicationTest {
 
         val metrics = client.get("/metrics").bodyAsText()
 
-        metrics.contains("ktor_http_server_requests").shouldBeTrue()
-        metrics.contains("event_publish").shouldBeTrue()
-        metrics.contains("event_consume").shouldBeTrue()
+        metrics shouldContain "ktor_http_server_requests"
+        metrics shouldContain "event_publish"
+        metrics shouldContain "event_consume"
     }
 
     @Test
