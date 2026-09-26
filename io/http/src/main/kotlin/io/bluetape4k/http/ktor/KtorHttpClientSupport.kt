@@ -79,7 +79,7 @@ data class KtorClientTimeouts(
  * @param block engine 선택 뒤 적용할 선택적 [HttpClientConfig] DSL block입니다.
  * @return 새 [HttpClient] 인스턴스입니다.
  */
-fun <T : HttpClientEngineConfig> ktorHttpClientOf(
+fun <T: HttpClientEngineConfig> ktorHttpClientOf(
     engineFactory: HttpClientEngineFactory<T>,
     block: HttpClientConfig<T>.() -> Unit = {},
 ): HttpClient = HttpClient(engineFactory, block)
@@ -107,7 +107,7 @@ fun <T : HttpClientEngineConfig> ktorHttpClientOf(
  * @param block 공유 plugin 설치 뒤 적용할 선택적 [HttpClientConfig] DSL block입니다.
  * @return 새 [HttpClient] 인스턴스입니다.
  */
-fun <T : HttpClientEngineConfig> ktorJsonHttpClientOf(
+fun <T: HttpClientEngineConfig> ktorJsonHttpClientOf(
     engineFactory: HttpClientEngineFactory<T>,
     json: Json = defaultKtorClientJson,
     timeouts: KtorClientTimeouts = KtorClientTimeouts(),

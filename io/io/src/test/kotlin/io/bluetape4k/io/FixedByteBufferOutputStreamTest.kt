@@ -2,8 +2,9 @@ package io.bluetape4k.io
 
 import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldBeSameInstanceAs
+import io.bluetape4k.assertions.shouldBeInstanceOf
 import io.bluetape4k.assertions.shouldContentEqual
+import io.bluetape4k.logging.KLogging
 import org.junit.jupiter.api.DynamicTest
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestFactory
@@ -14,6 +15,8 @@ import java.nio.ByteOrder
 import java.nio.ReadOnlyBufferException
 
 class FixedByteBufferOutputStreamTest {
+
+    companion object: KLogging()
 
     @TestFactory
     fun `fixed stream writes through the exact supplied buffer view`(): List<DynamicTest> =
@@ -71,7 +74,7 @@ class FixedByteBufferOutputStreamTest {
         stream.write(byteArrayOf(1, 2, 3, 4))
 
         target.position() shouldBeEqualTo 6
-        stream.toByteArray() shouldContentEqual byteArrayOf(1, 2, 3, 4)
+        stream.toByteArray() shouldBeEqualTo byteArrayOf(1, 2, 3, 4)
         target.get(0) shouldBeEqualTo 99
     }
 
@@ -94,7 +97,7 @@ class FixedByteBufferOutputStreamTest {
         target.position() shouldBeEqualTo start
         target.get(0) shouldBeEqualTo 91
         target.duplicate().limit(target.capacity()).get(6) shouldBeEqualTo 92
-        stream.toByteArray() shouldContentEqual byteArrayOf()
+        stream.toByteArray() shouldBeEqualTo byteArrayOf()
     }
 
     @Test
@@ -114,7 +117,7 @@ class FixedByteBufferOutputStreamTest {
             method.invoke(null, null)
         }
 
-        invocation.cause?.javaClass shouldBeSameInstanceAs NullPointerException::class.java
+        invocation.cause.shouldBeInstanceOf<NullPointerException>()
     }
 
     private fun ByteBuffer.bytesBetween(start: Int, end: Int): ByteArray =

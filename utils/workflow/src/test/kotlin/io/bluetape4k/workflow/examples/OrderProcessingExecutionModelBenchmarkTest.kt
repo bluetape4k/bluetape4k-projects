@@ -129,7 +129,7 @@ class OrderProcessingExecutionModelBenchmarkTest {
     private fun assertConfirmed(result: BenchmarkResult, expectedPollCount: Int) {
         result.report.isSuccess.shouldBeTrue()
         result.context.get<String>("order.status") shouldBeEqualTo "CONFIRMED"
-        (result.context.get<Boolean>("pg.approved") == true).shouldBeTrue()
+        result.context.get<Boolean>("pg.approved").shouldBeTrue()
         result.context.get<Int>("pg.pollCount") shouldBeEqualTo expectedPollCount
     }
 

@@ -19,13 +19,13 @@ abstract class AbstractKeyChainRepositoryTest {
     abstract val repository: KeyChainRepository
 
     @BeforeEach
-    fun beforeEach() {
+    open fun beforeEach() {
         // deleteAll 은 테스트 시에만 사용하세요
         repository.deleteAll()
     }
 
     @AfterEach
-    fun afterEach() {
+    open fun afterEach() {
         repository.close()
     }
 
@@ -38,6 +38,7 @@ abstract class AbstractKeyChainRepositoryTest {
 
         // 기존 key chain 이 만료되지 않았는데도 rotate 하려고 한다
         val newKeyChain = KeyChain()
+
         prevKeyChain.isExpired.shouldBeFalse()
         repository.rotate(newKeyChain).shouldBeFalse()
 
@@ -129,7 +130,6 @@ abstract class AbstractKeyChainRepositoryTest {
 
         val keyChain = KeyChain()
         repository.rotate(keyChain).shouldBeTrue()
-
         repository.current() shouldBeEqualTo keyChain
     }
 
@@ -142,7 +142,6 @@ abstract class AbstractKeyChainRepositoryTest {
 
         val keyChain = KeyChain()
         repository.forcedRotate(keyChain).shouldBeTrue()
-
         repository.current() shouldBeEqualTo keyChain
     }
 

@@ -1,16 +1,19 @@
 package io.bluetape4k.hibernate.stateless
 
-import io.bluetape4k.hibernate.AbstractHibernateTest
-import io.bluetape4k.hibernate.createQueryAs
+import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldNotBeEmpty
 import io.bluetape4k.assertions.shouldNotBeNull
+import io.bluetape4k.hibernate.AbstractHibernateTest
+import io.bluetape4k.hibernate.createQueryAs
+import io.bluetape4k.logging.KLogging
 import org.hibernate.LockMode
 import org.hibernate.graph.GraphSemantic
 import org.junit.jupiter.api.Test
-import io.bluetape4k.assertions.assertFailsWith
 
 class StatelessSessionSupportTest: AbstractHibernateTest() {
+
+    companion object: KLogging()
 
     @Test
     fun `withStateless 는 정상 수행 시 commit 한다`() {
@@ -21,11 +24,12 @@ class StatelessSessionSupportTest: AbstractHibernateTest() {
         }
         clear()
 
-        val count = em.createQueryAs<Long>("select count(e) from StatelessEntity e where e.name = :name")
+        val count = em
+            .createQueryAs<Long>("select count(e) from StatelessEntity e where e.name = :name")
             .setParameter("name", entityName)
             .singleResult
 
-        count.toLong() shouldBeEqualTo 1L
+        count shouldBeEqualTo 1L
     }
 
     @Test
@@ -40,11 +44,12 @@ class StatelessSessionSupportTest: AbstractHibernateTest() {
         }
         clear()
 
-        val count = em.createQueryAs<Long>("select count(e) from StatelessEntity e where e.name = :name")
+        val count = em
+            .createQueryAs<Long>("select count(e) from StatelessEntity e where e.name = :name")
             .setParameter("name", entityName)
             .singleResult
 
-        count.toLong() shouldBeEqualTo 0L
+        count shouldBeEqualTo 0L
     }
 
     @Test
@@ -59,7 +64,8 @@ class StatelessSessionSupportTest: AbstractHibernateTest() {
         }
         clear()
 
-        val entityId = em.createQueryAs<Int>("select e.id from StatelessEntity e where e.name = :name")
+        val entityId = em
+            .createQueryAs<Int>("select e.id from StatelessEntity e where e.name = :name")
             .setParameter("name", entityName)
             .singleResult
 
@@ -68,12 +74,10 @@ class StatelessSessionSupportTest: AbstractHibernateTest() {
                 addAttributeNodes("firstname", "lastname")
             }
 
-            val loaded = stateless.getAs(graph, GraphSemantic.LOAD, entityId)
-            loaded.shouldNotBeNull()
+            val loaded = stateless.getAs(graph, GraphSemantic.LOAD, entityId).shouldNotBeNull()
             loaded.name shouldBeEqualTo entityName
 
-            val loadedWithLock = stateless.getAs(graph, GraphSemantic.LOAD, entityId, LockMode.NONE)
-            loadedWithLock.shouldNotBeNull()
+            val loadedWithLock = stateless.getAs(graph, GraphSemantic.LOAD, entityId, LockMode.NONE).shouldNotBeNull()
             loadedWithLock.name shouldBeEqualTo entityName
         }
     }
@@ -81,15 +85,17 @@ class StatelessSessionSupportTest: AbstractHibernateTest() {
     @Test
     fun `createNativeQueryAs 는 타입 정보를 유지해 결과를 반환한다`() {
         val entityName = "support-native"
+
         em.withStateless { stateless ->
             stateless.insert(StatelessEntity(entityName))
         }
         clear()
 
         em.withStateless { stateless ->
-            val names = stateless.createNativeQueryAs<String>(
-                "select name from stateless_entity where name = :name"
-            )
+            val names = stateless
+                .createNativeQueryAs<String>(
+                    "select name from stateless_entity where name = :name"
+                )
                 .setParameter("name", entityName)
                 .list()
 

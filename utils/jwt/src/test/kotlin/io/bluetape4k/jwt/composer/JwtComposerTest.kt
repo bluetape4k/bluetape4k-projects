@@ -7,7 +7,6 @@ import io.bluetape4k.assertions.shouldBeGreaterThan
 import io.bluetape4k.assertions.shouldBeLessThan
 import io.bluetape4k.assertions.shouldNotBeEmpty
 import io.bluetape4k.assertions.shouldNotBeEqualTo
-import io.bluetape4k.assertions.shouldNotBeNull
 import io.bluetape4k.jwt.AbstractJwtTest
 import io.bluetape4k.jwt.codec.JwtCodecs
 import io.bluetape4k.jwt.keychain.KeyChain
@@ -115,8 +114,8 @@ class JwtComposerTest: AbstractJwtTest() {
             reader.claim<String>("small-data") shouldBeEqualTo LibraryName
             reader.expiration.time shouldBeGreaterThan System.currentTimeMillis()
 
-            reader.claim<String>("long-claim").shouldNotBeNull().shouldNotBeEmpty()
-            reader.claim<String>("long-data").shouldNotBeNull().shouldNotBeEmpty()
+            reader.claim<String>("long-claim").shouldNotBeEmpty()
+            reader.claim<String>("long-data").shouldNotBeEmpty()
         }
     }
 }

@@ -2,7 +2,7 @@
 
 [English](./README.md) | 한국어
 
-Micrometer와 Observation API를 활용한 애플리케이션 성능 측정 및 관찰(observability) 기능을 제공하는 모듈입니다.
+Micrometer와 Observation API를 활용한 애플리케이션 성능 측정 및 관찰 (observability) 기능을 제공하는 모듈입니다.
 
 ## 개요
 
@@ -208,8 +208,7 @@ observationRegistry.observeEventPublish(
 }
 ```
 
-기본값은 payload, raw header, exception message, PII, secret, query string, 임시 destination 이름을 기록하지 않도록 설계되어 있습니다.
-Low-cardinality 값에는 bounded event type 과 안정적인 destination 이름만 넣고, high-cardinality 식별자는 sanitize 후 backend 가 추가 series 를 감당할 수 있을 때만 명시적으로 사용하세요.
+기본값은 payload, raw header, exception message, PII, secret, query string, 임시 destination 이름을 기록하지 않도록 설계되어 있습니다. Low-cardinality 값에는 bounded event type 과 안정적인 destination 이름만 넣고, high-cardinality 식별자는 sanitize 후 backend 가 추가 series 를 감당할 수 있을 때만 명시적으로 사용하세요.
 
 #### Event Telemetry Sequence
 
@@ -243,15 +242,15 @@ val users = apiService.getUsers().execute()
 
 #### 수집되는 메트릭
 
-| 태그            | 설명         | 예시                                  |
-|---------------|------------|-------------------------------------|
-| `method`      | HTTP 메서드   | GET, POST, PUT, DELETE              |
-| `uri`         | 요청 URI     | /users/{id}                         |
-| `base_url`    | 기본 URL     | https://api.example.com             |
-| `status_code` | HTTP 상태 코드 | 200, 404, 500                       |
-| `outcome`     | 결과 분류      | SUCCESS, CLIENT_ERROR, SERVER_ERROR |
-| `coroutines`  | 코루틴 사용 여부  | true, false                         |
-| `exception`   | 전송/디코딩 예외  | IOException, SocketTimeoutException |
+| 태그          | 설명             | 예시                                |
+|---------------|------------------|-------------------------------------|
+| `method`      | HTTP 메서드      | GET, POST, PUT, DELETE              |
+| `uri`         | 요청 URI         | /users/{id}                         |
+| `base_url`    | 기본 URL         | https://api.example.com             |
+| `status_code` | HTTP 상태 코드   | 200, 404, 500                       |
+| `outcome`     | 결과 분류        | SUCCESS, CLIENT_ERROR, SERVER_ERROR |
+| `coroutines`  | 코루틴 사용 여부 | true, false                         |
+| `exception`   | 전송/디코딩 예외 | IOException, SocketTimeoutException |
 
 #### 퍼센타일
 
@@ -284,16 +283,16 @@ Cache2kCacheMetrics.monitor(registry, cache, tags)
 
 #### 수집되는 메트릭
 
-| 메트릭 이름                    | 타입              | 설명                     |
-|---------------------------|-----------------|------------------------|
-| `cache.size`              | Gauge           | 현재 캐시 크기               |
+| 메트릭 이름               | 타입            | 설명                           |
+|---------------------------|-----------------|--------------------------------|
+| `cache.size`              | Gauge           | 현재 캐시 크기                 |
 | `cache.gets`              | FunctionCounter | 캐시 조회 횟수 (hit/miss 태그) |
-| `cache.puts`              | FunctionCounter | 캐시 저장 횟수               |
-| `cache.evictions`         | FunctionCounter | 캐시 제거 횟수               |
-| `cache.load.duration`     | TimeGauge       | 캐시 로딩 시간               |
-| `cache.cleared.timestamp` | Gauge           | 마지막 캐시 클리어 시각          |
+| `cache.puts`              | FunctionCounter | 캐시 저장 횟수                 |
+| `cache.evictions`         | FunctionCounter | 캐시 제거 횟수                 |
+| `cache.load.duration`     | TimeGauge       | 캐시 로딩 시간                 |
+| `cache.cleared.timestamp` | Gauge           | 마지막 캐시 클리어 시각        |
 | `cache.load`              | FunctionCounter | 로딩 성공/실패 횟수            |
-| `cache.expired.count`     | FunctionCounter | 만료된 엔트리 수              |
+| `cache.expired.count`     | FunctionCounter | 만료된 엔트리 수               |
 
 ### 6. KeyValue 유틸리티
 

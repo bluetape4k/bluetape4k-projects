@@ -1,5 +1,9 @@
 package io.bluetape4k.redis.lettuce
 
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.assertions.shouldHaveSize
+import io.bluetape4k.assertions.shouldNotBeNull
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.redis.lettuce.LettuceTestUtils.coroutinesCommands
@@ -7,8 +11,6 @@ import io.lettuce.core.ExperimentalLettuceCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
-import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldHaveSize
 import org.junit.jupiter.api.RepeatedTest
 
 @OptIn(ExperimentalLettuceCoroutinesApi::class)
@@ -24,9 +26,10 @@ class CoroutinesCommandTest: AbstractLettuceTest() {
         val keyName = randomName()
 
         val list = List(ITEM_SIZE) { index ->
-            coroutinesCommands.hset(keyName, index.toString(), index)
+            coroutinesCommands.hset(keyName, index.toString(), index).shouldBeTrue()
         }
         list shouldHaveSize ITEM_SIZE
+        list.all { it }.shouldBeTrue()
 
         coroutinesCommands.hlen(keyName)?.toInt() shouldBeEqualTo ITEM_SIZE
         coroutinesCommands.del(keyName) shouldBeEqualTo 1L
@@ -38,11 +41,12 @@ class CoroutinesCommandTest: AbstractLettuceTest() {
 
         val list = List(ITEM_SIZE) { index ->
             async(Dispatchers.IO) {
-                coroutinesCommands.hset(keyName, index.toString(), index)
+                coroutinesCommands.hset(keyName, index.toString(), index).shouldNotBeNull()
             }
         }.awaitAll()
 
         list shouldHaveSize ITEM_SIZE
+        list.all { it }.shouldBeTrue()
 
         coroutinesCommands.hlen(keyName)?.toInt() shouldBeEqualTo ITEM_SIZE
         coroutinesCommands.del(keyName) shouldBeEqualTo 1L

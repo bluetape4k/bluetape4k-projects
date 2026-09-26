@@ -2,6 +2,7 @@ package io.bluetape4k.ktor.core
 
 import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.ktor.client.request.get
 import io.ktor.client.statement.bodyAsText
 import io.ktor.http.HttpStatusCode
@@ -16,6 +17,8 @@ import java.io.Serializable as JavaSerializable
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class Bluetape4kKtorCoreTest {
+
+    companion object: KLoggingChannel()
 
     private val json = Bluetape4kKtorJson.defaultJson()
 

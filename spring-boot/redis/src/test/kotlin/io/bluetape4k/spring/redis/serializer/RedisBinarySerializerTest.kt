@@ -6,12 +6,15 @@ import io.bluetape4k.assertions.shouldBeNull
 import io.bluetape4k.assertions.shouldContain
 import io.bluetape4k.assertions.shouldNotBeNull
 import io.bluetape4k.io.serializer.BinarySerializers
+import io.bluetape4k.logging.KLogging
 import io.bluetape4k.support.emptyByteArray
 import org.junit.jupiter.api.Test
 import kotlin.reflect.full.findAnnotation
 import kotlin.reflect.full.memberProperties
 
 class RedisBinarySerializerTest: AbstractRedisSerializerTest() {
+
+    companion object: KLogging()
 
     @Test
     fun `Redis JDK serializer constants preserve deprecation warning`() {
@@ -36,6 +39,7 @@ class RedisBinarySerializerTest: AbstractRedisSerializerTest() {
         RedisBinarySerializers::class.memberProperties
             .filter { it.name.endsWith("Jdk") && it.name !in expectedReplacements.keys }
             .shouldBeEmpty()
+
         expectedReplacements.values shouldContain "RedisBinarySerializers.Kryo"
         expectedReplacements.values shouldContain "RedisBinarySerializers.ZstdKryo"
     }
@@ -136,8 +140,7 @@ class RedisBinarySerializerTest: AbstractRedisSerializerTest() {
         val bytes = serializer.serialize(original)
         bytes.shouldNotBeNull()
 
-        @Suppress("UNCHECKED_CAST")
-        val restored = serializer.deserialize(bytes) as List<TestData>
+        val restored = serializer.deserializeAs<List<TestData>>(bytes)
         restored shouldBeEqualTo original
     }
 }

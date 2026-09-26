@@ -15,7 +15,7 @@ Hibernate ORM/JPA 사용 시 반복 코드를 줄이는 Kotlin 확장 라이브�
 - **Session/SessionFactory 확장**: 배치/리스너/세션 보조 기능
 - **Criteria/TypedQuery 확장**: `createQueryAs`, `attribute`, `long/int` 변환 유틸
 - **Querydsl 확장**: BooleanExpression 결합, 연산자 보조
-- **Converter 지원**: Locale/암복호화(Google Tink)/압축/직렬화 기반 converter
+- **Converter 지원**: Locale/암복호화 (Google Tink)/압축/직렬화 기반 converter
 - **StatelessSession 지원**: 트랜잭션 처리와 reified 헬퍼 제공
 - **Hibernate 7.x 기능 지원**: Jakarta Persistence 3.2.0과 함께 Hibernate 7.2+ 전면 지원
 - **NaturalId 예시 포함**: `@NaturalId`와 `Session.bySimpleNaturalId(...)` 조회 패턴 제공
@@ -34,13 +34,10 @@ dependencies {
 }
 ```
 
-내장 converter의 런타임 의존성은 `bluetape4k-hibernate` 아티팩트 계약에 포함됩니다. 문서화된
-Tink, Jackson3, Kryo, Apache Fory, LZ4, Snappy, Zstd, Commons Compress converter 경로를
-사용하기 위해 consumer 프로젝트에서 별도의 `compileOnly` 의존성을 추가할 필요는 없습니다. 단, slim
-배포처럼 전이 런타임 의존성을 제외한다면 엔티티 매핑에 사용하는 converter 엔진은 runtime classpath에
-남겨야 합니다.
+내장 converter의 런타임 의존성은 `bluetape4k-hibernate` 아티팩트 계약에 포함됩니다. 문서화된 Tink, Jackson3, Kryo, Apache Fory, LZ4, Snappy, Zstd, Commons Compress converter 경로를 사용하기 위해 consumer 프로젝트에서 별도의 `compileOnly` 의존성을 추가할 필요는 없습니다. 단, slim 배포처럼 전이 런타임 의존성을 제외한다면 엔티티 매핑에 사용하는 converter 엔진은 runtime classpath에 남겨야 합니다.
 
-> **은퇴한 Spring Boot 3 통합 참고**: Hibernate 7.x와 Spring Boot 3.x를 함께 사용하던 과거 통합 테스트는 Spring Boot 3의 `SpringBeanContainer`가 Hibernate 5 API를 구현하기 때문에 계속 비활성화되어 있습니다. 현재 bluetape4k Spring 모듈은 Hibernate 7.x 호환을 위해 Spring Boot 4 / Spring Framework 7을 기준으로 합니다. 자세한 내용은 테스트 스위트의 `DisabledWithHibernate7AndSpringBoot3` 보존 guard를 참고하세요.
+> **은퇴한 Spring Boot 3 통합
+참고**: Hibernate 7.x와 Spring Boot 3.x를 함께 사용하던 과거 통합 테스트는 Spring Boot 3의 `SpringBeanContainer`가 Hibernate 5 API를 구현하기 때문에 계속 비활성화되어 있습니다. 현재 bluetape4k Spring 모듈은 Hibernate 7.x 호환을 위해 Spring Boot 4 / Spring Framework 7을 기준으로 합니다. 자세한 내용은 테스트 스위트의 `DisabledWithHibernate7AndSpringBoot3` 보존 guard를 참고하세요.
 
 ## Spring Boot 4 마이그레이션
 
@@ -72,6 +69,7 @@ class UserRepositoryTest {
 ```
 
 주요 메서드:
+
 - `persist(entity)` — 영속성 컨텍스트에 저장
 - `persistAndFlush(entity)` — 저장 후 DB에 즉시 반영 (flush)
 - `persistFlushFind(entity)` — 저장 + flush + detach + DB 재로드 (1차 캐시 우회, `Hibernate.getClass()`로 프록시 타입 해석)
@@ -354,19 +352,18 @@ val users = queryFactory
 #### QueryDSL codegen 호환성
 
 이 모듈이 지원하는 QueryDSL 생성 경로는 Java APT입니다.
-`querydsl-kotlin-codegen` 후보는 clean matrix를 통과할 때까지 의도적으로
-비활성화합니다. 로컬 후보 실행은 fixture별 원인을 분리하기 전에
+`querydsl-kotlin-codegen` 후보는 clean matrix를 통과할 때까지 의도적으로 비활성화합니다. 로컬 후보 실행은 fixture별 원인을 분리하기 전에
 `ExtensionsKt.asTypeName(Extensions.kt:48)` 및
 `KotlinEntitySerializer.introClassHeader(KotlinEntitySerializer.kt:109)`의
 `NullPointerException`을 포함한 `AnnotationProcessingError`로 실패했습니다.
 [QueryDSL issue #3454](https://github.com/querydsl/querydsl/issues/3454)를 참고하세요.
 
-| Fixture | Java APT | Kotlin codegen 후보 | 근거 |
-| --- | --- | --- | --- |
-| DTO (`ExampleDto`) | 지원 및 테스트 완료 | 후보가 전역 실패하므로 평가하지 않음 | `SimpleQuerydslExamples` constructor 및 `@QueryProjection` 테스트 |
-| 일반 엔티티 (`AddressEntity`, `JoinUser`) | 지원 및 테스트 완료 | 후보가 전역 실패하므로 평가하지 않음 | `QuerydslCodegenCompatibilityTest` generated-source 검사 |
-| Tree 엔티티 (`ExampleEntity`, `TreeNode`) | 지원 및 테스트 완료 | 후보가 전역 실패하므로 평가하지 않음 | `QExampleEntity`/`QTreeNode` 생성 및 self-reference query |
-| Association/join (`JoinUser.addresses`) | 런타임 지원 및 테스트 완료 | 후보가 전역 실패하므로 평가하지 않음 | `QJoinUser` + `QAddressEntity` repository-path query |
+| Fixture                                   | Java APT                   | Kotlin codegen 후보                  | 근거                                                              |
+|-------------------------------------------|----------------------------|--------------------------------------|-------------------------------------------------------------------|
+| DTO (`ExampleDto`)                        | 지원 및 테스트 완료        | 후보가 전역 실패하므로 평가하지 않음 | `SimpleQuerydslExamples` constructor 및 `@QueryProjection` 테스트 |
+| 일반 엔티티 (`AddressEntity`, `JoinUser`) | 지원 및 테스트 완료        | 후보가 전역 실패하므로 평가하지 않음 | `QuerydslCodegenCompatibilityTest` generated-source 검사          |
+| Tree 엔티티 (`ExampleEntity`, `TreeNode`) | 지원 및 테스트 완료        | 후보가 전역 실패하므로 평가하지 않음 | `QExampleEntity`/`QTreeNode` 생성 및 self-reference query         |
+| Association/join (`JoinUser.addresses`)   | 런타임 지원 및 테스트 완료 | 후보가 전역 실패하므로 평가하지 않음 | `QJoinUser` + `QAddressEntity` repository-path query              |
 
 2026-08-26 clean 로컬 측정값은 다음과 같습니다.
 
@@ -396,8 +393,7 @@ kapt {
 ```
 
 generated source는 `build/generated/source/kapt/main`과
-`build/generated/source/kapt/test`에 생성됩니다. repository path query는
-생성된 타입을 직접 사용할 수 있습니다.
+`build/generated/source/kapt/test`에 생성됩니다. repository path query는 생성된 타입을 직접 사용할 수 있습니다.
 
 ```kotlin
 val user = QJoinUser.joinUser
@@ -416,7 +412,7 @@ val users = JPAQuery<JoinUser>(entityManager)
 
 #### 직렬화 Converter
 
-타입이 정해진 객체를 직렬화하여 ByteArray(Base64 인코딩)나 Base64 문자열로 DB에 저장합니다. 영속 컬럼에는 secure serializer allowlist를 사용하는 typed converter 하위 클래스를 권장합니다. 기존 generic `Any?` object converter는 deprecated 상태이며, DB row 변조, 덜 신뢰할 수 있는 시스템의 import, tenant 간 공유가 없는 trusted storage에서만 사용하세요.
+타입이 정해진 객체를 직렬화하여 ByteArray (Base64 인코딩)나 Base64 문자열로 DB에 저장합니다. 영속 컬럼에는 secure serializer allowlist를 사용하는 typed converter 하위 클래스를 권장합니다. 기존 generic `Any?` object converter는 deprecated 상태이며, DB row 변조, 덜 신뢰할 수 있는 시스템의 import, tenant 간 공유가 없는 trusted storage에서만 사용하세요.
 
 ```kotlin
 import io.bluetape4k.hibernate.converters.*
@@ -457,10 +453,7 @@ class UserData {
 - `AESStringConverter`: AES-256-GCM (비결정적, 매번 다른 암호문)
 - `DeterministicAESStringConverter`: AES-256-SIV (결정적, 동일 평문 → 동일 암호문, WHERE 절 조회 가능)
 
-암호화된 엔티티 필드는 외부에 보존된 Tink key material이 필요합니다. 기본 컨버터는 애플리케이션
-부트스트랩에서 `EncryptedStringConverterKeysets`를 설정하기 전까지 non-null 값을 처리할 때 즉시 실패합니다.
-영속 컬럼에는 프로세스 안에서 새로 생성한 keyset을 사용하지 마세요. 한 keyset으로 저장한 암호문은 재시작 후
-다른 keyset이나 다른 애플리케이션 인스턴스에서 복호화할 수 없습니다.
+암호화된 엔티티 필드는 외부에 보존된 Tink key material이 필요합니다. 기본 컨버터는 애플리케이션 부트스트랩에서 `EncryptedStringConverterKeysets`를 설정하기 전까지 non-null 값을 처리할 때 즉시 실패합니다. 영속 컬럼에는 프로세스 안에서 새로 생성한 keyset을 사용하지 마세요. 한 keyset으로 저장한 암호문은 재시작 후 다른 keyset이나 다른 애플리케이션 인스턴스에서 복호화할 수 없습니다.
 
 ```kotlin
 import io.bluetape4k.hibernate.converters.AESStringConverter
@@ -558,50 +551,50 @@ class Purchase {
 
 ### Model (model/)
 
-| 파일                     | 설명                   |
-|------------------------|----------------------|
-| `JpaEntity.kt`         | JPA 엔티티 인터페이스        |
-| `AbstractJpaEntity.kt` | JPA 엔티티 추상 클래스       |
-| `IntJpaEntity.kt`      | Int ID 엔티티           |
-| `LongJpaEntity.kt`     | Long ID 엔티티          |
-| `UuidJpaEntity.kt`     | UUID (Timebased) 엔티티 |
-| `JpaTreeEntity.kt`     | Tree 구조 엔티티 인터페이스    |
-| `IntJpaTreeEntity.kt`  | Int ID Tree 엔티티      |
-| `LongJpaTreeEntity.kt` | Long ID Tree 엔티티     |
+| 파일                   | 설명                        |
+|------------------------|-----------------------------|
+| `JpaEntity.kt`         | JPA 엔티티 인터페이스       |
+| `AbstractJpaEntity.kt` | JPA 엔티티 추상 클래스      |
+| `IntJpaEntity.kt`      | Int ID 엔티티               |
+| `LongJpaEntity.kt`     | Long ID 엔티티              |
+| `UuidJpaEntity.kt`     | UUID (Timebased) 엔티티     |
+| `JpaTreeEntity.kt`     | Tree 구조 엔티티 인터페이스 |
+| `IntJpaTreeEntity.kt`  | Int ID Tree 엔티티          |
+| `LongJpaTreeEntity.kt` | Long ID Tree 엔티티         |
 | `TreeNodePosition.kt`  | Tree 노드 위치 값 객체      |
 
 ### EntityManager 확장
 
-| 파일                               | 설명                      |
-|----------------------------------|-------------------------|
-| `EntityManagerSupport.kt`        | EntityManager 확장 함수     |
+| 파일                             | 설명                      |
+|----------------------------------|---------------------------|
+| `EntityManagerSupport.kt`        | EntityManager 확장 함수   |
 | `EntityManagerFactorySupport.kt` | EntityManagerFactory 확장 |
 
 ### Session 확장
 
-| 파일                   | 설명                   |
-|----------------------|----------------------|
-| `SessionSupport.kt`  | Hibernate Session 확장 |
-| `HibernateConsts.kt` | Hibernate 기본 설정 상수   |
+| 파일                 | 설명                     |
+|----------------------|--------------------------|
+| `SessionSupport.kt`  | Hibernate Session 확장   |
+| `HibernateConsts.kt` | Hibernate 기본 설정 상수 |
 
 ### Criteria (criteria/)
 
-| 파일                     | 설명              |
-|------------------------|-----------------|
+| 파일                   | 설명              |
+|------------------------|-------------------|
 | `CriteriaSupport.kt`   | Criteria API 확장 |
 | `TypedQuerySupport.kt` | TypedQuery 확장   |
 
 ### Stateless Session (stateless/)
 
-| 파일                              | 설명                             |
-|---------------------------------|--------------------------------|
-| `StatelessSesisonSupport.kt`    | withStateless 트랜잭션 래퍼          |
+| 파일                            | 설명                               |
+|---------------------------------|------------------------------------|
+| `StatelessSesisonSupport.kt`    | withStateless 트랜잭션 래퍼        |
 | `StatelessSessionExtensions.kt` | StatelessSession reified 확장 함수 |
 
 ### Querydsl (querydsl/)
 
-| 파일                                 | 설명                  |
-|------------------------------------|---------------------|
+| 파일                               | 설명                  |
+|------------------------------------|-----------------------|
 | `core/ExpressionsSupport.kt`       | Expression 확장       |
 | `core/SimpleExpressionSupport.kt`  | SimpleExpression 확장 |
 | `core/StringExpressionsSupport.kt` | StringExpression 확장 |
@@ -611,22 +604,22 @@ class Purchase {
 
 ### Converters (converters/)
 
-| 파일                                 | 설명                                    |
-|------------------------------------|---------------------------------------|
-| `LocaleAsStringConverter.kt`       | Locale ↔ BCP 47 문자열                   |
-| `DurationAsTimestampConverter.kt`  | Duration ↔ Timestamp                  |
-| `EncryptedStringConverters.kt`     | Google Tink AES-GCM / AES-SIV 암호화     |
+| 파일                               | 설명                                    |
+|------------------------------------|-----------------------------------------|
+| `LocaleAsStringConverter.kt`       | Locale ↔ BCP 47 문자열                  |
+| `DurationAsTimestampConverter.kt`  | Duration ↔ Timestamp                    |
+| `EncryptedStringConverters.kt`     | Google Tink AES-GCM / AES-SIV 암호화    |
 | `CompressedStringConverter.kt`     | BZip2/Deflate/GZip/LZ4/Snappy/Zstd 압축 |
-| `ObjectAsByteArrayConverter.kt`    | Jdk/Kryo/Fory 직렬화 + 압축 → ByteArray    |
-| `ObjectAsBase64StringConverter.kt` | 객체 직렬화 → Base64 문자열                   |
-| `AbstractObjectAsJsonConverter.kt` | 객체 → JSON 문자열 변환 베이스 클래스              |
+| `ObjectAsByteArrayConverter.kt`    | Jdk/Kryo/Fory 직렬화 + 압축 → ByteArray |
+| `ObjectAsBase64StringConverter.kt` | 객체 직렬화 → Base64 문자열             |
+| `AbstractObjectAsJsonConverter.kt` | 객체 → JSON 문자열 변환 베이스 클래스   |
 
 ### Listeners (listeners/)
 
-| 파일                           | 설명                                        |
-|------------------------------|-------------------------------------------|
+| 파일                         | 설명                                            |
+|------------------------------|-------------------------------------------------|
 | `HibernateEntityListener.kt` | PostCommit 이벤트 리스너 (insert/update/delete) |
-| `JpaEntityEventLogger.kt`    | Pre/Post JPA 이벤트 로깅 리스너                   |
+| `JpaEntityEventLogger.kt`    | Pre/Post JPA 이벤트 로깅 리스너                 |
 
 ## 테스트
 

@@ -2,41 +2,48 @@ package io.bluetape4k.redis.lettuce.map
 
 import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeFalse
 import io.bluetape4k.assertions.shouldBeNull
+import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.io.serializer.BinarySerializers
 import io.bluetape4k.junit5.coroutines.runSuspendIO
+import io.bluetape4k.logging.KLogging
 import io.bluetape4k.redis.lettuce.AbstractLettuceTest
 import io.bluetape4k.redis.lettuce.codec.LettuceBinaryCodec
-import io.lettuce.core.codec.StringCodec
 import io.lettuce.core.api.StatefulRedisConnection
-import kotlinx.coroutines.NonCancellable
-import kotlinx.coroutines.TimeoutCancellationException
-import kotlinx.coroutines.async
-import kotlinx.coroutines.asCoroutineDispatcher
-import kotlinx.coroutines.CoroutineScope
+import io.lettuce.core.codec.StringCodec
 import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.TimeoutCancellationException
+import kotlinx.coroutines.asCoroutineDispatcher
+import kotlinx.coroutines.async
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.withContext
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.withContext
 import org.junit.jupiter.api.Test
 import java.time.Duration
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.Executors
 import java.util.concurrent.LinkedBlockingDeque
 import java.util.concurrent.atomic.AtomicInteger
-import kotlin.system.measureTimeMillis
 import kotlin.reflect.full.callSuspend
 import kotlin.reflect.full.declaredMemberFunctions
 import kotlin.reflect.jvm.isAccessible
+import kotlin.system.measureTimeMillis
+import kotlin.time.Duration.Companion.days
+import kotlin.time.Duration.Companion.seconds
 
 internal class LettuceWriteBehindRetryTest: AbstractLettuceTest() {
+
+    companion object: KLogging()
 
     @Test
     fun `blocking write-behind는 실패 후에도 동일 키의 최신 값을 유지한다`() {
@@ -167,7 +174,7 @@ internal class LettuceWriteBehindRetryTest: AbstractLettuceTest() {
             map.flushWriteBehindQueue()
 
             map.writeBehindQueue().toList() shouldBeEqualTo
-                listOf(Triple("fresh-key", "fresh-value", 1))
+                    listOf(Triple("fresh-key", "fresh-value", 1))
             client.connect(StringCodec.UTF8).use { connection ->
                 connection.sync().lrange("$prefix:dead-letter", 0L, -1L) shouldBeEqualTo listOf("retried-key")
             }
@@ -203,7 +210,7 @@ internal class LettuceWriteBehindRetryTest: AbstractLettuceTest() {
             )
 
             map.writeBehindRetryQueue().removeFirstOrNull() shouldBeEqualTo
-                Triple("fresh-key", "fresh-value", 1)
+                    Triple("fresh-key", "fresh-value", 1)
             map.writeBehindRetryQueue().removeFirstOrNull().shouldBeNull()
             map.writeBehindChannel().tryReceive().getOrNull().shouldBeNull()
             client.connect(StringCodec.UTF8).use { connection ->
@@ -241,7 +248,7 @@ internal class LettuceWriteBehindRetryTest: AbstractLettuceTest() {
             )
 
             map.writeBehindRetryQueue().toList() shouldBeEqualTo
-                listOf(Triple("same-key", "latest-value", 1))
+                    listOf(Triple("same-key", "latest-value", 1))
             client.connect(StringCodec.UTF8).use { connection ->
                 connection.sync().lrange("$prefix:dead-letter", 0L, -1L) shouldBeEqualTo emptyList()
             }
@@ -262,7 +269,7 @@ internal class LettuceWriteBehindRetryTest: AbstractLettuceTest() {
                 if (attempts.getAndIncrement() == 0) {
                     suspendedMap.writeBehindChannel()
                         .trySend(Triple("same-key", "newest-value", 0))
-                        .isSuccess shouldBeEqualTo true
+                        .isSuccess.shouldBeTrue()
                     error("simulated write failure")
                 }
             }
@@ -285,7 +292,7 @@ internal class LettuceWriteBehindRetryTest: AbstractLettuceTest() {
         try {
             suspendedMap.writeBehindChannel()
                 .trySend(Triple("same-key", "latest-retried-value", 0))
-                .isSuccess shouldBeEqualTo true
+                .isSuccess.shouldBeTrue()
 
             runCurrent()
             advanceUntilIdle()
@@ -315,7 +322,7 @@ internal class LettuceWriteBehindRetryTest: AbstractLettuceTest() {
                 if (attempt == 1) {
                     suspendedMap.writeBehindChannel()
                         .trySend(Triple("same-key", "newest-value", 0))
-                        .isSuccess shouldBeEqualTo true
+                        .isSuccess.shouldBeTrue()
                 }
                 if (attempt <= 3) {
                     error("simulated write failure")
@@ -349,12 +356,12 @@ internal class LettuceWriteBehindRetryTest: AbstractLettuceTest() {
         )
         try {
             suspendedMap.writeBehindChannel().apply {
-                trySend(Triple("same-key", "old-value", 0)).isSuccess shouldBeEqualTo true
-                trySend(Triple("same-key", "latest-retried-value", 0)).isSuccess shouldBeEqualTo true
+                trySend(Triple("same-key", "old-value", 0)).isSuccess.shouldBeTrue()
+                trySend(Triple("same-key", "latest-retried-value", 0)).isSuccess.shouldBeTrue()
             }
 
             releaseConsumer.countDown()
-            kotlinx.coroutines.withTimeout(5_000L) {
+            kotlinx.coroutines.withTimeout(5.seconds) {
                 latestWritten.await()
             }
 
@@ -366,7 +373,7 @@ internal class LettuceWriteBehindRetryTest: AbstractLettuceTest() {
             )
             client.connect(LettuceBinaryCodec<String>(BinarySerializers.LZ4Fory)).use { connection ->
                 connection.sync().hget("$prefix:dead-letter:values", "same-key") shouldBeEqualTo
-                    "latest-retried-value"
+                        "latest-retried-value"
             }
         } finally {
             releaseConsumer.countDown()
@@ -402,7 +409,7 @@ internal class LettuceWriteBehindRetryTest: AbstractLettuceTest() {
             map.flushWriteBehindQueue()
 
             map.writeBehindQueue().toList() shouldBeEqualTo
-                listOf(Triple("queue-blocker", "blocker-value", 0))
+                    listOf(Triple("queue-blocker", "blocker-value", 0))
             map.writeBehindQueue().clear()
             client.connect(StringCodec.UTF8).use { connection ->
                 connection.sync().lrange("$prefix:dead-letter", 0L, -1L) shouldBeEqualTo listOf("failed-key")
@@ -437,15 +444,15 @@ internal class LettuceWriteBehindRetryTest: AbstractLettuceTest() {
         ).use { map ->
             map.writeBehindChannel()
                 .trySend(Triple("channel-blocker", "blocker-value", 0))
-                .isSuccess shouldBeEqualTo true
+                .isSuccess.shouldBeTrue()
 
             map.flushBatch(listOf(Triple("failed-key", "failed-value", 0)))
 
             map.writeBehindChannel().tryReceive().getOrNull() shouldBeEqualTo
-                Triple("channel-blocker", "blocker-value", 0)
+                    Triple("channel-blocker", "blocker-value", 0)
             map.writeBehindChannel().tryReceive().getOrNull().shouldBeNull()
             map.writeBehindRetryQueue().toList() shouldBeEqualTo
-                listOf(Triple("failed-key", "failed-value", 1))
+                    listOf(Triple("failed-key", "failed-value", 1))
             client.connect(StringCodec.UTF8).use { connection ->
                 connection.sync().lrange("$prefix:dead-letter", 0L, -1L) shouldBeEqualTo emptyList()
             }
@@ -474,7 +481,7 @@ internal class LettuceWriteBehindRetryTest: AbstractLettuceTest() {
         map.flushBatch(listOf(Triple("failed-key", "failed-value", 2)))
 
         map.writeBehindRetryQueue().toList() shouldBeEqualTo
-            listOf(Triple("failed-key", "failed-value", 2))
+                listOf(Triple("failed-key", "failed-value", 2))
     }
 
     @Test
@@ -496,7 +503,7 @@ internal class LettuceWriteBehindRetryTest: AbstractLettuceTest() {
         map.flushBatch(listOf(Triple("failed-key", "failed-value", 2)))
 
         map.writeBehindRetryQueue().toList() shouldBeEqualTo
-            listOf(Triple("failed-key", "failed-value", 2))
+                listOf(Triple("failed-key", "failed-value", 2))
         map.valueConnection().close()
     }
 
@@ -515,7 +522,7 @@ internal class LettuceWriteBehindRetryTest: AbstractLettuceTest() {
         )
         map.writeBehindChannel()
             .trySend(Triple("pending-key", "pending-value", 0))
-            .isSuccess shouldBeEqualTo true
+            .isSuccess.shouldBeTrue()
 
         val blockingClose = async(Dispatchers.IO) { map.close() }
         val suspendingClose = async { map.suspendClose() }
@@ -557,14 +564,14 @@ internal class LettuceWriteBehindRetryTest: AbstractLettuceTest() {
             }
         }
 
-        (elapsedMillis < 1_000L) shouldBeEqualTo true
+        (elapsedMillis < 1_000L).shouldBeTrue()
         assertFailsWith<TimeoutCancellationException> {
             map.suspendClose()
         }
         writeCalls.get() shouldBeEqualTo 1
         releaseWriter.complete(Unit)
         map.suspendClose()
-        map.valueConnection().isOpen shouldBeEqualTo false
+        map.valueConnection().isOpen.shouldBeFalse()
     }
 
     @Test
@@ -574,7 +581,7 @@ internal class LettuceWriteBehindRetryTest: AbstractLettuceTest() {
         val writer = object: SuspendedMapWriter<String, String> {
             override suspend fun write(map: Map<String, String>) {
                 writerStarted.complete(Unit)
-                delay(Duration.ofDays(1).toMillis())
+                delay(1.days)
             }
 
             override suspend fun delete(keys: Collection<String>) = Unit
@@ -605,7 +612,7 @@ internal class LettuceWriteBehindRetryTest: AbstractLettuceTest() {
         val writer = object: SuspendedMapWriter<String, String> {
             override suspend fun write(map: Map<String, String>) {
                 writerStarted.complete(Unit)
-                delay(Duration.ofDays(1).toMillis())
+                delay(1.days)
             }
 
             override suspend fun delete(keys: Collection<String>) = Unit
@@ -649,9 +656,9 @@ internal class LettuceWriteBehindRetryTest: AbstractLettuceTest() {
 
     @Suppress("UNCHECKED_CAST")
     private fun LettuceSuspendedLoadedMap<String, String>.writeBehindRetryQueue():
-        ArrayDeque<Triple<String, String, Int>> = javaClass.getDeclaredField("writeBehindRetryQueue")
-            .apply { isAccessible = true }
-            .get(this) as ArrayDeque<Triple<String, String, Int>>
+            ArrayDeque<Triple<String, String, Int>> = javaClass.getDeclaredField("writeBehindRetryQueue")
+        .apply { isAccessible = true }
+        .get(this) as ArrayDeque<Triple<String, String, Int>>
 
     private suspend fun LettuceSuspendedLoadedMap<String, String>.flushBatch(
         entries: List<Triple<String, String, Int>>,
@@ -663,16 +670,18 @@ internal class LettuceWriteBehindRetryTest: AbstractLettuceTest() {
 
     @Suppress("UNCHECKED_CAST")
     private fun LettuceSuspendedLoadedMap<String, String>.valueConnection():
-        StatefulRedisConnection<String, String> = javaClass.getDeclaredField("connection")
-            .apply { isAccessible = true }
-            .get(this) as StatefulRedisConnection<String, String>
+            StatefulRedisConnection<String, String> = javaClass.getDeclaredField("connection")
+        .apply { isAccessible = true }
+        .get(this) as StatefulRedisConnection<String, String>
 
     @Suppress("UNCHECKED_CAST")
     private fun LettuceSuspendedLoadedMap<String, String>.stringConnection():
-        StatefulRedisConnection<String, String> {
-        val connection = javaClass.getDeclaredField("lazyStrConnection")
+            StatefulRedisConnection<String, String> {
+
+        val connection by javaClass.getDeclaredField("lazyStrConnection")
             .apply { isAccessible = true }
             .get(this) as Lazy<StatefulRedisConnection<String, String>>
-        return connection.value
+
+        return connection
     }
 }

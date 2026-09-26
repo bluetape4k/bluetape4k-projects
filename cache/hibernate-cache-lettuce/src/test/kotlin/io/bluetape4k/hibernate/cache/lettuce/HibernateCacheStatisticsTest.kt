@@ -1,10 +1,13 @@
 package io.bluetape4k.hibernate.cache.lettuce
 
 import io.bluetape4k.assertions.shouldBeGreaterThan
+import io.bluetape4k.assertions.shouldNotBeEmpty
 import io.bluetape4k.assertions.shouldNotBeNull
 import io.bluetape4k.hibernate.cache.lettuce.model.Department
 import io.bluetape4k.hibernate.cache.lettuce.model.Employee
 import io.bluetape4k.hibernate.cache.lettuce.model.Person
+import io.bluetape4k.hibernate.findAs
+import io.bluetape4k.logging.KLogging
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 
@@ -12,6 +15,9 @@ import org.junit.jupiter.api.Test
  * Region별 CacheRegionStatistics 검증 테스트.
  */
 class HibernateCacheStatisticsTest: AbstractHibernateNearCacheTest() {
+
+    companion object: KLogging()
+
     @BeforeEach
     fun resetAll() {
         sessionFactory.cache.evictAllRegions()
@@ -22,24 +28,22 @@ class HibernateCacheStatisticsTest: AbstractHibernateNearCacheTest() {
     fun `엔티티 Region 통계 - persist 시 put, 재조회 시 hit 누적`() {
         val personRegion = Person::class.java.name
 
-        val personId =
-            sessionFactory.openSession().use { s ->
-                s.beginTransaction()
-                val p =
-                    Person().apply {
-                        name = "Stats Alice"
-                        age = 30
-                    }
-                s.persist(p)
-                s.transaction.commit()
-                p.id!!
+        val personId = sessionFactory.openSession().use { s ->
+            s.beginTransaction()
+            val p = Person().apply {
+                name = "Stats Alice"
+                age = 30
             }
+            s.persist(p)
+            s.transaction.commit()
+            p.id.shouldNotBeNull()
+        }
         sessionFactory.statistics.clear()
 
         repeat(3) {
             sessionFactory.openSession().use { s ->
                 s.beginTransaction()
-                s.find(Person::class.java, personId).shouldNotBeNull()
+                s.findAs<Person>(personId).shouldNotBeNull()
                 s.transaction.commit()
             }
         }
@@ -53,29 +57,28 @@ class HibernateCacheStatisticsTest: AbstractHibernateNearCacheTest() {
     fun `컬렉션 Region 통계 - OneToMany 컬렉션 로드 시 put 후 hit`() {
         val collectionRegion = "${Department::class.java.name}.employees"
 
-        val deptId =
-            sessionFactory.openSession().use { s ->
-                s.beginTransaction()
-                val dept = Department().apply { name = "Engineering" }
-                val emp1 = Employee().apply { name = "E1" }
-                val emp2 = Employee().apply { name = "E2" }
-                dept.addEmployee(emp1)
-                dept.addEmployee(emp2)
-                s.persist(dept)
-                s.transaction.commit()
-                dept.id!!
-            }
+        val deptId = sessionFactory.openSession().use { s ->
+            s.beginTransaction()
+            val dept = Department().apply { name = "Engineering" }
+            val emp1 = Employee().apply { name = "E1" }
+            val emp2 = Employee().apply { name = "E2" }
+            dept.addEmployee(emp1)
+            dept.addEmployee(emp2)
+            s.persist(dept)
+            s.transaction.commit()
+            dept.id.shouldNotBeNull()
+        }
         sessionFactory.statistics.clear()
 
         sessionFactory.openSession().use { s ->
             s.beginTransaction()
-            val d = s.find(Department::class.java, deptId)!!
+            val d = s.findAs<Department>(deptId).shouldNotBeNull()
             d.employees.size
             s.transaction.commit()
         }
         sessionFactory.openSession().use { s ->
             s.beginTransaction()
-            val d = s.find(Department::class.java, deptId)!!
+            val d = s.findAs<Department>(deptId).shouldNotBeNull()
             d.employees.size
             s.transaction.commit()
         }
@@ -109,11 +112,10 @@ class HibernateCacheStatisticsTest: AbstractHibernateNearCacheTest() {
         repeat(3) {
             sessionFactory.openSession().use { s ->
                 s.beginTransaction()
-                s
-                    .createSelectionQuery(hql, Person::class.java)
+                s.createSelectionQuery(hql, Person::class.java)
                     .setParameter("age", 20)
                     .setCacheable(true)
-                    .list()
+                    .list().shouldNotBeEmpty()
                 s.transaction.commit()
             }
         }
@@ -124,26 +126,25 @@ class HibernateCacheStatisticsTest: AbstractHibernateNearCacheTest() {
 
     @Test
     fun `전체 통계 - secondLevelCachePutCount와 hit 비율 검증`() {
-        val ids =
-            sessionFactory.openSession().use { s ->
-                s.beginTransaction()
-                val people =
-                    (1..5).map { i ->
-                        Person().apply {
-                            name = "Bulk$i"
-                            age = 20 + i
-                        }
-                    }
-                people.forEach { s.persist(it) }
-                s.transaction.commit()
-                people.map { it.id!! }
+        val ids = sessionFactory.openSession().use { s ->
+            s.beginTransaction()
+            val people = (1..5).map { i ->
+                Person().apply {
+                    name = "Bulk$i"
+                    age = 20 + i
+                }
             }
+            people.forEach { s.persist(it) }
+            s.transaction.commit()
+            people.map { it.id.shouldNotBeNull() }
+        }
+
         sessionFactory.statistics.clear()
 
         ids.forEach { id ->
             sessionFactory.openSession().use { s ->
                 s.beginTransaction()
-                s.find(Person::class.java, id)
+                s.findAs<Person>(id).shouldNotBeNull()
                 s.transaction.commit()
             }
         }
@@ -153,7 +154,7 @@ class HibernateCacheStatisticsTest: AbstractHibernateNearCacheTest() {
         ids.forEach { id ->
             sessionFactory.openSession().use { s ->
                 s.beginTransaction()
-                s.find(Person::class.java, id)
+                s.findAs<Person>(id).shouldNotBeNull()
                 s.transaction.commit()
             }
         }

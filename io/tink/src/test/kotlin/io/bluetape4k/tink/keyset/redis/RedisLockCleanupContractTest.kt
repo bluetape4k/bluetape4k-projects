@@ -4,35 +4,51 @@ import com.google.crypto.tink.aead.AesGcmKeyManager
 import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeSameInstanceAs
 import io.bluetape4k.assertions.shouldContain
-import io.bluetape4k.tink.registerTink as registerTinkSupport
+import io.bluetape4k.concurrent.tryLock
+import io.bluetape4k.logging.KLogging
+import io.bluetape4k.tink.AbstractTinkTest
 import io.lettuce.core.ScriptOutputType
 import io.lettuce.core.SetArgs
 import io.lettuce.core.api.StatefulRedisConnection
 import io.lettuce.core.api.sync.RedisCommands
+import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.mockk
 import org.junit.jupiter.api.BeforeAll
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.redisson.api.RBucket
 import org.redisson.api.RLock
 import org.redisson.api.RMap
 import org.redisson.api.RedissonClient
-import java.util.concurrent.TimeUnit
+import kotlin.time.Duration.Companion.seconds
+import io.bluetape4k.tink.registerTink as registerTinkSupport
 
-class RedisLockCleanupContractTest {
+class RedisLockCleanupContractTest: AbstractTinkTest() {
 
-    companion object {
-        @JvmStatic
-        @BeforeAll
-        fun registerTink() {
-            registerTinkSupport()
-        }
+    companion object: KLogging()
+
+    private val commands = mockk<RedisCommands<String, String>>(relaxed = true)
+    private val connection = mockk<StatefulRedisConnection<String, String>>(relaxed = true)
+
+    private val redisson = mockk<RedissonClient>()
+    private val activeVersionBucket = mockk<RBucket<String>>(relaxed = true)
+    private val keysetsMap = mockk<RMap<String, String>>(relaxed = true)
+    private val createdAtMap = mockk<RMap<String, String>>(relaxed = true)
+    private val lock = mockk<RLock>()
+
+    @BeforeAll
+    fun registerTink() {
+        registerTinkSupport()
+    }
+
+    @BeforeEach
+    fun beforeEach() {
+        clearAllMocks()
     }
 
     @Test
     fun `Lettuce lock cleanup 실패는 작업 성공 시 호출자에게 전달된다`() {
-        val commands = mockk<RedisCommands<String, String>>()
-        val connection = mockk<StatefulRedisConnection<String, String>>()
         val cleanupFailure = IllegalStateException("lettuce cleanup failed")
         var evalCalls = 0
 
@@ -59,8 +75,6 @@ class RedisLockCleanupContractTest {
 
     @Test
     fun `Lettuce lock ownership loss는 작업 성공 시 호출자에게 전달된다`() {
-        val commands = mockk<RedisCommands<String, String>>()
-        val connection = mockk<StatefulRedisConnection<String, String>>()
         var evalCalls = 0
 
         every { connection.sync() } returns commands
@@ -79,25 +93,22 @@ class RedisLockCleanupContractTest {
             AesGcmKeyManager.aes256GcmTemplate(),
         )
 
-        val thrown = assertFailsWith<IllegalStateException> { store.rotate() }
+        val thrown = assertFailsWith<IllegalStateException> {
+            store.rotate()
+        }
 
-        thrown.message.orEmpty() shouldContain "ownership"
+        thrown.message shouldContain "ownership"
     }
 
     @Test
     fun `Redisson lock cleanup 실패는 작업 성공 시 호출자에게 전달된다`() {
-        val redisson = mockk<RedissonClient>()
-        val activeVersionBucket = mockk<RBucket<String>>(relaxed = true)
-        val keysetsMap = mockk<RMap<String, String>>(relaxed = true)
-        val createdAtMap = mockk<RMap<String, String>>(relaxed = true)
-        val lock = mockk<RLock>()
         val cleanupFailure = IllegalStateException("redisson cleanup failed")
 
         every { redisson.getBucket<String>(any<String>()) } returns activeVersionBucket
         every { redisson.getMap<String, String>(any<String>()) } returnsMany listOf(keysetsMap, createdAtMap)
         every { redisson.getLock(any<String>()) } returns lock
         every { activeVersionBucket.get() } returns null
-        every { lock.tryLock(5, TimeUnit.SECONDS) } returns true
+        every { lock.tryLock(5.seconds) } returns true
         every { lock.isHeldByCurrentThread } returns true
         every { lock.unlock() } throws cleanupFailure
 
@@ -107,24 +118,20 @@ class RedisLockCleanupContractTest {
             AesGcmKeyManager.aes256GcmTemplate(),
         )
 
-        val thrown = assertFailsWith<IllegalStateException> { store.rotate() }
+        val thrown = assertFailsWith<IllegalStateException> {
+            store.rotate()
+        }
 
         thrown shouldBeSameInstanceAs cleanupFailure
     }
 
     @Test
     fun `Redisson lock ownership loss는 작업 성공 시 호출자에게 전달된다`() {
-        val redisson = mockk<RedissonClient>()
-        val activeVersionBucket = mockk<RBucket<String>>(relaxed = true)
-        val keysetsMap = mockk<RMap<String, String>>(relaxed = true)
-        val createdAtMap = mockk<RMap<String, String>>(relaxed = true)
-        val lock = mockk<RLock>()
-
         every { redisson.getBucket<String>(any<String>()) } returns activeVersionBucket
         every { redisson.getMap<String, String>(any<String>()) } returnsMany listOf(keysetsMap, createdAtMap)
         every { redisson.getLock(any<String>()) } returns lock
         every { activeVersionBucket.get() } returns null
-        every { lock.tryLock(5, TimeUnit.SECONDS) } returns true
+        every { lock.tryLock(5.seconds) } returns true
         every { lock.isHeldByCurrentThread } returns false
 
         val store = RedissonVersionedKeysetStore(
@@ -133,8 +140,10 @@ class RedisLockCleanupContractTest {
             AesGcmKeyManager.aes256GcmTemplate(),
         )
 
-        val thrown = assertFailsWith<IllegalStateException> { store.rotate() }
+        val thrown = assertFailsWith<IllegalStateException> {
+            store.rotate()
+        }
 
-        thrown.message.orEmpty() shouldContain "ownership"
+        thrown.message shouldContain "ownership"
     }
 }

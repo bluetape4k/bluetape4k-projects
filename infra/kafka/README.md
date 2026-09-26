@@ -173,37 +173,31 @@ val compressed = lz4ForyCodec.serialize("test-topic", largeObject)
 
 Available codecs:
 
-| Codec                   | Description                             |
-|-------------------------|-----------------------------------------|
-| `KafkaCodecs.String`    | UTF-8 string serialization              |
-| `KafkaCodecs.ByteArray` | Raw byte array passthrough              |
-| `KafkaCodecs.Jackson`   | JSON serialization                      |
-| `KafkaCodecs.Kryo`      | Kryo binary serialization               |
-| `KafkaCodecs.Fory`      | Fory binary serialization for trusted inputs |
-| `KafkaCodecs.Lz4Kryo`   | LZ4 compression + Kryo serialization    |
-| `KafkaCodecs.Lz4Fory`   | LZ4 compression + Fory serialization for trusted inputs |
-| `KafkaCodecs.SnappyKryo` | Snappy compression + Kryo serialization |
+| Codec                    | Description                                                |
+|--------------------------|------------------------------------------------------------|
+| `KafkaCodecs.String`     | UTF-8 string serialization                                 |
+| `KafkaCodecs.ByteArray`  | Raw byte array passthrough                                 |
+| `KafkaCodecs.Jackson`    | JSON serialization                                         |
+| `KafkaCodecs.Kryo`       | Kryo binary serialization                                  |
+| `KafkaCodecs.Fory`       | Fory binary serialization for trusted inputs               |
+| `KafkaCodecs.Lz4Kryo`    | LZ4 compression + Kryo serialization                       |
+| `KafkaCodecs.Lz4Fory`    | LZ4 compression + Fory serialization for trusted inputs    |
+| `KafkaCodecs.SnappyKryo` | Snappy compression + Kryo serialization                    |
 | `KafkaCodecs.SnappyFory` | Snappy compression + Fory serialization for trusted inputs |
-| `KafkaCodecs.ZstdKryo`  | Zstd compression + Kryo serialization   |
-| `KafkaCodecs.ZstdFory`  | Zstd compression + Fory serialization for trusted inputs |
+| `KafkaCodecs.ZstdKryo`   | Zstd compression + Kryo serialization                      |
+| `KafkaCodecs.ZstdFory`   | Zstd compression + Fory serialization for trusted inputs   |
 
 #### Security: Fory Trust Boundary
 
-Fory-backed Kafka codecs are marked with `@BluetapeDelicateApi`. They use the
-default `ForyBinarySerializer`, which allows unregistered classes during
-deserialization. Opt in only for trusted topics and brokers. For shared or
-external inputs, prefer a custom codec backed by `ForyBinarySerializer.secureFory(...)`
+Fory-backed Kafka codecs are marked with `@BluetapeDelicateApi`. They use the default `ForyBinarySerializer`, which allows unregistered classes during deserialization. Opt in only for trusted topics and brokers. For shared or external inputs, prefer a custom codec backed by `ForyBinarySerializer.secureFory(...)`
 with explicit class registration.
 
 The same trust boundary applies if you subclass `BinaryKafkaCodec` directly with
-`BinarySerializers.Fory`, `LZ4Fory`, `SnappyFory`, or `ZstdFory`; those lower-level
-serializers do not add a Kafka-specific opt-in marker by themselves.
+`BinarySerializers.Fory`, `LZ4Fory`, `SnappyFory`, or `ZstdFory`; those lower-level serializers do not add a Kafka-specific opt-in marker by themselves.
 
 #### Performance: Opt-out of Value-Type Header
 
-By default, `AbstractKafkaCodec` writes the Java FQN of the value type to every
-record header (`bluetape4k.kafka.codec.value.type`). Disable it when the consumer
-already knows the type statically:
+By default, `AbstractKafkaCodec` writes the Java FQN of the value type to every record header (`bluetape4k.kafka.codec.value.type`). Disable it when the consumer already knows the type statically:
 
 ```kotlin
 // Fory/Kryo codecs do not need the value-type header
@@ -218,19 +212,17 @@ class NoHeaderForyCodec : ForyKafkaCodec() {
 > `doDeserialize` causes it to fall back to `LinkedHashMap` (silent type corruption).
 > Use `ForyKafkaCodec` or `KryoKafkaCodec` when you want to disable the header.
 
-| `writeValueTypeHeader` | Effect |
-|------------------------|--------|
-| `true` (default) | FQN written to every record header — polymorphic deserialization works |
-| `false` | Header omitted — no bandwidth overhead, smaller attack surface. Consumer must know the type statically. |
+| `writeValueTypeHeader` | Effect                                                                                                  |
+|------------------------|---------------------------------------------------------------------------------------------------------|
+| `true` (default)       | FQN written to every record header — polymorphic deserialization works                                  |
+| `false`                | Header omitted — no bandwidth overhead, smaller attack surface. Consumer must know the type statically. |
 
 #### Security: Class Loading Allowlist
 
 Trust profile: `AllowListedTypes` by default. Use
 `UnsafeLegacyCompatibility` only through `AbstractKafkaCodec.ALLOW_ALL_TYPES_UNSAFE`.
 
-`AbstractKafkaCodec` loads the deserialization target class from the Kafka
-header `bluetape4k.kafka.codec.value.type`. If that header can be set by an
-attacker, arbitrary class loading (RCE) is possible.
+`AbstractKafkaCodec` loads the deserialization target class from the Kafka header `bluetape4k.kafka.codec.value.type`. If that header can be set by an attacker, arbitrary class loading (RCE) is possible.
 
 Override `allowedTypePackages` to restrict which packages may be loaded:
 
@@ -243,10 +235,10 @@ class SecureJacksonCodec : JacksonKafkaCodec() {
 }
 ```
 
-| `allowedTypePackages` value | Effect |
-|-----------------------------|--------|
-| `emptySet()` (default) | **Deny all** — no class is loaded from the type header. Safe default for untrusted or shared topics. |
-| Non-empty set | Only classes whose FQN equals or starts with a listed prefix are allowed; others → poison-pill `null`. |
+| `allowedTypePackages` value                 | Effect                                                                                                                   |
+|---------------------------------------------|--------------------------------------------------------------------------------------------------------------------------|
+| `emptySet()` (default)                      | **Deny all** — no class is loaded from the type header. Safe default for untrusted or shared topics.                     |
+| Non-empty set                               | Only classes whose FQN equals or starts with a listed prefix are allowed; others → poison-pill `null`.                   |
 | `AbstractKafkaCodec.ALLOW_ALL_TYPES_UNSAFE` | Bypass all checks — restores pre-1.8.0 allow-all behavior. Use only in fully trusted, internally controlled deployments. |
 
 Legacy migration example:
@@ -491,8 +483,7 @@ io.bluetape4k.kafka
 This module migrates to the maintained fork **`at.yawk.lz4:lz4-java:1.11.0`**, which keeps the
 `net.jpountz.lz4.*` package namespace (binary-compatible — no source changes required).
 
-Because Kafka clients (`kafka-clients`, `spring-kafka`, `reactor-kafka`, `kafka-streams`) still
-declare a transitive dependency on `org.lz4:lz4-java`, this module evicts it via:
+Because Kafka clients (`kafka-clients`, `spring-kafka`, `reactor-kafka`, `kafka-streams`) still declare a transitive dependency on `org.lz4:lz4-java`, this module evicts it via:
 
 ```kotlin
 configurations.all {
@@ -502,9 +493,9 @@ configurations.all {
 
 ### Downstream consumers
 
-If your application directly depends on `kafka-clients` (or any of its siblings) **without** going
-through `bluetape4k-kafka`, add the same `configurations.all { exclude(...) }` block **and** declare
-the replacement explicitly:
+If your application directly depends on `kafka-clients` (or any of its siblings)
+**without** going through `bluetape4k-kafka`, add the same `configurations.all { exclude(...) }` block
+**and** declare the replacement explicitly:
 
 ```kotlin
 configurations.all {
@@ -517,8 +508,7 @@ dependencies {
 }
 ```
 
-`bluetape4k-kafka` already exposes `at.yawk.lz4:lz4-java:1.11.0` as an `api` dependency,
-so direct users of this module do not need to add it manually.
+`bluetape4k-kafka` already exposes `at.yawk.lz4:lz4-java:1.11.0` as an `api` dependency, so direct users of this module do not need to add it manually.
 
 ## References
 

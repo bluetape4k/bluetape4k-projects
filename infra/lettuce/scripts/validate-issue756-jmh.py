@@ -13,7 +13,6 @@ import tempfile
 from decimal import Decimal, InvalidOperation
 from pathlib import Path
 
-
 REPOSITORY_ROOT = Path(__file__).resolve().parents[3]
 BENCHMARK_CLASS = "io.bluetape4k.redis.lettuce.benchmark.LettuceCodecBenchmark"
 BACKENDS = ("jdk", "kryo", "jackson2", "jackson3")
@@ -361,7 +360,7 @@ def validate_classpath(metadata):
         for name in removed:
             normalized = name.upper()
             if not normalized.startswith("META-INF/") or not normalized.endswith(
-                (".SF", ".RSA", ".DSA")
+                    (".SF", ".RSA", ".DSA")
             ):
                 fail("ARTIFACT_IDENTITY_MISMATCH", f"non-signature entry removed: {name}")
     return entries
@@ -462,8 +461,8 @@ def _validate_preflight(metadata, fixture, matrix):
         expected_baseline_count = 1 if cell["path"] == "baseline" else 0
         expected_candidate_count = 1 if cell["path"] == "candidate" else 0
         if (
-            cell["baseline_dispatch_count"] != expected_baseline_count
-            or cell["candidate_dispatch_count"] != expected_candidate_count
+                cell["baseline_dispatch_count"] != expected_baseline_count
+                or cell["candidate_dispatch_count"] != expected_candidate_count
         ):
             fail("PREFLIGHT_MISMATCH", f"{method} dispatch count mismatch")
         before = _require_mapping(cell["reset_before"], "RESET_DRIFT", f"{method}.reset_before")
@@ -481,13 +480,13 @@ def _validate_preflight(metadata, fixture, matrix):
             baseline = actual_by_method[_method_name(backend, target, "baseline")]
             candidate = actual_by_method[_method_name(backend, target, "candidate")]
             for field in (
-                "backend_class",
-                "backend_config_sha256",
-                "payload_sha256",
-                "wire_sha256",
-                "written_count",
-                "reset_before",
-                "reset_after",
+                    "backend_class",
+                    "backend_config_sha256",
+                    "payload_sha256",
+                    "wire_sha256",
+                    "written_count",
+                    "reset_before",
+                    "reset_after",
             ):
                 if baseline[field] != candidate[field]:
                     fail("PREFLIGHT_MISMATCH", f"{backend}/{target} paired {field} mismatch")
@@ -581,7 +580,7 @@ def _jmh_method(record):
     prefix = BENCHMARK_CLASS + "."
     if not isinstance(benchmark, str) or not benchmark.startswith(prefix):
         fail("MATRIX_EXACT", f"unexpected benchmark class: {benchmark}")
-    return benchmark[len(prefix) :]
+    return benchmark[len(prefix):]
 
 
 def _validate_java_runtime(runtime):
@@ -591,7 +590,7 @@ def _validate_java_runtime(runtime):
         if not isinstance(runtime[field], str) or not runtime[field]:
             fail("JVM_IDENTITY_MISMATCH", f"java_runtime.{field} must be non-empty")
     if not isinstance(runtime["jvm_args"], list) or not all(
-        isinstance(value, str) for value in runtime["jvm_args"]
+            isinstance(value, str) for value in runtime["jvm_args"]
     ):
         fail("JVM_IDENTITY_MISMATCH", "java_runtime.jvm_args must be a string array")
     return runtime
@@ -615,7 +614,7 @@ def jmh_runtime_identity(records):
             if not isinstance(identity[field], str) or not identity[field]:
                 fail("JVM_IDENTITY_MISMATCH", f"JMH[{index}].{field} must be non-empty")
         if not isinstance(identity["jvm_args"], list) or not all(
-            isinstance(value, str) for value in identity["jvm_args"]
+                isinstance(value, str) for value in identity["jvm_args"]
         ):
             fail("JVM_IDENTITY_MISMATCH", f"JMH[{index}].jvm_args must be a string array")
         identities.append(identity)
@@ -712,11 +711,11 @@ def throughput_delta_percent(baseline, candidate):
 
 
 def cell_verdict(
-    baseline_allocation,
-    candidate_allocation,
-    baseline_throughput,
-    candidate_throughput,
-    dispatch_kind,
+        baseline_allocation,
+        candidate_allocation,
+        baseline_throughput,
+        candidate_throughput,
+        dispatch_kind,
 ):
     if dispatch_kind == "inherited-default":
         return "ineligible"
@@ -961,7 +960,7 @@ def _git_name_status_paths(root, *arguments):
         path_count = 2 if status[0] in ("R", "C") else 1
         if index + path_count > len(tokens):
             fail("SOURCE_IDENTITY_MISMATCH", "malformed git name-status output")
-        paths = tokens[index : index + path_count]
+        paths = tokens[index: index + path_count]
         index += path_count
         entries.extend({"status": status, "path": path} for path in paths if path)
     return entries
@@ -1096,8 +1095,8 @@ def validate_evidence_root(root, expected_benchmark_input_sha=None):
     validate_canonical_identity(first["metadata"], second["metadata"])
     benchmark_input_sha = first["metadata"]["benchmark_input_sha"]
     if (
-        expected_benchmark_input_sha is not None
-        and benchmark_input_sha != expected_benchmark_input_sha
+            expected_benchmark_input_sha is not None
+            and benchmark_input_sha != expected_benchmark_input_sha
     ):
         fail(
             "SOURCE_IDENTITY_MISMATCH",

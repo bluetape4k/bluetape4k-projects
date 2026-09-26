@@ -1,13 +1,17 @@
 package io.bluetape4k.spring.boot.autoconfigure.cache.lettuce
 
+import io.bluetape4k.ToStringBuilder
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeGreaterOrEqualTo
 import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.assertions.shouldHaveSize
 import io.bluetape4k.assertions.shouldNotBeNull
 import io.bluetape4k.junit5.concurrency.MultithreadingTester
 import io.bluetape4k.junit5.concurrency.StructuredTaskScopeTester
 import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.debug
 import io.bluetape4k.testcontainers.storage.RedisServer
+import io.bluetape4k.utils.Runtimex
 import io.micrometer.core.instrument.MeterRegistry
 import jakarta.persistence.Cacheable
 import jakarta.persistence.Entity
@@ -24,11 +28,12 @@ import org.springframework.boot.autoconfigure.EnableAutoConfiguration
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.context.annotation.Configuration
 import org.springframework.data.jpa.repository.JpaRepository
+import org.springframework.data.repository.findByIdOrNull
 import org.springframework.test.context.DynamicPropertyRegistry
 import org.springframework.test.context.DynamicPropertySource
 import org.springframework.transaction.annotation.Propagation
 import org.springframework.transaction.annotation.Transactional
-import java.util.*
+import java.util.concurrent.ConcurrentLinkedQueue
 
 @SpringBootTest(
     classes = [LettuceNearCacheIntegrationTest.TestConfig::class],
@@ -88,7 +93,10 @@ class LettuceNearCacheIntegrationTest {
     @Transactional
     fun `엔티티가 저장되고 조회된다`() {
         val item = itemRepository.save(TestItem(name = "TestItem"))
-        val found = itemRepository.findById(item.id!!).orElse(null)
+        item.id.shouldNotBeNull()
+
+        val found = itemRepository.findByIdOrNull(item.id!!)
+        log.debug { "found item=$found" }
         found.shouldNotBeNull()
         found.name shouldBeEqualTo "TestItem"
     }
@@ -101,10 +109,12 @@ class LettuceNearCacheIntegrationTest {
         // 각 worker 내 assertion 실패 시 MultithreadingTester.run() 이 propagate
         // → 별도 외부 counter 검증 불필요 (tautological)
         MultithreadingTester()
-            .workers(6)
-            .rounds(3)
+            .workers(Runtimex.availableProcessors)
+            .rounds(2)
             .add {
-                val found = itemRepository.findById(item.id!!).orElse(null)
+                val found = itemRepository.findByIdOrNull(item.id!!)
+
+                log.debug { "found item=$found" }
                 found.shouldNotBeNull()
                 found.name shouldBeEqualTo "ParallelItem"
             }
@@ -117,19 +127,23 @@ class LettuceNearCacheIntegrationTest {
         // bluetape4k-junit5 → api(virtualthread-api) + runtimeOnly(virtualthread-jdk21)
         // 으로 StructuredTaskScopes 는 JDK 21/25 무관하게 사용 가능
         val item = itemRepository.save(TestItem(name = "StructuredItem"))
-        val names = Collections.synchronizedList(mutableListOf<String>())
+        item.id.shouldNotBeNull()
+
+        val names = ConcurrentLinkedQueue<String>()
 
         StructuredTaskScopeTester()
-            .rounds(4)
+            .rounds(2 * Runtimex.availableProcessors)
             .add {
-                val found = itemRepository.findById(item.id!!).orElse(null)
+                val found = itemRepository.findByIdOrNull(item.id!!)
+
+                log.debug { "found item=$found" }
                 found.shouldNotBeNull()
                 names += found.name
             }
             .run()
 
-        names.size shouldBeEqualTo 4
-        names.forEach { it shouldBeEqualTo "StructuredItem" }
+        names shouldHaveSize 2 * Runtimex.availableProcessors
+        names.all { it == "StructuredItem" }.shouldBeTrue()
     }
 
     @Test
@@ -139,6 +153,8 @@ class LettuceNearCacheIntegrationTest {
         sessionFactory.statistics.clear()
 
         val item = itemRepository.save(TestItem(name = "CacheHitItem"))
+        item.id.shouldNotBeNull()
+
         itemRepository.findById(item.id!!)  // L2 miss → DB read → put to L2
         itemRepository.findById(item.id!!)  // L2 hit
 
@@ -158,9 +174,13 @@ class LettuceNearCacheIntegrationTest {
     @Transactional(propagation = Propagation.NOT_SUPPORTED)
     fun `Actuator endpoint가 저장된 엔티티 region의 RegionStats를 반환한다`() {
         val item = itemRepository.save(TestItem(name = "EndpointItem"))
-        itemRepository.findById(item.id!!)
+        item.id.shouldNotBeNull()
+
+        itemRepository.findByIdOrNull(item.id!!)
 
         val allStats = actuatorEndpoint.getAllRegionStats()
+
+        log.debug { "allStats: $allStats" }
         allStats.shouldNotBeNull()
         allStats.keys.any { it.contains("TestItem") }.shouldBeTrue()
     }
@@ -169,6 +189,8 @@ class LettuceNearCacheIntegrationTest {
     @Transactional(propagation = Propagation.NOT_SUPPORTED)
     fun `Metrics Gauge가 active_regions와 total_local_size의 실제 값을 보고한다`() {
         val item = itemRepository.save(TestItem(name = "MetricsItem"))
+        item.id.shouldNotBeNull()
+
         itemRepository.findById(item.id!!)
 
         metricsBinder.shouldNotBeNull()
@@ -196,6 +218,11 @@ class TestItem(
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     var id: Long? = null,
     var name: String = "",
-)
+) {
+    override fun toString(): String = ToStringBuilder(this)
+        .add("id", id)
+        .add("name", name)
+        .toString()
+}
 
 interface TestItemRepository: JpaRepository<TestItem, Long>

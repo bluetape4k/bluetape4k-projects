@@ -1,6 +1,7 @@
 package io.bluetape4k.spring.boot.autoconfigure.jpa.executor
 
 import com.zaxxer.hikari.HikariDataSource
+import io.bluetape4k.ToStringBuilder
 import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeFalse
@@ -11,6 +12,10 @@ import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.assertions.shouldHaveSize
 import io.bluetape4k.assertions.shouldNotBeNull
 import io.bluetape4k.codec.Base58
+import io.bluetape4k.concurrent.get
+import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.debug
+import io.bluetape4k.logging.warn
 import io.bluetape4k.spring.virtualthread.VirtualThreadAutoConfiguration
 import jakarta.persistence.Entity
 import jakarta.persistence.EntityManagerFactory
@@ -36,13 +41,18 @@ import org.springframework.core.task.AsyncTaskExecutor
 import org.springframework.core.task.SimpleAsyncTaskExecutor
 import org.springframework.core.task.TaskRejectedException
 import org.springframework.data.jpa.repository.JpaRepository
+import org.springframework.data.repository.findByIdOrNull
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor
+import java.io.Serializable
 import java.util.concurrent.Callable
 import java.util.concurrent.TimeUnit
+import kotlin.time.Duration.Companion.seconds
 
 @Execution(ExecutionMode.SAME_THREAD)
 @Timeout(value = 60, threadMode = Timeout.ThreadMode.SAME_THREAD)
 class JpaExecutorContractTest {
+
+    companion object: KLogging()
 
     @ParameterizedTest
     @ValueSource(strings = ["unset", "false", "true"])
@@ -116,10 +126,11 @@ class JpaExecutorContractTest {
         var closeStarted: Long? = null
         var primaryFailure: Throwable? = null
         val started = System.nanoTime()
+
         try {
             runner.run { context ->
                 context.startupFailure?.let { failure ->
-                    throw AssertionError("JPA executor context 시작 실패: " + failure, failure)
+                    throw AssertionError("JPA executor context 시작 실패: $failure", failure)
                 }
                 try {
                     TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - started) shouldBeLessOrEqualTo 30_000L
@@ -150,6 +161,7 @@ class JpaExecutorContractTest {
                 }
             }
         } catch (failure: Throwable) {
+            log.warn(failure) { "Fail to run JPA executor" }
             primaryFailure = failure
         }
         try {
@@ -172,7 +184,9 @@ class JpaExecutorContractTest {
     private fun verifyPersistence(repository: ExecutorProbeRepository) {
         val saved = repository.saveAndFlush(ExecutorProbe(name = "executor-probe"))
         val id = saved.id.shouldNotBeNull()
-        val loaded = repository.findById(id).orElseThrow()
+        val loaded = repository.findByIdOrNull(id).shouldNotBeNull()
+
+        log.debug { "Loaded ExecutorProbe=$loaded" }
         loaded.id shouldBeEqualTo id
         loaded.name shouldBeEqualTo "executor-probe"
     }
@@ -180,7 +194,7 @@ class JpaExecutorContractTest {
     private fun verifyExecution(executor: AsyncTaskExecutor, expectedVirtual: Boolean) {
         val future = executor.submit(Callable { Thread.currentThread().isVirtual })
         try {
-            future.get(5, TimeUnit.SECONDS) shouldBeEqualTo expectedVirtual
+            future.get(5.seconds) shouldBeEqualTo expectedVirtual
         } finally {
             if (!future.isDone) future.cancel(true)
         }
@@ -202,11 +216,17 @@ class JpaExecutorContractTest {
 }
 
 @Entity
-open class ExecutorProbe(
+class ExecutorProbe(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    open var id: Long? = null,
-    open var name: String = "",
-)
+    var id: Long? = null,
+    var name: String = "",
+): Serializable {
+    override fun toString(): String =
+        ToStringBuilder(this)
+            .add("id", id)
+            .add("name", name)
+            .toString()
+}
 
-interface ExecutorProbeRepository : JpaRepository<ExecutorProbe, Long>
+interface ExecutorProbeRepository: JpaRepository<ExecutorProbe, Long>

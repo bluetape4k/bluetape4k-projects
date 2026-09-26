@@ -11,8 +11,7 @@ Provides extension functions that convert `Flux`/`Mono` return types from `React
 
 ## Spring Boot 4.1 Configuration Boundary
 
-Spring Boot 4.1 binds Mongo connection settings under `spring.mongodb.*`.
-Configure the URI with the current namespace:
+Spring Boot 4.1 binds Mongo connection settings under `spring.mongodb.*`. Configure the URI with the current namespace:
 
 ```yaml
 spring:
@@ -22,40 +21,26 @@ spring:
 
 `ReactiveMongoAutoConfiguration` runs after Spring Boot's
 `DataMongoReactiveAutoConfiguration`. An existing `ReactiveMongoOperations`
-bean always wins, whether it was provided by the application or Spring Boot.
-The library creates a fallback `ReactiveMongoTemplate` only when no operations
-bean exists and both `ReactiveMongoDatabaseFactory` and `MongoConverter` are
-available. The whole library auto-configuration, including its legacy-property
-guard, backs off when an operations bean already exists.
+bean always wins, whether it was provided by the application or Spring Boot. The library creates a fallback `ReactiveMongoTemplate` only when no operations bean exists and both `ReactiveMongoDatabaseFactory` and `MongoConverter` are available. The whole library auto-configuration, including its legacy-property guard, backs off when an operations bean already exists.
 
-`ReactiveMongoAutoConfiguration` is a framework-managed implementation class,
-not an application-facing API for direct construction. Its public no-arg
-constructor remains available for framework and binary compatibility, while
-Spring injects the `Environment` through its lifecycle callback. The URI guard
-constants are internal implementation details and are not public fields.
+`ReactiveMongoAutoConfiguration` is a framework-managed implementation class, not an application-facing API for direct construction. Its public no-arg constructor remains available for framework and binary compatibility, while Spring injects the `Environment` through its lifecycle callback. The URI guard constants are internal implementation details and are not public fields.
 
 ### Migration from `spring.data.mongodb.uri`
 
-| Before | After |
-|--------|-------|
+| Before                    | After                |
+|---------------------------|----------------------|
 | `spring.data.mongodb.uri` | `spring.mongodb.uri` |
 
-When the library fallback participates, the legacy-only key fails fast instead
-of silently connecting to the default localhost database:
+When the library fallback participates, the legacy-only key fails fast instead of silently connecting to the default localhost database:
 
 ```text
 IllegalStateException: Unsupported legacy MongoDB property 'spring.data.mongodb.uri'; use 'spring.mongodb.uri' on Spring Boot 4.1+
 ```
 
-During a staged migration, if both keys are present, `spring.mongodb.uri` takes
-precedence. Use a synthetic URI in tests and keep credentials out of logs and
-diagnostic artifacts. An application- or Spring Boot-provided
-`ReactiveMongoOperations` bean owns the active connection path, so this library
-does not inspect the legacy key on that backoff path.
+During a staged migration, if both keys are present, `spring.mongodb.uri` takes precedence. Use a synthetic URI in tests and keep credentials out of logs and diagnostic artifacts. An application- or Spring Boot-provided
+`ReactiveMongoOperations` bean owns the active connection path, so this library does not inspect the legacy key on that backoff path.
 
-If migration cannot be completed immediately, pin the last stable artifact and
-BOM that support the legacy namespace, then resume the migration before
-returning to this Boot 4.1+ artifact:
+If migration cannot be completed immediately, pin the last stable artifact and BOM that support the legacy namespace, then resume the migration before returning to this Boot 4.1+ artifact:
 
 ```kotlin
 dependencies {
@@ -176,11 +161,7 @@ val update = ("name" setTo "Alice")
 ./gradlew :bluetape4k-spring-boot-mongodb:test
 ```
 
-The `ReactiveMongoAutoConfigurationTest` context suite validates namespace
-binding, legacy fail-fast behavior, dual-key precedence, fallback conditions,
-Boot ordering, single-instance creation, and context close without MongoDB
-network I/O. The coroutine integration suite uses the shared Testcontainers
-MongoDB server and should be run separately when validating a real database.
+The `ReactiveMongoAutoConfigurationTest` context suite validates namespace binding, legacy fail-fast behavior, dual-key precedence, fallback conditions, Boot ordering, single-instance creation, and context close without MongoDB network I/O. The coroutine integration suite uses the shared Testcontainers MongoDB server and should be run separately when validating a real database.
 
 ## References
 

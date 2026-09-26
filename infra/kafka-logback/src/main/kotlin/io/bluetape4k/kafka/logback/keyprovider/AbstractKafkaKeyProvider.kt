@@ -11,7 +11,8 @@ import ch.qos.logback.core.spi.LifeCycle
  * - [start]/[stop] 시 [errorWasShown] 플래그를 초기화합니다.
  */
 abstract class AbstractKafkaKeyProvider<E: Any>: ContextAwareBase(),
-                                                 io.bluetape4k.kafka.logback.keyprovider.KafkaKeyProvider<E>, LifeCycle {
+                                                 KafkaKeyProvider<E>,
+                                                 LifeCycle {
 
     protected var errorWasShown: Boolean = false
 

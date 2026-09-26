@@ -49,8 +49,8 @@ val InvalidSpanContext: SpanContext = SpanContext.getInvalid()
  * @param block 실행할 코드 블록
  * @return 코드 블록의 실행 결과
  */
-inline fun <T> Span.use(waitTimeout: Long? = null, block: (Span) -> T): T {
-    return makeCurrent().use {
+inline fun <T> Span.use(waitTimeout: Long? = null, block: (Span) -> T): T =
+    makeCurrent().use {
         try {
             block(this)
         } catch (e: Throwable) {
@@ -60,7 +60,6 @@ inline fun <T> Span.use(waitTimeout: Long? = null, block: (Span) -> T): T {
             endSafely(waitTimeout)
         }
     }
-}
 
 /**
  * [Span]을 사용하여 코드 블록을 실행하고, 실행이 끝나면 Span을 자동으로 종료합니다.
@@ -150,26 +149,26 @@ internal fun Span.recordFailure(error: Throwable) {
  * @param block Span을 인자로 받는 실행 블록
  * @return [block]의 실행 결과
  */
-public inline fun <T> Tracer.withSpan(
+inline fun <T> Tracer.withSpan(
     spanName: String,
     configure: SpanBuilder.() -> Unit = {},
     block: (Span) -> T,
 ): T {
     spanName.requireNotBlank("spanName")
-    val span = spanBuilder(spanName).apply(configure).startSpan()
-    return span.makeCurrent().use {
-        try {
-            block(span).also { span.setStatus(StatusCode.OK) }
-        } catch (e: Throwable) {
-            span.recordFailure(e)
-            throw e
-        } finally {
-            span.end()
+
+    return startSpan(spanName, configure).use { span ->
+        span.makeCurrent().use { scope ->
+            try {
+                block(span).also { span.setStatus(StatusCode.OK) }
+            } catch (e: Throwable) {
+                span.recordFailure(e)
+                throw e
+            }
         }
     }
 }
 
 @PublishedApi
-internal fun Span.endSafely(@Suppress("UNUSED_PARAMETER") waitTimeout: Long?) {
+internal fun Span.endSafely(@Suppress("UNUSED_PARAMETER") waitTimeout: Long? = null) {
     end()
 }

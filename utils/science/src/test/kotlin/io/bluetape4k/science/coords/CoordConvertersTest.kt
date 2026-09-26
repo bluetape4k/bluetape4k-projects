@@ -1,10 +1,11 @@
 package io.bluetape4k.science.coords
 
-import io.bluetape4k.logging.KLogging
 import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeGreaterOrEqualTo
+import io.bluetape4k.assertions.shouldBeGreaterThan
 import io.bluetape4k.assertions.shouldBeInRange
 import io.bluetape4k.assertions.shouldBeLessThan
-import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.logging.KLogging
 import org.junit.jupiter.api.Test
 import kotlin.math.abs
 
@@ -19,14 +20,14 @@ class CoordConvertersTest {
         val degree = 37.5665
         val dm = degree.toDM()
         dm.degree shouldBeEqualTo 37
-        (abs(dm.minute - 33.99) < 0.01).let { require(it) { "minute 오차: ${dm.minute}" } }
+        abs(dm.minute - 33.99) shouldBeLessThan 0.01
     }
 
     @Test
     fun `DM을 십진도로 변환한다`() {
         val dm = DM(degree = 37, minute = 33.99)
         val result = dm.toDegree()
-        (abs(result - 37.5665) < EPSILON).let { require(it) { "변환 오차: $result" } }
+        abs(result - 37.5665) shouldBeLessThan EPSILON
     }
 
     @Test
@@ -43,7 +44,7 @@ class CoordConvertersTest {
     fun `DMS를 십진도로 변환한다`() {
         val dms = DMS(degree = 126, minute = 58, second = 40.8)
         val result = dms.toDegree()
-        (abs(result - 126.9780) < EPSILON).let { require(it) { "변환 오차: $result" } }
+        abs(result - 126.9780) shouldBeLessThan EPSILON
     }
 
     @Test
@@ -51,7 +52,7 @@ class CoordConvertersTest {
         val original = 37.5665
         val dm = original.toDM()
         val restored = dm.toDegree()
-        (abs(restored - original) < EPSILON).let { require(it) { "왕복 오차: ${abs(restored - original)}" } }
+        abs(restored - original) shouldBeLessThan EPSILON
     }
 
     @Test
@@ -59,7 +60,7 @@ class CoordConvertersTest {
         val original = 126.9780
         val dms = original.toDMS()
         val restored = dms.toDegree()
-        (abs(restored - original) < EPSILON).let { require(it) { "왕복 오차: ${abs(restored - original)}" } }
+        abs(restored - original) shouldBeLessThan EPSILON
     }
 
     @Test
@@ -68,17 +69,17 @@ class CoordConvertersTest {
         val dm = degree.toDM()
         dm.degree shouldBeEqualTo -33
         // 음수 좌표에서 minute은 음수로 표현됨 (-52.128 ≈ -0.8688 * 60)
-        (abs(dm.minute) > 0.0).let { require(it) { "분의 절대값이 0보다 커야 합니다: ${dm.minute}" } }
+        abs(dm.minute) shouldBeGreaterThan 0.0
         // 왕복 변환 정확도 검증
         val restored = dm.toDegree()
-        (abs(restored - degree) < EPSILON).let { require(it) { "왕복 오차: ${abs(restored - degree)}" } }
+        abs(restored - degree) shouldBeLessThan EPSILON
     }
 
     @Test
     fun `음수 위도를 DM으로 변환하면 minute은 양수이다`() {
         val dm = (-33.8688).toDM()
         dm.degree shouldBeEqualTo -33
-        (dm.minute > 0).shouldBeTrue()
+        dm.minute shouldBeGreaterThan 0.0
         // 왕복 정확도
         abs(dm.toDegree() - (-33.8688)) shouldBeLessThan 1e-10
     }
@@ -88,8 +89,8 @@ class CoordConvertersTest {
         // -74.006: 0.006 * 60 = 0.36 → minute=0, second≈21.6
         val dms = (-74.006).toDMS()
         dms.degree shouldBeEqualTo -74
-        (dms.minute >= 0).shouldBeTrue()
-        (dms.second >= 0.0).shouldBeTrue()
+        dms.minute shouldBeGreaterOrEqualTo 0
+        dms.second shouldBeGreaterOrEqualTo 0.0
         abs(dms.toDegree() - (-74.006)) shouldBeLessThan 1e-8
     }
 
@@ -97,22 +98,22 @@ class CoordConvertersTest {
     fun `DM compareTo — 같은 도에서 minute 비교`() {
         val a = DM(37, 30.0)
         val b = DM(37, 45.0)
-        (a < b).shouldBeTrue()
-        (b > a).shouldBeTrue()
-        (a == a).shouldBeTrue()
+        a shouldBeLessThan b
+        b shouldBeGreaterThan a
+        a shouldBeEqualTo a
     }
 
     @Test
     fun `DM compareTo — 다른 도 비교`() {
         val seoul = DM(37, 33.99)
         val busan = DM(35, 10.776)
-        (seoul > busan).shouldBeTrue()
+        seoul shouldBeGreaterThan busan
     }
 
     @Test
     fun `DMS compareTo — 도·분·초 순서로 비교한다`() {
         val a = DMS(37, 33, 57.54)
         val b = DMS(37, 33, 58.00)
-        (a < b).shouldBeTrue()
+        a shouldBeLessThan b
     }
 }

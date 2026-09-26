@@ -1,6 +1,7 @@
 package io.bluetape4k.kafka.logback.keyprovider
 
 import io.bluetape4k.assertions.shouldContainSame
+import io.bluetape4k.assertions.shouldNotBeNull
 import io.bluetape4k.kafka.logback.utils.hashBytes
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
@@ -19,8 +20,8 @@ class ContextNameKafkaKeyProviderTest: AbstractKafkaKeyProviderTest() {
         loggerContext.name = LOGGER_CONTEXT_NAME
         keyProvider.context = loggerContext
 
-        val key = keyProvider.get(sampleEvent)!!
+        val key = keyProvider.get(sampleEvent).shouldNotBeNull()
         log.debug { "key=${key.contentToString()}" }
-        key shouldContainSame LOGGER_CONTEXT_NAME.hashBytes()!!
+        key shouldContainSame LOGGER_CONTEXT_NAME.hashBytes().shouldNotBeNull()
     }
 }

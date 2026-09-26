@@ -1,16 +1,16 @@
 package io.bluetape4k.http.hc5.http2
 
-import io.bluetape4k.logging.KLogging
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeFalse
 import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.assertions.shouldNotBeNull
+import io.bluetape4k.logging.KLogging
 import org.apache.hc.core5.http2.config.H2Config
 import org.junit.jupiter.api.Test
 
 class H2ConfigTest {
 
-    companion object : KLogging()
+    companion object: KLogging()
 
     @Test
     fun `h2ConfigOf returns default H2Config`() {

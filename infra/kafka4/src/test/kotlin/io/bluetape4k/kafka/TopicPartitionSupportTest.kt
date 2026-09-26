@@ -1,8 +1,9 @@
 package io.bluetape4k.kafka
 
-import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.logging.coroutines.KLoggingChannel
+import io.bluetape4k.logging.debug
 import org.apache.kafka.common.TopicPartition
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
@@ -30,6 +31,7 @@ class TopicPartitionSupportTest: AbstractKafkaTest() {
     ) {
         val tp = input.toTopicPartition()
 
+        log.debug { "topic partition=$tp" }
         tp.topic() shouldBeEqualTo expectedTopic
         tp.partition() shouldBeEqualTo expectedPartition
     }
@@ -48,6 +50,7 @@ class TopicPartitionSupportTest: AbstractKafkaTest() {
     ) {
         val tp = topicPartitionOf(input)
 
+        log.debug { "topic partition=$tp" }
         tp.topic() shouldBeEqualTo expectedTopic
         tp.partition() shouldBeEqualTo expectedPartition
     }
@@ -55,6 +58,7 @@ class TopicPartitionSupportTest: AbstractKafkaTest() {
     @Test
     fun `TopicPartition 객체 생성 검증`() {
         val tp = TopicPartition("test-topic", 0)
+        log.debug { "topic partition=$tp" }
         tp.topic() shouldBeEqualTo "test-topic"
         tp.partition() shouldBeEqualTo 0
     }
@@ -66,6 +70,7 @@ class TopicPartitionSupportTest: AbstractKafkaTest() {
 
         partitions.forEach { partition ->
             val tp = "$topic-$partition".toTopicPartition()
+            log.debug { "topic partition=$tp" }
             tp.topic() shouldBeEqualTo topic
             tp.partition() shouldBeEqualTo partition
         }
@@ -74,7 +79,6 @@ class TopicPartitionSupportTest: AbstractKafkaTest() {
     @ParameterizedTest
     @ValueSource(strings = ["", "   "])
     fun `빈 문자열은 예외 발생`(input: String) {
-
         assertFailsWith<IllegalArgumentException> {
             input.toTopicPartition()
         }
@@ -98,6 +102,8 @@ class TopicPartitionSupportTest: AbstractKafkaTest() {
     fun `음수 파티션 번호 파싱`() {
         // "test-topic--1"에서 마지막 -를 기준으로 split하면 ["test-topic-", "1"]
         val tp = "test-topic--1".toTopicPartition()
+
+        log.debug { "topic partition=$tp" }
         tp.topic() shouldBeEqualTo "test-topic-"
         tp.partition() shouldBeEqualTo 1
     }
@@ -105,6 +111,8 @@ class TopicPartitionSupportTest: AbstractKafkaTest() {
     @Test
     fun `마지막 대시를 기준으로 파싱`() {
         val tp = "topic-with-dashes-123".toTopicPartition()
+
+        log.debug { "topic partition=$tp" }
         tp.topic() shouldBeEqualTo "topic-with-dashes"
         tp.partition() shouldBeEqualTo 123
     }
@@ -112,6 +120,8 @@ class TopicPartitionSupportTest: AbstractKafkaTest() {
     @Test
     fun `복합 토픽 이름 파싱`() {
         val tp = "com.company.service.events-7".toTopicPartition()
+
+        log.debug { "topic partition=$tp" }
         tp.topic() shouldBeEqualTo "com.company.service.events"
         tp.partition() shouldBeEqualTo 7
     }

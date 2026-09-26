@@ -7,9 +7,11 @@ import io.bluetape4k.assertions.shouldBeInRange
 import io.bluetape4k.assertions.shouldBeInstanceOf
 import io.bluetape4k.assertions.shouldBeLessOrEqualTo
 import io.bluetape4k.assertions.shouldBePositive
+import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.assertions.shouldBeZero
 import io.bluetape4k.assertions.shouldContain
 import io.bluetape4k.assertions.shouldNotContain
+import io.bluetape4k.logging.KLogging
 import io.bluetape4k.redis.lettuce.AbstractLettuceTest
 import io.bluetape4k.redis.lettuce.LettuceClients
 import io.bluetape4k.redis.lettuce.LettuceTestUtils
@@ -29,7 +31,36 @@ import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 
-class LettuceFencingLeaseScriptTest : AbstractLettuceTest() {
+class LettuceFencingLeaseScriptTest: AbstractLettuceTest() {
+
+    private companion object: KLogging() {
+        const val LEASE_MILLIS = 30_000L
+        const val TTL_TOLERANCE_MILLIS = 2_000L
+
+        val connection by lazy { LettuceClients.connect(LettuceTestUtils.client, StringCodec.UTF8) }
+
+        val failAfterIncrementScript = RedisScript(
+            """
+            redis.call('INCR', KEYS[2])
+            redis.call('LPUSH', KEYS[2], 'force-wrong-type')
+            return {'UNREACHABLE', '0', '0', '-1'}
+            """.trimIndent(),
+        )
+
+        val failAfterLeaseWriteScript = RedisScript(
+            """
+            redis.call('HSET', KEYS[1],
+              'owner', ARGV[1],
+              'epoch', ARGV[2],
+              'sequence', ARGV[3])
+            redis.call('LPUSH', KEYS[1], 'force-wrong-type')
+            return {'UNREACHABLE', '0', '0', '-1'}
+            """.trimIndent(),
+        )
+
+        fun integrityAcquire(kind: FencingIntegrityFailureKind): FencingAcquireResult =
+            FencingAcquireResult.IntegrityFailure(FencingLeaseIntegrityFailure(kind))
+    }
 
     private lateinit var commands: RedisCommands<String, String>
     private lateinit var config: LettuceFencingLeaseConfig
@@ -41,7 +72,7 @@ class LettuceFencingLeaseScriptTest : AbstractLettuceTest() {
     @BeforeEach
     fun setUp() {
         commands = connection.sync()
-        config = LettuceFencingLeaseConfig("test", "lease-${randomName().substringAfter(':')}", 7)
+        config = LettuceFencingLeaseConfig("test", "lease-${randomName().substringAfterLast(':')}", 7)
         keys = deriveFencingLeaseKeys(config, StringCodec.UTF8)
         commands.del(keys.lease, keys.counter)
     }
@@ -154,9 +185,9 @@ class LettuceFencingLeaseScriptTest : AbstractLettuceTest() {
             corrupt()
             val beforeBootstrap = redisState()
             bootstrap() shouldBeEqualTo
-                FencingBootstrapResult.IntegrityFailure(
-                    FencingLeaseIntegrityFailure(FencingIntegrityFailureKind.INVALID_COUNTER),
-                )
+                    FencingBootstrapResult.IntegrityFailure(
+                        FencingLeaseIntegrityFailure(FencingIntegrityFailureKind.INVALID_COUNTER),
+                    )
             val afterBootstrap = redisState()
             afterBootstrap.counter.type shouldBeEqualTo beforeBootstrap.counter.type
             afterBootstrap.counter.value shouldBeEqualTo beforeBootstrap.counter.value
@@ -233,7 +264,9 @@ class LettuceFencingLeaseScriptTest : AbstractLettuceTest() {
             MAX_EXACT_REDIS_LEASE_TIME_MILLIS,
         ).shouldBeInstanceOf<FencingAcquireResult.AlreadyOwned>()
         replay.remainingTtlMillis.shouldBePositive()
-        inspect(owner).shouldBeInstanceOf<FencingInspectResult.Owned>().remainingTtlMillis.shouldBePositive()
+
+        inspect(owner).shouldBeInstanceOf<FencingInspectResult.Owned>()
+            .remainingTtlMillis.shouldBePositive()
     }
 
     @Test
@@ -253,7 +286,7 @@ class LettuceFencingLeaseScriptTest : AbstractLettuceTest() {
         } returns counterUnavailable
 
         runFencingAcquire(scripting, keys, config, owner, LEASE_MILLIS) shouldBeEqualTo
-            FencingAcquireResult.CounterUnavailable
+                FencingAcquireResult.CounterUnavailable
 
         verify(exactly = 1) {
             scripting.evalsha<List<String>>(
@@ -284,7 +317,7 @@ class LettuceFencingLeaseScriptTest : AbstractLettuceTest() {
         } returns counterUnavailable
 
         runFencingAcquire(fallback, keys, config, owner, LEASE_MILLIS) shouldBeEqualTo
-            FencingAcquireResult.CounterUnavailable
+                FencingAcquireResult.CounterUnavailable
 
         verify(exactly = 1) {
             fallback.evalsha<List<String>>(
@@ -388,7 +421,7 @@ class LettuceFencingLeaseScriptTest : AbstractLettuceTest() {
             acquire.indexOf("redis.call('HSET'"),
             acquire.indexOf("redis.call('PEXPIRE'"),
         )
-        mutationOffsets.forEach { offset -> offset shouldBeGreaterOrEqualTo 0 }
+        mutationOffsets.all { offset -> offset >= 0 }.shouldBeTrue()
         mutationOffsets shouldBeEqualTo mutationOffsets.sorted()
     }
 
@@ -474,33 +507,4 @@ class LettuceFencingLeaseScriptTest : AbstractLettuceTest() {
         val list: List<String>,
         val ttlMillis: Long,
     )
-
-    private companion object {
-        const val LEASE_MILLIS = 30_000L
-        const val TTL_TOLERANCE_MILLIS = 2_000L
-
-        val connection by lazy { LettuceClients.connect(LettuceTestUtils.client, StringCodec.UTF8) }
-
-        val failAfterIncrementScript = RedisScript(
-            """
-            redis.call('INCR', KEYS[2])
-            redis.call('LPUSH', KEYS[2], 'force-wrong-type')
-            return {'UNREACHABLE', '0', '0', '-1'}
-            """.trimIndent(),
-        )
-
-        val failAfterLeaseWriteScript = RedisScript(
-            """
-            redis.call('HSET', KEYS[1],
-              'owner', ARGV[1],
-              'epoch', ARGV[2],
-              'sequence', ARGV[3])
-            redis.call('LPUSH', KEYS[1], 'force-wrong-type')
-            return {'UNREACHABLE', '0', '0', '-1'}
-            """.trimIndent(),
-        )
-
-        fun integrityAcquire(kind: FencingIntegrityFailureKind): FencingAcquireResult =
-            FencingAcquireResult.IntegrityFailure(FencingLeaseIntegrityFailure(kind))
-    }
 }

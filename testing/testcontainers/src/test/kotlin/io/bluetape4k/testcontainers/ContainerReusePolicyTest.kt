@@ -18,8 +18,8 @@ class ContainerReusePolicyTest {
                 .filter { source ->
                     val text = source.readText()
                     REUSABLE_DEFAULT.containsMatchIn(text) ||
-                        REUSABLE_NAMED_ARGUMENT.containsMatchIn(text) ||
-                        IMPLICIT_REUSE.containsMatchIn(text)
+                            REUSABLE_NAMED_ARGUMENT.containsMatchIn(text) ||
+                            IMPLICIT_REUSE.containsMatchIn(text)
                 }
                 .map(sourceRoot::relativize)
                 .toList()

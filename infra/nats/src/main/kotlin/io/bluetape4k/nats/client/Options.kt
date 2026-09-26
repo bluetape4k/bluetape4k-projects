@@ -38,9 +38,8 @@ inline fun natsOptions(
 inline fun natsOptions(
     properties: Properties,
     builder: Options.Builder.() -> Unit = {},
-): Options {
-    return Options.Builder(properties).apply(builder).build()
-}
+): Options =
+    Options.Builder(properties).apply(builder).build()
 
 /**
  * URL/재연결/버퍼 크기 기본값으로 [Options]를 생성합니다.

@@ -1,11 +1,11 @@
 package io.bluetape4k.junit5.model
 
-import io.bluetape4k.junit5.random.RandomValue
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeNull
 import io.bluetape4k.assertions.shouldNotBeEmpty
 import io.bluetape4k.assertions.shouldNotBeEqualTo
 import io.bluetape4k.assertions.shouldNotBeNull
+import io.bluetape4k.junit5.random.RandomValue
 
 
 fun DomainObject?.shouldFullyPopulated() {

@@ -1,13 +1,14 @@
 package io.bluetape4k.hibernate.mapping.naturalid
 
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldNotBeNull
 import io.bluetape4k.hibernate.AbstractHibernateTest
+import io.bluetape4k.hibernate.findByNaturalId
 import io.bluetape4k.hibernate.model.IntJpaEntity
 import io.bluetape4k.support.uninitialized
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
 import jakarta.persistence.Table
-import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldNotBeNull
 import org.hibernate.Session
 import org.hibernate.annotations.NaturalId
 import org.junit.jupiter.api.Test
@@ -29,7 +30,7 @@ class NaturalIdTest: AbstractHibernateTest() {
         flushAndClear()
 
         val session = em.unwrap(Session::class.java)
-        val loaded = session.bySimpleNaturalId(NaturalIdBook::class.java).load(book.isbn)
+        val loaded = session.findByNaturalId<NaturalIdBook>("isbn" to book.isbn)
 
         loaded.shouldNotBeNull()
         loaded.id shouldBeEqualTo book.id

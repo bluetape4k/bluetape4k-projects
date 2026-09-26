@@ -1,7 +1,9 @@
 package io.bluetape4k.redis.lettuce.map
 
+import io.bluetape4k.concurrent.awaitTermination
 import io.bluetape4k.io.serializer.BinarySerializers
 import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.error
 import io.bluetape4k.logging.warn
 import io.bluetape4k.redis.lettuce.codec.LettuceBinaryCodec
@@ -17,6 +19,7 @@ import java.util.concurrent.Executors
 import java.util.concurrent.LinkedBlockingDeque
 import java.util.concurrent.ScheduledExecutorService
 import java.util.concurrent.TimeUnit
+import kotlin.time.Duration.Companion.seconds
 
 /**
  * Lettuce(Redis) 기반 Read-through / Write-through / Write-behind Map.
@@ -139,10 +142,7 @@ class LettuceLoadedMap<K: Any, V: Any>(
      * @param key 저장할 키
      * @param value 저장할 값
      */
-    operator fun set(
-        key: K,
-        value: V,
-    ) {
+    operator fun set(key: K, value: V) {
         when (config.writeMode) {
             WriteMode.NONE          -> {
                 commands.set(redisKey(key), value, SetArgs().ex(ttlSeconds))
@@ -350,6 +350,7 @@ class LettuceLoadedMap<K: Any, V: Any>(
     }
 
     override fun close() {
+        log.debug { "closing LettuceLoadedMap" }
         scheduler?.let { sched ->
             sched.shutdown()
             val deadline = System.currentTimeMillis() + config.writeBehindShutdownTimeout.toMillis()
@@ -359,9 +360,10 @@ class LettuceLoadedMap<K: Any, V: Any>(
             if (writeBehindQueue?.isNotEmpty() == true) {
                 log.warn { "Write-behind shutdown 타임아웃: ${writeBehindQueue.size}개 항목 유실" }
             }
-            sched.awaitTermination(1, TimeUnit.SECONDS)
+            sched.awaitTermination(1.seconds)
         }
         if (lazyStrConnection.isInitialized()) strConnection.close()
         connection.close()
+        log.debug { "closed LettuceLoadedMap" }
     }
 }

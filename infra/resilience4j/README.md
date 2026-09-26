@@ -34,24 +34,19 @@ CLOSED → failures accumulate → OPEN → Half-Open → Recovery flow:
 
 ## Module Boundary
 
-Use this module for Resilience4j fault-tolerance policy composition: circuit breaker, retry, simple rate limiting,
-bulkhead, time limiter, cache, fallback, events, metrics, and Spring configuration compatibility.
+Use this module for Resilience4j fault-tolerance policy composition: circuit breaker, retry, simple rate limiting, bulkhead, time limiter, cache, fallback, events, metrics, and Spring configuration compatibility.
 
-Use `bluetape4k-bucket4j` instead when the requirement is token-bucket quota management, distributed bucket state,
-remaining-token diagnostics, or retry-after timing from bucket probes. Resilience4j `RateLimiter` is a policy decorator;
-Bucket4j is the token-bucket engine.
+Use `bluetape4k-bucket4j` instead when the requirement is token-bucket quota management, distributed bucket state, remaining-token diagnostics, or retry-after timing from bucket probes. Resilience4j `RateLimiter` is a policy decorator; Bucket4j is the token-bucket engine.
 
 ## Coroutine Contract
 
-- `CancellationException` is propagated unchanged by suspend wrappers, fallback helpers, cache helpers, and composed
-  decorators.
+- `CancellationException` is propagated unchanged by suspend wrappers, fallback helpers, cache helpers, and composed decorators.
 - Fallback handlers do not recover coroutine cancellation, even when a broad exception type such as `Throwable` is used.
 - Retry does not retry coroutine cancellation.
 - Resilience4j Kotlin `TimeLimiter` uses coroutine timeout semantics. A timeout is raised as
   `TimeoutCancellationException`, cancels the coroutine, and does not use `cancelRunningFuture` for suspend functions.
 - Resilience4j Kotlin `RateLimiter` and `Retry` suspend with `delay()` when waiting is needed.
-- Semaphore `Bulkhead` with non-zero `maxWaitDuration` can block while acquiring permission; prefer zero wait for
-  coroutine-heavy paths unless the blocking wait is intentional.
+- Semaphore `Bulkhead` with non-zero `maxWaitDuration` can block while acquiring permission; prefer zero wait for coroutine-heavy paths unless the blocking wait is intentional.
 
 ## Dependency
 
@@ -225,11 +220,7 @@ val decorated = timeLimiter.decorateSuspendFunction1 { id: String ->
 ### Async scheduler ownership
 
 The async `Retry` and `TimeLimiter` extensions (`completionStage`, `completableFuture`,
-`completableFutureFunction`, and `withRetry`) accept an optional `ScheduledExecutorService`.
-When the scheduler is omitted (or `null`), a private scheduler is created for each invocation and shut down
-after terminal completion. When a scheduler is supplied, it remains caller-owned and is never shut down by the
-decorator, including on success, failure, or timeout. This makes a decorated function safe to invoke repeatedly and
-allows one scheduler to be shared by multiple decorators.
+`completableFutureFunction`, and `withRetry`) accept an optional `ScheduledExecutorService`. When the scheduler is omitted (or `null`), a private scheduler is created for each invocation and shut down after terminal completion. When a scheduler is supplied, it remains caller-owned and is never shut down by the decorator, including on success, failure, or timeout. This makes a decorated function safe to invoke repeatedly and allows one scheduler to be shared by multiple decorators.
 
 ```kotlin
 import java.util.concurrent.CompletableFuture
@@ -254,8 +245,7 @@ The caller must close a supplied scheduler after all decorated calls finish. The
 
 Compose multiple Resilience4j components together.
 
-`SuspendDecorators` wraps the current function every time a `withXxx` method is called. The last `withXxx` call is the
-outermost decorator and runs first. A common service-call order is:
+`SuspendDecorators` wraps the current function every time a `withXxx` method is called. The last `withXxx` call is the outermost decorator and runs first. A common service-call order is:
 
 ```text
 withBulkhead -> withTimeLimiter -> withRateLimit -> withCircuitBreaker -> withRetry -> withFallback
@@ -317,12 +307,9 @@ Caches suspend function results using JCache.
 There are two cache surfaces:
 
 - `SuspendCache.of(jcache)` owns direct JCache access and is the strict coroutine-first path.
-- Resilience4j `Cache<K, V>` extensions preserve compatibility with the upstream facade. Resilience4j 2.4.0 does not
-  expose a public backing JCache accessor, so this path keeps a two-phase compatibility probe and rechecks coroutine
-  cancellation around blocking cache calls.
+- Resilience4j `Cache<K, V>` extensions preserve compatibility with the upstream facade. Resilience4j 2.4.0 does not expose a public backing JCache accessor, so this path keeps a two-phase compatibility probe and rechecks coroutine cancellation around blocking cache calls.
 
-`SuspendCache` publishes only non-cancellation failures as cache error events. Cancellation from the loader or JCache
-access is rethrown unchanged.
+`SuspendCache` publishes only non-cancellation failures as cache error events. Cancellation from the loader or JCache access is rethrown unchanged.
 
 ```kotlin
 import io.bluetape4k.resilience4j.cache.*
@@ -350,9 +337,7 @@ suspend fun getUserStrictCached(id: String): User = withSuspendCache(suspendCach
 
 Apply Resilience4j patterns to Kotlin Flow.
 
-Flow decoration is applied when a collection runs. Each new collection re-enters the configured policy, operators do not
-cache emitted elements, and downstream collector cancellation propagates unchanged. TimeLimiter timeout cancels the
-collecting coroutine. Bulkhead non-zero wait has the same blocking warning as suspend functions.
+Flow decoration is applied when a collection runs. Each new collection re-enters the configured policy, operators do not cache emitted elements, and downstream collector cancellation propagates unchanged. TimeLimiter timeout cancels the collecting coroutine. Bulkhead non-zero wait has the same blocking warning as suspend functions.
 
 ```kotlin
 import io.github.resilience4j.kotlin.bulkhead.bulkhead
@@ -387,8 +372,7 @@ val resilientFlow = dataFlow
 
 ### 9. Fallback Handling
 
-Fallback handlers are ordinary suspend functions, but they never recover coroutine cancellation. Put fallback last when
-it should observe failures from all inner decorators.
+Fallback handlers are ordinary suspend functions, but they never recover coroutine cancellation. Put fallback last when it should observe failures from all inner decorators.
 
 ```kotlin
 import io.bluetape4k.resilience4j.SuspendDecorators
@@ -429,9 +413,7 @@ val result3 = SuspendDecorators.ofSupplier {
 
 ### 10. Metrics and Monitoring
 
-Use upstream Resilience4j registries, event publishers, Spring Boot properties, and Micrometer integrations as the
-source of truth. bluetape4k adds only `SuspendCache.metrics` and `SuspendCache.eventPublisher` for the coroutine cache
-wrapper.
+Use upstream Resilience4j registries, event publishers, Spring Boot properties, and Micrometer integrations as the source of truth. bluetape4k adds only `SuspendCache.metrics` and `SuspendCache.eventPublisher` for the coroutine cache wrapper.
 
 ```kotlin
 import io.github.resilience4j.micrometer.tagged.*

@@ -3,10 +3,12 @@ package io.bluetape4k.cassandra.examples
 import com.datastax.oss.driver.api.core.CqlSession
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.assertions.shouldNotBeEmpty
 import io.bluetape4k.assertions.shouldNotBeNull
 import io.bluetape4k.cassandra.AbstractCassandraTest
 import io.bluetape4k.cassandra.CassandraAdmin
 import io.bluetape4k.logging.coroutines.KLoggingChannel
+import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.info
 import org.junit.jupiter.api.Test
 
@@ -78,6 +80,7 @@ class BasicExamples: AbstractCassandraTest() {
     @Test
     fun `read scylla version`() {
         val version = CassandraAdmin.getReleaseVersion(session)
+        log.debug { "version=$version" }
         version.shouldNotBeNull()
     }
 
@@ -89,13 +92,13 @@ class BasicExamples: AbstractCassandraTest() {
 
         // Node
         metadata.nodes.values.forEach { node ->
-            println("Datacenter: ${node.datacenter}, Host: ${node.endPoint}, Rack: ${node.rack}")
+            log.debug { "Datacenter: ${node.datacenter}, Host: ${node.endPoint}, Rack: ${node.rack}" }
         }
 
         // Keyspace
         metadata.keyspaces.values.forEach { keyspace ->
             keyspace.tables.values.forEach { table ->
-                println("Keyspace: ${keyspace.name}, Table: ${table.name}")
+                log.debug { "Keyspace: ${keyspace.name}, Table: ${table.name}" }
             }
         }
     }
@@ -121,15 +124,17 @@ class BasicExamples: AbstractCassandraTest() {
 
     private fun queryPlaylists(session: CqlSession) {
         val query = querySelectPlaylists(PlayListId)
+        log.debug { "query=$query" }
+
         val rs = session.execute(query)
         rs.wasApplied().shouldBeTrue()
         rs.availableWithoutFetching shouldBeEqualTo 1
 
         rs.forEach { row ->
-            val title = row.getString("title")
-            val album = row.getString("album")
-            val artist = row.getString("artist")
-            log.info { "title=$title, album=$album, artist=$artist" }
+            val title = row.getString("title").shouldNotBeEmpty()
+            val album = row.getString("album").shouldNotBeEmpty()
+            val artist = row.getString("artist").shouldNotBeEmpty()
+            log.debug { "title=$title, album=$album, artist=$artist" }
         }
     }
 }

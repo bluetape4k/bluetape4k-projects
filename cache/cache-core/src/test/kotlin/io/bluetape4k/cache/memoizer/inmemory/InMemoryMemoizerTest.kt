@@ -1,16 +1,17 @@
 package io.bluetape4k.cache.memoizer.inmemory
 
+import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.cache.memoizer.AbstractMemoizerTest
 import io.bluetape4k.cache.memoizer.FactorialProvider
 import io.bluetape4k.cache.memoizer.FibonacciProvider
-import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.concurrent.get
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.trace
 import org.junit.jupiter.api.Test
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.Executors
-import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicInteger
+import kotlin.time.Duration.Companion.seconds
 
 class InMemoryMemoizerTest: AbstractMemoizerTest() {
 
@@ -59,8 +60,8 @@ class InMemoryMemoizerTest: AbstractMemoizerTest() {
 
             evalProceed.countDown()
 
-            first.get(10, TimeUnit.SECONDS) shouldBeEqualTo 5
-            second.get(10, TimeUnit.SECONDS) shouldBeEqualTo 5
+            first.get(10.seconds) shouldBeEqualTo 5
+            second.get(10.seconds) shouldBeEqualTo 5
             evalCount.get() shouldBeEqualTo 1
         } finally {
             evalProceed.countDown()
@@ -88,7 +89,7 @@ class InMemoryMemoizerTest: AbstractMemoizerTest() {
             memo.clear()
             evalProceed.countDown()
 
-            first.get(10, TimeUnit.SECONDS) shouldBeEqualTo 5
+            first.get(10.seconds) shouldBeEqualTo 5
             memo("hello") shouldBeEqualTo 5
             evalCount.get() shouldBeEqualTo 2
         } finally {

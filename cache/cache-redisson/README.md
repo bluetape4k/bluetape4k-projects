@@ -6,8 +6,7 @@ English | [한국어](./README.ko.md)
 
 ## Package / Import Stability
 
-The cache folder reorganization moved this module under `cache/cache-redisson/`,
-but the Gradle project name, Maven artifact ID, and Kotlin packages remain stable:
+The cache folder reorganization moved this module under `cache/cache-redisson/`, but the Gradle project name, Maven artifact ID, and Kotlin packages remain stable:
 
 - Gradle project: `:bluetape4k-cache-redisson`
 - Maven artifact: `io.github.bluetape4k:bluetape4k-cache-redisson`
@@ -17,39 +16,33 @@ No user import migration is required for the reorganization.
 
 ## Provided APIs
 
-| API | Package | Purpose |
-| --- | --- | --- |
-| `RedissonJCaching` | `jcache` | Redisson JCache provider helper |
-| `RedissonSuspendJCache<K, V>` | `jcache` | `SuspendJCache` wrapper over Redisson JCache |
-| `RedissonNearCache<V>` | `nearcache` | synchronous `NearCacheOperations` backed by `RLocalCachedMap` |
-| `RedissonSuspendNearCache<V>` | `nearcache` | suspend `SuspendNearCacheOperations` backed by `RLocalCachedMap` |
-| `RedissonCaches` | root package | factory methods for JCache, suspend JCache, and near caches |
-| `RedissonMemoizer<T, R>` | `memoizer` | synchronous Redis-backed memoizer |
-| `RedissonAsyncMemoizer<T, R>` | `memoizer` | `CompletableFuture`/`CompletionStage` memoizer |
-| `RedissonSuspendMemoizer<T, R>` | `memoizer` | coroutine memoizer with per-key in-flight sharing |
+| API                             | Package      | Purpose                                                          |
+|---------------------------------|--------------|------------------------------------------------------------------|
+| `RedissonJCaching`              | `jcache`     | Redisson JCache provider helper                                  |
+| `RedissonSuspendJCache<K, V>`   | `jcache`     | `SuspendJCache` wrapper over Redisson JCache                     |
+| `RedissonNearCache<V>`          | `nearcache`  | synchronous `NearCacheOperations` backed by `RLocalCachedMap`    |
+| `RedissonSuspendNearCache<V>`   | `nearcache`  | suspend `SuspendNearCacheOperations` backed by `RLocalCachedMap` |
+| `RedissonCaches`                | root package | factory methods for JCache, suspend JCache, and near caches      |
+| `RedissonMemoizer<T, R>`        | `memoizer`   | synchronous Redis-backed memoizer                                |
+| `RedissonAsyncMemoizer<T, R>`   | `memoizer`   | `CompletableFuture`/`CompletionStage` memoizer                   |
+| `RedissonSuspendMemoizer<T, R>` | `memoizer`   | coroutine memoizer with per-key in-flight sharing                |
 
 This module does not expose RESP3 hybrid near-cache classes. Use the actual `RedissonNearCache` / `RedissonSuspendNearCache` APIs when you want Redisson-managed local caching.
 
 ## Near-Cache Capability
 
-Redisson native and JCache near-cache variants are fully supported by the shared
-conformance suites. Native `RedissonNearCache` and `RedissonSuspendNearCache`
-use Redisson `RLocalCachedMap` invalidation. JCache variants register
-cache-entry listeners; bulk propagation paths remove entries one by one where
-Redisson does not emit bulk events.
+Redisson native and JCache near-cache variants are fully supported by the shared conformance suites. Native `RedissonNearCache` and `RedissonSuspendNearCache`
+use Redisson `RLocalCachedMap` invalidation. JCache variants register cache-entry listeners; bulk propagation paths remove entries one by one where Redisson does not emit bulk events.
 
 See the full [Near-Cache Backend Capability Matrix](../../docs/cache/near-cache-capability-matrix.md).
 
 <!-- nearjcache-clear-authority-contract -->
+
 ### #1368 Redisson NearJCache clear authority
 
-`RedissonCaches.nearJCache` defaults to `NearJCacheClearAuthority.DENY` and does
-not infer Redis namespace ownership. `clear()`, `clearAllCache()`, and no-arg
+`RedissonCaches.nearJCache` defaults to `NearJCacheClearAuthority.DENY` and does not infer Redis namespace ownership. `clear()`, `clearAllCache()`, and no-arg
 `removeAll()` raise `SecurityException`; pass
-`NearJCacheClearAuthority.EXCLUSIVE_BACK_CACHE` only when the caller owns the
-entire back namespace. Key-scoped `removeAll(keys)` remains safe for shared
-tenants. The wrapper `close()` closes its front but not the supplied back cache
-or Redisson provider. Native `RedissonNearCache.clearAll()` is a separate API.
+`NearJCacheClearAuthority.EXCLUSIVE_BACK_CACHE` only when the caller owns the entire back namespace. Key-scoped `removeAll(keys)` remains safe for shared tenants. The wrapper `close()` closes its front but not the supplied back cache or Redisson provider. Native `RedissonNearCache.clearAll()` is a separate API.
 
 ```kotlin
 val shared = RedissonCaches.nearJCache(backCache, NearJCacheConfig())
@@ -61,6 +54,7 @@ val owner = RedissonCaches.nearJCache(
 )
 owner.clearAllCache()
 ```
+
 <!-- /nearjcache-clear-authority-contract -->
 
 ## Dependency

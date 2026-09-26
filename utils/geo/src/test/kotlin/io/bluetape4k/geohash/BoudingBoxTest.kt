@@ -1,11 +1,11 @@
 package io.bluetape4k.geohash
 
-import io.bluetape4k.logging.KLogging
-import io.bluetape4k.assertions.shouldBeNear
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeFalse
+import io.bluetape4k.assertions.shouldBeNear
 import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.assertions.shouldNotBeEqualTo
+import io.bluetape4k.logging.KLogging
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 
@@ -139,6 +139,7 @@ class BoudingBoxTest {
     fun `expand to include point - west`() {
         val bbox = boundingBoxOf(-10.0, 10.0, 40.0, 41.0)
         val point = wgs84PointOf(0.0, 35.0)
+
         bbox.expandToInclude(point)
         bbox.contains(point).shouldBeTrue()
 
@@ -147,6 +148,7 @@ class BoudingBoxTest {
 
         val bbox2 = boundingBoxOf(-10.0, 10.0, 40.0, 41.0)
         val point2 = wgs84PointOf(0.0, -139.0)
+
         bbox2.expandToInclude(point2)
         bbox2.contains(point2).shouldBeTrue()
 
@@ -158,6 +160,7 @@ class BoudingBoxTest {
     fun `expand to include point - south`() {
         val bbox = boundingBoxOf(-10.0, 10.0, 40.0, 41.0)
         val point = wgs84PointOf(-20.0, 40.0)
+
         bbox.expandToInclude(point)
         bbox.contains(point).shouldBeTrue()
 
@@ -170,6 +173,7 @@ class BoudingBoxTest {
     fun `expand to include point - north`() {
         val bbox = boundingBoxOf(-10.0, 10.0, 40.0, 41.0)
         val point = wgs84PointOf(20.0, 40.0)
+
         bbox.expandToInclude(point)
         bbox.contains(point).shouldBeTrue()
 

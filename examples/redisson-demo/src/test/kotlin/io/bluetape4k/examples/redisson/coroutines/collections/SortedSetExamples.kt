@@ -1,11 +1,11 @@
 package io.bluetape4k.examples.redisson.coroutines.collections
 
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.coroutines.support.awaitUntil
 import io.bluetape4k.examples.redisson.coroutines.AbstractRedissonCoroutineTest
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.coroutines.KLoggingChannel
-import kotlinx.coroutines.future.await
-import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldBeTrue
 import org.junit.jupiter.api.Test
 import org.redisson.api.RSortedSet
 
@@ -32,8 +32,8 @@ class SortedSetExamples: AbstractRedissonCoroutineTest() {
         sset.first() shouldBeEqualTo 1
         sset.last() shouldBeEqualTo 3
 
-        sset.removeAsync(1).await().shouldBeTrue()
+        sset.removeAsync(1).awaitUntil().shouldBeTrue()
 
-        sset.deleteAsync().await()
+        sset.deleteAsync().awaitUntil()
     }
 }

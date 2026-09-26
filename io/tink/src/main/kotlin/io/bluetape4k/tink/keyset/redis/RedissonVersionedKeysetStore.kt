@@ -2,6 +2,9 @@ package io.bluetape4k.tink.keyset.redis
 
 import com.google.crypto.tink.KeyTemplate
 import com.google.crypto.tink.KeysetHandle
+import io.bluetape4k.concurrent.tryLock
+import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.debug
 import io.bluetape4k.support.requireNotBlank
 import io.bluetape4k.tink.keyset.VersionedKeysetHandle
 import io.bluetape4k.tink.keyset.VersionedKeysetStore
@@ -12,7 +15,7 @@ import org.redisson.api.RedissonClient
 import java.time.Clock
 import java.time.Duration
 import java.time.Instant
-import java.util.concurrent.TimeUnit
+import kotlin.time.Duration.Companion.seconds
 
 /**
  * `RedissonClient`를 직접 사용한 Redis 기반 versioned Tink keyset 저장소입니다.
@@ -26,6 +29,8 @@ class RedissonVersionedKeysetStore(
     private val keyTemplate: KeyTemplate,
     private val clock: Clock = Clock.systemUTC(),
 ): VersionedKeysetStore {
+
+    companion object: KLogging()
 
     private val keyringName = keyringName.requireNotBlank("keyringName")
     private val activeVersionBucket = redisson.getBucket<String>("$keyringName:active")
@@ -68,6 +73,7 @@ class RedissonVersionedKeysetStore(
     override fun rotate(): VersionedKeysetHandle =
         withLock {
             val nextVersion = (activeVersionBucket.get()?.toLongOrNull() ?: 0L) + 1L
+            log.debug { "nextVersion=$nextVersion" }
             val rotated = newVersionedKeyset(nextVersion)
             persist(rotated, activate = true)
             rotated
@@ -88,6 +94,7 @@ class RedissonVersionedKeysetStore(
             }
             val elapsed = Duration.between(current.createdAt, Instant.now(clock))
             if (elapsed >= rotationPeriod) {
+                log.debug { "rotate if due for rlotationPeriod=$rotationPeriod, elapsed=$elapsed" }
                 val rotated = newVersionedKeyset(current.version + 1L)
                 persist(rotated, activate = true)
                 rotated
@@ -116,8 +123,9 @@ class RedissonVersionedKeysetStore(
         }
     }
 
-    private fun <T> withLock(action: () -> T): T {
-        check(lock.tryLock(5, TimeUnit.SECONDS)) { "Failed to acquire lock for keyring=$keyringName" }
+    private inline fun <T> withLock(action: () -> T): T {
+        check(lock.tryLock(5.seconds)) { "Failed to acquire lock for keyring=$keyringName" }
+        
         return withObservedCleanup(
             action = { action() },
             cleanup = {

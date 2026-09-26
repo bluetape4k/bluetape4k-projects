@@ -1,5 +1,7 @@
 package io.bluetape4k.bucket4j.ratelimit.distributed
 
+import io.bluetape4k.assertions.assertFailsWith
+import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.bucket4j.TestRedisServer
 import io.bluetape4k.bucket4j.distributed.BucketProxyProvider
 import io.bluetape4k.bucket4j.distributed.redis.redissonBasedProxyManagerOf
@@ -13,10 +15,8 @@ import io.github.bucket4j.distributed.proxy.ExecutionStrategy
 import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.CancellationException
-import io.bluetape4k.assertions.shouldBeEqualTo
 import org.junit.jupiter.api.Test
 import java.util.concurrent.Executors
-import io.bluetape4k.assertions.assertFailsWith
 import kotlin.time.Duration.Companion.seconds
 import kotlin.time.toJavaDuration
 
@@ -24,7 +24,7 @@ class RedissonRateLimiterTest: AbstractRateLimiterTest() {
 
     companion object: KLogging()
 
-    val bucketProvider: BucketProxyProvider by lazy {
+    private val bucketProvider: BucketProxyProvider by lazy {
 
         val redisson = TestRedisServer.redissonClient()
 

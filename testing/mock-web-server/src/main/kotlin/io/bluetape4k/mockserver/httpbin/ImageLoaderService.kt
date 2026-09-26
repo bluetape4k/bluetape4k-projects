@@ -16,7 +16,7 @@ import javax.imageio.ImageIO
  */
 @Service
 class ImageLoaderService {
-    companion object : KLogging() {
+    companion object: KLogging() {
         private val ALLOWED_FORMATS = setOf("png", "jpeg", "webp", "svg")
     }
 
@@ -51,7 +51,7 @@ class ImageLoaderService {
                     .header("Content-Type", mediaType)
                     .body(bytes)
             }
-            else -> throw IllegalArgumentException("Unsupported image format: $fmt")
+            else  -> throw IllegalArgumentException("Unsupported image format: $fmt")
         }
     }
 

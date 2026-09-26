@@ -1,14 +1,20 @@
 package io.bluetape4k.cache.nearcache.jcache.management
 
 import io.bluetape4k.assertions.assertFailsWith
+import io.bluetape4k.assertions.shouldBeEmpty
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeFalse
+import io.bluetape4k.assertions.shouldBeInstanceOf
 import io.bluetape4k.assertions.shouldBeNull
 import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.assertions.shouldContain
+import io.bluetape4k.assertions.shouldNotBeBlank
+import io.bluetape4k.assertions.shouldNotBeEqualTo
 import io.bluetape4k.cache.jcache.JCache
 import io.bluetape4k.cache.nearcache.jcache.BulkFrontPopulationPolicy
 import io.bluetape4k.cache.nearcache.jcache.NearJCache
 import io.bluetape4k.cache.nearcache.jcache.NearJCacheConfig
+import io.bluetape4k.logging.KLogging
 import io.mockk.every
 import io.mockk.mockk
 import org.junit.jupiter.api.Test
@@ -30,6 +36,8 @@ import javax.management.ObjectName
 import javax.management.StandardMBean
 
 class NearJCacheMBeanRegistrationTest {
+
+    companion object: KLogging()
 
     @Test
     fun `management와 statistics flag 조합대로 bean을 등록한다`() {
@@ -70,15 +78,19 @@ class NearJCacheMBeanRegistrationTest {
 
         ObjectName.unquote(name.getKeyProperty("manager")) shouldBeEqualTo managerId
         ObjectName.unquote(name.getKeyProperty("cache")) shouldBeEqualTo cacheId
+
         name.isPattern.shouldBeFalse()
         name.isDomainPattern.shouldBeFalse()
         name.isPropertyPattern.shouldBeFalse()
+
         registeredStatisticsName("manager", "cache") shouldBeEqualTo
                 registeredStatisticsName("manager", "cache")
-        (registeredStatisticsName("Manager", "cache") !=
-                registeredStatisticsName("manager", "cache")).shouldBeTrue()
-        (registeredStatisticsName("\u00e9", "cache") !=
-                registeredStatisticsName("e\u0301", "cache")).shouldBeTrue()
+
+        registeredStatisticsName("Manager", "cache") shouldNotBeEqualTo
+                registeredStatisticsName("manager", "cache")
+
+        registeredStatisticsName("\u00e9", "cache") shouldNotBeEqualTo
+                registeredStatisticsName("e\u0301", "cache")
     }
 
     @Test
@@ -114,11 +126,11 @@ class NearJCacheMBeanRegistrationTest {
         val attributeNames = info.attributes.mapTo(mutableSetOf()) { it.name }
         val operationNames = info.operations.mapTo(mutableSetOf()) { it.name }
 
-        ("CacheHits" in attributeNames).shouldBeTrue()
-        ("FrontHits" in attributeNames).shouldBeTrue()
-        ("SupportedOperations" in attributeNames).shouldBeTrue()
+        attributeNames shouldContain "CacheHits"
+        attributeNames shouldContain "FrontHits"
+        attributeNames shouldContain "SupportedOperations"
         operationNames shouldBeEqualTo setOf("clear")
-        info.descriptor.getFieldValue("nearJCacheRegistrationToken").toString().isNotBlank().shouldBeTrue()
+        info.descriptor.getFieldValue("nearJCacheRegistrationToken").toString().shouldNotBeBlank()
     }
 
     @Test
@@ -189,7 +201,9 @@ class NearJCacheMBeanRegistrationTest {
                 methodName == "unregisterMBean" && failUnregisterOnce.compareAndSet(true, false) ->
                     throw IllegalStateException("rollback failed")
 
-                else -> invokeDelegate(arguments)
+                else                                                                  -> invokeDelegate(
+                    arguments
+                )
             }
         }
         val fixture = fixture(management = true, statistics = true)
@@ -198,7 +212,7 @@ class NearJCacheMBeanRegistrationTest {
             fixture.cache.registerMBeans(server, "manager", "cache")
         }
 
-        (failure.cause is InstanceAlreadyExistsException).shouldBeTrue()
+        failure.cause.shouldBeInstanceOf<InstanceAlreadyExistsException>()
         failure.cause!!.suppressed.single().message shouldBeEqualTo "rollback failed"
         failure.remainingObjectNames.size shouldBeEqualTo 1
         failure.recoveryRegistration!!.activeObjectNames shouldBeEqualTo failure.remainingObjectNames
@@ -212,13 +226,16 @@ class NearJCacheMBeanRegistrationTest {
         val server = MBeanServerFactory.newMBeanServer()
         val fixture = fixture(management = true, statistics = true)
         val registration = fixture.cache.registerMBeans(server, "manager", "cache")
+
         val statisticsName = registration.activeObjectNames.single {
             it.getKeyProperty("type") == "NearJCacheStatistics"
         }
         server.unregisterMBean(statisticsName)
         server.registerMBean(foreignStatisticsBean(), statisticsName)
 
-        val failure = assertFailsWith<NearJCacheMBeanRegistrationException> { registration.close() }
+        val failure = assertFailsWith<NearJCacheMBeanRegistrationException> {
+            registration.close()
+        }
 
         failure.remainingObjectNames shouldBeEqualTo setOf(statisticsName)
         registration.state shouldBeEqualTo NearJCacheMBeanRegistrationState.RECOVERY_REQUIRED
@@ -235,15 +252,18 @@ class NearJCacheMBeanRegistrationTest {
         val server = MBeanServerFactory.newMBeanServer()
         val fixture = fixture(management = true, statistics = false)
         val registration = fixture.cache.registerMBeans(server, "manager", "cache")
+
         @Suppress("UNCHECKED_CAST")
         val snapshot = registration.activeObjectNames as MutableSet<ObjectName>
 
-        assertFailsWith<UnsupportedOperationException> { snapshot.clear() }
+        assertFailsWith<UnsupportedOperationException> {
+            snapshot.clear()
+        }
         registration.activeObjectNames.size shouldBeEqualTo 1
 
         registration.close()
         registration.isClosed.shouldBeTrue()
-        registration.activeObjectNames.isEmpty().shouldBeTrue()
+        registration.activeObjectNames.shouldBeEmpty()
         registration.close()
     }
 
@@ -257,7 +277,7 @@ class NearJCacheMBeanRegistrationTest {
         registration.close()
 
         registration.state shouldBeEqualTo NearJCacheMBeanRegistrationState.CLOSED
-        registration.activeObjectNames.isEmpty().shouldBeTrue()
+        registration.activeObjectNames.shouldBeEmpty()
     }
 
     @Test
@@ -283,7 +303,9 @@ class NearJCacheMBeanRegistrationTest {
         restored.remainingObjectNames shouldBeEqualTo failure.remainingObjectNames
         @Suppress("UNCHECKED_CAST")
         val snapshot = restored.remainingObjectNames as MutableSet<ObjectName>
-        assertFailsWith<UnsupportedOperationException> { snapshot.clear() }
+        assertFailsWith<UnsupportedOperationException> {
+            snapshot.clear()
+        }
     }
 
     @Test

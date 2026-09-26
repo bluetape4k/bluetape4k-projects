@@ -1,18 +1,19 @@
 package io.bluetape4k.testcontainers
 
+import io.bluetape4k.assertions.assertFailsWith
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeNull
 import io.bluetape4k.logging.KLogging
 import io.mockk.every
 import io.mockk.mockk
-import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldBeNull
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
-import io.bluetape4k.assertions.assertFailsWith
 
 /**
  * [writeToSystemProperties] 확장 함수에 대한 단위 테스트입니다.
  */
 class GenericServerTest {
+
     companion object: KLogging() {
         private const val TEST_SERVER_NAME = "test-generic-server"
     }

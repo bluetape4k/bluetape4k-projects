@@ -47,6 +47,7 @@ internal class DefaultReactiveStateMachine<S: Any, E: Any, F: Any>(
     private val activeSideEffects = mutableMapOf<Int, ActiveSideEffect>()
     private val _stateFlow = MutableStateFlow(initialState)
     private val _effects = MutableSharedFlow<F>(replay = 0, extraBufferCapacity = 64)
+
     @Volatile
     private var closed = false
 

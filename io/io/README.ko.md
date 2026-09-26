@@ -211,17 +211,11 @@ val bytes = inputStream.use {
 }
 ```
 
-이 primitive는 stream을 닫지 않으므로 호출자가 소유권을 가지며, 예제는 `use`로 닫습니다.
-분기에는 `ByteLimitExceededException.maxBytes`만 사용하고 예외 message나 본문 payload를
-log에 남기지 마세요. 마지막 EOF 확인도 block될 수 있으므로 transport timeout을 설정하고,
-작업을 중단해야 할 때 supervisor가 stream을 닫을 수 있게 구성하세요. 일시적인 heap 사용량은
-대략 `동시 read 수 * (2 * maxBytes + segment overhead)`로 잡습니다. 이 상한은 전달된
-stream의 byte에만 적용되므로 이후 압축 해제에는 decoded byte 상한이 별도로 필요합니다.
+이 primitive는 stream을 닫지 않으므로 호출자가 소유권을 가지며, 예제는 `use`로 닫습니다. 분기에는 `ByteLimitExceededException.maxBytes`만 사용하고 예외 message나 본문 payload를 log에 남기지 마세요. 마지막 EOF 확인도 block될 수 있으므로 transport timeout을 설정하고, 작업을 중단해야 할 때 supervisor가 stream을 닫을 수 있게 구성하세요. 일시적인 heap 사용량은 대략 `동시 read 수 * (2 * maxBytes + segment overhead)`로 잡습니다. 이 상한은 전달된 stream의 byte에만 적용되므로 이후 압축 해제에는 decoded byte 상한이 별도로 필요합니다.
 
 ### 길이 제한 line 읽기
 
-line 단위 입력을 읽을 때 전체 line을 먼저 무제한으로 할당하지 않고 읽는 중에
-거부하려면 `boundedLineReader(maxLineChars)`를 사용합니다.
+line 단위 입력을 읽을 때 전체 line을 먼저 무제한으로 할당하지 않고 읽는 중에 거부하려면 `boundedLineReader(maxLineChars)`를 사용합니다.
 
 ```kotlin
 import io.bluetape4k.io.boundedLineReader
@@ -235,17 +229,9 @@ reader.use {
 }
 ```
 
-`maxLineChars`는 UTF-16 code unit 수로 계산하므로 supplementary character 하나는
-두 unit으로 셉니다. LF, CRLF, CR은 line을 끝내며 상한에 포함하지 않습니다. 상한을
-초과한 line은 범위를 벗어난 첫 code unit을 읽는 즉시 `LineLimitExceededException`을
-발생시키고 부분 line을 반환하지 않습니다. overflow 뒤 현재 줄 drain과 동일 wrapper의
-재사용은 보장하지 않으므로 해당 source 처리를 중단하고 Reader를 닫으세요.
+`maxLineChars`는 UTF-16 code unit 수로 계산하므로 supplementary character 하나는 두 unit으로 셉니다. LF, CRLF, CR은 line을 끝내며 상한에 포함하지 않습니다. 상한을 초과한 line은 범위를 벗어난 첫 code unit을 읽는 즉시 `LineLimitExceededException`을 발생시키고 부분 line을 반환하지 않습니다. overflow 뒤 현재 줄 drain과 동일 wrapper의 재사용은 보장하지 않으므로 해당 source 처리를 중단하고 Reader를 닫으세요.
 `maxLineChars`가 음수이거나 `bufferSize`가 0 이하이면 생성 시
-`IllegalArgumentException`이 발생합니다. wrapper는 고정 read buffer를 사용하고
-제공받은 `Reader`를 닫지 않으므로 Reader 수명, timeout, blocking 동작과 JSON/NDJSON
-parsing은 호출자가 책임집니다. `maxLineChars`와 `bufferSize`는 read-ahead 경계이지
-프로세스 전체 heap 예산이 아니므로, 외부 설정값은 배포 메모리 예산에 맞는 안전한
-범위로 제한해야 합니다.
+`IllegalArgumentException`이 발생합니다. wrapper는 고정 read buffer를 사용하고 제공받은 `Reader`를 닫지 않으므로 Reader 수명, timeout, blocking 동작과 JSON/NDJSON parsing은 호출자가 책임집니다. `maxLineChars`와 `bufferSize`는 read-ahead 경계이지 프로세스 전체 heap 예산이 아니므로, 외부 설정값은 배포 메모리 예산에 맞는 안전한 범위로 제한해야 합니다.
 
 ### 압축
 
@@ -289,13 +275,13 @@ Read-only target은 `ReadOnlyBufferException`으로 거부하고, 동일한 buff
 
 <!-- issue-755-storage-matrix:start -->
 
-| Codec        | heap -> heap           | direct -> direct       | mixed storage          | Allocation claim       |
-|--------------|------------------------|------------------------|------------------------|------------------------|
-| LZ4          | optimized              | optimized              | optimized              | accepted for all pairs |
-| Deflate      | optimized              | optimized              | optimized              | accepted for all pairs |
+| Codec        | heap -> heap           | direct -> direct       | mixed storage          | Allocation claim                     |
+|--------------|------------------------|------------------------|------------------------|--------------------------------------|
+| LZ4          | optimized              | optimized              | optimized              | accepted for all pairs               |
+| Deflate      | optimized              | optimized              | optimized              | accepted for all pairs               |
 | Snappy       | compatibility fallback | optimized              | compatibility fallback | accepted for direct compression only |
-| Zstd         | optimized              | optimized              | compatibility fallback | accepted for matched pairs |
-| Other codecs | compatibility fallback | compatibility fallback | compatibility fallback | ineligible             |
+| Zstd         | optimized              | optimized              | compatibility fallback | accepted for matched pairs           |
+| Other codecs | compatibility fallback | compatibility fallback | compatibility fallback | ineligible                           |
 
 `optimized`는 해당 storage 조합에서 codec의 backend `ByteBuffer` 경로를 사용한다는 뜻입니다. 두 번의 canonical JMH GC-profiler run으로 위 조합의 allocation claim을 승인했습니다. 일반적인 처리량 향상이나 zero-allocation을 주장하지 않습니다. 자세한 내용은 [allocation 보고서](../../docs/benchmarks/2026-07-21-bytebuffer-compressor-allocation.md)를 참고하세요.
 
@@ -504,34 +490,18 @@ File("huge-file.txt").readLineSequence().forEach { line ->
 }
 ```
 
-`Path.writeAtomically`는 provider가 소유하는 같은 parent의 임시 파일에 먼저 기록하고,
-callback과 stream close가 성공한 뒤에만 `ATOMIC_MOVE`를 시도합니다. callback은
-`OutputStream`을 빌려 쓰므로 직접 닫거나 보관하면 안 됩니다. 기존 target 교체,
-임시 파일 permission과 파일 attribute는 filesystem provider 계약을 따릅니다. 이 API는
-`fsync`와 process crash나 power loss 상황의 파일 durability를 보장하지 않습니다. atomic
-replacement가 지원되지 않으면 일반 move fallback을 사용하지 않고 실패합니다.
+`Path.writeAtomically`는 provider가 소유하는 같은 parent의 임시 파일에 먼저 기록하고, callback과 stream close가 성공한 뒤에만 `ATOMIC_MOVE`를 시도합니다. callback은
+`OutputStream`을 빌려 쓰므로 직접 닫거나 보관하면 안 됩니다. 기존 target 교체, 임시 파일 permission과 파일 attribute는 filesystem provider 계약을 따릅니다. 이 API는
+`fsync`와 process crash나 power loss 상황의 파일 durability를 보장하지 않습니다. atomic replacement가 지원되지 않으면 일반 move fallback을 사용하지 않고 실패합니다.
 
 이 함수는 blocking API입니다. 없는 parent를 생성하고, 빈 경로나 filesystem root를
 `IllegalArgumentException`으로 거부하며, provider가 소유한 stream에 기록한 byte 수를
-`Long`으로 반환합니다. 자동으로 생성한 parent는 이후 단계가 실패해도 rollback하지
-않습니다. callback, close, commit이 던진 unchecked exception,
-`CancellationException`, `Error`의 identity를 유지하고 cleanup 실패만 suppressed로
-연결합니다.
-Coroutine 호출자는 dispatcher를 직접 선택하고 callback 밖에서 캡처한 context의
-cancellation을 callback 반환 전에 검사해야 합니다. commit 뒤 cancellation은 이미
-끝난 교체를 되돌리지 않습니다.
+`Long`으로 반환합니다. 자동으로 생성한 parent는 이후 단계가 실패해도 rollback하지 않습니다. callback, close, commit이 던진 unchecked exception,
+`CancellationException`, `Error`의 identity를 유지하고 cleanup 실패만 suppressed로 연결합니다. Coroutine 호출자는 dispatcher를 직접 선택하고 callback 밖에서 캡처한 context의 cancellation을 callback 반환 전에 검사해야 합니다. commit 뒤 cancellation은 이미 끝난 교체를 되돌리지 않습니다.
 
-경로 정규화는 lexical 처리일 뿐 path sandbox, symlink, hard-link, mount 교체와 TOCTOU를
-방어하지 않습니다. 민감한 payload에는 opaque basename과 접근이 제한된 private parent를
-사용하세요. 공격자가 제어하는 공유 writable directory에는 사용하지 말고, 이런 방어가
-필요하면 secure directory handle 기반 API를 선택해야 합니다. 호출자가 byte/time 한도를
-집행하고, provider와 primary/suppressed cleanup 실패를 기록할 때 전체 경로, basename,
-예외 메시지의 민감한 값은 가려서 기록해야 합니다.
+경로 정규화는 lexical 처리일 뿐 path sandbox, symlink, hard-link, mount 교체와 TOCTOU를 방어하지 않습니다. 민감한 payload에는 opaque basename과 접근이 제한된 private parent를 사용하세요. 공격자가 제어하는 공유 writable directory에는 사용하지 말고, 이런 방어가 필요하면 secure directory handle 기반 API를 선택해야 합니다. 호출자가 byte/time 한도를 집행하고, provider와 primary/suppressed cleanup 실패를 기록할 때 전체 경로, basename, 예외 메시지의 민감한 값은 가려서 기록해야 합니다.
 
-process crash 뒤에는 `.<basename>.*.tmp` 파일이 남을 수 있습니다. 애플리케이션 운영자가
-private parent의 파일 수와 사용량을 감시하고, 활성 writer가 없음을 확인한 뒤 설정한
-보존 시간이 지난 항목만 정리해야 합니다. writer가 실행 중일 때 무제한 glob 삭제를
-실행하면 안 됩니다. telemetry에 기록할 때 basename과 parent는 가려야 합니다.
+process crash 뒤에는 `.<basename>.*.tmp` 파일이 남을 수 있습니다. 애플리케이션 운영자가 private parent의 파일 수와 사용량을 감시하고, 활성 writer가 없음을 확인한 뒤 설정한 보존 시간이 지난 항목만 정리해야 합니다. writer가 실행 중일 때 무제한 glob 삭제를 실행하면 안 됩니다. telemetry에 기록할 때 basename과 parent는 가려야 합니다.
 
 ```kotlin
 import io.bluetape4k.io.writeAtomically
@@ -576,9 +546,7 @@ suspend fun copyAtomically(source: Path, destination: Path): Long {
 }
 ```
 
-Java에서는 `Function1<OutputStream, Unit>` 형태로 `AtomicFileSupport` facade를 호출합니다.
-메서드는 checked `IOException`을 선언하지만 `Function1`은 이를 선언하지 않으므로,
-callback의 I/O 실패는 `UncheckedIOException`으로 감싸고 `Unit.INSTANCE`를 반환합니다.
+Java에서는 `Function1<OutputStream, Unit>` 형태로 `AtomicFileSupport` facade를 호출합니다. 메서드는 checked `IOException`을 선언하지만 `Function1`은 이를 선언하지 않으므로, callback의 I/O 실패는 `UncheckedIOException`으로 감싸고 `Unit.INSTANCE`를 반환합니다.
 
 ```java
 import io.bluetape4k.io.AtomicFileSupport;

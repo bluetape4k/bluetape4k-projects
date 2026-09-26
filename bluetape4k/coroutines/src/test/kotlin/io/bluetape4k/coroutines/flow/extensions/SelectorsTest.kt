@@ -3,7 +3,7 @@ package io.bluetape4k.coroutines.flow.extensions
 import app.cash.turbine.test
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.logging.coroutines.KLoggingChannel
-import io.bluetape4k.logging.trace
+import io.bluetape4k.logging.debug
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.drop
@@ -124,17 +124,17 @@ class SelectorsTest: AbstractFlowTest() {
             .log("skipFirst")
             .select(
                 selector1 = {
-                    log.trace { "select1. searchTerm=${it.searchTerm}" }
+                    log.debug { "select1. searchTerm=${it.searchTerm}" }
                     searchTermCount++
                     it.searchTerm
                 },
                 selector2 = {
-                    log.trace { "select2. items=${it.items}" }
+                    log.debug { "select2. items=${it.items}" }
                     itemsCount++
                     it.items
                 },
                 projector = { searchTerm, items ->
-                    log.trace { "projector. searchTerm=$searchTerm, items=$items" }
+                    log.debug { "projector. searchTerm=$searchTerm, items=$items" }
                     projectorCount++
                     items.filter { it.contains(searchTerm.orEmpty()) }
                 }
@@ -167,22 +167,22 @@ class SelectorsTest: AbstractFlowTest() {
             .log("skipFirst")
             .select(
                 selector1 = {
-                    log.trace { "select1. searchTerm=${it.searchTerm}" }
+                    log.debug { "select1. searchTerm=${it.searchTerm}" }
                     searchTermCount++
                     it.searchTerm
                 },
                 selector2 = {
-                    log.trace { "select2. items=${it.items}" }
+                    log.debug { "select2. items=${it.items}" }
                     itemsCount++
                     it.items
                 },
                 selector3 = {
-                    log.trace { "select3. title=${it.title}" }
+                    log.debug { "select3. title=${it.title}" }
                     titleCount++
                     it.title
                 },
                 projector = { searchTerm, items, title ->
-                    log.trace { "projector. searchTerm=$searchTerm, items=$items, title=$title" }
+                    log.debug { "projector. searchTerm=$searchTerm, items=$items, title=$title" }
                     projectorCount++
                     items
                         .filter { it.contains(searchTerm.orEmpty()) }
@@ -220,27 +220,27 @@ class SelectorsTest: AbstractFlowTest() {
             .log("skipFirst")
             .select(
                 selector1 = {
-                    log.trace { "select1. searchTerm=${it.searchTerm}" }
+                    log.debug { "select1. searchTerm=${it.searchTerm}" }
                     searchTermCount++
                     it.searchTerm
                 },
                 selector2 = {
-                    log.trace { "select2. items=${it.items}" }
+                    log.debug { "select2. items=${it.items}" }
                     itemsCount++
                     it.items
                 },
                 selector3 = {
-                    log.trace { "select3. title=${it.title}" }
+                    log.debug { "select3. title=${it.title}" }
                     titleCount++
                     it.title
                 },
                 selector4 = {
-                    log.trace { "select4. subtitle=${it.subtitle}" }
+                    log.debug { "select4. subtitle=${it.subtitle}" }
                     subtitleCount++
                     it.subtitle
                 },
                 projector = { searchTerm, items, title, subtitle ->
-                    log.trace { "projector. searchTerm=$searchTerm, items=$items, title=$title, subtitle=$subtitle," }
+                    log.debug { "projector. searchTerm=$searchTerm, items=$items, title=$title, subtitle=$subtitle," }
                     projectorCount++
                     items
                         .filter { it.contains(searchTerm.orEmpty()) }
@@ -282,32 +282,32 @@ class SelectorsTest: AbstractFlowTest() {
             .log("skipFirst")
             .select(
                 selector1 = {
-                    log.trace { "select1. searchTerm=${it.searchTerm}" }
+                    log.debug { "select1. searchTerm=${it.searchTerm}" }
                     searchTermCount++
                     it.searchTerm
                 },
                 selector2 = {
-                    log.trace { "select2. items=${it.items}" }
+                    log.debug { "select2. items=${it.items}" }
                     itemsCount++
                     it.items
                 },
                 selector3 = {
-                    log.trace { "select3. title=${it.title}" }
+                    log.debug { "select3. title=${it.title}" }
                     titleCount++
                     it.title
                 },
                 selector4 = {
-                    log.trace { "select4. subtitle=${it.subtitle}" }
+                    log.debug { "select4. subtitle=${it.subtitle}" }
                     subtitleCount++
                     it.subtitle
                 },
                 selector5 = {
-                    log.trace { "selec5. unreadCount=${it.unreadCount}" }
+                    log.debug { "selec5. unreadCount=${it.unreadCount}" }
                     unreadCountCount++
                     it.unreadCount
                 },
                 projector = { searchTerm, items, title, subtitle, unreadCount ->
-                    log.trace { "projector. searchTerm=$searchTerm, items=$items, title=$title, subtitle=$subtitle, unreadCount=$unreadCount" }
+                    log.debug { "projector. searchTerm=$searchTerm, items=$items, title=$title, subtitle=$subtitle, unreadCount=$unreadCount" }
                     projectorCount++
                     items
                         .filter { it.contains(searchTerm.orEmpty()) }

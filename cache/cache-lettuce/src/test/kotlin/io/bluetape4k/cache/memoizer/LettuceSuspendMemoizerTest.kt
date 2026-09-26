@@ -17,30 +17,35 @@ import kotlinx.coroutines.launch
 import org.junit.jupiter.api.Test
 import org.testcontainers.utility.Base58
 import java.util.concurrent.atomic.AtomicInteger
+import kotlin.time.Duration.Companion.milliseconds
 
 class LettuceSuspendMemoizerTest: AbstractSuspendMemoizerTest() {
 
     companion object: KLogging() {
-        private val intConnection by lazy { LettuceClients.connect(RedisServers.redisClient, LettuceIntCodec) }
-        private val longConnection by lazy { LettuceClients.connect(RedisServers.redisClient, LettuceLongCodec) }
+        private val intConnection by lazy {
+            LettuceClients.connect(RedisServers.redisClient, LettuceIntCodec)
+        }
+        private val longConnection by lazy {
+            LettuceClients.connect(RedisServers.redisClient, LettuceLongCodec)
+        }
     }
 
-    private val heavyMap = LettuceSuspendMap<Int>(intConnection, "memoizer:lettuce:suspend:heavy")
+    private val heavyMap = LettuceSuspendMap(intConnection, "memoizer:lettuce:suspend:heavy")
 
     override val heavyFunc: suspend (Int) -> Int = heavyMap.suspendMemoizer { x ->
-        delay(100)
+        delay(100.milliseconds)
         x * x
     }
 
     override val factorial: SuspendFactorialProvider = object: SuspendFactorialProvider {
         override val cachedCalc: suspend (Long) -> Long =
-            LettuceSuspendMap<Long>(longConnection, "memoizer:lettuce:suspend:factorial")
+            LettuceSuspendMap(longConnection, "memoizer:lettuce:suspend:factorial")
                 .suspendMemoizer { calc(it) }
     }
 
     override val fibonacci: SuspendFibonacciProvider = object: SuspendFibonacciProvider {
         override val cachedCalc: suspend (Long) -> Long =
-            LettuceSuspendMap<Long>(longConnection, "memoizer:lettuce:suspend:fibonacci")
+            LettuceSuspendMap(longConnection, "memoizer:lettuce:suspend:fibonacci")
                 .suspendMemoizer { calc(it) }
     }
 
@@ -105,7 +110,7 @@ class LettuceSuspendMemoizerTest: AbstractSuspendMemoizerTest() {
         val memoizer = map.suspendMemoizer<Int, Int> { key ->
             if (evalCount.incrementAndGet() == 1) {
                 started.complete(Unit)
-                delay(Long.MAX_VALUE)
+                delay(timeMillis = Long.MAX_VALUE)
             }
             key * key
         }

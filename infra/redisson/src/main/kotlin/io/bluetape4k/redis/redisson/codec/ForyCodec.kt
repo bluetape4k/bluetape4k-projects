@@ -2,7 +2,7 @@ package io.bluetape4k.redis.redisson.codec
 
 import io.bluetape4k.io.serializer.BinarySerializers
 import io.bluetape4k.logging.KLogging
-import io.bluetape4k.logging.info
+import io.bluetape4k.logging.warn
 import io.netty.buffer.ByteBuf
 import io.netty.buffer.Unpooled
 import org.redisson.client.codec.BaseCodec
@@ -63,7 +63,7 @@ class ForyCodec(
             val bytes = fory.serialize(graph)
             Unpooled.wrappedBuffer(bytes)
         } catch (e: Exception) {
-            log.info(e) { "Encoding: Value is not suitable for ForyCodec. Using fallbackCodec[$fallbackCodec]. Value class=${graph.javaClass}" }
+            log.warn(e) { "Encoding: Value is not suitable for ForyCodec. Using fallbackCodec[$fallbackCodec]. Value class=${graph.javaClass}" }
             fallbackCodec.valueEncoder.encode(graph)
         }
     }
@@ -75,7 +75,7 @@ class ForyCodec(
             try {
                 fory.deserialize<Any>(bytes)
             } catch (e: Exception) {
-                log.info(e) { "Decoding: Value is not suitable for ForyCodec. Using fallbackCodec[$fallbackCodec]" }
+                log.warn(e) { "Decoding: Value is not suitable for ForyCodec. Using fallbackCodec[$fallbackCodec]" }
                 decodeWithFallbackBuffer(bytes, runtime.fallbackBufferFactory) { fallbackBuf ->
                     fallbackCodec.valueDecoder.decode(fallbackBuf, state)
                 }
@@ -84,7 +84,7 @@ class ForyCodec(
             try {
                 fory.deserializeDirectWithLegacyNormalization(directView, buf.readableBytes())
             } catch (e: Exception) {
-                log.info(e) { "Decoding: Value is not suitable for ForyCodec. Using fallbackCodec[$fallbackCodec]" }
+                log.warn(e) { "Decoding: Value is not suitable for ForyCodec. Using fallbackCodec[$fallbackCodec]" }
                 val bytes = runtime.copiedBytesFactory(buf)
                 decodeWithFallbackBuffer(bytes, runtime.fallbackBufferFactory) { fallbackBuf ->
                     fallbackCodec.valueDecoder.decode(fallbackBuf, state)

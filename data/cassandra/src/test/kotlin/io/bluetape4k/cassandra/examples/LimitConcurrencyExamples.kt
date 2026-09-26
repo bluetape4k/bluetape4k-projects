@@ -5,8 +5,11 @@ import com.datastax.oss.driver.api.core.config.DefaultDriverOption
 import com.datastax.oss.driver.api.core.cql.AsyncResultSet
 import com.datastax.oss.driver.api.core.cql.PreparedStatement
 import com.datastax.oss.driver.api.querybuilder.QueryBuilder.insertInto
+import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.cassandra.AbstractCassandraTest
 import io.bluetape4k.cassandra.querybuilder.bindMarker
+import io.bluetape4k.concurrent.await
+import io.bluetape4k.concurrent.awaitTermination
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
@@ -22,9 +25,9 @@ import java.util.concurrent.CompletionStage
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.Executors
 import java.util.concurrent.Semaphore
-import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicInteger
 import kotlin.system.measureTimeMillis
+import kotlin.time.Duration.Companion.seconds
 
 class LimitConcurrencyExamples: AbstractCassandraTest() {
 
@@ -51,7 +54,7 @@ class LimitConcurrencyExamples: AbstractCassandraTest() {
         val elapsed = measureTimeMillis {
             insertConcurrent(session)
         }
-        println("Sync Elapsed time=$elapsed msec.")
+        log.debug { "Sync Elapsed time=$elapsed msec." }
     }
 
     private fun createSchema(session: CqlSession) {
@@ -75,7 +78,6 @@ class LimitConcurrencyExamples: AbstractCassandraTest() {
         val executor = Executors.newFixedThreadPool(CONCURRENCY_LEVEL)
 
         try {
-
             repeat(TOTAL_NUMBER_OF_INSERTS) { counter ->
                 semaphore.acquire()
 
@@ -92,12 +94,12 @@ class LimitConcurrencyExamples: AbstractCassandraTest() {
                 }
             }
 
-            requestLatch.await(10, TimeUnit.SECONDS)
+            requestLatch.await(10.seconds)
 
-            println("Finish executing ${insertsCounter.get()} queries with a concurrency level of $CONCURRENCY_LEVEL")
+            log.debug { "Finish executing ${insertsCounter.get()} queries with a concurrency level of $CONCURRENCY_LEVEL" }
         } finally {
             executor.shutdown()
-            executor.awaitTermination(3, TimeUnit.SECONDS)
+            executor.awaitTermination(3.seconds)
         }
     }
 
@@ -106,7 +108,7 @@ class LimitConcurrencyExamples: AbstractCassandraTest() {
         val elapsed = measureTimeMillis {
             insertConcurrentAsync(session)
         }
-        println("Async Elapsed time=$elapsed msec.")
+        log.debug { "Async Elapsed time=$elapsed msec." }
     }
 
     private fun insertConcurrentAsync(session: CqlSession) {
@@ -121,7 +123,7 @@ class LimitConcurrencyExamples: AbstractCassandraTest() {
         }
 
         CompletableFuture.allOf(*pending.map { it.toCompletableFuture() }.toTypedArray()).get()
-        println("Finish executing coroutines $insertAsyncCount queries with a concurrency level of $CONCURRENCY_LEVEL")
+        log.debug { "Finish executing coroutines $insertAsyncCount queries with a concurrency level of $CONCURRENCY_LEVEL" }
     }
 
     private fun executeOneAtATime(
@@ -172,13 +174,13 @@ class LimitConcurrencyExamples: AbstractCassandraTest() {
         val elapsed = measureTimeMillis {
             insertIndividual(session)
         }
-        println("Individuals Elapsed time=$elapsed msec.")
+        log.debug { "Individuals Elapsed time=$elapsed msec." }
     }
 
     private fun insertIndividual(session: CqlSession) {
         val throttle =
             session.context.config.defaultProfile.getInt(DefaultDriverOption.REQUEST_THROTTLER_MAX_CONCURRENT_REQUESTS)
-        println("throttle=$throttle")
+        log.debug { "throttle=$throttle" }
 
         val pst = prepareStatemet(session)
         val pending = mutableListOf<CompletableFuture<AsyncResultSet>>()
@@ -191,7 +193,7 @@ class LimitConcurrencyExamples: AbstractCassandraTest() {
 
         CompletableFuture.allOf(*pending.toTypedArray()).get()
 
-        println("Finish executing ${pending.size} queries with a concurrency level of $throttle")
+        log.debug { "Finish executing ${pending.size} queries with a concurrency level of $throttle" }
     }
 
     @RepeatedTest(REPEAT_SIZE)
@@ -199,24 +201,27 @@ class LimitConcurrencyExamples: AbstractCassandraTest() {
         val elapsed = measureTimeMillis {
             insertIndividualInCoroutines(session)
         }
-        println("Individuals in Coroutines elapsed time=$elapsed msec.")
+        log.debug { "Individuals in Coroutines elapsed time=$elapsed msec." }
     }
 
     private fun insertIndividualInCoroutines(session: CqlSession) {
         val throttle =
             session.context.config.defaultProfile.getInt(DefaultDriverOption.REQUEST_THROTTLER_MAX_CONCURRENT_REQUESTS)
-        println("throttle=$throttle")
+        log.debug { "throttle=$throttle" }
 
         val pst = prepareStatemet(session)
         runSuspendIO {
             val tasks = List(TOTAL_NUMBER_OF_INSERTS) {
                 async(Dispatchers.IO) {
-                    val stmt = pst.bind().setUuid("id", UUID.randomUUID()).setInt("value", it)
-                    session.execute(stmt)
+                    val stmt = pst.bind()
+                        .setUuid("id", UUID.randomUUID())
+                        .setInt("value", it)
+                    log.debug { "Executing query: ${stmt.preparedStatement.query}" }
+                    session.execute(stmt).wasApplied().shouldBeTrue()
                 }
             }
             tasks.awaitAll()
-            println("Finish executing ${tasks.size} queries with a concurrency level of $throttle")
+            log.debug { "Finish executing ${tasks.size} queries with a concurrency level of $throttle" }
         }
     }
 }

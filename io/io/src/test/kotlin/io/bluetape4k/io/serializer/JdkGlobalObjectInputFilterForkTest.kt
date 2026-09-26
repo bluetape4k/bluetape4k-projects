@@ -2,6 +2,7 @@ package io.bluetape4k.io.serializer
 
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.logging.KLogging
 import org.junit.jupiter.api.Test
 import java.io.File
 import java.net.URLClassLoader
@@ -9,6 +10,8 @@ import java.nio.file.Path
 import java.util.concurrent.TimeUnit
 
 class JdkGlobalObjectInputFilterForkTest {
+
+    companion object: KLogging()
 
     @Test
     fun `JVM startup global filter allows ByteArray and bounded direct decode equally`() {

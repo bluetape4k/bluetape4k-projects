@@ -1,12 +1,16 @@
 package io.bluetape4k.avro
 
-import io.bluetape4k.avro.message.examples.Employee
 import io.bluetape4k.assertions.assertFailsWith
-import io.bluetape4k.assertions.fail
 import io.bluetape4k.assertions.expectThat
+import io.bluetape4k.assertions.fail
 import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeNull
 import io.bluetape4k.assertions.shouldBeSameInstanceAs
 import io.bluetape4k.assertions.shouldContentEqual
+import io.bluetape4k.avro.message.examples.Employee
+import io.bluetape4k.concurrent.await
+import io.bluetape4k.concurrent.awaitTermination
+import io.bluetape4k.logging.KLogging
 import org.apache.avro.Schema
 import org.apache.avro.generic.GenericData
 import org.apache.avro.generic.GenericRecord
@@ -21,10 +25,26 @@ import java.util.concurrent.ConcurrentLinkedQueue
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.CyclicBarrier
 import java.util.concurrent.Executors
-import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicInteger
+import kotlin.time.Duration.Companion.seconds
+
+private const val AVRO_WORKERS = 8
+private const val AVRO_REPETITIONS = 50
+private const val AVRO_START_TIMEOUT_SECONDS = 2L
+private const val AVRO_COMPLETION_TIMEOUT_SECONDS = 15L
+private const val AVRO_SHUTDOWN_TIMEOUT_SECONDS = 5L
+private const val AVRO_MAX_DIAGNOSTICS = 8
 
 class AvroSerializerByteBufferContractTest {
+
+    private companion object: KLogging() {
+        val PAYLOAD = byteArrayOf(21, 22, 23, 24)
+        val MALFORMED = byteArrayOf(0x7F, 0x01, 0x02)
+        val SCHEMA: Schema = Employee.getClassSchema()
+        val EMPLOYEE: Employee = TestMessageProvider.createEmployee()
+        val GENERIC_RECORD: GenericData.Record = GenericData.Record(SCHEMA)
+        const val FILL: Byte = 0x33
+    }
 
     @Test
     fun `all Avro output defaults write within caller bounds and preserve metadata`() {
@@ -132,7 +152,9 @@ class AvroSerializerByteBufferContractTest {
 
         operations.forEach { (name, operation) ->
             val target = configuredTarget(PAYLOAD.size)
-            val actual = assertFailsWith<AssertionError>(name) { operation(target) }
+            val actual = assertFailsWith<AssertionError>(name) {
+                operation(target)
+            }
             actual shouldBeSameInstanceAs fatal
             target.position() shouldBeEqualTo 3
         }
@@ -196,7 +218,9 @@ class AvroSerializerByteBufferContractTest {
             val start = source.position()
             val limit = source.limit()
 
-            val actual = assertFailsWith<AssertionError>(name) { operation(source) }
+            val actual = assertFailsWith<AssertionError>(name) {
+                operation(source)
+            }
 
             actual shouldBeSameInstanceAs fatal
             source.position() shouldBeEqualTo start
@@ -228,7 +252,7 @@ class AvroSerializerByteBufferContractTest {
             specific.received shouldContentEqual expectedBytes
 
             assertSourcePreserved("specific list $name", source) {
-                specific.deserializeListFrom(it, Employee::class.java) shouldBeEqualTo emptyList<Employee>()
+                specific.deserializeListFrom(it, Employee::class.java) shouldBeEqualTo emptyList()
             }
             specific.listReceived shouldContentEqual expectedBytes
         }
@@ -238,12 +262,11 @@ class AvroSerializerByteBufferContractTest {
     fun `reusable Avro serializers support bounded concurrent valid and invalid calls`() {
         val reflect = ReflectFake(deserializeResult = "decoded", trackState = false)
         val generic = GenericFake(deserializeResult = GENERIC_RECORD, trackState = false)
-        val specific =
-            SpecificFake(
-                deserializeResult = EMPLOYEE,
-                listDeserializeResult = listOf(EMPLOYEE),
-                trackState = false,
-            )
+        val specific = SpecificFake(
+            deserializeResult = EMPLOYEE,
+            listDeserializeResult = listOf(EMPLOYEE),
+            trackState = false,
+        )
 
         verifyAvroBufferConcurrency { _, repetition ->
             if (repetition % 2 == 0) {
@@ -276,16 +299,16 @@ class AvroSerializerByteBufferContractTest {
                 assertAvroOverflow { target -> specific.serializeListTo(listOf(EMPLOYEE), target) }
 
                 assertAvroMalformed { source ->
-                    reflect.deserializeFrom(source, String::class.java) shouldBeEqualTo null
+                    reflect.deserialize<String>(source).shouldBeNull()
                 }
                 assertAvroMalformed { source ->
-                    generic.deserializeFrom(SCHEMA, source) shouldBeEqualTo null
+                    generic.deserializeFrom(SCHEMA, source).shouldBeNull()
                 }
                 assertAvroMalformed { source ->
-                    specific.deserializeFrom(source, Employee::class.java) shouldBeEqualTo null
+                    specific.deserialize<Employee>(source).shouldBeNull()
                 }
                 assertAvroMalformed { source ->
-                    specific.deserializeListFrom(source, Employee::class.java) shouldBeEqualTo emptyList<Employee>()
+                    specific.deserializeList<Employee>(source) shouldBeEqualTo emptyList()
                 }
             }
         }
@@ -508,15 +531,6 @@ class AvroSerializerByteBufferContractTest {
 
     private fun ByteBuffer.fullBytes(): ByteArray =
         duplicate().clear().let { view -> ByteArray(view.remaining()).also(view::get) }
-
-    private companion object {
-        val PAYLOAD = byteArrayOf(21, 22, 23, 24)
-        val MALFORMED = byteArrayOf(0x7F, 0x01, 0x02)
-        val SCHEMA: Schema = Employee.getClassSchema()
-        val EMPLOYEE: Employee = TestMessageProvider.createEmployee()
-        val GENERIC_RECORD: GenericData.Record = GenericData.Record(SCHEMA)
-        const val FILL: Byte = 0x33
-    }
 }
 
 private fun verifyAvroBufferConcurrency(
@@ -536,7 +550,7 @@ private fun verifyAvroBufferConcurrency(
             unfinished += worker
             executor.submit {
                 try {
-                    startBarrier.await(AVRO_START_TIMEOUT_SECONDS, TimeUnit.SECONDS)
+                    startBarrier.await(AVRO_START_TIMEOUT_SECONDS.seconds)
                     repeat(AVRO_REPETITIONS) { repetition -> operation(worker, repetition) }
                 } catch (failure: Throwable) {
                     failures += "worker=$worker ${failure::class.java.simpleName}: ${failure.message}"
@@ -547,8 +561,8 @@ private fun verifyAvroBufferConcurrency(
             }
         }
 
-        startBarrier.await(AVRO_START_TIMEOUT_SECONDS, TimeUnit.SECONDS)
-        if (!completion.await(AVRO_COMPLETION_TIMEOUT_SECONDS, TimeUnit.SECONDS)) {
+        startBarrier.await(AVRO_START_TIMEOUT_SECONDS.seconds)
+        if (!completion.await(AVRO_COMPLETION_TIMEOUT_SECONDS.seconds)) {
             fail("Avro buffer workers timed out; unfinished=${unfinished.sorted().take(AVRO_MAX_DIAGNOSTICS)}")
         }
         if (failures.isNotEmpty()) {
@@ -556,7 +570,7 @@ private fun verifyAvroBufferConcurrency(
         }
     } finally {
         executor.shutdownNow()
-        if (!executor.awaitTermination(AVRO_SHUTDOWN_TIMEOUT_SECONDS, TimeUnit.SECONDS)) {
+        if (!executor.awaitTermination(AVRO_SHUTDOWN_TIMEOUT_SECONDS.seconds)) {
             val threads =
                 Thread.getAllStackTraces().keys.asSequence()
                     .filter { it.name.startsWith("avro-buffer-") }
@@ -565,15 +579,8 @@ private fun verifyAvroBufferConcurrency(
                     .toList()
             fail(
                 "Avro buffer executor did not terminate; " +
-                    "unfinished=${unfinished.sorted().take(AVRO_MAX_DIAGNOSTICS)}, threads=$threads",
+                        "unfinished=${unfinished.sorted().take(AVRO_MAX_DIAGNOSTICS)}, threads=$threads",
             )
         }
     }
 }
-
-private const val AVRO_WORKERS = 8
-private const val AVRO_REPETITIONS = 50
-private const val AVRO_START_TIMEOUT_SECONDS = 2L
-private const val AVRO_COMPLETION_TIMEOUT_SECONDS = 15L
-private const val AVRO_SHUTDOWN_TIMEOUT_SECONDS = 5L
-private const val AVRO_MAX_DIAGNOSTICS = 8

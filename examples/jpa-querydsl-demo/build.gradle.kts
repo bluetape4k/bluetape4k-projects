@@ -39,18 +39,18 @@ configurations.matching { it.name.startsWith("test") }.configureEach {
     resolutionStrategy.eachDependency {
         when (requested.group) {
             "org.springframework.boot" -> {
-                useVersion("4.0.6")
+                useVersion("4.1.1")
                 because("Spring Boot 4 테스트: global Spring Boot BOM 다운그레이드 방지")
             }
-            "org.springframework" -> {
-                useVersion("7.0.7")
-                because("Spring Framework 7.0.7: Spring Boot 4 4.0.6 호환 버전 강제")
+            "org.springframework"      -> {
+                useVersion("7.0.9")
+                because("Spring Framework 7.0.9: Spring Boot 4 4.1.1 호환 버전 강제")
             }
-            "org.hibernate.orm" -> {
-                useVersion("7.2.7.Final")
-                because("Hibernate 7.2.7.Final: Spring Boot 4 4.0.6 호환 버전 강제")
+            "org.hibernate.orm"        -> {
+                useVersion("7.4.7.Final")
+                because("Hibernate 7.4.7.Final: Spring Boot 4 4.0.6 호환 버전 강제")
             }
-            "jakarta.persistence" -> {
+            "jakarta.persistence"      -> {
                 useVersion("3.2.0")
                 because("Jakarta Persistence 3.2: Hibernate 7 / Spring Boot 4 호환 버전 강제")
             }

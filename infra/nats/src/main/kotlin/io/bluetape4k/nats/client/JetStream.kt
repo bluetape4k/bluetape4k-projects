@@ -29,6 +29,7 @@ fun JetStream.publish(
     options: PublishOptions? = null,
 ): PublishAck {
     subject.requireNotBlank("subject")
+
     return publish(subject, headers, body?.toUtf8Bytes(), options)
 }
 
@@ -52,6 +53,7 @@ fun JetStream.publishAsync(
     options: PublishOptions? = null,
 ): CompletableFuture<PublishAck> {
     subject.requireNotBlank("subject")
+
     return publishAsync(subject, headers, body?.toUtf8Bytes(), options)
 }
 
@@ -75,5 +77,6 @@ suspend fun JetStream.publishSuspending(
     options: PublishOptions? = null,
 ): PublishAck {
     subject.requireNotBlank("subject")
+
     return publishAsync(subject, body, headers, options).await()
 }

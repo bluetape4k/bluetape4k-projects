@@ -27,8 +27,8 @@ import io.bluetape4k.science.exposed.service.internal.MAX_VARIABLE_NAME_BYTES
 import io.bluetape4k.science.exposed.service.internal.MemoryBudget
 import io.bluetape4k.science.exposed.service.internal.MutableCoordinateSample
 import io.bluetape4k.science.exposed.service.internal.NetCdfFileGuard
-import io.bluetape4k.science.exposed.service.internal.NetCdfTileCoordinateSampler
 import io.bluetape4k.science.exposed.service.internal.NetCdfTile
+import io.bluetape4k.science.exposed.service.internal.NetCdfTileCoordinateSampler
 import io.bluetape4k.science.exposed.service.internal.NetCdfTilePlanner
 import io.bluetape4k.science.exposed.service.internal.TileRow
 import io.bluetape4k.science.exposed.service.internal.UcarCoordinateReader
@@ -39,21 +39,20 @@ import io.bluetape4k.support.requireNotBlank
 import io.micrometer.core.instrument.MeterRegistry
 import io.micrometer.core.instrument.Timer
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
-import ucar.ma2.Array as UcarArray
 import ucar.nc2.Attribute
 import ucar.nc2.Group
 import ucar.nc2.NetcdfFile
 import ucar.nc2.NetcdfFiles
 import ucar.nc2.Variable
-import ucar.nc2.dataset.NetcdfDataset
 import ucar.nc2.dataset.NetcdfDatasets
 import java.nio.charset.StandardCharsets
 import java.nio.file.Path
 import java.time.Duration
 import java.time.Instant
-import java.util.ArrayDeque
+import java.util.*
 import java.util.concurrent.CancellationException
 import kotlin.math.abs
+import ucar.ma2.Array as UcarArray
 
 private fun interface ImportCheckpoint {
 
@@ -162,11 +161,11 @@ class NetCdfCatalogService private constructor(
         variableName.requireNotBlank("variableName")
         val progress = transaction { progressRepo.findByFileAndVariable(fileId, variableName) }
         val metricStatus = when (progress?.status) {
-            null -> "missing"
-            NetCdfImportStatus.PENDING -> "pending"
+            null                         -> "missing"
+            NetCdfImportStatus.PENDING   -> "pending"
             NetCdfImportStatus.IN_PROGRESS -> "in-progress"
             NetCdfImportStatus.COMPLETED -> "completed"
-            NetCdfImportStatus.FAILED -> "failed"
+            NetCdfImportStatus.FAILED    -> "failed"
         }
         meterRegistry?.counter(
             "netcdf.import.progress.lookup",
@@ -272,7 +271,7 @@ class NetCdfCatalogService private constructor(
             meterRegistry?.counter("netcdf.import.status", "status", "resumed")?.increment()
             log.info {
                 "resuming import — fileId=${prepared.fileId} var=${prepared.variableName} " +
-                    "startSliceIdx=$startSlice"
+                        "startSliceIdx=$startSlice"
             }
         }
 
@@ -680,16 +679,16 @@ class NetCdfCatalogService private constructor(
         val checkpoint = progress.lastSliceIdx
         val detail = when {
             progress.status == NetCdfImportStatus.COMPLETED &&
-                (progress.leaseExpiresAt != null || progress.completedAt == null) ->
+                    (progress.leaseExpiresAt != null || progress.completedAt == null) ->
                 "COMPLETED lease/completedAt invariant"
             progress.status == NetCdfImportStatus.IN_PROGRESS &&
-                (progress.leaseExpiresAt == null || progress.completedAt != null) ->
+                    (progress.leaseExpiresAt == null || progress.completedAt != null) ->
                 "IN_PROGRESS lease/completedAt invariant"
-            checkpoint != null && (checkpoint < -1L || checkpoint > finalSlice) ->
+            checkpoint != null && (checkpoint < -1L || checkpoint > finalSlice)       ->
                 "lastSliceIdx=$checkpoint finalSlice=$finalSlice"
             progress.status == NetCdfImportStatus.COMPLETED && checkpoint != finalSlice ->
                 "COMPLETED checkpoint=$checkpoint finalSlice=$finalSlice"
-            else -> null
+            else                                                                      -> null
         }
         if (detail != null) {
             if (progress.status != NetCdfImportStatus.COMPLETED) {
@@ -789,7 +788,8 @@ class NetCdfCatalogService private constructor(
                     )
                 }
                 budget.add(variable.fullName)
-                variable.attributes().forEach { attribute -> budget.add(attribute.shortName, attributeValue(attribute)) }
+                variable.attributes()
+                    .forEach { attribute -> budget.add(attribute.shortName, attributeValue(attribute)) }
             }
             current.attributes().forEach { attribute -> budget.add(attribute.shortName, attributeValue(attribute)) }
             current.groups.forEach { child -> pending.addLast(child to (currentDepth + 1)) }
@@ -808,17 +808,17 @@ class NetCdfCatalogService private constructor(
         val reason = when (exception) {
             is NetCdfException.ResourceLimitExceeded -> "resource"
             is NetCdfException.UnsupportedCoordinateAxis,
-            is NetCdfException.MissingCoordinate -> "axis"
+            is NetCdfException.MissingCoordinate   -> "axis"
             is NetCdfException.DuplicateCoordinate -> "duplicate"
             is NetCdfException.UnsupportedProjection -> "crs"
             is NetCdfException.FileChanged,
-            is NetCdfException.FileOpen -> "path"
-            is NetCdfException.CorruptProgress -> "progress"
+            is NetCdfException.FileOpen            -> "path"
+            is NetCdfException.CorruptProgress     -> "progress"
             is NetCdfException.VariableNotFound,
             is NetCdfException.UnsupportedVariable,
             is NetCdfException.ImportAlreadyRunning,
             is NetCdfException.ImportLeaseLost,
-            is NetCdfException.FileRecordNotFound -> return
+            is NetCdfException.FileRecordNotFound  -> return
         }
         meterRegistry?.counter("netcdf.import.rejected", "reason", reason)?.increment()
     }

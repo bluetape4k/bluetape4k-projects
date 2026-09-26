@@ -11,6 +11,7 @@ import io.bluetape4k.junit5.observability.HttpOperationExpectation
 import io.bluetape4k.junit5.observability.HttpOperationObservation
 import io.bluetape4k.junit5.observability.HttpOperationSensitiveValues
 import io.bluetape4k.junit5.observability.assertHttpOperationObservability
+import io.bluetape4k.logging.KLogging
 import io.micrometer.common.KeyValue
 import io.micrometer.common.KeyValues
 import io.micrometer.observation.Observation
@@ -39,6 +40,8 @@ import org.springframework.web.filter.OncePerRequestFilter
 import org.springframework.web.filter.ServerHttpObservationFilter
 
 class SpringObservationSupportTest {
+
+    companion object: KLogging()
 
     private fun registry(handler: RecordingObservationHandler): ObservationRegistry =
         ObservationRegistry.create().apply {
@@ -74,17 +77,16 @@ class SpringObservationSupportTest {
         val handler = RecordingObservationHandler()
         val registry = registry(handler)
 
-        val result =
-            registry.observeSpring(
-                name = "spring.service.load",
-                keyValues = SpringObservationKeyValues(
-                    lowCardinality = KeyValues.of(KeyValue.of("component", "order-service")),
-                    highCardinality = KeyValues.of(KeyValue.of("correlation.id", "safe-id")),
-                ),
-            ) { context ->
-                context.addLowCardinalityKeyValue(KeyValue.of("outcome", "success"))
-                "ok"
-            }
+        val result = registry.observeSpring(
+            name = "spring.service.load",
+            keyValues = SpringObservationKeyValues(
+                lowCardinality = KeyValues.of(KeyValue.of("component", "order-service")),
+                highCardinality = KeyValues.of(KeyValue.of("correlation.id", "safe-id")),
+            ),
+        ) { context ->
+            context.addLowCardinalityKeyValue(KeyValue.of("outcome", "success"))
+            "ok"
+        }
 
         result shouldBeEqualTo "ok"
         handler.started shouldBeEqualTo 1
@@ -154,12 +156,11 @@ class SpringObservationSupportTest {
         val registry = registry(handler)
         val cancellation = CancellationException("cancel")
 
-        val thrown =
-            assertFailsWith<CancellationException> {
-                registry.observeSpringSuspending("spring.handler.cancel") {
-                    throw cancellation
-                }
+        val thrown = assertFailsWith<CancellationException> {
+            registry.observeSpringSuspending("spring.handler.cancel") {
+                throw cancellation
             }
+        }
 
         thrown.message shouldBeEqualTo "cancel"
         handler.started shouldBeEqualTo 1

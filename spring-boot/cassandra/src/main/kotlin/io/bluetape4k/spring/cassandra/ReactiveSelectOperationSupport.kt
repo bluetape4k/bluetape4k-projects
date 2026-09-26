@@ -18,7 +18,8 @@ import org.springframework.data.cassandra.core.ReactiveSelectOperation.SelectWit
  * // result == projected
  * ```
  */
-inline fun <reified R: Any> SelectWithProjection<*>.cast(): SelectWithQuery<R> = `as`(R::class.java)
+inline fun <reified R: Any> SelectWithProjection<*>.cast(): SelectWithQuery<R> =
+    `as`(R::class.java)
 
 /**
  * 조회 결과 건수를 코루틴에서 반환합니다.
@@ -32,7 +33,8 @@ inline fun <reified R: Any> SelectWithProjection<*>.cast(): SelectWithQuery<R> =
  * // result == 0L
  * ```
  */
-suspend fun <T: Any> ReactiveSelectOperation.TerminatingSelect<T>.countSuspending(): Long = count().awaitSingle()
+suspend fun <T: Any> ReactiveSelectOperation.TerminatingSelect<T>.countSuspending(): Long =
+    count().awaitSingle()
 
 /**
  * 조회 결과 존재 여부를 코루틴에서 반환합니다.
@@ -46,7 +48,8 @@ suspend fun <T: Any> ReactiveSelectOperation.TerminatingSelect<T>.countSuspendin
  * // result == true
  * ```
  */
-suspend fun <T: Any> ReactiveSelectOperation.TerminatingSelect<T>.existsSuspending(): Boolean = exists().awaitSingle()
+suspend fun <T: Any> ReactiveSelectOperation.TerminatingSelect<T>.existsSuspending(): Boolean =
+    exists().awaitSingle()
 
 /**
  * 첫 번째 결과를 코루틴에서 단건으로 반환합니다.
@@ -60,7 +63,8 @@ suspend fun <T: Any> ReactiveSelectOperation.TerminatingSelect<T>.existsSuspendi
  * // result == user.id
  * ```
  */
-suspend fun <T: Any> ReactiveSelectOperation.TerminatingSelect<T>.firstSuspending(): T = first().awaitSingle()
+suspend fun <T: Any> ReactiveSelectOperation.TerminatingSelect<T>.firstSuspending(): T =
+    first().awaitSingle()
 
 /**
  * 단건 조회 결과를 반환하고 없으면 `null`을 반환합니다.
@@ -74,7 +78,8 @@ suspend fun <T: Any> ReactiveSelectOperation.TerminatingSelect<T>.firstSuspendin
  * // result == loaded
  * ```
  */
-suspend fun <T: Any> ReactiveSelectOperation.TerminatingSelect<T>.oneSuspending(): T? = one().awaitSingleOrNull()
+suspend fun <T: Any> ReactiveSelectOperation.TerminatingSelect<T>.oneSuspending(): T? =
+    one().awaitSingleOrNull()
 
 /**
  * 전체 조회 결과를 리스트로 수집해 반환합니다.

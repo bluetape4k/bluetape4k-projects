@@ -2,13 +2,14 @@
 
 package io.bluetape4k.testcontainers.aws.localstack.services
 
+import io.bluetape4k.assertions.shouldHaveSize
+import io.bluetape4k.codec.Base58
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import io.bluetape4k.testcontainers.aws.LocalStackServer
 import io.bluetape4k.testcontainers.aws.getCredentialProvider
 import io.bluetape4k.testcontainers.aws.localstack.AbstractLocalStackServiceTest
 import io.bluetape4k.utils.ShutdownQueue
-import io.bluetape4k.assertions.shouldHaveSize
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.MethodOrderer.OrderAnnotation
 import org.junit.jupiter.api.Order
@@ -23,7 +24,7 @@ import java.net.URI
 class SQSTest: AbstractLocalStackServiceTest() {
 
     companion object: KLogging() {
-        private val QUEUE_NAME = "test-queue-${System.currentTimeMillis()}"
+        private val QUEUE_NAME = "test-queue-${Base58.randomString(8)}"
     }
 
     private val sqsServer: LocalStackServer by lazy {

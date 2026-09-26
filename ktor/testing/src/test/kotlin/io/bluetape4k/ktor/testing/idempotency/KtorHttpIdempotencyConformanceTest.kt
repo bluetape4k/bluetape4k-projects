@@ -1,6 +1,6 @@
 package io.bluetape4k.ktor.testing.idempotency
 
-import io.bluetape4k.assertions.invoking
+import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.junit5.http.idempotency.BoundedWaitHttpIdempotencyAdapter
 import io.bluetape4k.junit5.http.idempotency.BoundedWaitHttpIdempotencyConformanceConfig
@@ -8,6 +8,8 @@ import io.bluetape4k.junit5.http.idempotency.HttpIdempotencyQuiescence
 import io.bluetape4k.junit5.http.idempotency.HttpIdempotencyRequest
 import io.bluetape4k.junit5.http.idempotency.HttpIdempotencyResponse
 import io.bluetape4k.junit5.http.idempotency.assertBoundedWaitHttpIdempotencyConformance
+import io.bluetape4k.logging.coroutines.KLoggingChannel
+import io.bluetape4k.support.toUtf8Bytes
 import io.ktor.client.HttpClient
 import io.ktor.client.request.header
 import io.ktor.client.request.headers
@@ -21,7 +23,6 @@ import io.ktor.http.HttpStatusCode
 import io.ktor.http.content.OutgoingContent
 import io.ktor.server.application.Application
 import io.ktor.server.application.ApplicationCall
-import io.ktor.server.application.call
 import io.ktor.server.request.contentLength
 import io.ktor.server.request.header
 import io.ktor.server.request.receiveChannel
@@ -49,16 +50,17 @@ import kotlinx.io.readByteArray
 import org.junit.jupiter.api.Test
 import java.math.BigDecimal
 import java.nio.ByteBuffer
-import java.nio.charset.CharacterCodingException
 import java.nio.charset.CodingErrorAction
 import java.security.MessageDigest
 import java.time.Duration
-import java.util.HexFormat
+import java.util.*
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.atomic.AtomicInteger
 import java.util.concurrent.atomic.AtomicLong
 
 class KtorHttpIdempotencyConformanceTest {
+
+    companion object: KLoggingChannel()
 
     @Test
     fun `Ktor testApplication satisfies bounded wait HTTP idempotency conformance`() = testApplication {
@@ -79,10 +81,12 @@ class KtorHttpIdempotencyConformanceTest {
         application { fakeApplication.installRoutes(this) }
 
         val invalidValues = listOf(listOf("duplicate", "duplicate"), listOf(" "), listOf("\t"), listOf("é"))
+
         invalidValues.forEachIndexed { index, values ->
             val before = fakeApplication.routeEntryCount
             val exchangeId = 1_000L + index
             fakeApplication.registerExchangeCancellation(exchangeId)
+
             val response = client.post("/commands/widget-1") {
                 header(TEST_AUTH_PROFILE, "tenant-a-principal")
                 header(TEST_OPERATION, "create-widget")
@@ -99,11 +103,11 @@ class KtorHttpIdempotencyConformanceTest {
 
     @Test
     fun `Ktor header builder rejects C0 idempotency key before route entry`() {
-        invoking {
+        assertFailsWith<IllegalArgumentException> {
             Headers.build {
                 append(IDEMPOTENCY_KEY, "bad\u0001key")
             }
-        } shouldThrow IllegalArgumentException::class
+        }
     }
 
     @Test
@@ -113,6 +117,7 @@ class KtorHttpIdempotencyConformanceTest {
         application { fakeApplication.installRoutes(this) }
 
         fakeApplication.registerExchangeCancellation(2_000L)
+
         val declared = client.post("/commands/widget-1") {
             header(TEST_AUTH_PROFILE, "tenant-a-principal")
             header(TEST_OPERATION, "create-widget")
@@ -125,6 +130,7 @@ class KtorHttpIdempotencyConformanceTest {
         fakeApplication.lastBodyReadBytes shouldBeEqualTo 0
 
         fakeApplication.registerExchangeCancellation(2_001L)
+
         val streaming = client.post("/commands/widget-1") {
             header(TEST_AUTH_PROFILE, "tenant-a-principal")
             header(TEST_OPERATION, "create-widget")
@@ -298,21 +304,38 @@ private class KtorFakeIdempotencyApplication(
                 try {
                     val profile = call.request.header(TEST_AUTH_PROFILE)
                     val tenant = when (profile) {
-                        "tenant-a-principal" -> "tenant-a"
-                        "tenant-b-principal" -> "tenant-b"
-                        "unauthenticated", null -> return@post call.respond(idempotencyResponse(401, "authentication_required"))
-                        else -> return@post call.respond(idempotencyResponse(403, "forbidden"))
+                        "tenant-a-principal"    -> "tenant-a"
+                        "tenant-b-principal"    -> "tenant-b"
+                        "unauthenticated", null -> return@post call.respond(
+                            idempotencyResponse(
+                                401,
+                                "authentication_required"
+                            )
+                        )
+                        else                    ->
+                            return@post call.respond(idempotencyResponse(403, "forbidden"))
                     }
                     val body = when (val bounded = call.receiveBoundedUtf8(config.maxRequestBodyBytes)) {
-                        is BoundedBodyRead.Value -> bounded.value
-                        BoundedBodyRead.TooLarge -> return@post call.respond(idempotencyResponse(413, "idempotency_request_too_large"))
-                        BoundedBodyRead.Malformed -> return@post call.respond(idempotencyResponse(400, "invalid_idempotency_request"))
+                        is BoundedBodyRead.Value  -> bounded.value
+                        BoundedBodyRead.TooLarge  -> return@post call.respond(
+                            idempotencyResponse(
+                                413,
+                                "idempotency_request_too_large"
+                            )
+                        )
+                        BoundedBodyRead.Malformed -> return@post call.respond(
+                            idempotencyResponse(
+                                400,
+                                "invalid_idempotency_request"
+                            )
+                        )
                     }
                     val request = HttpIdempotencyRequest(
                         authenticationProfile = checkNotNull(profile),
                         operation = call.request.header(TEST_OPERATION).orEmpty(),
                         resourceIdentity = call.parameters["resourceId"].orEmpty(),
-                        idempotencyKeys = call.request.headers.getAll(IDEMPOTENCY_KEY).orEmpty()
+                        idempotencyKeys = call.request.headers
+                            .getAll(IDEMPOTENCY_KEY).orEmpty()
                             .flatMap { value -> value.split(',') },
                         requestBody = body,
                     )
@@ -336,7 +359,7 @@ private class KtorFakeIdempotencyApplication(
         val selection = withContext(NonCancellable) {
             mutex.withLock {
                 when (val action = exchangeActions.remove(exchangeId)) {
-                    is ExchangeAction.Owner -> {
+                    is ExchangeAction.Owner  -> {
                         val current = records[action.scope]
                         if (current === action.record && current.state == RecordState.InFlight) {
                             CancelSelection(
@@ -359,7 +382,9 @@ private class KtorFakeIdempotencyApplication(
                 }
             }
         }
-        selection.abandon.waiters.forEach { (waiter, response) -> waiter.completion.complete(response) }
+        selection.abandon.waiters.forEach { (waiter, response) ->
+            waiter.completion.complete(response)
+        }
         selection.waiter?.completion?.complete(idempotencyResponse(503, "temporarily_unavailable"))
         selection.deliveryGate?.complete(Unit)
     }
@@ -372,7 +397,7 @@ private class KtorFakeIdempotencyApplication(
                 records.remove(scope)
                 ownerSignals.remove(scope)
             }
-            ownerSignals.getOrPut(scope) { CompletableDeferred() }
+            ownerSignals.computeIfAbsent(scope) { CompletableDeferred() }
         }
         signal.await()
     }
@@ -397,14 +422,19 @@ private class KtorFakeIdempotencyApplication(
             record.response = replayable
             record.expiresAt = virtualNow.plus(config.retention)
             openGates.decrementAndGet()
-            val waiters = record.waiters.values.map { waiter ->
-                waiter to if (virtualNow >= waiter.deadline) timeoutResponse() else replayable.withReplayFlag(true)
-            }
+            val waiters = record.waiters.values
+                .map { waiter ->
+                    waiter to
+                            if (virtualNow >= waiter.deadline) timeoutResponse()
+                            else replayable.withReplayFlag(true)
+                }
             removeAllWaiters(record)
             CompletionSelection(record.ownerCompletion to replayable.withReplayFlag(false), waiters)
         }
         selection.owner.first.complete(selection.owner.second)
-        selection.waiters.forEach { (waiter, response) -> waiter.completion.complete(response) }
+        selection.waiters.forEach { (waiter, response) ->
+            waiter.completion.complete(response)
+        }
     }
 
     suspend fun holdOwnerResponseDelivery(request: HttpIdempotencyRequest) {
@@ -417,27 +447,41 @@ private class KtorFakeIdempotencyApplication(
     }
 
     suspend fun releaseOwnerResponseDelivery(request: HttpIdempotencyRequest) {
-        mutex.withLock { removeResponseDeliveryGate(scope(request)) }?.complete(Unit)
+        mutex.withLock {
+            removeResponseDeliveryGate(scope(request))
+        }?.complete(Unit)
     }
 
     suspend fun abandonOwner(request: HttpIdempotencyRequest, outcome: HttpIdempotencyResponse) {
-        val selection = mutex.withLock { abandonRecord(scope(request), outcome, completeOwner = true) }
-        selection.owner?.let { (completion, response) -> completion.complete(response) }
-        selection.waiters.forEach { (waiter, response) -> waiter.completion.complete(response) }
+        val selection = mutex.withLock {
+            abandonRecord(scope(request), outcome, completeOwner = true)
+        }
+        selection.owner?.let { (completion, response) ->
+            completion.complete(response)
+        }
+        selection.waiters.forEach { (waiter, response) ->
+            waiter.completion.complete(response)
+        }
     }
 
     suspend fun advanceTimeBy(duration: Duration) {
         require(!duration.isNegative) { "duration must not be negative." }
+
         val expired = mutex.withLock {
             virtualNow = virtualNow.plus(duration)
             records.values.flatMap { record ->
                 if (record.state != RecordState.InFlight) return@flatMap emptyList()
-                record.waiters.values.filter { waiter -> virtualNow >= waiter.deadline }.onEach { waiter ->
-                    removeWaiter(record, waiter.id)
-                }
+
+                record.waiters.values
+                    .filter { waiter -> virtualNow >= waiter.deadline }
+                    .onEach { waiter ->
+                        removeWaiter(record, waiter.id)
+                    }
             }
         }
-        expired.forEach { waiter -> waiter.completion.complete(timeoutResponse()) }
+        expired.forEach { waiter ->
+            waiter.completion.complete(timeoutResponse())
+        }
         yield()
     }
 
@@ -486,31 +530,40 @@ private class KtorFakeIdempotencyApplication(
         lookupCount++
         val scope = scope(tenant, request)
         val fingerprint = digest(checkNotNull(canonicalPayloadOrNull(request.requestBody)))
-        val cancellation = checkNotNull(exchangeCancellations[exchangeId]) { "Exchange cancellation was not registered." }
+        val cancellation = checkNotNull(exchangeCancellations[exchangeId]) {
+            "Exchange cancellation was not registered."
+        }
+
         return try {
             when (val action = mutex.withLock {
                 decideExchange(scope, fingerprint).also { selected ->
                     if (selected !is ExchangeAction.Immediate) exchangeActions[exchangeId] = selected
                 }
             }) {
-                is ExchangeAction.Owner -> awaitOwnerCompletion(action, cancellation.signal)
+                is ExchangeAction.Owner  -> awaitOwnerCompletion(action, cancellation.signal)
                 is ExchangeAction.Waiter -> awaitWaiterCompletion(action, cancellation.signal)
                 is ExchangeAction.Immediate -> action.response
             }
         } finally {
-            withContext(NonCancellable) { mutex.withLock { exchangeActions.remove(exchangeId) } }
+            withContext(NonCancellable) {
+                mutex.withLock { exchangeActions.remove(exchangeId) }
+            }
         }
     }
 
     private fun decideExchange(scope: String, fingerprint: String): ExchangeAction {
-        val existing = records[scope]
-        if (existing == null) return createOwner(scope, fingerprint)
+        val existing = records[scope] ?: return createOwner(scope, fingerprint)
         if (existing.state == RecordState.Terminal && virtualNow >= checkNotNull(existing.expiresAt)) {
             records.remove(scope)
             ownerSignals.remove(scope)
             return createOwner(scope, fingerprint)
         }
-        if (existing.fingerprint != fingerprint) return ExchangeAction.Immediate(idempotencyResponse(409, "idempotency_key_reused"))
+        if (existing.fingerprint != fingerprint) return ExchangeAction.Immediate(
+            idempotencyResponse(
+                409,
+                "idempotency_key_reused"
+            )
+        )
         return when (existing.state) {
             RecordState.InFlight -> registerWaiterOrReject(scope, existing)
             RecordState.Terminal -> ExchangeAction.Immediate(checkNotNull(existing.response).withReplayFlag(true))
@@ -529,12 +582,22 @@ private class KtorFakeIdempotencyApplication(
 
     private fun registerWaiterOrReject(scope: String, record: Record): ExchangeAction {
         if (record.waiters.size >= config.maxWaitersPerKey) {
-            return ExchangeAction.Immediate(idempotencyResponse(429, "idempotency_waiters_exceeded", config.overflowRetryAfter))
+            return ExchangeAction.Immediate(
+                idempotencyResponse(
+                    429,
+                    "idempotency_waiters_exceeded",
+                    config.overflowRetryAfter
+                )
+            )
         }
-        val waiter = Waiter(waiterSequence.incrementAndGet(), virtualNow.plus(config.waitTimeout))
+        val waiter = Waiter(
+            waiterSequence.incrementAndGet(),
+            virtualNow.plus(config.waitTimeout)
+        )
         record.waiters[waiter.id] = waiter
         record.waiterCount.value = record.waiters.size
         activeWaiters.incrementAndGet()
+
         return ExchangeAction.Waiter(scope, record, waiter)
     }
 
@@ -561,33 +624,44 @@ private class KtorFakeIdempotencyApplication(
     private suspend fun awaitWaiterCompletion(
         action: ExchangeAction.Waiter,
         cancellation: CompletableDeferred<Unit>,
-    ): HttpIdempotencyResponse = try {
-        select {
-            action.waiter.completion.onAwait { it }
-            cancellation.onAwait { idempotencyResponse(503, "temporarily_unavailable") }
-        }
-    } finally {
-        withContext(NonCancellable) {
-            mutex.withLock {
-                val current = records[action.scope]
-                if (current === action.record) removeWaiter(current, action.waiter.id)
+    ): HttpIdempotencyResponse =
+        try {
+            select {
+                action.waiter.completion.onAwait { it }
+                cancellation.onAwait {
+                    idempotencyResponse(503, "temporarily_unavailable")
+                }
+            }
+        } finally {
+            withContext(NonCancellable) {
+                mutex.withLock {
+                    val current = records[action.scope]
+                    if (current === action.record) {
+                        removeWaiter(current, action.waiter.id)
+                    }
+                }
             }
         }
-    }
 
     private suspend fun cancelOwnerExchange(action: ExchangeAction.Owner) {
         val selection = withContext(NonCancellable) {
             mutex.withLock {
                 val current = records[action.scope]
                 if (current === action.record && current.state == RecordState.InFlight) {
-                    abandonRecord(action.scope, idempotencyResponse(503, "temporarily_unavailable"), completeOwner = false)
+                    abandonRecord(
+                        action.scope,
+                        idempotencyResponse(503, "temporarily_unavailable"),
+                        completeOwner = false
+                    )
                 } else {
                     removeResponseDeliveryGate(action.scope)
                     AbandonSelection.EMPTY
                 }
             }
         }
-        selection.waiters.forEach { (waiter, response) -> waiter.completion.complete(response) }
+        selection.waiters.forEach { (waiter, response) ->
+            waiter.completion.complete(response)
+        }
     }
 
     private suspend fun releaseCancelledDelivery(scope: String) {
@@ -596,7 +670,11 @@ private class KtorFakeIdempotencyApplication(
         }?.complete(Unit)
     }
 
-    private fun abandonRecord(scope: String, outcome: HttpIdempotencyResponse, completeOwner: Boolean): AbandonSelection {
+    private fun abandonRecord(
+        scope: String,
+        outcome: HttpIdempotencyResponse,
+        completeOwner: Boolean
+    ): AbandonSelection {
         val record = records[scope] ?: return AbandonSelection.EMPTY
         if (record.state != RecordState.InFlight) return AbandonSelection.EMPTY
         records.remove(scope)
@@ -604,8 +682,12 @@ private class KtorFakeIdempotencyApplication(
         ownerSignals.remove(scope)
         openGates.decrementAndGet()
         removeResponseDeliveryGate(scope)
-        val waiters = record.waiters.values.map { waiter -> waiter to outcome }
+
+        val waiters = record.waiters.values.map { waiter ->
+            waiter to outcome
+        }
         removeAllWaiters(record)
+
         return AbandonSelection(if (completeOwner) record.ownerCompletion to outcome else null, waiters)
     }
 
@@ -629,9 +711,14 @@ private class KtorFakeIdempotencyApplication(
     private fun validateIngress(request: HttpIdempotencyRequest): HttpIdempotencyResponse? {
         if (request.idempotencyKeys.size != 1) return idempotencyResponse(400, "invalid_idempotency_request")
         val key = request.idempotencyKeys.single()
-        if (key.toByteArray().size > config.maxIdempotencyKeyBytes || key.isEmpty() ||
-            key.any { character -> character.code !in 0x21..0x7e } || canonicalPayloadOrNull(request.requestBody) == null
-        ) return idempotencyResponse(400, "invalid_idempotency_request")
+
+        if (key.toByteArray().size > config.maxIdempotencyKeyBytes ||
+            key.isEmpty() ||
+            key.any { character -> character.code !in 0x21..0x7e } ||
+            canonicalPayloadOrNull(request.requestBody) == null
+        ) {
+            return idempotencyResponse(400, "invalid_idempotency_request")
+        }
         return null
     }
 
@@ -640,24 +727,41 @@ private class KtorFakeIdempotencyApplication(
         request.contentLength()?.let { declared -> if (declared > maxBytes) return BoundedBodyRead.TooLarge }
         val bytes = receiveChannel().readRemaining(maxBytes.toLong() + 1L).readByteArray()
         lastBodyReadBytes = bytes.size
+
         if (bytes.size > maxBytes) return BoundedBodyRead.TooLarge
+
         return try {
-            BoundedBodyRead.Value(
-                Charsets.UTF_8.newDecoder()
-                    .onMalformedInput(CodingErrorAction.REPORT)
-                    .onUnmappableCharacter(CodingErrorAction.REPORT)
-                    .decode(ByteBuffer.wrap(bytes))
-                    .toString(),
-            )
+            withContext(NonCancellable) {
+                BoundedBodyRead.Value(
+                    Charsets.UTF_8.newDecoder()
+                        .onMalformedInput(CodingErrorAction.REPORT)
+                        .onUnmappableCharacter(CodingErrorAction.REPORT)
+                        .decode(ByteBuffer.wrap(bytes))
+                        .toString(),
+                )
+            }
         } catch (_: CharacterCodingException) {
             BoundedBodyRead.Malformed
         }
     }
 
     private suspend fun ApplicationCall.respond(response: HttpIdempotencyResponse) {
-        this.response.headers.append(TEST_RESPONSE_HEADERS, response.headers.keys.joinToString(","))
-        response.headers.forEach { (name, values) -> values.forEach { value -> this.response.headers.append(name, value) } }
-        response.problemCode?.let { code -> this.response.headers.append(PROBLEM_CODE, code) }
+        this.response.headers.append(
+            TEST_RESPONSE_HEADERS,
+            response.headers.keys.joinToString(",")
+        )
+
+        response.headers.forEach { (name, values) ->
+            values.forEach { value ->
+                this.response.headers.append(
+                    name,
+                    value
+                )
+            }
+        }
+        response.problemCode?.let { code ->
+            this.response.headers.append(PROBLEM_CODE, code)
+        }
         val contentType = response.headers["content-type"]?.firstOrNull()?.let(ContentType::parse)
         respondText(response.body, contentType, HttpStatusCode.fromValue(response.statusCode))
     }
@@ -672,25 +776,39 @@ private class KtorFakeIdempotencyApplication(
     )
 
     private fun scope(tenant: String, request: HttpIdempotencyRequest): String =
-        listOf(tenant, digest(request.operation), digest(request.resourceIdentity), digest(request.idempotencyKeys.single())).joinToString("|")
+        listOf(
+            tenant,
+            digest(request.operation),
+            digest(request.resourceIdentity),
+            digest(request.idempotencyKeys.single())
+        ).joinToString("|")
 
     private fun replayableOutcomeOrNull(outcome: HttpIdempotencyResponse): HttpIdempotencyResponse? {
         if (outcome.body.toByteArray().size > config.maxReplayBodyBytes) return null
+
         val connectionNominated = outcome.headers["connection"].orEmpty()
-            .flatMap { value -> value.split(',') }.map { name -> name.trim().lowercase() }.filter(String::isNotEmpty).toSet()
+            .flatMap { value -> value.split(',') }
+            .map { name -> name.trim().lowercase() }
+            .filter(String::isNotEmpty)
+            .toSet()
+
         val headers = outcome.headers.filterKeys { name ->
             (name == CONTENT_TYPE || name in config.replayHeaderAllowlist) &&
                     !isReplayHeaderDenied(name) && name !in connectionNominated
         }
         if (headers.size > config.maxReplayHeaderNames) return null
+
         var aggregate = 0L
         headers.forEach { (name, values) ->
             if (values.size > config.maxReplayValuesPerHeader) return null
+
             aggregate += name.toByteArray().size
             if (aggregate > config.maxReplayHeaderBytes) return null
+
             values.forEach { value ->
                 val bytes = value.toByteArray().size
                 if (bytes > config.maxReplayHeaderValueBytes) return null
+
                 aggregate += bytes
                 if (aggregate > config.maxReplayHeaderBytes) return null
             }
@@ -699,8 +817,11 @@ private class KtorFakeIdempotencyApplication(
     }
 
     private fun isReplayHeaderDenied(name: String): Boolean =
-        name in DENIED_REPLAY_HEADERS || name.contains("credential") || name.contains("secret") ||
-                name.endsWith("-token") || name.endsWith("-api-key")
+        name in DENIED_REPLAY_HEADERS ||
+                name.contains("credential") ||
+                name.contains("secret") ||
+                name.endsWith("-token") ||
+                name.endsWith("-api-key")
 
     private fun canonicalPayloadOrNull(body: String): String? = try {
         JsonCanonicalizer(body).canonicalize()
@@ -708,9 +829,9 @@ private class KtorFakeIdempotencyApplication(
         null
     }
 
-    private fun digest(value: String): String = HexFormat.of().formatHex(
-        MessageDigest.getInstance("SHA-256").digest(value.toByteArray()),
-    )
+    private fun digest(value: String): String =
+        HexFormat.of()
+            .formatHex(MessageDigest.getInstance("SHA-256").digest(value.toUtf8Bytes()))
 
     private fun timeoutResponse(): HttpIdempotencyResponse =
         idempotencyResponse(409, "idempotency_in_flight", config.inFlightRetryAfter)
@@ -756,7 +877,9 @@ private class KtorFakeIdempotencyApplication(
 
     private sealed interface ExchangeAction {
         class Owner(val scope: String, val record: Record): ExchangeAction
-        class Waiter(val scope: String, val record: Record, val waiter: KtorFakeIdempotencyApplication.Waiter): ExchangeAction
+        class Waiter(val scope: String, val record: Record, val waiter: KtorFakeIdempotencyApplication.Waiter):
+            ExchangeAction
+
         class Immediate(val response: HttpIdempotencyResponse): ExchangeAction
     }
 
@@ -805,7 +928,11 @@ private class ExchangeCancellation(
 private fun HttpIdempotencyResponse.withReplayFlag(replayed: Boolean): HttpIdempotencyResponse =
     copy(headers = headers + ("idempotency-replayed" to listOf(replayed.toString())))
 
-private fun idempotencyResponse(status: Int, problemCode: String, retryAfter: Duration? = null): HttpIdempotencyResponse =
+private fun idempotencyResponse(
+    status: Int,
+    problemCode: String,
+    retryAfter: Duration? = null
+): HttpIdempotencyResponse =
     HttpIdempotencyResponse(
         statusCode = status,
         body = "{\"code\":\"$problemCode\"}",
@@ -831,12 +958,12 @@ private class JsonCanonicalizer(private val source: String) {
     private fun parseValue(): String {
         skipWhitespace()
         return when (peek()) {
-            '{' -> parseObject()
-            '[' -> parseArray()
-            '"' -> quote(parseString())
-            't' -> parseLiteral("true")
-            'f' -> parseLiteral("false")
-            'n' -> parseLiteral("null")
+            '{'  -> parseObject()
+            '['  -> parseArray()
+            '"'  -> quote(parseString())
+            't'  -> parseLiteral("true")
+            'f'  -> parseLiteral("false")
+            'n'  -> parseLiteral("null")
             '-', in '0'..'9' -> parseNumber()
             else -> invalidJson()
         }
@@ -848,6 +975,7 @@ private class JsonCanonicalizer(private val source: String) {
         skipWhitespace()
         if (consume('}')) return "{}".also { leaveContainer() }
         val members = linkedMapOf<String, String>()
+
         while (true) {
             if (peek() != '"') invalidJson()
             val name = parseString()
@@ -860,7 +988,8 @@ private class JsonCanonicalizer(private val source: String) {
             expect(',')
             skipWhitespace()
         }
-        return members.entries.sortedBy { entry -> entry.key }
+        return members.entries
+            .sortedBy { entry -> entry.key }
             .joinToString(prefix = "{", postfix = "}") { (name, value) -> "${quote(name)}:$value" }
             .also { leaveContainer() }
     }
@@ -871,18 +1000,22 @@ private class JsonCanonicalizer(private val source: String) {
         skipWhitespace()
         if (consume(']')) return "[]".also { leaveContainer() }
         val values = mutableListOf<String>()
+
         while (true) {
             values += parseValue()
             skipWhitespace()
             if (consume(']')) break
             expect(',')
         }
-        return values.joinToString(prefix = "[", postfix = "]").also { leaveContainer() }
+        return values
+            .joinToString(prefix = "[", postfix = "]")
+            .also { leaveContainer() }
     }
 
     private fun parseString(): String {
         expect('"')
         val decoded = StringBuilder()
+
         while (index < source.length) {
             when (val character = source[index++]) {
                 '"' -> return decoded.toString()
@@ -898,14 +1031,15 @@ private class JsonCanonicalizer(private val source: String) {
 
     private fun parseEscape(): String {
         if (index >= source.length) invalidJson()
+
         return when (val escaped = source[index++]) {
             '"', '\\', '/' -> escaped.toString()
-            'b' -> "\b"
-            'f' -> "\u000c"
-            'n' -> "\n"
-            'r' -> "\r"
-            't' -> "\t"
-            'u' -> parseUnicodeEscape()
+            'b'  -> "\b"
+            'f'  -> "\u000c"
+            'n'  -> "\n"
+            'r'  -> "\r"
+            't'  -> "\t"
+            'u'  -> parseUnicodeEscape()
             else -> invalidJson()
         }
     }
@@ -915,6 +1049,7 @@ private class JsonCanonicalizer(private val source: String) {
         if (first.isLowSurrogate()) invalidJson()
         if (!first.isHighSurrogate()) return first.toString()
         if (index + 2 > source.length || source[index] != '\\' || source[index + 1] != 'u') invalidJson()
+
         index += 2
         val second = parseUnicodeCodeUnit()
         if (!second.isLowSurrogate()) invalidJson()
@@ -925,6 +1060,7 @@ private class JsonCanonicalizer(private val source: String) {
         if (index + 4 > source.length) invalidJson()
         val digits = source.substring(index, index + 4)
         if (digits.any { digit -> digit.digitToIntOrNull(16) == null }) invalidJson()
+
         index += 4
         return digits.toInt(16).toChar()
     }
@@ -933,7 +1069,7 @@ private class JsonCanonicalizer(private val source: String) {
         val start = index
         consume('-')
         when (peek()) {
-            '0' -> {
+            '0'  -> {
                 index++
                 if (peek() in '0'..'9') invalidJson()
             }
@@ -968,7 +1104,7 @@ private class JsonCanonicalizer(private val source: String) {
         append('"')
         value.forEach { character ->
             when (character) {
-                '"' -> append("\\\"")
+                '"'  -> append("\\\"")
                 '\\' -> append("\\\\")
                 '\b' -> append("\\b")
                 '\u000c' -> append("\\f")
@@ -988,10 +1124,11 @@ private class JsonCanonicalizer(private val source: String) {
         if (!consume(expected)) invalidJson()
     }
 
-    private fun consume(expected: Char): Boolean = if (peek() == expected) {
-        index++
-        true
-    } else false
+    private fun consume(expected: Char): Boolean =
+        if (peek() == expected) {
+            index++
+            true
+        } else false
 
     private fun peek(): Char = source.getOrNull(index) ?: END_OF_INPUT
 

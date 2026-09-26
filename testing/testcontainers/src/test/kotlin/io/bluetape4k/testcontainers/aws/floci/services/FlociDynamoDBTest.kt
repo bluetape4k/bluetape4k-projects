@@ -1,15 +1,16 @@
 package io.bluetape4k.testcontainers.aws.floci.services
 
-import io.bluetape4k.logging.KLogging
-import io.bluetape4k.logging.debug
-import io.bluetape4k.testcontainers.aws.floci.AbstractFlociServiceTest
-import io.bluetape4k.testcontainers.aws.getCredentialProvider
-import io.bluetape4k.utils.ShutdownQueue
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeGreaterOrEqualTo
 import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.assertions.shouldContain
 import io.bluetape4k.assertions.shouldNotBeNull
+import io.bluetape4k.codec.Base58
+import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.debug
+import io.bluetape4k.testcontainers.aws.floci.AbstractFlociServiceTest
+import io.bluetape4k.testcontainers.aws.getCredentialProvider
+import io.bluetape4k.utils.ShutdownQueue
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.MethodOrderer
 import org.junit.jupiter.api.Order
@@ -38,10 +39,10 @@ import software.amazon.awssdk.services.dynamodb.model.ScanRequest
  * > GSI 관련 테스트는 포함하지 않습니다.
  */
 @TestMethodOrder(MethodOrderer.OrderAnnotation::class)
-class FlociDynamoDBTest : AbstractFlociServiceTest() {
+class FlociDynamoDBTest: AbstractFlociServiceTest() {
 
-    companion object : KLogging() {
-        private val TABLE_NAME = "test-table-${System.currentTimeMillis()}"
+    companion object: KLogging() {
+        private val TABLE_NAME = "test-table-${Base58.randomString(8)}"
     }
 
     private val client: DynamoDbClient by lazy {

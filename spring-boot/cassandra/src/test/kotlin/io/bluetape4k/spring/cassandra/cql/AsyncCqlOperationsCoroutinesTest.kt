@@ -1,8 +1,9 @@
 package io.bluetape4k.spring.cassandra.cql
 
 import com.datastax.oss.driver.api.core.CqlSession
-import com.datastax.oss.driver.api.core.uuid.Uuids
 import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldContainSame
+import io.bluetape4k.assertions.shouldHaveSize
 import io.bluetape4k.assertions.shouldNotBeEmpty
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.coroutines.KLoggingChannel
@@ -35,9 +36,6 @@ class AsyncCqlOperationsCoroutinesTest(
         AsyncCqlTemplate(cqlSession)
     }
 
-    private fun newUser(): User =
-        User(Uuids.timeBased().toString(), faker.name().firstName(), faker.name().lastName())
-
     @BeforeEach
     fun beforeEach() = runSuspendIO {
         cassandraTemplate.truncate(User::class.java).await()
@@ -69,7 +67,8 @@ class AsyncCqlOperationsCoroutinesTest(
             row.getString("firstname") ?: ""
         }
         firstnames.shouldNotBeEmpty()
-        firstnames.size shouldBeEqualTo 2
+        firstnames shouldHaveSize 2
+        firstnames shouldContainSame listOf(user1.firstname, user2.firstname)
     }
 
     @Test
@@ -95,7 +94,7 @@ class AsyncCqlOperationsCoroutinesTest(
         val ids = cqlTemplate.querySuspending<String>(stmt) { row, _ ->
             row.getString("id") ?: ""
         }
-        ids.size shouldBeEqualTo 2
+        ids shouldHaveSize 2
         ids.toSet() shouldBeEqualTo setOf(user1.id, user2.id)
     }
 }

@@ -1,6 +1,7 @@
 package io.bluetape4k.grpc.inprocess
 
 import io.bluetape4k.grpc.GrpcServer
+import io.bluetape4k.grpc.awaitTermination
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.info
@@ -12,9 +13,9 @@ import io.grpc.BindableService
 import io.grpc.Server
 import io.grpc.inprocess.InProcessServerBuilder
 import kotlinx.atomicfu.atomic
-import kotlinx.atomicfu.locks.reentrantLock
-import java.util.concurrent.TimeUnit
+import java.util.concurrent.locks.ReentrantLock
 import kotlin.concurrent.withLock
+import kotlin.time.Duration.Companion.seconds
 
 private const val SHUTDOWN_TIMEOUT_SECONDS = 5L
 
@@ -46,7 +47,7 @@ abstract class AbstractGrpcInprocessServer(
     private val server: Server by lazy { createServer() }
 
     private val running = atomic(false)
-    private val lock = reentrantLock()
+    private val lock = ReentrantLock()
 
     override val isRunning: Boolean by running
     override val isShutdown: Boolean get() = server.isShutdown
@@ -58,7 +59,11 @@ abstract class AbstractGrpcInprocessServer(
      * lifecycle behavior while keeping [start] and [stop] semantics unchanged.
      */
     protected open fun createServer(): Server {
-        return builder.apply { services.forEach { addService(it) } }.build()
+        return builder.apply {
+            services.forEach {
+                addService(it)
+            }
+        }.build()
     }
 
     override fun start() {
@@ -93,7 +98,7 @@ abstract class AbstractGrpcInprocessServer(
 
     private fun awaitTerminationOrRestoreInterrupt(): Boolean =
         try {
-            server.awaitTermination(SHUTDOWN_TIMEOUT_SECONDS, TimeUnit.SECONDS)
+            server.awaitTermination(SHUTDOWN_TIMEOUT_SECONDS.seconds)
         } catch (e: InterruptedException) {
             Thread.currentThread().interrupt()
             false

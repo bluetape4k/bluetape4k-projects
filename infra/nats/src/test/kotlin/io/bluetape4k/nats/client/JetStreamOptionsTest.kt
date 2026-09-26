@@ -1,15 +1,18 @@
 package io.bluetape4k.nats.client
 
-import io.nats.client.JetStreamOptions
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeFalse
-import io.bluetape4k.assertions.shouldBeNull
 import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.assertions.shouldNotBeNull
+import io.bluetape4k.logging.KLogging
+import io.bluetape4k.nats.AbstractNatsTest
+import io.nats.client.JetStreamOptions
 import org.junit.jupiter.api.Test
 import java.time.Duration
 
-class JetStreamOptionsTest {
+class JetStreamOptionsTest: AbstractNatsTest() {
+
+    companion object: KLogging()
 
     @Test
     fun `defaultJetStreamOptions is DEFAULT_JS_OPTIONS`() {
@@ -19,14 +22,12 @@ class JetStreamOptionsTest {
     @Test
     fun `jetStreamOptions with empty builder creates default instance`() {
         val jso = jetStreamOptions {}
-
         jso.shouldNotBeNull()
     }
 
     @Test
     fun `jetStreamOptionsOf with no parameters creates default instance`() {
         val jso = jetStreamOptionsOf()
-
         jso.shouldNotBeNull()
         jso.isPublishNoAck.shouldBeFalse()
     }
@@ -34,7 +35,6 @@ class JetStreamOptionsTest {
     @Test
     fun `jetStreamOptionsOf with prefix applies prefix`() {
         val jso = jetStreamOptionsOf(prefix = "myprefix")
-
         jso.shouldNotBeNull()
         // jnats appends "." to prefix by convention
         jso.prefix shouldBeEqualTo "myprefix."

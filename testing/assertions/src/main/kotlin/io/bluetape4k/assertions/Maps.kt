@@ -139,7 +139,7 @@ infix fun <K, V> Map<K, V>?.shouldHaveSize(size: Int): Map<K, V> {
  * @return receiver (체이닝 지원)
  */
 fun <K, V> Map<K, V>?.shouldBeEmpty(): Map<K, V>? {
-    if (this != null && this.isNotEmpty()) {
+    if (!this.isNullOrEmpty()) {
         Failures.failComparison(
             Messages.expectedToBe("be", "empty map", this),
             emptyMap<K, V>(),
@@ -158,7 +158,7 @@ fun <K, V> Map<K, V>?.shouldBeEmpty(): Map<K, V>? {
  * @return non-null receiver (체이닝 지원)
  */
 fun <K, V> Map<K, V>?.shouldNotBeEmpty(): Map<K, V> {
-    if (this == null || this.isEmpty()) {
+    if (this.isNullOrEmpty()) {
         Failures.failComparison(
             Messages.expectedNotToBe("be", "empty map", this),
             "non-empty map",

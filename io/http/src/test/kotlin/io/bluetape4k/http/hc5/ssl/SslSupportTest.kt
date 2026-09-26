@@ -1,21 +1,26 @@
 package io.bluetape4k.http.hc5.ssl
 
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldContain
+import io.bluetape4k.assertions.shouldNotBeEmpty
 import io.bluetape4k.assertions.shouldNotBeNull
+import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.debug
 import org.apache.hc.core5.reactor.ssl.SSLBufferMode
 import org.junit.jupiter.api.Test
 
 class SslSupportTest {
 
-    companion object : KLogging()
+    companion object: KLogging()
 
     @Test
     fun `sslContextOf creates default SSLContext`() {
         val sslContext = sslContextOf()
 
         sslContext.shouldNotBeNull()
-        sslContext.protocol.shouldNotBeNull()
+        log.debug { "protocol: ${sslContext.protocol}, provider:${sslContext.provider}" }
+        sslContext.protocol shouldBeEqualTo "TLS"
+        sslContext.provider.shouldNotBeEmpty()
     }
 
     @Test
@@ -23,7 +28,9 @@ class SslSupportTest {
         val sslContext = sslContextOfSystem()
 
         sslContext.shouldNotBeNull()
-        sslContext.protocol.shouldNotBeNull()
+        log.debug { "protocol: ${sslContext.protocol}, provider:${sslContext.provider}" }
+        sslContext.protocol shouldBeEqualTo "Default"
+        sslContext.provider.shouldNotBeEmpty()
     }
 
     @Test
@@ -31,7 +38,7 @@ class SslSupportTest {
         val sslContext = sslContext {
             // basic custom build without loading key/trust material
         }
-
+        log.debug { "protocol: ${sslContext.protocol}, provider:${sslContext.provider}" }
         sslContext.shouldNotBeNull()
     }
 
@@ -57,13 +64,16 @@ class SslSupportTest {
             setHostnameVerifier(defaultHostnameVerifier)
         }
 
+        log.debug { "strategy: $strategy" }
         strategy.shouldNotBeNull()
+
     }
 
     @Test
     fun `tlsStrategyOf with defaults creates TlsStrategy`() {
         val strategy = tlsStrategyOf()
 
+        log.debug { "strategy: $strategy" }
         strategy.shouldNotBeNull()
     }
 
@@ -72,6 +82,7 @@ class SslSupportTest {
         val sslContext = sslContextOf()
         val strategy = tlsStrategyOf(sslContext = sslContext)
 
+        log.debug { "strategy: $strategy" }
         strategy.shouldNotBeNull()
     }
 
@@ -81,7 +92,7 @@ class SslSupportTest {
             sslContext = sslContextOf(),
             sslBufferMode = SSLBufferMode.STATIC,
         )
-
+        log.debug { "strategy: $strategy" }
         strategy.shouldNotBeNull()
     }
 
@@ -91,7 +102,7 @@ class SslSupportTest {
             sslContext = sslContextOf(),
             hostnameVerifier = defaultHostnameVerifier,
         )
-
+        log.debug { "strategy: $strategy" }
         strategy.shouldNotBeNull()
     }
 

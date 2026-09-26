@@ -13,7 +13,6 @@ dependencies {
     api(project(":bluetape4k-core"))
     implementation(project(":bluetape4k-cache-core"))
     testImplementation(project(":bluetape4k-http"))
-    testImplementation(project(":bluetape4k-jackson3"))
     testImplementation(project(":bluetape4k-junit5"))
     testImplementation(project(":bluetape4k-testcontainers"))
 
@@ -48,7 +47,7 @@ dependencies {
     implementation(bt4k.okhttp3)
 
 
-    // Jackson 2
+    // Jackson 3
     implementation(project(":bluetape4k-jackson3"))
     implementation(libs.jackson3.module.kotlin)
     implementation(libs.jackson3.module.blackbird)

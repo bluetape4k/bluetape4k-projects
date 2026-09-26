@@ -179,13 +179,7 @@ withLoggingContext("userId" to userId) {
 #### 재사용 worker에서 MDC 복사본 사용하기
 
 작업을 제출할 때 `captureMdcContext`를 호출하고 worker 경계에서
-`withMdcContext`를 사용합니다. MDC 복사본은 캡처 시점에 고정되며, 빈
-MDC 복사본은 task 실행 중 worker MDC를 비웁니다. 정상 종료와 예외 종료 모두
-worker가 실행 전에 가지고 있던 전체 map을 복원합니다.
-MDC 값은 이 API가 검증하거나 가리지 않으므로 정제된 비밀이 아닌 식별자만 사용하고,
-raw token, header, payload는 MDC에 넣지 마세요.
-복사 비용은 MDC 항목 수에 비례하고 queued task는 실행될 때까지 복사본을 보유하므로,
-MDC를 작은 low-cardinality 식별자 집합으로 유지하세요.
+`withMdcContext`를 사용합니다. MDC 복사본은 캡처 시점에 고정되며, 빈 MDC 복사본은 task 실행 중 worker MDC를 비웁니다. 정상 종료와 예외 종료 모두 worker가 실행 전에 가지고 있던 전체 map을 복원합니다. MDC 값은 이 API가 검증하거나 가리지 않으므로 정제된 비밀이 아닌 식별자만 사용하고, raw token, header, payload는 MDC에 넣지 마세요. 복사 비용은 MDC 항목 수에 비례하고 queued task는 실행될 때까지 복사본을 보유하므로, MDC를 작은 low-cardinality 식별자 집합으로 유지하세요.
 
 ```kotlin
 import io.bluetape4k.logging.captureMdcContext
@@ -203,9 +197,7 @@ executor.execute {
 }
 ```
 
-`withMdcContext`는 scope 동안 MDC 전체를 대체하고 `finally`에서 worker의
-이전 전체 map을 복원하므로 task가 추가한 key가 다음 task로 새지 않습니다.
-이는 기존 key별 병합과 빈 map no-op semantics를 유지하는
+`withMdcContext`는 scope 동안 MDC 전체를 대체하고 `finally`에서 worker의 이전 전체 map을 복원하므로 task가 추가한 key가 다음 task로 새지 않습니다. 이는 기존 key별 병합과 빈 map no-op semantics를 유지하는
 `withLoggingContext`와 의도적으로 다른 동작입니다.
 
 ### 5. Coroutines에서 MDC 사용하기

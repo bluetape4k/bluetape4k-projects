@@ -1,5 +1,6 @@
 package io.bluetape4k.bucket4j.local
 
+import io.bluetape4k.bucket4j.DEFAULT_KEY_PREFIX
 import io.bluetape4k.logging.KLogging
 import io.github.bucket4j.Bucket
 import io.github.bucket4j.BucketConfiguration

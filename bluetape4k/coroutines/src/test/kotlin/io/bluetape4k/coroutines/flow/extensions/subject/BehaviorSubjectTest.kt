@@ -18,6 +18,7 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.launch
@@ -315,14 +316,14 @@ class BehaviorSubjectTest {
         errorSubject.complete()
 
         assertFailsWith<IllegalStateException> {
-            errorSubject.collect {}
+            errorSubject.collect()
         }.message shouldBeEqualTo failure.message
 
         val completedSubject = BehaviorSubject<Int>()
         completedSubject.complete()
         completedSubject.emitError(failure)
 
-        completedSubject.collect {}
+        completedSubject.collect()
     }
 
     @Test
@@ -353,7 +354,7 @@ class BehaviorSubjectTest {
             job.join()
         }
         counter.get() shouldBeEqualTo 2
-        error.get() shouldBeInstanceOf RuntimeException::class
+        error.get().shouldBeInstanceOf<RuntimeException>()
     }
 
     @Test
@@ -510,6 +511,7 @@ class BehaviorSubjectTest {
             job.cancel()
 
             await untilSuspending { job.isCancelled && subject.collectorCount == 0 }
+
             subject.collectorCount shouldBeEqualTo 0
         }
     }

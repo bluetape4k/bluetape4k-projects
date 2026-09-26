@@ -3,12 +3,18 @@ package io.bluetape4k.json
 import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeSameInstanceAs
+import io.bluetape4k.logging.KLogging
 import org.junit.jupiter.api.Test
 import java.io.ByteArrayOutputStream
 import java.io.IOException
 import java.io.OutputStream
 
 class JsonSerializerOutputStreamContractTest {
+
+    private companion object: KLogging() {
+        val JSON_PAYLOAD: ByteArray = byteArrayOf(2, 4, 6, 8)
+        val JSON_NULL_PAYLOAD: ByteArray = "null".encodeToByteArray()
+    }
 
     @Test
     fun `default stream serialization preserves ByteArray parity and reports the written count`() {
@@ -156,10 +162,5 @@ class JsonSerializerOutputStreamContractTest {
         }
 
         fun toByteArray(): ByteArray = output.toByteArray()
-    }
-
-    private companion object {
-        val JSON_PAYLOAD: ByteArray = byteArrayOf(2, 4, 6, 8)
-        val JSON_NULL_PAYLOAD: ByteArray = "null".encodeToByteArray()
     }
 }

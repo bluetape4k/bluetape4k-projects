@@ -2,6 +2,8 @@ package io.bluetape4k.spring.webflux.filter
 
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldNotBeNull
+import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.debug
 import io.bluetape4k.spring.webflux.AbstractWebfluxTest
 import org.junit.jupiter.api.Test
 import org.springframework.http.server.reactive.ServerHttpRequest
@@ -14,14 +16,18 @@ import reactor.test.StepVerifier
 import java.util.concurrent.atomic.AtomicReference
 
 class HttpRequestFilterTest: AbstractWebfluxTest() {
+
+    companion object: KLogging()
+
     @Test
     fun `holder returns request from reactor context`() {
         val request = MockServerHttpRequest.get("/test").build()
 
-        val mono =
-            HttpRequestHolder
-                .getHttpRequest()
-                .contextWrite { ctx -> ctx.put(ServerHttpRequest::class.java, request) }
+        val mono = HttpRequestHolder
+            .getHttpRequest()
+            .contextWrite { ctx ->
+                ctx.put(ServerHttpRequest::class.java, request)
+            }
 
         StepVerifier
             .create(mono)
@@ -43,17 +49,18 @@ class HttpRequestFilterTest: AbstractWebfluxTest() {
         val capturer = HttpRequestCapturer()
         val captured = AtomicReference<ServerHttpRequest?>()
 
-        val chain =
-            WebFilterChain { _: ServerWebExchange ->
-                HttpRequestHolder
-                    .getHttpRequest()
-                    .doOnNext { captured.set(it) }
-                    .then()
-            }
+        val chain = WebFilterChain { _: ServerWebExchange ->
+            HttpRequestHolder
+                .getHttpRequest()
+                .doOnNext { captured.set(it) }
+                .then()
+        }
 
         StepVerifier
             .create(capturer.filter(exchange, chain))
             .verifyComplete()
+
+        log.debug { "http request=${captured.get()}" }
 
         captured.get().shouldNotBeNull()
         captured.get()?.uri?.path shouldBeEqualTo "/captured"
@@ -65,13 +72,14 @@ class HttpRequestFilterTest: AbstractWebfluxTest() {
         val exchange = MockServerWebExchange.from(MockServerHttpRequest.get("/").build())
         val redirectedPath = AtomicReference<String?>()
 
-        val chain =
-            WebFilterChain { ex ->
-                redirectedPath.set(ex.request.uri.path)
-                Mono.empty()
-            }
+        val chain = WebFilterChain { ex ->
+            redirectedPath.set(ex.request.uri.path)
+            Mono.empty()
+        }
 
         StepVerifier.create(filter.filter(exchange, chain)).verifyComplete()
+
+        log.debug { "redirectedPath=${redirectedPath.get()}" }
         redirectedPath.get() shouldBeEqualTo "/swagger"
     }
 
@@ -81,13 +89,14 @@ class HttpRequestFilterTest: AbstractWebfluxTest() {
         val exchange = MockServerWebExchange.from(MockServerHttpRequest.get("/api").build())
         val redirectedPath = AtomicReference<String?>()
 
-        val chain =
-            WebFilterChain { ex ->
-                redirectedPath.set(ex.request.uri.path)
-                Mono.empty()
-            }
+        val chain = WebFilterChain { ex ->
+            redirectedPath.set(ex.request.uri.path)
+            Mono.empty()
+        }
 
         StepVerifier.create(filter.filter(exchange, chain)).verifyComplete()
+
+        log.debug { "redirectedPath=${redirectedPath.get()}" }
         redirectedPath.get() shouldBeEqualTo "/api"
     }
 }

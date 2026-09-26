@@ -13,7 +13,6 @@ import io.bluetape4k.csv.writeTsvRecords
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
-import io.bluetape4k.logging.trace
 import io.bluetape4k.utils.Resourcex
 import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.flow.toList
@@ -46,7 +45,7 @@ class SuspendRecordReaderSupportTest {
         val csvFile = createTempCsvFile()
         val records = csvFile.readAsCsvRecordsSuspending(skipHeader = true).toList()
 
-        log.trace { "records=$records" }
+        log.debug { "records=$records" }
         records.shouldNotBeEmpty()
         records.size shouldBeGreaterThan 0
     }

@@ -9,6 +9,7 @@ import io.bluetape4k.assertions.shouldBeNull
 import io.bluetape4k.assertions.shouldBePositive
 import io.bluetape4k.assertions.shouldBeZero
 import io.bluetape4k.junit5.coroutines.runSuspendIO
+import io.bluetape4k.logging.KLogging
 import io.bluetape4k.redis.lettuce.AbstractLettuceTest
 import io.lettuce.core.api.sync.RedisCommands
 import org.junit.jupiter.api.AfterEach
@@ -25,7 +26,14 @@ internal interface MultiKeyLeaseAdapter {
     suspend fun release(keys: Collection<String>, ownerToken: String): MultiKeyReleaseResult
 }
 
-internal abstract class MultiKeyLeaseContract : AbstractLettuceTest() {
+internal abstract class MultiKeyLeaseContract: AbstractLettuceTest() {
+
+    private companion object: KLogging() {
+        const val OTHER_OWNER = "other-owner"
+        const val TTL_TOLERANCE_MILLIS = 1_000L
+        val FIVE_SECONDS: Duration = Duration.ofSeconds(5)
+        val TEN_SECONDS: Duration = Duration.ofSeconds(10)
+    }
 
     protected abstract val commands: RedisCommands<String, String>
     protected abstract val adapters: List<MultiKeyLeaseAdapter>
@@ -79,11 +87,14 @@ internal abstract class MultiKeyLeaseContract : AbstractLettuceTest() {
         },
         Scenario("acquire AlreadyOwned does not extend ttl") { adapter, fixture ->
             adapter.acquire(fixture.keys, fixture.token, FIVE_SECONDS)
+
             val before = adapter.inspect(fixture.keys, fixture.token)
                 .shouldBeInstanceOf<MultiKeyInspectResult.Owned>()
                 .minimumPttlMillis
+
             val replay = adapter.acquire(fixture.keys, fixture.token, TEN_SECONDS)
                 .shouldBeInstanceOf<MultiKeyAcquireResult.AlreadyOwned>()
+
             val after = adapter.inspect(fixture.keys, fixture.token)
                 .shouldBeInstanceOf<MultiKeyInspectResult.Owned>()
                 .minimumPttlMillis
@@ -94,13 +105,13 @@ internal abstract class MultiKeyLeaseContract : AbstractLettuceTest() {
         Scenario("acquire PartialOwnership") { adapter, fixture ->
             commands.psetex(fixture.keys[0], 5_000, fixture.token)
             adapter.acquire(fixture.keys, fixture.token, FIVE_SECONDS) shouldBeEqualTo
-                MultiKeyAcquireResult.PartialOwnership(counts(2, 1, 1, 0))
+                    MultiKeyAcquireResult.PartialOwnership(counts(2, 1, 1, 0))
             commands.get(fixture.keys[1]).shouldBeNull()
         },
         Scenario("acquire Conflicted") { adapter, fixture ->
             commands.psetex(fixture.keys[0], 5_000, OTHER_OWNER)
             adapter.acquire(fixture.keys, fixture.token, FIVE_SECONDS) shouldBeEqualTo
-                MultiKeyAcquireResult.Conflicted(counts(2, 0, 1, 1))
+                    MultiKeyAcquireResult.Conflicted(counts(2, 0, 1, 1))
             commands.get(fixture.keys[1]).shouldBeNull()
         },
         Scenario("inspect Owned") { adapter, fixture ->
@@ -115,13 +126,13 @@ internal abstract class MultiKeyLeaseContract : AbstractLettuceTest() {
         Scenario("inspect PartialOwnership") { adapter, fixture ->
             commands.psetex(fixture.keys[0], 5_000, fixture.token)
             adapter.inspect(fixture.keys, fixture.token) shouldBeEqualTo
-                MultiKeyInspectResult.PartialOwnership(counts(2, 1, 1, 0))
+                    MultiKeyInspectResult.PartialOwnership(counts(2, 1, 1, 0))
         },
         Scenario("inspect Conflicted") { adapter, fixture ->
             commands.psetex(fixture.keys[0], 5_000, fixture.token)
             commands.psetex(fixture.keys[1], 5_000, OTHER_OWNER)
             adapter.inspect(fixture.keys, fixture.token) shouldBeEqualTo
-                MultiKeyInspectResult.Conflicted(counts(2, 1, 0, 1))
+                    MultiKeyInspectResult.Conflicted(counts(2, 1, 0, 1))
         },
         Scenario("renew Renewed") { adapter, fixture ->
             fixture.keys.forEach { commands.psetex(it, 5_000, fixture.token) }
@@ -130,7 +141,7 @@ internal abstract class MultiKeyLeaseContract : AbstractLettuceTest() {
         Scenario("renew PartialLoss") { adapter, fixture ->
             commands.psetex(fixture.keys[0], 5_000, fixture.token)
             adapter.renew(fixture.keys, fixture.token, TEN_SECONDS) shouldBeEqualTo
-                MultiKeyRenewResult.PartialLoss(counts(2, 1, 1, 0))
+                    MultiKeyRenewResult.PartialLoss(counts(2, 1, 1, 0))
         },
         Scenario("renew Lost") { adapter, fixture ->
             adapter.renew(fixture.keys, fixture.token, TEN_SECONDS) shouldBeEqualTo MultiKeyRenewResult.Lost
@@ -139,7 +150,7 @@ internal abstract class MultiKeyLeaseContract : AbstractLettuceTest() {
             commands.psetex(fixture.keys[0], 5_000, fixture.token)
             commands.psetex(fixture.keys[1], 5_000, OTHER_OWNER)
             adapter.renew(fixture.keys, fixture.token, TEN_SECONDS) shouldBeEqualTo
-                MultiKeyRenewResult.OwnershipMismatch(counts(2, 1, 0, 1))
+                    MultiKeyRenewResult.OwnershipMismatch(counts(2, 1, 0, 1))
             commands.get(fixture.keys[1]) shouldBeEqualTo OTHER_OWNER
         },
         Scenario("release Released") { adapter, fixture ->
@@ -149,7 +160,7 @@ internal abstract class MultiKeyLeaseContract : AbstractLettuceTest() {
         Scenario("release PartialRelease") { adapter, fixture ->
             commands.psetex(fixture.keys[0], 5_000, fixture.token)
             adapter.release(fixture.keys, fixture.token) shouldBeEqualTo
-                MultiKeyReleaseResult.PartialRelease(counts(2, 1, 1, 0))
+                    MultiKeyReleaseResult.PartialRelease(counts(2, 1, 1, 0))
         },
         Scenario("release Lost") { adapter, fixture ->
             adapter.release(fixture.keys, fixture.token) shouldBeEqualTo MultiKeyReleaseResult.Lost
@@ -158,7 +169,7 @@ internal abstract class MultiKeyLeaseContract : AbstractLettuceTest() {
             commands.psetex(fixture.keys[0], 5_000, fixture.token)
             commands.psetex(fixture.keys[1], 5_000, OTHER_OWNER)
             adapter.release(fixture.keys, fixture.token) shouldBeEqualTo
-                MultiKeyReleaseResult.OwnershipMismatch(counts(2, 1, 0, 1))
+                    MultiKeyReleaseResult.OwnershipMismatch(counts(2, 1, 0, 1))
             commands.get(fixture.keys[1]) shouldBeEqualTo OTHER_OWNER
         },
         Scenario("invalid inputs fail before dispatch") { adapter, fixture ->
@@ -171,7 +182,9 @@ internal abstract class MultiKeyLeaseContract : AbstractLettuceTest() {
                 { adapter.renew(fixture.keys, fixture.token, Duration.ofMillis(-1)) },
                 { adapter.acquire(fixture.keys, fixture.token, Duration.ofNanos(1)) },
             )
-            invalidCalls.forEach { call -> assertFailsWith<IllegalArgumentException> { call() } }
+            invalidCalls.forEach { call ->
+                assertFailsWith<IllegalArgumentException> { call() }
+            }
             assertFailsWith<ArithmeticException> {
                 adapter.acquire(fixture.keys, fixture.token, Duration.ofSeconds(Long.MAX_VALUE))
             }
@@ -180,15 +193,19 @@ internal abstract class MultiKeyLeaseContract : AbstractLettuceTest() {
         Scenario("persistent same-token integrity and release recovery") { adapter, fixture ->
             commands.set(fixture.keys[0], fixture.token)
             commands.psetex(fixture.keys[1], 5_000, fixture.token)
+
             assertFailsWith<MultiKeyLeaseIntegrityException> {
                 adapter.acquire(fixture.keys, fixture.token, FIVE_SECONDS)
             }.operation shouldBeEqualTo MultiKeyLeaseOperation.ACQUIRE
+
             assertFailsWith<MultiKeyLeaseIntegrityException> {
                 adapter.inspect(fixture.keys, fixture.token)
             }.operation shouldBeEqualTo MultiKeyLeaseOperation.INSPECT
+
             assertFailsWith<MultiKeyLeaseIntegrityException> {
                 adapter.renew(fixture.keys, fixture.token, TEN_SECONDS)
             }.operation shouldBeEqualTo MultiKeyLeaseOperation.RENEW
+
             adapter.release(fixture.keys, fixture.token) shouldBeEqualTo MultiKeyReleaseResult.Released
             commands.exists(*fixture.keys.toTypedArray()).shouldBeZero()
         },
@@ -204,10 +221,4 @@ internal abstract class MultiKeyLeaseContract : AbstractLettuceTest() {
     private fun counts(requested: Int, owned: Int, missing: Int, mismatched: Int) =
         MultiKeyLeaseCounts(requested, owned, missing, mismatched)
 
-    private companion object {
-        const val OTHER_OWNER = "other-owner"
-        const val TTL_TOLERANCE_MILLIS = 1_000L
-        val FIVE_SECONDS: Duration = Duration.ofSeconds(5)
-        val TEN_SECONDS: Duration = Duration.ofSeconds(10)
-    }
 }

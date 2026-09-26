@@ -1,5 +1,6 @@
 package io.bluetape4k.http.hc5.examples
 
+import io.bluetape4k.concurrent.await
 import io.bluetape4k.http.hc5.AbstractHc5Test
 import io.bluetape4k.http.hc5.async.minimalHttpAsyncClientOf
 import io.bluetape4k.http.hc5.http.basicHttpRequest
@@ -28,7 +29,7 @@ import org.junit.jupiter.api.Test
 import java.net.URI
 import java.nio.ByteBuffer
 import java.util.concurrent.CountDownLatch
-import java.util.concurrent.TimeUnit
+import kotlin.time.Duration.Companion.minutes
 
 class AsyncClientH2FullDuplexExchange: AbstractHc5Test() {
 
@@ -105,7 +106,7 @@ class AsyncClientH2FullDuplexExchange: AbstractHc5Test() {
             }
         })
 
-        latch.await(1, TimeUnit.MINUTES)
+        latch.await(1.minutes)
 
         log.debug { "Shutting down" }
         client.close(CloseMode.GRACEFUL)

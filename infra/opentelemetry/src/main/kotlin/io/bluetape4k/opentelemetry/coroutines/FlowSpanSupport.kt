@@ -52,18 +52,21 @@ import kotlinx.coroutines.withContext
  * @param configure [SpanBuilder] 설정 람다 — attribute, kind, parent 등. collect마다 실행됨.
  * @return Span으로 감싸진 새로운 [Flow]
  */
-public fun <T> Flow<T>.traced(
+fun <T> Flow<T>.traced(
     tracer: Tracer,
     spanName: String,
     configure: SpanBuilder.() -> Unit = {},
 ): Flow<T> {
     spanName.requireNotBlank("spanName")
+
     return channelFlow {
         val span = tracer.spanBuilder(spanName).apply(configure).startSpan()
         try {
             val otelContext = span.storeInContext(Context.current())
             withContext(otelContext.asContextElement()) {
-                this@traced.collect { value -> send(value) }
+                this@traced.collect { value ->
+                    send(value)
+                }
             }
             span.setStatus(StatusCode.OK)
         } catch (ce: CancellationException) {
@@ -103,7 +106,7 @@ public fun <T> Flow<T>.traced(
  * @param configure [SpanBuilder] 설정 람다
  * @param action collect 시 각 아이템에 대해 실행할 suspend 함수
  */
-public suspend fun <T> Flow<T>.tracedCollect(
+suspend fun <T> Flow<T>.tracedCollect(
     tracer: Tracer,
     spanName: String,
     configure: SpanBuilder.() -> Unit = {},

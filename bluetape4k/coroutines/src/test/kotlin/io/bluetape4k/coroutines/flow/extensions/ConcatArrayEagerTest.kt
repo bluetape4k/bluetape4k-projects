@@ -29,7 +29,9 @@ class ConcatArrayEagerTest: AbstractFlowTest() {
             }
 
         val flow2 = flowRangeOf(6, 5).log("#2")
-            .onStart { state2.set(state1.get()) }
+            .onStart {
+                state2.set(state1.get())
+            }
 
         concatArrayEager(flow1, flow2)
             .assertResult(1, 2, 3, 4, 5, 6, 7, 8, 9, 10)

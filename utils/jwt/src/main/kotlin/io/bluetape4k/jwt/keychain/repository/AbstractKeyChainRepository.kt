@@ -5,7 +5,7 @@ import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.warn
 import io.bluetape4k.support.requirePositiveNumber
-import java.util.Timer
+import java.util.*
 import kotlin.concurrent.timer
 
 /**
@@ -29,7 +29,7 @@ import kotlin.concurrent.timer
  * ```
  */
 abstract class AbstractKeyChainRepository(
-    private val refreshIntervalMillis: Long = DEFAULT_REFRESH_TIME_MILLIS,
+    refreshIntervalMillis: Long = DEFAULT_REFRESH_TIME_MILLIS,
 ): KeyChainRepository {
 
     companion object: KLogging() {
@@ -41,6 +41,7 @@ abstract class AbstractKeyChainRepository(
 
     protected var cachedCurrent: KeyChain? = null
     private val lifecycleLock = Any()
+
     @Volatile
     private var closed = false
     private var timer: Timer? = null

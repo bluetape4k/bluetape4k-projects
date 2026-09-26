@@ -1,12 +1,24 @@
 package io.bluetape4k.geo
 
 import io.bluetape4k.assertions.fail
+import io.bluetape4k.logging.KLogging
 import org.junit.jupiter.api.Test
 import java.nio.file.Files
 import java.nio.file.Path
 import kotlin.io.path.readText
 
 class GeoReadmeContractTest {
+
+    private companion object: KLogging() {
+        val forbiddenFragments = listOf(
+            "io.bluetape4k.geo.geohash",
+            "io.bluetape4k.geo.geocode",
+            "io.bluetape4k.geo.geoip2",
+            "GoogleGeocoder",
+            "GeoIp2Support",
+            "Libs.",
+        )
+    }
 
     @Test
     fun `README examples use current public APIs and consumer coordinates`() {
@@ -37,14 +49,5 @@ class GeoReadmeContractTest {
             ?: error("Cannot find $filename from $cwd")
     }
 
-    private companion object {
-        val forbiddenFragments = listOf(
-            "io.bluetape4k.geo.geohash",
-            "io.bluetape4k.geo.geocode",
-            "io.bluetape4k.geo.geoip2",
-            "GoogleGeocoder",
-            "GeoIp2Support",
-            "Libs.",
-        )
-    }
+
 }

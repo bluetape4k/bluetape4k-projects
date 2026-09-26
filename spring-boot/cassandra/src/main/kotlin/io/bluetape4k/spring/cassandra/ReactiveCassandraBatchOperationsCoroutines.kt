@@ -36,7 +36,8 @@ fun ReactiveCassandraBatchOperations.insertFlow(entities: Flow<*>): ReactiveCass
 fun ReactiveCassandraBatchOperations.insertFlow(
     entities: Flow<*>,
     options: WriteOptions,
-): ReactiveCassandraBatchOperations = insert(mono { entities.toList() }, options)
+): ReactiveCassandraBatchOperations =
+    insert(mono { entities.toList() }, options)
 
 /**
  * [Flow] 엔티티를 수집해 배치 update 대상으로 추가합니다.
@@ -68,7 +69,8 @@ fun ReactiveCassandraBatchOperations.updateFlow(entities: Flow<*>): ReactiveCass
 fun ReactiveCassandraBatchOperations.updateFlow(
     entities: Flow<*>,
     options: WriteOptions,
-): ReactiveCassandraBatchOperations = update(mono { entities.toList() }, options)
+): ReactiveCassandraBatchOperations =
+    update(mono { entities.toList() }, options)
 
 /**
  * [Flow] 엔티티를 수집해 배치 delete 대상으로 추가합니다.
@@ -100,4 +102,5 @@ fun ReactiveCassandraBatchOperations.deleteFlow(entities: Flow<*>): ReactiveCass
 fun ReactiveCassandraBatchOperations.deleteFlow(
     entities: Flow<*>,
     options: WriteOptions,
-): ReactiveCassandraBatchOperations = delete(mono { entities.toList() }, options)
+): ReactiveCassandraBatchOperations =
+    delete(mono { entities.toList() }, options)

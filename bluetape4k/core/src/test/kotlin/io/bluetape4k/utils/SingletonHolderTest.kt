@@ -1,10 +1,10 @@
 package io.bluetape4k.utils
 
+import io.bluetape4k.assertions.shouldContain
+import io.bluetape4k.assertions.shouldHaveSize
 import io.bluetape4k.junit5.output.InMemoryLogbackAppender
 import io.bluetape4k.logging.KotlinLogging
 import io.bluetape4k.logging.debug
-import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldContain
 import org.junit.jupiter.api.Test
 
 class SingletonHolderTest {
@@ -27,7 +27,7 @@ class SingletonHolderTest {
         manager.doStuff()
 
         if (Manager.log.isDebugEnabled) {
-            appender.lastMessage!! shouldContain "name=manager"
+            appender.lastMessage shouldContain "name=manager"
         }
     }
 
@@ -39,6 +39,6 @@ class SingletonHolderTest {
             .distinct()
             .toList()
 
-        managers.size shouldBeEqualTo 1
+        managers shouldHaveSize 1
     }
 }

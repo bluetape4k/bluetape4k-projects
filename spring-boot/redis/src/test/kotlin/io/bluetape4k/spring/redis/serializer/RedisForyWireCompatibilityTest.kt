@@ -2,7 +2,7 @@ package io.bluetape4k.spring.redis.serializer
 
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldNotBeEmpty
-import org.junit.jupiter.api.Test
+import io.bluetape4k.logging.KLogging
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.Arguments
 import org.junit.jupiter.params.provider.MethodSource
@@ -14,7 +14,7 @@ import java.util.stream.Stream
  *
  * FastFory는 휘발성 `SCHEMA_CONSISTENT` 캐시 경로만 검증하며 기본 Fory와의 wire 호환성을 약속하지 않는다.
  */
-class RedisForyWireCompatibilityTest : AbstractRedisSerializerTest() {
+class RedisForyWireCompatibilityTest: AbstractRedisSerializerTest() {
 
     @ParameterizedTest(name = "[{1}] Kotlin metadata payload roundtrip")
     @MethodSource("forySerializers")
@@ -29,9 +29,10 @@ class RedisForyWireCompatibilityTest : AbstractRedisSerializerTest() {
         bytes.shouldNotBeEmpty()
 
         serializer.deserialize(bytes) shouldBeEqualTo original
+        serializer.deserializeAs<RedisForyWirePayload>(bytes) shouldBeEqualTo original
     }
 
-    companion object {
+    companion object: KLogging() {
 
         @JvmStatic
         fun forySerializers(): Stream<Arguments> = Stream.of(
@@ -48,7 +49,7 @@ value class RedisForyWireOwnerId(val value: String)
 data class RedisForyWireMetadata(
     val source: String = "issue-1639",
     val note: String? = null,
-) : Serializable {
+): Serializable {
     private companion object {
         const val serialVersionUID: Long = 1L
     }
@@ -61,7 +62,7 @@ data class RedisForyWirePayload(
     val tags: List<String> = listOf("kotlin", "metadata", "redis"),
     val owner: RedisForyWireOwnerId = RedisForyWireOwnerId("owner-1639"),
     val metadata: RedisForyWireMetadata = RedisForyWireMetadata(),
-) : Serializable {
+): Serializable {
     private companion object {
         const val serialVersionUID: Long = 1L
     }

@@ -120,7 +120,7 @@ class Jackson3Codec(
             if (!allowFallbackDecode) {
                 throw SecurityException(
                     "Jackson3Codec fallback decode is disabled for allow-listed JSON payloads. " +
-                        "Rejecting non-Jackson3 binary payload.",
+                            "Rejecting non-Jackson3 binary payload.",
                     e,
                 )
             }
@@ -139,8 +139,8 @@ class Jackson3Codec(
 
     override fun toString(): String =
         "Jackson3Codec(" +
-            "fallback=${fallbackCodec.javaClass.simpleName}, " +
-            "allowedPrefixes=$allowedPackagePrefixes, " +
-            "allowFallbackDecode=$allowFallbackDecode" +
-            ")"
+                "fallback=${fallbackCodec.javaClass.simpleName}, " +
+                "allowedPrefixes=$allowedPackagePrefixes, " +
+                "allowFallbackDecode=$allowFallbackDecode" +
+                ")"
 }

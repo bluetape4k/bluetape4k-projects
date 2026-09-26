@@ -7,135 +7,103 @@ A Kotlin extension module for the Lettuce Redis client, providing high-performan
 
 ## Features
 
-| Feature                             | Description                                                                                                                                  |
-|-------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------|
-| `LettuceClients`                    | Factory and connection pool management for `RedisClient` / `StatefulRedisConnection`                                                         |
-| `LettuceBinaryCodec<V>`             | High-performance generic value serialization codec based on `BinarySerializer`                                                               |
-| `LettuceBinaryCodecs`               | Factory combining serializers (Jdk/Kryo/Fory) with compression (GZip/Deflate/LZ4/Snappy/Zstd)                                                |
-| `LettuceJsonCodec<V>`               | JSON-based value codec using Jackson 3.x or Fastjson2 — stores values as human-readable JSON text                                            |
-| `LettuceJsonCodecs`                 | Factory object providing `jackson3<V>()` and `fastjson2<V>()` factory methods                                                                |
-| `LettuceIntCodec`                   | Codec that serializes Int values as 4-byte big-endian (binary-compatible with Redisson `IntegerCodec`)                                       |
-| `LettuceLongCodec`                  | Codec that serializes Long values as 8-byte big-endian (binary-compatible with Redisson `LongCodec`)                                         |
-| `RedisFuture` extensions            | `awaitSuspending()` — converts `RedisFuture` to a suspend function                                                                           |
-| `LettuceMap<V>`                     | Generic distributed hash map (sync + async). Coroutine variant: `LettuceSuspendMap<V>`                                                       |
-| `LettuceSuspendMap<V>`              | Generic distributed hash map (suspend-only). Supports `LettuceBinaryCodec<V>`                                                                |
-| `LettuceStringMap`                  | Distributed hash map for String values (sync + async)                                                                                        |
-| `LettuceSuspendStringMap`           | Distributed hash map for String values (suspend-only)                                                                                        |
-| `LettuceAtomicLong`                 | Distributed AtomicLong (sync + async). Coroutine variant: `LettuceSuspendAtomicLong`                                                         |
-| `LettuceSuspendAtomicLong`          | Distributed AtomicLong (suspend-only)                                                                                                        |
-| `LettuceSemaphore`                  | Distributed semaphore (sync + async). Coroutine variant: `LettuceSuspendSemaphore`                                                           |
-| `LettuceSuspendSemaphore`           | Distributed semaphore (suspend-only)                                                                                                         |
-| `LettuceDistributedSemaphore`       | Request-idempotent, generation-bound counting semaphore (blocking + async)                                                                    |
-| `LettucePermitExpirableSemaphore`   | Redis-time expirable permit-unit semaphore with atomic allocation renewal/release                                                             |
-| `LettuceCountDownLatch`             | Monotonic-generation count-down latch with bounded await                                                                                      |
-| `LettuceDistributedLock`            | Reentrant-capable distributed lock with identity/handle lifecycle and typed outcomes                                                       |
-| `LettuceSuspendDistributedLock`     | Suspend distributed lock with identity/handle lifecycle and typed outcomes                                                                   |
-| `LettuceFairLock`                   | Fair queueing distributed lock (sync + async + suspend)                                                                                    |
-| `LettuceSuspendFairLock`            | Suspend fair lock with identity/handle lifecycle                                                                                              |
-| `LettuceFencedLock`                 | Fenced lock with monotonic epoch/token semantics and typed acquisition state                                                                  |
-| `LettuceSuspendFencedLock`          | Suspend fenced lock with monotonic epoch/token semantics                                                                                      |
-| `LettuceReadWriteLock`              | Read/write lock pair with handle-based read/write downgrade flow                                                                              |
-| `LettuceSuspendReadWriteLock`       | Suspend read/write lock pair with read/write handle views                                                                                     |
-| `LettuceSpinLock`                   | Spin-first lock using bounded attempts and explicit ownership handles                                                                           |
-| `LettuceSuspendSpinLock`            | Suspend spin-first lock with bounded attempts                                                                                                 |
-| `LettuceMultiLock`                  | All-or-nothing multi-key lock with same-slot safe composition                                                                                 |
-| `LettuceSuspendMultiLock`           | Suspend all-or-nothing multi-key lock with same-slot composition                                                                              |
-| `LettuceLock`                       | Compatibility token mutex (sync + async). Coroutine variant: `LettuceSuspendLock`                                                            |
-| `LettuceSuspendLock`                | Compatibility token mutex (suspend-only)                                                                                                      |
-| `LettuceMultiKeyLease`              | Same-slot atomic ownership lease across bounded keys (sync + async)                                                                           |
-| `LettuceSuspendMultiKeyLease`       | Same-slot atomic ownership lease across bounded keys (suspend-only)                                                                           |
-| `LettuceFencingLease`               | Config-bound Redis fencing lease with ordered `(epoch, sequence)` tokens (sync + async)                                                       |
-| `LettuceSuspendFencingLease`        | Config-bound Redis fencing lease with ordered `(epoch, sequence)` tokens (suspend-only)                                                       |
-| `LettuceHyperLogLog<V>`             | Redis HyperLogLog approximate cardinality estimation (sync). Coroutine variant: `LettuceSuspendHyperLogLog<V>`                               |
-| `LettuceSuspendHyperLogLog<V>`      | Redis HyperLogLog approximate cardinality estimation (suspend-only)                                                                          |
-| `LettuceBloomFilter`                | Redis BitSet-based Bloom Filter (sync). Coroutine variant: `LettuceSuspendBloomFilter`                                                       |
-| `LettuceSuspendBloomFilter`         | Redis BitSet-based Bloom Filter (suspend-only)                                                                                               |
-| `LettuceCuckooFilter`               | Redis-based Cuckoo Filter with deletion support (sync). Coroutine variant: `LettuceSuspendCuckooFilter`                                      |
-| `LettuceSuspendCuckooFilter`        | Redis-based Cuckoo Filter with deletion support (suspend-only)                                                                               |
-| `RedisScript`                       | Reusable Lua script with pre-computed SHA1. Enables `EVALSHA`-first execution with automatic `EVAL` fallback on `NOSCRIPT`                   |
-| `RedisScriptRunner`                 | Helper object to execute `RedisScript` via sync / async / suspend APIs with `EVALSHA`→`EVAL` fallback                                        |
+| Feature                           | Description                                                                                                                |
+|-----------------------------------|----------------------------------------------------------------------------------------------------------------------------|
+| `LettuceClients`                  | Factory and connection pool management for `RedisClient` / `StatefulRedisConnection`                                       |
+| `LettuceBinaryCodec<V>`           | High-performance generic value serialization codec based on `BinarySerializer`                                             |
+| `LettuceBinaryCodecs`             | Factory combining serializers (Jdk/Kryo/Fory) with compression (GZip/Deflate/LZ4/Snappy/Zstd)                              |
+| `LettuceJsonCodec<V>`             | JSON-based value codec using Jackson 3.x or Fastjson2 — stores values as human-readable JSON text                          |
+| `LettuceJsonCodecs`               | Factory object providing `jackson3<V>()` and `fastjson2<V>()` factory methods                                              |
+| `LettuceIntCodec`                 | Codec that serializes Int values as 4-byte big-endian (binary-compatible with Redisson `IntegerCodec`)                     |
+| `LettuceLongCodec`                | Codec that serializes Long values as 8-byte big-endian (binary-compatible with Redisson `LongCodec`)                       |
+| `RedisFuture` extensions          | `awaitSuspending()` — converts `RedisFuture` to a suspend function                                                         |
+| `LettuceMap<V>`                   | Generic distributed hash map (sync + async). Coroutine variant: `LettuceSuspendMap<V>`                                     |
+| `LettuceSuspendMap<V>`            | Generic distributed hash map (suspend-only). Supports `LettuceBinaryCodec<V>`                                              |
+| `LettuceStringMap`                | Distributed hash map for String values (sync + async)                                                                      |
+| `LettuceSuspendStringMap`         | Distributed hash map for String values (suspend-only)                                                                      |
+| `LettuceAtomicLong`               | Distributed AtomicLong (sync + async). Coroutine variant: `LettuceSuspendAtomicLong`                                       |
+| `LettuceSuspendAtomicLong`        | Distributed AtomicLong (suspend-only)                                                                                      |
+| `LettuceSemaphore`                | Distributed semaphore (sync + async). Coroutine variant: `LettuceSuspendSemaphore`                                         |
+| `LettuceSuspendSemaphore`         | Distributed semaphore (suspend-only)                                                                                       |
+| `LettuceDistributedSemaphore`     | Request-idempotent, generation-bound counting semaphore (blocking + async)                                                 |
+| `LettucePermitExpirableSemaphore` | Redis-time expirable permit-unit semaphore with atomic allocation renewal/release                                          |
+| `LettuceCountDownLatch`           | Monotonic-generation count-down latch with bounded await                                                                   |
+| `LettuceDistributedLock`          | Reentrant-capable distributed lock with identity/handle lifecycle and typed outcomes                                       |
+| `LettuceSuspendDistributedLock`   | Suspend distributed lock with identity/handle lifecycle and typed outcomes                                                 |
+| `LettuceFairLock`                 | Fair queueing distributed lock (sync + async + suspend)                                                                    |
+| `LettuceSuspendFairLock`          | Suspend fair lock with identity/handle lifecycle                                                                           |
+| `LettuceFencedLock`               | Fenced lock with monotonic epoch/token semantics and typed acquisition state                                               |
+| `LettuceSuspendFencedLock`        | Suspend fenced lock with monotonic epoch/token semantics                                                                   |
+| `LettuceReadWriteLock`            | Read/write lock pair with handle-based read/write downgrade flow                                                           |
+| `LettuceSuspendReadWriteLock`     | Suspend read/write lock pair with read/write handle views                                                                  |
+| `LettuceSpinLock`                 | Spin-first lock using bounded attempts and explicit ownership handles                                                      |
+| `LettuceSuspendSpinLock`          | Suspend spin-first lock with bounded attempts                                                                              |
+| `LettuceMultiLock`                | All-or-nothing multi-key lock with same-slot safe composition                                                              |
+| `LettuceSuspendMultiLock`         | Suspend all-or-nothing multi-key lock with same-slot composition                                                           |
+| `LettuceLock`                     | Compatibility token mutex (sync + async). Coroutine variant: `LettuceSuspendLock`                                          |
+| `LettuceSuspendLock`              | Compatibility token mutex (suspend-only)                                                                                   |
+| `LettuceMultiKeyLease`            | Same-slot atomic ownership lease across bounded keys (sync + async)                                                        |
+| `LettuceSuspendMultiKeyLease`     | Same-slot atomic ownership lease across bounded keys (suspend-only)                                                        |
+| `LettuceFencingLease`             | Config-bound Redis fencing lease with ordered `(epoch, sequence)` tokens (sync + async)                                    |
+| `LettuceSuspendFencingLease`      | Config-bound Redis fencing lease with ordered `(epoch, sequence)` tokens (suspend-only)                                    |
+| `LettuceHyperLogLog<V>`           | Redis HyperLogLog approximate cardinality estimation (sync). Coroutine variant: `LettuceSuspendHyperLogLog<V>`             |
+| `LettuceSuspendHyperLogLog<V>`    | Redis HyperLogLog approximate cardinality estimation (suspend-only)                                                        |
+| `LettuceBloomFilter`              | Redis BitSet-based Bloom Filter (sync). Coroutine variant: `LettuceSuspendBloomFilter`                                     |
+| `LettuceSuspendBloomFilter`       | Redis BitSet-based Bloom Filter (suspend-only)                                                                             |
+| `LettuceCuckooFilter`             | Redis-based Cuckoo Filter with deletion support (sync). Coroutine variant: `LettuceSuspendCuckooFilter`                    |
+| `LettuceSuspendCuckooFilter`      | Redis-based Cuckoo Filter with deletion support (suspend-only)                                                             |
+| `RedisScript`                     | Reusable Lua script with pre-computed SHA1. Enables `EVALSHA`-first execution with automatic `EVAL` fallback on `NOSCRIPT` |
+| `RedisScriptRunner`               | Helper object to execute `RedisScript` via sync / async / suspend APIs with `EVALSHA`→`EVAL` fallback                      |
 
 Protobuf codecs are provided by the `bluetape4k-protobuf` module through
 `io.bluetape4k.protobuf.serializers.redis.LettuceProtobufCodecs`.
 
-The uncompressed `protobuf()` and `trustedInternalProtobuf()` factories write Protobuf messages into Lettuce's
-caller-owned `ByteBuf` through the nullable target overload. A successful write commits `writerIndex` only after the
-complete packed message is present. If encoding fails, the index is unchanged, but capacity growth or bytes in the
-attempted range may remain; clear/reinitialize that range or discard the buffer before reuse. The single-argument
-`ByteBuffer` encode/decode methods, compressed factories, non-Protobuf fallback values, and custom-prefix serializers
-keep the copied compatibility path. This is a measured allocation reduction, not a zero-copy or throughput guarantee;
-see the [issue #757 evidence](../../docs/benchmarks/2026-07-18-protobuf-buffer-allocation.md).
+The uncompressed `protobuf()` and `trustedInternalProtobuf()` factories write Protobuf messages into Lettuce's caller-owned `ByteBuf` through the nullable target overload. A successful write commits `writerIndex` only after the complete packed message is present. If encoding fails, the index is unchanged, but capacity growth or bytes in the attempted range may remain; clear/reinitialize that range or discard the buffer before reuse. The single-argument
+`ByteBuffer` encode/decode methods, compressed factories, non-Protobuf fallback values, and custom-prefix serializers keep the copied compatibility path. This is a measured allocation reduction, not a zero-copy or throughput guarantee; see the [issue #757 evidence](../../docs/benchmarks/2026-07-18-protobuf-buffer-allocation.md).
 
-`LettuceBinaryCodec` is open only to expose the nullable target-taking `encodeValue(value, target)` source extension
-seam; ordinary `RedisCodec` methods remain final. The open class also makes Kotlin-generated JVM bridge methods
-overrideable, so subclasses must preserve the serializer wire and trust contract. Existing factory callers do not need
-to migrate. Java callers use `LettuceProtobufCodecs.INSTANCE.protobuf()`.
+`LettuceBinaryCodec` is open only to expose the nullable target-taking `encodeValue(value, target)` source extension seam; ordinary `RedisCodec` methods remain final. The open class also makes Kotlin-generated JVM bridge methods overrideable, so subclasses must preserve the serializer wire and trust contract. Existing factory callers do not need to migrate. Java callers use `LettuceProtobufCodecs.INSTANCE.protobuf()`.
 
 ### Caller-owned serializer target contract
 
 For built-in codecs, target-taking binary encode calls `serializeBinaryToStream`; target-taking JSON encode calls
-`serializeJsonToStream`. Both serializer interface defaults are allocating compatibility fallbacks, so direct stream
-writing is opt-in per concrete serializer. The codec borrows the caller-owned `ByteBuf` synchronously through a bounded
-absolute-index writer. It never retains, closes, flushes, or releases the target. A successful built-in call verifies
-the serializer-reported count and target snapshot, then commits `writerIndex` exactly once after the complete wire is
-present.
+`serializeJsonToStream`. Both serializer interface defaults are allocating compatibility fallbacks, so direct stream writing is opt-in per concrete serializer. The codec borrows the caller-owned `ByteBuf` synchronously through a bounded absolute-index writer. It never retains, closes, flushes, or releases the target. A successful built-in call verifies the serializer-reported count and target snapshot, then commits `writerIndex` exactly once after the complete wire is present.
 
-Keep each mutable target thread-confined until the call returns. Concurrent `readerIndex`, `writerIndex`, `refCnt`, or
-capacity-boundary drift is unsupported and fails closed; the codec does not repair concurrent mutation. On any encode
-failure, `writerIndex` is not committed, but attempted bytes and capacity growth may remain. Neither this contract nor
-`release()` guarantees byte wiping. Do not log the target's full capacity. Discard/reinitialize the attempted range or
-follow the allocator's disposal policy before reuse.
+Keep each mutable target thread-confined until the call returns. Concurrent `readerIndex`, `writerIndex`, `refCnt`, or capacity-boundary drift is unsupported and fails closed; the codec does not repair concurrent mutation. On any encode failure, `writerIndex` is not committed, but attempted bytes and capacity growth may remain. Neither this contract nor
+`release()` guarantees byte wiping. Do not log the target's full capacity. Discard/reinitialize the attempted range or follow the allocator's disposal policy before reuse.
 
-Only `LettuceBinaryCodec.encodeValue(value, target)` is a supported custom target override seam. A subclass override
-does not automatically inherit the built-in count/snapshot/success-only commit guarantees and must preserve wire and
-trust compatibility itself. `LettuceJsonCodec` is final and exposes no equivalent custom seam. Decode passes a bounded
-read-only, non-array-backed `ByteBuffer` view to `deserializeFrom`; a custom serializer must support that synchronous
-borrow, or inherit the interface allocating default.
+Only `LettuceBinaryCodec.encodeValue(value, target)` is a supported custom target override seam. A subclass override does not automatically inherit the built-in count/snapshot/success-only commit guarantees and must preserve wire and trust compatibility itself. `LettuceJsonCodec` is final and exposes no equivalent custom seam. Decode passes a bounded read-only, non-array-backed `ByteBuffer` view to `deserializeFrom`; a custom serializer must support that synchronous borrow, or inherit the interface allocating default.
 
-The [issue #756 evidence](../../docs/benchmarks/2026-07-22-issue-756-lettuce-buffer-codec-allocation.md) applies only
-to the measured payload/default serializer configuration, pooled pre-sized reusable 512-byte heap/direct targets, and
-no-growth path:
+The [issue #756 evidence](../../docs/benchmarks/2026-07-22-issue-756-lettuce-buffer-codec-allocation.md) applies only to the measured payload/default serializer configuration, pooled pre-sized reusable 512-byte heap/direct targets, and no-growth path:
 
-| Serializer | Heap | Direct | Claim |
-|---|---|---|---|
-| JDK | accepted | accepted | allocation reduction in the exact measured cells |
-| Kryo | accepted | accepted | allocation reduction in the exact measured cells |
-| Jackson 2 | accepted | accepted | allocation reduction in the exact measured cells |
-| Jackson 3 | inconclusive | inconclusive | ergonomic direct path only; no allocation claim |
+| Serializer | Heap         | Direct       | Claim                                            |
+|------------|--------------|--------------|--------------------------------------------------|
+| JDK        | accepted     | accepted     | allocation reduction in the exact measured cells |
+| Kryo       | accepted     | accepted     | allocation reduction in the exact measured cells |
+| Jackson 2  | accepted     | accepted     | allocation reduction in the exact measured cells |
+| Jackson 3  | inconclusive | inconclusive | ergonomic direct path only; no allocation claim  |
 
 ![Issue #756 allocation delta chart](../../docs/images/readme-charts/infra-lettuce-issue756-allocation-chart-01.png)
 
-The chart summarizes allocation delta versus the allocating baseline. Heap and direct values agree to the displayed
-precision in both canonical runs for each backend. JDK, Kryo, and Jackson 2 satisfy the two-run acceptance rule;
-Jackson 3 allocates more, so it remains ergonomic-only. The benchmark table and committed raw CSV remain the numeric
-source of truth.
+The chart summarizes allocation delta versus the allocating baseline. Heap and direct values agree to the displayed precision in both canonical runs for each backend. JDK, Kryo, and Jackson 2 satisfy the two-run acceptance rule; Jackson 3 allocates more, so it remains ergonomic-only. The benchmark table and committed raw CSV remain the numeric source of truth.
 
-Do not generalize these results to one-argument encode, decode, compressed/Fory/Fastjson codecs, other payloads,
-capacity growth, target sizes, allocator/pooling choices, zero-copy, or throughput. There is no runtime auto-fallback,
-feature flag, or dispatch telemetry. If a retained direct path is defective, roll back to the previous artifact/codec
-deployment; any implementation change requires two fresh canonical runs before reusing an allocation claim.
+Do not generalize these results to one-argument encode, decode, compressed/Fory/Fastjson codecs, other payloads, capacity growth, target sizes, allocator/pooling choices, zero-copy, or throughput. There is no runtime auto-fallback, feature flag, or dispatch telemetry. If a retained direct path is defective, roll back to the previous artifact/codec deployment; any implementation change requires two fresh canonical runs before reusing an allocation claim.
 
 #### Raw Fory/FastFory boundary
 
-The uncompressed `fory()` and `fastFory()` factories use the same bounded caller-owned `ByteBuf` writer for their
-target-taking encode path. That path removes the codec-level handoff `ByteArray`, while Apache Fory's internal reusable
-`MemoryBuffer` and its final destination write remain; it is not zero-copy. One-argument encode and every compressed
-factory retain the allocating compatibility path.
+The uncompressed `fory()` and `fastFory()` factories use the same bounded caller-owned `ByteBuf` writer for their target-taking encode path. That path removes the codec-level handoff `ByteArray`, while Apache Fory's internal reusable
+`MemoryBuffer` and its final destination write remain; it is not zero-copy. One-argument encode and every compressed factory retain the allocating compatibility path.
 
-Keeping the same factory requires no caller API or payload migration. `fastFory()` has no Fory fallback and remains
-wire-incompatible with `fory()`, so changing modes requires an explicit cache migration or eviction. Only exact cells
-accepted by the committed [issue #756 Fory follow-up evidence](../../docs/benchmarks/2026-07-23-issue-756-fory-codec-followup.md)
+Keeping the same factory requires no caller API or payload migration. `fastFory()` has no Fory fallback and remains wire-incompatible with `fory()`, so changing modes requires an explicit cache migration or eviction. Only exact cells accepted by the committed [issue #756 Fory follow-up evidence](../../docs/benchmarks/2026-07-23-issue-756-fory-codec-followup.md)
 may carry an allocation claim:
 
-| Raw target-taking encode | Heap | Direct |
-|---|---:|---:|
-| Fory | accepted: 99.99947% allocation reduction in canonical A/B | accepted: 99.99949–99.99950% |
-| FastFory | accepted: 99.99952–99.99954% | accepted: 99.99950–99.99954% |
+| Raw target-taking encode |                                                      Heap |                       Direct |
+|--------------------------|----------------------------------------------------------:|-----------------------------:|
+| Fory                     | accepted: 99.99947% allocation reduction in canonical A/B | accepted: 99.99949–99.99950% |
+| FastFory                 |                              accepted: 99.99952–99.99954% | accepted: 99.99950–99.99954% |
 
 ![Issue #756 accepted Fory allocation reductions](../../docs/images/readme-charts/issue756-fory-followup-allocation-chart-01.png)
 
-All four exact Lettuce cells are accepted. The allocation values do not imply zero-copy or a general throughput gain.
-There is no runtime auto-fallback, feature flag, or dispatch telemetry for this path.
+All four exact Lettuce cells are accepted. The allocation values do not imply zero-copy or a general throughput gain. There is no runtime auto-fallback, feature flag, or dispatch telemetry for this path.
 
 `LettuceCacheConfig` constraints:
 
@@ -145,7 +113,7 @@ There is no runtime auto-fallback, feature flag, or dispatch telemetry for this 
 - `keyPrefix` and `nearCacheName` must not be blank.
 
 > **Memoizer** has been moved to the
-`bluetape4k-cache-lettuce` module. See the [cache-lettuce README](../../cache/cache-lettuce/README.md) for details.
+> `bluetape4k-cache-lettuce` module. See the [cache-lettuce README](../../cache/cache-lettuce/README.md) for details.
 
 ## Performance Optimizations
 
@@ -155,21 +123,21 @@ There is no runtime auto-fallback, feature flag, or dispatch telemetry for this 
 
 Based on `LettuceCodecBenchmark` (JMH, Apple M4 Pro / GraalVM 21 / Warmup 3×2s / Measurement 5×3s / Fork 1 / 2026-04-27):
 
-| Codec | ops/ms | ± Error |
-|-------|-------:|--------:|
+| Codec         |    ops/ms | ± Error |
+|---------------|----------:|--------:|
 | **fastjson2** | **6,379** | ± 1,358 |
-| **FastFory** | **3,286** | ± 142 |
-| Fory | 2,551 | ± 2,001 |
-| Kryo | 963 | ± 474 |
-| LZ4FastFory | 906 | ± 66 |
-| LZ4Fory | 852 | ± 39 |
-| Jackson3 | 834 | ± 25 |
-| LZ4Kryo | 535 | ± 16 |
-| ZstdFastFory | 206 | ± 17 |
-| ZstdFory | 203 | ± 5 |
-| ZstdKryo | 136 | ± 3 |
-| JDK | 132 | ± 13 |
-| GzipFastFory | 110 | ± 2 |
+| **FastFory**  | **3,286** |   ± 142 |
+| Fory          |     2,551 | ± 2,001 |
+| Kryo          |       963 |   ± 474 |
+| LZ4FastFory   |       906 |    ± 66 |
+| LZ4Fory       |       852 |    ± 39 |
+| Jackson3      |       834 |    ± 25 |
+| LZ4Kryo       |       535 |    ± 16 |
+| ZstdFastFory  |       206 |    ± 17 |
+| ZstdFory      |       203 |     ± 5 |
+| ZstdKryo      |       136 |     ± 3 |
+| JDK           |       132 |    ± 13 |
+| GzipFastFory  |       110 |     ± 2 |
 
 ![Lettuce Codec Throughput chart](../../docs/images/readme-charts/infra-lettuce-codec-throughput-chart-01.png)
 
@@ -178,13 +146,13 @@ Based on `LettuceCodecBenchmark` (JMH, Apple M4 Pro / GraalVM 21 / Warmup 3×2s 
 
 ### Connection Benchmark Results
 
-| Optimization | ops/sec | vs Baseline |
-|---|---|---|
-| Default (no tuning) | ~31,847 | — |
-| + Shared `DEFAULT_CLIENT_RESOURCES` (NCPU thread pool) | 32,154 | +1% |
-| + Full pipeline (`withPipeline{}` SET+GET) | 40,816 | +28% |
-| + `SocketOptions` (keepAlive + tcpNoDelay) | 46,728 | +47% |
-| **+ Merged pipeline + `awaitAll()`** | **81,967** | **+157%** |
+| Optimization                                           | ops/sec    | vs Baseline |
+|--------------------------------------------------------|------------|-------------|
+| Default (no tuning)                                    | ~31,847    | —           |
+| + Shared `DEFAULT_CLIENT_RESOURCES` (NCPU thread pool) | 32,154     | +1%         |
+| + Full pipeline (`withPipeline{}` SET+GET)             | 40,816     | +28%        |
+| + `SocketOptions` (keepAlive + tcpNoDelay)             | 46,728     | +47%        |
+| **+ Merged pipeline + `awaitAll()`**                   | **81,967** | **+157%**   |
 
 ![Lettuce Connection Optimization Throughput chart](../../docs/images/readme-charts/infra-lettuce-connection-throughput-chart-01.png)
 
@@ -230,12 +198,12 @@ Prefer `RedisFutureSupport.awaitAll()` over `futures.map { async { it.await() } 
 
 ### Lessons from Benchmarking
 
-| What NOT to do | Why |
-|---|---|
-| `ProtocolVersion.RESP3` + `TimeoutOptions.enabled()` + `REJECT_COMMANDS` | −12% at high-ops localhost scale — per-command overhead dominates |
-| `ByteArrayCodec` for small ASCII values | −17% — Lettuce's `StringCodec` ASCII fast-path + buffer reuse beats ByteArrayCodec at 64B |
-| Await inside `withPipeline{}` lambda | `flushCommands()` never fires — coroutine suspends before the flush |
-| Partial pipelining (SET only, not GET) | The non-pipelined leg becomes the bottleneck |
+| What NOT to do                                                           | Why                                                                                       |
+|--------------------------------------------------------------------------|-------------------------------------------------------------------------------------------|
+| `ProtocolVersion.RESP3` + `TimeoutOptions.enabled()` + `REJECT_COMMANDS` | −12% at high-ops localhost scale — per-command overhead dominates                         |
+| `ByteArrayCodec` for small ASCII values                                  | −17% — Lettuce's `StringCodec` ASCII fast-path + buffer reuse beats ByteArrayCodec at 64B |
+| Await inside `withPipeline{}` lambda                                     | `flushCommands()` never fires — coroutine suspends before the flush                       |
+| Partial pipelining (SET only, not GET)                                   | The non-pipelined leg becomes the bottleneck                                              |
 
 ## Dependency
 
@@ -376,7 +344,8 @@ val results = listOf(
 | `snappyFastFory()`      | FastFory   | Snappy      |
 | `gzipFastFory()`        | FastFory   | GZip        |
 
-> **⚠️ Wire Format Warning**: FastFory codecs use `CompatibleMode.SCHEMA_CONSISTENT` and are **NOT compatible** with the default Fory codec. No fallback. Use only for volatile caches.
+> **⚠️ Wire Format Warning**: FastFory codecs use `CompatibleMode.SCHEMA_CONSISTENT` and are **NOT
+compatible** with the default Fory codec. No fallback. Use only for volatile caches.
 
 ### JSON Codecs (`LettuceJsonCodecs`)
 
@@ -400,10 +369,10 @@ val fastjsonCodec = LettuceJsonCodecs.fastjson2<User>()
 val fastjsonConnection = redisClient.connect(fastjsonCodec)
 ```
 
-| Factory Method      | Serializer | Format | Description                |
-|---------------------|------------|--------|----------------------------|
-| `jackson3<V>()`     | Jackson 3  | JSON   | Jackson ObjectMapper-based |
-| `fastjson2<V>()`    | Fastjson2  | JSON   | Fastjson2 JSON-based       |
+| Factory Method   | Serializer | Format | Description                |
+|------------------|------------|--------|----------------------------|
+| `jackson3<V>()`  | Jackson 3  | JSON   | Jackson ObjectMapper-based |
+| `fastjson2<V>()` | Fastjson2  | JSON   | Fastjson2 JSON-based       |
 
 ### Primitive Codecs
 
@@ -440,25 +409,17 @@ val p = suspendMap.get("p1")                       // suspend fun
 suspendMap.put("p2", Product(2L, "Gadget"))
 ```
 
-`LettuceMap` and `LettuceSuspendMap` coordinate command dispatch when they share
-the same connection through a shared gate. While a transaction is active,
-async/suspend calls wait as pending futures without blocking the Netty event
-loop. Sync APIs wait for Redis responses and must not be invoked from the Netty
-event loop; use the async or suspend APIs there. If `putTtlIfLockOwned` or
-`removeIfLockOwned` is used, do not concurrently dispatch commands through the
-raw `connection.sync()`/`connection.async()` facade or another wrapper. Custom
+`LettuceMap` and `LettuceSuspendMap` coordinate command dispatch when they share the same connection through a shared gate. While a transaction is active, async/suspend calls wait as pending futures without blocking the Netty event loop. Sync APIs wait for Redis responses and must not be invoked from the Netty event loop; use the async or suspend APIs there. If `putTtlIfLockOwned` or
+`removeIfLockOwned` is used, do not concurrently dispatch commands through the raw `connection.sync()`/`connection.async()` facade or another wrapper. Custom
 `LettuceMap` subclasses must use `withConnectionLock` for sync dispatch and
-`dispatchAsync` for async dispatch; `LettuceSuspendMap` subclasses must also use
-their protected `dispatchAsync` helper. Bypassing this gate while
+`dispatchAsync` for async dispatch; `LettuceSuspendMap` subclasses must also use their protected `dispatchAsync` helper. Bypassing this gate while
 `WATCH/MULTI/EXEC` is active is unsupported. Async work started inside a
-`withDistributedLock` callback belongs to the critical section only when the
-callback waits for it to reach a terminal state before returning; fire-and-forget
-async work from that callback is unsupported.
+`withDistributedLock` callback belongs to the critical section only when the callback waits for it to reach a terminal state before returning; fire-and-forget async work from that callback is unsupported.
 
 > **Why String is the default**: Lettuce's default codec is `StringCodec.UTF8`.
 > While `LettuceMap<V>` supports binary codecs for simple HGET/HSET operations,
 > `LettuceAtomicLong` and `LettuceSemaphore` rely on Redis's `INCR`/
-`DECR` commands which require decimal string encoding,
+> `DECR` commands which require decimal string encoding,
 > so they must use `StatefulRedisConnection<String, String>`.
 
 ### LettuceAtomicLong — Distributed AtomicLong
@@ -501,39 +462,34 @@ if (suspendSemaphore.tryAcquire()) {
 
 ## Coordination primitives
 
-Choose the object by semantics. Lock families and synchronizer families provide explicit identities, typed outcomes,
-standalone/Cluster factories, and blocking/async/suspend surfaces.
+Choose the object by semantics. Lock families and synchronizer families provide explicit identities, typed outcomes, standalone/Cluster factories, and blocking/async/suspend surfaces.
 
-| Object family | Key characteristics | Recommended uses | Main constraint |
-|---|---|---|---|
-| `LettuceDistributedLock` | Reentrant single-resource exclusion | Order processing, duplicate-job prevention, and one aggregate mutation | Advisory ownership; use fencing when stale writers must be rejected |
-| `LettuceFairLock` | FIFO admission and bounded waiter cleanup | Contended work that values predictable admission and reduced starvation | Additional Redis queue state and cleanup outcomes |
-| `LettuceFencedLock` | Monotonic fencing token | Durable downstream writes that must reject a delayed former owner | Downstream must persist and compare strictly increasing tokens |
-| `LettuceReadWriteLock` | Concurrent readers, writer preference, downgrade only | Read-heavy shared metadata with occasional exclusive updates | Read-to-write upgrade is unsupported |
-| `LettuceSpinLock` | Bounded scheduled polling and attempt rate | Low-contention, very short critical sections | Avoid long waits, long holds, and sustained contention |
-| `LettuceMultiLock` | Atomic all-or-nothing resource set | A small, fixed group of related resources | Every key must share one Redis Cluster slot |
+| Object family            | Key characteristics                                   | Recommended uses                                                        | Main constraint                                                     |
+|--------------------------|-------------------------------------------------------|-------------------------------------------------------------------------|---------------------------------------------------------------------|
+| `LettuceDistributedLock` | Reentrant single-resource exclusion                   | Order processing, duplicate-job prevention, and one aggregate mutation  | Advisory ownership; use fencing when stale writers must be rejected |
+| `LettuceFairLock`        | FIFO admission and bounded waiter cleanup             | Contended work that values predictable admission and reduced starvation | Additional Redis queue state and cleanup outcomes                   |
+| `LettuceFencedLock`      | Monotonic fencing token                               | Durable downstream writes that must reject a delayed former owner       | Downstream must persist and compare strictly increasing tokens      |
+| `LettuceReadWriteLock`   | Concurrent readers, writer preference, downgrade only | Read-heavy shared metadata with occasional exclusive updates            | Read-to-write upgrade is unsupported                                |
+| `LettuceSpinLock`        | Bounded scheduled polling and attempt rate            | Low-contention, very short critical sections                            | Avoid long waits, long holds, and sustained contention              |
+| `LettuceMultiLock`       | Atomic all-or-nothing resource set                    | A small, fixed group of related resources                               | Every key must share one Redis Cluster slot                         |
 
-| Synchronizer | Select when | Lifecycle rule | Do not use when |
-|---|---|---|---|
-| `LettuceDistributedSemaphore` | Fixed capacity must be returned explicitly | Release the complete request-bound `PermitHandle` | A crashed caller must return capacity automatically |
-| `LettucePermitExpirableSemaphore` | Capacity must recover after caller failure | Each permit unit expires by Redis time; renew/release the whole allocation | Partial permit renewal or release is required |
-| `LettuceCountDownLatch` | Participants wait for a known count to reach zero | Carry the active `LatchGeneration` through count-down, await, and delete | The object must be reusable without a new generation |
+| Synchronizer                      | Select when                                       | Lifecycle rule                                                             | Do not use when                                      |
+|-----------------------------------|---------------------------------------------------|----------------------------------------------------------------------------|------------------------------------------------------|
+| `LettuceDistributedSemaphore`     | Fixed capacity must be returned explicitly        | Release the complete request-bound `PermitHandle`                          | A crashed caller must return capacity automatically  |
+| `LettucePermitExpirableSemaphore` | Capacity must recover after caller failure        | Each permit unit expires by Redis time; renew/release the whole allocation | Partial permit renewal or release is required        |
+| `LettuceCountDownLatch`           | Participants wait for a known count to reach zero | Carry the active `LatchGeneration` through count-down, await, and delete   | The object must be reusable without a new generation |
 
 ![How to select a Lettuce coordination Lock and what runtime it shares](../../docs/images/readme-diagrams/infra-lettuce-diagram-03.png)
 
 ![Acquisition, contention, watchdog, reconciliation, release, and close lifecycle](../../docs/images/readme-diagrams/infra-lettuce-sequence-02.png)
 
-See [Coordination Locks](./CoordinationLocks.md) for compile-tested blocking, async, suspend, reentry, fencing, recovery,
-operations, and migration guidance.
+See [Coordination Locks](./CoordinationLocks.md) for compile-tested blocking, async, suspend, reentry, fencing, recovery, operations, and migration guidance.
 
-See [Redis Synchronizers](./CoordinationSynchronizers.md) for contract examples, ACL/TLS responsibilities, metrics,
-rollback, key cleanup, and migration guidance.
+See [Redis Synchronizers](./CoordinationSynchronizers.md) for contract examples, ACL/TLS responsibilities, metrics, rollback, key cleanup, and migration guidance.
 
 ### LettuceLock — Compatibility Token Mutex
 
-`LettuceLock` and `LettuceSuspendLock` are supported compatibility token mutexes. They are not deprecated in Delivery 1.
-Choose `LettuceDistributedLock` or another coordination object only when its explicit identity, reconciliation,
-specialized handle, or policy contract is needed.
+`LettuceLock` and `LettuceSuspendLock` are supported compatibility token mutexes. They are not deprecated in Delivery 1. Choose `LettuceDistributedLock` or another coordination object only when its explicit identity, reconciliation, specialized handle, or policy contract is needed.
 
 ```kotlin
 import io.bluetape4k.redis.lettuce.lock.LettuceLock
@@ -553,11 +509,10 @@ if (suspendLock.tryLock(waitTime = 5.seconds)) {
 ```
 
 <!-- multi-key-lease:basic -->
+
 ### Multi-Key Ownership Lease
 
-`LettuceMultiKeyLease` atomically coordinates one owner across a bounded set of keys. Every key must map to the same
-Redis Cluster slot; a shared hash tag is the usual way to guarantee that. The lease remains an advisory, single-writer
-guard: keep the durable business invariant in a database or another authoritative store.
+`LettuceMultiKeyLease` atomically coordinates one owner across a bounded set of keys. Every key must map to the same Redis Cluster slot; a shared hash tag is the usual way to guarantee that. The lease remains an advisory, single-writer guard: keep the durable business invariant in a database or another authoritative store.
 
 ```kotlin
 import io.bluetape4k.redis.lettuce.lease.LettuceMultiKeyLease
@@ -579,14 +534,13 @@ when (val result = lease.acquire(keys, ownerToken, Duration.ofSeconds(10))) {
 }
 ```
 
-Generate the high-entropy owner token outside any retry decorator and reuse it for every attempt. Acquire is the only
-operation with deterministic same-token replay (`AlreadyOwned`).
+Generate the high-entropy owner token outside any retry decorator and reuse it for every attempt. Acquire is the only operation with deterministic same-token replay (`AlreadyOwned`).
 
 <!-- multi-key-lease:resilience -->
+
 #### Retry, Circuit Breaker, and Bulkhead
 
-Keep resilience policy outside the lease. Retry only ambiguous transport failures; validation, cancellation, integrity
-exceptions, and domain results are not retryable.
+Keep resilience policy outside the lease. Retry only ambiguous transport failures; validation, cancellation, integrity exceptions, and domain results are not retryable.
 
 ```kotlin
 val retryable: (Throwable) -> Boolean = {
@@ -628,10 +582,10 @@ val result = SuspendDecorators.ofSupplier {
     .invoke()
 ```
 
-Production retry backoff must be bounded and non-zero. `Duration.ZERO` is appropriate only for deterministic tests.
-The decorator order above is intentional: Retry -> CircuitBreaker -> Bulkhead.
+Production retry backoff must be bounded and non-zero. `Duration.ZERO` is appropriate only for deterministic tests. The decorator order above is intentional: Retry -> CircuitBreaker -> Bulkhead.
 
 <!-- multi-key-lease:recovery -->
+
 #### Result and Ambiguous-Completion Recovery
 
 ```kotlin
@@ -642,27 +596,24 @@ suspend fun recoverAfterAmbiguousMutation(
 ): MultiKeyInspectResult = lease.inspect(keys, ownerToken)
 ```
 
-| Operation | Exhaustive results | Caller action |
-|---|---|---|
-| acquire | `Acquired`, `AlreadyOwned`, `PartialOwnership`, `Conflicted` | Continue/replay, or reconcile/reject; no mutation occurs for partial/conflict results. |
-| inspect | `Owned`, `Lost`, `PartialOwnership`, `Conflicted` | Treat `Owned` as current evidence; reconcile partial/conflict state. |
-| renew | `Renewed`, `PartialLoss`, `Lost`, `OwnershipMismatch` | Reconcile `PartialLoss`/`OwnershipMismatch` with durable authority. |
-| release | `Released`, `PartialRelease`, `Lost`, `OwnershipMismatch` | Reconcile `PartialRelease`/`OwnershipMismatch` with durable authority. |
+| Operation | Exhaustive results                                           | Caller action                                                                          |
+|-----------|--------------------------------------------------------------|----------------------------------------------------------------------------------------|
+| acquire   | `Acquired`, `AlreadyOwned`, `PartialOwnership`, `Conflicted` | Continue/replay, or reconcile/reject; no mutation occurs for partial/conflict results. |
+| inspect   | `Owned`, `Lost`, `PartialOwnership`, `Conflicted`            | Treat `Owned` as current evidence; reconcile partial/conflict state.                   |
+| renew     | `Renewed`, `PartialLoss`, `Lost`, `OwnershipMismatch`        | Reconcile `PartialLoss`/`OwnershipMismatch` with durable authority.                    |
+| release   | `Released`, `PartialRelease`, `Lost`, `OwnershipMismatch`    | Reconcile `PartialRelease`/`OwnershipMismatch` with durable authority.                 |
 
-All counts describe the ownership observed before mutation. After ambiguous renew or release completion, inspect with
-the same token first; never switch to a new token as a recovery probe. `Lost` alone cannot distinguish a prior
-successful release from expiry. Cancelling a returned `CompletableFuture` cancels only the caller wait; it does not
-prove that upstream or Redis server execution was cancelled. Treat that outcome as ambiguous and recover with the
-same token.
+All counts describe the ownership observed before mutation. After ambiguous renew or release completion, inspect with the same token first; never switch to a new token as a recovery probe. `Lost` alone cannot distinguish a prior successful release from expiry. Cancelling a returned `CompletableFuture` cancels only the caller wait; it does not prove that upstream or Redis server execution was cancelled. Treat that outcome as ambiguous and recover with the same token.
 
 <!-- multi-key-lease:security-telemetry -->
+
 #### Security and Telemetry
 
-The owner token is not a credential. Never reuse a JWT, session token, user identifier, or PII. Redis stores owner
-tokens in plaintext, so Redis ACLs and TLS are the actual security boundary. Metrics may use only bounded
+The owner token is not a credential. Never reuse a JWT, session token, user identifier, or PII. Redis stores owner tokens in plaintext, so Redis ACLs and TLS are the actual security boundary. Metrics may use only bounded
 `operation`, `result`, and `exception` dimensions; never emit a key/token in logs, traces, or metric labels.
 
 <!-- multi-key-lease:migration -->
+
 #### Cutover and Rollback
 
 1. Verify production keys use a shared slot and keep the durable database guard active.
@@ -673,26 +624,22 @@ tokens in plaintext, so Redis ACLs and TLS are the actual security boundary. Met
 6. Rollback in reverse: stop the new writer, drain or clean up, verify durable authority, then re-enable the old writer.
 
 <!-- multi-key-lease:lost-token -->
+
 #### Lost-Token Persistent-Key Runbook
 
-A persistent key with the expected owner token raises `MultiKeyLeaseIntegrityException`. With operator approval,
-confirm the exact namespace/key set, then manually delete only that set or replace the namespace, and reverify both
-Redis state and the durable authority before enabling a writer.
+A persistent key with the expected owner token raises `MultiKeyLeaseIntegrityException`. With operator approval, confirm the exact namespace/key set, then manually delete only that set or replace the namespace, and reverify both Redis state and the durable authority before enabling a writer.
 
 <!-- fencing-lease:basic -->
+
 ### Fencing Lease for Downstream Stale-Writer Rejection
 
 Use `LettuceMultiKeyLease` when an opaque advisory ownership guard is sufficient. Use `LettuceFencingLease` or
-`LettuceSuspendFencingLease` only when every protected downstream resource durably stores and strictly compares an
-ordered token. `LettuceFencingLeaseConfig(namespace, resourceName, epoch)` fixes one ordering domain at instance
-creation. The derived lease and counter keys share one Redis Cluster slot.
+`LettuceSuspendFencingLease` only when every protected downstream resource durably stores and strictly compares an ordered token. `LettuceFencingLeaseConfig(namespace, resourceName, epoch)` fixes one ordering domain at instance creation. The derived lease and counter keys share one Redis Cluster slot.
 
-`epoch` comes from a durable external authority. Call `bootstrap` explicitly only for a newly approved epoch. An
-acquire returning `CounterUnavailable` is not permission to bootstrap: stop acquisition and determine whether this is
-first deployment or history loss. Never bootstrap the same epoch after counter loss, and never lower an epoch during
-binary rollback or restore recovery. A token contains only `(epoch, sequence)`; it does not contain resource identity.
+`epoch` comes from a durable external authority. Call `bootstrap` explicitly only for a newly approved epoch. An acquire returning `CounterUnavailable` is not permission to bootstrap: stop acquisition and determine whether this is first deployment or history loss. Never bootstrap the same epoch after counter loss, and never lower an epoch during binary rollback or restore recovery. A token contains only `(epoch, sequence)`; it does not contain resource identity.
 
 <!-- fencing-lease:downstream-guard -->
+
 #### Durable Downstream Tuple Guard
 
 Store stable resource identity and both token fields together. PostgreSQL-style schema migration and strict update:
@@ -710,17 +657,13 @@ WHERE id = :id
   AND (fence_epoch, fence_sequence) < (:epoch, :sequence);
 ```
 
-Accept the write only when `affectedRows == 1`. A result of `0` rejects a same or stale token. Keep the business
-idempotency key in a separate column and policy; fencing order and business idempotency solve different problems.
+Accept the write only when `affectedRows == 1`. A result of `0` rejects a same or stale token. Keep the business idempotency key in a separate column and policy; fencing order and business idempotency solve different problems.
 
 <!-- fencing-lease:resilience -->
+
 #### Caller-Owned Retry, Circuit Breaker, and Bulkhead
 
-The primitive returns backend failures as result values. Retry only `FencingAcquireResult.BackendFailure`, and reuse
-the same owner ID so an ambiguous successful acquire returns `AlreadyOwned` instead of allocating another token.
-Validation, cancellation, and protocol exceptions stay in the caller layer and must escape without retry or circuit
-breaker recording. The exact decorator chain is intentional: Retry is innermost, CircuitBreaker sees one final result,
-and Bulkhead is outermost.
+The primitive returns backend failures as result values. Retry only `FencingAcquireResult.BackendFailure`, and reuse the same owner ID so an ambiguous successful acquire returns `AlreadyOwned` instead of allocating another token. Validation, cancellation, and protocol exceptions stay in the caller layer and must escape without retry or circuit breaker recording. The exact decorator chain is intentional: Retry is innermost, CircuitBreaker sees one final result, and Bulkhead is outermost.
 
 ```kotlin
 val retry = Retry.of(
@@ -759,10 +702,10 @@ val result = SuspendDecorators.ofSupplier {
     .invoke()
 ```
 
-Use bounded, non-zero production backoff. Apply an operation-specific `BackendFailure` predicate for bootstrap,
-inspect, renew, and release; do not add retry loops to the Redis primitive.
+Use bounded, non-zero production backoff. Apply an operation-specific `BackendFailure` predicate for bootstrap, inspect, renew, and release; do not add retry loops to the Redis primitive.
 
 <!-- fencing-lease:recovery -->
+
 #### Epoch Recovery and Rollback
 
 Promotion, known-old backup restore, or other external history-loss signals require this control-plane order:
@@ -773,16 +716,13 @@ bootstrap -> verify readiness and tuple guard -> rollout -> confirm old absence 
 ```
 
 The CAS allocator must be durable and permit exactly one higher epoch. Readiness requires a string counter with
-`PTTL=-1`, canonical non-negative decimal content, and the downstream strict tuple guard enabled. Abort on mixed
-epochs. Never resume an old binary or lower epoch; downstream state at a higher epoch must reject all restored
-lower-epoch tokens even when their sequence is larger.
+`PTTL=-1`, canonical non-negative decimal content, and the downstream strict tuple guard enabled. Abort on mixed epochs. Never resume an old binary or lower epoch; downstream state at a higher epoch must reject all restored lower-epoch tokens even when their sequence is larger.
 
 <!-- fencing-lease:diagnostics -->
+
 #### Bounded Read-Only Diagnosis and Manual Repair
 
-Run the following fixed-two-key Lua with `EVAL_RO`, passing only the exact derived lease key, counter key, and expected
-epoch. It returns a stable classification and a bounded lease-only repair-candidate boolean. It never returns owner,
-token, key, or stored values and never uses `KEYS`, `SCAN`, or `HGETALL`.
+Run the following fixed-two-key Lua with `EVAL_RO`, passing only the exact derived lease key, counter key, and expected epoch. It returns a stable classification and a bounded lease-only repair-candidate boolean. It never returns owner, token, key, or stored values and never uses `KEYS`, `SCAN`, or `HGETALL`.
 
 ```lua
 local counter_type = redis.call('TYPE', KEYS[2])['ok']
@@ -826,51 +766,45 @@ if redis.call('PTTL', KEYS[1]) == -1 then return {'LEASE_NO_TTL', '1'} end
 return {'ACTIVE', '0'}
 ```
 
-Manual deletion is allowed only when all four conditions hold: the incident is paused and old acquire is blocked; all
-lease and downstream writers are drained; the counter is valid, persistent, and not behind the lease; and the exact
-classification is `LEASE_NO_TTL`. Delete only the lease key. Never delete, decrement, expire, or recreate the counter.
+Manual deletion is allowed only when all four conditions hold: the incident is paused and old acquire is blocked; all lease and downstream writers are drained; the counter is valid, persistent, and not behind the lease; and the exact classification is `LEASE_NO_TTL`. Delete only the lease key. Never delete, decrement, expire, or recreate the counter.
 
-Operational mapping: `CounterUnavailable` pauses acquire and triggers history diagnosis; `IntegrityFailure` pauses all
-mutation and uses this read-only diagnostic; `SequenceExhausted` triggers a higher-epoch cutover; `BackendFailure`
-triggers operation-specific ambiguous-completion reconciliation; an external restore/promotion signal immediately
-starts the full pause-to-cutover sequence.
+Operational mapping: `CounterUnavailable` pauses acquire and triggers history diagnosis; `IntegrityFailure` pauses all mutation and uses this read-only diagnostic; `SequenceExhausted` triggers a higher-epoch cutover; `BackendFailure`
+triggers operation-specific ambiguous-completion reconciliation; an external restore/promotion signal immediately starts the full pause-to-cutover sequence.
 
 <!-- fencing-lease:caller-actions -->
+
 #### Exhaustive Result Actions
 
-| Result | Required caller action |
-|---|---|
-| `Initialized`, `AlreadyInitialized` | Verify readiness, then continue only the approved epoch rollout. |
-| `Acquired`, `AlreadyOwned`, `Owned`, `Renewed` | Continue the ownership path; store the token with stable resource/domain identity. |
-| `Released` | Discard local ownership and prohibit downstream writes. |
-| acquire `Contended` | Retry with a new owner only after TTL or bounded backoff; never treat it as a backend retry. |
-| inspect `Contended` | Discard local ownership and prohibit downstream writes. |
-| `Lost`, `OwnershipMismatch` | Discard local ownership and prohibit downstream writes. |
-| `CounterUnavailable` | Stop acquire and determine first deployment versus history loss; never bootstrap from this result alone. |
-| `SequenceExhausted` | Do not retry; alert for higher-epoch cutover, or freeze/migrate the domain at maximum epoch. |
-| `IntegrityFailure` | Stop retry and mutation; run read-only diagnosis and the approved runbook. |
-| `BackendFailure` | Reconcile operation-specific ambiguous completion; policy retry must reuse the same owner/token. |
+| Result                                         | Required caller action                                                                                   |
+|------------------------------------------------|----------------------------------------------------------------------------------------------------------|
+| `Initialized`, `AlreadyInitialized`            | Verify readiness, then continue only the approved epoch rollout.                                         |
+| `Acquired`, `AlreadyOwned`, `Owned`, `Renewed` | Continue the ownership path; store the token with stable resource/domain identity.                       |
+| `Released`                                     | Discard local ownership and prohibit downstream writes.                                                  |
+| acquire `Contended`                            | Retry with a new owner only after TTL or bounded backoff; never treat it as a backend retry.             |
+| inspect `Contended`                            | Discard local ownership and prohibit downstream writes.                                                  |
+| `Lost`, `OwnershipMismatch`                    | Discard local ownership and prohibit downstream writes.                                                  |
+| `CounterUnavailable`                           | Stop acquire and determine first deployment versus history loss; never bootstrap from this result alone. |
+| `SequenceExhausted`                            | Do not retry; alert for higher-epoch cutover, or freeze/migrate the domain at maximum epoch.             |
+| `IntegrityFailure`                             | Stop retry and mutation; run read-only diagnosis and the approved runbook.                               |
+| `BackendFailure`                               | Reconcile operation-specific ambiguous completion; policy retry must reuse the same owner/token.         |
 
 <!-- fencing-lease:security-telemetry -->
+
 #### Security and Telemetry
 
-Owner IDs are capability material stored in Redis. Generate high-entropy values and never reuse credentials, JWTs,
-session tokens, user identifiers, or PII. Use Redis ACLs and TLS. Logs may include only an allowlisted operation,
-result, backend-or-integrity kind, and bounded domain fingerprint. Metrics may label only `operation`, `result`, and
+Owner IDs are capability material stored in Redis. Generate high-entropy values and never reuse credentials, JWTs, session tokens, user identifiers, or PII. Use Redis ACLs and TLS. Logs may include only an allowlisted operation, result, backend-or-integrity kind, and bounded domain fingerprint. Metrics may label only `operation`, `result`, and
 `kind`; `namespace/resource/owner/token/fingerprint` are forbidden metric-label dimensions.
 
 <!-- fencing-lease:limitations -->
+
 #### Guarantees and Non-Guarantees
 
-The primitive provides atomic Redis lease mutation and monotonically ordered tokens within a config-bound domain. It
-does not provide exactly-once execution, business idempotency, durable correctness, automatic database fencing,
-durable epoch allocation, topology failure detection, or automatic recovery. Those remain caller and operator
-responsibilities. This fencing lease complements rather than automatically replaces the multi-key ownership lease.
+The primitive provides atomic Redis lease mutation and monotonically ordered tokens within a config-bound domain. It does not provide exactly-once execution, business idempotency, durable correctness, automatic database fencing, durable epoch allocation, topology failure detection, or automatic recovery. Those remain caller and operator responsibilities. This fencing lease complements rather than automatically replaces the multi-key ownership lease.
 
 ## Memoizer (Caching Function Results in Redis)
 
 > The Memoizer lives in the
-`bluetape4k-cache-lettuce` module. See [cache-lettuce README](../../cache/cache-lettuce/README.md) for detailed usage.
+> `bluetape4k-cache-lettuce` module. See [cache-lettuce README](../../cache/cache-lettuce/README.md) for detailed usage.
 
 ```kotlin
 // build.gradle.kts
@@ -951,8 +885,7 @@ A Redis server (default:
 
 ### Multi-key Lease Performance Characterization (Opt-in)
 
-The multi-key lease characterization is intentionally outside the default `test` task and CI required checks. Run it
-as a dedicated, serialized Testcontainers task when changing the lease Lua script or `maxKeys` behavior:
+The multi-key lease characterization is intentionally outside the default `test` task and CI required checks. Run it as a dedicated, serialized Testcontainers task when changing the lease Lua script or `maxKeys` behavior:
 
 ```bash
 lockf -k -t 900 "$(git rev-parse --git-common-dir)/bluetape-testcontainers.lock" \
@@ -960,15 +893,10 @@ lockf -k -t 900 "$(git rev-parse --git-common-dir)/bluetape-testcontainers.lock"
     --no-configuration-cache
 ```
 
-The task performs three independent measurement runs with 20 warm-up and 300 measured rounds per combination. The
-regression comparison uses the median of each run's p95 latency (`median-of-run-p95`) and keeps the normalized p95
-ratio limit at `4.0`; a single noisy run therefore remains visible without deciding the result by itself. The JSON
-report includes Redis/Java/Kotlin/Lettuce versions, version-lookup diagnostics, CPU and executor configuration,
-sample counts, probe error details, raw runs, aggregation policy, and any failure reason:
+The task performs three independent measurement runs with 20 warm-up and 300 measured rounds per combination. The regression comparison uses the median of each run's p95 latency (`median-of-run-p95`) and keeps the normalized p95 ratio limit at `4.0`; a single noisy run therefore remains visible without deciding the result by itself. The JSON report includes Redis/Java/Kotlin/Lettuce versions, version-lookup diagnostics, CPU and executor configuration, sample counts, probe error details, raw runs, aggregation policy, and any failure reason:
 
 ```
 infra/lettuce/build/reports/multi-key-lease-performance/results.json
 ```
 
-This opt-in task is the evidence-producing performance lane; it is not a release gate until a dedicated CI lane and
-required-check policy are explicitly configured.
+This opt-in task is the evidence-producing performance lane; it is not a release gate until a dedicated CI lane and required-check policy are explicitly configured.

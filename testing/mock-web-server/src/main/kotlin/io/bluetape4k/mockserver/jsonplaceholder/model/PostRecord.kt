@@ -16,8 +16,8 @@ data class PostRecord(
     val userId: Long = 0L,
     val title: String = "",
     val body: String = "",
-) : Serializable {
-    companion object : KLogging() {
+): Serializable {
+    companion object: KLogging() {
         private const val serialVersionUID = 1L
     }
 }

@@ -5,7 +5,6 @@ import com.mongodb.MongoClientSettings
 import com.mongodb.kotlin.client.coroutine.MongoClient
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.info
-import io.bluetape4k.mongodb.MongoClientProvider.DEFAULT_CONNECTION_STRING
 import io.bluetape4k.support.closeSafe
 import io.bluetape4k.support.requireNotBlank
 import io.bluetape4k.utils.ShutdownQueue
@@ -72,12 +71,11 @@ object MongoClientProvider: KLogging() {
      * @param builder additional [MongoClientSettings.Builder] configuration
      * @return cached or newly created coroutine [MongoClient]
      */
-    fun getOrCreate(
+    inline fun getOrCreate(
         connectionString: String = DEFAULT_CONNECTION_STRING,
         builder: MongoClientSettings.Builder.() -> Unit,
-    ): MongoClient {
-        return getOrCreate(mongoClientSettingsOf(connectionString, builder))
-    }
+    ): MongoClient =
+        getOrCreate(mongoClientSettingsOf(connectionString, builder))
 
     /**
      * [settings]에 대한 coroutine [MongoClient]를 반환합니다.
@@ -97,7 +95,7 @@ object MongoClientProvider: KLogging() {
      */
     fun getOrCreate(settings: MongoClientSettings): MongoClient {
         return settingsClientCache.computeIfAbsent(settings) {
-            log.info { "Creating new MongoClient with MongoClientSettings" }
+            log.info { "Creating new MongoClient with MongoClientSettings. settings: $settings" }
             MongoClient.create(settings).also {
                 ShutdownQueue.register(it)
             }
@@ -152,7 +150,7 @@ object MongoClientProvider: KLogging() {
         }
     }
 
-    private fun mongoClientSettingsOf(
+    inline fun mongoClientSettingsOf(
         connectionString: String,
         builder: MongoClientSettings.Builder.() -> Unit = {},
     ): MongoClientSettings {
@@ -163,5 +161,4 @@ object MongoClientProvider: KLogging() {
             .apply(builder)
             .build()
     }
-
 }

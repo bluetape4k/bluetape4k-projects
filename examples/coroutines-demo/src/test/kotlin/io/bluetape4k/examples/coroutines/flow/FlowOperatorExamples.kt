@@ -1,5 +1,6 @@
 package io.bluetape4k.examples.coroutines.flow
 
+import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.coroutines.flow.extensions.log
 import io.bluetape4k.examples.coroutines.isEven
 import io.bluetape4k.logging.coroutines.KLoggingChannel
@@ -21,7 +22,6 @@ import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.flow.zip
 import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.runTest
-import io.bluetape4k.assertions.shouldBeEqualTo
 import org.junit.jupiter.api.Test
 import kotlin.time.Duration.Companion.microseconds
 import kotlin.time.Duration.Companion.milliseconds
@@ -43,7 +43,8 @@ class FlowOperatorExamples {
 
     @Test
     fun `filter elements`() = runTest {
-        val evens = flowOf(1, 2, 3, 4).log("source")
+        val evens = flowOf(1, 2, 3, 4)
+            .log("source")
             .filter { it.isEven() }     // [2, 4]
             .log("even")
             .toList()
@@ -53,8 +54,8 @@ class FlowOperatorExamples {
 
     @Test
     fun `merge element of flows`() = runTest {
-        val ints = flowOf(1, 2, 3)
-        val doubles = flowOf(0.1, 0.2, 0.3)
+        val ints = flowOf(1, 2, 3).log("ints")
+        val doubles = flowOf(0.1, 0.2, 0.3).log("doubles")
 
         // merge는 복수 개의 flow의 요소들을 합쳐서 하나의 flow로 만든다
         val together = merge(ints, doubles)
@@ -110,7 +111,7 @@ class FlowOperatorExamples {
          * .............. 1 ............. 2 .......... 3 .......... 4
          * ```
          */
-        val flow1 = flowOf("A", "B", "C")
+        val flow1 = flowOf("A", "B", "C", "D")
             .onEach { delay(400.milliseconds) }
             .log("chars")
 
@@ -123,7 +124,7 @@ class FlowOperatorExamples {
             .log("combine")
             .toList()
 
-        combined shouldBeEqualTo listOf("B_1", "C_1", "C_2", "C_3", "C_4")
+        combined shouldBeEqualTo listOf("B_1", "C_1", "D_1", "D_2", "D_3", "D_4")
     }
 
     @Test

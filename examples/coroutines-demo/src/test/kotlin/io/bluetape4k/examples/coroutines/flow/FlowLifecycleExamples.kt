@@ -1,6 +1,9 @@
 package io.bluetape4k.examples.coroutines.flow
 
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeInstanceOf
 import io.bluetape4k.coroutines.flow.extensions.log
+import io.bluetape4k.exceptions.BluetapeException
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import kotlinx.coroutines.CoroutineName
@@ -20,7 +23,6 @@ import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.withContext
-import io.bluetape4k.assertions.shouldBeEqualTo
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import kotlin.time.Duration.Companion.milliseconds
@@ -41,15 +43,14 @@ class FlowLifecycleExamples {
         flowOf(1, 2).log("#2")
             .onEach {
                 advanceTimeBy(1000.milliseconds)
-            }
-            .collect {
                 log.debug { "received $it" }
             }
+            .collect()
     }
 
     @Test
     fun `onStart - starting flow`() = runTest {
-        flowOf(1, 2)
+        flowOf(1, 2).log("flow 1")
             .onEach { delay(1000.milliseconds) }
             .onStart { log.debug { "Starting" } }  // 한번만 호출된다
             .collect { log.debug { "Collect" } }
@@ -57,11 +58,19 @@ class FlowLifecycleExamples {
 
     @Test
     fun `onCompletion - call on complete flow`() = runTest {
-        flowOf(1, 2)
+        var onStartCount = 0
+        flowOf(1, 2, 3, 4).log("#1")
             .onEach { delay(1000.milliseconds) }
-            .onStart { log.debug { "Starting" } }  // 한번만 호출된다
-            .onCompletion { log.debug { "Completed" } }
-            .collect { log.debug { "Collect" } }
+            .onStart {
+                log.debug { "On starting 은 한번만 호출되어야 한다" }
+                onStartCount++
+            }  // 한번만 호출된다
+            .onCompletion {
+                log.debug { "Completed" }
+            }
+            .collect { log.debug { "Collect $it" } }
+
+        onStartCount shouldBeEqualTo 1
     }
 
     @Test
@@ -81,13 +90,19 @@ class FlowLifecycleExamples {
         val flow = flow {
             emit(1)
             emit(2)
-            throw RuntimeException("Boom!")
-        }
-        flow.onEach { log.debug { "Get $it" } }
-            .catch { log.debug { "Catch $it" } }   // catch는 예외만 받는다. catch 는 flow 가 종료되기 전에 호출된다
-            .collect()
-    }
+            throw BluetapeException("Boom!")
+        }.log("F1")
 
+        var cached: Throwable? = null
+        flow.onEach { log.debug { "Get $it" } }
+            .catch {
+                cached = it
+                log.debug { "Catch $it" }
+            }   // catch는 예외만 받는다. catch 는 flow 가 종료되기 전에 호출된다
+            .collect()
+
+        cached.shouldBeInstanceOf<BluetapeException>()
+    }
 
     @Nested
     inner class FlowOnExample {
@@ -97,7 +112,7 @@ class FlowLifecycleExamples {
             repeat(2) {
                 emit("User$it in $coroutineName")
             }
-        }
+        }.log("FlowOn")
 
         @Test
         fun `flowOn - flow 작업 시 사용할 context 를 지정한다`() = runTest {
@@ -127,7 +142,7 @@ class FlowLifecycleExamples {
         private fun messageFlow(): Flow<String> = flow {
             present("flow builder", "Message")
             emit("Message")
-        }
+        }.log("MessageFlow")
 
         @Test
         fun `flowOn with different context`() = runTest {
@@ -151,8 +166,8 @@ class FlowLifecycleExamples {
     @Test
     fun `launchIn - lauch to start flow processing on another coroutine`() =
         runTest(CoroutineName("test")) {
-            flowOf("User1", "User2")
-                .onStart { log.debug { "Users:" } }
+            flowOf("User1", "User2").log("User Flow")
+                .onStart { log.debug { "Users Flow started:" } }
                 .flowOn(CoroutineName("users"))
                 .onEach { log.debug { it } }
                 .launchIn(this)

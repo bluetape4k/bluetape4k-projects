@@ -1,9 +1,9 @@
 package io.bluetape4k
 
-import io.bluetape4k.logging.KLogging
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldNotBe
 import io.bluetape4k.assertions.shouldNotBeEqualTo
+import io.bluetape4k.logging.KLogging
 import org.junit.jupiter.api.Test
 import java.util.*
 
@@ -12,8 +12,11 @@ class ValueObjectTest {
     companion object: KLogging()
 
     class Person(val name: String, val age: Int, val address: String? = null): AbstractValueObject() {
+
         override fun equalProperties(other: Any): Boolean =
             other is Person && name == other.name && age == other.age
+
+        override fun equals(other: Any?): Boolean = other is Person && super.equals(other)
 
         override fun hashCode(): Int = Objects.hash(name, age)
 

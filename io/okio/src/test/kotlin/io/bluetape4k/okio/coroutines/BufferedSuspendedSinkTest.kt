@@ -3,12 +3,12 @@ package io.bluetape4k.okio.coroutines
 import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import io.bluetape4k.okio.AbstractOkioTest
 import io.bluetape4k.okio.SEGMENT_SIZE
 import io.bluetape4k.okio.bufferOf
-import kotlinx.coroutines.test.runTest
 import okio.Buffer
 import okio.ByteString
 import okio.ByteString.Companion.encodeUtf8
@@ -40,6 +40,7 @@ class BufferedSuspendedSinkTest: AbstractOkioTest() {
         override suspend fun flush() {
             flushCount++
         }
+
         override suspend fun close() {
             closeCount++
             closed = true
@@ -49,7 +50,7 @@ class BufferedSuspendedSinkTest: AbstractOkioTest() {
     }
 
     @Test
-    fun `emitCompleteSegments keeps complete segments delegated and tail internal`() = runTest {
+    fun `emitCompleteSegments keeps complete segments delegated and tail internal`() = runSuspendIO {
         val fakeSink = FakeSuspendedSink()
         val bufferedSink: BufferedSuspendedSink = fakeSink.buffered()
         val completeSegment = ByteArray(SEGMENT_SIZE.toInt()) { it.toByte() }
@@ -68,7 +69,7 @@ class BufferedSuspendedSinkTest: AbstractOkioTest() {
     }
 
     @Test
-    fun `flush transfers one tail and close transfers subsequent tail exactly once`() = runTest {
+    fun `flush transfers one tail and close transfers subsequent tail exactly once`() = runSuspendIO {
         val fakeSink = FakeSuspendedSink()
         val bufferedSink = RealBufferedSuspendedSink(fakeSink)
         val firstTail = "tail-before-flush".encodeUtf8()
@@ -99,7 +100,7 @@ class BufferedSuspendedSinkTest: AbstractOkioTest() {
     }
 
     @Test
-    fun `close flushes and closes underlying sink`() = runTest {
+    fun `close flushes and closes underlying sink`() = runSuspendIO {
         val fakeSink = FakeSuspendedSink()
         val bufferedSink = RealBufferedSuspendedSink(fakeSink)
 
@@ -111,7 +112,7 @@ class BufferedSuspendedSinkTest: AbstractOkioTest() {
     }
 
     @Test
-    fun `writeInt and writeLong writes integer and long values`() = runTest {
+    fun `writeInt and writeLong writes integer and long values`() = runSuspendIO {
         val fakeSink = FakeSuspendedSink()
         val bufferedSink = RealBufferedSuspendedSink(fakeSink)
         with(bufferedSink) {
@@ -129,7 +130,7 @@ class BufferedSuspendedSinkTest: AbstractOkioTest() {
     }
 
     @Test
-    fun `all buffered write overloads preserve exact payload`() = runTest {
+    fun `all buffered write overloads preserve exact payload`() = runSuspendIO {
         val fakeSink = FakeSuspendedSink()
         val bufferedSink = RealBufferedSuspendedSink(fakeSink)
         val expected = Buffer()
@@ -236,7 +237,7 @@ class BufferedSuspendedSinkTest: AbstractOkioTest() {
     }
 
     @Test
-    fun `write after close throws`() = runTest {
+    fun `write after close throws`() = runSuspendIO {
         val fakeSink = FakeSuspendedSink()
         val bufferedSink = RealBufferedSuspendedSink(fakeSink)
         bufferedSink.close()
@@ -247,7 +248,7 @@ class BufferedSuspendedSinkTest: AbstractOkioTest() {
     }
 
     @Test
-    fun `write from suspended source throws when no progress repeats`() = runTest {
+    fun `write from suspended source throws when no progress repeats`() = runSuspendIO {
         val fakeSink = FakeSuspendedSink()
         val bufferedSink = RealBufferedSuspendedSink(fakeSink)
         val noProgressSource = object: SuspendedSource {
@@ -262,7 +263,7 @@ class BufferedSuspendedSinkTest: AbstractOkioTest() {
     }
 
     @Test
-    fun `writeAll from suspended source throws when no progress repeats`() = runTest {
+    fun `writeAll from suspended source throws when no progress repeats`() = runSuspendIO {
         val fakeSink = FakeSuspendedSink()
         val bufferedSink = RealBufferedSuspendedSink(fakeSink)
         val noProgressSource = object: SuspendedSource {

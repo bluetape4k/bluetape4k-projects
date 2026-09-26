@@ -4,6 +4,8 @@ import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeNull
 import io.bluetape4k.assertions.shouldNotBeEmpty
 import io.bluetape4k.assertions.shouldNotBeNull
+import io.bluetape4k.logging.KLogging
+import io.bluetape4k.support.toUtf8String
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
 import okhttp3.Request
@@ -14,6 +16,8 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 
 class OkHttpResponseExtensionsTest {
+
+    companion object: KLogging()
 
     private lateinit var server: MockWebServer
     private val client = OkHttpClient()
@@ -47,7 +51,7 @@ class OkHttpResponseExtensionsTest {
         val bytes = response.bodyAsByteArray()
         bytes.shouldNotBeNull()
         bytes.shouldNotBeEmpty()
-        String(bytes) shouldBeEqualTo "bytes"
+        bytes.toUtf8String() shouldBeEqualTo "bytes"
     }
 
     @Test
@@ -55,7 +59,7 @@ class OkHttpResponseExtensionsTest {
         val response = enqueueAndExecute("stream")
         val stream = response.bodyAsInputStream()
         stream.shouldNotBeNull()
-        String(stream.readBytes()) shouldBeEqualTo "stream"
+        stream.readBytes().toUtf8String() shouldBeEqualTo "stream"
     }
 
     @Test

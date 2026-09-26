@@ -91,9 +91,9 @@ class UserDefinedTypesMappedExamples: AbstractCassandraTest() {
     private fun retrieveData(session: CqlSession) {
         for (k in 1..2) {
             val stmt = statementOf("SELECT c FROM examples.udts WHERE k=?", k)
+            log.debug { "Executing query: ${stmt.query}" }
 
-            val row = session.execute(stmt).one()
-            row.shouldNotBeNull()
+            val row = session.execute(stmt).one().shouldNotBeNull()
 
             val coordinatesValue = row.getValue<Coordinates>("c")
             coordinatesValue.shouldNotBeNull()

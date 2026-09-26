@@ -6,11 +6,16 @@ import io.bluetape4k.redis.lettuce.LettuceClients
 import io.bluetape4k.redis.lettuce.codec.LettuceIntCodec
 import io.bluetape4k.redis.lettuce.codec.LettuceLongCodec
 import io.bluetape4k.redis.lettuce.map.LettuceMap
+
 class LettuceMemoizerTest: AbstractMemoizerTest() {
 
     companion object: KLogging() {
-        private val intConnection by lazy { LettuceClients.connect(RedisServers.redisClient, LettuceIntCodec) }
-        private val longConnection by lazy { LettuceClients.connect(RedisServers.redisClient, LettuceLongCodec) }
+        private val intConnection by lazy {
+            LettuceClients.connect(RedisServers.redisClient, LettuceIntCodec)
+        }
+        private val longConnection by lazy {
+            LettuceClients.connect(RedisServers.redisClient, LettuceLongCodec)
+        }
     }
 
     private val heavyMap = LettuceMap<Int>(intConnection, "memoizer:lettuce:heavy").apply { clear() }
@@ -22,13 +27,13 @@ class LettuceMemoizerTest: AbstractMemoizerTest() {
 
     override val factorial: FactorialProvider = object: FactorialProvider {
         override val cachedCalc: (Long) -> Long =
-            LettuceMap<Long>(longConnection, "memoizer:lettuce:factorial")
+            LettuceMap(longConnection, "memoizer:lettuce:factorial")
                 .memoizer { calc(it) }
     }
 
     override val fibonacci: FibonacciProvider = object: FibonacciProvider {
         override val cachedCalc: (Long) -> Long =
-            LettuceMap<Long>(longConnection, "memoizer:lettuce:fibonacci")
+            LettuceMap(longConnection, "memoizer:lettuce:fibonacci")
                 .memoizer { calc(it) }
     }
 }

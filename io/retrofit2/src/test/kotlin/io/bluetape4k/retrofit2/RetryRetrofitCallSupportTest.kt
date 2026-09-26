@@ -4,6 +4,7 @@ import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.http.okhttp3.mock.baseUrl
 import io.bluetape4k.junit5.coroutines.runSuspendIO
+import io.bluetape4k.logging.KLogging
 import io.bluetape4k.retrofit2.services.TestService
 import io.github.resilience4j.retry.Retry
 import io.github.resilience4j.retry.RetryConfig
@@ -18,6 +19,8 @@ import java.io.IOException
 import java.time.Duration
 
 class RetryRetrofitCallSupportTest {
+
+    companion object: KLogging()
 
     private lateinit var server: MockWebServer
     private lateinit var api: TestService.TestInterface
@@ -59,13 +62,12 @@ class RetryRetrofitCallSupportTest {
         server.requestCount shouldBeEqualTo 2
     }
 
-    private fun retryOf(name: String): Retry =
-        Retry.of(
-            name,
-            RetryConfig.custom<retrofit2.Response<String>>()
-                .maxAttempts(2)
-                .waitDuration(Duration.ofMillis(10))
-                .retryOnException { it is IOException }
-                .build(),
-        )
+    private fun retryOf(name: String): Retry = Retry.of(
+        name,
+        RetryConfig.custom<retrofit2.Response<String>>()
+            .maxAttempts(2)
+            .waitDuration(Duration.ofMillis(10))
+            .retryOnException { it is IOException }
+            .build()
+    )
 }

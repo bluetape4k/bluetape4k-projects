@@ -1,6 +1,7 @@
 package io.bluetape4k.json.compat.issue754.java;
 
 import io.bluetape4k.json.JsonSerializer;
+
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 
@@ -18,7 +19,7 @@ public final class NewJsonBufferCaller {
 
         verifyDefaults(serializer);
         JsonSerializer kotlinSerializer = (JsonSerializer) Class.forName(
-            "io.bluetape4k.json.compat.issue754.kotlin.LegacyJsonImplementation"
+                "io.bluetape4k.json.compat.issue754.kotlin.LegacyJsonImplementation"
         ).getDeclaredConstructor().newInstance();
         verifyDefaults(kotlinSerializer);
 

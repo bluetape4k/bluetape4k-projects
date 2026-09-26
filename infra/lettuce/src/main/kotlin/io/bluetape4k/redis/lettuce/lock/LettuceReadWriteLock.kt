@@ -15,7 +15,7 @@ import java.util.concurrent.ScheduledExecutorService
  */
 class LettuceReadWriteLock internal constructor(
     private val client: ReadWriteLockClient,
-) : AutoCloseable {
+): AutoCloseable {
 
     private val readView = ReadLockView(client)
     private val writeView = WriteLockView(client)

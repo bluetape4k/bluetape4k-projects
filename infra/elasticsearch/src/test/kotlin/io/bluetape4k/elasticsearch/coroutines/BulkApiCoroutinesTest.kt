@@ -8,23 +8,25 @@ import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeFalse
 import io.bluetape4k.assertions.shouldBeGreaterOrEqualTo
 import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.assertions.shouldNotBeEmpty
 import io.bluetape4k.assertions.shouldNotBeNull
 import io.bluetape4k.elasticsearch.AbstractElasticsearchTest
 import io.bluetape4k.elasticsearch.ElasticsearchTestFixtures
 import io.bluetape4k.elasticsearch.ElasticsearchTestFixtures.createTestIndex
 import io.bluetape4k.elasticsearch.ElasticsearchTestFixtures.deleteTestIndex
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.junit5.coroutines.runSuspendIO
+import io.bluetape4k.logging.coroutines.KLoggingChannel
+import io.bluetape4k.logging.debug
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.future.await
-import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import java.util.*
+import java.util.concurrent.ConcurrentLinkedQueue
 import java.util.concurrent.atomic.AtomicInteger
-import kotlin.time.Duration.Companion.seconds
 
 /**
  * [bulkAsFlow] 와 [suspendBulk] 에 대한 Bulk API 통합 테스트.
@@ -36,7 +38,7 @@ import kotlin.time.Duration.Companion.seconds
  */
 class BulkApiCoroutinesTest: AbstractElasticsearchTest() {
 
-    companion object: KLogging() {
+    companion object: KLoggingChannel() {
         private const val TOTAL_DOCS = 5_000
         private const val CHUNK_SIZE = 500
         private const val EXPECTED_CHUNK_COUNT = TOTAL_DOCS / CHUNK_SIZE
@@ -55,14 +57,18 @@ class BulkApiCoroutinesTest: AbstractElasticsearchTest() {
     private lateinit var indexName: String
 
     @BeforeEach
-    fun setUp() = runTest(timeout = 60.seconds) {
+    fun setUp() = runSuspendIO {
         indexName = ElasticsearchTestFixtures.randomIndexName("bulk-test")
+        log.debug { "Creating index $indexName" }
         asyncClient.createTestIndex(indexName).await()
     }
 
     @AfterEach
-    fun tearDown() = runTest(timeout = 60.seconds) {
-        runCatching { asyncClient.deleteTestIndex(indexName).await() }
+    fun tearDown() = runSuspendIO {
+        runCatching {
+            log.debug { "Delete test index. indexName=$indexName" }
+            asyncClient.deleteTestIndex(indexName).await()
+        }
     }
 
     // -------------------------------------------------------------------------
@@ -70,130 +76,132 @@ class BulkApiCoroutinesTest: AbstractElasticsearchTest() {
     // -------------------------------------------------------------------------
 
     @Test
-    fun `5천건 bulk 인덱싱 시 chunk 단위로 BulkResponse 가 emit 된다`() =
-        runTest(timeout = 120.seconds) {
-            val operations: Flow<BulkOperation> = flow {
-                repeat(TOTAL_DOCS) { i ->
-                    emit(buildIndexOperation(indexName, i))
-                }
+    fun `5천건 bulk 인덱싱 시 chunk 단위로 BulkResponse 가 emit 된다`() = runSuspendIO {
+        val operations: Flow<BulkOperation> = flow {
+            repeat(TOTAL_DOCS) { i ->
+                emit(buildIndexOperation(indexName, i))
             }
-
-            val responses = operations
-                .bulkAsFlow(client = asyncClient, indexName = indexName, chunkSize = CHUNK_SIZE)
-                .toList()
-
-            // chunk 개수 검증
-            responses.size shouldBeEqualTo EXPECTED_CHUNK_COUNT
-
-            // 각 chunk 의 응답이 정상이어야 함
-            responses.forEach { response ->
-                response.shouldNotBeNull()
-                response.errors().shouldBeFalse()
-                response.items().size shouldBeEqualTo CHUNK_SIZE
-            }
-
-            // refresh 후 색인된 문서 수 확인
-            asyncClient.indices().refresh { it.index(listOf(indexName)) }.await()
-
-            val countResponse = asyncClient.countSuspending {
-                index(listOf(indexName))
-            }
-            countResponse.count() shouldBeGreaterOrEqualTo TOTAL_DOCS.toLong()
         }
+
+        val responses = operations
+            .bulkAsFlow(client = asyncClient, indexName = indexName, chunkSize = CHUNK_SIZE)
+            .toList()
+
+        // chunk 개수 검증
+        responses.size shouldBeEqualTo EXPECTED_CHUNK_COUNT
+
+        // 각 chunk 의 응답이 정상이어야 함
+        responses.forEach { response ->
+            response.shouldNotBeNull()
+            response.errors().shouldBeFalse()
+            response.items().size shouldBeEqualTo CHUNK_SIZE
+        }
+
+        // refresh 후 색인된 문서 수 확인
+        val refreshRes = asyncClient.indices().refresh { it.index(listOf(indexName)) }.await()
+        log.debug { "refresh indices: $refreshRes" }
+        refreshRes.shards()?.failed() shouldBeEqualTo 0
+        refreshRes.shards()?.successful() shouldBeEqualTo 1
+
+        val countRes = asyncClient.countSuspending {
+            index(listOf(indexName))
+        }
+        log.debug { "count: $countRes" }
+        countRes.count() shouldBeGreaterOrEqualTo TOTAL_DOCS.toLong()
+        countRes.shards()?.successful() shouldBeEqualTo 1
+    }
 
     // -------------------------------------------------------------------------
     // 2) Partial error 처리 — mapping 오류 시 onItemError 콜백 호출
     // -------------------------------------------------------------------------
 
     @Test
-    fun `mapping 오류가 포함된 bulk 요청은 onItemError 콜백으로 실패 item 을 전달한다`() =
-        runTest(timeout = 60.seconds) {
-            // value 필드를 integer 로 강제하는 strict mapping 인덱스 생성
-            val strictIndex = ElasticsearchTestFixtures.randomIndexName("bulk-partial")
-            asyncClient.createIndexSuspending {
-                index(strictIndex)
-                mappings(
-                    TypeMapping.of { tm ->
-                        tm.properties("title", Property.of { p -> p.text { it } })
-                            .properties("value", Property.of { p -> p.integer { it } })
-                    }
-                )
-            }
-
-            try {
-                val errorItems = mutableListOf<BulkResponseItem>()
-                val errorCount = AtomicInteger(0)
-
-                val operations: Flow<BulkOperation> = flow {
-                    // 정상 문서 — value 가 Int
-                    repeat(PARTIAL_VALID_DOCS) { i ->
-                        emit(buildIndexOperation(strictIndex, i))
-                    }
-                    // 비정상 문서 — value 가 Int 로 변환 불가능한 문자열
-                    repeat(PARTIAL_INVALID_DOCS) { i ->
-                        emit(buildInvalidIndexOperation(strictIndex, i))
-                    }
+    fun `mapping 오류가 포함된 bulk 요청은 onItemError 콜백으로 실패 item 을 전달한다`() = runSuspendIO {
+        // value 필드를 integer 로 강제하는 strict mapping 인덱스 생성
+        val strictIndex = ElasticsearchTestFixtures.randomIndexName("bulk-partial")
+        val createResp = asyncClient.createIndexSuspending {
+            index(strictIndex)
+            mappings(
+                TypeMapping.of { tm ->
+                    tm.properties("title", Property.of { p -> p.text { it } })
+                        .properties("value", Property.of { p -> p.integer { it } })
                 }
-
-                val responses = operations.bulkAsFlow(
-                    client = asyncClient,
-                    indexName = strictIndex,
-                    chunkSize = CHUNK_SIZE,
-                ) { failedItem ->
-                    errorItems.add(failedItem)
-                    errorCount.incrementAndGet()
-                }.toList()
-
-                // 응답이 일부 chunk 단위로 emit 되었는지 확인
-                responses.shouldNotBeNull()
-                responses.isNotEmpty().shouldBeTrue()
-
-                // 적어도 한 chunk 는 errors=true
-                responses.any { it.errors() }.shouldBeTrue()
-
-                // onItemError 콜백 누적치 검증 — 50건 모두 실패해야 함
-                errorCount.get() shouldBeEqualTo PARTIAL_INVALID_DOCS
-                errorItems.size shouldBeEqualTo PARTIAL_INVALID_DOCS
-
-                // 각 실패 item 은 error() 가 null 이 아니어야 함
-                errorItems.forEach { item ->
-                    item.error().shouldNotBeNull()
-                }
-            } finally {
-                runCatching { asyncClient.deleteTestIndex(strictIndex).await() }
-            }
+            )
         }
+        log.debug { "create: $createResp" }
+
+        try {
+            val errorItems = ConcurrentLinkedQueue<BulkResponseItem>()
+            val errorCount = AtomicInteger(0)
+
+            val operations: Flow<BulkOperation> = flow {
+                // 정상 문서 — value 가 Int
+                repeat(PARTIAL_VALID_DOCS) { i ->
+                    emit(buildIndexOperation(strictIndex, i))
+                }
+                // 비정상 문서 — value 가 Int 로 변환 불가능한 문자열
+                repeat(PARTIAL_INVALID_DOCS) { i ->
+                    emit(buildInvalidIndexOperation(strictIndex, i))
+                }
+            }
+
+            val responses = operations.bulkAsFlow(
+                client = asyncClient,
+                indexName = strictIndex,
+                chunkSize = CHUNK_SIZE,
+            ) { failedItem ->
+                errorItems.add(failedItem)
+                errorCount.incrementAndGet()
+            }.toList()
+
+            // 응답이 일부 chunk 단위로 emit 되었는지 확인
+            responses.shouldNotBeEmpty()
+
+            // 적어도 한 chunk 는 errors=true
+            responses.any { it.errors() }.shouldBeTrue()
+
+            // onItemError 콜백 누적치 검증 — 50건 모두 실패해야 함
+            errorCount.get() shouldBeEqualTo PARTIAL_INVALID_DOCS
+            errorItems.size shouldBeEqualTo PARTIAL_INVALID_DOCS
+
+            // 각 실패 item 은 error() 가 null 이 아니어야 함
+            errorItems.all { it.error() != null }.shouldBeTrue()
+        } finally {
+            runCatching { asyncClient.deleteTestIndex(strictIndex).await() }
+        }
+    }
 
     // -------------------------------------------------------------------------
     // 3) suspendBulk 직접 사용
     // -------------------------------------------------------------------------
 
     @Test
-    fun `suspendBulk 로 BulkRequest 를 직접 발행하면 BulkResponse 를 반환한다`() =
-        runTest(timeout = 30.seconds) {
-            val operationCount = 10
-            val operations = (0 until operationCount).map { i ->
-                buildIndexOperation(indexName, i)
-            }
-
-            val response = asyncClient.suspendBulk {
-                index(indexName)
-                operations(operations)
-            }
-
-            response.shouldNotBeNull()
-            response.errors().shouldBeFalse()
-            response.items().size shouldBeEqualTo operationCount
-            response.took() shouldBeGreaterOrEqualTo 0L
-
-            // refresh 후 색인 결과 확인
-            asyncClient.indices().refresh { it.index(listOf(indexName)) }.await()
-
-            val countResponse = asyncClient.countSuspending {
-                index(listOf(indexName))
-            }
-            countResponse.count() shouldBeGreaterOrEqualTo operationCount.toLong()
+    fun `suspendBulk 로 BulkRequest 를 직접 발행하면 BulkResponse 를 반환한다`() = runSuspendIO {
+        val operationCount = 10
+        val operations = (0 until operationCount).map { i ->
+            buildIndexOperation(indexName, i)
         }
+
+        val response = asyncClient.suspendBulk {
+            index(indexName)
+            operations(operations)
+        }
+
+        log.debug { "response: $response" }
+        response.errors().shouldBeFalse()
+        response.items().size shouldBeEqualTo operationCount
+        response.took() shouldBeGreaterOrEqualTo 0L
+
+        // refresh 후 색인 결과 확인
+        val refreshRes = asyncClient.indices().refresh { it.index(listOf(indexName)) }.await()
+        log.debug { "refresh: $refreshRes" }
+
+        val countRes = asyncClient.countSuspending {
+            index(listOf(indexName))
+        }
+        log.debug { "count: $countRes" }
+        countRes.count() shouldBeGreaterOrEqualTo operationCount.toLong()
+    }
 
     // -------------------------------------------------------------------------
     // 헬퍼 — BulkOperation 빌더

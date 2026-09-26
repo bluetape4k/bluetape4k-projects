@@ -1,5 +1,6 @@
 package io.bluetape4k.cache.jcache
 
+import io.bluetape4k.assertions.shouldBe
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeFalse
 import io.bluetape4k.assertions.shouldBeNull
@@ -57,20 +58,20 @@ class JCachingTest {
     fun `JCaching Cache2k cacheManager - 동일 인스턴스 반환`() {
         val m1 = JCaching.Cache2k.cacheManager
         val m2 = JCaching.Cache2k.cacheManager
-        (m1 === m2).shouldBeTrue()
+        m1 shouldBe m2
     }
 
     @Test
     fun `JCaching Caffeine cacheManager - 동일 인스턴스 반환`() {
         val m1 = JCaching.Caffeine.cacheManager
         val m2 = JCaching.Caffeine.cacheManager
-        (m1 === m2).shouldBeTrue()
+        m1 shouldBe m2
     }
 
     @Test
     fun `JCaching EhCache cacheManager - 동일 인스턴스 반환`() {
         val m1 = JCaching.EhCache.cacheManager
         val m2 = JCaching.EhCache.cacheManager
-        (m1 === m2).shouldBeTrue()
+        m1 shouldBe m2
     }
 }

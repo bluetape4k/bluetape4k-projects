@@ -1,16 +1,21 @@
 package io.bluetape4k.nats.client
 
+import io.bluetape4k.assertions.assertFailsWith
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldNotBeNull
+import io.bluetape4k.logging.KLogging
+import io.bluetape4k.nats.AbstractNatsTest
 import io.bluetape4k.support.toUtf8Bytes
+import io.bluetape4k.support.toUtf8String
 import io.mockk.every
 import io.mockk.mockk
 import io.nats.client.Message
 import io.nats.client.impl.Headers
-import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldNotBeNull
-import io.bluetape4k.assertions.assertFailsWith
 import org.junit.jupiter.api.Test
 
-class NatsMessageTest {
+class NatsMessageTest: AbstractNatsTest() {
+
+    companion object: KLogging()
 
     @Test
     fun `natsMessage with builder creates NatsMessage`() {
@@ -21,7 +26,7 @@ class NatsMessageTest {
 
         msg.shouldNotBeNull()
         msg.subject shouldBeEqualTo "foo"
-        String(msg.data) shouldBeEqualTo "hello"
+        msg.data.toUtf8String() shouldBeEqualTo "hello"
     }
 
     @Test

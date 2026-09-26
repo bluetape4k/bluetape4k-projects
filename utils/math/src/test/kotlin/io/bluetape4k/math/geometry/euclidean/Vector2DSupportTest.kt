@@ -7,20 +7,22 @@ import kotlin.math.PI
 
 class Vector2DSupportTest {
 
-    companion object: KLogging()
+    companion object: KLogging() {
+        private const val EPSILON = 1e-10
+    }
 
     @Test
     fun `DoubleArray를 2차원 벡터로 변환할 수 있다`() {
         val v = doubleArrayOf(3.0, 4.0).toVector2D()
-        v.x.shouldBeNear(3.0, 1e-10)
-        v.y.shouldBeNear(4.0, 1e-10)
+        v.x.shouldBeNear(3.0, EPSILON)
+        v.y.shouldBeNear(4.0, EPSILON)
     }
 
     @Test
     fun `x, y 좌표로 2차원 벡터를 생성할 수 있다`() {
         val v = vector2DOf(3.0, 4.0)
-        v.x.shouldBeNear(3.0, 1e-10)
-        v.y.shouldBeNear(4.0, 1e-10)
+        v.x.shouldBeNear(3.0, EPSILON)
+        v.y.shouldBeNear(4.0, EPSILON)
     }
 
     @Test
@@ -28,8 +30,8 @@ class Vector2DSupportTest {
         val v1 = vector2DOf(1.0, 2.0)
         val v2 = vector2DOf(3.0, 4.0)
         val result = v1 + v2
-        result.x.shouldBeNear(4.0, 1e-10)
-        result.y.shouldBeNear(6.0, 1e-10)
+        result.x.shouldBeNear(4.0, EPSILON)
+        result.y.shouldBeNear(6.0, EPSILON)
     }
 
     @Test
@@ -37,16 +39,16 @@ class Vector2DSupportTest {
         val v1 = vector2DOf(5.0, 7.0)
         val v2 = vector2DOf(2.0, 3.0)
         val result = v1 - v2
-        result.x.shouldBeNear(3.0, 1e-10)
-        result.y.shouldBeNear(4.0, 1e-10)
+        result.x.shouldBeNear(3.0, EPSILON)
+        result.y.shouldBeNear(4.0, EPSILON)
     }
 
     @Test
     fun `스칼라와 2차원 벡터를 곱할 수 있다`() {
         val v = vector2DOf(1.0, 2.0)
         val result = 3.0 * v
-        result.x.shouldBeNear(3.0, 1e-10)
-        result.y.shouldBeNear(6.0, 1e-10)
+        result.x.shouldBeNear(3.0, EPSILON)
+        result.y.shouldBeNear(6.0, EPSILON)
     }
 
     @Test
@@ -54,7 +56,7 @@ class Vector2DSupportTest {
         val v1 = vector2DOf(1.0, 0.0)
         val v2 = vector2DOf(0.0, 1.0)
         val angle = v1.angle(v2)
-        angle.shouldBeNear(PI / 2, 1e-10)
+        angle.shouldBeNear(PI / 2, EPSILON)
     }
 
     @Test
@@ -62,12 +64,12 @@ class Vector2DSupportTest {
         val v1 = vector2DOf(1.0, 0.0)
         val v2 = vector2DOf(2.0, 0.0)
         val angle = v1.angle(v2)
-        angle.shouldBeNear(0.0, 1e-10)
+        angle.shouldBeNear(0.0, EPSILON)
     }
 
     @Test
     fun `영벡터가 아닌 벡터의 노름이 올바르다`() {
         val v = vector2DOf(3.0, 4.0)
-        v.norm.shouldBeNear(5.0, 1e-10)
+        v.norm.shouldBeNear(5.0, EPSILON)
     }
 }

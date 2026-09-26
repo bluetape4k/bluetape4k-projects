@@ -3,6 +3,7 @@ package io.bluetape4k.redis.lettuce.synchronizer
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldContain
 import io.bluetape4k.assertions.shouldNotContain
+import io.bluetape4k.logging.KLogging
 import io.bluetape4k.redis.lettuce.synchronizer.internal.deriveLatchKeys
 import io.bluetape4k.redis.lettuce.synchronizer.internal.deriveSemaphoreKeys
 import io.lettuce.core.cluster.SlotHash
@@ -10,6 +11,8 @@ import io.lettuce.core.codec.StringCodec
 import org.junit.jupiter.api.Test
 
 class SynchronizerProtocolTest {
+
+    companion object: KLogging()
 
     @Test
     fun `all semaphore and latch keys share their object slot`() {

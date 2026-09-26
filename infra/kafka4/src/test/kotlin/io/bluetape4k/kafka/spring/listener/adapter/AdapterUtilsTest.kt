@@ -9,7 +9,7 @@ import org.junit.jupiter.api.Test
  */
 class AdapterUtilsTest {
 
-    companion object : KLogging()
+    companion object: KLogging()
 
     @Test
     fun `consumerRecordMetadataFromArray - 빈 배열 전달 시 null 반환`() {

@@ -22,8 +22,7 @@ class AmbTest: AbstractFlowTest() {
         val flow1 = flowRangeOf(1, 5).onStart { delay(1000.milliseconds) }.log("#1")
         val flow2 = flowRangeOf(6, 5).onStart { delay(100.milliseconds) }.log("#2")
 
-        amb(flow1, flow2)
-            .assertResult(6, 7, 8, 9, 10)
+        amb(flow1, flow2).assertResult(6, 7, 8, 9, 10)
     }
 
     @Test
@@ -31,8 +30,7 @@ class AmbTest: AbstractFlowTest() {
         val flow1 = flowRangeOf(1, 5).onStart { delay(100.milliseconds) }.log("#1")
         val flow2 = flowRangeOf(6, 5).onStart { delay(1000.milliseconds) }.log("#2")
 
-        amb(flow1, flow2)
-            .assertResult(1, 2, 3, 4, 5)
+        amb(flow1, flow2).assertResult(1, 2, 3, 4, 5)
     }
 
     @Test

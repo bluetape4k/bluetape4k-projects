@@ -6,28 +6,28 @@ import dev.openfga.sdk.api.model.ReadRequest
 import dev.openfga.sdk.api.model.WriteRequest
 
 internal fun CheckRequest.withAuthorizationModel(scope: OpenFgaScope): CheckRequest =
-    CheckRequest(getTrace())
-        .tupleKey(getTupleKey())
-        .contextualTuples(getContextualTuples())
+    CheckRequest(trace)
+        .tupleKey(tupleKey)
+        .contextualTuples(contextualTuples)
         .authorizationModelId(scope.requireAuthorizationModelId())
-        .context(getContext())
-        .consistency(getConsistency())
+        .context(context)
+        .consistency(consistency)
 
 internal fun BatchCheckRequest.withAuthorizationModel(scope: OpenFgaScope): BatchCheckRequest =
     BatchCheckRequest()
-        .checks(getChecks())
+        .checks(checks)
         .authorizationModelId(scope.requireAuthorizationModelId())
-        .consistency(getConsistency())
+        .consistency(consistency)
 
 internal fun WriteRequest.withAuthorizationModel(scope: OpenFgaScope): WriteRequest =
     WriteRequest()
-        .writes(getWrites())
-        .deletes(getDeletes())
+        .writes(writes)
+        .deletes(deletes)
         .authorizationModelId(scope.requireAuthorizationModelId())
 
 internal fun ReadRequest.withPage(pageSize: Int?, continuationToken: String?): ReadRequest =
     ReadRequest()
-        .tupleKey(getTupleKey())
+        .tupleKey(tupleKey)
         .pageSize(pageSize)
         .continuationToken(continuationToken)
-        .consistency(getConsistency())
+        .consistency(consistency)

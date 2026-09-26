@@ -1,7 +1,10 @@
 package io.bluetape4k.spring.observability
 
 import io.bluetape4k.assertions.assertFailsWith
+import io.bluetape4k.assertions.shouldBe
+import io.bluetape4k.assertions.shouldBeInstanceOf
 import io.bluetape4k.assertions.shouldBeNull
+import io.bluetape4k.assertions.shouldNotBeInstanceOf
 import io.bluetape4k.junit5.coroutines.DEFAULT_CANCELLATION_CONTRACT_TIMEOUT
 import io.bluetape4k.junit5.observability.ContextCleanupExpectation
 import io.bluetape4k.junit5.observability.ContextCleanupProbe
@@ -22,6 +25,7 @@ import io.bluetape4k.junit5.observability.ContextPropagationTerminal
 import io.bluetape4k.junit5.observability.ContextRequestAlias
 import io.bluetape4k.junit5.observability.assertContextIsolation
 import io.bluetape4k.junit5.observability.assertContextPropagationConformance
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.micrometer.observation.ObservationRegistry
 import io.micrometer.observation.tck.TestObservationRegistry
 import kotlinx.coroutines.CancellationException
@@ -52,10 +56,13 @@ import kotlin.time.Duration.Companion.milliseconds
 )
 class SpringContextPropagationConformanceTest {
 
+    companion object: KLoggingChannel()
+
     @Test
     fun `spring observation is visible across suspension and cleaned on success`() = runTest {
         val captured = runSpringScenario(ContextPropagationScenario.SUCCESS)
         captured.thrown.shouldBeNull()
+
         assertContextPropagationConformance(
             captured.observation,
             springExpectation(
@@ -68,7 +75,8 @@ class SpringContextPropagationConformanceTest {
     @Test
     fun `spring observation failure propagates and cleans registry`() = runTest {
         val captured = runSpringScenario(ContextPropagationScenario.FAILURE)
-        check(captured.thrown?.javaClass == IllegalStateException::class.java)
+        captured.thrown.shouldBeInstanceOf<IllegalStateException>()
+
         assertContextPropagationConformance(
             captured.observation,
             springExpectation(
@@ -81,8 +89,10 @@ class SpringContextPropagationConformanceTest {
     @Test
     fun `spring child cancellation propagates and cleans registry`() = runTest {
         val captured = runSpringScenario(ContextPropagationScenario.CANCELLATION)
-        check(captured.thrown is CancellationException)
-        check(captured.thrown !is TimeoutCancellationException)
+
+        captured.thrown.shouldBeInstanceOf<CancellationException>()
+        captured.thrown.shouldNotBeInstanceOf<TimeoutCancellationException>()
+
         assertContextPropagationConformance(
             captured.observation,
             springExpectation(
@@ -95,7 +105,8 @@ class SpringContextPropagationConformanceTest {
     @Test
     fun `spring observation deadline propagates and cleans registry`() = runTest {
         val captured = runSpringScenario(ContextPropagationScenario.DEADLINE)
-        check(captured.thrown?.javaClass == TimeoutCancellationException::class.java)
+        captured.thrown.shouldBeInstanceOf<TimeoutCancellationException>()
+
         assertContextPropagationConformance(
             captured.observation,
             springExpectation(
@@ -121,7 +132,7 @@ class SpringContextPropagationConformanceTest {
             runSpringIsolationScenarioWithFailure(failure)
         }
 
-        check(thrown === failure)
+        thrown shouldBe failure
     }
 }
 
@@ -301,13 +312,13 @@ private suspend fun runSpringScenario(
                 started.complete(Unit)
             },
         ) {
-            val child = async {
+            val child = this@supervisorScope.async {
                 try {
                     registry.observeMarkers(springMarkerA, observations) {
                         started.complete(Unit)
                         when (scenario) {
-                            ContextPropagationScenario.SUCCESS -> Unit
-                            ContextPropagationScenario.FAILURE ->
+                            ContextPropagationScenario.SUCCESS  -> Unit
+                            ContextPropagationScenario.FAILURE  ->
                                 error("synthetic Spring observation failure")
 
                             ContextPropagationScenario.CANCELLATION ->
@@ -318,7 +329,8 @@ private suspend fun runSpringScenario(
                                     awaitCancellation()
                                 }
 
-                            else -> error("Isolation uses runSpringIsolationScenario")
+//                            else                                    ->
+//                                error("Isolation uses runSpringIsolationScenario")
                         }
                     }
                 } finally {
@@ -348,6 +360,7 @@ private suspend fun runSpringScenario(
             ledger.assertSingleScenarioOrder()
 
             CapturedScenario(
+
                 observation = ContextPropagationObservation(
                     boundary = ContextPropagationBoundary.SPRING_OBSERVATION,
                     scenario = scenario,
@@ -372,8 +385,8 @@ private suspend fun runSpringIsolationScenarioWithFailure(
     supervisorScope {
         val registryA = TestObservationRegistry.create()
         val registryB = TestObservationRegistry.create()
-        val observationsA = ConcurrentLinkedQueue<String?>()
-        val observationsB = ConcurrentLinkedQueue<String?>()
+        val observationsA = ConcurrentLinkedQueue<String>()
+        val observationsB = ConcurrentLinkedQueue<String>()
         val readyA = CompletableDeferred<Unit>()
         val readyB = CompletableDeferred<Unit>()
         val release = CompletableDeferred<Unit>()
@@ -391,7 +404,7 @@ private suspend fun runSpringIsolationScenarioWithFailure(
                 release.complete(Unit)
             },
         ) {
-            val childA = async {
+            val childA = this@supervisorScope.async {
                 runSpringIsolationParticipant(
                     registry = registryA,
                     marker = springMarkerA,
@@ -407,7 +420,7 @@ private suspend fun runSpringIsolationScenarioWithFailure(
                     failureAfterRelease = failureAfterRelease,
                 )
             }
-            val childB = async {
+            val childB = this@supervisorScope.async {
                 runSpringIsolationParticipant(
                     registry = registryB,
                     marker = springMarkerB,
@@ -492,7 +505,7 @@ private suspend fun runSpringIsolationParticipant(
     registry: ObservationRegistry,
     marker: String,
     alias: ContextRequestAlias,
-    observations: ConcurrentLinkedQueue<String?>,
+    observations: ConcurrentLinkedQueue<String>,
     ownReady: CompletableDeferred<Unit>,
     readyA: CompletableDeferred<Unit>,
     readyB: CompletableDeferred<Unit>,
@@ -582,11 +595,11 @@ private fun terminalFor(
     scenario: ContextPropagationScenario,
 ): ContextPropagationTerminal =
     when (scenario) {
-        ContextPropagationScenario.SUCCESS -> ContextPropagationTerminal.SUCCESS
-        ContextPropagationScenario.FAILURE -> ContextPropagationTerminal.FAILURE
+        ContextPropagationScenario.SUCCESS  -> ContextPropagationTerminal.SUCCESS
+        ContextPropagationScenario.FAILURE  -> ContextPropagationTerminal.FAILURE
         ContextPropagationScenario.CANCELLATION -> ContextPropagationTerminal.CANCELLATION
         ContextPropagationScenario.DEADLINE -> ContextPropagationTerminal.DEADLINE_EXCEEDED
-        else -> error("Isolation does not have a single terminal")
+        else                                -> error("Isolation does not have a single terminal")
     }
 
 private suspend fun CompletableDeferred<Unit>.awaitGateWithin() {

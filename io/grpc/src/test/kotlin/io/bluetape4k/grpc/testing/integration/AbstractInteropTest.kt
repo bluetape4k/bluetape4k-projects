@@ -6,6 +6,14 @@ import com.google.auth.oauth2.OAuth2Credentials
 import com.google.auth.oauth2.ServiceAccountCredentials
 import com.google.protobuf.ByteString
 import com.google.protobuf.MessageLite
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeGreaterOrEqualTo
+import io.bluetape4k.assertions.shouldBeNull
+import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.assertions.shouldContain
+import io.bluetape4k.assertions.shouldNotBeBlank
+import io.bluetape4k.assertions.shouldNotBeNull
+import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.warn
@@ -35,16 +43,6 @@ import io.grpc.internal.testing.TestClientStreamTracer
 import io.grpc.internal.testing.TestServerStreamTracer
 import io.grpc.internal.testing.TestStreamTracer
 import io.grpc.testing.TestUtils
-import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldBeGreaterOrEqualTo
-import io.bluetape4k.assertions.shouldBeNull
-import io.bluetape4k.assertions.shouldBeTrue
-import io.bluetape4k.assertions.shouldContain
-import io.bluetape4k.assertions.shouldNotBeBlank
-import io.bluetape4k.assertions.shouldNotBeNull
-import io.bluetape4k.junit5.coroutines.runSuspendIO
-import org.assertj.core.util.VisibleForTesting
-import org.junit.Rule
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -60,9 +58,6 @@ import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicReference
 
 abstract class AbstractInteropTest {
-
-    @get:Rule
-    val globalTimeout: TestRule
 
     private val serverCallCapture = AtomicReference<ServerCall<*, *>>(null)
     private val clientCallCapture = AtomicReference<ClientCall<*, *>>(null)
@@ -132,7 +127,6 @@ abstract class AbstractInteropTest {
         }
     }
 
-    @get:VisibleForTesting
     val listenAddress: SocketAddress
         get() = server!!.listenSockets.first()
 
@@ -458,7 +452,7 @@ abstract class AbstractInteropTest {
         require(method.isNotBlank()) { "Method must not be null or blank" }
 
         // Tracer based stats
-        val tracer = clientStreamTracers.poll()!!
+        val tracer = clientStreamTracers.poll().shouldNotBeNull()
         tracer.outboundHeaders.shouldBeTrue()
 
         // assertClientStatsTrace() is called right after application receives status,
@@ -643,6 +637,5 @@ abstract class AbstractInteropTest {
         } catch (e: Throwable) {
             log.warn(e) { "Debugging not disabled." }
         }
-        globalTimeout = timeout
     }
 }

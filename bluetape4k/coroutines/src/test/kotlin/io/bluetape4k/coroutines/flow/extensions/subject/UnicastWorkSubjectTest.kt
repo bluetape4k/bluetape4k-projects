@@ -1,5 +1,6 @@
 package io.bluetape4k.coroutines.flow.extensions.subject
 
+import io.bluetape4k.assertions.shouldBeEmpty
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeFalse
 import io.bluetape4k.assertions.shouldBeInstanceOf
@@ -68,6 +69,7 @@ class UnicastWorkSubjectTest {
     @Test
     fun `offline - after error`() = runTest {
         val us = UnicastWorkSubject<Int>()
+
         repeat(5) {
             us.emit(it)
         }
@@ -78,6 +80,7 @@ class UnicastWorkSubjectTest {
             .catch { it shouldBeInstanceOf RuntimeException::class }
             .log("#1")
             .toList()
+
         result shouldBeEqualTo listOf(0, 1, 2, 3, 4, 6)
     }
 
@@ -86,7 +89,7 @@ class UnicastWorkSubjectTest {
         val us = UnicastWorkSubject<Int>()
         us.emitError(null)
 
-        us.toList() shouldBeEqualTo emptyList()
+        us.toList().shouldBeEmpty()
     }
 
     @Test
@@ -136,6 +139,7 @@ class UnicastWorkSubjectTest {
             .rounds(rounds)
             .add { subject.emit(produced.incrementAndGet()) }
             .run()
+
         subject.complete()
         collectorJob.join()
 
@@ -154,7 +158,7 @@ class UnicastWorkSubjectTest {
         val expectedValues = (1..rounds).toList()
         val produced = AtomicInteger(0)
         val received = ConcurrentLinkedQueue<Int>()
-        val chunkSizes = mutableListOf<Int>()
+        val chunkSizes = ConcurrentLinkedQueue<Int>()
 
         val collectorJob = launch {
             while (received.size < rounds) {
@@ -171,13 +175,15 @@ class UnicastWorkSubjectTest {
             .rounds(rounds)
             .add { subject.emit(produced.incrementAndGet()) }
             .run()
+
         subject.complete()
         collectorJob.join()
 
         produced.get() shouldBeEqualTo rounds
         received.sorted() shouldBeEqualTo expectedValues
-        chunkSizes shouldBeEqualTo List(rounds / chunkSize) { chunkSize }
-        subject.toList() shouldBeEqualTo emptyList()
+        chunkSizes.toList() shouldBeEqualTo List(rounds / chunkSize) { chunkSize }
+
+        subject.toList().shouldBeEmpty()
         subject.collectorCount shouldBeEqualTo 0
         subject.hasCollectors.shouldBeFalse()
     }
@@ -195,6 +201,7 @@ class UnicastWorkSubjectTest {
                 }
                 us.complete()
             }.log("job")
+
             yield()
 
             val result = us.log("#1").toList()

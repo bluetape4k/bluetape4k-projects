@@ -1,8 +1,10 @@
 package io.bluetape4k.redis.lettuce.synchronizer
 
+import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeInstanceOf
-import io.bluetape4k.assertions.assertFailsWith
+import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.debug
 import io.bluetape4k.redis.lettuce.AbstractLettuceTest
 import io.bluetape4k.redis.lettuce.LettuceTestUtils
 import io.bluetape4k.redis.lettuce.synchronizer.internal.deriveSemaphoreKeys
@@ -13,25 +15,34 @@ import java.time.Duration
 
 class LettucePermitExpirableSemaphoreTest: AbstractLettuceTest() {
 
+    companion object: KLogging()
+
     @Test
     fun `three unit leases expire and restore exactly three permits`() {
         val connection = LettuceTestUtils.client.connect(StringCodec.UTF8)
-        val name = "expirable-${randomName().substringAfter(':')}"
+        val name = "expirable-${randomName().substringAfterLast(':')}"
         val config = ExpirableSemaphoreConfig(leaseTime = Duration.ofMillis(150))
         val keys = deriveSemaphoreKeys(name, config.semaphore, StringCodec.UTF8)
         connection.sync().del(*keys.all.toTypedArray())
         val semaphore = LettucePermitExpirableSemaphore.create(connection, name, config)
+
         try {
             semaphore.trySetPermits(3).shouldBeInstanceOf<SemaphoreInitializationResult.Initialized>()
-            val acquired = semaphore.tryAcquire(SemaphoreOwnerId.random(), SemaphoreRequestId.random(), 3)
+            val acquired = semaphore
+                .tryAcquire(SemaphoreOwnerId.random(), SemaphoreRequestId.random(), 3)
                 .shouldBeInstanceOf<PermitAcquireResult.Acquired<ExpirablePermitHandle>>()
+
+            log.debug { "acquired=$acquired" }
 
             acquired.handle.leases.size shouldBeEqualTo 3
             acquired.handle.leases.map { it.permitId }.distinct().size shouldBeEqualTo 3
             semaphore.availablePermits() shouldBeEqualTo 0
+
             Thread.sleep(220)
+
             semaphore.availablePermits() shouldBeEqualTo 3
             semaphore.release(acquired.handle) shouldBeEqualTo PermitMutationResult.Expired
+
             semaphore.tryAcquire(
                 acquired.handle.permit.ownerId,
                 acquired.handle.permit.requestId,
@@ -48,7 +59,7 @@ class LettucePermitExpirableSemaphoreTest: AbstractLettuceTest() {
     @Test
     fun `cleanup batch limit restores expired allocations in bounded passes`() {
         val connection = LettuceTestUtils.client.connect(StringCodec.UTF8)
-        val name = "expirable-batch-${randomName().substringAfter(':')}"
+        val name = "expirable-batch-${randomName().substringAfterLast(':')}"
         val config = ExpirableSemaphoreConfig(
             leaseTime = Duration.ofMillis(150),
             cleanupBatchLimit = 2,
@@ -56,15 +67,19 @@ class LettucePermitExpirableSemaphoreTest: AbstractLettuceTest() {
         val keys = deriveSemaphoreKeys(name, config.semaphore, StringCodec.UTF8)
         connection.sync().del(*keys.all.toTypedArray())
         val semaphore = LettucePermitExpirableSemaphore.create(connection, name, config)
+
         try {
             semaphore.trySetPermits(4)
             repeat(4) {
-                semaphore.tryAcquire(
+                val acquired = semaphore.tryAcquire(
                     SemaphoreOwnerId.from("owner-$it"),
                     SemaphoreRequestId.from("request-$it"),
                 ).shouldBeInstanceOf<PermitAcquireResult.Acquired<ExpirablePermitHandle>>()
+                log.debug { "acquired=$acquired" }
             }
+
             Thread.sleep(220)
+
             semaphore.availablePermits() shouldBeEqualTo 2
             semaphore.availablePermits() shouldBeEqualTo 4
         } finally {
@@ -77,17 +92,20 @@ class LettucePermitExpirableSemaphoreTest: AbstractLettuceTest() {
     @Test
     fun `renew distinguishes explicit release from ownership loss`() {
         val connection = LettuceTestUtils.client.connect(StringCodec.UTF8)
-        val name = "expirable-renew-${randomName().substringAfter(':')}"
+        val name = "expirable-renew-${randomName().substringAfterLast(':')}"
         val config = ExpirableSemaphoreConfig(leaseTime = Duration.ofSeconds(5))
         val keys = deriveSemaphoreKeys(name, config.semaphore, StringCodec.UTF8)
         connection.sync().del(*keys.all.toTypedArray())
         val semaphore = LettucePermitExpirableSemaphore.create(connection, name, config)
+
         try {
             semaphore.trySetPermits(2)
             val released = semaphore.tryAcquire(
                 SemaphoreOwnerId.from("released-owner"),
                 SemaphoreRequestId.from("released-request"),
             ).shouldBeInstanceOf<PermitAcquireResult.Acquired<ExpirablePermitHandle>>().handle
+            log.debug { "released=$released" }
+
             semaphore.release(released).shouldBeInstanceOf<PermitMutationResult.Released<ExpirablePermitHandle>>()
             semaphore.renew(released, Duration.ofSeconds(1)) shouldBeEqualTo PermitRenewResult.Released
 
@@ -95,6 +113,8 @@ class LettucePermitExpirableSemaphoreTest: AbstractLettuceTest() {
                 SemaphoreOwnerId.from("lost-owner"),
                 SemaphoreRequestId.from("lost-request"),
             ).shouldBeInstanceOf<PermitAcquireResult.Acquired<ExpirablePermitHandle>>().handle
+            log.debug { "lost lost=$lost" }
+
             connection.sync().hdel(keys.allocations, lost.permit.token)
             connection.sync().hset(
                 keys.requests,
@@ -112,12 +132,13 @@ class LettucePermitExpirableSemaphoreTest: AbstractLettuceTest() {
     @Test
     fun `async and suspend modes preserve acquire renew inspect and release contracts`() = runTest {
         val connection = LettuceTestUtils.client.connect(StringCodec.UTF8)
-        val name = "expirable-modes-${randomName().substringAfter(':')}"
+        val name = "expirable-modes-${randomName().substringAfterLast(':')}"
         val config = ExpirableSemaphoreConfig(leaseTime = Duration.ofSeconds(5))
         val keys = deriveSemaphoreKeys(name, config.semaphore, StringCodec.UTF8)
         connection.sync().del(*keys.all.toTypedArray())
         val future = LettucePermitExpirableSemaphore.create(connection, name, config)
         val suspending = LettuceSuspendPermitExpirableSemaphore.create(connection, name, config)
+
         try {
             future.trySetPermitsAsync(2).get()
                 .shouldBeInstanceOf<SemaphoreInitializationResult.Initialized>()
@@ -126,21 +147,33 @@ class LettucePermitExpirableSemaphoreTest: AbstractLettuceTest() {
                 SemaphoreOwnerId.from("future-owner"),
                 SemaphoreRequestId.from("future-request"),
             ).get().shouldBeInstanceOf<PermitAcquireResult.Acquired<ExpirablePermitHandle>>().handle
+            log.debug { "future handle=$futureHandle" }
+
             future.inspectAsync(futureHandle).get()
                 .shouldBeInstanceOf<PermitInspectResult.Owned<ExpirablePermitHandle>>()
+
             val renewedFutureHandle = future.renewAsync(futureHandle, Duration.ofSeconds(1)).get()
                 .shouldBeInstanceOf<PermitRenewResult.Renewed<ExpirablePermitHandle>>().handle
+            log.debug { "renewedFutureHandle=$renewedFutureHandle" }
+
             future.releaseAsync(renewedFutureHandle).get()
                 .shouldBeInstanceOf<PermitMutationResult.Released<ExpirablePermitHandle>>()
 
-            val suspendHandle = suspending.tryAcquire(
-                SemaphoreOwnerId.from("suspend-owner"),
-                SemaphoreRequestId.from("suspend-request"),
-            ).shouldBeInstanceOf<PermitAcquireResult.Acquired<ExpirablePermitHandle>>().handle
+            val suspendHandle = suspending
+                .tryAcquire(
+                    SemaphoreOwnerId.from("suspend-owner"),
+                    SemaphoreRequestId.from("suspend-request"),
+                ).shouldBeInstanceOf<PermitAcquireResult.Acquired<ExpirablePermitHandle>>().handle
+            log.debug { "suspendHandle=$suspendHandle" }
+            
             suspending.inspect(suspendHandle)
                 .shouldBeInstanceOf<PermitInspectResult.Owned<ExpirablePermitHandle>>()
-            val renewedSuspendHandle = suspending.renew(suspendHandle, Duration.ofSeconds(1))
+
+            val renewedSuspendHandle = suspending
+                .renew(suspendHandle, Duration.ofSeconds(1))
                 .shouldBeInstanceOf<PermitRenewResult.Renewed<ExpirablePermitHandle>>().handle
+            log.debug { "renewedSuspendHandle=$renewedSuspendHandle" }
+
             suspending.release(renewedSuspendHandle)
                 .shouldBeInstanceOf<PermitMutationResult.Released<ExpirablePermitHandle>>()
             suspending.availablePermits() shouldBeEqualTo 2
@@ -155,11 +188,12 @@ class LettucePermitExpirableSemaphoreTest: AbstractLettuceTest() {
     @Test
     fun `async reconcile and closed surfaces preserve expirable allocation ownership`() {
         val connection = LettuceTestUtils.client.connect(StringCodec.UTF8)
-        val name = "expirable-reconcile-${randomName().substringAfter(':')}"
+        val name = "expirable-reconcile-${randomName().substringAfterLast(':')}"
         val config = ExpirableSemaphoreConfig(leaseTime = Duration.ofSeconds(5))
         val keys = deriveSemaphoreKeys(name, config.semaphore, StringCodec.UTF8)
         connection.sync().del(*keys.all.toTypedArray())
         val semaphore = LettucePermitExpirableSemaphore.create(connection, name, config)
+
         try {
             semaphore.trySetPermitsAsync(2).get()
                 .shouldBeInstanceOf<SemaphoreInitializationResult.Initialized>()
@@ -170,6 +204,8 @@ class LettucePermitExpirableSemaphoreTest: AbstractLettuceTest() {
             val handle = semaphore.tryAcquireAsync(owner, request).get()
                 .shouldBeInstanceOf<PermitAcquireResult.Acquired<ExpirablePermitHandle>>()
                 .handle
+            log.debug { "handle=$handle" }
+
             semaphore.reconcileAsync(owner, request).get()
                 .shouldBeInstanceOf<PermitReconcileResult.Owned<ExpirablePermitHandle>>()
             semaphore.releaseAsync(handle).get()
@@ -182,8 +218,10 @@ class LettucePermitExpirableSemaphoreTest: AbstractLettuceTest() {
 
             semaphore.close()
             semaphore.availablePermitsAsync().get() shouldBeEqualTo -1
-            semaphore.tryAcquireAsync(owner, SemaphoreRequestId.from("after-close")).get() shouldBeEqualTo
-                PermitAcquireResult.Closed
+            semaphore.tryAcquireAsync(
+                owner,
+                SemaphoreRequestId.from("after-close")
+            ).get() shouldBeEqualTo PermitAcquireResult.Closed
         } finally {
             semaphore.close()
             connection.sync().del(*keys.all.toTypedArray())
@@ -194,21 +232,27 @@ class LettucePermitExpirableSemaphoreTest: AbstractLettuceTest() {
     @Test
     fun `replay and stale generations preserve allocation contract`() {
         val connection = LettuceTestUtils.client.connect(StringCodec.UTF8)
-        val name = "expirable-replay-${randomName().substringAfter(':')}"
+        val name = "expirable-replay-${randomName().substringAfterLast(':')}"
         val config = ExpirableSemaphoreConfig(leaseTime = Duration.ofSeconds(5))
         val keys = deriveSemaphoreKeys(name, config.semaphore, StringCodec.UTF8)
         connection.sync().del(*keys.all.toTypedArray())
         val semaphore = LettucePermitExpirableSemaphore.create(connection, name, config)
+
         try {
             semaphore.trySetPermits(3)
             val owner = SemaphoreOwnerId.from("replay-owner")
             val request = SemaphoreRequestId.from("replay-request")
-            val first = semaphore.tryAcquire(owner, request, 2)
+            val first = semaphore
+                .tryAcquire(owner, request, 2)
                 .shouldBeInstanceOf<PermitAcquireResult.Acquired<ExpirablePermitHandle>>()
                 .handle
-            val replay = semaphore.tryAcquire(owner, request, 2)
+            log.debug { "first=$first" }
+            val replay = semaphore
+                .tryAcquire(owner, request, 2)
                 .shouldBeInstanceOf<PermitAcquireResult.Acquired<ExpirablePermitHandle>>()
                 .handle
+            log.debug { "replay=$replay" }
+            
             replay shouldBeEqualTo first
             semaphore.availablePermits() shouldBeEqualTo 1
 
@@ -230,20 +274,26 @@ class LettucePermitExpirableSemaphoreTest: AbstractLettuceTest() {
     @Test
     fun `invalid bounds and closed adapters remain explicit`() = runTest {
         val connection = LettuceTestUtils.client.connect(StringCodec.UTF8)
-        val name = "expirable-boundary-${randomName().substringAfter(':')}"
+        val name = "expirable-boundary-${randomName().substringAfterLast(':')}"
         val config = ExpirableSemaphoreConfig(leaseTime = Duration.ofSeconds(5))
         val keys = deriveSemaphoreKeys(name, config.semaphore, StringCodec.UTF8)
         connection.sync().del(*keys.all.toTypedArray())
         val future = LettucePermitExpirableSemaphore.create(connection, name, config)
         val suspending = LettuceSuspendPermitExpirableSemaphore.create(connection, name, config)
+
         try {
             future.trySetPermits(1)
             val owner = SemaphoreOwnerId.from("boundary-owner")
             val request = SemaphoreRequestId.from("boundary-request")
-            assertFailsWith<IllegalArgumentException> { future.tryAcquire(owner, request, 0) }
+
+            assertFailsWith<IllegalArgumentException> {
+                future.tryAcquire(owner, request, 0)
+            }
+
             assertFailsWith<IllegalArgumentException> {
                 future.acquire(owner, request, 1, Duration.ZERO)
             }
+
             assertFailsWith<IllegalArgumentException> {
                 future.acquire(owner, request, 1, Duration.ofHours(24).plusMillis(1))
             }
@@ -251,21 +301,26 @@ class LettucePermitExpirableSemaphoreTest: AbstractLettuceTest() {
             val held = future.tryAcquire(owner, request, 1)
                 .shouldBeInstanceOf<PermitAcquireResult.Acquired<ExpirablePermitHandle>>()
                 .handle
+            log.debug { "held=$held" }
+
             assertFailsWith<IllegalArgumentException> {
                 future.renew(held, Duration.ofMillis(99))
             }
+
             future.acquire(
                 SemaphoreOwnerId.from("sync-timeout"),
                 SemaphoreRequestId.from("sync-timeout"),
                 1,
                 Duration.ofMillis(35),
             ) shouldBeEqualTo PermitAcquireResult.TimedOut
+
             future.acquireAsync(
                 SemaphoreOwnerId.from("async-timeout"),
                 SemaphoreRequestId.from("async-timeout"),
                 1,
                 Duration.ofMillis(35),
             ).get() shouldBeEqualTo PermitAcquireResult.TimedOut
+
             suspending.acquire(
                 SemaphoreOwnerId.from("suspend-timeout"),
                 SemaphoreRequestId.from("suspend-timeout"),

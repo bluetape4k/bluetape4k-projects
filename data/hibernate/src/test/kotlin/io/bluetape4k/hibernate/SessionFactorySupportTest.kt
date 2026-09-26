@@ -1,12 +1,12 @@
 package io.bluetape4k.hibernate
 
-import io.bluetape4k.assertions.shouldBeGreaterThan
-import io.bluetape4k.hibernate.mapping.simple.SimpleEntity
-import io.bluetape4k.logging.KLogging
 import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeGreaterThan
 import io.bluetape4k.assertions.shouldBeInstanceOf
 import io.bluetape4k.assertions.shouldBeNull
 import io.bluetape4k.assertions.shouldNotBeNull
+import io.bluetape4k.hibernate.mapping.simple.SimpleEntity
+import io.bluetape4k.logging.KLogging
 import org.hibernate.SessionFactory
 import org.hibernate.event.service.spi.EventListenerRegistry
 import org.hibernate.event.spi.EventType
@@ -29,33 +29,25 @@ class SessionFactorySupportTest: AbstractHibernateTest() {
     @Test
     fun `getEntityName은 등록된 엔티티의 이름을 반환한다`() {
         // SimpleEntity는 @Entity(name = "simple_entity") 로 등록됨
-        val name = sessionFactory.getEntityName(SimpleEntity::class.java)
-
-        name.shouldNotBeNull()
+        val name = sessionFactory.getEntityName(SimpleEntity::class.java).shouldNotBeNull()
         name shouldBeEqualTo "simple_entity"
     }
 
     @Test
     fun `getEntityName reified는 등록된 엔티티의 이름을 반환한다`() {
-        val name = sessionFactory.getEntityName<SimpleEntity>()
-
-        name.shouldNotBeNull()
+        val name = sessionFactory.getEntityName<SimpleEntity>().shouldNotBeNull()
         name shouldBeEqualTo "simple_entity"
     }
 
     @Test
     fun `getEntityName은 미등록 클래스에 대해 null을 반환한다`() {
         // String은 JPA 엔티티가 아니므로 null
-        val name = sessionFactory.getEntityName(String::class.java)
-
-        name.shouldBeNull()
+        sessionFactory.getEntityName(String::class.java).shouldBeNull()
     }
 
     @Test
     fun `getEventListenerRegistry는 Hibernate SessionFactory에서 null이 아닌 registry를 반환한다`() {
-        val registry = sessionFactory.getEventListenerRegistry()
-
-        registry.shouldNotBeNull()
+        sessionFactory.getEventListenerRegistry().shouldNotBeNull()
     }
 
     @Test

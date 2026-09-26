@@ -54,6 +54,7 @@ class ObservationCoroutinesSupportTest: AbstractObservationTest() {
     @Test
     fun `withCoroutineObservationSuspending - in coroutines`() = runSuspendIO {
         val name = Base58.randomString(8)
+
         withObservationContextSuspending(name, observationRegistry) {
             log.info { "Start withObservationContext" }
 
@@ -77,16 +78,16 @@ class ObservationCoroutinesSupportTest: AbstractObservationTest() {
     @Test
     fun `withObservationContextSuspending - named observation stops on success`() = runTest {
         val handler = RecordingObservationHandler()
-        val registry =
-            ObservationRegistry.create().apply {
-                observationConfig().observationHandler(handler)
-            }
 
-        val result =
-            withObservationContextSuspending("observer.stop.${Base58.randomString(8)}", registry) {
-                currentObservationInContext().shouldNotBeNull()
-                "observed"
-            }
+        val registry = ObservationRegistry.create().apply {
+            observationConfig().observationHandler(handler)
+        }
+
+        val name = "observer.stop.${Base58.randomString(8)}"
+        val result = withObservationContextSuspending(name, registry) {
+            currentObservationInContext().shouldNotBeNull()
+            "observed"
+        }
 
         result shouldBeEqualTo "observed"
         handler.started shouldBeEqualTo 1
@@ -101,8 +102,8 @@ class ObservationCoroutinesSupportTest: AbstractObservationTest() {
             ObservationRegistryAssert.assertThat(observationRegistry)
                 .hasRemainingCurrentObservation()
 
-            val observation = currentObservationInContext()
-            observation?.highCardinalityKeyValue("delay.time", "100ms")
+            val observation = currentObservationInContext().shouldNotBeNull()
+            observation.highCardinalityKeyValue("delay.time", "100ms")
             delay(100.milliseconds)
             log.debug { "observation=$observation" }
         }
@@ -116,8 +117,8 @@ class ObservationCoroutinesSupportTest: AbstractObservationTest() {
             ObservationRegistryAssert.assertThat(observationRegistry)
                 .hasRemainingCurrentObservation()
 
-            val observation = currentObservationInContext() // observationRegistry.currentObservation
-            observation?.highCardinalityKeyValue("delay.time", "150ms")
+            val observation = currentObservationInContext().shouldNotBeNull() // observationRegistry.currentObservation
+            observation.highCardinalityKeyValue("delay.time", "150ms")
             delay(150.milliseconds)
             log.debug { "observation=$observation" }
         }
@@ -164,15 +165,15 @@ class ObservationCoroutinesSupportTest: AbstractObservationTest() {
 
     @Test
     fun `withObservationContextSuspending - 시작하지 않은 observation 도 자동으로 시작하고 정리한다`() = runSuspendIO {
-        val observation =
-            Observation.createNotStarted("observer.not.started.${Base58.randomString(8)}", observationRegistry)
+        val name = "observer.not.started.${Base58.randomString(8)}"
+        val observation = Observation.createNotStarted(name, observationRegistry)
 
-        val result =
-            observation.withObservationContextSuspending { context ->
-                currentObservationInContext().shouldNotBeNull()
-                context.name
-            }
+        val result = observation.withObservationContextSuspending { context ->
+            currentObservationInContext().shouldNotBeNull()
+            context.name
+        }
 
+        log.debug { "result=$result" }
         result shouldBeEqualTo observation.context.name
         yield()
 
@@ -202,13 +203,15 @@ class ObservationCoroutinesSupportTest: AbstractObservationTest() {
         val observation = observationRegistry.start(name)
 
         assertCancellationPropagates {
-            observation.tryObserveSuspending<String> { _ ->
+            val result = observation.tryObserveSuspending { _ ->
                 delay(100.milliseconds)  // arbitrary under runTest virtual time
                 "never"
             }
+            log.debug { "result=$result" }
         }
 
         yield()
+
         ObservationRegistryAssert.assertThat(observationRegistry)
             .doesNotHaveAnyRemainingCurrentObservation()
     }
@@ -218,10 +221,11 @@ class ObservationCoroutinesSupportTest: AbstractObservationTest() {
         val name = "observer.cancel." + Base58.randomString(8)
 
         assertCancellationPropagates {
-            tryWithObservationSuspending<String>(name, observationRegistry) {
+            val result = tryWithObservationSuspending(name, observationRegistry) {
                 delay(100.milliseconds)  // arbitrary under runTest virtual time
                 "never"
             }
+            log.debug { "result=$result" }
         }
 
         yield()

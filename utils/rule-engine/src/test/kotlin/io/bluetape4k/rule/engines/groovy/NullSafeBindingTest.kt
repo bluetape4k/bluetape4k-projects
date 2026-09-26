@@ -1,15 +1,15 @@
 package io.bluetape4k.rule.engines.groovy
 
-import io.bluetape4k.logging.KLogging
 import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeFalse
 import io.bluetape4k.assertions.shouldBeNull
 import io.bluetape4k.assertions.shouldBeTrue
-import io.bluetape4k.assertions.shouldNotBeNull
+import io.bluetape4k.logging.KLogging
 import org.junit.jupiter.api.Test
 
 class NullSafeBindingTest {
 
-    companion object : KLogging()
+    companion object: KLogging()
 
     @Test
     fun `초기화된 변수는 정상 반환`() {
@@ -61,6 +61,6 @@ class NullSafeBindingTest {
 
         val factsWithoutName = io.bluetape4k.rule.api.Facts.empty()
         // Should return false (null != 'ALICE'), not throw exception
-        condition.evaluate(factsWithoutName) shouldBeEqualTo false
+        condition.evaluate(factsWithoutName).shouldBeFalse()
     }
 }

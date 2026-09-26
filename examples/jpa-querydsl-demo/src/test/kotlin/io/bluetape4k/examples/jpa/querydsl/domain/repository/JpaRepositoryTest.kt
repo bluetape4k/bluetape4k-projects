@@ -1,12 +1,12 @@
 package io.bluetape4k.examples.jpa.querydsl.domain.repository
 
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldHaveSize
+import io.bluetape4k.assertions.shouldNotBeNull
 import io.bluetape4k.examples.jpa.querydsl.domain.AbstractDomainTest
 import io.bluetape4k.examples.jpa.querydsl.domain.dto.MemberSearchCondition
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
-import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldHaveSize
-import io.bluetape4k.assertions.shouldNotBeNull
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.domain.PageRequest
@@ -27,9 +27,8 @@ class JpaRepositoryTest(
     fun `find by search condition`() {
         val searchCond = MemberSearchCondition(memberName = "member-5")
         val memberTeamDtos = memberRepo.search(searchCond)
-        memberTeamDtos.forEach {
-            log.debug { it }
-        }
+
+        memberTeamDtos.forEach { log.debug { it } }
         memberTeamDtos shouldHaveSize 1
     }
 
@@ -45,6 +44,7 @@ class JpaRepositoryTest(
         )
 
         pages.forEach { page ->
+            page.content.forEach { log.debug { it } }
             page.content shouldHaveSize 5
             page.totalElements shouldBeEqualTo 11L
             page.content.first().member.name shouldBeEqualTo "member-10"
@@ -59,6 +59,7 @@ class JpaRepositoryTest(
 
         val page = memberRepo.searchPageExtremeCountQuery(searchCond, pageable)
 
+        page.content.forEach { log.debug { it } }
         page.content shouldHaveSize 10
         page.totalElements shouldBeEqualTo 21L
         page.content.first().member.name shouldBeEqualTo "member-10"

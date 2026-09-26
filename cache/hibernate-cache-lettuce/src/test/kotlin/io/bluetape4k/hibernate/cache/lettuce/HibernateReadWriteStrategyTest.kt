@@ -1,20 +1,29 @@
 package io.bluetape4k.hibernate.cache.lettuce
 
 import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeFalse
 import io.bluetape4k.assertions.shouldBeGreaterThan
+import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.assertions.shouldHaveSize
 import io.bluetape4k.assertions.shouldNotBeNull
 import io.bluetape4k.hibernate.cache.lettuce.model.VersionedCategory
 import io.bluetape4k.hibernate.cache.lettuce.model.VersionedCategoryItem
 import io.bluetape4k.hibernate.cache.lettuce.model.VersionedItem
+import io.bluetape4k.hibernate.findAs
 import io.bluetape4k.junit5.concurrency.MultithreadingTester
+import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.debug
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import java.util.*
+import java.util.concurrent.ConcurrentLinkedQueue
 
 /**
  * READ_WRITE CacheConcurrencyStrategy 테스트.
  */
 class HibernateReadWriteStrategyTest: AbstractHibernateNearCacheTest() {
+
+    companion object: KLogging()
+
     @BeforeEach
     fun reset() {
         sessionFactory.cache.evictAllRegions()
@@ -23,24 +32,23 @@ class HibernateReadWriteStrategyTest: AbstractHibernateNearCacheTest() {
 
     @Test
     fun `READ_WRITE 엔티티 저장 후 새 세션에서 cache hit`() {
-        val itemId =
-            sessionFactory.openSession().use { s ->
-                s.beginTransaction()
-                val item =
-                    VersionedItem().apply {
-                        name = "Widget"
-                        price = 100
-                    }
-                s.persist(item)
-                s.transaction.commit()
-                item.id!!
+        val itemId = sessionFactory.openSession().use { s ->
+            s.beginTransaction()
+            val item = VersionedItem().apply {
+                name = "Widget"
+                price = 100
             }
+            s.persist(item)
+            s.transaction.commit()
+            item.id.shouldNotBeNull()
+        }
         sessionFactory.statistics.clear()
 
         repeat(2) {
             sessionFactory.openSession().use { s ->
                 s.beginTransaction()
-                s.find(VersionedItem::class.java, itemId).shouldNotBeNull()
+                val item = s.findAs<VersionedItem>(itemId).shouldNotBeNull()
+                log.debug { "VersionedItem: $item" }
                 s.transaction.commit()
             }
         }
@@ -50,22 +58,21 @@ class HibernateReadWriteStrategyTest: AbstractHibernateNearCacheTest() {
 
     @Test
     fun `READ_WRITE 엔티티 수정 후 캐시가 갱신된다`() {
-        val itemId =
-            sessionFactory.openSession().use { s ->
-                s.beginTransaction()
-                val item =
-                    VersionedItem().apply {
-                        name = "Initial"
-                        price = 50
-                    }
-                s.persist(item)
-                s.transaction.commit()
-                item.id!!
+        val itemId = sessionFactory.openSession().use { s ->
+            s.beginTransaction()
+            val item = VersionedItem().apply {
+                name = "Initial"
+                price = 50
             }
+            s.persist(item)
+            s.transaction.commit()
+            item.id.shouldNotBeNull()
+        }
 
         sessionFactory.openSession().use { s ->
             s.beginTransaction()
-            val item = s.find(VersionedItem::class.java, itemId)!!
+            val item = s.findAs<VersionedItem>(itemId).shouldNotBeNull()
+            log.debug { "VersionedItem: $item" }
             item.price = 200
             s.transaction.commit()
         }
@@ -73,7 +80,8 @@ class HibernateReadWriteStrategyTest: AbstractHibernateNearCacheTest() {
 
         sessionFactory.openSession().use { s ->
             s.beginTransaction()
-            val loaded = s.find(VersionedItem::class.java, itemId)!!
+            val loaded = s.findAs<VersionedItem>(itemId).shouldNotBeNull()
+            log.debug { "VersionedItem: $loaded" }
             loaded.price shouldBeEqualTo 200
             s.transaction.commit()
         }
@@ -81,29 +89,26 @@ class HibernateReadWriteStrategyTest: AbstractHibernateNearCacheTest() {
 
     @Test
     fun `READ_WRITE 엔티티 삭제 후 containsEntity가 false`() {
-        val itemId =
-            sessionFactory.openSession().use { s ->
-                s.beginTransaction()
-                val item =
-                    VersionedItem().apply {
-                        name = "ToDelete"
-                        price = 10
-                    }
-                s.persist(item)
-                s.transaction.commit()
-                item.id!!
-            }
+        val itemId = sessionFactory.openSession().use { s ->
+            s.beginTransaction()
+            val item = VersionedItem().apply { name = "ToDelete"; price = 10 }
+            s.persist(item)
+            s.transaction.commit()
+            item.id.shouldNotBeNull()
+        }
 
         // 캐시에 적재
         sessionFactory.openSession().use { s ->
             s.beginTransaction()
-            s.find(VersionedItem::class.java, itemId).shouldNotBeNull()
+            val item = s.findAs<VersionedItem>(itemId).shouldNotBeNull()
+            log.debug { "VersionedItem: $item" }
             s.transaction.commit()
         }
 
         sessionFactory.openSession().use { s ->
             s.beginTransaction()
-            val item = s.find(VersionedItem::class.java, itemId)!!
+            val item = s.findAs<VersionedItem>(itemId).shouldNotBeNull()
+            log.debug { "VersionedItem: $item" }
             s.remove(item)
             s.transaction.commit()
         }
@@ -113,46 +118,44 @@ class HibernateReadWriteStrategyTest: AbstractHibernateNearCacheTest() {
 
         sessionFactory.cache
             .containsEntity(VersionedItem::class.java, itemId)
-            .let { require(!it) { "삭제된 엔티티가 캐시에 남아있음" } }
+            .shouldBeFalse()
     }
 
     @Test
     fun `READ_WRITE 버전 엔티티를 MultithreadingTester로 병렬 읽기 시 일관성 유지`() {
-        val itemId =
-            sessionFactory.openSession().use { s ->
-                s.beginTransaction()
-                val item =
-                    VersionedItem().apply {
-                        name = "Concurrent"
-                        price = 999
-                    }
-                s.persist(item)
-                s.transaction.commit()
-                item.id!!
-            }
+        val itemId = sessionFactory.openSession().use { s ->
+            s.beginTransaction()
+            val item = VersionedItem().apply { name = "Concurrent"; price = 999 }
+            s.persist(item)
+            s.transaction.commit()
+            item.id.shouldNotBeNull()
+        }
 
         sessionFactory.openSession().use { s ->
             s.beginTransaction()
-            s.find(VersionedItem::class.java, itemId)
+            val item = s.findAs<VersionedItem>(itemId).shouldNotBeNull()
+            log.debug { "VersionedItem: $item" }
             s.transaction.commit()
         }
         sessionFactory.statistics.clear()
 
-        val prices = Collections.synchronizedList(mutableListOf<Int>())
+        val prices = ConcurrentLinkedQueue<Int>()
         MultithreadingTester()
             .workers(8)
             .rounds(5)
             .add {
                 sessionFactory.openSession().use { s ->
                     s.beginTransaction()
-                    val item = s.find(VersionedItem::class.java, itemId).shouldNotBeNull()
+                    val item = s.findAs<VersionedItem>(itemId).shouldNotBeNull()
+                    log.debug { "VersionedItem: $item" }
                     prices += item.price
                     s.transaction.commit()
                 }
-            }.run()
+            }
+            .run()
 
         prices.size shouldBeEqualTo 40
-        prices.forEach { it shouldBeEqualTo 999 }
+        prices.all { it == 999 }.shouldBeTrue()
         sessionFactory.statistics.secondLevelCacheHitCount shouldBeGreaterThan 0L
     }
 
@@ -162,35 +165,35 @@ class HibernateReadWriteStrategyTest: AbstractHibernateNearCacheTest() {
             sessionFactory.openSession().use { s ->
                 s.beginTransaction()
                 val cat = VersionedCategory().apply { label = "Electronics" }
-                val item1 =
-                    VersionedCategoryItem().apply {
-                        name = "TV"
-                        category = cat
-                    }
-                val item2 =
-                    VersionedCategoryItem().apply {
-                        name = "Phone"
-                        category = cat
-                    }
+                val item1 = VersionedCategoryItem().apply {
+                    name = "TV"
+                    category = cat
+                }
+                val item2 = VersionedCategoryItem().apply {
+                    name = "Phone"
+                    category = cat
+                }
                 cat.items.add(item1)
                 cat.items.add(item2)
                 s.persist(cat)
                 s.transaction.commit()
-                cat.id!!
+                cat.id.shouldNotBeNull()
             }
         sessionFactory.statistics.clear()
 
         sessionFactory.openSession().use { s ->
             s.beginTransaction()
-            val cat = s.find(VersionedCategory::class.java, catId)!!
-            cat.items.size
+            val cat = s.findAs<VersionedCategory>(catId).shouldNotBeNull()
+            log.debug { "VersionedCategory: $cat" }
+            cat.items shouldHaveSize 2
             s.transaction.commit()
         }
 
         sessionFactory.openSession().use { s ->
             s.beginTransaction()
-            val cat = s.find(VersionedCategory::class.java, catId)!!
-            cat.items.size shouldBeEqualTo 2
+            val cat = s.findAs<VersionedCategory>(catId).shouldNotBeNull()
+            log.debug { "VersionedCategory: $cat" }
+            cat.items shouldHaveSize 2
             s.transaction.commit()
         }
 

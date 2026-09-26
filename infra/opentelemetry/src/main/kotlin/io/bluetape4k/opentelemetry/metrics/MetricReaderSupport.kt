@@ -50,6 +50,5 @@ fun inMemoryMetricReaderDeltaOf(): InMemoryMetricReader = InMemoryMetricReader.c
 fun periodicMetricReader(
     exporter: MetricExporter,
     builder: PeriodicMetricReaderBuilder.() -> Unit,
-): PeriodicMetricReader {
-    return PeriodicMetricReader.builder(exporter).apply(builder).build()
-}
+): PeriodicMetricReader =
+    PeriodicMetricReader.builder(exporter).apply(builder).build()

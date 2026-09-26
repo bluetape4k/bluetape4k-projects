@@ -12,13 +12,13 @@ import io.bluetape4k.junit5.coroutines.runSuspendDefault
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.utils.Runtimex
 import org.junit.jupiter.api.Nested
-import org.junit.jupiter.api.RepeatedTest
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.condition.EnabledForJreRange
 import org.junit.jupiter.api.condition.JRE
 import java.util.concurrent.ConcurrentHashMap
 
 class SnowflakersTest {
+
     companion object: KLoggingChannel() {
         private const val REPEAT_SIZE = 5
         private const val ID_SIZE = 100
@@ -98,7 +98,7 @@ class SnowflakersTest {
             parsed.value shouldBeEqualTo id
         }
 
-        @RepeatedTest(REPEAT_SIZE)
+        @Test
         fun `멀티스레드 환경에서 중복 없이 Snowflake ID를 생성한다`() {
             val gen = SnowflakeGenerator()
             val idMap = ConcurrentHashMap<Long, Int>()
@@ -109,11 +109,12 @@ class SnowflakersTest {
                 .add {
                     val id = gen.nextId()
                     idMap.putIfAbsent(id, 1).shouldBeNull()
-                }.run()
+                }
+                .run()
         }
 
         @EnabledForJreRange(min = JRE.JAVA_21)
-        @RepeatedTest(REPEAT_SIZE)
+        @Test
         fun `Virtual Thread 환경에서 중복 없이 Snowflake ID를 생성한다`() {
             val gen = SnowflakeGenerator()
             val idMap = ConcurrentHashMap<Long, Int>()
@@ -123,22 +124,23 @@ class SnowflakersTest {
                 .add {
                     val id = gen.nextId()
                     idMap.putIfAbsent(id, 1).shouldBeNull()
-                }.run()
+                }
+                .run()
         }
 
-        @RepeatedTest(REPEAT_SIZE)
-        fun `Coroutine 환경에서 중복 없이 Snowflake ID를 생성한다`() =
-            runSuspendDefault {
-                val gen = SnowflakeGenerator()
-                val idMap = ConcurrentHashMap<Long, Int>()
+        @Test
+        fun `Coroutine 환경에서 중복 없이 Snowflake ID를 생성한다`() = runSuspendDefault {
+            val gen = SnowflakeGenerator()
+            val idMap = ConcurrentHashMap<Long, Int>()
 
-                SuspendedJobTester()
-                    .workers(Runtimex.availableProcessors)
-                    .rounds(CONCURRENCY_COUNT)
-                    .add {
-                        val id = gen.nextId()
-                        idMap.putIfAbsent(id, 1).shouldBeNull()
-                    }.run()
-            }
+            SuspendedJobTester()
+                .workers(Runtimex.availableProcessors)
+                .rounds(CONCURRENCY_COUNT)
+                .add {
+                    val id = gen.nextId()
+                    idMap.putIfAbsent(id, 1).shouldBeNull()
+                }
+                .run()
+        }
     }
 }

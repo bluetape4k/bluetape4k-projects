@@ -2,11 +2,10 @@ package io.bluetape4k.hibernate.querydsl.core
 
 import com.querydsl.core.types.Expression
 import com.querydsl.core.types.Ops
-import com.querydsl.core.types.Path
 import com.querydsl.core.types.PathMetadataFactory
 import com.querydsl.core.types.TemplateFactory
-import com.querydsl.core.types.dsl.Expressions
 import com.querydsl.core.types.dsl.BooleanExpression
+import com.querydsl.core.types.dsl.Expressions
 import com.querydsl.core.types.dsl.SimpleExpression
 import com.querydsl.core.types.dsl.SimpleTemplate
 import io.bluetape4k.assertions.shouldBeEqualTo
@@ -15,11 +14,11 @@ import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.assertions.shouldNotBeEmpty
 import io.bluetape4k.assertions.shouldNotBeNull
 import org.junit.jupiter.api.Test
+import java.lang.reflect.InvocationTargetException
 import java.lang.reflect.Method
 import java.lang.reflect.Modifier
-import java.lang.reflect.InvocationTargetException
 import java.sql.Time
-import java.util.Date
+import java.util.*
 
 /**
  * Kotlin inline facades are called through their generated static methods so the
@@ -214,7 +213,12 @@ class InlineQuerydslCoverageTest {
         call(expressionsSupport, "asDate", stringPath)
         call(expressionsSupport, "asDateTime", stringPath)
         call(expressionsSupport, "asTime", stringPath)
-        callExact(expressionsSupport, "asEnum", arrayOf(Expression::class.java), arrayOf(Expressions.enumPath(Status::class.java, "status")))
+        callExact(
+            expressionsSupport,
+            "asEnum",
+            arrayOf(Expression::class.java),
+            arrayOf(Expressions.enumPath(Status::class.java, "status"))
+        )
         call(expressionsSupport, "asNumber", numberPath)
         call(expressionsSupport, "asString", stringPath)
         call(expressionsSupport, "asSimple", "value")
@@ -330,16 +334,16 @@ class InlineQuerydslCoverageTest {
     private fun score(method: Method, args: Array<out Any?>): Int =
         method.parameterTypes.zip(args).sumOf { (parameter, argument) ->
             when {
-                argument == null -> 0
+                argument == null                -> 0
                 parameter == argument.javaClass -> 4
                 box(parameter).isAssignableFrom(argument.javaClass) -> 2
-                else -> -100
+                else                            -> -100
             }
         }
 
     private fun box(type: Class<*>): Class<*> = when (type) {
         Boolean::class.javaPrimitiveType -> Boolean::class.java
         Int::class.javaPrimitiveType -> Int::class.java
-        else -> type
+        else                         -> type
     }
 }

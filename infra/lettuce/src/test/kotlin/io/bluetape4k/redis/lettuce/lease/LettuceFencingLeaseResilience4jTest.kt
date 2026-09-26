@@ -7,6 +7,7 @@ import io.bluetape4k.assertions.shouldBeSameInstanceAs
 import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.assertions.shouldBeZero
 import io.bluetape4k.junit5.coroutines.runSuspendIO
+import io.bluetape4k.logging.KLogging
 import io.bluetape4k.redis.lettuce.LettuceTestUtils
 import io.bluetape4k.resilience4j.SuspendDecorators
 import io.github.resilience4j.bulkhead.Bulkhead
@@ -25,6 +26,14 @@ import java.util.concurrent.atomic.AtomicInteger
 
 /** Demonstrates caller-owned Retry, CircuitBreaker, and Bulkhead policies around the Redis primitive. */
 internal class LettuceFencingLeaseResilience4jTest {
+
+    private companion object: KLogging() {
+        val LEASE_TIME: Duration = Duration.ofSeconds(30)
+        val acquired = FencingAcquireResult.Acquired(FencingToken(31, 1))
+        val backendFailure = FencingAcquireResult.BackendFailure(
+            FencingLeaseBackendFailure(FencingBackendFailureKind.CONNECTION),
+        )
+    }
 
     @Test
     fun `backend failure alone is retried and the final result alone reaches the circuit breaker`() = runSuspendIO {
@@ -65,7 +74,7 @@ internal class LettuceFencingLeaseResilience4jTest {
     @Test
     fun `ambiguous acquire retries with the same owner and recovers the Redis token`() = runSuspendIO {
         LettuceTestUtils.client.connect(StringCodec.UTF8).use { connection ->
-            val tag = LettuceTestUtils.randomName().substringAfter(':')
+            val tag = LettuceTestUtils.randomName().substringAfterLast(':')
             val config = LettuceFencingLeaseConfig("resilience", tag, 31)
             val keys = deriveFencingLeaseKeys(config, StringCodec.UTF8)
             val lease = LettuceSuspendFencingLease(connection, config)
@@ -268,12 +277,4 @@ internal class LettuceFencingLeaseResilience4jTest {
         val circuitBreaker: CircuitBreaker,
         val bulkhead: Bulkhead,
     )
-
-    private companion object {
-        val LEASE_TIME: Duration = Duration.ofSeconds(30)
-        val acquired = FencingAcquireResult.Acquired(FencingToken(31, 1))
-        val backendFailure = FencingAcquireResult.BackendFailure(
-            FencingLeaseBackendFailure(FencingBackendFailureKind.CONNECTION),
-        )
-    }
 }

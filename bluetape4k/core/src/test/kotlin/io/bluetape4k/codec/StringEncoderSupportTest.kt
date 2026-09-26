@@ -19,6 +19,7 @@ class StringEncoderSupportTest {
 
         val encodedBytes = bytes.encodeBase64ByteArray()
         encodedBytes.isNotEmpty().shouldBeTrue()
+
         val decodedBytes = encodedBytes.decodeBase64ByteArray()
         String(decodedBytes) shouldBeEqualTo text
     }
@@ -33,6 +34,7 @@ class StringEncoderSupportTest {
 
         val hexBytes = bytes.encodeHexByteArray()
         hexBytes.isNotEmpty().shouldBeTrue()
+
         val decodedBytes = hexBytes.decodeHexByteArray()
         String(decodedBytes) shouldBeEqualTo text
     }

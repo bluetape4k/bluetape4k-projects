@@ -6,7 +6,7 @@
 
 `bluetape4k-fastjson2`는 [Fastjson2](https://github.com/alibaba/fastjson2) 라이브러리를 Kotlin 확장 함수로 래핑하여 제공하는 모듈입니다.
 
-JSONB(바이너리 JSON) 형식을 활용한 고성능 직렬화와, JSON 문자열/`InputStream`/`JSONObject`/
+JSONB (바이너리 JSON) 형식을 활용한 고성능 직렬화와, JSON 문자열/`InputStream`/`JSONObject`/
 `JSONArray` 등 다양한 데이터 소스에 대한 타입 안전한 역직렬화 확장 함수를 제공합니다.
 
 ## 아키텍처 다이어그램
@@ -54,16 +54,10 @@ try {
 
 #### ByteBuffer 계약
 
-writable array-backed heap buffer와 slice의 `deserializeFrom`은 backing array, offset, remaining length를
-JSONB에 직접 전달하도록 최적화되어 있습니다. direct 및 read-only 입력은 bounded-copy 호환 fallback을
-사용합니다. 모든 입력 경로는 position, limit, mark, byte order를 보존합니다. feature-free reader를
-사용하며 AutoType을 활성화하지 않습니다.
-신뢰할 수 없는 입력은 호출 전에 limit를 설정해 범위를 제한해야 하며 serializer는 remaining 범위 밖을 읽지 않습니다.
+writable array-backed heap buffer와 slice의 `deserializeFrom`은 backing array, offset, remaining length를 JSONB에 직접 전달하도록 최적화되어 있습니다. direct 및 read-only 입력은 bounded-copy 호환 fallback을 사용합니다. 모든 입력 경로는 position, limit, mark, byte order를 보존합니다. feature-free reader를 사용하며 AutoType을 활성화하지 않습니다. 신뢰할 수 없는 입력은 호출 전에 limit를 설정해 범위를 제한해야 하며 serializer는 remaining 범위 밖을 읽지 않습니다.
 
 `serializeTo`는 할당이 있는 호환 fallback입니다. Fastjson2 2.0.62의 공개 출력 API가
-`JSONB.toBytes`이므로 결과를 caller target으로 복사합니다. 출력 position은 성공 시에만 반영되고
-read-only/overflow 실패는 raw buffer 예외로 유지됩니다. 이 API는 lower-copy 출력이라고 주장하지 않습니다.
-치명적인 `Error` 인스턴스는 wrapping하지 않고 동일 identity를 유지합니다.
+`JSONB.toBytes`이므로 결과를 caller target으로 복사합니다. 출력 position은 성공 시에만 반영되고 read-only/overflow 실패는 raw buffer 예외로 유지됩니다. 이 API는 lower-copy 출력이라고 주장하지 않습니다. 치명적인 `Error` 인스턴스는 wrapping하지 않고 동일 identity를 유지합니다.
 
 ```kotlin
 import io.bluetape4k.fastjson2.FastjsonSerializer
@@ -87,8 +81,7 @@ val buffer = ByteBuffer.wrap(serializer.serialize(users))
 val rawUsers: List<*>? = contract.deserialize<List<User>>(buffer)
 ```
 
-concrete overload는 generic `Type` 정보를 유지합니다. 정적 타입이 `JsonSerializer`인 receiver는 기존
-class-token 호환 동작을 유지하므로 collection element가 raw map으로 남습니다.
+concrete overload는 generic `Type` 정보를 유지합니다. 정적 타입이 `JsonSerializer`인 receiver는 기존 class-token 호환 동작을 유지하므로 collection element가 raw map으로 남습니다.
 
 ```java
 ByteBuffer buffer = ByteBuffer.wrap(bytes);
@@ -117,7 +110,7 @@ val jsonObject = json.readAsJSONObject()
 
 ### 3. JSONB 바이너리 확장 함수
 
-Fastjson2의 JSONB(바이너리 JSON) 형식으로 직렬화/역직렬화합니다. 텍스트 JSON 대비 성능과 압축률이 우수합니다.
+Fastjson2의 JSONB (바이너리 JSON) 형식으로 직렬화/역직렬화합니다. 텍스트 JSON 대비 성능과 압축률이 우수합니다.
 
 ```kotlin
 import io.bluetape4k.fastjson2.extensions.*
@@ -170,10 +163,10 @@ val user = jsonObject.readValueOrNull<User>("key")
 
 ## JSONB vs JSON 비교
 
-| 형식           | 속도 | 크기 | 가독성 | 용도              |
-|--------------|----|----|-----|-----------------|
-| JSONB (바이너리) | 빠름 | 작음 | 불가  | 내부 직렬화, 캐시, RPC |
-| JSON (텍스트)   | 보통 | 보통 | 가능  | API 응답, 로깅, 디버깅 |
+| 형식             | 속도 | 크기 | 가독성 | 용도                   |
+|------------------|------|------|--------|------------------------|
+| JSONB (바이너리) | 빠름 | 작음 | 불가   | 내부 직렬화, 캐시, RPC |
+| JSON (텍스트)    | 보통 | 보통 | 가능   | API 응답, 로깅, 디버깅 |
 
 ## 의존성
 
@@ -211,11 +204,11 @@ io.bluetape4k.fastjson2
 
 [이슈 #1039 보고서](../../docs/benchmarks/2026-07-18-bytebuffer-serializer-allocation.md)에서 writable array-backed `deserializeFrom` 비교는 inconclusive였습니다. direct/read-only 입력과 모든 출력 buffer 셀은 fallback 또는 호환 control이며 사용 편의성 전용입니다.
 
-| 경로 | 상태 |
-|---|---|
-| writable array-backed 입력 | 최적화 dispatch, inconclusive |
-| direct/read-only 입력 | fallback, 사용 편의성 전용 |
-| 출력 buffer | `JSONB.toBytes` fallback, 사용 편의성 전용 |
+| 경로                       | 상태                                       |
+|----------------------------|--------------------------------------------|
+| writable array-backed 입력 | 최적화 dispatch, inconclusive              |
+| direct/read-only 입력      | fallback, 사용 편의성 전용                 |
+| 출력 buffer                | `JSONB.toBytes` fallback, 사용 편의성 전용 |
 
 Kotlin과 Java는 같은 public 계약의 `serializeTo`/`deserializeFrom`을 호출합니다. writable target은 남은 용량이 충분해야 하며, 출력 성공은 `limit`을 넓히지 않고 `position`만 이동하고 overflow/read-only 실패는 rollback합니다. 입력은 호출자의 `position`/`limit`을 보존합니다. 결과는 JSONB, 기본 설정, 명시된 buffer 종류 밖으로 일반화하지 않습니다.
 

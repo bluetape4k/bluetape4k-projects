@@ -28,7 +28,10 @@ inline fun <reified T: Any> KClass<T>.buildExampleMatcher(vararg searchFields: S
     searchFields
         .filterNot { it.isEmpty() }
         .forEach {
-            matcher = matcher.withMatcher(it, ExampleMatcher.GenericPropertyMatchers.exact())
+            matcher = matcher.withMatcher(
+                it,
+                ExampleMatcher.GenericPropertyMatchers.exact()
+            )
         }
 
     return matcher

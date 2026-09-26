@@ -1,8 +1,9 @@
 package io.bluetape4k.idgenerators.hashids
 
+import io.bluetape4k.assertions.shouldBeEmpty
 import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.assertions.shouldContainSame
+import io.bluetape4k.assertions.shouldHaveSize
 import io.bluetape4k.assertions.shouldNotEndWith
 import io.bluetape4k.junit5.random.RandomValue
 import io.bluetape4k.junit5.random.RandomizedTest
@@ -42,6 +43,7 @@ class HashidsTest {
 
         val encoded = hashids.encode(*numbers)
         log.debug { "Encoded=$encoded" }
+
         val decoded = hashids.decode(encoded)
         log.debug { "Decoded=${decoded.joinToString()}" }
 
@@ -64,7 +66,7 @@ class HashidsTest {
         val decoded = hashids.decode(encoded)
         log.debug { "Decoded=${decoded.joinToString()}" }
 
-        decoded.size shouldBeEqualTo numbers.size
+        decoded shouldHaveSize numbers.size
         decoded shouldContainSame numbers
     }
 
@@ -75,10 +77,11 @@ class HashidsTest {
 
         val encoded = hashids.encode(*numbers)
         log.debug { "Encoded=$encoded" }
+
         val decoded = hashids.decode(encoded)
         log.debug { "Decoded=${decoded.joinToString()}" }
 
-        decoded.size shouldBeEqualTo numbers.size
+        decoded shouldHaveSize numbers.size
         decoded shouldContainSame numbers
     }
 
@@ -89,7 +92,7 @@ class HashidsTest {
             val decoded = hashids.decode(encoded)
             log.debug { "number=$number, encoded=$encoded, decoded=${decoded.joinToString()}" }
 
-            decoded.size shouldBeEqualTo 1
+            decoded shouldHaveSize 1
             decoded[0] shouldBeEqualTo number
         }
     }
@@ -97,8 +100,9 @@ class HashidsTest {
     @Test
     fun `decode 실패 시 empty array를 반환`() {
         val pepperedHashids = Hashids("this is my pepper")
+
         val decoded = pepperedHashids.decode("NkK9")
-        decoded.isEmpty().shouldBeTrue()
+        decoded.shouldBeEmpty()
     }
 
     @Test
@@ -163,6 +167,7 @@ class HashidsTest {
 
     @Test
     fun `should encode and decode incrementing numbers`() {
+        // 이 테스트 코드는 Hashids 의 salt 에 따라 달라집니다.
         hashids.encode(1L) shouldBeEqualTo "Vp"
         hashids.encode(2L) shouldBeEqualTo "n9"
         hashids.encode(3L) shouldBeEqualTo "GJ"
@@ -197,7 +202,7 @@ class HashidsTest {
         hashids.encode(-3) shouldBeEqualTo "GJTs="
 
         val decoded = hashids.decode(encoded)
-        log.debug { "decoded=${decoded.joinToString()}" }
+        log.debug { "decoded=${decoded.contentToString()}" }
         decoded shouldBeEqualTo numbers
     }
 
@@ -213,6 +218,7 @@ class HashidsTest {
     fun `encode single with negative large number`() {
         val number = -(Hashids.MAX_NUMBER + 100)
         val encoded = hashids.encode(number)
+
         val decoded = hashids.decode(encoded).first()
         decoded shouldBeEqualTo number
     }

@@ -13,9 +13,9 @@ import java.util.concurrent.atomic.AtomicLong
  */
 internal class InMemoryVersionedKeysetStore(
     private val clock: Clock = Clock.systemUTC(),
-) : VersionedKeysetStore {
+): VersionedKeysetStore {
 
-    companion object : KLogging()
+    companion object: KLogging()
 
     private val store = ConcurrentHashMap<Long, VersionedKeysetHandle>()
     private val currentVersion = AtomicLong(0)

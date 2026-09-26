@@ -4,6 +4,7 @@ import io.bluetape4k.support.requireInRange
 import io.bluetape4k.support.requireNotBlank
 import io.grpc.ManagedChannel
 import io.grpc.ManagedChannelBuilder
+import java.util.concurrent.TimeUnit
 
 /**
  * host/port 기반 [ManagedChannel]을 생성합니다.
@@ -48,7 +49,11 @@ inline fun managedChannel(
 inline fun managedChannel(
     target: String,
     builder: ManagedChannelBuilder<*>.() -> Unit,
-): ManagedChannel = ManagedChannelBuilder
-    .forTarget(target.requireNotBlank("target"))
-    .apply(builder)
-    .build()
+): ManagedChannel =
+    ManagedChannelBuilder
+        .forTarget(target.requireNotBlank("target"))
+        .apply(builder)
+        .build()
+
+fun ManagedChannel.awaitTermination(timeout: kotlin.time.Duration): Boolean =
+    awaitTermination(timeout.inWholeNanoseconds, TimeUnit.MILLISECONDS)

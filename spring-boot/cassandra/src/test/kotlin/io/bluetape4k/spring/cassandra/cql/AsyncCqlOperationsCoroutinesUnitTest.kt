@@ -4,6 +4,7 @@ import com.datastax.oss.driver.api.core.cql.AsyncResultSet
 import com.datastax.oss.driver.api.core.cql.Row
 import com.datastax.oss.driver.api.core.cql.SimpleStatement
 import io.bluetape4k.assertions.shouldNotBeNull
+import io.bluetape4k.concurrent.completableFutureOf
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.mockk.every
@@ -12,7 +13,6 @@ import org.junit.jupiter.api.Test
 import org.springframework.data.cassandra.core.cql.AsyncCqlOperations
 import org.springframework.data.cassandra.core.cql.AsyncResultSetExtractor
 import org.springframework.data.cassandra.core.cql.RowMapper
-import java.util.concurrent.CompletableFuture
 
 class AsyncCqlOperationsCoroutinesUnitTest {
 
@@ -27,11 +27,11 @@ class AsyncCqlOperationsCoroutinesUnitTest {
             every {
                 ops.query(any<String>(), any<AsyncResultSetExtractor<String>>(), *anyVararg())
             } answers {
-                CompletableFuture.completedFuture("extracted") as CompletableFuture<String>
+                completableFutureOf("extracted")
             }
         }
         val result = localOps.querySuspending<String>("SELECT 1") { _: AsyncResultSet ->
-            CompletableFuture.completedFuture("extracted")
+            completableFutureOf("extracted")
         }
         result.shouldNotBeNull()
     }
@@ -43,7 +43,7 @@ class AsyncCqlOperationsCoroutinesUnitTest {
             every {
                 ops.query(any<String>(), any<RowMapper<String>>(), *anyVararg())
             } answers {
-                CompletableFuture.completedFuture(mutableListOf("mapped")) as CompletableFuture<MutableList<String>>
+                completableFutureOf(mutableListOf("mapped"))
             }
         }
         val result = localOps.querySuspending<String>("SELECT 1") { _: Row, _: Int ->
@@ -62,11 +62,11 @@ class AsyncCqlOperationsCoroutinesUnitTest {
                     any<AsyncResultSetExtractor<String>>()
                 )
             } answers {
-                CompletableFuture.completedFuture("extracted") as CompletableFuture<String>
+                completableFutureOf("extracted")
             }
         }
         val result = localOps.querySuspending<String>(testStatement) { _: AsyncResultSet ->
-            CompletableFuture.completedFuture("extracted")
+            completableFutureOf("extracted")
         }
         result.shouldNotBeNull()
     }
@@ -78,7 +78,7 @@ class AsyncCqlOperationsCoroutinesUnitTest {
             every {
                 ops.query(any<com.datastax.oss.driver.api.core.cql.Statement<*>>(), any<RowMapper<String>>())
             } answers {
-                CompletableFuture.completedFuture(mutableListOf("mapped")) as CompletableFuture<MutableList<String>>
+                completableFutureOf(mutableListOf("mapped"))
             }
         }
         val result = localOps.querySuspending<String>(testStatement) { _: Row, _: Int ->

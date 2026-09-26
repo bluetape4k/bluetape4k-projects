@@ -1,17 +1,15 @@
 package io.bluetape4k.micrometer.observation
 
-import io.bluetape4k.junit5.faker.Fakers
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
+import io.bluetape4k.micrometer.AbstractMicrometerTest
+import io.micrometer.observation.ObservationRegistry
 
-abstract class AbstractObservationTest {
+abstract class AbstractObservationTest: AbstractMicrometerTest() {
 
-    companion object: KLogging() {
-        @JvmStatic
-        protected val faker = Fakers.faker
-    }
+    companion object: KLogging()
 
-    protected val observationRegistry = simpleObservationRegistryOf { ctx ->
-        log.debug { "Current context: $ctx" }
+    protected val observationRegistry: ObservationRegistry = simpleObservationRegistryOf { ctx ->
+        log.debug { "Current observation context: $ctx" }
     }
 }

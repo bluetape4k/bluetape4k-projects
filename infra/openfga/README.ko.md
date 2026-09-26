@@ -2,8 +2,7 @@
 
 한국어 | [English](./README.md)
 
-공식 OpenFGA Java SDK를 Kotlin Coroutines 환경에서 사용할 수 있도록 확장한 모듈입니다. SDK의 요청·응답
-모델을 그대로 유지하면서 취소 가능한 suspend 호출과 tuple 페이지를 cold `Flow`로 제공합니다.
+공식 OpenFGA Java SDK를 Kotlin Coroutines 환경에서 사용할 수 있도록 확장한 모듈입니다. SDK의 요청·응답 모델을 그대로 유지하면서 취소 가능한 suspend 호출과 tuple 페이지를 cold `Flow`로 제공합니다.
 
 ## 주요 기능
 
@@ -67,9 +66,7 @@ val response = api.checkSuspending(
 check(response.data.allowed == true)
 ```
 
-wrapper는 mutable SDK request를 복사한 뒤 scope를 적용하므로 공유 request 객체의 원래 model ID와 옵션을
-변경하지 않습니다. 요청별 timeout, header, retry 설정이 필요하면 공식 `ConfigurationOverride`를 그대로
-전달합니다.
+wrapper는 mutable SDK request를 복사한 뒤 scope를 적용하므로 공유 request 객체의 원래 model ID와 옵션을 변경하지 않습니다. 요청별 timeout, header, retry 설정이 필요하면 공식 `ConfigurationOverride`를 그대로 전달합니다.
 
 ```kotlin
 import dev.openfga.sdk.api.configuration.ConfigurationOverride
@@ -98,21 +95,13 @@ val tuples = api.readTuplesFlow(
 ).take(100).toList()
 ```
 
-`readTuplesFlow`는 수집하기 전에는 요청을 보내지 않고, 서버가 빈 continuation token을 반환하면 종료합니다.
-즉시 반복되는 cursor는 거부하며, `maxPages`에 도달한 뒤에도 cursor가 남으면 실패합니다. collector가 취소되면
-다음 page를 요청하지 않습니다. 각 suspend wrapper는 `Future.await`를 사용하므로 취소 시 local await를 중단하고
-반환된 `CompletableFuture`의 취소를 요청합니다. SDK 내부 transport 또는 retry 작업의 중단까지 보장하지 않으므로,
-네트워크 기한이 필요하면 `ConfigurationOverride`로 SDK 요청 timeout/deadline을 설정해야 합니다. 서버에 이미
-반영된 write를 롤백하지는 않습니다.
+`readTuplesFlow`는 수집하기 전에는 요청을 보내지 않고, 서버가 빈 continuation token을 반환하면 종료합니다. 즉시 반복되는 cursor는 거부하며, `maxPages`에 도달한 뒤에도 cursor가 남으면 실패합니다. collector가 취소되면 다음 page를 요청하지 않습니다. 각 suspend wrapper는 `Future.await`를 사용하므로 취소 시 local await를 중단하고 반환된 `CompletableFuture`의 취소를 요청합니다. SDK 내부 transport 또는 retry 작업의 중단까지 보장하지 않으므로, 네트워크 기한이 필요하면 `ConfigurationOverride`로 SDK 요청 timeout/deadline을 설정해야 합니다. 서버에 이미 반영된 write를 롤백하지는 않습니다.
 
-SDK에는 close API가 없으므로 이 모듈도 주입받은 `OpenFgaApi`를 닫지 않습니다. SDK 설정과 HTTP 자원의 소유권은
-호출자에게 있습니다.
+SDK에는 close API가 없으므로 이 모듈도 주입받은 `OpenFgaApi`를 닫지 않습니다. SDK 설정과 HTTP 자원의 소유권은 호출자에게 있습니다.
 
 ## 테스트
 
-단위 테스트는 SDK Future를 mock합니다. 실제 서버 테스트는 `integration` 태그를 사용하며, SDK와 무관한
-Testcontainers OpenFGA endpoint 하나를 시작합니다. 임시 store와 model을 만든 뒤 tuple 쓰기, allow/deny 검사,
-Flow 페이징 읽기를 수행하고 `finally`에서 store를 삭제합니다.
+단위 테스트는 SDK Future를 mock합니다. 실제 서버 테스트는 `integration` 태그를 사용하며, SDK와 무관한 Testcontainers OpenFGA endpoint 하나를 시작합니다. 임시 store와 model을 만든 뒤 tuple 쓰기, allow/deny 검사, Flow 페이징 읽기를 수행하고 `finally`에서 store를 삭제합니다.
 
 ```bash
 ./gradlew :bluetape4k-openfga:test :bluetape4k-openfga:detekt --max-workers=1

@@ -1,15 +1,14 @@
 package io.bluetape4k.rule.examples
 
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeFalse
+import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.rule.api.Facts
 import io.bluetape4k.rule.api.ruleSetOf
 import io.bluetape4k.rule.core.DefaultRuleEngine
 import io.bluetape4k.rule.core.rule
 import io.bluetape4k.rule.core.ruleEngine
-import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldBeFalse
-import io.bluetape4k.assertions.shouldBeTrue
-import io.bluetape4k.assertions.shouldNotBeNull
 import org.junit.jupiter.api.Test
 
 class DiscountRuleExampleTest {
@@ -29,14 +28,16 @@ class DiscountRuleExampleTest {
 
         val engine = ruleEngine { skipOnFirstAppliedRule = true }
         val facts = Facts.of("amount" to 1500)
-        engine.fire(ruleSetOf(discountRule), facts); facts.get<Boolean>("discount").shouldNotBeNull().shouldBeTrue()
+        engine.fire(ruleSetOf(discountRule), facts)
+        facts.get<Boolean>("discount").shouldBeTrue()
     }
 
     @Test
     fun `할인 미적용 예제`() {
         val engine = DefaultRuleEngine()
         val facts = Facts.of("amount" to 500)
-        engine.fire(ruleSetOf(discountRule), facts); facts.containsKey("discount").shouldBeFalse()
+        engine.fire(ruleSetOf(discountRule), facts)
+        facts.containsKey("discount").shouldBeFalse()
     }
 
     @Test
@@ -70,7 +71,7 @@ class DiscountRuleExampleTest {
         engine.fire(ruleSetOf(discountRule, freeShippingRule, vipRule), facts)
 
         facts.get<Int>("discount") shouldBeEqualTo 15
-        facts.get<Boolean>("freeShipping").shouldNotBeNull().shouldBeTrue()
+        facts.get<Boolean>("freeShipping").shouldBeTrue()
     }
 
     @Test
@@ -90,7 +91,7 @@ class DiscountRuleExampleTest {
         val facts = Facts.of("value" to 50)
         val result = engine.check(ruleSetOf(rule1, rule2), facts)
 
-        result[rule1].shouldNotBeNull().shouldBeTrue()
-        result[rule2].shouldNotBeNull().shouldBeFalse()
+        result[rule1].shouldBeTrue()
+        result[rule2].shouldBeFalse()
     }
 }

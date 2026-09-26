@@ -26,7 +26,8 @@ class ComparableHistogramTest {
             valueVector,
             valueVector.map { it + 100.0 },
             valueVector.map { it + 200.0 }
-        ).flatMap { it }
+        )
+            .flatMap { it }
             .zip(groups.repeat())
 
         log.debug { "bins=$bins" }
@@ -40,9 +41,9 @@ class ComparableHistogramTest {
         histogram.bins.size shouldBeEqualTo 3
 
         // range의 어떤 값이던 상관없다 (BinModel.get operator를 보라)
-        histogram[5.0].shouldNotBeNull().range shouldBeEqualTo DefaultClosedClosedRange(0.0, 100.0)
-        histogram[105.0].shouldNotBeNull().range shouldBeEqualTo DefaultClosedClosedRange(100.0, 200.0)
-        histogram[205.0].shouldNotBeNull().range shouldBeEqualTo DefaultClosedClosedRange(200.0, 300.0)
+        histogram[5.0]?.range shouldBeEqualTo DefaultClosedClosedRange(0.0, 100.0)
+        histogram[105.0]?.range shouldBeEqualTo DefaultClosedClosedRange(100.0, 200.0)
+        histogram[205.0]?.range shouldBeEqualTo DefaultClosedClosedRange(200.0, 300.0)
     }
 
     data class Sale(val accountId: Int, val date: LocalDate, val value: Double)
@@ -92,7 +93,7 @@ class ComparableHistogramTest {
             groupOp = { list -> list.asSequence().map { it.value }.sum() }
         )
         byQuarter.forEach { log.trace { it } }
-        byQuarter[Month.MAY].shouldNotBeNull().value shouldBeEqualTo 137.9
+        byQuarter[Month.MAY]?.value shouldBeEqualTo 137.9
     }
 
     @Test
@@ -115,7 +116,7 @@ class ComparableHistogramTest {
             rangeStart = 100.0
         )
         binned.forEach { log.trace { it } }
-        binned[110.0].shouldNotBeNull().value shouldContain sales[2]
+        binned[110.0]?.value shouldContain sales[2]
     }
 
     @Test
@@ -147,7 +148,7 @@ class ComparableHistogramTest {
             rangeStart = 1,
         )
 
-        histogram[1].shouldNotBeNull().value shouldBeEqualTo values
+        histogram[1]?.value shouldBeEqualTo values
     }
 
     @Test
@@ -160,6 +161,6 @@ class ComparableHistogramTest {
                 rangeStart = 1,
             )
 
-        histogram[1].shouldNotBeNull().value shouldBeEqualTo listOf(1, 1, 2)
+        histogram[1]?.value shouldBeEqualTo listOf(1, 1, 2)
     }
 }

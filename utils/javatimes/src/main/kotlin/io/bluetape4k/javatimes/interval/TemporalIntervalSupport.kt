@@ -288,7 +288,7 @@ fun <T> ReadableTemporalInterval<T>.sequence(
         var current = startInclusive.startOf(unit)
         val increment = step.temporalAmount(unit)
 
-        // TemporalInterval 은 OpenedRange ( [start, end) ) 입니다.
+        // TemporalInterval 은 OpenedRange (`[start, end)`) 입니다.
         while (current < endExclusive) {
             yield(current)
             current = (current + increment) as T
@@ -321,7 +321,7 @@ fun <T> ReadableTemporalInterval<T>.flow(
         var current = startInclusive.startOf(unit)
         val increment = step.temporalAmount(unit)
 
-        // TemporalInterval 은 OpenedRange ( [start, end) ) 입니다.
+        // TemporalInterval 은 OpenedRange (`[start, end)`) 입니다.
         while (current < endExclusive) {
             emit(current)
             current = (current + increment) as T

@@ -1,15 +1,15 @@
 package io.bluetape4k.cache.jcache
 
 import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.error
-import io.bluetape4k.logging.trace
 import java.util.concurrent.CancellationException
 import javax.cache.event.CacheEntryCreatedListener
 import javax.cache.event.CacheEntryEvent
-import javax.cache.event.EventType
 import javax.cache.event.CacheEntryExpiredListener
 import javax.cache.event.CacheEntryRemovedListener
 import javax.cache.event.CacheEntryUpdatedListener
+import javax.cache.event.EventType
 
 /**
  * Back cache에서 entry 변화가 발생하면, event를 발행하고, 이를 [targetCache]에 반영하도록 하는 Listener 입니다.
@@ -70,7 +70,7 @@ class JCacheEntryEventListener<K, V> @JvmOverloads constructor(
         defaultHandler: (List<CacheEntryEvent<out K, out V>>) -> Unit,
     ) {
         val eventList = events.toList()
-        log.trace {
+        log.debug {
             "Back cache event received. type=$eventType, targetCache=${targetCache.name}, " +
                     "eventCount=${eventList.size}"
         }
@@ -81,7 +81,9 @@ class JCacheEntryEventListener<K, V> @JvmOverloads constructor(
         } catch (e: CancellationException) {
             throw e
         } catch (e: RuntimeException) {
-            log.error(e) { "Failed to apply back cache event. type=$eventType, eventCount=${eventList.size}" }
+            log.error(e) {
+                "Failed to apply back cache event. type=$eventType, eventCount=${eventList.size}"
+            }
         }
     }
 }

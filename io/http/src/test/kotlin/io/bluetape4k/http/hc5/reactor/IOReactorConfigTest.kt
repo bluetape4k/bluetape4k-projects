@@ -1,10 +1,10 @@
 package io.bluetape4k.http.hc5.reactor
 
-import io.bluetape4k.logging.KLogging
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeFalse
 import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.assertions.shouldNotBeNull
+import io.bluetape4k.logging.KLogging
 import org.apache.hc.core5.reactor.IOReactorConfig
 import org.apache.hc.core5.util.TimeValue
 import org.apache.hc.core5.util.Timeout
@@ -13,7 +13,7 @@ import java.util.concurrent.TimeUnit
 
 class IOReactorConfigTest {
 
-    companion object : KLogging()
+    companion object: KLogging()
 
     @Test
     fun `ioReactorConfig DSL creates config with custom io thread count`() {

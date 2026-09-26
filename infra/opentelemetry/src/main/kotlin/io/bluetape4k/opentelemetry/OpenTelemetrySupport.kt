@@ -120,10 +120,10 @@ fun openTelemetrySdkOf(
     propagators: ContextPropagators? = null,
 ): OpenTelemetry {
     return openTelemetrySdk {
-        tracerProvider?.run { setTracerProvider(this) }
-        meterProvider?.run { setMeterProvider(this) }
-        loggerProvider?.run { setLoggerProvider(this) }
-        propagators?.run { setPropagators(this) }
+        tracerProvider?.let { setTracerProvider(it) }
+        meterProvider?.let { setMeterProvider(it) }
+        loggerProvider?.let { setLoggerProvider(it) }
+        propagators?.let { setPropagators(it) }
     }
 }
 
@@ -144,11 +144,12 @@ fun openTelemetrySdkOf(
  */
 inline fun OpenTelemetry.tracer(
     tracerName: String,
-    builder: TracerBuilder.() -> Unit,
-): Tracer {
-    tracerName.requireNotBlank("tracerName")
-    return tracerProvider.tracerBuilder(tracerName).apply(builder).build()
-}
+    builder: TracerBuilder.() -> Unit = {},
+): Tracer =
+    tracerProvider
+        .tracerBuilder(tracerName.requireNotBlank("tracerName"))
+        .apply(builder)
+        .build()
 
 /**
  * [MeterBuilder]를 이용하여 [Meter] 인스턴스를 빌드합니다.
@@ -167,8 +168,9 @@ inline fun OpenTelemetry.tracer(
  */
 inline fun OpenTelemetry.meter(
     meterName: String,
-    builder: MeterBuilder.() -> Unit,
-): Meter {
-    meterName.requireNotBlank("meterName")
-    return meterProvider.meterBuilder(meterName).apply(builder).build()
-}
+    builder: MeterBuilder.() -> Unit = {},
+): Meter =
+    meterProvider
+        .meterBuilder(meterName.requireNotBlank("meterName"))
+        .apply(builder)
+        .build()

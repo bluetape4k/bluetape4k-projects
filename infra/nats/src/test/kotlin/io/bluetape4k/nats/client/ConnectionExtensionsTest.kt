@@ -1,25 +1,27 @@
 package io.bluetape4k.nats.client
 
+import io.bluetape4k.assertions.assertFailsWith
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.logging.KLogging
+import io.bluetape4k.nats.AbstractNatsTest
 import io.bluetape4k.support.toUtf8Bytes
 import io.mockk.every
-import io.mockk.just
 import io.mockk.mockk
-import io.mockk.runs
 import io.mockk.verify
 import io.nats.client.Connection
 import io.nats.client.Message
 import io.nats.client.impl.Headers
 import kotlinx.coroutines.test.runTest
-import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldBeTrue
-import io.bluetape4k.assertions.assertFailsWith
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import java.util.concurrent.CompletableFuture
 import kotlin.time.Duration.Companion.seconds
 import kotlin.time.toJavaDuration
 
-class ConnectionExtensionsTest {
+class ConnectionExtensionsTest: AbstractNatsTest() {
+
+    companion object: KLogging()
 
     private lateinit var nc: Connection
 
@@ -179,7 +181,14 @@ class ConnectionExtensionsTest {
     @Test
     fun `requestWithTimeoutSuspending with timeout uses requestWithTimeout path`() = runTest {
         val response = mockk<Message>()
-        every { nc.requestWithTimeout(any<String>(), any(), any<ByteArray>(), any()) } returns CompletableFuture.completedFuture(response)
+        every {
+            nc.requestWithTimeout(
+                any<String>(),
+                any(),
+                any<ByteArray>(),
+                any()
+            )
+        } returns CompletableFuture.completedFuture(response)
 
         val result = nc.requestWithTimeoutSuspending("test.subject", "hello".toUtf8Bytes(), timeout = 1.seconds)
 

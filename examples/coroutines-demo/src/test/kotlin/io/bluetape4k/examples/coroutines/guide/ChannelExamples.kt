@@ -4,7 +4,6 @@ import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.coroutines.support.log
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
-import io.bluetape4k.logging.trace
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.ReceiveChannel
@@ -29,10 +28,10 @@ class ChannelExamples {
         launch {
             for (x in 1..5) {
                 delay(Random.nextLong(100).milliseconds)
-                log.trace { "Send value=${x * x}" }
+                log.debug { "Send value=${x * x}" }
                 channel.send(x * x)
             }
-        }.log("#1")
+        }.log("Job #1")
 
         yield()
 
@@ -40,11 +39,10 @@ class ChannelExamples {
         repeat(5) {
             val receivedItem = channel.receive()
             received.add(receivedItem)
-            log.trace { "received item=$receivedItem" }
+            log.debug { "received item=$receivedItem" }
         }
 
         received shouldBeEqualTo listOf(1, 4, 9, 16, 25)
-        log.trace { "Done!" }
     }
 
     @Test
@@ -54,21 +52,20 @@ class ChannelExamples {
         launch {
             for (x in 1..5) {
                 delay(Random.nextLong(100).milliseconds)
-                log.trace { "Send value=${x * x}" }
+                log.debug { "Send value=${x * x}" }
                 channel.send(x * x)
             }
             // 접속 종료를 알린다 (reactive의 onCompletion)
             channel.close()
-        }
+        }.log("Job #2")
 
         val received = mutableListOf<Int>()
         for (items in channel) {
             received.add(items)
-            log.trace { "received item=$items" }
+            log.debug { "received item=$items" }
         }
 
         received shouldBeEqualTo listOf(1, 4, 9, 16, 25)
-        log.trace { "Done!" }
     }
 
     @Test
@@ -85,6 +82,5 @@ class ChannelExamples {
         }
 
         received shouldBeEqualTo listOf(1, 4, 9, 16, 25)
-        log.debug { "Done!" }
     }
 }

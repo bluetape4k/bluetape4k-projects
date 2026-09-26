@@ -1,16 +1,16 @@
 package io.bluetape4k.testcontainers.aws.ministack.services
 
-import io.bluetape4k.logging.KLogging
-import io.bluetape4k.logging.debug
-import io.bluetape4k.testcontainers.aws.MiniStackServer.Launcher.miniStack
-import io.bluetape4k.testcontainers.aws.getCredentialProvider
-import io.bluetape4k.testcontainers.aws.ministack.AbstractMiniStackServiceTest
-import io.bluetape4k.utils.ShutdownQueue
 import io.bluetape4k.assertions.shouldBeGreaterOrEqualTo
 import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.assertions.shouldContain
 import io.bluetape4k.assertions.shouldNotBeEmpty
 import io.bluetape4k.assertions.shouldNotBeNull
+import io.bluetape4k.codec.Base58
+import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.debug
+import io.bluetape4k.testcontainers.aws.getCredentialProvider
+import io.bluetape4k.testcontainers.aws.ministack.AbstractMiniStackServiceTest
+import io.bluetape4k.utils.ShutdownQueue
 import org.junit.jupiter.api.MethodOrderer
 import org.junit.jupiter.api.Order
 import org.junit.jupiter.api.Test
@@ -31,8 +31,8 @@ import java.time.Instant
 class MiniStackCloudWatchTest: AbstractMiniStackServiceTest() {
 
     companion object: KLogging() {
-        private val NAMESPACE = "Bluetape4k/MiniStack-Test-${System.currentTimeMillis()}"
-        private val LOG_GROUP_NAME = "/bluetape4k/ministack-test-${System.currentTimeMillis()}"
+        private val NAMESPACE = "Bluetape4k/MiniStack-Test-${Base58.randomString(8)}"
+        private val LOG_GROUP_NAME = "/bluetape4k/ministack-test-${Base58.randomString(8)}"
         private const val LOG_STREAM_NAME = "app-stream"
     }
 

@@ -1,5 +1,9 @@
 package io.bluetape4k.examples.redisson.coroutines.cachestrategy
 
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldNotBeNull
+import io.bluetape4k.coroutines.support.awaitAllUntil
+import io.bluetape4k.coroutines.support.awaitUntil
 import io.bluetape4k.examples.redisson.coroutines.cachestrategy.ActorSchema.ActorRecord
 import io.bluetape4k.examples.redisson.coroutines.cachestrategy.ActorSchema.ActorTable
 import io.bluetape4k.idgenerators.snowflake.Snowflakers
@@ -7,11 +11,10 @@ import io.bluetape4k.junit5.awaitility.untilSuspending
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.trace
-import io.bluetape4k.redis.redisson.coroutines.awaitAll
 import kotlinx.coroutines.future.await
-import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldNotBeNull
+import org.awaitility.kotlin.atMost
 import org.awaitility.kotlin.await
+import org.awaitility.kotlin.withPollInterval
 import org.jetbrains.exposed.v1.core.inList
 import org.jetbrains.exposed.v1.jdbc.deleteAll
 import org.jetbrains.exposed.v1.jdbc.selectAll
@@ -24,6 +27,8 @@ import org.redisson.api.map.WriteMode
 import org.redisson.api.options.LocalCachedMapOptions
 import org.redisson.api.options.MapCacheOptions
 import java.time.Duration
+import kotlin.time.Duration.Companion.milliseconds
+import kotlin.time.Duration.Companion.seconds
 
 @Suppress("DEPRECATION")
 class CacheWriteThroughExample: AbstractCacheExample() {
@@ -150,9 +155,9 @@ class CacheWriteThroughExample: AbstractCacheExample() {
                 writeIds.map { id ->
                     // cache[id] = newActorRecord(id)
                     cache.fastPutAsync(id, newActorRecord(id))
-                }.awaitAll()
+                }.awaitAllUntil()
 
-                await untilSuspending {
+                await atMost 5.seconds withPollInterval 100.milliseconds untilSuspending {
                     newSuspendedTransaction {
                         // DB에 삽입된 데이터를 확인한다. (options.loader() 가 없으므로, 캐시에는 저장되지 않는다)
                         ActorTable.selectAll().where { ActorTable.id inList writeIds }.count()
@@ -196,13 +201,13 @@ class CacheWriteThroughExample: AbstractCacheExample() {
                 writeIds.map { id ->
                     // cache[id] = newActorRecord(id)
                     cache.fastPutAsync(id, newActorRecord(id))
-                }.awaitAll()
+                }.awaitAllUntil()
 
                 writeIds.forEach { id ->
                     cache[id].shouldNotBeNull()
                 }
 
-                await untilSuspending {
+                await atMost 5.seconds withPollInterval 100.milliseconds untilSuspending {
                     newSuspendedTransaction {
                         // DB에 삽입된 데이터를 확인한다. (options.loader() 가 없으므로, 캐시에는 저장되지 않는다)
                         ActorTable.selectAll().where { ActorTable.id inList writeIds }.count()
@@ -217,7 +222,7 @@ class CacheWriteThroughExample: AbstractCacheExample() {
 
             } finally {
                 // 캐시를 삭제한다.
-                cache.deleteAsync().await()
+                cache.deleteAsync().awaitUntil()
             }
         }
     }

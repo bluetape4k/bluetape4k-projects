@@ -2,7 +2,10 @@ package io.bluetape4k.redis.lettuce.synchronizer
 
 import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeNull
 import io.bluetape4k.assertions.shouldNotContain
+import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.debug
 import org.junit.jupiter.api.Test
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
@@ -13,6 +16,17 @@ import java.io.Serializable
 import java.time.Duration
 
 class SynchronizerTypesTest {
+
+    private companion object: KLogging() {
+        val permitHandle = PermitHandle(
+            objectFingerprint = "fingerprint",
+            ownerId = SemaphoreOwnerId.from("owner"),
+            generation = 1,
+            requestId = SemaphoreRequestId.from("request"),
+            permits = 1,
+            token = "token",
+        )
+    }
 
     @Test
     fun `expirable handle preserves one identity and deadline per permit`() {
@@ -32,8 +46,10 @@ class SynchronizerTypesTest {
 
         val handle = ExpirablePermitHandle(permit, leases)
 
+        log.debug { "handle=$handle" }
         handle.leases.size shouldBeEqualTo permit.permits
         handle.toString() shouldNotContain "permit-1"
+
         assertFailsWith<IllegalArgumentException> {
             ExpirablePermitHandle(permit, leases.dropLast(1))
         }
@@ -44,18 +60,29 @@ class SynchronizerTypesTest {
         SemaphoreOwnerId.from("owner-secret").toString() shouldNotContain "owner-secret"
         SemaphoreRequestId.from("request-secret").toString() shouldNotContain "request-secret"
         LatchRequestId.from("latch-secret").toString() shouldNotContain "latch-secret"
-        assertFailsWith<IllegalArgumentException> { SemaphoreOwnerId.from("owner|injected") }
-        assertFailsWith<IllegalArgumentException> { SemaphoreRequestId.from("request,injected") }
+
+        assertFailsWith<IllegalArgumentException> {
+            SemaphoreOwnerId.from("owner|injected")
+        }
+        assertFailsWith<IllegalArgumentException> {
+            SemaphoreRequestId.from("request,injected")
+        }
     }
 
     @Test
     fun `configuration rejects unsafe bounds`() {
-        assertFailsWith<IllegalArgumentException> { SemaphoreConfig(maxPermits = 0) }
-        assertFailsWith<IllegalArgumentException> { SemaphoreConfig(pollInterval = Duration.ZERO) }
+        assertFailsWith<IllegalArgumentException> {
+            SemaphoreConfig(maxPermits = 0)
+        }
+        assertFailsWith<IllegalArgumentException> {
+            SemaphoreConfig(pollInterval = Duration.ZERO)
+        }
         assertFailsWith<IllegalArgumentException> {
             ExpirableSemaphoreConfig(leaseTime = Duration.ofMillis(99))
         }
-        assertFailsWith<IllegalArgumentException> { LatchConfig(maxCount = 0) }
+        assertFailsWith<IllegalArgumentException> {
+            LatchConfig(maxCount = 0)
+        }
     }
 
     @Test
@@ -79,9 +106,13 @@ class SynchronizerTypesTest {
             SynchronizerBackendFailureKind.TIMEOUT,
             SynchronizerRecoveryAction.RECONCILE_REQUEST,
         )
+        log.debug { "backendFailure=$backendFailure" }
+
         val integrityFailure = SynchronizerIntegrityFailure(
             SynchronizerIntegrityFailureKind.MALFORMED_REPLY,
         )
+        log.debug { "integrityFailure=$integrityFailure" }
+
         val permit = PermitHandle(
             objectFingerprint = "fingerprint",
             ownerId = SemaphoreOwnerId.from("owner"),
@@ -90,6 +121,8 @@ class SynchronizerTypesTest {
             permits = 2,
             token = "allocation",
         )
+        log.debug { "permit = $permit" }
+
         val expirable = ExpirablePermitHandle(
             permit = permit,
             leases = listOf(
@@ -97,8 +130,10 @@ class SynchronizerTypesTest {
                 ExpirablePermitLease("permit-2", 1_001),
             ),
         )
+        log.debug { "expirable = $expirable" }
+
         val generation = LatchGeneration(3)
-        val samples = listOf<Serializable>(
+        val samples = listOf(
             backendFailure,
             integrityFailure,
             SemaphoreInitializationResult.Initialized(1),
@@ -189,45 +224,125 @@ class SynchronizerTypesTest {
 
     @Test
     fun `typed value objects reject invalid boundaries and preserve redaction`() {
-        assertFailsWith<IllegalArgumentException> { PermitHandle("", SemaphoreOwnerId.from("owner"), 1, SemaphoreRequestId.from("request"), 1, "token") }
-        assertFailsWith<IllegalArgumentException> { PermitHandle("fingerprint", SemaphoreOwnerId.from("owner"), 0, SemaphoreRequestId.from("request"), 1, "token") }
-        assertFailsWith<IllegalArgumentException> { PermitHandle("fingerprint", SemaphoreOwnerId.from("owner"), 1, SemaphoreRequestId.from("request"), 0, "token") }
-        assertFailsWith<IllegalArgumentException> { ExpirablePermitLease("", 1) }
-        assertFailsWith<IllegalArgumentException> { ExpirablePermitLease("permit", 0) }
-        assertFailsWith<IllegalArgumentException> { ExpirablePermitHandle(PermitHandle("fingerprint", SemaphoreOwnerId.from("owner"), 1, SemaphoreRequestId.from("request"), 2, "token"), listOf(ExpirablePermitLease("same", 1), ExpirablePermitLease("same", 2))) }
-        assertFailsWith<IllegalArgumentException> { LatchGeneration(0) }
-        assertFailsWith<IllegalArgumentException> { PermitMutationResult.Released(permitHandle, -1) }
-        assertFailsWith<IllegalArgumentException> { PermitInspectResult.Owned(permitHandle, -1) }
-        assertFailsWith<IllegalArgumentException> { LatchSetCountResult.ActiveGeneration(LatchGeneration(1), -1) }
-        assertFailsWith<IllegalArgumentException> { LatchCountResult.Active(LatchGeneration(1), 0, 0) }
-        assertFailsWith<IllegalArgumentException> { LatchMutationResult.ActiveWaiters(0) }
+        assertFailsWith<IllegalArgumentException> {
+            PermitHandle(
+                "",
+                SemaphoreOwnerId.from("owner"),
+                1,
+                SemaphoreRequestId.from("request"),
+                1,
+                "token"
+            )
+        }
+        assertFailsWith<IllegalArgumentException> {
+            PermitHandle(
+                "fingerprint",
+                SemaphoreOwnerId.from("owner"),
+                0,
+                SemaphoreRequestId.from("request"),
+                1,
+                "token"
+            )
+        }
+        assertFailsWith<IllegalArgumentException> {
+            PermitHandle(
+                "fingerprint",
+                SemaphoreOwnerId.from("owner"),
+                1,
+                SemaphoreRequestId.from("request"),
+                0,
+                "token"
+            )
+        }
+        assertFailsWith<IllegalArgumentException> {
+            ExpirablePermitLease("", 1)
+        }
+        assertFailsWith<IllegalArgumentException> {
+            ExpirablePermitLease("permit", 0)
+        }
+        assertFailsWith<IllegalArgumentException> {
+            ExpirablePermitHandle(
+                PermitHandle(
+                    "fingerprint",
+                    SemaphoreOwnerId.from("owner"),
+                    1,
+                    SemaphoreRequestId.from("request"),
+                    2,
+                    "token"
+                ), listOf(ExpirablePermitLease("same", 1), ExpirablePermitLease("same", 2))
+            )
+        }
+        assertFailsWith<IllegalArgumentException> {
+            LatchGeneration(0)
+        }
+        assertFailsWith<IllegalArgumentException> {
+            PermitMutationResult.Released(permitHandle, -1)
+        }
+        assertFailsWith<IllegalArgumentException> {
+            PermitInspectResult.Owned(permitHandle, -1)
+        }
+        assertFailsWith<IllegalArgumentException> {
+            LatchSetCountResult.ActiveGeneration(LatchGeneration(1), -1)
+        }
+        assertFailsWith<IllegalArgumentException> {
+            LatchCountResult.Active(LatchGeneration(1), 0, 0)
+        }
+        assertFailsWith<IllegalArgumentException> {
+            LatchMutationResult.ActiveWaiters(0)
+        }
 
-        PermitAcquireResult.Ambiguous(SemaphoreRequestId.from("secret-request")).toString() shouldNotContain "secret-request"
-        LatchAwaitResult.Ambiguous(LatchRequestId.from("secret-request")).toString() shouldNotContain "secret-request"
+        PermitAcquireResult.Ambiguous(SemaphoreRequestId.from("secret-request"))
+            .toString() shouldNotContain "secret-request"
+
+        LatchAwaitResult.Ambiguous(LatchRequestId.from("secret-request"))
+            .toString() shouldNotContain "secret-request"
     }
 
     @Test
     fun `configuration validates namespace slot and waiter lifecycle bounds`() {
         SemaphoreConfig(namespace = "orders:v1", hashTag = "orders", maxPermits = 1).maxPermits shouldBeEqualTo 1
-        LatchConfig(namespace = "orders:v1", hashTag = "orders", maxCount = 1, maxWaiters = 1).maxWaiters shouldBeEqualTo 1
+        LatchConfig(
+            namespace = "orders:v1",
+            hashTag = "orders",
+            maxCount = 1,
+            maxWaiters = 1
+        ).maxWaiters shouldBeEqualTo 1
 
         listOf("", "white space", "{slot}", "-starts-with-dash").forEach { namespace ->
-            assertFailsWith<IllegalArgumentException> { SemaphoreConfig(namespace = namespace) }
-            assertFailsWith<IllegalArgumentException> { LatchConfig(namespace = namespace) }
+            assertFailsWith<IllegalArgumentException> {
+                SemaphoreConfig(namespace = namespace)
+            }
+            assertFailsWith<IllegalArgumentException> {
+                LatchConfig(namespace = namespace)
+            }
         }
-        assertFailsWith<IllegalArgumentException> { SemaphoreConfig(hashTag = "unsafe|tag") }
-        assertFailsWith<IllegalArgumentException> { SemaphoreConfig(maxPermits = 1_000_001) }
-        assertFailsWith<IllegalArgumentException> { LatchConfig(maxWaiters = 0) }
-        assertFailsWith<IllegalArgumentException> { LatchConfig(waiterCleanupGrace = Duration.ofMinutes(6)) }
-        assertFailsWith<IllegalArgumentException> { ExpirableSemaphoreConfig(maxPermitsPerAcquire = 65) }
-        assertFailsWith<IllegalArgumentException> { ExpirableSemaphoreConfig(cleanupBatchLimit = 1_025) }
+        assertFailsWith<IllegalArgumentException> {
+            SemaphoreConfig(hashTag = "unsafe|tag")
+        }
+        assertFailsWith<IllegalArgumentException> {
+            SemaphoreConfig(maxPermits = 1_000_001)
+        }
+        assertFailsWith<IllegalArgumentException> {
+            LatchConfig(maxWaiters = 0)
+        }
+        assertFailsWith<IllegalArgumentException> {
+            LatchConfig(waiterCleanupGrace = Duration.ofMinutes(6))
+        }
+        assertFailsWith<IllegalArgumentException> {
+            ExpirableSemaphoreConfig(maxPermitsPerAcquire = 65)
+        }
+        assertFailsWith<IllegalArgumentException> {
+            ExpirableSemaphoreConfig(cleanupBatchLimit = 1_025)
+        }
     }
 
     @Test
     fun `deserialization revalidates opaque identities and fails closed`() {
         val invalidOwner = SemaphoreOwnerId.from("owner").withField("value", "owner|bad")
-        val error = assertFailsWith<InvalidObjectException> { javaRoundTrip(invalidOwner) }
-        error.cause shouldBeEqualTo null
+        val error = assertFailsWith<InvalidObjectException> {
+            javaRoundTrip(invalidOwner)
+        }
+        error.cause.shouldBeNull()
         error.message shouldBeEqualTo "Invalid serialized ${invalidOwner.javaClass.simpleName}."
     }
 
@@ -243,15 +358,4 @@ class SynchronizerTypesTest {
             ObjectOutputStream(bytes).use { output -> output.writeObject(original) }
             ObjectInputStream(ByteArrayInputStream(bytes.toByteArray())).use { input -> input.readObject() }
         }
-
-    private companion object {
-        val permitHandle = PermitHandle(
-            objectFingerprint = "fingerprint",
-            ownerId = SemaphoreOwnerId.from("owner"),
-            generation = 1,
-            requestId = SemaphoreRequestId.from("request"),
-            permits = 1,
-            token = "token",
-        )
-    }
 }

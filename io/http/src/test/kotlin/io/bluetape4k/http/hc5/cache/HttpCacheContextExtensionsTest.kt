@@ -1,8 +1,8 @@
 package io.bluetape4k.http.hc5.cache
 
+import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeFalse
 import io.bluetape4k.assertions.shouldBeTrue
-import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.logging.KLogging
 import org.apache.hc.client5.http.cache.CacheResponseStatus
 import org.apache.hc.client5.http.cache.HttpCacheContext
@@ -10,7 +10,7 @@ import org.junit.jupiter.api.Test
 
 class HttpCacheContextExtensionsTest {
 
-    companion object : KLogging()
+    companion object: KLogging()
 
     private fun contextWith(status: CacheResponseStatus): HttpCacheContext =
         HttpCacheContext.create().also { it.setCacheResponseStatus(status) }

@@ -182,25 +182,19 @@ val json = mapper.writeValueAsString(value)
 val restored = mapper.readValue(json, ModelEnvelope::class.java)
 ```
 
-Allowlist prefixes are trimmed and normalized to a dot-terminated package boundary.
-Blank or dot-only prefixes are rejected, so `"com.example"` matches
+Allowlist prefixes are trimmed and normalized to a dot-terminated package boundary. Blank or dot-only prefixes are rejected, so `"com.example"` matches
 `com.example.*` but not an adjacent package such as `com.exampleevil.*`.
 
 The default mapper does not activate polymorphic typing. The legacy entry points
 `Jackson.typedJsonMapper`, `Jackson.prettyTypedJsonWriter`, and
-`Jackson.createDefaultJsonMapper(needTypeInfo = true)` are source-compatible deprecated symbols,
-but they fail immediately with `UnsupportedOperationException` as of `1.13.0`; they no longer
-install an `Any`-base validator. Replace them with an explicit allowlist:
+`Jackson.createDefaultJsonMapper(needTypeInfo = true)` are source-compatible deprecated symbols, but they fail immediately with `UnsupportedOperationException` as of `1.13.0`; they no longer install an `Any`-base validator. Replace them with an explicit allowlist:
 
 ```kotlin
 val mapper = Jackson.createTypedJsonMapper("com.example.model.")
 val prettyWriter = mapper.writerWithDefaultPrettyPrinter()
 ```
 
-Use this factory only for trusted payloads whose subtype packages are controlled by the
-application. For untrusted or external JSON, bind to a concrete DTO (or another explicitly
-validated shape) and do not enable Jackson default typing. The deprecated symbols remain only as
-a migration signal in `1.13.0`; removal is reviewed for the next major release.
+Use this factory only for trusted payloads whose subtype packages are controlled by the application. For untrusted or external JSON, bind to a concrete DTO (or another explicitly validated shape) and do not enable Jackson default typing. The deprecated symbols remain only as a migration signal in `1.13.0`; removal is reviewed for the next major release.
 
 ### JacksonSerializer
 

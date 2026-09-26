@@ -6,6 +6,7 @@ import io.bluetape4k.assertions.shouldBeSameInstanceAs
 import io.bluetape4k.assertions.shouldContentEqual
 import io.bluetape4k.assertions.shouldHaveSize
 import io.bluetape4k.junit5.concurrency.MultithreadingTester
+import io.bluetape4k.logging.KLogging
 import org.junit.jupiter.api.Test
 import java.nio.BufferOverflowException
 import java.nio.ByteBuffer
@@ -17,6 +18,9 @@ import java.util.zip.Inflater
 import java.util.zip.ZipException
 
 class DeflateCompressorByteBufferTest {
+
+    companion object: KLogging()
+
     private val compressor = DeflateCompressor()
 
     @Test
@@ -89,8 +93,10 @@ class DeflateCompressorByteBufferTest {
 
         val retryPayload = ByteArray(512)
         val retryWire = compressor.compress(retryPayload)
+
         compressor.compress(CompressorByteBufferTestSupport.heap(retryPayload), target)
             .shouldBeEqualTo(retryWire.size)
+
         CompressorByteBufferTestSupport.bytes(target, targetStart, retryWire.size)
             .shouldContentEqual(retryWire)
     }
@@ -180,6 +186,7 @@ class DeflateCompressorByteBufferTest {
             target.limit(targetStart + retryPayload.size)
             compressor.decompress(CompressorByteBufferTestSupport.heap(retryWire), target)
                 .shouldBeEqualTo(retryPayload.size)
+
             CompressorByteBufferTestSupport.bytes(target, targetStart, retryPayload.size)
                 .shouldContentEqual(retryPayload)
         }
@@ -236,7 +243,7 @@ class DeflateCompressorByteBufferTest {
         }
 
         failure shouldBeSameInstanceAs operationFailure
-        failure.suppressed.shouldHaveSize(1)
+        failure.suppressed shouldHaveSize 1
         failure.suppressed.single() shouldBeSameInstanceAs cleanupFailure
         cleanupInvocations.get() shouldBeEqualTo 1
     }
@@ -259,7 +266,7 @@ class DeflateCompressorByteBufferTest {
             }
 
             failure shouldBeSameInstanceAs operationFailure
-            failure.suppressed.shouldHaveSize(1)
+            failure.suppressed shouldHaveSize 1
             failure.suppressed.single() shouldBeSameInstanceAs cleanupFailure
         }
     }
@@ -284,7 +291,7 @@ class DeflateCompressorByteBufferTest {
             }
         }
         duplicateSuppressed shouldBeSameInstanceAs operationFailure
-        duplicateSuppressed.suppressed.shouldHaveSize(1)
+        duplicateSuppressed.suppressed shouldHaveSize 1
         duplicateSuppressed.suppressed.single() shouldBeSameInstanceAs cleanupFailure
     }
 

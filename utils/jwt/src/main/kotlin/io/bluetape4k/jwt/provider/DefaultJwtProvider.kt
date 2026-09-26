@@ -10,7 +10,7 @@ import io.bluetape4k.logging.error
 import io.bluetape4k.logging.info
 import io.bluetape4k.support.requirePositiveNumber
 import io.jsonwebtoken.security.SignatureAlgorithm
-import java.util.Timer
+import java.util.*
 import kotlin.concurrent.timer
 import kotlin.concurrent.withLock
 
@@ -69,7 +69,7 @@ class DefaultJwtProvider private constructor(
     }
 
     private var currentKeyChain: KeyChain? = null
-    private val lifecycleLock = Any()
+
     @Volatile
     private var closed = false
     private var timer: Timer? = null
@@ -78,7 +78,7 @@ class DefaultJwtProvider private constructor(
         rotationIntervalMillis.requirePositiveNumber("rotationIntervalMillis")
         rotate()
         timer = timer(this.javaClass.name, true, rotationIntervalMillis, rotationIntervalMillis) {
-            synchronized(lifecycleLock) {
+            lock.withLock {
                 if (!closed) rotate()
             }
         }
@@ -92,7 +92,7 @@ class DefaultJwtProvider private constructor(
      * 공급자와 저장소를 함께 생성한 호출자도 각각 [close]를 호출해 두 자원의 수명을 명시해야 합니다.
      */
     override fun close() {
-        synchronized(lifecycleLock) {
+        lock.withLock {
             if (closed) return
 
             closed = true

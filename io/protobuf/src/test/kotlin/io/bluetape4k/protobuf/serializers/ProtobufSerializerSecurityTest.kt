@@ -2,9 +2,16 @@ package io.bluetape4k.protobuf.serializers
 
 import com.google.protobuf.Any
 import io.bluetape4k.assertions.assertFailsWith
+import io.bluetape4k.assertions.shouldBe
 import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeInstanceOf
+import io.bluetape4k.assertions.shouldBeNull
 import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.assertions.shouldContain
+import io.bluetape4k.assertions.shouldContentEqual
+import io.bluetape4k.assertions.shouldNotBe
 import io.bluetape4k.assertions.shouldNotBeNull
+import io.bluetape4k.assertions.shouldStartWith
 import io.bluetape4k.io.serializer.AbstractBinarySerializer
 import io.bluetape4k.io.serializer.BinarySerializationException
 import io.bluetape4k.io.serializer.BinarySerializer
@@ -55,7 +62,9 @@ class ProtobufSerializerSecurityTest {
     }
 
     private fun classBytes(type: Class<*>): ByteArray =
-        checkNotNull(type.getResourceAsStream("/${type.name.replace('.', '/')}.class")).use { it.readBytes() }
+        checkNotNull(type.getResourceAsStream("/${type.name.replace('.', '/')}.class")).use {
+            it.readBytes()
+        }
 
     private class FallbackSpy(
         private val decoded: kotlin.Any? = "fallback",
@@ -83,9 +92,14 @@ class ProtobufSerializerSecurityTest {
     fun `terminal security failures never invoke trusted fallback`() {
         val spy = FallbackSpy()
         val serializer = ProtobufSerializer(spy, setOf("java.lang."))
-        val crafted = Any.newBuilder().setTypeUrl("type.googleapis.com/java.lang.String").build().toByteArray()
+        val crafted = Any.newBuilder()
+            .setTypeUrl("type.googleapis.com/java.lang.String")
+            .build()
+            .toByteArray()
 
-        assertFailsWith<BinarySerializationException> { serializer.deserializeFrom<kotlin.Any>(ByteBuffer.wrap(crafted)) }
+        assertFailsWith<BinarySerializationException> {
+            serializer.deserializeFrom<kotlin.Any>(ByteBuffer.wrap(crafted))
+        }
         spy.deserializeCalls shouldBeEqualTo 0
     }
 
@@ -93,11 +107,14 @@ class ProtobufSerializerSecurityTest {
     fun `trusted fallback receives only the caller bounded bytes and read only precedence avoids it`() {
         val spy = FallbackSpy()
         val serializer = ProtobufSerializer(spy)
-        val source = ByteBuffer.wrap(byteArrayOf(1, 2, 3, 4)).apply { position(1); limit(3) }
+        val source = ByteBuffer.wrap(byteArrayOf(1, 2, 3, 4)).apply {
+            position(1); limit(3)
+        }
 
         serializer.deserializeFrom<String>(source) shouldBeEqualTo "fallback"
-        checkNotNull(spy.received).contentEquals(byteArrayOf(2, 3)) shouldBeEqualTo true
+        spy.received shouldContentEqual byteArrayOf(2, 3)
         source.position() shouldBeEqualTo 1
+
         assertFailsWith<ReadOnlyBufferException> {
             serializer.serializeTo(
                 "fallback",
@@ -116,7 +133,7 @@ class ProtobufSerializerSecurityTest {
             serializer.deserializeFrom<kotlin.Any>(ByteBuffer.wrap(byteArrayOf(1)))
         }
         failure.message shouldBeEqualTo "Fail to deserialize. bytesSize=1"
-        (failure.cause === fatal) shouldBeEqualTo true
+        failure.cause shouldBe fatal
     }
 
     private fun Throwable.causeAt(depth: Int): Throwable =
@@ -134,8 +151,9 @@ class ProtobufSerializerSecurityTest {
     }
 
     private inline fun <T> withContextLoader(loader: ClassLoader, block: () -> T): T {
-        val thread = Thread.currentThread();
+        val thread = Thread.currentThread()
         val original = thread.contextClassLoader
+
         return try {
             thread.contextClassLoader = loader; block()
         } finally {
@@ -145,14 +163,16 @@ class ProtobufSerializerSecurityTest {
 
     private class ThrowingBackendFallback(val backend: Throwable): AbstractBinarySerializer() {
         override fun doSerialize(graph: kotlin.Any): ByteArray = error("not used")
-        override fun <T: kotlin.Any> doDeserialize(bytes: ByteArray): T? = throw backend
+        override fun <T: kotlin.Any> doDeserialize(bytes: ByteArray): T = throw backend
     }
 
     private fun compatibilityPayloads(): List<Pair<ByteArray, Class<out Throwable>>> = listOf(
         byteArrayOf(0x80.toByte()) to com.google.protobuf.InvalidProtocolBufferException::class.java,
-        Any.newBuilder().setTypeUrl("type.googleapis.com/io.bluetape4k.missing.MissingMessage").build()
+        Any.newBuilder()
+            .setTypeUrl("type.googleapis.com/io.bluetape4k.missing.MissingMessage").build()
             .toByteArray() to ClassNotFoundException::class.java,
-        Any.newBuilder().setTypeUrl("type.googleapis.com/${TestMessage::class.java.name}")
+        Any.newBuilder()
+            .setTypeUrl("type.googleapis.com/${TestMessage::class.java.name}")
             .setValue(com.google.protobuf.ByteString.copyFrom(byteArrayOf(0x80.toByte()))).build().toByteArray() to
                 com.google.protobuf.InvalidProtocolBufferException::class.java,
     )
@@ -169,10 +189,10 @@ class ProtobufSerializerSecurityTest {
                 },
             ).forEach { failure ->
                 failure.message shouldBeEqualTo "Fail to deserialize. bytesSize=${bytes.size}"
-                (failure.causeAt(1) is SecurityException) shouldBeEqualTo true
+                failure.causeAt(1).shouldBeInstanceOf<SecurityException>()
                 failure.causeAt(1).message shouldBeEqualTo
                         "Payload is not Protobuf Any and no trusted fallback serializer is configured."
-                original.isInstance(failure.causeAt(2)) shouldBeEqualTo true
+                original.isInstance(failure.causeAt(2)).shouldBeTrue()
             }
         }
     }
@@ -186,7 +206,9 @@ class ProtobufSerializerSecurityTest {
             Any.newBuilder().setTypeUrl("type.googleapis.com/java.lang.String").build().toByteArray(),
         ).forEach { bytes ->
             listOf(
-                assertFailsWith<BinarySerializationException> { trusted.deserialize<kotlin.Any>(bytes) },
+                assertFailsWith<BinarySerializationException> {
+                    trusted.deserialize<kotlin.Any>(bytes)
+                },
                 assertFailsWith<BinarySerializationException> {
                     trusted.deserializeFrom<kotlin.Any>(
                         ByteBuffer.wrap(
@@ -194,7 +216,9 @@ class ProtobufSerializerSecurityTest {
                         )
                     )
                 },
-            ).forEach { failure -> (failure.causeAt(1) is SecurityException) shouldBeEqualTo true }
+            ).forEach { failure ->
+                failure.causeAt(1).shouldBeInstanceOf<SecurityException>()
+            }
         }
         fallback.deserializeCalls shouldBeEqualTo 0
     }
@@ -203,7 +227,9 @@ class ProtobufSerializerSecurityTest {
     fun `allowlist rejection keeps exact wrapper depth for both entrypoints`() {
         val bytes = Any.newBuilder().setTypeUrl("type.googleapis.com/io.bluetape4kevil.Blocked").build().toByteArray()
         listOf(
-            assertFailsWith<BinarySerializationException> { ProtobufSerializer().deserialize<kotlin.Any>(bytes) },
+            assertFailsWith<BinarySerializationException> {
+                ProtobufSerializer().deserialize<kotlin.Any>(bytes)
+            },
             assertFailsWith<BinarySerializationException> {
                 ProtobufSerializer().deserializeFrom<kotlin.Any>(
                     ByteBuffer.wrap(
@@ -213,11 +239,10 @@ class ProtobufSerializerSecurityTest {
             },
         ).forEach { failure ->
             failure.message shouldBeEqualTo "Fail to deserialize. bytesSize=${bytes.size}"
-            (failure.causeAt(1) is SecurityException) shouldBeEqualTo true
-            failure.causeAt(1).message.orEmpty().startsWith(
-                "Blocked Protobuf deserialization: Untrusted Protobuf class:"
-            ) shouldBeEqualTo true
-            (failure.causeAt(2) is IllegalArgumentException) shouldBeEqualTo true
+            failure.causeAt(1).shouldBeInstanceOf<SecurityException>()
+            failure.causeAt(1).message shouldStartWith
+                    "Blocked Protobuf deserialization: Untrusted Protobuf class:"
+            failure.causeAt(2).shouldBeInstanceOf<IllegalArgumentException>()
         }
     }
 
@@ -227,14 +252,18 @@ class ProtobufSerializerSecurityTest {
         val fallback = FallbackSpy()
         val serializer = ProtobufSerializer(fallback, setOf("java.lang."))
         listOf(
-            assertFailsWith<BinarySerializationException> { serializer.deserialize<kotlin.Any>(bytes) },
-            assertFailsWith<BinarySerializationException> { serializer.deserializeFrom<kotlin.Any>(ByteBuffer.wrap(bytes)) },
+            assertFailsWith<BinarySerializationException> {
+                serializer.deserialize<kotlin.Any>(bytes)
+            },
+            assertFailsWith<BinarySerializationException> {
+                serializer.deserializeFrom<kotlin.Any>(ByteBuffer.wrap(bytes))
+            },
         ).forEach { failure ->
             failure.message shouldBeEqualTo "Fail to deserialize. bytesSize=${bytes.size}"
-            failure.causeAt(1)::class shouldBeEqualTo SecurityException::class
+            failure.causeAt(1).shouldBeInstanceOf<SecurityException>()
             failure.causeAt(1).message shouldBeEqualTo
                     "Resolved Protobuf class java.lang.String does not implement com.google.protobuf.Message."
-            (failure.causeAt(1).cause == null) shouldBeEqualTo true
+            failure.causeAt(1).cause.shouldBeNull()
         }
         fallback.deserializeCalls shouldBeEqualTo 0
     }
@@ -243,7 +272,8 @@ class ProtobufSerializerSecurityTest {
     fun `trusted compatibility failures invoke fallback once for each entrypoint`() {
         compatibilityPayloads().forEachIndexed { index, (bytes, _) ->
             listOf<(ProtobufSerializer) -> String?>(
-                { it.deserialize<String>(bytes) }, { it.deserializeFrom<String>(ByteBuffer.wrap(bytes)) },
+                { it.deserialize(bytes) },
+                { it.deserializeFrom(ByteBuffer.wrap(bytes)) },
             ).forEach { invoke ->
                 val fallback = FallbackSpy("fallback-$index")
                 invoke(ProtobufSerializer(fallback)) shouldBeEqualTo "fallback-$index"
@@ -256,33 +286,37 @@ class ProtobufSerializerSecurityTest {
     fun `trusted fallback backend failures retain identical wrapper depth`() {
         val bytes = byteArrayOf(0x80.toByte())
         listOf<(ProtobufSerializer) -> Unit>(
-            { it.deserialize<kotlin.Any>(bytes) }, { it.deserializeFrom<kotlin.Any>(ByteBuffer.wrap(bytes)) },
+            { it.deserialize<kotlin.Any>(bytes) },
+            { it.deserializeFrom<kotlin.Any>(ByteBuffer.wrap(bytes)) },
         ).forEach { invoke ->
             val backend = IllegalStateException("fallback-backend")
+
             val failure = assertFailsWith<BinarySerializationException> {
                 invoke(
-                    ProtobufSerializer(
-                        ThrowingBackendFallback(backend)
-                    )
+                    ProtobufSerializer(ThrowingBackendFallback(backend))
                 )
             }
+
             failure.message shouldBeEqualTo "Fail to deserialize. bytesSize=${bytes.size}"
-            (failure.causeAt(1) is BinarySerializationException) shouldBeEqualTo true
-            (failure.causeAt(2) === backend) shouldBeEqualTo true
+            failure.causeAt(1).shouldBeInstanceOf<BinarySerializationException>()
+            failure.causeAt(2) shouldBe backend
         }
     }
 
     @Test
     fun `class loading errors never fallback and keep compatibility wrapper parity`() {
-        listOf<LinkageError>(
+        listOf(
             NoClassDefFoundError("forced"),
             ExceptionInInitializerError("forced")
         ).forEach { sentinel ->
             val fallback = FallbackSpy();
             val serializer = ProtobufSerializer(fallback)
             val bytes = serializer.serialize(testMessage { id = 1L })
-            val loader =
-                ForcedFailureClassLoader(TestMessage::class.java.classLoader, TestMessage::class.java.name) { sentinel }
+            val loader = ForcedFailureClassLoader(
+                TestMessage::class.java.classLoader,
+                TestMessage::class.java.name
+            ) { sentinel }
+
             withContextLoader(loader) {
                 listOf(
                     assertFailsWith<BinarySerializationException> { serializer.deserialize<TestMessage>(bytes) },
@@ -291,7 +325,7 @@ class ProtobufSerializerSecurityTest {
                     },
                 ).forEach { failure ->
                     failure.message shouldBeEqualTo "Fail to deserialize. bytesSize=${bytes.size}"
-                    (failure.cause === sentinel) shouldBeEqualTo true
+                    failure.cause shouldBe sentinel
                 }
             }
             fallback.deserializeCalls shouldBeEqualTo 0
@@ -313,10 +347,7 @@ class ProtobufSerializerSecurityTest {
         generateSequence(failure.cause) { it.cause }
             .filterIsInstance<SecurityException>()
             .first()
-            .message
-            .orEmpty()
-            .contains("does not implement com.google.protobuf.Message")
-            .shouldBeTrue()
+            .message shouldContain "does not implement com.google.protobuf.Message"
     }
 
     @Test
@@ -353,7 +384,7 @@ class ProtobufSerializerSecurityTest {
         val firstType = resolver.resolve(target.name, first)
         val secondType = resolver.resolve(target.name, second)
 
-        (firstType === secondType) shouldBeEqualTo false
+        firstType shouldNotBe secondType
         firstType.classLoader shouldBeEqualTo first
         secondType.classLoader shouldBeEqualTo second
     }
@@ -362,6 +393,7 @@ class ProtobufSerializerSecurityTest {
     fun `loader bucket cap and stale key cleanup are deterministic`() {
         val loader = CountingClassLoader(TestMessage::class.java.classLoader)
         val resolver = ProtobufMessageClassResolver()
+
         resolver.seedCacheForTest(
             loader,
             (0..256).associate { "synthetic.Message$it" to TestMessage::class.java },
@@ -369,8 +401,9 @@ class ProtobufSerializerSecurityTest {
 
         resolver.cacheSizeForTest(loader) shouldBeEqualTo 1
         resolver.resolve(TestMessage::class.java.name, loader) shouldBeEqualTo TestMessage::class.java
+
         val buckets = resolver.loaderBucketCountForTest()
-        resolver.clearAndEnqueueLoaderKeyForTest(loader) shouldBeEqualTo true
+        resolver.clearAndEnqueueLoaderKeyForTest(loader).shouldBeTrue()
         resolver.expungeStaleLoadersForTest()
         resolver.loaderBucketCountForTest() shouldBeEqualTo buckets - 1
     }
@@ -433,8 +466,10 @@ class ProtobufSerializerSecurityTest {
             serializer.deserialize<kotlin.Any>(bytes)
         }
         // cause chain 에 SecurityException 이 있고, 그 메시지에 클래스명이 포함됨
-        val secEx = generateSequence(ex.cause) { it.cause }.filterIsInstance<SecurityException>().firstOrNull()
-        (secEx?.message?.contains(maliciousClass) == true).shouldBeTrue()
+        val secEx = generateSequence(ex.cause) { it.cause }
+            .filterIsInstance<SecurityException>()
+            .firstOrNull()
+        secEx?.message shouldContain maliciousClass
     }
 
     // ────────────────────────────────────────────────────────────────────────────
@@ -488,8 +523,11 @@ class ProtobufSerializerSecurityTest {
         val ex = assertFailsWith<BinarySerializationException> {
             serializer.deserialize<kotlin.Any>(bytes)
         }
-        val secEx = generateSequence(ex.cause) { it.cause }.filterIsInstance<SecurityException>().firstOrNull()
-        (secEx?.message?.contains(spoofedClass) == true).shouldBeTrue()
+        val secEx = generateSequence(ex.cause) { it.cause }
+            .filterIsInstance<SecurityException>()
+            .firstOrNull()
+
+        secEx?.message shouldContain spoofedClass
     }
 
     @Test
@@ -506,7 +544,7 @@ class ProtobufSerializerSecurityTest {
     @Test
     fun `DEFAULT_ALLOWED_PREFIXES 는 io_bluetape4k 와 com_google_protobuf 를 포함한다`() {
         val prefixes = ProtobufSerializer.DEFAULT_ALLOWED_PREFIXES
-        prefixes.contains("io.bluetape4k.").shouldBeTrue()
-        prefixes.contains("com.google.protobuf.").shouldBeTrue()
+        prefixes shouldContain "io.bluetape4k."
+        prefixes shouldContain "com.google.protobuf."
     }
 }

@@ -1,5 +1,10 @@
 package io.bluetape4k.rule.core
 
+import io.bluetape4k.assertions.assertFailsWith
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeFalse
+import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.assertions.shouldNotBeNull
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.rule.api.Action
 import io.bluetape4k.rule.api.Condition
@@ -10,11 +15,6 @@ import io.bluetape4k.rule.api.RuleEngineListener
 import io.bluetape4k.rule.api.RuleListener
 import io.bluetape4k.rule.api.ruleSetOf
 import kotlinx.coroutines.CancellationException
-import io.bluetape4k.assertions.assertFailsWith
-import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldBeFalse
-import io.bluetape4k.assertions.shouldBeTrue
-import io.bluetape4k.assertions.shouldNotBeNull
 import org.junit.jupiter.api.Test
 
 class DefaultRuleEngineTest {
@@ -114,7 +114,8 @@ class DefaultRuleEngineTest {
         val config = RuleEngineConfig(skipOnFirstFailedRule = true)
         val engine = createEngine(config)
 
-        val failedOnEvaluateRule = buildRule("failedOnEvaluate", 1, { error("evaluate-fail") }, { it["executed"] = true })
+        val failedOnEvaluateRule =
+            buildRule("failedOnEvaluate", 1, { error("evaluate-fail") }, { it["executed"] = true })
         val nextRule = buildRule("nextRule", 2, { true }, { it["nextRule"] = true })
 
         val facts = Facts.empty()
@@ -127,7 +128,8 @@ class DefaultRuleEngineTest {
     @Test
     fun `평가 실패는 기본 설정에서 다음 Rule 실행을 막지 않는다`() {
         val engine = createEngine()
-        val failedOnEvaluateRule = buildRule("failedOnEvaluate", 1, { error("evaluate-fail") }, { it["executed"] = true })
+        val failedOnEvaluateRule =
+            buildRule("failedOnEvaluate", 1, { error("evaluate-fail") }, { it["executed"] = true })
         val nextRule = buildRule("nextRule", 2, { true }, { it["nextRule"] = true })
 
         val facts = Facts.empty()
@@ -143,7 +145,7 @@ class DefaultRuleEngineTest {
         var afterEvaluateResult: Boolean? = null
         var beforeExecuteCalled = false
         var afterRulesCalled = false
-        engine.registerRuleListener(object : RuleListener {
+        engine.registerRuleListener(object: RuleListener {
             override fun afterEvaluate(rule: Rule, facts: Facts, evaluationResult: Boolean) {
                 afterEvaluateResult = evaluationResult
             }
@@ -152,7 +154,7 @@ class DefaultRuleEngineTest {
                 beforeExecuteCalled = true
             }
         })
-        engine.registerRuleEngineListener(object : RuleEngineListener {
+        engine.registerRuleEngineListener(object: RuleEngineListener {
             override fun afterExecute(rules: Iterable<Rule>, facts: Facts) {
                 afterRulesCalled = true
             }
@@ -231,9 +233,9 @@ class DefaultRuleEngineTest {
             act = { }
         )
 
-        (assertFailsWith<CancellationException> {
+        assertFailsWith<CancellationException> {
             engine.check(ruleSetOf(canceledRule), Facts.empty())
-        }).message shouldBeEqualTo "cancel-on-check"
+        }.message shouldBeEqualTo "cancel-on-check"
     }
 
     @Test
@@ -261,7 +263,7 @@ class DefaultRuleEngineTest {
 
         val facts = Facts.empty()
         engine.fire(ruleSetOf(rule), facts)
-        facts.get<Boolean>("step1").shouldNotBeNull().shouldBeTrue()
-        facts.get<Boolean>("step2").shouldNotBeNull().shouldBeTrue()
+        facts.get<Boolean>("step1").shouldBeTrue()
+        facts.get<Boolean>("step2").shouldBeTrue()
     }
 }

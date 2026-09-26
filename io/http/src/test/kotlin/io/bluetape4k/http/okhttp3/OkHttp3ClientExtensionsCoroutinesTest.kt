@@ -7,6 +7,7 @@ import io.bluetape4k.http.okhttp3.mock.enqueueBody
 import io.bluetape4k.http.okhttp3.mock.enqueueBodyWithHeadersDelay
 import io.bluetape4k.junit5.awaitility.untilSuspending
 import io.bluetape4k.junit5.coroutines.runSuspendIO
+import io.bluetape4k.logging.KLogging
 import kotlinx.coroutines.async
 import kotlinx.coroutines.delay
 import okhttp3.OkHttpClient
@@ -16,10 +17,13 @@ import org.awaitility.kotlin.await
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import java.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
 
 class OkHttp3ClientExtensionsCoroutinesTest {
+
+    companion object: KLogging()
 
     private lateinit var server: MockWebServer
     private lateinit var client: OkHttpClient
@@ -105,7 +109,7 @@ class OkHttp3ClientExtensionsCoroutinesTest {
     fun `Call executeSuspending 는 코루틴 취소 시 okhttp call 을 취소한다`() = runSuspendIO {
         server.enqueueBodyWithHeadersDelay(
             "delayed",
-            java.time.Duration.ofMillis(500)
+            Duration.ofMillis(500)
         )
 
         val request = okhttp3Request {

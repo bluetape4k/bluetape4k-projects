@@ -1,10 +1,11 @@
 package io.bluetape4k.hibernate.mapping.customid
 
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldNotBeNull
 import io.bluetape4k.hibernate.AbstractHibernateTest
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
-import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldNotBeNull
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.repository.findByIdOrNull
@@ -16,11 +17,18 @@ class CustomIdTest(
     companion object: KLogging()
 
     private fun newEntity(): CustomIdEntity {
-        return CustomIdEntity(Email(faker.internet().emailAddress()), faker.name().name()).apply {
+        return CustomIdEntity(
+            Email(faker.internet().emailAddress()),
+            faker.name().name()
+        ).apply {
             ssn = Ssn(faker.idNumber().ssnValid())
         }
     }
 
+    @BeforeEach
+    fun beforeEach() {
+        repository.deleteAll()
+    }
 
     @Test
     fun `save custom id entity`() {
@@ -58,6 +66,7 @@ class CustomIdTest(
 
         val loaded = repository.findAllByIdInOrderByName(entities.mapNotNull { it.id?.value })
 
+        loaded.forEach { log.debug { "loaded=$it" } }
         loaded shouldBeEqualTo entities.sortedBy { it.name }
     }
 }

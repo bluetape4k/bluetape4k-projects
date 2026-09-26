@@ -1,5 +1,9 @@
 package io.bluetape4k.avro.impl
 
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeNull
+import io.bluetape4k.assertions.shouldNotBeEmpty
+import io.bluetape4k.assertions.shouldNotBeNull
 import io.bluetape4k.avro.AbstractAvroTest
 import io.bluetape4k.avro.AvroReflectSerializer
 import io.bluetape4k.avro.TestMessageProvider
@@ -10,10 +14,6 @@ import io.bluetape4k.junit5.random.RandomValue
 import io.bluetape4k.junit5.random.RandomizedTest
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.trace
-import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldBeNull
-import io.bluetape4k.assertions.shouldNotBeEmpty
-import io.bluetape4k.assertions.shouldNotBeNull
 import org.apache.avro.file.CodecFactory
 import org.apache.avro.file.XZCodec.DEFAULT_COMPRESSION
 import org.junit.jupiter.api.Test

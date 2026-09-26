@@ -1,10 +1,11 @@
 package io.bluetape4k.rule.api
 
-import io.bluetape4k.logging.KLogging
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeFalse
 import io.bluetape4k.assertions.shouldBeNull
 import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.assertions.shouldContain
+import io.bluetape4k.logging.KLogging
 import org.junit.jupiter.api.Test
 
 class FactsTest {
@@ -109,14 +110,14 @@ class FactsTest {
     fun `equals와 hashCode가 정상 동작한다`() {
         val facts1 = Facts.of("a" to 1, "b" to 2)
         val facts2 = Facts.of("a" to 1, "b" to 2)
-        (facts1 == facts2).shouldBeTrue()
-        (facts1.hashCode() == facts2.hashCode()).shouldBeTrue()
+        facts1 shouldBeEqualTo facts2
+        facts1.hashCode() shouldBeEqualTo facts2.hashCode()
     }
 
     @Test
     fun `toString이 정상 동작한다`() {
         val facts = Facts.of("name" to "test")
         val str = facts.toString()
-        str.contains("name=test").shouldBeTrue()
+        str shouldContain "name=test"
     }
 }

@@ -45,11 +45,6 @@ class BlobExamples: AbstractCassandraTest() {
     }
 
     private fun allocateAndInsert(session: CqlSession) {
-        //        val buffer = ByteBuffer.allocate(16).apply {
-        //            while (hasRemaining()) {
-        //                put(0xFF.toByte())
-        //            }
-        //        }
         val buffer = ByteBuffer.allocate(16).apply { erase(0xFF.toByte()) }
         buffer.limit() - buffer.position() shouldBeEqualTo 0
         buffer.flip()
@@ -58,6 +53,8 @@ class BlobExamples: AbstractCassandraTest() {
         val map = hashMapOf("test" to buffer)
 
         val ps = session.prepare("INSERT INTO blobs (k, b, m) VALUES (1, ?, ?)")
+        log.debug { "Executing query: ${ps.query}" }
+
         session.execute(ps.bind(buffer, map)).wasApplied().shouldBeTrue()
     }
 

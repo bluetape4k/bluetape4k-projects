@@ -4,6 +4,7 @@ import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeFalse
 import io.bluetape4k.assertions.shouldBeNull
 import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.assertions.shouldContain
 import io.bluetape4k.assertions.shouldNotBeEqualTo
 import io.bluetape4k.assertions.shouldNotBeNull
 import org.junit.jupiter.api.Test
@@ -78,7 +79,7 @@ class AbstractCassandraModelTest {
     fun `다른 타입과 동등하지 않음`() {
         val entity = StringEntity("id-1")
         val other: Any = "id-1"
-        (entity == other).shouldBeFalse()
+        entity shouldNotBeEqualTo other
     }
 
     @Test
@@ -97,8 +98,8 @@ class AbstractCassandraModelTest {
     fun `toString에 클래스명과 id 포함`() {
         val entity = StringEntity("id-1")
         val str = entity.toString()
-        str.contains("StringEntity").shouldBeTrue()
-        str.contains("id-1").shouldBeTrue()
+        str shouldContain "StringEntity"
+        str shouldContain "id-1"
     }
 
     @Test

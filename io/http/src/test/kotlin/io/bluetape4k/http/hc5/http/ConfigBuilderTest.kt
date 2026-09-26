@@ -1,8 +1,8 @@
 package io.bluetape4k.http.hc5.http
 
-import io.bluetape4k.logging.KLogging
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldNotBeNull
+import io.bluetape4k.logging.KLogging
 import org.apache.hc.core5.http.config.Http1Config
 import org.apache.hc.core5.http.ssl.TLS
 import org.apache.hc.core5.http2.HttpVersionPolicy
@@ -12,7 +12,7 @@ import org.junit.jupiter.api.Test
 
 class ConfigBuilderTest {
 
-    companion object : KLogging()
+    companion object: KLogging()
 
     // ---- ConnectionConfig ----
 
@@ -24,6 +24,8 @@ class ConfigBuilderTest {
         }
 
         config.shouldNotBeNull()
+        config.connectTimeout shouldBeEqualTo Timeout.ofSeconds(10)
+        config.socketTimeout shouldBeEqualTo Timeout.ofSeconds(30)
     }
 
     @Test
@@ -51,6 +53,8 @@ class ConfigBuilderTest {
         config.shouldNotBeNull()
         config.connectTimeout shouldBeEqualTo connectTimeout
         config.socketTimeout shouldBeEqualTo socketTimeout
+        config.validateAfterInactivity shouldBeEqualTo TimeValue.ofSeconds(30)
+        config.timeToLive shouldBeEqualTo TimeValue.ofMinutes(10)
     }
 
     @Test
@@ -65,6 +69,9 @@ class ConfigBuilderTest {
 
         config.shouldNotBeNull()
         config.validateAfterInactivity shouldBeEqualTo validateAfterInactivity
+        config.connectTimeout shouldBeEqualTo TimeValue.ofSeconds(5)
+        config.socketTimeout shouldBeEqualTo TimeValue.ofSeconds(15)
+        config.timeToLive shouldBeEqualTo TimeValue.ofMinutes(1)
     }
 
     @Test
@@ -78,6 +85,9 @@ class ConfigBuilderTest {
         )
 
         config.shouldNotBeNull()
+        config.connectTimeout shouldBeEqualTo TimeValue.ofSeconds(5)
+        config.socketTimeout shouldBeEqualTo TimeValue.ofSeconds(15)
+        config.validateAfterInactivity shouldBeEqualTo TimeValue.ofSeconds(30)
         config.timeToLive shouldBeEqualTo timeToLive
     }
 
@@ -86,14 +96,12 @@ class ConfigBuilderTest {
     @Test
     fun `requestConfig DSL - 기본 생성 검증`() {
         val config = requestConfig {}
-
         config.shouldNotBeNull()
     }
 
     @Test
     fun `requestConfigOf - 기본 인스턴스 생성 검증`() {
         val config = requestConfigOf()
-
         config.shouldNotBeNull()
     }
 
@@ -115,14 +123,13 @@ class ConfigBuilderTest {
         val config = socketConfig {
             setSoTimeout(Timeout.ofSeconds(30))
         }
-
         config.shouldNotBeNull()
+        config.soTimeout shouldBeEqualTo Timeout.ofSeconds(30)
     }
 
     @Test
     fun `socketConfigOf - 기본값 생성 검증`() {
         val config = socketConfigOf()
-
         config.shouldNotBeNull()
     }
 
@@ -142,14 +149,13 @@ class ConfigBuilderTest {
         val config = tlsConfig {
             setSupportedProtocols(TLS.V_1_2, TLS.V_1_3)
         }
-
         config.shouldNotBeNull()
+        config.supportedProtocols shouldBeEqualTo arrayOf(TLS.V_1_2.id, TLS.V_1_3.id)
     }
 
     @Test
     fun `tlsConfigOf - 기본 프로토콜 생성 검증`() {
         val config = tlsConfigOf()
-
         config.shouldNotBeNull()
     }
 

@@ -2,10 +2,11 @@ package io.bluetape4k.support
 
 import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldBeFalse
-import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.assertions.shouldBeGreaterThan
+import io.bluetape4k.assertions.shouldBeLessThan
 import org.junit.jupiter.api.Test
 import java.math.BigDecimal
+import java.math.RoundingMode
 import kotlin.minus
 import kotlin.plus
 import kotlin.toBigDecimal
@@ -14,11 +15,11 @@ class BigDecimalSupportTest {
 
     @Test
     fun `compare BigDecimal and Number`() {
-        (BigDecimal.ONE > 0L).shouldBeTrue()
-        (BigDecimal.ONE > 0.5).shouldBeTrue()
+        BigDecimal.ONE shouldBeGreaterThan 0L.toBigDecimal()
+        BigDecimal.ONE shouldBeGreaterThan 0.5.toBigDecimal()
 
-        (BigDecimal.ZERO > 0L).shouldBeFalse()
-        (BigDecimal.ZERO > 0.5).shouldBeFalse()
+        BigDecimal.ZERO shouldBeEqualTo 0L.toBigDecimal()
+        BigDecimal.ZERO shouldBeLessThan 0.5.toBigDecimal()
     }
 
     @Test
@@ -65,7 +66,7 @@ class BigDecimalSupportTest {
 
         a.divideSafe(3) shouldBeEqualTo 3.33.toBigDecimal()
         a.divideSafe(3, 4) shouldBeEqualTo 3.3333.toBigDecimal()
-        a.divideSafe(3, 4, java.math.RoundingMode.DOWN) shouldBeEqualTo 3.3333.toBigDecimal()
+        a.divideSafe(3, 4, RoundingMode.DOWN) shouldBeEqualTo 3.3333.toBigDecimal()
     }
 
     @Test

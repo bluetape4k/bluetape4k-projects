@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice
  */
 @RestControllerAdvice
 class GlobalExceptionHandler {
-    companion object : KLogging()
+    companion object: KLogging()
 
     /**
      * 존재하지 않는 리소스 요청 시 404 응답을 반환한다.

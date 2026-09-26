@@ -4,11 +4,12 @@ import java.io.InvalidObjectException
 import java.io.ObjectStreamException
 import java.io.Serializable
 import java.nio.CharBuffer
-import java.nio.charset.CharacterCodingException
 import java.nio.charset.CodingErrorAction
 import java.time.Duration
-import java.util.Collections
-import java.util.TreeSet
+import java.util.*
+import kotlin.collections.AbstractList
+import kotlin.collections.AbstractMap
+import kotlin.collections.AbstractSet
 
 /**
  * Synthetic HTTP command used by the bounded-wait conformance runner.
@@ -400,6 +401,7 @@ private class RedactedImmutableList<E>(source: Collection<E>): AbstractList<E>()
     override fun get(index: Int): E = content[index]
     override fun subList(fromIndex: Int, toIndex: Int): List<E> =
         RedactedImmutableList(content.subList(fromIndex, toIndex))
+
     override fun reversed(): List<E> = RedactedImmutableList(content.reversed())
     override fun equals(other: Any?): Boolean = content == other
     override fun hashCode(): Int = content.hashCode()

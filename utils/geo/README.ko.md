@@ -66,7 +66,7 @@ val neighbors = hash.getAdjacent().map { it.toBase32() }
 
 `GeoHashCircleQuery` 제약:
 
-- 반경(`radius`)은 meter 단위이며 0 이상이어야 합니다.
+- 반경 (`radius`)은 meter 단위이며 0 이상이어야 합니다.
 - 음수 반경은 `IllegalArgumentException`으로 즉시 거부됩니다.
 
 ### Geocode (Google Maps)

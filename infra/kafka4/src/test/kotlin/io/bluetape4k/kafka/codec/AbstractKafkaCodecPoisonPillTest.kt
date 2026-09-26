@@ -6,8 +6,12 @@ import ch.qos.logback.classic.spi.ILoggingEvent
 import ch.qos.logback.core.read.ListAppender
 import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldBeSameInstanceAs
+import io.bluetape4k.assertions.shouldBeLessOrEqualTo
 import io.bluetape4k.assertions.shouldBeNull
+import io.bluetape4k.assertions.shouldBeSameInstanceAs
+import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.assertions.shouldContain
+import io.bluetape4k.assertions.shouldNotContain
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.support.toUtf8Bytes
 import kotlinx.coroutines.CancellationException
@@ -49,13 +53,14 @@ class AbstractKafkaCodecPoisonPillTest {
             val event = appender.list.single()
             event.level shouldBeEqualTo Level.WARN
             event.throwableProxy.shouldBeNull()
+
             val message = event.formattedMessage
-            message.contains("topic=test-topic") shouldBeEqualTo true
-            message.contains("trace-id") shouldBeEqualTo true
-            message.contains("dataSize=14") shouldBeEqualTo true
-            message.contains("failureType=${FakeException::class.java.name}") shouldBeEqualTo true
-            message.contains("secret-header") shouldBeEqualTo false
-            message.contains("secret-payload") shouldBeEqualTo false
+            message shouldContain "topic=test-topic"
+            message shouldContain "trace-id"
+            message shouldContain "dataSize=14"
+            message shouldContain "failureType=${FakeException::class.java.name}"
+            message shouldNotContain "secret-header"
+            message shouldNotContain "secret-payload"
         } finally {
             logger.detachAppender(appender)
             appender.stop()
@@ -68,7 +73,7 @@ class AbstractKafkaCodecPoisonPillTest {
         val headers = RecordHeaders().apply {
             repeat(20) { index ->
                 val key = "key-${index.toString().padStart(2, '0')}-" +
-                    "K".repeat(80) + "\r\n\t\u0001KEY-TAIL"
+                        "K".repeat(80) + "\r\n\t\u0001KEY-TAIL"
                 add(key, "secret-header-value-$index".toUtf8Bytes())
             }
         }
@@ -81,17 +86,18 @@ class AbstractKafkaCodecPoisonPillTest {
 
             val event = appender.list.single()
             val message = event.formattedMessage
+
             event.level shouldBeEqualTo Level.WARN
             event.throwableProxy.shouldBeNull()
-            (message.length <= 1600) shouldBeEqualTo true
-            message.none(Char::isISOControl) shouldBeEqualTo true
-            message.contains("TOPIC-TAIL") shouldBeEqualTo false
-            message.contains("key-15-") shouldBeEqualTo true
-            message.contains("key-16-") shouldBeEqualTo false
-            message.contains("KEY-TAIL") shouldBeEqualTo false
-            message.contains("secret-header-value") shouldBeEqualTo false
-            message.contains("secret-payload") shouldBeEqualTo false
-            message.contains("failureType=${IllegalArgumentException::class.java.name}") shouldBeEqualTo true
+            message.length shouldBeLessOrEqualTo 1600
+            message.none(Char::isISOControl).shouldBeTrue()
+            message shouldNotContain "TOPIC-TAIL"
+            message shouldContain "key-15-"
+            message shouldNotContain "key-16-"
+            message shouldNotContain "KEY-TAIL"
+            message shouldNotContain "secret-header-value"
+            message shouldNotContain "secret-payload"
+            message shouldContain "failureType=${IllegalArgumentException::class.java.name}"
         } finally {
             logger.detachAppender(appender)
             appender.stop()

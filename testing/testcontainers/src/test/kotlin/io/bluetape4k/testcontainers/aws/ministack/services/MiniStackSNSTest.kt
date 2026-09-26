@@ -1,13 +1,14 @@
 package io.bluetape4k.testcontainers.aws.ministack.services
 
+import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.assertions.shouldNotBeEmpty
+import io.bluetape4k.assertions.shouldNotBeNull
+import io.bluetape4k.codec.Base58
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import io.bluetape4k.testcontainers.aws.getCredentialProvider
 import io.bluetape4k.testcontainers.aws.ministack.AbstractMiniStackServiceTest
 import io.bluetape4k.utils.ShutdownQueue
-import io.bluetape4k.assertions.shouldBeTrue
-import io.bluetape4k.assertions.shouldNotBeEmpty
-import io.bluetape4k.assertions.shouldNotBeNull
 import org.junit.jupiter.api.MethodOrderer
 import org.junit.jupiter.api.Order
 import org.junit.jupiter.api.Test
@@ -22,7 +23,7 @@ import software.amazon.awssdk.services.sns.SnsClient
 class MiniStackSNSTest: AbstractMiniStackServiceTest() {
 
     companion object: KLogging() {
-        private val TOPIC_NAME = "ministack-test-topic-${System.currentTimeMillis()}"
+        private val TOPIC_NAME = "ministack-test-topic-${Base58.randomString(8).lowercase()}"
     }
 
     private val snsClient: SnsClient by lazy {

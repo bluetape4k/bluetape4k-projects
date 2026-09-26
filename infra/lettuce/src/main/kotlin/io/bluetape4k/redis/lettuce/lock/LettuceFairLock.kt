@@ -15,7 +15,7 @@ import java.util.concurrent.ScheduledExecutorService
  */
 class LettuceFairLock internal constructor(
     private val client: FairLockClient,
-) : AutoCloseable {
+): AutoCloseable {
 
     fun tryAcquire(
         ownerId: LockOwnerId,

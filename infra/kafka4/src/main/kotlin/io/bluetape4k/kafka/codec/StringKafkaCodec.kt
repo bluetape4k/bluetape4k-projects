@@ -82,10 +82,10 @@ class StringKafkaCodec: AbstractKafkaCodec<String>() {
                 .onFailure { e ->
                     log.warn(e) {
                         "Invalid charset name. property=$propertyName, value=$value. " +
-                            "Falling back to ${DefaultEncoding.name()}. Producer/consumer 인코딩 불일치 위험을 확인하세요."
+                                "Falling back to ${DefaultEncoding.name()}. Producer/consumer 인코딩 불일치 위험을 확인하세요."
                     }
                 }
                 .getOrDefault(DefaultEncoding)
-            else -> DefaultEncoding
+            else      -> DefaultEncoding
         }
 }

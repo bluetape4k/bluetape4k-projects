@@ -1,5 +1,6 @@
 package io.bluetape4k.kafka.logback
 
+import io.bluetape4k.junit5.faker.Fakers
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.testcontainers.mq.KafkaServer
 import io.bluetape4k.utils.ShutdownQueue
@@ -12,6 +13,8 @@ abstract class AbstractKafkaIntegrationTest {
             start()
             ShutdownQueue.register(this)
         }
-    }
 
+        @JvmStatic
+        protected val faker = Fakers.faker
+    }
 }

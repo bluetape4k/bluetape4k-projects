@@ -11,13 +11,13 @@ Provides a convenient way to configure `Serializer` and `RedisSerializationConte
 
 ## Key Features
 
-| Class / Function                   | Description                                                                                  |
-|------------------------------------|----------------------------------------------------------------------------------------------|
-| `RedisBinarySerializer`            | `RedisSerializer<Any>` implementation backed by `BinarySerializer`                           |
-| `RedisCompressSerializer`          | Compression-only `RedisSerializer<ByteArray>` backed by `Compressor`                         |
+| Class / Function                   | Description                                                                                           |
+|------------------------------------|-------------------------------------------------------------------------------------------------------|
+| `RedisBinarySerializer`            | `RedisSerializer<Any>` implementation backed by `BinarySerializer`                                    |
+| `RedisCompressSerializer`          | Compression-only `RedisSerializer<ByteArray>` backed by `Compressor`                                  |
 | `RedisBinarySerializers`           | Singleton factory combining serializers (Jdk/Kryo/Fory/FastFory) × compressors (GZip/LZ4/Snappy/Zstd) |
-| `redisSerializationContext {}`     | DSL-based `RedisSerializationContext` builder                                                |
-| `redisSerializationContextOf(...)` | Convenience function to specify key/value serializers directly                               |
+| `redisSerializationContext {}`     | DSL-based `RedisSerializationContext` builder                                                         |
+| `redisSerializationContextOf(...)` | Convenience function to specify key/value serializers directly                                        |
 
 ## Architecture Diagrams
 
@@ -98,24 +98,24 @@ fun redisTemplate(factory: RedisConnectionFactory): RedisTemplate<String, Any> {
 
 JDK deserialization can expose Redis values to RCE gadget-chain risk. The JDK serializer constants are deprecated and should be used only when the stored Redis data is fully trusted. Prefer Kryo or Fory for general Redis object values.
 
-| Constant                            | Serialization Engine | Compression | Status                        |
-|-------------------------------------|----------------------|-------------|-------------------------------|
-| `RedisBinarySerializers.Jdk`        | JDK                  | None        | Deprecated; trusted data only |
-| `RedisBinarySerializers.Kryo`       | Kryo                 | None        | Recommended                   |
-| `RedisBinarySerializers.Fory`       | Fory                 | None        | Recommended                   |
-| `RedisBinarySerializers.FastFory`   | FastFory             | None        | Volatile cache only           |
-| `RedisBinarySerializers.GzipJdk`    | JDK                  | GZip        | Deprecated; trusted data only |
-| `RedisBinarySerializers.LZ4Jdk`     | JDK                  | LZ4         | Deprecated; trusted data only |
-| `RedisBinarySerializers.SnappyJdk`  | JDK                  | Snappy      | Deprecated; trusted data only |
-| `RedisBinarySerializers.ZstdJdk`    | JDK                  | Zstd        | Deprecated; trusted data only |
-| `RedisBinarySerializers.GzipKryo`   | Kryo                 | GZip        | Recommended                   |
-| `RedisBinarySerializers.LZ4Kryo`    | Kryo                 | LZ4         | Recommended                   |
-| `RedisBinarySerializers.SnappyKryo` | Kryo                 | Snappy      | Recommended                   |
-| `RedisBinarySerializers.ZstdKryo`   | Kryo                 | Zstd        | Recommended                   |
-| `RedisBinarySerializers.GzipFory`   | Fory                 | GZip        | Recommended                   |
-| `RedisBinarySerializers.LZ4Fory`    | Fory                 | LZ4         | Recommended                   |
-| `RedisBinarySerializers.SnappyFory` | Fory                 | Snappy      | Recommended                   |
-| `RedisBinarySerializers.ZstdFory`   | Fory                 | Zstd        | Recommended                   |
+| Constant                                | Serialization Engine | Compression | Status                        |
+|-----------------------------------------|----------------------|-------------|-------------------------------|
+| `RedisBinarySerializers.Jdk`            | JDK                  | None        | Deprecated; trusted data only |
+| `RedisBinarySerializers.Kryo`           | Kryo                 | None        | Recommended                   |
+| `RedisBinarySerializers.Fory`           | Fory                 | None        | Recommended                   |
+| `RedisBinarySerializers.FastFory`       | FastFory             | None        | Volatile cache only           |
+| `RedisBinarySerializers.GzipJdk`        | JDK                  | GZip        | Deprecated; trusted data only |
+| `RedisBinarySerializers.LZ4Jdk`         | JDK                  | LZ4         | Deprecated; trusted data only |
+| `RedisBinarySerializers.SnappyJdk`      | JDK                  | Snappy      | Deprecated; trusted data only |
+| `RedisBinarySerializers.ZstdJdk`        | JDK                  | Zstd        | Deprecated; trusted data only |
+| `RedisBinarySerializers.GzipKryo`       | Kryo                 | GZip        | Recommended                   |
+| `RedisBinarySerializers.LZ4Kryo`        | Kryo                 | LZ4         | Recommended                   |
+| `RedisBinarySerializers.SnappyKryo`     | Kryo                 | Snappy      | Recommended                   |
+| `RedisBinarySerializers.ZstdKryo`       | Kryo                 | Zstd        | Recommended                   |
+| `RedisBinarySerializers.GzipFory`       | Fory                 | GZip        | Recommended                   |
+| `RedisBinarySerializers.LZ4Fory`        | Fory                 | LZ4         | Recommended                   |
+| `RedisBinarySerializers.SnappyFory`     | Fory                 | Snappy      | Recommended                   |
+| `RedisBinarySerializers.ZstdFory`       | Fory                 | Zstd        | Recommended                   |
 | `RedisBinarySerializers.GzipFastFory`   | FastFory             | GZip        | Volatile cache only           |
 | `RedisBinarySerializers.LZ4FastFory`    | FastFory             | LZ4         | Volatile cache only           |
 | `RedisBinarySerializers.SnappyFastFory` | FastFory             | Snappy      | Volatile cache only           |

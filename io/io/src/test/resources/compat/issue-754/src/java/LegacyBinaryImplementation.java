@@ -1,6 +1,7 @@
 package io.bluetape4k.io.serializer.compat.issue754.java;
 
 import io.bluetape4k.io.serializer.BinarySerializer;
+
 import java.nio.charset.StandardCharsets;
 
 public final class LegacyBinaryImplementation implements BinarySerializer {
@@ -18,7 +19,7 @@ public final class LegacyBinaryImplementation implements BinarySerializer {
     public <T> T deserialize(byte[] bytes) {
         deserializeCalls++;
         return bytes == null || bytes.length == 0
-            ? null
-            : (T) new String(bytes, StandardCharsets.UTF_8);
+                ? null
+                : (T) new String(bytes, StandardCharsets.UTF_8);
     }
 }

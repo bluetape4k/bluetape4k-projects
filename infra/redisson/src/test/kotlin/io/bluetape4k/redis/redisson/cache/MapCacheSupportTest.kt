@@ -1,16 +1,22 @@
 package io.bluetape4k.redis.redisson.cache
 
+import io.bluetape4k.assertions.assertFailsWith
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeNull
+import io.bluetape4k.assertions.shouldNotBeNull
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.redis.redisson.RedissonTestUtils.randomName
 import io.bluetape4k.redis.redisson.RedissonTestUtils.redissonClient
 import io.bluetape4k.redis.redisson.codec.RedissonCodecs
-import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldBeNull
-import io.bluetape4k.assertions.shouldNotBeNull
+import org.awaitility.kotlin.atMost
+import org.awaitility.kotlin.await
+import org.awaitility.kotlin.until
+import org.awaitility.kotlin.withPollInterval
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import java.util.concurrent.TimeUnit
-import io.bluetape4k.assertions.assertFailsWith
+import kotlin.time.Duration.Companion.milliseconds
+import kotlin.time.Duration.Companion.seconds
 
 @DisplayName("mapCache DSL")
 class MapCacheSupportTest {
@@ -20,25 +26,29 @@ class MapCacheSupportTest {
     @Test
     fun `mapCache - 기본 빌더로 RMapCache 를 생성한다`() {
         val cache = mapCache<String, String>(randomName(), redissonClient)
-
         cache.shouldNotBeNull()
-        cache.put("k1", "v1", 1, TimeUnit.HOURS)
-        cache["k1"] shouldBeEqualTo "v1"
+
+        val key = "k1"
+        cache.put(key, "v1", 1, TimeUnit.HOURS)
+        cache[key] shouldBeEqualTo "v1"
     }
 
     @Test
     fun `mapCache - TTL 지정 시 만료된 엔트리는 조회되지 않는다`() {
         val cache = mapCache<String, String>(randomName(), redissonClient) {
-            codec(RedissonCodecs.LZ4Fory)
+            codec(RedissonCodecs.FastFory)
         }
+        val key = "short-lived"
 
-        cache.put("short-lived", "value", 100, TimeUnit.MILLISECONDS)
+        cache.put(key, "value", 1000, TimeUnit.MILLISECONDS)
         // 만료 전엔 존재
-        cache["short-lived"] shouldBeEqualTo "value"
+        cache[key] shouldBeEqualTo "value"
 
-        Thread.sleep(300)
+        await atMost 5.seconds withPollInterval 100.milliseconds until {
+            cache[key] == null
+        }
         // 만료 후엔 null
-        cache["short-lived"].shouldBeNull()
+        cache[key].shouldBeNull()
     }
 
     @Test

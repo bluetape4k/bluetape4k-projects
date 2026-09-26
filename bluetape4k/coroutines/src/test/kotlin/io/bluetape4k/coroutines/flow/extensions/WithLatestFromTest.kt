@@ -4,6 +4,7 @@ import app.cash.turbine.test
 import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.coroutines.assertError
 import io.bluetape4k.assertions.coroutines.assertResult
+import io.bluetape4k.assertions.shouldBeEmpty
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import kotlinx.coroutines.delay
@@ -72,7 +73,8 @@ class WithLatestFromTest: AbstractFlowTest() {
             flow {
                 emit(1)
                 throw kotlinx.coroutines.CancellationException("Boom!")
-            }.log("source")
+            }
+                .log("source")
                 .withLatestFrom(emptyFlow<Nothing>()).log("latest")
                 .toList()
         }
@@ -101,6 +103,6 @@ class WithLatestFromTest: AbstractFlowTest() {
                 .toList()
         }
 
-        result shouldBeEqualTo emptyList()
+        result.shouldBeEmpty()
     }
 }

@@ -2,7 +2,7 @@ package io.bluetape4k.redis.redisson.codec
 
 import com.alibaba.fastjson2.JSONB
 import io.bluetape4k.logging.KLogging
-import io.bluetape4k.logging.info
+import io.bluetape4k.logging.warn
 import io.netty.buffer.ByteBuf
 import io.netty.buffer.ByteBufUtil
 import io.netty.buffer.Unpooled
@@ -73,7 +73,7 @@ class Fastjson2Codec(
             if (!allowed) {
                 throw SecurityException(
                     "Class '$className' is not in the allowed package list. " +
-                    "Allowed prefixes: $allowedPackagePrefixes"
+                            "Allowed prefixes: $allowedPackagePrefixes"
                 )
             }
         }
@@ -95,7 +95,7 @@ class Fastjson2Codec(
             buf.writeBytes(jsonbBytes)
             buf
         } catch (e: Exception) {
-            log.info(e) { "Encoding failed for Fastjson2Codec. Using fallbackCodec[$fallbackCodec]. Value class=${graph.javaClass}" }
+            log.warn(e) { "Encoding failed for Fastjson2Codec. Using fallbackCodec[$fallbackCodec]. Value class=${graph.javaClass}" }
             fallbackCodec.valueEncoder.encode(graph)
         }
     }
@@ -105,9 +105,9 @@ class Fastjson2Codec(
         try {
             if (bytes.size < 4) throw IllegalArgumentException("Invalid Fastjson2Codec format: bytes too short")
             val classNameLen = ((bytes[0].toInt() and 0xFF) shl 24) or
-                ((bytes[1].toInt() and 0xFF) shl 16) or
-                ((bytes[2].toInt() and 0xFF) shl 8) or
-                (bytes[3].toInt() and 0xFF)
+                    ((bytes[1].toInt() and 0xFF) shl 16) or
+                    ((bytes[2].toInt() and 0xFF) shl 8) or
+                    (bytes[3].toInt() and 0xFF)
             if (classNameLen <= 0 || classNameLen > bytes.size - 4) {
                 throw IllegalArgumentException("Invalid Fastjson2Codec format: classNameLen=$classNameLen")
             }
@@ -122,11 +122,11 @@ class Fastjson2Codec(
             if (!allowFallbackDecode) {
                 throw SecurityException(
                     "Fastjson2Codec fallback decode is disabled for allow-listed JSONB payloads. " +
-                        "Rejecting non-Fastjson2 binary payload.",
+                            "Rejecting non-Fastjson2 binary payload.",
                     e,
                 )
             }
-            log.info(e) { "Decoding failed for Fastjson2Codec. Using fallbackCodec[$fallbackCodec]" }
+            log.warn(e) { "Decoding failed for Fastjson2Codec. Using fallbackCodec[$fallbackCodec]" }
             val fallbackBuf = Unpooled.wrappedBuffer(bytes)
             try {
                 fallbackCodec.valueDecoder.decode(fallbackBuf, state)
@@ -141,8 +141,8 @@ class Fastjson2Codec(
 
     override fun toString(): String =
         "Fastjson2Codec(" +
-            "fallback=${fallbackCodec.javaClass.simpleName}, " +
-            "allowedPrefixes=$allowedPackagePrefixes, " +
-            "allowFallbackDecode=$allowFallbackDecode" +
-            ")"
+                "fallback=${fallbackCodec.javaClass.simpleName}, " +
+                "allowedPrefixes=$allowedPackagePrefixes, " +
+                "allowFallbackDecode=$allowFallbackDecode" +
+                ")"
 }

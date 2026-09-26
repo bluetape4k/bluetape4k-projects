@@ -2,14 +2,20 @@ package io.bluetape4k.hibernate.cache.lettuce
 
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeGreaterThan
+import io.bluetape4k.assertions.shouldHaveSize
 import io.bluetape4k.assertions.shouldNotBeNull
 import io.bluetape4k.hibernate.cache.lettuce.model.Department
 import io.bluetape4k.hibernate.cache.lettuce.model.Employee
 import io.bluetape4k.hibernate.cache.lettuce.model.Project
+import io.bluetape4k.hibernate.findAs
+import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.debug
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 
 class HibernateRelationCacheTest: AbstractHibernateNearCacheTest() {
+
+    companion object: KLogging()
 
     @BeforeEach
     fun clearCacheAndData() {
@@ -34,25 +40,26 @@ class HibernateRelationCacheTest: AbstractHibernateNearCacheTest() {
             department.addEmployee(Employee().apply { name = "Bob" })
             session.persist(department)
             session.transaction.commit()
-            department.id!!
+            department.id.shouldNotBeNull()
         }
 
         sessionFactory.statistics.clear()
 
         sessionFactory.openSession().use { session ->
             session.beginTransaction()
-            val loaded = session.find(Department::class.java, departmentId)
-            loaded.shouldNotBeNull()
-            loaded.employees.size shouldBeEqualTo 2
+            val loaded = session.findAs<Department>(departmentId).shouldNotBeNull()
+            log.debug { "Loaded department: $loaded" }
+            loaded.employees shouldHaveSize 2
             session.transaction.commit()
         }
+
         val hitAfterFirstLoad = sessionFactory.statistics.secondLevelCacheHitCount
 
         sessionFactory.openSession().use { session ->
             session.beginTransaction()
-            val loaded = session.find(Department::class.java, departmentId)
-            loaded.shouldNotBeNull()
-            loaded.employees.size shouldBeEqualTo 2
+            val loaded = session.findAs<Department>(departmentId).shouldNotBeNull()
+            log.debug { "Loaded department: $loaded" }
+            loaded.employees shouldHaveSize 2
             session.transaction.commit()
         }
 
@@ -68,25 +75,26 @@ class HibernateRelationCacheTest: AbstractHibernateNearCacheTest() {
             department.addEmployee(employee)
             session.persist(department)
             session.transaction.commit()
-            employee.id!!
+            employee.id.shouldNotBeNull()
         }
 
         sessionFactory.statistics.clear()
 
         sessionFactory.openSession().use { session ->
             session.beginTransaction()
-            val loaded = session.find(Employee::class.java, employeeId)
-            loaded.shouldNotBeNull()
-            loaded.department!!.name shouldBeEqualTo "Data"
+            val loaded = session.findAs<Employee>(employeeId).shouldNotBeNull()
+            log.debug { "Loaded employee: $loaded" }
+            loaded.department.shouldNotBeNull().name shouldBeEqualTo "Data"
             session.transaction.commit()
         }
+
         val hitAfterFirstLoad = sessionFactory.statistics.secondLevelCacheHitCount
 
         sessionFactory.openSession().use { session ->
             session.beginTransaction()
-            val loaded = session.find(Employee::class.java, employeeId)
-            loaded.shouldNotBeNull()
-            loaded.department!!.name shouldBeEqualTo "Data"
+            val loaded = session.findAs<Employee>(employeeId).shouldNotBeNull()
+            log.debug { "Loaded employee: $loaded" }
+            loaded.department.shouldNotBeNull().name shouldBeEqualTo "Data"
             session.transaction.commit()
         }
 
@@ -110,25 +118,25 @@ class HibernateRelationCacheTest: AbstractHibernateNearCacheTest() {
             session.persist(department)
             session.persist(project)
             session.transaction.commit()
-            project.id!!
+            project.id.shouldNotBeNull()
         }
 
         sessionFactory.statistics.clear()
 
         sessionFactory.openSession().use { session ->
             session.beginTransaction()
-            val loaded = session.find(Project::class.java, projectId)
-            loaded.shouldNotBeNull()
-            loaded.members.size shouldBeEqualTo 2
+            val loaded = session.findAs<Project>(projectId).shouldNotBeNull()
+            log.debug { "Loaded project: $loaded" }
+            loaded.members shouldHaveSize 2
             session.transaction.commit()
         }
         val hitAfterFirstLoad = sessionFactory.statistics.secondLevelCacheHitCount
 
         sessionFactory.openSession().use { session ->
             session.beginTransaction()
-            val loaded = session.find(Project::class.java, projectId)
-            loaded.shouldNotBeNull()
-            loaded.members.size shouldBeEqualTo 2
+            val loaded = session.findAs<Project>(projectId).shouldNotBeNull()
+            log.debug { "Loaded project: $loaded" }
+            loaded.members shouldHaveSize 2
             session.transaction.commit()
         }
 

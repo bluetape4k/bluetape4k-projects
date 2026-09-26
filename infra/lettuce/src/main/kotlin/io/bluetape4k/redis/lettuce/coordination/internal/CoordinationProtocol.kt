@@ -74,10 +74,10 @@ internal object CoordinationProtocol {
         when (value) {
             is String -> value
             is ByteArray -> value.toString(StandardCharsets.UTF_8)
-            is Byte -> value.toString()
-            is Short -> value.toString()
-            is Int -> value.toString()
-            is Long -> value.toString()
-            else -> throw integrityFailure("response value type is unsupported")
+            is Byte   -> value.toString()
+            is Short  -> value.toString()
+            is Int    -> value.toString()
+            is Long   -> value.toString()
+            else      -> throw integrityFailure("response value type is unsupported")
         }
 }

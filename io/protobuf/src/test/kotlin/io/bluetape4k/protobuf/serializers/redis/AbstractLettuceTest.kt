@@ -11,8 +11,10 @@ import io.lettuce.core.RedisClient
 import io.lettuce.core.api.async.RedisAsyncCommands
 import io.lettuce.core.api.coroutines.RedisCoroutinesCommands
 import io.lettuce.core.api.sync.RedisCommands
+import net.datafaker.Faker
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.BeforeAll
+import java.util.*
 
 @OptIn(ExperimentalLettuceCoroutinesApi::class)
 abstract class AbstractLettuceTest {
@@ -23,7 +25,7 @@ abstract class AbstractLettuceTest {
         val redis: RedisServer by lazy { RedisServer.Launcher.redis }
 
         @JvmStatic
-        val faker = Fakers.faker
+        val faker = Faker(Locale.getDefault())
 
         @JvmStatic
         protected fun randomName(): String =

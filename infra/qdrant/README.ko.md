@@ -35,11 +35,11 @@ client.upsertBatches(pointsFlow, template, maxBatchItems = 256, maxBatchBytes = 
 
 ## 실행 계약
 
-| API | 동작 |
-| --- | --- |
-| `querySuspending`, `upsertSuspending`, `deleteSuspending` | Future 완료를 콜백으로 기다리고 원래 실패 원인을 전파 |
-| `scrollAsFlow` | 수집마다 독립 실행, 페이지당 limit 1..1000, 한 페이지 소비 뒤 다음 요청 |
-| `upsertBatches` | 배치당 최대 항목 수와 전체 protobuf 요청 바이트 상한, 동시 요청 1개 |
+| API                                                       | 동작                                                                    |
+|-----------------------------------------------------------|-------------------------------------------------------------------------|
+| `querySuspending`, `upsertSuspending`, `deleteSuspending` | Future 완료를 콜백으로 기다리고 원래 실패 원인을 전파                   |
+| `scrollAsFlow`                                            | 수집마다 독립 실행, 페이지당 limit 1..1000, 한 페이지 소비 뒤 다음 요청 |
+| `upsertBatches`                                           | 배치당 최대 항목 수와 전체 protobuf 요청 바이트 상한, 동시 요청 1개     |
 
 RPC별 `Duration`은 SDK에 그대로 전달합니다. 전체 수집 시간은 `withTimeout`으로 제한할 수 있습니다. 취소하면 대기 중인 Future도 취소하지만 이미 서버에 반영된 쓰기를 되돌리지는 않습니다. 클라이언트와 채널은 자동 종료하지 않습니다.
 

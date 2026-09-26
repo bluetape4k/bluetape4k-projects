@@ -40,29 +40,32 @@ class LettuceSuspendAtomicLong(
         /** Lua: GET and SET (원자적) */
         private val GET_AND_SET_SCRIPT = RedisScript(
             """
-local old = redis.call('get', KEYS[1])
-redis.call('set', KEYS[1], ARGV[1])
-if old then return old else return '0' end"""
+                local old = redis.call('get', KEYS[1])
+                redis.call('set', KEYS[1], ARGV[1])
+                if old then return old else return '0' end
+                """.trimIndent()
         )
 
         /** Lua: GET and ADD (원자적) */
         private val GET_AND_ADD_SCRIPT = RedisScript(
             """
-local old = tonumber(redis.call('get', KEYS[1])) or 0
-redis.call('incrby', KEYS[1], ARGV[1])
-return tostring(old)"""
+                local old = tonumber(redis.call('get', KEYS[1])) or 0
+                redis.call('incrby', KEYS[1], ARGV[1])
+                return tostring(old)
+                """.trimIndent()
         )
 
         /** Lua: Compare and Set (원자적) */
         private val COMPARE_AND_SET_SCRIPT = RedisScript(
             """
-local current = redis.call('get', KEYS[1])
-if (current == false and ARGV[1] == '0') or current == ARGV[1] then
-  redis.call('set', KEYS[1], ARGV[2])
-  return 1
-else
-  return 0
-end"""
+                local current = redis.call('get', KEYS[1])
+                if (current == false and ARGV[1] == '0') or current == ARGV[1] then
+                  redis.call('set', KEYS[1], ARGV[2])
+                  return 1
+                else
+                  return 0
+                end
+                """.trimIndent()
         )
     }
 
@@ -169,8 +172,11 @@ end"""
      */
     suspend fun getAndIncrement(): Long =
         RedisScriptRunner.runSuspending<String>(
-            asyncCommands, GET_AND_ADD_SCRIPT, ScriptOutputType.VALUE,
-            arrayOf(key), "1"
+            asyncCommands,
+            GET_AND_ADD_SCRIPT,
+            ScriptOutputType.VALUE,
+            arrayOf(key),
+            "1"
         ).toLongOrNull() ?: 0L
 
     /**
@@ -180,8 +186,11 @@ end"""
      */
     suspend fun getAndDecrement(): Long =
         RedisScriptRunner.runSuspending<String>(
-            asyncCommands, GET_AND_ADD_SCRIPT, ScriptOutputType.VALUE,
-            arrayOf(key), "-1"
+            asyncCommands,
+            GET_AND_ADD_SCRIPT,
+            ScriptOutputType.VALUE,
+            arrayOf(key),
+            "-1"
         ).toLongOrNull() ?: 0L
 
     /**
@@ -192,8 +201,11 @@ end"""
      */
     suspend fun getAndAdd(delta: Long): Long =
         RedisScriptRunner.runSuspending<String>(
-            asyncCommands, GET_AND_ADD_SCRIPT, ScriptOutputType.VALUE,
-            arrayOf(key), delta.toString()
+            asyncCommands,
+            GET_AND_ADD_SCRIPT,
+            ScriptOutputType.VALUE,
+            arrayOf(key),
+            delta.toString()
         ).toLongOrNull() ?: 0L
 
     /**
@@ -213,7 +225,10 @@ end"""
      */
     suspend fun compareAndSet(expect: Long, update: Long): Boolean =
         RedisScriptRunner.runSuspending<Long>(
-            asyncCommands, COMPARE_AND_SET_SCRIPT, ScriptOutputType.INTEGER,
-            arrayOf(key), expect.toString(), update.toString()
+            asyncCommands,
+            COMPARE_AND_SET_SCRIPT,
+            ScriptOutputType.INTEGER,
+            arrayOf(key),
+            expect.toString(), update.toString()
         ) == 1L
 }

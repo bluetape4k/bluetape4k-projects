@@ -5,6 +5,8 @@ import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeFalse
 import io.bluetape4k.assertions.shouldBeNull
 import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.assertions.shouldHaveSize
+import io.bluetape4k.assertions.shouldNotBeEqualTo
 import io.bluetape4k.assertions.shouldNotBeNull
 import io.bluetape4k.junit5.concurrency.StructuredTaskScopeTester
 import io.bluetape4k.logging.KLogging
@@ -28,7 +30,7 @@ class TaskContextTest {
     fun `newKey 는 새로운 ScopedValue 인스턴스를 반환한다`() {
         val key1: ScopedValue<String> = TaskContext.newKey()
         val key2: ScopedValue<String> = TaskContext.newKey()
-        (key1 !== key2).shouldBeTrue()
+        key1 shouldNotBeEqualTo key2
     }
 
     // ── 단일 바인딩 ───────────────────────────────────────────────────────────
@@ -155,7 +157,7 @@ class TaskContextTest {
             threads.forEach { it.join() }
         }
 
-        collected.size shouldBeEqualTo 4
+        collected shouldHaveSize 4
         collected.all { it == null }.shouldBeTrue()
     }
 
@@ -179,7 +181,7 @@ class TaskContextTest {
             }
         }
 
-        collected.size shouldBeEqualTo 4
+        collected shouldHaveSize 4
         collected.all { it == "req-vthread" }.shouldBeTrue()
     }
 
@@ -227,7 +229,7 @@ class TaskContextTest {
         val traceId = TaskContext.newKey<String>()
 
         val taskResults = TaskContext.run(traceId, "trace-abc") {
-            StructuredTaskScopes.supervised<String, List<Result<String>>> { scope ->
+            StructuredTaskScopes.supervised { scope ->
                 scope.fork { TaskContext.get(traceId) ?: "NOT_FOUND" }
                 scope.fork { TaskContext.get(traceId) ?: "NOT_FOUND" }
                 scope.join()
@@ -354,8 +356,9 @@ class TaskContextTest {
             .and(b, 2)
             .and(c, 3)
             .run {
-                sumInside =
-                    TaskContext.getOrDefault(a, 0) + TaskContext.getOrDefault(b, 0) + TaskContext.getOrDefault(c, 0)
+                sumInside = TaskContext.getOrDefault(a, 0) +
+                        TaskContext.getOrDefault(b, 0) +
+                        TaskContext.getOrDefault(c, 0)
             }
 
         sumInside shouldBeEqualTo 6

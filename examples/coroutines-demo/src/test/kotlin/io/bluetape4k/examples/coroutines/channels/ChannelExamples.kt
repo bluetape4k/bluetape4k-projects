@@ -1,5 +1,6 @@
 package io.bluetape4k.examples.coroutines.channels
 
+import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.codec.encodeBase62
 import io.bluetape4k.coroutines.support.log
 import io.bluetape4k.logging.coroutines.KLoggingChannel
@@ -13,16 +14,16 @@ import kotlinx.coroutines.channels.ReceiveChannel
 import kotlinx.coroutines.channels.SendChannel
 import kotlinx.coroutines.channels.consumeEach
 import kotlinx.coroutines.channels.produce
-import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.runTest
-import io.bluetape4k.assertions.shouldBeEqualTo
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import java.util.*
 import kotlin.time.Duration.Companion.milliseconds
+import kotlin.time.Duration.Companion.seconds
 
 /**
  * Kotlin Coroutines [Channel]의 다양한 사용 패턴을 보여주는 예제입니다.
@@ -42,92 +43,98 @@ class ChannelExamples {
     @Test
     fun `basic channel example`() = runTest {
         val received = mutableListOf<Int>()
-        coroutineScope {
-            val channel = Channel<Int>()
+        val channel = Channel<Int>()
 
-            launch {
-                repeat(5) { index ->
-                    delay(1000.milliseconds)
-                    log.debug { "[#1] ➡️ Producing next one. $index" }
-                    channel.send(index * 2)
-                }
-            }.log("#1")
+        val sendJob = launch {
+            repeat(5) { index ->
+                log.debug { "[#1] ➡️ Producing next one. $index" }
+                channel.send(index * 2)
+                delay(1000.milliseconds)
+            }
+        }.log("sendJob")
 
-            launch {
-                repeat(5) {
-                    val element = channel.receive()
-                    received.add(element)
-                    log.debug { "[#2] 👋 Receive $element" }
-                }
-            }.log("#2")
-        }
+        val receiveJob = launch {
+            repeat(5) {
+                val element = channel.receive()
+                received.add(element)
+                log.debug { "[#2] 👋 Receive $element" }
+            }
+        }.log("receiveJob")
+
+        sendJob.join()
+        receiveJob.join()
+
         received shouldBeEqualTo listOf(0, 2, 4, 6, 8)
     }
 
     @Test
     fun `foreach 구문으로 수신하기`() = runTest {
         val received = mutableListOf<Int>()
-        coroutineScope {
-            val channel = Channel<Int>()
+        val channel = Channel<Int>()
 
-            launch {
-                repeat(5) { index ->
-                    delay(1000.milliseconds)
-                    log.debug { "[#1] ➡️ Producing next one. $index" }
-                    channel.send(index * 2)
-                }
-                // channel#close() 를 호출해야 for each 구문을 끝낼 수 있습니다.
-                channel.close()
-            }.log("#1")
+        val sendJob = launch {
+            repeat(5) { index ->
+                log.debug { "[#1] ➡️ Producing next one. $index" }
+                channel.send(index * 2)
+                delay(1000.milliseconds)
+            }
+            // channel#close() 를 호출해야 for each 구문을 끝낼 수 있습니다.
+            channel.close()
+        }.log("sendJob")
 
-            launch {
-                for (element in channel) {
-                    received.add(element)
-                    log.debug { "[#2] 👋 Receive $element" }
-                }
-            }.log("#2")
-        }
+        val receiveJob = launch {
+            for (element in channel) {
+                received.add(element)
+                log.debug { "[#2] 👋 Receive $element" }
+            }
+        }.log("receiveJob")
+
+        sendJob.join()
+        receiveJob.join()
+
         received shouldBeEqualTo listOf(0, 2, 4, 6, 8)
     }
 
     @Test
     fun `consumeEach 구문으로 수신하기`() = runTest {
         val received = mutableListOf<Int>()
-        coroutineScope {
-            val channel = Channel<Int>()
+        val channel = Channel<Int>()
 
-            launch {
-                repeat(5) { index ->
-                    delay(1000.milliseconds)
-                    log.debug { "[#1] ➡️ Producing next one. $index" }
-                    channel.send(index * 2)
-                }
-                // channel#close() 를 호출해야 consumeEach 구문을 끝낼 수 있습니다.
-                // 예외 시에 문제가 될 수도 있죠 --> produce 함수를 사용하는 걸 추천합니다.
-                channel.close()
-            }.log("#1")
+        val sendJob = launch {
+            repeat(5) { index ->
+                log.debug { "[#1] ➡️ Producing next one. $index" }
+                channel.send(index * 2)
+                delay(1000.milliseconds)
+            }
+            // channel#close() 를 호출해야 consumeEach 구문을 끝낼 수 있습니다.
+            // 예외 시에 문제가 될 수도 있죠 --> produce 함수를 사용하는 걸 추천합니다.
+            channel.close()
+        }.log("sendJob")
 
-            launch {
-                channel.consumeEach { element ->
-                    received.add(element)
-                    log.debug { "[#2] 👋 Receive $element" }
-                }
-            }.log("#2")
-        }
+        val receiveJob = launch {
+            channel.consumeEach { element ->
+                received.add(element)
+                log.debug { "[#2] 👋 Receive $element" }
+            }
+        }.log("receiveJob")
+
+        sendJob.join()
+        receiveJob.join()
         received shouldBeEqualTo listOf(0, 2, 4, 6, 8)
     }
 
     @Test
     fun `produce 함수를 이용하여 channel 구성`() = runTest {
-        val channel = produce {
+        val channel: ReceiveChannel<Int> = produce {
             repeat(5) { index ->
-                delay(1000.milliseconds)
                 log.debug { "[#1] ➡️ Producing next one. $index" }
                 send(index)
+                delay(1000.milliseconds)
             }
         }
 
         val received = mutableListOf<Int>()
+
         for (element in channel) {
             received.add(element)
             log.debug { "[#2] 👋 Receive $element" }
@@ -147,19 +154,18 @@ class ChannelExamples {
      * Conflated: 버퍼가 1이고, 새로운 send가 있다면 기존 버퍼의 요소를 대체한다
      *
      */
-
     @Test
     fun `buffer type - unlimited`() = runTest {
         val channel = produce(capacity = Channel.UNLIMITED) {
             repeat(5) { index ->
-                send(index * 2)
-                delay(100.milliseconds)
                 log.debug { "[#1] ➡️ Sent ${index * 2}" }
+                send(index * 2)
+                delay(1.seconds)
             }
         }
 
         // send한 요소가 모두 버퍼링 된다
-        advanceTimeBy(1000.milliseconds)
+        advanceTimeBy(10.seconds)
         for (element in channel) {
             log.debug { "[#2] 👋 Receive $element" }
         }
@@ -170,17 +176,18 @@ class ChannelExamples {
         val channel = produce(capacity = 3) {
             repeat(5) { index ->
                 send(index * 2)
-                delay(100.milliseconds)
                 log.debug { "[#1] ➡️ Sent ${index * 2}" }
+                delay(100.milliseconds)
             }
         }
 
-        // send한 요소가 모두 버퍼링 된다
+        // send한 요소가 capqcity=3 까지 버퍼링 된다
         advanceTimeBy(1000.milliseconds)
         val received = mutableListOf<Int>()
         for (element in channel) {
             received.add(element)
             log.debug { "[#2] 👋 Receive $element" }
+            delay(10.milliseconds)
         }
         received shouldBeEqualTo listOf(0, 2, 4, 6, 8)
     }
@@ -189,18 +196,19 @@ class ChannelExamples {
     fun `buffer type - rendezvous`() = runTest {
         val channel = produce(capacity = Channel.RENDEZVOUS) {
             repeat(5) { index ->
+                log.debug { "[#1] ➡️ Sent ${index * 2}" }
                 send(index * 2)
                 delay(100.milliseconds)
-                log.debug { "[#1] ➡️ Sent ${index * 2}" }
             }
         }
 
-        // send한 요소가 모두 버퍼링 된다
+        // send한 요소가 모두 버퍼링 된다 
         advanceTimeBy(1000.milliseconds)
         val received = mutableListOf<Int>()
         for (element in channel) {
             received.add(element)
             log.debug { "[#2] 👋 Receive $element" }
+            delay(10.milliseconds)
         }
         received shouldBeEqualTo listOf(0, 2, 4, 6, 8)
     }
@@ -215,12 +223,13 @@ class ChannelExamples {
             }
         }
 
-        // Channel.CONFLATED는 send한 요소 중 가장 최신 것만 남기고 버려버립니다.
+        // Channel.CONFLATED는 send한 요소 중 가장 최신 것만 남기고 나머지는 버려버립니다. (0,2,4 는 버리고, 6 을 받습니다)
         advanceTimeBy(400.milliseconds)
         val received = mutableListOf<Int>()
         for (element in channel) {
             received.add(element)
             log.debug { "[#2] 👋 Receive $element" }
+            delay(1.milliseconds)
         }
         received shouldBeEqualTo listOf(6, 8)
     }
@@ -235,8 +244,10 @@ class ChannelExamples {
     fun `onBufferOverflow options`() = runTest {
         // 0,2,4,6,8 -> 6,8 만 남는다 (예전 것을 삭제하므로)
         val channel = Channel<Int>(capacity = 2, onBufferOverflow = BufferOverflow.DROP_OLDEST) {
+            // DROP_OLDEST: 전달 못한 것은 버려버립니다.
             log.warn { "Undelivered element: $it" }
         }
+
         launch {
             repeat(5) { index ->
                 channel.send(index * 2)
@@ -244,14 +255,15 @@ class ChannelExamples {
                 log.debug { "[#1] ➡️ Sent ${index * 2}" }
             }
             channel.close()
-        }
+        }.log("sendJob")
 
-        // send한 요소가 모두 버퍼링 된다
+        // Send 한 요소 중에 overflow 된 것은 버리고, 6, 8 만 남는다.
         advanceTimeBy(1000.milliseconds)
         val received = mutableListOf<Int>()
         for (element in channel) {
             received.add(element)
             log.debug { "[#2] 👋 Receive $element" }
+            delay(10.milliseconds)
         }
         received shouldBeEqualTo listOf(6, 8)
     }
@@ -275,7 +287,7 @@ class ChannelExamples {
                 for (msg in channel) {
                     log.debug { "[#2] 👋 #$id received $msg" }
                 }
-            }.log("#2")
+            }.log("fanout #id")
         }
 
         @Test
@@ -313,14 +325,18 @@ class ChannelExamples {
         @Test
         fun `fan-in with multiple send channel`() = runTest {
             val channel = Channel<String>()
-            launch { sendString(channel, { "foo" }, 200L) }.log("foo")
-            launch { sendString(channel, { "BAR!" }, 500L) }.log("BAR!")
+            launch {
+                sendString(channel, { "foo" }, 200L)
+            }.log("foo")
+            launch {
+                sendString(channel, { "BAR!" }, 500L)
+            }.log("BAR!")
 
             repeat(50) {
                 log.debug { "[#2] 👋 Receive ${channel.receive()}" }
             }
             // channel의 전송 작업을 취소시킵니다.
-            coroutineContext.cancelChildren()
+            currentCoroutineContext().cancelChildren()
         }
 
         /**
@@ -336,7 +352,7 @@ class ChannelExamples {
                         log.debug { "[$index] 👋Receive from channel[$index], send [$elem]" }
                         send(elem)
                     }
-                }.log(index)
+                }.log("fanin $index")
             }
         }
 
@@ -349,33 +365,35 @@ class ChannelExamples {
             channels.forEachIndexed { index, channel ->
                 launch {
                     sendString(channel, { UUID.randomUUID().encodeBase62() }, 200L)
-                }.log(index)
+                }.log("sendJob $index")
             }
 
             repeat(50) {
                 log.debug { "[fanIn] 👋 Receive [${fanin.receive()}]" }
             }
             // channel의 전송 작업을 취소시킵니다.
-            coroutineContext.cancelChildren()
+            currentCoroutineContext().cancelChildren()
         }
     }
 
     @Nested
     inner class Pipeline {
 
-        private fun CoroutineScope.numbers(times: Int = 5) = produce(capacity = 4) {
-            repeat(times) { num ->
-                log.debug { "[#1] ➡️ Send ${num + 1}" }
-                send(num + 1)
+        private fun CoroutineScope.numbers(times: Int = 5) =
+            produce(capacity = 4) {
+                repeat(times) { num ->
+                    log.debug { "[#1] ➡️ Send ${num + 1}" }
+                    send(num + 1)
+                }
             }
-        }
 
-        private fun CoroutineScope.square(numbers: ReceiveChannel<Int>): ReceiveChannel<Int> = produce(capacity = 2) {
-            for (num in numbers) {
-                log.debug { "[#2] 👋 Receive $num, send ${num * num}" }
-                send(num * num)
+        private fun CoroutineScope.square(numbers: ReceiveChannel<Int>): ReceiveChannel<Int> =
+            produce(capacity = 2) {
+                for (num in numbers) {
+                    log.debug { "[#2] 👋 Receive $num, send ${num * num}" }
+                    send(num * num)
+                }
             }
-        }
 
         @Test
         fun `pipeline with two channel chaining`() = runTest {

@@ -3,6 +3,7 @@ package io.bluetape4k.redis.redisson.cache
 import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeSameInstanceAs
+import io.bluetape4k.logging.KLogging
 import io.bluetape4k.redis.redisson.codec.RedissonCodecs
 import org.junit.jupiter.api.Test
 import org.redisson.api.map.WriteMode
@@ -12,6 +13,8 @@ import org.redisson.api.options.MapParams
 import java.time.Duration
 
 class RedissonCacheConfigTest {
+
+    companion object: KLogging()
 
     @Test
     fun `toMapOptions applies codec and write-behind settings`() {

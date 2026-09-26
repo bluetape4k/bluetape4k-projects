@@ -12,11 +12,9 @@ dependencies {
     api(bt4k.jnats)
     // nats-spring은 Spring Boot 3/4 통합 시 사용자가 직접 선언 (compileOnly로 API만 노출)
     compileOnly(bt4k.nats.spring)
-    // nats_spring_cloud_stream_binder: 사용하지 않으므로 제외
 
     // Coroutines
     api(project(":bluetape4k-coroutines"))
-    // Public consumeAsFlow API exposes Flow and coroutine cancellation semantics.
     api(libs.kotlinx.coroutines.core)
     compileOnly(libs.kotlinx.coroutines.reactor)
     testImplementation(libs.kotlinx.coroutines.test)
@@ -31,6 +29,6 @@ dependencies {
     testImplementation(bt4k.at.yawk.lz4.java)
     testImplementation(bt4k.snappy.java)
     testImplementation(bt4k.zstd.jni)
-    testImplementation(bt4k.kryo5)
     testImplementation(bt4k.fory.kotlin)
+    testImplementation(bt4k.kryo5)
 }

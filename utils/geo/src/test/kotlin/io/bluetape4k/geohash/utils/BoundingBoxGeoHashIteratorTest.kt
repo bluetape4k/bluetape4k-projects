@@ -1,16 +1,17 @@
 package io.bluetape4k.geohash.utils
 
+import io.bluetape4k.assertions.shouldBeFalse
+import io.bluetape4k.assertions.shouldBeLessThan
+import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.assertions.shouldHaveSize
 import io.bluetape4k.collections.asIterable
 import io.bluetape4k.collections.toList
 import io.bluetape4k.geohash.BoundingBox
 import io.bluetape4k.geohash.GeoHash
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
-import io.bluetape4k.assertions.shouldBeFalse
-import io.bluetape4k.assertions.shouldBeLessThan
-import io.bluetape4k.assertions.shouldBeTrue
-import io.bluetape4k.assertions.shouldHaveSize
 import org.junit.jupiter.api.Test
+import java.util.concurrent.ConcurrentLinkedQueue
 import java.util.concurrent.CopyOnWriteArraySet
 
 class BoundingBoxGeoHashIteratorTest {
@@ -71,12 +72,14 @@ class BoundingBoxGeoHashIteratorTest {
         val twoGeoHashBoundingBox = twoGeoHashWithCharacters(box, 2)
         val iterator = BoundingBoxGeoHashIterator(twoGeoHashBoundingBox)
 
-        val hashes = CopyOnWriteArraySet<GeoHash>()
+        val hashes = ConcurrentLinkedQueue<GeoHash>()
+
         iterator.forEach { hash ->
             log.debug { "hash=$hash" }
             hashes.contains(hash).shouldBeFalse()
             hashes.add(hash)
         }
+
         hashes shouldHaveSize 1
     }
 
@@ -85,6 +88,7 @@ class BoundingBoxGeoHashIteratorTest {
         val hashes = iter.toList()
 
         var prev: GeoHash? = null
+
         hashes.forEach { gh ->
             newBox.contains(gh.originatingPoint).shouldBeTrue()
             prev?.let { pv -> pv shouldBeLessThan gh }

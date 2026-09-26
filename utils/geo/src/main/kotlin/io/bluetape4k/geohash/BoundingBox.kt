@@ -168,7 +168,7 @@ data class BoundingBox(
                 !isIntersection180Meridian && other.isIntersection180Meridian  ->
                     !(westLongitude > other.eastLongitude && eastLongitude < other.westLongitude)
 
-                else                                                   -> true
+                else -> true
             }
         }
     }

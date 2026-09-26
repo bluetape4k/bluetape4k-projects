@@ -4,12 +4,16 @@ import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeNull
 import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.concurrent.await
+import io.bluetape4k.concurrent.awaitTermination
+import io.bluetape4k.concurrent.get
+import io.bluetape4k.javatimes.seconds
+import io.bluetape4k.logging.KLogging
 import io.bluetape4k.tenant.MissingTenantContextException
 import io.bluetape4k.tenant.TenantId
 import io.ktor.client.request.get
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.ApplicationCall
-import io.ktor.server.application.call
 import io.ktor.server.response.respondText
 import io.ktor.server.routing.get
 import io.ktor.server.routing.routing
@@ -34,8 +38,15 @@ import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicReference
+import kotlin.time.Duration.Companion.seconds
 
 class KtorTenantContextTest {
+
+    companion object: KLogging() {
+        private const val BINDING_KEY_NAME = "io.bluetape4k.ktor.tenant.binding.v1"
+        private const val CONTENDERS = 8
+        private const val CONCURRENT_ROUNDS = 100
+    }
 
     @Test
     fun `unbound call은 공통 missing 예외를 던진다`() {
@@ -85,16 +96,16 @@ class KtorTenantContextTest {
             repeat(CONCURRENT_ROUNDS) { round ->
                 val call = newCall()
                 val start = CyclicBarrier(CONTENDERS)
-                val attempts = (0 until CONTENDERS).map { contender ->
+                val attempts = List(CONTENDERS) { contender ->
                     val tenantId = TenantId("round-$round-contender-$contender")
                     executor.submit(Callable {
-                        start.await(5, TimeUnit.SECONDS)
+                        start.await(5.seconds)
                         runCatching {
                             KtorTenantContext.bindTenant(call, tenantId)
                             tenantId
                         }
                     })
-                }.map { it.get(10, TimeUnit.SECONDS) }
+                }.map { it.get(10.seconds) }
 
                 val winners = attempts.mapNotNull { it.getOrNull() }
                 val failures = attempts.mapNotNull { it.exceptionOrNull() }
@@ -102,7 +113,7 @@ class KtorTenantContextTest {
                 failures.size shouldBeEqualTo CONTENDERS - 1
                 failures.all {
                     it is TenantAlreadyBoundException &&
-                        it.message == "Tenant context is already bound to this call"
+                            it.message == "Tenant context is already bound to this call"
                 }.shouldBeTrue()
                 KtorTenantContext.requireCurrent(call) shouldBeEqualTo winners.single()
             }
@@ -164,8 +175,7 @@ class KtorTenantContextTest {
     @Timeout(value = 20, unit = TimeUnit.SECONDS)
     fun `cancelled call을 adapter가 보존하지 않는다`() {
         val probe = createCancelledCallProbe()
-
-        awaitCollection(probe, Duration.ofSeconds(10)).shouldBeTrue()
+        awaitCollection(probe, 10.seconds()).shouldBeTrue()
     }
 
     private fun newCall(): ApplicationCall {
@@ -210,7 +220,7 @@ class KtorTenantContextTest {
 
     private fun shutdown(executor: ExecutorService) {
         executor.shutdownNow()
-        executor.awaitTermination(5, TimeUnit.SECONDS).shouldBeTrue()
+        executor.awaitTermination(5.seconds).shouldBeTrue()
     }
 
     private data class CallRetentionProbe(
@@ -219,10 +229,4 @@ class KtorTenantContextTest {
     )
 
     private class ExpectedFailure: RuntimeException()
-
-    companion object {
-        private const val BINDING_KEY_NAME = "io.bluetape4k.ktor.tenant.binding.v1"
-        private const val CONTENDERS = 8
-        private const val CONCURRENT_ROUNDS = 100
-    }
 }

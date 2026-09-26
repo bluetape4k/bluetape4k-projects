@@ -1,11 +1,12 @@
 package io.bluetape4k.testcontainers
 
-import io.bluetape4k.logging.KLogging
-import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldBeFalse
-import io.bluetape4k.assertions.shouldBeTrue
-import org.junit.jupiter.api.Test
 import io.bluetape4k.assertions.assertFailsWith
+import io.bluetape4k.assertions.shouldBeEmpty
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldHaveSize
+import io.bluetape4k.assertions.shouldNotBeEmpty
+import io.bluetape4k.logging.KLogging
+import org.junit.jupiter.api.Test
 
 class GenericContainerExtensionsSupportTest {
     companion object: KLogging()
@@ -14,7 +15,7 @@ class GenericContainerExtensionsSupportTest {
     fun `resolvePortBindings 는 중복 포트를 제거한다`() {
         val bindings = resolvePortBindings(listOf(8080, 8080, 9090))
 
-        bindings.size shouldBeEqualTo 2
+        bindings shouldHaveSize 2
         bindings[0].binding.hostPortSpec shouldBeEqualTo "8080"
         bindings[1].binding.hostPortSpec shouldBeEqualTo "9090"
     }
@@ -36,13 +37,13 @@ class GenericContainerExtensionsSupportTest {
     @Test
     fun `resolvePortBindings 는 빈 입력이면 빈 바인딩을 반환한다`() {
         val bindings = resolvePortBindings(emptyList())
-        bindings.isEmpty().shouldBeTrue()
+        bindings.shouldBeEmpty()
     }
 
     @Test
     fun `resolvePortBindings 는 단일 포트를 처리한다`() {
         val bindings = resolvePortBindings(listOf(8080))
-        bindings.size shouldBeEqualTo 1
+        bindings shouldHaveSize 1
         bindings[0].binding.hostPortSpec shouldBeEqualTo "8080"
     }
 
@@ -50,7 +51,7 @@ class GenericContainerExtensionsSupportTest {
     fun `resolvePortBindings 는 첫 등장 순서를 유지하며 중복을 제거한다`() {
         val bindings = resolvePortBindings(listOf(9092, 8080, 9092, 8080, 19092))
 
-        bindings.size shouldBeEqualTo 3
+        bindings shouldHaveSize 3
         bindings[0].binding.hostPortSpec shouldBeEqualTo "9092"
         bindings[1].binding.hostPortSpec shouldBeEqualTo "8080"
         bindings[2].binding.hostPortSpec shouldBeEqualTo "19092"
@@ -59,6 +60,6 @@ class GenericContainerExtensionsSupportTest {
     @Test
     fun `resolvePortBindings 결과는 비어있지 않다`() {
         val bindings = resolvePortBindings(listOf(8080))
-        bindings.isEmpty().shouldBeFalse()
+        bindings.shouldNotBeEmpty()
     }
 }

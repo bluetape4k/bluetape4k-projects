@@ -1,6 +1,7 @@
 package io.bluetape4k.redis.lettuce
 
 import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.debug
 import io.lettuce.core.ClientOptions
 import io.lettuce.core.ExperimentalLettuceCoroutinesApi
 import io.lettuce.core.RedisClient
@@ -25,6 +26,7 @@ import kotlin.time.toJavaDuration
  * Lettuce 의 [RedisClient] 등을 생성해주는 유틸리티 클래스입니다.
  */
 object LettuceClients: KLogging() {
+
     private data class CodecConnectionKey<V: Any>(
         val client: RedisClient,
         val codec: RedisCodec<String, V>,
@@ -67,6 +69,7 @@ object LettuceClients: KLogging() {
             .tcpNoDelay(true)
             .connectTimeout(DEFAULT_CONNECT_TIMEOUT)
             .build()
+
         return ClientOptions.builder()
             .socketOptions(socketOptions)
             .build()
@@ -121,7 +124,9 @@ object LettuceClients: KLogging() {
      * @return [RedisClient] instance
      */
     fun clientOf(redisUri: RedisURI): RedisClient =
-        RedisClient.create(DEFAULT_CLIENT_RESOURCES, redisUri).apply { setOptions(buildTunedClientOptions()) }
+        RedisClient
+            .create(DEFAULT_CLIENT_RESOURCES, redisUri)
+            .apply { options = buildTunedClientOptions() }
 
     /**
      * [RedisClient] 인스턴스를 생성합니다.
@@ -134,7 +139,9 @@ object LettuceClients: KLogging() {
      * @return [RedisClient] instance
      */
     fun clientOf(clientResources: ClientResources): RedisClient =
-        RedisClient.create(clientResources).apply { setOptions(buildTunedClientOptions()) }
+        RedisClient
+            .create(clientResources)
+            .apply { options = buildTunedClientOptions() }
 
     /**
      * [RedisClient] 인스턴스를 생성합니다.
@@ -152,7 +159,8 @@ object LettuceClients: KLogging() {
         host: String = LettuceConst.DEFAULT_HOST,
         port: Int = LettuceConst.DEFAULT_PORT,
         timeoutInMillis: Long = LettuceConst.DEFAULT_TIMEOUT_MILLIS,
-    ): RedisClient = clientOf(getRedisURI(host, port, timeoutInMillis))
+    ): RedisClient =
+        clientOf(getRedisURI(host, port, timeoutInMillis))
 
     /**
      * [client]를 이용하여 [StatefulRedisConnection]을 생성합니다. (sync)
@@ -203,7 +211,8 @@ object LettuceClients: KLogging() {
      * val asyncCommands = LettuceClients.asyncCommands(client)
      * ```
      */
-    fun asyncCommands(client: RedisClient): RedisAsyncCommands<String, String> = defaultConnection(client).async()
+    fun asyncCommands(client: RedisClient): RedisAsyncCommands<String, String> =
+        defaultConnection(client).async()
 
     /**
      * [client]와 [codec]를 이용하여 [RedisAsyncCommands]`<String, V>` 를 생성합니다.
@@ -239,23 +248,26 @@ object LettuceClients: KLogging() {
     fun <V: Any> coroutinesCommands(
         client: RedisClient,
         codec: RedisCodec<String, V>,
-    ): RedisCoroutinesCommands<String, V> = connect(client, codec).coroutines()
+    ): RedisCoroutinesCommands<String, V> =
+        connect(client, codec).coroutines()
 
     /**
      * 캐시된 connection을 정리하고 [client]를 종료합니다.
      */
     fun shutdown(client: RedisClient) {
+        log.debug { "Shutdown RedisClient ..." }
         runCatching { defaultConnections.remove(client)?.close() }
         defaultConnectionLocks.remove(client)
-        codecConnections.entries.removeIf { (key, conn) ->
-            if (key.client == client) {
-                runCatching { conn.close() }
-                codecConnectionLocks.remove(key)
-                true
-            } else {
-                false
+        codecConnections.entries
+            .removeIf { (key, conn) ->
+                if (key.client == client) {
+                    runCatching { conn.close() }
+                    codecConnectionLocks.remove(key)
+                    true
+                } else {
+                    false
+                }
             }
-        }
         client.shutdown()
     }
 
@@ -294,7 +306,9 @@ object LettuceClients: KLogging() {
         (codecConnections[key] as? StatefulRedisConnection<String, V>)
             ?.takeIf { it.isOpen }
             ?.let { return it }
+
         val lock = codecConnectionLocks.computeIfAbsent(key) { ReentrantLock() }
+
         return lock.withLock {
             (codecConnections[key] as? StatefulRedisConnection<String, V>)
                 ?.takeIf { it.isOpen }
@@ -325,6 +339,7 @@ fun <K, V, T> StatefulRedisConnection<K, V>.withPipeline(
     block: (RedisAsyncCommands<K, V>) -> T,
 ): T {
     setAutoFlushCommands(false)
+
     return try {
         block(async()).also { flushCommands() }
     } finally {

@@ -1,13 +1,13 @@
 package org.springframework.kafka.streams
 
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldNotBeNull
 import io.bluetape4k.kafka.streams.kstream.consumedOf
 import io.bluetape4k.kafka.streams.kstream.groupedOf
 import io.bluetape4k.kafka.streams.kstream.materializedOf
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.support.uninitialized
-import io.bluetape4k.assertions.shouldContainSame
-import io.bluetape4k.assertions.shouldNotBeNull
 import org.apache.kafka.common.serialization.LongDeserializer
 import org.apache.kafka.common.serialization.Serdes
 import org.apache.kafka.common.serialization.StringDeserializer
@@ -47,6 +47,7 @@ import org.springframework.kafka.test.utils.KafkaTestUtils
 import org.springframework.test.context.ActiveProfiles
 import java.util.*
 
+@Suppress("SpringJavaInjectionPointsAutowiringInspection")
 @SpringBootTest
 @ActiveProfiles("test")
 @EmbeddedKafka(
@@ -94,7 +95,7 @@ class WordCountExamples {
             inputTopic.pipeInput("key", "hello world")
             inputTopic.pipeInput("key2", "hello")
 
-            outputTopic.readKeyValuesToList() shouldContainSame listOf(
+            outputTopic.readKeyValuesToList() shouldBeEqualTo listOf(
                 KeyValue.pair("hello", 1L),
                 KeyValue.pair("world", 1L),
                 KeyValue.pair("hello", 2L)
@@ -193,7 +194,9 @@ class WordCountExamples {
                 )
                 .count(materializedOf("counts"))
 
-            wordCounts.toStream().apply { print(Printed.toSysOut()) }
+            wordCounts
+                .toStream()
+                .apply { print(Printed.toSysOut()) }
                 .to(OUTPUT_TOPIC)
         }
     }

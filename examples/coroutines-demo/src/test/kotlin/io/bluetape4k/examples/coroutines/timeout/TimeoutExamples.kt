@@ -1,9 +1,9 @@
 package io.bluetape4k.examples.coroutines.timeout
 
 import io.bluetape4k.assertions.assertFailsWith
+import io.bluetape4k.assertions.fail
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeNull
-import io.bluetape4k.assertions.shouldNotBeNull
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import kotlinx.coroutines.TimeoutCancellationException
@@ -12,6 +12,7 @@ import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.withTimeout
 import kotlinx.coroutines.withTimeoutOrNull
 import org.junit.jupiter.api.Test
+import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
 
 /**
@@ -21,6 +22,7 @@ import kotlin.time.Duration.Companion.milliseconds
  * - [withTimeoutOrNull]: 지정 시간 초과 시 null 반환 (예외 없음)
  */
 class TimeoutExamples {
+
     companion object: KLoggingChannel()
 
     /**
@@ -28,24 +30,23 @@ class TimeoutExamples {
      */
     @Test
     fun `withTimeout - 시간 이내 완료`() = runTest {
-        val result =
-            withTimeout(1000.milliseconds) {
-                delay(500.milliseconds)
-                "완료"
-            }
+        val result = withTimeout(1000.milliseconds) {
+            delay(500.milliseconds)
+            "완료"
+        }
         result shouldBeEqualTo "완료"
     }
 
     /**
      * 시간 초과 시 [TimeoutCancellationException]이 발생합니다.
      */
-    @Suppress("UnusedExpression")
     @Test
     fun `withTimeout - 시간 초과 시 예외 발생`() = runTest {
         assertFailsWith<TimeoutCancellationException> {
             withTimeout(100.milliseconds) {
                 delay(1000.milliseconds)
                 // "이 결과는 반환되지 않음"
+                fail("Timeout 으로 인해 취소되어야 합니다.")
             }
         }
         log.debug { "타임아웃 예외가 발생했습니다" }
@@ -57,11 +58,11 @@ class TimeoutExamples {
      */
     @Test
     fun `withTimeoutOrNull - 시간 초과 시 null 반환`() = runTest {
-        val result =
-            withTimeoutOrNull(100.milliseconds) {
-                delay(1000.milliseconds)
-                // "이 결과는 반환되지 않음"
-            }
+        val result = withTimeoutOrNull(100.milliseconds) {
+            delay(1000.milliseconds)
+            // "이 결과는 반환되지 않음"
+            fail("Timeout 으로 인해 취소되어야 합니다.")
+        }
         result.shouldBeNull()
         log.debug { "타임아웃으로 null이 반환되었습니다" }
     }
@@ -71,12 +72,10 @@ class TimeoutExamples {
      */
     @Test
     fun `withTimeoutOrNull - 시간 이내 완료`() = runTest {
-        val result =
-            withTimeoutOrNull(1000.milliseconds) {
-                delay(100.milliseconds)
-                "성공"
-            }
-        result.shouldNotBeNull()
+        val result = withTimeoutOrNull(1000.milliseconds) {
+            delay(100.milliseconds)
+            "성공"
+        }
         result shouldBeEqualTo "성공"
     }
 
@@ -87,19 +86,17 @@ class TimeoutExamples {
     fun `withTimeoutOrNull을 이용한 재시도 패턴`() = runTest {
         var attempt = 0
 
-        val result =
-            retryWithTimeout(maxRetries = 3, timeoutMillis = 200) {
-                attempt++
-                if (attempt < 3) {
-                    delay(500.milliseconds) // 처음 2번은 타임아웃
-                    "실패"
-                } else {
-                    delay(50.milliseconds) // 3번째는 성공
-                    "성공"
-                }
+        val result = retryWithTimeout(3, 200.milliseconds) {
+            attempt++
+            if (attempt < 3) {
+                delay(500.milliseconds) // 처음 2번은 타임아웃
+                "실패"
+            } else {
+                delay(50.milliseconds) // 3번째는 성공
+                "성공"
             }
+        }
 
-        result.shouldNotBeNull()
         result shouldBeEqualTo "성공"
         attempt shouldBeEqualTo 3
         log.debug { "$attempt 번째 시도에서 성공" }
@@ -110,11 +107,11 @@ class TimeoutExamples {
      */
     private suspend fun <T> retryWithTimeout(
         maxRetries: Int,
-        timeoutMillis: Long,
+        timeout: Duration,
         block: suspend () -> T,
     ): T? {
         repeat(maxRetries) { attempt ->
-            val result = withTimeoutOrNull(timeoutMillis.milliseconds) { block() }
+            val result = withTimeoutOrNull(timeout) { block() }
             if (result != null) return result
             log.debug { "시도 ${attempt + 1}/$maxRetries 타임아웃" }
         }

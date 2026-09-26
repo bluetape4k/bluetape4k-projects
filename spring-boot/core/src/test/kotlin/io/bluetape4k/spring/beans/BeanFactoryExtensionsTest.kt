@@ -2,6 +2,7 @@ package io.bluetape4k.spring.beans
 
 import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeInstanceOf
 import io.bluetape4k.assertions.shouldBeNull
 import io.bluetape4k.assertions.shouldNotBeNull
 import io.bluetape4k.spring.AbstractSpringTest
@@ -40,18 +41,18 @@ class BeanFactoryExtensionsTest: AbstractSpringTest() {
     }
 
     @Configuration
-    open class TestConfig {
+    class TestConfig {
         @Bean
-        open fun sampleService(): SampleService = SampleServiceImpl()
+        fun sampleService(): SampleService = SampleServiceImpl()
     }
 
     @Configuration
-    open class DuplicateBeanConfig {
+    class DuplicateBeanConfig {
         @Bean
-        open fun firstSampleService(): SampleService = SampleServiceImpl()
+        fun firstSampleService(): SampleService = SampleServiceImpl()
 
         @Bean
-        open fun secondSampleService(): SampleService = AlternateSampleService()
+        fun secondSampleService(): SampleService = AlternateSampleService()
     }
 
     private lateinit var context: AnnotationConfigApplicationContext
@@ -70,57 +71,54 @@ class BeanFactoryExtensionsTest: AbstractSpringTest() {
 
     @Test
     fun `get 제네릭 타입으로 빈 조회`() {
-        val service = beanFactory.get<SampleService>()
-        service.shouldNotBeNull()
+        val service = beanFactory.get<SampleService>().shouldBeInstanceOf<SampleService>()
         service.greet() shouldBeEqualTo "hello"
     }
 
     @Test
     fun `get String 이름으로 빈 조회`() {
-        val service: SampleService? = beanFactory["sampleService"]
-        service.shouldNotBeNull()
+        beanFactory.get<SampleService>("sampleService").shouldBeInstanceOf<SampleService>()
     }
 
     @Test
     fun `get KClass로 빈 조회`() {
-        val service = beanFactory[SampleService::class]
-        service.shouldNotBeNull()
+        beanFactory[SampleService::class].shouldBeInstanceOf<SampleService>()
+        beanFactory.get<SampleService>().shouldBeInstanceOf<SampleService>()
     }
 
     @Test
     fun `get Class로 빈 조회`() {
-        val service = beanFactory[SampleService::class.java]
-        service.shouldNotBeNull()
+        beanFactory[SampleService::class.java].shouldBeInstanceOf<SampleService>()
+        beanFactory.get<SampleService>().shouldBeInstanceOf<SampleService>()
     }
 
     @Test
     fun `get 이름과 타입으로 빈 조회`() {
-        val service = beanFactory["sampleService", SampleService::class.java]
-        service.shouldNotBeNull()
+        beanFactory["sampleService", SampleService::class.java].shouldBeInstanceOf<SampleService>()
+        beanFactory.get<SampleService>("sampleService").shouldBeInstanceOf<SampleService>()
     }
 
     @Test
     fun `get 이름과 args로 빈 조회 - args 없으면 이름만으로 조회`() {
-        val service: SampleService? = beanFactory["sampleService"]
+        val service: SampleService = beanFactory["sampleService"]
         service.shouldNotBeNull()
     }
 
     @Test
     fun `findBean KClass 성공`() {
-        val service = beanFactory.findBean(SampleService::class)
-        service.shouldNotBeNull()
+        beanFactory.findBean(SampleService::class).shouldBeInstanceOf<SampleService>()
+        beanFactory.findBean<SampleService>().shouldBeInstanceOf<SampleService>()
     }
 
     @Test
     fun `findBean Class 성공`() {
-        val service = beanFactory.findBean(SampleService::class.java)
-        service.shouldNotBeNull()
+        beanFactory.findBean(SampleService::class.java).shouldBeInstanceOf<SampleService>()
+
     }
 
     @Test
     fun `findBean Class 없는 타입 null 반환`() {
-        val result = beanFactory.findBean(String::class.java)
-        result.shouldBeNull()
+        beanFactory.findBean(String::class.java).shouldBeNull()
     }
 
     @Test
@@ -143,14 +141,13 @@ class BeanFactoryExtensionsTest: AbstractSpringTest() {
 
     @Test
     fun `findBean 이름과 타입으로 성공`() {
-        val service = beanFactory.findBean("sampleService", SampleService::class.java)
-        service.shouldNotBeNull()
+        beanFactory.findBean("sampleService", SampleService::class.java).shouldBeInstanceOf<SampleService>()
+        beanFactory.findBean<SampleService>("sampleService").shouldBeInstanceOf<SampleService>()
     }
 
     @Test
     fun `findBean 없는 이름은 null 반환`() {
-        val result = beanFactory.findBean("nonExistent", SampleService::class.java)
-        result.shouldBeNull()
+        beanFactory.findBean("nonExistent", SampleService::class.java).shouldBeNull()
     }
 
     @Test
@@ -164,14 +161,12 @@ class BeanFactoryExtensionsTest: AbstractSpringTest() {
 
     @Test
     fun `findBean args 버전 성공`() {
-        val result = beanFactory.findBean<Any>("sampleService")
-        result.shouldNotBeNull()
+        beanFactory.findBean<Any>("sampleService").shouldBeInstanceOf<SampleService>()
     }
 
     @Test
     fun `findBean args 버전 없는 빈 null 반환`() {
-        val result = beanFactory.findBean<Any>("nonExistentBean")
-        result.shouldBeNull()
+        beanFactory.findBean<Any>("nonExistentBean").shouldBeNull()
     }
 
     @Test

@@ -14,7 +14,6 @@ import kotlin.time.toJavaDuration
  * - 제한 시간 안에 메시지가 없으면 `null`을 반환합니다.
  */
 fun Subscription.nextMessage(timeout: kotlin.time.Duration): Message? {
-    timeout.requireGe(Duration.ZERO, "timeout")
-
+    timeout.requireGe(kotlin.time.Duration.ZERO, "timeout")
     return nextMessage(timeout.toJavaDuration())
 }

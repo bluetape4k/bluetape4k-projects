@@ -8,6 +8,7 @@ import io.bluetape4k.logging.info
 import io.github.resilience4j.core.IntervalFunction
 import io.github.resilience4j.retry.Retry
 import io.github.resilience4j.retry.RetryConfig
+import io.mockk.clearMocks
 import io.mockk.confirmVerified
 import io.mockk.every
 import io.mockk.mockk
@@ -27,6 +28,8 @@ class RetryExamples {
     interface Service {
         fun sayHello(): String
     }
+
+    val service = mockk<Service>(relaxUnitFun = true)
 
     private var successEvents = 0
     private var retryEvents = 0
@@ -59,6 +62,8 @@ class RetryExamples {
 
     @BeforeEach
     fun setup() {
+        clearMocks(service)
+        
         successEvents = 0
         retryEvents = 0
         errorEvents = 0
@@ -82,7 +87,6 @@ class RetryExamples {
 
     @Test
     fun `retry when exception`() {
-        val service = mockk<Service>(relaxUnitFun = true)
         every { service.sayHello() } throws IOException("Boom!")
 
         val supplier = retry.checkedSupplier(service::sayHello)

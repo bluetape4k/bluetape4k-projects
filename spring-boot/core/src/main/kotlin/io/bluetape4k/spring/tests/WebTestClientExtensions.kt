@@ -96,7 +96,8 @@ fun WebTestClient.httpPost(
             contentType?.let { contentType(it) }
             value?.let { bodyValue(it) }
             accept?.let { accept(it) }
-        }.exchange()
+        }
+        .exchange()
         .apply {
             httpStatus?.let { expectStatus().isEqualTo(it) }
         }
@@ -131,7 +132,8 @@ inline fun <reified T: Any> WebTestClient.httpPost(
         .apply {
             contentType?.let { contentType(it) }
             accept?.let { accept(it) }
-        }.body(publisher)
+        }
+        .body(publisher)
         .exchange()
         .apply {
             httpStatus?.let { expectStatus().isEqualTo(it) }
@@ -167,7 +169,8 @@ inline fun <reified T: Any> WebTestClient.httpPost(
         .apply {
             contentType?.let { contentType(it) }
             accept?.let { accept(it) }
-        }.body(flow)
+        }
+        .body(flow)
         .exchange()
         .apply {
             httpStatus?.let { expectStatus().isEqualTo(it) }
@@ -204,7 +207,8 @@ fun WebTestClient.httpPut(
             contentType?.let { contentType(it) }
             value?.let { bodyValue(it) }
             accept?.let { accept(it) }
-        }.exchange()
+        }
+        .exchange()
         .apply {
             httpStatus?.let { expectStatus().isEqualTo(it) }
         }
@@ -239,7 +243,8 @@ inline fun <reified T: Any> WebTestClient.httpPut(
         .apply {
             contentType?.let { contentType(it) }
             accept?.let { accept(it) }
-        }.body(publisher)
+        }
+        .body(publisher)
         .exchange()
         .apply {
             httpStatus?.let { expectStatus().isEqualTo(it) }
@@ -275,7 +280,8 @@ inline fun <reified T: Any> WebTestClient.httpPut(
         .apply {
             contentType?.let { contentType(it) }
             accept?.let { accept(it) }
-        }.body(flow)
+        }
+        .body(flow)
         .exchange()
         .apply {
             httpStatus?.let { expectStatus().isEqualTo(it) }
@@ -312,7 +318,8 @@ fun WebTestClient.httpPatch(
             contentType?.let { contentType(it) }
             value?.let { bodyValue(it) }
             accept?.let { accept(it) }
-        }.exchange()
+        }
+        .exchange()
         .apply {
             httpStatus?.let { expectStatus().isEqualTo(it) }
         }

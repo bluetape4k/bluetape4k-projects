@@ -24,7 +24,8 @@ protobuf {
             artifact = bt4k.grpc.protoc.gen.grpc.java.get().toString()
         }
         id("grpcKt") {
-            artifact = "io.grpc:protoc-gen-grpc-kotlin:${bt4k.versions.managed.grpc.protoc.gen.grpc.kotlin.h8643385749ff.get()}:jdk8@jar"
+            artifact =
+                "io.grpc:protoc-gen-grpc-kotlin:${bt4k.versions.managed.grpc.protoc.gen.grpc.kotlin.h8643385749ff.get()}:jdk8@jar"
         }
     }
     generateProtoTasks {
@@ -56,8 +57,6 @@ dependencies {
     api(project(":bluetape4k-netty"))
     testImplementation(project(":bluetape4k-junit5"))
 
-    // api(bt4k.jakarta.annotation.api)
-
     api(bt4k.grpc.api)
     api(bt4k.grpc.alts)
     api(bt4k.grpc.netty)
@@ -79,8 +78,6 @@ dependencies {
     implementation(libs.kotlinx.coroutines.core)
     testImplementation(libs.kotlinx.coroutines.test)
 
-    // Eclipse Collections
-    implementation(bt4k.eclipse.collections)
-
-    testImplementation(libs.assertj.core)
+    // Eclipse Collections (Multimap 사용)
+    testImplementation(bt4k.eclipse.collections)
 }

@@ -3,17 +3,20 @@ package io.bluetape4k.redis.lettuce.lock.internal
 import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeInstanceOf
+import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.concurrent.completableFutureOf
 import io.bluetape4k.junit5.coroutines.runSuspendIO
+import io.bluetape4k.logging.KLogging
 import io.bluetape4k.redis.lettuce.coordination.internal.CoordinationRuntime
 import io.bluetape4k.redis.lettuce.coordination.internal.CoordinationScheduledHandle
 import io.bluetape4k.redis.lettuce.coordination.internal.CoordinationScheduler
-import io.bluetape4k.redis.lettuce.lock.LeasePolicy
 import io.bluetape4k.redis.lettuce.lock.FencedLockConfig
+import io.bluetape4k.redis.lettuce.lock.LeasePolicy
+import io.bluetape4k.redis.lettuce.lock.LockAcquireResult
+import io.bluetape4k.redis.lettuce.lock.LockConfig
 import io.bluetape4k.redis.lettuce.lock.LockCounterName
 import io.bluetape4k.redis.lettuce.lock.LockGaugeName
 import io.bluetape4k.redis.lettuce.lock.LockGeneration
-import io.bluetape4k.redis.lettuce.lock.LockConfig
-import io.bluetape4k.redis.lettuce.lock.LockAcquireResult
 import io.bluetape4k.redis.lettuce.lock.LockHandle
 import io.bluetape4k.redis.lettuce.lock.LockHistogramName
 import io.bluetape4k.redis.lettuce.lock.LockKind
@@ -39,6 +42,8 @@ import kotlin.time.Duration as KotlinDuration
 
 class LockObservationRecorderTest {
 
+    companion object: KLogging()
+
     @Test
     fun `coordination catalog is bridged to public lock observations`() {
         val observations = mutableListOf<LockObservation>()
@@ -53,43 +58,43 @@ class LockObservationRecorderTest {
         }
 
         observations.filterIsInstance<LockObservation.Counter>().map { it.name }.toSet() shouldBeEqualTo
-            setOf(
-                LockCounterName.OPERATION_TOTAL,
-                LockCounterName.RECONCILE_TOTAL,
-                LockCounterName.STALE_CLEANUP_TOTAL,
-                LockCounterName.CLEANUP_PENDING_TOTAL,
-                LockCounterName.OWNERSHIP_LOSS_TOTAL,
-                LockCounterName.WATCHDOG_LATE_TOTAL,
-                LockCounterName.WATCHDOG_MISSED_TOTAL,
-                LockCounterName.NOSCRIPT_FALLBACK_TOTAL,
-                LockCounterName.INTEGRITY_FAILURE_TOTAL,
-                LockCounterName.CAPACITY_REJECTION_TOTAL,
-            )
+                setOf(
+                    LockCounterName.OPERATION_TOTAL,
+                    LockCounterName.RECONCILE_TOTAL,
+                    LockCounterName.STALE_CLEANUP_TOTAL,
+                    LockCounterName.CLEANUP_PENDING_TOTAL,
+                    LockCounterName.OWNERSHIP_LOSS_TOTAL,
+                    LockCounterName.WATCHDOG_LATE_TOTAL,
+                    LockCounterName.WATCHDOG_MISSED_TOTAL,
+                    LockCounterName.NOSCRIPT_FALLBACK_TOTAL,
+                    LockCounterName.INTEGRITY_FAILURE_TOTAL,
+                    LockCounterName.CAPACITY_REJECTION_TOTAL,
+                )
         observations.filterIsInstance<LockObservation.Gauge>().map { it.name }.toSet() shouldBeEqualTo
-            LockGaugeName.entries.toSet()
+                LockGaugeName.entries.toSet()
         observations.filterIsInstance<LockObservation.Histogram>().map { it.name }.toSet() shouldBeEqualTo
-            setOf(
-                LockHistogramName.REDIS_COMMAND_LATENCY_MILLIS,
-                LockHistogramName.CALLER_WAIT_LATENCY_MILLIS,
-                LockHistogramName.RETRY_COUNT,
-                LockHistogramName.CLEANUP_BATCH_SIZE,
-            )
+                setOf(
+                    LockHistogramName.REDIS_COMMAND_LATENCY_MILLIS,
+                    LockHistogramName.CALLER_WAIT_LATENCY_MILLIS,
+                    LockHistogramName.RETRY_COUNT,
+                    LockHistogramName.CLEANUP_BATCH_SIZE,
+                )
         observations.filterIsInstance<LockObservation.Event>().map { it.event.outcome }.toSet() shouldBeEqualTo
-            setOf(
-                LockOutcome.SUCCEEDED,
-                LockOutcome.CONTENDED,
-                LockOutcome.OWNERSHIP_LOST,
-                LockOutcome.INTEGRITY_FAILED,
-                LockOutcome.CAPACITY_REJECTED,
-            )
+                setOf(
+                    LockOutcome.SUCCEEDED,
+                    LockOutcome.CONTENDED,
+                    LockOutcome.OWNERSHIP_LOST,
+                    LockOutcome.INTEGRITY_FAILED,
+                    LockOutcome.CAPACITY_REJECTED,
+                )
         observations.all { observation ->
             when (observation) {
                 is LockObservation.Counter -> observation.dimensions.objectKind == LockKind.DISTRIBUTED
-                is LockObservation.Gauge -> observation.dimensions.objectKind == LockKind.DISTRIBUTED
+                is LockObservation.Gauge   -> observation.dimensions.objectKind == LockKind.DISTRIBUTED
                 is LockObservation.Histogram -> observation.dimensions.objectKind == LockKind.DISTRIBUTED
-                is LockObservation.Event -> observation.event.objectKind == LockKind.DISTRIBUTED
+                is LockObservation.Event   -> observation.event.objectKind == LockKind.DISTRIBUTED
             }
-        } shouldBeEqualTo true
+        }.shouldBeTrue()
     }
 
     @Test
@@ -153,7 +158,7 @@ class LockObservationRecorderTest {
 
         firstObservations.size shouldBeEqualTo 0
         secondObservations.any { it is LockObservation.Gauge && it.name == LockGaugeName.COORDINATION_OBJECTS }
-            .shouldBeEqualTo(true)
+            .shouldBeTrue()
         first.close()
         second.close()
     }
@@ -291,7 +296,7 @@ class LockObservationRecorderTest {
                 when (it) {
                     is LockAcquireResult.Acquired -> it.handle
                     is LockAcquireResult.Reentered -> it.handle
-                    else -> null
+                    else                          -> null
                 }
             },
             transform = { it },
@@ -325,9 +330,9 @@ class LockObservationRecorderTest {
                 DistributedLockOperation.ACQUIRE -> acquire
                 DistributedLockOperation.RELEASE -> {
                     releaseDispatches.incrementAndGet()
-                    CompletableFuture.completedFuture(listOf("RELEASED", "0"))
+                    completableFutureOf(listOf("RELEASED", "0"))
                 }
-                else -> error("Unexpected operation: $operation")
+                else                             -> error("Unexpected operation: $operation")
             }
 
         override suspend fun runSuspending(
@@ -374,9 +379,9 @@ class LockObservationRecorderTest {
                 FencedLockOperation.ACQUIRE -> acquire
                 FencedLockOperation.RELEASE -> {
                     releaseDispatches.incrementAndGet()
-                    CompletableFuture.completedFuture(listOf("RELEASED", "0"))
+                    completableFutureOf(listOf("RELEASED", "0"))
                 }
-                else -> error("Unexpected operation: $operation")
+                else                        -> error("Unexpected operation: $operation")
             }
 
         override suspend fun runSuspending(

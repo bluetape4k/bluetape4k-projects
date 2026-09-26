@@ -97,6 +97,8 @@ open class CalendarVisitorFilter: AbstractValueObject(), ICalendarVisitorFilter,
                 excludePeriods == other.excludePeriods
     }
 
+    override fun equals(other: Any?): Boolean = other != null && super.equals(other)
+
     override fun hashCode(): Int =
         hashOf(years, monthOfYears, dayOfMonths, hourOfDays, minuteOfHours, dayOfWeeks, excludePeriods)
 

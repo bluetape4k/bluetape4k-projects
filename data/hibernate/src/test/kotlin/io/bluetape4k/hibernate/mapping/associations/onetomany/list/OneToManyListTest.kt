@@ -1,8 +1,5 @@
 package io.bluetape4k.hibernate.mapping.associations.onetomany.list
 
-import io.bluetape4k.hibernate.AbstractHibernateTest
-import io.bluetape4k.logging.KLogging
-import io.bluetape4k.logging.info
 import io.bluetape4k.assertions.shouldBeEmpty
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeNull
@@ -10,6 +7,9 @@ import io.bluetape4k.assertions.shouldContain
 import io.bluetape4k.assertions.shouldContainSame
 import io.bluetape4k.assertions.shouldHaveSize
 import io.bluetape4k.assertions.shouldNotBeEmpty
+import io.bluetape4k.hibernate.AbstractHibernateTest
+import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.info
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.domain.PageRequest

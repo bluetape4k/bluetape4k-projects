@@ -1,8 +1,8 @@
 package io.bluetape4k.testcontainers.database
 
+import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.testcontainers.AbstractContainerTest
-import io.bluetape4k.assertions.shouldBeTrue
 import java.sql.ResultSet
 
 abstract class AbstractJdbcServerTest: AbstractContainerTest() {

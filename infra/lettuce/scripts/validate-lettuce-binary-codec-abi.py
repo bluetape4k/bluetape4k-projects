@@ -10,7 +10,6 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Dict, FrozenSet, Optional, Tuple
 
-
 ACCESS_MODIFIERS = frozenset({"public", "protected", "private"})
 DECLARATION_MODIFIERS = frozenset(
     {
@@ -44,8 +43,8 @@ HELPER_PUBLIC_API = frozenset(
 )
 REPOSITORY_ROOT = Path(__file__).resolve().parents[3]
 EXPECTED_HELPER = (
-    REPOSITORY_ROOT
-    / "benchmark/protobuf-codec-benchmark/scripts/issue757_detached_roots.py"
+        REPOSITORY_ROOT
+        / "benchmark/protobuf-codec-benchmark/scripts/issue757_detached_roots.py"
 )
 CONSTRUCTOR_DESCRIPTOR = "(Lio/bluetape4k/io/serializer/BinarySerializer;)V"
 TARGET_NAME = "encodeValue"
@@ -103,10 +102,10 @@ class AbiClass:
 
     def effective_final(self, member: Member) -> bool:
         overrideable = (
-            member.kind == "method"
-            and member.access != "private"
-            and "static" not in member.modifiers
-            and member.key not in COMPILER_BRIDGE_KEYS
+                member.kind == "method"
+                and member.access != "private"
+                and "static" not in member.modifiers
+                and member.key not in COMPILER_BRIDGE_KEYS
         )
         return member.final or (self.final and overrideable)
 
@@ -252,11 +251,11 @@ def _class_mismatch(baseline: AbiClass, candidate: AbiClass) -> Optional[str]:
 
 
 def _required_invariant_mismatch(
-    abi: AbiClass,
-    role: str,
-    *,
-    expected_class_final: bool,
-    expected_target_effective_final: bool,
+        abi: AbiClass,
+        role: str,
+        *,
+        expected_class_final: bool,
+        expected_target_effective_final: bool,
 ) -> Optional[str]:
     if abi.name != CLASS_NAME:
         return f"{role} class name expected {CLASS_NAME}, got {abi.name}"
@@ -307,10 +306,10 @@ def _member_set_mismatch(baseline: AbiClass, candidate: AbiClass) -> Optional[st
 
 
 def _member_mismatch(
-    baseline: AbiClass,
-    candidate: AbiClass,
-    *,
-    allow_target_final_removal: bool,
+        baseline: AbiClass,
+        candidate: AbiClass,
+        *,
+        allow_target_final_removal: bool,
 ) -> Optional[str]:
     for key in sorted(baseline.members):
         expected = baseline.members[key]

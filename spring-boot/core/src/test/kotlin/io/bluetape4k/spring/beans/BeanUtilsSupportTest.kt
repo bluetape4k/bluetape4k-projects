@@ -5,6 +5,7 @@ import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeInstanceOf
 import io.bluetape4k.assertions.shouldBeNull
 import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.assertions.shouldNotBeEmpty
 import io.bluetape4k.assertions.shouldNotBeNull
 import io.bluetape4k.spring.AbstractSpringTest
 import org.junit.jupiter.api.Test
@@ -61,53 +62,45 @@ class BeanUtilsSupportTest: AbstractSpringTest() {
 
     @Test
     fun `findMethod - 이름으로 메서드 찾기`() {
-        val method = BaseBean::class.java.findMethod("execute")
-        method.shouldNotBeNull()
+        val method = BaseBean::class.java.findMethod("execute").shouldNotBeNull()
         method.name shouldBeEqualTo "execute"
     }
 
     @Test
     fun `findMethod - 없는 메서드는 null`() {
-        val method = BaseBean::class.java.findMethod("nonExistent")
-        method.shouldBeNull()
+        BaseBean::class.java.findMethod("nonExistent").shouldBeNull()
     }
 
     @Test
     fun `findDeclaredMethod - 선언 메서드 찾기`() {
-        val method = BaseBean::class.java.findDeclaredMethod("nonExecute")
-        method.shouldNotBeNull()
+        val method = BaseBean::class.java.findDeclaredMethod("nonExecute").shouldNotBeNull()
         method.name shouldBeEqualTo "nonExecute"
     }
 
     @Test
     fun `findMethodWithMinimalParameters - 최소 파라미터 메서드 찾기`() {
-        val method = BaseBean::class.java.findMethodWithMinimalParameters("execute")
-        method.shouldNotBeNull()
+        val method = BaseBean::class.java.findMethodWithMinimalParameters("execute").shouldNotBeNull()
         method.name shouldBeEqualTo "execute"
     }
 
     @Test
     fun `findDeclaredMethodWithMinimalParameters - 최소 파라미터 선언 메서드`() {
-        val method = BaseBean::class.java.findDeclaredMethodWithMinimalParameters("nonExecute")
-        method.shouldNotBeNull()
+        BaseBean::class.java.findDeclaredMethodWithMinimalParameters("nonExecute").shouldNotBeNull()
     }
 
     @Test
     fun `Array findMethodWithMinimalParameters - 배열에서 메서드 찾기`() {
-        val method = BaseBean::class.java.methods.findMethodWithMinimalParameters("execute")
-        method.shouldNotBeNull()
+        BaseBean::class.java.methods.findMethodWithMinimalParameters("execute").shouldNotBeNull()
     }
 
     @Test
     fun `getPropertyDescriptors - 프로퍼티 디스크립터 반환`() {
-        val descriptors = SampleBean::class.java.getPropertyDescriptors()
-        descriptors.shouldNotBeNull()
+        SampleBean::class.java.getPropertyDescriptors().shouldNotBeEmpty()
     }
 
     @Test
     fun `getPropertyDescriptor - 이름으로 프로퍼티 찾기`() {
-        val descriptor = SampleBean::class.java.getPropertyDescriptor("name")
-        descriptor.shouldNotBeNull()
+        SampleBean::class.java.getPropertyDescriptor("name").shouldNotBeNull()
     }
 
     @Test

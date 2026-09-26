@@ -7,7 +7,7 @@ Bucket4j 기반으로 애플리케이션 레벨 Rate Limiter를 구성하기 위
 ## 주요 기능
 
 - **사용자 정의 key 기반 제한**: IP가 아닌 `userId`, `apiKey`, `tenantId` 같은 키 기준으로 제어
-- **로컬/분산 환경 지원**: in-memory(`Local*`)와 Redis 기반 분산(`Distributed*`) 구현 제공
+- **로컬/분산 환경 지원**: in-memory (`Local*`)와 Redis 기반 분산 (`Distributed*`) 구현 제공
 - **동기/코루틴 API 동시 제공**: `RateLimiter`, `SuspendRateLimiter`
 - **즉시 소비 시도 계약**: `SuspendRateLimiter.consume`은 대기하지 않고 즉시 소비 시도 후 `CONSUMED/REJECTED`를 반환
 - **Probe 기반 결과 계산**: 소비 성공 여부와 남은 토큰 수를 `ConsumptionProbe` 한 번의 조회 결과로 계산해 추가 토큰 조회를 줄임
@@ -16,7 +16,7 @@ Bucket4j 기반으로 애플리케이션 레벨 Rate Limiter를 구성하기 위
 - **안정적인 결과 계약**:
   `RateLimitResult(status, consumedTokens, availableTokens, errorMessage, diagnostics)`로 소비/거절/오류를 일관되게 반환
 - **재시도 진단 정보**: 거절 결과에서 `retryAfter`, refill/reset nanos, 안정적인 `RateLimitRejectionReason` 제공
-- **요청 검증 내장**: 빈 key, 직렬화된 key 512 bytes 초과, `0 이하 token`, 정책 상한(`MAX_TOKENS_PER_REQUEST`) 초과 요청을 미리 차단
+- **요청 검증 내장**: 빈 key, 직렬화된 key 512 bytes 초과, `0 이하 token`, 정책 상한 (`MAX_TOKENS_PER_REQUEST`) 초과 요청을 미리 차단
 
 ## 클래스 구조
 
@@ -43,7 +43,8 @@ Bucket4j 기반으로 애플리케이션 레벨 Rate Limiter를 구성하기 위
 - **코루틴 친화 구현**: `SuspendLocalBucket`, `LocalSuspendRateLimiter`, `DistributedSuspendRateLimiter`
 - **Redis 연동 초기화 단순화**: `lettuceBasedProxyManagerOf`, `redissonBasedProxyManagerOf`
 - **추가 원격 조회 최소화**: distributed/local rate limiter는 잔여 토큰 계산을 위해 별도 `availableTokens` 조회를 하지 않음
-- **Facade 경계 명확화**: 이 모듈은 token-bucket rate limiting만 담당합니다. retry, timeout, circuit breaker, bulkhead, fallback 정책은 Resilience4j를 사용하세요.
+- **Facade 경계
+  명확화**: 이 모듈은 token-bucket rate limiting만 담당합니다. retry, timeout, circuit breaker, bulkhead, fallback 정책은 Resilience4j를 사용하세요.
 
 ## 의존성 추가
 
@@ -131,8 +132,7 @@ val rateLimiter = DistributedSuspendRateLimiter(
 val result = rateLimiter.consume("tenant:a:user:42", 1)
 ```
 
-timeout은 비동기 Redis 작업 시간을 제한합니다. timeout은 `RateLimitStatus.ERROR`로 반환되며, 코루틴 취소는 여전히 `CancellationException`으로 전파됩니다. 취소 후에도 이미 전송된 Redis 명령은 완료될 수 있습니다.
-호출별 timeout overload는 `DistributedSuspendRateLimiter` 구체 타입에서 사용할 수 있습니다. `SuspendRateLimiter`로 주입받는 코드는 bean 생성 시 `defaultTimeout`을 설정하세요.
+timeout은 비동기 Redis 작업 시간을 제한합니다. timeout은 `RateLimitStatus.ERROR`로 반환되며, 코루틴 취소는 여전히 `CancellationException`으로 전파됩니다. 취소 후에도 이미 전송된 Redis 명령은 완료될 수 있습니다. 호출별 timeout overload는 `DistributedSuspendRateLimiter` 구체 타입에서 사용할 수 있습니다. `SuspendRateLimiter`로 주입받는 코드는 bean 생성 시 `defaultTimeout`을 설정하세요.
 
 ### 5) Bandwidth ID 기반 Configuration Replacement
 
@@ -195,7 +195,7 @@ class RateLimitConfig {
 }
 ```
 
-WebFlux/WebMVC 필터(또는 인터셉터)에서 `RateLimiter`를 주입받아 `consume(key)`를 호출하면 애플리케이션 정책으로 쉽게 연결할 수 있습니다.
+WebFlux/WebMVC 필터 (또는 인터셉터)에서 `RateLimiter`를 주입받아 `consume(key)`를 호출하면 애플리케이션 정책으로 쉽게 연결할 수 있습니다.
 
 ## 구현 메모
 

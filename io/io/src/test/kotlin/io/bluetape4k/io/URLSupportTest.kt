@@ -1,10 +1,13 @@
 package io.bluetape4k.io
 
 import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.logging.KLogging
 import org.junit.jupiter.api.Test
 import java.io.File
 
 class URLSupportTest {
+
+    companion object: KLogging()
 
     @Test
     fun `URL toByteArray reads file content`() {

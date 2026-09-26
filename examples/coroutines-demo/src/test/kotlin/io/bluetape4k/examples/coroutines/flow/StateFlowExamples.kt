@@ -1,7 +1,10 @@
 package io.bluetape4k.examples.coroutines.flow
 
+import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.coroutines.flow.extensions.log
+import io.bluetape4k.coroutines.support.log
 import io.bluetape4k.logging.coroutines.KLoggingChannel
+import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.info
 import kotlinx.coroutines.cancelChildren
 import kotlinx.coroutines.delay
@@ -13,7 +16,6 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.yield
-import io.bluetape4k.assertions.shouldBeEqualTo
 import org.junit.jupiter.api.Test
 import java.util.concurrent.atomic.AtomicInteger
 import kotlin.time.Duration.Companion.milliseconds
@@ -36,7 +38,7 @@ class StateFlowExamples {
             state
                 .log("#1")
                 .collect { changeCounter1.incrementAndGet() }
-        }
+        }.log("Job1")
         yield() // 상태가 변경되면, collect 를 수행합니다.
         state.value = 2
 
@@ -47,7 +49,7 @@ class StateFlowExamples {
             state
                 .log("#2")
                 .collect { changeCounter2.incrementAndGet() }
-        }
+        }.log("Job2")
         yield()  // 상태가 변경되면, collect 를 수행합니다.
         state.value = 3
 
@@ -72,8 +74,8 @@ class StateFlowExamples {
         // stateIn 을 이용하여 일반 Flow를 StateFlow로 변환합니다.
         val stateFlow = flow.stateIn(this)
 
-        log.info { "Listening" }
-        log.info { "State=${stateFlow.value}" }
+        log.debug { "Listening ..." }
+        log.debug { "State=${stateFlow.value}" }
 
         val receivedCounter = AtomicInteger(0)
 
@@ -81,7 +83,7 @@ class StateFlowExamples {
             stateFlow
                 .log("collector")
                 .collect { receivedCounter.incrementAndGet() }
-        }
+        }.log("Job1")
 
         advanceTimeBy(500.milliseconds)
         log.info { "State=${stateFlow.value}" }

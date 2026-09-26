@@ -1,13 +1,17 @@
 package io.bluetape4k.hibernate.standalone
 
-import io.bluetape4k.hibernate.withNewEntityManager
+import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldNotBeNull
+import io.bluetape4k.hibernate.createQueryAs
+import io.bluetape4k.hibernate.withNewEntityManager
+import io.bluetape4k.logging.KLogging
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import io.bluetape4k.assertions.assertFailsWith
 
-class EntityManagerFactorySupportStandaloneTest : AbstractStandaloneHibernateTest() {
+class EntityManagerFactorySupportStandaloneTest: AbstractStandaloneHibernateTest() {
+
+    companion object: KLogging()
 
     override fun entityClasses() = listOf(StandaloneEntity::class.java)
 
@@ -21,16 +25,15 @@ class EntityManagerFactorySupportStandaloneTest : AbstractStandaloneHibernateTes
     @Test
     fun `withNewEntityManager는 트랜잭션 내에서 작업을 수행한다`() {
         val entity = emf.withNewEntityManager { em ->
-            val e = StandaloneEntity("emf-test")
-            em.persist(e)
-            e
+            StandaloneEntity("emf-test").apply {
+                em.persist(this)
+            }
         }
         entity.id.shouldNotBeNull()
 
         readOnly {
-            val count = createQuery("SELECT COUNT(e) FROM StandaloneEntity e", Long::class.java)
-                .singleResult
-            count shouldBeEqualTo 1L
+            createQueryAs<Long>("SELECT COUNT(e) FROM StandaloneEntity e")
+                .singleResult shouldBeEqualTo 1L
         }
     }
 
@@ -44,9 +47,8 @@ class EntityManagerFactorySupportStandaloneTest : AbstractStandaloneHibernateTes
         }
 
         readOnly {
-            val count = createQuery("SELECT COUNT(e) FROM StandaloneEntity e", Long::class.java)
-                .singleResult
-            count shouldBeEqualTo 0L
+            createQueryAs<Long>("SELECT COUNT(e) FROM StandaloneEntity e")
+                .singleResult shouldBeEqualTo 0L
         }
     }
 }

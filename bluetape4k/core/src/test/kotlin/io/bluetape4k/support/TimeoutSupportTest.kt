@@ -2,6 +2,7 @@ package io.bluetape4k.support
 
 import io.bluetape4k.AbstractCoreTest
 import io.bluetape4k.assertions.assertFailsWith
+import io.bluetape4k.assertions.fail
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeFalse
 import io.bluetape4k.assertions.shouldBeInstanceOf
@@ -70,7 +71,7 @@ class TimeoutSupportTest: AbstractCoreTest() {
                 Thread.sleep(1000)
                 executed = true
             }.get()
-        }.cause shouldBeInstanceOf TimeoutException::class
+        }.cause.shouldBeInstanceOf<TimeoutException>()
 
         executed.shouldBeFalse()
     }
@@ -83,6 +84,7 @@ class TimeoutSupportTest: AbstractCoreTest() {
             val future = asyncRunWithTimeout(100) {
                 Thread.sleep(1000)
                 executed = true
+                fail("타임아웃으로 중단되어야 합니다")
             }
             future.await()
 

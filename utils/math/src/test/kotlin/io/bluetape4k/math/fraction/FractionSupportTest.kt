@@ -8,7 +8,9 @@ import org.junit.jupiter.api.Test
 
 class FractionSupportTest {
 
-    companion object: KLogging()
+    companion object: KLogging() {
+        private const val EPSILON = 1e-10
+    }
 
     // ----- fractionOf 팩토리 -----
 
@@ -29,7 +31,7 @@ class FractionSupportTest {
     @Test
     fun `fractionOf Double 로 생성한다`() {
         val f = fractionOf(0.5)
-        f.toDouble().shouldBeNear(0.5, 1e-10)
+        f.toDouble().shouldBeNear(0.5, EPSILON)
     }
 
     @Test

@@ -9,8 +9,8 @@ import io.bluetape4k.science.exposed.model.NetCdfImportProgress
 import io.bluetape4k.science.exposed.model.NetCdfImportStatus
 import io.bluetape4k.science.exposed.schema.NetCdfImportProgressTable
 import org.jetbrains.exposed.v1.core.ResultRow
-import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.core.and
+import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.jdbc.selectAll
 import org.jetbrains.exposed.v1.jdbc.transactions.TransactionManager
 import java.sql.Timestamp
@@ -70,7 +70,7 @@ class NetCdfImportProgressRepository {
             .selectAll()
             .where {
                 (NetCdfImportProgressTable.fileId eq fileId) and
-                    (NetCdfImportProgressTable.variableName eq variableName)
+                        (NetCdfImportProgressTable.variableName eq variableName)
             }
             .firstOrNull()
             ?.run { toEntity() }
@@ -155,7 +155,7 @@ class NetCdfImportProgressRepository {
 
                 log.debug {
                     "lease acquired — fileId=$fileId var=$variableName progressId=$newId " +
-                        "lastSliceIdx=$newLastSliceIdx leaseExpiresAt=$newLeaseExp"
+                            "lastSliceIdx=$newLastSliceIdx leaseExpiresAt=$newLeaseExp"
                 }
 
                 NetCdfImportProgress(

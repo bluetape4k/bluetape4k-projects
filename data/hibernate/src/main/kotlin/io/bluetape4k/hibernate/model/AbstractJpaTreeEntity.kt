@@ -16,14 +16,16 @@ import java.io.Serializable
  * @param T  entity type
  * @param ID identifier type
  */
-abstract class AbstractJpaTreeEntity<T, ID: Serializable>
-    : AbstractJpaEntity<ID>(), JpaTreeEntity<T> where T: JpaTreeEntity<T> {
+abstract class AbstractJpaTreeEntity<T, ID: Serializable>:
+    AbstractJpaEntity<ID>(),
+    JpaTreeEntity<T>
+        where T: JpaTreeEntity<T> {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "parent_id")
     override var parent: T? = null
 
     @OneToMany(mappedBy = "parent", cascade = [CascadeType.ALL], fetch = FetchType.LAZY)
-    override val children: MutableSet<T> = mutableSetOf()
+    override var children: MutableSet<T> = mutableSetOf()
 
 }

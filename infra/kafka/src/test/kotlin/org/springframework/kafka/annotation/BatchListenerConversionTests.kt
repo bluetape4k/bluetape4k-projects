@@ -1,21 +1,20 @@
 package org.springframework.kafka.annotation
 
 import com.fasterxml.jackson.annotation.JsonCreator
-import io.bluetape4k.jackson.Jackson
-import io.bluetape4k.logging.KLogging
-import io.bluetape4k.logging.coroutines.KLoggingChannel
-import io.bluetape4k.logging.info
-import io.bluetape4k.logging.trace
-import io.bluetape4k.logging.warn
-import io.bluetape4k.spring.messaging.support.message
-import io.bluetape4k.spring.messaging.support.messageOf
-import io.bluetape4k.support.uninitialized
 import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldBeGreaterThan
 import io.bluetape4k.assertions.shouldBeInstanceOf
 import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.assertions.shouldNotBeEmpty
 import io.bluetape4k.assertions.shouldNotBeNull
+import io.bluetape4k.concurrent.await
+import io.bluetape4k.jackson.Jackson
+import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
+import io.bluetape4k.logging.debug
+import io.bluetape4k.logging.warn
+import io.bluetape4k.spring.messaging.support.message
+import io.bluetape4k.spring.messaging.support.messageOf
+import io.bluetape4k.support.uninitialized
 import org.apache.kafka.clients.consumer.ConsumerConfig
 import org.apache.kafka.common.serialization.ByteArraySerializer
 import org.apache.kafka.common.serialization.BytesDeserializer
@@ -53,7 +52,7 @@ import org.springframework.messaging.handler.annotation.SendTo
 import org.springframework.util.backoff.FixedBackOff
 import java.io.Serializable
 import java.util.concurrent.CountDownLatch
-import java.util.concurrent.TimeUnit
+import kotlin.time.Duration.Companion.seconds
 
 @SpringBootTest
 @EmbeddedKafka(kraft = true, partitions = 1, topics = ["blc1", "blc2", "blc3", "blc4", "blc5", "blc6", "blc6-dlt"])
@@ -69,10 +68,10 @@ class BatchListenerConversionTests {
     private val config: Config = uninitialized()
 
     @Autowired
-    private val listener1: Listener = uninitialized()
+    private val listener1: Listener1 = uninitialized()
 
     @Autowired
-    private val listener2: Listener = uninitialized()
+    private val listener2: Listener1 = uninitialized()
 
     @Autowired
     private val template: KafkaTemplate<Int, Any?> = uninitialized()
@@ -90,16 +89,19 @@ class BatchListenerConversionTests {
         doTest(listener2, "blc2")
     }
 
-    private fun doTest(listener: Listener, topic: String) {
+    private fun doTest(listener: Listener1, topic: String) {
         template.send(messageOf(Foo("bar"), mapOf(KafkaHeaders.TOPIC to topic)))
 
-        listener.latch1.await(AWAIT_TIME_SECONDS, TimeUnit.SECONDS).shouldBeTrue()
-        listener.latch2.await(AWAIT_TIME_SECONDS, TimeUnit.SECONDS).shouldBeTrue()
-        listener.received!!.shouldNotBeEmpty()
-        listener.received!![0] shouldBeInstanceOf Foo::class
-        listener.received!![0].bar shouldBeEqualTo "bar"
-        listener.receivedTopics!![0] shouldBeEqualTo topic
-        listener.receivedPartitions!![0] shouldBeEqualTo 0
+        listener.latch1.await(AWAIT_TIME_SECONDS.seconds).shouldBeTrue()
+        listener.latch2.await(AWAIT_TIME_SECONDS.seconds).shouldBeTrue()
+
+        with(listener) {
+            received.shouldNotBeEmpty()
+            received!![0].shouldBeInstanceOf<Foo>()
+            received!![0].bar shouldBeEqualTo "bar"
+            receivedTopics!![0] shouldBeEqualTo topic
+            receivedPartitions!![0] shouldBeEqualTo 0
+        }
     }
 
     @Test
@@ -108,8 +110,8 @@ class BatchListenerConversionTests {
         template.send(messageOf(Foo("bar"), mapOf(KafkaHeaders.TOPIC to topic)))
         val listener = this.config.listener3()
 
-        listener.latch1.await(AWAIT_TIME_SECONDS, TimeUnit.SECONDS).shouldBeTrue()
-        listener.received!!.size shouldBeGreaterThan 0
+        listener.latch1.await(AWAIT_TIME_SECONDS.seconds).shouldBeTrue()
+        listener.received.shouldNotBeEmpty()
     }
 
     @Test
@@ -118,15 +120,15 @@ class BatchListenerConversionTests {
         val topic = "blc4"
         template.send(messageOf(Foo("bar"), mapOf(KafkaHeaders.TOPIC to topic)))
 
-        listener.latch1.await(AWAIT_TIME_SECONDS, TimeUnit.SECONDS).shouldBeTrue()
-        val received = listener.received!!
-        received.size shouldBeGreaterThan 0
-        received[0] shouldBeInstanceOf Foo::class
+        listener.latch1.await(AWAIT_TIME_SECONDS.seconds).shouldBeTrue()
+        val received = listener.received.shouldNotBeNull()
+        received.shouldNotBeEmpty()
+        received[0].shouldBeInstanceOf<Foo>()
         received[0].bar shouldBeEqualTo "bar"
 
-        val replies = listener.replies!!
-        replies.size shouldBeGreaterThan 0
-        replies[0] shouldBeInstanceOf Foo::class
+        val replies = listener.replies.shouldNotBeNull()
+        replies.shouldNotBeEmpty()
+        replies[0].shouldBeInstanceOf<Foo>()
         replies[0].bar shouldBeEqualTo "BAR"
     }
 
@@ -137,7 +139,7 @@ class BatchListenerConversionTests {
         template.send("blc6", 0, 0, """{ "bar": "qux" }""")
 
         val listener5 = this.config.listener5()
-        listener5.latch1.await(AWAIT_TIME_SECONDS, TimeUnit.SECONDS).shouldBeTrue()
+        listener5.latch1.await(AWAIT_TIME_SECONDS.seconds).shouldBeTrue()
         listener5.received shouldBeEqualTo listOf(Foo("baz"), Foo("qux"))
     }
 
@@ -148,11 +150,12 @@ class BatchListenerConversionTests {
         template.send("blc6", 0, 0, """{ "bar": "qux" }""")
 
         val listener5 = this.config.listener5()
-        listener5.latch1.await(AWAIT_TIME_SECONDS, TimeUnit.SECONDS).shouldBeTrue()
-        listener5.latch2.await(AWAIT_TIME_SECONDS, TimeUnit.SECONDS).shouldBeTrue()
+        listener5.latch1.await(AWAIT_TIME_SECONDS.seconds).shouldBeTrue()
+        listener5.latch2.await(AWAIT_TIME_SECONDS.seconds).shouldBeTrue()
         listener5.dlt shouldBeEqualTo "JUNK"
     }
 
+    @Suppress("SpringJavaInjectionPointsAutowiringInspection")
     @Configuration
     @EnableKafka
     class Config {
@@ -219,13 +222,13 @@ class BatchListenerConversionTests {
         }
 
         @Bean
-        fun listener1(cf: KafkaListenerContainerFactory<*>): Listener {
-            return Listener("blc1", cf)
+        fun listener1(cf: KafkaListenerContainerFactory<*>): Listener1 {
+            return Listener1("blc1", cf)
         }
 
         @Bean
-        fun listener2(cf: KafkaListenerContainerFactory<*>): Listener {
-            return Listener("blc2", cf)
+        fun listener2(cf: KafkaListenerContainerFactory<*>): Listener1 {
+            return Listener1("blc2", cf)
         }
 
         @Bean
@@ -238,10 +241,11 @@ class BatchListenerConversionTests {
         fun listener5() = Listener5()
     }
 
-    class Listener(
+    class Listener1(
         private val topic: String,
         private val cf: KafkaListenerContainerFactory<*>,
     ) {
+        companion object: KLogging()
 
         internal val latch1 = CountDownLatch(1)
         internal val latch2 = CountDownLatch(1)
@@ -257,11 +261,14 @@ class BatchListenerConversionTests {
             groupId = "#{__listener.topic}.group",
             containerFactory = "#{__listener.containerFactory}"
         )
-        fun listen1(
+        fun listen1_1(
             foos: List<Foo>,
             @Header(KafkaHeaders.RECEIVED_TOPIC) topics: List<String>,
             @Header(KafkaHeaders.RECEIVED_PARTITION) partitions: List<Int>,
         ) {
+            foos.forEach {
+                log.debug { "listen1 received foo: $it" }
+            }
             if (this.received == null) {
                 this.received = foos
             }
@@ -271,8 +278,10 @@ class BatchListenerConversionTests {
         }
 
         @KafkaListener(beanRef = "__x", topics = ["#{__x.topic}"], groupId = "#{__x.topic}.group2")
-        fun listen2(foos: List<Foo>) {
-            log.trace { "foos=${foos.joinToString()}" }
+        fun listen1_2(foos: List<Foo>) {
+            foos.forEach {
+                log.debug { "listen1_2 received foo: $it" }
+            }
             this.latch2.countDown()
         }
 
@@ -280,11 +289,14 @@ class BatchListenerConversionTests {
     }
 
     class Listener3 {
+        companion object: KLogging()
+
         internal val latch1 = CountDownLatch(1)
         internal var received: List<Foo>? = null
 
         @KafkaListener(topics = ["blc3"], groupId = "blc3")
-        fun listen1(foos: List<Foo>) {
+        fun listen3(foos: List<Foo>) {
+            foos.forEach { log.debug { "listen3 received foo: $it" } }
             if (this.received == null) {
                 this.received = foos
             }
@@ -293,13 +305,16 @@ class BatchListenerConversionTests {
     }
 
     class Listener4 {
+        companion object: KLogging()
+
         internal val latch1 = CountDownLatch(1)
         internal var received: List<Foo>? = null
         internal var replies: List<Foo>? = null
 
         @KafkaListener(topics = ["blc4"], groupId = "blc4")
         @SendTo
-        fun listen1(foos: List<Foo>): Collection<Message<*>> {
+        fun listen4(foos: List<Foo>): Collection<Message<*>> {
+            foos.forEach { log.debug { "listen4 received foo: $it" } }
             if (this.received == null) {
                 this.received = foos
             }
@@ -313,7 +328,8 @@ class BatchListenerConversionTests {
         }
 
         @KafkaListener(topics = ["blc5"], groupId = "blc5")
-        fun listen2(foos: List<Foo>) {
+        fun listen4_2(foos: List<Foo>) {
+            foos.forEach { log.debug { "listen4_2 received foo: $it" } }
             this.replies = foos
             this.latch1.countDown()
         }
@@ -336,7 +352,7 @@ class BatchListenerConversionTests {
             foos: List<Foo?>,
             @Header(KafkaHeaders.CONVERSION_FAILURES) conversionFailures: List<ConversionException?>,
         ) {
-            log.info { "foos=${foos.joinToString()}" }
+            foos.forEach { log.debug { "listen5 received foo: $it" } }
             this.latch1.countDown()
             foos.forEachIndexed { i, foo ->
                 if (foo == null && conversionFailures[i] != null) {

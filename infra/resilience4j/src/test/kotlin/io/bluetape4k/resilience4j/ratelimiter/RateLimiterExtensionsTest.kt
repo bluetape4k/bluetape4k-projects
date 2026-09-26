@@ -2,7 +2,9 @@ package io.bluetape4k.resilience4j.ratelimiter
 
 import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.junit5.coroutines.runSuspendTest
+import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.codec.Base58
+import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.github.resilience4j.ratelimiter.RateLimiter
 import io.github.resilience4j.ratelimiter.RateLimiterConfig
@@ -15,7 +17,7 @@ class RateLimiterExtensionsTest {
 
     companion object: KLoggingChannel()
 
-    private fun unlimitedRateLimiter() = RateLimiter.of("test-${System.nanoTime()}") {
+    private fun unlimitedRateLimiter() = RateLimiter.of("test-${Base58.randomString(8)}") {
         RateLimiterConfig.custom()
             .limitRefreshPeriod(Duration.ofSeconds(10))
             .limitForPeriod(100)
@@ -23,7 +25,7 @@ class RateLimiterExtensionsTest {
             .build()
     }
 
-    private fun singlePermitRateLimiter() = RateLimiter.of("test-single-${System.nanoTime()}") {
+    private fun singlePermitRateLimiter() = RateLimiter.of("test-single-${Base58.randomString(8)}") {
         RateLimiterConfig.custom()
             .limitRefreshPeriod(Duration.ofSeconds(10))
             .limitForPeriod(1)
@@ -32,7 +34,7 @@ class RateLimiterExtensionsTest {
     }
 
     @Test
-    fun `withRateLimiter - 성공하는 함수가 정상 실행된다`() = runSuspendTest {
+    fun `withRateLimiter - 성공하는 함수가 정상 실행된다`() = runSuspendIO {
         val rl = unlimitedRateLimiter()
         val result = withRateLimiter(rl) { "hello" }
 
@@ -40,7 +42,7 @@ class RateLimiterExtensionsTest {
     }
 
     @Test
-    fun `withRateLimiter - 1개 파라미터 함수에 적용한다`() = runSuspendTest {
+    fun `withRateLimiter - 1개 파라미터 함수에 적용한다`() = runSuspendIO {
         val rl = unlimitedRateLimiter()
         val result = withRateLimiter(rl, 21) { input -> input * 2 }
 
@@ -48,7 +50,7 @@ class RateLimiterExtensionsTest {
     }
 
     @Test
-    fun `withRateLimiter - 2개 파라미터 함수에 적용한다`() = runSuspendTest {
+    fun `withRateLimiter - 2개 파라미터 함수에 적용한다`() = runSuspendIO {
         val rl = unlimitedRateLimiter()
         val result = withRateLimiter(rl, 20, 22) { a, b -> a + b }
 
@@ -56,7 +58,7 @@ class RateLimiterExtensionsTest {
     }
 
     @Test
-    fun `withRateLimiter - 허용량 초과 시 RequestNotPermitted 발생한다`() = runSuspendTest {
+    fun `withRateLimiter - 허용량 초과 시 RequestNotPermitted 발생한다`() = runSuspendIO {
         val rl = singlePermitRateLimiter()
 
         // 첫 번째 호출은 성공
@@ -69,7 +71,7 @@ class RateLimiterExtensionsTest {
     }
 
     @Test
-    fun `decorateSuspendFunction1 - 정상 실행된다`() = runSuspendTest {
+    fun `decorateSuspendFunction1 - 정상 실행된다`() = runSuspendIO {
         val rl = unlimitedRateLimiter()
         val decorated = rl.decorateSuspendFunction1 { input: Int -> input * 2 }
 
@@ -77,7 +79,7 @@ class RateLimiterExtensionsTest {
     }
 
     @Test
-    fun `decorateSuspendBiFunction - 정상 실행된다`() = runSuspendTest {
+    fun `decorateSuspendBiFunction - 정상 실행된다`() = runSuspendIO {
         val rl = unlimitedRateLimiter()
         val decorated = rl.decorateSuspendBiFunction { a: Int, b: Int -> a + b }
 
@@ -85,7 +87,7 @@ class RateLimiterExtensionsTest {
     }
 
     @Test
-    fun `decorateSuspendFunction1 - 허용량 초과 시 RequestNotPermitted 발생한다`() = runSuspendTest {
+    fun `decorateSuspendFunction1 - 허용량 초과 시 RequestNotPermitted 발생한다`() = runSuspendIO {
         val rl = singlePermitRateLimiter()
         val decorated = rl.decorateSuspendFunction1 { input: Int -> input * 2 }
 
@@ -101,7 +103,7 @@ class RateLimiterExtensionsTest {
         val rl = unlimitedRateLimiter()
         var executed = false
         rl.runnable { executed = true }.invoke()
-        executed shouldBeEqualTo true
+        executed.shouldBeTrue()
     }
 
     @Test
@@ -109,7 +111,7 @@ class RateLimiterExtensionsTest {
         val rl = unlimitedRateLimiter()
         var executed = false
         rl.checkedRunnable { executed = true }.run()
-        executed shouldBeEqualTo true
+        executed.shouldBeTrue()
     }
 
     @Test

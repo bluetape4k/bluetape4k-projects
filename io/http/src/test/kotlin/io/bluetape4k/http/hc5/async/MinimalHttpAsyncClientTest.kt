@@ -1,15 +1,17 @@
 package io.bluetape4k.http.hc5.async
 
+import io.bluetape4k.assertions.shouldNotBeNull
 import io.bluetape4k.http.hc5.AbstractHc5Test
+import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
-import io.bluetape4k.junit5.coroutines.runSuspendIO
 import kotlinx.coroutines.test.runTest
-import io.bluetape4k.assertions.shouldNotBeNull
 import org.apache.hc.client5.http.impl.async.MinimalH2AsyncClient
 import org.apache.hc.client5.http.impl.async.MinimalHttpAsyncClient
+import org.apache.hc.core5.http.HttpHost
 import org.apache.hc.core5.http2.config.H2Config
 import org.junit.jupiter.api.Test
+import java.net.URI
 import kotlin.time.Duration.Companion.seconds
 
 class MinimalHttpAsyncClientTest: AbstractHc5Test() {
@@ -55,8 +57,8 @@ class MinimalHttpAsyncClientTest: AbstractHc5Test() {
         val client = minimalHttpAsyncClientOf(connMgr = cm)
         client.start()
         try {
-            val url = java.net.URI.create(httpbinBaseUrl).toURL()
-            val host = org.apache.hc.core5.http.HttpHost(url.protocol, url.host, url.port)
+            val url = URI.create(httpbinBaseUrl).toURL()
+            val host = HttpHost(url.protocol, url.host, url.port)
             val endpoint = client.leaseSuspending(host)
             log.debug { "Leased endpoint: $endpoint" }
             endpoint.shouldNotBeNull()
@@ -69,16 +71,13 @@ class MinimalHttpAsyncClientTest: AbstractHc5Test() {
     @Test
     @Suppress("DEPRECATION")
     fun `suspendLease deprecated overload도 엔드포인트를 획득한다`() = runSuspendIO {
-        val client = minimalHttpAsyncClientOf()
-        client.start()
-        try {
-            val url = java.net.URI.create(httpbinBaseUrl).toURL()
-            val host = org.apache.hc.core5.http.HttpHost(url.protocol, url.host, url.port)
+        minimalHttpAsyncClientOf().use { client ->
+            client.start()
+            val url = URI.create(httpbinBaseUrl).toURL()
+            val host = HttpHost(url.protocol, url.host, url.port)
             val endpoint = client.suspendLease(host)
             endpoint.shouldNotBeNull()
             endpoint.releaseAndDiscard()
-        } finally {
-            client.close()
         }
     }
 }

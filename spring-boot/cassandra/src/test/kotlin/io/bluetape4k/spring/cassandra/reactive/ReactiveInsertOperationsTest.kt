@@ -1,6 +1,10 @@
 package io.bluetape4k.spring.cassandra.reactive
 
 import com.datastax.oss.driver.api.core.uuid.Uuids
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeFalse
+import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.assertions.shouldNotBeNull
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.spring.cassandra.AbstractCassandraCoroutineTest
@@ -10,10 +14,6 @@ import io.bluetape4k.spring.cassandra.selectOneByIdSuspending
 import io.bluetape4k.spring.cassandra.truncateSuspending
 import kotlinx.coroutines.reactor.awaitSingle
 import kotlinx.coroutines.runBlocking
-import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldBeFalse
-import io.bluetape4k.assertions.shouldBeTrue
-import io.bluetape4k.assertions.shouldNotBeNull
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -46,13 +46,11 @@ class ReactiveInsertOperationsTest(
         @field:Indexed var lastName: String,
     ): Serializable
 
-    private fun newPerson(): Person {
-        return Person(
-            id = Uuids.timeBased().toString(),
-            firstName = faker.name().firstName(),
-            lastName = faker.name().lastName()
-        )
-    }
+    private fun newPerson(): Person = Person(
+        id = Uuids.timeBased().toString(),
+        firstName = faker.name().firstName(),
+        lastName = faker.name().lastName()
+    )
 
     @BeforeEach
     fun beforeEach() {

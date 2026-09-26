@@ -1,15 +1,16 @@
 package io.bluetape4k.spring.cassandra
 
 import com.datastax.oss.driver.api.core.cql.SimpleStatement
+import com.datastax.oss.driver.api.core.cql.Statement
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeNull
 import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.assertions.shouldNotBeNull
-import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.flow.toList
+import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.Test
 import org.springframework.data.cassandra.ReactiveResultSet
 import org.springframework.data.cassandra.core.DeleteOptions
@@ -27,11 +28,15 @@ import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 import java.io.Serializable
 
+@Suppress("ReactiveStreamsUnusedPublisher")
 class ReactiveCassandraOperationsCoroutinesUnitTest {
 
     companion object: KLoggingChannel()
 
-    data class TestEntity(val id: String = "id-1", val name: String = "Test"): Serializable
+    data class TestEntity(
+        val id: String = "id-1",
+        val name: String = "Test"
+    ): Serializable
 
     private val testEntity = TestEntity()
     private val testSlice: Slice<TestEntity> = SliceImpl(listOf(testEntity))
@@ -40,7 +45,7 @@ class ReactiveCassandraOperationsCoroutinesUnitTest {
     private val mockEntityWriteResult = mockk<EntityWriteResult<TestEntity>>()
     private val testStatement = SimpleStatement.newInstance("SELECT 1")
 
-    @Suppress("UNCHECKED_CAST")
+    @Suppress("UNCHECKED_CAST", "ReactiveStreamsUnusedPublisher")
     private val mockOps = mockk<ReactiveCassandraOperations>().also { ops ->
         // select operations
         every { ops.select(any<com.datastax.oss.driver.api.core.cql.Statement<*>>(), any<Class<*>>()) } answers {
@@ -88,180 +93,182 @@ class ReactiveCassandraOperationsCoroutinesUnitTest {
     }
 
     @Test
-    fun `selectAsFlow with Statement`() = runSuspendIO {
+    fun `selectAsFlow with Statement`() = runTest {
         val flow = mockOps.selectAsFlow<TestEntity>(testStatement)
         flow.shouldNotBeNull()
         flow.toList().shouldNotBeNull()
     }
 
     @Test
-    fun `selectAsFlow with CQL string`() = runSuspendIO {
+    fun `selectAsFlow with CQL string`() = runTest {
         val flow = mockOps.selectAsFlow<TestEntity>("SELECT * FROM users")
         flow.shouldNotBeNull()
     }
 
     @Test
-    fun `selectOneSuspending with Statement`() = runSuspendIO {
+    fun `selectOneSuspending with Statement`() = runTest {
         val result = mockOps.selectOneSuspending<TestEntity>(testStatement)
         result shouldBeEqualTo testEntity
     }
 
     @Test
-    fun `selectOneOrNullSuspending with Statement`() = runSuspendIO {
+    fun `selectOneOrNullSuspending with Statement`() = runTest {
         val result = mockOps.selectOneOrNullSuspending<TestEntity>(testStatement)
         result shouldBeEqualTo testEntity
     }
 
     @Test
-    fun `selectOneOrNullSuspending returns null for empty Mono`() = runSuspendIO {
+    fun `selectOneOrNullSuspending returns null for empty Mono`() = runTest {
         val emptyOps = mockk<ReactiveCassandraOperations>()
-        every { emptyOps.selectOne(any<com.datastax.oss.driver.api.core.cql.Statement<*>>(), any<Class<*>>()) } returns
-                Mono.empty<Any>()
+        every {
+            emptyOps.selectOne(any<Statement<*>>(), any<Class<*>>())
+        } returns Mono.empty()
+
         val result = emptyOps.selectOneOrNullSuspending<TestEntity>(testStatement)
         result.shouldBeNull()
     }
 
     @Test
-    fun `selectOneSuspending with CQL string`() = runSuspendIO {
+    fun `selectOneSuspending with CQL string`() = runTest {
         val result = mockOps.selectOneSuspending<TestEntity>("SELECT * FROM users LIMIT 1")
         result shouldBeEqualTo testEntity
     }
 
     @Test
-    fun `selectOneOrNullSuspending with CQL string`() = runSuspendIO {
+    fun `selectOneOrNullSuspending with CQL string`() = runTest {
         val result = mockOps.selectOneOrNullSuspending<TestEntity>("SELECT * FROM users LIMIT 1")
         result shouldBeEqualTo testEntity
     }
 
     @Test
-    fun `selectOneSuspending with Query`() = runSuspendIO {
+    fun `selectOneSuspending with Query`() = runTest {
         val result = mockOps.selectOneSuspending<TestEntity>(Query.empty())
         result shouldBeEqualTo testEntity
     }
 
     @Test
-    fun `selectOneOrNullSuspending with Query`() = runSuspendIO {
+    fun `selectOneOrNullSuspending with Query`() = runTest {
         val result = mockOps.selectOneOrNullSuspending<TestEntity>(Query.empty())
         result shouldBeEqualTo testEntity
     }
 
     @Test
-    fun `sliceSuspending with Statement`() = runSuspendIO {
+    fun `sliceSuspending with Statement`() = runTest {
         val result = mockOps.sliceSuspending<TestEntity>(testStatement)
         result.shouldNotBeNull()
         result.content shouldBeEqualTo listOf(testEntity)
     }
 
     @Test
-    fun `sliceSuspending with Query`() = runSuspendIO {
+    fun `sliceSuspending with Query`() = runTest {
         val result = mockOps.sliceSuspending<TestEntity>(Query.empty())
         result.shouldNotBeNull()
     }
 
     @Test
-    fun `executeSuspending with Statement`() = runSuspendIO {
+    fun `executeSuspending with Statement`() = runTest {
         val result = mockOps.executeSuspending(testStatement)
         result.shouldNotBeNull()
     }
 
     @Test
-    fun `countSuspending with Query`() = runSuspendIO {
+    fun `countSuspending with Query`() = runTest {
         val count = mockOps.countSuspending<TestEntity>(Query.empty())
         count shouldBeEqualTo 3L
     }
 
     @Test
-    fun `existsSuspending with Query`() = runSuspendIO {
+    fun `existsSuspending with Query`() = runTest {
         val exists = mockOps.existsSuspending<TestEntity>(Query.empty())
         exists.shouldBeTrue()
     }
 
     @Test
-    fun `existsSuspending with id`() = runSuspendIO {
+    fun `existsSuspending with id`() = runTest {
         val exists = mockOps.existsSuspending<TestEntity>("id-1")
         exists.shouldBeTrue()
     }
 
     @Test
-    fun `selectOneByIdSuspending`() = runSuspendIO {
+    fun `selectOneByIdSuspending`() = runTest {
         val result = mockOps.selectOneByIdSuspending<TestEntity>("id-1")
         result shouldBeEqualTo testEntity
     }
 
     @Test
-    fun `selectOneOrNullByIdSuspending`() = runSuspendIO {
+    fun `selectOneOrNullByIdSuspending`() = runTest {
         val result = mockOps.selectOneOrNullByIdSuspending<TestEntity>("id-1")
         result shouldBeEqualTo testEntity
     }
 
     @Test
-    fun `insertSuspending entity no options`() = runSuspendIO {
+    fun `insertSuspending entity no options`() = runTest {
         val result = mockOps.insertSuspending(testEntity)
         result shouldBeEqualTo testEntity
     }
 
     @Test
-    fun `insertSuspending with options`() = runSuspendIO {
+    fun `insertSuspending with options`() = runTest {
         val result = mockOps.insertSuspending(testEntity, InsertOptions.empty())
         result.shouldNotBeNull()
     }
 
     @Test
-    fun `updateSuspending entity`() = runSuspendIO {
+    fun `updateSuspending entity`() = runTest {
         val result = mockOps.updateSuspending(testEntity)
         result shouldBeEqualTo testEntity
     }
 
     @Test
-    fun `updateSuspending entity with UpdateOptions`() = runSuspendIO {
+    fun `updateSuspending entity with UpdateOptions`() = runTest {
         val result = mockOps.updateSuspending(testEntity, UpdateOptions.empty())
         result.shouldNotBeNull()
     }
 
     @Test
-    fun `updateSuspending query and update`() = runSuspendIO {
+    fun `updateSuspending query and update`() = runTest {
         val result = mockOps.updateSuspending<TestEntity>(Query.empty(), Update.empty())
         result.shouldBeTrue()
     }
 
     @Test
-    fun `deleteSuspending query`() = runSuspendIO {
+    fun `deleteSuspending query`() = runTest {
         val result = mockOps.deleteSuspending<TestEntity>(Query.empty())
         result.shouldBeTrue()
     }
 
     @Test
-    fun `deleteSuspending entity`() = runSuspendIO {
+    fun `deleteSuspending entity`() = runTest {
         val result = mockOps.deleteSuspending(testEntity)
         result shouldBeEqualTo testEntity
     }
 
     @Test
-    fun `deleteSuspending entity with QueryOptions`() = runSuspendIO {
+    fun `deleteSuspending entity with QueryOptions`() = runTest {
         val result = mockOps.deleteSuspending(testEntity, mockk<QueryOptions>())
         result.shouldNotBeNull()
     }
 
     @Test
-    fun `deleteSuspending entity with DeleteOptions`() = runSuspendIO {
+    fun `deleteSuspending entity with DeleteOptions`() = runTest {
         val result = mockOps.deleteSuspending(testEntity, DeleteOptions.empty())
         result.shouldNotBeNull()
     }
 
     @Test
-    fun `deleteByIdSuspending`() = runSuspendIO {
+    fun `deleteByIdSuspending`() = runTest {
         val result = mockOps.deleteByIdSuspending<TestEntity>("id-1")
         result.shouldBeTrue()
     }
 
     @Test
-    fun `countSuspending no query`() = runSuspendIO {
+    fun `countSuspending no query`() = runTest {
         val count = mockOps.countSuspending<TestEntity>()
         count shouldBeEqualTo 3L
     }
 
     @Test
-    fun `truncateSuspending`() = runSuspendIO {
+    fun `truncateSuspending`() = runTest {
         mockOps.truncateSuspending<TestEntity>()
     }
 }

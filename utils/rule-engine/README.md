@@ -2,8 +2,7 @@
 
 English | [한국어](./README.ko.md)
 
-A lightweight rule engine library for Kotlin. It follows the Easy Rules pattern and adds Kotlin DSLs,
-coroutine support (`SuspendRule`), and annotation-based rule definitions.
+A lightweight rule engine library for Kotlin. It follows the Easy Rules pattern and adds Kotlin DSLs, coroutine support (`SuspendRule`), and annotation-based rule definitions.
 
 ## Architecture
 
@@ -45,7 +44,8 @@ A `Rule` has a **condition** (predicate on `Facts`) and an **action** (mutates `
 - **DSL-based rule definitions**: `rule {}`, `suspendRule {}`, and `ruleEngine {}` DSLs
 - **Annotation-based rules**: convert POJO classes into rules with `@Rule`, `@Condition`, `@Action`, and `@Fact`
 - **Coroutine support**: asynchronous rule execution with `SuspendRule` and `SuspendRuleEngine`
-- **Cancellation-aware suspend engine**: `DefaultSuspendRuleEngine` rethrows `CancellationException` instead of treating cancellation as a normal rule failure
+- **Cancellation-aware suspend
+  engine**: `DefaultSuspendRuleEngine` rethrows `CancellationException` instead of treating cancellation as a normal rule failure
 - **Script engines**: dynamic rule definitions based on MVEL2, SpEL, Kotlin Script, Janino, and Groovy
 - **Rule readers**: load rule definitions from YAML, JSON, and HOCON files
 - **Composite rules**: combine multiple rules with `ActivationRuleGroup`, `ConditionalRuleGroup`, and `UnitRuleGroup`
@@ -53,10 +53,7 @@ A `Rule` has a **condition** (predicate on `Facts`) and an **action** (mutates `
 
 ## Logging and Sensitive Data
 
-Rule definition expressions and action scripts can contain credentials or other sensitive values. The built-in
-rule-engine logger therefore records only the engine, rule name, fact count, and source length; source payloads and
-exception details are omitted from log messages. Keep this boundary when adding new rule-engine log statements by
-using the shared `toRuleSourceLogContext()` helper.
+Rule definition expressions and action scripts can contain credentials or other sensitive values. The built-in rule-engine logger therefore records only the engine, rule name, fact count, and source length; source payloads and exception details are omitted from log messages. Keep this boundary when adding new rule-engine log statements by using the shared `toRuleSourceLogContext()` helper.
 
 ## Usage Examples
 
@@ -127,8 +124,7 @@ val rule = SpelRule(name = "discount", priority = 1)
 
 ### Janino Script Rule (Bytecode-Compiled Java)
 
-Janino compiles Java expressions to bytecode at runtime for near-native execution speed.
-Best suited for high-volume rule evaluation (pricing, validation, discount).
+Janino compiles Java expressions to bytecode at runtime for near-native execution speed. Best suited for high-volume rule evaluation (pricing, validation, discount).
 
 ```kotlin
 val rule = JaninoRule(name = "discount", priority = 1)
@@ -138,8 +134,8 @@ val rule = JaninoRule(name = "discount", priority = 1)
 
 **Janino usage notes:**
 
-- **Condition supports pure expressions only**: Built on `ExpressionEvaluator`, so variable declarations (`int x = ...`) are not allowed.
-  Write complex conditions inline.
+- **Condition supports pure expressions
+  only**: Built on `ExpressionEvaluator`, so variable declarations (`int x = ...`) are not allowed. Write complex conditions inline.
   ```java
   // ✅ Valid Condition
   "((Integer)facts.get(\"age\")).intValue() >= 18 && ((Integer)facts.get(\"age\")).intValue() <= 65"
@@ -147,14 +143,16 @@ val rule = JaninoRule(name = "discount", priority = 1)
   // ❌ Compile error — variable declaration is a statement, not an expression
   "int age = ((Integer)facts.get(\"age\")).intValue(); age >= 18 && age <= 65"
   ```
-- **Action supports statement blocks**: Built on `ScriptEvaluator`, so variable declarations, if-else, for/while loops are all supported.
-- **Explicit type casting required**: `facts` is `Map<String, Object>`, so `facts.get()` results must be cast explicitly.
-- **For complex condition logic, consider Groovy** — it supports direct variable access, range operators (`in 18..65`), and closures.
+- **Action supports statement
+  blocks**: Built on `ScriptEvaluator`, so variable declarations, if-else, for/while loops are all supported.
+- **Explicit type casting
+  required**: `facts` is `Map<String, Object>`, so `facts.get()` results must be cast explicitly.
+- **For complex condition logic, consider
+  Groovy** — it supports direct variable access, range operators (`in 18..65`), and closures.
 
 ### Groovy Script Rule
 
-Groovy provides dynamic typing, closures, and Java-compatible syntax.
-Best suited for complex rule logic requiring expressive language features.
+Groovy provides dynamic typing, closures, and Java-compatible syntax. Best suited for complex rule logic requiring expressive language features.
 
 ```kotlin
 val rule = GroovyRule(name = "discount", priority = 1)
@@ -169,39 +167,41 @@ val tierRule = GroovyRule(name = "tier")
 
 **Groovy convenience features:**
 
-- **Null-safe binding**: Uses `NullSafeBinding` — accessing a key not present in Facts returns `null` instead of throwing `MissingPropertyException`.
-  Elvis operator and safe navigation work naturally.
+- **Null-safe
+  binding**: Uses `NullSafeBinding` — accessing a key not present in Facts returns `null` instead of throwing `MissingPropertyException`. Elvis operator and safe navigation work naturally.
   ```groovy
   // No MissingPropertyException even if 'name' key is absent from Facts
   displayName = name ?: 'Guest'         // Elvis — default when null
   upper = name?.toUpperCase()           // safe navigation — null if absent
   ```
-- **Automatic GString conversion**: Groovy string interpolation (`"Hello, ${name}!"`) produces `GString`, which is automatically converted to `String` when stored back to Facts. `facts.get<String>()` is safe.
+- **Automatic GString
+  conversion**: Groovy string interpolation (`"Hello, ${name}!"`) produces `GString`, which is automatically converted to `String` when stored back to Facts. `facts.get<String>()` is safe.
 - **Direct variable access**: Facts keys are bound as Groovy variables — use `amount` instead of `facts.get("amount")`.
-- **Automatic variable reflection**: Variables assigned in the script (`discount = true`) are automatically stored back to Facts.
+- **Automatic variable
+  reflection**: Variables assigned in the script (`discount = true`) are automatically stored back to Facts.
 
 ### Script Engine Comparison
 
-| Engine | Language | Compilation | Expression Syntax | Best For |
-|--------|----------|-------------|-------------------|----------|
-| MVEL2 | MVEL | Hybrid (interpreter + bytecode) | `amount > 1000` | Simple dynamic expressions |
-| SpEL | Spring EL | Hybrid (optional compile) | `#amount > 1000` | Spring ecosystem integration |
-| Janino | Java subset | **Bytecode** (native speed) | `((Integer)facts.get("amount")).intValue() > 1000` | High-volume evaluation, simple conditions |
-| Groovy | Groovy | **Bytecode** | `amount > 1000` | Complex logic with closures/collections |
-| Kotlin Script | Kotlin | Bytecode (slow cold start) | Full Kotlin syntax | Type-safe Kotlin expressions |
+| Engine        | Language    | Compilation                     | Expression Syntax                                  | Best For                                  |
+|---------------|-------------|---------------------------------|----------------------------------------------------|-------------------------------------------|
+| MVEL2         | MVEL        | Hybrid (interpreter + bytecode) | `amount > 1000`                                    | Simple dynamic expressions                |
+| SpEL          | Spring EL   | Hybrid (optional compile)       | `#amount > 1000`                                   | Spring ecosystem integration              |
+| Janino        | Java subset | **Bytecode** (native speed)     | `((Integer)facts.get("amount")).intValue() > 1000` | High-volume evaluation, simple conditions |
+| Groovy        | Groovy      | **Bytecode**                    | `amount > 1000`                                    | Complex logic with closures/collections   |
+| Kotlin Script | Kotlin      | Bytecode (slow cold start)      | Full Kotlin syntax                                 | Type-safe Kotlin expressions              |
 
 ### Script Engine Selection Guide
 
 ![Script Engine Selection Guide diagram](../../docs/images/readme-diagrams/utils-rule-engine-diagram-07.png)
 
-| Scenario | Recommended | Reason |
-|----------|-------------|--------|
-| Price comparison, threshold check | Janino | Bytecode compilation, best performance |
-| Bean references in Spring context | SpEL | Direct `#bean.method()` calls |
-| Discount policy, tier classification | MVEL2 / Groovy | Concise syntax |
-| Collection filter/transform, complex branching | Groovy | `collect`, `findAll`, `switch-range`, closures |
-| Optional field handling | Groovy | `NullSafeBinding` + Elvis/safe navigation |
-| Type-safe expressions | Kotlin Script | Full Kotlin syntax (slow cold start) |
+| Scenario                                       | Recommended    | Reason                                         |
+|------------------------------------------------|----------------|------------------------------------------------|
+| Price comparison, threshold check              | Janino         | Bytecode compilation, best performance         |
+| Bean references in Spring context              | SpEL           | Direct `#bean.method()` calls                  |
+| Discount policy, tier classification           | MVEL2 / Groovy | Concise syntax                                 |
+| Collection filter/transform, complex branching | Groovy         | `collect`, `findAll`, `switch-range`, closures |
+| Optional field handling                        | Groovy         | `NullSafeBinding` + Elvis/safe navigation      |
+| Type-safe expressions                          | Kotlin Script  | Full Kotlin syntax (slow cold start)           |
 
 ### Load Rules from YAML
 

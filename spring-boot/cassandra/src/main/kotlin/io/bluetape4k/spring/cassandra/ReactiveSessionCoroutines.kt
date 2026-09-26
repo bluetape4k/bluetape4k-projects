@@ -3,6 +3,7 @@ package io.bluetape4k.spring.cassandra
 import com.datastax.oss.driver.api.core.cql.PreparedStatement
 import com.datastax.oss.driver.api.core.cql.SimpleStatement
 import com.datastax.oss.driver.api.core.cql.Statement
+import io.bluetape4k.cassandra.cql.statementOf
 import kotlinx.coroutines.reactor.awaitSingle
 import org.springframework.data.cassandra.ReactiveResultSet
 import org.springframework.data.cassandra.ReactiveSession
@@ -24,7 +25,7 @@ import org.springframework.data.cassandra.ReactiveSession
  * ```
  */
 suspend fun ReactiveSession.executeSuspending(query: String): ReactiveResultSet =
-    executeSuspending(SimpleStatement.newInstance(query))
+    executeSuspending(statementOf(query))
 
 /**
  * CQL 문자열과 위치 기반 파라미터를 실행하고 결과 [ReactiveResultSet]을 반환합니다.
@@ -42,7 +43,7 @@ suspend fun ReactiveSession.executeSuspending(
     query: String,
     vararg args: Any,
 ): ReactiveResultSet =
-    executeSuspending(SimpleStatement.newInstance(query, *args))
+    executeSuspending(statementOf(query, *args))
 
 /**
  * CQL 문자열과 이름 기반 파라미터를 실행하고 결과 [ReactiveResultSet]을 반환합니다.
@@ -63,7 +64,7 @@ suspend fun ReactiveSession.executeSuspending(
     query: String,
     args: Map<String, Any?>,
 ): ReactiveResultSet =
-    executeSuspending(SimpleStatement.newInstance(query, args))
+    executeSuspending(statementOf(query, args))
 
 /**
  * [Statement]를 실행하고 결과 [ReactiveResultSet]을 반환합니다.
@@ -92,7 +93,8 @@ suspend fun ReactiveSession.executeSuspending(statement: Statement<*>): Reactive
  * // result == prepared.variableDefinitions.size()
  * ```
  */
-suspend fun ReactiveSession.prepareSuspending(query: String): PreparedStatement = prepare(query).awaitSingle()
+suspend fun ReactiveSession.prepareSuspending(query: String): PreparedStatement =
+    prepare(query).awaitSingle()
 
 /**
  * [SimpleStatement]를 준비(prepare)해 [PreparedStatement]를 반환합니다.

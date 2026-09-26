@@ -1,7 +1,10 @@
 package io.bluetape4k.examples.coroutines.flow
 
 import app.cash.turbine.test
+import io.bluetape4k.assertions.shouldBeEmpty
+import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.coroutines.flow.extensions.log
+import io.bluetape4k.coroutines.support.log
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import kotlinx.coroutines.cancelChildren
 import kotlinx.coroutines.coroutineScope
@@ -15,8 +18,6 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.yield
-import io.bluetape4k.assertions.shouldBeEmpty
-import io.bluetape4k.assertions.shouldBeEqualTo
 import org.junit.jupiter.api.Test
 import java.util.concurrent.atomic.AtomicInteger
 import kotlin.time.Duration.Companion.milliseconds
@@ -45,15 +46,18 @@ class SharedFlowExamples {
                     .collect {
                         collected1.incrementAndGet()
                     }
-            }
+            }.log("Job1")
+
             yield()
+
             launch {
                 mutableSharedFlow
                     .log("#2")
                     .collect {
                         collected2.incrementAndGet()
                     }
-            }
+            }.log("Job2")
+
             yield()
 
             launch {
@@ -69,7 +73,8 @@ class SharedFlowExamples {
                     awaitItem() shouldBeEqualTo "Message2"
                     cancelAndConsumeRemainingEvents()
                 }
-            }
+            }.log("Job3")
+            
             delay(100.milliseconds)
 
             // 복수의 collector 들도 모두 같은 데이터를 수신한다.
@@ -102,15 +107,16 @@ class SharedFlowExamples {
                     .collect {
                         collectCounter1.incrementAndGet()
                     }
-            }
+            }.log("Job1")
             yield()
+
             launch {
                 sharedFlow
                     .log("#2")      // Message 2, Message 3
                     .collect {
                         collectCounter2.incrementAndGet()
                     }
-            }
+            }.log("Job2")
             yield()
 
             launch {
@@ -119,9 +125,9 @@ class SharedFlowExamples {
                     sharedFlow.replayCache.shouldBeEmpty()
                     cancelAndConsumeRemainingEvents()
                 }
-            }
-
+            }.log("Job3")
             delay(100.milliseconds)
+
             collectCounter1.get() shouldBeEqualTo 2
             collectCounter2.get() shouldBeEqualTo 2
 
@@ -165,19 +171,21 @@ class SharedFlowExamples {
         launch {
             sharedFlow.log("#1")
                 .collect { counter1.incrementAndGet() }
-        }
+        }.log("Job1")
 
         advanceTimeBy(1000.milliseconds)
+
         launch {
             sharedFlow.log("#2")
                 .collect { counter2.incrementAndGet() }
-        }
+        }.log("Job2")
 
         advanceTimeBy(1000.milliseconds)
+
         launch {
             sharedFlow.log("#3")
                 .collect { counter3.incrementAndGet() }
-        }
+        }.log("Job3")
 
         advanceTimeBy(5000.milliseconds)
 

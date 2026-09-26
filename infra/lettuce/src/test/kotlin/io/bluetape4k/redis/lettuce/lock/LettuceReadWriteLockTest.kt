@@ -2,7 +2,11 @@ package io.bluetape4k.redis.lettuce.lock
 
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeInstanceOf
+import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.codec.Base58
+import io.bluetape4k.concurrent.get
 import io.bluetape4k.junit5.coroutines.runSuspendIO
+import io.bluetape4k.logging.KLogging
 import io.bluetape4k.redis.lettuce.LettuceTestUtils
 import io.bluetape4k.testcontainers.storage.RedisClusterServer
 import io.lettuce.core.codec.StringCodec
@@ -14,14 +18,23 @@ import org.awaitility.Awaitility.await
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.Timeout
 import java.time.Duration
-import java.util.concurrent.TimeUnit
+import kotlin.time.Duration.Companion.seconds
 
 internal class LettuceReadWriteLockTest {
+
+    private companion object: KLogging() {
+        val OWNER_1 = LockOwnerId.from("read-write-owner-1")
+        val OWNER_2 = LockOwnerId.from("read-write-owner-2")
+        val OWNER_3 = LockOwnerId.from("read-write-owner-3")
+        val REQUEST_1 = LockRequestId.from("read-write-request-1")
+        val REQUEST_2 = LockRequestId.from("read-write-request-2")
+        val LEASE: LeasePolicy = LeasePolicy.Fixed(Duration.ofSeconds(3))
+    }
 
     @Test
     fun `future and suspend views preserve exact handle kinds and atomic downgrade`() = runSuspendIO {
         LettuceTestUtils.client.connect(StringCodec.UTF8).use { connection ->
-            val name = "read-write-parity-${System.nanoTime()}"
+            val name = "read-write-parity-${Base58.randomString(8)}"
             val blocking = LettuceReadWriteLock.create(connection, name)
             val suspending = LettuceSuspendReadWriteLock.create(connection, name)
             try {
@@ -50,23 +63,24 @@ internal class LettuceReadWriteLockTest {
     @Test
     fun `future cancellation removes only the exact queued writer`() {
         LettuceTestUtils.client.connect(StringCodec.UTF8).use { connection ->
-            val lock = LettuceReadWriteLock.create(connection, "read-write-future-cancel-${System.nanoTime()}")
+            val lock = LettuceReadWriteLock.create(connection, "read-write-future-cancel-${Base58.randomString(8)}")
             try {
                 val reader = lock.readLock().tryAcquire(OWNER_1, REQUEST_1, LEASE)
                     .shouldBeInstanceOf<LockAcquireResult.Acquired<ReadLockHandle>>()
                     .handle
-                val pending = lock.writeLock().acquireAsync(
-                    OWNER_2,
-                    REQUEST_2,
-                    Duration.ofSeconds(2),
-                    LEASE,
-                )
+                val pending = lock.writeLock()
+                    .acquireAsync(
+                        OWNER_2,
+                        REQUEST_2,
+                        Duration.ofSeconds(2),
+                        LEASE,
+                    )
 
                 await().atMost(Duration.ofSeconds(2)).untilAsserted {
                     lock.writeLock().reconcile(OWNER_2, REQUEST_2)
                         .shouldBeInstanceOf<LockReconcileResult.Queued>()
                 }
-                pending.cancel(false) shouldBeEqualTo true
+                pending.cancel(false).shouldBeTrue()
                 await().atMost(Duration.ofSeconds(2)).untilAsserted {
                     lock.writeLock().reconcile(OWNER_2, REQUEST_2) shouldBeEqualTo LockReconcileResult.NotFound
                 }
@@ -85,7 +99,7 @@ internal class LettuceReadWriteLockTest {
     @Test
     fun `suspend cancellation removes its queued reader without crossing the writer boundary`() = runSuspendIO {
         LettuceTestUtils.client.connect(StringCodec.UTF8).use { connection ->
-            val name = "read-write-suspend-cancel-${System.nanoTime()}"
+            val name = "read-write-suspend-cancel-${Base58.randomString(8)}"
             val blocking = LettuceReadWriteLock.create(connection, name)
             val suspending = LettuceSuspendReadWriteLock.create(connection, name)
             try {
@@ -121,8 +135,9 @@ internal class LettuceReadWriteLockTest {
     @Test
     fun `close is idempotent and all views fail closed`() = runSuspendIO {
         LettuceTestUtils.client.connect(StringCodec.UTF8).use { connection ->
-            val blocking = LettuceReadWriteLock.create(connection, "read-write-close-${System.nanoTime()}")
-            val suspending = LettuceSuspendReadWriteLock.create(connection, "read-write-suspend-close-${System.nanoTime()}")
+            val blocking = LettuceReadWriteLock.create(connection, "read-write-close-${Base58.randomString(8)}")
+            val suspending =
+                LettuceSuspendReadWriteLock.create(connection, "read-write-suspend-close-${Base58.randomString(8)}")
             val blockingHandle = blocking.writeLock().tryAcquire(OWNER_1, REQUEST_1, LEASE)
                 .shouldBeInstanceOf<LockAcquireResult.Acquired<WriteLockHandle>>()
                 .handle
@@ -146,7 +161,7 @@ internal class LettuceReadWriteLockTest {
     @Test
     fun `watchdog renews reader ownership through the shared runtime`() {
         LettuceTestUtils.client.connect(StringCodec.UTF8).use { connection ->
-            val lock = LettuceReadWriteLock.create(connection, "read-write-watchdog-${System.nanoTime()}")
+            val lock = LettuceReadWriteLock.create(connection, "read-write-watchdog-${Base58.randomString(8)}")
             val watchdog = LeasePolicy.Watchdog(
                 ttl = Duration.ofSeconds(3),
                 renewalInterval = Duration.ofMillis(100),
@@ -175,7 +190,7 @@ internal class LettuceReadWriteLockTest {
         LettuceTestUtils.client.connect(StringCodec.UTF8).use { connection ->
             val lock = LettuceReadWriteLock.create(
                 connection,
-                "read-write-watchdog-downgrade-${System.nanoTime()}",
+                "read-write-watchdog-downgrade-${Base58.randomString(8)}",
             )
             val watchdog = LeasePolicy.Watchdog(
                 ttl = Duration.ofSeconds(3),
@@ -211,7 +226,7 @@ internal class LettuceReadWriteLockTest {
     @Test
     fun `close completes a pending future wait with Closed`() {
         LettuceTestUtils.client.connect(StringCodec.UTF8).use { connection ->
-            val lock = LettuceReadWriteLock.create(connection, "read-write-pending-close-${System.nanoTime()}")
+            val lock = LettuceReadWriteLock.create(connection, "read-write-pending-close-${Base58.randomString(8)}")
             lock.readLock().tryAcquire(OWNER_1, REQUEST_1, LEASE)
                 .shouldBeInstanceOf<LockAcquireResult.Acquired<ReadLockHandle>>()
             val pending = lock.writeLock().acquireAsync(
@@ -227,17 +242,8 @@ internal class LettuceReadWriteLockTest {
 
             lock.close()
 
-            pending.get(1, TimeUnit.SECONDS) shouldBeEqualTo LockAcquireResult.Closed
+            pending.get(1.seconds) shouldBeEqualTo LockAcquireResult.Closed
         }
-    }
-
-    private companion object {
-        val OWNER_1 = LockOwnerId.from("read-write-owner-1")
-        val OWNER_2 = LockOwnerId.from("read-write-owner-2")
-        val OWNER_3 = LockOwnerId.from("read-write-owner-3")
-        val REQUEST_1 = LockRequestId.from("read-write-request-1")
-        val REQUEST_2 = LockRequestId.from("read-write-request-2")
-        val LEASE: LeasePolicy = LeasePolicy.Fixed(Duration.ofSeconds(3))
     }
 }
 
@@ -249,7 +255,7 @@ internal class ClusterLettuceReadWriteLockTest {
         val server = RedisClusterServer.Launcher.redisCluster
         RedisClusterServer.Launcher.LettuceLib.getClusterClient(server).use { client ->
             client.connect().use { connection ->
-                val name = "read-write-cluster-${System.nanoTime()}"
+                val name = "read-write-cluster-${Base58.randomString(8)}"
                 val blocking = LettuceReadWriteLock.create(connection, name)
                 val suspending = LettuceSuspendReadWriteLock.create(connection, name)
                 try {

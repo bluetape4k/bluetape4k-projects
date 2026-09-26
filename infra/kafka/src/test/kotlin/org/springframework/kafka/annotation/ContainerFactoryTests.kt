@@ -1,12 +1,12 @@
 package org.springframework.kafka.annotation
 
-import io.bluetape4k.kafka.spring.test.utils.getPropertyValue
-import io.bluetape4k.logging.coroutines.KLoggingChannel
-import io.mockk.mockk
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeFalse
 import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.assertions.shouldContainSame
+import io.bluetape4k.kafka.spring.test.utils.getPropertyValue
+import io.bluetape4k.logging.coroutines.KLoggingChannel
+import io.mockk.mockk
 import org.junit.jupiter.api.Test
 import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory
 import org.springframework.kafka.core.ConsumerFactory
@@ -38,10 +38,10 @@ class ContainerFactoryTests {
         container.phase shouldBeEqualTo 42
         container.containerProperties.ackCount shouldBeEqualTo 123
         container.getPropertyValue<Int>("concurrency") shouldBeEqualTo 22
+
         customized.get().shouldBeTrue()
 
         val container2 = factory.createContainer("foo")
         container.containerProperties.kafkaConsumerProperties shouldContainSame container2.containerProperties.kafkaConsumerProperties
     }
-
 }

@@ -1,7 +1,6 @@
 package io.bluetape4k.cache.nearcache.jcache.management
 
 import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldBeFalse
 import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.cache.jcache.JCache
 import io.bluetape4k.cache.nearcache.jcache.NearJCache
@@ -49,9 +48,10 @@ class NearJCacheStatisticsRecorderTest {
         val recorder = ActiveNearJCacheStatisticsRecorder(time)
         val generation = recorder.current()
         val startedAt = generation.startTimeNanos()
-        generation.recordGet(startedAt, 1, 0, 1, 0, 0, 0)
-        val bean = NearJCacheStatisticsMXBean.fromRecorder(recorder)
 
+        generation.recordGet(startedAt, 1, 0, 1, 0, 0, 0)
+
+        val bean = NearJCacheStatisticsMXBean.fromRecorder(recorder)
         bean.averageGetTime shouldBeEqualTo 0.5F
     }
 
@@ -81,16 +81,23 @@ class NearJCacheStatisticsRecorderTest {
             workers.submit {
                 ready.countDown()
                 start.await()
-                runCatching { repeat(1_000) { old.recordPut(old.startTimeNanos(), 1) } }
-                    .exceptionOrNull()?.let(failures::add)
+                runCatching {
+                    repeat(1_000) {
+                        old.recordPut(old.startTimeNanos(), 1)
+                    }
+                }.exceptionOrNull()?.let(failures::add)
             }
             recorder.clear()
             val current = recorder.current()
+
             workers.submit {
                 ready.countDown()
                 start.await()
-                runCatching { repeat(1_000) { current.recordPut(current.startTimeNanos(), 1) } }
-                    .exceptionOrNull()?.let(failures::add)
+                runCatching {
+                    repeat(1_000) {
+                        current.recordPut(current.startTimeNanos(), 1)
+                    }
+                }.exceptionOrNull()?.let(failures::add)
             }
             ready.await(2, TimeUnit.SECONDS).shouldBeTrue()
             start.countDown()

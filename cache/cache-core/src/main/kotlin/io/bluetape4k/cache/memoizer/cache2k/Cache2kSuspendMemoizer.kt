@@ -88,8 +88,8 @@ class Cache2kSuspendMemoizer<in T: Any, out R: Any>(
     }
 
     override suspend fun clear() {
-        generation.incrementAndGet()
         clearMutex.withLock {
+            generation.incrementAndGet()
             inflightMap.clear()
             cache.clear()
         }

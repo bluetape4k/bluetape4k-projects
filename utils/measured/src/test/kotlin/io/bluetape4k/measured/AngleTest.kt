@@ -1,11 +1,11 @@
 package io.bluetape4k.measured
 
-import io.bluetape4k.junit5.random.RandomizedTest
-import io.bluetape4k.logging.KLogging
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeGreaterThan
 import io.bluetape4k.assertions.shouldBeLessThan
 import io.bluetape4k.assertions.shouldBeNear
+import io.bluetape4k.junit5.random.RandomizedTest
+import io.bluetape4k.logging.KLogging
 import org.junit.jupiter.api.Test
 import kotlin.math.PI
 
@@ -59,13 +59,13 @@ class AngleTest {
         val b = 180.0.degrees()
 
         // 덧셈
-        (a + a) shouldBeEqualTo b
+        a + a shouldBeEqualTo b
         // 뺄셈
-        (b - a) shouldBeEqualTo a
+        b - a shouldBeEqualTo a
         // 스칼라 곱셈
-        (a * 2) shouldBeEqualTo b
+        a * 2 shouldBeEqualTo b
         // 스칼라 나눗셈
-        (b / 2) shouldBeEqualTo a
+        b / 2 shouldBeEqualTo a
     }
 
     @Test

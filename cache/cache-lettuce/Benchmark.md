@@ -15,14 +15,14 @@ LettuceNearCache
 
 ## Measurement Scenarios
 
-| Benchmark | Description | What's measured |
-|-----------|-------------|----------------|
-| `l1Hit` | L1 (Caffeine) cache hit | Pure in-memory read, no Redis round-trip |
-| `l2Hit` | `clearLocal()` + L2 (Redis) hit | `clearLocal()` cost + Redis round-trip + L1 refill |
-| `l2Miss` | Both caches miss | Redis GET returns null |
-| `putSingle` | Write-through PUT (1 entry) | L1 + L2 write + CLIENT TRACKING GET |
-| `putAll` | Batch PUT (100 entries) | 100× L1 + L2 write |
-| `removeSingle` | Remove 1 entry | L1 + L2 DEL (pre-put excluded via `@Setup(Level.Invocation)`) |
+| Benchmark      | Description                     | What's measured                                               |
+|----------------|---------------------------------|---------------------------------------------------------------|
+| `l1Hit`        | L1 (Caffeine) cache hit         | Pure in-memory read, no Redis round-trip                      |
+| `l2Hit`        | `clearLocal()` + L2 (Redis) hit | `clearLocal()` cost + Redis round-trip + L1 refill            |
+| `l2Miss`       | Both caches miss                | Redis GET returns null                                        |
+| `putSingle`    | Write-through PUT (1 entry)     | L1 + L2 write + CLIENT TRACKING GET                           |
+| `putAll`       | Batch PUT (100 entries)         | 100× L1 + L2 write                                            |
+| `removeSingle` | Remove 1 entry                  | L1 + L2 DEL (pre-put excluded via `@Setup(Level.Invocation)`) |
 
 > **Note**: `l2Hit` measurements include `clearLocal()` overhead. See Analysis section.
 
@@ -39,23 +39,21 @@ Requires Docker (Testcontainers Redis 7+).
 ## Issue #1369 bounded bulk report
 
 The `NearJCacheBulkPathBenchmark` and `NearJCacheBulkContentionBenchmark` evidence is maintained in the
-[Issue #1369 report](../../docs/benchmarks/2026-08-17-issue-1369-nearcache-bounded-bulk.md). It is a separate,
-committed JMH snapshot for the bounded `getAll()` front-population policy; the legacy `LettuceNearCache`
-results below are intentionally preserved and are not mixed with that report. The report links the raw
-baseline/candidate JSON and separate throughput/allocation charts.
+[Issue #1369 report](../../docs/benchmarks/2026-08-17-issue-1369-nearcache-bounded-bulk.md). It is a separate, committed JMH snapshot for the bounded `getAll()` front-population policy; the legacy `LettuceNearCache`
+results below are intentionally preserved and are not mixed with that report. The report links the raw baseline/candidate JSON and separate throughput/allocation charts.
 
 ## Results
 
 ### Summary Table (Throughput: ops/ms, higher is better)
 
-| Benchmark | payloadSize=512 | payloadSize=4096 | payloadSize=16384 |
-|-----------|:--------------:|:----------------:|:-----------------:|
-| **l1Hit** | **65,560 ± 10,861** | **63,458 ± 23,120** | **64,580 ± 9,507** |
-| l2Hit | 4.067 ± 0.532 | 4.130 ± 0.452 | 3.930 ± 1.370 |
-| l2Miss | 3.961 ± 1.394 | 3.917 ± 0.784 | 4.208 ± 0.408 |
-| putSingle | 2.119 ± 0.100 | 2.077 ± 0.276 | 2.014 ± 0.152 |
-| putAll (×100) | 1.038 ± 0.247 | 0.930 ± 0.118 | 0.407 ± 0.281 |
-| removeSingle | 4.213 ± 0.177 | 4.243 ± 0.352 | 4.164 ± 0.271 |
+| Benchmark     |   payloadSize=512   |  payloadSize=4096   | payloadSize=16384  |
+|---------------|:-------------------:|:-------------------:|:------------------:|
+| **l1Hit**     | **65,560 ± 10,861** | **63,458 ± 23,120** | **64,580 ± 9,507** |
+| l2Hit         |    4.067 ± 0.532    |    4.130 ± 0.452    |   3.930 ± 1.370    |
+| l2Miss        |    3.961 ± 1.394    |    3.917 ± 0.784    |   4.208 ± 0.408    |
+| putSingle     |    2.119 ± 0.100    |    2.077 ± 0.276    |   2.014 ± 0.152    |
+| putAll (×100) |    1.038 ± 0.247    |    0.930 ± 0.118    |   0.407 ± 0.281    |
+| removeSingle  |    4.213 ± 0.177    |    4.243 ± 0.352    |   4.164 ± 0.271    |
 
 ### Detailed JMH Output
 
@@ -100,7 +98,8 @@ NearCacheRemoveBenchmark.removeSingle          N/A          16384  thrpt    5   
 ### 2. L2 Hit — `clearLocal()` Overhead Included
 
 - **~4.0 ops/ms** — significantly limited by `clearLocal()` being called in the benchmark body
-- **Real L2 hit latency**: To measure pure Redis round-trip without L1 clear, use per-key invalidation or a warmed L2-only key
+- **Real L2 hit
+  latency**: To measure pure Redis round-trip without L1 clear, use per-key invalidation or a warmed L2-only key
 - Redis RTT on localhost (Testcontainers): ~0.2–0.5ms → theoretical ceiling ~2,000–5,000 ops/ms
 - The measurement here represents the worst case: "L1 was invalidated, refetch from Redis"
 
@@ -129,33 +128,33 @@ NearCacheRemoveBenchmark.removeSingle          N/A          16384  thrpt    5   
 
 ### Key Takeaways
 
-| Insight | Implication |
-|---------|------------|
-| L1 hits 16,000× faster than L2 | Maximize L1 hit rate via appropriate `maxLocalSize` |
-| putSingle is 2× slower than get | Write-heavy workloads pay a CLIENT TRACKING tax |
-| putAll degrades 2.5× at 16KB | Use smaller payloads or chunk large batches |
-| All L2 ops ~4 ops/ms | Redis RTT (~250µs) is the universal bottleneck |
-| Payload size irrelevant for L1/read | Cache value deserialization cost is negligible |
+| Insight                             | Implication                                         |
+|-------------------------------------|-----------------------------------------------------|
+| L1 hits 16,000× faster than L2      | Maximize L1 hit rate via appropriate `maxLocalSize` |
+| putSingle is 2× slower than get     | Write-heavy workloads pay a CLIENT TRACKING tax     |
+| putAll degrades 2.5× at 16KB        | Use smaller payloads or chunk large batches         |
+| All L2 ops ~4 ops/ms                | Redis RTT (~250µs) is the universal bottleneck      |
+| Payload size irrelevant for L1/read | Cache value deserialization cost is negligible      |
 
 ---
 
 ## Benchmark Environment
 
-| Item | Value |
-|------|-------|
-| **CPU** | Apple M4 Pro (12-core) |
-| **RAM** | 48 GB |
-| **OS** | macOS 26.4.1 (Darwin 25.4.0) |
-| **JVM** | Oracle GraalVM 21.0.11+9.1 |
-| **Redis** | 7+ (Testcontainers, Docker) |
-| **Kotlin** | 2.3 |
-| **kotlinx-benchmark** | 0.4.15 |
-| **JMH** | 1.37 |
-| **Warmup** | 3 iterations × 2s |
-| **Measurement** | 5 iterations × 3s |
-| **Fork** | 1 |
-| **Threads** | 1 |
-| **Mode** | Throughput (ops/ms) |
-| **batchSize** | 100 (putAll only) |
-| **payloadSizes** | 512B, 4096B, 16384B |
-| **Date** | 2026-04-27 |
+| Item                  | Value                        |
+|-----------------------|------------------------------|
+| **CPU**               | Apple M4 Pro (12-core)       |
+| **RAM**               | 48 GB                        |
+| **OS**                | macOS 26.4.1 (Darwin 25.4.0) |
+| **JVM**               | Oracle GraalVM 21.0.11+9.1   |
+| **Redis**             | 7+ (Testcontainers, Docker)  |
+| **Kotlin**            | 2.3                          |
+| **kotlinx-benchmark** | 0.4.15                       |
+| **JMH**               | 1.37                         |
+| **Warmup**            | 3 iterations × 2s            |
+| **Measurement**       | 5 iterations × 3s            |
+| **Fork**              | 1                            |
+| **Threads**           | 1                            |
+| **Mode**              | Throughput (ops/ms)          |
+| **batchSize**         | 100 (putAll only)            |
+| **payloadSizes**      | 512B, 4096B, 16384B          |
+| **Date**              | 2026-04-27                   |

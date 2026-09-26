@@ -4,8 +4,7 @@
 
 Hibernate 7 **2nd Level Cache** (Lettuce Near Cache)를 위한 **Spring Boot 4 Auto-Configuration**.
 
-`application.yml`에 `bluetape4k.cache.lettuce-near.*` 설정만 추가하면 별도 코드 없이 Hibernate
-Second Level Cache가 자동으로 활성화됩니다. 밀리초 단위 duration(`500ms`)도 Hibernate 설정으로 그대로 전달됩니다.
+`application.yml`에 `bluetape4k.cache.lettuce-near.*` 설정만 추가하면 별도 코드 없이 Hibernate Second Level Cache가 자동으로 활성화됩니다. 밀리초 단위 duration (`500ms`)도 Hibernate 설정으로 그대로 전달됩니다.
 
 ## Auto-Configuration 클래스 구조
 
@@ -21,8 +20,7 @@ Spring Boot 4에서는 패키지명이 변경되었습니다:
 
 `HibernatePropertiesCustomizer`는 이제
 `org.springframework.boot.hibernate.autoconfigure.HibernatePropertiesCustomizer`
-패키지에서 제공합니다. 이전 Spring Boot 3 패키지 경로는 Spring Boot 3 모듈
-라인과 함께 은퇴했으며, 과거 문서에만 보존합니다.
+패키지에서 제공합니다. 이전 Spring Boot 3 패키지 경로는 Spring Boot 3 모듈 라인과 함께 은퇴했으며, 과거 문서에만 보존합니다.
 
 또한 Spring Boot 4 BOM을 명시적으로 사용해야 합니다:
 
@@ -177,7 +175,7 @@ bluetape4k:
 
 ### 설정값 → Hibernate properties 매핑
 
-| Spring 설정                            | Hibernate property                                 |
+| Spring 설정                          | Hibernate property                                 |
 |--------------------------------------|----------------------------------------------------|
 | `redis-uri`                          | `hibernate.cache.lettuce.redis_uri`                |
 | `codec`                              | `hibernate.cache.lettuce.codec`                    |
@@ -191,28 +189,24 @@ bluetape4k:
 
 ### Root 및 metrics 활성화 matrix
 
-root 속성인 `bluetape4k.cache.lettuce-near.enabled`는 모든 자동 설정 단계를
-제어합니다. Metrics 및 Actuator 단계는 추가로
-`bluetape4k.cache.lettuce-near.metrics.enabled=true`를 요구합니다. Actuator
-엔드포인트 Bean에는 선택 의존성 `spring-boot-starter-actuator`와
-`EntityManagerFactory` Bean이 필요합니다. endpoint Bean 등록은 web exposure
-설정을 검사하지 않으며, HTTP route를 열려면
-`management.endpoints.web.exposure.include=nearcache`(또는 동등한 exposure
-규칙)를 별도로 설정해야 합니다.
+root 속성인 `bluetape4k.cache.lettuce-near.enabled`는 모든 자동 설정 단계를 제어합니다. Metrics 및 Actuator 단계는 추가로
+`bluetape4k.cache.lettuce-near.metrics.enabled=true`를 요구합니다. Actuator 엔드포인트 Bean에는 선택 의존성 `spring-boot-starter-actuator`와
+`EntityManagerFactory` Bean이 필요합니다. endpoint Bean 등록은 web exposure 설정을 검사하지 않으며, HTTP route를 열려면
+`management.endpoints.web.exposure.include=nearcache`(또는 동등한 exposure 규칙)를 별도로 설정해야 합니다.
 
-| Root `enabled` | `metrics.enabled` | Hibernate customizer | MetricsBinder | Actuator endpoint Bean |
-|---------------|-------------------|----------------------|---------------|------------------------|
-| `false`       | `false` 또는 `true` | 없음                 | 없음          | 없음                   |
-| `true`        | `false`           | 있음                 | 없음          | 없음                   |
-| `true`        | `true`            | 있음                 | 있음          | Actuator 조건 충족 시 있음              |
+| Root `enabled` | `metrics.enabled`   | Hibernate customizer | MetricsBinder | Actuator endpoint Bean     |
+|----------------|---------------------|----------------------|---------------|----------------------------|
+| `false`        | `false` 또는 `true` | 없음                 | 없음          | 없음                       |
+| `true`         | `false`             | 있음                 | 없음          | 없음                       |
+| `true`         | `true`              | 있음                 | 있음          | Actuator 조건 충족 시 있음 |
 
 ## Auto-Configuration 클래스
 
-| 클래스                                          | 조건                                                                   | 역할                                 |
-|----------------------------------------------|----------------------------------------------------------------------|------------------------------------|
-| `LettuceNearCacheHibernateAutoConfiguration` | Root `enabled=true` (기본값) + `LettuceNearCacheRegionFactory`, `EntityManagerFactory`, `HibernatePropertiesCustomizer` classpath | `HibernatePropertiesCustomizer` 등록 |
-| `LettuceNearCacheMetricsAutoConfiguration`   | Root `enabled=true` + `metrics.enabled=true` (기본값) + `MeterRegistry`, `EntityManagerFactory` Bean | `LettuceNearCacheMetricsBinder` 등록 |
-| `LettuceNearCacheActuatorAutoConfiguration`  | Root `enabled=true` + `metrics.enabled=true` (기본값) + Actuator `Endpoint`, `EntityManagerFactory` 조건 | `/actuator/nearcache` 엔드포인트 Bean 등록 |
+| 클래스                                       | 조건                                                                                                                              | 역할                                       |
+|----------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------|--------------------------------------------|
+| `LettuceNearCacheHibernateAutoConfiguration` | Root `enabled=true` (기본값) + `LettuceNearCacheRegionFactory`, `EntityManagerFactory`, `HibernatePropertiesCustomizer` classpath | `HibernatePropertiesCustomizer` 등록       |
+| `LettuceNearCacheMetricsAutoConfiguration`   | Root `enabled=true` + `metrics.enabled=true` (기본값) + `MeterRegistry`, `EntityManagerFactory` Bean                              | `LettuceNearCacheMetricsBinder` 등록       |
+| `LettuceNearCacheActuatorAutoConfiguration`  | Root `enabled=true` + `metrics.enabled=true` (기본값) + Actuator `Endpoint`, `EntityManagerFactory` 조건                          | `/actuator/nearcache` 엔드포인트 Bean 등록 |
 
 ## Actuator 엔드포인트
 
@@ -273,14 +267,12 @@ GET /actuator/nearcache/product
 
 ## Micrometer 메트릭
 
-root `enabled=true`와 `metrics.enabled=true` 조건을 모두 만족할 때 다음
-Gauge가 등록됩니다. `metrics.enabled=false`로 설정하면 Hibernate customizer는
-유지하면서 MetricsBinder와 near-cache Actuator 엔드포인트를 비활성화합니다.
+root `enabled=true`와 `metrics.enabled=true` 조건을 모두 만족할 때 다음 Gauge가 등록됩니다. `metrics.enabled=false`로 설정하면 Hibernate customizer는 유지하면서 MetricsBinder와 near-cache Actuator 엔드포인트를 비활성화합니다.
 
-| 메트릭                                   | 설명                    |
-|---------------------------------------|-----------------------|
-| `lettuce.nearcache.active.regions`    | 활성 Region 수           |
-| `lettuce.nearcache.total.local.size`  | 전체 L1 캐시 항목 수 (추정) |
+| 메트릭                               | 설명                        |
+|--------------------------------------|-----------------------------|
+| `lettuce.nearcache.active.regions`   | 활성 Region 수              |
+| `lettuce.nearcache.total.local.size` | 전체 L1 캐시 항목 수 (추정) |
 
 ```bash
 # Micrometer 메트릭 조회 (JSON)
@@ -314,10 +306,7 @@ bluetape4k:
             enabled: false   # customizer, MetricsBinder, Actuator endpoint 모두 비활성화
 ```
 
-root 스위치는 `metrics.enabled=true` 및 Actuator exposure 설정보다 우선합니다.
-따라서 `management.endpoints.web.exposure.include=nearcache`만으로 엔드포인트를
-다시 활성화할 수 없습니다. Hibernate 통합은 유지하면서 metrics와 엔드포인트만
-끄려면 `bluetape4k.cache.lettuce-near.metrics.enabled=false`를 사용하세요.
+root 스위치는 `metrics.enabled=true` 및 Actuator exposure 설정보다 우선합니다. 따라서 `management.endpoints.web.exposure.include=nearcache`만으로 엔드포인트를 다시 활성화할 수 없습니다. Hibernate 통합은 유지하면서 metrics와 엔드포인트만 끄려면 `bluetape4k.cache.lettuce-near.metrics.enabled=false`를 사용하세요.
 
 ## 테스트 실행
 

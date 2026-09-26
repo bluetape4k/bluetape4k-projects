@@ -6,7 +6,7 @@ import co.elastic.clients.elasticsearch.core.ClosePointInTimeRequest
 import co.elastic.clients.elasticsearch.core.OpenPointInTimeRequest
 import co.elastic.clients.elasticsearch.core.SearchRequest
 import io.bluetape4k.elasticsearch.ElasticsearchDefaults
-import io.bluetape4k.logging.KotlinLogging
+import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.warn
 import io.bluetape4k.support.requireNotBlank
 import io.bluetape4k.support.requirePositiveNumber
@@ -18,7 +18,7 @@ import kotlinx.coroutines.future.await
 import kotlinx.coroutines.withContext
 
 @PublishedApi
-internal val log = KotlinLogging.logger {}
+internal object SearchApiLogger: KLogging()
 
 // ---------------------------------------------------------------------------
 // Point-In-Time(PIT) suspend 확장함수
@@ -55,6 +55,7 @@ suspend fun ElasticsearchAsyncClient.openPointInTimeSuspending(
         .index(listOf(indexName))
         .keepAlive { it.time(keepAlive) }
         .build()
+
     return this.openPointInTime(request).await().id()
 }
 
@@ -95,9 +96,9 @@ internal suspend fun closePointInTimeBestEffort(
         try {
             close(pitId)
         } catch (e: CancellationException) {
-            log.warn(e) { "Cancelled while closing ES PIT: pitId=$pitId" }
+            SearchApiLogger.log.warn(e) { "Cancelled while closing ES PIT: pitId=$pitId" }
         } catch (e: Exception) {
-            log.warn(e) { "Failed to close ES PIT: pitId=$pitId" }
+            SearchApiLogger.log.warn(e) { "Failed to close ES PIT: pitId=$pitId" }
         }
     }
 }
@@ -148,7 +149,7 @@ internal suspend fun closePointInTimeBestEffort(
  * @param queryBlock `SearchRequest.Builder` 설정 람다 (query / sort 등)
  * @return 매 hit 의 source 문서를 lazy 하게 발행하는 [Flow]
  */
-inline fun <reified T : Any> ElasticsearchAsyncClient.searchAsFlow(
+inline fun <reified T: Any> ElasticsearchAsyncClient.searchAsFlow(
     indexName: String,
     batchSize: Int = ElasticsearchDefaults.DEFAULT_SEARCH_BATCH_SIZE,
     keepAlive: String = "1m",

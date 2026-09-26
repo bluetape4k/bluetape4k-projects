@@ -1,11 +1,11 @@
 package io.bluetape4k.testcontainers.storage
 
-import io.bluetape4k.logging.KLogging
-import io.bluetape4k.testcontainers.AbstractContainerTest
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeGreaterThan
 import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.assertions.shouldNotBeNullOrBlank
+import io.bluetape4k.logging.KLogging
+import io.bluetape4k.testcontainers.AbstractContainerTest
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
 import org.junit.jupiter.api.TestInstance.Lifecycle
@@ -65,7 +65,7 @@ class InfluxDBServerTest: AbstractContainerTest() {
     fun `default 프로퍼티 확인`() {
         InfluxDBServer().use { influxdb ->
             influxdb.start()
-            
+
             influxdb.organization shouldBeEqualTo InfluxDBServer.DEFAULT_ORG
             influxdb.bucket shouldBeEqualTo InfluxDBServer.DEFAULT_BUCKET
             influxdb.adminToken.shouldNotBeNullOrBlank()

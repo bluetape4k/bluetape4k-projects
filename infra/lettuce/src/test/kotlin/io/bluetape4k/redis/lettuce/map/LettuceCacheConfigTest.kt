@@ -1,11 +1,15 @@
 package io.bluetape4k.redis.lettuce.map
 
+import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.debug
 import org.junit.jupiter.api.Test
 import java.time.Duration
-import io.bluetape4k.assertions.assertFailsWith
 
 class LettuceCacheConfigTest {
+
+    companion object: KLogging()
 
     @Test
     fun `유효한 설정은 그대로 생성된다`() {
@@ -19,7 +23,7 @@ class LettuceCacheConfigTest {
             nearCacheMaxSize = 1_000,
             nearCacheTtl = Duration.ofSeconds(30),
         )
-
+        log.debug { "config=$config" }
         config.writeBehindBatchSize shouldBeEqualTo 10
         config.writeRetryAttempts shouldBeEqualTo 2
         config.keyPrefix shouldBeEqualTo "cache-prefix"

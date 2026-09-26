@@ -40,8 +40,7 @@ fun `endpoint returns json`() = testApplication {
 }
 ```
 
-typed request/response body가 필요한 테스트에서는 JSON-aware Ktor test client를
-만들 수 있습니다.
+typed request/response body가 필요한 테스트에서는 JSON-aware Ktor test client를 만들 수 있습니다.
 
 ```kotlin
 val jsonClient = bluetape4kJsonClient()

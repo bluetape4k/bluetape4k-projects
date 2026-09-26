@@ -3,12 +3,16 @@ package io.bluetape4k.redis.lettuce.lease
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeGreaterThan
 import io.bluetape4k.assertions.shouldBeInstanceOf
+import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.junit5.concurrency.MultithreadingTester
 import io.bluetape4k.junit5.coroutines.SuspendedJobTester
 import io.bluetape4k.junit5.coroutines.runSuspendIO
+import io.bluetape4k.logging.KLogging
 import io.bluetape4k.redis.lettuce.AbstractLettuceTest
 import io.bluetape4k.redis.lettuce.LettuceClients
 import io.bluetape4k.redis.lettuce.LettuceTestUtils
+import io.lettuce.core.api.StatefulRedisConnection
+import io.lettuce.core.api.sync.RedisCommands
 import io.lettuce.core.codec.StringCodec
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
@@ -16,13 +20,31 @@ import org.junit.jupiter.api.Timeout
 import java.time.Duration
 import java.util.concurrent.ConcurrentLinkedQueue
 import java.util.concurrent.CyclicBarrier
+import kotlin.text.substringAfterLast
 
 /**
  * Proves bounded fencing-token uniqueness for one hot resource serialized by one Redis slot.
  *
  * These tests verify ordering and duplicate absence; they intentionally do not define a latency SLA.
  */
-internal class LettuceFencingLeaseConcurrencyTest : AbstractLettuceTest() {
+internal class LettuceFencingLeaseConcurrencyTest: AbstractLettuceTest() {
+
+    private companion object: KLogging() {
+        const val CALLERS: Int = 16
+        const val ROUNDS: Int = 25
+        val LEASE_TIME: Duration = Duration.ofSeconds(10)
+        val LONGER_LEASE: Duration = Duration.ofSeconds(30)
+
+        val connection: StatefulRedisConnection<String, String> by lazy {
+            LettuceClients.connect(LettuceTestUtils.client, StringCodec.UTF8)
+        }
+        val commands: RedisCommands<String?, String> by lazy { connection.sync() }
+    }
+
+    @BeforeAll
+    fun warmStandaloneRedis() {
+        connection.sync().ping() shouldBeEqualTo "PONG"
+    }
 
     @Test
     @Timeout(30)
@@ -55,6 +77,7 @@ internal class LettuceFencingLeaseConcurrencyTest : AbstractLettuceTest() {
                 val winner = verifyRound(attempts)
                 val replay = lease.acquire(winner.ownerId, LONGER_LEASE)
                     .shouldBeInstanceOf<FencingAcquireResult.AlreadyOwned>()
+
                 replay.token shouldBeEqualTo winner.token
                 commands.get(keys.counter) shouldBeEqualTo winner.token.sequence.toString()
                 lease.release(winner.ownerId, winner.token) shouldBeEqualTo FencingReleaseResult.Released
@@ -116,6 +139,7 @@ internal class LettuceFencingLeaseConcurrencyTest : AbstractLettuceTest() {
         val contended = attempts.filter { it.result is FencingAcquireResult.Contended }
         acquired.size shouldBeEqualTo 1
         contended.size shouldBeEqualTo CALLERS - 1
+
         return acquired.single().let { attempt ->
             Winner(
                 attempt.ownerId,
@@ -127,11 +151,11 @@ internal class LettuceFencingLeaseConcurrencyTest : AbstractLettuceTest() {
     private fun verifyTokens(tokens: List<FencingToken>, expected: Int) {
         tokens.size shouldBeEqualTo expected
         tokens.toSet().size shouldBeEqualTo expected
-        tokens.zipWithNext().forEach { (previous, next) -> next shouldBeGreaterThan previous }
+        tokens.zipWithNext().all { (previous, next) -> next > previous }.shouldBeTrue()
     }
 
     private fun newConfig(style: String): LettuceFencingLeaseConfig =
-        LettuceFencingLeaseConfig("contention", "$style-${randomName().substringAfter(':')}", 23)
+        LettuceFencingLeaseConfig("contention", "$style-${randomName().substringAfterLast(':')}", 23)
 
     private fun owner(round: Int, caller: Int): FencingOwnerId =
         FencingOwnerId.from("owner-$round-$caller")
@@ -145,20 +169,4 @@ internal class LettuceFencingLeaseConcurrencyTest : AbstractLettuceTest() {
         val ownerId: FencingOwnerId,
         val token: FencingToken,
     )
-
-    private companion object {
-        const val CALLERS: Int = 16
-        const val ROUNDS: Int = 25
-        val LEASE_TIME: Duration = Duration.ofSeconds(10)
-        val LONGER_LEASE: Duration = Duration.ofSeconds(30)
-
-        val connection by lazy { LettuceClients.connect(LettuceTestUtils.client, StringCodec.UTF8) }
-        val commands by lazy { connection.sync() }
-
-        @BeforeAll
-        @JvmStatic
-        fun warmStandaloneRedis() {
-            connection.sync().ping() shouldBeEqualTo "PONG"
-        }
-    }
 }

@@ -19,7 +19,7 @@ import java.util.concurrent.ConcurrentLinkedQueue
  * - 전송 실패는 [exportExceptionHandler]를 통해 경고 및 fallback appender로 전달됩니다.
  * - 종료 시 producer flush/close를 시도합니다.
  */
-class KafkaAppender<E: Any>: io.bluetape4k.kafka.logback.AbstractKafkaAppender<E>() {
+class KafkaAppender<E: Any>: AbstractKafkaAppender<E>() {
     companion object {
         /**
          * Kafka Client의 로그는 따로 처리하기 위해 (`org.apache.kafka.clients`)
@@ -35,15 +35,14 @@ class KafkaAppender<E: Any>: io.bluetape4k.kafka.logback.AbstractKafkaAppender<E
 
     private val producer: Producer<ByteArray, ByteArray>? by lazy { createProducer() }
 
-    private val exportExceptionHandler =
-        ExportExceptionHandler<E> { event, exception ->
-            if (exception != null) {
-                addWarn("Fail to export log to Kafka: ${exception.message}", exception)
-                // KafkaProducer 자체의 문제라면 새롭게 생성하게 한다. (Broker 장애로 Producer를 새롭게 생성해야 하는 경우가 있다)
-            }
-            // 다른 Appender에게도 로그를 전달한다.
-            attacher.appendLoopOnAppenders(event)
+    private val exportExceptionHandler = ExportExceptionHandler<E> { event, exception ->
+        if (exception != null) {
+            addWarn("Fail to export log to Kafka: ${exception.message}", exception)
+            // KafkaProducer 자체의 문제라면 새롭게 생성하게 한다. (Broker 장애로 Producer를 새롭게 생성해야 하는 경우가 있다)
         }
+        // 다른 Appender에게도 로그를 전달한다.
+        attacher.appendLoopOnAppenders(event)
+    }
 
     override fun doAppend(event: E) {
         // Kafka 관련 로그를 모아 둔 deferQueue의 로그를 먼저 처리한다.
@@ -82,9 +81,8 @@ class KafkaAppender<E: Any>: io.bluetape4k.kafka.logback.AbstractKafkaAppender<E
 
         val currentProducer = producer
         if (currentProducer != null) {
-            checkNotNull(
-                exporter
-            ) { "exporter가 초기화되지 않았습니다." }.export(currentProducer, record, event, exportExceptionHandler)
+            checkNotNull(exporter) { "exporter가 초기화되지 않았습니다." }
+                .export(currentProducer, record, event, exportExceptionHandler)
         } else {
             exportExceptionHandler.handle(event, null)
         }
@@ -144,13 +142,13 @@ class KafkaAppender<E: Any>: io.bluetape4k.kafka.logback.AbstractKafkaAppender<E
             return KafkaProducer(producerConfig, ByteArraySerializer(), ByteArraySerializer()).apply {
                 addInfo(
                     "Create Kafka Producer for Logging with config: " +
-                        KafkaProducerConfigDiagnostics.formatConfig(producerConfig)
+                            KafkaProducerConfigDiagnostics.formatConfig(producerConfig)
                 )
             }
         } catch (e: Exception) {
             addError(
                 "Fail to create Kafka Producer for Logging with config: " +
-                    KafkaProducerConfigDiagnostics.formatConfig(producerConfig),
+                        KafkaProducerConfigDiagnostics.formatConfig(producerConfig),
                 e
             )
             null

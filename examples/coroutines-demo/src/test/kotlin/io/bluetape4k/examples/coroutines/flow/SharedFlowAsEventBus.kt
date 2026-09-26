@@ -1,11 +1,11 @@
 package io.bluetape4k.examples.coroutines.flow
 
 import io.bluetape4k.coroutines.flow.extensions.log
+import io.bluetape4k.coroutines.support.log
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.cancelChildren
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.flow.Flow
@@ -95,7 +95,7 @@ class SharedFlowAsEventBus {
         val listener1 = EventListener("#1", eventBus, this)
         val listener2 = EventListener("#2", eventBus, this)
 
-        val job = launch(Dispatchers.Default) {
+        val job = launch {
             // Send events
             advanceTimeBy(100.milliseconds)
             eventBus.sendEvent(Event.EventA)
@@ -103,7 +103,7 @@ class SharedFlowAsEventBus {
             eventBus.sendEvent(Event.EventB)
             advanceTimeBy(100.milliseconds)
             eventBus.sendEvent(Event.EventC(42))
-        }
+        }.log("Job")
 
         job.join()
         // Wait for the listeners to process the events

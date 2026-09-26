@@ -2,6 +2,7 @@ package io.bluetape4k.coroutines
 
 import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldNotBeNull
 import io.bluetape4k.coroutines.flow.extensions.bufferedSliding
 import io.bluetape4k.junit5.coroutines.SuspendedJobTester
 import io.bluetape4k.logging.coroutines.KLoggingChannel
@@ -31,10 +32,9 @@ class SuspendRingBufferTest {
         for (i in 1..30) {
             buffer.push(i.toDouble())
         }
-        @Suppress("DEPRECATION")
-        buffer.sumOf { it!! } shouldBeEqualTo 410.0
 
-        @Suppress("DEPRECATION")
+        buffer.sumOf { it.shouldNotBeNull() } shouldBeEqualTo 410.0
+
         buffer.forEach {
             log.debug { it }
         }

@@ -45,5 +45,4 @@ open class BinarySerializerDecorator(
         target.write(bytes)
         return bytes.size
     }
-
 }

@@ -4,6 +4,7 @@ import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldContain
 import io.bluetape4k.assertions.shouldNotContain
+import io.bluetape4k.logging.KLogging
 import org.junit.jupiter.api.Test
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
@@ -119,11 +120,14 @@ class HttpIdempotencyValuesTest {
         assertFailsWith<IllegalArgumentException> {
             request(authenticationProfile = "가".repeat(171))
         }
+
         request(operation = "x".repeat(1_024), resourceIdentity = "x".repeat(1_024))
         assertFailsWith<IllegalArgumentException> { request(operation = "x".repeat(1_025)) }
         assertFailsWith<IllegalArgumentException> { request(resourceIdentity = "x".repeat(1_025)) }
+
         request(idempotencyKeys = listOf("x".repeat(8_192)))
         assertFailsWith<IllegalArgumentException> { request(idempotencyKeys = listOf("x".repeat(8_193))) }
+
         request(requestBody = "x".repeat(16_777_216))
         assertFailsWith<IllegalArgumentException> { request(requestBody = "x".repeat(16_777_217)) }
         assertFailsWith<IllegalArgumentException> { request(idempotencyKeys = emptyList()) }
@@ -247,7 +251,12 @@ class HttpIdempotencyValuesTest {
 
     @Test
     fun `all public values survive Java serialization and pin serial version one`() {
-        val values = listOf<Serializable>(request(), response(), config(), HttpIdempotencyQuiescence(0, 0, 0))
+        val values = listOf(
+            request(),
+            response(),
+            config(),
+            HttpIdempotencyQuiescence(0, 0, 0)
+        )
         values.forEach { value -> javaRoundTrip(value) shouldBeEqualTo value }
         values.map { it.javaClass }.forEach { type ->
             ObjectStreamClass.lookup(type).serialVersionUID shouldBeEqualTo 1L
@@ -361,7 +370,7 @@ class HttpIdempotencyValuesTest {
         appendFailure(failure)
     }
 
-    companion object {
+    companion object: KLogging() {
         private val SENSITIVE_SENTINELS = listOf(
             "tenant-secret-principal",
             "resource-secret",

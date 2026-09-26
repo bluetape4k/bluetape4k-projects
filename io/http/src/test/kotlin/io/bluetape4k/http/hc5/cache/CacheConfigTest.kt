@@ -7,7 +7,7 @@ import org.junit.jupiter.api.Test
 
 class CacheConfigTest {
 
-    companion object : KLogging()
+    companion object: KLogging()
 
     @Test
     fun `cacheConfig DSL로 CacheConfig 생성`() {

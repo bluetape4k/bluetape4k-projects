@@ -2,6 +2,7 @@ package io.bluetape4k.http.okhttp3
 
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldNotBeNull
+import io.bluetape4k.logging.KLogging
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.mockwebserver.MockResponse
@@ -11,6 +12,8 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 
 class CachingInterceptorTest {
+
+    companion object: KLogging()
 
     private lateinit var server: MockWebServer
 

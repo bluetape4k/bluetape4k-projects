@@ -1,14 +1,15 @@
 package io.bluetape4k.io.compressor
 
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeGreaterThan
+import io.bluetape4k.assertions.shouldNotBeEmpty
+import io.bluetape4k.logging.KLogging
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
 import java.io.File
 import java.util.zip.ZipEntry
 import java.util.zip.ZipOutputStream
-import io.bluetape4k.assertions.assertFailsWith
 
 /**
  * [unzip] zip bomb 방어 테스트.
@@ -74,7 +75,8 @@ class ZipBombProtectionTest {
         // 예외 없이 완료해야 한다
         unzip(zipFile, destDir)
 
-        require(destDir.list()?.isNotEmpty() == true) { "추출 결과가 존재해야 한다" }
+        // 추출 결과가 존재해야 한다
+        destDir.list().shouldNotBeEmpty()
     }
 
     // ────────────────────────────────────────────────────────────────────────────
@@ -85,7 +87,9 @@ class ZipBombProtectionTest {
     fun `ZIP_MAX_UNCOMPRESSED_SIZE 는 ZIP_MAX_ENTRIES 파일을 수용할 만큼 충분히 크다`() {
         // 1GB 한도 / 10_000 엔트리 = 파일당 평균 100KB 허용
         val avgBytesPerEntry = ZIP_MAX_UNCOMPRESSED_SIZE / ZIP_MAX_ENTRIES
-        require(avgBytesPerEntry > 0L) { "엔트리당 평균 허용 크기가 양수여야 한다" }
+
+        // "엔트리당 평균 허용 크기가 양수여야 한다"
+        avgBytesPerEntry shouldBeGreaterThan 0L
     }
 
     // ────────────────────────────────────────────────────────────────────────────

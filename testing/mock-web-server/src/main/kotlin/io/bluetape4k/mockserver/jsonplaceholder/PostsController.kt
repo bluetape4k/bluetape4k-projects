@@ -26,7 +26,7 @@ import org.springframework.web.bind.annotation.RestController
 @RestController
 @RequestMapping("/jsonplaceholder/posts")
 class PostsController(private val service: JsonplaceholderService) {
-    companion object : KLogging()
+    companion object: KLogging()
 
     /**
      * 게시글 목록을 반환한다. `userId`가 지정되면 해당 사용자의 게시글만 반환한다.

@@ -3,14 +3,12 @@ package io.bluetape4k.cache.memoizer
 import com.hazelcast.map.IMap
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
-import kotlinx.coroutines.sync.Mutex
-import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Deferred
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.future.await
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import java.util.concurrent.ConcurrentHashMap
 
 /**
@@ -72,14 +70,15 @@ class SuspendHazelcastMemoizer<K: Any, V: Any>(
     companion object: KLoggingChannel()
 
     private val inFlight = ConcurrentHashMap<K, Deferred<V>>()
+
     // evaluator는 lock 밖에서 실행하고, 세대 변경과 캐시 저장/삭제만 직렬화합니다.
-    private val mutationMutex = Mutex()
+    private val mutex = Mutex()
     private var generation = 0L
 
     override suspend fun invoke(key: K): V {
         val deferred = CompletableDeferred<V>()
         var capturedGeneration = 0L
-        val existing = mutationMutex.withLock {
+        val existing = mutex.withLock {
             capturedGeneration = generation
             inFlight.putIfAbsent(key, deferred)
         }
@@ -93,9 +92,9 @@ class SuspendHazelcastMemoizer<K: Any, V: Any>(
             }
 
             val evaluated = evaluator(key)
-            val winner = mutationMutex.withLock {
+            val winner = mutex.withLock {
                 if (capturedGeneration == generation) {
-                    withContext(Dispatchers.IO) { imap.putIfAbsent(key, evaluated) } ?: evaluated
+                    imap.putIfAbsent(key, evaluated) ?: evaluated
                 } else evaluated
             }
             deferred.complete(winner)
@@ -113,10 +112,10 @@ class SuspendHazelcastMemoizer<K: Any, V: Any>(
 
     override suspend fun clear() {
         log.debug { "모든 메모이제이션 값 삭제: map=${imap.name}" }
-        mutationMutex.withLock {
+        mutex.withLock {
             generation++
             inFlight.clear()
-            withContext(Dispatchers.IO) { imap.clear() }
+            imap.clear()
         }
     }
 }

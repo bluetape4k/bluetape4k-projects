@@ -3,9 +3,13 @@ package io.bluetape4k.redis.lettuce.lease
 import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeLessThan
+import io.bluetape4k.assertions.shouldBeNull
 import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.assertions.shouldNotBeEqualTo
 import io.bluetape4k.assertions.shouldNotContain
+import io.bluetape4k.codec.Base58
+import io.bluetape4k.io.lookup
+import io.bluetape4k.logging.KLogging
 import org.junit.jupiter.api.Test
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
@@ -16,6 +20,10 @@ import java.io.ObjectStreamClass
 import java.io.Serializable
 
 class FencingLeaseValueTest {
+
+    private companion object: KLogging() {
+        val BASE58_ALPHABET = Base58.ALPHABET.contentToString()
+    }
 
     @Test
     fun `config accepts safe ordering domain values`() {
@@ -54,9 +62,12 @@ class FencingLeaseValueTest {
         FencingOwnerId.from(utf8).toString() shouldBeEqualTo "FencingOwnerId(<redacted>)"
         FencingOwnerId.from("secret-owner").toString() shouldNotContain "secret-owner"
 
-        listOf("", "   ", "a".repeat(257), "한".repeat(86)).forEach { value ->
-            assertFailsWith<IllegalArgumentException> { FencingOwnerId.from(value) }
-        }
+        listOf("", "   ", "a".repeat(257), "한".repeat(86))
+            .forEach { value ->
+                assertFailsWith<IllegalArgumentException> {
+                    FencingOwnerId.from(value)
+                }
+            }
     }
 
     @Test
@@ -93,13 +104,17 @@ class FencingLeaseValueTest {
         epochTwoFirst.toString() shouldBeEqualTo "FencingToken(<redacted>)"
         epochTwoFirst.toString() shouldNotContain "2"
 
-        assertFailsWith<IllegalArgumentException> { FencingToken(0, 1) }
-        assertFailsWith<IllegalArgumentException> { FencingToken(1, 0) }
+        assertFailsWith<IllegalArgumentException> {
+            FencingToken(0, 1)
+        }
+        assertFailsWith<IllegalArgumentException> {
+            FencingToken(1, 0)
+        }
     }
 
     @Test
     fun `value objects have stable Java serialization contracts`() {
-        val samples = listOf<Serializable>(
+        val samples = listOf(
             LettuceFencingLeaseConfig("orders", "rebuild", 7),
             FencingOwnerId.from("attempt-1"),
             FencingToken(7, 42),
@@ -107,7 +122,7 @@ class FencingLeaseValueTest {
 
         samples.forEach { original ->
             javaRoundTrip(original) shouldBeEqualTo original
-            ObjectStreamClass.lookup(original.javaClass).serialVersionUID shouldBeEqualTo 1L
+            original::class.lookup().serialVersionUID shouldBeEqualTo 1L
         }
     }
 
@@ -118,14 +133,18 @@ class FencingLeaseValueTest {
             LettuceFencingLeaseConfig("orders", "rebuild", 7).withField("namespace", null),
             LettuceFencingLeaseConfig("orders", "rebuild", 7).withField("resourceName", null),
         )
-        val invalidOwner = FencingOwnerId.from("attempt-1")
+        val invalidOwner = FencingOwnerId
+            .from("attempt-1")
             .withField("value", null)
+
         val invalidToken = FencingToken(7, 42)
             .withField("sequence", 0L)
 
         (invalidConfigs + listOf(invalidOwner, invalidToken)).forEach { invalid ->
-            val error = assertFailsWith<InvalidObjectException> { javaRoundTrip(invalid) }
-            error.cause shouldBeEqualTo null
+            val error = assertFailsWith<InvalidObjectException> {
+                javaRoundTrip(invalid)
+            }
+            error.cause.shouldBeNull()
             error.message shouldBeEqualTo "Invalid serialized ${invalid.javaClass.simpleName}."
             error.message shouldNotContain "secret namespace"
             error.message shouldNotContain "attempt-1"
@@ -141,11 +160,11 @@ class FencingLeaseValueTest {
 
     private fun javaRoundTrip(original: Serializable): Any =
         ByteArrayOutputStream().use { bytes ->
-            ObjectOutputStream(bytes).use { output -> output.writeObject(original) }
-            ObjectInputStream(ByteArrayInputStream(bytes.toByteArray())).use { input -> input.readObject() }
+            ObjectOutputStream(bytes).use { output ->
+                output.writeObject(original)
+            }
+            ObjectInputStream(ByteArrayInputStream(bytes.toByteArray())).use { input ->
+                input.readObject()
+            }
         }
-
-    private companion object {
-        const val BASE58_ALPHABET = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz"
-    }
 }

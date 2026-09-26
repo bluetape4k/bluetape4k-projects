@@ -1,6 +1,5 @@
 package io.bluetape4k.measured
 
-import io.bluetape4k.measured.Storage.Companion.bytes
 import kotlin.math.pow
 
 /**

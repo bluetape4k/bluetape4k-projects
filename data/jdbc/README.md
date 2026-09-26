@@ -60,9 +60,7 @@ dataSource.withConnect { conn ->
 #### Refreshing Password DataSource
 
 `RefreshingJdbcPasswordDataSource` is a small `DriverManager`-backed `DataSource`
-for passwords that can change between physical JDBC connections, such as
-cloud-generated database tokens. It calls the password provider for every
-no-argument `getConnection()` call and then delegates to
+for passwords that can change between physical JDBC connections, such as cloud-generated database tokens. It calls the password provider for every no-argument `getConnection()` call and then delegates to
 `DriverManager.getConnection(url, properties)`.
 
 ```kotlin
@@ -91,10 +89,8 @@ refreshingDataSource.connection.use { connection ->
 }
 ```
 
-Wrap it with Hikari by setting the nested `dataSource`. Do not also set
-Hikari `jdbcUrl`, `username`, `password`, `credentialsProvider`, or
-`dataSourceClassName` for this refresh path, because those settings can bypass
-the no-argument `getConnection()` contract.
+Wrap it with Hikari by setting the nested `dataSource`. Do not also set Hikari `jdbcUrl`, `username`, `password`, `credentialsProvider`, or
+`dataSourceClassName` for this refresh path, because those settings can bypass the no-argument `getConnection()` contract.
 
 ```kotlin
 import com.zaxxer.hikari.HikariDataSource
@@ -107,16 +103,11 @@ val pooled = HikariDataSource().apply {
 
 Important behavior:
 
-- `getConnection(username, password)` is rejected because caller-supplied
-  credentials would bypass the refresh contract.
+- `getConnection(username, password)` is rejected because caller-supplied credentials would bypass the refresh contract.
 - `getLogWriter`, `setLogWriter`, `getLoginTimeout`, and `setLoginTimeout`
   use process-wide `DriverManager` state, not per-instance state.
-- This helper is not a connection pool, scheduled refresh service, async
-  password provider, generic static credential helper, or caller-supplied
-  credential override path.
-- `dataSourceProperties` may contain vendor driver options, but secret-bearing
-  entries are not diagnostic-safe. `user` and `password` entries are always
-  overwritten by the configured username and the current provider password.
+- This helper is not a connection pool, scheduled refresh service, async password provider, generic static credential helper, or caller-supplied credential override path.
+- `dataSourceProperties` may contain vendor driver options, but secret-bearing entries are not diagnostic-safe. `user` and `password` entries are always overwritten by the configured username and the current provider password.
 
 ### 2. Executing Statements
 

@@ -2,13 +2,14 @@ package io.bluetape4k.okio.coroutines
 
 import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.junit5.coroutines.SuspendedJobTester
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.okio.AbstractOkioTest
 import io.bluetape4k.okio.bufferOf
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
-import kotlinx.coroutines.coroutineScope
 import net.datafaker.Faker
 import okio.Buffer
 import okio.IOException
@@ -66,6 +67,7 @@ class SuspendedPipeTest: AbstractOkioTest() {
 
         pipe.sink.write(source.copy(), -1L)
         pipe.sink.write(source.copy(), 0L)
+
         assertFailsWith<IllegalArgumentException> {
             pipe.source.read(Buffer(), -1L)
         }
@@ -129,8 +131,8 @@ class SuspendedPipeTest: AbstractOkioTest() {
         pipe.sink.close()
 
         foldedSink.result.readUtf8() shouldBeEqualTo "later"
-        foldedSink.flushed shouldBeEqualTo true
-        foldedSink.closed shouldBeEqualTo true
+        foldedSink.flushed.shouldBeTrue()
+        foldedSink.closed.shouldBeTrue()
     }
 
     @Test
@@ -150,11 +152,15 @@ class SuspendedPipeTest: AbstractOkioTest() {
         }
 
         pipe.fold(foldedSink)
-        foldedSink.closed shouldBeEqualTo true
-        assertFailsWith<IllegalStateException> { pipe.sink.flush() }
+        foldedSink.closed.shouldBeTrue()
+        assertFailsWith<IllegalStateException> {
+            pipe.sink.flush()
+        }
 
         pipe.source.close()
-        assertFailsWith<IllegalStateException> { pipe.source.read(Buffer(), 1L) }
+        assertFailsWith<IllegalStateException> {
+            pipe.source.read(Buffer(), 1L)
+        }
     }
 
     @Test
@@ -165,21 +171,20 @@ class SuspendedPipeTest: AbstractOkioTest() {
             .add {
                 val pipe = SuspendedPipe(8L)
 
-                coroutineScope {
-                    val writer = async {
-                        val source = bufferOf("ping")
-                        pipe.sink.write(source, source.size)
-                        pipe.sink.close()
-                    }
-                    val reader = async {
-                        val sink = Buffer()
-                        pipe.source.readAll(sink)
-                        sink.readUtf8()
-                    }
-
-                    writer.await()
-                    reader.await() shouldBeEqualTo "ping"
+                val writer = async(Dispatchers.IO) {
+                    val source = bufferOf("ping")
+                    pipe.sink.write(source, source.size)
+                    pipe.sink.close()
                 }
+                val reader = async(Dispatchers.IO) {
+                    val sink = Buffer()
+                    pipe.source.readAll(sink)
+                    sink.readUtf8()
+                }
+
+                writer.await()
+                reader.await() shouldBeEqualTo "ping"
+
             }
             .run()
     }

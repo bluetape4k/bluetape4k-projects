@@ -1,9 +1,9 @@
 package io.bluetape4k.kafka.codec
 
-import io.bluetape4k.kafka.AbstractKafkaTest
-import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeNull
+import io.bluetape4k.kafka.AbstractKafkaTest
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.ValueSource
@@ -21,7 +21,6 @@ class StringKafkaCodecTest: AbstractKafkaTest() {
         val original = "Hello, Kafka!"
         val bytes = codec.serialize(TEST_TOPIC_NAME, original)
         val deserialized = codec.deserialize(TEST_TOPIC_NAME, bytes)
-
         deserialized shouldBeEqualTo original
     }
 
@@ -30,7 +29,6 @@ class StringKafkaCodecTest: AbstractKafkaTest() {
     fun `다양한 문자열 직렬화 및 역직렬화`(input: String) {
         val bytes = codec.serialize(TEST_TOPIC_NAME, input)
         val deserialized = codec.deserialize(TEST_TOPIC_NAME, bytes)
-
         deserialized shouldBeEqualTo input
     }
 
@@ -78,7 +76,6 @@ class StringKafkaCodecTest: AbstractKafkaTest() {
 
         val bytes = codec.serialize(TEST_TOPIC_NAME, multilineString)
         val deserialized = codec.deserialize(TEST_TOPIC_NAME, bytes)
-
         deserialized shouldBeEqualTo multilineString
     }
 
@@ -87,7 +84,6 @@ class StringKafkaCodecTest: AbstractKafkaTest() {
         val specialString = "Special chars: \t\n\r!@#$%^&*()_+-=[]{}|;':\",./<>?"
         val bytes = codec.serialize(TEST_TOPIC_NAME, specialString)
         val deserialized = codec.deserialize(TEST_TOPIC_NAME, bytes)
-
         deserialized shouldBeEqualTo specialString
     }
 
@@ -96,7 +92,6 @@ class StringKafkaCodecTest: AbstractKafkaTest() {
         val utf8String = "English: Hello, 한국어: 안녕하세요, 日本語: こんにちは, 中文: 你好, العربية: مرحبا"
         val bytes = codec.serialize(TEST_TOPIC_NAME, utf8String)
         val deserialized = codec.deserialize(TEST_TOPIC_NAME, bytes)
-
         deserialized shouldBeEqualTo utf8String
     }
 
@@ -113,18 +108,16 @@ class StringKafkaCodecTest: AbstractKafkaTest() {
         val original = "Hello, Kafka!"
         val bytes = codec.serialize(TEST_TOPIC_NAME, original)
         val deserialized = codec.deserialize(TEST_TOPIC_NAME, bytes)
-
         deserialized shouldBeEqualTo original
     }
 
     @Test
     fun `key용 deserializer 인코딩 설정이 올바르게 적용되는지 검증`() {
         val codec = StringKafkaCodec()
-        val configs =
-            mutableMapOf<String, Any?>(
-                "key.deserializer.encoding" to "UTF-16",
-                "key.serializer.encoding" to "UTF-16"
-            )
+        val configs = mutableMapOf<String, Any?>(
+            "key.deserializer.encoding" to "UTF-16",
+            "key.serializer.encoding" to "UTF-16"
+        )
         codec.configure(configs, true)
 
         val original = "Key Value"
@@ -137,11 +130,10 @@ class StringKafkaCodecTest: AbstractKafkaTest() {
     @Test
     fun `value용 deserializer 인코딩 설정이 올바르게 적용되는지 검증`() {
         val codec = StringKafkaCodec()
-        val configs =
-            mutableMapOf<String, Any?>(
-                "value.deserializer.encoding" to "UTF-16",
-                "value.serializer.encoding" to "UTF-16"
-            )
+        val configs = mutableMapOf<String, Any?>(
+            "value.deserializer.encoding" to "UTF-16",
+            "value.serializer.encoding" to "UTF-16"
+        )
         codec.configure(configs, false)
 
         val original = "Value Data"
@@ -154,11 +146,10 @@ class StringKafkaCodecTest: AbstractKafkaTest() {
     @Test
     fun `잘못된 인코딩 이름은 기본 인코딩으로 폴백`() {
         val codec = StringKafkaCodec()
-        val configs =
-            mutableMapOf<String, Any?>(
-                "serializer.encoding" to "INVALID-ENCODING",
-                "deserializer.encoding" to "INVALID-ENCODING"
-            )
+        val configs = mutableMapOf<String, Any?>(
+            "serializer.encoding" to "INVALID-ENCODING",
+            "deserializer.encoding" to "INVALID-ENCODING"
+        )
         codec.configure(configs, false)
 
         val original = "Fallback Test"

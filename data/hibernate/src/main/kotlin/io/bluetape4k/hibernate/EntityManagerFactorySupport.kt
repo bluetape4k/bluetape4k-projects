@@ -1,12 +1,11 @@
 package io.bluetape4k.hibernate
 
-import io.bluetape4k.logging.KotlinLogging
+import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.warn
 import jakarta.persistence.EntityManager
 import jakarta.persistence.EntityManagerFactory
 
-@PublishedApi
-internal val emfLog by lazy { KotlinLogging.logger("io.bluetape4k.hibernate.EntityManagerFactorySupport") }
+internal object EmfLogger: KLogging()
 
 /**
  * 새로운 [EntityManager] 를 생성하여, Transaction 하에서 DB 작업을 수행하고, [EntityManager]는 소멸시킵니다.
@@ -37,7 +36,7 @@ inline fun <T> EntityManagerFactory.withNewEntityManager(block: (EntityManager) 
                 try {
                     em.transaction.rollback()
                 } catch (rollbackEx: Throwable) {
-                    emfLog.warn(rollbackEx) { "트랜잭션 롤백 중 예외가 발생했습니다. 원본 예외가 전파됩니다." }
+                    EmfLogger.log.warn(rollbackEx) { "트랜잭션 롤백 중 예외가 발생했습니다. 원본 예외가 전파됩니다." }
                 }
             }
             throw e

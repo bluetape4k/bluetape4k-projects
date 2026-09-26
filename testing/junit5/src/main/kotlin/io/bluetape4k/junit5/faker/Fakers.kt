@@ -2,7 +2,6 @@ package io.bluetape4k.junit5.faker
 
 import com.fasterxml.uuid.Generators
 import com.fasterxml.uuid.NoArgGenerator
-import io.bluetape4k.junit5.faker.Fakers.faker
 import io.bluetape4k.logging.KLogging
 import net.datafaker.Faker
 import net.datafaker.service.RandomService
@@ -26,7 +25,9 @@ import java.util.*
 object Fakers: KLogging() {
 
     /** 공유 DataFaker 인스턴스입니다. */
-    val faker: Faker = Faker()
+    val faker: Faker by lazy { Faker() }
+
+    val defaultFaker by lazy { Faker(Locale.getDefault()) }
 
     /** 공유 난수 서비스입니다. */
     val random: RandomService by lazy { faker.random() }

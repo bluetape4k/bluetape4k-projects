@@ -1,6 +1,7 @@
 package io.bluetape4k.kafka.logback.keyprovider
 
 import io.bluetape4k.assertions.shouldContainSame
+import io.bluetape4k.assertions.shouldNotBeNull
 import io.bluetape4k.kafka.logback.utils.hashBytes
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
@@ -16,8 +17,8 @@ class ThreadNameKafkaKeyProviderTest: AbstractKafkaKeyProviderTest() {
     fun `log의 thread name 으로 kafka key 를 생성한다`() {
         val threadName = Thread.currentThread().name
 
-        val key = keyProvider.get(sampleEvent)!!
+        val key = keyProvider.get(sampleEvent).shouldNotBeNull()
         log.debug { "key=${key.contentToString()}" }
-        key shouldContainSame threadName.hashBytes()!!
+        key shouldContainSame threadName.hashBytes().shouldNotBeNull()
     }
 }

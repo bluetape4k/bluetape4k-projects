@@ -1,10 +1,12 @@
 package io.bluetape4k.retrofit2.result
 
+import io.bluetape4k.assertions.assertFails
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeFalse
 import io.bluetape4k.assertions.shouldBeInstanceOf
 import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.assertions.shouldNotBeNull
+import io.bluetape4k.concurrent.get
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.retrofit2.AbstractRetrofitTest
@@ -31,9 +33,10 @@ import retrofit2.Response
 import retrofit2.http.GET
 import retrofit2.http.Path
 import java.util.concurrent.CompletableFuture
-import java.util.concurrent.TimeUnit
+import kotlin.time.Duration.Companion.seconds
 
 class ResultCallTest: AbstractRetrofitTest() {
+
     companion object: KLoggingChannel()
 
     /**
@@ -56,12 +59,11 @@ class ResultCallTest: AbstractRetrofitTest() {
         ): Result<HttpbinAnythingResponse>
     }
 
-    private val retrofit =
-        retrofitBuilderOf(testBaseUrl)
-            .callFactory(vertxCallFactoryOf())
-            .addConverterFactory(defaultJsonConverterFactory)
-            .addCallAdapterFactory(ResultCallAdapterFactory())
-            .build()
+    private val retrofit = retrofitBuilderOf(testBaseUrl)
+        .callFactory(vertxCallFactoryOf())
+        .addConverterFactory(defaultJsonConverterFactory)
+        .addCallAdapterFactory(ResultCallAdapterFactory())
+        .build()
 
     private val api by lazy { retrofit.service<HttpbinCoroutineResultApi>() }
 
@@ -82,7 +84,7 @@ class ResultCallTest: AbstractRetrofitTest() {
         runTest {
             val notExists = api.status(404)
             notExists.isFailure.shouldBeTrue()
-            notExists.exceptionOrNull().shouldNotBeNull() shouldBeInstanceOf HttpException::class
+            notExists.exceptionOrNull().shouldBeInstanceOf<HttpException>()
         }
 
     @Test
@@ -91,8 +93,8 @@ class ResultCallTest: AbstractRetrofitTest() {
             val serverError = api.status(500)
             serverError.isFailure.shouldBeTrue()
             val ex = serverError.exceptionOrNull().shouldNotBeNull()
-            ex shouldBeInstanceOf HttpException::class
-            (ex as HttpException).code() shouldBeEqualTo 500
+            ex.shouldBeInstanceOf<HttpException>()
+            ex.code() shouldBeEqualTo 500
         }
 
     @Test
@@ -101,8 +103,8 @@ class ResultCallTest: AbstractRetrofitTest() {
             val forbidden = api.status(403)
             forbidden.isFailure.shouldBeTrue()
             val ex = forbidden.exceptionOrNull().shouldNotBeNull()
-            ex shouldBeInstanceOf HttpException::class
-            (ex as HttpException).code() shouldBeEqualTo 403
+            ex.shouldBeInstanceOf<HttpException>()
+            ex.code() shouldBeEqualTo 403
         }
 
 
@@ -114,11 +116,10 @@ class ResultCallTest: AbstractRetrofitTest() {
     @Test
     fun `executeAsync 비동기 호출은 성공 응답을 반환한다`() =
         runSuspendIO {
-            val rawRetrofit =
-                retrofitBuilderOf(testBaseUrl)
-                    .callFactory(vertxCallFactoryOf())
-                    .addConverterFactory(defaultJsonConverterFactory)
-                    .build()
+            val rawRetrofit = retrofitBuilderOf(testBaseUrl)
+                .callFactory(vertxCallFactoryOf())
+                .addConverterFactory(defaultJsonConverterFactory)
+                .build()
 
             val rawApi = rawRetrofit.service<RawApi>()
             val response = rawApi.posts().executeAsync().await()
@@ -128,17 +129,18 @@ class ResultCallTest: AbstractRetrofitTest() {
 
     @Test
     fun `취소된 Call을 ResultCall로 감싸면 예외가 발생한다`() {
-        val rawRetrofit =
-            retrofitBuilderOf(testBaseUrl)
-                .callFactory(vertxCallFactoryOf())
-                .addConverterFactory(defaultJsonConverterFactory)
-                .build()
+        val rawRetrofit = retrofitBuilderOf(testBaseUrl)
+            .callFactory(vertxCallFactoryOf())
+            .addConverterFactory(defaultJsonConverterFactory)
+            .build()
 
         val rawApi = rawRetrofit.service<RawApi>()
         val call = rawApi.posts()
         call.cancel()
         call.isCanceled.shouldBeTrue()
-        runCatching { ResultCall(call) }.isFailure.shouldBeTrue()
+        assertFails {
+            ResultCall(call)
+        }
     }
 
     @Test
@@ -158,9 +160,9 @@ class ResultCallTest: AbstractRetrofitTest() {
         val result = response.body().shouldNotBeNull()
 
         result.isFailure.shouldBeTrue()
-        val exception = result.exceptionOrNull().shouldNotBeNull()
-        exception shouldBeInstanceOf HttpException::class
-        (exception as HttpException).code() shouldBeEqualTo 404
+        val ex = result.exceptionOrNull().shouldNotBeNull()
+        ex.shouldBeInstanceOf<HttpException>()
+        ex.code() shouldBeEqualTo 404
         errorBody.closed.shouldBeTrue()
     }
 
@@ -190,11 +192,11 @@ class ResultCallTest: AbstractRetrofitTest() {
 
         delegate.callback.onResponse(delegate, Response.error(500, errorBody))
 
-        val result = completed.get(1, TimeUnit.SECONDS).body().shouldNotBeNull()
+        val result = completed.get(1.seconds).body().shouldNotBeNull()
         result.isFailure.shouldBeTrue()
-        val exception = result.exceptionOrNull().shouldNotBeNull()
-        exception shouldBeInstanceOf HttpException::class
-        (exception as HttpException).code() shouldBeEqualTo 500
+        val ex = result.exceptionOrNull().shouldNotBeNull()
+        ex.shouldBeInstanceOf<HttpException>()
+        ex.code() shouldBeEqualTo 500
         errorBody.closed.shouldBeTrue()
     }
 

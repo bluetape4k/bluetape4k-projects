@@ -5,11 +5,16 @@ import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeFalse
 import io.bluetape4k.assertions.shouldBeSameInstanceAs
 import io.bluetape4k.assertions.shouldBeTrue
-import kotlinx.coroutines.test.runTest
+import io.bluetape4k.assertions.shouldNotBe
+import io.bluetape4k.concurrent.await
+import io.bluetape4k.concurrent.completableFutureOf
+import io.bluetape4k.concurrent.get
+import io.bluetape4k.junit5.coroutines.runSuspendIO
+import io.bluetape4k.logging.KLogging
 import org.junit.jupiter.api.Test
+import java.io.Serializable
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.CountDownLatch
-import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
@@ -17,8 +22,10 @@ import kotlin.time.Duration.Companion.seconds
 
 class CoordinationRuntimeTest {
 
+    companion object: KLogging()
+
     @Test
-    fun `runtime enforces registration cap and watchdog service capacity`() = runTest {
+    fun `runtime enforces registration cap and watchdog service capacity`() = runSuspendIO {
         val ticker = MutableTicker()
         val scheduler = RecordingScheduler()
         val runtime = CoordinationRuntime(ticker = ticker, scheduler = scheduler)
@@ -29,13 +36,15 @@ class CoordinationRuntimeTest {
                 ttl = 3.seconds,
                 renewalInterval = 1.seconds,
                 generation = generation.toLong(),
-            ) { CompletableFuture.completedFuture(CoordinationRenewalOutcome.RENEWED) }
+            ) {
+                completableFutureOf(CoordinationRenewalOutcome.RENEWED)
+            }
         }
 
         runtime.activeWatchdogs shouldBeEqualTo 10_000
         assertFailsWith<CoordinationCapacityException> {
             owner.registerWatchdog(3.seconds, 1.seconds, 10_001L) {
-                CompletableFuture.completedFuture(CoordinationRenewalOutcome.RENEWED)
+                completableFutureOf(CoordinationRenewalOutcome.RENEWED)
             }
         }
 
@@ -49,13 +58,15 @@ class CoordinationRuntimeTest {
             ),
         )
         val constrainedOwner = constrained.registerObject("lock-2")
-        constrainedOwner.registerWatchdog(3.seconds, 1.seconds, 1L) {
-            CompletableFuture.completedFuture(CoordinationRenewalOutcome.RENEWED)
-        }
-        assertFailsWith<CoordinationCapacityException> {
-            constrainedOwner.registerWatchdog(30.seconds, 5.seconds, 2L) {
-                CompletableFuture.completedFuture(CoordinationRenewalOutcome.RENEWED)
+        constrainedOwner
+            .registerWatchdog(3.seconds, 1.seconds, 1L) {
+                completableFutureOf(CoordinationRenewalOutcome.RENEWED)
             }
+        assertFailsWith<CoordinationCapacityException> {
+            constrainedOwner
+                .registerWatchdog(30.seconds, 5.seconds, 2L) {
+                    completableFutureOf(CoordinationRenewalOutcome.RENEWED)
+                }
         }
 
         owner.close()
@@ -63,7 +74,7 @@ class CoordinationRuntimeTest {
     }
 
     @Test
-    fun `due dispatch is capped and backlog drains again within 25 milliseconds`() = runTest {
+    fun `due dispatch is capped and backlog drains again within 25 milliseconds`() = runSuspendIO {
         val ticker = MutableTicker()
         val scheduler = RecordingScheduler()
         val runtime = CoordinationRuntime(
@@ -101,7 +112,7 @@ class CoordinationRuntimeTest {
     }
 
     @Test
-    fun `object close is idempotent and scheduler ownership is explicit`() = runTest {
+    fun `object close is idempotent and scheduler ownership is explicit`() = runSuspendIO {
         val injectedScheduler = RecordingScheduler()
         val injectedRuntime = CoordinationRuntime(scheduler = injectedScheduler)
         val first = injectedRuntime.registerObject("first")
@@ -128,7 +139,7 @@ class CoordinationRuntimeTest {
     }
 
     @Test
-    fun `connection close terminates registrations and late generations cannot reschedule`() = runTest {
+    fun `connection close terminates registrations and late generations cannot reschedule`() = runSuspendIO {
         val ticker = MutableTicker()
         val scheduler = RecordingScheduler()
         val runtime = CoordinationRuntime(ticker = ticker, scheduler = scheduler)
@@ -155,7 +166,7 @@ class CoordinationRuntimeTest {
     }
 
     @Test
-    fun `incomplete renewal becomes ownership loss at the Redis ttl boundary`() = runTest {
+    fun `incomplete renewal becomes ownership loss at the Redis ttl boundary`() = runSuspendIO {
         val ticker = MutableTicker()
         val runtime = CoordinationRuntime(ticker = ticker, scheduler = RecordingScheduler())
         val owner = runtime.registerObject("lock-1")
@@ -176,7 +187,7 @@ class CoordinationRuntimeTest {
     }
 
     @Test
-    fun `renewal completion after its due time records lateness`() = runTest {
+    fun `renewal completion after its due time records lateness`() = runSuspendIO {
         val ticker = MutableTicker()
         val observations = mutableListOf<CoordinationObservation>()
         val runtime = CoordinationRuntime(
@@ -190,6 +201,7 @@ class CoordinationRuntimeTest {
 
         ticker.advance(1.seconds)
         runtime.drainDue().dispatched shouldBeEqualTo 1
+
         ticker.advance(500.milliseconds)
         renewal.complete(CoordinationRenewalOutcome.RENEWED)
 
@@ -199,7 +211,7 @@ class CoordinationRuntimeTest {
     }
 
     @Test
-    fun `renewal completion after Redis ttl records ownership loss`() = runTest {
+    fun `renewal completion after Redis ttl records ownership loss`() = runSuspendIO {
         val ticker = MutableTicker()
         val observations = mutableListOf<CoordinationObservation>()
         val runtime = CoordinationRuntime(
@@ -213,6 +225,7 @@ class CoordinationRuntimeTest {
 
         ticker.advance(1.seconds)
         runtime.drainDue().dispatched shouldBeEqualTo 1
+
         ticker.advance(2.seconds)
         renewal.complete(CoordinationRenewalOutcome.RENEWED)
 
@@ -236,7 +249,7 @@ class CoordinationRuntimeTest {
                     blockOnce.compareAndSet(true, false)
                 ) {
                     sinkEntered.countDown()
-                    releaseSink.await(5, TimeUnit.SECONDS)
+                    releaseSink.await(5.seconds)
                 }
             },
         )
@@ -244,14 +257,14 @@ class CoordinationRuntimeTest {
             runtime.registerObject("lock-1")
         }
 
-        sinkEntered.await(5, TimeUnit.SECONDS).shouldBeTrue()
+        sinkEntered.await(5.seconds).shouldBeTrue()
         val close = CompletableFuture.runAsync(runtime::connectionClosed)
         try {
-            close.get(1, TimeUnit.SECONDS)
+            close.get(1.seconds)
         } finally {
             releaseSink.countDown()
-            registration.get(5, TimeUnit.SECONDS)
-            close.get(5, TimeUnit.SECONDS)
+            registration.get(5.seconds)
+            close.get(5.seconds)
         }
         runtime.isClosed.shouldBeTrue()
     }
@@ -264,14 +277,14 @@ class CoordinationRuntimeTest {
         val sameFirst = CoordinationRuntime.forConnection(firstConnection, scheduler = RecordingScheduler())
         val second = CoordinationRuntime.forConnection(secondConnection, scheduler = RecordingScheduler())
 
-        first.shouldBeSameInstanceAs(sameFirst)
-        (first === second).shouldBeFalse()
+        first shouldBeSameInstanceAs sameFirst
+        first shouldNotBe second
 
         first.connectionClosed()
         second.connectionClosed()
     }
 
-    private data class EqualConnection(val value: String)
+    private data class EqualConnection(val value: String): Serializable
 
     private class MutableTicker(private var nowNanos: Long = 0L): MonotonicTicker {
         override fun readNanos(): Long = nowNanos

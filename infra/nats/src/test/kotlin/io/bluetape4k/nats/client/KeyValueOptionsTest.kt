@@ -1,11 +1,14 @@
 package io.bluetape4k.nats.client
 
-import io.nats.client.KeyValueOptions
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldNotBeNull
+import io.bluetape4k.logging.KLogging
+import io.bluetape4k.nats.AbstractNatsTest
 import org.junit.jupiter.api.Test
 
-class KeyValueOptionsTest {
+class KeyValueOptionsTest: AbstractNatsTest() {
+
+    companion object: KLogging()
 
     @Test
     fun `keyValueOptions with empty builder creates instance`() {

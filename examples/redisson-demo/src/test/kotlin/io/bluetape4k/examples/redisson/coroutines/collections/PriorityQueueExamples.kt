@@ -1,11 +1,11 @@
 package io.bluetape4k.examples.redisson.coroutines.collections
 
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.coroutines.support.awaitUntil
 import io.bluetape4k.examples.redisson.coroutines.AbstractRedissonCoroutineTest
+import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.redis.redisson.codec.RedissonCodecs
-import kotlinx.coroutines.future.await
-import kotlinx.coroutines.test.runTest
-import io.bluetape4k.assertions.shouldBeEqualTo
 import org.junit.jupiter.api.Test
 
 /**
@@ -25,7 +25,7 @@ class PriorityQueueExamples: AbstractRedissonCoroutineTest() {
     }
 
     @Test
-    fun `use PriorityQueue`() = runTest {
+    fun `use PriorityQueue`() = runSuspendIO {
         val queueName = randomName()
         val queue = redisson.getPriorityQueue<Item>(queueName, RedissonCodecs.LZ4Fory)
 
@@ -38,10 +38,10 @@ class PriorityQueueExamples: AbstractRedissonCoroutineTest() {
         queue.count() shouldBeEqualTo 6
 
         // 첫번째 요소 조회
-        queue.peekAsync().await() shouldBeEqualTo Item("a", 3)
+        queue.peekAsync().awaitUntil() shouldBeEqualTo Item("a", 3)
         // 첫번째 요소 가져오기
-        queue.pollAsync().await() shouldBeEqualTo Item("a", 3)
+        queue.pollAsync().awaitUntil() shouldBeEqualTo Item("a", 3)
 
-        queue.deleteAsync().await()
+        queue.deleteAsync().awaitUntil()
     }
 }

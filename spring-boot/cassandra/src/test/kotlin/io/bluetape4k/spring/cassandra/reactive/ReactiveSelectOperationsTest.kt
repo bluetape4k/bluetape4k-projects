@@ -1,9 +1,20 @@
 package io.bluetape4k.spring.cassandra.reactive
 
 import com.datastax.oss.driver.api.core.uuid.Uuids
+import io.bluetape4k.assertions.assertFailsWith
+import io.bluetape4k.assertions.shouldBeEmpty
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeFalse
+import io.bluetape4k.assertions.shouldBeIn
+import io.bluetape4k.assertions.shouldBeInstanceOf
+import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.assertions.shouldContainSame
+import io.bluetape4k.assertions.shouldHaveSize
+import io.bluetape4k.assertions.shouldNotBeNull
 import io.bluetape4k.cassandra.cql.simpleStatementOf
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.coroutines.KLoggingChannel
+import io.bluetape4k.logging.debug
 import io.bluetape4k.spring.cassandra.AbstractCassandraCoroutineTest
 import io.bluetape4k.spring.cassandra.AbstractReactiveCassandraTestConfiguration
 import io.bluetape4k.spring.cassandra.cast
@@ -17,15 +28,6 @@ import kotlinx.coroutines.reactive.asFlow
 import kotlinx.coroutines.reactor.awaitSingle
 import kotlinx.coroutines.reactor.awaitSingleOrNull
 import kotlinx.coroutines.runBlocking
-import io.bluetape4k.assertions.shouldBeEmpty
-import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldBeFalse
-import io.bluetape4k.assertions.shouldBeIn
-import io.bluetape4k.assertions.shouldBeInstanceOf
-import io.bluetape4k.assertions.shouldBeTrue
-import io.bluetape4k.assertions.shouldContainSame
-import io.bluetape4k.assertions.shouldHaveSize
-import io.bluetape4k.assertions.shouldNotBeNull
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -43,7 +45,6 @@ import org.springframework.data.cassandra.core.query.Query
 import org.springframework.data.cassandra.core.query.query
 import org.springframework.data.cassandra.core.query.where
 import java.io.Serializable
-import io.bluetape4k.assertions.assertFailsWith
 
 @SpringBootTest
 class ReactiveSelectOperationsTest(
@@ -85,15 +86,15 @@ class ReactiveSelectOperationsTest(
 
         session.context.config.profiles
             .forEach { (name, profile) ->
-                println("profile name : $name")
-                println("profile options : ${profile.entrySet().joinToString()}")
+                log.debug { "profile name : $name" }
+                log.debug { "profile options : ${profile.entrySet().joinToString()}" }
             }
 
         val stmt = simpleStatementOf("SELECT * FROM $PERSON_TABLE_NAME") {
             setExecutionProfileName("olap")
         }
         // ExecutionProfileResolver.from("olap").apply(stmt)
-        session.execute(stmt).all().shouldHaveSize(2)
+        session.execute(stmt).all() shouldHaveSize 2
     }
 
     @Test
@@ -127,7 +128,7 @@ class ReactiveSelectOperationsTest(
             .asFlow()
             .toList()
 
-        result.forEach { it shouldBeInstanceOf Jedi::class }
+        result.forEach { it.shouldBeInstanceOf<Jedi>() }
         result shouldHaveSize 2
         result.map { it.firstName } shouldContainSame listOf(han.firstName, luke.firstName)
     }
@@ -141,7 +142,7 @@ class ReactiveSelectOperationsTest(
             .asFlow()
             .toList()
 
-        result.forEach { it shouldBeInstanceOf PersonProjection::class }
+        result.forEach { it.shouldBeInstanceOf<PersonProjection>() }
         result shouldHaveSize 2
         result.map { it.firstName } shouldContainSame listOf(han.firstName, luke.firstName)
     }
@@ -202,8 +203,8 @@ class ReactiveSelectOperationsTest(
             .first()
             .awaitSingleOrNull()
 
-        result shouldBeInstanceOf PersonProjection::class
-        result!!.firstName shouldBeEqualTo han.firstName
+        result.shouldBeInstanceOf<PersonProjection>()
+        result.firstName shouldBeEqualTo han.firstName
     }
 
     @Test
@@ -215,8 +216,8 @@ class ReactiveSelectOperationsTest(
             .first()
             .awaitSingleOrNull()
 
-        result shouldBeInstanceOf PersonSpELProjection::class
-        result!!.name shouldBeEqualTo han.firstName
+        result.shouldBeInstanceOf<PersonSpELProjection>()
+        result.name shouldBeEqualTo han.firstName
     }
 
     @Test

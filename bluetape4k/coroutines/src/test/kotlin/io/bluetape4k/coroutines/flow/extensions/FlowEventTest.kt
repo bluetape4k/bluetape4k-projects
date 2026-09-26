@@ -32,7 +32,7 @@ class FlowEventTest: AbstractFlowTest() {
     @Test
     fun `Value keeps data class source conveniences`() {
         val event = FlowEvent.Value(1)
-        val (value) = event
+        val value = event.value
 
         value shouldBeEqualTo 1
         event.copy(value = 2) shouldBeEqualTo FlowEvent.Value(2)
@@ -58,7 +58,7 @@ class FlowEventTest: AbstractFlowTest() {
     fun `Error keeps data class source conveniences`() {
         val e = RuntimeException("Boom!")
         val event = FlowEvent.Error(e)
-        val (error) = event
+        val error = event.error
 
         error shouldBeEqualTo e
         event.copy(error = IllegalStateException("next")).error.message shouldBeEqualTo "next"
@@ -71,11 +71,12 @@ class FlowEventTest: AbstractFlowTest() {
 
     @Test
     fun `map FlowEvent`() {
-
         FlowEvent.Value(1).map { it + 1 } shouldBeEqualTo FlowEvent.Value(2)
 
         assertFailsWith<RuntimeException> {
-            FlowEvent.Value(1).map { throw RuntimeException("Boom!") }
+            FlowEvent.Value(1).map {
+                throw RuntimeException("Boom!")
+            }
         }.message shouldBeEqualTo "Boom!"
 
         val e2: FlowEvent<Int> = FlowEvent.Error(RuntimeException("1"))
@@ -88,14 +89,15 @@ class FlowEventTest: AbstractFlowTest() {
     @Test
     fun `flatMap FlowEvent`() {
         FlowEvent.Value(1).flatMap { FlowEvent.Value(it + 1) } shouldBeEqualTo FlowEvent.Value(2)
-
         FlowEvent.Value(1).flatMap { FlowEvent.Complete } shouldBeEqualTo FlowEvent.Complete
 
         val ex = RuntimeException("Boom!")
         FlowEvent.Value(1).flatMap { FlowEvent.Error(ex) } shouldBeEqualTo FlowEvent.Error(ex)
 
         assertFailsWith<RuntimeException> {
-            FlowEvent.Value(1).flatMap<Int, String> { throw RuntimeException("error") }
+            FlowEvent.Value(1).flatMap<Int, String> {
+                throw RuntimeException("error")
+            }
         }.message shouldBeEqualTo "error"
 
         val errorEvent: FlowEvent<Int> = FlowEvent.Error(RuntimeException("1"))
@@ -124,6 +126,7 @@ class FlowEventTest: AbstractFlowTest() {
     @Test
     fun `valueOrThrow for FlowEvent`() {
         FlowEvent.Value(1).valueOrThrow() shouldBeEqualTo 1
+
         assertFailsWith<RuntimeException> {
             FlowEvent.Error(RuntimeException("1")).valueOrThrow()
         }.message shouldBeEqualTo "1"
@@ -145,6 +148,7 @@ class FlowEventTest: AbstractFlowTest() {
     @Test
     fun `errorOrNull for FlowEvent`() {
         val ex = RuntimeException("Boom!")
+
         FlowEvent.Value(1).errorOrNull().shouldBeNull()
         FlowEvent.Error(ex).errorOrNull() shouldBeEqualTo ex
         FlowEvent.Complete.errorOrNull().shouldBeNull()

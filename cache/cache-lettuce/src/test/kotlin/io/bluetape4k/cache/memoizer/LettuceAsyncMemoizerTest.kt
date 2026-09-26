@@ -1,5 +1,7 @@
 package io.bluetape4k.cache.memoizer
 
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeLessOrEqualTo
 import io.bluetape4k.cache.RedisServers
 import io.bluetape4k.junit5.concurrency.MultithreadingTester
 import io.bluetape4k.logging.KLogging
@@ -8,7 +10,6 @@ import io.bluetape4k.redis.lettuce.LettuceClients
 import io.bluetape4k.redis.lettuce.codec.LettuceIntCodec
 import io.bluetape4k.redis.lettuce.codec.LettuceLongCodec
 import io.bluetape4k.redis.lettuce.map.LettuceMap
-import io.bluetape4k.assertions.shouldBeEqualTo
 import org.junit.jupiter.api.Test
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.atomic.AtomicInteger
@@ -31,13 +32,13 @@ class LettuceAsyncMemoizerTest: AbstractAsyncMemoizerTest() {
 
     override val factorial: AsyncFactorialProvider = object: AsyncFactorialProvider {
         override val cachedCalc: (Long) -> CompletableFuture<Long> =
-            LettuceMap<Long>(longConnection, "memoizer:lettuce:async:factorial")
+            LettuceMap(longConnection, "memoizer:lettuce:async:factorial")
                 .asyncMemoizer { calc(it) }
     }
 
     override val fibonacci: AsyncFibonacciProvider = object: AsyncFibonacciProvider {
         override val cachedCalc: (Long) -> CompletableFuture<Long> =
-            LettuceMap<Long>(longConnection, "memoizer:lettuce:async:fibonacci")
+            LettuceMap(longConnection, "memoizer:lettuce:async:fibonacci")
                 .asyncMemoizer { calc(it) }
     }
 
@@ -82,6 +83,6 @@ class LettuceAsyncMemoizerTest: AbstractAsyncMemoizerTest() {
         val totalCalls = workers * rounds
         val evaluations = evalCount.get()
         log.debug { "totalCalls=$totalCalls, evaluations=$evaluations" }
-        (evaluations <= workers) shouldBeEqualTo true
+        evaluations shouldBeLessOrEqualTo workers
     }
 }

@@ -6,7 +6,8 @@ Performance measurement results for Lettuce Redis codec serialization/deserializ
 
 ## Measurement Overview
 
-- **Target Codecs**: fastjson2, fastFory, Fory, Kryo, LZ4+FastFory, LZ4+Fory, Jackson3, LZ4+Kryo, Zstd+FastFory, Zstd+Fory, Zstd+Kryo, JDK, Gzip+FastFory
+- **Target
+  Codecs**: fastjson2, fastFory, Fory, Kryo, LZ4+FastFory, LZ4+Fory, Jackson3, LZ4+Kryo, Zstd+FastFory, Zstd+Fory, Zstd+Kryo, JDK, Gzip+FastFory
 - **Metric**: Throughput — encode + decode round-trip ops/ms
 - **Payload**: `BenchmarkData` object (ID, name, value, tags list)
 - **Mode**: `@BenchmarkMode(Mode.Throughput)`, `@OutputTimeUnit(TimeUnit.MILLISECONDS)`
@@ -23,21 +24,21 @@ Performance measurement results for Lettuce Redis codec serialization/deserializ
 
 ### Summary Table (Throughput: ops/ms, higher is better)
 
-| Rank | Codec | ops/ms | ± Error | Note |
-|------|-------|--------|---------|------|
-| 🥇 | **fastjson2** | **6,379** | ± 1,358 | ⚠️ high variance |
-| 🥈 | **fastFory** | **3,286** | ± 142 | |
-| 🥉 | **fory** | **2,551** | ± 2,001 | ⚠️ high variance |
-| 4 | kryo | 963 | ± 474 | ⚠️ high variance |
-| 5 | lz4FastFory | 906 | ± 66 | |
-| 6 | lz4Fory | 852 | ± 39 | |
-| 7 | jackson3 | 834 | ± 25 | |
-| 8 | lz4Kryo | 535 | ± 16 | |
-| 9 | zstdFastFory | 206 | ± 17 | |
-| 10 | zstdFory | 203 | ± 5 | |
-| 11 | zstdKryo | 136 | ± 3 | |
-| 12 | jdk | 132 | ± 13 | |
-| 13 | gzipFastFory | 110 | ± 2 | |
+| Rank | Codec         | ops/ms    | ± Error | Note             |
+|------|---------------|-----------|---------|------------------|
+| 🥇   | **fastjson2** | **6,379** | ± 1,358 | ⚠️ high variance |
+| 🥈   | **fastFory**  | **3,286** | ± 142   |                  |
+| 🥉   | **fory**      | **2,551** | ± 2,001 | ⚠️ high variance |
+| 4    | kryo          | 963       | ± 474   | ⚠️ high variance |
+| 5    | lz4FastFory   | 906       | ± 66    |                  |
+| 6    | lz4Fory       | 852       | ± 39    |                  |
+| 7    | jackson3      | 834       | ± 25    |                  |
+| 8    | lz4Kryo       | 535       | ± 16    |                  |
+| 9    | zstdFastFory  | 206       | ± 17    |                  |
+| 10   | zstdFory      | 203       | ± 5     |                  |
+| 11   | zstdKryo      | 136       | ± 3     |                  |
+| 12   | jdk           | 132       | ± 13    |                  |
+| 13   | gzipFastFory  | 110       | ± 2     |                  |
 
 ### Detailed JMH Output
 
@@ -108,31 +109,31 @@ LettuceCodecBenchmark.gzipFastForyEncodeDecode  thrpt    5   110.057 ±    2.378
 
 ### Codec Selection Guide
 
-| Scenario | Recommended Codec | Reason |
-|----------|------------------|--------|
-| Maximum throughput | fastjson2 | Highest ops/ms |
-| Production default | **fastFory** | Stable + fast, binary compact |
-| Memory-constrained Redis | lz4FastFory | Balanced compression + speed |
-| Large payloads (>10KB) | zstdFastFory | Best compression ratio |
-| Interoperability required | jackson3 | JSON — human-readable |
-| Legacy compatibility | jdk | Last resort |
+| Scenario                  | Recommended Codec | Reason                        |
+|---------------------------|-------------------|-------------------------------|
+| Maximum throughput        | fastjson2         | Highest ops/ms                |
+| Production default        | **fastFory**      | Stable + fast, binary compact |
+| Memory-constrained Redis  | lz4FastFory       | Balanced compression + speed  |
+| Large payloads (>10KB)    | zstdFastFory      | Best compression ratio        |
+| Interoperability required | jackson3          | JSON — human-readable         |
+| Legacy compatibility      | jdk               | Last resort                   |
 
 ---
 
 ## Benchmark Environment
 
-| Item | Value |
-|------|-------|
-| **CPU** | Apple M4 Pro (12-core) |
-| **RAM** | 48 GB |
-| **OS** | macOS 26.4.1 (Darwin 25.4.0) |
-| **JVM** | Oracle GraalVM 21.0.11+9.1 |
-| **Kotlin** | 2.3 |
-| **kotlinx-benchmark** | 0.4.15 |
-| **JMH** | 1.37 |
-| **Warmup** | 3 iterations × 2s |
-| **Measurement** | 5 iterations × 3s |
-| **Fork** | 1 |
-| **Threads** | 1 |
-| **Mode** | Throughput (ops/ms) |
-| **Date** | 2026-04-27 |
+| Item                  | Value                        |
+|-----------------------|------------------------------|
+| **CPU**               | Apple M4 Pro (12-core)       |
+| **RAM**               | 48 GB                        |
+| **OS**                | macOS 26.4.1 (Darwin 25.4.0) |
+| **JVM**               | Oracle GraalVM 21.0.11+9.1   |
+| **Kotlin**            | 2.3                          |
+| **kotlinx-benchmark** | 0.4.15                       |
+| **JMH**               | 1.37                         |
+| **Warmup**            | 3 iterations × 2s            |
+| **Measurement**       | 5 iterations × 3s            |
+| **Fork**              | 1                            |
+| **Threads**           | 1                            |
+| **Mode**              | Throughput (ops/ms)          |
+| **Date**              | 2026-04-27                   |

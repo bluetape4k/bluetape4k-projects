@@ -2,6 +2,7 @@ package io.bluetape4k.hibernate.converters
 
 import io.bluetape4k.jackson3.Jackson
 import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.error
 import io.bluetape4k.logging.trace
 import jakarta.persistence.AttributeConverter
@@ -49,7 +50,7 @@ abstract class AbstractObjectAsJsonConverter<T: Any>(
     }
 
     override fun convertToEntityAttribute(dbData: String?): T? {
-        log.trace { "Parse json string. $dbData" }
+        log.debug { "Parse json string. $dbData" }
 
         return try {
             dbData?.run { jsonMapper.readValue(this, classType) }

@@ -31,7 +31,8 @@ abstract class AbstractCassandraTest {
     protected fun newCqlSession(keyspace: String = DEFAULT_KEYSPACE): CqlSession =
         CassandraServer.Launcher.getOrCreateSession(keyspace)
 
-    protected fun newCqlSessionBuilder(): CqlSessionBuilder = CassandraServer.Launcher.newCqlSessionBuilder()
+    protected fun newCqlSessionBuilder(): CqlSessionBuilder =
+        CassandraServer.Launcher.newCqlSessionBuilder()
 
     @BeforeAll
     fun beforeAll() {

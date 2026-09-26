@@ -2,19 +2,15 @@ package io.bluetape4k.cache.jcache
 
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.support.requireNotBlank
-import io.lettuce.core.ExperimentalLettuceCoroutinesApi
 import io.lettuce.core.RedisClient
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.flow.asFlow
 import javax.cache.configuration.CacheEntryListenerConfiguration
 import javax.cache.configuration.Configuration
 import javax.cache.configuration.MutableConfiguration
 import javax.cache.event.CacheEntryListener
 
-@OptIn(ExperimentalLettuceCoroutinesApi::class)
 /**
  * Lettuce Redis hash를 기반으로 동작하는 [SuspendJCache] 구현체입니다.
  *
@@ -60,57 +56,57 @@ class LettuceSuspendJCache<V: Any>(private val cache: LettuceJCache<String, V>):
                 cacheName,
                 configuration
             ) as LettuceJCache<String, V>
+
             return LettuceSuspendJCache(jcache)
         }
     }
 
     val name: String get() = cache.name
 
-    override fun entries(): Flow<SuspendJCacheEntry<String, V>> = flow {
-        cache.asSequence().forEach {
-            emit(SuspendJCacheEntry(it.key, it.value))
-        }
+    override fun entries(): Flow<SuspendJCacheEntry<String, V>> {
+        return cache
+            .map { SuspendJCacheEntry(it.key, it.value) }
+            .asFlow()
     }
 
     override suspend fun clear() {
-        withContext(Dispatchers.IO) { cache.clear() }
+        cache.clear()
     }
 
     override suspend fun close() {
-        withContext(Dispatchers.IO) { cache.close() }
+        cache.close()
     }
 
     override fun isClosed(): Boolean = cache.isClosed
 
     override suspend fun containsKey(key: String): Boolean =
-        withContext(Dispatchers.IO) { cache.containsKey(key) }
+        cache.containsKey(key)
 
     override suspend fun get(key: String): V? =
-        withContext(Dispatchers.IO) { cache.get(key) }
+        cache.get(key)
 
     override fun getAll(): Flow<SuspendJCacheEntry<String, V>> = entries()
 
-    override fun getAll(keys: Set<String>): Flow<SuspendJCacheEntry<String, V>> = flow {
-        cache.getAll(keys).forEach { (key, value) ->
-            emit(SuspendJCacheEntry(key, value))
-        }
-    }
+    override fun getAll(keys: Set<String>): Flow<SuspendJCacheEntry<String, V>> =
+        cache.getAll(keys)
+            .map { (key, value) -> SuspendJCacheEntry(key, value) }
+            .asFlow()
 
     override suspend fun getAndPut(key: String, value: V): V? =
         get(key).also { put(key, value) }
 
     override suspend fun getAndRemove(key: String): V? =
-        withContext(Dispatchers.IO) { cache.getAndRemove(key) }
+        cache.getAndRemove(key)
 
     override suspend fun getAndReplace(key: String, value: V): V? =
-        withContext(Dispatchers.IO) { cache.getAndReplace(key, value) }
+        cache.getAndReplace(key, value)
 
     override suspend fun put(key: String, value: V) {
-        withContext(Dispatchers.IO) { cache.put(key, value) }
+        cache.put(key, value)
     }
 
     override suspend fun putAll(map: Map<String, V>) {
-        withContext(Dispatchers.IO) { cache.putAll(map) }
+        cache.putAll(map)
     }
 
     override suspend fun putAllFlow(entries: Flow<Pair<String, V>>) {
@@ -118,27 +114,27 @@ class LettuceSuspendJCache<V: Any>(private val cache: LettuceJCache<String, V>):
     }
 
     override suspend fun putIfAbsent(key: String, value: V): Boolean =
-        withContext(Dispatchers.IO) { cache.putIfAbsent(key, value) }
+        cache.putIfAbsent(key, value)
 
     override suspend fun remove(key: String): Boolean =
-        withContext(Dispatchers.IO) { cache.remove(key) }
+        cache.remove(key)
 
     override suspend fun remove(key: String, oldValue: V): Boolean =
-        withContext(Dispatchers.IO) { cache.remove(key, oldValue) }
+        cache.remove(key, oldValue)
 
     override suspend fun removeAll() {
-        withContext(Dispatchers.IO) { cache.removeAll() }
+        cache.removeAll()
     }
 
     override suspend fun removeAll(keys: Set<String>) {
-        withContext(Dispatchers.IO) { cache.removeAll(keys) }
+        cache.removeAll(keys)
     }
 
     override suspend fun replace(key: String, oldValue: V, newValue: V): Boolean =
-        withContext(Dispatchers.IO) { cache.replace(key, oldValue, newValue) }
+        cache.replace(key, oldValue, newValue)
 
     override suspend fun replace(key: String, value: V): Boolean =
-        withContext(Dispatchers.IO) { cache.replace(key, value) }
+        cache.replace(key, value)
 
     override fun registerCacheEntryListener(configuration: CacheEntryListenerConfiguration<String, V>) {
         cache.registerCacheEntryListener(configuration)

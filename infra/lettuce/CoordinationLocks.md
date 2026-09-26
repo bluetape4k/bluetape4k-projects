@@ -2,20 +2,18 @@
 
 English | [한국어](./CoordinationLocks.ko.md)
 
-The coordination Lock family adopts the familiar “one object per coordination primitive” mental model while keeping
-Lettuce-native blocking, `CompletableFuture`, and coroutine APIs. It is additive: the six legacy token mutex and lease
-surfaces remain supported and are not deprecated in Delivery 1.
+The coordination Lock family adopts the familiar “one object per coordination primitive” mental model while keeping Lettuce-native blocking, `CompletableFuture`, and coroutine APIs. It is additive: the six legacy token mutex and lease surfaces remain supported and are not deprecated in Delivery 1.
 
 ## Choose a Lock object
 
-| Family | Characteristics | Recommended uses | Prefer another object when | Required caller or infrastructure behavior |
-|---|---|---|---|---|
-| `LettuceDistributedLock` | Reentrant single-resource exclusion with fixed or watchdog lease | Order processing, duplicate-job prevention, and one aggregate or resource mutation | Admission order matters, stale writers must be rejected, or multiple resources must be acquired atomically | Treat the lock as advisory and release every successful `LockHandle` exactly once |
-| `LettuceFairLock` | FIFO admission with bounded stale-waiter cleanup | Contended work where predictable admission order and reduced starvation matter more than the smallest coordination overhead | Throughput is more important than ordering, or contention is uncommon | Handle `CleanupPending` and budget for the additional Redis queue state |
-| `LettuceFencedLock` | Reentrant exclusion plus a monotonic `(epoch, sequence)` fencing token | Database, storage, or external-system writes where a delayed former owner must be rejected | The protected downstream cannot persist and compare fencing tokens | Accept a write only when its token is strictly greater than the last accepted token |
-| `LettuceReadWriteLock` | Concurrent readers, writer preference, and atomic write-to-read downgrade; upgrade is unsupported | Read-heavy shared metadata or configuration with occasional exclusive updates | Writes dominate, a simple exclusive lock is sufficient, or read-to-write upgrade is required | Release each read/write handle and redesign upgrade flows as release-then-acquire |
-| `LettuceSpinLock` | Scheduled polling with bounded backoff, jitter, and attempt rate | Low-contention work with a very short critical section | Holds or waits may be long, contention is sustained, or extra Redis polling is undesirable | Keep hold time short and configure an explicit retry and attempt-rate budget |
-| `LettuceMultiLock` | Atomic all-or-nothing acquisition of an immutable, normalized resource set | A small, known set of related resources that must be protected together | Resources span Redis Cluster slots or the resource set is large or changes during ownership | Put every key in one Cluster slot and keep the constituent names unchanged |
+| Family                   | Characteristics                                                                                   | Recommended uses                                                                                                            | Prefer another object when                                                                                 | Required caller or infrastructure behavior                                          |
+|--------------------------|---------------------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------|-------------------------------------------------------------------------------------|
+| `LettuceDistributedLock` | Reentrant single-resource exclusion with fixed or watchdog lease                                  | Order processing, duplicate-job prevention, and one aggregate or resource mutation                                          | Admission order matters, stale writers must be rejected, or multiple resources must be acquired atomically | Treat the lock as advisory and release every successful `LockHandle` exactly once   |
+| `LettuceFairLock`        | FIFO admission with bounded stale-waiter cleanup                                                  | Contended work where predictable admission order and reduced starvation matter more than the smallest coordination overhead | Throughput is more important than ordering, or contention is uncommon                                      | Handle `CleanupPending` and budget for the additional Redis queue state             |
+| `LettuceFencedLock`      | Reentrant exclusion plus a monotonic `(epoch, sequence)` fencing token                            | Database, storage, or external-system writes where a delayed former owner must be rejected                                  | The protected downstream cannot persist and compare fencing tokens                                         | Accept a write only when its token is strictly greater than the last accepted token |
+| `LettuceReadWriteLock`   | Concurrent readers, writer preference, and atomic write-to-read downgrade; upgrade is unsupported | Read-heavy shared metadata or configuration with occasional exclusive updates                                               | Writes dominate, a simple exclusive lock is sufficient, or read-to-write upgrade is required               | Release each read/write handle and redesign upgrade flows as release-then-acquire   |
+| `LettuceSpinLock`        | Scheduled polling with bounded backoff, jitter, and attempt rate                                  | Low-contention work with a very short critical section                                                                      | Holds or waits may be long, contention is sustained, or extra Redis polling is undesirable                 | Keep hold time short and configure an explicit retry and attempt-rate budget        |
+| `LettuceMultiLock`       | Atomic all-or-nothing acquisition of an immutable, normalized resource set                        | A small, known set of related resources that must be protected together                                                     | Resources span Redis Cluster slots or the resource set is large or changes during ownership                | Put every key in one Cluster slot and keep the constituent names unchanged          |
 
 Every family also has a suspend counterpart: `LettuceSuspendDistributedLock`, `LettuceSuspendFairLock`,
 `LettuceSuspendFencedLock`, `LettuceSuspendReadWriteLock`, `LettuceSuspendSpinLock`, and
@@ -24,15 +22,13 @@ Every family also has a suspend counterpart: `LettuceSuspendDistributedLock`, `L
 
 ![Architecture of the six Lettuce coordination Lock families and their shared runtime](../../docs/images/readme-diagrams/infra-lettuce-diagram-03.png)
 
-The shared runtime owns bounded waiting, watchdog scheduling, sanitized observation, and Lua execution. Redis remains
-the ownership authority. A lock object does not own the connection or an injected scheduler.
+The shared runtime owns bounded waiting, watchdog scheduling, sanitized observation, and Lua execution. Redis remains the ownership authority. A lock object does not own the connection or an injected scheduler.
 
 ## Lifecycle and examples
 
 ![Lifecycle from acquisition through reconciliation, release, and local close](../../docs/images/readme-diagrams/infra-lettuce-sequence-02.png)
 
-Create owner identity once per logical process or worker. Create one request identity for each acquisition request and
-reuse that exact pair when retrying or reconciling the same request.
+Create owner identity once per logical process or worker. Create one request identity for each acquisition request and reuse that exact pair when retrying or reconciling the same request.
 
 ### Blocking acquisition
 
@@ -121,14 +117,11 @@ when (val result = suspendLock.acquire(
 suspendLock.close() // non-suspending: stops local registrations and new work
 ```
 
-`close()` stops new work, waiting registrations, and owned local watchdog tasks. It never closes the Redis connection
-or an injected scheduler, and it does not release Redis ownership. Release active holds through their handles or let
-their bounded leases expire.
+`close()` stops new work, waiting registrations, and owned local watchdog tasks. It never closes the Redis connection or an injected scheduler, and it does not release Redis ownership. Release active holds through their handles or let their bounded leases expire.
 
 ### Reentry is request-bound
 
-Every successful acquisition request creates one request-bound hold that must be released exactly once. Replaying the
-same request ID returns the same hold; a different request ID under the same owner creates a nested hold.
+Every successful acquisition request creates one request-bound hold that must be released exactly once. Replaying the same request ID returns the same hold; a different request ID under the same owner creates a nested hold.
 
 ```kotlin
 val ownerId = LockOwnerId.from("reentrant-worker")
@@ -149,8 +142,7 @@ check(lock.release(outer.handle) is LockMutationResult.AlreadyReleased)
 
 ### Fixed lease and watchdog
 
-Use `LeasePolicy.Fixed` when the critical section has a firm upper bound. Use `LeasePolicy.Watchdog` only with an
-explicit TTL, renewal interval, and maximum lifetime; watchdog operation is never indefinite.
+Use `LeasePolicy.Fixed` when the critical section has a firm upper bound. Use `LeasePolicy.Watchdog` only with an explicit TTL, renewal interval, and maximum lifetime; watchdog operation is never indefinite.
 
 ```kotlin
 val fixed = LeasePolicy.Fixed(Duration.ofSeconds(15))
@@ -161,18 +153,15 @@ val watchdog = LeasePolicy.Watchdog(
 )
 ```
 
-An `OwnershipLost` inspection or mutation result means the caller must stop protected work and reconcile with the
-durable authority. The library does not claim that a stale process is forcibly stopped.
+An `OwnershipLost` inspection or mutation result means the caller must stop protected work and reconcile with the durable authority. The library does not claim that a stale process is forcibly stopped.
 
 ### Fair timeout cleanup
 
-Fair acquisition cleans only a bounded waiter batch. `TimedOut` means the wait elapsed; `CleanupPending` means exact
-waiter removal is still ambiguous. Reconcile the same owner/request identity before submitting a replacement request.
+Fair acquisition cleans only a bounded waiter batch. `TimedOut` means the wait elapsed; `CleanupPending` means exact waiter removal is still ambiguous. Reconcile the same owner/request identity before submitting a replacement request.
 
 ### Fencing
 
-Call `bootstrapFencing()` before serving traffic and preserve the Redis counter across rollout, rollback, backup, and
-restore. A downstream store must accept a token only when it is strictly greater than the last committed token:
+Call `bootstrapFencing()` before serving traffic and preserve the Redis counter across rollout, rollback, backup, and restore. A downstream store must accept a token only when it is strictly greater than the last committed token:
 
 ```sql
 UPDATE orders
@@ -185,13 +174,11 @@ Fencing rejects stale writes only where the downstream system enforces this stri
 
 ### Read/write downgrade
 
-Use `lock.readLock()` and `lock.writeLock()`; read-to-write upgrade is unsupported. `downgrade(writeHandle)` atomically replaces a
-write hold with the returned read hold. Release that returned read handle, not the original write handle.
+Use `lock.readLock()` and `lock.writeLock()`; read-to-write upgrade is unsupported. `downgrade(writeHandle)` atomically replaces a write hold with the returned read hold. Release that returned read handle, not the original write handle.
 
 ### Spin bounds
 
-`SpinLockConfig` bounds initial/max delay, multiplier, jitter, and `maxAttemptsPerSecond`. The caller wait is also
-bounded. Do not use spin locks for long critical sections or as an indefinite retry loop.
+`SpinLockConfig` bounds initial/max delay, multiplier, jitter, and `maxAttemptsPerSecond`. The caller wait is also bounded. Do not use spin locks for long critical sections or as an indefinite retry loop.
 
 ### Same-slot multi-lock
 
@@ -209,78 +196,67 @@ val multi = LettuceMultiLock.create(
 Cross-slot best effort is intentionally unsupported; acquisition is atomic or rejected.
 
 <!-- coordination-locks:ambiguous-reconcile -->
+
 ## Ambiguous completion and reconciliation
 
-Cancellation or transport failure after dispatch can produce `LockAcquireResult.Ambiguous`. Do not create a new
-request ID. Call `reconcile(ownerId, requestId)` with the exact original identity until it yields an owned, released,
-queued, removed, not-found, or explicit failure result. A recovered handle still needs exactly one release.
+Cancellation or transport failure after dispatch can produce `LockAcquireResult.Ambiguous`. Do not create a new request ID. Call `reconcile(ownerId, requestId)` with the exact original identity until it yields an owned, released, queued, removed, not-found, or explicit failure result. A recovered handle still needs exactly one release.
 
 <!-- coordination-locks:watchdog-leak -->
+
 ## Watchdog leak prevention
 
-Bound `ttl`, `renewalInterval`, `maxLifetime`, active watchdog registrations, and scheduler tasks. Always close unused
-lock objects, alert on capacity rejection and renewal failure, and drain active handles before process termination.
-Object close removes local registrations but never implies unlock.
+Bound `ttl`, `renewalInterval`, `maxLifetime`, active watchdog registrations, and scheduler tasks. Always close unused lock objects, alert on capacity rejection and renewal failure, and drain active handles before process termination. Object close removes local registrations but never implies unlock.
 
 <!-- coordination-locks:observability -->
+
 ## Observability
 
-Supply a `LockObservationSink` when metrics are required. Events are sanitized and do not expose owner IDs, request
-IDs, resource names, namespaces, raw Redis replies, or credentials. Track operation, family, topology, outcome,
-recovery action, and bounded latency.
+Supply a `LockObservationSink` when metrics are required. Events are sanitized and do not expose owner IDs, request IDs, resource names, namespaces, raw Redis replies, or credentials. Track operation, family, topology, outcome, recovery action, and bounded latency.
 
 <!-- coordination-locks:alerts -->
+
 ## Metrics and alerts
 
 Alert on sustained `BackendFailure`, `IntegrityFailure`, `Ambiguous`, `CleanupPending`, `CapacityExceeded`,
-`OwnershipLost`, watchdog renewal failure, queue saturation, and p95/p99 acquisition latency. A single contention
-result is demand, not an incident; use rates and service-specific thresholds.
+`OwnershipLost`, watchdog renewal failure, queue saturation, and p95/p99 acquisition latency. A single contention result is demand, not an incident; use rates and service-specific thresholds.
 
 <!-- coordination-locks:acl-tls -->
+
 ## ACL, TLS, and credentials
 
 Grant the application only the keyspace and commands required by the deployed lock family: `EVALSHA`, `EVAL`,
-`SCRIPT LOAD`, and the Redis key commands invoked inside the scripts (`GET`, `SET`, `DEL`, `PTTL`, `PEXPIRE`, hashes,
-sorted sets, and publish/stream commands where the selected wait path uses them). Validate the exact command set
-against deployment tests. Require TLS where traffic crosses a trust boundary, keep credentials in a secret manager,
-rotate them without logging connection strings, and use separate principals for applications and operators.
+`SCRIPT LOAD`, and the Redis key commands invoked inside the scripts (`GET`, `SET`, `DEL`, `PTTL`, `PEXPIRE`, hashes, sorted sets, and publish/stream commands where the selected wait path uses them). Validate the exact command set against deployment tests. Require TLS where traffic crosses a trust boundary, keep credentials in a secret manager, rotate them without logging connection strings, and use separate principals for applications and operators.
 
 <!-- coordination-locks:namespace-migration -->
+
 ## Versioned namespace migration
 
-Use an explicit versioned namespace such as `bt4k:coord:v1`. Never point two incompatible protocols at one namespace.
-For a namespace change, stop new acquisitions, drain or expire active holds, preserve fencing generations and
-counters, deploy readers/writers for the new namespace, then remove old keys with a bounded audited cleanup.
+Use an explicit versioned namespace such as `bt4k:coord:v1`. Never point two incompatible protocols at one namespace. For a namespace change, stop new acquisitions, drain or expire active holds, preserve fencing generations and counters, deploy readers/writers for the new namespace, then remove old keys with a bounded audited cleanup.
 
 <!-- coordination-locks:rollout-rollback -->
+
 ## Rollout and rollback
 
-Canary the new object behind a caller-side switch. During rollout, compare outcome/latency signals without acquiring
-the old and new lock for the same critical section. Roll back callers to the previous API without deleting state,
-resetting fencing counters, or reusing request IDs. Keep the new namespace readable until all ambiguous requests are
-reconciled and active leases have expired.
+Canary the new object behind a caller-side switch. During rollout, compare outcome/latency signals without acquiring the old and new lock for the same critical section. Roll back callers to the previous API without deleting state, resetting fencing counters, or reusing request IDs. Keep the new namespace readable until all ambiguous requests are reconciled and active leases have expired.
 
 <!-- coordination-locks:drain-cleanup -->
+
 ## Drain and cleanup
 
-Stop new acquisitions, wait for known handles to release or bounded leases to expire, close local objects, reconcile
-ambiguous requests, and delete stale queue/request records in bounded batches. Preserve generation and fencing-counter
-state until rollback is impossible. Never run unbounded wildcard deletion in production.
+Stop new acquisitions, wait for known handles to release or bounded leases to expire, close local objects, reconcile ambiguous requests, and delete stale queue/request records in bounded batches. Preserve generation and fencing-counter state until rollback is impossible. Never run unbounded wildcard deletion in production.
 
 ## Migration from existing primitives
 
-| Existing supported API | New family when stronger semantics are needed |
-|---|---|
-| `LettuceLock` | `LettuceDistributedLock` |
-| `LettuceSuspendLock` | `LettuceSuspendDistributedLock` |
-| `LettuceFencingLease` | `LettuceFencedLock` |
-| `LettuceSuspendFencingLease` | `LettuceSuspendFencedLock` |
-| `LettuceMultiKeyLease` | `LettuceMultiLock` |
-| `LettuceSuspendMultiKeyLease` | `LettuceSuspendMultiLock` |
+| Existing supported API        | New family when stronger semantics are needed |
+|-------------------------------|-----------------------------------------------|
+| `LettuceLock`                 | `LettuceDistributedLock`                      |
+| `LettuceSuspendLock`          | `LettuceSuspendDistributedLock`               |
+| `LettuceFencingLease`         | `LettuceFencedLock`                           |
+| `LettuceSuspendFencingLease`  | `LettuceSuspendFencedLock`                    |
+| `LettuceMultiKeyLease`        | `LettuceMultiLock`                            |
+| `LettuceSuspendMultiKeyLease` | `LettuceSuspendMultiLock`                     |
 
-The existing APIs are compatibility token mutexes/leases. They remain supported and are not deprecated in Delivery 1.
-Migrate only when typed outcomes, explicit identity, reconciliation, reentry, watchdog bounds, specialized handles, or
-the new object model provide value.
+The existing APIs are compatibility token mutexes/leases. They remain supported and are not deprecated in Delivery 1. Migrate only when typed outcomes, explicit identity, reconciliation, reentry, watchdog bounds, specialized handles, or the new object model provide value.
 
 ## Non-goals
 

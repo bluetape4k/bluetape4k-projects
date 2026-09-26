@@ -20,15 +20,15 @@ A collection of examples for learning the features and usage patterns of Kotlin 
 
 ### Flow Examples (flow/)
 
-| Example File               | Description                                    |
-|----------------------------|------------------------------------------------|
-| `FlowBasicExamples.kt`     | Basic Flow creation and collection             |
-| `FlowBuilderExamples.kt`   | Builders: flowOf, asFlow, channelFlow, etc.    |
-| `FlowOperatorExamples.kt`  | Operators: map, filter, transform, etc.        |
-| `FlowLifecycleExamples.kt` | Lifecycle hooks: onStart, onCompletion, onEach |
-| `SharedFlowExamples.kt`    | Implementing an event bus with SharedFlow      |
-| `StateFlowExamples.kt`     | State management with StateFlow                |
-| `ChannelFlowExamples.kt`   | channelFlow and cold/hot flows                 |
+| Example File               | Description                                                                                                        |
+|----------------------------|--------------------------------------------------------------------------------------------------------------------|
+| `FlowBasicExamples.kt`     | Basic Flow creation and collection                                                                                 |
+| `FlowBuilderExamples.kt`   | Builders: flowOf, asFlow, channelFlow, etc.                                                                        |
+| `FlowOperatorExamples.kt`  | Operators: map, filter, transform, etc.                                                                            |
+| `FlowLifecycleExamples.kt` | Lifecycle hooks: onStart, onCompletion, onEach                                                                     |
+| `SharedFlowExamples.kt`    | Implementing an event bus with SharedFlow                                                                          |
+| `StateFlowExamples.kt`     | State management with StateFlow                                                                                    |
+| `ChannelFlowExamples.kt`   | channelFlow and cold/hot flows                                                                                     |
 | `CallbackFlowExamples.kt`  | Converting Kafka producer callbacks to `Flow<RecordMetadata>` with bounded backpressure, cancellation, and cleanup |
 
 ### Channel Examples (channels/)
@@ -104,13 +104,7 @@ Run the executable Kafka callback example with:
   --no-configuration-cache --max-workers=1
 ```
 
-This test requires a Docker daemon because Testcontainers starts a Kafka broker
-on a dynamic port. Each test uses a unique topic, and consumer polling and
-producer closing have bounded timeouts. The adapter does not retry sends and
-does not guarantee metadata order. A failed or cancelled collection may expose
-partial results; the first producer/callback failure remains the terminal cause,
-and cancellation of in-flight send futures is requested on a best-effort basis;
-late callbacks are ignored before bounded cleanup closes the producer.
+This test requires a Docker daemon because Testcontainers starts a Kafka broker on a dynamic port. Each test uses a unique topic, and consumer polling and producer closing have bounded timeouts. The adapter does not retry sends and does not guarantee metadata order. A failed or cancelled collection may expose partial results; the first producer/callback failure remains the terminal cause, and cancellation of in-flight send futures is requested on a best-effort basis; late callbacks are ignored before bounded cleanup closes the producer.
 
 ## Key Learning Points
 

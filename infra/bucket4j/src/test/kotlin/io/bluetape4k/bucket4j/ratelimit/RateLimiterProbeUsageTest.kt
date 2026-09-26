@@ -1,5 +1,6 @@
 package io.bluetape4k.bucket4j.ratelimit
 
+import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.bucket4j.coroutines.SuspendLocalBucket
 import io.bluetape4k.bucket4j.distributed.AsyncBucketProxyProvider
 import io.bluetape4k.bucket4j.distributed.BucketProxyProvider
@@ -9,6 +10,7 @@ import io.bluetape4k.bucket4j.ratelimit.distributed.DistributedRateLimiter
 import io.bluetape4k.bucket4j.ratelimit.distributed.DistributedSuspendRateLimiter
 import io.bluetape4k.bucket4j.ratelimit.local.LocalRateLimiter
 import io.bluetape4k.bucket4j.ratelimit.local.LocalSuspendRateLimiter
+import io.bluetape4k.logging.KLogging
 import io.github.bucket4j.ConsumptionProbe
 import io.github.bucket4j.distributed.AsyncBucketProxy
 import io.github.bucket4j.distributed.BucketProxy
@@ -17,11 +19,12 @@ import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
 import kotlinx.coroutines.test.runTest
-import io.bluetape4k.assertions.shouldBeEqualTo
 import org.junit.jupiter.api.Test
 import java.util.concurrent.CompletableFuture
 
 class RateLimiterProbeUsageTest {
+
+    companion object: KLogging()
 
     @Test
     fun `local rate limiter 는 probe 기반으로 남은 토큰을 계산한다`() {

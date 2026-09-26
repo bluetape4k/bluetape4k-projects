@@ -6,11 +6,12 @@ import io.netty.buffer.Unpooled;
 
 public final class LettuceBinaryCodecJavaCompatibilityFixture {
 
-    private LettuceBinaryCodecJavaCompatibilityFixture() {}
+    private LettuceBinaryCodecJavaCompatibilityFixture() {
+    }
 
     public static void compileExistingUsage() {
         LettuceBinaryCodec<String> codec =
-            new LettuceBinaryCodec<>(new JdkBinarySerializer());
+                new LettuceBinaryCodec<>(new JdkBinarySerializer());
         ByteBuf target = Unpooled.buffer();
         try {
             codec.encodeValue("value", target);

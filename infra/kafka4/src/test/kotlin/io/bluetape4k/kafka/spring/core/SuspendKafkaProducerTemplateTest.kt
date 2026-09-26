@@ -4,9 +4,11 @@ import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeGreaterOrEqualTo
 import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.assertions.shouldNotBeNull
+import io.bluetape4k.codec.Base58
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.kafka.AbstractKafkaTest
 import io.bluetape4k.logging.coroutines.KLoggingChannel
+import io.bluetape4k.logging.debug
 import io.bluetape4k.testcontainers.mq.KafkaServer
 import io.mockk.clearMocks
 import io.mockk.mockk
@@ -62,10 +64,11 @@ class SuspendKafkaProducerTemplateTest: AbstractKafkaTest() {
 
     @RepeatedTest(REPEAT_SIZE)
     fun `토픽과 값으로 메시지 발송`() = runSuspendIO {
-        val value = "test-value-${System.currentTimeMillis()}"
+        val value = "test-value-${Base58.randomString(8)}"
 
         val result = producerTemplate.send(TEST_TOPIC_NAME, value)
 
+        log.debug { "sender result: $result" }
         result.shouldNotBeNull()
         result.recordMetadata().topic() shouldBeEqualTo TEST_TOPIC_NAME
     }
@@ -73,10 +76,11 @@ class SuspendKafkaProducerTemplateTest: AbstractKafkaTest() {
     @RepeatedTest(REPEAT_SIZE)
     fun `토픽과 키, 값으로 메시지 발송`() = runSuspendIO {
         val key = "test-key"
-        val value = "test-value-${System.currentTimeMillis()}"
+        val value = "test-value-${Base58.randomString(8)}"
 
         val result = producerTemplate.send(TEST_TOPIC_NAME, key, value)
 
+        log.debug { "sender result: $result" }
         result.shouldNotBeNull()
         result.recordMetadata().topic() shouldBeEqualTo TEST_TOPIC_NAME
     }
@@ -85,10 +89,11 @@ class SuspendKafkaProducerTemplateTest: AbstractKafkaTest() {
     fun `파티션 지정하여 메시지 발송`() = runSuspendIO {
         val partition = 0
         val key = "test-key"
-        val value = "test-value-${System.currentTimeMillis()}"
+        val value = "test-value-${Base58.randomString(8)}"
 
         val result = producerTemplate.send(TEST_TOPIC_NAME, partition, key, value)
 
+        log.debug { "sender result: $result" }
         result.shouldNotBeNull()
         result.recordMetadata().topic() shouldBeEqualTo TEST_TOPIC_NAME
         result.recordMetadata().partition() shouldBeEqualTo partition
@@ -96,10 +101,11 @@ class SuspendKafkaProducerTemplateTest: AbstractKafkaTest() {
 
     @RepeatedTest(REPEAT_SIZE)
     fun `ProducerRecord로 메시지 발송`() = runSuspendIO {
-        val record = ProducerRecord(TEST_TOPIC_NAME, "test-key", "test-value-${System.currentTimeMillis()}")
+        val record = ProducerRecord(TEST_TOPIC_NAME, "test-key", "test-value-${Base58.randomString(8)}")
 
         val result = producerTemplate.send(record)
 
+        log.debug { "sender result: $result" }
         result.shouldNotBeNull()
         result.recordMetadata().topic() shouldBeEqualTo TEST_TOPIC_NAME
     }
@@ -122,15 +128,14 @@ class SuspendKafkaProducerTemplateTest: AbstractKafkaTest() {
     fun `템플릿 종료 시 내부 CoroutineScope 를 취소한다`() = runTest {
         val template = SuspendKafkaProducerTemplate(sender)
         val blocker = CompletableDeferred<Unit>()
-        lateinit var launchedJob: Job
 
-        launchedJob = template.launch {
+        val launchedJob = template.launch {
             blocker.await()
         }
 
         template.close()
         launchedJob.cancelAndJoin()
 
-        (template.coroutineContext[Job]?.isCancelled ?: false).shouldBeTrue()
+        template.coroutineContext[Job]?.isCancelled.shouldBeTrue()
     }
 }

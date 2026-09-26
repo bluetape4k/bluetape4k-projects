@@ -20,6 +20,7 @@ class MeasuredBinaryCompatibilityTest {
 
         URLClassLoader(arrayOf(fixtureDir.toURI().toURL()), javaClass.classLoader).use { loader ->
             val legacyConsumer = loader.loadClass("io.bluetape4k.measured.MeasuredLegacyBinaryConsumerKt")
+
             @Suppress("UNCHECKED_CAST")
             val rate = legacyConsumer.getDeclaredMethod("legacyBinaryRate").invoke(null) as Measure<DataRate>
 

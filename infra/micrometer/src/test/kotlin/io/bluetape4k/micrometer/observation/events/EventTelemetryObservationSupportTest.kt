@@ -7,6 +7,9 @@ import io.bluetape4k.assertions.shouldBeNull
 import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.assertions.shouldNotBeNull
 import io.bluetape4k.junit5.coroutines.assertCancellationPropagates
+import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.debug
+import io.bluetape4k.micrometer.AbstractMicrometerTest
 import io.micrometer.observation.Observation
 import io.micrometer.observation.ObservationHandler
 import io.micrometer.observation.ObservationRegistry
@@ -16,7 +19,9 @@ import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.Test
 import kotlin.time.Duration.Companion.milliseconds
 
-class EventTelemetryObservationSupportTest {
+class EventTelemetryObservationSupportTest: AbstractMicrometerTest() {
+
+    companion object: KLogging()
 
     private fun registry(handler: RecordingObservationHandler): ObservationRegistry =
         ObservationRegistry.create().apply {
@@ -45,12 +50,11 @@ class EventTelemetryObservationSupportTest {
         val handler = RecordingObservationHandler()
         val registry = registry(handler)
 
-        val result =
-            registry.observeEventPublish(orderTelemetry()) { context ->
-                context.name shouldBeEqualTo EventTelemetryKeys.PUBLISH_OBSERVATION_NAME
-                context.contextualName shouldBeEqualTo "publish orders"
-                "published"
-            }
+        val result = registry.observeEventPublish(orderTelemetry()) { context ->
+            context.name shouldBeEqualTo EventTelemetryKeys.PUBLISH_OBSERVATION_NAME
+            context.contextualName shouldBeEqualTo "publish orders"
+            "published"
+        }
 
         result shouldBeEqualTo "published"
         handler.started shouldBeEqualTo 1
@@ -58,6 +62,7 @@ class EventTelemetryObservationSupportTest {
         handler.errors shouldBeEqualTo 0
 
         val context = handler.stoppedContexts.single()
+        log.debug { "context=$context" }
         context.low(EventTelemetryKeys.EVENT_OPERATION) shouldBeEqualTo "publish"
         context.low(EventTelemetryKeys.MESSAGING_OPERATION_NAME) shouldBeEqualTo "publish"
         context.low(EventTelemetryKeys.MESSAGING_OPERATION_TYPE) shouldBeEqualTo "send"
@@ -79,22 +84,22 @@ class EventTelemetryObservationSupportTest {
         val handler = RecordingObservationHandler()
         val registry = registry(handler)
 
-        val result =
-            registry.observeEventConsume(
-                EventTelemetry(
-                    destination = EventDestination.spring("application-events"),
-                    eventType = "UserRegistered",
-                    correlation = EventCorrelation.present,
-                ),
-            ) {
-                "consumed"
-            }
+        val result = registry.observeEventConsume(
+            EventTelemetry(
+                destination = EventDestination.spring("application-events"),
+                eventType = "UserRegistered",
+                correlation = EventCorrelation.present,
+            ),
+        ) {
+            "consumed"
+        }
 
         result shouldBeEqualTo "consumed"
         handler.started shouldBeEqualTo 1
         handler.stopped shouldBeEqualTo 1
 
         val context = handler.stoppedContexts.single()
+        log.debug { "context=$context" }
         context.name shouldBeEqualTo EventTelemetryKeys.CONSUME_OBSERVATION_NAME
         context.contextualName shouldBeEqualTo "consume application-events"
         context.low(EventTelemetryKeys.EVENT_OPERATION) shouldBeEqualTo "consume"
@@ -120,6 +125,7 @@ class EventTelemetryObservationSupportTest {
         handler.stopped shouldBeEqualTo 1
 
         val context = handler.stoppedContexts.single()
+        log.debug { "context=$context" }
         context.error.shouldNotBeNull()
         context.low(EventTelemetryKeys.OUTCOME) shouldBeEqualTo EventTelemetryOutcome.ERROR.name
         context.low(EventTelemetryKeys.EXCEPTION) shouldBeEqualTo "IllegalStateException"
@@ -142,6 +148,7 @@ class EventTelemetryObservationSupportTest {
         handler.errors shouldBeEqualTo 0
 
         val context = handler.stoppedContexts.single()
+        log.debug { "context=$context" }
         context.low(EventTelemetryKeys.OUTCOME) shouldBeEqualTo EventTelemetryOutcome.SUCCESS.name
     }
 
@@ -162,6 +169,7 @@ class EventTelemetryObservationSupportTest {
         handler.stopped shouldBeEqualTo 1
 
         val context = handler.stoppedContexts.single()
+        log.debug { "context=$context" }
         context.error.shouldBeNull()
         context.low(EventTelemetryKeys.OUTCOME) shouldBeEqualTo EventTelemetryOutcome.CANCELLED.name
         context.low(EventTelemetryKeys.EXCEPTION).shouldBeNull()
@@ -170,14 +178,15 @@ class EventTelemetryObservationSupportTest {
     @Test
     fun `correlation id sanitizer should cap and strip unsafe characters`() {
         sanitizeEventCorrelationId(" abc-123_./한글?<script> ", maxLength = 10) shouldBeEqualTo "abc-123_.s"
-        sanitizeEventCorrelationId(" 한글 ") shouldBeEqualTo null
-        sanitizeEventCorrelationId(null) shouldBeEqualTo null
+        sanitizeEventCorrelationId(" 한글 ").shouldBeNull()
+        sanitizeEventCorrelationId(null).shouldBeNull()
     }
 
     @Test
     fun `sanitized correlation should preserve presence even when id is stripped`() {
         val correlation = EventCorrelation.sanitized(" 한글 ", includeHighCardinalityId = true)
 
+        log.debug { "correlation=$correlation" }
         correlation.present.shouldBeTrue()
         correlation.sanitizedId.shouldBeNull()
         correlation.includeSanitizedId.shouldBeFalse()
@@ -199,7 +208,8 @@ class EventTelemetryObservationSupportTest {
 
         handler.errors shouldBeEqualTo 0
         handler.stopped shouldBeEqualTo 1
-        handler.stoppedContexts.single()
+        handler.stoppedContexts
+            .single()
             .low(EventTelemetryKeys.OUTCOME) shouldBeEqualTo EventTelemetryOutcome.CANCELLED.name
     }
 

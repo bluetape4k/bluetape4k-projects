@@ -1,12 +1,13 @@
 package io.bluetape4k.io.compressor
 
-import io.bluetape4k.junit5.faker.Fakers
-import io.bluetape4k.support.emptyByteArray
-import io.bluetape4k.support.toUtf8Bytes
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeFalse
 import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.assertions.shouldNotBeEmpty
+import io.bluetape4k.junit5.faker.Fakers
+import io.bluetape4k.logging.KLogging
+import io.bluetape4k.support.emptyByteArray
+import io.bluetape4k.support.toUtf8Bytes
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
@@ -18,7 +19,7 @@ import java.io.OutputStream
 
 class StreamingCompressorsTest {
 
-    companion object {
+    companion object: KLogging() {
         @JvmStatic
         fun compressors(): List<Arguments> = listOf(
             Arguments.of("ApacheDeflate", Compressors.Streaming.ApacheDeflate),

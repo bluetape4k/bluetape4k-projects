@@ -2,6 +2,8 @@ package io.bluetape4k.redis.lettuce.lock
 
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.concurrent.completableFutureOf
+import io.bluetape4k.logging.KLogging
 import io.lettuce.core.api.StatefulRedisConnection
 import io.lettuce.core.cluster.api.StatefulRedisClusterConnection
 import org.junit.jupiter.api.Test
@@ -13,6 +15,8 @@ import java.util.concurrent.ScheduledExecutorService
 import kotlin.coroutines.Continuation
 
 internal class LockApiSurfaceTest {
+
+    companion object: KLogging()
 
     private data class MethodShape(val parameterTypes: List<Class<*>>)
 
@@ -485,8 +489,10 @@ internal class LockApiSurfaceTest {
             handleType,
             "$label acquireAsync",
         )
-        listOf("inspect" to LockInspectResult::class.java, "release" to LockMutationResult::class.java).forEach {
-            (methodName, resultType) ->
+        listOf(
+            "inspect" to LockInspectResult::class.java,
+            "release" to LockMutationResult::class.java
+        ).forEach { (methodName, resultType) ->
             assertGenericHandle(
                 type.getMethod(methodName, handleType),
                 resultType,
@@ -586,9 +592,13 @@ internal class LockApiSurfaceTest {
         ownerId: LockOwnerId,
         requestId: LockRequestId,
     ) {
-        val result = lock.tryAcquire(ownerId, requestId, LeasePolicy.Fixed(Duration.ofSeconds(10)))
+        val result = lock.tryAcquire(
+            ownerId,
+            requestId,
+            LeasePolicy.Fixed(Duration.ofSeconds(10))
+        )
         when (result) {
-            is LockAcquireResult.Acquired -> {
+            is LockAcquireResult.Acquired  -> {
                 lock.inspect(result.handle)
                 lock.release(result.handle)
             }
@@ -598,22 +608,22 @@ internal class LockApiSurfaceTest {
                     is LockReconcileResult.Owned -> lock.release(reconciled.handle)
                     else -> Unit
                 }
-            else -> Unit
+            else                           -> Unit
         }
 
         lock.tryAcquireAsync(ownerId, requestId, LeasePolicy.Fixed(Duration.ofSeconds(10)))
             .thenCompose { asyncResult ->
                 val completion: CompletableFuture<*> = when (asyncResult) {
-                    is LockAcquireResult.Acquired -> lock.releaseAsync(asyncResult.handle)
+                    is LockAcquireResult.Acquired  -> lock.releaseAsync(asyncResult.handle)
                     is LockAcquireResult.Reentered -> lock.releaseAsync(asyncResult.handle)
                     is LockAcquireResult.Ambiguous ->
                         lock.reconcileAsync(asyncResult.ownerId, asyncResult.requestId).thenCompose { reconciled ->
                             when (reconciled) {
                                 is LockReconcileResult.Owned -> lock.releaseAsync(reconciled.handle)
-                                else -> CompletableFuture.completedFuture(null)
+                                else -> completableFutureOf(null)
                             }
                         }
-                    else -> CompletableFuture.completedFuture(null)
+                    else                           -> completableFutureOf(null)
                 }
                 completion.thenAccept {}
             }
@@ -641,7 +651,7 @@ internal class LockApiSurfaceTest {
     ) {
         val result = lock.tryAcquire(ownerId, requestId, LeasePolicy.Fixed(Duration.ofSeconds(10)))
         when (result) {
-            is LockAcquireResult.Acquired -> {
+            is LockAcquireResult.Acquired  -> {
                 lock.inspect(result.handle)
                 lock.release(result.handle)
             }
@@ -651,7 +661,7 @@ internal class LockApiSurfaceTest {
                     is LockReconcileResult.Owned -> lock.release(reconciled.handle)
                     else -> Unit
                 }
-            else -> Unit
+            else                           -> Unit
         }
         lock.close()
     }

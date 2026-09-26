@@ -1,9 +1,17 @@
+configurations {
+    testImplementation.get().extendsFrom(compileOnly.get(), runtimeOnly.get())
+}
+
 dependencies {
     api(project(":bluetape4k-core"))
-    implementation(project(":bluetape4k-virtualthread-api"))
+    compileOnly(project(":bluetape4k-virtualthread-api"))
     runtimeOnly(project(":bluetape4k-virtualthread-jdk25"))
-    implementation(project(":bluetape4k-coroutines"))
+    compileOnly(project(":bluetape4k-coroutines"))
     testImplementation(project(":bluetape4k-junit5"))
+
+    // Serializers
+    testImplementation(project(":bluetape4k-io"))
+    testImplementation(bt4k.fory.kotlin)
 
     // Coroutines
     implementation(libs.kotlinx.coroutines.core)

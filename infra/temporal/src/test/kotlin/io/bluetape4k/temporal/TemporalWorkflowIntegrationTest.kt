@@ -5,6 +5,7 @@ import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeInstanceOf
 import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.junit5.coroutines.runSuspendIO
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.temporal.activity.ActivityInterface
 import io.temporal.activity.ActivityMethod
 import io.temporal.activity.ActivityOptions
@@ -16,6 +17,7 @@ import io.temporal.failure.ApplicationFailure
 import io.temporal.failure.CanceledFailure
 import io.temporal.testing.TestWorkflowEnvironment
 import io.temporal.testing.WorkflowReplayer
+import io.temporal.worker.Worker
 import io.temporal.workflow.Functions
 import io.temporal.workflow.QueryMethod
 import io.temporal.workflow.Saga
@@ -23,17 +25,18 @@ import io.temporal.workflow.SignalMethod
 import io.temporal.workflow.Workflow
 import io.temporal.workflow.WorkflowInterface
 import io.temporal.workflow.WorkflowMethod
-import io.temporal.worker.Worker
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import java.time.Duration
 import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.ConcurrentHashMap.KeySetView
 import java.util.concurrent.CopyOnWriteArrayList
 import java.util.concurrent.atomic.AtomicInteger
+import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 
 private const val TEMPORAL_TASK_QUEUE = "bluetape4k-temporal-test"
 
@@ -49,7 +52,7 @@ interface ApprovalWorkflow {
     fun status(): String
 }
 
-class ApprovalWorkflowImpl : ApprovalWorkflow {
+class ApprovalWorkflowImpl: ApprovalWorkflow {
     private var approved = false
 
     override fun run(orderId: String): String {
@@ -77,7 +80,7 @@ interface WaitingWorkflow {
     fun status(): String
 }
 
-class WaitingWorkflowImpl : WaitingWorkflow {
+class WaitingWorkflowImpl: WaitingWorkflow {
     private var released = false
 
     override fun run(label: String): String {
@@ -104,7 +107,7 @@ interface ListWorkflow {
     fun items(): List<String>
 }
 
-class ListWorkflowImpl : ListWorkflow {
+class ListWorkflowImpl: ListWorkflow {
     private var completed = false
 
     override fun run(orderId: String): List<String> {
@@ -131,9 +134,9 @@ interface OrderActivities {
     fun release(orderId: String)
 }
 
-class RecordingOrderActivities : OrderActivities {
+class RecordingOrderActivities: OrderActivities {
     val reserveAttempts = AtomicInteger()
-    val reservedOrders = ConcurrentHashMap.newKeySet<String>()
+    val reservedOrders: KeySetView<String, Boolean> = ConcurrentHashMap.newKeySet()
     val calls = CopyOnWriteArrayList<String>()
 
     override fun reserve(orderId: String): String {
@@ -164,7 +167,7 @@ interface OrderWorkflow {
     fun run(orderId: String): String
 }
 
-class OrderWorkflowImpl : OrderWorkflow {
+class OrderWorkflowImpl: OrderWorkflow {
     private val activities = Workflow.newActivityStub(
         OrderActivities::class.java,
         ActivityOptions {
@@ -194,6 +197,9 @@ class OrderWorkflowImpl : OrderWorkflow {
 }
 
 class TemporalWorkflowIntegrationTest {
+
+    companion object: KLoggingChannel()
+
     private lateinit var environment: TestWorkflowEnvironment
     private lateinit var worker: Worker
     private lateinit var activities: RecordingOrderActivities
@@ -201,6 +207,7 @@ class TemporalWorkflowIntegrationTest {
     @BeforeEach
     fun setUp() {
         environment = TestWorkflowEnvironment.newInstance()
+
         worker = environment.newWorker(TEMPORAL_TASK_QUEUE)
         worker.registerWorkflowImplementationTypes(
             ApprovalWorkflowImpl::class.java,
@@ -210,6 +217,7 @@ class TemporalWorkflowIntegrationTest {
         )
         activities = RecordingOrderActivities()
         worker.registerActivitiesImplementations(activities)
+
         environment.start()
     }
 
@@ -219,7 +227,7 @@ class TemporalWorkflowIntegrationTest {
     }
 
     @Test
-    fun `start signal query and time skipping work with the in-memory service`() = runSuspendIO(timeout = 120.seconds) {
+    fun `start signal query and time skipping work with the in-memory service`() = runSuspendIO {
         val stub = approvalStub("approval-time-skip")
         val execution = stub.startSuspending("order-1")
 
@@ -229,12 +237,12 @@ class TemporalWorkflowIntegrationTest {
 
         stub.awaitResult<String>() shouldBeEqualTo "order-1:approved"
 
-        val history = environment.getWorkflowClient().fetchHistory(execution.workflowId, execution.runId)
+        val history = environment.workflowClient.fetchHistory(execution.workflowId, execution.runId)
         WorkflowReplayer.replayWorkflowExecution(history, ApprovalWorkflowImpl::class.java)
     }
 
     @Test
-    fun `generic list query and result preserve the element type`() = runSuspendIO(timeout = 120.seconds) {
+    fun `generic list query and result preserve the element type`() = runSuspendIO {
         val typed = environment.getWorkflowClient().newWorkflowStub<ListWorkflow> {
             setWorkflowId("list-result")
             setTaskQueue(TEMPORAL_TASK_QUEUE)
@@ -248,25 +256,27 @@ class TemporalWorkflowIntegrationTest {
     }
 
     @Test
-    fun `local result cancellation leaves the workflow running`() = runSuspendIO(timeout = 120.seconds) {
+    fun `local result cancellation leaves the workflow running`() = runSuspendIO {
         val stub = waitingStub("approval-local-cancel")
         stub.startSuspending("order-2")
         stub.querySuspending<String>("status") shouldBeEqualTo "waiting"
 
         val resultJob = launch { stub.awaitResult<String>() }
-        delay(100)
+        delay(100.milliseconds)
+
         resultJob.cancel()
         resultJob.join()
         resultJob.isCancelled.shouldBeTrue()
 
         environment.sleep(Duration.ofHours(1))
         stub.signalSuspending("release")
+
         environment.sleep(Duration.ofHours(1))
         stub.awaitResult<String>() shouldBeEqualTo "order-2:released"
     }
 
     @Test
-    fun `explicit remote cancellation fails the workflow result`() = runSuspendIO(timeout = 120.seconds) {
+    fun `explicit remote cancellation fails the workflow result`() = runSuspendIO {
         val stub = waitingStub("approval-remote-cancel")
         stub.startSuspending("order-3")
         stub.cancelSuspending("test cancellation")
@@ -278,8 +288,8 @@ class TemporalWorkflowIntegrationTest {
     }
 
     @Test
-    fun `worker factory shutdown is graceful and repeatable`() = runSuspendIO(timeout = 120.seconds) {
-        val workerFactory = environment.getWorkerFactory()
+    fun `worker factory shutdown is graceful and repeatable`() = runSuspendIO {
+        val workerFactory = environment.workerFactory
 
         workerFactory.shutdownSuspending(5.seconds).shouldBeTrue()
         workerFactory.shutdownSuspending(5.seconds).shouldBeTrue()
@@ -287,8 +297,8 @@ class TemporalWorkflowIntegrationTest {
 
     @Test
     fun `activity retry idempotency compensation and history replay are preserved`() =
-        runSuspendIO(timeout = 120.seconds) {
-            val typed = environment.getWorkflowClient().newWorkflowStub<OrderWorkflow> {
+        runSuspendIO {
+            val typed = environment.workflowClient.newWorkflowStub<OrderWorkflow> {
                 setWorkflowId("order-compensation")
                 setTaskQueue(TEMPORAL_TASK_QUEUE)
             }
@@ -308,12 +318,12 @@ class TemporalWorkflowIntegrationTest {
                 "release:order-4",
             )
 
-            val history = environment.getWorkflowClient().fetchHistory(execution.workflowId, execution.runId)
+            val history = environment.workflowClient.fetchHistory(execution.workflowId, execution.runId)
             WorkflowReplayer.replayWorkflowExecution(history, OrderWorkflowImpl::class.java)
         }
 
     private fun approvalStub(workflowId: String): WorkflowStub {
-        val typed = environment.getWorkflowClient().newWorkflowStub<ApprovalWorkflow> {
+        val typed = environment.workflowClient.newWorkflowStub<ApprovalWorkflow> {
             setWorkflowId(workflowId)
             setTaskQueue(TEMPORAL_TASK_QUEUE)
         }
@@ -321,7 +331,7 @@ class TemporalWorkflowIntegrationTest {
     }
 
     private fun waitingStub(workflowId: String): WorkflowStub {
-        val typed = environment.getWorkflowClient().newWorkflowStub<WaitingWorkflow> {
+        val typed = environment.workflowClient.newWorkflowStub<WaitingWorkflow> {
             setWorkflowId(workflowId)
             setTaskQueue(TEMPORAL_TASK_QUEUE)
         }

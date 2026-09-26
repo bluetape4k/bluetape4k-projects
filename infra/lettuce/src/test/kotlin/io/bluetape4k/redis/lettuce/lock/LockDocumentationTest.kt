@@ -4,6 +4,7 @@ import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeGreaterOrEqualTo
 import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.assertions.shouldContain
+import io.bluetape4k.logging.KLogging
 import org.junit.jupiter.api.Test
 import java.nio.file.Files
 import java.nio.file.Path
@@ -21,6 +22,7 @@ internal class LockDocumentationTest {
         ENGLISH_OPERATOR_FRAGMENTS.forEach { fragment ->
             english shouldContain fragment
         }
+
         KOREAN_OPERATOR_FRAGMENTS.forEach { fragment ->
             korean shouldContain fragment
         }
@@ -140,7 +142,7 @@ internal class LockDocumentationTest {
         return Files.readString(moduleDirectory.resolve(name))
     }
 
-    private companion object {
+    private companion object: KLogging() {
         val REQUIRED_OPERATOR_MARKERS = listOf(
             "ambiguous-reconcile",
             "watchdog-leak",

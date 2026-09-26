@@ -1,5 +1,6 @@
 package io.bluetape4k.workflow.examples
 
+import io.bluetape4k.codec.Base58
 import io.bluetape4k.workflow.api.SuspendWork
 import io.bluetape4k.workflow.api.Work
 import io.bluetape4k.workflow.api.WorkReport
@@ -11,7 +12,7 @@ import kotlin.time.Duration.Companion.milliseconds
 // ──────────────────────────────────────────────────────────────────────────
 
 internal fun fixSyncValidateOrder(): Work = Work("order-validate") { ctx ->
-    val amount = ctx.get<Long>("order.amount") ?: 0L
+    val amount = ctx["order.amount"] ?: 0L
     val userId = ctx.get<String>("order.userId")
     if (amount <= 0L || userId.isNullOrBlank()) {
         return@Work WorkReport.aborted(ctx, "주문 정보가 유효하지 않습니다 (userId=$userId, amount=$amount)")
@@ -47,7 +48,7 @@ internal fun fixSyncRequestPayment(
         if (attempt < successOnAttempt) {
             return@Work WorkReport.failure(ctx, RuntimeException("PG 서버 일시 오류 (시도 #$attempt)"))
         }
-        ctx["pg.txId"] = if (txIdPrefix == "TX") "TX-${System.currentTimeMillis()}" else "$txIdPrefix-$attempt"
+        ctx["pg.txId"] = if (txIdPrefix == "TX") "TX-${Base58.randomString(8)}" else "$txIdPrefix-$attempt"
         ctx["pg.approved"] = false
         WorkReport.success(ctx)
     }
@@ -81,7 +82,7 @@ internal fun fixSyncCancelOrder(): Work = Work("order-cancel") { ctx ->
 // ──────────────────────────────────────────────────────────────────────────
 
 internal fun fixSuspendValidateOrder(): SuspendWork = SuspendWork("order-validate") { ctx ->
-    val amount = ctx.get<Long>("order.amount") ?: 0L
+    val amount = ctx["order.amount"] ?: 0L
     val userId = ctx.get<String>("order.userId")
     if (amount <= 0L || userId.isNullOrBlank()) {
         return@SuspendWork WorkReport.aborted(ctx, "주문 정보가 유효하지 않습니다 (userId=$userId, amount=$amount)")
@@ -117,7 +118,7 @@ internal fun fixSuspendRequestPayment(
         if (attempt < successOnAttempt) {
             return@SuspendWork WorkReport.failure(ctx, RuntimeException("PG 서버 일시 오류 (시도 #$attempt)"))
         }
-        ctx["pg.txId"] = if (txIdPrefix == "TX") "TX-${System.currentTimeMillis()}" else "$txIdPrefix-$attempt"
+        ctx["pg.txId"] = if (txIdPrefix == "TX") "TX-${Base58.randomString(8)}" else "$txIdPrefix-$attempt"
         ctx["pg.approved"] = false
         WorkReport.success(ctx)
     }

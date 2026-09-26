@@ -3,6 +3,7 @@ package io.bluetape4k.redis.lettuce.lease
 import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEmpty
 import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeNull
 import io.bluetape4k.assertions.shouldBeSameInstanceAs
 import org.junit.jupiter.api.Test
 import java.io.ByteArrayInputStream
@@ -91,18 +92,18 @@ class FencingLeaseResultTest {
     fun `deserialization revalidates ttl result variants`() {
         val invalidSamples = listOf(
             FencingAcquireResult.AlreadyOwned(token, 1).withField("remainingTtlMillis", -1L) to
-                "Invalid serialized FencingAcquireResult.AlreadyOwned.",
+                    "Invalid serialized FencingAcquireResult.AlreadyOwned.",
             FencingAcquireResult.Contended(1).withField("remainingTtlMillis", -1L) to
-                "Invalid serialized FencingAcquireResult.Contended.",
+                    "Invalid serialized FencingAcquireResult.Contended.",
             FencingInspectResult.Owned(token, 1).withField("remainingTtlMillis", -1L) to
-                "Invalid serialized FencingInspectResult.Owned.",
+                    "Invalid serialized FencingInspectResult.Owned.",
             FencingInspectResult.Contended(1).withField("remainingTtlMillis", -1L) to
-                "Invalid serialized FencingInspectResult.Contended.",
+                    "Invalid serialized FencingInspectResult.Contended.",
         )
 
         invalidSamples.forEach { (invalid, expectedMessage) ->
             val error = assertFailsWith<InvalidObjectException> { javaRoundTrip(invalid) }
-            error.cause shouldBeEqualTo null
+            error.cause.shouldBeNull()
             error.message shouldBeEqualTo expectedMessage
         }
     }
@@ -111,20 +112,22 @@ class FencingLeaseResultTest {
     fun `deserialization rejects null nested failure without leaking a sentinel`() {
         val invalidSamples = listOf(
             FencingBootstrapResult.IntegrityFailure(integrityFailure).withField("failure", null) to
-                "Invalid serialized FencingBootstrapResult.IntegrityFailure.",
+                    "Invalid serialized FencingBootstrapResult.IntegrityFailure.",
             FencingAcquireResult.BackendFailure(backendFailure).withField("failure", null) to
-                "Invalid serialized FencingAcquireResult.BackendFailure.",
+                    "Invalid serialized FencingAcquireResult.BackendFailure.",
             FencingInspectResult.IntegrityFailure(integrityFailure).withField("failure", null) to
-                "Invalid serialized FencingInspectResult.IntegrityFailure.",
+                    "Invalid serialized FencingInspectResult.IntegrityFailure.",
             FencingRenewResult.BackendFailure(backendFailure).withField("failure", null) to
-                "Invalid serialized FencingRenewResult.BackendFailure.",
+                    "Invalid serialized FencingRenewResult.BackendFailure.",
             FencingReleaseResult.IntegrityFailure(integrityFailure).withField("failure", null) to
-                "Invalid serialized FencingReleaseResult.IntegrityFailure.",
+                    "Invalid serialized FencingReleaseResult.IntegrityFailure.",
         )
 
         invalidSamples.forEach { (invalid, expectedMessage) ->
-            val error = assertFailsWith<InvalidObjectException> { javaRoundTrip(invalid) }
-            error.cause shouldBeEqualTo null
+            val error = assertFailsWith<InvalidObjectException> {
+                javaRoundTrip(invalid)
+            }
+            error.cause.shouldBeNull()
             error.message shouldBeEqualTo expectedMessage
         }
     }
@@ -133,14 +136,16 @@ class FencingLeaseResultTest {
     fun `deserialization rejects null failure kind with a stable cause-free message`() {
         val invalidSamples = listOf(
             FencingLeaseBackendFailure(FencingBackendFailureKind.COMMAND).withField("kind", null) to
-                "Invalid serialized FencingLeaseBackendFailure.",
+                    "Invalid serialized FencingLeaseBackendFailure.",
             FencingLeaseIntegrityFailure(FencingIntegrityFailureKind.MALFORMED_LEASE).withField("kind", null) to
-                "Invalid serialized FencingLeaseIntegrityFailure.",
+                    "Invalid serialized FencingLeaseIntegrityFailure.",
         )
 
         invalidSamples.forEach { (invalid, expectedMessage) ->
-            val error = assertFailsWith<InvalidObjectException> { javaRoundTrip(invalid) }
-            error.cause shouldBeEqualTo null
+            val error = assertFailsWith<InvalidObjectException> {
+                javaRoundTrip(invalid)
+            }
+            error.cause.shouldBeNull()
             error.message shouldBeEqualTo expectedMessage
         }
     }
@@ -151,13 +156,13 @@ class FencingLeaseResultTest {
             .flatMap { type -> type.memberProperties }
             .filter { property ->
                 property.visibility == KVisibility.PUBLIC && (
-                    property.name.contains("key", ignoreCase = true) ||
-                        property.name.contains("owner", ignoreCase = true) ||
-                        property.name.contains("token", ignoreCase = true) ||
-                        property.name.contains("raw", ignoreCase = true) ||
-                        property.name.contains("message", ignoreCase = true) ||
-                        Throwable::class.java.isAssignableFrom(property.returnType.classifier.let { it as? KClass<*> }?.java)
-                    )
+                        property.name.contains("key", ignoreCase = true) ||
+                                property.name.contains("owner", ignoreCase = true) ||
+                                property.name.contains("token", ignoreCase = true) ||
+                                property.name.contains("raw", ignoreCase = true) ||
+                                property.name.contains("message", ignoreCase = true) ||
+                                Throwable::class.java.isAssignableFrom(property.returnType.classifier.let { it as? KClass<*> }?.java)
+                        )
             }
 
         forbiddenProperties.shouldBeEmpty()
@@ -170,13 +175,13 @@ class FencingLeaseResultTest {
             .flatMap { subtype -> subtype.memberProperties }
             .filter { property ->
                 property.visibility == KVisibility.PUBLIC && (
-                    property.name.contains("key", ignoreCase = true) ||
-                        property.name.contains("owner", ignoreCase = true) ||
-                        property.name.contains("raw", ignoreCase = true) ||
-                        property.name.contains("reply", ignoreCase = true) ||
-                        property.name.contains("message", ignoreCase = true) ||
-                        Throwable::class.java.isAssignableFrom(property.returnType.classifier.let { it as? KClass<*> }?.java)
-                    )
+                        property.name.contains("key", ignoreCase = true) ||
+                                property.name.contains("owner", ignoreCase = true) ||
+                                property.name.contains("raw", ignoreCase = true) ||
+                                property.name.contains("reply", ignoreCase = true) ||
+                                property.name.contains("message", ignoreCase = true) ||
+                                Throwable::class.java.isAssignableFrom(property.returnType.classifier.let { it as? KClass<*> }?.java)
+                        )
             }
 
         forbiddenProperties.shouldBeEmpty()

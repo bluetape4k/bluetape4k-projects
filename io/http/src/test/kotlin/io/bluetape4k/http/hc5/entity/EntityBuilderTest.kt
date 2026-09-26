@@ -1,22 +1,23 @@
 package io.bluetape4k.http.hc5.entity
 
-import io.bluetape4k.http.hc5.http.ContentTypes
-import io.bluetape4k.logging.KLogging
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldContain
+import io.bluetape4k.assertions.shouldContentEqual
 import io.bluetape4k.assertions.shouldNotBeNull
 import io.bluetape4k.assertions.shouldNotBeNullOrEmpty
+import io.bluetape4k.http.hc5.http.ContentTypes
+import io.bluetape4k.logging.KLogging
 import org.apache.hc.core5.http.ContentType
+import org.apache.hc.core5.http.message.BasicNameValuePair
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
 import java.io.ByteArrayInputStream
 import java.io.File
 import java.nio.file.Files
-import org.apache.hc.core5.http.message.BasicNameValuePair
 
 class EntityBuilderTest {
 
-    companion object : KLogging()
+    companion object: KLogging()
 
     @Test
     fun `httpEntity DSL block creates StringEntity with text`() {
@@ -92,7 +93,7 @@ class EntityBuilderTest {
         val content = entity.toByteArrayOrNull()
         content.shouldNotBeNull()
         content.size shouldBeEqualTo bytes.size
-        content.toList() shouldBeEqualTo bytes.toList()
+        content shouldContentEqual bytes
     }
 
     @Test

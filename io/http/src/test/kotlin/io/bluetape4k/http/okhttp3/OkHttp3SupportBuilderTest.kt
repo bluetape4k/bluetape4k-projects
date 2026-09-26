@@ -125,7 +125,9 @@ class OkHttp3SupportBuilderTest {
                 url = server.url("/api").toString(),
                 "X-Custom-Header", "custom-value",
                 "Authorization", "Bearer token"
-            ) { get() }
+            ) {
+                get()
+            }
 
             request.url.toString().shouldNotBeBlank()
             request.header("X-Custom-Header") shouldBeEqualTo "custom-value"
@@ -138,7 +140,9 @@ class OkHttp3SupportBuilderTest {
             val request = okhttp3RequestOf(
                 url = server.url("/").toString(),
                 headers = headers
-            ) { get() }
+            ) {
+                get()
+            }
 
             request.header("X-Trace-Id") shouldBeEqualTo "trace-001"
         }

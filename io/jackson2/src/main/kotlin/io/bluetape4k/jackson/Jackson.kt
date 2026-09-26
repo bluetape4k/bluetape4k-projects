@@ -41,34 +41,6 @@ object Jackson: KLogging() {
     val prettyJsonWriter: ObjectWriter by lazy { defaultJsonMapper.writerWithDefaultPrettyPrinter() }
 
     /**
-     * 타입 정보를 포함하는 JsonMapper 인스턴스입니다.
-     *
-     * @deprecated legacy permissive typing 경로이므로 접근 시 [UnsupportedOperationException]이 발생합니다.
-     * 신뢰된 패키지 allowlist를 사용하는 [createTypedJsonMapper]("com.example.") 를 사용하세요.
-    */
-    @Deprecated(
-        "legacy permissive typing은 모든 타입을 허용하여 RCE 취약점을 야기할 수 있습니다. " +
-                "createTypedJsonMapper(\"com.example.\") 를 사용하세요.",
-        ReplaceWith("Jackson.createTypedJsonMapper(\"com.example.\")")
-    )
-    val typedJsonMapper: JsonMapper by lazy { createDefaultJsonMapper(needTypeInfo = true) }
-
-    /**
-     * 타입 정보를 포함하며 포맷된 JSON을 출력하는 [ObjectWriter]
-     *
-     * @deprecated legacy permissive typing 경로이므로 접근 시 [UnsupportedOperationException]이 발생합니다.
-     * [createTypedJsonMapper](...).writerWithDefaultPrettyPrinter() 를 사용하세요.
-     */
-    @Deprecated(
-        "typedJsonMapper와 함께 deprecated됩니다. " +
-                "createTypedJsonMapper(...).writerWithDefaultPrettyPrinter() 를 사용하세요.",
-        ReplaceWith("Jackson.createTypedJsonMapper(\"com.example.\").writerWithDefaultPrettyPrinter()")
-    )
-    val prettyTypedJsonWriter: ObjectWriter by lazy {
-        createDefaultJsonMapper(needTypeInfo = true).writerWithDefaultPrettyPrinter()
-    }
-
-    /**
      * property 기반 타입 정보를 기록하고 신뢰된 타입만 허용하는 [JsonMapper]를 생성합니다
      * trusted subtype packages.
      *

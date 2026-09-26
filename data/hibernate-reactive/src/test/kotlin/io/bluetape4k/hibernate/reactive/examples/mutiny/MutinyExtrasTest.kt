@@ -5,9 +5,9 @@ import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeGreaterOrEqualTo
 import io.bluetape4k.assertions.shouldBeLessOrEqualTo
 import io.bluetape4k.assertions.shouldBeNull
+import io.bluetape4k.assertions.shouldHaveSize
 import io.bluetape4k.assertions.shouldNotBeNull
 import io.bluetape4k.hibernate.reactive.examples.model.Author
-import io.bluetape4k.hibernate.reactive.examples.model.Book
 import io.bluetape4k.hibernate.reactive.mutiny.asMutinySessionFactory
 import io.bluetape4k.hibernate.reactive.mutiny.createQueryAs
 import io.bluetape4k.hibernate.reactive.mutiny.createSelectionQueryAs
@@ -41,18 +41,11 @@ class MutinyExtrasTest: AbstractMutinyTest() {
 
     companion object: KLoggingChannel()
 
-    private val author1 = Author(faker.name().name())
-    private val author2 = Author(faker.name().name())
-    private val book1 = Book(
-        faker.numerify("#-#####-###-#"),
-        faker.book().title(),
-        LocalDate.of(1990, Month.MARCH, 1)
-    )
-    private val book2 = Book(
-        faker.numerify("#-#####-###-#"),
-        faker.book().title(),
-        LocalDate.of(2000, Month.JULY, 1)
-    )
+    private val author1 = newAuthor()
+    private val author2 = newAuthor()
+
+    private val book1 = newBook(LocalDate.of(1990, Month.MARCH, 1))
+    private val book2 = newBook(LocalDate.of(2000, Month.JULY, 1))
 
     @BeforeAll
     fun beforeAll() = runSuspendIO {
@@ -77,6 +70,7 @@ class MutinyExtrasTest: AbstractMutinyTest() {
             session.createSelectionQueryAs<Long>("select count(a) from Author a")
                 .singleResult
                 .awaitSuspending()
+                .shouldNotBeNull()
         }
 
         // 최소 2명의 author 가 존재해야 합니다 (BeforeAll 에서 저장)
@@ -121,7 +115,7 @@ class MutinyExtrasTest: AbstractMutinyTest() {
         }
 
         // BeforeAll 에서 최소 2명 저장
-        authors.size shouldBeGreaterOrEqualTo 2
+        authors shouldHaveSize 2
     }
 
     /**
@@ -130,10 +124,9 @@ class MutinyExtrasTest: AbstractMutinyTest() {
     @Test
     fun `withStatelessTransactionSuspending 에서 getAs 로 엔티티를 조회한다`() = runSuspendIO {
         val found = sf.withStatelessTransactionSuspending { session ->
-            session.getAs<Author>(author1.id).awaitSuspending()
+            session.getAs<Author>(author1.id).awaitSuspending().shouldNotBeNull()
         }
 
-        found.shouldNotBeNull()
         found.id shouldBeEqualTo author1.id
         found.name shouldBeEqualTo author1.name
     }
@@ -147,6 +140,7 @@ class MutinyExtrasTest: AbstractMutinyTest() {
             session.createSelectionQueryAs<Long>("select count(b) from Book b")
                 .singleResult
                 .awaitSuspending()
+                .shouldNotBeNull()
         }
 
         count shouldBeGreaterOrEqualTo 2L
@@ -157,7 +151,8 @@ class MutinyExtrasTest: AbstractMutinyTest() {
      */
     @Test
     fun `존재하지 않는 id 로 findAs 를 호출하면 null 이 반환된다`() = runSuspendIO {
-        val nonExistentId = Long.MAX_VALUE
+        val nonExistentId = Long.MIN_VALUE
+        
         val result = sf.withSessionSuspending { session ->
             session.findAs<Author>(nonExistentId).awaitSuspending()
         }
@@ -171,10 +166,15 @@ class MutinyExtrasTest: AbstractMutinyTest() {
     @Test
     fun `withStatelessTransactionSuspending 에서 순차 쿼리 결과가 일관성 있다`() = runSuspendIO {
         val (authorCount, bookCount) = sf.withStatelessTransactionSuspending { session ->
-            val ac = session.createSelectionQueryAs<Long>("select count(a) from Author a")
-                .singleResult.awaitSuspending()
-            val bc = session.createSelectionQueryAs<Long>("select count(b) from Book b")
-                .singleResult.awaitSuspending()
+            val ac = session
+                .createSelectionQueryAs<Long>("select count(a) from Author a")
+                .singleResult
+                .awaitSuspending().shouldNotBeNull()
+
+            val bc = session
+                .createSelectionQueryAs<Long>("select count(b) from Book b")
+                .singleResult
+                .awaitSuspending().shouldNotBeNull()
             ac to bc
         }
 

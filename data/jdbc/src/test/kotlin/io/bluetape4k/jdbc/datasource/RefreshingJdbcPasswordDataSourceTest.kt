@@ -5,9 +5,13 @@ import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.assertions.shouldContain
 import io.bluetape4k.assertions.shouldNotContain
+import io.bluetape4k.codec.Base58
 import io.bluetape4k.junit5.concurrency.MultithreadingTester
+import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.debug
 import org.junit.jupiter.api.Test
 import java.io.PrintWriter
+import java.io.Serializable
 import java.lang.reflect.Proxy
 import java.sql.Connection
 import java.sql.Driver
@@ -15,12 +19,14 @@ import java.sql.DriverManager
 import java.sql.DriverPropertyInfo
 import java.sql.SQLException
 import java.sql.SQLFeatureNotSupportedException
-import java.util.Properties
+import java.util.*
 import java.util.concurrent.ConcurrentLinkedQueue
 import java.util.concurrent.atomic.AtomicInteger
 import java.util.logging.Logger
 
 class RefreshingJdbcPasswordDataSourceTest {
+
+    companion object: KLogging()
 
     @Test
     fun `getConnection opens H2 connection and calls password provider`() {
@@ -31,7 +37,7 @@ class RefreshingJdbcPasswordDataSourceTest {
                 driverClassName = "org.h2.Driver",
                 username = "sa",
             ),
-            passwordProvider = JdbcPasswordProvider {
+            passwordProvider = {
                 calls.incrementAndGet()
                 ""
             },
@@ -94,12 +100,14 @@ class RefreshingJdbcPasswordDataSourceTest {
                 dataSourceProperties = mapOf("sslpassword" to "property-secret"),
                 nullPasswordMessage = "Password provider returned no value.",
             ),
-            passwordProvider = JdbcPasswordProvider { null },
+            passwordProvider = { null },
         )
 
         val ex = assertFailsWith<SQLException> {
             dataSource.connection
         }
+
+        log.debug(ex) { "의도된 예외입니다. password 를 제공하지 않았습니다." }
 
         ex.message shouldBeEqualTo "Password provider returned no value."
         ex.message shouldNotContain "url-secret"
@@ -200,6 +208,7 @@ class RefreshingJdbcPasswordDataSourceTest {
             dataSource.unwrap(Connection::class.java)
         }
 
+        log.debug(ex) { "의도된 예외입니다." }
         ex.message shouldContain "Not a wrapper for java.sql.Connection."
     }
 
@@ -211,11 +220,13 @@ class RefreshingJdbcPasswordDataSourceTest {
                 url = "jdbc:postgresql://url-user:url-password@localhost:5432/app?password=query-secret&token=query-token&sslpassword=ssl-secret",
                 username = "db-user",
             ),
-            passwordProvider = JdbcPasswordProvider {
+            passwordProvider = {
                 calls.incrementAndGet()
                 "provider-secret"
             },
         )
+
+        log.debug { "dataSource=$dataSource" }
 
         val value = dataSource.toString()
 
@@ -242,6 +253,7 @@ class RefreshingJdbcPasswordDataSourceTest {
         val ex = assertFailsWith<SQLException> {
             dataSource.connection
         }
+        log.debug(ex) { "의도된 예외입니다." }
 
         ex.stackTraceToString() shouldNotContain "provider-secret"
         ex.message shouldNotContain "provider-secret"
@@ -253,7 +265,10 @@ class RefreshingJdbcPasswordDataSourceTest {
         failure.addSuppressed(IllegalArgumentException("suppressed-secret"))
         val dataSource = dataSourceFor("jdbc:bluetape4k-refresh-test:provider-sql-failure") { throw failure }
 
-        val ex = assertFailsWith<SQLException> { dataSource.connection }
+        val ex = assertFailsWith<SQLException> {
+            dataSource.connection
+        }
+        log.debug(ex) { "의도된 예외입니다." }
 
         ex.message shouldBeEqualTo "JDBC password provider failed."
         ex.stackTraceToString() shouldNotContain "provider-secret"
@@ -271,9 +286,10 @@ class RefreshingJdbcPasswordDataSourceTest {
                     username = "user",
                     dataSourceProperties = mapOf("password" to "property-secret"),
                 ),
-                passwordProvider = JdbcPasswordProvider { "provider-secret" },
+                passwordProvider = { "provider-secret" },
             )
         }
+        log.debug(ex) { "의도된 예외입니다." }
 
         ex.message shouldContain "missing.DriverClass"
         ex.message shouldNotContain "url-secret"
@@ -327,7 +343,7 @@ class RefreshingJdbcPasswordDataSourceTest {
     }
 
     private class RecordingDriver(
-        val url: String = "jdbc:bluetape4k-refresh-test:${System.nanoTime()}",
+        val url: String = "jdbc:bluetape4k-refresh-test:${Base58.randomString(6)}",
     ): Driver {
 
         val captures = ConcurrentLinkedQueue<CapturedProperties>()
@@ -366,12 +382,12 @@ class RefreshingJdbcPasswordDataSourceTest {
                 arrayOf(Connection::class.java),
             ) { proxy, method, _ ->
                 when (method.name) {
-                    "close" -> Unit
+                    "close"    -> Unit
                     "isClosed" -> false
                     "toString" -> "RecordingConnection"
-                    "unwrap" -> unwrap(proxy, method)
+                    "unwrap"   -> unwrap(proxy, method)
                     "isWrapperFor" -> method.parameterTypes.single().isInstance(proxy)
-                    else -> defaultValue(method)
+                    else       -> defaultValue(method)
                 }
             } as Connection
 
@@ -386,20 +402,20 @@ class RefreshingJdbcPasswordDataSourceTest {
         private fun defaultValue(method: java.lang.reflect.Method): Any? =
             when (method.returnType) {
                 java.lang.Boolean.TYPE -> false
-                java.lang.Byte.TYPE -> 0.toByte()
-                java.lang.Short.TYPE -> 0.toShort()
+                java.lang.Byte.TYPE    -> 0.toByte()
+                java.lang.Short.TYPE   -> 0.toShort()
                 java.lang.Integer.TYPE -> 0
-                java.lang.Long.TYPE -> 0L
-                java.lang.Float.TYPE -> 0.0f
-                java.lang.Double.TYPE -> 0.0
+                java.lang.Long.TYPE    -> 0L
+                java.lang.Float.TYPE   -> 0.0f
+                java.lang.Double.TYPE  -> 0.0
                 java.lang.Character.TYPE -> '\u0000'
-                java.lang.Void.TYPE -> Unit
-                else -> null
+                java.lang.Void.TYPE    -> Unit
+                else                   -> null
             }
     }
 
     private data class CapturedProperties(
         val identityHash: Int,
         val properties: Properties,
-    )
+    ): Serializable
 }

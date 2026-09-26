@@ -15,6 +15,7 @@ import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.flatMapMerge
+import kotlinx.coroutines.flow.flattenMerge
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
@@ -38,7 +39,10 @@ class GroupByTest: AbstractFlowTest() {
         flowRangeOf(1, 10).log("src")
             .groupBy { it % 2 }
             .flatMapMerge { group -> group.toValues() }.log("flatMapMerge")
-            .assertResultSet(listOf(1, 3, 5, 7, 9), listOf(2, 4, 6, 8, 10))
+            .assertResultSet(
+                listOf(1, 3, 5, 7, 9),
+                listOf(2, 4, 6, 8, 10)
+            )
     }
 
     @Test
@@ -58,7 +62,10 @@ class GroupByTest: AbstractFlowTest() {
         flowRangeOf(1, 10).log("source")
             .groupBy({ it % 2 }) { it + 1 }
             .flatMapMerge { it.toValues() }.log("flatMapMerge")
-            .assertResultSet(listOf(2, 4, 6, 8, 10), listOf(3, 5, 7, 9, 11))
+            .assertResultSet(
+                listOf(2, 4, 6, 8, 10),
+                listOf(3, 5, 7, 9, 11)
+            )
     }
 
     @Test
@@ -82,7 +89,10 @@ class GroupByTest: AbstractFlowTest() {
             .groupBy { it % 3 }
             .take(2)                    // list(3, 6, 9) 는 빠진다
             .flatMapMerge { it.toValues() }
-            .assertResultSet(listOf(1, 4, 7, 10), listOf(2, 5, 8))
+            .assertResultSet(
+                listOf(1, 4, 7, 10),
+                listOf(2, 5, 8)
+            )
     }
 
     @Test
@@ -149,7 +159,7 @@ class GroupByTest: AbstractFlowTest() {
 
         try {
             val group = groupReady.await()
-            advanceTimeBy(5_001)
+            advanceTimeBy(5_001.milliseconds)
             runCurrent()
 
             val values = withTimeout(100.milliseconds) { group.toList() }
@@ -194,7 +204,7 @@ class GroupByTest: AbstractFlowTest() {
         flowRangeOf(1, 10)
             .map { if (it < 5) error("oops") else it }
             .groupBy { it % 2 == 0 }
-            .flatMapMerge { it }
+            .flattenMerge()
             .onEach { log.trace { it } }
             .test {
                 awaitError() shouldBeInstanceOf FlowOperationException::class
@@ -206,7 +216,7 @@ class GroupByTest: AbstractFlowTest() {
         flowRangeOf(1, 10).log("source")
             .map { if (it > 5) error("oops") else it }
             .groupBy { it % 2 == 0 }
-            .flatMapMerge { it }.log("flatMapMerge")
+            .flattenMerge().log("flatMapMerge")
             .test {
                 awaitItem() shouldBeEqualTo 1
                 awaitItem() shouldBeEqualTo 2
@@ -220,7 +230,11 @@ class GroupByTest: AbstractFlowTest() {
         val map = flowRangeOf(1, 10)
             .groupBy { it % 2 }
             .toMap()
-        map shouldBeEqualTo mapOf(0 to listOf(2, 4, 6, 8, 10), 1 to listOf(1, 3, 5, 7, 9))
+
+        map shouldBeEqualTo mapOf(
+            0 to listOf(2, 4, 6, 8, 10),
+            1 to listOf(1, 3, 5, 7, 9)
+        )
     }
 
     @Test

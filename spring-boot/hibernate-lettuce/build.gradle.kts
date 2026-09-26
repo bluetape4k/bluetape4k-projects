@@ -1,5 +1,6 @@
 plugins {
     kotlin("plugin.spring")
+    kotlin("plugin.jpa")
 }
 
 configurations {
@@ -11,7 +12,9 @@ dependencies {
     implementation(platform(bt4k.spring.boot4.dependencies))
 
     // 핵심: Hibernate 2nd Level Cache Lettuce 구현체
+    api(project(":bluetape4k-hibernate"))
     api(project(":bluetape4k-hibernate-cache-lettuce"))
+    testImplementation(bt4k.glassfish.expressly)
 
     // Spring Boot 4: HibernatePropertiesCustomizer가 spring-boot-hibernate 모듈로 이동 — compileOnly
     compileOnly("org.springframework.boot:spring-boot-autoconfigure")
@@ -31,11 +34,12 @@ dependencies {
     // Test
     testImplementation(project(":bluetape4k-spring-boot-core"))
     testImplementation("org.springframework.boot:spring-boot-starter-test")
-    testImplementation("org.springframework.boot:spring-boot-starter-data-jpa")
-    testImplementation("org.springframework.boot:spring-boot-starter-actuator")
-    testImplementation(libs.micrometer.core)
     testImplementation(project(":bluetape4k-junit5"))
     testImplementation(project(":bluetape4k-testcontainers"))
     testImplementation(bt4k.h2.v2)
     testImplementation(bt4k.hikaricp)
+    testImplementation(kotlin("test"))
+}
+repositories {
+    mavenCentral()
 }

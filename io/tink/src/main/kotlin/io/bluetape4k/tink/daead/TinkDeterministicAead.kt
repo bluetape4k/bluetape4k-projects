@@ -3,10 +3,13 @@ package io.bluetape4k.tink.daead
 import com.google.crypto.tink.DeterministicAead
 import com.google.crypto.tink.KeysetHandle
 import com.google.crypto.tink.RegistryConfiguration
+import io.bluetape4k.codec.decodeBase64ByteArray
+import io.bluetape4k.codec.encodeBase64String
 import io.bluetape4k.logging.KLogging
+import io.bluetape4k.support.toUtf8Bytes
+import io.bluetape4k.support.toUtf8String
 import io.bluetape4k.tink.EMPTY_BYTES
 import io.bluetape4k.tink.daeadKeysetHandle
-import java.util.*
 
 /**
  * Google Tink [DeterministicAead] 프리미티브를 Kotlin 관용적으로 래핑한 결정적 AEAD 암호화 클래스입니다.
@@ -64,8 +67,8 @@ class TinkDeterministicAead(keysetHandle: KeysetHandle = daeadKeysetHandle()) {
      * @return Base64 인코딩된 암호문 문자열 (동일 입력 시 항상 동일한 출력)
      */
     fun encryptDeterministically(plaintext: String, associatedData: ByteArray = EMPTY_BYTES): String {
-        val cipherBytes = encryptDeterministically(plaintext.toByteArray(Charsets.UTF_8), associatedData)
-        return Base64.getEncoder().encodeToString(cipherBytes)
+        val cipherBytes = encryptDeterministically(plaintext.toUtf8Bytes(), associatedData)
+        return cipherBytes.encodeBase64String()
     }
 
     /**
@@ -77,7 +80,7 @@ class TinkDeterministicAead(keysetHandle: KeysetHandle = daeadKeysetHandle()) {
      * @throws com.google.crypto.tink.shaded.protobuf.GeneralSecurityException 복호화 실패 또는 인증 실패 시
      */
     fun decryptDeterministically(ciphertext: String, associatedData: ByteArray = EMPTY_BYTES): String {
-        val cipherBytes = Base64.getDecoder().decode(ciphertext)
-        return decryptDeterministically(cipherBytes, associatedData).toString(Charsets.UTF_8)
+        val cipherBytes = ciphertext.decodeBase64ByteArray()
+        return decryptDeterministically(cipherBytes, associatedData).toUtf8String()
     }
 }

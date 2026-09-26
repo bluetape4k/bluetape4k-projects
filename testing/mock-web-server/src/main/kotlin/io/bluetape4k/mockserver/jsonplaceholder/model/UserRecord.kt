@@ -22,8 +22,8 @@ data class UserRecord(
     val email: String = "",
     val phone: String = "",
     val website: String = "",
-) : Serializable {
-    companion object : KLogging() {
+): Serializable {
+    companion object: KLogging() {
         private const val serialVersionUID = 1L
     }
 }

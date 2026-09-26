@@ -1,5 +1,7 @@
 package io.bluetape4k.cache.memoizer.jcache
 
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeNull
 import io.bluetape4k.cache.jcache.JCaching
 import io.bluetape4k.cache.memoizer.AbstractSuspendMemoizerTest
 import io.bluetape4k.cache.memoizer.SuspendFactorialProvider
@@ -7,8 +9,6 @@ import io.bluetape4k.cache.memoizer.SuspendFibonacciProvider
 import io.bluetape4k.junit5.coroutines.runSuspendDefault
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import kotlinx.coroutines.delay
-import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldBeNull
 import org.junit.jupiter.api.Test
 import kotlin.time.Duration.Companion.milliseconds
 

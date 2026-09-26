@@ -8,9 +8,17 @@ import io.nats.client.api.StreamConfiguration
  */
 inline fun streamConfiguration(
     builder: StreamConfiguration.Builder.() -> Unit,
-): StreamConfiguration {
-    return StreamConfiguration.builder().apply(builder).build()
-}
+): StreamConfiguration =
+    StreamConfiguration.builder().apply(builder).build()
+
+/**
+ * 기존 설정을 기반으로 [StreamConfiguration]을 복사/수정합니다.
+ */
+inline fun streamConfiguration(
+    sc: StreamConfiguration,
+    builder: StreamConfiguration.Builder.() -> Unit,
+): StreamConfiguration =
+    StreamConfiguration.builder(sc).apply(builder).build()
 
 /**
  * 스트림 이름을 고정한 [StreamConfiguration]을 생성합니다.
@@ -20,18 +28,9 @@ inline fun streamConfiguration(
     builder: StreamConfiguration.Builder.() -> Unit,
 ): StreamConfiguration {
     streamName.requireNotBlank("streamName")
+
     return streamConfiguration {
         name(streamName)
         builder()
     }
-}
-
-/**
- * 기존 설정을 기반으로 [StreamConfiguration]을 복사/수정합니다.
- */
-inline fun streamConfiguration(
-    sc: StreamConfiguration,
-    builder: StreamConfiguration.Builder.() -> Unit,
-): StreamConfiguration {
-    return StreamConfiguration.builder(sc).apply(builder).build()
 }

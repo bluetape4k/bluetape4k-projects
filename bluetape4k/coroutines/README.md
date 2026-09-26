@@ -142,8 +142,7 @@ Useful entry points:
 
 #### Rx/Reactor-style parity (selected contracts)
 
-The selected parity operators add only contracts that are not already covered
-by standard Flow operators:
+The selected parity operators add only contracts that are not already covered by standard Flow operators:
 
 ```kotlin
 import io.bluetape4k.coroutines.flow.extensions.bufferTimeout
@@ -167,23 +166,14 @@ suspend fun parityExample(source: kotlinx.coroutines.flow.Flow<Int>) {
 }
 ```
 
-Completion emits one non-empty partial batch/window; upstream failure drops the
-in-flight partial value. `windowTimeout` exposes repeatable cold snapshots, and
+Completion emits one non-empty partial batch/window; upstream failure drops the in-flight partial value. `windowTimeout` exposes repeatable cold snapshots, and
 `timeoutOrFallback` subscribes to its fallback only after upstream cleanup.
 `CancellationException` remains cancellation, and bounded `concatMapEager`
-preserves source order while suspending inner producers at `bufferCapacity`.
-For `switchMap`, `buffer`, `conflate`, `combine`, `zip`, and `retryWhen`, use
-the standard Flow operators. Delay-error and explicit overflow families are
-tracked in [follow-up issue #1300](https://github.com/bluetape4k/bluetape4k-projects/issues/1300);
-the current contracts, caller evidence, and re-open conditions are recorded in
-the [Flow operator policy matrix](../../docs/flow-operator-policy-matrix.md).
+preserves source order while suspending inner producers at `bufferCapacity`. For `switchMap`, `buffer`, `conflate`, `combine`, `zip`, and `retryWhen`, use the standard Flow operators. Delay-error and explicit overflow families are tracked in [follow-up issue #1300](https://github.com/bluetape4k/bluetape4k-projects/issues/1300); the current contracts, caller evidence, and re-open conditions are recorded in the [Flow operator policy matrix](../../docs/flow-operator-policy-matrix.md).
 
 #### Last-N selection and exclusion
 
-`takeLast(count)` retains the last `count` values and emits them in source order
-only after normal completion. `dropLast(count)` is the Kotlin-named counterpart
-of RxJava/Reactor `skipLast`: it streams the prefix with a `count`-element delay.
-Use these for a bounded recent-event summary or removing a known trailer.
+`takeLast(count)` retains the last `count` values and emits them in source order only after normal completion. `dropLast(count)` is the Kotlin-named counterpart of RxJava/Reactor `skipLast`: it streams the prefix with a `count`-element delay. Use these for a bounded recent-event summary or removing a known trailer.
 
 ```kotlin
 import io.bluetape4k.coroutines.flow.extensions.takeLast
@@ -197,13 +187,10 @@ suspend fun suffixExample() {
 }
 ```
 
-Both accept nullable values, reject negative counts immediately, and keep at
-most `count` elements per collection without preallocating that many slots.
-Errors and cancellation propagate without flushing the pending suffix.
+Both accept nullable values, reject negative counts immediately, and keep at most `count` elements per collection without preallocating that many slots. Errors and cancellation propagate without flushing the pending suffix.
 `takeLast(0)` still collects upstream and observes its completion or failure;
 `dropLast(0)` returns the original Flow. An infinite source never emits through
-`takeLast`. These sequential operators preserve suspension-based backpressure
-and introduce no Reactive Streams demand or overflow policy.
+`takeLast`. These sequential operators preserve suspension-based backpressure and introduce no Reactive Streams demand or overflow policy.
 
 ### Subjects
 

@@ -4,13 +4,16 @@ import com.datastax.oss.driver.api.core.CqlIdentifier
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldNotBeNull
 import io.bluetape4k.cassandra.AbstractCassandraTest
-import io.bluetape4k.cassandra.cql.boundStatement
 import io.bluetape4k.cassandra.cql.boundStatementOf
+import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.debug
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 
 class SettableSupportIntegrationTest: AbstractCassandraTest() {
+
+    companion object: KLogging()
 
     @BeforeAll
     fun createTable() {
@@ -45,6 +48,8 @@ class SettableSupportIntegrationTest: AbstractCassandraTest() {
             .setList(1, listOf("a"), String::class.java)
             .setSet(2, setOf("admin"), String::class.java)
             .setMap("attributes", map)
+
+        log.debug { "Executing by name: ${byName.preparedStatement.query}" }
         session.execute(byName)
 
         val byIndex = prepared.bind()
@@ -52,6 +57,8 @@ class SettableSupportIntegrationTest: AbstractCassandraTest() {
             .setList(1, listOf("b"), String::class.java)
             .setSet(2, setOf("operator"), String::class.java)
             .setMap(3, map)
+
+        log.debug { "Executing by index: ${byIndex.preparedStatement.query}" }
         session.execute(byIndex)
 
         val byIdentifier = prepared.bind()
@@ -59,6 +66,8 @@ class SettableSupportIntegrationTest: AbstractCassandraTest() {
             .setList(1, listOf("c"), String::class.java)
             .setSet(2, setOf("auditor"), String::class.java)
             .setMap(id, map)
+
+        log.debug { "Executing by identifier: ${byIdentifier.preparedStatement.query}" }
         session.execute(byIdentifier)
 
         assertPersistedAttributes("set-map-name", map)
@@ -66,7 +75,6 @@ class SettableSupportIntegrationTest: AbstractCassandraTest() {
         assertPersistedAttributes("set-map-identifier", map)
     }
 
-    @Suppress("DEPRECATION")
     @Test
     fun `bound statement helpers preserve existing values`() {
         val prepared = session.prepare(
@@ -78,22 +86,22 @@ class SettableSupportIntegrationTest: AbstractCassandraTest() {
             .setSet(2, setOf("admin"), String::class.java)
             .setMap("attributes", mapOf("role" to 1))
 
+        log.debug { "Executing bound: ${bound.preparedStatement.query}" }
+
         val updated = boundStatementOf(bound) {
             setString(0, "updated-key")
         }
         updated.getString(0) shouldBeEqualTo "updated-key"
 
-        val deprecated = boundStatement(bound) {
+        val deprecated = boundStatementOf(bound) {
             setString(0, "deprecated-key")
         }
         deprecated.getString(0) shouldBeEqualTo "deprecated-key"
     }
 
     private fun assertPersistedAttributes(id: String, expected: Map<String, Int>) {
-        val row = session.execute(
-            "SELECT attributes FROM settable_support WHERE id='$id'"
-        ).one()
+        val row = session.execute("SELECT attributes FROM settable_support WHERE id='$id'").one()
         row.shouldNotBeNull()
-        row.getMap("attributes", String::class.java, Int::class.javaObjectType) shouldBeEqualTo expected
+        row.getMap<String, Int>("attributes") shouldBeEqualTo expected
     }
-}
+}     

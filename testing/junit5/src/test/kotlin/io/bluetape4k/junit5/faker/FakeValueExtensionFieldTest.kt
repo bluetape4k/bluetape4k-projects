@@ -1,10 +1,10 @@
 package io.bluetape4k.junit5.faker
 
-import io.bluetape4k.logging.KLogging
-import io.bluetape4k.logging.trace
-import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.assertions.shouldHaveSize
 import io.bluetape4k.assertions.shouldNotBeEmpty
+import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.debug
 import org.junit.jupiter.api.RepeatedTest
 import org.junit.jupiter.api.TestInstance
 
@@ -24,10 +24,9 @@ class FakeValueExtensionFieldTest {
 
     @RepeatedTest(REPEAT_SIZE)
     fun `inject from name provider`() {
+        log.debug { "title=$title, username=$username" }
         title.shouldNotBeEmpty()
         username.shouldNotBeEmpty()
-
-        log.trace { "title=$title, username=$username" }
     }
 
     @FakeValue(provider = FakeValueProvider.Name.Username, type = String::class, size = 20)
@@ -35,7 +34,7 @@ class FakeValueExtensionFieldTest {
 
     @RepeatedTest(REPEAT_SIZE)
     fun `inject string list`() {
-        usernames.size shouldBeEqualTo 20
+        usernames shouldHaveSize 20
         usernames.all { it.isNotBlank() }.shouldBeTrue()
     }
 }

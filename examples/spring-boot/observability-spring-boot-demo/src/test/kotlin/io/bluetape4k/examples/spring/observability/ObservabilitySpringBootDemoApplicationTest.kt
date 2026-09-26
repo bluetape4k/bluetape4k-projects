@@ -47,7 +47,7 @@ class ObservabilitySpringBootDemoApplicationTest {
 
         response.orderId shouldBeEqualTo "order-1"
         response.eventType shouldBeEqualTo "order.accepted"
-        response.correlationPresent shouldBeEqualTo true
+        response.correlationPresent.shouldBeTrue()
         response.status shouldBeEqualTo "accepted"
     }
 

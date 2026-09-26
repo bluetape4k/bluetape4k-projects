@@ -3,7 +3,9 @@ package io.bluetape4k.cache.memoizer.inmemory
 import io.bluetape4k.cache.memoizer.Memoizer
 import io.bluetape4k.cache.memoizer.SingleFlight
 import io.bluetape4k.logging.KLogging
+import okio.withLock
 import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.locks.ReentrantLock
 
 /**
  * 이 blocking evaluator를 위한 [InMemoryMemoizer]를 생성합니다.
@@ -44,17 +46,14 @@ class InMemoryMemoizer<in T: Any, out R: Any>(
 
     private val resultCache = ConcurrentHashMap<T, R>()
     private val singleFlight = SingleFlight<@UnsafeVariance T, @UnsafeVariance R>()
+    private val lock = ReentrantLock()
 
     override fun invoke(input: T): R {
         val cache = resultCache
         val flights = singleFlight
 
-        cache[input]?.let { return it }
-
-        return flights.run(input) { token ->
-            cache[input]?.let { cached ->
-                cached
-            } ?: evaluator(input).also { result ->
+        return cache[input] ?: flights.run(input) { token ->
+            cache[input] ?: evaluator(input).also { result ->
                 if (flights.isCurrent(token)) {
                     cache[input] = result
                 }
@@ -63,7 +62,9 @@ class InMemoryMemoizer<in T: Any, out R: Any>(
     }
 
     override fun clear() {
-        singleFlight.clear()
-        resultCache.clear()
+        lock.withLock {
+            singleFlight.clear()
+            resultCache.clear()
+        }
     }
 }

@@ -150,7 +150,7 @@ class CompressableBinarySerializerTest {
             serializer.serializeTo("payload", readOnly)
         }
         assertFailsWith<BufferOverflowException> {
-            CompressableBinarySerializer(BinarySerializers.Jdk, Compressors.LZ4)
+            CompressableBinarySerializer(BinarySerializers.Default, Compressors.LZ4)
                 .serializeTo("payload", tooSmall)
         }
 
@@ -192,7 +192,11 @@ class CompressableBinarySerializerTest {
             flip()
             position(3)
             limit(3 + wire.size)
-        }.slice().asReadOnlyBuffer().apply { mark() }
+        }
+            .slice()
+            .asReadOnlyBuffer()
+            .apply { mark() }
+
         val position = source.position()
         val limit = source.limit()
 
@@ -208,6 +212,7 @@ class CompressableBinarySerializerTest {
     fun `serialize and compress string`(serializer: BinarySerializer) {
         val origin = Fakers.faker.lorem().paragraph(100).repeat(4)
         val compressed = serializer.serialize(origin)
+
         log.debug { "origin=${origin.length}, compressed=${compressed.size}" }
 
         val actual = serializer.deserialize<String>(compressed)
@@ -218,6 +223,7 @@ class CompressableBinarySerializerTest {
     @MethodSource("getSerializers")
     fun `serialize and compress object`(serializer: BinarySerializer, @RandomValue origin: SimpleData) {
         val compressed = serializer.serialize(origin)
+
         log.debug { "origin=${origin.memorySize()}, compressed=${compressed.size}" }
 
         val actual = serializer.deserialize<SimpleData>(compressed)

@@ -1,0 +1,89 @@
+# Module Examples - Cassandra & Spring Data Cassandra (Spring Boot 4)
+
+English | [한국어](./README.ko.md)
+
+A comprehensive set of examples for Apache Cassandra and Spring Data Cassandra (Spring Boot 4.x).
+
+## Example Architecture
+
+![Spring Boot Cassandra demo example architecture diagram](../../docs/images/readme-diagrams/spring-boot-cassandra-demo-diagram-01.png)
+
+> This is the versionless Spring Boot 4 example module.
+
+## Example List
+
+### Basic (basic/)
+
+| Example File                          | Description                              |
+|---------------------------------------|------------------------------------------|
+| `BasicUserRepositoryTest.kt`          | Basic Repository usage                   |
+| `CassandraOperationsTest.kt`          | Running queries with CassandraOperations |
+| `CoroutineCassandraOperationsTest.kt` | Coroutines-based async queries           |
+
+### Kotlin DSL (kotlin/)
+
+| Example File              | Description                           |
+|---------------------------|---------------------------------------|
+| `PersonRepositoryTest.kt` | Defining a Repository with Kotlin DSL |
+| `TemplateTest.kt`         | Using CassandraTemplate               |
+
+### Reactive (reactive/)
+
+| Example File                       | Description           |
+|------------------------------------|-----------------------|
+| `ReactivePersonRepositoryTest.kt`  | Reactive Repository   |
+| `CoroutinePersonRepositoryTest.kt` | Coroutines Repository |
+
+### Auditing (auditing/)
+
+| Example File      | Description                             |
+|-------------------|-----------------------------------------|
+| `AuditingTest.kt` | `@CreatedBy`, `@LastModifiedBy` support |
+
+## Entity Definition
+
+```kotlin
+@Table
+data class User(
+    @PrimaryKey val id: UUID = UUID.randomUUID(),
+    val name: String,
+    val email: String,
+)
+```
+
+## Repository
+
+```kotlin
+interface UserRepository : CassandraRepository<User, UUID> {
+    fun findByEmail(email: String): User?
+}
+```
+
+## Coroutines Support
+
+```kotlin
+interface CoroutinePersonRepository : CoroutineCrudRepository<Person, String> {
+
+    fun findByLastname(lastname: String): Flow<Person>
+
+    @Query("SELECT * FROM coroutine_persons WHERE firstname = ?0 AND lastname = ?1")
+    suspend fun findByFirstnameAndLastname(firstname: String, lastname: String): Person?
+}
+```
+
+`Flow<T>` repository queries are regular functions. Use `suspend fun` for single-result coroutine queries such as nullable `Person?` lookups.
+
+## Running the Examples
+
+```bash
+# Start Cassandra via Docker
+docker run -d --name cassandra -p 9042:9042 cassandra:4
+
+# Run all examples
+./gradlew :bluetape4k-spring-boot-cassandra-demo:test
+```
+
+## References
+
+- [Spring Data Cassandra](https://spring.io/projects/spring-data-cassandra)
+- [Apache Cassandra](https://cassandra.apache.org/)

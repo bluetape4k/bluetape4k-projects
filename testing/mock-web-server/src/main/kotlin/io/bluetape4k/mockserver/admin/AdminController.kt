@@ -26,7 +26,7 @@ import org.springframework.web.bind.annotation.RestController
 @RestController
 @RequestMapping("/admin")
 class AdminController(private val jsonplaceholderService: JsonplaceholderService) {
-    companion object : KLogging() {
+    companion object: KLogging() {
         private val adminToken = System.getenv("MOCKSERVER_ADMIN_TOKEN") ?: "dev-only-token"
     }
 

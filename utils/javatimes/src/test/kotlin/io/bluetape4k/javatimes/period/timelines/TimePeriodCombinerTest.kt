@@ -1,13 +1,13 @@
 package io.bluetape4k.javatimes.period.timelines
 
+import io.bluetape4k.assertions.shouldBeEmpty
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldHaveSize
 import io.bluetape4k.javatimes.period.AbstractPeriodTest
 import io.bluetape4k.javatimes.period.ITimePeriod
 import io.bluetape4k.javatimes.period.TimeRange
 import io.bluetape4k.javatimes.zonedDateTimeOf
 import io.bluetape4k.logging.KLogging
-import io.bluetape4k.assertions.shouldBeEmpty
-import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldHaveSize
 import org.junit.jupiter.api.Test
 
 class TimePeriodCombinerTest: AbstractPeriodTest() {

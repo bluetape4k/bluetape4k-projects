@@ -32,8 +32,7 @@ class KeyChainTest: AbstractJwtTest() {
                 log.debug { "algorithm=$algorithm" }
 
                 val keyChain = KeyChain(algorithm)
-                val dto = keyChain.toDto()
-                val actual = dto.toKeyChain()
+                val actual = keyChain.toDto().toKeyChain()
                 actual shouldBeEqualTo keyChain
             }
     }

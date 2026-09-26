@@ -44,7 +44,7 @@ class RedissonNearCache<K: Any, V: Any> private constructor(
     companion object: KLogging() {
         /** Near cache 생성 시 기본으로 사용할 Codec 입니다. */
         @JvmStatic
-        val DefaultCodec = RedissonCodecs.LZ4Fory
+        val DefaultCodec = RedissonCodecs.LZ4FastFory
 
         /**
          * 캐시 이름을 지정한 기본 로컬 캐시 옵션을 생성합니다.

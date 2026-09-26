@@ -1,5 +1,6 @@
 package io.bluetape4k.opentelemetry.common
 
+import io.bluetape4k.support.requireNotBlank
 import io.opentelemetry.api.common.AttributeKey
 import io.opentelemetry.api.common.Attributes
 import io.opentelemetry.api.common.AttributesBuilder
@@ -20,9 +21,8 @@ import io.opentelemetry.api.common.AttributesBuilder
  */
 inline fun attributes(
     builder: AttributesBuilder.() -> Unit,
-): Attributes {
-    return Attributes.builder().apply(builder).build()
-}
+): Attributes =
+    Attributes.builder().apply(builder).build()
 
 /**
  * 키-값 쌍으로 [Attributes]를 생성합니다.
@@ -36,7 +36,8 @@ inline fun attributes(
  * @param value 속성 값
  * @return [Attributes] 인스턴스
  */
-fun attributesOf(key: String, value: String): Attributes = Attributes.of(key.toAttributeKey(), value)
+fun attributesOf(key: String, value: String): Attributes =
+    Attributes.of(key.requireNotBlank("key").toAttributeKey(), value)
 
 /**
  * 키-값 쌍으로 [Attributes]를 생성합니다.
@@ -176,6 +177,8 @@ fun Map<*, *>.toAttributes(): Attributes = attributes {
 }
 
 private fun AttributesBuilder.putAttribute(attributeKey: String, value: Any?) {
+    attributeKey.requireNotBlank("attributeKey")
+    
     when (value) {
         null            -> put(attributeKey, "null")
         is String       -> put(attributeKey, value)
@@ -204,20 +207,27 @@ private fun AttributesBuilder.putAttribute(attributeKey: String, value: Any?) {
 }
 
 private fun AttributesBuilder.putBooleanList(attributeKey: String, values: List<Boolean>) {
+    attributeKey.requireNotBlank("attributeKey")
     put(AttributeKey.booleanArrayKey(attributeKey), values)
 }
 
 private fun AttributesBuilder.putLongList(attributeKey: String, values: List<Long>) {
+    attributeKey.requireNotBlank("attributeKey")
     put(AttributeKey.longArrayKey(attributeKey), values)
 }
 
 private fun AttributesBuilder.putDoubleList(attributeKey: String, values: List<Double>) {
+    attributeKey.requireNotBlank("attributeKey")
     put(AttributeKey.doubleArrayKey(attributeKey), values)
 }
 
 private fun AttributesBuilder.putStringList(attributeKey: String, values: List<String>) {
+    attributeKey.requireNotBlank("attributeKey")
     put(AttributeKey.stringArrayKey(attributeKey), values)
 }
 
-private fun Sequence<*>.toSafeStringList(): List<String> = map { it?.toString() ?: "null" }.toList()
-private fun Iterable<*>.toSafeStringList(): List<String> = map { it?.toString() ?: "null" }
+private fun Sequence<*>.toSafeStringList(): List<String> =
+    map { it?.toString() ?: "null" }.toList()
+
+private fun Iterable<*>.toSafeStringList(): List<String> =
+    map { it?.toString() ?: "null" }

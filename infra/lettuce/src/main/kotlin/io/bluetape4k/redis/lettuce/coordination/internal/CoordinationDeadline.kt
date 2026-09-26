@@ -1,5 +1,6 @@
 package io.bluetape4k.redis.lettuce.coordination.internal
 
+import io.bluetape4k.logging.KLogging
 import kotlin.time.Duration
 
 internal fun interface MonotonicTicker {
@@ -33,7 +34,7 @@ internal class CoordinationDeadline private constructor(
 
     fun isExpired(): Boolean = remainingNanos() == 0L
 
-    companion object {
+    companion object: KLogging() {
         fun after(
             timeout: Duration,
             ticker: MonotonicTicker = MonotonicTicker.SYSTEM,

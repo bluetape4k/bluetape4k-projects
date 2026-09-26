@@ -1,14 +1,14 @@
 package io.bluetape4k.redis.redisson
 
+import io.bluetape4k.assertions.assertFailsWith
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeNull
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import io.bluetape4k.redis.redisson.RedissonTestUtils.randomName
 import io.bluetape4k.redis.redisson.RedissonTestUtils.redisson
-import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldBeNull
 import org.junit.jupiter.api.RepeatedTest
 import org.junit.jupiter.api.Test
-import io.bluetape4k.assertions.assertFailsWith
 
 class RedissonClientExtensionsTest: AbstractRedissonTest() {
 
@@ -61,18 +61,15 @@ class RedissonClientExtensionsTest: AbstractRedissonTest() {
         val mapName = randomName()
         val map = redisson.getMap<String, String>(mapName)
 
-        try {
-            assertFailsWith<IllegalStateException> {
-                redisson.withTransaction {
-                    val txMap = getMap<String, String>(mapName)
-                    txMap["1"] = "value"
-                    throw IllegalStateException("boom")
-                }
+        assertFailsWith<IllegalStateException> {
+            redisson.withTransaction {
+                val txMap = getMap<String, String>(mapName)
+                txMap["1"] = "value"
+                throw IllegalStateException("boom")
             }
-
-            map["1"].shouldBeNull()
-        } finally {
-            map.delete()
         }
+
+        map["1"].shouldBeNull()
+        map.delete()
     }
 }

@@ -1,6 +1,7 @@
 package io.bluetape4k.opentelemetry.coroutines
 
 import io.bluetape4k.assertions.assertFailsWith
+import io.bluetape4k.assertions.shouldBe
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeFalse
 import io.bluetape4k.assertions.shouldBeNull
@@ -28,7 +29,7 @@ class CoroutineSupportTest: AbstractOtelTest() {
     companion object: KLoggingChannel()
 
     private val tracer: Tracer by lazy {
-        loggingOtel.tracer("io.bluetape4k.opentelemetry.coroutines.support") {}
+        loggingOtel.tracer("io.bluetape4k.opentelemetry.coroutines.support")
     }
 
     @Test
@@ -73,8 +74,9 @@ class CoroutineSupportTest: AbstractOtelTest() {
     fun `currentOtelContext returns current Context`() {
         val ctx = currentOtelContext()
         ctx.shouldNotBeNull()
+
         // Context.current()와 동일한 인스턴스임을 확인
-        ctx shouldBeEqualTo Context.current()
+        ctx shouldBe Context.current()
     }
 
     /**

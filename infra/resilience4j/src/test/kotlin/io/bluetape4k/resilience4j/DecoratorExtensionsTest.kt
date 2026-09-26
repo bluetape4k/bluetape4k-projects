@@ -12,6 +12,7 @@ import io.mockk.confirmVerified
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
+import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import java.util.concurrent.Executors
@@ -20,6 +21,7 @@ class DecoratorsExtensionsTest {
 
     companion object: KLogging()
 
+    private val scheduler = Executors.newSingleThreadScheduledExecutor()
     private var state = false
     private val helloWorldService = mockk<HelloWorldService>(relaxUnitFun = true)
 
@@ -28,9 +30,13 @@ class DecoratorsExtensionsTest {
         clearMocks(helloWorldService)
     }
 
+    @AfterAll
+    fun afterAll() {
+        scheduler.shutdown()
+    }
+
     @Test
     fun `decorate completableFuture Fuction`() {
-
         every { helloWorldService.returnHelloWorldWithName("world") } returns "Hello world!"
 
         val circuitBreaker = CircuitBreaker.ofDefaults("deafults")
@@ -39,28 +45,24 @@ class DecoratorsExtensionsTest {
             futureOf { helloWorldService.returnHelloWorldWithName(name) }
         }
 
-        val scheduler = Executors.newSingleThreadScheduledExecutor()
-        try {
-            val decorated = decorateCompletableFutureFunction(func)
-                .withRetry(Retry.ofDefaults("defaults"), scheduler)
-                .withCircuitBreaker(circuitBreaker)
-                .withBulkhead(Bulkhead.ofDefaults("default"))
-                .withRateLimiter(RateLimiter.ofDefaults("default"))
-                .decorate()
+        val decorated = decorateCompletableFutureFunction(func)
+            .withRetry(Retry.ofDefaults("defaults"), scheduler)
+            .withCircuitBreaker(circuitBreaker)
+            .withBulkhead(Bulkhead.ofDefaults("default"))
+            .withRateLimiter(RateLimiter.ofDefaults("default"))
+            .decorate()
 
-            val result = decorated.invoke("world").join()
-            result shouldBeEqualTo "Hello world!"
+        val result = decorated.invoke("world").join()
+        result shouldBeEqualTo "Hello world!"
 
-            with(circuitBreaker.metrics) {
-                numberOfBufferedCalls shouldBeEqualTo 1
-                numberOfSuccessfulCalls shouldBeEqualTo 1
-                numberOfFailedCalls shouldBeEqualTo 0
-            }
-
-            verify(exactly = 1) { helloWorldService.returnHelloWorldWithName("world") }
-            confirmVerified(helloWorldService)
-        } finally {
-            scheduler.shutdownNow()
+        with(circuitBreaker.metrics) {
+            numberOfBufferedCalls shouldBeEqualTo 1
+            numberOfSuccessfulCalls shouldBeEqualTo 1
+            numberOfFailedCalls shouldBeEqualTo 0
         }
+
+        verify(exactly = 1) { helloWorldService.returnHelloWorldWithName("world") }
+        confirmVerified(helloWorldService)
+
     }
 }

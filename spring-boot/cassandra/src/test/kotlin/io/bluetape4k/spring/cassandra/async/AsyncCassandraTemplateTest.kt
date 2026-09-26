@@ -60,9 +60,6 @@ class AsyncCassandraTemplateTest(
         AsyncCassandraTemplate(cqlSession)
     }
 
-    private fun newUser(): User =
-        User(Uuids.timeBased().toString(), faker.name().firstName(), faker.name().lastName())
-
     @BeforeEach
     fun beforeEach() {
         runBlocking {
@@ -93,6 +90,7 @@ class AsyncCassandraTemplateTest(
             .whereColumn("user_id").eq(token1.userId.literal())
             .orderBy("auth_token", ClusteringOrder.ASC)
             .build()
+
         operations.select<UserToken>(stmt).await() shouldBeEqualTo listOf(token1, token2)
 
         // Spring Data Query로 조회
@@ -207,7 +205,7 @@ class AsyncCassandraTemplateTest(
         val user = newUser()
         operations.insert(user).await()
 
-        user.firstname = "성혁"
+        user.firstname = faker.name().firstName()
         // NOTE: withIfExists() 가 제대로 작동하지 않는다
         val options = updateOptions {
             // withIfExists()
@@ -312,7 +310,9 @@ class AsyncCassandraTemplateTest(
         val expectedIds = insertTasks.awaitAll().toSet()
 
         val query = Query.empty()
-        var slice = operations.slice<User>(query.pageRequest(CassandraPageRequest.first(sliceSize))).await()
+        var slice = operations
+            .slice<User>(query.pageRequest(CassandraPageRequest.first(sliceSize)))
+            .await()
 
         val loadIds = mutableSetOf<String>()
         var iterations = 0

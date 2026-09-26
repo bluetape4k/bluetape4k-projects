@@ -61,7 +61,7 @@ data class NearJCacheConfig<K: Any, V: Any>(
         frontCacheConfiguration: MutableConfiguration<K, V>,
         isSynchronous: Boolean,
         syncRemoteTimeout: Long,
-    ) : this(
+    ): this(
         cacheManagerFactory = cacheManagerFactory,
         cacheName = cacheName,
         frontCacheConfiguration = frontCacheConfiguration,
@@ -79,7 +79,7 @@ data class NearJCacheConfig<K: Any, V: Any>(
         isSynchronous: Boolean,
         syncRemoteTimeout: Long,
         syncRemoteRetryCount: Int,
-    ) : this(
+    ): this(
         cacheManagerFactory = cacheManagerFactory,
         cacheName = cacheName,
         frontCacheConfiguration = frontCacheConfiguration,
@@ -90,7 +90,7 @@ data class NearJCacheConfig<K: Any, V: Any>(
     )
 
     @Deprecated("Binary compatibility bridge", level = DeprecationLevel.HIDDEN)
-    @Suppress("INVISIBLE_REFERENCE", "INVISIBLE_MEMBER", "UNUSED_PARAMETER")
+    @Suppress("INVISIBLE_MEMBER", "UNUSED_PARAMETER")
     constructor(
         cacheManagerFactory: Factory<CacheManager>?,
         cacheName: String?,
@@ -99,7 +99,7 @@ data class NearJCacheConfig<K: Any, V: Any>(
         syncRemoteTimeout: Long,
         mask: Int,
         marker: kotlin.jvm.internal.DefaultConstructorMarker?,
-    ) : this(
+    ): this(
         cacheManagerFactory = if (mask and CACHE_MANAGER_FACTORY_MASK != 0) {
             CaffeineCacheManagerFactory
         } else {
@@ -126,7 +126,7 @@ data class NearJCacheConfig<K: Any, V: Any>(
     )
 
     @Deprecated("Binary compatibility bridge", level = DeprecationLevel.HIDDEN)
-    @Suppress("INVISIBLE_REFERENCE", "INVISIBLE_MEMBER", "UNUSED_PARAMETER")
+    @Suppress("INVISIBLE_MEMBER", "UNUSED_PARAMETER")
     constructor(
         cacheManagerFactory: Factory<CacheManager>?,
         cacheName: String?,
@@ -136,7 +136,7 @@ data class NearJCacheConfig<K: Any, V: Any>(
         syncRemoteRetryCount: Int,
         mask: Int,
         marker: kotlin.jvm.internal.DefaultConstructorMarker?,
-    ) : this(
+    ): this(
         cacheManagerFactory = if (mask and CACHE_MANAGER_FACTORY_MASK != 0) {
             CaffeineCacheManagerFactory
         } else {
@@ -227,11 +227,13 @@ data class NearJCacheConfig<K: Any, V: Any>(
         )
         setSerializedField("isSynchronous", fields.get("isSynchronous", false))
         setSerializedField("syncRemoteTimeout", fields.get("syncRemoteTimeout", DEFAULT_SYNC_REMOTE_TIMEOUT))
-        setSerializedField("syncRemoteRetryCount", if (fields.defaulted("syncRemoteRetryCount")) {
-            DEFAULT_SYNC_REMOTE_RETRY_COUNT
-        } else {
-            fields.get("syncRemoteRetryCount", DEFAULT_SYNC_REMOTE_RETRY_COUNT)
-        })
+        setSerializedField(
+            "syncRemoteRetryCount", if (fields.defaulted("syncRemoteRetryCount")) {
+                DEFAULT_SYNC_REMOTE_RETRY_COUNT
+            } else {
+                fields.get("syncRemoteRetryCount", DEFAULT_SYNC_REMOTE_RETRY_COUNT)
+            }
+        )
         val restoredPolicy = if (fields.defaulted("bulkFrontPopulationPolicy")) {
             BulkFrontPopulationPolicy.BypassFront
         } else {
@@ -274,19 +276,19 @@ data class NearJCacheConfig<K: Any, V: Any>(
                 throw UnsupportedOperationException("Super calls with default arguments are not supported")
             }
             return source.copy(
-                if (mask and CACHE_MANAGER_FACTORY_MASK != 0) {
+                cacheManagerFactory = if (mask and CACHE_MANAGER_FACTORY_MASK != 0) {
                     source.cacheManagerFactory
                 } else {
                     requireNotNull(cacheManagerFactory)
                 },
-                if (mask and CACHE_NAME_MASK != 0) source.cacheName else requireNotNull(cacheName),
-                if (mask and FRONT_CACHE_CONFIGURATION_MASK != 0) {
+                cacheName = if (mask and CACHE_NAME_MASK != 0) source.cacheName else requireNotNull(cacheName),
+                frontCacheConfiguration = if (mask and FRONT_CACHE_CONFIGURATION_MASK != 0) {
                     source.frontCacheConfiguration
                 } else {
                     requireNotNull(frontCacheConfiguration)
                 },
-                if (mask and SYNCHRONOUS_MASK != 0) source.isSynchronous else isSynchronous,
-                if (mask and REMOTE_TIMEOUT_MASK != 0) source.syncRemoteTimeout else syncRemoteTimeout,
+                isSynchronous = if (mask and SYNCHRONOUS_MASK != 0) source.isSynchronous else isSynchronous,
+                syncRemoteTimeout = if (mask and REMOTE_TIMEOUT_MASK != 0) source.syncRemoteTimeout else syncRemoteTimeout,
             )
         }
 
@@ -308,20 +310,20 @@ data class NearJCacheConfig<K: Any, V: Any>(
                 throw UnsupportedOperationException("Super calls with default arguments are not supported")
             }
             return source.copy(
-                if (mask and CACHE_MANAGER_FACTORY_MASK != 0) {
+                cacheManagerFactory = if (mask and CACHE_MANAGER_FACTORY_MASK != 0) {
                     source.cacheManagerFactory
                 } else {
                     requireNotNull(cacheManagerFactory)
                 },
-                if (mask and CACHE_NAME_MASK != 0) source.cacheName else requireNotNull(cacheName),
-                if (mask and FRONT_CACHE_CONFIGURATION_MASK != 0) {
+                cacheName = if (mask and CACHE_NAME_MASK != 0) source.cacheName else requireNotNull(cacheName),
+                frontCacheConfiguration = if (mask and FRONT_CACHE_CONFIGURATION_MASK != 0) {
                     source.frontCacheConfiguration
                 } else {
                     requireNotNull(frontCacheConfiguration)
                 },
-                if (mask and SYNCHRONOUS_MASK != 0) source.isSynchronous else isSynchronous,
-                if (mask and REMOTE_TIMEOUT_MASK != 0) source.syncRemoteTimeout else syncRemoteTimeout,
-                if (mask and REMOTE_RETRY_COUNT_MASK != 0) {
+                isSynchronous = if (mask and SYNCHRONOUS_MASK != 0) source.isSynchronous else isSynchronous,
+                syncRemoteTimeout = if (mask and REMOTE_TIMEOUT_MASK != 0) source.syncRemoteTimeout else syncRemoteTimeout,
+                syncRemoteRetryCount = if (mask and REMOTE_RETRY_COUNT_MASK != 0) {
                     source.syncRemoteRetryCount
                 } else {
                     syncRemoteRetryCount

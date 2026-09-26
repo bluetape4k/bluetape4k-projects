@@ -8,7 +8,6 @@ import tempfile
 import unittest
 from pathlib import Path
 
-
 HERE = Path(__file__).resolve().parent
 
 
@@ -20,7 +19,6 @@ def load_module(name, filename):
 
 
 validator = load_module("validate_issue756_jmh", "validate-issue756-jmh.py")
-
 
 BACKENDS = ("jdk", "kryo", "jackson2", "jackson3")
 TARGETS = ("heap", "direct")
@@ -330,11 +328,11 @@ class ValidatorFixtureTest(unittest.TestCase):
         with tempfile.TemporaryDirectory() as temporary:
             value = metadata(Path(temporary))
             for field, drift in (
-                ("forks", 1),
-                ("warmup_iterations", 2),
-                ("measurement_iterations", 4),
-                ("threads", 2),
-                ("profiler", "none"),
+                    ("forks", 1),
+                    ("warmup_iterations", 2),
+                    ("measurement_iterations", 4),
+                    ("threads", 2),
+                    ("profiler", "none"),
             ):
                 changed = copy.deepcopy(value)
                 changed["protocol"][field] = drift
@@ -348,16 +346,16 @@ class ValidatorFixtureTest(unittest.TestCase):
         with tempfile.TemporaryDirectory() as temporary:
             value = metadata(Path(temporary))
             for field, drift in (
-                ("payload_sha256", "x" * 64),
-                ("allocator_class", "wrong"),
-                ("heap_buffer_class", "io.netty.buffer.UnpooledHeapByteBuf"),
-                ("direct_buffer_class", "io.netty.buffer.UnpooledDirectByteBuf"),
-                ("num_heap_arenas", 0),
-                ("num_direct_arenas", 0),
-                ("capacity", 511),
-                ("max_capacity", 513),
-                ("writer_index", 8),
-                ("headroom", 504),
+                    ("payload_sha256", "x" * 64),
+                    ("allocator_class", "wrong"),
+                    ("heap_buffer_class", "io.netty.buffer.UnpooledHeapByteBuf"),
+                    ("direct_buffer_class", "io.netty.buffer.UnpooledDirectByteBuf"),
+                    ("num_heap_arenas", 0),
+                    ("num_direct_arenas", 0),
+                    ("capacity", 511),
+                    ("max_capacity", 513),
+                    ("writer_index", 8),
+                    ("headroom", 504),
             ):
                 changed = copy.deepcopy(value)
                 changed["preflight"]["cells"][0]["payload_sha256"] = (
@@ -548,10 +546,10 @@ class ValidatorFixtureTest(unittest.TestCase):
     def test_preflight_fixture_hash_binds_actual_pooled_target_fields(self):
         with tempfile.TemporaryDirectory() as temporary:
             for field, drift in (
-                ("heap_buffer_class", "io.netty.buffer.PooledHeapByteBuf"),
-                ("direct_buffer_class", "io.netty.buffer.PooledDirectByteBuf"),
-                ("num_heap_arenas", 2),
-                ("num_direct_arenas", 2),
+                    ("heap_buffer_class", "io.netty.buffer.PooledHeapByteBuf"),
+                    ("direct_buffer_class", "io.netty.buffer.PooledDirectByteBuf"),
+                    ("num_heap_arenas", 2),
+                    ("num_direct_arenas", 2),
             ):
                 value = metadata(Path(temporary))
                 value["preflight"]["fixture"][field] = drift

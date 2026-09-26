@@ -2,12 +2,12 @@ package io.bluetape4k.concurrent
 
 import io.bluetape4k.assertions.assertFails
 import io.bluetape4k.assertions.assertFailsWith
+import io.bluetape4k.assertions.fail
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeFalse
 import io.bluetape4k.assertions.shouldBeInstanceOf
 import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.assertions.shouldNotBeNull
-import io.bluetape4k.assertions.fail
 import org.junit.jupiter.api.Test
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.ExecutionException
@@ -199,7 +199,9 @@ class CompletableFutureSupportTest {
     fun `join with defaultValue propagates non-timeout exceptions`() {
         // H2 수정 검증: TimeoutException 이외의 예외는 rethrow
         val future = failedCompletableFutureOf<Int>(IllegalStateException("비즈니스 오류"))
-        assertFailsWith<IllegalStateException> { future.join(500.milliseconds, 0) }
+        assertFailsWith<ExecutionException> {
+            future.join(500.milliseconds, 0)
+        }.cause.shouldBeInstanceOf<IllegalStateException>()
     }
 
     @Test
@@ -220,7 +222,8 @@ class CompletableFutureSupportTest {
     fun `joinOrNull propagates non-timeout exceptions`() {
         // H2 수정 검증: TimeoutException 이외의 예외는 rethrow
         val future = failedCompletableFutureOf<Int>(IllegalStateException("비즈니스 오류"))
-        assertFailsWith<ExecutionException> { future.joinOrNull(500.milliseconds) }
-            .cause shouldBeInstanceOf IllegalStateException::class
+        assertFailsWith<ExecutionException> {
+            future.joinOrNull(500.milliseconds)
+        }.cause shouldBeInstanceOf IllegalStateException::class
     }
 }

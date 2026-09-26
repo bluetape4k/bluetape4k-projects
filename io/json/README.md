@@ -4,13 +4,9 @@ English | [한국어](./README.ko.md)
 
 ## Overview
 
-`bluetape4k-json` defines the small JSON serialization SPI shared by the
-Jackson 2, Jackson 3, and Fastjson2 modules.
+`bluetape4k-json` defines the small JSON serialization SPI shared by the Jackson 2, Jackson 3, and Fastjson2 modules.
 
-The module does not discover or select a JSON backend at runtime. Application
-code wires a concrete serializer, keeps callers typed as `JsonSerializer`, and
-uses the same byte, string, and Kotlin reified helper contracts across
-implementations.
+The module does not discover or select a JSON backend at runtime. Application code wires a concrete serializer, keeps callers typed as `JsonSerializer`, and uses the same byte, string, and Kotlin reified helper contracts across implementations.
 
 ## Architecture
 
@@ -27,17 +23,16 @@ implementations.
 ### JsonSerializer SPI
 
 The shared interface requires the `ByteArray` based `serialize` and
-`deserialize` operations. String methods are default facade methods unless a
-serializer overrides them, and Kotlin reified extensions pass `T::class.java`
+`deserialize` operations. String methods are default facade methods unless a serializer overrides them, and Kotlin reified extensions pass `T::class.java`
 for callers.
 
 ### Supported Methods
 
-| Method                               | Contract                                              |
-|--------------------------------------|-------------------------------------------------------|
-| `serialize(graph)`                   | Serializes an object to backend-owned JSON bytes      |
-| `deserialize(bytes, clazz)`          | Deserializes bytes to the requested JVM class         |
-| `serializeAsString(graph)`           | Default path converts `serialize(graph)` to UTF-8 text |
+| Method                               | Contract                                                |
+|--------------------------------------|---------------------------------------------------------|
+| `serialize(graph)`                   | Serializes an object to backend-owned JSON bytes        |
+| `deserialize(bytes, clazz)`          | Deserializes bytes to the requested JVM class           |
+| `serializeAsString(graph)`           | Default path converts `serialize(graph)` to UTF-8 text  |
 | `deserializeFromString(text, clazz)` | Default path converts UTF-8 text and delegates to bytes |
 
 ### Failure Policy
@@ -50,8 +45,7 @@ for callers.
 ### Kotlin Reified Extension Functions
 
 Deserialize without passing a `Class<T>` argument at the call site:
-`deserialize<T>(bytes)` and `deserializeFromString<T>(text)` delegate to the
-same interface methods with `T::class.java`.
+`deserialize<T>(bytes)` and `deserializeFromString<T>(text)` delegate to the same interface methods with `T::class.java`.
 
 ## Implementations
 
@@ -102,11 +96,7 @@ dependencies {
 
 ## Caller-owned `OutputStream` API
 
-`serializeJsonToStream(graph, target)` is an opt-in caller-owned destination API. The `JsonSerializer` interface
-default allocates through `serialize` and then writes the resulting `ByteArray`; a concrete backend may override it
-with a direct stream writer. The serializer borrows the stream synchronously and must not retain, close, or flush it.
-Keep the call and mutable destination thread-confined. If serialization or destination writing fails, partial output
-may remain; publish only a successful staging result and discard the failed destination.
+`serializeJsonToStream(graph, target)` is an opt-in caller-owned destination API. The `JsonSerializer` interface default allocates through `serialize` and then writes the resulting `ByteArray`; a concrete backend may override it with a direct stream writer. The serializer borrows the stream synchronously and must not retain, close, or flush it. Keep the call and mutable destination thread-confined. If serialization or destination writing fails, partial output may remain; publish only a successful staging result and discard the failed destination.
 
 ```kotlin
 val staging = ByteArrayOutputStream()
@@ -134,11 +124,8 @@ static byte[] encode(JsonSerializer serializer, Object value) throws IOException
 }
 ```
 
-A custom `deserializeFrom` implementation must synchronously support read-only, non-array-backed bounded views, or
-inherit the interface allocating default. Allocation claims are backend-specific: the
-[issue #756 report](../../docs/benchmarks/2026-07-22-issue-756-lettuce-buffer-codec-allocation.md) accepted only
-Jackson 2 heap/direct Lettuce cells. Jackson 3 was inconclusive, and Fastjson, one-argument encode, decode, other
-payloads/configurations, target sizes, capacity growth, and pooling choices were not established.
+A custom `deserializeFrom` implementation must synchronously support read-only, non-array-backed bounded views, or inherit the interface allocating default. Allocation claims are backend-specific: the
+[issue #756 report](../../docs/benchmarks/2026-07-22-issue-756-lettuce-buffer-codec-allocation.md) accepted only Jackson 2 heap/direct Lettuce cells. Jackson 3 was inconclusive, and Fastjson, one-argument encode, decode, other payloads/configurations, target sizes, capacity growth, and pooling choices were not established.
 
 ## References
 

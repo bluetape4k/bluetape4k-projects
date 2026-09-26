@@ -37,18 +37,31 @@ object KafkaCodecs {
     @BluetapeDelicateApi
     val Fory by lazy { ForyKafkaCodec() }
 
+    @BluetapeDelicateApi
+    val FastFory by lazy { FastForyKafkaCodec() }
+
     val Lz4Kryo by lazy { LZ4KryoKafkaCodec() }
 
     @BluetapeDelicateApi
     val Lz4Fory by lazy { LZ4ForyKafkaCodec() }
+
+    @BluetapeDelicateApi
+    val Lz4FastFory by lazy { LZ4FastForyKafkaCodec() }
+
 
     val SnappyKryo by lazy { SnappyKryoKafkaCodec() }
 
     @BluetapeDelicateApi
     val SnappyFory by lazy { SnappyForyKafkaCodec() }
 
+    @BluetapeDelicateApi
+    val SnappyFastFory by lazy { SnappyFastForyKafkaCodec() }
+
     val ZstdKryo by lazy { ZstdKryoKafkaCodec() }
 
     @BluetapeDelicateApi
     val ZstdFory by lazy { ZstdForyKafkaCodec() }
+
+    @BluetapeDelicateApi
+    val ZstdFastFory by lazy { ZstdFastForyKafkaCodec() }
 }

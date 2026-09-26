@@ -6,7 +6,8 @@ Performance measurement results for Redisson Redis codec serialization/deseriali
 
 ## Measurement Overview
 
-- **Target Codecs**: fastFory, fory, kryo5, fastjson2, jackson3, LZ4+FastFory, LZ4+Fory, LZ4+Kryo5, Zstd+FastFory, Zstd+Fory, Zstd+Kryo5, JDK, Gzip+FastFory
+- **Target
+  Codecs**: fastFory, fory, kryo5, fastjson2, jackson3, LZ4+FastFory, LZ4+Fory, LZ4+Kryo5, Zstd+FastFory, Zstd+Fory, Zstd+Kryo5, JDK, Gzip+FastFory
 - **Metric**: Throughput — encode + decode round-trip ops/ms
 - **Payload**: `BenchmarkData` object (ID, name, value, tags list)
 - **Mode**: `@BenchmarkMode(Mode.Throughput)`, `@OutputTimeUnit(TimeUnit.MILLISECONDS)`
@@ -23,21 +24,21 @@ Performance measurement results for Redisson Redis codec serialization/deseriali
 
 ### Summary Table (Throughput: ops/ms, higher is better)
 
-| Rank | Codec | ops/ms | ± Error | Note |
-|------|-------|--------|---------|------|
-| 🥇 | **fastFory** | **3,084** | ± 287 | |
-| 🥈 | **fory** | **2,504** | ± 105 | |
-| 🥉 | **fastjson2** | **1,928** | ± 62 | |
-| 4 | kryo5 | 1,225 | ± 67 | |
-| 5 | lz4FastFory | 829 | ± 71 | |
-| 6 | lz4Fory | 774 | ± 42 | |
-| 7 | jackson3 | 474 | ± 25 | |
-| 8 | lz4Kryo5 | 518 | ± 114 | ⚠️ high variance |
-| 9 | zstdFory | 196 | ± 7 | |
-| 10 | zstdFastFory | 193 | ± 62 | ⚠️ high variance |
-| 11 | zstdKryo5 | 139 | ± 5 | |
-| 12 | jdk | 128 | ± 14 | |
-| 13 | gzipFastFory | 108 | ± 1 | |
+| Rank | Codec         | ops/ms    | ± Error | Note             |
+|------|---------------|-----------|---------|------------------|
+| 🥇   | **fastFory**  | **3,084** | ± 287   |                  |
+| 🥈   | **fory**      | **2,504** | ± 105   |                  |
+| 🥉   | **fastjson2** | **1,928** | ± 62    |                  |
+| 4    | kryo5         | 1,225     | ± 67    |                  |
+| 5    | lz4FastFory   | 829       | ± 71    |                  |
+| 6    | lz4Fory       | 774       | ± 42    |                  |
+| 7    | jackson3      | 474       | ± 25    |                  |
+| 8    | lz4Kryo5      | 518       | ± 114   | ⚠️ high variance |
+| 9    | zstdFory      | 196       | ± 7     |                  |
+| 10   | zstdFastFory  | 193       | ± 62    | ⚠️ high variance |
+| 11   | zstdKryo5     | 139       | ± 5     |                  |
+| 12   | jdk           | 128       | ± 14    |                  |
+| 13   | gzipFastFory  | 108       | ± 1     |                  |
 
 ### Detailed JMH Output
 
@@ -105,45 +106,46 @@ RedissonCodecBenchmark.gzipFastForyEncodeDecode  thrpt    5   107.558 ±   0.963
 
 ### Comparison: Redisson vs Lettuce Codecs
 
-| Codec | Redisson (ops/ms) | Lettuce (ops/ms) | Δ |
-|-------|------------------|-----------------|---|
-| fastFory | **3,084** | 3,286 | −6% |
-| fory | **2,504** | 2,551 | −2% |
-| fastjson2 | 1,928 | **6,379** | **−70%** |
-| kryo/kryo5 | 1,225 | 963 | +27% |
-| jackson3 | 474 | 834 | −43% |
-| lz4FastFory | 829 | 906 | −8% |
-| jdk | 128 | 132 | −3% |
+| Codec       | Redisson (ops/ms) | Lettuce (ops/ms) | Δ        |
+|-------------|-------------------|------------------|----------|
+| fastFory    | **3,084**         | 3,286            | −6%      |
+| fory        | **2,504**         | 2,551            | −2%      |
+| fastjson2   | 1,928             | **6,379**        | **−70%** |
+| kryo/kryo5  | 1,225             | 963              | +27%     |
+| jackson3    | 474               | 834              | −43%     |
+| lz4FastFory | 829               | 906              | −8%      |
+| jdk         | 128               | 132              | −3%      |
 
-**Key observation**: fastjson2 is 3.3× faster in Lettuce than Redisson. Root cause: Lettuce uses NIO `ByteBuffer` while Redisson uses Netty `ByteBuf` — fastjson2's internal direct-buffer optimization works better with NIO buffers. Binary codecs (fastFory, fory, kryo) show parity across both libraries.
+**Key
+observation**: fastjson2 is 3.3× faster in Lettuce than Redisson. Root cause: Lettuce uses NIO `ByteBuffer` while Redisson uses Netty `ByteBuf` — fastjson2's internal direct-buffer optimization works better with NIO buffers. Binary codecs (fastFory, fory, kryo) show parity across both libraries.
 
 ### Codec Selection Guide
 
-| Scenario | Recommended Codec | Reason |
-|----------|------------------|--------|
-| Maximum throughput | **fastFory** | Fastest in Redisson context |
-| Complex object graphs | fory | Reference tracking support |
-| Kryo ecosystem | kryo5 | Best Kryo variant |
-| JSON interoperability | jackson3 | JSON — human-readable |
-| Memory-constrained Redis | lz4FastFory | Compression + speed balance |
-| Large payloads (>10KB) | zstdFory | Best compression ratio |
+| Scenario                 | Recommended Codec | Reason                      |
+|--------------------------|-------------------|-----------------------------|
+| Maximum throughput       | **fastFory**      | Fastest in Redisson context |
+| Complex object graphs    | fory              | Reference tracking support  |
+| Kryo ecosystem           | kryo5             | Best Kryo variant           |
+| JSON interoperability    | jackson3          | JSON — human-readable       |
+| Memory-constrained Redis | lz4FastFory       | Compression + speed balance |
+| Large payloads (>10KB)   | zstdFory          | Best compression ratio      |
 
 ---
 
 ## Benchmark Environment
 
-| Item | Value |
-|------|-------|
-| **CPU** | Apple M4 Pro (12-core) |
-| **RAM** | 48 GB |
-| **OS** | macOS 26.4.1 (Darwin 25.4.0) |
-| **JVM** | Oracle GraalVM 21.0.11+9.1 |
-| **Kotlin** | 2.3 |
-| **kotlinx-benchmark** | 0.4.15 |
-| **JMH** | 1.37 |
-| **Warmup** | 3 iterations × 2s |
-| **Measurement** | 5 iterations × 3s |
-| **Fork** | 1 |
-| **Threads** | 1 |
-| **Mode** | Throughput (ops/ms) |
-| **Date** | 2026-04-27 |
+| Item                  | Value                        |
+|-----------------------|------------------------------|
+| **CPU**               | Apple M4 Pro (12-core)       |
+| **RAM**               | 48 GB                        |
+| **OS**                | macOS 26.4.1 (Darwin 25.4.0) |
+| **JVM**               | Oracle GraalVM 21.0.11+9.1   |
+| **Kotlin**            | 2.3                          |
+| **kotlinx-benchmark** | 0.4.15                       |
+| **JMH**               | 1.37                         |
+| **Warmup**            | 3 iterations × 2s            |
+| **Measurement**       | 5 iterations × 3s            |
+| **Fork**              | 1                            |
+| **Threads**           | 1                            |
+| **Mode**              | Throughput (ops/ms)          |
+| **Date**              | 2026-04-27                   |

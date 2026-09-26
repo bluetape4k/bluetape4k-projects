@@ -6,7 +6,9 @@ import io.bluetape4k.assertions.shouldBeInstanceOf
 import io.bluetape4k.assertions.shouldBeSameInstanceAs
 import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.assertions.shouldNotBeInstanceOf
+import io.bluetape4k.concurrent.get
 import io.bluetape4k.junit5.coroutines.runSuspendIO
+import io.bluetape4k.logging.KLogging
 import io.lettuce.core.RedisCommandTimeoutException
 import io.lettuce.core.RedisConnectionException
 import io.lettuce.core.RedisException
@@ -27,8 +29,16 @@ import java.util.concurrent.CompletableFuture
 import java.util.concurrent.ExecutionException
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.TimeoutException
+import kotlin.time.Duration.Companion.seconds
 
 internal class LettuceFencingLeaseFailureTest {
+
+    private companion object: KLogging() {
+        val config = LettuceFencingLeaseConfig("failure", "fixture", 13)
+        val keys = deriveFencingLeaseKeys(config, StringCodec.UTF8)
+        val scriptKeys = arrayOf(keys.lease, keys.counter)
+        val malformedFrame = listOf("UNKNOWN", "0", "0", "-1")
+    }
 
     @Test
     fun `execution facades are not serializable`() {
@@ -49,9 +59,11 @@ internal class LettuceFencingLeaseFailureTest {
             syncLease(error).bootstrap()
                 .shouldBeInstanceOf<FencingBootstrapResult.BackendFailure>()
                 .failure.kind shouldBeEqualTo expectedKind
+
             futureLease(error).bootstrapAsync().get()
                 .shouldBeInstanceOf<FencingBootstrapResult.BackendFailure>()
                 .failure.kind shouldBeEqualTo expectedKind
+
             suspendLease(error).bootstrap()
                 .shouldBeInstanceOf<FencingBootstrapResult.BackendFailure>()
                 .failure.kind shouldBeEqualTo expectedKind
@@ -62,15 +74,29 @@ internal class LettuceFencingLeaseFailureTest {
     fun `decoder and unknown failures remain exceptions for every facade`() = runSuspendIO {
         val unknown = IllegalStateException("unknown sentinel")
 
-        assertFailsWith<IllegalStateException> { syncLease(unknown).bootstrap() } shouldBeSameInstanceAs unknown
-        assertFailsWith<ExecutionException> { futureLease(unknown).bootstrapAsync().get() }
-            .cause shouldBeSameInstanceAs unknown
-        assertFailsWith<IllegalStateException> { suspendLease(unknown).bootstrap() } shouldBeSameInstanceAs unknown
+        assertFailsWith<IllegalStateException> {
+            syncLease(unknown).bootstrap()
+        } shouldBeSameInstanceAs unknown
 
-        assertFailsWith<FencingLeaseProtocolException> { syncLease(frame = malformedFrame).bootstrap() }
-        assertFailsWith<ExecutionException> { futureLease(frame = malformedFrame).bootstrapAsync().get() }
-            .cause.shouldBeInstanceOf<FencingLeaseProtocolException>()
-        assertFailsWith<FencingLeaseProtocolException> { suspendLease(frame = malformedFrame).bootstrap() }
+        assertFailsWith<ExecutionException> {
+            futureLease(unknown).bootstrapAsync().get()
+        }.cause shouldBeSameInstanceAs unknown
+
+        assertFailsWith<IllegalStateException> {
+            suspendLease(unknown).bootstrap()
+        } shouldBeSameInstanceAs unknown
+
+        assertFailsWith<FencingLeaseProtocolException> {
+            syncLease(frame = malformedFrame).bootstrap()
+        }
+
+        assertFailsWith<ExecutionException> {
+            futureLease(frame = malformedFrame).bootstrapAsync().get()
+        }.cause.shouldBeInstanceOf<FencingLeaseProtocolException>()
+
+        assertFailsWith<FencingLeaseProtocolException> {
+            suspendLease(frame = malformedFrame).bootstrap()
+        }
     }
 
     @Test
@@ -78,7 +104,7 @@ internal class LettuceFencingLeaseFailureTest {
         val error = AssertionError("error sentinel")
 
         assertFailsWith<ExecutionException> {
-            futureLease(error).bootstrapAsync().get(1, TimeUnit.SECONDS)
+            futureLease(error).bootstrapAsync().get(1.seconds)
         }.cause shouldBeSameInstanceAs error
     }
 
@@ -87,6 +113,7 @@ internal class LettuceFencingLeaseFailureTest {
         val syncCommands = mockk<RedisScriptingCommands<String, String>>()
         val futureCommands = mockk<RedisScriptingAsyncCommands<String, String>>()
         val suspendCommands = mockk<RedisScriptingAsyncCommands<String, String>>()
+
         val lease = LettuceFencingLease.createForTesting(
             DefaultFencingScriptExecutor(syncCommands, futureCommands),
             StringCodec.UTF8,
@@ -110,6 +137,7 @@ internal class LettuceFencingLeaseFailureTest {
             assertFailsWith<IllegalArgumentException> { lease.acquireAsync(ownerId, leaseTime) }
             assertFailsWith<IllegalArgumentException> { suspendLease.acquire(ownerId, leaseTime) }
         }
+
         assertFailsWith<IllegalArgumentException> { lease.renew(ownerId, otherEpoch, Duration.ofSeconds(1)) }
         assertFailsWith<IllegalArgumentException> { lease.renewAsync(ownerId, otherEpoch, Duration.ofSeconds(1)) }
         assertFailsWith<IllegalArgumentException> { suspendLease.renew(ownerId, otherEpoch, Duration.ofSeconds(1)) }
@@ -234,7 +262,7 @@ internal class LettuceFencingLeaseFailureTest {
     private fun <T> failedRedisFuture(error: Throwable): RedisFuture<T> =
         TestRedisFuture<T>().apply { completeExceptionally(error) }
 
-    private class TestRedisFuture<T> : CompletableFuture<T>(), RedisFuture<T> {
+    private class TestRedisFuture<T>: CompletableFuture<T>(), RedisFuture<T> {
         override fun getError(): String? = if (isCompletedExceptionally) "completed exceptionally" else null
 
         override fun await(timeout: Long, unit: TimeUnit): Boolean = try {
@@ -243,12 +271,5 @@ internal class LettuceFencingLeaseFailureTest {
         } catch (_: TimeoutException) {
             false
         }
-    }
-
-    private companion object {
-        val config = LettuceFencingLeaseConfig("failure", "fixture", 13)
-        val keys = deriveFencingLeaseKeys(config, StringCodec.UTF8)
-        val scriptKeys = arrayOf(keys.lease, keys.counter)
-        val malformedFrame = listOf("UNKNOWN", "0", "0", "-1")
     }
 }

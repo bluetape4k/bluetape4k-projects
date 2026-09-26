@@ -4,11 +4,17 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import io.bluetape4k.assertions.expectThat
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.logging.KLogging
 import org.junit.jupiter.api.Test
 import java.nio.ByteBuffer
 import java.security.MessageDigest
 
 class SerializerBufferAbiCompatibilityTest {
+
+    private companion object: KLogging() {
+        const val PRE_CHANGE_COMMIT = "90b267871e9154f242e6de7ee9fd0539f83e509e"
+        const val PRE_CHANGE_TREE = "f40ccbda16ddf56d4b7770c01e9b0b2cb07cedba"
+    }
 
     @Test
     fun `frozen pre-change authority matches its manifest`() {
@@ -62,9 +68,4 @@ class SerializerBufferAbiCompatibilityTest {
         MessageDigest.getInstance("SHA-256")
             .digest(this)
             .joinToString("") { byte -> "%02x".format(byte) }
-
-    private companion object {
-        const val PRE_CHANGE_COMMIT = "90b267871e9154f242e6de7ee9fd0539f83e509e"
-        const val PRE_CHANGE_TREE = "f40ccbda16ddf56d4b7770c01e9b0b2cb07cedba"
-    }
 }

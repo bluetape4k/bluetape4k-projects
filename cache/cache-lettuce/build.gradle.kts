@@ -71,8 +71,8 @@ dependencies {
     testImplementation(project(":bluetape4k-junit5"))
     testImplementation(project(":bluetape4k-testcontainers"))
 
-    implementation(project(":bluetape4k-protobuf"))
-    implementation(project(":bluetape4k-io"))
+    compileOnly(project(":bluetape4k-protobuf"))
+    compileOnly(project(":bluetape4k-io"))
 
     testImplementation(libs.awaitility.kotlin)
 

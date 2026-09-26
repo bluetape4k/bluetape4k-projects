@@ -11,8 +11,8 @@ import io.grpc.ServerBuilder
 import io.grpc.ServerServiceDefinition
 import kotlinx.atomicfu.atomic
 import kotlinx.atomicfu.locks.reentrantLock
-import java.util.concurrent.TimeUnit
 import kotlin.concurrent.withLock
+import kotlin.time.Duration.Companion.seconds
 
 private const val SHUTDOWN_TIMEOUT_SECONDS = 5L
 
@@ -106,7 +106,7 @@ abstract class AbstractGrpcServer(
 
     private fun awaitTerminationOrRestoreInterrupt(): Boolean =
         try {
-            server.awaitTermination(SHUTDOWN_TIMEOUT_SECONDS, TimeUnit.SECONDS)
+            server.awaitTermination(SHUTDOWN_TIMEOUT_SECONDS.seconds)
         } catch (e: InterruptedException) {
             Thread.currentThread().interrupt()
             false

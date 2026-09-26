@@ -1,9 +1,12 @@
 package io.bluetape4k.pulsar.codec
 
-import io.bluetape4k.jackson3.Jackson as Jackson3
+import io.bluetape4k.ToStringBuilder
+import io.bluetape4k.logging.KLogging
+import io.bluetape4k.pulsar.toStringBuilder
 import org.apache.pulsar.client.api.Schema
 import org.apache.pulsar.common.schema.SchemaInfo
 import org.apache.pulsar.common.schema.SchemaType
+import io.bluetape4k.jackson3.Jackson as Jackson3
 import tools.jackson.databind.ObjectMapper as Jackson3ObjectMapper
 
 /**
@@ -26,32 +29,34 @@ import tools.jackson.databind.ObjectMapper as Jackson3ObjectMapper
  * @param mapper Jackson3 [Jackson3ObjectMapper]
  * @return Pulsar [Schema] 구현체
  */
-fun <T> jackson3Schema(
+fun <T> jackson3SchemaOf(
     type: Class<T>,
     mapper: Jackson3ObjectMapper = Jackson3.defaultJsonMapper,
-): Schema<T> = Jackson3SchemaImpl(type, mapper)
+): Schema<T> =
+    Jackson3SchemaImpl(type, mapper)
 
 /**
- * reified 타입 파라미터를 활용한 [jackson3Schema] 편의 함수.
+ * reified 타입 파라미터를 활용한 [jackson3SchemaOf] 편의 함수.
  *
  * ```kotlin
  * val schema = jackson3Schema<Order>(Jackson3.defaultJsonMapper)
  * ```
  */
-inline fun <reified T> jackson3Schema(
-    mapper: Jackson3ObjectMapper = Jackson3.defaultJsonMapper,
-): Schema<T> = jackson3Schema(T::class.java, mapper)
+inline fun <reified T> jackson3SchemaOf(mapper: Jackson3ObjectMapper = Jackson3.defaultJsonMapper): Schema<T> =
+    jackson3SchemaOf(T::class.java, mapper)
 
 private class Jackson3SchemaImpl<T>(
     private val type: Class<T>,
     private val mapper: Jackson3ObjectMapper,
     cachedInfo: SchemaInfo? = null,
-) : Schema<T> {
+): Schema<T> {
+
+    companion object: KLogging()
 
     // Schema.JSON(type)에서 브로커 호환성 검증용 schema bytes를 가져오고, name은 type에서 직접 설정.
     // clone() 시 재계산을 피하기 위해 생성된 SchemaInfo를 재사용한다.
     private val info: SchemaInfo = cachedInfo ?: Schema.JSON(type).schemaInfo.let { base ->
-        val name = type.simpleName?.takeIf { it.isNotBlank() } ?: type.name
+        val name = type.simpleName.takeIf { it.isNotBlank() } ?: type.name
         SchemaInfo.builder()
             .name(name)
             .type(SchemaType.JSON)
@@ -67,4 +72,11 @@ private class Jackson3SchemaImpl<T>(
     override fun getSchemaInfo(): SchemaInfo = info
 
     override fun clone(): Schema<T> = Jackson3SchemaImpl(type, mapper, info)
+
+    override fun toString(): String {
+        return ToStringBuilder(this)
+            .add("type", type)
+            .add("info", info.toStringBuilder().toString())
+            .toString()
+    }
 }

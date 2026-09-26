@@ -1,5 +1,6 @@
 package io.bluetape4k.hibernate.cache.lettuce.model
 
+import io.bluetape4k.support.hashOf
 import jakarta.persistence.CascadeType
 import jakarta.persistence.Entity
 import jakarta.persistence.FetchType
@@ -29,6 +30,15 @@ class VersionedItem: Serializable {
 
     @Version
     var version: Long = 0
+
+    override fun equals(other: Any?): Boolean =
+        other is VersionedItem && id == other.id && name == other.name && price == other.price && version == other.version
+
+    override fun hashCode(): Int =
+        id?.hashCode() ?: hashOf(name, price, version)
+
+    override fun toString(): String =
+        "VersionedItem(id=$id, name='$name', price=$price, version=$version)"
 }
 
 @Entity
@@ -48,6 +58,15 @@ class VersionedCategory: Serializable {
     @OneToMany(mappedBy = "category", fetch = FetchType.LAZY, cascade = [CascadeType.ALL], orphanRemoval = true)
     @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
     val items: MutableSet<VersionedCategoryItem> = linkedSetOf()
+
+    override fun equals(other: Any?): Boolean =
+        other is VersionedCategory && id == other.id && label == other.label && version == other.version
+
+    override fun hashCode(): Int =
+        id?.hashCode() ?: hashOf(label, version)
+
+    override fun toString(): String =
+        "VersionedCategory(id=$id, label='$label', version=$version)"
 }
 
 @Entity
@@ -64,4 +83,13 @@ class VersionedCategoryItem: Serializable {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "category_id")
     var category: VersionedCategory? = null
+
+    override fun equals(other: Any?): Boolean =
+        other is VersionedCategoryItem && id == other.id && name == other.name && category == other.category
+
+    override fun hashCode(): Int =
+        id?.hashCode() ?: hashOf(name, category)
+
+    override fun toString(): String =
+        "VersionedCategoryItem(id=$id, name='$name', category=$category)"
 }

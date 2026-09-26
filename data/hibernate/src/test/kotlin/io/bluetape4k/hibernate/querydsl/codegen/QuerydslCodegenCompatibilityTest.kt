@@ -4,6 +4,7 @@ import com.querydsl.jpa.impl.JPAQuery
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.assertions.shouldHaveSize
+import io.bluetape4k.assertions.shouldNotBeNull
 import io.bluetape4k.hibernate.AbstractHibernateTest
 import io.bluetape4k.hibernate.mapping.associations.join.AddressEntity
 import io.bluetape4k.hibernate.mapping.associations.join.JoinUser
@@ -13,6 +14,7 @@ import io.bluetape4k.hibernate.mapping.associations.join.QJoinUser
 import io.bluetape4k.hibernate.mapping.tree.QTreeNode
 import io.bluetape4k.hibernate.mapping.tree.TreeNode
 import io.bluetape4k.hibernate.mapping.tree.TreeNodeRepository
+import io.bluetape4k.logging.KLogging
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import java.nio.file.Path
@@ -21,6 +23,8 @@ class QuerydslCodegenCompatibilityTest(
     @param:Autowired private val userRepository: JoinUserRepository,
     @param:Autowired private val treeNodeRepository: TreeNodeRepository,
 ): AbstractHibernateTest() {
+
+    companion object: KLogging()
 
     @Test
     fun `Java APT generates Q types for association and tree fixtures`() {
@@ -38,8 +42,10 @@ class QuerydslCodegenCompatibilityTest(
 
     @Test
     fun `generated tree Q type resolves self-reference query`() {
-        val root = TreeNode("querydsl-tree-root")
-        root.addChildren(TreeNode("querydsl-tree-child"))
+        val rootTitle = "querydsl-tree-root"
+        val childTitle = "querydsl-tree-child"
+        val root = TreeNode(rootTitle)
+        root.addChildren(TreeNode(childTitle))
         treeNodeRepository.saveAndFlush(root)
         flushAndClear()
 
@@ -50,19 +56,23 @@ class QuerydslCodegenCompatibilityTest(
             .from(node)
             .innerJoin(node.parent(), parent)
             .where(
-                node.title.eq("querydsl-tree-child"),
-                parent.title.eq("querydsl-tree-root"),
+                node.title.eq(childTitle),
+                parent.title.eq(rootTitle),
             )
             .fetch()
 
         result shouldHaveSize 1
-        result.first().title shouldBeEqualTo "querydsl-tree-child"
+        result.first().title shouldBeEqualTo childTitle
+        result.first().parent.shouldNotBeNull().title shouldBeEqualTo rootTitle
     }
 
     @Test
     fun `generated Q paths resolve repository entity and association query`() {
+
+        val userName = "querydsl-user"
+
         val saved = userRepository.saveAndFlush(
-            JoinUser("querydsl-user").apply {
+            JoinUser(userName).apply {
                 addresses["home"] = AddressEntity(
                     street = "Main Street",
                     city = "Seoul",
@@ -79,15 +89,15 @@ class QuerydslCodegenCompatibilityTest(
             .from(user)
             .innerJoin(user.addresses, address)
             .where(
-                user.name.eq("querydsl-user"),
+                user.name.eq(userName),
                 address.city.eq("Seoul")
             )
             .fetch()
 
         result shouldHaveSize 1
-        result.first().name shouldBeEqualTo "querydsl-user"
+        result.first().name shouldBeEqualTo userName
 
-        val loaded = userRepository.findById(saved.id!!).orElseThrow()
-        loaded.name shouldBeEqualTo "querydsl-user"
+        val loaded = userRepository.findById(saved.id!!).orElseThrow().shouldNotBeNull()
+        loaded.name shouldBeEqualTo userName
     }
 }

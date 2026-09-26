@@ -43,9 +43,9 @@ class UserDefinedTypesSimpleExamples: AbstractCassandraTest() {
     private fun retreiveData(session: CqlSession) {
         for (k in 1..2) {
             val stmt = SimpleStatement.newInstance("SELECT c FROM examples.udts WHERE k=?", k)
+            log.debug { "Executing query: ${stmt.query}" }
 
-            val row = session.execute(stmt).one()
-            row.shouldNotBeNull()
+            val row = session.execute(stmt).one().shouldNotBeNull()
 
             val coordinatesValue = row.getUdtValue("c")
             coordinatesValue.shouldNotBeNull()

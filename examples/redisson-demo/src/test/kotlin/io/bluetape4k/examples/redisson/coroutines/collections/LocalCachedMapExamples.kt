@@ -1,15 +1,16 @@
 package io.bluetape4k.examples.redisson.coroutines.collections
 
-import io.bluetape4k.codec.Base58
-import io.bluetape4k.examples.redisson.coroutines.AbstractRedissonCoroutineTest
-import io.bluetape4k.redis.redisson.codec.RedissonCodecs
-import io.bluetape4k.logging.coroutines.KLoggingChannel
-import io.bluetape4k.logging.debug
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeFalse
 import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.assertions.shouldContainSame
+import io.bluetape4k.codec.Base58
+import io.bluetape4k.coroutines.support.awaitUntil
+import io.bluetape4k.examples.redisson.coroutines.AbstractRedissonCoroutineTest
 import io.bluetape4k.junit5.coroutines.runSuspendIO
+import io.bluetape4k.logging.coroutines.KLoggingChannel
+import io.bluetape4k.logging.debug
+import io.bluetape4k.redis.redisson.codec.RedissonCodecs
 import org.junit.jupiter.api.Test
 import org.redisson.api.RLocalCachedMap
 import org.redisson.api.RMap
@@ -65,37 +66,37 @@ class LocalCachedMapExamples: AbstractRedissonCoroutineTest() {
         val cachedMap: RLocalCachedMap<String, Int> = redisson.getLocalCachedMap(options)
 
         // NOTE: fastPutAsync 의 결과는 new insert 인 경우는 true, update 는 false 를 반환한다.
-        awaitRedis(cachedMap.fastPutAsync("a", 1)).shouldBeTrue()
-        awaitRedis(cachedMap.fastPutAsync("b", 2)).shouldBeTrue()
-        awaitRedis(cachedMap.fastPutAsync("c", 3)).shouldBeTrue()
+        cachedMap.fastPutAsync("a", 1).awaitUntil().shouldBeTrue()
+        cachedMap.fastPutAsync("b", 2).awaitUntil().shouldBeTrue()
+        cachedMap.fastPutAsync("c", 3).awaitUntil().shouldBeTrue()
 
-        awaitRedis(cachedMap.containsKeyAsync("a")).shouldBeTrue()
+        cachedMap.containsKeyAsync("a").awaitUntil().shouldBeTrue()
 
-        awaitRedis(cachedMap.getAsync("c")) shouldBeEqualTo 3
+        cachedMap.getAsync("c").awaitUntil() shouldBeEqualTo 3
 
         // 저장된 Int 형태의 저장 크기
         // valueSizeAsync 결과는 codec에 따라 저장된 Int 바이트 크기를 반환한다.
 
         val keys = setOf("a", "b", "c")
 
-        val mapSlice = awaitRedis(cachedMap.getAllAsync(keys))
+        val mapSlice = cachedMap.getAllAsync(keys).awaitUntil()
         mapSlice shouldBeEqualTo mapOf("a" to 1, "b" to 2, "c" to 3)
 
-        awaitRedis(cachedMap.readAllKeySetAsync()) shouldContainSame setOf("a", "b", "c")
-        awaitRedis(cachedMap.readAllValuesAsync()) shouldContainSame listOf(1, 2, 3)
-        awaitRedis(cachedMap.readAllEntrySetAsync())
+        cachedMap.readAllKeySetAsync().awaitUntil() shouldContainSame setOf("a", "b", "c")
+        cachedMap.readAllValuesAsync().awaitUntil() shouldContainSame listOf(1, 2, 3)
+        cachedMap.readAllEntrySetAsync().awaitUntil()
             .associate { it.key to it.value } shouldContainSame mapOf("a" to 1, "b" to 2, "c" to 3)
 
         // 신규 Item일 경우 true, Update 시에는 false 를 반환한다
-        awaitRedis(cachedMap.fastPutAsync("a", 100)).shouldBeFalse()
-        awaitRedis(cachedMap.fastPutAsync("d", 33)).shouldBeTrue()
+        cachedMap.fastPutAsync("a", 100).awaitUntil().shouldBeFalse()
+        cachedMap.fastPutAsync("d", 33).awaitUntil().shouldBeTrue()
 
         // 삭제 시에는 삭제된 갯수를 반환
-        awaitRedis(cachedMap.fastRemoveAsync("b")) shouldBeEqualTo 1L
+        cachedMap.fastRemoveAsync("b").awaitUntil() shouldBeEqualTo 1L
 
         // Remote 에 저장되었나 본다
         val backendMap = redisson.getMap<String, Int>(cachedMapName, intCodec)
-        awaitRedis(backendMap.containsKeyAsync("a")).shouldBeTrue()
+        backendMap.containsKeyAsync("a").awaitUntil().shouldBeTrue()
     }
 
     @Test
@@ -105,13 +106,13 @@ class LocalCachedMapExamples: AbstractRedissonCoroutineTest() {
             LocalCachedMapOptions.name<String, Int>(name).codec(intCodec)
         )
 
-        val first = awaitRedis(cachedMap.addAndGetAsync("count", 32))
-        val second = awaitRedis(cachedMap.addAndGetAsync("count", 10))
+        val first = cachedMap.addAndGetAsync("count", 32).awaitUntil()
+        val second = cachedMap.addAndGetAsync("count", 10).awaitUntil()
         val backendMap: RMap<String, Int> = redisson.getMap(name, intCodec)
 
         first shouldBeEqualTo 32
         second shouldBeEqualTo 42
-        awaitRedis(backendMap.getAsync("count")) shouldBeEqualTo 42
+        backendMap.getAsync("count").awaitUntil() shouldBeEqualTo 42
     }
 
     @Test
@@ -122,7 +123,7 @@ class LocalCachedMapExamples: AbstractRedissonCoroutineTest() {
         )
         val backendMap: RMap<String, Double> = redisson.getMap(name, doubleCodec)
 
-        awaitRedis(cachedMap.addAndGetAsync("ratio", 0.25)) shouldBeEqualTo 0.25
-        awaitRedis(backendMap.getAsync("ratio")) shouldBeEqualTo 0.25
+        cachedMap.addAndGetAsync("ratio", 0.25).awaitUntil() shouldBeEqualTo 0.25
+        backendMap.getAsync("ratio").awaitUntil() shouldBeEqualTo 0.25
     }
 }

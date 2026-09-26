@@ -10,7 +10,9 @@ import kotlin.math.ln
 
 class FactorialsTest {
 
-    companion object: KLogging()
+    companion object: KLogging() {
+        private const val EPSILON = 1e-10
+    }
 
     // ----- factorial -----
 
@@ -52,8 +54,8 @@ class FactorialsTest {
 
     @Test
     fun `factorialLn 이 ln(factorial) 과 일치한다`() {
-        factorialLn(5).shouldBeNear(ln(factorial(5)), 1e-10)
-        factorialLn(10).shouldBeNear(ln(factorial(10)), 1e-10)
+        factorialLn(5).shouldBeNear(ln(factorial(5)), EPSILON)
+        factorialLn(10).shouldBeNear(ln(factorial(10)), EPSILON)
     }
 
     // ----- binomial -----
@@ -86,8 +88,8 @@ class FactorialsTest {
 
     @Test
     fun `binomialLn 이 ln(binomial) 과 일치한다`() {
-        binomialLn(10, 3).shouldBeNear(ln(binomial(10, 3)), 1e-10)
-        binomialLn(20, 5).shouldBeNear(ln(binomial(20, 5)), 1e-10)
+        binomialLn(10, 3).shouldBeNear(ln(binomial(10, 3)), EPSILON)
+        binomialLn(20, 5).shouldBeNear(ln(binomial(20, 5)), EPSILON)
     }
 
     @Test
@@ -95,5 +97,4 @@ class FactorialsTest {
         binomialLn(-1, 0) shouldBeEqualTo Double.NEGATIVE_INFINITY
         binomialLn(3, 5) shouldBeEqualTo Double.NEGATIVE_INFINITY
     }
-
 }

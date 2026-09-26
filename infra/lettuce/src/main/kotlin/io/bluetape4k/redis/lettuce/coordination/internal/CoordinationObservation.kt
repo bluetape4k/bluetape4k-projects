@@ -87,7 +87,7 @@ internal class CoordinationDimensions private constructor(
 
     fun asMap(): Map<String, String> = values
 
-    companion object {
+    companion object: KLogging() {
         val EMPTY: CoordinationDimensions = CoordinationDimensions(emptyMap())
 
         fun of(vararg dimensions: Pair<String, String>): CoordinationDimensions {
@@ -125,6 +125,10 @@ internal fun interface CoordinationObservationSink {
 internal class CoordinationObserver(
     private val sink: CoordinationObservationSink = NOOP_SINK,
 ) {
+    private companion object: KLogging() {
+        val NOOP_SINK = CoordinationObservationSink {}
+    }
+    
     private val emitted = AtomicLong()
     private val dropped = AtomicLong()
 
@@ -176,9 +180,5 @@ internal class CoordinationObserver(
     ): CompletableFuture<T> {
         future.whenComplete { _, _ -> emit(name, dimensions) }
         return future
-    }
-
-    private companion object: KLogging() {
-        val NOOP_SINK = CoordinationObservationSink {}
     }
 }

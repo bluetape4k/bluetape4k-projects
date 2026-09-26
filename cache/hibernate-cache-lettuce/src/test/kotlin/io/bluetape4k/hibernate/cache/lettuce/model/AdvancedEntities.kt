@@ -1,5 +1,6 @@
 package io.bluetape4k.hibernate.cache.lettuce.model
 
+import io.bluetape4k.support.hashOf
 import jakarta.persistence.Cacheable
 import jakarta.persistence.Column
 import jakarta.persistence.Embeddable
@@ -38,6 +39,14 @@ class CompositePerson: Serializable {
 
     @Column(nullable = false)
     var name: String = ""
+
+    override fun equals(other: Any?): Boolean =
+        other is CompositePerson && id == other.id && name == other.name
+
+    override fun hashCode(): Int = id.hashCode()
+
+    override fun toString(): String =
+        "CompositePerson(id=$id, name='$name')"
 }
 
 @Entity
@@ -57,4 +66,13 @@ class NaturalUser: Serializable {
 
     @Column(nullable = false)
     var displayName: String = ""
+
+    override fun equals(other: Any?): Boolean =
+        other is NaturalUser && id == other.id && email == other.email && displayName == other.displayName
+
+    override fun hashCode(): Int =
+        id?.hashCode() ?: hashOf(email, displayName)
+
+    override fun toString(): String =
+        "NaturalUser(id=$id, email='$email', displayName='$displayName')"
 }

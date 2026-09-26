@@ -1,13 +1,12 @@
 package io.bluetape4k.rule.engines.janino
 
+import io.bluetape4k.assertions.shouldBeFalse
+import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.rule.api.Facts
 import io.bluetape4k.rule.api.RuleDefinition
 import io.bluetape4k.rule.api.ruleSetOf
 import io.bluetape4k.rule.core.DefaultRuleEngine
-import io.bluetape4k.assertions.shouldBeFalse
-import io.bluetape4k.assertions.shouldBeTrue
-import io.bluetape4k.assertions.shouldNotBeNull
 import org.junit.jupiter.api.Test
 
 class JaninoRuleTest {
@@ -43,7 +42,8 @@ class JaninoRuleTest {
         val action = JaninoAction(PUT_DISCOUNT_TRUE_ACTION)
         val facts = Facts.of("amount" to 1500)
 
-        action.execute(facts); facts.get<Boolean>("discount").shouldNotBeNull().shouldBeTrue()
+        action.execute(facts)
+        facts.get<Boolean>("discount").shouldBeTrue()
     }
 
     @Test
@@ -56,7 +56,7 @@ class JaninoRuleTest {
         rule.evaluate(facts).shouldBeTrue()
         rule.execute(facts)
 
-        facts.get<Boolean>("discount").shouldNotBeNull().shouldBeTrue()
+        facts.get<Boolean>("discount").shouldBeTrue()
     }
 
     @Test
@@ -69,7 +69,7 @@ class JaninoRuleTest {
         val facts = Facts.of("amount" to 2000)
         engine.fire(ruleSetOf(rule), facts)
 
-        facts.get<Boolean>("discount").shouldNotBeNull().shouldBeTrue()
+        facts.get<Boolean>("discount").shouldBeTrue()
     }
 
     @Test
@@ -102,6 +102,6 @@ class JaninoRuleTest {
 
         rule.evaluate(facts).shouldBeTrue()
         rule.execute(facts)
-        facts.get<Boolean>("discount").shouldNotBeNull().shouldBeTrue()
+        facts.get<Boolean>("discount").shouldBeTrue()
     }
 }

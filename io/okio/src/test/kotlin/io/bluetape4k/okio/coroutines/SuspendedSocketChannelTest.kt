@@ -9,6 +9,7 @@ import io.bluetape4k.junit5.faker.Fakers
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.okio.AbstractOkioTest
 import io.bluetape4k.okio.SEGMENT_SIZE
+import kotlinx.coroutines.withTimeoutOrNull
 import org.junit.jupiter.api.Test
 import java.net.InetSocketAddress
 import java.nio.channels.AsynchronousServerSocketChannel
@@ -62,7 +63,7 @@ class SuspendedSocketChannelTest: AbstractOkioTest() {
     private fun runAsyncSocketTest(
         block: suspend (client: AsynchronousSocketChannel, server: AsynchronousSocketChannel) -> Unit,
     ) = runSuspendIO {
-        kotlinx.coroutines.withTimeoutOrNull(DEFAULT_TIMEOUT_MS) {
+        withTimeoutOrNull(timeMillis = DEFAULT_TIMEOUT_MS) {
             AsynchronousServerSocketChannel.open().use { serverSocketChannel ->
                 serverSocketChannel.bind(InetSocketAddress("127.0.0.1", 0))
                 val address = serverSocketChannel.localAddress as InetSocketAddress

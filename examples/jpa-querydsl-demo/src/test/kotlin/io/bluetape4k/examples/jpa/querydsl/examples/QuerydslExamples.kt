@@ -3,11 +3,18 @@ package io.bluetape4k.examples.jpa.querydsl.examples
 import com.querydsl.core.BooleanBuilder
 import com.querydsl.core.types.ExpressionUtils
 import com.querydsl.core.types.Predicate
-import com.querydsl.core.types.Projections
 import com.querydsl.core.types.dsl.CaseBuilder
 import com.querydsl.core.types.dsl.Expressions
-import com.querydsl.jpa.JPAExpressions
+import com.querydsl.jpa.JPAExpressions.select
 import com.querydsl.jpa.impl.JPAQueryFactory
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeFalse
+import io.bluetape4k.assertions.shouldBeNull
+import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.assertions.shouldContainSame
+import io.bluetape4k.assertions.shouldHaveSize
+import io.bluetape4k.assertions.shouldNotBeEmpty
+import io.bluetape4k.assertions.shouldNotBeNull
 import io.bluetape4k.examples.jpa.querydsl.AbstractQuerydslTest
 import io.bluetape4k.examples.jpa.querydsl.domain.dto.MemberDto
 import io.bluetape4k.examples.jpa.querydsl.domain.dto.MemberTeamDto
@@ -19,7 +26,11 @@ import io.bluetape4k.examples.jpa.querydsl.domain.model.Member
 import io.bluetape4k.examples.jpa.querydsl.domain.model.QMember
 import io.bluetape4k.examples.jpa.querydsl.domain.model.QTeam
 import io.bluetape4k.examples.jpa.querydsl.domain.model.Team
+import io.bluetape4k.hibernate.createQueryAs
 import io.bluetape4k.hibernate.isLoaded
+import io.bluetape4k.hibernate.querydsl.core.beanProjectionOf
+import io.bluetape4k.hibernate.querydsl.core.constructorProjectionOf
+import io.bluetape4k.hibernate.querydsl.core.fieldProjectionOf
 import io.bluetape4k.hibernate.querydsl.core.inValues
 import io.bluetape4k.hibernate.querydsl.core.minus
 import io.bluetape4k.hibernate.querydsl.core.numberPathOf
@@ -27,13 +38,6 @@ import io.bluetape4k.hibernate.querydsl.core.plus
 import io.bluetape4k.hibernate.querydsl.core.simplePathOf
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
-import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldBeFalse
-import io.bluetape4k.assertions.shouldBeNull
-import io.bluetape4k.assertions.shouldBeTrue
-import io.bluetape4k.assertions.shouldContainSame
-import io.bluetape4k.assertions.shouldHaveSize
-import io.bluetape4k.assertions.shouldNotBeEmpty
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
@@ -64,7 +68,7 @@ class QuerydslExamples: AbstractQuerydslTest() {
         queryFactory.delete(qmember).execute()
         queryFactory.delete(qteam).execute()
 
-        log.debug { "Add Sample Team and Member entity ..." }
+        log.debug { "Add Sample 2 Team and $MEMBER_COUNT Member entity ..." }
 
         val teamA = Team("teamA")
         val teamB = Team("teamB")
@@ -78,7 +82,7 @@ class QuerydslExamples: AbstractQuerydslTest() {
             val member = Member("member-$i", i * 10, selectedTeam)
             tem.persist(member)
         }
-        testId = members.first().id!!
+        testId = members.first().id.shouldNotBeNull()
 
         flushAndClear()
     }
@@ -88,6 +92,7 @@ class QuerydslExamples: AbstractQuerydslTest() {
         val teamA = queryFactory.selectFrom(qteam)
             .where(qteam.name.eq("teamA"))
             .fetchOne()
+            .shouldNotBeNull()
 
         // 기존 member2 와 같은 속성의 값을 가진 것을 추가한다. (id 만 다를 뿐 ...)
         val member2 = Member("member-2", 20, teamA)
@@ -98,25 +103,25 @@ class QuerydslExamples: AbstractQuerydslTest() {
         log.debug { "Member count=$count" }
         count.toInt() shouldBeEqualTo MEMBER_COUNT + 1
 
-        val results = queryFactory.select(qmember.name, qmember.age)
+        val results = queryFactory
+            .select(qmember.name, qmember.age)
             .distinct()
             .from(qmember)
             .orderBy(qmember.name.asc())
             .fetch()
 
         // distinct 되므로 중복된 member-2 가 제외된다.
+        results.forEach { log.debug { "member=$it" } }
         results shouldHaveSize MEMBER_COUNT
-        results.forEach {
-            log.debug { "member=$it" }
-        }
     }
 
     @Test
     fun `JPQL 을 직접 사용하는 예`() {
         val member = tem.entityManager
-            .createQuery("select m from Member m where m.name = :name", Member::class.java)
+            .createQueryAs<Member>("select m from Member m where m.name = :name")
             .setParameter("name", "member-1")
             .singleResult
+            .shouldNotBeNull()
 
         member.name shouldBeEqualTo "member-1"
     }
@@ -128,6 +133,7 @@ class QuerydslExamples: AbstractQuerydslTest() {
             .from(qmember)
             .where(qmember.id.eq(testId))
             .fetchOne()
+            .shouldNotBeNull()
         log.debug { "member=$member" }
 
         val member2 = queryFactory
@@ -135,6 +141,7 @@ class QuerydslExamples: AbstractQuerydslTest() {
             .from(qmember)
             .where(qmember.id.eq(testId))
             .fetchOne()
+            .shouldNotBeNull()
         log.debug { "member2=$member2" }
     }
 
@@ -147,10 +154,11 @@ class QuerydslExamples: AbstractQuerydslTest() {
                 null,       // Predicate 가 null 인 경우는 단순 무시한다
                 qmember.age.inValues(10, 20, 30, 40)
             )
-            .fetchOne()!!
+            .fetchOne()
+            .shouldNotBeNull()
 
-        member.name shouldBeEqualTo "member-1"
         log.debug { "member=$member" }
+        member.name shouldBeEqualTo "member-1"
     }
 
     @Test
@@ -163,10 +171,11 @@ class QuerydslExamples: AbstractQuerydslTest() {
                 null,
             )
             .orderBy(qmember.id.asc())
-            .fetchFirst()!!
+            .fetchFirst()
+            .shouldNotBeNull()
 
-        member.name shouldBeEqualTo "member-1"
         log.debug { "member=$member" }
+        member.name shouldBeEqualTo "member-1"
     }
 
     /**
@@ -217,11 +226,10 @@ class QuerydslExamples: AbstractQuerydslTest() {
             .orderBy(qmember.age.desc().nullsLast(), qmember.name.asc())
             .fetch()
 
+        members.forEach { log.debug { it } }
+        members shouldHaveSize 6
         members.last().age.shouldBeNull()
         members.first().name shouldBeEqualTo "sort-member-4"
-        members.forEach {
-            log.debug { it }
-        }
     }
 
     @Test
@@ -236,7 +244,8 @@ class QuerydslExamples: AbstractQuerydslTest() {
                 qmember.age.min()
             )
             .from(qmember)
-            .fetchOne()!!
+            .fetchOne()
+            .shouldNotBeNull()
 
         result[qmember.count()] shouldBeEqualTo 4
         result[ageSum] shouldBeEqualTo 100
@@ -281,6 +290,7 @@ class QuerydslExamples: AbstractQuerydslTest() {
             .groupBy(qteam.name)
             .having(avgAgeExpr.gt(20))
             .fetch()
+            .shouldNotBeEmpty()
 
         val team = results.first()
 
@@ -295,9 +305,10 @@ class QuerydslExamples: AbstractQuerydslTest() {
             .rightJoin(qmember.team(), qteam)
             .where(qteam.name.eq("teamA"))
             .fetch()
+            .shouldNotBeEmpty()
 
         members shouldHaveSize 2
-        members.map { it.team!!.name }.distinct() shouldContainSame listOf("teamA")
+        members.map { it.team?.name }.distinct() shouldContainSame listOf("teamA")
     }
 
     @Test
@@ -326,6 +337,7 @@ class QuerydslExamples: AbstractQuerydslTest() {
             .from(qmember)
             .join(qmember.team(), qteam).on(qteam.name.eq("teamA"))
             .fetch()
+            .shouldNotBeEmpty()
 
         tuples.forEach {
             log.debug { "tuple=$it" }
@@ -344,11 +356,12 @@ class QuerydslExamples: AbstractQuerydslTest() {
      */
     @Test
     fun `projections by constructor with EntityPath`() {
-        val projections = Projections.constructor(MemberDto::class.java, qmember)
+        val projections = constructorProjectionOf<MemberDto>(qmember)
         val memberDtos = queryFactory
             .select(projections)
             .from(qmember)
             .fetch()
+            .shouldNotBeEmpty()
 
         memberDtos shouldHaveSize MEMBER_COUNT
     }
@@ -358,7 +371,7 @@ class QuerydslExamples: AbstractQuerydslTest() {
      */
     @Test
     fun `projections by constructor with Two EntityPath`() {
-        val projections = Projections.constructor(MemberTeamDto::class.java, qmember, qteam)
+        val projections = constructorProjectionOf<MemberTeamDto>(qmember, qteam)
         val memberDtos = queryFactory
             .select(projections)
             .from(qmember)
@@ -429,7 +442,7 @@ class QuerydslExamples: AbstractQuerydslTest() {
     @Test
     fun `subquery - 나이가 가장 많은 회원 조회`() {
         val qmemberSub = QMember("memberSub")
-        val subquery = JPAExpressions.select(qmemberSub.age.max()).from(qmemberSub)
+        val subquery = select(qmemberSub.age.max()).from(qmemberSub)
 
         val member = queryFactory
             .selectFrom(qmember)
@@ -442,7 +455,7 @@ class QuerydslExamples: AbstractQuerydslTest() {
     @Test
     fun `subquery - 나이가 모든 멤버의 평균 이상인 회원 조회`() {
         val qmemberSub = QMember("memberSub")
-        val subquery = JPAExpressions.select(qmemberSub.age.avg()).from(qmemberSub)
+        val subquery = select(qmemberSub.age.avg()).from(qmemberSub)
 
         val members = queryFactory
             .selectFrom(qmember)
@@ -456,8 +469,7 @@ class QuerydslExamples: AbstractQuerydslTest() {
     @Test
     fun `subquery - 나이가 10상 초과인 회원 조회`() {
         val qmemberSub = QMember("memberSub")
-        val subquery = JPAExpressions
-            .select(qmemberSub.id)
+        val subquery = select(qmemberSub.id)
             .from(qmemberSub)
             .where(qmemberSub.age.gt(10))
 
@@ -476,8 +488,7 @@ class QuerydslExamples: AbstractQuerydslTest() {
     @Test
     fun `select 절에서 subquery 사용`() {
         val qmemberSub = QMember("memberSub")
-        val subquery = JPAExpressions
-            .select(qmemberSub.age.avg())
+        val subquery = select(qmemberSub.age.avg())
             .from(qmemberSub)
             .where(qmemberSub.age.goe(qmember.age))
 
@@ -506,10 +517,7 @@ class QuerydslExamples: AbstractQuerydslTest() {
             .from(qmember)
             .fetch()
 
-        results.forEach {
-            log.debug { it }
-        }
-
+        results.forEach { log.debug { it } }
         results shouldHaveSize MEMBER_COUNT
     }
 
@@ -527,10 +535,7 @@ class QuerydslExamples: AbstractQuerydslTest() {
             .from(qmember)
             .fetch()
 
-        results.forEach {
-            log.debug { it }
-        }
-
+        results.forEach { log.debug { it } }
         results shouldHaveSize MEMBER_COUNT
     }
 
@@ -554,7 +559,6 @@ class QuerydslExamples: AbstractQuerydslTest() {
 
             log.debug { "name=$name, age=$age, rank=$rank" }
         }
-
         results shouldHaveSize MEMBER_COUNT
     }
 
@@ -578,7 +582,8 @@ class QuerydslExamples: AbstractQuerydslTest() {
             .select(qmember.name, constantExpr)
             .from(qmember)
             .where(qmember.name.eq("member-1"))
-            .fetchOne()!!
+            .fetchOne()
+            .shouldNotBeNull()
 
         log.debug { "result=$result" }
         result[qmember.name] shouldBeEqualTo "member-1"
@@ -594,10 +599,7 @@ class QuerydslExamples: AbstractQuerydslTest() {
             .fetch()
             .map { it.toString() }
 
-        results.forEach {
-            log.debug { it }
-        }
-
+        results.forEach { log.debug { it } }
         results.shouldNotBeEmpty()
     }
 
@@ -608,10 +610,7 @@ class QuerydslExamples: AbstractQuerydslTest() {
             .from(qmember)
             .fetch()
 
-        results.forEach {
-            log.debug { it }
-        }
-
+        results.forEach { log.debug { it } }
         results.shouldNotBeEmpty()
     }
 
@@ -619,15 +618,12 @@ class QuerydslExamples: AbstractQuerydslTest() {
     fun `projection by bean`() {
         val memberVos = queryFactory
             .select(
-                Projections.bean(MemberVo::class.java, qmember.name.`as`("name"))
+                beanProjectionOf<MemberVo>(qmember.name.`as`("name"))
             )
             .from(qmember)
             .fetch()
 
-        memberVos.forEach {
-            log.debug { it }
-        }
-
+        memberVos.forEach { log.debug { it } }
         memberVos.shouldNotBeEmpty()
     }
 
@@ -635,15 +631,12 @@ class QuerydslExamples: AbstractQuerydslTest() {
     fun `projection by field`() {
         val memberVos = queryFactory
             .select(
-                Projections.fields(MemberVo::class.java, qmember.name.`as`("name"))
+                fieldProjectionOf<MemberVo>(qmember.name.`as`("name"))
             )
             .from(qmember)
             .fetch()
 
-        memberVos.forEach {
-            log.debug { it }
-        }
-
+        memberVos.forEach { log.debug { it } }
         memberVos.shouldNotBeEmpty()
     }
 
@@ -653,18 +646,15 @@ class QuerydslExamples: AbstractQuerydslTest() {
 
         val memberVos = queryFactory
             .select(
-                Projections.fields(
-                    MemberVo::class.java,
-                    qmember.name.`as`("name"),   // MemberVo 의 field 명을 지정
-                    ExpressionUtils.`as`(JPAExpressions.select(memberSub.age.max()).from(memberSub), "age")
+                fieldProjectionOf<MemberVo>(
+                    qmember.name.`as`("name"), // MemberVo 의 field 명을 지정
+                    ExpressionUtils.`as`(select(memberSub.age.max()).from(memberSub), "age")
                 )
             )
             .from(qmember)
             .fetch()
 
-        memberVos.forEach {
-            log.debug { it }
-        }
+        memberVos.forEach { log.debug { it } }
         memberVos.all { it.age == 40 }.shouldBeTrue()
     }
 
@@ -672,20 +662,12 @@ class QuerydslExamples: AbstractQuerydslTest() {
     fun `projection by constructor`() {
         val memberDtos = queryFactory
             .select(
-                Projections.constructor(
-                    MemberDto::class.java,
-                    qmember.id,
-                    qmember.name,
-                    qmember.age
-                )
+                constructorProjectionOf<MemberDto>(qmember.id, qmember.name, qmember.age)
             )
             .from(qmember)
             .fetch()
 
-        memberDtos.forEach {
-            log.debug { it }
-        }
-
+        memberDtos.forEach { log.debug { it } }
         memberDtos shouldHaveSize MEMBER_COUNT
     }
 
@@ -700,10 +682,7 @@ class QuerydslExamples: AbstractQuerydslTest() {
             .from(qmember)
             .fetch()
 
-        memberVos.forEach {
-            log.debug { it }
-        }
-
+        memberVos.forEach { log.debug { it } }
         memberVos shouldHaveSize MEMBER_COUNT
     }
 
@@ -724,10 +703,7 @@ class QuerydslExamples: AbstractQuerydslTest() {
             .join(qmember.team(), qteam)
             .fetch()
 
-        memberTeamVos.forEach {
-            log.debug { it }
-        }
-
+        memberTeamVos.forEach { log.debug { it } }
         memberTeamVos shouldHaveSize MEMBER_COUNT
     }
 
@@ -738,9 +714,7 @@ class QuerydslExamples: AbstractQuerydslTest() {
             .where(searchCondition1("member-1"))
             .fetch()
 
-        members.forEach {
-            log.debug { it }
-        }
+        members.forEach { log.debug { it } }
         members shouldHaveSize 1
     }
 
@@ -768,9 +742,7 @@ class QuerydslExamples: AbstractQuerydslTest() {
             .selectFrom(qmember)
             .fetch()
 
-        updated.forEach {
-            log.debug { it }
-        }
+        updated.forEach { log.debug { it } }
         updated.count { it.name.endsWith("-not") } shouldBeEqualTo affected
     }
 
@@ -844,9 +816,7 @@ class QuerydslExamples: AbstractQuerydslTest() {
             .from(qmember)
             .fetch()
 
-        results.forEach {
-            log.debug { it }
-        }
+        results.forEach { log.debug { it } }
         results.all { it.startsWith("MEMBER-") }.shouldBeTrue()
     }
 
@@ -857,9 +827,7 @@ class QuerydslExamples: AbstractQuerydslTest() {
             .from(qmember)
             .fetch()
 
-        results.forEach {
-            log.debug { it }
-        }
+        results.forEach { log.debug { it } }
         results.all { it.startsWith("MEMBER-") }.shouldBeTrue()
     }
 

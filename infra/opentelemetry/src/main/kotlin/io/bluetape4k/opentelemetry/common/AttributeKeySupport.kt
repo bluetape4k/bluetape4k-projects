@@ -1,5 +1,6 @@
 package io.bluetape4k.opentelemetry.common
 
+import io.bluetape4k.support.requireNotBlank
 import io.opentelemetry.api.common.AttributeKey
 
 /**
@@ -118,7 +119,8 @@ fun doubleArrayAttributeKeyOf(vararg keys: String): AttributeKey<MutableList<Dou
  * // key.key == "service.name"
  * ```
  */
-fun String.toAttributeKey(): AttributeKey<String> = AttributeKey.stringKey(this)
+fun String.toAttributeKey(): AttributeKey<String> =
+    AttributeKey.stringKey(this.requireNotBlank(this))
 
 /**
  * [String]을 [String] 타입의 [AttributeKey]로 변환합니다.
@@ -128,7 +130,8 @@ fun String.toAttributeKey(): AttributeKey<String> = AttributeKey.stringKey(this)
  * // key.key == "http.method"
  * ```
  */
-fun String.toStringAttributeKey(): AttributeKey<String> = AttributeKey.stringKey(this)
+fun String.toStringAttributeKey(): AttributeKey<String> =
+    AttributeKey.stringKey(this.requireNotBlank(this))
 
 /**
  * [String]을 [String] 배열 타입의 [AttributeKey]로 변환합니다.
@@ -138,7 +141,8 @@ fun String.toStringAttributeKey(): AttributeKey<String> = AttributeKey.stringKey
  * // key.key == "tags"
  * ```
  */
-fun String.toStringArrayAttributeKey(): AttributeKey<List<String>> = AttributeKey.stringArrayKey(this)
+fun String.toStringArrayAttributeKey(): AttributeKey<List<String>> =
+    AttributeKey.stringArrayKey(this.requireNotBlank(this))
 
 /**
  * [String] 배열을 [AttributeKey]로 변환합니다.
@@ -159,7 +163,8 @@ fun Array<String>.toAttributeKey(): AttributeKey<List<String>> =
  * // key.key == "is.error"
  * ```
  */
-fun String.toBooleanAttributeKey(): AttributeKey<Boolean> = AttributeKey.booleanKey(this)
+fun String.toBooleanAttributeKey(): AttributeKey<Boolean> =
+    AttributeKey.booleanKey(this.requireNotBlank(this))
 
 /**
  * [String]을 [Boolean] 배열 타입의 [AttributeKey]로 변환합니다.
@@ -169,7 +174,8 @@ fun String.toBooleanAttributeKey(): AttributeKey<Boolean> = AttributeKey.boolean
  * // key.key == "flags"
  * ```
  */
-fun String.toBooleanArrayAttributeKey(): AttributeKey<List<Boolean>> = AttributeKey.booleanArrayKey(this)
+fun String.toBooleanArrayAttributeKey(): AttributeKey<List<Boolean>> =
+    AttributeKey.booleanArrayKey(this.requireNotBlank(this))
 
 /**
  * [String]을 [Long] 타입의 [AttributeKey]로 변환합니다.
@@ -179,7 +185,8 @@ fun String.toBooleanArrayAttributeKey(): AttributeKey<List<Boolean>> = Attribute
  * // key.key == "response.size"
  * ```
  */
-fun String.toLongAttributeKey(): AttributeKey<Long> = AttributeKey.longKey(this)
+fun String.toLongAttributeKey(): AttributeKey<Long> =
+    AttributeKey.longKey(this.requireNotBlank(this))
 
 /**
  * [String]을 [Long] 배열 타입의 [AttributeKey]로 변환합니다.
@@ -189,7 +196,8 @@ fun String.toLongAttributeKey(): AttributeKey<Long> = AttributeKey.longKey(this)
  * // key.key == "ids"
  * ```
  */
-fun String.toLongArrayAttributeKey(): AttributeKey<List<Long>> = AttributeKey.longArrayKey(this)
+fun String.toLongArrayAttributeKey(): AttributeKey<List<Long>> =
+    AttributeKey.longArrayKey(this.requireNotBlank(this))
 
 /**
  * [String]을 [Double] 타입의 [AttributeKey]로 변환합니다.
@@ -199,7 +207,8 @@ fun String.toLongArrayAttributeKey(): AttributeKey<List<Long>> = AttributeKey.lo
  * // key.key == "latency.ms"
  * ```
  */
-fun String.toDoubleAttributeKey(): AttributeKey<Double> = AttributeKey.doubleKey(this)
+fun String.toDoubleAttributeKey(): AttributeKey<Double> =
+    AttributeKey.doubleKey(this.requireNotBlank(this))
 
 /**
  * [String]을 [Double] 배열 타입의 [AttributeKey]로 변환합니다.
@@ -209,7 +218,8 @@ fun String.toDoubleAttributeKey(): AttributeKey<Double> = AttributeKey.doubleKey
  * // key.key == "percentiles"
  * ```
  */
-fun String.toDoubleArrayAttributeKey(): AttributeKey<List<Double>> = AttributeKey.doubleArrayKey(this)
+fun String.toDoubleArrayAttributeKey(): AttributeKey<List<Double>> =
+    AttributeKey.doubleArrayKey(this.requireNotBlank(this))
 
 /**
  * [Boolean]을 [AttributeKey]로 변환합니다.
@@ -219,7 +229,8 @@ fun String.toDoubleArrayAttributeKey(): AttributeKey<List<Double>> = AttributeKe
  * // key.key == "true"
  * ```
  */
-fun Boolean.toAttributeKey(): AttributeKey<Boolean> = AttributeKey.booleanKey(this.toString())
+fun Boolean.toAttributeKey(): AttributeKey<Boolean> =
+    AttributeKey.booleanKey(this.toString())
 
 /**
  * [Boolean] 배열을 [AttributeKey]로 변환합니다.
@@ -229,7 +240,8 @@ fun Boolean.toAttributeKey(): AttributeKey<Boolean> = AttributeKey.booleanKey(th
  * // key.key == "true,false"
  * ```
  */
-fun BooleanArray.toAttributeKey(): AttributeKey<List<Boolean>> = AttributeKey.booleanArrayKey(this.joinToString(","))
+fun BooleanArray.toAttributeKey(): AttributeKey<List<Boolean>> =
+    AttributeKey.booleanArrayKey(this.joinToString(","))
 
 /**
  * [Long]을 [AttributeKey]로 변환합니다.
@@ -239,7 +251,8 @@ fun BooleanArray.toAttributeKey(): AttributeKey<List<Boolean>> = AttributeKey.bo
  * // key.key == "200"
  * ```
  */
-fun Long.toAttributeKey(): AttributeKey<Long> = AttributeKey.longKey(this.toString())
+fun Long.toAttributeKey(): AttributeKey<Long> =
+    AttributeKey.longKey(this.toString())
 
 /**
  * [Long] 배열을 [AttributeKey]로 변환합니다.
@@ -249,7 +262,8 @@ fun Long.toAttributeKey(): AttributeKey<Long> = AttributeKey.longKey(this.toStri
  * // key.key == "1,2"
  * ```
  */
-fun LongArray.toAttributeKey(): AttributeKey<List<Long>> = AttributeKey.longArrayKey(this.joinToString(","))
+fun LongArray.toAttributeKey(): AttributeKey<List<Long>> =
+    AttributeKey.longArrayKey(this.joinToString(","))
 
 /**
  * [Double]을 [AttributeKey]로 변환합니다.
@@ -259,7 +273,8 @@ fun LongArray.toAttributeKey(): AttributeKey<List<Long>> = AttributeKey.longArra
  * // key.key == "3.14"
  * ```
  */
-fun Double.toAttributeKey(): AttributeKey<Double> = AttributeKey.doubleKey(this.toString())
+fun Double.toAttributeKey(): AttributeKey<Double> =
+    AttributeKey.doubleKey(this.toString())
 
 /**
  * [Double] 배열을 [AttributeKey]로 변환합니다.
@@ -269,4 +284,5 @@ fun Double.toAttributeKey(): AttributeKey<Double> = AttributeKey.doubleKey(this.
  * // key.key == "0.5,0.99"
  * ```
  */
-fun DoubleArray.toAttributeKey(): AttributeKey<List<Double>> = AttributeKey.doubleArrayKey(this.joinToString(","))
+fun DoubleArray.toAttributeKey(): AttributeKey<List<Double>> =
+    AttributeKey.doubleArrayKey(this.joinToString(","))

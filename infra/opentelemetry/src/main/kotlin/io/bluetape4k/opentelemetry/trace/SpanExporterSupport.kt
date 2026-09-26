@@ -37,6 +37,5 @@ fun spanExporterOf(vararg exporters: SpanExporter): SpanExporter =
  * @param spanDatas 내보낼 [SpanData] 목록
  * @return 내보내기 결과
  */
-fun SpanExporter.export(vararg spanDatas: SpanData): CompletableResultCode {
-    return export(spanDatas.asList())
-}
+fun SpanExporter.export(vararg spanDatas: SpanData): CompletableResultCode =
+    export(spanDatas.asList())

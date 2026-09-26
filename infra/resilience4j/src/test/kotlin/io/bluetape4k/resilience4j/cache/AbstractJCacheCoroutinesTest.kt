@@ -3,6 +3,7 @@ package io.bluetape4k.resilience4j.cache
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.codec.Base58
 import io.bluetape4k.concurrent.futureOf
+import io.bluetape4k.concurrent.join
 import io.bluetape4k.concurrent.onSuccess
 import io.bluetape4k.junit5.coroutines.runSuspendTest
 import io.bluetape4k.logging.coroutines.KLoggingChannel
@@ -17,6 +18,7 @@ import java.util.concurrent.CompletableFuture
 import java.util.concurrent.atomic.AtomicInteger
 import java.util.concurrent.atomic.AtomicLong
 import kotlin.time.Duration.Companion.milliseconds
+import kotlin.time.Duration.Companion.seconds
 
 abstract class AbstractJCacheCoroutinesTest {
 
@@ -43,7 +45,9 @@ abstract class AbstractJCacheCoroutinesTest {
     @Test
     fun `decorate suspend function1 for Cache`() = runSuspendTest {
         cache.eventPublisher
-            .onError { evt -> log.error(evt.throwable) { "Fail to get cache. $evt" } }
+            .onError { evt ->
+                log.error(evt.throwable) { "Fail to get cache. $evt" }
+            }
 
         val called = AtomicInteger(0)
         val function: suspend (String) -> String = { name: String ->
@@ -89,25 +93,29 @@ abstract class AbstractJCacheCoroutinesTest {
 
         val cachedFunc = cache.decorateCompletableFutureFunction(function)
 
-        cachedFunc("debop").onSuccess {
-            called.get() shouldBeEqualTo 1L
-            it shouldBeEqualTo "Hi debop!"
-        }.join()
+        cachedFunc("debop")
+            .onSuccess {
+                called.get() shouldBeEqualTo 1L
+                it shouldBeEqualTo "Hi debop!"
+            }.join(1.seconds)
 
-        cachedFunc("debop").onSuccess {
-            called.get() shouldBeEqualTo 1L
-            it shouldBeEqualTo "Hi debop!"
-        }.join()
+        cachedFunc("debop")
+            .onSuccess {
+                called.get() shouldBeEqualTo 1L
+                it shouldBeEqualTo "Hi debop!"
+            }.join(1.seconds)
 
-        cachedFunc("Sunghyouk").onSuccess {
-            called.get() shouldBeEqualTo 2L
-            it shouldBeEqualTo "Hi Sunghyouk!"
-        }.join()
+        cachedFunc("Sunghyouk")
+            .onSuccess {
+                called.get() shouldBeEqualTo 2L
+                it shouldBeEqualTo "Hi Sunghyouk!"
+            }.join(1.seconds)
 
-        cachedFunc("Sunghyouk").onSuccess {
-            called.get() shouldBeEqualTo 2L
-            it shouldBeEqualTo "Hi Sunghyouk!"
-        }.join()
+        cachedFunc("Sunghyouk")
+            .onSuccess {
+                called.get() shouldBeEqualTo 2L
+                it shouldBeEqualTo "Hi Sunghyouk!"
+            }.join(1.seconds)
     }
 
     @Test

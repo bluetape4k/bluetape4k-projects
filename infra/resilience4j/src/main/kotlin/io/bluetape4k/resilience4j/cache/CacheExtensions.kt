@@ -1,7 +1,7 @@
 package io.bluetape4k.resilience4j.cache
 
-import io.github.resilience4j.cache.Cache
 import io.bluetape4k.support.requireNotNull
+import io.github.resilience4j.cache.Cache
 import java.util.*
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.CompletionStage
@@ -21,8 +21,8 @@ import java.util.concurrent.CompletionStage
  *
  * @param func 실행할 함수
  */
-inline fun <K, V> Cache<K, V>.decorateFunction(
-    crossinline func: (K) -> V,
+fun <K, V> Cache<K, V>.decorateFunction(
+    func: (K) -> V,
 ): (K) -> V = { key: K ->
     val validKey = key.requireNotNull("key")
     this.computeIfAbsent(validKey) { func(validKey) }
@@ -94,8 +94,8 @@ fun <K, V> Cache<K, V>.decorateCompletionStage(
  *
  * @param func 실행할 함수
  */
-inline fun <K, V> Cache<K, V>.decorateCompletableFutureFunction(
-    crossinline func: (K) -> CompletableFuture<V>,
+fun <K, V> Cache<K, V>.decorateCompletableFutureFunction(
+    func: (K) -> CompletableFuture<V>,
 ): (K) -> CompletableFuture<V> = { key: K ->
 
     val validKey = key.requireNotNull("key")

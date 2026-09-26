@@ -1,6 +1,7 @@
 package io.bluetape4k.spring.cassandra
 
 import com.datastax.oss.driver.api.core.cql.Statement
+import io.bluetape4k.support.requireNotBlank
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.reactive.asFlow
 import kotlinx.coroutines.reactor.awaitSingle
@@ -54,7 +55,8 @@ inline fun <reified T: Any> ReactiveCassandraOperations.selectAsFlow(statement: 
  * // result == rows
  * ```
  */
-inline fun <reified T: Any> ReactiveCassandraOperations.selectAsFlow(cql: String): Flow<T> = select<T>(cql).asFlow()
+inline fun <reified T: Any> ReactiveCassandraOperations.selectAsFlow(cql: String): Flow<T> =
+    select<T>(cql.requireNotBlank("cql")).asFlow()
 
 /**
  * [Query] 조회 결과를 [Flow]로 반환합니다.
@@ -68,7 +70,8 @@ inline fun <reified T: Any> ReactiveCassandraOperations.selectAsFlow(cql: String
  * // result == rows
  * ```
  */
-inline fun <reified T: Any> ReactiveCassandraOperations.selectAsFlow(query: Query): Flow<T> = select<T>(query).asFlow()
+inline fun <reified T: Any> ReactiveCassandraOperations.selectAsFlow(query: Query): Flow<T> =
+    select<T>(query).asFlow()
 
 /**
  * [Statement]로 단건을 조회합니다.
@@ -87,13 +90,13 @@ suspend inline fun <reified T: Any> ReactiveCassandraOperations.selectOneOrNullS
  * CQL 문자열로 단건을 조회합니다.
  */
 suspend inline fun <reified T: Any> ReactiveCassandraOperations.selectOneSuspending(cql: String): T =
-    selectOne<T>(cql).awaitSingle()
+    selectOne<T>(cql.requireNotBlank("cql")).awaitSingle()
 
 /**
  * CQL 문자열로 단건을 조회하고 없으면 null을 반환합니다.
  */
 suspend inline fun <reified T: Any> ReactiveCassandraOperations.selectOneOrNullSuspending(cql: String): T? =
-    selectOne<T>(cql).awaitSingleOrNull()
+    selectOne<T>(cql.requireNotBlank("cql")).awaitSingleOrNull()
 
 /**
  * [Query]로 단건을 조회합니다.

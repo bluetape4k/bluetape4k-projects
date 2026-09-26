@@ -78,7 +78,7 @@ object JdbcDrivers {
     const val DIALECT_ORACLE10g = "org.hibernate.dialect.Oracle10gDialect"
 
     /**
-     * 전달한 드라이버 클래스명이 MySQL/MariaDB 계열인지 검사합니다.
+     * 전달한 드라이버 클래스명이 MySQL 계열인지 검사합니다.
      *
      * ## 동작/계약
      * - [driverClassName]이 `null`이면 `false`를 반환합니다.
@@ -94,9 +94,28 @@ object JdbcDrivers {
      */
     @JvmStatic
     fun isMySQL(driverClassName: String? = null): Boolean {
+        return driverClassName != null && driverClassName == DRIVER_CLASS_MYSQL
+    }
+
+    /**
+     * 전달한 드라이버 클래스명이 MySQL/MariaDB 계열인지 검사합니다.
+     *
+     * ## 동작/계약
+     * - [driverClassName]이 `null`이면 `false`를 반환합니다.
+     * - MySQL 또는 MariaDB 드라이버 클래스명과 정확히 일치할 때만 `true`를 반환합니다.
+     * - 수신 객체를 변경하지 않고 상수 비교만 수행합니다.
+     *
+     * ```kotlin
+     * val a = JdbcDrivers.isMySQL(JdbcDrivers.DRIVER_CLASS_MYSQL)
+     * val b = JdbcDrivers.isMySQL(null)
+     * // a == true
+     * // b == false
+     * ```
+     */
+    @JvmStatic
+    fun isMySQLFamily(driverClassName: String? = null): Boolean {
         return driverClassName != null &&
-                (driverClassName == DRIVER_CLASS_MYSQL ||
-                        driverClassName == DRIVER_CLASS_MARIADB)
+                (driverClassName == DRIVER_CLASS_MYSQL || driverClassName == DRIVER_CLASS_MARIADB)
     }
 
     /**

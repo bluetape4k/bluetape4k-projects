@@ -11,7 +11,7 @@ import java.util.concurrent.ScheduledExecutorService
 /** Suspending adapter for [LettuceFairLock]'s Redis-authoritative FIFO state machine. */
 class LettuceSuspendFairLock internal constructor(
     private val client: FairLockClient,
-) : AutoCloseable {
+): AutoCloseable {
 
     suspend fun tryAcquire(
         ownerId: LockOwnerId,

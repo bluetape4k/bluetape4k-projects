@@ -3,9 +3,13 @@ package io.bluetape4k.redis.lettuce.coordination.internal
 import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeFalse
+import io.bluetape4k.assertions.shouldNotContain
+import io.bluetape4k.logging.KLogging
 import org.junit.jupiter.api.Test
 
 class CoordinationProtocolTest {
+
+    companion object: KLogging()
 
     private val schema = mapOf(
         "acquired" to 3,
@@ -61,10 +65,10 @@ class CoordinationProtocolTest {
         }
 
         failure.classification shouldBeEqualTo CoordinationFailureClassification.INTEGRITY
-        failure.message.orEmpty().contains(rawSecret).shouldBeFalse()
+        failure.message shouldNotContain rawSecret
     }
 
-    private fun assertIntegrityFailure(block: () -> Unit) {
+    private inline fun assertIntegrityFailure(block: () -> Unit) {
         val failure = assertFailsWith<CoordinationProtocolException>(block = block)
         failure.classification shouldBeEqualTo CoordinationFailureClassification.INTEGRITY
     }

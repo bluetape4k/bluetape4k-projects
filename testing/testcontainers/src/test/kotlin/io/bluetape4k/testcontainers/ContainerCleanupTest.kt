@@ -2,12 +2,12 @@ package io.bluetape4k.testcontainers
 
 import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.concurrent.await
+import org.junit.jupiter.api.Test
 import java.util.concurrent.CountDownLatch
-import java.util.concurrent.TimeUnit
 import java.util.concurrent.TimeoutException
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
-import org.junit.jupiter.api.Test
 
 class ContainerCleanupTest {
 
@@ -28,8 +28,8 @@ class ContainerCleanupTest {
             }
         }
 
-        started.await(1, TimeUnit.SECONDS).shouldBeTrue()
-        interrupted.await(1, TimeUnit.SECONDS).shouldBeTrue()
+        started.await(1.seconds).shouldBeTrue()
+        interrupted.await(1.seconds).shouldBeTrue()
     }
 
     @Test

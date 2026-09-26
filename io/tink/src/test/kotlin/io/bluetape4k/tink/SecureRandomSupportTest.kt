@@ -1,10 +1,9 @@
 package io.bluetape4k.tink
 
-import io.bluetape4k.logging.KLogging
-import io.bluetape4k.support.emptyByteArray
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldHaveSize
-import io.bluetape4k.assertions.shouldNotBeEqualTo
+import io.bluetape4k.logging.KLogging
+import io.bluetape4k.support.emptyByteArray
 import org.junit.jupiter.api.Test
 
 class SecureRandomSupportTest {
@@ -31,8 +30,7 @@ class SecureRandomSupportTest {
 
     @Test
     fun `randomBytes generates different values each time`() {
-        val bytes1 = randomBytes(32)
-        val bytes2 = randomBytes(32)
-        bytes1 shouldNotBeEqualTo bytes2
+        val bytes = List(100) { randomBytes(32) }
+        bytes.distinct() shouldHaveSize bytes.size
     }
 }

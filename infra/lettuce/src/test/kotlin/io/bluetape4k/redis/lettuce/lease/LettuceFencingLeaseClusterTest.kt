@@ -8,7 +8,10 @@ import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.assertions.shouldNotBeEqualTo
 import io.bluetape4k.junit5.coroutines.SuspendedJobTester
 import io.bluetape4k.junit5.coroutines.runSuspendIO
+import io.bluetape4k.logging.KLogging
 import io.bluetape4k.redis.lettuce.LettuceTestUtils
+import io.bluetape4k.support.toUtf8Bytes
+import io.bluetape4k.support.toUtf8String
 import io.bluetape4k.testcontainers.storage.RedisClusterServer
 import io.lettuce.core.cluster.SlotHash
 import io.lettuce.core.cluster.api.StatefulRedisClusterConnection
@@ -24,13 +27,25 @@ import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.Timeout
 import java.nio.ByteBuffer
-import java.nio.charset.StandardCharsets
 import java.time.Duration
 import java.util.concurrent.ConcurrentLinkedQueue
 import java.util.concurrent.CyclicBarrier
 
 /** Verifies that one fencing domain remains on one Redis Cluster slot across every execution style. */
 internal class LettuceFencingLeaseClusterTest {
+
+    private companion object: KLogging() {
+        const val CLUSTER_CALLERS: Int = 8
+        const val CLUSTER_ROUNDS: Int = 10
+        val LEASE_TIME: Duration = Duration.ofSeconds(10)
+        val LONGER_LEASE: Duration = Duration.ofSeconds(30)
+
+    }
+
+    @BeforeAll
+    fun warmRedisCluster() {
+        RedisClusterServer.Launcher.redisCluster.isRunning.shouldBeTrue()
+    }
 
     @Test
     @Timeout(30)
@@ -49,7 +64,7 @@ internal class LettuceFencingLeaseClusterTest {
                     repeat(CLUSTER_ROUNDS) { round ->
                         val barrier = CyclicBarrier(CLUSTER_CALLERS)
                         val attempts = ConcurrentLinkedQueue<ClusterAttempt>()
-                        val tasks = List<suspend () -> Unit>(CLUSTER_CALLERS) { caller ->
+                        val tasks = List(CLUSTER_CALLERS) { caller ->
                             val ownerId = FencingOwnerId.from("cluster-owner-$round-$caller")
                             val adapterIndex = caller % adapters.size
                             val task: suspend () -> Unit = {
@@ -73,10 +88,11 @@ internal class LettuceFencingLeaseClusterTest {
                         val winnerAdapter = adapters[winner.adapterIndex]
                         val replay = winnerAdapter.acquire(winner.ownerId, LONGER_LEASE)
                             .shouldBeInstanceOf<FencingAcquireResult.AlreadyOwned>()
+
                         replay.token shouldBeEqualTo winner.token
                         commands.get(keys.counter) shouldBeEqualTo winner.token.sequence.toString()
-                        winnerAdapter.release(winner.ownerId, winner.token) shouldBeEqualTo
-                            FencingReleaseResult.Released
+                        winnerAdapter
+                            .release(winner.ownerId, winner.token) shouldBeEqualTo FencingReleaseResult.Released
                         tokens += winner.token
                     }
 
@@ -130,13 +146,15 @@ internal class LettuceFencingLeaseClusterTest {
         every { connection.sync() } returns syncCommands
         every { connection.async() } returns asyncCommands
         every { connection.codec } returns SplitSlotWireCodec
+
         val config = LettuceFencingLeaseConfig("cluster", "wire-split", 29)
         val keys = FencingLeaseKeys(
             "fence:{cluster:wire-split}:29:lease",
             "fence:{cluster:wire-split}:29:counter",
         )
         SlotHash.getSlot(SplitSlotWireCodec.encodeKey(keys.lease)) shouldNotBeEqualTo
-            SlotHash.getSlot(SplitSlotWireCodec.encodeKey(keys.counter))
+                SlotHash.getSlot(SplitSlotWireCodec.encodeKey(keys.counter))
+
         assertFailsWith<IllegalArgumentException> { LettuceFencingLease(connection, config) }
         assertFailsWith<IllegalArgumentException> { LettuceSuspendFencingLease(connection, config) }
 
@@ -158,12 +176,14 @@ internal class LettuceFencingLeaseClusterTest {
                 override suspend fun bootstrap(): FencingBootstrapResult = lease.bootstrap()
                 override suspend fun acquire(ownerId: FencingOwnerId, leaseTime: Duration): FencingAcquireResult =
                     lease.acquire(ownerId, leaseTime)
+
                 override suspend fun inspect(ownerId: FencingOwnerId): FencingInspectResult = lease.inspect(ownerId)
                 override suspend fun renew(
                     ownerId: FencingOwnerId,
                     token: FencingToken,
                     leaseTime: Duration,
                 ): FencingRenewResult = lease.renew(ownerId, token, leaseTime)
+
                 override suspend fun release(ownerId: FencingOwnerId, token: FencingToken): FencingReleaseResult =
                     lease.release(ownerId, token)
             }
@@ -174,13 +194,16 @@ internal class LettuceFencingLeaseClusterTest {
                 override suspend fun bootstrap(): FencingBootstrapResult = lease.bootstrapAsync().await()
                 override suspend fun acquire(ownerId: FencingOwnerId, leaseTime: Duration): FencingAcquireResult =
                     lease.acquireAsync(ownerId, leaseTime).await()
+
                 override suspend fun inspect(ownerId: FencingOwnerId): FencingInspectResult =
                     lease.inspectAsync(ownerId).await()
+
                 override suspend fun renew(
                     ownerId: FencingOwnerId,
                     token: FencingToken,
                     leaseTime: Duration,
                 ): FencingRenewResult = lease.renewAsync(ownerId, token, leaseTime).await()
+
                 override suspend fun release(ownerId: FencingOwnerId, token: FencingToken): FencingReleaseResult =
                     lease.releaseAsync(ownerId, token).await()
             }
@@ -191,12 +214,14 @@ internal class LettuceFencingLeaseClusterTest {
                 override suspend fun bootstrap(): FencingBootstrapResult = lease.bootstrap()
                 override suspend fun acquire(ownerId: FencingOwnerId, leaseTime: Duration): FencingAcquireResult =
                     lease.acquire(ownerId, leaseTime)
+
                 override suspend fun inspect(ownerId: FencingOwnerId): FencingInspectResult = lease.inspect(ownerId)
                 override suspend fun renew(
                     ownerId: FencingOwnerId,
                     token: FencingToken,
                     leaseTime: Duration,
                 ): FencingRenewResult = lease.renew(ownerId, token, leaseTime)
+
                 override suspend fun release(ownerId: FencingOwnerId, token: FencingToken): FencingReleaseResult =
                     lease.release(ownerId, token)
             }
@@ -220,7 +245,7 @@ internal class LettuceFencingLeaseClusterTest {
     private fun newConfig(suffix: String): LettuceFencingLeaseConfig =
         LettuceFencingLeaseConfig(
             "cluster",
-            "$suffix-${LettuceTestUtils.randomName().substringAfter(':')}",
+            "$suffix-${LettuceTestUtils.randomName().substringAfterLast(':')}",
             31,
         )
 
@@ -236,31 +261,19 @@ internal class LettuceFencingLeaseClusterTest {
         val token: FencingToken,
     )
 
-    private object SplitSlotWireCodec : RedisCodec<String, String> {
+    private object SplitSlotWireCodec: RedisCodec<String, String> {
         override fun decodeKey(bytes: ByteBuffer): String = decode(bytes)
         override fun decodeValue(bytes: ByteBuffer): String = decode(bytes)
         override fun encodeKey(key: String): ByteBuffer =
             encode(if (key.endsWith(":lease")) "wire:{one}" else "wire:{two}")
+
         override fun encodeValue(value: String): ByteBuffer = encode(value)
 
         private fun encode(value: String): ByteBuffer =
-            ByteBuffer.wrap(value.toByteArray(StandardCharsets.UTF_8))
+            ByteBuffer.wrap(value.toUtf8Bytes())
 
         private fun decode(bytes: ByteBuffer): String = bytes.duplicate().let { copy ->
-            ByteArray(copy.remaining()).also(copy::get).toString(StandardCharsets.UTF_8)
-        }
-    }
-
-    private companion object {
-        const val CLUSTER_CALLERS: Int = 8
-        const val CLUSTER_ROUNDS: Int = 10
-        val LEASE_TIME: Duration = Duration.ofSeconds(10)
-        val LONGER_LEASE: Duration = Duration.ofSeconds(30)
-
-        @BeforeAll
-        @JvmStatic
-        fun warmRedisCluster() {
-            RedisClusterServer.Launcher.redisCluster.isRunning.shouldBeTrue()
+            ByteArray(copy.remaining()).also(copy::get).toUtf8String()
         }
     }
 }

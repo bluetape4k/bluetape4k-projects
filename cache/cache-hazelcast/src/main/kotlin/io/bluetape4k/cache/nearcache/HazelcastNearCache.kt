@@ -225,8 +225,7 @@ class HazelcastNearCache<V: Any>(
      * 해당 키가 캐시에 존재하는지 확인한다 (front or IMap).
      */
     override fun containsKey(key: String): Boolean {
-        if (frontCache.containsKey(key)) return true
-        return imap.containsKey(key)
+        return frontCache.containsKey(key) || imap.containsKey(key)
     }
 
     /**

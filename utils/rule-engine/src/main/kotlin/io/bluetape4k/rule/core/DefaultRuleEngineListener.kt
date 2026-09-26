@@ -26,10 +26,10 @@ class DefaultRuleEngineListener(
     companion object: KLogging()
 
     override fun beforeEvaluate(rules: Iterable<Rule>, facts: Facts) {
-        if (!rules.iterator().hasNext()) {
-            log.warn { "No rules registered! Nothing to apply." }
-        } else {
+        if (rules.iterator().hasNext()) {
             log.debug { "config=$config, rules=$rules, ${facts.toLogContext()}, Ruleset evaluation started ..." }
+        } else {
+            log.warn { "No rules registered! Nothing to apply." }
         }
     }
 

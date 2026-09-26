@@ -6,6 +6,7 @@ dependencies {
     api(project(":bluetape4k-tenant"))
     api(libs.ktor.server.core)
 
+    testImplementation(project(":bluetape4k-core"))
     testImplementation(project(":bluetape4k-junit5"))
     testImplementation(libs.ktor.server.test.host)
 }

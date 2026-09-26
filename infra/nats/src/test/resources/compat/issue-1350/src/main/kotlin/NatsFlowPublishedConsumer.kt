@@ -29,17 +29,17 @@ fun main() = runBlocking {
         when (method.name) {
             "getPendingMessageLimit" -> 1_024L
             "getPendingByteLimit" -> 16L * 1024 * 1024
-            "getDroppedCount" -> 0L
-            "nextMessage" -> {
+            "getDroppedCount"     -> 0L
+            "nextMessage"         -> {
                 probe.pushReceiveEntered.set(true)
                 null
             }
-            "isActive" -> true
-            "unsubscribe" -> {
+            "isActive"            -> true
+            "unsubscribe"         -> {
                 probe.pushClosed.set(true)
                 Unit
             }
-            else -> defaultValue(method.returnType)
+            else                  -> defaultValue(method.returnType)
         }
     }
     val jetStream = proxy<JetStream> { method, _ ->
@@ -57,11 +57,11 @@ fun main() = runBlocking {
                 null
             }
             "isStopped", "isFinished" -> false
-            "close" -> {
+            "close"       -> {
                 probe.pullClosed.set(true)
                 Unit
             }
-            else -> defaultValue(method.returnType)
+            else          -> defaultValue(method.returnType)
         }
     }
     val consumerContext = proxy<ConsumerContext> { method, _ ->
@@ -89,14 +89,14 @@ private inline fun <reified T> proxy(
 ) as T
 
 private fun defaultValue(type: Class<*>): Any? = when {
-    !type.isPrimitive -> null
+    !type.isPrimitive                       -> null
     type == Boolean::class.javaPrimitiveType -> false
-    type == Char::class.javaPrimitiveType -> '\u0000'
-    type == Byte::class.javaPrimitiveType -> 0.toByte()
-    type == Short::class.javaPrimitiveType -> 0.toShort()
-    type == Int::class.javaPrimitiveType -> 0
-    type == Long::class.javaPrimitiveType -> 0L
-    type == Float::class.javaPrimitiveType -> 0.0f
+    type == Char::class.javaPrimitiveType   -> '\u0000'
+    type == Byte::class.javaPrimitiveType   -> 0.toByte()
+    type == Short::class.javaPrimitiveType  -> 0.toShort()
+    type == Int::class.javaPrimitiveType    -> 0
+    type == Long::class.javaPrimitiveType   -> 0L
+    type == Float::class.javaPrimitiveType  -> 0.0f
     type == Double::class.javaPrimitiveType -> 0.0
-    else -> null
+    else                                    -> null
 }

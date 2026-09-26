@@ -1,8 +1,8 @@
 package io.bluetape4k.ktor.observability
 
 import io.bluetape4k.support.requireNotBlank
+import io.bluetape4k.support.requireStartsWith
 import io.ktor.http.ContentType
-import io.ktor.server.application.call
 import io.ktor.server.response.respondText
 import io.ktor.server.routing.Route
 import io.ktor.server.routing.get
@@ -29,8 +29,7 @@ fun Route.prometheusScrapeRoute(
     }
 }
 
-private fun String.requireAbsoluteKtorPath(parameterName: String): String {
+private fun String.requireAbsoluteKtorPath(parameterName: String): String = apply {
     requireNotBlank(parameterName)
-    require(startsWith("/")) { "$parameterName[$this] must start with '/'." }
-    return this
+    requireStartsWith("/", parameterName)
 }

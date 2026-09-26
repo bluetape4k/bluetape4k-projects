@@ -1,6 +1,7 @@
 package io.bluetape4k.kafka.codec
 
 import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeInstanceOf
 import io.bluetape4k.assertions.shouldBeNull
 import io.bluetape4k.assertions.shouldNotBeNull
 import io.bluetape4k.logging.KLogging
@@ -26,7 +27,7 @@ class JacksonKafkaCodecSecurityTest {
         val codec = JacksonKafkaCodec() // default: allowedTypePackages = emptySet()
 
         val writingCodec = JacksonKafkaCodec(
-            allowedTypePackages = AbstractKafkaCodec.ALLOW_ALL_TYPES_UNSAFE
+            allowedTypePackages = KafkaCodec.ALLOW_ALL_TYPES_UNSAFE
         )
         val headers = RecordHeaders()
         val dto = TrustedDto("hello")
@@ -49,15 +50,15 @@ class JacksonKafkaCodecSecurityTest {
         val bytes = codec.serialize("topic", headers, dto)
         bytes.shouldNotBeNull()
 
-        val result = codec.deserialize("topic", headers, bytes) as TrustedDto
-        result.shouldNotBeNull()
+        val result = codec.deserialize("topic", headers, bytes)
+        result.shouldBeInstanceOf<TrustedDto>()
         result.value shouldBeEqualTo "world"
     }
 
     @Test
     fun `ALLOW_ALL_TYPES_UNSAFE opt-in restores legacy behavior`() {
         val codec = JacksonKafkaCodec(
-            allowedTypePackages = AbstractKafkaCodec.ALLOW_ALL_TYPES_UNSAFE
+            allowedTypePackages = KafkaCodec.ALLOW_ALL_TYPES_UNSAFE
         )
 
         val headers = RecordHeaders()
@@ -65,15 +66,15 @@ class JacksonKafkaCodecSecurityTest {
         val bytes = codec.serialize("topic", headers, dto)
         bytes.shouldNotBeNull()
 
-        val result = codec.deserialize("topic", headers, bytes) as TrustedDto
-        result.shouldNotBeNull()
+        val result = codec.deserialize("topic", headers, bytes)
+        result.shouldBeInstanceOf<TrustedDto>()
         result.value shouldBeEqualTo "unsafe-but-intentional"
     }
 
     @Test
     fun `class outside allowedTypePackages is rejected`() {
         val writingCodec = JacksonKafkaCodec(
-            allowedTypePackages = AbstractKafkaCodec.ALLOW_ALL_TYPES_UNSAFE
+            allowedTypePackages = KafkaCodec.ALLOW_ALL_TYPES_UNSAFE
         )
         val readingCodec = JacksonKafkaCodec(
             allowedTypePackages = setOf("com.example.trusted")

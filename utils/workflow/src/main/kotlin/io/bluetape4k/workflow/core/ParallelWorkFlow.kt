@@ -96,14 +96,14 @@ class ParallelWorkFlow(
             log.debug { "$flowName: fail-fast report 감지 - status=${e.report.status}" }
             e.report
         } catch (e: TimeoutException) {
-            log.debug { "$flowName: timeout 초과 ($timeout) - Cancelled 반환" }
+            log.debug(e) { "$flowName: timeout 초과 ($timeout) - Cancelled 반환" }
             WorkReport.Cancelled(context)
         } catch (e: InterruptedException) {
             Thread.currentThread().interrupt()
-            log.debug { "$flowName: interrupted - Cancelled 반환" }
+            log.debug(e) { "$flowName: interrupted - Cancelled 반환" }
             WorkReport.Cancelled(context)
         } catch (e: Exception) {
-            log.debug { "$flowName: fail-fast 예외 발생 - ${e.message}" }
+            log.debug(e) { "$flowName: fail-fast 예외 발생 - ${e.message}" }
             WorkReport.Failure(context, e)
         }
     }
@@ -157,7 +157,7 @@ class ParallelWorkFlow(
                     ?: WorkReport.failure(context, RuntimeException("$flowName: 모든 작업이 실패했습니다"))
             }
         } catch (e: TimeoutException) {
-            log.debug { "$flowName: timeout 초과 ($timeout) - Cancelled 반환 (ANY)" }
+            log.debug(e) { "$flowName: timeout 초과 ($timeout) - Cancelled 반환 (ANY)" }
             WorkReport.Cancelled(context)
         }
     }
@@ -171,7 +171,8 @@ class ParallelWorkFlow(
  *
  * 구조화된 동시성 primitive는 정상 반환을 성공으로 간주하므로, 실패/중단/취소 결과를 예외로 전환합니다.
  */
-internal class WorkNotSuccessException(val report: WorkReport): RuntimeException("Work not successful: ${report.status}") {
+internal class WorkNotSuccessException(val report: WorkReport):
+    RuntimeException("Work not successful: ${report.status}") {
     // 제어 흐름용 예외 — 스택 캡처 비용 없이 빠른 경로 처리
     override fun fillInStackTrace(): Throwable = this
 }

@@ -2,7 +2,7 @@ package io.bluetape4k.logging
 
 import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.assertions.shouldNotBeBlank
 import io.bluetape4k.assertions.shouldNotBeNull
 import org.junit.jupiter.api.Test
 
@@ -44,6 +44,6 @@ class KotlinLoggingTest {
         class LocalClass
 
         val logger = KotlinLogging.logger(LocalClass::class)
-        logger.name.isNotBlank().shouldBeTrue()
+        logger.name.shouldNotBeBlank()
     }
 }

@@ -1,5 +1,8 @@
 package io.bluetape4k.javatimes.range
 
+import io.bluetape4k.assertions.assertFailsWith
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldHaveSize
 import io.bluetape4k.javatimes.add
 import io.bluetape4k.javatimes.days
 import io.bluetape4k.javatimes.hours
@@ -15,7 +18,6 @@ import io.bluetape4k.logging.trace
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.test.runTest
-import io.bluetape4k.assertions.shouldBeEqualTo
 import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import java.time.Instant
@@ -27,7 +29,6 @@ import java.time.OffsetTime
 import java.time.ZonedDateTime
 import java.time.temporal.Temporal
 import java.time.temporal.TemporalAmount
-import io.bluetape4k.assertions.assertFailsWith
 
 
 @Suppress("UNCHECKED_CAST")
@@ -62,7 +63,7 @@ abstract class TemporalOpenedRangeTest<T> where T: Temporal, T: Comparable<T> {
 
         empty1 shouldBeEqualTo empty2
         empty1.hashCode() shouldBeEqualTo empty2.hashCode()
-        setOf(empty1, empty2).size shouldBeEqualTo 1
+        setOf(empty1, empty2) shouldHaveSize 1
     }
 
     @Test
@@ -83,7 +84,7 @@ abstract class TemporalOpenedRangeTest<T> where T: Temporal, T: Comparable<T> {
             .onEach { log.trace { "windowed $it" } }
             .toList()
 
-        windowed.size shouldBeEqualTo 5
+        windowed shouldHaveSize 5
     }
 
     @Test
@@ -96,7 +97,7 @@ abstract class TemporalOpenedRangeTest<T> where T: Temporal, T: Comparable<T> {
             .onEach { log.trace { "chunked $it" } }
             .toList()
 
-        chunked.size shouldBeEqualTo 2
+        chunked shouldHaveSize 2
     }
 }
 

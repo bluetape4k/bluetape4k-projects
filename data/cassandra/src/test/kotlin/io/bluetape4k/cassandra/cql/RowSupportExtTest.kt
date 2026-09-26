@@ -19,23 +19,22 @@ class RowSupportExtTest: AbstractCassandraTest() {
     companion object: KLoggingChannel()
 
     @BeforeAll
-    fun setup() {
-        runSuspendIO {
-            session.executeSuspending("DROP TABLE IF EXISTS row_ext_table")
-            session.executeSuspending(
-                "CREATE TABLE IF NOT EXISTS row_ext_table (id text PRIMARY KEY, name text, num int);"
-            )
-            session.executeSuspending("TRUNCATE row_ext_table")
-            val ps = session.prepareSuspending("INSERT INTO row_ext_table(id, name, num) VALUES(?, ?, ?)")
-            session.executeSuspending(ps.bind("1", "Alice", 42))
-            // name 이 null 인 행 추가
-            session.executeSuspending("INSERT INTO row_ext_table(id, num) VALUES('2', 99)")
-        }
+    fun setup() = runSuspendIO {
+        session.executeSuspending("DROP TABLE IF EXISTS row_ext_table")
+        session.executeSuspending("CREATE TABLE IF NOT EXISTS row_ext_table (id text PRIMARY KEY, name text, num int);")
+        session.executeSuspending("TRUNCATE row_ext_table")
+
+        val ps = session.prepareSuspending("INSERT INTO row_ext_table(id, name, num) VALUES(?, ?, ?)")
+        session.executeSuspending(ps.bind("1", "Alice", 42))
+
+        // name 이 null 인 행 추가
+        session.executeSuspending("INSERT INTO row_ext_table(id, num) VALUES('2', 99)")
     }
 
     @Test
     fun `getStringOrEmpty 는 값이 있는 경우 문자열을 반환한다`() = runSuspendIO {
-        val row = session.executeSuspending("SELECT * FROM row_ext_table WHERE id=?", "1").one()
+        val row = session
+            .executeSuspending("SELECT * FROM row_ext_table WHERE id=?", "1").one()
             ?: error("행이 없습니다")
 
         row.getStringOrEmpty(0).shouldNotBeEmpty()
@@ -45,7 +44,8 @@ class RowSupportExtTest: AbstractCassandraTest() {
 
     @Test
     fun `getStringOrEmpty 는 null 컬럼에 대해 빈 문자열을 반환한다`() = runSuspendIO {
-        val row = session.executeSuspending("SELECT id, name FROM row_ext_table WHERE id=?", "2").one()
+        val row = session
+            .executeSuspending("SELECT id, name FROM row_ext_table WHERE id=?", "2").one()
             ?: error("행이 없습니다")
 
         // name 컬럼은 null
@@ -55,7 +55,8 @@ class RowSupportExtTest: AbstractCassandraTest() {
 
     @Test
     fun `map 은 인덱스를 키로 변환 결과를 반환한다`() = runSuspendIO {
-        val row = session.executeSuspending("SELECT id, name, num FROM row_ext_table WHERE id=?", "1").one()
+        val row = session
+            .executeSuspending("SELECT id, name, num FROM row_ext_table WHERE id=?", "1").one()
             ?: error("행이 없습니다")
 
         val mapped = row.map { it?.toString() ?: "" }
@@ -66,7 +67,8 @@ class RowSupportExtTest: AbstractCassandraTest() {
 
     @Test
     fun `mapWithName 은 컬럼명을 키로 변환 결과를 반환한다`() = runSuspendIO {
-        val row = session.executeSuspending("SELECT id, name, num FROM row_ext_table WHERE id=?", "1").one()
+        val row = session
+            .executeSuspending("SELECT id, name, num FROM row_ext_table WHERE id=?", "1").one()
             ?: error("행이 없습니다")
 
         val mapped = row.mapWithName { it?.toString() ?: "" }
@@ -77,7 +79,8 @@ class RowSupportExtTest: AbstractCassandraTest() {
 
     @Test
     fun `toCqlIdentifierMap 은 CqlIdentifier 를 키로 반환한다`() = runSuspendIO {
-        val row = session.executeSuspending("SELECT id, name, num FROM row_ext_table WHERE id=?", "1").one()
+        val row = session
+            .executeSuspending("SELECT id, name, num FROM row_ext_table WHERE id=?", "1").one()
             ?: error("행이 없습니다")
 
         val idMap = row.toCqlIdentifierMap()
@@ -88,7 +91,8 @@ class RowSupportExtTest: AbstractCassandraTest() {
 
     @Test
     fun `mapWithCqlIdentifier 는 CqlIdentifier 를 키로 변환 결과를 반환한다`() = runSuspendIO {
-        val row = session.executeSuspending("SELECT id, name, num FROM row_ext_table WHERE id=?", "1").one()
+        val row = session
+            .executeSuspending("SELECT id, name, num FROM row_ext_table WHERE id=?", "1").one()
             ?: error("행이 없습니다")
 
         val mapped = row.mapWithCqlIdentifier { it?.toString() ?: "" }

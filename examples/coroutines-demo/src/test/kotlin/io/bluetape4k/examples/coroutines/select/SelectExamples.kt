@@ -1,15 +1,16 @@
 package io.bluetape4k.examples.coroutines.select
 
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.coroutines.support.log
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import kotlinx.coroutines.async
+import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.produce
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.selects.select
 import kotlinx.coroutines.test.runTest
-import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldContain
 import org.junit.jupiter.api.Test
 import kotlin.time.Duration.Companion.milliseconds
 
@@ -21,6 +22,7 @@ import kotlin.time.Duration.Companion.milliseconds
  * - `onSend`: 여유가 있는 채널에 먼저 전송
  */
 class SelectExamples {
+
     companion object: KLoggingChannel()
 
     /**
@@ -33,12 +35,12 @@ class SelectExamples {
         val slow = async {
             delay(200.milliseconds)
             "느린 응답"
-        }
+        }.log("Slow Job")
 
         val fast = async {
             delay(100.milliseconds)
             "빠른 응답"
-        }
+        }.log("Fast Job")
 
         // 먼저 수행한 결과를 선택
         val result = select {
@@ -50,8 +52,8 @@ class SelectExamples {
         result shouldBeEqualTo "빠른 응답"
 
         // 나머지 코루틴도 정리
-        fast.cancel()
-        slow.cancel()
+        fast.cancelAndJoin()
+        slow.cancelAndJoin()
     }
 
     /**
@@ -90,29 +92,27 @@ class SelectExamples {
      */
     @Test
     fun `select를 반복하여 복수 채널에서 번갈아 수신`() = runTest {
-        val channel1 =
-            produce {
-                repeat(3) {
-                    delay(150.milliseconds)
-                    send("A$it")
-                }
+        val channel1 = produce {
+            repeat(3) {
+                delay(150.milliseconds)
+                send("A$it")
             }
-        val channel2 =
-            produce {
-                repeat(3) {
-                    delay(100.milliseconds)
-                    send("B$it")
-                }
+        }
+        val channel2 = produce {
+            repeat(3) {
+                delay(100.milliseconds)
+                send("B$it")
             }
+        }
 
         val received = mutableListOf<String>()
+
         // 채널이 닫힐 수 있으므로 onReceiveCatching 사용
         repeat(6) {
-            val result =
-                select {
-                    channel1.onReceiveCatching { it.getOrNull() }
-                    channel2.onReceiveCatching { it.getOrNull() }
-                }
+            val result = select {
+                channel1.onReceiveCatching { it.getOrNull() }
+                channel2.onReceiveCatching { it.getOrNull() }
+            }
             if (result != null) {
                 received.add(result)
                 log.debug { "수신: $result" }
@@ -120,8 +120,7 @@ class SelectExamples {
         }
 
         log.debug { "전체 수신: $received" }
-        received shouldContain "A0"
-        received shouldContain "B0"
+        received shouldBeEqualTo listOf("B0", "A0", "B1", "A1", "B2")
 
         // 남은 produce 코루틴 정리
         channel1.cancel()
@@ -141,12 +140,12 @@ class SelectExamples {
 
         // channel1은 가득 차 있으므로 channel2에 전송됨
         select {
-            channel1.onSend("새 데이터") { log.debug { "channel1에 전송" } }
-            channel2.onSend("새 데이터") { log.debug { "channel2에 전송" } }
+            channel1.onSend("새 데이터 1") { log.debug { "channel1에 전송" } }
+            channel2.onSend("새 데이터 2") { log.debug { "channel2에 전송" } }
         }
 
         val result = channel2.receive()
-        result shouldBeEqualTo "새 데이터"
+        result shouldBeEqualTo "새 데이터 2"
         log.debug { "channel2에서 수신: $result" }
 
         channel1.close()

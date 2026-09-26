@@ -86,8 +86,8 @@ abstract class AbstractSuspendRecordReaderTest {
                     val row = record.values
                     row.shouldNotBeEmpty()
                     row.size shouldBeGreaterThan 1
-                    row[0]!!.shouldNotBeBlank()
-                    row[4]!!.shouldNotBeBlank()
+                    row[0].shouldNotBeBlank()
+                    row[4].shouldNotBeBlank()
                 }
         }
     }

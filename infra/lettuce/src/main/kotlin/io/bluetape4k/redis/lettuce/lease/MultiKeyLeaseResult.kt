@@ -215,7 +215,7 @@ class MultiKeyLeaseIntegrityException(
     val invalidLeaseKeyCount: Int,
 ): IllegalStateException(
     "Multi-key lease integrity failure: operation=$operation, " +
-        "requestedKeyCount=$requestedKeyCount, invalidLeaseKeyCount=$invalidLeaseKeyCount.",
+            "requestedKeyCount=$requestedKeyCount, invalidLeaseKeyCount=$invalidLeaseKeyCount.",
 ) {
     private companion object {
         private const val serialVersionUID: Long = 1L

@@ -1,10 +1,10 @@
 package io.bluetape4k.geohash.utils
 
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeNear
 import io.bluetape4k.geohash.BoundingBox
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
-import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldBeNear
 import org.junit.jupiter.api.Test
 import kotlin.random.Random
 

@@ -1,11 +1,12 @@
-@file:Suppress("DEPRECATION")
-
 package io.bluetape4k.protobuf.serializers.redis
 
 import com.google.protobuf.ByteString
 import com.google.protobuf.timestamp
 import io.bluetape4k.assertions.assertFailsWith
+import io.bluetape4k.assertions.shouldBe
 import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeInstanceOf
+import io.bluetape4k.assertions.shouldBeNull
 import io.bluetape4k.junit5.faker.Fakers
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.protobuf.redis.messages.RedisSimpleMessage
@@ -28,6 +29,7 @@ import java.io.Serializable
 import java.nio.ByteBuffer
 import java.time.Instant
 
+@Suppress("DEPRECATION")
 class RedissonProtobufCodecTest: AbstractRedissonTest() {
 
     companion object: KLogging() {
@@ -402,11 +404,11 @@ class RedissonProtobufCodecTest: AbstractRedissonTest() {
                         val actual = assertFailsWith<IllegalStateException> {
                             codec.valueDecoder.decode(input, State())
                         }
-                        (actual === expectedFailure) shouldBeEqualTo true
+                        actual shouldBe expectedFailure
                     }
                 }
                 input.boundedNioCalls shouldBeEqualTo 1
-                fallback.seen!!.refCnt() shouldBeEqualTo 0
+                fallback.seen?.refCnt() shouldBeEqualTo 0
             } finally {
                 input.release()
             }
@@ -428,7 +430,7 @@ class RedissonProtobufCodecTest: AbstractRedissonTest() {
                 codec.valueDecoder.decode(input, State()) shouldBeEqualTo "fallback"
             }
             input.boundedNioCalls shouldBeEqualTo 1
-            fallback.seen!!.refCnt() shouldBeEqualTo 0
+            fallback.seen?.refCnt() shouldBeEqualTo 0
         } finally {
             input.release()
         }
@@ -469,7 +471,7 @@ class RedissonProtobufCodecTest: AbstractRedissonTest() {
                 val actual = assertFailsWith<AssertionError> {
                     codec.valueDecoder.decode(input, State())
                 }
-                (actual === failure) shouldBeEqualTo true
+                actual shouldBe failure
             }
             fallback.seen shouldBeEqualTo null
         } finally {
@@ -491,9 +493,9 @@ class RedissonProtobufCodecTest: AbstractRedissonTest() {
                     codec.valueDecoder.decode(callerInput, State())
                 }
                 if (behavior == HostileBehavior.THROW_AFTER_RETAIN) {
-                    (failure === fallback.sentinel) shouldBeEqualTo true
+                    failure shouldBe fallback.sentinel
                 } else {
-                    (failure is SecurityException) shouldBeEqualTo true
+                    failure.shouldBeInstanceOf<SecurityException>()
                 }
                 fallback.calls shouldBeEqualTo 1
                 fallback.seen!!.refCnt() shouldBeEqualTo 0
@@ -518,7 +520,7 @@ class RedissonProtobufCodecTest: AbstractRedissonTest() {
             releaseOwnedBuffer(owned, operationFailure)
 
             operationFailure.suppressed.size shouldBeEqualTo 1
-            (operationFailure.suppressed.single() === cleanupFailure) shouldBeEqualTo true
+            operationFailure.suppressed.single() shouldBe cleanupFailure
             owned.refCnt() shouldBeEqualTo 1
         } finally {
             owned.forceReleaseDelegate()
@@ -542,7 +544,7 @@ class RedissonProtobufCodecTest: AbstractRedissonTest() {
                 }
             }
             input.boundedNioCalls shouldBeEqualTo 1
-            fallback.seen shouldBeEqualTo null
+            fallback.seen.shouldBeNull()
         } finally {
             input.release()
         }

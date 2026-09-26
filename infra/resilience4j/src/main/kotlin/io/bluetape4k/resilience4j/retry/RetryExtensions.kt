@@ -23,8 +23,8 @@ import java.util.concurrent.ScheduledExecutorService
  * @param runnable 실행할 작업
  * @return Retry 를 적용한 Runnable
  */
-inline fun Retry.runnable(
-    crossinline runnable: () -> Unit,
+fun Retry.runnable(
+    runnable: () -> Unit,
 ): Runnable {
     return Retry.decorateRunnable(this) { runnable() }
 }
@@ -45,8 +45,8 @@ inline fun Retry.runnable(
  * @param runnable 실행할 작업
  * @return Retry 를 적용한 Runnable
  */
-inline fun Retry.checkedRunnable(
-    crossinline runnable: () -> Unit,
+fun Retry.checkedRunnable(
+    runnable: () -> Unit,
 ): CheckedRunnable {
     return Retry.decorateCheckedRunnable(this) { runnable() }
 }
@@ -68,8 +68,8 @@ inline fun Retry.checkedRunnable(
  * @param callable 실행할 작업
  * @return Retry 를 적용한 Callable
  */
-inline fun <T> Retry.callable(
-    crossinline callable: () -> T,
+fun <T> Retry.callable(
+    callable: () -> T,
 ): () -> T = {
     Retry.decorateCallable(this) { callable() }.call()
 }
@@ -91,8 +91,8 @@ inline fun <T> Retry.callable(
  * @param supplier 실행할 작업
  * @return Retry 를 적용한 Supplier
  */
-inline fun <T> Retry.supplier(
-    crossinline supplier: () -> T,
+fun <T> Retry.supplier(
+    supplier: () -> T,
 ): () -> T = {
     Retry.decorateSupplier(this) { supplier() }.get()
 }
@@ -114,8 +114,8 @@ inline fun <T> Retry.supplier(
  * @param supplier 실행할 작업
  * @return Retry 를 적용한 Supplier
  */
-inline fun <T> Retry.checkedSupplier(
-    crossinline supplier: () -> T,
+fun <T> Retry.checkedSupplier(
+    supplier: () -> T,
 ): () -> T = {
     Retry.decorateCheckedSupplier(this) { supplier() }.get()
 }
@@ -135,8 +135,8 @@ inline fun <T> Retry.checkedSupplier(
  * @param func 실행할 작업
  * @return Retry 를 적용한 Function
  */
-inline fun <T, R> Retry.function(
-    crossinline func: (T) -> R,
+fun <T, R> Retry.function(
+    func: (T) -> R,
 ): (T) -> R = { input ->
     Retry.decorateFunction<T, R>(this) { func(it) }.apply(input)
 }
@@ -156,8 +156,8 @@ inline fun <T, R> Retry.function(
  * @param func 실행할 작업
  * @return Retry 를 적용한 Function
  */
-inline fun <T, R> Retry.checkedFunction(
-    crossinline func: (T) -> R,
+fun <T, R> Retry.checkedFunction(
+    func: (T) -> R,
 ): (T) -> R = { input ->
     Retry.decorateCheckedFunction<T, R>(this) { func(it) }.apply(input)
 }
@@ -181,10 +181,10 @@ inline fun <T, R> Retry.checkedFunction(
  * @param supplier 실행할 비동기 Supplier
  * @return Retry 를 적용한 비동기 Supplier
  */
-inline fun <T, R> withRetry(
+fun <T, R> withRetry(
     retry: Retry,
     scheduler: ScheduledExecutorService? = null,
-    crossinline supplier: (T) -> CompletableFuture<R>,
+    supplier: (T) -> CompletableFuture<R>,
 ): (T) -> CompletableFuture<R> = { input: T ->
     val handle = SchedulerHandle.acquire(scheduler)
     handle.execute { executor ->
@@ -213,9 +213,9 @@ inline fun <T, R> withRetry(
  * @param supplier 실행할 작업
  * @return Retry 를 적용한 Supplier
  */
-inline fun <T> Retry.completionStage(
+fun <T> Retry.completionStage(
     scheduler: ScheduledExecutorService? = null,
-    crossinline supplier: () -> CompletionStage<T>,
+    supplier: () -> CompletionStage<T>,
 ): () -> CompletionStage<T> = {
     val handle = SchedulerHandle.acquire(scheduler)
     handle.execute { executor ->
@@ -240,9 +240,9 @@ inline fun <T> Retry.completionStage(
  * @param func 실행할 비동기 작업
  * @return Retry 를 적용한 비동기 Function
  */
-inline fun <T, R> Retry.completableFutureFunction(
+fun <T, R> Retry.completableFutureFunction(
     scheduler: ScheduledExecutorService? = null,
-    crossinline func: (T) -> CompletableFuture<R>,
+    func: (T) -> CompletableFuture<R>,
 ): (T) -> CompletableFuture<R> {
     return completableFuture(scheduler, func)
 }
@@ -261,9 +261,9 @@ inline fun <T, R> Retry.completableFutureFunction(
  * @param func 실행할 비동기 작업
  * @return Retry 를 적용한 비동기 Function
  */
-inline fun <T, R> Retry.completableFuture(
+fun <T, R> Retry.completableFuture(
     scheduler: ScheduledExecutorService? = null,
-    crossinline func: (T) -> CompletableFuture<R>,
+    func: (T) -> CompletableFuture<R>,
 ): (T) -> CompletableFuture<R> = { input: T ->
     val handle = SchedulerHandle.acquire(scheduler)
     handle.execute { executor ->

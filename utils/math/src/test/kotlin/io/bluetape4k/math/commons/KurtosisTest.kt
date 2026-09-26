@@ -6,7 +6,9 @@ import org.junit.jupiter.api.Test
 
 class KurtosisTest {
 
-    companion object: KLogging()
+    companion object: KLogging() {
+        private const val EPSILON = 1e-10
+    }
 
     @Test
     fun `Iterable kurtosis 가 동작한다`() {
@@ -36,6 +38,6 @@ class KurtosisTest {
         val values = listOf(2.0, 4.0, 6.0, 8.0, 10.0, 12.0, 14.0, 16.0)
         val iterableResult = values.kurtosis()
         val sequenceResult = values.asSequence().kurtosis()
-        iterableResult.shouldBeNear(sequenceResult, 1e-10)
+        iterableResult.shouldBeNear(sequenceResult, EPSILON)
     }
 }

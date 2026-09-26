@@ -2,12 +2,11 @@
 
 [English](./README.md) | 한국어
 
-`bluetape4k-cache-lettuce`는 Lettuce(Redis) 기반 JCache Provider와 NearCache 구현을 제공합니다.
+`bluetape4k-cache-lettuce`는 Lettuce (Redis) 기반 JCache Provider와 NearCache 구현을 제공합니다.
 
 ## 패키지 / import 안정성
 
-cache 폴더 재편으로 소스 위치는 `cache/cache-lettuce/`가 되었지만 Gradle 프로젝트 이름, Maven artifact,
-Kotlin package는 유지됩니다.
+cache 폴더 재편으로 소스 위치는 `cache/cache-lettuce/`가 되었지만 Gradle 프로젝트 이름, Maven artifact, Kotlin package는 유지됩니다.
 
 - Gradle project: `:bluetape4k-cache-lettuce`
 - Maven artifact: `io.github.bluetape4k:bluetape4k-cache-lettuce`
@@ -27,10 +26,10 @@ dependencies {
 
 ### Memoizer (함수 결과 Redis 캐싱)
 
-| 클래스                            | 설명                                                               |
-|--------------------------------|------------------------------------------------------------------|
-| `LettuceMemoizer<K, V>`        | `LettuceMap<V>` 기반 동기 메모이제이션 (`Memoizer<K,V>` 인터페이스)             |
-| `LettuceAsyncMemoizer<K, V>`   | `LettuceMap<V>` 기반 비동기 메모이제이션 (`AsyncMemoizer<K,V>` 인터페이스)       |
+| 클래스                         | 설명                                                                          |
+|--------------------------------|-------------------------------------------------------------------------------|
+| `LettuceMemoizer<K, V>`        | `LettuceMap<V>` 기반 동기 메모이제이션 (`Memoizer<K,V>` 인터페이스)           |
+| `LettuceAsyncMemoizer<K, V>`   | `LettuceMap<V>` 기반 비동기 메모이제이션 (`AsyncMemoizer<K,V>` 인터페이스)    |
 | `LettuceSuspendMemoizer<K, V>` | `LettuceMap<V>` 기반 suspend 메모이제이션 (`SuspendMemoizer<K,V>` 인터페이스) |
 
 ```kotlin
@@ -73,24 +72,23 @@ val suspendResult = suspendMemoizer(5L)  // 120L
 
 ### NearCache (2-Tier Cache)
 
-Caffeine(로컬) + Redis(분산) 2단계 캐시로, RESP3 CLIENT TRACKING을 통한 자동 invalidation을 지원합니다.
+Caffeine (로컬) + Redis (분산) 2단계 캐시로, RESP3 CLIENT TRACKING을 통한 자동 invalidation을 지원합니다.
 
-| 클래스                                     | 설명                                                 |
-|-----------------------------------------|----------------------------------------------------|
-| `LettuceNearCache<V>`                   | 동기(Blocking) 2-Tier 캐시 (write-through)             |
-| `LettuceSuspendNearCache<V>`            | Coroutines(suspend) 2-Tier 캐시 (write-through)      |
-| `ResilientLettuceNearCache<V>`          | write-behind + retry + graceful degradation 동기 구현  |
+| 클래스                                  | 설명                                                    |
+|-----------------------------------------|---------------------------------------------------------|
+| `LettuceNearCache<V>`                   | 동기(Blocking) 2-Tier 캐시 (write-through)              |
+| `LettuceSuspendNearCache<V>`            | Coroutines(suspend) 2-Tier 캐시 (write-through)         |
+| `ResilientLettuceNearCache<V>`          | write-behind + retry + graceful degradation 동기 구현   |
 | `ResilientLettuceSuspendNearCache<V>`   | write-behind + retry + graceful degradation 코루틴 구현 |
-| `LettuceNearCacheConfig<K, V>`          | NearCache 설정 data class + DSL 빌더                   |
+| `LettuceNearCacheConfig<K, V>`          | NearCache 설정 data class + DSL 빌더                    |
 | `ResilientLettuceNearCacheConfig<K, V>` | Resilient NearCache 추가 설정 (retry, queue 등)         |
-| `LocalCache<K, V>`                      | front cache 추상 인터페이스                               |
-| `CaffeineLocalCache<K, V>`              | Caffeine 기반 LocalCache 구현                          |
-| `TrackingInvalidationListener<V>`       | RESP3 CLIENT TRACKING push 리스너                     |
+| `LocalCache<K, V>`                      | front cache 추상 인터페이스                             |
+| `CaffeineLocalCache<K, V>`              | Caffeine 기반 LocalCache 구현                           |
+| `TrackingInvalidationListener<V>`       | RESP3 CLIENT TRACKING push 리스너                       |
 
 ## Redis URI 로깅
 
-Provider는 Redis URI의 user information, query와 semicolon option을 로그에 남기기 전에 redaction합니다. 진단에
-필요한 host, port, path와 민감하지 않은 option은 유지하고 percent encoded 값을 포함한 자격증명 값은
+Provider는 Redis URI의 user information, query와 semicolon option을 로그에 남기기 전에 redaction합니다. 진단에 필요한 host, port, path와 민감하지 않은 option은 유지하고 percent encoded 값을 포함한 자격증명 값은
 `<redacted>`로 치환합니다. URI가 malformed이거나 구조가 모호하면 `<redacted-uri>`로 기록합니다.
 
 이 경계는 Lettuce Provider의 URI 로깅에 적용됩니다. JDBC/R2DBC URL 정책을 다루는
@@ -98,22 +96,16 @@ Provider는 Redis URI의 user information, query와 semicolon option을 로그�
 
 ### Near-Cache Capability
 
-Lettuce native/JCache NearCache는 공통 conformance suite에서 supported로 검증됩니다.
-Native `LettuceNearCache` / `LettuceSuspendNearCache`는 Redis RESP3 `CLIENT TRACKING`과 write-through를 사용합니다.
-JCache 변형은 cache-entry listener로 peer front-cache 전파를 지원합니다.
+Lettuce native/JCache NearCache는 공통 conformance suite에서 supported로 검증됩니다. Native `LettuceNearCache` / `LettuceSuspendNearCache`는 Redis RESP3 `CLIENT TRACKING`과 write-through를 사용합니다. JCache 변형은 cache-entry listener로 peer front-cache 전파를 지원합니다.
 
 `isSynchronous=true`인 JCache NearCache의 `put`, `putAll`, `putIfAbsent`, `remove`,
-`replace`는 제한된 `syncRemoteTimeout` 안에서 Lettuce write-through 완료를 기다립니다.
-Lettuce가 write worker에서 해당 write의 listener를 inline 호출할 수 있으므로,
-`NearJCache`는 operation-scoped key/type/value 상관관계로 self-event를 front에 직접
-반영해 callback이 caller가 잡은 mutation gate를 다시 획득하지 않도록 합니다. 매칭되지 않는 다른 wrapper나 외부 write의 event는 계속 gate로
-직렬화하며 비동기 모드의 기존 순서도 유지합니다. JCache event에는 operation ID가 없으므로 동일 key/type/value의 외부 event는
-활성 self-event와 구분할 수 없습니다. timeout 이후 provider가 늦게 완료하는
-경우에도 near cache의 back-write barrier가 후속 write와 순서를 보장합니다.
+`replace`는 제한된 `syncRemoteTimeout` 안에서 Lettuce write-through 완료를 기다립니다. Lettuce가 write worker에서 해당 write의 listener를 inline 호출할 수 있으므로,
+`NearJCache`는 operation-scoped key/type/value 상관관계로 self-event를 front에 직접 반영해 callback이 caller가 잡은 mutation gate를 다시 획득하지 않도록 합니다. 매칭되지 않는 다른 wrapper나 외부 write의 event는 계속 gate로 직렬화하며 비동기 모드의 기존 순서도 유지합니다. JCache event에는 operation ID가 없으므로 동일 key/type/value의 외부 event는 활성 self-event와 구분할 수 없습니다. timeout 이후 provider가 늦게 완료하는 경우에도 near cache의 back-write barrier가 후속 write와 순서를 보장합니다.
 
 전체 행렬은 [Near-Cache Backend Capability Matrix](../../docs/cache/near-cache-capability-matrix.md)를 참고하세요.
 
 <!-- issue-1369-bulk-policy:start -->
+
 ## Bulk 결과의 front 저장 상한
 
 <!-- contract: default-bypass; bounded-all-or-nothing; single-key-get-unchanged; repeated-back-read; legacy-safe-default -->
@@ -125,27 +117,19 @@ val cache = LettuceCaches.nearJCache<String, User>(redisClient) {
 }
 ```
 
-`BulkFrontPopulationPolicy.BypassFront`는 새 설정과 복원한 legacy stream의 안전한
-기본값입니다. 모든 hit를 반환하지만 반복 `getAll`에서 back을 반복 조회할 수 있습니다.
-`BulkFrontPopulationPolicy.PopulateIfAtMost(n)`은 `backValues.size <= n`일 때만
-bulk back hit 전체를 저장하며 초과 batch의 일부는 저장하지 않습니다. 이 entry 수는
-메모리에 상주하는 byte 크기나 back 조회 크기 제한이 아닙니다. single-key `get()` 저장은
-바뀌지 않습니다.
+`BulkFrontPopulationPolicy.BypassFront`는 새 설정과 복원한 legacy stream의 안전한 기본값입니다. 모든 hit를 반환하지만 반복 `getAll`에서 back을 반복 조회할 수 있습니다.
+`BulkFrontPopulationPolicy.PopulateIfAtMost(n)`은 `backValues.size <= n`일 때만 bulk back hit 전체를 저장하며 초과 batch의 일부는 저장하지 않습니다. 이 entry 수는 메모리에 상주하는 byte 크기나 back 조회 크기 제한이 아닙니다. single-key `get()` 저장은 바뀌지 않습니다.
 
 Configuration MXBean은 `BYPASS_FRONT` 또는 `POPULATE_IF_AT_MOST`와
-`bulkFrontPopulationMaximumEntryCount`를 노출합니다. `0`은 bypass 정책에 상한을
-적용하지 않는다는 뜻입니다. Caffeine 용량과 로컬 heap 예산을 검토한 뒤 상한을 선택합니다.
+`bulkFrontPopulationMaximumEntryCount`를 노출합니다. `0`은 bypass 정책에 상한을 적용하지 않는다는 뜻입니다. Caffeine 용량과 로컬 heap 예산을 검토한 뒤 상한을 선택합니다.
 <!-- issue-1369-bulk-policy:end -->
 
 <!-- nearjcache-clear-authority-contract -->
+
 ### #1368 Lettuce NearJCache clear authority
 
-`LettuceCaches.nearJCache`의 기본값은 `NearJCacheClearAuthority.DENY`이며 Redis
-namespace ownership을 추론하지 않습니다. 따라서 `clear()`, `clearAllCache()`, 인자
-없는 `removeAll()`은 `SecurityException`을 발생시킵니다. 독점 owner일 때만 명시적
-`NearJCacheClearAuthority.EXCLUSIVE_BACK_CACHE` overload를 선택하고, 공유 namespace는
-key-scoped `removeAll(keys)`로 처리합니다. wrapper `close()`는 front만 닫고 Redis back
-cache와 client는 닫지 않습니다.
+`LettuceCaches.nearJCache`의 기본값은 `NearJCacheClearAuthority.DENY`이며 Redis namespace ownership을 추론하지 않습니다. 따라서 `clear()`, `clearAllCache()`, 인자 없는 `removeAll()`은 `SecurityException`을 발생시킵니다. 독점 owner일 때만 명시적
+`NearJCacheClearAuthority.EXCLUSIVE_BACK_CACHE` overload를 선택하고, 공유 namespace는 key-scoped `removeAll(keys)`로 처리합니다. wrapper `close()`는 front만 닫고 Redis back cache와 client는 닫지 않습니다.
 
 ```kotlin
 val shared = LettuceCaches.nearJCache<String, User>(redisClient) {
@@ -158,6 +142,7 @@ val owner = LettuceCaches.nearJCache<String, User>(
 ) { cacheName = "users-owner" }
 owner.clear()
 ```
+
 <!-- /nearjcache-clear-authority-contract -->
 
 `LettuceCacheConfig`/`LettuceNearCacheConfig` 사용 시:
@@ -169,7 +154,7 @@ owner.clear()
 ### JCache 기반 NearCache (nearcache.jcache 패키지)
 
 `NearJCache<K,V>` /
-`SuspendNearJCache<K,V>`는 JCache 인터페이스를 직접 구현하는 2-tier 캐시입니다. Caffeine(front) + LettuceJCache(back) 구조로,
+`SuspendNearJCache<K,V>`는 JCache 인터페이스를 직접 구현하는 2-tier 캐시입니다. Caffeine (front) + LettuceJCache (back) 구조로,
 `NearJCacheConfig` Builder DSL로 설정합니다.
 
 ![Lettuce JCache NearCache Structure diagram](../../docs/images/readme-diagrams/cache-cache-lettuce-diagram-02.png)
@@ -211,7 +196,7 @@ cache.close()
 ```
 
 > **선택 기준**: JCache 표준 호환이 필요하면 `NearJCache`/`SuspendNearJCache`를, 더 풍부한 통계·resilience가 필요하면 `LettuceNearCache`/
-`LettuceSuspendNearCache`를 사용하세요.
+> `LettuceSuspendNearCache`를 사용하세요.
 
 ### 클래스 구조
 
@@ -263,7 +248,7 @@ Caffeine           |
 - **tombstones**: remove 후 write-behind 완료 전 stale read 방지
 - **clearPending**: clearAll 호출 후 Redis read 차단
 - **retry**: Resilience4j Retry로 Redis 쓰기 실패 시 재시도 (지수 백오프 옵션)
-- **GetFailureStrategy**: Redis GET 실패 시 null 반환(RETURN_FRONT_OR_NULL) 또는 예외 전파(PROPAGATE_EXCEPTION)
+- **GetFailureStrategy**: Redis GET 실패 시 null 반환 (RETURN_FRONT_OR_NULL) 또는 예외 전파 (PROPAGATE_EXCEPTION)
 
 ### JCache TTL 계약
 
@@ -276,10 +261,8 @@ Caffeine           |
   `LettuceJCache` 인스턴스의 모든 변경 작업은 Redis 분산 락으로 직렬화되므로,
   `invoke`의 read-modify-write가 연결 간에도 원자적으로 실행됩니다.
 - `invokeAll`은 키별로 독립된 원자 구간을 만들며, 성공한 키의 결과와 실패한 키의
-  `EntryProcessorException`을 각각 `EntryProcessorResult`에 보존합니다. 프로세서가 예외를
-  던지면 해당 키에는 변경 내용을 커밋하지 않습니다.
-- `ttlSeconds`가 설정된 경우 `invoke`로 갱신한 값도 캐시 hash TTL을 다시 적용하고,
-  등록된 `CacheEntryUpdatedListener`에 갱신 이벤트를 전달합니다.
+  `EntryProcessorException`을 각각 `EntryProcessorResult`에 보존합니다. 프로세서가 예외를 던지면 해당 키에는 변경 내용을 커밋하지 않습니다.
+- `ttlSeconds`가 설정된 경우 `invoke`로 갱신한 값도 캐시 hash TTL을 다시 적용하고, 등록된 `CacheEntryUpdatedListener`에 갱신 이벤트를 전달합니다.
 - 분산 락의 기본 lease는 1분, 획득 대기는 5분입니다. 긴 프로세서는
   `LettuceCacheConfig.lockLeaseSeconds`로 캐시별 lease를 조정할 수 있습니다.
 
@@ -291,9 +274,7 @@ Caffeine           |
   )
   ```
 
-- 프로세서가 lease보다 오래 실행되면 `entry.commit()`을 거부합니다. 락 소유권
-  검증과 값/TTL 쓰기를 하나의 Redis 트랜잭션으로 처리하므로, 이후 락을 획득한
-  호출자의 결과를 이전 호출자의 stale 값이 덮어쓰지 않습니다.
+- 프로세서가 lease보다 오래 실행되면 `entry.commit()`을 거부합니다. 락 소유권 검증과 값/TTL 쓰기를 하나의 Redis 트랜잭션으로 처리하므로, 이후 락을 획득한 호출자의 결과를 이전 호출자의 stale 값이 덮어쓰지 않습니다.
 
 ```kotlin
 import io.bluetape4k.cache.jcache.LettuceJCaching
@@ -451,25 +432,25 @@ cache.close()
 
 ## ResilientLettuceNearCacheConfig 옵션
 
-| 옵션                        | 기본값                        | 설명                   |
-|---------------------------|----------------------------|----------------------|
-| `base`                    | `LettuceNearCacheConfig()` | 기본 NearCache 설정      |
-| `writeQueueCapacity`      | `1024`                     | write-behind 큐 최대 용량 |
-| `retryMaxAttempts`        | `3`                        | Redis 쓰기 최대 재시도 횟수   |
+| 옵션                      | 기본값                     | 설명                        |
+|---------------------------|----------------------------|-----------------------------|
+| `base`                    | `LettuceNearCacheConfig()` | 기본 NearCache 설정         |
+| `writeQueueCapacity`      | `1024`                     | write-behind 큐 최대 용량   |
+| `retryMaxAttempts`        | `3`                        | Redis 쓰기 최대 재시도 횟수 |
 | `retryWaitDuration`       | `500ms`                    | 재시도 대기 시간            |
-| `retryExponentialBackoff` | `true`                     | 지수 백오프 사용 여부         |
+| `retryExponentialBackoff` | `true`                     | 지수 백오프 사용 여부       |
 | `getFailureStrategy`      | `RETURN_FRONT_OR_NULL`     | Redis GET 실패 시 동작 전략 |
 
 ## LettuceNearCacheConfig 옵션
 
-| 옵션                       | 기본값                    | 설명                               |
-|--------------------------|------------------------|----------------------------------|
+| 옵션                     | 기본값                 | 설명                                   |
+|--------------------------|------------------------|----------------------------------------|
 | `cacheName`              | `"lettuce-near-cache"` | 캐시 이름 (Redis key prefix, `:` 금지) |
-| `maxLocalSize`           | `10_000`               | Caffeine 최대 항목 수                 |
-| `frontExpireAfterWrite`  | `30분`                  | 로컬 캐시 write 후 만료 시간              |
-| `frontExpireAfterAccess` | `null`                 | 로컬 캐시 access 후 만료 시간             |
+| `maxLocalSize`           | `10_000`               | Caffeine 최대 항목 수                  |
+| `frontExpireAfterWrite`  | `30분`                 | 로컬 캐시 write 후 만료 시간           |
+| `frontExpireAfterAccess` | `null`                 | 로컬 캐시 access 후 만료 시간          |
 | `redisTtl`               | `null`                 | Redis TTL (null이면 영구 보존)         |
-| `useRespProtocol3`       | `true`                 | RESP3 CLIENT TRACKING 활성화 여부     |
+| `useRespProtocol3`       | `true`                 | RESP3 CLIENT TRACKING 활성화 여부      |
 | `recordStats`            | `false`                | Caffeine 통계 수집 여부                |
 
 ## Key 격리 전략
@@ -489,25 +470,25 @@ cacheName="orders", key="user:123" → Redis key: "orders:user:123"
 - RESP3 CLIENT TRACKING은 Redis 6.0+ 이상에서 지원됩니다.
 - NearCache는 단일 Redis 연결에서 동작하며, 클러스터 모드에서는 별도 설정이 필요합니다.
 - 다른 분산 캐시 백엔드가 필요한 경우:
-  - Redisson 기반: `bluetape4k-cache-redisson`
-  - Hazelcast 기반: `bluetape4k-cache-hazelcast`
+    - Redisson 기반: `bluetape4k-cache-redisson`
+    - Hazelcast 기반: `bluetape4k-cache-hazelcast`
 
 ## 성능 벤치마크
 
 `LettuceNearCache` (L1=Caffeine, L2=Redis RESP3) JMH 벤치마크 결과 (Apple M4 Pro / GraalVM 21 / 2026-04-27):
 
-| 벤치마크 | payloadSize=512 | payloadSize=4096 | payloadSize=16384 |
-|---------|:--------------:|:----------------:|:-----------------:|
-| **l1Hit** | **65,560 ops/ms** | **63,458 ops/ms** | **64,580 ops/ms** |
-| l2Hit (clearLocal 포함) | 4.07 ops/ms | 4.13 ops/ms | 3.93 ops/ms |
-| l2Miss | 3.96 ops/ms | 3.92 ops/ms | 4.21 ops/ms |
-| putSingle | 2.12 ops/ms | 2.08 ops/ms | 2.01 ops/ms |
-| putAll (×100) | 1.04 ops/ms | 0.93 ops/ms | 0.41 ops/ms |
-| removeSingle | 4.21 ops/ms | 4.24 ops/ms | 4.16 ops/ms |
+| 벤치마크                |  payloadSize=512  | payloadSize=4096  | payloadSize=16384 |
+|-------------------------|:-----------------:|:-----------------:|:-----------------:|
+| **l1Hit**               | **65,560 ops/ms** | **63,458 ops/ms** | **64,580 ops/ms** |
+| l2Hit (clearLocal 포함) |    4.07 ops/ms    |    4.13 ops/ms    |    3.93 ops/ms    |
+| l2Miss                  |    3.96 ops/ms    |    3.92 ops/ms    |    4.21 ops/ms    |
+| putSingle               |    2.12 ops/ms    |    2.08 ops/ms    |    2.01 ops/ms    |
+| putAll (×100)           |    1.04 ops/ms    |    0.93 ops/ms    |    0.41 ops/ms    |
+| removeSingle            |    4.21 ops/ms    |    4.24 ops/ms    |    4.16 ops/ms    |
 
 ![Lettuce Near Cache Throughput chart](../../docs/images/readme-charts/cache-lettuce-near-cache-throughput-chart-01.png)
 
-> L1 캐시 적중은 L2(Redis) 연산 대비 **~16,000배 빠름**.
+> L1 캐시 적중은 L2 (Redis) 연산 대비 **~16,000배 빠름**.
 > 전체 결과 및 분석: [Benchmark.md](./Benchmark.md) · [한국어](./Benchmark.ko.md)
 > 실행: `./gradlew :bluetape4k-cache-lettuce:benchmark` (Docker 필요)
 
@@ -519,18 +500,19 @@ cacheName="orders", key="user:123" → Redis key: "orders:user:123"
 
 ### `replace(key, oldValue, newValue)` — EVALSHA + NOSCRIPT fallback 기반 CAS
 
-동기/코루틴 변형 모두 공용 Lua 스크립트(`NearCacheScripts.COMPARE_AND_SET`)로 compare-and-set 을 수행합니다. SHA1 은 클래스 로드 시점에 한 번 계산되어 이후 모든 호출에서 재사용됩니다.
+동기/코루틴 변형 모두 공용 Lua 스크립트 (`NearCacheScripts.COMPARE_AND_SET`)로 compare-and-set 을 수행합니다. SHA1 은 클래스 로드 시점에 한 번 계산되어 이후 모든 호출에서 재사용됩니다.
 
 - 1차 경로: `EVALSHA <sha1> 1 <key> <old> <new>` — 스크립트 원문 대신 20B SHA1 만 전송.
-- Fallback: 서버가 `NOSCRIPT` 를 반환하면(`SCRIPT FLUSH` / failover 등) 자동으로 원문 `EVAL` 로 재시도합니다. 호출자 관점에서 동작은 완전히 동일합니다.
+- Fallback: 서버가 `NOSCRIPT` 를 반환하면 (`SCRIPT FLUSH` / failover 등) 자동으로 원문 `EVAL` 로 재시도합니다. 호출자 관점에서 동작은 완전히 동일합니다.
 
 ### `remove` / `removeAll` / `clearBack` — 비차단 삭제
 
-벌크 삭제는 `DEL` 대신 `UNLINK` 를 사용합니다. 큰 값은 Redis 백그라운드 스레드에서 회수되므로, 값 크기와 무관하게 클라이언트 roundtrip 이 O(1) 입니다. 동작 의미(semantics)는 `DEL` 과 동일합니다.
+벌크 삭제는 `DEL` 대신 `UNLINK` 를 사용합니다. 큰 값은 Redis 백그라운드 스레드에서 회수되므로, 값 크기와 무관하게 클라이언트 roundtrip 이 O (1) 입니다. 동작 의미 (semantics)는 `DEL` 과 동일합니다.
 
 ### `LettuceJCache.close()` — JCache 명세 준수
 
-`close()` 는 리소스(리스너, executor, 연결 핸들)를 해제할 뿐 **데이터를 삭제하지 않습니다**. 과거 구현은 `close()` 내부에서 `clear()` 를 수행해 JSR-107 계약을 위반했으므로 제거되었습니다. 종료 시점에 데이터를 비우려면 `close()` 이전에 `clear()` 를 명시적으로 호출하세요.
+`close()` 는 리소스 (리스너, executor, 연결 핸들)를 해제할 뿐 **데이터를 삭제하지
+않습니다**. 과거 구현은 `close()` 내부에서 `clear()` 를 수행해 JSR-107 계약을 위반했으므로 제거되었습니다. 종료 시점에 데이터를 비우려면 `close()` 이전에 `clear()` 를 명시적으로 호출하세요.
 
 `LettuceSuspendJCache.close()` 도 래핑한 `LettuceJCache` 와 같은 계약을 따릅니다. suspend cache manager의 close 경로는 호출자 취소가 요청되어도 non-cancellable 정리 구간에서 나머지 캐시 wrapper close를 먼저 시도합니다. 개별 cache close가 `CancellationException` 을 명시적으로 던지면 잔여 정리를 끝낸 뒤 다시 던집니다.
 
@@ -554,4 +536,5 @@ val memoizer = suspendMap.suspendMemoizer<Int, Int> { key ->
 
 ### `LettuceAsyncMemoizer` — in-flight 레이스 수정
 
-같은 키에 대해 evaluator 완료 직후 다른 호출이 재진입하며 새 promise 를 심는 경우, 기존 `inFlight.remove(key)` 가 재진입 promise 까지 함께 삭제하는 버그가 있었습니다. 현재는 `ConcurrentHashMap.remove(key, promise)` 로 **정확히 내가 생성한 key+value 쌍** 만 제거합니다.
+같은 키에 대해 evaluator 완료 직후 다른 호출이 재진입하며 새 promise 를 심는 경우, 기존 `inFlight.remove(key)` 가 재진입 promise 까지 함께 삭제하는 버그가 있었습니다. 현재는 `ConcurrentHashMap.remove(key, promise)` 로
+**정확히 내가 생성한 key+value 쌍** 만 제거합니다.

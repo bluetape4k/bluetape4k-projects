@@ -1,7 +1,7 @@
 package io.bluetape4k.redis.lettuce.lock.internal
 
-import io.bluetape4k.redis.lettuce.coordination.internal.CoordinationDeadline
 import io.bluetape4k.redis.lettuce.coordination.internal.CoordinationCapacityException
+import io.bluetape4k.redis.lettuce.coordination.internal.CoordinationDeadline
 import io.bluetape4k.redis.lettuce.coordination.internal.CoordinationFailureClassification
 import io.bluetape4k.redis.lettuce.coordination.internal.CoordinationProtocol
 import io.bluetape4k.redis.lettuce.coordination.internal.CoordinationProtocolException
@@ -54,8 +54,7 @@ import kotlinx.coroutines.withContext
 import java.nio.ByteBuffer
 import java.security.MessageDigest
 import java.time.Duration
-import java.util.Collections
-import java.util.IdentityHashMap
+import java.util.*
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.CompletionException
 import java.util.concurrent.ConcurrentHashMap
@@ -660,9 +659,9 @@ private fun ReadWriteLockOperation.toLockOperation(): LockOperation =
     when (this) {
         ReadWriteLockOperation.ACQUIRE -> LockOperation.ACQUIRE
         ReadWriteLockOperation.RECONCILE -> LockOperation.RECONCILE
-        ReadWriteLockOperation.REMOVE -> LockOperation.CLEANUP
+        ReadWriteLockOperation.REMOVE  -> LockOperation.CLEANUP
         ReadWriteLockOperation.INSPECT -> LockOperation.INSPECT
-        ReadWriteLockOperation.RENEW -> LockOperation.RENEW
+        ReadWriteLockOperation.RENEW   -> LockOperation.RENEW
         ReadWriteLockOperation.RELEASE -> LockOperation.RELEASE
         ReadWriteLockOperation.DOWNGRADE -> LockOperation.DOWNGRADE
     }
@@ -717,6 +716,7 @@ private interface ReadWriteLockCommandExecutor {
         keys: ReadWriteLockKeys,
         args: List<String>,
     ): CompletableFuture<List<String>>
+
     suspend fun runSuspending(
         operation: ReadWriteLockOperation,
         keys: ReadWriteLockKeys,
@@ -1023,7 +1023,11 @@ internal class ReadWriteLockClient private constructor(
         ) {
             recordDowngrade(
                 handle,
-                decodeDowngrade(executor.run(ReadWriteLockOperation.DOWNGRADE, keys, downgradeArgs(handle)), keys, handle),
+                decodeDowngrade(
+                    executor.run(ReadWriteLockOperation.DOWNGRADE, keys, downgradeArgs(handle)),
+                    keys,
+                    handle
+                ),
             )
         }
     }
@@ -1228,8 +1232,7 @@ internal class ReadWriteLockClient private constructor(
                     else if (value is LockAcquireResult.Contended) {
                         observation.onContended()
                         schedule()
-                    }
-                    else if (!result.complete(value)) value.acquiredHandleOrNull()?.let(::releaseAbandoned)
+                    } else if (!result.complete(value)) value.acquiredHandleOrNull()?.let(::releaseAbandoned)
                 }
             }
         }
@@ -1253,7 +1256,7 @@ internal class ReadWriteLockClient private constructor(
                 when {
                     result.isCancelled -> LockOutcome.CANCELLED
                     error != null -> LockOutcome.BACKEND_FAILED
-                    else -> value.observationOutcome()
+                    else          -> value.observationOutcome()
                 },
             )
         }
@@ -1762,7 +1765,7 @@ internal class ReadWriteLockClient private constructor(
         identity: ReadWriteWaiterIdentity,
     ): List<String> =
         reconcileArgs(kind, ownerId, requestId) +
-            listOf(identity.sequence.toString(), identity.generation.toString())
+                listOf(identity.sequence.toString(), identity.generation.toString())
 
     private fun handleArgs(handle: LockHandle, kind: LockKind): List<String> =
         listOf(
@@ -1797,7 +1800,7 @@ internal class ReadWriteLockClient private constructor(
         val handle = when (result) {
             is LockAcquireResult.Acquired -> result.handle
             is LockAcquireResult.Reentered -> result.handle
-            else -> return result
+            else                          -> return result
         }
         return if (ensureWatchdog(handle)) {
             result
@@ -1882,7 +1885,7 @@ internal class ReadWriteLockClient private constructor(
             LockMutationResult.Expired,
             LockMutationResult.OwnershipLost,
             LockMutationResult.StaleGeneration,
-            -> {
+                -> {
                 recordOwnershipLoss(handle.kind, handle.leasePolicy)
                 removeWatchdog(handle)
             }
@@ -1901,7 +1904,7 @@ internal class ReadWriteLockClient private constructor(
             LockMutationResult.Expired,
             LockMutationResult.OwnershipLost,
             LockMutationResult.StaleGeneration,
-            -> {
+                -> {
                 recordOwnershipLoss(handle.kind, handle.leasePolicy)
                 removeWatchdog(handle)
             }
@@ -1928,7 +1931,7 @@ internal class ReadWriteLockClient private constructor(
             DowngradeResult.Expired,
             DowngradeResult.OwnershipLost,
             DowngradeResult.StaleGeneration,
-            -> {
+                 -> {
                 recordOwnershipLoss(handle.lock.kind, handle.lock.leasePolicy)
                 removeWatchdog(handle.lock)
             }
@@ -2074,17 +2077,17 @@ private fun decodeAttempt(
                 else LockAcquireResult.Acquired(handle)
             ReadWriteAttempt.Result(result)
         }
-        "CONTENDED" ->
+        "CONTENDED"       ->
             ReadWriteAttempt.Result(LockAcquireResult.Contended(frame.rwNonNegativeLong(0)))
-        "QUEUED" ->
+        "QUEUED"          ->
             ReadWriteAttempt.Queued(
                 ReadWriteWaiterIdentity(frame.rwPositiveLong(0), frame.rwNonNegativeLong(1)),
                 frame.rwNonNegativeLong(3),
             )
         "CLEANUP_PENDING" -> ReadWriteAttempt.Result(LockAcquireResult.CleanupPending)
-        "CAPACITY" -> ReadWriteAttempt.Result(LockAcquireResult.CapacityExceeded)
-        "INTEGRITY" -> ReadWriteAttempt.Result(LockAcquireResult.IntegrityFailure(RW_INVALID_STATE))
-        else -> rwMalformedReply()
+        "CAPACITY"        -> ReadWriteAttempt.Result(LockAcquireResult.CapacityExceeded)
+        "INTEGRITY"       -> ReadWriteAttempt.Result(LockAcquireResult.IntegrityFailure(RW_INVALID_STATE))
+        else              -> rwMalformedReply()
     }
 }
 
@@ -2105,7 +2108,7 @@ private fun decodeInspect(
         ),
     )
     return when (frame.tag) {
-        "OWNED" -> {
+        "OWNED"    -> {
             val generation = LockGeneration(frame.rwPositiveLong(0))
             val policy = decodeLeasePolicy(frame.field(3))
             val current = handle.copy(
@@ -2116,11 +2119,11 @@ private fun decodeInspect(
             LockInspectResult.Owned(current, frame.rwPositiveInt(1), frame.rwNonNegativeLong(2))
         }
         "RELEASED" -> LockInspectResult.Released
-        "EXPIRED" -> LockInspectResult.Expired
-        "STALE" -> LockInspectResult.StaleGeneration
-        "LOST" -> LockInspectResult.OwnershipLost
+        "EXPIRED"  -> LockInspectResult.Expired
+        "STALE"    -> LockInspectResult.StaleGeneration
+        "LOST"     -> LockInspectResult.OwnershipLost
         "INTEGRITY" -> LockInspectResult.IntegrityFailure(RW_INVALID_STATE)
-        else -> rwMalformedReply()
+        else       -> rwMalformedReply()
     }
 }
 
@@ -2144,7 +2147,7 @@ private fun decodeReconcile(
         ),
     )
     return when (frame.tag) {
-        "OWNED" -> {
+        "OWNED"    -> {
             val handle = LockHandle(
                 keys.fingerprint,
                 ownerId,
@@ -2155,7 +2158,7 @@ private fun decodeReconcile(
             )
             LockReconcileResult.Owned(handle, frame.rwPositiveInt(1), frame.rwNonNegativeLong(2))
         }
-        "QUEUED" ->
+        "QUEUED"   ->
             LockReconcileResult.Queued(
                 io.bluetape4k.redis.lettuce.lock.FairWaiterState(
                     io.bluetape4k.redis.lettuce.lock.FairWaiterStatus.QUEUED,
@@ -2163,12 +2166,12 @@ private fun decodeReconcile(
                     frame.rwNonNegativeLong(2),
                 ),
             )
-        "REMOVED" -> LockReconcileResult.Removed
+        "REMOVED"  -> LockReconcileResult.Removed
         "RELEASED" -> LockReconcileResult.Released
         "NOT_FOUND" -> LockReconcileResult.NotFound
-        "STALE" -> LockReconcileResult.StaleGeneration
+        "STALE"    -> LockReconcileResult.StaleGeneration
         "INTEGRITY" -> LockReconcileResult.IntegrityFailure(RW_INVALID_STATE)
-        else -> rwMalformedReply()
+        else       -> rwMalformedReply()
     }
 }
 
@@ -2180,9 +2183,9 @@ private fun decodeRemove(raw: Any?): LockReconcileResult<LockHandle> {
     return when (frame.tag) {
         "REMOVED" -> LockReconcileResult.Removed
         "NOT_FOUND" -> LockReconcileResult.NotFound
-        "STALE" -> LockReconcileResult.StaleGeneration
+        "STALE"   -> LockReconcileResult.StaleGeneration
         "INTEGRITY" -> LockReconcileResult.IntegrityFailure(RW_INVALID_STATE)
-        else -> rwMalformedReply()
+        else      -> rwMalformedReply()
     }
 }
 
@@ -2203,7 +2206,7 @@ private fun decodeRenew(
         ),
     )
     return when (frame.tag) {
-        "RENEWED" -> {
+        "RENEWED"   -> {
             val renewed = handle.copy(
                 objectFingerprint = keys.fingerprint,
                 generation = LockGeneration(frame.rwPositiveLong(0)),
@@ -2212,11 +2215,11 @@ private fun decodeRenew(
             LockMutationResult.Renewed(renewed, frame.rwNonNegativeLong(1))
         }
         "ALREADY_RELEASED" -> LockMutationResult.AlreadyReleased
-        "EXPIRED" -> LockMutationResult.Expired
-        "STALE" -> LockMutationResult.StaleGeneration
-        "LOST" -> LockMutationResult.OwnershipLost
+        "EXPIRED"   -> LockMutationResult.Expired
+        "STALE"     -> LockMutationResult.StaleGeneration
+        "LOST"      -> LockMutationResult.OwnershipLost
         "INTEGRITY" -> LockMutationResult.IntegrityFailure(RW_INVALID_STATE)
-        else -> rwMalformedReply()
+        else        -> rwMalformedReply()
     }
 }
 
@@ -2233,13 +2236,13 @@ private fun rwDecodeRelease(raw: Any?): LockMutationResult<LockHandle> {
         ),
     )
     return when (frame.tag) {
-        "RELEASED" -> LockMutationResult.Released(frame.rwNonNegativeInt(0))
+        "RELEASED"  -> LockMutationResult.Released(frame.rwNonNegativeInt(0))
         "ALREADY_RELEASED" -> LockMutationResult.AlreadyReleased
-        "EXPIRED" -> LockMutationResult.Expired
-        "STALE" -> LockMutationResult.StaleGeneration
-        "LOST" -> LockMutationResult.OwnershipLost
+        "EXPIRED"   -> LockMutationResult.Expired
+        "STALE"     -> LockMutationResult.StaleGeneration
+        "LOST"      -> LockMutationResult.OwnershipLost
         "INTEGRITY" -> LockMutationResult.IntegrityFailure(RW_INVALID_STATE)
-        else -> rwMalformedReply()
+        else        -> rwMalformedReply()
     }
 }
 
@@ -2261,7 +2264,7 @@ private fun decodeDowngrade(
         ),
     )
     return when (frame.tag) {
-        "DOWNGRADED" -> {
+        "DOWNGRADED"            -> {
             val read = handle.lock.copy(
                 objectFingerprint = keys.fingerprint,
                 generation = LockGeneration(frame.rwPositiveLong(0)),
@@ -2271,10 +2274,10 @@ private fun decodeDowngrade(
             DowngradeResult.Downgraded(ReadLockHandle(read))
         }
         "EXPIRED", "ALREADY_RELEASED" -> DowngradeResult.Expired
-        "STALE" -> DowngradeResult.StaleGeneration
-        "LOST" -> DowngradeResult.OwnershipLost
+        "STALE"                 -> DowngradeResult.StaleGeneration
+        "LOST"                  -> DowngradeResult.OwnershipLost
         "CAPACITY", "INTEGRITY" -> DowngradeResult.IntegrityFailure(RW_INVALID_STATE)
-        else -> rwMalformedReply()
+        else                    -> rwMalformedReply()
     }
 }
 
@@ -2286,142 +2289,148 @@ private fun cleanupResult(
     when (result) {
         LockReconcileResult.Removed,
         LockReconcileResult.NotFound,
-        -> LockAcquireResult.TimedOut
-        LockReconcileResult.Closed -> LockAcquireResult.Closed
+                                              -> LockAcquireResult.TimedOut
+        LockReconcileResult.Closed            -> LockAcquireResult.Closed
         is LockReconcileResult.IntegrityFailure -> LockAcquireResult.IntegrityFailure(result.failure)
         is LockReconcileResult.BackendFailure ->
             LockAcquireResult.Ambiguous(ownerId, requestId, LockRecoveryAction.RECONCILE_REQUEST)
-        else -> LockAcquireResult.CleanupPending
+        else                                  -> LockAcquireResult.CleanupPending
     }
 
 private fun mapReadAcquire(result: LockAcquireResult<LockHandle>): LockAcquireResult<ReadLockHandle> =
     when (result) {
-        is LockAcquireResult.Acquired -> LockAcquireResult.Acquired(ReadLockHandle(result.handle))
-        is LockAcquireResult.Reentered -> LockAcquireResult.Reentered(ReadLockHandle(result.handle), result.holdCount)
-        is LockAcquireResult.Contended -> result
-        LockAcquireResult.TimedOut -> LockAcquireResult.TimedOut
-        LockAcquireResult.CleanupPending -> LockAcquireResult.CleanupPending
-        LockAcquireResult.CapacityExceeded -> LockAcquireResult.CapacityExceeded
-        LockAcquireResult.Closed -> LockAcquireResult.Closed
+        is LockAcquireResult.Acquired       -> LockAcquireResult.Acquired(ReadLockHandle(result.handle))
+        is LockAcquireResult.Reentered      -> LockAcquireResult.Reentered(
+            ReadLockHandle(result.handle),
+            result.holdCount
+        )
+        is LockAcquireResult.Contended      -> result
+        LockAcquireResult.TimedOut          -> LockAcquireResult.TimedOut
+        LockAcquireResult.CleanupPending    -> LockAcquireResult.CleanupPending
+        LockAcquireResult.CapacityExceeded  -> LockAcquireResult.CapacityExceeded
+        LockAcquireResult.Closed            -> LockAcquireResult.Closed
         is LockAcquireResult.BackendFailure -> result
         is LockAcquireResult.IntegrityFailure -> result
-        is LockAcquireResult.Ambiguous -> result
+        is LockAcquireResult.Ambiguous      -> result
     }
 
 private fun mapWriteAcquire(result: LockAcquireResult<LockHandle>): LockAcquireResult<WriteLockHandle> =
     when (result) {
-        is LockAcquireResult.Acquired -> LockAcquireResult.Acquired(WriteLockHandle(result.handle))
-        is LockAcquireResult.Reentered -> LockAcquireResult.Reentered(WriteLockHandle(result.handle), result.holdCount)
-        is LockAcquireResult.Contended -> result
-        LockAcquireResult.TimedOut -> LockAcquireResult.TimedOut
-        LockAcquireResult.CleanupPending -> LockAcquireResult.CleanupPending
-        LockAcquireResult.CapacityExceeded -> LockAcquireResult.CapacityExceeded
-        LockAcquireResult.Closed -> LockAcquireResult.Closed
+        is LockAcquireResult.Acquired       -> LockAcquireResult.Acquired(WriteLockHandle(result.handle))
+        is LockAcquireResult.Reentered      -> LockAcquireResult.Reentered(
+            WriteLockHandle(result.handle),
+            result.holdCount
+        )
+        is LockAcquireResult.Contended      -> result
+        LockAcquireResult.TimedOut          -> LockAcquireResult.TimedOut
+        LockAcquireResult.CleanupPending    -> LockAcquireResult.CleanupPending
+        LockAcquireResult.CapacityExceeded  -> LockAcquireResult.CapacityExceeded
+        LockAcquireResult.Closed            -> LockAcquireResult.Closed
         is LockAcquireResult.BackendFailure -> result
         is LockAcquireResult.IntegrityFailure -> result
-        is LockAcquireResult.Ambiguous -> result
+        is LockAcquireResult.Ambiguous      -> result
     }
 
 private fun mapReadInspect(result: LockInspectResult<LockHandle>): LockInspectResult<ReadLockHandle> =
     when (result) {
-        is LockInspectResult.Owned -> LockInspectResult.Owned(
+        is LockInspectResult.Owned          -> LockInspectResult.Owned(
             ReadLockHandle(result.handle),
             result.holdCount,
             result.remainingTtlMillis,
         )
-        LockInspectResult.Released -> LockInspectResult.Released
-        LockInspectResult.Expired -> LockInspectResult.Expired
-        LockInspectResult.StaleGeneration -> LockInspectResult.StaleGeneration
-        LockInspectResult.OwnershipLost -> LockInspectResult.OwnershipLost
-        LockInspectResult.Closed -> LockInspectResult.Closed
+        LockInspectResult.Released          -> LockInspectResult.Released
+        LockInspectResult.Expired           -> LockInspectResult.Expired
+        LockInspectResult.StaleGeneration   -> LockInspectResult.StaleGeneration
+        LockInspectResult.OwnershipLost     -> LockInspectResult.OwnershipLost
+        LockInspectResult.Closed            -> LockInspectResult.Closed
         is LockInspectResult.BackendFailure -> result
         is LockInspectResult.IntegrityFailure -> result
     }
 
 private fun mapWriteInspect(result: LockInspectResult<LockHandle>): LockInspectResult<WriteLockHandle> =
     when (result) {
-        is LockInspectResult.Owned -> LockInspectResult.Owned(
+        is LockInspectResult.Owned          -> LockInspectResult.Owned(
             WriteLockHandle(result.handle),
             result.holdCount,
             result.remainingTtlMillis,
         )
-        LockInspectResult.Released -> LockInspectResult.Released
-        LockInspectResult.Expired -> LockInspectResult.Expired
-        LockInspectResult.StaleGeneration -> LockInspectResult.StaleGeneration
-        LockInspectResult.OwnershipLost -> LockInspectResult.OwnershipLost
-        LockInspectResult.Closed -> LockInspectResult.Closed
+        LockInspectResult.Released          -> LockInspectResult.Released
+        LockInspectResult.Expired           -> LockInspectResult.Expired
+        LockInspectResult.StaleGeneration   -> LockInspectResult.StaleGeneration
+        LockInspectResult.OwnershipLost     -> LockInspectResult.OwnershipLost
+        LockInspectResult.Closed            -> LockInspectResult.Closed
         is LockInspectResult.BackendFailure -> result
         is LockInspectResult.IntegrityFailure -> result
     }
 
 private fun mapReadReconcile(result: LockReconcileResult<LockHandle>): LockReconcileResult<ReadLockHandle> =
     when (result) {
-        is LockReconcileResult.Owned -> LockReconcileResult.Owned(
+        is LockReconcileResult.Owned          -> LockReconcileResult.Owned(
             ReadLockHandle(result.handle),
             result.holdCount,
             result.remainingTtlMillis,
         )
-        is LockReconcileResult.Queued -> result
-        LockReconcileResult.Removed -> LockReconcileResult.Removed
-        LockReconcileResult.Released -> LockReconcileResult.Released
-        LockReconcileResult.NotFound -> LockReconcileResult.NotFound
-        LockReconcileResult.StaleGeneration -> LockReconcileResult.StaleGeneration
-        LockReconcileResult.Closed -> LockReconcileResult.Closed
+        is LockReconcileResult.Queued         -> result
+        LockReconcileResult.Removed           -> LockReconcileResult.Removed
+        LockReconcileResult.Released          -> LockReconcileResult.Released
+        LockReconcileResult.NotFound          -> LockReconcileResult.NotFound
+        LockReconcileResult.StaleGeneration   -> LockReconcileResult.StaleGeneration
+        LockReconcileResult.Closed            -> LockReconcileResult.Closed
         is LockReconcileResult.BackendFailure -> result
         is LockReconcileResult.IntegrityFailure -> result
-        is LockReconcileResult.Ambiguous -> result
+        is LockReconcileResult.Ambiguous      -> result
     }
 
 private fun mapWriteReconcile(result: LockReconcileResult<LockHandle>): LockReconcileResult<WriteLockHandle> =
     when (result) {
-        is LockReconcileResult.Owned -> LockReconcileResult.Owned(
+        is LockReconcileResult.Owned          -> LockReconcileResult.Owned(
             WriteLockHandle(result.handle),
             result.holdCount,
             result.remainingTtlMillis,
         )
-        is LockReconcileResult.Queued -> result
-        LockReconcileResult.Removed -> LockReconcileResult.Removed
-        LockReconcileResult.Released -> LockReconcileResult.Released
-        LockReconcileResult.NotFound -> LockReconcileResult.NotFound
-        LockReconcileResult.StaleGeneration -> LockReconcileResult.StaleGeneration
-        LockReconcileResult.Closed -> LockReconcileResult.Closed
+        is LockReconcileResult.Queued         -> result
+        LockReconcileResult.Removed           -> LockReconcileResult.Removed
+        LockReconcileResult.Released          -> LockReconcileResult.Released
+        LockReconcileResult.NotFound          -> LockReconcileResult.NotFound
+        LockReconcileResult.StaleGeneration   -> LockReconcileResult.StaleGeneration
+        LockReconcileResult.Closed            -> LockReconcileResult.Closed
         is LockReconcileResult.BackendFailure -> result
         is LockReconcileResult.IntegrityFailure -> result
-        is LockReconcileResult.Ambiguous -> result
+        is LockReconcileResult.Ambiguous      -> result
     }
 
 private fun mapReadMutation(result: LockMutationResult<LockHandle>): LockMutationResult<ReadLockHandle> =
     when (result) {
-        is LockMutationResult.Renewed -> LockMutationResult.Renewed(
+        is LockMutationResult.Renewed        -> LockMutationResult.Renewed(
             ReadLockHandle(result.handle),
             result.remainingTtlMillis,
         )
-        is LockMutationResult.Released -> result
-        LockMutationResult.AlreadyReleased -> LockMutationResult.AlreadyReleased
-        LockMutationResult.Expired -> LockMutationResult.Expired
-        LockMutationResult.StaleGeneration -> LockMutationResult.StaleGeneration
-        LockMutationResult.OwnershipLost -> LockMutationResult.OwnershipLost
-        LockMutationResult.Closed -> LockMutationResult.Closed
+        is LockMutationResult.Released       -> result
+        LockMutationResult.AlreadyReleased   -> LockMutationResult.AlreadyReleased
+        LockMutationResult.Expired           -> LockMutationResult.Expired
+        LockMutationResult.StaleGeneration   -> LockMutationResult.StaleGeneration
+        LockMutationResult.OwnershipLost     -> LockMutationResult.OwnershipLost
+        LockMutationResult.Closed            -> LockMutationResult.Closed
         is LockMutationResult.BackendFailure -> result
         is LockMutationResult.IntegrityFailure -> result
-        is LockMutationResult.Ambiguous -> result
+        is LockMutationResult.Ambiguous      -> result
     }
 
 private fun mapWriteMutation(result: LockMutationResult<LockHandle>): LockMutationResult<WriteLockHandle> =
     when (result) {
-        is LockMutationResult.Renewed -> LockMutationResult.Renewed(
+        is LockMutationResult.Renewed        -> LockMutationResult.Renewed(
             WriteLockHandle(result.handle),
             result.remainingTtlMillis,
         )
-        is LockMutationResult.Released -> result
-        LockMutationResult.AlreadyReleased -> LockMutationResult.AlreadyReleased
-        LockMutationResult.Expired -> LockMutationResult.Expired
-        LockMutationResult.StaleGeneration -> LockMutationResult.StaleGeneration
-        LockMutationResult.OwnershipLost -> LockMutationResult.OwnershipLost
-        LockMutationResult.Closed -> LockMutationResult.Closed
+        is LockMutationResult.Released       -> result
+        LockMutationResult.AlreadyReleased   -> LockMutationResult.AlreadyReleased
+        LockMutationResult.Expired           -> LockMutationResult.Expired
+        LockMutationResult.StaleGeneration   -> LockMutationResult.StaleGeneration
+        LockMutationResult.OwnershipLost     -> LockMutationResult.OwnershipLost
+        LockMutationResult.Closed            -> LockMutationResult.Closed
         is LockMutationResult.BackendFailure -> result
         is LockMutationResult.IntegrityFailure -> result
-        is LockMutationResult.Ambiguous -> result
+        is LockMutationResult.Ambiguous      -> result
     }
 
 private inline fun <R> rwClassified(
@@ -2539,8 +2548,8 @@ private fun rwBackendFailure(error: Throwable, action: LockRecoveryAction): Lock
     val kind = when (cause) {
         is RedisConnectionException -> LockBackendFailureKind.CONNECTION
         is RedisCommandTimeoutException, is TimeoutException -> LockBackendFailureKind.TIMEOUT
-        is RedisException -> LockBackendFailureKind.COMMAND
-        else -> throw cause
+        is RedisException           -> LockBackendFailureKind.COMMAND
+        else                        -> throw cause
     }
     return LockBackendFailure(kind, action)
 }
@@ -2570,7 +2579,7 @@ private val LockKind.rwMode: String
     get() = when (this) {
         LockKind.READ -> "R"
         LockKind.WRITE -> "W"
-        else -> error("Read/write lock supports only READ and WRITE modes.")
+        else          -> error("Read/write lock supports only READ and WRITE modes.")
     }
 
 private fun io.bluetape4k.redis.lettuce.coordination.internal.CoordinationFrame.rwPositiveLong(index: Int): Long =
@@ -2601,7 +2610,7 @@ private fun LockAcquireResult<LockHandle>?.acquiredHandleOrNull(): LockHandle? =
     when (this) {
         is LockAcquireResult.Acquired -> handle
         is LockAcquireResult.Reentered -> handle
-        else -> null
+        else                          -> null
     }
 
 private fun LockReconcileResult<LockHandle>.ownedHandleOrNull(): LockHandle? =

@@ -17,11 +17,10 @@ class RedissonSuspendNearJCacheTest: AbstractSuspendNearJCacheTest() {
 
     companion object: KLoggingChannel()
 
-    override val backSuspendJCache: SuspendJCache<String, Any> =
-        RedissonSuspendJCache(
-            "redisson-jcache-suspend-back-" + Base58.randomString(12),
-            RedisServers.redisson,
-        )
+    override val backSuspendJCache: SuspendJCache<String, Any> = RedissonSuspendJCache(
+        "redisson-jcache-suspend-back-" + Base58.randomString(12),
+        RedisServers.redisson,
+    )
 
     override fun createFrontSuspendCache(expireAfterAccess: Duration): SuspendJCache<String, Any> =
         CaffeineSuspendJCache {

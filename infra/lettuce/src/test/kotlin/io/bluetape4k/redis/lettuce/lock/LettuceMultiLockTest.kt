@@ -2,15 +2,27 @@ package io.bluetape4k.redis.lettuce.lock
 
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeInstanceOf
+import io.bluetape4k.codec.Base58
+import io.bluetape4k.concurrent.get
 import io.bluetape4k.junit5.coroutines.runSuspendIO
+import io.bluetape4k.logging.KLogging
 import io.bluetape4k.redis.lettuce.LettuceTestUtils
 import io.lettuce.core.codec.StringCodec
 import kotlinx.coroutines.future.await
 import org.junit.jupiter.api.Test
 import java.time.Duration
-import java.util.concurrent.TimeUnit
+import kotlin.time.Duration.Companion.seconds
 
 internal class LettuceMultiLockTest {
+
+    private companion object: KLogging() {
+        val NAMES = listOf("account", "inventory")
+        val OWNER_1 = LockOwnerId.from("multi-owner-1")
+        val OWNER_2 = LockOwnerId.from("multi-owner-2")
+        val REQUEST_1 = LockRequestId.from("multi-request-1")
+        val REQUEST_2 = LockRequestId.from("multi-request-2")
+        val LEASE = LeasePolicy.Fixed(Duration.ofSeconds(3))
+    }
 
     @Test
     fun `all keys acquire reenter renew and release under one generation`() {
@@ -46,7 +58,7 @@ internal class LettuceMultiLockTest {
                     .shouldBeInstanceOf<LockAcquireResult.Acquired<MultiLockHandle>>()
                     .handle
                 lock.acquire(OWNER_2, REQUEST_2, Duration.ofMillis(35), LEASE) shouldBeEqualTo
-                    LockAcquireResult.TimedOut
+                        LockAcquireResult.TimedOut
 
                 Thread.sleep(180)
                 val takeover = lock.tryAcquire(OWNER_2, REQUEST_2, LEASE)
@@ -154,19 +166,11 @@ internal class LettuceMultiLockTest {
 
             val pending = lock.acquireAsync(OWNER_2, REQUEST_2, Duration.ofSeconds(5), LEASE)
             lock.close()
-            pending.get(1, TimeUnit.SECONDS) shouldBeEqualTo LockAcquireResult.Closed
+            pending.get(1.seconds) shouldBeEqualTo LockAcquireResult.Closed
         }
     }
 
     private fun config(suffix: String): MultiLockConfig =
-        MultiLockConfig(lock = LockConfig(hashTag = "multi-$suffix-${System.nanoTime()}"))
+        MultiLockConfig(lock = LockConfig(hashTag = "multi-$suffix-${Base58.randomString(8)}"))
 
-    private companion object {
-        val NAMES = listOf("account", "inventory")
-        val OWNER_1 = LockOwnerId.from("multi-owner-1")
-        val OWNER_2 = LockOwnerId.from("multi-owner-2")
-        val REQUEST_1 = LockRequestId.from("multi-request-1")
-        val REQUEST_2 = LockRequestId.from("multi-request-2")
-        val LEASE = LeasePolicy.Fixed(Duration.ofSeconds(3))
-    }
 }

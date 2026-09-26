@@ -22,8 +22,8 @@ import java.util.concurrent.ScheduledExecutorService
  * @receiver [TimeLimiter] 인스턴스
  * @param futureSupplier 실행할 Future 를 생성하는 함수
  */
-inline fun <T, F: Future<T>> TimeLimiter.futureSupplier(
-    crossinline futureSupplier: () -> F,
+fun <T, F: Future<T>> TimeLimiter.futureSupplier(
+    futureSupplier: () -> F,
 ): () -> T = {
     TimeLimiter.decorateFutureSupplier(this) { futureSupplier.invoke() }.call()
 }
@@ -45,9 +45,9 @@ inline fun <T, F: Future<T>> TimeLimiter.futureSupplier(
  * 제공된 스케줄러는 종료하지 않으므로 호출자가 수명주기를 관리해야 합니다.
  * @param futureSupplier 실행할 CompletionStage 를 생성하는 함수
  */
-inline fun <T, F: CompletionStage<T>> TimeLimiter.completionStage(
+fun <T, F: CompletionStage<T>> TimeLimiter.completionStage(
     scheduler: ScheduledExecutorService? = null,
-    crossinline futureSupplier: () -> F,
+    futureSupplier: () -> F,
 ): () -> T = {
     val handle = SchedulerHandle.acquire(scheduler)
     handle.execute { executor ->
@@ -77,9 +77,9 @@ inline fun <T, F: CompletionStage<T>> TimeLimiter.completionStage(
  * 제공된 스케줄러는 종료하지 않으므로 호출자가 수명주기를 관리해야 합니다.
  * @param func 실행할 CompletableFuture 를 생성하는 함수
  */
-inline fun <T, R: CompletableFuture<T>> TimeLimiter.completableFuture(
+fun <T, R: CompletableFuture<T>> TimeLimiter.completableFuture(
     scheduler: ScheduledExecutorService? = null,
-    crossinline func: (T) -> R,
+    func: (T) -> R,
 ): (T) -> R {
     return decorateCompletableFuture(scheduler, func)
 }
@@ -102,9 +102,9 @@ inline fun <T, R: CompletableFuture<T>> TimeLimiter.completableFuture(
  * @param func 실행할 CompletableFuture 를 생성하는 함수
  */
 @Suppress("UNCHECKED_CAST")
-inline fun <T, R: CompletableFuture<T>> TimeLimiter.decorateCompletableFuture(
+fun <T, R: CompletableFuture<T>> TimeLimiter.decorateCompletableFuture(
     scheduler: ScheduledExecutorService? = null,
-    crossinline func: (T) -> R,
+    func: (T) -> R,
 ): (T) -> R = { input: T ->
     val handle = SchedulerHandle.acquire(scheduler)
     handle.execute { executor ->

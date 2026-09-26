@@ -5,7 +5,7 @@ import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeFalse
 import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.assertions.shouldContainSame
-import io.bluetape4k.junit5.coroutines.runSuspendTest
+import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.resilience4j.SuspendHelloWorldService
 import io.github.resilience4j.bulkhead.Bulkhead
@@ -28,7 +28,6 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import java.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
-import kotlin.time.Duration.Companion.seconds
 
 class BulkheadFlowTest {
 
@@ -54,7 +53,7 @@ class BulkheadFlowTest {
     }
 
     @Test
-    fun `성공할 함수를 실행압니다`() = runSuspendTest {
+    fun `성공할 함수를 실행압니다`() = runSuspendIO {
         val bulkhead = Bulkhead.ofDefaults("testName").registerEventListener()
 
         val results = flow {
@@ -73,7 +72,7 @@ class BulkheadFlowTest {
     }
 
     @Test
-    fun `bulkhead가 꽉차면 함수 실행을 하지 않습니다`() = runSuspendTest {
+    fun `bulkhead가 꽉차면 함수 실행을 하지 않습니다`() = runSuspendIO {
         val bulkhead = Bulkhead.of("testName") {
             BulkheadConfig.custom()
                 .maxConcurrentCalls(1)
@@ -124,7 +123,7 @@ class BulkheadFlowTest {
     }
 
     @Test
-    fun `예외가 발생해도 bulkhead는 됩니다`() = runSuspendTest {
+    fun `예외가 발생해도 bulkhead는 됩니다`() = runSuspendIO {
         val bulkhead = Bulkhead.ofDefaults("testName").registerEventListener()
         val results = mutableListOf<Int>()
 
@@ -148,18 +147,55 @@ class BulkheadFlowTest {
     }
 
     @Test
-    fun `실행이 취소되었을 경우 bulkhead는 완료로 기록되지 않습니다`() =
-        runSuspendTest(timeout = 10.seconds) {
-            val started = CompletableDeferred<Unit>()
-            var flowCompleted = false
-            val bulkhead = Bulkhead.of("testName") {
-                BulkheadConfig.custom()
-                    .maxConcurrentCalls(1)
-                    .maxWaitDuration(Duration.ZERO)
-                    .build()
-            }.registerEventListener()
+    fun `실행이 취소되었을 경우 bulkhead는 완료로 기록되지 않습니다`() = runSuspendIO {
+        val started = CompletableDeferred<Unit>()
+        var flowCompleted = false
+        val bulkhead = Bulkhead.of("testName") {
+            BulkheadConfig.custom()
+                .maxConcurrentCalls(1)
+                .maxWaitDuration(Duration.ZERO)
+                .build()
+        }.registerEventListener()
 
-            val job = launch(start = CoroutineStart.ATOMIC) {
+        val job = launch(start = CoroutineStart.ATOMIC) {
+            flow {
+                started.complete(Unit)
+                delay(5000L.milliseconds)
+                emit(1)
+                flowCompleted = true
+            }
+                .bulkhead(bulkhead)
+                .first()
+        }
+
+        started.await()
+        job.cancelAndJoin()
+
+        job.isCompleted.shouldBeTrue()
+        job.isCancelled.shouldBeTrue()
+        flowCompleted.shouldBeFalse()
+
+        permittedEvents shouldBeEqualTo 1
+        rejectedEvents shouldBeEqualTo 0
+        finishedEvents shouldBeEqualTo 0
+    }
+
+    @Test
+    fun `작업이 예외로 인한 취소가 되었을 경우 bulkhead는 완료로 기록되지 않습니다`() = runSuspendIO {
+        val started = CompletableDeferred<Unit>()
+        val parentJob = Job()
+        var flowCompleted = false
+
+        val bulkhead = Bulkhead.of("testName") {
+            BulkheadConfig.custom()
+                .maxConcurrentCalls(1)
+                .maxWaitDuration(Duration.ZERO)
+                .build()
+        }.registerEventListener()
+
+        val parentScope = CoroutineScope(parentJob)
+        val job = parentScope.launch {
+            launch(start = CoroutineStart.ATOMIC) {
                 flow {
                     started.complete(Unit)
                     delay(5000L.milliseconds)
@@ -169,57 +205,18 @@ class BulkheadFlowTest {
                     .bulkhead(bulkhead)
                     .first()
             }
-
-            started.await()
-            job.cancelAndJoin()
-
-            job.isCompleted.shouldBeTrue()
-            job.isCancelled.shouldBeTrue()
-            flowCompleted.shouldBeFalse()
-
-            permittedEvents shouldBeEqualTo 1
-            rejectedEvents shouldBeEqualTo 0
-            finishedEvents shouldBeEqualTo 0
+            error("exceptional cancellation")
         }
 
-    @Test
-    fun `작업이 예외로 인한 취소가 되었을 경우 bulkhead는 완료로 기록되지 않습니다`() =
-        runSuspendTest(timeout = 10.seconds) {
-            val started = CompletableDeferred<Unit>()
-            val parentJob = Job()
-            var flowCompleted = false
+        started.await()
+        parentJob.runCatching { join() }
 
-            val bulkhead = Bulkhead.of("testName") {
-                BulkheadConfig.custom()
-                    .maxConcurrentCalls(1)
-                    .maxWaitDuration(Duration.ZERO)
-                    .build()
-            }.registerEventListener()
+        job.isCompleted.shouldBeTrue()
+        job.isCancelled.shouldBeTrue()
+        flowCompleted.shouldBeFalse()
 
-            val parentScope = CoroutineScope(parentJob)
-            val job = parentScope.launch {
-                launch(start = CoroutineStart.ATOMIC) {
-                    flow {
-                        started.complete(Unit)
-                        delay(5000L.milliseconds)
-                        emit(1)
-                        flowCompleted = true
-                    }
-                        .bulkhead(bulkhead)
-                        .first()
-                }
-                error("exceptional cancellation")
-            }
-
-            started.await()
-            parentJob.runCatching { join() }
-
-            job.isCompleted.shouldBeTrue()
-            job.isCancelled.shouldBeTrue()
-            flowCompleted.shouldBeFalse()
-
-            permittedEvents shouldBeEqualTo 1
-            rejectedEvents shouldBeEqualTo 0
-            finishedEvents shouldBeEqualTo 0
-        }
+        permittedEvents shouldBeEqualTo 1
+        rejectedEvents shouldBeEqualTo 0
+        finishedEvents shouldBeEqualTo 0
+    }
 }

@@ -41,13 +41,13 @@ class LettuceSuspendMultiKeyLease private constructor(
     constructor(
         connection: StatefulRedisConnection<String, String>,
         config: LettuceMultiKeyLeaseConfig = LettuceMultiKeyLeaseConfig(),
-    ) : this(connection.async(), connection.codec, config)
+    ): this(connection.async(), connection.codec, config)
 
     /** Creates a suspending lease facade for a Redis Cluster connection. */
     constructor(
         connection: StatefulRedisClusterConnection<String, String>,
         config: LettuceMultiKeyLeaseConfig = LettuceMultiKeyLeaseConfig(),
-    ) : this(connection.async(), connection.codec, config)
+    ): this(connection.async(), connection.codec, config)
 
     init {
         config.maxKeys.requirePositiveNumber("config.maxKeys")

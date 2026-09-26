@@ -1,5 +1,8 @@
 package io.bluetape4k.grpc.interceptor
 
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldNotBeNull
+import io.bluetape4k.grpc.awaitTermination
 import io.bluetape4k.grpc.examples.helloworld.GreeterGrpcKt
 import io.bluetape4k.grpc.examples.helloworld.GreeterService
 import io.bluetape4k.grpc.examples.helloworld.HelloRequest
@@ -9,22 +12,19 @@ import io.grpc.Metadata
 import io.grpc.ServerInterceptors
 import io.grpc.inprocess.InProcessChannelBuilder
 import io.grpc.inprocess.InProcessServerBuilder
-import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldNotBeNull
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import java.util.concurrent.TimeUnit
+import kotlin.time.Duration.Companion.seconds
 
 /**
  * [echoRequestHeadersInterceptor], [echoRequestMetadataInHeaders], [echoRequestMetadataInTrailers] 인터셉터 테스트
  */
 class ServerInterceptorSupportTest {
+
     companion object: KLogging() {
-        private val X_ID_KEY: Metadata.Key<String> =
-            Metadata.Key.of("x-id", Metadata.ASCII_STRING_MARSHALLER)
-        private val X_TOKEN_KEY: Metadata.Key<String> =
-            Metadata.Key.of("x-token", Metadata.ASCII_STRING_MARSHALLER)
+        private val X_ID_KEY: Metadata.Key<String> = Metadata.Key.of("x-id", Metadata.ASCII_STRING_MARSHALLER)
+        private val X_TOKEN_KEY: Metadata.Key<String> = Metadata.Key.of("x-token", Metadata.ASCII_STRING_MARSHALLER)
     }
 
     private lateinit var serverName: String
@@ -40,7 +40,7 @@ class ServerInterceptorSupportTest {
     fun cleanup() {
         if (::channel.isInitialized && !channel.isShutdown) {
             channel.shutdown()
-            channel.awaitTermination(3, TimeUnit.SECONDS)
+            channel.awaitTermination(3.seconds)
         }
     }
 

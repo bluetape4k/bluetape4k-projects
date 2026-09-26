@@ -3,8 +3,10 @@ package io.bluetape4k.cache.memoizer.inmemory
 import io.bluetape4k.cache.memoizer.AsyncMemoizer
 import io.bluetape4k.cache.memoizer.SingleFlight
 import io.bluetape4k.logging.coroutines.KLoggingChannel
+import okio.withLock
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.locks.ReentrantLock
 
 /**
  * 이 [CompletableFuture] 기반 evaluator에 대한 [InMemoryAsyncMemoizer]를 생성합니다.
@@ -43,6 +45,7 @@ class InMemoryAsyncMemoizer<in T: Any, R: Any>(
 
     private val resultCache = ConcurrentHashMap<@UnsafeVariance T, R>()
     private val singleFlight = SingleFlight<@UnsafeVariance T, R>()
+    private val lock = ReentrantLock()
 
     override fun invoke(input: T): CompletableFuture<R> {
         resultCache[input]?.let { return CompletableFuture.completedFuture(it) }
@@ -61,7 +64,9 @@ class InMemoryAsyncMemoizer<in T: Any, R: Any>(
     }
 
     override fun clear() {
-        singleFlight.clear()
-        resultCache.clear()
+        lock.withLock {
+            singleFlight.clear()
+            resultCache.clear()
+        }
     }
 }

@@ -1,5 +1,6 @@
 package io.bluetape4k.retrofit2.client
 
+import io.bluetape4k.apache.containsIgnoreCase
 import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeFalse
@@ -7,6 +8,8 @@ import io.bluetape4k.assertions.shouldBeNull
 import io.bluetape4k.assertions.shouldBeSameInstanceAs
 import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.assertions.shouldNotBeNull
+import io.bluetape4k.concurrent.await
+import io.bluetape4k.javatimes.seconds
 import okhttp3.Call
 import okhttp3.EventListener
 import okhttp3.Request
@@ -24,6 +27,7 @@ import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicInteger
 import kotlin.concurrent.thread
+import kotlin.time.Duration.Companion.seconds
 
 /**
  * Shared OkHttp [Call.Factory] conformance tests for Retrofit transport adapters.
@@ -65,7 +69,7 @@ abstract class CallFactoryConformanceTest: AbstractClientTest() {
         val latch = CountDownLatch(1)
         call.enqueue(countingCallback(latch))
 
-        latch.await(5, TimeUnit.SECONDS).shouldBeTrue()
+        latch.await(5.seconds).shouldBeTrue()
         call.isCanceled().shouldBeTrue()
     }
 
@@ -79,7 +83,7 @@ abstract class CallFactoryConformanceTest: AbstractClientTest() {
         call.enqueue(countingCallback(latch))
         call.cancel()
 
-        latch.await(5, TimeUnit.SECONDS).shouldBeTrue()
+        latch.await(5.seconds).shouldBeTrue()
         call.isCanceled().shouldBeTrue()
     }
 
@@ -101,7 +105,7 @@ abstract class CallFactoryConformanceTest: AbstractClientTest() {
     fun `call timeout advertises the adapter deadline`() {
         val call = callFactory.newCall(request())
 
-        call.timeout().timeoutNanos() shouldBeEqualTo TimeUnit.SECONDS.toNanos(30)
+        call.timeout().timeoutNanos() shouldBeEqualTo 30.seconds.inWholeNanoseconds
     }
 
     @Test
@@ -115,8 +119,7 @@ abstract class CallFactoryConformanceTest: AbstractClientTest() {
         }
 
         val errorMessage = error.message.shouldNotBeNull()
-        (errorMessage.contains("timeout", ignoreCase = true) ||
-                errorMessage.contains("timed out", ignoreCase = true)).shouldBeTrue()
+        (errorMessage.containsIgnoreCase("timeout") || errorMessage.containsIgnoreCase("timed out")).shouldBeTrue()
         call.isCanceled().shouldBeTrue()
     }
 
@@ -124,7 +127,7 @@ abstract class CallFactoryConformanceTest: AbstractClientTest() {
     fun `execute interruption aborts underlying request and restores interrupt status`() {
         conformanceServer.enqueue(MockResponse().setSocketPolicy(SocketPolicy.NO_RESPONSE))
 
-        val call = callFactory(Duration.ofSeconds(5)).newCall(request())
+        val call = callFactory(5.seconds()).newCall(request())
         val started = CountDownLatch(1)
         val completed = CountDownLatch(1)
         val interruptedStatusRestored = AtomicBoolean(false)
@@ -140,11 +143,11 @@ abstract class CallFactoryConformanceTest: AbstractClientTest() {
             }
         }
 
-        started.await(1, TimeUnit.SECONDS).shouldBeTrue()
+        started.await(1.seconds).shouldBeTrue()
         Thread.sleep(100)
         worker.interrupt()
 
-        completed.await(5, TimeUnit.SECONDS).shouldBeTrue()
+        completed.await(5.seconds).shouldBeTrue()
         interruptedStatusRestored.get().shouldBeTrue()
         call.isCanceled().shouldBeTrue()
     }
@@ -208,6 +211,7 @@ abstract class CallFactoryConformanceTest: AbstractClientTest() {
 
         val eventCount = AtomicInteger()
         val original = callFactory.newCall(request())
+
         original.addEventListener(object: EventListener() {
             override fun callStart(call: Call) {
                 eventCount.incrementAndGet()
@@ -215,7 +219,6 @@ abstract class CallFactoryConformanceTest: AbstractClientTest() {
         })
 
         original.clone().execute().close()
-
         eventCount.get() shouldBeEqualTo 0
     }
 

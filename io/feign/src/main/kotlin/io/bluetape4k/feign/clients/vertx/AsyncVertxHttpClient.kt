@@ -5,6 +5,8 @@ import feign.Request
 import feign.Response
 import io.bluetape4k.http.vertx.vertxHttpClientOf
 import io.bluetape4k.logging.coroutines.KLoggingChannel
+import io.bluetape4k.logging.debug
+import io.bluetape4k.logging.warn
 import io.vertx.core.http.HttpClient
 import java.util.*
 import java.util.concurrent.CompletableFuture
@@ -71,6 +73,10 @@ class AsyncVertxHttpClient private constructor(
      * - runBlocking을 사용하지 않아 코루틴 컨텍스트와 충돌하지 않습니다.
      */
     override fun close() {
-        vertxClient.close()
+        runCatching { vertxClient.close() }
+            .onSuccess { log.debug { "Close AsyncVertxHttpClient." } }
+            .onFailure {
+                log.warn(it) { "Fail to close AsyncVertxHttpClient." }
+            }
     }
 }

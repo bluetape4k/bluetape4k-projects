@@ -1,11 +1,13 @@
 package io.bluetape4k.rule.readers
 
 import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.warn
 import io.bluetape4k.rule.DEFAULT_RULE_DESCRIPTION
 import io.bluetape4k.rule.DEFAULT_RULE_NAME
 import io.bluetape4k.rule.DEFAULT_RULE_PRIORITY
 import io.bluetape4k.rule.api.RuleDefinition
+import io.bluetape4k.support.requireNotBlank
 
 /**
  * Rule 정의 소스로부터 [RuleDefinition]을 읽어들이는 인터페이스입니다.
@@ -54,10 +56,12 @@ interface RuleReader<Source> {
      */
     @Suppress("UNCHECKED_CAST")
     fun createRuleDefinition(map: Map<String, Any?>): RuleDefinition {
+        log.debug { "Creating RuleDefinition from map: $map" }
+        
         val name = map["name"] as? String ?: DEFAULT_RULE_NAME
 
         val condition = map["condition"] as? String ?: ""
-        require(condition.isNotBlank()) { "The rule condition must be specified. rule name=$name" }
+        condition.requireNotBlank { "The rule condition must be specified. rule name=$name" }
 
         val actions = map["actions"] as? List<String>
         require(!actions.isNullOrEmpty()) { "The rule action(s) must be specified. rule name=$name" }
@@ -78,10 +82,8 @@ interface RuleReader<Source> {
         return try {
             createRuleDefinition(map)
         } catch (e: Exception) {
-            log.warn {
-                "Fail to convert map to RuleDefinition. " +
-                        "ruleName=${map["name"] ?: DEFAULT_RULE_NAME}, fieldCount=${map.size}, " +
-                        "exceptionType=${e.javaClass.name}"
+            log.warn(e) {
+                "Fail to convert map to RuleDefinition. ruleName=${map["name"] ?: DEFAULT_RULE_NAME}, fieldCount=${map.size}"
             }
             null
         }

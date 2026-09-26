@@ -2,6 +2,7 @@ package io.bluetape4k.redis.lettuce.lease
 
 import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.redis.lettuce.LettuceClients
 import io.bluetape4k.redis.lettuce.LettuceTestUtils
 import io.lettuce.core.RedisFuture
@@ -28,9 +29,13 @@ import java.util.concurrent.TimeUnit
 import java.util.concurrent.TimeoutException
 
 @OptIn(ExperimentalCoroutinesApi::class)
-internal class LettuceSuspendMultiKeyLeaseTest : MultiKeyLeaseContract() {
+internal class LettuceSuspendMultiKeyLeaseTest: MultiKeyLeaseContract() {
 
-    private val connection by lazy { LettuceClients.connect(LettuceTestUtils.client, StringCodec.UTF8) }
+    companion object: KLoggingChannel()
+
+    private val connection: StatefulRedisConnection<String, String> by lazy {
+        LettuceClients.connect(LettuceTestUtils.client, StringCodec.UTF8)
+    }
     override val commands: RedisCommands<String, String> by lazy { connection.sync() }
 
     private val lease by lazy { LettuceSuspendMultiKeyLease(connection) }
@@ -47,7 +52,9 @@ internal class LettuceSuspendMultiKeyLeaseTest : MultiKeyLeaseContract() {
         every { standalone.async() } returns standaloneAsync
         every { standalone.codec } returns StringCodec.UTF8
 
-        assertFailsWith<IllegalArgumentException> { LettuceSuspendMultiKeyLease(standalone, corrupted) }
+        assertFailsWith<IllegalArgumentException> {
+            LettuceSuspendMultiKeyLease(standalone, corrupted)
+        }
         verify { standaloneAsync wasNot Called }
 
         val clusterAsync = mockk<RedisAdvancedClusterAsyncCommands<String, String>>(relaxed = true)
@@ -55,7 +62,9 @@ internal class LettuceSuspendMultiKeyLeaseTest : MultiKeyLeaseContract() {
         every { cluster.async() } returns clusterAsync
         every { cluster.codec } returns StringCodec.UTF8
 
-        assertFailsWith<IllegalArgumentException> { LettuceSuspendMultiKeyLease(cluster, corrupted) }
+        assertFailsWith<IllegalArgumentException> {
+            LettuceSuspendMultiKeyLease(cluster, corrupted)
+        }
         verify { clusterAsync wasNot Called }
     }
 
@@ -70,6 +79,7 @@ internal class LettuceSuspendMultiKeyLeaseTest : MultiKeyLeaseContract() {
         assertFailsWith<IllegalArgumentException> {
             target.acquire(listOf("lease:{validation}:one"), "owner", Duration.ZERO)
         }
+
         assertFailsWith<MultiKeyLeaseCrossSlotException> {
             target.inspect(listOf("lease:{one}:a", "lease:{two}:b"), "owner")
         }
@@ -111,22 +121,29 @@ internal class LettuceSuspendMultiKeyLeaseTest : MultiKeyLeaseContract() {
         }
     }
 
-    private fun corruptedConfig(): LettuceMultiKeyLeaseConfig = LettuceMultiKeyLeaseConfig().also { config ->
-        LettuceMultiKeyLeaseConfig::class.java.getDeclaredField("maxKeys").apply {
-            isAccessible = true
-            setInt(config, 0)
+    private fun corruptedConfig(): LettuceMultiKeyLeaseConfig = LettuceMultiKeyLeaseConfig()
+        .also { config ->
+            LettuceMultiKeyLeaseConfig::class.java.getDeclaredField("maxKeys")
+                .apply {
+                    isAccessible = true
+                    setInt(config, 0)
+                }
         }
-    }
 
     private fun suspendAdapter(target: LettuceSuspendMultiKeyLease): MultiKeyLeaseAdapter =
-        object : MultiKeyLeaseAdapter {
+        object: MultiKeyLeaseAdapter {
             override val name: String = "suspend"
             override suspend fun acquire(keys: Collection<String>, ownerToken: String, leaseTime: Duration) =
                 target.acquire(keys, ownerToken, leaseTime)
-            override suspend fun inspect(keys: Collection<String>, ownerToken: String) = target.inspect(keys, ownerToken)
+
+            override suspend fun inspect(keys: Collection<String>, ownerToken: String) =
+                target.inspect(keys, ownerToken)
+
             override suspend fun renew(keys: Collection<String>, ownerToken: String, leaseTime: Duration) =
                 target.renew(keys, ownerToken, leaseTime)
-            override suspend fun release(keys: Collection<String>, ownerToken: String) = target.release(keys, ownerToken)
+
+            override suspend fun release(keys: Collection<String>, ownerToken: String) =
+                target.release(keys, ownerToken)
         }
 
     private class TestRedisFuture<T>: CompletableFuture<T>(), RedisFuture<T> {

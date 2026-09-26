@@ -2,8 +2,10 @@ package io.bluetape4k.resilience4j.retry
 
 import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeGreaterOrEqualTo
 import io.bluetape4k.assertions.shouldBeTrue
-import io.bluetape4k.junit5.coroutines.runSuspendTest
+import io.bluetape4k.concurrent.get
+import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.github.resilience4j.retry.Retry
 import io.github.resilience4j.retry.RetryConfig
@@ -11,6 +13,7 @@ import org.junit.jupiter.api.Test
 import java.io.IOException
 import java.time.Duration
 import java.util.concurrent.CompletableFuture
+import kotlin.time.Duration.Companion.seconds
 
 class RetryExtensionsTest {
 
@@ -24,7 +27,7 @@ class RetryExtensionsTest {
     }
 
     @Test
-    fun `withRetry - 성공하는 함수는 한 번만 실행된다`() = runSuspendTest {
+    fun `withRetry - 성공하는 함수는 한 번만 실행된다`() = runSuspendIO {
         var count = 0
         // 타입 파라미터 명시로 오버로드 충돌 해결
         val result = withRetry<String>(retry) {
@@ -37,7 +40,7 @@ class RetryExtensionsTest {
     }
 
     @Test
-    fun `withRetry - 예외 발생 시 maxAttempts만큼 재시도한다`() = runSuspendTest {
+    fun `withRetry - 예외 발생 시 maxAttempts만큼 재시도한다`() = runSuspendIO {
         var count = 0
 
         assertFailsWith<IOException> {
@@ -51,7 +54,7 @@ class RetryExtensionsTest {
     }
 
     @Test
-    fun `withRetry - 1개 파라미터 함수에 적용한다`() = runSuspendTest {
+    fun `withRetry - 1개 파라미터 함수에 적용한다`() = runSuspendIO {
         var count = 0
         val result = withRetry(retry, 21) { input: Int ->
             count++
@@ -63,7 +66,7 @@ class RetryExtensionsTest {
     }
 
     @Test
-    fun `withRetry - 1개 파라미터 함수 실패 시 재시도한다`() = runSuspendTest {
+    fun `withRetry - 1개 파라미터 함수 실패 시 재시도한다`() = runSuspendIO {
         var count = 0
 
         assertFailsWith<IOException> {
@@ -77,7 +80,7 @@ class RetryExtensionsTest {
     }
 
     @Test
-    fun `withRetry - 2개 파라미터 함수에 적용한다`() = runSuspendTest {
+    fun `withRetry - 2개 파라미터 함수에 적용한다`() = runSuspendIO {
         var count = 0
         val result = withRetry(retry, 21, 21) { a: Int, b: Int ->
             count++
@@ -89,7 +92,7 @@ class RetryExtensionsTest {
     }
 
     @Test
-    fun `withRetry - 2개 파라미터 함수 실패 시 재시도한다`() = runSuspendTest {
+    fun `withRetry - 2개 파라미터 함수 실패 시 재시도한다`() = runSuspendIO {
         var count = 0
 
         assertFailsWith<IOException> {
@@ -103,7 +106,7 @@ class RetryExtensionsTest {
     }
 
     @Test
-    fun `decorateSuspendFunction1 - 성공 시 정상 반환한다`() = runSuspendTest {
+    fun `decorateSuspendFunction1 - 성공 시 정상 반환한다`() = runSuspendIO {
         val decorated = retry.decorateSuspendFunction1 { input: Int ->
             input * 2
         }
@@ -112,7 +115,7 @@ class RetryExtensionsTest {
     }
 
     @Test
-    fun `decorateSuspendBiFunction - 성공 시 정상 반환한다`() = runSuspendTest {
+    fun `decorateSuspendBiFunction - 성공 시 정상 반환한다`() = runSuspendIO {
         val decorated = retry.decorateSuspendBiFunction { a: Int, b: Int ->
             a + b
         }
@@ -121,7 +124,7 @@ class RetryExtensionsTest {
     }
 
     @Test
-    fun `decorateSuspendFunction1 - 재시도 후 성공하면 결과를 반환한다`() = runSuspendTest {
+    fun `decorateSuspendFunction1 - 재시도 후 성공하면 결과를 반환한다`() = runSuspendIO {
         var attempt = 0
         val decorated = retry.decorateSuspendFunction1 { input: Int ->
             attempt++
@@ -131,14 +134,14 @@ class RetryExtensionsTest {
 
         val result = decorated(21)
         result shouldBeEqualTo 42
-        (attempt >= 2).shouldBeTrue()
+        attempt shouldBeGreaterOrEqualTo 2
     }
 
     @Test
     fun `runnable - 성공 시 실행된다`() {
         var executed = false
         retry.runnable { executed = true }.run()
-        executed shouldBeEqualTo true
+        executed.shouldBeTrue()
     }
 
     @Test
@@ -209,7 +212,7 @@ class RetryExtensionsTest {
         val supplier = retry.completionStage {
             CompletableFuture.supplyAsync { 42 }
         }
-        val result = supplier().toCompletableFuture().get()
+        val result = supplier().toCompletableFuture().get(1.seconds)
         result shouldBeEqualTo 42
     }
 
@@ -218,7 +221,7 @@ class RetryExtensionsTest {
         val func = retry.completableFutureFunction { input: Int ->
             CompletableFuture.supplyAsync { input * 2 }
         }
-        val result = func(21).get()
+        val result = func(21).get(1.seconds)
         result shouldBeEqualTo 42
     }
 
@@ -227,7 +230,7 @@ class RetryExtensionsTest {
         val func = retry.completableFuture { input: Int ->
             CompletableFuture.supplyAsync { input * 2 }
         }
-        val result = func(21).get()
+        val result = func(21).get(1.seconds)
         result shouldBeEqualTo 42
     }
 
@@ -236,7 +239,7 @@ class RetryExtensionsTest {
         val func = withRetry<Int, Int>(retry) { input ->
             CompletableFuture.supplyAsync { input * 2 }
         }
-        val result = func(21).get()
+        val result = func(21).get(1.seconds)
         result shouldBeEqualTo 42
     }
 }

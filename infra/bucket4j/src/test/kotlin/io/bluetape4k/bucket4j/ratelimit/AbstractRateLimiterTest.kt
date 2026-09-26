@@ -1,12 +1,13 @@
 package io.bluetape4k.bucket4j.ratelimit
 
+import io.bluetape4k.assertions.assertFailsWith
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.bucket4j.MAX_TOKENS_PER_REQUEST
 import io.bluetape4k.bucket4j.bucketConfiguration
 import io.bluetape4k.codec.Base58
 import io.bluetape4k.logging.KLogging
-import io.bluetape4k.assertions.shouldBeEqualTo
 import org.junit.jupiter.api.Test
 import java.time.Duration
-import io.bluetape4k.assertions.assertFailsWith
 
 abstract class AbstractRateLimiterTest {
 
@@ -17,15 +18,14 @@ abstract class AbstractRateLimiterTest {
         val defaultBucketConfiguration by lazy {
             bucketConfiguration {
                 addLimit {
-                    it
-                        .capacity(INITIAL_CAPACITY)
+                    it.capacity(INITIAL_CAPACITY)
                         .refillIntervally(INITIAL_CAPACITY, Duration.ofSeconds(10))
                 }
             }
         }
     }
 
-    abstract val rateLimiter: RateLimiter<String>
+    protected abstract val rateLimiter: RateLimiter<String>
 
     protected fun randomKey(): String = "bucket-" + Base58.randomString(6)
 

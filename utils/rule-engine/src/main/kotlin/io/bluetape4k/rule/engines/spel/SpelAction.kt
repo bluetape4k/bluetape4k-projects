@@ -56,9 +56,8 @@ class SpelAction private constructor(
             beanResolver?.run { context.setBeanResolver(this) }
             compiledExpr.getValue(context)
         } catch (e: Exception) {
-            log.error {
-                "Fail to execute SpEL expression. ${expression.toRuleSourceLogContext()}, " +
-                        "exceptionType=${e.javaClass.name}, factCount=${facts.size}"
+            log.error(e) {
+                "Fail to execute SpEL expression. ${expression.toRuleSourceLogContext()}, factCount=${facts.size}"
             }
             throw RuleException("Fail to execute SpEL expression", e)
         }

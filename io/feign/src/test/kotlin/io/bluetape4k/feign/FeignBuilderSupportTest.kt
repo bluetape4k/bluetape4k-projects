@@ -1,13 +1,18 @@
 package io.bluetape4k.feign
 
 import feign.Client
+import feign.Feign
 import feign.Request.HttpMethod
 import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeInstanceOf
 import io.bluetape4k.assertions.shouldBeNull
 import io.bluetape4k.assertions.shouldNotBeNull
+import io.bluetape4k.logging.KLogging
 import org.junit.jupiter.api.Test
 
 class FeignBuilderSupportTest {
+
+    companion object: KLogging()
 
     @Test
     fun `feignBuilder 는 기본 설정으로도 builder 를 생성한다`() {
@@ -34,6 +39,7 @@ class FeignBuilderSupportTest {
         val builder = feignBuilderOf(client = markerClient)
         val deprecatedBuilder = feignBuilderOf(client = markerClient)
 
-        builder::class shouldBeEqualTo deprecatedBuilder::class
+        builder.shouldBeInstanceOf<Feign.Builder>()
+        deprecatedBuilder.shouldBeInstanceOf<Feign.Builder>()
     }
 }

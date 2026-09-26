@@ -1,8 +1,10 @@
 package io.bluetape4k.redis.lettuce.synchronizer.internal
 
+import io.bluetape4k.concurrent.completableFutureOf
+import io.bluetape4k.logging.coroutines.KLoggingChannel
+import io.bluetape4k.redis.lettuce.coordination.internal.CoordinationRuntime
 import io.bluetape4k.redis.lettuce.script.RedisScript
 import io.bluetape4k.redis.lettuce.script.RedisScriptRunner
-import io.bluetape4k.redis.lettuce.coordination.internal.CoordinationRuntime
 import io.bluetape4k.redis.lettuce.synchronizer.PermitAcquireResult
 import io.bluetape4k.redis.lettuce.synchronizer.PermitHandle
 import io.bluetape4k.redis.lettuce.synchronizer.PermitInspectResult
@@ -26,12 +28,12 @@ import io.lettuce.core.api.StatefulRedisConnection
 import io.lettuce.core.api.async.RedisScriptingAsyncCommands
 import io.lettuce.core.api.sync.RedisScriptingCommands
 import io.lettuce.core.cluster.api.StatefulRedisClusterConnection
+import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.future.await
 import java.time.Duration
-import java.util.UUID
+import java.util.*
 import java.util.concurrent.CompletableFuture
-import java.util.concurrent.atomic.AtomicBoolean
 
 internal class SemaphoreClient private constructor(
     private val keys: SemaphoreKeys,
@@ -40,22 +42,26 @@ internal class SemaphoreClient private constructor(
     private val async: RedisScriptingAsyncCommands<String, String>,
     private val poller: SynchronizerAsyncPoller,
 ) {
-    private val closed = AtomicBoolean()
+    private val closed = atomic(false)
 
     fun trySetPermits(permits: Int): SemaphoreInitializationResult {
         if (permits !in 1..config.maxPermits) return SemaphoreInitializationResult.InvalidCapacity
-        if (closed.get()) return SemaphoreInitializationResult.Closed
+        if (closed.value) return SemaphoreInitializationResult.Closed
+
         return classified(
             { SemaphoreInitializationResult.BackendFailure(it) },
             { SemaphoreInitializationResult.IntegrityFailure(it) },
-        ) { decodeInitialization(run(SynchronizerScripts.TRY_SET_PERMITS_SCRIPT, keys.regular, permits.toString())) }
+        ) {
+            decodeInitialization(run(SynchronizerScripts.TRY_SET_PERMITS_SCRIPT, keys.regular, permits.toString()))
+        }
     }
 
     fun trySetPermitsAsync(permits: Int): CompletableFuture<SemaphoreInitializationResult> {
         if (permits !in 1..config.maxPermits) {
-            return CompletableFuture.completedFuture(SemaphoreInitializationResult.InvalidCapacity)
+            return completableFutureOf(SemaphoreInitializationResult.InvalidCapacity)
         }
-        if (closed.get()) return CompletableFuture.completedFuture(SemaphoreInitializationResult.Closed)
+        if (closed.value) return completableFutureOf(SemaphoreInitializationResult.Closed)
+
         return runAsync(SynchronizerScripts.TRY_SET_PERMITS_SCRIPT, keys.regular, permits.toString())
             .classifiedFuture(
                 { decodeInitialization(it) },
@@ -65,13 +71,14 @@ internal class SemaphoreClient private constructor(
     }
 
     fun availablePermits(): Int {
-        if (closed.get()) return -1
+        if (closed.value) return -1
         val raw = run(SynchronizerScripts.AVAILABLE_SCRIPT, keys.regular)
         return decodeReply(raw)?.singleOrNull()?.toIntOrNull() ?: -1
     }
 
     fun availablePermitsAsync(): CompletableFuture<Int> {
-        if (closed.get()) return CompletableFuture.completedFuture(-1)
+        if (closed.value) return completableFutureOf(-1)
+
         return runAsync(SynchronizerScripts.AVAILABLE_SCRIPT, keys.regular)
             .thenApply { decodeReply(it)?.singleOrNull()?.toIntOrNull() ?: -1 }
     }
@@ -82,7 +89,8 @@ internal class SemaphoreClient private constructor(
         permits: Int,
     ): PermitAcquireResult<PermitHandle> {
         validatePermits(permits)
-        if (closed.get()) return PermitAcquireResult.Closed
+        if (closed.value) return PermitAcquireResult.Closed
+
         return classified(
             { ambiguousAcquire(it, requestId) },
             { PermitAcquireResult.IntegrityFailure(it) },
@@ -108,7 +116,8 @@ internal class SemaphoreClient private constructor(
         permits: Int,
     ): CompletableFuture<PermitAcquireResult<PermitHandle>> {
         validatePermits(permits)
-        if (closed.get()) return CompletableFuture.completedFuture(PermitAcquireResult.Closed)
+        if (closed.value) return completableFutureOf(PermitAcquireResult.Closed)
+
         return runAsync(
             SynchronizerScripts.ACQUIRE_SCRIPT,
             keys.regular,
@@ -131,12 +140,14 @@ internal class SemaphoreClient private constructor(
     ): PermitAcquireResult<PermitHandle> {
         validateWait(waitTime)
         val deadline = System.nanoTime() + waitTime.toNanos()
+
         do {
             when (val result = tryAcquire(ownerId, requestId, permits)) {
                 PermitAcquireResult.Unavailable -> Thread.sleep(config.pollInterval.toMillis().coerceAtLeast(1))
                 else -> return result
             }
         } while (System.nanoTime() < deadline)
+
         return PermitAcquireResult.TimedOut
     }
 
@@ -177,7 +188,7 @@ internal class SemaphoreClient private constructor(
 
     fun inspect(handle: PermitHandle): PermitInspectResult<PermitHandle> {
         validateHandle(handle)
-        if (closed.get()) return PermitInspectResult.Closed
+        if (closed.value) return PermitInspectResult.Closed
         return classified(
             { PermitInspectResult.BackendFailure(it) },
             { PermitInspectResult.IntegrityFailure(it) },
@@ -186,7 +197,8 @@ internal class SemaphoreClient private constructor(
 
     fun inspectAsync(handle: PermitHandle): CompletableFuture<PermitInspectResult<PermitHandle>> {
         validateHandle(handle)
-        if (closed.get()) return CompletableFuture.completedFuture(PermitInspectResult.Closed)
+        if (closed.value) return completableFutureOf(PermitInspectResult.Closed)
+
         return runAsync(SynchronizerScripts.INSPECT_SCRIPT, keys.regular, *handleArgs(handle))
             .classifiedFuture(
                 { decodeInspect(it, handle) },
@@ -197,7 +209,7 @@ internal class SemaphoreClient private constructor(
 
     fun release(handle: PermitHandle): PermitMutationResult<PermitHandle> {
         validateHandle(handle)
-        if (closed.get()) return PermitMutationResult.Closed
+        if (closed.value) return PermitMutationResult.Closed
         return classified(
             { ambiguousMutation(it, handle.requestId) },
             { PermitMutationResult.IntegrityFailure(it) },
@@ -206,7 +218,8 @@ internal class SemaphoreClient private constructor(
 
     fun releaseAsync(handle: PermitHandle): CompletableFuture<PermitMutationResult<PermitHandle>> {
         validateHandle(handle)
-        if (closed.get()) return CompletableFuture.completedFuture(PermitMutationResult.Closed)
+        if (closed.value) return completableFutureOf(PermitMutationResult.Closed)
+
         return runAsync(SynchronizerScripts.RELEASE_SCRIPT, keys.regular, *handleArgs(handle))
             .classifiedFuture(
                 { decodeRelease(it, handle) },
@@ -219,7 +232,8 @@ internal class SemaphoreClient private constructor(
         ownerId: SemaphoreOwnerId,
         requestId: SemaphoreRequestId,
     ): PermitReconcileResult<PermitHandle> {
-        if (closed.get()) return PermitReconcileResult.Closed
+        if (closed.value) return PermitReconcileResult.Closed
+
         return classified(
             { PermitReconcileResult.BackendFailure(it) },
             { PermitReconcileResult.IntegrityFailure(it) },
@@ -236,17 +250,23 @@ internal class SemaphoreClient private constructor(
         ownerId: SemaphoreOwnerId,
         requestId: SemaphoreRequestId,
     ): CompletableFuture<PermitReconcileResult<PermitHandle>> {
-        if (closed.get()) return CompletableFuture.completedFuture(PermitReconcileResult.Closed)
-        return runAsync(SynchronizerScripts.RECONCILE_SCRIPT, keys.regular, ownerId.value, requestId.value)
-            .classifiedFuture(
-                { decodeReconcile(it, ownerId, requestId) },
-                { PermitReconcileResult.BackendFailure(it) },
-                { PermitReconcileResult.IntegrityFailure(it) },
-            )
+        if (closed.value) return completableFutureOf(PermitReconcileResult.Closed)
+
+        return runAsync(
+            SynchronizerScripts.RECONCILE_SCRIPT,
+            keys.regular,
+            ownerId.value, requestId.value
+        ).classifiedFuture(
+            { decodeReconcile(it, ownerId, requestId) },
+            { PermitReconcileResult.BackendFailure(it) },
+            { PermitReconcileResult.IntegrityFailure(it) },
+        )
     }
 
     fun close() {
-        if (closed.compareAndSet(false, true)) poller.close()
+        if (closed.compareAndSet(expect = false, update = true)) {
+            poller.close()
+        }
     }
 
     private fun run(script: RedisScript, scriptKeys: Array<String>, vararg args: String): List<String> =
@@ -261,12 +281,13 @@ internal class SemaphoreClient private constructor(
 
     private fun decodeInitialization(raw: List<String>): SemaphoreInitializationResult {
         val reply = decodeReply(raw) ?: return integrityInitialization()
+
         return when (reply[0]) {
-            "INITIALIZED" -> reply.getOrNull(1)?.toLongOrNull()?.takeIf { it > 0 }
+            "INITIALIZED"      -> reply.getOrNull(1)?.toLongOrNull()?.takeIf { it > 0 }
                 ?.let(SemaphoreInitializationResult::Initialized) ?: integrityInitialization()
             "ALREADY_INITIALIZED" -> SemaphoreInitializationResult.AlreadyInitialized
             "INVALID_CAPACITY" -> SemaphoreInitializationResult.InvalidCapacity
-            else -> integrityInitialization()
+            else               -> integrityInitialization()
         }
     }
 
@@ -276,8 +297,9 @@ internal class SemaphoreClient private constructor(
         requestId: SemaphoreRequestId,
     ): PermitAcquireResult<PermitHandle> {
         val reply = decodeReply(raw) ?: return integrityAcquire()
+
         return when (reply[0]) {
-            "ACQUIRED" -> {
+            "ACQUIRED"          -> {
                 val generation = reply.getOrNull(2)?.toLongOrNull()
                 val permits = reply.getOrNull(3)?.toIntOrNull()
                 if (generation == null || permits == null) integrityAcquire()
@@ -287,29 +309,31 @@ internal class SemaphoreClient private constructor(
             }
             "UNAVAILABLE", "NOT_INITIALIZED", "REQUEST_COMPLETED" -> PermitAcquireResult.Unavailable
             "CAPACITY_EXCEEDED" -> PermitAcquireResult.CapacityExceeded
-            else -> integrityAcquire()
+            else                -> integrityAcquire()
         }
     }
 
     private fun decodeInspect(raw: List<String>, handle: PermitHandle): PermitInspectResult<PermitHandle> {
         val reply = decodeReply(raw) ?: return integrityInspect()
+
         return when (reply[0]) {
-            "OWNED" -> reply.getOrNull(1)?.toIntOrNull()?.takeIf { it >= 0 }
+            "OWNED"    -> reply.getOrNull(1)?.toIntOrNull()?.takeIf { it >= 0 }
                 ?.let { PermitInspectResult.Owned(handle, it) } ?: integrityInspect()
             "RELEASED" -> PermitInspectResult.Released
             "STALE_GENERATION" -> PermitInspectResult.StaleGeneration
-            else -> integrityInspect()
+            else       -> integrityInspect()
         }
     }
 
     private fun decodeRelease(raw: List<String>, handle: PermitHandle): PermitMutationResult<PermitHandle> {
         val reply = decodeReply(raw) ?: return integrityMutation()
+
         return when (reply[0]) {
             "RELEASED" -> reply.getOrNull(1)?.toIntOrNull()?.takeIf { it >= 0 }
                 ?.let { PermitMutationResult.Released(handle, it) } ?: integrityMutation()
             "ALREADY_RELEASED" -> PermitMutationResult.AlreadyReleased
             "STALE_GENERATION" -> PermitMutationResult.StaleGeneration
-            else -> integrityMutation()
+            else       -> integrityMutation()
         }
     }
 
@@ -319,8 +343,9 @@ internal class SemaphoreClient private constructor(
         requestId: SemaphoreRequestId,
     ): PermitReconcileResult<PermitHandle> {
         val reply = decodeReply(raw) ?: return integrityReconcile()
+
         return when (reply[0]) {
-            "OWNED" -> {
+            "OWNED"    -> {
                 val generation = reply.getOrNull(2)?.toLongOrNull()
                 val permits = reply.getOrNull(3)?.toIntOrNull()
                 val remaining = reply.getOrNull(4)?.toIntOrNull()
@@ -332,7 +357,7 @@ internal class SemaphoreClient private constructor(
             }
             "RELEASED" -> PermitReconcileResult.Released
             "NOT_FOUND" -> PermitReconcileResult.NotFound
-            else -> integrityReconcile()
+            else       -> integrityReconcile()
         }
     }
 
@@ -352,7 +377,7 @@ internal class SemaphoreClient private constructor(
     private fun handleArgs(handle: PermitHandle): Array<String> =
         arrayOf(handle.token, handle.generation.toString(), handle.ownerId.value, handle.requestId.value)
 
-    companion object {
+    companion object: KLoggingChannel() {
         fun create(
             connection: StatefulRedisConnection<String, String>,
             name: String,
@@ -394,7 +419,7 @@ private fun backend(error: Throwable): SynchronizerBackendFailure {
     val kind = when (cause) {
         is RedisCommandTimeoutException -> SynchronizerBackendFailureKind.TIMEOUT
         is RedisConnectionException -> SynchronizerBackendFailureKind.CONNECTION
-        else -> SynchronizerBackendFailureKind.COMMAND
+        else                        -> SynchronizerBackendFailureKind.COMMAND
     }
     return SynchronizerBackendFailure(kind, SynchronizerRecoveryAction.RETRY)
 }
@@ -433,12 +458,16 @@ private fun <T> CompletableFuture<List<String>>.classifiedFuture(
 
 private fun integrityInitialization() =
     SemaphoreInitializationResult.IntegrityFailure(integrity())
+
 private fun integrityAcquire() =
     PermitAcquireResult.IntegrityFailure(integrity())
+
 private fun integrityInspect() =
     PermitInspectResult.IntegrityFailure(integrity())
+
 private fun integrityMutation() =
     PermitMutationResult.IntegrityFailure(integrity())
+
 private fun integrityReconcile() =
     PermitReconcileResult.IntegrityFailure(integrity())
 

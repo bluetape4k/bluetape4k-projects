@@ -46,18 +46,18 @@ configurations.matching { it.name.startsWith("test") }.configureEach {
     resolutionStrategy.eachDependency {
         when (requested.group) {
             "org.springframework.boot" -> {
-                useVersion("4.0.6")
+                useVersion("4.1.1")
                 because("Spring Boot 4 테스트: global Spring Boot BOM 다운그레이드 방지")
             }
-            "org.springframework" -> {
-                useVersion("7.0.7")
-                because("Spring Framework 7.0.7: Spring Boot 4 4.0.6 호환 버전 강제")
+            "org.springframework"      -> {
+                useVersion("7.0.9")
+                because("Spring Framework 7.0.9: Spring Boot 4 4.1.1 호환 버전 강제")
             }
-            "org.hibernate.orm"   -> {
-                useVersion("7.2.7.Final")
-                because("Hibernate 7.2.7.Final: Spring Boot 4 4.0.6 호환 버전 강제")
+            "org.hibernate.orm"        -> {
+                useVersion("7.4.7.Final")
+                because("Hibernate 7.4.7.Final: Spring Boot 4 4.0.6 호환 버전 강제")
             }
-            "jakarta.persistence" -> {
+            "jakarta.persistence"      -> {
                 useVersion("3.2.0")
                 because("Jakarta Persistence 3.2: Hibernate 7 / Spring Boot 4 호환 버전 강제")
             }
@@ -109,12 +109,12 @@ dependencies {
     api(project(":bluetape4k-io"))
     testImplementation(project(":bluetape4k-junit5"))
 
+    api(bt4k.hibernate.core)
+    api(libs.hibernate.micrometer)
+
     api(bt4k.jakarta.persistence.v32)
     kapt(bt4k.jakarta.persistence.v32)
     api(bt4k.jakarta.transaction.api)
-
-    api(bt4k.hibernate.core)
-    api(libs.hibernate.micrometer)
 
     // NOTE: Kotlin 2.1.0 에서 QueryDSL 5.1.0 과 같이 사용하는 경우 예에가 발생한다. (QueryDSL만 사용하는 것을 추천합니다)
     // kapt(libs.hibernate.jpamodelgen)
@@ -134,11 +134,11 @@ dependencies {
 
     // Converter
     // compileOnly(project(":bluetape4k-crypto"))
-    api(project(":bluetape4k-tink"))
-    api(project(":bluetape4k-jackson3"))
+    compileOnly(project(":bluetape4k-tink"))
+    compileOnly(project(":bluetape4k-jackson3"))
 
     runtimeOnly(bt4k.kryo)
-    runtimeOnly(bt4k.fory.kotlin)  // new Apache Fory
+    runtimeOnly(bt4k.fory.kotlin)
 
     runtimeOnly(bt4k.commons.compress)
     runtimeOnly(bt4k.snappy.java)
@@ -181,5 +181,6 @@ dependencies {
     // JDBC 와 같이 사용
     testImplementation(project(":bluetape4k-jdbc"))
 
+    consumerRuntimeTestImplementation(project(":bluetape4k-tink"))
     consumerRuntimeTestImplementation(project(":bluetape4k-junit5"))
 }

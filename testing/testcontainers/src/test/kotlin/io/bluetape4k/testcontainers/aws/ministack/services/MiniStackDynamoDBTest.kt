@@ -1,15 +1,16 @@
 package io.bluetape4k.testcontainers.aws.ministack.services
 
-import io.bluetape4k.logging.KLogging
-import io.bluetape4k.logging.debug
-import io.bluetape4k.testcontainers.aws.getCredentialProvider
-import io.bluetape4k.testcontainers.aws.ministack.AbstractMiniStackServiceTest
-import io.bluetape4k.utils.ShutdownQueue
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeGreaterOrEqualTo
 import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.assertions.shouldContain
 import io.bluetape4k.assertions.shouldNotBeNull
+import io.bluetape4k.codec.Base58
+import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.debug
+import io.bluetape4k.testcontainers.aws.getCredentialProvider
+import io.bluetape4k.testcontainers.aws.ministack.AbstractMiniStackServiceTest
+import io.bluetape4k.utils.ShutdownQueue
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.MethodOrderer
 import org.junit.jupiter.api.Order
@@ -33,10 +34,10 @@ import software.amazon.awssdk.services.dynamodb.model.ScanRequest
  * MiniStack DynamoDB 서비스 통합 테스트.
  */
 @TestMethodOrder(MethodOrderer.OrderAnnotation::class)
-class MiniStackDynamoDBTest : AbstractMiniStackServiceTest() {
+class MiniStackDynamoDBTest: AbstractMiniStackServiceTest() {
 
-    companion object : KLogging() {
-        private val TABLE_NAME = "ministack-test-table-${System.currentTimeMillis()}"
+    companion object: KLogging() {
+        private val TABLE_NAME = "ministack-test-table-${Base58.randomString(8)}"
     }
 
     private val client by lazy {

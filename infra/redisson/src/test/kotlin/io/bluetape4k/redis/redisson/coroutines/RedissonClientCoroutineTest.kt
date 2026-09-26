@@ -1,18 +1,19 @@
 package io.bluetape4k.redis.redisson.coroutines
 
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeNull
+import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.coroutines.support.awaitUntil
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import io.bluetape4k.redis.redisson.RedissonTestUtils.randomName
 import io.bluetape4k.redis.redisson.RedissonTestUtils.randomString
 import io.bluetape4k.redis.redisson.RedissonTestUtils.redisson
-import io.bluetape4k.redis.redisson.RedissonTestUtils.redissonClient
 import io.bluetape4k.support.asBoolean
 import kotlinx.coroutines.future.await
-import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldBeNull
-import io.bluetape4k.assertions.shouldBeTrue
 import org.junit.jupiter.api.Test
+import kotlin.time.Duration.Companion.seconds
 
 class RedissonClientCoroutineTest: AbstractRedissonCoroutineTest() {
 
@@ -25,7 +26,6 @@ class RedissonClientCoroutineTest: AbstractRedissonCoroutineTest() {
         val map = redisson.getMap<String, String>(mapName)
 
         try {
-
             val result = redisson.withSuspendedBatch {
                 val batchMap = getMap<String, String>(mapName)
                 batchMap.fastPutAsync("1", "2")
@@ -33,9 +33,9 @@ class RedissonClientCoroutineTest: AbstractRedissonCoroutineTest() {
                 batchMap.getAllAsync(setOf("1", "2"))
             }
             log.debug { "responses=${result.responses}" }
+
             result.responses.first().asBoolean().shouldBeTrue()
             result.responses.last() shouldBeEqualTo mapOf("1" to "2", "2" to "5")
-
         } finally {
             map.delete()
         }
@@ -49,10 +49,10 @@ class RedissonClientCoroutineTest: AbstractRedissonCoroutineTest() {
         try {
             val value: String = randomString(32)
             redisson.withSuspendedTransaction {
-                map.putAsync("1", value).await()
-                map.getAsync("3").await()
+                map.putAsync("1", value).awaitUntil(1.seconds)
+                map.getAsync("3").awaitUntil(1.seconds)
 
-                set.addAsync(value).await()
+                set.addAsync(value).awaitUntil(1.seconds)
             }
             map.getAsync("1").await() shouldBeEqualTo value
             set.containsAsync(value).await().shouldBeTrue()
@@ -83,5 +83,4 @@ class RedissonClientCoroutineTest: AbstractRedissonCoroutineTest() {
             map.delete()
         }
     }
-
 }

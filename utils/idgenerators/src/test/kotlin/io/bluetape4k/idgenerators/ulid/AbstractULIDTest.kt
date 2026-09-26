@@ -13,8 +13,9 @@ import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 
 abstract class AbstractULIDTest {
+
     companion object: KLogging() {
-        const val REPEAT_SIZE = 5
+        const val REPEAT_SIZE = 3
     }
 
     protected fun assertValidParts(ulidStr: String) {

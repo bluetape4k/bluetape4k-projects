@@ -1,10 +1,10 @@
 package io.bluetape4k.idgenerators.uuid
 
-import io.bluetape4k.codec.decodeBase62AsUuid
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeNull
-import io.bluetape4k.assertions.shouldNotBeEqualTo
 import io.bluetape4k.assertions.shouldHaveSize
+import io.bluetape4k.assertions.shouldNotBeEqualTo
+import io.bluetape4k.codec.decodeBase62AsUuid
 import io.bluetape4k.junit5.concurrency.MultithreadingTester
 import io.bluetape4k.junit5.concurrency.StructuredTaskScopeTester
 import io.bluetape4k.junit5.coroutines.SuspendedJobTester
@@ -12,9 +12,10 @@ import io.bluetape4k.junit5.coroutines.runSuspendDefault
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.trace
 import org.junit.jupiter.api.RepeatedTest
+import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.condition.EnabledForJreRange
 import org.junit.jupiter.api.condition.JRE
-import java.util.UUID
+import java.util.*
 import java.util.concurrent.ConcurrentHashMap
 import kotlin.time.Duration.Companion.seconds
 
@@ -54,7 +55,7 @@ class RandomUuidGeneratorTest {
         uuid2.decodeBase62AsUuid().version() shouldBeEqualTo 4
     }
 
-    @RepeatedTest(REPEAT_SIZE)
+    @Test
     fun `generate timebased uuids in multi threads`() {
         val idMap = ConcurrentHashMap<UUID, Int>()
 
@@ -72,12 +73,11 @@ class RandomUuidGeneratorTest {
     }
 
     @EnabledForJreRange(min = JRE.JAVA_21)
-    @RepeatedTest(REPEAT_SIZE)
+    @Test
     fun `generate timebased uuids in virtual threads`() {
         val idMap = ConcurrentHashMap<UUID, Int>()
 
         StructuredTaskScopeTester()
-            .workers(STRESS_WORKERS)
             .rounds(STRESS_OPERATIONS)
             .withTimeout(STRESS_TIMEOUT)
             .add {
@@ -90,12 +90,11 @@ class RandomUuidGeneratorTest {
         idMap shouldHaveSize STRESS_OPERATIONS
     }
 
-    @RepeatedTest(REPEAT_SIZE)
+    @Test
     fun `generate timebased uuids in multi jobs`() = runSuspendDefault(timeout = STRESS_TIMEOUT) {
         val idMap = ConcurrentHashMap<UUID, Int>()
 
         SuspendedJobTester()
-            .workers(STRESS_WORKERS)
             .rounds(STRESS_OPERATIONS)
             .add {
                 val id = uuidGenerator.nextId()

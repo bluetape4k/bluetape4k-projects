@@ -2,9 +2,11 @@ package io.bluetape4k.cache.memoizer.jcache
 
 import io.bluetape4k.cache.memoizer.AsyncMemoizer
 import io.bluetape4k.logging.coroutines.KLoggingChannel
+import okio.withLock
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.atomic.AtomicLong
+import java.util.concurrent.locks.ReentrantLock
 
 /**
  * JCache를 이용하는 [JCacheAsyncMemoizer]를 생성합니다.
@@ -52,6 +54,7 @@ class JCacheAsyncMemoizer<in T: Any, R: Any>(
 
     private val inFlight = ConcurrentHashMap<@UnsafeVariance T, CompletableFuture<R>>()
     private val generation = AtomicLong(0)
+    private val lock = ReentrantLock()
 
     override fun invoke(input: T): CompletableFuture<R> {
         jcache.get(input)?.let { return CompletableFuture.completedFuture(it) }
@@ -90,8 +93,10 @@ class JCacheAsyncMemoizer<in T: Any, R: Any>(
     }
 
     override fun clear() {
-        generation.incrementAndGet()
-        inFlight.clear()
-        jcache.clear()
+        lock.withLock {
+            generation.incrementAndGet()
+            inFlight.clear()
+            jcache.clear()
+        }
     }
 }

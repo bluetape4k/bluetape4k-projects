@@ -86,6 +86,7 @@ abstract class AbstractVertxSqlClientTest {
 
         log.debug { "Initialize database. pool=$pool, connect=${pool.connection.coAwait()}" }
         val dbType = if (pool.connection.coAwait() is MySQLConnection) "mysql" else "h2"
+
         pool.withSuspendTransaction { conn ->
             schemaFileNames.forEach { path ->
                 log.debug { "dbType=$dbType, path=$path" }

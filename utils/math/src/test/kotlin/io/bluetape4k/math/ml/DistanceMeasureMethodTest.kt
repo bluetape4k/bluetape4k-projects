@@ -8,34 +8,41 @@ import io.bluetape4k.assertions.shouldNotBeNull
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.math.ml.clustering.doublePointOf
 import io.bluetape4k.math.ml.distance.DistanceMeasureMethod
+import io.bluetape4k.math.ml.distance.DistanceMeasureMethod.Canberra
+import io.bluetape4k.math.ml.distance.DistanceMeasureMethod.Chebyshev
+import io.bluetape4k.math.ml.distance.DistanceMeasureMethod.EarthMovers
+import io.bluetape4k.math.ml.distance.DistanceMeasureMethod.Euclidean
+import io.bluetape4k.math.ml.distance.DistanceMeasureMethod.Manhattan
 import org.junit.jupiter.api.Test
 
 class DistanceMeasureMethodTest {
 
-    companion object: KLogging()
+    companion object: KLogging() {
+        private const val EPSILON = 1e-10
+    }
 
     @Test
     fun `Euclidean 거리를 계산할 수 있다`() {
         val a = doubleArrayOf(0.0, 0.0)
         val b = doubleArrayOf(3.0, 4.0)
-        val dist = DistanceMeasureMethod.Euclidean.compute(a, b)
-        dist.shouldBeNear(5.0, 1e-10)
+        val dist = Euclidean.compute(a, b)
+        dist.shouldBeNear(5.0, EPSILON)
     }
 
     @Test
     fun `Manhattan 거리를 계산할 수 있다`() {
         val a = doubleArrayOf(0.0, 0.0)
         val b = doubleArrayOf(3.0, 4.0)
-        val dist = DistanceMeasureMethod.Manhattan.compute(a, b)
-        dist.shouldBeNear(7.0, 1e-10)
+        val dist = Manhattan.compute(a, b)
+        dist.shouldBeNear(7.0, EPSILON)
     }
 
     @Test
     fun `Chebyshev 거리를 계산할 수 있다`() {
         val a = doubleArrayOf(0.0, 0.0)
         val b = doubleArrayOf(3.0, 4.0)
-        val dist = DistanceMeasureMethod.Chebyshev.compute(a, b)
-        dist.shouldBeNear(4.0, 1e-10)
+        val dist = Chebyshev.compute(a, b)
+        dist.shouldBeNear(4.0, EPSILON)
     }
 
     @Test
@@ -43,15 +50,15 @@ class DistanceMeasureMethodTest {
         val a = doubleArrayOf(1.0, 2.0)
         val b = doubleArrayOf(3.0, 4.0)
         // |1-3|/(1+3) + |2-4|/(2+4) = 0.5 + 1/3 = 5/6
-        val dist = DistanceMeasureMethod.Canberra.compute(a, b)
-        dist.shouldBeNear(5.0 / 6.0, 1e-10)
+        val dist = Canberra.compute(a, b)
+        dist.shouldBeNear(5.0 / 6.0, EPSILON)
     }
 
     @Test
     fun `EarthMovers 거리를 계산할 수 있다`() {
         val a = doubleArrayOf(1.0, 2.0, 3.0)
         val b = doubleArrayOf(4.0, 5.0, 6.0)
-        val dist = DistanceMeasureMethod.EarthMovers.compute(a, b)
+        val dist = EarthMovers.compute(a, b)
         dist shouldBeGreaterThan 0.0
     }
 
@@ -59,22 +66,22 @@ class DistanceMeasureMethodTest {
     fun `DoublePoint를 사용하여 거리를 계산할 수 있다`() {
         val a = doublePointOf(0.0, 0.0)
         val b = doublePointOf(3.0, 4.0)
-        val dist = DistanceMeasureMethod.Euclidean.compute(a, b)
-        dist.shouldBeNear(5.0, 1e-10)
+        val dist = Euclidean.compute(a, b)
+        dist.shouldBeNear(5.0, EPSILON)
     }
 
     @Test
     fun `이름으로 DistanceMeasureMethod를 파싱할 수 있다`() {
         val method = DistanceMeasureMethod.parse("euclidean")
         method.shouldNotBeNull()
-        method.shouldBeEqualTo(DistanceMeasureMethod.Euclidean)
+        method.shouldBeEqualTo(Euclidean)
     }
 
     @Test
     fun `대소문자 무시하여 파싱할 수 있다`() {
         val method = DistanceMeasureMethod.parse("MANHATTAN")
         method.shouldNotBeNull()
-        method.shouldBeEqualTo(DistanceMeasureMethod.Manhattan)
+        method.shouldBeEqualTo(Manhattan)
     }
 
     @Test
@@ -96,8 +103,8 @@ class DistanceMeasureMethodTest {
     @Test
     fun `동일한 점 사이의 거리는 0이다`() {
         val a = doubleArrayOf(1.0, 2.0, 3.0)
-        DistanceMeasureMethod.Euclidean.compute(a, a).shouldBeNear(0.0, 1e-10)
-        DistanceMeasureMethod.Manhattan.compute(a, a).shouldBeNear(0.0, 1e-10)
-        DistanceMeasureMethod.Chebyshev.compute(a, a).shouldBeNear(0.0, 1e-10)
+        Euclidean.compute(a, a).shouldBeNear(0.0, EPSILON)
+        Manhattan.compute(a, a).shouldBeNear(0.0, EPSILON)
+        Chebyshev.compute(a, a).shouldBeNear(0.0, EPSILON)
     }
 }

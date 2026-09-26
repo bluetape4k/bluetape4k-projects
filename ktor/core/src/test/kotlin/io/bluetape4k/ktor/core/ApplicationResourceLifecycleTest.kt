@@ -5,10 +5,17 @@ import ch.qos.logback.classic.Logger
 import ch.qos.logback.classic.spi.ILoggingEvent
 import ch.qos.logback.core.AppenderBase
 import io.bluetape4k.assertions.assertFailsWith
+import io.bluetape4k.assertions.shouldBeEmpty
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeFalse
+import io.bluetape4k.assertions.shouldBeNull
 import io.bluetape4k.assertions.shouldBeSameInstanceAs
 import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.assertions.shouldHaveSize
+import io.bluetape4k.assertions.shouldNotContain
+import io.bluetape4k.concurrent.await
+import io.bluetape4k.concurrent.get
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.ktor.server.application.Application
 import io.ktor.server.testing.testApplication
 import kotlinx.coroutines.CoroutineStart
@@ -24,12 +31,14 @@ import java.time.Duration
 import java.util.concurrent.CopyOnWriteArrayList
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.Executors
-import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicInteger
 import java.util.concurrent.locks.ReentrantLock
+import kotlin.time.Duration.Companion.seconds
 
 class ApplicationResourceLifecycleTest {
+
+    companion object: KLoggingChannel()
 
     @Test
     fun `installer is idempotent and closes resources at ApplicationStopped`() {
@@ -100,7 +109,7 @@ class ApplicationResourceLifecycleTest {
                             } finally {
                                 withContext(NonCancellable) {
                                     childCancellationStarted.countDown()
-                                    allowChildFinish.await(5, TimeUnit.SECONDS).shouldBeTrue()
+                                    allowChildFinish.await(5.seconds).shouldBeTrue()
                                     resourceInUse.set(false)
                                     childDrained.countDown()
                                 }
@@ -110,9 +119,9 @@ class ApplicationResourceLifecycleTest {
                         registry = installApplicationResourceLifecycle()
                         registry.register {
                             activeWhenCloseStarted.set(resourceInUse.get())
-                            childCancellationStarted.await(5, TimeUnit.SECONDS).shouldBeTrue()
+                            childCancellationStarted.await(5.seconds).shouldBeTrue()
                             allowChildFinish.countDown()
-                            childDrained.await(5, TimeUnit.SECONDS).shouldBeTrue()
+                            childDrained.await(5.seconds).shouldBeTrue()
                             overlapAfterDrain.set(resourceInUse.get())
                         }
                     }
@@ -145,8 +154,8 @@ class ApplicationResourceLifecycleTest {
         registry.closeReport.state shouldBeEqualTo ApplicationResourceRegistryState.CLOSED
         registry.closeReport.failures.single().fatal.shouldBeTrue()
         registry.closeReport.toString() shouldBeEqualTo
-            "ApplicationResourceCloseReport(state=CLOSED, attempted=2, inFlight=0, closed=1, " +
-            "failures=[ApplicationResourceCloseFailure(registrationId=2, phase=SHUTDOWN, fatal=true)])"
+                "ApplicationResourceCloseReport(state=CLOSED, attempted=2, inFlight=0, closed=1, " +
+                "failures=[ApplicationResourceCloseFailure(registrationId=2, phase=SHUTDOWN, fatal=true)])"
     }
 
     @Test
@@ -182,14 +191,14 @@ class ApplicationResourceLifecycleTest {
                     application = this
                     val futures = List(8) {
                         executor.submit<ApplicationResourceRegistry> {
-                            start.await(5, TimeUnit.SECONDS)
+                            start.await(5.seconds)
                             application.installApplicationResourceLifecycle()
                         }
                     }
                     start.countDown()
                     futures.forEach { future ->
                         synchronized(listLock) {
-                            registries += future.get(5, TimeUnit.SECONDS)
+                            registries += future.get(5.seconds)
                         }
                     }
                 }
@@ -236,7 +245,7 @@ class ApplicationResourceLifecycleTest {
 
         marker.message.orEmpty().contains("credential-secret").shouldBeFalse()
         registry.closeReport.failures.single().phase shouldBeEqualTo
-            ApplicationResourceClosePhase.LATE_REGISTRATION
+                ApplicationResourceClosePhase.LATE_REGISTRATION
     }
 
     @Test
@@ -248,11 +257,11 @@ class ApplicationResourceLifecycleTest {
         try {
             val futures = List(8) {
                 executor.submit<ApplicationResourceRegistry> {
-                    barrier.await(5, TimeUnit.SECONDS)
+                    barrier.await(5.seconds)
                     holder.install()
                 }
             }
-            futures.forEach { it.get(5, TimeUnit.SECONDS) shouldBeSameInstanceAs holder.registry }
+            futures.forEach { it.get(5.seconds) shouldBeSameInstanceAs holder.registry }
             registrar.subscribeCount.get() shouldBeEqualTo 1
 
             registrar.raiseStopped()
@@ -273,15 +282,15 @@ class ApplicationResourceLifecycleTest {
         val executor = Executors.newFixedThreadPool(2)
         try {
             val install = executor.submit<ApplicationResourceRegistry> { holder.install() }
-            registrar.handlerRegistered.await(5, TimeUnit.SECONDS).shouldBeTrue()
+            registrar.handlerRegistered.await(5.seconds).shouldBeTrue()
             observedLock.observeNextContention()
             val stop = executor.submit { registrar.raiseStopped() }
 
-            observedLock.callbackContended.await(5, TimeUnit.SECONDS).shouldBeTrue()
+            observedLock.callbackContended.await(5.seconds).shouldBeTrue()
             registrar.allowHandleReturn.countDown()
 
-            install.get(5, TimeUnit.SECONDS) shouldBeSameInstanceAs holder.registry
-            stop.get(5, TimeUnit.SECONDS)
+            install.get(5.seconds) shouldBeSameInstanceAs holder.registry
+            stop.get(5.seconds)
             registrar.subscribeCount.get() shouldBeEqualTo 1
             registrar.disposeCount.get() shouldBeEqualTo 1
         } finally {
@@ -296,10 +305,12 @@ class ApplicationResourceLifecycleTest {
         val holder = PrivateLifecycleHolder(registrar::subscribe)
 
         repeat(2) {
-            val failure = assertFailsWith<IllegalStateException> { holder.install() }
+            val failure = assertFailsWith<IllegalStateException> {
+                holder.install()
+            }
             failure.message shouldBeEqualTo "Application resource lifecycle installation failed."
-            failure.cause shouldBeEqualTo null
-            failure.suppressed.toList() shouldBeEqualTo emptyList()
+            failure.cause.shouldBeNull()
+            failure.suppressed.shouldBeEmpty()
         }
         registrar.subscribeCount.get() shouldBeEqualTo 1
         holder.registry.closeReport.state shouldBeEqualTo ApplicationResourceRegistryState.CLOSED
@@ -345,9 +356,9 @@ class ApplicationResourceLifecycleTest {
                 addAll(appender.events.map { it.throwableProxy?.message.orEmpty() })
             }
             listOf("resource-secret", "message-secret", "CredentialSecretFailure").forEach { secret ->
-                surfaces.forEach { it.contains(secret).shouldBeFalse() }
+                surfaces.forEach { it shouldNotContain secret }
             }
-            appender.events.size shouldBeEqualTo 1
+            appender.events shouldHaveSize 1
         } finally {
             logger.detach(appender)
         }
@@ -363,7 +374,7 @@ class ApplicationResourceLifecycleTest {
         try {
             testApplication {
                 application {
-                    logger = environment.log as Logger
+                    logger = environment.log as? Logger
                     previousLevel = logger?.level
                     logger?.level = Level.DEBUG
                     logger?.attach(appender)
@@ -380,7 +391,7 @@ class ApplicationResourceLifecycleTest {
                 addAll(appender.events.map { it.throwableProxy?.message.orEmpty() })
             }
             listOf("resource-secret", "message-secret", "CredentialSecretFailure").forEach { secret ->
-                surfaces.forEach { it.contains(secret).shouldBeFalse() }
+                surfaces.forEach { it shouldNotContain secret }
             }
             appender.events.any { event ->
                 event.throwableProxy?.message == "Application resource close failed"
@@ -446,7 +457,7 @@ class ApplicationResourceLifecycleTest {
             subscribeCount.incrementAndGet()
             callback = onStopped
             handlerRegistered.countDown()
-            allowHandleReturn.await(5, TimeUnit.SECONDS).shouldBeTrue()
+            allowHandleReturn.await(5.seconds).shouldBeTrue()
             return RecordingHandle(disposeCount)
         }
 
@@ -469,7 +480,7 @@ class ApplicationResourceLifecycleTest {
     private class RecordingHandle(
         private val disposeCount: AtomicInteger,
         private val disposeFailure: Throwable? = null,
-    ) : DisposableHandle {
+    ): DisposableHandle {
         override fun dispose() {
             disposeCount.incrementAndGet()
             disposeFailure?.let { throw it }
@@ -507,7 +518,7 @@ class ApplicationResourceLifecycleTest {
         }
     }
 
-    private class ObservedReentrantLock : java.util.concurrent.locks.ReentrantLock() {
+    private class ObservedReentrantLock: java.util.concurrent.locks.ReentrantLock() {
         val callbackContended = CountDownLatch(1)
         private val observeContention = java.util.concurrent.atomic.AtomicBoolean()
 
@@ -529,15 +540,15 @@ class ApplicationResourceLifecycleTest {
     private class SecretResource(
         private val name: String,
         private val closeAction: () -> Unit,
-    ) : AutoCloseable {
+    ): AutoCloseable {
         override fun close(): Unit = closeAction()
 
         override fun toString(): String = name
     }
 
-    private class CredentialSecretFailure(message: String) : AssertionError(message)
+    private class CredentialSecretFailure(message: String): AssertionError(message)
 
-    private class CapturingAppender : AppenderBase<ILoggingEvent>() {
+    private class CapturingAppender: AppenderBase<ILoggingEvent>() {
         val events = CopyOnWriteArrayList<ILoggingEvent>()
 
         override fun append(eventObject: ILoggingEvent) {
@@ -545,7 +556,7 @@ class ApplicationResourceLifecycleTest {
         }
     }
 
-    private class ThrowingAppender : AppenderBase<ILoggingEvent>() {
+    private class ThrowingAppender: AppenderBase<ILoggingEvent>() {
         val appendCount = AtomicInteger()
 
         override fun append(eventObject: ILoggingEvent) {

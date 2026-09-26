@@ -153,7 +153,7 @@ class LettuceLock(
                 return
             }
             if (System.nanoTime() > deadline) {
-                throw IllegalStateException("Lock 획득 시간 초과: lockKey=$lockKey, maxWaitTime=$maxWaitTime")
+                error("Lock 획득 시간 초과: lockKey=$lockKey, maxWaitTime=$maxWaitTime")
             }
             // LockSupport.parkNanos: Thread.sleep 과 달리 Virtual Thread carrier thread 를 핀닝하지 않음
             LockSupport.parkNanos(RETRY_DELAY_NANOS)
@@ -173,13 +173,13 @@ class LettuceLock(
      */
     fun unlock() {
         val token = tokenRef.value
-            ?: throw IllegalStateException("현재 인스턴스가 락을 보유하지 않습니다: lockKey=$lockKey")
+            ?: error("현재 인스턴스가 락을 보유하지 않습니다: lockKey=$lockKey")
 
         val released = RedisScriptRunner.run<Long>(
             syncCommands, UNLOCK_SCRIPT, ScriptOutputType.INTEGER, arrayOf(lockKey), token
         )
         if (released == 0L) {
-            throw IllegalStateException("Lock 해제 실패 (토큰 불일치 또는 만료): lockKey=$lockKey")
+            error("Lock 해제 실패 (토큰 불일치 또는 만료): lockKey=$lockKey")
         }
         tokenRef.compareAndSet(token, null)
         log.debug { "Lock 해제 성공: lockKey=$lockKey" }
@@ -305,7 +305,7 @@ class LettuceLock(
             asyncCommands, UNLOCK_SCRIPT, ScriptOutputType.INTEGER, arrayOf(lockKey), token
         ).thenApply { released ->
             if (released == 0L) {
-                throw IllegalStateException("Lock 해제 실패 (토큰 불일치 또는 만료, async): lockKey=$lockKey")
+                error("Lock 해제 실패 (토큰 불일치 또는 만료, async): lockKey=$lockKey")
             }
             tokenRef.compareAndSet(token, null)
             log.debug { "Lock 해제 성공 (async): lockKey=$lockKey" }

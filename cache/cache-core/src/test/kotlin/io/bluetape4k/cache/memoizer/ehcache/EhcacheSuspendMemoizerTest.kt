@@ -1,12 +1,12 @@
 package io.bluetape4k.cache.memoizer.ehcache
 
+import io.bluetape4k.assertions.assertFailsWith
+import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.cache.ehcache.ehcacheManager
 import io.bluetape4k.cache.ehcache.getOrCreateCache
 import io.bluetape4k.cache.memoizer.AbstractSuspendMemoizerTest
 import io.bluetape4k.cache.memoizer.SuspendFactorialProvider
 import io.bluetape4k.cache.memoizer.SuspendFibonacciProvider
-import io.bluetape4k.assertions.assertFailsWith
-import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.junit5.coroutines.runSuspendDefault
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import org.junit.jupiter.api.Test

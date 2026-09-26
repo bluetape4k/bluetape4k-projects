@@ -6,21 +6,22 @@ import feign.slf4j.Slf4jLogger
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.assertions.shouldContain
+import io.bluetape4k.concurrent.await
 import io.bluetape4k.feign.clients.AbstractClientTest
 import io.bluetape4k.feign.defaultRequestOptions
 import io.bluetape4k.feign.feignBuilder
 import io.bluetape4k.feign.feignRequestOf
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.vertx.core.Vertx
 import org.junit.jupiter.api.Assumptions
 import org.junit.jupiter.api.Test
 import java.util.concurrent.CountDownLatch
-import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicReference
+import kotlin.time.Duration.Companion.seconds
 
 class VertxClientTest: AbstractClientTest() {
 
-    companion object: KLogging()
+    companion object: KLoggingChannel()
 
     override fun newBuilder(): Feign.Builder {
         return feignBuilder {
@@ -57,7 +58,7 @@ class VertxClientTest: AbstractClientTest() {
                 latch.countDown()
             }
 
-            latch.await(2, TimeUnit.SECONDS).shouldBeTrue()
+            latch.await(2.seconds).shouldBeTrue()
             val error = errorRef.get()
             (error is IllegalStateException) shouldBeEqualTo true
             error?.message shouldContain "must not be called from a Vert.x event loop thread"

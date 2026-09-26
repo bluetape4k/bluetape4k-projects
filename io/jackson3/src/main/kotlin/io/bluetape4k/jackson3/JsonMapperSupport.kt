@@ -1,9 +1,8 @@
 package io.bluetape4k.jackson3
 
-import io.bluetape4k.logging.KotlinLogging
+import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.warn
 import tools.jackson.core.JsonParser
-import tools.jackson.core.TreeNode
 import tools.jackson.core.type.TypeReference
 import tools.jackson.databind.JsonNode
 import tools.jackson.databind.ObjectMapper
@@ -15,8 +14,10 @@ import java.io.StringWriter
 import java.nio.file.Path
 import kotlin.use
 
+internal object JsonMapperLooger: KLogging()
+
 @PublishedApi
-internal val log = KotlinLogging.logger {}
+internal val log = JsonMapperLooger.log
 
 /**
  * [JsonMapper.Builder] DSL로 Jackson 3 매퍼를 생성합니다.
@@ -154,20 +155,6 @@ inline fun <reified T> ObjectMapper.readValueOrNull(parser: JsonParser): T? =
  */
 inline fun <reified T> ObjectMapper.convertValueOrNull(from: Any): T? =
     runCatching { convertValue(from, jacksonTypeRef<T>()) }
-        .onFailure { e -> log.warn(e) { "JSON parsing failed" } }
-        .getOrNull()
-
-/**
- * [TreeNode]를 reified 타입 [T]의 객체로 변환합니다. 실패 시 null 반환
- */
-@Deprecated(
-    "TreeNode 대신 JsonNode를 받는 오버로드를 사용하세요. " +
-            "val jsonNode = treeNode as? JsonNode 로 변환 후 사용하거나, " +
-            "ObjectMapper.treeToValue(treeNode, T::class.java) 를 직접 호출하세요.",
-    replaceWith = ReplaceWith("treeToValueOrNull<T>(treeNode as tools.jackson.databind.JsonNode)")
-)
-inline fun <reified T> ObjectMapper.treeToValueOrNull(treeNode: TreeNode): T? =
-    runCatching { treeToValue(treeNode as JsonNode, T::class.java) }
         .onFailure { e -> log.warn(e) { "JSON parsing failed" } }
         .getOrNull()
 

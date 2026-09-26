@@ -2,18 +2,18 @@ package io.bluetape4k.testcontainers.infra
 
 import eu.rekawek.toxiproxy.ToxiproxyClient
 import eu.rekawek.toxiproxy.model.ToxicDirection
+import io.bluetape4k.assertions.assertFailsWith
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import io.bluetape4k.testcontainers.AbstractContainerTest
 import io.bluetape4k.testcontainers.storage.RedisServer
-import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldBeTrue
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
 import org.testcontainers.containers.Network
 import kotlin.system.measureTimeMillis
-import io.bluetape4k.assertions.assertFailsWith
 
 /**
  * [ToxiproxyServer] 테스트입니다.

@@ -34,6 +34,7 @@ class StructuredScopeSupportTest {
                 // 작업들이 완료되지 전에 예외가 발생한다면, 예외를 던진다.
                 scope.result { IllegalStateException(it) }
             } // 먼저 완료되는 작업의 결과를 반환한다.
+
             result shouldBeEqualTo "result1"
         }
 
@@ -74,7 +75,7 @@ class StructuredScopeSupportTest {
                     // 작업들이 완료되지 전에 예외가 발생한다면, 예외를 던진다.
                     scope.join().result { IllegalStateException(it) }
                 }
-            }.cause shouldBeInstanceOf RuntimeException::class
+            }.cause.shouldBeInstanceOf<RuntimeException>() 
         }
 
         @Test

@@ -56,7 +56,8 @@ class JCacheMemoizer<in T: Any, out R: Any>(
 
     private val lock = ReentrantLock()
 
-    override fun invoke(input: T): R = jcache.getOrPut(input) { evaluator(input) }
+    override fun invoke(input: T): R =
+        jcache.getOrPut(input) { evaluator(input) }
 
     override fun clear() {
         lock.withLock {

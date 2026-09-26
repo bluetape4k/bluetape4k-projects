@@ -3,6 +3,8 @@ package io.bluetape4k.csv.coroutines
 import io.bluetape4k.csv.TsvSettings
 import io.bluetape4k.csv.internal.TsvLineWriter
 import io.bluetape4k.logging.coroutines.KLoggingChannel
+import io.bluetape4k.logging.debug
+import io.bluetape4k.logging.warn
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.runInterruptible
@@ -117,5 +119,7 @@ class SuspendTsvRecordWriter(
      */
     override fun close() {
         runCatching { lineWriter.close() }
+            .onSuccess { log.debug { "SuspendTsvRecordWriter is closed." } }
+            .onFailure { e -> log.warn(e) { "Failed to close SuspendTsvRecordWriter" } }
     }
 }

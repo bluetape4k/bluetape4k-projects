@@ -24,7 +24,7 @@ import org.springframework.web.bind.annotation.RestController
 @RestController
 @RequestMapping("/jsonplaceholder/users")
 class UsersController(private val service: JsonplaceholderService) {
-    companion object : KLogging()
+    companion object: KLogging()
 
     /**
      * 모든 사용자 목록을 반환한다.

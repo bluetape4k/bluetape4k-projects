@@ -1,9 +1,9 @@
 package io.bluetape4k.elasticsearch.coroutines
 
-import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.assertions.assertFailsWith
-import kotlinx.coroutines.CompletableDeferred
+import io.bluetape4k.assertions.shouldBeTrue
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch

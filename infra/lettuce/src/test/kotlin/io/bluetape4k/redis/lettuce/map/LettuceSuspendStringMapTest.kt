@@ -18,7 +18,9 @@ import org.junit.jupiter.api.Test
 class LettuceSuspendStringMapTest: AbstractLettuceTest() {
 
     companion object: KLoggingChannel() {
-        private val connection by lazy { LettuceClients.connect(LettuceTestUtils.client, StringCodec.UTF8) }
+        private val connection by lazy {
+            LettuceClients.connect(LettuceTestUtils.client, StringCodec.UTF8)
+        }
     }
 
     private lateinit var map: LettuceSuspendStringMap

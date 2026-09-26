@@ -1,27 +1,33 @@
 package io.bluetape4k.hibernate.standalone
 
+import io.bluetape4k.assertions.fail
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldHaveSize
+import io.bluetape4k.assertions.shouldNotBeNull
 import io.bluetape4k.hibernate.countAll
 import io.bluetape4k.hibernate.deleteAll
-import io.bluetape4k.hibernate.save
 import io.bluetape4k.hibernate.stateless.createEntityGraphAs
 import io.bluetape4k.hibernate.stateless.createNativeQueryAs
 import io.bluetape4k.hibernate.stateless.createQueryAs
 import io.bluetape4k.hibernate.stateless.createSelectionQueryAs
 import io.bluetape4k.hibernate.stateless.getAs
 import io.bluetape4k.hibernate.stateless.withStateless
-import io.bluetape4k.hibernate.stateless.withStatelss
-import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldNotBeNull
+import io.bluetape4k.logging.KLogging
+import org.hibernate.LockMode
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 
-class StatelessSessionStandaloneTest : AbstractStandaloneHibernateTest() {
+class StatelessSessionStandaloneTest: AbstractStandaloneHibernateTest() {
+
+    companion object: KLogging()
 
     override fun entityClasses() = listOf(StandaloneEntity::class.java)
 
     @BeforeEach
     fun clearData() {
-        inTransaction { deleteAll<StandaloneEntity>() }
+        inTransaction {
+            deleteAll<StandaloneEntity>()
+        }
     }
 
     @Test
@@ -39,6 +45,7 @@ class StatelessSessionStandaloneTest : AbstractStandaloneHibernateTest() {
     @Test
     fun `EntityManager_withStateless는 StatelessSession으로 insert를 수행한다`() {
         val entity = StandaloneEntity("em-stateless")
+
         inTransaction {
             withStateless { ss ->
                 ss.insert(entity)
@@ -53,13 +60,13 @@ class StatelessSessionStandaloneTest : AbstractStandaloneHibernateTest() {
     @Test
     fun `StatelessSession_getAs는 엔티티를 조회한다`() {
         val entity = StandaloneEntity("get-as-test")
+
         sessionFactory.withStateless { ss ->
             ss.insert(entity)
         }
 
         sessionFactory.withStateless { ss ->
-            val loaded = ss.getAs<StandaloneEntity>(entity.id!!)
-            loaded.shouldNotBeNull()
+            val loaded = ss.getAs<StandaloneEntity>(entity.id!!).shouldNotBeNull()
             loaded.name shouldBeEqualTo "get-as-test"
         }
     }
@@ -71,7 +78,9 @@ class StatelessSessionStandaloneTest : AbstractStandaloneHibernateTest() {
                 ss.insert(StandaloneEntity("rollback-test"))
                 throw RuntimeException("test rollback")
             }
-        } catch (_: RuntimeException) {}
+            fail("예외가 발생해야 합니다.")
+        } catch (_: RuntimeException) {
+        }
 
         inTransaction {
             countAll<StandaloneEntity>() shouldBeEqualTo 0L
@@ -85,8 +94,7 @@ class StatelessSessionStandaloneTest : AbstractStandaloneHibernateTest() {
         }
 
         sessionFactory.withStateless { ss ->
-            val count = ss.createQueryAs<Long>("SELECT COUNT(e) FROM StandaloneEntity e")
-                .uniqueResult()
+            val count = ss.createQueryAs<Long>("SELECT COUNT(e) FROM StandaloneEntity e").uniqueResult()
             count shouldBeEqualTo 1L
         }
     }
@@ -98,9 +106,9 @@ class StatelessSessionStandaloneTest : AbstractStandaloneHibernateTest() {
         }
 
         sessionFactory.withStateless { ss ->
-            val results = ss.createSelectionQueryAs<StandaloneEntity>("FROM StandaloneEntity")
+            val results = ss.createSelectionQueryAs<StandaloneEntity>("from StandaloneEntity")
                 .list()
-            results.shouldNotBeNull()
+            results shouldHaveSize 1
         }
     }
 
@@ -111,22 +119,21 @@ class StatelessSessionStandaloneTest : AbstractStandaloneHibernateTest() {
         }
 
         sessionFactory.withStateless { ss ->
-            val results = ss.createNativeQueryAs<Any>("SELECT COUNT(*) FROM standalone_entity")
-                .list()
-            results.shouldNotBeNull()
+            val results = ss.createNativeQueryAs<Long>("SELECT COUNT(*) FROM standalone_entity").singleResult
+            results shouldBeEqualTo 1L
         }
     }
 
     @Test
     fun `StatelessSession_getAs with LockMode는 엔티티를 조회한다`() {
         val entity = StandaloneEntity("lockmode-test")
+
         sessionFactory.withStateless { ss ->
             ss.insert(entity)
         }
 
         sessionFactory.withStateless { ss ->
-            val loaded = ss.getAs<StandaloneEntity>(entity.id!!, org.hibernate.LockMode.NONE)
-            loaded.shouldNotBeNull()
+            val loaded = ss.getAs<StandaloneEntity>(entity.id!!, LockMode.NONE).shouldNotBeNull()
             loaded.name shouldBeEqualTo "lockmode-test"
         }
     }
@@ -136,18 +143,6 @@ class StatelessSessionStandaloneTest : AbstractStandaloneHibernateTest() {
         sessionFactory.withStateless { ss ->
             val graph = ss.createEntityGraphAs<StandaloneEntity>()
             graph.shouldNotBeNull()
-        }
-    }
-
-    @Test
-    @Suppress("DEPRECATION")
-    fun `SessionFactory_withStatelss는 deprecated 버전으로 insert를 수행한다`() {
-        sessionFactory.withStatelss { ss ->
-            ss.insert(StandaloneEntity("statelss-deprecated-test"))
-        }
-
-        inTransaction {
-            countAll<StandaloneEntity>() shouldBeEqualTo 1L
         }
     }
 }

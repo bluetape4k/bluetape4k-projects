@@ -20,6 +20,7 @@ import javax.cache.Cache
  * ```
  */
 interface SuspendCache<K, V> {
+
     companion object {
         /**
          * JCache 인스턴스를 [SuspendCache] 구현으로 감쌉니다.

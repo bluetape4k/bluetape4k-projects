@@ -32,6 +32,7 @@ import io.r2dbc.spi.ConnectionFactoryOptions
  * ```
  */
 class R2dbcConfig {
+
     val connection: R2dbcConnectionConfig = R2dbcConnectionConfig()
     val pool: R2dbcPoolConfig = R2dbcPoolConfig()
 
@@ -99,7 +100,11 @@ inline fun r2dbcConnectionPool(
 inline fun r2dbcConnectionPool(
     url: String,
     init: R2dbcPoolConfig.() -> Unit = {},
-): ConnectionPool = connectionPoolOf(connectionFactoryOptionsOf(url), R2dbcPoolConfig().apply(init))
+): ConnectionPool =
+    connectionPoolOf(
+        connectionFactoryOptionsOf(url),
+        R2dbcPoolConfig().apply(init)
+    )
 
 /**
  * [ConnectionFactoryOptions]와 [R2dbcPoolConfig]로 [ConnectionPool]을 생성합니다.
@@ -143,7 +148,11 @@ fun connectionPoolOf(
 inline fun connectionPoolOf(
     connectionFactoryOptions: ConnectionFactoryOptions,
     init: R2dbcPoolConfig.() -> Unit,
-): ConnectionPool = connectionPoolOf(connectionFactoryOptions, R2dbcPoolConfig().apply(init))
+): ConnectionPool =
+    connectionPoolOf(
+        connectionFactoryOptions,
+        R2dbcPoolConfig().apply(init)
+    )
 
 /**
  * [ConnectionFactory]와 [R2dbcPoolConfig]로 [ConnectionPool]을 생성합니다.
@@ -186,7 +195,11 @@ fun connectionPoolOf(
 inline fun connectionPoolOf(
     connectionFactory: ConnectionFactory,
     init: R2dbcPoolConfig.() -> Unit,
-): ConnectionPool = connectionPoolOf(connectionFactory, R2dbcPoolConfig().apply(init))
+): ConnectionPool =
+    connectionPoolOf(
+        connectionFactory,
+        R2dbcPoolConfig().apply(init)
+    )
 
 /**
  * [ConnectionFactoryOptions]에서 [ConnectionPool]로 변환하는 확장 함수입니다.
@@ -202,7 +215,11 @@ inline fun connectionPoolOf(
  */
 fun ConnectionFactoryOptions.toConnectionPool(
     poolConfig: R2dbcPoolConfig = R2dbcPoolConfig(),
-): ConnectionPool = connectionPoolOf(this, poolConfig)
+): ConnectionPool =
+    connectionPoolOf(
+        this,
+        poolConfig
+    )
 
 /**
  * [ConnectionFactoryOptions]에서 DSL 람다로 [ConnectionPool]을 생성하는 확장 함수입니다.
@@ -221,7 +238,11 @@ fun ConnectionFactoryOptions.toConnectionPool(
  */
 inline fun ConnectionFactoryOptions.toConnectionPool(
     init: R2dbcPoolConfig.() -> Unit,
-): ConnectionPool = connectionPoolOf(this, init)
+): ConnectionPool =
+    connectionPoolOf(
+        this,
+        init
+    )
 
 /**
  * [R2dbcPoolConfig]를 [ConnectionPoolConfiguration]으로 변환합니다.

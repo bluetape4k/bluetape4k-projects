@@ -4,6 +4,7 @@ import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeNull
 import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.concurrent.await
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.lettuce.core.RedisClient
@@ -25,6 +26,7 @@ import java.util.concurrent.TimeUnit
 import java.util.concurrent.TimeoutException
 import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.concurrent.thread
+import kotlin.time.Duration.Companion.seconds
 
 /**
  * MockK-based unit tests for [LettuceSuspendedLoadedMap] failure paths.
@@ -39,10 +41,10 @@ import kotlin.concurrent.thread
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class LettuceSuspendedLoadedMapMockTest {
 
-    companion object : KLoggingChannel()
+    companion object: KLoggingChannel()
 
     /** Minimal [RedisFuture] implementation backed by [CompletableFuture]. */
-    private class TestRedisFuture<T> : CompletableFuture<T>(), RedisFuture<T> {
+    private class TestRedisFuture<T>: CompletableFuture<T>(), RedisFuture<T> {
         override fun getError(): String? =
             if (isCompletedExceptionally) "completed exceptionally" else null
 
@@ -88,7 +90,7 @@ class LettuceSuspendedLoadedMapMockTest {
 
         // Redis GET throws a runtime exception (simulates connection error)
         every { asyncCommands.get(any<String>()) } returns
-            failedRedisFuture(RuntimeException("Redis down"))
+                failedRedisFuture(RuntimeException("Redis down"))
 
         // Loader returns a value from the DB
         coEvery { loader.load("key1") } returns "db-value"
@@ -96,7 +98,7 @@ class LettuceSuspendedLoadedMapMockTest {
 
         // Redis SET after load also fails — should be silently logged, not thrown
         every { asyncCommands.set(any<String>(), any(), any<SetArgs>()) } returns
-            failedRedisFuture(RuntimeException("Redis SET down"))
+                failedRedisFuture(RuntimeException("Redis SET down"))
 
         val map = buildMap(asyncCommands, loader = loader)
         val result = map.get("key1")
@@ -110,7 +112,7 @@ class LettuceSuspendedLoadedMapMockTest {
         val asyncCommands = mockk<RedisAsyncCommands<String, String>>(relaxed = true)
 
         every { asyncCommands.get(any<String>()) } returns
-            failedRedisFuture(RuntimeException("Redis down"))
+                failedRedisFuture(RuntimeException("Redis down"))
 
         val map = buildMap(asyncCommands, loader = null)
         val result = map.get("missing")
@@ -124,7 +126,7 @@ class LettuceSuspendedLoadedMapMockTest {
         val loader = mockk<SuspendedMapLoader<String, String>>()
 
         every { asyncCommands.get(any<String>()) } returns
-            failedRedisFuture(RuntimeException("Redis down"))
+                failedRedisFuture(RuntimeException("Redis down"))
 
         coEvery { loader.load("missing") } returns null
         coEvery { loader.loadAllKeys() } returns emptyList()
@@ -142,7 +144,7 @@ class LettuceSuspendedLoadedMapMockTest {
 
         // Redis GET fails → loader fallback path
         every { asyncCommands.get(any<String>()) } returns
-            failedRedisFuture(RuntimeException("Redis down"))
+                failedRedisFuture(RuntimeException("Redis down"))
 
         // Loader itself throws CancellationException (e.g. caller cancelled during load)
         val loader = mockk<SuspendedMapLoader<String, String>>()
@@ -162,7 +164,7 @@ class LettuceSuspendedLoadedMapMockTest {
         // A future completed with CancellationException must escape get(), not be silently swallowed.
         val asyncCommands = mockk<RedisAsyncCommands<String, String>>(relaxed = true)
         every { asyncCommands.get(any<String>()) } returns
-            failedRedisFuture(CancellationException("redis command cancelled"))
+                failedRedisFuture(CancellationException("redis command cancelled"))
 
         val map = buildMap(asyncCommands, loader = null)
 
@@ -179,7 +181,7 @@ class LettuceSuspendedLoadedMapMockTest {
         // GET misses (null) → loader returns value → SET fails with CE
         every { asyncCommands.get(any<String>()) } returns completedRedisFuture(null)
         every { asyncCommands.set(any(), any(), any<SetArgs>()) } returns
-            failedRedisFuture(CancellationException("set cancelled"))
+                failedRedisFuture(CancellationException("set cancelled"))
 
         val loader = mockk<SuspendedMapLoader<String, String>>()
         coEvery { loader.load("key1") } returns "value1"
@@ -222,7 +224,7 @@ class LettuceSuspendedLoadedMapMockTest {
             }
         }
 
-        completed.await(5, TimeUnit.SECONDS).shouldBeTrue()
+        completed.await(5.seconds).shouldBeTrue()
         interruptedStatusRestored.get().shouldBeTrue()
         verify(exactly = 1) { connection.close() }
     }

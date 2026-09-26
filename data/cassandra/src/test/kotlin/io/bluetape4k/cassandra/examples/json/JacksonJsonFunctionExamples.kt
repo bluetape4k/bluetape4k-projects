@@ -27,12 +27,12 @@ import java.io.Serializable
 
 class JacksonJsonFunctionExamples: AbstractCassandraTest() {
 
-    companion object: KLoggingChannel() {
-        data class User(
-            val name: String? = null,
-            val age: Int? = null,
-        ): Serializable
-    }
+    companion object: KLoggingChannel()
+
+    data class User(
+        val name: String? = null,
+        val age: Int? = null,
+    ): Serializable
 
     private val mapper = Jackson.defaultJsonMapper
 
@@ -49,16 +49,6 @@ class JacksonJsonFunctionExamples: AbstractCassandraTest() {
 
     @Test
     fun `Jackson Codec 과 함수를 이용하여 처리하기`() {
-        //        newCqlSessionBuilder()
-        //            .withKeyspace(DEFAULT_KEYSPACE)
-        //            .addTypeCodecs(USER_CODEC, JSON_NODE_CODEC)
-        //            .build()
-        //            .use { session ->
-        //                createSchema(session)
-        //                insertFromJson(session)
-        //                selectToJson(session)
-        //            }
-
         val session = CqlSessionProvider.getOrCreateSession(
             "jackson_examples",
             { newCqlSessionBuilder() }

@@ -1,11 +1,10 @@
 package io.bluetape4k.rule.support
 
+import io.bluetape4k.assertions.shouldBeFalse
+import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.rule.api.Facts
 import io.bluetape4k.rule.core.rule
-import io.bluetape4k.assertions.shouldBeFalse
-import io.bluetape4k.assertions.shouldBeTrue
-import io.bluetape4k.assertions.shouldNotBeNull
 import org.junit.jupiter.api.Test
 
 class ActivationRuleGroupTest {
@@ -36,7 +35,7 @@ class ActivationRuleGroupTest {
         group.evaluate(facts).shouldBeTrue()
         group.execute(facts)
         facts.containsKey("rule1").shouldBeFalse()
-        facts.get<Boolean>("rule2").shouldNotBeNull().shouldBeTrue()
+        facts.get<Boolean>("rule2").shouldBeTrue()
     }
 
     @Test

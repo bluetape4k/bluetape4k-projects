@@ -4,7 +4,8 @@ import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeFalse
 import io.bluetape4k.assertions.shouldBeGreaterThan
 import io.bluetape4k.assertions.shouldBeLessThan
-import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.assertions.shouldBeNull
+import io.bluetape4k.assertions.shouldNotBeEmpty
 import io.bluetape4k.assertions.shouldNotBeNull
 import io.bluetape4k.jwt.AbstractJwtTest
 import io.bluetape4k.jwt.provider.JwtProviderFactory
@@ -54,8 +55,7 @@ class JwtReaderExpirationTest: AbstractJwtTest() {
         }
 
         val reader = provider.parse(jwt)
-        reader.expiresAtMillis.shouldNotBeNull()
-        reader.expiresAtMillis!! shouldBeGreaterThan System.currentTimeMillis()
+        reader.expiresAtMillis.shouldNotBeNull() shouldBeGreaterThan System.currentTimeMillis()
     }
 
     @Test
@@ -80,14 +80,13 @@ class JwtReaderExpirationTest: AbstractJwtTest() {
         }
 
         val reader = provider.parse(jwt)
-        reader.kid.shouldNotBeNull()
-        reader.kid!! shouldBeGreaterThan ""
+        reader.kid.shouldNotBeEmpty()
     }
 
     @Test
     fun `tryParse - 잘못된 JWT 문자열은 null 을 반환한다`() {
         val result = provider.tryParse("invalid.jwt.string")
-        (result == null).shouldBeTrue()
+        result.shouldBeNull()
     }
 
     @Test

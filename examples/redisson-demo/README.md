@@ -34,20 +34,20 @@ A collection of examples demonstrating distributed Redis patterns using [Redisso
 
 ### Collections (coroutines/collections/)
 
-| Example File                   | Description                              |
-|--------------------------------|------------------------------------------|
-| `QueueExamples.kt`             | RQueue - distributed queue               |
-| `DequeExamples.kt`             | RDeque - distributed deque               |
-| `BlockingDequeExamples.kt`     | RBlockingDeque - blocking deque          |
-| `ReliableQueueExamples.kt`     | RReliableQueue - reliable queue          |
-| `PriorityQueueExamples.kt`     | RPriorityQueue - priority queue          |
-| `ScoredSortedSetExamples.kt`   | RScoredSortedSet - scored sorted set     |
-| `SortedSetExamples.kt`         | RSortedSet - sorted set                  |
-| `RingBufferExamples.kt`        | RRingBuffer - ring buffer                |
-| `StreamExamples.kt`            | RStream - Redis Streams                  |
+| Example File                   | Description                                                     |
+|--------------------------------|-----------------------------------------------------------------|
+| `QueueExamples.kt`             | RQueue - distributed queue                                      |
+| `DequeExamples.kt`             | RDeque - distributed deque                                      |
+| `BlockingDequeExamples.kt`     | RBlockingDeque - blocking deque                                 |
+| `ReliableQueueExamples.kt`     | RReliableQueue - reliable queue                                 |
+| `PriorityQueueExamples.kt`     | RPriorityQueue - priority queue                                 |
+| `ScoredSortedSetExamples.kt`   | RScoredSortedSet - scored sorted set                            |
+| `SortedSetExamples.kt`         | RSortedSet - sorted set                                         |
+| `RingBufferExamples.kt`        | RRingBuffer - ring buffer                                       |
+| `StreamExamples.kt`            | RStream - Redis Streams                                         |
 | `LocalCachedMapExamples.kt`    | RLocalCachedMap - numeric atomic updates and local invalidation |
-| `SetMultimapCacheExamples.kt`  | RSetMultimapCache - set multimap cache   |
-| `ListMultimapCacheExamples.kt` | RListMultimapCache - list multimap cache |
+| `SetMultimapCacheExamples.kt`  | RSetMultimapCache - set multimap cache                          |
+| `ListMultimapCacheExamples.kt` | RListMultimapCache - list multimap cache                        |
 
 ### Cache Strategies (coroutines/cachestrategy/)
 
@@ -112,18 +112,10 @@ val exists = bloomFilter.contains("user@example.com")  // true
 
 ### LocalCachedMap numeric updates and invalidation
 
-`LocalCachedMapExamples.kt` keeps Int and Double values in separate maps and
-passes the same `CompositeCodec` (String keys plus the matching numeric value
-codec) to both the local and backend views. `addAndGetAsync` uses Redis
-`HINCRBYFLOAT`, so the stored hash field must already be numeric-compatible;
-the negative test records Redisson's `RedisException` for a mismatched value.
+`LocalCachedMapExamples.kt` keeps Int and Double values in separate maps and passes the same `CompositeCodec` (String keys plus the matching numeric value codec) to both the local and backend views. `addAndGetAsync` uses Redis
+`HINCRBYFLOAT`, so the stored hash field must already be numeric-compatible; the negative test records Redisson's `RedisException` for a mismatched value.
 
-`LocalCachedMapTest.kt` uses two Redisson clients. A write through one local
-cached map invalidates the other client's cached value asynchronously. A read
-immediately after the write may still observe the old value; the example waits
-up to five seconds with a 100 ms poll interval before asserting the refreshed
-value or deletion. The tests start Redis through Testcontainers, use its dynamic
-port, and therefore require a running Docker daemon.
+`LocalCachedMapTest.kt` uses two Redisson clients. A write through one local cached map invalidates the other client's cached value asynchronously. A read immediately after the write may still observe the old value; the example waits up to five seconds with a 100 ms poll interval before asserting the refreshed value or deletion. The tests start Redis through Testcontainers, use its dynamic port, and therefore require a running Docker daemon.
 
 ## How to Run
 

@@ -1,10 +1,10 @@
 package io.bluetape4k.pulsar.reader
 
-import io.bluetape4k.coroutines.support.awaitSuspending
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.future.await
 import kotlinx.coroutines.isActive
 import org.apache.pulsar.client.api.Message
 import org.apache.pulsar.client.api.Reader
@@ -21,7 +21,7 @@ import org.apache.pulsar.client.api.Reader
  * @throws org.apache.pulsar.client.api.PulsarClientException 브로커 오류 시
  */
 suspend fun <T> Reader<T>.readNextSuspend(): Message<T> =
-    readNextAsync().awaitSuspending()
+    readNextAsync().await()
 
 /**
  * `hasMessageAvailable()`이 true인 동안 메시지를 읽는 [Flow]를 반환합니다.
@@ -43,7 +43,7 @@ fun <T> Reader<T>.readAsFlow(): Flow<Message<T>> = flow {
     while (currentCoroutineContext().isActive && hasMessageAvailable()) {
         val future = readNextAsync()
         try {
-            emit(future.awaitSuspending())
+            emit(future.await())
         } catch (ce: CancellationException) {
             future.cancel(true)
             throw ce

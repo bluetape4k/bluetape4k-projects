@@ -1,14 +1,16 @@
 package io.bluetape4k.io.serializer
 
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.assertions.shouldNotBeNull
+import io.bluetape4k.logging.KLogging
 import org.junit.jupiter.api.Test
 import untrusted.payload.UntrustedPayload
+import java.io.ByteArrayInputStream
 import java.io.InvalidClassException
 import java.io.ObjectInputFilter
-import io.bluetape4k.assertions.assertFailsWith
+import java.io.ObjectInputStream
 
 /**
  * [JdkBinarySerializer]의 보안 기능 — [ObjectInputFilter] 적용 — 검증 테스트.
@@ -60,7 +62,6 @@ class JdkBinarySerializerSecurityTest {
         val value = listOf(1, 2, 3)
         val bytes = serializer.serialize(value)
         val restored = serializer.deserialize<List<Int>>(bytes)
-        restored.shouldNotBeNull()
         restored shouldBeEqualTo value
     }
 
@@ -110,7 +111,7 @@ class JdkBinarySerializerSecurityTest {
         val bytes = serializer1.serialize(value)
 
         // 두 serializer 모두 동일한 필터를 사용하므로 결과가 같아야 함
-        (serializer1.deserialize<String>(bytes) == serializer2.deserialize<String>(bytes)).shouldBeTrue()
+        serializer1.deserialize<String>(bytes) shouldBeEqualTo serializer2.deserialize(bytes)
     }
 
     @Test
@@ -132,7 +133,7 @@ class JdkBinarySerializerSecurityTest {
 
     @Test
     fun `JDK_DEFAULT_OBJECT_INPUT_FILTER 직접 호출시 UntrustedPayload 를 REJECTED 로 판정한다`() {
-        val info = object : ObjectInputFilter.FilterInfo {
+        val info = object: ObjectInputFilter.FilterInfo {
             override fun serialClass() = UntrustedPayload::class.java
             override fun arrayLength() = -1L
             override fun depth() = 1L
@@ -151,10 +152,10 @@ class JdkBinarySerializerSecurityTest {
             java.io.ObjectOutputStream(bos).use { it.writeObject(payload) }
         }.toByteArray()
 
-        val ois = java.io.ObjectInputStream(java.io.ByteArrayInputStream(bytes))
+        val ois = ObjectInputStream(ByteArrayInputStream(bytes))
         ois.setObjectInputFilter(JDK_DEFAULT_OBJECT_INPUT_FILTER)
 
-        assertFailsWith<java.io.InvalidClassException>("setObjectInputFilter 로 적용한 필터가 readObject 에서 거부해야 한다") {
+        assertFailsWith<InvalidClassException>("setObjectInputFilter 로 적용한 필터가 readObject 에서 거부해야 한다") {
             ois.readObject()
         }
     }
@@ -167,9 +168,9 @@ class JdkBinarySerializerSecurityTest {
             java.io.ObjectOutputStream(bos).use { it.writeObject(payload) }
         }.toByteArray()
 
-        assertFailsWith<java.io.InvalidClassException>("apply+use 패턴에서도 필터가 readObject 에서 거부해야 한다") {
-            java.io.ByteArrayInputStream(bytes).use { bis ->
-                java.io.ObjectInputStream(bis).apply {
+        assertFailsWith<InvalidClassException>("apply+use 패턴에서도 필터가 readObject 에서 거부해야 한다") {
+            ByteArrayInputStream(bytes).use { bis ->
+                ObjectInputStream(bis).apply {
                     setObjectInputFilter(JDK_DEFAULT_OBJECT_INPUT_FILTER)
                 }.use { ois ->
                     ois.readObject()
@@ -177,7 +178,6 @@ class JdkBinarySerializerSecurityTest {
             }
         }
     }
-
 
     @Test
     fun `JDK_DEFAULT_OBJECT_INPUT_FILTER 는 허용 목록 외 패키지 클래스를 거부한다`() {

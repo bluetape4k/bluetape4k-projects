@@ -1,13 +1,14 @@
 package io.bluetape4k.cache.nearcache
 
-import io.bluetape4k.junit5.coroutines.runSuspendIO
-import io.lettuce.core.codec.StringCodec
-import kotlinx.coroutines.test.runTest
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeFalse
 import io.bluetape4k.assertions.shouldBeNull
 import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.assertions.shouldNotBeNull
+import io.bluetape4k.codec.Base58
+import io.bluetape4k.junit5.coroutines.runSuspendIO
+import io.lettuce.core.codec.StringCodec
+import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -26,6 +27,7 @@ import org.junit.jupiter.api.Test
  * - 동기/비동기 캐시 혼합 사용 시에도 격리 보장
  */
 class LettuceNearCacheIsolationTest: AbstractLettuceNearCacheTest() {
+
     // ---- 동기 캐시 인스턴스 3개 ----
     private lateinit var cacheA: LettuceNearCache<String>
     private lateinit var cacheB: LettuceNearCache<String>
@@ -59,7 +61,7 @@ class LettuceNearCacheIsolationTest: AbstractLettuceNearCacheTest() {
 
     @Test
     fun `동일 key 이름을 서로 다른 cacheName에 저장하면 독립적으로 관리된다`() {
-        val key = "shared-key-name"
+        val key = "shared-key-name" + Base58.randomString(8)
 
         cacheA.put(key, "value-from-A")
         cacheB.put(key, "value-from-B")
@@ -77,7 +79,7 @@ class LettuceNearCacheIsolationTest: AbstractLettuceNearCacheTest() {
 
     @Test
     fun `한 캐시에서 remove해도 다른 캐시의 동일 key는 유지된다`() {
-        val key = "key-to-remove"
+        val key = "key-to-remove" + Base58.randomString(8)
 
         cacheA.put(key, "from-A")
         cacheB.put(key, "from-B")
@@ -178,7 +180,7 @@ class LettuceNearCacheIsolationTest: AbstractLettuceNearCacheTest() {
 
     @Test
     fun `key에 콜론이 포함되어도 정상 동작한다`() {
-        val key = "user:123:profile"
+        val key = "user:123:profile" + Base58.randomString(8)
 
         cacheA.put(key, "alice")
         cacheB.put(key, "bob")
@@ -200,7 +202,7 @@ class LettuceNearCacheIsolationTest: AbstractLettuceNearCacheTest() {
 
     @Test
     fun `동기 캐시와 코루틴 캐시가 동일 key 이름으로 독립 동작한다`() = runTest {
-        val key = "mixed-key"
+        val key = "mixed-key" + Base58.randomString(8)
 
         cacheA.put(key, "sync-value")
         suspendCacheX.put(key, "suspend-value")
@@ -232,7 +234,7 @@ class LettuceNearCacheIsolationTest: AbstractLettuceNearCacheTest() {
 
     @Test
     fun `코루틴 캐시 동일 key - 서로 독립적으로 관리된다`() = runTest {
-        val key = "common-key"
+        val key = "common-key" + Base58.randomString(8)
 
         suspendCacheX.put(key, "x-value")
         suspendCacheY.put(key, "y-value")

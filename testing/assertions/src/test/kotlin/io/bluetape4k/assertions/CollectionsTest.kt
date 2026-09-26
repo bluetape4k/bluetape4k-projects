@@ -1,6 +1,5 @@
 package io.bluetape4k.assertions
 
-import io.bluetape4k.assertions.assertFailsWith
 import org.junit.jupiter.api.Test
 import org.opentest4j.AssertionFailedError
 
@@ -75,6 +74,26 @@ class CollectionsTest {
     fun `shouldNotContain passes when collection is null`() {
         val c: Iterable<Int>? = null
         c shouldNotContain 1
+    }
+
+    // ── shouldNotContainIgnoringCase ────────────────────────────────────────
+
+    @Test
+    fun `shouldNotContainIgnoringCase fail when element is not in the collection`() {
+        listOf("GET", "Post", "delete") shouldNotContainIgnoringCase "PUT"
+    }
+
+    @Test
+    fun `shouldNotContainIgnoringCase fails when element matches ignoring case`() {
+        assertFailsWith<AssertionFailedError> {
+            listOf("GET", "POST") shouldNotContainIgnoringCase "post"
+        }
+    }
+
+    @Test
+    fun `shouldNotContainIgnoringCase pass when collection is null`() {
+        val c: Iterable<String>? = null
+        c shouldNotContainIgnoringCase "get"
     }
 
     // ── shouldContainAll ──────────────────────────────────────────────────

@@ -1,7 +1,5 @@
 package io.bluetape4k.science.exposed.schema
 
-import com.fasterxml.jackson.core.type.TypeReference
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import io.bluetape4k.science.exposed.model.NetCdfImportStatus
 import io.bluetape4k.science.exposed.model.NetCdfVariableInfo
 import io.bluetape4k.science.exposed.support.geoPoint
@@ -10,6 +8,8 @@ import org.jetbrains.exposed.v1.core.dao.id.LongIdTable
 import org.jetbrains.exposed.v1.javatime.CurrentTimestamp
 import org.jetbrains.exposed.v1.javatime.timestamp
 import org.jetbrains.exposed.v1.json.jsonb
+import tools.jackson.module.kotlin.jacksonObjectMapper
+import tools.jackson.module.kotlin.readValue
 
 private val netcdfMapper = jacksonObjectMapper()
 
@@ -50,21 +50,24 @@ object NetCdfFileTable: LongIdTable("netcdf_files") {
     val fileSize = long("file_size").default(0L)
 
     /** NetCDF 변수 목록 (JSONB) */
-    val variables = jsonb<List<NetCdfVariableInfo>>("variables",
+    val variables = jsonb(
+        "variables",
         { netcdfMapper.writeValueAsString(it) },
-        { netcdfMapper.readValue(it, object: TypeReference<List<NetCdfVariableInfo>>() {}) }
+        { netcdfMapper.readValue<List<NetCdfVariableInfo>>(it) }
     )
 
     /** 차원 이름-크기 매핑 (JSONB) */
-    val dimensions = jsonb<Map<String, Int>>("dimensions",
+    val dimensions = jsonb(
+        "dimensions",
         { netcdfMapper.writeValueAsString(it) },
-        { netcdfMapper.readValue(it, object: TypeReference<Map<String, Int>>() {}) }
+        { netcdfMapper.readValue<Map<String, Int>>(it) }
     )
 
     /** 전역 속성 (JSONB) */
-    val globalAttrs = jsonb<Map<String, String>>("global_attrs",
+    val globalAttrs = jsonb(
+        "global_attrs",
         { netcdfMapper.writeValueAsString(it) },
-        { netcdfMapper.readValue(it, object: TypeReference<Map<String, String>>() {}) }
+        { netcdfMapper.readValue<Map<String, String>>(it) }
     )
 
     /** 공간 경계 폴리곤 (PostGIS POLYGON, 선택) */
@@ -122,9 +125,10 @@ object NetCdfGridValueTable: LongIdTable("netcdf_grid_values") {
     val value = double("value")
 
     /** 부가 속성 (JSONB, 선택) */
-    val attrs = jsonb<Map<String, Any?>>("attrs",
+    val attrs = jsonb(
+        "attrs",
         { netcdfMapper.writeValueAsString(it) },
-        { netcdfMapper.readValue(it, object: TypeReference<Map<String, Any?>>() {}) }
+        { netcdfMapper.readValue<Map<String, Any?>>(it) }
     ).nullable()
 }
 
@@ -145,8 +149,8 @@ object NetCdfGridValueIndexes {
      */
     const val DDL_UNIQUE_FULL: String =
         "CREATE UNIQUE INDEX IF NOT EXISTS uk_netcdf_grid_values_full " +
-            "ON netcdf_grid_values (file_id, variable_name, time_idx, level_idx, MD5(ST_AsBinary(location))) " +
-            "WHERE location IS NOT NULL"
+                "ON netcdf_grid_values (file_id, variable_name, time_idx, level_idx, MD5(ST_AsBinary(location))) " +
+                "WHERE location IS NOT NULL"
 
     /**
      * `(file_id, variable_name, time_idx, level_idx)` partial unique index DDL.
@@ -155,8 +159,8 @@ object NetCdfGridValueIndexes {
      */
     const val DDL_UNIQUE_NULLOC: String =
         "CREATE UNIQUE INDEX IF NOT EXISTS uk_netcdf_grid_values_nulloc " +
-            "ON netcdf_grid_values (file_id, variable_name, time_idx, level_idx) " +
-            "WHERE location IS NULL"
+                "ON netcdf_grid_values (file_id, variable_name, time_idx, level_idx) " +
+                "WHERE location IS NULL"
 }
 
 /**

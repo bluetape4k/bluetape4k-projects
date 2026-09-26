@@ -4,6 +4,7 @@ import io.bluetape4k.logging.KLogging
 import io.bluetape4k.support.uninitialized
 import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.FlowCollector
 
@@ -160,7 +161,7 @@ class ResumableCollector<T>: Resumable() {
         coroutineScope {
             try {
                 while (true) {
-                    coroutineContext.ensureActive()
+                    currentCoroutineContext().ensureActive()
                     readyConsumer()
                     awaitSignal()
 
@@ -169,7 +170,7 @@ class ResumableCollector<T>: Resumable() {
                         value = uninitialized()
                         hasValue.value = false
 
-                        coroutineContext.ensureActive()
+                        currentCoroutineContext().ensureActive()
                         collector.emit(v)
                     }
 
