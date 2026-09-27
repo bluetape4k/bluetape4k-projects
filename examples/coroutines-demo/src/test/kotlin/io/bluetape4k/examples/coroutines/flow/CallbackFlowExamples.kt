@@ -86,6 +86,7 @@ class CallbackFlowExamples {
     companion object: KLoggingChannel() {
         private const val DIAGNOSTICS_DIRECTORY_PROPERTY = "bluetape4k.testcontainers.diagnostics.dir"
         private const val MAX_RAW_LOG_BYTES = 2_000_000
+        private const val MAX_DOCKER_INSPECT_OUTPUT_BYTES = 4_096
         private val KAFKA_IMAGE_REF = DockerImageName.parse(KafkaServer.IMAGE + ":" + KafkaServer.TAG).toString()
     }
 
@@ -748,6 +749,8 @@ class CallbackFlowExamples {
     @Test
     fun `failure diagnostics export a bounded pre-cleanup broker log`(@TempDir tempDir: Path) {
         val containerId = "a".repeat(12)
+        val imageDigest =
+            "confluentinc/cp-kafka@sha256:a5040785528b0bce3b146febe9fcacdcf2b9b5acb450307f75170ef0e60ec130"
 
         writeKafkaFailureDiagnostics(
             containerId = containerId,
@@ -756,6 +759,7 @@ class CallbackFlowExamples {
             name = "callback-flow-kafka",
             image = KAFKA_IMAGE_REF,
             imageId = "sha256:${"b".repeat(64)}",
+            imageDigest = imageDigest,
             created = "2026-08-30T00:00:00Z",
         )
 
@@ -767,8 +771,25 @@ class CallbackFlowExamples {
         Files.readString(metadata).let { receipt ->
             log.debug { "receipt=$receipt" }
             receipt shouldContain "id=$containerId"
+            receipt shouldContain "image=$imageDigest"
             receipt shouldContain "image_id=sha256:${"b".repeat(64)}"
+            receipt shouldContain "image_digest=$imageDigest"
             receipt shouldContain "created=2026-08-30T00:00:00Z"
+        }
+    }
+
+    @Test
+    fun `Kafka image inspect output resolves only an immutable repository digest`() {
+        val digest =
+            "confluentinc/cp-kafka@sha256:a5040785528b0bce3b146febe9fcacdcf2b9b5acb450307f75170ef0e60ec130"
+
+        parseKafkaImageDigest("confluentinc/cp-kafka:7.5.16\n$digest\n") shouldBeEqualTo digest
+
+        assertFailsWith<IllegalArgumentException> {
+            parseKafkaImageDigest("confluentinc/cp-kafka:7.5.16\n")
+        }
+        assertFailsWith<IllegalArgumentException> {
+            parseKafkaImageDigest("$digest\nconfluentinc/cp-kafka@sha256:${"c".repeat(64)}\n")
         }
     }
 
@@ -811,9 +832,12 @@ class CallbackFlowExamples {
                 val receipt = Files.readString(diagnosticsDirectory.resolve("$containerId.metadata"))
 
                 receipt shouldContain "id=$containerId"
-                receipt shouldContain "image=${broker.dockerImageName}"
                 receipt shouldContain "image_id=${broker.containerInfo.imageId}"
                 receipt shouldContain "created=${broker.containerInfo.created}"
+                val image = receipt.lineSequence().first { it.startsWith("image=") }.substringAfter('=')
+                val imageDigest = receipt.lineSequence().first { it.startsWith("image_digest=") }.substringAfter('=')
+                image.startsWith("confluentinc/cp-kafka@sha256:").shouldBeTrue()
+                image shouldBeEqualTo imageDigest
 
                 Files.size(diagnosticsDirectory.resolve("$containerId.log")).shouldBeIn(1..MAX_RAW_LOG_BYTES.toLong())
             } finally {
@@ -865,6 +889,43 @@ class CallbackFlowExamples {
         }
     }
 
+    private suspend fun readBoundedKafkaImageDigest(imageId: String): String = withTimeout(10.seconds) {
+        require(imageId.matches(Regex("sha256:[0-9a-fA-F]{64}"))) { "Invalid image ID" }
+        val output = runInterruptible(Dispatchers.IO) {
+            val process = ProcessBuilder(
+                "docker",
+                "image",
+                "inspect",
+                "--format",
+                "{{range .RepoDigests}}{{println .}}{{end}}",
+                imageId,
+            ).redirectErrorStream(true).start()
+            try {
+                val bytes = process.inputStream.use { it.readNBytes(MAX_DOCKER_INSPECT_OUTPUT_BYTES + 1) }
+                val truncated = bytes.size > MAX_DOCKER_INSPECT_OUTPUT_BYTES
+                if (truncated) process.destroyForcibly()
+                val exitCode = process.waitFor()
+                check(!truncated && exitCode == 0) { "docker image inspect failed" }
+                bytes.toString(Charsets.UTF_8)
+            } finally {
+                if (process.isAlive) process.destroyForcibly()
+            }
+        }
+        parseKafkaImageDigest(output)
+    }
+
+    private fun parseKafkaImageDigest(output: String): String {
+        val repoDigestPattern = Regex("(?:docker\\.io/)?confluentinc/cp-kafka@sha256:[0-9a-fA-F]{64}")
+        val repoDigests = output.lineSequence()
+            .map(String::trim)
+            .filter(repoDigestPattern::matches)
+            .map { it.removePrefix("docker.io/").lowercase() }
+            .distinct()
+            .toList()
+        require(repoDigests.size == 1) { "Expected one immutable Kafka repository digest" }
+        return repoDigests.single()
+    }
+
     private suspend fun writeKafkaFailureDiagnostics(broker: KafkaServer, outputDirectory: Path) {
         val info = broker.containerInfo
         writeKafkaFailureDiagnostics(
@@ -874,6 +935,7 @@ class CallbackFlowExamples {
             name = info.name.orEmpty().removePrefix("/"),
             image = broker.dockerImageName,
             imageId = info.imageId,
+            imageDigest = readBoundedKafkaImageDigest(info.imageId),
             created = info.created,
         )
     }
@@ -885,12 +947,16 @@ class CallbackFlowExamples {
         name: String,
         image: String,
         imageId: String,
+        imageDigest: String,
         created: String,
     ) {
         require(containerId.matches(Regex("[0-9a-fA-F]{12,64}"))) { "Invalid container ID" }
         require(name.matches(Regex("[a-zA-Z0-9][a-zA-Z0-9_.-]{0,127}"))) { "Invalid container name" }
         require(image == KAFKA_IMAGE_REF) { "Unexpected Kafka image" }
         require(imageId.matches(Regex("sha256:[0-9a-fA-F]{64}"))) { "Invalid image ID" }
+        require(imageDigest.matches(Regex("confluentinc/cp-kafka@sha256:[0-9a-f]{64}"))) {
+            "Invalid Kafka image digest"
+        }
         require(created.matches(Regex("[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9:.+-]+Z?"))) { "Invalid created time" }
 
         Files.createDirectories(outputDirectory)
@@ -902,9 +968,9 @@ class CallbackFlowExamples {
         val metadata = """
             id=$containerId
             name=$name
-            image=$image
+            image=$imageDigest
             image_id=$imageId
-            image_digest=$KAFKA_IMAGE_REF
+            image_digest=$imageDigest
             created=$created
         """.trimIndent() + "\n"
         require(!Files.exists(logTarget) && !Files.exists(metadataTarget)) {
