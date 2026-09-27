@@ -373,9 +373,10 @@ IllegalStateException: exception-secret
         raw_dir.mkdir(parents=True)
         raw_log = raw_dir / f"{CONTAINER_ID}.log"
         raw_log.write_text("token=secret\nKafkaServer started\n", encoding="utf-8")
-        image_digest = next(
-            digest for digest in diagnostics.ALLOWLIST if digest.startswith("confluentinc/cp-kafka@")
+        image_digest = (
+            "confluentinc/cp-kafka@sha256:bea85690affc276519dfc3c6bc21062d586b3ecd91867b21899782e113228cfc"
         )
+        self.assertIn(image_digest, diagnostics.ALLOWLIST)
         metadata = raw_dir / f"{CONTAINER_ID}.metadata"
         metadata.write_text(
             "\n".join(

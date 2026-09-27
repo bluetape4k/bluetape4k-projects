@@ -750,7 +750,7 @@ class CallbackFlowExamples {
     fun `failure diagnostics export a bounded pre-cleanup broker log`(@TempDir tempDir: Path) {
         val containerId = "a".repeat(12)
         val imageDigest =
-            "confluentinc/cp-kafka@sha256:a5040785528b0bce3b146febe9fcacdcf2b9b5acb450307f75170ef0e60ec130"
+            "confluentinc/cp-kafka@sha256:bea85690affc276519dfc3c6bc21062d586b3ecd91867b21899782e113228cfc"
 
         writeKafkaFailureDiagnostics(
             containerId = containerId,
@@ -781,7 +781,7 @@ class CallbackFlowExamples {
     @Test
     fun `Kafka image inspect output resolves only an immutable repository digest`() {
         val digest =
-            "confluentinc/cp-kafka@sha256:a5040785528b0bce3b146febe9fcacdcf2b9b5acb450307f75170ef0e60ec130"
+            "confluentinc/cp-kafka@sha256:bea85690affc276519dfc3c6bc21062d586b3ecd91867b21899782e113228cfc"
 
         parseKafkaImageDigest("confluentinc/cp-kafka:7.5.16\n$digest\n") shouldBeEqualTo digest
 
